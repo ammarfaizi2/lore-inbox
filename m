@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264096AbUEHTOu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264097AbUEHT1o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264096AbUEHTOu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 15:14:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264097AbUEHTOu
+	id S264097AbUEHT1o (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 15:27:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264102AbUEHT1o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 15:14:50 -0400
-Received: from bgp01360964bgs.sandia01.nm.comcast.net ([68.35.68.128]:19360
-	"EHLO orion.dwf.com") by vger.kernel.org with ESMTP id S264096AbUEHTOs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 15:14:48 -0400
-Message-Id: <200405081914.i48JE8Kt030260@orion.dwf.com>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4
-To: Fabiano Ramos <fabramos@bol.com.br>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       reg@orion.dwf.com
-Subject: Re: Love's book 
-In-Reply-To: Message from Fabiano Ramos <fabramos@bol.com.br> 
-   of "Fri, 07 May 2004 14:57:13 -0300." <1083952633.1431.47.camel@slack.domain.invalid> 
+	Sat, 8 May 2004 15:27:44 -0400
+Received: from fw.osdl.org ([65.172.181.6]:65252 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264097AbUEHT1n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 May 2004 15:27:43 -0400
+Date: Sat, 8 May 2004 12:27:08 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: manfred@colorfullife.com, davej@redhat.com, wli@holomorphy.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: dentry bloat.
+Message-Id: <20040508122708.676e124a.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0405081208330.3271@ppc970.osdl.org>
+References: <20040506200027.GC26679@redhat.com>
+	<20040506150944.126bb409.akpm@osdl.org>
+	<409B1511.6010500@colorfullife.com>
+	<20040508012357.3559fb6e.akpm@osdl.org>
+	<20040508022304.17779635.akpm@osdl.org>
+	<20040508031159.782d6a46.akpm@osdl.org>
+	<Pine.LNX.4.58.0405081019000.3271@ppc970.osdl.org>
+	<20040508120148.1be96d66.akpm@osdl.org>
+	<Pine.LNX.4.58.0405081208330.3271@ppc970.osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 08 May 2004 13:14:08 -0600
-From: reg@dwf.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi all.
+Linus Torvalds <torvalds@osdl.org> wrote:
+>
+> On Sat, 8 May 2004, Andrew Morton wrote:
+>  > 
+>  > I think we can simply take ->d_lock a bit earlier in __d_lookup.  That will
+>  > serialise against d_move(), fixing the problem which you mention, and also
+>  > makes d_movecount go away.
 > 
-> 	I am about to buy Robert Love's  "Linux Kernel Development" book, but a
-> I am quite unsure about whether this title is based on
-> 2.4 with some 2.6 info or is it a full-blown 2.6 book.
+>  If you do that, RCU basically loses most of it's meaning.
 > 
-> 	Can anyone help me (this include Mr. Love himself!)?
-> 
-> 	Sorry for any duplicated messages.
-> 
-Take a look at the description of the book at Amazon.com.
-Yep, 2.6.1, and discounts or used copies available.
--- 
-                                        Reg.Clemens
-                                        reg@dwf.com
+>  You'll be taking a lock for - and dirtying in the cache - every single
+>  dentry on the hash chain, which is pretty much guaranteed to be slower
+>  than just taking the dcache_lock _once_, even if that one jumps across 
+>  CPU's a lot.
 
+Can take the lock after comparing the hash and the parent?
 
+And if we recheck those after locking, d_movecount is unneeded?

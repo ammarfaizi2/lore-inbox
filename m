@@ -1,59 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287593AbSALWQq>; Sat, 12 Jan 2002 17:16:46 -0500
+	id <S287588AbSALWT0>; Sat, 12 Jan 2002 17:19:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287588AbSALWQg>; Sat, 12 Jan 2002 17:16:36 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:42247 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S287598AbSALWQ1>;
-	Sat, 12 Jan 2002 17:16:27 -0500
-Date: Sat, 12 Jan 2002 15:13:47 -0700
-From: yodaiken@fsmlabs.com
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, yodaiken@fsmlabs.com,
-        Rob Landley <landley@trommello.org>, Robert Love <rml@tech9.net>,
-        nigel@nrg.org, Andrew Morton <akpm@zip.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020112151347.A6981@hq.fsmlabs.com>
-In-Reply-To: <E16PTB7-0002rC-00@the-village.bc.nu> <3C409FB2.8D93354F@linux-m68k.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3C409FB2.8D93354F@linux-m68k.org>; from zippel@linux-m68k.org on Sat, Jan 12, 2002 at 09:42:26PM +0100
+	id <S287598AbSALWTQ>; Sat, 12 Jan 2002 17:19:16 -0500
+Received: from [206.46.170.237] ([206.46.170.237]:12419 "EHLO
+	pop010pub.verizon.net") by vger.kernel.org with ESMTP
+	id <S287588AbSALWTM>; Sat, 12 Jan 2002 17:19:12 -0500
+Reply-To: <owensjc@bellatlantic.net>
+From: "James C. Owens" <owensjc@bellatlantic.net>
+To: "'Matti Aarnio'" <matti.aarnio@zmailer.org>
+Cc: <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
+Subject: Re: O(1) scheduler ver H6 - more straightforward timeslice macros
+Date: Sat, 12 Jan 2002 17:18:50 -0500
+Message-ID: <000001c19bb7$20756710$0100a8c0@jcowens.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
+In-Reply-To: <20020112235945.G1914@mea-ext.zmailer.org>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 12, 2002 at 09:42:26PM +0100, Roman Zippel wrote:
-> Hi,
-> 
-> Alan Cox wrote:
-> 
-> > > Because the IRIX implementation sucks, every implementation has to suck?
-> > > Somehow I have the suspicion you're trying to discourage everyone from
-> > > even trying, because if he'd succeeded you'd loose a big chunk of
-> > > potential RTLinux customers.
-> > 
-> > Victor has had the same message for years, as have others like Larry McVoy
-> > (in fact if Larry and Victor agree on something its unusual enough to
-> >  remember). So I can vouch for the fact Victor hasn't changed his tune from
-> > before rtlinux was ever any real commercial toy. I think you owe him an
-> > apology.
-> 
-> Did I really say something that bad? I would be actually surprised, if
-> Victor wouldn't act in the best interest of his company. The other
-> possibility is that Victor must have had such a terrible experience with
-> IRIX, so that he thinks any attempts to add better soft realtime or even
-> hard realtime capabilities (not just as addon) must be doomed to fail.
+> -----Original Message-----
+> From: Matti Aarnio [mailto:matti.aarnio@zmailer.org]
+> Sent: Saturday, January 12, 2002 5:00 PM
+> To: James C. Owens
+> Cc: mingo@elte.hu; linux-kernel@vger.kernel.org
+> Subject: Re: O(1) scheduler ver H6 - more straightforward timeslice
+> macros
+>
+>
+> On Sat, Jan 12, 2002 at 02:16:08PM -0500, James C. Owens wrote:
+> > Ingo,
+> >
+> > I like the new scheduler. It seems like the timeslice
+> macros in sched.h
+> > could be more straighforward - i.e. instead of
+>
+>    (I quote too much, but to illustriate the point...)
+>
+> > #define PRIO_TO_TIMESLICE(p) \
+> >   (((
+> (MAX_USER_PRIO-1-USER_PRIO(p))*(MAX_TIMESLICE-MIN_TIMESLICE) + \
+> >      MAX_USER_PRIO-1) / MAX_USER_PRIO) + MIN_TIMESLICE)
+> >
+> > #define RT_PRIO_TO_TIMESLICE(p) \
+> >   ((( (MAX_RT_PRIO-(p)-1)*(MAX_TIMESLICE-MIN_TIMESLICE) + \
+> >      MAX_RT_PRIO-1) / MAX_RT_PRIO) + MIN_TIMESLICE)
+> >
+> > why not
+> >
+> > #define PRIO_TO_TIMESLICE(p) \
+> >   (MAX_TIMESLICE -
+> >    (USER_PRIO(p)/(MAX_USER_PRIO-1))*(MAX_TIMESLICE-MIN_TIMESLICE))
+> >
+> > #define RT_PRIO_TO_TIMESLICE(p) \
+> >   (MAX_TIMESLICE -
+> (p/(MAX_RT_PRIO-1))*(MAX_TIMESLICE-MIN_TIMESLICE))
+> >
+> >
+> > The second way seems simpler to me, and really illustrates
+> what you are
+> > doing in a more straightforward manner.
+>
+>    Except that the math is INTEGER, not floating-point,
+>    which means that this way you loose precission.
+>
+>    You HAVE TO do multiplications first, only then (finally)
+> the division.
+>
+>    Depending the value-spaces, small-enough value-spaces might be
+>    turnable into table mappings.  However that has lots of
+> dependencies
+>    in hardware architecture, e.g. memory access speeds, cache
+> pollution,
+>    speed of multiply/divide operations, etc.
+>
+>    If dividers/multipliers are constants, and powers of two, the math
+>    can happen with constant shifts, which are fast at all systems.
+>    If not, things get rather complicated.   (And thus a careless -1,
+>    or lack of one, may be costly.)
+>
+[snip]
+> /Matti Aarnio
+>
 
-Well, how about a third possibility - that I see a problem you have not
-seen and that you should try to argue on technical terms instead of psychoanlyzing
-me or looking for financial motives?
+Point well made. How about
 
+#define PRIO_TO_TIMESLICE(p) \
+  (MAX_TIMESLICE -
+((USER_PRIO(p)*(MAX_TIMESLICE-MIN_TIMESLICE))/(MAX_USER_PRIO-1)))
 
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
+#define RT_PRIO_TO_TIMESLICE(p) \
+  (MAX_TIMESLICE - ((p*(MAX_TIMESLICE-MIN_TIMESLICE))/(MAX_RT_PRIO-1)))
+
+If people agree with this, I'll submit a new diff (with the right options).
+
+Jim Owens
+
 

@@ -1,56 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317540AbSG2Rnh>; Mon, 29 Jul 2002 13:43:37 -0400
+	id <S317541AbSG2Rz0>; Mon, 29 Jul 2002 13:55:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317567AbSG2Rnh>; Mon, 29 Jul 2002 13:43:37 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:11904 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S317540AbSG2Rnf>;
-	Mon, 29 Jul 2002 13:43:35 -0400
-Date: Mon, 29 Jul 2002 17:47:34 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Andrew Rodland <arodland@noln.com>
-Cc: "David D. Hagood" <wowbagger@sktc.net>, linux-kernel@vger.kernel.org
-Subject: Re: Speaker twiddling [was: Re: Panicking in morse code]
-Message-ID: <20020729174734.B38@toy.ucw.cz>
-References: <20020727000005.54da5431.arodland@noln.com> <200207270526.g6R5Qw942780@saturn.cs.uml.edu> <20020727015703.21f47a37.arodland@noln.com> <3D4298C6.9080103@sktc.net> <20020727114509.0a1eee2a.arodland@noln.com>
+	id <S317591AbSG2Rz0>; Mon, 29 Jul 2002 13:55:26 -0400
+Received: from fed1mtao01.cox.net ([68.6.19.244]:42928 "EHLO
+	fed1mtao01.cox.net") by vger.kernel.org with ESMTP
+	id <S317541AbSG2RzZ>; Mon, 29 Jul 2002 13:55:25 -0400
+Date: Mon, 29 Jul 2002 11:15:37 -0700
+From: Matt Porter <porter@cox.net>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@lists.linuxppc.org
+Subject: Re: 3 Serial issues up for discussion (was: Re: Serial core problems on embedded PPC)
+Message-ID: <20020729111537.A1420@home.com>
+References: <20020729181702.E25451@flint.arm.linux.org.uk> <20020729174341.GA12964@opus.bloom.county>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20020727114509.0a1eee2a.arodland@noln.com>; from arodland@noln.com on Sat, Jul 27, 2002 at 11:45:09AM -0400
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020729174341.GA12964@opus.bloom.county>; from trini@kernel.crashing.org on Mon, Jul 29, 2002 at 10:43:41AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > I don't understand the direction this discussion is taking.
-> > 
-> > Either you are trying to output the panic information with minimal 
-> > hardware, and in a form a human might be able to decode, in which case
-> > the Morse option seems to me to be the best, or you are trying to
-> > panic in a machine readable format - in which case just dump the data
-> > out /dev/ttyS0 and be done with it!
-> > 
-> > To my way of thinking, the idea of the Morse option is that if an oops
-> > 
-> > happens when you are not expecting it, and you haven't set up any 
-> > equipment to help you, you still have a shot at getting the data.
+On Mon, Jul 29, 2002 at 10:43:41AM -0700, Tom Rini wrote:
+> 
+> On Mon, Jul 29, 2002 at 06:17:02PM +0100, Russell King wrote:
 > 
 > 
-> To my way of thinking, this is still 'minimal' -- it's just a different
-> minimum.
+> > 1. Serial port initialisation
+> > -----------------------------
+> >
+> > Firstly, one thing to bear in mind here is that, as Alan says "be nice
+> > to make sure it was much earlier".  I guess Alan's right, so we can get
+> > oopsen out of the the kernel relatively easily, even when we're using
+> > framebuffer consoles.
+> >
+> > I'm sure Alan will enlighten us with his specific reasons if required.
+> >
+> > There have been several suggestions around on how to fix this table:
+> >
+> > a. architectures provide a sub-module to 8250.c which contains the
+> >    per-port details, rather than a table in serial.h.  This would
+> >    ideally mean removing serial.h completely.  The relevant object
+> >    would be linked into 8250.c when 8250.c is built as a module.
 > 
-> It's the 'minimum' way to get the panic message out digitally, in such
-> a way that I might be able to recover it using a tape recorder or a
-> telephone. Actually, morse is probably that, but morse loses data and
-> doesn't have any redundancy.
+> I think this would work best.  On PPC this would allow us to change the
+> mess of include/asm-ppc/serial.h into a slightly cleaner Makefile
+> (especially if we do the automagic <platforms/platform.h> or
+> <asm/platform.h> bit that's been talked about in the past) magic and we
+> could use that object file as well in the bootwrapper as well.
 
-You don't need redundancy. You should just repeat message over and over
-and over and over and....
+I think this would be the cleanest method as well.  Especially when we
+recognize that the asm-ppc/serial.h situation will only get worse
+over time.  Every embedded PPC board designer has a unique location
+for his 16550 UART(s) and we just keep adding more preprocessor
+cruft for each port.  This should let us keep this board-specific
+info in our board port files...more abstraction=good.
 
-If you don't want morse to loose data, invent new codes for different
-parenthesis etc.
-								Pavel
+Regards,
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-
+Matt Porter
+porter@cox.net
+This is Linux Country. On a quiet night, you can hear Windows reboot.

@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129436AbRCPApg>; Thu, 15 Mar 2001 19:45:36 -0500
+	id <S129166AbRCOWnG>; Thu, 15 Mar 2001 17:43:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129440AbRCPAp0>; Thu, 15 Mar 2001 19:45:26 -0500
-Received: from femail17.sdc1.sfba.home.com ([24.0.95.144]:61622 "EHLO
-	femail17.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S129436AbRCPApT>; Thu, 15 Mar 2001 19:45:19 -0500
-Message-ID: <3AB163F4.EB7EF5E2@didntduck.org>
-Date: Thu, 15 Mar 2001 19:53:08 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Shane Y. Gibson" <sgibson@digitalimpact.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Oops 0000 and 0002 on dual PIII 750 2.4.2 SMP platform
-In-Reply-To: <3AB13120.AE7187B@digitalimpact.com>
+	id <S129197AbRCOWmz>; Thu, 15 Mar 2001 17:42:55 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11533 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129166AbRCOWmu>;
+	Thu, 15 Mar 2001 17:42:50 -0500
+Date: Thu, 15 Mar 2001 22:41:25 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: Art Boulatov <art@ksu.ru>, linux-kernel@vger.kernel.org
+Subject: Re: pivot_root & linuxrc problem
+Message-ID: <20010315224125.C7500@flint.arm.linux.org.uk>
+In-Reply-To: <3AB0C09A.1020505@ksu.ru> <Pine.LNX.4.33.0103152143320.928-100000@mikeg.weiden.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0103152143320.928-100000@mikeg.weiden.de>; from mikeg@wen-online.de on Thu, Mar 15, 2001 at 10:11:55PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Shane Y. Gibson" wrote:
+On Thu, Mar 15, 2001 at 10:11:55PM +0100, Mike Galbraith wrote:
+> On Thu, 15 Mar 2001, Art Boulatov wrote:
 > 
-> All,
+> > How can I "exec /sbin/init" from "/linuxrc", whatever it is,
+> > if "linuxrc" does not get PID=1?
+> >
+> > Actually, why does NOT "linuxrc" get PID=1?
 > 
-> I just compiled 2.4.2 and installed it on a otherwise stock
-> Redhat 7.0 platform.  The system is a SuperMicro PIIISME,
-> running dual PIII 750s, with 256 cache.  It appears that about
-> every 10 to 18 hours, the system is panicing, and freezing
-> up.  The first time, I got an oops 0000, the second time an
-> oops 0002.  Both crashes have occured only when the systems is
-> at 100% cpu utlization; processing several hundred MRTG
-> indexmaker operations.
-> 
-> I ran ksymoops on both outputs, and the results are pasted
-> below.  Note, I compiled the kernel without loadable module
-> support.  Please let me know if there is anything else I can
-> do/provide to help.  Unfortunately, the second didn't output
-> enough for ksymoops to extract anything usefull.
-> 
-> v/r
-> Shane
-> 
-> Code;  00000000 Before first symbol
->    0:   0f 0b                     ud2a
+> That's the question.. the first task started gets pid=1, and when
+> that is true, exec /sbin/init has no problem.  What else is your
+> system starting?.. it must be starting something.
 
-There should be a line just before the oops saying "kernel BUG at..."
+Linux always forks from PID1 before executing /linuxrc automagically.
+Check init/main.c.
 
 --
-					Brian Gerst
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,73 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265928AbUAKSTw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 13:19:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265934AbUAKSTw
+	id S265943AbUAKSek (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 13:34:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265951AbUAKSek
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 13:19:52 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:11153 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265928AbUAKSTu (ORCPT
+	Sun, 11 Jan 2004 13:34:40 -0500
+Received: from smtprelay02.ispgateway.de ([62.67.200.157]:21934 "EHLO
+	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
+	id S265943AbUAKSej convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 13:19:50 -0500
-Date: Sun, 11 Jan 2004 19:19:32 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Joe Korty <joe.korty@ccur.com>
-Cc: Ethan Weinstein <lists@stinkfoot.org>, linux-kernel@vger.kernel.org,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: 2.6.1 and irq balancing
-Message-ID: <20040111181932.GA6192@devserv.devel.redhat.com>
-References: <40008745.4070109@stinkfoot.org> <1073814681.4431.5.camel@laptop.fenrus.com> <20040111165012.GA24746@tsunami.ccur.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
+	Sun, 11 Jan 2004 13:34:39 -0500
+From: sven kissner <sven.kissner@consistencies.net>
+To: Andries Brouwer <aebr@win.tue.nl>
+Subject: Re: logitech cordless desktop deluxe optical keyboard issues
+Date: Sun, 11 Jan 2004 19:37:33 +0100
+User-Agent: KMail/1.5.94
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+References: <UTC200401111358.i0BDwIM08113.aeb@smtp.cwi.nl> <200401111705.30788.sven.kissner@consistencies.net> <20040111163239.GA1955@win.tue.nl>
+In-Reply-To: <20040111163239.GA1955@win.tue.nl>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040111165012.GA24746@tsunami.ccur.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200401111937.41710.sven.kissner@consistencies.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---Qxx1br4bt0+wmkIi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Sunday 11 January 2004 17:32, Andries Brouwer wrote:
+> Hm, yes. What about this version?
 
-On Sun, Jan 11, 2004 at 11:50:12AM -0500, Joe Korty wrote:
-> On Sun, Jan 11, 2004 at 10:51:22AM +0100, Arjan van de Ven wrote:
-> > On Sun, 2004-01-11 at 00:14, Ethan Weinstein wrote:
-> > > Greetings all,
-> > >=20
-> > > I upgraded my server to 2.6.1, and I'm finding I'm saddled with only=
-=20
-> > > interrupting on CPU0 again. 2.6.0 does this as well. This is the=20
-> > > Supermicro X5DPL-iGM-O (E7501 chipset), 2 Xeons@2.4ghz HT enabled.=20
-> > > /proc/cpuinfo is normal as per HT, displaying 4 cpus.
-> >=20
-> > you should run the userspace irq balance daemon:
-> > http://people.redhat.com/arjanv/irqbalance/
->=20
-> I have long wondered what is so evil about most interrupts going to
-> CPU 0 that we felt we had to have a pair of irqdaemons in 2.6.
+i'm not a programmer and not quite sure what to do with it..  ;)
 
-well irqbalanced is a userspace balancer
-
-> Earlier APICs had a variation where the search for where each new
-> interrupt was to go started with first cpu after the one that got the
-> last interrupt.  If we call this 'round-robin' allocation, then today's
-> technique could be described as 'first fit'.
-
-if it's really busy it starves cpu0 ....=20
-
---Qxx1br4bt0+wmkIi
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
+sven
+- -- 
+..never argue with idiots. they drag you down to their level and beat you with 
+experience..
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFAAZOzxULwo51rQBIRAgFrAKCNVN2WD5zaK522JZTM4B/QAdjOowCfTcc7
-uvdOIKkZN4Fq/QJelPABOjY=
-=GmKk
+iD8DBQFAAZfxPV/e7f4i4AERAicGAJ44YxnCdKw0wrruiFYzD/mFnN3/QACfc+PR
+vXg64Mze6oF3PgAtTFvt2UU=
+=8bAR
 -----END PGP SIGNATURE-----
-
---Qxx1br4bt0+wmkIi--

@@ -1,60 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbUKGWlK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261701AbUKGWq0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261699AbUKGWlK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 17:41:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbUKGWlK
+	id S261701AbUKGWq0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 17:46:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261702AbUKGWqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 17:41:10 -0500
-Received: from fw.osdl.org ([65.172.181.6]:37255 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261699AbUKGWlG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 17:41:06 -0500
-Date: Sun, 7 Nov 2004 14:41:02 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Matt Domsch <Matt_Domsch@dell.com>
-cc: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: EFI partition code broken..
-In-Reply-To: <20041107215204.GB3169@lists.us.dell.com>
-Message-ID: <Pine.LNX.4.58.0411071434240.24286@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0411070959560.2223@ppc970.osdl.org>
- <Pine.LNX.4.58.0411071128240.24286@ppc970.osdl.org> <20041107215204.GB3169@lists.us.dell.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 7 Nov 2004 17:46:25 -0500
+Received: from mail2.epfl.ch ([128.178.50.133]:59654 "HELO mail2.epfl.ch")
+	by vger.kernel.org with SMTP id S261701AbUKGWqX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 17:46:23 -0500
+Date: Sun, 7 Nov 2004 23:46:21 +0100
+From: Gregoire Favre <Gregoire.Favre@freesurf.ch>
+To: linux-kernel@vger.kernel.org
+Subject: Why my computer freeze completely with xawtv ?
+Message-ID: <20041107224621.GB5360@magma.epfl.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
+I have spend lots of time to find why my computer keep crashing (hard).
 
-On Sun, 7 Nov 2004, Matt Domsch wrote:
->
-> Another train of thought, and copying gregkh for inspiration.  Is there
-> any way to know which devices lie about their size, and fix that with
-> quirk code in the device discovery routines?
+I was having a PIII@450 (don't remember the MB), then a PIV@2200 with a
+MSI Max2-BLR motherboard, and now I have an amd64@3000 on an MSI Neo
+K8T.
 
-The USB layer actually has some quirks like this, but I think that's a 
-bug waiting to happen.
+The gfx card with the PIII was a Matrox G400 and as it wasn't compatible
+with the PIV I changed it for a Matrox G550.
 
-The thing is, if you start doing quirks, you _are_ screwed in the end.  
-Don't do it. It's not just a maintenance nightmare, it's fundamentally
-wrong. It fundamentally takes the approach of "you have to have a kernel
-that is two years newer than the hardware you have", which is an approach 
-that I just find incredibly broken.
+I use DVB with VDR, but I can do the crash all the time without VDR, all
+I have to do is to have xawtv running and having a process that write
+fast enough data to an HD (I tested xfs, reiserfs, ext2 and ext3 with
+same result). If I don't have xawtv running I can't make crashing my
+system which is rock stable :-)
 
-Quirks work slightly better in practice for stuff that seldom changes,
-and/or where we have fairly good vendor support. So CPU's, for example,
-are largely ok with quirks (aka "errata"). But random regular devices?  
-Please no.
+I have tried to put my palm on serial to see if I could grab anything
+about the crash with appending 
+	nmi_watchdog=1 console=ttyS0,57600 console=tty0
+or with nmi_watchdog=2 but I don't receive anything.
 
-Side note: the USB storage stuff has historically had tons of quirks,
-largely because the SCSI layer used to do crap-all to try to be sane. The
-SCSI layer historically only cared about high-end devices, and then the
-USB storage model clashed pretty hard with the old SCSI layer belief that
-standards are something that people follow etc.
+The first problem appeared on my 2.2 kernels, and I have the same with
+2.6.9 which I put under http://magma.epfl.ch/greg/linux/2.6.9-config
 
-Happily, most of those quirks are hopefully stale these days, because the
-SCSI layer has been slowly converted to the idea that you don't use every
-documented feature under the sun just because it exists.
-
-So I'm trying to make for _fewer_ quirks rather than more of them.
-
-		Linus
+Please CC to me as I am not on this mailing list.
+-- 
+	Grégoire Favre
+________________________________________________________________________
+http://magma.epfl.ch/greg ICQ:16624071 mailto:Gregoire.Favre@freesurf.ch

@@ -1,41 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318926AbSICVbo>; Tue, 3 Sep 2002 17:31:44 -0400
+	id <S318935AbSICVm1>; Tue, 3 Sep 2002 17:42:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318935AbSICVbo>; Tue, 3 Sep 2002 17:31:44 -0400
-Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:24199 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S318926AbSICVbn>; Tue, 3 Sep 2002 17:31:43 -0400
-Date: Tue, 3 Sep 2002 22:35:03 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Luca Barbieri <ldb@ldb.ods.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@suse.cz>,
-       Linux-Kernel ML <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH 1 / ...] i386 dynamic fixup/self modifying code
-Message-ID: <20020903223503.B6848@kushida.apsleyroad.org>
-References: <1030506106.1489.27.camel@ldb> <20020828121129.A35@toy.ucw.cz> <1030663192.1326.20.camel@irongate.swansea.linux.org.uk> <1030663772.1491.107.camel@ldb>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1030663772.1491.107.camel@ldb>; from ldb@ldb.ods.org on Fri, Aug 30, 2002 at 01:29:32AM +0200
+	id <S318937AbSICVm1>; Tue, 3 Sep 2002 17:42:27 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:59028 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S318935AbSICVm0>;
+	Tue, 3 Sep 2002 17:42:26 -0400
+Message-ID: <3D752DA3.6030000@colorfullife.com>
+Date: Tue, 03 Sep 2002 23:46:11 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Andrew Morton <akpm@zip.com.au>
+CC: Terence Ripperda <TRipperda@nvidia.com>, linux-kernel@vger.kernel.org
+Subject: Re: lockup on Athlon systems, kernel race condition?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luca Barbieri wrote:
-> > For the other fixups though you -have- to do them before you
-> > run the code. That isnt hard (eg sparc btfixup). You generate a list of
-> > the addresses in a segment, patch them all and let the init freeup blow 
-> > the table away
-> Is doing them at runtime with the aforementioned workaround fine?
+> Terence Ripperda wrote:
+>> 
+>> ...
+>>
+>> asmlinkage long sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
+>> {
+>>         struct file * filp;
+>>         unsigned int flag;
+>>         int on, error = -EBADF;
+>> 
+>>         filp = fget(fd);
+>>         if (!filp)
+>>                 goto out;
+>>         error = 0;
+>>         lock_kernel();    <====
+Which compiler to you use, and which kernel? Which additional patches?
 
-I would suggest that the init time table is infinitely saner, but if
-there will be compiler generated instructions that are hard to catch, do
-both: init time fixups for the __asm__ statements, and run time for
-compiler generated instructions.
+With my 2.4.20-pre4-ac1 kernel, the lock_kernel is at offset +3a, 
+according to your dump it's at +6a.
 
-You really want the init time fixups anyway, because a really _really_
-obvious optimisation is to remove `lock' prefixes on UP.
+>>         switch (cmd) {
+> 
+> This CPU is spinning, waiting for kernel_flag.  It will take the IPI
+> and the other CPU's smp_call_function() will succeed.
+> 
+> Possibly the IPI has got lost - seems that this is a popular failure mode
+> for flakey chipsets/motherboards.
+> 
+> Or someone has called sys_ioctl() with interrupts disabled.  That's very
+> doubtful.
 
--- Jamie
+Is it possible to display the cpu registers with kdb? Could you check 
+that the interrupts are enabled?
+
+I'd add a quick test into sys_ioctl() or lock_kernel: save_flags, and 
+check that bit 9 is always enabled. Check __global_cli for sample code.
+The X server probably runs with enough priveledges to disable the 
+interrupts, perhaps it's doing something stupid.
+
+--
+	Manfred
+
+

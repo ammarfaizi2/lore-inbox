@@ -1,71 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270897AbTGPOzU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 10:55:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270898AbTGPOzT
+	id S270892AbTGPO46 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 10:56:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270898AbTGPOz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 10:55:19 -0400
-Received: from mail.eris.qinetiq.com ([128.98.1.1]:23076 "HELO
-	ns0.eris.dera.gov.uk") by vger.kernel.org with SMTP id S270897AbTGPOym
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 10:54:42 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Mark Watts <m.watts@eris.qinetiq.com>
-Organization: QinetiQ
-To: linux-kernel@vger.kernel.org
-Subject: Re: VESA Framebuffer dead in 2.6.0-test1
-Date: Wed, 16 Jul 2003 16:08:34 +0100
-User-Agent: KMail/1.4.3
-References: <200307161406.h6GE6iHt002041@sirius.nix.badanka.com>
-In-Reply-To: <200307161406.h6GE6iHt002041@sirius.nix.badanka.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200307161608.34637.m.watts@eris.qinetiq.com>
+	Wed, 16 Jul 2003 10:55:29 -0400
+Received: from host151.spe.iit.edu ([198.37.27.151]:8110 "EHLO
+	found.lostlogicx.com") by vger.kernel.org with ESMTP
+	id S270892AbTGPOyJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 10:54:09 -0400
+Date: Wed, 16 Jul 2003 10:09:01 -0500
+From: Brandon Low <lostlogic@gentoo.org>
+To: Julien <soda@gunnm.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM : touchpad doesn't work
+Message-ID: <20030716150901.GE8196@lostlogicx.com>
+References: <3F146DB2.1080204@gunnm.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="aM3YZ0Iwxop3KEKx"
+Content-Disposition: inline
+In-Reply-To: <3F146DB2.1080204@gunnm.org>
+X-Operating-System: Linux found.lostlogicx.com 2.4.20-pfeifer-r1_pre7
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
+--aM3YZ0Iwxop3KEKx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Hi.
->
-> A number of people have experienced the same problem as I have; the VESA
-> framebuffer is just..black on boot. I haven't seen any reports on this,
-> though. dmesg says what it always have said before about the fb.
->
-> I boot with vga=791 (as specified in lilo.conf).. Have something changed
-> or is it just broken? :o)
->
-> Thanks.
+The new touchpad code in the kernel (I have just learned, tested, and am
+now using) requires the new XFree driver available at:
+http://www.tuxmobile.com/touchpad_driver.html
+The latest version of the drivrer can be built outside of X source, or
+there are binaries available.  Included in the package are good docs on
+installation and use.  Important note:  for kernel 2.5.X > 70 the driver
+now uses the event interface, so make sure you configure your kernel
+with event interface support either on or as a module.
 
-I boot with vga=0x343 (1400x1050) and its working fine (2.6.0-test1)
+You can contact me directly for more info, or just search the web for
+more configuration information.
 
-This is a Dell Latitude C610 laptop, so it may be using the ati framebuffer 
-stuff, although I get this in dmesg:
+--Brandon
 
-vesafb: framebuffer at 0xe0000000, mapped to 0xd8800000, size 16384k
-vesafb: mode is 1400x1050x24, linelength=4200, pages=2
-vesafb: protected mode interface info at c000:5378
-vesafb: scrolling: redraw
-vesafb: directcolor: size=0:8:8:8, shift=0:16:8:0
-fb0: VESA VGA frame buffer device
-Console: switching to colour frame buffer device 175x65
+On Tue, 07/15/03 at 23:10:10 +0200, Julien wrote:
+> 1 . The touchpad of my laptop doesn't work with the 2.6 Linux kernel,=20
+> but works with the 2.5.70
+>=20
 
-Mark.
-
-- -- 
-Mark Watts
-Senior Systems Engineer
-QinetiQ TIM
-St Andrews Road, Malvern
-GPG Public Key ID: 455420ED
+--aM3YZ0Iwxop3KEKx
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQE/FWpyBn4EFUVUIO0RAjqwAJ43U2vmUw7kMFkoeIsdDLyxhAbLBQCgmMST
-LO8Pk8CAhCD0Uq/kuPd9hBo=
-=W+2A
+iD8DBQE/FWqMHCCPbR8BLcYRAob1AJ4ibvY5qoih2zL2O/hNdKctxYekFgCdE+dD
+sZauBR79EQ7oPqF15KzXUIA=
+=T8c2
 -----END PGP SIGNATURE-----
 
+--aM3YZ0Iwxop3KEKx--

@@ -1,31 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288238AbSAXRlI>; Thu, 24 Jan 2002 12:41:08 -0500
+	id <S288660AbSAXRnS>; Thu, 24 Jan 2002 12:43:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288660AbSAXRk5>; Thu, 24 Jan 2002 12:40:57 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:8974 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S288238AbSAXRkv>; Thu, 24 Jan 2002 12:40:51 -0500
-Date: Thu, 24 Jan 2002 09:40:30 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Pavel Machek <pavel@suse.cz>
-cc: Guillaume Boissiere <boissiere@mediaone.net>, linux-kernel@vger.kernel.org
-Subject: Re: [STATUS 2.5]  January 17, 2001
-In-Reply-To: <20020121123936.D37@toy.ucw.cz>
-Message-ID: <Pine.LNX.4.10.10201240937490.28447-100000@www.transvirtual.com>
+	id <S288696AbSAXRnI>; Thu, 24 Jan 2002 12:43:08 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18705 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288660AbSAXRnA>;
+	Thu, 24 Jan 2002 12:43:00 -0500
+Message-ID: <3C5047A2.1AB65595@mandrakesoft.com>
+Date: Thu, 24 Jan 2002 12:42:58 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux-Kernel list <linux-kernel@vger.kernel.org>
+Subject: RFC: booleans and the kernel
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+A small issue... 
 
-> Hi!
-> 
-> > o Planning Porting all input devices over to input API  (James Simmons)
-> 
-> Heh, it is merged in -dj kernels. Make this "ready".
+C99 introduced _Bool as a builtin type.  The gcc patch for it went into
+cvs around Dec 2000.  Any objections to propagating this type and usage
+of 'true' and 'false' around the kernel?
 
-Yeap!! I ask all maintainers that deal with keyboards please port over your 
-keyboad drivers over to the input API. In the near future the console system 
-will be moving to use only the input api. 
+Where variables are truly boolean use of a bool type makes the
+intentions of the code more clear.  And it also gives the compiler a
+slightly better chance to optimize code [I suspect].
 
+Actually I prefer 'bool' to '_Bool', if this becomes a kernel standard.
+
+	Jeff
+
+
+-- 
+Jeff Garzik      | "I went through my candy like hot oatmeal
+Building 1024    |  through an internally-buttered weasel."
+MandrakeSoft     |             - goats.com

@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277144AbRJDG65>; Thu, 4 Oct 2001 02:58:57 -0400
+	id <S277145AbRJDHE5>; Thu, 4 Oct 2001 03:04:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277145AbRJDG6r>; Thu, 4 Oct 2001 02:58:47 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:30729 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S277144AbRJDG6f>;
-	Thu, 4 Oct 2001 02:58:35 -0400
-Date: Thu, 4 Oct 2001 08:56:36 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Ben Greear <greearb@candelatech.com>, jamal <hadi@cyberus.ca>,
-        <linux-kernel@vger.kernel.org>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-        Robert Olsson <Robert.Olsson@data.slu.se>,
-        Benjamin LaHaise <bcrl@redhat.com>, <netdev@oss.sgi.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Simon Kirby <sim@netnation.com>
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-In-Reply-To: <Pine.LNX.3.96.1011004015444.25623C-100000@mandrakesoft.mandrakesoft.com>
-Message-ID: <Pine.LNX.4.33.0110040854410.2166-100000@localhost.localdomain>
+	id <S277146AbRJDHEs>; Thu, 4 Oct 2001 03:04:48 -0400
+Received: from dsl-45-169.muscanet.com ([208.164.45.169]:51720 "EHLO
+	dink.joshisanerd.com") by vger.kernel.org with ESMTP
+	id <S277145AbRJDHEk>; Thu, 4 Oct 2001 03:04:40 -0400
+Date: Thu, 4 Oct 2001 02:05:09 -0500 (CDT)
+From: Josh Myer <jbm@joshisanerd.com>
+To: linux-kernel@vger.kernel.org
+Subject: USB Event Daemon?
+Message-ID: <Pine.LNX.4.21.0110040158530.31009-100000@dignity.joshisanerd.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Thu, 4 Oct 2001, Jeff Garzik wrote:
+This might belong on linux-usb, but i'm not subscribed there, and I figure
+this is probably a better place to ask this question.
 
-> On Wed, 3 Oct 2001, Ben Greear wrote:
-> > That requires re-writing all the drivers, right?
->
-> NAPI? [...]
+Is there, or if there were, would it be used, a method to notify a
+user-space daemon/program of USB device insertions? A quick search through
+archives didn't show anything.
 
-Ben is talking about the long-planned "irq_action->handler() returns a
-code that indicates progress" approach Linus talked about. *that* needs
-the changing of every driver, since every IRQ handler prototype that is
-'void' now needs to be changed to return 'int'. (the change is trivial,
-but intrusive.)
+Basically, i've been spoiled by OSX's "Image Capture" utility, which
+launches an image offloader whenever i plug my camera into the USB port,
+automatically mounting it as a USB storage device. I'd like similiar
+functionality on my linux machine(s).
 
-	Ingo
+My first instinct is to look at the new input layer and see if this would
+fit into that scheme.
+
+Any thoughts, pointers, or flamage would be appreciated; i'm sub'd, but
+CCs are appreciated to help seperate signal and noise.
+
+Thanks in advance,
+-- 
+/jbm, but you can call me Josh. Really, you can.
+ "Design may be clever in spurts,
+  but evolution never sleeps"
+  -- Rob Landley
 

@@ -1,44 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274569AbRITRPp>; Thu, 20 Sep 2001 13:15:45 -0400
+	id <S274571AbRITRUf>; Thu, 20 Sep 2001 13:20:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274567AbRITRPa>; Thu, 20 Sep 2001 13:15:30 -0400
-Received: from mons.uio.no ([129.240.130.14]:54158 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S274568AbRITRPL>;
-	Thu, 20 Sep 2001 13:15:11 -0400
-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS daemons in D state for 2 minutes at shutdown
-In-Reply-To: <3531863216.20010920164639@port.imtp.ilyichevsk.odessa.ua>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 20 Sep 2001 19:15:21 +0200
-In-Reply-To: VDA's message of "Thu, 20 Sep 2001 16:46:39 +0300"
-Message-ID: <shswv2tpyvq.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S274572AbRITRUQ>; Thu, 20 Sep 2001 13:20:16 -0400
+Received: from discord.ws.crane.stargate.net ([216.151.124.71]:23779 "EHLO
+	discord") by vger.kernel.org with ESMTP id <S274571AbRITRUB>;
+	Thu, 20 Sep 2001 13:20:01 -0400
+Subject: Re: encrypted swap on loop in 2.4.10-pre12?
+From: "steve j. kondik" <shade@chemlab.org>
+To: Jari Ruusu <jari.ruusu@pp.inet.fi>
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <3BAA21B1.B579D368@pp.inet.fi>
+In-Reply-To: <1000912739.17522.2.camel@discord>
+	<3BA907F6.3586811C@pp.inet.fi> <20010920081353.H588@suse.de>
+	<3BA9DC30.DA46A008@pp.inet.fi>  <20010920142555.B588@suse.de>
+	<1000991848.569.1.camel@discord>  <3BAA21B1.B579D368@pp.inet.fi>
+X-Mailer: Evolution/0.13 (Preview Release)
+Date: 20 Sep 2001 13:20:25 -0400
+Message-Id: <1001006425.1498.9.camel@discord>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=_discord-29963-1001006426-0001-2"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == VDA  <VDA@port.imtp.ilyichevsk.odessa.ua> writes:
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-     > Hi NFS folks, I am still fighting witn nfsd/lockd not dying
-     > upon killall5.  (they are stuck in D state for 2 mins and then
-     > die with "rpciod: active tasks at shutdown?!" at console)
+--=_discord-29963-1001006426-0001-2
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-     > I found out that nfsd and lockd die as expected when I use
-     > modified killall5 which do not SIGSTOP all tasks before killing
-     > them.
+hmm?  both cryptoapi and loop-aes work just fine when encrypting
+anything but swap.  this is _only_ with kernel 2.4.10-pre12.  i would
+suspect something changed that breaks swap on loopdev in general in this
+kernel.
 
-     > Any idea why this makes such difference? Is this a bug in
-     > nfsd/lockd or in killall5?
+-steve
 
-killall5 is a bad idea as a method for killing nfsd/lockd. You are
-better off using something more targeted so you can ensure the correct
-ordering.
-If you kill the portmapper before the nfs/lockd daemons have finished
-unregistering their services then the above behaviour is completely
-normal.
+On Thu, 2001-09-20 at 13:04, Jari Ruusu wrote:
+> "steve j. kondik" wrote:
+> > loop-aes does not work to encrypt swap using 2.4.10-pre12.  the same
+> > panic results during mkswap.
+>=20
+> Did you remove _any_ of the kernel compile time generated files from kern=
+el
+> source tree? Some of those generated files are _required_ to correctly
+> compile modules.
+>=20
+> Regards,
+> Jari Ruusu <jari.ruusu@pp.inet.fi>
+>=20
+--=20
+http://chemlab.org  -  email shade-pgpkey@chemlab.org for pgp public key
+  chemlab radio!    -  drop out @ http://mp3.chemlab.org:8000   24-7-365
 
-Cheers,
-  Trond
+"i could build anything if i could just find my tools.."=09
+
+--=_discord-29963-1001006426-0001-2
+Content-Type: application/pgp-signature
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA7qiVZq7nxKnD1kxkRArfkAJ9XrGxFo9DCyAArfNb0NL6OmfmSKgCdE0YW
+WMNF6dCV10w9sO9iNHUxhwI=
+=wwCD
+-----END PGP SIGNATURE-----
+
+--=_discord-29963-1001006426-0001-2--

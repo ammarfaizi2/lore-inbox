@@ -1,48 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263751AbSJHUhg>; Tue, 8 Oct 2002 16:37:36 -0400
+	id <S261465AbSJHUyd>; Tue, 8 Oct 2002 16:54:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263725AbSJHUh3>; Tue, 8 Oct 2002 16:37:29 -0400
-Received: from packet.digeo.com ([12.110.80.53]:17131 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S263751AbSJHUgt>;
-	Tue, 8 Oct 2002 16:36:49 -0400
-Message-ID: <3DA34330.7D170231@digeo.com>
-Date: Tue, 08 Oct 2002 13:42:24 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S263811AbSJHUyd>; Tue, 8 Oct 2002 16:54:33 -0400
+Received: from mailhub.cs.sjsu.edu ([130.65.86.58]:32150 "EHLO
+	mailhub.cs.sjsu.edu") by vger.kernel.org with ESMTP
+	id <S261465AbSJHUya>; Tue, 8 Oct 2002 16:54:30 -0400
+Date: Tue, 8 Oct 2002 13:59:01 -0700 (PDT)
+From: Juan Gomez <gomez@cs.sjsu.edu>
+To: marcelo@conectiva.com.br
+cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
+Subject: kNFS(lockd) patch for linux-2.4.19
+Message-ID: <Pine.GSO.4.05.10210081342240.16984-100000@eniac>
 MIME-Version: 1.0
-To: Matthias Schniedermeyer <ms@citd.de>
-CC: Chris Wedgwood <cw@f00f.org>, Robert Love <rml@tech9.net>,
-       linux-kernel@vger.kernel.org, riel@conectiva.com.br
-Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
-References: <1034044736.29463.318.camel@phantasy> <20021008183824.GA4494@tapu.f00f.org> <1034102950.30670.1433.camel@phantasy> <20021008190513.GA4728@tapu.f00f.org> <20021008195332.GA2313@citd.de> <3DA339FF.4DCEF31E@digeo.com> <20021008203433.GA2576@citd.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Oct 2002 20:42:24.0136 (UTC) FILETIME=[34D2F880:01C26F0B]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Schniedermeyer wrote:
-> 
-> ...
-> I use a program called VDR. This is for recording digital-TV-program
-> from satallite.
-> 
-> After a recording is finished i cut the recordings. I my case i "stream"
-> the input-data via NFS from the recording machine(s) through a converter
-> into the local temporary directory. After i have enough files i create
-> ISO-images of the files. When i create an ISO-images i "stream" the
-> files from HDD1 to HDD2 because otherwise it would completly kill the
-> performance. Then i burn the ISO-Image onto a DVD-R.
-> 
-> Every single part in the whole process trashes the cache.
 
-Right.  You dont have O_DIRECT for NFS and you control the
-application.  You need O_STREAMING.  Or posix_fadvise(), which
-would be significantly harder to use and is not really implementable
-in 2.4.
+Marcelo,
 
-Any magical kernel voodoo which reads your mind and drops that
-cache early would probably help, but there's no way in which it
-can be as effective as an explicit hint.
+Would you please consider the attached patch for inclusion in 2.4..*?
+The patch solves a faulty delay observed by the first client that access
+lockd just after the grace period.
+
+Juan
+diff -ru linux-2.4.19/fs/lockd/svc.c linux-2.4.19-plus-delay-patch/fs/lockd/svc.c
+--- linux-2.4.19/fs/lockd/svc.c	Sun Oct 21 10:32:33 2001
++++ linux-2.4.19-plus-delay-patch/fs/lockd/svc.c	Tue Oct  8 13:19:40 2002
+@@ -144,8 +144,7 @@
+ 		 */
+ 		if (!nlmsvc_grace_period) {
+ 			timeout = nlmsvc_retry_blocked();
+-		} else if (time_before(grace_period_expire, jiffies))
+-			clear_grace_period();
++		} 
+ 
+ 		/*
+ 		 * Find a socket with data available and call its
+@@ -163,6 +162,22 @@
+ 
+ 		dprintk("lockd: request from %08x\n",
+ 			(unsigned)ntohl(rqstp->rq_addr.sin_addr.s_addr));
++                /* 
++                 * We need to do the clear/grace period here and not before 
++                 * svc_recv() because svc_recv() may sleep longer than the 
++                 * grace period and the first request may be falsely processed
++                 * as if the server was in the grace period when it was not 
++                 * causing unnecessary delays for the first request received.
++                 * Juan C. Gomez j_carlos_gome@yahoo.com
++                 */
++                
++                if (nlmsvc_grace_period 
++                    &&
++                    time_before(grace_period_expire, jiffies)) {
++                         clear_grace_period();
++                }
++                  
++
+ 
+ 		/*
+ 		 * Look up the NFS client handle. The handle is needed for
+

@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262557AbSJGRFH>; Mon, 7 Oct 2002 13:05:07 -0400
+	id <S262549AbSJGRDb>; Mon, 7 Oct 2002 13:03:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262559AbSJGRFH>; Mon, 7 Oct 2002 13:05:07 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:27890 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262557AbSJGRFE>; Mon, 7 Oct 2002 13:05:04 -0400
-Subject: Re: [RFC][PATCH] HZ as a config option
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3DA1BD51.6040003@us.ibm.com>
-References: <3D9E1BEA.7060804@us.ibm.com>
-	<1033779196.1335.8.camel@irongate.swansea.linux.org.uk> 
-	<3DA1BD51.6040003@us.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 07 Oct 2002 18:19:23 +0100
-Message-Id: <1034011163.25892.34.camel@irongate.swansea.linux.org.uk>
+	id <S262555AbSJGRDb>; Mon, 7 Oct 2002 13:03:31 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:9484 "EHLO probity.mcc.ac.uk")
+	by vger.kernel.org with ESMTP id <S262549AbSJGRDb>;
+	Mon, 7 Oct 2002 13:03:31 -0400
+Date: Mon, 7 Oct 2002 17:35:36 +0100
+From: John Levon <levon@movementarian.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.40 kbuild bug: mrproper removes files it shouldn't remove
+Message-ID: <20021007163536.GA14958@compsoc.man.ac.uk>
+References: <200210071608.SAA03742@harpo.it.uu.se>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200210071608.SAA03742@harpo.it.uu.se>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan *17yar2-000Iqr-00*VIPw2Xu91E.* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-10-07 at 17:58, Dave Hansen wrote:
-> > You can't set this arbitarily, the NTP PLL's will only lock for certain
-> > value ranges.
-> 
-> Where can I find these ranges?  include/linux/timex.h only errors if 
-> the number is out of the 12-1535 range.
+On Mon, Oct 07, 2002 at 06:08:24PM +0200, Mikael Pettersson wrote:
 
-See Rolf Fokkens message on 21st Sept for one bit about it, there was
-another thread about error ranges as well
+> 'make mrproper' incorrectly deletes *~-style editor backup files
 
+A vaguely related long time irritation :
+
+cp .config .config-phew-saved-it
+make mrproper
+
+whoops !
+
+regards
+john
+
+-- 
+"I will eat a rubber tire to the music of The Flight of the Bumblebee"

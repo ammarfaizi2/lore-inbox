@@ -1,79 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261758AbVCOSjy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbVCOSj6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261758AbVCOSjy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 13:39:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbVCOShx
+	id S261754AbVCOSj6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 13:39:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbVCOSiC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 13:37:53 -0500
-Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:52241 "EHLO
-	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
-	id S261735AbVCOSbq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 13:31:46 -0500
-Message-ID: <42371879.6000907@lougher.demon.co.uk>
-Date: Tue, 15 Mar 2005 17:16:41 +0000
-From: Phillip Lougher <phillip@lougher.demon.co.uk>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041012)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2/2] SquashFS
-References: <20050314170653.1ed105eb.akpm@osdl.org>	<A572579D-94EF-11D9-8833-000A956F5A02@lougher.demon.co.uk> <20050314190140.5496221b.akpm@osdl.org>
-In-Reply-To: <20050314190140.5496221b.akpm@osdl.org>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+	Tue, 15 Mar 2005 13:38:02 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:56492
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261752AbVCOSbm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 13:31:42 -0500
+Date: Tue, 15 Mar 2005 10:26:52 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] net/802/fc.c: remove fc_type_trans
+Message-Id: <20050315102652.2d122c2f.davem@davemloft.net>
+In-Reply-To: <20050315122017.GF3189@stusta.de>
+References: <20050306205754.GO5070@stusta.de>
+	<20050314214940.4947ccd9.davem@davemloft.net>
+	<20050315122017.GF3189@stusta.de>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Phillip Lougher <phillip@lougher.demon.co.uk> wrote:
-> 
->>[ on-disk bitfields ]
->>
->>I've checked compatibilty against Intel 32 and 64 bit architectures, 
->> PPC 32/64 bit, ARM, MIPS
->> and SPARC.  I've used compilers from 2.91.x upto 3.4...
-> 
-> 
-> hm, OK.  I remain a bit skeptical but it sounds like you're the expert.  I
-> guess if things later explode it will be pretty obvious, and the filesystem
-> will need rework.
-> 
-> One thing which I assume we don't know at this stage is whether all 27
-> architectures work as expected - you can bet ia64 does it differently ;)
-> 
-> How does one test that?  Create a filesystem-in-a-file via mksquashfs, then
-> transfer that to a different box, then try and mount and use it, I assume?
-> 
+On Tue, 15 Mar 2005 13:20:17 +0100
+Adrian Bunk <bunk@stusta.de> wrote:
 
-Yes, slow and laborious, but it works...
-
-> When you upissue these patches, please include in the changelog pointers to
-> the relevant userspace support tools - mksquashfs, fsck.squashfs, etc.  I
-> guess http://squashfs.sourceforge.net/ will suit.
+> On Mon, Mar 14, 2005 at 09:49:40PM -0800, David S. Miller wrote:
+> > On Sun, 6 Mar 2005 21:57:54 +0100
+> > Adrian Bunk <bunk@stusta.de> wrote:
+> > 
+> > > The only user of fc_type_trans (drivers/net/fc/iph5526.c) is BROKEN in 
+> > > 2.6 and removed in -mm.
+> > > 
+> > > Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> > 
+> > That driver isn't in Linus's tree any longer either.  Just delete
+> > the thing altogether instead of #if 0'ing it.
+> >...
 > 
+> Updated patch:
 
-OK.
-
-> Also, this filesystem seems to do the same thing as cramfs.  We'd need to
-> understand in some detail what advantages squashfs has over cramfs to
-> justify merging it.  Again, that is something which is appropriate to the
-> changelog for patch 1/1.
-> 
-
-OK.  Squashfs has much better compression and is much faster than 
-cramfs, which is why many embedded systems that used cramfs have moved 
-over to squashfs.  Additionally squashfs is used in liveCDs (where 
-cramfs can't be used because of its max 256MB size limit), where it is 
-slowly taking over from cloop, again because it compresses better and is 
-faster.
-
-Both these two groups have been asking for squashfs to be in the 
-mainline kernel.
-
-I can put the above rationale and a pointer to some performance 
-statistics in the changelog, will that be sufficient?
-
-Phillip
+Applied, thanks a lot Adrian.

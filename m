@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284068AbRLALCE>; Sat, 1 Dec 2001 06:02:04 -0500
+	id <S278625AbRLALR2>; Sat, 1 Dec 2001 06:17:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284067AbRLALBx>; Sat, 1 Dec 2001 06:01:53 -0500
-Received: from mail315.mail.bellsouth.net ([205.152.58.175]:34194 "EHLO
-	imf15bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S284070AbRLALBp>; Sat, 1 Dec 2001 06:01:45 -0500
-Message-ID: <3C08B891.FDE4260D@mandrakesoft.com>
-Date: Sat, 01 Dec 2001 06:01:37 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
+	id <S278660AbRLALRS>; Sat, 1 Dec 2001 06:17:18 -0500
+Received: from netfinity.realnet.co.sz ([196.28.7.2]:26508 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S278625AbRLALRI>; Sat, 1 Dec 2001 06:17:08 -0500
+Date: Sat, 1 Dec 2001 13:21:44 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: XT-PIC vs IO-APIC and PCI devices
+In-Reply-To: <Pine.LNX.4.10.10111301139590.24770-100000@coffee.psychology.mcmaster.ca>
+Message-ID: <Pine.LNX.4.33.0112011319560.11026-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: kernel list <linux-kernel@vger.kernel.org>,
-        ACPI mailing list <acpi@phobos.fachschaften.tu-muenchen.de>
-Subject: Re: Status of patrick's new device/driver model
-In-Reply-To: <20011130222356.A168@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> 
-> Hi!
-> 
-> What is the status of Patrick Mochel's device model? Is it going to
-> kernel anytime soon?
+On Fri, 30 Nov 2001, Mark Hahn wrote:
 
-Changelog from 2.5.1-pre5:
+> could your machine be one that contains
+> a watchdog card?  some IBM servers do,
+> and as I recall, the card does something funky
+> (perhaps just NMI) when it thinks there's a problem.
 
-pre5:
-- Patrick Mochel: driver model infrastructure, part 1
-[...]
+i don't believe it does, but i'm not 100% sure. This server is essentially
+an entry level box so it might not have it
 
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+Cheers,
+	Zwane
+
 

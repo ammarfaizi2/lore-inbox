@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280617AbRKBJMG>; Fri, 2 Nov 2001 04:12:06 -0500
+	id <S280618AbRKBJLF>; Fri, 2 Nov 2001 04:11:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280619AbRKBJL6>; Fri, 2 Nov 2001 04:11:58 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:18048 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S280617AbRKBJLs>;
-	Fri, 2 Nov 2001 04:11:48 -0500
-Date: Fri, 2 Nov 2001 04:11:42 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5 PROPOSAL: Replacement for current /proc of shit.
-In-Reply-To: <20011102124252.1032e9b2.rusty@rustcorp.com.au>
-Message-ID: <Pine.GSO.4.21.0111020359540.12621-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280617AbRKBJK4>; Fri, 2 Nov 2001 04:10:56 -0500
+Received: from uucp.cistron.nl ([195.64.68.38]:46341 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S280616AbRKBJKq>;
+	Fri, 2 Nov 2001 04:10:46 -0500
+From: miquels@cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: [Patch] Re: Nasty suprise with uptime
+Date: Fri, 2 Nov 2001 09:10:46 +0000 (UTC)
+Organization: Cistron Internet Services B.V.
+Message-ID: <9rtnum$pvl$2@ncc1701.cistron.net>
+In-Reply-To: <Pine.LNX.4.30.0111011224440.1053-100000@gans.physik3.uni-rostock.de> <Pine.LNX.4.30.0111020059170.5092-100000@gans.physik3.uni-rostock.de> <20011101182334.P16554@lynx.no>
+X-Trace: ncc1701.cistron.net 1004692246 26613 195.64.65.67 (2 Nov 2001 09:10:46 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20011101182334.P16554@lynx.no>,
+Andreas Dilger  <adilger@turbolabs.com> wrote:
+>Probably need to make idle a 64-bit value as well, even if the individual
+>items are not, just to avoid potential overflow...
 
+Well idle will still overflow after a bit more than 497 days on a
+typical system that is 99% idle, if init_tasks[0]->times.tms_{u,s}time
+are left at 32 bits.
 
-On Fri, 2 Nov 2001, Rusty Russell wrote:
-
-> On Thu, 01 Nov 2001 05:42:36 -0500
-> Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
-> 
-> > Is this designed to replace sysctl?
-> 
-> Well, I'd suggest replacing *all* the non-process stuff in /proc.  Yes.
-
-Aha.  Like, say it, /proc/kcore.  Or /proc/mounts, yodda, yodda.
-
-	Noble idea, but there is a little problem: random massive userland
-breakage.  E.g. changing /proc/mounts is going to hit getmntent(3), etc.
-
-	If you are willing to audit all userland code - you are welcome.
-But keep in mind that standard policy is to keep obsolete API for at least
-one stable branch with warnings and remove it in the next one.  So we are
-talking about 2.8 here.  BTW, I'm less than sure that your variant is free
-of rmmod races, but that's a separate story...
+Mike.
+-- 
+"Only two things are infinite, the universe and human stupidity,
+ and I'm not sure about the former" -- Albert Einstein.
 

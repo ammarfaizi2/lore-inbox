@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266342AbUAHWmo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 17:42:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266349AbUAHWmo
+	id S266340AbUAHWwJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 17:52:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266323AbUAHWwJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 17:42:44 -0500
-Received: from 204.Red-213-96-224.pooles.rima-tde.net ([213.96.224.204]:9232
-	"EHLO betawl.net") by vger.kernel.org with ESMTP id S266342AbUAHWmm
+	Thu, 8 Jan 2004 17:52:09 -0500
+Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:23224 "EHLO
+	mx.rackable.com") by vger.kernel.org with ESMTP id S266354AbUAHWwE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 17:42:42 -0500
-Date: Thu, 8 Jan 2004 23:42:40 +0100
-From: Santiago Garcia Mantinan <manty@manty.net>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ALSA in 2.6 failing to find the OPL chip of the sb cards
-Message-ID: <20040108224239.GA775@man.manty.net>
-References: <20040107212916.GA978@man.manty.net> <s5hy8sixsor.wl@alsa2.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <s5hy8sixsor.wl@alsa2.suse.de>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 8 Jan 2004 17:52:04 -0500
+Message-ID: <3FFDDF0C.7080307@rackable.com>
+Date: Thu, 08 Jan 2004 14:51:56 -0800
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Maciej Zenczykowski <maze@cela.pl>
+CC: Gene Heskett <gene.heskett@verizon.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Howto use diff compatibly
+References: <Pine.LNX.4.44.0401082300421.1739-100000@gaia.cela.pl>
+In-Reply-To: <Pine.LNX.4.44.0401082300421.1739-100000@gaia.cela.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Jan 2004 22:52:01.0946 (UTC) FILETIME=[078A57A0:01C3D63A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> compile with CONFIG_SND_DEBUG and CONFIG_SND_VERBOSE_PRINTK.
-> if it's in snd_opl3_detect(), "OPL2/3 chip not detected at ..."
-> message should appear (together with other message in
-> snd_opl3_detect()).
-> if not, it must be in snd_device_new(), and quite mysterious...
+Maciej Zenczykowski wrote:
+>>I have a better idea.  Who is the current maintainer for 
+>>drivers/block/floppy.c?
+> 
+> 
+> Check MAINTAINERS for floppy
+> 
+> linux 2.4.23:
+> 
+> IDE/ATAPI FLOPPY DRIVERS
+> P:      Paul Bristow
+> M:      Paul Bristow <paul@paulbristow.net>
+> W:      http://paulbristow.net/linux/idefloppy.html
+> L:      linux-kernel@vger.kernel.org
+> S:      Maintained
+> 
 
-I have compiled 2.6.1rc3 this way, here is the result when loading the
-kernel's alsa modules for sb16 (0.9.7):
+   That would be the maintainer for drivers/ide/ide-floppy.c.  I don't 
+think there is a maintainer for drivers/block/floppy.c.
 
-pnp: Device 00:01.00 activated.
-ALSA sound/isa/sb/sb16.c:313: pnp SB16: port=0x220, mpu port=0x330, fm port=0x388
-ALSA sound/isa/sb/sb16.c:315: pnp SB16: dma1=1, dma2=5, irq=10
-ALSA sound/isa/sb/sb_common.c:133: SB [0x220]: DSP chip found, version = 4.13
-ALSA sound/drivers/opl3/opl3_lib.c:133: OPL3: stat1 = 0xff
-ALSA sound/drivers/opl3/opl3_lib.c:444: OPL2/3 chip not detected at 0x388/0x38a
-ALSA sound/isa/sb/sb16.c:484: sb16: no OPL device at 0x388-0x38a
-
-Hope this helps a bit.
-
-Don't hesitate to ask for anything else you may need.
-
-Regards...
 -- 
-Manty/BestiaTester -> http://manty.net
+Unless you can't avoid it never put a
+serial number on any of your systems!!
+(The Numberless Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
+

@@ -1,93 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265600AbTF2H0d (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 03:26:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265601AbTF2H0d
+	id S265602AbTF2Hb4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 03:31:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265603AbTF2Hb4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 03:26:33 -0400
-Received: from auth22.inet.co.th ([203.150.14.104]:4627 "EHLO
-	auth22.inet.co.th") by vger.kernel.org with ESMTP id S265600AbTF2H0a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 03:26:30 -0400
-From: Michael Frank <mflt1@micrologica.com.hk>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: 2.5.73-mm1 nbd: boot hang in add_disk at first call from nbd_init
-Date: Sun, 29 Jun 2003 15:32:46 +0800
-User-Agent: KMail/1.5.2
-Cc: <akpm@digeo.com>, <linux-kernel@vger.kernel.org>
-References: <200306271943.13297.mflt1@micrologica.com.hk> <200306281346.53609.mflt1@micrologica.com.hk> <33004.4.4.25.4.1056820826.squirrel@www.osdl.org>
-In-Reply-To: <33004.4.4.25.4.1056820826.squirrel@www.osdl.org>
-X-OS: KDE 3 on GNU/Linux
+	Sun, 29 Jun 2003 03:31:56 -0400
+Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:33500 "EHLO
+	mailphish.drugphish.ch") by vger.kernel.org with ESMTP
+	id S265602AbTF2Hby (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 03:31:54 -0400
+Message-ID: <3EFE9921.5010902@drugphish.ch>
+Date: Sun, 29 Jun 2003 09:45:37 +0200
+From: Roberto Nibali <ratz@drugphish.ch>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030611
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200306291108.47843.mflt1@micrologica.com.hk>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Pekka Savola <pekkas@netcore.fi>
+Cc: Michael Bellion and Thomas Heinz <nf@hipac.org>,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [ANNOUNCE] nf-hipac v0.8 released
+References: <Pine.LNX.4.44.0306290924310.28882-100000@netcore.fi>
+In-Reply-To: <Pine.LNX.4.44.0306290924310.28882-100000@netcore.fi>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 29 June 2003 01:20, Randy.Dunlap wrote:
-> > On Saturday 28 June 2003 12:55, Michael Frank wrote:
-> >> On Saturday 28 June 2003 10:41, Andrew Morton wrote:
-> >> > Michael Frank <mflt1@micrologica.com.hk> wrote:
-> >> > > Changes were recently made to the nbd.c in 2.5.73-mm1
-> >> >
-> >> > And tons more will be in -mm2, which I shall prepare right now. Please
-> >>
-> >> retest on that and if it still hangs, capture the output from pressing
-> >> alt-sysrq-T.
-> >>
-> >> Legacy free, no serial port.
-> >>
-> >>
-> >>
-> >> Sorry, -mm2 hang at booting kernel on 2 machines.
-> >
-> > Oh Murphy! Bug: 250K log buffer causes a hang on boot.
-> >
-> > Sorry for the shock. I configured the log buffer bigger - 250K and it
-> > hangs on boot.
-> >
-> > Default 14K log buffer all OK, the NBD hang is fixed too.
->
-> Default value of 14 is a shift count (2 << 14), which gives a
+Hello,
 
-No sh**,
+>>Apart from that Roberto Nibali did some preliminary testing on nf-hipac.
+>>You can find his posting to linux-kernel here: 
+>>http://marc.theaimsgroup.com/?l=linux-kernel&m=103358029605079&w=2
+>>
+>>Since there are currently no performance tests available for the
+>>new release we want to encourage people interested in firewall
+>>performance evaluation to include nf-hipac in their tests.
+>  
+> Yes, I had missed this when I quickly looked at the web page using lynx. 
+> Thanks.
+> 
+> One obvious thing that's missing in your performance and Roberto's figures 
+> is what *exactly* are the non-matching rules.  Ie. do they only match IP 
+> address, a TCP port, or what? (TCP port matching is about a degree of 
+> complexity more expensive with iptables, I recall.) 
 
-> 16 KB buffer.
-> Did you enter '250' for the shift value?
+When I did the tests I used a variant of following simple script [1].
 
-Yes, I meant 250K bytes. 
+There you can see that I only used a src port range. In an original 
+paper I wrote for my company (announced here [2]) I did create rules 
+that only matched IP addresses, the results were bad enough ;).
 
-> Yes, that wouldn't boot.
-> Maybe consult the help text??
+Meanwhile I should revise the paper as quite a few things have been 
+addressed since then: For example the performance issues with OpenBSD 
+packet filtering have mostly been squashed. I didn't continue on that 
+matter because I fell severely ill last autumn and first had to take 
+care of that.
 
-I'll put it on a CD under my pillow tonight....
+[1] http://www.drugphish.ch/~ratz/genrules.sh
+[2] http://www.ussg.iu.edu/hypermail/linux/kernel/0203.3/0847.html
 
->
-> > This was my only config change besides that driver which didn't compile
-> > ;)
-> >
-> > I want a bigger log buffer in preparation for testing swsusp on 2.5. On
-> > 2.4, the test io load prevent the big swsusp logs from making it to
-> > disk...
->
-> Andrew, do you want a min/max limit on the LOG_BUF_SHIFT value,
-> now that Roman has added that feature for Kconfig?
->
-
-Making this a shift count is a brilliant trap designed to humble buffalos 
-who do not bother to read the documentation. To put a check there would 
-just spoil the fun ;)
-
+HTH and Best regards,
+Roberto Nibali, ratz
 -- 
-Powered by linux-2.5.73-mm2, compiled with gcc-2.95-3 - not fancy but rock solid
-
-My current linux related activities:
-- Test development and testing of swsusp
-- Everyday usage of 2.5 kernel
-
-More info on the 2.5 kernel: http://www.codemonkey.org.uk/post-halloween-2.5.txt
-
+echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq'|dc
 

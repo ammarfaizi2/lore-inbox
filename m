@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317854AbSFNAFp>; Thu, 13 Jun 2002 20:05:45 -0400
+	id <S317855AbSFNANa>; Thu, 13 Jun 2002 20:13:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317855AbSFNAFo>; Thu, 13 Jun 2002 20:05:44 -0400
-Received: from holomorphy.com ([66.224.33.161]:18086 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S317854AbSFNAFn>;
-	Thu, 13 Jun 2002 20:05:43 -0400
-Date: Thu, 13 Jun 2002 17:05:06 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Alexander Viro <viro@math.psu.edu>, engler@csl.Stanford.EDU,
-        linux-kernel@vger.kernel.org
-Subject: Re: [CHECKER] 37 stack variables >= 1K in 2.4.17
-Message-ID: <20020614000506.GJ22961@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andi Kleen <ak@muc.de>, Alexander Viro <viro@math.psu.edu>,
-	engler@csl.Stanford.EDU, linux-kernel@vger.kernel.org
-In-Reply-To: <m3d6uvxdts.fsf@averell.firstfloor.org> <Pine.GSO.4.21.0206131420010.20315-100000@weyl.math.psu.edu> <20020613210130.A27417@averell>
+	id <S317856AbSFNAN3>; Thu, 13 Jun 2002 20:13:29 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:10245 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S317855AbSFNAN3>; Thu, 13 Jun 2002 20:13:29 -0400
+Message-Id: <200206140013.g5E0DQR25561@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Dave Jones <davej@suse.de>,
+        James Bottomley <James.Bottomley@HansenPartnership.com>,
+        Andrey Panin <pazke@orbita1.ru>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH: NEW SUBARCHITECTURE FOR 2.5.21] support for NCR voyager 
+ (3/4/5xxx series)
+In-Reply-To: Message from Dave Jones <davej@suse.de> 
+   of "Fri, 14 Jun 2002 01:17:09 +0200." <20020614011709.E16772@suse.de> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Date: Thu, 13 Jun 2002 20:13:26 -0400
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 13, 2002 at 09:01:30PM +0200, Andi Kleen wrote:
-> if you see all possible paths through the program as a tree which branches 
-> for every decision then you only need to cut off the branches that are 
-> actually pointing upward the tree again. This would still allow to follow
-> down into the callees of the recursive function because there should be 
-> at least one path that is non recursive (if not Checker should definitely
-> complain ;) 
-> e.g.
->        ----<-----------------+
-> 	   v                     |
->  IF   TRUE                RECURSION
-> -------+------ some path ----+
->        |
-> 	  ELSE                    non recursive path 
->        +-------------------------- other functions ---------->
-> Other functions can be still checked, you only need to prune the cycle.
-> I have no idea if checker's algorithms actually work like this, but I could
-> imagine that it would be one possible implementation.
+davej@suse.de said:
+> Would it make sense for the subarchs to use the generic code where
+> possible, and only reimplement it's own (for eg) apic.c as and when it
+> actually *needs* to be different ? 
 
-Why would you do it this way? AFAICT this is more naturally phrased as
-cycle detection in a digraph.
+That is really the way I've implemented it.  The only PC specific file in the 
+generic directory is mpparse.c (since neither visws nor voyager has an MP 
+compliant bios).  All the shareable files are kept in `kernel' and activated 
+by config options.
 
-Cheers,
-Bill
+I can certainly move mpparse.c back to kernel and add an extra (non user 
+visible) config option.
+
+> Sounds quite logical. What does the current patches you have do ? I've
+> not had chance to look at them yet. 
+
+It creates directories `generic' for the standard pc and `visws'.  The voyager 
+patch creates a `voyager' directory.  Alternatively, these could be `mach-pc', 
+`mach-visws' and `mach-voyager'.
+
+James
+
+
+
+

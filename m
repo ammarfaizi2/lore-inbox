@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261448AbTAXSOZ>; Fri, 24 Jan 2003 13:14:25 -0500
+	id <S261495AbTAXSdy>; Fri, 24 Jan 2003 13:33:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261908AbTAXSOZ>; Fri, 24 Jan 2003 13:14:25 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:42450 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S261448AbTAXSOY>;
-	Fri, 24 Jan 2003 13:14:24 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id <S261506AbTAXSdy>; Fri, 24 Jan 2003 13:33:54 -0500
+Received: from taz.cerebus.com ([208.254.26.145]:12241 "EHLO taz.cerebus.com")
+	by vger.kernel.org with ESMTP id <S261495AbTAXSdx>;
+	Fri, 24 Jan 2003 13:33:53 -0500
+Date: Fri, 24 Jan 2003 13:43:00 -0500 (EST)
+From: David C Niemi <lkernel2003@tuxers.net>
+To: linux-kernel@vger.kernel.org
+Subject: SSH Hangs in 2.5.59 and 2.5.55 but not 2.4.x, through Cisco PIX
+Message-ID: <Pine.LNX.4.44.0301241237160.29548-100000@harappa.oldtrail.reston.va.us>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15921.33955.645830.709868@napali.hpl.hp.com>
-Date: Fri, 24 Jan 2003 10:23:31 -0800
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: return-type for search_extable()
-In-Reply-To: <20030114025453.5ECBB2C440@lists.samba.org>
-References: <Pine.GSO.3.96.1030113114240.25230B-100000@delta.ds2.pg.gda.pl>
-	<20030114025453.5ECBB2C440@lists.samba.org>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rusty,
 
-Could you please change the return-type of search_extable() to
-something that allows a bit more flexibility?  The value returned by
-this function is "something that lets architecture-specific code
-recover from a memory-managment-fault".  This may or may not be the
-same as an exception_table_entry.  For example, on ia64, I want to
-return an already-relocated fixup-word.  Perhaps the cleanest way to
-fix this would be to have:
+I have been experiencing some baffling SSH client hangs under 2.5.59 (and
+55) in which the session totally hangs up after I have typed (typically)
+10-100 characters.  Right before it hangs permanently, a character is
+echo'd back to the screen several seconds late.  Interestingly, data due
+back for my client which is initiated by the server side does make it, I 
+just can't type anything further.
 
-	exception_fixup_t search_extable (...);
+To reproduce this: ssh in to a somewhat distant host.  At a command 
+prompt, hold down a letter key for a couple of minutes, or just type text 
+in.  If you cut'n'paste text, it rarely hangs (my guess is that this 
+requires a lot fewer round trips than interactive typing).  It should hang 
+before you get a screenful (sometimes the sessions hang even before they 
+are set up).
 
-By default, you could then use
+The system involved is a new Dell desktop with a P4/2.6 CPU and an
+integrated Intel E1000 NIC, being used at 100Mb full duplex
+(autonegotiated).  Sessions go through a Cisco PIX on their way to
+anywhere useful.  The problem doesn't seem to occur if the SSH client and
+server are on the same subnet; I'm not sure whether the PIX is an
+essential cause of this or if any old router would do the same thing.  
+I've also reproduce it while being attached to different 100TX switches,
+so I think the problem is higher-level.
 
-	typedef struct exception_table_entry *exception_fixup_t;
+As for networking options, I see the problem both using the (rather 
+extensive) default options, and a stripped down set of options with no QOS 
+or netfilter or anything else fancy.
 
-and on ia64 I could use:
+Neither "ifconfig" nor dmesg show *any* errors whatsoever.
 
-	typedef long exception_fixup_t.
+Anyone else seeing SSH client hangs to nonlocal hosts under 2.5.59?
 
-The only restriction on exception_fixup_t would be that it's a type
-that can be tested for being equal to zero and, if it is zero, it
-would mean that there is no exception-table entry.
+David C Niemi
 
-Alternatively, we could make search_extable() just always return a
-"void *" or a "long", but that's less clear and less type-safe.
-
-	--david

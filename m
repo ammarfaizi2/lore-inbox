@@ -1,34 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131611AbRAEEYP>; Thu, 4 Jan 2001 23:24:15 -0500
+	id <S129325AbRAEEnD>; Thu, 4 Jan 2001 23:43:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131687AbRAEEYG>; Thu, 4 Jan 2001 23:24:06 -0500
-Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:4220 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S131611AbRAEEXs>; Thu, 4 Jan 2001 23:23:48 -0500
-Date: Thu, 4 Jan 2001 23:23:47 -0500 (EST)
-From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+	id <S129415AbRAEEmx>; Thu, 4 Jan 2001 23:42:53 -0500
+Received: from [200.222.195.131] ([200.222.195.131]:3589 "EHLO
+	pervalidus.dyndns.org") by vger.kernel.org with ESMTP
+	id <S129325AbRAEEmt>; Thu, 4 Jan 2001 23:42:49 -0500
+Date: Fri, 5 Jan 2001 02:42:11 -0200
+From: Frédéric L . W . Meunier 
+	<0@pervalidus.net>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Change of policy for future 2.2 driver submissions
-In-Reply-To: <002201c076c7$76cab720$8d19b018@c779218a>
-Message-ID: <Pine.LNX.4.10.10101042308040.7111-100000@coffee.psychology.mcmaster.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: make menuconfig: where's USB Mass Storage?
+Message-ID: <20010105024211.B225@pervalidus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.12i
+X-Mailer: Mutt/1.3.12i - Linux 2.2.18
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I personaly do not trust the 2.4.x kernel entirely yet, and would prefer to
-...
-> afraid that this may partialy criple 2.2 driver development.
+Is this just me? Configuring 2.4.0 with make menuconfig with
+CONFIG_EXPERIMENTAL=y I get no prompt for USB Mass Storage,
+but the .config is saved with # CONFIG_USB_STORAGE is not set
 
-egads!  how can there be "development" on a *stable* kernel line?
+I have the following:
 
-maybe this is the time to reconsider terminology/policy:
-does "stable" mean "bugfixes only"?  
-or does it mean "development kernel for conservatives"?
+#
+# USB support
+#
+CONFIG_USB=m
+# CONFIG_USB_DEBUG is not set
+CONFIG_USB_DEVICEFS=y
+# CONFIG_USB_BANDWIDTH is not set
+CONFIG_USB_UHCI_ALT=m
+# CONFIG_USB_OHCI is not set
+# CONFIG_USB_AUDIO is not set
+# CONFIG_USB_BLUETOOTH is not set
+# CONFIG_USB_STORAGE is not set
+# CONFIG_USB_ACM is not set
+CONFIG_USB_PRINTER=m
+# CONFIG_USB_DC2XX is not set
+# CONFIG_USB_MDC800 is not set
+CONFIG_USB_SCANNER=m
+# CONFIG_USB_MICROTEK is not set
+# CONFIG_USB_IBMCAM is not set
+# CONFIG_USB_OV511 is not set
+# CONFIG_USB_DSBR is not set
+# CONFIG_USB_DABUSB is not set
+# CONFIG_USB_PLUSB is not set
+# CONFIG_USB_PEGASUS is not set
+# CONFIG_USB_NET1080 is not set
+# CONFIG_USB_USS720 is not set
 
-me, I've run the "progressive" kernel line on production boxes since ~2.3.36.
+#
+# USB Serial Converter support
+#
+# CONFIG_USB_SERIAL is not set
+# CONFIG_USB_RIO500 is not set
 
+I checked a lot of times, and there's no such option here.
+
+< >   OHCI (Compaq, iMacs, OPTi, SiS, ALi, ...) support
+--- USB Device Class drivers
+< >   USB Audio support
+< >   USB Bluetooth support (EXPERIMENTAL)
+< >   USB Modem (CDC ACM) support
+
+-- 
+0@pervalidus.{net, {dyndns.}org} Tel: 55-21-717-2399 (Niterói-RJ BR)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268602AbUJKCDL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268633AbUJKCHY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268602AbUJKCDL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 22:03:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268609AbUJKCDL
+	id S268633AbUJKCHY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 22:07:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268637AbUJKCHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 22:03:11 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:21977 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S268602AbUJKCDG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 22:03:06 -0400
-Date: Mon, 11 Oct 2004 12:02:48 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Aaron Peterson <aaron@alpete.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Maximum block dev size / filesystem size
-Message-ID: <20041011120248.F4948977@wobbly.melbourne.sgi.com>
-References: <1097180361.491.25.camel@main> <1097177960.31547.132.camel@localhost.localdomain> <1097244833.491.31.camel@main>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1097244833.491.31.camel@main>; from aaron@alpete.com on Fri, Oct 08, 2004 at 10:13:53AM -0400
+	Sun, 10 Oct 2004 22:07:24 -0400
+Received: from mail1.webmaster.com ([216.152.64.168]:34059 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S268633AbUJKCHW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Oct 2004 22:07:22 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Willy Tarreau" <willy@w.ods.org>
+Cc: <linux-kernel@vger.kernel.org>, <okuji@gnu.org>
+Subject: RE: possible GPL violation by Free
+Date: Sun, 10 Oct 2004 19:06:22 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKAEFIOOAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <1097456379.27877.51.camel@frenchenigma>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Sun, 10 Oct 2004 18:43:06 -0700
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Sun, 10 Oct 2004 18:43:11 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 08, 2004 at 10:13:53AM -0400, Aaron Peterson wrote:
-> On Thu, 2004-10-07 at 15:39, Alan Cox wrote:
-> > On Iau, 2004-10-07 at 21:19, Aaron Peterson wrote:
-> > > I work for a company with a 15 TB SAN.  All opinions about the
-> > > disadvantages of creating really large filesystems aside, I'm trying to
-> > > find out what is the maximum filesystem size we can allocate on our SAN
-> > > that a linux box (x86) can really use.
-> > 
-> > For 2.4.x 1Tb (2Tb works for some devices but its a bit variable)
-> > 
-> > > What I can't seem to find anywhere is whether the 2 TB block device
-> > > limit has improved/grown with 2.6 kernels (on x86 hardware).  Perhaps
-> > > I've looked in the wrong places, but I haven't found anything.
-> > 
-> > 2.6 fixed this problem although it appears not for some specialist
-> > cases. Last time I checked LVM logical volumes over 2Tb were reported
-> > problematic.
-> 
-> I've read that the other main difficulty besides block device size
-> limits is problems with the ext2 management tools themselves.  So, how
-> would you rate my chances of using a 2.6 kernel with XFS (and xfs
-> management tools of course) with a 5 TB filesystem?  Probably not a well
-> tested scenerio to say the least...
 
-Assuming the device driver(s) you pick are happy with 64 bit sector
-numbers, you should expect this to work (iow, you should not have
-any trouble from XFS itself).  SGI ships 2.4 product with specific
-supported drivers and the LBD patch (both 32 and 64 bit boxen) in
-order to use large devices.
+> If I remember correctly my contract, after 36 months, I become the owner
+> of the freebox. The argument about renting does not seem to hold,
+> anyway.
 
-cheers.
+	In the United States, it is illegal to rent computer software without the
+copyright holder's permission. Arguments such as, "I'm selling/renting the
+computer/hard drive, the software just happens to be on it" don't generally
+impress the courts.
 
--- 
-Nathan
+	In any event, it seems pretty obvious to me that renting a physical medium
+that contains an encoded copyrighted work is a form of distribution of that
+work. The operation of that physical device is as much a derived work of the
+copyrighted work as the visual/audio experience of seeing a play is a
+derived work of the script for the play.
+
+	In other words, I don't think any court or lawyer would find the "we're
+renting the computer, not distributing the software that comes with it and
+is required for its operation" to be persuasive. IANL, YMMV.
+
+	DS
+
+

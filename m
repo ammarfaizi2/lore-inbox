@@ -1,77 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130309AbQK3IPd>; Thu, 30 Nov 2000 03:15:33 -0500
+        id <S130569AbQK3IeZ>; Thu, 30 Nov 2000 03:34:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131043AbQK3IPY>; Thu, 30 Nov 2000 03:15:24 -0500
-Received: from tomts7.bellnexxia.net ([209.226.175.40]:15091 "EHLO
-        tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-        id <S130309AbQK3IPJ>; Thu, 30 Nov 2000 03:15:09 -0500
-Date: Thu, 30 Nov 2000 02:47:05 -0500 (EST)
-From: Scott Murray <scott@spiteful.org>
-To: John Fremlin <vii@penguinpowered.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ISA PnP for Yamaha OPL3-SAx sound driver
-In-Reply-To: <m2hf4ql8zr.fsf@localhost.yi.org.>
-Message-ID: <Pine.LNX.4.21.0011300219160.965-100000@godzilla.spiteful.org>
+        id <S130895AbQK3IeP>; Thu, 30 Nov 2000 03:34:15 -0500
+Received: from mx1.eskimo.com ([204.122.16.48]:37897 "EHLO mx1.eskimo.com")
+        by vger.kernel.org with ESMTP id <S130569AbQK3IeC>;
+        Thu, 30 Nov 2000 03:34:02 -0500
+Date: Thu, 30 Nov 2000 00:03:31 -0800 (PST)
+From: Clayton Weaver <cgweav@eskimo.com>
+To: linux-kernel@vger.kernel.org
+Subject: tulip log (2.2.17-2.2.18pre23 http-induced kernel deadlock)
+Message-ID: <Pine.SUN.3.96.1001129234052.24017A-100000@eskimo.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29 Nov 2000, John Fremlin wrote:
-> 
-> Support for this card is currently broken for people whose BIOS used
-> to activate it with ISA PnP, as the kernel now decides to deactivate
-> it. On 27 Oct 2000 21:48:44 +0100, I sent the maintainer
-> <scott@spiteful.org> and the mailing list
-> <linux-sound@vger.kernel.org> this patch, but I didn't get any
-> replies.  Other people have written (no doubt better) patches to
-> accomplish the same thing, but somehow none have appeared in the Linus
-> tree.
+(I'm posting this to the kernel list because I'm still not convinced
+that the deadlock results from a problem with a specific ethernet
+driver.)
 
-As the maintainer in question, I apologize.  I've been remiss in getting
-a patch into 2.4 due to being focused on a new job.  My current plan is
-to take Friday off and work on getting all of the various fixes people
-have sent me glued together into one patch.  I must admit, though, that
-I've been running 2.4.0-test kernels for quite some time and have not
-had any problems activating my OPL3-SA3 card the old-fashioned way with
-isapnp.
+I enabled debuggin in tulip.c with #define TULIP_DEBUG 7 and directed
+klogd to save all kernel messages to a file. After initialization
+(seems to work, since subsequent large ftp transfers have no problem),
+the verbose debugging log from the tulip driver starts out like this:
 
-> This patch implements ISA PnP probe and activate/deactivate for the
-> OPL3-SAx. As I don't have the specs for this card, I only know that it
-> works for me; nevertheless, it should not break any configurations as
-> the PnP probe only kicks in if the resource parameters are not given
-> as module arguments.  
+# nothing happening on the network
+Nov 29 12:44:26 turpin kernel: eth0: 21143 negotiation status 000000c6, MII.
+Nov 29 12:44:26 turpin kernel: eth0: MII status 782d, Link partner report 4481.
+Nov 29 12:46:26 turpin kernel: klogd 1.4-0, log source = /proc/kmsg started.
+Nov 29 12:46:26 turpin kernel: eth0: 21143 negotiation status 000000c6, MII.
+Nov 29 12:46:26 turpin kernel: eth0: MII status 782d, Link partner report 4481.
+Nov 29 12:47:26 turpin kernel: eth0: 21143 negotiation status 000000c6, MII.
+Nov 29 12:47:26 turpin kernel: eth0: MII status 782d, Link partner report 4481.
+Nov 29 12:48:26 turpin kernel: eth0: 21143 negotiation status 000000c6, MII.
+Nov 29 12:48:26 turpin kernel: eth0: MII status 782d, Link partner report 4481.
+Nov 29 12:49:26 turpin kernel: eth0: 21143 negotiation status 000000c6, MII.
+Nov 29 12:49:26 turpin kernel: eth0: MII status 7829, Link partner report 4481.
+Nov 29 12:49:53 turpin kernel: eth0: interrupt  csr5=0xf0670040 new csr5=0xf0660000.
+# a connect request
+Nov 29 12:49:53 turpin kernel:  In tulip_rx(), entry 0 00400720.
+Nov 29 12:49:53 turpin kernel: eth0: In tulip_rx(), entry 0 00400720.
+Nov 29 12:49:53 turpin kernel: eth0: interrupt  csr5=0xf0660000 new csr5=0xf0660000.
+Nov 29 12:49:53 turpin kernel: eth0: exiting interrupt, csr5=0xf0660000.
+Nov 29 12:49:53 turpin kernel: eth0: interrupt  csr5=0xf0670004 new csr5=0xf0660000.
+Nov 29 12:49:53 turpin kernel: eth0: interrupt  csr5=0xf0670040 new csr5=0xf0660000.
+Nov 29 12:49:53 turpin kernel:  In tulip_rx(), entry 1 00420320.
+Nov 29 12:49:53 turpin kernel: eth0: In tulip_rx(), entry 1 00420320.
+Nov 29 12:49:53 turpin kernel: eth0: interrupt  csr5=0xf0660000 new csr5=0xf0660000.
+Nov 29 12:49:53 turpin kernel: eth0: exiting interrupt, csr5=0xf0660000.
+Nov 29 12:49:53 turpin kernel: eth0: interrupt  csr5=0xf0670004 new csr5=0xf0660000.
+Nov 29 12:49:53 turpin kernel: eth0: interrupt  csr5=0xf0670040 new csr5=0xf0660000.
 
-I'd rather that this patch not be applied in its current form, as there are
-a few issues to be cleaned up.  For one, the following:
+So I get 500k of that, and the log ends like this after the kernel
+deadlock:
 
-> +	sa2_cfg->io_base = pnp_dev->resource[0].start;
+Nov 29 12:54:29 turpin kernel:  In tulip_rx(), entry 27 00400320.
+Nov 29 12:54:29 turpin kernel: eth0: In tulip_rx(), entry 27 00400320.
+Nov 29 12:54:29 turpin kernel: eth0: interrupt  csr5=0xf0660000 new csr5=0xf0660000.
+Nov 29 12:54:29 turpin kernel: eth0: exiting interrupt, csr5=0xf0660000.
+Nov 29 12:54:29 turpin kernel: eth0: interrupt  csr5=0xf0670040 new csr5=0xf0660000.
+Nov 29 12:54:29 turpin kernel:  In tulip_rx(), entry 28 00400320.
 
-is incorrect.  The first value reported back by the ISA PnP driver is
-the port for the unused SoundBlaster Pro implementation, not the SA2/3
-control port (which is the 5th value).  Using a port in the SB port range
-as the control port probably works most of the time, but there are some
-weird laptops with this chipset, and there's a chance some of them might
-not work.
+It simply stops (because the kernel stopped). In that 500k of reporting
+interrupts and anything else of interest, there are no "... error ...",
+no "... warning ...", no "... stopped ...", no ring buffer address
+mismatches, no reconfigurations, no "interrupt called from interrupt
+handler", nothing beyond routine interrupt service reports.
 
-Another overlooked issue (common to all the PnP patches I've been sent, I
-think) is handling more than one card, as the SB PnP code does.  It would
-be a bit of a pain to have to resort back to isapnp and module parms to
-configure a second card.
+Whatever the problem is, tulip.c doesn't notice it in full debug mode.
 
-Anyways, as I mentioned above, I'll try to get a more comprehensive patch
-done and posted for testing sometime on Friday.
+(Think about it: the changes between the working .90 in 2.0.38 and
+provisionally suspect .91g in 2.2.15+ with respect to a DS21143 are
+miniscule, while the changes to the rest of the device, networking, and
+network-related vm layer between 2.0.38 and 2.2.17-2.2.18pre23 are
+gigantic. What would you suspect? An overlooked lock that needs to be
+there? You bet. It could be a lock that the 2.2.x tulip driver needs to
+set and does not, but that is not a given, and if so it is odd that the
+maintainer and the people that have hacked the tulip driver to do
+experimental hardware flow control, etc, haven't noticed it by now.)
 
-Scott
+imho,
+
+Clayton Weaver
+<mailto:cgweav@eskimo.com>
+(Seattle)
+
+"Everybody's ignorant, just in different subjects."  Will Rogers
 
 
--- 
-=============================================================================
-Scott Murray                                        email: scott@spiteful.org
-http://www.interlog.com/~scottm                       ICQ: 10602428
------------------------------------------------------------------------------
-     "Good, bad ... I'm the guy with the gun." - Ash, "Army of Darkness"
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

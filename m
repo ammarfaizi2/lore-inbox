@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267564AbSLNJxz>; Sat, 14 Dec 2002 04:53:55 -0500
+	id <S267584AbSLNKFw>; Sat, 14 Dec 2002 05:05:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267573AbSLNJxz>; Sat, 14 Dec 2002 04:53:55 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:23947 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S267564AbSLNJxy>;
-	Sat, 14 Dec 2002 04:53:54 -0500
-Date: Sat, 14 Dec 2002 10:01:25 +0000
+	id <S267587AbSLNKFw>; Sat, 14 Dec 2002 05:05:52 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:27275 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S267584AbSLNKFv>;
+	Sat, 14 Dec 2002 05:05:51 -0500
+Date: Sat, 14 Dec 2002 10:13:27 +0000
 From: Dave Jones <davej@codemonkey.org.uk>
-To: Mike Dresser <mdresser_l@windsormachine.com>
-Cc: GrandMasterLee <masterlee@digitalroadkill.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Intel P6 vs P7 system call performance
-Message-ID: <20021214100125.GA30545@suse.de>
+To: Courtney Grimland <cgrimland@yahoo.com>
+Cc: BoehmeSilvio <Boehme.Silvio@afb.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20-ac1 KT400 AGP support
+Message-ID: <20021214101327.GB30545@suse.de>
 Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Mike Dresser <mdresser_l@windsormachine.com>,
-	GrandMasterLee <masterlee@digitalroadkill.net>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.33.0212132319280.29293-100000@router.windsormachine.com> <Pine.LNX.4.33.0212132345040.12319-100000@router.windsormachine.com>
+	Courtney Grimland <cgrimland@yahoo.com>,
+	BoehmeSilvio <Boehme.Silvio@afb.de>, linux-kernel@vger.kernel.org
+References: <2F4E8F809920D611B0B300508BDE95FE294452@AFB91> <20021213195759.3233dc42.cgrimland@yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0212132345040.12319-100000@router.windsormachine.com>
+In-Reply-To: <20021213195759.3233dc42.cgrimland@yahoo.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 13, 2002 at 11:53:51PM -0500, Mike Dresser wrote:
- > On Fri, 13 Dec 2002, Mike Dresser wrote:
- > 
- > > The single P4/2.53 in another machine can haul down in 3m17s
- > >
- > Amend that to 2m19s, forgot to kill a background backup that was moving
- > files around at about 20 meg a second.
+On Fri, Dec 13, 2002 at 07:57:59PM -0600, Courtney Grimland wrote:
+ > You should be able to set AGP to 4x or 2x in the BIOS.
 
-Note that there are more factors at play than raw cpu speed in a
-kernel compile. Your time here is slightly faster than my 2.8Ghz P4-HT for
-example.  My guess is you have faster disk(s) than I do, as most of
-the time mine seems to be waiting for something to do.
-
-*note also that this is compiling stock 2.4.20 with default configuration.
-The minute you change any options, we're comparings apples to oranges.
+Aparently some KT400 BIOS's got clever, and took away the option.
+They switch to AGP 3.0 if an AGP 3.0 card is present, and drop
+back to 2.0 if a 2.0 card is present.
 
 		Dave
 

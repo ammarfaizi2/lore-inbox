@@ -1,70 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265696AbUEZNbu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265689AbUEZNkH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265696AbUEZNbu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 09:31:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265680AbUEZNbd
+	id S265689AbUEZNkH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 09:40:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265687AbUEZNkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 09:31:33 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:20999 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S265649AbUEZNZP
+	Wed, 26 May 2004 09:40:05 -0400
+Received: from LPBPRODUCTIONS.COM ([68.98.211.131]:65005 "HELO
+	lpbproductions.com") by vger.kernel.org with SMTP id S265689AbUEZNiD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 09:25:15 -0400
-Message-ID: <40B49B3F.9090805@aitel.hist.no>
-Date: Wed, 26 May 2004 15:27:27 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040509)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Buddy Lumpkin <b.lumpkin@comcast.net>
-CC: linux-kernel@vger.kernel.org
+	Wed, 26 May 2004 09:38:03 -0400
+From: "Matt H." <lkml@lpbproductions.com>
+Reply-To: lkml@lpbproduction.scom
+To: Gianni Tedesco <gianni@scaramanga.co.uk>
 Subject: Re: why swap at all?
-References: <S265582AbUEZNAL/20040526130011Z+1843@vger.kernel.org>
-In-Reply-To: <S265582AbUEZNAL/20040526130011Z+1843@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Date: Wed, 26 May 2004 06:41:17 -0700
+User-Agent: KMail/1.6.51
+Cc: Matthias Schniedermeyer <ms@citd.de>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
+References: <S265353AbUEZI1M/20040526082712Z+1294@vger.kernel.org> <20040526123740.GA14584@citd.de> <1085576794.20025.5.camel@sherbert>
+In-Reply-To: <1085576794.20025.5.camel@sherbert>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200405260641.17443.lkml@lpbproductions.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Buddy Lumpkin wrote:
+I believe it was a 2.4 patch , its still around somewhere. I can find it and 
+post it , if it's still relevant. 
 
->>>Couple that with the fact that there are many pte's pointing at the same
->>>physical page (shared page) in many cases where many processes 
->>>
->>>are running
->>>on the system. Because all of the references to that page must be removed
->>>before the page can be evicted, there are some absolute 
->>>limitations in the
->>>rate that pages can be evicted from memory as the number of processes
->>>running on the system and the total amount of memory increases.
->>>
->>>      
->>>
->
->  
->
->>This is still many orders of magnitude faster than filling the page
->>from disk, and you typically don't reclaim much of mapped memory anyway.
->>    
->>
->
->This discussion went broke-minded again. Your still picturing that single
->IDE hard drive in your workstation and im talking about big iron, large
->databases, etc.. where the total amount of aggregate disk I/O is completely
->limited by the rate you can evict pages from the pagecache.
->  
->
-The eviction speed should not be a limitation, unless the machine is
-ill-configured. Some pages aren't dirty, and can be dropped instantly.
-That is way faster than any storage solution.
+Matt H.
 
-Other pages have to be written out (to swap, or to some file because
-it is a pending write.)  This is not a problem, because io out
-is as fast as io in.  If you have big iron with a superfast array - sure,
-your io comes in at tremendous speed.  But swap and other writes
-go out at the same tremendous speed too.  So no problem.
-
-Now if you have a big-iron machine with filesystems on a fast array
-and swap on a single slow disk then you're in trouble.  But that
-is a bad setup, not a kernel problem.
-
-Helge Hafting
+On Wednesday 26 May 2004 6:06 am, Gianni Tedesco wrote:
+> On Wed, 2004-05-26 at 13:37, Matthias Schniedermeyer wrote:
+> > On Wed, May 26, 2004 at 09:19:40PM +1000, Nick Piggin wrote:
+> > > Matthias Schniedermeyer wrote:
+> > > >On Wed, May 26, 2004 at 08:33:28PM +1000, Nick Piggin wrote:
+> > >
+> > > OK, this is obviously bad. Do you get this behaviour with 2.6.5
+> > > or 2.6.6? If so, can you strace the program while it is writing
+> > > an ISO? (just send 20 lines or so). Or tell me what program you
+> > > use to create them and how to create one?
+> >
+> > To use other words, this is the typical case where a "hint" would be
+> > useful.
+> >
+> > program to kernel: "i read ONCE though this file caching not useful".
+>
+> Wasn't their an O_STREAMING patch thrown around towards the beginning of
+> the 2.5 development cycle?

@@ -1,44 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290798AbSBLGu2>; Tue, 12 Feb 2002 01:50:28 -0500
+	id <S290796AbSBLGri>; Tue, 12 Feb 2002 01:47:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290797AbSBLGuS>; Tue, 12 Feb 2002 01:50:18 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17931 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S290798AbSBLGuE>;
-	Tue, 12 Feb 2002 01:50:04 -0500
-Message-ID: <3C68BB15.AF27E615@mandrakesoft.com>
-Date: Tue, 12 Feb 2002 01:49:57 -0500
+	id <S290797AbSBLGrT>; Tue, 12 Feb 2002 01:47:19 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17163 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S290796AbSBLGrH>;
+	Tue, 12 Feb 2002 01:47:07 -0500
+Message-ID: <3C68BA63.E30DDF51@mandrakesoft.com>
+Date: Tue, 12 Feb 2002 01:46:59 -0500
 From: Jeff Garzik <jgarzik@mandrakesoft.com>
 Organization: MandrakeSoft
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre8 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Marcus Alanen <maalanen@ra.abo.fi>
-CC: perex@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: [patch] request_region / release_resource mixup
-In-Reply-To: <Pine.LNX.4.33.0202091708230.1410-100000@tuxedo.abo.fi>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+CC: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+        Kernel Janitors <kernel-janitor-discuss@lists.sourceforge.net>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] printk prefix cleanups.
+In-Reply-To: <Pine.LNX.4.44.0202120823200.27768-100000@netfinity.realnet.co.sz>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcus Alanen wrote:
+Zwane Mwaikambo wrote:
 > 
-> Hi, looking at region and resource handling I see that request_region
-> allocates the struct resource with kmalloc() while request_resource
-> takes it as a parameter. This means that release_region uses kfree()
-> and release_resource doesn't.
+> Here is a simple patch which reduces resultant binary size by 1.2k for
+> this particular module (opl3sa2). Perhaps we should consider adding this
+> on the janitor TODO list for cleaning up other printks.
 > 
-> There are some drivers which mix this up by doing a request_region /
-> release_resource pair, instead of the proper request_region /
-> release_region. This leads to a memory leak.
+> Regards,
+>         Zwane Mwaikambo
 > 
-> I've tried to fix this below. Comments? Output is from bk diff -u,
-> not sure what the best command would've been.
+> --- linux-2.4.18-pre8-zm1/drivers/sound/opl3sa2.c.orig  Mon Feb 11 02:25:50 2002
+> +++ linux-2.4.18-pre8-zm1/drivers/sound/opl3sa2.c       Mon Feb 11 02:40:59 2002
+> @@ -71,6 +71,7 @@
+>  #include "mpu401.h"
+> 
+>  #define OPL3SA2_MODULE_NAME    "opl3sa2"
+> +#define OPL3SA2_PFX            OPL3SA2_MODULE_NAME ": "
+> 
+>  /* Useful control port indexes: */
+>  #define OPL3SA2_PM          0x01
+> @@ -616,7 +617,7 @@
+>                         AD1848_REROUTE(SOUND_MIXER_LINE3, SOUND_MIXER_LINE);
+>                 }
+>                 else {
+> -                       printk(KERN_ERR "opl3sa2: MSS mixer not installed?\n");
+> +                       printk(KERN_ERR OPL3SA2_PFX "MSS mixer not installed?\n");
+>                 }
+>         }
+>  }
+> @@ -639,7 +640,7 @@
+>          * Try and allocate our I/O port range.
+>          */
+>         if(!request_region(hw_config->io_base, 2, OPL3SA2_MODULE_NAME)) {
+> -               printk(KERN_ERR "opl3sa2: Control I/O port %#x not free\n",
+> +               printk(KERN_ERR OPL3SA2_PFX "Control I/O port %#x not free\n",
 
-Good patch, but a comment.  When you replace release_resource(res) with
-release_region(), you should also look and see if you can eliminate the
-temporary variable 'res' too.
+This reduces -binary- size, as shown by /usr/bin/size?  Strings should
+be merged, which makes this strange...
+
+Anyway, I might be able to claim to be the first user of 'PFX'.  You
+will note that it does not have a prefix... on purpose.  The idea is to
+save typing a repetitive and changing-for-each-driver string.
+
+Just use 'PFX' in the source code, like you find in other drivers.
+
+	Jeff
+
+
+
 
 -- 
 Jeff Garzik      | "I went through my candy like hot oatmeal

@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316655AbSFUPOe>; Fri, 21 Jun 2002 11:14:34 -0400
+	id <S316666AbSFUPRG>; Fri, 21 Jun 2002 11:17:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316659AbSFUPOd>; Fri, 21 Jun 2002 11:14:33 -0400
-Received: from mta3.snet.net ([204.60.203.69]:39415 "EHLO mta3.snet.net")
-	by vger.kernel.org with ESMTP id <S316655AbSFUPOc>;
-	Fri, 21 Jun 2002 11:14:32 -0400
-Date: Fri, 21 Jun 2002 11:14:25 -0400 (EDT)
-From: "T.Raykoff" <traykoff@snet.net>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-cc: Taavo Raykoff <traykoff@snet.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.18 IDE channels block each other under load?
-In-Reply-To: <200206211617.14863.roy@karlsbakk.net>
-Message-ID: <Pine.LNX.4.33.0206211113300.27258-100000@srv1.localdomain>
+	id <S316664AbSFUPRF>; Fri, 21 Jun 2002 11:17:05 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:28677 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id <S316662AbSFUPRE>; Fri, 21 Jun 2002 11:17:04 -0400
+Date: Sat, 22 Jun 2002 01:16:55 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 3c509 compile fix for 2.5.24
+Message-ID: <Mutt.LNX.4.44.0206220112180.6457-100000@blackbird.intercode.com.au>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes.  Baffling.  hdparm and prod/ide/hdx both show dma_mode is on.
+Below is a patch which allows the 3c509.c driver to compile for 
+non-isapnp configurations (a trivial bug was seemingly introduced in 
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102394259120718&w=2)
 
-Normally, I have these running with -X69 (UltraDMA 100)
+Please apply.
 
-TR.
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
 
-
-On Fri, 21 Jun 2002, Roy Sigurd Karlsbakk wrote:
-
-> On Friday 21 June 2002 16:03, Taavo Raykoff wrote:
-> > Can someone tell me what is going on here?
-> > <snip>
-> > hdparm settings appear to have no influence on this behavior.
->
-> Are you running DMA on these controllers? It looks like they're running PIO
->
-> Can you check the output of 'hdparm /dev/hd_' and "cat
-> /proc/ide/hd_/settings"?
-> --
-> Roy Sigurd Karlsbakk, Datavaktmester
->
-> Computers are like air conditioners.
-> They stop working when you open Windows.
->
->
+diff -urN -X dontdiff linux-2.5.24.orig/drivers/net/3c509.c linux-2.5.24.w1/drivers/net/3c509.c
+--- linux-2.5.24.orig/drivers/net/3c509.c	Fri Jun 21 13:12:48 2002
++++ linux-2.5.24.w1/drivers/net/3c509.c	Sat Jun 22 00:59:59 2002
+@@ -1259,9 +1259,9 @@
+ #ifdef __ISAPNP__
+ MODULE_PARM(nopnp, "i");
+ MODULE_PARM_DESC(nopnp, "disable ISA PnP support (0-1)");
++MODULE_DEVICE_TABLE(isapnp, el3_isapnp_adapters);
+ #endif	/* __ISAPNP__ */
+ MODULE_DESCRIPTION("3Com Etherlink III (3c509, 3c509B) ISA/PnP ethernet driver");
+-MODULE_DEVICE_TABLE(isapnp, el3_isapnp_adapters);
+ MODULE_LICENSE("GPL");
+ 
+ int
 

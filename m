@@ -1,83 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262544AbTHZDwU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 23:52:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262537AbTHZDwU
+	id S262574AbTHZEEv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 00:04:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262524AbTHZEEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 23:52:20 -0400
-Received: from smtp1.clear.net.nz ([203.97.33.27]:8695 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S262544AbTHZDwS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 23:52:18 -0400
-Date: Tue, 26 Aug 2003 15:45:52 +1200
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: 2.4.22 hangs with pcmcia and linux-wlan
-In-reply-to: <Pine.LNX.4.21.0308252234010.25458-100000@linux08.ece.utexas.edu>
-To: "Hmamouche, Youssef" <youssef@ece.utexas.edu>
-Cc: Christian Hesse <news@earthworm.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1061869538.2790.9.camel@laptop-linux>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.2
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <Pine.LNX.4.21.0308252234010.25458-100000@linux08.ece.utexas.edu>
+	Tue, 26 Aug 2003 00:04:51 -0400
+Received: from anumail5.anu.edu.au ([150.203.2.45]:49878 "EHLO anu.edu.au")
+	by vger.kernel.org with ESMTP id S262574AbTHZEEt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 00:04:49 -0400
+Message-ID: <3F4ADC56.9010900@cyberone.com.au>
+Date: Tue, 26 Aug 2003 14:04:38 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.2.1) Gecko/20021217
+MIME-Version: 1.0
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Nick's scheduler policy v7
+References: <3F48B12F.4070001@cyberone.com.au> <29760000.1061744102@[10.10.2.4]> <3F497BB6.90100@cyberone.com.au> <3F49E7D1.4000309@cyberone.com.au> <3070000.1061868247@[10.10.2.4]>
+In-Reply-To: <3070000.1061868247@[10.10.2.4]>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Sender-Domain: cyberone.com.au
+X-Spam-Score: (-3)
+X-Spam-Tests: EMAIL_ATTRIBUTION,IN_REP_TO,QUOTED_EMAIL_TEXT,REFERENCES,REPLY_WITH_QUOTES,USER_AGENT_MOZILLA_UA
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Martin J. Bligh wrote:
 
-Similar results here, except I can be more specific. I see the issue
-using pcmcia only. The package I'm using is the
-external-to-the-kernel-tree pcmcia-cs-3.2.3. Under 2.4.22, I get a
-complete freeze (no SysRq, no flashing cursor) when I insmod i82365.o. I
-tried recompiling the whole kernel & modules using gcc 2.96 and 3.2 to
-no avail.  If I use the kernel tree's code, I can insmod okay, but my
-ltmodem_cs driver reports the modem as being busy all the time. The
-problem was fixed by reverting to 2.4.21 (I'd already deleted pre2,
-which was working). No configuration changes required - just a
-recompile.
+>>I didn't miss 5 revisions, I'll just stick to using my internal
+>>numbering for releases.
+>>
+>>This one has a few changes. Children now get a priority boost
+>>on fork, and parents retain more priority after forking a child,
+>>however exiting CPU hogs will now penalise parents a bit.
+>>
+>>Timeslice scaling was tweaked a bit. Oh and remember raising X's
+>>priority should _help_ interactivity with this patch, and IMO is
+>>not an unreasonable thing to be doing.
+>>
+>>Please test. I'm not getting enough feedback!
+>>
+>
+>Well, it's actually a bit faster than either mainline or your previous
+>rev whilst running SDET:
+>
+>SDET 128  (see disclaimer)
+>                           Throughput    Std. Dev
+>              2.6.0-test4       100.0%         0.3%
+>         2.6.0-test4-nick       102.9%         0.3%
+>       2.6.0-test4-nick7a       105.1%         0.5%
+>
+>But kernbench is significantly slower. The increase in sys time has 
+>dropped from last time, but user time is up.
+>
+>Kernbench: (make -j vmlinux, maximal tasks)
+>                              Elapsed      System        User         CPU
+>              2.6.0-test4       45.87      116.92      571.10     1499.00
+>         2.6.0-test4-nick       49.37      131.31      611.15     1500.75
+>       2.6.0-test4-nick7a       49.48      125.95      617.71     1502.00
+>
 
-Regards,
+Thanks Martin. OK, so the drop in kernbench is quite likely to be what
+I thought - elevated priorities (caused by eg. make waiting for children)
+causing timeslices to shrink. As long as its not a fundamental problem,
+this should be able to be tweaked back.
 
-Nigel
+Yeah, I guess the random kernel and user times are probably due to cache.
 
-On Tue, 2003-08-26 at 15:37, Hmamouche, Youssef wrote:
-> Out of curiosity, what happens when you remove the card? Does the system
-> come back to normal or does it stay in the same state?
-> 
-> Youssef
-> 
-> On Tue, 26 Aug 2003, Christian Hesse wrote:
-> 
-> > Hi,
-> > 
-> > I'm running kernels with pcmcia-cs-3.2.4 and linux-wlan-ng-0.2.1-pre11 (also 
-> > tried 0.2). With 2.4.22-rc3 to final the system hangs if I insert my LevelOne 
-> > WPC-0100 (Prism-II-base wlan), no output at all. Everything worked well up to 
-> > and including 2.4.22-rc2.
-> > 
-> > Regards,
-> >   Christian
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Nigel Cunningham
-495 St Georges Road South, Hastings 4201, New Zealand
 
-You see, at just the right time, when we were still powerless,
-Christ died for the ungodly.
-	-- Romans 5:6, NIV.
 

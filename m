@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284933AbSAXIlZ>; Thu, 24 Jan 2002 03:41:25 -0500
+	id <S285073AbSAXImF>; Thu, 24 Jan 2002 03:42:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284987AbSAXIlP>; Thu, 24 Jan 2002 03:41:15 -0500
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:4615 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id <S284933AbSAXIk4>; Thu, 24 Jan 2002 03:40:56 -0500
-From: Norbert Preining <preining@logic.at>
-Date: Thu, 24 Jan 2002 09:40:48 +0100
-To: linux-kernel@vger.kernel.org
-Cc: Daniel Nofftz <nofftz@castor.uni-trier.de>
-Subject: Re: amd athlon cooling on kt266/266a chipset
-Message-ID: <20020124094048.A17305@alpha.logic.tuwien.ac.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S284987AbSAXIlz>; Thu, 24 Jan 2002 03:41:55 -0500
+Received: from bs1.dnx.de ([213.252.143.130]:47272 "EHLO bs1.dnx.de")
+	by vger.kernel.org with ESMTP id <S285073AbSAXIlk>;
+	Thu, 24 Jan 2002 03:41:40 -0500
+Date: Thu, 24 Jan 2002 09:39:03 +0100 (CET)
+From: Robert Schwebel <robert@schwebel.de>
+X-X-Sender: <robert@callisto.local>
+Reply-To: <robert@schwebel.de>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: New version of AMD Elan patch
+In-Reply-To: <Pine.LNX.4.33.0201240905010.893-100000@callisto.local>
+Message-ID: <Pine.LNX.4.33.0201240938230.893-100000@callisto.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Daniel!
+On Thu, 24 Jan 2002, Robert Schwebel wrote:
+> For the list: the remaining stuff against -pre7 is as usual on
+>
+>   http://www.pengutronix.de/software/elan_en.wml
 
-You wrote:
-> 2. enable generel-setup -> acpi , acpi-bus-maager , prozessor
->    in the kernel config
+Oops, should be
 
-Why is it necessary to activate acpi which makes apm not working,
-and therefor poweroff etc. acpi is long from working/stable and
-the support for various actions too are missing.
+  http://www.pengutronix.de/software/elan_en.html
 
->From the patch I do not see why it is specific to acpi?
+Robert
+--
+ +--------------------------------------------------------+
+ | Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de |
+ | Pengutronix - Linux Solutions for Science and Industry |
+ |   Braunschweiger Str. 79,  31134 Hildesheim, Germany   |
+ |    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4    |
+ +--------------------------------------------------------+
 
-Best wishes
-
-Norbert
-
------------------------------------------------------------------------
-Norbert Preining <preining@logic.at> 
-University of Technology Vienna, Austria            gpg DSA: 0x09C5B094
------------------------------------------------------------------------
-KNOPTOFT (n.)
-
-The mysterious fluff placed in your pockets by dry-cleaning firms.
-
-			--- Douglas Adams, The Meaning of Liff 

@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311586AbSCTGSB>; Wed, 20 Mar 2002 01:18:01 -0500
+	id <S312536AbSCTMfr>; Wed, 20 Mar 2002 07:35:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311587AbSCTGRv>; Wed, 20 Mar 2002 01:17:51 -0500
-Received: from [202.135.142.194] ([202.135.142.194]:60176 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S311586AbSCTGRh>; Wed, 20 Mar 2002 01:17:37 -0500
-Date: Wed, 20 Mar 2002 17:20:27 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: martin.wirth@dlr.de, pwaechtler@loewe-komp.de,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
-Message-Id: <20020320172027.79a70ecd.rusty@rustcorp.com.au>
-In-Reply-To: <1016510722.2194.101.camel@myware.mynet>
-X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S312537AbSCTMfi>; Wed, 20 Mar 2002 07:35:38 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:4870 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S312536AbSCTMf0> convert rfc822-to-8bit; Wed, 20 Mar 2002 07:35:26 -0500
+Date: Wed, 20 Mar 2002 13:35:21 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+To: =?iso-8859-1?Q?christophe_barb=E9?= <christophe.barbe.ml@online.fr>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: alternative linux configurator prototype v0.2
+In-Reply-To: <20020319202101.GM29518@ufies.org>
+Message-ID: <Pine.LNX.4.21.0203201327490.19384-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Mar 2002 20:05:22 -0800
-Ulrich Drepper <drepper@redhat.com> wrote:
+Hi,
 
-> On Mon, 2002-03-18 at 19:28, Rusty Russell wrote:
-> 
-> > What do you WANT in a kernel primitive then?  Given that we now have mutexes,
-> > what else do we need to make pthreads relatively painless?
-> 
-> I think wrt to the mutexes only wake-all is missing.  I don't think that
-> semaphore semantic is needed in the kernel.
+On Tue, 19 Mar 2002, christophe barbé wrote:
 
-And have all the waiters exit with errno = EAGAIN?  ("You didn't get it but
-someone wanted you all woken").
+> Ok you can remove it from your linus fortune file.
 
-It can be done, I'd have to see if is sufficient to implement pthreads.
+I don't have one.
 
-Rusty.
--- 
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+> Don't expect from me (and others I guess) to install the qt2 libs to
+> configure my kernel.
+
+I'm curious, is python+tk any better/worse?
+
+> Is there a clear separation between GUI and other code ?
+
+Yes, although the interface needs some cleanup (and documentation).
+
+> Do you provide a oldconfig-like functionnality ?
+
+Yes, and it's in plain C.
+
+bye, Roman
+

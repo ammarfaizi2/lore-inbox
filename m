@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129903AbRAJUUp>; Wed, 10 Jan 2001 15:20:45 -0500
+	id <S129431AbRAJUVp>; Wed, 10 Jan 2001 15:21:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129595AbRAJUU0>; Wed, 10 Jan 2001 15:20:26 -0500
-Received: from cmn2.cmn.net ([206.168.145.10]:5910 "EHLO cmn2.cmn.net")
-	by vger.kernel.org with ESMTP id <S129431AbRAJUTx>;
-	Wed, 10 Jan 2001 15:19:53 -0500
-Message-ID: <3A5CB055.7010809@valinux.com>
-Date: Wed, 10 Jan 2001 11:56:21 -0700
-From: Jeff Hartmann <jhartmann@valinux.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.12-20smp i686; en-US; m18) Gecko/20001107 Netscape6/6.0
-X-Accept-Language: en
+	id <S131948AbRAJUVf>; Wed, 10 Jan 2001 15:21:35 -0500
+Received: from [200.199.222.5] ([200.199.222.5]:22546 "EHLO
+	strauss.mileniumnet.com.br") by vger.kernel.org with ESMTP
+	id <S129431AbRAJUVV>; Wed, 10 Jan 2001 15:21:21 -0500
+Date: Wed, 10 Jan 2001 16:24:21 -0200 (BRST)
+From: Thiago Rondon <maluco@mileniumnet.com.br>
+To: dahinds@users.sourceforge.net
+cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-ID: <Pine.LNX.4.21.0101101623150.4170-100000@freak.mileniumnet.com.br>
 MIME-Version: 1.0
-To: Charles McLachlan <cim20@mrao.cam.ac.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Problem with 2.4.0 agpgart on Dell D4100 (probably) Intel i815
-In-Reply-To: <Pine.SOL.4.30.0101101409211.8321-100000@mraosd.ra.phy.cam.ac.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Charles McLachlan wrote:
 
-> (The ultimate cause of what I'm about to tell you may well be a chipset
-> problem, but I think I've uncovered a tiny bit of kernel weirdness none
-> the less)
-<snip>
+Check kmalloc().
 
->
-> Does anyone have any idea what is going on?
-> 
-> Charlie - Queens' College - Cavendish Astrophysics - 07866 636318
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+-Thiago Rondon
 
-Don't compile in I810/I815 Graphics support into the kernel.  Just 
-compile the Intel 440LX/BX/GX/815/840/850 support.  That should make 
-everything work fine.
+--- linux-2.4.0-ac5/drivers/pcmcia/ds.c	Sat Sep  2 04:13:49 2000
++++ linux-2.4.0-ac5.maluco/drivers/pcmcia/ds.c	Wed Jan 10 16:20:53 2001
+@@ -414,6 +414,8 @@
+     /* Add binding to list for this socket */
+     driver->use_count++;
+     b = kmalloc(sizeof(socket_bind_t), GFP_KERNEL);
++    if (!b) 
++      return -ENOMEM;    
+     b->driver = driver;
+     b->function = bind_info->function;
+     b->instance = NULL;
 
--Jeff
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

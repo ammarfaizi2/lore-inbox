@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317859AbSGWAB6>; Mon, 22 Jul 2002 20:01:58 -0400
+	id <S317867AbSGWAC4>; Mon, 22 Jul 2002 20:02:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317867AbSGWAB6>; Mon, 22 Jul 2002 20:01:58 -0400
-Received: from freeside.toyota.com ([63.87.74.7]:64011 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S317859AbSGWAB5>; Mon, 22 Jul 2002 20:01:57 -0400
-Message-ID: <3D3C9DAB.3090604@lexus.com>
-Date: Mon, 22 Jul 2002 17:04:59 -0700
-From: J Sloan <jjs@lexus.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020716
-X-Accept-Language: en-us, en
+	id <S317868AbSGWAC4>; Mon, 22 Jul 2002 20:02:56 -0400
+Received: from users.ccur.com ([208.248.32.211]:56909 "HELO rudolph.ccur.com")
+	by vger.kernel.org with SMTP id <S317867AbSGWACz>;
+	Mon, 22 Jul 2002 20:02:55 -0400
+From: jak@rudolph.ccur.com (Joe Korty)
+Message-Id: <200207230005.AAA24267@rudolph.ccur.com>
+Subject: [PATCH] ext3 lockup fix to lock-break-rml-2.4.18-1.patch
+To: rml@tech9.net (Robert Love)
+Date: Mon, 22 Jul 2002 20:05:11 -0400 (EDT)
+Cc: akpm@zip.com.au (Andrew Morton), linux-kernel@vger.kernel.org
+Reply-To: joe.korty@ccur.com (Joe Korty)
+In-Reply-To: <1027362145.932.49.camel@sinai> from "Robert Love" at Jul 22, 2002 11:22:25 AM
+X-Mailer: ELM [version 2.5 PL0b1]
 MIME-Version: 1.0
-To: "Steven J. Hill" <sjhill@realitydiluted.com>
-CC: Karol Olechowskii <karol_olechowski@acn.waw.pl>,
-       linux-kernel@vger.kernel.org
-Subject: [OT] Re: Athlon XP 1800+ segemntation fault
-References: <20020722133259.A1226@acc69-67.acn.pl> <3D3C435F.7080603@realitydiluted.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Robert,
+The following patch fixes an apparent mismerge of Andrew Morton's low
+latency work into the lock breaking patch.  Without this fix,
+journal_commit_transaction() will loop forever, without making
+forward progress, if need_resched was set on entry.
 
+Base to which the patch was derived:
 
-Steven J. Hill wrote:
+    linux.2.4.18.tar.bz2
+    + sched-O1-2.4.18-pre8-K3.patch
+    + preempt-kernel-rml-2.4.18-rc1-ingo-K3-1.patch
+    + lock-break-rml-2.4.18-1.patch
 
-> I too have the MSI K7D Master. As Alan mentioned, the 2.4.19-rc2-ac2
-> patch works fine. My machine has been rock solid and I'm running dual
-> XP 2000+. However, I'm running Radeon 8500 (I refused to give my money
-> to a company that doesn't release it's drivers). 
-
-hmm, you must mean nvidia  - well, their
-drivers are not GPL'd, but they did go to
-the trouble of writing the best 3D drivers
-available for Linux - they seem to get a lot
-of heat here despite that. Yes, it would be
-better if they were GPL'd - but if I have
-a choice between fast, up-to-date nvidia
-drivers, or unfinished, poorly performing,
-crash-prone, bit-rotted GPL'd drivers, I'd
-have to go with what works.
-
-When there's 3D linux support for ATI cards
-that can provide performance anywhere
-near Nvidia's, I'll be glad to buy ATI cards -
-but me tell you, for us 100% Linux shops,
-Nvidia is really the only game in town since
-3dfx went under!
-
+Regards,
 Joe
 
-(Having played many happy hours of RcTW
-running 2.4.19-rc -aa and NVdriver-1.0-2960)
 
-
-
+--- fs/jbd/commit.c.orig	Mon Jul 22 19:51:43 2002
++++ fs/jbd/commit.c	Mon Jul 22 19:52:00 2002
+@@ -278,6 +278,7 @@
+ 			debug_lock_break(551);
+ 			spin_unlock(&journal_datalist_lock);
+ 			unlock_journal(journal);
++			unconditional_schedule();
+ 			lock_journal(journal);
+ 			spin_lock(&journal_datalist_lock);
+ 			continue;

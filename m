@@ -1,65 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266648AbUFWSvA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266647AbUFWSwP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266648AbUFWSvA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 14:51:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266650AbUFWStf
+	id S266647AbUFWSwP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 14:52:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266622AbUFWStM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 14:49:35 -0400
-Received: from quechua.inka.de ([193.197.184.2]:55725 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S266605AbUFWSsD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 14:48:03 -0400
-From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
+	Wed, 23 Jun 2004 14:49:12 -0400
+Received: from cfcafw.sgi.com ([198.149.23.1]:10260 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S266613AbUFWSsO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 14:48:14 -0400
+Date: Wed, 23 Jun 2004 13:49:01 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: I/O Confirmation/Problem under 2.6/2.4
-Organization: Deban GNU/Linux Homesite
-In-Reply-To: <1088012966.1347.28.camel@solaris.skunkware.org>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.5 (i686))
-Message-Id: <E1BdCmu-0000s6-00@calista.eckenfels.6bone.ka-ip.net>
-Date: Wed, 23 Jun 2004 20:48:00 +0200
+Subject: [RFC] replace assorted ASSERT()s by something officially 
+ sanctioned
+Message-ID: <40D9D09D.mailx49E1J10NF@aqua.americas.sgi.com>
+User-Agent: nail 10.6 11/15/03
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: dcn@sgi.com (Dean Nelson)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+It doesn't appear that an officially 'sanctioned' version of ASSERT() or
+an ASSERT()-like macro exists.
 
-I do have some additional questions to help others to better diagnose your
-problem. Currently I am suspecting a bottle neck in your mainboard :)
+And by the proliferation of its use in the linux 2.6 kernel (I saw over
+3000 references to it), it would seem that BUG_ON() does not satisfy all
+of the requirements of the community.
 
-In article <1088012966.1347.28.camel@solaris.skunkware.org> you wrote:
-> PERC *megaraid* series and an Adaptec card *aacraid*) and have not been
-> able to obtain more then 60MB/s doing hardware raid 5.
+One problem with BUG_ON() is that it is always enabled. And even though
+the compiler does a good job of minimizing the impact of the conditional
+expression, there are times when the conditional check requires the
+accessing of a cacheline that would not get accessed had the BUG_ON() not
+been enabled. And if that cacheline were one that is hotly contended for,
+one's performance can be adversely affected.
 
-Is that peak or saturated load? you may want to try to only fill the write
-back cache of the controller, to not get affected by slow raidness or disks.
+For debugging purposes it would be nice to have a version of BUG_ON() that
+was only enabled if DEBUG was set. This is what appears to be behind the use
+of the ASSERT()-like macros.
 
-The raid5 is not very good in speeding up random reads or sequential writes.
-Perhaps you want to try stripping on level 0.
+As an example of what I have in mind, I've included the following quilt
+patch.
 
-> The raid cards
-> I'm testing are quad channel ultra160's with a total of 8 10k 72GB
-> ultra320 drives (2 per channel) per raid volume... thus I should be able
-> to do a fairly large amount of I/O (100+MB sequential writes I'd
-> assume).
+Thanks,
+Dean
 
-What is the IO Bus you are talking about? Single PCI Bus?
 
-Have you tried an alternative operating system?
-
-> I have tried every possible striping configuration a long with multiple
-> filesystem (ext2/3/xfs)
-
-You may want to try it without a filesystem and perhaps even with a faster
-raid configuration like stripping.
-
-> Please confirm and if possible provide possible settings needed to get
-> linux in the mode for high i/o or general places to tune I/O.
-
-how does your vmstat and iostat look like? How many ram and cpu you are
-talking about? is it an smp kernel?
-
-Greetings
-Bernd
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+Index: linux/include/asm-i386/bug.h
+===================================================================
+--- linux.orig/include/asm-i386/bug.h
++++ linux/include/asm-i386/bug.h
+@@ -21,6 +21,12 @@
+ 
+ #define BUG_ON(condition) do { if (unlikely((condition)!=0)) BUG(); } while(0)
+ 
++#ifdef DEBUG
++#define DBUG_ON(condition)	BUG_ON(condition)
++#else
++#define DBUG_ON(condition)
++#endif
++
+ #define PAGE_BUG(page) do { \
+ 	BUG(); \
+ } while (0)

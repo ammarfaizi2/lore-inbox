@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265633AbUABUH7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 15:07:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265636AbUABUH7
+	id S265639AbUABUKO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 15:10:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265640AbUABUKO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 15:07:59 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:46722 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S265633AbUABUH6
+	Fri, 2 Jan 2004 15:10:14 -0500
+Received: from gprs178-245.eurotel.cz ([160.218.178.245]:41611 "EHLO
+	midnight.ucw.cz") by vger.kernel.org with ESMTP id S265639AbUABUKI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 15:07:58 -0500
-Date: Fri, 2 Jan 2004 18:07:00 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Stan Bubrouski <stan@ccs.neu.edu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, khorben@defora.org
-Subject: Re: [Fwd: Linux on Cyrix 6x86]
-In-Reply-To: <1072812026.1760.19.camel@duergar>
-Message-ID: <Pine.LNX.4.58L.0401021806090.20333@logos.cnet>
-References: <3FF1C5BC.8010902@zytor.com> <1072812026.1760.19.camel@duergar>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+	Fri, 2 Jan 2004 15:10:08 -0500
+Date: Fri, 2 Jan 2004 21:10:15 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Go Taniguchi <go@turbolinux.co.jp>
+Cc: Vojtech Pavlik <vojtech@suse.cz>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.1-rc1 with JP106 keyboard
+Message-ID: <20040102201015.GA3080@ucw.cz>
+References: <Pine.LNX.4.58.0312310033110.30995@home.osdl.org> <3FF4F8EA.6090602@turbolinux.co.jp> <20040102131737.GB395@ucw.cz> <3FF5C015.7050806@turbolinux.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FF5C015.7050806@turbolinux.co.jp>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jan 03, 2004 at 04:01:41AM +0900, Go Taniguchi wrote:
 
+> >>Hi,
+> >>2.6.1-rc1 with JP106 keybord. keycode was changed....
+> >>                                        2.6.0 -> 2.6.1-rc1
+> >>lower-right backslash (scancode 0x73)   89    -> 181
+> >>upper-right backslash (scancode 0x7d)   183   -> 182
+> > 
+> > 
+> > These two scancodes are defined as japanese language selection keys.
+> > Hence the atkbd.c driver delivers these as such. What should be updated
+> > is the default keymap (defkeymap.map, defkeymap.c).
+> > 
+> 
+> Thank you so much.
+> I try so that it can be solved.
+> > What should be updated  is the default keymap (defkeymap.map, defkeymap.c).
+> Sorry, does this mean that a default key map is re-defined?
+> We need to add 181 and 182 keycodes to the keymap?
 
-On Tue, 30 Dec 2003, Stan Bubrouski wrote:
+Exactly so.
 
-> On Tue, 2003-12-30 at 13:36, H. Peter Anvin wrote:
-> > From: Pierre Pronchery <khorben@defora.org>
-> > To: hpa@zytor.com
-> > Subject: Linux on Cyrix 6x86
-> > Date: Tue, 30 Dec 2003 15:19:18 +0100
-> >
-> > 	Hi,
-> >
-> > I've just compiled Linux 2.4.23 for a Cyrix 6x86 P166+ processor, with
-> > the appropriate "Processor family" option "586/K5/5x86/6x86/6x86MX"
-> > (CONFIG_M586=y). It says it's for 586-compatible processors, possibly
-> > lacking the TSC register, though the kernel panic'd at boot, saying it
-> > needed a TSC register.
-> >
->
-> I have the same processor in my old archive machine with an ancient
-> 2.0.36 kernel.  I do recall the kernel is an i586 and I believe there
-> was a cyrix CPU option back then (I have to take the drives out of that
-> machine and put them in this one to check as the system stopped booting
-> a few days ago).  So looks like a bug.
-
-Pierre informed me privately that he was doing something wrong --- he
-managed to boot 2.4.23 with CONFIG_M586 on his Cyrix processor.
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

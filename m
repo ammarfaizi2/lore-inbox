@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286370AbRLVAe5>; Fri, 21 Dec 2001 19:34:57 -0500
+	id <S285963AbRLVAwi>; Fri, 21 Dec 2001 19:52:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286367AbRLVAer>; Fri, 21 Dec 2001 19:34:47 -0500
-Received: from dsl-65-186-161-49.telocity.com ([65.186.161.49]:23821 "EHLO
-	nic.osagesoftware.com") by vger.kernel.org with ESMTP
-	id <S285705AbRLVAem>; Fri, 21 Dec 2001 19:34:42 -0500
-Message-Id: <4.3.2.7.2.20011221193149.00ca6f00@mail.osagesoftware.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Fri, 21 Dec 2001 19:34:29 -0500
+	id <S286414AbRLVAw3>; Fri, 21 Dec 2001 19:52:29 -0500
+Received: from marine.sonic.net ([208.201.224.37]:6254 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S286367AbRLVAwV>;
+	Fri, 21 Dec 2001 19:52:21 -0500
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Fri, 21 Dec 2001 16:52:15 -0800
+From: Mike Castle <dalgoda@ix.netcom.com>
 To: lkml <linux-kernel@vger.kernel.org>
-From: David Relson <relson@osagesoftware.com>
-Subject: re: Linux 2.4.17
-In-Reply-To: <Pine.LNX.4.43.0112211536430.16844-100000@waste.org>
-In-Reply-To: <Pine.LNX.4.21.0112211744080.7492-100000@freak.distro.conectiva>
+Subject: Re: Linux 2.4.17
+Message-ID: <20011222005215.GC6619@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.21.0112211744080.7492-100000@freak.distro.conectiva> <4.3.2.7.2.20011221193149.00ca6f00@mail.osagesoftware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4.3.2.7.2.20011221193149.00ca6f00@mail.osagesoftware.com>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 06:10 PM 12/21/01, Oliver Oxymoron wrote:
->On Fri, 21 Dec 2001, Marcelo Tosatti wrote:
->
->... There's always the risk of breaking something
->and you don't want to introduce a disk-eating bug between -rc and -final.
->It's better to ship one more -rc and wait a day before -final. If you
->don't, people will just get in the habit of waiting a day after -final to
->be safe.
->
-> > I said I would make -rc kernels which would not add any new _feature_.
->
->That's less important.
+On Fri, Dec 21, 2001 at 07:34:29PM -0500, David Relson wrote:
+> My thought is that the _only_ difference between the last -rc and -final is 
+> correctly setting "EXTRAVERSION=" in Makefile.
 
-I agree with releasing an extra -rc and waiting the extra day for -final.
+Perhaps Documentation/* changes.
 
-My thought is that the _only_ difference between the last -rc and -final is 
-correctly setting "EXTRAVERSION=" in Makefile.
-
-David
-
+mrc
+-- 
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

@@ -1,98 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266964AbTBHCUo>; Fri, 7 Feb 2003 21:20:44 -0500
+	id <S266962AbTBHCT3>; Fri, 7 Feb 2003 21:19:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266965AbTBHCUn>; Fri, 7 Feb 2003 21:20:43 -0500
-Received: from norwich.jmjones.com ([216.238.56.67]:17669 "EHLO
-	mail.jmjones.com") by vger.kernel.org with ESMTP id <S266964AbTBHCUl>;
-	Fri, 7 Feb 2003 21:20:41 -0500
-Date: Fri, 7 Feb 2003 21:20:08 -0500 (EST)
-From: jmjones@jmjones.com
-To: Christoph Hellwig <hch@infradead.org>
-cc: "Stephen D. Smalley" <sds@epoch.ncsc.mil>, greg@kroah.com,
-       torvalds@transmeta.com, linux-security-module@wirex.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] LSM changes for 2.5.59
-In-Reply-To: <20030206151820.A11019@infradead.org>
-Message-ID: <Pine.LNX.3.96.1030207205056.31221A-100000@dixie>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266964AbTBHCT3>; Fri, 7 Feb 2003 21:19:29 -0500
+Received: from ns.suse.de ([213.95.15.193]:16912 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S266962AbTBHCT2>;
+	Fri, 7 Feb 2003 21:19:28 -0500
+Date: Sat, 8 Feb 2003 03:29:08 +0100
+From: Andi Kleen <ak@suse.de>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>,
+       Joel Becker <Joel.Becker@oracle.com>
+Subject: Re: [RFC][PATCH] linux-2.5.59_getcycles_A0
+Message-ID: <20030208022908.GA29776@wotan.suse.de>
+References: <1044649542.18673.20.camel@w-jstultz2.beaverton.ibm.com.suse.lists.linux.kernel> <p73ptq3bxh6.fsf@oldwotan.suse.de> <1044659375.18676.80.camel@w-jstultz2.beaverton.ibm.com> <20030208001844.GA20849@wotan.suse.de> <1044665441.18670.106.camel@w-jstultz2.beaverton.ibm.com> <20030208015235.GA25432@wotan.suse.de> <1044670483.21642.18.camel@w-jstultz2.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1044670483.21642.18.camel@w-jstultz2.beaverton.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Feb 2003, Christoph Hellwig wrote:
-
-> Well, selinux is still far from a mergeable shape and even needed additional
-> patches to the LSM tree last time I checked.  This think of submitting hooks
-> for code that obviously isn't even intende to be merged in mainline is what
-> I really dislike, and it's the root for many problems with LSM.
-
-I disagree.  The code submitted BOTH addresses the current needs and
-"vaguely anticipated future needs" (which I shall define as VAFN).  I've
-applied this code to my "personal security solution" and found it
-*largely* to address my needs.  Wanna see my code?  *NO*  I have other
-plans for my code, but I still think LSM supports me more than the 2.4
-kernel does and, therefore, *I* believe it is a move in the right
-direction for the kernel.
-
+On Fri, Feb 07, 2003 at 06:14:43PM -0800, john stultz wrote:
+> On Fri, 2003-02-07 at 17:52, Andi Kleen wrote:
+> > > However this doesn't work on systems w/o a synced TSC, so by simply
+> > 
+> > Why not? This shouldn't be performance critical and you can make 
+> > it monotonous with an additional variable + lock if backwards jumps
+> > should be a problem.
+> > 
 > 
-> There has been a history in Linux to only implement what actually needed
-> now instead of "clever" overdesigns that intend to look into the future,
-> LSM is a gross voilation of that principle.  Just look at the modules in
-> the LSM source tree:  the only full featured security policy in addition
-> to the traditional Linux model is LSM, all the other stuff is just some
-> additionl checks here and there.
+> That sounds horrible! The extra locking and variable reading is going to
+> kill most of the performance concerns you have about reading an
+> alternate time source. 
 > 
+> I'm not sure I understand your resistance to using an alternate clock
+> for get_cycles(). Could you better explain your problem with it?
 
-This is correct, except in its overall evaluation of Linux.  Linux has
-accepted only "actually needed" code, but it has FURTHER accepted
-"actually needed but GENERALLY useful code."  If one can accept code that
-already has a purpose AND support other "'clever' overdesigns that intend
-to look into the future" which are "not-opposed-to-current-thinking", one
-has moved one's project closer to an ideal. 
- 
-You can narrow AND widen, and Linux is the *best* example of that policy,
-to date.  There's no dishonor in accepting solutions that do what they
-advertise AND allow what they have not advertised... provided they not
-allow things widely defined as "evil."
- 
-> I'm very serious about submitting a patch to Linus to remove all hooks not
-> used by any intree module once 2.6.0-test.
- 
-This would be unfortunate.  Narrow is good when one approaches a narrow
-target, but LSM targets a wide target: Linux Security.
+I want to keep get_cycles() as a very fast primitive useful for benchmarking
+etc. and the random device. Accessing the southbridge would make it magnitudes 
+slower.
 
-> 
-> Life would be a lot simpler if you got the core flask engine in a mergeable
-> shapre earlier and we could have merged the hooks for actually using it
-> incrementally during 2.5, discussing the pros and contras for each hook
-> given an actual example - but the current way of adding extremly generic
-> hooks (despite the naming they are in no ways tied to enforcing security
-> models at all) without showing and discussing the code behind them simply
-> makes that impossible.
-> 
+Regarding the watchdog: what it basically wants is a POSIX
+CLOCK_MONOTONIC clock. This isn't currently implemented by Linux, 
+but I expect it will be eventually because it's really useful for a lot
+of applications who just need an increasing time stamp in user space,
+and who do not want to fight ntpd for this. One example for such 
+an application is the X server who needs this for its internal 
+event sequencing.
 
-Open your mind.  LSM supports both all current solutions for object-level
-security AND provides a valid basis for moving Linux toward providing, AS
-AN OPTION, true security.  Personally, I don't think LSM is the "be all
-and end all" of a security interface, at this point, but I *do* think it's
-the best first-draft of a system that can lead to that end.
+Implementing it based on the current time infrastructure is very easy -
+you just do not add xtime and wall jiffies in, but only jiffies.
 
-Give me THREE design attributes that would make it better.  Bet you can't
-come up with ONE.
+I don't think doing any special hacks and complicating get_cycles()
+for it is the right way. Just implement a new monotonic clock primitive
+(and eventually export it to user space too) 
 
-LSM is NOT the *perfect* solution.  But I defy you to find a better
-"first step" toward the solution of making Linux a "secure operating
-system".  Nobody says it's cheap and the idea of making it a config-out
-solution addresses that. 
-
-What's your REAL problem?  Somebody stepping on your territory?
-J. Melvin Jones
-
-*-------------------------------------------------------
-* J. Melvin Jones                http://www.jmjones.com/
-* Webmaster, System Administrator, Network Administrator
-* ------------------------------------------------------
-
-
+-Andi
 

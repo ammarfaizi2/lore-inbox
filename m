@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293672AbSCPC0W>; Fri, 15 Mar 2002 21:26:22 -0500
+	id <S293673AbSCPC1C>; Fri, 15 Mar 2002 21:27:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293673AbSCPC0L>; Fri, 15 Mar 2002 21:26:11 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13326 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293672AbSCPC0C>;
-	Fri, 15 Mar 2002 21:26:02 -0500
-Message-ID: <3C92AD1F.30909@mandrakesoft.com>
-Date: Fri, 15 Mar 2002 21:25:35 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Anders Gustafsson <andersg@0x63.nu>, arjanv@redhat.com,
-        linux-kernel@vger.kernel.org, mochel@osdl.org
-Subject: Re: [PATCH] devexit fixes in i82092.c
-In-Reply-To: <Pine.LNX.4.33.0203151659060.1379-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S293675AbSCPC0m>; Fri, 15 Mar 2002 21:26:42 -0500
+Received: from codepoet.org ([166.70.14.212]:30114 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S293673AbSCPC0i>;
+	Fri, 15 Mar 2002 21:26:38 -0500
+Date: Fri, 15 Mar 2002 19:26:41 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: john slee <indigoid@higherplane.net>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.6 IDE 19, return of taskfile
+Message-ID: <20020316022640.GA14642@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	john slee <indigoid@higherplane.net>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.21.0203111436120.14945-100000@weyl.math.psu.edu> <E16kW0A-0001Yl-00@the-village.bc.nu> <20020313125507.C38@toy.ucw.cz> <20020315174916.GE27706@higherplane.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020315174916.GE27706@higherplane.net>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.4.18-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Sat Mar 16, 2002 at 04:49:17AM +1100, john slee wrote:
+> i believe the next debian (after the one currently stabilizing for
+> release) has "real" use of capabilities as a major goal although that
+> was hearsay and may be entirely false.  the amount of work involved is
+> not insignificant
 
->
->On Sat, 16 Mar 2002, Anders Gustafsson wrote:
->
->>this patch fixes "undefined reference to `local symbols in discarded
->>section .text.exit'" linking error.
->>
->
->Looking more at this, I actually think that the _real_ fix is to call all
->drivers exit functions at kernel shutdown, and not discard the exit
->section when linking into the tree.
->
->That, together with the device tree, automatically gives us the
->_correct_ shutdown sequence, soemthing we don't have right now.
->
->Anybody willing to look into this, and get rid of that __devexit_p()
->thing?
->
+I expect that teaching start-stop-daemon about capabilities would
+take care of much of the needed work automagically.  But this is
+rapidly wandering off topic.
 
-(thinking vaguely long-term)
+ -Erik
 
-I wonder if mochel already code for this, or has thought about this... 
- Just like suspend, IMO we ideally should use the device tree to 
-shutdown the system, agreed?
-
-Further, I wonder if the reboot/shutdown notifiers can be replaced with 
-device tree control over those events...
-
-    Jeff
-
-
-
-
-
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

@@ -1,76 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262230AbVCODjV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262213AbVCODru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262230AbVCODjV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 22:39:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262227AbVCODjV
+	id S262213AbVCODru (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 22:47:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbVCODru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 22:39:21 -0500
-Received: from [220.248.27.114] ([220.248.27.114]:47055 "HELO soulinfo.com")
-	by vger.kernel.org with SMTP id S262228AbVCODid (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 22:38:33 -0500
-Date: Tue, 15 Mar 2005 10:56:14 +0800
-From: hugang@soulinfo.com
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Pavel Machek <pavel@ucw.cz>, rjw@sisk.pl, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Paul Mackerras <paulus@samba.org>
-Subject: Re: [swsusp/ppc] Re: What's going on here ?
-Message-ID: <20050315025614.GA28481@hugang.soulinfo.com>
-References: <1110847432.5863.57.camel@gaston> <20050315010700.GA1357@elf.ucw.cz> <1110853186.5863.70.camel@gaston>
-Mime-Version: 1.0
+	Mon, 14 Mar 2005 22:47:50 -0500
+Received: from mail02.syd.optusnet.com.au ([211.29.132.183]:3716 "EHLO
+	mail02.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262213AbVCODrr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 22:47:47 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1110853186.5863.70.camel@gaston>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16950.23262.895279.635262@wombat.chubb.wattle.id.au>
+Date: Tue, 15 Mar 2005 14:47:42 +1100
+From: Peter Chubb <peterc@gelato.unsw.edu.au>
+To: Jon Smirl <jonsmirl@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: User mode drivers: part 1, interrupt handling (patch for 2.6.11)
+In-Reply-To: <9e47339105031419195bae4e11@mail.gmail.com>
+References: <16945.4650.250558.707666@berry.gelato.unsw.EDU.AU>
+	<9e473391050312075548fb0f29@mail.gmail.com>
+	<16948.56475.116221.135256@wombat.chubb.wattle.id.au>
+	<9e47339105031317193c28cbcf@mail.gmail.com>
+	<16948.60419.257853.470644@wombat.chubb.wattle.id.au>
+	<9e47339105031419195bae4e11@mail.gmail.com>
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 15, 2005 at 01:19:46PM +1100, Benjamin Herrenschmidt wrote:
-> 
-> > rjw and hugang did (pretty neccessary) changes to base swsusp (pagedir
-> > table -> pagedir linklist), that unfortunately needed update to all
-> > the assembly parts. It was series 1/3 update core, i386 and x86-64,
-> > 2/3 update ppc, 3/3 introduce initramfs.
-> > 
-> > This is the offending patch I believe (but the version that was merged
-> > was From: me, without code changes).
-> > 
-> > I realized that patch does more than changing from table to linklist,
-> > but it looked mostly okay, so I forwarded it. Sorry.
-> 
-> It does more than that ... it _adds_ swsusp to ppc ! swsusp wasn't in
-> mainline at all for ppc because I consider it not ready. And even the
-> asm change should go through me anyway since i wrote that code and I'm
-> not sure they know all the possible "issues" with that code.
-> 
-> > So, what to do now?
-> > 
-> > a) just revert it
-> > 
-> > or
-> > 
-> > b) revert pmac_setup.c and via-pmu parts and Kconfig part
-> > 
-> > or
-> > 
-> > c) just disable Kconfig part and fix it up with incremental patches
+>>>>> "Jon" == Jon Smirl <jonsmirl@gmail.com> writes:
 
-I hope that's can merge into, It works fine in my PowerBook G4.
+Jon> On Mon, 14 Mar 2005 12:42:27 +1100, Peter Chubb
+Jon> <peterc@gelato.unsw.edu.au> wrote:
+>> >>>>> "Jon" == Jon Smirl <jonsmirl@gmail.com> writes:
+>> 
+>> >> The scenario I'm thinking about with these patches are things
+>> like >> low-latency user-level networking between nodes in a
+>> cluster, where >> for good performance even with a kernel driver
+>> you don't want to >> share your interrupt line with anything else.
+>> 
+Jon> The code needs to refuse to install if the IRQ line is shared.
+>>  It does.  The request_irq() call explicitly does not include
+>> SA_SHARED in its flags, so if the line is shared, it'll return an
+>> error to user space when the driver tries to open the file
+>> representing the interrupt.
 
-> 
-> I'll decide later today. I may well keep it and do the cleanup I had in
-> mind on top of this, which means merging the pmac suspend-to-ram with
-> the common infrastructure. But that will need some changes & hooks to
-> the core swsusp.
-> 
-> Ben.
+Jon> Please put some big comments warning people about adding
+Jon> SA_SHARED. I can easily see someone thinking that they are fixing
+Jon> a bug by adding it. I'd probably even write a paragraph about
+Jon> what will happen if SA_SHARED is added.
+
+Will do.  The main problem here is X86, as other architectures either
+don't care, or have enough interrupt lines.  And the people who are
+paying me for this kind of thing all run IA64....
+
+What I really want to do is deprivilege the driver code as much as
+possible.  Whatever a driver does, the rest of the system should keep
+going.  That way malicious or buggy drivers can only affect the
+processes that are trying to use the device they manage.  Moreover, it
+should be possible to kill -9 a driver, then restart it, without the
+rest of the system noticing more than a hiccup.  To do this,
+step one is to run the driver in user space, so that it's subject to
+the same resource management control as any other process.  Step two,
+which is a lot harder, is to connect the driver back into the kernel
+so that it can be shared.  Tun/Tap can be used for network devices,
+but it's really too slow -- you need zero-copy and shared notification.
 
 
 -- 
-Hu Gang       .-.
-              /v\
-             // \\ 
-Linux User  /(   )\  [204016]
-GPG Key ID   ^^-^^   http://soulinfo.com/~hugang/hugang.asc
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

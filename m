@@ -1,77 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261648AbTCPXP3>; Sun, 16 Mar 2003 18:15:29 -0500
+	id <S261653AbTCPXex>; Sun, 16 Mar 2003 18:34:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261653AbTCPXP2>; Sun, 16 Mar 2003 18:15:28 -0500
-Received: from msp-24-163-212-250.mn.rr.com ([24.163.212.250]:152 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S261648AbTCPXP1>; Sun, 16 Mar 2003 18:15:27 -0500
-Subject: Re: constant Bitkeeper bitching
-From: Shawn <core@enodev.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030316224643.GB1252@dualathlon.random>
-References: <1047837820.3966.8.camel@localhost.localdomain>
-	 <20030316224643.GB1252@dualathlon.random>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+	id <S261665AbTCPXex>; Sun, 16 Mar 2003 18:34:53 -0500
+Received: from B51f4.pppool.de ([213.7.81.244]:1470 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S261653AbTCPXes>; Sun, 16 Mar 2003 18:34:48 -0500
+Subject: Re: IDE won't compile as module in 2.5.64
+From: Daniel Egger <degger@fhm.edu>
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <1047857872.5494.21.camel@sonja>
+References: <1047857872.5494.21.camel@sonja>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NyjRQ+R7mTW7YnnSJVtw"
 Organization: 
-Message-Id: <1047857178.30848.20.camel@localhost.localdomain>
+Message-Id: <1047858285.5495.27.camel@sonja>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 
-Date: 16 Mar 2003 17:26:18 -0600
+Date: 17 Mar 2003 00:44:46 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for being a sane voice, btw...
 
-On Sun, 2003-03-16 at 16:46, Andrea Arcangeli wrote:
-> On Sun, Mar 16, 2003 at 12:03:40PM -0600, Shawn wrote:
-> > [..] You had
-> > patches, folks... [..]
-> I agree with the rest but note that the above argument is silly too.
-> Patches are missing a great deal of info. bitkeeper is more useful for a
-> reason. Until today we had an information-loss problem, that was fixed
-> only for a restricted number of people for the last year, so it was very
-> far from a solution from my point of view. Today thanks to the kernel
-> CVS that Larry thankfully provided, IMHO this is finally solved and I
-> greatly appreciate that.
+--=-NyjRQ+R7mTW7YnnSJVtw
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I don't disagree with you, it's just that this most recent thread was
-mainly about how the CVS gateway is/was lacking. (unless I'm missing the
-whole point). I would challenge any corporation to do what Larry has
-done, and tackle SCM to the best of his charitable ability for linux
-kernel development. Having said that, I'll say that of course concerns
-of the past had validity to them. So, if I'm not mistaken, I think we're
-agreeing.
+Am Mon, 2003-03-17 um 00.37 schrieb Daniel Egger:
 
-> Of course if you don't develop the kernel you can live fine with
-> monolithic undocumented patches, you're not going to audit those diffs
-> anyways, do you? Few people will appreciate the difference between
-> patches and bk, but for developers having the finer granularity helps a
-> lot, so saying "go back to patches" is a no-way.  Just try to extract
-> stuff from the -ac tree and you get the idea, I'm stunned how can Alan
-> submit stuff to Marcelo and Linus w/o major pain and leftovers (ok, some
-> are driver changes and they're easy to extract, but not everything is
-> that simple and self contained).
+> I tried to figure out what's wrong and it seems that the make machinery
+> is not up-to-date since none of the code in question is dependent on
+> the definition of MODULE or alike.
 
-Ditto on -ac... Actually, all you hard hitters kindof amaze me. I
-appreciate all y'all. And of course, I'm not saying go back to patches.
-It's just that when bk was offered as a solution, strings attached or
-no, it added a lot of sanity to the way changes are introduced into the
-kernel, and thankfully historical comments and whatever other metadata.
-Before that there was only lkml.
+Being a big fan of quoting myself; the above statement is not entirely
+accurate. This is the error I get when
 
-I'll try to clarify the point I was trying to make... Some all-too-vocal
-folks, even after the bk -> cvs gateway was created were saying "not
-good enough" because it was "lossy". It is the fact that bk -> cvs
-couldn't possibly lose any more than was lost inherently by not using
-bk. in other syntax...
-	lossiness("BK-to-CVS gw") == BK - "diff/patch"
+"ATA/ATAPI/MFM/RLL device support" is built in and
+"Enhanced IDE/MFM/RLL disk/cdrom/tape/floppy support" built as module
 
-Basically, it's Linus's tree. He can get /all/ the meta-data out at will
-and convert it if he pleases, regardless of the discussions going on
-here. In any case, Larry is busy coding up "BitchKeeper" so threads like
-this can be managed more efficiently ;P
+In case both are built as module I get:
+*** Warning: "ide_pci_unregister_driver" [drivers/ide/pci/sis5513.ko] undef=
+ined!
+*** Warning: "ide_pci_register_driver" [drivers/ide/pci/sis5513.ko] undefin=
+ed!
+*** Warning: "ide_setup_pci_device" [drivers/ide/pci/sis5513.ko] undefined!
+*** Warning: "ide_setup_dma" [drivers/ide/pci/sis5513.ko] undefined!
+*** Warning: "ide_pci_register_host_proc" [drivers/ide/pci/sis5513.ko] unde=
+fined!
+*** Warning: "proc_ide_destroy" [drivers/ide/ide.ko] undefined!
+*** Warning: "ide_remove_proc_entries" [drivers/ide/ide.ko] undefined!
+*** Warning: "ide_add_proc_entries" [drivers/ide/ide.ko] undefined!
+*** Warning: "proc_ide_create" [drivers/ide/ide.ko] undefined!
+*** Warning: "ide_scan_pcibus" [drivers/ide/ide.ko] undefined!
+*** Warning: "create_proc_ide_interfaces" [drivers/ide/ide.ko] undefined!
+*** Warning: "ide_release_dma" [drivers/ide/ide.ko] undefined!
+*** Warning: "destroy_proc_ide_drives" [drivers/ide/ide.ko] undefined!
+*** Warning: "proc_ide_read_capacity" [drivers/ide/ide.ko] undefined!
+*** Warning: "ide_xlate_1024" [drivers/ide/ide-probe.ko] undefined!
+*** Warning: "create_proc_ide_interfaces" [drivers/ide/ide-probe.ko] undefi=
+ned!
+*** Warning: "ide_bus_type" [drivers/ide/ide-probe.ko] undefined!
+*** Warning: "ide_add_generic_settings" [drivers/ide/ide-probe.ko] undefine=
+d!
+*** Warning: "do_ide_request" [drivers/ide/ide-probe.ko] undefined!
+*** Warning: "proc_ide_read_geometry" [drivers/ide/ide-disk.ko] undefined!
 
+Is there a reason that no entries of "IDE, ATA and ATAPI Block devices"
+are not being merged into "ATA/ATAPI/MFM/RLL device support"?
+
+--=20
+Servus,
+       Daniel
+
+
+--=-NyjRQ+R7mTW7YnnSJVtw
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+dQxtchlzsq9KoIYRArQlAJwL4CC+WiDg71TIogKEdGFig+cNgACg0vlx
+HFcX7+3IThGAqGyIztF/q+I=
+=omvg
+-----END PGP SIGNATURE-----
+
+--=-NyjRQ+R7mTW7YnnSJVtw--
 

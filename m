@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264522AbTIDCT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 22:19:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264520AbTIDCTI
+	id S264499AbTIDCPN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 22:15:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264517AbTIDCPN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 22:19:08 -0400
-Received: from pat.uio.no ([129.240.130.16]:8163 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S264498AbTIDCSE (ORCPT
+	Wed, 3 Sep 2003 22:15:13 -0400
+Received: from lidskialf.net ([62.3.233.115]:21707 "EHLO beyond.lidskialf.net")
+	by vger.kernel.org with ESMTP id S264499AbTIDCPK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 22:18:04 -0400
+	Wed, 3 Sep 2003 22:15:10 -0400
+From: Andrew de Quincey <adq_dvb@lidskialf.net>
+To: Chris Wright <chrisw@osdl.org>, "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: [ACPI] Re: Fixing USB interrupt problems with ACPI enabled
+Date: Thu, 4 Sep 2003 03:15:09 +0100
+User-Agent: KMail/1.5.3
+Cc: lkml <linux-kernel@vger.kernel.org>, acpi-devel@lists.sourceforge.net,
+       linux-acpi <linux-acpi@intel.com>
+References: <7F740D512C7C1046AB53446D3720017304AEEC@scsmsx402.sc.intel.com> <20030903153746.A19323@osdlab.pdx.osdl.net>
+In-Reply-To: <20030903153746.A19323@osdlab.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16214.41175.580602.671154@charged.uio.no>
-Date: Wed, 3 Sep 2003 22:17:59 -0400
-To: Pascal Schmidt <der.eremit@email.de>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
-Subject: Re: [NFS] attempt to use V1 mount protocol on V3 server
-In-Reply-To: <E19ujXl-0002Eb-00@neptune.local>
-References: <rO94.822.25@gated-at.bofh.it>
-	<rPop.1vp.13@gated-at.bofh.it>
-	<E19ujXl-0002Eb-00@neptune.local>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+Content-Disposition: inline
+Message-Id: <200309040315.09955.adq_dvb@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Pascal Schmidt <der.eremit@email.de> writes:
+On Wednesday 03 September 2003 23:37, Chris Wright wrote:
+> * Nakajima, Jun (jun.nakajima@intel.com) wrote:
+> > Doing this for Len, who is on vacation. We would like to thank the
+> > people who provided debugging info such as acpidmp, dmidecode, and
+> > demsg. This is one of our findings, and we believe this would fix some
+> > interrupt problems (with USB, for example) with ACPI enabled, especially
+> > when the dmesg reads like:
+> >
+> > ACPI: PCI Interrupt Link [ALKA] enabled at IRQ 0
+> > ACPI: PCI Interrupt Link [ALKB] enabled at IRQ 0
+> > ACPI: PCI Interrupt Link [ALKC] enabled at IRQ 0
+> > ACPI: PCI Interrupt Link [ALKD] enabled at IRQ 0
+> >
+> > Basically we assumed that _CRS returned the one we set with _SRS, when
+> > setting up a PCI interrupt link device, but that's not the case with
+> > some AML codes. Some of them always return 0.
+> > Attached is a patch against 2.4.23-pre1. It should be easy to apply this
+> > to 2.6.
 
-     > That's assuming all NFSv3 servers do NFSv2 also. I don't. In
-     > this case the bug was in my nfsd who was not recognizing the
-     > filehandle coming in via GETATTR as correct. ;)
+Wow! This is exactly the idea I've just come up with for VIA boards!
 
-     > So I'll have to live with registering for V1 also and handling
-     > umount there and rejecting mount with an error. Oh well.
-
-No. That won't make any difference. The kernel never talks to the
-mountd.
-
-It's being handed a bogus filehandle by the userland mount command
-(which gets it from mountd). When it sends the initial NFSv3 GETATTR
-call to the nfsd, and gets rejected, it just retries the same GETATTR
-call as an NFSv2 call.
-
-     > Oh, BTW, that reminds me: the 2.6.0-test NFS client does not
-     > like FSSTAT returning NFS3ERR_NOTSUPP. When I started coding, I
-     > got a hard lockup of my system due to that, had to press the
-     > reset button, not even Alt-SysRq wanted to work. I couldn't
-     > capture the output and shutting down the system didn't work,
-     > plus I could not start any new processes. Sure, that was a
-     > buggy server, but should that lock up the kernel? Known
-     > problem?
-
-I'll check what's happening. AFAICS, the NFS layer should not really
-care, but it will pass some funny values back to the VFS, and this
-might be screwing something up...
-
-Cheers,
-  Trond

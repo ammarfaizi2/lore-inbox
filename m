@@ -1,163 +1,519 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132176AbRACEoL>; Tue, 2 Jan 2001 23:44:11 -0500
+	id <S131771AbRACEsb>; Tue, 2 Jan 2001 23:48:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131771AbRACEoB>; Tue, 2 Jan 2001 23:44:01 -0500
-Received: from winds.org ([209.115.81.9]:36613 "EHLO winds.org")
-	by vger.kernel.org with ESMTP id <S132176AbRACEnv>;
-	Tue, 2 Jan 2001 23:43:51 -0500
-Date: Tue, 2 Jan 2001 23:13:05 -0500 (EST)
-From: Byron Stanoszek <gandalf@winds.org>
-To: alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] (2) Compile warning fixes for gcc 2.97
-Message-ID: <Pine.LNX.4.21.0101022306200.17456-300000@winds.org>
+	id <S132098AbRACEsV>; Tue, 2 Jan 2001 23:48:21 -0500
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:783 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S131771AbRACEsR>;
+	Tue, 2 Jan 2001 23:48:17 -0500
+Message-ID: <3A52B6AE.626FA377@candelatech.com>
+Date: Tue, 02 Jan 2001 22:20:46 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1943079249-815385542-978495185=:17456"
+To: "Jorge L. deLyra" <delyra@latt.if.usp.br>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: NFS root doesn't work with 2.2.18.
+In-Reply-To: <Pine.LNX.3.96.1010102131929.12860H-100000@latt.if.usp.br>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+"Jorge L. deLyra" wrote:
+> 
+> Hi,
+> 
+> I had a K7 booting kernel 2.2.17 OK and mounting an NFS root but that
+> doesn't work anymore if I use the 2.2.18 kernel.
+> 
+> Both kernels were compiled with the same configs. I'm also using the same
+> lilo and NBI configs, both used to work. In either case the new kernel
+> boots but can't mount the root. I can't boot 2.2.18 via NBI because I
+> don't see any messages, looks like the serial driver never comes in.
+> 
+> I send below the relevant parts of the boot messages for the 2.2.17 and
+> 2.2.18 kernels. Looks like 2.2.18 never gets to the point of trying to
+> raise the network and panics because it can't find its root. Is this a
+> known problem? Is there a known fix?
 
---1943079249-815385542-978495185=:17456
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+I have the same problem, but for some reason mail sent to LK just
+dissappears into a black hole (I receive it fine...)
 
-Here's a set of patches that fix compile warnings using gcc 2.97. The first
-patch is purely a syntactical change (mainly removing default: statements that
-do nothing), the second is a change in code structure that "looks" correct but
-was brought on by the same type of warning where the case label has no effect.
-
-So I split up the patch into two parts so we cna decide to throw out the second
-if it is indeed incorrect. The 2nd patch (arp.patch) changes the following code
-
-                switch (dev->type) {
-                default:
-                        break;
-                case ARPHRD_ROSE:
-#if defined(CONFIG_AX25) || defined(CONFIG_AX25_MODULE)
-                case ARPHRD_AX25:
-#if defined(CONFIG_NETROM) || defined(CONFIG_NETROM_MODULE)
-                case ARPHRD_NETROM:
-#endif
-                        neigh->ops = &arp_broken_ops;
-                        neigh->output = neigh->ops->output;
-                        return 0;
-#endif
-                }
+Could you foward this mail to LK for me?
 
 
---to this:--
+NOTE:  It fails to work in exactly the same way on 2.4.prerelease.
+
+I am able to successfully net-boot (using nfs-root, kernel-bootp, etc)
+kernel 2.2.17 with the config file attached.  However, if I use that same
+config file on 2.2.18, the resulting kernel will not net-boot.
+The config file is attached.
+
+The problem seems to be that the kernel never asks for the address via dhcp (or bootp)
+after the boot-rom has downloaded and started the kernel.
+I do see the kernel discover the ethernet interfaces, but it dies shortly
+there-after.
+
+Here is the config:
 
 
-                switch (dev->type) {
-                case ARPHRD_ROSE:
-#if defined(CONFIG_AX25) || defined(CONFIG_AX25_MODULE)
-                case ARPHRD_AX25:
-#endif
-#if defined(CONFIG_NETROM) || defined(CONFIG_NETROM_MODULE)
-                case ARPHRD_NETROM:
-#endif
-                        neigh->ops = &arp_broken_ops;
-                        neigh->output = neigh->ops->output;
-                        return 0;
-                }
+#
+# Automatically generated make config: don't edit
+#
 
----
-Which I believe is really the correct flow for that switch statement.
-If someone disagrees, just toss it and apply the first patch. :-)
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
 
-Regards,
- Byron
+#
+# Processor type and features
+#
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+CONFIG_M586=y
+# CONFIG_M586TSC is not set
+# CONFIG_M686 is not set
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_1GB=y
+# CONFIG_2GB is not set
+# CONFIG_MATH_EMULATION is not set
+# CONFIG_MTRR is not set
+# CONFIG_SMP is not set
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+# CONFIG_MODVERSIONS is not set
+# CONFIG_KMOD is not set
+
+#
+# General setup
+#
+CONFIG_NET=y
+CONFIG_PCI=y
+# CONFIG_PCI_GOBIOS is not set
+# CONFIG_PCI_GODIRECT is not set
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_QUIRKS=y
+# CONFIG_PCI_OPTIMIZE is not set
+CONFIG_PCI_OLD_PROC=y
+# CONFIG_MCA is not set
+# CONFIG_VISWS is not set
+CONFIG_SYSVIPC=y
+# CONFIG_BSD_PROCESS_ACCT is not set
+CONFIG_SYSCTL=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+# CONFIG_BINFMT_JAVA is not set
+# CONFIG_PARPORT is not set
+# CONFIG_APM is not set
+# CONFIG_TOSHIBA is not set
+
+#
+# Plug and Play support
+#
+# CONFIG_PNP is not set
+
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_IDE=y
+
+#
+# Please see Documentation/ide.txt for help/info on IDE drives
+#
+# CONFIG_BLK_DEV_HD_IDE is not set
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECD=y
+# CONFIG_BLK_DEV_IDETAPE is not set
+# CONFIG_BLK_DEV_IDEFLOPPY is not set
+# CONFIG_BLK_DEV_IDESCSI is not set
+CONFIG_BLK_DEV_CMD640=y
+# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
+CONFIG_BLK_DEV_RZ1000=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_BLK_DEV_OFFBOARD is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_BLK_DEV_OPTI621 is not set
+# CONFIG_BLK_DEV_TRM290 is not set
+# CONFIG_BLK_DEV_NS87415 is not set
+# CONFIG_BLK_DEV_VIA82C586 is not set
+# CONFIG_BLK_DEV_CMD646 is not set
+# CONFIG_BLK_DEV_CS5530 is not set
+# CONFIG_IDE_CHIPSETS is not set
+
+#
+# Additional Block Devices
+#
+# CONFIG_BLK_DEV_LOOP is not set
+# CONFIG_BLK_DEV_NBD is not set
+# CONFIG_BLK_DEV_MD is not set
+# CONFIG_BLK_DEV_RAM is not set
+# CONFIG_BLK_DEV_XD is not set
+# CONFIG_BLK_DEV_DAC960 is not set
+CONFIG_PARIDE_PARPORT=y
+# CONFIG_PARIDE is not set
+# CONFIG_BLK_CPQ_DA is not set
+# CONFIG_BLK_DEV_HD is not set
+
+#
+# Networking options
+#
+CONFIG_PACKET=y
+CONFIG_NETLINK=y
+CONFIG_RTNETLINK=y
+CONFIG_NETLINK_DEV=y
+CONFIG_FIREWALL=y
+CONFIG_FILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+# CONFIG_IP_MULTICAST is not set
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_RTNETLINK=y
+CONFIG_NETLINK=y
+CONFIG_IP_MULTIPLE_TABLES=y
+CONFIG_IP_ROUTE_MULTIPATH=y
+CONFIG_IP_ROUTE_TOS=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_IP_ROUTE_LARGE_TABLES=y
+CONFIG_IP_ROUTE_NAT=y
+CONFIG_IP_PNP=y
+# CONFIG_IP_PNP_DHCP is not set
+CONFIG_IP_PNP_BOOTP=y
+# CONFIG_IP_PNP_RARP is not set
+CONFIG_IP_FIREWALL=y
+CONFIG_IP_FIREWALL_NETLINK=y
+CONFIG_NETLINK_DEV=y
+CONFIG_IP_ROUTE_FWMARK=y
+CONFIG_IP_TRANSPARENT_PROXY=y
+# CONFIG_IP_MASQUERADE is not set
+CONFIG_IP_ROUTER=y
+# CONFIG_NET_IPIP is not set
+# CONFIG_NET_IPGRE is not set
+CONFIG_IP_ALIAS=y
+# CONFIG_ARPD is not set
+# CONFIG_SYN_COOKIES is not set
+
+#
+# (it is safe to leave these untouched)
+#
+# CONFIG_INET_RARP is not set
+CONFIG_SKB_LARGE=y
+# CONFIG_IPV6 is not set
+
+#
+#  
+#
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_BRIDGE is not set
+# CONFIG_LLC is not set
+CONFIG_VLAN_802_1Q=y
+# CONFIG_ECONET is not set
+# CONFIG_WAN_ROUTER is not set
+# CONFIG_NET_FASTROUTE is not set
+# CONFIG_NET_HW_FLOWCONTROL is not set
+# CONFIG_CPU_IS_SLOW is not set
+
+#
+# QoS and/or fair queueing
+#
+# CONFIG_NET_SCHED is not set
+
+#
+# Telephony Support
+#
+# CONFIG_PHONE is not set
+
+#
+# SCSI support
+#
+# CONFIG_SCSI is not set
+
+#
+# I2O device support
+#
+# CONFIG_I2O is not set
+
+#
+# Network device support
+#
+CONFIG_NETDEVICES=y
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+CONFIG_DUMMY=y
+# CONFIG_BONDING is not set
+# CONFIG_EQUALIZER is not set
+# CONFIG_ETHERTAP is not set
+# CONFIG_NET_SB1000 is not set
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+# CONFIG_NET_VENDOR_3COM is not set
+CONFIG_LANCE=y
+# CONFIG_NET_VENDOR_SMC is not set
+# CONFIG_NET_VENDOR_RACAL is not set
+CONFIG_RTL8139=y
+# CONFIG_NET_ISA is not set
+CONFIG_NET_EISA=y
+# CONFIG_PCNET32 is not set
+# CONFIG_AC3200 is not set
+# CONFIG_APRICOT is not set
+# CONFIG_CS89x0 is not set
+# CONFIG_DM9102 is not set
+# CONFIG_DE4X5 is not set
+CONFIG_DEC_ELCP=y
+# CONFIG_DGRS is not set
+# CONFIG_EEXPRESS_PRO100 is not set
+# CONFIG_LNE390 is not set
+# CONFIG_NE3210 is not set
+CONFIG_NE2K_PCI=y
+# CONFIG_TLAN is not set
+# CONFIG_VIA_RHINE is not set
+# CONFIG_SIS900 is not set
+# CONFIG_ES3210 is not set
+# CONFIG_EPIC100 is not set
+# CONFIG_ZNET is not set
+# CONFIG_NET_POCKET is not set
+
+#
+# Ethernet (1000 Mbit)
+#
+# CONFIG_ACENIC is not set
+# CONFIG_HAMACHI is not set
+# CONFIG_YELLOWFIN is not set
+# CONFIG_SK98LIN is not set
+# CONFIG_FDDI is not set
+# CONFIG_HIPPI is not set
+CONFIG_PPP=y
+
+#
+# CCP compressors for PPP will also be built in.
+#
+CONFIG_SLIP=y
+CONFIG_SLIP_COMPRESSED=y
+CONFIG_SLIP_SMART=y
+# CONFIG_SLIP_MODE_SLIP6 is not set
+# CONFIG_NET_RADIO is not set
+
+#
+# Token ring devices
+#
+CONFIG_TR=y
+CONFIG_IBMTR=y
+CONFIG_IBMLS=y
+CONFIG_IBMOL=y
+CONFIG_SKTR=y
+CONFIG_OLTR=y
+# CONFIG_NET_FC is not set
+# CONFIG_RCPCI is not set
+# CONFIG_SHAPER is not set
+
+#
+# Wan interfaces
+#
+# CONFIG_HOSTESS_SV11 is not set
+# CONFIG_COSA is not set
+# CONFIG_SEALEVEL_4021 is not set
+# CONFIG_SYNCLINK_SYNCPPP is not set
+# CONFIG_LANMEDIA is not set
+# CONFIG_COMX is not set
+# CONFIG_HDLC is not set
+# CONFIG_DLCI is not set
+# CONFIG_SBNI is not set
+
+#
+# Amateur Radio support
+#
+# CONFIG_HAMRADIO is not set
+
+#
+# IrDA (infrared) support
+#
+# CONFIG_IRDA is not set
+
+#
+# ISDN subsystem
+#
+# CONFIG_ISDN is not set
+
+#
+# Old CD-ROM drivers (not SCSI, not IDE)
+#
+# CONFIG_CD_NO_IDESCSI is not set
+
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+# CONFIG_SERIAL_CONSOLE is not set
+# CONFIG_SERIAL_EXTENDED is not set
+# CONFIG_SERIAL_NONSTANDARD is not set
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_MOUSE=y
+
+#
+# Mice
+#
+# CONFIG_ATIXL_BUSMOUSE is not set
+# CONFIG_BUSMOUSE is not set
+# CONFIG_MS_BUSMOUSE is not set
+CONFIG_PSMOUSE=y
+# CONFIG_82C710_MOUSE is not set
+# CONFIG_PC110_PAD is not set
+
+#
+# Joysticks
+#
+# CONFIG_JOYSTICK is not set
+# CONFIG_QIC02_TAPE is not set
+# CONFIG_WATCHDOG is not set
+# CONFIG_NVRAM is not set
+# CONFIG_RTC is not set
+
+#
+# Video For Linux
+#
+# CONFIG_VIDEO_DEV is not set
+# CONFIG_DTLK is not set
+
+#
+# Ftape, the floppy tape device driver
+#
+# CONFIG_FTAPE is not set
+
+#
+# Filesystems
+#
+# CONFIG_QUOTA is not set
+CONFIG_AUTOFS_FS=y
+# CONFIG_ADFS_FS is not set
+# CONFIG_AFFS_FS is not set
+# CONFIG_HFS_FS is not set
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+# CONFIG_UMSDOS_FS is not set
+CONFIG_VFAT_FS=y
+CONFIG_ISO9660_FS=y
+# CONFIG_JOLIET is not set
+# CONFIG_MINIX_FS is not set
+# CONFIG_NTFS_FS is not set
+# CONFIG_HPFS_FS is not set
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_ROMFS_FS is not set
+CONFIG_EXT2_FS=y
+# CONFIG_SYSV_FS is not set
+# CONFIG_UFS_FS is not set
+# CONFIG_EFS_FS is not set
+
+#
+# Network File Systems
+#
+# CONFIG_CODA_FS is not set
+CONFIG_NFS_FS=y
+CONFIG_ROOT_NFS=y
+CONFIG_NFSD=y
+# CONFIG_NFSD_SUN is not set
+CONFIG_SUNRPC=y
+CONFIG_LOCKD=y
+# CONFIG_SMB_FS is not set
+# CONFIG_NCP_FS is not set
+
+#
+# Partition Types
+#
+# CONFIG_BSD_DISKLABEL is not set
+# CONFIG_MAC_PARTITION is not set
+# CONFIG_SMD_DISKLABEL is not set
+# CONFIG_SOLARIS_X86_PARTITION is not set
+# CONFIG_UNIXWARE_DISKLABEL is not set
+CONFIG_NLS=y
+
+#
+# Native Language Support
+#
+CONFIG_NLS_DEFAULT="cp437"
+# CONFIG_NLS_CODEPAGE_437 is not set
+# CONFIG_NLS_CODEPAGE_737 is not set
+# CONFIG_NLS_CODEPAGE_775 is not set
+# CONFIG_NLS_CODEPAGE_850 is not set
+# CONFIG_NLS_CODEPAGE_852 is not set
+# CONFIG_NLS_CODEPAGE_855 is not set
+# CONFIG_NLS_CODEPAGE_857 is not set
+# CONFIG_NLS_CODEPAGE_860 is not set
+# CONFIG_NLS_CODEPAGE_861 is not set
+# CONFIG_NLS_CODEPAGE_862 is not set
+# CONFIG_NLS_CODEPAGE_863 is not set
+# CONFIG_NLS_CODEPAGE_864 is not set
+# CONFIG_NLS_CODEPAGE_865 is not set
+# CONFIG_NLS_CODEPAGE_866 is not set
+# CONFIG_NLS_CODEPAGE_869 is not set
+# CONFIG_NLS_CODEPAGE_874 is not set
+# CONFIG_NLS_CODEPAGE_932 is not set
+# CONFIG_NLS_CODEPAGE_936 is not set
+# CONFIG_NLS_CODEPAGE_949 is not set
+# CONFIG_NLS_CODEPAGE_950 is not set
+# CONFIG_NLS_ISO8859_1 is not set
+# CONFIG_NLS_ISO8859_2 is not set
+# CONFIG_NLS_ISO8859_3 is not set
+# CONFIG_NLS_ISO8859_4 is not set
+# CONFIG_NLS_ISO8859_5 is not set
+# CONFIG_NLS_ISO8859_6 is not set
+# CONFIG_NLS_ISO8859_7 is not set
+# CONFIG_NLS_ISO8859_8 is not set
+# CONFIG_NLS_ISO8859_9 is not set
+# CONFIG_NLS_ISO8859_14 is not set
+# CONFIG_NLS_ISO8859_15 is not set
+# CONFIG_NLS_KOI8_R is not set
+
+#
+# Console drivers
+#
+CONFIG_VGA_CONSOLE=y
+# CONFIG_VIDEO_SELECT is not set
+# CONFIG_MDA_CONSOLE is not set
+# CONFIG_FB is not set
+
+#
+# Sound
+#
+# CONFIG_SOUND is not set
+
+#
+# Kernel hacking
+#
+CONFIG_MAGIC_SYSRQ=y
+
 
 -- 
-Byron Stanoszek                         Ph: (330) 644-3059
-Systems Programmer                      Fax: (330) 644-8110
-Commercial Timesharing Inc.             Email: bstanoszek@comtime.com
-
---1943079249-815385542-978495185=:17456
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="gcc297.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.21.0101022313050.17456@winds.org>
-Content-Description: 
-Content-Disposition: attachment; filename="gcc297.patch"
-
-LS0tIGxpbnV4L2RyaXZlcnMvc291bmQvc2VxdWVuY2VyLmMuYmFrCVR1ZSBK
-YW4gIDIgMjI6MzQ6NDQgMjAwMQ0KKysrIGxpbnV4L2RyaXZlcnMvc291bmQv
-c2VxdWVuY2VyLmMJVHVlIEphbiAgMiAyMjozNjozMiAyMDAxDQpAQCAtNTEw
-LDggKzUxMCw2IEBADQogCQkJCXZvaWNlID0gY2huOw0KIAkJCXN5bnRoX2Rl
-dnNbZGV2XS0+YWZ0ZXJ0b3VjaChkZXYsIHZvaWNlLCBwYXJtKTsNCiAJCQli
-cmVhazsNCi0NCi0JCWRlZmF1bHQ6DQogCX0NCiAjdW5kZWYgZGV2DQogI3Vu
-ZGVmIGNtZA0KQEAgLTYxMyw4ICs2MTEsNiBAQA0KIAkJCWVsc2UJLyogTU9E
-RSAxICovDQogCQkJCXN5bnRoX2RldnNbZGV2XS0+YmVuZGVyKGRldiwgY2hu
-LCB3MTQpOw0KIAkJCWJyZWFrOw0KLQ0KLQkJZGVmYXVsdDoNCiAJfQ0KIH0N
-CiANCkBAIC02ODMsOCArNjc5LDYgQEANCiAJCQkJc2VxX2NvcHlfdG9faW5w
-dXQoKHVuc2lnbmVkIGNoYXIgKikgJnBhcm0sIDQpOw0KIAkJCX0NCiAJCQli
-cmVhazsNCi0NCi0JCWRlZmF1bHQ6DQogCX0NCiANCiAJcmV0dXJuIFRJTUVS
-X05PVF9BUk1FRDsNCkBAIC03MDAsOCArNjk0LDYgQEANCiAJCWNhc2UgTE9D
-TF9TVEFSVEFVRElPOg0KIAkJCURNQWJ1Zl9zdGFydF9kZXZpY2VzKHBhcm0p
-Ow0KIAkJCWJyZWFrOw0KLQ0KLQkJZGVmYXVsdDoNCiAJfQ0KIH0NCiANCkBA
-IC04NTgsOCArODUwLDYgQEANCiAJCWNhc2UgRVZfU1lTRVg6DQogCQkJc2Vx
-X3N5c2V4X21lc3NhZ2UocSk7DQogCQkJYnJlYWs7DQotDQotCQlkZWZhdWx0
-Og0KIAl9DQogCXJldHVybiAwOw0KIH0NCi0tLSBsaW51eC9kcml2ZXJzL3Nv
-dW5kL3NiX2Vzcy5jLmJhawlUdWUgSmFuICAyIDIyOjQwOjAxIDIwMDENCisr
-KyBsaW51eC9kcml2ZXJzL3NvdW5kL3NiX2Vzcy5jCVR1ZSBKYW4gIDIgMjI6
-NDM6MDUgMjAwMQ0KQEAgLTc2NiwxMiArNzY2LDYgQEANCiAJCWNhc2UgSU1P
-REVfSU5QVVQ6DQogCQkJRE1BYnVmX2lucHV0aW50ciAoZGV2KTsNCiAJCQli
-cmVhazsNCi0NCi0JCWNhc2UgSU1PREVfSU5JVDoNCi0JCQlicmVhazsNCi0N
-Ci0JCWRlZmF1bHQ6DQotCQkJLyogcHJpbnRrKEtFUk5fV0FSTiAiRVNTOiBV
-bmV4cGVjdGVkIGludGVycnVwdFxuIik7ICovDQogCX0NCiB9DQogDQpAQCAt
-MTUyOSwxMyArMTUyMywxMSBAQA0KIA0KIHN0YXRpYyBpbnQgZXNzX2hhc19y
-ZWNfbWl4ZXIgKGludCBzdWJtb2RlbCkNCiB7DQotCXN3aXRjaCAoc3VibW9k
-ZWwpIHsNCi0JY2FzZSBTVUJNRExfRVMxODg3Og0KKwlpZihzdWJtb2RlbCA9
-PSBTVUJNRExfRVMxODg3KQ0KIAkJcmV0dXJuIDE7DQotCWRlZmF1bHQ6DQor
-CWVsc2UNCiAJCXJldHVybiAwOw0KLQl9Ow0KLX07DQorfQ0KIA0KICNpZmRl
-ZiBGS1NfTE9HR0lORw0KIHN0YXRpYyBpbnQgZXNzX21peGVyX21vbl9yZWdz
-W10NCi0tLSBsaW51eC9kcml2ZXJzL3NvdW5kL3NvdW5kX3RpbWVyLmMuYmFr
-CVR1ZSBKYW4gIDIgMjI6NDQ6NTYgMjAwMQ0KKysrIGxpbnV4L2RyaXZlcnMv
-c291bmQvc291bmRfdGltZXIuYwlUdWUgSmFuICAyIDIyOjQ1OjA2IDIwMDEN
-CkBAIC0xNjQsOCArMTY0LDYgQEANCiAJCWNhc2UgVE1SX0VDSE86DQogCQkJ
-c2VxX2NvcHlfdG9faW5wdXQoZXZlbnQsIDgpOw0KIAkJCWJyZWFrOw0KLQ0K
-LQkJZGVmYXVsdDoNCiAJfQ0KIAlyZXR1cm4gVElNRVJfTk9UX0FSTUVEOw0K
-IH0NCi0tLSBsaW51eC9mcy9pc29mcy9pbm9kZS5jLmJhawlUdWUgSmFuICAy
-IDIyOjQ2OjU1IDIwMDENCisrKyBsaW51eC9mcy9pc29mcy9pbm9kZS5jCVR1
-ZSBKYW4gIDIgMjI6NDc6MDEgMjAwMQ0KQEAgLTEyNjQsNyArMTI2NCw3IEBA
-DQogCSAgICAodm9sdW1lX3NlcV9ubyAhPSAwKSAmJiAodm9sdW1lX3NlcV9u
-byAhPSAxKSkgew0KIAkJcHJpbnRrKEtFUk5fV0FSTklORyAiTXVsdGktdm9s
-dW1lIENEIHNvbWVob3cgZ290IG1vdW50ZWQuXG4iKTsNCiAJfSBlbHNlDQot
-I2VuZGlmIElHTk9SRV9XUk9OR19NVUxUSV9WT0xVTUVfU1BFQ1MNCisjZW5k
-aWYgLyogSUdOT1JFX1dST05HX01VTFRJX1ZPTFVNRV9TUEVDUyAqLw0KIAl7
-DQogCQlpZiAoU19JU1JFRyhpbm9kZS0+aV9tb2RlKSkgew0KIAkJCWlub2Rl
-LT5pX2ZvcCA9ICZnZW5lcmljX3JvX2ZvcHM7DQo=
---1943079249-815385542-978495185=:17456
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="arp.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.21.0101022313051.17456@winds.org>
-Content-Description: 
-Content-Disposition: attachment; filename="arp.patch"
-
-LS0tIGxpbnV4L25ldC9pcHY0L2FycC5jLmJhawlUdWUgSmFuICAyIDIyOjUz
-OjMxIDIwMDENCisrKyBsaW51eC9uZXQvaXB2NC9hcnAuYwlUdWUgSmFuICAy
-IDIyOjU2OjEzIDIwMDENCkBAIC0yNjcsNyArMjY3LDYgQEANCiAJCSAgIGlu
-IG9sZCBwYXJhZGlnbS4NCiAJCSAqLw0KIA0KLSNpZiAxDQogCQkvKiBTby4u
-LiB0aGVzZSAiYW1hdGV1ciIgZGV2aWNlcyBhcmUgaG9wZWxlc3MuDQogCQkg
-ICBUaGUgb25seSB0aGluZywgdGhhdCBJIGNhbiBzYXkgbm93Og0KIAkJICAg
-SXQgaXMgdmVyeSBzYWQgdGhhdCB3ZSBuZWVkIHRvIGtlZXAgdWdseSBvYnNv
-bGV0ZQ0KQEAgLTI4MCwyMCArMjc5LDE4IEBADQogCQkgICBJIHdvbmRlciB3
-aHkgcGVvcGxlIGJlbGlldmUgdGhhdCB0aGV5IHdvcmsuDQogCQkgKi8NCiAJ
-CXN3aXRjaCAoZGV2LT50eXBlKSB7DQotCQlkZWZhdWx0Og0KLQkJCWJyZWFr
-Ow0KIAkJY2FzZSBBUlBIUkRfUk9TRToJDQogI2lmIGRlZmluZWQoQ09ORklH
-X0FYMjUpIHx8IGRlZmluZWQoQ09ORklHX0FYMjVfTU9EVUxFKQ0KIAkJY2Fz
-ZSBBUlBIUkRfQVgyNToNCisjZW5kaWYNCiAjaWYgZGVmaW5lZChDT05GSUdf
-TkVUUk9NKSB8fCBkZWZpbmVkKENPTkZJR19ORVRST01fTU9EVUxFKQ0KIAkJ
-Y2FzZSBBUlBIUkRfTkVUUk9NOg0KICNlbmRpZg0KIAkJCW5laWdoLT5vcHMg
-PSAmYXJwX2Jyb2tlbl9vcHM7DQogCQkJbmVpZ2gtPm91dHB1dCA9IG5laWdo
-LT5vcHMtPm91dHB1dDsNCiAJCQlyZXR1cm4gMDsNCi0jZW5kaWYNCiAJCX0N
-Ci0jZW5kaWYNCisNCiAJCWlmIChuZWlnaC0+dHlwZSA9PSBSVE5fTVVMVElD
-QVNUKSB7DQogCQkJbmVpZ2gtPm51ZF9zdGF0ZSA9IE5VRF9OT0FSUDsNCiAJ
-CQlhcnBfbWNfbWFwKGFkZHIsIG5laWdoLT5oYSwgZGV2LCAxKTsNCg==
---1943079249-815385542-978495185=:17456--
+Ben Greear (greearb@candelatech.com)  http://www.candelatech.com
+Author of ScryMUD:  scry.wanfear.com 4444        (Released under GPL)
+http://scry.wanfear.com               http://scry.wanfear.com/~greear
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

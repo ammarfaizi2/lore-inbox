@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314123AbSESDfX>; Sat, 18 May 2002 23:35:23 -0400
+	id <S314085AbSESD6o>; Sat, 18 May 2002 23:58:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314128AbSESDfW>; Sat, 18 May 2002 23:35:22 -0400
-Received: from slip-202-135-75-36.ca.au.prserv.net ([202.135.75.36]:1931 "EHLO
+	id <S314096AbSESD6n>; Sat, 18 May 2002 23:58:43 -0400
+Received: from slip-202-135-75-36.ca.au.prserv.net ([202.135.75.36]:6027 "EHLO
 	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S314123AbSESDfV>; Sat, 18 May 2002 23:35:21 -0400
+	id <S314085AbSESD6m>; Sat, 18 May 2002 23:58:42 -0400
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
+To: Larry McVoy <lm@bitmover.com>
 Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
 Subject: Re: AUDIT: copy_from_user is a deathtrap. 
-In-Reply-To: Your message of "Sun, 19 May 2002 13:31:55 +1000."
-Date: Sun, 19 May 2002 13:38:05 +1000
-Message-Id: <E179HWb-0000jY-00@wagner.rustcorp.com.au>
+In-Reply-To: Your message of "Sat, 18 May 2002 20:05:40 MST."
+             <20020518200540.N8794@work.bitmover.com> 
+Date: Sun, 19 May 2002 14:01:25 +1000
+Message-Id: <E179HtC-0001cB-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Um, what about delivering a SIGSEGV?  So, copy_to/from_user always
-> returns 0, but a signal is delivered.  Then the only places which need
-> to be clever are the mount option copying, and the signal delivery
-> code for SIGSEGV (which uses copy_to_user).
+In message <20020518200540.N8794@work.bitmover.com> you write:
+> On Sat, May 18, 2002 at 08:01:48PM -0700, Linus Torvalds wrote:
+> > On Sun, 19 May 2002, Rusty Russell wrote:
+> > >
+> > > Huh?  No, you ask for 2000 bytes into a buffer that can only take 1000
+> > > bytes without hitting an unmapped page, returning EFAULT or giving a
+> > > SIGSEGV is perfectly acceptable.
+> > 
+> > Bzzt, wrong answer.
+> 
+> Linus is absolutely right.  The correct semantics are to return the number
+> of bytes read, if they are greater than zero, and on the next read return
+> the error.  This has been a corner case in read for a long time in various
+> Unix versions, and Linus has it right.  I went through this back at Sun
+> and we explored all the different ways, and the bottom line is that you
+> first ACK that you moved some data and then you NAK on the next read.
 
-Sorry, this doesn't work here either: this would return the wrong
-value from read.
+It's interesting to look at this backwards:
 
-Of course, everyone who does more than one copy_to_user should be
-checking that return value, and not doing:
+	Imagine if copy_to_user returned void and delivered a SIGSEGV
+	on fault, and always had.
 
-	if (copy_to_user(uptr....) 
-	   || copy_to_user(uptr+10,....) 
-		return -EFAULT
+	Now, to fix this, we'd want to add new code paths to the 5,500
+	callers throughout the kernel.
 
-So that such gc schemes actually work,
+I'm pretty sure everyone would balk.  They'd say "sorry, you're going
+to have to wrap your syscalls somehow".
+
+But as we all know, it is harder to remove a feature from Linux, than
+to get the camel book through the eye of a needle (or something).
+
+Oh well,
 Rusty.
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,41 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263435AbTJLJCb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 05:02:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263436AbTJLJCb
+	id S263438AbTJLJWX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 05:22:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263440AbTJLJWX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 05:02:31 -0400
-Received: from pop.gmx.de ([213.165.64.20]:34974 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263435AbTJLJCb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 05:02:31 -0400
-X-Authenticated: #14349625
-Message-Id: <5.2.1.1.2.20031012105054.01e34bc8@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Sun, 12 Oct 2003 10:52:52 +0200
-To: Manfred Spraul <manfred@colorfullife.com>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: 2.6.0-test7 DEBUG_PAGEALLOC oops
-Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <3F88FB90.7080801@colorfullife.com>
-References: <5.2.1.1.2.20031012060658.01e3b840@pop.gmx.net>
- <5.2.1.1.2.20031011172153.01e49948@pop.gmx.net>
- <5.2.1.1.2.20031011120059.01e81718@pop.gmx.net>
- <5.2.1.1.2.20031011120059.01e81718@pop.gmx.net>
- <5.2.1.1.2.20031011172153.01e49948@pop.gmx.net>
- <5.2.1.1.2.20031012060658.01e3b840@pop.gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Sun, 12 Oct 2003 05:22:23 -0400
+Received: from 202-47-55-78.adsl.gil.com.au ([202.47.55.78]:28033 "HELO
+	longlandclan.hopto.org") by vger.kernel.org with SMTP
+	id S263438AbTJLJWV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Oct 2003 05:22:21 -0400
+Message-ID: <3F891CC9.8020507@longlandclan.hopto.org>
+Date: Sun, 12 Oct 2003 19:20:09 +1000
+From: Stuart Longland <stuartl@longlandclan.hopto.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20030925
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jay Denebeim <denebeim@deepthot.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Problems with Maxtor 120 GB drive
+References: <slrnbohfu7.1mb.denebeim@hotblack.deepthot.org>
+In-Reply-To: <slrnbohfu7.1mb.denebeim@hotblack.deepthot.org>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 08:58 AM 10/12/2003 +0200, Manfred Spraul wrote:
->Could you try the attached patch?
->It updates the end of stack detection to handle unaligned stacks.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Works fine.  (modulo moving kstack_end above ASSEMBLY)
+Jay Denebeim wrote:
 
-         Thanks,
+> I just purchased a Maxtor 120GB MXTL01P120 hard drive and when I tried
+> to install it with Redhat it wrote over the partition table describing
+> it as only 8GB.  I tried doing linux rescue and lilo complained that
+> the physical and logical disk sizes did not match (logical was the
+> correct size, physical was the 8GB).
 
-         -Mike 
+I'm no guru here, but as far as I know, 8GB will be about all you'll see 
+without using logical block addressing (LBA).  Using the lba32 option in 
+your lilo.conf might help.
+
+- -- 
++-------------------------------------------------------------+
+| Stuart Longland           stuartl at longlandclan.hopto.org |
+| Brisbane Mesh Node: 719             http://stuartl.cjb.net/ |
+| I haven't lost my mind - it's backed up on a tape somewhere |
+| Griffith Student No:           Course: Bachelor/IT (Nathan) |
++-------------------------------------------------------------+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE/iRzMIGJk7gLSDPcRAkqfAJ0UAV5nVhdTbLZ5FqSOsv8sUmT7MwCfT/OJ
+HhGjZzU6WiXOAAfMAyvT26g=
+=p0ya
+-----END PGP SIGNATURE-----
 

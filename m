@@ -1,58 +1,115 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264988AbRFUOj3>; Thu, 21 Jun 2001 10:39:29 -0400
+	id <S264990AbRFUOkJ>; Thu, 21 Jun 2001 10:40:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264990AbRFUOjT>; Thu, 21 Jun 2001 10:39:19 -0400
-Received: from ivy.tec.in.us ([168.91.1.1]:48256 "EHLO Otter.ivy.tec.in.us")
-	by vger.kernel.org with ESMTP id <S264988AbRFUOjI>;
-	Thu, 21 Jun 2001 10:39:08 -0400
-From: John Madden <jmadden@ivy.tec.in.us>
-Organization: Ivy Tech State College
-To: Masaru Kawashima <masaru@scji.toshiba-eng.co.jp>,
-        Dionysius Wilson Almeida <dwilson@technolunatic.com>
-Subject: Re: eepro100: wait_for_cmd_done timeout
-Date: Thu, 21 Jun 2001 09:37:47 -0500
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010620163134.A22173@technolunatic.com> <20010621231939.757bddd6.masaru@scji.toshiba-eng.co.jp>
-In-Reply-To: <20010621231939.757bddd6.masaru@scji.toshiba-eng.co.jp>
-MIME-Version: 1.0
-Message-Id: <0106210940470C.28098@ycn013>
-Content-Transfer-Encoding: 7BIT
+	id <S264991AbRFUOkB>; Thu, 21 Jun 2001 10:40:01 -0400
+Received: from d12lmsgate.de.ibm.com ([195.212.91.199]:47240 "EHLO
+	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S264990AbRFUOjs>; Thu, 21 Jun 2001 10:39:48 -0400
+From: Stefan.Bader@de.ibm.com
+X-Lotus-FromDomain: IBMDE
+To: torvalds@transmeta.com, andrea@suse.de
+cc: linux-kernel@vger.kernel.org
+Message-ID: <C1256A72.00507ECF.00@d12mta05.de.ibm.com>
+Date: Thu, 21 Jun 2001 16:39:11 +0200
+Subject: correction: fs/buffer.c underlocking async pages
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Dionysius Wilson Almeida <Dionysius Wilson Almeida <dwilson@technolunatic.com>> wrote:
-> > Jun 20 16:14:07 debianlap kernel: eepro100: wait_for_cmd_done timeout!
-> > Jun 20 16:14:38 debianlap last message repeated 5 times
-> 
-> I saw the same message.
-> 
-> The comment before wait_for_cmd_done() function in
-> linux/drivers/net/eepro100.c says:
-> /* How to wait for the command unit to accept a command.
->    Typically this takes 0 ticks. */
-> 
-> And the initial value for the bogus counter, named "wait", is 1000.
-> Is it enough for your machine?
-> 
-> I applied attached patch, eepro100.patch.  After that, I've never seen
-> the message from wait_for_cmd_done().  And, my NIC works fine.
-> 
-> You may want to adjust the initial value for the bogus counter.
-> I don't know the appropriate value for this bogus counter.
-
-int wait is set to 20000 in my eepro100.c (stock 2.2.19), and I still get these
-errors.  Think the patch with the udelay() will still work?
-
-John
 
 
 
+Hi,
 
--- 
-John Madden
-UNIX Systems Engineer
-Ivy Tech State College
-jmadden@ivy.tec.in.us
+I ran into some problems with buffer.c trying to unlock a page of async io
+buffer heads more
+than once.
+IMHO end_buffer_io_async() shouldn't rely on the value of b_end_io to
+decide if the whole
+page can be unlocked. It would make it easier for other layers (well
+remappers like md or
+lvm) to create an end_io chain without the need of allocating new buffer
+heads just for that.
+Is the comparision on b_end_io really necessary? I would assume that all
+bh on the same
+page belong to async io.
+Otherwise, could something like below be done instead?
+
+Linux for eServer development
+Stefan.Bader@de.ibm.com
+Phone: +49 (7031) 16-2472
+----------------------------------------------------------------------------------
+
+  When all other means of communication fail, try words.
+
+--------------------------------------------
+diff -ruN old/fs/buffer.c new/fs/buffer.c
+--- old/fs/buffer.c     Thu Jun 21 09:47:20 2001
++++ new/fs/buffer.c     Thu Jun 21 10:44:01 2001
+@@ -798,11 +798,12 @@
+         * that unlock the page..
+         */
+        spin_lock_irqsave(&page_uptodate_lock, flags);
++       clear_bit(BH_Async, &bh->b_state);
+        unlock_buffer(bh);
+        atomic_dec(&bh->b_count);
+        tmp = bh->b_this_page;
+        while (tmp != bh) {
+-               if (tmp->b_end_io == end_buffer_io_async &&
+buffer_locked(tmp))
++               if (test_bit(BH_Async, &tmp->b_state) &&
+buffer_locked(tmp))
+                        goto still_busy;
+                tmp = tmp->b_this_page;
+        }
+@@ -834,6 +835,7 @@
+
+ void set_buffer_async_io(struct buffer_head *bh) {
+     bh->b_end_io = end_buffer_io_async ;
++               set_bit(BH_Async, &bh->b_state);
+ }
+
+ /*
+@@ -1535,6 +1537,7 @@
+        do {
+                lock_buffer(bh);
+                bh->b_end_io = end_buffer_io_async;
++               set_bit(BH_Async, &bh->b_state);
+                atomic_inc(&bh->b_count);
+                set_bit(BH_Uptodate, &bh->b_state);
+                clear_bit(BH_Dirty, &bh->b_state);
+@@ -1736,6 +1739,7 @@
+                struct buffer_head * bh = arr[i];
+                lock_buffer(bh);
+                bh->b_end_io = end_buffer_io_async;
++               set_bit(BH_Async, &bh->b_state);
+                atomic_inc(&bh->b_count);
+        }
+
+@@ -2182,6 +2186,7 @@
+                bh->b_blocknr = *(b++);
+                set_bit(BH_Mapped, &bh->b_state);
+                bh->b_end_io = end_buffer_io_async;
++               set_bit(BH_Async, &bh->b_state);
+                atomic_inc(&bh->b_count);
+                bh = bh->b_this_page;
+        } while (bh != head);
+diff -ruN old/include/linux/fs.h new/include/linux/fs.h
+--- old/include/linux/fs.h      Thu Jun 21 09:47:51 2001
++++ new/include/linux/fs.h      Thu Jun 21 09:48:20 2001
+@@ -207,6 +207,7 @@
+ #define BH_Mapped      4       /* 1 if the buffer has a disk mapping */
+ #define BH_New         5       /* 1 if the buffer is new and not yet
+written out */
+ #define BH_Protected   6       /* 1 if the buffer is protected */
++#define BH_Async 7 /* 1 if the buffer is used for asyncronous io */
+
+ /*
+  * Try to keep the most commonly used fields in single cache lines (16
+-------------------
+
+
+

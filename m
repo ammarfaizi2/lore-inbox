@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266764AbUFRUDL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266727AbUFRUDK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266764AbUFRUDL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 16:03:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266610AbUFRUCc
+	id S266727AbUFRUDK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 16:03:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266764AbUFRUCt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 16:02:32 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:38282 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S266789AbUFRUCM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 16:02:12 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Subject: Re: DMA API issues
-Date: Fri, 18 Jun 2004 22:02:06 +0200
-User-Agent: KMail/1.6.2
-Cc: Jamey Hicks <jamey.hicks@hp.com>, Ian Molton <spyro@f2s.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, greg@kroah.com,
-       tony@atomide.com, david-b@pacbell.net, joshua@joshuawise.com
-References: <1087582845.1752.107.camel@mulgrave> <40D340FB.3080309@hp.com> <1087587669.1752.147.camel@mulgrave>
-In-Reply-To: <1087587669.1752.147.camel@mulgrave>
-MIME-Version: 1.0
+	Fri, 18 Jun 2004 16:02:49 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:62169 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S266786AbUFRUBl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 16:01:41 -0400
+Date: Fri, 18 Jun 2004 22:01:40 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/11] New set of input patches
+Message-ID: <20040618200140.GJ20632@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200406180344.46191.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="xTwxexNnF5538rIv"
 Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200406182202.13528.oliver@neukum.org>
+In-Reply-To: <200406180344.46191.dtor_core@ameritech.net>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Am Freitag, 18. Juni 2004 21:41 schrieb James Bottomley:
-> Well, I thought it was something like that.  So the problem could be
-> solved simply by rejigging ohci to export td_alloc and td_free as
-> overrideable methods?
+--xTwxexNnF5538rIv
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Unfortunately no. Usb_buffer_alloc() needs to know about the restriction,
-too.
+On Fri, 2004-06-18 03:44:46 -0500, Dmitry Torokhov <dtor_core@ameritech.net>
+wrote in message <200406180344.46191.dtor_core@ameritech.net>:
+> The patches are against Vojtech's tree and should apply to -mm as well.
 
-	Regards
-		Oliver
+However, they won't apply onto Linus' tree and cause rejects in a good
+number of "interesting" files.
+
+MfG, JBG
+
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
+
+--xTwxexNnF5538rIv
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFA00pDbuJ1a+1Sn8oRAoqjAKDVMBJCgjrysIZlQYdLDFCTEic6JgCfQ6t/
-g4B4/fqQwvFNelxVo4sQO3o=
-=q4nt
+iD8DBQFA00okHb1edYOZ4bsRApr8AJ4uqF00Y7BudF1rsZM6z2CEvu6W3wCghlBd
+t0wxSAxJYPGHXhg71yWyOAM=
+=rzog
 -----END PGP SIGNATURE-----
+
+--xTwxexNnF5538rIv--

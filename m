@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265209AbUAJPtm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 10:49:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265217AbUAJPtm
+	id S265206AbUAJPqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 10:46:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265211AbUAJPqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 10:49:42 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:24710 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP id S265209AbUAJPtl
+	Sat, 10 Jan 2004 10:46:25 -0500
+Received: from service.sh.cvut.cz ([147.32.127.214]:24501 "EHLO
+	service.sh.cvut.cz") by vger.kernel.org with ESMTP id S265206AbUAJPqY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 10:49:41 -0500
-Date: Sat, 10 Jan 2004 10:49:02 -0500
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.0-mm2] e100 driver hangs after period of moderate receive load
-Message-ID: <20040110154902.GA23063@gnu.org>
-References: <20031231110209.GA9858@gnu.org> <3FF2BCDE.5010302@pobox.com> <20031231122155.GA13323@gnu.org> <3FF2C266.8010104@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FF2C266.8010104@pobox.com>
-User-Agent: Mutt/1.3.28i
-From: Lennert Buytenhek <buytenh@gnu.org>
+	Sat, 10 Jan 2004 10:46:24 -0500
+Date: Sat, 10 Jan 2004 16:46:22 +0100 (CET)
+From: Milan Jurik <M.Jurik@sh.cvut.cz>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.1-mm2: compilation error
+Message-ID: <Pine.LNX.4.58.0401101644010.1196@bobek.sh.cvut.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 31, 2003 at 07:34:46AM -0500, Jeff Garzik wrote:
+Hi,
 
-> Well, the two are vastly different, since -mm2 includes a complete 
-> rewrite of e100.
-> 
-> Does disabling NAPI in -mm2 change anything?
+    CC      fs/nfs/nfs4proc.o
+fs/nfs/nfs4proc.c: In function `nfs4_lck_type':
+fs/nfs/nfs4proc.c:2042: warning: control reaches end of non-void function
+fs/nfs/nfs4proc.c: In function `nfs4_proc_setlk':
+fs/nfs/nfs4proc.c:2189: unknown field `clientid' specified in initializer
+fs/nfs/nfs4proc.c:2189: warning: missing braces around initializer
+fs/nfs/nfs4proc.c:2189: warning: (near initialization for
+`otl.lock_owner')
+make[3]: *** [fs/nfs/nfs4proc.o] Error 1
+make[2]: *** [fs/nfs] Error 2
+make[1]: *** [fs] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.6.1'
+make: *** [stamp-build] Error 2
 
-Disabling NAPI makes the slab corruption harder to trigger, but
-it still occurs.
+  I can send .config if somebody wants.
+  Best regards,
 
-
---L
+         Milan Jurik

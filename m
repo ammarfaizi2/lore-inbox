@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313907AbSEAS47>; Wed, 1 May 2002 14:56:59 -0400
+	id <S313906AbSEATGh>; Wed, 1 May 2002 15:06:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313914AbSEAS46>; Wed, 1 May 2002 14:56:58 -0400
-Received: from 217-126-207-69.uc.nombres.ttd.es ([217.126.207.69]:49413 "EHLO
-	server01.nullzone.prv") by vger.kernel.org with ESMTP
-	id <S313907AbSEAS46>; Wed, 1 May 2002 14:56:58 -0400
-Message-Id: <5.1.0.14.2.20020501205616.00d31b40@192.168.2.131>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 01 May 2002 20:57:13 +0200
-To: linux-kernel@vger.kernel.org
-From: system_lists@nullzone.org
-Subject: Re: SEVERE Problems in 2.5.12 at uid0 access
-In-Reply-To: <Pine.GSO.4.21.0205011417230.12640-100000@weyl.math.psu.edu
- >
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S313914AbSEATGg>; Wed, 1 May 2002 15:06:36 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:65293 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313906AbSEATGg>;
+	Wed, 1 May 2002 15:06:36 -0400
+Message-ID: <3CD03CC5.1030102@mandrakesoft.com>
+Date: Wed, 01 May 2002 15:06:45 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/00200203
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Seiichi Nakashima <nakasima@kumin.ne.jp>
+CC: linux-kernel@vger.kernel.org, nakasei@fa.mdis.co.jp
+Subject: Re: 2.5.12 compile error ( e100, Alternate Intel driver )
+In-Reply-To: <200205011123.AA00059@prism.kumin.ne.jp>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Seiichi Nakashima wrote:
 
-Thanks to all (Viro, Skip, Bob and Pierre).
-
-At 14:18 01/05/2002 -0400, Alexander Viro wrote:
-
-
->On Wed, 1 May 2002, Bob_Tracy wrote:
+>Hi.
 >
-> > Confirmed on a 2.5.11 system as well.  Talk about your basic heart
-> > attack!  I'd just installed Postfix and found that I couldn't access
-> > any of the directories under /var/spool/postfix.  Fortunately (?),
-> > I've got older kernels to fall back on, and that's one of the hazards
-> > of running on the bleeding edge I reckon.
-> >
-> > Oh yeah...  ext2 filesystem.  I think this bug is at least mostly
-> > independent of the filesystem type.
+>I compile 2.5.12 without framebuffer console and boot up fine.
+>First I use EtherExpressPro/100 support ( e100, Altrenate Intel driver ),
+>but compile error occured. this driver is default.
+>I change EtherExpressPro/100 support ( eepro100, original Becker driver ),
+>then compile and boot up fine.
 >
->Yes, it is.  Look for the patch I've posted yesterday (subject was
->something like "[PATCH] missing checks", IIRC).
+>=== compile error EtherExpressPro/100 support ( e100, Altrenate Intel driver ) ===
+>
+>io_apic.c:221: warning: `move' defined but not used
+>drivers/net/net.o: In function `e100_diag_config_loopback':
+>drivers/net/net.o(.text+0x52ff): undefined reference to `e100_phy_reset'
+>make: *** [vmlinux] Error 1
+>
 
 
+this has been fixed and the fix has been sent to Linus.
 
 

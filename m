@@ -1,63 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbUJaMCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbUJaMHg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261175AbUJaMCt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 07:02:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261565AbUJaMCV
+	id S261618AbUJaMHg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 07:07:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbUJaMHM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 07:02:21 -0500
-Received: from amsfep18-int.chello.nl ([213.46.243.13]:59993 "EHLO
-	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261539AbUJaL7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 06:59:07 -0500
-Date: Sun, 31 Oct 2004 12:58:58 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 517] M68k: Disable SERIO_I8042, except on Q40/Q60
-In-Reply-To: <20041031101425.GA1343@ucw.cz>
-Message-ID: <Pine.LNX.4.61.0410311256520.18354@anakin>
-References: <200410311003.i9VA3f6H009703@anakin.of.borg> <20041031101425.GA1343@ucw.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 31 Oct 2004 07:07:12 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:53671 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261595AbUJaMGU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 07:06:20 -0500
+Date: Sun, 31 Oct 2004 13:07:21 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: Lee Revell <rlrevell@joe-job.com>, Paul Davis <paul@linuxaudiosystems.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
+Message-ID: <20041031120721.GA19450@elte.hu>
+References: <20041030115808.GA29692@elte.hu> <1099158570.1972.5.camel@krustophenia.net> <20041030191725.GA29747@elte.hu> <20041030214738.1918ea1d@mango.fruits.de> <1099165925.1972.22.camel@krustophenia.net> <20041030221548.5e82fad5@mango.fruits.de> <1099167996.1434.4.camel@krustophenia.net> <20041030231358.6f1eeeac@mango.fruits.de> <1099171567.1424.9.camel@krustophenia.net> <20041030233849.498fbb0f@mango.fruits.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041030233849.498fbb0f@mango.fruits.de>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 31 Oct 2004, Vojtech Pavlik wrote:
-> On Sun, Oct 31, 2004 at 11:03:41AM +0100, Geert Uytterhoeven wrote:
+
+* Florian Schmidt <mista.tapas@gmx.net> wrote:
+
+> On Sat, 30 Oct 2004 17:26:06 -0400
+> Lee Revell <rlrevell@joe-job.com> wrote:
 > 
-> > M68k: Disable SERIO_I8042, except on Q40/Q60
+> > OK this is pretty sweet.  With T3 the jitter never exceeds 7% on an idle
+> > system.  As soon as I start moving the mouse this goes to 7 or 8%.  I
+> > cannot get it to go higher than 10%.  Moving windows around has no
+> > effect, the highest jitter happens when I type or move the mouse really
+> > fast IOW it corresponds to the interrupt rate.
+> > 
+> > This is a pretty good baseline for what an xrun-free system would look
+> > like.  Now to test the latest version...
 > 
-> I thought Q40 uses the q40kbd.c driver and shouldn't need i8042 either?
+> Well, 
+> 
+> on V0.5.16 i see something like the below output (which is much worse). It
+> seems that missed irq's with rtc show up at the same time as the xruns in
+> jackd do [i ran both jackd and wakeup in parallel].
 
-Bummer. I got confused by Q40 having an i8042-alike controller, but
-you're right that it uses a different driver (and no Q40 guy complained).
+ok, could you try the -RT-V0.6.0 patch i've just uploaded? It could i
+believe improve these latencies.
 
-Here's an updated patch:
-
-M68k: Disable SERIO_I8042
-
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-
---- linux-2.6.10-rc1/drivers/input/serio/Kconfig	2004-09-30 12:53:37.000000000 +0200
-+++ linux-m68k-2.6.10-rc1/drivers/input/serio/Kconfig	2004-10-27 23:16:43.000000000 +0200
-@@ -20,7 +20,7 @@ config SERIO_I8042
- 	tristate "i8042 PC Keyboard controller" if EMBEDDED || !X86
- 	default y
- 	select SERIO
--	depends on !PARISC && (!ARM || ARCH_SHARK || FOOTBRIDGE_HOST)
-+	depends on !PARISC && (!ARM || ARCH_SHARK || FOOTBRIDGE_HOST) && !M68K
- 	---help---
- 	  i8042 is the chip over which the standard AT keyboard and PS/2
- 	  mouse are connected to the computer. If you use these devices,
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+	Ingo

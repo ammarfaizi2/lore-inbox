@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319092AbSIDHlj>; Wed, 4 Sep 2002 03:41:39 -0400
+	id <S319098AbSIDHnu>; Wed, 4 Sep 2002 03:43:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319095AbSIDHli>; Wed, 4 Sep 2002 03:41:38 -0400
-Received: from dp.samba.org ([66.70.73.150]:27795 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S319092AbSIDHli>;
-	Wed, 4 Sep 2002 03:41:38 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: "David S. Miller" <davem@redhat.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, akpm@zip.com.au
-Subject: Re: [PATCH] Important per-cpu fix. 
-In-reply-to: Your message of "Tue, 03 Sep 2002 23:19:07 MST."
-             <20020903.231907.21327801.davem@redhat.com> 
-Date: Wed, 04 Sep 2002 17:38:48 +1000
-Message-Id: <20020904074612.BA6CE2C073@lists.samba.org>
+	id <S319099AbSIDHnt>; Wed, 4 Sep 2002 03:43:49 -0400
+Received: from [62.70.77.106] ([62.70.77.106]:8112 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S319098AbSIDHnt> convert rfc822-to-8bit;
+	Wed, 4 Sep 2002 03:43:49 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: zoilo@xs4all.nl, Penny <ypguo@scut.edu.cn>,
+       netfilter <netfilter@lists.netfilter.org>
+Subject: Re: Can I set the time scope?
+Date: Wed, 4 Sep 2002 09:43:25 +0200
+User-Agent: KMail/1.4.1
+References: <200209030215.g832FfL7010542@letterbox.scut.edu.cn> <02090313581404.31844@Lms>
+In-Reply-To: <02090313581404.31844@Lms>
+Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209040943.25411.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20020903.231907.21327801.davem@redhat.com> you write:
-> 
-> Actually Rusty what's the big deal, add an "initializer"
-> arg to the macro.  It doesn't hurt anyone, it doesn't lose
-> any space in the kernel image, and the macro arg reminds
-> people to do it.
-> 
-> I think it's a small price to pay to keep a longer range
-> of compilers supported :-)
+On Tuesday 03 September 2002 13:58, Zoilo wrote:
+>
+>1) Compile your own kernel and time.patch (base); read:
+>
+> http://www.netfilter.org/documentation/pomlist/pom-base.html#time
 
-I disagree.  They might not have a convenient (static) initializer, in
-which case it's simply cruel and unusual, to work around an obscure
-compiler bug.
+any chance of these being added to the official kernel?
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+roy
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
+ProntoTV AS - http://www.pronto.tv/
+Tel: +47 9801 3356
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+

@@ -1,61 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271200AbTGWSho (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 14:37:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271206AbTGWSho
+	id S271208AbTGWSjL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 14:39:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271209AbTGWSjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 14:37:44 -0400
-Received: from pro6.mtco.com ([207.179.200.252]:8418 "HELO ns.mtco.com")
-	by vger.kernel.org with SMTP id S271200AbTGWShk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 14:37:40 -0400
-From: Tom Felker <tcfelker@mtco.com>
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: root= needs hex in 2.6.0-test1-mm2
-Date: Wed, 23 Jul 2003 13:52:54 -0500
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org
-References: <200307230156.40762.tcfelker@mtco.com> <20030723144351.A3367@infradead.org> <200307240133.36646.kernel@kolivas.org>
-In-Reply-To: <200307240133.36646.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 23 Jul 2003 14:39:10 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:53254 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S271208AbTGWSiv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 14:38:51 -0400
+Date: Wed, 23 Jul 2003 19:53:55 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: [bernie@develer.com: Kernel 2.6 size increase]
+Message-ID: <20030723195355.A27597@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307231352.54208.tcfelker@mtco.com>
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 July 2003 10:33 am, Con Kolivas wrote:
-> On Wed, 23 Jul 2003 23:43, Christoph Hellwig wrote:
-> > On Wed, Jul 23, 2003 at 01:56:40AM -0500, Tom Felker wrote:
-> > > I finally booted 2.6.0-test1-mm2, after reading somebody else who
-> > > needed to use hex in the root= argument.  root=/dev/hdb1 and root=hdb2
-> > > would panic ("VFS: Cannot open root device hdb1 or
-> > > unknown-block(0,0)"), but root=0341 worked.  Devfs is compiled in,
-> > > devfs=nomount and devfs=mount make no difference.  Is this intentional?
-> >
-> > Yes.  If you use devfs you have to use devfs names for root=.  It's
-> > pretty simple.  Best option of course is to avoid devfs.
+I think this is not only of interest fir the uClinux folks..
 
->From the perspective of an ignorant user, I kinda like the idea of devfs.
+----- Forwarded message from Bernardo Innocenti <bernie@develer.com> -----
 
-> ie use
->
-> root=/dev/ide/host0/bus0/target1/lun0/part1
->
-> or equivalent
+Date:	Wed, 23 Jul 2003 20:46:46 +0200
+From:	Bernardo Innocenti <bernie@develer.com>
+Subject: Kernel 2.6 size increase
+To:	uClinux development list <uclinux-dev@uclinux.org>
+Cc:	linux-kernel@vger.kernel.org
 
-Yes, this worked.  I guess now my question is, why does /dev/hdb1 work for 
-2.6.0-test1, but not 2.6.0-test1-mm2?
+Hello,
 
-Also, I just started getting oopses during startup and shutdown with 
-test1-mm2, EIP at ext3_journaling_dirty_data or something similar, followed 
-by a bunch of file not found errors.  I'm getting scared, I have valuable 
-data on ext3.  I'll be looking into some way to capture this.
+code bloat can be very harmful on embedded targets, but it's
+generally inconvenient for any platform. I've measured the
+code increase between 2.4.21 and 2.6.0-test1 on a small
+kernel configuration for ColdFire:
+
+   text    data     bss     dec     hex filename
+ 640564   39152  134260  813976   c6b98 linux-2.4.x/linux
+ 845924   51204   78896  976024   ee498 linux-2.5.x/vmlinux
+
+I could provide the exact .config file for both kernels to
+anybody interested. They are almost the same: no filesystems
+except JFFS2, IPv4 and a bunch of small drivers. I have no
+SMP, security, futexes, modules and anything else not
+strictly needed to execute processes.
+
+I've made a linker map file and compared the size of single
+subsystems. These are the the major contributors to the
+size increase:
+
+  kernel/   +27KB
+  mm/       +14KB
+  fs/       +47KB
+  drivers/  +35KB
+  net/      +64KB
+
+I've digged into net/ with nm -S --size-sort. It seems that
+the major increase is caused by net/xfrm/. Could this module
+be made optional?
+
+In fs/, almost all modules have got 30-40% bigger, therefore
+bloat is probably caused by inlines and macros getting more
+complex.
+
+Block drivers and MTD have generally become smaller. Character
+devices are responsable for most of the size increase in drivers/.
 
 -- 
-Tom Felker
+  // Bernardo Innocenti - Develer S.r.l., R&D dept.
+\X/  http://www.develer.com/
 
-Hack user friendliness onto a pure and simple system, because
-you can't hack purity and simplicity onto a user friendly system.
+Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
 
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----

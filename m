@@ -1,64 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264021AbUDQTi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 15:38:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264024AbUDQTi7
+	id S264028AbUDQTlI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 15:41:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264031AbUDQTlI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 15:38:59 -0400
-Received: from holomorphy.com ([207.189.100.168]:30860 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264021AbUDQTiz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 15:38:55 -0400
-Date: Sat, 17 Apr 2004 12:38:55 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, elf@buici.com
-Subject: vmscan.c heuristic adjustment for smaller systems
-Message-ID: <20040417193855.GP743@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org, elf@buici.com
+	Sat, 17 Apr 2004 15:41:08 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:51929 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264028AbUDQTlD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 15:41:03 -0400
+Date: Sat, 17 Apr 2004 21:40:55 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: "C.L. Tien - ??????" <cltien@cmedia.com.tw>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: cmpci 6.82 released
+Message-ID: <20040417194055.GJ14212@fs.tum.de>
+References: <92C0412E07F63549B2A2F2345D3DB515F7D438@cm-msg-02.cmedia.com.tw>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <92C0412E07F63549B2A2F2345D3DB515F7D438@cm-msg-02.cmedia.com.tw>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Singer reported an issue where an embedded ARM system performed
-poorly due to page replacement potentially prematurely replacing
-mapped memory where there was very little mapped pagecache in use to
-begin with.
+On Sat, Apr 17, 2004 at 09:52:27AM +0800, C.L. Tien - ?????? wrote:
 
-The following patch attempts to address the issue by using the
-_maximum_ of vm_swappiness and distress to add to the mapped ratio, so
-that distress doesn't contribute to swap_tendency until it exceeds
-vm_swappiness, and afterward the effect is not cumulative.
+> Did you mean __devinit should be __devexit for cm_remove? Indeed, when I first change it, this question rose. There are still many other driver in kernel 2.4.25 use the same way. But I checked the driver in kernel 2.6 tree use the __devexit already for correct semantic meaning. I made following change, thanks for your correction.
+>...
 
-The intended effect is that swap_tendency should vary in a more jagged
-way, and not be elevated by distress beyond vm_swappiness until distress
-exceeds vm_swappiness. For instance, since distress is 100 >>
-zone->prev_priority, no distinction is made between a vm_swappiness of
-50 or a vm_swappiness of 90 given the same mapped_ratio.
+Yes.
 
-Marc Singer has results where this is an improvement, and hopefully can
-clarify as-needed. Help determining whether this policy change is an
-improvement for a broader variety of systems would be appreciated.
+After a quick look over the patches, it seems this was the only problem 
+regarding __{,dev}{init,exit}.
 
+cu
+Adrian
 
--- wli
+-- 
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-Index: singer-2.6.5-mm6/mm/vmscan.c
-===================================================================
---- singer-2.6.5-mm6.orig/mm/vmscan.c	2004-04-14 23:21:19.000000000 -0700
-+++ singer-2.6.5-mm6/mm/vmscan.c	2004-04-17 11:09:35.000000000 -0700
-@@ -636,7 +636,7 @@
- 	 *
- 	 * A 100% value of vm_swappiness overrides this algorithm altogether.
- 	 */
--	swap_tendency = mapped_ratio / 2 + distress + vm_swappiness;
-+	swap_tendency = mapped_ratio / 2 + max(distress, vm_swappiness);
- 
- 	/*
- 	 * Now use this metric to decide whether to start moving mapped memory

@@ -1,54 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267839AbUHKAZC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267842AbUHKA3X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267839AbUHKAZC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 20:25:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267842AbUHKAZB
+	id S267842AbUHKA3X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 20:29:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267846AbUHKA3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 20:25:01 -0400
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:60317 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S267839AbUHKAYy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 20:24:54 -0400
-Date: Wed, 11 Aug 2004 02:24:55 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <20040811002455.GA7537@merlin.emma.line.org>
-Mail-Followup-To: Gene Heskett <gene.heskett@verizon.net>,
-	linux-kernel@vger.kernel.org
-References: <200408101027.i7AARuZr012065@burner.fokus.fraunhofer.de> <200408101228.27455.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200408101228.27455.gene.heskett@verizon.net>
-User-Agent: Mutt/1.5.6i
+	Tue, 10 Aug 2004 20:29:23 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:1973 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S267842AbUHKA3S convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 20:29:18 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Hugetlb demanding paging for -mm tree
+Date: Tue, 10 Aug 2004 17:28:27 -0700
+Message-ID: <01EF044AAEE12F4BAAD955CB750649430205DDE1@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Hugetlb demanding paging for -mm tree
+Thread-Index: AcR+t81xiaGtXuI9TQ+gKMqhUa81xAAgFSSQ
+From: "Seth, Rohit" <rohit.seth@intel.com>
+To: "William Lee Irwin III" <wli@holomorphy.com>
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       "Hirokazu Takahashi" <taka@valinux.co.jp>,
+       <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
+X-OriginalArrivalTime: 11 Aug 2004 00:28:32.0841 (UTC) FILETIME=[21FF0B90:01C47F3A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Aug 2004, Gene Heskett wrote:
+William Lee Irwin III <mailto:wli@holomorphy.com> wrote on Tuesday,
+August 10, 2004 1:56 AM:
 
-[burnproof decreases CD quality]
-> How so Joerg?  Making a blanket statement such as this requires a good 
-> proof example IMO.  You not are giving one.
+> William Lee Irwin III <> wrote on Monday, August 09, 2004 11:59 AM:
+>>> As things stand in mainline, it's not an obvious issue. Ken appears
+>>> to be calling it for hugetlb in the ZFOD fault handling patches,
+>>> which have the issue that it may behave badly in several respects
+>>> when acting on large pages. The cache coherency bits in
+>>> update_mmu_fault() are necessary in general, but mainline omits
+>>> them. It should only result in intermittent failures on machines
+>>> with sufficiently incoherent caches.
+> 
+> On Tue, Aug 10, 2004 at 01:52:02AM -0700, Seth, Rohit wrote:
+>> Will the flush_dcache_page for hugepages even on incoherent caches be
+>> not enough.  And that flush_dcache_page should be done in
+>> alloc_hugepage after clearing the page(or change the clear_highpage
+>> to clear_user_high_page).
+> 
+> Could you rephrase that? I'm having trouble figuring out what you
+> meant. 
+> 
+> 
+> -- wli
 
-The switch from read mode to write mode (i. e. find end of data,
-increase LASER power to write and pick up writing) takes some time
-(order of magnitude: µs) which means some pits/lands aren't right during
-that phase. How many pits/lands are broken break depends on hard- and
-firmware, write speed and model and for CAV the radial position on the
-disc. Fast writers will need to reach a linear velocity around 60 m/s
-(216 km/h); one µs time to ramp up LASER power from read to write level
-there means up to 60 µm lost.
+I was thinking that we only need to worry about the d-cache coherency at
+the time of hugepage fault.  But that is not a safe assumption.  You are
+right that we will need update_mmu_cache in the hugetlb page fault path.
+Though I'm wondering if we can hide this update_mmu_cache fucntionality
+behind the arch specific set_huge_pte function in the demand paging
+patch for hugepage.  If so then we may not need to make any changes in
+the existing update_mmu_cache API.
 
-How far good improvements in the hard- and firmware have allowed to
-reduce that gap is beyond my current knowledge. Some figures are posted
-at: http://www.digital-sanyo.com/BURN-Proof/tips/No1.html
-    http://www.digital-sanyo.com/BURN-Proof/tips/No2.html
-
--- 
-Matthias Andree
-
-NOTE YOU WILL NOT RECEIVE MY MAIL IF YOU'RE USING SPF!
-Encrypted mail welcome: my GnuPG key ID is 0x052E7D95 (PGP/MIME preferred)
+Thanks, rohit

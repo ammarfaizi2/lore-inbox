@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262425AbTAaVVv>; Fri, 31 Jan 2003 16:21:51 -0500
+	id <S262446AbTAaV3H>; Fri, 31 Jan 2003 16:29:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262446AbTAaVVv>; Fri, 31 Jan 2003 16:21:51 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:15629 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S262425AbTAaVVv>;
-	Fri, 31 Jan 2003 16:21:51 -0500
-Date: Fri, 31 Jan 2003 16:31:09 -0500 (EST)
-Message-Id: <200301312131.h0VLV91470737@saturn.cs.uml.edu>
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-To: linux-kernel@vger.kernel.org
-Cc: davej@codemonkey.org.uk, john@grabjohn.com, alan@lxorguk.ukuu.org.uk,
-       szepe@pinerecords.com
-Subject: Re: [PATCH] 2.5.59 morse code panics
+	id <S262449AbTAaV3H>; Fri, 31 Jan 2003 16:29:07 -0500
+Received: from smtp07.iddeo.es ([62.81.186.17]:36517 "EHLO smtp07.retemail.es")
+	by vger.kernel.org with ESMTP id <S262446AbTAaV3G>;
+	Fri, 31 Jan 2003 16:29:06 -0500
+Date: Fri, 31 Jan 2003 22:38:27 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Perl in the toolchain
+Message-ID: <20030131213827.GA1541@werewolf.able.es>
+References: <20030131133929.A8992@devserv.devel.redhat.com> <Pine.LNX.4.44.0301311327480.16486-100000@chaos.physics.uiowa.edu> <20030131194837.GC8298@gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20030131194837.GC8298@gtf.org>; from jgarzik@pobox.com on Fri, Jan 31, 2003 at 20:48:37 +0100
+X-Mailer: Balsa 2.0.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Dave Jones writes:
-> On Fri, Jan 31, 2003 at 02:29:59PM +0000, John Bradford wrote:
+On 2003.01.31 Jeff Garzik wrote:
+> On Fri, Jan 31, 2003 at 01:41:26PM -0600, Kai Germaschewski wrote:
+> > Generally, we've been trying to not make perl a prequisite for the kernel 
+> > build, and I'd like to keep it that way. Except for some arch specific 
+> 
+> That's pretty much out the window when klibc gets merged, so perl will
+> indeed be a build requirement for all platforms...
+> 
 
->> On the other hand, I don't actually want to have to listen
->> to ten minutes of morse code over the phone when another
->> box could do it for me.
->
-> That must be a pretty quiet datacentre. And what happens
-> when more than one box starts beeping ?
+So in short, kernel people:
+- do not want perl in the kernel build
+- allow qt to pollute the kernel to have a decent gui config tool
+- have to rewrite half perl features in C
+- but perl will be needed anyways
 
-a. Supposedly a good ham can pick one signal from many,
-   at least if the pitches are different.
+instead of
+- do all parsing in perl, that is what perl is for and what is mainly done
+  in kconfig scripts
+- do the config backend in perl, and...
+- do the gui in perl-XXX, so you can have perl-GTK, perl-GTK2, perl-QT or 
+  perl-Tk, even perl-Xaw (so you get rid of tcl/tk)
 
-b. If you're not a good ham, you can process the audio.
-   There are existing decoders that might do the job.
-   This works for 1 computer if you have a tape recorder.
+I really do not understand...
 
-Using fast Morse over the speaker, an oops may take
-30 minutes.
-
-Blinking keyboard LEDs would have to be much slower.
-The data would have to be just an instruction pointer.
-
-Using a non-Morse code over the speaker could get the
-transmission time down to a couple minutes, with full
-ASCII and error correction.
-
-Say, anybody have a *.wav file of machine-room noise?
-(16-bit, 44.1 and 48 kHz)
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Cooker) for i586
+Linux 2.4.21-pre4-jam1 (gcc 3.2.1 (Mandrake Linux 9.1 3.2.1-5mdk))

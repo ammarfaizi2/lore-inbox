@@ -1,63 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbULGVnY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261944AbULGVrw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261635AbULGVnY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 16:43:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbULGVnX
+	id S261944AbULGVrw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 16:47:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261948AbULGVrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 16:43:23 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:27803
-	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S261635AbULGVnR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 16:43:17 -0500
-Date: Tue, 7 Dec 2004 16:51:45 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Doug Maxey <dwm@austin.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB DVD ... Again.
-Message-ID: <20041207215145.GA5259@animx.eu.org>
-Mail-Followup-To: Doug Maxey <dwm@austin.ibm.com>,
-	linux-kernel@vger.kernel.org
-References: <20041203172214.GA28067@animx.eu.org> <200412031750.iB3Hot3q002538@falcon10.austin.ibm.com>
+	Tue, 7 Dec 2004 16:47:52 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:59523 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261949AbULGVrt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 16:47:49 -0500
+Date: Tue, 7 Dec 2004 22:47:15 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org, Eran Mann <emann@mrv.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.32-2
+Message-ID: <20041207214715.GB12879@elte.hu>
+References: <OFD07DEEA4.7C243C76-ON86256F5F.007976EC@raytheon.com> <41B5C038.1090501@mrv.com> <20041207153720.GA20712@elte.hu> <200412071340.42731.gene.heskett@verizon.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200412031750.iB3Hot3q002538@falcon10.austin.ibm.com>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <200412071340.42731.gene.heskett@verizon.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug Maxey wrote:
-> 
-> On Fri, 03 Dec 2004 12:22:14 EST, Wakko Warner wrote:
-> >I'm about lost onthis one =)
-> >
-> >----- Forwarded message from Alan Stern <stern@rowland.harvard.edu> -----
-> >
-> >Date: Fri, 3 Dec 2004 10:22:43 -0500 (EST)
-> >From: Alan Stern <stern@rowland.harvard.edu>
-> >To: Wakko Warner <wakko@animx.eu.org>
-> >cc: linux-usb-devel@lists.sourceforge.net
-> >Subject: Re: [linux-usb-devel] FWD: Re: USB DVD
-> >
-> >It's not a USB problem.  The device is returning an error code with sense 
-> >key = 0x05 (Illegal Request) and ASC/ASCQ = 0x6f, 0x04 (I don't know what 
-> >those mean).  Maybe someone who is familiar with the SCSI DVD protocol can 
-> >explain.  However it's clear that the low-level USB transport is working 
-> >without errors.
-> >
-> >Alan Stern
-> 
-> Official definition:
-> 6F/04 - MEDIA REGION CODE IS MISMATCHED TO LOGICAL UNIT REGION
-> 
-> 05 - Illegal Request
-> 
-> Means that a value was set in the cdb to do an operation the drive could 
-> not handle.
 
-So I guess it is the usb enclosure or the usb subsystem is doing something
-wrong.  The drive works fine when attached internally or I use a
-non-encrypted dvd..
+* Gene Heskett <gene.heskett@verizon.net> wrote:
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+> I'd like to report a slight improvement in the reports from tvtime
+> while running 32-6 with full preemtion turned on, cfq scheduler:
+> 
+> ------
+> Dec  7 13:29:39 coyote kernel: wow!  That was a 15 millisec bump
+> Dec  7 13:29:39 coyote kernel: `IRQ 8'[838] is being piggy.
+> need_resched=0, cpu=0
+> Dec  7 13:29:39 coyote kernel: Read missed before next interrupt
+> -----
+> Each second of the log contains about 27 of these, so its pretty
+> steady.  Picture looks pretty good though.
+>
+> Although, that particular snip was taken from the log while I was
+> *not* on the same screen as tvtime.  Switching back it its screen
+> returned the slip times to the 22 millisecond area. [...]
+
+could enable WAKEUP_TIMING and LATENCY_TRACING, boot into the new kernel
+and do:
+
+	echo 0 > /proc/sys/kernel/preempt_max_latency
+
+then you'll get the worst-case trace in /proc/latency_trace. Does it
+show any millisecs-range latencies?
+
+also, do this:
+
+  chrt -f 90 -p `pidof 'IRQ 8'`
+  chrt -f 91 -p `pidof 'IRQ 0'`
+
+to make sure IRQ8 doesnt get preempted by other stuff. How often do you
+get the rtc histogram in the syslog? Does tvtime use /dev/rtc for normal
+operations perhaps? If yes then you might want to disable RTC_HISTOGRAM.
+
+	Ingo

@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289495AbSAJP3I>; Thu, 10 Jan 2002 10:29:08 -0500
+	id <S289496AbSAJPa6>; Thu, 10 Jan 2002 10:30:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289496AbSAJP27>; Thu, 10 Jan 2002 10:28:59 -0500
-Received: from mail.s.netic.de ([212.9.160.11]:44808 "EHLO mail.netic.de")
-	by vger.kernel.org with ESMTP id <S289495AbSAJP2m>;
-	Thu, 10 Jan 2002 10:28:42 -0500
-To: ertr1013@student.uu.se
-Cc: Dautrevaux@microprocess.com, pkoning@equallogic.com, gcc@gcc.gnu.org,
-        linux-kernel@vger.kernel.org, mrs@windriver.com, dewar@gnat.com
+	id <S289499AbSAJPas>; Thu, 10 Jan 2002 10:30:48 -0500
+Received: from motgate2.mot.com ([136.182.1.10]:45037 "EHLO motgate2.mot.com")
+	by vger.kernel.org with ESMTP id <S289496AbSAJPag>;
+	Thu, 10 Jan 2002 10:30:36 -0500
+Date: Thu, 10 Jan 2002 10:30:14 -0500
+Message-Id: <200201101530.g0AFUEA00462@hyper.wm.sps.mot.com>
+From: Peter Barada <pbarada@mail.wm.sps.mot.com>
+To: fjh@cs.mu.oz.au
+CC: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20020110124702.B30669@hg.cs.mu.oz.au> (message from Fergus
+	Henderson on Thu, 10 Jan 2002 12:47:02 +1100)
 Subject: Re: [PATCH] C undefined behavior fix
-In-Reply-To: <20020110121845.91AD8F317E@nile.gnat.com>
-	<20020110123711.GA745@student.uu.se>
-From: Florian Weimer <fw@deneb.enyo.de>
-Date: Thu, 10 Jan 2002 16:27:29 +0100
-In-Reply-To: <20020110123711.GA745@student.uu.se> (Erik Trulsson's message
- of "Thu, 10 Jan 2002 13:37:11 +0100")
-Message-ID: <87bsg2usym.fsf@deneb.enyo.de>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/21.1 (i686-pc-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20020108012734.E23665@werewolf.able.es> <20020109204043.T1027-100000@gerard> <20020110004952.A11641@werewolf.able.es> <200201100019.g0A0JOM32110@hyper.wm.sps.mot.com> <20020110124702.B30669@hg.cs.mu.oz.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Trulsson <ertr1013@student.uu.se> writes:
 
-> The compiler is not free to do only one load there if v is declared
-> volatile.
-> The relevant part of the C standard would be the following paragraph:
+>No, you're wrong here.  That would violate the following provisions of
+>the C99 standard, because the two accesses to `a' would not have occurred.
+>(It would also violate similar provisions of the C89 and C++ standards.)
+>The "as if" rule -- which is stated in 5.1.2.3 [#3] in C99 -- is explicitly
+>defined to NOT allow optimizing away accesses to volatile objects.
 >
-> [6.7.3]
->        [#6] An object  that  has  volatile-qualified  type  may  be
->        modified in ways unknown to the implementation or have other
->        unknown side effects.  Therefore any expression referring to
->        such  an object shall be evaluated strictly according to the
->        rules of the abstract  machine,  as  described  in  5.1.2.3.
->        Furthermore,  at  every sequence point the value last stored
->        in the object  shall  agree  with  that  prescribed  by  the
->        abstract  machine, except as modified by the unknown factors
->        mentioned previously.105)  What constitutes an access to  an
->        object  that  has volatile-qualified type is implementation-
->        defined.
+> |        [#3] In the abstract machine, all expressions are  evaluated
+> |        as  specified  by  the  semantics.  An actual implementation
+> |        need not evaluate part of an expression  if  it  can  deduce
+> |        that  its  value is not used and that no needed side effects
+> |        are produced (including any caused by calling a function  or
+> |        accessing a volatile object).
 
-And 5.1.2.3 states:
+Ahh, I see now said the blind man...  When I read over this, I homed in
+on "An actual emplementation need not evaluate part of the expression
+if it can deduce that its value is not needed", and conveniently
+skipped the rest of the sentence.
 
-       [#2]  Accessing  a  volatile  object,  modifying  an object,
-       modifying a file, or calling a function  that  does  any  of
-       those  operations are all side effects,11) which are changes
-       in the state of the execution environment.  Evaluation of an
-       expression  may  produce side effects.  At certain specified
-       points in the execution sequence called sequence points, all
-       side  effects  of previous evaluations shall be complete and
-       no side effects of subsequent evaluations shall  have  taken
-       place.   (A summary of the sequence points is given in annex
-       C.)
+My Bad.
 
-So it seems to be obvious ;-) that the compiler must not remove
-seemingly unnecessary references to volatile objects.
+-- 
+Peter Barada                                   Peter.Barada@motorola.com
+Wizard                                         781-852-2768 (direct)
+WaveMark Solutions(wholly owned by Motorola)   781-270-0193 (fax)

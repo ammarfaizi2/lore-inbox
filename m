@@ -1,65 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267079AbTAPN2z>; Thu, 16 Jan 2003 08:28:55 -0500
+	id <S267078AbTAPN2e>; Thu, 16 Jan 2003 08:28:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267080AbTAPN2z>; Thu, 16 Jan 2003 08:28:55 -0500
-Received: from inet-mail1.oracle.com ([148.87.2.201]:46806 "EHLO
-	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
-	id <S267079AbTAPN2x>; Thu, 16 Jan 2003 08:28:53 -0500
-Message-ID: <3E26B497.8000301@oracle.com>
-Date: Thu, 16 Jan 2003 14:33:11 +0100
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
+	id <S267079AbTAPN2e>; Thu, 16 Jan 2003 08:28:34 -0500
+Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:4044 "EHLO
+	mail.kolivas.net") by vger.kernel.org with ESMTP id <S267078AbTAPN2c> convert rfc822-to-8bit;
+	Thu, 16 Jan 2003 08:28:32 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Con Kolivas <conman@kolivas.net>
+To: Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: [BENCHMARK] 2.5.58-mm1 with contest
+Date: Fri, 17 Jan 2003 00:37:16 +1100
+User-Agent: KMail/1.4.3
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>,
+       Aggelos Economopoulos <aoiko@cc.ece.ntua.gr>
+References: <200301170024.00143.conman@kolivas.net> <3E26B364.8040402@cyberone.com.au>
+In-Reply-To: <3E26B364.8040402@cyberone.com.au>
 MIME-Version: 1.0
-To: Andrew McGregor <andrew@indranet.co.nz>
-CC: Valdis.Kletnieks@vt.edu, Mikael Pettersson <mikpe@csd.uu.se>,
-       vojtech@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: Dell Latitude CPi keyboard problems since 2.5.42
-References: <15909.13901.284523.220804@harpo.it.uu.se>            <481480000.1042627438@localhost.localdomain> <200301151921.h0FJLvV0009887@turing-police.cc.vt.edu> <3660000.1042685449@localhost.localdomain>
-In-Reply-To: <3660000.1042685449@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301170037.16433.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew McGregor wrote:
-> The i8k will power off with APM but not ACPI, but it won't reboot with 
-> either.
-> 
-> I'm using grub, so it may hit the problem before outputting anything 
-> where lilo may not.
+On Friday 17 Jan 2003 12:28 am, Nick Piggin wrote:
+> Con Kolivas wrote:
+> >-----BEGIN PGP SIGNED MESSAGE-----
+> >Hash: SHA1
+> >
+> >Contest (0.61pre) benchmark results for 2.5.58-mm1
+> >
+> >no_load:
+> >Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
+> >2.5.55          2       78      96.2    0       0.0     1.00
+> >2.5.56          3       79      96.2    0       0.0     1.00
+> >2.5.57          3       79      96.2    0       0.0     1.00
+> >2.5.58          2       79      96.2    0       0.0     1.00
+> >2.5.58-mm1      4       79      96.2    0       0.0     1.00
+> >cacherun:
+> >Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
+> >2.5.55          2       76      98.7    0       0.0     0.97
+> >2.5.56          3       76      100.0   0       0.0     0.96
+> >2.5.57          3       76      100.0   0       0.0     0.96
+> >2.5.58          2       76      100.0   0       0.0     0.96
+> >2.5.58-mm1      4       77      97.4    0       0.0     0.97
+> >process_load:
+> >Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
+> >2.5.55          2       94      79.8    30      17.0    1.21
+> >2.5.56          3       93      80.6    29      16.1    1.18
+> >2.5.57          3       93      81.7    28      16.1    1.18
+> >2.5.58          2       92      81.5    27      15.2    1.16
+> >2.5.58-mm1      3       94      80.9    29      16.0    1.19
+> >ctar_load:
+> >Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
+> >2.5.55          3       133     78.9    1       3.8     1.71
+> >2.5.56          3       152     75.7    1       4.6     1.92
+> >2.5.57          3       132     79.5    1       3.8     1.67
+> >2.5.58          3       117     82.1    1       6.0     1.48
+> >2.5.58-mm1      3       109     81.7    1       4.6     1.38
+> >xtar_load:
+> >Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
+> >2.5.55          3       113     79.6    1       6.2     1.45
+> >2.5.56          3       111     78.4    1       6.3     1.41
+> >2.5.57          3       107     80.4    1       5.6     1.35
+> >2.5.58          3       122     80.3    1       6.6     1.54
+> >2.5.58-mm1      3       121     76.0    1       6.6     1.53
+> >io_load:
+> >Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
+> >2.5.55          3       126     63.5    6       12.7    1.62
+> >2.5.56          3       131     59.5    7       13.0    1.66
+> >2.5.57          5       124     64.5    5       11.3    1.57
+> >2.5.58          3       153     54.9    8       14.3    1.94
+> >2.5.58-mm1      6       156     51.3    9       14.7    1.97
+> >read_load:
+> >Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
+> >2.5.55          3       95      82.1    9       5.3     1.22
+> >2.5.56          3       99      80.8    6       6.1     1.25
+> >2.5.57          3       100     80.0    6       7.0     1.27
+> >2.5.58          3       96      82.3    9       5.2     1.22
+> >2.5.58-mm1      4       96      83.3    176189  6.2     1.22
+>
+> Something seems to have gone wrong with "Loads".
 
-[Fixed CC: to Vojtech]
+Thanks for the heads up. Must be falling asleep to miss that one. The run 
+seems to have progressed ok but something died in the output (Aggelos?). 
+After deleting that result (just in case) the results look like this:
 
-CPx750J powers off with grub/APM
-C640    powers off with grub/ACPI - much earlier than the CPx
+2.5.58          3       96      82.3    9       5.2     1.22
+2.5.58-mm1      3       100     81.0    6       6.0     1.27
 
-Most likely the same interval of kernel that Valdis mentions. For
-  sure both behave like this in 2.5.58.
+>
+> >list_load:
+> >Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
+> >2.5.55          3       91      84.6    0       8.8     1.17
+> >2.5.56          3       91      84.6    0       8.8     1.15
+> >2.5.57          3       91      84.6    0       8.8     1.15
+> >2.5.58          3       91      85.7    0       8.8     1.15
+> >2.5.58-mm1      2       92      83.7    0       9.8     1.16
+> >mem_load:
+> >Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
+> >2.5.55          3       116     73.3    66      1.7     1.49
+> >2.5.56          3       107     80.4    45      0.9     1.35
+> >2.5.57          3       110     80.0    47      0.9     1.39
+> >2.5.58          3       107     73.8    66      1.9     1.35
+> >2.5.58-mm1      3       104     75.0    50      1.0     1.32
+> >dbench_load:
+> >Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
+> >2.5.55          3       117     68.4    2       16.2    1.50
+> >2.5.56          2       124     62.9    3       25.8    1.57
+> >2.5.57          3       121     64.5    3       22.3    1.53
+> >2.5.58          3       122     64.8    3       24.6    1.54
+> >2.5.58-mm1      3       118     66.9    3       22.0    1.49
+> >
+> >Only statistically significant diff b/w 2.5.58 and 2.5.58-mm1 is in
+> > ctar_load which is faster in mm1. Trend towards being faster in mem_load.
+> >
+> >Con
+>
+> Looks good, thanks.
 
-> --On Wednesday, January 15, 2003 14:21:57 -0500 Valdis.Kletnieks@vt.edu 
-> wrote:
-> 
->> On Wed, 15 Jan 2003 23:43:58 +1300, Andrew McGregor said:
->>
->>> Possibly related:
->>>
->>> Dell Inspiron 8000s won't warm reboot either.  They just freeze with a
->>> blinking cursor at the point where the bootloader would ordinarily load.
->>> Have to power off or reset.
->>>
->>> Consistent in various versions from 2.5.44 to .55.  Have not tested
->>> earlier, nor yet later.
->>
->>
->> Dell Latitude C840s will power off.  Oddly enough, it doesn't do it when
->> LILO itself loads - it does it when LILO starts loading the actual kernel
->> image.  True from 2.5.46 through 2.5.58.
+No problem. 
 
---alessandro
+Will have to keep an eye out on the code for more bugs. So far the contest 
+code changeover is showing far less variability in the results (good job 
+Aggelos!) which should make for more meaningful results.
 
-  "And though it don't seem fair, for every smile that plays
-    a tear must fall somewhere"
-        (Bruce Springsteen, "The Price You Pay", live 31/12/1980)
-
+Con

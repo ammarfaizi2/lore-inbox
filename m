@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264859AbSKTKN5>; Wed, 20 Nov 2002 05:13:57 -0500
+	id <S265250AbSKTKKz>; Wed, 20 Nov 2002 05:10:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264983AbSKTKN5>; Wed, 20 Nov 2002 05:13:57 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:33038
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S264859AbSKTKN5>; Wed, 20 Nov 2002 05:13:57 -0500
-Subject: Re: [patch] remove magic numbers in block queue initialization
-From: Robert Love <rml@tech9.net>
-To: Jens Axboe <axboe@suse.de>
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20021120084401.GH11884@suse.de>
-References: <1037747198.1252.2259.camel@phantasy>
-	 <20021120084401.GH11884@suse.de>
-Content-Type: text/plain
+	id <S265275AbSKTKKz>; Wed, 20 Nov 2002 05:10:55 -0500
+Received: from AGrenoble-101-1-3-164.abo.wanadoo.fr ([193.253.251.164]:63496
+	"EHLO microsoft.com") by vger.kernel.org with ESMTP
+	id <S265250AbSKTKKy>; Wed, 20 Nov 2002 05:10:54 -0500
+Subject: Re: spinlocks, the GPL, and binary-only modules
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Mark Mielke <mark@mark.mielke.cc>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+       David McIlwraith <quack@bigpond.net.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021120081215.GC26018@mark.mielke.cc>
+References: <024101c2903f$7650a050$41368490@archaic>
+	 <Pine.LNX.4.44L.0211200105090.4103-100000@imladris.surriel.com>
+	 <20021120081215.GC26018@mark.mielke.cc>
+Content-Type: text/plain; charset=ISO-8859-1
 Organization: 
-Message-Id: <1037787670.1254.3140.camel@phantasy>
+Message-Id: <1037787457.19242.6.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 20 Nov 2002 05:21:10 -0500
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.1.1 (Preview Release)
+Date: 20 Nov 2002 11:17:37 +0100
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-11-20 at 03:44, Jens Axboe wrote:
+Le mer 20/11/2002 Ã  09:12, Mark Mielke a Ã©critÂ :
+> On Wed, Nov 20, 2002 at 01:06:39AM -0200, Rik van Riel wrote:
+> > On Wed, 20 Nov 2002, David McIlwraith wrote:
+> > > How should it? The compiler (specifically, the C preprocessor) includes
+> > > the code, thus it is not the AUTHOR violating the GPL.
+> > If the compiler includes a .h file, it happens because
+> > the programmer told it to do so, using a #include.
+> 
+> I was recently re-reading the GPL and I came to the following conclusion:
+> 
+> The GPL is only an issue if the software is *distributed* with GPL
+> software. Meaning -- it is not legal to distribute a linux kernel that
 
-> No, please leave these alone, testing is on-going in these parts right
-> now.
-
-Did you look at the patch?  It just pulls the magic numbers out and uses
-defines.  Should make testing easier.
-
-	Robert Love
+Yeah, that's precisely the problem here: the binary-only module is
+distributed with included spinlock code, which *is* GPL.
 

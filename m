@@ -1,50 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262282AbTJXPMe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 11:12:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbTJXPMe
+	id S262280AbTJXPLS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 11:11:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbTJXPLS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 11:12:34 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:54763 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S262282AbTJXPMb (ORCPT
+	Fri, 24 Oct 2003 11:11:18 -0400
+Received: from relay.dera.gov.uk ([192.5.29.49]:32956 "HELO relay.dstl.gov.uk")
+	by vger.kernel.org with SMTP id S262280AbTJXPLR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 11:12:31 -0400
-Message-Id: <0E3FA95632D6D047BA649F95DAB60E57035A9458@exa-atlanta.se.lsil.com>
-From: "Moore, Eric Dean" <emoore@lsil.com>
-To: Matthew Wilcox <willy@debian.org>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: RE: [PATCH]  2.4.23-pre8 driver udpate for MPT Fusion (2.05.10)
-Date: Fri, 24 Oct 2003 11:12:25 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Fri, 24 Oct 2003 11:11:17 -0400
+Subject: Re: Linux 2.4.23-pre8
+From: Tony Gale <gale@syntax.dstl.gov.uk>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, len.brown@intel.com
+In-Reply-To: <Pine.LNX.4.44.0310222116270.1364-100000@dstl.gov.uk>
+References: <Pine.LNX.4.44.0310222116270.1364-100000@dstl.gov.uk>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NgYISSh2IWVnckBSAfte"
+Message-Id: <1067008275.6437.6.camel@syntax.dstl.gov.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 24 Oct 2003 16:11:15 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm going to be working on that.
-Can't say when its going to be ready.
 
-Eric
+--=-NgYISSh2IWVnckBSAfte
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, 2003-10-23 at 00:24, Marcelo Tosatti wrote:
+> Hi,=20
+>=20
+> Here goes -pre8... It contains a quite big amount of ACPI fixes,
+> networking changes, network driver changes, few IDE fixes, SPARC merge, S=
+H
+> merge, tmpfs fixes, NFS fixes, important VM typo fix, amongst others.
+>=20
+
+As reported earlier, this still fails to boot on my P-II (to recap,
+pre6, pre7 and pre8 fail to boot - no messages after Uncompressing
+kernel).
+
+Reverting the ACPI changes in pre6 fixes it - note that I have ACPI
+turned off in the config, so the CONFIG_ACPI_BOOT thing is causing the
+problem, and it seems to be impossible to compile a kernel without it.
+
+Cheers,
+-tony
 
 
-On Friday, October 24, 2003 8:59 AM, Matthew Wilcox wrote:
-> 
-> On Fri, Oct 24, 2003 at 10:53:59AM -0400, Moore, Eric Dean wrote:
-> > Here's a patch for 2.4.23-pre8 kernel for MPT Fusion 
-> driver, coming from LSI
-> > Logic.
-> 
-> Are we going to see an update for 2.6 soon, and will it 
-> include support
-> for hotplugging the fusion card from the pci bus (ie conversion to the
-> "new" PCI API)?
-> 
-> -- 
-> "It's not Hollywood.  War is real, war is primarily not about 
-> defeat or
-> victory, it is about death.  I've seen thousands and 
-> thousands of dead bodies.
-> Do you think I want to have an academic debate on this 
-> subject?" -- Robert Fisk
-> 
+--=-NgYISSh2IWVnckBSAfte
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iQCVAwUAP5lBEh/0GZs/Z0FlAQIP6AQAwOwqzzAtXIASbRTCz1Omk3UM1oSn9jM+
+iW67KfwGu1sdYc1RmQVhjLK7tvLxI6i6uim2iMxWnSnUhVUGGLNSOSMd+vp+BbGR
+Ibql1Z4hV3xtIkvlDcMGjmaYfvlMUcG8aqhgQqEVoNwTWoFV/ate819VHTxe25jU
+qnN/PwFrOl0=
+=+HcM
+-----END PGP SIGNATURE-----
+
+--=-NgYISSh2IWVnckBSAfte--
+

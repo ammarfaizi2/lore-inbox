@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261868AbREVPdY>; Tue, 22 May 2001 11:33:24 -0400
+	id <S261874AbREVPhY>; Tue, 22 May 2001 11:37:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261887AbREVPdE>; Tue, 22 May 2001 11:33:04 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10763 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261868AbREVPc4>;
-	Tue, 22 May 2001 11:32:56 -0400
-Date: Tue, 22 May 2001 16:31:35 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@transmeta.com>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        Alexander Viro <viro@math.psu.edu>, Pavel Machek <pavel@suse.cz>,
-        Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Andrew Clausen <clausen@gnu.org>, Ben LaHaise <bcrl@redhat.com>,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
-Message-ID: <20010522163135.N23718@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20010522021815.M23718@parcelfarce.linux.theplanet.co.uk> <E1526ue-0001WY-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E1526ue-0001WY-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, May 22, 2001 at 08:49:04AM +0100
+	id <S261882AbREVPhP>; Tue, 22 May 2001 11:37:15 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:21002 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S261874AbREVPhF>;
+	Tue, 22 May 2001 11:37:05 -0400
+Date: Tue, 22 May 2001 12:36:46 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Ricardo Galli <gallir@uib.es>, linux-kernel@vger.kernel.org,
+        timothy@monkey.org, reiser@namesys.com,
+        Guillem Cantallops Ramis <guillem@cantallops.net>
+Subject: Re: New XFS, ReiserFS and Ext2 benchmarks
+In-Reply-To: <0105221729570A.06233@starship>
+Message-ID: <Pine.LNX.4.21.0105221236050.5531-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 22, 2001 at 08:49:04AM +0100, Alan Cox wrote:
-> > For _devices_, though?  I don't expect my mouse to work if gpm and xfree
-> > both try to consume device events from the same filp.  Heck, it doesn't
-> > even work when they try to consume events from the same inode :-)  I think
-> > this is a reasonable restriction for the class of devices in question.
+On Tue, 22 May 2001, Daniel Phillips wrote:
+> On Tuesday 22 May 2001 12:29, Daniel Phillips wrote:
+
+> >   http://nl.linux.org/~phillips/htree
 > 
-> Not really. Think about basic things like full duplex audio with two threads
+> Oops, nl.linux.org was down for 'unscheduled maintainance' and seems
+> to have come back up with some some http issues.
+> 
+> Rik?
 
-`the class of devices in question' was cryptographic devices, and possibly
-other transactional DSPs.  I don't consider audio to be transactional.
-in any case, you can do transactional things with two threads, as long
-as they each have their own fd on the device.  Think of the fd as your
-transaction handle.
+[/home]# chmod a+x *
 
--- 
-Revolutions do not require corporate support.
+Things seem to work again now ;)
+
+cheers,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132626AbRDBH4n>; Mon, 2 Apr 2001 03:56:43 -0400
+	id <S132628AbRDBIZ0>; Mon, 2 Apr 2001 04:25:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132629AbRDBH4e>; Mon, 2 Apr 2001 03:56:34 -0400
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:28421
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S132626AbRDBH4W>; Mon, 2 Apr 2001 03:56:22 -0400
-Date: Sun, 1 Apr 2001 23:55:05 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Steffen Grunewald <steffen@gfz-potsdam.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Cool Road Runner
-In-Reply-To: <20010402085549.A27499@dss19>
-Message-ID: <Pine.LNX.4.10.10104012348210.12531-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S132629AbRDBIZQ>; Mon, 2 Apr 2001 04:25:16 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:63755 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S132628AbRDBIZH>;
+	Mon, 2 Apr 2001 04:25:07 -0400
+Date: Mon, 2 Apr 2001 10:23:57 +0200
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: jerry <jdinardo@ix.netcom.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: tcgetattr fails in 2.4.3
+Message-ID: <20010402102357.A16785@pcep-jamie.cern.ch>
+In-Reply-To: <20010331191253.A84@ix.netcom.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010331191253.A84@ix.netcom.com>; from jdinardo@ix.netcom.com on Sat, Mar 31, 2001 at 07:12:53PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Apr 2001, Steffen Grunewald wrote:
+jerry wrote:
+> ppp chat script stopped working under 2.4.3. I ran a program of my own
+> that opens ttyS1 and it also fails on a tcgetattr with errno=5 (IO error).
+> The ppp chat script and my program both work fine under 2.4.2 and older.
 
-> And BTW: Isn't Andre's writing style very lovely ?
+I noticed that, but then I noticed I'm using pppd 2.3.11, and
+Documentation/Changes says I should use 2.4.0b1.  Then again
+Documentation/Changes said the same thing in kernel 2.4.2 as well, and
+pppd 2.3.11 works fine there.
 
-DGD, and who made you a grammer teacher of english on LKML?
-Never claimed to be an "English Major" soooooo WTF is the price of eggs in
-Germany today?  This is no different to trying an orthoginal rotation to
-one's person.
-
-> Steffen, starting with fresh hope into a new week
-
-Later..
-
-Andre Hedrick
-Linux ATA Development
+-- Jamie
 

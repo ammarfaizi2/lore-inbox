@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262903AbVAFQjT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262906AbVAFQjx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262903AbVAFQjT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 11:39:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbVAFQjS
+	id S262906AbVAFQjx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 11:39:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262908AbVAFQjx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 11:39:18 -0500
-Received: from smtp.ono.com ([62.42.230.12]:65323 "EHLO resmta05.ono.com")
-	by vger.kernel.org with ESMTP id S262903AbVAFQjO (ORCPT
+	Thu, 6 Jan 2005 11:39:53 -0500
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:22675 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S262906AbVAFQjt convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 11:39:14 -0500
-Message-ID: <41DD687D.5050006@usuarios.retecal.es>
-Date: Thu, 06 Jan 2005 17:34:05 +0100
-From: =?ISO-8859-15?Q?Ram=F3n_Rey_Vicente?= <rrey@usuarios.retecal.es>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041218)
-X-Accept-Language: en-us, en
+	Thu, 6 Jan 2005 11:39:49 -0500
+X-Ironport-AV: i="3.88,107,1102312800"; 
+   d="scan'208"; a="158519250:sNHT24068596"
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6527.0
+Content-Class: urn:content-classes:message
 MIME-Version: 1.0
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-CC: "Theodore Ts'o" <tytso@mit.edu>, Bill Davidsen <davidsen@tmr.com>,
-       Adrian Bunk <bunk@stusta.de>, Diego Calleja <diegocg@teleline.es>,
-       Willy Tarreau <willy@w.ods.org>, wli@holomorphy.com, aebr@win.tue.nl,
-       solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-References: <20050103134727.GA2980@stusta.de>	 <Pine.LNX.3.96.1050103115639.27655A-100000@gatekeeper.tmr.com>	 <20050103183621.GA2885@thunk.org> <4d8e3fd30501060603247e955a@mail.gmail.com>
-In-Reply-To: <4d8e3fd30501060603247e955a@mail.gmail.com>
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [2.6.10-bk8] [SERIAL] dropping chars when > 512
+Date: Thu, 6 Jan 2005 10:39:47 -0600
+Message-ID: <4B0A1C17AA88F94289B0704CFABEF1AB0B4D30@ausx2kmps304.aus.amer.dell.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [2.6.10-bk8] [SERIAL] dropping chars when > 512
+Thread-Index: AcT0B1fheGmVBojXSGagZXKBGykyvgAAYzag
+From: <Tim_T_Murphy@Dell.com>
+To: <stuartm@connecttech.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 06 Jan 2005 16:39:48.0122 (UTC) FILETIME=[55E83FA0:01C4F40E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> Unless this is a typo, I think you'll find that status = 1 means the
+> FIFOs have been turned off. Which would flush any data in the FIFOs.
+> Which would explain the missing data.
+> 
+> ..Stu
 
-Paolo Ciarrocchi wrote:
+Nope, not a typo.
+I'm no expert, but i thought 'status' shows the LSR when an interrupt
+occurs, and LSR = 1 indicates 'data available', while LSR = 60 indicates
+transmitter status (40 = THR empty, 20 = THR + shift register empty)?
+so status = 1 indicates an interrupt occurs while transmitter is busy?
 
-| What's wrong in keeping the release management as is now plus
-| introducing a 2.6.X.Y series of kernels ?
-|
-| In short:
-| http://marc.theaimsgroup.com/?l=linux-kernel&m=109882220123966&w=2
-
-I think this is the better "solution". Maybe rename -ac series? :)
-
-- --
-Ramón Rey Vicente <ramon.rey en hispalinux.es>
-JID rreylinux@jabber.org - GPG public key id 0x9F28E377
-GPG Fingerprint 0BC2 8014 2445 51E8 DE87  C888 C385 A9D3 9F28 E377
-Planet AUGCyL - http://augcyl.org/planet/
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB3Wh9w4Wp058o43cRAmemAJwNj4L8cCzzYfy1P0EH/FJ4AQmmugCgvJVg
-7vFYqr3noBwxH7lxKaEhFNg=
-=XfxG
------END PGP SIGNATURE-----
+I think this is related to tty flip buffer full (size = 512), and no
+low_latency setting (which, if set, hangs the 2.6 SMP kernel).  but i'm
+not expert enough with serial to know a fix.
+thanks,
+tim

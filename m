@@ -1,53 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264030AbTHOQDW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 12:03:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265440AbTHOQDW
+	id S267576AbTHOQL4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 12:11:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270142AbTHOQL4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 12:03:22 -0400
-Received: from chromatix.demon.co.uk ([80.177.102.173]:25314 "EHLO
-	lithium.chromatix.org.uk") by vger.kernel.org with ESMTP
-	id S264030AbTHOQDK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 12:03:10 -0400
-Date: Fri, 15 Aug 2003 17:02:54 +0100
-Subject: Re: agpgart failure on KT400
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v552)
+	Fri, 15 Aug 2003 12:11:56 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:59269 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S267576AbTHOQI6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 12:08:58 -0400
+X-Originating-IP: [194.85.81.178]
+X-Originating-Email: [john_r_newbie@hotmail.com]
+From: "John Newbie" <john_r_newbie@hotmail.com>
+To: vda@port.imtp.ilyichevsk.odessa.ua
 Cc: linux-kernel@vger.kernel.org
-To: tlee5794@rushmore.com
-From: Jonathan Morton <chromi@chromatix.demon.co.uk>
-In-Reply-To: <200308150934.57207.tlee5794@rushmore.com>
-Message-Id: <EDCE6765-CF39-11D7-A88B-003065664B7C@chromatix.demon.co.uk>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.552)
+Subject: Re: ide drives performance issues, maybe related with buffer cache.
+Date: Fri, 15 Aug 2003 19:39:43 +0400
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <Law14-F28uv4hh6nB2J0002797a@hotmail.com>
+X-OriginalArrivalTime: 15 Aug 2003 15:39:43.0913 (UTC) FILETIME=[72F51990:01C36343]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Yes, I could use 2.6-x and help test that, but like so many people, I
->>> need to have something reliable so I can get some work done.
->>
->> FWIW, I installed 2.6.0-test3 and it seems to work well.  After
->> grabbing a later version of the ATI drivers (which are needed for 2.6
->> compatibility), the AGP was set up correctly and I'm back in X.  I'm
->> not seeing any stability problems so far.
->
-> How did you get the ATI drivers to build with the 2.6 kernel?
-> I got all kinds of nasty errors when I tried them.  Are you
-> using the Schneider drivers, which version?
 
-Dunno what they're called, but I'm using Gentoo Linux, which has 
-reached 4.3.0-3.2.0 in terms of ATI fglrx drivers.  The tarball can be 
-downloaded from Gentoo mirrors, but apparently not from ATI themselves.
 
-That version compiles and works with 2.6, although I'm seeing some 
-unclean behaviour that really should be fixed.
 
-I'm copying this to the list, because this is at least the second 
-request I've had on this subject.
 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@chromatix.demon.co.uk
-website:  http://www.chromatix.uklinux.net/
-tagline:  The key to knowledge is not to rely on people to teach you it.
+> > So question is : why when i am copying file from one HD to another (for
+> > simplicity from /hda to /hdb)
+> > the speed fall down ? Starting from about 27-30 MB/s (drives are in 
+>UDMA-4,
+> > hdparm -X68) it drops
+> > down to 11-12 MB/s after 4-5s. In *indows transfer rate is almost 
+>constant
+> > and about 20-22 MB/s (same hardware). Why the h#ll we suck?
+> > I feel that it's due to buffer cache, because when you use sync (while
+> > copying) transfer rate is so small or even 0.
+> > Drives are tuned with hdparm to highest transfer rates, readahead, 
+>multiple
+> > sector count (hdparm
+> > for details).
+> > Tried different filesystems, from classic ext2/3 to modern xfs/reiserfs. 
+>The
+> > same results.
+> > Pure kernel from kernel.org (2.4.{19,20,21}), vendors kernels - all the
+
+>How do you copy files? cp? dd? Midnight Commander? ;)
+>Does it happen with SCSI?
+>--
+>vda
+
+I've used cp & Midnight Commander (mc). Also when someone uploads big file 
+on server through
+samba, speed sometimes fall down to zero.
+
+Have no idea about scsi, drives are IDE.
+
+_________________________________________________________________
+Help STOP SPAM with the new MSN 8 and get 2 months FREE*  
+http://join.msn.com/?page=features/junkmail
 

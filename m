@@ -1,83 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132579AbRAIXzT>; Tue, 9 Jan 2001 18:55:19 -0500
+	id <S132415AbRAIX4J>; Tue, 9 Jan 2001 18:56:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132415AbRAIXzJ>; Tue, 9 Jan 2001 18:55:09 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:47373 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132117AbRAIXyy>; Tue, 9 Jan 2001 18:54:54 -0500
-Date: Tue, 9 Jan 2001 15:54:20 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Benjamin C.R. LaHaise" <blah@kvack.org>
-cc: Christoph Hellwig <hch@ns.caldera.de>, migo@elte.hu,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-In-Reply-To: <Pine.LNX.3.96.1010109175317.7868A-100000@kanga.kvack.org>
-Message-ID: <Pine.LNX.4.10.10101091540130.2815-100000@penguin.transmeta.com>
+	id <S132117AbRAIX4A>; Tue, 9 Jan 2001 18:56:00 -0500
+Received: from typhoon.mail.pipex.net ([158.43.128.27]:61101 "HELO
+	typhoon.mail.pipex.net") by vger.kernel.org with SMTP
+	id <S132415AbRAIXzr>; Tue, 9 Jan 2001 18:55:47 -0500
+From: Chris Rankin <rankinc@zip.com.au>
+Message-Id: <200101092346.f09Nkp212258@wittsend.ukgateway.net>
+Subject: Set ownership correctly for MPU401 synth operations
+To: linux-kernel@vger.kernel.org, linux-sound@vger.kernel.org
+Date: Tue, 9 Jan 2001 23:46:50 +0000 (GMT)
+Reply-To: rankinc@zip.com.au
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed; boundary="%--multipart-mixed-boundary-1.12249.979084010--%"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--%--multipart-mixed-boundary-1.12249.979084010--%
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-On Tue, 9 Jan 2001, Benjamin C.R. LaHaise wrote:
+Hi,
 
-> On Tue, 9 Jan 2001, Linus Torvalds wrote:
-> 
-> > The _lower-level_ stuff (ie TCP and the drivers) want the "array of
-> > tuples", and again, they do NOT want an array of pages, because if
-> > somebody does two sendfile() calls that fit in one packet, it really needs
-> > an array of tuples.
-> 
-> A kiobuf simply provides that tuple plus the completion callback.  Stick a
-> bunch of them together and you've got a kiovec.  I don't see the advantage
-> of moving to simpler primatives if they don't provide needed
-> functionality.
+This patch makes the mpu401_synth_operations structure respect
+attach_mpu401()'s "owner" parameter. This should prevent more sound
+module from being accidentally unloaded.
 
-Ehh.
+Cheers,
+Chris
 
-Let's re-state your argument:
+--%--multipart-mixed-boundary-1.12249.979084010--%
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Description: ASCII text
+Content-Disposition: attachment; filename="mpu401-3.diff"
 
- "You could have used the existing, complex and cumbersome primitives that
-  had the wrong semantics. I don't see the advantage of pointing out the
-  fact that those primitives are badly designed for the problem at hand 
-  and moving to simpler and better designed primitives that fit the
-  problem well"
+--- linux-vanilla/drivers/sound/mpu401.c	Fri Jan  5 23:14:08 2001
++++ linux-2.4.0-ac3/drivers/sound/mpu401.c	Tue Jan  9 23:41:43 2001
+@@ -1030,6 +1030,8 @@
+ 			(char *) &mpu401_synth_proto,
+ 			 sizeof(struct synth_operations));
+ 	}
++	if (owner)
++		mpu401_synth_operations[m]->owner = owner;
+ 
+ 	memcpy((char *) &mpu401_midi_operations[m],
+ 	       (char *) &mpu401_midi_proto,
 
-Would you agree that that is the essense of what you said? And if not,
-then why not?
-
-> Please tell me what you think the right interface is that provides a hook
-> on io completion and is asynchronous.
-
-Suggested fix to kiovec's: get rid of them. Immediately. Replace them with
-kiobuf's that can handle scatter-gather pages. kiobuf's have 90% of that
-support already.
-
-Never EVER have a "struct page **" interface. It is never the valid thing
-to do. You should have
-
-	struct fragment {
-		struct page *page;
-		__u16 offset, length;
-	}
-
-and then have "struct fragment **" inside the kiobuf's instead. Rename
-"nr_pages" as "nr_fragments", and get rid of the global offset/length, as
-they don't make any sense. Voila - your kiobuf is suddenly a lot more
-flexible.
-
-Finally, don't embed the static KIO_STATIC_PAGES array in the kiobuf. The
-caller knows when it makes sense, and when it doesn't. Don't embed that
-knowledge in fundamental data structures.
-
-In the meantime, I'm more than happy to make sure that the networking
-infrastructure is sane. Which implies that the networking infrastructure
-does NOT use kiovecs.
-
-		Linus
-
+--%--multipart-mixed-boundary-1.12249.979084010--%--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

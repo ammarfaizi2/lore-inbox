@@ -1,82 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271180AbTGPWXw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 18:23:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271172AbTGPWVs
+	id S271170AbTGPWfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 18:35:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271179AbTGPWfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 18:21:48 -0400
-Received: from holomorphy.com ([66.224.33.161]:62181 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S271161AbTGPWUk (ORCPT
+	Wed, 16 Jul 2003 18:35:09 -0400
+Received: from [192.188.53.72] ([192.188.53.72]:12186 "EHLO mail.usfq.edu.ec")
+	by vger.kernel.org with ESMTP id S271170AbTGPWec (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 18:20:40 -0400
-Date: Wed, 16 Jul 2003 15:36:52 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.6.0-test1-mm1
-Message-ID: <20030716223652.GO15452@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20030715225608.0d3bff77.akpm@osdl.org> <20030716220235.GC1821@matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030716220235.GC1821@matchmail.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Wed, 16 Jul 2003 18:34:32 -0400
+Message-ID: <3F15D498.4080503@mail.usfq.edu.ec>
+Date: Wed, 16 Jul 2003 17:41:28 -0500
+From: Fernando Sanchez <fsanchez@mail.usfq.edu.ec>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Joshua Schmidlkofer <kernel@pacrimopen.com>
+CC: Martin Zwickel <martin.zwickel@technotrend.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test1 + nvidia 4363 driver
+References: <20030714162056.27616c6c.martin.zwickel@technotrend.de> <1058377174.7568.1.camel@bubbles.imr-net.com>
+In-Reply-To: <1058377174.7568.1.camel@bubbles.imr-net.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 03:02:36PM -0700, Mike Fedyk wrote:
-> Hi there.
-> I'm having some trouble compiling -mm1
-> It looks like it's from the ACPI update.
-> More info available upon request.
-> gcc version 2.95.4 20011002 (Debian prerelease)
+hello Joshua,
+is there any mirror for the patch? I can't get to the site you pointed. 
+Thanks,
+
+Fernando
+
+Joshua Schmidlkofer wrote:
+> http://www.minion.de posted updated patches.  They work pretty find for
+> me.
+> 
+> 
+> js
+> 
+> 
+> On Mon, 2003-07-14 at 07:20, Martin Zwickel wrote:
+> 
+>>Hi there!
+>>
+>>Anybody got a working patch for nvidia 4363 to let it work with the 2.6.0-test1
+>>kernel?
+>>The 2.5 nvidia patch doesn't work for the 2.6 kernel.
+>>
+>>Regards,
+>>Martin
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+> 
 
 
-diff -prauN mm1-2.6.0-test1-1/arch/i386/mach-generic/bigsmp.c mm1-2.6.0-test1-2/arch/i386/mach-generic/bigsmp.c
---- mm1-2.6.0-test1-1/arch/i386/mach-generic/bigsmp.c	2003-07-16 15:22:42.000000000 -0700
-+++ mm1-2.6.0-test1-2/arch/i386/mach-generic/bigsmp.c	2003-07-16 15:29:04.000000000 -0700
-@@ -6,6 +6,7 @@
- #include <linux/config.h>
- #include <linux/threads.h>
- #include <linux/cpumask.h>
-+#include <asm/mpspec.h>
- #include <asm/genapic.h>
- #include <asm/fixmap.h>
- #include <asm/apicdef.h>
-diff -prauN mm1-2.6.0-test1-1/arch/i386/mach-generic/default.c mm1-2.6.0-test1-2/arch/i386/mach-generic/default.c
---- mm1-2.6.0-test1-1/arch/i386/mach-generic/default.c	2003-07-16 15:22:42.000000000 -0700
-+++ mm1-2.6.0-test1-2/arch/i386/mach-generic/default.c	2003-07-16 15:29:23.000000000 -0700
-@@ -5,6 +5,7 @@
- #include <linux/config.h>
- #include <linux/threads.h>
- #include <linux/cpumask.h>
-+#include <asm/mpspec.h>
- #include <asm/mach-default/mach_apicdef.h>
- #include <asm/genapic.h>
- #include <asm/fixmap.h>
-diff -prauN mm1-2.6.0-test1-1/arch/i386/mach-generic/probe.c mm1-2.6.0-test1-2/arch/i386/mach-generic/probe.c
---- mm1-2.6.0-test1-1/arch/i386/mach-generic/probe.c	2003-07-16 15:22:42.000000000 -0700
-+++ mm1-2.6.0-test1-2/arch/i386/mach-generic/probe.c	2003-07-16 15:27:27.000000000 -0700
-@@ -11,6 +11,7 @@
- #include <linux/ctype.h>
- #include <linux/init.h>
- #include <asm/fixmap.h>
-+#include <asm/mpspec.h>
- #include <asm/apicdef.h>
- #include <asm/genapic.h>
- 
-diff -prauN mm1-2.6.0-test1-1/arch/i386/mach-generic/summit.c mm1-2.6.0-test1-2/arch/i386/mach-generic/summit.c
---- mm1-2.6.0-test1-1/arch/i386/mach-generic/summit.c	2003-07-16 15:22:42.000000000 -0700
-+++ mm1-2.6.0-test1-2/arch/i386/mach-generic/summit.c	2003-07-16 15:28:29.000000000 -0700
-@@ -5,6 +5,7 @@
- #include <linux/config.h>
- #include <linux/threads.h>
- #include <linux/cpumask.h>
-+#include <asm/mpspec.h>
- #include <asm/genapic.h>
- #include <asm/fixmap.h>
- #include <asm/apicdef.h>
+-- 
+
+
+Fernando Sanchez
+Dpto. Sistemas USFQ
+
+
+

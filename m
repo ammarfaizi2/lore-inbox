@@ -1,81 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbUJZVUY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUJZVWF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261476AbUJZVUY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 17:20:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbUJZVUY
+	id S261474AbUJZVWF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 17:22:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbUJZVWF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 17:20:24 -0400
-Received: from mail.aei.ca ([206.123.6.14]:15311 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S261479AbUJZVUL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 17:20:11 -0400
-From: Ed Tomlinson <edt@aei.ca>
-Organization: me
-To: "Massimo Cetra" <mcetra@navynet.it>
-Subject: Re: My thoughts on the "new development model"
-Date: Tue, 26 Oct 2004 17:19:56 -0400
-User-Agent: KMail/1.7
-Cc: "'Chuck Ebbert'" <76306.1226@compuserve.com>,
-       "'Bill Davidsen'" <davidsen@tmr.com>,
-       "'William Lee Irwin III'" <wli@holomorphy.com>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>
-References: <00c201c4bb4c$56d1b8b0$e60a0a0a@guendalin>
-In-Reply-To: <00c201c4bb4c$56d1b8b0$e60a0a0a@guendalin>
+	Tue, 26 Oct 2004 17:22:05 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:21653 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261474AbUJZVVt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 17:21:49 -0400
+Message-ID: <417EC072.8010904@tmr.com>
+Date: Tue, 26 Oct 2004 17:24:02 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Daniel Gryniewicz <dang@fprintf.net>
+CC: David Woodhouse <dwmw2@infradead.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: The naming wars continue...
+References: <417D73C8.5040204@tmr.com><1098485798.6028.83.camel@gaston> <1098754050.19465.3.camel@athena.fprintf.net>
+In-Reply-To: <1098754050.19465.3.camel@athena.fprintf.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410261719.56474.edt@aei.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 October 2004 07:09, Massimo Cetra wrote:
-> > On Tuesday 26 October 2004 01:40, Chuck Ebbert wrote:
-> > > Bill Davidsen wrote:
-> > > 
-> > > > I don't see the need for a development kernel, and it is 
-> > desirable 
-> > > > to be
-> > > > able to run kernel.org kernels.
-> > > 
-> > >   Problem is, kernel.org 'release' kernels are quite buggy.  For 
-> > > example 2.6.9 has a long list of bugs:
-> > >
-> > >   Sure, the next release will (may?) fix these bugs, but it will 
-> > > definitely add a whole set of new ones.
-> > 
+Daniel Gryniewicz wrote:
+> On Mon, 2004-10-25 at 17:44 -0400, Bill Davidsen wrote:
 > 
-> > To my mind this just points out the need for a bug fix 
-> > branch.   e.g. a
-> > branch containing just bug/security fixes against the current 
-> > stable kernel.  It might also be worth keeping the branch 
-> > active for the n-1 stable kernel too.
+>>David Woodhouse wrote:
+>>
+>>
+>>>Damn right. If 2.6.10 doesn't boot on the G5 with i8042 and 8250 drivers
+>>>built in, and doesn't sleep (well, more to the point doesn't resume) on
+>>>my shinybook, I shall sulk :)
+>>
+>>Suspend is Shakespearean, "to sleep, perchance to dream." I don't know 
+>>why people are still trying the fix suspend, it works perfectly on all 
+>>my machines, I would like to see some work on wake-the-@-up at this point.
+>>
+>>The sad part is that using apm and 2.4, all my laptops seem happy to 
+>>sleep and wake when asked. One of the reasons I'm running 2.4 on the old 
+>>ones, the new ones boot fast enought that I don't care.
+>>
 > 
-> To my mind, we only need to make clear that a stable kernel is a stable
-> kernel.
-> Not a kernel for experiments.
 > 
-> To my mind, stock 2.6 kernels are nice for nerds trying patches and
-> willing to recompile their kernel once a day. They are not suitable for
-> servers. Several times on testing machines, switching from a 2.6 to the
-> next one has caused bugs on PCI, acpi, networking and so on.
-> 
-> The direction is lost. How many patchsets for vanilla kernel exist? 
-> 
-> Someone has decided that linux must go on desktops as well and
-> developing new magnificent features for desktop users is causing serious
-> problems to the ones who use linux at work on production servers.
-> 
-> 2.4 tree is still the best solution for production.
-> 2.6 tree is great for gentoo users who like gcc consuming all CPU
-> (maxumum respect to gentoo but I prefer debian)
+> Well, for me, 2.6.9 *broke* wake up.  Suspend still works fine, but I'm
+> back to 2.6.9-rc4 to get working wake up.
 
-The issue is that Linus _has_ changed the development model.  What we have
-now is more flexable and much more responsive to changes.  This does 
-lead to stable releases that are not quite a stable as some of the previous
-stable series...  This is why I suggest a fix/security branch.  The idea being
-that after a month or so of fixes etc it will be a very stable kernel and it will
-not have slowed down development.
+I think you missed my point... I said suspend works now work on wakeup. 
+Same issue you have.
 
-Ed
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

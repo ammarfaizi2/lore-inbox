@@ -1,43 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293032AbSB1Mvb>; Thu, 28 Feb 2002 07:51:31 -0500
+	id <S293136AbSB1Mip>; Thu, 28 Feb 2002 07:38:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293342AbSB1MtB>; Thu, 28 Feb 2002 07:49:01 -0500
-Received: from h24-83-222-158.vc.shawcable.net ([24.83.222.158]:45457 "EHLO
-	me.bcgreen.com") by vger.kernel.org with ESMTP id <S293306AbSB1MsB>;
-	Thu, 28 Feb 2002 07:48:01 -0500
-Message-ID: <3C7E26E7.9090100@bcgreen.com>
-Date: Thu, 28 Feb 2002 04:47:35 -0800
-From: Stephen Samuel <samuel@bcgreen.com>
-Organization: Just Another Radical
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020227
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Big file support  (emperical evidence)
-In-Reply-To: <E16gAj8-0005kb-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S292955AbSB1MgJ>; Thu, 28 Feb 2002 07:36:09 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:58380 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S293338AbSB1MeP>; Thu, 28 Feb 2002 07:34:15 -0500
+Date: Thu, 28 Feb 2002 13:31:06 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: kernel list <linux-kernel@vger.kernel.org>, Dave Jones <davej@suse.de>
+Subject: Warn about save_flags(int)
+Message-ID: <20020228123105.GA14238@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I agree -- and I was actually surprised.  On Tuesday I wrote
-a script that created some huge files on an ext3 filesystem, expecting
-it to die at 2GB, but it didn't die until I passed 8GB (and filled
-the partition). (( redhat 7.2 ))
+Hi!
 
-Alan Cox wrote:
->>A lot of the kernel supports big files already.  The real problem is the
->>fact that the primary Linux file system, ext3, does not.  If you use some
->>file system besides ext3, big files should work.
-> 
-> This is incorrect information. Ext3 supports large files. Whoever told
-> you otherwise was wrong.
+We still have people trying to store flags in something else than
+unsigned long. If it is long it does not break anything, but people
+use int there, too.
 
+This patch makes at least warning on i386, so we do not have to fix so
+much on x86-64. I'd like to submit this for official kernel.
+
+									Pavel
+
+--- clean.2.4/include/linux/kernel.h	Thu Feb 28 11:18:25 2002
++++ x86/linux/include/linux/kernel.h	Thu Feb 28 12:03:13 2002
+@@ -180,5 +175,7 @@
+ 	unsigned int mem_unit;		/* Memory unit size in bytes */
+ 	char _f[20-2*sizeof(long)-sizeof(int)];	/* Padding: libc5 uses this.. */
+ };
++
++#define warn_if_not_ulong(x) do { unsigned long foo; (void) (&(x) == &foo); } while (0)
+ 
+ #endif
+--- clean.2.4/include/asm-i386/system.h	Wed Dec  5 23:46:05 2001
++++ x86/linux/include/asm-i386/system.h	Thu Feb 28 12:53:14 2002
+@@ -310,7 +310,7 @@
+ #define set_wmb(var, value) do { var = value; wmb(); } while (0)
+ 
+ /* interrupt control.. */
+-#define __save_flags(x)		__asm__ __volatile__("pushfl ; popl %0":"=g" (x): /* no input */)
++#define __save_flags(x)		do { warn_if_not_ulong(x); __asm__ __volatile__("pushfl ; popl %0":"=g" (x): /* no input */); } while(0)
+ #define __restore_flags(x) 	__asm__ __volatile__("pushl %0 ; popfl": /* no output */ :"g" (x):"memory", "cc")
+ #define __cli() 		__asm__ __volatile__("cli": : :"memory")
+ #define __sti()			__asm__ __volatile__("sti": : :"memory")
+@@ -318,7 +318,7 @@
+ #define safe_halt()		__asm__ __volatile__("sti; hlt": : :"memory")
+ 
+ /* For spinlocks etc */
+-#define local_irq_save(x)	__asm__ __volatile__("pushfl ; popl %0 ; cli":"=g" (x): /* no input */ :"memory")
++#define local_irq_save(x)	do { __save_flags(x); __cli(); } while (0)
+ #define local_irq_restore(x)	__restore_flags(x)
+ #define local_irq_disable()	__cli()
+ #define local_irq_enable()	__sti()
 
 -- 
-Stephen Samuel +1(604)876-0426                samuel@bcgreen.com
-		   http://www.bcgreen.com/~samuel/
-Powerful committed communication, reaching through fear, uncertainty and
-doubt to touch the jewel within each person and bring it to life.
-
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

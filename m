@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270814AbTHBAVu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 20:21:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270939AbTHBAVu
+	id S270939AbTHBAaK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 20:30:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270967AbTHBAaK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 20:21:50 -0400
-Received: from mail.kroah.org ([65.200.24.183]:4998 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270814AbTHBAVt (ORCPT
+	Fri, 1 Aug 2003 20:30:10 -0400
+Received: from dp.samba.org ([66.70.73.150]:65195 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S270939AbTHBAaH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 20:21:49 -0400
-Date: Fri, 1 Aug 2003 16:57:48 -0700
-From: Greg KH <greg@kroah.com>
+	Fri, 1 Aug 2003 20:30:07 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
 To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] input hotplug support
-Message-ID: <20030801235748.GC321@kroah.com>
-References: <200308020139.37446.arvidjaar@mail.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200308020139.37446.arvidjaar@mail.ru>
-User-Agent: Mutt/1.4.1i
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6: races between modprobe and depmod in rc.sysinit 
+In-reply-to: Your message of "Sat, 02 Aug 2003 01:22:55 +0400."
+             <200308020122.55169.arvidjaar@mail.ru> 
+Date: Sat, 02 Aug 2003 10:29:24 +1000
+Message-Id: <20030802003007.6D00D2C2AF@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 02, 2003 at 01:39:37AM +0400, Andrey Borzenkov wrote:
-> this adds input agent and coldplug rc script. It relies on patch for 
-> module-init-tools that gnerates input handlers map table being posted to lkml 
-> as well.
-> 
-> input agent loads input handler in respond to input subsystem request. It is 
-> currently purely table-driven, no attempt to provide for any static list or 
-> like was done, it needs some operational experience.
-> 
-> static coldplug rc script is intended to load input handlers for any built-in 
-> input drivers, like e.g. psmouse (if you built it in). Currently it does it 
-> by parsing /proc/bus/input/devices, I'd like to use sysfs but apparently 
-> support for it in input susbsystem is incomplete at best.
-> 
-> It also modifies usb.agent to not consult usb.handmap on 2.6, as it is not 
-> needed anymore.
-> 
-> Patch is against 2003_05_01 version of hotplug. Comments appreciated.
+In message <200308020122.55169.arvidjaar@mail.ru> you write:
+> anyway here is patch against 0.9.13-pre that makes depmod output in temp file
+> and rename it after. It fixed the problem for sure for me (like commenting 
+> out depmod in rc.sysinit did but most people seem to object to it).
 
-Can you send it not compressed so we have a chance to read it?
+Thanks, I've applied this with a fix (you left the declaration of
+skipchars in main(), so it shadowed the new global one).
 
-thanks,
+I also repaired the testsuite after this patch (and found another bug
+along the way), which also would have caught the mistake (Hint hint!).
 
-greg k-h
+I've put the lot up in the usual place, masquerading as 0.9.13-pre2.
+
+	http://www.kernel.org/pub/linux/kernel/people/rusty/modules/module-init-tools-0.9.13-pre2.tar.gz
+
+Feedback welcome!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+

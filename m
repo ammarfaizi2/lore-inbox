@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261479AbUBYRlC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 12:41:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261480AbUBYRlC
+	id S261478AbUBYRlG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 12:41:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261480AbUBYRlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 12:41:02 -0500
-Received: from fw.osdl.org ([65.172.181.6]:4993 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261479AbUBYRk7 (ORCPT
+	Wed, 25 Feb 2004 12:41:06 -0500
+Received: from linux-bt.org ([217.160.111.169]:48807 "EHLO mail.holtmann.net")
+	by vger.kernel.org with ESMTP id S261478AbUBYRlA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 12:40:59 -0500
-Message-Id: <200402251740.i1PHetn27447@mail.osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: reaim - 2.6.3-mm1 IO performance down. 
-In-Reply-To: Your message of "Tue, 24 Feb 2004 17:03:37 PST."
-             <20040224170337.798f5766.akpm@osdl.org> 
-Date: Wed, 25 Feb 2004 09:40:55 -0800
-From: Cliff White <cliffw@osdl.org>
+	Wed, 25 Feb 2004 12:41:00 -0500
+Subject: Re: Please back out the bluetooth sysfs support
+From: Marcel Holtmann <marcel@holtmann.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040225001013.7c5e4a9b.davem@redhat.com>
+References: <20040223103613.GA5865@lst.de>
+	 <20040223101231.71be5da2.davem@redhat.com>
+	 <1077560544.2791.63.camel@pegasus> <20040223184525.GA12656@lst.de>
+	 <1077582336.2880.12.camel@pegasus>
+	 <20040224004151.GF31035@parcelfarce.linux.theplanet.co.uk>
+	 <20040223232149.5dd3a132.davem@redhat.com>
+	 <1077621601.2880.27.camel@pegasus>
+	 <20040224100325.761f48eb.davem@redhat.com>
+	 <1077650761.2919.42.camel@pegasus>
+	 <20040225001013.7c5e4a9b.davem@redhat.com>
+Content-Type: text/plain
+Message-Id: <1077730823.2919.133.camel@pegasus>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 25 Feb 2004 18:40:24 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> cliff white <cliffw@osdl.org> wrote:
-> >
-> > For the same test on the same machine, results from 2.6.2-rc1-mm2 and 2.6.2
-> -rc3-mm1
-> > were within 1.0% of the linux-2.6.2 runs. So this is new. 
+Hi Dave,
+
+> > > Ok, if that is %100 true, then it's OK.
 > > 
-> > More data and tests if requested - are there some patch sets we should try 
-> reverting?
+> > I went through the code to check it and we only use skb->dev between the
+> > HCI driver and the HCI core layer. All layers above are clean.
 > 
-> Thanks.  You could try reverting adaptive-lazy-readahead.patch.  If it is
-> not that I'd be suspecting CPU scheduler changes.  Do you have uniprocessor
-> test results?
+> So I guess I should apply your fix, please resend to me under
+> seperate cover if you agree.
 
-I have them for 2.6.3-mm3, am re-running 2.6.3-mm1 right now.
-Gross results are within 1%, but looking at the detail, i do see badness,
-example:
+if nobody else has complains about this patch I will test it a last time
+on a different machine and then drop you a note where you can pull it
+from.
 
-Kernel    Users  Run time
-2.6.3	  20     32.11
-2.6.3-mm3 20     35.47
+Regards
 
-2.6.3	  40     63.64
-2.6.3-mm2 40     66.33
+Marcel
 
-Again, this shows up best on the bottom graph on the page.
-Graphn of 2.6.3 vs 2.6.3-mm3 : 
-http://developer.osdl.org/cliffw/reaim/compares/r_comp/2.6.3_vs_mm1_1cpu/index.html
-cliffw
 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 

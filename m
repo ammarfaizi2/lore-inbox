@@ -1,66 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317347AbSHTUy6>; Tue, 20 Aug 2002 16:54:58 -0400
+	id <S317326AbSHTU7u>; Tue, 20 Aug 2002 16:59:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317334AbSHTUy6>; Tue, 20 Aug 2002 16:54:58 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:63249 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317326AbSHTUy5>; Tue, 20 Aug 2002 16:54:57 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: automount doesn't "follow" bind mounts
-Date: 20 Aug 2002 13:58:38 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <ajuahu$hf$1@cesium.transmeta.com>
-References: <Pine.LNX.4.44.0208201752430.23681-100000@r2-pc.dcs.qmul.ac.uk>
+	id <S317334AbSHTU7u>; Tue, 20 Aug 2002 16:59:50 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:55301
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S317326AbSHTU7t>; Tue, 20 Aug 2002 16:59:49 -0400
+Date: Tue, 20 Aug 2002 14:03:27 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: jools <j1@gramstad.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: hpt374 / BUG();
+In-Reply-To: <IOELJIHGBNLBJNBMHABBIEPOCCAA.j1@gramstad.org>
+Message-ID: <Pine.LNX.4.10.10208201354260.3867-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.44.0208201752430.23681-100000@r2-pc.dcs.qmul.ac.uk>
-By author:    Matt Bernstein <mb/lkml@dcs.qmul.ac.uk>
-In newsgroup: linux.dev.kernel
->
-> I tried to subscribe to the autofs list, but majordomo isn't replying to 
-> me! I think this is a problem in the automount daemon rather than the 
-> kernel autofs code itself.
+
+You have a system where it actually have the PLL already set and in
+66-clock base?  You are the first person to ever hit this BUG().
+I will need to work with HighPoint to finish the timing table.
+
+If you would have several device of various max transfer rate limits you
+could attach without the driver being built it, it would give me a few
+data point to verify if the table I have started is even close.
+
+Cheers,
+
+On Tue, 20 Aug 2002, jools wrote:
+
+> Hi
 > 
-> I'm trying to automount our home dirs as
-> 	/homes/$USERNAME
-> which should bind mount to
-> 	:/home/$SERVER/$HOMENAME/$USERNAME
-> which should bind mount to
-> 	:/home/$SERVER/$VOLUME/$PATH/$USERNAME
-> which (phew!) will be an NFS mount to
-> 	$SERVER:/$VOLUME/$PATH/$USERNAME
+> I'm using a RocketRAID 404 (hpt374) and a Asus A7v266.
+> When trying to boot from a 'htp374-enabled' kernel like 2.4.19-ac4 or
+> 2.4.20-pre2-ac4, i keep getting kernel panic at hpt366.c:1393.
+> Does anyone know why this happens, or what I might do to correct this
+> problem? I have tried every patch I can find for the 2.4 kernel.
 > 
-> The idea is that:
-> 	(1) `/bin/pwd` = "/homes/$USERNAME"
-> 	(2) when you run "quota" it'll only report for $SERVER:/$VOLUME
+> hpt366.c line 1392:
 > 
-> Now.. this all works perfectly if before looking at /homes/$USERNAME you
-> look at firstly /home/$SERVER/$VOLUME/$PATH/$USERNAME and then secondly
-> /home/$SERVER/$HOMENAME/$USERNAME, because the bind mounts have something
-> to bind to. Of course you shouldn't need to know the middle bits, but you
-> could look them up. Currently the binds mount fail and automount drops in
-> symlinks; this satisfies (2)  above, but unfortunately not (1).
+> if (hpt_minimum_revision(dev,8))
+>         BUG();
+> else if (hpt_minimum_revision(dev,5))
+>         dev->driver_data = (void *) fifty_base_hpt372;
+> else if (hpt_minimum_revision(dev,4))
+>         dev->driver_data = (void *) fifty_base_hpt370a;
+> else
+>         dev->driver_data = (void *) fifty_base_hpt370a;
+> printk("HPT37X: using 50MHz internal PLL\n");
+> goto init_hpt37X_done;
 > 
-> I hope someone can make sense of this. Is it different in autofs4?
+> 
+> Jools
+> j1@gramstad.org
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
 
-This is unfortunately nearly impossible to solve.  It's a known bug,
-but it's questionable if anything can be done about it.
+Andre Hedrick
+LAD Storage Consulting Group
 
-For right now, autofs cannot bind-mount to a mount from the same
-automount point (the problem is with the double-use of /home/$SERVER
-in your case.)
-
-   	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

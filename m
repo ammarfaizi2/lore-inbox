@@ -1,64 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264652AbRGAUJ5>; Sun, 1 Jul 2001 16:09:57 -0400
+	id <S262616AbRGAUCq>; Sun, 1 Jul 2001 16:02:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264738AbRGAUJr>; Sun, 1 Jul 2001 16:09:47 -0400
-Received: from adsl-204-0-249-112.corp.se.verio.net ([204.0.249.112]:23539
-	"EHLO tabby.cats-chateau.net") by vger.kernel.org with ESMTP
-	id <S264652AbRGAUJf>; Sun, 1 Jul 2001 16:09:35 -0400
-From: Jesse Pollard <jesse@cats-chateau.net>
-Reply-To: jesse@cats-chateau.net
-To: kmw@rowsw.com, Kurt Maxwell Weber <kmw@rowsw.com>, J Sloan <jjs@mirai.cx>
+	id <S264652AbRGAUC0>; Sun, 1 Jul 2001 16:02:26 -0400
+Received: from SSH.ChaoticDreams.ORG ([64.162.95.164]:36252 "EHLO
+	ssh.chaoticdreams.org") by vger.kernel.org with ESMTP
+	id <S262616AbRGAUCW>; Sun, 1 Jul 2001 16:02:22 -0400
+Date: Sun, 1 Jul 2001 13:01:51 -0700
+From: Paul Mundt <lethal@ChaoticDreams.ORG>
+To: Adam Schrotenboer <ajschrotenboer@lycosmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
 Subject: Re: Uncle Sam Wants YOU!
-Date: Sun, 1 Jul 2001 15:03:45 -0500
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200107011602.MAA01357@smarty.smart.net> <3B3F707C.9BF8BCF7@mirai.cx> <01070114030902.14899@zaphodbeeblebrox>
-In-Reply-To: <01070114030902.14899@zaphodbeeblebrox>
-MIME-Version: 1.0
-Message-Id: <01070115092401.00290@tabby>
-Content-Transfer-Encoding: 7BIT
+Message-ID: <20010701130151.A10989@ChaoticDreams.ORG>
+In-Reply-To: <3B3F5F5C.40907@lycosmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.13i
+In-Reply-To: <3B3F5F5C.40907@lycosmail.com>; from ajschrotenboer@lycosmail.com on Sun, Jul 01, 2001 at 01:35:24PM -0400
+Organization: Chaotic Dreams Development Team
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 01 Jul 2001, Kurt Maxwell Weber wrote:
->On Sunday 01 July 2001 13:48, you wrote:
->> Kurt Maxwell Weber wrote:
->> > I'm going to take a break from lurking to point out that I am not
->> > dissatisfied with Windows.  It has its uses, as do Linux (and NetBSD, and
->> > Solaris, and the other operating systems I have installed at home). 
->> > Frankly, I don't have a problem with Microsoft.  If I don't like their
->> > product, I'm free to choose not to use it.
->>
->> You do understand, don't you, that microsoft is
->> working frantically to take that choice away from
->> you? it's easy to sit back and say it doesn't affect
->> you, til one day you realize that you can't connect
->> to your ISP unless you are running windows xp.
->>
->> Then it hits you, and it's too late.
->
->In that case, I have the following options:
->1) Start my own ISP
+On Sun, Jul 01, 2001 at 01:35:24PM -0400, Adam Schrotenboer wrote:
+> So as a user you are free to not use M$ products.
+> What if you are IT. Then you do not have a choice.
+> 
+You always have a choice, work elsewhere. If you're in a position where you're
+working with MS products, you were the one who made the decision to do so.
+MS is not at fault, claiming so is childish.
 
-Only if the upstream provider doesn't require you to use windows.
+> When Win95 came out, I finally got to hate M$. Then I discovered Linux
+> and now I have a great dislike for M$ and their products.
+> 
+This makes absolutely no sense. You didn't have a problem with MS originally,
+but as soon as Win95 came out you instantly hated them? A few issues with an
+OS are hardly valid grounds for "hating" a company.
 
->2) Use Windows XP
->3) Not use Windows XP and not be able to use my current ISP
->4) Go to a different ISP
+Also, I don't see how once you discovered Linux your hatred for MS grew. This
+also makes very little sense. If you were sitting there using MS products of
+your own accord, discovered a new system, and then migrated to the other
+system, that's hardly a reason to demand the head of Gates because you somehow
+feel you are being "forced" (of your own accord) to use their products.
 
-You may not be able to find another. It took me a year. I gave up. I was
-fortunate that Verio doesn't care what you have... though if you use
-the dialup or basic dsl, MS is it, or no real support.
+Get real, look at all the moronic things that various linux distributions do.
+Is this a reason to hate linux and demand the head of Linus as compensation
+for your troubles?
 
->I'll just have to decide which I value more.  As long as I won't be killed 
->for using a different OS, I still have a choice.
+This kind of attitude, and you wonder why MS attacks linux.
 
-No, but you might be forced out of a job.
+> I appreciate that as a user you may have a choice. As a tech or MIS/IT, 
+> I don't have a choice. As such I believe that I have been "damaged" by M$.
+> 
+Oh please, next you'll be blaming world hunger on MS because third world
+countries can't afford licenses of win2k.
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: jesse@cats-chateau.net
+Regards,
 
-Any opinions expressed are solely my own.
+-- 
+Paul Mundt <lethal@chaoticdreams.org>
+

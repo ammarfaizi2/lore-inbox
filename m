@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbVAHNpQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbVAHNtD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261167AbVAHNpQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 08:45:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbVAHNpQ
+	id S261169AbVAHNtD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 08:49:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbVAHNtD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 08:45:16 -0500
-Received: from mail.ocs.com.au ([202.147.117.210]:40390 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S261167AbVAHNpI (ORCPT
+	Sat, 8 Jan 2005 08:49:03 -0500
+Received: from mproxy.gmail.com ([216.239.56.243]:46560 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261169AbVAHNs5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 08:45:08 -0500
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Announce: ksymoops 2.4.11 is available
-Date: Sun, 09 Jan 2005 00:45:04 +1100
-Message-ID: <31721.1105191904@ocs3.ocs.com.au>
+	Sat, 8 Jan 2005 08:48:57 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=A3EWryltdL6acjna1WFFS2qvqcvweWoADBOzECvwKyZaDfCEbWEkTO2PUCPtLHbbAagoW6WYplbWpBak1Rm9B9dZqohSab6uIGv/dUjYYUYeGTuzDh8N1DMrwxAxDPIdz6do2prUDnM0eqJa3hM9gzx2+tVelD1BlyYHSaxmZ6M=
+Message-ID: <21d7e99705010805487322533e@mail.gmail.com>
+Date: Sun, 9 Jan 2005 00:48:56 +1100
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Benoit Boissinot <bboissin@gmail.com>
+Subject: Re: 2.6.10-mm2
+Cc: Andrew Morton <akpm@osdl.org>, Mike Werner <werner@sgi.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <40f323d00501080427f881c68@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050106002240.00ac4611.akpm@osdl.org>
+	 <40f323d005010701395a2f8d00@mail.gmail.com>
+	 <21d7e99705010718435695f837@mail.gmail.com>
+	 <40f323d00501080427f881c68@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> 
+> if you look at the .config, agp and agp_via are not build as modules.
+> 
 
-ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/ksymoops/v2.4
+can you also try a build with vesafb turned off? I'm just wondering is
+there maybe a resource conflict or something like that going on ...
 
-ksymoops-2.4.11.tar.gz           Source tarball, includes RPM spec file
-ksymoops-2.4.11-1.src.rpm        As above, in SRPM format
-ksymoops-2.4.11-1.i386.rpm       Compiled with gcc 3.4.2, glibc 2.3.3
-patch-ksymoops-2.4.11.gz         Patch from ksymoops 2.4.10 to 2.4.11.
-
-Changelog extract
-
-        * Tweak nm command when target is NULL.  Marty Leisner.
-
-
-Some people have reported problems building ksymoops, with unresolved
-references in libbfd (htab_create, htab_find_slot_with_hash).  Try
-http://www.cs.helsinki.fi/linux/linux-kernel/2002-13/0196.html first,
-if that does not work, contact the binutils maintainers.  This is not a
-ksymoops problem, ksymoops only uses libbfd.  Any unresolved references
-from libbfd are a binutils problem.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQFB3+Pgi4UHNye0ZOoRAhgEAJ4u87+sCotHwtizKGxnlgV/LrJAOgCdESIO
-D8bwKhY/1Aw8u//HJ6wqBog=
-=SSlO
------END PGP SIGNATURE-----
-
+Dave.

@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267634AbUIIWEd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266615AbUIIWVP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267634AbUIIWEd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 18:04:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267633AbUIIWDf
+	id S266615AbUIIWVP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 18:21:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266633AbUIIWVP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 18:03:35 -0400
-Received: from holomorphy.com ([207.189.100.168]:51379 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267999AbUIIWAs (ORCPT
+	Thu, 9 Sep 2004 18:21:15 -0400
+Received: from fw.osdl.org ([65.172.181.6]:20643 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266615AbUIIWVO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 18:00:48 -0400
-Date: Thu, 9 Sep 2004 15:00:40 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Anton Blanchard <anton@samba.org>, Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Matt Mackall <mpm@selenic.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: Re: [PATCH][5/8] Arch agnostic completely out of line locks / ppc64
-Message-ID: <20040909220040.GM3106@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Paul Mackerras <paulus@samba.org>,
-	Anton Blanchard <anton@samba.org>,
-	Zwane Mwaikambo <zwane@linuxpower.ca>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-	Matt Mackall <mpm@selenic.com>,
-	"Nakajima, Jun" <jun.nakajima@intel.com>
-References: <Pine.LNX.4.58.0409021231570.4481@montezuma.fsmlabs.com> <16703.60725.153052.169532@cargo.ozlabs.ibm.com> <Pine.LNX.4.53.0409090810550.15087@montezuma.fsmlabs.com> <20040909154259.GE11358@krispykreme> <20040909171954.GW3106@holomorphy.com> <16704.52551.846184.630652@cargo.ozlabs.ibm.com>
+	Thu, 9 Sep 2004 18:21:14 -0400
+Date: Thu, 9 Sep 2004 15:24:54 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: eric.valette@free.fr
+Cc: linux-kernel@vger.kernel.org, petkan@nucleusys.com,
+       Greg KH <greg@kroah.com>
+Subject: Re: 2.6.9-rc1-mm4 badness in rtl8150.c ethernet driver : fixed
+Message-Id: <20040909152454.14f7ebc9.akpm@osdl.org>
+In-Reply-To: <4140256C.5090803@free.fr>
+References: <413DB68C.7030508@free.fr>
+	<4140256C.5090803@free.fr>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16704.52551.846184.630652@cargo.ozlabs.ibm.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III writes:
->> Checking in_lock_functions() (not sure what the name in Zwane's code
->> was) for non-leaf functions in get_wchan() in addition to
->> in_sched_functions() should do. e.g.
+Eric Valette <eric.valette@free.fr> wrote:
+>
+> Here is a small patch that makes the card functionnal again. I've 
+> forwarded the patch to driver author also.
+> 
+> --- linux/drivers/usb/net/rtl8150.c-2.6.9-rc1-mm4.orig	2004-09-09 11:15:11.000000000 +0200
+> +++ linux/drivers/usb/net/rtl8150.c	2004-09-09 11:15:46.000000000 +0200
+> @@ -341,7 +341,7 @@
+>  
+>  static int rtl8150_reset(rtl8150_t * dev)
+>  {
+> -	u8 data = 0x11;
+> +	u8 data = 0x10;
 
-On Fri, Sep 10, 2004 at 07:38:15AM +1000, Paul Mackerras wrote:
-> Well, no, not if we are two levels deep at this point (i.e. something
-> calls _spin_lock which calls __preempt_spin_lock).  I really don't
-> want to have to start doing a stack trace in profile_pc().
+hm, OK.  Presumably the change (which comes in via the bk-usb tree) was
+made for a reason.  So I suspect both versions are wrong ;)
 
-The semantics of profile_pc() have never included backtracing through
-scheduling primitives, so I'd say just report __preempt_spin_lock().
+But it might be risky for Greg to merge this patch up at present.
 
-
--- wli

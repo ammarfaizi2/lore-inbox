@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264512AbUGYVmx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264519AbUGYVrd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264512AbUGYVmx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 17:42:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264519AbUGYVmx
+	id S264519AbUGYVrd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 17:47:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264522AbUGYVrd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 17:42:53 -0400
-Received: from posti5.jyu.fi ([130.234.4.34]:17590 "EHLO posti5.jyu.fi")
-	by vger.kernel.org with ESMTP id S264512AbUGYVmv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 17:42:51 -0400
-Date: Mon, 26 Jul 2004 00:42:41 +0300 (EEST)
-From: Pasi Sjoholm <ptsjohol@cc.jyu.fi>
-X-X-Sender: ptsjohol@silmu.st.jyu.fi
-To: "Will S." <willgs00@cox.net>
-cc: akpm@osdl.org, <linux-kernel@vger.kernel.org>
-Subject: Re: ksoftirqd uses 99% CPU triggered by network traffic (maybe
- RLT-8139 related)
-In-Reply-To: <4104257C.3080102@cox.net>
-Message-ID: <Pine.LNX.4.44.0407260032240.4782-100000@silmu.st.jyu.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Checked: by miltrassassin
-	at posti5.jyu.fi; Mon, 26 Jul 2004 00:42:43 +0300
+	Sun, 25 Jul 2004 17:47:33 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:23526 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S264519AbUGYVrb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jul 2004 17:47:31 -0400
+Date: Sun, 25 Jul 2004 23:46:41 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Ferenc Kubinszky <ferenc.kubinszky@wit.mht.bme.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: via-velocity problem
+Message-ID: <20040725234641.A30025@electric-eye.fr.zoreil.com>
+References: <20040725183338.A27442@electric-eye.fr.zoreil.com> <Pine.LNX.4.44.0407252146260.30105-101000@wit.wit.mht.bme.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0407252146260.30105-101000@wit.wit.mht.bme.hu>; from ferenc.kubinszky@wit.mht.bme.hu on Sun, Jul 25, 2004 at 09:51:07PM +0200
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Jul 2004, Will S. wrote:
+Ferenc Kubinszky <ferenc.kubinszky@wit.mht.bme.hu> :
+[...]
+> I use modules...
 
->>Yeah, it might be some sort of a bug which is related to 
->>VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333]-chipset and 
->>RTL-8139? Hard to say at this point. I'll get some other network cards 
->>tomorrow from the office and we will see if there is a difference. 
->>I hope that it's not the mobo (chipset). =)
+I did not made my point clear. You previously said:
+[...]
+> I have a via-velocity gigabit ethernet controller on my Abit KV8pro
+> motherboard. I tried it with kernel 2.6.7-rc1, 2.6.7-rc2 and the
+> 2.6.7-rc1-mm1 drivermodule in 2.6.7-rc2 on A Debian SID.
+>
+> If I load it at the command promt, it seems to be working without any
+> problem. I can set up an IP address etc.
 
-> I just remembered something. In the kernel config, there's an option for 
-> the RTL-8139 driver to use polling I/O instead of memory mapped I/O - 
-> and it usually defaults to PIO. My kernel was compiled using the MMIO 
-> option. Check and see what you're using.
+Did the 'etc' include 'and wget (or similar app) works fine' ?
 
-I'm using MMIO-option, I was just thinking to go with the PIO and see what 
-will happen.
+[...]
+> Attached.
 
-I just found this thread (url below) and some others are having problems 
-also.
+Thanks.
+Can you check if there is a backup file of the dmesg after boot
+in your /var/log (or elsewhere) ? The very first lines of the dmesg
+have been cut.²
 
-http://seclists.org/lists/linux-kernel/2004/Mar/2295.html
+> Now, the machine hangs when I try to test the module :(
+> First time ping -s1000 -i0.2 worked, but after that the machine died...
 
-Andrew:
+A few more details could help:
+- can you reproduce this misbehavior if the fglrx module is never loaded
+  after boot ?
+- assuming sysrq has no effect (?), are the keyboard leds dead or do they
+  still answer after lockup ?
+- is the driver able to send/receive more than 64 packets during a simple
+  ping (no -i option) ?
 
-Did you find any solution to this one? (I guess not but could I be in help 
-someway to hunt this bug down?)
-
-
+--
+Ueimor

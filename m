@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264844AbTBPACH>; Sat, 15 Feb 2003 19:02:07 -0500
+	id <S265506AbTBPAFX>; Sat, 15 Feb 2003 19:05:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265096AbTBPACH>; Sat, 15 Feb 2003 19:02:07 -0500
-Received: from packet.digeo.com ([12.110.80.53]:16564 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264844AbTBPACG>;
-	Sat, 15 Feb 2003 19:02:06 -0500
-Date: Sat, 15 Feb 2003 16:12:36 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Jens Axboe <axboe@suse.de>, Anton Blanchard <anton@samba.org>,
-       Linus Torvalds <torvalds@transmeta.com>
+	id <S265508AbTBPAFW>; Sat, 15 Feb 2003 19:05:22 -0500
+Received: from x101-201-88-dhcp.reshalls.umn.edu ([128.101.201.88]:9866 "EHLO
+	minerva") by vger.kernel.org with ESMTP id <S265506AbTBPAFW>;
+	Sat, 15 Feb 2003 19:05:22 -0500
+Date: Sat, 15 Feb 2003 18:15:17 -0600
+From: Matt Reppert <arashi@yomerashi.yi.org>
+To: John Bradford <john@grabjohn.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch] elv_former_request reversion
-Message-Id: <20030215161236.67ce3f24.akpm@digeo.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Subject: Re: openbkweb-0.0
+Message-Id: <20030215181517.11430d53.arashi@yomerashi.yi.org>
+In-Reply-To: <200302152244.h1FMidpW000307@darkstar.example.net>
+References: <20030215142455.7264ad36.akpm@digeo.com>
+	<200302152244.h1FMidpW000307@darkstar.example.net>
+Organization: Yomerashi
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-message-flag: : This mail sent from host minerva, please respond.
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Feb 2003 00:11:56.0056 (UTC) FILETIME=[03F93980:01C2D550]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 15 Feb 2003 22:44:39 +0000 (GMT)
+John Bradford <john@grabjohn.com> wrote:
 
-This morning's fix for elv_former_request() is causing oopses all over the
-place in the IO scheduler.
+> > > I always thought that that is what the bk-commit mailing lists were
+> > > for?  I could be wrong about that, not having used BitKeeper - if so,
+> > > what are they for, and would it not be possible to simply have a
+> > > mailing list which got sent a diff every time Linus' updated his tree?
+> > 
+> > The latest diff against the last-released kernel is always available
+> > at http://www.kernel.org/pub/linux/kernel/v2.5/testing/cset/
+> > 
+> > "Gzipped full patch from ..."
+> 
+> So it's perfectly possible to poll
+> http://www.kernel.org/pub/linux/kernel/v2.5/testing/cset/ every half
+> hour or so, 
 
-Jens, remember that I did try that fix a while ago, and the same happened.
+Well, the diff is made daily, at some relatively early time during the
+morning in one of the time zones continental US is in. I think it's 4am
+GMT -0800, but I could be wrong.
 
-I believe it has exposed a new problem at the __make_request/attempt_front_merge
-level: if attempt_front_merge() actually succeeds, the wrong request gets freed
-up in elv_merged_request().
-
-It may be best to back this change out until it can be fixed up for real.
-
-
-diff -puN drivers/block/elevator.c~deadline-hack drivers/block/elevator.c
---- 25/drivers/block/elevator.c~deadline-hack	2003-02-15 15:56:56.000000000 -0800
-+++ 25-akpm/drivers/block/elevator.c	2003-02-15 15:57:09.000000000 -0800
-@@ -399,7 +399,7 @@ struct request *elv_former_request(reque
- 	elevator_t *e = &q->elevator;
- 
- 	if (e->elevator_former_req_fn)
--		return e->elevator_former_req_fn(q, rq);
-+		return e->elevator_latter_req_fn(q, rq);
- 
- 	prev = rq->queuelist.prev;
- 	if (prev != &q->queue_head && prev != &rq->queuelist)
-
-_
-
+Matt

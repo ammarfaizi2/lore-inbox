@@ -1,105 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262510AbVAKDVQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262542AbVAKDYs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262510AbVAKDVQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 22:21:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbVAKDUR
+	id S262542AbVAKDYs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 22:24:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262557AbVAKDVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 22:20:17 -0500
-Received: from fw.osdl.org ([65.172.181.6]:26250 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262557AbVAKDRy (ORCPT
+	Mon, 10 Jan 2005 22:21:46 -0500
+Received: from gprs215-170.eurotel.cz ([160.218.215.170]:2177 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262412AbVAKDTr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 22:17:54 -0500
-Date: Mon, 10 Jan 2005 19:17:51 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: DHollenbeck <dick@softplc.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: yenta_socket rapid fires interrupts
-In-Reply-To: <41E2BC77.2090509@softplc.com>
-Message-ID: <Pine.LNX.4.58.0501101857330.2373@ppc970.osdl.org>
-References: <41E2BC77.2090509@softplc.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 10 Jan 2005 22:19:47 -0500
+Date: Tue, 11 Jan 2005 04:19:31 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: bernard@blackham.com.au, shawv@comcast.net, linux-kernel@vger.kernel.org
+Subject: Re: Screwy clock after apm suspend
+Message-ID: <20050111031931.GC4092@elf.ucw.cz>
+References: <7bb8b8de05010710085ea81da9@mail.gmail.com> <20050109224711.GF1353@elf.ucw.cz> <200501092328.54092.shawv@comcast.net> <20050110074422.GA17710@mussel> <20050110105759.GM1353@elf.ucw.cz> <20050110174804.GC4641@blackham.com.au> <20050111001426.GF1444@elf.ucw.cz> <20050111141332.68e5e05b.sfr@canb.auug.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050111141332.68e5e05b.sfr@canb.auug.org.au>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-
-On Mon, 10 Jan 2005, DHollenbeck wrote:
+> > I think that hwclock --hctosys is not quite straightforward operation
+> > -- it needs to know if your CMOS clock are in local timezone or GMT,
+> > or something like that, IIRC.
+> > 
+> > But this might work: compute difference between system and cmos time
+> > before suspend, and use that info to restore time after suspend.
 > 
-> However, when I have a "CARDBUS to USB 2.0 Hi-Speed Adapter" installed 
-> at the time of modprobe yenta_socket, I get a problem, shown below. 
+> Which is, of course, what APM has done all along ...
 
-Can you compile the kernel with kallsyms info? That would make the output 
-a whole lot more readable.
+Heh, but we need to find a way to do it without config options...
 
-> The same problem occurs if the Adapter is inserted after the yenta
-> module is loaded.  That is, load the yenta_socket module: no problem,
-> then physically insert the Adapter: same problem.
+#ifdef CONFIG_APM_RTC_IS_GMT
+#       define  clock_cmos_diff 0
+#       define  got_clock_diff  1
+#else
+ 
+...no, it is actually okay, CONFIG_APM_RTC_IS_GMT is only
+optimalization.
 
-Can you test with another type of card, just to see if it is specific to 
-that particular driver, or it happens with any card insertion event?
+Hmm...
 
-> This same Adapter card works fine in a different pentium shoebox 
-> computer using the same kernel and root file system as the "problem 
-> embedded pentium" system, but with a different CARDBUS chipset.
-
-It's entirely possible that they have different behaviours for screaming 
-interrupts and/or just different setup.
-
-> irq 11: nobody cared (try booting with the "irqpoll" option.
->  [<c0127362>]
-> ....
-> handlers:
-> [<c2837930>]
-> [<c2837930>]
-
-I can't tell what your handlers are, but there are two of them, and they 
-are the same, which makes me strongly suspect that it's just the two 
-"yenta_socket" handlers for the two slots (sharing the same interrupt).
-
-Which implies that when the card was inserted and powered on, it started 
-enabling the interrupt early, before the low-level driver had had a chance 
-to register _its_ interrupt handler.
-
-> 01:00.0 Class 0c03: 10b9:5237 (rev 03) (prog-if 10)
->         Subsystem: 10b9:5237
->         Flags: 66Mhz, medium devsel, IRQ 11
->         Memory at 10400000 (32-bit, non-prefetchable) [disabled] [size=4K]
->         Capabilities: [60] Power Management version 2
-> 
-> 01:00.3 Class 0c03: 10b9:5239 (rev 01) (prog-if 20)
->         Subsystem: 10b9:5272
->         Flags: 66Mhz, medium devsel, IRQ 11
->         Memory at 10401000 (32-bit, non-prefetchable) [disabled] [size=256]
->         Capabilities: [50] Power Management version 2
->         Capabilities: [58] #0a [2090]
-
-Hmm. That would be "PCI_CLASS_SERIAL_USB", but clearly:
-
-> root@EMBEDDED[~]# cat /proc/interrupts
->            CPU0
->  11:      98681          XT-PIC  yenta, yenta
-
-No USB driver there, so the driver never even loaded. The problem probably 
-happened immediately on card insertion, and is likely card-indepdendent. 
-But it would be nice to have that confirmed by testing.
-
-It seems to be a TI 1520 chipset:
-
-	00:0d.0 Class 0607: 104c:ac55 (rev 01)
-
-	Yenta: CardBus bridge found at 0000:00:0d.0 [0000:0000]
-	Yenta: Enabling burst memory read transactions
-	Yenta: Using CSCINT to route CSC interrupts to PCI
-	Yenta: Routing CardBus interrupts to PCI
-	Yenta TI: socket 0000:00:0d.0, mfunc 0x00001022, devctl 0x64
-	Yenta: ISA IRQ mask 0x00a8, PCI irq 11
-	Socket status: 30000020
-
-and everything looks good in that the interrupt probing seems to have been 
-happy at this stage - so at least the CSC interrupt is working right.
-
-There used to be somebody who knew the TI chips on the list - I've only 
-worked with the older ones. But everything _looks_ fine.
-
-		Linus
+...and arch/i386/kernel/time.c contains copy of that code. That means
+that we should kill apm.c copy and see why time.c copy sometimes does
+the wrong thing.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

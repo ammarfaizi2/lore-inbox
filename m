@@ -1,77 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265764AbUFDMJd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265768AbUFDMMc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265764AbUFDMJd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 08:09:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265769AbUFDMJd
+	id S265768AbUFDMMc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 08:12:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265690AbUFDMMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 08:09:33 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:22935 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S265764AbUFDMJ0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 08:09:26 -0400
-Date: Fri, 4 Jun 2004 14:09:25 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Stock IA64 kernel on SGI Altix 350
-Message-ID: <20040604120925.GE20632@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040603170147.GK10708@fi.muni.cz> <200406031030.36181.jbarnes@engr.sgi.com> <20040603200905.GA27701@fi.muni.cz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="RhVIuFYUg5EX4UVz"
+	Fri, 4 Jun 2004 08:12:32 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:9384 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265774AbUFDMME
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 08:12:04 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: DriveReady SeekComplete Error
+Date: Fri, 4 Jun 2004 14:15:36 +0200
+User-Agent: KMail/1.5.3
+Cc: mattia <mattia@nixlab.net>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+References: <E1BWBjw-0003QZ-1h@andromeda.hostvector.com> <200406041344.30738.bzolnier@elka.pw.edu.pl> <20040604115613.GW1946@suse.de>
+In-Reply-To: <20040604115613.GW1946@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040603200905.GA27701@fi.muni.cz>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6i
+Message-Id: <200406041415.36566.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 04 of June 2004 13:56, Jens Axboe wrote:
+> On Fri, Jun 04 2004, Bartlomiej Zolnierkiewicz wrote:
+> > On Friday 04 of June 2004 12:22, Jens Axboe wrote:
+> > > damnit, don't trim the cc list!
+> > >
+> > > On Fri, Jun 04 2004, mattia wrote:
+> > > > I have the following error (kernel 2.6.6):
+> > > >
+> > > > Jun  4 08:05:43 blink kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> > > > Jun  4 08:05:43 blink kernel: hdc: Maxtor 6Y160P0, ATA DISK drive
+> > > > Jun  4 08:05:43 blink kernel: hdd: Maxtor 6Y120L0, ATA DISK drive
+> > > > Jun  4 08:05:43 blink kernel: ide1 at 0x170-0x177,0x376 on irq 15
+> > > > Jun  4 08:05:43 blink kernel: hda: max request size: 128KiB
+> > > > Jun  4 08:05:43 blink kernel: hda: 78177792 sectors (40027 MB)
+> > > > w/1819KiB Cache, CHS=65535/16/63, UDMA(100)
+> > > > Jun  4 08:05:43 blink kernel:  hda: hda1 hda2 hda3
+> > > > Jun  4 08:05:43 blink kernel: hdc: max request size: 1024KiB
+> > > > Jun  4 08:05:43 blink kernel: hdc: 320173056 sectors (163928 MB)
+> > > > w/7936KiB Cache, CHS=19929/255/63, UDMA(100)
+> > > > Jun  4 08:05:43 blink kernel:  hdc: hdc1
+> > > > Jun  4 08:05:43 blink kernel: hdd: max request size: 128KiB
+> > > > Jun  4 08:05:43 blink kernel: hdd: 240121728 sectors (122942 MB)
+> > > > w/2048KiB Cache, CHS=65535/16/63, UDMA(100)
+> > > > Jun  4 08:05:43 blink kernel:  hdd: hdd1 hdd2 hdd3
+> > > > Jun  4 08:05:43 blink kernel: hdd: task_no_data_intr: status=0x51 {
+> > > > DriveReady SeekComplete Error }
+> > > > Jun  4 08:05:43 blink kernel: hdd: task_no_data_intr: error=0x04 {
+> > > > DriveStatusError }
+> > > > Jun  4 08:05:43 blink kernel: hdd: Write Cache FAILED Flushing!
+> > > >
+> > > >
+> > > > I found somewhere that's something wrong with that maxtor drive.
+> > > > However, everything works fine.
+> > >
+> > > There's nothing wrong with the drive technically, it's just odd (lba48
+> > > without FLUSH_CACHE_EXT). It's really a linux ide bug that's fixed in
+> > > newer kernels. 2.6.7 will fix your problem.
+> >
+> > Wrong.
+> >
+> > Bug is a combination of a very minor firmware quirk
+> > and lack of strict checking in Linux IDE driver.
+> >
+> > FLUSH_CACHE_EXT bit is set but it is not supported
+> > (but it is not a problem because LBA48 is not supported also).
+>
+> Ah my bad, I didn't realize this bit was actually set correctly (you
+> mean (cfs_enable_2 & 0x2400) == 0x2400 is actually true?).
 
---RhVIuFYUg5EX4UVz
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes but only on unaffected drives. ;-)
 
-On Thu, 2004-06-03 22:09:06 +0200, Jan Kasprzak <kas@informatics.muni.cz>
-wrote in message <20040603200905.GA27701@fi.muni.cz>:
-[ia64 booting]
-> Dentry cache hash table entries: 2097152 (order: 10, 16777216 bytes)
-> Inode-cache hash table entries: 1048576 (order: 9, 8388608 bytes)
-> Mount-cache hash table entries: 1024 (order: 0, 16384 bytes)
-> Boot processor id 0x0/0x0
-> task migration cache decay timeout: 10 msecs.
-> Mount-cache hash table entries: 1024 (order: 0, 16384 bytes)
-> Boot processor id 0x0/0x0
-> task migration cache decay timeout: 10 msecs.
-> CPU 1: base freq=3D200.000MHz, ITC ratio=3D14/2, ITC freq=3D1400.000MHz+/=
---1ppm
-> Calibrating delay loop... 16.44 BogoMIPS
+0x2000 is FLUSH_CACHE_EXT support
+0x0400 is LBA48 support
 
-Hihi:) A ~ 55MHz VAX does nothing with about 15 BogoMIPS.
+Affected drives have 0x2000 set incorrectly so we have to check also 0x0400.
+(== 0x2400 is needed because & 0x2400 is true if & 0x2000 OR if & 0x0400).
 
-MfG, JBG*hides now*G
+Everything is explained in the patch changelog:
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
+| - many Maxtor disks incorrectly claim CACHE FLUSH EXT command support,
+|   fix it by checking both CACHE FLUSH EXT command and LBA48 support
+|   (thanks to Eric D. Mudama for help in fixing this)
 
---RhVIuFYUg5EX4UVz
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+and in the patch itself:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
++/* some Maxtor disks have bit 13 defined incorrectly so check bit 10 too */
++#define ide_id_has_flush_cache_ext(id)	\
++	(((id)->cfs_enable_2 & 0x2400) == 0x2400)
 
-iD8DBQFAwGZ0Hb1edYOZ4bsRAs69AKCMlr7iwgIuPrN+UEQky1CT/n9pXwCeJjLg
-AkjZs6PacAGJ/O4o7W94w1E=
-=Uxsy
------END PGP SIGNATURE-----
+> > It is fixed in 2.6.7-rc1 but your IDE barrier patch has this problem
+> > (just reminding you that it is still not fixed in 2.6.7-rc2-mm2).
+>
+> So where's the bug? I don't see it...
 
---RhVIuFYUg5EX4UVz--
+ide_fill_flush_cmd()
+
++	if (drive->id->cfs_enable_2 & 0x2400)
++		rq->buffer[0] = WIN_FLUSH_CACHE_EXT;
+
+Cheers,
+Bartlomiej
+

@@ -1,97 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275056AbTHFX4G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 19:56:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275057AbTHFX4G
+	id S270867AbTHGAPK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 20:15:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271751AbTHGAPK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 19:56:06 -0400
-Received: from genericorp.net ([64.191.13.250]:39070 "EHLO
-	nofrills.genericorp.net") by vger.kernel.org with ESMTP
-	id S275056AbTHFXzy convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 19:55:54 -0400
-Date: Wed, 6 Aug 2003 19:54:29 -0400 (EDT)
-From: Dave O <cxreg@pobox.com>
-X-X-Sender: count@nofrills.genericorp.net
-To: =?utf-8?b?RGFnZmlubiBJbG1hcmkg?= =?utf-8?b?TWFubnPDpWtlcg==?= 
-	<ilmari@ilmari.org>
-cc: linux-kernel@vger.kernel.org, bluez-devel@lists.sourceforge.net,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: Badness in local_bh_enable at kernel/softirq.c:113 (2.6.0-test2,
- bluetooth)
-In-Reply-To: <d8ju18u2w5k.fsf@wirth.ping.uio.no>
-Message-ID: <Pine.LNX.4.53.0308061951450.5362@nofrills.genericorp.net>
-References: <d8ju18u2w5k.fsf@wirth.ping.uio.no>
+	Wed, 6 Aug 2003 20:15:10 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:64013 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S270867AbTHGAPH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 20:15:07 -0400
+Message-ID: <3F319D0E.30307@techsource.com>
+Date: Wed, 06 Aug 2003 20:27:58 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Con Kolivas <kernel@kolivas.org>
+CC: Nick Piggin <piggin@cyberone.com.au>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [PATCH] O13int for interactivity
+References: <200308050207.18096.kernel@kolivas.org> <3F2F87DA.7040103@cyberone.com.au> <3F31741F.30200@techsource.com> <200308070733.38135.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I also get this message when running the following (in 2.6.0-test1):
 
-/usr/sbin/pppd updetach pty /bin/false
+Con Kolivas wrote:
+>>For this, I reiterate my suggestion to intentionally over-shoot the
+>>mark.  If you do it right, a process will run an inappropriate length of
+>>time only every other time slice until the oscillation dies down.
+> 
+> 
+> Your thoughts are fine, and to some degree I do what you're proscribing, but I 
+> take into account the behaviour of real processes in the real world and their 
+> effect on scheduling fairness.
 
-with this trace:
+And I know you know a lot more about how real processes behave than I 
+do.  I'm not saying (or thinking) anything negative about you.  I'm just 
+trying to throw random thoughts into the mix just in case some small 
+part of what I say is useful inspiration for someone else such as yourself.
 
-Badness in local_bh_enable at kernel/softirq.c:113
-Call Trace:
- [<c011d401>] local_bh_enable+0x85/0x87
- [<e08afb49>] ppp_async_push+0xa1/0x186 [ppp_async]
- [<e08af478>] ppp_asynctty_wakeup+0x2d/0x59 [ppp_async]
- [<c029860f>] pty_unthrottle+0x56/0x58
- [<c0295243>] check_unthrottle+0x3b/0x3d
- [<c02952e3>] n_tty_flush_buffer+0x14/0x54
- [<c02989b9>] pty_flush_buffer+0x62/0x64
- [<c0291be6>] do_tty_hangup+0x471/0x4d7
- [<c02931e4>] release_dev+0x6f7/0x727
- [<c0182fe4>] ext3_release_file+0x0/0x5a
- [<c0293549>] tty_release+0x0/0x66
- [<c0293577>] tty_release+0x2e/0x66
- [<c014b097>] __fput+0x11c/0x12e
- [<c014978c>] filp_close+0x4b/0x74
- [<c011aed3>] put_files_struct+0x8d/0x100
- [<c011ba38>] do_exit+0x138/0x4ab
- [<c013e03d>] sys_brk+0x32/0x10d
- [<c011be39>] do_group_exit+0x3a/0xac
- [<c01090d3>] syscall_call+0x7/0xb
+It is probably the case that the idea I suggest is BS and makes no real 
+difference or makes it worse anyhow.  :)
 
-
-On Thu, 7 Aug 2003, [utf-8] Dagfinn Ilmari [utf-8] Mannsåker wrote:
-
-> When unplugging my MSI USB Bluetooth adapter on 2.6.0-test2 I got two
-> instances of the following backtrace:
->
-> Badness in local_bh_enable at kernel/softirq.c:113
-> Call Trace:
->  [<c011f6c6>] local_bh_enable+0x86/0x90
->  [<d090482a>] hci_dev_do_close+0xba/0x410 [bluetooth]
->  [<c011f6c6>] local_bh_enable+0x86/0x90
->  [<d09056cf>] hci_unregister_dev+0x4f/0xa0 [bluetooth]
->  [<d0976d8a>] hci_usb_disconnect+0x3a/0x80 [hci_usb]
->  [<d08ae237>] usb_device_remove+0x77/0x80 [usbcore]
->  [<c01df116>] device_release_driver+0x66/0x70
->  [<c01df26e>] bus_remove_device+0x5e/0xb0
->  [<c01dd99d>] device_del+0x5d/0xa0
->  [<c01dd9f3>] device_unregister+0x13/0x30
->  [<d08aee77>] usb_disconnect+0xd7/0x180 [usbcore]
->  [<d08b1f9f>] hub_port_connect_change+0x37f/0x390 [usbcore]
->  [<d08b2360>] hub_events+0x3b0/0x480 [usbcore]
->  [<d08b2465>] hub_thread+0x35/0x110 [usbcore]
->  [<c0109192>] ret_from_fork+0x6/0x14
->  [<c0118670>] default_wake_function+0x0/0x30
->  [<d08b2430>] hub_thread+0x0/0x110 [usbcore]
->  [<c01071e5>] kernel_thread_helper+0x5/0x10
->
-> --
-> ilmari
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
->

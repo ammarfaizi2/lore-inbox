@@ -1,32 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266130AbRGQLgL>; Tue, 17 Jul 2001 07:36:11 -0400
+	id <S266151AbRGQLta>; Tue, 17 Jul 2001 07:49:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266133AbRGQLgA>; Tue, 17 Jul 2001 07:36:00 -0400
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:25444 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S266130AbRGQLfl> convert rfc822-to-8bit; Tue, 17 Jul 2001 07:35:41 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Christian =?iso-8859-1?q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-To: David Balazic <david.balazic@uni-mb.si>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+	id <S266150AbRGQLtW>; Tue, 17 Jul 2001 07:49:22 -0400
+Received: from rcum.uni-mb.si ([164.8.2.10]:56846 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S266138AbRGQLtF>;
+	Tue, 17 Jul 2001 07:49:05 -0400
+Date: Tue, 17 Jul 2001 13:48:07 +0200
+From: David Balazic <david.balazic@uni-mb.si>
 Subject: Re: 2.4.6-ac5 gives wrong cache info for Duron in /proc/cpuinfo
-Date: Tue, 17 Jul 2001 13:34:36 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <3B5413C9.2CE16AC9@uni-mb.si>
-In-Reply-To: <3B5413C9.2CE16AC9@uni-mb.si>
-MIME-Version: 1.0
-Message-Id: <01071713343600.02787@Einstein.P-netz>
-Content-Transfer-Encoding: 7BIT
+To: Christian =?iso-8859-1?Q?Borntr=E4ger?= 
+	<christian@borntraeger.net>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Message-id: <3B5425F7.45A7B8D1@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
+X-Accept-Language: en
+In-Reply-To: <3B5413C9.2CE16AC9@uni-mb.si> <01071713144700.02683@Einstein.P-netz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> CPU AMD Duron 700
->
-> /proc/cpuinfo gives :
-> cache size: 64 KB
+Christian Bornträger wrote:
+> 
+> > /proc/cpuinfo gives :
+> > cache size: 64 KB
+> >
+> > This is wrong :
+> >  - the Duron has 192 kilobytes of cache ( 64 L1 I, 64 L1 D , 64 L2 unified
+> > ) - what is KB ?
+> 
+> As far as I know older Durons have a bug. They report a wrong size for the
+> cache.
 
-With an Athlon I get 256KB.
-So I guess, that cache size shows only the 2nd level cache size.
+The kernel messages at boot have no trouble finding out the correct
+cache info.
 
+> >    - "kilo" is abbreviated to 'k' , not 'K'
+> 
+> Hmm, I think kilo is 1000 and K is 1024.
+
+
+-- 
+David Balazic
+--------------
+"Be excellent to each other." - Bill & Ted
+- - - - - - - - - - - - - - - - - - - - - -

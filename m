@@ -1,65 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261599AbSKRHqE>; Mon, 18 Nov 2002 02:46:04 -0500
+	id <S261596AbSKRHnR>; Mon, 18 Nov 2002 02:43:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261600AbSKRHqE>; Mon, 18 Nov 2002 02:46:04 -0500
-Received: from c3p0.cc.swin.edu.au ([136.186.1.10]:15373 "EHLO
-	net.cc.swin.edu.au") by vger.kernel.org with ESMTP
-	id <S261599AbSKRHqD>; Mon, 18 Nov 2002 02:46:03 -0500
-Date: Mon, 18 Nov 2002 18:53:01 +1100 (EST)
-From: Tim Connors <tconnors@astro.swin.edu.au>
-To: Mike Galbraith <EFAULT@gmx.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.47 scheduler problems?
-In-Reply-To: <001201c28ed4$4c4079a0$6400a8c0@mikeg>
-Message-ID: <Pine.LNX.4.33.0211181849240.26151-100000@hexane.ssi.swin.edu.au>
+	id <S261599AbSKRHnR>; Mon, 18 Nov 2002 02:43:17 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:61663 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S261596AbSKRHnQ>; Mon, 18 Nov 2002 02:43:16 -0500
+Date: Sun, 17 Nov 2002 23:47:12 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Linus Torvalds <torvalds@transmeta.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.48
+Message-ID: <673851077.1037576831@[10.10.2.3]>
+In-Reply-To: <20021118065705.GG11776@holomorphy.com>
+References: <20021118065705.GG11776@holomorphy.com>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Nov 2002, Mike Galbraith wrote:
+> This oopses on NUMA-Q sometime prior to TSC synch and then hangs in TSC
+> synch because not all cpus are responding where 2.5.47-mm3 (which
+> included some intermediate bk stuff) did not. This is because AP's are
+> taking timer interrupts before they are prepared to do so. Please apply
+> the following patch from Martin Bligh which resolves this issue:
 
-> > > If I do the same in 2.5.47, I have no control of my box.  Setting
-> all tasks
-> > > to SCHED_FIFO or SCHED_RR prior to starting make -j10 bzImage, I can
-> regain
-> > > control, but interactivity under load is basically not present.
-> >
-> > Funny that.
-> >
-> > > I used to be able to wave a window poorly at make -j25 (swapping
-> heftily),
-> > > fairly smoothly at make -j20, and smoothly at make -j15 or below.
-> This
-> > > with no SCHED_RR/SCHED_FIFO.  (I haven't done much testing like this
-> in
-> > > quite a while though)
-> >
-> > Perhaps you should consider buying an extra 29 CPU's for you desktop?
->
-> I have neither the need for 30 CPUs, nor the cash to pay for such a
-> beast :)
->
-> I gather you think my test is silly?
+It seems to come and go randomly (timing issue), it's not new with 48. 
+Has been happening since 44-mm3 or so. Just as a point of interest,
+doesn't seem to be the timer int itself that kill her, it's the 
+softirq processing that happens in irq_exit on the way back.
 
-Well, yes, 30 processes at a time on a single CPU does seem a bit silly -
-given that (under the old system), you would not expect X to get more than
-3% of the CPU time.
-Also sceduling normal processes (ie, not real-time processes) as RR/FIFO
-seemed also pretty bad.
-
-However....
-
-But I have to now admit that I haven't yet played with 2.5.47 seriously,
-and wansn't aware of the problems which Andrew just posted.
-
-mea culpa.
-
-
--- 
-TimC -- http://astronomy.swin.edu.au/staff/tconnors/
-
-If you ever fear that machines will surpass humans in intelligence,
-just ask Microsoft to write the OS.     -- POTU in RHOD
+M.
 

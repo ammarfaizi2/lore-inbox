@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268619AbTGIWPD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 18:15:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268637AbTGIWPD
+	id S268640AbTGIWVI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 18:21:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268643AbTGIWVI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 18:15:03 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:40338 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S268619AbTGIWNM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 18:13:12 -0400
-Date: Wed, 9 Jul 2003 23:24:26 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Davide Libenzi <davidel@xmailserver.org>, Mel Gorman <mel@csn.ul.ie>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Memory Management List <linux-mm@kvack.org>
-Subject: Re: 2.5.74-mm1
-Message-ID: <20030709222426.GA24923@mail.jlokier.co.uk>
-References: <20030703023714.55d13934.akpm@osdl.org> <Pine.LNX.4.55.0307071007140.4704@bigblue.dev.mcafeelabs.com> <20030707193628.GA10836@mail.jlokier.co.uk> <200307082027.13857.phillips@arcor.de>
+	Wed, 9 Jul 2003 18:21:08 -0400
+Received: from LIGHT-BRIGADE.MIT.EDU ([18.244.1.25]:11274 "EHLO
+	light-brigade.mit.edu") by vger.kernel.org with ESMTP
+	id S268640AbTGIWVD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 18:21:03 -0400
+Date: Wed, 9 Jul 2003 18:35:41 -0400
+From: Gerald Britton <gbritton@alum.mit.edu>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Gerald Britton <gbritton@alum.mit.edu>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, emperor@EmperorLinux.com,
+       LKML <linux-kernel@vger.kernel.org>,
+       EmperorLinux Research <research@EmperorLinux.com>,
+       "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: Linux and IBM : "unauthorized" mini-PCI : Cisco mpi350 _way_ sub-optimal
+Message-ID: <20030709183541.C10882@light-brigade.mit.edu>
+References: <1054658974.2382.4279.camel@tori> <20030610233519.GA2054@think> <200307071412.00625.durey@EmperorLinux.com> <1057672948.4358.20.camel@dhcp22.swansea.linux.org.uk> <20030708112016.A10882@light-brigade.mit.edu> <1057678950.4358.53.camel@dhcp22.swansea.linux.org.uk> <20030708132417.B10882@light-brigade.mit.edu> <20030708184421.A13083@flint.arm.linux.org.uk> <20030708205809.GA18307@mail.jlokier.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200307082027.13857.phillips@arcor.de>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030708205809.GA18307@mail.jlokier.co.uk>; from jamie@shareable.org on Tue, Jul 08, 2003 at 09:58:09PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> > (I think the user/PAM idea came up for the same sort of reason that
-> > only console users are able to open /dev/cdrom: asking for extra
-> > resource (in this case low latency is a resource) might be something
-> > you'd restrict to console users.
-> 
-> I frequently run Zinf over ssh, to a machine that's connected to speakers.
+On Tue, Jul 08, 2003 at 09:58:09PM +0100, Jamie Lokier wrote:
+> You may be able to identify devices which are very unlikely to be
+> touched by the SMI handler, and just allow those to be moved.
+> E.g. video cards, USB, IDE, "system", ISA bridge etc. may all be
+> touched by the SMI (for power management), but the sound, modem and
+> network are much less unlikely.
 
-I do similar things.  I also read /dev/cdrom over ssh, which is not
-permitted by the default security policy.  I.e. it's a userspace
-policy issue.
+Often the problem bridges contain such devices, and are surrounded by
+them as well, so moving them isn't really all that safe.
 
-> We've got something better than we've had before, even though it doesn't go as 
-> far as making true realtime processing available to normal users.
+Here's another datapoint I found today:
+(numbers represent resources).
 
-Indeed.  But maybe true (bounded CPU) realtime, reliable, would more
-accurately reflect what the user actually wants for some apps?
+-+-[host 05]
+ +-[ide 08]
+ +-[usb 04]
+ +-[vga 03]
+ +-[audio 02]
+ +-[pci bridge 02-06]
+   +-[ethernet 07]
+   +-[device in slot 01]
 
-Just a thought,
--- Jamie
+The bridge is setup completely wrong, and appears to be entirely transparent
+regardless of the resource ranges programmed into it.  X was complaining about
+the vga device having an invalid I/O resource (since it was a resource which
+is supposedly behind the bridge).  And the devices behind the bridge were
+working just fine even with resource allocations outside the range of the
+bridge.  Using setpci to edit the bridge configuration made X stop being
+concerned about the resources.
+
+				-- Gerald
+

@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312634AbSCVO4H>; Fri, 22 Mar 2002 09:56:07 -0500
+	id <S312703AbSCVPNR>; Fri, 22 Mar 2002 10:13:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312699AbSCVOz5>; Fri, 22 Mar 2002 09:55:57 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:2824 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312634AbSCVOzo>; Fri, 22 Mar 2002 09:55:44 -0500
-Subject: Re: SMP IRQ management issues in 2.4.x
-To: Fionn.Behrens@unix-ag.org (Fionn Behrens)
-Date: Fri, 22 Mar 2002 15:11:30 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20020322152542.36250f11.fionn@unix-ag.org> from "Fionn Behrens" at Mar 22, 2002 03:25:42 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S312704AbSCVPNH>; Fri, 22 Mar 2002 10:13:07 -0500
+Received: from whiterose.net ([64.65.220.94]:65290 "HELO whiterose.net")
+	by vger.kernel.org with SMTP id <S312703AbSCVPMt>;
+	Fri, 22 Mar 2002 10:12:49 -0500
+Date: Fri, 22 Mar 2002 10:15:55 -0500 (EST)
+From: M Sweger <mikesw@ns1.whiterose.net>
+To: linux-kernel@vger.kernel.org
+Subject: USB MSDOS driver for Hard drive to boot UMSDOS?
+Message-ID: <Pine.BSF.4.21.0203221006210.20863-100000@ns1.whiterose.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16oQhW-0008Ef-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > That doesnt look like an interrupt problem to be honest. Perhaps nvdriver
-> > is triggering something else
-> > 
-> > (the Busy is the drive saying its still waiting for something)
-> 
-> Just wanted to close the issue by saying it came out that it actually is NOT an IRQ problem.
-> Another close look at "hdparm -I" vs. "harparm -v" (and syslog) revealed that
-> the hard disks had been configured for UDMA mode 5 by the controller 
-> (probably at boot time) while the Linux kernel set them to some IO mode.
-> 
-> Having found this out, I really wonder how the disks managed to work under 
-> any circumstances at all.
 
-Thats interesting in itself, and an important clue
+Hello,
+
+I have a Dell optiplex GX1 333mhz with MSDOS 6.22 installed in one partion
+with the rest being NT.  I also have UMSDOS in one of the hard drive
+partitions. I would like to move the UMSDOS linux from the IDE/SCSI hard
+drive to an external USB hard drive. After moving it to the external
+drive, I want to boot the UMSDOS linux from the external USB hard drive.
+However, since I don't have any USB drivers for either of the controllers
+which seem to be *.sys the system doesn't know to create and assign a disk
+drive letter to the attached external drive.
+
+I know there is a company that makes "USB4DOS" at http://www.catc.com but
+most of these companies are geared to embedded systems. Their price is
+$1k US for this driver. I haven't been able to find any USB driver for
+MSDOS that is free. Nor a driver that is generic enough to be used with
+any USB device whether it be v1.1 and/or v2.0 USB in an intel system.
+
+Is there any USB MSDOS drivers that I can use so that I can boot and run
+linux off my external USB hard drive?
+
+
+I realize a work around is to use a linux boot floppy and mount the other
+filesystems via the Linux USB driver to access my UMSDOS linux
+system. However, everytime I change the kernel it requires making another
+linux boot disk. :(
+
+
+Thanks for any info.
+
 

@@ -1,52 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264321AbTLYPPb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 10:15:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264322AbTLYPPb
+	id S264318AbTLYQBq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 11:01:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264320AbTLYQBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 10:15:31 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:6272 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S264321AbTLYPPX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 10:15:23 -0500
-Date: Thu, 25 Dec 2003 15:21:43 GMT
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200312251521.hBPFLheE000203@81-2-122-30.bradfords.org.uk>
-To: David Monro <davidm@amberdata.demon.co.uk>
-Cc: Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org,
-       vojtech@suse.cz
-In-Reply-To: <3FEAFDF3.80008@amberdata.demon.co.uk>
-References: <3FEA5044.5090106@amberdata.demon.co.uk>
- <20031225063936.GA15560@win.tue.nl>
- <200312251316.hBPDG7LT000163@81-2-122-30.bradfords.org.uk>
- <3FEAFDF3.80008@amberdata.demon.co.uk>
-Subject: Re: handling an oddball PS/2 keyboard
+	Thu, 25 Dec 2003 11:01:46 -0500
+Received: from [195.62.234.69] ([195.62.234.69]:9695 "EHLO mail.nectarine.info")
+	by vger.kernel.org with ESMTP id S264318AbTLYQBp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Dec 2003 11:01:45 -0500
+Message-ID: <3FEB0A15.4000708@nectarine.info>
+Date: Thu, 25 Dec 2003 17:02:29 +0100
+From: Giacomo Di Ciocco <admin@nectarine.info>
+Organization: Nectarine Networks
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Albert Cahalan <albert@users.sf.net>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       wli@holomorphy.com
+Subject: Re: 2.6.0 "Losing too many ticks!"
+References: <1072321519.1742.328.camel@cube>
+In-Reply-To: <1072321519.1742.328.camel@cube>
+X-Enigmail-Version: 0.82.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quote from David Monro <davidm@amberdata.demon.co.uk>:
-> John Bradford wrote:
-> >>I suppose Vojtech will have no objections to using this ID
-> >>to skip the tests for e0 and e1 as protocol (escape) scancodes.
-> > 
-> > 
-> > There might be no need for such a workaround - a lot of PS/2 devices
-> > which were not intended for PCs work fine in set 3, particularly if
-> > the device they were intended to work with uses set 3 natively, where
-> > this conflict with protocol scancodes problem doesn't exist.  If the
-> > keyboard works in set 3, add 0xab85 to the list of keyboards to force
-> > set 3 for, (and maybe also add the ID for my keyboard while we're at
-> > it :-) ).
+Albert Cahalan wrote:
+
+> I sure wouldn't bet on that. More likely, he's simply
+> losing ticks. He has a Duron processor, which is
+> highly unlikely to be hooked up to some crummy
+> speed-changing hardware.
 > 
-> I will definitely explore this possibility. Whats the ID of your 
-> keyboard? (and what is it?)
+> I had a 1 GHz Pentium III box with the same problem.
+> Linux would give up on the perfectly-correct 1 GHz
+> clock source in favor of trying, and failing, to
+> count 1 kHz ticks from the crummy old PIT hardware.
+> Time loss got so bad that NTP would simply give up.
+> IDE activity may have had something to do with it.
+> 
+> In his case, maybe ACPI polls something while
+> interrupts are off.
+> 
+> 
 
-It's an IBM Japanese keyboard which emulates a U.S. one.  Andries has
-quite a bit of information about it on his page, but the interesting
-thing is that it doesn't do any emulation in set 3, only in the
-default set 2.  The ID is ab90.  There may be ab90 ID keyboards out
-there which are not set 3 compatible, I don't know.  Mine is certainly
-not fully usable in set 2, though, as the language keys produce the
-same codes as the space bar.
+This morning i tried Andrew Morton's kernel which implements the via-tsc-fix 
+(ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0/2.6.0-mm1/broken-out/via-tsc-fix.patch)
+the messages are still here (Unknown HZ value! (77) Assume 100.) but after doing 
+some comparison with my home workstation which has almost the same hardware the 
+speed seems to be returned on the standards.
 
-John.
+
+Regards.
+
+-- 
+Giacomo Di Ciocco
+Nectarine Administrator
+Phone/Fax: (+39) 577663107
+Web: http://www.nectarine.info
+Irc: irc.nectarine.info #nectarine
+Email: admin@nectarine.info (pgp.mit.edu)

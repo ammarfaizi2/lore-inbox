@@ -1,87 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264923AbTLFB6K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 20:58:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264925AbTLFB6K
+	id S264922AbTLFB4F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 20:56:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264923AbTLFB4F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 20:58:10 -0500
-Received: from c-130372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.19]:51087
-	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
-	id S264923AbTLFB6E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 20:58:04 -0500
-Subject: Re: Catching NForce2 lockup with NMI watchdog - found?
-From: Ian Kumlien <pomac@vapor.com>
+	Fri, 5 Dec 2003 20:56:05 -0500
+Received: from dm51.neoplus.adsl.tpnet.pl ([80.54.235.51]:18436 "EHLO
+	satan.blackhosts") by vger.kernel.org with ESMTP id S264922AbTLFB4C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 20:56:02 -0500
+Date: Sat, 6 Dec 2003 03:00:39 +0100
+From: Jakub Bogusz <qboosh@pld-linux.org>
 To: linux-kernel@vger.kernel.org
-Cc: cbradney@zip.com.au, prakashpublic@gmx.de, cheuche+lkml@free.fr
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-3AJBsgs5FhOM6CP+BVR6"
-Message-Id: <1070675882.1991.7.camel@big.pomac.com>
+Subject: builtin module aliases in 2.6.0-test11 - non-working MODULE_ALIAS_BLOCKDEV_MAJOR?
+Message-ID: <20031206020039.GD3914@satan.blackhosts>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 06 Dec 2003 02:58:02 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+Organization: PLD Linux Distribution
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+As I see after upgrade to test11 MODULE_ALIAS_CHARDEV_MAJOR has just
+begun to work without modprobe.conf entries - but
+MODULE_ALIAS_BLOCKDEV_MAJOR hasn't.
+At least for floppy module - there is:
+MODULE_ALIAS_BLOCKDEV_MAJOR(FLOPPY_MAJOR);
+and it means:
+$ /sbin/modinfo -F alias floppy
+block-major-2-*
 
---=-3AJBsgs5FhOM6CP+BVR6
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+But accessing /dev/fd0 still causes modprobe block-major-2, which fails
+without block-major-2 alias in /etc/modprobe.conf...
 
-Quoting myself...=20
-> I'm more hopeful about the patch from Mathieu <cheuche+lkml () free ! fr>=
-...
 
->           CPU0
->   0:     267486    IO-APIC-edge  timer
->   1:       9654    IO-APIC-edge  keyboard
->   2:          0          XT-PIC  cascade
->   8:          1    IO-APIC-edge  rtc
->   9:          0   IO-APIC-level  acpi
->  14:      28252    IO-APIC-edge  ide0
->  15:        103    IO-APIC-edge  ide1
->  16:     251712   IO-APIC-level  eth0
->  17:      90632   IO-APIC-level  EMU10K1
->  19:     415529   IO-APIC-level  nvidia
->  20:          0   IO-APIC-level  usb-ohci
->  21:        153   IO-APIC-level  ehci_hcd
->  22:      58257   IO-APIC-level  usb-ohci
-> NMI:        479
-> LOC:     265875
-> ERR:          0
-> MIS:          0
+BTW, maybe it would be good to build in some modules more aliases which
+seem constant?
+I mean (from my modprobe.conf):
 
-> this far and it feels like a closer match to what windows does from what
-> i have read on the ml.=20
+alias ppp-compress-21   bsd_comp
+alias ppp-compress-24   ppp_deflate
+alias ppp-compress-26   ppp_deflate
+alias iso9660           isofs
+alias block-major-11    sr_mod
+alias char-major-21     sg
 
-I think that this is what we want, ie know how windows handles the spic
-since i just bet that all the mb manuf. ppl only care about windows and
-anything else is secondary. [Can we get some more info from nvidia about
-differences in the setup?]
 
-> I haven't even come close to testing this yet, I've only been up 45 mins
-> but i'll leave it running and do what i usually do when it hangs... =3D)
-
-And that some great 2 hours, everything was dandy, screen refreshes
-faster (moving windows with contents was snappier and you saw less
-trailing refreshes)... but it ended in a beeeeeeeep deadlock.
-
-I later reproduced it again in console mode... It required 2 full grep
--rne test * in my /usr/src, that is, 2.6.0-test11 and 2.4.23*2 + some
-rpm's... all in all: 624M + 219M
-
---=20
-Ian Kumlien <pomac@vapor.com>
-
---=-3AJBsgs5FhOM6CP+BVR6
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/0Teq7F3Euyc51N8RAjEVAKCWbw2ZpZP/CcxSCFFtusdKnO9KhwCfSkZe
-BPl0skqFCdO/Vut0DfkLW/M=
-=5EuJ
------END PGP SIGNATURE-----
-
---=-3AJBsgs5FhOM6CP+BVR6--
-
+-- 
+Jakub Bogusz    http://cyber.cs.net.pl/~qboosh/
+PLD Linux       http://www.pld-linux.org/

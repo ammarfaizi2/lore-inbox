@@ -1,40 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280830AbRKBU5w>; Fri, 2 Nov 2001 15:57:52 -0500
+	id <S280832AbRKBU6d>; Fri, 2 Nov 2001 15:58:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280831AbRKBU5m>; Fri, 2 Nov 2001 15:57:42 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:29522 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S280830AbRKBU5g>; Fri, 2 Nov 2001 15:57:36 -0500
-Date: Fri, 2 Nov 2001 21:57:29 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Zlatko Calusic <zlatko.calusic@iskon.hr>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Jens Axboe <axboe@suse.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>, linux-mm@kvack.org,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Zlatko's I/O slowdown status
-Message-ID: <20011102215729.K1274@athlon.random>
-In-Reply-To: <Pine.LNX.4.33.0110261018270.1001-100000@penguin.transmeta.com> <87k7xfk6zd.fsf@atlas.iskon.hr> <20011102065255.B3903@athlon.random> <87g07xdj6x.fsf@atlas.iskon.hr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <87g07xdj6x.fsf@atlas.iskon.hr>; from zlatko.calusic@iskon.hr on Fri, Nov 02, 2001 at 09:14:14PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S280834AbRKBU6P>; Fri, 2 Nov 2001 15:58:15 -0500
+Received: from humbolt.nl.linux.org ([131.211.28.48]:31129 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S280831AbRKBU5z>; Fri, 2 Nov 2001 15:57:55 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Sven Heinicke <sven@research.nj.nec.com>, linux-kernel@vger.kernel.org
+Subject: Re: Google's mm problem - not reproduced on 2.4.13
+Date: Fri, 2 Nov 2001 21:58:53 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <E15yzlQ-00021P-00@starship.berlin> <20011102181758Z16039-4784+420@humbolt.nl.linux.org> <200111022027.fA2KRwe20006@penguin.transmeta.com>
+In-Reply-To: <200111022027.fA2KRwe20006@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Cc: Ben Smith <ben@google.com>, Andrea Arcangeli <andrea@suse.de>,
+        Rik van Riel <riel@conectiva.com.br>
+Message-Id: <20011102205746Z16039-4784+457@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 02, 2001 at 09:14:14PM +0100, Zlatko Calusic wrote:
-> It was write caching. Somehow disk was running with write cache turned
+On November 2, 2001 09:27 pm, Linus Torvalds wrote:
+> In article <20011102181758Z16039-4784+420@humbolt.nl.linux.org>,
+> Daniel Phillips  <phillips@bonn-fries.net> wrote:
+> >
+> >It's hard to see how that could be wrong.  Plus, this test program does 
+> >run under 2.4.9, it just uses way too much CPU on that kernel.  So I'd say 
+> >mm bug.
+> 
+> So how much memory is mlocked?
 
-Ah, I was going to ask you to try with:
+I'm not sure exactly, I didn't run the test.  I *think* it's just over 50% of 
+physical memory.
 
-	/sbin/hdparm -d1 -u1 -W1 -c1 /dev/hda
+> The locked memory will stay in the inactive list (it won't even ever be
+> activated, because we don't bother even scanning the mapped locked
+> regions), and the inactive list fills up with pages that are completely
+> worthless. 
 
-(my settings, of course not safe for journaling fs, safe to use it only
-with ext2 and I -W0 back during /etc/init.d/halt) but I assumed you were
-using the same hdparm settings in -ac and mainline. Never mind, good
-that it's solved now :).
+Yes, it does various things on various vms.  On 2.4.9 it stays on the 
+inactive list until free memory gets down to rock bottom, then most of it 
+moves to the active list and the system reaches a steady state where it can 
+operate, though with kswapd grabbing 99% CPU (two processor system), but the 
+test does complete.  On the current kernel the it dies.
 
-Andrea
+> And the kernel will decide that because most of the unfreeable pages are
+> mapped, it needs to do VM scanning, which obviously doesn't help.
+> 
+> Why _does_ this thing do mlock, anyway? What's the point? And how much
+> does it try to lock?
+
+It's how the google database engine works, and keeps latency down, by mapping 
+big database files into memory.  I didn't get more information than that on 
+the application.
+
+> If root wants to shoot himself in the head by mlocking all of memory,
+> that's not a VM problem, that's a stupid administrator problem.
+
+In the tests I did, it was about 1 gig out of 2.  I'm not sure how much 
+memory is mlocked in the 3.5 Gig test the one that's failing, but it's 
+certainly not anything like all of memory.  Really, we should be able to 
+mlock 90%+ of memory without falling over.
+
+--
+Daniel
+

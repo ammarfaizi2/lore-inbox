@@ -1,70 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbUJZP4h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbUJZP7u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261241AbUJZP4h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 11:56:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbUJZP4h
+	id S261283AbUJZP7u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 11:59:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbUJZP7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 11:56:37 -0400
-Received: from siaag2ae.compuserve.com ([149.174.40.135]:45267 "EHLO
-	siaag2ae.compuserve.com") by vger.kernel.org with ESMTP
-	id S261241AbUJZP4Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 11:56:16 -0400
-Date: Tue, 26 Oct 2004 11:54:46 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: BK kernel workflow
-To: Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200410261156_MC3-1-8D2C-C64C@compuserve.com>
+	Tue, 26 Oct 2004 11:59:49 -0400
+Received: from fire.osdl.org ([65.172.181.4]:12459 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S261283AbUJZP60 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 11:58:26 -0400
+Message-ID: <417E71C1.1080400@osdl.org>
+Date: Tue, 26 Oct 2004 08:48:17 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+CC: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-mm1
+References: <20041022032039.730eb226.akpm@osdl.org> <417D7EB9.4090800@osdl.org> <20041025155626.11b9f3ab.akpm@osdl.org> <417D88BB.70907@osdl.org> <20041025164743.0af550ce.akpm@osdl.org> <417D8DFF.1060104@osdl.org> <Pine.GSO.4.58.0410260319100.17615@mion.elka.pw.edu.pl> <417DBEC1.5000701@osdl.org>
+In-Reply-To: <417DBEC1.5000701@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
 
-> But I have a 70 line shell script which does this, I'm not sure why you can't
-> write the same thing.
+>>>>> Yes, that gets further.   :(
+>>>>> Maybe I'll just (try) apply the kexec patch to a vanilla kernel.
+>>
+>>
+>>
+>> IDE PIO changes are the part of a vanilla kernel.
+>>
+>> If vanilla kernel (+akpm's fix) works OK then
+>> this bug is not mine fault. :)
+>>
+>>
+>>>> I doubt if it'll help much.  It looks like IDE PIO got badly broken.
+>>
+>>
+>>
+>> Weird, this code was in -mm for over a month.
+>>
+>>
+>>>> That's something we have to fix - could you work with Bart on it 
+>>>> please?
+>>>
+>>>
+>>> Sure.  Bart?
+>>
+>>
+>>
+>> I need more data, IDE PIO works fine here.
+>>
+>>
+>>>> How come your disks are running in PIO mode anyway?
+>>
+>>
+>>
+>> Maybe disks are runing in DMA mode but some application
+>> triggers PIO access (IDENTIFY command, S.M.A.R.T. etc.)...
+>>
+>>
+>>> No idea.
+> 
+> 
+> Andrew made me look.  Duh.  It's because I'm booting with
+> ide=nodma.
+> 
+> So Bart, can you check the noautodma=1 code path?
+> And I'll test it again on Tuesday without using ide=nodma.
 
-  Shirley you jest.
+Booting 2.6.9-mm1 without using "ide=nodma" works well for me.
+No other kernel changes.
 
+> 4 oopsen boot logs are (back-to-back) in:
+> http://developer.osdl.org/rddunlap/doc/capture-ide.txt
+> if you need to see them.
 
->> [me@d4 linux-2.6]$ bk c2r -r@v2.6.9 mm/vmscan.c
->> [me@d4 linux-2.6]$                                               <--- what???
->
-> That's because you didn't read the documentation which you appear to love 
-> so much.
-
-  So now it's MY fault I didn't get any kind of error message whatsoever?
-Silent failures like this are really, really annoying...
-
-
->>   Then there's this one:
->> 
->> [me@d4 linux-2.6]$ bk difftool -rv2.6.8 -rv2.6.9 mm/vmscan.c     <--- forgot the @
->> child process exited abnormally                                  <--- hee hee!
->> 
->>   I like the way the GUI flashes up on the screen then abruptly disappears, leaving
->> the user wondering what happened.
->
-> You know, I like the way you politely offer to help out by sending in
-> patches to the documentation for this tool which you get to use for free.
-
-  Are you deliberately missing my point?
-
-  Programs should return some kind of error message when they fail.  Is that
-so hard to understand?
-
-
->>   But you're located in a large American metro area, a.k.a. "hell on earth."
->
-> No worries, Chuck, after careful consideration of your skills we don't see
-> a match at this time.  But we'll keep your resume on file and thanks for
-> your interest.
-
-  Your loss, not mine.
-
-
---Chuck Ebbert  26-Oct-04  11:16:10
+-- 
+~Randy

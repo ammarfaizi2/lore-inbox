@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312392AbSDEIgy>; Fri, 5 Apr 2002 03:36:54 -0500
+	id <S312393AbSDEIhg>; Fri, 5 Apr 2002 03:37:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312393AbSDEIgo>; Fri, 5 Apr 2002 03:36:44 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:8247 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S312392AbSDEIg1>; Fri, 5 Apr 2002 03:36:27 -0500
-To: Martin Mares <mj@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86 Boot enhancements, pic 16 4/9
-In-Reply-To: <m11ydwu5at.fsf@frodo.biederman.org> <20020405080115.GA409@ucw.cz>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 05 Apr 2002 01:29:49 -0700
-Message-ID: <m1k7rmpmyq.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S312395AbSDEIhZ>; Fri, 5 Apr 2002 03:37:25 -0500
+Received: from dns.uni-trier.de ([136.199.8.101]:42192 "EHLO
+	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
+	id <S312393AbSDEIhP>; Fri, 5 Apr 2002 03:37:15 -0500
+Date: Fri, 5 Apr 2002 10:37:06 +0200 (CEST)
+From: Daniel Nofftz <nofftz@castor.uni-trier.de>
+X-X-Sender: nofftz@infcip10.uni-trier.de
+To: Oleg Drokin <green@namesys.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Q] reiserfs error message at boot-time
+In-Reply-To: <20020405122035.A14561@namesys.com>
+Message-ID: <Pine.LNX.4.40.0204051035010.13870-100000@infcip10.uni-trier.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Mares <mj@ucw.cz> writes:
+On Fri, 5 Apr 2002, Oleg Drokin wrote:
 
 > Hello!
-> 
-> > Instead removes the assumption the code is linked to run at 0.  The
-> > binary code is already PIC, this makes the build process the same way,
-> > making the build requirements more flexible. 
-> 
-> What are the reasons to do this change? The assumption that "linked at 0"
-> assumptions looks pretty harmless and the "-start"'s everywhere are ugly.
+>
+> On Fri, Apr 05, 2002 at 10:03:47AM +0200, Daniel Nofftz wrote:
+>
+> > i just moved my linux partitition from ext3 to reiserfs.
+> > now my problem:
+> > when i boot, i get this error-message:
+> > reiserfs: Unrecognized mount option errors
+> > reiserfs: Unrecognized mount option errors
+>
+> Can you show content of your /etc/fstab?
+> It complains you passed it unrecognised "errors" option.
 
-Short answer the current assembly is broken.
+/dev/hda2       /               reiserfs        defaults,errors=remount-ro
+0       1
 
-Long answer.
+i think it's the "errors=remount-ro" then, or ?
 
-Without the "-start"'s the gas generates a relocation record for
-every one of those instructions.  The correct syntax with gas is ugly.
-If you can find the gas equivalent of an assume %ds ... directive I will use
-it.   
+daniel
 
-The fact that you can't treat the generated .o as a normal object
-is simply a maintenance nightmare.
 
-With this change it is possible to write a linker script that
-generates a bzImage.  I won't do it as every other build of ld
-is broken with respect to interesting linker scripts.   But there are
-still some subsets of that idea that make sense.
 
-Eric
+# Daniel Nofftz
+# Sysadmin CIP-Pool Informatik
+# University of Trier(Germany), Room V 103
+# Mail: daniel@nofftz.de
+

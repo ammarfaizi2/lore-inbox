@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131344AbRDBVmK>; Mon, 2 Apr 2001 17:42:10 -0400
+	id <S131323AbRDBVik>; Mon, 2 Apr 2001 17:38:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131349AbRDBVlv>; Mon, 2 Apr 2001 17:41:51 -0400
-Received: from jalon.able.es ([212.97.163.2]:55271 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S131344AbRDBVlr>;
-	Mon, 2 Apr 2001 17:41:47 -0400
-Date: Mon, 2 Apr 2001 23:40:45 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Oliver Xymoron <oxymoron@waste.org>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, David Lang <dlang@diginsite.com>,
-   Manfred Spraul <manfred@colorfullife.com>,
-   "Albert D . Cahalan" <acahalan@cs.uml.edu>, lm@bitmover.com,
-   linux-kernel@vger.kernel.org
-Subject: Re: bug database braindump from the kernel summit
-Message-ID: <20010402234045.C17148@werewolf.able.es>
-In-Reply-To: <Pine.LNX.3.96.1010401181724.28121i-100000@mandrakesoft.mandrakesoft.com> <Pine.LNX.4.30.0104021436110.24812-100000@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.30.0104021436110.24812-100000@waste.org>; from oxymoron@waste.org on Mon, Apr 02, 2001 at 21:39:55 +0200
-X-Mailer: Balsa 1.1.3
+	id <S131324AbRDBVib>; Mon, 2 Apr 2001 17:38:31 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:23211 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S131320AbRDBViT>; Mon, 2 Apr 2001 17:38:19 -0400
+Importance: Normal
+Subject: Announcing Journaled  File System (JFS)  release 0.2.2 available
+To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+From: "Steve Best" <sbest@us.ibm.com>
+Date: Mon, 2 Apr 2001 17:37:35 -0400
+Message-ID: <OF189F5459.F38C9965-ON85256A22.00761CAB@raleigh.ibm.com>
+X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 04/02/2001 05:37:37 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The latest drop of JFS was made available today.
 
-On 04.02 Oliver Xymoron wrote:
-> 
-> As a former proponent of /proc/config (I wrote one of the much-debated
-> patches), I tend to agree. Debian's make-kpkg does the right thing, namely
-> treating .config the same way it treats System-map, putting it in the
-> package and eventually installing it in /boot/config-x.y.z. If Redhat's
-> kernel-install script did the same it would rapidly become a non-issue.
-> 
+The file system has fixes included. Also, the utilities have
+been cleaned up to use standard types.
 
-Could <installkernel> make part of the kernel scripts, or in one other
-standard software package, like modutils, so its versions are controlled
-and can be requested (in Doc/ChageLog, like other things) ?
+In the file system the following problems have been fixed.
 
-Perhaps it could be put into a kernel-utils package with ksymoops, and
-standarise the places and naming. I do not know if systems like Caldera,
-SuSE or Debian adopted the /boot place for kernel things (standard kernels
-still come with INSTALL_PATH=/boot commented-out), or the
-vmlinuz-X.Y.Z naming.
+- Fix for assert(iagp->wmap[extno] & mask); (line #2875) in jfs_imap
+  while running dbench
+- Fixed hang on scsi
+- added /proc/fs/jfs/jfsFYI (2.4.* kernels only)
+     echo 1 > /proc/fs/jfs/jfsFYI  ; Turns on very verbose output to syslog
+     echo 0 > /proc/fs/jfs/jfsFYI  ; Turns it back off
 
-I think the best solution would be to make /boot the 'official' place for
-kernels, the -X.Y.Z naming an standard, installkernel should save System.map
-and .config.
+For more details about the problems fixed, please see the README.
 
-And you can add something like /proc/signature/map, /proc/signature/config,
-etc to md5-check if a certain file fits running kernel.
-
--- 
-J.A. Magallon                                          #  Let the source
-mailto:jamagallon@able.es                              #  be with you, Luke... 
-
-Linux werewolf 2.4.3 #2 SMP Fri Mar 30 15:42:05 CEST 2001 i686
+Steve
+JFS for Linux http://oss.software.ibm.com/developerworks/opensource/jfs
 

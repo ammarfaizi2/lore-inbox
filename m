@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280646AbRKST2r>; Mon, 19 Nov 2001 14:28:47 -0500
+	id <S280647AbRKST3r>; Mon, 19 Nov 2001 14:29:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280647AbRKST21>; Mon, 19 Nov 2001 14:28:27 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2319 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280646AbRKST2Z>; Mon, 19 Nov 2001 14:28:25 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [VM] 2.4.14/15-pre4 too "swap-happy"?
-Date: Mon, 19 Nov 2001 19:23:27 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9tbm7f$86o$1@penguin.transmeta.com>
-In-Reply-To: <200111191801.fAJI1l922388@neosilicon.transmeta.com> <Pine.LNX.4.33.0111191003470.8205-100000@penguin.transmeta.com> <20011119123125.B1439@asooo.flowerfire.com>
-X-Trace: palladium.transmeta.com 1006198091 18108 127.0.0.1 (19 Nov 2001 19:28:11 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 19 Nov 2001 19:28:11 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S280653AbRKST3i>; Mon, 19 Nov 2001 14:29:38 -0500
+Received: from pat.uio.no ([129.240.130.16]:13018 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S280647AbRKST3W>;
+	Mon, 19 Nov 2001 14:29:22 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15353.23941.858943.218040@charged.uio.no>
+Date: Mon, 19 Nov 2001 20:29:09 +0100
+To: kuznet@ms2.inr.ac.ru
+Cc: b.lammering@science-computing.de, linux-kernel@vger.kernel.org
+Subject: Re: more tcpdumpinfo for nfs3 problem: aix-server --- linux 2.4.15pre5 client
+In-Reply-To: <200111191909.WAA21357@ms2.inr.ac.ru>
+In-Reply-To: <15353.21949.239139.993379@charged.uio.no>
+	<200111191909.WAA21357@ms2.inr.ac.ru>
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011119123125.B1439@asooo.flowerfire.com>,
-Ken Brownfield  <brownfld@irridia.com> wrote:
->Linus, so far 2.4.15-pre4 with your patch does not reproduce the kswapd
->issue with Oracle, but I do need to perform more deterministic tests
->before I can fully sign off on that.
->
->BTW, didn't your patch go into -pre5?  Or is there an additional mod in
->-pre6 that we should try?
+>>>>> " " == kuznet  <kuznet@ms2.inr.ac.ru> writes:
 
-You're right, it's probably in pre5 already..
+     > I do no think this was right, to be honest. write_space with
+     > udp is too hairy thing to use it correctly. :-) Anyway, it is
+     > enough to select right sndbuf. Right is... well, default value
+     > is right. :-)
 
-Anyway, it would be interesting to see if the patch by Andrea (I think
-he called it "zone-watermarks") that changes the zone allocators to take
-other zones into account makes a difference. See separate thread with
-the subject line "15pre6aa1 (fixes google VM problem)". 
+The sndbuf is by default 64k, so that should indeed suffice to fit all
+the possible varieties of NFS datagram.
 
-(I think the patch is overly complex as-is, but I htink the _ideas_ in
-it are fine).
+The problem is that when EAGAIN is returned by sendmsg, we want to put
+the RPC request to sleep (and have rpciod deal with other pending
+requests), and then reactivate it as soon as sock_wspace() reports
+that the available free buffer space is large enough to fit the next
+request.
 
-			Linus
+Assuming that sock_wfree() always gets called whenever an skb is
+released and that sock_wspace() does indeed reflect more or less the
+maximum message size for which there is free buffer space (I allow a
+couple of kilobytes for extra padding) then the current UDP code
+should be correct and race-free.
+
+Cheers,
+   Trond

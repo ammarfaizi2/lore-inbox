@@ -1,69 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264449AbTEJRZI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 13:25:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264451AbTEJRZI
+	id S264455AbTEJRfN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 13:35:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264456AbTEJRfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 13:25:08 -0400
-Received: from imap.gmx.net ([213.165.65.60]:57658 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264449AbTEJRZH (ORCPT
+	Sat, 10 May 2003 13:35:13 -0400
+Received: from AGrenoble-101-1-4-215.w217-128.abo.wanadoo.fr ([217.128.202.215]:34196
+	"EHLO awak") by vger.kernel.org with ESMTP id S264455AbTEJRfN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 13:25:07 -0400
-Date: Sat, 10 May 2003 19:35:26 +0200
-From: Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de>
-To: Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de>
-Cc: jamie@shareable.org, linux-kernel@vger.kernel.org
+	Sat, 10 May 2003 13:35:13 -0400
 Subject: Re: 2.5.69 strange high tone on DELL Inspiron 8100
-In-Reply-To: <S264444AbTEJQk4/20030510164056Z+1652@vger.kernel.org>
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Tuncer M zayamut Ayaz <tuncer.ayaz@gmx.de>
+Cc: jamie@shareable.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <S264449AbTEJRZH/20030510172507Z+7050@vger.kernel.org>
 References: <1405.1052575075@www9.gmx.net>
-	<1052575167.16165.0.camel@dhcp22.swansea.linux.org.uk>
-	<S264332AbTEJO5e/20030510145734Z+7011@vger.kernel.org>
-	<S264373AbTEJPSN/20030510151813Z+1648@vger.kernel.org>
-	<20030510162527.GD29271@mail.jlokier.co.uk>
-	<S264444AbTEJQk4/20030510164056Z+1652@vger.kernel.org>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	 <1052575167.16165.0.camel@dhcp22.swansea.linux.org.uk>
+	 <S264332AbTEJO5e/20030510145734Z+7011@vger.kernel.org>
+	 <S264373AbTEJPSN/20030510151813Z+1648@vger.kernel.org>
+	 <20030510162527.GD29271@mail.jlokier.co.uk>
+	 <S264444AbTEJQk4/20030510164056Z+1652@vger.kernel.org>
+	 <S264449AbTEJRZH/20030510172507Z+7050@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-15
+Organization: 
+Message-Id: <1052588866.1013.3.camel@bip.localdomain.fake>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <S264449AbTEJRZH/20030510172507Z+7050@vger.kernel.org>
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 10 May 2003 19:47:47 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 May 2003 18:51:18 +0200
-Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de> wrote:
+Le sam 10/05/2003 à 19:35, Tuncer M zayamut Ayaz a écrit :
 
-> On Sat, 10 May 2003 17:25:27 +0100
-> Jamie Lokier <jamie@shareable.org> wrote:
-> 
-> > Tuncer M zayamut Ayaz wrote:
-> > > what I found out right now is that when there is
-> > > load (moving mailer windows around) the sound
-> > > is gone and reappears if there's no load aka
-> > > I stop moving mailer window (while typing this mail).
-> > 
-> > That's the opposite of my Toshiba in any of the lower power modes.
-> > 
-> > When there's CPU activity, it emits a quiet high-pitched noise. 
-> > When CPU activity stops, the noise stops.  This doesn't happen in
-> > the maximum power usage mode (brigh screen, fastest clock), and I
-> > don't know if there's a way to turn it off.
-> 
-> 1) with SpeedStep enabled in BIOS and also enabled with software
-> switching to full-speed mode turn down the volum a bit.
-> 
-> 2) disabled SpeedStep in BIOS. init-scripts enabled speed step
-> same behaviour as in 1)
-> 
-> funny side is that prior to booting 2.5 on the LILO prompt
-> I listened and would bet that the same noise but very very
-> quietly was still there.
+> rebooted with a reconfigured kernel to assure it's not cpufreq.
+> same behaviour without cpufreq.
 
-rebooted with a reconfigured kernel to assure it's not cpufreq.
-same behaviour without cpufreq.
-btw, I'm not 100% sure anymore now running 2.4 whether I really
-heard the same noise just quiet. hard to differentiate and also
-doesn't matter from my view as it doesn't annoy like the
-2.5 noise effect.
---> if it's the same noise, it would be ok, as you don't hear it
-normally sitting in front of the box, but running 2.5 is not
-nice with that high-pitched tone.
+You should perhaps try to enable/disable APM idle calls ..
+
+	Xav
+

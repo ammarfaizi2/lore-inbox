@@ -1,52 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265552AbRFVWgU>; Fri, 22 Jun 2001 18:36:20 -0400
+	id <S265555AbRFVWla>; Fri, 22 Jun 2001 18:41:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265553AbRFVWgK>; Fri, 22 Jun 2001 18:36:10 -0400
-Received: from apollo.cis.from.de ([194.162.209.12]:63617 "EHLO
-	apollo.cis.from.de") by vger.kernel.org with ESMTP
-	id <S265552AbRFVWgC>; Fri, 22 Jun 2001 18:36:02 -0400
-Mime-Version: 1.0
-Message-Id: <p05100321b759772d397f@[194.162.209.20]>
-Date: Sat, 23 Jun 2001 00:35:13 +0200
+	id <S265556AbRFVWlV>; Fri, 22 Jun 2001 18:41:21 -0400
+Received: from pcow029o.blueyonder.co.uk ([195.188.53.123]:4108 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S265555AbRFVWlH> convert rfc822-to-8bit;
+	Fri, 22 Jun 2001 18:41:07 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Alan Chandler <alan@chandlerfamily.org.uk>
 To: linux-kernel@vger.kernel.org
-From: Ingo Ciechowski <ciechowski@cis-computer.com>
-Subject: High system CPU% in dual CPU System
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Subject: Microsoft and Xenix.
+Date: Fri, 22 Jun 2001 23:41:01 +0100
+X-Mailer: KMail [version 1.2.3]
+Cc: Rob Landley <landley@webofficenow.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E15DZbq-0008D8-00@roo.home>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm experiencing very high system CPU% indications on my new dual 
-Pentium III machine (SuSE Linux 7.1, Kernel 2.4.4-SMP):
+I am not subscribed to the list, but I scan the archives and saw the 
+following.  Please cc e-mail me in followups.
 
-  12:26am  up 1 day,  8:34,  9 users,  load average: 1.44, 2.74, 3.26
-116 processes: 113 sleeping, 3 running, 0 zombie, 0 stopped
-CPU0 states: 19.2% user, 32.0% system,  0.0% nice, 48.2% idle
-CPU1 states: 20.4% user, 40.1% system,  0.0% nice, 38.3% idle
-Mem:   512180K av,  498144K used,   14036K free,       0K shrd,  145360K buff
-Swap: 1024120K av,    8504K used, 1015616K free                   39976K cache
+>Rob Landley (landley@webofficenow.com) wrote
+...
+>In late '79 early '80, they heard the rumors that IBM was pondering a PC, 
+> and Paul Allen went "any real computer will run Unix", so they got a 
+>license from AT&T and ported the sucker, calling it "Xenix". (MS was a 
+>porting house, 
 
-   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
-20308 root       9   0 21056  20M  1744 S     2.7  4.1   6:14 X
-30471 capicall  12   0  1020 1020   772 R     0.7  0.1   0:36 top
-   594 root       9   0   628  628   480 S     0.5  0.1   6:59 nscd
-22072 ingo      17   0  1484 1484   576 R     0.5  0.2   0:00 ps
-   596 root       9   0   628  628   480 S     0.3  0.1   6:36 nscd
-22467 ingo       9   0  3940 3940  2812 R     0.3  0.7  11:03 gkrellm
-22978 ingo       9   0  1380 1380  1132 S     0.3  0.2   0:04 ssh
-   597 root       9   0   628  628   480 S     0.1  0.1   6:31 nscd
-   598 root       9   0   628  628   480 S     0.1  0.1   6:35 nscd
-22071 ingo      17   0  1036 1036   852 S     0.1  0.2   0:00 sh
+I hope the following adds a more direct perspective on this, as I was a user 
+at the time.  
+
+I was working (and still am) for a UK computer systems integrator called 
+Logica.  One of our departments sold and supported Xenix (as distributor for 
+Microsoft? - all the manuals had Logica on the covers although there was at 
+least some mention of Microsoft inside) in the UK.  At the time it ONLY ran 
+on PDP 11's and I used it to build a configuration management system (on top 
+of SCCS) for the telemetry product that I was responsible for.  I acquired 
+Xenix for my department in 1984
+
+It was more like (can't remember exactly when) 1985/1986 that Xenix got 
+ported to the IBM PC. I remember because we were evaluating software to use 
+for our telemetry workstations (which previously had been using expensive 
+special graphics hardware and we were trying to see if we could use a PC 
+instead) and I was comparing Xenix, GEM (remember that - for a time it looked 
+like it might be ahead of windows) and Microsoft Windows v 1 .  We chose 
+Windows in the end for its graphics capability although by the time we 
+started development it was up to v2 and we were using 286's (this was 
+1987/88).  
 ...
 
+>Xenix was unloaded on the Santa-Cruz operation almost 
+>immediately,
 
-After the initial Installation everything was fine - it must be 
-caused by some additonal package, but I have no clue.
-
-What can I do to find out what the CPUs are doing during "system" time?
+Logica sold out its Xenix operation to Santa-Cruz around 1987 (definately 
+before October 1987) because we couldn't afford the costs of developing the 
+product (which makes me think that we had bought it out from Microsoft - at 
+least in the UK).  By then we had switched our PDP 11s to System V (I also 
+remember BUYING an editor called "emacs" for use on it:-) ).
 
 -- 
 
-Ingo
-ciechowski@cis-computer.com
-
+  Alan - alan@chandlerfamily.org.uk
+http://www.chandlerfamily.org.uk

@@ -1,55 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267296AbTGOLsj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 07:48:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267300AbTGOLsj
+	id S267300AbTGOL77 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 07:59:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267303AbTGOL77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 07:48:39 -0400
-Received: from hektor.net.autocom.pl ([213.134.172.184]:30222 "EHLO
-	rozeta.rozeta.com.pl") by vger.kernel.org with ESMTP
-	id S267296AbTGOLsg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 07:48:36 -0400
-Message-ID: <3F13ED8A.9000809@rozeta.com.pl>
-Date: Tue, 15 Jul 2003 14:03:22 +0200
-From: =?ISO-8859-2?Q?=22Pawe=B3_T=2E_Jochym=22?= <jochym@rozeta.com.pl>
-Organization: Institute of Nuclear Physics, Cracow, Poland
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.3.1-3 StumbleUpon/1.73
-X-Accept-Language: pl
+	Tue, 15 Jul 2003 07:59:59 -0400
+Received: from Mail1.kontent.de ([81.88.34.36]:27882 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S267300AbTGOL76 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 07:59:58 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Joerg Stephan <joerg@jstephan.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test1 some Problems (modules & touchpad)
+Date: Tue, 15 Jul 2003 14:14:06 +0200
+User-Agent: KMail/1.5.1
+References: <3F13CF33.7040706@jstephan.org>
+In-Reply-To: <3F13CF33.7040706@jstephan.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test1 test results (radeonfb and ACPI on thinkpad A30)
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307151414.06869.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a report on my tests of 2.6.0-test1 on ThinkPad A30:
+ 
+> The second is, the touchpad of my notebook doesnt work.
 
-(preempt kernel with quite standard config - I'll post config on request)
+Hi,
 
-- RadeonFB - sort-of works (it was working fine in 2.4.21). It boots, 
-detects panel size correctly (1400x1050), switches to fbconsole of 
-proper size but the screen is garbage: the contents of each line seams 
-to be shifted by some 8-32 pixels (its difficult to tell exactly how 
-much). I was able to reset it to proper geometry by "fbset 1600x1200-60" 
-command (notice the geometry!) and after that it reports virtual 
-resolution 1600x1200 and visable resolution of 1400x1050 and works fine.
+a similar problem here on a Targa XP.
 
-- ACPI - I was unable to boot with ACPI turned on. It simply hangs at
-very early stage (shows nothing on the console). Notice that this is 
-upgraded BIOS/EC machine with corrected ACPI tables - 2.4.21-ac4 with 
-ACPI works fine. Any sugestions?
+The wheel of the touchpad is on /dev/input/event0 and /dev/psaux
+The touchpad and the regular buttons are on /dev/input/event1
+This is kind of strange.
 
-- Other - i've noticed too fast playback in mplayer (by some 10-20%) and
-jumping sound/video in xine.
+dmesg:
+mice: PS/2 mouse device common for all mice
+input: PC Speaker
+i8042.c: Detected active multiplexing controller, rev 1.0.
+serio: i8042 AUX0 port at 0x60,0x64 irq 12
+Synaptics Touchpad, model: 1
+ Firware: 4.1
+ Sensor: 8
+ new absolute packet format
+input: Synaptics Synaptics TouchPad on isa0060/serio2
+serio: i8042 AUX1 port at 0x60,0x64 irq 12
+serio: i8042 AUX2 port at 0x60,0x64 irq 12
+serio: i8042 AUX3 port at 0x60,0x64 irq 12
+input: AT Set 2 keyboard on isa0060/serio0
+serio: i8042 KBD port at 0x60,0x64 irq 1
 
-- We will need to put some more documentation on setting this kernel up 
-for newbies (I know - later).
+and later on:
 
-The rest is working fine as far as I can tell.
+Synaptics driver lost sync at 1st byte
+Synaptics driver lost sync at 1st byte
+Synaptics driver lost sync at 1st byte
+Synaptics driver lost sync at 1st byte
+Synaptics driver resynced.
 
-I'll be happy to provide any additional info/conduct more tests. Just 
-say so.
-
-Pawel Jochym
+	Regards
+		Oliver
 

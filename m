@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317043AbSEWXFF>; Thu, 23 May 2002 19:05:05 -0400
+	id <S317047AbSEWXVt>; Thu, 23 May 2002 19:21:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317044AbSEWXFF>; Thu, 23 May 2002 19:05:05 -0400
-Received: from wsip68-14-236-254.ph.ph.cox.net ([68.14.236.254]:37530 "EHLO
-	mail.labsysgrp.com") by vger.kernel.org with ESMTP
-	id <S317043AbSEWXFE>; Thu, 23 May 2002 19:05:04 -0400
-Message-ID: <006101c202ae$47b1e0c0$6aaca8c0@kpfhome>
-From: "Kevin P. Fleming" <kevin@labsysgrp.com>
-To: <dank@kegel.com>, <linux-kernel@vger.kernel.org>
-Cc: <trond.myklebust@fys.uio.no>
-In-Reply-To: <3CED6E0F.215BF408@kegel.com>
-Subject: Re: [PATCH] patch for 2.4.19-pre8 nfsroot.c to compile
-Date: Thu, 23 May 2002 16:05:06 -0700
-Organization: Laboratory Systems Group, Inc.
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S317045AbSEWXVs>; Thu, 23 May 2002 19:21:48 -0400
+Received: from naur.csee.wvu.edu ([157.182.194.28]:26039 "EHLO
+	naur.csee.wvu.edu") by vger.kernel.org with ESMTP
+	id <S317044AbSEWXVr>; Thu, 23 May 2002 19:21:47 -0400
+Subject: Re: Reg. asm-sparc64/processor.h
+From: Shanti Katta <katta@csee.wvu.edu>
+To: "David S. Miller" <davem@redhat.com>
+Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20020522.205224.63641863.davem@redhat.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-Mailer: Evolution/1.0.2 
+Date: 23 May 2002 19:24:35 -0400
+Message-Id: <1022196275.2591.4.camel@indus>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doh! Here's a corrected patch (other places in the kernel use %u instead of
-%d, so that's what I used):
+On Wed, 2002-05-22 at 23:52, David S. Miller wrote:
+> 
+> If you want the 'u64' type, define __KERNEL__.  That is what
+> every platform does, protect the types without underscores with
+> a __KERNEL__ ifdef.
+Hi,
+In asm-sparc64/processor.h (2.4.18), in thread_struct structure, there
+are 3 fields:
+        u64 *user_cntd0, *user_cntd1;
+        u64 kernel_cntd0, kernel_cntd1;
+        u64 pcr_reg; 
 
---- linux/fs/nfs/nfsroot.c Thu May 23 12:04:17 2002
-+++ linux-nfsroot/fs/nfs/nfsroot.c Thu May 23 16:02:29 2002
-@@ -343,8 +343,8 @@
- {
-  struct sockaddr_in sin;
+which are defined without #ifdef __KERNEL__ . I guess, this is a bug,
+which needs fixing.
 
-- printk(KERN_NOTICE "Looking up port of RPC %d/%d on %s\n",
--  program, version, in_ntoa(servaddr));
-+ printk(KERN_NOTICE "Looking up port of RPC %d/%d on %u.%u.%u.%u\n",
-+  program, version, NIPQUAD(servaddr));
-  set_sockaddr(&sin, servaddr, 0);
-  return rpc_getport_external(&sin, program, version, proto);
- }
-
------ Original Message -----
-From: "Dan Kegel" <dank@kegel.com>
-To: "Kevin P. Fleming" <kevin@labsysgrp.com>; <linux-kernel@vger.kernel.org>
-Sent: Thursday, May 23, 2002 03:32 PM
-Subject: re: [PATCH] patch for 2.4.19-pre8 nfsroot.c to compile
-
-
-<snip>
-
-> Er, shouldn't you change the %s to a %d.%d.%d.%d?
-> - Dan
->
->
+Thanks
+-Regards
+-Shanti Katta
 

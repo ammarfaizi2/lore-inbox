@@ -1,91 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261799AbTJHVtv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 17:49:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbTJHVtv
+	id S261234AbTJHVyZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 17:54:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbTJHVyZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 17:49:51 -0400
-Received: from cpc1-cwma1-5-0-cust4.swan.cable.ntl.com ([80.5.120.4]:10127
-	"EHLO dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261799AbTJHVtp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 17:49:45 -0400
-Subject: Re: [PATCH] Poll-based IDE driver
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: vatsa@in.ibm.com
-Cc: lkcd-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-In-Reply-To: <20031008151357.A31976@in.ibm.com>
-References: <20030917144120.A11425@in.ibm.com>
-	 <1063806900.12279.47.camel@dhcp23.swansea.linux.org.uk>
-	 <20031008151357.A31976@in.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1065649641.10565.21.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2) 
-Date: Wed, 08 Oct 2003 22:47:22 +0100
+	Wed, 8 Oct 2003 17:54:25 -0400
+Received: from mail.inter-page.com ([12.5.23.93]:34572 "EHLO
+	mail.inter-page.com") by vger.kernel.org with ESMTP id S261234AbTJHVyX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Oct 2003 17:54:23 -0400
+From: "Robert White" <rwhite@casabyte.com>
+To: "'bert hubert'" <ahu@ds9a.nl>, "'Linus Torvalds'" <torvalds@osdl.org>
+Cc: "'Albert Cahalan'" <albert@users.sourceforge.net>,
+       "'Ulrich Drepper'" <drepper@redhat.com>,
+       "'Mikael Pettersson'" <mikpe@csd.uu.se>,
+       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: Who changed /proc/<pid>/ in 2.6.0-test5-bk9?
+Date: Wed, 8 Oct 2003 14:54:02 -0700
+Organization: Casabyte, Inc.
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAVDpoTOBv7UOXEobzssb2gwEAAAAA@casabyte.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
+In-Reply-To: <20031008104726.GA4655@outpost.ds9a.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-10-08 at 10:43, Srivatsa Vaddagiri wrote:
-> 1. Taking control of the drive
-> 	It is possible that the kernel IDE driver was very _actively_
-> 	using the dump drive when my driver takes over. For ex, there
-> 	may be active DMA requests pending with the drive when 
-> 	my driver takes control ..
+Actually, the pthread library is at a higher level than the clone() system
+call (where I was phrasing my debate.)
 
-In 2.4 we issue one command at a time in 2.6 we may have several TCQ 
-commands queued. You may need to test if the drive is busy, wait and if
-neccessary reset and recover it. If possible avoid the reset because
-that means the drive will need some reconfiguration (see specs)
+That library already does "the right thing" by requesting that the file
+descriptors be shared explicitly.  It must for the pthread paradigm to work.
+Therefore it presumably still will.
 
-> 	Currently all my drive does to take control of the drive
-> 	is to disable drive interrupts (set nIEN bit). It then
-> 	starts issuing PIO WRITE commands to write data to disk.
+That is libpthread "does" and "should" make the requests for new OS threads
+with the unified file descriptor table case.  So the below will keep working
+as expected.
 
-Make sure you disable interrupts before using nIEN. Not all older
-devices honour nIEN so you can get suprises
+I was barking up a different tree with my arguments.  (e.g. what is the
+minimal definition of thread in the mind of the kernel.)
 
-> 	Do I need to do anything else in order to take 
-> 	control of the drive?
-> 	
-> 	Do I need to explicitly program the drive for PIO transfer
-> 	mode before I start issuing it PIO write commands?
+So unless the pthread implementer makes a mistake, the POSIX level of
+abstraction will be right regardless.
 
-The PIO mode on the controller and drive should have been set correctly
-by the base IDE driver at boot time.
+Rob.
 
-> 2. Power Management
-> 	Tackling Sleep state may involve a drive reset followed by 
-> 	reinitializing drive parameters which will make my driver 
-> 	more complex (as I may have to take care of reset sequence of 
-> 	various chipsets separately). For now, I would like my driver 
-> 	not supporting the sleep state.
+-----Original Message-----
+From: bert hubert [mailto:ahu@ds9a.nl] 
+Sent: Wednesday, October 08, 2003 3:47 AM
+To: Linus Torvalds
+Cc: Robert White; 'Albert Cahalan'; 'Ulrich Drepper'; 'Mikael Pettersson';
+'Kernel Mailing List'
+Subject: Re: Who changed /proc/<pid>/ in 2.6.0-test5-bk9?
 
-Makes sense. Many drives seem to come out of sleep state themselves
-anyway. 
- 
-> 3. Shutdown sequence
-> 	You mentioned that I need to follow proper shutdown sequence
-> 	when I am done writing to the drive. Apart from 
-> 	flushing (if the drive supports it) is there anything
-> 	more to the shutdown sequence?
+On Tue, Oct 07, 2003 at 05:54:35PM -0700, Linus Torvalds wrote:
 
-Flush the cache, and place the drive in a suitable standby/sleep state -
-follow the code in ide-disk.c for the way we do it in the main code. 
+> But the same isn't true of file descriptors or a lot of other software-
+> level abstractions. There are no inherent advantages to sharing, and in
+> fact sharing just gives more opportunity for race conditions, bad
+> interaction etc.
 
-> 4. Relinquishing control of the drive
-> 	Currently all I am doing to give control back to
-> 	the kernel IDE driver is to re-enable the drive
-> 	interrupts (clear nIEN). 
-> 		
-> 	Is there anything more I need to be taking care of?
+I may be missing something, I'm all for the ability to have threads with
+their own fd namespace, but will NPTL/Linux retain the capability to pass
+fd's to other threads?
 
-Hard question. I think that providing you mark the drive busy, wait
-for the IDE layer to complete any pending commands and restore the state
-afterwards it ought to be possible. Would need a lot of thought and more
-time than I have right now to think about it since getting it wrong
-might lose requests and generate very hard to pin down errors.
+One thing I've used in tens of programs is:
+
+void *session(void *p)
+{
+	int fd=(int)p;
+	...
+}
+...
+
+for(;;) {
+	fd=accept();
+	pthread_create_thread(session,(void*)fd);
+}
+
+I'd like to continue to have that ability.
+
+Thanks.
+
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
 
 

@@ -1,48 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263355AbTJKSqi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 14:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263359AbTJKSqh
+	id S263368AbTJKTBK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 15:01:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263369AbTJKTBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 14:46:37 -0400
-Received: from mtaw4.prodigy.net ([64.164.98.52]:7397 "EHLO mtaw4.prodigy.net")
-	by vger.kernel.org with ESMTP id S263355AbTJKSqh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 14:46:37 -0400
-Message-ID: <3F8851A7.3000105@pacbell.net>
-Date: Sat, 11 Oct 2003 11:53:27 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: Peter Matthias <espi@epost.de>, linux-kernel@vger.kernel.org
-CC: linux-usb-devel@lists.sourceforge.net
-Subject: Re: ACM USB modem on Kernel 2.6.0-test
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 11 Oct 2003 15:01:10 -0400
+Received: from mail1.mail.iol.ie ([194.125.2.192]:20412 "EHLO
+	mail1.mail.iol.ie") by vger.kernel.org with ESMTP id S263368AbTJKTBF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Oct 2003 15:01:05 -0400
+Date: Sat, 11 Oct 2003 20:01:02 +0100
+From: Kenn Humborg <kenn@linux.ie>
+To: asdfd esadd <retu834@yahoo.com>
+Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+Subject: Re: 2.7 thoughts: common well-architected object model
+Message-ID: <20031011190102.GA18624@excalibur.research.wombat.ie>
+References: <20031011175744.GA15610@excalibur.research.wombat.ie> <20031011183405.38980.qmail@web13007.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031011183405.38980.qmail@web13007.mail.yahoo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> usb 3-3: configuration #1 chosen from 2 choices
-> drivers/usb/class/cdc-acm.c: need inactive config #2
-> drivers/usb/class/cdc-acm.c: need inactive config #2
+On Sat, Oct 11, 2003 at 11:34:05AM -0700, asdfd esadd wrote:
+> There is a connex, fork() might be a bad example,
+> 
+> it's simple - yes but 20 years have passed as Solaris
+> is finding:
+> 
+> pid_t fork(void); vs. 
+> 
+> the next step in the evolution CreateProcess
 
-Until we get more intelligence somewhere, do this:
+CreateProcess() did _not_ evolve from fork().  There is no fork() 
+equivalent in the Windows world.  If anything it came more from 
+$CREPRC in VMS.
 
-    # cd /sys/bus/usb/devices/3-3
-    # echo '2' > bConfigurationValue
-    #
+> BOOL CreateProcess(
+>   LPCTSTR lpApplicationName,
+>   LPTSTR lpCommandLine,
+>   LPSECURITY_ATTRIBUTES lpProcessAttributes,
+>   LPSECURITY_ATTRIBUTES lpThreadAttributes,
+>   BOOL bInheritHandles,
+>   DWORD dwCreationFlags,
+>   LPVOID lpEnvironment,
+>   LPCTSTR lpCurrentDirectory,
+>   LPSTARTUPINFO lpStartupInfo,
+>   LPPROCESS_INFORMATION lpProcessInformation
+> 
+> evolved to .Net Process Class
 
-That makes the device use vendor-neutral protocols
-to talk to the host, not MSFT-proprietary ones.  (It's
-important to use the numbers from those messages; they
-will change if you use different USB ports.)
+"evolved to" is the wrong term - "wrapped by" is more accurate
 
-Hmm ... maybe usbcore would be better off with a less
-naive algorithm for choosing defaults.  Like, preferring
-configurations without proprietary device protocols.
-That'd solve every cdc-acm case, and likely others.
+> System.Object
+>    System.MarshalByRefObject
+>       System.ComponentModel.Component
+>          System.Diagnostics.Process
 
-- Dave
+... which is a _user-land_ wrapper around CreateProcess.
 
+> So let me restate the need again for a:
+> 
+> * unified well architected core component model
+> which is extensible from OS services to application
+> objects
+
+Which is a job for userland, in my opinion.
+
+> * the object model should be defined from the kernel
+> layer for process/events/devices etc. up and not
+> started at the application layer
+
+I still don't see why this needs to be in the kernel.
+Give a concrete example of something that cannot be done
+with the existing syscall interface and user-mode wrappers.
+Or something significant that can be done easier with what
+you are asking for.
+
+Of course, your name "asdfd esadd" does look a bit troll-like...
+
+Later,
+Kenn
 

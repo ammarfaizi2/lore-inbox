@@ -1,462 +1,675 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265735AbTFXGs4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 02:48:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265812AbTFXGsz
+	id S265723AbTFXGpm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 02:45:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265724AbTFXGpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 02:48:55 -0400
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:16913 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id S265735AbTFXGsd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 02:48:33 -0400
-Message-Id: <200306240653.h5O6rSu15448@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="koi8-r"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: linux-kernel@vger.kernel.org
-Subject: lk maintainers
-Date: Tue, 24 Jun 2003 09:57:32 +0300
-X-Mailer: KMail [version 1.3.2]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	Tue, 24 Jun 2003 02:45:42 -0400
+Received: from dp.samba.org ([66.70.73.150]:15056 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265723AbTFXGp2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 02:45:28 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: corbet@lwn.net (Jonathan Corbet)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] Allow arbitrary number of init funcs in modules 
+In-reply-to: Your message of "Mon, 23 Jun 2003 13:11:41 CST."
+             <20030623191141.31814.qmail@eklektix.com> 
+Date: Tue, 24 Jun 2003 16:57:34 +1000
+Message-Id: <20030624065937.1B45E2C273@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This document is mailed to lkml regularly and will be modified
-whenever new victim wishes to be listed in it or someone can
-no longer devote his time to maintainer work.
+In message <20030623191141.31814.qmail@eklektix.com> you write:
+> > Feedback is extremely welcome,
+> 
+> OK...you asked for it.  I found three separate bugs, two of them oopsed the
 
-If you want your entry added/updated/removed, contact me.
+OK, patch applied, ancient-style module init supported (after separate
+patch to clean out some cruft) and init-sorting routine fixed too.
+Tested on 2.5.73-bk1, test patch included.
 
-BTW, requests to move your entry to the top of the list
-without actually changing the text are fine too: that
-will indicate that entry is not outdated, so don't be shy ;-)
+For convenience, all patches in one long mail.
+
+Feedback still welcome 8)
+Rusty.
 --
-vda
-------- cut here ------ cut here ------ cut here ------ cut here ------
-
-So, you are new to Linux kernel hacking and want to submit a kernel bug
-report or a patch but don't know how to do it and _where_ to report it?
-
-Preparing bug report:
-=====================
-*** Remember: bad/incomplete bug report ONLY wastes bandwidth! ***
-How To Ask Questions The Smart Way:
-    http://www.catb.org/~esr/faqs/smart-questions.html
-	Anybody who has written software for public use will
-	probably have received at least one bad bug report.
-	Reports that say nothing ("It doesn't work!");
-	reports that make no sense; reports that don't give
-	enough information; reports that give wrong information.
-How to Report Bugs Effectively:
-    http://www.chiark.greenend.org.uk/~sgtatham/bugs.html
-	Before asking a technical question by email, or in
-	a newsgroup, or on a website chat board, do the following:
-	* Try to find an answer by searching the Web.
-	* Try to find an answer by reading the manual.
-	* Try to find an answer by reading a FAQ.
-	* Try to find an answer by inspection or experimentation.
-	* Try to find an answer by reading the source code.
-Compile problems: report GCC output and result of
-	"grep '^CONFIG_' .config"
-Oops: decode it with ksymoops (or use 2.5 with kksymoops enabled ;).
-Unkillable process: Alt-SysRq-T and ksymoops relevant part.
-Yes it means you should have ksymoops installed and tested,
-which is easy to get wrong. I've done that too often.
-
-Sending bug report/patch:
-=========================
-* Some device drivers have active developers, try to contact them first.
-* Otherwise find a subsystem maintainer to which your report pertains
-  and send report to his address.
-* Small fixes and device driver updates are best directed to subsystem
-  maintainers and "small bits" integrators.
-* It never hurts to CC: Linux kernel mailing list, but without specific
-  maintainer address in To: field there is high probability that your
-  patch won't be noticed. You have been warned.
-* Do not send it to all addresses at once! This will annoy lots of people
-  and isn't useful at all. It's a spam.
-* Do NOT send small fixes to Linus, he just can't handle _everything_.
-  He will eventually receive it from maintainers/integrators, send it
-  their way.
-* If your patch is something big and new, announce it on lkml and try
-  to attract testers. After it has been tested and discussed, you can
-  expect Linus to consider inclusion in mainline.
-
-
-		Current Linux kernel people
-
-Note that this list is sorted in reversed date order, most recent
-entries first. This means than entries at bottom can be outdated :-(
-
-
-Linux kernel mailing list <linux-kernel@vger.kernel.org>
-	Post anything related to Linux kernel here, but nothing else :-)
-
-Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl> [21 may 2003]
-        IDE SUBSYSTEM
-
-Andre Hedrick <andre@linux-ide.org> [15 apr 2003]
-	ATA/ATAPI Storage Architect [2.0,2.2,2.4,2.5]
-	HBA interface developer
-	Serial ATA Architect [released][backported]
-
-George Anzinger <george@mvista.com> [19 mar 2003]
-	I maintain the posix-timers and related code.
-
-Miles Bader <miles@gnu.org> [13 mar 2003]
-	I'm maintainer of the v850 port (uClinux).
-	There's a more generic mailing address that might be better though:
-	<uclinux-v850@lsi.nec.co.jp>
-
-Jesse Barnes <jbarnes@sgi.com> [28 feb 2003]
-	I maintain arch/ia64/sn (SGI SN support for IA64) in the 2.5 tree,
-	and John Hesterberg <jh@sgi.com> does the same for 2.4
-
-http://bugzilla.kernel.org [13 feb 2003]
-	Database of 2.5 bugs.
-
-Martin J. Bligh <mbligh@aracnet.com> [13 feb 2003]
-	I am the maintainer for the kernel bugtracker (bugzilla.kernel.org)
-	I'm interested in kernel issues with:
-	* NUMA / discontigmem
-	* VM issues with lots (>4Gb) of RAM
-	* Scalability issues with > 2 CPUs
-	See also:
-	Andrea Arcangeli <andrea@suse.de>
-
-John Bradford <john@grabjohn.com> [13 feb 2003]
-	I maintain an unofficial kernel bug database at
-	http://grabjohn.com/kernelbugdatabase
-	and I'm also happy to help people who are trying
-	to get run Linux usefully on old and/or low spec
-	machines, (4 MB 486s, etc).
-
-Dave Olien <dmo@osdl.org> [12 feb 2003]
-	I maintain DAC960 RAID controller driver
-	Visit http://www.osdl.org/archive/dmo/DAC960
-
-Benjamin Herrenschmidt <benh@kernel.crashing.org> [27 jan 2003]
-	My duty is to try to make sure Apple's PowerMacs
-	happily run the Linux kernel.
-	I also do various things related to the PPC port (more
-	specifically PPC32), so I'd appreciate beeing CC'ed any
-	comment, patch or bug report regarding the PPC architecture
-
-Adam Belay <ambx1@neo.rr.com> [17 dec 2002]
-	I am Plug and Play maintainer.
-
-Andrew Morton <akpm@digeo.com> [10 dec 2002]
-	- VM
-	- The "data" part of the VFS: pagecache, buffer layer, etc.
-	- memory management
-	- ext2 and ext3
-	- 3c59x.c
-	- direct-IO
-
-James Simmons <jsimmons@infradead.org> [28 Nov 2002]
-	Console and framebuffer subsystems.
-	I also play around with the input layer.
-
-Petko Manolov <petkan@users.sourceforge.net> [27 nov 2002]
-	pegasus and rtl8150 usb-ethernet drivers maintainer.
-	Interested in any bugs or new devices related to those drivers.
-	string-486.h code maintainer.
-
-Greg Ungerer <gerg@snapgear.com> [14 nov 2002]
-	uClinux (MMU-less support) maintainer. I'll take antyhing
-	specifically related to MMU-less support or any of the
-	MMU-less architecture branches (m68knommu, v850, etc).
-	I would highly recommend sending to uclinux-dev@uclinux.org
-	mailing list as well.
-
-Jeff Garzik <jgarzik@mandrakesoft.com> [24 sep 2002]
-	I am the network-card-drivers guy (8139 for instance).
-	CC me and Andrew Morton <akpm@digeo.com> on network driver patches.
-
-Jan-Benedict Glaw <jbglaw@lug-owl.de> [18 sep 2002]
-	I'm responsible for Alpha's srm_env driver, providing access to
-	SRM's firmware variables.
-
-Stuart MacDonald <stuartm@connecttech.com> [13 sep 2002]
-	Connect Tech's linux kernel guy. Currently includes hacking on
-	drivers/char/serial.c (Blue Heat, Xtreme, Dflex) and maintaining
-	drivers/usb/serial/whiteheat.c (WhiteHEAT)
-
-Vojtech Pavlik <vojtech@ucw.cz> [13 sep 2002]
-	Feel free to send me bug reports and patches to input device drivers
-	(drivers/input/*, drivers/char/joystick/*)
-	I also want to receive bug reports and patches for following
-	USB drivers: printer, acm, catc, hid*, usbmouse, usbkbd, wacom.
-	All other (not in the list) USB driver changes should go to USB
-	maintainer (hopefully there is one listed here :-).
-	Also CC me if you are posting VIA IDE driver related message
-	(although I am not IDE subsystem maintainer).
-
-Robert Love <rml@tech9.net> [12 sep 2002]
-	Preemptible kernel maintainer.
-	I am also interesting in anything related to scheduling or locking
-	primitives.
-
-Jan Kara <jack@suse.cz> [22 aug 2002]
-	quota subsystem maintainer
-
-Paul Larson <plars@linuxtestproject.org> [20 aug 2002]
-	I'm a maintainer for the Linux Test Project and it would be nice
-	if people knew to send their test programs, etc. to me.  I see
-	a lot of them flying around on lkml and try to catch them when
-	I can, but it's a lot to keep up with.  It would be even better
-	if people just knew to send them our way so we could clean
-	them up and put them in LTP for regression testing.
-
-Dave Engebretsen <engebret@vnet.ibm.com> [15 aug 2002]
-	PPC64 architecture maintainer.  Please send PPC64 patches to me
-	and our mailing list at <linuxppc64-dev@lists.linuxppc.org>
-
-Ingo Molnar <mingo@elte.hu> [30 jul 2002]
-	Ingo wrote the new scheduler for 2.5.
-
-Ralf Baechle <ralf@uni-koblenz.de> [30 jul 2002]
-	I am maintainer of the AX.25 code
-
-Victor Yodaiken <yodaiken@fsmlabs.com> [30 jul 2002]
-	RTLinux patches, updates, contributions, drivers.
-	Please send first to the list: rtl@rtlinux.org
-
-Pavel Machek <pavel@ucw.cz> [27 jul 2002]
-	I am network block device maintainer. Visit http://nbd.sf.net.
-	(see Steven Whitehouse <steve@gw.chygwyn.com> entry)
-	I am working on software suspend.
-
-William Irwin <wli@holomorphy.com> [02 jul 2002]
-	Send bug reports and/or feature requests related to many tasks,
-	rmap, space consumption, or allocators to me. I'm involved in
-	* rmap
-	* memory allocators
-	* reducing space consumed by data structures (e.g. struct page)
-	* issues arising in workloads with many tasks
-	* kernel janitoring
-	See also:
-	Rik van Riel <riel@surriel.com>
-	Andrea Arcangeli <andrea@suse.de>
-	Martin Bligh <Martin.Bligh@us.ibm.com>
-	Andrew Morton <akpm@digeo.com>
-
-Dave Jones <davej@suse.de> [23 apr 2002]
-	I collect various bits and pieces for inclusion in 2.5,
-	especially small and trivial ones and driver updates.
-	I'll feed them to Linus when (and if) they
-	are proved to be worthy.
-
-Andrea Arcangeli <andrea@suse.de> [28 mar 2002]
-	Send VM related bug reports and patches to me.
-	I'm especially interested in VM issues with:
-	* lots of RAM and CPUs
-	* NUMA
-	* heavy swap scenarios
-	* performance of I/O intensive workloads (in particular
-	  with lots of async buffer flushing involved)
-	See also Martin J. Bligh <Martin.Bligh@us.ibm.com> entry
-	Mail also:
-	Arjan van de Ven <arjanv@redhat.com>
-
-Steven Whitehouse <steve@chygwyn.com> [27 mar 2002]
-	I am the Linux DECnet network stack maintainer
-	Visit http://www.chygwyn.com/decnet/
-
-Arnaldo Carvalho de Melo <acme@conectiva.com.br> [26 mar 2002]
-	IPX, 802.2 LLC, NetBEUI, http://kerneljanitors.org,
-	cyclom2x sync card driver
-
-John Cagle <jcagle@kernel.org> [19 mar 2002]
-	The current maintainer of devices.txt, the list of
-	assigned device numbers for LANANA.  Consult the web
-	site (www.lanana.org) for instructions on submitting
-	requests for new device numbers.  Send all device
-	related email to <device@lanana.org>.
-
-Tigran Aivazian <tigran@veritas.com>
-	I am author and maintainer of BFS filesystem and IA32
-	microcode update driver.
-
-Rogier Wolff <R.E.Wolff@BitWizard.nl> [12 mar 2002]
-	I do "specialix serial ports":
-	drivers/char/specialix.c (IO8+)
-	drivers/char/sx.c        (SX, SI, SIO)
-	drivers/char/rio/*.c     (RIO)
-
-Ed Vance <serial24@macrolink.com> [05 mar 2002]
-	Maintainer for the generic serial driver, serial.c,
-	for 2.2 and 2.4 kernels.  Please post patches to
-	linux-serial@vger.kernel.org for tested bug
-	fixes or to add support for a new serial device.
-	Limited to time available. If I have not responded
-	in a week, yell at serial24@macrolink.com
-
-netfilter/iptables <netfilter-devel@lists.samba.org> [23 feb 2002]
-	Please report all netfilter/iptables related problems
-	to this mailinglist, where all netfilter developers are present.
-	See also http://www.netfilter.org/contact.html
-
-Hans Reiser <reiser@namesys.com> [16 feb 2002]
-	Send me all reiserfs related patches with a cc to
-	reiserfs-dev@namesys.com, send bug reports to
-	reiserfs-dev@namesys.com, send paid support requests to
-	support@namesys.com after going to www.namesys.com/support.html
-	to pay, send discussions (not bug reports unless they are
-	interesting to most persons) to reiserfs-list@namesys.com.
-	If we sit on your patch for a week without responding,
-	yell at us, we deserve it.  Look at our web page
-	at www.namesys.com for more about sending us code,
-	working with us, and our patch submission and tracking system.
-
-Paul Bristow <paul@paulbristow.net> [16 feb 2002]
-	I am an ide-floppy driver maintainer
-	(ATAPI ZIP, LS-120/240 Superdisk, Clik! drives).
-
-Mike Phillips <phillim2@comcast.net> [15 feb 2002]
-	Token ring subsystem and drivers.
-
-Anton Altaparmakov <aia21@cam.ac.uk> [15 feb 2002]
-	I am the NTFS guy.
-
-https://bugzilla.redhat.com/bugzilla [14 feb 2002]
-	Reports of problems with the Red Hat shipped kernels.
-
-Alan Cox <alan@lxorguk.ukuu.org.uk> [14 feb 2002]
-	Linux 2.2 maintainer (maintenance fixes only).
-	Collator of patches for unmaintained things in 2.2/2.4.
-	Maintainer of the 2.4-ac (2.4 plus stuff being tested) tree.
-	I2O, sound, 3c501 maintainer for 2.2/2.4.
-
-ALSA development <alsa-devel@alsa-project.org> [12 feb 2002]
-Jaroslav Kysela <perex@perex.cz> [12 feb 2002]
-	Advanced Linux Sound Architecture
-	ALSA patches are available at
-	ftp://ftp.alsa-project.org/pub/kernel-patches/*
-
-Neil Brown <neilb@cse.unsw.edu.au> [08 feb 2002]
-	I am interested in any issues with the code in:
-	NFS server    (fs/nfsd/*)
-	software RAID (drivers/md/{md,raid,linear}*)
-	or related include files.
-
-Maksim Krasnyanskiy <maxk@qualcomm.com> [08 feb 2002]
-	I'm author and maintainer of the Bluetooth subsystem
-	and Universal TUN/TAP device driver.
-	These days mostly working on Bluetooth stuff.
-
-Rik van Riel <riel@conectiva.com.br> [07 feb 2002]
-	Send me VM related stuff, please CC to linux-mm@kvack.org
-
-Geert Uytterhoeven <geert@linux-m68k.org> [07 feb 2002]
-	I work on the frame buffer subsystem, the m68k port (Amiga part),
-	and the PPC port (CHRP LongTrail part).
-	Unfortunately I barely have spare time to really work on these
-	things. My job is not Linux-related (so far :-). I can not
-	promise anything about my maintainership performance.
-
-H. Peter Anvin <hpa@zytor.com> [07 feb 2002]
-	i386 boot and feature code, i386 boot protocol, autofs3,
-	compressed iso9660 (but I'll accept all iso9660-related
-	changes).  kernel.org site manager; please contact me
-	for sponsorship-related issues.
-
-kernel.org admins <ftpadmin@kernel.org> [07 feb 2002]
-	Kernel.org sysadmins.  Contact us if you notice something breaks,
-	or if you want a change make sure you give us at least 1-2 weeks.
-	Please note that we got a lot of feature requests, a lot of
-	which conflict or simply aren't practical; we don't have time to
-	respond to all requests.
-
-Greg KH <greg@kroah.com> [07 feb 2002]
-	I am USB and PCI Hotplug maintainer.
-
-Trond Myklebust <trond.myklebust@fys.uio.no> [07 feb 2002]
-	I am NFS client maintainer.
-
-Richard Gooch <rgooch@atnf.csiro.au> [07 feb 2002]
-	I maintain devfs. I want people to Cc: me when reporting devfs
-	problems, since I don't read all messages on linux-kernel.
-	Send devfs related patches to me directly, rather than
-	bypassing me and sending to Linus/Marcelo/Alan/Dave etc.
-
-Russell King <rmk@arm.linux.org.uk> [06 feb 2002]
-	ARM architecture maintainer.  Please send all ARM patches through
-	the patch system at http://www.arm.linux.org.uk/developer/patches/
-	New serial drivers maintainer for 2.5.  Submit patches to
-	rmk+serial@arm.linux.org.uk
-
-Petr Vandrovec <vandrove@vc.cvut.cz> [05 feb 2002]
-	ncpfs filesystem, matrox framebuffer driver, problems related
-	to VMware - in all of 2.2.x, 2.4.x and 2.5.x.
-
-Reiserfs developers list <reiserfs-dev@namesys.com> [05 feb 2002]
-	Send all reiserfs-related stuff here including but not limited to bug
-	reports, fixes, suggestions.
-
-Oleg Drokin <green@linuxhacker.ru> [05 feb 2002]
-	SA11x0 USB-ethernet and SA11x0 watchdog are mine.
-
-======= These entries are suggested by lkml folks ========
-
-Ralf Baechle <ralf@gnu.org> [27 mar 2002]
-	I am mips/mips64 maintainer.
-
-David S. Miller <davem@redhat.com> [07 feb 2002]
-	I am Sparc64 and networking core maintainer.
-
-======= These ones I made myself ========
-======= I am waiting confirmation/correction from these people ========
-
-Urban Widmark <urban@teststation.com> [13 feb 2002]
-	smbfs
-
-video4linux list <video4linux-list@redhat.com> [12 feb 2002]
-Gerd Knorr <kraxel@bytesex.org> [12 feb 2002]
-	video4linux
-
-Tim Waugh <twaugh@redhat.com> [08 feb 2002]
-	> Who is maintaining the linux iomega stuff?
-	For 2.4.x, me (in theory). I don't have time for 2.5.x at the moment.
-
-Alexander Viro <viro@math.psu.edu> [5 feb 2002]
-	I am NOT a fs subsystem maintainer. But I won't kill
-	you if you send me some generic fs bug reports and (hopefully) patches.
-
-Gérard Roudier <groudier@free.fr> [5 feb 2002]
-	I am SCSI guy.
-
-Jens Axboe <axboe@suse.de> [5 feb 2002]
-	I am block device subsystem maintainer.
-
-Linus Torvalds <torvalds@transmeta.com> [5 feb 2002]
-	Do not send anything to me unless it is for 2.5, well tested,
-	discussed on lkml and is used by significant number of people.
-	In general it is a bad idea to send me small fixes and driver
-	updates, send them to subsystem maintainers and/or
-	"small stuff" integrator (currently Dave Jones <davej@suse.de>,
-	see his entry). Sorry, I can't do everything.
-
-Marcelo Tosatti <marcelo@conectiva.com.br> [5 feb 2002]
-	Do not send anything to me unless it is for 2.4 and well tested.
-	If you are sending me small fixes and driver updates, send
-	a copy to subsystem maintainers and/or "small stuff" integrators:
-	- Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	- Rusty Russell <trivial@rustcorp.com.au>.
-
-Rusty Russell <rusty@rustcorp.com.au> [5 feb 2002]
-	> Here are some cleanups of whitespace in .....
-	Want me to add this to the trivial patch collection for tracking?
-	If so just send (or cc:) it to trivial@rustcorp.com.au.
-
-======= Entries which were valid sometime ago. Not valid anymore ========
-======= Retained for historic (and hall-of-fame) purposes ===============
-Eric S. Raymond <esr@thyrsus.com> [5 feb 2002]
-	Send kernel configuration bug reports and suggestions to me.
-	Also I'll be more than happy to accept help enties for kernel config
-	options (Configure.help).
-
-Martin Dalecki <martin@dalecki.de> [11 mar 2002]
-	IDE subsystem maintainer for 2.5
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+
+Name: Centralize token pasting and generation of unique IDs
+Author: Rusty Russell
+Status: Tested on 2.5.70-bk13
+
+D: Add __cat(a,b) to implement token pasting to stringify.h.  To
+D: generate unique names, __unique_id(stem) is implemented (it'd be
+D: nice to have a gcc extension to give a unique identifier).  Change
+D: module.h to use them.
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .26569-linux-2.5.70-bk16/include/linux/module.h .26569-linux-2.5.70-bk16.updated/include/linux/module.h
+--- .26569-linux-2.5.70-bk16/include/linux/module.h	2003-06-12 09:58:02.000000000 +1000
++++ .26569-linux-2.5.70-bk16.updated/include/linux/module.h	2003-06-12 16:19:16.000000000 +1000
+@@ -55,10 +55,8 @@ search_extable(const struct exception_ta
+ 	       unsigned long value);
+ 
+ #ifdef MODULE
+-#define ___module_cat(a,b) __mod_ ## a ## b
+-#define __module_cat(a,b) ___module_cat(a,b)
+ #define __MODULE_INFO(tag, name, info)					  \
+-static const char __module_cat(name,__LINE__)[]				  \
++static const char __unique_id(name)[]					  \
+   __attribute__((section(".modinfo"),unused)) = __stringify(tag) "=" info
+ 
+ #define MODULE_GENERIC_TABLE(gtype,name)			\
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .26569-linux-2.5.70-bk16/include/linux/stringify.h .26569-linux-2.5.70-bk16.updated/include/linux/stringify.h
+--- .26569-linux-2.5.70-bk16/include/linux/stringify.h	2003-01-02 12:25:36.000000000 +1100
++++ .26569-linux-2.5.70-bk16.updated/include/linux/stringify.h	2003-06-12 16:32:17.000000000 +1000
+@@ -9,4 +9,11 @@
+ #define __stringify_1(x)	#x
+ #define __stringify(x)		__stringify_1(x)
+ 
++/* Paste two tokens together. */
++#define ___cat(a,b) a ## b
++#define __cat(a,b) ___cat(a,b)
++
++/* Try to give a unique identifier: this comes close, iff used as static. */
++#define __unique_id(stem) \
++	__cat(__cat(__uniq,stem),__cat(__LINE__,KBUILD_BASENAME))
+ #endif	/* !__LINUX_STRINGIFY_H */
+
+Name: Delete redundant init_module and cleanup_module prototypes.
+Author: Rusty Russell
+Status: Trivial
+
+D: A few places pre-declare "int module_init(void);" and "void
+D: module_cleanup(void);".  Other than being obsolete, this is
+D: unneccessary (it's in init.h anyway).
+D: 
+D: There are still about 100 places which still use the
+D: obsolete-since-2.2 "a function named module_init() magically gets
+D: called": this change frees us up implement that via a macro.
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/block/paride/pf.c .11903-linux-2.5.73-bk1.updated/drivers/block/paride/pf.c
+--- .11903-linux-2.5.73-bk1/drivers/block/paride/pf.c	2003-05-05 12:36:58.000000000 +1000
++++ .11903-linux-2.5.73-bk1.updated/drivers/block/paride/pf.c	2003-06-24 11:43:58.000000000 +1000
+@@ -222,9 +222,6 @@ MODULE_PARM(drive3, "1-7i");
+ #define ATAPI_READ_10		0x28
+ #define ATAPI_WRITE_10		0x2a
+ 
+-#ifdef MODULE
+-void cleanup_module(void);
+-#endif
+ static int pf_open(struct inode *inode, struct file *file);
+ static void do_pf_request(request_queue_t * q);
+ static int pf_ioctl(struct inode *inode, struct file *file,
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/char/istallion.c .11903-linux-2.5.73-bk1.updated/drivers/char/istallion.c
+--- .11903-linux-2.5.73-bk1/drivers/char/istallion.c	2003-06-15 11:29:51.000000000 +1000
++++ .11903-linux-2.5.73-bk1.updated/drivers/char/istallion.c	2003-06-24 11:43:58.000000000 +1000
+@@ -650,8 +650,6 @@ static unsigned int	stli_baudrates[] = {
+  */
+ 
+ #ifdef MODULE
+-int		init_module(void);
+-void		cleanup_module(void);
+ static void	stli_argbrds(void);
+ static int	stli_parsebrd(stlconf_t *confp, char **argp);
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/char/moxa.c .11903-linux-2.5.73-bk1.updated/drivers/char/moxa.c
+--- .11903-linux-2.5.73-bk1/drivers/char/moxa.c	2003-06-23 10:52:46.000000000 +1000
++++ .11903-linux-2.5.73-bk1.updated/drivers/char/moxa.c	2003-06-24 11:43:58.000000000 +1000
+@@ -216,10 +216,7 @@ static struct timer_list moxaEmptyTimer[
+ static struct semaphore moxaBuffSem;
+ 
+ int moxa_init(void);
+-#ifdef MODULE
+-int init_module(void);
+-void cleanup_module(void);
+-#endif
++
+ /*
+  * static functions:
+  */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/char/nwbutton.h .11903-linux-2.5.73-bk1.updated/drivers/char/nwbutton.h
+--- .11903-linux-2.5.73-bk1/drivers/char/nwbutton.h	2003-05-27 15:02:08.000000000 +1000
++++ .11903-linux-2.5.73-bk1.updated/drivers/char/nwbutton.h	2003-06-24 11:43:58.000000000 +1000
+@@ -32,10 +32,6 @@ int button_init (void);
+ int button_add_callback (void (*callback) (void), int count);
+ int button_del_callback (void (*callback) (void));
+ static void button_consume_callbacks (int bpcount);
+-#ifdef MODULE
+-int init_module (void);
+-void cleanup_module (void);
+-#endif /* MODULE */
+ 
+ #else /* Not compiling the driver itself */
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/char/pcxx.c .11903-linux-2.5.73-bk1.updated/drivers/char/pcxx.c
+--- .11903-linux-2.5.73-bk1/drivers/char/pcxx.c	2003-06-15 11:29:51.000000000 +1000
++++ .11903-linux-2.5.73-bk1.updated/drivers/char/pcxx.c	2003-06-24 11:50:28.000000000 +1000
+@@ -209,17 +209,9 @@ static void cleanup_board_resources(void
+ 
+ #ifdef MODULE
+ 
+-/*
+- * pcxe_init() is our init_module():
+- */
+-#define pcxe_init init_module
+-
+-void	cleanup_module(void);
+-
+-
+ /*****************************************************************************/
+ 
+-void cleanup_module()
++static void pcxe_cleanup()
+ {
+ 
+ 	unsigned long	flags;
+@@ -240,6 +232,12 @@ void cleanup_module()
+ 	kfree(digi_channels);
+ 	restore_flags(flags);
+ }
++
++/*
++ * pcxe_init() is our init_module():
++ */
++module_init(pcxe_init);
++module_cleanup(pcxe_cleanup);
+ #endif
+ 
+ static inline struct channel *chan(register struct tty_struct *tty)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/char/stallion.c .11903-linux-2.5.73-bk1.updated/drivers/char/stallion.c
+--- .11903-linux-2.5.73-bk1/drivers/char/stallion.c	2003-06-15 11:29:52.000000000 +1000
++++ .11903-linux-2.5.73-bk1.updated/drivers/char/stallion.c	2003-06-24 11:43:58.000000000 +1000
+@@ -472,8 +472,6 @@ static unsigned int	stl_baudrates[] = {
+  */
+ 
+ #ifdef MODULE
+-int		init_module(void);
+-void		cleanup_module(void);
+ static void	stl_argbrds(void);
+ static int	stl_parsebrd(stlconf_t *confp, char **argp);
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/net/wan/sdladrv.c .11903-linux-2.5.73-bk1.updated/drivers/net/wan/sdladrv.c
+--- .11903-linux-2.5.73-bk1/drivers/net/wan/sdladrv.c	2003-06-15 11:29:56.000000000 +1000
++++ .11903-linux-2.5.73-bk1.updated/drivers/net/wan/sdladrv.c	2003-06-24 11:43:58.000000000 +1000
+@@ -160,10 +160,6 @@
+ 
+ /****** Function Prototypes *************************************************/
+ 
+-/* Module entry points. These are called by the OS and must be public. */
+-int init_module (void);
+-void cleanup_module (void);
+-
+ /* Hardware-specific functions */
+ static int sdla_detect	(sdlahw_t* hw);
+ static int sdla_autodpm	(sdlahw_t* hw);
+@@ -325,11 +321,7 @@ static int pci_slot_ar[MAX_S514_CARDS];
+  * Context:	process
+  */
+ 
+-#ifdef MODULE
+-int init_module (void)
+-#else
+ int sdladrv_init(void)
+-#endif
+ {
+ 	int i=0;
+ 
+@@ -354,9 +346,12 @@ int sdladrv_init(void)
+  * Module 'remove' entry point.
+  * o release all remaining system resources
+  */
+-void cleanup_module (void)
++static void sdladrv_cleanup(void)
+ {
+ }
++
++module_init(sdladrv_init);
++module_cleanup(sdladrv_cleanup);
+ #endif
+ 
+ /******* Kernel APIs ********************************************************/
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/net/wan/sdlamain.c .11903-linux-2.5.73-bk1.updated/drivers/net/wan/sdlamain.c
+--- .11903-linux-2.5.73-bk1/drivers/net/wan/sdlamain.c	2003-05-27 15:02:12.000000000 +1000
++++ .11903-linux-2.5.73-bk1.updated/drivers/net/wan/sdlamain.c	2003-06-24 11:43:58.000000000 +1000
+@@ -177,10 +177,6 @@ static void dbg_kfree(void * v, int line
+ extern void disable_irq(unsigned int);
+ extern void enable_irq(unsigned int);
+  
+-/* Module entry points */
+-int init_module (void);
+-void cleanup_module (void);
+-
+ /* WAN link driver entry points */
+ static int setup(struct wan_device* wandev, wandev_conf_t* conf);
+ static int shutdown(struct wan_device* wandev);
+@@ -246,11 +242,7 @@ static int wanpipe_bh_critical=0;
+  * Context:	process
+  */
+  
+-#ifdef MODULE
+-int init_module (void)
+-#else
+ int wanpipe_init(void)
+-#endif
+ {
+ 	int cnt, err = 0;
+ 
+@@ -313,7 +305,7 @@ int wanpipe_init(void)
+  * o unregister all adapters from the WAN router
+  * o release all remaining system resources
+  */
+-void cleanup_module (void)
++static void wanpipe_cleanup(void)
+ {
+ 	int i;
+ 
+@@ -329,6 +321,8 @@ void cleanup_module (void)
+ 	printk(KERN_INFO "\nwanpipe: WANPIPE Modules Unloaded.\n");
+ }
+ 
++module_init(wanpipe_init);
++module_exit(wanpipe_cleanup);
+ #endif
+ 
+ /******* WAN Device Driver Entry Points *************************************/
+
+Name: Eliminate Unused Functions
+Author: Rusty Russell
+Status: Tested on 2.5.70-bk16
+
+D: GCC 3.3 has the ability to eliminate unused static functions.  This includes
+D: code like this:
+D:
+D: static int unusedfunc(void) { ... };
+D: int otherfunc(void)
+D: {
+D:         (void)unusedfunc;
+D: ...
+D: 
+D: This means that macros can suppress the "unused" warning on functions
+D: without preventing the function elimination.  This should allow us to
+D: remove a number of #ifdefs around unused functions.
+D:
+D: Unfortunately, this elimination is only performed if
+D: -finline-functions is used.  In order to prevent GCC automatically
+D: inlining anything, we also specify "--param max-inline-insns-auto=0".
+D:
+D: Earlier compilers don't understand this parameter, so we test for
+D: it at build time.
+D:
+D: Results:
+D:   gcc 3.3 without patch:
+D:       -rwxrwxr-x    1 rusty    rusty     5115166 Jun 13 09:17 vmlinux
+D:   gcc 3.3 with patch:
+D:       -rwxrwxr-x    1 rusty    rusty     5115166 Jun 13 09:58 vmlinux
+D:   gcc 3.3 without patch (small unused function added):
+D:       -rwxrwxr-x    1 rusty    rusty     5115195 Jun 13 10:14 vmlinux
+D:   gcc 3.3 with patch (small unused function added):
+D:       -rwxrwxr-x    1 rusty    rusty     5115166 Jun 13 10:15 vmlinux
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.70-bk16-check_region/Makefile working-2.5.70-bk16-check_region-inline/Makefile
+--- working-2.5.70-bk16-check_region/Makefile	2003-06-12 09:57:39.000000000 +1000
++++ working-2.5.70-bk16-check_region-inline/Makefile	2003-06-12 21:34:40.000000000 +1000
+@@ -213,10 +213,12 @@ CFLAGS_KERNEL	=
+ AFLAGS_KERNEL	=
+ 
+ NOSTDINC_FLAGS  = -nostdinc -iwithprefix include
++# Needs gcc 3.3 or above to understand max-inline-insns-auto.
++INLINE_OPTS	:= $(shell $(CC) -o /non/existent/file -c --param max-inline-insns-auto=0 -xc /dev/null 2>&1 | grep /non/existent/file >/dev/null && echo -finline-functions --param max-inline-insns-auto=0)
+ 
+ CPPFLAGS	:= -D__KERNEL__ -Iinclude
+ CFLAGS 		:= $(CPPFLAGS) -Wall -Wstrict-prototypes -Wno-trigraphs -O2 \
+-	  	   -fno-strict-aliasing -fno-common
++	  	   $(INLINE_OPTS) -fno-strict-aliasing -fno-common
+ AFLAGS		:= -D__ASSEMBLY__ $(CPPFLAGS)
+ 
+ export	VERSION PATCHLEVEL SUBLEVEL EXTRAVERSION KERNELRELEASE ARCH \
+
+Name: Test Arbitrary Number of Init and Exit Functions
+Author: Rusty Russell
+Status: Tested on 2.5.73-bk1
+Depends: Module/init_exit.patch.gz
+
+D: Test code for module_init_exit: adds example helpers for proc_net
+D: and netfilter, and uses them in netfilter.  Also adds module foo
+D: which uses really old-style init.
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .15095-linux-2.5.73-bk1/include/linux/netfilter.h .15095-linux-2.5.73-bk1.updated/include/linux/netfilter.h
+--- .15095-linux-2.5.73-bk1/include/linux/netfilter.h	2003-05-05 12:37:12.000000000 +1000
++++ .15095-linux-2.5.73-bk1.updated/include/linux/netfilter.h	2003-06-24 12:19:07.000000000 +1000
+@@ -9,6 +9,8 @@
+ #include <linux/if.h>
+ #include <linux/wait.h>
+ #include <linux/list.h>
++#include <linux/stringify.h>
++#include <linux/module.h>
+ #endif
+ 
+ /* Responses from hook functions. */
+@@ -91,6 +93,21 @@ struct nf_info
+ int nf_register_hook(struct nf_hook_ops *reg);
+ void nf_unregister_hook(struct nf_hook_ops *reg);
+ 
++/* Automatically register/unregister */
++#define module_nf_hook(_prio, _hookfn, _pf, _hooknum, _hookprio)	     \
++ static struct nf_hook_ops __cat(nf_hook, _hookfn)			     \
++ = { .hook=_hookfn, .owner=THIS_MODULE, .pf=_pf, .hooknum=_hooknum,	     \
++     .priority=_hookprio }; 						     \
++ static int __init __cat(nfh_reg, _hookfn)(void)			     \
++ {									     \
++ 	return nf_register_hook(&__cat(nf_hook, _hookfn));		     \
++ }									     \
++ static void __init __cat(nfh_unreg, _hookfn)(void)			     \
++ {									     \
++ 	nf_unregister_hook(&__cat(nf_hook, _hookfn));			     \
++ }									     \
++ module_init_exit(_prio, __cat(nfh_reg, _hookfn), __cat(nfh_unreg, _hookfn))
++
+ /* Functions to register get/setsockopt ranges (non-inclusive).  You
+    need to check permissions yourself! */
+ int nf_register_sockopt(struct nf_sockopt_ops *reg);
+@@ -163,6 +180,10 @@ extern void nf_invalidate_cache(int pf);
+ 
+ #else /* !CONFIG_NETFILTER */
+ #define NF_HOOK(pf, hook, skb, indev, outdev, okfn) (okfn)(skb)
++
++/* Just check type and suppress unused message. */
++#define module_nf_hook(prio, hookfn, pf, hooknum, hookprio)	\
++static inline nf_hookfn *__unique_id(hookfn) { return hookfn; }
+ #endif /*CONFIG_NETFILTER*/
+ 
+ #endif /*__KERNEL__*/
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .15095-linux-2.5.73-bk1/include/linux/proc_fs.h .15095-linux-2.5.73-bk1.updated/include/linux/proc_fs.h
+--- .15095-linux-2.5.73-bk1/include/linux/proc_fs.h	2003-06-15 11:30:09.000000000 +1000
++++ .15095-linux-2.5.73-bk1.updated/include/linux/proc_fs.h	2003-06-24 12:19:07.000000000 +1000
+@@ -4,6 +4,7 @@
+ #include <linux/config.h>
+ #include <linux/slab.h>
+ #include <linux/fs.h>
++#include <linux/init.h>
+ #include <asm/atomic.h>
+ 
+ /*
+@@ -191,6 +192,20 @@ static inline void proc_net_remove(const
+ extern void kclist_add(struct kcore_list *, void *, size_t);
+ extern struct kcore_list *kclist_del(void *);
+ 
++#define module_proc_net(prio, name, fn)					     \
++static int __cat(_proc_net_init,fn)(void)				     \
++{									     \
++	struct proc_dir_entry *proc = proc_net_create(name, 0, fn);	     \
++	if (!proc)							     \
++		return -EINVAL;						     \
++	proc->owner = THIS_MODULE;					     \
++	return 0;							     \
++}									     \
++static void __cat(_proc_net_exit,fn)(void)				     \
++{									     \
++	proc_net_remove(name);						     \
++}									     \
++module_init_exit(prio, __cat(_proc_net_init,fn), __cat(_proc_net_exit,fn))
+ #else
+ 
+ #define proc_root_driver NULL
+@@ -236,6 +251,10 @@ static inline struct kcore_list * kclist
+ 	return NULL;
+ }
+ 
++/* Check type and stop gcc from complaining about unused function, but
++ * allow gcc 3.3+ to discard it. */
++#define module_proc_net(prio, name, fn)     \
++static inline get_info_t *__unique_id(test_fntype)(void) { return fn; }
+ #endif /* CONFIG_PROC_FS */
+ 
+ struct proc_inode {
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .15095-linux-2.5.73-bk1/net/ipv4/Makefile .15095-linux-2.5.73-bk1.updated/net/ipv4/Makefile
+--- .15095-linux-2.5.73-bk1/net/ipv4/Makefile	2003-06-15 11:30:12.000000000 +1000
++++ .15095-linux-2.5.73-bk1.updated/net/ipv4/Makefile	2003-06-24 12:19:07.000000000 +1000
+@@ -23,3 +23,4 @@ obj-$(CONFIG_IP_PNP) += ipconfig.o
+ obj-$(CONFIG_NETFILTER)	+= netfilter/
+ 
+ obj-y += xfrm4_policy.o xfrm4_state.o xfrm4_input.o xfrm4_tunnel.o
++obj-m += foo.o
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .15095-linux-2.5.73-bk1/net/ipv4/foo.c .15095-linux-2.5.73-bk1.updated/net/ipv4/foo.c
+--- .15095-linux-2.5.73-bk1/net/ipv4/foo.c	1970-01-01 10:00:00.000000000 +1000
++++ .15095-linux-2.5.73-bk1.updated/net/ipv4/foo.c	2003-06-24 16:45:38.000000000 +1000
+@@ -0,0 +1,42 @@
++#include <linux/types.h>
++#include <linux/ip.h>
++#include <linux/netfilter.h>
++#include <linux/netfilter_ipv4.h>
++#include <linux/init.h>
++#include <linux/moduleparam.h>
++
++static int fail_hook;
++module_param(fail_hook, int, 0);
++
++#define HOOK(n) 				\
++static int init##n(void)			\
++{						\
++	printk("foo: init %u\n", n);		\
++	if (n == fail_hook)			\
++		return -EINVAL;			\
++	return 0;				\
++}						\
++static void fini##n(void)			\
++{						\
++	printk("foo: fini %u\n", n);		\
++}						\
++module_init_exit(-n, init##n, fini##n)
++
++HOOK(5);
++HOOK(1);
++HOOK(2);
++HOOK(3);
++HOOK(4);
++HOOK(6);
++
++/* Old-style... */
++int init_module(void)
++{
++	printk("foo: init module\n");
++	return 0;
++}
++
++void cleanup_module(void)
++{
++	printk("foo: cleanup module\n");
++}
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .15095-linux-2.5.73-bk1/net/ipv4/netfilter/ip_conntrack_standalone.c .15095-linux-2.5.73-bk1.updated/net/ipv4/netfilter/ip_conntrack_standalone.c
+--- .15095-linux-2.5.73-bk1/net/ipv4/netfilter/ip_conntrack_standalone.c	2003-05-05 12:37:14.000000000 +1000
++++ .15095-linux-2.5.73-bk1.updated/net/ipv4/netfilter/ip_conntrack_standalone.c	2003-06-24 12:19:07.000000000 +1000
+@@ -223,95 +223,6 @@ static unsigned int ip_conntrack_local(u
+ 	return ip_conntrack_in(hooknum, pskb, in, out, okfn);
+ }
+ 
+-/* Connection tracking may drop packets, but never alters them, so
+-   make it the first hook. */
+-static struct nf_hook_ops ip_conntrack_in_ops = {
+-	.hook		= ip_conntrack_in,
+-	.owner		= THIS_MODULE,
+-	.pf		= PF_INET,
+-	.hooknum	= NF_IP_PRE_ROUTING,
+-	.priority	= NF_IP_PRI_CONNTRACK,
+-};
+-
+-static struct nf_hook_ops ip_conntrack_local_out_ops = {
+-	.hook		= ip_conntrack_local,
+-	.owner		= THIS_MODULE,
+-	.pf		= PF_INET,
+-	.hooknum	= NF_IP_LOCAL_OUT,
+-	.priority	= NF_IP_PRI_CONNTRACK,
+-};
+-
+-/* Refragmenter; last chance. */
+-static struct nf_hook_ops ip_conntrack_out_ops = {
+-	.hook		= ip_refrag,
+-	.owner		= THIS_MODULE,
+-	.pf		= PF_INET,
+-	.hooknum	= NF_IP_POST_ROUTING,
+-	.priority	= NF_IP_PRI_LAST,
+-};
+-
+-static struct nf_hook_ops ip_conntrack_local_in_ops = {
+-	.hook		= ip_confirm,
+-	.owner		= THIS_MODULE,
+-	.pf		= PF_INET,
+-	.hooknum	= NF_IP_LOCAL_IN,
+-	.priority	= NF_IP_PRI_LAST-1,
+-};
+-
+-static int init_or_cleanup(int init)
+-{
+-	struct proc_dir_entry *proc;
+-	int ret = 0;
+-
+-	if (!init) goto cleanup;
+-
+-	ret = ip_conntrack_init();
+-	if (ret < 0)
+-		goto cleanup_nothing;
+-
+-	proc = proc_net_create("ip_conntrack",0,list_conntracks);
+-	if (!proc) goto cleanup_init;
+-	proc->owner = THIS_MODULE;
+-
+-	ret = nf_register_hook(&ip_conntrack_in_ops);
+-	if (ret < 0) {
+-		printk("ip_conntrack: can't register pre-routing hook.\n");
+-		goto cleanup_proc;
+-	}
+-	ret = nf_register_hook(&ip_conntrack_local_out_ops);
+-	if (ret < 0) {
+-		printk("ip_conntrack: can't register local out hook.\n");
+-		goto cleanup_inops;
+-	}
+-	ret = nf_register_hook(&ip_conntrack_out_ops);
+-	if (ret < 0) {
+-		printk("ip_conntrack: can't register post-routing hook.\n");
+-		goto cleanup_inandlocalops;
+-	}
+-	ret = nf_register_hook(&ip_conntrack_local_in_ops);
+-	if (ret < 0) {
+-		printk("ip_conntrack: can't register local in hook.\n");
+-		goto cleanup_inoutandlocalops;
+-	}
+-
+-	return ret;
+-
+- cleanup:
+-	nf_unregister_hook(&ip_conntrack_local_in_ops);
+- cleanup_inoutandlocalops:
+-	nf_unregister_hook(&ip_conntrack_out_ops);
+- cleanup_inandlocalops:
+-	nf_unregister_hook(&ip_conntrack_local_out_ops);
+- cleanup_inops:
+-	nf_unregister_hook(&ip_conntrack_in_ops);
+- cleanup_proc:
+-	proc_net_remove("ip_conntrack");
+- cleanup_init:
+-	ip_conntrack_cleanup();
+- cleanup_nothing:
+-	return ret;
+-}
+-
+ /* FIXME: Allow NULL functions and sub in pointers to generic for
+    them. --RR */
+ int ip_conntrack_protocol_register(struct ip_conntrack_protocol *proto)
+@@ -351,25 +262,26 @@ void ip_conntrack_protocol_unregister(st
+ 	ip_ct_selective_cleanup(kill_proto, &proto->proto);
+ }
+ 
+-static int __init init(void)
+-{
+-	return init_or_cleanup(1);
+-}
+-
+-static void __exit fini(void)
+-{
+-	init_or_cleanup(0);
+-}
+-
+-module_init(init);
+-module_exit(fini);
+-
+ /* Some modules need us, but don't depend directly on any symbol.
+    They should call this. */
+ void need_ip_conntrack(void)
+ {
+ }
+ 
++module_init_exit(-1, ip_conntrack_init, ip_conntrack_cleanup);
++module_proc_net(0, "ip_conntrack", list_conntracks);
++
++/* Connection tracking may drop packets, but never alters them, so
++   make it the first hook. */
++module_nf_hook(0, ip_conntrack_in, PF_INET, NF_IP_PRE_ROUTING,
++	       NF_IP_PRI_CONNTRACK);
++module_nf_hook(0, ip_conntrack_local, PF_INET, NF_IP_LOCAL_OUT,
++	       NF_IP_PRI_CONNTRACK);
++module_nf_hook(0, ip_confirm, PF_INET, NF_IP_LOCAL_IN, NF_IP_PRI_LAST-1);
++
++/* Refragmenter; last chance. */
++module_nf_hook(0, ip_refrag, PF_INET, NF_IP_POST_ROUTING, NF_IP_PRI_LAST);
++
+ EXPORT_SYMBOL(ip_conntrack_protocol_register);
+ EXPORT_SYMBOL(ip_conntrack_protocol_unregister);
+ EXPORT_SYMBOL(invert_tuplepr);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .15095-linux-2.5.73-bk1/net/ipv4/netfilter/ip_tables.c .15095-linux-2.5.73-bk1.updated/net/ipv4/netfilter/ip_tables.c
+--- .15095-linux-2.5.73-bk1/net/ipv4/netfilter/ip_tables.c	2003-05-27 15:02:26.000000000 +1000
++++ .15095-linux-2.5.73-bk1.updated/net/ipv4/netfilter/ip_tables.c	2003-06-24 12:19:07.000000000 +1000
+@@ -1702,7 +1702,6 @@ static struct ipt_match icmp_matchstruct
+ 	.checkentry	= &icmp_checkentry,
+ };
+ 
+-#ifdef CONFIG_PROC_FS
+ static inline int print_name(const struct ipt_table *t,
+ 			     off_t start_offset, char *buffer, int length,
+ 			     off_t *pos, unsigned int *count)
+@@ -1737,13 +1736,13 @@ static int ipt_get_tables(char *buffer, 
+ 	*start=(char *)((unsigned long)count-offset);
+ 	return pos;
+ }
+-#endif /*CONFIG_PROC_FS*/
++
++module_proc_net(-1, "ip_tables_names", ipt_get_tables);
+ 
+ static int __init init(void)
+ {
+ 	int ret;
+ 
+-	/* Noone else will be downing sem now, so we won't sleep */
+ 	down(&ipt_mutex);
+ 	list_append(&ipt_target, &ipt_standard_target);
+ 	list_append(&ipt_target, &ipt_error_target);
+@@ -1759,19 +1758,6 @@ static int __init init(void)
+ 		return ret;
+ 	}
+ 
+-#ifdef CONFIG_PROC_FS
+-	{
+-	struct proc_dir_entry *proc;
+-
+-	proc = proc_net_create("ip_tables_names", 0, ipt_get_tables);
+-	if (!proc) {
+-		nf_unregister_sockopt(&ipt_sockopts);
+-		return -ENOMEM;
+-	}
+-	proc->owner = THIS_MODULE;
+-	}
+-#endif
+-
+ 	printk("ip_tables: (C) 2000-2002 Netfilter core team\n");
+ 	return 0;
+ }
+@@ -1779,9 +1765,6 @@ static int __init init(void)
+ static void __exit fini(void)
+ {
+ 	nf_unregister_sockopt(&ipt_sockopts);
+-#ifdef CONFIG_PROC_FS
+-	proc_net_remove("ip_tables_names");
+-#endif
+ }
+ 
+ EXPORT_SYMBOL(ipt_register_table);

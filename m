@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263047AbVAFVin@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263039AbVAFVnu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263047AbVAFVin (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 16:38:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263039AbVAFVgy
+	id S263039AbVAFVnu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 16:43:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263017AbVAFVmD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 16:36:54 -0500
-Received: from mail.gadugi.org ([69.155.252.3]:8066 "EHLO mail.gadugi.org")
-	by vger.kernel.org with ESMTP id S263001AbVAFVeY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 16:34:24 -0500
-Date: Thu, 6 Jan 2005 15:32:21 -0600
-From: root <root@mail.gadugi.org>
-To: Stephen Pollei <stephen_pollei@comcast.net>
-Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-Subject: Re: OT Re: Cherokee Nation Posts Open Source Legisation
-Message-ID: <20050106213221.GA12866@mail.gadugi.org>
-References: <20050106180414.GA11597@mail.gadugi.org> <200501061836.j06IakHo030551@turing-police.cc.vt.edu> <20050106183725.GA12028@mail.gadugi.org> <200501061935.j06JZMq4013855@turing-police.cc.vt.edu> <1105043496.970.49.camel@fury>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1105043496.970.49.camel@fury>
-User-Agent: Mutt/1.4.1i
+	Thu, 6 Jan 2005 16:42:03 -0500
+Received: from out011pub.verizon.net ([206.46.170.135]:16561 "EHLO
+	out011.verizon.net") by vger.kernel.org with ESMTP id S263001AbVAFVjk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 16:39:40 -0500
+Message-ID: <41DDB02C.1030205@cwazy.co.uk>
+Date: Thu, 06 Jan 2005 16:39:56 -0500
+From: Jim Nelson <james4765@cwazy.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Norbert van Nobelen <Norbert@edusupport.nl>,
+       Raphael Jacquot <raphael.jacquot@imag.fr>, linux-kernel@vger.kernel.org
+Subject: Re: Open hardware wireless cards
+References: <20050105200526.GL5159@ruslug.rutgers.edu>	 <20050106172438.GT5159@ruslug.rutgers.edu> <41DD8D71.7000708@imag.fr>	 <200501062032.13513.Norbert@edusupport.nl> <1105045205.15823.4.camel@krustophenia.net>
+In-Reply-To: <1105045205.15823.4.camel@krustophenia.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [209.158.220.243] at Thu, 6 Jan 2005 15:39:36 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > proper means by, the public; and
-> Seems word-for-word the same. And I would think that an Free or Open
-> source licensed work that is published would be "generally known to" and
-> "readily ascertainable".
-> > 
-> > You'll have a hard time convincing a jury not on the reservation that publishing
-> > something as open source is at all a "reasonable measure to keep it secret".
-> >
+Lee Revell wrote:
+> On Thu, 2005-01-06 at 20:32 +0100, Norbert van Nobelen wrote:
+> 
+>>100mWatt antenna (-: Gives 4 mile range (-:
+>>Make it USB powered (-: (so that the pcmcia card does not overheat!!)
+> 
+> 
+> Ah, this reminds me, isn't there some kind of issue with open source
+> wireless and FCC (or whatever your local equivalent is) regulations?  Or
+> was that just an excuse the vendors used for their closed source
+> drivers?
+> 
+> Lee
+> 
 
-If the license says the receipient of a piece of code must acknowledge 
-and protect the trade secrets it contains, then it's enforceable.  We trump
-state courts on the grounds of sovereinty, so a state court isn't able 
-to reverse one of our courts unless there's a question of Federal Law.
+A little of both, methinks.  Most vendors build their hardware to the most 
+powerful that any law (or engineering limits) will allow.  They then use 
+country-specific drivers to keep tha hardware operating within legal limits.
 
-The Federal Courts can in vary narrow areas reverese our courts, but since
-this license represents a consentual commerical transaction with an 
-Indian Nation, most folks will have to appeal to the US supreme court 
-to get this reversed -- the Federal Courts are bound by the constitutional
-provisions regarding sovereignty.  Makes Open Source code very easy to protect
-in state courts under existing Trade Secrete law, and yes, this is 
-a modified version of the Uniform Trade Secrets Act.  Please note 
-the use of the word "individual" in the test.  
-
-
-The comments from folks are very good an helpful.
-
-
-
+Open-source drivers would make it trivial to make the hardware operate beyond its 
+legal limits - and could potentially land them in trouble with the FCC/whatever. 
+IANAL, but I'm pretty sure that there hasn't been a case of open-source wireless 
+drivers tweaked beyond the legal limits landing someone with a fine.

@@ -1,50 +1,116 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129868AbQKMBZD>; Sun, 12 Nov 2000 20:25:03 -0500
+	id <S129103AbQKMCT7>; Sun, 12 Nov 2000 21:19:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129165AbQKMBYy>; Sun, 12 Nov 2000 20:24:54 -0500
-Received: from jalon.able.es ([212.97.163.2]:60318 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129915AbQKMBYj>;
-	Sun, 12 Nov 2000 20:24:39 -0500
-Date: Mon, 13 Nov 2000 02:24:32 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.2.x-BUG(?) memmory not detected
-Message-ID: <20001113022432.C886@werewolf.able.es>
-Reply-To: jamagallon@able.es
-In-Reply-To: <5.0.0.25.2.20001113002439.0572d070@pop.cus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <5.0.0.25.2.20001113002439.0572d070@pop.cus.cam.ac.uk>; from aia21@cam.ac.uk on Mon, Nov 13, 2000 at 01:43:44 +0100
-X-Mailer: Balsa 1.0.pre5
+	id <S129145AbQKMCTu>; Sun, 12 Nov 2000 21:19:50 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:17163 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S129103AbQKMCTq>; Sun, 12 Nov 2000 21:19:46 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: "Ying Chen/Almaden/IBM" <ying@almaden.ibm.com>
+Date: Mon, 13 Nov 2000 13:19:19 +1100 (EST)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14863.20391.109936.97487@notabene.cse.unsw.edu.au>
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [patch] nfsd optimizations for test10 (recoded to use list_head)
+In-Reply-To: message from Ying Chen/Almaden/IBM on Sunday November 12
+In-Reply-To: <OFEBB493A2.95975790-ON88256996.0006B37E@LocalDomain>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 13 Nov 2000 01:43:44 Anton Altaparmakov wrote:
+On Sunday November 12, ying@almaden.ibm.com wrote:
+> 
 > Hi,
 > 
-> Just noticed that both 2.2.18pre21 and RedHat-7.0-patched-2.2.16 kernels 
-> only detect 64Mb out of 192Mb RAM on my Dual Celeron/Intel 440GX chipset 
-> based workstation. - I haven't tried any other 2.2 kernels on that 
-> particular PC so maybe this is a general 2.2.x thing.
-> 
-> The setup is one 64Mb SDRAM and one 128Mb SDRAM so it would seem that the 
-> 128Mb one is not detected at all.
-> 
-> All 2.3/2.4 kernels I have tried have always detected the full 192Mb RAM.
-> 
+> This is the recoded racache that uses list_head for several lists, e.g.,
+> lru and free lists. I have tested it under SPEC SFS runs, and several other
+> NFS loads myself.
 
-It's a bug, but in the mobo. Some motherboards lie about its installed ram.
-2.3+ kernels have a workaround for detection, but in 2.2 you still have
-to manually add <append="mem=128M"> in your lilo.conf file.
+Ok, I have taken a closer look at this code:
 
--- 
-Juan Antonio Magallon Lacarta                                 #> cd /pub
-mailto:jamagallon@able.es                                     #> more beer
+1/ Why did you change nfsd_busy into an atomic_t?  It is only ever
+   used or updated inside the Big-Kernel-Lock, so it doesn't need
+   to be atomic.
 
+2/ Your new nfsd_racache_init always allocates a new cache, were as
+   the current one checks first to see if it has already been
+   allocated.
+   This is important because it is quite legal to run "rpc.nfsd"
+   multiple times.  Subsequent invocations serve to change the number
+   of nfsd threads running.
+
+3/ You currently allocate a single slab of memory for all of the
+   "struct raparms".  Admittedly this is what the old code did, but I
+   don't think that it is really necessary, and calling kmalloc
+   multiple times would work just a well and would (arguably) be
+   clearer.
+
+4/ small point:  you added a hash table as the comment suggests might
+   be needed, but you didn't change the comment accordingly:-)
+
+5/ the calls to spin_lock/spin_unlock in nfsd_racache_init seem
+   pointless. At this point, nothing else could possibly be accessing
+   the racache, and if it was you would have even bigger problems.
+   ditto for nfsd_racache_shutdown
+  
+6/ The lru list is now a list.h list, but the hash lists aren't.  Why
+   is that?
+
+7/ The old code kept a 'use' count for each cache entry to make sure 
+   that an entry was not reused while it was in use.  You have dropped
+   this.  Now because of the lru ordering, and because each thread can
+   use at most one entry, you wont have a problem if there are more
+   cache entries than threads, and you currently have 2048 entries
+   configured which is greater than NFSD_MAXSERVS.  However I think it
+   would be best if this dependancy were made explicit.
+   Maybe the call to nfsd_racache_init should tell the racache how
+   many threads are being started, and nfsd_racache_init should record
+   how many cache entries have been alloced, and it could alloc some
+   more if needed.
+
+8/ I would like the stats collected to tell me a bit more about what
+   was going on.  If find simple hit/miss numbers nearly useless, as
+   you expect many lookups to be misses anyway (first time a file is
+   accessed) but you don't know what percentage.
+   As a first approximation, I would like to only count a miss if the
+   seek address was > 0.
+   What would be really nice would be to get stats on how long entries
+   stayed in the cache between last use and re-use.  If we stored a
+   'last-use' time in each entry, and on reuse, kept count of which
+   range the age was is:
+ 
+             0-62 msec
+             63-125 msec
+             125-250 msec
+             250-500 msec
+             500-1000 msec
+              1-2     sec
+              2-4     sec
+              4-8     sec
+              8-16    sec
+              16-32   sec
+
+   This obviously isn't critical, but it would be nice to be able
+   to see how the cache was working.
+
+
+9/ Actually, you don't need the spinlock at all, and nfsd is currently
+   all under the BigKernelLock, but it doesn't hurt to have it around
+   the nfsd_get_raparms function because we hopefully will get rid of
+   the BKL one day.
+
+NeilBrown
+
+
+
+  
+ 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265096AbTBTKAX>; Thu, 20 Feb 2003 05:00:23 -0500
+	id <S265098AbTBTKDe>; Thu, 20 Feb 2003 05:03:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265097AbTBTKAW>; Thu, 20 Feb 2003 05:00:22 -0500
-Received: from meryl.it.uu.se ([130.238.12.42]:50421 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id <S265096AbTBTKAW>;
-	Thu, 20 Feb 2003 05:00:22 -0500
-Date: Thu, 20 Feb 2003 11:10:04 +0100 (MET)
-From: Mikael Pettersson <mikpe@user.it.uu.se>
-Message-Id: <200302201010.h1KAA4dW023443@harpo.it.uu.se>
-To: perfctr-devel@lists.sourceforge.net
-Subject: perfctr-2.5.0-pre1 released
-Cc: linux-kernel@vger.kernel.org
+	id <S265099AbTBTKDd>; Thu, 20 Feb 2003 05:03:33 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:30992 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S265098AbTBTKDa>; Thu, 20 Feb 2003 05:03:30 -0500
+Date: Thu, 20 Feb 2003 11:13:07 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>, torvalds@transmeta.com
+Subject: Make UNEXPECTED_IO_APIC static
+Message-ID: <20030220101307.GA11889@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Version 2.5.0-pre1 of perfctr, the Linux/x86 performance
-monitoring counters driver, is now available at the usual
-place: http://www.csd.uu.se/~mikpe/linux/perfctr/
+Hi!
 
-This is a development snapshot. Although it should work well,
-it is not binary or API compatible with the current stable
-version (2.4.5).
+This makes it static... Because we can.
 
-Version 2.5.0-pre1, 2003-02-19
-- Fixed the driver's API to support global-mode perfctrs on 2.5
-  SMP kernels and asymmetric hyper-threaded P4 multiprocessors.
-  Updated examples/global/global.c for the new API.
-- Minor library cleanups. Updated example programs accordingly.
-- API cleanup: Removed obsolete STOP command from the driver
-  for virtual perfctrs. The library now uses CONTROL instead.
-- Proper detection and support for AMD K8 processors. They are
-  similar to the K7s, but the event sets are not identical.
-- The library's event set descriptions have been redesigned and
-  expanded to include unit mask descriptions and descriptions of
-  Intel P4 and AMD K8 events. The etc/perfctr-events.tab text file
-  has been removed since event_codes.h now is generated from the
-  library's data structures.
+							Pavel
 
-/ Mikael Pettersson
+--- clean/arch/i386/kernel/io_apic.c	2003-02-18 12:24:27.000000000 +0100
++++ linux/arch/i386/kernel/io_apic.c	2003-02-18 12:24:59.000000000 +0100
+@@ -1150,7 +1150,7 @@
+ 	enable_8259A_irq(0);
+ }
+ 
+-void __init UNEXPECTED_IO_APIC(void)
++static void __init UNEXPECTED_IO_APIC(void)
+ {
+ 	printk(KERN_WARNING "INFO: unexpected IO-APIC, please file a report at\n");
+ 	printk(KERN_WARNING "      http://bugzilla.kernel.org\n");
+
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

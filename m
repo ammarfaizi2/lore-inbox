@@ -1,81 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262337AbVCVH0K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262340AbVCVHag@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262337AbVCVH0K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 02:26:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262210AbVCVHZG
+	id S262340AbVCVHag (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 02:30:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262374AbVCVHag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 02:25:06 -0500
-Received: from 1-1-10-11a.has.sth.bostream.se ([82.182.131.18]:29912 "EHLO
-	DeepSpaceNine.stesmi.com") by vger.kernel.org with ESMTP
-	id S262263AbVCVHT6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 02:19:58 -0500
-Message-ID: <423FC706.4020407@stesmi.com>
-Date: Tue, 22 Mar 2005 08:19:34 +0100
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mws <mws@twisted-brains.org>
-CC: Pavel Machek <pavel@suse.cz>,
-       Phillip Lougher <phillip@lougher.demon.co.uk>,
-       Paulo Marques <pmarques@grupopie.com>, Andrew Morton <akpm@osdl.org>,
-       greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2/2] SquashFS
-References: <20050314170653.1ed105eb.akpm@osdl.org> <A572579D-94EF-11D9-8833-000A956F5A02@lougher.demon.co.uk> <20050314190140.5496221b.akpm@osdl.org> <423727BD.7080200@grupopie.com> <20050321101441.GA23456@elf.ucw.cz> <423EEEC2.9060102@lougher.demon.co.uk> <20050321190044.GD1390@elf.ucw.cz> <423F4B88.8020504@twisted-brains.org>
-In-Reply-To: <423F4B88.8020504@twisted-brains.org>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira Milter 1.0.7; VAE 6.29.0.5; VDF 6.29.0.100
+	Tue, 22 Mar 2005 02:30:36 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:62131 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262340AbVCVH3s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 02:29:48 -0500
+Date: Tue, 22 Mar 2005 02:29:36 -0500
+From: Dave Jones <davej@redhat.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Kenan Esau <kenan.esau@conan.de>, harald.hoyer@redhat.de,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH 1/4] Lifebook: dmi on x86 only
+Message-ID: <20050322072936.GA9802@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Dmitry Torokhov <dtor_core@ameritech.net>,
+	Kenan Esau <kenan.esau@conan.de>, harald.hoyer@redhat.de,
+	linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+	Vojtech Pavlik <vojtech@suse.cz>
+References: <20050217194217.GA2458@ucw.cz> <1111419068.8079.15.camel@localhost> <200503220213.46375.dtor_core@ameritech.net> <200503220214.55379.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503220214.55379.dtor_core@ameritech.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, Mar 22, 2005 at 02:14:55AM -0500, Dmitry Torokhov wrote:
+ > ===================================================================
+ > 
+ > Input: lifebook - DMI facility is only available on i386, do not
+ >        attempt to compile on anything else.
 
-> what do you need e.g. reiserfs 4 for? or jfs? or xfs? does not ext2/3
-> the journalling job also?
+Why would you want to build a driver for an x86 laptop on anything
+but x86 ?    Ie, why not just add a dependancy in the Kconfig
+so you don't have to add ifdefs to the code ?
 
-Ext2 does not do journaling. Ext3 does.
+		Dave
 
->> Perhaps squashfs is good enough improvement over cramfs... But I'd
->> like those 4Gb limits to go away.
->>
-> we all do - but who does really care about stupid 4Gb limits on embedded
-> systems with e.g.
-> 8 or 32 Mb maybe more of Flash Ram? really noboby
-
-Then if this filesystem is specifically targeted ONLY on embedded
-then that's reason for keeping it out-of-tree.
-
-> if you want to have a squashfs for DVD images e.g. not 4.7Gb but 
-> DualLayer ect., why do you complain?
-> you are maybe not even - nor you will be - a user of squashfs. but there
-
-But if a filesystem COULD be made to work for MORE users - why not?
-
-I'm sure that more than a few might use it in some form if such a limit
-is removed - why lock us into a corner that when we do get around
-to fixing it we need a new on-disk format and then we might have a new
-filesystem, squashfs2 or whatever.
-
-> are many people outside that use
-> squashfs on different platforms and want to have it integrated to
-> mainline kernel. so why are you blocking?
-
-I think that's because people see a potential in it that has a flaw
-that should be taken care of so that MORE people can use it, and
-not ONLY "embedded people with 8 or 32 MB".
-
-Seriously, noone's flaming here - I think what people want is
-for a limit to be removed, and that is not in my eyes a bad thing.
-
-// Stefan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (MingW32)
-
-iD8DBQFCP8cGBrn2kJu9P78RAsTnAKCfslYF0ez4Wkt5xgKs7AXXp1KlUgCgt0y/
-pX+t5HtVhQ+EvIo667XaDBA=
-=Q6RX
------END PGP SIGNATURE-----

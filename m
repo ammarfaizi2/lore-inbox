@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbVAGPUh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVAGPYK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261453AbVAGPUh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 10:20:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbVAGPUh
+	id S261454AbVAGPYK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 10:24:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261457AbVAGPYK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 10:20:37 -0500
-Received: from rproxy.gmail.com ([64.233.170.192]:65127 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261453AbVAGPUY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 10:20:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=db6m8xcy3Wo4iZOtnCdyZ3ygjl5+eLUvzlujIX10g4zdOhWRYt6OqJ1em8sITavFgciHCcLV2p+2CIFRmj6wA8piS3pnZSbLy89cfEqwn47NPeDq+ys+0TIyLWwhhgTA1eWEcIvtXFmQwLS9yjYfZZ8hW0KgenqXxiZDnUZ6dQo=
-Message-ID: <d120d50005010707204463492@mail.gmail.com>
-Date: Fri, 7 Jan 2005 10:20:22 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Roey Katz <roey@sdf.lonestar.org>
-Subject: Re: 2.6.9 & 2.6.10 unresponsive to keyboard upon bootup
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.NEB.4.61.0501071336010.23626@sdf.lonestar.org>
+	Fri, 7 Jan 2005 10:24:10 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:38405 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261454AbVAGPYG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 10:24:06 -0500
+Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
+From: Arjan van de Ven <arjan@infradead.org>
+To: paulmck@us.ibm.com
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, jtk@us.ibm.com, wtaber@us.ibm.com,
+       pbadari@us.ibm.com, markv@us.ibm.com, greghk@us.ibm.com
+In-Reply-To: <20050107151223.GA1267@us.ibm.com>
+References: <20050106190538.GB1618@us.ibm.com>
+	 <1105039259.4468.9.camel@laptopd505.fenrus.org>
+	 <20050106201531.GJ1292@us.ibm.com>
+	 <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk>
+	 <20050106210408.GM1292@us.ibm.com>
+	 <1105083213.4179.1.camel@laptopd505.fenrus.org>
+	 <20050107151223.GA1267@us.ibm.com>
+Content-Type: text/plain
+Date: Fri, 07 Jan 2005 16:23:52 +0100
+Message-Id: <1105111432.4179.31.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
-References: <Pine.NEB.4.61.0501010814490.26191@sdf.lonestar.org>
-	 <200501052316.48443.dtor_core@ameritech.net>
-	 <Pine.NEB.4.61.0501070405170.2840@sdf.lonestar.org>
-	 <200501070045.24639.dtor_core@ameritech.net>
-	 <Pine.NEB.4.61.0501071336010.23626@sdf.lonestar.org>
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, so the timeouts are here even with good version. Hmm...
 
-Ok, one thing is that in -bk3 I moved i8042 initialization earlier,
-could you try reversing the fragment below (it is cut and paste so
-patch won't work, you'll have to move that line manually). And touch
-i8042.c to force rebuild.
+> > eh maybe a weird question, but why are you and not the MVFS guys asking
+> > for this export then? They can probably better explain why they need
+> > it ....
+> 
+> As near as I can tell, they believe that they already did the best they
+> could to explain their needs and failed to do so.
+> 
 
-If this does not work try disabling psmouse - does it help with the keyboard?
+can you try to find even ONE request for these exports from them in the
+mailing list archives? Since I find that hard to believe.
 
--- 
-Dmitry
-
---- a/drivers/Makefile  2004-09-07 23:33:07 -07:00
-+++ b/drivers/Makefile  2004-09-13 03:28:52 -07:00
-@@ -16,6 +16,9 @@
- # char/ comes before serial/ etc so that the VT console is the boot-time
- # default.
- obj-y                          += char/
-+# we also need input/serio early so serio bus is initialized by the time
-+# serial drivers start registering their serio ports
-+obj-$(CONFIG_SERIO)            += input/serio/
- obj-y                          += serial/
- obj-$(CONFIG_PARPORT)          += parport/
- obj-y                          += base/ block/ misc/ net/ media/
-@@ -40,7 +43,6 @@
- obj-$(CONFIG_USB_GADGET)       += usb/gadget/
- obj-$(CONFIG_INPUT)            += input/
- obj-$(CONFIG_GAMEPORT)         += input/gameport/
--obj-$(CONFIG_SERIO)            += input/serio/
- obj-$(CONFIG_I2O)              += message/
- obj-$(CONFIG_I2C)              += i2c/
- obj-$(CONFIG_W1)               += w1/

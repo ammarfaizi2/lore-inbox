@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272282AbTHEVLh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 17:11:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272303AbTHEVLg
+	id S271969AbTHEVN3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 17:13:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271970AbTHEVN2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 17:11:36 -0400
-Received: from colin2.muc.de ([193.149.48.15]:11535 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S272282AbTHEVLQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 17:11:16 -0400
-Date: 5 Aug 2003 23:11:12 +0200
-Date: Tue, 5 Aug 2003 23:11:12 +0200
-From: Andi Kleen <ak@colin2.muc.de>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Export touch_nmi_watchdog
-Message-ID: <20030805211112.GC31598@colin2.muc.de>
-References: <20030805192908.GA19867@averell> <20030805123811.1fe61585.akpm@osdl.org> <20030805200810.GA31598@colin2.muc.de> <1060114808.5308.9.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1060114808.5308.9.camel@laptop.fenrus.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 5 Aug 2003 17:13:28 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41624 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S271969AbTHEVNY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 17:13:24 -0400
+Message-ID: <3F301DDC.2050502@pobox.com>
+Date: Tue, 05 Aug 2003 17:13:00 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] revert to static = {0}
+References: <20030805174429.GA26933@gtf.org> <Pine.LNX.4.44.0308051949130.1849-100000@localhost.localdomain> <20030805190659.GT32488@holomorphy.com>
+In-Reply-To: <20030805190659.GT32488@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> having a more generic/portable "trigger_watchdog" function would be
-> better then, such that ALL watchdogs, and not just the NMI one can hook
-> into this
+William Lee Irwin III wrote:
+> On Tue, 5 Aug 2003, Jeff Garzik wrote:
+> 
+>>>If it's const, it shouldn't be linked into anything at all... right?
+> 
+> 
+> On Tue, Aug 05, 2003 at 07:51:41PM +0100, Hugh Dickins wrote:
+> 
+>>Sorry, Jeff, I don't get your point.
+> 
+> 
+> I suspect this assumes const values will get constant folded, which I'm
+> not sure is the case, though it certainly sounds legal and worthwhile
+> for a compiler to do when reasonable (i.e. for small structures and/or
+> extractions of small fields of const structures).
 
-Well the function is already used and it's just a name. You could always
-hook other watchdogs into it too.
 
--Andi
+Correct.  In fact, some Linux kernel code _assumes_ the compiler will 
+fold constants...
+
+	Jeff
+
+
+

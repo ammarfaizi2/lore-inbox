@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270871AbTHKCRr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 22:17:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270877AbTHKCRq
+	id S270875AbTHKCik (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 22:38:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270927AbTHKCij
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 22:17:46 -0400
-Received: from adsl-216-102-91-59.dsl.snfc21.pacbell.net ([216.102.91.59]:16914
-	"EHLO nasledov.com") by vger.kernel.org with ESMTP id S270871AbTHKCRp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 22:17:45 -0400
-Date: Sun, 10 Aug 2003 19:17:50 -0700
-To: linux-kernel@vger.kernel.org
-Subject: VIA Serial ATA chipset
-Message-ID: <20030811021750.GA5077@nasledov.com>
+	Sun, 10 Aug 2003 22:38:39 -0400
+Received: from waste.org ([209.173.204.2]:19644 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S270875AbTHKCi2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 22:38:28 -0400
+Date: Sun, 10 Aug 2003 21:38:18 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+       jmorris@intercode.com.au
+Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
+Message-ID: <20030811023817.GD31810@waste.org>
+References: <20030809074459.GQ31810@waste.org> <20030809010418.3b01b2eb.davem@redhat.com> <20030809140542.GR31810@waste.org> <20030809103910.7e02037b.davem@redhat.com> <20030809194627.GV31810@waste.org> <20030809131715.17a5be2e.davem@redhat.com> <20030810081529.GX31810@waste.org> <20030811021512.GF10446@mail.jlokier.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Misha Nasledov <misha@nasledov.com>
+In-Reply-To: <20030811021512.GF10446@mail.jlokier.co.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Aug 11, 2003 at 03:15:12AM +0100, Jamie Lokier wrote:
+> Matt Mackall wrote:
+> > > > Ok, can I export some more cryptoapi primitives?
+> 
+> Why so complicated?  Just move the "sha1_transform" function to its
+> own file in lib, and call it from both drivers/char/random.c and
+> crypto/sha1.c.
+> 
+> Problem solved.
 
-I am wondering if the VIA Serial ATA chipset found with the VIA KT600
-chipset is yet supported. An lspci -v reveals:
-
-00:0f.0 RAID bus controller: VIA Technologies, Inc.: Unknown device
-3149 (rev 80)
-        Subsystem: VIA Technologies, Inc.: Unknown device 3149
-        Flags: bus master, medium devsel, latency 32, IRQ 11
-        I/O ports at 8800 [size=8]
-        I/O ports at 8400 [size=4]
-        I/O ports at 8000 [size=8]
-        I/O ports at 7800 [size=4]
-        I/O ports at 7400 [size=16]
-        I/O ports at 7000 [size=256]
-        Capabilities: [c0] Power Management version 2
+Because I can't eventually put random=sha384,aes and on the command line
+and get hardware acceleration.
 
 -- 
-Misha Nasledov
-misha@nasledov.com
-http://nasledov.com/misha/
+Matt Mackall : http://www.selenic.com : of or relating to the moon

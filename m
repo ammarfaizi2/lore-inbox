@@ -1,73 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314787AbSFJNEh>; Mon, 10 Jun 2002 09:04:37 -0400
+	id <S315300AbSFJNvw>; Mon, 10 Jun 2002 09:51:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314707AbSFJNEh>; Mon, 10 Jun 2002 09:04:37 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:16414 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S314422AbSFJNEf>; Mon, 10 Jun 2002 09:04:35 -0400
-Message-Id: <5.1.0.14.2.20020610140403.00b0bc60@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 10 Jun 2002 14:08:25 +0100
-To: Martin Dalecki <dalecki@evision-ventures.com>
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: [PATCH] 2.5.21 "I can't get no compilation"
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3D049390.40101@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S314485AbSFJNuc>; Mon, 10 Jun 2002 09:50:32 -0400
+Received: from bitshadow.namesys.com ([212.16.7.71]:24704 "EHLO namesys.com")
+	by vger.kernel.org with ESMTP id <S314748AbSFJNuN>;
+	Mon, 10 Jun 2002 09:50:13 -0400
+Date: Mon, 10 Jun 2002 17:42:56 +0400
+From: Hans Reiser <reiser@bitshadow.namesys.com>
+Message-Id: <200206101342.g5ADgu0S003878@bitshadow.namesys.com>
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        reiserfs-dev@namesys.com
+Subject: [BK] [2.5] reiserfs changeset 13 of 15 for 2.5.21
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:54 10/06/02, Martin Dalecki wrote:
->Anton Altaparmakov wrote:
->>At 12:19 10/06/02, Martin Dalecki wrote:
->>
->>>The subject says it all...
->>>
->>>Contrary to other proposed patches I realized that there is
->>>no such thing as vmalloc_dma.
->>
->>Perhaps you ought to look in mm/vmalloc.c which contains:
->>void * vmalloc_dma (unsigned long size)
->>{
->>         return __vmalloc(size, GFP_KERNEL|GFP_DMA, PAGE_KERNEL);
->>}
->>Or are you going to tell me that is a figment of my imagination?
->
->Oh I have missed the chunk which delets it there apparently, since
->*nobody* is using this.
+This is a changeset 13 out of 15.
 
-It could be used by out of kernel tree code. (Note I don't know any code 
-that does...)
+You can pull it from bk://namesys.com/bk/reiser3-linux-2.5
+Or use plain text patch at the end of this message
 
->The only place where a special
->__vmalloc setup code is used in nfs which GFP_NOFS flag added,
->but not the above. so providing vmalloc_nofs would make more
->sense then vmalloc_dma.
+    transaction replay status report, using bdevname instead of __bdevname.
 
-NTFS defines its own vmalloc_nofs (fs/ntfs/malloc.h) so if you intend to 
-add a generic vmalloc_nofs, please remove the ntfs one (or ntfs will break)...
+Chris Mason spent a lot of efforts in helping to convert this changeset to
+Linus-compatible form.
 
-btw. the ntfs definition is:
+Diffstat:
+ journal.c |    2 +-
 
-static inline void *vmalloc_nofs(unsigned long size)
-{
-         if (likely(size >> PAGE_SHIFT < num_physpages)
-                 return __vmalloc(size, GFP_NOFS | __GFP_HIGHMEM, PAGE_KERNEL);
-         return NULL;
-}
+Plaintext patch:
 
-Best regards,
-
-         Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.606   -> 1.607  
+#	fs/reiserfs/journal.c	1.48    -> 1.49   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/05/30	green@angband.namesys.com	1.607
+# journal.c:
+#   reiserfs: transaction replay status report, using bdevname instead of __bdevname.
+# --------------------------------------------
+#
+diff -Nru a/fs/reiserfs/journal.c b/fs/reiserfs/journal.c
+--- a/fs/reiserfs/journal.c	Thu May 30 18:42:28 2002
++++ b/fs/reiserfs/journal.c	Thu May 30 18:42:28 2002
+@@ -1659,7 +1659,7 @@
+ 
+   cur_dblock = SB_ONDISK_JOURNAL_1st_BLOCK(p_s_sb) ;
+   printk("reiserfs: checking transaction log (%s) for (%s)\n",
+-	 __bdevname(SB_JOURNAL_DEV(p_s_sb)), reiserfs_bdevname(p_s_sb));
++	 bdevname(SB_JOURNAL(p_s_sb)->j_dev_bd), reiserfs_bdevname(p_s_sb));
+   start = CURRENT_TIME ;
+ 
+   /* step 1, read in the journal header block.  Check the transaction it says 

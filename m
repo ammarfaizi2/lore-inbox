@@ -1,70 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbVB0Kum@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbVB0K62@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261358AbVB0Kum (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 05:50:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261372AbVB0Kul
+	id S261372AbVB0K62 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 05:58:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbVB0K62
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 05:50:41 -0500
-Received: from armagnac.ifi.unizh.ch ([130.60.75.72]:46266 "EHLO
-	albatross.madduck.net") by vger.kernel.org with ESMTP
-	id S261358AbVB0Kub (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 05:50:31 -0500
-Date: Sat, 26 Feb 2005 16:39:05 +0100
-From: martin f krafft <madduck@madduck.net>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Pavel Machek <pavel@ucw.cz>
-Subject: Re: swsusp logic error?
-Message-ID: <20050226153905.GA8108@localhost.localdomain>
-Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-	Pavel Machek <pavel@ucw.cz>
-References: <20050208203950.GA21623@cirrus.madduck.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gKMricLos+KVdGMg"
-Content-Disposition: inline
-In-Reply-To: <20050209220750.GB2065@elf.ucw.cz>
-X-OS: Debian GNU/Linux 3.1 kernel 2.6.10-wing i686
-X-Mailer: Mutt 1.5.6+20040907i (CVS)
-X-Motto: Keep the good times rollin'
-X-Subliminal-Message: debian/rules!
-X-Spamtrap: madduck.bogus@madduck.net
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 27 Feb 2005 05:58:28 -0500
+Received: from smtp1.libero.it ([193.70.192.51]:28565 "EHLO smtp1.libero.it")
+	by vger.kernel.org with ESMTP id S261372AbVB0K6Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Feb 2005 05:58:24 -0500
+Message-ID: <00e901c51cbb$45b3cac0$65071897@gtusa>
+From: "Giovanni Tusa" <gtusa@inwind.it>
+To: <linux-kernel@vger.kernel.org>
+Subject: sched_yield behavior
+Date: Sun, 27 Feb 2005 11:58:06 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
+I have a question about the sched_yield behavior of Linux O(1) scheduler,
+for RT tasks.
+By reading some documentation, I found that " ....real-time tasks are a
+special case, because
+when they want to explicitly yield the processor to other waiting processes,
+they are merely
+moved to the end of their priority list (and not inserted into the expired
+array, like conventional
+processes)."
+I have to implement an RT task with the highest priority in the system (it
+is also the only task within the
+priority list for such priority level). Moreover, it has to be a SCHED_FIFO
+task,  so that it can preempt
+SCHED_RR ones, because of its strong real-time requirements. However,
+sometimes it should relinquish the
+CPU, to give to other tasks a chance to run.
+Now, what happen if it gives up the CPU by means of the sched_yield() system
+call?
+If  I am not wrong, the scheduler will choose it again (it will be still the
+higher priority task, and the only of its priority list).
+I have to add an explicit sleep to effectively relinquish the CPU for some
+time, or the scheduler can deal with such a
+situation in another way?
 
---gKMricLos+KVdGMg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Any advice will be appreciated.
+Giovanni
 
-Sorry for the late reply, I've been strung up with work. I tried
-your suggestion on another machine, with a vanilla 2.6.10 kernel and
-a single swap device, twice the size of the physical RAM; I get
-exactly the same result. The swap device cannot be found.
 
-What to try next?
 
---=20
-martin;              (greetings from the heart of the sun.)
-  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
-=20
-invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
-spamtraps: madduck.bogus@madduck.net
-=20
-to err is human - to moo, bovine
 
---gKMricLos+KVdGMg
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFCIJgZIgvIgzMMSnURAqAdAJ0fNPAc5kKlTkxlHfKPvkmsDZ3M+QCff9Zc
-YbSJCnrxLnRGlvjzc9ZLB80=
-=Gb0o
------END PGP SIGNATURE-----
-
---gKMricLos+KVdGMg--

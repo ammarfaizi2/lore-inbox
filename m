@@ -1,51 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265597AbUBFTzJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 14:55:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265602AbUBFTzI
+	id S265268AbUBFULJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 15:11:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265473AbUBFULJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 14:55:08 -0500
-Received: from almesberger.net ([63.105.73.238]:30731 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S265597AbUBFTzD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 14:55:03 -0500
-Date: Fri, 6 Feb 2004 16:54:58 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Matthias Urlichs <smurf@smurf.noris.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VFS locking: f_pos thread-safe ?
-Message-ID: <20040206165458.D18820@almesberger.net>
-References: <402359E1.6000007@ntlworld.com> <20040206011630.42ed5de1.akpm@osdl.org> <40235DCC.2060606@ntlworld.com> <20040206013523.394d89f1.akpm@osdl.org> <pan.2004.02.06.10.19.57.885433@smurf.noris.de> <20040206111853.GE21151@parcelfarce.linux.theplanet.co.uk> <pan.2004.02.06.18.59.44.936432@smurf.noris.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <pan.2004.02.06.18.59.44.936432@smurf.noris.de>; from smurf@smurf.noris.de on Fri, Feb 06, 2004 at 07:59:45PM +0100
+	Fri, 6 Feb 2004 15:11:09 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:24461 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265268AbUBFULG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 15:11:06 -0500
+Subject: [ANNOUCE] Linux Test Project February Release
+To: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net,
+       ltp-announce@lists.sourceforge.net
+X-Mailer: Lotus Notes Release 5.0.11   July 24, 2002
+Message-ID: <OFC49F9686.104F2C5C-ON85256E32.006E9D7F-86256E32.006EDF96@us.ibm.com>
+From: Marty Ridgeway <mridge@us.ibm.com>
+Date: Fri, 6 Feb 2004 14:10:52 -0600
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 6.0.2CF2 HFB2 IGS HF12D|January
+ 21, 2004) at 02/06/2004 15:10:55
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Urlichs wrote:
-> but it's NOT AT ALL obvious to a "normal" application programmer.
+The Linux Test Project test suite <http://www.linuxtestproject.org> has
+been released. The latest version of the testsuite contains 2100+ tests
+for the Linux OS. Our web site also contains other information such as:
+test results, a Linux test tools matrix, technical papers and HowTos on
+Linux testing, and a code coverage analysis tool.
 
-It gets worse. From the same draft (perhaps someone who has the final
-version could comment ?), in the rationale for read():
+Developers from the Linux Test Project co-authored the whitepaper,
+"Putting Linux Reliability to the Test".  This article documents the
+test results and analysis of the Linux kernel and other core OS
+components, including everything from libraries and device drivers to
+file systems and networking, all under some fairly adverse conditions,
+over a period of 60 days. You can find the paper at:
+http://www.ibm.com/developerworks/linux/library/l-rel
 
-| The standard developers considered adding atomicity requirements to a
-| pipe or FIFO, but recognized that due to the nature of pipes and FIFOs
-| there could be no guarantee of atomicity of reads of {PIPE_BUF} or any
-| other size that would be an aid to applications portability.
+Release Highlights:
 
-But then
+      * Code cleanups by Erik Andersen, Glen Foster, Jay Turner, and
+        Ming Gao.
 
-| I/O is intended to be atomic to ordinary files and pipes and FIFOs.
+      * Improvements to allow tests to build and execute under more
+        environments and distributions.
 
-Now, what exactly does "intended" mean ?
+We encourage the community to post results to ltp-results@lists.sf.net,
+and patches, new tests, or comments/questions to ltp-list@lists.sf.net.
 
-Of course, in this part, they only talk about data staying together,
-not whether it can get duplicated, or effects on f_pos.
 
-- Werner
+Linux Test Project
+Linux Technology Center
+IBM Corporation
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+
+Internet E-Mail : mridge@us.ibm.com
+IBM, 11501 Burnet Rd, Austin, TX  78758
+Phone (512) 838-1356 - T/L 678-1356 - Bldg. 908/1C005
+Austin, TX.
+
+

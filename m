@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314559AbSEXRMk>; Fri, 24 May 2002 13:12:40 -0400
+	id <S317194AbSEXRaL>; Fri, 24 May 2002 13:30:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317198AbSEXRMj>; Fri, 24 May 2002 13:12:39 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:44275 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S314559AbSEXRMh>;
-	Fri, 24 May 2002 13:12:37 -0400
-Message-ID: <3CEE7445.3B45DC44@mvista.com>
-Date: Fri, 24 May 2002 10:11:33 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Emmanuel Michon <emmanuel_michon@realmagic.fr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: tasklet scheduled after end of rmmod
-In-Reply-To: <7wptzlllek.fsf@avalon.france.sdesigns.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S317198AbSEXRaK>; Fri, 24 May 2002 13:30:10 -0400
+Received: from [209.184.141.163] ([209.184.141.163]:49617 "HELO UberGeek")
+	by vger.kernel.org with SMTP id <S317194AbSEXRaJ>;
+	Fri, 24 May 2002 13:30:09 -0400
+Subject: Re: [BUG] 2.4 VM sucks. Again
+From: Austin Gonyou <austin@digitalroadkill.net>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <423360000.1022257916@flay>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 24 May 2002 12:30:05 -0500
+Message-Id: <1022261405.9617.39.camel@UberGeek>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Emmanuel Michon wrote:
+On Fri, 2002-05-24 at 11:31, Martin J. Bligh wrote:
+> >> I'm not sure exactly what Roy was doing, but we were taking a machine
+> >> with 16Gb of RAM, and reading files into the page cache - I think we built up
+> >> 8 million buffer_heads according to slabinfo ... on a P4 they're 128 bytes each,
+> >> on a P3 96 bytes.
+> > 
+> > The buffer heads one would make sense. I only test on realistic sized systems. 
 > 
-> Hi,
+> Well, it'll still waste valuable memory there too, though you may not totally kill it.
 > 
-> as far as I understand nothing prevents a scheduled tasklet to have
-> Linux jump to its routine, when the routine is in a module being
-> rmmod'd. How should I take care of this?
+> > Once you pass 4Gb there are so many problems its not worth using x86 in the
+> > long run
 > 
-> Are timers safe regarding this (I mean, we can consider the timer
-> function won't be called as soon as del_timer() has returned)?
+I assume that you mean by "not worth using x86" you're referring to say,
+degraded performance over other platforms? Well...if you talk
+price/performance, using x86 is perfect in those terms since you can buy
+more boxes and have a more fluid architecture, rather than building a
+monolithic system. Monolithic systems aren't always the best. Just look
+at Fermilab!
 
-No, but  del_timer_sync() is.  See comments in
-.../kernel/timer.c
-
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Real time sched:  http://sourceforge.net/projects/rtsched/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+> Nah, we just haven't fixed them yet ;-)
+> 
+> M.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

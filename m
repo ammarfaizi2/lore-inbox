@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264558AbUAZOtv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 09:49:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264604AbUAZOtu
+	id S265444AbUAZO4v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 09:56:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264313AbUAZO4v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 09:49:50 -0500
-Received: from hauptpostamt.charite.de ([193.175.66.220]:27352 "EHLO
-	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
-	id S264558AbUAZOtu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 09:49:50 -0500
-Date: Mon, 26 Jan 2004 15:49:47 +0100
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Subject: Boot problem with 2.6.2-rc2
-Message-ID: <20040126144947.GD6769@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Mon, 26 Jan 2004 09:56:51 -0500
+Received: from virt-216-40-198-21.ev1servers.net ([216.40.198.21]:24850 "EHLO
+	virt-216-40-198-21.ev1servers.net") by vger.kernel.org with ESMTP
+	id S264930AbUAZO4u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 09:56:50 -0500
+Date: Mon, 26 Jan 2004 08:56:33 -0600
+From: Chuck Campbell <campbell@accelinc.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: campbell@accelinc.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.2 kernel and ext3 filesystems
+Message-ID: <20040126145633.GA26983@helium.inexs.com>
+Reply-To: campbell@accelinc.com
+Mail-Followup-To: Chuck Campbell <campbell@accelinc.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040124033208.GA4830@helium.inexs.com> <20040123215848.28dac746.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20040123215848.28dac746.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-On my Toshiba Sattelite Pro 6100 I cannot boot 2.6.2-rc2. Right now
-I'm using 2.6.1-mm4, which works like a charm.
+On Fri, Jan 23, 2004 at 09:58:48PM -0800, Andrew Morton wrote:
+> Chuck Campbell <campbell@accelinc.com> wrote:
+> >
+> > Was the ext3 filesystem ever back ported to the 2.2 kernel series?
+> 
+> It was written for 2.2, and then forward-ported.
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/sct/ext3/v2.2/
 
-Booting 2.6.2-rc2 just gives me a black screen with absoulutely no
-output and no activity.
+Interesting.  I looked at the system running 2.2, and there are no ext3
+options in the running config file.  It may have been later than 2.2.22...
+
+All of this made me remember that an ext3 filesystem can be mounted as ext2, 
+so I got done what I really needed anyway.
+
+thanks for the reply,
+-chuck
 
 -- 
-Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-916
-Referat V a - Kommunikationsnetze -             AIM.  ralfpostfix

@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261934AbSKMP0U>; Wed, 13 Nov 2002 10:26:20 -0500
+	id <S261914AbSKMP3U>; Wed, 13 Nov 2002 10:29:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261996AbSKMP0U>; Wed, 13 Nov 2002 10:26:20 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17159 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261934AbSKMP0U>; Wed, 13 Nov 2002 10:26:20 -0500
-Date: Wed, 13 Nov 2002 15:33:08 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Harald Jung <jung@ecos.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cardbus card behind a pci to pci bridge
-Message-ID: <20021113153308.A27346@flint.arm.linux.org.uk>
-Mail-Followup-To: Harald Jung <jung@ecos.de>, linux-kernel@vger.kernel.org
-References: <4.3.2.7.2.20021113133414.00b53b00@mail.dns-host.com> <3DD26382.692BD476@aitel.hist.no> <200211131750.22498.jung@ecos.de>
+	id <S261963AbSKMP3U>; Wed, 13 Nov 2002 10:29:20 -0500
+Received: from kweetal.tue.nl ([131.155.2.7]:53263 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S261914AbSKMP3T>;
+	Wed, 13 Nov 2002 10:29:19 -0500
+Date: Wed, 13 Nov 2002 16:36:09 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+Cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: VFAT mount (bug or feature?)
+Message-ID: <20021113153609.GA442@win.tue.nl>
+References: <20021113014704.780a3e4a.us15@os.inf.tu-dresden.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200211131750.22498.jung@ecos.de>; from jung@ecos.de on Wed, Nov 13, 2002 at 05:50:22PM +0100
+In-Reply-To: <20021113014704.780a3e4a.us15@os.inf.tu-dresden.de>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 13, 2002 at 05:50:22PM +0100, Harald Jung wrote:
-> it seems that it isn't possible to map the memory of a pcmcia card or to
-> read from it if it is behind a pci to pci bridge.
+On Wed, Nov 13, 2002 at 01:47:04AM +0100, Udo A. Steinberg wrote:
 
-In the present state, yenta.c just can't handle this.
+> In my /etc/fstab I have the following entry:
+> 
+> /dev/hda1  /win   vfat   defaults,umask=022  1 1
+> 
+> Why does 2.5.47 have user/group restricted permissions on the mount
+> point and all its subdirectories, despite the umask setting?
 
-I've got a pile of patches which allow it to work in a similar situation
-on non-x86 platforms, but it breaks x86 (since it doesn't use the
-generic PCI resource code.)
+Yes. This is due to a somewhat buggy change in 2.5.43.
 
-Still working on it though, between doing lots of other stuff.
+(In the good old days umask had a well-defined meaning;
+today on recent 2.5 and with vfat, but not with ntfs,
+it means something else.)
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+The correct change would have been to add both dmask and fmask,
+just like ntfs did, and leave the meaning of umask alone.
 
+(I made a patch a few days ago, but have not yet found
+the time to submit it to Linus. Maybe tomorrow,
+if nobody else does it first.)
+
+Andries

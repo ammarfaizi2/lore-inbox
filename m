@@ -1,65 +1,191 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263937AbTKJQQ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 11:16:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263959AbTKJQQ0
+	id S263945AbTKJQH4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 11:07:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263946AbTKJQH4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 11:16:26 -0500
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:28151 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S263937AbTKJQQZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 11:16:25 -0500
-Content-Type: text/plain;
-  charset="CP 1252"
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: David Woodhouse <dwmw2@infradead.org>
-Subject: Re: OT: why no file copy() libc/syscall ??
-Date: Mon, 10 Nov 2003 10:15:34 -0600
-X-Mailer: KMail [version 1.2]
-Cc: "Ihar 'Philips' Filipau" <filia@softhome.net>,
-       Davide Rossetti <davide.rossetti@roma1.infn.it>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <QiyV.1k3.15@gated-at.bofh.it> <03111007291500.08768@tabby> <1068477550.5743.50.camel@hades.cambridge.redhat.com>
-In-Reply-To: <1068477550.5743.50.camel@hades.cambridge.redhat.com>
+	Mon, 10 Nov 2003 11:07:56 -0500
+Received: from [212.86.245.254] ([212.86.245.254]:27777 "EHLO umka.bear.com.ua")
+	by vger.kernel.org with ESMTP id S263945AbTKJQHu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 11:07:50 -0500
+From: Alex Lyashkov <shadow@itt.net.ru>
+Organization: Home
+To: Jan Kara <jack@suse.cz>
+Subject: Re: [BUG] journal handler reference count breaked and fs deadlocked
+Date: Mon, 10 Nov 2003 18:07:01 +0200
+User-Agent: KMail/1.4.1
+References: <200311092334.01957.shadow@itt.net.ru> <200311101348.49623.shadow@itt.net.ru> <20031110115050.GA17124@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20031110115050.GA17124@atrey.karlin.mff.cuni.cz>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Herbert Poetzl <herbert@13thfloor.at>
 MIME-Version: 1.0
-Message-Id: <03111010153401.08768@tabby>
-Content-Transfer-Encoding: 8bit
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_PR85UA0OFU6QLLYN6DYC"
+Message-Id: <200311101807.03588.shadow@itt.net.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 10 November 2003 09:19, David Woodhouse wrote:
-> On Mon, 2003-11-10 at 07:29 -0600, Jesse Pollard wrote:
-> > > > sys_fscopy(...)
+
+--------------Boundary-00=_PR85UA0OFU6QLLYN6DYC
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+
+On Monday 10 November 2003 13:50, you wrote:
+> > On Monday 10 November 2003 13:13, Jan Kara wrote:
+> > >   Hi,
+> > >
+> > >   thanks for tracking. Are you able to reproduce the problem also on
+> > > recent vanilla kernels (ie. 2.4.22)? Can you try the vanilla kernel
+> > > with the attached patch (it should fix one of possible deadlocks).
 > >
-> > It is too simple to implement in user mode.
+> > Hi Jan
+> >
+> > I can`t do it with vanila kernel, because my kernel not be exactly rh
+> > kernel.
+> >
+> > It kernel from my fork vserver project who adapted to RH kernel tree.
+> > i do stress testing and see this problems.
+> > I see you only rename function, set NO_ATIME to diskquota..
+> > and change at one point
+> > -		commit_dqblk(dquot);
+> > +		dquot->dq_sb->dq_op->write_dquot(dquot);
+> > it`s rignt ?
+> > i probe to adapted it fix to my kernel..
 >
-> Is it? Please explain the simple steps which cp(1) should take in order
-> to observe that it is being asked to duplicate a file on a file system
-> such as CIFS (or NFSv4?) which allows the client to issue a 'copy file'
-> command over the network without actually transferring the data twice,
-> and to invoke such a command.
+yes. it not problem diskquota - it problem jbd.
+i recompile kernel with quotasupport disabled but kernel locked again.
+full log jbd attached in mail.
 
-Ah. That is an optimization question, not a question of kernel/user mode.
 
-Since the error checking for source and destination both include doing
-a stat and statfs, the device information (and FS info) can both be retrieved.
+-- 
+With best regards,
+Alex
 
-And mmap doesn't require data transfer "twice" (local copy). Since that copy 
-only pagefaults (though read/write may be faster for some files - I thought
-that was true for small files that fit in cache, and large files faster via
-mmap and depends on the page size; and the tradeoff would be system
-dependant).
+--------------Boundary-00=_PR85UA0OFU6QLLYN6DYC
+Content-Type: application/x-bzip2;
+  name="log_wo_dq.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="log_wo_dq.bz2"
 
-And since both source and destination may be remote you do get to decide
-based on source and destination devices: if they are the same, and one on
-a remote node, then BOTH will be on the remote, then you get to use the
-CIFS/NFS file copy. (check the doc on "stat/statfs" for additional info).
+QlpoOTFBWSZTWaKwxswADv/fgBwQQWf/8zZ9rcu////hYDCferc23fTH0O+vLjr0APffZQfNqTOj
+556pdnwAh2fQAd0d1ABR8APqg93tpoMvfe56kAKoIIPefeOePXBvA447AxCb3HCOUp1YmYRrVQi0
+exnDMANCqAFKCihQGQACSmow9UTBBQAAAAANAAASEIJCmipoAAAAAAAAAlPJVUmieiZMjEyYEYEw
+jTCZMAEwSeqkiKNqDU9RkwQ0eoyMhgjRoAxAJqVEIj0pNMTNlT1B6gAAAHoQAApSImhDSEGqPQIT
+1PUAGageppoyGmnkC94Jf1/2TeFfljG9ZrRmMzHMxa9DvPbXhXgsVG/1Vvxa3kt/bhx/tXGb4z7b
+tZewv8BcR+mK6F7fz7+lN2d5+ltLyduT3nJ6rs5266r0eeFFJkr8GhZJC6eGucsDXO+MqVh4EVnZ
+vRCSBTUSvs4rLdlrk7l5lusm6bol5dbj1crW+Y95zyrQ6tlYXfmne3Szyt3lldNuaPNnbond/ltR
+H44IAAAAQAAPKG3ju3bsG22222223Wta1rWrbbbbta1rWtzmab9MjX4f4c/EKdMtyd7zPb9X6u71
+erQP5j431j4vLPqNpO2IzBWZUhmI2CVtsNirpkpxpSuLV9bKfGQOMgcGQ4ytMN5JMxF6ymYpZiGx
+cz6PnPo2Pph1vUyaiSNsVDD40U6C87Y7IDoZGNjabbfObu0zJBgyRCp0x+2Q/H299WLBsR7kXWvf
+3ltMbYKb/H2rKr3oFYeoiNDYkH+FERIIPPPKtQry9/F7xRtwx/eIhjf1AoefRDGm1kwo65kG/uzG
+utQaIw06ajRy7qP0y7hkJTPyahbSabbY22i06qfXcuzGY/AabG/wyM1qejUS8YFs/K95SDhxzTgx
+MhFTh59hW0jTTbajaIashsqmrWthSxrGStf9atzIoqq3lsu/KF6tXGitpKttqLMI2CZimYlmBrKq
+13RXfGPWuO3lszWNY3y2IbZYrjr40zAO2Be+SumU4wnOL14HXK7YcWVY0rYgKhEAuO2gtpBTpiEs
+Dyw1UaST+2QOM6zx+NKMVZvlDZALq+lWJDMa0xKlcK0ZiEkKfAvINxtqDajpl2V5mtd93a4u6hJ4
+unSnS6i3xqsgqaS1Lxg08jjTbbG8LLq48x42SkFuPAlDkbduyCbcY8cOkVQIItLL84Gg6bQJc42k
+HWuNNpt6vtiLHN70MSvrW2tsM9labKSYgBtK8bbYt/WC0rB4S7J3U1ZqvbpGnGwZcnt+2GO988sY
+FyCoIQTK28yWb1HokkfJp3ppDFtl3YqIs1aEOmx2I003jjvjWkqYz06psT6+2VcqKDT29FBoabBN
+pavh7hzXKg8rVEdl7KKKKLsgmvj85YtWG5QitvT06fHgADRTRpn0wCmjbS8qqFBo4bFEVIxMTdQQ
+VRzINr4zx5og20Egj4A2kFtbaXzKzKbw04asy8Z2xMy6yfv67iB2+zfntdxntEXxxpSIKsrHBJAg
+LISFUhCA5pJNabGLabVmfLSIvhqe6vef1RwOBaIvwSS/JX/mplqhaB/QLkyJDdbcMpbqgsr+/m2u
+OmSs1HSRU4uBXAU4uCNC1osyLiHCXZ/4lLmuaXZRDA7OxmMx0tpcUX7MJqtapZW5uNVsQM0y0lhp
+OeUunXTkmGB0LKYSVMsFlci41S2LhgtHFTKNCw/bFwo7gSBBAEEEAQBAEEQBEYjGa2bXUDpWFJ1U
+qphc8yuaRmStxb3VsMxBuLdurRspzyOCp76/CJ6aUivk93y+fzdvr+fh2vTf6d+/O+W+e+vNRTjC
+Eb5/jsW8FmVL4qX6H0FsCp9YgrJ+CWLVKWqslpZIFotCtWKUs1CsrDMAzQ0rba21d9ttra53IAAA
+AAAANrSqrc2rNq3h7HrebXTTXS1tW222223SiQEpIUpIsSEESCUrXFxsaimTnM5XLFSSOOUbVMk2
+JLnLmNJBFizLJpm1IvBuVMxJjxXEeE54V5B7wiRx2jaREEXQRjRquUOKufAnhccC8vScE93LVex8
+i/VS9FA9AVPwqWiRNQocK5lUpoyRDu9/Xn5zjtU4KhMKr2P+UKyyJbKMsQsyDMKsEDRXeLz+H55m
+2tbbbdK6VWpDzyChc1dapDVFDg+5/eL5pdKzkf4D+AgbAvsL2FzQ8RPNVSnoOVhZBK5Knap5R1Sv
+btttgAAAEFXe27VWVb7ZQ0V+pLZUen28/js2w/L8udr7387MyxhmX2i/0KiJlRDAkh+mkkP9I9Fb
+fb5rX6ZpwusoeFy3ZXshd+2Xst673fM3u6rRdZb5j3UNOOsjuVWYNnZINg98s33erab2Pjqm9S7j
+WTKOya127us7C3l25bfNPV0t5Vcq84aLZCMqOlCI205AuynNl7xZxxnXqUVVSnXKKrHTrJWs063H
+CawJoi7k5DrWjj1tmDszOcDbq6NO4X28GUNQ5KGYaWENWFcnazeb1ezcDVbMGwQwg4nhHlZdXLb1
+kV9cMuZY+b0Y9HZRtxNu3TCho7sDA0qwMGwYuBhwLXAzR00WKJmI2khdCKrk4Gxg0O87lUpuF3Fs
+XcLdTqpkLQuwspdyaFwLx3oWKguZInakOlaKHQvFLdFwlxS0HJUeFopZaVtS1pUxhbS2BJ4gQgP9
+wAQkhPV+TOY3dcfO+TYx65263qtXyt49HM3zr7M7KmdoABJGzDvCwyoxjGMYxjGxjGMYxjICiEkh
+I725AuodJL1UdbOLXSRd3pl53vIrcs5wzsLrMrWUOmzJ2+53JMqnzahW3HTI5CFwqo5Zjt3CEvIW
+U4XTje+Tldc1WOnx8zt8GMZ2E45j0X283mrTbslPTL0+60Vru97OMzmq3WuTeU9wpbhN7rlXOaDn
+KrhcdObx2Q1LjkG2TI7Ux1kpSUzWm8etS26zlmjOauumsm9ZvRzVFJlb7tceb3dXjbp9fbvebudu
+ozDQ95nNGY+5dPtaHbvG9W2SGSF8eF2qHjO61VQprL3pu7vl53ZR13rfCA43zNvWZvbXezRNzrvu
+STMzHVzXNUzTos5jbqbJO1+agVZnnfPXfnxxxx1x15Por+NLVC+apfvAvWGW1TZSj0xVcTYvu1Kq
+wkv5qnIk/oF9xfpEEYFiiHei0TKXcQMS0FoqlMFgsqGwKm6WqmzQapIIR+AAhCBXpALblv38eHDl
+y4Ntt2bbb73vNoAQvuCnjf/Eh0YOa7+u3WXJzz8+m5UEEEi+6htYOhTSZkgBCRdk7naMaZSxKc0q
+nrQHiY/dNOhdF9hnzlSiPcjY+SJlSMdMGSVbbg/vLKMpSlX2fSuyadsjCDTYnz75mYMbQhjGnk3r
+5q9TyecZ+rmmQy6G71fy5Y8hVeS7fmFW4TdUo6Gy8vl1kLadOVU8iusyDbZV0UNg2SJHnLpR3zzv
+q9/jfGkk30cLZJ71XPv3Uv1yG+Q1883RZuQNsI1LufLy89N1ZocGNvcpiPoZOQXnreDZaOxe69b1
+hcI9Tzd1vWu5m571VjYSw0mVy6uyDy5Xt/GXrxR+OAM47fl9Kk2XSu/OFlV9fPt619DPedpGsuoO
+qg/qgjknzft0e2bxXQ96x5JAhu4+ZXkgpQaZRdfnFTExunjleY57akiUFs8J611vQK/G5CVHREVI
+wcrgU7zfRjHA22aWwem3rblPwpXV/ftt1339eYu+fT6t2HPZ7XSe9tbX73nKEhHpoYwHm752EKIx
+uiDkaqpGRcXI8qk7ohIjTI9jZ7ddZ662TdiJeF6djI1yDtPZbtckghpGLdp6LXLu2u3Ioc9NdTBo
+ZtphFz2NjD1udozxjF1ppNJRSmnokjdRKWt2atblHk27GEFEUVB5NPPWiDJqEuhoUrtGnECrcSSq
+8iOEuUni5zCLtsMkjW2R06Iw9mLZXCDQbtlyaLD2iz3dJ3K6kOCQO3ZBeyuA1iIKsVblzdK5dN06
+J7pMgSSZCeUOycRnueUx0sa3Fpurq5EBWm0RWcsXGOTZCtrVZUtMWNdmemTMESJktDaFU5eycZFA
+gyCzxIoLkJ7lFwRsoIZIqJC3ZexobJhnlbqrIzEK9pYeHiw91tru44NwBw8Qc7hpKbJuNpWehbtc
+Gcab1resVUmOkkbr20McZGMG3dSmKXVNsGXGoXAUAUwFE55YVxg2JGu26yMkkmUJKrHsp4PKqXYv
+qnB9Yr28q8oniLSgz28agFdSPmhh4gXmwtfUOoPPsvl6K6Ph83peHpek9AeK8d18+qO718DXo8A9
+R0p5veVLfBebL5TvFYMSpmIQXxgZjC8V4pQTwSJorghGLMKPjy3XXxdXu9C+Hy9L2XpPQHdddL16
+R6eviNee7l4dcOd57dccdvSalXonek8DtUpcC+ScDzVL2u5XshPBcSverbwp6jyF56j3dzyjy+J8
+L0K+D5nqnqnonqVXRdOi+XwQfA+HsQTnpj8XA9HwR9h4+NOqZ6ot2S5BQYnV3Yr+4aR9jTAxHobQ
+fSYG2sGzvezLOLRZV29dQS48X0ZmasrjKZrmYq0VYxikI22bKTbMjWVttVqZC2rpU8aFNChACFaL
+U0d+U5201utQimVK5U2QkgWo1wfQWtFlR8DUSHkNDb6cVQXlRDn6TmcVyGGv+/h7c+JrWZrUkoKY
+IKZTFTSEivez+z+//LeucASQtiPcXuLkXNL4/EkTChql2784Mo5bTSxyE4yKvpfTl2EZblOMjHDK
+jpJ2yiyUXGrhN75IGMB/lODbNCi6XW5wrnRpWaxNFacpwxmE4XBoXn8dHBZEhzVBZXTDzrA99jgw
+OMihYys6i17VLWpxZJxgzLPYGMoe/bi4K7dtpbx4Ka1SSdisqlkaDTnnVRvxzJsrIlMlDhYrvMFh
+S+kKh22LQs13VWg1aiJgWQmKWhZNQZDJC0XObl1lStbyGlJ5YwymWhllHxIh4F4KaKI3U18e+NYz
+NMx3gTqpI2XVQ1IJIWXWeCwXEWxIbGZMzMO1SweKWRIa328994xt05mNHAhyiVtuUDVEcbcLJuyP
+MjQ3Zlw666PxGPyWazGLVk7ZG7G7JoYzS0potR1cMmo+NKIcyhnDGZWYvAML5SVMW8Zkbgyr4Uwl
+jKXyGCdpGRsMYmKga5NVW1GGb544MBxWaRwBUkl7u6aiKRyCSi/1+YAvl0NNNySRkzy5iavKPtX0
+aaYFEhIMTYSRKSQchI2yDFBHsCgFpAmkj0gF8SSF0EqEJ05xsw6rb7IHE2yqRGyMHTpspSbWnZdu
+NtECK9bk4g9tDdXrK0yswmZR0daSnHC0ka0tUJpqms44xmaRop+fX18ewZ7i7m4bdbugcIdDcrUN
+1Uetst7STVqWqt3m2LdV2qeuXFHAFGhSpgtIZSoy9RHHFrdrWrtu3jPNcw5y5Nixi2Bis4pdToLw
+BU7SKZXoqKuEK7QVgXfUo8cRS58Ph8u3MYUU3VVWM58jkEPBBCgqqi/193vMer3PTAYxtCaYNiGb
+QhIEYVjGYeBvBP2pE11qU4iXdLrFbE8jGmzm3yT6Rxr6SGJKkxOoKDEmxJ5sWg1sbGyVkopKSo1k
+irGraWhts01jaMjKwWWZkzIJhMsxpsLpddZ7Y81GDiaWmZUeQ8ZqoplLi70rcocqOMzS1C5nPHCu
+B7fzdfAdcjaLai1u3arpU51h0qcC64q5xLXSuOZU4Gxu554VrJciNJK4JCSAxJE9+DHAckjccvjH
+dXxFVyOo595bccdl1VDpUiooNjYxMVBY0xltMkTd3blQIyyi1QroEkhIaQCqNMw4cHqdoIxhGQlU
+jsjGMLImm97b3qDbBtAMNADA7UXFYWrItVrtbUdMh/Hd9+Di5cImCzhHt0bSYjOEe3WcI9iM2IRy
+Qj27iM4R7d1nCPbozhEwWcI9iM4RNxZwj2CM4RMRnCJONnCPYKUTMIm4LOEe3dGciYs5HsdGciJM
+j2Os5HsRnImCM5Ht1HiF76FO2VHsLxF53RT3tWqnKdaJNZKHCnFC3pm6kqdvbnmq54nY7UtxAyp2
+BrjildcvfjY24DkkkemWCqQLqCcqxjGMbHxnaqoq5FZaghdSRv5NctM0dLTXkJGmNrRIJpphmakl
+/REhsbSbQkfkajVVsS4m2ti1iuNTtXTiCdKcLUqWqaG9tZUpbU1L2nERPHYNUypa0Wsa5Gq9/NHu
+LVTlLi3yaG1GKTT3M3jY4q41OhcTnNx3w7okN888LuBU61N+eTcNYLjIWs771PznxPO2LJmZYzKV
+MC8Yi80lTwOch4+NmxkkjZ6JvOZrBhpiSoABJFJISAdPTL0aM4VQ6qFA2MToqUPNvUoDf4Y+Nojd
+DClSUCKCooChUCgijoMGs7iyfmCsr1nZetK1l1jrQ1HtkzB2S7lUpqYOBgZFqXvMraGDkw7cxaV3
+9anUQK/TvRR03BWh67xeJazMzea58+u3WZrxLgCgUgWxKkgVgDr1W/fmcYy+jSb5p1SGHbKZdipv
+RqCOg2a+cSDmTm06bY7ZVqyrWk5z1YXGqdc1FjcEWqrjLNxY1oszWqjRmZat6pvJvKkam9puZ4F1
+1RmI6ZphGvB41WqXelo7JGF3yOYsVOwyOOcZVQdgqKa6kl3aaYNjbTb9SVO7l4c5GdYRm7lDVsGx
+kgVFdQBoLZBpg0FAMiapyXTGWmiDStDBEAWtN+u1TGeHjTRmyjyqg7C4t0je289r7gNttefHDxJ4
+x79p0mViZGEytkidsK7BkQO1tNN3mha2eZo9uZENcKz2iBX66l9Co/hAskloUxZWpo1sVitSmhMG
+RixahqVbhVK80spYGokPrS/kL+kX9dSwEL9ZU5UToU6KgO1c1TxJV+2vMqdUSS09UsGBisTFMKZM
+GKpYol1hNFlTS1LVarKNKNZo1GlLUpYtTCyMWG1i0SpWVs1WGpqJKalqI0zTUao01WZaamq0aStK
+qlVU2axLKxNqaxjDMYMRtEq2llEaEDQ/eOqXicqKGqXsU5cjF4VsWFDgN0L7H18SovWfGZjCIJIJ
+MEkEkEkEEkBJBJBBJG1ttbEn8gn5fnFF7xReNR/dlSU/qTJUr6amJ9Ok/F1v6X/v8d+1S+AKn4hk
+/KVSmfSk/+Buqp+rALgUqZ/Ghdg1Qv2CBkhLD/sBU7KKGw/kmKpkDKjCYgwpksGQUsoTUrVNDUtV
+arElpRlmktRohqUsLU1JkaTDNZVaLUtTIpqsi1NTJZTay1MmpMrTUlqjRqtVlpWposVirCYBYAwm
+FljEYma1RkrTVmtJiu1Sqv9KXBpUF2B3F+2qXtRd5VJc1NwVXRfwJyoRzFFX2hMKBsMAqbFg5F/n
+wjMFmCsfw6ofwnMKlqE/1fAFT4qKUd5ElcohbD+1SppRD6xRC/CpaqaB8hexBF8S4exCWoVllqQs
+KWpY0mTNorFazVSaVMbJNFosW2AxG1FJaqKUdB/aIHRURwBvTrW1V8W3poi0caKv1q6WjVrVNRWQ
+2xtm4rBttrcKyVs2bqatVb3vf+yIFfaJ+Pye4n+JT6zYpU/kCVL846/3Yz8LVqTFBEQhcnLcgjw1
+SDcDEVzNzc5ZLnOtNKK/HJikkWxURRsUbRESoVtGgktMRqlrZOttlbrVuwGwbLYtgba1qVbFsLcq
+t416/w7/14yhlAMqMBDLJfB4UP81OejKTJpCtWhMrEkHJV03kgi5Ai4gc/HVULzKr518SCLigReV
+VQuztyvWJ2XuqXtE790Kuo22ubWuVrFBREUUURoooiiJVVZqyttra6hYVqoh+sW57khDxlEjQskS
+V+wT/ruZwsGspjS1aMY0tVaNFh7kf2C+wK1Oyo84l+geqF5Pc5oWlQX9JVOpe2w+YkNymCByHapf
+TBA1FUnxUQ2SKXvxSEOKl9guFL+4ZlSlP2i+wvlMFiZUPCiGRGj6RBX/4dhdotCQ4EDZJUyr2Y/b
+jWJrTVa1aRp6/TJqFQ+ur8YxqsytNKw9Yoq8YEXhUBqVF96DKS9gKmkFTRXAti5KH7ipSvpJbFtT
+SSD8MhH9APAeCqlNj5qIfuoPrQbqV+yi8iBlURedS4+CTCL1VPVVULxEfeKlT2RC+YtHRQ8wFD/6
+pKvRUVewJ9UnzS76W0N8dGfr/PikqcBfmURikX4Iqp+ul9RSp7Uip+oyJDjB+pKiXvSaF8nIFTDV
+KqXufwoXqbql9wsqUOxFXviBNEQ2BZFooSuKl91FD6g/JNUL70v3i62I7H5iB6JE1gkOqqlPNSyp
+2D90IPYQOao7iUo+Reygq/WoodHcfpET9wsSSwMUqsKHYpVMK7VEOAlXtFKuxR3KVoSS7iaqiL0g
+ehPiAoeFE8iBygcVLciHiqMJH0DSiFZBFqIO0apO9KKXzQ5UlToKHFS+4uqqlNVPxE4pPy8DQgcA
++EQuVH0JYsiEcyqRyOhqL8CRNVENInQZUFXvlUKmgeoohfQHNBuAF5akonUT5KOYKk4yko8C4qVK
+NC+5WVLmLlXgCp8ie58hhkUD6+aXFJ+BVI+1UfsgKHCvoOyko9wiK9YnTyFQ6wnWgi4qedIqaCwc
+B+IPIvcXZRDoXRX80UQuhA9DySJ9Ch9AqrCK6C5Avmpdov2JsX3qXVS+gsKpT8UqYLCmjCoPYvqC
+iK4qXKIp2F9Rdp81EPtIhuqXAyiylBfmSVNJKTeUl2HIvuUqn3ED6xRC7D7VL+NS/xF3C7FRHvAV
+ci+P+IslPmohhQylgti+wFT12SUPvUUo5F3AuBH1mwKnIyi1U3SyAjUTUVWza3K23hV5676teLEU
+RFFFEWKKIoNvKreFW5q12wC4FwLQtFYgMqWSq/yhQyk5O1F96W1BiihhQNgVPMVSxELpRDmikYLU
+XApU4F9RA0TRE9lFD2oXwd4nil7iUo6K5F+GK5ipX3FtRDYLAkh3qUuaiHNL2O8BVpX8gxYP8kqf
+cUqfJXYoeReChguhOIkkvFUQ5SSo4FyGKVOCRNClTRNwofs9yqU9QFX9X/8XckU4UJCisMbM
 
-I don't believe it works when source and destination are on DIFFERENT remote
-nodes, though.
-
-Strictly up to the implementation of cp/mv.
-
-Though you will loose portability of cp/mv. (Of course, you also loose
-it with a syscall for file copy too; as well as the MUCH more complicated
-implementation/security checks).
+--------------Boundary-00=_PR85UA0OFU6QLLYN6DYC--

@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315266AbSDWRAe>; Tue, 23 Apr 2002 13:00:34 -0400
+	id <S315262AbSDWRCT>; Tue, 23 Apr 2002 13:02:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315270AbSDWRAd>; Tue, 23 Apr 2002 13:00:33 -0400
-Received: from mg03.austin.ibm.com ([192.35.232.20]:24248 "EHLO
-	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S315266AbSDWRAc>; Tue, 23 Apr 2002 13:00:32 -0400
-Message-ID: <3CC591AA.3561D419@austin.ibm.com>
-Date: Tue, 23 Apr 2002 11:54:02 -0500
-From: James L Peterson <peterson@austin.ibm.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-31 i686)
-X-Accept-Language: en
+	id <S315263AbSDWRCS>; Tue, 23 Apr 2002 13:02:18 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:33554 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S315262AbSDWRCN>; Tue, 23 Apr 2002 13:02:13 -0400
+Date: Tue, 23 Apr 2002 14:01:54 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Larry McVoy <lm@bitmover.com>, Jeff Garzik <garzik@havoc.gtf.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
+In-Reply-To: <Pine.LNX.4.21.0204231801080.22075-100000@serv>
+Message-ID: <Pine.LNX.4.44L.0204231401140.7447-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: paulus@samba.org, anton@au.ibm.com, mj@suse.cz,
-        linux-kernel@vger.kernel.org
-Subject: Re: PowerPC Linux and PCI
-In-Reply-To: <15553.12447.849592.261245@argo.ozlabs.ibm.com>
-		<3CC41AC6.BD8E32E4@austin.ibm.com>
-		<15557.5295.921549.964163@argo.ozlabs.ibm.com> <20020423.011432.86512016.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What does this mean?  This suggests that PCI controller for
-big-endian systems are not interchangable with PCI controllers
-for little-endian systems, because the controller itself does
-byte swapping (is that what you mean by "byte twisting"?)
-
-jim
-
-
-
-"David S. Miller" wrote:
-
-> An important point to mention is that big endian systems need to do
-> byte twisting in the PCI controller for all the byte-lane issues to
-> work out properly.
+On Tue, 23 Apr 2002, Roman Zippel wrote:
+> On Tue, 23 Apr 2002, Larry McVoy wrote:
 >
+> > > > You're missing the point.  Most of the people here do exactly what I do,
+> > > > they work on something else in order to be able to contribute to Linux.
+> > >
+> > > Then you should ask yourself, why you are doing it.
+> >
+> > Just out of curiousity, how do you make a living Roman?
+>
+> How is that important? Am I to be judged now?
+
+If you're not willing to be judged according to the standards
+you try to impose on Larry, how serious do you expect us to
+take you ?
+
+regards,
+
+Rik
+-- 
+	http://www.linuxsymposium.org/2002/
+"You're one of those condescending OLS attendants"
+"Here's a nickle kid.  Go buy yourself a real t-shirt"
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

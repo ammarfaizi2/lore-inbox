@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130768AbRDBRm7>; Mon, 2 Apr 2001 13:42:59 -0400
+	id <S135705AbRDVIsx>; Sun, 22 Apr 2001 04:48:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131194AbRDBRmt>; Mon, 2 Apr 2001 13:42:49 -0400
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:52229
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S130768AbRDBRmj>; Mon, 2 Apr 2001 13:42:39 -0400
-Date: Mon, 23 Apr 2001 23:09:21 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Padraig Brady <Padraig@AnteFacto.com>
-cc: linux-kernel@vger.kernel.org, rsmith@bitworks.com
-Subject: CFA Membership (Re: Cool Road Runner)
-In-Reply-To: <3AC8C49B.10100@AnteFacto.com>
-Message-ID: <Pine.LNX.4.10.10104232304450.12531-100000@master.linux-ide.org>
+	id <S135798AbRDVIso>; Sun, 22 Apr 2001 04:48:44 -0400
+Received: from [212.150.138.2] ([212.150.138.2]:49157 "EHLO
+	ntserver.voltaire.com") by vger.kernel.org with ESMTP
+	id <S135705AbRDVIsc> convert rfc822-to-8bit; Sun, 22 Apr 2001 04:48:32 -0400
+Message-ID: <20083A3BAEF9D211BDB600805F8B14F3D857E1@NTSERVER>
+From: Miri Groentman <mirig@voltaire.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: ip forwarding ans kernel networking questions
+Date: Sun, 22 Apr 2001 11:47:05 +0200
+X-Message-Flag: Follow up
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="windows-1255"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Apr 2001, Padraig Brady wrote:
-
-> I'm not sure I have. They seem to following the latest spec I
-> downloaded from www.compactflash.org
-
-I am not paying $2500-$5000 annual for membership sorry.
-It is bad enough that I burn $800 for T13 plus about $1000 per meeting.
-$7000 is my personal financial limit.
-
-If you want to give me the SPEC to review and no NDA cool, but CFA and SDA
-I have not interest in the legal action that will happen I expose SDA for
-what it is ...
-
-Andre Hedrick
-Linux ATA Development
-
+Hi
+I’m a newbie to Linux kernel, and I’m trying to understand some networking
+issues in kernel 2.4. 
+I will highly appreciate it if anyone could refer me to kernel networking
+documentation in general, and tcp / ip stack documentation in particular.
+I’ve been reading tcp/ip illustrated (vol. II), but it seems like in these
+issues the 2.4 kernel version is quite different from BSD.
+I’m especially looking for answers to questions such as where in the code a
+host validates the packet ip? 
+Where in the code the a packet which is addressed to a different ip is
+dropped / discarded  (when the kernel isn’t configured as a router), and
+where in the code a packet is forwarded when the kernel IS configured as a
+router?
+Thanks
+-Miri

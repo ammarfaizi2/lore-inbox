@@ -1,84 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263655AbTEMMUg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 08:20:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263676AbTEMMUg
+	id S261171AbTEMMb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 08:31:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbTEMMb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 08:20:36 -0400
-Received: from host132.googgun.cust.cyberus.ca ([209.195.125.132]:65206 "EHLO
-	marauder.googgun.com") by vger.kernel.org with ESMTP
-	id S263655AbTEMMUe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 08:20:34 -0400
-Date: Tue, 13 May 2003 08:31:06 -0400 (EDT)
-From: Ahmed Masud <masud@googgun.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: <Valdis.Kletnieks@vt.edu>, Chuck Ebbert <76306.1226@compuserve.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The disappearing sys_call_table export.
-In-Reply-To: <1052774389.31825.21.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.33.0305130809520.5520-100000@marauder.googgun.com>
+	Tue, 13 May 2003 08:31:57 -0400
+Received: from kunde0838.tromso.alfanett.no ([62.16.131.79]:59872 "EHLO shogun")
+	by vger.kernel.org with ESMTP id S261171AbTEMMbz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 08:31:55 -0400
+Message-ID: <3EC0E885.9070306@thule.no>
+Date: Tue, 13 May 2003 14:43:49 +0200
+From: Troels Walsted Hansen <troels@thule.no>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.3.1) Gecko/20030425
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew McGregor <andrew@indranet.co.nz>
+CC: Tuncer M zayamut Ayaz <tuncer.ayaz@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69 strange high tone on DELL Inspiron 8100
+References: <1405.1052575075@www9.gmx.net> <3191078.1052695705@[192.168.1.249]>
+In-Reply-To: <3191078.1052695705@[192.168.1.249]>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew McGregor wrote:
+> Try this (which will make no difference to the effectiveness of APM on 
+> this machine):
+> 
+>> CONFIG_PM=y
+>>
+>> CONFIG_APM=y
+>> CONFIG_APM_DO_ENABLE=n
+>> CONFIG_APM_CPU_IDLE=n
+>> CONFIG_APM_DISPLAY_BLANK=y
+>> CONFIG_APM_REAL_MODE_POWER_OFF=y
+>>
+>> CONFIG_CPU_FREQ=n
+>> CONFIG_CPU_FREQ_TABLE=n
+>>
+>> CONFIG_X86_SPEEDSTEP=n
+> 
+> 
+> Reasoning:
+> cpufreq and speedstep don't work on Dell P3 laptops anyway, and the 
+> *internal power supplies* of the i8x00 series make wierd noises when APM 
+> tries to idle the CPU.  The board will do this anyway, without making 
+> noise, so linux need not.
 
+My Dell Latitude C600 shows the exact same problem. I noticed it after 
+upgrading to from RH7.x to RH8 with kernel 2.4.18-27.8.0. I believe this 
+kernel is customized by RH to use HZ=500 or something in that region.
 
-On 12 May 2003, Alan Cox wrote:
+With your analysis of the problem I was able to remove the noise by 
+using the "apm=idle-threshold=100" parameter on the kernel commandline. 
+This turns off APM idle calls without requiring kernel recompilation.
 
-> On Llu, 2003-05-12 at 23:12, Valdis.Kletnieks@vt.edu wrote:
-> > In particular, the code that handles the zeroing out of resource objects
-> > before re-use needs to be "inside" the trusted-base perimeter.  This has
-> > been well-understood for years - even my August 83 copy of the Orange Book
-> > says (for class C2):
->
-> 1. Base Linux is not C2 certified
+Using the "i8k" kernel module, I have verified that the temperature of 
+the CPU is unchanged with APM idle turned off. I have not tried to 
+measure power consumption or battery use.
 
-No but it can be, provided appropriate steps are taken on the system,
-without recoding the kernel become C2 certified.  C2 is not mandatory
-access control, it is still in the realm of discretionary access control.
-According to the orange book standard, it's the highest DAC standard.
+Thanks for the tip!
 
-> 2. C2 is obsolete
-
-Or in Common Criteria Equivalence, achieve EAL3 in various system security
-classes.  No labelled security classes would be required.
-
-> 3. NSA SELinux can do the needed stuff from scanning the code
-
-Yes but SELinux is not an attempt to get C2 ... it is more to try and get
-B1 equivalence (Labelled security) however B1 by itself is no good because
-it doesn't secure against the security officer itself, which is a
-desirable feature in order to achieve EAL4 for labeled security under
-common-criteria.
-
-Linux kernel, as a whole, will not meet the EAL4 requirements as it
-stands, because it is not documented as per the EAL4 code documentation
-standard. This is from my direct discussions with two independent CC
-evaluation laboritory top technical advisors.  The sheer size of the linux
-kernel code, and the speed at which it develops and enhances, makes it a
-bad candidate.
-
-> 4. Even then data erasure is not guaranteed because of the drive logic
-
-Data-erasure is not a requirement to ensure a trusted-operating system, if
-it can be demonstrated that on a running system no one except the
-kernel-user can get access to the swap information.  If along with this it
-can be proven (certified really) that the phyiscal security of the system
-meets a certain level of assurance then you can consider the environment
-trusted.
-
-> So you are back to crypting swap in the first place
->
-
-But isn't swap crypting fun ? :-) Running encrypted swap is okay so long
-as we throw away the key after each session.  This can be easily (famous
-last words) achieved under crypto kernels. I am not certain if such
-functionaility is being contemplated for the Linux kernel along with the
-new cryptoloop stuff, if there isn't i can volunteer to put something like
-that in - if we are interested. Are we?
-
-Cheers,
-
-Ahmed.
+-- 
+Troels Walsted Hansen
 

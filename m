@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263455AbUCYRq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 12:46:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263505AbUCYRq4
+	id S263505AbUCYRty (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 12:49:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263526AbUCYRtx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 12:46:56 -0500
-Received: from atlrel6.hp.com ([156.153.255.205]:35524 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S263455AbUCYRqw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 12:46:52 -0500
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] Remove <asm/setup.h> from cmdlinepart.c
-Date: Thu, 25 Mar 2004 10:46:45 -0700
-User-Agent: KMail/1.6.1
-Cc: dwmw2@infradead.org, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Thu, 25 Mar 2004 12:49:53 -0500
+Received: from mail.shareable.org ([81.29.64.88]:24977 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S263505AbUCYRtu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 12:49:50 -0500
+Date: Thu, 25 Mar 2004 17:49:42 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Davide Libenzi <davidel@xmailserver.org>,
+       "Patrick J. LoPresti" <patl@users.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cowlinks v2
+Message-ID: <20040325174942.GC11236@mail.shareable.org>
+References: <20040321125730.GB21844@wohnheim.fh-wedel.de> <Pine.LNX.4.44.0403210944310.12359-100000@bigblue.dev.mdolabs.com> <20040321181430.GB29440@wohnheim.fh-wedel.de> <m1y8ptu42m.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403251046.45232.bjorn.helgaas@hp.com>
+In-Reply-To: <m1y8ptu42m.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove include of <asm/setup.h> from cmdlinepart.c.  This
-is not be needed for i386 (it builds fine with this patch),
-and ia64 doesn't supply a setup.h.
+Eric W. Biederman wrote:
+> Actually there is...  You don't do the copy until an actual write occurs.
+> Some files are opened read/write when there is simply the chance they might
+> be written to so delaying the copy is generally a win.
 
-asm/setup.h contains a hodge-podge of stuff with no real
-consistency between architectures.  It appears to be
-included mainly by arch-specific drivers:
-	acsi (Atari disks)
-	amiflop (Amiga floppy)
-	z2ram (ZorroII ram disk)
-	amiserial (Amiga serial)
-	...
-and under arch-specific #ifdefs:
-	fbcon (under __mc68000__ or CONFIG_APUS)
-	fonts (ditto)
-	logo (CONFIG_M68K)
-	...
+Programs depend on the inode number returned by fstat() not changing,
+and maybe in some other circumstances, even if they subsequently write
+to the file.
 
-===== drivers/mtd/cmdlinepart.c 1.5 vs edited =====
---- 1.5/drivers/mtd/cmdlinepart.c	Wed May 28 09:01:08 2003
-+++ edited/drivers/mtd/cmdlinepart.c	Wed Mar 24 11:48:19 2004
-@@ -28,7 +28,6 @@
- 
- #include <linux/mtd/mtd.h>
- #include <linux/mtd/partitions.h>
--#include <asm/setup.h>
- #include <linux/bootmem.h>
- 
- /* error message prefix */
+(It's ok for open() to change the inode number, because that's
+equivalent to another program changing the filesystem in parallel).
+
+How do you handle that if COW occurs later than open()?
+You could also force COW when fstat() is called, I suppose.
+
+-- Jamie

@@ -1,118 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261934AbVCLPUu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261569AbVCLP3T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261934AbVCLPUu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 10:20:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbVCLPUu
+	id S261569AbVCLP3T (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 10:29:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbVCLP3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 10:20:50 -0500
-Received: from 70-56-134-246.albq.qwest.net ([70.56.134.246]:61575 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261934AbVCLPUf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 10:20:35 -0500
-Date: Sat, 12 Mar 2005 08:21:29 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: "J. Bruce Fields" <bfields@fieldses.org>
-cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Pavel Machek <pavel@ucw.cz>
-Subject: [PATCH] APM: fix interrupts enabled in device_power_up
-In-Reply-To: <20050312131143.GA31038@fieldses.org>
-Message-ID: <Pine.LNX.4.61.0503120806001.17127@montezuma.fsmlabs.com>
-References: <20050312131143.GA31038@fieldses.org>
+	Sat, 12 Mar 2005 10:29:19 -0500
+Received: from av5-2-sn1.fre.skanova.net ([81.228.11.112]:25041 "EHLO
+	av5-2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S261569AbVCLP3O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 10:29:14 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Use __init and __exit in pktcdvd
+From: Peter Osterlund <petero2@telia.com>
+Date: 12 Mar 2005 16:29:11 +0100
+Message-ID: <m364zw992w.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 Mar 2005, J. Bruce Fields wrote:
+This patch adds __init and __exit annotations to the pktcdvd driver.
 
-> On APM resume this morning on my Thinkpad X31, I got a "spin_lock is
-> already locked" error; see below.  This doesn't happen on every resume,
-> though it's happened before.  The kernel is 2.6.11 plus a bunch of
-> (hopefully unrelated...) NFS patches.
->
-> Mar 12 07:07:31 puzzle kernel: PCI: Setting latency timer of device 0000:00:1f.5 to 64
-> Mar 12 07:07:31 puzzle kernel: arch/i386/kernel/time.c:179: spin_lock(arch/i386/kernel/time.c:c0603c28) already locked by arch/i386/kernel/time.c/309
-> Mar 12 07:07:31 puzzle kernel: arch/i386/kernel/time.c:316: spin_unlock(arch/i386/kernel/time.c:c0603c28) not locked
+Signed-off-by: Peter Osterlund <petero2@telia.com>
+---
 
-APM was calling device_power_down and device_power_up with interrupts 
-enabled, resulting in a few calls to get_cmos_time being done with 
-interrupts enabled (rtc_lock needs to be acquired with interrupts 
-disabled).
+ linux-petero/drivers/block/pktcdvd.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-Signed-off-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-
-===== arch/i386/kernel/apm.c 1.72 vs edited =====
---- 1.72/arch/i386/kernel/apm.c	2005-01-20 22:02:11 -07:00
-+++ edited/arch/i386/kernel/apm.c	2005-03-12 08:17:52 -07:00
-@@ -1202,10 +1202,11 @@
- 	}
+diff -puN drivers/block/pktcdvd.c~pktcdvd-module-init drivers/block/pktcdvd.c
+--- linux/drivers/block/pktcdvd.c~pktcdvd-module-init	2005-03-11 22:23:57.000000000 +0100
++++ linux-petero/drivers/block/pktcdvd.c	2005-03-11 22:23:57.000000000 +0100
+@@ -2624,7 +2624,7 @@ static struct miscdevice pkt_misc = {
+ 	.fops  		= &pkt_ctl_fops
+ };
  
- 	device_suspend(PMSG_SUSPEND);
-+	local_irq_disable();
- 	device_power_down(PMSG_SUSPEND);
- 
- 	/* serialize with the timer interrupt */
--	write_seqlock_irq(&xtime_lock);
-+	write_seqlock(&xtime_lock);
- 
- 	/* protect against access to timer chip registers */
- 	spin_lock(&i8253_lock);
-@@ -1216,20 +1217,22 @@
- 	 * We'll undo any timer changes due to interrupts below.
- 	 */
- 	spin_unlock(&i8253_lock);
--	write_sequnlock_irq(&xtime_lock);
-+	write_sequnlock(&xtime_lock);
-+	local_irq_enable();
- 
- 	save_processor_state();
- 	err = set_system_power_state(APM_STATE_SUSPEND);
- 	restore_processor_state();
- 
--	write_seqlock_irq(&xtime_lock);
-+	local_irq_disable();
-+	write_seqlock(&xtime_lock);
- 	spin_lock(&i8253_lock);
- 	reinit_timer();
- 	set_time();
- 	ignore_normal_resume = 1;
- 
- 	spin_unlock(&i8253_lock);
--	write_sequnlock_irq(&xtime_lock);
-+	write_sequnlock(&xtime_lock);
- 
- 	if (err == APM_NO_ERROR)
- 		err = APM_SUCCESS;
-@@ -1237,6 +1240,7 @@
- 		apm_error("suspend", err);
- 	err = (err == APM_SUCCESS) ? 0 : -EIO;
- 	device_power_up();
-+	local_irq_enable();
- 	device_resume();
- 	pm_send_all(PM_RESUME, (void *)0);
- 	queue_event(APM_NORMAL_RESUME, NULL);
-@@ -1255,17 +1259,22 @@
+-static int pkt_init(void)
++static int __init pkt_init(void)
  {
- 	int	err;
+ 	int ret;
  
-+	local_irq_disable();
- 	device_power_down(PMSG_SUSPEND);
- 	/* serialize with the timer interrupt */
--	write_seqlock_irq(&xtime_lock);
-+	write_seqlock(&xtime_lock);
- 	/* If needed, notify drivers here */
- 	get_time_diff();
--	write_sequnlock_irq(&xtime_lock);
-+	write_sequnlock(&xtime_lock);
-+	local_irq_enable();
- 
- 	err = set_system_power_state(APM_STATE_STANDBY);
- 	if ((err != APM_SUCCESS) && (err != APM_NO_ERROR))
- 		apm_error("standby", err);
-+
-+	local_irq_disable();	
- 	device_power_up();
-+	local_irq_enable();
+@@ -2660,7 +2660,7 @@ out2:
+ 	return ret;
  }
  
- static apm_event_t get_event(void)
+-static void pkt_exit(void)
++static void __exit pkt_exit(void)
+ {
+ 	remove_proc_entry("pktcdvd", proc_root_driver);
+ 	misc_deregister(&pkt_misc);
+_
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

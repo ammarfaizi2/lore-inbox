@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267278AbSLKTft>; Wed, 11 Dec 2002 14:35:49 -0500
+	id <S267305AbSLKTkQ>; Wed, 11 Dec 2002 14:40:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267293AbSLKTfs>; Wed, 11 Dec 2002 14:35:48 -0500
-Received: from kweetal.tue.nl ([131.155.2.7]:61230 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S267278AbSLKTfq>;
-	Wed, 11 Dec 2002 14:35:46 -0500
-Date: Wed, 11 Dec 2002 20:43:21 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: TomF <TomF@sjpc.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mounting udf DVD-RAM changes owner
-Message-ID: <20021211194321.GA10110@win.tue.nl>
-References: <20021211000033.3b9fe22a.TomF@sjpc.org>
+	id <S267304AbSLKTkP>; Wed, 11 Dec 2002 14:40:15 -0500
+Received: from mail.ithnet.com ([217.64.64.8]:4882 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S267305AbSLKTjt>;
+	Wed, 11 Dec 2002 14:39:49 -0500
+Date: Wed, 11 Dec 2002 20:34:03 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+Subject: Re: Bug Report 2.4.20: Interrupt sharing bogus
+Message-Id: <20021211203403.130fc724.skraw@ithnet.com>
+In-Reply-To: <1039635955.18587.12.camel@irongate.swansea.linux.org.uk>
+References: <20021211195501.7f6dff35.skraw@ithnet.com>
+	<1039635955.18587.12.camel@irongate.swansea.linux.org.uk>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021211000033.3b9fe22a.TomF@sjpc.org>
-User-Agent: Mutt/1.3.25i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 11, 2002 at 12:00:33AM -0800, TomF wrote:
+On 11 Dec 2002 19:45:55 +0000
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-> Before I mount a udf cartridge, I get
+> On Wed, 2002-12-11 at 18:55, Stephan von Krawczynski wrote:
+> > 4-port ethernet card. For tests I simply copy a lot of files via NFS to the
+> > local hd. It always freezes the machine, not always ad-hoc, but within short.
+> > I checked with 2.4.19 - same problem.
+> > I can test patches on this, no production machine involved. Any hints appreciated.
 > 
-> [Tom@localhost Tom]$ ls -l /mnt
-> ...
-> drwxr-xr-x    2 Tom      root         4096 Nov  5 11:20 dvd
-> 
-> [Tom@localhost Tom]$ mount /mnt/dvd
-> [Tom@localhost Tom]$ ls -l /mnt
-> ...
-> drwxr-xr-x    4 root     root          140 Dec  6 19:13 dvd
+> Not all systems get on with the 4 ports and bridge stuff. Also make sure
+> you have APIC disabled as the SiS io apic has some fun features 2.4
+> doesnt yet have workarounds for
 
-Read mount(8), especially the sentence
+Is this sufficient? This is from my tried (bogus) setup:
 
-       The
-       previous contents (if any)  and  owner  and  mode  of  dir
-       become  invisible, and as long as this file system remains
-       mounted, the pathname dir refers to the root of  the  file
-       system on device.
+CONFIG_X86_GOOD_APIC=y
+# CONFIG_X86_UP_APIC is not set
+# CONFIG_X86_UP_IOAPIC is not set
+
+-- 
+Regards,
+Stephan
 

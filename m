@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264933AbSJVSsp>; Tue, 22 Oct 2002 14:48:45 -0400
+	id <S264788AbSJVS4H>; Tue, 22 Oct 2002 14:56:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264934AbSJVSsp>; Tue, 22 Oct 2002 14:48:45 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:10717 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S264933AbSJVSso>; Tue, 22 Oct 2002 14:48:44 -0400
-Date: Tue, 22 Oct 2002 16:54:43 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Tim Hockin <thockin@sun.com>
-Cc: Jesse Pollard <pollard@admin.navo.hpc.mil>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH 1/4] fix NGROUPS hard limit (resend)
-In-Reply-To: <3DB59722.2090701@sun.com>
-Message-ID: <Pine.LNX.4.44L.0210221653420.1648-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262126AbSJVS4H>; Tue, 22 Oct 2002 14:56:07 -0400
+Received: from mail.zmailer.org ([62.240.94.4]:26763 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S264788AbSJVS4G>;
+	Tue, 22 Oct 2002 14:56:06 -0400
+Date: Tue, 22 Oct 2002 22:02:12 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: linux-kernel@vger.kernel.org
+Subject: ADMIN: STOP pleading on Listmasters...
+Message-ID: <20021022190212.GY1111@mea-ext.zmailer.org>
+Reply-To: postmaster@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Oct 2002, Tim Hockin wrote:
-> Jesse Pollard wrote:
->
-> > And I really doubt that anybody has 10000 unique groups (or even
-> > close to that) running under any system. The center I'm at has
-> > some of the largest UNIX systems ever made, and there are only
-> > about 600 unique groups over the entire center. The largest number
-> > of groups a user can be in is 32. And nobody even comes close.
->
-> I'm glad it doesn't affect you.  If it was a more common problem, it
-> would have been solved a long time ago.  It does affect some people,
-> though.  Maybe they can redesign their group structures, but why not
-> remove this arbitrary limit, since we can?
+We can create an "offtopic@vger.kernel.org" list for
+everyone who want to discuss on topics which are way
+off from whatever current Subject: line is.
 
-For anoncvs this is a common problem.
+For that matter, if you folks want, we can even
+create a  "catfight@vger.kernel.org"  list for
+name-calling and other anti-social kind of
+behaviours.
 
-Each project has its own group and the anoncvs user needs
-access to all (write access in order to make lock files).
 
-regards,
+This topic is NOT available for public discussion.
+If you want to plead on listowners, send your plea
+to  postmaster@vger.kernel.org
 
-Rik
--- 
-A: No.
-Q: Should I include quotations after my reply?
+Doing to group-reply including the list shows only
+that you can not follow instructions.
 
-http://www.surriel.com/		http://distro.conectiva.com/
-
+/Matti Aarnio  co-postmaster of vger.kernel.org

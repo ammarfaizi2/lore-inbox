@@ -1,56 +1,194 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266553AbUBESAZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 13:00:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266556AbUBESAZ
+	id S266536AbUBERyi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 12:54:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266532AbUBERyi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 13:00:25 -0500
-Received: from mail.kroah.org ([65.200.24.183]:6103 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266553AbUBESAU (ORCPT
+	Thu, 5 Feb 2004 12:54:38 -0500
+Received: from fw.osdl.org ([65.172.181.6]:57830 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266536AbUBERxn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 13:00:20 -0500
-Date: Thu, 5 Feb 2004 09:57:52 -0800
-From: Greg KH <greg@kroah.com>
-To: Stian Jordet <liste@jordet.nu>
-Cc: Azog <slashmail@arnor.net>, Adrian Bunk <bunk@fs.tum.de>,
-       Tom Rini <trini@kernel.crashing.org>,
-       Andre Noll <noll@mathematik.tu-darmstadt.de>,
-       Linux-Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] remove USB_SCANNER
-Message-ID: <20040205175752.GD13075@kroah.com>
-References: <20040126215036.GA6906@kroah.com> <401A8A35.1020105@gmx.de> <slrnc1l72v.9m.noll@localhost.mathematik.tu-darmstadt.de> <20040130230633.GZ6577@stop.crashing.org> <20040202214326.GA574@kroah.com> <20040205003136.GQ26093@fs.tum.de> <20040205011423.GA6092@kroah.com> <1076001658.3225.101.camel@moria.arnor.net> <20040205173032.GI12546@kroah.com> <1076003405.9101.2.camel@chevrolet.hybel>
+	Thu, 5 Feb 2004 12:53:43 -0500
+Subject: Re: [PATCH 2.6.2-rc3-mm1] DIO read race fix
+From: Daniel McNeil <daniel@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: janetmor@us.ibm.com, Badari Pulavarty <pbadari@us.ibm.com>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>
+In-Reply-To: <20040204213336.354d8103.akpm@osdl.org>
+References: <3FCD4B66.8090905@us.ibm.com>
+	 <1070674185.1929.9.camel@ibm-c.pdx.osdl.net>
+	 <1070907814.707.2.camel@ibm-c.pdx.osdl.net>
+	 <1071190292.1937.13.camel@ibm-c.pdx.osdl.net>
+	 <20031230045334.GA3484@in.ibm.com>
+	 <1072830557.712.49.camel@ibm-c.pdx.osdl.net>
+	 <20031231060956.GB3285@in.ibm.com>
+	 <1073606144.1831.9.camel@ibm-c.pdx.osdl.net>
+	 <20040109035510.GA3279@in.ibm.com>
+	 <1075945198.7182.46.camel@ibm-c.pdx.osdl.net>
+	 <20040204213336.354d8103.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1076003576.7182.77.camel@ibm-c.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1076003405.9101.2.camel@chevrolet.hybel>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 05 Feb 2004 09:52:56 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 05, 2004 at 06:50:06PM +0100, Stian Jordet wrote:
-> tor, 05.02.2004 kl. 18.30 skrev Greg KH:
-> > On Thu, Feb 05, 2004 at 09:20:58AM -0800, Azog wrote:
-> > > 
-> > > So, what are you all using / recommending for user space configuration
-> > > and control of a USB scanner under 2.6? 
+Andrew,
+
+I am still thinking about your patch.  I will run some tests today using
+2.6.2-mm1 to see if the problem is fixed.  My 8-proc machine ran
+overnight with 6 copies of the read_under running without problems with
+my original patch.  Previously on the 8-proc machine, it would hit
+uninitialized data within an hour.
+
+The concern I have is that DIO needs filemap_write_and_wait() to
+make sure all previously dirty pages have been written back to
+disk before the DIO is issued.
+
+If __block_write_full_page() can possibly clear PageWriteback 
+with buffer i/o still in flight (even for WB_SYNC_NONE) then
+a subsequent filemap_write_and_wait() will miss that page.
+
+For example, I previously tried:
+
+        do {
+                get_bh(bh);
++		if (wbc->sync_mode != WB_SYCN_NONE)
++              		 wait_on_buffer(bh);
+                if (buffer_mapped(bh) && buffer_dirty(bh)) {
+                        if (wbc->sync_mode != WB_SYNC_NONE) {
+                                lock_buffer(bh);
+
+and this still saw uninitialized data.
+
+Also, if __block_write_full_page() can redirty a page wouldn't this
+allow filemap_write_and_wait() to return with page still dirty that
+DIO needs written back?
+	 
+I'll work on updating the other patches.
+
+Daniel
+
+
+
+On Wed, 2004-02-04 at 21:33, Andrew Morton wrote:
+> Daniel McNeil <daniel@osdl.org> wrote:
+> >
+> >  I have found (finally) the problem causing DIO reads racing with
+> >  buffered writes to see uninitialized data on ext3 file systems 
+> >  (which is what I have been testing on).
 > > 
-> > xsane should work just fine, using libusb/usbfs.
+> >  The problem is caused by the changes to __block_write_page_full()
+> >  and a race with journaling:
 > > 
-> > As this driver is no longer needed, and the driver is broken and no one
-> > has stepped up to fix it for over a month now, I'm removing it from the
-> > kernel tree.
+> >  journal_commit_transaction() -> ll_rw_block() -> submit_bh()
+> >  	
+> >  ll_rw_block() locks the buffer, clears buffer dirty and calls
+> >  submit_bh()
+> > 
+> >  A racing __block_write_full_page() (from ext3_ordered_writepage())
+> > 
+> >  	would see that buffer_dirty() is not set because the i/o
+> >          is still in flight, so it would not do a bh_submit()
+> > 
+> >  	It would SetPageWriteback() and unlock_page() and then
+> >  	see that no i/o was submitted and call end_page_writeback()
+> >  	(with the i/o still in flight).
+> > 
+> >  This would allow the DIO code to issue the DIO read while buffer writes
+> >  are still in flight.  The i/o can be reordered by i/o scheduling and
+> >  the DIO can complete BEFORE the writebacks complete.  Thus the DIO
+> >  sees the old uninitialized data.
+> 
+> I suppose we should go for a general fix to the problem.  I'm not 100%
+> happy with it.  It's similar to yours, except we only wait if
+> wbc->sync_mode says it's a write-for-sync.  Also we hold the buffer lock
+> across all the tests.
 > 
 > 
-> I know it is broken, and obsoleted. But for those of us not using
-> hotplug scripts, it's quite a pity that you have to manually chmod the
-> files in /proc/bus/usb to be able to use a device with libusb as a
-> normal user. Just want to let people having trouble know that.
+> 
+> 
+> 
+> 
+> Fix a race which was identified by Daniel McNeil <daniel@osdl.org>
+> 
+> If a buffer_head is under I/O due to JBD's ordered data writeout (which uses
+> ll_rw_block()) then either filemap_fdatawrite() or filemap_fdatawait() need
+> to wait on the buffer's existing I/O.
+> 
+> Presently neither will do so, because __block_write_full_page() will not
+> actually submit any I/O and will hence not mark the page as being under
+> writeback.
+> 
+> The best-performing fix would be to somehow mark the page as being under
+> writeback and defer waiting for the ll_rw_block-initiated I/O until
+> filemap_fdatawait()-time.  But this is hard, because in
+> __block_write_full_page() we do not have control of the buffer_head's end_io
+> handler.  Possibly we could make JBD call into end_buffer_async_write(), but
+> that gets nasty.
+> 
+> This patch makes __block_write_full_page() wait for any buffer_head I/O to
+> complete before inspecting the buffer_head state.  It only does this in the
+> case where __block_write_full_page() was called for a "data-integrity" write:
+> (wbc->sync_mode != WB_SYNC_NONE).
+> 
+> Probably it doesn't matter, because kjournald is currently submitting (or has
+> already submitted) all dirty buffers anyway.
+> 
+> 
+> 
+> ---
+> 
+>  fs/buffer.c |   29 +++++++++++++++--------------
+>  1 files changed, 15 insertions(+), 14 deletions(-)
+> 
+> diff -puN fs/buffer.c~O_DIRECT-ll_rw_block-vs-block_write_full_page-fix fs/buffer.c
+> --- 25/fs/buffer.c~O_DIRECT-ll_rw_block-vs-block_write_full_page-fix	2004-02-04 20:38:30.000000000 -0800
+> +++ 25-akpm/fs/buffer.c	2004-02-04 20:40:19.000000000 -0800
+> @@ -1810,23 +1810,24 @@ static int __block_write_full_page(struc
+>  
+>  	do {
+>  		get_bh(bh);
+> -		if (buffer_mapped(bh) && buffer_dirty(bh)) {
+> -			if (wbc->sync_mode != WB_SYNC_NONE) {
+> -				lock_buffer(bh);
+> -			} else {
+> -				if (test_set_buffer_locked(bh)) {
+> +		if (!buffer_mapped(bh))
+> +			continue;
+> +		if (wbc->sync_mode != WB_SYNC_NONE) {
+> +			lock_buffer(bh);
+> +		} else {
+> +			if (test_set_buffer_locked(bh)) {
+> +				if (buffer_dirty(bh))
+>  					__set_page_dirty_nobuffers(page);
+> -					continue;
+> -				}
+> -			}
+> -			if (test_clear_buffer_dirty(bh)) {
+> -				if (!buffer_uptodate(bh))
+> -					buffer_error();
+> -				mark_buffer_async_write(bh);
+> -			} else {
+> -				unlock_buffer(bh);
+> +				continue;
+>  			}
+>  		}
+> +		if (test_clear_buffer_dirty(bh)) {
+> +			if (!buffer_uptodate(bh))
+> +				buffer_error();
+> +			mark_buffer_async_write(bh);
+> +		} else {
+> +			unlock_buffer(bh);
+> +		}
+>  	} while ((bh = bh->b_this_page) != head);
+>  
+>  	BUG_ON(PageWriteback(page));
+> 
+> _
 
-Or fix this bug:
-	http://bugme.osdl.org/show_bug.cgi?id=1418
-
-That will make it easier for users too.
-
-thanks,
-
-greg k-h

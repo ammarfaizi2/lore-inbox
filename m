@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263700AbTJVQFz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 12:05:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263704AbTJVQFy
+	id S263435AbTJVQWx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 12:22:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263454AbTJVQWx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 12:05:54 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:60033 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263700AbTJVQFv (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 12:05:51 -0400
-Message-Id: <200310221605.h9MG5k37007196@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: andersen@codepoet.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: srfs - a new file system. 
-In-Reply-To: Your message of "Tue, 21 Oct 2003 22:57:09 MDT."
-             <20031022045708.GA5636@codepoet.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.GSO.4.44.0310070757400.4688-100000@sundance.cse.ucsc.edu> <Pine.LNX.4.44_heb2.09.0310201031150.20172-100000@nexus.cs.bgu.ac.il>
-            <20031022045708.GA5636@codepoet.org>
+	Wed, 22 Oct 2003 12:22:53 -0400
+Received: from borg.org ([64.105.205.123]:24106 "HELO borg.org")
+	by vger.kernel.org with SMTP id S263435AbTJVQWw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Oct 2003 12:22:52 -0400
+Date: Wed, 22 Oct 2003 12:22:51 -0400
+From: Kent Borg <kentborg-rhl@borg.org>
+To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] frandom - fast random generator module
+Message-ID: <20031022122251.A3921@borg.org>
+References: <3F8E552B.3010507@users.sf.net> <bn40oa$i4q$1@gatekeeper.tmr.com> <bn46q9$1rv$1@cesium.transmeta.com> <bn4aov$jf7$1@gatekeeper.tmr.com> <bn4l5q$v73$1@cesium.transmeta.com> <20031022025602.GH17713@pegasys.ws>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_795287540P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 22 Oct 2003 12:05:46 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031022025602.GH17713@pegasys.ws>; from jw@pegasys.ws on Tue, Oct 21, 2003 at 07:56:02PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_795287540P
-Content-Type: text/plain; charset=us-ascii
+On Tue, Oct 21, 2003 at 07:56:02PM -0700, jw schultz wrote:
+> I am curious how someone is going to use random data from a device
+> in a shell
 
-On Tue, 21 Oct 2003 22:57:09 MDT, Erik Andersen said:
+I regularly use:
 
-> Suppose I install srfs on both my laptop and my server.  I then
-> move the CVS repository for my pet project onto the new srfs
-> filesystem and I take off for the weekend with my laptop.   Over
-> the weekend I commit several changes to file X.  Over the weekend
-> my friend also commits several changes to file X.
-> 
-> When I get home and plug in my laptop, presumably the caching
-> daemon will try to stabalize the system by deciding which version
-> of file X was changed last and replicating that latest version.  
+  $ head -c 4 /dev/random | ./mnencode
 
-Hey Larry - potential BitKeeper customer here. :)
+I do it when I need to generate yet another password (I finally had
+the brains to realize I can't reuse passwords).  I pipe 4 (rarely
+more) bytes into mnencode, a cute little program that maps any data
+into pronounceable/spellable words.  (And mndecode will reverse to
+process.)  So I have a lot of passwords that look like
+corona-million-binary or horizon-july-egypt or single-august-pump
+or...
 
---==_Exmh_795287540P
-Content-Type: application/pgp-signature
+For more information on mnencode see
+<http://www.tothink.com/mnemonic/>.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQE/lqrZcC3lWbTT17ARAvqXAJwJzk5E/d0VGaugg68I6TBwVvxK1wCgx21C
-JXsvo3vNBcy8GDkNmL2gqmk=
-=R3ox
------END PGP SIGNATURE-----
+-kb, the Kent who would like to see the kernel's random number
+generator improved (better entropy estimation, better entropy
+management, ability to supply some initial entropy early in the
+boot--for embedded devices--and even speed), but the Kent who doesn't
+want the kernel to be exploded into a catalogue of competing random
+number generators.
 
---==_Exmh_795287540P--
+
+P.S.  When is there going to be a good open source password safe for
+Palm OS?

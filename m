@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289749AbSBESgf>; Tue, 5 Feb 2002 13:36:35 -0500
+	id <S289741AbSBESiz>; Tue, 5 Feb 2002 13:38:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289750AbSBESg0>; Tue, 5 Feb 2002 13:36:26 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48398 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289749AbSBESgQ>;
-	Tue, 5 Feb 2002 13:36:16 -0500
-Message-ID: <3C60261D.2CECD6F4@mandrakesoft.com>
-Date: Tue, 05 Feb 2002 13:36:13 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: kernel list <linux-kernel@vger.kernel.org>,
-        Patrick Mochel <mochel@osdl.org>
-Subject: Re: driverfs support for motherboard devices
-In-Reply-To: <20020205173912.GA165@elf.ucw.cz>
+	id <S289752AbSBESip>; Tue, 5 Feb 2002 13:38:45 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:55962 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S289741AbSBESib>; Tue, 5 Feb 2002 13:38:31 -0500
+Date: Wed, 6 Feb 2002 00:11:13 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Ingo Molnar <mingo@redhat.com>
+Cc: Christoph Hellwig <hch@ns.caldera.de>, Andrea Arcangeli <andrea@suse.de>,
+        Rusty Russell <rusty@rustcorp.com.au>,
+        Paul McKenney <paul.mckenney@us.ibm.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] New Read-Copy Update patch
+Message-ID: <20020206001113.C427@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+In-Reply-To: <200202051654.g15GsWH01780@ns.caldera.de> <Pine.LNX.4.44.0202051156300.7240-100000@devserv.devel.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0202051156300.7240-100000@devserv.devel.redhat.com>; from mingo@redhat.com on Tue, Feb 05, 2002 at 11:57:07AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+On Tue, Feb 05, 2002 at 11:57:07AM -0500, Ingo Molnar wrote:
 > 
-> Hi!
+> On Tue, 5 Feb 2002, Christoph Hellwig wrote:
 > 
-> This patch adds support for motherboard devices, so that you can see
-> them in driverfs.
+> > > 3. A per-cpu timer support ? - This will allow us to get rid of the krcud
+> > >    stuff and make RCU even simpler.
+> > 
+> > Something like http://people.redhat.com/mingo/scalable-timers-patches/smptimers-2.4.16-A0?
+> > 
+> > Ingo, Linus:  Any chance to see that in 2.5 soon?
 > 
-> Should ide be presented to driverfs as bus with two devices on it?
+> i'll post an updated smptimers patch soon after the scheduler has settled
+> down.
 
-This is a tough one...  Since there is a typically a single PCI device
-for IDE, a PCI or HOST bridge should register an IDE device.  The IDE
-device would in turn register two IDE controllers, which would in turn
-register up to two disks.
+Hi Ingo,
 
-> What about "legacy" bus? It is not in this release, and I'm not 100%
-> sure who should generate it. Many architectures will need such bus so
-> maybe it belongs in drivers/base in order to avoid duplicate code?
+Unless you have new code that updates the patch, I can take a stab
+at porting it to 2.5. Let me know if that is ok.
 
-I think one should have a conceptual "system bus" as a virtual parent,
-when none is present.  For example my old 486 has PCI, but the only PCI
-device is IDE.  There are the standard legacy devices like parallel and
-serial, but they do not show up under an ISA bridge device.  This 486
-system would be a candidate for this system bus.
-
-	Jeff
-
-
-
+Thanks
+Dipankar
 -- 
-Jeff Garzik      | "I went through my candy like hot oatmeal
-Building 1024    |  through an internally-buttered weasel."
-MandrakeSoft     |             - goats.com
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

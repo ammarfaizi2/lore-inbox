@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263667AbUCZDlI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 22:41:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263917AbUCZDlI
+	id S263917AbUCZDlY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 22:41:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263919AbUCZDlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 22:41:08 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:27127 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S263667AbUCZDlB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 22:41:01 -0500
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: suparna@in.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, apw@shadowen.org, anton@samba.org,
-       sds@epoch.ncsc.mil, ak@suse.de, raybry@sgi.com,
-       lse-tech@lists.sourceforge.net, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, mbligh@aracnet.com
-Subject: Re: [Lse-tech] Re: [PATCH] [0/6] HUGETLB memory commitment 
-In-reply-to: Your message of "Fri, 26 Mar 2004 14:28:26 +0530."
-             <20040326085826.GA3332@in.ibm.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 26 Mar 2004 14:39:09 +1100
-Message-ID: <5310.1080272349@kao2.melbourne.sgi.com>
+	Thu, 25 Mar 2004 22:41:24 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36320 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263900AbUCZDlQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 22:41:16 -0500
+Message-ID: <4063A64D.2000901@pobox.com>
+Date: Thu, 25 Mar 2004 22:41:01 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: andersen@codepoet.org
+CC: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [sata] Promise PATA port on PDC2037x SATA
+References: <40638943.9010206@pobox.com> <20040326031619.GA1755@codepoet.org>
+In-Reply-To: <20040326031619.GA1755@codepoet.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Mar 2004 14:28:26 +0530, 
-Suparna Bhattacharya <suparna@in.ibm.com> wrote:
->On Thu, Mar 25, 2004 at 04:22:32PM -0800, Andrew Morton wrote:
->> Keith Owens <kaos@sgi.com> wrote:
->> >
->> > FWIW, lkcd (crash dump) treats hugetlb pages as normal kernel pages and
->> > dumps them, which is pointless and wastes a lot of time.  To avoid
->> > dumping these pages in lkcd, I had to add a PG_hugetlb flag.  lkcd runs
->
->This should already be fixed in recent versions of lkcd. It uses a
->little bit of trickery to avoid an extra page flag -- hugetlb pages are 
->detected as "in use" as well as reserved, unlike other reserved pages 
->which helps identify them.
+Thanks for testing.
 
-Are you sure that this works for hugetlb pages that have been
-preallocated but not yet mapped?  AFAICT the hugetlb pages start off as
-reserved with a zero usecount.
+Is your PCI id listed in this function?
+
+static int pdc_pata_possible(struct pci_dev *pdev)
+{
+         if (pdev->device == 0x3375)
+                 return 1;
+         return 0;
+}
+
+If yes, hrm.  :)
+
+If no, just unconditionally return 1 there and see if you get the 
+message in pdc_host_init():
+
+         /* check for PATA port on PDC20375 */
+         if (pdc_pata_possible(pdev)) {
+                 tmp = readl(mmio + PDC_PCI_CTL);
+                 if (tmp & PDC_HAS_PATA)
+                         printk(KERN_INFO DRV_NAME "(%s): sorry, PATA 
+port not supported yet\n",
+                                pci_name(pdev));
+         }
+
 

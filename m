@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263775AbTDJC5g (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 22:57:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263800AbTDJC5g (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 22:57:36 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:1040 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263775AbTDJC5f (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 22:57:35 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: kernel support for non-english user messages
-Date: Thu, 10 Apr 2003 03:08:33 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <b72n7h$fgd$1@penguin.transmeta.com>
-References: <3E93A958.80107@si.rr.com>
-X-Trace: palladium.transmeta.com 1049944134 24269 127.0.0.1 (10 Apr 2003 03:08:54 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 10 Apr 2003 03:08:54 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id S263800AbTDJDGa (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 23:06:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263864AbTDJDGa (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 23:06:30 -0400
+Received: from host159220.arnet.net.ar ([200.45.159.220]:60591 "EHLO
+	menichini.com.ar") by vger.kernel.org with ESMTP id S263800AbTDJDG3 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Apr 2003 23:06:29 -0400
+Date: Thu, 10 Apr 2003 00:15:10 -0300 (ART)
+From: Pablo Menichini <pablo@menichini.com.ar>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: Adam Belay <ambx1@neo.rr.com>, Jaroslav Kysela <perex@perex.cz>
+Subject: [PATCH 2.5] SB16: fix kmalloc params
+In-Reply-To: <Pine.LNX.4.33.0303311242340.626-100000@pablo.menichini.com.ar>
+Message-ID: <Pine.LNX.4.33.0304081528440.395-100000@pablo.menichini.com.ar>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3E93A958.80107@si.rr.com>, Frank Davis  <fdavis@si.rr.com> wrote:
->
->I wish to suggest a possible 2.6 or 2.7 feature (too late for 2.4.x and 
->2.5.x, I believe) that I believe would be helpful. Currently, printk 
->messages are all in english, and I was wondering if printk could be 
->modified to print out user messages that are in the default language of 
->the machine. For example,
+This patch swaps the arguments of kmalloc, and relax the type
+of allocation to GFP_KERNEL as others PnP functions do.
 
-This has come up before.
+Pablo
 
-The answer is: go ahead and do it, but don't do it in the kernel. Do it
-in klogd or similar.
+--- linux-2.5.67/sound/isa/sb/sb16.c	Tue Apr  8 15:24:31 2003
++++ linux-local/sound/isa/sb/sb16.c	Tue Apr  8 15:24:52 2003
+@@ -261,7 +261,7 @@
+ 				       const struct pnp_card_device_id *id)
+ {
+ 	struct pnp_dev *pdev;
+-	struct pnp_resource_table * cfg = kmalloc(GFP_ATOMIC, sizeof(struct pnp_resource_table));
++	struct pnp_resource_table *cfg = kmalloc(sizeof(*cfg), GFP_KERNEL);
+ 	int err;
 
-I refuse to clutter the kernel with inane and fragile (and totally
-unmaintainable) internationalization code. The string lookup can equally
-well be done in user space where it isn't a stability and complexity
-issue.
+ 	if (!cfg)
 
-		Linus
+
+

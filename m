@@ -1,83 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270657AbRH1Kr4>; Tue, 28 Aug 2001 06:47:56 -0400
+	id <S270688AbRH1Ku4>; Tue, 28 Aug 2001 06:50:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270661AbRH1Krr>; Tue, 28 Aug 2001 06:47:47 -0400
-Received: from chello212017081026.15.vie.surfer.at ([212.17.81.26]:9465 "EHLO
-	nerd.clifford.at") by vger.kernel.org with ESMTP id <S270657AbRH1Krg>;
-	Tue, 28 Aug 2001 06:47:36 -0400
-Date: Tue, 28 Aug 2001 12:52:46 +0200 (CEST)
-From: Clifford Wolf <clifford@clifford.at>
-To: <Remy.Card@linux.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Ext2FS: SUID on Dir
-Message-ID: <Pine.LNX.4.33.0108281227280.1127-100000@nerd.clifford.at>
+	id <S270705AbRH1Kus>; Tue, 28 Aug 2001 06:50:48 -0400
+Received: from iproxy1.ericsson.dk ([130.228.248.98]:11186 "EHLO
+	iproxy1.ericsson.dk") by vger.kernel.org with ESMTP
+	id <S270688AbRH1Kuj>; Tue, 28 Aug 2001 06:50:39 -0400
+Message-ID: <3B8B7724.EEC95BDD@ted.ericsson.dk>
+Date: Tue, 28 Aug 2001 12:49:08 +0200
+From: Fabbione <fabio.m.d.nitto@ted.ericsson.dk>
+Reply-To: fabbione@fabbione.net
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Possibly OT] ipt_unclean.c on kernel-2.4.7-9
+In-Reply-To: <E15bW2B-0001Ur-00@localhost>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Well probably the documentation should be more explicit. I know that's
+experimental
+code but someone has to use it in order to increase its quality.
+My idea of building the rules was to DROP as much as possible all the
+"dirty"
+packets before the packets can match the rules that allow connections.
 
-I'm not subscribed to l-k anymore since I'm not doing much kernel hacking
-now - so please don't send your replies only to the list but also to me.
+Regarding ECN I've it on on most of my boxes without any problems (I
+don't care
+if I cannot look to lego.com). but I don't want to restart again the ECN
+discussion
+there were sometimes ago in the ML.
 
-As you all know, on Ext2FS Partitions the SGID flag has a special function
-on directories: files within that directories will be owned by the same
-group that also owns the directory - which is useful for creating
-directories which are shared between the members of a group.
+Cheers
+Fabio
 
-But that only makes sense if the umask is set to give full permissions to
-the group (e.g. 007 or 002). Noone would do that if there is a system-wide
-'users' group - so some distributions add an extra group for every user
-which lets the /etc/group file grow very fast and makes the admins life
-harder ...
-
-The following small patch adds a function to the SUID flag on directories.
-If the SUID flag is set for a diectory, all new files in that directory
-will get the same rights in the group-field as they have in their
-user-field.  So, if one sets both - SUID and SGID - on a directory, it
-will also work with a umask like 022 or 077 and there is no more need for
-an extra group for every user.
-
-Also, the SUID flag will be set to all subdirectories of a SUID directory
-(as it is already now with the SGID flag on directories).
-
---- linux/fs/ext2/ialloc.c.orig	Tue Aug 28 10:59:09 2001
-+++ linux/fs/ext2/ialloc.c	Tue Aug 28 11:03:17 2001
-@@ -427,6 +427,11 @@
- 			mode |= S_ISGID;
- 	} else
- 		inode->i_gid = current->fsgid;
-+	if (dir->i_mode & S_ISUID) {
-+		mode |= (mode & 0700) >> 3;
-+		if (S_ISDIR(mode))
-+			mode |= S_ISUID;
-+	}
- 	inode->i_mode = mode;
-
- 	inode->i_ino = j;
---- linux/CREDITS.orig	Tue Aug 28 11:03:27 2001
-+++ linux/CREDITS	Tue Aug 28 11:05:07 2001
-@@ -3064,6 +3064,8 @@
- E: god@clifford.at
- W: http://www.clifford.at/
- D: Menuconfig/lxdialog improvement
-+D: Initial Wacom Intuos USB Driver
-+D: Ext2FS: SUID on directories
- S: Foehrengasse 16
- S: A-2333 Leopoldsdorf b. Wien
- S: Austria
-
-What do you thing? Good idea? Bad idea? Why?
-
-yours,
- - clifford
-
---- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-Clifford Wolf ................ www.clifford.at         IRC: http://opirc.nu
-The ROCK Projects Workgroup .. www.rock-projects.com  Tel: +43-699-10063494
-The ROCK Linux Workgroup ..... www.rocklinux.org      Fax: +43-2235-42788-4
-The NTx Consulting Group ..... www.ntx.at            email: god@clifford.at
-
-Reality corrupted. Reboot universe? (Y/N)                 www.rocklinux.net
-
+Rusty Russell wrote:
+> 
+> In message <3B8A262C.82ED7793@ted.ericsson.dk> you write:
+> > Hi gurus,
+> >       I've possibly found a bug in the iptables unclean match support
+> > but I was not able to find the email of the mantainer so I'm posting
+> > here....
+> >
+> > the module is incorrectly matching ftp session. Ex:
+> >
+> > iptables -j DROP -A INPUT --match unclean
+> > iptables -j ACCEPT -A INPUT -p tcp --dport 21
+> >
+> > in this case all my packets directed to the ftp server where dropped by
+> > the
+> > "unclean" match and this make impossible to open ftp session.
+> 
+> Please do not do this.  "unclean" should be renamed "interesting": you
+> should log these packets, but probably not drop them, otherwise some
+> things may break.
+> 
+> Like ECN...
+> 
+> Cheers,
+> Rusty.
+> --
+> Premature optmztion is rt of all evl. --DK

@@ -1,49 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132527AbRD1Nc7>; Sat, 28 Apr 2001 09:32:59 -0400
+	id <S132511AbRD1NeJ>; Sat, 28 Apr 2001 09:34:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132511AbRD1Nck>; Sat, 28 Apr 2001 09:32:40 -0400
-Received: from tomts8.bellnexxia.net ([209.226.175.52]:13184 "EHLO
-	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S132479AbRD1NcX>; Sat, 28 Apr 2001 09:32:23 -0400
-Message-ID: <3AEAC65F.72836B77@coplanar.net>
-Date: Sat, 28 Apr 2001 09:32:16 -0400
-From: Jeremy Jackson <jerj@coplanar.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: daniel sheltraw <l5gibson@hotmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: busmaster question
-In-Reply-To: <F50IEAOeIiGXix4A2Dr00010c13@hotmail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132479AbRD1NeB>; Sat, 28 Apr 2001 09:34:01 -0400
+Received: from quechua.inka.de ([212.227.14.2]:24122 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S132511AbRD1NdJ>;
+	Sat, 28 Apr 2001 09:33:09 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
+In-Reply-To: <Pine.LNX.4.21.0104270953280.2067-100000@penguin.transmeta.com> <3AE9A69B.D11F0BBD@evision-ventures.com>
+Organization: private Linux site, southern Germany
+Date: Sat, 28 Apr 2001 15:20:40 +0200
+From: Olaf Titz <olaf@bigred.inka.de>
+Message-Id: <E14tUeP-0000Vt-00@g212.hadiko.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-daniel sheltraw wrote:
+> or such. tar/cpio and friends don't deal properly with
+> a. holes inside of files.
+> b. hardlinks between files.
 
-> Hello kernel listees
->
-> I have a busmaster question I am hoping you can help me with.
-> If a PCI device is acting as a busmaster and the processor initiates a
-> read/write to another device on the PCI bus while the busmater-device is in
-> control of the bus what happens to the instructions initiated by the
-> processor? Are they never seen by the device that the processor
-> is trying to read/write?
+GNU tar handles both of these. (Not particularly efficiently in the
+case of sparse files, but that's a minor issue in this case.) See -S flag.
 
-An excellent book about PCI is Mindshare's "PCI System Architecture"
-Third (or later?) Edition.
+Perhaps more importantly, for a _robust_ backup solution which can
+deal with partially unreadable tapes, you have pretty much no option
+other than tar for the actual storage.
 
-In the scenerio you outlined, the device currently holding the bus
-would continue until it's latency timer expired (if it already hadn't),
-stalling the CPU,
-then the master which has been granted access next to the bus would
-start it's access.  If the only other master requesting access is the CPU,
-then it will get it.  If there are others, then it is implementation dependent
-
-who has highest arbitration priority.
-
-Note that since main memory is not on the PCI bus, the CPU can cary on
-unless it tries to access video memory, IDE registers, etc. for IO.
-
+Olaf

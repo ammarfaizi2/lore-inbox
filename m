@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265940AbSKBLtp>; Sat, 2 Nov 2002 06:49:45 -0500
+	id <S265944AbSKBMD0>; Sat, 2 Nov 2002 07:03:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265941AbSKBLtp>; Sat, 2 Nov 2002 06:49:45 -0500
-Received: from packet.digeo.com ([12.110.80.53]:51117 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265940AbSKBLto>;
-	Sat, 2 Nov 2002 06:49:44 -0500
-Message-ID: <3DC3BD57.DDFCBB9C@digeo.com>
-Date: Sat, 02 Nov 2002 03:56:07 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.45 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Helge Hafting <helgehaf@aitel.hist.no>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.45-bk1: kernel BUG at drivers/block/ll_rw_blk.c:1949!
-References: <3DC3B5AE.E91AF724@aitel.hist.no>
+	id <S265946AbSKBMD0>; Sat, 2 Nov 2002 07:03:26 -0500
+Received: from ns.suse.de ([213.95.15.193]:29452 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S265944AbSKBMDZ>;
+	Sat, 2 Nov 2002 07:03:25 -0500
+Date: Sat, 2 Nov 2002 13:09:54 +0100
+From: Andi Kleen <ak@suse.de>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2/2 2.5.45 cleanup & add original copy_ro/from_user
+Message-ID: <20021102130954.A30729@wotan.suse.de>
+References: <20021102025838.220E.AT541@columbia.edu.suse.lists.linux.kernel> <3DC3A9C0.7979C276@digeo.com.suse.lists.linux.kernel> <p73y98cqlv3.fsf@oldwotan.suse.de> <200211021203.gA2C37p24480@Port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Nov 2002 11:56:07.0504 (UTC) FILETIME=[D4030D00:01C28266]
+Content-Disposition: inline
+In-Reply-To: <200211021203.gA2C37p24480@Port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
-> 
-> I got this during boot. Kernel 2.5.45-bk1,
-> compiled with gcc 2.95.4, SMP+preempt
-> The machine has 2 scsi disks and a
-> tekram controller.
-> 
-> Helge Hafting
-> 
-> kernel BUG at drivers/block/ll_rw_blk.c:1949!
-> invalid operand: 0000
-> CPU:    1
-> EIP:    0060:[<c0236c86>]    Not tainted
-> EFLAGS: 00010246
-> EIP is at submit_bio+0x16/0xa8
+> That depends on size. If you do huge memcpy (say 1 mb) it still
+> wins by wide margin. Not that we do such huge operations often,
+> but code can check size and pick different routines for small
+> and big blocks
 
-RAID0 does that.  Are you using raid?
+The kernel nevers does such huge memcpys. It rarely does handle any buffer
+bigger than a page (4K) 
+
+-Andi

@@ -1,74 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317558AbSFRTLQ>; Tue, 18 Jun 2002 15:11:16 -0400
+	id <S317561AbSFRTNY>; Tue, 18 Jun 2002 15:13:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317557AbSFRTLP>; Tue, 18 Jun 2002 15:11:15 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:42127 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S317556AbSFRTLO> convert rfc822-to-8bit; Tue, 18 Jun 2002 15:11:14 -0400
-From: David Schwartz <davids@webmaster.com>
-To: <mgix@mgix.com>, <root@chaos.analogic.com>,
-       Chris Friesen <cfriesen@nortelnetworks.com>
-CC: <rml@tech9.net>, <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.61 (1025) - Licensed Version
-Date: Tue, 18 Jun 2002 12:11:12 -0700
-In-Reply-To: <AMEKICHCJFIFEDIBLGOBCEEICBAA.mgix@mgix.com>
-Subject: RE: Question about sched_yield()
+	id <S317565AbSFRTNW>; Tue, 18 Jun 2002 15:13:22 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:266 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S317561AbSFRTMd>;
+	Tue, 18 Jun 2002 15:12:33 -0400
+Date: Tue, 18 Jun 2002 21:16:39 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: kai@tp1.ruhr-uni-bochum.de, linux-kernel@vger.kernel.org
+Subject: Re: Various kbuild problems in 2.5.22
+Message-ID: <20020618211639.A2659@mars.ravnborg.org>
+References: <200206181710.KAA00594@baldur.yggdrasil.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20020618191114.AAA27826@shell.webmaster.com@whenever>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200206181710.KAA00594@baldur.yggdrasil.com>; from adam@yggdrasil.com on Tue, Jun 18, 2002 at 10:10:59AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jun 18, 2002 at 10:10:59AM -0700, Adam J. Richter wrote:
+> 
+> 	The standard for make is that if you name the target, it
+> builds the target.  If I want to make bzImage and modules, I should type
+> "make bzImage modules".
+As it is in 2.5.22 make bzImage compares to make installable in kbuild-2.5.
+What about combining best of both worlds?
 
+Let
+make bzImage	-> Build bzImage
+make modules	-> Build modules
 
-On Tue, 18 Jun 2002 11:05:36 -0700, mgix@mgix.com wrote:
+And the new member of the family:
+make kernel	-> Build selected binary and modules.
 
->>    Your assumptions are just plain wrong. The yielder is being nice, so it
->>should get preferential treatment, not worse treatment. All threads are
->>ready-to-run all the time. Yielding is not the same as blocking or lowering
->>your priority.
+So "make kernel" is similar to kbuild-2.5 "make installable" a name 
+that I dislike. Obviously "make kernel" requires support for selecting
+the appropriate binary utilising make *config.
 
->In other words, the more you yield, the nicer you
->are and the more CPU you get, and those nasty processes
->that are trying to actually use the CPU to do something
->with it and wear it down should get it as little as possible.
->I get it.
->
->    - Mgix
+That would solve your concerns about the semantics - or?
 
-	I'm sorry, but you are being entirely unreasonable. The kernel has no way to 
-know which processes are doing something useful and which ones are just 
-wasting CPU. It knows is that they are all ready-to-run and they all have the 
-same priority and none of them are blocking. The yielding threads are playing 
-nice and shouldn't be penalized for it.
+> 
+>       I agree with making the common case easier to build, but I would
+> happy to have "make bzImage modules" be activatable by "make all" or
+> "make" (or both).
+"make all" I dislike.
+"make all" is for me everything that can be maked, including doc's etc.
+make with no argument should in my opinion be equal to "make kernel" -
+so we agree there.
 
-	The following code:
+>        If I want to the kernel to build to continue even when a module
+> fails to compile, I should be able to do that by just using "-k".  Not
+> being able to build include/linux/modversions.h prevents me from doing
+> that.
+>From a conceptual point I disagree here. I would like make to
+avoid completion in case an error is flagged.
+My prediction is that the new behaviour may result in more errors being
+corrected, due to the incentitive to do it. Today you ignore it
+and hardly cannot spot it in all the noise generated during the build
+process.
+By the way - anyone having feedback on the "make KBUILD_VERBOSE=0"
+mode. Why not make it default?
 
-while(1) sched_yield();
-
-	Is the problem, not the kernel. You can't expect the kernel's ESP to figure 
-out that you really meant something else or that your process isn't really 
-doing anything useful.
-
-	If you didn't mean to burn the CPU in an endless loop, WHY DID YOU?
-
-	You should never call sched_yield in a loop like this unless your intent is 
-to burn the CPU until some other thread/process does something. Since you 
-rarely want to do this, you should seldom if ever call sched_yield in a loop. 
-
-	What sched_yield is good for is if you encounter a situation where you 
-need/want some resource and another thread/process has it. You call 
-sched_yield once, and maybe when you run again, the other thread/process will 
-have released it. You can also use it as the spin function in spinlocks.
-
-	But your expectation that it will reduce CPU usage is just plain wrong. If 
-you have one thread spinning on sched_yield, on a single CPU machine it will 
-definitely get 100% of the CPU. If you have two, they will each definitely 
-get 50% of the CPU. There are blocking functions and scheduler priority 
-functions for this purpose.
-
-	DS
-
-
+	Sam

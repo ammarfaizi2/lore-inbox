@@ -1,28 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282168AbRK1Xan>; Wed, 28 Nov 2001 18:30:43 -0500
+	id <S282180AbRK1XbX>; Wed, 28 Nov 2001 18:31:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282176AbRK1Xaf>; Wed, 28 Nov 2001 18:30:35 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:33040 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S282168AbRK1XaU>; Wed, 28 Nov 2001 18:30:20 -0500
-Message-ID: <3C057358.95C181A5@zip.com.au>
-Date: Wed, 28 Nov 2001 15:29:28 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
+	id <S282179AbRK1XbD>; Wed, 28 Nov 2001 18:31:03 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54801 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S282176AbRK1XbB>; Wed, 28 Nov 2001 18:31:01 -0500
+Subject: Re: Linux 2.4.17-pre1
+To: mikpe@csd.uu.se (Mikael Pettersson)
+Date: Wed, 28 Nov 2001 23:39:26 +0000 (GMT)
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+In-Reply-To: <200111282200.XAA02802@harpo.it.uu.se> from "Mikael Pettersson" at Nov 28, 2001 11:00:23 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: "David C. Hansen" <haveblue@us.ibm.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove BKL from drivers' release functions
-In-Reply-To: <200111282305.fASN5ap02626@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E169EIY-0006UI-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David C. Hansen" wrote:
-> 
-> +static spinlock_t              user_list_lock;
+> use "BSD without advertising clause", which causes the kernel to be
+> tainted. Shouldn't fs/nls/*.c use "Dual BSD/GPL" or "GPL" instead?
 
-	= SPIN_LOCK_UNLOCKED;
+Dual BSD/GPL is the correct one.  Not a big issue. Since the GPL allows
+stuff to be freer than GPL but still GPL its arguably correct too I suspect

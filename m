@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261742AbSK0Iai>; Wed, 27 Nov 2002 03:30:38 -0500
+	id <S261721AbSK0Icr>; Wed, 27 Nov 2002 03:32:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261799AbSK0Iai>; Wed, 27 Nov 2002 03:30:38 -0500
-Received: from packet.digeo.com ([12.110.80.53]:14504 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261742AbSK0Iah>;
-	Wed, 27 Nov 2002 03:30:37 -0500
-Message-ID: <3DE4845D.65817070@digeo.com>
-Date: Wed, 27 Nov 2002 00:37:49 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S261689AbSK0Icr>; Wed, 27 Nov 2002 03:32:47 -0500
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:62108 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261669AbSK0Icq> convert rfc822-to-8bit; Wed, 27 Nov 2002 03:32:46 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] 2.4.20-rc4-ac1 (also occurs 2.4.20-rc2-ac3) in radeon DRI for XFree86
+Date: Wed, 27 Nov 2002 09:39:38 +0100
+User-Agent: KMail/1.4.3
+Organization: WOLK - Working Overloaded Linux Kernel
+Cc: Joshua Kwan <joshk@mspencer.net>, Arjan van de Ven <arjanv@redhat.com>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Srihari Vijayaraghavan <harisri@bigpond.com>,
-       Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: 2.5.49: kernel BUG at drivers/block/ll_rw_blk.c:1950!
-References: <200211262203.20088.harisri@bigpond.com> <3DE3D1D1.BE5B30ED@digeo.com> <15843.54741.609413.371274@notabene.cse.unsw.edu.au> <200211271912.05131.harisri@bigpond.com> <20021127082931.GD19903@suse.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Nov 2002 08:37:50.0125 (UTC) FILETIME=[44F2D5D0:01C295F0]
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200211270939.38410.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> 
-> On Wed, Nov 27 2002, Srihari Vijayaraghavan wrote:
-> > Hello Neil,
-> >
-> > On Wednesday 27 November 2002 07:13, Neil Brown wrote:
-> > > Srihari, could you possibly try with the following patch please to see
-> > > if it gives more useful information.
-> >
-> > No worries. That did the trick.
-> >
-> > The following message appears just before the first oops:
-> > Nov 27 18:56:32 localhost kernel: bio_add_page: want to add 4096 at 17658 but
-> > only allowed 3072 - prepare to oops...
-> 
-> Neil, this is the problem. Currently a driver _must_ be able to accept a
-> page worth of data at any location...
+Hi Joshua,
 
-Even if pages are 64kbytes?
+> Ksymoops output follows.
+> I compiled Radeon DRM stuff into the kernel -- i845 agp support from 
+> agapgart. I am using gcc-3.2 to compile. 100% reproducible (okay, i've been
+> spending too much time on bugzillas...) Feel the power of the oops.
+
+I've posted a similar oops with latest rc2 -AC kernel. I have an ATI Rage128 
+card and also got those oops if using DRI.
+
+I hope Arjan may find the bug :)
+
+ciao, Marc

@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261152AbTIRLN6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 07:13:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbTIRLN6
+	id S261156AbTIRLWh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 07:22:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261157AbTIRLWh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 07:13:58 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:41600 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261152AbTIRLN5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 07:13:57 -0400
-Date: Thu, 18 Sep 2003 07:15:13 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: John R Moser <jmoser5@student.ccbc.cc.md.us>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Small security option
-In-Reply-To: <Pine.A32.3.91.1030917204729.33040A-200000@student.ccbc.cc.md.us>
-Message-ID: <Pine.LNX.4.53.0309180709420.2371@chaos>
-References: <Pine.A32.3.91.1030917204729.33040A-200000@student.ccbc.cc.md.us>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 18 Sep 2003 07:22:37 -0400
+Received: from dspnet.fr.eu.org ([62.73.5.179]:62987 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S261156AbTIRLWf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 07:22:35 -0400
+Date: Thu, 18 Sep 2003 13:22:34 +0200
+From: Olivier Galibert <galibert@pobox.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: marcelo.tosatti@cyclades.com.br, pavel@ucw.cz, alan@lxorguk.ukuu.org.uk,
+       neilb@cse.unsw.edu.au, linux-kernel@vger.kernel.org
+Subject: Re: experiences beyond 4 GB RAM with 2.4.22
+Message-ID: <20030918112234.GA81495@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Stephan von Krawczynski <skraw@ithnet.com>,
+	marcelo.tosatti@cyclades.com.br, pavel@ucw.cz,
+	alan@lxorguk.ukuu.org.uk, neilb@cse.unsw.edu.au,
+	linux-kernel@vger.kernel.org
+References: <20030916195345.GB68728@dspnet.fr.eu.org> <Pine.LNX.4.44.0309161814410.15569-100000@logos.cnet> <20030916212301.GC17045@m23.limsi.fr> <20030917131407.17f767a3.skraw@ithnet.com> <20030917130818.GA3144@m23.limsi.fr> <20030918095845.GA77609@dspnet.fr.eu.org> <20030918121327.5739b467.skraw@ithnet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030918121327.5739b467.skraw@ithnet.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Sep 2003, John R Moser wrote:
+On Thu, Sep 18, 2003 at 12:13:27PM +0200, Stephan von Krawczynski wrote:
+> Fine. So we seem to agree 2.4.23 will be another big hit in the 2.4 line :-)
 
-> Why wasn't this done in the first place anyway?
->
-> Some sysadmins like to disable the other boot devices and password-protect
-> the bios.  Good, but if the person can pass init=, you're screwed.
->
-> Here's a small patch that does a very simple thing: Disables "init=" and
-> using /bin/sh for init. That'll stop people from rooting the box from grub.
->
-> The file is attatched.
+Indeed, it's working beautifully.
 
-No. I can still boot your box, mount your root file-system, and
-change the root password, all without you even knowing it.
-If I have physical control of a computer, I own it. I can
-do anything I want with it. If you could really prevent
-somebody from "breaking in", then you can never sell it and
-you are screwed if the password file gets corrupt (you would have
-to throw everything away).
 
-This patch is not useful.
+> > Now if only the CPU enumeration worked and both CPUs were detected...
+> 
+> Hm, I have not yet seen any configuration where multiple CPUs are not detected.
+> Are you sure you have compiled in SMP support? What does dmesg look like?
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
-            Note 96.31% of all statistics are fiction.
+I found the problem.  The meaning of the option "number of supported
+CPUs" is not what is expected.  It is not fixing the maximum number of
+CPUs, but the number of the last CPU checked for.  Specifically, in
+our system the CPUs are numbered 0 and 6.  Setting the MNCPU to 2
+prevents the second CPU to be taken into account.
 
+  OG.
 

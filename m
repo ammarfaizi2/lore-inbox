@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268444AbRGXURA>; Tue, 24 Jul 2001 16:17:00 -0400
+	id <S268441AbRGXUGV>; Tue, 24 Jul 2001 16:06:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268445AbRGXUQu>; Tue, 24 Jul 2001 16:16:50 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:48430 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S268444AbRGXUQh>; Tue, 24 Jul 2001 16:16:37 -0400
-To: Barry Wu <wqb123@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: about serial console problem
-In-Reply-To: <20010723065212.31153.qmail@web13901.mail.yahoo.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 24 Jul 2001 14:10:44 -0600
-In-Reply-To: <20010723065212.31153.qmail@web13901.mail.yahoo.com>
-Message-ID: <m17kwyhyuz.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+	id <S268443AbRGXUGK>; Tue, 24 Jul 2001 16:06:10 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:14605 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S268441AbRGXUF5>; Tue, 24 Jul 2001 16:05:57 -0400
+Date: Tue, 24 Jul 2001 17:05:33 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: "David E. Weekly" <dweekly@legato.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Is /dev/epoll scheduled for official inclusion anytime soon?
+In-Reply-To: <01dc01c11478$9a529920$5c044589@legato.com>
+Message-ID: <Pine.LNX.4.33L.0107241704530.20326-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Barry Wu <wqb123@yahoo.com> writes:
+On Tue, 24 Jul 2001, David E. Weekly wrote:
 
-> Hi, all,
-> 
-> I am porting linux 2.4.3 to our mipsel evaluation
-> board. Now I meet a problem. Because I use edown
-> to download the linux kernel to evaluation board.
-> I update the serial baud rate to 115200.
-> I use serial 0 as our console, and I can use
-> printk to print debug messages on serial port.
-> But after kernel call /sbin/init, I can not
-> see "INIT ...  ..." messages on serial port.
-> I suppose perhaps I make some mistakes. But when
-> I use 2.2.12 kernel, it ok.
-> If someone knows, please help me. Thanks!
+> I've been playing around with Davide Libenzi's "/dev/epoll"
 
-It's a bug in init.  INIT clears the CREAD flag which means all reads
-to the console will be dropped.  Why it /sbin/init works before 2.4.3
-is a mystery.
+> Given the sheer utility of using /dev/epoll in a largescale
+> server, are there any plans to roll it into the mainline kernel
+> at any point?
 
-Eric
+So why don't you ask Davide if he has any plans to submit
+it for inclusion into the kernel? ;)
+
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
+
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

@@ -1,357 +1,618 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263272AbUCRXSE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 18:18:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263297AbUCRXRH
+	id S263280AbUCRXT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 18:19:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263297AbUCRXTn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 18:17:07 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:32387
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263272AbUCRXFj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 18:05:39 -0500
-Date: Fri, 19 Mar 2004 00:06:28 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc1-aa1
-Message-ID: <20040318230628.GA2050@dualathlon.random>
-References: <20040318022201.GE2113@dualathlon.random> <Pine.LNX.4.44.0403181928210.16385-100000@localhost.localdomain>
-Mime-Version: 1.0
+	Thu, 18 Mar 2004 18:19:43 -0500
+Received: from rtp-iport-1.cisco.com ([64.102.122.148]:31322 "EHLO
+	rtp-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S263274AbUCRXFx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 18:05:53 -0500
+X-BrightmailFiltered: true
+To: James Morris <jmorris@redhat.com>
+Cc: Jouni Malinen <jkmaline@cc.hut.fi>, "David S. Miller" <davem@redhat.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Crypto API and keyed non-HMAC digest algorithms / Michael MIC
+References: <Xine.LNX.4.44.0403111513260.3693-100000@thoron.boston.redhat.com>
+From: Clay Haapala <chaapala@cisco.com>
+Organization: Cisco Systems, Inc. SRBU
+Face: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAHlBMVEXl5ufMrp3a4OLr6ujO
+ lXzChGmsblZzRzjF1+ErFRAz+KIaAAACVElEQVR4nG3TQW/aMBQAYC9IO88dguyWUomqt0DQ
+ do7koO22SXFQb6uE7XIMKrFya+mhPk8D43+79+wMyrp3gnx59nvxMxmNEnIWycgH+U9E55CO
+ rkZJ8hYipbXTdfcvQK/Xy6JF2zqI+qpbjZAszSDG2oXYp0FI5mOqbAeuDtLBdeuO8fNVxkzr
+ E9jklKEgQWsppYYf9v4IE3i/4RiVRPneQTpoXSM8QA7un3QZQ2cl54wXIH7VDwEmrdOiZBgF
+ V5BiLwLM4B3BS0ZpB24d4IvzW+QIc7/JIcAQIadF2eeUzn3FAa6xWFYUotjIRmLB7vEvCC4t
+ VAugpTrC2FleLBm2wVnlAc7Dl2u5L1UozgWCjTxMW+vb4GVVFhWWFSCdKmgDMhaNFoxL3bSH
+ rc/Irn1/RcWlh+UqNgHeNwishJ1L6LCpjdmGz76RmFGyuSwLgLUxJhyUlLA7fHMpeSGVPsFA
+ wqtK4voI8RE+I3DsDpfamSNMpIBTKrF1yIpPMA0AzQPU5gSwCTyC/aEAtX4NM6gLM3CCziBT
+ jRR+StQ/AA8a7AMuwxn0YAmcRKnVGwDRiOcw3uMWlajgAJsAPbw4OIpwrH3/vdq9B7hpl7GD
+ w61A4PxwSqyH9J25gePnYdqhYjjZ5s6QCb3bwvOLJWPBFvCvWVDSthYmcff44IcacOUOt1Yv
+ yGCF1+twuQtQCPjzZIaK/Lrx9+6b7TKEdXTwgz8R+uJv5K1jOcWMnO7NJ3v/QlprnzP1deUe
+ 8j4CpVE82MRj4j5SHGDnfvul8uGwjqNnpf4Ak4pzJDIy3lkAAAAASUVORK5CYII=
+Date: Thu, 18 Mar 2004 17:05:44 -0600
+In-Reply-To: <Xine.LNX.4.44.0403111513260.3693-100000@thoron.boston.redhat.com> (James
+ Morris's message of "Thu, 11 Mar 2004 15:14:36 -0500 (EST)")
+Message-ID: <yqujr7vpiwmv.fsf@chaapala-lnx2.cisco.com>
+User-Agent: Gnus/5.110001 (No Gnus v0.1) XEmacs/21.5 (celeriac, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0403181928210.16385-100000@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 18, 2004 at 08:41:45PM +0000, Hugh Dickins wrote:
-> On Thu, 18 Mar 2004, Andrea Arcangeli wrote:
+On Thu, 11 Mar 2004, James Morris outgrape:
+> On Thu, 11 Mar 2004, Clay Haapala wrote:
 > 
-> > This implements anon_vma for the anonymous memory unmapping and objrmap
-> > for the file mappings, effectively removing rmap completely and
-> > replacing it with more efficient algorithms (in terms of memory
-> > utilization and cpu cost for the fast paths).
+>> OK, so I should recode CRC32C to be a variation of digest that
+>> employs a setkey() handler, right?  Should be no problem.
 > 
-> There's a lot about this that I like.
+> Give it a try and see.
 > 
-> I think your use of anonymous vm_pgoff is brilliant.  I spent the
-> afternoon vacillating between believing it does the (mremap move)
-> job so smoothly we don't notice, and believing it's all a con trick
-> and does nothing at all.  Currently I believe it does the job!
+>> Can I get to a reasonable development environment by starting with
+>> 2.6.3, and adding the patch you just sent?  Or, do I need the
+>> Michael MIC patch, as well?
 > 
-> And very satisfying how anon and obj converge in page_referenced
-> and try_to_unmap: although they converge in my version too, I still
-> have to use find_vma on anons at the inner level, yours much nicer.
+> Yes, please apply the first two patches first.
 > 
-> I think the winning answer will actually lie between yours and mine:
-> the anon vmas linked into one tree belonging to the whole fork group.
-> Some of the messier aspects of your design come from dealing with the
-> vmas separately, with merging issues currently unresolved.  A lot of
-> that goes away if you lump all the anon vmas of the same fork group
-> into the same list.  Yes, of course the _list_ would be slower to
-> search; but once we have the right tree structure for the obj vmas,
-> I believe it should apply just as effectively to the anon vmas.
-
-the problem is that they will still not be mergeable if we obey to the
-vm_pgoff. We could merge some more though. The other main issue is the
-search in this single object for all mm, that has again the downside of
-searching all mm. I keep track of exactly which mm to track instead,
-this is more finegrined (after all I was competing with the rmap
-pte_chains that are overkill finegrined).
-
-But I certainly agree we could mix the two things and have 1 anon_vma
-object per-mm instad of per-vma by losing some granularity in the
-tracking and making the search more expensive, but then we'd need a
-prio_tree there too and that doesn't come for free either, so I'd rather
-spend the 12 bytes for the finegrined tracking, the prio_tree can't get
-right which mm to scan and which not for every page, the current
-anon_vma can.
-
-> I am disappointed that you're persisting with that "as" union: many
-> source files remain to be converted to page->as.mapping, and I don't
-> think it's worth it at all.  mm/objrmap.c is the _only_ file needing
-> a cast there for the anon case, please don't demand edits of so many
-> filesystems and others, not at this stage anyway.  You've been very
-
-Ok, I don't think it's the right way to go but you quite convinced me on
-this for the short term (now that it swaps heavily just fine and I'm not
-scared anymore), the patch will become quite a lot smaller.
-
-> A couple of filesystems history has left in my standard .config but
-> apparently not in yours.  Some over-enthusiastic BUG_ONs which will
-
-yep, I didn't compile those fs.
-
-> trigger when shmem_writepage swizzles a tmpfs page to swap at the
-> wrong moment (I saw the filemap.c in practice; I think truncate.c
-> ones could hit too; didn't search very hard for others).
 > 
-> And impressive though your saving on page tables was ;)
-> PageTables:          0 kB
-> a patch to correct that.  Yes, I've left inc out of pte_offset_kernel:
+> - James
 
-Great spotting, obviously I don't truncate on shmfs often ;), nor I
-check the pagetable size often either. This is a greatly appreciated set
-of fixes.
+I've redone the crypto crc32c implementation to make use of Jouni's
+setkey() digest api.  So now crypto crc32c checksums are just another
+type of digest, rather than a new CRYPTO_ALG type.
 
-> should it have been there anyway? and it's not clear to me whether ppc
+This implementation is still a wrapper for the actual computation
+routine in lib/libcrc32c, per previous requests.  The patch below
+includes the code under lib and crypto.  It requires Jouni's previous
+patches to be applied, and was tested on 2.6.4 kernel source.
 
-Dunno.
+Let me know how it looks, especially if I should add further tests in
+tcrypt.
 
-> and ppc64 can manage an early per-cpu increment.  You'll find you've
-> broken ppc and ppc64, which have grown to use the pgtable rmap stuff
-> for themselves, you'll probably want to grab some of my arch patches.
+Regards,
+-- 
+Clay Haapala (chaapala@cisco.com) Cisco Systems SRBU +1 763-398-1056
+   6450 Wedgwood Rd, Suite 130 Maple Grove MN 55311 PGP: C89240AD
+     Of course the drugs advertised in all those emails are safe.
+		      Show me the dead spammers!
+			      (Please!)
 
-Oh well, this is the next blocker now... Where can I find your arch
-patches? PPC folks comments?
-
-BTW, the only scary thing that happened so far was the crash during
-heavy swapping, I'm now running with this fix applied and I couldn't
-reproduce anymore (usually it always happen in 6 hours or less, so it's
-not 100% certain it's bulletproof yet). But I'm quite optimistic I got
-rid of one bad race condition now, since everything made sense, both
-the oops and the bug. You can see my last email to l-k for details.
-
-So now I will merge your fixes and I will remove the union (so the
-breakages gets dominated).
-
-Thank you very much for all your help and great feedback!
-
---- ./fs/exec.c.~1~	2004-03-17 22:37:53.000000000 +0100
-+++ ./fs/exec.c	2004-03-18 23:21:46.572083608 +0100
-@@ -324,9 +324,8 @@ void put_dirty_page(struct task_struct *
- 	}
- 	lru_cache_add_active(page);
- 	flush_dcache_page(page);
--	SetPageAnon(page);
- 	set_pte(pte, pte_mkdirty(pte_mkwrite(mk_pte(page, prot))));
--	page_add_rmap(page, vma, address);
-+	page_add_rmap(page, vma, address, 1);
- 	pte_unmap(pte);
- 	tsk->mm->rss++;
- 	spin_unlock(&tsk->mm->page_table_lock);
---- ./include/linux/objrmap.h.~1~	2004-03-17 22:37:53.000000000 +0100
-+++ ./include/linux/objrmap.h	2004-03-18 23:20:44.169570232 +0100
-@@ -53,7 +53,7 @@ extern void FASTCALL(anon_vma_link(struc
- extern void FASTCALL(__anon_vma_link(struct vm_area_struct * vma));
- 
- /* objrmap tracking functions */
--void FASTCALL(page_add_rmap(struct page *, struct vm_area_struct *, unsigned long));
-+void FASTCALL(page_add_rmap(struct page *, struct vm_area_struct *, unsigned long, int));
- void FASTCALL(page_remove_rmap(struct page *));
- 
- /*
---- ./mm/objrmap.c.~1~	2004-03-17 22:37:53.000000000 +0100
-+++ ./mm/objrmap.c	2004-03-18 23:34:21.986243200 +0100
-@@ -23,6 +23,8 @@
- #include <linux/swap.h>
- #include <linux/swapops.h>
- #include <linux/objrmap.h>
+diff -urN linux-2.6.4.orig/crypto/crc32c.c linux/crypto/crc32c.c
+--- linux-2.6.4.orig/crypto/crc32c.c	1969-12-31 18:00:00.000000000 -0600
++++ linux/crypto/crc32c.c	2004-03-18 16:09:05.000000000 -0600
+@@ -0,0 +1,110 @@
++/* 
++ * Cryptographic API.
++ *
++ * CRC32C chksum
++ *
++ * This module file is a wrapper to invoke the lib/crc32c routines.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option) 
++ * any later version.
++ *
++ */
 +#include <linux/init.h>
-+#include <asm/tlbflush.h>
- 
- kmem_cache_t * anon_vma_cachep;
- 
-@@ -248,13 +250,32 @@ static inline void anon_vma_page_link(st
-  * Add a new pte reverse mapping to a page.
-  */
- void fastcall page_add_rmap(struct page *page, struct vm_area_struct * vma,
--			    unsigned long address)
-+			    unsigned long address, int anon)
- {
-+	int last_anon;
++#include <linux/module.h>
++#include <linux/string.h>
++#include <linux/crypto.h>
++#include <linux/crc32c.h>
++#include <asm/byteorder.h>
 +
- 	if (!pfn_valid(page_to_pfn(page)) || PageReserved(page))
- 		return;
-+	BUG_ON(vma->vm_flags & VM_RESERVED);
++#define CHKSUM_BLOCK_SIZE	32
++#define CHKSUM_DIGEST_SIZE	4
++
++struct chksum_ctx {
++	u32 crc;
++};
++
++/*
++ * Steps through buffer one byte at at time, calculates reflected 
++ * crc using table.
++ */
++
++static void chksum_init(void *ctx)
++{
++	struct chksum_ctx *mctx = ctx;
++
++	mctx->crc = ~(u32)0;			/* common usage */
++}
++
++/*
++ * Setting the seed allows arbitrary accumulators and flexible XOR policy
++ * If your algorithm starts with ~0, then XOR with ~0 before you set
++ * the seed.
++ */
++static int chksum_setkey(void *ctx, const u8 *key, unsigned int keylen,
++	                  u32 *flags)
++{
++	struct chksum_ctx *mctx = ctx;
++
++	if (keylen != sizeof(mctx->crc)) {
++		if (flags)
++			*flags = CRYPTO_TFM_RES_BAD_KEY_LEN;
++		return -EINVAL;
++	}
++	mctx->crc = __cpu_to_le32(*(u32 *)key);
++	return 0;
++}
++
++static void chksum_update(void *ctx, const u8 *data, size_t length)
++{
++	struct chksum_ctx *mctx = ctx;
++	u32 mcrc;
++
++	mcrc = crc32c(mctx->crc, data, length);
++
++	mctx->crc = mcrc;
++}
++
++static void chksum_final(void *ctx, u8 *out)
++{
++	struct chksum_ctx *mctx = ctx;
++	u32 mcrc = (mctx->crc ^ ~(u32)0);
++	
++	*(u32 *)out = __le32_to_cpu(mcrc);
++}
++
++static struct crypto_alg alg = {
++	.cra_name	=	"crc32c",
++	.cra_flags	=	CRYPTO_ALG_TYPE_DIGEST,
++	.cra_blocksize	=	CHKSUM_BLOCK_SIZE,
++	.cra_ctxsize	=	sizeof(struct chksum_ctx),
++	.cra_module	=	THIS_MODULE,
++	.cra_list	=	LIST_HEAD_INIT(alg.cra_list),
++	.cra_u		=	{
++		.digest = {
++			 .dia_digestsize=	CHKSUM_DIGEST_SIZE,
++			 .dia_setkey	=	chksum_setkey,
++			 .dia_init   	= 	chksum_init,
++			 .dia_update 	=	chksum_update,
++			 .dia_final  	=	chksum_final
++		 }
++	}
++};
++
++static int __init init(void)
++{
++	return crypto_register_alg(&alg);
++}
++
++static void __exit fini(void)
++{
++	crypto_unregister_alg(&alg);
++}
++
++module_init(init);
++module_exit(fini);
++
++MODULE_AUTHOR("Clay Haapala <chaapala@cisco.com>");
++MODULE_DESCRIPTION("CRC32c (Castagnoli) calculations wrapper for lib/crc32c");
++MODULE_LICENSE("GPL");
+diff -urN linux-2.6.4.orig/crypto/Kconfig linux/crypto/Kconfig
+--- linux-2.6.4.orig/crypto/Kconfig	2004-03-17 15:23:06.000000000 -0600
++++ linux/crypto/Kconfig	2004-03-18 15:24:57.000000000 -0600
+@@ -170,6 +170,16 @@
+ 	  should not be used for other purposes because of the weakness
+ 	  of the algorithm.
  
- 	page_map_lock(page);
++config CRYPTO_CRC32C
++	tristate "CRC32c CRC algorithm"
++	depends on CRYPTO
++	select LIBCRC32C
++	help
++	  Castagnoli, et al Cyclic Redundancy-Check Algorithm.  Used
++	  by iSCSI for header and data digests and by others.
++	  See Castagnoli93.  This implementation uses lib/crc32c.
++          Module will be crc32c.
++
+ config CRYPTO_TEST
+ 	tristate "Testing module"
+ 	depends on CRYPTO
+diff -urN linux-2.6.4.orig/crypto/Makefile linux/crypto/Makefile
+--- linux-2.6.4.orig/crypto/Makefile	2004-03-17 15:23:06.000000000 -0600
++++ linux/crypto/Makefile	2004-03-18 15:44:54.000000000 -0600
+@@ -24,5 +24,6 @@
+ obj-$(CONFIG_CRYPTO_ARC4) += arc4.o
+ obj-$(CONFIG_CRYPTO_DEFLATE) += deflate.o
+ obj-$(CONFIG_CRYPTO_MICHAEL_MIC) += michael_mic.o
++obj-$(CONFIG_CRYPTO_CRC32C) += crc32c.o
  
+ obj-$(CONFIG_CRYPTO_TEST) += tcrypt.o
+diff -urN linux-2.6.4.orig/crypto/tcrypt.c linux/crypto/tcrypt.c
+--- linux-2.6.4.orig/crypto/tcrypt.c	2004-03-17 15:23:06.000000000 -0600
++++ linux/crypto/tcrypt.c	2004-03-18 16:36:41.000000000 -0600
+@@ -61,7 +61,7 @@
+ static char *check[] = {
+ 	"des", "md5", "des3_ede", "rot13", "sha1", "sha256", "blowfish",
+ 	"twofish", "serpent", "sha384", "sha512", "md4", "aes", "cast6", 
+-	"arc4", "michael_mic", "deflate", NULL
++	"arc4", "michael_mic", "deflate", "crc32c", NULL
+ };
+ 
+ static void
+@@ -496,6 +496,107 @@
+ }
+ 
+ static void
++test_crc32c(void)
++{
++#define NUMVEC 6
++#define VECSIZE 40
++
++	int i, j, pass;
++	u32 crc;
++	u8 b, test_vec[NUMVEC][VECSIZE];
++	static u32 vec_results[NUMVEC] = {
++		0x0e2c157f, 0xe980ebf6, 0xde74bded,
++		0xd579c862, 0xba979ad0, 0x2b29d913
++	};
++	static u32 tot_vec_results = 0x24c5d375;
++	
++	struct scatterlist sg[NUMVEC];
++	struct crypto_tfm *tfm;
++	char *fmtdata = "testing crc32c initialized to %08x: %s\n";
++#define SEEDTESTVAL 0xedcba987
++	u32 seed;
++
++	printk("\ntesting crc32c\n");
++
++	tfm = crypto_alloc_tfm("crc32c", 0);
++	if (tfm == NULL) {
++		printk("failed to load transform for crc32c\n");
++		return;
++	}
++	
++	crypto_digest_init(tfm);
++	crypto_digest_final(tfm, (u8*)&crc);
++	printk(fmtdata, crc, (crc == 0) ? "pass" : "ERROR");
++	
 +	/*
-+	 * Setting and clearing PG_anon must always happen inside
-+	 * page_map_lock to avoid races between mapping and
-+	 * unmapping on different processes of the same
-+	 * shared cow swapcache page. And while we take the
-+	 * page_map_lock PG_anon cannot change from under us.
-+	 * Actually PG_anon cannot change under fork either
-+	 * since fork holds a reference on the page so it cannot
-+	 * be unmapped under fork and in turn copy_page_range is
-+	 * allowed to read PG_anon outside the page_map_lock.
++	 * stuff test_vec with known values, simple incrementing
++	 * byte values.
 +	 */
-+	last_anon = PageAnon(page);
-+	if (anon && !last_anon)
-+		SetPageAnon(page);
-+	BUG_ON(!anon && last_anon);
++	b = 0;
++	for (i = 0; i < NUMVEC; i++) {
++		for (j = 0; j < VECSIZE; j++) 
++			test_vec[i][j] = ++b;
++		sg[i].page = virt_to_page(test_vec[i]);
++		sg[i].offset = offset_in_page(test_vec[i]);
++		sg[i].length = VECSIZE;
++	}
 +
- 	if (!page->mapcount++)
- 		inc_page_state(nr_mapped);
- 
-@@ -266,16 +287,17 @@ void fastcall page_add_rmap(struct page 
- 		 * We can find the mappings by walking the object
- 		 * vma chain for that object.
- 		 */
--		BUG_ON(!page->as.mapping);
- 		BUG_ON(PageSwapCache(page));
-+		BUG_ON(!page->as.mapping);
- 	}
- 
- 	page_map_unlock(page);
- }
- 
- /* this needs the page->flags PG_map_lock held */
--static void inline anon_vma_page_unlink(struct page * page)
-+static inline void anon_vma_page_unlink(struct page * page)
- {
-+	BUG_ON(!page->as.mapping);
- 	/*
- 	 * Cleanup if this anon page is gone
- 	 * as far as the vm is concerned.
-@@ -304,6 +326,8 @@ void fastcall page_remove_rmap(struct pa
- 	if (!page_mapped(page))
- 		goto out_unlock;
- 
-+	BUG_ON(vma->vm_flags & VM_RESERVED);
++	seed = SEEDTESTVAL;
++	(void)crypto_digest_setkey(tfm, (const u8*)&seed, sizeof(u32));
++	crypto_digest_final(tfm, (u8*)&crc);
++	printk("testing crc32c setkey returns %08x : %s\n", crc, (crc == (SEEDTESTVAL ^ ~(u32)0)) ?
++	       "pass" : "ERROR");
++	
++	printk("testing crc32c using update/final:\n");
 +
- 	if (!--page->mapcount)
- 		dec_page_state(nr_mapped);
- 
-@@ -387,8 +411,7 @@ try_to_unmap_one(struct vm_area_struct *
- 	BUG_ON(!page->mapcount);
- 
- 	mm->rss--;
--	page->mapcount--;
--	if (PageAnon(page))
-+	if (!--page->mapcount && PageAnon(page))
- 		anon_vma_page_unlink(page);
- 	page_cache_release(page);
- 
---- ./mm/fremap.c.~1~	2004-03-17 22:37:53.000000000 +0100
-+++ ./mm/fremap.c	2004-03-18 23:22:06.747016552 +0100
-@@ -77,7 +77,7 @@ int install_page(struct mm_struct *mm, s
- 	mm->rss++;
- 	flush_icache_page(vma, page);
- 	set_pte(pte, mk_pte(page, prot));
--	page_add_rmap(page, vma, addr);
-+	page_add_rmap(page, vma, addr, 0);
- 	pte_val = *pte;
- 	pte_unmap(pte);
- 	update_mmu_cache(vma, addr, pte_val);
---- ./mm/memory.c.~1~	2004-03-18 00:55:19.000000000 +0100
-+++ ./mm/memory.c	2004-03-18 23:25:29.042263000 +0100
-@@ -324,7 +324,7 @@ skip_copy_pte_range:
- 					 */
- 					BUG_ON(!page_mapped(page));
- 					BUG_ON(!page->as.mapping);
--					page_add_rmap(page, vma, address);
-+					page_add_rmap(page, vma, address, PageAnon(page));
- 				} else {
- 					BUG_ON(page_mapped(page));
- 					BUG_ON(page->as.mapping);
-@@ -1056,8 +1056,7 @@ static int do_wp_page(struct mm_struct *
- 			++mm->rss;
- 		page_remove_rmap(old_page);
- 		break_cow(vma, new_page, address, page_table);
--		SetPageAnon(new_page);
--		page_add_rmap(new_page, vma, address);
-+		page_add_rmap(new_page, vma, address, 1);
- 		lru_cache_add_active(new_page);
- 
- 		/* Free the old page.. */
-@@ -1291,8 +1290,7 @@ static int do_swap_page(struct mm_struct
- 
- 	flush_icache_page(vma, page);
- 	set_pte(page_table, pte);
--	SetPageAnon(page);
--	page_add_rmap(page, vma, address);
-+	page_add_rmap(page, vma, address, 1);
- 
- 	/* No need to invalidate - it was non-present before */
- 	update_mmu_cache(vma, address, pte);
-@@ -1314,7 +1312,7 @@ do_anonymous_page(struct mm_struct *mm, 
++	pass = 1;		    /* assume all is well */
++	
++	for (i = 0; i < NUMVEC; i++) {
++		seed = ~(u32)0;
++		(void)crypto_digest_setkey(tfm, (const u8*)&seed, sizeof(u32));
++		crypto_digest_update(tfm, &sg[i], 1);
++		crypto_digest_final(tfm, (u8*)&crc);
++		if (crc == vec_results[i]) {
++			printk(" %08x:OK", crc);
++		} else {
++			printk(" %08x:BAD, wanted %08x\n", crc, vec_results[i]);
++			pass = 0;
++		}
++	}
++
++	printk("\ntesting crc32c using incremental accumulator:\n");
++	crc = 0;
++	for (i = 0; i < NUMVEC; i++) {
++		seed = (crc ^ ~(u32)0);
++		(void)crypto_digest_setkey(tfm, (const u8*)&seed, sizeof(u32));
++		crypto_digest_update(tfm, &sg[i], 1);
++		crypto_digest_final(tfm, (u8*)&crc);
++	}
++	if (crc == tot_vec_results) {
++		printk(" %08x:OK", crc);
++	} else {
++		printk(" %08x:BAD, wanted %08x\n", crc, tot_vec_results);
++		pass = 0;
++	}
++
++	printk("\ntesting crc32c using digest:\n");
++	seed = ~(u32)0;
++	(void)crypto_digest_setkey(tfm, (const u8*)&seed, sizeof(u32));
++	crypto_digest_digest(tfm, sg, NUMVEC, (u8*)&crc);
++	if (crc == tot_vec_results) {
++		printk(" %08x:OK", crc);
++	} else {
++		printk(" %08x:BAD, wanted %08x\n", crc, tot_vec_results);
++		pass = 0;
++	}
++	
++	printk("\n%s\n", pass ? "pass" : "ERROR");
++
++	crypto_free_tfm(tfm);
++	printk("crc32c test complete\n");
++}
++
++static void
+ test_available(void)
  {
- 	pte_t entry;
- 	struct page * page = ZERO_PAGE(addr);
--	int ret;
-+	int ret, anon = 0;
+ 	char **name = check;
+@@ -566,7 +667,8 @@
  
- 	/* Read-only mapping of ZERO_PAGE. */
- 	entry = pte_wrprotect(mk_pte(ZERO_PAGE(addr), vma->vm_page_prot));
-@@ -1348,7 +1346,7 @@ do_anonymous_page(struct mm_struct *mm, 
- 				      vma);
- 		lru_cache_add_active(page);
- 		mark_page_accessed(page);
--		SetPageAnon(page);
-+		anon = 1;
- 	}
+ 		test_hash("sha384", sha384_tv_template, SHA384_TEST_VECTORS);
+ 		test_hash("sha512", sha512_tv_template, SHA512_TEST_VECTORS);
+-		test_deflate();		
++		test_deflate();
++		test_crc32c();
+ #ifdef CONFIG_CRYPTO_HMAC
+ 		test_hmac("md5", hmac_md5_tv_template, HMAC_MD5_TEST_VECTORS);
+ 		test_hmac("sha1", hmac_sha1_tv_template, HMAC_SHA1_TEST_VECTORS);		
+@@ -657,6 +759,10 @@
+ 		test_hash("michael_mic", michael_mic_tv_template, MICHAEL_MIC_TEST_VECTORS);
+ 		break;
  
- 	set_pte(page_table, entry);
-@@ -1360,7 +1358,7 @@ do_anonymous_page(struct mm_struct *mm, 
- 	ret = VM_FAULT_MINOR;
++	case 18:
++		test_crc32c();
++		break;
++
+ #ifdef CONFIG_CRYPTO_HMAC
+ 	case 100:
+ 		test_hmac("md5", hmac_md5_tv_template, HMAC_MD5_TEST_VECTORS);
+diff -urN linux-2.6.4.orig/include/linux/crc32c.h linux/include/linux/crc32c.h
+--- linux-2.6.4.orig/include/linux/crc32c.h	1969-12-31 18:00:00.000000000 -0600
++++ linux/include/linux/crc32c.h	2004-03-18 15:34:18.000000000 -0600
+@@ -0,0 +1,11 @@
++#ifndef _LINUX_CRC32C_H
++#define _LINUX_CRC32C_H
++
++#include <linux/types.h>
++
++extern u32 crc32c_le(u32 crc, unsigned char const *address, size_t length);
++extern u32 crc32c_be(u32 crc, unsigned char const *address, size_t length);
++
++#define crc32c(seed, data, length)  crc32c_le(seed, (unsigned char const *)data, length)
++
++#endif	/* _LINUX_CRC32C_H */
+diff -urN linux-2.6.4.orig/lib/Kconfig linux/lib/Kconfig
+--- linux-2.6.4.orig/lib/Kconfig	2004-03-10 20:55:33.000000000 -0600
++++ linux/lib/Kconfig	2004-03-18 16:28:42.000000000 -0600
+@@ -12,6 +12,15 @@
+ 	  kernel tree does. Such modules that use library CRC32 functions
+ 	  require M here.
  
- 	/* ignores ZERO_PAGE */
--	page_add_rmap(page, vma, addr);
-+	page_add_rmap(page, vma, addr, anon);
++config LIBCRC32C
++	tristate "CRC32c (Castagnoli, et al) Cyclic Redundancy-Check"
++	help
++	  This option is provided for the case where no in-kernel-tree
++	  modules require CRC32c functions, but a module built outside the
++	  kernel tree does. Such modules that use library CRC32c functions
++	  require M here.  See Castagnoli93.
++	  Module will be libcrc32c.
++
+ #
+ # compression support is select'ed if needed
+ #
+diff -urN linux-2.6.4.orig/lib/libcrc32c.c linux/lib/libcrc32c.c
+--- linux-2.6.4.orig/lib/libcrc32c.c	1969-12-31 18:00:00.000000000 -0600
++++ linux/lib/libcrc32c.c	2004-03-18 16:27:54.000000000 -0600
+@@ -0,0 +1,205 @@
++/* 
++ * CRC32C
++ *@Article{castagnoli-crc,
++ * author =       { Guy Castagnoli and Stefan Braeuer and Martin Herrman},
++ * title =        {{Optimization of Cyclic Redundancy-Check Codes with 24
++ *                 and 32 Parity Bits}},
++ * journal =      IEEE Transactions on Communication,
++ * year =         {1993},
++ * volume =       {41},
++ * number =       {6},
++ * pages =        {},
++ * month =        {June},
++ *}
++ * Used by the iSCSI driver, possibly others, and derived from the
++ * the iscsi-crc.c module of the linux-iscsi driver at
++ * http://linux-iscsi.sourceforge.net.
++ *
++ * Following the example of lib/crc32, this function is intended to be
++ * flexible and useful for all users.  Modules that currently have their
++ * own crc32c, but hopefully may be able to use this one are:
++ *  net/sctp (please add all your doco to here if you change to
++ *            use this one!)
++ *  <endoflist>
++ *
++ * Copyright (c) 2003 Cisco Systems, Inc.
++ * 
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option) 
++ * any later version.
++ *
++ */
++#include <linux/crc32c.h>
++#include <linux/module.h>
++#include <asm/byteorder.h>
++
++MODULE_AUTHOR("Clay Haapala <chaapala@cisco.com>");
++MODULE_DESCRIPTION("CRC32c (Castagnoli) calculations");
++MODULE_LICENSE("GPL");
++
++#if __GNUC__ >= 3	/* 2.x has "attribute", but only 3.0 has "pure */
++#define attribute(x) __attribute__(x)
++#else
++#define attribute(x)
++#endif
++
++#define CRC32C_POLY_BE 0x1EDC6F41
++#define CRC32C_POLY_LE 0x82F63B78
++
++#ifndef CRC_LE_BITS 
++# define CRC_LE_BITS 8
++#endif
++
++
++/*
++ * Haven't generated a big-endian table yet, but the bit-wise version
++ * should at least work.
++ */
++#if defined CRC_BE_BITS && CRC_BE_BITS != 1
++#undef CRC_BE_BITS
++#endif
++#ifndef CRC_BE_BITS
++# define CRC_BE_BITS 1
++#endif
++
++EXPORT_SYMBOL(crc32c_le);
++
++#if CRC_LE_BITS == 1
++/*
++ * Compute things bit-wise, as done in crc32.c.  We could share the tight 
++ * loop below with crc32 and vary the POLY if we don't find value in terms
++ * of space and maintainability in keeping the two modules separate.
++ */
++u32 attribute((pure))
++crc32c_le(u32 crc, unsigned char const *p, size_t len)
++{
++	int i;
++	while (len--) {
++		crc ^= *p++;
++		for (i = 0; i < 8; i++)
++			crc = (crc >> 1) ^ ((crc & 1) ? CRC32C_POLY_LE : 0);
++	}
++	return crc;
++}
++#else
++
++/*
++ * This is the CRC-32C table
++ * Generated with:
++ * width = 32 bits
++ * poly = 0x1EDC6F41
++ * reflect input bytes = true
++ * reflect output bytes = true
++ */
++
++static u32 crc32c_table[256] = {
++	0x00000000L, 0xF26B8303L, 0xE13B70F7L, 0x1350F3F4L,
++	0xC79A971FL, 0x35F1141CL, 0x26A1E7E8L, 0xD4CA64EBL,
++	0x8AD958CFL, 0x78B2DBCCL, 0x6BE22838L, 0x9989AB3BL,
++	0x4D43CFD0L, 0xBF284CD3L, 0xAC78BF27L, 0x5E133C24L,
++	0x105EC76FL, 0xE235446CL, 0xF165B798L, 0x030E349BL,
++	0xD7C45070L, 0x25AFD373L, 0x36FF2087L, 0xC494A384L,
++	0x9A879FA0L, 0x68EC1CA3L, 0x7BBCEF57L, 0x89D76C54L,
++	0x5D1D08BFL, 0xAF768BBCL, 0xBC267848L, 0x4E4DFB4BL,
++	0x20BD8EDEL, 0xD2D60DDDL, 0xC186FE29L, 0x33ED7D2AL,
++	0xE72719C1L, 0x154C9AC2L, 0x061C6936L, 0xF477EA35L,
++	0xAA64D611L, 0x580F5512L, 0x4B5FA6E6L, 0xB93425E5L,
++	0x6DFE410EL, 0x9F95C20DL, 0x8CC531F9L, 0x7EAEB2FAL,
++	0x30E349B1L, 0xC288CAB2L, 0xD1D83946L, 0x23B3BA45L,
++	0xF779DEAEL, 0x05125DADL, 0x1642AE59L, 0xE4292D5AL,
++	0xBA3A117EL, 0x4851927DL, 0x5B016189L, 0xA96AE28AL,
++	0x7DA08661L, 0x8FCB0562L, 0x9C9BF696L, 0x6EF07595L,
++	0x417B1DBCL, 0xB3109EBFL, 0xA0406D4BL, 0x522BEE48L,
++	0x86E18AA3L, 0x748A09A0L, 0x67DAFA54L, 0x95B17957L,
++	0xCBA24573L, 0x39C9C670L, 0x2A993584L, 0xD8F2B687L,
++	0x0C38D26CL, 0xFE53516FL, 0xED03A29BL, 0x1F682198L,
++	0x5125DAD3L, 0xA34E59D0L, 0xB01EAA24L, 0x42752927L,
++	0x96BF4DCCL, 0x64D4CECFL, 0x77843D3BL, 0x85EFBE38L,
++	0xDBFC821CL, 0x2997011FL, 0x3AC7F2EBL, 0xC8AC71E8L,
++	0x1C661503L, 0xEE0D9600L, 0xFD5D65F4L, 0x0F36E6F7L,
++	0x61C69362L, 0x93AD1061L, 0x80FDE395L, 0x72966096L,
++	0xA65C047DL, 0x5437877EL, 0x4767748AL, 0xB50CF789L,
++	0xEB1FCBADL, 0x197448AEL, 0x0A24BB5AL, 0xF84F3859L,
++	0x2C855CB2L, 0xDEEEDFB1L, 0xCDBE2C45L, 0x3FD5AF46L,
++	0x7198540DL, 0x83F3D70EL, 0x90A324FAL, 0x62C8A7F9L,
++	0xB602C312L, 0x44694011L, 0x5739B3E5L, 0xA55230E6L,
++	0xFB410CC2L, 0x092A8FC1L, 0x1A7A7C35L, 0xE811FF36L,
++	0x3CDB9BDDL, 0xCEB018DEL, 0xDDE0EB2AL, 0x2F8B6829L,
++	0x82F63B78L, 0x709DB87BL, 0x63CD4B8FL, 0x91A6C88CL,
++	0x456CAC67L, 0xB7072F64L, 0xA457DC90L, 0x563C5F93L,
++	0x082F63B7L, 0xFA44E0B4L, 0xE9141340L, 0x1B7F9043L,
++	0xCFB5F4A8L, 0x3DDE77ABL, 0x2E8E845FL, 0xDCE5075CL,
++	0x92A8FC17L, 0x60C37F14L, 0x73938CE0L, 0x81F80FE3L,
++	0x55326B08L, 0xA759E80BL, 0xB4091BFFL, 0x466298FCL,
++	0x1871A4D8L, 0xEA1A27DBL, 0xF94AD42FL, 0x0B21572CL,
++	0xDFEB33C7L, 0x2D80B0C4L, 0x3ED04330L, 0xCCBBC033L,
++	0xA24BB5A6L, 0x502036A5L, 0x4370C551L, 0xB11B4652L,
++	0x65D122B9L, 0x97BAA1BAL, 0x84EA524EL, 0x7681D14DL,
++	0x2892ED69L, 0xDAF96E6AL, 0xC9A99D9EL, 0x3BC21E9DL,
++	0xEF087A76L, 0x1D63F975L, 0x0E330A81L, 0xFC588982L,
++	0xB21572C9L, 0x407EF1CAL, 0x532E023EL, 0xA145813DL,
++	0x758FE5D6L, 0x87E466D5L, 0x94B49521L, 0x66DF1622L,
++	0x38CC2A06L, 0xCAA7A905L, 0xD9F75AF1L, 0x2B9CD9F2L,
++	0xFF56BD19L, 0x0D3D3E1AL, 0x1E6DCDEEL, 0xEC064EEDL,
++	0xC38D26C4L, 0x31E6A5C7L, 0x22B65633L, 0xD0DDD530L,
++	0x0417B1DBL, 0xF67C32D8L, 0xE52CC12CL, 0x1747422FL,
++	0x49547E0BL, 0xBB3FFD08L, 0xA86F0EFCL, 0x5A048DFFL,
++	0x8ECEE914L, 0x7CA56A17L, 0x6FF599E3L, 0x9D9E1AE0L,
++	0xD3D3E1ABL, 0x21B862A8L, 0x32E8915CL, 0xC083125FL,
++	0x144976B4L, 0xE622F5B7L, 0xF5720643L, 0x07198540L,
++	0x590AB964L, 0xAB613A67L, 0xB831C993L, 0x4A5A4A90L,
++	0x9E902E7BL, 0x6CFBAD78L, 0x7FAB5E8CL, 0x8DC0DD8FL,
++	0xE330A81AL, 0x115B2B19L, 0x020BD8EDL, 0xF0605BEEL,
++	0x24AA3F05L, 0xD6C1BC06L, 0xC5914FF2L, 0x37FACCF1L,
++	0x69E9F0D5L, 0x9B8273D6L, 0x88D28022L, 0x7AB90321L,
++	0xAE7367CAL, 0x5C18E4C9L, 0x4F48173DL, 0xBD23943EL,
++	0xF36E6F75L, 0x0105EC76L, 0x12551F82L, 0xE03E9C81L,
++	0x34F4F86AL, 0xC69F7B69L, 0xD5CF889DL, 0x27A40B9EL,
++	0x79B737BAL, 0x8BDCB4B9L, 0x988C474DL, 0x6AE7C44EL,
++	0xBE2DA0A5L, 0x4C4623A6L, 0x5F16D052L, 0xAD7D5351L
++};
++
++/*
++ * Steps through buffer one byte at at time, calculates reflected 
++ * crc using table.
++ */
++
++u32 attribute((pure))
++crc32c_le(u32 seed, unsigned char const *data, size_t length)
++{
++	u32 crc = __cpu_to_le32(seed);
++	
++	while (length--)
++		crc =
++		    crc32c_table[(crc ^ *data++) & 0xFFL] ^ (crc >> 8);
++
++	return __le32_to_cpu(crc);
++}
++
++#endif	/* CRC_LE_BITS == 8 */
++
++/*EXPORT_SYMBOL(crc32c_be);*/
++
++#if CRC_BE_BITS == 1
++u32 attribute((pure))
++crc32_be(u32 crc, unsigned char const *p, size_t len)
++{
++	int i;
++	while (len--) {
++		crc ^= *p++ << 24;
++		for (i = 0; i < 8; i++)
++			crc =
++			    (crc << 1) ^ ((crc & 0x80000000) ? CRC32C_POLY_BE :
++					  0);
++	}
++	return crc;
++}
++#endif
++
++/*
++ * Unit test
++ *
++ * A small unit test suite is implemented as part of the crypto suite.
++ * Select CRYPTO_CRC32C and use the tcrypt module to run the tests.
++ */
+diff -urN linux-2.6.4.orig/lib/Makefile linux/lib/Makefile
+--- linux-2.6.4.orig/lib/Makefile	2004-03-10 20:55:21.000000000 -0600
++++ linux/lib/Makefile	2004-03-18 15:59:55.000000000 -0600
+@@ -16,6 +16,7 @@
+ endif
  
- 	return ret;
- }
-@@ -1384,7 +1382,7 @@ do_no_page(struct mm_struct *mm, struct 
- 	struct page * new_page;
- 	struct address_space *mapping = NULL;
- 	pte_t entry;
--	int sequence = 0, reserved, clear_anon_page;
-+	int sequence = 0, reserved, anon;
- 	int ret = VM_FAULT_MINOR;
+ obj-$(CONFIG_CRC32)	+= crc32.o
++obj-$(CONFIG_LIBCRC32C)	+= libcrc32c.o
  
- 	if (!vma->vm_ops || !vma->vm_ops->nopage)
-@@ -1435,7 +1433,7 @@ retry:
- 	/*
- 	 * Should we do an early C-O-W break?
- 	 */
--	clear_anon_page = 0;
-+	anon = 0;
- 	if (write_access && !(vma->vm_flags & VM_SHARED)) {
- 		struct page * page;
- 		if (unlikely(anon_vma_prepare(vma)))
-@@ -1446,9 +1444,8 @@ retry:
- 		copy_user_highpage(page, new_page, address);
- 		page_cache_release(new_page);
- 		lru_cache_add_active(page);
--		SetPageAnon(page);
--		clear_anon_page = 1;
- 		new_page = page;
-+		anon = 1;
- 	}
- 
- 	spin_lock(&mm->page_table_lock);
-@@ -1461,8 +1458,6 @@ retry:
- 	      (unlikely(sequence != atomic_read(&mapping->truncate_count)))) {
- 		sequence = atomic_read(&mapping->truncate_count);
- 		spin_unlock(&mm->page_table_lock);
--		if (unlikely(clear_anon_page))
--			ClearPageAnon(new_page);
- 		page_cache_release(new_page);
- 		goto retry;
- 	}
-@@ -1488,7 +1483,7 @@ retry:
- 			entry = maybe_mkwrite(pte_mkdirty(entry), vma);
- 		set_pte(page_table, entry);
- 		if (likely(!reserved))
--			page_add_rmap(new_page, vma, address);
-+			page_add_rmap(new_page, vma, address, anon);
- 		pte_unmap(page_table);
- 	} else {
- 		/* One of our sibling threads was faster, back out. */
---- ./mm/swapfile.c.~1~	2004-03-17 22:37:53.000000000 +0100
-+++ ./mm/swapfile.c	2004-03-18 23:25:42.224259032 +0100
-@@ -391,8 +391,7 @@ unuse_pte(struct vm_area_struct *vma, un
- 	get_page(page);
- 	set_pte(dir, pte_mkold(mk_pte(page, vma->vm_page_prot)));
- 	BUG_ON(!vma->anon_vma);
--	SetPageAnon(page);
--	page_add_rmap(page, vma, address);
-+	page_add_rmap(page, vma, address, 1);
- 	swap_free(entry);
- }
- 
+ obj-$(CONFIG_ZLIB_INFLATE) += zlib_inflate/
+ obj-$(CONFIG_ZLIB_DEFLATE) += zlib_deflate/

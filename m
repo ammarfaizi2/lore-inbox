@@ -1,63 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318844AbSICQOZ>; Tue, 3 Sep 2002 12:14:25 -0400
+	id <S318848AbSICQRS>; Tue, 3 Sep 2002 12:17:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318845AbSICQOZ>; Tue, 3 Sep 2002 12:14:25 -0400
-Received: from vivi.uptime.at ([62.116.87.11]:40657 "EHLO mail.uptime.at")
-	by vger.kernel.org with ESMTP id <S318844AbSICQOY> convert rfc822-to-8bit;
-	Tue, 3 Sep 2002 12:14:24 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Pitzeier <o.pitzeier@uptime.at>
-Organization: UPtime system solutions
-To: Thunder from the hill <thunder@lightweight.ods.org>
-Subject: Re: Kernel 2.5.33 successfully compiled
-Date: Tue, 3 Sep 2002 18:18:16 +0200
-User-Agent: KMail/1.4.2
-Cc: Leslie Donaldson <donaldlf@cs.rose-hulman.edu>,
-       <axp-kernel-list@redhat.com>, <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0209031006001.3373-100000@hawkeye.luckynet.adm>
-In-Reply-To: <Pine.LNX.4.44.0209031006001.3373-100000@hawkeye.luckynet.adm>
+	id <S318850AbSICQRS>; Tue, 3 Sep 2002 12:17:18 -0400
+Received: from pD9E23EAA.dip.t-dialin.net ([217.226.62.170]:16256 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318848AbSICQRR>; Tue, 3 Sep 2002 12:17:17 -0400
+Date: Tue, 3 Sep 2002 10:21:20 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Neil Brown <neilb@cse.unsw.edu.au>, Benjamin LaHaise <bcrl@redhat.com>,
+       Pavel Machek <pavel@suse.cz>, Peter Chubb <peter@chubb.wattle.id.au>,
+       <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@redhat.com>
+Subject: Re: Large block device patch, part 1 of 9
+In-Reply-To: <Pine.LNX.4.44.0209030900410.1997-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0209031020520.3373-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209031818.16140.o.pitzeier@uptime.at>
-X-MailScanner: Nothing found, baby
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 03 September 2002 18:14, Thunder from the hill wrote:
-[ ... ]
-> > I used the same quick-hack, but I was wondering why kmap_types.h is
-> > missing... Any ideas? Anybody?
->
-> It wasn't introduced, I guess.
+Hi,
 
-No. It seems simply missing. In 2.5.32 it is there. On the right place. :o))))
+On Tue, 3 Sep 2002, Linus Torvalds wrote:
+> Davem, is sparc64 "long long" 64-bit?
 
-> > > process.c: In function `alpha_clone':
-> > > process.c:268: too few arguments to function `do_fork'
-> > > process.c: In function `alpha_vfork':
-> > > process.c:277: too few arguments to function `do_fork'
-> > > make[1]: *** [process.o] Error 1
-> > > make[1]: Leaving directory
->
-> Yes, the syntax changed.
+Yes...
 
-I saw. But how should it be called now from within process.c?
-
-> > The same problems happens here. I'm currently searching for the changelog
-> > for do_fork, so I may find out what arguments I should add to make this
-> > working again. At the i386-tree there is sometimes "NULL" as the last
-> > argument added, but I don't believe that it will be good to simply add
-> > "NULL" in every function call. :o)
->
-> The NULL only needs to be non-NULL if we clone with CLONE_CLEARTID.
-
-I c...
-
-That what I expected.
-
+			Thunder
 -- 
-Oliver Pitzeier
-UNIX Administrator
--
-Linux 2.4.19 i686     Load: 0.59 0.37 0.32
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
+

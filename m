@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266293AbUGLCl6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266461AbUGLCmn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266293AbUGLCl6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 22:41:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266461AbUGLCl5
+	id S266461AbUGLCmn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 22:42:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266687AbUGLCmn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 22:41:57 -0400
-Received: from [200.18.97.2] ([200.18.97.2]:58118 "HELO aurora.comp.ufscar.br")
-	by vger.kernel.org with SMTP id S266293AbUGLClz (ORCPT
+	Sun, 11 Jul 2004 22:42:43 -0400
+Received: from [200.18.97.2] ([200.18.97.2]:58374 "HELO aurora.comp.ufscar.br")
+	by vger.kernel.org with SMTP id S266461AbUGLCmS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 22:41:55 -0400
-Message-ID: <1089600090.40f1fa5a432cf@webmail.comp.ufscar.br>
-Date: Sun, 11 Jul 2004 23:41:30 -0300
+	Sun, 11 Jul 2004 22:42:18 -0400
+Message-ID: <1089600112.40f1fa70df931@webmail.comp.ufscar.br>
+Date: Sun, 11 Jul 2004 23:41:52 -0300
 From: mariojunior@comp.ufscar.br
 To: linux-kernel@vger.kernel.org
 Subject: i845pe + ati-drivers = problem

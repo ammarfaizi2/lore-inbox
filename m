@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280836AbRKONzJ>; Thu, 15 Nov 2001 08:55:09 -0500
+	id <S280834AbRKONy3>; Thu, 15 Nov 2001 08:54:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280838AbRKONy7>; Thu, 15 Nov 2001 08:54:59 -0500
-Received: from hermes.toad.net ([162.33.130.251]:15555 "EHLO hermes.toad.net")
-	by vger.kernel.org with ESMTP id <S280836AbRKONyr>;
-	Thu, 15 Nov 2001 08:54:47 -0500
-Subject: Re: CS423x audio driver updates for testing
-From: Thomas Hood <jdthood@mail.com>
+	id <S280836AbRKONyT>; Thu, 15 Nov 2001 08:54:19 -0500
+Received: from c0mailgw.prontomail.com ([216.163.180.10]:13960 "EHLO
+	c0mailgw13.prontomail.com") by vger.kernel.org with ESMTP
+	id <S280834AbRKONyC>; Thu, 15 Nov 2001 08:54:02 -0500
+Message-ID: <3BF3C8DC.C8FE24B8@starband.net>
+Date: Thu, 15 Nov 2001 08:53:33 -0500
+From: war <war@starband.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+Subject: System Locks Temporarily When Untarring Large Files
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.0 (Preview Release)
-Date: 15 Nov 2001 08:55:06 -0500
-Message-Id: <1005832507.26175.28.camel@thanatos>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This gets rid of the nasty clicks on the thinkpad. On the TP600
-> this leaves us with fully functional sound including save/restore
-> (if your bios is not too ancient at least). The mixer changes
-> are from Daniel Cobra, I added the ident changes and made the
-> driver pick the right (I hope) feature sets for each board.
->
-> Can folks with cs42xx series audio give it a test make sure it
-> doesn't break anything
+Forgot to mention.
 
-Alan: Should I check to see whether these changes need to be ported
-to ALSA?
+Type of Drive:
+The hard drive is a 40GB IBM-DTLA-305040.
 
-By the way: In your opinion, is ALSA going to get into Linux 2.5?
+Speed of Drive:
+When many apps are open I get:
+Timing buffered disk reads:  64 MB in  2.55 seconds = 25.10 MB/sec
+When I am in single user mode, I get 29.50MB/s.
+
+Drive Information:
+# hdparm -v /dev/hda
+
+/dev/hda:
+ multcount    = 16 (on)
+ I/O support  =  1 (32-bit)
+ unmaskirq    =  1 (on)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ nowerr       =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 5005/255/63, sectors = 80418240, start = 0
 
 

@@ -1,85 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261381AbUKWViS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbUKWViV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261381AbUKWViS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 16:38:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbUKWVgK
+	id S261354AbUKWViV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 16:38:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbUKWRn4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 16:36:10 -0500
-Received: from holomorphy.com ([207.189.100.168]:35494 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261350AbUKWRqk (ORCPT
+	Tue, 23 Nov 2004 12:43:56 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:34701 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261344AbUKWQ5s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 12:46:40 -0500
-Date: Tue, 23 Nov 2004 09:46:23 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: David Howells <dhowells@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, hch@infradead.org,
-       gerg@snapgear.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Compound page overhaul
-Message-ID: <20041123174623.GL2714@holomorphy.com>
-References: <20041123171039.GK2714@holomorphy.com> <20041122155434.758c6fff.akpm@osdl.org> <11948.1101130077@redhat.com> <29356.1101201515@redhat.com> <20041123081129.3e0121fd.akpm@osdl.org> <16107.1101230673@redhat.com>
+	Tue, 23 Nov 2004 11:57:48 -0500
+Date: Tue, 23 Nov 2004 19:00:19 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: Florian Schmidt <mista.tapas@gmx.net>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Esben Nielsen <simlo@phys.au.dk>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
+Message-ID: <20041123180019.GA11920@elte.hu>
+References: <56781.195.245.190.93.1101119801.squirrel@195.245.190.93> <20041122132459.GB19577@elte.hu> <20041122142744.0a29aceb@mango.fruits.de> <65529.195.245.190.94.1101133129.squirrel@195.245.190.94> <20041122154516.GC2036@elte.hu> <9182.195.245.190.93.1101142412.squirrel@195.245.190.93> <20041123135508.GA13786@elte.hu> <29024.195.245.190.94.1101218441.squirrel@195.245.190.94> <20041123154108.GA27413@elte.hu> <41435.195.245.190.93.1101228794.squirrel@195.245.190.93>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16107.1101230673@redhat.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <41435.195.245.190.93.1101228794.squirrel@195.245.190.93>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->> The MMU-less code appears to assume the refcounts of the tail pages
->> will remain balanced, and elevates them to avoid the obvious disaster.
->> But this looks rather broken barring some rather unlikely invariants.
 
-On Tue, Nov 23, 2004 at 05:24:33PM +0000, David Howells wrote:
-> I had to fix it to make it work, but what's currently lurking in
-> Andrew's tree seems more or less correct, just not necessarily safe.
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
 
-Pardon my saying so, but "correct, but unsafe" sounds a bit oxymoronic. =)
+> Now, with the default workload (14 clients * 4 * 4 ports) I'm reaching
+> 60% of CPU, and a "fair" number of XRUNs on my P4@2.5G laptop, against
+> the on-board alsa driver (snd-ali5451), while under RT-V0.7.30-2.
 
+it would be very interesting to see how the new -30-9 kernel performs
+using your workload (both fluidsynth and jackd_test), whether your xruns
+are impacted by the fifo fix, and/or whether there are any other large
+xrun sources left.
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->> It's unclear (to me) how the current MMU-less code works properly, at
->> the very least.
-
-On Tue, Nov 23, 2004 at 05:24:33PM +0000, David Howells wrote:
-> For the most part it's down to two !MMU bits in page_alloc.c - one sets all
-> the refcounts on the pages of a high-order allocation, and the other
-> decrements them all again during the first part of freeing.
-
-Yes, the issue centered around this not being sound.
-
-
-William Lee Irwin III <wli@holomorphy.com> wrote:
->> It would appear to leak memory since there is no obvious guarantee the
->> reference to the head page will be dropped when needed, though things may
->> have intended to free the various tail pages.
-
-On Tue, Nov 23, 2004 at 05:24:33PM +0000, David Howells wrote:
-> Actually, it's more a problem of the "superpage" being freed when the
-> subpages have elevated counts.
-
-I realized this shortly after hitting 'y'.
-
-
-William Lee Irwin III <wli@holomorphy.com> wrote:
->> It may also be helpful for Greg Ungerer to help review these patches,
->> as he appears to represent some of the other MMU-less concerns, and
->> may have more concrete notions of how things behave in the MMU-less
->> case than I myself do (hardware tends to resolve these issues, but
->> that's not always feasible; perhaps an MMU-less port of a "normal"
->> architecture would be enlightening to those otherwise unable to
->> directly observe MMU-less behavior). In particular, correcting what
->> misinterpretations in the above there may be.
-
-On Tue, Nov 23, 2004 at 05:24:33PM +0000, David Howells wrote:
-> The FRV arch does both MMU and !MMU versions. It's settable by a config
-> option, and I check both.
-
-Unless FRV is surprisingly more widely distributed than it appears,
-it's unclear it will do much to help the CONFIG_MMU=n testing level.
-
-Thanks.
-
-
--- wli
+	Ingo

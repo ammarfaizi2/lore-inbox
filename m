@@ -1,65 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262991AbTCSNcq>; Wed, 19 Mar 2003 08:32:46 -0500
+	id <S263010AbTCSNft>; Wed, 19 Mar 2003 08:35:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262997AbTCSNcq>; Wed, 19 Mar 2003 08:32:46 -0500
-Received: from tentacle.s2s.msu.ru ([193.232.119.109]:43714 "EHLO
-	tentacle.sectorb.msk.ru") by vger.kernel.org with ESMTP
-	id <S262991AbTCSNcp>; Wed, 19 Mar 2003 08:32:45 -0500
-Date: Wed, 19 Mar 2003 16:43:41 +0300
-From: "Vladimir B. Savkin" <savkin@shade.msu.ru>
-To: Martin Josefsson <gandalf@wlug.westbo.se>
-Cc: fxzhang@ict.ac.cn, linux-kernel@vger.kernel.org
-Subject: Re: eepro100+NAPI failure
-Message-ID: <20030319134341.GA26128@tentacle.sectorb.msk.ru>
-References: <20030318202728.GA15796@tentacle.sectorb.msk.ru> <1048020884.1521.60.camel@tux.rsn.bth.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <1048020884.1521.60.camel@tux.rsn.bth.se>
-User-Agent: Mutt/1.3.28i
-X-Organization: Moscow State Univ., Dept. of Mechanics and Mathematics
-X-Operating-System: Linux 2.4.21-pre2
+	id <S263011AbTCSNft>; Wed, 19 Mar 2003 08:35:49 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:8413 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S263010AbTCSNfr>; Wed, 19 Mar 2003 08:35:47 -0500
+Message-ID: <A5974D8E5F98D511BB910002A50A66470580D6E0@hdsmsx103.hd.intel.com>
+From: "Cress, Andrew R" <andrew.r.cress@intel.com>
+To: "'Helge Hafting'" <helgehaf@aitel.hist.no>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: RE: [Bug 471] New: Root on software raid don't boot on new 2.5 ke
+	rnel since after 2.5.45
+Date: Wed, 19 Mar 2003 05:50:28 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 18, 2003 at 09:54:44PM +0100, Martin Josefsson wrote:
-> > Can anyone help me to make NAPI work? Does anyone even use NAPI
-> > with eepro100, I guess not many people since the patch is pretty old
-> > and I could not find it ported to 2.4.21-pre.
+Martin,
+
+You didn't list your kernel configuration.
+Make sure you have CONFIG_BLK_DEV_MD=y (not =m) for root mirroring.
+This is easy to forget, since the default is =m.
+
+The others should be able to be modules, however you know that 
+the module interface is radically changed in 2.5.45 and beyond,
+so trying it with the other scsi & raid modules compiled in would 
+be a good test.
+
+Andy
+
+-----Original Message-----
+From: Helge Hafting [mailto:helgehaf@aitel.hist.no] 
+Sent: Wednesday, March 19, 2003 5:15 AM
+To: Martin J. Bligh
+Cc: linux-kernel
+Subject: Re: [Bug 471] New: Root on software raid don't boot on new 2.5
+kernel since after 2.5.45
+
+
+Martin J. Bligh wrote:
+> http://bugme.osdl.org/show_bug.cgi?id=471
 > 
-> I havn't heard of anyone using it. I've understood that the recieve path
-> in the eepro100 chip can be quite fragile and has to be treated right or
-> it'll hang... maybe the NAPI patch changes things too much...
-> 
-> Anyway, please let me know if you manage to get it working
+>            Summary: Root on software raid don't boot on new 2.5 kernel
+since
+>                     after 2.5.45
 
-It seems to work with this one:
+Root on raid-1 works fine for me, with and without devfs.  My kernel has
+no module support, everything is compiled in.  I don't use initrd.
+I have used root-raid with every 2.5 kernel except for a few that had
+raid bugs. (Affecting all raid, the root weren't special.)
 
-02:03.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev
-02)
-        Subsystem: IBM 82558B Ethernet Pro 10/100
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32 (2000ns min, 14000ns max)
-        Interrupt: pin A routed to IRQ 16
-        Region 0: Memory at e0000000 (32-bit, prefetchable) [size=4K]
-        Region 1: I/O ports at a400 [size=32]
-        Region 2: Memory at df000000 (32-bit, non-prefetchable)
-[size=1M]
-        Expansion ROM at <unassigned> [disabled] [size=1M]
+Until recently the root raid always did an unclean shutdown, but this didn't
+cause other trouble than a bootup resync.
 
-
-No problem with more than 10^7 packets
-It just drops packets under heavy load, without live-locking, 
-so NAPI kinda works :)
-
-Unfortunally, I could not get this NIC to work with oversized frames
-to implement 802.1q, both with eepro100 and e100 drivers :(
-
-:wq
-                                        With best regards, 
-                                           Vladimir Savkin. 
 

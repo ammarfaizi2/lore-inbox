@@ -1,68 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131973AbRDAEVI>; Sat, 31 Mar 2001 23:21:08 -0500
+	id <S131830AbRDABV3>; Sat, 31 Mar 2001 20:21:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131974AbRDAEU6>; Sat, 31 Mar 2001 23:20:58 -0500
-Received: from ecstasy.ksu.ru ([193.232.252.41]:43197 "EHLO ecstasy.ksu.ru")
-	by vger.kernel.org with ESMTP id <S131973AbRDAEUq>;
-	Sat, 31 Mar 2001 23:20:46 -0500
-X-Pass-Through: Kazan State University network
-Message-ID: <3AC6AC1C.4090706@ksu.ru>
-Date: Sun, 01 Apr 2001 08:18:36 +0400
-From: Art Boulatov <art@ksu.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test10-pre5-reiserfs-3.6.18-acpi-i2c i686; en-US; 0.7) Gecko/20010203
-X-Accept-Language: ru, en
+	id <S131832AbRDABVT>; Sat, 31 Mar 2001 20:21:19 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:17167 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S131830AbRDABVD> convert rfc822-to-8bit; Sat, 31 Mar 2001 20:21:03 -0500
+Message-ID: <3AC68228.E9D8161B@baldauf.org>
+Date: Sun, 01 Apr 2001 03:19:37 +0200
+From: Xuan Baldauf <xuan--lkml@baldauf.org>
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
+X-Accept-Language: de-DE,en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: "device or resource busy" - why??
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Urban Widmark <urban@teststation.com>
+CC: linux-kernel@vger.kernel.org
+Subject: [BUG] smbfs: caching problems
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello,
 
-could you please help me figure out why is that happenning:
+there is something wrong with smbfs caching which makes my
+applications fail. The behaviour happens with
+linux-2.4.3-pre4 and linux-2.4.3-final.
 
-After succesfull pivot_root & chroot from initrd,
-I *do* unmount /initrd, (no directories, no mapped files...),
-but I can *not* free the memory:
+Consider following shell script: (where /mnt/n is a
+smbmounted smb share from a Win98SE box)
 
-"blockdev --flushbufs /dev/rd/0" returns "BLKFLSBUF: Device or resource 
-busy".
----------------------------------------------------------------------------------------------------------------
-What is keeping it busy? I got really stuck with that.
+router|/mnt/n/temp/smbfs> I=0; while test $I -lt 127; do
+echo "abc" >>/tmp/test.abc; I=$((I+1)); done # create a 508
+bytes file
+router|/mnt/n/temp/smbfs> I=0; while test $I -lt 129; do
+echo "xyz" >>/tmp/test.xyz; I=$((I+1)); done # create a 516
+bytes file
+router|/mnt/n/temp/smbfs> while true; do cp /tmp/test.abc
+testfile; tail -1 testfile; cp /tmp/test.xyz testfile; tail
+-1 testfile; done # copy the files alternatingly and read
+the destination file after it has bean overwritten
+abc
+abc
+abc
+abc
+abc
+abc
+abc
+abc
+abc
+abc
+abc
+abc
+abc
+abc
+abc
+abc
+abc
+abc
+abc
+abc
+abc
+[...Ctrl-C...]
+router|/mnt/n/temp/smbfs> cd /tmp # the same on reiserfs
+router|/tmp> while true; do cp /tmp/test.abc testfile; tail
+-1 testfile; cp /tmp/test.xyz testfile; tail -1 testfile;
+done # here it works
+abc
+xyz
+abc
+xyz
+abc
+xyz
+abc
+xyz
+abc
+xyz
+abc
+xyz
+abc
+xyz
+abc
+xyz
+abc
+xyz
+abc
+xyz
+abc
+xyz
+abc
+xyz
+abc
+xyz
+abc
+[...Ctrl-C...]
+router|/tmp> uname -a
+Linux router 2.4.3 #5 Fri Mar 30 14:02:24 CEST 2001 i586
+unknown
+router|/tmp>
 
+Obviously, the smbfs behaviour is wrong. Interstingly, the
+change in the filesize of the file overwritten seems to need
+to cross a 512-block-boundary in order to show the bug.
 
-This is linux-2.4.3-pre6 SMP with devfs and blockdev from 
-util-linux-2.11a and cramfs on initrd.
+Contact me if you need more info.
 
+Xuân.
 
-I have the following processes running at that moment:
----------------------
-1 0 /bin/bash
-2 1 [keventd]
-3 1 [kswapd]
-4 1 [kreclaimd]
-5 1 [bdflush]
-6 1 [kupdated]
-137 1 [mdrecoveryd]
-160 1 [kreiserfsd]
--------------------------------------
-
-And the following modules loaded:
--------------
-reiserfs
-raid0
-md
-sd_mod
-sym53c8xx
-scsi_mod
------------------
-
-I thought I've checked everything I could, but with no luck.
-Could that be a cramfs issue?
-
-Thank you,
-Art.
 

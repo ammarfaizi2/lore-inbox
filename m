@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262053AbSI3NWH>; Mon, 30 Sep 2002 09:22:07 -0400
+	id <S262058AbSI3NfL>; Mon, 30 Sep 2002 09:35:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262057AbSI3NWG>; Mon, 30 Sep 2002 09:22:06 -0400
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:65461 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S262053AbSI3NWG>;
-	Mon, 30 Sep 2002 09:22:06 -0400
-Date: Mon, 30 Sep 2002 14:30:57 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Adam Voigt <adam@cryptocomm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.39 XConfig Processor Detection
-Message-ID: <20020930133057.GA8868@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Adam Voigt <adam@cryptocomm.com>, linux-kernel@vger.kernel.org
-References: <Pine.NEB.4.44.0209301257210.12605-100000@mimas.fachschaften.tu-muenchen.de> <1033389340.16337.14.camel@irongate.swansea.linux.org.uk> <20020930.052555.123500588.davem@redhat.com> <1033391751.16468.51.camel@irongate.swansea.linux.org.uk> <1033392021.1491.6.camel@beowulf.internetstore.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1033392021.1491.6.camel@beowulf.internetstore.com>
-User-Agent: Mutt/1.4i
+	id <S262062AbSI3NfL>; Mon, 30 Sep 2002 09:35:11 -0400
+Received: from mg01.austin.ibm.com ([192.35.232.18]:47003 "EHLO
+	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S262058AbSI3NfK>; Mon, 30 Sep 2002 09:35:10 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Kevin Corry <corryk@us.ibm.com>
+Organization: IBM
+To: Andrew Morton <akpm@digeo.com>
+Subject: Re: v2.6 vs v3.0
+Date: Mon, 30 Sep 2002 08:08:32 -0500
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200209290114.15994.jdickens@ameritech.net> <3D97F7AE.5070304@metaparadigm.com> <3D97FB9C.593849A9@digeo.com>
+In-Reply-To: <3D97FB9C.593849A9@digeo.com>
+MIME-Version: 1.0
+Message-Id: <02093008083201.15956@boiler>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 30, 2002 at 09:20:21AM -0400, Adam Voigt wrote:
- > Apologies if this has already been noted or if I'm posting
- > this to the wrong place/annoying you very busy people needlessly,
- > but when I run XConfig, in the "Processor Type and Features" tab
- > it autodetects my processor as a Pentium-4 when in fact it is a
- > P3 700MHZ. The last time I installed a kernel (2.4.x) by hand, it did
- > autodetect the processor on that machine (Athlon), so I assume that
- > feature is still active. Anyways, here's the output from my cpuinfo:
+On Monday 30 September 2002 02:22, Andrew Morton wrote:
+> Michael Clark wrote:
+> >  From reading the EVMS list, it was working with 2.5.36 a couple weeks
+> > ago but needs some small bio and gendisk changes to work in 2.5.39.
+>
+> It's going to break bigtime if someone ups and removes all the
+> kiobuf code.....
 
- There's no 'autodetect' feature.
- Only defconfig, which sets the default option.
- These defaults match whatever Linus is currently using, so
- it seems he upgraded his Athlon box to a P4 8-)
+I don't think that would be the case, since EVMS doesn't use kiobuf's.
 
- Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Kevin Corry
+corryk@us.ibm.com
+http://evms.sourceforge.net/

@@ -1,76 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129511AbQLKMcE>; Mon, 11 Dec 2000 07:32:04 -0500
+	id <S129523AbQLKMhP>; Mon, 11 Dec 2000 07:37:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129878AbQLKMbz>; Mon, 11 Dec 2000 07:31:55 -0500
-Received: from mx7.sac.fedex.com ([199.81.194.38]:28175 "EHLO
-	mx7.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S129511AbQLKMbl>; Mon, 11 Dec 2000 07:31:41 -0500
-Message-ID: <000f01c06369$c5018160$aa5812bc@corp.fedex.com>
-From: "Jeff Chua" <jeffchua@silk.corp.fedex.com>
-To: "Jeff Chua" <jchua@fedex.com>,
-        "Werner Almesberger" <Werner.Almesberger@epfl.ch>, <viro@math.psu.edu>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH,RFC] initrd vs. BLKFLSBUF
-Date: Mon, 11 Dec 2000 19:59:00 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S129631AbQLKMhF>; Mon, 11 Dec 2000 07:37:05 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:35857 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129523AbQLKMgu>;
+	Mon, 11 Dec 2000 07:36:50 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "Corisen" <csyap@starnet.gov.sg>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: warning during make modules 
+In-Reply-To: Your message of "Mon, 11 Dec 2000 19:05:42 +0800."
+             <006901c06362$4e1333c0$050010ac@starnet.gov.sg> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 11 Dec 2000 23:06:18 +1100
+Message-ID: <1671.976536378@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm posting this again hoping that it'll get incorporated into the kernel.
+On Mon, 11 Dec 2000 19:05:42 +0800, 
+"Corisen" <csyap@starnet.gov.sg> wrote:
+>Thanks for your reply. The below mentioned warning messages where displayed
+>while using modutils 2.3.22. Guess I need to apply the patch you mentioned
+>to removed all the anonying messages.
+>
+>As I've not applied any patch before, pls advise where should I download the
+>patch and the instructions for patching pls.
 
-I've tested the patch against 2.4.0-test12-pre8, and it's working fine.
+The patch is in the original email, reproduced below.  It is against
+linux-2.4.0-test12-pre7 but will fit -pre8 as well.  The Kernel-HOWTO
+(part of the howto package) has a section on patching the kernel.
 
-Thanks,
-Jeff
-[ jchua@fedex.com ]
------ Original Message -----
-From: "Werner Almesberger" <Werner.Almesberger@epfl.ch>
-To: <viro@math.psu.edu>
-Cc: <jchua@fedex.com>; <linux-kernel@vger.kernel.org>
-Sent: Monday, November 20, 2000 11:21 AM
-Subject: [PATCH,RFC] initrd vs. BLKFLSBUF
-
-
-Hi Al,
-
-Jeff Chua reported a while ago that BLKFLSBUF returns EBUSY on a RAM disk
-that was obtained via initrd. I think the problem is that the effect of
-the blkdev_open(out_inode, ...) in drivers/block/rd.c:rd_load_image is
-not undone at the end. I've attached a patch for 2.4.0-test11-pre7 that
-seems to solve the problem. Since I'm not quite sure I understand the
-reference counting rules there, I would appreciate your comment.
-
-Thanks,
-- Werner
-
----------------------------------- cut
-here -----------------------------------
-
---- linux.orig/drivers/block/rd.c Mon Nov 20 02:07:47 2000
-+++ linux/drivers/block/rd.c Mon Nov 20 04:03:42 2000
-@@ -690,6 +690,7 @@
- done:
-  if (infile.f_op->release)
-  infile.f_op->release(inode, &infile);
-+ blkdev_put(out_inode->i_bdev, BDEV_FILE);
-  set_fs(fs);
-  return;
- free_inodes: /* free inodes on error */
-
---
-  _________________________________________________________________________
- / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
-/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
-
-
+Index: 0-test12-pre7.1/include/linux/module.h
+--- 0-test12-pre7.1/include/linux/module.h Thu, 07 Dec 2000 09:20:04 +1100 kaos (linux-2.4/W/33_module.h 1.1.2.1.2.1.2.1.2.1.1.3.1.1 644)
++++ 0-test12-pre7.2(w)/include/linux/module.h Mon, 11 Dec 2000 20:26:22 +1100 kaos (linux-2.4/W/33_module.h 1.1.2.1.2.1.2.1.2.1.1.3.1.2 644)
+@@ -247,12 +247,6 @@ static const struct gtype##_id * __modul
+   __attribute__ ((unused)) = name
+ #define MODULE_DEVICE_TABLE(type,name)		\
+   MODULE_GENERIC_TABLE(type##_device,name)
+-/* not put to .modinfo section to avoid section type conflicts */
+-
+-/* The attributes of a section are set the first time the section is
+-   seen; we want .modinfo to not be allocated.  */
+-
+-__asm__(".section .modinfo\n\t.previous");
+ 
+ /* Define the module variable, and usage macros.  */
+ extern struct module __this_module;
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

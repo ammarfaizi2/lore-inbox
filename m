@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267492AbTBXUmk>; Mon, 24 Feb 2003 15:42:40 -0500
+	id <S267472AbTBXUjC>; Mon, 24 Feb 2003 15:39:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267493AbTBXUmj>; Mon, 24 Feb 2003 15:42:39 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:15375 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267492AbTBXUmj>;
-	Mon, 24 Feb 2003 15:42:39 -0500
-Date: Mon, 24 Feb 2003 12:44:58 -0800
-From: Greg KH <greg@kroah.com>
-To: Rusty Lynch <rusty@linux.co.intel.com>
-Cc: Scott Murray <scottm@somanetworks.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: CPCI stopped building
-Message-ID: <20030224204457.GA3463@kroah.com>
-References: <1046118108.2099.2.camel@vmhack>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1046118108.2099.2.camel@vmhack>
-User-Agent: Mutt/1.4i
+	id <S267476AbTBXUjC>; Mon, 24 Feb 2003 15:39:02 -0500
+Received: from keetweej.xs4all.nl ([213.84.46.114]:128 "EHLO
+	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
+	id <S267472AbTBXUjB>; Mon, 24 Feb 2003 15:39:01 -0500
+Date: Mon, 24 Feb 2003 21:48:35 +0100 (CET)
+From: Folkert van Heusden <appel@vanheusden.com>
+X-X-Sender: <appel@muur.intranet.vanheusden.com>
+To: Pavel Machek <pavel@ucw.cz>
+cc: "Moore, Robert" <robert.moore@intel.com>,
+       "'Bjorn Helgaas'" <bjorn_helgaas@hp.com>,
+       "Grover, Andrew" <andrew.grover@intel.com>,
+       "Walz, Michael" <michael.walz@intel.com>, <t-kochi@bq.jp.nec.com>,
+       <linux-kernel@vger.kernel.org>, <acpi-devel@lists.sourceforge.net>
+Subject: Re: [ACPI] [PATCH] 1/3 ACPI resource handling
+In-Reply-To: <20030223225439.GC120@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.33.0302242146420.16778-100000@muur.intranet.vanheusden.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 24, 2003 at 12:21:44PM -0800, Rusty Lynch wrote:
-> Attempting to turn on cpci support on the latest kernel breaks the build.
-> The problem is that pci_is_dev_in_use() has been removed, but 
-> cpci_hotplug_pci.c still calls the non-existant function in 
-> unconfigure_visit_pci_dev_phase1().
-> 
-> It looks like pci_dev_driver(dev) can be used in replacement (since that is
-> what driver/pci/hotplug.c is now doing in pci_remove_device_safe(), but 
-> I haven't taken the time to really understand what is happening.
+> > 1) This seems like a good idea to simplify the parsing of the resource lists
+> > 2) I'm not convinced that this buys a whole lot -- it just hides the code
+> > behind a macro (something that's not generally liked in the Linux world.)
+> > Would this procedure be called from more than one place?
+> Well, reducing code duplication *is* liked in Linux world. Use inline
+> function instead of macro if possible, through.
 
-Yes, Christoph sent me this patch a few days ago, and I noticed it just
-got into the the tree.  I'm makeing a lot of pci hotplug core and driver
-cleanups right now, and will handle this one too.
+Isn't it better to use functions instead of macro's? Reduces the code
+size--> less dirty cache-lines.
 
-thanks,
+I saw, by the way, several functions duplicated in the networking-code.
+For example a lot of them have a net_random-alike function. Imho they
+should use the net_random in utils.c. Sadly my patches were ignored by the
+maintainers.
 
-greg k-h
+
+Folkert
+
+

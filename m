@@ -1,28 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131283AbRCNDTj>; Tue, 13 Mar 2001 22:19:39 -0500
+	id <S131282AbRCNDBS>; Tue, 13 Mar 2001 22:01:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131281AbRCNDT3>; Tue, 13 Mar 2001 22:19:29 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:25819 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S131287AbRCNDTL>;
-	Tue, 13 Mar 2001 22:19:11 -0500
-From: yuct@legend.com
-Subject: Automatically load winmodem modules?
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.2a (Intl) 23 November 1999
-Message-ID: <OF9443F227.1943AD0B-ON48256A0F.0010D8E9@legend.com.cn>
-Date: Wed, 14 Mar 2001 11:20:48 +0800
+	id <S131281AbRCNDA6>; Tue, 13 Mar 2001 22:00:58 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:32758 "HELO
+	burns.conectiva") by vger.kernel.org with SMTP id <S131279AbRCNDAr>;
+	Tue, 13 Mar 2001 22:00:47 -0500
+Date: Tue, 13 Mar 2001 23:30:34 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: James Stevenson <mistral@stev.org>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: VM problem with 2.2.18 ?
+In-Reply-To: <Pine.LNX.4.21.0103132323450.18168-100000@cyrix.home>
+Message-ID: <Pine.LNX.4.21.0103132329500.2056-100000@imladris.rielhome.conectiva>
 MIME-Version: 1.0
-X-MIMETrack: Serialize by Router on BJ_MS6/Legend(Release 5.0.2a (Intl)|23 November 1999) at 2001-03-14 11:21:06 AM,
-	Itemize by SMTP Server on BJ_IG4/Legend(Release 5.0.2a (Intl)|23 November 1999) at 2001-03-14 11:28:14 AM,
-	Serialize by Router on BJ_IG4/Legend(Release 5.0.2a (Intl)|23 November 1999) at 2001-03-14 11:30:46 AM,
-	Serialize complete at 2001-03-14 11:30:46 AM
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a Conexant RS6/SP-PCI modem.Its driver must be loaded manually after
-boot.
-How to load automatically on boot, such as add a entry in
-/etc/modules.conf?
+On Tue, 13 Mar 2001, James Stevenson wrote:
+
+>  VM: do_try_to_free_pages failed for ypbind...
+
+Known problem. It is fixed in 2.2.19-pre3 and newer.
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 

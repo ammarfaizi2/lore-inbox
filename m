@@ -1,76 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263574AbTFWOwX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 10:52:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263638AbTFWOwX
+	id S261245AbTFWO4U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 10:56:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262358AbTFWO4U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 10:52:23 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:36029 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S263574AbTFWOwV
+	Mon, 23 Jun 2003 10:56:20 -0400
+Received: from landfill.ihatent.com ([217.13.24.22]:56705 "EHLO
+	pileup.ihatent.com") by vger.kernel.org with ESMTP id S261245AbTFWO4S
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 10:52:21 -0400
-Date: Mon, 23 Jun 2003 08:06:16 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Scott Robert Ladd <coyote@coyotegulch.com>
-Cc: Larry McVoy <lm@bitmover.com>, David Woodhouse <dwmw2@infradead.org>,
-       Stephan von Krawczynski <skraw@ithnet.com>, jgarzik@pobox.com,
-       lawrence@the-penguin.otak.com, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-Message-ID: <20030623150616.GA20103@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Scott Robert Ladd <coyote@coyotegulch.com>,
-	Larry McVoy <lm@bitmover.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Stephan von Krawczynski <skraw@ithnet.com>, jgarzik@pobox.com,
-	lawrence@the-penguin.otak.com, linux-kernel@vger.kernel.org
-References: <20030620001217.G6248@almesberger.net> <20030620120910.3f2cb001.skraw@ithnet.com> <20030620142436.GB14404@work.bitmover.com> <20030620143012.GC14404@work.bitmover.com> <20030620163349.GG17563@work.bitmover.com> <20030621142048.2ae63afa.skraw@ithnet.com> <20030621133831.GA10089@work.bitmover.com> <1056358467.29264.41.camel@passion.cambridge.redhat.com> <20030623132231.GC6715@work.bitmover.com> <3EF70EF8.3050107@coyotegulch.com>
-Mime-Version: 1.0
+	Mon, 23 Jun 2003 10:56:18 -0400
+To: John Weber <weber@sixbit.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.73 Mouse
+References: <3EF7010C.5090000@sixbit.org>
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 23 Jun 2003 17:10:21 +0200
+In-Reply-To: <3EF7010C.5090000@sixbit.org>
+Message-ID: <87brwoeso2.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EF70EF8.3050107@coyotegulch.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 23, 2003 at 10:30:16AM -0400, Scott Robert Ladd wrote:
-> Larry McVoy wrote:
-> >The one flaw in this argument and all of those which say basically 
-> >"services
-> >is the answer" is that it only works if you produce crappy software which
-> >needs servicing.  
+Ditto, Compaq evo n800c lapdog here.
+
+mvh,
+A
+
+John Weber <weber@sixbit.org> writes:
+
+> My mouse suddenly stopped working with 2.5.73.  I am using a Synaptics
+> Touchpad --
+> with comes with a Dell laptop.  (I will test with an external mouse later).
 > 
-> Your definition of "services" is far too narrow. Requirements change 
-> with time; ideal software today may be inadequate tomorrow. I make most 
-> of my money from customizing software to a specific customer's needs. I 
-> combine and refine existing components to produce unique software.
+> The SERIO I8042 driver seems to find my mouse, interrupts are firing,
+> and I enabled
+> the old /dev/psaux so that userland doesn't see anything
+> different. Most importantly,
+> the same config worked with 2.5.72.  I noticed that dmesg was slightly
+> different across
+> the two versions which suggests that something did change.
 > 
-> A case in point: My Java Indexed Serialization Package (JISP) provides a 
-> very basic tool; about half my business comes from people who like the 
-> Jisp concept, and need a custom version that is tightly coupled to their 
-> requirements. I don't sell Jisp; I sell *what I can do* with Jisp.
+> --- dmesg-2.5.72        2003-06-23 09:11:32.000000000 -0400
+> +++ dmesg-2.5.73        2003-06-23 09:12:52.000000000 -0400
+> @@ -1,21 +1,4 @@
+> -1d490
+> -pass
+> -page 3
+> -f79c892a338f4a8b
+> -pass
+> -
+> -testing des ecb encryption chunking scenario B
+> -page 1
+> -c957
+> -pass
+> -page 2
+> -44
+> -pass
+> -page 3
+> -256a5e
+> -pass
+> -page 4
+> -d31df79c892a338f4a8bb49926f71fe1d490
+> +1fe1d490
+>   pass
+> 
+>   testing des ecb encryption chunking scenario C
+> @@ -523,7 +506,15 @@
+>   serio: i8042 AUX0 port at 0x60,0x64 irq 12
+>   serio: i8042 AUX1 port at 0x60,0x64 irq 12
+>   serio: i8042 AUX2 port at 0x60,0x64 irq 12
+> -input: PS/2 Synaptics TouchPad on isa0060/serio4
+> +Synaptics Touchpad, model: 1
+> + Firware: 5.8
+> + 180 degree mounted touchpad
+> + Sensor: 18
+> + new absolute packet format
+> + Touchpad has extended capability bits
+> + -> multifinger detection
+> + -> palm detection
+> +input: Synaptics Synaptics TouchPad on isa0060/serio4
+>   serio: i8042 AUX3 port at 0x60,0x64 irq 12
+>   input: AT Set 2 keyboard on isa0060/serio0
+>   serio: i8042 KBD port at 0x60,0x64 irq 1
+> @@ -548,7 +539,7 @@
+>   Initializing IPsec netlink socket
+>   NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+>   VFS: Mounted root (ext2 filesystem) readonly.
+> -Freeing unused kernel memory: 172k freed
+> +Freeing unused kernel memory: 176k freed
+>   Adding 498004k swap on /dev/hda2.  Priority:-1 extents:1
+> 
+> Any suggestions?
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-I think I'm going to give up soon (much to relief of the list) because I
-keep getting the same sorts of answers which make sense from a small
-custom shop point of view but are simply broken from a company point of
-view.
-
-Your model is fine, there is nothing wrong with it but there isn't a lot
-right with it either.  You can't really grow your business under that 
-model.  Why?  Because you are essentially a consulting shop and that 
-isn't going to generate the revenue you need to hire more people, build
-more things, get more consulting.  You can keep yourself going but not
-make enough to get more people going.
-
-Instead of coming back at me with the premise of "well, I'm eating so my
-model is OK" how about coming back with a plan that says "Here's how we
-make an open source based business put Microsoft out of business".  That's
-reality.  You are just playing around on the edges, there is nothing 
-wrong with that, but until you have a viable plan that competes with the
-big boys let's stop kidding ourselves, ok?
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

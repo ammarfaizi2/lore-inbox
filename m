@@ -1,53 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264412AbUFRWtR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264579AbUFRWtS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264412AbUFRWtR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 18:49:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264482AbUFRWtA
+	id S264579AbUFRWtS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 18:49:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265317AbUFRWsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 18:49:00 -0400
-Received: from fw.osdl.org ([65.172.181.6]:63390 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264412AbUFRWpp (ORCPT
+	Fri, 18 Jun 2004 18:48:22 -0400
+Received: from mail.dif.dk ([193.138.115.101]:41126 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S264579AbUFRWpv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 18:45:45 -0400
-Date: Fri, 18 Jun 2004 15:43:02 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: sam@ravnborg.org, willy@w.ods.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] save kernel version in .config file
-Message-Id: <20040618154302.01fc46c2.rddunlap@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0406190036440.10292@scrub.local>
-References: <20040617220651.0ceafa91.rddunlap@osdl.org>
-	<20040618053455.GF29808@alpha.home.local>
-	<20040618205602.GC4441@mars.ravnborg.org>
-	<20040618150535.6a421bdb.rddunlap@osdl.org>
-	<Pine.LNX.4.58.0406190036440.10292@scrub.local>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Jun 2004 18:45:51 -0400
+Date: Sat, 19 Jun 2004 00:44:55 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: matthew-lkml@newtoncomputing.co.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Stop printk printing non-printable chars
+In-Reply-To: <Pine.LNX.4.58.0406181407330.6178@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.56.0406190032290.17899@jjulnx.backbone.dif.dk>
+References: <20040618205355.GA5286@newtoncomputing.co.uk>
+ <Pine.LNX.4.58.0406181407330.6178@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Jun 2004 00:42:19 +0200 (CEST) Roman Zippel wrote:
 
-| Hi,
-| 
-| On Fri, 18 Jun 2004, Randy.Dunlap wrote:
-| 
-| Did you test this with anything else than menuconfig?
+On Fri, 18 Jun 2004, Linus Torvalds wrote:
+>
+>
+> On Fri, 18 Jun 2004 matthew-lkml@newtoncomputing.co.uk wrote:
+> >
+> > The main problem seems to be in ACPI, but I don't see any reason for
+> > printk to even consider printing _any_ non-printable characters at all.
+> > It makes all characters out of the range 32..126 (except for newline)
+> > print as a '?'.
+>
+> How about emitting them as \xxx, so that you see what they are. And using
+> a case-statement to make it easy and clear when to do exceptions (I think
+> we should accept \t too, no?).
+>
 
-Nope...
+Would there be any reason not to allow all the standard C escape sequences
+- true, they are hardly used atm (I see a few \f uses with grep, but not
+much else), but it's not unthinkable they could be useful somewhere in
+some cases (I'm thinking \f could be useful for console on line-printer
+for example, \a could be useful for critical errors on boxes without a
+monitor - or maybe that's all too far fetched)...
 
-| > +		     (char *)sym->curr.val, ctime(&now));
-| 
-| Try to avoid poking around in that structure. First the value needs to be 
-| calculated with sym_calc_value() and then it can be accessed with 
-| sym_get_string_value().
+\a	alert (bell)
+\b	backspace
+\f	formfeed
+\n	newline
+\r	carriage return
+\t	horizontal tab
+\v	vertical tab
+\\	backslash
+\?	question mark
+\'	single quote
+\"	double quote
 
-Thanks, will use that info.
+(the last few are in the 32..126 range, just listing for completeness)...
+none of them should cause trouble on output, so little reason to exclude
+them if someone find a use for them at some point - or am I not making
+sense?
 
---
-~Randy
+
+ --
+Jesper Juhl <juhl-lkml@dif.dk>
+
+

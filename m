@@ -1,81 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316465AbSEOS0G>; Wed, 15 May 2002 14:26:06 -0400
+	id <S316458AbSEOSbo>; Wed, 15 May 2002 14:31:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316466AbSEOS0F>; Wed, 15 May 2002 14:26:05 -0400
-Received: from relay1.EECS.Berkeley.EDU ([169.229.60.163]:41674 "EHLO
-	relay1.EECS.Berkeley.EDU") by vger.kernel.org with ESMTP
-	id <S316465AbSEOS0E>; Wed, 15 May 2002 14:26:04 -0400
-Subject: Bug in 2.4.19-pre8 drivers/input/joydev.c
-From: "Robert T. Johnson" <rtjohnso@cs.berkeley.edu>
-To: linux-kernel@vger.kernel.org
-Cc: Sailesh Krishnamurthy <sailesh@EECS.Berkeley.EDU>, vojtech@suse.cz
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 15 May 2002 11:26:02 -0700
-Message-Id: <1021487163.12915.37.camel@dooby.cs.berkeley.edu>
+	id <S316467AbSEOSbn>; Wed, 15 May 2002 14:31:43 -0400
+Received: from holomorphy.com ([66.224.33.161]:60578 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S316458AbSEOSbm>;
+	Wed, 15 May 2002 14:31:42 -0400
+Date: Wed, 15 May 2002 11:30:04 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Rik van Riel <riel@conectiva.com.br>,
+        Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC][PATCH] iowait statistics
+Message-ID: <20020515183004.GG27957@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Rik van Riel <riel@conectiva.com.br>,
+	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <200205151514.g4FFEmY13920@Port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.44L.0205151310130.9490-100000@duckman.distro.conectiva> <20020515170025.GF27957@holomorphy.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sailesh Krishmurthy and I have found what we believe is an exploitable
-bug in drivers/input/joydev.c:joydev_ioctl().  It looks like the
-JSIOCSAXMAP and JSIOCSBTNMAP cases accidentally reverse the arguments to
-copy_from_user().  A user program could call these ioctls with a
-maliciously chosen arg to crash the system or gain root access.  A patch
-is attached to this message (though my mailer will probably mangle it --
-sorry).  We apologize if we have misunderstood the behavior of this
-function.
+On Wed, May 15, 2002 at 10:00:25AM -0700, William Lee Irwin III wrote:
+> Wed May 15 09:58:22 PDT 2002
+> cpu  98583 0 8082 204779 9328
+> cpu0 24538 0 2254 51205 2298
+> cpu1 24521 0 2065 51180 2393
+> cpu2 24704 0 1978 51230 2247
+> cpu3 24820 0 1785 51164 2390
+> 
+> It looks very constant, not sure if it should be otherwise.
 
-We found this bug using the static analysis tool cqual,
-http://www.cs.berkeley.edu/~jfoster/cqual/, developed at UC Berkeley by
-Jeff Foster, John Kodumal, and many others.
+Not quite constant, just slowly varying:
 
-Please CC us in any replies.
-
-Thanks for all your great work on the kernel.
-
-Best,
-Rob Johnson (rtjohnso@cs.berkeley.edu)
-Sailesh Krishnamurthy (sailesh@cs.berkeley.edu)
+Wed May 15 11:30:47 PDT 2002
+cpu  2095183 0 158967 263950 20705
+cpu0 524201 0 40781 64795 5026
+cpu1 523034 0 39953 66328 5352
+cpu2 525737 0 37989 65826 5115
+cpu3 522211 0 40244 67001 5212
 
 
-
---- joydev.c    Wed May 15 10:25:26 2002
-+++ joydev_fixed.c      Wed May 15 10:37:36 2002
-@@ -363,7 +363,7 @@
-                        return copy_to_user((struct js_corr *) arg,
-joydev->corr,
-                                                sizeof(struct js_corr) *
-joydev->nabs) ? -EFAULT : 0;
-                case JSIOCSAXMAP:
--                       if (copy_from_user((__u8 *) arg, joydev->abspam,
-sizeof(__u8) *
-ABS_MAX))
-+                       if (copy_from_user(joydev->abspam, (__u8 *) arg,
-sizeof(__u8) *
-ABS_MAX))
-                                return -EFAULT;
-                        for (i = 0; i < ABS_MAX; i++) {
-                                if (joydev->abspam[i] > ABS_MAX) return
--EINVAL;
-@@ -374,7 +374,7 @@
-                        return copy_to_user((__u8 *) arg,
-joydev->abspam,
-                                                sizeof(__u8) * ABS_MAX)
-? -EFAULT : 0;
-                case JSIOCSBTNMAP:
--                       if (copy_from_user((__u16 *) arg,
-joydev->absmap, sizeof(__u16) *
-(KEY_MAX - BTN_MISC)))
-+                       if (copy_from_user(joydev->absmap, (__u16 *)
-arg, sizeof(__u16) *
-(KEY_MAX - BTN_MISC)))
-                                return -EFAULT;
-                        for (i = 0; i < KEY_MAX - BTN_MISC; i++); {
-                                if (joydev->keypam[i] > KEY_MAX ||
-joydev->keypam[i] < BTN_MISC)
-return -EINVAL;
-
-
+Cheers,
+Bill

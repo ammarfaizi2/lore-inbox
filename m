@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270648AbTHQTyU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 15:54:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270681AbTHQTyU
+	id S270880AbTHQUH2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 16:07:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270931AbTHQUH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 15:54:20 -0400
-Received: from egeo.unipg.it ([141.250.1.4]:52112 "EHLO egeo.unipg.it")
-	by vger.kernel.org with ESMTP id S270648AbTHQTyS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 15:54:18 -0400
-From: Francesco Sportolari <francesco@unipg.it>
-To: linux-kernel@vger.kernel.org
-Subject: [bug 1080] [PATCH] 2.6.0-t3: alsa driver snd-powermac doesn't work with tumbler chip on ibook2
-Date: Sun, 17 Aug 2003 23:54:06 +0200
-User-Agent: KMail/1.5.3
-Cc: DiegoCG@teleline.es, alsa-devel@lists.sourceforge.net
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sun, 17 Aug 2003 16:07:27 -0400
+Received: from dsl-hkigw3g81.dial.inet.fi ([80.222.38.129]:5250 "EHLO
+	uworld.dyndns.org") by vger.kernel.org with ESMTP id S270880AbTHQUHX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 16:07:23 -0400
+Subject: Re: Centrino support
+From: Jussi Laako <jussi.laako@pp.inet.fi>
+To: Jan Rychter <jan@rychter.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <m2wude3i2y.fsf@tnuctip.rychter.com>
+References: <m2wude3i2y.fsf@tnuctip.rychter.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1061150857.1504.12.camel@vaarlahti.uworld>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 17 Aug 2003 23:07:37 +0300
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308172354.06944.francesco@unipg.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-During the insmod of the snd-powermac module this msg is printed to the 
-console:
+On Fri, 2003-08-15 at 21:13, Jan Rychter wrote:
 
-tumbler: cannot initialize the MCS
+> Well, that was almost 5 months ago. So I figured I'd ask if there's any
+> progress -- so far the built-in wireless in my notebook still doesn't
+> work with Linux and the machine is monstrously power-hungry because
+> Linux doesn't scale the CPU frequency.
+> 
+> I know there are some Intel people on the list -- perhaps someone can
+> comment?
 
-After that, even if the module is loaded correctly, the sound doesn't work at 
-all.
+I have made a patch set for my laptop which you may like to try. It
+mainly contains stuff from -aa and -ac kernels and various other pieces.
 
-I've noticed that removing and inserting again the 'i2c-keywest' module solves 
-the problem. The following patch fixes this issue related to early 
-initialization of the i2c client in the driver.
+See http://www.sonarnerd.net/projects/linux/
 
-Bye,
--- Francesco
+With this and my backport of latest XFree86 ATI drivers I have Linux
+running nicely on my Compaq Evo N1015v and N1020v laptops. At least it
+_subjectively_ warms up less and consumes less power under Linux
+compared to Windows XP.
 
---- orig/sound/ppc/tumbler.c    2003-08-16 17:18:35.000000000 +0200
-+++ linux-2.6.0-test3/sound/ppc/tumbler.c       2003-08-16 17:18:55.000000000 
-+0200
-@@ -996,9 +996,6 @@
-                chipname = "Snapper";
-        }
 
--       if ((err = snd_pmac_keywest_init(&mix->i2c)) < 0)
--               return err;
--
-        /*
-         * build mixers
-         */
-@@ -1025,6 +1022,9 @@
-        if ((err = tumbler_init(chip)) < 0)
-                return err;
-
-+       if ((err = snd_pmac_keywest_init(&mix->i2c)) < 0)
-+               return err;
-+
- #ifdef CONFIG_PMAC_PBOOK
-        chip->resume = tumbler_resume;
- #endif
-
+-- 
+Jussi Laako <jussi.laako@pp.inet.fi>
 

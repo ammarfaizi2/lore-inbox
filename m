@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310139AbSC0UYJ>; Wed, 27 Mar 2002 15:24:09 -0500
+	id <S293181AbSC0UTt>; Wed, 27 Mar 2002 15:19:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310190AbSC0UXt>; Wed, 27 Mar 2002 15:23:49 -0500
-Received: from 68dyn61.com21.casema.net ([213.17.72.61]:64412 "HELO
-	fruit.eu.org") by vger.kernel.org with SMTP id <S310139AbSC0UXh>;
-	Wed, 27 Mar 2002 15:23:37 -0500
-Date: Wed, 27 Mar 2002 21:23:35 +0100
-From: Wessel Dankers <wsl@fruit.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Scheduler priorities
-Message-ID: <20020327202335.GA514@fruit.eu.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020327125828.U2343-100000@angelina.sl.pt> <1017236512.16546.116.camel@phantasy>
+	id <S293251AbSC0UTj>; Wed, 27 Mar 2002 15:19:39 -0500
+Received: from imladris.infradead.org ([194.205.184.45]:7699 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S293181AbSC0UTb>; Wed, 27 Mar 2002 15:19:31 -0500
+Date: Wed, 27 Mar 2002 20:19:17 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Eric Sandeen <sandeen@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] kmem_cache_zalloc
+Message-ID: <20020327201917.A23810@phoenix.infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch>, Eric Sandeen <sandeen@sgi.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <1017257958.16305.168.camel@stout.americas.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-oi: oi
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-03-27 08:41:51-0500, Robert Love wrote:
-> On Wed, 2002-03-27 at 08:06, Nuno Miguel Rodrigues wrote:
+On Wed, Mar 27, 2002 at 01:39:17PM -0600, Eric Sandeen wrote:
+> In the interest of whittling down the changes that XFS makes to the core
+> kernel, I thought I'd start throwing out some the easier self-contained
+> modifications for discussion.
 > 
-> > Indeed.  In other words a priority that is not dynamically adjusted over
-> > time.  Like a real-time scheduling priority.
-> 
-> Yes, Linux has two - SCHED_FIFO and SCHED_RR.
+> XFS adds a kmem_cache_zalloc function to mm/slab.c, it does what you
+> might expect:  kmem_cache_alloc + memset
 
-Any plans for a SCHED_IDLE?
+I'd really go for k(mem_)zalloc, but a kmem_cache_alloc leads people toward
+writing bad code.  The purpose of the slab allocator is to allow caching
+readily constructed objects, a _zalloc destroys them on alloc.
 
---
-Wessel Dankers <wsl@fruit.eu.org>
+I think code using kmem_cache_alloc really wants to use kzalloc and instead
+of maintaining it's pool.
+
+	Christoph
 

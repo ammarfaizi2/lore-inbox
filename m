@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262362AbTFBO1Y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 10:27:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbTFBO1Y
+	id S262368AbTFBOfb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 10:35:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbTFBOfb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 10:27:24 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:4755 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S262362AbTFBO1X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 10:27:23 -0400
-Message-ID: <3EDB61C8.3020504@nortelnetworks.com>
-Date: Mon, 02 Jun 2003 10:40:08 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Andrew Morton <akpm@digeo.com>, Chris Wright <chris@wirex.com>,
-       gj@pointblue.com.pl, Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       lsm <linux-security-module@wirex.com>,
-       Greg Kroah-Hartman <greg@kroah.com>
-Subject: Re: [PATCH][LSM] Early init for security modules and various	cleanups
-References: <20030602025450.C27233@figure1.int.wirex.com>	 <Pine.LNX.4.44.0306021205520.27640-100000@pointblue.com.pl>	 <20030602030946.H27233@figure1.int.wirex.com>	 <20030602034419.3776d3b7.akpm@digeo.com> <1054558223.1053.105.camel@moss-huskers.epoch.ncsc.mil>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 2 Jun 2003 10:35:31 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:28646
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S262368AbTFBOfa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 10:35:30 -0400
+Subject: Re: [PATCH][ATM] assorted he driver cleanup
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: chas williams <chas@cmf.nrl.navy.mil>
+Cc: "David S. Miller" <davem@redhat.com>, acme@conectiva.com.br,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200306020236.h522a8sG024853@ginger.cmf.nrl.navy.mil>
+References: <200306020236.h522a8sG024853@ginger.cmf.nrl.navy.mil>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1054561831.7494.8.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 02 Jun 2003 14:50:32 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Smalley wrote:
-> On Mon, 2003-06-02 at 06:44, Andrew Morton wrote:
-> 
->>Chris Wright <chris@wirex.com> wrote:
->>
->>>security_capable() returns 0 if that capability bit is set. 
->>>
->>That's just bizarre.  Is there any logic behind it?
->>
-> 
-> The LSM access control hooks all return 0 on success (i.e. permission
-> granted) and negative error code on failure, like most of the rest of
-> the kernel interfaces (e.g. consider permission())
+On Llu, 2003-06-02 at 03:34, chas williams wrote:
+> smp machines either.  i dont believe the i386 will reorder
+> read/writes from multiple cpus so in theory it would be safe to
+> do away with this lock on smp i386's.  the only arch that 
+> can reorder (and actually has posted read/writes) is the ia64/sn2.
 
-Maybe it should be called "security_incapable() and then the return code can be 
-treated as a boolean true/false....
+The only i386 platforms that will re-order writes I know of are the
+Natsemi Geode (which will do magic so that the write order seen
+by PCI is always ordered), Pentium Pro (fence bug) and IDT
+Winchip (but only to main memory)
 
-
-Chris
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

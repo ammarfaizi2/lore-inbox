@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315690AbSILNjq>; Thu, 12 Sep 2002 09:39:46 -0400
+	id <S315634AbSILNjW>; Thu, 12 Sep 2002 09:39:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315709AbSILNjq>; Thu, 12 Sep 2002 09:39:46 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:51464 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S315690AbSILNjo>; Thu, 12 Sep 2002 09:39:44 -0400
-Date: Thu, 12 Sep 2002 15:44:01 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       Alexander Viro <viro@math.psu.edu>, Daniel Phillips <phillips@arcor.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Raceless module interface 
-In-Reply-To: <20020912130337.3FFBF2C1CD@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0209121520300.28515-100000@serv>
+	id <S315690AbSILNjW>; Thu, 12 Sep 2002 09:39:22 -0400
+Received: from ns1.mscsoftware.com ([192.207.69.10]:46834 "EHLO
+	draco.macsch.com") by vger.kernel.org with ESMTP id <S315634AbSILNjV> convert rfc822-to-8bit;
+	Thu, 12 Sep 2002 09:39:21 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Martin Knoblauch <martin.knoblauch@mscsoftware.com>
+Reply-To: martin.knoblauch@mscsoftware.com
+Organization: MSC.Software GmbH
+To: linux-kernel@vger.kernel.org
+Subject: Re: XFS?
+Date: Thu, 12 Sep 2002 15:42:21 +0200
+User-Agent: KMail/1.4.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200209121542.21987.martin.knoblauch@mscsoftware.com>
+X-AntiVirus: OK! AntiVir MailGate Version 2.0.1.2; AVE: 6.15.0.1; VDF: 6.15.0.7
+	 at mailmuc has not found any known virus in this email.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Thu, 12 Sep 2002, Rusty Russell wrote:
-
-> Nope, that's one of the two problems.  Read my previous post: the
-> other is partial initialization.
+>> So does Redhat/Suse/??? ship XFS yet? 
+>> 
+>> john 
+>> 
 >
-> Your patch is two-stage delete, with the additional of a usecount
-> function.  So you have to move the usecount from the module to each
-> object it registers: great for filesystems, but I don't think it buys
-> you anything (since they were easy anyway).
+>Mandrake has had XFS support in the default boot kernel since 8.0. 
+>AFAIK, Suse 
+>and Slackware also have XFS capable kernels now too. 
 
-I'm aware of the init problem, what I described was the core problem,
-which prevents any further cleanup.
-The usecount is optional, the only important question a module must be
-able to answer is: Are there any objects/references belonging to the
-module? It's a simple yes/no question. If a module can't answer that, it
-likely has more problem than just module unloading.
-How that interface is exactly done is open for discussion and needs to be
-specified.
+ for what its worth, MSC.Linux supports it on IA32 and IA64 :-)
 
-> Moreover, I don't see where your patch prevented someone increasing
-> the module count during try_unregister_module(), so that check is
-> pointless (do it in userspace unless they specify rmmod -f).
+ In my opinion the non-inclosure in the mainline kernel is the most 
+important reason not to use XFS (or any other FS). Which in turn 
+massively reduces the tester base. It is a shame, because for some type 
+of applications it performs great, or better than anything else.
 
-I don't see your problem, if someone looks up a module, he gets a
-reference to the module structure, if a reference count goes to zero the
-module must be completely freed. State changes are protected with a
-separate lock, if a module is loaded/unloaded an extra reference is used
-to prevent module removal.
+Martin
+-- 
+Martin Knoblauch
+Senior System Architect
+MSC.software GmbH
+Am Moosfeld 13
+D-81829 Muenchen, Germany
 
-bye, Roman
+e-mail: martin.knoblauch@mscsoftware.com
+http://www.mscsoftware.com
+Phone/Fax: +49-89-431987-189 / -7189
+Mobile: +49-174-3069245
 

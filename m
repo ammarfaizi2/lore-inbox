@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272193AbSITCGa>; Thu, 19 Sep 2002 22:06:30 -0400
+	id <S274209AbSITCMk>; Thu, 19 Sep 2002 22:12:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272635AbSITCGa>; Thu, 19 Sep 2002 22:06:30 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:3737 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S272193AbSITCG3>;
-	Thu, 19 Sep 2002 22:06:29 -0400
-Date: Thu, 19 Sep 2002 19:01:54 -0700 (PDT)
-Message-Id: <20020919.190154.57630807.davem@redhat.com>
-To: ak@suse.de
-Cc: akpm@digeo.com, taka@valinux.co.jp, alan@lxorguk.ukuu.org.uk,
-       neilb@cse.unsw.edu.au, linux-kernel@vger.kernel.org,
-       nfs@lists.sourceforge.net
-Subject: Re: [NFS] Re: [PATCH] zerocopy NFS for 2.5.36
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020920040619.A30304@wotan.suse.de>
-References: <20020920032346.A22949@wotan.suse.de>
-	<20020919.182739.48496975.davem@redhat.com>
-	<20020920040619.A30304@wotan.suse.de>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S274594AbSITCMk>; Thu, 19 Sep 2002 22:12:40 -0400
+Received: from bitmover.com ([192.132.92.2]:37765 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S274209AbSITCMj>;
+	Thu, 19 Sep 2002 22:12:39 -0400
+Date: Thu, 19 Sep 2002 19:17:39 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Ulrich Drepper <drepper@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
+Message-ID: <20020919191739.A25500@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Rik van Riel <riel@conectiva.com.br>,
+	Ulrich Drepper <drepper@redhat.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <3D8A6EC1.1010809@redhat.com> <Pine.LNX.4.44L.0209192258010.1857-100000@imladris.surriel.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44L.0209192258010.1857-100000@imladris.surriel.com>; from riel@conectiva.com.br on Thu, Sep 19, 2002 at 11:01:33PM -0300
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andi Kleen <ak@suse.de>
-   Date: Fri, 20 Sep 2002 04:06:19 +0200
+On Thu, Sep 19, 2002 at 11:01:33PM -0300, Rik van Riel wrote:
+> On Thu, 19 Sep 2002, Ulrich Drepper wrote:
+> 
+> >    Initial confirmations were test runs with huge numbers of threads.
+> >    Even on IA-32 with its limited address space and memory handling
+> >    running 100,000 concurrent threads was no problem at all,
+> 
+> So, where did you put those 800 MB of kernel stacks needed for
+> 100,000 threads ?
 
-   > See "montdq/movnti", the latter of which even works on register
-   > registers.  Ben LaHaise pointed this out to me earlier today.
-   
-   The issue is that you really want to do prefetching in these loops
-   (waiting for the hardware prefetch is too slow because it needs several
-   cache misses to trigger) so for cache hints on reading only prefetch
-   instructions are interesting.
-   
-I'm talking about using this to bypass the cache on the stores.
-The prefetches are a seperate issue and I agree with you on that.
+Come on, you and I normally agree, but 100,000 threads?  Where is the need
+for that?  More importantly, is there any realistic application that can 
+use 100,000 threads where the kernel stack is 0 but the user level stack
+doesn't have exactly the same problem?  The kernel can be perfect, i.e.,
+cost zero, and you still have a problem.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

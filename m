@@ -1,59 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264375AbTLVKqM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 05:46:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264377AbTLVKqM
+	id S264383AbTLVK5H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 05:57:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbTLVK5H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 05:46:12 -0500
-Received: from 82-68-100-158.dsl.in-addr.zen.co.uk ([82.68.100.158]:58336 "EHLO
-	cypher") by vger.kernel.org with ESMTP id S264375AbTLVKqL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 05:46:11 -0500
-Date: Mon, 22 Dec 2003 10:46:07 +0000 (GMT)
-From: David Buckley <DavidBuckley@bigfoot.com>
-X-X-Sender: <bucko@cypher.localnet>
-To: <linux-kernel@vger.kernel.org>
-Subject: Logitech Cordless Desktop MX Buttons not working in 2.6.0.
-Message-ID: <Pine.LNX.4.33.0312221023410.23559-100000@cypher.localnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 22 Dec 2003 05:57:07 -0500
+Received: from postman4.arcor-online.net ([151.189.0.189]:41885 "EHLO
+	postman.arcor.de") by vger.kernel.org with ESMTP id S264383AbTLVK5A
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 05:57:00 -0500
+Date: Mon, 22 Dec 2003 11:56:14 +0100
+From: Juergen Quade <quade@hsnr.de>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Small copy-paste typo in floppy.c
+Message-ID: <20031222105614.GA24568@hsnr.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi! I upgraded to Linux 2.6.0 yesterday. After a whole bunch of false
-starts, I've got most of my system up and running now, with the
-following problem:
+I just hit a copy-paste typo in floppy.c.
 
-I Use a Logitech Wireless Desktop MX keyboard/mouse set, and I've found
-that my "Messenger/SMS" and "Shopping" buttons have ceased to work.
-showkey in a console tells me nothing about the keys (no output when
-these keys are pressed) - all I can get is the following kernel
-error/warning messages:
+       Juergen.
 
-Shopping:
-atkbd.c: Unknown key pressed (translated set 2, code 0x12c, data 0x14, on isa0060/serio0).
-atkbd.c: Unknown key released (translated set 2, code 0x12c, data 0x94, on isa0060/serio0).
-
-Messenger/SMS:
-atkbd.c: Unknown key pressed (translated set 2, code 0x11d, data 0x11, on isa0060/serio0).
-atkbd.c: Unknown key released (translated set 2, code 0x11d, data 0x91, on isa0060/serio0).
-
-I wouldn't be too bothered about this if it weren't for the fact that
-the keys /also/ don't work in X - X doesn't register the presses, and
-looking in dmesg, I see the same errors being output.
-
-I realise that someone's posted to the list about this problem before,
-but I found no answer that really explained how to fix it. The one reply
-seemed to indicate the use of setkeycodes, but the error message gives
-me no real hint about a scancode I can use.
-
-Both keys used to work fine in Linux 2.4.21 - I was using the
-Messenger/SMS button to change the DPMS timings on my monitor so I could
-have it turn off/on at a buttonpress in X.
-
-I'm running Debian GNU/Linux unstable; the bulk of the system is up to
-date as of a week or so ago (but I expect this isn't all that relevant).
-
--- 
-bucko
-
+--- drivers/block/floppy.old.c	2003-12-22 11:42:42.000000000 +0100
++++ drivers/block/floppy.c	2003-12-22 11:44:00.000000000 +0100
+@@ -2563,7 +2563,7 @@
+ 			       current_count_sectors);
+ 			if (CT(COMMAND) == FD_READ)
+ 				printk("read\n");
+-			if (CT(COMMAND) == FD_READ)
++			if (CT(COMMAND) == FD_WRITE)
+ 				printk("write\n");
+ 			break;
+ 		}
+@@ -2894,7 +2894,7 @@
+ 			       current_count_sectors);
+ 			if (CT(COMMAND) == FD_READ)
+ 				printk("read\n");
+-			if (CT(COMMAND) == FD_READ)
++			if (CT(COMMAND) == FD_WRITE)
+ 				printk("write\n");
+ 			return 0;
+ 		}
+--- drivers/block/floppy98.old.c	2003-12-22 11:42:51.000000000 +0100
++++ drivers/block/floppy98.c	2003-12-22 11:44:25.000000000 +0100
+@@ -2594,7 +2594,7 @@
+ 			       current_count_sectors);
+ 			if (CT(COMMAND) == FD_READ)
+ 				printk("read\n");
+-			if (CT(COMMAND) == FD_READ)
++			if (CT(COMMAND) == FD_WRITE)
+ 				printk("write\n");
+ 			break;
+ 		}
+@@ -2925,7 +2925,7 @@
+ 			       current_count_sectors);
+ 			if (CT(COMMAND) == FD_READ)
+ 				printk("read\n");
+-			if (CT(COMMAND) == FD_READ)
++			if (CT(COMMAND) == FD_WRITE)
+ 				printk("write\n");
+ 			return 0;
+ 		}

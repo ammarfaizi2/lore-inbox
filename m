@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277038AbRJKW6w>; Thu, 11 Oct 2001 18:58:52 -0400
+	id <S277029AbRJKW7C>; Thu, 11 Oct 2001 18:59:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277034AbRJKW6n>; Thu, 11 Oct 2001 18:58:43 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:24761 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S277029AbRJKW6i>;
-	Thu, 11 Oct 2001 18:58:38 -0400
-Date: Thu, 11 Oct 2001 18:59:03 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Christian Ullrich <chris@chrullrich.de>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Vincent Sweeney <v.sweeney@dexterus.com>, arvest@orphansonfire.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Partitioning problems in 2.4.11
-In-Reply-To: <20011012003148.B435@christian.chrullrich.de>
-Message-ID: <Pine.GSO.4.21.0110111854080.24742-100000@weyl.math.psu.edu>
+	id <S277034AbRJKW6w>; Thu, 11 Oct 2001 18:58:52 -0400
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:22020 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S277029AbRJKW6o>; Thu, 11 Oct 2001 18:58:44 -0400
+Date: Thu, 11 Oct 2001 17:59:06 -0500 (CDT)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: "W. Scott Wilburn" <wilburn@lanl.gov>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Where to send tulip bug report
+In-Reply-To: <Pine.LNX.4.33.0110111620230.19227-100000@wilburn.lanl.gov>
+Message-ID: <Pine.LNX.3.96.1011011175818.5934H-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 11 Oct 2001, W. Scott Wilburn wrote:
+> I have reported a bug in the tulip driver to
+> sourceforge.net/projects/tulip but it looks like there hasn't been much
+> activity there lately.
+> 
+> Is that the right place to report tulip bugs?
+
+You can CC them to me directly, but I am pretty backlogged right now...
+getting 2104x bugs fixed is high on the list.
+
+	jeff
 
 
-On Fri, 12 Oct 2001, Christian Ullrich wrote:
-
-> a) -10-ac11, -10-ac12 and -12 with your patch all behave like -11.
-
-_Ouch_.  So even bread()-based variant fails to read extended partition
-table in some cases.
-
-Hmm... Just in case - what processor are you using?
 

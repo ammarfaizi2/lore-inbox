@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263073AbTDVK7z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 06:59:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263074AbTDVK7z
+	id S263076AbTDVLGe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 07:06:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263077AbTDVLGe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 06:59:55 -0400
-Received: from 20.Red-80-39-3.pooles.rima-tde.net ([80.39.3.20]:41516 "EHLO
-	localhost") by vger.kernel.org with ESMTP id S263073AbTDVK7y convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 06:59:54 -0400
-From: "Pedro A. Gracia Fajardo" <pgracia@iter.rcanaria.es>
-Organization: ITER
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Added VIA 6103 10/100Mbps Phyceiver in sis900.c
-Date: Tue, 22 Apr 2003 12:11:56 +0100
-User-Agent: KMail/1.5.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Tue, 22 Apr 2003 07:06:34 -0400
+Received: from zero.aec.at ([193.170.194.10]:34057 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S263076AbTDVLGd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 07:06:33 -0400
+Date: Tue, 22 Apr 2003 13:18:32 +0200
+From: Andi Kleen <ak@muc.de>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, ak@muc.de
+Subject: Re: [PATCH] Runtime memory barrier patching
+Message-ID: <20030422111832.GC2170@averell>
+References: <200304220111.h3M1BEp5004047@hera.kernel.org> <1051001038.1419.3.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200304221211.56347.pgracia@iter.rcanaria.es>
+In-Reply-To: <1051001038.1419.3.camel@laptop.fenrus.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The actual driver can't find the VIA 6103 Phyceiver in PC CHIPS M810D MOBOs.  
-I used the mii_chip_table from etherboot project.
 
---- sis900.c    2003-04-22 09:39:29.000000000 +0100
-+++ sis900.c-via6103    2003-04-22 11:50:36.000000000 +0100
-@@ -125,6 +125,7 @@
-        { "ICS LAN PHY",                        0x0015, 0xF440, LAN },
-        { "NS 83851 PHY",                       0x2000, 0x5C20, MIX },
-        { "Realtek RTL8201 PHY",                0x0000, 0x8200, LAN },
-+       { "VIA 6103 PHY",                       0x0101, 0x8f20, LAN },
-        {0,},
- };
+On Tue, Apr 22, 2003 at 10:43:58AM +0200, Arjan van de Ven wrote:
+> On Tue, 2003-04-22 at 01:23, Linux Kernel Mailing List wrote:
+> > ChangeSet 1.1169, 2003/04/21 16:23:20-07:00, ak@muc.de
+> > 
+> > 	[PATCH] Runtime memory barrier patching
+> > 	
+> > 	This implements automatic code patching of memory barriers based
+> > 	on the CPU capabilities. Normally lock ; addl $0,(%esp) barriers
+> > 	are used, but these are a bit slow on the Pentium 4.
+> > 	
+> 
+> very nice. Question: would it be doable use this for prefetch() as well?
+> Eg default to a non-prefetch kernel and patch in the proper prefetch
+> instruction for the current cpu ? (eg AMD prefetch vs Intel one etc etc)
 
-Regards, Pedro
+Yes, I already implemented it, but have yet to boot it.
 
--- 
-Pedro A. Gracia Fajardo
-Instituto Tecnológico de Energías Renovables (ITER)
+You only need Intel and AMD prefetch. For all Athlons the SSE prefetches
+work (because we force the SSE MSR bit to on). prefetchw is 3dnow.
+3dnow non 'w' prefetches would only make sense on the K6, but they're
+not really worth it there because it doesn't have enough oustanding loads
+in the memory unit and worse prefetch is microcoded there.
+
+-Andi
+

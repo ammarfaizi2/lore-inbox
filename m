@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264686AbTBEUXv>; Wed, 5 Feb 2003 15:23:51 -0500
+	id <S264838AbTBEUZN>; Wed, 5 Feb 2003 15:25:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264836AbTBEUXu>; Wed, 5 Feb 2003 15:23:50 -0500
-Received: from packet.digeo.com ([12.110.80.53]:45212 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264686AbTBEUXt>;
-	Wed, 5 Feb 2003 15:23:49 -0500
-Message-ID: <3E41750C.56F7165@digeo.com>
-Date: Wed, 05 Feb 2003 12:33:16 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.51 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S264844AbTBEUZN>; Wed, 5 Feb 2003 15:25:13 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:3856 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S264838AbTBEUZL>;
+	Wed, 5 Feb 2003 15:25:11 -0500
+Date: Wed, 5 Feb 2003 21:34:45 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
 To: Andrea Arcangeli <andrea@suse.de>
-CC: lm@bitmover.com, linux-kernel@vger.kernel.org
+Cc: Dave Kleikamp <shaggy@austin.ibm.com>, lm@bitmover.com,
+       linux-kernel@vger.kernel.org
 Subject: Re: 2.5 changeset 1.952.4.2 corrupt in fs/jfs/inode.c
-References: <20030205174021.GE19678@dualathlon.random> <20030205102308.68899bc3.akpm@digeo.com> <20030205184535.GG19678@dualathlon.random> <20030205114353.6591f4c8.akpm@digeo.com> <20030205195151.GJ19678@dualathlon.random> <20030205120903.1e84c12e.akpm@digeo.com> <20030205201810.GM19678@dualathlon.random>
+Message-ID: <20030205203445.GA4467@mars.ravnborg.org>
+Mail-Followup-To: Andrea Arcangeli <andrea@suse.de>,
+	Dave Kleikamp <shaggy@austin.ibm.com>, lm@bitmover.com,
+	linux-kernel@vger.kernel.org
+References: <20030205174021.GE19678@dualathlon.random> <200302051404.21524.shaggy@austin.ibm.com> <20030205201055.GL19678@dualathlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Feb 2003 20:33:19.0753 (UTC) FILETIME=[D1EAB790:01C2CD55]
+Content-Disposition: inline
+In-Reply-To: <20030205201055.GL19678@dualathlon.random>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
+On Wed, Feb 05, 2003 at 09:10:55PM +0100, Andrea Arcangeli wrote:
+> > Andrea,
+> > The change from block_truncate_page to nobh_truncate_page was done in 
+> > Changeset 1.879.43.1.  This was created on January 9th, but not merged 
+> > into Linus' tree until Monday, so it is not in 2.5.59.  I think the 
 > 
-> On Wed, Feb 05, 2003 at 12:09:03PM -0800, Andrew Morton wrote:
-> > Andrea Arcangeli <andrea@suse.de> wrote:
-> > >
-> > > it might be simply an error in the tarball, maybe Linus's tree isn't in
-> > > full sync with bk head. But something definitely is corrupt between
-> > > tarball and bk.
-> >
-> > Well, the 2.5.59 BK tree shows that function using block_truncate_page() as
-> > well.
-> >
-> > The question is why did the Jan 9 changeset in the 2.5.55 timeframe not
-> > appear in the tree until post-2.5.59.  Maybe on Jan 9 Linus only part-merged
-> > it by some means (making the web interface claim it is there), and this week
-> > completed the merge and updated the checkin comment?
-> 
-> I don't know how it is supposed to work, but this sounds quite messy, if
-> this is the case, how can you order the changesets?
-> 
+> if you think it's normal the thing sounds very messy. I mean, how can
+> a changeset be numbered 1.879.43.1 and not be included in 2.5.59?
 
-Dave says that the Jan 9 date was when he committed it locally.  It
-was pushed to Linus this week, and the tracking shows Dave's date,
-not Linus's.
+cset 1.952.1.4 is the one that Linus released 2.5.59 on.
+Now I started doing some development based on cset 1.875 - a few days older.
 
-I didn't know Dave was using bitkeeper.  Sorry noise.
+Tomorrow Linus release a new kernel, cset 1.973 for example.
+Next week Linus merge my work, that will be numbered 1.875.1.1..1.875.1.3
+
+You will see that my cset will be listed on the web on the date where
+I did the commit, but it will not appear on kernel.org until
+Linus merge my stuff.
+So you cannot deduct from the numbers in what release a certain cset belongs.
+
+The fact that cset's appear on the web as they are orginally committed
+is annoying tracking the kernel, and Larry sometime ago noted that they
+may do some changes in that respect.
+
+	Sam

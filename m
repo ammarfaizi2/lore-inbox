@@ -1,56 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275431AbTHIWRR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 18:17:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275432AbTHIWRR
+	id S275430AbTHIWQP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 18:16:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275431AbTHIWQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 18:17:17 -0400
-Received: from ms-smtp-03.rdc-kc.rr.com ([24.94.166.129]:49110 "EHLO
-	ms-smtp-03.rdc-kc.rr.com") by vger.kernel.org with ESMTP
-	id S275431AbTHIWRM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 18:17:12 -0400
-Date: Sat, 9 Aug 2003 17:17:06 -0500
-From: Greg Norris <haphazard@kc.rr.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.0-test3] Hyperthreading gone
-Message-ID: <20030809221706.GA2106@glitch.localdomain>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <87llu2bvxg.fsf@deneb.enyo.de>
+	Sat, 9 Aug 2003 18:16:14 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:29724 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S275430AbTHIWQK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 18:16:10 -0400
+Date: Sun, 10 Aug 2003 01:15:54 +0300
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org,
+       gibbs@scsiguy.com, alan@redhat.com
+Subject: Re: 2.4.22pre8 hangs too (Re: 2.4.21-jam1, aic7xxx-6.2.36: solid hangs)
+Message-ID: <20030809221554.GC150921@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	Adrian Bunk <bunk@fs.tum.de>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	linux-kernel@vger.kernel.org, gibbs@scsiguy.com, alan@redhat.com
+References: <20030729073948.GD204266@niksula.cs.hut.fi> <20030730071321.GV150921@niksula.cs.hut.fi> <Pine.LNX.4.55L.0307301149550.29648@freak.distro.conectiva> <20030730181003.GC204962@niksula.cs.hut.fi> <20030808125502.GB150921@niksula.cs.hut.fi> <20030809201951.GP16091@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87llu2bvxg.fsf@deneb.enyo.de>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030809201951.GP16091@fs.tum.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Did you select CPU Enumeration Only, or "normal" ACPI?  If the former,
-did you specify the "acpismp=force" parameter at bootup?
+On Sat, Aug 09, 2003 at 10:19:51PM +0200, you [Adrian Bunk] wrote:
+> On Fri, Aug 08, 2003 at 03:55:02PM +0300, Ville Herva wrote:
+> > 
+> > Which brings me to the question: which gcc version is considered most stable
+> > for compiling 2.4.x these days?
+> >...
+> > This seems to suggest 2.96-85 would be more stable than gcc-3.2.1-2. Is this
+> > the case?
+> >...
+> 
+> 2.95.3 and the (unofficial) 2.96 are the best compilers for 2.4 .
+> 
+> In most cases 3.2.1 will give you a working kernel, but if you need
+> maximum stablity don't use gcc 3.x for compiling kernel 2.4 .
 
-On Sat, Aug 09, 2003 at 07:08:43PM +0200, Florian Weimer wrote:
-> ACPI with CPU enumeration is enabled, but the sibling CPUs aren't
-> activated.
-> 
-> This is all what I have of the boot message (standard buffer size is
-> too small, apparently):
-> 
-> CPU:     After all inits, caps: 3febfbff 00000000 00000000 00000080
-> Intel machine check architecture supported.
-> Intel machine check reporting enabled on CPU#3.
-> CPU#3: Intel P4/Xeon Extended MCE MSRs (12) available
-> CPU#3: Thermal monitoring enabled
-> CPU3: Intel(R) Xeon(TM) CPU 1.40GHz stepping 01
-> Total of 4 processors activated (11034.62 BogoMIPS).
-> WARNING: No sibling found for CPU 0.
-> WARNING: No sibling found for CPU 1.
-> WARNING: No sibling found for CPU 2.
-> WARNING: No sibling found for CPU 3.
-> 
-> Recent 2.4.x kernels (starting with 2.4.20 IIRC) support
-> Hyperthreading on this machine (Siemens Primergy H450).
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+I'm surely aiming for stability, yeah ;).
+
+2.96-85 produces a kernel that hangs (though it's not proven it's gcc's
+fault) -- the one compiled with gcc-3.2.1-2 hasn't hung yet. I guess I
+should at least use the latest errata version if I go with 2.96...
+
+
+-- v --
+
+v@iki.fi

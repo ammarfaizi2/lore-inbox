@@ -1,56 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265450AbRFVP6C>; Fri, 22 Jun 2001 11:58:02 -0400
+	id <S265455AbRFVQAM>; Fri, 22 Jun 2001 12:00:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265451AbRFVP5w>; Fri, 22 Jun 2001 11:57:52 -0400
-Received: from 200-206-139-161-br-arqfisb1.public.telesp.net.br ([200.206.139.161]:4356
-	"EHLO blackjesus.async.com.br") by vger.kernel.org with ESMTP
-	id <S265450AbRFVP5k>; Fri, 22 Jun 2001 11:57:40 -0400
-Date: Fri, 22 Jun 2001 12:57:24 -0300 (BRT)
-From: Christian Robottom Reis <kiko@async.com.br>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-cc: <NFS@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>,
-        <reiserfs-list@namesys.com>
-Subject: Re: [NFS] NFS insanity
-In-Reply-To: <shsvgloisc2.fsf@charged.uio.no>
-Message-ID: <Pine.LNX.4.32.0106221247390.183-100000@blackjesus.async.com.br>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265454AbRFVQAD>; Fri, 22 Jun 2001 12:00:03 -0400
+Received: from ns.suse.de ([213.95.15.193]:43015 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S265453AbRFVP7w>;
+	Fri, 22 Jun 2001 11:59:52 -0400
+Date: Fri, 22 Jun 2001 17:59:44 +0200
+From: Andi Kleen <ak@suse.de>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: About I/O callbacks ...
+Message-ID: <20010622175944.A6968@gruyere.muc.suse.de>
+In-Reply-To: <ouplmml6jjf.fsf@pigdrop.muc.suse.de> <XFMail.20010622085500.davidel@xmailserver.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <XFMail.20010622085500.davidel@xmailserver.org>; from davidel@xmailserver.org on Fri, Jun 22, 2001 at 08:55:00AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Jun 2001, Trond Myklebust wrote:
+On Fri, Jun 22, 2001 at 08:55:00AM -0700, Davide Libenzi wrote:
+> I know about rt signals and SIGIO :) but I can't see how You can queue signals :
+> 
+> current->sig->action[..]
+> 
+> The action field is an array so if more than one I/O notification is fired
+> before the SIGIO is delivered, You'll deliver only the last one.
+> Am I missing something ?
 
-> I'm a bit surprised about your choice or rsize and wsize. Although it
-> shouldn't make any difference, 3072 is not a natural size on an x86
-> machine. You usually want something that divides PAGE_CACHE_SIZE=4096.
-> Furthermore, on the Linux NFS client, any value < PAGE_CACHE_SIZE
-> means that you use synchronous writes (deferred writes are enabled
-> with wsize=4096 or greater).
+Yes. Realtime signals (>=SIGRTMIN) get queued in current->pending.
 
-Trond, your command was very much appreciated. I got to this value after
-stress testing the network install in the office: anything above that
-value caused massive collisions on the hub and I just thought it would be
-unhealthy to be forcing this sort of bustage onto the wire. 1 and 2k
-performed worse, and 4k causing collisions, I chose 3k. The tests
-consisted of doing compiles and simple file operations (reading large mail
-folders, in addition), which is what users doing everyday work here and
-evaluating the performance of the filesystem look for.
-
-I'm not _entirely_ sure my tests were sane, but is this a reasonable
-explanation?
-
-> The advantage in this case though, is that it means any error message
-> that was returned by the server was guaranteed to have been received
-> by 'cp', because the page was written to the server immediately.
-
-And no error was reported; it was completely silent. I can no longer
-reproduce this after the power outage we had yesterday forced a reboot on
-the client. *sigh* It would have been nice to find out what it was.
-
-Take care,
---
-/\/\ Christian Reis, Senior Engineer, Async Open Source, Brazil
-~\/~ http://async.com.br/~kiko/ | [+55 16] 274 4311
-
-
+-Andi

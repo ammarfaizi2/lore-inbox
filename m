@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292868AbSCKSEM>; Mon, 11 Mar 2002 13:04:12 -0500
+	id <S310304AbSCKSEW>; Mon, 11 Mar 2002 13:04:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310325AbSCKSD6>; Mon, 11 Mar 2002 13:03:58 -0500
-Received: from bitmover.com ([192.132.92.2]:60845 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S292868AbSCKSDo>;
-	Mon, 11 Mar 2002 13:03:44 -0500
-Date: Mon, 11 Mar 2002 10:03:43 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: "Jonathan A. George" <JGeorge@greshamstorage.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel SCM: When does CVS fall down where it REALLY matters?
-Message-ID: <20020311100343.Y26447@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	"Jonathan A. George" <JGeorge@greshamstorage.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L2.0203110911530.3326-100000@dragon.pdx.osdl.net> <3C8CEF22.1050602@greshamstorage.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C8CEF22.1050602@greshamstorage.com>; from JGeorge@greshamstorage.com on Mon, Mar 11, 2002 at 11:53:38AM -0600
+	id <S310185AbSCKSEQ>; Mon, 11 Mar 2002 13:04:16 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:7299 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S310184AbSCKSDv>; Mon, 11 Mar 2002 13:03:51 -0500
+Date: Mon, 11 Mar 2002 13:06:21 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Gunther Mayer <gunther.mayer@gmx.net>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: IDE on linux-2.4.18
+In-Reply-To: <3C8CF054.91290065@gmx.net>
+Message-ID: <Pine.LNX.3.95.1020311130532.3167A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 11, 2002 at 11:53:38AM -0600, Jonathan A. George wrote:
-> On Mon, 11 Mar 2002, Larry McVoy wrote:
-> 
-> >Arch has a concept of an "inode" quite similar to BitKeeper, in fact
-> >one wonders where the idea came from :-)
-> >
-> Oh please.  I've used the concept of an "inode" for years when modeling 
-[yadda yadda]
+On Mon, 11 Mar 2002, Gunther Mayer wrote:
 
-Go look at an Arch inode.  Then go look at a BK inode.  I'm not talking
-about the idea, I'm talking about the implementation.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+> "Richard B. Johnson" wrote:
+> 
+> > On Mon, 11 Mar 2002, Alan Cox wrote:
+> >
+> > > > hda: 20044080 sectors (10263 MB) w/418KiB Cache, CHS=1024/255/63, UDMA(33)
+> > > > Partition check:
+> > > >  hda: hda1 hda2 < hda5 hda6 >
+> > > > hd: unable to get major 3 for hard disk
+> > >
+> > > ^^^^^^^^^^^^^^^^^^
+> > >
+> > > Case dismissed ;)
+> >
+> > I haven't a clue what you are saying. Every IDE option that is allowed
+> > is enabled in .config. The IDE drive(s) are found, but you imply, no
+> > state, that I did something wrong. You state that I haven't enabled
+> > something? I enabled everything that 'make config` allowed me to
+> > enable. Now what is it?
+> 
+> You enabled too much(see hd.c):
+> 
+>     dep_bool '  Use old disk-only driver on primary interface'
+> CONFIG_BLK_DEV_HD_IDE
+> 
+> will hog "major 3" (which is needed by IDE driver later).
+> 
+
+Okay. Thanks. I will try without CONFIG_BLK_DEV_HD_IDE
+
+> 
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+	Bill Gates? Who?
+

@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132890AbQLIApz>; Fri, 8 Dec 2000 19:45:55 -0500
+	id <S132025AbQLIAqZ>; Fri, 8 Dec 2000 19:46:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135228AbQLIApq>; Fri, 8 Dec 2000 19:45:46 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:46603 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S132890AbQLIAp1>;
-	Fri, 8 Dec 2000 19:45:27 -0500
-Date: Sat, 9 Dec 2000 01:14:57 +0100
-From: Andi Kleen <ak@suse.de>
-To: Matthew Jacob <mjacob@feral.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, baettig@scs.ch,
-        linux-kernel@vger.kernel.org
-Subject: Re: io_request_lock question (2.2)
-Message-ID: <20001209011457.A30226@gruyere.muc.suse.de>
-In-Reply-To: <E144XLU-0004eG-00@the-village.bc.nu> <Pine.BSF.4.21.0012081603110.72881-100000@beppo.feral.com>
-Mime-Version: 1.0
+	id <S135242AbQLIAqT>; Fri, 8 Dec 2000 19:46:19 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:5124 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135228AbQLIAqA>; Fri, 8 Dec 2000 19:46:00 -0500
+Subject: Re: 2.2.18pre21 oops reading /proc/apm
+To: neale@lowendale.com.au (Neale Banks)
+Date: Sat, 9 Dec 2000 00:17:07 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.05.10012090901180.16389-100000@marina.lowendale.com.au> from "Neale Banks" at Dec 09, 2000 09:03:25 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.BSF.4.21.0012081603110.72881-100000@beppo.feral.com>; from mjacob@feral.com on Fri, Dec 08, 2000 at 04:03:58PM -0800
+Content-Transfer-Encoding: 7bit
+Message-Id: <E144XhN-0004hI-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 08, 2000 at 04:03:58PM -0800, Matthew Jacob wrote:
-> 
-> 
 > On Fri, 8 Dec 2000, Alan Cox wrote:
 > 
-> > > Yes, and I believe that this is what's broken about the SCSI midlayer. The the
-> > > io_request_lock cannot be completely released in a SCSI HBA because the flags
+> > > Is there anything else I can contribute?
 > > 
-> > You can drop it with spin_unlock_irq and that is fine. I do that with no
-> > problems in the I2O scsi driver for example
+> > The latitude and longtitude of the bios writers current position, and
+> > a ballistic missile.
 > 
-> I am (like, I think I *finally* got locking sorta right in my QLogic driver),
-> but doesn't this still leave ints blocked for this CPU at least?
+> ;-)
+> 
+> > Please boot 2.2.18pre24 (not pre25) [...]
+> 
+> Please pardon the naive question: is pre-patch-2.2.18-24 to be applied
+> over 2.2.17?
 
-spin_unlock_irq() does a __sti()
-spin_unlock() doesn't. 
+Yes. Each pre is relative to 2.2.17
 
--Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129361AbQLJXjS>; Sun, 10 Dec 2000 18:39:18 -0500
+	id <S129684AbQLJXna>; Sun, 10 Dec 2000 18:43:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129684AbQLJXjJ>; Sun, 10 Dec 2000 18:39:09 -0500
-Received: from mail-out.chello.nl ([213.46.240.7]:56108 "EHLO
-	amsmta03-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S129361AbQLJXix>; Sun, 10 Dec 2000 18:38:53 -0500
-Date: Mon, 11 Dec 2000 01:15:51 +0100 (CET)
-From: Igmar Palsenberg <maillist@chello.nl>
-To: clock@atrey.karlin.mff.cuni.cz
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Dropping chars on 16550
-In-Reply-To: <20001210211445.00733@ghost.btnet.cz>
-Message-ID: <Pine.LNX.4.21.0012110115300.26828-100000@server.serve.me.nl>
+	id <S129774AbQLJXnU>; Sun, 10 Dec 2000 18:43:20 -0500
+Received: from web204.mail.yahoo.com ([128.11.68.104]:22285 "HELO
+	web204.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129684AbQLJXnE>; Sun, 10 Dec 2000 18:43:04 -0500
+Message-ID: <20001210231233.25126.qmail@web204.mail.yahoo.com>
+Date: Sun, 10 Dec 2000 15:12:33 -0800 (PST)
+From: Jean Fekry Rizk <jeanfekry@yahoo.com>
+Subject: Linking with kernel code (Makefile)
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 10 Dec 2000 clock@ghost.btnet.cz wrote:
+Hi Kernel World,
+I'm new to linux-kernel developement, so I would appreciate any help.
 
-> Hi folks
-> 
-> What should I do, when I run cdda2wav | gogo (riping CD from a ATAPI
-> CD thru mp3 encoder) and get a continuous dropping of characters, on a 16550-
-> enhanced serial port, without handshake, with full-duplex load of 115200 bps?
-> About 1 of 320 bytes is miscommunicated.
+What I want to do:
+    create a shared memory segment between user space and kernel space
 
-Use handshaking
+How am I trying to do it from kernel:
+    use the 'newseg' function from 'ipc/shm.c', or even the array shm_segs
+directly.
 
+The problem:
+    I can't link with the array or the function, this also happens with
+all functions that are not defined in 'ksyms'
+    Even though I declared 'newseg' and 'shm_segs' as 'extern' in my file
 
+I think my problem is in the Makefile.
+I'm using linux-2.2.14
+Here is the Makefile from the ipc folder
+    O_TARGET:=ipc.o
+    O_OBJS  :=util.o msg.o sem.o shm.o
+    include  $(TOPDIR)/Rules.make
+To compile my file 'mycode.c'- which uses newseg - I just added 'mycode.o'
+to the O_OBJS line.
+But while making bzImage, it gives the error unresolved external 'newseg'
 
-	Igmar
+So my question is how can I link to the kernel source code, or am I not
+allowed to?
 
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Shopping - Thousands of Stores. Millions of Products.
+http://shopping.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

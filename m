@@ -1,53 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129284AbRBZRdR>; Mon, 26 Feb 2001 12:33:17 -0500
+	id <S129111AbRBZRaH>; Mon, 26 Feb 2001 12:30:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129257AbRBZRc6>; Mon, 26 Feb 2001 12:32:58 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:20486
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129280AbRBZRcw>; Mon, 26 Feb 2001 12:32:52 -0500
-Date: Mon, 26 Feb 2001 09:32:03 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-cc: "Jeff V. Merkey" <jmerkey@timpanogas.org>,
-        Guest section DW <dwguest@win.tue.nl>,
-        Andreas Jellinghaus <aj@dungeon.inka.de>, linux-kernel@vger.kernel.org
+	id <S129190AbRBZR35>; Mon, 26 Feb 2001 12:29:57 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:55566 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129111AbRBZR3p>; Mon, 26 Feb 2001 12:29:45 -0500
+Date: Mon, 26 Feb 2001 11:24:07 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Guest section DW <dwguest@win.tue.nl>
+Cc: "Jeff V. Merkey" <jmerkey@timpanogas.org>,
+        Andreas Jellinghaus <aj@dungeon.inka.de>, linux-kernel@vger.kernel.org,
+        aeb@cwi.nl
 Subject: Re: partition table: chs question
-In-Reply-To: <20010226112232.B23495@vger.timpanogas.org>
-Message-ID: <Pine.LNX.4.10.10102260929080.28790-100000@master.linux-ide.org>
-MIME-Version: 1.0
+Message-ID: <20010226112407.C23495@vger.timpanogas.org>
+In-Reply-To: <20010225163534.A12566@dungeon.inka.de> <20010225224729.A16353@win.tue.nl> <002201c09f87$5ce75640$f6976dcf@nwfs> <20010226041156.A16707@win.tue.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20010226041156.A16707@win.tue.nl>; from dwguest@win.tue.nl on Mon, Feb 26, 2001 at 04:11:56AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Feb 2001, Jeff V. Merkey wrote:
-
-> On Sun, Feb 25, 2001 at 05:59:33PM -0800, Andre Hedrick wrote:
-> > 
-> > 
-> > It does not matter because the usage of CHS will dies soon because it was
-> > voted to death in Austin last week.  There will only be LBA addressing
-> > from now on out.
+On Mon, Feb 26, 2001 at 04:11:56AM +0100, Guest section DW wrote:
+> On Sun, Feb 25, 2001 at 05:02:09PM -0700, Jeff V. Merkey wrote:
 > 
-> If someone has Linux and NetWare dual booted on a system, and does not 
-> fill out the CHS fields properly for NetWare partitions, When NetWare 
-> boots, it will wipe the partition table (it will ask you first) and 
-> will not recognize any of the partitions.  It does this because if it 
-> sees CHS values it does not expect, it assumes the partition table 
-> has been corrupted.
+> > Please also check vger.timpanogas.org/nwfs/nwfs.tar.gz:disk.c for NetWare
+> > specific calculations of the CHS values, a different method is used for
+> > NetWare partitions vs. everything else (Novell just had to be different).
+> 
+> > > On Sun, Feb 25, 2001 at 04:35:34PM +0100, Andreas Jellinghaus wrote:
+> > >
+> > > > for partitions not in the first 8gb of a harddisk, what
+> > > > should the c/h/s start and end value be ?
+> > > >
+> > > > most fdisks seem to set start and end to 255/63/1023.
+> > > > but partition magic creates partitions with start set to
+> > > > 0/1/1023 and end set to 255/63/1023, and detects a problem
+> > > > if start is set to 255/63/1023.
+> 
+> Good. I added this to
+> http://www.win.tue.nl/~aeb/partitions/partition_types-2.html#above1024chs
+> 
+> Now that I looked at this disk.c anyway: it has a table of
+> partition types, and it seems I collect these.
+> (See http://www.win.tue.nl/~aeb/partitions/partition_types-1.html )
+> Are types 57 and 77, labeled "VNDI Partition", actually in use?
 
-Then Netware is a bad HOST-Driver and people should expect to be hurt by
-using a HOST that is not compliant.  It is the responsiblity of the user
-to tell the HOST-OS what it needs to do.  Especially if one of the OSes
-can not be intelligent enough to adpat to the changes.
+No.  They are not.  65, and 77 are the ones in use.  Novell was using 
+67 for Wolf Mountain, but for NSS, they are exclusively using 
+"69" (I know who at Novell picked this number, and I'll give you 
+three guesses what is always on his mind).  
 
-Regards,
+Jeff
 
-Andre Hedrick
-Linux ATA Development
-ASL Kernel Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
 
+
+
+> 
+> Andries

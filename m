@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262710AbVCWCTA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262722AbVCWCYF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262710AbVCWCTA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 21:19:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262708AbVCWCSl
+	id S262722AbVCWCYF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 21:24:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262723AbVCWCXl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 21:18:41 -0500
-Received: from rproxy.gmail.com ([64.233.170.195]:32116 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262710AbVCWCOk (ORCPT
+	Tue, 22 Mar 2005 21:23:41 -0500
+Received: from rproxy.gmail.com ([64.233.170.193]:19084 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262721AbVCWCPH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 21:14:40 -0500
+	Tue, 22 Mar 2005 21:15:07 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
-        b=QNi2GsQlICZGidqgQDqqkmgXt4hRcerle+MWEUeF6DfoLFBEMoyFamMVPlbs2EPx/lf56xAij+nYe3jo89Uo3wKAmwwKRECWisZKwOOholO2e+23zE3Thj0fo6Gk97nKpVBX4/ff2OJm1ThK0B0hvaAjjYo7XwRJmaHP9AXGmdY=
+        b=h9b3szfNxnCOjIITMUl5uxWxXIgdut3VgbyUV3IQP5WAveodGDR7L4Ygameop7m6XWcOYf+hK7PEBkmRRlW9RBKx6MoqS/Epn8IIbDity5t1MLmkgevI83FsePSCYuWhXUSkMHHEBn4y88TS0g3f6ZKrSPqvXtntmwQ4isMuAXY=
 From: Tejun Heo <htejun@gmail.com>
 To: James.Bottomley@steeleye.com, axboe@suse.de
 Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
@@ -20,123 +20,46 @@ User-Agent: lksp 0.3
 Content-Type: text/plain; charset=US-ASCII
 References: <20050323021335.960F95F8@htj.dyndns.org>
 In-Reply-To: <20050323021335.960F95F8@htj.dyndns.org>
-Subject: Re: [PATCH scsi-misc-2.6 03/08] scsi: remove unused scsi_cmnd->internal_timeout field
-Message-ID: <20050323021335.EBA326A2@htj.dyndns.org>
-Date: Wed, 23 Mar 2005 11:14:34 +0900 (KST)
+Subject: Re: [PATCH scsi-misc-2.6 08/08] scsi: fix hot unplug sequence
+Message-ID: <20050323021335.4682C732@htj.dyndns.org>
+Date: Wed, 23 Mar 2005 11:14:59 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-03_scsi_remove_internal_timeout.patch
+08_scsi_hot_unplug_fix.patch
 
-	scsi_cmnd->internal_timeout field doesn't have any meaning
-	anymore.  Kill the field.
+	When hot-unplugging using scsi_remove_host() function (as usb
+	does), scsi_forget_host() used to be called before
+	scsi_host_cancel().  So, the device gets removed first without
+	request cleanup and scsi_host_cancel() never gets to call
+	scsi_device_cancel() on the removed devices.  This results in
+	premature completion of hot-unplugging process with active
+	requests left in queue, eventually leading to hang/offlined
+	device or oops when the active command times out.
+
+	This patch makes scsi_remove_host() call scsi_host_cancel()
+	first such that the host is first transited into cancel state
+	and all requests of all devices are killed, and then, the
+	devices are removed.  This patch fixes the oops in eh after
+	hot-unplugging bug.
 
 Signed-off-by: Tejun Heo <htejun@gmail.com>
 
- drivers/scsi/advansys.c   |    2 --
- drivers/scsi/pci2000.c    |    4 ++--
- drivers/scsi/scsi.c       |    1 -
- drivers/scsi/scsi_error.c |    1 -
- drivers/scsi/scsi_lib.c   |    1 -
- drivers/scsi/scsi_priv.h  |    5 -----
- include/scsi/scsi_cmnd.h  |    6 ------
- 7 files changed, 2 insertions(+), 18 deletions(-)
+ hosts.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-Index: scsi-export/drivers/scsi/advansys.c
+Index: scsi-export/drivers/scsi/hosts.c
 ===================================================================
---- scsi-export.orig/drivers/scsi/advansys.c	2005-03-23 09:39:36.000000000 +0900
-+++ scsi-export/drivers/scsi/advansys.c	2005-03-23 09:40:09.000000000 +0900
-@@ -9206,8 +9206,6 @@ asc_prt_scsi_cmnd(struct scsi_cmnd *s)
- " timeout_per_command %d, timeout_total %d, timeout %d\n",
-         s->timeout_per_command, s->timeout_total, s->timeout);
+--- scsi-export.orig/drivers/scsi/hosts.c	2005-03-23 09:39:36.000000000 +0900
++++ scsi-export/drivers/scsi/hosts.c	2005-03-23 09:40:11.000000000 +0900
+@@ -74,8 +74,8 @@ void scsi_host_cancel(struct Scsi_Host *
+  **/
+ void scsi_remove_host(struct Scsi_Host *shost)
+ {
+-	scsi_forget_host(shost);
+ 	scsi_host_cancel(shost, 0);
++	scsi_forget_host(shost);
+ 	scsi_proc_host_rm(shost);
  
--    printk(" internal_timeout %u\n", s->internal_timeout);
--
-     printk(
- " scsi_done 0x%lx, done 0x%lx, host_scribble 0x%lx, result 0x%x\n",
-         (ulong) s->scsi_done, (ulong) s->done,
-Index: scsi-export/drivers/scsi/pci2000.c
-===================================================================
---- scsi-export.orig/drivers/scsi/pci2000.c	2005-03-23 09:39:36.000000000 +0900
-+++ scsi-export/drivers/scsi/pci2000.c	2005-03-23 09:40:09.000000000 +0900
-@@ -438,8 +438,8 @@ int Pci2000_QueueCommand (Scsi_Cmnd *SCp
- 	if ( bus )
- 		{
- 		DEB (if(*cdb) printk ("\nCDB: %X-  %X %X %X %X %X %X %X %X %X %X ", SCpnt->cmd_len, cdb[0], cdb[1], cdb[2], cdb[3], cdb[4], cdb[5], cdb[6], cdb[7], cdb[8], cdb[9]));
--		DEB (if(*cdb) printk ("\ntimeout_per_command: %d, timeout_total: %d, timeout: %d, internal_timout: %d", SCpnt->timeout_per_command,
--							  SCpnt->timeout_total, SCpnt->timeout, SCpnt->internal_timeout));
-+		DEB (if(*cdb) printk ("\ntimeout_per_command: %d, timeout_total: %d, timeout: %d", SCpnt->timeout_per_command,
-+							  SCpnt->timeout_total, SCpnt->timeout));
- 		outl (SCpnt->timeout_per_command, padapter->mb1);
- 		outb_p (CMD_SCSI_TIMEOUT, padapter->cmd);
- 		if ( WaitReady (padapter) )
-Index: scsi-export/drivers/scsi/scsi.c
-===================================================================
---- scsi-export.orig/drivers/scsi/scsi.c	2005-03-23 09:39:36.000000000 +0900
-+++ scsi-export/drivers/scsi/scsi.c	2005-03-23 09:40:09.000000000 +0900
-@@ -716,7 +716,6 @@ void scsi_init_cmd_from_req(struct scsi_
- 	/*
- 	 * Start the timer ticking.
- 	 */
--	cmd->internal_timeout = NORMAL_TIMEOUT;
- 	cmd->abort_reason = 0;
- 	cmd->result = 0;
- 
-Index: scsi-export/drivers/scsi/scsi_error.c
-===================================================================
---- scsi-export.orig/drivers/scsi/scsi_error.c	2005-03-23 09:39:36.000000000 +0900
-+++ scsi-export/drivers/scsi/scsi_error.c	2005-03-23 09:40:09.000000000 +0900
-@@ -1843,7 +1843,6 @@ scsi_reset_provider(struct scsi_device *
- 	scmd->bufflen			= 0;
- 	scmd->request_buffer		= NULL;
- 	scmd->request_bufflen		= 0;
--	scmd->internal_timeout		= NORMAL_TIMEOUT;
- 	scmd->abort_reason		= DID_ABORT;
- 
- 	scmd->cmd_len			= 0;
-Index: scsi-export/drivers/scsi/scsi_lib.c
-===================================================================
---- scsi-export.orig/drivers/scsi/scsi_lib.c	2005-03-23 09:40:09.000000000 +0900
-+++ scsi-export/drivers/scsi/scsi_lib.c	2005-03-23 09:40:09.000000000 +0900
-@@ -414,7 +414,6 @@ static int scsi_init_cmd_errh(struct scs
- 	memcpy(cmd->data_cmnd, cmd->cmnd, sizeof(cmd->cmnd));
- 	cmd->buffer = cmd->request_buffer;
- 	cmd->bufflen = cmd->request_bufflen;
--	cmd->internal_timeout = NORMAL_TIMEOUT;
- 	cmd->abort_reason = 0;
- 
- 	return 1;
-Index: scsi-export/drivers/scsi/scsi_priv.h
-===================================================================
---- scsi-export.orig/drivers/scsi/scsi_priv.h	2005-03-23 09:39:36.000000000 +0900
-+++ scsi-export/drivers/scsi/scsi_priv.h	2005-03-23 09:40:09.000000000 +0900
-@@ -30,11 +30,6 @@ struct Scsi_Host;
- #define SCSI_REQ_MAGIC		0x75F6D354
- 
- /*
-- *  Flag bit for the internal_timeout array
-- */
--#define NORMAL_TIMEOUT		0
--
--/*
-  * Scsi Error Handler Flags
-  */
- #define scsi_eh_eflags_chk(scp, flags) \
-Index: scsi-export/include/scsi/scsi_cmnd.h
-===================================================================
---- scsi-export.orig/include/scsi/scsi_cmnd.h	2005-03-23 09:39:36.000000000 +0900
-+++ scsi-export/include/scsi/scsi_cmnd.h	2005-03-23 09:40:09.000000000 +0900
-@@ -65,12 +65,6 @@ struct scsi_cmnd {
- 	int timeout_total;
- 	int timeout;
- 
--	/*
--	 * We handle the timeout differently if it happens when a reset, 
--	 * abort, etc are in process. 
--	 */
--	unsigned volatile char internal_timeout;
--
- 	unsigned char cmd_len;
- 	unsigned char old_cmd_len;
- 	enum dma_data_direction sc_data_direction;
+ 	set_bit(SHOST_DEL, &shost->shost_state);
 

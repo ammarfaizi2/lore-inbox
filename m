@@ -1,141 +1,208 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262145AbUKDJ6l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262150AbUKDKBA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262145AbUKDJ6l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 04:58:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbUKDJ6l
+	id S262150AbUKDKBA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 05:01:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbUKDKA7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 04:58:41 -0500
-Received: from hermine.aitel.hist.no ([158.38.50.15]:13837 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S262145AbUKDJ6f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 04:58:35 -0500
-Message-ID: <4189FEBF.9000800@hist.no>
-Date: Thu, 04 Nov 2004 11:04:47 +0100
-From: Helge Hafting <helge.hafting@hist.no>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Russell Miller <rmiller@duskglow.com>
-CC: Jim Nelson <james4765@verizon.net>, DervishD <lkml@dervishd.net>,
-       Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
-       =?UTF-8?B?TcOlbnMgUnVsbGfDpXJk?= <mru@inprovide.com>
-Subject: Re: is killing zombies possible w/o a reboot?
-References: <200411030751.39578.gene.heskett@verizon.net> <20041103192648.GA23274@DervishD> <4189586E.2070409@verizon.net> <200411031644.58979.rmiller@duskglow.com>
-In-Reply-To: <200411031644.58979.rmiller@duskglow.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Thu, 4 Nov 2004 05:00:59 -0500
+Received: from sartre.ispvip.biz ([209.118.182.154]:54191 "HELO
+	sartre.ispvip.biz") by vger.kernel.org with SMTP id S262150AbUKDKAL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 05:00:11 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.7
+From: "Michael J. Cohen" <mjc@unre.st>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: sboyce@blueyonder.co.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <418988A6.4090902@cybsft.com>
+References: <4189108C.2050804@blueyonder.co.uk>
+	 <41892899.6080400@cybsft.com> <41897119.6030607@blueyonder.co.uk>
+	 <418988A6.4090902@cybsft.com>
+Content-Type: text/plain
+Date: Thu, 04 Nov 2004 04:59:54 -0500
+Message-Id: <1099562394.9633.12.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell Miller wrote:
-
->On Wednesday 03 November 2004 16:15, Jim Nelson wrote:
->
+> > arch/x86_64/kernel/vsyscall.c: At top level:
+> > arch/x86_64/kernel/vsyscall.c:56: error: conflicting types for 
+> > `__xtime_lock'
+> > include/asm/vsyscall.h:48: error: previous declaration of `__xtime_lock'
+> 
+> Does the patch below fix the above error?
+> 
+> > arch/x86_64/kernel/vsyscall.c: In function `do_vgettimeofday':
+> > arch/x86_64/kernel/vsyscall.c:92: warning: passing arg 1 of `__readl' 
+> > makes pointer from integer without a cast
+> > make[1]: *** [arch/x86_64/kernel/vsyscall.o] Error 1
+> > make: *** [arch/x86_64/kernel] Error 2
+> > Regards
+> > id.
+> > 
+> 
+> kr
+> 
+> 
+> plain text document attachment (vsyscall.patch2)
+> --- linux-2.6.10-rc1-mm2/arch/x86_64/kernel/vsyscall.c.orig	2004-11-03 19:32:26.847377112 -0600
+> +++ linux-2.6.10-rc1-mm2/arch/x86_64/kernel/vsyscall.c	2004-11-03 19:34:48.892102334 -0600
+> @@ -53,7 +53,7 @@
+>  #define force_inline __attribute__((always_inline)) inline
 >  
->
->>I did this to myself a number of times when I was first learning Samba -
->>even an ls would become unkillable.  You couldn't rmmod smb, since it was
->>in use, and you couldn't kill the process, since it was waiting on a
->>syscall.  Ergh.
->>
->>    
->>
->
->I'm not going to pretend to be a kernel expert, or really anything other than 
->a newbie when it comes to kernel internals, so please take this with the 
->merits it deserves - many, or none, depending.
->
->Anyway, is there a way to simply signal a syscall that it is to be interrupted 
->and forcibly cause the syscall to end? 
->
-There is a way.  Processes go into D state happens all the time
-when waiting for disk io or similiar.  Then the io happens a few ms later,
-and the fs or device driver tells the kernel to wake up the process
-so it gets a chance at the next scheduling opportunity. So the mechanism to
-unstick a prcess exists, and is used by every device driver that
-use sleeping.  Which is most of them.
-
-Breakage happens when something never comes out of D-state.
-One could write a trivial syscall (or addition to "kill") that "wakes"
-processes waiting for io.  It itsn't hard to do at all - just copy the
-waking code from any device driver.  This will allow to kill and
-fully remove any process that hangs around in D-state.  This might
-also release other stuck resources as the syscall
-continues, returns to userspace, and allows the process to die.
-
-Unfortunately, this isn't enough.  In some cases the syscall
-expects the io device interrupt handler to have done something
-vital - but this haven't happened when we forcibly wakes a process.
-We can hope for an io error, but might get a crash instead. This
-can be fixes with a lot of work - basically check at every wakeup
-if the process were woken by this new killing mechanism and
-act accordingly.  It shouldn't be hard, but _lots_ of work
-inspecting every sleeping point, at least every device driver.
-
-Another problem exist if the long-waiting io wasn't lost - just 
-extremely slow.
-If the io actually comes through after the process is gone and the memory
-is used for something else - bang!  Dealing properly with this case
-is harder - a new generic mechanism for cancelling outstanding io
-requests is needed for this.
-It might even be impossible in some cases.  If a memory address is handed
-over to a bus-mastering device such as a scsi adapter, then the memory
-must be pinned down until the operation completes.  It cannot be released.
-The rest of the process can go, but the hw might not support any way
-of cancelling the request.  A few may have a way, many won't.  Some devices
-can be reset - but at a considerable cost.  A disk controller might be 
-unavailable
-for seconds during such a reset - instant DOS attack if a user keeps 
-starting lots of
-disk intensive processes and kill them off while in a D-state that 
-normally last way shorter than a reset.  PCI devices can be turned off, 
-but we might really want
-to use them again . . .
-
-Fortunately, most cases of long-running D-state is just driver bugs and
-can be fixed as such.  nfs has a forced umount option.  If samba can 
-hang, then
-it _can_ be fixed in similiar ways.  (smbfs is software only - no quirky 
-hw to deal with.)
-Hw drivers that puts processes into everlasting D-state usually do so 
-because of
-a bug. (Lost request or interrupt because of internal errors.)  Fix 
-that, and the
-problem never happens.  So the hard problem of killing stuff stuck in 
-D-state
-doesn't need a solution - fix the real bug instead.  Having a way to 
-kill such processes
-will only mean that hard-to-trigger bugs won't get fixed because there is
-workaround.  This is bad for stability too, as broken hw drivers can 
-hang the
-kernel even if a better process killer comes into existence.
-
-> Kicking the program execution out of 
->kernel space would be sufficient to "unstick" the process - and coupling that 
->with an automatic KILL signal may not be a bad idea.
->
->I'm pretty sure that someone will think of a way why this wouldn't work with 
->very little effort.  Please enlighten me?
+>  int __sysctl_vsyscall __section_sysctl_vsyscall = 1;
+> -seqlock_t __xtime_lock __section_xtime_lock = SEQLOCK_UNLOCKED;
+> +DECLARE_RAW_SEQLOCK(__section_xtime_lock);
 >  
->
-It is doable - but not with "very little effort".  I have outlined above 
-the trouble
-you get if you trivially wake up the sleeping process.  Another trivial 
-alternative
-is to remove the process while it is in-kernel.  The downside is that it 
-might
-be holding a lock or semaphore that won't ever be released this way.  
-And no,
-locks aren't necessarily accounted for anywhere.  (They are implicitly
-accounted for by the fact that a process exists whose future execution
-path leads to the release of said lock.)  Explicit accounting that allows
-lock-breaking is deemed too slow, and what to do about the data structures
-the lock/semaphore were protecting?
+>  #include <asm/unistd.h>
+>  
 
-The stuck process is a sign of another bug - better fix that one.
+I'll jump in.  No, it doesn't compile like this.
+I tried:
 
-Helge Hafting
-
+linux-2.6.10-rc1-mm2/arch/x86_64/kernel/vsyscall.c.orig	2004-11-03
+19:32:26.847377112 -0600
++++ linux-2.6.10-rc1-mm2/arch/x86_64/kernel/vsyscall.c	2004-11-03 19:34:48.892102334 -0600
+@@ -53,7 +53,7 @@
+ #define force_inline __attribute__((always_inline)) inline
+ 
+ int __sysctl_vsyscall __section_sysctl_vsyscall = 1;
+-seqlock_t __xtime_lock __section_xtime_lock = SEQLOCK_UNLOCKED;
++raw_seqlock_t __xtime_lock __section_xtime_lock = RAW_SEQLOCK_UNLOCKED;
+ 
+ #include <asm/unistd.h>
 
 
+
+
+which at least compiled that particular file, then had to insert some
+new bits into percpu.h for x86-64, so I stole those from asm-generic:
+
+diff -Nru -X dontdiff
+linux-2.6.10-rc1-mm2-RT/include/asm-x86_64/percpu.h
+linux-2.6.10-rc1-mm2-RT-take1/include/asm-x86_64/percpu.h
+--- linux-2.6.10-rc1-mm2-RT/include/asm-x86_64/percpu.h	2004-11-04
+04:16:24.000000000 -0500
++++ linux-2.6.10-rc1-mm2-RT-take1/include/asm-x86_64/percpu.h	2004-11-04
+02:39:53.000000000 -0500
+@@ -17,11 +17,25 @@
+ /* Separate out the type, so (int[3], foo) works. */
+ #define DEFINE_PER_CPU(type, name) \
+     __attribute__((__section__(".data.percpu"))) __typeof__(type)
+per_cpu__##name
++#define DEFINE_PER_CPU_LOCKED(type, name) \
++    __attribute__((__section__(".data.percpu"))) spinlock_t
+per_cpu_lock__##name##_locked = SPIN_LOCK_UNLOCKED; \
++    __attribute__((__section__(".data.percpu"))) __typeof__(type)
+per_cpu__##name##_locked
++
+ 
+ /* var is in discarded region: offset to particular copy we want */
+ #define per_cpu(var, cpu) (*RELOC_HIDE(&per_cpu__##var,
+__per_cpu_offset(cpu)))
+ #define __get_cpu_var(var) (*RELOC_HIDE(&per_cpu__##var,
+__my_cpu_offset()))
+ 
++#define per_cpu_lock(var, cpu) \
++       (*RELOC_HIDE(&per_cpu_lock__##var##_locked,
+__per_cpu_offset[cpu]))
++#define per_cpu_var_locked(var, cpu) \
++               (*RELOC_HIDE(&per_cpu__##var##_locked,
+__per_cpu_offset[cpu]))
++#define __get_cpu_lock(var, cpu) \
++               per_cpu_lock(var, cpu)
++#define __get_cpu_var_locked(var, cpu) \
++               per_cpu_var_locked(var, cpu)
++
++
+ /* A macro to avoid #include hell... */
+ #define percpu_modcopy(pcpudst, src, size)			\
+ do {								\
+@@ -39,8 +53,15 @@
+ #define DEFINE_PER_CPU(type, name) \
+     __typeof__(type) per_cpu__##name
+ 
++#define DEFINE_PER_CPU_LOCKED(type, name) \
++    spinlock_t per_cpu_lock__##name##_locked = SPIN_LOCK_UNLOCKED; \
++    __typeof__(type) per_cpu__##name##_locked
++
+ #define per_cpu(var, cpu)			(*((void)cpu, &per_cpu__##var))
+ #define __get_cpu_var(var)			per_cpu__##var
++#define __get_cpu_lock(var, cpu)
+per_cpu_lock__##var##_locked
++#define __get_cpu_var_locked(var, cpu)         per_cpu__##var##_locked
++
+ 
+ #endif	/* SMP */
+
+next up, some asm/rwsem.h copy and pasting:
+
+diff -Nru -X dontdiff linux-2.6.10-rc1-mm2-RT/include/asm-x86_64/rwsem.h
+linux-2.6.10-rc1-mm2-RT-take1/include/asm-x86_64/rwsem.h
+--- linux-2.6.10-rc1-mm2-RT/include/asm-x86_64/rwsem.h	2004-11-04
+04:16:24.000000000 -0500
++++ linux-2.6.10-rc1-mm2-RT-take1/include/asm-x86_64/rwsem.h	2004-11-04
+03:11:51.000000000 -0500
+@@ -44,10 +44,10 @@
+ 
+ struct rwsem_waiter;
+ 
+-extern struct rw_semaphore *rwsem_down_read_failed(struct rw_semaphore
+*sem);
+-extern struct rw_semaphore *rwsem_down_write_failed(struct rw_semaphore
+*sem);
+-extern struct rw_semaphore *rwsem_wake(struct rw_semaphore *);
+-extern struct rw_semaphore *rwsem_downgrade_wake(struct rw_semaphore
+*sem);
++extern struct rw_semaphore *FASTCALL(rwsem_down_read_failed(struct
+rw_semaphore *sem));
++extern struct rw_semaphore *FASTCALL(rwsem_down_write_failed(struct
+rw_semaphore *sem));
++extern struct rw_semaphore *FASTCALL(rwsem_wake(struct rw_semaphore
+*));
++extern struct rw_semaphore *FASTCALL(rwsem_downgrade_wake(struct
+rw_semaphore *sem));
+ 
+ /*
+  * the semaphore definition
+@@ -70,15 +70,10 @@
+ /*
+  * initialisation
+  */
+-#if RWSEM_DEBUG
+-#define __RWSEM_DEBUG_INIT      , 0
+-#else
+-#define __RWSEM_DEBUG_INIT	/* */
+-#endif
+ 
+ #define __RWSEM_INITIALIZER(name) \
+-{ RWSEM_UNLOCKED_VALUE, SPIN_LOCK_UNLOCKED,
+LIST_HEAD_INIT((name).wait_list) \
+-	__RWSEM_DEBUG_INIT }
++        { RWSEM_UNLOCKED_VALUE, RAW_SPIN_LOCK_UNLOCKED, \
++          LIST_HEAD_INIT((name).wait_list) __RWSEM_DEBUG_INIT }
+ 
+ #define DECLARE_RWSEM(name) \
+ 	struct rw_semaphore name = __RWSEM_INITIALIZER(name)
+
+
+
+and from there my attempts to clean things up without any knowledge of
+wtf is going on totally bail....
+
+  LD      .tmp_vmlinux1
+arch/x86_64/kernel/built-in.o(.text+0x80d8): In function `sys_mmap':
+: undefined reference to `__down_write'
+arch/x86_64/kernel/built-in.o(.text+0x8110): In function `sys_mmap':
+: undefined reference to `__up_write'
+
+tons of those.
+
+
+------
+Michael Cohen
+
+
+Someday it will all make sense to me.
 

@@ -1,40 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272484AbTHEHX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 03:23:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272535AbTHEHX4
+	id S272560AbTHEH3W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 03:29:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272563AbTHEH3V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 03:23:56 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:37636 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S272484AbTHEHXz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 03:23:55 -0400
-Subject: Re: Interactive Usage of 2.6.0.test1 worse than 2.4.21
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Martin Konold <martin.konold@erfrakon.de>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200308050704.22684.martin.konold@erfrakon.de>
-References: <200308050704.22684.martin.konold@erfrakon.de>
-Content-Type: text/plain
-Message-Id: <1060068224.604.1.camel@teapot.felipe-alfaro.com>
+	Tue, 5 Aug 2003 03:29:21 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:18082 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S272560AbTHEH3R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 03:29:17 -0400
+Date: Tue, 5 Aug 2003 09:29:13 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: torvalds@osdl.org
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [TRIVIAL] use ext2/ext3 consistently in Kconfig
+Message-ID: <20030805072913.GE5876@louise.pinerecords.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 05 Aug 2003 09:23:44 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-08-05 at 07:04, Martin Konold wrote:
-> Hi,
-> 
-> when using  2.6.0.test1 on a high end laptop (P-IV 2.2 GHz, 1GB RAM) I notice 
-> very significant slowdown in interactive usage compared to 2.4.21.
+Resend: patch against test2-bk4.
+Use ext2/ext3 consistently in Kconfig.  Also clarify what fs versions the
+current reiser module supports.
 
-Please, upgrade to the latest 2.6.0-test kernel, as there are a lot of
-people working on the CPU scheduler and interactivity. As of this mail,
-it's 2.6.0-test2-bk4. If you prefer, you can also test 2.6.0-test2-mm4
-(Andrew Morton patches on top of 2.6.0-test2).
+-- 
+Tomas Szepe <szepe@pinerecords.com>
 
-This way, you can help us in improving the interactive feeling of future
-2.6 kernels.
 
+diff -urN a/fs/Kconfig b/fs/Kconfig
+--- a/fs/Kconfig	2003-06-14 23:07:12.000000000 +0200
++++ b/fs/Kconfig	2003-07-26 23:18:35.000000000 +0200
+@@ -5,7 +5,7 @@
+ menu "File systems"
+ 
+ config EXT2_FS
+-	tristate "Second extended fs support"
++	tristate "Ext2 fs support"
+ 	help
+ 	  This is the de facto standard Linux file system (method to organize
+ 	  files on a storage device) for hard disks.
+@@ -86,11 +86,12 @@
+ 	  extended attributes for file security labels, say N.
+ 
+ config EXT3_FS
+-	tristate "Ext3 journalling file system support"
++	tristate "Ext3 journaling file system support"
+ 	help
+-	  This is the journaling version of the Second extended file system
+-	  (often called ext3), the de facto standard Linux file system
+-	  (method to organize files on a storage device) for hard disks.
++	  Ext3 is a journaling version of the Second extended fs
++	  (or just ext2fs), the de facto standard Linux filesystem
++	  (method to organize files on a storage device) for block
++	  devices such as hard disk partitions.
+ 
+ 	  The journaling code included in this driver means you do not have
+ 	  to run e2fsck (file system checker) on your file systems after a
+@@ -200,7 +201,7 @@
+ 	default m if EXT2_FS=m || EXT3_FS=m
+ 
+ config REISERFS_FS
+-	tristate "Reiserfs support"
++	tristate "Reiserfs support (for v3.5 & v3.6 filesystems)"
+ 	help
+ 	  Stores not just filenames but the files themselves in a balanced
+ 	  tree.  Uses journaling.

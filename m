@@ -1,66 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261932AbTFOGGq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 02:06:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbTFOGGq
+	id S261928AbTFOGF0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 02:05:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbTFOGF0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 02:06:46 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:64013 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S261932AbTFOGGm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 02:06:42 -0400
-Date: Sat, 14 Jun 2003 23:20:49 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Mingming Cao <cmm@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.70-mm9
-Message-Id: <20030614232049.6610120d.akpm@digeo.com>
-In-Reply-To: <1055637690.1396.15.camel@w-ming2.beaverton.ibm.com>
-References: <20030613013337.1a6789d9.akpm@digeo.com>
-	<3EEAD41B.2090709@us.ibm.com>
-	<20030614010139.2f0f1348.akpm@digeo.com>
-	<1055637690.1396.15.camel@w-ming2.beaverton.ibm.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 15 Jun 2003 02:05:26 -0400
+Received: from rth.ninka.net ([216.101.162.244]:32384 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S261928AbTFOGFX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 02:05:23 -0400
+Subject: Re: New struct sock_common breaks parisc 64 bit compiles with a
+	misalignment
+From: "David S. Miller" <davem@redhat.com>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1055221067.11728.14.camel@mulgrave>
+References: <1055221067.11728.14.camel@mulgrave>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Jun 2003 06:20:32.0383 (UTC) FILETIME=[397D28F0:01C33306]
+Organization: 
+Message-Id: <1055657946.6481.6.camel@rth.ninka.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 14 Jun 2003 23:19:06 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mingming Cao <cmm@us.ibm.com> wrote:
->
-> On Sat, 2003-06-14 at 01:01, Andrew Morton wrote:
-> 
-> > Was elevator=deadline observed to fail in earlier kernels?  If not then it
-> > may be an anticipatory scheduler bug.  It certainly had all the appearances
-> > of that.
-> Yes, with elevator=deadline the many fsx tests failed on 2.5.70-mm5.
->  
-> > So once you're really sure that elevator=deadline isn't going to fail,
-> > could you please test elevator=as?
-> > 
-> Ok, the deadline test was run for 10 hours then I stopped it (for the
-> elevator=as test).  
-> 
-> But the test on elevator=as (2.5.70-mm9 kernel) still failed, same
-> problem.  Some fsx tests are sleeping on io_schedule().  
-> 
-> Next I think I will re-run test on elevator=deadline for 24 hours, to
-> make sure the problem is really gone there.  After that maybe try a
-> different Qlogic Driver, currently I am using the driver from Qlogic
-> company(QLA2XXX V8).
+On Mon, 2003-06-09 at 21:57, James Bottomley wrote:
+> The problem seems to be that the new struct sock_common ends with a
+> pointer and an atomic_t (which is an int on parisc), so the compiler
+> adds an extra four bytes of padding where none previously existed in
+> struct tcp_tw_bucket, so the __u64 ptr tricks with tw_daddr fail.
 
-Martin has just observed what appears to be the same failure on
-2.5.71-mjb1, which is the deadline scheduler, using qlogicisp.
+I'm fixing this, but why does it "fail"?  You should get unaligned
+traps which get fixed up by the trap handler.
 
-Again, some IO appears to have been submitted but it never came back.
+If that isn't happening, lots of things in the networking should
+break on you.
 
-It could be a bug in the requests queueing code somewhere, or in the device
-driver.
-
-So a good thing to do now would be to find the workload+IO
-scheduler+filesystem which triggers it most easily, and run that with a
-different device driver.  The feral driver (drivers/scsi/isp/ in -mm)
-should be suitable for that test.
-
+-- 
+David S. Miller <davem@redhat.com>

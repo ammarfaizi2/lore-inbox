@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131425AbQKARAn>; Wed, 1 Nov 2000 12:00:43 -0500
+	id <S129351AbQKARLR>; Wed, 1 Nov 2000 12:11:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131536AbQKARAZ>; Wed, 1 Nov 2000 12:00:25 -0500
-Received: from c90610-a.alton1.il.home.com ([24.11.42.157]:22035 "EHLO
-	www.linuxnet") by vger.kernel.org with ESMTP id <S131425AbQKARAS>;
-	Wed, 1 Nov 2000 12:00:18 -0500
-Date: Wed, 1 Nov 2000 10:59:47 -0600 (CST)
+	id <S129330AbQKARLH>; Wed, 1 Nov 2000 12:11:07 -0500
+Received: from c90610-a.alton1.il.home.com ([24.11.42.157]:772 "EHLO
+	www.linuxnet") by vger.kernel.org with ESMTP id <S129096AbQKARKw>;
+	Wed, 1 Nov 2000 12:10:52 -0500
+Date: Wed, 1 Nov 2000 11:10:46 -0600 (CST)
 From: matthew <matthew@mattshouse.com>
-To: Jonathan George <Jonathan.George@trcinc.com>
-cc: "'Rik van Riel'" <riel@conectiva.com.br>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: 2.4.0-test10 Sluggish After Load
-In-Reply-To: <790BC7A85246D41195770000D11C56F21C847C@trc-tpaexc01.trcinc.com>
-Message-ID: <Pine.LNX.4.21.0011011054150.7127-100000@localhost.localdomain>
+To: Sean Hunter <sean@dev.sportingbet.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test10 Sluggish After Load
+In-Reply-To: <20001101152629.B31394@bart.dev.sportingbet.com>
+Message-ID: <Pine.LNX.4.21.0011011107170.7127-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 1 Nov 2000, Sean Hunter wrote:
 
->>Rik van Riel said:
->> The problem may well be that Oracle wants to clean up
->> all memory at once, accessing much more memory than
->> it did while under stress with more tricky access
->> patterns.
->> <SNIP>
->> If this looks bad to you, compare the points where 2.2
->> starts thrashing and where 2.4 starts thrashing. You'll
->> most likely (there must be a few corner cases where 2.2
->> does better ;)) see that 2.4 still runs fine where 2.2
->> performance has already "degraded heavily" and that 2.2
->> has "hit the wall" before 2.4 does so ... the difference
->> just is that 2.4 hits the wall more suddenly ;)
->>
->Jonathan George said: 
-> It sounded to me as if his machine never actually recovered from thrashing.
-> Futhermore, even a thrashing case on a machine like that shouldn't last for
-> more than about 10 minutes.  It would be interesting to contrast FreeBSD's
-> behavior if "simple" cleanup was the problem.  BTW, I think that everyone is
-> happy with the direction of the new VM.  I'm looking forward to your
-> upcoming enhancements which I hope will make it in to a later 2.4 release.
+> Pardon my speculations (if I am wrong), but isn't this an oracle question?  
 
 
-The "thrashing" has been going on for roughly 10 hours now.  Is there a
-point at which I can expect it to stop?  The load average is at 441 (down 
-from > 700 last night), and the stress program was killed at 1:00AM CST
-last night.  This (obviously) isn't an important machine so if you want me
-to ride it out I will.
+It could be.
+
+
+> Isn't oracle killing the server by trying to clean up 1800 connections all at
+> once?  When they're all connected, most of the work is done by one or two
+> oracle processes, but when you kill your ddos thing, all of the oracle
+> listeners (of which there is one per connection), steam in and try to clean up.
+
+
+Yes, but the factor that drove me to the list was that it's been > 400
+load average for 10 hours now.  Even if Oracle tried to clean up 1800
+connections at once, would it take this long?  That's not rhetorical, as
+the answer may well be "yes".
+
+
+> I thought oracle had an internal connection limit (on our servers it is set to
+> 440 connections), anyways.
+
+
+This is set in the init.ora.  I jacked it up to allow > 2000 connections.
 
 Matthew
 

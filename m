@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263440AbUDZUUT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263413AbUDZUTG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263440AbUDZUUT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 16:20:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263444AbUDZUUT
+	id S263413AbUDZUTG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 16:19:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263375AbUDZUTG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 16:20:19 -0400
-Received: from mail.kroah.org ([65.200.24.183]:42889 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263440AbUDZUUI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 16:20:08 -0400
-Date: Mon, 26 Apr 2004 12:53:59 -0700
-From: Greg KH <greg@kroah.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: "E. Oltmanns" <oltmanns@uni-bonn.de>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel Oops during usb usage (2.6.5)
-Message-ID: <20040426195359.GA29062@kroah.com>
-References: <20040423205617.GA1798@local> <20040424003013.GA13631@kroah.com> <408D4187.2040104@tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <408D4187.2040104@tmr.com>
-User-Agent: Mutt/1.5.6i
+	Mon, 26 Apr 2004 16:19:06 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:39555 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S263444AbUDZUTD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 16:19:03 -0400
+Message-ID: <408D6EB2.8060109@nortelnetworks.com>
+Date: Mon, 26 Apr 2004 16:18:58 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: jadevree@mtu.edu
+CC: linux-kernel@vger.kernel.org
+Subject: Re: hsf modem drivers lying about their license
+References: <20040426195015.GA23220@icu2.csl.mtu.edu>
+In-Reply-To: <20040426195015.GA23220@icu2.csl.mtu.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 26, 2004 at 01:06:15PM -0400, Bill Davidsen wrote:
+Jon DeVree wrote:
+> Someone needs to take a look at the MODULE_LICENSE string reported by
+> the HSF modem drivers made by LinuxAnt.
 > 
-> Just in general, if there is anything a non-root user can do to crash 
-> the system, it's probably a kernel bug by definition. It doesn't matter 
-> that's it a stupid thing to do, it might be malicious. And in this case 
-> it might just be user error.
+> http://www.linuxant.com/drivers/hsf/full/downloads.php
+> 
+> They creatively inserted a \0 character in it.
+> MODULE_LICENSE("GPL\0for files in the \"GPL\" directory; for others,
+> only LICENSE file applies");
+> 
+> Runnning modinfo -F license on the compiled driver gives:
+> GPL because of their creative null character. The actual license for most of
+> the files is NOT GPL.
 
-But you either have to be root in order to talk to usbfs, or you were
-root when you gave a user access to the usbfs node.  So either way, a
-"normal" user can't even do this.
+Ewww...that's evil.
 
-thanks,
+Maybe we need to store the size of the license string for modinfo, so it doesn't stop at the first null?
 
-greg k-h
+Chris

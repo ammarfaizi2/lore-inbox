@@ -1,68 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266627AbUIJBIm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266663AbUIJBQM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266627AbUIJBIm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 21:08:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266663AbUIJBIm
+	id S266663AbUIJBQM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 21:16:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266730AbUIJBQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 21:08:42 -0400
-Received: from fw.osdl.org ([65.172.181.6]:40879 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266627AbUIJBIk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 21:08:40 -0400
-Date: Thu, 9 Sep 2004 18:08:38 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] update: _working_ code to add device+inode check to ipt_owner.c
-Message-ID: <20040909180838.H1924@build.pdx.osdl.net>
-References: <20040909162200.GB9456@lkcl.net> <20040909091931.K1973@build.pdx.osdl.net> <20040909181034.GF10046@lkcl.net> <20040909114846.V1924@build.pdx.osdl.net> <20040909212514.GA10892@lkcl.net> <20040909160449.E1924@build.pdx.osdl.net> <20040910000819.GA7587@lkcl.net> <20040909172134.G1924@build.pdx.osdl.net> <20040910005932.GA11160@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040910005932.GA11160@lkcl.net>; from lkcl@lkcl.net on Fri, Sep 10, 2004 at 01:59:32AM +0100
+	Thu, 9 Sep 2004 21:16:12 -0400
+Received: from hibernia.jakma.org ([212.17.55.49]:15755 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S266663AbUIJBQL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 21:16:11 -0400
+Date: Fri, 10 Sep 2004 02:15:28 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: Hans Reiser <reiser@namesys.com>
+cc: "Theodore Ts'o" <tytso@mit.edu>,
+       Robin Rosenberg <robin.rosenberg.lists@dewire.com>,
+       William Stearns <wstearns@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: silent semantic changes in reiser4 (brief attempt to document
+ the idea ofwhat reiser4 wants to do with metafiles and why
+In-Reply-To: <4140FBE7.6020704@namesys.com>
+Message-ID: <Pine.LNX.4.61.0409100212080.23011@fogarty.jakma.org>
+References: <41323AD8.7040103@namesys.com> <413E170F.9000204@namesys.com>
+ <Pine.LNX.4.58.0409071658120.2985@sparrow> <200409080009.52683.robin.rosenberg.lists@dewire.com>
+ <20040909090342.GA30303@thunk.org> <4140ABB6.6050702@namesys.com>
+ <Pine.LNX.4.61.0409092136160.23011@fogarty.jakma.org> <4140FBE7.6020704@namesys.com>
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Luke Kenneth Casson Leighton (lkcl@lkcl.net) wrote:
-> On Thu, Sep 09, 2004 at 05:21:35PM -0700, Chris Wright wrote:
-> > >  under such circumstances [file descs passed between programs]...
-> > >  you would end up having to create _two_ program-specific rules, like
-> > >  above.
-> > > 
-> > >  one for each of the two programs.
-> > 
-> > Actually you wouldn't, just one.  It will match, then one of those
-> > processes will get woken up and receive the data, regardless of whether
-> > you meant to allow it.  
-> 
->  blehhrrr....
-> 
->  oh i get it.  
->  
->  is that like someone writing really poor quality code where
->  you have two processes reading from the same socket, wot like
->  you're not supposed to do?
+On Thu, 9 Sep 2004, Hans Reiser wrote:
 
-I don't think it's behaviour many apps rely on.  But this is exactly the
-kind of behaviour which can break security models.
+> It is not part of it at one level, but in the shell it is part of it.
 
->  or are there real instances / times where you really _do_ want
->  that sort of thing to happen (xinetd?)
+Just one of many applications. Watch Joe-user save their word 
+processing file sometime, they'll use spaces, quotes, etc.
 
-Well, xinted won't really read from multiple processes simultaneously
-(if all is working properly).  The xinetd server will see the initial
-packet, then fork/exec and close off all extra fds.  Now, try and write
-a firewall ruleset that mandatorily enforces that.  See the trouble?
+> Have you looked at the political process at all? Or by lots of 
+> people, do you mean a sizable minority?
 
->  [btw the sk_socket->file thing isn't filled in on input packets,
->   but you still get the packet.  arg.  how the heck does ip_queue
->   get enough info???]
+Kernel development does require deep understanding by the majority of 
+computer users. Only kernel developers need deep understanding. ;)
 
-Heh, right.  The sock is protocol specific.  The input happening on ip
-level is before sock lookup.
+The real question though is: Have you given Al Viro technical answers 
+to his technical questions?
 
-thanks,
--chris
+regards,
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+Fortune:
+Malek's Law:
+ 	Any simple idea will be worded in the most complicated way.

@@ -1,191 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267352AbTALKJk>; Sun, 12 Jan 2003 05:09:40 -0500
+	id <S267348AbTALKJB>; Sun, 12 Jan 2003 05:09:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267353AbTALKJf>; Sun, 12 Jan 2003 05:09:35 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:37578 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S267352AbTALKJ3>; Sun, 12 Jan 2003 05:09:29 -0500
-Date: Sun, 12 Jan 2003 11:18:08 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] remove outdated fs/ChangeLog
-Message-ID: <20030112101808.GU21826@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S267352AbTALKJB>; Sun, 12 Jan 2003 05:09:01 -0500
+Received: from [80.66.38.208] ([80.66.38.208]:47117 "HELO cerberos")
+	by vger.kernel.org with SMTP id <S267348AbTALKJA>;
+	Sun, 12 Jan 2003 05:09:00 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Alexander Puchmayr <alexander.puchmayr@jku.at>
+Reply-To: alexander.puchmayr@jku.at
+To: linux-kernel@vger.kernel.org
+Subject: USB-Printer status flags question
+Date: Sun, 12 Jan 2003 11:17:41 +0100
+User-Agent: KMail/1.4.3
+Organization: =?iso-8859-1?q?Universit=E4t?= Linz
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200301121117.41856.alexander.puchmayr@jku.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Al,
+After looking at cups (1.1.18) backend/usb.c and the kernel's 
+(2.4.19-gentoo-r10) drivers/usb/printer.c I've found some different 
+interpretations of the LP_* flags from linux/lp.h
 
-fs/ChangeLog is _very_ outdated. Is the patch below to remove it from 
-2.4 and 2.5 OK?
+While the kernel seems to use the 8255 status port definitions, which use
+(amongst others) the flags,
 
-cu
-Adrian
+#define LP_PSELECD      0x10  /* unchanged input, active high */
+#define LP_PERRORP      0x08  /* unchanged input, active low */
 
---- linux-2.5.56/fs/ChangeLog	2003-01-10 21:11:22.000000000 +0100
-+++ /dev/null	2003-01-09 00:39:47.000000000 +0100
-@@ -1,159 +0,0 @@
--Mon Oct 24 23:27:42 1994  Theodore Y. Ts'o  (tytso@rt-11)
--
--	* fcntl.c (sys_fcntl): Liberalize security checks which Alan Cox
--		put in.
--
--Thu Oct 20 23:44:22 1994  Theodore Y. Ts'o  (tytso@rt-11)
--
--	* fcntl.c (sys_fcntl): Add more of a security check to the
--		F_SETOWN fcntl().
--
--[Tons of changes missed, indeed. This list is worth restarting since
--at least some fixes WILL break third-party filesystems. Sorry, but
--there was no other way to fix rmdir/rename deadlock, for one.]
--
--Wed Dec  2 (Linus, fill the rest, please)
--
--	* namei.c (do_rmdir) and rmdir method in filesystems:
--		Locking of directory we remove was taken to VFS.
--		See comments in do_rmdir(). Unfixed filesystems
--		will bloody likely deadlock in rmdir().
--
--Thu Dec  3 17:25:31 1998  Al Viro (viro@math.psu.edu)
--
--	* namei.c (do_rmdir):
--		Reject non-directories here.
--		Two (probably) obsolete checks moved here too: we fail if
--		the directory we remove is the same as parent (BUG: we
--		serve mountpoints later) or if it lives on a different
--		device.
--	* sysv/namei.c (sysv_rmdir):	See sysv/CHANGES
--
--Fri Dec  4 00:54:12 1998  AV
--
--	* namei.c (check_sticky): New function check_sticky(dir, inode).
--		If dir is sticky check whether we can unlink/rmdir/rename
--		the inode. Returns 1 if we can't. If dir isn't sticky -
--		return 0 (i.e. no objections). Some filesystems require
--		suser() here; some are fine with CAP_FOWNER. The later
--		seems more reasonable.
--	* namei.c (do_rmdir):
--		Moved the check for sticky bit here.
--	* affs/{inode,namei}.c:
--		All AFFS directories have sticky semantics (i.e. non-owner
--		having write permisssions on directory can unlink/rmdir/rename
--		only the files he owns), but AFFS didn't set S_ISVTX on them.
--		Fixed. NB: maybe this behaviour should be controlled by mount
--		option. Obvious values being 'sticky' (current behaviour),
--		'nonsticky' (normal behaviour) and maybe some play on 'D'
--		permissions bit. FIXME.
--	* qnx4/namei.c (qnx4_rmdir):
--		Plugged inode leak.
--	* ufs/namei.c (ufs_rmdir):
--		Changed handling of busy directory to new scheme.
--
--Fri Dec  4 10:30:58 1998  AV
--
--	* namei.c (VFS_rmdir): New function. It gets inode of the parent and
--		dentry of the victim, does all checks and applies fs-specific
--		rmdir() method. It should be called with semaphores down
--		on both the victim and its parent and with bumped d_count on
--		victim (see comments in do_rmdir).
--	* include/linux/fs.h: Added VFS_rmdir
--	* kernel/ksyms.c: Added VFS_rmdir to export list (for NFSD).
--	* nfsd/vfs.c: Fixed rmdir handling.
--
--Tue Dec  8 05:55:08 1998  AV
--	* vfat/namei.c: Fixed the bug in vfat_rename() introduced in the
--		first round of rmdir fixes.
--
--Wed Dec  9 03:06:10 1998  AV
--	* namei.c (do_rename): part of fs-independent checks had been moved
--		here (sticky bit handling, type mismatches). Cases of
--		the source or target being append-only or immutable also went
--		here - if we check it for parent we could as well do it for
--		children.
--	* {affs,ext2,minix,sysv,ufs}/namei.c (do_*_rename):
--		Removed tests that went to VFS, it simplified the code big way.
--		Fixed a race in check for empty target - we should check for
--		extra owners _before_ checking for emptiness, not after it.
--	* {ext2,ufs}/namei.c (do_*_rename):
--		VERY nasty bug shot: if somebody mkdired /tmp/cca01234, went
--		there, rmdired '.', waited till somebody created a file with
--		the same name and said mv . /tmp/goodbye_sticky_bit... Well,
--		goodbye sticky bit. Down, not across!
--	* {minix,sysv}/namei.c (do_*_rename):
--		Incorrect check for other owners (i_count instead of d_count).
--		Fixed.
--	* vfat: Looks like the changes above fixed a bug in VFAT - this beast
--		used to allow renaming file over directory and vice versa.
--
--Wed Dec  9 08:00:27 1998  AV
--	* namei.c (VFS_rename): New function. It gets the same arguments as
--		->rename() method, does all checks and applies fs-specific
--		rmdir() method. It should be called with semaphores down
--		on both parents.
--	* include/linux/fs.h: Added VFS_rename
--	* kernel/ksyms.c: Added VFS_rename to export list (for NFSD).
--	* nfsd/vfs.c: Changed rename handling (switched to VFS_rename).
--
--Wed Dec  9 18:16:27 1998  AV
--	* namei.c (do_unlink): handling of sticky bit went here.
--	* {affs,ext2,minix,qnx4,sysv,ufs}/namei.c (*_unlink):
--		removed handling of sticky bit.
--	* qnx4/namei.c (qnx4_unlink):
--		Yet another inode leak. Fixed.
--
--Thu Dec 10 04:55:26 1998  AV
--	* {ext2,minix,sysv,ufs}/namei.c (*_mknod):
--		removed meaningless code handling attempts to mknod symlinks
--		and directories. VFS protects us from _that_ and if this code
--		would ever be called we'ld get a filesystem corruption.
--
--Thu Dec 10 16:58:50 1998  AV
--	* namei.c (do_rename): Fixed dentry leak that had been introduced by
--		the first round of rmdir fixes.
--
--Fri Dec 11 14:57:17 1998  AV
--	* msdos/namei.c (msdos_rmdir): Fixed race in emptiness check.
--
--Sat Dec 12 19:59:57 1998  AV
--	* msdos/namei.c (msdos_mkdir): Fixed the evil breakage introduced by
--		the changes of rmdir locking scheme. We shouldn't call
--		msdos_rmdir from there.
--
--Sun Dec 13 02:05:16 1998  AV
--	* namei.c (do_unlink):
--		Added new function: vfs_unlink, with the same arguments as
--		->unlink() method.
--	* kernel/ksyms.c: Made it exported.
--	* include/linux/fs.h: Added prototype.
--	* nfsd/vfs.c: Changed handling of unlink (switched to vfs_unlink)
--	* {ext2,ufs}/namei.c (*_unlink): moved handling of imm./append-only to
--		VFS.
--
--Wed Dec 16 06:10:04 1998  AV
--	* namei.c (may_create, may_delete): New inline functions.
--		They check whether creation/deletion is permitted.
--		Checks from other places of namei.c went there.
--		Looks like originally I misread permission-related stuff
--		both here and in nfsd. In particular, checks for
--		immutable are done in permission(). D'oh.
--	* unlink on directory should return -EISDIR, not -EPERM as it used to
--		do. Fixed.
--	* rmdir of immutable/append-only directory shouldn't be allowed. Fixed.
--
--Remains unfixed:
--	* rename's handling of races is, erm, not optimal. Looks like I know
--		what to do, but this thing needs some more cleanup - we can
--		take care of almost all races in VFS and be much more graceful
--		wrt locking. Moreover, it would give strong lookup atomicity.
--		But it's a lot of changes to lookup and dcache code, so it will
--		go after the fs drivers' cleanup.
--	* affs allows HARD links to directories. VFS is, to put it politely,
--		not too ready to cope with _that_. And I'm not sure it should
--		be - looks like they are pretty much similar to symlinks.
--	* truncate doesn't give a damn about IO errors and disk overflows (on
--		braindead filesystems). I've submitted a patch to Linus, but
--		looks like it wasn't applied.
--	* msdos: shouldn't we treat SYS as IMMUTABLE? Makes sense, IMHO.
+the same bits are defined by POSIX guidelines a few lines above in 
+linux/lp.h:
+
+#define LP_OFFL  0x0008
+#define LP_NOPA  0x0010
+
+Obviously, this leads the cups usb-backend to incorrectly report an empty 
+media tray when the printer is online, idle and has enough paper.
+
+This doesn't seem to be something serious, its just a wrong message in cups 
+log-file.
+
+Greetings
+	Alex
+
+PS: Since two different specifications are mixed up, this problem could also 
+be a kernel problem.
+ 
+-- 
+Alexander Puchmayr            Systemadministrator for Theoretical Physics
+University Linz, Austria      e-mail: alexander.puchmayr@jku.at
+Altenbergerstrasse 69         phone: +43/732/2468-8633
+A-4040 Linz-Auhof             FAX:   +43/732/2468-8585
+

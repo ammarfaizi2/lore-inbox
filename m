@@ -1,61 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266631AbUHCPik@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266684AbUHCPkJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266631AbUHCPik (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 11:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266670AbUHCPik
+	id S266684AbUHCPkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 11:40:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266682AbUHCPkJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 11:38:40 -0400
-Received: from out008pub.verizon.net ([206.46.170.108]:48568 "EHLO
-	out008.verizon.net") by vger.kernel.org with ESMTP id S266631AbUHCPii
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 11:38:38 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
+	Tue, 3 Aug 2004 11:40:09 -0400
+Received: from main.gmane.org ([80.91.224.249]:14028 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266670AbUHCPjy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 11:39:54 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: Re: kde problem... Or kernel?
-Date: Tue, 3 Aug 2004 11:38:36 -0400
-User-Agent: KMail/1.6.82
-References: <200408031057.14453.gene.heskett@verizon.net> <2a4f155d040803082332962c1a@mail.gmail.com>
-In-Reply-To: <2a4f155d040803082332962c1a@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200408031138.37001.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [141.153.75.218] at Tue, 3 Aug 2004 10:38:37 -0500
+From: Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject: Re: [PATCH] speedy boot from usb devices
+Date: Wed, 04 Aug 2004 00:39:46 +0900
+Message-ID: <ceobk3$5lh$1@sea.gmane.org>
+References: <87fz79xk5q.fsf@dedasys.com> <410E27DC.4090009@grupopie.com> <876581s0j7.fsf@dedasys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: j110113.ppp.asahi-net.or.jp
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040627
+X-Accept-Language: bg, en, ja, ru, de
+In-Reply-To: <876581s0j7.fsf@dedasys.com>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 03 August 2004 11:23, ismail dönmez wrote:
->On Tue, 3 Aug 2004 10:57:14 -0400, Gene Heskett
->
-><gene.heskett@verizon.net> wrote:
->> Greetings;
->>
->> kernel 2.6.8-rc2-mm2, kde3.3-beta2.
->>
->> Now that it appears I'm stable again, I am asking if the memory
->> data that kpm and ksysguard use has been moved recently?
->>
->> Both utils are now showing long strings of 8888888888 in the
->> bottom lines of their windows now, for everything thats normally
->> there.
->
->Same on -mm1 too. KDE latest cvs head.
->
->Cheers,
->ismail
+David N. Welton wrote:
+> Paulo Marques <pmarques@grupopie.com> writes:
+> 
+> 
+>>David N. Welton wrote:
+> 
+> 
+>>>        Works like so: whenever a block device comes on line, it
+>>>        signals this fact to a wait queue, so that the init
+>>>        process can stop and wait for slow devices, in particular
+>>>        things such as USB storage devices, which are much slower
+>>>        than IDE devices.  The init process checks the list of
+>>>        available devices and compares it with the desired root
+>>>        device, and if there is a match, proceeds with the
+>>>        initialization process, secure in the knowledge that the
+>>>        device in question has been brought up.  This is useful if
+>>>        one wants to boot quickly from a USB storage device
+>>>        without a trimmed-down kernel, and without going through
+>>>        the whole initrd slog.
+>>I find this to be very useful. I always found the "sleep for a while
+>>until the device we want appears" approach very cumbersome.
 
-Yup, kde bug according to Waldo B. It was the same on 2.6.7 too.
+I hope it works. I tried to hack some delay on my own, but without success :-(
+Will try this patch.
+
+> Glad to hear someone likes it.
+> 
+> 
+>>However, after looking at your patch, it seems that having a
+>>get_blkdevs() function that alloc's an array of strings, and return
+>>it to a function that only compares the strings against the name it
+>>is looking for and drops the array altogether, is a little overkill.
+>>Why not have a simple blkdev_exists(char *name) function in genhd.c,
+>>call it directly, and drop the match_root_name() function
+>>completely?
+> 
+> 
+> Sure, that's probably better.  Maybe "blkdev_is_online"?  I'll see if
+> I can do it tommorow.
+
+Waiting :-)
+I am planing to run a Gentoo-based small dist off a 128MB USB flash.
+
+> I'm also a bit dubious of having the wait queue floating around as a
+> global, but don't know the kernel well enough to find it a better
+> home.
+
+Thumbs up!
+
+Kalin.
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.24% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+ || ~~~~~~~~~~~~~~~~~~~~~~ ||
+(  ) http://ThinRope.net/ (  )
+ || ______________________ ||
+

@@ -1,42 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129177AbRBFRz0>; Tue, 6 Feb 2001 12:55:26 -0500
+	id <S129706AbRBFR5Q>; Tue, 6 Feb 2001 12:57:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129706AbRBFRzQ>; Tue, 6 Feb 2001 12:55:16 -0500
-Received: from passion.cambridge.redhat.com ([172.16.18.67]:10625 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S129177AbRBFRzI>; Tue, 6 Feb 2001 12:55:08 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20010206173437.A19836@redhat.com> 
-In-Reply-To: <20010206173437.A19836@redhat.com>  <200102061424.PAA32284@hell.wii.ericsson.net> <E14Q9U2-0005gX-00@the-village.bc.nu> 
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Anders Eriksson <aer-list@mailandnews.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: sync & asyck i/o 
-Mime-Version: 1.0
+	id <S129772AbRBFR5G>; Tue, 6 Feb 2001 12:57:06 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:25357 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129706AbRBFR4z>; Tue, 6 Feb 2001 12:56:55 -0500
+Subject: Re: sync & asyck i/o
+To: jbm@joshisanerd.com (Josh Myer)
+Date: Tue, 6 Feb 2001 17:56:47 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0102061147590.27615-100000@grace> from "Josh Myer" at Feb 06, 2001 11:51:15 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 06 Feb 2001 17:54:41 +0000
-Message-ID: <19450.981482081@redhat.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14QCME-00066k-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Does this imply that in order to ensure my data hits the drives, i should
+> do a warm reboot and then shut down from the lilo: prompt or similiar?
 
-sct@redhat.com said:
->  Linux will obey that if it possibly can: only in cases where the
-> hardware is actively lying about when the data has hit disk will the
-> guarantee break down. 
-
-Do we attempt to ask SCSI disks nicely to flush their write caches in this 
-situation? cf. http://www.danbbs.dk/~dino/SCSI/SCSI2-09.html#9.2.18
-
-Or do we instruct all SCSI disks not to do write caching in the first place?
-
---
-dwmw2
-
+As far as I can tell the IDE drives are write caching at most a second or two
+of data. Andre may know more
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

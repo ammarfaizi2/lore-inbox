@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S275821AbUKAXSp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268508AbUKAXRk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275821AbUKAXSp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 18:18:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S381622AbUKAXQH
+	id S268508AbUKAXRk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 18:17:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S276555AbUKAXR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 18:16:07 -0500
-Received: from mail.kroah.org ([69.55.234.183]:9636 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S273923AbUKAV7X convert rfc822-to-8bit
+	Mon, 1 Nov 2004 18:17:29 -0500
+Received: from mail.kroah.org ([69.55.234.183]:10148 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S323714AbUKAV7X convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 1 Nov 2004 16:59:23 -0500
 X-Donotread: and you are reading this why?
-Subject: Re: [PATCH] Driver Core patches for 2.6.10-rc1
-In-Reply-To: <1099346276148@kroah.com>
+Subject: [PATCH] Driver Core patches for 2.6.10-rc1
+In-Reply-To: <20041101215418.GA16500@kroah.com>
 X-Patch: quite boring stuff, it's just source code...
-Date: Mon, 1 Nov 2004 13:57:57 -0800
-Message-Id: <10993462773570@kroah.com>
+Date: Mon, 1 Nov 2004 13:57:55 -0800
+Message-Id: <10993462752326@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,206 +23,182 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2447, 2004/11/01 13:05:06-08:00, akpm@osdl.org
+ChangeSet 1.2439, 2004/11/01 13:02:34-08:00, akpm@osdl.org
 
-[PATCH] Fix deadlocks on dpm_sem
+[PATCH] sysfs backing store - prepare sysfs_file_operations helpers
 
-From: Paul Mackerras <paulus@samba.org>
+From: Maneesh Soni <maneesh@in.ibm.com>
 
-Currently the device_pm_foo() functions are rather prone to deadlocks
-during suspend/resume.  This is because the dpm_sem is held for the
-duration of device_suspend() and device_resume() as well as device_pm_add()
-and device_pm_remove().  If for any reason you get a device addition or
-removal triggered by a device's suspend or resume code, you get a deadlock.
- (The classic example is a USB host adaptor resuming and discovering that
-the mouse you used to have plugged in has gone away.)
+o The following patch provides dumb helpers to access the corresponding
+  kobject, attribute or binary attribute given a dentry and prepare the
+  sysfs_file_operation methods for using sysfs_dirents.
 
-This patch fixes the problem by using a separate semaphore, called
-dpm_list_sem, to cover the places where we need the device pm lists to be
-stable, and by being careful about how we traverse the lists on suspend and
-resume.  I have analysed the various cases that can occur and I am
-confident that I have handled them all correctly.  I posted this patch
-together with a detailed analysis 10 days ago.
-
-Signed-off-by Paul Mackerras <paulus@samba.org>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/base/power/main.c    |   11 +++++-----
- drivers/base/power/power.h   |    5 ++++
- drivers/base/power/resume.c  |   16 ++++++++++++---
- drivers/base/power/suspend.c |   44 ++++++++++++++++++++++++-------------------
- 4 files changed, 49 insertions(+), 27 deletions(-)
+ fs/sysfs/bin.c   |   14 +++++++-------
+ fs/sysfs/file.c  |   24 ++++++++++++------------
+ fs/sysfs/sysfs.h |   18 +++++++++++++++++-
+ 3 files changed, 36 insertions(+), 20 deletions(-)
 
 
-diff -Nru a/drivers/base/power/main.c b/drivers/base/power/main.c
---- a/drivers/base/power/main.c	2004-11-01 13:36:34 -08:00
-+++ b/drivers/base/power/main.c	2004-11-01 13:36:34 -08:00
-@@ -28,6 +28,7 @@
- LIST_HEAD(dpm_off_irq);
- 
- DECLARE_MUTEX(dpm_sem);
-+DECLARE_MUTEX(dpm_list_sem);
- 
- /*
-  * PM Reference Counting.
-@@ -75,12 +76,12 @@
- 	pr_debug("PM: Adding info for %s:%s\n",
- 		 dev->bus ? dev->bus->name : "No Bus", dev->kobj.name);
- 	atomic_set(&dev->power.pm_users, 0);
--	down(&dpm_sem);
-+	down(&dpm_list_sem);
- 	list_add_tail(&dev->power.entry, &dpm_active);
- 	device_pm_set_parent(dev, dev->parent);
- 	if ((error = dpm_sysfs_add(dev)))
- 		list_del(&dev->power.entry);
--	up(&dpm_sem);
-+	up(&dpm_list_sem);
- 	return error;
- }
- 
-@@ -88,11 +89,11 @@
+diff -Nru a/fs/sysfs/bin.c b/fs/sysfs/bin.c
+--- a/fs/sysfs/bin.c	2004-11-01 13:37:33 -08:00
++++ b/fs/sysfs/bin.c	2004-11-01 13:37:33 -08:00
+@@ -17,8 +17,8 @@
+ static int
+ fill_read(struct dentry *dentry, char *buffer, loff_t off, size_t count)
  {
- 	pr_debug("PM: Removing info for %s:%s\n",
- 		 dev->bus ? dev->bus->name : "No Bus", dev->kobj.name);
--	down(&dpm_sem);
-+	down(&dpm_list_sem);
- 	dpm_sysfs_remove(dev);
- 	device_pm_release(dev->power.pm_parent);
--	list_del(&dev->power.entry);
--	up(&dpm_sem);
-+	list_del_init(&dev->power.entry);
-+	up(&dpm_list_sem);
+-	struct bin_attribute * attr = dentry->d_fsdata;
+-	struct kobject * kobj = dentry->d_parent->d_fsdata;
++	struct bin_attribute * attr = to_bin_attr(dentry);
++	struct kobject * kobj = to_kobj(dentry->d_parent);
+ 
+ 	return attr->read(kobj, buffer, off, count);
  }
- 
- 
-diff -Nru a/drivers/base/power/power.h b/drivers/base/power/power.h
---- a/drivers/base/power/power.h	2004-11-01 13:36:34 -08:00
-+++ b/drivers/base/power/power.h	2004-11-01 13:36:34 -08:00
-@@ -28,6 +28,11 @@
- extern struct semaphore dpm_sem;
- 
- /*
-+ * Used to serialize changes to the dpm_* lists.
-+ */
-+extern struct semaphore dpm_list_sem;
-+
-+/*
-  * The PM lists.
-  */
- extern struct list_head dpm_active;
-diff -Nru a/drivers/base/power/resume.c b/drivers/base/power/resume.c
---- a/drivers/base/power/resume.c	2004-11-01 13:36:34 -08:00
-+++ b/drivers/base/power/resume.c	2004-11-01 13:36:34 -08:00
-@@ -31,16 +31,22 @@
- 
- void dpm_resume(void)
+@@ -60,8 +60,8 @@
+ static int
+ flush_write(struct dentry *dentry, char *buffer, loff_t offset, size_t count)
  {
-+	down(&dpm_list_sem);
- 	while(!list_empty(&dpm_off)) {
- 		struct list_head * entry = dpm_off.next;
- 		struct device * dev = to_device(entry);
-+
-+		get_device(dev);
- 		list_del_init(entry);
-+		list_add_tail(entry, &dpm_active);
+-	struct bin_attribute *attr = dentry->d_fsdata;
+-	struct kobject *kobj = dentry->d_parent->d_fsdata;
++	struct bin_attribute *attr = to_bin_attr(dentry->d_parent);
++	struct kobject *kobj = to_kobj(dentry);
  
-+		up(&dpm_list_sem);
- 		if (!dev->power.prev_state)
- 			resume_device(dev);
--
--		list_add_tail(entry, &dpm_active);
-+		down(&dpm_list_sem);
-+		put_device(dev);
- 	}
-+	up(&dpm_list_sem);
+ 	return attr->write(kobj, buffer, offset, count);
  }
- 
- 
-@@ -76,9 +82,13 @@
+@@ -95,7 +95,7 @@
+ static int open(struct inode * inode, struct file * file)
  {
- 	while(!list_empty(&dpm_off_irq)) {
- 		struct list_head * entry = dpm_off_irq.next;
-+		struct device * dev = to_device(entry);
-+
-+		get_device(dev);
- 		list_del_init(entry);
--		resume_device(to_device(entry));
- 		list_add_tail(entry, &dpm_active);
-+		resume_device(dev);
-+		put_device(dev);
- 	}
- }
+ 	struct kobject *kobj = sysfs_get_kobject(file->f_dentry->d_parent);
+-	struct bin_attribute * attr = file->f_dentry->d_fsdata;
++	struct bin_attribute * attr = to_bin_attr(file->f_dentry);
+ 	int error = -EINVAL;
  
-diff -Nru a/drivers/base/power/suspend.c b/drivers/base/power/suspend.c
---- a/drivers/base/power/suspend.c	2004-11-01 13:36:34 -08:00
-+++ b/drivers/base/power/suspend.c	2004-11-01 13:36:34 -08:00
-@@ -63,11 +63,6 @@
-  *	If we hit a failure with any of the devices, call device_resume()
-  *	above to bring the suspended devices back to life.
+ 	if (!kobj || !attr)
+@@ -130,8 +130,8 @@
+ 
+ static int release(struct inode * inode, struct file * file)
+ {
+-	struct kobject * kobj = file->f_dentry->d_parent->d_fsdata;
+-	struct bin_attribute * attr = file->f_dentry->d_fsdata;
++	struct kobject * kobj = to_kobj(file->f_dentry->d_parent);
++	struct bin_attribute * attr = to_bin_attr(file->f_dentry);
+ 	u8 * buffer = file->private_data;
+ 
+ 	if (kobj) 
+diff -Nru a/fs/sysfs/file.c b/fs/sysfs/file.c
+--- a/fs/sysfs/file.c	2004-11-01 13:37:33 -08:00
++++ b/fs/sysfs/file.c	2004-11-01 13:37:33 -08:00
+@@ -67,7 +67,7 @@
+ 
+ /**
+  *	fill_read_buffer - allocate and fill buffer from object.
+- *	@file:		file pointer.
++ *	@dentry:	dentry pointer.
+  *	@buffer:	data buffer for file.
   *
-- *	Note this function leaves dpm_sem held to
-- *	a) block other devices from registering.
-- *	b) prevent other PM operations from happening after we've begun.
-- *	c) make sure we're exclusive when we disable interrupts.
-- *
+  *	Allocate @buffer->page, if it hasn't been already, then call the
+@@ -75,10 +75,10 @@
+  *	data. 
+  *	This is called only once, on the file's first read. 
+  */
+-static int fill_read_buffer(struct file * file, struct sysfs_buffer * buffer)
++static int fill_read_buffer(struct dentry * dentry, struct sysfs_buffer * buffer)
+ {
+-	struct attribute * attr = file->f_dentry->d_fsdata;
+-	struct kobject * kobj = file->f_dentry->d_parent->d_fsdata;
++	struct attribute * attr = to_attr(dentry);
++	struct kobject * kobj = to_kobj(dentry->d_parent);
+ 	struct sysfs_ops * ops = buffer->ops;
+ 	int ret = 0;
+ 	ssize_t count;
+@@ -150,7 +150,7 @@
+ 	ssize_t retval = 0;
+ 
+ 	if (!*ppos) {
+-		if ((retval = fill_read_buffer(file,buffer)))
++		if ((retval = fill_read_buffer(file->f_dentry,buffer)))
+ 			return retval;
+ 	}
+ 	pr_debug("%s: count = %d, ppos = %lld, buf = %s\n",
+@@ -197,10 +197,10 @@
   */
  
- int device_suspend(u32 state)
-@@ -75,29 +70,40 @@
+ static int 
+-flush_write_buffer(struct file * file, struct sysfs_buffer * buffer, size_t count)
++flush_write_buffer(struct dentry * dentry, struct sysfs_buffer * buffer, size_t count)
+ {
+-	struct attribute * attr = file->f_dentry->d_fsdata;
+-	struct kobject * kobj = file->f_dentry->d_parent->d_fsdata;
++	struct attribute * attr = to_attr(dentry);
++	struct kobject * kobj = to_kobj(dentry->d_parent);
+ 	struct sysfs_ops * ops = buffer->ops;
+ 
+ 	return ops->store(kobj,attr,buffer->page,count);
+@@ -231,7 +231,7 @@
+ 
+ 	count = fill_write_buffer(buffer,buf,count);
+ 	if (count > 0)
+-		count = flush_write_buffer(file,buffer,count);
++		count = flush_write_buffer(file->f_dentry,buffer,count);
+ 	if (count > 0)
+ 		*ppos += count;
+ 	return count;
+@@ -240,7 +240,7 @@
+ static int check_perm(struct inode * inode, struct file * file)
+ {
+ 	struct kobject *kobj = sysfs_get_kobject(file->f_dentry->d_parent);
+-	struct attribute * attr = file->f_dentry->d_fsdata;
++	struct attribute * attr = to_attr(file->f_dentry);
+ 	struct sysfs_buffer * buffer;
+ 	struct sysfs_ops * ops = NULL;
  	int error = 0;
+@@ -321,8 +321,8 @@
  
- 	down(&dpm_sem);
--	while(!list_empty(&dpm_active)) {
-+	down(&dpm_list_sem);
-+	while (!list_empty(&dpm_active) && error == 0) {
- 		struct list_head * entry = dpm_active.prev;
- 		struct device * dev = to_device(entry);
-+
-+		get_device(dev);
-+		up(&dpm_list_sem);
-+
- 		error = suspend_device(dev, state);
+ static int sysfs_release(struct inode * inode, struct file * filp)
+ {
+-	struct kobject * kobj = filp->f_dentry->d_parent->d_fsdata;
+-	struct attribute * attr = filp->f_dentry->d_fsdata;
++	struct kobject * kobj = to_kobj(filp->f_dentry->d_parent);
++	struct attribute * attr = to_attr(filp->f_dentry);
+ 	struct sysfs_buffer * buffer = filp->private_data;
  
--		if (!error) {
--			list_del(&dev->power.entry);
--			list_add(&dev->power.entry, &dpm_off);
--		} else if (error == -EAGAIN) {
--			list_del(&dev->power.entry);
--			list_add(&dev->power.entry, &dpm_off_irq);
--		} else {
-+		down(&dpm_list_sem);
+ 	if (kobj) 
+diff -Nru a/fs/sysfs/sysfs.h b/fs/sysfs/sysfs.h
+--- a/fs/sysfs/sysfs.h	2004-11-01 13:37:33 -08:00
++++ b/fs/sysfs/sysfs.h	2004-11-01 13:37:33 -08:00
+@@ -16,14 +16,30 @@
+ extern void sysfs_put_link(struct dentry *, struct nameidata *);
+ extern struct rw_semaphore sysfs_rename_sem;
+ 
++static inline struct kobject * to_kobj(struct dentry * dentry)
++{
++	return ((struct kobject *) dentry->d_fsdata);
++}
 +
-+		/* Check if the device got removed */
-+		if (!list_empty(&dev->power.entry)) {
-+			/* Move it to the dpm_off or dpm_off_irq list */
-+			if (!error) {
-+				list_del(&dev->power.entry);
-+				list_add(&dev->power.entry, &dpm_off);
-+			} else if (error == -EAGAIN) {
-+				list_del(&dev->power.entry);
-+				list_add(&dev->power.entry, &dpm_off_irq);
-+				error = 0;
-+			}
-+		}
-+		if (error)
- 			printk(KERN_ERR "Could not suspend device %s: "
- 				"error %d\n", kobject_name(&dev->kobj), error);
--			goto Error;
--		}
-+		put_device(dev);
- 	}
-- Done:
-+	up(&dpm_list_sem);
-+	if (error)
-+		dpm_resume();
- 	up(&dpm_sem);
- 	return error;
-- Error:
--	dpm_resume();
--	goto Done;
++static inline struct attribute * to_attr(struct dentry * dentry)
++{
++	return ((struct attribute *) dentry->d_fsdata);
++}
++
++static inline struct bin_attribute * to_bin_attr(struct dentry * dentry)
++{
++	return ((struct bin_attribute *) dentry->d_fsdata);
++}
++
+ static inline struct kobject *sysfs_get_kobject(struct dentry *dentry)
+ {
+ 	struct kobject * kobj = NULL;
+ 
+ 	spin_lock(&dcache_lock);
+ 	if (!d_unhashed(dentry))
+-		kobj = kobject_get(dentry->d_fsdata);
++		kobj = kobject_get(to_kobj(dentry));
+ 	spin_unlock(&dcache_lock);
+ 
+ 	return kobj;
  }
- 
- EXPORT_SYMBOL_GPL(device_suspend);
++
 

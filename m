@@ -1,28 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267132AbSKXCQy>; Sat, 23 Nov 2002 21:16:54 -0500
+	id <S267124AbSKXCZG>; Sat, 23 Nov 2002 21:25:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267137AbSKXCQy>; Sat, 23 Nov 2002 21:16:54 -0500
-Received: from mx1.it.wmich.edu ([141.218.1.89]:53501 "EHLO mx1.it.wmich.edu")
-	by vger.kernel.org with ESMTP id <S267132AbSKXCQx>;
-	Sat, 23 Nov 2002 21:16:53 -0500
-Message-ID: <3DE03845.4030406@wmich.edu>
-Date: Sat, 23 Nov 2002 21:24:05 -0500
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+	id <S267130AbSKXCZG>; Sat, 23 Nov 2002 21:25:06 -0500
+Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:41538
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S267124AbSKXCZG>; Sat, 23 Nov 2002 21:25:06 -0500
+Date: Sat, 23 Nov 2002 21:35:54 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Ed Sweetman <ed.sweetman@wmich.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: cpufreq divide error in 2.5.49 
+In-Reply-To: <3DE03845.4030406@wmich.edu>
+Message-ID: <Pine.LNX.4.50.0211232135250.1462-100000@montezuma.mastecende.com>
+References: <3DE03845.4030406@wmich.edu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: cpufreq divide error in 2.5.49 
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.49 on an intel D850GB motherboard with acpi's on demand clock 
-modulation for the P4 has a divide error: 0000 causing a kernel panic 
-from attempting to kill init.
+On Sat, 23 Nov 2002, Ed Sweetman wrote:
 
-It's completely repeatable and just finishes the PCI acpi irq routing 
-when it happens on boot.  The cpu i'm using is a 1st gen P4 1.7Ghz, 
-non-xeon.
+> 2.5.49 on an intel D850GB motherboard with acpi's on demand clock
+> modulation for the P4 has a divide error: 0000 causing a kernel panic
+> from attempting to kill init.
+>
+> It's completely repeatable and just finishes the PCI acpi irq routing
+> when it happens on boot.  The cpu i'm using is a 1st gen P4 1.7Ghz,
+> non-xeon.
 
+Mind posting the oops? Or at least the stack trace and eip
+
+	Zwane
+-- 
+function.linuxpower.ca

@@ -1,89 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314829AbSFQQnV>; Mon, 17 Jun 2002 12:43:21 -0400
+	id <S315192AbSFQQqA>; Mon, 17 Jun 2002 12:46:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315192AbSFQQnU>; Mon, 17 Jun 2002 12:43:20 -0400
-Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:12766 "HELO
-	mailphish.drugphish.ch") by vger.kernel.org with SMTP
-	id <S314829AbSFQQnS>; Mon, 17 Jun 2002 12:43:18 -0400
-Message-ID: <3D0E0E5F.20406@drugphish.ch>
-Date: Mon, 17 Jun 2002 18:29:19 +0200
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
+	id <S315260AbSFQQp7>; Mon, 17 Jun 2002 12:45:59 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:10368 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S315192AbSFQQp6>; Mon, 17 Jun 2002 12:45:58 -0400
+Date: Mon, 17 Jun 2002 12:46:00 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Ben Collins <bcollins@debian.org>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Firewire Disks. (fwd)
-References: <Pine.LNX.3.95.1020617081723.12517A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20020610181418.GA496@blimpo.internal.net>
+Message-ID: <Pine.LNX.3.95.1020610142403.17726B-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 10 Jun 2002, Ben Collins wrote:
 
-Sorry for keeping you waiting.
-
-> Well. I have been experimenting and a Firewire CD-R/W is found and
-> accessible. However, a 80 Gb Maxtor hard disk is not. I had to
-> copy from an RS-232C screen because the resounding crash(es) repeat
-> forever until I hit the reset switch. <EOL> == "end of line with
-> data missing after".
+> On Mon, Jun 10, 2002 at 02:11:21PM -0400, Richard B. Johnson wrote:
+> > 
+> > 
+> > ---------- Forwarded message ----------
+> > From: "Richard B. Johnson" <root@chaos.analogic.com>
+> > Subject: Firewire Disks.
+> > 
+> > I know there is support for "firewire" in the kernel. Is there
+> > support for "firewire" disks? If so, how do I enable it?
+> > 
+> > Cheers,
+> > Dick Johnson
 > 
+> Compile and/or install the sbp2 module.
 > 
-> ohci1394: $Revision: 1.80 $ Ben Collins <bcollins@debian.org>
 
-Gulp, you should really be using a more recent copy of that driver. I'm 
-running 1.91 from the CVS and I remember having had problems with the 
-1.80 driver series too. I don't know why the ieee1394 tree is not pushed 
-into the mainline kernel ...
+Okay. I did that. It doesn't work as for a 80 Gb hard disk, but
+it works for a CD-R/W.
 
-Download the subversion client [1] and then follow the rest of the 
-procedure on that page. Could you try and checkout the newest tree and 
-simply replace the ieee1394 tree with the CVS one. You should probably 
-also switch to a more recent 2.4.x tree since IIRC the .19 series has 
-some changes to the scsi (emulation) subsystem.
 
-> ohci1394_0: OHCI-1394 1.0 (PCI): IRQ=[9] MMIO=[febfd000-febfe000] Max
-> Packet=[ <EOL>
-> ieee1394: Device added: Node 0:1023, GUID 00063a0245003973
-> ieee1394: sbp2: Driver forced to serialize I/O (serialize_io = 1)
-> ieee1394: sbp2: Node 0:1023: Max speed [S400] - Max payload [1024]
-> scsi2 : IEEE-1394 SBP-2 protocol driver
-> scsi: unknown type 24
->   Vendor: GHIJKLMN  Model: OPQRSTUVWXYZ     Rev: "Unprintable junk"
->   Type:   Unknown                           ANSI SCSI revision: 03
-> resize_dma_pool: unknown device type 24
+More follows..........
+
+On Mon, 10 Jun 2002, Roberto Nibali wrote:
+
+> Hi,
 > 
+> > I know there is support for "firewire" in the kernel. Is there
+> > support for "firewire" disks? If so, how do I enable it?
 > 
-> Startup messages continue without further references to either SCSI
-> or IEEE1394. The crash occurs when my SCSI root-file system is first
-> referenced after initrd completes (pivot_root).
+> Yes, there is and it is attached to the SCSI layer via the sbp2 driver. 
+> You need following set of modules to get it working:
 > 
-> When this 80 Gb drive is used under W$, on the same machine, I see
-> no evidence of "GHIJKLMN" or "OPQRSTUVWXYZ" although the device-manager
-> doesn't let you read physical device info like it does with SCSI.
+> scsi_mod, sd_mod, ohci1394, raw1394, ieee1394, sbp2
 > 
-> Number 24, shown above, is ^X, not part of the obvious
->  "ABCDEFGHIJKLMNOPQRSTUVWXYZ" string that we see parts of above. So
-> it doesn't look like a read from the wrong offset during the device-
-> inquiry.
+> I know that you will find out which options you need to enable in the 
+> kernel config ;).
 > 
+> You might want to check out the CVS version of the ieee1394 drivers but 
+> I don't think it is necessary. It works perfectly back here with a 
+> Maxtor 160GB. Funny enough I had 158GB with the VFAT on it and 152GB 
+> with ext2/ext3.
 > 
-> I'm using Linux-2.4.18. Maybe there is a more "mature" version
-> of sbp2 I should be using??
+> The speed results were also quite interessing:
+> 
+> VFAT writing     : 12.8 Mbyte/s
+> ext2/ext3 writing: 19.2 Mbyte/s
+> 
+> I simply like that disk and it's a nice extension for a laptop :).
+> 
+> Cheers,
+> Roberto Nibali, ratz
 
-Could you try with the latest 2.4.19preX tree and also replace the 
-../drivers/ieee1394 with the CVS one?
 
-[1] http://linux1394.sourceforge.net/svn.html
+Well. I have been experimenting and a Firewire CD-R/W is found and
+accessible. However, a 80 Gb Maxtor hard disk is not. I had to
+copy from an RS-232C screen because the resounding crash(es) repeat
+forever until I hit the reset switch. <EOL> == "end of line with
+data missing after".
 
-Best regards,
-Roberto Nibali, ratz
 
-p.s.: You have to hurry up, since I'm not online very often the next few 
-weeks. Of course you could also show up at OLS with the disk ;).
--- 
-echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq'|dc
+ohci1394: $Revision: 1.80 $ Ben Collins <bcollins@debian.org>
+ohci1394_0: OHCI-1394 1.0 (PCI): IRQ=[9] MMIO=[febfd000-febfe000] Max
+Packet=[ <EOL>
+ieee1394: Device added: Node 0:1023, GUID 00063a0245003973
+ieee1394: sbp2: Driver forced to serialize I/O (serialize_io = 1)
+ieee1394: sbp2: Node 0:1023: Max speed [S400] - Max payload [1024]
+scsi2 : IEEE-1394 SBP-2 protocol driver
+scsi: unknown type 24
+  Vendor: GHIJKLMN  Model: OPQRSTUVWXYZ     Rev: "Unprintable junk"
+  Type:   Unknown                           ANSI SCSI revision: 03
+resize_dma_pool: unknown device type 24
+
+
+Startup messages continue without further references to either SCSI
+or IEEE1394. The crash occurs when my SCSI root-file system is first
+referenced after initrd completes (pivot_root).
+
+When this 80 Gb drive is used under W$, on the same machine, I see
+no evidence of "GHIJKLMN" or "OPQRSTUVWXYZ" although the device-manager
+doesn't let you read physical device info like it does with SCSI.
+
+Number 24, shown above, is ^X, not part of the obvious
+ "ABCDEFGHIJKLMNOPQRSTUVWXYZ" string that we see parts of above. So
+it doesn't look like a read from the wrong offset during the device-
+inquiry.
+
+
+I'm using Linux-2.4.18. Maybe there is a more "mature" version
+of sbp2 I should be using??
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+
 

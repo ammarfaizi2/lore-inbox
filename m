@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264255AbTL2Vso (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 16:48:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264264AbTL2Vso
+	id S264275AbTL2VwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 16:52:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264286AbTL2VwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 16:48:44 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:42406 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264255AbTL2Vsm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 16:48:42 -0500
-Date: Mon, 29 Dec 2003 21:46:34 +0000
-From: Dave Jones <davej@redhat.com>
-To: Duncan Sands <baldrick@free.fr>
-Cc: dan@eglifamily.dnsalias.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0 problems
-Message-ID: <20031229214634.GA18738@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Duncan Sands <baldrick@free.fr>, dan@eglifamily.dnsalias.net,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0312251936200.3243-300000@eglifamily.dnsalias.net> <200312291151.50763.baldrick@free.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200312291151.50763.baldrick@free.fr>
-User-Agent: Mutt/1.5.4i
+	Mon, 29 Dec 2003 16:52:25 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:36238 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264275AbTL2VwY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 16:52:24 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 29 Dec 2003 13:52:24 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+cc: ramon.rey@hispalinux.es, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>
+Subject: Re: 2.6.0-mm2
+In-Reply-To: <1072731446.5170.4.camel@teapot.felipe-alfaro.com>
+Message-ID: <Pine.LNX.4.44.0312291351150.2380-100000@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 29, 2003 at 11:51:50AM +0100, Duncan Sands wrote:
- > ftp://ftp.kernel.org/pub/linux/kernel/people/davej/misc/post-halloween-2.5.txt
+On Mon, 29 Dec 2003, Felipe Alfaro Solana wrote:
 
-s/2.5/2.6/
+> The same happens here. cdrecord is broken under -mm, but works fine with
+> plain 2.6.0.
 
-That was a really old revision, latest just copied there from its
-new home at http://www.linux.org.uk/~davej/docs/
-Hopefully in the new year I'll have the data off the now dead
-codemonkey.org.uk server and all that stuff will go back online..
+cdrecord works fine here (-mm1) using hdX=ide-cd and dev=ATAPI:...
 
-		Dave
 
--- 
- Dave Jones     http://www.codemonkey.org.uk
+
+- Davide
+
+

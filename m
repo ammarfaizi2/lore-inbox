@@ -1,115 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264514AbUESTsi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264205AbUESTv4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264514AbUESTsi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 15:48:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264518AbUESTsi
+	id S264205AbUESTv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 15:51:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264522AbUESTv4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 15:48:38 -0400
-Received: from av8-1-sn3.vrr.skanova.net ([81.228.9.183]:53703 "EHLO
-	av8-1-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
-	id S264514AbUESTse (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 15:48:34 -0400
-Message-ID: <40ABBA0F.5050805@ringstrom.mine.nu>
-Date: Wed, 19 May 2004 21:48:31 +0200
-From: =?UTF-8?B?VG9iaWFzIFJpbmdzdHLDtm0=?= <tobias@ringstrom.mine.nu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+	Wed, 19 May 2004 15:51:56 -0400
+Received: from kendy.up.ac.za ([137.215.101.101]:9785 "EHLO kendy.up.ac.za")
+	by vger.kernel.org with ESMTP id S264205AbUESTvv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 15:51:51 -0400
+Message-ID: <40AB3643.7000602@cs.up.ac.za>
+Date: Wed, 19 May 2004 12:26:11 +0200
+From: Jaco Kroon <jkroon@cs.up.ac.za>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040325
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Christophe Saout <christophe@saout.de>
-Subject: IPsec/crypto kernel panic in 2.6.[456]
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Kernel BUG at slab.c:1930
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms050304020007080909010806"
+X-Scan-Signature: fc37ce03eedb0e2d6a7e4a051cd4cdc3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get a kernel panic that is very easy to reproduce.  The panic goes 
-away if I revert the following changeset ("fix in-place de/encryption 
-bug with highmem"):
+This is a cryptographically signed message in MIME format.
 
-     http://linux.bkbits.net:8080/linux-2.5/cset@1.1371.476.15
+--------------ms050304020007080909010806
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I have not analyzed the code closely, so I cannot say for certain that 
-there is a problem with that specific changeset, and I'm certainly not 
-out to blame anyone, but reverting it at least seems to fix the problem. 
-  The panic occurs when I receive more than a little TCP data in an 
-IPsec ESP tunnel.  I'm of course willing to test patches or provide 
-further info if required.
+Hello all
 
-[Please CC me because I'm not subscribed to the list.]
+The following OOPS occured this morning.  This is on a dual CPU machine, 
+there were two oopses, unfortunately the other scrolled off the screen 
+but the process was lockd (nfs related afaik).
 
-/Tobias
+Here is the oops (written off and typed up), unfortunately I don't know 
+how to convert this to nicely readable symbols ...
 
+Kernel BUG at slab.c:1930
+invalid operand: 0000
+CPU: 0
+EIP: 0010:[<c01372a5>]         Not Tainted
+EFLAGS: 00010002
+eax: c7d8b000     ebx: 00000000     ecx: 0000001e     edx: c12c72b0
+esi: 00003ab6     edi: cf2c72b0     ebp: c12c72b0     esp: ca329f10
+ds: 18      es: 18        ss: 18
+Process vmstat (pid: 27441, stack page = ca329000)
 
-Unable to handle kernel paging request at virtual address 77d89bb3
-  printing eip:
-e38c230d
-*pde = 00000000
-Oops: 0002 [#1]
-CPU:    0
-EIP:    0060:[<e38c230d>]    Not tainted
-EFLAGS: 00010216   (2.6.6)
-EIP is at des_small_fips_decrypt+0x96d/0x9a0 [des]
-eax: 0030f000   ebx: 00030f00   ecx: 1b24b797   edx: ba4d7f77
-esi: dcf91438   edi: 77d89bb3   ebp: c040fbb0   esp: c040fb5c
-ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 0, threadinfo=c040e000 task=c0386a40)
-Stack: 77d89bb3 dcf91330 da6e4458 e38c28ed dcf91438 77d89bb3 c040fbf0 
-77d89bb3
-        c040fbf0 c01e7623 dcf91330 77d89bb3 c040fbf0 c01e7373 c040fbf2 
-dec77000
-        00000006 c040fb94 c040fbf0 000004a0 00000008 c040fc50 c01e7513 
-dcf91304
-Call Trace:
-  [<e38c28ed>] des3_ede_decrypt+0x2d/0x70 [des]
-  [<c01e7623>] cbc_process+0x63/0x170
-  [<c01e7373>] scatterwalk_copychunks+0x83/0xd0
-  [<c01e7513>] crypt+0x153/0x200
-  [<e38c28c0>] des3_ede_decrypt+0x0/0x70 [des]
-  [<c02d2000>] dst_output+0x0/0x30
-  [<c02d1b74>] ip_push_pending_frames+0x344/0x420
-  [<c02d2000>] dst_output+0x0/0x30
-  [<c01e7948>] cbc_decrypt+0x48/0x50
-  [<e38c28c0>] des3_ede_decrypt+0x0/0x70 [des]
-  [<c01e75c0>] cbc_process+0x0/0x170
-  [<e38ccb1b>] esp_input+0x1fb/0x500 [esp4]
-  [<e38cca3e>] esp_input+0x11e/0x500 [esp4]
-  [<c02b78f4>] kfree_skbmem+0x24/0x30
-  [<c030fdeb>] xfrm_state_lookup+0x5b/0x70
-  [<c030b58e>] xfrm4_rcv_encap+0xee/0x4a0
-  [<c02d20e2>] ip_finish_output2+0xb2/0x1d0
-  [<c0302484>] ipt_do_table+0x294/0x380
-  [<c02c5302>] nf_hook_slow+0xd2/0x120
-  [<c02ccfc0>] ip_local_deliver_finish+0x0/0x1d0
-  [<c0304b37>] ipt_hook+0x37/0x40
-  [<c030b3d7>] xfrm4_rcv+0x17/0x20
-  [<c02cd089>] ip_local_deliver_finish+0xc9/0x1d0
-  [<c02ccfc0>] ip_local_deliver_finish+0x0/0x1d0
-  [<c02c5302>] nf_hook_slow+0xd2/0x120
-  [<c02ccfc0>] ip_local_deliver_finish+0x0/0x1d0
-  [<c02ccb27>] ip_local_deliver+0x217/0x240
-  [<c02ccfc0>] ip_local_deliver_finish+0x0/0x1d0
-  [<c02cd350>] ip_rcv_finish+0x1c0/0x230
-  [<c02cd190>] ip_rcv_finish+0x0/0x230
-  [<c02c5302>] nf_hook_slow+0xd2/0x120
-  [<c02cd190>] ip_rcv_finish+0x0/0x230
-  [<c02ccf04>] ip_rcv+0x3b4/0x470
-  [<c02cd190>] ip_rcv_finish+0x0/0x230
-  [<c02bc430>] netif_receive_skb+0x150/0x190
-  [<c02bc4dd>] process_backlog+0x6d/0x100
-  [<c02bc5da>] net_rx_action+0x6a/0xf0
-  [<c011afc5>] __do_softirq+0x85/0x90
-  [<c011aff6>] do_softirq+0x26/0x30
-  [<c0106439>] do_IRQ+0xc9/0xf0
-  [<c0101ef0>] default_idle+0x0/0x30
-  [<c01047cc>] common_interrupt+0x18/0x20
-  [<c0101ef0>] default_idle+0x0/0x30
-  [<c0101f14>] default_idle+0x24/0x30
-  [<c0101f90>] cpu_idle+0x30/0x40
-  [<c041072d>] start_kernel+0x14d/0x170
-  [<c0410470>] unknown_bootoption+0x0/0x130
+Stack:  cbb9a7e0 c02724f2 0000007c 0000003e 000047ce 00000200 00000a42 
+00000a42
+           00000001 c0000000 000001f5 00000246 00001000 00000000 00047ce 
+00000000
+           cb69a7e0 c12c72b0 00000756 c015e8e3 cb69a7e0 c12c72b0 
+c9329f74 cb69a7f8
 
-Code: 88 0f c1 e9 08 31 c2 88 4f 01 c1 e9 08 88 57 04 88 4f 02 c1
-  <0>Kernel panic: Fatal exception in interrupt
-In interrupt handler - not syncing
+Call Trace: [<c015e8e3>] [<c0140d27>] [<c01077377>]
+
+Code: 0f 0b 8a 07 bc 24 27 c0 ff 44 24 28 01 ce 8b 00 39 e8 75 e7
+
+$ uname -a
+Linux fornax 2.4.24 #4 SMP Fri Jan 30 08:39:38 SAST 2004 i686 Pentium II 
+(Deschutes) GenuineIntel GNU/Linux
+
+Any other information that may be of use?
+
+Jaco
+
+-- 
+How come we never talk anymore?
+===========================================
+This message and attachments are subject to a disclaimer. Please refer to www.it.up.ac.za/documentation/governance/disclaimer/ for full details.
+Hierdie boodskap en aanhangsels is aan 'n vrywaringsklousule onderhewig. Volledige besonderhede is by www.it.up.ac.za/documentation/governance/disclaimer/ beskikbaar.
+===========================================
 
 
+--------------ms050304020007080909010806
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIII7TCC
+AtEwggI6oAMCAQICAwuV3TANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UE
+ChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNv
+bmFsIEZyZWVtYWlsIElzc3VpbmcgQ0EwHhcNMDQwMTI4MTMxNTM0WhcNMDUwMTI3MTMxNTM0
+WjBEMR8wHQYDVQQDExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMSEwHwYJKoZIhvcNAQkBFhJq
+a3Jvb25AY3MudXAuYWMuemEwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDGM68H
+Bm8eLZzRqFlPks3sjEOAQrolKEESLKGNAL6Pu+KUMRQ9wC5feaXfg5wmVBe6VLhTY9pkiVJi
+mTX1VrHdJgnvqkKfjQrPn66oAqUlytHCSB6s5SmIquw1Nu4rMK5D+/LMqV73iTEyP/2p9GbK
+w9h3xmqn3HytZfqgK/Zh8SKhjRzAE+PT2aVSBL43RetHgn4CRKVacERTLYK2Gfv5jhljPuSE
+6ppfVOq/Jm/tduG/xn92wWlIOL8oPq4dQcy5wYjg9nrImwM7tFlD22iY0IESSqKTe2EkhcUY
+rpc+M3XZEU7bz+sSTG7MbXNfkfn+4G92KN7Z9hhex1QAxBfnAgMBAAGjLzAtMB0GA1UdEQQW
+MBSBEmprcm9vbkBjcy51cC5hYy56YTAMBgNVHRMBAf8EAjAAMA0GCSqGSIb3DQEBBAUAA4GB
+AKItHT03yxemitMQFThOBwjiQrPwKqF5lqskzUY467RLA+6EBki+6MtGnv6yhwrOaV7H4BE3
+p7gpVXtQZBlmHfZnK2l5C56OSdahZ77ti7+qsft7t1z+DyUUWCuRxA5hy4xXKgqd9cwy6mEp
+uU7muCasFm9FR6H5vQbkCHH1DmjqMIIC0TCCAjqgAwIBAgIDC5XdMA0GCSqGSIb3DQEBBAUA
+MGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBMdGQu
+MSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQTAeFw0wNDAx
+MjgxMzE1MzRaFw0wNTAxMjcxMzE1MzRaMEQxHzAdBgNVBAMTFlRoYXd0ZSBGcmVlbWFpbCBN
+ZW1iZXIxITAfBgkqhkiG9w0BCQEWEmprcm9vbkBjcy51cC5hYy56YTCCASIwDQYJKoZIhvcN
+AQEBBQADggEPADCCAQoCggEBAMYzrwcGbx4tnNGoWU+SzeyMQ4BCuiUoQRIsoY0Avo+74pQx
+FD3ALl95pd+DnCZUF7pUuFNj2mSJUmKZNfVWsd0mCe+qQp+NCs+frqgCpSXK0cJIHqzlKYiq
+7DU27iswrkP78sypXveJMTI//an0ZsrD2HfGaqfcfK1l+qAr9mHxIqGNHMAT49PZpVIEvjdF
+60eCfgJEpVpwRFMtgrYZ+/mOGWM+5ITqml9U6r8mb+124b/Gf3bBaUg4vyg+rh1BzLnBiOD2
+esibAzu0WUPbaJjQgRJKopN7YSSFxRiulz4zddkRTtvP6xJMbsxtc1+R+f7gb3Yo3tn2GF7H
+VADEF+cCAwEAAaMvMC0wHQYDVR0RBBYwFIESamtyb29uQGNzLnVwLmFjLnphMAwGA1UdEwEB
+/wQCMAAwDQYJKoZIhvcNAQEEBQADgYEAoi0dPTfLF6aK0xAVOE4HCOJCs/AqoXmWqyTNRjjr
+tEsD7oQGSL7oy0ae/rKHCs5pXsfgETenuClVe1BkGWYd9mcraXkLno5J1qFnvu2Lv6qx+3u3
+XP4PJRRYK5HEDmHLjFcqCp31zDLqYSm5Tua4JqwWb0VHofm9BuQIcfUOaOowggM/MIICqKAD
+AgECAgENMA0GCSqGSIb3DQEBBQUAMIHRMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVy
+biBDYXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xGjAYBgNVBAoTEVRoYXd0ZSBDb25zdWx0aW5n
+MSgwJgYDVQQLEx9DZXJ0aWZpY2F0aW9uIFNlcnZpY2VzIERpdmlzaW9uMSQwIgYDVQQDExtU
+aGF3dGUgUGVyc29uYWwgRnJlZW1haWwgQ0ExKzApBgkqhkiG9w0BCQEWHHBlcnNvbmFsLWZy
+ZWVtYWlsQHRoYXd0ZS5jb20wHhcNMDMwNzE3MDAwMDAwWhcNMTMwNzE2MjM1OTU5WjBiMQsw
+CQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoG
+A1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0EwgZ8wDQYJKoZIhvcN
+AQEBBQADgY0AMIGJAoGBAMSmPFVzVftOucqZWh5owHUEcJ3f6f+jHuy9zfVb8hp2vX8MOmHy
+v1HOAdTlUAow1wJjWiyJFXCO3cnwK4Vaqj9xVsuvPAsH5/EfkTYkKhPPK9Xzgnc9A74r/rsY
+Pge/QIACZNenprufZdHFKlSFD0gEf6e20TxhBEAeZBlyYLf7AgMBAAGjgZQwgZEwEgYDVR0T
+AQH/BAgwBgEB/wIBADBDBgNVHR8EPDA6MDigNqA0hjJodHRwOi8vY3JsLnRoYXd0ZS5jb20v
+VGhhd3RlUGVyc29uYWxGcmVlbWFpbENBLmNybDALBgNVHQ8EBAMCAQYwKQYDVR0RBCIwIKQe
+MBwxGjAYBgNVBAMTEVByaXZhdGVMYWJlbDItMTM4MA0GCSqGSIb3DQEBBQUAA4GBAEiM0VCD
+6gsuzA2jZqxnD3+vrL7CF6FDlpSdf0whuPg2H6otnzYvwPQcUCCTcDz9reFhYsPZOhl+hLGZ
+GwDFGguCdJ4lUJRix9sncVcljd2pnDmOjCBPZV+V2vf3h9bGCE6u9uo05RAaWzVNd+NWIXiC
+3CEZNd4ksdMdRv9dX2VPMYIDOzCCAzcCAQEwaTBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMc
+VGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFs
+IEZyZWVtYWlsIElzc3VpbmcgQ0ECAwuV3TAJBgUrDgMCGgUAoIIBpzAYBgkqhkiG9w0BCQMx
+CwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0wNDA1MTkxMDI2MTFaMCMGCSqGSIb3DQEJ
+BDEWBBTAmPrOwg3MSfcO1bcZL3DliYPKkDBSBgkqhkiG9w0BCQ8xRTBDMAoGCCqGSIb3DQMH
+MA4GCCqGSIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzANBggqhkiG9w0DAgIB
+KDB4BgkrBgEEAYI3EAQxazBpMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29u
+c3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwg
+SXNzdWluZyBDQQIDC5XdMHoGCyqGSIb3DQEJEAILMWugaTBiMQswCQYDVQQGEwJaQTElMCMG
+A1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBl
+cnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0ECAwuV3TANBgkqhkiG9w0BAQEFAASCAQC2Gpf/
+Hg+6ZhvziNay1MRdzm5ZqiZp5tKWT5kf2rMvZ960FGfZME/+YfbBJ9p5/oAA3SV6e46+igTF
+KgNVWfYZA+sy8/FD4xck2SyfWDS6kyTdk1ohyJ7djOhVatpEMlQyA8JsXddPOPtuCn6wfbgs
+sy2gS7QKWohRA8a/mKIp31UWhwm2uxwcF5xIj7GnbU4Rf6qJlXT0Tkr2CrH3rUTXbuFo7pg7
+PhC7ptYRRiVuZ92ETkvEA8dpdm1OX9TXIPtNr/FmNITQCFyS4oxMWJcZJH7DI5ZOPqsolglS
+EoLXDp50inE1QoA5aBAfgW5N3PlVjwMYQquLb/do4H7itbejAAAAAAAA
+--------------ms050304020007080909010806--

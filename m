@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261753AbTJFV7k (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 17:59:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbTJFV7k
+	id S261775AbTJFWOL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 18:14:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbTJFWOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 17:59:40 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29850 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261746AbTJFV7h
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 17:59:37 -0400
-Date: Mon, 6 Oct 2003 22:59:36 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Mark Haverkamp <markh@osdl.org>, linux-scsi <linux-scsi@vger.kernel.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] 2.6.0 aacraid driver update
-Message-ID: <20031006215936.GF24824@parcelfarce.linux.theplanet.co.uk>
-References: <1065475285.17021.79.camel@markh1.pdx.osdl.net> <3F81E34A.1040201@pobox.com>
+	Mon, 6 Oct 2003 18:14:11 -0400
+Received: from f17.mail.ru ([194.67.57.47]:12298 "EHLO f17.mail.ru")
+	by vger.kernel.org with ESMTP id S261775AbTJFWOJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 18:14:09 -0400
+From: =?koi8-r?Q?=22?=Alexey Dobriyan=?koi8-r?Q?=22=20?= 
+	<adobriyan@mail.ru>
+To: ext2-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fs/ext2/acl.c '< 0' comparison make sense only with signed variable.
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F81E34A.1040201@pobox.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [194.85.64.37]
+Date: Tue, 07 Oct 2003 02:14:08 +0400
+Reply-To: =?koi8-r?Q?=22?=Alexey Dobriyan=?koi8-r?Q?=22=20?= 
+	  <adobriyan@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E1A6dcG-0007zt-00.adobriyan-mail-ru@f17.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 06, 2003 at 05:48:58PM -0400, Jeff Garzik wrote:
-> >+		/*
-> >+		 *	Yield the processor in case we are slow 
-> >+		 */
-> >+		set_current_state(TASK_UNINTERRUPTIBLE);
-> >+		schedule_timeout(1);
-> 
-> hmmm... why not simply call yield() here instead?  I think yield() is 
-> closer to the intent you wish to achieve...
+ext2_acl_count() returns int and posix_acl_alloc() wants int as the first argument.
 
-Gods, no.  I believe it is always a bug for drivers to call yield()
-in 2.6.  What is probably meant here is cond_resched().  I'd support
-deleting the EXPORT_SYMBOL(yield) line and fixing the breakage afterwards
-as it causes lots of very subtle breakage ("Under certain circumstances,
-Linux just stops doing anything for 5 seconds").
+diff -urN a/fs/ext2/acl.c b/fs/ext2/acl.c
+--- a/fs/ext2/acl.c	2003-09-28 04:50:40.000000000 +0400
++++ b/fs/ext2/acl.c	2003-10-07 00:29:10.000000000 +0400
+@@ -19,7 +19,8 @@
+ ext2_acl_from_disk(const void *value, size_t size)
+ {
+ 	const char *end = (char *)value + size;
+-	size_t n, count;
++	size_t n;
++	int count;
+ 	struct posix_acl *acl;
+ 
+ 	if (!value)
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk

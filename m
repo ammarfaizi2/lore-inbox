@@ -1,57 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261835AbTCGWtx>; Fri, 7 Mar 2003 17:49:53 -0500
+	id <S261833AbTCGWov>; Fri, 7 Mar 2003 17:44:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261856AbTCGWtx>; Fri, 7 Mar 2003 17:49:53 -0500
-Received: from rhea.tiscali.nl ([195.241.76.178]:64909 "EHLO rhea.tiscali.nl")
-	by vger.kernel.org with ESMTP id <S261835AbTCGWtv>;
-	Fri, 7 Mar 2003 17:49:51 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Frans Pop <aragorn@tiscali.nl>
-To: linux-kernel@vger.kernel.org
-Subject: PATCH for ide-tape driver
-Date: Sat, 8 Mar 2003 00:00:24 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: gadio@netvision.net.il, zaitcev@redhat.com, stern@rowland.harvard.edu
+	id <S261829AbTCGWov>; Fri, 7 Mar 2003 17:44:51 -0500
+Received: from s383.jpl.nasa.gov ([137.78.170.215]:7399 "EHLO
+	s383.jpl.nasa.gov") by vger.kernel.org with ESMTP
+	id <S261828AbTCGWos>; Fri, 7 Mar 2003 17:44:48 -0500
+Message-ID: <3E692356.2070705@jpl.nasa.gov>
+Date: Fri, 07 Mar 2003 14:55:18 -0800
+From: Bryan Whitehead <driver@jpl.nasa.gov>
+Organization: Jet Propulsion Laboratory
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en, zh, zh-cn, zh-hk, zh
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20030307230024.6C544429D2@rhea.tiscali.nl>
+To: linux-kernel@vger.kernel.org
+Cc: linux-newbie@vger.kernel.org
+Subject: Re: devfs + PCI serial card = no extra serial ports
+References: <3E692281.10906@jpl.nasa.gov>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been experiencing problems with this driver.
-When I do 'tar cf /dev/tape --verify <filespec>', I consistently get an error 
-message 'Unexpected EOF in archive'.
-I have Googled for this problem and found others have it to, but no sulution 
-available.
 
-I also tried the scsi-ide driver, but this produced errors as well, so I 
-decided to try to debug the ide-tape driver.
+BTW, this is with 2.4.19 (kernel shipped with distro).... I'm willing to 
+test any patches / rebuild kernel to get this working.....
 
-My system is a Compaq Deskpro Pentium 300 with Debian Woody 3.0r1 that I 
-upgraded to latest stable kernel 2.4.21-pre4 to work on this patch.
-My tape drive is a Conner CCT-8000A (TR-4).
-I have tested and created the patch working from v1.17c of ide-tape.c.
 
-I have created a patch after fairly extensive debugging and testing.
-During this process I found 2 technical bugs in the driver that I fixed also. 
-These bugs produced the following log messages:
-- bug: nr_stages should be 0 now
-- ide-tape pipeline bug: first_stage 00000000, next_stage 00000000, 
-last_stage 00000000, nr_stages 1
+Bryan Whitehead wrote:
+> It seems devfsd has an annoying "feature". I bought a PCI card to get a 
+> couple (2) more serial ports. The kernel doesn't seem to set up the 
+> serial ports at boot, so devfs never creates an entry. However, post 
+> boot, since there is no entries, I cannot configure the serial ports 
+> with setserial. So basically devfsd = no PCI based serial add on?
+> 
+> 03:05.0 Serial controller: NetMos Technology 222N-2 I/O Card (2S+1P) 
+> (rev 01) (prog-if 02 [16550])
+>     Subsystem: LSI Logic / Symbios Logic (formerly NCR): Unknown device 
+> 0002
+>     Flags: medium devsel, IRQ 17
+>     I/O ports at ecf8 [size=8]
+>     I/O ports at ece8 [size=8]
+>     I/O ports at ecd8 [size=8]
+>     I/O ports at ecc8 [size=8]
+>     I/O ports at ecb8 [size=8]
+>     I/O ports at eca0 [size=16]
+> 
+> 
+> mknod ttyS2 c 4 66
+> mknod ttyS3 c 4 67
+> setserial ttyS2 port 0xecf8 UART 16550A irq 17 Baud_base 9600
+> setserial ttyS3 port 0xece8 UART 16550A irq 17 Baud_base 9600
+> 
+> I hoped after "setting up" the serial ports with setserial some magic 
+> would happen and they would apear in /dev/tts... but I was wrong.
+> 
+> gets me working serial ports... but it's not in /dev... :O
+> 
+> Am I just screwed?
+> 
+> If so, what would be a good add on PCI based solution for more serial 
+> ports that WORKS with devfsd? (I don't want to disable devfs as this 
+> opens up a different set of problems)
+> 
+> Thanks for any replay!
+> 
 
-I have created a website at http://home.tiscali.nl/isildur/ where the patch 
-can be downloaded. On this site I have documented quite extensively what I 
-have done.
 
-IMO there seem to be some important discrepancies in the way file spacing is 
-handled in the kernel and the way it is used in tar and mt. This is also 
-documented on the website.
+-- 
+Bryan Whitehead
+SysAdmin - JPL - Interferometry Systems and Technology
+Phone: 818 354 2903
+driver@jpl.nasa.gov
 
-I am currently looking for feedback and people to test my patch.
-
-TIA,
-
-Frans Pop
-
-P.S. Please reply with CC to private mail as I am not on the list.

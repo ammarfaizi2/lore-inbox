@@ -1,46 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271895AbRH1TpS>; Tue, 28 Aug 2001 15:45:18 -0400
+	id <S272278AbRHXRon>; Fri, 24 Aug 2001 13:44:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271896AbRH1To7>; Tue, 28 Aug 2001 15:44:59 -0400
-Received: from h157s242a129n47.user.nortelnetworks.com ([47.129.242.157]:20670
-	"EHLO zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S271895AbRH1Tox>; Tue, 28 Aug 2001 15:44:53 -0400
-Message-ID: <3B865DCB.C60525B@nortelnetworks.com>
-Date: Fri, 24 Aug 2001 09:59:39 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
-X-Accept-Language: en
+	id <S272279AbRHXRod>; Fri, 24 Aug 2001 13:44:33 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:62993 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S272278AbRHXRoY>; Fri, 24 Aug 2001 13:44:24 -0400
+Date: Fri, 24 Aug 2001 14:43:42 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+Cc: "Marc A. Lehmann" <pcg@goof.com>, <linux-kernel@vger.kernel.org>,
+        <oesi@plan9.de>
+Subject: Re: [resent PATCH] Re: very slow parallel read performance
+In-Reply-To: <200108240739.f7O7dWj01330@mailc.telia.com>
+Message-ID: <Pine.LNX.4.33L.0108241433130.31410-100000@duckman.distro.conectiva>
+X-supervisor: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Gabriel Paubert <paubert@iram.es>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] (comments requested) adding finer-grained timing to PPC 
-         add_timer_randomness()
-In-Reply-To: <Pine.LNX.4.21.0108240856370.1353-100000@ltgp.iram.es>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Orig: <cfriesen@nortelnetworks.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gabriel Paubert wrote:
+On Fri, 24 Aug 2001, Roger Larsson wrote:
 
-> No, both the RTC and the decrementer count nanoseconds, except that the 7
-> LSB are not implemented because the timebase clock should have a period of
-> 128 ns (7.8125 MHz, but according to Takashi Oe, many 601 systems did not
-> bother to provide the exact frequency and are off by 11 parts in 4096 or
-> so). As such the LSB can't be used to estimate randomness and the value
-> must be shifted right by 7. So you need some conditional code (or boot
-> time patching). At this point you can throw in the high order part
-> (RTCU/TBU) for additional randomization (RTCU changes much faster on 601,
-> once per second, than on the other processors).
+> I earlier questioned this too...
+> And I found out that read ahead was too short for modern disks.
+> This is a patch I did it does also enable the profiling, the only needed
+> line is the
+> -#define MAX_READAHEAD  31
+> +#define MAX_READAHEAD  511
+> I have not tried to push it further up since this resulted in virtually
+> equal total throughput for read two files than for read one.
 
-Have you got any links to information on boot time patching?
+Note that this can have HORRIBLE effects if the total
+size of all the readahead windows combined doesn't fit
+in your memory.
 
+If you have 100 IO streams going on and you have space
+for 50 of them, you'll find yourself with 100 threads
+continuously pushing each other's read-ahead data out
+of RAM.
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+100 threads may sound much, but 100 clients really isn't
+that special for an ftp server...
+
+This effect is made a lot worse with the use-once
+strategy used in recent Linus kernels because:
+
+1) under memory pressure, the inactive_dirty list is
+   only as large as 1 second of pageout IO, meaning
+   the sum of the readahead windows is smaller than
+   with a kernel which doesn't do the use-once thing
+   (eg. Alan's kernel)
+
+2) the drop-behind strategy makes it much more likely
+   that we'll replace the data we already used, instead
+   of the read-ahead data we haven't used yet ... this
+   means the data we are about to use has a better chance
+   to be in memory
+
+regards,
+
+Rik
+--
+IA64: a worthy successor to the i860.
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

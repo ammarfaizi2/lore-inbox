@@ -1,60 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263095AbUDUIN1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264268AbUDUIZL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263095AbUDUIN1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 04:13:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263726AbUDUIN1
+	id S264268AbUDUIZL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 04:25:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264286AbUDUIZL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 04:13:27 -0400
-Received: from atlas.informatik.uni-freiburg.de ([132.230.150.3]:59305 "EHLO
-	atlas.informatik.uni-freiburg.de") by vger.kernel.org with ESMTP
-	id S263095AbUDUINZ convert rfc822-to-8bit (ORCPT
+	Wed, 21 Apr 2004 04:25:11 -0400
+Received: from sigma.informatik.hu-berlin.de ([141.20.20.51]:49327 "EHLO
+	sigma.informatik.hu-berlin.de") by vger.kernel.org with ESMTP
+	id S264268AbUDUIZH convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 04:13:25 -0400
-To: Kim Holviala <kim@holviala.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: /dev/psaux-Interface
-References: <xb7oeplg5nv.fsf@savona.informatik.uni-freiburg.de>
-	<200404211021.26210.kim@holviala.com>
-From: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
-Date: 21 Apr 2004 10:13:23 +0200
-In-Reply-To: <200404211021.26210.kim@holviala.com>
-Message-ID: <xb7fzaxg34s.fsf@savona.informatik.uni-freiburg.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Wed, 21 Apr 2004 04:25:07 -0400
+From: Axel =?iso-8859-1?q?Wei=DF?= <aweiss@informatik.hu-berlin.de>
+Organization: =?iso-8859-1?q?Humboldt-Universit=E4t=20zu?= Berlin
+To: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.26 released
+Date: Wed, 21 Apr 2004 10:25:05 +0200
+User-Agent: KMail/1.5.1
+References: <200404141314.i3EDEbxv023592@hera.kernel.org> <20040420232312.GQ743@holomorphy.com> <20040421045344.GJ596@alpha.home.local>
+In-Reply-To: <20040421045344.GJ596@alpha.home.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=big5
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 8BIT
-Organization: Universitaet Freiburg, Institut fuer Informatik
+Message-Id: <200404211025.05319.aweiss@informatik.hu-berlin.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Kim" == Kim Holviala <kim@holviala.com> writes:
+Am Mittwoch, 21. April 2004 06:53 schrieb Willy Tarreau:
+> Hi William,
+>
+> On Tue, Apr 20, 2004 at 04:23:12PM -0700, William Lee Irwin III wrote:
+> > -		return (mps_cpu/4)*16 + (1<<(mps_cpu%4));
+> > +		return (mps_cpu & ~0x3) << 2 | 1 << (mps_cpu & 0x3);
+>
+>                                         ^^^^
+> I think you wanted to put '<< 4' here instead of '<< 2'.
 
-    >>  So, are you going to port my XFree86 driver for my touchscreen
-    >> into kernel space?
+No, the above is correct (at least equivalent):
+	(x / 4) * 16 =
+	(x >> 2) << 4 =
+	(x & ~3) << 2
 
-    Kim> That's what I was thinking.. I had one of those laptops a
-    Kim> year ago from work, but I gave it away since the keyboard
-    Kim> started acting and the touchscreen filter on top of the
-    Kim> normal TFT looked too blurry to me...
-
-    Kim> But yes, if and when I get an extra Lifebook I'll look into
-    Kim> porting your driver.
-
-Mine  is  a Lifebook  B142,  not  the  newest ones.   The  touchscreen
-hardware may thus be different.
-
-Moreover, I implemented features in my drivers which require timeouts.
-That'd be too complicated for me to program in kernel space.
-
-
-The driver can be downloaded from:
-
-http://www.informatik.uni-freiburg.de/~danlee/fun/psaux/lifebook20010712.tgz
-
+Regards,
+Axel
 
 -- 
-Sau Dan LEE                     §õ¦u´°(Big5)                    ~{@nJX6X~}(HZ) 
-
-E-mail: danlee@informatik.uni-freiburg.de
-Home page: http://www.informatik.uni-freiburg.de/~danlee
+Humboldt-Universität zu Berlin
+Institut für Informatik
+Signalverarbeitung und Mustererkennung
+Dipl.-Inf. Axel Weiß
+Rudower Chaussee 25
+12489 Berlin-Adlershof
++49-30-2093-3050
 

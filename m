@@ -1,69 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131949AbRD1Hej>; Sat, 28 Apr 2001 03:34:39 -0400
+	id <S132352AbRD1Hk3>; Sat, 28 Apr 2001 03:40:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132316AbRD1He3>; Sat, 28 Apr 2001 03:34:29 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:33295 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S131949AbRD1HeW>;
-	Sat, 28 Apr 2001 03:34:22 -0400
-Date: Sat, 28 Apr 2001 09:32:33 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Fabio Riccardi <fabio@chromium.com>
-Cc: <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Christopher Smith <x@xman.org>, Andrew Morton <andrewm@uow.edu.au>,
-        "Timothy D. Witham" <wookie@osdlab.org>, <David_J_Morse@Dell.com>
-Subject: X15 alpha release: as fast as TUX but in user space
-Message-ID: <Pine.LNX.4.33.0104280923520.12895-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132422AbRD1HkT>; Sat, 28 Apr 2001 03:40:19 -0400
+Received: from ucu-105-116.ucu.uu.nl ([131.211.105.116]:13984 "EHLO
+	ronald.bitfreak.net") by vger.kernel.org with ESMTP
+	id <S132352AbRD1HkN>; Sat, 28 Apr 2001 03:40:13 -0400
+Date: Sat, 28 Apr 2001 09:39:43 +0200
+From: Ronald Bultje <rbultje@ronald.bitfreak.net>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] buz.c compilation problem (missing macro) in 2.4.4
+Message-ID: <20010428093943.A17724@tux.bitfreak.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Fri, 27 Apr 2001, Fabio Riccardi wrote:
+2.4.4 returns this error when compiling the buz module, the macro
+MALLOC_MAXSIZE is missing:
 
-> I'd like to announce the first release of X15 Alpha 1, a _user space_
-> web server that is as fast as TUX.
+[...]
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.4/include -Wall -Wstrict-prototypes
+-O2
+-fomit-frame-pointer -fno-strict-aliasing -pipe
+-mpreferred-stack-boundary=2 -march=i686
+-DMODULE   -c -o buz.o buz.c
+buz.c: In function `v4l_fbuffer_alloc':
+buz.c:188: `KMALLOC_MAXSIZE' undeclared (first use in this function)
+buz.c:188: (Each undeclared identifier is reported only once
+buz.c:188: for each function it appears in.)
+buz.c: In function `jpg_fbuffer_alloc':
+buz.c:262: `KMALLOC_MAXSIZE' undeclared (first use in this function)
+buz.c:256: warning: `alloc_contig' might be used uninitialized in this
+function
+buz.c: In function `jpg_fbuffer_free':
+buz.c:322: `KMALLOC_MAXSIZE' undeclared (first use in this function)
+buz.c:316: warning: `alloc_contig' might be used uninitialized in this
+function
+buz.c: In function `zoran_ioctl':
+buz.c:2837: `KMALLOC_MAXSIZE' undeclared (first use in this function)
+make[3]: *** [buz.o] Error 1
+[...]
 
-great, the first TUX clone! ;-)
+This error was also present in 2.4.3 (forgot to report it :) ).
+Some patch seems to have changed the original name of this macro
+(MAX_KMALLOC_MEM) into KMALLOC_MAXSIZE, but the define of this macro
+(#define MAX_KMALLOC_MEM (512*1024)) was removed...
+This value (512 kb) is wrong anyway, according to Dr. Rainer Johanni (the
+original maintainer). He recommends to make it 128 kb, which was originally
+the value in his driver.
 
-This should put the accusations to rest that Linux got the outstandingly
-high SPECweb99 scores only because the webserver was in kernel-space. It's
-the 2.4 kernel's high performance that enabled those results, having the
-web-server in kernel-space didnt have much effect. TUX was and remains a
-testbed to test high-performance webserving (and FTP serving), without the
-API-exporting overhead of userspace.
+So the proper patch would be as simple as:
 
-[i suspect the small performance advantage of X15 is due to subtle
-differences in the SPECweb99 user-space module: eg. while the TUX code was
-written, tested and ready to use mmap()-enabled
-TUXAPI_alloc_read_objectbuf(), it wasnt enabled actually. I sent Fabio a
-mail how to enable it, perhaps he can do some tests to confirm this
-suspicion?]
+*** buz.c-old   Sat Apr 28 09:16:24 2001
+--- buz.c       Sat Apr 28 09:16:57 2001
+***************
+*** 97,102 ****
+--- 97,103 ----
+  #define MINOR_VERSION 0               /* driver minor version */
 
-doing a TUX 2.0 SPECweb99 benchmark on the latest -ac kernels, 86% of time
-is spent in generic parts of the kernel, 12% of time is spent in the
-user-space SPECweb99 module, and only 2% of time is spent in TUX-specific
-kernel code.
+  #define BUZ_NAME      "Iomega BUZ V-1.0"      /* name of the driver */
++ #define KMALLOC_MAXSIZE (128*1024)
 
-doing the same test with the original TUX 1.0 code shows that more than
-50% of CPU time was spent in TUX-specific code.
+  #define DEBUG(x)              /* Debug driver */
+  #define IDEBUG(x)             /* Debug interrupt handler */
 
-what does this mean? In the roughly 6 months since TUX 1.0 was released,
-we moved much of the TUX 1.0 -only improvements into the generic kernel
-(most of which was made available to user-space as well), and TUX itself
-became smaller and smaller (and used more and more generic parts of the
-kernel). So in effect X15 is executing 50% TUX code :-)
+Although this driver will probably be replaced by the new one from Serguei
+Miridonov sooner or later, imho it's best to fix this for the time being...
 
-(there are still a number of performance improvement patches pending that
-are not integrated yet: the pagecache extreme-scalability patch and the
-smptimers patch. These patches speed both X15 and TUX up.)
-
-(there is one thing though that can never be 'exported to user-space': to
-isolate possibly untrusted binary application code from the server itself,
-without performance degradation. So we always have to be mentally open to
-the validity of kernel-space services.)
-
-	Ingo
+--
+Ronald Bultje
 

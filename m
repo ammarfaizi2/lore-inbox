@@ -1,65 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262367AbTFVWfv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 18:35:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262379AbTFVWfv
+	id S263271AbTFVWt6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 18:49:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263633AbTFVWt6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 18:35:51 -0400
-Received: from mx.laposte.net ([213.30.181.11]:42884 "EHLO mx.laposte.net")
-	by vger.kernel.org with ESMTP id S262367AbTFVWft (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 18:35:49 -0400
-Subject: ACPI APIC ERROR KT400 IRQ
-From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
-To: Rafal Cichosz <rafal.cichosz@pt.onet.pl>
+	Sun, 22 Jun 2003 18:49:58 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:15655 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263271AbTFVWt5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 18:49:57 -0400
+Date: Sun, 22 Jun 2003 16:04:31 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Hugh Dickins <hugh@veritas.com>
 Cc: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-C3XR4jLuaL4A01zqWjqv"
-Organization: Adresse personnelle
-Message-Id: <1056322193.3557.10.camel@rousalka.dyndns.org>
+Subject: Re: [PATCH] page cache readahead implemented?
+Message-Id: <20030622160431.3e94369b.akpm@digeo.com>
+In-Reply-To: <Pine.LNX.4.44.0306222314500.1177-100000@localhost.localdomain>
+References: <20030622114159.1ebbc236.akpm@digeo.com>
+	<Pine.LNX.4.44.0306222314500.1177-100000@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
-Date: 23 Jun 2003 00:49:54 +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Jun 2003 23:04:03.0182 (UTC) FILETIME=[92D038E0:01C33912]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hugh Dickins <hugh@veritas.com> wrote:
+>
+> On Sun, 22 Jun 2003, Andrew Morton wrote:
+> > Hugh Dickins <hugh@veritas.com> wrote:
+> > >
+> > > do_mmap_pgoff's PROT_EXEC do_page_cache_readahead assumes that is
+> > >  implemented for all mappings, but not all filesystems provide ->readpage.
+> > 
+> > Which filesystems?
+> 
+> No prize for guessing it was tmpfs I found the problem with.
 
---=-C3XR4jLuaL4A01zqWjqv
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Yeah, the usual blot on the kernelscape.
 
-See
+> Am I reading alloc_inode correctly, that the default it gives is
+> an empty_aops with NULL readpage, but a backing_dev_info with non-0
+> ra_pages?  How does your do_mmap_pgoff fare on a PROT_EXEC mapping
+> of one of those mmaping device drivers?
 
-http://bugzilla.kernel.org/show_bug.cgi?id=3D10
+Probably explodes?  I'm not particularly serious about that change - it
+can be done in userspace.
 
-and
-
-http://bugzilla.kernel.org/show_bug.cgi?id=3D71
-
-I believe 2.4 and 2.5 (mis)behaviour is now the same.
-
-( what I can't understand is how the acpi team hopes to get acpi
-included in mainstream distributions without getting it to work with
-such a big chipset provider as VIA. They should realize it's a
-showstopper - no vendor will release a product that fails on such a big
-class of hardware ).
-
-Regards,
-
---=20
-Nicolas Mailhot
-
---=-C3XR4jLuaL4A01zqWjqv
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA+9jKRI2bVKDsp8g0RAnZVAKCwaxJEAIZwtyT+LNTotcRuDFiUGgCg0Rtw
-NgG33MiYlOfG7/m4KtRGo0w=
-=H0F4
------END PGP SIGNATURE-----
-
---=-C3XR4jLuaL4A01zqWjqv--
+Is the do_mmap_pgoff() hack the only offender?  If so it would be better to
+localise the test in there too.
 

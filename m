@@ -1,125 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284913AbRLKHhO>; Tue, 11 Dec 2001 02:37:14 -0500
+	id <S284918AbRLKHsZ>; Tue, 11 Dec 2001 02:48:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284918AbRLKHhF>; Tue, 11 Dec 2001 02:37:05 -0500
-Received: from front1.mail.megapathdsl.net ([66.80.60.31]:14344 "EHLO
-	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S284913AbRLKHgu>; Tue, 11 Dec 2001 02:36:50 -0500
-Date: Mon, 10 Dec 2001 23:39:03 -0800 (PST)
-From: Miles Lane <miles@megapathdsl.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.5.1-pre9 -- Unresolved symbols in scsi_mod.o
-Message-ID: <Pine.LNX.4.33.0112102333310.9791-100000@stomata.megapathdsl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284925AbRLKHsQ>; Tue, 11 Dec 2001 02:48:16 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:51610 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S284918AbRLKHsA>; Tue, 11 Dec 2001 02:48:00 -0500
+Date: Tue, 11 Dec 2001 00:47:51 -0700
+Message-Id: <200112110747.fBB7lpj31524@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: David Weinehall <tao@acc.umu.se>
+Cc: "Justin Hibbits <jrh29@po.cwru.edu>"@opus.INS.cwru.edu,
+        linux-kernel@vger.kernel.org
+Subject: Re: Exporting GPLONLY symbols (Please CC to my email address)
+In-Reply-To: <20011211075530.O360@khan.acc.umu.se>
+In-Reply-To: <20011210224156.E14022@po.cwru.edu>
+	<jrh29@po.cwru.edu>
+	<20011211075530.O360@khan.acc.umu.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Weinehall writes:
+> On Mon, Dec 10, 2001 at 10:41:56PM -0500, "Justin Hibbits <jrh29@po.cwru.edu>"@opus.INS.cwru.edu wrote:
+> > Umm....I'm a new poster here to the list, but, nonetheless, I have a
+> > small complaint about the track the kernel is taking with respect to
+> > kernel modules, specifically the exporting of symbols as GPLONLY.  I
+> > understand that several hackers are pushing to export many symbols as
+> > GPLONLY, which I feel is a very bad idea.  The NVidia drivers will no
+> > longer work, and any other module which depends on symbols which will
+> 
+> The only thing that makes NVidia's drivers troublesome is that they
+> are stupid enough not to open-source it. It's their problem though; they
+> have to release fixed versions ever so often to keep up with the kernel.
+> They won't have any problems with GPLONLY symbols, however, as none of
+> the symbols they use are exported as GPLONLY.
+> 
+> > eventually be exported as GPLONLY will also no longer work.  Do you guys
+> 
+> Linus specifically stated that no old symbols were to be reexported as
+> GPLONLY; only new symbols would be eligible for this.
 
-depmod: *** Unresolved symbols in /lib/modules/2.5.1-pre9/kernel/drivers/scsi/scsi_mod.o
-depmod: 	blk_contig_segment
-depmod: 	bio_hw_segments
-depmod: 	blk_queue_segment_boundary
+This looks like it could end up being a FAQ. Hence a new entry:
+http://www.tux.org/lkml/#s1-23
 
+> > really want to restrict everyone to using modules licensed under the
+> > GPL?  I've read and understand the GPL all too well, and came to the
+> 
+> Obviously you haven't.
+> 
+> > conclusion that it's a horrible license to begin with, given the simple
+> > fact that Stallman's communist views are in it, forcing everything
 
-#
-# Automatically generated make config: don't edit
-#
-CONFIG_X86=y
-CONFIG_ISA=y
-CONFIG_UID16=y
+Are people still searching for reds under the bed? It's getting pretty
+hard to find a communist these days. I'm surprised and amused when I
+still hear people using this old term of vilification. Get with the
+times, dude! You're now supposed to use the terms "child molester",
+"child pornographer", and, to be really hip, "terrorist". What's the
+fun in using a term when it doesn't have the same emotional impact?
 
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=y
+> Huh? I find nothing communist about the GPL. Rather, it goes along
+> pretty well with my liberal views.
 
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-CONFIG_KMOD=y
+Oh, stop being rational! It's so much less fun.
 
-#
-# Processor type and features
-#
-CONFIG_MK7=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_USE_3DNOW=y
-CONFIG_X86_PGE=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_NOHIGHMEM=y
+> > licensed under it to be under every future license....with one change to
+> > the license, he can claim all source licensed under the GPL.
+> 
+> No, it doesn't, and he can't. The existance of newer versions of the
+> GPL does _NOT_ override the terms in code licensed with the older
+> ones; you simply get the _choice_ of which version to choose. In the
+> Linux-kernel, however, the default is that the v2 of the GPL is the
+> only version valid, unless specifically stated.
 
-#
-# General setup
-#
-CONFIG_NET=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_HOTPLUG=y
+Indeed. This has been stated on a number of occasions.
 
-#
-# PCI Hotplug Support
-#
-CONFIG_HOTPLUG_PCI=m
-CONFIG_HOTPLUG_PCI_COMPAQ=m
-CONFIG_HOTPLUG_PCI_COMPAQ_NVRAM=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PM=y
-CONFIG_ACPI=y
-CONFIG_ACPI_DEBUG=y
-CONFIG_ACPI_BUSMGR=m
-CONFIG_ACPI_SYS=m
-CONFIG_ACPI_CPU=m
-CONFIG_ACPI_BUTTON=m
-CONFIG_ACPI_AC=m
-CONFIG_ACPI_EC=m
-CONFIG_ACPI_CMBATT=m
-CONFIG_ACPI_THERMAL=m
+> > I agree with Cox that something has to be done to warn the average user
+> > that inserting closed source modules might cause something bad, and you
+> > guys can't do anything about it, but FORCING all modules to become GPL
+> 
+> It doesn't.
 
-#
-# SCSI support
-#
-CONFIG_SCSI=m
+And this too has been discussed. I wish people would read the archives
+(or even the FAQ) before flaming. But why let facts stand in the way
+of a good flame^H^H^H^H^Htroll?
 
-#
-# SCSI support type (disk, tape, CD-ROM)
-#
-CONFIG_BLK_DEV_SD=m
-CONFIG_SD_EXTRA_DEVS=40
-CONFIG_BLK_DEV_SR=m
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_SR_EXTRA_DEVS=2
-CONFIG_CHR_DEV_SG=m
+> > is the stupidest idea yet!  Linux is starting to take the road of M$,
+> > forcing a one-licensed approach.  Not cool guys.
 
-#
-# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
-#
-CONFIG_SCSI_CONSTANTS=y
+Not that Linux is trying to shut out proprietary drivers, but if you
+believe in the right of a developer to distribute code under a
+restrictive proprietary licence, you'd be a hypocrite to suggest that
+developers shouldn't distribute under a strict GPL licence. Freedom of
+choice means that I get to do things that *I* want but *you* don't.
 
-#
-# SCSI low-level drivers
-#
-CONFIG_SCSI_AIC7XXX=m
-CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
-CONFIG_AIC7XXX_RESET_DELAY_MS=15000
+Or perhaps you just want freedom to control *my* choice?
 
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

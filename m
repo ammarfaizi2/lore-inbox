@@ -1,76 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265053AbUGGLMi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265054AbUGGLPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265053AbUGGLMi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 07:12:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265054AbUGGLMi
+	id S265054AbUGGLPX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 07:15:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265055AbUGGLPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 07:12:38 -0400
-Received: from fw.osdl.org ([65.172.181.6]:51437 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265053AbUGGLMf (ORCPT
+	Wed, 7 Jul 2004 07:15:22 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:60607 "EHLO scrub.home")
+	by vger.kernel.org with ESMTP id S265054AbUGGLPR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 07:12:35 -0400
-Date: Wed, 7 Jul 2004 04:10:59 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: jim.houston@comcast.net
-Cc: kevcorry@us.ibm.com, linux-kernel@vger.kernel.org, dm-devel@redhat.com,
-       torvalds@osdl.org, agk@redhat.com
-Subject: Re: [PATCH] 1/1: Device-Mapper: Remove 1024 devices limitation
-Message-Id: <20040707041059.17287591.akpm@osdl.org>
-In-Reply-To: <1089197914.986.17.camel@new.localdomain>
-References: <200407011035.13283.kevcorry@us.ibm.com>
-	<200407021233.09610.kevcorry@us.ibm.com>
-	<20040702124218.0ad27a85.akpm@osdl.org>
-	<200407061323.27066.kevcorry@us.ibm.com>
-	<20040706142335.14efcfa4.akpm@osdl.org>
-	<1089151650.985.129.camel@new.localdomain>
-	<20040706152817.38ce1151.akpm@osdl.org>
-	<1089154845.985.164.camel@new.localdomain>
-	<20040706161641.01c1bbce.akpm@osdl.org>
-	<1089197914.986.17.camel@new.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Jul 2004 07:15:17 -0400
+Date: Wed, 7 Jul 2004 13:14:33 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Andries Brouwer <Andries.Brouwer@cwi.nl>
+cc: Szakacsits Szabolcs <szaka@sienet.hu>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Andries Brouwer <aebr@win.tue.nl>,
+       "Patrick J. LoPresti" <patl@users.sourceforge.net>, bug-parted@gnu.org,
+       Steffen Winterfeldt <snwint@suse.de>, Thomas Fehr <fehr@suse.de>,
+       linux-kernel@vger.kernel.org, Andrew Clausen <clausen@gnu.org>,
+       buytenh@gnu.org, msw@redhat.com
+Subject: Re: Restoring HDIO_GETGEO semantics for 2.6 (was: Re: [RFC] Restoring
+ HDIO_GETGEO semantics)
+In-Reply-To: <20040707012856.GA1481@apps.cwi.nl>
+Message-ID: <Pine.LNX.4.58.0407071304190.20635@scrub.home>
+References: <20040706015620.GA12659@apps.cwi.nl>
+ <Pine.LNX.4.21.0407061811090.4511-100000@mlf.linux.rulez.org>
+ <20040707012856.GA1481@apps.cwi.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Houston <jim.houston@comcast.net> wrote:
+Hi,
+
+On Wed, 7 Jul 2004, Andries Brouwer wrote:
+
+> How does a monster like that arise? Wart upon wart. Well, we guess, and
+> usually right, but not always, then invent a correction to guess a bit
+> better in some special situations, then ...
+> And times change, and likely guesses become less likely, and changes are made ...
+> 
+> At some point in time the monster must be eliminated.
 >
-> On Tue, 2004-07-06 at 19:16, Andrew Morton wrote:
-> Jim Houston <jim.houston@comcast.net> wrote:
-> > >
-> > > With out the test above an id beyond the allocated space will alias
-> > > to one that exists.  Perhaps the highest id currently allocated is 
-> > > 100, there will be two layers in the radix tree and the while loop
-> > > above will only look at the 10 least significant bits.  If you call
-> > > idr_find with 1025 it will return the pointer associated with id 1.
-> > 
-> > OK.
-> > 
-> > > The patch I sent was against linux-2.6.7, so I missed the change to
-> > > MAX_ID_SHIFT.
-> > 
-> > How about this?
-> >  
-> >  	n = idp->layers * IDR_BITS;
-> > +	if (id >= (1 << n))
-> > +		return NULL;
-> > +
-> >  	p = idp->top;
-> > +
-> >  	/* Mask off upper bits we don't use for the search. */
-> >  	id &= MAX_ID_MASK;
-> >  
+> [..]
 > 
-> Hi Andrew,
-> 
-> It's not quite right.  If you want to keep a count in the upper bits
-> you have to mask off that count before checking if the id is beyond the
-> end of the allocated space.
+> Now this happened first in 2.5.6 if I recall correctly, over two
+> years ago, and a few programs had to be adapted a little.
+> I think fdisk, cfdisk, sfdisk, probably also lilo, were adapted rather
+> quickly, but, as we discovered recently, parted took more time. Ach.
 
-OK, I'll fix that up.
+I basically agree with your argumentation, but it wasn't really eliminated 
+in 2.5.6. The kernel still provides some values to the users. If the 
+kernel doesn't know, it should clearly say so, this is where we fucked up. 
+Silently fixing a few applications and leaving everybody else believing 
+everything is well doesn't help.
+At this point we either complete the job and remove this ioctl or we 
+restore the 2.4 behaviour (maybe with a deprecated warning).
 
-But I don't want to keep a count in the upper bits!  I want rid of that
-stuff altogether, completely, all of it.  It just keeps on hanging around :(
-
-We should remove MAX_ID_* from the kernel altogether.
+bye, Roman

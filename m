@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262208AbTAJLlU>; Fri, 10 Jan 2003 06:41:20 -0500
+	id <S261353AbTAJLzU>; Fri, 10 Jan 2003 06:55:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262384AbTAJLlT>; Fri, 10 Jan 2003 06:41:19 -0500
-Received: from web13106.mail.yahoo.com ([216.136.174.151]:6513 "HELO
-	web13106.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S262208AbTAJLlP>; Fri, 10 Jan 2003 06:41:15 -0500
-Message-ID: <20030110114959.60150.qmail@web13106.mail.yahoo.com>
-Date: Fri, 10 Jan 2003 12:49:59 +0100 (CET)
-From: =?iso-8859-1?q?Ole=20Jacob=20Hagen?= <olehag_2001@yahoo.no>
-Subject: Unable to boot kernel-2.5.50 to kernel-2.5.55
-To: linux-kernel@vger.kernel.org
+	id <S261545AbTAJLzU>; Fri, 10 Jan 2003 06:55:20 -0500
+Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:48588 "EHLO
+	mail.pronto.tv") by vger.kernel.org with ESMTP id <S261353AbTAJLzU> convert rfc822-to-8bit;
+	Fri, 10 Jan 2003 06:55:20 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: Wolfgang Fritz <wolfgang.fritz@gmx.net>, linux-kernel@vger.kernel.org
+Subject: Re: [Asterisk] DTMF noise
+Date: Fri, 10 Jan 2003 13:03:50 +0100
+User-Agent: KMail/1.4.1
+References: <D6889804-2291-11D7-901B-000393950CC2@karlsbakk.net> <3E1D705E.1030203@sktc.net> <3E1D79CB.5010503@gmx.net>
+In-Reply-To: <3E1D79CB.5010503@gmx.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301101303.50046.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+> My simple patch added a relative energy comparision of the DTMF tones
+> and a simple plausibiltity check (DTMF is only accepted if there is
+> exactly one DTNF pair and no/low signal level on the other DTMF
+> frequencies. That worked with my (very limited) tests.
 
-This might be wrong mailinglist, but I don't know else
-to to.
+I'm not sure if we're at the source of the problem. I mean - it should be 
+possible to set a minimum length as well, so just touching a key won't be 
+accepted. I beleive this'll remove most of the falsly detected dtmf signals 
+as well, as noone really holds the same tone for a long time while speaking
 
-I am having a Dell Optiplex GX240, 512 MB RAM, ATI
-RAGE 128. I am using Gentoo GNU/Linux. 
+roy
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
+ProntoTV AS - http://www.pronto.tv/
+Tel: +47 9801 3356
 
-I have installed module-init-tools-0.9.7. 
-I have difficulties in booting development kernels.
-I am using GRUB as boot-loader, and can choose between
-different kernel-2.4 series and kernel-2.5.  
+Computers are like air conditioners.
+They stop working when you open Windows.
 
-I am passing root=/dev/hda3 to all kernels. 
-
-My screen turns black and the computer reboots, when I
-try to boot a development kernel. 
-I havent't applied Rusty's patch for PCI and USB,
-because I thought it was for kernel-2.5.50. Is it
-necessary? 
-
-I'm using pretty much the same config-file in
-kernel-2.5 as in kernel-2.4. I have tried to disable
-all framebuffer support, but nothing happened. 
-
-Should I try another version of GRUB?
-
-How should the config-file for kernel-2.5.5x look
-like? 
-
-I am trying out development kernels, because I like
-being in bleeding edge, when it comes to computers. 
-Have to challenge myself...:-)
-
-Cheers, 
-
-Ole J. 
- 
-
-
-______________________________________________________
-Få den nye Yahoo! Messenger på http://no.messenger.yahoo.com/
-Nye ikoner og bakgrunner, webkamera med superkvalitet og dobbelt så morsom

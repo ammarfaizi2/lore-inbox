@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317484AbSFDMPi>; Tue, 4 Jun 2002 08:15:38 -0400
+	id <S317485AbSFDMQw>; Tue, 4 Jun 2002 08:16:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317485AbSFDMPh>; Tue, 4 Jun 2002 08:15:37 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:31197 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S317484AbSFDMPg>; Tue, 4 Jun 2002 08:15:36 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Jens Axboe <axboe@suse.de>
-Date: Tue, 4 Jun 2002 22:15:29 +1000 (EST)
-MIME-Version: 1.0
+	id <S317487AbSFDMQv>; Tue, 4 Jun 2002 08:16:51 -0400
+Received: from ns.suse.de ([213.95.15.193]:12042 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S317485AbSFDMQv>;
+	Tue, 4 Jun 2002 08:16:51 -0400
+Date: Tue, 4 Jun 2002 14:16:49 +0200
+From: Andi Kleen <ak@suse.de>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Caching files in nfsd was Re: [patch 12/16] fix race between writeback and unlink
+Message-ID: <20020604141649.A29334@wotan.suse.de>
+In-Reply-To: <1023142233.31475.23.camel@tiny.suse.lists.linux.kernel> <Pine.LNX.4.44.0206031514110.868-100000@home.transmeta.com.suse.lists.linux.kernel> <p73r8jncori.fsf_-_@oldwotan.suse.de> <15612.42635.591842.153876@notabene.cse.unsw.edu.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15612.44897.858819.455679@notabene.cse.unsw.edu.au>
-Cc: Mike Black <mblack@csihq.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.20 RAID5 compile error
-In-Reply-To: message from Jens Axboe on Tuesday June 4
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday June 4, axboe@suse.de wrote:
-> 
-> What changes did you have in mind?
+> The only issue that I can see (except for simple coding) is that as
+> NFS cannot be precise about closing at the *right* time we would be
+> changing from closing too early (and so re-opening) to closing too
+> late.
+> Would this be an issue for any filesystem?  My feeling is not, but I'm
+> open to opinions....
 
-http://www.cse.unsw.edu.au/~neilb/patches/linux-devel/2.5.20/patch-A-NewPlug
+The only potential issue I see is that forcing a flush when the file system
+fills up may be a good idea to drop preallocations (but then one would hope 
+that a fs with preallocation does this already automatically, so it hopefully 
+won't be needed in nfsd) 
 
-Is what I had against 2.5.20.  A quick look at the mail that you sent
-with improvements suggest that I can be even less intrusive..  But it
-will have to wait until tomorrow (my time).
+-Andi
 
-NeilBrown

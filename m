@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263211AbSKEADg>; Mon, 4 Nov 2002 19:03:36 -0500
+	id <S263204AbSKEAGR>; Mon, 4 Nov 2002 19:06:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263228AbSKEADg>; Mon, 4 Nov 2002 19:03:36 -0500
-Received: from 64-60-75-69.cust.telepacific.net ([64.60.75.69]:2569 "EHLO
-	racerx.ixiacom.com") by vger.kernel.org with ESMTP
-	id <S263211AbSKEADf>; Mon, 4 Nov 2002 19:03:35 -0500
-Message-ID: <3DC70C0C.4040004@ixiacom.com>
-Date: Mon, 04 Nov 2002 16:08:44 -0800
-From: Dan Kegel <dkegel@ixiacom.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
-MIME-Version: 1.0
-To: Geoff Gustafson <geoff@linux.co.intel.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       sglass@us.ibm.com
-Subject: Re: [ANNOUNCE] Open POSIX Test Suite
-References: <3DC702E1.1050306@ixiacom.com> <00fd01c2845e$eb407ee0$7fd40a0a@amr.corp.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S263188AbSKEAFL>; Mon, 4 Nov 2002 19:05:11 -0500
+Received: from f165.law11.hotmail.com ([64.4.17.165]:28429 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S263267AbSKEAEo>;
+	Mon, 4 Nov 2002 19:04:44 -0500
+X-Originating-IP: [144.92.164.196]
+From: "Tom Reinhart" <rhino_tom@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Filesystem Capabilities in 2.6?
+Date: Mon, 04 Nov 2002 16:11:13 -0800
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F165WEHoQoPDOfXQnEi00004b56@hotmail.com>
+X-OriginalArrivalTime: 05 Nov 2002 00:11:13.0473 (UTC) FILETIME=[DA0B5310:01C2845F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Geoff Gustafson wrote:
->>You are about to duplicate http://ltp.sf.net
-> 
-> 
-> My understanding is that LTP is focused on current mainline kernel testing,
-> while this project's initial concern is areas that are not currently in Linux
-> like POSIX message queues, semaphores, and full support for POSIX threads. I see
-> this as being used to evaluate different implementations that are being
-> considered for inclusion in the kernel, glibc, etc.
-> 
-> This project is concerned with the POSIX APIs regardless of where they are
-> implemented (kernel, glibc, etc.). Thus it can focus on POSIX, independent of
-> implementation. This project will be more concerned with traceability back to
-> the POSIX specification, and completeness of coverage, than I would expect from
-> LTP.
-> 
-> That said, there is some overlap, and an exchange of test cases between the
-> projects may be very useful.
-> 
-> I've copied Stephanie from LTP to get her reaction.
+Hello,
 
-Geoff,
-thanks for the reply.  I have a feeling that LTP would be overjoyed
-to have you contribute to the LTP and make it a more accurate Posix
-compliance test.  The areas that Linux does not currently cover --
-message queues, semaphores, etc -- *should* be in the LTP, regardless
-of whether Linux currently implements them.  Linux's 'expected results'
-on these tests would be 'fail' at the moment.  That's not a problem.
+I'be been reading this discussion with interest, but it seems like people 
+are missing the obvious.  There's already an infrastructure in 2.5 that is 
+perfect for features like this: the LSM.  Consider the advantages:
+1) It's filesystem independent, and doesn't bloat the filesystem, VFS, and 
+exec code.  Just hook the exec call in an LSM module and twiddle the 
+permissions appropriately according to policy.
+2) More importantly, this kind of feature isn't really that useful on its 
+own, but makes the most sense in the context of overall system security, 
+which is exactly what LSM is designed to enable.
 
-The LTP would also greatly benefit from better tracability and coverage.
+I haven't studies the LSM in any detail, but I'm sure the appropriate hooks 
+to implement this kind of policy are either available already, or easily 
+added.
 
-I urge you to consider ways in which you could work within the
-framework of the LTP to meet both your goals and the LTP's goals.
-They may be more in synch than you originally thought!
-- Dan
-
+_________________________________________________________________
+Broadband? Dial-up? Get reliable MSN Internet Access. 
+http://resourcecenter.msn.com/access/plans/default.asp
 

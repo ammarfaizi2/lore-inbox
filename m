@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbVCYGRv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbVCYGWS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261428AbVCYGRv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 01:17:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbVCYGJo
+	id S261420AbVCYGWS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 01:22:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbVCYGWJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 01:09:44 -0500
-Received: from digitalimplant.org ([64.62.235.95]:7379 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S261420AbVCYFyv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 00:54:51 -0500
-Date: Thu, 24 Mar 2005 21:54:45 -0800 (PST)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: linux-kernel@vger.kernel.org
-cc: greg@kroah.com
-Subject: [8/12] More Driver Model Locking Changes
-Message-ID: <Pine.LNX.4.50.0503242152200.19795-100000@monsoon.he.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 25 Mar 2005 01:22:09 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:32955 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261420AbVCYGT3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 01:19:29 -0500
+Date: Fri, 25 Mar 2005 07:19:07 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
+Message-ID: <20050325061907.GA20242@elte.hu>
+References: <20050324113912.GA20911@elte.hu> <Pine.OSF.4.05.10503242307330.25274-100000@da410.phys.au.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.OSF.4.05.10503242307330.25274-100000@da410.phys.au.dk>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-ChangeSet@1.2246, 2005-03-24 18:58:45-08:00, mochel@digitalimplant.org
-  [driver core] Call klist_del() instead of klist_remove().
+* Esben Nielsen <simlo@phys.au.dk> wrote:
 
-  - Can't wait on removing the current item in the list (the positive refcount *because*
-    we are using it causes it to deadlock).
+> I like the idea of having the scheduler take care of it - it is a very 
+> optimal coded queue-system after all. That will work on UP but not on 
+> SMP. Having the unlock operation to set the mutex in a "partially 
+> owned" state will work better. The only problem I see, relative to 
+> Ingo's implementation, is that then the awoken task have to go in and 
+> change the state of the mutex, i.e. it has to lock the wait_lock 
+> again. Will the extra schedulings being the problem happen offen 
+> enough in practise to have the extra overhead?
 
+i think this should be covered by the 'unschedule/unwakeup' feature, 
+mentioned in the latest mails.
 
-  Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
-
-diff -Nru a/drivers/base/dd.c b/drivers/base/dd.c
---- a/drivers/base/dd.c	2005-03-24 20:33:09 -08:00
-+++ b/drivers/base/dd.c	2005-03-24 20:33:09 -08:00
-@@ -184,7 +184,7 @@
-
- 	sysfs_remove_link(&drv->kobj, kobject_name(&dev->kobj));
- 	sysfs_remove_link(&dev->kobj, "driver");
--	klist_remove(&dev->knode_driver);
-+	klist_del(&dev->knode_driver);
-
- 	down(&dev->sem);
- 	device_detach_shutdown(dev);
+	Ingo

@@ -1,43 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269846AbTGKIXb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 04:23:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269836AbTGKIXb
+	id S269839AbTGKIXM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 04:23:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269828AbTGKIUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 04:23:31 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:5386 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S269833AbTGKIVt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 04:21:49 -0400
-Date: Fri, 11 Jul 2003 09:36:21 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Jan Kara <jack@suse.cz>
-Cc: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Jeff Garzik <jgarzik@pobox.com>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: RFC:  what's in a stable series?
-Message-ID: <20030711093621.A21196@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jan Kara <jack@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>
-References: <3F0CBC08.1060201@pobox.com> <Pine.LNX.4.55L.0307100040271.6629@freak.distro.conectiva> <20030710085338.C28672@infradead.org> <1057835998.8028.6.camel@dhcp22.swansea.linux.org.uk> <Pine.LNX.4.55L.0307100910550.7857@freak.distro.conectiva> <1057840919.8027.19.camel@dhcp22.swansea.linux.org.uk> <20030710161553.C22512@infradead.org> <20030710190030.GC8678@atrey.karlin.mff.cuni.cz>
+	Fri, 11 Jul 2003 04:20:36 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:37347 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S269827AbTGKIT6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 04:19:58 -0400
+Date: Fri, 11 Jul 2003 10:34:37 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: 2.5.75 does not boot - TCQ oops
+Message-ID: <20030711083437.GG843@suse.de>
+References: <200307102251.42787.ivg2@cornell.edu> <20030711080335.GD843@suse.de> <20030711082817.GE843@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030710190030.GC8678@atrey.karlin.mff.cuni.cz>; from jack@suse.cz on Thu, Jul 10, 2003 at 09:00:30PM +0200
+In-Reply-To: <20030711082817.GE843@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 10, 2003 at 09:00:30PM +0200, Jan Kara wrote:
-> > 1) original 16 bit one, supported by all kernels <= 2.4
-> > 2) first 32bit one, supported by 2.4-ac any many vendor trees, but never
-> >    in mainline
->   Actually at least later SuSE kernels and -ac kernels support 3)...
+On Fri, Jul 11 2003, Jens Axboe wrote:
+> On Fri, Jul 11 2003, Jens Axboe wrote:
+> > On Thu, Jul 10 2003, Ivan Gyurdiev wrote:
+> > > See, 
+> > > 
+> > > http://www.ussg.iu.edu/hypermail/linux/kernel/0307.0/0515.html
+> > > 
+> > > where the bug is described for 2.5.74.
+> > > I got no replies, and the bug persists in 2.5.75 (+bk patches).
+> > > 
+> > > Note:
+> > > The machine boots with TASKFILE on, TCQ is causing the problem.
+> > 
+> > Looks like IDE using the queue before it has been setup, probably Bart
+> > broke it when he moved the TCQ init around. I'll take a look.
+> 
+> Here's the fix. Bart, you moved the tcq init to a much earlier fase
+> (saying ide_init_drive() was too early, well ide_dma_on is much earlier
+> in the init fase). ide_init_drive() _is_ the correct location in my
+> oppinion, drive and queue has been set up at this point.
 
-And the latest 2.4.20-based Red Hat kernel (RH 7/8/9 errata) support
-_only_ 3, and the 32bit ondisk quota format.
+Better still (and later in the probe) is this version. This is in my
+oppinion the correct place to init tcq, and also contains it to ide-disk
+where it should be.
+
+--- drivers/ide/ide-dma.c~	2003-07-11 10:21:04.492561920 +0200
++++ drivers/ide/ide-dma.c	2003-07-11 10:25:28.183474808 +0200
+@@ -572,10 +572,6 @@
+ 	if (HWIF(drive)->ide_dma_host_on(drive))
+ 		return 1;
+ 
+-#ifdef CONFIG_BLK_DEV_IDE_TCQ_DEFAULT
+-	HWIF(drive)->ide_dma_queued_on(drive);
+-#endif
+-
+ 	return 0;
+ }
+ 
+--- drivers/ide/ide-disk.c~	2003-07-11 10:30:51.783280160 +0200
++++ drivers/ide/ide-disk.c	2003-07-11 10:31:09.873530024 +0200
+@@ -1665,6 +1665,10 @@
+ 	drive->no_io_32bit = id->dword_io ? 1 : 0;
+ 	if (drive->id->cfs_enable_2 & 0x3000)
+ 		write_cache(drive, (id->cfs_enable_2 & 0x3000));
++
++#ifdef CONFIG_BLK_DEV_IDE_TCQ_DEFAULT
++	HWIF(drive)->ide_dma_queued_on(drive);
++#endif
+ }
+ 
+ static int idedisk_cleanup (ide_drive_t *drive)
+
+-- 
+Jens Axboe
 

@@ -1,68 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264501AbUEDV3k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbUEDVbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264501AbUEDV3k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 17:29:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264623AbUEDV3k
+	id S261169AbUEDVbm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 17:31:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbUEDVbm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 17:29:40 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:42383 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264501AbUEDV3i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 17:29:38 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH] for idle=C1halt, 2.6.5
-Date: Tue, 4 May 2004 23:29:25 +0200
-User-Agent: KMail/1.5.3
-Cc: Allen Martin <AMartin@nvidia.com>, linux-kernel@vger.kernel.org,
-       Ross Dickson <ross@datscreative.com.au>,
-       Len Brown <len.brown@intel.com>
-References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49FC2D@mail-sc-6-bk.nvidia.com> <200405040111.01514.bzolnier@elka.pw.edu.pl> <409806C6.3060300@pobox.com>
-In-Reply-To: <409806C6.3060300@pobox.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200405042329.25285.bzolnier@elka.pw.edu.pl>
+	Tue, 4 May 2004 17:31:42 -0400
+Received: from ALe-Mans-201-1-2-107.w193-253.abo.wanadoo.fr ([193.253.34.107]:26498
+	"EHLO isis.localnet.fr") by vger.kernel.org with ESMTP
+	id S261169AbUEDVbG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 17:31:06 -0400
+Subject: Re: Input system and keycodes > 256
+From: Benoit Plessis <benoit@plessis.info>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040428234841.GA4068@pclin040.win.tue.nl>
+References: <1082938686.21842.50.camel@osiris.localnet.fr>
+	 <20040428234841.GA4068@pclin040.win.tue.nl>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-dA2lC/WEd6QldNE+aBQk"
+Organization: Do you expect me to be organized ?
+Message-Id: <1083706264.16600.8.camel@osiris.localnet.fr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 04 May 2004 23:31:04 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 04 of May 2004 23:10, Jeff Garzik wrote:
-> Bartlomiej Zolnierkiewicz wrote:
-> > +/*
-> > + * Fixup for C1 Halt Disconnect problem on nForce2 systems.
-> > + *
-> > + * From information provided by "Allen Martin" <AMartin@nvidia.com>:
-> > + *
-> > + * A hang is caused when the CPU generates a very fast CONNECT/HALT
-> > cycle + * sequence.  Workaround is to set the SYSTEM_IDLE_TIMEOUT to 80
-> > ns. + * This allows the state-machine and timer to return to a proper
-> > state within + * 80 ns of the CONNECT and probe appearing together. 
-> > Since the CPU will not + * issue another HALT within 80 ns of the initial
-> > HALT, the failure condition + * is avoided.
-> > + */
-> > +static void __devinit pci_fixup_nforce2(struct pci_dev *dev)
->
-> Minor nit:  is __devinit really needed?
 
-No, it's not needed.
+--=-dA2lC/WEd6QldNE+aBQk
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I was mislead by the fact that all fixups there are marked with __devinit.
+On Thu, 2004-04-29 at 01:48, Andries Brouwer wrote:
+> On Mon, Apr 26, 2004 at 02:18:07AM +0200, Benoit Plessis wrote:
+>=20
+> > When grabbing with 'showkey -s' nothing appear
+> > When grabbing with 'showkey' i got keycodes like '0x00 0x82 0xd0 | 0x80
+> > 0x82 0xd0' (i got same keycodes when pressing mouse buttons except thos=
+e
+> > are in 0x82 0x90 -> 0x82 0x97 range)
+>=20
+> What version of showkey are you using?
+showkey: (console-tools) 0.2.3=20
+(maybe modified by debian: console-tools_0.2.3dbs-52)
 
-> You're changing a northbridge or a southbridge, not a PCI card, I
-> presume...?  That would only need to be done once, when the kernel is
-> booted, regardless of CONFIG_HOTPLUG AFAICS.
+Actually while working with the Input Event system for my mouse under
+Xfree (started by hacking moudev to support eigth button mouse and
+remove the 'double' press on my Forward button (one press from the
+Logitech Cruise mode, and another from the conversion in mousedev (and
+not accurate), and after that creating an Input Event mouse driver for
+XFree) i found another weird thing (not investigated for now): All
+'extra' keys of the Keyboard (the standard one: play/pause/mail/... and
+the new which doesn't work) generate events on the same device than the
+mouse (but the normal keys goes to another event device).
 
-Yep, the same is probably true for:
+--=20
+Benoit Plessis		<benoit@plessis.info>	+33 6 77 42 78 32
+<benoit.plessis@univ-lemans.fr>	   <benoit.plessis@tuxfamily.org>
+<maverick@tuxfamily.org>	       <maverick@maverick.eu.org>
+1024D/B4D74B76 B9A7 3697 661D 25FB A609  E69E 92CA FFAB B4D7 4B76
 
-static void __devinit pci_fixup_i450nx(struct pci_dev *d)
-static void __devinit pci_fixup_i450gx(struct pci_dev *d)
-static void __devinit  pci_fixup_umc_ide(struct pci_dev *d)
-static void __devinit  pci_fixup_latency(struct pci_dev *d)
-static void __devinit pci_fixup_piix4_acpi(struct pci_dev *d)
-static void __devinit pci_fixup_via_northbridge_bug(struct pci_dev *d)
-static void __devinit pci_fixup_transparent_bridge(struct pci_dev *dev)
 
-Bartlomiej
+
+--=-dA2lC/WEd6QldNE+aBQk
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAmAuXksr/q7TXS3YRAhd3AKCMjWTWUQyrcU+qohosTymHTS3v1wCaArh6
+fQyNSzjNIkkJA0l3nqGDF1Q=
+=YkY8
+-----END PGP SIGNATURE-----
+
+--=-dA2lC/WEd6QldNE+aBQk--
 

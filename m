@@ -1,56 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292093AbSBTRcO>; Wed, 20 Feb 2002 12:32:14 -0500
+	id <S292092AbSBTRcE>; Wed, 20 Feb 2002 12:32:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292091AbSBTRcI>; Wed, 20 Feb 2002 12:32:08 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:8696
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S292195AbSBTRbw>; Wed, 20 Feb 2002 12:31:52 -0500
-Date: Wed, 20 Feb 2002 09:32:16 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Ville Herva <vherva@twilight.cs.hut.fi>,
-        george anzinger <george@mvista.com>, linux-kernel@vger.kernel.org
-Subject: Re: jiffies rollover, uptime etc.
-Message-ID: <20020220173216.GC15228@matchmail.com>
-Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
-	Ville Herva <vherva@niksula.cs.hut.fi>,
-	george anzinger <george@mvista.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020220172052.GA15228@matchmail.com> <Pine.LNX.4.44L.0202201423170.1413-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
+	id <S292091AbSBTRb6>; Wed, 20 Feb 2002 12:31:58 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:42762 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292178AbSBTRbs>; Wed, 20 Feb 2002 12:31:48 -0500
+Subject: Re: Lucent WinModem
+To: elieser@quatro.com.br (Elieser =?ISO-8859-1?Q?Le=E3o?=)
+Date: Wed, 20 Feb 2002 17:46:09 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <3C73DC99.4030405@quatro.com.br> from "Elieser =?ISO-8859-1?Q?Le=E3o?=" at Feb 20, 2002 02:27:53 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L.0202201423170.1413-100000@duckman.distro.conectiva>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16daoj-0004D4-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 20, 2002 at 02:24:42PM -0300, Rik van Riel wrote:
-> On Wed, 20 Feb 2002, Mike Fedyk wrote:
-> > On Wed, Feb 20, 2002 at 01:36:02PM +0200, Ville Herva wrote:
-> > > asm-ia64/param.h:# define HZ    1024
-> > > asm-x86_64/param.h:#define HZ 100
-> >
-> > What's the difference between these two architectures?  Intel 64bit
-> > processor and AMD's upcoming 64bit processor?
-> 
-> One is a 64 bit extension to a modern superscalar
-> architecture which has descended from 8 bit machines
-> over the ages.
-> 
-> The other is a 3-issue VLIW follow-up to the 2-issue
-> VLIW i860.
->
+> How can I use my LT Winmodem on Slackware???
+> I have a driver but doesn't work!!!! I don't know why...
 
-Oh, I didn't know that processor was used for more than printers, raid
-controllers, and similar.
+Ask the binary only driver provider.
 
-Anyone have an URL for this arch?
-
-> cheers,
-> 
-> Rik
-
-Thanks,
-
-Mike
+This list is about free software, and nobody else but the driver vendor
+can really help you

@@ -1,126 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262522AbVBXVyJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262511AbVBXWAD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262522AbVBXVyJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 16:54:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262513AbVBXVxB
+	id S262511AbVBXWAD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 17:00:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262506AbVBXWAC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 16:53:01 -0500
-Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:41999 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S262506AbVBXVto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 16:49:44 -0500
-Date: Thu, 24 Feb 2005 22:49:57 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Stefan Eletzhofer <Stefan.Eletzhofer@eletztrick.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
-Subject: [PATCH 2.6] Remove NULL client checks in rtc8564 driver
-Message-Id: <20050224224957.278cdcd8.khali@linux-fr.org>
-Reply-To: LKML <linux-kernel@vger.kernel.org>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 24 Feb 2005 17:00:02 -0500
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:5012 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262511AbVBXV7T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 16:59:19 -0500
+Message-ID: <421E4E27.20004@yahoo.com.au>
+Date: Fri, 25 Feb 2005 08:59:03 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Hugh Dickins <hugh@veritas.com>
+CC: Andi Kleen <ak@suse.de>, "David S. Miller" <davem@davemloft.net>,
+       benh@kernel.crashing.org, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] page table iterators
+References: <4214A1EC.4070102@yahoo.com.au> <4214A437.8050900@yahoo.com.au>     <20050217194336.GA8314@wotan.suse.de> <1108680578.5665.14.camel@gaston>     <20050217230342.GA3115@wotan.suse.de>     <20050217153031.011f873f.davem@davemloft.net>     <20050217235719.GB31591@wotan.suse.de> <4218840D.6030203@yahoo.com.au>     <Pine.LNX.4.61.0502210619290.7925@goblin.wat.veritas.com>     <421B0163.3050802@yahoo.com.au>     <Pine.LNX.4.61.0502230136240.5772@goblin.wat.veritas.com>     <421D1737.1050501@yahoo.com.au>     <Pine.LNX.4.61.0502240457350.5427@goblin.wat.veritas.com>     <1109224777.5177.33.camel@npiggin-nld.site> <Pine.LNX.4.61.0502241143001.6630@goblin.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.61.0502241143001.6630@goblin.wat.veritas.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Stefan,
+Hugh Dickins wrote:
+> On Thu, 24 Feb 2005, Nick Piggin wrote:
+> 
+>>pud_addr_end?
+> 
+> 
+> 		next = pud_addr_end(addr, end);
+> 
+> Hmm, yes, I'll go with that, thanks (unless a better idea follows).
+> 
+> Something I do intend on top of what I sent before, is another set
+> of three macros, like
+> 
+> 		if (pud_none_or_clear_bad(pud))
+> 			continue;
+> 
+> to replace all the p??_none, p??_bad clauses: not to save space,
+> but just for clarity, those loops now seeming dominated by the
+> unlikeliest of cases.
+> 
+> Has anyone _ever_ seen a p??_ERROR message?  I'm inclined to just
+> put three functions into mm/memory.c to do the p??_ERROR and p??_clear,
+> but that way the __FILE__ and __LINE__ will always come out the same.
+> I think if it ever proves a problem, we'd just add in a dump_stack.
+> 
 
-Several functions in your rtc8564 driver verify the non-NULLity of the
-i2c client that is passed to them. It doesn't seem to be necessary, as I
-can't think of any case where these functions could possibly be called
-with a NULL i2c client. As a matter of fact, I couldn't find any similar
-driver doing such checks.
+I think a function is the most sensible. And a good idea, it should
+reduce the icache pressure in the loops (although gcc does seem to
+do a pretty good job of moving unlikely()s away from the fastpath).
 
-My attention was brought on this by Coverity's SWAT which correctly
-noticed that three of these functions contain explicit or hidden
-dereferences of the i2c client pointer *before* the NULL check. I guess
-it wasn't a problem because the NULL case cannot happen (unless I miss
-something), but this still is confusing code.
+I think at the point these things get detected, there is little use
+for having a dump_stack. But we may as well add one anyway if it is
+an out of line function?
 
-Thus I propose the following changes:
+Nick
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-
---- linux-2.6.11-rc4/drivers/i2c/chips/rtc8564.c.orig	Fri Dec 24 22:33:49 2004
-+++ linux-2.6.11-rc4/drivers/i2c/chips/rtc8564.c	Thu Feb 24 10:56:52 2005
-@@ -89,7 +89,7 @@ static int rtc8564_read(struct i2c_clien
- 
- 	_DBG(1, "client=%p, adr=%d, buf=%p, len=%d", client, adr, buf, len);
- 
--	if (!buf || !client) {
-+	if (!buf) {
- 		ret = -EINVAL;
- 		goto done;
- 	}
-@@ -111,7 +111,7 @@ static int rtc8564_write(struct i2c_clie
- 	struct i2c_msg wr;
- 	int i;
- 
--	if (!client || !data || len > 15) {
-+	if (!data || len > 15) {
- 		ret = -EINVAL;
- 		goto done;
- 	}
-@@ -222,7 +222,7 @@ static int rtc8564_get_datetime(struct i
- 
- 	_DBG(1, "client=%p, dt=%p", client, dt);
- 
--	if (!dt || !client)
-+	if (!dt)
- 		return -EINVAL;
- 
- 	memset(buf, 0, sizeof(buf));
-@@ -256,7 +256,7 @@ rtc8564_set_datetime(struct i2c_client *
- 
- 	_DBG(1, "client=%p, dt=%p", client, dt);
- 
--	if (!dt || !client)
-+	if (!dt)
- 		return -EINVAL;
- 
- 	_DBGRTCTM(2, *dt);
-@@ -295,7 +295,7 @@ static int rtc8564_get_ctrl(struct i2c_c
- {
- 	struct rtc8564_data *data = i2c_get_clientdata(client);
- 
--	if (!ctrl || !client)
-+	if (!ctrl)
- 		return -1;
- 
- 	*ctrl = data->ctrl;
-@@ -307,7 +307,7 @@ static int rtc8564_set_ctrl(struct i2c_c
- 	struct rtc8564_data *data = i2c_get_clientdata(client);
- 	unsigned char buf[2];
- 
--	if (!ctrl || !client)
-+	if (!ctrl)
- 		return -1;
- 
- 	buf[0] = *ctrl & 0xff;
-@@ -320,7 +320,7 @@
- static int rtc8564_read_mem(struct i2c_client *client, struct mem *mem)
- {
- 
--	if (!mem || !client)
-+	if (!mem)
- 		return -EINVAL;
- 
- 	return rtc8564_read(client, mem->loc, mem->data, mem->nr);
-@@ -329,7 +329,7 @@
- static int rtc8564_write_mem(struct i2c_client *client, struct mem *mem)
- {
- 
--	if (!mem || !client)
-+	if (!mem)
- 		return -EINVAL;
- 
- 	return rtc8564_write(client, mem->loc, mem->data, mem->nr);
-
-
-Side question: how/when is rtc8564_command called exactly? I think I
-understand it has to do with ioctls, but besides that I'm kind of lost.
-Can someone explain to me how it works?
-
-Thanks,
--- 
-Jean Delvare

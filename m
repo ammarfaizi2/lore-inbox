@@ -1,70 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129226AbQLEPTv>; Tue, 5 Dec 2000 10:19:51 -0500
+	id <S129228AbQLEPdG>; Tue, 5 Dec 2000 10:33:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129228AbQLEPTm>; Tue, 5 Dec 2000 10:19:42 -0500
-Received: from pak145.pakuni.net ([205.138.121.145]:42492 "EHLO
-	postal.paktronix.com") by vger.kernel.org with ESMTP
-	id <S129226AbQLEPTZ>; Tue, 5 Dec 2000 10:19:25 -0500
-Date: Tue, 5 Dec 2000 08:43:27 -0600 (CST)
-From: "Matthew G. Marsh" <mgm@paktronix.com>
-To: Ivan Passos <lists@cyclades.com>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
-Subject: Re: [RFC-2] Configuring Synchronous Interfaces in Linux
-In-Reply-To: <Pine.LNX.4.10.10012042135090.5269-100000@main.cyclades.com>
-Message-ID: <Pine.LNX.4.10.10012050835370.1199-100000@netmonster.pakint.net>
+	id <S129340AbQLEPc5>; Tue, 5 Dec 2000 10:32:57 -0500
+Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:4623 "EHLO
+	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S129228AbQLEPcw>; Tue, 5 Dec 2000 10:32:52 -0500
+Date: Tue, 5 Dec 2000 14:58:15 +0000 (GMT)
+From: Steve Hill <steve@navaho.co.uk>
+To: PaulJakma <paulj@itg.ie>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Serial Console
+In-Reply-To: <Pine.LNX.4.30.0012051439070.31704-100000@rossi.itg.ie>
+Message-ID: <Pine.LNX.4.21.0012051456070.2836-100000@sorbus.navaho>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Dec 2000, Ivan Passos wrote:
+On Tue, 5 Dec 2000, PaulJakma wrote:
 
-> Hello,
+> how? symlink to /dev/ttyS0, or with console=ttyS0 boot option?
 
-[snip details...]
- 
-> I'm willing to go for this implementation, but I wanted to know first:
-> - whether ifconfig is the right place to do it;
+console=ttyS0
 
-I would like to note an objection to using ifconfig to carry all of this.
-For example I do not use or even have ifconfig on any of my systems as I
-only use/need/want Alexey's ip utility to perform all of those tasks. 
-
-I would rather have an independant utility that could set and check the
-settings of all of these variables for whatever classes of networking
-connections existed. This would provide a cleaner split between the
-protocol configuration (IPv4, IPv6, IPX, ...) and the device (V.##,
-10/100, 4/16/100, etc) parameters. 
-
-Such a split should make for a cleaner configuration structure WRT virtual
-devices as well which for the most part deal with the protocol config and
-do not need much device config. 
-
-FWIW: Alexey's ip has replaced both ifconfig and route on my systems.
-Something that could now replace having several different card config
-utils around with one binary would be fantastic.
-
-> - where I should create the new ioctl's to handle these new parameters.
+> use /dev/console (char, 5,1) for all your programmes and boot the
+> kernel with serial console support and .
 > 
-> Suggestions / comments are more than welcome.
-> 
-> Later,
-> Ivan
+> /dev/console will go to serial, but afaik it doesn't block for lack of
+> a terminal. (has something to do with /dev/console being semantically
+> different to /dev/tty..., eg it doesn't block, not sure of the exact
+> details).
 
-Thanks! I will volunteer to test/break/etc as my coding skills verge
-beyond ludicrous. 
+Nope, /dev/console *does* block.  ATM I've found a quick workaround - I
+use "stty -F /dev/console clocal -crtscts" to turn off the serial flow
+control at the stawrt of /etc/rc.d/rc.sysinit - this seems to work quite
+well... of course it doesn't stop some program turning flow control back
+on and ballsing it all up again :)
 
---------------------------------------------------
-Matthew G. Marsh,  President
-Paktronix Systems LLC
-1506 North 59th Street
-Omaha  NE  68104
-Phone: (402) 932-7250
-Email: mgm@paktronix.com
-WWW:  http://www.paktronix.com
---------------------------------------------------
+-- 
 
+- Steve Hill
+System Administrator         Email: steve@navaho.co.uk
+Navaho Technologies Ltd.       Tel: +44-870-7034015
 
 
 -

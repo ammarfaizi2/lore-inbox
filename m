@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131914AbQL1VwP>; Thu, 28 Dec 2000 16:52:15 -0500
+	id <S131942AbQL1Vyz>; Thu, 28 Dec 2000 16:54:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131942AbQL1VwG>; Thu, 28 Dec 2000 16:52:06 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:14837 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131914AbQL1Vvq>; Thu, 28 Dec 2000 16:51:46 -0500
-Date: Thu, 28 Dec 2000 19:21:10 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
+	id <S131928AbQL1Vyp>; Thu, 28 Dec 2000 16:54:45 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:33809 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S131730AbQL1Vyd>; Thu, 28 Dec 2000 16:54:33 -0500
+Date: Thu, 28 Dec 2000 17:31:52 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Rik van Riel <riel@conectiva.com.br>
 cc: Linus Torvalds <torvalds@transmeta.com>,
         Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [wildly off-topic] Re: test13-pre5
-In-Reply-To: <Pine.LNX.4.21.0012281718320.12364-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0012281919320.1403-100000@duckman.distro.conectiva>
+Subject: Re: [wildly off-topic] Re: test13-pre5
+In-Reply-To: <Pine.LNX.4.21.0012281919320.1403-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0012281731410.12364-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Dec 2000, Marcelo Tosatti wrote:
-> On Thu, 28 Dec 2000, Linus Torvalds wrote:
+
+On Thu, 28 Dec 2000, Rik van Riel wrote:
+
+> On Thu, 28 Dec 2000, Marcelo Tosatti wrote:
+> > On Thu, 28 Dec 2000, Linus Torvalds wrote:
+> > 
+> > > If somebody (you? hint, hint) wants to do this,
+> > 
+> > Ok, I'll do it because I love Tove. 
 > 
-> > If somebody (you? hint, hint) wants to do this,
+> Marcelo, you should buy some glasses ;)
 > 
-> Ok, I'll do it because I love Tove. 
+> Tove != Tux
+> 
+> It's ok and probably safe to love Tux, the nice cuddly
+> penguin everybody loves.
+> 
+> However, loving the (6-time ??) Finnish female karate
+> champion, who happens to be married to Linus is probably
+> quite a bit less safe ...
 
-Marcelo, you should buy some glasses ;)
-
-Tove != Tux
-
-It's ok and probably safe to love Tux, the nice cuddly
-penguin everybody loves.
-
-However, loving the (6-time ??) Finnish female karate
-champion, who happens to be married to Linus is probably
-quite a bit less safe ...
-
-cheers,
-
-Rik
---
-Hollywood goes for world dumbination,
-	Trailer at 11.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+Marcelo runs like hell. 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,59 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267481AbTBLQt2>; Wed, 12 Feb 2003 11:49:28 -0500
+	id <S267512AbTBLQ4q>; Wed, 12 Feb 2003 11:56:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267487AbTBLQt2>; Wed, 12 Feb 2003 11:49:28 -0500
-Received: from imr1.ericy.com ([208.237.135.240]:21460 "EHLO imr1.ericy.com")
-	by vger.kernel.org with ESMTP id <S267481AbTBLQt1>;
-	Wed, 12 Feb 2003 11:49:27 -0500
-Message-ID: <7B2A7784F4B7F0409947481F3F3FEF8305CC954F@eammlex037.lmc.ericsson.se>
-From: "Makan Pourzandi (LMC)" <Makan.Pourzandi@ericsson.ca>
-To: "'Christoph Hellwig'" <hch@infradead.org>,
-       "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Cc: greg@kroah.com, linux-security-module@wirex.com,
-       linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: RE: [BK PATCH] LSM changes for 2.5.59
-Date: Wed, 12 Feb 2003 11:58:52 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2655.55)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S267524AbTBLQ4q>; Wed, 12 Feb 2003 11:56:46 -0500
+Received: from rrzs2.rz.uni-regensburg.de ([132.199.1.2]:59870 "EHLO
+	rrzs2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id <S267512AbTBLQ4p>; Wed, 12 Feb 2003 11:56:45 -0500
+Date: Wed, 12 Feb 2003 18:06:34 +0100
+From: Christian Guggenberger 
+	<Christian.Guggenberger@physik.uni-regensburg.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: rl@hellgate.ch, linux-kernel@vger.kernel.org
+Subject: Re: via rhine bug? (timeouts and resets)
+Message-ID: <20030212180634.A5019@pc9391.uni-regensburg.de>
+References: <20030212155836.A797@pc9391.uni-regensburg.de> <1045068074.2166.18.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <1045068074.2166.18.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Wed, Feb 12, 2003 at 17:41:15 +0100
+X-Mailer: Balsa 1.2.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > > I'm very serious about submitting a patch to Linus to 
-> remove all hooks not
-> > > used by any intree module once 2.6.0-test.
-> > 
-> > Any idea on how much time that gives us (to rework SELinux 
-> and submit
-> > it)?
+On 12.02.2003   17:41 Alan Cox wrote:
+> On Wed, 2003-02-12 at 14:58, Christian Guggenberger wrote:
+> > > o       Always set interrupt line with VIA northbridge  (me)
+> > >        | Should fix apic mode problems with USB/audio/net on VIA boards
+> > >
+> > Can you please send a patch against 2.5.60, cause I would like to test
+> these
+> > IO APIC things on my via board. 2.4-ac is no choice for me, since patching
+> xfs
+> > into 2.4-ac is a little bit too painful for me;-)
 > 
+> At the moment I can't even get 2.5.60 to boot so its a bit hard to do any
+> work
+> on it.
+Of course;-)
 
-Hi, 
+> Just run via boxes with "noapic" and dont enable the apic stuff on
+> single
+> cpu systems. Thats as good if not a better test
+> 
+That's what I'm almost doing since I have this mobo. I have APICs enabled in 
+both kernel and bios, but IO-APICs disabled. 2.5.60 seems to work for me.
+The only thing I'd like to get rid off, are those Interrupt errors in 
+/proc/interrupts (maybe they are harmless anyway):
 
-My comments are from user of LSM point of view and not one of its designers. Actually, we have been using LSM for now about a year to develop our own security module in DSI project (security for clustered server, http://sourceforge.net/projects/disec). 
+            CPU0
+   0:     941032   XT-PIC  timer
+   1:       1927   XT-PIC  i8042
+   2:          0   XT-PIC  cascade
+   5:          0   XT-PIC  VIA8233
+   8:          4   XT-PIC  rtc
+  10:      14946   XT-PIC  ide2, eth0
+  12:      29425   XT-PIC  i8042
+  14:       7525   XT-PIC  ide0
+  15:         36   XT-PIC  ide1
+NMI:          0
+LOC:     940979
+ERR:        914
 
-I believe that one major advantage of LSM is that it avoids the one size fits all approach. LSM allows to different people to come up with different mechanisms to implement security according to their needs. 
-And different Linux users have different needs. For example in DSI project, we used LSM to implement our own security approach for clustered servers. For example, having tight restrictions on response time, we rather concentrate on performance impact of security and distributed access control inside a cluster than file access control (running mainly diskless machines). 
-I believe this is very acceptable, because it allows the user to choose the security module that fits best its needs. The security needs are not the same for military/banking/telecom/gaming/... businesses. And till the moment that we have a config tool (file or else) that can allow these people to configure fine grained access control according to their needs (for example like how we configure iptables), I believe that LSM is necessary to give these people a chance of developing their own solution. 
+They won't go away with noapic, too.
 
+With IO-APICs the ERR count would stay at 0. (but then most onboard devices 
+wouldn't work)
+That's why i asked for that APIC patch in my previous mail.
 
-Further more, I believe that LSM encourages the developers in the community to take initiatives related to security in Linux. This way, it helps developing different security approaches. This at the end, even if we choose to go with only one approach and drop others,  will help the diversity of existing solutions and the possibility of choosing among a set of solutions (hopefully the best one will be chosen). IMHO, to let people be able to come up with different security approaches, we have
-to let LSM be part of the kernel in order to encourage people to
-develop their approach.
-
-That was my 2 cents. 
-
-Regards, 
-Makan Pourzandi 
--------------------------------------------------------
-Makan Pourzandi            
-Ericsson Research Canada
-http://sourceforge.net/projects/disec/      
--------------------------------------------------------         
-
-This email does not represent or express the opinions of Ericsson
-Corporation.
-
+Christian

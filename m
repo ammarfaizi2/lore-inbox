@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUHaQxN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264389AbUHaQ7x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264377AbUHaQxN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 12:53:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264530AbUHaQxN
+	id S264389AbUHaQ7x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 12:59:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264530AbUHaQ7x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 12:53:13 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:4539 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S264377AbUHaQxJ
+	Tue, 31 Aug 2004 12:59:53 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:5671 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S264389AbUHaQ7v
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 12:53:09 -0400
-Subject: Re: [ANNOUNCE] Kernel Generalized Event Management
-From: Robert Love <rml@ximian.com>
-To: Bob Bennett <Robert.Bennett2@ca.com>
-Cc: Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, kgem-devel@lists.sourceforge.net
-In-Reply-To: <1093966183.22744.125.camel@benro02lx.ca.com>
-References: <Pine.LNX.4.58.0408301738310.22919@benro02lx.ca.com>
-	 <20040830153942.C1973@build.pdx.osdl.net>
-	 <1093966183.22744.125.camel@benro02lx.ca.com>
-Content-Type: text/plain
-Date: Tue, 31 Aug 2004 12:52:36 -0400
-Message-Id: <1093971158.4815.2.camel@betsy.boston.ximian.com>
+	Tue, 31 Aug 2004 12:59:51 -0400
+Date: Tue, 31 Aug 2004 19:01:48 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Duncan Sands <baldrick@free.fr>
+Cc: linux-kernel@vger.kernel.org, sam@ravnborg.org
+Subject: Re: external modules make clean doesn't do much
+Message-ID: <20040831170148.GB7310@mars.ravnborg.org>
+Mail-Followup-To: Duncan Sands <baldrick@free.fr>,
+	linux-kernel@vger.kernel.org, sam@ravnborg.org
+References: <200408311347.52754.baldrick@free.fr>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.94 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408311347.52754.baldrick@free.fr>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-31 at 11:29 -0400, Bob Bennett wrote:
+On Tue, Aug 31, 2004 at 01:47:52PM +0200, Duncan Sands wrote:
+> make clean for an external module only seems to clean
+> .tmp_versions:
+> 
+> $ make clean
+> make -C /lib/modules/2.6.9-rc1/build M=`pwd` clean
+> make[1]: Entering directory `/home/duncan/Linux/linux-2.5'
+>   CLEAN   /home/duncan/SpeedTouch/.tmp_versions
+> make[1]: Leaving directory `/home/duncan/Linux/linux-2.5'
+> $
+> 
+> This leaves all the .o etc files which doesn't sound right...
+Nope - let me try.
 
-> It appears that Robert Love's Kernel Events Layer project is attempting
-> to address a lot of these event management issues.  An alternative is to
-> build upon this project to support synchronous event handling as well as
-> the event broadcasting that it performs now. 
+sam@mars rtl8180 $ ls *o
+built-in.o   r8180_if.o        rtl8180.ko     rtl8180.o
+priv_part.o  r8180_pci_init.o  rtl8180.mod.o  usercopy.o
+sam@mars rtl8180 $ make -C ~/bk/kbuild M=$PWD clean
+make: Entering directory `/home/sam/bk/kbuild'
+  CLEAN   /home/sam/bk/external/rtl8180/.tmp_versions
+make: Leaving directory `/home/sam/bk/kbuild'
+sam@mars rtl8180 $ ls *o
+ls: *o: No such file or directory
+sam@mars rtl8180 $ cat Makefile
+obj-m           := rtl8180.o
+rtl8180-y       += r8180_if.o r8180_pci_init.o usercopy.o
+rtl8180-y       += priv_part.o
+  
 
-With the Kernel Events Layer, we are not looking to provide synchronous
-notification or a method for user-space to affect kernel behavior.
+Looks to be OK here.
+Please let me see the Makefile you use for SpeedTouch
 
-The Kernel Events Layer in its current incarnation (which I need to
-rediff and post) is a general sysfs change notifier.  And it is just a
-layer netlink, at the end of the day.
-
-	Robert Love
-
-
+	Sam

@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265395AbSKFACq>; Tue, 5 Nov 2002 19:02:46 -0500
+	id <S265377AbSKEXyC>; Tue, 5 Nov 2002 18:54:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265396AbSKFACq>; Tue, 5 Nov 2002 19:02:46 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:5368 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S265395AbSKFACo>;
-	Tue, 5 Nov 2002 19:02:44 -0500
-Message-ID: <72B3FD82E303D611BD0100508BB29735046DFF7E@orsmsx102.jf.intel.com>
-From: "Lee, Jung-Ik" <jung-ik.lee@intel.com>
-To: "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Cc: linux-ia64@linuxia64.org
-Subject: patch for 2.5.45 fusion mptscsih
-Date: Tue, 5 Nov 2002 16:09:17 -0800 
+	id <S265378AbSKEXyB>; Tue, 5 Nov 2002 18:54:01 -0500
+Received: from maynard.mail.mindspring.net ([207.69.200.243]:25611 "EHLO
+	maynard.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S265377AbSKEXx3>; Tue, 5 Nov 2002 18:53:29 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Mike Diehl <mdiehl@dominion.dyndns.org>
+To: Andres Salomon <dilinger@voxel.net>
+Subject: Re: [Evms-announce] EVMS announcement
+Date: Tue, 5 Nov 2002 16:29:58 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
+References: <02110516191004.07074@boiler> <20021105214012.C2B4651CF@dominion.dyndns.org> <20021105234058.GA28941@chunk.voxel.net>
+In-Reply-To: <20021105234058.GA28941@chunk.voxel.net>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C28528.BF12C6A0"
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20021105220947.5AA0551CF@dominion.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
-
-------_=_NextPart_000_01C28528.BF12C6A0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-
-The attached patch fixes message/fusion/mptscsih.h that causes kernel build
-error.
-
- mptscsih.h |    3 +--
- 1 files changed, 1 insertion(+), 2 deletions(-)
-
-thanks,
-J.I.
-
-
-------_=_NextPart_000_01C28528.BF12C6A0
-Content-Type: application/octet-stream;
-	name="fusion_2545.diff"
-Content-Disposition: attachment;
-	filename="fusion_2545.diff"
-
-diff -ur linux-2.5.45.org/drivers/message/fusion/mptscsih.h linux-2.5.45-ia64-021031-phpa/drivers/message/fusion/mptscsih.h
---- linux-2.5.45.org/drivers/message/fusion/mptscsih.h	Wed Oct 30 16:43:46 2002
-+++ linux-2.5.45-ia64-021031-phpa/drivers/message/fusion/mptscsih.h	Tue Nov  5 13:33:03 2002
-@@ -267,8 +268,7 @@
- 	.sg_tablesize			= MPT_SCSI_SG_DEPTH,	\
- 	.max_sectors			= MPT_SCSI_MAX_SECTORS,	\
- 	.cmd_per_lun			= MPT_SCSI_CMD_PER_LUN,	\
--	.use_clustering			= ENABLE_CLUSTERING,	\
--	.slave_attach			x_scsi_slave_attach,	\
-+	.use_clustering			= ENABLE_CLUSTERING	\
- }
+On Tuesday 05 November 2002 06:40 pm, Andres Salomon wrote:
+     > Note the difference between LVM (the tools, the on-disk format, etc)
+     > and device-mapper (simply a generic interface in the kernel).  I
+     > suspect the disasterous LVM experiences you've had were either with
+     > LVM1 (which did not use device-mapper), or with some aspect of LVM2's
+     > userspace stuff (which, I have yet to hear of any major problems with,
+     > other than important features like pvmove not yet being implemented). 
+     > There's no reason why EVMS would need to emulate similar behavior.
  
- #else  /* LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,1) */
+I'm certainly willing to grant that things may have improved since the last 
+time I used LVM.  I hope they have.  
 
-------_=_NextPart_000_01C28528.BF12C6A0--
+It's like the first time you taste sour milk.  You just never forget the 
+taste it leaves in your mouth.  LVM tastes the same to me, though it may be 
+completely stable/viable now.  <rant off>
+
+-- 
+Mike Diehl
+PGP Encrypted E-mail preferred.
+Public Key via: http://dominion.dyndns.org/~mdiehl/mdiehl.asc
+

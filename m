@@ -1,85 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262722AbSJWCmu>; Tue, 22 Oct 2002 22:42:50 -0400
+	id <S262789AbSJWDEz>; Tue, 22 Oct 2002 23:04:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262776AbSJWCmt>; Tue, 22 Oct 2002 22:42:49 -0400
-Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:14033 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S262722AbSJWCmr>;
-	Tue, 22 Oct 2002 22:42:47 -0400
-Message-ID: <3DB60E16.2060401@candelatech.com>
-Date: Tue, 22 Oct 2002 19:48:54 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
-X-Accept-Language: en-us, en
+	id <S262791AbSJWDEz>; Tue, 22 Oct 2002 23:04:55 -0400
+Received: from 2-136.ctame701-1.telepar.net.br ([200.193.160.136]:43182 "EHLO
+	2-136.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S262789AbSJWDEy>; Tue, 22 Oct 2002 23:04:54 -0400
+Date: Wed, 23 Oct 2002 01:10:43 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andi Kleen <ak@muc.de>
+cc: Gerrit Huizenga <gh@us.ibm.com>, <akpm@digeo.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
+In-Reply-To: <m3fzuxq2k5.fsf@averell.firstfloor.org>
+Message-ID: <Pine.LNX.4.44L.0210230108550.28073-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Lk Overrun <lkoverrun@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Brust data send problem on gigabit NIC on Linux
-References: <20021023015905.63415.qmail@web21501.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lk Overrun wrote:
-> Hi, I am seeking advice on how to best send out huge
-> number of packets on a gigabit ethernet interface.  I
-> am using kernel 2.4.19.  I try to send out as many as
-> possible 15Kbyte-long ethernet packets to try to
-> utilize the giga-bit/sec bandwidth.  My CPU is really
-> fast (2 GHz) amd I dump the packets to the interface
-> in a  tight loop in user space.  However, I can only
-> reach around 400 Mbits/sec before the packets get
-> dropped.  The queue discipline (qdisc) seems to be
-> responsible because the queue length (txqueuelen) is
-> only 100 by default, and the queue just cannot store
-> so many packets at once.  I can eliminate the packet
-> drop by raising the queue length to somewhere like
-> 60000 but that is not practical because it uses too
-> much memory. It seems I need some delay between
-> sending packets but I cannot sleep for less than 10 ms
-> (1/Hz) in user space and 10 ms is too long.
-> 
-> I am using raw socket bypassing the IP stack and my
-> NIC is the Intel Pro1000 (using the e1000.o driver).
-> 
-> What is the best way to send raw ethernet packets,
-> reaching gigabit range withuut packet drop on Linux? 
-> Thanks for any advice.
+On 23 Oct 2002, Andi Kleen wrote:
+> Gerrit Huizenga <gh@us.ibm.com> writes:
+>
+> > If the shared pte patch had mmap support, then all shared libraries
+> > would benefit.  Might need to align them to 4 MB boundaries for best
+> > results, which would also be easy for libraries with unspecified
+> > attach addresses (e.g. most shared libraries).
+>
+> But only if the shared libraries are a multiple of 2/4MB, otherwise
+> you'll waste memory. Or do you propose to link multiple mmap'ed
+> libraries together into the same page ?
 
-Make sure the e1000 driver is tuned, try insmodding it with:
-TxDescriptors=1024 RxDescriptors=4096
+Using shared page tables all you'll waste is virtual space.
 
-Also, in your user-space app, check the return code of your
-packet-sending call.  That can let you know that the kernel
-dropped it, and that you need to re-send.
+The shared page table for eg. /lib/libc.so will eventually
+end up mapping all of the libc pages that are used by the
+system's workload and processes won't pagefault on any libc
+page that's already present in ram.
 
-How do you know you are dropping packets?  (Ie, are you also
-reading on another machine?)  Usually it's read that drops
-more packets than write.
+Sounds like a win/win solution, cutting down both on pagetable
+overhead and on pagefaults.
 
-Good luck,
-Ben
+regards,
 
-> 
->  
-> 
-> __________________________________________________
-> Do you Yahoo!?
-> Y! Web Hosting - Let the expert host your web site
-> http://webhosting.yahoo.com/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
+Rik
 -- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
 

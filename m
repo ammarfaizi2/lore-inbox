@@ -1,40 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264944AbSLMPrt>; Fri, 13 Dec 2002 10:47:49 -0500
+	id <S264925AbSLMPqt>; Fri, 13 Dec 2002 10:46:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264978AbSLMPrs>; Fri, 13 Dec 2002 10:47:48 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:13208 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S264944AbSLMPrr>; Fri, 13 Dec 2002 10:47:47 -0500
-Date: Fri, 13 Dec 2002 13:55:18 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Alexandre Pires <linux_kernel_br@yahoo.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Memory Manager Subsystem
-In-Reply-To: <094501c2a296$567b4af0$6400a8c0@sawamu>
-Message-ID: <Pine.LNX.4.50L.0212131354460.15917-100000@duckman.distro.conectiva>
-References: <094501c2a296$567b4af0$6400a8c0@sawamu>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264944AbSLMPqt>; Fri, 13 Dec 2002 10:46:49 -0500
+Received: from tolkor.SGI.COM ([198.149.18.6]:36767 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S264925AbSLMPqs>;
+	Fri, 13 Dec 2002 10:46:48 -0500
+Date: Fri, 13 Dec 2002 18:08:14 -0500
+From: Christoph Hellwig <hch@sgi.com>
+To: marcelo@conectiva.com.br
+Cc: rml@tech9.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] set_cpus_allowed() for 2.4
+Message-ID: <20021213180814.A2658@sgi.com>
+Mail-Followup-To: Christoph Hellwig <hch@sgi.com>, marcelo@conectiva.com.br,
+	rml@tech9.net, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Dec 2002, Alexandre Pires wrote:
+Hi Marcelo,
 
-> Somebody could indicate me some material about Memory Manager subsystem
-> and Memory Map ?
+now that all vendors ship a backport of Ingo's O(1) scheduler, external
+projects like XFS have to track those trees in addition to the mainline kernel.
 
-http://linux-mm.org/
+Having the common new APIs available in mainline would be a very good thing
+to have for us and others.  Now that 2.4.20 already has a working yield()
+the biggest missing part is set_cpus_allowed() to limit (kernel-)threads
+to a specific CPU or set of CPUs.
 
-http://surriel.com/lectures/linux24-vm-freenix01.pdf
-
-cheers,
-
-Rik
--- 
-A: No.
-Q: Should I include quotations after my reply?
-http://www.surriel.com/		http://guru.conectiva.com/
+--- linux/include/linux/sched.h~	Mon Sep 30 17:41:22 2002
++++ linux/include/linux/sched.h	Tue Oct  1 18:35:28 2002
+@@ -163,6 +164,12 @@
+ extern int start_context_thread(void);
+ extern int current_is_keventd(void);
+ 
++#if CONFIG_SMP
++extern void set_cpus_allowed(struct task_struct *p, unsigned long new_mask);
++#else
++# define set_cpus_allowed(p, new_mask) do { } while (0)
++#endif
++
+ /*
+  * The default fd array needs to be at least BITS_PER_LONG,
+  * as this is the granularity returned by copy_fdset().
+--- linux/kernel/ksyms.c~	Mon Sep 30 17:41:22 2002
++++ linux/kernel/ksyms.c	Tue Oct  1 18:34:41 2002
+@@ -451,6 +451,9 @@
+ EXPORT_SYMBOL(interruptible_sleep_on_timeout);
+ EXPORT_SYMBOL(schedule);
+ EXPORT_SYMBOL(schedule_timeout);
++#if CONFIG_SMP
++EXPORT_SYMBOL(set_cpus_allowed);
++#endif
+ EXPORT_SYMBOL(yield);
+ EXPORT_SYMBOL(__cond_resched);
+ EXPORT_SYMBOL(jiffies);
+--- linux/kernel/sched.c~	Mon Sep 30 17:41:22 2002
++++ linux/kernel/sched.c	Tue Oct  1 18:54:49 2002
+@@ -850,6 +850,45 @@
+ 
+ void scheduling_functions_end_here(void) { }
+ 
++#if CONFIG_SMP
++/**
++ * set_cpus_allowed() - change a given task's processor affinity
++ * @p: task to bind
++ * @new_mask: bitmask of allowed processors
++ *
++ * Upon return, the task is running on a legal processor.  Note the caller
++ * must have a valid reference to the task: it must not exit() prematurely.
++ * This call can sleep; do not hold locks on call.
++ */
++void set_cpus_allowed(struct task_struct *p, unsigned long new_mask)
++{
++	new_mask &= cpu_online_map;
++	BUG_ON(!new_mask);
++
++	p->cpus_allowed = new_mask;
++
++	/*
++	 * If the task is on a no-longer-allowed processor, we need to move
++	 * it.  If the task is not current, then set need_resched and send
++	 * its processor an IPI to reschedule.
++	 */
++	if (!(p->cpus_runnable & p->cpus_allowed)) {
++		if (p != current) {
++			p->need_resched = 1;
++			smp_send_reschedule(p->processor);
++		}
++
++		/*
++		 * Wait until we are on a legal processor.  If the task is
++		 * current, then we should be on a legal processor the next
++		 * time we reschedule.  Otherwise, we need to wait for the IPI.
++		 */
++		while (!(p->cpus_runnable & p->cpus_allowed))
++			schedule();
++	}
++}
++#endif /* CONFIG_SMP */
++
+ #ifndef __alpha__
+ 
+ /*

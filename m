@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266321AbUBEQ2V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 11:28:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266346AbUBEQ2V
+	id S266395AbUBEQeY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 11:34:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266397AbUBEQeY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 11:28:21 -0500
-Received: from elpis.telenet-ops.be ([195.130.132.40]:63882 "EHLO
-	elpis.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S266321AbUBEQ1t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 11:27:49 -0500
-Subject: Re: questin about switch off
-From: Ludootje <ludootje@linux.be>
-To: Roman Jordan <RomanJordan@gmx.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1075932364.2952.112.camel@darkstar>
-References: <1075932364.2952.112.camel@darkstar>
-Content-Type: text/plain
-Message-Id: <1076002007.4190.14.camel@gax.mynet>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 05 Feb 2004 17:26:50 +0000
+	Thu, 5 Feb 2004 11:34:24 -0500
+Received: from cs24243203-239.austin.rr.com ([24.243.203.239]:4878 "EHLO
+	raptor.int.mccr.org") by vger.kernel.org with ESMTP id S266395AbUBEQeP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 11:34:15 -0500
+Date: Thu, 05 Feb 2004 10:32:59 -0600
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Dave Hansen <haveblue@us.ibm.com>, Timothy Miller <miller@techsource.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>
+Subject: Re: Active Memory Defragmentation: Our implementation & problems
+Message-ID: <488580000.1075998779@[10.1.1.5]>
+In-Reply-To: <1075937097.27944.1361.camel@nighthawk>
+References: <20040204185446.91810.qmail@web9705.mail.yahoo.com>	
+ <Pine.LNX.4.53.0402041402310.2722@chaos> <361730000.1075923354@[10.1.1.5]>	
+ <40216B25.3020207@techsource.com> <1075937097.27944.1361.camel@nighthawk>
+X-Mailer: Mulberry/3.0.3 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-IIRC that had something with using or APM (Advanced Power
-Management) or not. I think that if you enable it in the kernel,
-halt/poweroff/shutdown will work fine.
 
-Ludootje
+--On Wednesday, February 04, 2004 15:24:57 -0800 Dave Hansen
+<haveblue@us.ibm.com> wrote:
 
-On Wed, 2004-02-04 at 22:06, Roman Jordan wrote:
-> Hi,
-> i use a sony laptop with kernel 2.6.1 and acpi support. If i want do
-> switch it off the device, using the command 'halt' or 'poweroff' the
-> laptop does not switch off. I only get the message 'system haltet'. If
-> use the kernel without ACPI, the display is drawing black, but the
-> device is also not swiched off.
-> If i using the fedora standard kernel 2.4.22-1.2115.nptl the 'halt'
-> command works fine.
-> Any ideas?
+>> Let's say this defragmenter allowed the kernel to detect when 1024 4k 
+>> pages were contiguous and aligned properly and could silently replace 
+>> the processor mapping tables so that all of these "pages" would be 
+>> mapped by one TLB entry.  (At such time that some pages need to get 
+>> freed, the VM would silently switch back to the 4k model.)
+>> 
+>> This would reduce TLB entries for a lot of programs above a certain 
+>> size, and therefore improve peformance.
 > 
-> Regards,
-> Roman Jordan
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> This is something that would be interesting to pursue, but we already
+> have hugetlbfs which does this when you need it explicitly.  When you
+> know that TLB coverage is a problem, that's your fix for now. 
+
+Hugetlbfs runs from a dedicated pool of large mlocked pages.  This limits
+how many hugetlbfs users there can be.
+
+One of the things that's been discussed is letting hugetlbfs use the buddy
+allocator in some fashion so it can grow dynamically.  The main barrier to
+it is fragmentation, so a working defrag might make it feasible.
+
+Dave McCracken
 

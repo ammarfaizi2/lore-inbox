@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264594AbTL0VAg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 16:00:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264595AbTL0VAf
+	id S264568AbTL0VQW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 16:16:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264575AbTL0VQW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 16:00:35 -0500
-Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:32623 "HELO
-	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264594AbTL0VAa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 16:00:30 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Tomas Szepe <szepe@pinerecords.com>
-Subject: Re: Synaptics problems in -mm1
-Date: Sat, 27 Dec 2003 16:00:26 -0500
-User-Agent: KMail/1.5.4
-Cc: Andrew Morton <akpm@osdl.org>, GCS <gcs@lsc.hu>,
-       linux-kernel@vger.kernel.org, Peter Osterlund <petero2@telia.com>
-References: <20031224095921.GA8147@lsc.hu> <200312271345.41679.dtor_core@ameritech.net> <20031227190138.GE10491@louise.pinerecords.com>
-In-Reply-To: <20031227190138.GE10491@louise.pinerecords.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 27 Dec 2003 16:16:22 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:235 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S264568AbTL0VQV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Dec 2003 16:16:21 -0500
+Date: Sat, 27 Dec 2003 22:13:24 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Paul <paul@kbs.net.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: memory mapping help - oracle stack dumps
+Message-ID: <20031227221324.A21421@electric-eye.fr.zoreil.com>
+References: <E1AYl4w-0007A5-R3@O.Q.NET> <Pine.LNX.4.44.0312240005180.4342-100000@raven.themaw.net> <20031223173429.GA9032@mark.mielke.cc> <20031223220209.GB15946@kroah.com> <1072226715.6917.50.camel@nosferatu.lan> <20031224010728.GA20956@kroah.com> <03b201c3c9bc$5d977ef0$7301a8c0@internal.kbs.net.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200312271600.26948.dtor_core@ameritech.net>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <03b201c3c9bc$5d977ef0$7301a8c0@internal.kbs.net.au>; from paul@kbs.net.au on Wed, Dec 24, 2003 at 12:22:13PM +1100
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 27 December 2003 02:01 pm, Tomas Szepe wrote:
-> > > Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> > Ok, good. So it is the timer funkiness. I would suggest not using
-> > ACPI PM timer for now then. And yes, timer_pit does not have cpufreq
-> > hooks either so it probably not the best timesource with cpufreq
-> > either, so stick with TSC.
->
-> Stupid me, I absolutely forgot that I had enabled CONFIG_X86_PM_TIMER
-> (nonexistent in 2.6.0 stock) which indeed seems to be the culprit.
-> Please accept my apologies.  -mm1 with that config option unset won't
-> lose the stick, either.
->
-> Thanks!
+Paul <paul@kbs.net.au> :
+[oracle9i listener crashing]
 
-Great! Thank you for letting me know.
+Run memtest on your computer. If you do not see any error (ECC support is
+enabled in your hardware setup, is not it ?), ask oracle to fix the bug.
 
-Dmitry
+Segfault in chunk_free() _usually_ means double free/use after free or so.
+So far, this does not really look like a kernel related problem.
+
+--
+Ueimor

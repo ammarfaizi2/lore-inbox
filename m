@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261263AbTIXMGU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 08:06:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbTIXMGU
+	id S261304AbTIXMj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 08:39:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbTIXMj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 08:06:20 -0400
-Received: from dyn-ctb-203-221-73-21.webone.com.au ([203.221.73.21]:50446 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S261263AbTIXMGT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 08:06:19 -0400
-Message-ID: <3F7188B9.2080209@cyberone.com.au>
-Date: Wed, 24 Sep 2003 22:06:17 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] runtime selectable IO schedulers
-References: <3F717E62.5020404@cyberone.com.au>
-In-Reply-To: <3F717E62.5020404@cyberone.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 24 Sep 2003 08:39:59 -0400
+Received: from cpc1-cwma1-5-0-cust4.swan.cable.ntl.com ([80.5.120.4]:24527
+	"EHLO dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261304AbTIXMj6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 08:39:58 -0400
+Subject: Re: How are the Promise drivers doing?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andi Kleen <ak@muc.de>
+Cc: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <m3he33c6x9.fsf@averell.firstfloor.org>
+References: <yX7w.79l.13@gated-at.bofh.it>
+	 <m3he33c6x9.fsf@averell.firstfloor.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1064407092.13450.10.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-7) 
+Date: Wed, 24 Sep 2003 13:38:13 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mer, 2003-09-24 at 02:27, Andi Kleen wrote:
+> One big problem with the Promise drivers is that they are not 64bit
+> clean. Trying them in a 64bit x86-64 kernel fails quickly.
+> Fixing them is unfortunately a lot of work because of the weird
+> Windows like programming style in the CAM layer in there.
+> 
+> Also at least some released versions of them had gapping security holes
+> in the ioctl handlers.
 
-
-Nick Piggin wrote:
-
-Err, alloc _outside_ spinlock... make that
-http://www.kerneltrap.org/~npiggin/elv-select.patch-030924-2
-
->
-> Against test5-mm4. This is commented a bit better than the previous
-> version I sent to Al and Jens.
->
-> sysfs interface is /sys/block/*/queue/io_scheduler. Valid values are
-> as, deadline, noop, cfq. Switching schedulers under disk load works fine
-> in my tests. sysfs stuff seems to be working nicely and handles lingering
-> userspace references properly.
->
-> Review of the kobject / sysfs stuff would be especially helpful. Thanks.
->
->
+Looking at the BSD drivers you may well be able to do a minimal mmio
+version of the 2026x driver for the chips as a stopgap. That wouldn't be
+as good as the full libata thing once it is done but it would make it go
 

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262878AbVCWIof@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262883AbVCWIoy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262878AbVCWIof (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 03:44:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262881AbVCWIof
+	id S262883AbVCWIoy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 03:44:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbVCWIok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 03:44:35 -0500
-Received: from koto.vergenet.net ([210.128.90.7]:50891 "EHLO koto.vergenet.net")
-	by vger.kernel.org with ESMTP id S262878AbVCWIod (ORCPT
+	Wed, 23 Mar 2005 03:44:40 -0500
+Received: from koto.vergenet.net ([210.128.90.7]:51147 "EHLO koto.vergenet.net")
+	by vger.kernel.org with ESMTP id S262880AbVCWIod (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 23 Mar 2005 03:44:33 -0500
-Date: Wed, 23 Mar 2005 16:49:35 +0900
+Date: Wed, 23 Mar 2005 16:52:43 +0900
 From: Horms <horms@verge.net.au>
-To: linux-kernel@vger.kernel.org
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: [PATCH] Fix sign checks in copy_from_read_buf() in 2.4
-Message-ID: <20050323074931.GA3092@verge.net.au>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [Patch] Fix ATM copy-to-user usage in 2.4
+Message-ID: <20050323075242.GB3092@verge.net.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,7 +24,7 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Applologies if this is already pending, but the signdness fix for
-copy_from_read_buf() in  2.6 seems to be needed for 2.4 as well.
+atm_get_addr() in  2.6 seems to be needed for 2.4 as well.
 
 This relates to the bugs reported in this document
 http://www.guninski.com/where_do_you_want_billg_to_go_today_3.html
@@ -32,19 +32,30 @@ http://www.guninski.com/where_do_you_want_billg_to_go_today_3.html
 -- 
 Horms
 
-Backport of copy_from_read_buf() signedness fix from 2.6
+Backport of  ATM copy-to-user signedness fix from 2.6
 
 Signed-off-by: Simon Horman <horms@verge.net.au>
 
-===== drivers/char/n_tty.c 1.7 vs edited =====
---- 1.7/drivers/char/n_tty.c	2004-12-16 22:57:23 +09:00
-+++ edited/drivers/char/n_tty.c	2005-03-23 13:08:37 +09:00
-@@ -1095,7 +1095,7 @@
+===== net/atm/addr.h 1.2 vs edited =====
+--- 1.2/net/atm/addr.h	2002-02-05 16:39:14 +09:00
++++ edited/net/atm/addr.h	2005-03-23 13:40:46 +09:00
+@@ -13,6 +13,6 @@
+ void atm_reset_addr(struct atm_dev *dev);
+ int atm_add_addr(struct atm_dev *dev,struct sockaddr_atmsvc *addr);
+ int atm_del_addr(struct atm_dev *dev,struct sockaddr_atmsvc *addr);
+-int atm_get_addr(struct atm_dev *dev,struct sockaddr_atmsvc *u_buf,int size);
++int atm_get_addr(struct atm_dev *dev,struct sockaddr_atmsvc *u_buf,size_t size);
  
+ #endif
+===== net/atm/addr.c 1.4 vs edited =====
+--- 1.4/net/atm/addr.c	2003-09-04 12:31:04 +09:00
++++ edited/net/atm/addr.c	2005-03-23 13:41:03 +09:00
+@@ -114,7 +114,7 @@
+ }
+ 
+ 
+-int atm_get_addr(struct atm_dev *dev,struct sockaddr_atmsvc *u_buf,int size)
++int atm_get_addr(struct atm_dev *dev,struct sockaddr_atmsvc *u_buf,size_t size)
  {
- 	int retval;
--	ssize_t n;
-+	size_t n;
  	unsigned long flags;
- 
- 	retval = 0;
+ 	struct atm_dev_addr *walk;

@@ -1,46 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285747AbSADX21>; Fri, 4 Jan 2002 18:28:27 -0500
+	id <S285907AbSADXbi>; Fri, 4 Jan 2002 18:31:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285828AbSADX2R>; Fri, 4 Jan 2002 18:28:17 -0500
-Received: from smtp1.ndsu.NoDak.edu ([134.129.111.146]:15113 "EHLO
-	smtp1.ndsu.nodak.edu") by vger.kernel.org with ESMTP
-	id <S285747AbSADX2H>; Fri, 4 Jan 2002 18:28:07 -0500
-Subject: Re: PATCH 2.5.2.7: io.h cleanup and userspace nudge
-From: Reid Hekman <reid.hekman@ndsu.nodak.edu>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020104191632.GK28621@thune.mrc-home.com>
-In-Reply-To: <200201041831.g04IVAD23320@vindaloo.ras.ucalgary.ca>
-	<Pine.LNX.4.33.0201041940150.20620-100000@Appserv.suse.de>
-	<200201041841.g04IflL23687@vindaloo.ras.ucalgary.ca> 
-	<20020104191632.GK28621@thune.mrc-home.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 04 Jan 2002 17:28:06 -0600
-Message-Id: <1010186893.1424.0.camel@localhost.localdomain>
-Mime-Version: 1.0
+	id <S285850AbSADXb2>; Fri, 4 Jan 2002 18:31:28 -0500
+Received: from dsl-213-023-043-154.arcor-ip.net ([213.23.43.154]:4616 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S285878AbSADXbQ>;
+	Fri, 4 Jan 2002 18:31:16 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andreas Dilger <adilger@turbolabs.com>, Andries.Brouwer@cwi.nl
+Subject: Re: [CFT] [JANITORIAL] Unbork fs.h
+Date: Sat, 5 Jan 2002 00:33:45 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: acme@conectiva.com.br, ion@cs.columbia.edu, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Thomas Graichen <tgr@spoiled.org>
+In-Reply-To: <UTC200201041516.PAA224847.aeb@cwi.nl> <20020104152056.Z12868@lynx.no>
+In-Reply-To: <20020104152056.Z12868@lynx.no>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16MdqR-0001EQ-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-01-04 at 13:16, Mike Castle wrote:
-> On Fri, Jan 04, 2002 at 11:41:47AM -0700, Richard Gooch wrote:
-> > Not if you want a lightweight C library. Such as when running off a CF
-> > card.
+On January 4, 2002 11:20 pm, Andreas Dilger wrote:
+> On Jan 04, 2002  15:16 +0000, Andries.Brouwer@cwi.nl wrote:
+> >     sizeof (foo): 1611, sizeof(foo): 19364 => -bs should be removed
+> >
+> >     int
+> >     foo(int x): 11408, int foo(int x): 57275 => -psl should be removed
+> > 
+> > I do not think good style is best defined by majority vote.
 > 
-> But aren't there better options for a lightweight C library than libc5?
+> Certainly not.  However, the Lindent style I'm trying to achieve is that
+> dictated by Linus.  However, CodingStyle doesn't give all of the details
+> of how code should be formatted, so I have to look at the code to see
+> what is actually there.
 > 
-> At least that would involve using something that's being maintained.
+> >     (void *) foo: 11274, (void *)foo: 17062 => -ncs should be added
+> > 
+> > Read old kernel sources.
+> > 
+> >         de = (struct minix_dir_entry *) (offset + bh->b_data);
+> > 
+> > 	:"S" ((long) name),"D" ((long) buffer),"c" (len)
+> > 
+> > 	if (32 != sizeof (struct minix_inode))
 > 
+> Well, that's what I was trying to do when I found out that lksr.org
+> (hosted by innominate.de) was not available.  It seems the -ncs
+> change is incorrect then (although my preference is to add it - there
+> doesn't seem to me to be any benefit of having the extra space).
 
-Yes indeed, something like this perhaps?
+Thomas Graichen told me that lksr.org will be back up 'soon'.  Innominate.org 
+is back up, run by Gerrit Pape, one of a group of Berliners who call 
+themselves 'exnominate' (that would include me).  In fact, innominate itself 
+is back, but that's a whole nuther story.
 
-http://www.fefe.de/dietlibc/
+p.s., if Andries is right - and he probably is - then it looks like Linus's 
+habitual style is 'space after cast' and 'space after sizeof'.  We could 
+always ask.
 
-Regards,
-Reid
+If we put enough work into lindent, maybe we'll come up with a Linusbot?
+
 --
-Ignorance of all things is an evil neither terrible nor excessive, nor
-yet the greatest of all; but great cleverness and much learning, if they
-be accompanied by a bad training, are a much greater misfortune. - Plato
-
+Daniel

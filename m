@@ -1,71 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267427AbUHPEns@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267428AbUHPEr0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267427AbUHPEns (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 00:43:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267428AbUHPEns
+	id S267428AbUHPEr0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 00:47:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267429AbUHPEr0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 00:43:48 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:25529 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267427AbUHPEnq (ORCPT
+	Mon, 16 Aug 2004 00:47:26 -0400
+Received: from ozlabs.org ([203.10.76.45]:11986 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S267428AbUHPErY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 00:43:46 -0400
-Date: Mon, 16 Aug 2004 06:33:02 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Florian Schmidt <mista.tapas@gmx.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P1
-Message-ID: <20040816043302.GA14979@elte.hu>
-References: <1092622121.867.109.camel@krustophenia.net> <20040816023655.GA8746@elte.hu> <1092624221.867.118.camel@krustophenia.net> <20040816032806.GA11750@elte.hu> <20040816033623.GA12157@elte.hu> <1092627691.867.150.camel@krustophenia.net> <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu> <1092630122.810.25.camel@krustophenia.net>
-Mime-Version: 1.0
+	Mon, 16 Aug 2004 00:47:24 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1092630122.810.25.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Transfer-Encoding: 7bit
+Message-ID: <16672.14100.498440.264776@cargo.ozlabs.ibm.com>
+Date: Mon, 16 Aug 2004 14:24:52 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org
+Cc: anton@samba.org, ananth@in.ibm.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] PPC64 set tbl->it_type in iommu code
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Here is a patch that sets struct iommu_table->it_type to TCE_PCI in
+pSeries_iommu.c.  This is just for code completeness (and it is
+updated in iSeries_iommu.c, but was somehow missed in
+pSeries_iommu.c).
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+Signed-off-by: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-> > > Anyway, the change to sched.c fixes the mlockall bug, it works
-> > > perfectly now.  Thanks!
-> > 
-> > great! This fix also means that we've got one more lock-break in the
-> > ext3 journalling code and one more lock-break in dcache.c. I've released
-> > -P1 with the fix included:
-> > 
-> >  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P1
-> > 
-> 
-> The highest latency I am seeing now is the rhine_check_duplex problem. 
-> Should I try making mdio_delay an NOOP?
+diff -Naurp temp/arch/ppc64/kernel/pSeries_iommu.c risc/arch/ppc64/kernel/pSeries_iommu.c
+--- temp/arch/ppc64/kernel/pSeries_iommu.c	2004-07-18 09:57:47.000000000 +0500
++++ risc/arch/ppc64/kernel/pSeries_iommu.c	2004-07-22 16:24:53.000000000 +0500
+@@ -211,6 +211,7 @@ static void iommu_table_setparms(struct
+ 	tbl->it_index = 0;
+ 	tbl->it_entrysize = sizeof(union tce_entry);
+ 	tbl->it_blocksize = 16;
++	tbl->it_type = TCE_PCI;
+ }
 
-there's no mdio_delay() in via-rhine.c AFAICS. Could you add a pair of
-touch-latency calls to around this code in mdio_read():
+ /*
+@@ -246,6 +247,7 @@ static void iommu_table_setparms_lpar(st
+ 	tbl->it_index  = dma_window[0];
+ 	tbl->it_entrysize = sizeof(union tce_entry);
+ 	tbl->it_blocksize  = 16;
++	tbl->it_type = TCE_PCI;
+ }
 
-+       touch_preempt_timing();
-        /* Wait for a previous command to complete. */
-        while ((readb(ioaddr + MIICmd) & 0x60) && --boguscnt > 0)
-+       touch_preempt_timing();
 
-i suspect it's this one that introduces the biggest delay. Also:
-
-+	touch_preempt_timing();
-        while ((readb(ioaddr + MIICmd) & 0x40) && --boguscnt > 0)
-                ;
-+	touch_preempt_timing();
-
-assuming that the latencies still show up even if delimited like this. 
-(note that this only changes the way the latency is tracked - the
-latency itself is still there so this isnt a fix.)
-
-	Ingo

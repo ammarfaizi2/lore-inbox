@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbVBWE6Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVBWFAg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261164AbVBWE6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 23:58:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbVBWE6Z
+	id S261189AbVBWFAg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 00:00:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbVBWFAe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 23:58:25 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:17117
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261164AbVBWE6U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 23:58:20 -0500
-Date: Tue, 22 Feb 2005 20:57:22 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: hugh@veritas.com, ak@suse.de, benh@kernel.crashing.org, torvalds@osdl.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] page table iterators
-Message-Id: <20050222205722.4e228aba.davem@davemloft.net>
-In-Reply-To: <1109134170.5177.9.camel@npiggin-nld.site>
-References: <4214A1EC.4070102@yahoo.com.au>
-	<4214A437.8050900@yahoo.com.au>
-	<20050217194336.GA8314@wotan.suse.de>
-	<1108680578.5665.14.camel@gaston>
-	<20050217230342.GA3115@wotan.suse.de>
-	<20050217153031.011f873f.davem@davemloft.net>
-	<20050217235719.GB31591@wotan.suse.de>
-	<4218840D.6030203@yahoo.com.au>
-	<Pine.LNX.4.61.0502210619290.7925@goblin.wat.veritas.com>
-	<421B0163.3050802@yahoo.com.au>
-	<Pine.LNX.4.61.0502230136240.5772@goblin.wat.veritas.com>
-	<20050222203115.49f79f42.davem@davemloft.net>
-	<1109134170.5177.9.camel@npiggin-nld.site>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Wed, 23 Feb 2005 00:00:34 -0500
+Received: from coyote.holtmann.net ([217.160.111.169]:35984 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S261189AbVBWFA3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 00:00:29 -0500
+Subject: Warning of redefined NR_OPEN
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Wed, 23 Feb 2005 06:00:28 +0100
+Message-Id: <1109134828.8506.118.camel@pegasus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Feb 2005 15:49:30 +1100
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+Hi,
 
-> > It's easy to toy with the sparc64 optimization on other platforms,
-> > just add the necessary hacks to pmd_set and pgd_set, allocation
-> > of pmd and pgd tables
-> 
-> David: just an implementation detail that I had meant to bring
-> up earlier - would it feel like less of a hack to put these in
-> pmd_populate and pgd_populate?
+when compiling the latest 2.6 tree from the Bitkeeper repository, I get
+a lot of these:
 
-Sure, no problem.  They get defined to pmd_set/pgd_set calls
-anyways.  But wouldn't that miss pgd_clear() and pmd_clear()?
-Someone may find it worthwhile to, on a *_clear(), to see if
-a set bit can now be clear because all the neighboring entries
-are empty as well.
+  CC      init/main.o
+In file included from include/linux/fs.h:202,
+                 from include/linux/proc_fs.h:6,
+                 from init/main.c:17:
+include/linux/limits.h:4:1: warning: "NR_OPEN" redefined
+In file included from include/linux/proc_fs.h:6,
+                 from init/main.c:17:
+include/linux/fs.h:24:1: warning: this is the location of the previous definition
 
-That might have been the reason I put it there, but I may be
-giving myself too much credit :-)
+Maybe the re-order of <linux/fs.h> to make userland happy was not a good
+idea.
+
+Regards
+
+Marcel
+
+

@@ -1,98 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261787AbTFHNL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 09:11:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbTFHNL3
+	id S261797AbTFHNYc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 09:24:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbTFHNYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 09:11:29 -0400
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:10231 "EHLO
-	mail.kroptech.com") by vger.kernel.org with ESMTP id S261787AbTFHNL1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 09:11:27 -0400
-Date: Sun, 8 Jun 2003 09:01:06 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: =?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] MAINTAINERS: compaq raid drivers
-Message-ID: <20030608090105.A16496@mail.kroptech.com>
-References: <200306072357.QAA04100@hpat542.atl.hp.com> <20030608115844.GC6662@wohnheim.fh-wedel.de> <20030608120453.GD6662@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030608120453.GD6662@wohnheim.fh-wedel.de>; from joern@wohnheim.fh-wedel.de on Sun, Jun 08, 2003 at 02:04:53PM +0200
+	Sun, 8 Jun 2003 09:24:32 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:20431 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S261797AbTFHNYb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jun 2003 09:24:31 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Sun, 8 Jun 2003 15:38:04 +0200 (MEST)
+Message-Id: <UTC200306081338.h58Dc4X28137.aeb@smtp.cwi.nl>
+To: linux-kernel@vger.kernel.org, mochel@osdl.org
+Subject: Re: Is sys_sysfs used?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 08, 2003 at 02:04:53PM +0200, Jörn Engel wrote:
-> On Sun, 8 June 2003 13:58:44 +0200, Jörn Engel wrote:
-> > 
-> > "Charles White <arrays@compaq.com>" bounces.  Does anyone have a
-> > better patch for the MAINTAINERS than the one below?
-> 
-> Could have guessed so, the list bounces as well.  And so does the
-> other compaq address.  Updated patch.
+    From: Patrick Mochel <mochel@osdl.org>
 
-The patch that really wants applying is this one from Steve Cameron back
-in February:
+    I see that only one architecture defines __NR_sysfs: x86-64, though it
+    appears most architectures mention it in arch/*/kernel/entry.S (or 
+    equivalent).
 
-Date:	Thu, 27 Feb 2003 10:04:31 +0600
-From: Stephen Cameron <steve.cameron@hp.com>
-To: linux-kernel@vger.kernel.org
-Cc: charles.white@hp.com, amy.vanzant-hodge@hp.com
-Subject: [PATCH] 2.5.21-pre5, MAINTAINTERS, cciss/cpqarray/cpqfc
+There are definitions in include/asm-*/unistd.h.
 
-Charles White and Amy Vanzant-Hodge have moved on
-to do other things. 
+    Is it used anymore? Would it be possible to remove it? 
 
--- steve
+There should be a good reason to change the kernel API.
+Just "why not remove this probably unused call?" is not a good reason.
 
---- lx2421p5/MAINTAINERS~maint	2003-02-27 09:57:04.000000000 +0600
-+++ lx2421p5-scameron/MAINTAINERS	2003-02-27 09:59:38.000000000 +0600
-@@ -335,25 +335,25 @@ L:	codalist@coda.cs.cmu.edu
- W:	http://www.coda.cs.cmu.edu/
- S:	Maintained
- 
--COMPAQ FIBRE CHANNEL 64-bit/66MHz PCI non-intelligent HBA
--P:      Amy Vanzant-Hodge 
--M:      Amy Vanzant-Hodge (fibrechannel@compaq.com)
--L:	compaqandlinux@cpqlin.van-dijk.net
--W:	ftp.compaq.com/pub/products/drivers/linux
--S:      Supported
-+HP (was COMPAQ) FIBRE CHANNEL 64-bit/66MHz PCI non-intelligent HBA
-+P:      Stephen Cameron
-+M:      arrays@hp.com 
-+M:      steve.cameron@hp.com
-+L:	cpqfc-discuss@lists.sourceforge.net
-+S:      Odd Fixes
-+
-+HP (was COMPAQ) SMART2 RAID DRIVER
-+P:	Stephen Cameron
-+M:	arrays@hp.com
-+M:	steve.cameron@hp.com
-+L:	cpqarray-discuss@lists.sourceforge.net
-+S:	Odd Fixes
- 
--COMPAQ SMART2 RAID DRIVER
--P:	Charles White	
--M:	Charles White <arrays@compaq.com>
--L:	compaqandlinux@cpqlin.van-dijk.net
--W:	ftp.compaq.com/pub/products/drivers/linux
--S:	Supported	
--
--COMPAQ SMART CISS RAID DRIVER 
--P:	Charles White
--M:	Charles White <arrays@compaq.com>
--L:	compaqandlinux@cpqlin.van-dijk.net
--W:	ftp.compaq.com/pub/products/drivers/linux	
-+HP (was COMPAQ) SMART CISS RAID DRIVER 
-+P:	Stephen Cameron
-+M:	arrays@hp.com
-+M:	steve.cameron@hp.com
-+L:	cciss-discuss@lists.sourceforge.net
- S:	Supported 
- 
- COMPUTONE INTELLIPORT MULTIPORT CARD
+(It indeed is almost unused. A grep on a random source tree shows
+a use in mount.c in busybox.)
 
-
+Andries

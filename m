@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266069AbUJEVuu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266143AbUJEVxV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266069AbUJEVuu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 17:50:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266127AbUJEVuu
+	id S266143AbUJEVxV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 17:53:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266155AbUJEVxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 17:50:50 -0400
-Received: from s0003.shadowconnect.net ([213.239.201.226]:45979 "EHLO
-	mail.shadowconnect.com") by vger.kernel.org with ESMTP
-	id S266069AbUJEVun (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 17:50:43 -0400
-Message-ID: <416317FB.200@shadowconnect.com>
-Date: Tue, 05 Oct 2004 23:54:03 +0200
-From: Markus Lidel <Markus.Lidel@shadowconnect.com>
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
+	Tue, 5 Oct 2004 17:53:21 -0400
+Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:35776 "EHLO
+	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S266143AbUJEVxT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 17:53:19 -0400
+From: David Brownell <david-b@pacbell.net>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: PATCH/RFC: driver model/pmcore wakeup hooks (1/4)
+Date: Tue, 5 Oct 2004 14:53:27 -0700
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <200410041400.04385.david-b@pacbell.net> <200410051309.02105.david-b@pacbell.net> <20041005201531.GA5763@elf.ucw.cz>
+In-Reply-To: <20041005201531.GA5763@elf.ucw.cz>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: question about MTRR areas on x86_64
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200410051453.27629.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tuesday 05 October 2004 1:15 pm, Pavel Machek wrote:
 
-i've got the following error message:
+> > Also, so strncmp() can be used.  It won't matter if the sysadmin goes
+> > 
+> >    echo -n enabled > wakeup
+> >    echo enabled > wakeup
+> 
+> Well, you could make that 0,1. That would be more sysfs-style...
 
-mtrr: type mismatch for fb000000,1000000 old: write-back new: write-combining
-i2o: could not enable write combining MTRR
+Only for things like detach_state and power_state, which shouldn't
+be numbers in the first place ... :)
 
-the output of /proc/mtrr is as follows:
-
-reg00: base=0x00000000 (   0MB), size=8192MB: write-back, count=1
-reg01: base=0xe5000000 (3664MB), size=  16MB: uncachable, count=1
-reg02: base=0xe6000000 (3680MB), size=  32MB: uncachable, count=1
-reg03: base=0xe8000000 (3712MB), size= 128MB: uncachable, count=1
-reg04: base=0xf0000000 (3840MB), size= 256MB: uncachable, count=1
-
-Could it be because the machine has too much memory, or is there a bug in the I2O driver?
-
-Thank you very much in advance.
+The /sys/module/*/OPTION strings use Y/N for booleans, and
+maybe sysfs should actually have generic code to read/write
+such boolean values.
 
 
-Best regards,
+> On the second thought, perhaps file simply should not be there if
+> wakeup is not supported.
 
+That doesn't work too well for things like USB, where one config
+may support wakeup but another doesn't ... and unconfigured
+devices never support it.  The "can_support" value changes
+over time.
 
-Markus Lidel
-------------------------------------------
-Markus Lidel (Senior IT Consultant)
-
-Shadow Connect GmbH
-Carl-Reisch-Weg 12
-D-86381 Krumbach
-Germany
-
-Phone:  +49 82 82/99 51-0
-Fax:    +49 82 82/99 51-11
-
-E-Mail: Markus.Lidel@shadowconnect.com
-URL:    http://www.shadowconnect.com
+- Dave

@@ -1,17 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265242AbTARX0l>; Sat, 18 Jan 2003 18:26:41 -0500
+	id <S264962AbTARXZJ>; Sat, 18 Jan 2003 18:25:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265201AbTARX0Z>; Sat, 18 Jan 2003 18:26:25 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:46308 "HELO
+	id <S265174AbTARXZJ>; Sat, 18 Jan 2003 18:25:09 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:48100 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S265197AbTARX0X>; Sat, 18 Jan 2003 18:26:23 -0500
-Date: Sun, 19 Jan 2003 00:35:17 +0100
+	id <S264962AbTARXZI>; Sat, 18 Jan 2003 18:25:08 -0500
+Date: Sun, 19 Jan 2003 00:34:01 +0100
 From: Adrian Bunk <bunk@fs.tum.de>
-To: linux-net@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.5 patch] remove #if'd kernel 2.0 code from ipchains_core.h
-Message-ID: <20030118233517.GW10647@fs.tum.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.5 patch] small cleanup for include/linux/efs_fs.h
+Message-ID: <20030118233401.GV10647@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -19,26 +18,45 @@ User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below removes some #if'd kernel 2.0 code from 
-include/linux/netfilter_ipv4/ipchains_core.h.
+The patch below includes the following small cleanups for 
+include/linux/efs_fs.h:
+- remove unused #define MIN/MAX
+- remove check for kernels < 2.2
 
-Please apply
+I've tested the compilation with 2.5.59.
+
+cu
 Adrian
 
 
---- linux-2.5.59-full/include/linux/netfilter_ipv4/ipchains_core.h.old	2003-01-19 00:31:59.000000000 +0100
-+++ linux-2.5.59-full/include/linux/netfilter_ipv4/ipchains_core.h	2003-01-19 00:32:49.000000000 +0100
-@@ -178,12 +178,8 @@
+--- linux-2.5.59-full/include/linux/efs_fs.h.old	2003-01-19 00:27:21.000000000 +0100
++++ linux-2.5.59-full/include/linux/efs_fs.h	2003-01-19 00:27:56.000000000 +0100
+@@ -15,14 +15,6 @@
  
- #include <linux/config.h>
- #include <linux/version.h>
--#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,1,0)
- #include <linux/init.h>
- extern void ip_fw_init(void) __init;
--#else /* 2.0.x */
--extern void ip_fw_init(void);
--#endif /* 2.1.x */
- extern int ip_fw_ctl(int, void *, int);
- #ifdef CONFIG_IP_MASQUERADE
- extern int ip_masq_uctl(int, char *, int);
-
+ #include <asm/uaccess.h>
+ 
+-#ifndef LINUX_VERSION_CODE
+-#include <linux/version.h>
+-#endif
+-
+-#if LINUX_VERSION_CODE < 0x20200
+-#error This code is only for linux-2.2 and later.
+-#endif
+-
+ /* 1 block is 512 bytes */
+ #define	EFS_BLOCKSIZE_BITS	9
+ #define	EFS_BLOCKSIZE		(1 << EFS_BLOCKSIZE_BITS)
+@@ -32,13 +24,6 @@
+ #include <linux/efs_fs_sb.h>
+ #include <linux/efs_dir.h>
+ 
+-#ifndef MIN
+-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+-#endif
+-#ifndef MAX
+-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
+-#endif
+-
+ static inline struct efs_inode_info *INODE_INFO(struct inode *inode)
+ {
+ 	return container_of(inode, struct efs_inode_info, vfs_inode);

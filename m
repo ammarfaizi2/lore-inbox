@@ -1,55 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266001AbUAEXIc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 18:08:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265994AbUAEXHk
+	id S265993AbUAEXEW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 18:04:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265994AbUAEXEH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 18:07:40 -0500
-Received: from pop.gmx.de ([213.165.64.20]:36267 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S266013AbUAEXG4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 18:06:56 -0500
-X-Authenticated: #125400
-Message-ID: <3FF9EDEF.9010900@gmx.de>
-Date: Tue, 06 Jan 2004 00:06:23 +0100
-From: Andreas Fester <Andreas.Fester@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030908 Debian/1.4-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: =?ISO-8859-15?Q?Markus_H=E4stbacka?= <midian@ihme.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.24 released
-References: <1aDrl-81S-11@gated-at.bofh.it> <1aGfZ-3zX-33@gated-at.bofh.it> <1aGIx-4iy-25@gated-at.bofh.it> <1aHbG-4Xs-11@gated-at.bofh.it> <1aIri-6Nn-27@gated-at.bofh.it> <1aKj3-Y1-13@gated-at.bofh.it>
-In-Reply-To: <1aKj3-Y1-13@gated-at.bofh.it>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 5 Jan 2004 18:04:07 -0500
+Received: from sole.infis.univ.trieste.it ([140.105.134.1]:18561 "EHLO
+	sole.infis.univ.trieste.it") by vger.kernel.org with ESMTP
+	id S265993AbUAEXDG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 18:03:06 -0500
+Date: Mon, 5 Jan 2004 23:59:54 +0100
+From: Andrea Barisani <lcars@infis.univ.trieste.it>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.6.0, wrong Kconfig directives
+Message-ID: <20040105225954.GA9382@sole.infis.univ.trieste.it>
+References: <20031222235622.GA17030@sole.infis.univ.trieste.it> <20040105221732.GG10569@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040105221732.GG10569@fs.tum.de>
+X-GPG-Key: 0x864C9B9E
+X-GPG-Fingerprint: 0A76 074A 02CD E989 CE7F  AC3F DA47 578E 864C 9B9E
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-I had the same problem with depmod reporting many
-unresolved symbols. Seems that updating modutils
-solves the problem. I was using modutils 2.4.12 on a
-SuSE 8.2 system, after upgrading to the current modutils
-2.4.26 depmod works properly.
-
-Best Regards,
-
-	Andreas
-
-BTW: Documentation/Changes still lists modutils 2.4.2 as
-Minimal Requirement, which does not seem to be true anymore;
-I dont know which actually is the minimal requirement,
-otherwise I would have sent a patch ;-) Maybe someone can
-clarify this...
-
-Markus Hästbacka wrote:
-> On Mon, 2004-01-05 at 21:06, Adrian Bunk wrote:
+On Mon, Jan 05, 2004 at 11:17:32PM +0100, Adrian Bunk wrote:
+> On Tue, Dec 23, 2003 at 12:56:23AM +0100, Andrea Barisani wrote:
+> > 
+> > Hi folks,
 > 
->>Please you doublecheck whether the following really fails for you:
->>
->>  cd linux-2.4.24
->>  mv .config /tmp
-[...]
+> Hi Andrea,
 
+Hi!
+
+> 
+> > Installing 2.6.0 I've found that some kernel options directives are wrong,
+> > in fact the option turns out to be always enabled. I don't think this is 
+> > a desired behaviour.
+> > 
+> > Sorry for the format, yes I know it's ugly :) but I'll leave to you the proper 
+> > solution :) so I can't make a proper patch.
+> > 
+> > 
+> > - IPV6_SCTP___ option is always turned on
+> > 
+> > ./net/sctp/Kconfig:
+> > 
+> > 8:  config IPV6_SCTP__
+> > 9: 	    tristate
+> > 10:         default y if IPV6=n
+> > 11:	    default IPV6 if IPV6
+> > 12:
+> > 13: config IP_SCTP
+> > 14:	    tristate "The SCTP Protocol (EXPERIMENTAL)"
+> > 15:	    depends on IPV6_SCTP__
+> > 
+> > 
+> > I think something is wrong here, why the 'default y if IPV6=n' ???
+> 
+> 
+> It's ___ugly___ but designed this way...
+> 
+> The whole purpose of IPV6_SCTP__ is to disallow static IP_SCTP with
+> modular IPV6.
+
+Ok, so it's actually a "dummy" config with not linked with real code. A
+simple grep suggest that. If so I won't complain again, now it's clear ;)
+
+However it's really ___ugly___ ;)
+
+> 
+> These EMBEDDED are there to help people not to accidentially disable 
+> these options although they might require them.
+
+Ok that's fine, however I personally think this should be documented in
+EMBEDDED related options to let people know how they can disable them.
+
+And I really think that MOUSEDEV should not be considered a 'not-standard'
+option. It's quite common disabling MOUSE support on servers, terminals and
+so on. :)
+
+> cu
+> Adrian
+
+Bye and thanks
+
+--
+------------------------------------------------------------
+INFIS Network Administrator & Security Officer         .*. 
+Department of Physics       - University of Trieste     V 
+lcars@infis.univ.trieste.it - GPG Key 0x864C9B9E      (   )
+----------------------------------------------------  (   )
+"How would you know I'm mad?" said Alice.             ^^-^^
+"You must be,'said the Cat,'or you wouldn't have come here."
+------------------------------------------------------------

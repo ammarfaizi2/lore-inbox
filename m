@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266292AbTBGSdr>; Fri, 7 Feb 2003 13:33:47 -0500
+	id <S266310AbTBGSjX>; Fri, 7 Feb 2003 13:39:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266297AbTBGSdq>; Fri, 7 Feb 2003 13:33:46 -0500
-Received: from fmr03.intel.com ([143.183.121.5]:4818 "EHLO hermes.sc.intel.com")
-	by vger.kernel.org with ESMTP id <S266292AbTBGSdq> convert rfc822-to-8bit;
-	Fri, 7 Feb 2003 13:33:46 -0500
-content-class: urn:content-classes:message
-Subject: Re: [PATCH] Restore module support.
-Date: Fri, 7 Feb 2003 10:43:19 -0800
+	id <S266318AbTBGSjX>; Fri, 7 Feb 2003 13:39:23 -0500
+Received: from mta02-svc.ntlworld.com ([62.253.162.42]:4565 "EHLO
+	mta02-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S266310AbTBGSjW> convert rfc822-to-8bit; Fri, 7 Feb 2003 13:39:22 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: SA <bullet.train@ntlworld.com>
+To: linux-kernel@vger.kernel.org
+Subject: interrupt latency k2.4 / i386?
+Date: Fri, 7 Feb 2003 18:47:36 +0000
+User-Agent: KMail/1.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <DD755978BA8283409FB0087C39132BD1A07C9E@fmsmsx404.fm.intel.com>
-X-MS-Has-Attach: 
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6334.0
-X-MS-TNEF-Correlator: 
-Thread-Topic: Re: [PATCH] Restore module support.
-Thread-Index: AcLO2NAuGrvFE3wlTHm6j3KoHz8xwQ==
-From: "Luck, Tony" <tony.luck@intel.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 07 Feb 2003 18:43:19.0761 (UTC) FILETIME=[C8D75C10:01C2CED8]
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200302071847.36646.bullet.train@ntlworld.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> (2) has the disadvantage that its touching non-architecture specific
-> code, but this is the option I'd prefer due to the obvious performance
-> advantage.  However, I'm afraid that it isn't worth the effort to fix
-> up vmalloc and /proc/kcore.  vmalloc fix appears simple, but /proc/kcore
-> has issues (anyone know what KCORE_BASE is all about?)
 
-KCORE_BASE is my fault ... it was an attempt to fix the "modules
-below PAGE_OFFSET" problem for the ia64 port.  For a few nanoseconds
-the code just here looked like this:
+Dear list,
 
-#if VMALLOC_START < PAGE_OFFSET
-#define	KCORE_BASE	VMALLOC_START
-#else
-#define	KCORE_BASE	PAGE_OFFSET
-#endif
+What latency should I expect for hardware interrupts under k2.4 / i386 ? 
 
-Which worked great for ia64, but failed to even compile on i386
-(because on i386 VMALLOC_START isn't a simple constant that cpp
-can compare against).
+ie how long should it take between the hardware signalling the interrupt and 
+the interrupt handler being called?
 
-Linus kept the bulk of my patch and just replaced the above code with
-the "#define	KCORE_BASE	PAGE_OFFSET" that is there today, maybe
-in the hope that I'd come back with a workable #ifdef ... but the only
-one I've come up with so far is "#ifdef CONFIG_IA64" which can't be
-right as ia64 isn't the only architecture with this issue.
 
-There was some discussion on a better way to do this, by adding the
-kernel itself to the vmlist, and eliminating all the special case code.
-I took a brief look at this, but realised that there were all sorts
-of ugly race conditions with /proc/kcore if a module is loaded/unloaded
-after some process has read the Elf header.
+I am wrting a driver which pace IO with interrupts, generating one interrupt 
+for after every transfer is done.  Looking at the hardware schematics the 
+interrupts should occur virtually instantly after each transfer but the 
+driver is waiting ~1ms/ interrupt.  
 
--Tony Luck
+I can use polling instead with busy waits but this seems a bit wasteful.
 
+
+My interrupt is shared with my graphics card using the non-GPL nvidia driver - 
+could this be responsible for the delay (any experience with this)?
+
+cat /proc/interrupts
+.....
+ 10:       3028          XT-PIC  eth0, VIA 82C686A
+ 11:    1117037          XT-PIC  nvidia, PI stage <-- my driver
+ 12:      14776          XT-PIC  usb-uhci, usb-uhci
+.....
+
+Thanks SA

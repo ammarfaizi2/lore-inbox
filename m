@@ -1,74 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262067AbUKVNBe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262083AbUKVNDq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262067AbUKVNBe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 08:01:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262077AbUKVNBd
+	id S262083AbUKVNDq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 08:03:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbUKVNDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 08:01:33 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58026 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262067AbUKVNAg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 08:00:36 -0500
-Date: Mon, 22 Nov 2004 06:35:48 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Chris Ross <chris@tebibyte.org>
-Cc: Andrew Morton <akpm@osdl.org>, andrea@novell.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       piggin@cyberone.com.au, riel@redhat.com,
-       mmokrejs@ribosome.natur.cuni.cz, tglx@linutronix.de
-Subject: Re: [PATCH] fix spurious OOM kills
-Message-ID: <20041122083548.GA26131@logos.cnet>
-References: <4194EA45.90800@tebibyte.org> <20041113233740.GA4121@x30.random> <20041114094417.GC29267@logos.cnet> <20041114170339.GB13733@dualathlon.random> <20041114202155.GB2764@logos.cnet> <419A2B3A.80702@tebibyte.org> <419B14F9.7080204@tebibyte.org> <20041117012346.5bfdf7bc.akpm@osdl.org> <41A0E60C.605@tebibyte.org> <41A1D850.6090706@tebibyte.org>
+	Mon, 22 Nov 2004 08:03:46 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:6593 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262084AbUKVNCe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 08:02:34 -0500
+Date: Mon, 22 Nov 2004 14:02:02 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Alan Chandler <alan@chandlerfamily.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ide-cd problem
+Message-ID: <20041122130202.GO10463@suse.de>
+References: <200411201842.15091.alan@chandlerfamily.org.uk> <200411211025.11629.alan@chandlerfamily.org.uk> <200411211613.54713.alan@chandlerfamily.org.uk> <200411220752.28264.alan@chandlerfamily.org.uk> <20041122080122.GM26240@suse.de> <E1CWBSN-0003mF-4s@home.chandlerfamily.org.uk> <20041122105157.GB10463@suse.de> <E1CWCOC-0003so-Ao@home.chandlerfamily.org.uk> <20041122113150.GF10463@suse.de> <E1CWDhN-00040Y-E6@home.chandlerfamily.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41A1D850.6090706@tebibyte.org>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <E1CWDhN-00040Y-E6@home.chandlerfamily.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 22, 2004 at 01:15:12PM +0100, Chris Ross wrote:
-> Hi Andrew,
+On Mon, Nov 22 2004, Alan Chandler wrote:
+> Jens Axboe writes: 
 > 
-> Chris Ross escreveu:
-> > Andrew Morton escreveu:
-> >> Please ignore the previous patch and try the below.
+> >On Mon, Nov 22 2004, Alan Chandler wrote:
+> >>Jens Axboe writes: 
+> 
+> >>>400ns is the correctl value. Your writing is a little unclear to me -
+> >>>did it work or not, with that change alone? 
+> >>> 
+> >>
+> >>To be clear ...  
+> >>
+> >>
+> >>I have modified ide-cd.c with  
+> >>
+> >>1) ndelay(400) at the head of cdrom_newpc_intr()  
+> >>
+> >>2) Alan Cox's patch in the place he originally identified for it to go  
+> >>
+> >>3) Some printk's in cdrom_newpc_intr() after the point where it reads the 
+> >>status and IREASON and length registers and just for the purposes of 
+> >>diagnostics.  
+> >>
+> >>With only those changes it now works. 
 > >
-> > I still get OOM kills with this (well one, anyway). It does seem harder
-> > to trigger though.
+> >You are not answering my question :-) 
+> >
+> >Here's is Alans patch as I posted some mails ago. Does it work with that
+> >alone?? I'm curious of it is enough. It should not be necessary to incur
+> >extra delay in the interrupt handler, if it is invoked from a real irq.
 > 
-> Turns out it's not that hard. Sorry for the slight delay, I've been away 
-> a few days.
+> Sorry, I misunderstood what you meant.  I presume you think that the 
+> interrupt may be triggered immediately the command packet has been sent but 
+> before 400ns delay had occurred. 
 > 
-> root@sleepy chris # grep Killed /var/log/messages
-> Nov 21 22:24:22 sleepy Out of Memory: Killed process 6800 (qmgr).
-> Nov 21 22:24:32 sleepy Out of Memory: Killed process 6799 (pickup).
-> Nov 21 22:24:57 sleepy Out of Memory: Killed process 6472 (distccd).
-> Nov 21 22:25:00 sleepy Out of Memory: Killed process 6473 (distccd).
-> Nov 21 22:25:00 sleepy Out of Memory: Killed process 6582 (distccd).
-> Nov 21 22:25:00 sleepy Out of Memory: Killed process 6686 (distccd).
-> Nov 21 22:25:00 sleepy Out of Memory: Killed process 6687 (ntpd).
+> NO - with Alan's patch alone, this did not work. 
 > 
-> If you want to seem the actual oom messages just ask.
+> The delay seesm to be needed in the path between the interrupt occuring and 
+> the IDE_STATUS_REG being read. 
 > 
-> This is with 2.6.10-rc2-mm1 + your patch whilst doing an "emerge sync" 
-> which isn't ridiculously memory hungry and shouldn't result in oom kills.
+> I had seen an note on a web site that said that there was two delays 
+> required in the ATA/ATAPI spec - the 400ns which Alan's patch deals with 
+> and a shorter delay (one PIO cycle) between busy being cleared and DRQ 
+> reaching the correct state where the technique had been to read the 
+> ALTSTATUS register.  That was why I had tried that approach but found it 
+> not to work. 
+> (I have subsequently downloaded a copy of the full spec and haven't been 
+> able to find this - but then its just short of 500 pages of dense text:-)). 
 > 
-> Informally I felt I had better results from Marcelo's patch, though I 
-> should test both under the same conditions before I say that...
+> Thinking about it now, I tried the ALTSTATUS delay before applying Alan's 
+> patch, so maybe its the some of the two delays that maybe necessary.  If 
+> you think its appropriate I will try that again this evening. 
 
-Chris, 
+I think the more correct patch is the following. It seems I was wrong in
+assuming that the ide_intr() path already waited 400ns for us, I think
+this should work for you. Can you test it?
 
-The kill-from-kswapd approach on top of recent -mm which includes 
-"ignore referenced information on zero priority" should be quite 
-reliable. Would be nice if you could try that. 
+===== drivers/ide/ide-iops.c 1.31 vs edited =====
+--- 1.31/drivers/ide/ide-iops.c	2004-11-01 18:06:50 +01:00
++++ edited/drivers/ide/ide-iops.c	2004-11-22 13:59:27 +01:00
+@@ -476,10 +476,8 @@
+ 	if (drive->waiting_for_dma)
+ 		return hwif->ide_dma_test_irq(drive);
+ 
+-#if 0
+ 	/* need to guarantee 400ns since last command was issued */
+-	udelay(1);
+-#endif
++	ndelay(400);
+ 
+ #ifdef CONFIG_IDEPCI_SHARE_IRQ
+ 	/*
 
-The current scheme is broken yes, the main problem being the all_unreclaimable
-logic which conflicts with OOM detection - I (we) were hoping 
-"ignore-referenced-information-on-zero-priority" would be enough for 99% of 
-cases, but it doesnt seem so.
+-- 
+Jens Axboe
 
-Either way killing from kswapd or from task context all_unreclaimable logic 
-is conflitant with OOM detection.
-
-But we are going the right way :)

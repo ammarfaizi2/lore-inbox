@@ -1,434 +1,223 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261956AbTFBGh6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 02:37:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbTFBGhx
+	id S261960AbTFBGqX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 02:46:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbTFBGqX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 02:37:53 -0400
-Received: from landfill.ihatent.com ([217.13.24.22]:34013 "EHLO
-	pileup.ihatent.com") by vger.kernel.org with ESMTP id S261956AbTFBGhl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 02:37:41 -0400
-To: Oliver Neukum <oliver@neukum.org>
-Cc: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org
-Subject: Re: USB 2.0 with 250Gb disk and insane loads
-References: <3EDA0E5D.8080404@pacbell.net>
-	<200306011653.47958.oliver@neukum.org>
-	<87k7c5g738.fsf@lapper.ihatent.com>
-	<200306012021.41147.oliver@neukum.org>
-From: Alexander Hoogerhuis <alexh@ihatent.com>
-Date: 02 Jun 2003 08:51:03 +0200
-In-Reply-To: <200306012021.41147.oliver@neukum.org>
-Message-ID: <87llwl3rc8.fsf@lapper.ihatent.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 2 Jun 2003 02:46:23 -0400
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:13966 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S261960AbTFBGqT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 02:46:19 -0400
+Message-Id: <5.1.0.14.2.20030602084908.00aed558@pop.t-online.de>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 02 Jun 2003 08:59:28 +0200
+To: linux-kernel@vger.kernel.org
+From: margitsw@t-online.de (Margit Schubert-While)
+Subject: PCI cache line messages 2.4/2.5
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="=====================_3116100==_"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+--=====================_3116100==_
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 
-Oliver Neukum <oliver@neukum.org> writes:
+Getting this with 2.5.70(-bk)  :
+PCI: cache line size of 128 is not supported by device 00:1d.7
 
-> > > Probably the block layer as it waits for free io slots.
-> > > But that doesn't tell us why the requests are not executed.
-> > > Where is SCSI timeout kicking in?
-> >
-> > I'm not seeing any scsi timeouts in the logs.
-> 
-> So it seems that the driver doesn't fail utterly, but crawls along.
-> Storage's debugging output should clarify the situation.
-> 
-> [..]
-> > > Could you try on USB1.1 only?
-> >
-> > Stuck it in an older machine on USB 1.1 and it foudn the disk fine
-> > (redhat 9, 2.4.20-13.9 kernel on that machine), and ditto result:
-> >
-> > 19:15:16  up 2 days, 20:23,  4 users,  load average: 6.02, 2.41, 0.89
-> > 58 processes: 55 sleeping, 3 running, 0 zombie, 0 stopped
-> > CPU states:   0.2% user   4.0% system   0.0% nice   0.0% iowait  95.8% idle
-> > Mem:   385040k av,  380820k used,    4220k free,       0k shrd,   67368k
-> > buff 224720k active,              69412k inactive
-> > Swap:  521632k av,      80k used,  521552k free                  237452k
-> > cached
-> >
-> > and generating about 2500 interrupts for the usb controller per 10
-> > seconds and when i finally break it off and give it "sync" it uses
-> > about two minutes with about 4500 per 10 seconds to get it all on
-> > disk. On 2.4 the machine becomes more and more sluggish if I let it go
-> > more than a short minute.
-> 
-> Which 2.4 ?
-> 
+and this with 2.4.2(0,1,pre,rc) :
+PCI: 00:1d.7 PCI cache line size set incorrectly (0 bytes) by BIOS/FW.
+PCI: 00:1d.7 PCI cache line size corrected to 128.
 
-This one was latest RedHat 9 kernel (yes I know, proprietary, but
-ditto results on 2.4.21-rc[4|6]-ac[1|2].
+This is the onboard USB EHCI (Intel D845 PESV).
+lspci below.
 
-Output below from 2.5.70-mm3 (USB 2.0), which leaves the machine in a
-survivable state (as oposed to 2.4, which gradually climbs up a tree
-and then falls down hard). After enabling debugging in USB storage it
-fell over much more quickly.
+What's going on ?
 
-> 	Regards
-> 		Oliver
+Margit
+--=====================_3116100==_
+Content-Type: application/octet-stream; name="lspci"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="lspci"
 
-mvh,
-A
+MDA6MDAuMCBIb3N0IGJyaWRnZTogSW50ZWwgQ29ycC4gODI4NDVHL0dMIFtCcm9va2RhbGUtR10g
+Q2hpcHNldCBIb3N0IEJyaWRnZSAocmV2IDAyKQoJU3Vic3lzdGVtOiBJbnRlbCBDb3JwLiA4Mjg0
+NUcvR0wgW0Jyb29rZGFsZS1HXSBDaGlwc2V0IEhvc3QgQnJpZGdlCglDb250cm9sOiBJL08tIE1l
+bSsgQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBw
+aW5nLSBTRVJSKyBGYXN0QjJCLQoJU3RhdHVzOiBDYXArIDY2TWh6LSBVREYtIEZhc3RCMkIrIFBh
+ckVyci0gREVWU0VMPWZhc3QgPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydCsgPlNFUlItIDxQRVJS
+LQoJTGF0ZW5jeTogMAoJUmVnaW9uIDA6IE1lbW9yeSBhdCBmODAwMDAwMCAoMzItYml0LCBwcmVm
+ZXRjaGFibGUpIFtzaXplPTY0TV0KCUNhcGFiaWxpdGllczogW2U0XSAjMDkgWzYxMDVdCglDYXBh
+YmlsaXRpZXM6IFthMF0gQUdQIHZlcnNpb24gMi4wCgkJU3RhdHVzOiBSUT0zMSBTQkErIDY0Yml0
+LSBGVysgUmF0ZT14MSx4Mix4NAoJCUNvbW1hbmQ6IFJRPTAgU0JBKyBBR1ArIDY0Yml0LSBGVy0g
+UmF0ZT14NAoKMDA6MDEuMCBQQ0kgYnJpZGdlOiBJbnRlbCBDb3JwLiA4Mjg0NUcvR0wgW0Jyb29r
+ZGFsZS1HXSBDaGlwc2V0IEFHUCBCcmlkZ2UgKHJldiAwMikgKHByb2ctaWYgMDAgW05vcm1hbCBk
+ZWNvZGVdKQoJQ29udHJvbDogSS9PKyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5W
+LSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUisgRmFzdEIyQi0KCVN0YXR1czogQ2Fw
+LSA2Nk1oeisgVURGLSBGYXN0QjJCKyBQYXJFcnItIERFVlNFTD1mYXN0ID5UQWJvcnQtIDxUQWJv
+cnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6IDMyCglCdXM6IHByaW1hcnk9MDAs
+IHNlY29uZGFyeT0wMSwgc3Vib3JkaW5hdGU9MDEsIHNlYy1sYXRlbmN5PTMyCglJL08gYmVoaW5k
+IGJyaWRnZTogMDAwMGMwMDAtMDAwMGNmZmYKCU1lbW9yeSBiZWhpbmQgYnJpZGdlOiBmZjgwMDAw
+MC1mZjhmZmZmZgoJUHJlZmV0Y2hhYmxlIG1lbW9yeSBiZWhpbmQgYnJpZGdlOiBkNjkwMDAwMC1m
+NjlmZmZmZgoJQnJpZGdlQ3RsOiBQYXJpdHktIFNFUlItIE5vSVNBLSBWR0ErIE1BYm9ydC0gPlJl
+c2V0LSBGYXN0QjJCLQoKMDA6MWQuMCBVU0IgQ29udHJvbGxlcjogSW50ZWwgQ29ycC4gODI4MDFE
+QiBVU0IgKEh1YiAjMSkgKHJldiAwMikgKHByb2ctaWYgMDAgW1VIQ0ldKQoJU3Vic3lzdGVtOiBJ
+bnRlbCBDb3JwLjogVW5rbm93biBkZXZpY2UgNTM1NgoJQ29udHJvbDogSS9PKyBNZW0tIEJ1c01h
+c3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VS
+Ui0gRmFzdEIyQi0KCVN0YXR1czogQ2FwLSA2Nk1oei0gVURGLSBGYXN0QjJCKyBQYXJFcnItIERF
+VlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQoJTGF0
+ZW5jeTogMAoJSW50ZXJydXB0OiBwaW4gQSByb3V0ZWQgdG8gSVJRIDE2CglSZWdpb24gNDogSS9P
+IHBvcnRzIGF0IGU4MDAgW3NpemU9MzJdCgowMDoxZC4xIFVTQiBDb250cm9sbGVyOiBJbnRlbCBD
+b3JwLiA4MjgwMURCIFVTQiAoSHViICMyKSAocmV2IDAyKSAocHJvZy1pZiAwMCBbVUhDSV0pCglT
+dWJzeXN0ZW06IEludGVsIENvcnAuOiBVbmtub3duIGRldmljZSA1MzU2CglDb250cm9sOiBJL08r
+IE1lbS0gQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0
+ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQoJU3RhdHVzOiBDYXAtIDY2TWh6LSBVREYtIEZhc3RCMkIr
+IFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0g
+PFBFUlItCglMYXRlbmN5OiAwCglJbnRlcnJ1cHQ6IHBpbiBCIHJvdXRlZCB0byBJUlEgMTkKCVJl
+Z2lvbiA0OiBJL08gcG9ydHMgYXQgZTg4MCBbc2l6ZT0zMl0KCjAwOjFkLjIgVVNCIENvbnRyb2xs
+ZXI6IEludGVsIENvcnAuIDgyODAxREIgVVNCIChIdWIgIzMpIChyZXYgMDIpIChwcm9nLWlmIDAw
+IFtVSENJXSkKCVN1YnN5c3RlbTogSW50ZWwgQ29ycC46IFVua25vd24gZGV2aWNlIDUzNTYKCUNv
+bnRyb2w6IEkvTysgTWVtLSBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3At
+IFBhckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItCglTdGF0dXM6IENhcC0gNjZNaHotIFVE
+Ri0gRmFzdEIyQisgUGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJv
+cnQtID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6IDAKCUludGVycnVwdDogcGluIEMgcm91dGVkIHRv
+IElSUSAxOAoJUmVnaW9uIDQ6IEkvTyBwb3J0cyBhdCBlYzAwIFtzaXplPTMyXQoKMDA6MWQuNyBV
+U0IgQ29udHJvbGxlcjogSW50ZWwgQ29ycC4gODI4MDFEQiBVU0IgRUhDSSBDb250cm9sbGVyIChy
+ZXYgMDIpIChwcm9nLWlmIDIwIFtFSENJXSkKCVN1YnN5c3RlbTogSW50ZWwgQ29ycC46IFVua25v
+d24gZGV2aWNlIDUzNTYKCUNvbnRyb2w6IEkvTy0gTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0g
+TWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlIrIEZhc3RCMkItCglTdGF0
+dXM6IENhcCsgNjZNaHotIFVERi0gRmFzdEIyQisgUGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJv
+cnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6IDAKCUludGVycnVw
+dDogcGluIEQgcm91dGVkIHRvIElSUSAyMwoJUmVnaW9uIDA6IE1lbW9yeSBhdCBmZmFmZmMwMCAo
+MzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT0xS10KCUNhcGFiaWxpdGllczogWzUwXSBQ
+b3dlciBNYW5hZ2VtZW50IHZlcnNpb24gMgoJCUZsYWdzOiBQTUVDbGstIERTSS0gRDEtIEQyLSBB
+dXhDdXJyZW50PTM3NW1BIFBNRShEMCssRDEtLEQyLSxEM2hvdCssRDNjb2xkKykKCQlTdGF0dXM6
+IEQwIFBNRS1FbmFibGUtIERTZWw9MCBEU2NhbGU9MCBQTUUtCglDYXBhYmlsaXRpZXM6IFs1OF0g
+IzBhIFsyMDgwXQoKMDA6MWUuMCBQQ0kgYnJpZGdlOiBJbnRlbCBDb3JwLiA4MjgwMUJBL0NBL0RC
+IFBDSSBCcmlkZ2UgKHJldiA4MikgKHByb2ctaWYgMDAgW05vcm1hbCBkZWNvZGVdKQoJQ29udHJv
+bDogSS9PKyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFy
+RXJyLSBTdGVwcGluZy0gU0VSUisgRmFzdEIyQi0KCVN0YXR1czogQ2FwLSA2Nk1oei0gVURGLSBG
+YXN0QjJCKyBQYXJFcnItIERFVlNFTD1mYXN0ID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5T
+RVJSLSA8UEVSUisKCUxhdGVuY3k6IDAKCUJ1czogcHJpbWFyeT0wMCwgc2Vjb25kYXJ5PTAyLCBz
+dWJvcmRpbmF0ZT0wMiwgc2VjLWxhdGVuY3k9MzIKCUkvTyBiZWhpbmQgYnJpZGdlOiAwMDAwZDAw
+MC0wMDAwZGZmZgoJTWVtb3J5IGJlaGluZCBicmlkZ2U6IGZmOTAwMDAwLWZmOWZmZmZmCglQcmVm
+ZXRjaGFibGUgbWVtb3J5IGJlaGluZCBicmlkZ2U6IGY2YTAwMDAwLWY2YWZmZmZmCglCcmlkZ2VD
+dGw6IFBhcml0eS0gU0VSUisgTm9JU0EtIFZHQS0gTUFib3J0LSA+UmVzZXQtIEZhc3RCMkItCgow
+MDoxZi4wIElTQSBicmlkZ2U6IEludGVsIENvcnAuIDgyODAxREIgSVNBIEJyaWRnZSAoTFBDKSAo
+cmV2IDAyKQoJQ29udHJvbDogSS9PKyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlKyBNZW1XSU5W
+LSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUisgRmFzdEIyQi0KCVN0YXR1czogQ2Fw
+LSA2Nk1oei0gVURGLSBGYXN0QjJCKyBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRB
+Ym9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQoJTGF0ZW5jeTogMAoKMDA6MWYuMSBJREUgaW50
+ZXJmYWNlOiBJbnRlbCBDb3JwLiA4MjgwMURCIElDSDQgSURFIChyZXYgMDIpIChwcm9nLWlmIDhh
+IFtNYXN0ZXIgU2VjUCBQcmlQXSkKCVN1YnN5c3RlbTogSW50ZWwgQ29ycC46IFVua25vd24gZGV2
+aWNlIDUzNTYKCUNvbnRyb2w6IEkvTy0gTWVtLSBCdXNNYXN0ZXItIFNwZWNDeWNsZS0gTWVtV0lO
+Vi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItCglTdGF0dXM6IENh
+cC0gNjZNaHotIFVERi0gRmFzdEIyQisgUGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxU
+QWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUludGVycnVwdDogcGluIEEgcm91dGVkIHRv
+IElSUSAxOAoJUmVnaW9uIDA6IEkvTyBwb3J0cyBhdCA8dW5hc3NpZ25lZD4gW2Rpc2FibGVkXQoJ
+UmVnaW9uIDE6IEkvTyBwb3J0cyBhdCA8dW5hc3NpZ25lZD4gW2Rpc2FibGVkXQoJUmVnaW9uIDI6
+IEkvTyBwb3J0cyBhdCA8dW5hc3NpZ25lZD4gW2Rpc2FibGVkXQoJUmVnaW9uIDM6IEkvTyBwb3J0
+cyBhdCA8dW5hc3NpZ25lZD4gW2Rpc2FibGVkXQoJUmVnaW9uIDQ6IEkvTyBwb3J0cyBhdCBmZmEw
+IFtkaXNhYmxlZF0gW3NpemU9MTZdCglSZWdpb24gNTogTWVtb3J5IGF0IDIwMDAwMDAwICgzMi1i
+aXQsIG5vbi1wcmVmZXRjaGFibGUpIFtkaXNhYmxlZF0gW3NpemU9MUtdCgowMDoxZi4zIFNNQnVz
+OiBJbnRlbCBDb3JwLiA4MjgwMURCIFNNQnVzIChyZXYgMDIpCglTdWJzeXN0ZW06IEludGVsIENv
+cnAuOiBVbmtub3duIGRldmljZSA1MzU2CglDb250cm9sOiBJL08rIE1lbS0gQnVzTWFzdGVyLSBT
+cGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0
+QjJCLQoJU3RhdHVzOiBDYXAtIDY2TWh6LSBVREYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VMPW1l
+ZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItCglJbnRlcnJ1cHQ6
+IHBpbiBCIHJvdXRlZCB0byBJUlEgMTcKCVJlZ2lvbiA0OiBJL08gcG9ydHMgYXQgZTAwMCBbc2l6
+ZT0zMl0KCjAwOjFmLjUgTXVsdGltZWRpYSBhdWRpbyBjb250cm9sbGVyOiBJbnRlbCBDb3JwLiA4
+MjgwMURCIEFDJzk3IEF1ZGlvIChyZXYgMDIpCglTdWJzeXN0ZW06IEludGVsIENvcnAuOiBVbmtu
+b3duIGRldmljZSAwMTA2CglDb250cm9sOiBJL08rIE1lbSsgQnVzTWFzdGVyKyBTcGVjQ3ljbGUt
+IE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQoJU3Rh
+dHVzOiBDYXArIDY2TWh6LSBVREYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFi
+b3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItCglMYXRlbmN5OiAwCglJbnRlcnJ1
+cHQ6IHBpbiBCIHJvdXRlZCB0byBJUlEgMTcKCVJlZ2lvbiAwOiBJL08gcG9ydHMgYXQgZTQwMCBb
+c2l6ZT0yNTZdCglSZWdpb24gMTogSS9PIHBvcnRzIGF0IGUwODAgW3NpemU9NjRdCglSZWdpb24g
+MjogTWVtb3J5IGF0IGZmYWZmODAwICgzMi1iaXQsIG5vbi1wcmVmZXRjaGFibGUpIFtzaXplPTUx
+Ml0KCVJlZ2lvbiAzOiBNZW1vcnkgYXQgZmZhZmY0MDAgKDMyLWJpdCwgbm9uLXByZWZldGNoYWJs
+ZSkgW3NpemU9MjU2XQoJQ2FwYWJpbGl0aWVzOiBbNTBdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lv
+biAyCgkJRmxhZ3M6IFBNRUNsay0gRFNJLSBEMS0gRDItIEF1eEN1cnJlbnQ9Mzc1bUEgUE1FKEQw
+KyxEMS0sRDItLEQzaG90KyxEM2NvbGQrKQoJCVN0YXR1czogRDAgUE1FLUVuYWJsZS0gRFNlbD0w
+IERTY2FsZT0wIFBNRS0KCjAxOjAwLjAgVkdBIGNvbXBhdGlibGUgY29udHJvbGxlcjogQVRJIFRl
+Y2hub2xvZ2llcyBJbmMgUmFkZW9uIFJWMjAwIFFXIFtSYWRlb24gNzUwMF0gKHByb2ctaWYgMDAg
+W1ZHQV0pCglTdWJzeXN0ZW06IFVua25vd24gZGV2aWNlIDE3YWY6MjAwMgoJQ29udHJvbDogSS9P
+KyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBT
+dGVwcGluZysgU0VSUisgRmFzdEIyQi0KCVN0YXR1czogQ2FwKyA2Nk1oeisgVURGLSBGYXN0QjJC
+KyBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNFUlIt
+IDxQRVJSLQoJTGF0ZW5jeTogMzIgKDIwMDBucyBtaW4pLCBjYWNoZSBsaW5lIHNpemUgMDgKCUlu
+dGVycnVwdDogcGluIEEgcm91dGVkIHRvIElSUSAxNgoJUmVnaW9uIDA6IE1lbW9yeSBhdCBlMDAw
+MDAwMCAoMzItYml0LCBwcmVmZXRjaGFibGUpIFtzaXplPTI1Nk1dCglSZWdpb24gMTogSS9PIHBv
+cnRzIGF0IGM4MDAgW3NpemU9MjU2XQoJUmVnaW9uIDI6IE1lbW9yeSBhdCBmZjhmMDAwMCAoMzIt
+Yml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT02NEtdCglFeHBhbnNpb24gUk9NIGF0IGZmOGMw
+MDAwIFtkaXNhYmxlZF0gW3NpemU9MTI4S10KCUNhcGFiaWxpdGllczogWzU4XSBBR1AgdmVyc2lv
+biAyLjAKCQlTdGF0dXM6IFJRPTQ3IFNCQSsgNjRiaXQtIEZXLSBSYXRlPXgxLHgyLHg0CgkJQ29t
+bWFuZDogUlE9MzEgU0JBKyBBR1ArIDY0Yml0LSBGVy0gUmF0ZT14NAoJQ2FwYWJpbGl0aWVzOiBb
+NTBdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lvbiAyCgkJRmxhZ3M6IFBNRUNsay0gRFNJLSBEMSsg
+RDIrIEF1eEN1cnJlbnQ9MG1BIFBNRShEMC0sRDEtLEQyLSxEM2hvdC0sRDNjb2xkLSkKCQlTdGF0
+dXM6IEQwIFBNRS1FbmFibGUtIERTZWw9MCBEU2NhbGU9MCBQTUUtCgowMjowMS4wIFNDU0kgc3Rv
+cmFnZSBjb250cm9sbGVyOiBBZGFwdGVjIEFIQS0zOTYwRCAvIEFJQy03ODk5QSBVMTYwL20gKHJl
+diAwMSkKCVN1YnN5c3RlbTogQWRhcHRlYyBBSEEtMzk2MEQgVTE2MC9tCglDb250cm9sOiBJL08t
+IE1lbSsgQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYrIFZHQVNub29wLSBQYXJFcnItIFN0
+ZXBwaW5nLSBTRVJSKyBGYXN0QjJCLQoJU3RhdHVzOiBDYXArIDY2TWh6KyBVREYtIEZhc3RCMkIr
+IFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0g
+PFBFUlItCglMYXRlbmN5OiAzMiAoMTAwMDBucyBtaW4sIDYyNTBucyBtYXgpLCBjYWNoZSBsaW5l
+IHNpemUgMDgKCUludGVycnVwdDogcGluIEEgcm91dGVkIHRvIElSUSAyMgoJQklTVCByZXN1bHQ6
+IDAwCglSZWdpb24gMDogSS9PIHBvcnRzIGF0IGQ0MDAgW2Rpc2FibGVkXSBbc2l6ZT0yNTZdCglS
+ZWdpb24gMTogTWVtb3J5IGF0IGZmOWZlMDAwICg2NC1iaXQsIG5vbi1wcmVmZXRjaGFibGUpIFtz
+aXplPTRLXQoJRXhwYW5zaW9uIFJPTSBhdCBmZjlhMDAwMCBbZGlzYWJsZWRdIFtzaXplPTEyOEtd
+CglDYXBhYmlsaXRpZXM6IFtkY10gUG93ZXIgTWFuYWdlbWVudCB2ZXJzaW9uIDIKCQlGbGFnczog
+UE1FQ2xrLSBEU0ktIEQxLSBEMi0gQXV4Q3VycmVudD0wbUEgUE1FKEQwLSxEMS0sRDItLEQzaG90
+LSxEM2NvbGQtKQoJCVN0YXR1czogRDAgUE1FLUVuYWJsZS0gRFNlbD0wIERTY2FsZT0wIFBNRS0K
+CjAyOjAxLjEgU0NTSSBzdG9yYWdlIGNvbnRyb2xsZXI6IEFkYXB0ZWMgQUhBLTM5NjBEIC8gQUlD
+LTc4OTlBIFUxNjAvbSAocmV2IDAxKQoJU3Vic3lzdGVtOiBBZGFwdGVjIEFIQS0zOTYwRCBVMTYw
+L20KCUNvbnRyb2w6IEkvTy0gTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVisgVkdB
+U25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlIrIEZhc3RCMkItCglTdGF0dXM6IENhcCsgNjZN
+aHorIFVERi0gRmFzdEIyQisgUGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQt
+IDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6IDMyICgxMDAwMG5zIG1pbiwgNjI1MG5z
+IG1heCksIGNhY2hlIGxpbmUgc2l6ZSAwOAoJSW50ZXJydXB0OiBwaW4gQiByb3V0ZWQgdG8gSVJR
+IDIxCglCSVNUIHJlc3VsdDogMDAKCVJlZ2lvbiAwOiBJL08gcG9ydHMgYXQgZDgwMCBbZGlzYWJs
+ZWRdIFtzaXplPTI1Nl0KCVJlZ2lvbiAxOiBNZW1vcnkgYXQgZmY5ZmYwMDAgKDY0LWJpdCwgbm9u
+LXByZWZldGNoYWJsZSkgW3NpemU9NEtdCglFeHBhbnNpb24gUk9NIGF0IGZmOWMwMDAwIFtkaXNh
+YmxlZF0gW3NpemU9MTI4S10KCUNhcGFiaWxpdGllczogW2RjXSBQb3dlciBNYW5hZ2VtZW50IHZl
+cnNpb24gMgoJCUZsYWdzOiBQTUVDbGstIERTSS0gRDEtIEQyLSBBdXhDdXJyZW50PTBtQSBQTUUo
+RDAtLEQxLSxEMi0sRDNob3QtLEQzY29sZC0pCgkJU3RhdHVzOiBEMCBQTUUtRW5hYmxlLSBEU2Vs
+PTAgRFNjYWxlPTAgUE1FLQoKMDI6MDQuMCBOZXR3b3JrIGNvbnRyb2xsZXI6IEFWTSBBdWRpb3Zp
+c3VlbGxlcyBNS1RHICYgQ29tcHV0ZXIgU3lzdGVtIEdtYkggQTEgSVNETiBbRnJpdHpdIChyZXYg
+MDIpCglTdWJzeXN0ZW06IEFWTSBBdWRpb3Zpc3VlbGxlcyBNS1RHICYgQ29tcHV0ZXIgU3lzdGVt
+IEdtYkggRlJJVFohQ2FyZCBJU0ROIENvbnRyb2xsZXIKCUNvbnRyb2w6IEkvTysgTWVtKyBCdXNN
+YXN0ZXItIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNF
+UlIrIEZhc3RCMkItCglTdGF0dXM6IENhcC0gNjZNaHotIFVERi0gRmFzdEIyQisgUGFyRXJyLSBE
+RVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUlu
+dGVycnVwdDogcGluIEEgcm91dGVkIHRvIElSUSAxNwoJUmVnaW9uIDA6IE1lbW9yeSBhdCBmZjlm
+ZGMwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT0zMl0KCVJlZ2lvbiAxOiBJL08g
+cG9ydHMgYXQgZGMwMCBbc2l6ZT0zMl0KCjAyOjA1LjAgU0NTSSBzdG9yYWdlIGNvbnRyb2xsZXI6
+IEFkYXB0ZWMgQUlDLTc4NjEgKHJldiAwMykKCVN1YnN5c3RlbTogQWRhcHRlYyBBSEEtMjk0MEFV
+IFNpbmdsZQoJQ29udHJvbDogSS9PLSBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5W
+KyBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUisgRmFzdEIyQi0KCVN0YXR1czogQ2Fw
+KyA2Nk1oei0gVURGLSBGYXN0QjJCKyBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRB
+Ym9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQoJTGF0ZW5jeTogMzIgKDEwMDBucyBtaW4sIDEw
+MDBucyBtYXgpLCBjYWNoZSBsaW5lIHNpemUgMDgKCUludGVycnVwdDogcGluIEEgcm91dGVkIHRv
+IElSUSAxOAoJUmVnaW9uIDA6IEkvTyBwb3J0cyBhdCBkMDAwIFtkaXNhYmxlZF0gW3NpemU9MjU2
+XQoJUmVnaW9uIDE6IE1lbW9yeSBhdCBmZjlmYzAwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxl
+KSBbc2l6ZT00S10KCUV4cGFuc2lvbiBST00gYXQgZmY5ZTAwMDAgW2Rpc2FibGVkXSBbc2l6ZT02
+NEtdCglDYXBhYmlsaXRpZXM6IFtkY10gUG93ZXIgTWFuYWdlbWVudCB2ZXJzaW9uIDEKCQlGbGFn
+czogUE1FQ2xrLSBEU0krIEQxLSBEMi0gQXV4Q3VycmVudD0wbUEgUE1FKEQwLSxEMS0sRDItLEQz
+aG90LSxEM2NvbGQtKQoJCVN0YXR1czogRDAgUE1FLUVuYWJsZS0gRFNlbD0wIERTY2FsZT0wIFBN
+RS0KCjAyOjA4LjAgRXRoZXJuZXQgY29udHJvbGxlcjogSW50ZWwgQ29ycC4gODI4MDFCRCBQUk8v
+MTAwIFZFIChMT00pIEV0aGVybmV0IENvbnRyb2xsZXIgKHJldiA4MikKCVN1YnN5c3RlbTogSW50
+ZWwgQ29ycC46IFVua25vd24gZGV2aWNlIDMwMTUKCUNvbnRyb2w6IEkvTysgTWVtKyBCdXNNYXN0
+ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVisgVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlIr
+IEZhc3RCMkItCglTdGF0dXM6IENhcCsgNjZNaHotIFVERi0gRmFzdEIyQisgUGFyRXJyLSBERVZT
+RUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUxhdGVu
+Y3k6IDMyICgyMDAwbnMgbWluLCAxNDAwMG5zIG1heCksIGNhY2hlIGxpbmUgc2l6ZSAwOAoJSW50
+ZXJydXB0OiBwaW4gQSByb3V0ZWQgdG8gSVJRIDIwCglSZWdpb24gMDogTWVtb3J5IGF0IGZmOWZi
+MDAwICgzMi1iaXQsIG5vbi1wcmVmZXRjaGFibGUpIFtzaXplPTRLXQoJUmVnaW9uIDE6IEkvTyBw
+b3J0cyBhdCBkZjAwIFtzaXplPTY0XQoJQ2FwYWJpbGl0aWVzOiBbZGNdIFBvd2VyIE1hbmFnZW1l
+bnQgdmVyc2lvbiAyCgkJRmxhZ3M6IFBNRUNsay0gRFNJKyBEMSsgRDIrIEF1eEN1cnJlbnQ9MG1B
+IFBNRShEMCssRDErLEQyKyxEM2hvdCssRDNjb2xkKykKCQlTdGF0dXM6IEQwIFBNRS1FbmFibGUt
+IERTZWw9MCBEU2NhbGU9MiBQTUUtCgo=
+--=====================_3116100==_--
 
-alexh@lapper ~ $ dmesg
-orage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Command WRITE_10 (10 bytes)
-usb-storage:  2a 00 1b 9e a4 e7 00 00 08 00
-usb-storage: Bulk command S 0x43425355 T 0x135 Trg 0 LUN 0 L 4096 F 0 CL 10
-usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
-usb-storage: Status code 0; transferred 31/31
-usb-storage: -- transfer complete
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_bulk_transfer_sglist: xfer 4096 bytes, 1 entries
-usb-storage: Status code 0; transferred 4096/4096
-usb-storage: -- transfer complete
-usb-storage: Bulk data transfer result 0x0
-usb-storage: Attempting to get CSW...
-usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
-usb-storage: Status code 0; transferred 13/13
-usb-storage: -- transfer complete
-usb-storage: Bulk status result = 0
-usb-storage: Bulk status Sig 0x53425355 T 0x135 R 0 Stat 0x0
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Command WRITE_10 (10 bytes)
-usb-storage:  2a 00 1b 9e c4 ef 00 00 08 00
-usb-storage: Bulk command S 0x43425355 T 0x136 Trg 0 LUN 0 L 4096 F 0 CL 10
-usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
-usb-storage: Status code 0; transferred 31/31
-usb-storage: -- transfer complete
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_bulk_transfer_sglist: xfer 4096 bytes, 1 entries
-usb-storage: Status code 0; transferred 4096/4096
-usb-storage: -- transfer complete
-usb-storage: Bulk data transfer result 0x0
-usb-storage: Attempting to get CSW...
-usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
-usb-storage: Status code 0; transferred 13/13
-usb-storage: -- transfer complete
-usb-storage: Bulk status result = 0
-usb-storage: Bulk status Sig 0x53425355 T 0x136 R 0 Stat 0x0
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Command WRITE_10 (10 bytes)
-usb-storage:  2a 00 1b 9e e4 f7 00 00 08 00
-usb-storage: Bulk command S 0x43425355 T 0x137 Trg 0 LUN 0 L 4096 F 0 CL 10
-usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
-usb-storage: Status code 0; transferred 31/31
-usb-storage: -- transfer complete
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_bulk_transfer_sglist: xfer 4096 bytes, 1 entries
-usb-storage: Status code 0; transferred 4096/4096
-usb-storage: -- transfer complete
-usb-storage: Bulk data transfer result 0x0
-usb-storage: Attempting to get CSW...
-usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
-usb-storage: Status code 0; transferred 13/13
-usb-storage: -- transfer complete
-usb-storage: Bulk status result = 0
-usb-storage: Bulk status Sig 0x53425355 T 0x137 R 0 Stat 0x0
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Command WRITE_10 (10 bytes)
-usb-storage:  2a 00 1b 9f 04 ff 00 00 08 00
-usb-storage: Bulk command S 0x43425355 T 0x138 Trg 0 LUN 0 L 4096 F 0 CL 10
-usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
-usb-storage: Status code 0; transferred 31/31
-usb-storage: -- transfer complete
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_bulk_transfer_sglist: xfer 4096 bytes, 1 entries
-usb-storage: Status code 0; transferred 4096/4096
-usb-storage: -- transfer complete
-usb-storage: Bulk data transfer result 0x0
-usb-storage: Attempting to get CSW...
-usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
-usb-storage: Status code 0; transferred 13/13
-usb-storage: -- transfer complete
-usb-storage: Bulk status result = 0
-usb-storage: Bulk status Sig 0x53425355 T 0x138 R 0 Stat 0x0
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Command WRITE_10 (10 bytes)
-usb-storage:  2a 00 1b 9f 25 07 00 00 08 00
-usb-storage: Bulk command S 0x43425355 T 0x139 Trg 0 LUN 0 L 4096 F 0 CL 10
-usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
-usb-storage: Status code 0; transferred 31/31
-usb-storage: -- transfer complete
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_bulk_transfer_sglist: xfer 4096 bytes, 1 entries
-usb-storage: Status code 0; transferred 4096/4096
-usb-storage: -- transfer complete
-usb-storage: Bulk data transfer result 0x0
-usb-storage: Attempting to get CSW...
-usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
-usb-storage: Status code 0; transferred 13/13
-usb-storage: -- transfer complete
-usb-storage: Bulk status result = 0
-usb-storage: Bulk status Sig 0x53425355 T 0x139 R 0 Stat 0x0
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Command WRITE_10 (10 bytes)
-usb-storage:  2a 00 1b 9f 45 0f 00 00 08 00
-usb-storage: Bulk command S 0x43425355 T 0x13a Trg 0 LUN 0 L 4096 F 0 CL 10
-usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
-usb-storage: Status code 0; transferred 31/31
-usb-storage: -- transfer complete
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_bulk_transfer_sglist: xfer 4096 bytes, 1 entries
-usb-storage: Status code 0; transferred 4096/4096
-usb-storage: -- transfer complete
-usb-storage: Bulk data transfer result 0x0
-usb-storage: Attempting to get CSW...
-usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
-usb-storage: Status code 0; transferred 13/13
-usb-storage: -- transfer complete
-usb-storage: Bulk status result = 0
-usb-storage: Bulk status Sig 0x53425355 T 0x13a R 0 Stat 0x0
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Command WRITE_10 (10 bytes)
-usb-storage:  2a 00 1b 9f 65 17 00 00 08 00
-usb-storage: Bulk command S 0x43425355 T 0x13b Trg 0 LUN 0 L 4096 F 0 CL 10
-usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
-usb-storage: Status code 0; transferred 31/31
-usb-storage: -- transfer complete
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_bulk_transfer_sglist: xfer 4096 bytes, 1 entries
-usb-storage: Status code 0; transferred 4096/4096
-usb-storage: -- transfer complete
-usb-storage: Bulk data transfer result 0x0
-usb-storage: Attempting to get CSW...
-usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
-usb-storage: Status code 0; transferred 13/13
-usb-storage: -- transfer complete
-usb-storage: Bulk status result = 0
-usb-storage: Bulk status Sig 0x53425355 T 0x13b R 0 Stat 0x0
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Command WRITE_10 (10 bytes)
-usb-storage:  2a 00 1b 9f 85 1f 00 00 08 00
-usb-storage: Bulk command S 0x43425355 T 0x13c Trg 0 LUN 0 L 4096 F 0 CL 10
-usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
-usb-storage: Status code 0; transferred 31/31
-usb-storage: -- transfer complete
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_bulk_transfer_sglist: xfer 4096 bytes, 1 entries
-usb-storage: Status code 0; transferred 4096/4096
-usb-storage: -- transfer complete
-usb-storage: Bulk data transfer result 0x0
-usb-storage: Attempting to get CSW...
-usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
-usb-storage: Status code 0; transferred 13/13
-usb-storage: -- transfer complete
-usb-storage: Bulk status result = 0
-usb-storage: Bulk status Sig 0x53425355 T 0x13c R 0 Stat 0x0
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Command WRITE_10 (10 bytes)
-usb-storage:  2a 00 1b 9f a5 27 00 00 08 00
-usb-storage: Bulk command S 0x43425355 T 0x13d Trg 0 LUN 0 L 4096 F 0 CL 10
-usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
-usb-storage: Status code 0; transferred 31/31
-usb-storage: -- transfer complete
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_bulk_transfer_sglist: xfer 4096 bytes, 1 entries
-usb-storage: Status code 0; transferred 4096/4096
-usb-storage: -- transfer complete
-usb-storage: Bulk data transfer result 0x0
-usb-storage: Attempting to get CSW...
-usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
-usb-storage: Status code 0; transferred 13/13
-usb-storage: -- transfer complete
-usb-storage: Bulk status result = 0
-usb-storage: Bulk status Sig 0x53425355 T 0x13d R 0 Stat 0x0
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Command WRITE_10 (10 bytes)
-usb-storage:  2a 00 1b 9f c5 2f 00 00 08 00
-usb-storage: Bulk command S 0x43425355 T 0x13e Trg 0 LUN 0 L 4096 F 0 CL 10
-usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
-usb-storage: Status code 0; transferred 31/31
-usb-storage: -- transfer complete
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_bulk_transfer_sglist: xfer 4096 bytes, 1 entries
-usb-storage: Status code 0; transferred 4096/4096
-usb-storage: -- transfer complete
-usb-storage: Bulk data transfer result 0x0
-usb-storage: Attempting to get CSW...
-usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
-usb-storage: Status code 0; transferred 13/13
-usb-storage: -- transfer complete
-usb-storage: Bulk status result = 0
-usb-storage: Bulk status Sig 0x53425355 T 0x13e R 0 Stat 0x0
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Command WRITE_10 (10 bytes)
-usb-storage:  2a 00 1b 9f e5 37 00 00 08 00
-usb-storage: Bulk command S 0x43425355 T 0x13f Trg 0 LUN 0 L 4096 F 0 CL 10
-usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
-usb-storage: Status code 0; transferred 31/31
-usb-storage: -- transfer complete
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_bulk_transfer_sglist: xfer 4096 bytes, 1 entries
-usb-storage: Status code 0; transferred 4096/4096
-usb-storage: -- transfer complete
-usb-storage: Bulk data transfer result 0x0
-usb-storage: Attempting to get CSW...
-usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
-usb-storage: Status code 0; transferred 13/13
-usb-storage: -- transfer complete
-usb-storage: Bulk status result = 0
-usb-storage: Bulk status Sig 0x53425355 T 0x13f R 0 Stat 0x0
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Command WRITE_10 (10 bytes)
-usb-storage:  2a 00 1b a0 15 4f 00 00 08 00
-usb-storage: Bulk command S 0x43425355 T 0x140 Trg 0 LUN 0 L 4096 F 0 CL 10
-usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
-usb-storage: Status code 0; transferred 31/31
-usb-storage: -- transfer complete
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_bulk_transfer_sglist: xfer 4096 bytes, 1 entries
-usb-storage: Status code 0; transferred 4096/4096
-usb-storage: -- transfer complete
-usb-storage: Bulk data transfer result 0x0
-usb-storage: Attempting to get CSW...
-usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
-usb-storage: Status code 0; transferred 13/13
-usb-storage: -- transfer complete
-usb-storage: Bulk status result = 0
-usb-storage: Bulk status Sig 0x53425355 T 0x140 R 0 Stat 0x0
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Command WRITE_10 (10 bytes)
-usb-storage:  2a 00 1b a0 39 0f 00 04 00 00
-usb-storage: Bulk command S 0x43425355 T 0x141 Trg 0 LUN 0 L 524288 F 0 CL 10
-usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
-usb-storage: Status code 0; transferred 31/31
-usb-storage: -- transfer complete
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_bulk_transfer_sglist: xfer 524288 bytes, 128 entries
-usb-storage: Status code 0; transferred 524288/524288
-usb-storage: -- transfer complete
-usb-storage: Bulk data transfer result 0x0
-usb-storage: Attempting to get CSW...
-usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
-usb-storage: Status code 0; transferred 13/13
-usb-storage: -- transfer complete
-usb-storage: Bulk status result = 0
-usb-storage: Bulk status Sig 0x53425355 T 0x141 R 0 Stat 0x0
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Command WRITE_10 (10 bytes)
-usb-storage:  2a 00 1b a0 3d 0f 00 04 00 00
-usb-storage: Bulk command S 0x43425355 T 0x142 Trg 0 LUN 0 L 524288 F 0 CL 10
-usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
-usb-storage: Status code 0; transferred 31/31
-usb-storage: -- transfer complete
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_bulk_transfer_sglist: xfer 524288 bytes, 128 entries
-usb-storage: Status code 0; transferred 524288/524288
-usb-storage: -- transfer complete
-usb-storage: Bulk data transfer result 0x0
-usb-storage: Attempting to get CSW...
-usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
-usb-storage: Status code 0; transferred 13/13
-usb-storage: -- transfer complete
-usb-storage: Bulk status result = 0
-usb-storage: Bulk status Sig 0x53425355 T 0x142 R 0 Stat 0x0
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Command WRITE_10 (10 bytes)
-usb-storage:  2a 00 1b a0 41 0f 00 04 00 00
-usb-storage: Bulk command S 0x43425355 T 0x143 Trg 0 LUN 0 L 524288 F 0 CL 10
-usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
-usb-storage: Status code 0; transferred 31/31
-usb-storage: -- transfer complete
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_bulk_transfer_sglist: xfer 524288 bytes, 128 entries
-usb-storage: Status code 0; transferred 524288/524288
-usb-storage: -- transfer complete
-usb-storage: Bulk data transfer result 0x0
-usb-storage: Attempting to get CSW...
-usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
-usb-storage: Status code 0; transferred 13/13
-usb-storage: -- transfer complete
-usb-storage: Bulk status result = 0
-usb-storage: Bulk status Sig 0x53425355 T 0x143 R 0 Stat 0x0
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Command WRITE_10 (10 bytes)
-usb-storage:  2a 00 1b a0 45 0f 00 04 00 00
-usb-storage: Bulk command S 0x43425355 T 0x144 Trg 0 LUN 0 L 524288 F 0 CL 10
-usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
-usb-storage: Status code 0; transferred 31/31
-usb-storage: -- transfer complete
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_bulk_transfer_sglist: xfer 524288 bytes, 128 entries
-usb-storage: Status code 0; transferred 524288/524288
-usb-storage: -- transfer complete
-usb-storage: Bulk data transfer result 0x0
-usb-storage: Attempting to get CSW...
-usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
-usb-storage: usb_storage_command_abort called
-usb-storage: usb_stor_stop_transport called
-usb-storage: -- cancelling URB
-usb-storage: Status code -104; transferred 0/13
-usb-storage: -- transfer cancelled
-usb-storage: Bulk status result = 3
-usb-storage: -- command was aborted
-usb-storage: Bulk reset requested
-
-
-- -- 
-Alexander Hoogerhuis                               | alexh@ihatent.com
-CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-"You have zero privacy anyway. Get over it."  --Scott McNealy
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
-
-iD8DBQE+2vPTCQ1pa+gRoggRApiuAJ4nu4+/eSgQ5TRKwasBCp+0hUW3NgCfc4kQ
-w6a0BReU5/srQE62zgdLDEI=
-=tGSl
------END PGP SIGNATURE-----

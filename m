@@ -1,52 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268054AbUIKAdm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268055AbUIKAfe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268054AbUIKAdm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 20:33:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268055AbUIKAdm
+	id S268055AbUIKAfe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 20:35:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268056AbUIKAfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 20:33:42 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:11792 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S268054AbUIKAdl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 20:33:41 -0400
-Date: Sat, 11 Sep 2004 02:33:38 +0200 (CEST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] i386 reduce spurious interrupt noise
-In-Reply-To: <20040911001713.GA902@taniwha.stupidest.org>
-Message-ID: <Pine.LNX.4.58L.0409110220290.20057@blysk.ds.pg.gda.pl>
-References: <20040902192820.GA6427@taniwha.stupidest.org>
- <Pine.LNX.4.58L.0409102306420.20057@blysk.ds.pg.gda.pl>
- <20040910231052.GA3078@taniwha.stupidest.org> <Pine.LNX.4.58L.0409110156080.20057@blysk.ds.pg.gda.pl>
- <20040911001713.GA902@taniwha.stupidest.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 10 Sep 2004 20:35:34 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:8954 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268055AbUIKAfL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 20:35:11 -0400
+Subject: Re: [Patch 0/6]: Cleanup and rbtree for ext3 reservations in
+	2.6.9-rc1-mm4
+From: Mingming Cao <cmm@us.ibm.com>
+To: Stephen Tweedie <sct@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       pbadari@us.ibm.com, Ram Pai <linuxram@us.ibm.com>
+In-Reply-To: <200409071302.i87D2Dus030892@sisko.scot.redhat.com>
+References: <200409071302.i87D2Dus030892@sisko.scot.redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 10 Sep 2004 17:34:44 -0700
+Message-Id: <1094862886.1637.7078.camel@w-ming2.beaverton.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Sep 2004, Chris Wedgwood wrote:
+On Tue, 2004-09-07 at 06:02, Stephen Tweedie wrote:
+> The patches in the following set contain several cleanups for ext3
+> reservations, fix a reproducable SMP race, and turn the per-superblock
+> linear list of reservations into an rbtree for better scaling.
 
-> > These are just as harmless as single-bit RAM errors with ECC
-> > working.
+> These changes have been in rawhide for a couple of weeks, and have
+> been undergoing testing both within Red Hat and at IBM.  
 > 
-> Hence KERN_DEBUG
 
- Both are serious hardware failures.  KERN_DEBUG is for stuff that's 
-normally out of interest for most system operators.
+We have run several tests on this set of the reservation changes. We
+compared the results w/o reservation, rbtree based reservation vs link
+list based reservation. Here is the tiobench sequential test
+results.Note that 2.6.8.1-mm4 kernel include the double link based
+per-fs reservation tree.
 
-> > For the former you only really want to rate-limit the report -- some
-> > people apparently want or need to run broken hardware and they'd
-> > probably appreciate limiting the output.
-> 
-> A little more than rate-limit as I mentioned.  I don't want the
-> occasional surious APIC message waking up consoles that are asleep.
-> This was the reason for the change.
+            tiobench sequential write throughputs
+============================================================
+Threads no reservation  2.6.8.1-mm4     2.6.8.1-mm4+rbtree patch
+1       29              29              29
+4       3               29              29
+8       4               28              28
+16      3               27              27
+32      4               27              27
+64      3               27              27
+128     2               20              25
+256     1               20              24 
 
- If that's the sole reason, then how about setting console_loglevel
-appropriately for the systems you want the console to remain asleep?  
-It's there exactly for a purpose like this.  You can eliminate other
-messages you consider unimportant this way, too, without tweaking the log
-level of all of them.
+We did see the rbtree changes scales better on more than 128 threads. We
+also run tio random tests, did not see throughput regression there. 
 
-  Maciej
+We also re-run the dbench, test results showing that these two
+reservations(rbtree based vs link based) performs almost equally well.
+
+dbench average throughputs on 4 runs
+==================================================
+Threads no reservation  2.6.8.1-mm4     2.6.8.1-mm4_rbtree
+1       97              93              96
+4       234             250             213
+8       201             213             213
+16      156             168             169
+32      73              106             105
+64      38              65              67
+
+We had some concerns about the cpu cost for seeky random write workload
+with all the reservation changes before. We are doing some tests in that
+area too. 
+
+Mingming
+

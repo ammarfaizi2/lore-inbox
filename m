@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbTIKODW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 10:03:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbTIKODW
+	id S261152AbTIKOTt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 10:19:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbTIKOTt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 10:03:22 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5190 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261321AbTIKODU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 10:03:20 -0400
-To: insecure@mail.od.ua
-Cc: Michael Frank <mhf@linuxmail.org>, Yann Droneaud <yann.droneaud@mbda.fr>,
-       fruhwirth clemens <clemens-dated-1063536166.2852@endorphin.org>,
-       linux-kernel@vger.kernel.org,
-       =?iso-8859-1?q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Subject: Re: nasm over gas?
-References: <20030904104245.GA1823@leto2.endorphin.org>
-	<200309052028.37367.insecure@mail.od.ua>
-	<m18yp0o2mq.fsf@ebiederm.dsl.xmission.com>
-	<200309100034.58742.insecure@mail.od.ua>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 11 Sep 2003 08:03:15 -0600
-In-Reply-To: <200309100034.58742.insecure@mail.od.ua>
-Message-ID: <m1znhbl8ws.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 11 Sep 2003 10:19:49 -0400
+Received: from h80ad26f8.async.vt.edu ([128.173.38.248]:29834 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261152AbTIKOTs (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 10:19:48 -0400
+Message-Id: <200309111419.h8BEJbSo010948@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Breno Silva <brenosp@brasilsec.com.br>
+Cc: Stan Bubrouski <stan@ccs.neu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Size of Tasks during ddos 
+In-Reply-To: Your message of "Thu, 11 Sep 2003 09:33:41 -0300."
+             <009201c37860$f0d3c5f0$131215ac@poslab219> 
+From: Valdis.Kletnieks@vt.edu
+References: <001b01c39047$d65cf580$f8e4a7c8@bsb.virtua.com.br> <20030911002755.GA13177@triplehelix.org> <3F5FD993.2060900@ccs.neu.edu>
+            <009201c37860$f0d3c5f0$131215ac@poslab219>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-28858842P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 11 Sep 2003 10:19:37 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-insecure <insecure@mail.od.ua> writes:
+--==_Exmh_-28858842P
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-> On Sunday 07 September 2003 21:49, Eric W. Biederman wrote:
-> > insecure <insecure@mail.od.ua> writes:
-> > > On Friday 05 September 2003 15:59, Michael Frank wrote:
-> > > What gives you an impression that anyone is going to rewrite linux in
-> > > asm? I _only_ saying that compiler-generated asm is not 'good'. It's
-> > > mediocre. Nothing more. I am not asm zealot.
-> >
-> > I think I would agree with that statement most compiler-generated assembly
-> > code is mediocre in general.  At the same time I would add most human
-> > generated assembly is poor, and a pain to maintain.
-> 
-> I had an impression people think gcc generates code which
-> is 'mostly good' even compared to handwritted code.
-> That is not true (yet).
+On Thu, 11 Sep 2003 09:33:41 -0300, Breno Silva said:
 
-It is true.  Not when compared to hand optimized code.  But compared
-to a day to day churn it is true.  Although I tend to still prefer gcc
-2.95 for the code size.  
+> My servers are in ddos attack , what i=B4d like to know is about size o=
+f tasks
+> in memory during this kind of attack. I have some ideas to do in my ker=
+nel.
 
-Eric
+The answer will differ depending whether (for example) you're being ICMP
+flooded, SYN-flooded, hit with a mass of HTTP 'GET /' commands, hit with =
+a mass
+of HTTP commands that invoke a resource-intensive CGI like a database sea=
+rch,
+and so on.
+
+We'd really need to know what the traffic involved in the DDoS is in orde=
+r to
+be able to comment on memory usage.
+
+
+--==_Exmh_-28858842P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/YIR4cC3lWbTT17ARAtZCAJ9Quy7uCPnCg2T/z00qSiCt94F5sgCfZ6GN
+M8E0O+Y33wFQ94x+xuJQg9s=
+=cckN
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-28858842P--

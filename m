@@ -1,71 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267253AbUHTQnW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268327AbUHTQrX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267253AbUHTQnW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 12:43:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267468AbUHTQnW
+	id S268327AbUHTQrX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 12:47:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268329AbUHTQrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 12:43:22 -0400
-Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:11676 "EHLO
-	zoo.weinigel.se") by vger.kernel.org with ESMTP id S267253AbUHTQnL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 12:43:11 -0400
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: fsteiner-mail@bio.ifi.lmu.de, diablod3@gmail.com,
-       linux-kernel@vger.kernel.org, kernel@wildsau.enemy.org,
-       alan@lxorguk.ukuu.org.uk
+	Fri, 20 Aug 2004 12:47:23 -0400
+Received: from mail-out.m-online.net ([212.18.0.9]:32398 "EHLO
+	mail-out.m-online.net") by vger.kernel.org with ESMTP
+	id S268327AbUHTQrV convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 12:47:21 -0400
+To: Andreas Jaeger <aj@suse.de>
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, mj@ucw.cz,
+       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       kernel@wildsau.enemy.org, diablod3@gmail.com
 Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
 References: <200408041233.i74CX93f009939@wildsau.enemy.org>
 	<d577e5690408190004368536e9@mail.gmail.com>
-	<4124A024.nail7X62HZNBB@burner>
-	<1092919260.28141.30.camel@localhost.localdomain>
-	<4124BA65.7010509@bio.ifi.lmu.de>
-	<d577e56904082001023b2faad9@mail.gmail.com>
-	<41260517.nail8LDD105P5@burner>
-From: Christer Weinigel <christer@weinigel.se>
-Organization: Weinigel Ingenjorsbyra AB
-Date: 20 Aug 2004 18:43:10 +0200
-In-Reply-To: <41260517.nail8LDD105P5@burner>
-Message-ID: <m3brh54v6p.fsf@zoo.weinigel.se>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	<4124A024.nail7X62HZNBB@burner> <20040819131026.GA9813@ucw.cz>
+	<4124AD46.nail80H216HKB@burner> <20040819135614.GA12634@ucw.cz>
+	<4124B314.nail8221CVOE9@burner> <20040819141442.GC13003@ucw.cz>
+	<20040819150704.GB1659@merlin.emma.line.org>
+	<4124C46B.nail83H31GJ2S@burner> <hoy8k9kevf.fsf@reger.suse.de>
+From: Julien Oster <lkml-7994@mc.frodoid.org>
+Organization: FRODOID.ORG
+Mail-Followup-To: Andreas Jaeger <aj@suse.de>,
+	Joerg Schilling <schilling@fokus.fraunhofer.de>, mj@ucw.cz,
+	matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+	kernel@wildsau.enemy.org, diablod3@gmail.com
+Date: Fri, 20 Aug 2004 18:37:20 +0200
+In-Reply-To: <hoy8k9kevf.fsf@reger.suse.de> (Andreas Jaeger's message of
+ "Fri, 20 Aug 2004 17:28:52 +0200")
+Message-ID: <87smah22bj.fsf@killer.ninja.frodoid.org>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling <schilling@fokus.fraunhofer.de> writes:
+Andreas Jaeger <aj@suse.de> writes:
 
-> bla bla bla.... you nicely ignored:
-> 
-> Message-ID: <4124C46B.nail83H31GJ2S@burner> 
+>> What you see is 2 SuSE created bugs :-(
 
-And what is he ignoring?
+>> 1)	printing this message at all in this special case
+>> 2)	SuSE using non initialized variables.
 
-In that message you complained about a SuSE modified version, but as
-far as I can tell you did not bring up any other arguments, except to
-point at bug in the SuSE version.  A version that very clearly stated
-that it is a modified version and that you should not be contacted
-about bugs in that version.
+> I agree and I'm sorry about that.
+> Thanks, I've filed bugreports for those and those will be fixed soon,
 
-So what are you complaining about?  The GPL says:
+>  Andreas Jaeger, aj@suse.de, http://www.suse.de/~aj
 
-    If the software is modified by someone else and passed on, we want
-    its recipients to know that what they have is not the original, so
-    that any problems introduced by others will not reflect on the
-    original authors' reputations.
+Now, look, Jörg! Here is one of that fearful examples of a SuSE
+employee. Unfriendly, not willing to fix anything, completely ignoring
+bug reports!
 
-So I belive that you are complaining about something where you have
-not reason to complain, since SuSE are definitely telling the users
-that they are using a modified version.
+Seriously, Jörg, stop bashing people, that's getting far beyond just
+being impolite.
 
-And this really does not belong on linux-kernel so can we please stop
-this silly argument.  Keep technical issues on linux kernel and for
-the rest, please go away.  (And yes, by posting this message I'm just
-as guilty of bringing off topic stuff to l-k.  I'm sorry about that).
+While I could just killfile you, I still feel that those discussions
+are blocking serious development in that sector.
 
-  /Christer
+To you, Andreas: Thanks for the patches done in the past, they
+actually do improve cdrecord.
 
--- 
-"Just how much can I get away with and still go to heaven?"
-
-Freelance consultant specializing in device driver programming for Linux 
-Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se
+Schöne Grüße,
+Julien

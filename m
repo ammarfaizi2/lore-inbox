@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265373AbSKEXxI>; Tue, 5 Nov 2002 18:53:08 -0500
+	id <S265382AbSKEX4J>; Tue, 5 Nov 2002 18:56:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265375AbSKEXxI>; Tue, 5 Nov 2002 18:53:08 -0500
-Received: from skyline.vistahp.com ([65.67.58.21]:32234 "HELO
-	escalade.vistahp.com") by vger.kernel.org with SMTP
-	id <S265373AbSKEXxG>; Tue, 5 Nov 2002 18:53:06 -0500
-Message-ID: <20021106000052.21645.qmail@escalade.vistahp.com>
-References: <1036525756.2291.45.camel@lotte>
-            <1036539902.2291.48.camel@lotte>
-In-Reply-To: <1036539902.2291.48.camel@lotte>
-From: "Brian Jackson" <brian-kernel-list@mdrx.com>
-To: Justin Cormack <justin@street-vision.com>
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: promise ide problem: missing disks
-Date: Tue, 05 Nov 2002 18:00:52 -0600
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S265380AbSKEXzH>; Tue, 5 Nov 2002 18:55:07 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:36361 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S265379AbSKEXyq>; Tue, 5 Nov 2002 18:54:46 -0500
+Date: Tue, 5 Nov 2002 19:00:37 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       olaf.dietsche#list.linux-kernel@t-online.de
+Subject: Re: Filesystem Capabilities in 2.6?
+In-Reply-To: <200211030031.gA30V8a505209@saturn.cs.uml.edu>
+Message-ID: <Pine.LNX.3.96.1021105184858.20035C-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I may be able to help you narrow it down a bit. I have used 2.4.19-vanilla 
-and it worked fine(all drives showed up). When I tried 
-fnk10(www.cipherfunk.org) the drive on the secondary channel doesn't show 
-up. I don't know exactly what changes fnk10 has with regards to ide, but I 
-know he has put a bunch of stuff from the 20-pre series in fnk10. Hope this 
-helps. 
+On Sat, 2 Nov 2002, Albert D. Cahalan wrote:
 
- --Brian Jackson 
-
-Justin Cormack writes: 
-
-> On Tue, 2002-11-05 at 19:49, Justin Cormack wrote:
->> I have a Promise Ultra133 IDE controller, and cannot get any drives to
->> appear on the second channel under Linux. The controller says it finds
->> the drive on the second channel on its bios screen, but Linux will not
->> see it. This is with 2.4.20-pre9 and -rc1.
 > 
-> As a followup, this does not occur with default Redhat 8.0 kernel, so it
-> is a problem with the large changes in the driver since 2.4.18. Will try
-> to work out exactly when it broke. 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
- 
+> I have to wonder, just how many setuid executables do people have?
+> Implementing filesystem capability bits in ramfs or tmpfs might do
+> the job. At boot, initramfs stuff puts a few trusted executables
+> in /trusted and sets the capability bits. Then "mount --bind" to
+> put /trusted/su over an empty /bin/su file, or use symlinks.
+
+It's more useful that you might at first think, in terms of applications.
+If I have an app I want to make available to a limited group, currently I
+can portably make the file setuid to app-owner, then group but not world
+executable, and the people in the group can have access. The app might be
+a database, usenet news, mail system spam filter, whatever. ACLs work, but
+are not widely portable at the moment (if ever).
+
+> One might as well make "nosuid" the default then, and mount the
+> root filesystem that way. It's not as if a system needs to have
+> gigabytes of setuid executables.
+
+Well, my point here is not that you can't do this, but that normal users
+may have legitimate reasons for doing this, and that it's desirable to
+avoid having to remount the filesystem to reload some setuid file list.
+
+I would think a mount option which blocks setuid on root owned files and
+files which are world writable would be useful. That would allow the
+mounting of applications, which people in practice do, without
+compromising the whole system.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

@@ -1,58 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262357AbSKCV6b>; Sun, 3 Nov 2002 16:58:31 -0500
+	id <S264617AbSKCVwE>; Sun, 3 Nov 2002 16:52:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262363AbSKCV6b>; Sun, 3 Nov 2002 16:58:31 -0500
-Received: from schroeder.cs.wisc.edu ([128.105.6.11]:40455 "EHLO
-	schroeder.cs.wisc.edu") by vger.kernel.org with ESMTP
-	id <S262357AbSKCV63>; Sun, 3 Nov 2002 16:58:29 -0500
-Message-Id: <200211032204.gA3M4vI24773@schroeder.cs.wisc.edu>
-Content-Type: text/plain; charset=US-ASCII
-From: Nick LeRoy <nleroy@cs.wisc.edu>
-To: Jos Hulzink <josh@stack.nl>, Vojtech Pavlik <vojtech@suse.cz>,
-       Jeff Garzik <jgarzik@pobox.com>
+	id <S264001AbSKCVwD>; Sun, 3 Nov 2002 16:52:03 -0500
+Received: from mailhost.tue.nl ([131.155.2.5]:34346 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S264617AbSKCVwB>;
+	Sun, 3 Nov 2002 16:52:01 -0500
+Date: Sun, 3 Nov 2002 22:58:33 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Jos Hulzink <josh@stack.nl>,
+       linux-kernel@vger.kernel.org
 Subject: Re: Petition against kernel configuration options madness...
-Date: Sun, 3 Nov 2002 16:04:56 -0600
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <200211031809.45079.josh@stack.nl> <20021103200704.A8377@ucw.cz> <200211032239.10843.josh@stack.nl>
-In-Reply-To: <200211032239.10843.josh@stack.nl>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Message-ID: <20021103215833.GA946@win.tue.nl>
+References: <200211031809.45079.josh@stack.nl> <3DC56270.8040305@pobox.com> <20021103200704.A8377@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021103200704.A8377@ucw.cz>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 03 November 2002 03:39 pm, Jos Hulzink wrote:
-> On Sunday 03 November 2002 20:07, Vojtech Pavlik wrote:
-> > On Sun, Nov 03, 2002 at 12:52:48PM -0500, Jeff Garzik wrote:
-> > > Unfortunately I don't have any concrete suggestions for Vojtech (input
-> > > subsystem maintainer), just a request that it becomes easier and more
-> > > obvious how to configure the keyboard and mouse that is found on > 90%
-> > > of all Linux users computers [IMO]...
-> >
-> > Too bad you don't have any suggestions. I completely agree this should
-> > be simplified, while I wouldn't be happy to lose the possibility of not
-> > compiling AT keyboard support in.
->
-> Something I have been thinking about for a while is a quick-config option
-> (that sets some defaults that hold for 90% of the systems), or an expert
-> mode that shows extra options. Though I understand that this is hard to do,
-> and much hardware differs, I think it can be done for some basics like
-> keyboard, mouse, USB and stuff.
+On Sun, Nov 03, 2002 at 08:07:05PM +0100, Vojtech Pavlik wrote:
 
-I like this idea!
+> > Unfortunately I don't have any concrete suggestions for Vojtech (input 
+> > subsystem maintainer), just a request that it becomes easier and more 
+> > obvious how to configure the keyboard and mouse that is found on > 90% 
+> > of all Linux users computers [IMO]...
+> 
+> Too bad you don't have any suggestions. I completely agree this should
+> be simplified, while I wouldn't be happy to lose the possibility of not
+> compiling AT keyboard support in.
 
-> Yes, this will cause your kernel to be bigger than optimal, for some
-> drivers will be compiled in that are not used on your system. But if you
-> want you can optimize things away after clicking <set defaults for standard
-> IBM PC>.
+Last month or so I suggested adding a hint for Appletalk, and I see
+that it is there now:
 
-How about running the "quick config", which I can then use a base to 
-customize?
+config LLC
+        tristate "ANSI/IEEE 802.2 Data link layer protocol (IPX, Appletalk)"
 
-> If this idea is not blown away immediately, I'm willing to work this idea
-> out a little, though I can understand that people call me an idiot...
+Such parenthetical remarks will no doubt help a little.
+You might try
 
-Not at all!
+--- Kconfig~    Thu Oct 31 14:15:06 2002
++++ Kconfig     Sun Nov  3 22:51:45 2002
+@@ -5,7 +5,7 @@
+ menu "Input device support"
+ 
+ config INPUT
+-       tristate
++       tristate "Input devices (needed for mouse, keyboard, ...)"
+        default y
+        ---help---
+          Say Y here if you have any input device (mouse, keyboard, tablet,
 
--Nick
+and
+
+--- Kconfig~    Thu Oct 31 14:15:06 2002
++++ Kconfig     Sun Nov  3 22:54:28 2002
+@@ -2,7 +2,7 @@
+ # Input core configuration
+ #
+ config SERIO
+-       tristate "Serial i/o support"
++       tristate "Serial i/o support (needed for keyboard and mouse)"
+        ---help---
+          Say Yes here if you have any input device that uses serial I/O to
+          communicate with the system. This includes the 
+
+(and maybe also sth under keyboard, to tell people that what they have
+is called an AT keyboard).
+
+Andries

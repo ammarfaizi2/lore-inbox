@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261360AbTDONMf (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 09:12:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbTDONMf 
+	id S261362AbTDONO6 (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 09:14:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbTDONO5 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 09:12:35 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:27305 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261360AbTDONMe 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 09:12:34 -0400
-Date: Tue, 15 Apr 2003 06:24:20 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Dominik Kubla <dominik@kubla.de>
-Cc: Chris Wedgwood <cw@f00f.org>, Larry McVoy <lm@bitmover.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ECC error in 2.5.64 + some patches
-Message-ID: <20030415132420.GA11659@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Dominik Kubla <dominik@kubla.de>, Chris Wedgwood <cw@f00f.org>,
-	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-References: <20030324212813.GA6310@osiris.silug.org> <20030327160220.GA29195@work.bitmover.com> <20030327170039.GA26452@f00f.org> <200303271819.41971.dominik@kubla.de>
+	Tue, 15 Apr 2003 09:14:57 -0400
+Received: from [195.82.120.238] ([195.82.120.238]:9615 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S261362AbTDONO5 (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 09:14:57 -0400
+Date: Tue, 15 Apr 2003 14:24:58 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: M?ns Rullg?rd <mru@users.sourceforge.net>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Writing modules for 2.5
+Message-ID: <20030415132458.GA15550@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	M?ns Rullg?rd <mru@users.sourceforge.net>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <yw1x7k9w9flm.fsf@zaphod.guide.suse.lists.linux.kernel> <p73adesxane.fsf@oldwotan.suse.de> <yw1xllyc7yoz.fsf@zaphod.guide> <1050406513.27745.32.camel@dhcp22.swansea.linux.org.uk> <yw1xbrz87x59.fsf@zaphod.guide> <20030415135758.C32468@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200303271819.41971.dominik@kubla.de>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
-	DATE_IN_PAST_06_12)
+In-Reply-To: <20030415135758.C32468@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 27, 2003 at 06:19:41PM +0100, Dominik Kubla wrote:
-> Am Donnerstag, 27. M?rz 2003 18:00 schrieb Chris Wedgwood:
-> 
-> > > Message from syslogd@slovax at Thu Mar 27 05:53:49 2003 ...
-> > > slovax kernel: Bank 1: 9000000000000151
-> >
-> > Status: (9000000000000151) Restart IP valid.
-> >
-> > *Exactly* what this means I don't know --- but I'm guessing the CPU is
-> > overheating.  Check fans, air-flow, etc. and see if that helps.  So
-> > far whenever I've seen the above problem it's *ALWAYS* been related to
-> > the CPU getting too hot.
+On Tue, Apr 15, 2003 at 01:57:58PM +0100, Russell King wrote:
+ > On Tue, Apr 15, 2003 at 02:39:14PM +0200, M?ns Rullg?rd wrote:
+ > > My situation is like this: I am converting a char device driver to
+ > > work with linux 2.5.  In the open and close functions there are
+ > > MOD_INC/DEC_USECOUNT calls.  The question is what they should be
+ > > replaced with.  Will it be handled correctly without them?
+ > 
+ > If it's a character device driver using the struct file_operations,
+ > set the owner field as Alan mentioned, and remove the
+ > MOD_{INC,DEC}_USE_COUNT macros from the open/close methods.  This
+ > allows chrdev_open() (in fs/char_dev.c) to increment your module use
+ > count automatically.
 
-FYI - it was a too small case with the power supply sitting more or less
-on top of the CPU.  Moving everything to a bigger case fixed it.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Unless the open/close functions are doing funky things (like the
+watchdog drivers do).
+
+		Dave
+

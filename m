@@ -1,59 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262174AbVATWW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262185AbVATWXl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262174AbVATWW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 17:22:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbVATWWZ
+	id S262185AbVATWXl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 17:23:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbVATWXl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 17:22:25 -0500
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:1216 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S262174AbVATWWT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 17:22:19 -0500
-Subject: Re: LVM2
-From: "Trever L. Adams" <tadams-lists@myrealbox.com>
-To: Alasdair G Kergon <agk@redhat.com>
+	Thu, 20 Jan 2005 17:23:41 -0500
+Received: from holomorphy.com ([66.93.40.71]:28115 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262185AbVATWXd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 17:23:33 -0500
+Date: Thu, 20 Jan 2005 14:23:28 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Trever L. Adams" <tadams-lists@myrealbox.com>
 Cc: Norbert van Nobelen <Norbert@edusupport.nl>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050120220252.GA14097@agk.surrey.redhat.com>
-References: <1106250687.3413.6.camel@localhost.localdomain>
-	 <200501202240.02951.Norbert@edusupport.nl>
-	 <20050120220252.GA14097@agk.surrey.redhat.com>
-Content-Type: text/plain
-Date: Thu, 20 Jan 2005 15:22:14 -0700
-Message-Id: <1106259735.3413.21.camel@localhost.localdomain>
+Subject: Re: LVM2
+Message-ID: <20050120222328.GO8896@holomorphy.com>
+References: <1106250687.3413.6.camel@localhost.localdomain> <200501202240.02951.Norbert@edusupport.nl> <1106259457.3413.19.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 (2.0.3-2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1106259457.3413.19.camel@localhost.localdomain>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PV = the device
-VG = groups of them (the RAID5 array?)
-LV = what? the file system?
+On Thu, Jan 20, 2005 at 03:17:37PM -0700, Trever L. Adams wrote:
+> Second, you mentioned file systems. We were talking about ext3. I have
+> never used any others in Linux (barring ext2, minixfs, and fat). I had
+> heard XFS from IBM was pretty good. I would rather not use reiserfs.
 
-So, from what you are telling me, and the man page, 2.6.x with LVM2 can
-have basically any size of PV, VG, and LV I want.
+XFS is from SGI. JFS is from IBM.
 
-Am I flawed in my understanding?
 
-Thank you,
-Trever
-
-On Thu, 2005-01-20 at 22:02 +0000, Alasdair G Kergon wrote:
-> On Thu, Jan 20, 2005 at 10:40:02PM +0100, Norbert van Nobelen wrote:
-> > A logical volume in LVM will not handle more than 2TB. You can tie together 
-> > the LVs in a volume group, thus going over the 2TB limit. 
-> 
-> Confused over terminology?
-> Tie PVs together to form a VG, then divide VG up into LVs.
-> 
-> Size limit depends on metadata format and the kernel: old LVM1 format has 
-> lower size limits - see the vgcreate man page.
-> 
-> New LVM2 metadata format relaxes those limits and lets you have LVs > 2TB
-> with a 2.6 kernel.
-> 
-> Alasdair
---
-"Assassination is the extreme form of censorship." -- George Bernard
-Shaw (1856-1950)
-
+-- wli

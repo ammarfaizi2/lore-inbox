@@ -1,208 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265182AbUD3NKZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUD3NSp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265182AbUD3NKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 09:10:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265184AbUD3NKZ
+	id S261474AbUD3NSp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 09:18:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265106AbUD3NSp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 09:10:25 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:45772 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S265182AbUD3NJj
+	Fri, 30 Apr 2004 09:18:45 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:28120 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S261474AbUD3NSm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 09:09:39 -0400
-Date: Fri, 30 Apr 2004 18:41:07 +0530
-From: Raghavan <raghav@in.ibm.com>
-To: akpm@osdl.org, ak@suse.de
-Cc: linux-kernel@vger.kernel.org, raghav@in.ibm.com
-Subject: [PATCH] Fixes in 32 bit ioctl emulation code
-Message-ID: <20040430131107.GA13126@in.ibm.com>
-Reply-To: raghav@in.ibm.com
-Mime-Version: 1.0
+	Fri, 30 Apr 2004 09:18:42 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16530.21039.756717.489879@laputa.namesys.com>
+Date: Fri, 30 Apr 2004 17:18:39 +0400
+To: Rik van Riel <riel@redhat.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       Paul Mackerras <paulus@samba.org>, <brettspamacct@fastclick.com>,
+       <jgarzik@pobox.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+In-Reply-To: <Pine.LNX.4.44.0404300849480.6976-200000@chimarrao.boston.redhat.com>
+References: <4091C15D.7040800@yahoo.com.au>
+	<Pine.LNX.4.44.0404300849480.6976-200000@chimarrao.boston.redhat.com>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rik van Riel writes:
+ > On Fri, 30 Apr 2004, Nick Piggin wrote:
+ > > Rik van Riel wrote:
+ > 
+ > > > The basic idea of use-once isn't bad (search for LIRS and
+ > > > ARC page replacement), however the Linux implementation
+ > > > doesn't have any of the checks and balances that the
+ > > > researched replacement algorithms have...
+ > 
+ > > No, use once logic is good in theory I think. Unfortunately
+ > > our implementation is quite fragile IMO (although it seems
+ > > to have been "good enough").
+ > 
+ > Hey, that's what I said ;))))
+ > 
+ > > This is what I'm currently doing (on top of a couple of other
+ > > patches, but you get the idea). I should be able to transform
+ > > it into a proper use-once logic if I pick up Nikita's inactive
+ > > list second chance bit.
+ > 
+ > Ummm nope, there just isn't enough info to keep things
+ > as balanced as ARC/LIRS/CAR(T) can do.  No good way to
+ > auto-tune the sizes of the active and inactive lists.
 
-Hi Andi & Andrew,
+While keeping "history" for non-resident pages is very good from many
+points of view (provides infrastructure for local replacement and
+working set tuning, for example) and in the long term, current scanner
+can still be improved somewhat.
 
-I am submitting a patch that fixes 2 race conditions in the 32 bit ioctl
-emulation code.(fs/compat.c) Since the search is not locked; when a 
-ioctl_trans structure is deleted, corruption can occur.
+Here are results that I obtained some time ago. Test is to concurrently
+clone (bk) and build (make -jN) kernel source in M directories.
 
-The following scenarios discuss the race conditions:
+For N = M = 11, TIMEFORMAT='%3R %3S %3U'
 
-1) When the search is hapenning, if any ioctl_trans structure gets deleted; then
-rather than searching the hash table, the code will start searching the free
-list.
+                                        REAL    SYS      USER
+"stock"                               3818.320 568.999 4358.460
+transfer-dirty-on-refill              3368.690 569.066 4377.845
+check-PageSwapCache-after-add-to-swap 3237.632 576.208 4381.248
+dont-unmap-on-pageout                 3207.522 566.539 4374.504
+async-writepage                       3115.338 562.702 4325.212
 
-while (t && t->cmd != cmd)
-        ---->Deletion of t happens here; t->next points to ioctl_free_list
-        t = (struct ioctl_trans *)t->next;
-        ---->Now t will point to the ioctl_free_list
+(check-PageSwapCache-after-add-to-swap was added to mainline since them.)
 
-2) Another race is when  the delete happens while the search holds the pointer
- to ioctl_trans. In this case the ioctl_trans structure is added to head of
-the ioctl_free_list. In the meanwhile if another module is registering, then
-the ioctl_trans from the head of the queue is given. This causes corruption.
+These patches weren't updated for some time. Last version is at
+ftp://ftp.namesys.com/pub/misc-patches/unsupported/extra/2004.03.25-2.6.5-rc2
 
-if (t) {
-        -----> t gets deleted, added to free list and gets alloted again
-        if (t->handler) {
-        ------> t is corrupted
+[from Nick Piggin's patch]
+ > 
+ > Changes mark_page_accessed to only set the PageAccessed bit, and
+ > not move pages around the LRUs. This means we don't have to take
+ > the lru_lock, and it also makes page ageing and scanning consistient
+ > and all handled in mm/vmscan.c
 
+By the way, batch-mark_page_accessed patch at the URL above also tries
+to reduce lock contention in mark_page_accessed(), but through more
+standard approach of batching target pages in per-cpu pvec.
 
-The solution as I see it is to protect the search too. Since anyway the BKL
-needs to be used while calling the emulation handler, it can be pushed above
-to protect the searching. The fallout of this solution is that ioctl_free_list
-is not required any more.
+Nikita.
 
-Thanks
-Raghav
-
---- compat.c.old	2004-04-30 15:01:35.000000000 +0530
-+++ compat.c	2004-04-30 14:33:34.000000000 +0530
-@@ -282,18 +282,6 @@
- 
- __initcall(init_sys32_ioctl);
- 
--static struct ioctl_trans *ioctl_free_list;
--
--/* Never free them really. This avoids SMP races. With a Read-Copy-Update
--   enabled kernel we could just use the RCU infrastructure for this. */
--static void free_ioctl(struct ioctl_trans *t) 
--{ 
--	t->cmd = 0; 
--	mb();
--	t->next = ioctl_free_list;
--	ioctl_free_list = t;
--} 
--
- int register_ioctl32_conversion(unsigned int cmd, int (*handler)(unsigned int, unsigned int, unsigned long, struct file *))
- {
- 	struct ioctl_trans *t;
-@@ -310,15 +298,10 @@
- 		}
- 	} 
- 
--	if (ioctl_free_list) { 
--		t = ioctl_free_list; 
--		ioctl_free_list = t->next; 
--	} else { 
--		t = kmalloc(sizeof(struct ioctl_trans), GFP_KERNEL); 
--		if (!t) { 
--			unlock_kernel();
--			return -ENOMEM;
--		}
-+	t = kmalloc(sizeof(struct ioctl_trans), GFP_KERNEL); 
-+	if (!t) { 
-+		unlock_kernel();
-+		return -ENOMEM;
- 	}
- 	
- 	t->next = NULL;
-@@ -358,10 +341,10 @@
- 			printk("%p tried to unregister builtin ioctl %x\n",
- 			       __builtin_return_address(0), cmd);
- 		} else { 
--		ioctl32_hash_table[hash] = t->next;
--			free_ioctl(t); 
-+			ioctl32_hash_table[hash] = t->next;
- 			unlock_kernel();
--		return 0;
-+			kfree(t);
-+			return 0;
- 		}
- 	} 
- 	while (t->next) {
-@@ -372,10 +355,10 @@
- 				       __builtin_return_address(0), cmd);
- 				goto out;
- 			} else { 
--			t->next = t1->next;
--				free_ioctl(t1); 
-+				t->next = t1->next;
- 				unlock_kernel();
--			return 0;
-+				kfree(t1);
-+				return 0;
- 			}
- 		}
- 		t = t1;
-@@ -404,43 +387,50 @@
- 		goto out;
- 	}
- 
-+	lock_kernel();
-+
- 	t = (struct ioctl_trans *)ioctl32_hash_table [ioctl32_hash (cmd)];
- 
- 	while (t && t->cmd != cmd)
- 		t = (struct ioctl_trans *)t->next;
- 	if (t) {
- 		if (t->handler) { 
--			lock_kernel();
- 			error = t->handler(fd, cmd, arg, filp);
- 			unlock_kernel();
--		} else
-+		} else {
-+			unlock_kernel();
- 			error = sys_ioctl(fd, cmd, arg);
--	} else if (cmd >= SIOCDEVPRIVATE && cmd <= (SIOCDEVPRIVATE + 15)) {
--		error = siocdevprivate_ioctl(fd, cmd, arg);
--	} else {
--		static int count;
--		if (++count <= 50) { 
--			char buf[10];
--			char *path = (char *)__get_free_page(GFP_KERNEL), *fn = "?"; 
--
--			/* find the name of the device. */
--			if (path) {
--		       		fn = d_path(filp->f_dentry, filp->f_vfsmnt, 
--					    path, PAGE_SIZE);
-+		}
-+	} else
-+	{
-+		unlock_kernel();
-+		if (cmd >= SIOCDEVPRIVATE && cmd <= (SIOCDEVPRIVATE + 15)) {
-+			error = siocdevprivate_ioctl(fd, cmd, arg);
-+		} else {
-+			static int count;
-+			if (++count <= 50) { 
-+				char buf[10];
-+				char *path = (char *)__get_free_page(GFP_KERNEL), *fn = "?"; 
-+
-+				/* find the name of the device. */
-+				if (path) {
-+			       		fn = d_path(filp->f_dentry, filp->f_vfsmnt, 
-+						    path, PAGE_SIZE);
-+				}
-+	
-+				sprintf(buf,"'%c'", (cmd>>24) & 0x3f); 
-+				if (!isprint(buf[1]))
-+				    sprintf(buf, "%02x", buf[1]);
-+				printk("ioctl32(%s:%d): Unknown cmd fd(%d) "
-+				       "cmd(%08x){%s} arg(%08x) on %s\n",
-+				       current->comm, current->pid,
-+				       (int)fd, (unsigned int)cmd, buf, (unsigned int)arg,
-+				       fn);
-+				if (path) 
-+					free_page((unsigned long)path); 
- 			}
--
--			sprintf(buf,"'%c'", (cmd>>24) & 0x3f); 
--			if (!isprint(buf[1]))
--			    sprintf(buf, "%02x", buf[1]);
--			printk("ioctl32(%s:%d): Unknown cmd fd(%d) "
--			       "cmd(%08x){%s} arg(%08x) on %s\n",
--			       current->comm, current->pid,
--			       (int)fd, (unsigned int)cmd, buf, (unsigned int)arg,
--			       fn);
--			if (path) 
--				free_page((unsigned long)path); 
-+			error = -EINVAL;
- 		}
--		error = -EINVAL;
- 	}
- out:
- 	fput(filp);

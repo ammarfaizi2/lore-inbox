@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270828AbTGVNDz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 09:03:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270829AbTGVNDz
+	id S270820AbTGVNFZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 09:05:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270815AbTGVNFZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 09:03:55 -0400
-Received: from mail.kroah.org ([65.200.24.183]:22687 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270828AbTGVNDy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 09:03:54 -0400
-Date: Tue, 22 Jul 2003 09:18:32 -0400
-From: Greg KH <greg@kroah.com>
-To: Jan Kasprzak <kas@informatics.muni.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Non-ASCII chars in visor.c messages
-Message-ID: <20030722131832.GB2389@kroah.com>
-References: <20030722143821.C26218@fi.muni.cz> <20030722125039.GA2310@kroah.com> <20030722150941.E26218@fi.muni.cz>
-Mime-Version: 1.0
+	Tue, 22 Jul 2003 09:05:25 -0400
+Received: from web41504.mail.yahoo.com ([66.218.93.87]:4724 "HELO
+	web41504.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S270820AbTGVNFQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 09:05:16 -0400
+Message-ID: <20030722132019.42790.qmail@web41504.mail.yahoo.com>
+Date: Tue, 22 Jul 2003 06:20:19 -0700 (PDT)
+From: Carl Spalletta <cspalletta@yahoo.com>
+Subject: Re: 2.6: marking individual directories as synchronous? 
+To: linux-kernel@vger.kernel.org
+Cc: dbehman@hotmail.com
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030722150941.E26218@fi.muni.cz>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 22, 2003 at 03:09:42PM +0200, Jan Kasprzak wrote:
-> Greg KH wrote:
-> : > 
-> : > 	What do you think about it?
-> : 
-> : I don't think it's really needed.  Why change this, syslog can't handle
-> : this?  It works for me...
-> : 
-> 	Yes, syslog can handle this, but in order to parse syslog files
-> you should have your LC_CTYPE set to something Latin-1 compatible
-> (which UTF-8 is not, and it is the default on many distros).
-> 
-> 	Why Latin-1 and not UTF-8? I think UTF-8 is more "correct", while
-> ASCII is "works for all". Latin-1 is neither "correct" nor "works for all".
+Grepping around in 2.6.0-test1 src I found:
 
-So how do you encode that character in UTF-8?
+include/linux/fs.h:
+105 #define MS_DIRSYNC 128 /* Directory modifications are synchronous */
+138 #define S_DIRSYNC  128 /* Directory modifications are synchronous */
 
-If we are going to print device names, I want to be correct in their
-usage...
+Therefore, study the definitions and uses of those flags as well as
+IS_DIRSYNC(), EXT3_DIRSYNC_FL, ext3_ioctl() & ext3_set_inode_flags().
 
-thanks,
+For example:
+[linux-2.6.0-test1]$ cscope -d -L -3 IS_DIRSYNC
+...
+fs/ext2/dir.c     ext2_commit_chunk  71    if  (IS_DIRSYNC(dir))
+fs/ext3/ialloc.c  ext3_new_inode     585   if  (IS_DIRSYNC(inode))
+fs/ext3/namei.c   ext3_create        1638  if  (IS_DIRSYNC(dir))
+fs/ext3/namei.c   ext3_mknod         1665  if  (IS_DIRSYNC(dir))
+fs/ext3/namei.c   ext3_mkdir         1697  if  (IS_DIRSYNC(dir))
+fs/ext3/namei.c   ext3_rmdir         1981  if  (IS_DIRSYNC(dir))
+fs/ext3/namei.c   ext3_unlink        2033  if  (IS_DIRSYNC(dir))
+fs/ext3/namei.c   ext3_symlink       2089  if  (IS_DIRSYNC(dir))
+fs/ext3/namei.c   ext3_link          2139  if  (IS_DIRSYNC(dir))
+fs/minix/dir.c    dir_commit_chunk   53    if  (IS_DIRSYNC(dir))
+fs/sysv/dir.c     dir_commit_chunk   46    if  (IS_DIRSYNC(dir))
+fs/ufs/dir.c      ufs_set_link       359   if  (IS_DIRSYNC(dir))
+fs/ufs/dir.c      ufs_add_link       458   if  (IS_DIRSYNC(dir))
+fs/ufs/dir.c      ufs_delete_entry   507   if  (IS_DIRSYNC(inode))
+...
 
-greg k-h
+I haven't actually played with the application of this, but it would appear
+to be some combination of ioctl's and/or mount flags.  Check the source for
+chattr(1) to see if and how it uses the ioctl.

@@ -1,54 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318813AbSIISk4>; Mon, 9 Sep 2002 14:40:56 -0400
+	id <S318825AbSIISlS>; Mon, 9 Sep 2002 14:41:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318814AbSIISkz>; Mon, 9 Sep 2002 14:40:55 -0400
-Received: from dsl-213-023-039-209.arcor-ip.net ([213.23.39.209]:34239 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318813AbSIISkl>;
-	Mon, 9 Sep 2002 14:40:41 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       Alexander Viro <viro@math.psu.edu>
-Subject: Re: Question about pseudo filesystems
-Date: Sun, 8 Sep 2002 18:00:12 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-References: <20020907192736.A22492@kushida.apsleyroad.org> <Pine.GSO.4.21.0209071544090.23598-100000@weyl.math.psu.edu> <20020908032121.A23455@kushida.apsleyroad.org>
-In-Reply-To: <20020908032121.A23455@kushida.apsleyroad.org>
+	id <S318815AbSIISlF>; Mon, 9 Sep 2002 14:41:05 -0400
+Received: from antigonus.hosting.pacbell.net ([216.100.98.13]:14788 "EHLO
+	antigonus.hosting.pacbell.net") by vger.kernel.org with ESMTP
+	id <S318806AbSIISjk>; Mon, 9 Sep 2002 14:39:40 -0400
+Reply-To: <imran.badr@cavium.com>
+From: "Imran Badr" <imran.badr@cavium.com>
+To: "'Daniel Phillips'" <phillips@arcor.de>, <root@chaos.analogic.com>,
+       "'David S. Miller'" <davem@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Calculating kernel logical address ..
+Date: Mon, 9 Sep 2002 11:41:52 -0700
+Message-ID: <01a701c25830$91223d90$9e10a8c0@IMRANPC>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17o4UE-0006Zh-00@starship>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <E17oTFW-0006qo-00@starship>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 08 September 2002 04:21, Jamie Lokier wrote:
-> Alexander Viro wrote:
-> > It is neither safe nor needed.  Please, look at the previous posting again -
-> > neither variant calls mntput() in ->release().
-> > 
-> > Now, __fput() _does_ call mntput() - always.  And yes, if that happens to
-> > be the final reference - it's OK.
-> 
-> Thanks, that's really nice.
-> 
-> I'd assumed `kern_mount' was similar to mounting a normal filesystem,
-> but in a non-existent namespace.  Traditionally in unix you can't
-> unmount a filesystem when its in use, and mounts don't disappear when
-> the last file being used on them disappears.
-> 
-> But you've rather cutely arranged that these kinds of mount _do_
-> disappear when the last file being used on them disappears.  Clever, if
-> a bit disturbing.
 
-And it's not a good way to drive module unloading.  It is rmmod that
-should cause a module to be unloaded, not close.  The final close
-*allows* the module to be unloaded, it does not *cause* it to be.  So
-to get the expected behaviour, you have to lather on some other fanciful
-construction to garbage collect modules ready to be unloaded, or to let
-rmmod inquire the state of the module in the process of attempting to
-unload it, and not trigger the nasty races we've discussed.  Enter
-fancy locking regime that 3 people in the world actually understand.
 
--- 
-Daniel
+-----Original Message-----
+From: Daniel Phillips [mailto:phillips@arcor.de]
+Sent: Monday, September 09, 2002 11:27 AM
+To: imran.badr@cavium.com; root@chaos.analogic.com
+Cc: 'David S. Miller'; linux-kernel@vger.kernel.org
+Subject: Re: Calculating kernel logical address ..
+
+
+On Monday 09 September 2002 20:12, Imran Badr wrote:
+> But my question here still begging an answer: What would be the portable
+way
+> to calculate kernel logical address of that user buffer?
+
+>Could you please post your code for doing the kmalloc and mmap?
+>
+>--
+>Daniel
+
+
+Sure, in mmap():
+
+size = vma->vm_end - vma->vm_start;
+if(size % PAGE_SIZE)
+{
+	printk(KERN_CRIT "mmap: size (%ld) not multiple of PAGE_SIZE.\n", size);
+	return -ENXIO;
+}
+
+offset = vma->vm_pgoff<<PAGE_SHIFT;
+if(offset & ~PAGE_MASK)
+{
+	printk(KERN_CRIT "mmap: offset (%ld) not aligned.\n", offset);
+	return -ENXIO;
+}
+
+kmalloc_ptr = (Uint8 *)kmalloc(size+(2*PAGE_SIZE), GFP_KERNEL);
+if(kmalloc_ptr == NULL)
+{
+	printk(KERN_CRIT "mmap: not enough memory.\n");
+	return -ENOMEM;
+}
+
+/* align it to page boundary */
+kmalloc_area = (Uint8 *)(((Uint32)kmalloc_ptr + PAGE_SIZE -1) & PAGE_MASK);
+
+/* reserve all pages */
+for(virt_addr = (Uint32)kmalloc_area; virt_addr < (Uint32)kmalloc_area +
+size; virt_addr +=PAGE_SIZE)
+{
+	mem_map_reserve(virt_to_page(virt_addr));
+}
+
+/* lock the area*/
+vma->vm_flags |=VM_LOCKED;
+
+if(remap_page_range(vma->vm_start,
+			virt_to_phys((void *)(Uint32)kmalloc_area),
+			size,
+			PAGE_SHARED))
+{
+	printk(KERN_CRIT "mmap: remap page range failed.\n");
+	return -ENXIO;
+}
+
+
+vma->vm_ops = &pkp_vma_ops;
+vma->vm_private_data = kmalloc_ptr;
+return 0;
+
+
+
+This works just fine on my i386 platform (SMP ,non-SMP). Now in my ioctl()
+entry I get the kernel logical address by using the following code:
+
+adr = user_address;
+pgd_offset(current->mm, adr);
+if (!pgd_none(*pgd)) {
+	pmd = pmd_offset(pgd, adr);
+	if (!pmd_none(*pmd)) {
+		ptep = pte_offset(pmd, adr);
+		pte = *ptep;
+		if(pte_present(pte)) {
+			kaddr  = (unsigned long) page_address(pte_page(pte));
+			kaddr |= (adr & (PAGE_SIZE - 1));
+		}
+	}
+}
+
+Now for DMA, I get bus address by using virt_to_bus(kaddr). So, is there any
+portablility issue in this scheme?
+
+Thanks,
+Imran.
+
+
+
+
+
+

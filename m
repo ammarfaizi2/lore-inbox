@@ -1,74 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbTETUJc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 16:09:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbTETUJb
+	id S261159AbTETURK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 16:17:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbTETURK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 16:09:31 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:20206 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261161AbTETUJY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 16:09:24 -0400
-Message-ID: <3ECA8E63.6080002@mvista.com>
-Date: Tue, 20 May 2003 13:21:55 -0700
-From: george anzinger <george@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Balazic <david.balazic@uni-mb.si>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Wrong clock initialization
-References: <3ECA673F.7B3FB388@uni-mb.si> <3ECA6F83.5090706@mvista.com> <3ECA73AB.FBC470DB@uni-mb.si>
-In-Reply-To: <3ECA73AB.FBC470DB@uni-mb.si>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 20 May 2003 16:17:10 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:4235 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261159AbTETURI (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 20 May 2003 16:17:08 -0400
+Message-Id: <200305202030.h4KKU1ug011128@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
+Subject: Re: /proc/kcore - how to fix it 
+In-Reply-To: Your message of "Tue, 20 May 2003 13:05:15 PDT."
+             <DD755978BA8283409FB0087C39132BD101B00DDE@fmsmsx404.fm.intel.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <DD755978BA8283409FB0087C39132BD101B00DDE@fmsmsx404.fm.intel.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1928944008P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 20 May 2003 16:30:01 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Balazic wrote:
-> george anzinger wrote:
-> 
->>David Balazic wrote:
->>
->>>Hi!
->>>
->>>When the kernel is booted ( ia32 version at least ) , it reads
->>>the time from from the hardware CMOS clock , _assumes_ it is in
->>>UTC and set the system time to it.
->>>
->>>As almost nobody runs their clock in UTC, this means that the system
->>>is running on wrong time until some userspace tool corrects it.
->>>
->>>This can lead to situtation when time goes backwards :
->>>
->>>timezone is 2hours east of UTC.
->>>UTC time : 20:00
->>>local time : 22:00
->>>
->>>System time between boot and userspace fix : 22:00UTC
->>>System time after fix : 20:00UTC
->>>
->>>Comments ?
->>
->>During shut down my system "says" it is setting the CMOS clock from
->>the kernel clock.  I would expect this to correct the problem.  Is
->>this a distro thing?
-> 
-> 
-> The time is properly converted first to be localtime, if your CMOS
-> is localtime. So this does not fix anything.
+--==_Exmh_1928944008P
+Content-Type: text/plain; charset=us-ascii
 
-Ouch!  That is a real disconnect.  Time to fix something.
-> 
-> 
->>In any case, this would seem to make the problem go away after the
->>first shutdown (if you don't dual boot with something other than Linux :).
-> 
-> 
-> 
+On Tue, 20 May 2003 13:05:15 PDT, "Luck, Tony" said:
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+> What about discontiguous memory.  Since /proc/kcore is super-user only
+> we could continue with the attitude that the user should be careful not
+> to touch memory that doesn't exist, or we could be kind and provide an
+> API so that the architecture specific code that finds the memory can tell
+> /proc/kcore what exists.
 
+"don't touch memory that doesn't exist" is a bad idea unless there is *some*
+sort of API that allows the program to intuit what does/doesn't exist.  If
+the program can't find out what is legal without hitting an oops or worse,
+nobody will use /proc/kcore, and then why bother implementing it?
+
+(Note that I'd consider "look *here* for a pointer to known-existing memory,
+then look 24 bytes into there for a pointer to a linked list of memory
+block address/size pairs" sufficient, no need for a fancy /proc interface.
+Of course, that's just my opinion - those who don't have memories of
+pointer chasing in S/360 assembler under OS/MVT may have other opinions ;)
+
+--==_Exmh_1928944008P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+ypBIcC3lWbTT17ARAq1KAJ4o/hjlZcsI9Tv9LBpvY9zxbwhO/QCbBoZo
+EBcJ1g8p6RFULfWBxzh0/vk=
+=uCNH
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1928944008P--

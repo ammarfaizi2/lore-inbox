@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267826AbUJMTs3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269804AbUJMTve@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267826AbUJMTs3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 15:48:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267807AbUJMTs3
+	id S269804AbUJMTve (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 15:51:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269785AbUJMTvF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 15:48:29 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:388 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S269758AbUJMTd0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 15:33:26 -0400
-Date: Wed, 13 Oct 2004 23:32:47 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Norbert Preining <preining@logic.at>
-Cc: linux-kernel@vger.kernel.org, debian-alpha@lists.debian.org,
-       linux-alpha@vger.kernel.org
-Subject: Re: 2.4.27, alpha arch, make bootimage and make bootpfile fails
-Message-ID: <20041013233247.A11663@jurassic.park.msu.ru>
-References: <20041012173344.GA21846@gamma.logic.tuwien.ac.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20041012173344.GA21846@gamma.logic.tuwien.ac.at>; from preining@logic.at on Tue, Oct 12, 2004 at 07:33:44PM +0200
+	Wed, 13 Oct 2004 15:51:05 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52384 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269804AbUJMTqx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 15:46:53 -0400
+Message-ID: <416D8620.5090001@pobox.com>
+Date: Wed, 13 Oct 2004 15:46:40 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@linux.kernel.org
+Subject: Re: PATCH: IDE generic tweak
+References: <1097677476.4764.9.camel@localhost.localdomain>	 <20041013153152.GA5458@havoc.gtf.org>	 <1097678363.4696.16.camel@localhost.localdomain>	 <20041013154916.GA6832@havoc.gtf.org> <1097679269.4696.18.camel@localhost.localdomain>
+In-Reply-To: <1097679269.4696.18.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 12, 2004 at 07:33:44PM +0200, Norbert Preining wrote:
-> When doing this on our alpha the
-> 	make bootimage
-> and the 
-> 	make bootpfile
-> both bail out with:
-...
-> /usr/src/linux-2.4.27/arch/alpha/lib/lib.a -o bootloader
-> /usr/src/linux-2.4.27/lib/lib.a(vsprintf.o): In function `vsnprintf':
-> vsprintf.o(.text+0xcd4): undefined reference to `printk'
+Alan Cox wrote:
+> On Mer, 2004-10-13 at 16:49, Jeff Garzik wrote:
+> 
+>>nVidia for example specifically wanted it because future __SATA__
+>>hardware will appear at the legacy IDE addresses, and end users were
+>>requesting for similar reasons.
+> 
+> 
+> Guess we need a pair of options with similar names to specify who
+> grabs the generic devices. That should be fine because it never wants
+> to be automatic anyway
 
-Thanks for the report. The appended patch should fix that.
+Can two drivers declare __setup() with the same string, I wonder?
 
-Ivan.
+Then you could do 'idegeneric=yes' and 'idegeneric=libata' or somesuch.
 
---- 2.4/arch/alpha/boot/bootloader.lds	Tue Jul  3 01:40:14 2001
-+++ linux/arch/alpha/boot/bootloader.lds	Wed Oct 13 23:18:50 2004
-@@ -1,5 +1,6 @@
- OUTPUT_FORMAT("elf64-alpha")
- ENTRY(__start)
-+printk = srm_printk;
- SECTIONS
- {
-   . = 0x20000000;
+	Jeff
+
+
+

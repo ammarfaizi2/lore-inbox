@@ -1,60 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264389AbUIIOIa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264386AbUIIOHP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264389AbUIIOIa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 10:08:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264396AbUIIOHc
+	id S264386AbUIIOHP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 10:07:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264377AbUIIOFN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 10:07:32 -0400
-Received: from pfelectron.sophos.com ([213.86.172.148]:38602 "EHLO
-	electron.sophos.com") by vger.kernel.org with ESMTP id S264389AbUIIOFC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 10:05:02 -0400
-MIME-Version: 1.0
-X-MIMETrack: S/MIME Sign by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 5.0.12
-  |February 13, 2003) at 09/09/2004 15:04:40,
-	Serialize by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 5.0.12  |February
- 13, 2003) at 09/09/2004 15:04:40,
-	Serialize complete at 09/09/2004 15:04:40,
-	S/MIME Sign failed at 09/09/2004 15:04:40: The cryptographic key was not
- found,
-	S/MIME Sign by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 5.0.12
-  |February 13, 2003) at 09/09/2004 15:04:58,
-	Serialize by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 5.0.12  |February
- 13, 2003) at 09/09/2004 15:04:58,
-	Serialize complete at 09/09/2004 15:04:58,
-	S/MIME Sign failed at 09/09/2004 15:04:58: The cryptographic key was not
- found,
-	Serialize by Router on Mercury/Servers/Sophos(Release 6.5.2|June 01, 2004) at
- 09/09/2004 15:05:01,
-	Serialize complete at 09/09/2004 15:05:01
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org,
-       Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: GPL source code for Smart USB 56 modem (includes ALSA AC97  patch)
-X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
-Message-ID: <OF7784085E.97108B7F-ON80256F0A.004D3045-80256F0A.004D5C17@green.sophos>
-From: tvrtko.ursulin@sophos.com
-Date: Thu, 9 Sep 2004 15:04:58 +0100
-Content-Type: text/plain; charset="us-ascii"
+	Thu, 9 Sep 2004 10:05:13 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9734 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264386AbUIIOEs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 10:04:48 -0400
+Date: Thu, 9 Sep 2004 15:04:44 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Jens Axboe <axboe@suse.de>
+Subject: Re: [patch][9/9] block: remove bio walking
+Message-ID: <20040909150444.C6434@flint.arm.linux.org.uk>
+Mail-Followup-To: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
+	linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Jens Axboe <axboe@suse.de>
+References: <200409082127.04331.bzolnier@elka.pw.edu.pl> <20040909090314.A24950@flint.arm.linux.org.uk> <200409091553.13918.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200409091553.13918.bzolnier@elka.pw.edu.pl>; from bzolnier@elka.pw.edu.pl on Thu, Sep 09, 2004 at 03:53:13PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->It's not a GPL driver, the kernel part contains a binary object file
->(drivers/amrlibs.o) so I don't see how it can be included in the main
->kernel tree. OTOH, at first glance only the PCI driver needs that
->binary blob, the USB driver doesn't.
+On Thu, Sep 09, 2004 at 03:53:13PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> On Thursday 09 September 2004 10:03, Russell King wrote:
+> > On Wed, Sep 08, 2004 at 09:27:04PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > > [patch] block: remove bio walking
+> > > 
+> > > IDE driver was the only user of bio walking code.
+> 
+> was in -bk10 :-(
+> 
+> > The MMC driver also uses this.  Please don't remove.
+> 
+> OK I'll just drop this patch but can't we also use scatterlists in MMC?
+> 
+> The point is that I now think bio walking was a mistake and accessing
+> bios directly from low-level drivers is a layering violation (thus
+> all the added complexity). Moreover with fixed IDE PIO and without
+> bio walking code it should be possible to shrink struct request by
+> removing all "current" entries.
 
-Droping in. :)
+I'm wondering whether it is legal to map onto SG lists and then do PIO.
+Provided we don't end up using the DMA API and then using PIO to the
+original pages, it should work.
 
-Kernel part is not required, slmodemd works with the snd-intel8x0m Alsa 
-driver. For me at least, and for the PCI version.
+I would rather Jens considered your point first before rewriting code.
 
+However, using the SG lists does finally provide us with a nice way to
+ensure that we have the right information to finally fix IDE wrt the
+PIO cache issues (dirty cache lines being left in the page cache.)
 
 -- 
-Tvrtko August Ursulin
-Software Engineer, Sophos
-
-Tel: 01235 559933
-Web: www.sophos.com
-Sophos - protecting businesses against viruses and spam
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,55 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312859AbSDBRYq>; Tue, 2 Apr 2002 12:24:46 -0500
+	id <S312882AbSDBRn6>; Tue, 2 Apr 2002 12:43:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312862AbSDBRYg>; Tue, 2 Apr 2002 12:24:36 -0500
-Received: from atlrel8.hp.com ([156.153.255.206]:16310 "HELO atlrel8.hp.com")
-	by vger.kernel.org with SMTP id <S312859AbSDBRYY>;
-	Tue, 2 Apr 2002 12:24:24 -0500
-Date: Tue, 2 Apr 2002 10:20:46 -0700
-From: Troy Heber <troyh@fc.hp.com>
+	id <S312872AbSDBRns>; Tue, 2 Apr 2002 12:43:48 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:34707 "EHLO
+	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S312867AbSDBRnd>; Tue, 2 Apr 2002 12:43:33 -0500
+Message-ID: <3CA9F019.E388F489@nortelnetworks.com>
+Date: Tue, 02 Apr 2002 12:53:29 -0500
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: WARNING: unexpected IO-APIC on 2.4.19-pre4-ac3
-Message-ID: <20020402172046.GA4129@troypc.fc.hp.com>
-Mime-Version: 1.0
+Subject: any problems with gcc 3.0/3.1 and compiling 2.4.18 on ppc?
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting the following with 2.4.19-pre4-ac3 on boot and in dmesg. Was also
-getting the message on stock 2.4.18 as well. The message told me to mail the
-list so I'm just following instructions :-).
 
-        testing the IO APIC.......................
+We're looking at moving to gcc 3.x for 2.4.18, and are trying to decide what
+version to use.  It appears that there were some ppc-specific fixes that went in
+to 3.1, and I'm not sure if they were ported back to 3.0.
 
-        IO APIC #1......
-        .... register #00: 01008000
-        .......    : physical APIC id: 01
-         WARNING: unexpected IO-APIC, please mail
-                  to linux-smp@vger.kernel.org
-        .... register #01: 00178020
-        .......     : max redirection entries: 0017
-        .......     : PRQ implemented: 1
-        .......     : IO APIC version: 0020
-        .... register #02: 00000000
-        .......     : arbitration: 00
-
-I know the message is coming from /linux/arch/i386/kernel/io_apic.c
-
-        printk(KERN_DEBUG ".......    : physical APIC id: %02X\n",
-reg_00.ID);
-        if (reg_00.__reserved_1 || reg_00.__reserved_2)
-                UNEXPECTED_IO_APIC();
-
-reg_00.__reserved_1 is from struct IO_APIC_reg_00 defined in
-/include/asm-i386/io_apic.h
-
-Any ideas what the apic would return to cause this is coming up? I'm using
-an i860 chipset with a dual Xeon.
+Has anyone had any successes or failures using either of these versions on ppc? 
+Any gotchas?
 
 Thanks,
 
-Troy
+Chris
 
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

@@ -1,127 +1,187 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263100AbUH1KKG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267400AbUH1JyK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263100AbUH1KKG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 06:10:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267476AbUH1KDf
+	id S267400AbUH1JyK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 05:54:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267408AbUH1JxI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 06:03:35 -0400
-Received: from av2-1-sn3.vrr.skanova.net ([81.228.9.107]:52919 "EHLO
-	av2-1-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
-	id S264973AbUH1J7V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 05:59:21 -0400
-To: Jens Axboe <axboe@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Speed up the cdrw packet writing driver
-References: <m33c2py1m1.fsf@telia.com> <20040823114329.GI2301@suse.de>
-	<m3llg5dein.fsf@telia.com> <20040824202951.GA24280@suse.de>
-	<m3hdqsckoo.fsf@telia.com> <20040825065055.GA2321@suse.de>
-From: Peter Osterlund <petero2@telia.com>
-Date: 28 Aug 2004 11:59:04 +0200
-In-Reply-To: <20040825065055.GA2321@suse.de>
-Message-ID: <m3u0unwplj.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 28 Aug 2004 05:53:08 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:22729 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S267400AbUH1Jqs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 05:46:48 -0400
+Date: Sat, 28 Aug 2004 18:48:11 +0900
+From: Takao Indoh <indou.takao@soft.fujitsu.com>
+Subject: [PATCH 4/4][diskdump] x86-64 support
+In-reply-to: <89C48CE36A27FFindou.takao@soft.fujitsu.com>
+To: linux-kernel@vger.kernel.org
+Message-id: <8DC48CE421568Cindou.takao@soft.fujitsu.com>
+MIME-version: 1.0
+X-Mailer: TuruKame 3.63
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+References: <89C48CE36A27FFindou.takao@soft.fujitsu.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> writes:
+This is a patch for Fusion-MPT scsi driver.
 
-> On Tue, Aug 24 2004, Peter Osterlund wrote:
-> > Jens Axboe <axboe@suse.de> writes:
-> > 
-> > > You are right, the code looks fine indeed. The bigger problem is
-> > > probably that a faster data structure is needed at all, having hundreds
-> > > of thousands bio's pending for a packet writing device is not nice at
-> > > all.
-> > 
-> > Why is it not nice? If the VM has decided to create 400MB of dirty
-> > data on a DVD+RW packet device, I don't see a problem with submitting
-> > all bio's at the same time to the packet device.
-> 
-> It's not nice because flushing 400MB of dirty data to the packet device
-> will take _ages_. That the vm will dirty that much data for you
-> non-blocking is a problem in itself. It would still be a really good
-> idea for the packet writing driver to "congest" itself, like it happens
-> for struct request devices, to prevent build up of these huge queues.
 
-That would be easy to do, see patch below.
-
-> > The situation happened when I dumped >1GB of data to a DVD+RW disc on
-> > a 1GB RAM machine. For some reason, the number of pending bio's didn't
-> > go much larger than 200000 (ie 400MB) even though it could probably
-> > have gone to 800MB without swapping. The machine didn't feel
-> > unresponsive during this test.
-> 
-> But it very well could have. If you dive into the bio mempool (or the
-> biovec pool) and end up having most of those reserved entries built up
-> for execution half an hour from now, you'll stall (or at least hinder)
-> other processes from getting real work done.
-> 
-> Latencies are horrible, I don't think it makes sense to allow more than
-> a few handful of pending zone writes in the packet writing driver.
-
-I ran some tests copying files to a 4x DVD+RW disc for different
-values of the maximum number of allowed bios in the queue. I used
-kernel 2.6.8.1 with the packet writing patches from the -mm tree. All
-tests used the udf filesystem.
-
-Test 1: dd-ing 250MB from /dev/zero:
-
-        1024:  	53.2s
-        8192:	54.6s
-        inf:	51.2s
-
-Test 2: Writing 29 files, total size 120MB (Source files cached in RAM
-before the test started):
-
-        1024:	71.6s
-        8192:	81.1s
-        32768:	52.7s
-        49152:	31.4s
-        65536:	26.6s
-        inf:	27.7s
-
-Test 3: Writing 48 files, total size 196MB (Source files cached in RAM
-before the test started):
-
-        65536:	65.8s
-        inf:	40.2s
-
-Test 4: Repeat of test 3:
-
-        65536:	67.4s
-        inf:	41.8s
-
-The conclusion is that when writing one big file, it doesn't hurt to
-limit the number of pending bios, but when writing many files,
-limiting the amount of queued data to "only" 128MB makes the write
-performance 60% slower.
-
-Note that the reduced I/O performance will also reduce the lifetime of
-the disc, because some sectors will be written more often than
-necessary.
-
----
-
- linux-petero/drivers/block/pktcdvd.c |    3 +++
- 1 files changed, 3 insertions(+)
-
-diff -puN drivers/block/pktcdvd.c~packet-congest drivers/block/pktcdvd.c
---- linux/drivers/block/pktcdvd.c~packet-congest	2004-08-28 10:18:48.350080048 +0200
-+++ linux-petero/drivers/block/pktcdvd.c	2004-08-28 11:26:32.851181960 +0200
-@@ -2159,6 +2159,9 @@ static int pkt_make_request(request_queu
- 		goto end_io;
- 	}
+diff -Nur linux-2.6.8.1.org/drivers/message/fusion/mptbase.c linux-2.6.8.1/drivers/message/fusion/mptbase.c
+--- linux-2.6.8.1.org/drivers/message/fusion/mptbase.c	2004-08-25 15:55:50.548987590 +0900
++++ linux-2.6.8.1/drivers/message/fusion/mptbase.c	2004-08-25 19:02:34.647483153 +0900
+@@ -5950,6 +5950,22 @@
+ }
  
-+	while (pd->bio_queue_size >= 8192)
-+		blk_congestion_wait(WRITE, HZ / 5);
+ /*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
++/**
++ *	mpt_poll_interrupt - Check the status of interrupt and if any interrupt
++ *	are triggered, call interrupt handler.
++ *	@ioc: Pointer to MPT_ADAPTER structure
++ */
++void
++mpt_poll_interrupt(MPT_ADAPTER *ioc)
++{
++	u32 intstat;
 +
- 	blk_queue_bounce(q, &bio);
++	intstat = CHIPREG_READ32(&ioc->chip->IntStatus);
++
++	if (intstat & MPI_HIS_REPLY_MESSAGE_INTERRUPT)
++		mpt_interrupt(0, ioc, NULL);
++}
++/*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
  
- 	zone = ZONE(bio->bi_sector, pd);
-_
-
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+ EXPORT_SYMBOL(ioc_list);
+ EXPORT_SYMBOL(mpt_proc_root_dir);
+@@ -5988,6 +6004,7 @@
+ EXPORT_SYMBOL(mpt_ASCQ_TableSz);
+ EXPORT_SYMBOL(mpt_ScsiOpcodesPtr);
+ 
++EXPORT_SYMBOL(mpt_poll_interrupt);
+ 
+ static struct pci_driver mptbase_driver = {
+ 	.name		= "mptbase",
+diff -Nur linux-2.6.8.1.org/drivers/message/fusion/mptbase.h linux-2.6.8.1/drivers/message/fusion/mptbase.h
+--- linux-2.6.8.1.org/drivers/message/fusion/mptbase.h	2004-08-25 15:55:50.546057903 +0900
++++ linux-2.6.8.1/drivers/message/fusion/mptbase.h	2004-08-25 19:03:35.213888661 +0900
+@@ -1075,6 +1075,7 @@
+ extern void	 mpt_free_fw_memory(MPT_ADAPTER *ioc);
+ extern int	 mpt_findImVolumes(MPT_ADAPTER *ioc);
+ extern int	 mpt_read_ioc_pg_3(MPT_ADAPTER *ioc);
++extern void	 mpt_poll_interrupt(MPT_ADAPTER *ioc);
+ 
+ /*
+  *  Public data decl's...
+@@ -1090,6 +1091,23 @@
+ extern const char	**mpt_ScsiOpcodesPtr;
+ extern int		  mpt_ASCQ_TableSz;
+ 
++/*
++ *  Dump stuff...
++ */
++#include <linux/diskdump.h>
++
++#define MPT_HOST_LOCK(host_lock)		\
++	if (crashdump_mode()) 			\
++		spin_lock(host_lock);		\
++	else					\
++		spin_lock_irq(host_lock);
++
++#define MPT_HOST_UNLOCK(host_lock)		\
++	if (crashdump_mode())			\
++		spin_unlock(host_lock);		\
++	else					\
++		spin_unlock_irq(host_lock);
++
+ /*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+ #endif		/* } __KERNEL__ */
+ 
+diff -Nur linux-2.6.8.1.org/drivers/message/fusion/mptscsih.c linux-2.6.8.1/drivers/message/fusion/mptscsih.c
+--- linux-2.6.8.1.org/drivers/message/fusion/mptscsih.c	2004-08-25 15:55:50.548987590 +0900
++++ linux-2.6.8.1/drivers/message/fusion/mptscsih.c	2004-08-25 19:02:34.652365965 +0900
+@@ -2892,7 +2892,7 @@
+ 	/*  If our attempts to reset the host failed, then return a failed
+ 	 *  status.  The host will be taken off line by the SCSI mid-layer.
+ 	 */
+-	spin_unlock_irq(host_lock);
++	MPT_HOST_UNLOCK(host_lock);
+ 	if (mpt_HardResetHandler(hd->ioc, CAN_SLEEP) < 0){
+ 		status = FAILED;
+ 	} else {
+@@ -2902,7 +2902,7 @@
+ 		hd->tmPending = 0;
+ 		hd->tmState = TM_STATE_NONE;
+ 	}
+-	spin_lock_irq(host_lock);
++	MPT_HOST_LOCK(host_lock);
+ 
+ 
+ 	dtmprintk( ( KERN_WARNING MYNAM ": mptscsih_host_reset: "
+@@ -3284,6 +3284,49 @@
+ 	return 0;
+ }
+ 
++/*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
++/*
++ *	OS entry point to check whether the host drivier is sane enough
++ *	to be used for saving crash dump. Called once when system crash
++ *	occurs.
++ */
++int
++mptscsih_sanity_check(struct scsi_device *sdev)
++{
++	MPT_ADAPTER    *ioc;
++	MPT_SCSI_HOST  *hd;
++
++	hd = (MPT_SCSI_HOST *) sdev->host->hostdata;
++	if (!hd)
++		return -ENXIO;
++	ioc = hd->ioc;
++
++	/* message frame freeQ is busy */
++	if (spin_is_locked(&ioc->FreeQlock))
++		return -EBUSY;
++
++	return 0;
++}
++
++/*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
++/*
++ *	OS entry point to poll whether the adapter issue the interrupts.
++ *	Called repeatedly after I/O commands are issued to this adapter.
++ */
++void
++mptscsih_poll(struct scsi_device *sdev)
++{
++	MPT_SCSI_HOST  *hd;
++
++	hd = (MPT_SCSI_HOST *) sdev->host->hostdata;
++	if (!hd)
++		return;
++
++	/* check interrupt pending */
++	mpt_poll_interrupt(hd->ioc);
++}
++/*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
++
+ 
+ /*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+ /*
+@@ -3764,6 +3807,8 @@
+ 	.max_sectors			= 8192,
+ 	.cmd_per_lun			= 7,
+ 	.use_clustering			= ENABLE_CLUSTERING,
++	.dump_sanity_check		= mptscsih_sanity_check,
++	.dump_poll			= mptscsih_poll,
+ };
+ 
+ 
+@@ -5580,6 +5625,9 @@
+ 	}
+ 	spin_unlock_irqrestore(&dvtaskQ_lock, flags);
+ 
++	if (crashdump_mode())
++		return;
++
+ 	/* For this ioc, loop through all devices and do dv to each device.
+ 	 * When complete with this ioc, search through the ioc list, and
+ 	 * for each scsi ioc found, do dv for all devices. Exit when no

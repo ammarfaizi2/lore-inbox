@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbTLDLOl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 06:14:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbTLDLOl
+	id S261563AbTLDLy2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 06:54:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbTLDLy2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 06:14:41 -0500
-Received: from postfix4-1.free.fr ([213.228.0.62]:3264 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S261190AbTLDLOk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 06:14:40 -0500
-From: Duncan Sands <baldrick@free.fr>
-To: Vince <fuzzy77@free.fr>, "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
-Date: Thu, 4 Dec 2003 12:14:33 +0100
-User-Agent: KMail/1.5.4
-Cc: Mike Fedyk <mfedyk@matchmail.com>, zwane@holomorphy.com,
-       linux-kernel@vger.kernel.org
-References: <3FC4E8C8.4070902@free.fr> <20031203201149.42f58e2a.rddunlap@osdl.org> <3FCF1381.7090507@free.fr>
-In-Reply-To: <3FCF1381.7090507@free.fr>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Dec 2003 06:54:28 -0500
+Received: from inet-mail4.oracle.com ([148.87.2.204]:33686 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id S261563AbTLDLy1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 06:54:27 -0500
+Date: Thu, 4 Dec 2003 03:54:14 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Fredrik Tolf <fredrik@dolda2000.com>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: Why is hotplug a kernel helper?
+Message-ID: <20031204115414.GH11065@ca-server1.us.oracle.com>
+Mail-Followup-To: Fredrik Tolf <fredrik@dolda2000.com>,
+	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+References: <16334.31260.278243.22272@pc7.dolda2000.com> <20031204011357.GA22506@kroah.com> <16334.38227.433336.514399@pc7.dolda2000.com> <20031204022911.GA23761@kroah.com> <16334.44085.362449.278626@pc7.dolda2000.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200312041214.33376.baldrick@free.fr>
+In-Reply-To: <16334.44085.362449.278626@pc7.dolda2000.com>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> EIP is at releaseintf+0x62/0x80 [usbcore]
+On Thu, Dec 04, 2003 at 04:38:29AM +0100, Fredrik Tolf wrote:
+> Admittedly, I'm still using the RH8 hotplug scripts, and I suspect
+> improvements have been made since then. I was mainly looking for a way
+> to auto-mount USB mass storage devices without having to reconfigure
+> anything as root. I have all the info I need now, though.
 
-I haven't found time to work on this, sorry -
-I'm really busy with my real jobs right now.
+	Hotplug (murasaki in my case) finds the devices just fine.  The
+automounter (autofs for local filesystems) automounts them when I change
+into the directory.  Also just fine.  In 2.4, no less.  2.6 as well.
 
-> <0>Fatal exception: panic in 5 seconds
+Joel
 
-What is this, by the way?  I never saw it.
 
-Duncan.
+-- 
+
+"The nice thing about egotists is that they don't talk about other
+ people."
+         - Lucille S. Harper
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

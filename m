@@ -1,41 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264833AbUGSOKA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265060AbUGSOPk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264833AbUGSOKA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jul 2004 10:10:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264858AbUGSOKA
+	id S265060AbUGSOPk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jul 2004 10:15:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265264AbUGSOPk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jul 2004 10:10:00 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:45977 "EHLO scrub.home")
-	by vger.kernel.org with ESMTP id S264833AbUGSOJ7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jul 2004 10:09:59 -0400
-Date: Mon, 19 Jul 2004 16:09:26 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Chris Lingard <chris@ukpost.com>
-cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: PATCH Trivial fix for xconfig
-In-Reply-To: <200407191451.55828.chris@ukpost.com>
-Message-ID: <Pine.LNX.4.58.0407191607060.20634@scrub.home>
-References: <200407191451.55828.chris@ukpost.com>
+	Mon, 19 Jul 2004 10:15:40 -0400
+Received: from host-65-117-135-105.timesys.com ([65.117.135.105]:2288 "EHLO
+	kartuli.timesys") by vger.kernel.org with ESMTP id S265060AbUGSOPi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jul 2004 10:15:38 -0400
+Message-ID: <40FBD734.5040306@timesys.com>
+Date: Mon, 19 Jul 2004 10:14:12 -0400
+From: "La Monte H.P. Yarroll" <piggy@timesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en, de-de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Sridhar Samudrala <sri@us.ibm.com>
+CC: Carl Spalletta <cspalletta@yahoo.com>, lkml <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com, ML lksctp <lksctp-developers@lists.sourceforge.net>
+Subject: Re: [PATCH] Remove prototypes of nonexistent functions from net/sctp
+ files
+References: <20040718194826.6164.qmail@web53805.mail.yahoo.com>
+In-Reply-To: <20040718194826.6164.qmail@web53805.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This function went away in Februrary (change 1.67 on associola.c) due to
+changing the assoc id from a kernel address to an abstract address. The
+check is now done by looking at a single field in the association struct.
 
-On Mon, 19 Jul 2004, Chris Lingard wrote:
+Signed-off-by: La Monte H.P. Yarroll <piggy@baqaqi.chi.il.us>
 
-> When qt is installed in /usr, then there is no need to set and
-> export QTDIR; but make xconfig expects this.
+Carl Spalletta wrote:
 
-What distribution are you using? This would mean all qt header files are 
-directly in /usr/include.
+>diff -ru linux-2.6.7-orig/net/sctp/socket.c linux-2.6.7-new/net/sctp/socket.c
+>--- linux-2.6.7-orig/net/sctp/socket.c  2004-06-15 22:20:26.000000000 -0700
+>+++ linux-2.6.7-new/net/sctp/socket.c   2004-07-18 08:54:08.000000000 -0700
+>@@ -109,7 +109,6 @@
+> static char *sctp_hmac_alg = SCTP_COOKIE_HMAC_ALG;
+>
+> extern kmem_cache_t *sctp_bucket_cachep;
+>-extern int sctp_assoc_valid(struct sock *sk, struct sctp_association *asoc);
+>
+> /* Look up the association by its id.  If this is not a UDP-style
+>  * socket, the ID field is always ignored.
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
 
-> This patch adds /usr to the script, and removes two header search
-> paths that would need QTDIR set.
+-- 
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell's sig
 
-You just broke xconfig for Debian and RH systems.
-
-bye, Roman

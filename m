@@ -1,93 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262147AbTICOif (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 10:38:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263432AbTICOif
+	id S263482AbTICOlj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 10:41:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263478AbTICOlj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 10:38:35 -0400
-Received: from smtp.terra.es ([213.4.129.129]:38079 "EHLO tsmtp2.mail.isp")
-	by vger.kernel.org with ESMTP id S262147AbTICOiJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 10:38:09 -0400
-Message-ID: <3F55FC69.7050404@terra.es>
-Date: Wed, 03 Sep 2003 16:36:25 +0200
-From: tonildg <tonildg@terra.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030830 Debian/1.4-3.he-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Martin Willemoes Hansen <mwh@sysrq.dk>
-CC: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Airo Net 340 PCMCIA WiFi Card trouble
-References: <1062498150.356.9.camel@spiril.sysrq.dk>	 <20030902113610.D29984@flint.arm.linux.org.uk>	 <1062500366.642.11.camel@hugoboss.sysrq.dk>  <3F555B68.2010408@terra.es> <1062591834.8758.18.camel@hugoboss.sysrq.dk>
-In-Reply-To: <1062591834.8758.18.camel@hugoboss.sysrq.dk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Sep 2003 10:41:39 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:58763 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263786AbTICOlF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 10:41:05 -0400
+Date: Wed, 3 Sep 2003 15:40:45 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH 2] Little fixes to previous futex patch
+Message-ID: <20030903144045.GC21530@mail.jlokier.co.uk>
+References: <Pine.LNX.4.44.0309021626540.1542-100000@localhost.localdomain> <20030903025605.5C1722C05F@lists.samba.org> <20030903073628.GA19920@mail.jlokier.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030903073628.GA19920@mail.jlokier.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again, read below...
+Patch name: futex-nonlinear-2.6.0-test4-02jl
+Depends on: futex-fixes-2.6.0-test4-01jl
 
-> On Wed, 2003-09-03 at 05:09, tonildg wrote:
-> 
->> >The error message:
->> >cardmgr[19]: starting, version is 3.2.4
->> >cs: memory probe 0x0c0000-0x0ffff: excluding >0xc0000-0xcbfff
->>
->>  I had the same problem you have (but in other range of memory and with 
->>another wireless card) and it started too with 2.4.19. 
->>
->> I solved it testing with memory ranges in the config.opts file that 
->>comes with your pcmcia_cs version.
->>
->>   You have to play with them until one fits and boots. "I had to use 
->>windows to see the memory adresses my cardbus used." 
-> 
-> 
-< Umh can I check it out on Linux as well? And how? I can boot correctly
-> with 2.4.19.
+This fixes a couple of bugs in the previous patch:
 
-  I had to look to the windows cardbus device properties to get it work, 
-but i think that by playing with some values you can get it working too 
-without needing that crappy OS.
+   1. A typo in futex.c.  It affects the FUTEX_REQUEUE operation,
+      which is a fairly recent addition.
 
-   My  Excuse: The reason i looked into windows whas that i was setting 
-up  a laptop whith the host_ap module support and i needed it working 
-for giving a wireless talk and  had no time to play. :-)
+   2. VM_NONLINEAR would not be set under some conditions when it should be.
+      The bug only affected futexes on non-linear shared mappings.
 
-> 
->>Usually, when 
->>comenting the "include memory 0xc0000-0xfffff" solves it.
-> 
-> 
-> Yes when I comment that include out I can boot but the card is not
-> properly intitialized, here is the errors I get:
-> 
-> airo: register interrupt 0 failed, rc -16
-> airo_cs: RequestConfiguration: Operation succeeded
-> 
-> cardmgr[20]: get dev info on socket 0 failed: Resource temporarily
-> unavailable.
-> 
-    I can only give you this link where the problem is referenced and 
-have some instructions to guess wich memory addresses to reserve for the 
-cardbus.
-  http://pcmcia-cs.sourceforge.net/ftp/doc/PCMCIA-HOWTO-3.html#ss3.5
+Enjoy,
+-- Jamie
 
->>However this problem is not caused by the Airo driver. And, (i think) it 
->>is not a  kernel problem. Maybe a pcmcia_cs one.
-> 
-> 
-> Okay so the kernel changed something and is now using that memory area?
-> 
-    No. I think kernel does not change anything. Maybe is that the 
-kernel fits a region of memory originally reserved for the cardbus as is 
-defined in config.opts. Maybe because those new kernel are a few Kb 
-bigger than before one's.
 
-    Remembering this thing makes me think that this "issue" is more a 
-pcmcia_cs thing than a kernel/driver one.
-
-Hope it helps you or any other developer/list__member here.
-
-PD: Excuse my poor english.
-
+diff -urN --exclude-from=dontdiff futex1-2.6.0-test4/kernel/futex.c futex2-2.6.0-test4/kernel/futex.c
+--- futex1-2.6.0-test4/kernel/futex.c	2003-09-03 12:48:59.000000000 +0100
++++ futex2-2.6.0-test4/kernel/futex.c	2003-09-03 12:56:03.000000000 +0100
+@@ -224,7 +224,7 @@
+ 
+ 	down_read(&current->mm->mmap_sem);
+ 
+-	ret = __get_page_keys(uaddr2 - offset1, keys1);
++	ret = __get_page_keys(uaddr1 - offset1, keys1);
+ 	if (unlikely(ret != 0))
+ 		goto out;
+ 	ret = __get_page_keys(uaddr2 - offset2, keys2);
+diff -urN --exclude-from=dontdiff futex1-2.6.0-test4/mm/fremap.c futex2-2.6.0-test4/mm/fremap.c
+--- futex1-2.6.0-test4/mm/fremap.c	2003-09-03 12:29:36.000000000 +0100
++++ futex2-2.6.0-test4/mm/fremap.c	2003-09-03 13:02:35.000000000 +0100
+@@ -153,9 +153,9 @@
+ 			end > start && start >= vma->vm_start &&
+ 				end <= vma->vm_end) {
+ 
+-		if (start != vma->vm_start || end != vma->vm_end)
+-			vma->vm_flags |= VM_NONLINEAR;
+-		else
++		vma->vm_flags |= VM_NONLINEAR;
++		if (start == vma->vm_start && end == vma->vm_end &&
++				pgoff == vma->vm_pgoff)
+ 			vma->vm_flags &= ~VM_NONLINEAR;
+ 
+ 		err = vma->vm_ops->populate(vma, start, size, vma->vm_page_prot,

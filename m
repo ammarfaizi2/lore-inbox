@@ -1,35 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269127AbUI2WIK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269152AbUI2WLv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269127AbUI2WIK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 18:08:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269103AbUI2WID
+	id S269152AbUI2WLv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 18:11:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269133AbUI2WLn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 18:08:03 -0400
-Received: from cantor.suse.de ([195.135.220.2]:30906 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S269102AbUI2WHK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 18:07:10 -0400
-Date: Thu, 30 Sep 2004 00:07:09 +0200
-From: Andi Kleen <ak@suse.de>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9-rc2: Kernel BUG at slab:2139 on dual AMD64
-Message-ID: <20040929220709.GD26714@wotan.suse.de>
-References: <200409300007.29986.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409300007.29986.rjw@sisk.pl>
+	Wed, 29 Sep 2004 18:11:43 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:4305 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S269079AbUI2WL1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 18:11:27 -0400
+Message-ID: <415B330A.6080207@nortelnetworks.com>
+Date: Wed, 29 Sep 2004 16:11:22 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: looking for cond_syscall usage instructions
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 30, 2004 at 12:07:29AM +0200, Rafael J. Wysocki wrote:
-> Hi,
-> 
-> I've obtained the following trace on a dual-Opteron box:
 
-Someone corrupted memory. 
-You could enable slab debugging, maybe that will find it earlier.
+I'm adding some syscalls to the kernel based on config options.  I just came 
+across cond_syscall, and it looks useful, but there are no instructions I've 
+seen on exactly how to use it.
 
--Andi
+Do I just add another line to kernel/sys.c with my syscall and then wrap the 
+whole syscall source with an #ifdef?
+
+Chris

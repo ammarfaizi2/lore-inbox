@@ -1,84 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbVCaTNL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261647AbVCaTVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261655AbVCaTNL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 14:13:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbVCaTNL
+	id S261647AbVCaTVG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 14:21:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbVCaTVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 14:13:11 -0500
-Received: from smtp6.wanadoo.fr ([193.252.22.25]:53637 "EHLO smtp6.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S261655AbVCaTMm (ORCPT
+	Thu, 31 Mar 2005 14:21:05 -0500
+Received: from ns2.suse.de ([195.135.220.15]:51140 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261647AbVCaTUy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 14:12:42 -0500
-X-ME-UUID: 20050331191238216.34CF11C00244@mwinf0608.wanadoo.fr
-Subject: Re: Clock 3x too fast on AMD64 laptop [WAS Re: Various issues
-	after rebooting]
-From: Olivier Fourdan <fourdan@xfce.org>
-To: john stultz <johnstul@us.ibm.com>,
-       Dominik Brodowski <linux@dominikbrodowski.net>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1112134312.17854.55.camel@cog.beaverton.ibm.com>
-References: <1112039799.6106.16.camel@shuttle>
-	 <20050328192054.GV30052@alpha.home.local> <1112038226.6626.3.camel@shuttle>
-	 <20050328193921.GW30052@alpha.home.local>
-	 <1112131714.14248.8.camel@shuttle>  <1112133731.14248.14.camel@shuttle>
-	 <1112134312.17854.55.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Organization: http://www.xfce.org
-Date: Thu, 31 Mar 2005 21:12:37 +0200
-Message-Id: <1112296357.6027.20.camel@shuttle>
+	Thu, 31 Mar 2005 14:20:54 -0500
+Date: Thu, 31 Mar 2005 21:20:53 +0200
+From: Andi Kleen <ak@suse.de>
+To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de, Ian.Pratt@cl.cam.ac.uk
+Subject: Re: Incorrect comment in leave_mm()?
+Message-ID: <20050331192053.GD22855@wotan.suse.de>
+References: <E1DH2JS-00021o-00@mta1.cl.cam.ac.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 (2.0.3-2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1DH2JS-00021o-00@mta1.cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi John, Dominik,
+On Thu, Mar 31, 2005 at 05:14:30PM +0100, Keir Fraser wrote:
+> 
+> Hi,
+> 
+> I have a question regarding the per-cpu tlbstate logic that is used to
+> lazily switch to the swapper_pgdir when running a process with no
+> mm_struct of its own.
+> 
+> There is a comment in arch/i386/kernel/smp.c:leave_mm() that
+> states 'We need to reload %cr3 since the page tables may be going away
+> from under us'. AFAICT this is not true -- the currently-running task
+> holds a reference on the active_mm until it is context-switched off
+> the CPU, at which point the reference is dropped in
+> sched.c:finish_task_switch(). Until that point the pgd cannot be
+> freed and so kernel mappings should remain valid to use. 
+
+The PTE pages get freed earlier.  On x86-64 also PMD/PGD. 
+The code is needed to prevent a CPU from ever seeing any partially 
+freed page tables. After the flush IPI happened the PTE pages
+get freed, and if you dont reload to init_mm the CPU has
+already freed page tables in its TLB.
+
+Modern x86 do an awful lot of prefetching behind your back, doing
+MMU lookup on adresses you never touched etc. and you have to 
+be extremly careful to only ever have fully valid page tables
+in CR3 all the time.
+
+I had this code disabled on x86-64, but I have several open bugs 
+because of this I thin (there were some other bugs in this logic too 
+which I only recently fixed, but they were all 64bit specific). 
+
+I can only advise against touching this! It is very easy to break
+and very subtle.
 
 
-On Tue, 2005-03-29 at 14:11 -0800, john stultz wrote:
-> Yea. From your description this is most likely the cause of the issue.
-> Currently the time of day is still tick-based, using the tsc/pmtmr/hpet
-> only for interpolating between ticks. 
+> Although the corresponding function in arch/x86_64 doesn't include
+> this comment, Andi Kleen recently modified it to switch to the
+> swapper_pg_dir, instead of doing a simple __flush_tlb. Does this mean 
+> that I am missing something, and the comment in arch/i386 is in fact
+> correct? 
 
-Sorry for the late follow up. Unfortunately, a quick hack to disable the
-"pmtmr" check shows that even when "trusting" the PM-Timer, the clock
-and interrupts still run 3x too fast. That makes no difference.
+It is correct.
 
-> Well, if you tried the time of day re-work I've been working on it would
-> mask the issue somewhat, but you'd still have the problem that you are
-> taking too many timer interrupts.
-
-Where could I get that patch from ? I'd be glad to do some testing for
-you if you need it.
-
-> One thing you could try is playing with the CLOCK_TICK_RATE value to see
-> if you just have very unique hardware. 
-
-Problem is that the issue shows exactly after one quick power off/power
-on sequence. It doesn't show after a real cold start (leaving the laptop
-off for a  couple of hours) or even after a reboot.
-
-> A similar sounding issue has also been reported here:
-> http://bugme.osdl.org/show_bug.cgi?id=3927
-
-Not sure if that's the exact same problem. What I can say, after reading
-that bug report, is that disabling ACPI and/or APIC makes no difference.
-Specifying the clock=... makes no difference either. It doesn't seem
-related to the AMD64 part of the kernel since it shows equally when
-using a 64bit kernel and a 32bit kernel.
-
-Moreover, when that bug shows, there are other different problems
-showing (such as the cdrom not being to mount anything, or ndiswrapper
-crashing the system with a MCE error).
-
-At first, I thought the issue might be related to the nforce3, but the
-bug refers to an ATI chipset so I guess it's not related to the nforce.
-
-Anyway, it doesn't seem to be an uncommon issue with AMD64 based
-hardware. I don't know where to start from though.
-
-Cheers,
-Olivier.
-
-
-
+-Andi

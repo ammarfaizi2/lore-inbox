@@ -1,72 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264487AbTGBUm7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 16:42:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264488AbTGBUm7
+	id S264490AbTGBUpq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 16:45:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264488AbTGBUpp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 16:42:59 -0400
-Received: from 200-204-171-188.insite.com.br ([200.204.171.188]:40712 "HELO
-	proxy.inteliweb.com.br") by vger.kernel.org with SMTP
-	id S264487AbTGBUm5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 16:42:57 -0400
-Message-ID: <01b101c340dc$ede386c0$3300a8c0@Slepetys>
-From: "Roberto Slepetys Ferreira" <slepetys@homeworks.com.br>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>, <linux-kernel@vger.kernel.org>
-References: <00d901c340a8$810556c0$3300a8c0@Slepetys> <1083830000.1057158848@aslan.scsiguy.com>
-Subject: Re: Probably 2.4 kernel or AIC7xxx module trouble
-Date: Wed, 2 Jul 2003 18:00:12 -0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Wed, 2 Jul 2003 16:45:45 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:17070 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S264490AbTGBUpo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 16:45:44 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Wed, 2 Jul 2003 23:00:06 +0200 (MEST)
+Message-Id: <UTC200307022100.h62L06a22118.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, akpm@digeo.com
+Subject: Re: [PATCH] cryptoloop
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+    From Andrew.Morton@digeo.com  Wed Jul  2 22:03:49 2003
 
-I upgraded it for the 6.2.36, using RPM and I am making some heavy tests.
+    > (Usually I plan a track and submit individual steps.
+    > When they get applied I continue.
+    > If not, there is no need to waste time on the rest.)
 
-Until now, it's ok, and for this kind of tests, the old configuration gave
-some trouble.
+    As someone who is on the receiving end of this process I must say that it
+    is not comfortable.
 
-Thanks
-Slepetys
+    It really helps to be able to see the whole thing laid out all at the same
+    time.  So we can see that it works, so that we can see that the end result
+    is the right one, etc.
 
------ Original Message ----- 
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: "Roberto Slepetys Ferreira" <slepetys@homeworks.com.br>;
-<linux-kernel@vger.kernel.org>
-Sent: Wednesday, July 02, 2003 12:14 PM
-Subject: Re: Probably 2.4 kernel or AIC7xxx module trouble
+    Whereas receiving a long drawn out trickle of patches is quite confusing. 
+    One doesn't know where it is leading, nor where it will end, nor when to
+    get down and actually start testing it, etc.  Nor whether this ongoing
+    churn is stomping on someone else's development effort.
 
+    And there is the risk that you get halfway through and then suddenly "no
+    way, we don't want to do that".  Then what?  Argue?  Revert?
 
-> > The system halts easily if I do a large I/O, like reindexing a database,
-> > giving me some messages like: (scsi0:A:1:0): Locking max tag count at
-128...
->
-> The "Locking max tag count" messages are normal.  It means the SCSI
-> driver was able to determine the maximum queue depth of your drive.
->
-> 6.2.8 is rather old.  I don't know that upgrading the aic7xxx driver
-> will solve your problem, but it might be worth a shot.  The latest
-> is available here:
->
-> http://people.FreeBSD.org/~gibbs/linux/SRC/
->
-> After upgrading, you should be at 6.2.36.
->
-> --
-> Justin
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+No, the point of such a series is that each patch does something
+clearly defined, is an improvement even when the author dies the
+next day so that all further work is lost.
 
+You should never accept a patch that makes things worse and is only
+justified by a future one.
 
+    So for everyone except the guy who's writing the code it is best to have
+    all the work in place and reviewable at the same time.
+
+No. Some changes are too large for that.
+
+    For the author, yes, there is a risk that more code than necessary will be
+    tossed away.  We can minimise that by discussing things beforehand, getting
+    understanding and agreement from the relevant people on the intended
+    direction.  I think we have done that for cryptoloop.  We still have not
+    really done it for 64-bit dev_t.
+
+Yes, now that you remind me, that is also an interesting topic.
+About discussing beforehand - search the archives and you'll see
+immense amounts of discussion on large dev_t.
+You'll always find me willing to discuss details.
+
+Now suppose one wants a large dev_t. Some people do.
+Then several steps are needed. One of these steps
+is the addition of the mknod64 system call.
+That is a nice small isolated step - part of the necessary
+user space interface. It can be done independently of any
+other steps. It was submitted, but is not in the present
+kernel. Why not? I do not recall anybody pointing out problems.
+
+I think some of these large dev_t steps were somewhat urgent, because
+they were prerequisites for glibc changes. But they didnt happen.
+Linus took a bit from me, and you submitted a few steps from me,
+and then nothing. OK.
+
+Dave compared the patch submission process to TCP/IP.
+I agree, and go into exponential backoff. Try again after two weeks,
+three months, a year and a half.
+But if you want we can restart that particular series of patches.
+Or discuss, if there are things to discuss.
+
+Andries

@@ -1,108 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262789AbTA0US2>; Mon, 27 Jan 2003 15:18:28 -0500
+	id <S262796AbTA0UZM>; Mon, 27 Jan 2003 15:25:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262796AbTA0US2>; Mon, 27 Jan 2003 15:18:28 -0500
-Received: from pc-80-192-208-23-mo.blueyonder.co.uk ([80.192.208.23]:51648
-	"EHLO efix.biz") by vger.kernel.org with ESMTP id <S262789AbTA0US0>;
-	Mon, 27 Jan 2003 15:18:26 -0500
-Subject: Re: 2.4.21-pre3 kernel crash
-From: Edward Tandi <ed@efix.biz>
-To: Jens Axboe <axboe@suse.de>
-Cc: Martin MOKREJ? <mmokrejs@natur.cuni.cz>, Ross Biro <rossb@google.com>,
-       Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030127192327.GD889@suse.de>
-References: <Pine.OSF.4.51.0301271632230.49659@tao.natur.cuni.cz>
-	 <3E356403.9010805@google.com>
-	 <Pine.OSF.4.51.0301271813230.57372@tao.natur.cuni.cz>
-	 <20030127192327.GD889@suse.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1043699262.2696.7.camel@wires.home.biz>
+	id <S263039AbTA0UZM>; Mon, 27 Jan 2003 15:25:12 -0500
+Received: from packet.digeo.com ([12.110.80.53]:4019 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262796AbTA0UZK>;
+	Mon, 27 Jan 2003 15:25:10 -0500
+Date: Mon, 27 Jan 2003 12:51:38 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: dementiev@mpi-sb.mpg.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: buffer leakage in kernel?
+Message-Id: <20030127125138.5dc35b1d.akpm@digeo.com>
+In-Reply-To: <3E3564EB.8E675E@mpi-sb.mpg.de>
+References: <3E31364E.F3AFDCF0@mpi-sb.mpg.de>
+	<20030124130208.52583b24.akpm@digeo.com>
+	<3E3564EB.8E675E@mpi-sb.mpg.de>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 27 Jan 2003 20:27:43 +0000
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Jan 2003 20:34:23.0083 (UTC) FILETIME=[79F25BB0:01C2C643]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI It works!
+Roman Dementiev <dementiev@mpi-sb.mpg.de> wrote:
+>
+> Application allocates 512 MB and never uses more.
+> 2MB buffers are used for each read() and write() calls.
+> Each file has only one read or write request going any time. There is no othr
+> memory-
+> hungry applications running.
 
-Thanks, I actually reported high-memory and DMA problems on the
-13th-15th of Jan (under the title of Linux 2.4.21-pre3-ac3 and KT400)
-but I thought it was VIA specific. I knew it was only time before a
-fix...
+OK.
 
-The VIA audio issue is still there though ;-)
-
-Ed-T.
-
-On Mon, 2003-01-27 at 19:23, Jens Axboe wrote:
-> On Mon, Jan 27 2003, Martin MOKREJ? wrote:
-> > On Mon, 27 Jan 2003, Ross Biro wrote:
-> > 
-> > > This looks like the same problem I ran into with IDE and highmem not
-> > > getting along.  Try compiling your kernel with out highmem enabled and
-> > > see what happenes.
-> > 
-> > Yes, that "fixes" it. Any "better solution"? ;-)
-> > 
-> > > >Trace; c024dfc1 <ide_build_sglist+181/1a0>
-> > > >Trace; c024e1b4 <ide_build_dmatable+54/1a0>
-> > > >Trace; c024e6df <__ide_dma_read+3f/150>
+> > Please perform this test:
+> >
+> > 1: Wait until you have 500M "Buffers"
+> > 2: cat 64_gig_file > /dev/null
+> > 3: Now see how large "Buffers" is.  It should have reduced a lot.
 > 
-> Someone completely lost the highmem capable scatterlist setup, *boggle*.
-> This should fix it.
-> 
-> ===== drivers/ide/ide-dma.c 1.7 vs edited =====
-> --- 1.7/drivers/ide/ide-dma.c	Wed Nov 20 18:46:24 2002
-> +++ edited/drivers/ide/ide-dma.c	Mon Jan 27 20:22:06 2003
-> @@ -249,6 +249,7 @@
->  {
->  	struct buffer_head *bh;
->  	struct scatterlist *sg = hwif->sg_table;
-> +	unsigned long lastdataend = ~0UL;
->  	int nents = 0;
->  
->  	if (hwif->sg_dma_active)
-> @@ -256,22 +257,28 @@
->  
->  	bh = rq->bh;
->  	do {
-> -		unsigned char *virt_addr = bh->b_data;
-> -		unsigned int size = bh->b_size;
-> +		if (bh_phys(bh) == lastdataend) {
-> +			sg[nents - 1].length += bh->b_size;
-> +			lastdataend += bh->b_size;
-> +			continue;
-> +		}
->  
->  		if (nents >= PRD_ENTRIES)
->  			return 0;
->  
-> -		while ((bh = bh->b_reqnext) != NULL) {
-> -			if ((virt_addr + size) != (unsigned char *) bh->b_data)
-> -				break;
-> -			size += bh->b_size;
-> -		}
->  		memset(&sg[nents], 0, sizeof(*sg));
-> -		sg[nents].address = virt_addr;
-> -		sg[nents].length = size;
-> -		if(size == 0)
-> -			BUG();
-> +		if (bh->b_page) {
-> +			sg[nents].page = bh->b_page;
-> +			sg[nents].offset = bh_offset(bh);
-> +		} else {
-> +			if (((unsigned long) bh->b_data) < PAGE_SIZE)
-> +				BUG();
-> +
-> +			sg[nents].address = bh->b_data;
-> +		}
-> +
-> +		sg[nents].length = bh->b_size;
-> +		lastdataend = bh_phys(bh) + bh->b_size;
->  		nents++;
->  	} while (bh != NULL);
->  
+> Yes, it worked, they had reduced.
+> Does this mean, that cached indirect buffers can't be kicked out of memory
+> automatically
+> and ONLY non-O_DIRECT access can do it? I suppose, they should be displaced by
+> newly allocated indirect buffers and user memory allocation.
+
+I suspect what is happening is that you've managed to find a code path in
+which the kernel is allocating lots of memory in a mode in which it cannot
+run effective page reclaim.  This would be more likely to be true if you only
+see the failures when writing.
+
+It would help if you could change mm/vmscan.c:try_to_free_pages_zone()
+thusly:
+
+        /*
+         * Hmm.. Cache shrink failed - time to kill something?
+         * Mhwahahhaha! This is the part I really like. Giggle.
+         */
++	show_stack(0);
+        out_of_memory();
+        return 0;
+ }
+
+and pass the resulting log output through ksyoops.
+
+And here's a protopatch to teach the kernel to make sure that there's a
+decent amount of free memory before it goes and performs GFP_NOFS pagecache
+allocations:
+
+diff -puN fs/buffer.c~a fs/buffer.c
+--- 24/fs/buffer.c~a	2003-01-27 12:28:02.000000000 -0800
++++ 24-akpm/fs/buffer.c	2003-01-27 12:28:23.000000000 -0800
+@@ -2112,6 +2112,8 @@ int generic_direct_IO(int rw, struct ino
+ 	for (i = 0; i < nr_blocks; i++, blocknr++) {
+ 		struct buffer_head bh;
+ 
++		try_to_free_pages(GFP_KERNEL);
++
+ 		bh.b_state = 0;
+ 		bh.b_dev = inode->i_dev;
+ 		bh.b_size = blocksize;
+
+
+If that sheds no light, please send me the app and I'll see if I can
+reproduce it.  Thanks.
+
 

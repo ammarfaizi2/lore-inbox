@@ -1,62 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267632AbTBFUas>; Thu, 6 Feb 2003 15:30:48 -0500
+	id <S267640AbTBFUdc>; Thu, 6 Feb 2003 15:33:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267643AbTBFUas>; Thu, 6 Feb 2003 15:30:48 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:65287
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S267632AbTBFU35>; Thu, 6 Feb 2003 15:29:57 -0500
-Date: Thu, 6 Feb 2003 12:38:53 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Dan Kegel <dank@kegel.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Monta Vista software license terms
-In-Reply-To: <3E42B37E.2080202@kegel.com>
-Message-ID: <Pine.LNX.4.10.10302061238410.11024-100000@master.linux-ide.org>
+	id <S267641AbTBFUdc>; Thu, 6 Feb 2003 15:33:32 -0500
+Received: from itg-gw.cr008.cwt.esat.net ([193.120.242.226]:52998 "EHLO
+	dunlop.admin.ie.alphyra.com") by vger.kernel.org with ESMTP
+	id <S267640AbTBFUdb>; Thu, 6 Feb 2003 15:33:31 -0500
+Date: Thu, 6 Feb 2003 20:42:50 +0000 (GMT)
+From: Paul Jakma <paulj@alphyra.ie>
+X-X-Sender: paulj@dunlop.admin.ie.alphyra.com
+To: Larry McVoy <lm@bitmover.com>
+cc: Eli Carter <eli.carter@inet.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: gcc 2.95 vs 3.21 performance
+In-Reply-To: <20030205002746.GA10206@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0302062040500.6657-100000@dunlop.admin.ie.alphyra.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 4 Feb 2003, Larry McVoy wrote:
 
-HIGH FIVE !
+> Scripting languages are unacceptable for products.  Flat out unacceptable.
+> I spoke to Chip when he was running the perl effort, his answer was "if
+> you are worried about new releases of perl breaking your scripts, ship
+> your own version of perl". 
 
-On Thu, 6 Feb 2003, Dan Kegel wrote:
+There is a perl compiler, perlcc, but its not perfect. why not fund it
+to have it made perfect. then you get best of all worlds - perl and
+interpretation at run time for developers and ability to ship binary
+files to customers.
 
-> My two bits:
-> 
-> 1. I am eternally grateful for the contributions Montavista has
-> made to the gnu tools.  Their recent contribution of a
-> multithread cabable gdbserver to gdb-5.3 is invaluable.
-> 
-> 2. I contantly see Montavista people feeding back improvements
-> here and there, and they are quick to respond when I have
-> questions about issues like the ppc405 erratum 77 workarounds.
-> And I've never given them any money!
-> 
-> Montavista *is* playing nice.  As far as I can
-> tell, they obey the rules, and actively feed
-> their improvements back to the community.
-> 
-> Yes, they could do more -- but they don't have to, and if
-> they did, it might endanger their cash flow and thus the
-> stream of improvements they're feeding back to the community.
-> 
-> Please let them be.  I like what they're doing.
-> - Dan
-> 
-> -- 
-> Dan Kegel
-> http://www.kegel.com
-> http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
+regards,
+-- 
+Paul Jakma	Sys Admin	Alphyra
+	paulj@alphyra.ie
+Warning: /never/ send email to spam@dishone.st or trap@dishone.st
 

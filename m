@@ -1,65 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270203AbRHWTol>; Thu, 23 Aug 2001 15:44:41 -0400
+	id <S270240AbRHWTu2>; Thu, 23 Aug 2001 15:50:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270221AbRHWTnx>; Thu, 23 Aug 2001 15:43:53 -0400
-Received: from pD9532DF4.dip.t-dialin.net ([217.83.45.244]:18187 "EHLO
-	Marvin.DL8BCU.ampr.org") by vger.kernel.org with ESMTP
-	id <S270203AbRHWTna>; Thu, 23 Aug 2001 15:43:30 -0400
-Date: Thu, 23 Aug 2001 19:43:15 +0000
-From: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
-To: Ajit Jena <ajit@cc.iitb.ac.in>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Quantum DLT 4000 issues
-Message-ID: <20010823194314.B8708@Marvin.DL8BCU.ampr.org>
-Reply-To: dl8bcu@dl8bcu.de
-Mail-Followup-To: Ajit Jena <ajit@cc.iitb.ac.in>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.33.0108232119510.12312-100000@indra.cc.iitb.ernet.in>
+	id <S270227AbRHWTuI>; Thu, 23 Aug 2001 15:50:08 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:20363
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S270195AbRHWTt6>; Thu, 23 Aug 2001 15:49:58 -0400
+Date: Thu, 23 Aug 2001 12:50:07 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Jes Sorensen <jes@sunsite.dk>
+Cc: Bob Glamm <glamm@mail.ece.umn.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
+Message-ID: <20010823125007.W14302@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <20010822030807.N120@pervalidus> <20010823140555.A1077@newton.bauerschmidt.eu.org> <20010823103620.A6965@kittpeak.ece.umn.edu> <20010823085900.F14302@cpe-24-221-152-185.az.sprintbbd.net> <d3k7zutw5y.fsf@lxplus051.cern.ch> <20010823124109.S14302@cpe-24-221-152-185.az.sprintbbd.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.GSO.4.33.0108232119510.12312-100000@indra.cc.iitb.ernet.in>; from ajit@cc.iitb.ac.in on Thu, Aug 23, 2001 at 09:22:39PM +0530
+Content-Disposition: inline
+In-Reply-To: <20010823124109.S14302@cpe-24-221-152-185.az.sprintbbd.net>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 23, 2001 at 09:22:39PM +0530, Ajit Jena wrote:
-> 
-> Hi All,
-> 
-> I need your expert advice on the following issue:
-> 
-> I saw some messages on the Linux kernel mailing list about DLT 4000
-> tape drives.
-> 
-> We have a Quantum DLT 4000 1/15 drive connected to an HP9000 system.
-> This is a SCSI device connected on the Wide SCSI port. I have all kinds
-> of driver problems on the HP system. My tar backups abort randomly saying
-> media error.
+On Thu, Aug 23, 2001 at 12:41:09PM -0700, Tom Rini wrote:
 
-Did you check new cartriges? Media errors indicate defective tape material.
-Maybe use a cleaning tape.
+[snip]
+> don't see your point.  If you can somehow transport the 21mb[1] bzip2
+[snip]
 
-> 
-> I was wondering if I can connect the same drive to a Linux box having
-> wide SCSI interface. Do u think this is a workable proposition ? What
-> extra hardware/software I need to procure ? Please advise.
-
-It should work just fine as an ordinary /dev/st* device. We have a DLT
-drive with a small (5 cartriges) loader system running at work. I think
-it's also a Quantum.
-
-> 
-> Thanks for your time.
-> 
-> Regards.
-> 
-> --ajit
-
-Bye,
-Thorsten
+1:
+$ ls -lh linux-2.4.6.tar.bz2 
+-rw-r--r--    1 trini    trini         21M Jul  3 17:07 linux-2.4.6.tar.bz2
 
 -- 
-| Thorsten Kranzkowski        Internet: dl8bcu@dl8bcu.de                      |
-| Mobile: ++49 170 1876134       Snail: Niemannsweg 30, 49201 Dissen, Germany |
-| Ampr: dl8bcu@db0lj.#rpl.deu.eu, dl8bcu@marvin.dl8bcu.ampr.org [44.130.8.19] |
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

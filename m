@@ -1,49 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290796AbSBOUp4>; Fri, 15 Feb 2002 15:45:56 -0500
+	id <S290797AbSBOUy4>; Fri, 15 Feb 2002 15:54:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290797AbSBOUpo>; Fri, 15 Feb 2002 15:45:44 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:27921 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S290796AbSBOUpc>; Fri, 15 Feb 2002 15:45:32 -0500
-Date: Fri, 15 Feb 2002 21:45:10 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Jens Axboe <axboe@suse.de>,
-        kernel list <linux-kernel@vger.kernel.org>, torvalds@transmeta.com
-Subject: Re: IDE cleanup for 2.5.4-pre3
-Message-ID: <20020215204510.GD5019@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20020208231346.GA1209@elf.ucw.cz> <20020211094230.E1957@suse.de> <20020211134443.GC20854@atrey.karlin.mff.cuni.cz> <20020211181013.K729@suse.de> <20020213225326.A10409@suse.cz> <20020214094046.B37@toy.ucw.cz> <3C6CC19C.3040608@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C6CC19C.3040608@evision-ventures.com>
-User-Agent: Mutt/1.3.24i
+	id <S292117AbSBOUyq>; Fri, 15 Feb 2002 15:54:46 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:63928 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S290797AbSBOUyi>;
+	Fri, 15 Feb 2002 15:54:38 -0500
+Date: Fri, 15 Feb 2002 23:52:40 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Tux mailing list <tux-list@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: TUX development? Anyone?
+In-Reply-To: <Pine.LNX.4.30.0202151420540.19817-100000@mustard.heime.net>
+Message-ID: <Pine.LNX.4.33.0202152351330.13629-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> It seems bigger as it is at first glance, however if you start to read 
-> it at ide.h, the rest should
-> be, well,  obivous...
+On Fri, 15 Feb 2002, Roy Sigurd Karlsbakk wrote:
 
-Ouch, its *big*. You should probably start pushing it to Jens ASAP,
-because if you'll clean up it a bit more, you'll end with really big
-patch which rewrites whole drivers/ide... [Not that it would be a bad
-thing.]
+> After tux2-full-2.4.17-final-A1 was released, I've submitted a few bug
+> reports. However; noone have picked them up.
 
-My favourite cleanup would be 
+Regarding the '50 connections limit' i have asked whether you can
+reproduce it with small, fully cached files.
 
-struct ide_drive_s {} ide_drive_t;
+	Ingo
 
-=>
 
-struct ide_drive {};
-
-and replacing all ide_drive_t with struct ide_drive...
-
-								Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.

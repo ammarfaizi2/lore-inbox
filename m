@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282372AbRK2ENA>; Wed, 28 Nov 2001 23:13:00 -0500
+	id <S282360AbRK2Gb5>; Thu, 29 Nov 2001 01:31:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282371AbRK2EMv>; Wed, 28 Nov 2001 23:12:51 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:30347 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S282377AbRK2EMh>;
-	Wed, 28 Nov 2001 23:12:37 -0500
-Date: Wed, 28 Nov 2001 23:12:22 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: rwhron@earthlink.net
-cc: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net
-Subject: Re: fsync02 test hangs 2.5.1-pre3 + patch
-In-Reply-To: <20011128220329.A2718@earthlink.net>
-Message-ID: <Pine.GSO.4.21.0111282303190.9271-100000@weyl.math.psu.edu>
+	id <S282357AbRK2Gbr>; Thu, 29 Nov 2001 01:31:47 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:30985 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S282290AbRK2Gbc>; Thu, 29 Nov 2001 01:31:32 -0500
+Message-ID: <3C05D608.6D06190D@zip.com.au>
+Date: Wed, 28 Nov 2001 22:30:32 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Nathan G. Grennan" <ngrennan@okcforum.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Unresponiveness of 2.4.16 revisited
+In-Reply-To: <1006928344.2613.2.camel@cygnusx-1.okcforum.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 28 Nov 2001 rwhron@earthlink.net wrote:
-
-> On Wed, Nov 28, 2001 at 09:32:43PM -0500, Alexander Viro wrote:
-> > Umm...  With which patch?  Sorry for being dense, but I see no patches
+"Nathan G. Grennan" wrote:
 > 
-> Oops.
+> Well I tried your patch Andrew. It seemed to have absolutely no effect
+> on my problem. I used the am-response.patch someone posted the url to
+> eariler in the first thread, which was just a file of your patch. I
+> really suggest you try a mozilla source rpm. Not only does it do the
+> unarchiving, but also patches and rm -rf. I often see a second pause
+> during the patching after the unarchving. I use
 > 
-> [PATCH] fix for drivers/char/pc_keyb.c in 2.5.1-pre3
+> rpm --rebuild mozilla-2001112602_trunk-0_rh7.src.rpm
 > 
-> 2.5.1-pre3 would not compile without Alan's patch for pc_keyb.c, etc.
-> 
-> I also noticed the logfile LTP "runalltests" was writing to has binary 
-> data and snippets of kernel code in it.  (Normally it would all be text).
-> 
-> This was on a reiserfs system, btw.
+> I also tried Redhat's latest rawhide kernel, 2.4.16-0.1 and it had to
+> had time same problem. So it isn't fixed by one of their patchs. It is
+> most likely just a difference between Linus's 2.4.9 and 2.4.16.
 
-Interesting...  I see two candidates in -pre3 - either fs/super.c cleanups
-are fscked and something leaves superblock or superblock list locked
-(either would have such effect, but that would have to happen at mount
-or umount time and thing would lock up much earlier) or bio.c+ll_rw_blk.c+...
-changes are acting up.
+Nathan,
 
-Obvious tests:
-	a) 2.5.1-pre2
-	b) 2.5.1-pre2 + fs/super.c from 2.5.1-pre3
-	c) 2.5.1-pre3 + fs/super.c from 2.5.1-pre2
-(fs/super.c changes are independent from everything else).
+I can reproduce the 30 second stall on ext3.  It is due to
+ext3's journalling of atime updates.  Even though everything
+is in cache, running an application requires a write to the
+inode.  If there's a lot of write activity going on, this can
+occasionally cause the seemingly-read-only caller to get stuck
+on the queue behind a huge amount of writes.  So of course the
+read-latency improvements don't help.
 
-Another possibility is silent fs corruption from 2.5.0/2.4.15 - if you
-ran these kernels you really ought to do fsck -f (or whatever is used
-to force recovery of reiserfs).
+The 2.2 kernel's version of ext3 didn't journal atime updates,
+and this may be a reason for going back to that scheme.  Needs
+thought and more testing.
 
+However I can't reproduce the stalls on ext2, and I would expect
+the 2.4.9 kernel's ext3 to be demonstrating the same stalls.
+
+Could you please confirm that the stalls happen with ext2 as well,
+and could you please test ext2 and ext3 with the `noatime' mount
+option?
+
+Thanks.

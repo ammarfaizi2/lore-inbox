@@ -1,62 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261693AbSJUVLu>; Mon, 21 Oct 2002 17:11:50 -0400
+	id <S261665AbSJUVM1>; Mon, 21 Oct 2002 17:12:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261665AbSJUVLu>; Mon, 21 Oct 2002 17:11:50 -0400
-Received: from dyn-212-232-23-123.ppp.tiscali.fr ([212.232.23.123]:59919 "EHLO
-	calvin.paulbristow.lan") by vger.kernel.org with ESMTP
-	id <S261693AbSJUVLs>; Mon, 21 Oct 2002 17:11:48 -0400
-Message-ID: <3DB46F23.3010108@paulbristow.net>
-Date: Mon, 21 Oct 2002 23:18:27 +0200
-From: Paul Bristow <paul@paulbristow.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Gregoire Favre <greg@ulima.unil.ch>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.44 don't allow ZIP ejection :-((
-References: <20021021205829.GA6665@ulima.unil.ch>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S261662AbSJUVM0>; Mon, 21 Oct 2002 17:12:26 -0400
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:15625 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261665AbSJUVMU>;
+	Mon, 21 Oct 2002 17:12:20 -0400
+Date: Mon, 21 Oct 2002 14:17:22 -0700
+From: Greg KH <greg@kroah.com>
+To: Crispin Cowan <crispin@wirex.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Hellwig <hch@infradead.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-security-module@wirex.com
+Subject: Re: [PATCH] remove sys_security
+Message-ID: <20021021211721.GB924@kroah.com>
+References: <20021017195015.A4747@infradead.org> <20021017185352.GA32537@kroah.com> <20021017195838.A5325@infradead.org> <20021017190723.GB32537@kroah.com> <20021017210402.A7741@infradead.org> <20021017201030.GA384@kroah.com> <1035208643.27309.109.camel@irongate.swansea.linux.org.uk> <3DB46DD2.8030007@wirex.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DB46DD2.8030007@wirex.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the bug report.  We know the BIO code needs going over in 
-ide-floppy...  I'll try to take care of it.
+On Mon, Oct 21, 2002 at 02:12:50PM -0700, Crispin Cowan wrote:
+> 
+> Therefore, the sys_security syscall has been removed.
 
-Gregoire Favre wrote:
+Um, removed in what tree?  Still looks like it's present in 2.5.44 :)
 
->Hello,
->
->in 2.5.n n<44 the eject command didn't work anymore, but I could
->manually eject my disc...
->
->With 2.5.44 the eject command still don't work, but even worse: I should
->reboot to eject the device:
->
->Oct 21 16:55:57 ulima kernel:  /dev/ide/host0/bus1/target1/lun0: unknown partition tableOct 21 16:55:57 ulima kernel: ide-floppy: unsupported command in queue: dev 16:40: REQ_NOMERGE REQ_STARTED REQ_BLOCK_PC sector 65680, nr/cnr 8/8
->Oct 21 16:55:57 ulima kernel: bio 00000000, biotail 00000000
->Oct 21 16:55:57 ulima kernel: end_request: I/O error, dev 16:40, sector 65680
->
->Thank you,
->
->	Grégoire
->________________________________________________________________
->http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->
+Ok, I'll add Christoph's patch to my other LSM hook rework patches and
+queue them up for when Linus gets back from vacation.
 
--- 
+thanks,
 
-Paul
-
-Email:	paul@paulbristow.net
-Web:	http://paulbristow.net
-ICQ:	11965223
-
-
+greg k-h

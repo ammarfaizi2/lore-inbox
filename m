@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267079AbTAUOCj>; Tue, 21 Jan 2003 09:02:39 -0500
+	id <S267081AbTAUOEw>; Tue, 21 Jan 2003 09:04:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267080AbTAUOCj>; Tue, 21 Jan 2003 09:02:39 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:6662 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S267079AbTAUOCi>; Tue, 21 Jan 2003 09:02:38 -0500
-Date: Tue, 21 Jan 2003 09:09:03 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] __cacheline_aligned_in_smp?
-In-Reply-To: <20030113.223253.18825371.davem@redhat.com>
-Message-ID: <Pine.LNX.3.96.1030121090420.30318B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267083AbTAUOEw>; Tue, 21 Jan 2003 09:04:52 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:41962 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S267081AbTAUOEu>; Tue, 21 Jan 2003 09:04:50 -0500
+Date: Tue, 21 Jan 2003 15:13:51 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Cc: groudier@free.fr, linux-scsi@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5 patch] MegaRAID driver: remove kernel 2.0 and 2.2 code
+Message-ID: <20030121141351.GB6870@fs.tum.de>
+References: <20030118162243.GF10647@fs.tum.de> <1043117030.13113.15.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1043117030.13113.15.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Jan 2003, David S. Miller wrote:
-
->    From: Rusty Russell <rusty@rustcorp.com.au>
->    Date: Tue, 14 Jan 2003 12:10:12 +1100
+On Tue, Jan 21, 2003 at 02:43:51AM +0000, Alan wrote:
+> On Sat, 2003-01-18 at 16:22, Adrian Bunk wrote:
+> > The patch below removes obsolete #if'd code for kernel 2.0 and 2.2 from
+> > drivers/scsi/megaraid.{h,c} (this includes the expansion of some
+> > #define's that were definded differently for different kernel versions).
+> > 
+> > I've tested the compilation with 2.5.59.
 > 
->    Hmm, you really want to weakly align it: you don't care if something follows it on
->    the cacheline, (ie. don't make it into an array, but it'd be nice if other
->    things could share the cacheline) in UP.
->    
-> No, that is an incorrect statement.
-> 
-> I want the rest of the cacheline to be absent of any write-possible
-> data.  There are many members in there which are read-only and thus
-> will only consume a cacheline which would never need to be written
-> back to main memory due to modification.
-> 
-> If you allow other things to seep into that cache line, you totally
-> obliterate what I was trying to accomplish.
+> AMI still issue 2.2 versions of this driver so its probably excessive
+> (AMI ? -- LSI now I guess)
 
-Am I missing something here? If you have ro and rw data in a cache line:
-1r  0w  if you don't modify the data
-1r  1w  if you do
-if you have ro and rw in separate cache lines:
-2r  0w  if you don't modify the data
-2r  1w  if you do
+In megaraid.c IO_LOCK_IRQ and IO_UNLOCK_IRQ are only defined for >= 2.4
+(they are present since 2.5.1-pre2) and the since Al Viro's
+kdev_t -> block_device * conversion you get a compile error when trying 
+to use megaraid.{c,h} in 2.2.23.
 
-It would seem that you always have at least one read, and if you modify
-the data at least one write, wherein is the saving?
+If it's intended that this file is still used in kernels < 2.4 some
+changes are needed.
 
-Note: I am not disagreeing with you, I just can't follow how this is a
-win in any case.
+cu
+Adrian
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

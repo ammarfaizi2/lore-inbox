@@ -1,199 +1,176 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261350AbTD1WRA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 18:17:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbTD1WRA
+	id S261358AbTD1WVx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 18:21:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbTD1WVx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 18:17:00 -0400
-Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:55831 "EHLO
-	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id S261350AbTD1WQ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 18:16:57 -0400
-Date: Tue, 29 Apr 2003 00:27:51 +0200
-Message-Id: <200304282227.h3SMRpna010528@lt.wsisiz.edu.pl>
-From: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-rc1 freezes
-In-Reply-To: <3EAD9192.7040003@asbest-online.de>
-X-Newsgroups: wsisiz.linux-kernel
-X-PGP-Key-Fingerprint: 87 9F 39 9C F9 EE EA 7F  8F C9 58 6A D4 54 0E B9
-X-Key-ID: 6DB9C699
-User-Agent: tin/1.5.17-20030407 ("Peephole") (UNIX) (Linux/2.4.21-pre6 (i686))
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 8bit
+	Mon, 28 Apr 2003 18:21:53 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:52882 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S261358AbTD1WVr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Apr 2003 18:21:47 -0400
+Date: Tue, 29 Apr 2003 00:33:06 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: 2.4.21-rc1 compile failure [toshoboe]
+Message-ID: <20030428223305.GA14768@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="oyUTqETQ0mS9luUI"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3EAD9192.7040003@asbest-online.de> you wrote:
-> Hi,
-> 
->> I can to confirm this bug, I have the identical effects.
-> 
-> Could you have a look at my boot.log and see if you've got
-> similar hardware? Maybe we can narrow the problem down a bit.
 
-dmesg was taken from 2.4.21-pre6. It's RedHat 9
+--oyUTqETQ0mS9luUI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Linux version 2.4.21-pre6 (root@lt.wsisiz.edu.pl) (gcc version 3.2 20020903
-(Red Hat Linux 8.0 3.2-7)) #1 Thu Mar 27 13:36:17 CET 2003
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 000000000fff0000 (usable)
- BIOS-e820: 000000000fff0000 - 000000000fff8000 (ACPI data)
- BIOS-e820: 000000000fff8000 - 0000000010000000 (ACPI NVS)
- BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
- BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
- BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
-255MB LOWMEM available.
-found SMP MP-table at 000fb940
-hm, page 000fb000 reserved twice.
-hm, page 000fc000 reserved twice.
-hm, page 000f6000 reserved twice.
-hm, page 000f7000 reserved twice.
-On node 0 totalpages: 65520
-zone(0): 4096 pages.
-zone(1): 61424 pages.
-zone(2): 0 pages.
-Intel MultiProcessor Specification v1.4
-    Virtual Wire compatibility mode.
-OEM ID: VIA      Product ID: VT5440B      APIC at: 0xFEE00000
-Processor #0 Pentium(tm) Pro APIC version 17
-I/O APIC #2 Version 2 at 0xFEC00000.
-Enabling APIC mode: Flat.	Using 1 I/O APICs
-Processors: 1
-Kernel command line: auto BOOT_IMAGE=old ro root=1603 hdd=ide-scsi; video=riva:800x600-16@85
-ide_setup: hdd=ide-scsi;
-Initializing CPU#0
-Detected 1666.731 MHz processor.
-Console: colour VGA+ 80x25
-Calibrating delay loop... 3322.67 BogoMIPS
-Memory: 256584k/262080k available (1429k kernel code, 5108k reserved, 352k data, 264k init, 0k highmem)
-Dentry cache hash table entries: 32768 (order: 6, 262144 bytes)
-Inode cache hash table entries: 16384 (order: 5, 131072 bytes)
-Mount cache hash table entries: 512 (order: 0, 4096 bytes)
-Buffer-cache hash table entries: 16384 (order: 4, 65536 bytes)
-Page-cache hash table entries: 65536 (order: 6, 262144 bytes)
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 256K (64 bytes/line)
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-CPU:     After generic, caps: 0383fbff c1c3fbff 00000000 00000000
-CPU:             Common caps: 0383fbff c1c3fbff 00000000 00000000
-CPU: AMD Athlon(tm) XP 2000+ stepping 02
-Enabling fast FPU save and restore... done.
-Enabling unmasked SIMD FPU exception support... done.
-Checking 'hlt' instruction... OK.
-POSIX conformance testing by UNIFIX
-enabled ExtINT on CPU#0
-ESR value before enabling vector: 00000080
-ESR value after enabling vector: 00000000
-Using local APIC timer interrupts.
-calibrating APIC timer ...
-.... CPU clock speed is 1666.7519 MHz.
-.... host bus clock speed is 266.6803 MHz.
-cpu: 0, clocks: 2666803, slice: 1333401
-CPU0<T0:2666800,T1:1333392,D:7,S:1333401,C:2666803>
-mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
-mtrr: detected mtrr type: Intel
-PCI: PCI BIOS revision 2.10 entry at 0xfdaf1, last bus=1
-PCI: Using configuration type 1
-PCI: Probing PCI hardware
-PCI: Using IRQ router default [1106/3147] at 00:11.0
-PCI: Hardcoded IRQ 14 for device 00:11.1
-Linux NET4.0 for Linux 2.4
-Based upon Swansea University Computer Society NET3.039
-Initializing RT netlink socket
-apm: BIOS version 1.2 Flags 0x03 (Driver version 1.16)
-Starting kswapd
-ACPI: APM is already active, exiting
-pty: 256 Unix98 ptys configured
-Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ SERIAL_PCI enabled
-ttyS00 at 0x03f8 (irq = 4) is a 16550A
-ttyS01 at 0x02f8 (irq = 3) is a 16550A
-Real Time Clock Driver v1.10e
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is a post-1991 82077
-epic100.c:v1.11 1/7/2001 Written by Donald Becker <becker@scyld.com>
-  http://www.scyld.com/network/epic100.html
-  (unofficial 2.4.x kernel port, version 1.11+LK1.1.14, Aug 4, 2002)
-epic100(00:05.0): MII transceiver #3 control 3000 status 7809.
-epic100(00:05.0): Autonegotiation advertising 01e1 link partner 0001.
-eth0: SMSC EPIC/100 83c170 at 0xec00, IRQ 11, 00:e0:29:1c:91:51.
-PPP generic driver version 2.4.2
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 203M
-agpgart: Detected Via Apollo Pro KT266 chipset
-agpgart: AGP aperture is 128M @ 0xe0000000
-Uniform Multi-Platform E-IDE driver Revision: 7.00beta-2.4
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-VP_IDE: IDE controller at PCI slot 00:11.1
-PCI: Hardcoded IRQ 14 for device 00:11.1
-VP_IDE: chipset revision 6
-VP_IDE: not 100% native mode: will probe irqs later
-VP_IDE: VIA vt8233a (rev 00) IDE UDMA133 controller on pci00:11.1
-    ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:DMA, hdd:DMA
-hda: WDC AC24300L, ATA DISK drive
-hdb: TOSHIBA DVD-ROM SD-M1502, ATAPI CD/DVD-ROM drive
-blk: queue c0327fc0, I/O limit 4095Mb (mask 0xffffffff)
-hdc: IBM-DTLA-305020, ATA DISK drive
-hdd: CD-W540E, ATAPI CD/DVD-ROM drive
-blk: queue c0328410, I/O limit 4095Mb (mask 0xffffffff)
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-hda: task_no_data_intr: error=0x04 { DriveStatusError }
-hda: host protected area => 1
-hda: 8421840 sectors (4312 MB) w/256KiB Cache, CHS=524/255/63, UDMA(33)
-hdc: host protected area => 1
-hdc: 40188960 sectors (20577 MB) w/380KiB Cache, CHS=39870/16/63, UDMA(100)
-hdb: ATAPI 48X DVD-ROM drive, 128kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.12
-Partition check:
- hda: hda1
- hdc: hdc1 hdc2 hdc3 hdc4
-SCSI subsystem driver Revision: 1.00
-scsi0 : SCSI host adapter emulation for IDE ATAPI devices
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP Protocols: ICMP, UDP, TCP, IGMP
-IP: routing cache hash table of 2048 buckets, 16Kbytes
-TCP: Hash tables configured (established 16384 bind 32768)
-IPv4 over IPv4 tunneling driver
-NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-IPv6 v0.8 for NET4.0
-IPv6 over IPv4 tunneling driver
-VFS: Mounted root (ext2 filesystem) readonly.
-Freeing unused kernel memory: 264k freed
-Adding Swap: 262136k swap-space (priority -1)
-NTFS driver v1.1.22 [Flags: R/O MODULE]
-NTFS: Warning! NTFS volume version is Win2k+: Mounting read-only
-Journalled Block Device driver loaded
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS 2.4-0.9.19, 19 August 2002 on ide1(22,1), internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
+Hi!
 
+I get compile failure for 2.4.21-rc1:
 
-lt:/boot# lspci
-00:00.0 Host bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333]
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333 AGP]
-00:05.0 Ethernet controller: Standard Microsystems Corp [SMC] 83C170QF (rev 06)
-00:08.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture (rev 02)
-00:08.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture (rev 02)
-00:0b.0 USB Controller: NEC Corporation USB (rev 41)
-00:0b.1 USB Controller: NEC Corporation USB (rev 41)
-00:0b.2 USB Controller: NEC Corporation USB 2.0 (rev 02)
-00:11.0 ISA bridge: VIA Technologies, Inc. VT8233A ISA Bridge
-00:11.1 IDE interface: VIA Technologies, Inc. VT82C586/B/686A/B PIPC Bus Master
-IDE (rev 06)
-00:11.2 USB Controller: VIA Technologies, Inc. USB (rev 23)
-00:11.3 USB Controller: VIA Technologies, Inc. USB (rev 23)
-00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233 AC97 Audio Controller (rev 40)
-01:00.0 VGA compatible controller: nVidia Corporation NV11 [GeForce2 MX/MX 400]
-(rev b2)
+"in irda_device_init: undefined reference to toshoboe_init".
 
+						Pavel
 
+.config is gzipped and attached
 -- 
-*[ £ukasz Tr±biñski ]*
+When do you have heart between your knees?
+
+--oyUTqETQ0mS9luUI
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename="delme2.gz"
+Content-Transfer-Encoding: base64
+
+H4sICAirrT4AA2RlbG1lMgCMXEtz27iy3s+vYNUsbqZqMtHLsjxVWUAgJCHmAyagh7NhKTaT
+6EaWfGR5TvLvT4OgJD666VlMZYzvA9AAGo3uBqjff/vdY6/H/dP6uHlYb7e/vG/ZLjusj9mj
+97T+kXkP+93Xzbe/vcf97v+OXva4Of72+288jiZymq5Gw4+/oIHiTz2ea2/z4u32R+8lO55Y
+c+l3LQ/qAXX/mEHDx9fD5vjL22b/ZFtv/3zc7Hcvl3bFSolEhiIyLDhVDPbrx/WXLVTeP77C
+Py+vz8/7Q0mYMPbngdBlgaBoIRIt46gi1xm/BUIZyDtSh/1D9vKyP3jHX8+Zt949el8zK3D2
+4kZQtN0fDZHBhoPqnIRXVVoFMJqTWBiucGxINahgvuQ8lFK24gMcvSVavb0mykd4uQhYhCM8
+metY4NhSRnwmFSeEKOBeK9r3iX7vE7kiZ2UhGe+nPWQpQbvTpUqXcXKr0/gWVrUEyGgRqGm1
+jIdqxWe1whXz/WrJWC+ZqhapWDHf9XGWLFlqEaZTEcFW4KlWMgpifovI6Yi2Z+gqZcE0TqSZ
+hdUegm7KGZ+JVM/kxHwclLG5hmKTyGiaOu0tYSyQ08juxLRbQ5RK4nQiIi7KUltk0ulMztOG
+zrplhRzXBRODiGOGYnKEtxdKnsQ89gWxjKFO6kJyBXYJoUfxTE5noQjLFYqiwRTtvUCH7TAu
+ODOzVITzgBmwUpg9MUlFdB0qYoxzlTIleX2cUCxjCxDVQKlYgNYE65T6UrNxIBpGcpofEltb
+8Pp8scGRMBclUVyWm4Q/02k8ljFuix3sy0Rwg4jqYBbdV9pPbXPVEtfCpQwGUCVELKyeEgIo
+hOVgiCSz2KhgPj2dS4qHXLIPfH14HL++NI8lh19E4Czx4ZwsC2C4xM8BOep1bjDTBEB/eHUR
+QXqz/fF5+/rN0+f+L/rnBLaDx/Xzgqc8DhW7+5e0NFokDNfrMplxJZEx6Hu9AItfnoix9lOw
+KlxoDbVQPYBa3ASX6bzlcSJSEUzK7bhCFs+xFsYymoQmRy/NFIW1dorSUGps96iSibVjrP6V
++mI8n9bKYOHDaVIrhCHVSsA2NSoaE0e1QsZrBaJewMMxM6ZWaGYiCXPH6jxQpsLGFg+zp/3h
+l2eyh++7/Xb/7ZfnZ/9swDXy3oXG/6PiCxnEjVqDfdiCd2fVEdkWLFFxUrYWriBVHCtLJ3IS
+o4CeW18xrliaC+p2H25wChYL5bSdEU54v70JwxJ8b50YU8LTO+F6Ho2VaqXEdt1aGd3eaNBc
+B2sVrBOrtutfhTf/Cv49eNzlJVQR3jvYxhqU1xpv9w8/vEenEJdVHQe3oPeLdOJXtlFRusId
+NBBf+rgvYGtydZf6+AKdYC7BYBCcHNNcg94zRfdi5fMZvxl2Winz2kFeg4M4Lnl2p9JojE4H
+ZTtPuIykSfApsxRtmNHNXfu6PW7eu4U57TrvXcLA17FKECzCP0ohk98UNqzIGvppICPBEmTQ
+gNl2O5c2ipJurQVbdoWfsH4Kvo+RCtyg1rkAuRtDjbLjf/eHH5vdt2YEqRi/zX2RkpbZkjQM
+Ga7o4LrASPPeMK9QmIkMjKj4YudCZ+vRZh0Bi4ojuSp5KVFVWqncxHCmsTMMYOYvGPjeMLtw
+kFXlOlVWgQClB/cN97iAltd9YwnONEN4bmcCxNrjWON77EwKWDJ9SyzKGMEkASzbwGmC9w8m
+Et9Kdubh4MRjVn0fga8T30rR3GmeJ9XfVgm/brbH7ODxmmm9DCeaQCNRZBJQwdKS58DEqNrS
+QSELWUSYM0cwUK0FlgnhT+bo3VzMsUCpqKvc2tQFhUiFz8AYhNLgUMh4cyQOUrfG3Cu6z1MD
+SWN6CiRX0Iq7UIZNrKmeqYUtc3zN2ybTkRi0pd+mBSKa0vvoIrEJ3pgMw1WoyWHNRKBQq1Im
+2QNCUC2cFfKNRuYRDwSL8ImPl5FIGhp9spNVjbXb3qSJ+FSNzspgKJMkbtSMWIMPRbDdhS98
+qiWmQcsT5gtSjnOcWJse23YeE7csouXoKFTpmGk0sL7Q0P0N23sakHbyImUQ44dKhTT/Vyyn
+Ty08MJCtRnmBp+ZuZ8YQlpUZ3L9ZBCxKR51e965pU8suqVR4BhS87eC2UZU9P2+z43pb9krP
+VawLwRSch/WqJQaHgwD3QcA9neKrterhfk3A1BgHAtwy20PIl3CA4iII+JeQbgmT6VwAsuEJ
+OBE5hWTMlukkiJdQAsSgMbd3e229xw/7g/d1vTl4/3nNXjPwu8pTbJvRfCaakWDhp3nH7OWI
+VILDYSqiRi2TbbPn7/vdLyyloWYwH3gwYZFUrj61o0hg6LTIsA8QjHwIJ+GHJAiacavMTUrO
+hf/901bIHWv4V8m3wqJSZbXN1i/goWeZ5+8fXp+y3TF3HD5sHrO/jj+P3leY7O/Z9vnDZvd1
+7+13tjvv8bD5p6rZp6ZnftoWRDlKS+QClX2pKwnoosidvvYuhbBYBc3q2C12xpe64LoZcNhi
+ND4C4M2QDTiguErdt/dr47/a0MAwgtAy5qap73YmH75vnqHgpAEfvrx++7r5ia0qD/3hoION
+wCGpiGa5q94+kkag3RyGy6jWyosbgtrwbOJNz1gC2p7cvbHuIavnak9oPJmMY9YShJaamMRJ
+bYwlBXFdpGxu4rqKARRHwb3VoTflROraZpdESHCqzIDY7bRH9kzwYW+1ahGBBbJ7teqXZVj6
+/FTc3njoXw9WxHHmsDQG69+aCDlrFN7OiWISOQlEO4ffj3p8eNMuNNdXV/32SZsp0yfEcVC+
+4jD7b7YyxC5TTwQl81i5UTHSo+tBFz+CzyqsjBz2uq0c5fNep2fXICBSVCfCeJ5owkuotxWJ
+ZXtb+YZpGXXyGXQWtSuad3tvqLNeLG9xV+7MkDJkhF9z4YAOdNvVRAf8piOGuHt4Ucqwd9Np
+GexCMlDJ1aqcEwEjbe91tTD6dGxG+2P2t/e0fzl6+6/e8XsGZ+h6+7L3Dtl/XjcHOFCfs4fN
+euv9yA67bOt92UN3z+vD+imDGB09OQd+Ao4X9nChvPEHK1QDfcN7vWv8Kvys3mZ4Nezg/mBJ
+awadNzbbnT+8ImzIJT3JR8Nr9MbIWUvCAMsFLp7Fojiq3Rw1TXPuHWhsgmxqnMn2A6Tg2En4
+VzywF/+Kp6t3/vniW0+g6dUV/kGD4Z6AvHvcvPz40zuun7M/Pe6/T+JyEvW8D0rBqPZTsYLw
+2gL646BzkZHPEsfGh3CCY43m/c59JU0/QCfpQkR+OYCGopIYvd/qMpwvMfX+KXMDfzzd8WR/
+ffsLBuv9/+uP7Mv+5x/nKXmyGWaItbxgHlU2VJ5kzzOhLsWEbamc4xxKqF652LYI/L82LDK4
+5copEO1OZTTFF3a7/+9796Yo95TxDd9fpmBnVimpl3k/12B7IXAi1imnME65Rg6ese5VD9+w
+F8IAf9RyJlwPcKvgCIy3j4JJfr0ijMaZcPMWYdVyNLpVVyaVvbilFZut1vct6yojONLahhpe
+9fnNNf56yamVmNK2JmeM5xrUR+JWximgupvwNvXzw1W/e9NtmwvD+71Ry0iEjRlb0ZTymC4M
+JVtmezI3c/D8/ThkkkhsW9rUJ1KVDi1eHkU8ueq3jQdO6LZllaZNVMBJ1zwnKNUyFTLEU0w5
+mAsOx+qwpQHHuf75k6boe6t5I9gCLTvVtTNC44dqKyXrXKkIpmnCwDBCXDrVl/dZNVLIVo7Q
+7xEMfR/xj70OJZ99XzGRRPKxRpWgP0oRcWu92TsN53eLIpQlDO2zHfeIpMW8Kqa7uFfpYC7b
+LYYl9Hod/GLeMbTsDdoId7m5sAm0NzmSuB2otNNieQpKt9V0aMGmjMjjOYIMr7ttDeRqOGib
+V5/3bzoty2JARBqddwdpfzBpIQTgkGgT4+lKpypa9Vv2WuOytfQOy7kB68f1s72Se2lmDgvN
+QJN/k9eXzX7nheBeVi/Qyw1M5rr2Uq8GpeM4xqevwKUWEXFLWjBqOak6XHth61JWQgiv278Z
+eO8mEAct4b+Ly/au/KC68nLHVstrNdqD05yeBOqsh3LymZnFxvUnrBWUejlssXxdyS6TmDdG
+cEo7N0ZRVIyEAW9QcnEOLlnCd9kRuz8AhMq/+/MwvEeRcRz5NU/1jIm7OUSVn4mkvZnjEyHs
+EyDDms9xBETCByv7O9j8+4MHJ2r4ZXP8ozJaV7320EDPo8AmJ/EcDpj/+1AQd2H2zVLICJM2
+j+4IMzWPpsRjWCujC2HSPhwOKIcWtlRbh/QtS0FJGHXFx0z3mjhWbFoVfRKqup3SM5j8JYKu
+JCtFj3JyxDK5xRMsAnZtIohLuxNodZ/Iv9lrNhXM8fo5jM+wGoyG+BSDAnWH+DaMRP0wLk1G
+JW+t7Fbq90qPEkN/1O12beuVN4k+U0Zwe42dTCT1rAN8bWJimQLvlbDEXI9ufmLSmnkgKxe2
+eYH9xIAip2FYfX3oi8EKT0n60wRfDD+86XawrI0QsLzdahLwVEaGAIJStSAS/RscmsAmj/Ao
+MGJGi5Bc9VvS4ENvPcIXEZqERnAcEe8xLGRifNAFRk7KCQfTKlKzlJq6MD0RR93eDUmw0XCa
+rFLYgcSxoKW+oXa8kpwMeeaRT1q4E5irHH5wUJsaYtKrUTVTXiALydJkJqPKS5FzId3VUkb2
+gEtHRH4i3/exfXPXelrBPJxOqtKmFhERpPtBD/cfRJeKBcL7RDY+TbuIqUf9UQ+vOWNwvM1w
+5b4XQRAvJ0R4nYy6Q1x79O3NKCBqGTmNI/wsmPg+8XhfKkU8PQ4kdp2oVMW+wZ8uH2cfP+Lt
+AIN8xWhBloectTZtWWoMdi9rYXtt614nlQrH2rcxYa2pGLsj0c5Ml/7Kw0l7IorKZXIO6ZAR
+Dyty2Cav8/8bNlTV+tHb7OXFsxvr3W6/e/99/XRYP272Nd8qYX71GLAfVOFmbMkW5EdyLCER
+mdg3IIMr6ri74DZlz3F1L7PqXnOFhHk5Iql9OaOCVVGKaw6XCFydV/Xw9LBZew/rwyP58QzS
+sxUx5ViG2S7GEtyFQOizY2/2P7Kdl9iXwohzb1pezuATlHDqzNPgMlc3ihvueudtdhCSfl3X
+Ol8isVwRnu7eDmAuXxeVJj2fsj6/GuEW6EIgkqkFYRIuPnVHWEKrIOSOHNI1W1GxUkGIQk5p
+ecEAB/6my2/wJEDBWcmE94jUo4vXrEkA77DXSYndULQkxyGhA6WuiHjkwsi9QfoodLzcTDQW
+nD2tj9nrwUusYcHibTiJ8Jry4DPv3Wb39bA+ZI9/IO+VEp+dHyxZ8vNhf9w/7LcvZU5QeeGZ
+VD7jy8de+RrStunyOLg8l9f41SruA9SAaZMGmniGnxPtg7U0Qd+3Wvj0ZZXrsRj7+zzTUeyV
+y+2PuxuSSRMpdQnnVGo5uEDuAx3Z3NX+fvdti+ZH/Lj+wNMlmFrlmOtxPj7CT7HfQOEinlwx
+Ci++qK1f4dRQqF390JTbpad7ZYEksUWgG6BbLe1HMGFfXn69HLOnyipYpE6Pt4/Fhetpwuwh
+fMyzfH/mVOmLiu/IfTj9Tk++mt3vnl+P3sP+gJhTGal59T2wLUhvxf0Y/ybE4WE8B5dDLMrf
+cpTLU80TIaJ09RFCvEE75/7j9XBUF+BTfN/Wv1i4zt0kfF8f1g829dl4g7gobemFyW9a46Di
+9GuRSCrVk0P2MllEPnUh4DiRu8L1a1ejJx2P5OpmlCpT/ubxUghizSPzsXc1PJ81iYxqn7cE
+6iQ94a/WpqvkXyuGqGSPI8rQK32GCH/kn9WPZVU/oFjNwHFWutZuhSICXBqLgSMYiJA4CzX/
+CaeX5bXBjONPN05CK44n4y3OZ7BKuG7ZsYF/eFKsEJSpcpc+17nyIlXz8pJjr08Flwi6x6+7
+nbTRQOlQ7QKuGPGDDrfX3V6zdi7epz0Yls3Dj6qBzzfKlIXCmnJ8NnJKpK+u8LsNhwdyOjMR
+ldN1HPAMbU8tDK4Hwy6eaym2dDjvdm7xJ2uOYfcakYE/4fWhvjU9LGLkhwSOQPy+RoES8Wkx
+5HicEN8zubWZEGF9AVOhlINzC8F428qakHhbVMwXHBhwivpETqjoJn+wZ4/pt0k94gLLkZYs
+gfVr68u+zAvI+xAns2JcxEmbMDllzALiWxbHMaDPreP2x3ggcdlWnLgQK+Z+nozjacImuM7f
+Sd7p0R/nShVCFAkHSkAJaQmKRRJM7UJEhBZYkrvuceoyYUSSLWfeEgFDDi7tt09+3LyCXK6P
+D98f9988+2MQtSivWaVuyKdU6pLZT2hJm2NEQKK2pgrBp8BdSvLXGxJDZN8M8fVM0r8Z4sGk
+/epGUsGTjqN71fTSJu6l3fF75n3d7p+ff+VP76qec+VKtq48p76nlVwS/OnmCxfUoqMudilg
+oUX5NzxsAat+KF0UpaPuFW64LUFLIly1lQPcgOb18h/TwZckaX4YXeQPHhBnsBFoO6eNUHeb
+xMs/iibw0KayGt3nn6A/ZY+bNeKFgqGN05LHutg8Zntvsj94wWb3+rPOtD5IOtENt4vh55tr
+jbnr/8p4XXNjMxrgm6HoLsQHWtRe3nFixzgCfwtXxG9ROFgzdtUb4MbW3lskab/Tx19uFA0Y
+myVoG8LnOCEOlRIO3t3nNzk+Jy5wyqQgDPp4QrtgJf1hl8i+O0Yo7psa5vIk2DLnWZKUM5/I
+QDk8aXz5ihLwI9wx2GcjOP56zhGmIjSirQ9HIG/PHClkK9nI/DQ4wn571caQCcQBITHRNU6a
+EM+4HE9PusMJcR1YZiRtswcHcMJgAtsoyZx4e1vg92oWE36HY3yOA5PIVUN7JhubtMkTEBXd
+uZvHxMNM+2p+osEOtaCDGnwSRUiwsXnlshE7F/OZoDTxRMltoIwmhHfgt0jmsDTBv0RhE7rq
+jIbG4g2M/jWMMV1TrEyfwj6N8dADypudnZwC+/F1KckQaj+ur8L8VIjUX5wbuIhIS/+pZSot
+1qNADj4YAZlQ4Spla5SyEzq+GQ47lcF+igNZzc1/BhopX4vobatpUfsjAxJiCPQuJpSRXNUm
+cbFqdHfyR01jm+RFhPbOFNUQ4jSAx0GP0oGhTT214JSiAapMXfC7aDWgOyxQYmBJHFIjg03S
+q/Vkf0YNJ8/9SV3foYTodE5L66B0mUjTPIpPr+xyo6rPRvWk3bHN5lfdNxt9heLz55jQgqYS
+QMkC9yKSODYWx9vxa634VDM5Zjh2Xa7nUVL+STL7gLF6wRyOqYmLuGqBrGV3v0mk5ZRMKjli
+/ply3nc7z/oBrQQ7l8SP4TpCDKaqlaBDFgT/a+xamhS3gfBfmdpbDlu1MMyM55CDLBtQsBGx
+DCR7odgNO0uFhdQAqey/T7eEH7K7bQ4zh+5P1qv1aPWDiEkFdKsk6eLaiCQa4DapxpgV2eQu
+e7QqPeQ//9l5iZ6yHCMM5mVCJE8rkzqbVxiyUm3GPQibIa4PgyngejCpkDTCO6JKhBdOBwKK
+EdKJCBn91e21Zhl2t8HoBBpqXAbXTiS+yq8FhpFQ9RbLIUq9BtfIhZWuqnrSN0BLe2HrAcGK
+7EHE476KcNE2pLSQ0aSKNd1e9v/uHpLt8e26fdvV8lBU2CJq49cP+/MpCJ5ePw4/1AQ+wSiH
+KF6ISbwZPdKZlD3Qy12gF9q/0AMFT4xflg+ib+kN0F3V3dHwgMmu1wDRDygN0D0Nf2a2ex9E
+P1w1QPcMARMD3QDR+r0HemW0fB90zwS/Mu/QPoh5c/AbzniLIAi2bZT9DfPOWP/MYHhPswHF
+C0FRWz+C73uB4AWkQPT3mheNAsHPZoHgF0+B4KeoHI/+zgz6e8OkU0DITKtgwzhLFewly17m
+Y08+nOp9Op5Ph7o7RKEmwIkrSxt1QXSvXHHSyNyVRoIyCTttH2P/P365fvvmBQQVWmJYfd1G
+clCG8XG4ydSKfhoAnkwa+YvqzEVKC6FlMb6e8Mk/wzhjHOqBvYr96AIkTQQT1AXM6YSKWuBG
+EwqkAi6StLkGuCKnA15wnAR8kx0MKMgFjwGXex0H1jzWqeACd4H/GDHGJRwZrSOt6c0C2Dnm
+XGEUPyyNjl2MV8Q4lLV7JzlVCJDjMKikrKTV8+mXxOGIINpgiUatYz3P1yrKp4HNntPRPkRS
+Nx2kb4L/6k1zlOrHOszpevyrliUBNGRf90ECWi6eRswdwSHCPGByZDi+TOkME457M4d7C15F
+qtNM7kq2Y/X8as1oGAzaHYrN4PGF8c+vAF0Vx8bAJuILnQe4vdnWXJjr5Md2m8Y64+I+LV8x
+j9GOCwr36zMX5W8RRs+VXKmQceV1oK61cuuAmUcy4cJlS8iCC0u3iDIXDKPowNx3Q9xnNBM6
+devLKlV/EK66aN5vHRNA9N5RTMhEoab789fd4bA97k7Xs/1WKzWxK7xSMm48zgA9FPPIrmqy
+WVNMewMn5uX9dDjAaRbRPoTxFP2uJel+Bezl1M/1VdBgHdMziwA9lW07LbbJ5YR/kIft+cw5
+NYolZ8CwzU3VkD657IgkyzjXmklUgAiUB6arGGYM18lmb2/kjpdNDwWq/VjQbhZ13DiLY87Q
+XccpE3Eha161C9n/rekigG/tenEmirJP9A2yCWM28jrst2W6MFNNJaix0y1rP4yAhMqHrxLl
+64/t8UEVLvHVTwtMVfSLv1aA0pxAIFnXEralAOCcAG0L1YKzzSF7LbrmcRbmHdKw0Gv8dQXi
+pRS7rX5s35goBLstyCGzo1lBj2TQJThSzOeMj4xbJzLTXd2eLuA/6TaLTSet+l55Faac+duO
+G54wYk3f4ewes3oa0IeqHdiOkiYefeJLmnz1HFA3aWTCPizS1t5uQn4cIxE2XMDKMSoew23+
+gVN7I1zEE2GYQDTkZ3kSDBj92A6hWMcdO6EUOZWM2LIiaaO//YUJf87Vv+yBc6Knt/GlMS++
+CbksZnbvmHQNziYoyGRecBPVdDGu5Ms7OZkmZEpz8U/uoIkzsxZMpiJE5GpC3+XtWZMlK84V
+DvmJbCe3DQ/X3eV0unynuoyH1+dWkZlLTfd9+/Vvlw630D9t6qwZhujXfuDGUU0u5AwzRGKa
+Xt+wheyun5i6fSBhNi3HVhoVHUJ4rNqFRqbs93a11I+SVdpHJtIY9kO797cGIdl/ed++/3x4
+P10v+2P9Rf9zokI0d/vxgZZaRQ3+D1wFFPS3cAAA
+
+--oyUTqETQ0mS9luUI--

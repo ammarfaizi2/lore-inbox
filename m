@@ -1,73 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269711AbUICOC2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269262AbUICOGX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269711AbUICOC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 10:02:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269710AbUICOC1
+	id S269262AbUICOGX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 10:06:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269706AbUICOCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 10:02:27 -0400
-Received: from daq3.if.pw.edu.pl ([194.29.174.23]:34441 "HELO milosz.na.pl")
-	by vger.kernel.org with SMTP id S269698AbUICN7W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 09:59:22 -0400
-From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-Reply-To: bzolnier@milosz.na.pl
-To: Alan Cox <alan@redhat.com>
-Subject: Re: PATCH: fix the barrier IDE detection logic
-Date: Fri, 3 Sep 2004 15:54:31 +0200
-User-Agent: KMail/1.6.2
-Cc: torvalds@osdl.org, axboe@suse.dk, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-References: <20040831165046.GA6928@devserv.devel.redhat.com>
-In-Reply-To: <20040831165046.GA6928@devserv.devel.redhat.com>
-MIME-Version: 1.0
+	Fri, 3 Sep 2004 10:02:46 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:42245 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S269704AbUICOBO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 10:01:14 -0400
+Date: Fri, 3 Sep 2004 15:01:11 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: =?iso-8859-1?Q?Kristian_S=F8rensen?= <ks@cs.aau.dk>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       umbrella-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Umbrella-devel] Re: Getting full path from dentry in LSM hooks
+Message-ID: <20040903150111.A4884@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	=?iso-8859-1?Q?Kristian_S=F8rensen?= <ks@cs.aau.dk>,
+	umbrella-devel@lists.sourceforge.net,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <41385FA5.806@cs.aau.dk> <20040903133238.A4145@infradead.org> <413865B4.7080208@cs.aau.dk> <20040903140449.A4253@infradead.org> <41386FB7.2060804@cs.aau.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409031554.31057.bzolnier@elka.pw.edu.pl>
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <41386FB7.2060804@cs.aau.dk>; from ks@cs.aau.dk on Fri, Sep 03, 2004 at 03:20:55PM +0200
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 03, 2004 at 03:20:55PM +0200, Kristian Sørensen wrote:
+> But we do not have a struct file - just an inode or a dentry :((
 
-On Tuesday 31 August 2004 18:50, Alan Cox wrote:
-> This fixes the logic so we always check for the cache. It also defaults
-> to safer behaviour for the non cache flush case now we have the right bits
-> in the right places. I've also played a bit with timings - the worst case
-> timings I can get for the flush are about 7 seconds (which I'd expect
-> as the engineering worst cases will include retries)
+Then you can't generate a full path.
+
+> We are working on a project called Umbrella, (umbrella.sf.net) which 
+> implements processbased mandatory accesscontrol in the Linux kernel. 
+> This access control is controlled by "restriction", e.g. by restricting 
+>   some process from accessing any given file or directory.
 > 
-> Probably what should happen is that the barrier logic is enabled providing
-> the wcache is disabled. I've not meddled with this as I don't know what
-> the intended semantics and rules are for disabling barrier on a live disk
-> (eg when a user uses hdparm to turn on the write cache). In the current
-> code as with Jens original that cannot occur.
+> E.g. if a root owned process is restricted from accessing /var/www, and 
+> the process is compromised by an attacker, no mater what he does, he 
+> would not be able to access this directory.
 
-I think that logic is reversed here, I guess it should be: enable barrier
-if user enables wcache and disable it if user disables wcache.
+mount --bind /var/www /home/joe/p0rn/, and then?
 
-> I've also fixed the new printk's as per a private request from Matt Domsch.
-
-Patch looks fine except:
-
-> +	/* Now we have barrier awareness we can be properly conservative
-> +	   by default with other drives. We turn off write caching when
-> +	   barrier is not available. Users can adjust this at runtime if
-
-This is not true because there is a check for flush cache in write_cache().
-
-I agree that disabling write cache by default is a good thing but user
-should be informed about this fact (ideally there also should be easily
-available FAQ somewhere) otherwise we will get a lot of bogus bugreports
-about decreased performance...
-
-> +	   they need unsafe but fast filesystems. This will reduce the
-> +	   performance of non cache flush supporting disks but it means
-> +	   you get the data order guarantees the journalling fs's require */
-> +	   
-> +	write_cache(drive, barrier);
-
-I'll drop this chunk and resend to Linus.
-
-Thanks!
-
-PS: please also cc: linux-ide on all ATA related stuff

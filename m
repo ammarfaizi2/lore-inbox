@@ -1,234 +1,658 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263276AbTAEFnr>; Sun, 5 Jan 2003 00:43:47 -0500
+	id <S263246AbTAEFmq>; Sun, 5 Jan 2003 00:42:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263291AbTAEFnq>; Sun, 5 Jan 2003 00:43:46 -0500
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:41787 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S263276AbTAEFnh>;
-	Sun, 5 Jan 2003 00:43:37 -0500
-From: <Hell.Surfers@cwctv.net>
-To: mark@justirc.net, linux-kernel@vger.kernel.org
-Date: Sun, 5 Jan 2003 05:51:27 +0000
-Subject: RE:Re: Gauntlet Set NOW! -if youve written something for the kernel and you 
- dont want andres binary say no...
-MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1041745887184"
-Message-ID: <043d45548050513DTVMAIL10@smtp.cwctv.net>
+	id <S263256AbTAEFmq>; Sun, 5 Jan 2003 00:42:46 -0500
+Received: from samael.donpac.ru ([195.161.172.239]:61960 "EHLO
+	samael.donpac.ru") by vger.kernel.org with ESMTP id <S263246AbTAEFmg>;
+	Sun, 5 Jan 2003 00:42:36 -0500
+From: "Andrey Panin" <pazke@orbita1.ru>
+Date: Sun, 5 Jan 2003 08:46:17 +0300
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] crc16 tables consolidation
+Message-ID: <20030105054617.GA400@pazke>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="pWyiEgJYm5f9v55/"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Uname: Linux 2.4.20aa1 i686 unknown
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---1041745887184
+--pWyiEgJYm5f9v55/
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-It was a guess maybe Andre, could say?
-
-Dean McEwan, If the drugs don't work, [sarcasm] take more...[/sarcasm].
-
-On 	Sun, 05 Jan 2003 00:44:28 -0500 	Mark Rutherford <mark@justirc.net> wrote:
-
---1041745887184
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Sun, 5 Jan 2003 05:43:14 +0000
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262871AbTAEFf4>; Sun, 5 Jan 2003 00:35:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262913AbTAEFf4>; Sun, 5 Jan 2003 00:35:56 -0500
-Received: from rrcs-midsouth-24-172-39-28.biz.rr.com ([24.172.39.28]:48392
-	"EHLO maunzelectronics.com") by vger.kernel.org with ESMTP
-	id <S262871AbTAEFfx>; Sun, 5 Jan 2003 00:35:53 -0500
-Received: from justirc.net (ident@maunzelectronics.com [24.172.39.28])
-	by maunzelectronics.com (8.11.4/8.11.4) with ESMTP id h055iQW06856;
-	Sun, 5 Jan 2003 00:44:27 -0500
-Message-ID: <3E17C63C.F2640D9D@justirc.net>
-Date: Sun, 05 Jan 2003 00:44:28 -0500
-From: Mark Rutherford <mark@justirc.net>
-X-Mailer: Mozilla 4.8 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Hell.Surfers@cwctv.net
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Gauntlet Set NOW! -if youve written something for the kernel and you 
- dont want andres binary say no...
-References: <043990833050513DTVMAIL10@smtp.cwctv.net>
+Hi all,
+
+this patchset removes 5 identical crc16 table, replacing them with
+one table in lib/crc16.c
+
+Best regards.
+
+-- 
+Andrey Panin		| Embedded systems software developer
+pazke@orbita1.ru	| PGP key: wwwkeys.pgp.net
+
+--pWyiEgJYm5f9v55/
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
+Content-Disposition: attachment; filename=patch-crc16
 
-I dont recall reading that Andre was making his drivers binary only.
-Please, correct me if im wrong.
+diff -urN -X /usr/share/dontdiff linux-2.5.53.vanilla/include/linux/crc16.h linux-2.5.53/include/linux/crc16.h
+--- linux-2.5.53.vanilla/include/linux/crc16.h	Thu Jan  1 03:00:00 1970
++++ linux-2.5.53/include/linux/crc16.h	Mon Dec 30 12:41:31 2002
+@@ -0,0 +1,15 @@
++#ifndef _LINUX_CRC16_H
++#define _LINUX_CRC16_H
++
++#include <linux/types.h>
++
++extern u16 const crc16_table[256];
++
++extern u16 crc16(u16 crc, const u8 *buffer, size_t len);
++
++static inline u16 crc16_byte(u16 crc, const u8 c)
++{
++	return (crc >> 8) ^ crc16_table[(crc ^ c) & 0xff];
++}
++
++#endif /* _LINUX_CRC16_H */
+diff -urN -X /usr/share/dontdiff linux-2.5.53.vanilla/lib/Kconfig linux-2.5.53/lib/Kconfig
+--- linux-2.5.53.vanilla/lib/Kconfig	Fri Dec 27 19:48:27 2002
++++ linux-2.5.53/lib/Kconfig	Mon Dec 30 12:51:39 2002
+@@ -4,6 +4,14 @@
+ 
+ menu "Library routines"
+ 
++config CRC16
++	tristate "CRC16 functions"
++	help
++	  This option is provided for the case where no in-kernel-tree
++	  modules require CRC16 functions, but a module built outside the
++	  kernel tree does. Such modules that use library CRC16 functions
++	  require M here.
++
+ config CRC32
+ 	tristate "CRC32 functions"
+ 	help
+diff -urN -X /usr/share/dontdiff linux-2.5.53.vanilla/lib/Makefile linux-2.5.53/lib/Makefile
+--- linux-2.5.53.vanilla/lib/Makefile	Fri Dec 27 19:48:25 2002
++++ linux-2.5.53/lib/Makefile	Mon Dec 30 12:56:35 2002
+@@ -22,6 +22,7 @@
+   obj-y += dec_and_lock.o
+ endif
+ 
++obj-$(CONFIG_CRC16)	+= crc16.o
+ obj-$(CONFIG_CRC32)	+= crc32.o
+ 
+ obj-$(CONFIG_ZLIB_INFLATE) += zlib_inflate/
+diff -urN -X /usr/share/dontdiff linux-2.5.53.vanilla/lib/crc16.c linux-2.5.53/lib/crc16.c
+--- linux-2.5.53.vanilla/lib/crc16.c	Thu Jan  1 03:00:00 1970
++++ linux-2.5.53/lib/crc16.c	Mon Dec 30 12:51:58 2002
+@@ -0,0 +1,69 @@
++/*
++ *	linux/lib/crc16.c
++ *
++ *	This source code is licensed under the GNU General Public License,
++ *	Version 2.  See the file COPYING for more details.
++ */
++
++#include <linux/types.h>
++#include <linux/module.h>
++#include <linux/crc16.h>
++
++/*
++ * This mysterious table is just the CRC of each possible byte. It can be
++ * computed using the standard bit-at-a-time methods. The polynomial can
++ * be seen in entry 128, 0x8408. This corresponds to x^0 + x^5 + x^12.
++ * Add the implicit x^16, and you have the standard CRC-CCITT.
++ */
++u16 const crc16_table[256] = {
++	0x0000, 0x1189, 0x2312, 0x329b, 0x4624, 0x57ad, 0x6536, 0x74bf,
++	0x8c48, 0x9dc1, 0xaf5a, 0xbed3, 0xca6c, 0xdbe5, 0xe97e, 0xf8f7,
++	0x1081, 0x0108, 0x3393, 0x221a, 0x56a5, 0x472c, 0x75b7, 0x643e,
++	0x9cc9, 0x8d40, 0xbfdb, 0xae52, 0xdaed, 0xcb64, 0xf9ff, 0xe876,
++	0x2102, 0x308b, 0x0210, 0x1399, 0x6726, 0x76af, 0x4434, 0x55bd,
++	0xad4a, 0xbcc3, 0x8e58, 0x9fd1, 0xeb6e, 0xfae7, 0xc87c, 0xd9f5,
++	0x3183, 0x200a, 0x1291, 0x0318, 0x77a7, 0x662e, 0x54b5, 0x453c,
++	0xbdcb, 0xac42, 0x9ed9, 0x8f50, 0xfbef, 0xea66, 0xd8fd, 0xc974,
++	0x4204, 0x538d, 0x6116, 0x709f, 0x0420, 0x15a9, 0x2732, 0x36bb,
++	0xce4c, 0xdfc5, 0xed5e, 0xfcd7, 0x8868, 0x99e1, 0xab7a, 0xbaf3,
++	0x5285, 0x430c, 0x7197, 0x601e, 0x14a1, 0x0528, 0x37b3, 0x263a,
++	0xdecd, 0xcf44, 0xfddf, 0xec56, 0x98e9, 0x8960, 0xbbfb, 0xaa72,
++	0x6306, 0x728f, 0x4014, 0x519d, 0x2522, 0x34ab, 0x0630, 0x17b9,
++	0xef4e, 0xfec7, 0xcc5c, 0xddd5, 0xa96a, 0xb8e3, 0x8a78, 0x9bf1,
++	0x7387, 0x620e, 0x5095, 0x411c, 0x35a3, 0x242a, 0x16b1, 0x0738,
++	0xffcf, 0xee46, 0xdcdd, 0xcd54, 0xb9eb, 0xa862, 0x9af9, 0x8b70,
++	0x8408, 0x9581, 0xa71a, 0xb693, 0xc22c, 0xd3a5, 0xe13e, 0xf0b7,
++	0x0840, 0x19c9, 0x2b52, 0x3adb, 0x4e64, 0x5fed, 0x6d76, 0x7cff,
++	0x9489, 0x8500, 0xb79b, 0xa612, 0xd2ad, 0xc324, 0xf1bf, 0xe036,
++	0x18c1, 0x0948, 0x3bd3, 0x2a5a, 0x5ee5, 0x4f6c, 0x7df7, 0x6c7e,
++	0xa50a, 0xb483, 0x8618, 0x9791, 0xe32e, 0xf2a7, 0xc03c, 0xd1b5,
++	0x2942, 0x38cb, 0x0a50, 0x1bd9, 0x6f66, 0x7eef, 0x4c74, 0x5dfd,
++	0xb58b, 0xa402, 0x9699, 0x8710, 0xf3af, 0xe226, 0xd0bd, 0xc134,
++	0x39c3, 0x284a, 0x1ad1, 0x0b58, 0x7fe7, 0x6e6e, 0x5cf5, 0x4d7c,
++	0xc60c, 0xd785, 0xe51e, 0xf497, 0x8028, 0x91a1, 0xa33a, 0xb2b3,
++	0x4a44, 0x5bcd, 0x6956, 0x78df, 0x0c60, 0x1de9, 0x2f72, 0x3efb,
++	0xd68d, 0xc704, 0xf59f, 0xe416, 0x90a9, 0x8120, 0xb3bb, 0xa232,
++	0x5ac5, 0x4b4c, 0x79d7, 0x685e, 0x1ce1, 0x0d68, 0x3ff3, 0x2e7a,
++	0xe70e, 0xf687, 0xc41c, 0xd595, 0xa12a, 0xb0a3, 0x8238, 0x93b1,
++	0x6b46, 0x7acf, 0x4854, 0x59dd, 0x2d62, 0x3ceb, 0x0e70, 0x1ff9,
++	0xf78f, 0xe606, 0xd49d, 0xc514, 0xb1ab, 0xa022, 0x92b9, 0x8330,
++	0x7bc7, 0x6a4e, 0x58d5, 0x495c, 0x3de3, 0x2c6a, 0x1ef1, 0x0f78
++};
++EXPORT_SYMBOL(crc16_table);
++
++/**
++ *	crc16 - recompute the CRC for the data buffer
++ *	@crc - previous CRC value
++ *	@buffer - data pointer
++ *	@len - number of bytes in the buffer
++ */
++u16 crc16(u16 crc, u8 const *buffer, size_t len)
++{
++	while (len--)
++		crc = crc16_byte(crc, *buffer++);
++	return crc;
++}
++EXPORT_SYMBOL(crc16);
++
++MODULE_DESCRIPTION("CRC16 calculations");
++MODULE_LICENSE("GPL");
 
+--pWyiEgJYm5f9v55/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-crc16-hisax
 
-Hell.Surfers@cwctv.net wrote:
-
-> only one person has to disagree, lets face it I dont need to speak, IF ANY COPYRIGHT HOLDERS OF THE KERNEL DONT WANT ANDRES PROPRIETARY CODE BINARY IN THE KERNEL, REMEMBER ONLY YOU HAVE TO DISAGREE, SPEAK OR FOREVER HOLD YOUR PEACE.
->
-> Dean McEwan, If the drugs don't work, [sarcasm] take more...[/sarcasm].
->
-> On      Sun, 05 Jan 2003 18:12:10 +1300         Andrew McGregor <andrew@indranet.co.nz> wrote:
->
->   ------------------------------------------------------------------------
->
-> Subject: Re: Gauntlet Set NOW!
-> Date: Sun, 05 Jan 2003 18:12:10 +1300
-> From: Andrew McGregor <andrew@indranet.co.nz>
-> To: rms@gnu.org
-> CC: andre@linux-ide.org, linux-kernel@vger.kernel.org
-> References: <Pine.LNX.4.10.10301031425590.421-100000@master.linux-ide.org>
->      <15900000.1041638213@localhost.localdomain>
->      <E18UxyD-00048W-00@fencepost.gnu.org>
->
-> By the way, I'm principally a developer of communications standards and
-> hardware, not so much software.
->
-> --On Saturday, January 04, 2003 18:44:49 -0500 Richard Stallman
-> <rms@gnu.org> wrote:
->
-> >     But sometimes we can't make things free, either because it comes to
-> > close      to core IP which we are legally bound to protect, or because
-> > it's a derived      work of something we bought and don't ourselves have
-> > the right to      redistribute.
-> >
-> > At this level of generality, I can only say that if the program is to
-> > be published as non-free software, it will not be available to people
-> > to use in freedom.  Its effect will be to tempt people to give up
-> > their freedom.  If I had a choice to develop that program or no
-> > program, I would develop no program.
->
-> Here is where we differ.  I do these things because, even though they do
-> not promote software freedom, they can and, I hope, do promote other kinds
-> of freedom in other ways.  I also always look to the maximally free way to
-> do the software parts.  Sometimes it is not possible to acheive the other
-> goals we have and keep the software entirely free.  I think, however, that
-> the freedom given by very inexpensive and unconstrained (that is, free as
-> in speech) telecommunications is somewhat more important than the absolute
-> freedom of the specific software we use to acheive that.  In several cases,
-> we have chosen proprietary solutions where they make the monetary cost to
-> the end user dramatically lower, because one of our target problems is the
-> lack of economic freedom in many parts of the world.  For those with an
-> arbitrary hardware budget, there are or soon will be interoperable free
-> software alternatives.  We make sure of that.  We make sure we use open
-> standards with no closed extensions, so as to make sure this continues.
->
-> > I would rather look for constructive alternatives than just criticize.
-> > In such a situation, I would look for a way to make the program free.
->
-> I'm often focused on the case where the total hardware + software cost is
-> the key factor between user of any communications and user of no
-> communications.  I use free or partly free software wherever I can, because
-> I am not hostile to that goal, but that is not my overriding concern.
->
-> I am also concerned that some of the zealots in the free software, not
-> necessarily including yourself Richard, do not set precedents in the courts
-> that, while possibly reinforcing the particular technicality of the GPL,
-> undermine the freeness of kinds of speech other than software, such as
-> scientific communication, cultural artefacts and political discussion.  In
-> the long run that would be worse for freedom in general.
->
-> > This scenario is too general to get started on that.  (I explained in
-> > another message how the term "intellectual property" tends to obscure
-> > important distinctions; this is an example.)  In any specific case
-> > there is likely to be some way.
->
-> Here I'm using that term in the sense of 'copyrighted (and possibly
-> patented) compilable information and its documentation', covering both
-> software and hardware designs.  If I were to use it to cover anything else
-> I'd be more specific, as is common usage where I come from.  I do
-> understand the ambiguity and hidden conflations behind the term; I have
-> been involved in both trademark and patenting (of hardware; software
-> patents are evil, no question) work, and I'm cited as an inventor on one
-> patent, so I have some firsthand experience.
->
-> > If there is no easy way to make the same program free, there may be a
-> > harder way.  People who value freedom strongly sometimes choose the
-> > hard path to freedom rather than the easy path that extends
-> > non-freedom.  That is how we extend freedom.
->
-> I'm principally concerned with other sorts of freedom, while attempting to
-> forward the cause of software freedom to the extent I can, and attempting
-> never to advance the cause of any sort of non-freedom.  It isn't easy at
-> all, believe me.
->
-> > As an ultimate fallback, there is surely some other job you could do
-> > instead.
->
-> I could go back to being a musician or a scientist.  There are freedom
-> issues there, too, believe me.  And I'd still be debating free software,
-> because in those fields it's important too.  It would certainly be easier
-> to tread the path of free software purity in those fields, but I suspect it
-> would make less long-term impact for me to do so.
->
-> > I have no opinion yet about what Andre said, because I cannot form a
-> > clear picture of what he plans to do; I don't know whether it would
-> > violate the GPL, or whether the issue would involve the FSF.  We do
-> > not enforce the GPL for Linux in any case; that is the responsibility
-> > of the copyright holders of Linux.
->
-> I'm glad to hear that.  I'm also glad that the zealot who started the
-> thread that has us talking about this does not appear to be one of those
-> copyright holders; I suspect most of them have more sense.
->
-> Andrew
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
---
-Regards,
-Mark Rutherford
-mark@justirc.net
-
-
-File: Mark Rutherford.ASC
------BEGIN PGP PUBLIC KEY BLOCK-----
-Version: PGPfreeware 7.0.3 for non-commercial use <http://www.pgp.com>
-
-mQGiBDqwRnsRBADTpKKSKAcphYdcVTvBpEFFNK1eL4dQ/pBwK4NimeoAA9ISD04L
-Mv/CqH5g9D1wzXEhRBhbFZnmfoTPFEWH4Gjr4KIPdsXkTEfoJ2j55qksHWMkE10A
-K8gZlI3Ovuf8BbIabfXmjf+XtId3F4+7+og4mc7EAkatYbbl/5pR0Niy3wCg/+I/
-LUQPYGloF829jXaOW7C+tG8D/RZt8lAL/Z1NfGsQYZlE1X+Gcqf0J6HaMosnVuah
-1zAbgUHCIvNq+TOC+0KydEvbs7tAq6m+Q4zQZaqEsMwufTCWxzh+v3thRBLIuT5E
-jsTi4djkrdG3TTeAszymO/YEXQMg4Tq2hMiyeWlyTmH4C6enMu0zJMIu4OEef7+W
-KpYhBACYnukDVI8Vnw1J5KaiCZYvERhj4cr3BTk7oeYxIRH1x5S6NXK0+uVcpusa
-a8ZU4zcxvHh0k3iR8HIZcNh30eXbMF/J5pW9gorJuPwCC5Q7b+gUVaeec+1X+Wmt
-2k8RAq9RtriUdrmVN5QcPBLFd4hOHQcWDcuyhmiFp68LFvxLSLQrTWFyayBSdXRo
-ZXJmb3JkIDxNYXJrMjAwMEBiZWxsYXRsYW50aWMubmV0PokAWAQQEQIAGAUCOrBG
-ewgLAwkIBwIBCgIZAQUbAwAAAAAKCRAudCWX7QO6ULcaAJwIsYHeAp6FC5OVWSOo
-qc8O87kvBgCgz1cLgVXYcSlDWEeE32PFYb6akuy5Ag0EOrBGexAIAPZCV7cIfwgX
-cqK61qlC8wXo+VMROU+28W65Szgg2gGnVqMU6Y9AVfPQB8bLQ6mUrfdMZIZJ+AyD
-vWXpF9Sh01D49Vlf3HZSTz09jdvOmeFXklnN/biudE/F/Ha8g8VHMGHOfMlm/xX5
-u/2RXscBqtNbno2gpXI61Brwv0YAWCvl9Ij9WE5J280gtJ3kkQc2azNsOA1FHQ98
-iLMcfFstjvbzySPAQ/ClWxiNjrtVjLhdONM0/XwXV0OjHRhs3jMhLLUq/zzhsSlA
-GBGNfISnCnLWhsQDGcgHKXrKlQzZlp+r0ApQmwJG0wg9ZqRdQZ+cfL2JSyIZJrqr
-ol7DVekyCzsAAgIIAO5Bt3XOgo2GPNOCuLv6A6mRxPxwwVsYEMmVAIp/c5nluBMi
-Tu4iQU5f3U9UqZMcFKyLr1Vh0bpO6RB6L/5tXWSRY2Yly9Ofg/e0Npgebkdd8GXE
-+IuEDI4lr1kbO70hlxFUPKSOQRjSmmVKNhUAiXEFQ7OtB9k5GECsHrD6qxR6r/ny
-XMBK2g2UUSh17Gx/pqH+XwXJ67DEQmF8hcnyiN9E3WQ5w3bIbKwFCaHF+tJbVnUd
-XxszxQYrsb6Feo0FVdCD+VVPQGesv34CrnKuED/mF/WoI8a3eYCMiY03IQgW514X
-JX+Jnmk9RFbTg75NdXIKDqKpB3wq39n3JmWRZG+JAEwEGBECAAwFAjqwRnsFGwwA
-AAAACgkQLnQll+0DulAfjgCfbVxiUtJbpXPn6gVJlnlIzur1yvgAnjh/9bdLsSrd
-cUaN07NL7N9NjgG1
-=hpbN
------END PGP PUBLIC KEY BLOCK-----
-
-
+diff -urN -X /usr/share/dontdiff linux-2.5.53.vanilla/drivers/isdn/hisax/rawhdlc.c linux-2.5.53/drivers/isdn/hisax/rawhdlc.c
+--- linux-2.5.53.vanilla/drivers/isdn/hisax/rawhdlc.c	Fri Dec 27 19:45:53 2002
++++ linux-2.5.53/drivers/isdn/hisax/rawhdlc.c	Sun Dec 29 17:34:46 2002
+@@ -138,47 +138,6 @@
+ #include <linux/ppp_defs.h>
+ #include "rawhdlc.h"
+ 
+-/* There's actually an identical copy of this table in the PPP code
+- * (ppp_crc16_table), but I don't want this code dependent on PPP
+- */
 -
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---1041745887184--
+-// static 
+-__u16 fcstab[256] =
+-{
+-	0x0000, 0x1189, 0x2312, 0x329b, 0x4624, 0x57ad, 0x6536, 0x74bf,
+-	0x8c48, 0x9dc1, 0xaf5a, 0xbed3, 0xca6c, 0xdbe5, 0xe97e, 0xf8f7,
+-	0x1081, 0x0108, 0x3393, 0x221a, 0x56a5, 0x472c, 0x75b7, 0x643e,
+-	0x9cc9, 0x8d40, 0xbfdb, 0xae52, 0xdaed, 0xcb64, 0xf9ff, 0xe876,
+-	0x2102, 0x308b, 0x0210, 0x1399, 0x6726, 0x76af, 0x4434, 0x55bd,
+-	0xad4a, 0xbcc3, 0x8e58, 0x9fd1, 0xeb6e, 0xfae7, 0xc87c, 0xd9f5,
+-	0x3183, 0x200a, 0x1291, 0x0318, 0x77a7, 0x662e, 0x54b5, 0x453c,
+-	0xbdcb, 0xac42, 0x9ed9, 0x8f50, 0xfbef, 0xea66, 0xd8fd, 0xc974,
+-	0x4204, 0x538d, 0x6116, 0x709f, 0x0420, 0x15a9, 0x2732, 0x36bb,
+-	0xce4c, 0xdfc5, 0xed5e, 0xfcd7, 0x8868, 0x99e1, 0xab7a, 0xbaf3,
+-	0x5285, 0x430c, 0x7197, 0x601e, 0x14a1, 0x0528, 0x37b3, 0x263a,
+-	0xdecd, 0xcf44, 0xfddf, 0xec56, 0x98e9, 0x8960, 0xbbfb, 0xaa72,
+-	0x6306, 0x728f, 0x4014, 0x519d, 0x2522, 0x34ab, 0x0630, 0x17b9,
+-	0xef4e, 0xfec7, 0xcc5c, 0xddd5, 0xa96a, 0xb8e3, 0x8a78, 0x9bf1,
+-	0x7387, 0x620e, 0x5095, 0x411c, 0x35a3, 0x242a, 0x16b1, 0x0738,
+-	0xffcf, 0xee46, 0xdcdd, 0xcd54, 0xb9eb, 0xa862, 0x9af9, 0x8b70,
+-	0x8408, 0x9581, 0xa71a, 0xb693, 0xc22c, 0xd3a5, 0xe13e, 0xf0b7,
+-	0x0840, 0x19c9, 0x2b52, 0x3adb, 0x4e64, 0x5fed, 0x6d76, 0x7cff,
+-	0x9489, 0x8500, 0xb79b, 0xa612, 0xd2ad, 0xc324, 0xf1bf, 0xe036,
+-	0x18c1, 0x0948, 0x3bd3, 0x2a5a, 0x5ee5, 0x4f6c, 0x7df7, 0x6c7e,
+-	0xa50a, 0xb483, 0x8618, 0x9791, 0xe32e, 0xf2a7, 0xc03c, 0xd1b5,
+-	0x2942, 0x38cb, 0x0a50, 0x1bd9, 0x6f66, 0x7eef, 0x4c74, 0x5dfd,
+-	0xb58b, 0xa402, 0x9699, 0x8710, 0xf3af, 0xe226, 0xd0bd, 0xc134,
+-	0x39c3, 0x284a, 0x1ad1, 0x0b58, 0x7fe7, 0x6e6e, 0x5cf5, 0x4d7c,
+-	0xc60c, 0xd785, 0xe51e, 0xf497, 0x8028, 0x91a1, 0xa33a, 0xb2b3,
+-	0x4a44, 0x5bcd, 0x6956, 0x78df, 0x0c60, 0x1de9, 0x2f72, 0x3efb,
+-	0xd68d, 0xc704, 0xf59f, 0xe416, 0x90a9, 0x8120, 0xb3bb, 0xa232,
+-	0x5ac5, 0x4b4c, 0x79d7, 0x685e, 0x1ce1, 0x0d68, 0x3ff3, 0x2e7a,
+-	0xe70e, 0xf687, 0xc41c, 0xd595, 0xa12a, 0xb0a3, 0x8238, 0x93b1,
+-	0x6b46, 0x7acf, 0x4854, 0x59dd, 0x2d62, 0x3ceb, 0x0e70, 0x1ff9,
+-	0xf78f, 0xe606, 0xd49d, 0xc514, 0xb1ab, 0xa022, 0x92b9, 0x8330,
+-	0x7bc7, 0x6a4e, 0x58d5, 0x495c, 0x3de3, 0x2c6a, 0x1ef1, 0x0f78
+-};
+-
+ #define HDLC_ZERO_SEARCH 0
+ #define HDLC_FLAG_SEARCH 1
+ #define HDLC_FLAG_FOUND  2
+diff -urN -X /usr/share/dontdiff linux-2.5.53.vanilla/drivers/isdn/hisax/st5481_hdlc.c linux-2.5.53/drivers/isdn/hisax/st5481_hdlc.c
+--- linux-2.5.53.vanilla/drivers/isdn/hisax/st5481_hdlc.c	Fri Dec 27 19:45:53 2002
++++ linux-2.5.53/drivers/isdn/hisax/st5481_hdlc.c	Mon Dec 30 13:30:45 2002
+@@ -10,45 +10,9 @@
+  *
+  */
+ 
++#include <linux/crc16.h>
+ #include "st5481_hdlc.h"
+ 
+-static const unsigned short int crc16_tab[] = {
+-	0x0000,0x1189,0x2312,0x329b,0x4624,0x57ad,0x6536,0x74bf,
+-	0x8c48,0x9dc1,0xaf5a,0xbed3,0xca6c,0xdbe5,0xe97e,0xf8f7,
+-	0x1081,0x0108,0x3393,0x221a,0x56a5,0x472c,0x75b7,0x643e,
+-	0x9cc9,0x8d40,0xbfdb,0xae52,0xdaed,0xcb64,0xf9ff,0xe876,
+-	0x2102,0x308b,0x0210,0x1399,0x6726,0x76af,0x4434,0x55bd,
+-	0xad4a,0xbcc3,0x8e58,0x9fd1,0xeb6e,0xfae7,0xc87c,0xd9f5,
+-	0x3183,0x200a,0x1291,0x0318,0x77a7,0x662e,0x54b5,0x453c,
+-	0xbdcb,0xac42,0x9ed9,0x8f50,0xfbef,0xea66,0xd8fd,0xc974,
+-	0x4204,0x538d,0x6116,0x709f,0x0420,0x15a9,0x2732,0x36bb,
+-	0xce4c,0xdfc5,0xed5e,0xfcd7,0x8868,0x99e1,0xab7a,0xbaf3,
+-	0x5285,0x430c,0x7197,0x601e,0x14a1,0x0528,0x37b3,0x263a,
+-	0xdecd,0xcf44,0xfddf,0xec56,0x98e9,0x8960,0xbbfb,0xaa72,
+-	0x6306,0x728f,0x4014,0x519d,0x2522,0x34ab,0x0630,0x17b9,
+-	0xef4e,0xfec7,0xcc5c,0xddd5,0xa96a,0xb8e3,0x8a78,0x9bf1,
+-	0x7387,0x620e,0x5095,0x411c,0x35a3,0x242a,0x16b1,0x0738,
+-	0xffcf,0xee46,0xdcdd,0xcd54,0xb9eb,0xa862,0x9af9,0x8b70,
+-	0x8408,0x9581,0xa71a,0xb693,0xc22c,0xd3a5,0xe13e,0xf0b7,
+-	0x0840,0x19c9,0x2b52,0x3adb,0x4e64,0x5fed,0x6d76,0x7cff,
+-	0x9489,0x8500,0xb79b,0xa612,0xd2ad,0xc324,0xf1bf,0xe036,
+-	0x18c1,0x0948,0x3bd3,0x2a5a,0x5ee5,0x4f6c,0x7df7,0x6c7e,
+-	0xa50a,0xb483,0x8618,0x9791,0xe32e,0xf2a7,0xc03c,0xd1b5,
+-	0x2942,0x38cb,0x0a50,0x1bd9,0x6f66,0x7eef,0x4c74,0x5dfd,
+-	0xb58b,0xa402,0x9699,0x8710,0xf3af,0xe226,0xd0bd,0xc134,
+-	0x39c3,0x284a,0x1ad1,0x0b58,0x7fe7,0x6e6e,0x5cf5,0x4d7c,
+-	0xc60c,0xd785,0xe51e,0xf497,0x8028,0x91a1,0xa33a,0xb2b3,
+-	0x4a44,0x5bcd,0x6956,0x78df,0x0c60,0x1de9,0x2f72,0x3efb,
+-	0xd68d,0xc704,0xf59f,0xe416,0x90a9,0x8120,0xb3bb,0xa232,
+-	0x5ac5,0x4b4c,0x79d7,0x685e,0x1ce1,0x0d68,0x3ff3,0x2e7a,
+-	0xe70e,0xf687,0xc41c,0xd595,0xa12a,0xb0a3,0x8238,0x93b1,
+-	0x6b46,0x7acf,0x4854,0x59dd,0x2d62,0x3ceb,0x0e70,0x1ff9,
+-	0xf78f,0xe606,0xd49d,0xc514,0xb1ab,0xa022,0x92b9,0x8330,
+-	0x7bc7,0x6a4e,0x58d5,0x495c,0x3de3,0x2c6a,0x1ef1,0x0f78
+-};
+-
+-
+-
+ enum {
+ 	HDLC_FAST_IDLE,HDLC_GET_FLAG_B0,HDLC_GETFLAG_B1A6,HDLC_GETFLAG_B7,
+ 	HDLC_GET_DATA,HDLC_FAST_FLAG
+@@ -300,7 +264,7 @@
+ 				hdlc->data_bits = 0;
+ 				hdlc->data_received = 1;
+ 				cval = (hdlc->crc^hdlc->shift_reg) & 0xff;
+-				hdlc->crc = (hdlc->crc>>8)^crc16_tab[cval];
++				hdlc->crc = (hdlc->crc>>8)^crc16_table[cval];
+ 				// good byte received
+ 				if (dsize--) {
+ 					dst[hdlc->dstpos++] = hdlc->shift_reg;
+@@ -479,7 +443,7 @@
+ 				unsigned cval;
+ 
+ 				cval = (hdlc->crc^hdlc->shift_reg) & 0xff;
+-				hdlc->crc = (hdlc->crc>>8)^crc16_tab[cval];
++				hdlc->crc = (hdlc->crc>>8)^crc16_table[cval];
+ 			}
+ 			if(hdlc->shift_reg & 0x01){
+ 				hdlc->hdlc_bits1++;
 
+--pWyiEgJYm5f9v55/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-crc16-irda
 
+diff -urN -X /usr/share/dontdiff linux-2.5.53.vanilla/drivers/net/irda/donauboe.c linux-2.5.53/drivers/net/irda/donauboe.c
+--- linux-2.5.53.vanilla/drivers/net/irda/donauboe.c	Fri Dec 27 19:45:30 2002
++++ linux-2.5.53/drivers/net/irda/donauboe.c	Sun Dec 29 17:46:51 2002
+@@ -52,10 +52,6 @@
+ 
+ /* See below for a description of the logic in this driver */
+ 
+-/* Is irda_crc16_table[] exported? not yet */
+-/* define this if you get errors about multiple defns of irda_crc16_table */
+-#undef CRC_EXPORTED
+-
+ /* User servicable parts */
+ /* Enable the code which probes the chip and does a few tests */
+ /* Probe code is very useful for understanding how the hardware works */
+@@ -159,6 +155,7 @@
+ #include <linux/init.h>
+ #include <linux/pci.h>
+ #include <linux/rtnetlink.h>
++#include <linux/crc16.h>
+ 
+ #include <asm/system.h>
+ #include <asm/io.h>
+@@ -205,45 +202,6 @@
+ 
+ /**********************************************************************/
+ /* Fcs code */
+-
+-#ifdef CRC_EXPORTED
+-extern __u16 const irda_crc16_table[];
+-#else
+-static __u16 const irda_crc16_table[256] = {
+-  0x0000, 0x1189, 0x2312, 0x329b, 0x4624, 0x57ad, 0x6536, 0x74bf,
+-  0x8c48, 0x9dc1, 0xaf5a, 0xbed3, 0xca6c, 0xdbe5, 0xe97e, 0xf8f7,
+-  0x1081, 0x0108, 0x3393, 0x221a, 0x56a5, 0x472c, 0x75b7, 0x643e,
+-  0x9cc9, 0x8d40, 0xbfdb, 0xae52, 0xdaed, 0xcb64, 0xf9ff, 0xe876,
+-  0x2102, 0x308b, 0x0210, 0x1399, 0x6726, 0x76af, 0x4434, 0x55bd,
+-  0xad4a, 0xbcc3, 0x8e58, 0x9fd1, 0xeb6e, 0xfae7, 0xc87c, 0xd9f5,
+-  0x3183, 0x200a, 0x1291, 0x0318, 0x77a7, 0x662e, 0x54b5, 0x453c,
+-  0xbdcb, 0xac42, 0x9ed9, 0x8f50, 0xfbef, 0xea66, 0xd8fd, 0xc974,
+-  0x4204, 0x538d, 0x6116, 0x709f, 0x0420, 0x15a9, 0x2732, 0x36bb,
+-  0xce4c, 0xdfc5, 0xed5e, 0xfcd7, 0x8868, 0x99e1, 0xab7a, 0xbaf3,
+-  0x5285, 0x430c, 0x7197, 0x601e, 0x14a1, 0x0528, 0x37b3, 0x263a,
+-  0xdecd, 0xcf44, 0xfddf, 0xec56, 0x98e9, 0x8960, 0xbbfb, 0xaa72,
+-  0x6306, 0x728f, 0x4014, 0x519d, 0x2522, 0x34ab, 0x0630, 0x17b9,
+-  0xef4e, 0xfec7, 0xcc5c, 0xddd5, 0xa96a, 0xb8e3, 0x8a78, 0x9bf1,
+-  0x7387, 0x620e, 0x5095, 0x411c, 0x35a3, 0x242a, 0x16b1, 0x0738,
+-  0xffcf, 0xee46, 0xdcdd, 0xcd54, 0xb9eb, 0xa862, 0x9af9, 0x8b70,
+-  0x8408, 0x9581, 0xa71a, 0xb693, 0xc22c, 0xd3a5, 0xe13e, 0xf0b7,
+-  0x0840, 0x19c9, 0x2b52, 0x3adb, 0x4e64, 0x5fed, 0x6d76, 0x7cff,
+-  0x9489, 0x8500, 0xb79b, 0xa612, 0xd2ad, 0xc324, 0xf1bf, 0xe036,
+-  0x18c1, 0x0948, 0x3bd3, 0x2a5a, 0x5ee5, 0x4f6c, 0x7df7, 0x6c7e,
+-  0xa50a, 0xb483, 0x8618, 0x9791, 0xe32e, 0xf2a7, 0xc03c, 0xd1b5,
+-  0x2942, 0x38cb, 0x0a50, 0x1bd9, 0x6f66, 0x7eef, 0x4c74, 0x5dfd,
+-  0xb58b, 0xa402, 0x9699, 0x8710, 0xf3af, 0xe226, 0xd0bd, 0xc134,
+-  0x39c3, 0x284a, 0x1ad1, 0x0b58, 0x7fe7, 0x6e6e, 0x5cf5, 0x4d7c,
+-  0xc60c, 0xd785, 0xe51e, 0xf497, 0x8028, 0x91a1, 0xa33a, 0xb2b3,
+-  0x4a44, 0x5bcd, 0x6956, 0x78df, 0x0c60, 0x1de9, 0x2f72, 0x3efb,
+-  0xd68d, 0xc704, 0xf59f, 0xe416, 0x90a9, 0x8120, 0xb3bb, 0xa232,
+-  0x5ac5, 0x4b4c, 0x79d7, 0x685e, 0x1ce1, 0x0d68, 0x3ff3, 0x2e7a,
+-  0xe70e, 0xf687, 0xc41c, 0xd595, 0xa12a, 0xb0a3, 0x8238, 0x93b1,
+-  0x6b46, 0x7acf, 0x4854, 0x59dd, 0x2d62, 0x3ceb, 0x0e70, 0x1ff9,
+-  0xf78f, 0xe606, 0xd49d, 0xc514, 0xb1ab, 0xa022, 0x92b9, 0x8330,
+-  0x7bc7, 0x6a4e, 0x58d5, 0x495c, 0x3de3, 0x2c6a, 0x1ef1, 0x0f78
+-};
+-#endif
+ 
+ STATIC int
+ toshoboe_checkfcs (unsigned char *buf, int len)
+diff -urN -X /usr/share/dontdiff linux-2.5.53.vanilla/include/net/irda/crc.h linux-2.5.53/include/net/irda/crc.h
+--- linux-2.5.53.vanilla/include/net/irda/crc.h	Fri Dec 27 19:46:57 2002
++++ linux-2.5.53/include/net/irda/crc.h	Mon Dec 30 13:16:08 2002
+@@ -15,19 +15,15 @@
+ #define IRDA_CRC_H
+ 
+ #include <linux/types.h>
++#include <linux/crc16.h>
+ 
+ #define INIT_FCS  0xffff   /* Initial FCS value */
+ #define GOOD_FCS  0xf0b8   /* Good final FCS value */
+ 
+-extern __u16 const irda_crc16_table[];
+-
+ /* Recompute the FCS with one more character appended. */
+-static inline __u16 irda_fcs(__u16 fcs, __u8 c)
+-{
+-	return (((fcs) >> 8) ^ irda_crc16_table[((fcs) ^ (c)) & 0xff]);
+-}
++#define irda_fcs(fcs, c) crc16_byte(fcs, c)
+ 
+ /* Recompute the FCS with len bytes appended. */
+-unsigned short irda_calc_crc16( __u16 fcs, __u8 const *buf, size_t len);
++#define irda_calc_crc16(fcs, buf, len) crc16(fcs, buf, len)
+ 
+ #endif
+diff -urN -X /usr/share/dontdiff linux-2.5.53.vanilla/net/irda/Makefile linux-2.5.53/net/irda/Makefile
+--- linux-2.5.53.vanilla/net/irda/Makefile	Fri Dec 27 19:48:04 2002
++++ linux-2.5.53/net/irda/Makefile	Mon Dec 30 13:18:14 2002
+@@ -11,7 +11,7 @@
+ 
+ irda-y := iriap.o iriap_event.o irlmp.o irlmp_event.o irlmp_frame.o \
+           irlap.o irlap_event.o irlap_frame.o timer.o qos.o irqueue.o \
+-          irttp.o irda_device.o irias_object.o crc.o wrapper.o af_irda.o \
++          irttp.o irda_device.o irias_object.o wrapper.o af_irda.o \
+ 	  discovery.o parameters.o irsyms.o
+ irda-$(CONFIG_PROC_FS) += irproc.o
+ irda-$(CONFIG_SYSCTL) += irsysctl.o
+diff -urN -X /usr/share/dontdiff linux-2.5.53.vanilla/net/irda/crc.c linux-2.5.53/net/irda/crc.c
+--- linux-2.5.53.vanilla/net/irda/crc.c	Fri Dec 27 19:48:04 2002
++++ linux-2.5.53/net/irda/crc.c	Thu Jan  1 03:00:00 1970
+@@ -1,65 +0,0 @@
+-/*********************************************************************
+- *                
+- * Filename:      crc.c
+- * Version:       0.1
+- * Description:   CRC calculation routines
+- * Status:        Experimental.
+- * Author:        Dag Brattli <dagb@cs.uit.no>
+- * Created at:    Mon Aug  4 20:40:53 1997
+- * Modified at:   Sun May  2 20:28:08 1999
+- * Modified by:   Dag Brattli <dagb@cs.uit.no>
+- * Sources:       ppp.c by Michael Callahan <callahan@maths.ox.ac.uk>
+- *                Al Longyear <longyear@netcom.com>
+- *
+- ********************************************************************/
+-
+-#include <net/irda/crc.h>
+-
+-/*
+- * This mysterious table is just the CRC of each possible byte.  It can be
+- * computed using the standard bit-at-a-time methods.  The polynomial can
+- * be seen in entry 128, 0x8408.  This corresponds to x^0 + x^5 + x^12.
+- * Add the implicit x^16, and you have the standard CRC-CCITT.
+- */
+-__u16 const irda_crc16_table[256] =
+-{
+-	0x0000, 0x1189, 0x2312, 0x329b, 0x4624, 0x57ad, 0x6536, 0x74bf,
+-	0x8c48, 0x9dc1, 0xaf5a, 0xbed3, 0xca6c, 0xdbe5, 0xe97e, 0xf8f7,
+-	0x1081, 0x0108, 0x3393, 0x221a, 0x56a5, 0x472c, 0x75b7, 0x643e,
+-	0x9cc9, 0x8d40, 0xbfdb, 0xae52, 0xdaed, 0xcb64, 0xf9ff, 0xe876,
+-	0x2102, 0x308b, 0x0210, 0x1399, 0x6726, 0x76af, 0x4434, 0x55bd,
+-	0xad4a, 0xbcc3, 0x8e58, 0x9fd1, 0xeb6e, 0xfae7, 0xc87c, 0xd9f5,
+-	0x3183, 0x200a, 0x1291, 0x0318, 0x77a7, 0x662e, 0x54b5, 0x453c,
+-	0xbdcb, 0xac42, 0x9ed9, 0x8f50, 0xfbef, 0xea66, 0xd8fd, 0xc974,
+-	0x4204, 0x538d, 0x6116, 0x709f, 0x0420, 0x15a9, 0x2732, 0x36bb,
+-	0xce4c, 0xdfc5, 0xed5e, 0xfcd7, 0x8868, 0x99e1, 0xab7a, 0xbaf3,
+-	0x5285, 0x430c, 0x7197, 0x601e, 0x14a1, 0x0528, 0x37b3, 0x263a,
+-	0xdecd, 0xcf44, 0xfddf, 0xec56, 0x98e9, 0x8960, 0xbbfb, 0xaa72,
+-	0x6306, 0x728f, 0x4014, 0x519d, 0x2522, 0x34ab, 0x0630, 0x17b9,
+-	0xef4e, 0xfec7, 0xcc5c, 0xddd5, 0xa96a, 0xb8e3, 0x8a78, 0x9bf1,
+-	0x7387, 0x620e, 0x5095, 0x411c, 0x35a3, 0x242a, 0x16b1, 0x0738,
+-	0xffcf, 0xee46, 0xdcdd, 0xcd54, 0xb9eb, 0xa862, 0x9af9, 0x8b70,
+-	0x8408, 0x9581, 0xa71a, 0xb693, 0xc22c, 0xd3a5, 0xe13e, 0xf0b7,
+-	0x0840, 0x19c9, 0x2b52, 0x3adb, 0x4e64, 0x5fed, 0x6d76, 0x7cff,
+-	0x9489, 0x8500, 0xb79b, 0xa612, 0xd2ad, 0xc324, 0xf1bf, 0xe036,
+-	0x18c1, 0x0948, 0x3bd3, 0x2a5a, 0x5ee5, 0x4f6c, 0x7df7, 0x6c7e,
+-	0xa50a, 0xb483, 0x8618, 0x9791, 0xe32e, 0xf2a7, 0xc03c, 0xd1b5,
+-	0x2942, 0x38cb, 0x0a50, 0x1bd9, 0x6f66, 0x7eef, 0x4c74, 0x5dfd,
+-	0xb58b, 0xa402, 0x9699, 0x8710, 0xf3af, 0xe226, 0xd0bd, 0xc134,
+-	0x39c3, 0x284a, 0x1ad1, 0x0b58, 0x7fe7, 0x6e6e, 0x5cf5, 0x4d7c,
+-	0xc60c, 0xd785, 0xe51e, 0xf497, 0x8028, 0x91a1, 0xa33a, 0xb2b3,
+-	0x4a44, 0x5bcd, 0x6956, 0x78df, 0x0c60, 0x1de9, 0x2f72, 0x3efb,
+-	0xd68d, 0xc704, 0xf59f, 0xe416, 0x90a9, 0x8120, 0xb3bb, 0xa232,
+-	0x5ac5, 0x4b4c, 0x79d7, 0x685e, 0x1ce1, 0x0d68, 0x3ff3, 0x2e7a,
+-	0xe70e, 0xf687, 0xc41c, 0xd595, 0xa12a, 0xb0a3, 0x8238, 0x93b1,
+-	0x6b46, 0x7acf, 0x4854, 0x59dd, 0x2d62, 0x3ceb, 0x0e70, 0x1ff9,
+-	0xf78f, 0xe606, 0xd49d, 0xc514, 0xb1ab, 0xa022, 0x92b9, 0x8330,
+-	0x7bc7, 0x6a4e, 0x58d5, 0x495c, 0x3de3, 0x2c6a, 0x1ef1, 0x0f78
+-};
+-
+-unsigned short irda_calc_crc16( __u16 fcs, __u8 const *buf, size_t len) 
+-{
+-	while (len--)
+-                fcs = irda_fcs(fcs, *buf++);
+-	return fcs;
+-}
+
+--pWyiEgJYm5f9v55/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-crc16-ppp
+
+diff -urN -X /usr/share/dontdiff linux-2.5.53.vanilla/drivers/net/ppp_async.c linux-2.5.53/drivers/net/ppp_async.c
+--- linux-2.5.53.vanilla/drivers/net/ppp_async.c	Fri Dec 27 19:45:42 2002
++++ linux-2.5.53/drivers/net/ppp_async.c	Sun Dec 29 19:12:18 2002
+@@ -26,6 +26,7 @@
+ #include <linux/tty.h>
+ #include <linux/netdevice.h>
+ #include <linux/poll.h>
++#include <linux/crc16.h>
+ #include <linux/ppp_defs.h>
+ #include <linux/if_ppp.h>
+ #include <linux/ppp_channel.h>
+@@ -464,43 +465,6 @@
+ /*
+  * Procedures for encapsulation and framing.
+  */
+-
+-u16 ppp_crc16_table[256] = {
+-	0x0000, 0x1189, 0x2312, 0x329b, 0x4624, 0x57ad, 0x6536, 0x74bf,
+-	0x8c48, 0x9dc1, 0xaf5a, 0xbed3, 0xca6c, 0xdbe5, 0xe97e, 0xf8f7,
+-	0x1081, 0x0108, 0x3393, 0x221a, 0x56a5, 0x472c, 0x75b7, 0x643e,
+-	0x9cc9, 0x8d40, 0xbfdb, 0xae52, 0xdaed, 0xcb64, 0xf9ff, 0xe876,
+-	0x2102, 0x308b, 0x0210, 0x1399, 0x6726, 0x76af, 0x4434, 0x55bd,
+-	0xad4a, 0xbcc3, 0x8e58, 0x9fd1, 0xeb6e, 0xfae7, 0xc87c, 0xd9f5,
+-	0x3183, 0x200a, 0x1291, 0x0318, 0x77a7, 0x662e, 0x54b5, 0x453c,
+-	0xbdcb, 0xac42, 0x9ed9, 0x8f50, 0xfbef, 0xea66, 0xd8fd, 0xc974,
+-	0x4204, 0x538d, 0x6116, 0x709f, 0x0420, 0x15a9, 0x2732, 0x36bb,
+-	0xce4c, 0xdfc5, 0xed5e, 0xfcd7, 0x8868, 0x99e1, 0xab7a, 0xbaf3,
+-	0x5285, 0x430c, 0x7197, 0x601e, 0x14a1, 0x0528, 0x37b3, 0x263a,
+-	0xdecd, 0xcf44, 0xfddf, 0xec56, 0x98e9, 0x8960, 0xbbfb, 0xaa72,
+-	0x6306, 0x728f, 0x4014, 0x519d, 0x2522, 0x34ab, 0x0630, 0x17b9,
+-	0xef4e, 0xfec7, 0xcc5c, 0xddd5, 0xa96a, 0xb8e3, 0x8a78, 0x9bf1,
+-	0x7387, 0x620e, 0x5095, 0x411c, 0x35a3, 0x242a, 0x16b1, 0x0738,
+-	0xffcf, 0xee46, 0xdcdd, 0xcd54, 0xb9eb, 0xa862, 0x9af9, 0x8b70,
+-	0x8408, 0x9581, 0xa71a, 0xb693, 0xc22c, 0xd3a5, 0xe13e, 0xf0b7,
+-	0x0840, 0x19c9, 0x2b52, 0x3adb, 0x4e64, 0x5fed, 0x6d76, 0x7cff,
+-	0x9489, 0x8500, 0xb79b, 0xa612, 0xd2ad, 0xc324, 0xf1bf, 0xe036,
+-	0x18c1, 0x0948, 0x3bd3, 0x2a5a, 0x5ee5, 0x4f6c, 0x7df7, 0x6c7e,
+-	0xa50a, 0xb483, 0x8618, 0x9791, 0xe32e, 0xf2a7, 0xc03c, 0xd1b5,
+-	0x2942, 0x38cb, 0x0a50, 0x1bd9, 0x6f66, 0x7eef, 0x4c74, 0x5dfd,
+-	0xb58b, 0xa402, 0x9699, 0x8710, 0xf3af, 0xe226, 0xd0bd, 0xc134,
+-	0x39c3, 0x284a, 0x1ad1, 0x0b58, 0x7fe7, 0x6e6e, 0x5cf5, 0x4d7c,
+-	0xc60c, 0xd785, 0xe51e, 0xf497, 0x8028, 0x91a1, 0xa33a, 0xb2b3,
+-	0x4a44, 0x5bcd, 0x6956, 0x78df, 0x0c60, 0x1de9, 0x2f72, 0x3efb,
+-	0xd68d, 0xc704, 0xf59f, 0xe416, 0x90a9, 0x8120, 0xb3bb, 0xa232,
+-	0x5ac5, 0x4b4c, 0x79d7, 0x685e, 0x1ce1, 0x0d68, 0x3ff3, 0x2e7a,
+-	0xe70e, 0xf687, 0xc41c, 0xd595, 0xa12a, 0xb0a3, 0x8238, 0x93b1,
+-	0x6b46, 0x7acf, 0x4854, 0x59dd, 0x2d62, 0x3ceb, 0x0e70, 0x1ff9,
+-	0xf78f, 0xe606, 0xd49d, 0xc514, 0xb1ab, 0xa022, 0x92b9, 0x8330,
+-	0x7bc7, 0x6a4e, 0x58d5, 0x495c, 0x3de3, 0x2c6a, 0x1ef1, 0x0f78
+-};
+-EXPORT_SYMBOL(ppp_crc16_table);
+-#define fcstab	ppp_crc16_table		/* for PPP_FCS macro */
+ 
+ /*
+  * Procedure to encode the data for async serial transmission.
+diff -urN -X /usr/share/dontdiff linux-2.5.53.vanilla/include/linux/ppp_defs.h linux-2.5.53/include/linux/ppp_defs.h
+--- linux-2.5.53.vanilla/include/linux/ppp_defs.h	Fri Dec 27 19:46:49 2002
++++ linux-2.5.53/include/linux/ppp_defs.h	Mon Dec 30 12:36:47 2002
+@@ -92,7 +92,7 @@
+ 
+ #define PPP_INITFCS	0xffff	/* Initial FCS value */
+ #define PPP_GOODFCS	0xf0b8	/* Good final FCS value */
+-#define PPP_FCS(fcs, c)	(((fcs) >> 8) ^ fcstab[((fcs) ^ (c)) & 0xff])
++#define PPP_FCS(fcs, c) crc16_byte(fcs, c)
+ 
+ /*
+  * Extended asyncmap - allows any character to be escaped.
+
+--pWyiEgJYm5f9v55/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-crc16-l1
+
+diff -urN -X /usr/share/dontdiff linux-2.5.53.vanilla/arch/ia64/sn/io/l1.c linux-2.5.53/arch/ia64/sn/io/l1.c
+--- linux-2.5.53.vanilla/arch/ia64/sn/io/l1.c	Fri Dec 27 19:45:14 2002
++++ linux-2.5.53/arch/ia64/sn/io/l1.c	Mon Dec 30 14:31:20 2002
+@@ -29,6 +29,7 @@
+ #include <linux/slab.h>
+ #include <linux/spinlock.h>
+ #include <linux/delay.h>
++#include <linux/crc16.h>
+ #include <asm/sn/sgi.h>
+ #include <asm/sn/io.h>
+ #include <asm/sn/iograph.h>
+@@ -740,49 +741,9 @@
+  * These are based on RFC 1662 ("PPP in HDLC-like framing").
+  */
+ 
+-static unsigned short fcstab[256] = {
+-      0x0000, 0x1189, 0x2312, 0x329b, 0x4624, 0x57ad, 0x6536, 0x74bf,
+-      0x8c48, 0x9dc1, 0xaf5a, 0xbed3, 0xca6c, 0xdbe5, 0xe97e, 0xf8f7,
+-      0x1081, 0x0108, 0x3393, 0x221a, 0x56a5, 0x472c, 0x75b7, 0x643e,
+-      0x9cc9, 0x8d40, 0xbfdb, 0xae52, 0xdaed, 0xcb64, 0xf9ff, 0xe876,
+-      0x2102, 0x308b, 0x0210, 0x1399, 0x6726, 0x76af, 0x4434, 0x55bd,
+-      0xad4a, 0xbcc3, 0x8e58, 0x9fd1, 0xeb6e, 0xfae7, 0xc87c, 0xd9f5,
+-      0x3183, 0x200a, 0x1291, 0x0318, 0x77a7, 0x662e, 0x54b5, 0x453c,
+-      0xbdcb, 0xac42, 0x9ed9, 0x8f50, 0xfbef, 0xea66, 0xd8fd, 0xc974,
+-      0x4204, 0x538d, 0x6116, 0x709f, 0x0420, 0x15a9, 0x2732, 0x36bb,
+-      0xce4c, 0xdfc5, 0xed5e, 0xfcd7, 0x8868, 0x99e1, 0xab7a, 0xbaf3,
+-      0x5285, 0x430c, 0x7197, 0x601e, 0x14a1, 0x0528, 0x37b3, 0x263a,
+-      0xdecd, 0xcf44, 0xfddf, 0xec56, 0x98e9, 0x8960, 0xbbfb, 0xaa72,
+-      0x6306, 0x728f, 0x4014, 0x519d, 0x2522, 0x34ab, 0x0630, 0x17b9,
+-      0xef4e, 0xfec7, 0xcc5c, 0xddd5, 0xa96a, 0xb8e3, 0x8a78, 0x9bf1,
+-      0x7387, 0x620e, 0x5095, 0x411c, 0x35a3, 0x242a, 0x16b1, 0x0738,
+-      0xffcf, 0xee46, 0xdcdd, 0xcd54, 0xb9eb, 0xa862, 0x9af9, 0x8b70,
+-      0x8408, 0x9581, 0xa71a, 0xb693, 0xc22c, 0xd3a5, 0xe13e, 0xf0b7,
+-      0x0840, 0x19c9, 0x2b52, 0x3adb, 0x4e64, 0x5fed, 0x6d76, 0x7cff,
+-      0x9489, 0x8500, 0xb79b, 0xa612, 0xd2ad, 0xc324, 0xf1bf, 0xe036,
+-      0x18c1, 0x0948, 0x3bd3, 0x2a5a, 0x5ee5, 0x4f6c, 0x7df7, 0x6c7e,
+-      0xa50a, 0xb483, 0x8618, 0x9791, 0xe32e, 0xf2a7, 0xc03c, 0xd1b5,
+-      0x2942, 0x38cb, 0x0a50, 0x1bd9, 0x6f66, 0x7eef, 0x4c74, 0x5dfd,
+-      0xb58b, 0xa402, 0x9699, 0x8710, 0xf3af, 0xe226, 0xd0bd, 0xc134,
+-      0x39c3, 0x284a, 0x1ad1, 0x0b58, 0x7fe7, 0x6e6e, 0x5cf5, 0x4d7c,
+-      0xc60c, 0xd785, 0xe51e, 0xf497, 0x8028, 0x91a1, 0xa33a, 0xb2b3,
+-      0x4a44, 0x5bcd, 0x6956, 0x78df, 0x0c60, 0x1de9, 0x2f72, 0x3efb,
+-      0xd68d, 0xc704, 0xf59f, 0xe416, 0x90a9, 0x8120, 0xb3bb, 0xa232,
+-      0x5ac5, 0x4b4c, 0x79d7, 0x685e, 0x1ce1, 0x0d68, 0x3ff3, 0x2e7a,
+-      0xe70e, 0xf687, 0xc41c, 0xd595, 0xa12a, 0xb0a3, 0x8238, 0x93b1,
+-      0x6b46, 0x7acf, 0x4854, 0x59dd, 0x2d62, 0x3ceb, 0x0e70, 0x1ff9,
+-      0xf78f, 0xe606, 0xd49d, 0xc514, 0xb1ab, 0xa022, 0x92b9, 0x8330,
+-      0x7bc7, 0x6a4e, 0x58d5, 0x495c, 0x3de3, 0x2c6a, 0x1ef1, 0x0f78
+-};
+-
+ #define INIT_CRC	0xFFFF	/* initial CRC value	  */
+ #define	GOOD_CRC	0xF0B8	/* "good" final CRC value */
+ 
+-static unsigned short crc16_calc( unsigned short crc, u_char c )
+-{
+-    return( (crc >> 8) ^ fcstab[(crc ^ c) & 0xff] );
+-}
+-
+ 
+ /***********************************************************************
+  * The following functions implement the PPP-like bedrock/L1 protocol
+@@ -941,7 +902,7 @@
+     *send_ptr++ = BRL1_FLAG_CH;
+     *send_ptr++ = type_and_subch;
+     pkt_len += 2;
+-    crc = crc16_calc( crc, type_and_subch );
++    crc = crc16_byte(crc, type_and_subch);
+ 
+     /* limit number of characters accepted to max payload size */
+     if( len > (BRL1_QSIZE - 1) )
+@@ -970,7 +931,7 @@
+ 	    *send_ptr++ = *msg;
+ 	    pkt_len++;
+ 	}
+-	crc = crc16_calc( crc, *msg );
++	crc = crc16_byte(crc, *msg);
+ 	msg++;
+     }
+     crc ^= 0xffff;
+@@ -1345,12 +1306,12 @@
+ 		 * ending with the transmitted CRC.  This should
+ 		 * result in a known good value.
+ 		 */
+-		crc = crc16_calc( INIT_CRC, LAST_HDR_GET(sc) );
++		crc = crc16_byte(INIT_CRC, LAST_HDR_GET(sc));
+ 		for( i = (q->ipos + (IS_TTY_PKT(sc) ? 0 : 2)) % BRL1_QSIZE;
+ 		     i != q->tent_next;
+ 		     i = (i + 1) % BRL1_QSIZE )
+ 		{
+-		    crc = crc16_calc( crc, q->buf[i] );
++		    crc = crc16_byte(crc, q->buf[i]);
+ 		}
+ 
+ 		/* verify the caclulated crc against the "good" crc value;
+@@ -2005,7 +1966,7 @@
+ 
+     PUTCHAR( BRL1_FLAG_CH );
+     PUTCHAR( BRL1_EVENT | SC_CONS_SYSTEM );
+-    crc = crc16_calc( crc, (BRL1_EVENT | SC_CONS_SYSTEM) );
++    crc = crc16_byte(crc, (BRL1_EVENT | SC_CONS_SYSTEM));
+ 
+     while( len ) {
+ 
+@@ -2017,7 +1978,7 @@
+ 	    PUTCHAR( *str );
+ 	}
+ 	
+-	crc = crc16_calc( crc, *str );
++	crc = crc16_byte(crc, *str);
+ 
+ 	str++; len--;
+     }
+
+--pWyiEgJYm5f9v55/--

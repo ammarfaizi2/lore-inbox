@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266162AbUBQN6c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 08:58:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266172AbUBQN6c
+	id S266172AbUBQON1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 09:13:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266221AbUBQON0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 08:58:32 -0500
-Received: from rogue.ncsl.nist.gov ([129.6.101.41]:60848 "EHLO
-	rogue.ncsl.nist.gov") by vger.kernel.org with ESMTP id S266162AbUBQN6b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 08:58:31 -0500
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0, BUG() in JFS
-References: <9cf1xozw09t.fsf@rogue.ncsl.nist.gov>
-	<1076950722.4534.19.camel@shaggy.austin.ibm.com>
-From: Ian Soboroff <ian.soboroff@nist.gov>
-Date: Tue, 17 Feb 2004 08:57:21 -0500
-In-Reply-To: <1076950722.4534.19.camel@shaggy.austin.ibm.com> (Dave
- Kleikamp's message of "Mon, 16 Feb 2004 10:58:42 -0600")
-Message-ID: <9cfbrnx4xmm.fsf@rogue.ncsl.nist.gov>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 17 Feb 2004 09:13:26 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:6287 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266172AbUBQONZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 09:13:25 -0500
+Subject: Re: UTF-8 practically vs. theoretically in the VFS API (was: Re:
+	JFS default behavior)
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Marc Lehmann <pcg@schmorp.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040216205835.GG17015@schmorp.de>
+References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca>
+	 <200402150006.23177.robin.rosenberg.lists@dewire.com>
+	 <20040214232935.GK8858@parcelfarce.linux.theplanet.co.uk>
+	 <200402150107.26277.robin.rosenberg.lists@dewire.com>
+	 <Pine.LNX.4.58.0402141827200.14025@home.osdl.org>
+	 <20040216183616.GA16491@schmorp.de>
+	 <Pine.LNX.4.58.0402161040310.30742@home.osdl.org>
+	 <20040216200321.GB17015@schmorp.de>
+	 <Pine.LNX.4.58.0402161205120.30742@home.osdl.org>
+	 <20040216205835.GG17015@schmorp.de>
+Content-Type: text/plain
+Message-Id: <1077027146.4534.26.camel@shaggy.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 17 Feb 2004 08:12:26 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Kleikamp <shaggy@austin.ibm.com> writes:
+On Mon, 2004-02-16 at 14:58, Marc Lehmann wrote:
 
-> On Fri, 2004-02-13 at 07:56, Ian Soboroff wrote:
->> I got this oops this morning.  This machine is running 2.6.0... is
->> this something that's been fixed already?
->
-> I've seen this reported before, but not with any regularity.  Either a
-> directory is somehow corrupted, or the directory grew beyond what JFS
-> was designed to handle (which shouldn't really happen).  Do you have any
-> directories that would have tens of thousands of entries or more?
->
-> What is the result of running fsck?
+> True. Thanks a lot for explaining your arguments in this detail. In
+> fact, I can accept most if not all of your arguments, but I sitll think
+> it would be nice to have this extra functionality.
+> 
+> Arguments like "it's a pain to implement" (which I don't think it is, but
+> you are clearly better in judging that!), weigh even more to me.
+> 
+> So even if I think it's a good idea, it might never be implemneted for
+> purely practical reasons.
 
-fsck reported some errors, but since there were outstanding processes
-stuck in the 'D' state, I wanted to wait for the chance to reboot
-before letting it repair them.
+Use jfs with the mount option iocharset=utf8 and you'll get exactly what
+you are asking for.
 
-Ian
-
+-- 
+David Kleikamp
+IBM Linux Technology Center
 

@@ -1,104 +1,259 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129763AbQK0Vsw>; Mon, 27 Nov 2000 16:48:52 -0500
+        id <S129352AbQK0Vwc>; Mon, 27 Nov 2000 16:52:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129406AbQK0Vsm>; Mon, 27 Nov 2000 16:48:42 -0500
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:55826 "EHLO
-        etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-        id <S129763AbQK0Vsf>; Mon, 27 Nov 2000 16:48:35 -0500
-Date: Mon, 27 Nov 2000 22:16:23 +0100
-From: Kurt Garloff <kurt@garloff.de>
-To: Matthew Dharm <mdharm-usb@one-eyed-alien.net>,
-        David Brown <usb-storage@davidb.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: USB-Storage drivers
-Message-ID: <20001127221623.D24187@garloff.etpnet.phys.tue.nl>
-Mail-Followup-To: Kurt Garloff <kurt@garloff.de>,
-        Matthew Dharm <mdharm-usb@one-eyed-alien.net>,
-        David Brown <usb-storage@davidb.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Linux kernel list <linux-kernel@vger.kernel.org>
+        id <S129406AbQK0VwW>; Mon, 27 Nov 2000 16:52:22 -0500
+Received: from mhaaksma-3.dsl.speakeasy.net ([64.81.17.226]:526 "EHLO
+        mail.neruo.com") by vger.kernel.org with ESMTP id <S129352AbQK0VwH>;
+        Mon, 27 Nov 2000 16:52:07 -0500
+Subject: Dell 5000e APM (fixed!)
+From: Brad Douglas <brad@neruo.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed ; boundary="=-D8K33t+j+s1jHam1B9Vw"
+X-Mailer: Evolution 0.6 (Developer Preview)
+Date: 28 Nov 2000 05:20:47 +0800
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-        protocol="application/pgp-signature"; boundary="kbCYTQG2MZjuOjyn"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Operating-System: Linux 2.2.16 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TUE/NL, SuSE/FRG
+Message-Id: <20001127215218Z129352-8303+1190@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---kbCYTQG2MZjuOjyn
-Content-Type: multipart/mixed; boundary="AjmyJqqohANyBN/e"
-Content-Disposition: inline
+--=-D8K33t+j+s1jHam1B9Vw
+Content-Type: text/plain
+
+Alan, here's the DMI info you requested.  Sorry about the delay.
+
+The BIOS listed is a new test BIOS that has a *corrected* APM that I
+received this morning.  I really want to take a second to thank the
+people at Compal (BizCom) for the short turnaround once we figured out
+who the right people were to talk to.
+
+Once I get the OK from Compal (and finish testing), I'll post it to the
+Tuxtops support site for all to download.
+
+Brad Douglas
+brad@neruo.com
+brad@tuxtops.com
 
 
---AjmyJqqohANyBN/e
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-D8K33t+j+s1jHam1B9Vw
+Content-Type: text/plain
+Content-Disposition: attachment ; filename="38W2.txt"
 Content-Transfer-Encoding: quoted-printable
 
-Hi Matthew, David, Linus,
+DMI 2.3 present.
+50 structures occupying 1477 bytes.
+DMI table at 0x000EC230.
+Handle 0x0000
+	DMI type 0, 20 bytes.
+	BIOS Information Block
+		Vendor Phoenix Technologies LTD
+		Version 106
+		Release 134527017
+		BIOS base 0xE68A0
+		ROM size 192K
+		Capabilities:
+			Flags: 0x0000000000001F90
+Handle 0x0001
+	DMI type 1, 25 bytes.
+	System Information Block
+		Vendor Compal Electronics, Inc.
+		Product N30W
+		Version Revision B0
+		Serial Number 123456789
+Handle 0x0002
+	DMI type 2, 8 bytes.
+	Board Information Block
+		Vendor Compal Electronics, Inc.
+		Product 440BX Desktop Reference Platform
+		Version None
+		Serial Number None
+Handle 0x0003
+	DMI type 3, 17 bytes.
+	Chassis Information Block
+		Vendor Compal Electronics, Inc.
+		Product Compal Electronics, Inc.
+		Version N/A
+		Serial Number 9516=FA=FF=FF=FF=FF=FFNo Asset Tag
+		Asset Tag=20
+Handle 0x0004
+	DMI type 4, 32 bytes.
+Handle 0x0005
+	DMI type 5, 20 bytes.
+Handle 0x0006
+	DMI type 6, 12 bytes.
+	Memory Bank
+		Socket: U5
+		Banks: 0 1
+		Type:=20
+		Installed Size: Not Installed
+		Enabled Size: Not Installed
+Handle 0x0007
+	DMI type 6, 12 bytes.
+	Memory Bank
+		Socket: U6
+		Banks: 2 3
+		Type:=20
+		Installed Size: 64Mbyte
+		Enabled Size: 64Mbyte
+Handle 0x0008
+	DMI type 7, 19 bytes.
+	Cache
+		Socket: L1 Cache
+		L1 socketed Internal Cache: write-back
+		L1 Cache Size: 16K
+		L1 Cache Maximum: 16K
+		L1 Cache Type: Asynchronous=20
+Handle 0x0009
+	DMI type 7, 19 bytes.
+	Cache
+		Socket: L2 Cache
+		L2 socketed External Cache: write-back
+		L2 Cache Size: 512K
+		L2 Cache Maximum: 256K
+		L2 Cache Type: Unknown=20
+Handle 0x000A
+	DMI type 8, 9 bytes.
+	Connector
+		Name: COM 1
+		Type: DB9 male - 16550A Serial
+Handle 0x000B
+	DMI type 8, 9 bytes.
+	Connector
+		Name: Parallel
+		Type: DB25 female - ECP/EPP Parallel
+Handle 0x000C
+	DMI type 8, 9 bytes.
+	Connector
+		Name: Keyboard
+		Type: Circular DIN-8 male - Keyboard
+Handle 0x000D
+	DMI type 8, 9 bytes.
+	Connector
+		Name: PS/2 Mouse
+		Type: Circular DIN-8 male - Keyboard
+Handle 0x000E
+	DMI type 9, 13 bytes.
+	Card Slot
+		Slot: ISA Slot J8
+		Type: 16bit Long ISA=20
+		Slot Features: 5v=20
+Handle 0x000F
+	DMI type 9, 13 bytes.
+	Card Slot
+		Slot: ISA Slot J9
+		Type: 16bit Long ISA=20
+		Slot Features: 5v=20
+Handle 0x0010
+	DMI type 9, 13 bytes.
+	Card Slot
+		Slot: ISA Slot J10
+		Type: 16bit Long ISA=20
+		Slot Features: 5v=20
+Handle 0x0011
+	DMI type 9, 13 bytes.
+	Card Slot
+		Slot: PCI Slot J11
+		Type: 32bit PCI=20
+		Status: Available.
+		Slot Features: 5v 3.3v=20
+Handle 0x0012
+	DMI type 9, 13 bytes.
+	Card Slot
+		Slot: PCI Slot J12
+		Type: 32bit PCI=20
+		Status: Available.
+		Slot Features: 5v 3.3v=20
+Handle 0x0013
+	DMI type 9, 13 bytes.
+	Card Slot
+		Slot: PCI Slot J13
+		Type: 32bit PCI=20
+		Status: Available.
+		Slot Features: 5v 3.3v=20
+Handle 0x0014
+	DMI type 9, 13 bytes.
+	Card Slot
+		Slot: PCI Slot J14
+		Type: 32bit PCI=20
+		Status: Available.
+		Slot Features: 5v 3.3v=20
+Handle 0x0015
+	DMI type 10, 8 bytes.
+Handle 0x0016
+	DMI type 11, 5 bytes.
+	OEM Data
+	=09
+		Compal System
+		1[9F]
+		2[4.05.1]
+		3[1.0]
+Handle 0x0017
+	DMI type 12, 5 bytes.
+	Configuration Information
+		$=10/
+Handle 0x0018
+	DMI type 15, 29 bytes.
+	Event Log
+		Log Area: 16 bytes.
+		Log Header At: 0.
+		Log Data At: 16.
+		Log Type: 4.
+Handle 0x0019
+	DMI type 16, 15 bytes.
+Handle 0x001A
+	DMI type 17, 23 bytes.
+Handle 0x001B
+	DMI type 17, 23 bytes.
+Handle 0x001C
+	DMI type 18, 23 bytes.
+Handle 0x001D
+	DMI type 19, 15 bytes.
+Handle 0x001E
+	DMI type 20, 19 bytes.
+Handle 0x001F
+	DMI type 20, 19 bytes.
+Handle 0x0020
+	DMI type 22, 26 bytes.
+Handle 0x0021
+	DMI type 23, 13 bytes.
+Handle 0x0022
+	DMI type 24, 5 bytes.
+Handle 0x0023
+	DMI type 25, 9 bytes.
+Handle 0x0024
+	DMI type 26, 22 bytes.
+Handle 0x0025
+	DMI type 26, 20 bytes.
+Handle 0x0026
+	DMI type 27, 14 bytes.
+Handle 0x0027
+	DMI type 27, 12 bytes.
+Handle 0x0028
+	DMI type 28, 22 bytes.
+Handle 0x0029
+	DMI type 28, 20 bytes.
+Handle 0x002A
+	DMI type 30, 6 bytes.
+Handle 0x002B
+	DMI type 31, 28 bytes.
+Handle 0x002C
+	DMI type 32, 20 bytes.
+Handle 0x002D
+	DMI type 33, 31 bytes.
+Handle 0x002E
+	DMI type 36, 16 bytes.
+Handle 0x002F
+	DMI type 36, 16 bytes.
+Handle 0x0030
+	DMI type 126, 4 bytes.
+Handle 0x0031
+	DMI type 127, 4 bytes.
 
-any particular reason why the support for special dongles in the usb-storage
-driver can not be selected during kernel configuration? (See attached patch=
-).
 
-I can only tell about the Freecom support in the usb-storage driver: It
-works flawlessly for me driving some OnStream USB30 tape drive (with the
-osst driver). So, I think it should be offered to people who want to try.
+--=-D8K33t+j+s1jHam1B9Vw--
 
-Of course, it's up to you. Maybe you want to put some ifdef CONFIG_EXPERIME=
-NTAL
-around it or a little help text. But I'd definitely appreciate the
-possibility to compile the drivers without patching the Config file.
-
-Regards,
---=20
-Kurt Garloff                   <kurt@garloff.de>         [Eindhoven, NL]
-Physics: Plasma simulations <k.garloff@phys.tue.nl>   [TU Eindhoven, NL]
-Linux: SCSI, Security          <garloff@suse.de>   [SuSE Nuernberg, FRG]
- (See mail header or public key servers for PGP2 and GPG public keys.)
-
---AjmyJqqohANyBN/e
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="usb-storage-config.diff"
-
-diff -uNr linux-2.4.0-t11.ac2.reiser.ide.osst/drivers/usb/Config.in linux-2.4.0-t11.ac2.reiser.ide.osst.usb/drivers/usb/Config.in
---- linux-2.4.0-t11.ac2.reiser.ide.osst/drivers/usb/Config.in	Sun Nov 12 04:04:30 2000
-+++ linux-2.4.0-t11.ac2.reiser.ide.osst.usb/drivers/usb/Config.in	Wed Nov 22 22:00:40 2000
-@@ -64,6 +64,10 @@
-    dep_tristate '  USB Mass Storage support' CONFIG_USB_STORAGE $CONFIG_USB $CONFIG_SCSI
-    if [ "$CONFIG_USB_STORAGE" != "n" ]; then
-       bool '    USB Mass Storage verbose debug' CONFIG_USB_STORAGE_DEBUG
-+      bool '    USB Mass Storage HP8200e support' CONFIG_USB_STORAGE_HP8200e
-+      bool '    USB Mass Storage SDDR09  support' CONFIG_USB_STORAGE_SDDR09
-+      bool '    USB Mass Storage DPCM    support' CONFIG_USB_STORAGE_DPCM
-+      bool '    USB Mass Storage FreeCom support' CONFIG_USB_STORAGE_FREECOM
-    fi
-    dep_tristate '  USS720 parport driver' CONFIG_USB_USS720 $CONFIG_USB $CONFIG_PARPORT
-    dep_tristate '  DABUSB driver' CONFIG_USB_DABUSB $CONFIG_USB
-
---AjmyJqqohANyBN/e--
-
---kbCYTQG2MZjuOjyn
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6Is8mxmLh6hyYd04RAlZSAKCdqHNfm7wIbEQ09xKIRACEqxVzbQCfZ8Xo
-/tcMKN6hwd3tKnS8FQJae0U=
-=f/dt
------END PGP SIGNATURE-----
-
---kbCYTQG2MZjuOjyn--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

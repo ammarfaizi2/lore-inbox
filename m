@@ -1,130 +1,195 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271700AbTG2Mtq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 08:49:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271701AbTG2Mtq
+	id S271710AbTG2NDY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 09:03:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271713AbTG2NDY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 08:49:46 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:27279 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S271700AbTG2Mtg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 08:49:36 -0400
-Subject: Re: another must-fix: major PS/2 mouse problem
-From: Albert Cahalan <albert@users.sf.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Albert Cahalan <albert@users.sourceforge.net>, zwane@arm.linux.org.uk,
-       linux-yoann@ifrance.com,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>, vortex@scyld.com, jgarzik@pobox.com
-In-Reply-To: <20030728201459.78c8c7c6.akpm@osdl.org>
-References: <1054431962.22103.744.camel@cube> <3EDCF47A.1060605@ifrance.com>
-	 <1054681254.22103.3750.camel@cube> <3EDD8850.9060808@ifrance.com>
-	 <1058921044.943.12.camel@cube> <20030724103047.31e91a96.akpm@osdl.org>
-	 <1059097601.1220.75.camel@cube> <20030725201914.644b020c.akpm@osdl.org>
-	 <Pine.LNX.4.53.0307261112590.12159@montezuma.mastecende.com>
-	 <1059447325.3862.86.camel@cube>  <20030728201459.78c8c7c6.akpm@osdl.org>
+	Tue, 29 Jul 2003 09:03:24 -0400
+Received: from modemcable198.171-130-66.que.mc.videotron.ca ([66.130.171.198]:56708
+	"EHLO gaston") by vger.kernel.org with ESMTP id S271710AbTG2NDI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 09:03:08 -0400
+Subject: [PATCH] airo driver: fix races, oops, etc..
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: achirica@telefonica.net,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1059482410.3862.120.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 29 Jul 2003 08:40:11 -0400
 Content-Transfer-Encoding: 7bit
+Message-Id: <1059483772.8545.13.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 29 Jul 2003 09:02:52 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-07-28 at 23:14, Andrew Morton wrote:
-> Albert Cahalan <albert@users.sourceforge.net> wrote:
+Hi !
 
-> > OK, I did this. Now, in microseconds, I get:
-> > 
-> > ------------------------
-> > IRQ use      min     max
-> > --- -------- --- -------   
-> >   0 timer     40  103968
-> >   1 i8042     14    1138 (was 389773)
-> >   2 cascade    -       -
-> >   3 -          -       -
-> >   4 serial    29      56
-> >   5 uhci-hcd   -       -
-> >   6 -        690     690
-> >   7 -         40      40
-> >   8 -          -       -
-> >   9 -          -       -
-> >  10 -          -       -
-> >  11 eth0      73   31332 (was 1535331)
-> >  12 i8042     18     215 (was 102895)
-> >  13 -          -       -
-> >  14 ide0       7   43846
-> >  15 ide1       7      12 
-> > ------------------------
-> >    
-> > boomerang_interrupt itself takes 4 to 59 microseconds.
-> 
-> So this looks OK, yes?
+Here's a patch against Linus current airo.c, it adds back some fixes I
+did during OLS on the previous version of this driver. I couldn't test
+this new 'fixed' version though as I don't have the airo card anymore:
 
-I suppose boomerang_interrupt itself is OK.
-Spending 104 ms in IRQ 0, 31 ms in IRQ 11, and
-44 ms in IRQ 14 is not at all OK. I was hoping
-to get under 200 microseconds for everything.
+ - Initialize the work_struct structures used by the driver
+ - Change most of schedule_work() to schedule_delayed_work(). The
+   problem with schedule_work() is that the worker_thread will never
+   schedule() if the work keeps getting added back to the list by the
+   callback, which typically happened with this driver when the xmit
+   work gets scheduled while the semaphore was used by a pending
+   command. Note that -ac tree has a modified version of this driver
+   that gets rid of this "over-smart" work queue stuff and uses normal
+   spinlock instead, probably at the expense of some latency...
+ - Fix a small signed vs. unsigned char issue
+ - Remove bogus pci_module_init(), use pci_register_driver() instead and
+   add missing pci_unregister_driver() so the module can now be removed
+   without leaving stale references (and thus avoid an oops next time
+   the driver list is walked by the device core).
 
-> (Is that instrumentation patch productisable? 
-> Looks handly, albeit a subset of microstate accounting)
+Jeff, if you are ok with these, please send to Linus,
 
-Not really. I printk() when a value exceeds the
-saved maximum, then scan my logs for the first
-and last values. There's also hard-coded knowledge
-of my 1-GHz CPU, which lets me convert to microseconds
-as follows:  us = (unsigned)(ns64>>3)/125u;
-
-(that lets me handle up to 32 seconds)
-
-Huh. So the minimum value is really the first value.
-Later values could be less, but that's not important.
-I suppose that true min/max via a /proc file would
-be pretty easy to implement. I like my 1-GHz hack.
-I like a TSC that measures in nanoseconds too.
-
-> > Then I switched to 2.6.0-test2. Testing more, I get the
-> > problem with or without SMP and with or without
-> > preemption. Here's a chunk of my log file:
-> > 
-> > Loosing too many ticks!
-> > TSC cannot be used as a timesource. (Are you running with SpeedStep?)
-> > Falling back to a sane timesource.
-> > psmouse.c: Lost synchronization, throwing 3 bytes away.
-> > psmouse.c: Lost synchronization, throwing 1 bytes away.
-> > 
-> > Arrrrgh! The TSC is my only good time source!
-> 
-> Arrrgh!  More PS/2 problems!
-> 
-> I think the lost synchronisation is the problem, would you agree?
-
-It's one problem. It's a problem other people have seen.
-My TSC should be good though; I'd like to use it.
-At times ntpd (the NTP daemon) gets really unhappy with
-the situation, yanking my clock ahead by up to 10 minutes
-to compensate for lost time.
-
-> The person who fixes this gets a Nobel prize.
-> 
-> > Remember that this is a pretty normal system. I have
-> > a Red Hat 8 install w/ required upgrades, ext3, IDE,
-> > a 1-GHz Pentium III, a boring VIA chipset, etc.
-> > 
-> > To reproduce, I do some PS/2 mouse movement while
-> > doing one of:
-> > 
-> > a. Lots of concurrent write() and sync() activity to ext3.
-> > b. Lots of NFSv3 traffic.
-> 
-> ie: lots of interrupt traffic causes the PS2 driver to go whacky?
-
-I guess so. The ext3+IDE behavior seems to lift the blame
-from boomerang_interrupt. Using ext3+IDE, I seem to need
-a couple minutes to reproduce the problem. NFSv3+Ethernet
-will give me the problem almost instantly.
+Ben
 
 
+diff -urN linux-2.5/drivers/net/wireless/airo.c linuxppc-2.5-benh/drivers/net/wireless/airo.c
+--- linux-2.5/drivers/net/wireless/airo.c	2003-07-29 08:51:06.000000000 -0400
++++ linuxppc-2.5-benh/drivers/net/wireless/airo.c	2003-07-29 08:54:26.000000000 -0400
+@@ -633,7 +633,7 @@
+ 	u16 SSIDlen;
+ 	char SSID[32];
+ 	char apName[16];
+-	char bssid[4][ETH_ALEN];
++	unsigned char bssid[4][ETH_ALEN];
+ 	u16 beaconPeriod;
+ 	u16 dimPeriod;
+ 	u16 atimDuration;
+@@ -1031,7 +1031,7 @@
+ 	struct work_struct promisc_task;
+ 	struct {
+ 		struct sk_buff *skb;
+-		int fid;
++		int fid, hardirq;
+ 		struct work_struct task;
+ 	} xmit, xmit11;
+ 	struct net_device *wifidev;
+@@ -1348,7 +1348,12 @@
+ 		netif_stop_queue(dev);
+ 		priv->xmit.task.func = (void (*)(void *))airo_do_xmit;
+ 		priv->xmit.task.data = (void *)dev;
+-		schedule_work(&priv->xmit.task);
++		if (priv->xmit.hardirq) {
++			priv->xmit.hardirq = 0;
++			schedule_work(&priv->xmit.task);
++			return;
++		}
++		schedule_delayed_work(&priv->xmit.task, 1);
+ 		return;
+ 	}
+ 	status = transmit_802_3_packet (priv, fids[fid], skb->data);
+@@ -1393,6 +1398,7 @@
+ 		fids[i] |= (len << 16);
+ 		priv->xmit.skb = skb;
+ 		priv->xmit.fid = i;
++		priv->xmit.hardirq = 1;
+ 		airo_do_xmit(dev);
+ 	}
+ 	return 0;
+@@ -1410,7 +1416,12 @@
+ 		netif_stop_queue(dev);
+ 		priv->xmit11.task.func = (void (*)(void *))airo_do_xmit11;
+ 		priv->xmit11.task.data = (void *)dev;
+-		schedule_work(&priv->xmit11.task);
++		if (priv->xmit11.hardirq) {
++			priv->xmit11.hardirq = 0;
++			schedule_work(&priv->xmit11.task);
++			return;
++		}
++		schedule_delayed_work(&priv->xmit11.task, 1);
+ 		return;
+ 	}
+ 	status = transmit_802_11_packet (priv, fids[fid], skb->data);
+@@ -1485,7 +1496,7 @@
+ 	} else {
+ 		ai->stats_task.func = (void (*)(void *))airo_read_stats;
+ 		ai->stats_task.data = (void *)ai;
+-		schedule_work(&ai->stats_task);
++		schedule_delayed_work(&ai->stats_task, 1);
+ 	}
+ }
+ 
+@@ -1508,7 +1519,7 @@
+ 	} else {
+ 		ai->promisc_task.func = (void (*)(void *))airo_end_promisc;
+ 		ai->promisc_task.data = (void *)ai;
+-		schedule_work(&ai->promisc_task);
++		schedule_delayed_work(&ai->promisc_task, 1);
+ 	}
+ }
+ 
+@@ -1524,7 +1535,7 @@
+ 	} else {
+ 		ai->promisc_task.func = (void (*)(void *))airo_set_promisc;
+ 		ai->promisc_task.data = (void *)ai;
+-		schedule_work(&ai->promisc_task);
++		schedule_delayed_work(&ai->promisc_task, 1);
+ 	}
+ }
+ 
+@@ -1710,6 +1721,14 @@
+ 	sema_init(&ai->sem, 1);
+ 	ai->need_commit = 0;
+ 	ai->config.len = 0;
++	INIT_WORK(&ai->stats_task, NULL, NULL);
++	INIT_WORK(&ai->promisc_task, NULL, NULL);
++	INIT_WORK(&ai->xmit.task, NULL, NULL);
++	INIT_WORK(&ai->xmit11.task, NULL, NULL);
++	INIT_WORK(&ai->mic_task, NULL, NULL);
++#ifdef WIRELESS_EXT
++	INIT_WORK(&ai->event_task, NULL, NULL);
++#endif
+ 	rc = add_airo_dev( dev );
+ 	if (rc)
+ 		goto err_out_free;
+@@ -1859,7 +1878,7 @@
+ 	} else {
+ 		ai->event_task.func = (void (*)(void *))airo_send_event;
+ 		ai->event_task.data = (void *)dev;
+-		schedule_work(&ai->event_task);
++		schedule_delayed_work(&ai->event_task, 1);
+ 	}
+ }
+ #endif
+@@ -1876,7 +1895,7 @@
+ 	} else {
+ 		ai->mic_task.func = (void (*)(void *))airo_read_mic;
+ 		ai->mic_task.data = (void *)ai;
+-		schedule_work(&ai->mic_task);
++		schedule_delayed_work(&ai->mic_task, 1);
+ 	}
+ }
+ 
+@@ -4090,7 +4109,7 @@
+ 
+ #ifdef CONFIG_PCI
+ 	printk( KERN_INFO "airo:  Probing for PCI adapters\n" );
+-	rc = pci_module_init(&airo_driver);
++	rc = pci_register_driver(&airo_driver);
+ 	printk( KERN_INFO "airo:  Finished probing for PCI adapters\n" );
+ #endif
+ 
+@@ -4102,6 +4121,7 @@
+ 
+ static void __exit airo_cleanup_module( void )
+ {
++	pci_unregister_driver(&airo_driver);
+ 	while( airo_devices ) {
+ 		printk( KERN_INFO "airo: Unregistering %s\n", airo_devices->dev->name );
+ 		stop_airo_card( airo_devices->dev, 1 );
+@@ -5160,7 +5180,7 @@
+ 			      & status_rid.bssid[i][2]
+ 			      & status_rid.bssid[i][3]
+ 			      & status_rid.bssid[i][4]
+-			      & status_rid.bssid[i][5])!=-1 &&
++			      & status_rid.bssid[i][5])!=0xff &&
+ 			     (status_rid.bssid[i][0]
+ 			      | status_rid.bssid[i][1]
+ 			      | status_rid.bssid[i][2]
 

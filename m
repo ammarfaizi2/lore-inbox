@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263417AbVBDSUa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264696AbVBDSTw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263417AbVBDSUa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 13:20:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263934AbVBDSPo
+	id S264696AbVBDSTw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 13:19:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265210AbVBDSQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 13:15:44 -0500
-Received: from mummy.ncsc.mil ([144.51.88.129]:55977 "EHLO jazzhorn.ncsc.mil")
-	by vger.kernel.org with ESMTP id S264427AbVBDSGW (ORCPT
+	Fri, 4 Feb 2005 13:16:07 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:32212 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S265648AbVBDSK6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 13:06:22 -0500
-Subject: [PATCH][SELINUX] Fix selinux_inode_setattr hook
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-       Chris Wright <chrisw@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       selinux@tycho.nsa.gov
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1107539956.8078.109.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 04 Feb 2005 12:59:16 -0500
+	Fri, 4 Feb 2005 13:10:58 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: [RFC] Reliable video POSTing on resume
+Date: Fri, 4 Feb 2005 10:10:12 -0800
+User-Agent: KMail/1.7.2
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
+       ncunningham@linuxmail.org, ACPI List <acpi-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Matthew Garrett <mjg59@srcf.ucam.org>
+References: <20050122134205.GA9354@wsc-gmbh.de> <20050204163019.GC1290@elf.ucw.cz> <9e4733910502040931955f5a6@mail.gmail.com>
+In-Reply-To: <9e4733910502040931955f5a6@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502041010.13220.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch against 2.6.11-rc3 fixes the selinux_inode_setattr hook
-function to honor the ATTR_FORCE flag, skipping any permission checking
-in that case.  Otherwise, it is possible though unlikely for a denial
-from the hook to prevent proper updating, e.g. for remove_suid upon
-writing to a file.  This would only occur if the process had write
-permission to a suid file but lacked setattr permission to it.  Please
-apply.
+On Friday, February 4, 2005 9:31 am, Jon Smirl wrote:
+> For non-x86 systems put an emu version on initramfs. My statically
+> linked against klibc x86 reset app is about 15K. The emu version is
+> significantly bigger but there is no way to avoid it if you are using
+> x86 hardware in a non-x86 box.
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-Signed-off-by: James Morris <jmorris@redhat.com>
+Jon does your emulator sit on top of the new legacy I/O and memory APIs?  I 
+added them for this very reason, though atm only ia64 supports them.  There's 
+documentation in Documentation/filesystems/sysfs-pci.txt if you want to take 
+a look.  On kernels that support it, sysfs can be a one stop shop for all 
+your gfx programming needs, since it provides access to the rom, PCI 
+resources (i.e. MMIO ranges, fb memory, etc.) and legacy I/O ports and 
+memory.
 
- security/selinux/hooks.c |    3 +++
- 1 files changed, 3 insertions(+)
-
-Index: linux-2.6/security/selinux/hooks.c
-===================================================================
-RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/hooks.c,v
-retrieving revision 1.150
-diff -u -p -r1.150 hooks.c
---- linux-2.6/security/selinux/hooks.c	26 Jan 2005 21:20:59 -0000	1.150
-+++ linux-2.6/security/selinux/hooks.c	4 Feb 2005 16:39:23 -0000
-@@ -2142,6 +2142,9 @@ static int selinux_inode_setattr(struct 
- 	if (rc)
- 		return rc;
- 
-+	if (iattr->ia_valid & ATTR_FORCE)
-+		return 0;
-+
- 	if (iattr->ia_valid & (ATTR_MODE | ATTR_UID | ATTR_GID |
- 			       ATTR_ATIME_SET | ATTR_MTIME_SET))
- 		return dentry_has_perm(current, NULL, dentry, FILE__SETATTR);
-
-
--- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
-
+Jesse

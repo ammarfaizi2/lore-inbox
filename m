@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267745AbTAIVGO>; Thu, 9 Jan 2003 16:06:14 -0500
+	id <S267888AbTAIVKa>; Thu, 9 Jan 2003 16:10:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267765AbTAIVGO>; Thu, 9 Jan 2003 16:06:14 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:51349 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267745AbTAIVGN>;
-	Thu, 9 Jan 2003 16:06:13 -0500
-Date: Thu, 9 Jan 2003 13:11:20 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: <Valdis.Kletnieks@vt.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: "Mother" == "computer-illiterate" 
-In-Reply-To: <200301092112.h09LCxpQ010633@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.33L2.0301091310300.9978-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267950AbTAIVKa>; Thu, 9 Jan 2003 16:10:30 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:5272 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267888AbTAIVKa>;
+	Thu, 9 Jan 2003 16:10:30 -0500
+Subject: Can't build sound drivers as modules (2.5.55)
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Open Source Devlopment Lab
+Message-Id: <1042147153.4870.66.camel@dell_ss3.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 09 Jan 2003 13:19:13 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Jan 2003 Valdis.Kletnieks@vt.edu wrote:
+When I try to install with sound as a configured module:
 
-| On Thu, 09 Jan 2003 12:46:30 PST, "Randy.Dunlap" said:
-| > (ugh, COBOL)
-|
-| Go back and research the alternatives available at the time.
+WARNING: /lib/modules/2.5.55/kernel/sound/soundcore.ko needs unknown
+symbol
+ errno
 
-True.
+This is new in 2.5.55, not sure where the missing bogus definition is.
+It looks like soundcore.ko contains sound_firmware.o which is seems to
+be more of an application than a driver (open/close)...
 
-| Then ask yourself which you'd prefer to do maintenance programming on.
-
-I've done several years of COBOL (/me hides).
-I'm familiar with its strengths in the right environment.
 
 -- 
-~Randy
+Stephen Hemminger <shemminger@osdl.org>
+Open Source Devlopment Lab
+
+
 

@@ -1,44 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312026AbSCQNha>; Sun, 17 Mar 2002 08:37:30 -0500
+	id <S312027AbSCQNlu>; Sun, 17 Mar 2002 08:41:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312025AbSCQNhU>; Sun, 17 Mar 2002 08:37:20 -0500
-Received: from ns.suse.de ([213.95.15.193]:44037 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S312027AbSCQNhG>;
-	Sun, 17 Mar 2002 08:37:06 -0500
-Date: Sun, 17 Mar 2002 14:37:05 +0100
-From: Dave Jones <davej@suse.de>
-To: S W <egberts@yahoo.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-pre2 CentaurHauls VIA Samuel 2 stepping 2 SEGFAULT (RESOLVED)
-Message-ID: <20020317143705.B4006@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	S W <egberts@yahoo.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E16mLIY-00079l-00@the-village.bc.nu> <20020317042241.70303.qmail@web10504.mail.yahoo.com>
+	id <S312028AbSCQNll>; Sun, 17 Mar 2002 08:41:41 -0500
+Received: from red.csi.cam.ac.uk ([131.111.8.70]:14073 "EHLO red.csi.cam.ac.uk")
+	by vger.kernel.org with ESMTP id <S312025AbSCQNla>;
+	Sun, 17 Mar 2002 08:41:30 -0500
+Message-Id: <5.1.0.14.2.20020317131910.0522b490@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 17 Mar 2002 13:41:37 +0000
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: fadvise syscall?
+Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+In-Reply-To: <3C945D7D.8040703@mandrakesoft.com>
+In-Reply-To: <3C945635.4050101@mandrakesoft.com>
+ <3C945A5A.9673053F@zip.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020317042241.70303.qmail@web10504.mail.yahoo.com>
-User-Agent: Mutt/1.3.22.1i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 16, 2002 at 08:22:41PM -0800, S W wrote:
- > I pulled the chipset datasheet for CentaurHauls VIA
- > Samuel 2 stepping 2.
- > 
- > Two seperate i386/kernel/setup.c fixes things seems to
- > fix this chipset.
- > 
- > 1.  Disabled the Branch Predictor in MSR_VIA_FCR
- > 2.  cachesize=0
- > I've settled for cachesize=0.
- > Hope this is not a trend here.
+At 09:10 17/03/02, Jeff Garzik wrote:
+>Andrew Morton wrote:
+>>Jeff Garzik wrote:
+>>>So... we have madvise, why not fadvise?  I would love the capability for
+>>>applications to provide hints to the OS like madvise, but for file
+>>>descriptors...
+>>
+>>The one hint which I can think of which would be beneficial would
+>>be an equivalent to MADV_SEQUENTIAL.  Something which says "this
+>>is a big streaming read/write - don't go and evict other stuff because
+>>of it".  O_STREAMING perhaps.  Or working dropbehind heuristics,
+>>although I suspect that explicit controls will always do better.
+>>
+>>For MADV_RANDOM, readahead window scaling should get that right.
+>>
+>>What else were you thinking of?
+>
+>Hints for,
+>* sequential read
+>* sequential write
+>* sequential write, where the application considers the data it's writing 
+>to be unlikely to be read again any time soon (hopefully implying to the 
+>page cache that these pages have low value as cacheable objects)
+>* some sort of streaming hints, implying that the application cares a lot 
+>about maintaining some minimum i/o rate.  note I said hint, not 
+>requirement.  -not- guaranteed-rate-IO.
+>
+>I might even go so far as to advocate identifying common usage patterns, 
+>and creating hint constants for them, even if we don't support them in the 
+>kernel immediately (if ever).  Makes the interface much more future-proof, 
+>at the expense of a few integers in a 32-bit numberspace, and a few more 
+>bytes in the C compiler's symbol table.
 
- Not on the samples I've tested with. I think you have flaky hardware.
- Either there is insufficient cooling/power, or the cache is dead.
+We don't need fadvise IMHO. That is what open(2) is for. The streaming 
+request you are asking for is just a normal open(2). It will do read ahead 
+which is perfect for streaming (of data size << RAM size in its current form).
+
+When you want large data streaming, i.e. you start getting worried about 
+memory pressure, then you want open(2) + O_DIRECT. No caching done. Perfect 
+for large data streams and we have that already. I agree that you may want 
+some form of asynchronous read ahead with passed pages being dropped from 
+the cache but that could be just a open(2) + O_SEQUENTIAL (doesn't exist yet).
+
+All of what you are asking for exists in Windows and all the semantics are 
+implemented through a very powerful open(2) equivalent. I don't see why we 
+shouldn't do the same. It makes more sense to me than inventing yet another 
+system call...
+
+The Windows NT/2k/XP CreateFile() call is documented at below URL. Search 
+for FILE_FLAG_* and there is a nice big table with all the possible access 
+method hints one can give when opening or creating a file. Many of those 
+make perfect sense to have in the Linux kernel, too and in fact with 
+O_DIRECT we already have some of the functionality Windows offers (there it 
+would be FILE_FLAG_NO_BUFFERING)
+
+http://msdn.microsoft.com/library/default.asp?url=/library/en-us/fileio/filesio_7wmd.asp
+
+Best regards,
+
+Anton
+
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

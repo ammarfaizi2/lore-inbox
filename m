@@ -1,123 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278295AbRJSES4>; Fri, 19 Oct 2001 00:18:56 -0400
+	id <S278298AbRJSEVR>; Fri, 19 Oct 2001 00:21:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278297AbRJSESr>; Fri, 19 Oct 2001 00:18:47 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:20008 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S278295AbRJSESi>; Fri, 19 Oct 2001 00:18:38 -0400
-Date: Fri, 19 Oct 2001 06:19:14 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.13pre5aa1
-Message-ID: <20011019061914.A1568@athlon.random>
-Mime-Version: 1.0
+	id <S278300AbRJSEVJ>; Fri, 19 Oct 2001 00:21:09 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:24225 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S278298AbRJSEU5>; Fri, 19 Oct 2001 00:20:57 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: "Jeffrey W. Baker" <jwbaker@acm.org>, <linux-kernel@vger.kernel.org>
+Date: Fri, 19 Oct 2001 14:21:22 +1000 (EST)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
+Message-ID: <15311.43586.735550.760255@notabene.cse.unsw.edu.au>
+Subject: Re: very slow RAID-1 resync
+In-Reply-To: message from Neil Brown on Tuesday October 16
+In-Reply-To: <15307.44327.541413.250400@notabene.cse.unsw.edu.au>
+	<Pine.LNX.4.33.0110152052510.415-100000@desktop>
+	<15308.7334.369332.30384@notabene.cse.unsw.edu.au>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The vm part in particular is right now getting stressed on a 16G box kindly
-provided by osdlab.org and it didn't exibith any problem yet. This is a trace
-of the workload that is running on the machine overnight.
+On Tuesday October 16, neilb@cse.unsw.edu.au wrote:
+> On Monday October 15, jwbaker@acm.org wrote:
+> > On Tue, 16 Oct 2001, Neil Brown wrote:
+> > 
+> > > On Monday October 15, hahn@physics.mcmaster.ca wrote:
+> > > > > raid1d and raid1syncd are barely getting any CPU time on this otherwise
+> > > > > idle SMP system.
+> > > >
+> > > > I noticed this too, on a uni, raid5 system;
+> > > > the resync-throttling code doesn't seem to work well.
+> > >
+> > > It works great for me...
+> > > What sort of drives do you have? SCSI? IDE? are you using both master
+> > > and slave on an IDE controller?
+> > 
+> > 15,000 RPM SCSI u160 disks.
+> 
+> Just like mine.....
+> 
+> I would expect around 30Mb/sec when resyncing a single mirrored pair,
+> and slightly less than that on each if you are syncing two mirrored
+> pairs at once, as you would be getting close to the theoretical buss
+> max (to resync two pairs at once at 30Mb/sec each you would need to
+> but pushing 120Mb/sec over the buss, and I doubt that you would get
+> that from u160 in practice).
+> 
 
-   procs                      memory    swap          io     system         cpu
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
- 0  3  2 7055840   5592    196   4208 681 903   687   904   56    87   0   5  95
- 0  3  0 7055332   4956    184   4196 5892 4820  5892  4832  418   547   0   3  97
- 0  3  0 7056004   5816    176   4184 6172 6400  6172  6400  418   579   0   4  96
- 0  3  0 7055912   5688    192   4184 4720 4096  4736  4112  355   456   0   2  98
- 0  3  1 7055852   5300    180   4220 5624 5068  5720  5072  408   526   0   2  98
- 0  3  0 7055992   5228    176   4220 6384 5744  6384  5744  427   586   0   1  99
- 0  3  0 7055900   5232    176   4220 6016 5676  6016  5676  417   545   0   2  98
- 0  3  0 7056396   5844    180   4220 5644 5656  5656  5660  402   560   0   1  99
- 0  3  1 7056476   6012    176   4216 6104 6144  6104  6144  411   582   0   1  99
- 0  3  0 7056084   5592    176   4220 5540 4452  5540  4452  386   525   0   1  98
- 0  3  0 7055948   5400    176   4220 5184 4724  5184  4724  355   519   0   2  98
- 0  3  0 7056676   6136    176   4232 7360 7592  7360  7592  519   720   0   1  98
- 0  4  0 7056264   5572    176   4240 5888 5112  5908  5112  411   535   0   1  99
- 0  3  1 7055948   5444    180   4240 5632 4912  5656  4932  402   605   0   1  99
- 0  3  0 7055780   5088    176   4240 4932 4276  4932  4276  350   432   0   1  99
- 0  3  0 7055612   5128    176   4240 4564 4252  4564  4252  340   434   0   0 100
+Just to follow up on this.  I did some testing on my test machine
+which has two u160 adaptec scsi chains (one on the mother board, on 
+a separate pci card) with a bunch of seagate st318451LC 18Gig 15000rpm
+(Cheetah X15) drives which claim a transfer rate of 37.4 to 48.9
+MB/sec.
+That transfer rate is off a single track.  This might be a bit
+simplist, but it takes 4ms to read a track, and 0.7 to step to the
+next track, so thats a 16% drop in throughput when writing multiple
+consecutive tracks, so I would expect a maximum sustained throughout
+of 31.8 to 41.6 MB/sec when writing.
 
-             total       used       free     shared    buffers     cached
-Mem:      16493180   16488716       4464          0        184       4260
--/+ buffers/cache:   16484272       8908
-Swap:     36941584    7054904   29886680
+If I create a raid1 array with one drive on each scsi chain, I get a
+rebuild rate of about 40M/sec, which is what I would expect.
+If I create a second while the first is still building, the rates drop
+to about 38M/sec.  I guess there is a bit more buss contention as we
+are now at 50% of buss utilisation.
+A third one and the speeds drop to around 31 M/sec, which is 93M/sec
+on each buss.
 
-It seems still very responsive despite of the load (and also despite being at
-the other side of the Atlantic :).
 
-URL:
+If I create a raid5 array using 9 drives (4 on one channel, 5 on
+other), and create it with one 8 working drives, one failed, and one
+spare,  then reconstruction starts on the spare at about 22Mbytes/sec.
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.13pre5aa1.bz2
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.13pre5aa1/
+This sees 110 Mbytes/sec pass over one of the SCSI channels.
 
-If it swaps too much please try:
+So the drives are not maxing out, and nor are the scsi busses.
+I'm curious to know where the speed loss is coming from, but I think
+that on the whole, the raid layer is going quite a good job of
+keeping the drives busy.
 
-	echo 6 > /proc/sys/vm/vm_scan_ratio
-	echo 2 > /proc/sys/vm/vm_mapped_ratio
-	echo 4 > /proc/sys/vm/vm_balance_ratio
 
-Thanks!
+Note that if I create a RAID5 array without any failed or spare
+drives, then reconstruction speed is much lower.  I get 13M/sec.
 
---
-Only in 2.4.13pre5aa1: 00_alpha-rest-pci-1
-Only in 2.4.13pre5aa1: 00_alpha-tsunami-1
+This is because the "resync" process is optimised for an array that is
+mostly in sync. "reconstruction" is a much more efficient way to
+create a new raid5 array.
 
-	iommu alpha fixes from Jay Estabrook, Ivan Kokshaysky and Richard
-	Henderson.
-
-Only in 2.4.13pre3aa1: 00_files_struct_rcu-2.4.10-04-1
-Only in 2.4.13pre5aa1: 00_files_struct_rcu-2.4.10-04-2
-
-	Latest uptdate from Maneesh Soni including the memalloc faliure bugfix
-	Chip Salzenberg.
-
-Only in 2.4.13pre3aa1: 00_highmem-deadlock-1
-Only in 2.4.13pre5aa1: 00_highmem-deadlock-2
-
-	Rediffed so that it's self contained (previously it wasn't very
-	readable).
-
-Only in 2.4.13pre3aa1: 00_lowlatency-fixes-1
-Only in 2.4.13pre5aa1: 00_lowlatency-fixes-2
-
-	Added a reschedule point, mainly for madvise but it's in the ->nopage
-	way too.
-
-Only in 2.4.13pre3aa1: 00_seg-reload-1
-
-	Dropped, the common case is user<->kernel, and it have to be very fast
-	too since it's more important. (idling routers would better not use
-	irq at all but to dedicate a cpu to the polling work)
-
-Only in 2.4.13pre3aa1: 00_vm-3
-Only in 2.4.13pre3aa1: 00_vm-3.2
-Only in 2.4.13pre5aa1: 10_vm-4
-
-	Further vm work. Not sure if this is better than the previous one, but
-	now the few magic numbers are sysctl configurable. Included many fixes
-	from Linus (that are also in pre5 of course) and one fix from Manfred
-	to avoid interrupt to eat the pfmemalloc reserved pool.
-
-Only in 2.4.13pre3aa1: 10_highmem-debug-5
-Only in 2.4.13pre5aa1: 20_highmem-debug-6
-
-	Fixed zone alignment to avoid crashes when highmem emulation is enabled.
-
-Only in 2.4.13pre5aa1: 10_lvm-deadlock-fix-1
-
-	Dropped sync_dev from blkdev ->close to avoid a deadlock on lvm close(2),
-	fix from Alexander Viro.
-
-Only in 2.4.13pre3aa1: 60_tux-2.4.10-ac12-H1.bz2
-Only in 2.4.13pre5aa1: 60_tux-2.4.10-ac12-H8.bz2
-
-	Latest update from Ingo Molnar at www.redhat.com/~mingo/ .
---
-
-Andrea
+NeilBrown

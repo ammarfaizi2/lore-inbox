@@ -1,85 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136008AbRD0NNF>; Fri, 27 Apr 2001 09:13:05 -0400
+	id <S136009AbRD0NQE>; Fri, 27 Apr 2001 09:16:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136009AbRD0NMz>; Fri, 27 Apr 2001 09:12:55 -0400
-Received: from hq.alert.sk ([147.175.66.131]:3847 "HELO hq.alert.sk")
-	by vger.kernel.org with SMTP id <S136008AbRD0NMm>;
-	Fri, 27 Apr 2001 09:12:42 -0400
-Date: Fri, 27 Apr 2001 15:12:39 +0200
-From: Robert Varga <nite@hq.alert.sk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Single user linux
-Message-ID: <20010427151239.A13368@hq.alert.sk>
-In-Reply-To: <20010425100748.A11099@piro.kabuki.openfridge.net> <E14sCyT-0003I4-00@the-village.bc.nu> <20010425103456.D11099@piro.kabuki.openfridge.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010425103456.D11099@piro.kabuki.openfridge.net>; from daniel@kabuki.openfridge.net on Wed, Apr 25, 2001 at 10:34:56AM +1000
+	id <S136017AbRD0NPy>; Fri, 27 Apr 2001 09:15:54 -0400
+Received: from [64.64.109.142] ([64.64.109.142]:25619 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S136009AbRD0NPm>; Fri, 27 Apr 2001 09:15:42 -0400
+Message-ID: <3AE970C6.42695F2E@didntduck.org>
+Date: Fri, 27 Apr 2001 09:14:46 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+CC: "Adam J. Richter" <adam@yggdrasil.com>, kaos@ocs.com.au,
+        linux-kernel@vger.kernel.org
+Subject: Re: Suggestion for module .init.{text,data} sections
+In-Reply-To: <200104270449.VAA05279@adam.yggdrasil.com> <20010427103519.E679@nightmaster.csn.tu-chemnitz.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Oeser wrote:
+> 
+> On Thu, Apr 26, 2001 at 09:49:05PM -0700, Adam J. Richter wrote:
+> >       A while ago, on linux-kernel, we had a discussion about
+> > adding support for __initdata and __init in modules.  Somebody
+> > (whose name escapes me) had implemented it by essentially adding
+> > a vmrealloc() facility in the kernel.  I think I've thought of a
+> > simpler way, that would require almost no kernel changes.
+> >
+> [implementation details snipped]
+> 
+> While you are at this, you could make the .exit.{text,data}
+> sections swappable for modules (by allocating swappable pages fro
+> them?) and only mark them unswappable, while the module is
+> exiting.
+> 
+> Rationale: A device needed for swaping will never call exit
+> stuff, because it is still in use. So I see no obvious race here.
+> 
+> Regards
 
---ikeVEW9yuYc//A+q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+__exit functions and data are usually too small to make the effort worth
+it.  __init functions and data on the other hand could be quite large,
+if they contain firmware data for example.
 
-On Wed, Apr 25, 2001 at 10:34:56AM +1000, Daniel Stone wrote:
-> On Wed, Apr 25, 2001 at 01:16:03AM +0100, Alan Cox wrote:
-> > > > Quit being a naysayer. UNIX on a PDA is a wet dream.
-> > > What real value does it have, apart from the geek "look at me, I'm us=
-ing
-> > > bash" value?
-> >=20
-> > It means I can do anything on my ipaq I can do anywhere else. I can run=
-=20
-> > multiple apps at a time. I can run X11. I can run the palm emulator eve=
-n ;)
->=20
-> How long does it take you to write "date"? Plus, aren't you content with
-> IRCing on your *phone*? ;)
-> =20
-> > Its the same reason Linux is valuable on an S/390 mainframe. Its a comm=
-on pool
-> > of apps, environments and tools. Anything your PC can do, my ipaq can d=
-o.
->=20
-> OK. "time make bzImage". Of course, mine's really slow (and I will consid=
-er
-> myself publically humiliated if my only Linux machine is beaten on a kern=
-el
+--
 
-Okay. Does the word *choice* ring a bell ? Agenda VR3s are supplied with Li=
-nux
-kernel (modified), and it gives you the freedom to choose what kind of SW
-you want to use -- hey, it's linux and when the app fits in the memory,
-there's no stopping you. Different look and feel? Different graffitti? Diff=
-erent
-kernel? You name it and you got it (well mostly) ;-)
-
---=20
-Kind regards,
-Robert Varga
----------------------------------------------------------------------------=
----
-n@hq.sk                                          http://hq.sk/~nite/gpgkey.=
-txt
-=20
-
---ikeVEW9yuYc//A+q
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE66XBH9aKR2/T45h8RAi5NAJ9tFG7H+CuSnqIc4oBLcy6ELQmuzQCdEnXI
-e3k0Xpu8O7pYvUumko9c4fY=
-=12pb
------END PGP SIGNATURE-----
-
---ikeVEW9yuYc//A+q--
+				Brian Gerst

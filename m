@@ -1,61 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261186AbUCSU42 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 15:56:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbUCSU42
+	id S261203AbUCSU6k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 15:58:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbUCSU6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 15:56:28 -0500
-Received: from ns.suse.de ([195.135.220.2]:41147 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261186AbUCSUzZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 15:55:25 -0500
-Subject: Re: True  fsync() in Linux (on IDE)
-From: Chris Mason <mason@suse.com>
-To: reiser@namesys.com
-Cc: Peter Zaitsev <peter@mysql.com>, Jens Axboe <axboe@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <405B5CB0.4090709@namesys.com>
-References: <1079572101.2748.711.camel@abyss.local>
-	 <20040318064757.GA1072@suse.de> <1079639060.3102.282.camel@abyss.local>
-	 <20040318194745.GA2314@suse.de>  <1079640699.11062.1.camel@watt.suse.com>
-	 <1079641026.2447.327.camel@abyss.local>
-	 <1079642001.11057.7.camel@watt.suse.com>
-	 <1079642801.2447.369.camel@abyss.local>
-	 <1079643740.11057.16.camel@watt.suse.com>
-	 <1079644190.2450.405.camel@abyss.local>
-	 <1079644743.11055.26.camel@watt.suse.com>  <405AA9D9.40109@namesys.com>
-	 <1079704347.11057.130.camel@watt.suse.com>
-	 <1079724411.2576.178.camel@abyss.local>
-	 <1079727833.11062.200.camel@watt.suse.com>  <405B58BB.1020208@namesys.com>
-	 <1079728706.11061.210.camel@watt.suse.com>  <405B5CB0.4090709@namesys.com>
-Content-Type: text/plain
-Message-Id: <1079729783.11062.215.camel@watt.suse.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 19 Mar 2004 15:56:23 -0500
-Content-Transfer-Encoding: 7bit
+	Fri, 19 Mar 2004 15:58:40 -0500
+Received: from astound-64-85-224-245.ca.astound.net ([64.85.224.245]:41479
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S261225AbUCSU5Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 15:57:24 -0500
+Date: Fri, 19 Mar 2004 12:54:50 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Sergey Vlasov <vsu@altlinux.ru>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: hpt366-0.37.patch.bz2 K.O.
+In-Reply-To: <20040319202335.4179737f.vsu@altlinux.ru>
+Message-ID: <Pine.LNX.4.10.10403191251180.2569-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-03-19 at 15:48, Hans Reiser wrote:
-> Chris Mason wrote:
+
+So the point is that I know there will not be a version greater than two
+on this asic?
+
+I post fixes for problems people pay to have fixed.
+If there are other problems, you are free to fix it yourself.
+
+I have been doing this for only the past 6 years, there is just a tiny bit
+of insight I might have.  Hey apply or not.
+
+Regards,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Fri, 19 Mar 2004, Sergey Vlasov wrote:
+
+> On Fri, 19 Mar 2004 04:53:22 -0800 (PST) Andre Hedrick wrote:
 > 
-> >
-> >>
-> >>and I was imprecise, I should have asked, does fsync flush the disk 
-> >>cache regardless of what mount options are set or data/metadata touched 
-> >>in the 2.6 patches?
-
-> Forgive my relentlessness, is the answer to the above yes?
-
-Yes ;-) One goal of the 2.6 patches is to make it possible for higher
-levels to easily insert flushes when needed.  The reiserfs fsync and
-ext3 fsync code will both do this.
-
-I realized I wasn't clear about device mapper and md earlier, both need
-extra work to aggregate the flushes down to the drives.  They don't yet
-support flushing.
-
--chris
-
+> > http://www.kernel.org/pub/linux/kernel/people/hedrick/ide-2.4.25/hpt366-0.37.patch.bz2
+> > 
+> > Fixes fifo dma data corruption on RocketRaid404
+> > Fixes native HPT372 detection/setup for HPT372/HPT372A/HPT372N
+> > 
+> > HPT372N's previous code seems kooky, but then again do not have specific
+> > hardware rev in question.
+> 
+>  static void __init init_setup_hpt37x (struct pci_dev *dev, ide_pci_device_t *d)
+>  {
+> +	if (d->device == PCI_DEVICE_ID_TTI_HPT372) {
+> +		unsigned int class_rev;
+> +		static char *chipset_names[] = {"HPT372", "HPT372A", "HPT372N"};
+> +
+> +		pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
+> +		class_rev &= 0xff;
+> +		d->name = chipset_names[class_rev];
+> +	}
+> +
+>  	ide_setup_pci_device(dev, d);
+>  }
+> 
+> This will blow up if a chip with the same PCI ID and a revision larger
+> than 2 ever appears.
+> 
+> Also, hpt366_init_one() is __devinit, but it calls d->init_setup, and
+> all init_setup_*() functions are __init - does not look good.  Hmm,
+> this is present in many drivers, also in 2.6.x... apparently this is
+> safe because such devices cannot be hotplugged.
+> 
 

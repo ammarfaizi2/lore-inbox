@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbUK2RW6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbUK2R26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261289AbUK2RW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 12:22:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbUK2RW6
+	id S261424AbUK2R26 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 12:28:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbUK2R25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 12:22:58 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30430 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261289AbUK2RW4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 12:22:56 -0500
-Date: Mon, 29 Nov 2004 17:22:52 +0000
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: hugang@soulinfo.com
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
-Subject: Re: ppcfix.diff
-Message-ID: <20041129172252.GN26051@parcelfarce.linux.theplanet.co.uk>
-References: <20041129154041.GB4616@hugang.soulinfo.com>
+	Mon, 29 Nov 2004 12:28:57 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:47514 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261424AbUK2R2W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 12:28:22 -0500
+Subject: Re: MTRR vesafb and wrong X performance
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dave Jones <davej@redhat.com>
+Cc: Gerd Knorr <kraxel@bytesex.org>, pawfen@wp.pl,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041129154006.GB3898@redhat.com>
+References: <1101338139.1780.9.camel@PC3.dom.pl>
+	 <20041124171805.0586a5a1.akpm@osdl.org>
+	 <1101419803.1764.23.camel@PC3.dom.pl> <87is7ogb93.fsf@bytesex.org>
+	 <20041129154006.GB3898@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1101745468.20223.30.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041129154041.GB4616@hugang.soulinfo.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 29 Nov 2004 16:24:30 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 29, 2004 at 11:40:41PM +0800, hugang@soulinfo.com wrote:
->  	if (!cpus_empty(keepmask)) {
-> -		cpumask_t irqdest = { .bits[0] = openpic_read(&ISR[irq]->Destination) };
-> +		cpumask_t irqdest;
-> +		irqdest.bits[0] = openpic_read(&ISR[irq]->Destination);
+On Llu, 2004-11-29 at 15:40, Dave Jones wrote:
+> which is an ugly hack for the above problem imo.
+> vesafb:nomtrr also fixes the problem, and leaves X free
+> to set things up correctly in my experience.
+> 
+> If vesafb can't get it right, maybe it shouldn't be
+> attempted to do it in the half-assed way it currently does.
 
-Not an equivalent replacement.  The former means "set irqdest.bits[0] to
-<expression> and set the rest of fields/array elements in them to zero/null".
-The latter leaves everything except irqdest.bits[0] undefined.
+The problem is not vesafb its X. If someone would go fix the Xorg code
+to handle extending existing maps the problem will go away.
 
-Short version of the story: out of
-a)	cpumask_t irqdest = { .bits[0] = foo() };
-b)	cpumask_t irqdest = { .bits = {[0] = foo()} };
-c)	cpumask_t irqdest;
-	irqdest.bits[0] = foo();
-we have
-        valid C89  OK for 2.95  OK for 3.x  valid C99  initializes everything
-(a)     no         no           yes         yes        yes
-(b)     no         yes          yes         yes        yes
-(c)     yes        yes          yes         yes        no
-
-IOW, 2.95 implements only a precursor to C99 initializer syntax and that's
-why (a) gives an error.  Proper fix is (b) - replace the line in question
-with
-             cpumask_t irqdest = { .bits = {[0] = openpic_read(&ISR[irq]->Destination)} };

@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280419AbRKGKab>; Wed, 7 Nov 2001 05:30:31 -0500
+	id <S280357AbRKGKab>; Wed, 7 Nov 2001 05:30:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280435AbRKGKaV>; Wed, 7 Nov 2001 05:30:21 -0500
-Received: from t2.redhat.com ([199.183.24.243]:65021 "EHLO
+	id <S280419AbRKGKaW>; Wed, 7 Nov 2001 05:30:22 -0500
+Received: from t2.redhat.com ([199.183.24.243]:64765 "EHLO
 	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S280419AbRKGKaJ>; Wed, 7 Nov 2001 05:30:09 -0500
+	id <S280357AbRKGKaF>; Wed, 7 Nov 2001 05:30:05 -0500
 X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
 From: David Woodhouse <dwmw2@infradead.org>
 X-Accept-Language: en_GB
-In-Reply-To: <20011107104405.A3168@emeraude.kwisatz.net> 
-In-Reply-To: <20011107104405.A3168@emeraude.kwisatz.net>  <20011105231759.02B541195E@a.mx.spoiled.org> <200111061645.RAA02115@fandango.cs.unitn.it> 
-To: stephane@tuxfinder.org
-Cc: Massimo Dal Zotto <dz@cs.unitn.it>, LKLM <linux-kernel@vger.kernel.org>,
-        "Marcel J. E. Mol" <marcel@mesa.nl>,
-        Juri Haberland <juri@koschikode.com>
-Subject: Re: [PATCH] SMM BIOS on Dell i8100 
+In-Reply-To: <E161Pyh-0003hb-00@the-village.bc.nu> 
+In-Reply-To: <E161Pyh-0003hb-00@the-village.bc.nu> 
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux@hazard.jcu.cz (Jan Marek),
+        linux-kernel@vger.kernel.org (linux-kernel)
+Subject: Re: Cannot unlock spinlock... Was: Problem in yenta.c, 2nd edition 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 07 Nov 2001 10:29:05 +0000
-Message-ID: <14756.1005128945@redhat.com>
+Date: Wed, 07 Nov 2001 10:29:59 +0000
+Message-ID: <14838.1005128999@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-stephane@tuxfinder.org said:
->  Without that, I get as much zombies processes as I have pressed the
-> volume buttons :-) I know system() is not great, but as security is
-> not a problem here...
+alan@lxorguk.ukuu.org.uk said:
+>  Can you disable the winmodem in the BIOS at all. I've seen similar
+> reports of audio hangs where the IRQ was shared by a lucent winmodem -
+> no idea why since it ought to be passive and minding its own business.
 
-signal(SIGCHLD, SIG_IGN);
-
+We know enough about that hardware to turn the IRQ off from Linux, don't we?
+If it's a common problem, we could make a PCI quirk for it.
 
 --
 dwmw2

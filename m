@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261534AbVALWuC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbVALWuD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261534AbVALWuC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 17:50:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261520AbVALWsj
+	id S261522AbVALWuD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 17:50:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbVALWsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 17:48:39 -0500
-Received: from gprs214-252.eurotel.cz ([160.218.214.252]:57242 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261527AbVALWq7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 17:46:59 -0500
-Date: Wed, 12 Jan 2005 23:46:41 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
+	Wed, 12 Jan 2005 17:48:21 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:37343 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261522AbVALWoQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 17:44:16 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: 2.6.10-mm2: swsusp regression [update]
+Date: Wed, 12 Jan 2005 23:44:20 +0100
+User-Agent: KMail/1.7.1
 Cc: Andi Kleen <ak@suse.de>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        ncunningham@linuxmail.org
-Subject: Re: 2.6.10-mm2: swsusp regression [update]
-Message-ID: <20050112224641.GP1408@elf.ucw.cz>
-References: <20050106002240.00ac4611.akpm@osdl.org> <200501121951.48102.rjw@sisk.pl> <20050112210147.GJ1408@elf.ucw.cz> <200501122344.20589.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <20050106002240.00ac4611.akpm@osdl.org> <200501121951.48102.rjw@sisk.pl> <20050112210147.GJ1408@elf.ucw.cz>
+In-Reply-To: <20050112210147.GJ1408@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200501122344.20589.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200501122344.20589.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > (for example - the second number is always negative and huge).  Would it 
-> mean 
-> > > that get_cmos_time() needs fixing?
-> > 
-> > get_cmos_time() looks okay, but timer){suspend,resume} looks
-> > hopelessly broken.
+On Wednesday, 12 of January 2005 22:01, Pavel Machek wrote:
+> Hi!
 > 
-> Well, why don't we convert them to noops, then, at least temporarily?
+> > [-- snip --]
+> > > > > > The regression is caused by the timer driver.  Obviously, turning 
+> > > > > > timer_resume() in arch/x86_64/kernel/time.c into a NOOP makes it 
+go
+> > > > > > away. 
+> > [-- snip --]
+> > > > > 
+> > > > > ..you might want to look at i386 time code, they have common
+> > > > > ancestor, and i386 one seems to work.
+> > 
+> > Well, I've changed timer_resume() in arch/x86_64/kernel/time.c into the 
+> > following function:
+> 
+> Ugh, looking at arch/i386/kernel/time.c... "This could have never
+> worked".
+> 
+> It does something like get_cmos_time() - get_cmos_time()*HZ. It looks
+> seriously wrong.
+> 
+> > (for example - the second number is always negative and huge).  Would it 
+mean 
+> > that get_cmos_time() needs fixing?
+> 
+> get_cmos_time() looks okay, but timer){suspend,resume} looks
+> hopelessly broken.
 
-Actually, it was my analysis that was wrong. Did you try Nigel's trick
-with updating wall_jiffies?
-								Pavel
+Well, why don't we convert them to noops, then, at least temporarily?
+
+RJW
+
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

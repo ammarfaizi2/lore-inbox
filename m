@@ -1,33 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281505AbRKUARW>; Tue, 20 Nov 2001 19:17:22 -0500
+	id <S281519AbRKUAUB>; Tue, 20 Nov 2001 19:20:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281507AbRKUARL>; Tue, 20 Nov 2001 19:17:11 -0500
-Received: from pc-62-30-67-59-az.blueyonder.co.uk ([62.30.67.59]:54773 "EHLO
-	kushida.jlokier.co.uk") by vger.kernel.org with ESMTP
-	id <S281505AbRKUARB>; Tue, 20 Nov 2001 19:17:01 -0500
-Date: Wed, 21 Nov 2001 00:14:18 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: more fun with procfs (netfilter)
-Message-ID: <20011121001418.C2472@kushida.jlokier.co.uk>
-In-Reply-To: <E165z5s-0000SM-00@wagner> <Pine.GSO.4.21.0111200407430.21912-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.21.0111200407430.21912-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Tue, Nov 20, 2001 at 05:19:12AM -0500
+	id <S281512AbRKUATw>; Tue, 20 Nov 2001 19:19:52 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:44050 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S281525AbRKUATf>;
+	Tue, 20 Nov 2001 19:19:35 -0500
+Date: Tue, 20 Nov 2001 22:19:26 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: <akpm@zip.com.au>, <dmaas@dcine.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Swap
+In-Reply-To: <20011120.154004.123980549.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33L.0111202218360.4079-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> - IOW, awk (both gawk and mawk) loses everything past the first 4Kb.
-> And yes, it's a real-world example (there was more than $5 and it was
-> followed by sed(1), but that doesn't affect the result - lost lines).
+On Tue, 20 Nov 2001, David S. Miller wrote:
+>    From: Rik van Riel <riel@conectiva.com.br>
+>    Date: Tue, 20 Nov 2001 21:35:40 -0200 (BRST)
+>
+>    On Tue, 20 Nov 2001, David S. Miller wrote:
+>    > TLB misses add to the cost, and this overhead is more than
+>    > "noise".
 
-Does this break fopen/fscanf as well then?  There are programs which use
-fscanf to read this info.
+> The Apache folks were keeping it mapped across requests,
+> so even if it was "primed" (ie. pre-faulted), a read() into
+> a static buffer was still significantly faster.
 
--- Jamie
+Interesting.  I wonder how read() and mmap() compare when the
+data is in highmem pages and we're facing a kmap()/kunmap()
+for read() ...
+
+regards,
+
+Rik
+-- 
+Shortwave goes a long way:  irc.starchat.net  #swl
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

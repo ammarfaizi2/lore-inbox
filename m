@@ -1,66 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264365AbUBRLFU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 06:05:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264372AbUBRLFT
+	id S264457AbUBRLOF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 06:14:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264463AbUBRLOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 06:05:19 -0500
-Received: from gate.crashing.org ([63.228.1.57]:12965 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S264365AbUBRLFM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 06:05:12 -0500
-Subject: Re: Radeonfb problem
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Damian Kolkowski <damian@kolkowski.no-ip.org>
-Cc: Kronos <kronos@kronoz.cjb.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Sergio Vergata <vergata@stud.fbi.fh-darmstadt.de>
-In-Reply-To: <20040218102613.ALLYOURBASEAREBELONGTOUS.A2246@kolkowski.no-ip.org>
-References: <200402172008.39887.vergata@stud.fbi.fh-darmstadt.de>
-	 <20040217203604.GA19110@dreamland.darkstar.lan>
-	 <20040217211120.ALLYOURBASEAREBELONGTOUS.A8392@kolkowski.no-ip.org>
-	 <20040217213441.GA22103@dreamland.darkstar.lan>
-	 <20040217215738.ALLYOURBASEAREBELONGTOUS.B9706@kolkowski.no-ip.org>
-	 <1077056532.1076.27.camel@gaston>
-	 <20040218102613.ALLYOURBASEAREBELONGTOUS.A2246@kolkowski.no-ip.org>
-Content-Type: text/plain
-Message-Id: <1077102104.20787.3.camel@gaston>
+	Wed, 18 Feb 2004 06:14:05 -0500
+Received: from karnickel.franken.de ([193.141.110.11]:54798 "EHLO
+	karnickel.franken.de") by vger.kernel.org with ESMTP
+	id S264457AbUBRLNg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 06:13:36 -0500
+Date: Wed, 18 Feb 2004 12:09:33 +0100
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.3
+Message-ID: <20040218110933.GD5320@debian.franken.de>
+References: <Pine.LNX.4.58.0402172013320.2686@home.osdl.org> <20040218101702.GA5551@debian.franken.de> <20040218110232.GU1308@fs.tum.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 18 Feb 2004 22:01:45 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040218110232.GU1308@fs.tum.de>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: erik@debian.franken.de (Erik Tews)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> if I use fbset like this:
+On Wed, Feb 18, 2004 at 12:02:32PM +0100, Adrian Bunk wrote:
+> On Wed, Feb 18, 2004 at 11:17:02AM +0100, Erik Tews wrote:
+> > On Tue, Feb 17, 2004 at 08:15:08PM -0800, Linus Torvalds wrote:
+> > > 
+> > > Ok, it's out.
+> > > 
+> > > There were some minimal changes relative to the last -rc4, mostly some 
+> > > configuration and build fixes, but a few important one-liners too.
+> > 
+> > Ext3 doesn't seem to compile without jbd support.
 > 
-> 	fbset -fb /dev/fb0 -a -depth 32 1024x768-100
+> This is correct.
 > 
-> my CRT monitor MAG 786FD looks like ths:
-> 
-> |------------|
-> |     |      |
-> |  a  |      |
-> |     |      |
-> |-----|      |
-> |       b    |
-> |            |
-> |------------|
-> 
-> Where "a" is the visual screan after using fbset and "b" is my monitor.
+> How did you manage to get a configuration with ext3 but without JBD?
 
-Ok, I see what you mean. This is not a radeonfb problem at this point.
+I did not, and I did not try to do so.
 
-The problem is in the fbcon layer in 2.6 which doesn't adapt to
-resolution changes. I have done some work to fix this but it's
-not completely right yet. I'll submit something to Andrew & Linus
-once I'm happy with it.
+There is only one menu-item to select for jbd, so there are only 2
+possible configurations. Without jbd it doesn't compile, with jbd, it
+compiles.
 
-The append= you need is radeonfb=, not radeon=
-
-I don't think the cursor issue is related at all. And I don't know
-what's up with the firegl binary drivers.
-
-Ben.
-
+If you are going to make it work without jbd, you have to touch the
+source.

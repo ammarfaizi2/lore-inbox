@@ -1,104 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286188AbRLaCz2>; Sun, 30 Dec 2001 21:55:28 -0500
+	id <S286184AbRLaDNJ>; Sun, 30 Dec 2001 22:13:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286187AbRLaCzT>; Sun, 30 Dec 2001 21:55:19 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:62736 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S286178AbRLaCzD>; Sun, 30 Dec 2001 21:55:03 -0500
-Date: Sun, 30 Dec 2001 18:54:55 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: lkml <linux-kernel@vger.kernel.org>
-cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] scheduler params and nice to ticks logic for 2.5.2-pre4 ...
-Message-ID: <Pine.LNX.4.40.0112301851090.935-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286187AbRLaDMu>; Sun, 30 Dec 2001 22:12:50 -0500
+Received: from noodles.codemonkey.org.uk ([62.49.180.5]:27026 "EHLO
+	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id <S286184AbRLaDMt>; Sun, 30 Dec 2001 22:12:49 -0500
+Date: Mon, 31 Dec 2001 03:15:06 +0000
+From: Dave Jones <davej@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: merge in progress.
+Message-ID: <20011231031506.A1537@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Linus, this is the same patch of my last post modified for 2.5.2-pre4
-Pls apply because 40ms timeslice seems really better than 60ms
-
+Ok, pre5 gets us in sync with most of the important and easy
+to merge bits. Here's a list of whats left between the trees.
 
 
-- Davide
+Pending:
+o  Bunch of __devexit changes
+o  Keith's text.lock -> .subsection changes
+   Better to merge this first and see whats left broken before merging
+   the __devexit changes, in case there are any more bogus ones.
+o  Small EISA cleanups
+o  Lots of driver updates for ieee1394, ISDN, network drivers, parport
+   & paride, USB, MTD.  Hopefully the larger subsystems like USB will
+   get pushed by the relevant maintainers who can explain their bits
+   to Linus a lot better than I can.
+o  VM updates.
+o  Various documentation (Will do this last).
+o  A few other small things that don't fall under any specific category.
+   Code formatting cleanups etc..
 
 
+Things unlikely to merge yet.
+o  Alans aacraid driver (not bio aware)
+o  James Simmons fbdev cleanups (needs more testing)
+o  Thomas Hoods PNPBIOS work (little more testing to be sure)
+o  sbp2 driver fixes from 2.4 (They break with bio)
+o  Simple Boot Flag support (more work needed)
+o  Small MP Table parsing changes (more testing needed)
+o  Reiserfs fixes.
+   (Waiting to hear back from the reiserfs folks that I did these ok)
 
 
-diff -Nru linux-2.5.2-pre4.vanilla/kernel/sched.c linux-2.5.2-pre4.psch/kernel/sched.c
---- linux-2.5.2-pre4.vanilla/kernel/sched.c	Sun Dec 30 17:27:45 2001
-+++ linux-2.5.2-pre4.psch/kernel/sched.c	Sun Dec 30 18:46:37 2001
-@@ -51,25 +51,16 @@
-  * NOTE! The unix "nice" value influences how long a process
-  * gets. The nice value ranges from -20 to +19, where a -20
-  * is a "high-priority" task, and a "+10" is a low-priority
-- * task.
-- *
-- * We want the time-slice to be around 50ms or so, so this
-- * calculation depends on the value of HZ.
-+ * task. The default time slice for zero-nice tasks will be 43ms.
-  */
--#if HZ < 200
--#define TICK_SCALE(x)	((x) >> 2)
--#elif HZ < 400
--#define TICK_SCALE(x)	((x) >> 1)
--#elif HZ < 800
--#define TICK_SCALE(x)	(x)
--#elif HZ < 1600
--#define TICK_SCALE(x)	((x) << 1)
--#else
--#define TICK_SCALE(x)	((x) << 2)
--#endif
--
--#define TASK_TIMESLICE(p)	(TICK_SCALE(20-(p)->nice)+1)
--
-+#define NICE_RANGE	40
-+#define MIN_NICE_TSLICE	10000
-+#define MAX_NICE_TSLICE	80000
-+#define TASK_TIMESLICE(p)	((int) ts_table[19 - (p)->nice])
-+
-+static unsigned char ts_table[NICE_RANGE];
-+
-+#define MM_AFFINITY_BONUS	1
-
- /*
-  *	Init task must be ok at boot for the ix86 as we will check its signals
-@@ -181,7 +172,7 @@
-
- 		/* .. and a slight advantage to the current MM */
- 		if (p->mm == this_mm || !p->mm)
--			weight += 1;
-+			weight += MM_AFFINITY_BONUS;
- 		weight += 20 - p->nice;
- 		goto out;
- 	}
-@@ -1313,6 +1304,15 @@
-
- extern void init_timervecs (void);
-
-+static void fill_tslice_map(void)
-+{
-+	int i;
-+
-+	for (i = 0; i < NICE_RANGE; i++)
-+		ts_table[i] = ((MIN_NICE_TSLICE +
-+						((MAX_NICE_TSLICE - MIN_NICE_TSLICE) / NICE_RANGE) * i) * HZ) / 1000000;
-+}
-+
- void __init sched_init(void)
- {
- 	/*
-@@ -1326,6 +1326,8 @@
-
- 	for(nr = 0; nr < PIDHASH_SZ; nr++)
- 		pidhash[nr] = NULL;
-+
-+	fill_tslice_map();
-
- 	init_timervecs();
+Maybe:
+o  Various other driver fixes
+   Look ok, depends on next steps for bio.
+o  Various sound driver updates.
+   Worth doing these with ALSA hopefully on the way ?
+o  Manfreds Dynamic LDT
+   Needs checking that it hasn't broken x86 math-emu.
+o  net core updates
+   I'd rather leave this to davem, and see whats left over.
+o  Large arch updates for PPC, s390/s390x & Sparc/Sparc64
+   Could merge these, or wait for relevant arch maintainer
+   to feed maybe newer updates to Linus.
 
 
+-- 
+Dave Jones.                    http://www.codemonkey.org.uk
+SuSE Labs.

@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261466AbTCGCbf>; Thu, 6 Mar 2003 21:31:35 -0500
+	id <S261484AbTCGChR>; Thu, 6 Mar 2003 21:37:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261481AbTCGCbf>; Thu, 6 Mar 2003 21:31:35 -0500
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:13038 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S261466AbTCGCbe>; Thu, 6 Mar 2003 21:31:34 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Eric Altendorf <EricAltendorf@orst.edu>
-Reply-To: EricAltendorf@orst.edu
-To: swsusp@lister.fornax.hu, linux-kernel@vger.kernel.org
-Subject: 2.5.63: ACPI S3 and S4 suspend problems
-Date: Thu, 6 Mar 2003 11:48:15 -0800
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200303061148.15685.EricAltendorf@orst.edu>
+	id <S261487AbTCGChR>; Thu, 6 Mar 2003 21:37:17 -0500
+Received: from smtp09.iddeo.es ([62.81.186.19]:38383 "EHLO smtp09.retemail.es")
+	by vger.kernel.org with ESMTP id <S261484AbTCGChQ>;
+	Thu, 6 Mar 2003 21:37:16 -0500
+Date: Fri, 7 Mar 2003 03:47:48 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-pre5
+Message-ID: <20030307024748.GA19320@werewolf.able.es>
+References: <Pine.LNX.4.53L.0302270314050.1433@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.53L.0302270314050.1433@freak.distro.conectiva>; from marcelo@conectiva.com.br on Thu, Feb 27, 2003 at 07:14:44 +0100
+X-Mailer: Balsa 2.0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi all, running a Libretto L2 (ACPI only) on which I've been trying to 
-get suspend working for ages.  My latest try was 2.5.63 with the 
-20030228 ACPI update patch.
+On 02.27 07:14, Marcelo Tosatti wrote:
+> 
+> So here goes -pre5.
+> 
 
-S3 powers down into sleep mode, and upon awakening, prints
-        Linux!
-in yellow text and hangs.
+define_mbool ?
 
-S4 starts putting processes in the refrigerator, and hangs on the last 
-line (which just says "=|" IIRC).
+werewolf:/usr/src/linux# make xconfig
+rm -f include/asm
+( cd include ; ln -sf asm-i386 asm)
+make -C scripts kconfig.tk
+make[1]: Entering directory `/usr/src/linux-2.4.21-pre5-jam1/scripts'
+cat header.tk >> ./kconfig.tk
+./tkparse < ../arch/i386/config.in >> kconfig.tk
+drivers/net/Config.in: 188: unknown command
+make[1]: *** [kconfig.tk] Error 1
+make[1]: Leaving directory `/usr/src/linux-2.4.21-pre5-jam1/scripts'
+make: *** [xconfig] Error 2
 
-Any ideas?  I can supply system info and kernel config info if 
-helpful.
+Line is:
 
-Thanks,
-eric
+      if [ "$CONFIG_VISWS" = "y" ]; then
+         define_mbool CONFIG_EEPRO100_PIO y
+      else
+
+Changed to define_bool, and it works.
+
 -- 
-"First they ignore you.  Then they laugh at you.
- Then they fight you.  And then you win."             -Gandhi
-
-
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Cooker) for i586
+Linux 2.4.21-pre4-jam1 (gcc 3.2.2 (Mandrake Linux 9.1 3.2.2-1mdk))

@@ -1,46 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278394AbRJMUTm>; Sat, 13 Oct 2001 16:19:42 -0400
+	id <S278395AbRJMUWC>; Sat, 13 Oct 2001 16:22:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278395AbRJMUTc>; Sat, 13 Oct 2001 16:19:32 -0400
-Received: from nsd.netnomics.com ([216.71.84.35]:30078 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S278394AbRJMUTW>; Sat, 13 Oct 2001 16:19:22 -0400
-Date: Sat, 13 Oct 2001 15:19:15 -0500 (CDT)
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-To: Stelian Pop <stelian.pop@fr.alcove.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PCI device search.
-In-Reply-To: <20011013145100.A25027@ontario.alcove-fr>
-Message-ID: <Pine.LNX.3.96.1011013151817.28071A-100000@mandrakesoft.mandrakesoft.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278398AbRJMUVm>; Sat, 13 Oct 2001 16:21:42 -0400
+Received: from grip.panax.com ([63.163.40.2]:10251 "EHLO panax.com")
+	by vger.kernel.org with ESMTP id <S278395AbRJMUVh>;
+	Sat, 13 Oct 2001 16:21:37 -0400
+Date: Sat, 13 Oct 2001 16:21:55 -0400
+From: Patrick McFarland <unknown@panax.com>
+To: Wilson <defiler@null.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Which is better at vm, and why? 2.2 or 2.4
+Message-ID: <20011013162155.A1665@localhost>
+Mail-Followup-To: Wilson <defiler@null.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20011013141709.L249@localhost> <Pine.LNX.4.33L.0110131526500.2847-100000@imladris.rielhome.conectiva> <20011013144220.P249@localhost> <20011013145341.R249@localhost> <02ca01c1541d$391c5f30$c800000a@Artifact>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <02ca01c1541d$391c5f30$c800000a@Artifact>
+User-Agent: Mutt/1.3.22i
+X-Operating-System: Linux 2.4.12 i586
+X-Distributed: Join the Effort!  http://www.distributed.net/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Im using 2.4.12-linus
 
-
-On Sat, 13 Oct 2001, Stelian Pop wrote:
-
-> On Fri, Oct 12, 2001 at 04:15:54PM -0500, Jeff Garzik wrote:
+On 13-Oct-2001, Wilson wrote:
+> ----- Original Message -----
+> From: "Patrick McFarland" <unknown@panax.com>
+> To: "Rik van Riel" <riel@conectiva.com.br>
+> Cc: <linux-kernel@vger.kernel.org>
+> Sent: Saturday, October 13, 2001 2:53 PM
+> Subject: Re: Which is better at vm, and why? 2.2 or 2.4
 > 
-> > > I'd say 1.  If a device is hotpluggable or not does not matter.  For
-> > > 2.5, the boot process will be able to load modules for all PCI
-> > > devices seen in the system.  In order for that to happen, they need to
-> > > use the MODULE_DEVICE structure and the 2.4 pci driver subsystem.
-> > 
-> > I'd say 1.5.  :)  For the "newer hardware" consider using the PCI host
-> > bridge or ISA bridge for your "container" PCI device.
+> >Also, I'd like to say about the documentation...
+> >
+> ><quote>
+> >Currently, these files are in /proc/sys/vm:
+> >- bdflush
+> >- buffermem
+> >- freepages
+> >- kswapd
+> >- overcommit_memory
+> >- page-cluster
+> >- pagecache
+> >- pagetable_cache
+> ></quote>
+> >
+> >but a simple ls of /proc/sys/vm reports:
+> >bdflush  kswapd  overcommit_memory  page-cluster  pagetable_cache
+> >
+> >Shouldnt the documentation be updated, seeing for the fact it was written
+> in the 2.2.10 days?
 > 
-> You mean putting PCI_CLASS_BRIDGE_PCI as pattern in the pci
-> search table, yes ?
+> I must be confused.. What kernel are you running?
+> This is on 2.4.8-ac9:
+> [root@aeon /root]# ls /proc/sys/vm
+> bdflush    freepages  max_map_count  min-readahead      pagecache
+> pagetable_cache
+> buffermem  kswapd     max-readahead  overcommit_memory  page-cluster
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Close but not quite.  Look at drivers/char/i810_rng.c.  It uses PCI ids
-for Intel PCI bridge to search for, since the RNG itself doesn't have a
-PCI id.
-
-	Jeff
-
-
-
-
+-- 
+Patrick "Diablo-D3" McFarland || unknown@panax.com

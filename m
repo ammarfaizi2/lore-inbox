@@ -1,31 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317998AbSGRGHY>; Thu, 18 Jul 2002 02:07:24 -0400
+	id <S318020AbSGRGNy>; Thu, 18 Jul 2002 02:13:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318015AbSGRGHY>; Thu, 18 Jul 2002 02:07:24 -0400
-Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:16780 "EHLO
-	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S317998AbSGRGHX>; Thu, 18 Jul 2002 02:07:23 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: "Pierre ROUSSELET" <pierre.rousselet@wanadoo.fr>, <greg@kroah.com>
-Subject: Re: 2.5.25  uhci-hcd  very bad
-Date: Thu, 18 Jul 2002 08:10:13 +0200
-User-Agent: KMail/1.4.2
-Cc: <linux-kernel@vger.kernel.org>
-References: <3D308A30.7070702@wanadoo.fr> <20020717213332.GA10227@kroah.com> <3D2A7916004B5024@mel-rta10.wanadoo.fr> (added by     postmaster@wanadoo.fr)
-In-Reply-To: <3D2A7916004B5024@mel-rta10.wanadoo.fr>
+	id <S318021AbSGRGNy>; Thu, 18 Jul 2002 02:13:54 -0400
+Received: from odin.cit.act.edu.au ([161.50.48.2]:48336 "EHLO
+	odin.cit.act.edu.au") by vger.kernel.org with ESMTP
+	id <S318020AbSGRGNy>; Thu, 18 Jul 2002 02:13:54 -0400
+Message-ID: <C1126026D9293645B970FB72C66907961F53EE@rdmail.cit.act.edu.au>
+From: "Piggin, Nick" <Nick.Piggin@cit.act.edu.au>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: 2.4.19-rc1,2 + ext3 data=journal: data loss on unmount
+Date: Thu, 18 Jul 2002 16:12:49 +1000
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207180810.13692.duncan.sands@math.u-psud.fr>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 18 July 2002 08:35, Pierre ROUSSELET wrote:
-> The driver is made of a kernel module speedtch.o (built outside of the
-> tree) and of userspace modem firmware loader and management daemon
-> speedmgt.
+Hi,
+I have a PIV server with two IDE disks, one used for the filesystem, the
+other for swap, external journals, and a backup directory.
 
-Is your kernel preemptive?
+All partitions are ext3 data=journal, all but the backup directory have
+external journals. Please mail me for more HW info if needed and I apologise
+if this has already come up (I did search the archives) or is a "known"
+"feature".
 
-Duncan.
+I have a script which basically does the following
+
+mount /mnt/backup
+tar cvf $FILENAME directory
+bzip2 $FILENAME
+umount /mnt/backup
+
+Upon remounting and inspection, the resulting bzip2 file is corrupted every
+time. Adding a sync after bzip2 corrects the problem.
+
+Thanks
+Nick
+
+PS. sorry if this mail turns out bad - I'm at work.

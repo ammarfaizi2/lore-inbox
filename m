@@ -1,57 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbUFJPEA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbUFJPEs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbUFJPEA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 11:04:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbUFJPEA
+	id S261443AbUFJPEs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 11:04:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbUFJPEs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 11:04:00 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:41364 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261426AbUFJPD4 (ORCPT
+	Thu, 10 Jun 2004 11:04:48 -0400
+Received: from fw.osdl.org ([65.172.181.6]:37572 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261443AbUFJPEl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 11:03:56 -0400
-Date: Thu, 10 Jun 2004 17:03:35 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       "James E.J. Bottomley" <James.Bottomley@SteelEye.com>,
-       Go Taniguchi <go@turbolinux.co.jp>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org
-Subject: SCSI_DPT_I2O (was: Re: Linux 2.6.7-rc2)
-In-Reply-To: <Pine.LNX.4.58.0405292349110.1632@ppc970.osdl.org>
-Message-ID: <Pine.GSO.4.58.0406101659430.19315@waterleaf.sonytel.be>
-References: <Pine.LNX.4.58.0405292349110.1632@ppc970.osdl.org>
+	Thu, 10 Jun 2004 11:04:41 -0400
+Date: Thu, 10 Jun 2004 08:04:23 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Timothy Miller <miller@techsource.com>
+cc: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>,
+       Al Viro <viro@math.psu.edu>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Finding user/kernel pointer bugs [no html]
+In-Reply-To: <40C87934.2060505@techsource.com>
+Message-ID: <Pine.LNX.4.58.0406100754270.2050@ppc970.osdl.org>
+References: <1086838266.32059.320.camel@dooby.cs.berkeley.edu>
+ <Pine.LNX.4.58.0406092059030.2050@ppc970.osdl.org> <40C87934.2060505@techsource.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 May 2004, Linus Torvalds wrote:
-> Summary of changes from v2.6.7-rc1 to v2.6.7-rc2
-> ============================================
-> Go Taniguchi:
->   o Fix dpt_i2o
 
-I have the impression SCSI_DPT_I2O should depend on PCI.
 
---- linux-2.6.7-rc3/drivers/scsi/Kconfig	2004-06-09 14:50:53.000000000 +0200
-+++ linux-m68k-2.6.7-rc3/drivers/scsi/Kconfig	2004-06-10 11:01:45.000000000 +0200
-@@ -352,7 +352,7 @@ source "drivers/scsi/aic7xxx/Kconfig.aic
- # All the I2O code and drivers do not seem to be 64bit safe.
- config SCSI_DPT_I2O
- 	tristate "Adaptec I2O RAID support "
--	depends on !64BIT && SCSI
-+	depends on !64BIT && SCSI && PCI
- 	help
- 	  This driver supports all of Adaptec's I2O based RAID controllers as
- 	  well as the DPT SmartRaid V cards.  This is an Adaptec maintained
+On Thu, 10 Jun 2004, Timothy Miller wrote:
+> 
+> Are user pointers actual pointers?
 
-Gr{oetje,eeting}s,
+Yes. They have to be. We could make them "unsigned long" or something, but 
+the fact is, they do have all the pointer attributes: they are pointers to 
+structures, they have _meaning_.
 
-						Geert
+> That's much too tempting to dereference.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Absolutely. Which is why sparse extends the C type system so that you can 
+be a pointer yet _also_ not be something you can directly dereference.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+The code
+
+        int __user * a;
+        *a = 0;
+        return *a;
+
+complains about
+
+	test.c:6:3: warning: dereference of noderef expression
+	test.c:7:10: warning: dereference of noderef expression
+
+in sparse.
+
+> If you really want to force user space accesses to follow certain rules, 
+> make them longs or structs (or at least void *) (depending on 
+> architecture) so that only the proper user-space-access functions can 
+> interpret them.
+
+.. and this would be a total disaster.
+
+Think about it. The user pointer isn't just a "value". It has a type it 
+points to. We want to do
+
+	if (get_user(len, &uiov32->iov_len) ||
+		...
+
+and yes, the above is a real example. In fact, if you grep for "get_user" 
+in linux/*/*.c _most_ of the uses seem to be of this type.
+
+In other words: user pointers _are_ pointers. You have to be able to 
+access member names through them etc. It's just that you can't dereference 
+them directly - but they definitely have all the other attributes of a 
+pointer.
+
+> Now, if this "handle" corresponds directly to a user space pointer, 
+> someone might cast it and dereference it, but that would be easy to 
+> detect, and such patches would be easy to reject.
+> 
+> Bad idea?
+
+Yes. Handles are a bad idea. They make the code unreadable and totally 
+type-less.
+
+Realize that if you use just one type (the "handle") for user pointers, 
+you also totally lose all C type-checking. You can't see the difference 
+between a "pointer to an old-style 'struct stat'" and a "pointer to a 
+new-style 'struct stat64'". So then you'd have to add your own crud to do 
+type verifiations (add magic words to the handle that describe the type 
+etc). 
+
+It's a nightmare.
+
+You want strict _static_ type analysis. Static type analysis has zero 
+run-time costs, and means that you get the "right" answer at compile-time. 
+
+And that's exactly what sparse is all about. Static type analysis.
+
+		Linus
+

@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263557AbTJCAZt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 20:25:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263563AbTJCAZt
+	id S263562AbTJCAlO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 20:41:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263563AbTJCAlO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 20:25:49 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:52486
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S263557AbTJCAZr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 20:25:47 -0400
-Date: Thu, 2 Oct 2003 17:26:08 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Dave O <cxreg@pobox.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       linux-hfsplus-devel@lists.sourceforge.net,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] new HFS(+) driver
-Message-ID: <20031003002608.GC13051@matchmail.com>
-Mail-Followup-To: Dave O <cxreg@pobox.com>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	linux-hfsplus-devel@lists.sourceforge.net,
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0310021029110.17548-100000@serv> <Pine.LNX.4.58.0310021300220.31213@narbuckle.genericorp.net> <Pine.LNX.4.44.0310022028220.8124-100000@serv> <Pine.LNX.4.58.0310021359140.31213@narbuckle.genericorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0310021359140.31213@narbuckle.genericorp.net>
-User-Agent: Mutt/1.5.4i
+	Thu, 2 Oct 2003 20:41:14 -0400
+Received: from fw.osdl.org ([65.172.181.6]:36301 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263562AbTJCAlN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Oct 2003 20:41:13 -0400
+Date: Thu, 2 Oct 2003 17:40:53 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Albert Cahalan <albert@users.sourceforge.net>
+cc: Ulrich Drepper <drepper@redhat.com>, Mikael Pettersson <mikpe@csd.uu.se>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Who changed /proc/<pid>/ in 2.6.0-test5-bk9?
+In-Reply-To: <1065139380.736.109.camel@cube>
+Message-ID: <Pine.LNX.4.44.0310021720510.7833-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 02, 2003 at 02:00:25PM -0500, Dave O wrote:
-> This works, however du(1) seems to get the block size wrong:
-> 
-> meatloop:/cdrom# ls -l
-> total 393244
-> -rwxr-xr-x    1 501      dialout  341952833 Sep 22 17:24 else.zip
-> -rwxr-xr-x    1 501      dialout  450701627 Sep 22 20:07 outlook.zip
-> -rwxr-xr-x    1 501      dialout  607534655 Sep 22 17:26 quick1.zip
-> -rwxr-xr-x    1 501      dialout  431279243 Sep 22 17:26 quick2.zip
-> -rwxr-xr-x    1 501      dialout  605501959 Sep 22 17:27 quick3.zip
-> -rwxr-xr-x    1 501      dialout  403836898 Sep 22 17:28 quick4.zip
-> -rwxr-xr-x    1 501      dialout  380636073 Sep 22 17:28 quick5.zip
-> 
-> meatloop:/cdrom# du -sh
-> 385M    .
 
-Are you sure?  I haven't done the math, but you are comparing base 1000 to
-base 1024 numbers.  Try comparing:
+On 2 Oct 2003, Albert Cahalan wrote:
+> 
+> No. I mean "ban" like we ban CLONE_THREAD w/o CLONE_DETACHED.
 
-du -sh .
-ls -lh
+No. Let's not do that.
+
+We ban only things that do not make sense. That was true of trying to 
+share signal handlers with different address spaces. But it is _not_ true 
+of having separate file descriptors for different threads.
+
+I don't imagine anybody cares _that_ deeply about fuser that it can't 
+afford to recurse into thread directories.
+
+And it may or may not make sense to not have a "/proc/<nn>/task/<yy>/fd"
+directory at all if the thread shares file descriptors with the thread 
+group leader. That would be a fairly easy optimization.
+
+		Linus
+

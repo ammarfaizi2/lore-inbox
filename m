@@ -1,59 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266242AbUAVLwl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 06:52:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266243AbUAVLwl
+	id S266310AbUAVRvK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 12:51:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266311AbUAVRvK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 06:52:41 -0500
-Received: from mail012.syd.optusnet.com.au ([211.29.132.66]:43725 "EHLO
-	mail012.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S266242AbUAVLwk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 06:52:40 -0500
-From: Christian Unger <chakkerz@optusnet.com.au>
-Reply-To: chakkerz@optusnet.com.au
-Organization: naiv.sourceforge.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: Nvidia drivers and 2.6.x kernel
-Date: Thu, 22 Jan 2004 22:52:41 +1100
-User-Agent: KMail/1.5.4
-References: <200401221004.06645.chakkerz@optusnet.com.au> <400FB4AA.8000109@yahoo.com.br>
-In-Reply-To: <400FB4AA.8000109@yahoo.com.br>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401222252.41853.chakkerz@optusnet.com.au>
+	Thu, 22 Jan 2004 12:51:10 -0500
+Received: from smtp1.clear.net.nz ([203.97.33.27]:15787 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S266310AbUAVRvC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 12:51:02 -0500
+Date: Fri, 23 Jan 2004 06:53:26 +1300
+From: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Subject: Re: Help port swsusp to ppc.
+In-reply-to: <20040122211746.3ec1018c@localhost>
+To: Hugang <hugang@soulinfo.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       debian-powerpc@lists.debian.org
+Reply-to: ncunningham@users.sourceforge.net
+Message-id: <1074794005.12773.54.camel@laptop-linux>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.4-8mdk
+Content-type: multipart/signed; boundary="=-+iGpyzKJYHpCEfHCRtcf";
+ protocol="application/pgp-signature"; micalg=pgp-sha1
+References: <20040119105237.62a43f65@localhost>
+ <1074483354.10595.5.camel@gaston> <1074489645.2111.8.camel@laptop-linux>
+ <1074490463.10595.16.camel@gaston> <1074534964.2505.6.camel@laptop-linux>
+ <1074549790.10595.55.camel@gaston> <20040122211746.3ec1018c@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi, i have this drive working great for me.
-> I aply a patch, then i recompile the source.
-> If you prefer, i can send the source for you.
->
 
-Well ... i've applied the patch and downloaded the pre-patched drivers, 
-sacrificed a virgin, installed the module loading stuff (just in case) and 
-still no joy. 
+--=-+iGpyzKJYHpCEfHCRtcf
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-So i think the fault is not with NVidia. or the patch. Maybe it's a flaw in 
-Slackware 9.1, or i'm just too thick. 
+I know nothing about the PPC. Is it a uniprocessor?
 
-I did get X to work with nv, but since i have a dodgy old monitor i can't get 
-the vertical alignment right (there probably is a way to do it -- SAX in SuSE 
-does the trick).
+Regards,
 
--- 
-with kind regards,
-  Christian Unger
+Nigel
 
-"You don't need eyes to see, you need vision" (Faithless - Reverence)
+--=20
+My work on Software Suspend is graciously brought to you by
+LinuxFund.org.
 
-  Mobile:            0402 268904
-  Internet:          http://naiv.sourceforge.net
-  NAIV Status:
-     Stable       Testing       Development
-      0.2.3r2      0.3.0         0.3.1 - File Handling
+--=-+iGpyzKJYHpCEfHCRtcf
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-"May there be mercy on man and machine for their sins" (Animatrix)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBAEA4VVfpQGcyBBWkRAiGtAJ995Nu52KG0gptzCkMCpwPrMCXgGgCfRjBJ
+fF8prfnCt3je3Cwl8bpxS1E=
+=Kd14
+-----END PGP SIGNATURE-----
+
+--=-+iGpyzKJYHpCEfHCRtcf--
 

@@ -1,78 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129723AbRBLXkX>; Mon, 12 Feb 2001 18:40:23 -0500
+	id <S129299AbRBLXq4>; Mon, 12 Feb 2001 18:46:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129750AbRBLXkN>; Mon, 12 Feb 2001 18:40:13 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:15357 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S129723AbRBLXkA>;
-	Mon, 12 Feb 2001 18:40:00 -0500
-Date: Tue, 13 Feb 2001 00:39:20 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Ivan Passos <lists@cyclades.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: LILO and serial speeds over 9600
-Message-ID: <20010213003920.A21164@khan.acc.umu.se>
-In-Reply-To: <Pine.LNX.4.31.0102121147390.25638-100000@lairdtest1.internap.com> <Pine.LNX.4.10.10102121456380.3761-100000@main.cyclades.com>
-Mime-Version: 1.0
+	id <S129274AbRBLXqp>; Mon, 12 Feb 2001 18:46:45 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:14854 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129159AbRBLXqc>; Mon, 12 Feb 2001 18:46:32 -0500
+Subject: Re: opl3sa not detected anymore
+To: jauge@club-internet.fr (Jérôme Augé)
+Date: Mon, 12 Feb 2001 23:46:39 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3A8873F3.772D75E7@club-internet.fr> from "Jérôme Augé" at Feb 13, 2001 12:38:27 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <Pine.LNX.4.10.10102121456380.3761-100000@main.cyclades.com>; from lists@cyclades.com on Mon, Feb 12, 2001 at 03:17:04PM -0800
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14SSg6-00004v-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 12, 2001 at 03:17:04PM -0800, Ivan Passos wrote:
-> 
-> On Mon, 12 Feb 2001, Scott Laird wrote:
-> > 
-> > On 12 Feb 2001, H. Peter Anvin wrote:
-> > >
-> > > Just checked my own code, and SYSLINUX does indeed support 115200 (I
-> > > changed this to be a 32-bit register ages ago, apparently.)  Still
-> > > doesn't answer the question "why"... all I think you do is increase
-> > > the risk for FIFO overrun and lost characters (flow control on a boot
-> > > loader console is vestigial at the best.)
-> > 
-> > It's simple -- we want the kernel to have its serial console running at
-> > 115200, and we don't want to have to change speeds to talk to the
-> > bootloader. 
-> 
-> Exactly.
-> 
-> Then HPA may ask: but why do you want to run the serial console at
-> 115200?? The answer is simple: because we can (or more precisely, because
-> the HW can ;).
-> 
-> If the hardware is supposed to support 115.2Kbps, why can't / shouldn't 
-> we use it?? Remember, this is not a modem connection, there is no
-> compression involved, both sides are running 115.2Kbps, so there should
-> NOT be a risk for FIFO overruns (unless you have buggy hardware). And in
-> this case, you can then decrease your baud rate. But at least you have the
-> _option_! :)
-> 
-> 
-> > Some boot processes, particularaly fsck, can be *REALLY*
-> > verbose on screwed up systems.  I've seen systems take hours to run fsck,
-> > even on small filesystems, simply because they were blocking on a 9600 bps
-> > console.
-> 
-> This is true!!
-> 
-> Another one (not as critical as the fsck though): when compiling the
-> kernel, sometimes the kernel compilation is done, but the console output
-> isn't finished yet (I'm serious).
+> > The midi works fine, but 'modprobe sound' reports:
+> > opl3sa2: No cards found
+> > opl3sa2: 0 PnP card(s) found.
 
-Dunno about others, but I always pipe stdout to /dev/null when compiling
-kernels. This way, everything important is still shown (warnings/errors)
-as those go to stderr anyway, and all non-interesting stuff goes down
-the drain.
+Thats ok, it may not be set up for isapnp
 
+> Try to add "isapnp=3D0" to the opl3sa2 options list :
+> 
+> opl3sa2 mss_io=3D0x530 irq=3D5 dma=3D1 dma2=3D0 mpu_io=3D0x330 io=3D0x3=
+> 70 isapnp=3D0
+> 
+> I had the same problem and adding isapnp=3D0 solved it, but PNP isn't
+> supposed to automaticaly detect those options ?
 
-/David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+No, but if you set options it would kind of make sense to turn off the
+isapnp automatically 8). I'll look into that.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263035AbTC1Pv5>; Fri, 28 Mar 2003 10:51:57 -0500
+	id <S263021AbTC1Ppi>; Fri, 28 Mar 2003 10:45:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263036AbTC1Pv5>; Fri, 28 Mar 2003 10:51:57 -0500
-Received: from 64-238-252-21.arpa.kmcmail.net ([64.238.252.21]:43017 "EHLO
-	kermit.unets.com") by vger.kernel.org with ESMTP id <S263035AbTC1Pv4>;
-	Fri, 28 Mar 2003 10:51:56 -0500
-Subject: Re: Kernel Itself Reports Bug, Continuous OOPS's, and Phantom NIC
-	Card
-From: Adam Voigt <adam@cryptocomm.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1048792179.3229.28.camel@dhcp22.swansea.linux.org.uk>
-References: <1048776183.1873.2.camel@beowulf.cryptocomm.com>
-	<1048784675.3228.7.camel@dhcp22.swansea.linux.org.uk>
-	<1048784874.1874.18.camel@beowulf.cryptocomm.com>
-	<1048786126.3229.18.camel@dhcp22.swansea.linux.org.uk>
-	<1048787756.1873.25.camel@beowulf.cryptocomm.com> 
-	<1048792179.3229.28.camel@dhcp22.swansea.linux.org.uk>
+	id <S263022AbTC1Pph>; Fri, 28 Mar 2003 10:45:37 -0500
+Received: from dsl-24293-ld.customer.centurytel.net ([209.142.135.135]:53793
+	"EHLO CopelandConsulting.Net") by vger.kernel.org with ESMTP
+	id <S263021AbTC1Ppc>; Fri, 28 Mar 2003 10:45:32 -0500
+X-Trade-Id: <CCC.Fri, 28 Mar 2003 09:56:43 -0600 (CST).Fri, 28 Mar 2003 09:56:43 -0600 (CST).200303281556.h2SFug730883.h2SFug730883@CopelandConsulting.Net.
+Subject: 2.5.65 7880 SCSI bug
+From: Greg Copeland <gtcopeland@earthlink.net>
+To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 28 Mar 2003 11:03:24 -0500
-Message-Id: <1048867405.1829.1.camel@beowulf.cryptocomm.com>
+Organization: 
+Message-Id: <1048867005.2304.4.camel@mouse.copelandconsulting.net>
 Mime-Version: 1.0
-X-OriginalArrivalTime: 28 Mar 2003 16:03:12.0409 (UTC) FILETIME=[88A78890:01C2F543]
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 28 Mar 2003 09:56:45 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alright, thanks for all your help.
+I have an Asus P2L97-DS motherboard.  It has two PII-333 in it.  I'm
+using the onboard SCSI interface, which is a 7880 (U).  I have 5-SCSI
+drives (combination of wide and narrow), a SCSI CDROM and a SCSI tape
+drive.  The drives have ID's 0-6 while the interface has ID 7.
 
-On Thu, 2003-03-27 at 14:09, Alan Cox wrote:
-> At this point I really suspect the hardware, assuming you
-> aren't loading junk weird modules and its not a misbuilt
-> kernel of somekind.
-> 
--- 
-Adam Voigt (adam@cryptocomm.com)
-The Cryptocomm Group
-My GPG Key: http://64.238.252.49:8080/adam_at_cryptocomm.asc
+When attempting to boot 2.5.65 or 2.5.64, neither is able to get past
+SCSI initialization.  It simply loops and never completes a boot cycle. 
+I have tried both the "newer" Adaptec AIC7xxx Fast -> U160 support (New
+Driver) and the older Adaptec AIC7xxx support (old driver).  Both
+experience the same behavior.
+
+I'm currently running 2.4.19 and this system has been working, more or
+less as is, since the mid 2.2-days.
+
+
+Best Regards,
+
+Greg Copeland
+
+
+
 

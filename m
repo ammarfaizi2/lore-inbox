@@ -1,73 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262182AbTERUBy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 16:01:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbTERUBy
+	id S262177AbTERT6c (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 15:58:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbTERT6c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 16:01:54 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:49793 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262182AbTERUBw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 16:01:52 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 18 May 2003 13:13:55 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: recursive spinlocks. Shoot.
-In-Reply-To: <200305181949.h4IJn9L05083@oboe.it.uc3m.es>
-Message-ID: <Pine.LNX.4.55.0305181254080.3568@bigblue.dev.mcafeelabs.com>
-References: <200305181949.h4IJn9L05083@oboe.it.uc3m.es>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 18 May 2003 15:58:32 -0400
+Received: from verein.lst.de ([212.34.181.86]:54281 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id S262177AbTERT6b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 15:58:31 -0400
+Date: Sun, 18 May 2003 22:11:25 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] make pmac compile again
+Message-ID: <20030518221125.A30290@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 May 2003, Peter T. Breuer wrote:
-
-> This is essentially the same struct as mine. I used the pid of the task,
-> where you use the address of the task. You use an atomic count, whereas
-> I used an ordinary int, guarded by the embedded spinlock.
->
->
-> > #define nestlock_lock(snl) \
-> > 	do { \
-> > 		if ((snl)->uniq == current) { \
->
-> That would be able to read uniq while it is being written by something
-> else (which it can, according to the code below). It needs protection.
-
-No it does not, look better.
+Two little patches (already in the linuxppc BK tree) to get BK current
+compile again on pmac.
 
 
-> > 			atomic_inc(&(snl)->count); \
->
-> OK, that's the same.
->
-> > 		} else { \
-> > 			spin_lock(&(snl)->lock); \
-> > 			atomic_inc(&(snl)->count); \
-> > 			(snl)->uniq = current; \
->
-> Hmm .. else we wait for the lock, and then set count and uniq, while
-> somebody else may have entered and be reading it :-). You exit with
-
-Nope, think about a case were it breaks. False negatives are not possible
-because it is set by the same task and false positives either.
-
-
-
-> Well, it's not assembler either, but at least it's easily comparable
-> with the nonrecursive version. It's essentially got an extra if and
-> an inc in the lock. That's all.
-
-Well, there's a little difference. In case of contention, you loop with
-your custom try lock while I used the optimized asm code inside spin_lock.
-But again, I believe we didn't lose anything with the removal of this code
-(nested/recursive locks) from the kernel.
-
-
-
-- Davide
-
+--- 1.12/drivers/ide/ppc/pmac.c	Mon May 12 02:09:46 2003
++++ edited/drivers/ide/ppc/pmac.c	Sat May 17 15:31:07 2003
+@@ -721,7 +721,7 @@
+ 		}
+ 	}
+ 
+-	return NODEV;
++	return 0;
+ }
+ 
+ void __init
+--- 1.13/drivers/macintosh/adbhid.c	Wed Feb 12 10:41:01 2003
++++ edited/drivers/macintosh/adbhid.c	Sat May 17 21:30:20 2003
+@@ -84,7 +84,7 @@
+ 
+ static void adbhid_probe(void);
+ 
+-static void adbhid_input_keycode(int, int, int);
++static void adbhid_input_keycode(int, int, int, struct pt_regs *);
+ static void leds_done(struct adb_request *);
+ 
+ static void init_trackpad(int id);
+@@ -140,7 +140,7 @@
+ }
+ 
+ static void
+-adbhid_input_keycode(int id, int keycode, int repeat, pt_regs *regs)
++adbhid_input_keycode(int id, int keycode, int repeat, struct pt_regs *regs)
+ {
+ 	int up_flag;
+ 

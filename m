@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262408AbSJEQ45>; Sat, 5 Oct 2002 12:56:57 -0400
+	id <S262406AbSJEQ57>; Sat, 5 Oct 2002 12:57:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262411AbSJEQ44>; Sat, 5 Oct 2002 12:56:56 -0400
-Received: from silva5.uol.com.br ([200.221.4.52]:45015 "EHLO silva5.uol.com.br")
-	by vger.kernel.org with ESMTP id <S262408AbSJEQ4z>;
-	Sat, 5 Oct 2002 12:56:55 -0400
-Date: Sat, 5 Oct 2002 14:03:30 -0200
+	id <S262411AbSJEQ56>; Sat, 5 Oct 2002 12:57:58 -0400
+Received: from silva5.uol.com.br ([200.221.4.52]:31458 "EHLO silva5.uol.com.br")
+	by vger.kernel.org with ESMTP id <S262406AbSJEQ54>;
+	Sat, 5 Oct 2002 12:57:56 -0400
+Date: Sat, 5 Oct 2002 13:56:14 -0200
 From: Andre Costa <brblueser@uol.com.br>
-To: FD Cami <stilgar2k@wanadoo.fr>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: IDE subsystem issues with 2.4.1[89] [REVISITED]
-Message-Id: <20021005140330.4739280a.brblueser@uol.com.br>
-In-Reply-To: <3D9F195C.7010308@wanadoo.fr>
+Message-Id: <20021005135614.443e96b8.brblueser@uol.com.br>
+In-Reply-To: <1033836590.4079.7.camel@irongate.swansea.linux.org.uk>
 References: <20021005114725.3af9c194.brblueser@uol.com.br>
 	<1033833579.4103.2.camel@irongate.swansea.linux.org.uk>
 	<20021005131823.676c1bcc.brblueser@uol.com.br>
-	<3D9F195C.7010308@wanadoo.fr>
+	<1033836590.4079.7.camel@irongate.swansea.linux.org.uk>
 X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,27 +24,20 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi FD, thks for joining the party ;)
+Sure, I understand. Thks for the info, maybe I will try 2.4.20-pre to
+see what happens. I will post here any results I get (be them good or
+bad).
 
-Thks for the pointers -- now I know how to patch my kernel =)
-
-So, are you effectively able to rip audio tracks with 2.4.20-pre8ac3 or
-did you just mean that it is stable (in general)? Do you have the same
-mobo I have (or another one also based on VIA VT8233 Southbridge)?
-
-TIA,
+Best,
 
 Andre
 
-On Sat, 05 Oct 2002 18:54:52 +0200
-FD Cami <stilgar2k@wanadoo.fr> wrote:
+On 05 Oct 2002 17:49:50 +0100
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-> Apply 2.4.20pre8 (found in
-> ftp://ftp.kernel.org/pub/linux/kernel/v2.4/testing ) on top of
-> 2.4.19 then 2.4.20pre8ac3 (found in
-> ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.4/ )
-> 
-> 2.4.20pre8ac3 is running here, no problems.
+> Depends entirely on your hardware and a lot of other things. Right now
+> the ide-scsi code in the 2.5/2.4-ac tree still needs some more work
+> The 2.4 base code ought to be working (ie 2.4.19/2.4.20-pre)
 
 -- 
 Andre Oliveira da Costa

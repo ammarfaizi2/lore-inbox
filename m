@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261837AbTKZMgb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 07:36:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbTKZMgb
+	id S261885AbTKZMub (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 07:50:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbTKZMub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 07:36:31 -0500
-Received: from fw.osdl.org ([65.172.181.6]:17114 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261837AbTKZMga (ORCPT
+	Wed, 26 Nov 2003 07:50:31 -0500
+Received: from holomorphy.com ([199.26.172.102]:32189 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S261885AbTKZMua (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 07:36:30 -0500
-Date: Wed, 26 Nov 2003 04:42:51 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.0-test10-mm1
-Message-Id: <20031126044251.3b8309c1.akpm@osdl.org>
-In-Reply-To: <20031126085123.A1952@infradead.org>
-References: <20031125211518.6f656d73.akpm@osdl.org>
-	<20031126085123.A1952@infradead.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 26 Nov 2003 07:50:30 -0500
+Date: Wed, 26 Nov 2003 04:50:20 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Amir Hermelin <amir@montilio.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PG_reserved bug
+Message-ID: <20031126125020.GL8039@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Amir Hermelin <amir@montilio.com>, linux-kernel@vger.kernel.org
+References: <20031126101744.GJ8039@holomorphy.com> <003e01c3b41b$22140580$1d01a8c0@CARTMAN>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <003e01c3b41b$22140580$1d01a8c0@CARTMAN>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> wrote:
->
-> On Tue, Nov 25, 2003 at 09:15:18PM -0800, Andrew Morton wrote:
-> > +invalidate_mmap_range-non-gpl-export.patch
-> > 
-> >  Export invalidate_mmap_range() to all modules
-> 
-> Why?
+On Wed, Nov 26, 2003 at 02:45:06PM +0200, Amir Hermelin wrote:
+> Ok, fair enough.  According to what you say, this behavior won't change in
+> 2.6.  So, I'm still left with my second question: since I do access the
+> pages from several places in my module, and I want to use the refcount field
+> of the struct page (and not have to wrap the pages in another structure) so
+> I know when my page is no longer referenced, how can I make sure it's 'safe'
+> to not use the reserved bit?
 
-The individual patches in the broken-out/ directory are usually
-changelogged.  This one says:
-
-  It was EXPORT_SYMBOL_GPL(), however IBM's GPFS is not GPL.
-
-  - the GPFS team contributed to the testing and development of
-    invaldiate_mmap_range().
-
-  - GPFS was developed under AIX and was ported to Linux, and hence meets
-    Linus's "some binary modules are OK" exemption.
-
-  - The export makes sense: clustering filesystems need it for shootdowns to
-    ensure cache coherency.
+It looks like you'll have to wrap the pages in another structure.
+The refcounts for reserved pages are effectively meaningless.
 
 
+-- wli

@@ -1,32 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264833AbUFTQ0p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264561AbUFTQrT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264833AbUFTQ0p (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 12:26:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264561AbUFTQ0o
+	id S264561AbUFTQrT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 12:47:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264702AbUFTQrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 12:26:44 -0400
-Received: from havoc.gtf.org ([216.162.42.101]:25033 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S264702AbUFTQ0b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 12:26:31 -0400
-Date: Sun, 20 Jun 2004 12:26:11 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Ian Molton <spyro@f2s.com>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>, rmk+lkml@arm.linux.org.uk,
-       david-b@pacbell.net, linux-kernel@vger.kernel.org, greg@kroah.com,
-       tony@atomide.com, jamey.hicks@hp.com, joshua@joshuawise.com
+	Sun, 20 Jun 2004 12:47:19 -0400
+Received: from stat1.steeleye.com ([65.114.3.130]:40639 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S264561AbUFTQrQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 12:47:16 -0400
 Subject: Re: DMA API issues
-Message-ID: <20040620162611.GB16038@havoc.gtf.org>
-References: <40D359BB.3090106@pacbell.net> <1087593282.2135.176.camel@mulgrave> <40D36EDE.2080803@pacbell.net> <1087600052.2135.197.camel@mulgrave> <40D4849B.3070001@pacbell.net> <20040619214126.C8063@flint.arm.linux.org.uk> <1087681604.2121.96.camel@mulgrave> <20040619234933.214b810b.spyro@f2s.com> <1087738680.10858.5.camel@mulgrave> <20040620165042.393f2756.spyro@f2s.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Ian Molton <spyro@f2s.com>
+Cc: rmk+lkml@arm.linux.org.uk, david-b@pacbell.net,
+       Linux Kernel <linux-kernel@vger.kernel.org>, greg@kroah.com,
+       tony@atomide.com, jamey.hicks@hp.com, joshua@joshuawise.com
 In-Reply-To: <20040620165042.393f2756.spyro@f2s.com>
-User-Agent: Mutt/1.4.1i
+References: <1087584769.2134.119.camel@mulgrave>
+	<20040618195721.0cf43ec2.spyro@f2s.co <40D34078.5060909@pacbell.net>
+	<20040618204438.35278560.spyro@f2s.com> <1087588627.2134.155.camel@mulgrave
+	<40D359BB.3090106@pacbell.net> <1087593282.2135.176.camel@mulgrave>
+	<40D36EDE.2080803@pacbell.net> <1087600052.2135.197.camel@mulgrave>
+	<40D4849B.3070001@pacbell.net>
+	<20040619214126.C8063@flint.arm.linux.org.uk>
+	<1087681604.2121.96.camel@mulgrave> <20040619234933.214b810b.spyro@f2s.com>
+	<1087738680.10858.5.camel@mulgrave>  <20040620165042.393f2756.spyro@f2s.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 20 Jun 2004 11:46:53 -0500
+Message-Id: <1087750024.11222.81.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 20, 2004 at 04:50:42PM +0100, Ian Molton wrote:
+On Sun, 2004-06-20 at 10:50, Ian Molton wrote:
 > Those two statements are contradictory. clearly the iseries cant use the
 > DMA API *now* so I dont see how that makes any difference. We're talking
 > about adding propper support for *addresssable* memory mapped devices
@@ -39,13 +47,47 @@ On Sun, Jun 20, 2004 at 04:50:42PM +0100, Ian Molton wrote:
 > iseries cant work the usual way now and wont with these modifications -
 > so nothing is made worse.
 
-Are you purposefully ignoring James?
+OK, let's try and make this as simple as I know how.  The system looks
+like this
 
-He is saying the DMA API must be uniform across all platforms.  Your
-proposal 
 
-1) breaks this
+       +-----+
+       | CPU |
+       +--+--+
+          |
+    <-----+-----+----------------------+-----> Central Bus
+                |                      |
+          +-----+------+        +------+-----+
+          |   Memory   |        |    I/O     |
+          | Controller |        | Controller |
+          +-----+------+        +------+-----+
+                |                      |
+            +---+-----+             +--+---+    +--------+
+            | Memory  |             | OHCI |----| Memory |
+            +---------+             +------+    +--------+
 
-2) is unneeded, as many other drivers in this same situation simply use
-ioremap
+In order to access this OHCI memory, both the I/O controller and the
+OHCI have to respond to the memory access cycles, rather than the memory
+controller.  This is why such memory is termed "bus remote".
+
+Even though ARM can programm the I/O controller and the OHCI device to
+access this memory as though it were behind the memory controller (i.e.
+using normal CPU memory cycles), you'll find that even on ARM there's
+probably special page table trickery involved (probably to do with cache
+coherency issues).  Next, you'll find that no other device can see this
+memory without some type of i2o support, so it can't be the target of a
+DMA transaction. So even on ARM, you can't treat it as "normal" memory.
+
+On iSeries, the I/O controller sits behind the hypervisor and can't be
+the target of normal memory cycles, that's why the CPU can't address
+this bus remote memory normally. As I've explained.
+
+The DMA API is about allowing devices to transact directly with memory
+behind the memory controller, it's an API that essentially allows the
+I/O controller and memory controller to communicate without CPU
+intervention.  This is still possible through the hypervisor, so the
+iSeries currently fully implements the DMA API.
+
+James
+
 

@@ -1,110 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263195AbTFPC1U (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 22:27:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263245AbTFPC1U
+	id S263245AbTFPCbQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 22:31:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263250AbTFPCbQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 22:27:20 -0400
-Received: from mail.zapo.net ([216.65.31.98]:26284 "EHLO postman")
-	by vger.kernel.org with ESMTP id S263195AbTFPC1S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 22:27:18 -0400
-To: watergate@zapo.net
-Subject: You are a winner!!!
-From: "Henry Ponfa" <watergate@zapo.net>
-Date: Mon, 16 Jun 2003 05:32:09 +0300
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: ZapoWebMail [Version 1.0.13]
-Message-ID: <courier.3EED2C29.00005C8C@postman>
-X-Mime-Autoconverted: from 8bit to 7bit by courier 0.39
+	Sun, 15 Jun 2003 22:31:16 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33809 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263245AbTFPCbP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 22:31:15 -0400
+Date: Sun, 15 Jun 2003 19:44:55 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: linux-kernel@vger.kernel.org, <rth@twiddle.net>, <ak@muc.de>,
+       Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [PATCH] Fix undefined/miscompiled construct in kernel parameters
+In-Reply-To: <20030616002453.8A9B72C078@lists.samba.org>
+Message-ID: <Pine.LNX.4.44.0306151939140.10415-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lottery Headquarters:
-Customer Service
-580 N. Tenth Street, CA 85914
 
-Watergate Sweepstake Lottery(W.S.L.)
-an Affiliate of WATERGATE INC.
-Arena Complex Km 18 Route de Rufisque
-I.P.P Award Dept.
-johannesburg, south africa.
+On Mon, 16 Jun 2003, Rusty Russell wrote:
+> 
+> AFAICT, Roman's fix is correct; Richard admonished me in the past for
+> such code, IIRC, but this one slipped through.
 
-Ref: EAASL/941OYI/02
-Batch: 12/25/DC34
+Roman's fix is fine, but the fact is, the original code was also fine. 
+Yes, the C standard has all these rules about "within objects" for pointer 
+differences, but the "objects" themselves can come from outside the 
+compiler. As they did in this case.
 
-         
-                  WINNING NOTIFICATION:
+(Yeah, I could see the compiler warning about cases it suspects might be 
+separate objects, but the end result should still be the right one).
 
-We happily announce to you the draw of the Euro - Afro
-Asian Sweepstake Lottery International programs
-held on the 1st of May 2003 in Johannesburg,South
-Africa.
-Your e-mail address attached to ticket number: 564
-75600545 188 with Serial number 5388/02 drew the lucky
-numbers: 31-6-26-13-35-7, which subsequently won you
-the lottery in the 2nd category.
+In general, I accept _local_ uglifications to work around compiler
+problems. But I do not accept non-local stuff like making for ugly calling
+conventions etc, which is why Andi's original patch was not acceptable to
+me.
 
-You have therefore been approved to claim a total sum
-of US$2,500,000.00 (Two million Five Hundred Thousand
-United States
-Dollars) in cash credited to file
-KPC/9080118308/02.This is from a total cash prize of
-US $ 25 Million dollars, shared amongst the first
-ten (10) lucky winners in this category.
-Please note that your lucky winning number falls
-within our European booklet representative office in
-Europe as indicated in your play coupon.
-In view of this, your US$2,500,000.00 (Two million
-Five Hundred Thousand
-United States Dollars) would be released to you by our
-Bankers via online services.
+It turns out that the real bug was somewhere in the tool chain, and the 
+linker should either honor alignment requirements or warn about them when 
+it cannot. I suspect in this case the alignment requirement wasn't 
+properly passed down the chain somewhere, I dunno. The problem is fixed, 
+but for future reference please keep this in mind when working around 
+compiler problems.
 
-All participants were selected randomly from World
-Wide Web site through computer draw system and
-extracted from over 100,000 companies. This promotion
-takes place annually.
+If worst comes to worst, we'll have notes about certain compiler versions 
+just not working. It's certainly happened before.
 
-Our European agent will immediately commence the
-process to facilitate the release of your funds as
-soon as you contact him.
+		Linus
 
-To file for your claim, please contact our fiduciary
-agent:
-
-Mr. George Hanes.
-Watergate inc
-Email: hanes@accessgcc.com
-
-For security reasons, you are advised to keep your
-winning information confidential till your claims is
-processed and your money remitted into your nominated
-account. 
-This is part of our precautionary measure to avoid
-double claiming
-and unwarranted abuse of this program by some
-unscrupulous elements. 
-
-PLEASE BE WARNED!!!
-
-To avoid unnecessary delays and complications, please
-quote your reference/batch numbers in any
-correspondences with us or our designated agent.
-Congratulations once more from all members and staffs
-of this program. Thank you for being part of our
-promotional lottery program.
-
-
-Sincerely,
-SIR H.J.PONFA
-W.S.L.Coordinator.
-
-
-
-
-
----------------------
-Free Email Service
-http://www.zapo.net/

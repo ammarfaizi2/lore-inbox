@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261992AbVBPKA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262000AbVBPKCH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261992AbVBPKA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 05:00:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261999AbVBPKAZ
+	id S262000AbVBPKCH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 05:02:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261999AbVBPKBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 05:00:25 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:7691 "HELO
+	Wed, 16 Feb 2005 05:01:04 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9995 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261992AbVBPJ7d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 04:59:33 -0500
-Date: Wed, 16 Feb 2005 10:59:32 +0100
+	id S261998AbVBPJ7n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 04:59:43 -0500
+Date: Wed, 16 Feb 2005 10:59:41 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: dwmw2@infradead.org, jffs-dev@axis.com, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fs/jffs2/: misc cleanups
-Message-ID: <20050216095932.GE3272@stusta.de>
+Cc: mike.miller@hp.com, iss_storagedev@hp.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/block/cciss*: misc cleanups
+Message-ID: <20050216095941.GF3272@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,213 +23,153 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This patch contains the following cleanups:
-- make some needlessly global functions static
-- remove the following unused global functions:
-  - compr.c: jffs2_set_compression_mode
-  - compr.c: jffs2_get_compression_mode
+- make some needlesly global code static
+- cciss_scsi.c: remove the unused global function cciss_scsi_info
+- cciss.c:
+  - init_cciss_module -> cciss_init
+  - cleanup_cciss_module -> cciss_cleanup
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
 This patch was already sent on:
-- 8 Jan 2005
-- 24 Jan 2005
+- 29 Jan 2005
 
- fs/jffs2/compr.c       |   10 ----------
- fs/jffs2/compr.h       |    3 ---
- fs/jffs2/compr_rtime.c |   12 ++++++++----
- fs/jffs2/erase.c       |    3 ++-
- fs/jffs2/file.c        |   15 +++++++++++----
- fs/jffs2/fs.c          |    3 ++-
- fs/jffs2/nodelist.h    |    1 -
- fs/jffs2/os-linux.h    |    5 -----
- fs/jffs2/wbuf.c        |    2 +-
- 9 files changed, 24 insertions(+), 30 deletions(-)
+ drivers/block/cciss.c      |   15 +++++----------
+ drivers/block/cciss_scsi.c |   35 ++++-------------------------------
+ drivers/block/cciss_scsi.h |    1 -
+ 3 files changed, 9 insertions(+), 42 deletions(-)
 
---- linux-2.6.10-mm2-full/fs/jffs2/compr.h.old	2005-01-08 04:16:42.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/jffs2/compr.h	2005-01-08 04:18:40.000000000 +0100
-@@ -41,9 +41,6 @@
- #define JFFS2_COMPR_MODE_PRIORITY   1
- #define JFFS2_COMPR_MODE_SIZE       2
+--- linux-2.6.11-rc2-mm1-full/drivers/block/cciss_scsi.h.old	2005-01-29 13:50:28.000000000 +0100
++++ linux-2.6.11-rc2-mm1-full/drivers/block/cciss_scsi.h	2005-01-29 13:51:05.000000000 +0100
+@@ -39,7 +39,6 @@
+ #define SCSI_CCISS_CAN_QUEUE 2
  
--void jffs2_set_compression_mode(int mode);
--int jffs2_get_compression_mode(void);
+ /* 
+-	info:           	cciss_scsi_info,		\
+ 
+ Note, cmd_per_lun could give us some trouble, so I'm setting it very low.
+ Likewise, SCSI_CCISS_CAN_QUEUE is set very conservatively.
+--- linux-2.6.11-rc2-mm1-full/drivers/block/cciss_scsi.c.old	2005-01-29 13:50:40.000000000 +0100
++++ linux-2.6.11-rc2-mm1-full/drivers/block/cciss_scsi.c	2005-01-29 13:51:05.000000000 +0100
+@@ -53,9 +53,7 @@
+ 	int cmd_type);
+ 
+ 
+-const char *cciss_scsi_info(struct Scsi_Host *sa);
 -
- struct jffs2_compressor {
-         struct list_head list;
-         int priority;              /* used by prirority comr. mode */
---- linux-2.6.10-mm2-full/fs/jffs2/compr.c.old	2005-01-08 04:18:49.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/jffs2/compr.c	2005-01-08 04:19:59.000000000 +0100
-@@ -23,16 +23,6 @@
- /* Actual compression mode */
- static int jffs2_compression_mode = JFFS2_COMPR_MODE_PRIORITY;
+-int cciss_scsi_proc_info(
++static int cciss_scsi_proc_info(
+ 		struct Scsi_Host *sh,
+ 		char *buffer, /* data buffer */
+ 		char **start, 	   /* where data in buffer starts */
+@@ -63,7 +61,7 @@
+ 		int length, 	   /* length of data in buffer */
+ 		int func);	   /* 0 == read, 1 == write */
  
--void jffs2_set_compression_mode(int mode) 
+-int cciss_scsi_queue_command (struct scsi_cmnd *cmd, 
++static int cciss_scsi_queue_command (struct scsi_cmnd *cmd, 
+ 		void (* done)(struct scsi_cmnd *));
+ 
+ static struct cciss_scsi_hba_t ccissscsi[MAX_CTLR] = {
+@@ -712,8 +710,6 @@
+ 	return 1;
+ }
+ 
+-static void __exit cleanup_cciss_module(void);
+-
+ static void
+ cciss_unmap_one(struct pci_dev *pdev,
+ 		CommandList_struct *cp,
+@@ -1114,7 +1110,7 @@
+ }
+ 
+ 
+-int
++static int
+ cciss_scsi_proc_info(struct Scsi_Host *sh,
+ 		char *buffer, /* data buffer */
+ 		char **start, 	   /* where data in buffer starts */
+@@ -1149,29 +1145,6 @@
+ 			buffer, length);	
+ } 
+ 
+-/* this is via the generic proc support */
+-const char *
+-cciss_scsi_info(struct Scsi_Host *sa)
 -{
--        jffs2_compression_mode = mode;
+-	static char buf[300];
+-	ctlr_info_t *ci;
+-
+-	/* probably need to work on putting a bit more info in here... */
+-	/* this is output via the /proc filesystem. */
+-
+-	ci = (ctlr_info_t *) sa->hostdata[0];
+-
+-	sprintf(buf, "%s %c%c%c%c\n",
+-		ci->product_name, 
+-		ci->firm_ver[0],
+-		ci->firm_ver[1],
+-		ci->firm_ver[2],
+-		ci->firm_ver[3]);
+-
+-	return buf; 
 -}
 -
--int jffs2_get_compression_mode(void)
+-
+ /* cciss_scatter_gather takes a struct scsi_cmnd, (cmd), and does the pci 
+    dma mapping  and fills in the scatter gather entries of the 
+    cciss command, cp. */
+@@ -1225,7 +1198,7 @@
+ }
+ 
+ 
+-int 
++static int 
+ cciss_scsi_queue_command (struct scsi_cmnd *cmd, void (* done)(struct scsi_cmnd *))
+ {
+ 	ctlr_info_t **c;
+--- linux-2.6.11-rc2-mm1-full/drivers/block/cciss.c.old	2005-01-29 13:50:55.000000000 +0100
++++ linux-2.6.11-rc2-mm1-full/drivers/block/cciss.c	2005-01-29 14:25:31.000000000 +0100
+@@ -61,7 +61,7 @@
+ #include <linux/cciss_ioctl.h>
+ 
+ /* define the PCI info for the cards we can control */
+-const struct pci_device_id cciss_pci_device_id[] = {
++static const struct pci_device_id cciss_pci_device_id[] = {
+ 	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISS,
+ 			0x0E11, 0x4070, 0, 0, 0},
+ 	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSB,
+@@ -2878,7 +2878,7 @@
+  *  This is it.  Register the PCI driver information for the cards we control
+  *  the OS will call our registered routines when it finds one of our cards. 
+  */
+-int __init cciss_init(void)
++static int __init cciss_init(void)
+ {
+ 	printk(KERN_INFO DRIVER_NAME "\n");
+ 
+@@ -2886,12 +2886,7 @@
+ 	return pci_module_init(&cciss_pci_driver);
+ }
+ 
+-static int __init init_cciss_module(void)
 -{
--        return jffs2_compression_mode;
+-	return ( cciss_init());
 -}
 -
- /* Statistics for blocks stored without compression */
- static uint32_t none_stat_compr_blocks=0,none_stat_decompr_blocks=0,none_stat_compr_size=0;
- 
---- linux-2.6.10-mm2-full/fs/jffs2/compr_rtime.c.old	2005-01-08 04:20:19.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/jffs2/compr_rtime.c	2005-01-08 04:21:09.000000000 +0100
-@@ -29,8 +29,10 @@
- #include "compr.h"
- 
- /* _compress returns the compressed size, -1 if bigger */
--int jffs2_rtime_compress(unsigned char *data_in, unsigned char *cpage_out, 
--		   uint32_t *sourcelen, uint32_t *dstlen, void *model)
-+static int jffs2_rtime_compress(unsigned char *data_in,
-+				unsigned char *cpage_out, 
-+				uint32_t *sourcelen, uint32_t *dstlen,
-+				void *model)
+-static void __exit cleanup_cciss_module(void)
++static void __exit cciss_cleanup(void)
  {
- 	short positions[256];
- 	int outpos = 0;
-@@ -69,8 +71,10 @@
- }		   
+ 	int i;
  
- 
--int jffs2_rtime_decompress(unsigned char *data_in, unsigned char *cpage_out,
--		      uint32_t srclen, uint32_t destlen, void *model)
-+static int jffs2_rtime_decompress(unsigned char *data_in,
-+				  unsigned char *cpage_out,
-+				  uint32_t srclen, uint32_t destlen,
-+				  void *model)
- {
- 	short positions[256];
- 	int outpos = 0;
---- linux-2.6.10-mm2-full/fs/jffs2/nodelist.h.old	2005-01-08 04:24:11.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/jffs2/nodelist.h	2005-01-08 04:24:16.000000000 +0100
-@@ -460,7 +460,6 @@
- int jffs2_do_mount_fs(struct jffs2_sb_info *c);
- 
- /* erase.c */
--void jffs2_erase_block(struct jffs2_sb_info *c, struct jffs2_eraseblock *jeb);
- void jffs2_erase_pending_blocks(struct jffs2_sb_info *c, int count);
- 
- #ifdef CONFIG_JFFS2_FS_NAND
---- linux-2.6.10-mm2-full/fs/jffs2/erase.c.old	2005-01-08 04:24:24.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/jffs2/erase.c	2005-01-08 04:24:44.000000000 +0100
-@@ -33,7 +33,8 @@
- static void jffs2_free_all_node_refs(struct jffs2_sb_info *c, struct jffs2_eraseblock *jeb);
- static void jffs2_mark_erased_block(struct jffs2_sb_info *c, struct jffs2_eraseblock *jeb);
- 
--void jffs2_erase_block(struct jffs2_sb_info *c, struct jffs2_eraseblock *jeb)
-+static void jffs2_erase_block(struct jffs2_sb_info *c,
-+			      struct jffs2_eraseblock *jeb)
- {
- 	int ret;
- 	uint32_t bad_offset;
---- linux-2.6.10-mm2-full/fs/jffs2/os-linux.h.old	2005-01-08 04:25:12.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/jffs2/os-linux.h	2005-01-08 04:27:59.000000000 +0100
-@@ -173,11 +173,7 @@
- extern struct inode_operations jffs2_file_inode_operations;
- extern struct address_space_operations jffs2_file_address_operations;
- int jffs2_fsync(struct file *, struct dentry *, int);
--int jffs2_do_readpage_nolock (struct inode *inode, struct page *pg);
- int jffs2_do_readpage_unlock (struct inode *inode, struct page *pg);
--int jffs2_readpage (struct file *, struct page *);
--int jffs2_prepare_write (struct file *, struct page *, unsigned, unsigned);
--int jffs2_commit_write (struct file *, struct page *, unsigned, unsigned);
- 
- /* ioctl.c */
- int jffs2_ioctl(struct inode *, struct file *, unsigned int, unsigned long);
-@@ -208,7 +204,6 @@
- void jffs2_gc_release_page(struct jffs2_sb_info *c,
- 			   unsigned char *pg,
- 			   unsigned long *priv);
--int jffs2_flash_setup(struct jffs2_sb_info *c);
- void jffs2_flash_cleanup(struct jffs2_sb_info *c);
-      
- 
---- linux-2.6.10-mm2-full/fs/jffs2/file.c.old	2005-01-08 04:25:37.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/jffs2/file.c	2005-01-08 04:27:48.000000000 +0100
-@@ -25,6 +25,11 @@
- extern int generic_file_open(struct inode *, struct file *) __attribute__((weak));
- extern loff_t generic_file_llseek(struct file *file, loff_t offset, int origin) __attribute__((weak));
- 
-+static int jffs2_commit_write (struct file *filp, struct page *pg,
-+			       unsigned start, unsigned end);
-+static int jffs2_prepare_write (struct file *filp, struct page *pg,
-+				unsigned start, unsigned end);
-+static int jffs2_readpage (struct file *filp, struct page *pg);
- 
- int jffs2_fsync(struct file *filp, struct dentry *dentry, int datasync)
- {
-@@ -65,7 +70,7 @@
- 	.commit_write =	jffs2_commit_write
- };
- 
--int jffs2_do_readpage_nolock (struct inode *inode, struct page *pg)
-+static int jffs2_do_readpage_nolock (struct inode *inode, struct page *pg)
- {
- 	struct jffs2_inode_info *f = JFFS2_INODE_INFO(inode);
- 	struct jffs2_sb_info *c = JFFS2_SB_INFO(inode->i_sb);
-@@ -105,7 +110,7 @@
+@@ -2909,5 +2904,5 @@
+ 	remove_proc_entry("cciss", proc_root_driver);
  }
  
- 
--int jffs2_readpage (struct file *filp, struct page *pg)
-+static int jffs2_readpage (struct file *filp, struct page *pg)
- {
- 	struct jffs2_inode_info *f = JFFS2_INODE_INFO(pg->mapping->host);
- 	int ret;
-@@ -116,7 +121,8 @@
- 	return ret;
- }
- 
--int jffs2_prepare_write (struct file *filp, struct page *pg, unsigned start, unsigned end)
-+static int jffs2_prepare_write (struct file *filp, struct page *pg,
-+				unsigned start, unsigned end)
- {
- 	struct inode *inode = pg->mapping->host;
- 	struct jffs2_inode_info *f = JFFS2_INODE_INFO(inode);
-@@ -198,7 +204,8 @@
- 	return ret;
- }
- 
--int jffs2_commit_write (struct file *filp, struct page *pg, unsigned start, unsigned end)
-+static int jffs2_commit_write (struct file *filp, struct page *pg,
-+			       unsigned start, unsigned end)
- {
- 	/* Actually commit the write from the page cache page we're looking at.
- 	 * For now, we write the full page out each time. It sucks, but it's simple
---- linux-2.6.10-mm2-full/fs/jffs2/fs.c.old	2005-01-08 04:28:06.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/jffs2/fs.c	2005-01-08 04:28:36.000000000 +0100
-@@ -25,6 +25,7 @@
- #include <linux/crc32.h>
- #include "nodelist.h"
- 
-+static int jffs2_flash_setup(struct jffs2_sb_info *c);
- 
- static int jffs2_do_setattr (struct inode *inode, struct iattr *iattr)
- {
-@@ -644,7 +645,7 @@
- 	page_cache_release(pg);
- }
- 
--int jffs2_flash_setup(struct jffs2_sb_info *c) {
-+static int jffs2_flash_setup(struct jffs2_sb_info *c) {
- 	int ret = 0;
- 	
- 	if (jffs2_cleanmarker_oob(c)) {
---- linux-2.6.10-mm2-full/fs/jffs2/wbuf.c.old	2005-01-08 04:28:50.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/jffs2/wbuf.c	2005-01-08 04:29:01.000000000 +0100
-@@ -1087,7 +1087,7 @@
- };
- 
- 
--int jffs2_nand_set_oobinfo(struct jffs2_sb_info *c)
-+static int jffs2_nand_set_oobinfo(struct jffs2_sb_info *c)
- {
- 	struct nand_oobinfo *oinfo = &c->mtd->oobinfo;
- 
+-module_init(init_cciss_module);
+-module_exit(cleanup_cciss_module);
++module_init(cciss_init);
++module_exit(cciss_cleanup);
 

@@ -1,34 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292304AbSB0RSM>; Wed, 27 Feb 2002 12:18:12 -0500
+	id <S292815AbSB0RSC>; Wed, 27 Feb 2002 12:18:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292817AbSB0RRm>; Wed, 27 Feb 2002 12:17:42 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:48651 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S292295AbSB0RRa>; Wed, 27 Feb 2002 12:17:30 -0500
-Message-Id: <200202271717.g1RHHHuG013457@pincoya.inf.utfsm.cl>
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] final hunk of jiffies compare fixups 
-In-Reply-To: Message from Tim Schmielau <tim@physik3.uni-rostock.de> 
-   of "Tue, 26 Feb 2002 21:31:48 BST." <Pine.LNX.4.33.0202262127540.16224-100000@gans.physik3.uni-rostock.de> 
-Date: Wed, 27 Feb 2002 14:17:17 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S292304AbSB0RRw>; Wed, 27 Feb 2002 12:17:52 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:32913 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S292815AbSB0RRl>; Wed, 27 Feb 2002 12:17:41 -0500
+Date: Wed, 27 Feb 2002 10:31:26 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
+Subject: Re: 3Ware Hard Bus Hang 2.4.18 > 220 MB/S
+Message-ID: <20020227103126.A31578@vger.timpanogas.org>
+In-Reply-To: <20020227102545.B31524@vger.timpanogas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020227102545.B31524@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Wed, Feb 27, 2002 at 10:25:45AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Schmielau <tim@physik3.uni-rostock.de> said:
+On Wed, Feb 27, 2002 at 10:25:45AM -0700, Jeff V. Merkey wrote:
+> 
 
-[...]
 
-> The patches of the second category got some review from Horst von Brand
-> <brand@jupiter.cs.uni-dortmund.de>, who spotted one horribly stupid mistake
-> (thanks!!) of mine that I corrected. Anyways all patches follow the same
-> simple pattern, so they should be pretty safe to apply.
+More info.  I put in some trace code to determine how many io buffer
+heads were being fed to each adapter.  When the number of bh's reaches
+numbers above 4244+- buffer heads outstanding at one time, then I see the 
+cards lockup.  
 
-Just a nit: I'm back home, this here is my regular address.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Jeff
+
+> 
+> 
+> Running 4 3Ware 7810 Adapters with the updated 48 bit LBA firmware
+> for the 78110, and attached to 8 Maxtor 160 GB hard disks on each card
+> (32 drives total) striping Raid 0m across 5.6 terabytes of disk, I am
+> seeing about 216-224 MB/S total throughput on writes to local 
+> arrays on 2.4.18.  
+> 
+> The system is also running an Intel Gigabit Ethernet Card at 
+> 116-122 MB/S with full network traffic and writing this traffic to 
+> the 3Ware arrays.  All this hardware is running on a Serverworks 
+> HE chipset with a SuperMicro motherboard and dual 933 Mhz PIII
+> processors.
+> 
+> After running for about 3 hours, the system will hard hang and die.  
+> Using debugging tools, I have isolated to the hang to the 3Ware 
+> adapters.  If I remove all but a single 3Ware adapter, the system will
+> run reliably for days at these data rates.  The moment I add more 
+> than one 3Ware 7810 adapter, the system will lock up.  Recent testing
+> reveals that the hang is in the 3Ware card itself (all the LEDs go 
+> on at once and stay on).  Attempts by the system to reset the adapter
+> fail until the system is power cycled.  
+> 
+> 3Ware dfriver version is .16 from the 2.4.18 tree.  Firmware is the 48 bit
+> LBA version.  
+> 
+> Please advise.  
+> 
+> Jeff
+
+

@@ -1,85 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264525AbTIDCjD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 22:39:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264546AbTIDCiw
+	id S264536AbTIDClq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 22:41:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264512AbTIDClp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 22:38:52 -0400
-Received: from fmr09.intel.com ([192.52.57.35]:45542 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S264525AbTIDChS convert rfc822-to-8bit
+	Wed, 3 Sep 2003 22:41:45 -0400
+Received: from mail3-126.ewetel.de ([212.6.122.126]:20182 "EHLO
+	mail3.ewetel.de") by vger.kernel.org with ESMTP id S264536AbTIDCkZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 22:37:18 -0400
-content-class: urn:content-classes:message
+	Wed, 3 Sep 2003 22:40:25 -0400
+Date: Thu, 4 Sep 2003 04:40:22 +0200 (CEST)
+From: Pascal Schmidt <der.eremit@email.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [NFS] attempt to use V1 mount protocol on V3 server
+In-Reply-To: <16214.41175.580602.671154@charged.uio.no>
+Message-ID: <Pine.LNX.4.44.0309040433540.8732-100000@neptune.local>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: 2.6.0-test4-mm5
-Date: Wed, 3 Sep 2003 19:37:13 -0700
-Message-ID: <7F740D512C7C1046AB53446D3720017304AF02@scsmsx402.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.0-test4-mm5
-Thread-Index: AcNyhKw+hj4HbJ1/TCmc4n78kNTXJAAB7saQ
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Bill Huey (hui)" <billh@gnuppy.monkey.org>,
-       "Andrew Morton" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, "linux-acpi" <linux-acpi@intel.com>
-X-OriginalArrivalTime: 04 Sep 2003 02:37:14.0514 (UTC) FILETIME=[73325720:01C3728D]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, that patch was intended for broader tests before we check it out.
+On Wed, 3 Sep 2003, Trond Myklebust wrote:
 
+> It's being handed a bogus filehandle by the userland mount command
+> (which gets it from mountd). When it sends the initial NFSv3 GETATTR
+> call to the nfsd, and gets rejected, it just retries the same GETATTR
+> call as an NFSv2 call.
 
-As some people pointed out, it needs:
+Out of interest, how does this work? Not obvious to me since an NFSv3
+filehandle is too big for an NFSv2 server.
 
+> I'll check what's happening. AFAICS, the NFS layer should not really
+> care, but it will pass some funny values back to the VFS, and this
+> might be screwing something up...
 
-	int result;
-+
-+	ACPI_FUNCTION_TRACE("acpi_pci_link_try_get_current");
-+
-	result = acpi_pci_link_get_current(link);
-	if (result && link->irq.active) {
- 		return_VALUE(result);
- 	}
+Sounds likely, since basically the whole machine locked up and no
+futher fs operations seemed to be happening. I haven't checked whether
+2.4 also shows the problem - I just fixed it in my code and then it
+obviously did not happen anymore.
 
-> -----Original Message-----
-> From: Bill Huey (hui) [mailto:billh@gnuppy.monkey.org]
-> Sent: Wednesday, September 03, 2003 6:31 PM
-> To: Andrew Morton
-> Cc: linux-kernel@vger.kernel.org; Bill Huey (hui)
-> Subject: Re: 2.6.0-test4-mm5
-> 
-> On Tue, Sep 02, 2003 at 11:18:12PM -0700, Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-
-> test4/2.6.0-test4-mm5/
-> 
-> make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
->   CHK     include/linux/compile.h
->   CC      drivers/acpi/pci_link.o
-> drivers/acpi/pci_link.c: In function `acpi_pci_link_try_get_current':
-> drivers/acpi/pci_link.c:290: error: `_dbg' undeclared (first use in
-this
-> function)
-> drivers/acpi/pci_link.c:290: error: (Each undeclared identifier is
-> reported only once
-> drivers/acpi/pci_link.c:290: error: for each function it appears in.)
-> make[2]: *** [drivers/acpi/pci_link.o] Error 1
-> make[1]: *** [drivers/acpi] Error 2
-> make: *** [drivers] Error 2
-> 
->
-------------------------------------------------------------------------
---
-> ----------------
-> 
-> bill
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe
-linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I can test patches or also send you my code if you want to test
+things yourself. It's also available online, UNFS3 project at
+SourceForge, but that's of course a version with working FSSTAT.
+
+-- 
+Ciao,
+Pascal
+

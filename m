@@ -1,71 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbUKJJ4G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbUKJJzs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261631AbUKJJ4G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 04:56:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbUKJJ4G
+	id S261581AbUKJJzs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 04:55:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbUKJJzr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 04:56:06 -0500
-Received: from smtp.rol.ru ([194.67.21.9]:49000 "EHLO smtp.rol.ru")
-	by vger.kernel.org with ESMTP id S261631AbUKJJz4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 04:55:56 -0500
-Message-ID: <4191E657.1030409@vlnb.net>
-Date: Wed, 10 Nov 2004 12:58:47 +0300
-From: Vladislav Bolkhovitin <vst@vlnb.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: ru, en-us, en
+	Wed, 10 Nov 2004 04:55:47 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:29327 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S261581AbUKJJzk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 04:55:40 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: discuss@x86-64.org
+Subject: Re: [discuss] [PATCH x86_64]: Setup PER_LINUX32 on x86_64
+Date: Wed, 10 Nov 2004 10:51:37 +0100
+User-Agent: KMail/1.6.2
+Cc: "Jin, Gordon" <gordon.jin@intel.com>, <linux-kernel@vger.kernel.org>
+References: <8126E4F969BA254AB43EA03C59F44E84BBECA2@pdsmsx404>
+In-Reply-To: <8126E4F969BA254AB43EA03C59F44E84BBECA2@pdsmsx404>
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: "Moore, Eric Dean" <Eric.Moore@lsil.com>, mpt_linux_developer@lsil.com,
-       linux-kernel@vger.kernel.org,
-       "Shirron, Stephen" <Stephen.Shirron@lsil.com>
-Subject: Re: 2.6: unused code under drivers/message/fusion/
-References: <91888D455306F94EBD4D168954A9457C2D1E91@nacos172.co.lsil.com> <4191CD47.1000205@vlnb.net> <20041110094041.GI4089@stusta.de>
-In-Reply-To: <20041110094041.GI4089@stusta.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-Id: <200411101051.37702.arnd@arndb.de>
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_pSekBNiT/FbOubi";
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On Wed, Nov 10, 2004 at 11:11:51AM +0300, Vladislav Bolkhovitin wrote:
-> 
->>Moore, Eric Dean wrote:
->>
->>>We need to hold off on this change. Yes, there are 
->>>customers of LSI Logic using mptstm.c, as
->>>part of the target-mode drivers.  
->>>
->>>The proposed generic target mode drivers proposal is yet part
->>>of the kernel.  
->>>http://scst.sourceforge.net/
->>>We are looking into supporting this once its available.
->>
->>Well, SCST is already available, stable and useful. People use it 
->>without considerable problems, except with inconvenient LUNs management, 
->>which we are going to fix in the next version. I don't expect it will be 
->>considering for the kernel inclusion at least until 2.7. So, you can 
->>start supporting it right now :-).
-> 
-> 
-> With the current kernel development model, there is no 2.7 planned for 
-> the next years.
-> 
-> Linus and Andrew believe 6 was an odd number, so you could submit your 
-> code now. [1]
 
-OK, I'll prepare the next version as the kernel patch.
+--Boundary-02=_pSekBNiT/FbOubi
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Thanks,
-Vlad
+On Dinsdag 02 November 2004 09:47, Jin, Gordon wrote:
+> On x86_64, PER_LINUX32 is not setup but used by syscall personality and uname.
+> This patch sets PER_LINUX32 when x86 binary loaded so it can be used correctly.
+> - Set personality to PER_LINUX32 when x86 binary loaded.
+> - Set personality to PER_LINUX when x86_64 binary loaded.
+> - Use sys32_personality instead of sys_personality.
+> - Add sys32_newuname() for syscall newuname.
+> - Remove the unnecessary check for PER_LINUX32 in sys_uname().
 
->>Vlad
-> 
-> 
-> cu
-> Adrian
-> 
-> [1] this is a slightly abbreviated version of the development model
->     Linus announced
-> 
+That behavior would be significantly different from the current one,
+which is also used on all other biarch architectures. This probably
+breaks lots of user setups.
 
+I also think the current behavior is the right one. For things like
+configure, you need a way to set the uname independent of the binary
+format of your shell. Another example is building rpm packages
+on a mixed system, where should be able to set the personality
+to decide which target architecture to build for.
+
+	Arnd <><
+
+
+
+--Boundary-02=_pSekBNiT/FbOubi
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBkeSp5t5GS2LDRf4RAhX6AJ43AQkam4S9xL/uRbS8U7dyeD35wACfREHb
+jE0cLsjcuaW//VnzCZxkgGk=
+=0Vda
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_pSekBNiT/FbOubi--

@@ -1,29 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268936AbRHFTLE>; Mon, 6 Aug 2001 15:11:04 -0400
+	id <S268948AbRHFTOO>; Mon, 6 Aug 2001 15:14:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268941AbRHFTKy>; Mon, 6 Aug 2001 15:10:54 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38661 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268936AbRHFTKr>; Mon, 6 Aug 2001 15:10:47 -0400
-Subject: Re: MTRR errors at startup... (fwd)
-To: root@ria.jamescleland.com (root)
-Date: Mon, 6 Aug 2001 20:12:33 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0108061449360.10211-100000@ria.jamescleland.com> from "root" at Aug 06, 2001 03:01:31 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S268942AbRHFTOF>; Mon, 6 Aug 2001 15:14:05 -0400
+Received: from [63.102.108.100] ([63.102.108.100]:27148 "EHLO
+	normandy.sdlcomm.com") by vger.kernel.org with ESMTP
+	id <S268941AbRHFTNx>; Mon, 6 Aug 2001 15:13:53 -0400
+Message-ID: <3810755D5165D2118F4400104B36917AC4FD34@normandy>
+From: Matt Schulkind <mschulkind@sbs.com>
+To: "'linux-ppp@vger.kernel.org'" <linux-ppp@vger.kernel.org>,
+        "'paulus@samba.org'" <paulus@samba.org>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Syncppp
+Date: Mon, 6 Aug 2001 15:15:24 -0400 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Tpnm-0001bQ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Aug  6 04:02:40 valerie kernel: Setting commenced=1, go go go
-> Aug  6 04:02:40 valerie kernel: mtrr: your CPUs had inconsistent variable MTRR settings
-> Aug  6 04:02:40 valerie kernel: mtrr: probably your BIOS does not setup all CPUs
+In the 2.2.16 kernel, it seems that the ppp_device structure was changed to
+use a pointer to the net device instead of haveing the structure contained
+within, and the if_down procedure was changed accordingly to use the sppp_of
+macro. But, if I take a look at the 2.4.x kernel sources, it seems only the
+first change, the pointer vs. struct change was made, but the if_down
+procedure was not changed. I believe this is a bug and the if_down procedure
+in the 2.4.x kernel must be changed to match 2.2.16+. Could anyone confirm
+this?
 
-It indicates your bios authors can't read standards. Thats a quite normal
-state of affairs, so common that the kernel cleans up after them
+Please CC me personally with any replies.
 
+-Matt Schulkind

@@ -1,35 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267843AbTAHSmC>; Wed, 8 Jan 2003 13:42:02 -0500
+	id <S267624AbTAHSnF>; Wed, 8 Jan 2003 13:43:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267838AbTAHSl7>; Wed, 8 Jan 2003 13:41:59 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:47474
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S267843AbTAHSl5>; Wed, 8 Jan 2003 13:41:57 -0500
-Date: Wed, 8 Jan 2003 13:51:23 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: "Ruslan U. Zakirov" <cubic@miee.ru>
-cc: linux-kernel@vger.kernel.org, "" <ambx1@neo.rr.com>
-Subject: Re: [2.5.54][PATCH] SB16 convertation to new PnP layer.
-In-Reply-To: <Pine.BSF.4.05.10301081959130.88742-100000@wildrose.miee.ru>
-Message-ID: <Pine.LNX.4.50.0301081350440.2130-100000@montezuma.mastecende.com>
-References: <Pine.BSF.4.05.10301081959130.88742-100000@wildrose.miee.ru>
+	id <S267838AbTAHSnF>; Wed, 8 Jan 2003 13:43:05 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:18695 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S267624AbTAHSnC>; Wed, 8 Jan 2003 13:43:02 -0500
+Date: Wed, 8 Jan 2003 13:36:06 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Robert Love <rml@tech9.net>
+cc: Adrian Bunk <bunk@fs.tum.de>, "Robert P. J. Day" <rpjday@mindspring.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: observations on 2.5 config screens
+In-Reply-To: <1042041195.694.2734.camel@phantasy>
+Message-ID: <Pine.LNX.3.96.1030108132758.22872B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Jan 2003, Ruslan U. Zakirov wrote:
+On 8 Jan 2003, Robert Love wrote:
 
-> Hello Adam and All.
-> Here is patch to sb16.c that makes it posible to compile and use this
-> driver under 2.5.54-vanilla.
-> It working for me as module and built in kernel, but it's need testing.
->                             Ruslan.
+> On Wed, 2003-01-08 at 09:32, Bill Davidsen wrote:
+> 
+> > Someone else suggested putting all the low level options like preempt,
+> > smp, and the stuff in kernel-hacking into a single menu, with a better
+> > name.
+> 
+> I do not think I like this.  SMP, kernel preemption, and high memory
+> support are the three most fundamental choices one makes during
+> configuration.
 
-Which card do you have? Does it have wavetable?
+I guess, depending on your definition of fundemental. I would put any
+option which affects the kernel as a whole in that category, myself.
+Compiling with frame pointers comes to mind, since every object file is
+changed and there are performance implications as well.
 
-	Zwane
+> They should be out in the open, in the beginning, in a well-labeled
+> category.  They only issue I see is "processor options" should be
+> renamed "core options" or whatever.  But that is trivial.
+
+Processor option would select the processor and any architecture dependent
+options, I would think. Something like "kernel characteristics" could have
+options like smp.
+
 -- 
-function.linuxpower.ca
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

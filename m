@@ -1,118 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263758AbTKAMCh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Nov 2003 07:02:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263762AbTKAMCh
+	id S263762AbTKAMTH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Nov 2003 07:19:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263770AbTKAMTG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Nov 2003 07:02:37 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:14341 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263758AbTKAMCe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Nov 2003 07:02:34 -0500
-Subject: New: Documentation/vm/slabinfo.txt
-From: Doug Ledford <dledford@redhat.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1067688069.3112.559.camel@compaq.xsintricity.com>
+	Sat, 1 Nov 2003 07:19:06 -0500
+Received: from baloney.puettmann.net ([194.97.54.34]:2197 "EHLO
+	baloney.puettmann.net") by vger.kernel.org with ESMTP
+	id S263762AbTKAMTC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Nov 2003 07:19:02 -0500
+Date: Sat, 1 Nov 2003 13:18:14 +0100
+To: linux-kernel@vger.kernel.org
+Subject: 2.6 on my Laptop little report
+Message-ID: <20031101121814.GA22742@puettmann.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Sat, 01 Nov 2003 07:01:09 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="h31gzZEtNLTqOjlF"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: Ruben Puettmann <ruben@puettmann.net>
+X-Scanner: exiscan *1AFuhq-0005w4-00*E79a0ZVIvJ.* (Puettmann.NeT, Germany)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote this by looking at the 2.4 kernel sources, so it may not be
-totally accurate as far as 2.6 is concerned, but since there is no
-documentation on it at the moment, it's certainly better than what's
-there.
 
-------Snip--------
-> cat /proc/slabinfo:
-> inode_cache       423370 423556    512 60482 60508    1 :  248   62
-> dentry_cache      435756 436260    128 14526 14542    1 :  504  126
-
-Hmmm...those lines looked suspicious, but I didn't really know how to
-read the slabinfo output.  So I just went and read up on it.  For those
-people like me that didn't know what all these numbers mean, here's my
-understanding after reading the source:
-
-                  active-objects
-                  |      allocated-objects
-                  |      |         object-size
-                  |      |         |   active-slab-allocations
-                  |      |         |   |     total-slab-allocations
-                  |      |         |   |     |        alloc-size
-                  |      |         |   |     |        |
-inode_cache       423370 423556    512 60482 60508    1 :  248   62
-                                                           |     |
-                                                       limit     |
-                                                       batch-count
-
-active-objects: after creating a slab cache, you allocate your objects
-out of that slab cache.  This is the count of objects you currently have
-allocated out of the cache.
-
-allocated-objects: this is the current total number of objects in the
-cache.
-
-object-size: this is the size of each allocated object.  There is
-overhead to maintaining the cache, so with a 512byte object and a
-4096byte page size, you could fit 7 objects in a single page and you
-would waste 512-slab_overhead bytes per allocation.  Slab overhead
-varies with object size (smaller objects have more objects per
-allocation and require more overhead to track used vs. unused objects). 
-You can determine how many objects are being put on each allocation
-chunk by dividing allocated-objects by total-allocations.
-
-active-slab-allocs: This is the number of allocations that have at least
-one of that allocations objects in use.
-
-total-slab-allocs: The total number of allocations in the current slab
-cache.
-
-alloc-size: This is the size of each allocation in units of memory
-pages.   Page size is architecture specific, but the most common size is
-4k.  A couple architectures have an 8k page size, and ia64 can do a 16k
-page size.  Each allocation for the cache is alloc-size * arch_page_size
-bytes at a time, and total memory used by this particular slab cache is
-total_slab_allocs * alloc_size * arch_page_size.
-
-The last 2 items are SMP specific and don't show up at all on UP
-kernels.  On SMP machines, the slab cache will keep a per CPU cache of
-objects so that an object freed on CPU0 will be reused on CPU0 instead
-of CPU1 if possible.  This improves cache performance on SMP systems
-greatly.
-
-limit:  This is the limit on the number of free objects that can be
-stored in the per-CPU free list for this slab cache.
-
-batch-count:  On SMP systems, when we refill the available object list,
-instead of doing one object at a time, we do batch-count objects at a
-time.
-
-One last thing, if slab statistics are enabled, then you'll get more
-numbers on each line and the lines will look like this:
-
-UP
-name active-objects total-objects object-size active-allocs total-allocs
-alloc-size: high-size num-allocations times-grown allocs-reaped errors
-
-SMP
-name active-objects total-objects object-size active-allocs total-allocs
-alloc-size: high-size num-allocations times-grown allocs-reaped errors:
-limit batch-count: alloc-hits alloc-misses free-hits free-misses
-
-For the most part, the statistics numbers are pretty self explanatory,
-so I won't bother with them.
-
-HTH
-
--- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc.
-         1801 Varsity Dr.
-         Raleigh, NC 27606
+--h31gzZEtNLTqOjlF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
+
+	hy,
+
+I hope I can give with this little document a little overview about the pro=
+blem
+=66rom 2.6 with some of the new IBM Thinkpad laptops. My english is not the=
+ best
+but I hope that it will help the people to see what's going wrong.
+
+First: cpufreqd
+
+If I boot with AC connectet the cpu will be detected with 1499 Mhz max.
+If I boot from akku only 599 Mhz max will be detected.=20
+
+Second: ACPI
+
+complete broken some fixes you can find in :
+http://bugme.osdl.org/show_bug.cgi?id=3D1038
+
+But It fixes not al error's and problems.
+
+Third : APM and suspend
+
+apm work fine but there are many problems with suspend.=20
+
+Usb is not suspend save. You must stop hotplug, rmmod all modules for
+Suspending
+
+XFree is not suspend save. You must change to an text base console stoping X
+and then suspend
+
+If I activate the two synaptic devices the thinkpad has after resume the
+synaptics is broken. I have disabled the touchpad in bios and use only the
+litte red pad in teh keyboard suspend and resume works fine.
+
+On windows I can sit in the garden from my parents surfing via wlan the akku
+keeps the laptop running nearly 6 hours. On linux the max time I reached wa=
+s 4
+hours with the cpu @ 74 Mhz.
+
+There are many debug messages on suspending und resume. Do we need them all?
+
+The problems are all with 2.6.0-tes8-bk1.
+
+Many people found the same errors on the laptop's not only on Thinkpads. Th=
+e X
+problem was found on ati radeon at 128 and the intel graphic boards so that=
+ it
+seems that it is not an bug in one driver.
+
+Is there some work in progess? Are some patches outside I can test?
+
+Ruben
+	=09
+--=20
+Ruben Puettmann
+ruben@puettmann.net
+http://www.puettmann.net
+
+--h31gzZEtNLTqOjlF
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/o6SGgHHssbUmOEIRAj+AAJ9baLN6O/tNhx5u1ln0gMVKItMbrgCg4H/K
+tyKgZhzqfmEYYl5fw5DwtnM=
+=DF25
+-----END PGP SIGNATURE-----
+
+--h31gzZEtNLTqOjlF--

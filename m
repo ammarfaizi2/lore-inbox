@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281288AbRKMAkK>; Mon, 12 Nov 2001 19:40:10 -0500
+	id <S281320AbRKMAm7>; Mon, 12 Nov 2001 19:42:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281297AbRKMAj7>; Mon, 12 Nov 2001 19:39:59 -0500
-Received: from theirongiant.zip.net.au ([61.8.0.198]:38369 "EHLO
-	theirongiant.zip.net.au") by vger.kernel.org with ESMTP
-	id <S281288AbRKMAju>; Mon, 12 Nov 2001 19:39:50 -0500
-Date: Tue, 13 Nov 2001 11:38:43 +1100
-From: CaT <cat@zip.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Chris Meadors <clubneon@hereintown.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: PnPBIOS (was: Re: 32-bit UID quotas?)
-Message-ID: <20011113113842.K991@zip.com.au>
-In-Reply-To: <Pine.LNX.4.40.0111120823210.88-100000@rc.priv.hereintown.net> <E163HJU-0005sY-00@the-village.bc.nu>
+	id <S281297AbRKMAmu>; Mon, 12 Nov 2001 19:42:50 -0500
+Received: from mail.cb.monarch.net ([24.244.11.6]:48146 "EHLO
+	baca.cb.monarch.net") by vger.kernel.org with ESMTP
+	id <S281298AbRKMAme>; Mon, 12 Nov 2001 19:42:34 -0500
+Date: Mon, 12 Nov 2001 17:40:05 -0700
+From: "Peter J . Braam" <braam@clusterfilesystem.com>
+To: Andrew Morton <akpm@zip.com.au>, Steve Lord <lord@sgi.com>,
+        Ben Israel <ben@genesis-one.com>, linux-kernel@vger.kernel.org,
+        "Peter J . Braam" <braam@clusterfilesystem.com>
+Subject: Re: File System Performance
+Message-ID: <20011112174005.N4281@lustre.dyn.ca.clusterfilesystem.com>
+In-Reply-To: <3BF02702.34C21E75@zip.com.au>, <00b201c16b81$9d7aaba0$5101a8c0@pbc.adelphia.net> <3BEFF9D1.3CC01AB3@zip.com.au> <00da01c16ba2$96aeda00$5101a8c0@pbc.adelphia.net> <3BF02702.34C21E75@zip.com.au> <1005595583.13307.5.camel@jen.americas.sgi.com> <3BF03402.87D44589@zip.com.au> <20011112171705.Z1778@lynx.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E163HJU-0005sY-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.23i
-Organisation: Furball Inc.
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011112171705.Z1778@lynx.no>; from adilger@turbolabs.com on Mon, Nov 12, 2001 at 05:17:05PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 12, 2001 at 01:39:48PM +0000, Alan Cox wrote:
-> > I saw that ext3 is going into 2.4.15 by the testing/ChangeLog.  There are
-> > also lots of Alan Cox merging, but no specific mention of whether or not
-> > the 32-bit UID quota patch has gone in, or is going in.
-> > 
-> > The ext3 and 32-bit UID quotas were the only two patches I was really
-> > relying on the -ac releases for.
-> 
-> 32bit uid quota is a harder one. Its probably something to be tackled after
-> 2.4.15. There are a few other things like that which are lower priority 
-> because they are tricky, or because (eg the kiovec stuff) they are simply
-> performance boosts and can be done after we see 2.4.15 is solid
-> 
-> Other bits like the via timer fix are under further research
+The KML in fact doesn't record the writes.  I don't have a large KML,
+but it is easy to set one up.  Let me know if you need a hand.
 
-Is PnPBIOS one of these? I'm wondering when(if) it'll make it in as I'd
-like to get my linux operating environment as close to the windows one
-due to the laptop turning off when sound modules have been loaded (after
-a while). This seems to have almost vanished in my upgrade from 2.2.19
-to 2.4.xacy but it still happens occasionally.
+- Peter -
 
-ATM I have the BIOS set for WinME (bah) and with PnPBIOS my sound card is
-given the correct IRQ instead of 0.
+On Mon, Nov 12, 2001 at 05:17:05PM -0700, Andreas Dilger wrote:
+> On Nov 12, 2001  12:41 -0800, Andrew Morton wrote:
+> > BTW, I've been trying to hunt down a suitable file system aging tool.
+> > We're not very happy with Keith Smith's workload because the directory
+> > infomation was lost (he was purely studying FFS algorithmic differences
+> > - the load isn't 100% suitable for testing other filesystems / algorithms).
+> >   Constantin Loizides' tools are proving to be rather complex to compile,
+> >   drive and understand.
+> 
+> What _may_ be a very interesting tool for doing "real-world" I/O generation
+> is to use the InterMezzo KML (kernel modification log), which is basically
+> a 100% record of every filesystem operation done (e.g. create, write,
+> delete, mkdir, rmdir, etc).
+> 
+> Peter, do you have any very large KML files which would simulate the usage
+> of a filesystem over a long period of time, or would Tacitus have something
+> like that?
+> 
+> Cheers, Andreas
+> --
+> Andreas Dilger
+> http://sourceforge.net/projects/ext2resize/
+> http://www-mddsp.enel.ucalgary.ca/People/adilger/
+> 
 
 -- 
-CaT        "As you can expect it's really affecting my sex life. I can't help
-           it. Each time my wife initiates sex, these ejaculating hippos keep
-           floating through my mind."
-                - Mohd. Binatang bin Goncang, Singapore Zoological Gardens

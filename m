@@ -1,72 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267265AbSK3QIz>; Sat, 30 Nov 2002 11:08:55 -0500
+	id <S267266AbSK3QKK>; Sat, 30 Nov 2002 11:10:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267266AbSK3QIz>; Sat, 30 Nov 2002 11:08:55 -0500
-Received: from smtp06.iddeo.es ([62.81.186.16]:5815 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id <S267265AbSK3QIy>;
-	Sat, 30 Nov 2002 11:08:54 -0500
-Date: Sat, 30 Nov 2002 17:16:18 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@digeo.com>, hugang <hugang@soulinfo.com>
-Subject: [BUG] ext3-orlov for 2.4
-Message-ID: <20021130161618.GK2517@werewolf.able.es>
+	id <S267267AbSK3QKK>; Sat, 30 Nov 2002 11:10:10 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:429 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S267266AbSK3QKI>;
+	Sat, 30 Nov 2002 11:10:08 -0500
+Date: Sat, 30 Nov 2002 17:17:24 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Con Kolivas <conman@kolivas.net>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] 2.4.20-rc2-aa1 with contest
+Message-ID: <20021130161724.GD28164@dualathlon.random>
+References: <200211230929.31413.conman@kolivas.net> <20021124162845.GC12212@dualathlon.random> <200211251744.35509.conman@kolivas.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.4.1
+In-Reply-To: <200211251744.35509.conman@kolivas.net>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI all...
+On Mon, Nov 25, 2002 at 05:44:30PM +1100, Con Kolivas wrote:
+> finishes testing in that load. To reproduce it yourself, run mem_load then do 
+> a kernel compile make -j(4xnum_cpus).  If that doesnt do it I'm not sure how 
 
-Tell me if this is correct. GCC-3.2 spits a wrning like this when
-building -jam, I did not noticed before:
+JFYI: can't reproduce it here with kernel compile and mem_load in
+parallel. Did you compile in AGP? there's apparently some known issue
+with AGP/DRI.
 
-ialloc.c: In function `ext3_new_inode':
-ialloc.c:546: warning: comparison between pointer and integer
-ialloc.c:682: warning: label `out' defined but not used
-ialloc.c:520: warning: `gdp' might be used uninitialized in this function
-
-Line is question is:
-    if (gdp == -1)
-        goto fail;
-It comes from the orlov-allocator for ext3.
-
-Looking at the structure of ext3_new_inode:
-
-struct inode * ext3_new_inode (handle_t *handle, struct inode * dir, int mode)
-{
-    ...
-    struct ext3_group_desc * gdp;
-        
-repeat:
-    ...
-    if (gdp == -1)
-        goto fail;
-    ...
-    gdp = ext3_get_group_desc (sb, group, &bh2);
-    ...                    
-
-Thigs to note:
-- gdp is used without previous initialization.
-- gdp is a pointer and is compared with -1
-
-Should not the structure be:
-    gdp = ext3_get_group_desc (sb, group, &bh2);
-    if (!gdp)
-        goto fail;
-
-Can anybody check 2.5 for this also ?
-
-???
-
-TIA
-
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.1 (Cooker) for i586
-Linux 2.4.20-jam0 (gcc 3.2 (Mandrake Linux 9.1 3.2-4mdk))
+Andrea

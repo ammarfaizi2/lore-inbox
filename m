@@ -1,35 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264218AbUEDDti@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264223AbUEDD7M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264218AbUEDDti (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 23:49:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264223AbUEDDti
+	id S264223AbUEDD7M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 23:59:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264225AbUEDD7M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 23:49:38 -0400
-Received: from 200-170-96-180.veloxmail.com.br ([200.170.96.180]:28147 "HELO
-	qmail-out.veloxmail.com.br") by vger.kernel.org with SMTP
-	id S264218AbUEDDth (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 23:49:37 -0400
-Date: Tue, 4 May 2004 00:49:33 -0300 (BRT)
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.27-pre2
-In-Reply-To: <20040503230911.GE7068@logos.cnet>
-Message-ID: <Pine.LNX.4.58.0405040048430.451@dyndns.pervalidus.net>
-References: <20040503230911.GE7068@logos.cnet>
-X-Archive: encrypt
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 3 May 2004 23:59:12 -0400
+Received: from gate.crashing.org ([63.228.1.57]:57510 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S264223AbUEDD7L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 May 2004 23:59:11 -0400
+Subject: Re: workqueue and pending
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: mixxel@cs.auc.dk, Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040503201616.6f3b8700.akpm@osdl.org>
+References: <40962F75.8000200@cs.auc.dk>
+	 <20040503162719.54fb7020.akpm@osdl.org> <1083639081.20092.294.camel@gaston>
+	 <20040503201616.6f3b8700.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1083642950.29596.299.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 04 May 2004 13:55:51 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 May 2004, Marcelo Tosatti wrote:
 
-> Here goes the second pre release of 2.4.27.
+>  static inline int cancel_delayed_work(struct work_struct *work)
+>  {
+> -	return del_timer_sync(&work->timer);
+> +	int ret;
+> +
+> +	ret = del_timer_sync(&work->timer);
+> +	if (ret)
+> +		clear_bit(0, &work->pending);
+> +	return ret;
+>  }
 
-Where is it ? I can't find it at
-http://ftp.kernel.org/pub/linux/kernel/v2.4/testing/ (or
-ftp://).
+Heh, I was trying to figure out a simple way to do that and just
+didn't figure out del_timer_sync() would actually have a useful
+return value :)
 
--- 
-http://www.pervalidus.net/contact.html
+It's probably still good to precise explicitely in the comments
+that upon return of cancel_delayed_work(), the work queue might
+still be pending and that a flush and whoever called this may
+still need a flush_scheduled_work() or flush_workqueue() (provided
+it's running in a context where that can sleep)
+
+Ben.
+
+

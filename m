@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272078AbRHVSqi>; Wed, 22 Aug 2001 14:46:38 -0400
+	id <S272079AbRHVSrs>; Wed, 22 Aug 2001 14:47:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272080AbRHVSq2>; Wed, 22 Aug 2001 14:46:28 -0400
-Received: from sweetums.bluetronic.net ([24.162.254.3]:38075 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id <S272079AbRHVSqR>; Wed, 22 Aug 2001 14:46:17 -0400
-Date: Wed, 22 Aug 2001 14:46:27 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetopia.net>
-X-X-Sender: <jfbeam@sweetums.bluetronic.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Qlogic/FC firmware
-In-Reply-To: <E15Za6U-0001ht-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.33.0108221431060.6389-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272081AbRHVSrp>; Wed, 22 Aug 2001 14:47:45 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:43692 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S272079AbRHVSrW>;
+	Wed, 22 Aug 2001 14:47:22 -0400
+Date: Wed, 22 Aug 2001 11:47:35 -0700 (PDT)
+Message-Id: <20010822.114735.128125464.davem@redhat.com>
+To: kakadu_croc@yahoo.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: brlock_is_locked()?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20010822183312.11829.qmail@web10908.mail.yahoo.com>
+In-Reply-To: <20010822.112619.62651200.davem@redhat.com>
+	<20010822183312.11829.qmail@web10908.mail.yahoo.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Aug 2001, Alan Cox wrote:
->Read the source code. The driver never reloads the firmware on a running
->card. So if the sparc needed that it never worked anyway, and I don't follow
->your argument.
+   From: Brad Chapman <kakadu_croc@yahoo.com>
+   Date: Wed, 22 Aug 2001 11:33:12 -0700 (PDT)
+   
+   	It almost isn't. The problem starts when a third-party protocol
+   module grabs BR_NETPROTO_LOCK, unloads itself from the networking stack,
+   and then tries to call ip6_conntrack_protocol_unregister(). Deadlock.
+   The problem is that we need TWO locks: the brlock to seal the network stack,
+   and the conntrack rwlock to delete the protocol struct. Sure, you can
+   always share the rwlock and leave it at that, but if all you need it for
+   is to load/unload your protocol functions, then why bother polluting
+   the symbol tables?
+   	What do you think? Share the rwlock and make everybody who has
+   the brlock just use the core function?
 
-If the card wasn't setup by the BIOS (OBP in the Sparc case), then the driver
-won't work.  And as late as 2.4.8, RELOAD_FIRMWARE was set to '1'.  Gee,
-look what was changed in 2.4.9:
+You are only showing me that there is potential a deficiency in the
+netfilter interfaces.  You ought to discuss with the netfilter people
+a way to make the interfaces work better.
 
---- v2.4.8/linux/drivers/scsi/qlogicfc.c        Sun Aug 12 13:28:00 2001
-+++ linux/drivers/scsi/qlogicfc.c       Sun Aug 12 10:51:41 2001
-@@ -98,7 +98,7 @@
-    isp2200's firmware.
- */
+This is exactly what I said needed to be done.
 
--#define RELOAD_FIRMWARE                1
-+#define RELOAD_FIRMWARE                0
+Later,
+David S. Miller
+davem@redhat.com
 
- #define USE_NVRAM_DEFAULTS      1
-
-@@ -440,7 +440,7 @@
- #define MBOX_SEND_CHANGE_REQUEST        0x0070
- #define MBOX_PORT_LOGOUT                0x0071
-
--#include "qlogicfc_asm.c"
-+//#include "qlogicfc_asm.c"
-
-(I will note, that's not even a valid C construct. '//' is a C++ism.)
-
->Unlike you, I actually read the source
-
-So, was that before or after you removed the firmware? (And who says I don't
-read source code?  That's the first place I go to find out who fucked up
-what.  I'm running 2.4.5 and below.  The only thing I have running 2.4.9 is
-my laptop, and that was a certified nightmare.)
-
---Ricky
-
-
+   

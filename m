@@ -1,91 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267365AbUGNK5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265891AbUGNLVX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267365AbUGNK5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 06:57:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267368AbUGNK5Q
+	id S265891AbUGNLVX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 07:21:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267219AbUGNLVX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 06:57:16 -0400
-Received: from mailrelay.nefonline.de ([212.114.153.196]:10214 "EHLO
-	mailrelay1.nefonline.de") by vger.kernel.org with ESMTP
-	id S267365AbUGNK5H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 06:57:07 -0400
-Date: Wed, 14 Jul 2004 12:57:05 +0200
-From: Hermann Gottschalk <hg@ostc.de>
-To: linux-kernel@vger.kernel.org
-Subject: [hg@ostc.de: Re: Strange Network behaviour]
-Message-ID: <20040714105705.GB12380@ostc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.1i
-X-PGP-Key: 1024D/0B2D8EEA 2004-06-07 Hermann Gottschalk (OSTC) <hg@ostc.de>
-X-PGP-Fingerprint: 9A36 D20E B7FB BE5D 11DB  3006 3ADA D083 0B2D 8EEA
-X-Operating-System: Linux 2.4.21-231-default
-X-message-flag: Please do NOT send HTML e-mail or MS Word attachments - use plain text instead
+	Wed, 14 Jul 2004 07:21:23 -0400
+Received: from natsmtp00.rzone.de ([81.169.145.165]:7100 "EHLO
+	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S265891AbUGNLVV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 07:21:21 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: SATA disk device naming ?
+Date: Wed, 14 Jul 2004 13:20:28 +0200
+User-Agent: KMail/1.6.2
+Cc: "Robert M. Stockmann" <stock@stokkie.net>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0407130415430.15806-100000@hubble.stokkie.net> <40F35140.6020509@pobox.com>
+In-Reply-To: <40F35140.6020509@pobox.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_AcR9ASk2mSEWlBK";
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407141320.32608.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, Jul 14, 2004 at 12:48:58PM +0200, Roger Luethi wrote:
-> On Wed, 14 Jul 2004 12:40:08 +0200, Hermann Gottschalk wrote:
-> > On Wed, Jul 14, 2004 at 12:33:12PM +0200, Roger Luethi wrote:
-> > > On Wed, 14 Jul 2004 12:28:49 +0200, Hermann Gottschalk wrote:
-> > > > > If you set debug in via-rhine to 3, you'll get a more interesting
-> > > > > log. Does booting with noacpi help at all?
-> > > > 
-> > > > I will try noapic.
-> > > 
-> > > noapic != noacpi
-> > > Both ACPI and APIC have been known to cause problems, though.
-> > 
-> > noacpi doesn't exist as kernel-parameter
-> > (/usr/src/linum/Documentation/kernel-parameters.ext)
-> 
-> Correct. AC-pi=off does.
+--Boundary-02=_AcR9ASk2mSEWlBK
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Sorry,
-found it too...
+On Dienstag, 13. Juli 2004 05:04, Jeff Garzik wrote:
+> Whoever builds your kernels changed around the kernel configuration on yo=
+u.
+>=20
+> SATA "disk naming" (what driver you use) did not change from 2.6.3 to 2.6=
+=2E7.
+>=20
+The thing that changed is the new BLK_DEV_IDE_SATA option that defaults
+to 'n', while before it was enabled implicitly.
 
-After restart with noapic lvm causes the same problems...
+I was bitten by this as well. Unfortunately I have an md RAID-0 volume
+which I can not start after hde/hdg become sda/sdb, so I'll probably
+have to keep using the old IDE driver indefinitely.
 
-dmesg
-...
-kernel BUG at memory.c:531!
-invalid operand: 0000 2.4.21-231-default #1 Mon Jun 28 15:39:34 UTC 2004
-CPU:    0
-EIP:    0010:[<c012db64>]    Not tainted
-EFLAGS: 00010246
-eax: 00000000   ebx: c10e47a0   ecx: 0000000b   edx: c27ffd40
-esi: c28031f0   edi: 00000000   ebp: 00000004   esp: ca121d7c
-ds: 0018   es: 0018   ss: 0018
-Process lvremove (pid: 8434, stackpage=ca121000)
-Stack: c10e47a0 c4485120 c012dfd7 c10e47a0 c4462800 c4462800 c4462000 c4495447
-       c4485120 c4485120 c44fa000 c44936c4 c4462800 c4462170 4004fe21 00000000
-       c44fa000 bffff320 c4490940 00000000 c4499ca0 ffffffff ca3f09a0 ca124ed0
-Call Trace:         [<c012dfd7>] (20) [<c4495447>] (16) [<c44936c4>] (28)
-  [<c4490940>] (08) [<c4499ca0>] (16) [<c012f795>] (44) [<c0118718>] (56)
-  [<c01c0d05>] (32) [<c013ab0c>] (16) [<c013437e>] (28) [<c86f2924>] (20)
-  [<c012f2d3>] (72) [<c014ed80>] (24) [<c0151c8a>] (16) [<c014492b>] (16)
-  [<c010c5b8>] (32) [<c0144a94>] (24) [<c01438f4>] (28) [<c01437b0>] (24)
-  [<c0152e26>] (32) [<c0143b0c>] (20) [<c0108e13>] (60)
-Modules: [(e1000:<c86f0060>:<c86ff944>)] [(lvm-mod:<c4490060>:<c449f644>)]
-Code: 0f 0b 13 02 a6 22 2a c0 eb dc 89 f6 55 57 56 53 57 57 83 7c
+	Arnd <><
 
------------------------------
-I will reboot them this evening with both noapic and acpi=off...
+--Boundary-02=_AcR9ASk2mSEWlBK
+Content-Type: application/pgp-signature
+Content-Description: signature
 
-But I'm not very hopefull...
-Greetings
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
--- 
-  ___  ___ _____ ___    ___       _    _  _
- / _ \/ __|_   _/ __|  / __|_ __ | |__| || |
-| (_) \__ \ | || (__  | (_ | '  \| '_ \ __ |
- \___/|___/ |_| \___|  \___|_|_|_|_.__/_||_|
-----------------------------------------------
- OSTC Open Source Training and Consulting GmbH
- 90425 Nürnberg      Web:   http://www.ostc.de
-----------------------------------------------
-            PGP-Key: 0x0B2D8EEA 
-    No HTML-Mails; 72 Characters per line
+iD8DBQBA9RcA5t5GS2LDRf4RAhyrAJ933+28qlk0FhdUDMvSkxaI7inF6QCfbq0V
+gpDqgDzqYkQNjh0sqKMKq8w=
+=Gn60
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_AcR9ASk2mSEWlBK--

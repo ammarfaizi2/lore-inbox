@@ -1,81 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263570AbUCTXO7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 18:14:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263571AbUCTXO7
+	id S263261AbUCTXgN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 18:36:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263298AbUCTXgN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 18:14:59 -0500
-Received: from lmail.actcom.co.il ([192.114.47.13]:51086 "EHLO
-	smtp1.actcom.co.il") by vger.kernel.org with ESMTP id S263570AbUCTXOp
+	Sat, 20 Mar 2004 18:36:13 -0500
+Received: from mail.convergence.de ([212.84.236.4]:11656 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S263261AbUCTXgM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 18:14:45 -0500
-Date: Sun, 21 Mar 2004 01:14:39 +0200
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Cc: Muli Ben-Yehuda <mulix@mulix.org>
-Subject: [PATCH/RFC] don't support %n in printk
-Message-ID: <20040320231438.GX13042@mulix.org>
+	Sat, 20 Mar 2004 18:36:12 -0500
+Date: Sun, 21 Mar 2004 00:36:04 +0100
+From: Johannes Stezenbach <js@convergence.de>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Matthias Andree <matthias.andree@gmx.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] barrier patch set
+Message-ID: <20040320233604.GE2051@convergence.de>
+Mail-Followup-To: Johannes Stezenbach <js@convergence.de>,
+	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+	Matthias Andree <matthias.andree@gmx.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20040319153554.GC2933@suse.de> <200403200313.05681.bzolnier@elka.pw.edu.pl> <20040320113627.GB7714@merlin.emma.line.org> <200403201700.05808.bzolnier@elka.pw.edu.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200403201700.05808.bzolnier@elka.pw.edu.pl>
 User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The printf man page has this to say about '%n': 
+Bartlomiej Zolnierkiewicz wrote:
+> On Saturday 20 of March 2004 12:36, Matthias Andree wrote:
+> > > Correct answer is: everything is fine, RTFM (man hdparm). ;-)
+> >
+> > Not everything is fine. hdparm documents -i returns inconsistent data.
+> > Most, but _NOT_ _EVERYTHING_ is cached: the multcount is updated, for
+> > instance. What is that good for? Mix & Match whatever is convenient?
+> 
+> I'm aware of this bug - driver shouldn't modify drive->id.  Patches are welcomed.
 
-"The number of characters written so far is stored into the integer
-indicated by the int * (or variant)  pointer argument.   No argument
-is converted." 
+Why? What's the reason for keeping out-of-date IDENTIFY data?
 
-Very little code actually uses %n for that. Now days, %n has a much
-more common use - in printf format string exploits. Since no kernel
-code appears to be using %n (thus said grep), this patch removes
-support for it. To preempt the obvious argument, I agree that printk
-should look and behave as much as possible as printf - except where
-it's harmful. We don't support floating point, for example, and I
-doubt we should support %n - although I don't strongly care one way or
-another. 
+And what about ide_driveid_update()? Is it a bug that
+it exists?
 
-diff -Naurp -X /home/muli/w/dontdiff linux-2.5/lib/vsprintf.c no-n-percent/lib/vsprintf.c
---- linux-2.5/lib/vsprintf.c	2004-02-19 06:49:34.000000000 +0200
-+++ no-n-percent/lib/vsprintf.c	2004-03-20 22:38:54.000000000 +0200
-@@ -14,6 +14,9 @@
-  * - changed to provide snprintf and vsnprintf functions
-  * So Feb  1 16:51:32 CET 2004 Juergen Quade <quade@hsnr.de>
-  * - scnprintf and vscnprintf
-+ * Sat Mar 20 22:38:09 2004 Muli Ben-Yehuda <mulix@mulix.org>
-+ * - remove '%n' support from vsnprintf, as nothing is using it, and it 
-+ *   has very few legitimate uses (and many many illegitimate ones)
-  */
- 
- #include <stdarg.h>
-@@ -401,22 +404,6 @@ int vsnprintf(char *buf, size_t size, co
- 						16, field_width, precision, flags);
- 				continue;
- 
--
--			case 'n':
--				/* FIXME:
--				* What does C99 say about the overflow case here? */
--				if (qualifier == 'l') {
--					long * ip = va_arg(args, long *);
--					*ip = (str - buf);
--				} else if (qualifier == 'Z' || qualifier == 'z') {
--					size_t * ip = va_arg(args, size_t *);
--					*ip = (str - buf);
--				} else {
--					int * ip = va_arg(args, int *);
--					*ip = (str - buf);
--				}
--				continue;
--
- 			case '%':
- 				if (str <= end)
- 					*str = '%';
-Cheers, 
-Muli 
--- 
-Muli Ben-Yehuda
-http://www.mulix.org | http://mulix.livejournal.com/
+This is all too confusing for me :-(
 
+Johannes

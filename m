@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262389AbRFQRyH>; Sun, 17 Jun 2001 13:54:07 -0400
+	id <S262170AbRFQRui>; Sun, 17 Jun 2001 13:50:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262076AbRFQRx5>; Sun, 17 Jun 2001 13:53:57 -0400
-Received: from ohiper1-122.apex.net ([209.250.47.137]:24326 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S262389AbRFQRxr>; Sun, 17 Jun 2001 13:53:47 -0400
-Date: Sun, 17 Jun 2001 12:53:15 -0500
-From: Steven Walter <srwalter@yahoo.com>
-To: Ronald Bultje <rbultje@ronald.bitfreak.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: a memory-related problem?
-Message-ID: <20010617125315.A24430@hapablap.dyn.dhs.org>
-In-Reply-To: <CDEJIPDFCLGDNEHGCAJPOEFGCCAA.rbultje@ronald.bitfreak.net> <9gi848$pb2$1@ns1.clouddancer.com> <20010617131002.EF84D784BD@mail.clouddancer.com> <992806021.2007.0.camel@tux.bitfreak.net>
+	id <S262389AbRFQRu2>; Sun, 17 Jun 2001 13:50:28 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:46342
+	"EHLO Opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S262170AbRFQRuM>; Sun, 17 Jun 2001 13:50:12 -0400
+Date: Sun, 17 Jun 2001 10:48:36 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4 VM & swap question
+Message-ID: <20010617104836.B11642@opus.bloom.county>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <992806021.2007.0.camel@tux.bitfreak.net>; from rbultje@ronald.bitfreak.net on Sun, Jun 17, 2001 at 09:26:50PM +0200
-X-Uptime: 10:23am  up 16:48,  0 users,  load average: 1.32, 1.77, 1.74
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Probably what happens is that your BIOS stores some data in the top
-megabyte of RAM, but doesn't set up the memory map to reflect this.
-Therefore, Linux overwrites whatevers up there, causing problems.
+'lo all.  I've got a question about swap and RAM requirements in 2.4.  Now,
+when 2.4.0 was kicked out, the fact that you need swap=2xRAM was mentioned.
+But what I'm wondering is what exactly are the limits on this.  Right now
+I've got an x86 box w/ 128ram and currently 256swap.  When I had 128, I'd get
+low on ram/swap after some time in X, and doing this seems to 'fix' it, in
+2.4.4.  However, I've also got 2 PPC boxes, both with 256:256 in 2.4.  One
+of which never has X up, but lots of other activity, and swap usage seems
+to be about the same as 2.2.x (right now 'free' says i'm ~40MB into swap,
+18day+ uptime).  The other box is a laptop and has X up when it's awake and
+that too doesn't seem to have any problem.  So what exactly is the real
+minium swap ammount?
 
-On Sun, Jun 17, 2001 at 09:26:50PM +0200, Ronald Bultje wrote:
-> P6b has three mem-slots. I would get "unresolved errors in init" if I
-> had 2x64+1x128 sticks, and I would get oopses if I had 2x128M sticks. So
-> there is indeed a weird difference.
-> I just noticed this: if I supply "linux-2.4.4 mem=255M" instead of
-> "linux-2.4.4 mem=256M" at the lilo prompt, it does work. Is this a bug
-> in the code that handles options given at startup-time? (I only tried
-> this for 2x128 sticks but I suppose this is the same for 2x64+1x128
-> sticks - I guess I'm too lazy to try it out).
 -- 
--Steven
-In a time of universal deceit, telling the truth is a revolutionary act.
-			-- George Orwell
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

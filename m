@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129291AbRAYPWx>; Thu, 25 Jan 2001 10:22:53 -0500
+	id <S130960AbRAYPYo>; Thu, 25 Jan 2001 10:24:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130960AbRAYPWo>; Thu, 25 Jan 2001 10:22:44 -0500
-Received: from fwns1d.raleigh.ibm.com ([204.146.167.235]:45831 "EHLO
-	fwns1.raleigh.ibm.com") by vger.kernel.org with ESMTP
-	id <S129291AbRAYPWi>; Thu, 25 Jan 2001 10:22:38 -0500
-Message-ID: <3A704459.9D747A04@raleigh.ibm.com>
-Date: Thu, 25 Jan 2001 10:20:57 -0500
-From: Ralph Blach <rcblach@raleigh.ibm.com>
-Organization: IBM MicroElectronics, RTP, NC
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.16-3 i686)
-X-Accept-Language: en
+	id <S131615AbRAYPYe>; Thu, 25 Jan 2001 10:24:34 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:44679 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S130960AbRAYPYX>;
+	Thu, 25 Jan 2001 10:24:23 -0500
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: hdlc interface in 2.2.18 is not in 2.4.0
-Content-Type: multipart/mixed;
- boundary="------------8A91DA6CAF4870C6DDF85D34"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14960.17652.653140.593056@pizda.ninka.net>
+Date: Thu, 25 Jan 2001 07:23:32 -0800 (PST)
+To: Tobias Ringstrom <tori@tellus.mine.nu>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [UPDATE] Zerocopy, last one today I promise :-)
+In-Reply-To: <Pine.LNX.4.30.0101251540001.30299-100000@svea.tellus>
+In-Reply-To: <14960.13645.936452.235135@pizda.ninka.net>
+	<Pine.LNX.4.30.0101251540001.30299-100000@svea.tellus>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------8A91DA6CAF4870C6DDF85D34
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-I have discovered that the hdlc interface in the 2.2.18 kernel is not in
-the 2.4.0 kernel.  Is there any particular reason for this?  Will it be
-added in later 2.4.0 kernels?
+Tobias Ringstrom writes:
+ > I understand from your comment that you want people to run it on all kinds
+ > of hardware, both with and without hw checksumming, but how do you want us
+ > to test it?  Is "my computer works as usual with this patch included" what
+ > you are looking for, or do you want us to run specific tests or
+ > benchmarks?
 
-Thanks
+Basically, make use of the following:
 
-Chip
-rcblach@raleigh.ibm.com
---------------8A91DA6CAF4870C6DDF85D34
-Content-Type: text/x-vcard; charset=us-ascii;
- name="rcblach.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for Ralph Blach
-Content-Disposition: attachment;
- filename="rcblach.vcf"
+1) TCP applications using normal write/sendmsg to send data
+2) TCP applications using sys_sendfile to send data
+   (f.e. pftpd or some other server which makes use of Linux's
+    sendfile())
+3) NFS client side activity
 
-begin:vcard 
-n:Blach;Ralph
-tel;work:919-543-1207
-x-mozilla-html:TRUE
-url:www.ibm.com
-org:IBM MicroElectronics
-adr:;;3039 Cornwallis		;RTP;NC;27709;USA
-version:2.1
-email;internet:rcblach@raleigh.ibm.com
-x-mozilla-cpt:;15936
-fn:Ralph Blach
-end:vcard
+on both cards supporting sg+csum and those which do not.
 
---------------8A91DA6CAF4870C6DDF85D34--
-
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

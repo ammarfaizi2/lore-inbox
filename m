@@ -1,97 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262291AbVBCKST@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262509AbVBCKUY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262291AbVBCKST (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 05:18:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262870AbVBCKST
+	id S262509AbVBCKUY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 05:20:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262754AbVBCKUY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 05:18:19 -0500
-Received: from sv1.valinux.co.jp ([210.128.90.2]:62082 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S263011AbVBCKSA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 05:18:00 -0500
-Date: Thu, 03 Feb 2005 19:10:39 +0900 (JST)
-Message-Id: <20050203.191039.39155205.taka@valinux.co.jp>
-To: ebiederm@xmission.com
-Cc: vgoyal@in.ibm.com, akpm@osdl.org, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org, maneesh@in.ibm.com, hari@in.ibm.com,
-       suparna@in.ibm.com
-Subject: Re: [Fastboot] [PATCH] Reserving backup region for kexec based
- crashdumps.
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <m1zmym6m6z.fsf@ebiederm.dsl.xmission.com>
-References: <1106833527.15652.146.camel@2fwv946.in.ibm.com>
-	<20050203.160252.104031714.taka@valinux.co.jp>
-	<m1zmym6m6z.fsf@ebiederm.dsl.xmission.com>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Feb 2005 05:20:24 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:19119 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262509AbVBCKUP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 05:20:15 -0500
+X-Envelope-From: kraxel@bytesex.org
+To: Markus Trippelsdorf <markus@trippelsdorf.de>, mathieu.okuyama@free.fr
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.11-rc3 - BT848 no signal
+References: <Pine.LNX.4.58.0502021824310.2362@ppc970.osdl.org>
+	<1107407987.2097.18.camel@lb.loomes.de>
+From: Gerd Knorr <kraxel@bytesex.org>
+Organization: SUSE Labs, Berlin
+Date: 03 Feb 2005 11:17:41 +0100
+In-Reply-To: <1107407987.2097.18.camel@lb.loomes.de>
+Message-ID: <87is5a0wxm.fsf@bytesex.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Eric,
+Markus Trippelsdorf <markus@trippelsdorf.de> writes:
 
-> > Hi Vivek and Eric,
-> > 
-> > IMHO, why don't we swap not only the contents of the top 640K
-> > but also kernel working memory for kdump kernel?
-> > 
-> > I guess this approach has some good points.
-> > 
-> >  1.Preallocating reserved area is not mandatory at boot time.
-> >    And the reserved area can be distributed in small pieces
-> >    like original kexec does.
-> > 
-> >  2.Special linking is not required for kdump kernel.
-> >    Each kdump kernel can be linked in the same way,
-> >    where the original kernel exists.
-> > 
-> > Am I missing something?
-> 
-> Preallocating the reserved area is largely to keep it from
-> being the target of DMA accesses.  Since we are not able
-> to shutdown any of the drivers in the primary kernel running
-> in a normal swath of memory sounds like a good way to get
-> yourself stomped at the worst possible time.
+> tuner: chip found at addr 0xc0 i2c-bus bt878 #0 [sw]
+> tuner: type set to 33 (MT20xx universal) by bt878 #0 [sw]
+> tuner: microtune: companycode=4d54 part=04 rev=04
+> tuner: microtune MT2032 found, OK
+> tda9885/6/7: chip found @ 0x86
+> ...
+> mt2032_set_if_freq failed with -121
 
-So what do you think my another idea?
-
-I think we can always make a kdump kernel mapped to the same virtual
-address. So we will be free from caring about the physical address
-where the kdump kernel is loaded.
-
-I believe the memsection functionality which LHMS project is working
-on would help this.
-
-                            +
-                            |
-                            |
-                        (user space)
-                            |
-                            |
-          physical          | virtual
-          memory            | space
-             + ------------ +
-             |              |
-             |              |
-             |              |
-             + ------------.+
-    original |           .  | map kdump kernel here
-    kernel   |         .    |
-             |       .      |
-             |     .       .+
-             +   .       .  |
-             | .       .    |
-             +       .      |
-      kdump  |     .        |
-      kernel |   .          |
-             | .            |
-             +              |
-             |              |
-             |              |
-             |              |
-
-
+Can you please load tuner.o with debug=1, tda9887.o with debug=2 and
+mail me the logs for driver load + attempt to tune some station for
+both working and non-working kernel please?
 
 Thanks,
-Hirokazu Takahashi.
+
+  Gerd
+
+-- 
+#define printk(args...) fprintf(stderr, ## args)

@@ -1,1343 +1,1154 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313264AbSDUAmc>; Sat, 20 Apr 2002 20:42:32 -0400
+	id <S313317AbSDUAuA>; Sat, 20 Apr 2002 20:50:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313288AbSDUAmb>; Sat, 20 Apr 2002 20:42:31 -0400
-Received: from ip68-3-16-134.ph.ph.cox.net ([68.3.16.134]:26057 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S313264AbSDUAmY>;
-	Sat, 20 Apr 2002 20:42:24 -0400
-Message-ID: <3CC20AED.4000007@candelatech.com>
-Date: Sat, 20 Apr 2002 17:42:21 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-        "David S. Miller" <davem@redhat.com>
-Subject: PATCH:  pktgen.c update
-Content-Type: multipart/mixed;
- boundary="------------070007070600010608010603"
+	id <S313318AbSDUAt7>; Sat, 20 Apr 2002 20:49:59 -0400
+Received: from zero.tech9.net ([209.61.188.187]:3852 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S313317AbSDUAtw>;
+	Sat, 20 Apr 2002 20:49:52 -0400
+Subject: [PATCH] 2.4-ac updated O(1) scheduler
+From: Robert Love <rml@tech9.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-Njjp8etVoibhhXY5Q3Ak"
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 20 Apr 2002 20:49:56 -0400
+Message-Id: <1019350197.9288.197.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070007070600010608010603
-Content-Type: text/plain; charset=us-ascii; format=flowed
+
+--=-Njjp8etVoibhhXY5Q3Ak
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-I got all excited about the pktgen.c module, and went in and
-changed it significantly to suite my needs better.  I would
-be happy to see these changes integrated into the mainstream kernel,
-but even if that is not appropriate, I will appreciate any
-feedback, especially about how to make it sleep more efficiently
-when there is an inter-packet-gap set.
+Halo,
 
-Thanks,
-Ben
+The attached patch updates Ingo Molnar's ultra-scalable O(1) scheduler
+in 2.4-ac to the latest code base.  It contains various fixes, cleanups,
+and new features.  All changes are from 2.5 or patches pending for 2.5.
 
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+Specifically, this patch makes the following changes to the scheduler in
+Alan's tree:
+
+	- remove wake_up_sync and friends, we don't need them now
+	- abstract away access to need_resched
+	- fix scheduler deadlock on some platforms
+	- sched_yield optimizations and cleanup
+	- better use MAX_RT_PRIO define instead of magic numbers
+	- misc. code cleanups
+	- misc. fixes and optimizations
+
+and most importantly:
+
+	- backport the migration_thread and associated code to 2.4
+
+The migration_thread code has the interrupt-off fix and William Lee
+Irwin's new migration_init routine, both of which are pending for 2.5.
+
+Note I have sent this to Alan already, so it should be in a future
+2.4-ac.  You can get a better description as well as the patches in
+logical chunks from:
+
+	ftp://ftp.kernel.org/pub/linux/kernel/people/rml/sched
+
+I will also make available fully updated base O(1)-scheduler patches for
+2.4.18 and the latest prepatch shortly. 
+
+Enjoy,
+
+	Robert Love
 
 
---------------070007070600010608010603
-Content-Type: text/plain;
- name="patch2.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch2.txt"
+--=-Njjp8etVoibhhXY5Q3Ak
+Content-Disposition: attachment; filename=sched-fixes-O1-rml-2.4.19-pre7-ac2-1.patch
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/x-patch; name=sched-fixes-O1-rml-2.4.19-pre7-ac2-1.patch;
+	charset=ISO-8859-1
 
---- linux/net/core/pktgen.c	Sat Apr 20 17:28:52 2002
-+++ linux.dev/net/core/pktgen.c	Sat Apr 20 17:27:55 2002
-@@ -1,4 +1,5 @@
--/* $Id: pktgen.c,v 1.1.2.1 2002/03/01 12:15:05 davem Exp $
-+/* -*-linux-c-*-
-+ * $Id: pktgen.c,v 1.1.2.1 2002/03/01 12:15:05 davem Exp $
-  * pktgen.c: Packet Generator for performance evaluation.
-  *
-  * Copyright 2001, 2002 by Robert Olsson <robert.olsson@its.uu.se>
-@@ -18,6 +19,20 @@
-  * MAC address typo fixed. 010417 --ro
-  * Integrated.  020301 --DaveM
-  * Added multiskb option 020301 --DaveM
-+ * Significant re-work of the module:
-+ *   *  Updated to support generation over multiple interfaces at once
-+ *       by creating 32 /proc/net/pg* files.  Each file can be manipulated
-+ *       individually.
-+ *   *  Converted many counters to __u64 to allow longer runs.
-+ *   *  Allow configuration of ranges, like min/max IP address, MACs,
-+ *       and UDP-ports, for both source and destination, and can
-+ *       set to use a random distribution or sequentially walk the range.
-+ *   *  Can now change some values after starting.
-+ *   *  Place 12-byte packet in UDP payload with magic number,
-+ *       sequence number, and timestamp.  Will write receiver next.
-+ *   *  The new changes seem to have a performance inpact of around 1%,
-+ *       as far as I can tell.
-+ *   --Ben Greear <greearb@candelatech.com>
-  *
-  * See Documentation/networking/pktgen.txt for how to use this.
+diff -urN linux-2.4.19-pre7-ac2/arch/i386/kernel/i8259.c linux/arch/i386/ke=
+rnel/i8259.c
+--- linux-2.4.19-pre7-ac2/arch/i386/kernel/i8259.c	Sat Apr 20 17:47:38 2002
++++ linux/arch/i386/kernel/i8259.c	Sat Apr 20 18:59:23 2002
+@@ -79,7 +79,6 @@
+  * through the ICC by us (IPIs)
   */
-@@ -56,69 +71,189 @@
- #define cycles()	((u32)get_cycles())
- 
- static char version[] __initdata = 
--  "pktgen.c: v1.0 010812: Packet Generator for packet performance testing.\n";
-+  "pktgen.c: v1.1: Packet Generator for packet performance testing.\n";
- 
--/* Parameters */
--static char pg_outdev[32], pg_dst[32];
--static int pkt_size = ETH_ZLEN;
--static int nfrags = 0;
--static __u32 pg_count = 100000;  /* Default No packets to send */
--static __u32 pg_ipg = 0;  /* Default Interpacket gap in nsec */
--static int pg_multiskb = 0; /* Use multiple SKBs during packet gen. */
-+/* Used to help with determining the pkts on receive */
-+#define PKTGEN_MAGIC 0xbe9be955
- 
--static int debug;
--static int forced_stop;
--static int pg_cpu_speed;
--static int pg_busy;
-+/* Keep information per interface */
-+struct pktgen_info {
-+        /* Parameters */
+ #ifdef CONFIG_SMP
+-BUILD_SMP_INTERRUPT(task_migration_interrupt,TASK_MIGRATION_VECTOR)
+ BUILD_SMP_INTERRUPT(reschedule_interrupt,RESCHEDULE_VECTOR)
+ BUILD_SMP_INTERRUPT(invalidate_interrupt,INVALIDATE_TLB_VECTOR)
+ BUILD_SMP_INTERRUPT(call_function_interrupt,CALL_FUNCTION_VECTOR)
+@@ -474,9 +473,6 @@
+ 	 */
+ 	set_intr_gate(RESCHEDULE_VECTOR, reschedule_interrupt);
+=20
+-	/* IPI for task migration */
+-	set_intr_gate(TASK_MIGRATION_VECTOR, task_migration_interrupt);
+-
+ 	/* IPI for invalidation */
+ 	set_intr_gate(INVALIDATE_TLB_VECTOR, invalidate_interrupt);
+=20
+diff -urN linux-2.4.19-pre7-ac2/arch/i386/kernel/smp.c linux/arch/i386/kern=
+el/smp.c
+--- linux-2.4.19-pre7-ac2/arch/i386/kernel/smp.c	Sat Apr 20 17:47:38 2002
++++ linux/arch/i386/kernel/smp.c	Sat Apr 20 18:59:23 2002
+@@ -484,35 +484,6 @@
+ 	do_flush_tlb_all_local();
+ }
+=20
+-static spinlock_t migration_lock =3D SPIN_LOCK_UNLOCKED;
+-static task_t *new_task;
+-
+-/*
+- * This function sends a 'task migration' IPI to another CPU.
+- * Must be called from syscall contexts, with interrupts *enabled*.
+- */
+-void smp_migrate_task(int cpu, task_t *p)
+-{
+-	/*
+-	 * The target CPU will unlock the migration spinlock:
+-	 */
+-	spin_lock(&migration_lock);
+-	new_task =3D p;
+-	send_IPI_mask(1 << cpu, TASK_MIGRATION_VECTOR);
+-}
+-
+-/*
+- * Task migration callback.
+- */
+-asmlinkage void smp_task_migration_interrupt(void)
+-{
+-	task_t *p;
+-
+-	ack_APIC_irq();
+-	p =3D new_task;
+-	spin_unlock(&migration_lock);
+-	sched_task_migrated(p);
+-}
+ /*
+  * this function sends a 'reschedule' IPI to another CPU.
+  * it goes straight through and wastes no time serializing
+diff -urN linux-2.4.19-pre7-ac2/fs/pipe.c linux/fs/pipe.c
+--- linux-2.4.19-pre7-ac2/fs/pipe.c	Sat Apr 20 17:44:56 2002
++++ linux/fs/pipe.c	Sat Apr 20 18:44:35 2002
+@@ -115,7 +115,7 @@
+ 		 * writers synchronously that there is more
+ 		 * room.
+ 		 */
+-		wake_up_interruptible_sync(PIPE_WAIT(*inode));
++		wake_up_interruptible(PIPE_WAIT(*inode));
+ 		if (!PIPE_EMPTY(*inode))
+ 			BUG();
+ 		goto do_more_read;
+@@ -215,7 +215,7 @@
+ 			 * is going to give up this CPU, so it doesnt have
+ 			 * to do idle reschedules.
+ 			 */
+-			wake_up_interruptible_sync(PIPE_WAIT(*inode));
++			wake_up_interruptible(PIPE_WAIT(*inode));
+ 			PIPE_WAITING_WRITERS(*inode)++;
+ 			pipe_wait(inode);
+ 			PIPE_WAITING_WRITERS(*inode)--;
+diff -urN linux-2.4.19-pre7-ac2/include/asm-i386/hw_irq.h linux/include/asm=
+-i386/hw_irq.h
+--- linux-2.4.19-pre7-ac2/include/asm-i386/hw_irq.h	Sat Apr 20 17:45:18 200=
+2
++++ linux/include/asm-i386/hw_irq.h	Sat Apr 20 19:06:12 2002
+@@ -41,8 +41,7 @@
+ #define ERROR_APIC_VECTOR	0xfe
+ #define INVALIDATE_TLB_VECTOR	0xfd
+ #define RESCHEDULE_VECTOR	0xfc
+-#define TASK_MIGRATION_VECTOR	0xfb
+-#define CALL_FUNCTION_VECTOR	0xfa
++#define CALL_FUNCTION_VECTOR	0xfb
+=20
+ /*
+  * Local APIC timer IRQ vector is on a different priority level,
+diff -urN linux-2.4.19-pre7-ac2/include/linux/sched.h linux/include/linux/s=
+ched.h
+--- linux-2.4.19-pre7-ac2/include/linux/sched.h	Sat Apr 20 17:45:12 2002
++++ linux/include/linux/sched.h	Sat Apr 20 19:06:13 2002
+@@ -149,8 +149,7 @@
+ extern void update_one_process(task_t *p, unsigned long user,
+ 			       unsigned long system, int cpu);
+ extern void scheduler_tick(int user_tick, int system);
+-extern void sched_task_migrated(task_t *p);
+-extern void smp_migrate_task(int cpu, task_t *task);
++extern void migration_init(void);
+ extern unsigned long cache_decay_ticks;
+ extern int set_user(uid_t new_ruid, int dumpclear);
+=20
+@@ -450,7 +449,12 @@
+  */
+ #define _STK_LIM	(8*1024*1024)
+=20
++#if CONFIG_SMP
+ extern void set_cpus_allowed(task_t *p, unsigned long new_mask);
++#else
++#define set_cpus_allowed(p, new_mask)	do { } while (0)
++#endif
 +
-+        /* If min != max, then we will either do a linear iteration, or
-+         * we will do a random selection from within the range.
-+         */
-+        __u32 flags;     /* 1<<0 IP-Src Random, 1<<1 IP-Dst Random,
-+                          * 1<<2 UDP-Src Random, 1<<3 UDP-Dst Random
-+                          * 1<<4 MAC-Src Random, 1<<5 MAC-Dst Random
-+                          * 1<<6 Specify-Src-Mac (default is to use Interface's MAC Addr)
-+                          * 1<<7 Specify-Src-IP (default is to use Interface's IP Addr)
-+                          */
-+        
-+        int pkt_size;    /* = ETH_ZLEN; */
-+        int nfrags;
-+        __u32 pg_ipg;    /* Default Interpacket gap in nsec */
-+        __u64 pg_count;  /* Default No packets to send */
-+        __u64 pg_sofar;  /* How many pkts we've sent so far */
-+        __u64 errors;    /* Errors when trying to transmit, pkts will be re-sent */
-+        struct timeval started_at;
-+        struct timeval stopped_at;
-+        __u64 idle_acc;
-+        __u32 seq_num;
-+        
-+        int pg_multiskb; /* Use multiple SKBs during packet gen. */
-+        int forced_stop;
-+        int pg_busy;
-+        int do_run_run;  /* if this changes to false, the test will stop */
-+        
-+        char pg_outdev[32];
-+        char dst_min[32];
-+        char dst_max[32];
-+        char src_min[32];
-+        char src_max[32];
+ extern void set_user_nice(task_t *p, long nice);
+ extern int task_prio(task_t *p);
+ extern int task_nice(task_t *p);
+@@ -577,7 +581,6 @@
+ #define CURRENT_TIME (xtime.tv_sec)
+=20
+ extern void FASTCALL(__wake_up(wait_queue_head_t *q, unsigned int mode, in=
+t nr));
+-extern void FASTCALL(__wake_up_sync(wait_queue_head_t *q, unsigned int mod=
+e, int nr));
+ extern void FASTCALL(sleep_on(wait_queue_head_t *q));
+ extern long FASTCALL(sleep_on_timeout(wait_queue_head_t *q,
+ 				      signed long timeout));
+@@ -591,13 +594,9 @@
+ #define wake_up(x)			__wake_up((x),TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIB=
+LE, 1)
+ #define wake_up_nr(x, nr)		__wake_up((x),TASK_UNINTERRUPTIBLE | TASK_INTER=
+RUPTIBLE, nr)
+ #define wake_up_all(x)			__wake_up((x),TASK_UNINTERRUPTIBLE | TASK_INTERRU=
+PTIBLE, 0)
+-#define wake_up_sync(x)			__wake_up_sync((x),TASK_UNINTERRUPTIBLE | TASK_I=
+NTERRUPTIBLE, 1)
+-#define wake_up_sync_nr(x, nr)		__wake_up_sync((x),TASK_UNINTERRUPTIBLE | =
+TASK_INTERRUPTIBLE, nr)
+ #define wake_up_interruptible(x)	__wake_up((x),TASK_INTERRUPTIBLE, 1)
+ #define wake_up_interruptible_nr(x, nr)	__wake_up((x),TASK_INTERRUPTIBLE, =
+nr)
+ #define wake_up_interruptible_all(x)	__wake_up((x),TASK_INTERRUPTIBLE, 0)
+-#define wake_up_interruptible_sync(x)	__wake_up_sync((x),TASK_INTERRUPTIBL=
+E, 1)
+-#define wake_up_interruptible_sync_nr(x) __wake_up_sync((x),TASK_INTERRUPT=
+IBLE,  nr)
+ asmlinkage long sys_wait4(pid_t pid,unsigned int * stat_addr, int options,=
+ struct rusage * ru);
+=20
+ extern int in_group_p(gid_t);
+@@ -919,6 +918,31 @@
+ 	return res;
+ }
+=20
++static inline void set_need_resched(void)
++{
++	current->need_resched =3D 1;
++}
 +
-+        /* If we're doing ranges, random or incremental, then this
-+         * defines the min/max for those ranges.
-+         */
-+        __u32 saddr_min; /* inclusive, source IP address */
-+        __u32 saddr_max; /* exclusive, source IP address */
-+        __u32 daddr_min; /* inclusive, dest IP address */
-+        __u32 daddr_max; /* exclusive, dest IP address */
++static inline void clear_need_resched(void)
++{
++	current->need_resched =3D 0;
++}
 +
-+        __u16 udp_src_min; /* inclusive, source UDP port */
-+        __u16 udp_src_max; /* exclusive, source UDP port */
-+        __u16 udp_dst_min; /* inclusive, dest UDP port */
-+        __u16 udp_dst_max; /* exclusive, dest UDP port */
++static inline void set_tsk_need_resched(struct task_struct *tsk)
++{
++	tsk->need_resched =3D 1;
++}
 +
-+        __u32 src_mac_count; /* How many MACs to iterate through */
-+        __u32 dst_mac_count; /* How many MACs to iterate through */
-+        
-+        unsigned char dst_mac[6];
-+        unsigned char src_mac[6];
-+        
-+        __u32 cur_dst_mac_offset;
-+        __u32 cur_src_mac_offset;
-+        __u32 cur_saddr;
-+        __u32 cur_daddr;
-+        __u16 cur_udp_dst;
-+        __u16 cur_udp_src;
-+        
-+        __u8 hh[14];
-+        /* = { 
-+           0x00, 0x80, 0xC8, 0x79, 0xB3, 0xCB, 
-+           
-+           We fill in SRC address later
-+           0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+           0x08, 0x00
-+           };
-+        */
-+        __u16 pad; /* pad out the hh struct to an even 16 bytes */
-+        char pg_result[512];
++static inline void clear_tsk_need_resched(struct task_struct *tsk)
++{
++	tsk->need_resched =3D 0;
++}
 +
-+        /* proc file names */
-+        char fname[80];
-+        char busy_fname[80];
- 
--static __u8 hh[14] = { 
--    0x00, 0x80, 0xC8, 0x79, 0xB3, 0xCB, 
-+        struct proc_dir_entry *pg_proc_ent;
-+        struct proc_dir_entry *pg_busy_proc_ent;
-+};
- 
--    /* We fill in SRC address later */
--    0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--    0x08, 0x00
-+struct pktgen_hdr {
-+        __u32 pgh_magic;
-+        __u32 seq_num;
-+        struct timeval timestamp;
++static inline int need_resched(void)
++{
++	return unlikely(current->need_resched);
++}
++
+ #endif /* __KERNEL__ */
+=20
+ #endif
+diff -urN linux-2.4.19-pre7-ac2/init/main.c linux/init/main.c
+--- linux-2.4.19-pre7-ac2/init/main.c	Sat Apr 20 17:45:10 2002
++++ linux/init/main.c	Sat Apr 20 18:59:23 2002
+@@ -458,6 +458,10 @@
+  */
+ static void __init do_basic_setup(void)
+ {
++	/* Start the per-CPU migration threads */
++#if CONFIG_SMP
++	migration_init();
++#endif
+=20
+ 	/*
+ 	 * Tell the world that we're going to be the grim
+diff -urN linux-2.4.19-pre7-ac2/kernel/ksyms.c linux/kernel/ksyms.c
+--- linux-2.4.19-pre7-ac2/kernel/ksyms.c	Sat Apr 20 17:45:10 2002
++++ linux/kernel/ksyms.c	Sat Apr 20 18:59:23 2002
+@@ -434,7 +434,6 @@
+ /* process management */
+ EXPORT_SYMBOL(complete_and_exit);
+ EXPORT_SYMBOL(__wake_up);
+-EXPORT_SYMBOL(__wake_up_sync);
+ EXPORT_SYMBOL(wake_up_process);
+ EXPORT_SYMBOL(sleep_on);
+ EXPORT_SYMBOL(sleep_on_timeout);
+@@ -444,7 +443,9 @@
+ EXPORT_SYMBOL(schedule_timeout);
+ EXPORT_SYMBOL(sys_sched_yield);
+ EXPORT_SYMBOL(set_user_nice);
+-EXPORT_SYMBOL(set_cpus_allowed);
++#ifdef CONFIG_SMP
++EXPORT_SYMBOL_GPL(set_cpus_allowed);
++#endif
+ EXPORT_SYMBOL(jiffies);
+ EXPORT_SYMBOL(xtime);
+ EXPORT_SYMBOL(do_gettimeofday);
+diff -urN linux-2.4.19-pre7-ac2/kernel/sched.c linux/kernel/sched.c
+--- linux-2.4.19-pre7-ac2/kernel/sched.c	Sat Apr 20 17:45:10 2002
++++ linux/kernel/sched.c	Sat Apr 20 19:03:14 2002
+@@ -22,17 +22,18 @@
+ #include <linux/kernel_stat.h>
+=20
+ /*
+- * Priority of a process goes from 0 to 139. The 0-99
+- * priority range is allocated to RT tasks, the 100-139
+- * range is for SCHED_OTHER tasks. Priority values are
+- * inverted: lower p->prio value means higher priority.
++ * Priority of a process goes from 0 to MAX_PRIO-1.  The
++ * 0 to MAX_RT_PRIO-1 priority range is allocated to RT tasks,
++ * the MAX_RT_PRIO to MAX_PRIO range is for SCHED_OTHER tasks.
++ * Priority values are inverted: lower p->prio value means higher
++ * priority.
+  */
+ #define MAX_RT_PRIO		100
+ #define MAX_PRIO		(MAX_RT_PRIO + 40)
+=20
+ /*
+  * Convert user-nice values [ -20 ... 0 ... 19 ]
+- * to static priority [ 100 ... 139 (MAX_PRIO-1) ],
++ * to static priority [ MAX_RT_PRIO..MAX_PRIO-1 ],
+  * and back.
+  */
+ #define NICE_TO_PRIO(nice)	(MAX_RT_PRIO + (nice) + 20)
+@@ -125,8 +126,6 @@
+=20
+ struct prio_array {
+ 	int nr_active;
+-	spinlock_t *lock;
+-	runqueue_t *rq;
+ 	unsigned long bitmap[BITMAP_SIZE];
+ 	list_t queue[MAX_PRIO];
  };
- 
--static unsigned char *pg_dstmac = hh;
--static char pg_result[512];
-+static int pg_cpu_speed;
-+static int debug;
-+
-+/* Module parameters, defaults. */
-+static int pg_count_d = 100000;
-+static int pg_ipg_d = 0;
-+static int pg_multiskb_d = 0;
-+
-+
-+#define MAX_PKTGEN 32
-+static struct pktgen_info pginfos[MAX_PKTGEN];
-+
-+
-+/** Convert to miliseconds */
-+inline __u64 tv_to_ms(const struct timeval* tv) {
-+        __u64 ms = tv->tv_usec / 1000;
-+        ms += (__u64)tv->tv_sec * (__u64)1000;
-+        return ms;
-+}
-+
-+inline __u64 getCurMs(void) {
-+        struct timeval tv;
-+        do_gettimeofday(&tv);
-+        return tv_to_ms(&tv);
-+}
-+
- 
--static struct net_device *pg_setup_inject(u32 *saddrp)
-+static struct net_device *pg_setup_inject(struct pktgen_info* info)
+@@ -140,10 +139,13 @@
+  */
+ struct runqueue {
+ 	spinlock_t lock;
++	spinlock_t frozen;
+ 	unsigned long nr_running, nr_switches, expired_timestamp;
+ 	task_t *curr, *idle;
+ 	prio_array_t *active, *expired, arrays[2];
+ 	int prev_nr_running[NR_CPUS];
++	task_t *migration_thread;
++	list_t migration_queue;
+ } ____cacheline_aligned;
+=20
+ static struct runqueue runqueues[NR_CPUS] __cacheline_aligned;
+@@ -154,21 +156,21 @@
+ #define cpu_curr(cpu)		(cpu_rq(cpu)->curr)
+ #define rt_task(p)		((p)->prio < MAX_RT_PRIO)
+=20
+-static inline runqueue_t *lock_task_rq(task_t *p, unsigned long *flags)
++static inline runqueue_t *task_rq_lock(task_t *p, unsigned long *flags)
  {
- 	struct net_device *odev;
--	int p1, p2;
--	u32 saddr;
- 
- 	rtnl_lock();
--	odev = __dev_get_by_name(pg_outdev);
-+	odev = __dev_get_by_name(info->pg_outdev);
- 	if (!odev) {
--		sprintf(pg_result, "No such netdevice: \"%s\"", pg_outdev);
-+		sprintf(info->pg_result, "No such netdevice: \"%s\"", info->pg_outdev);
+-	struct runqueue *__rq;
++	struct runqueue *rq;
+=20
+ repeat_lock_task:
+-	__rq =3D task_rq(p);
+-	spin_lock_irqsave(&__rq->lock, *flags);
+-	if (unlikely(__rq !=3D task_rq(p))) {
+-		spin_unlock_irqrestore(&__rq->lock, *flags);
++	rq =3D task_rq(p);
++	spin_lock_irqsave(&rq->lock, *flags);
++	if (unlikely(rq !=3D task_rq(p))) {
++		spin_unlock_irqrestore(&rq->lock, *flags);
+ 		goto repeat_lock_task;
+ 	}
+-	return __rq;
++	return rq;
+ }
+=20
+-static inline void unlock_task_rq(runqueue_t *rq, unsigned long *flags)
++static inline void task_rq_unlock(runqueue_t *rq, unsigned long *flags)
+ {
+ 	spin_unlock_irqrestore(&rq->lock, *flags);
+ }
+@@ -179,7 +181,7 @@
+ static inline void dequeue_task(struct task_struct *p, prio_array_t *array=
+)
+ {
+ 	array->nr_active--;
+-	list_del_init(&p->run_list);
++	list_del(&p->run_list);
+ 	if (list_empty(array->queue + p->prio))
+ 		__clear_bit(p->prio, array->bitmap);
+ }
+@@ -253,7 +255,7 @@
+=20
+ 	need_resched =3D p->need_resched;
+ 	wmb();
+-	p->need_resched =3D 1;
++	set_tsk_need_resched(p);
+ 	if (!need_resched && (p->cpu !=3D smp_processor_id()))
+ 		smp_send_reschedule(p->cpu);
+ }
+@@ -275,26 +277,12 @@
+ 		cpu_relax();
+ 		barrier();
+ 	}
+-	rq =3D lock_task_rq(p, &flags);
++	rq =3D task_rq_lock(p, &flags);
+ 	if (unlikely(rq->curr =3D=3D p)) {
+-		unlock_task_rq(rq, &flags);
++		task_rq_unlock(rq, &flags);
+ 		goto repeat;
+ 	}
+-	unlock_task_rq(rq, &flags);
+-}
+-
+-/*
+- * The SMP message passing code calls this function whenever
+- * the new task has arrived at the target CPU. We move the
+- * new task into the local runqueue.
+- *
+- * This function must be called with interrupts disabled.
+- */
+-void sched_task_migrated(task_t *new_task)
+-{
+-	wait_task_inactive(new_task);
+-	new_task->cpu =3D smp_processor_id();
+-	wake_up_process(new_task);
++	task_rq_unlock(rq, &flags);
+ }
+=20
+ /*
+@@ -321,32 +309,35 @@
+  * "current->state =3D TASK_RUNNING" to mark yourself runnable
+  * without the overhead of this.
+  */
+-static int try_to_wake_up(task_t * p, int synchronous)
++static int try_to_wake_up(task_t * p)
+ {
+ 	unsigned long flags;
+ 	int success =3D 0;
+ 	runqueue_t *rq;
+=20
+-	rq =3D lock_task_rq(p, &flags);
++	rq =3D task_rq_lock(p, &flags);
+ 	p->state =3D TASK_RUNNING;
+ 	if (!p->array) {
+ 		activate_task(p, rq);
+-		if ((rq->curr =3D=3D rq->idle) || (p->prio < rq->curr->prio))
++		if (p->prio < rq->curr->prio)
+ 			resched_task(rq->curr);
+ 		success =3D 1;
+ 	}
+-	unlock_task_rq(rq, &flags);
++	task_rq_unlock(rq, &flags);
+ 	return success;
+ }
+=20
+ int wake_up_process(task_t * p)
+ {
+-	return try_to_wake_up(p, 0);
++	return try_to_wake_up(p);
+ }
+=20
+ void wake_up_forked_process(task_t * p)
+ {
+-	runqueue_t *rq =3D this_rq();
++	runqueue_t *rq;
++
++	rq =3D this_rq();
++	spin_lock_irq(&rq->lock);
+=20
+ 	p->state =3D TASK_RUNNING;
+ 	if (!rt_task(p)) {
+@@ -359,7 +350,6 @@
+ 		p->sleep_avg =3D p->sleep_avg * CHILD_PENALTY / 100;
+ 		p->prio =3D effective_prio(p);
+ 	}
+-	spin_lock_irq(&rq->lock);
+ 	p->cpu =3D smp_processor_id();
+ 	activate_task(p, rq);
+ 	spin_unlock_irq(&rq->lock);
+@@ -393,7 +383,7 @@
+ #if CONFIG_SMP
+ asmlinkage void schedule_tail(task_t *prev)
+ {
+-	spin_unlock_irq(&this_rq()->lock);
++	spin_unlock_irq(&this_rq()->frozen);
+ }
+ #endif
+=20
+@@ -416,16 +406,7 @@
+ 		mmdrop(oldmm);
+ 	}
+=20
+-	/*
+-	 * Here we just switch the register state and the stack. There are
+-	 * 3 processes affected by a context switch:
+-	 *
+-	 * prev =3D=3D> .... =3D=3D> (last =3D> next)
+-	 *
+-	 * It's the 'much more previous' 'prev' that is on next's stack,
+-	 * but prev is set to (the just run) 'last' process by switch_to().
+-	 * This might sound slightly confusing but makes tons of sense.
+-	 */
++	/* Here we just switch the register state and the stack. */
+ 	switch_to(prev, next, prev);
+ }
+=20
+@@ -520,12 +501,14 @@
+ 	busiest =3D NULL;
+ 	max_load =3D 1;
+ 	for (i =3D 0; i < smp_num_cpus; i++) {
+-		rq_src =3D cpu_rq(cpu_logical_map(i));
+-		if (idle || (rq_src->nr_running < this_rq->prev_nr_running[i]))
++		int logical =3D cpu_logical_map(i);
++
++		rq_src =3D cpu_rq(logical);
++		if (idle || (rq_src->nr_running < this_rq->prev_nr_running[logical]))
+ 			load =3D rq_src->nr_running;
+ 		else
+-			load =3D this_rq->prev_nr_running[i];
+-		this_rq->prev_nr_running[i] =3D rq_src->nr_running;
++			load =3D this_rq->prev_nr_running[logical];
++		this_rq->prev_nr_running[logical] =3D rq_src->nr_running;
+=20
+ 		if ((load > max_load) && (rq_src !=3D this_rq)) {
+ 			busiest =3D rq_src;
+@@ -547,7 +530,7 @@
+ 	 * Make sure nothing changed since we checked the
+ 	 * runqueue length.
+ 	 */
+-	if (busiest->nr_running <=3D this_rq->nr_running + 1)
++	if (busiest->nr_running <=3D nr_running + 1)
  		goto out_unlock;
- 	}
- 
- 	if (odev->type != ARPHRD_ETHER) {
--		sprintf(pg_result, "Not ethernet device: \"%s\"", pg_outdev);
-+		sprintf(info->pg_result, "Not ethernet device: \"%s\"", info->pg_outdev);
- 		goto out_unlock;
- 	}
- 
- 	if (!netif_running(odev)) {
--		sprintf(pg_result, "Device is down: \"%s\"", pg_outdev);
-+		sprintf(info->pg_result, "Device is down: \"%s\"", info->pg_outdev);
- 		goto out_unlock;
- 	}
- 
--	for (p1 = 6, p2 = 0; p1 < odev->addr_len + 6; p1++)
--		hh[p1] = odev->dev_addr[p2++];
--
--	saddr = 0;
--	if (odev->ip_ptr) {
--		struct in_device *in_dev = odev->ip_ptr;
--
--		if (in_dev->ifa_list)
--			saddr = in_dev->ifa_list->ifa_address;
--	}
-+        /* Default to the interface's mac if not explicitly set. */
-+        if (!(info->flags & (1<<6))) {
-+                memcpy(&(info->hh[6]), odev->dev_addr, 6);
-+        }
-+        else {
-+                memcpy(&(info->hh[6]), info->src_mac, 6);
-+        }
-+
-+        /* Set up Dest MAC */
-+        memcpy(&(info->hh[0]), info->dst_mac, 6);
-+        
-+	info->saddr_min = 0;
-+	info->saddr_max = 0;
-+        if (strlen(info->src_min) == 0) {
-+                if (odev->ip_ptr) {
-+                        struct in_device *in_dev = odev->ip_ptr;
-+
-+                        if (in_dev->ifa_list) {
-+                                info->saddr_min = in_dev->ifa_list->ifa_address;
-+                                info->saddr_max = info->saddr_min;
-+                        }
-+                }
-+	}
-+        else {
-+                info->saddr_min = in_aton(info->src_min);
-+                info->saddr_max = in_aton(info->src_max);
-+        }
-+
-+        info->daddr_min = in_aton(info->dst_min);
-+        info->daddr_max = in_aton(info->dst_max);
-+
-+        /* Initialize current values. */
-+        info->cur_dst_mac_offset = 0;
-+        info->cur_src_mac_offset = 0;
-+        info->cur_saddr = info->saddr_min;
-+        info->cur_daddr = info->daddr_min;
-+        info->cur_udp_dst = info->udp_dst_min;
-+        info->cur_udp_src = info->udp_src_min;
-+        
- 	atomic_inc(&odev->refcnt);
- 	rtnl_unlock();
- 
--	*saddrp = saddr;
- 	return odev;
- 
- out_unlock:
-@@ -126,9 +261,7 @@
- 	return NULL;
- }
- 
--static u32 idle_acc_lo, idle_acc_hi;
--
--static void nanospin(int pg_ipg)
-+static void nanospin(int pg_ipg, struct pktgen_info* info)
- {
- 	u32 idle_start, idle;
- 
-@@ -140,9 +273,7 @@
- 		if (idle * 1000 >= pg_ipg * pg_cpu_speed)
- 			break;
- 	}
--	idle_acc_lo += idle;
--	if (idle_acc_lo < idle)
--		idle_acc_hi++;
-+	info->idle_acc += idle;
- }
- 
- static int calc_mhz(void)
-@@ -173,17 +304,136 @@
- 	}
- }
- 
--static struct sk_buff *fill_packet(struct net_device *odev, __u32 saddr)
-+
-+/* Increment/randomize headers according to flags and current values
-+ * for IP src/dest, UDP src/dst port, MAC-Addr src/dst
-+ */
-+static void mod_cur_headers(struct pktgen_info* info) {        
-+        __u32 imn;
-+        __u32 imx;
-+        
-+	/*  Deal with source MAC */
-+        if (info->src_mac_count > 1) {
-+                __u32 mc;
-+                __u32 tmp;
-+                if (info->flags & (1<<4)) {
-+                        mc = net_random() % (info->src_mac_count);
-+                }
-+                else {
-+                        mc = info->cur_src_mac_offset++;
-+                        if (info->cur_src_mac_offset > info->src_mac_count) {
-+                                info->cur_src_mac_offset = 0;
-+                        }
-+                }
-+
-+                tmp = info->src_mac[5] + (mc & 0xFF);
-+                info->hh[11] = tmp;
-+                tmp = (info->src_mac[4] + ((mc >> 8) & 0xFF) + (tmp >> 8));
-+                info->hh[10] = tmp;
-+                tmp = (info->src_mac[3] + ((mc >> 16) & 0xFF) + (tmp >> 8));
-+                info->hh[9] = tmp;
-+                tmp = (info->src_mac[2] + ((mc >> 24) & 0xFF) + (tmp >> 8));
-+                info->hh[8] = tmp;
-+                tmp = (info->src_mac[1] + (tmp >> 8));
-+                info->hh[7] = tmp;        
-+        }
-+
-+        /*  Deal with Destination MAC */
-+        if (info->dst_mac_count > 1) {
-+                __u32 mc;
-+                __u32 tmp;
-+                if (info->flags & (1<<5)) {
-+                        mc = net_random() % (info->dst_mac_count);
-+                }
-+                else {
-+                        mc = info->cur_dst_mac_offset++;
-+                        if (info->cur_dst_mac_offset > info->dst_mac_count) {
-+                                info->cur_dst_mac_offset = 0;
-+                        }
-+                }
-+
-+                tmp = info->dst_mac[5] + (mc & 0xFF);
-+                info->hh[5] = tmp;
-+                tmp = (info->dst_mac[4] + ((mc >> 8) & 0xFF) + (tmp >> 8));
-+                info->hh[4] = tmp;
-+                tmp = (info->dst_mac[3] + ((mc >> 16) & 0xFF) + (tmp >> 8));
-+                info->hh[3] = tmp;
-+                tmp = (info->dst_mac[2] + ((mc >> 24) & 0xFF) + (tmp >> 8));
-+                info->hh[2] = tmp;
-+                tmp = (info->dst_mac[1] + (tmp >> 8));
-+                info->hh[1] = tmp;        
-+        }
-+
-+        if (info->udp_src_min < info->udp_src_max) {
-+                if (info->flags & (1<<2)) {
-+                        info->cur_udp_src = ((net_random() % (info->udp_src_max - info->udp_src_min))
-+                                             + info->udp_src_min);
-+                }
-+                else {
-+                     info->cur_udp_src++;
-+                     if (info->cur_udp_src >= info->udp_src_max) {
-+                             info->cur_udp_src = info->udp_src_min;
-+                     }
-+                }
-+        }
-+
-+        if (info->udp_dst_min < info->udp_dst_max) {
-+                if (info->flags & (1<<3)) {
-+                        info->cur_udp_dst = ((net_random() % (info->udp_dst_max - info->udp_dst_min))
-+                                             + info->udp_dst_min);
-+                }
-+                else {
-+                     info->cur_udp_dst++;
-+                     if (info->cur_udp_dst >= info->udp_dst_max) {
-+                             info->cur_udp_dst = info->udp_dst_min;
-+                     }
-+                }
-+        }
-+
-+        if ((imn = ntohl(info->saddr_min)) < (imx = ntohl(info->saddr_max))) {
-+                __u32 t;
-+                if (info->flags & (1<<0)) {
-+                        t = ((net_random() % (imx - imn)) + imn);
-+                }
-+                else {
-+                     t = ntohl(info->cur_saddr);
-+                     t++;
-+                     if (t >= imx) {
-+                             t = imn;
-+                     }
-+                }
-+                info->cur_saddr = htonl(t);
-+        }
-+
-+        if ((imn = ntohl(info->daddr_min)) < (imx = ntohl(info->daddr_max))) {
-+                __u32 t;
-+                if (info->flags & (1<<1)) {
-+                        t = ((net_random() % (imx - imn)) + imn);
-+                }
-+                else {
-+                     t = ntohl(info->cur_daddr);
-+                     t++;
-+                     if (t >= imx) {
-+                             t = imn;
-+                     }
-+                }
-+                info->cur_daddr = htonl(t);
-+        }
-+}/* mod_cur_headers */
-+
-+
-+static struct sk_buff *fill_packet(struct net_device *odev, struct pktgen_info* info)
- {
--	struct sk_buff *skb;
-+	struct sk_buff *skb = NULL;
- 	__u8 *eth;
- 	struct udphdr *udph;
- 	int datalen, iplen;
- 	struct iphdr *iph;
--
--	skb = alloc_skb(pkt_size + 64 + 16, GFP_ATOMIC);
-+        struct pktgen_hdr *pgh = NULL;
-+        
-+	skb = alloc_skb(info->pkt_size + 64 + 16, GFP_ATOMIC);
- 	if (!skb) {
--		sprintf(pg_result, "No memory");
-+		sprintf(info->pg_result, "No memory");
- 		return NULL;
- 	}
- 
-@@ -194,15 +444,20 @@
- 	iph = (struct iphdr *)skb_put(skb, sizeof(struct iphdr));
- 	udph = (struct udphdr *)skb_put(skb, sizeof(struct udphdr));
- 
--	/*  Copy the ethernet header  */
--	memcpy(eth, hh, 14);
--
--	datalen = pkt_size - 14 - 20 - 8; /* Eth + IPh + UDPh */
--	if (datalen < 0)
--		datalen = 0;
--
--	udph->source = htons(9);
--	udph->dest = htons(9);
-+        /* Update any of the values, used when we're incrementing various
-+         * fields.
-+         */
-+        mod_cur_headers(info);
-+
-+	memcpy(eth, info->hh, 14);
-+        
-+	datalen = info->pkt_size - 14 - 20 - 8; /* Eth + IPh + UDPh */
-+	if (datalen < sizeof(struct pktgen_hdr)) {
-+		datalen = sizeof(struct pktgen_hdr);
-+        }
-+        
-+	udph->source = htons(info->cur_udp_src);
-+	udph->dest = htons(info->cur_udp_dst);
- 	udph->len = htons(datalen + 8); /* DATA + udphdr */
- 	udph->check = 0;  /* No checksum */
- 
-@@ -211,8 +466,8 @@
- 	iph->ttl = 3;
- 	iph->tos = 0;
- 	iph->protocol = IPPROTO_UDP; /* UDP */
--	iph->saddr = saddr;
--	iph->daddr = in_aton(pg_dst);
-+	iph->saddr = info->cur_saddr;
-+	iph->daddr = info->cur_daddr;
- 	iph->frag_off = 0;
- 	iplen = 20 + 8 + datalen;
- 	iph->tot_len = htons(iplen);
-@@ -223,12 +478,15 @@
- 	skb->dev = odev;
- 	skb->pkt_type = PACKET_HOST;
- 
--	if (nfrags <= 0) {
--		skb_put(skb, datalen);
-+	if (info->nfrags <= 0) {
-+                pgh = (struct pktgen_hdr *)skb_put(skb, datalen);
- 	} else {
--		int frags = nfrags;
-+		int frags = info->nfrags;
- 		int i;
- 
-+                /* TODO: Verify this is OK...it sure is ugly. --Ben */
-+                pgh = (struct pktgen_hdr*)(((char*)(udph)) + 8);
-+                
- 		if (frags > MAX_SKB_FRAGS)
- 			frags = MAX_SKB_FRAGS;
- 		if (datalen > frags*PAGE_SIZE) {
-@@ -272,63 +530,95 @@
- 		}
- 	}
- 
-+        /* Stamp the time, and sequence number, convert them to network byte order */
-+        if (pgh) {
-+                pgh->pgh_magic = __constant_htonl(PKTGEN_MAGIC);
-+                do_gettimeofday(&(pgh->timestamp));
-+                pgh->timestamp.tv_usec = htonl(pgh->timestamp.tv_usec);
-+                pgh->timestamp.tv_sec = htonl(pgh->timestamp.tv_sec);
-+                pgh->seq_num = htonl(info->seq_num);
-+        }
-+        
- 	return skb;
- }
- 
- 
--static void pg_inject(void)
-+static void pg_inject(struct pktgen_info* info)
- {
--	u32 saddr;
- 	struct net_device *odev;
--	struct sk_buff *skb;
--	struct timeval start, stop;
--	u32 total, idle;
--	int pc, lcount;
--
--	odev = pg_setup_inject(&saddr);
-+	struct sk_buff *skb = NULL;
-+	__u64 total = 0;
-+        __u64 idle = 0;
-+	__u64 lcount = 0;
-+        int nr_frags = 0;
-+        
-+	odev = pg_setup_inject(info);
- 	if (!odev)
+=20
+ 	/*
+@@ -592,7 +575,7 @@
+ #define CAN_MIGRATE_TASK(p,rq,this_cpu)					\
+ 	((jiffies - (p)->sleep_timestamp > cache_decay_ticks) &&	\
+ 		((p) !=3D (rq)->curr) &&					\
+-			(tmp->cpus_allowed & (1 << (this_cpu))))
++			((p)->cpus_allowed & (1 << (this_cpu))))
+=20
+ 	if (!CAN_MIGRATE_TASK(tmp, busiest, this_cpu)) {
+ 		curr =3D curr->next;
+@@ -612,7 +595,7 @@
+ 	this_rq->nr_running++;
+ 	enqueue_task(next, this_rq->active);
+ 	if (next->prio < current->prio)
+-		current->need_resched =3D 1;
++		set_need_resched();
+ 	if (!idle && --imbalance) {
+ 		if (array =3D=3D busiest->expired) {
+ 			array =3D busiest->active;
+@@ -686,7 +669,7 @@
+=20
+ 	/* Task might have expired already, but not scheduled off yet */
+ 	if (p->array !=3D rq->active) {
+-		p->need_resched =3D 1;
++		set_tsk_need_resched(p);
  		return;
- 
--	skb = fill_packet(odev, saddr);
--	if (skb == NULL)
--		goto out_reldev;
--
--	forced_stop = 0;
--	idle_acc_hi = 0;
--	idle_acc_lo = 0;
--	pc = 0;
--	lcount = pg_count;
--	do_gettimeofday(&start);
--
--	for(;;) {
-+        info->do_run_run = 1; /* Cranke yeself! */
-+	info->forced_stop = 0;
-+	info->idle_acc = 0;
-+	info->pg_sofar = 0;
-+	lcount = info->pg_count;
-+	do_gettimeofday(&(info->started_at));
-+
-+	while(info->do_run_run) {
-+                /* Want to set a time-stamp, so build a new pkt each time */
-+                if (skb) {
-+                        kfree_skb(skb);
-+                }
-+                skb = fill_packet(odev, info);
-+                if (skb == NULL)
-+                   goto out_reldev;
-+                nr_frags = skb_shinfo(skb)->nr_frags;
-+                   
- 		spin_lock_bh(&odev->xmit_lock);
- 		if (!netif_queue_stopped(odev)) {
- 			struct sk_buff *skb2 = skb;
- 
--			if (pg_multiskb)
-+			if (info->pg_multiskb)
- 				skb2 = skb_copy(skb, GFP_ATOMIC);
- 			else
- 				atomic_inc(&skb->users);
- 			if (!skb2)
- 				goto skip;
- 			if (odev->hard_start_xmit(skb2, odev)) {
--				kfree_skb(skb2);
--				if (net_ratelimit())
--					printk(KERN_INFO "Hard xmit error\n");
-+				if (net_ratelimit()) {
-+                                   printk(KERN_INFO "Hard xmit error\n");
-+                                }
-+                                info->errors++;
- 			}
--			pc++;
-+                        else {
-+                           info->pg_sofar++;
-+                           info->seq_num++;
-+                        }
- 		}
- 	skip:
- 		spin_unlock_bh(&odev->xmit_lock);
- 
--		if (pg_ipg)
--			nanospin(pg_ipg);
--		if (forced_stop)
-+		if (info->pg_ipg) {
-+                        /* Try not to busy-spin if we have larger sleep times.
-+                         * TODO:  Investigate better ways to do this.
-+                         */
-+                        if (info->pg_ipg < 10000) { /* 10 usecs or less */
-+                                nanospin(info->pg_ipg, info);
-+                        }
-+                        else if (info->pg_ipg < 10000000) { /* 10ms or less */
-+                                udelay(info->pg_ipg / 1000);
-+                        }
-+                        else {
-+                                mdelay(info->pg_ipg / 1000000);
-+                        }
-+                }
-+                
-+		if (info->forced_stop)
- 			goto out_intr;
- 		if (signal_pending(current))
--			goto out_intr;
-+                        break;
- 
--		if (--lcount == 0) {
-+                /* If lcount is zero, then run forever */
-+		if ((lcount != 0) && (--lcount == 0)) {
- 			if (atomic_read(&skb->users) != 1) {
- 				u32 idle_start, idle;
- 
-@@ -339,9 +629,7 @@
- 					schedule();
- 				}
- 				idle = cycles() - idle_start;
--				idle_acc_lo += idle;
--				if (idle_acc_lo < idle)
--					idle_acc_hi++;
-+				info->idle_acc += idle;
- 			}
- 			break;
- 		}
-@@ -361,53 +649,63 @@
- 					do_softirq();
- 			} while (netif_queue_stopped(odev));
- 			idle = cycles() - idle_start;
--			idle_acc_lo += idle;
--			if (idle_acc_lo < idle)
--				idle_acc_hi++;
-+			info->idle_acc += idle;
- 		}
--	}
-+	}/* while we should be running */
- 
--	do_gettimeofday(&stop);
-+	do_gettimeofday(&(info->stopped_at));
- 
--	total = (stop.tv_sec - start.tv_sec) * 1000000 +
--		stop.tv_usec - start.tv_usec;
-+	total = (info->stopped_at.tv_sec - info->started_at.tv_sec) * 1000000 +
-+		info->stopped_at.tv_usec - info->started_at.tv_usec;
- 
--	idle = (((idle_acc_hi<<20)/pg_cpu_speed)<<12)+idle_acc_lo/pg_cpu_speed;
-+	idle = (__u32)(info->idle_acc)/(__u32)(pg_cpu_speed);
- 
-         {
--		char *p = pg_result;
--    
--		p += sprintf(p, "OK: %u(c%u+d%u) usec, %u (%dbyte,%dfrags) %upps %uMB/sec",
-+		char *p = info->pg_result;
-+                __u64 pps = (__u32)(info->pg_sofar * 1000) / ((__u32)(total) / 1000);
-+                __u64 bps = pps * 8 * (info->pkt_size + 4); /* take 32bit ethernet CRC into account */
-+		p += sprintf(p, "OK: %llu(c%llu+d%llu) usec, %llu (%dbyte,%dfrags) %llupps %lluMb/sec (%llubps)  errors: %llu",
- 			     total, total-idle, idle,
--			     pc, skb->len, skb_shinfo(skb)->nr_frags,
--			     ((pc*1000)/(total/1000)),
--			     (((pc*1000)/(total/1000))*pkt_size)/1024/1024
-+			     info->pg_sofar,
-+                             skb->len + 4, /* Add 4 to account for the ethernet checksum */
-+                             nr_frags,
-+			     pps,
-+			     bps/1024/1024, bps, info->errors
- 			     );
  	}
--
-+        
- out_relskb:
--	kfree_skb(skb);
-+        if (skb) {
-+           kfree_skb(skb);
-+           skb = NULL;
-+        }
+ 	spin_lock(&rq->lock);
+@@ -697,7 +680,7 @@
+ 		 */
+ 		if ((p->policy =3D=3D SCHED_RR) && !--p->time_slice) {
+ 			p->time_slice =3D TASK_TIMESLICE(p);
+-			p->need_resched =3D 1;
++			set_tsk_need_resched(p);
+=20
+ 			/* put it at the end of the queue: */
+ 			dequeue_task(p, rq->active);
+@@ -717,7 +700,7 @@
+ 		p->sleep_avg--;
+ 	if (!--p->time_slice) {
+ 		dequeue_task(p, rq->active);
+-		p->need_resched =3D 1;
++		set_tsk_need_resched(p);
+ 		p->prio =3D effective_prio(p);
+ 		p->time_slice =3D TASK_TIMESLICE(p);
+=20
+@@ -743,14 +726,18 @@
+  */
+ asmlinkage void schedule(void)
+ {
+-	task_t *prev =3D current, *next;
+-	runqueue_t *rq =3D this_rq();
++	task_t *prev, *next;
++	runqueue_t *rq;
+ 	prio_array_t *array;
+ 	list_t *queue;
+ 	int idx;
+=20
+ 	BUG_ON(in_interrupt());
+=20
++need_resched:
++	prev =3D current;
++	rq =3D this_rq();
 +
- out_reldev:
-         dev_put(odev);
+ 	release_kernel_lock(prev, smp_processor_id());
+ 	prev->sleep_timestamp =3D jiffies;
+ 	spin_lock_irq(&rq->lock);
+@@ -797,23 +784,30 @@
+=20
+ switch_tasks:
+ 	prefetch(next);
+-	prev->need_resched =3D 0;
++	clear_tsk_need_resched(prev);
+=20
+ 	if (likely(prev !=3D next)) {
+ 		rq->nr_switches++;
+ 		rq->curr =3D next;
++		spin_lock(&rq->frozen);
++		spin_unlock(&rq->lock);
++	=09
+ 		context_switch(prev, next);
+ 		/*
+ 		 * The runqueue pointer might be from another CPU
+ 		 * if the new task was last running on a different
+ 		 * CPU - thus re-load it.
+ 		 */
+-		barrier();
++		mb();
+ 		rq =3D this_rq();
++		spin_unlock_irq(&rq->frozen);
++	} else {
++		spin_unlock_irq(&rq->lock);
+ 	}
+-	spin_unlock_irq(&rq->lock);
+=20
+ 	reacquire_kernel_lock(current);
++	if (need_resched())
++		goto need_resched;
  	return;
- 
- out_intr:
--	sprintf(pg_result, "Interrupted");
-+	sprintf(info->pg_result, "Interrupted");
- 	goto out_relskb;
  }
- 
- /* proc/net/pg */
- 
--static struct proc_dir_entry *pg_proc_ent = 0;
--static struct proc_dir_entry *pg_busy_proc_ent = 0;
--
- static int proc_pg_busy_read(char *buf , char **start, off_t offset,
- 			     int len, int *eof, void *data)
+=20
+@@ -826,44 +820,34 @@
+  * started to run but is not in state TASK_RUNNING.  try_to_wake_up() retu=
+rns
+  * zero in this (rare) case, and we handle it by continuing to scan the qu=
+eue.
+  */
+-static inline void __wake_up_common (wait_queue_head_t *q, unsigned int mo=
+de,
+-			 	     int nr_exclusive, const int sync)
++static inline void __wake_up_common(wait_queue_head_t *q, unsigned int mod=
+e,
++				    int nr_exclusive)
  {
- 	char *p;
-+        int idx = (int)(data);
-+        struct pktgen_info* info = NULL;
-+        
-+        if ((idx < 0) || (idx >= MAX_PKTGEN)) {
-+                printk("ERROR: idx: %i is out of range in proc_pg_write\n", idx);
-+                return -EINVAL;
-+        }
-+        info = &(pginfos[idx]);
-   
- 	p = buf;
--	p += sprintf(p, "%d\n", pg_busy);
-+	p += sprintf(p, "%d\n", info->pg_busy);
- 	*eof = 1;
-   
- 	return p-buf;
-@@ -418,16 +716,72 @@
- {
- 	char *p;
- 	int i;
-+        int idx = (int)(data);
-+        struct pktgen_info* info = NULL;
-+        __u64 sa;
-+        __u64 stopped;
-+        __u64 now = getCurMs();
-+        
-+        if ((idx < 0) || (idx >= MAX_PKTGEN)) {
-+                printk("ERROR: idx: %i is out of range in proc_pg_write\n", idx);
-+                return -EINVAL;
-+        }
-+        info = &(pginfos[idx]);
-   
- 	p = buf;
--	p += sprintf(p, "Params: count=%u pkt_size=%u frags %d ipg %u multiskb %d odev \"%s\" dst %s dstmac ",
--		     pg_count, pkt_size, nfrags, pg_ipg, pg_multiskb,
--		     pg_outdev, pg_dst);
--	for (i = 0; i < 6; i++)
--		p += sprintf(p, "%02X%s", pg_dstmac[i], i == 5 ? "\n" : ":");
+ 	struct list_head *tmp;
++	unsigned int state;
++	wait_queue_t *curr;
+ 	task_t *p;
+=20
+-	list_for_each(tmp,&q->task_list) {
+-		unsigned int state;
+-		wait_queue_t *curr =3D list_entry(tmp, wait_queue_t, task_list);
 -
--	if (pg_result[0])
--		p += sprintf(p, "Result: %s\n", pg_result);
-+        p += sprintf(p, "VERSION-1\n"); /* Help with parsing compatibility */
-+	p += sprintf(p, "Params: count %llu  pkt_size: %u  frags: %d  ipg: %u  multiskb: %d odev \"%s\"\n",
-+		     info->pg_count, info->pkt_size, info->nfrags, info->pg_ipg,
-+                     info->pg_multiskb, info->pg_outdev);
-+        p += sprintf(p, "     dst_min: %s  dst_max: %s  src_min: %s  src_max: %s\n",
-+                     info->dst_min, info->dst_max, info->src_min, info->src_max);
-+        p += sprintf(p, "     src_mac: ");
-+	for (i = 0; i < 6; i++) {
-+		p += sprintf(p, "%02X%s", info->src_mac[i], i == 5 ? "  " : ":");
-+        }
-+        p += sprintf(p, "dst_mac: ");
-+	for (i = 0; i < 6; i++) {
-+		p += sprintf(p, "%02X%s", info->dst_mac[i], i == 5 ? "\n" : ":");
-+        }
-+        p += sprintf(p, "     udp_src_min: %d  udp_src_max: %d  udp_dst_min: %d  udp_dst_max: %d\n",
-+                     info->udp_src_min, info->udp_src_max, info->udp_dst_min,
-+                     info->udp_dst_max);
-+        p += sprintf(p, "     src_mac_count: %d  dst_mac_count: %d\n     Flags: ",
-+                     info->src_mac_count, info->dst_mac_count);
-+        if (info->flags & (1<<0)) {
-+                p += sprintf(p, "IPSRC_RND  ");
-+        }
-+        if (info->flags & (1<<1)) {
-+                p += sprintf(p, "IPDST_RND  ");
-+        }
-+        if (info->flags & (1<<2)) {
-+                p += sprintf(p, "UDPSRC_RND  ");
-+        }
-+        if (info->flags & (1<<3)) {
-+                p += sprintf(p, "UDPDST_RND  ");
-+        }
-+        if (info->flags & (1<<4)) {
-+                p += sprintf(p, "MACSRC_RND  ");
-+        }
-+        if (info->flags & (1<<5)) {
-+                p += sprintf(p, "MACDST_RND  ");
-+        }
-+        p += sprintf(p, "\n");
-+        
-+        sa = tv_to_ms(&(info->started_at));
-+        stopped = tv_to_ms(&(info->stopped_at));
-+        if (info->do_run_run) {
-+                stopped = now; /* not really stopped, more like last-running-at */
-+        }
-+        p += sprintf(p, "Current:\n     pkts-sofar: %llu  errors: %llu\n     started: %llums  stopped: %llums  now: %llums  idle: %lluns\n",
-+                     info->pg_sofar, info->errors, sa, stopped, now, info->idle_acc);
-+        p += sprintf(p, "     seq_num: %d  cur_dst_mac_offset: %d  cur_src_mac_offset: %d\n",
-+                     info->seq_num, info->cur_dst_mac_offset, info->cur_src_mac_offset);
-+        p += sprintf(p, "     cur_saddr: 0x%x  cur_daddr: 0x%x  cur_udp_dst: %d  cur_udp_src: %d\n",
-+                     info->cur_saddr, info->cur_daddr, info->cur_udp_dst, info->cur_udp_src);
-+        
-+	if (info->pg_result[0])
-+		p += sprintf(p, "Result: %s\n", info->pg_result);
++	list_for_each(tmp, &q->task_list) {
++		curr =3D list_entry(tmp, wait_queue_t, task_list);
+ 		p =3D curr->task;
+ 		state =3D p->state;
+-		if ((state & mode) &&
+-				try_to_wake_up(p, sync) &&
+-				((curr->flags & WQ_FLAG_EXCLUSIVE) &&
+-					!--nr_exclusive))
+-			break;
++		if ((state & mode) && try_to_wake_up(p) &&
++			((curr->flags & WQ_FLAG_EXCLUSIVE) && !--nr_exclusive))
++				break;
+ 	}
+ }
+=20
+-void __wake_up(wait_queue_head_t *q, unsigned int mode, int nr)
++void __wake_up(wait_queue_head_t *q, unsigned int mode, int nr_exclusive)
+ {
+-	if (q) {
+-		unsigned long flags;
+-		wq_read_lock_irqsave(&q->lock, flags);
+-		__wake_up_common(q, mode, nr, 0);
+-		wq_read_unlock_irqrestore(&q->lock, flags);
+-	}
+-}
++	unsigned long flags;
+=20
+-void __wake_up_sync(wait_queue_head_t *q, unsigned int mode, int nr)
+-{
+-	if (q) {
+-		unsigned long flags;
+-		wq_read_lock_irqsave(&q->lock, flags);
+-		__wake_up_common(q, mode, nr, 1);
+-		wq_read_unlock_irqrestore(&q->lock, flags);
+-	}
++	if (unlikely(!q))
++		return;
++
++	wq_read_lock_irqsave(&q->lock, flags);
++	__wake_up_common(q, mode, nr_exclusive);
++	wq_read_unlock_irqrestore(&q->lock, flags);
+ }
+=20
+ void complete(struct completion *x)
+@@ -872,7 +856,7 @@
+=20
+ 	wq_write_lock_irqsave(&x->wait.lock, flags);
+ 	x->done++;
+-	__wake_up_common(&x->wait, TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, 1, =
+0);
++	__wake_up_common(&x->wait, TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, 1);
+ 	wq_write_unlock_irqrestore(&x->wait.lock, flags);
+ }
+=20
+@@ -959,34 +943,6 @@
+ 	return timeout;
+ }
+=20
+-/*
+- * Change the current task's CPU affinity. Migrate the process to a
+- * proper CPU and schedule away if the current CPU is removed from
+- * the allowed bitmask.
+- */
+-void set_cpus_allowed(task_t *p, unsigned long new_mask)
+-{
+-	new_mask &=3D cpu_online_map;
+-	if (!new_mask)
+-		BUG();
+-	if (p !=3D current)
+-		BUG();
+-
+-	p->cpus_allowed =3D new_mask;
+-	/*
+-	 * Can the task run on the current CPU? If not then
+-	 * migrate the process off to a proper CPU.
+-	 */
+-	if (new_mask & (1UL << smp_processor_id()))
+-		return;
+-#if CONFIG_SMP
+-	current->state =3D TASK_UNINTERRUPTIBLE;
+-	smp_migrate_task(__ffs(new_mask), current);
+-
+-	schedule();
+-#endif
+-}
+-
+ void scheduling_functions_end_here(void) { }
+=20
+ void set_user_nice(task_t *p, long nice)
+@@ -1001,7 +957,7 @@
+ 	 * We have to be careful, if called from sys_setpriority(),
+ 	 * the task might be in the middle of scheduling on another CPU.
+ 	 */
+-	rq =3D lock_task_rq(p, &flags);
++	rq =3D task_rq_lock(p, &flags);
+ 	if (rt_task(p)) {
+ 		p->static_prio =3D NICE_TO_PRIO(nice);
+ 		goto out_unlock;
+@@ -1021,7 +977,7 @@
+ 			resched_task(rq->curr);
+ 	}
+ out_unlock:
+-	unlock_task_rq(rq, &flags);
++	task_rq_unlock(rq, &flags);
+ }
+=20
+ #ifndef __alpha__
+@@ -1069,7 +1025,7 @@
+  */
+ int task_prio(task_t *p)
+ {
+-	return p->prio - 100;
++	return p->prio - MAX_RT_PRIO;
+ }
+=20
+ int task_nice(task_t *p)
+@@ -1114,7 +1070,7 @@
+ 	 * To be able to change p->policy safely, the apropriate
+ 	 * runqueue lock must be held.
+ 	 */
+-	rq =3D lock_task_rq(p, &flags);
++	rq =3D task_rq_lock(p, &flags);
+=20
+ 	if (policy < 0)
+ 		policy =3D p->policy;
+@@ -1124,13 +1080,13 @@
+ 				policy !=3D SCHED_OTHER)
+ 			goto out_unlock;
+ 	}
+-=09
++
+ 	/*
+-	 * Valid priorities for SCHED_FIFO and SCHED_RR are 1..99, valid
+-	 * priority for SCHED_OTHER is 0.
++	 * Valid priorities for SCHED_FIFO and SCHED_RR are 1..MAX_RT_PRIO-1,
++	 * valid priority for SCHED_OTHER is 0.
+ 	 */
+ 	retval =3D -EINVAL;
+-	if (lp.sched_priority < 0 || lp.sched_priority > 99)
++	if (lp.sched_priority < 0 || lp.sched_priority > MAX_RT_PRIO - 1)
+ 		goto out_unlock;
+ 	if ((policy =3D=3D SCHED_OTHER) !=3D (lp.sched_priority =3D=3D 0))
+ 		goto out_unlock;
+@@ -1149,15 +1105,15 @@
+ 	retval =3D 0;
+ 	p->policy =3D policy;
+ 	p->rt_priority =3D lp.sched_priority;
+-	if (rt_task(p))
+-		p->prio =3D 99 - p->rt_priority;
++	if (policy !=3D SCHED_OTHER)
++		p->prio =3D (MAX_RT_PRIO - 1) - p->rt_priority;
  	else
- 		p += sprintf(p, "Result: Idle\n");
- 	*eof = 1;
-@@ -498,7 +852,17 @@
- 	int i = 0, max, len;
- 	char name[16], valstr[32];
- 	unsigned long value = 0;
--  
-+        int idx = (int)(data);
-+        struct pktgen_info* info = NULL;
-+        char* pg_result = NULL;
-+        
-+        if ((idx < 0) || (idx >= MAX_PKTGEN)) {
-+                printk("ERROR: idx: %i is out of range in proc_pg_write\n", idx);
-+                return -EINVAL;
-+        }
-+        info = &(pginfos[idx]);
-+        pg_result = &(info->pg_result[0]);
-+        
- 	if (count < 1) {
- 		sprintf(pg_result, "Wrong command format");
- 		return -EINVAL;
-@@ -521,85 +885,206 @@
- 	if (debug)
- 		printk("pg: %s,%lu\n", name, count);
- 
--	/* Only stop is allowed when we are running */
--  
- 	if (!strcmp(name, "stop")) {
--		forced_stop = 1;
--		if (pg_busy)
-+		info->forced_stop = 1;
-+		if (info->do_run_run) {
- 			strcpy(pg_result, "Stopping");
-+                }
-+                else {
-+                        strcpy(pg_result, "Already stopped...\n");
-+                }
-+                info->do_run_run = 0;
- 		return count;
- 	}
- 
--	if (pg_busy) {
--		strcpy(pg_result, "Busy");
--		return -EINVAL;
--	}
--
- 	if (!strcmp(name, "pkt_size")) {
- 		len = num_arg(&buffer[i], 10, &value);
- 		i += len;
- 		if (value < 14+20+8)
- 			value = 14+20+8;
--		pkt_size = value;
--		sprintf(pg_result, "OK: pkt_size=%u", pkt_size);
-+		info->pkt_size = value;
-+		sprintf(pg_result, "OK: pkt_size=%u", info->pkt_size);
- 		return count;
- 	}
- 	if (!strcmp(name, "frags")) {
- 		len = num_arg(&buffer[i], 10, &value);
- 		i += len;
--		nfrags = value;
--		sprintf(pg_result, "OK: frags=%u", nfrags);
-+		info->nfrags = value;
-+		sprintf(pg_result, "OK: frags=%u", info->nfrags);
- 		return count;
- 	}
- 	if (!strcmp(name, "ipg")) {
- 		len = num_arg(&buffer[i], 10, &value);
- 		i += len;
--		pg_ipg = value;
--		sprintf(pg_result, "OK: ipg=%u", pg_ipg);
-+		info->pg_ipg = value;
-+		sprintf(pg_result, "OK: ipg=%u", info->pg_ipg);
-+		return count;
-+	}
-+ 	if (!strcmp(name, "udp_src_min")) {
-+		len = num_arg(&buffer[i], 10, &value);
-+		i += len;
-+	 	info->udp_src_min = value;
-+		sprintf(pg_result, "OK: udp_src_min=%u", info->udp_src_min);
-+		return count;
-+	}
-+ 	if (!strcmp(name, "udp_dst_min")) {
-+		len = num_arg(&buffer[i], 10, &value);
-+		i += len;
-+	 	info->udp_dst_min = value;
-+		sprintf(pg_result, "OK: udp_dst_min=%u", info->udp_dst_min);
-+		return count;
-+	}
-+ 	if (!strcmp(name, "udp_src_max")) {
-+		len = num_arg(&buffer[i], 10, &value);
-+		i += len;
-+	 	info->udp_src_max = value;
-+		sprintf(pg_result, "OK: udp_src_max=%u", info->udp_src_max);
-+		return count;
-+	}
-+ 	if (!strcmp(name, "udp_dst_max")) {
-+		len = num_arg(&buffer[i], 10, &value);
-+		i += len;
-+	 	info->udp_dst_max = value;
-+		sprintf(pg_result, "OK: udp_dst_max=%u", info->udp_dst_max);
- 		return count;
- 	}
- 	if (!strcmp(name, "multiskb")) {
- 		len = num_arg(&buffer[i], 10, &value);
- 		i += len;
--		pg_multiskb = (value ? 1 : 0);
--		sprintf(pg_result, "OK: multiskb=%d", pg_multiskb);
-+		info->pg_multiskb = (value ? 1 : 0);
-+		sprintf(pg_result, "OK: multiskb=%d", info->pg_multiskb);
- 		return count;
- 	}
- 	if (!strcmp(name, "count")) {
- 		len = num_arg(&buffer[i], 10, &value);
- 		i += len;
--		pg_count = value;
--		sprintf(pg_result, "OK: count=%u", pg_count);
-+		info->pg_count = value;
-+		sprintf(pg_result, "OK: count=%llu", info->pg_count);
-+		return count;
-+	}
-+	if (!strcmp(name, "src_mac_count")) {
-+		len = num_arg(&buffer[i], 10, &value);
-+		i += len;
-+		info->src_mac_count = value;
-+		sprintf(pg_result, "OK: src_mac_count=%d", info->src_mac_count);
-+		return count;
-+	}
-+	if (!strcmp(name, "dst_mac_count")) {
-+		len = num_arg(&buffer[i], 10, &value);
-+		i += len;
-+		info->dst_mac_count = value;
-+		sprintf(pg_result, "OK: dst_mac_count=%d", info->dst_mac_count);
- 		return count;
- 	}
- 	if (!strcmp(name, "odev")) {
--		len = strn_len(&buffer[i], sizeof(pg_outdev) - 1);
--		memset(pg_outdev, 0, sizeof(pg_outdev));
--		strncpy(pg_outdev, &buffer[i], len);
-+		len = strn_len(&buffer[i], sizeof(info->pg_outdev) - 1);
-+		memset(info->pg_outdev, 0, sizeof(info->pg_outdev));
-+		strncpy(info->pg_outdev, &buffer[i], len);
-+		i += len;
-+		sprintf(pg_result, "OK: odev=%s", info->pg_outdev);
-+		return count;
-+	}
-+	if (!strcmp(name, "flag")) {
-+                char f[32];
-+                memset(f, 0, 32);
-+		len = strn_len(&buffer[i], sizeof(f) - 1);
-+		strncpy(f, &buffer[i], len);
- 		i += len;
--		sprintf(pg_result, "OK: odev=%s", pg_outdev);
-+                if (strcmp(f, "IPSRC_RND") == 0) {
-+                        info->flags |= (1<<0);
-+                }
-+                else if (strcmp(f, "!IPSRC_RND") == 0) {
-+                        info->flags &= ~(1<<0);
-+                }
-+                else if (strcmp(f, "IPDST_RND") == 0) {
-+                        info->flags |= (1<<1);
-+                }
-+                else if (strcmp(f, "!IPDST_RND") == 0) {
-+                        info->flags &= ~(1<<1);
-+                }
-+                else if (strcmp(f, "UDPSRC_RND") == 0) {
-+                        info->flags |= (1<<2);
-+                }
-+                else if (strcmp(f, "!UDPSRC_RND") == 0) {
-+                        info->flags &= ~(1<<2);
-+                }
-+                else if (strcmp(f, "UDPDST_RND") == 0) {
-+                        info->flags |= (1<<3);
-+                }
-+                else if (strcmp(f, "!UDPDST_RND") == 0) {
-+                        info->flags &= ~(1<<3);
-+                }
-+                else if (strcmp(f, "MACSRC_RND") == 0) {
-+                        info->flags |= (1<<4);
-+                }
-+                else if (strcmp(f, "!MACSRC_RND") == 0) {
-+                        info->flags &= ~(1<<4);
-+                }
-+                else if (strcmp(f, "MACDST_RND") == 0) {
-+                        info->flags |= (1<<5);
-+                }
-+                else if (strcmp(f, "!MACDST_RND") == 0) {
-+                        info->flags &= ~(1<<5);
-+                }
-+                else {
-+                        sprintf(pg_result, "Flag -:%s:- unknown\nAvailable flags, (prepend ! to un-set flag):\n%s",
-+                                f,
-+                                "IPSRC_RND, IPDST_RND, UDPSRC_RND, UDPDST_RND, MACSRC_RND, MACDST_RND\n");
-+                        return count;
-+                }
-+		sprintf(pg_result, "OK: flags=0x%x", info->flags);
- 		return count;
- 	}
--	if (!strcmp(name, "dst")) {
--		len = strn_len(&buffer[i], sizeof(pg_dst) - 1);
--		memset(pg_dst, 0, sizeof(pg_dst));
--		strncpy(pg_dst, &buffer[i], len);
-+	if (!strcmp(name, "dst_min") || !strcmp(name, "dst")) {
-+		len = strn_len(&buffer[i], sizeof(info->dst_min) - 1);
-+		memset(info->dst_min, 0, sizeof(info->dst_min));
-+		strncpy(info->dst_min, &buffer[i], len);
- 		if(debug)
--			printk("pg: dst set to: %s\n", pg_dst);
-+			printk("pg: dst_min set to: %s\n", info->dst_min);
- 		i += len;
--		sprintf(pg_result, "OK: dst=%s", pg_dst);
-+		sprintf(pg_result, "OK: dst_min=%s", info->dst_min);
-+		return count;
-+	}
-+	if (!strcmp(name, "dst_max")) {
-+		len = strn_len(&buffer[i], sizeof(info->dst_max) - 1);
-+		memset(info->dst_max, 0, sizeof(info->dst_max));
-+		strncpy(info->dst_max, &buffer[i], len);
-+		if(debug)
-+			printk("pg: dst_max set to: %s\n", info->dst_max);
-+		i += len;
-+		sprintf(pg_result, "OK: dst_max=%s", info->dst_max);
-+		return count;
-+	}
-+	if (!strcmp(name, "src_min")) {
-+		len = strn_len(&buffer[i], sizeof(info->src_min) - 1);
-+		memset(info->src_min, 0, sizeof(info->src_min));
-+		strncpy(info->src_min, &buffer[i], len);
-+		if(debug)
-+			printk("pg: src_min set to: %s\n", info->src_min);
-+		i += len;
-+		sprintf(pg_result, "OK: src_min=%s", info->src_min);
-+		return count;
-+	}
-+	if (!strcmp(name, "src_max")) {
-+		len = strn_len(&buffer[i], sizeof(info->src_max) - 1);
-+		memset(info->src_max, 0, sizeof(info->src_max));
-+		strncpy(info->src_max, &buffer[i], len);
-+		if(debug)
-+			printk("pg: src_max set to: %s\n", info->src_max);
-+		i += len;
-+		sprintf(pg_result, "OK: src_max=%s", info->src_max);
- 		return count;
- 	}
- 	if (!strcmp(name, "dstmac")) {
- 		char *v = valstr;
--		unsigned char *m = pg_dstmac;
-+		unsigned char *m = info->dst_mac;
- 
- 		len = strn_len(&buffer[i], sizeof(valstr) - 1);
- 		memset(valstr, 0, sizeof(valstr));
- 		strncpy(valstr, &buffer[i], len);
- 		i += len;
- 
--		for(*m = 0;*v && m < pg_dstmac + 6; v++) {
-+		for(*m = 0;*v && m < info->dst_mac + 6; v++) {
- 			if (*v >= '0' && *v <= '9') {
- 				*m *= 16;
- 				*m += *v - '0';
-@@ -620,54 +1105,125 @@
- 		sprintf(pg_result, "OK: dstmac");
- 		return count;
- 	}
-+	if (!strcmp(name, "srcmac")) {
-+		char *v = valstr;
-+		unsigned char *m = info->src_mac;
-+
-+		len = strn_len(&buffer[i], sizeof(valstr) - 1);
-+		memset(valstr, 0, sizeof(valstr));
-+		strncpy(valstr, &buffer[i], len);
-+		i += len;
-+
-+		for(*m = 0;*v && m < info->src_mac + 6; v++) {
-+			if (*v >= '0' && *v <= '9') {
-+				*m *= 16;
-+				*m += *v - '0';
-+			}
-+			if (*v >= 'A' && *v <= 'F') {
-+				*m *= 16;
-+				*m += *v - 'A' + 10;
-+			}
-+			if (*v >= 'a' && *v <= 'f') {
-+				*m *= 16;
-+				*m += *v - 'a' + 10;
-+			}
-+			if (*v == ':') {
-+				m++;
-+				*m = 0;
-+			}
-+		}	  
-+		sprintf(pg_result, "OK: srcmac");
-+		return count;
-+	}
- 
- 	if (!strcmp(name, "inject") || !strcmp(name, "start")) {
- 		MOD_INC_USE_COUNT;
--		pg_busy = 1;
--		strcpy(pg_result, "Starting");
--		pg_inject();
--		pg_busy = 0;
-+                if (info->pg_busy) {
-+                        strcpy(info->pg_result, "Already running...\n");
-+                }
-+                else {
-+                        info->pg_busy = 1;
-+                        strcpy(info->pg_result, "Starting");
-+                        pg_inject(info);
-+                        info->pg_busy = 0;
-+                }
- 		MOD_DEC_USE_COUNT;
- 		return count;
- 	}
- 
--	sprintf(pg_result, "No such parameter \"%s\"", name);
-+	sprintf(info->pg_result, "No such parameter \"%s\"", name);
- 	return -EINVAL;
- }
- 
- static int __init pg_init(void)
+ 		p->prio =3D p->static_prio;
+ 	if (array)
+ 		activate_task(p, task_rq(p));
+=20
+ out_unlock:
+-	unlock_task_rq(rq, &flags);
++	task_rq_unlock(rq, &flags);
+ out_unlock_tasklist:
+ 	read_unlock_irq(&tasklist_lock);
+=20
+@@ -1229,17 +1185,11 @@
+=20
+ asmlinkage long sys_sched_yield(void)
  {
-+        int i;
- 	printk(version);
- 	cycles_calibrate();
- 	if (pg_cpu_speed == 0) {
- 		printk("pktgen: Error: your machine does not have working cycle counter.\n");
- 		return -EINVAL;
+-	task_t *prev =3D current, *next;
+-	runqueue_t *rq =3D this_rq();
++	runqueue_t *rq;
+ 	prio_array_t *array;
+-	list_t *queue;
+=20
+-	if (unlikely(prev->state !=3D TASK_RUNNING)) {
+-		schedule();
+-		return 0;
+-	}
+-	release_kernel_lock(prev, smp_processor_id());
+-	prev->sleep_timestamp =3D jiffies;
++	rq =3D this_rq();
++
+ 	/*
+ 	 * Decrease the yielding task's priority by one, to avoid
+ 	 * livelocks. This priority loss is temporary, it's recovered
+@@ -1265,27 +1215,9 @@
+ 		list_add_tail(&current->run_list, array->queue + current->prio);
+ 		__set_bit(current->prio, array->bitmap);
  	}
--	pg_proc_ent = create_proc_entry("net/pg", 0600, 0);
--	if (!pg_proc_ent) {
--		printk("pktgen: Error: cannot create net/pg procfs entry.\n");
--		return -ENOMEM;
--	}
--	pg_proc_ent->read_proc = proc_pg_read;
--	pg_proc_ent->write_proc = proc_pg_write;
--	pg_proc_ent->data = 0;
+-	/*
+-	 * Context-switch manually. This is equivalent to
+-	 * calling schedule(), but faster, because yield()
+-	 * knows lots of things that can be optimized away
+-	 * from the generic scheduler path:
+-	 */
+-	queue =3D array->queue + sched_find_first_bit(array->bitmap);
+-	next =3D list_entry(queue->next, task_t, run_list);
+-	prefetch(next);
 -
--	pg_busy_proc_ent = create_proc_entry("net/pg_busy", 0, 0);
--	if (!pg_busy_proc_ent) {
--		printk("pktgen: Error: cannot create net/pg_busy procfs entry.\n");
--		remove_proc_entry("net/pg", NULL);
--		return -ENOMEM;
+-	prev->need_resched =3D 0;
+-	if (likely(prev !=3D next)) {
+-		rq->nr_switches++;
+-		rq->curr =3D next;
+-		context_switch(prev, next);
+-		barrier();
+-		rq =3D this_rq();
 -	}
--	pg_busy_proc_ent->read_proc = proc_pg_busy_read;
--	pg_busy_proc_ent->data = 0;
- 
--	return 0;
-+        for (i = 0; i<MAX_PKTGEN; i++) {
-+                memset(&(pginfos[i]), 0, sizeof(pginfos[i]));
-+                pginfos[i].pkt_size = ETH_ZLEN;
-+                pginfos[i].nfrags = 0;
-+                pginfos[i].pg_multiskb = pg_multiskb_d;
-+                pginfos[i].pg_ipg = pg_ipg_d;
-+                pginfos[i].pg_count = pg_count_d;
-+                pginfos[i].pg_sofar = 0;
-+                pginfos[i].hh[12] = 0x08; /* fill in protocol.  Rest is filled in later. */
-+                pginfos[i].hh[13] = 0x00;
-+                pginfos[i].udp_src_min = 9; /* sink NULL */
-+                pginfos[i].udp_src_max = 9;
-+                pginfos[i].udp_dst_min = 9;
-+                pginfos[i].udp_dst_max = 9;
-+                
-+                sprintf(pginfos[i].fname, "net/pg%i", i);
-+                pginfos[i].pg_proc_ent = create_proc_entry(pginfos[i].fname, 0600, 0);
-+                if (!pginfos[i].pg_proc_ent) {
-+                        printk("pktgen: Error: cannot create net/pg procfs entry.\n");
-+                        goto cleanup_mem;
-+                }
-+                pginfos[i].pg_proc_ent->read_proc = proc_pg_read;
-+                pginfos[i].pg_proc_ent->write_proc = proc_pg_write;
-+                pginfos[i].pg_proc_ent->data = (void*)(i);
-+
-+                sprintf(pginfos[i].busy_fname, "net/pg_busy%i", i);
-+                pginfos[i].pg_busy_proc_ent = create_proc_entry(pginfos[i].busy_fname, 0, 0);
-+                if (!pginfos[i].pg_busy_proc_ent) {
-+                        printk("pktgen: Error: cannot create net/pg_busy procfs entry.\n");
-+                        goto cleanup_mem;
-+                }
-+                pginfos[i].pg_busy_proc_ent->read_proc = proc_pg_busy_read;
-+                pginfos[i].pg_busy_proc_ent->data = (void*)(i);
-+        }
-+        return 0;
-+        
-+cleanup_mem:
-+        for (i = 0; i<MAX_PKTGEN; i++) {
-+                if (strlen(pginfos[i].fname)) {
-+                        remove_proc_entry(pginfos[i].fname, NULL);
-+                }
-+                if (strlen(pginfos[i].busy_fname)) {
-+                        remove_proc_entry(pginfos[i].busy_fname, NULL);
-+                }
-+        }
-+	return -ENOMEM;
+-	spin_unlock_irq(&rq->lock);
++	spin_unlock(&rq->lock);
+=20
+-	reacquire_kernel_lock(current);
++	schedule();
+=20
+ 	return 0;
  }
- 
- static void __exit pg_cleanup(void)
+@@ -1297,7 +1229,7 @@
+ 	switch (policy) {
+ 	case SCHED_FIFO:
+ 	case SCHED_RR:
+-		ret =3D 99;
++		ret =3D MAX_RT_PRIO - 1;
+ 		break;
+ 	case SCHED_OTHER:
+ 		ret =3D 0;
+@@ -1436,6 +1368,12 @@
+ 	read_unlock(&tasklist_lock);
+ }
+=20
++/*
++ * double_rq_lock - safely lock two runqueues
++ *
++ * Note this does not disable interrupts like task_rq_lock,
++ * you need to do so manually before calling.
++ */
+ static inline void double_rq_lock(runqueue_t *rq1, runqueue_t *rq2)
  {
--	remove_proc_entry("net/pg", NULL);
--	remove_proc_entry("net/pg_busy", NULL);
-+        int i;
-+        for (i = 0; i<MAX_PKTGEN; i++) {
-+                if (strlen(pginfos[i].fname)) {
-+                        remove_proc_entry(pginfos[i].fname, NULL);
-+                }
-+                if (strlen(pginfos[i].busy_fname)) {
-+                        remove_proc_entry(pginfos[i].busy_fname, NULL);
-+                }
-+        }
+ 	if (rq1 =3D=3D rq2)
+@@ -1451,6 +1389,12 @@
+ 	}
  }
- 
- module_init(pg_init);
-@@ -676,7 +1232,7 @@
- MODULE_AUTHOR("Robert Olsson <robert.olsson@its.uu.se");
- MODULE_DESCRIPTION("Packet Generator tool");
- MODULE_LICENSE("GPL");
--MODULE_PARM(pg_count, "i");
--MODULE_PARM(pg_ipg, "i");
-+MODULE_PARM(pg_count_d, "i");
-+MODULE_PARM(pg_ipg_d, "i");
- MODULE_PARM(pg_cpu_speed, "i");
--MODULE_PARM(pg_multiskb, "i");
-+MODULE_PARM(pg_multiskb_d, "i");
-
---------------070007070600010608010603
-Content-Type: text/plain;
- name="patch1.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch1.txt"
-
---- linux/Documentation/networking/pktgen.txt	Sat Apr 20 17:28:11 2002
-+++ linux.dev/Documentation/networking/pktgen.txt	Sat Apr 20 17:39:55 2002
-@@ -4,6 +4,9 @@
-    in the place where insmod may find it.
- 2. Cut script "ipg" (see below).
- 3. Edit script to set preferred device and destination IP address.
-+3a.  Create more scripts for different interfaces.  Up to thirty-two
-+     pktgen processes can be configured and run at once by using the
-+     32 /proc/net/pg* files.
- 4. Run in shell: ". ipg"
- 5. After this two commands are defined:
-    A. "pg" to start generator and to get results.
-@@ -12,12 +15,33 @@
-       pgset "multiskb 0"      use single SKB for all transmits
-       pgset "pkt_size 9014"   sets packet size to 9014
-       pgset "frags 5"         packet will consist of 5 fragments
--      pgset "count 200000"    sets number of packets to send
-+      pgset "count 200000"    sets number of packets to send, set to zero
-+                              for continious sends untill explicitly
-+                              stopped.
-       pgset "ipg 5000"        sets artificial gap inserted between packets
-                               to 5000 nanoseconds
-       pgset "dst 10.0.0.1"    sets IP destination address
-                               (BEWARE! This generator is very aggressive!)
-+      pgset "dst_min 10.0.0.1"            Same as dst
-+      pgset "dst_max 10.0.0.254"          Set the maximum destination IP.
-+      pgset "src_min 10.0.0.1"            Set the minimum (or only) source IP.
-+      pgset "src_max 10.0.0.254"          Set the maximum source IP.
-       pgset "dstmac 00:00:00:00:00:00"    sets MAC destination address
-+      pgset "srcmac 00:00:00:00:00:00"    sets MAC source address
-+      pgset "src_mac_count 1" Sets the number of MACs we'll range through.  The
-+                              'minimum' MAC is what you set with srcmac.
-+      pgset "dst_mac_count 1" Sets the number of MACs we'll range through.  The
-+                              'minimum' MAC is what you set with dstmac.
-+      pgset "flag [name]"     Set a flag to determine behaviour.  Current flags
-+                              are: IPSRC_RND #IP Source is random (between min/max),
-+                                   IPDST_RND, UDPSRC_RND,
-+                                   UDPDST_RND, MACSRC_RND, MACDST_RND 
-+      pgset "udp_src_min 9"   set UDP source port min, If < udp_src_max, then
-+                              cycle through the port range.
-+      pgset "udp_src_max 9"   set UDP source port max.
-+      pgset "udp_dst_min 9"   set UDP destination port min, If < udp_dst_max, then
-+                              cycle through the port range.
-+      pgset "udp_dst_max 9"   set UDP destination port max.
-       pgset stop    	      aborts injection
-       
-   Also, ^C aborts generator.
-@@ -26,22 +50,24 @@
- 
- #! /bin/sh
- 
--modprobe pktgen.o
-+modprobe pktgen
+=20
++/*
++ * double_rq_unlock - safely unlock two runqueues
++ *
++ * Note this does not restore interrupts like task_rq_unlock,
++ * you need to do so manually after calling.
++ */
+ static inline void double_rq_unlock(runqueue_t *rq1, runqueue_t *rq2)
+ {
+ 	spin_unlock(&rq1->lock);
+@@ -1460,7 +1404,7 @@
+=20
+ void init_idle(task_t *idle, int cpu)
+ {
+-	runqueue_t *idle_rq =3D cpu_rq(cpu), *rq =3D idle->array->rq;
++	runqueue_t *idle_rq =3D cpu_rq(cpu), *rq =3D cpu_rq(idle->cpu);
+ 	unsigned long flags;
+=20
+ 	__save_flags(flags);
+@@ -1474,7 +1418,7 @@
+ 	idle->state =3D TASK_RUNNING;
+ 	idle->cpu =3D cpu;
+ 	double_rq_unlock(idle_rq, rq);
+-	idle->need_resched =3D 1;
++	set_tsk_need_resched(idle);
+ 	__restore_flags(flags);
+ }
+=20
+@@ -1492,14 +1436,14 @@
+ 		runqueue_t *rq =3D cpu_rq(i);
+ 		prio_array_t *array;
+=20
+-		rq->active =3D rq->arrays + 0;
++		rq->active =3D rq->arrays;
+ 		rq->expired =3D rq->arrays + 1;
+ 		spin_lock_init(&rq->lock);
++		spin_lock_init(&rq->frozen);
++		INIT_LIST_HEAD(&rq->migration_queue);
+=20
+ 		for (j =3D 0; j < 2; j++) {
+ 			array =3D rq->arrays + j;
+-			array->rq =3D rq;
+-			array->lock =3D &rq->lock;
+ 			for (k =3D 0; k < MAX_PRIO; k++) {
+ 				INIT_LIST_HEAD(array->queue + k);
+ 				__clear_bit(k, array->bitmap);
+@@ -1528,3 +1472,216 @@
+ 	atomic_inc(&init_mm.mm_count);
+ 	enter_lazy_tlb(&init_mm, current, smp_processor_id());
+ }
 +
-+PGDEV=/proc/net/pg0
- 
- function pgset() {
-     local result
- 
--    echo $1 > /proc/net/pg
-+    echo $1 > $PGDEV
- 
--    result=`cat /proc/net/pg | fgrep "Result: OK:"`
-+    result=`cat $PGDEV | fgrep "Result: OK:"`
-     if [ "$result" = "" ]; then
--         cat /proc/net/pg | fgrep Result:
-+         cat $PGDEV | fgrep Result:
-     fi
- }
- 
- function pg() {
--    echo inject > /proc/net/pg
--    cat /proc/net/pg
-+    echo inject > $PGDEV
-+    cat $PGDEV
- }
- 
- pgset "odev eth0"
++#if CONFIG_SMP
++
++/*
++ * This is how migration works:
++ *
++ * 1) we queue a migration_req_t structure in the source CPU's
++ *    runqueue and wake up that CPU's migration thread.
++ * 2) we down() the locked semaphore =3D> thread blocks.
++ * 3) migration thread wakes up (implicitly it forces the migrated
++ *    thread off the CPU)
++ * 4) it gets the migration request and checks whether the migrated
++ *    task is still in the wrong runqueue.
++ * 5) if it's in the wrong runqueue then the migration thread removes
++ *    it and puts it into the right queue.
++ * 6) migration thread up()s the semaphore.
++ * 7) we wake up and the migration is done.
++ */
++
++typedef struct {
++	list_t list;
++	task_t *task;
++	struct semaphore sem;
++} migration_req_t;
++
++/*
++ * Change a given task's CPU affinity. Migrate the process to a
++ * proper CPU and schedule it away if the CPU it's executing on
++ * is removed from the allowed bitmask.
++ *
++ * NOTE: the caller must have a valid reference to the task, the
++ * task must not exit() & deallocate itself prematurely.  No
++ * spinlocks can be held.
++ */
++void set_cpus_allowed(task_t *p, unsigned long new_mask)
++{
++	unsigned long flags;
++	migration_req_t req;
++	runqueue_t *rq;
++
++	new_mask &=3D cpu_online_map;
++	if (!new_mask)
++		BUG();
++
++	rq =3D task_rq_lock(p, &flags);
++	p->cpus_allowed =3D new_mask;
++	/*
++	 * Can the task run on the task's current CPU? If not then
++	 * migrate the process off to a proper CPU.
++	 */
++	if (new_mask & (1UL << p->cpu)) {
++		task_rq_unlock(rq, &flags);
++		return;
++	}
++
++	init_MUTEX_LOCKED(&req.sem);
++	req.task =3D p;
++	list_add(&req.list, &rq->migration_queue);
++	task_rq_unlock(rq, &flags);
++	wake_up_process(rq->migration_thread);
++
++	down(&req.sem);
++}
++
++/*
++ * Treat the bits of migration_mask as lock bits.
++ * If the bit corresponding to the cpu a migration_thread is
++ * running on then we have failed to claim our cpu and must
++ * yield in order to find another.
++ */
++static volatile unsigned long migration_mask;
++static atomic_t migration_threads_seeking_cpu;
++static struct completion migration_complete
++			=3D COMPLETION_INITIALIZER(migration_complete);
++
++static int migration_thread(void * unused)
++{
++	struct sched_param param =3D { sched_priority: MAX_RT_PRIO - 1 };
++	runqueue_t *rq;
++	int ret;
++
++	daemonize();
++	sigfillset(&current->blocked);
++	set_fs(KERNEL_DS);
++	ret =3D setscheduler(0, SCHED_FIFO, &param);
++
++	/*
++	 * We have to migrate manually - there is no migration thread
++	 * to do this for us yet :-)
++	 *
++	 * We use the following property of the Linux scheduler. At
++	 * this point no other task is running, so by keeping all
++	 * migration threads running, the load-balancer will distribute
++	 * them between all CPUs equally. At that point every migration
++	 * task binds itself to the current CPU.
++	 */
++
++	/*
++	 * Enter the loop with preemption disabled so that
++	 * smp_processor_id() remains valid through the check. The
++	 * interior of the wait loop re-enables preemption in an
++	 * attempt to get scheduled off the current cpu. When the
++	 * loop is exited the lock bit in migration_mask is acquired
++	 * and preemption is disabled on the way out. This way the
++	 * cpu acquired remains valid when ->cpus_allowed is set.
++	 */
++	while (test_and_set_bit(smp_processor_id(), &migration_mask))
++		yield();
++
++	current->cpus_allowed =3D 1 << smp_processor_id();
++	rq =3D this_rq();
++	rq->migration_thread =3D current;
++
++	/*
++	 * Now that we've bound ourselves to a cpu, post to
++	 * migration_threads_seeking_cpu and wait for everyone else.
++	 * Preemption should remain disabled and the cpu should remain
++	 * in busywait. Yielding the cpu will allow the livelock
++	 * where where a timing pattern causes an idle task seeking a
++	 * migration_thread to always find the unbound migration_thread=20
++	 * running on the cpu's it tries to steal tasks from.
++	 */
++	atomic_dec(&migration_threads_seeking_cpu);
++	while (atomic_read(&migration_threads_seeking_cpu))
++		cpu_relax();
++
++	sprintf(current->comm, "migration_CPU%d", smp_processor_id());
++
++	/*
++	 * Everyone's found their cpu, so now wake migration_init().
++	 * Multiple wakeups are harmless; removal from the waitqueue
++	 * has locking built-in, and waking an empty queue is valid.
++	 */
++	complete(&migration_complete);
++
++	/*
++	 * Initiate the event loop.
++	 */
++	for (;;) {
++		runqueue_t *rq_src, *rq_dest;
++		struct list_head *head;
++		int cpu_src, cpu_dest;
++		migration_req_t *req;
++		unsigned long flags;
++		task_t *p;
++
++		spin_lock_irqsave(&rq->lock, flags);
++		head =3D &rq->migration_queue;
++		current->state =3D TASK_INTERRUPTIBLE;
++		if (list_empty(head)) {
++			spin_unlock_irqrestore(&rq->lock, flags);
++			schedule();
++			continue;
++		}
++		req =3D list_entry(head->next, migration_req_t, list);
++		list_del_init(head->next);
++		spin_unlock_irqrestore(&rq->lock, flags);
++
++		p =3D req->task;
++		cpu_dest =3D __ffs(p->cpus_allowed);
++		rq_dest =3D cpu_rq(cpu_dest);
++repeat:
++		cpu_src =3D p->cpu;
++		rq_src =3D cpu_rq(cpu_src);
++
++		local_irq_save(flags);
++		double_rq_lock(rq_src, rq_dest);
++		if (p->cpu !=3D cpu_src) {
++			local_irq_restore(flags);
++			double_rq_unlock(rq_src, rq_dest);
++			goto repeat;
++		}
++		if (rq_src =3D=3D rq) {
++			p->cpu =3D cpu_dest;
++			if (p->array) {
++				deactivate_task(p, rq_src);
++				activate_task(p, rq_dest);
++			}
++		}
++		local_irq_restore(flags);
++		double_rq_unlock(rq_src, rq_dest);
++
++		up(&req->sem);
++	}
++}
++
++void __init migration_init(void)
++{
++	unsigned long orig_cache_decay_ticks;
++	int cpu;
++
++	atomic_set(&migration_threads_seeking_cpu, smp_num_cpus);
++
++	orig_cache_decay_ticks =3D cache_decay_ticks;
++	cache_decay_ticks =3D 0;
++
++	for (cpu =3D 0; cpu < smp_num_cpus; cpu++)
++		if (kernel_thread(migration_thread, NULL,
++				CLONE_FS | CLONE_FILES | CLONE_SIGNAL) < 0)
++			BUG();
++
++	/*
++	 * We cannot have missed the wakeup for the migration_thread
++	 * bound for the cpu migration_init() is running on cannot
++	 * acquire this cpu until migration_init() has yielded it by
++	 * means of wait_for_completion().
++	 */
++	wait_for_completion(&migration_complete);
++
++	cache_decay_ticks =3D orig_cache_decay_ticks;
++}
++
++#endif /* CONFIG_SMP */
 
---------------070007070600010608010603--
+--=-Njjp8etVoibhhXY5Q3Ak--
 

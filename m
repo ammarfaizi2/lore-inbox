@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267776AbUJHBtB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268092AbUJHBxj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267776AbUJHBtB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 21:49:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267903AbUJHBqb
+	id S268092AbUJHBxj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 21:53:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267903AbUJHBxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 21:46:31 -0400
-Received: from relay.pair.com ([209.68.1.20]:13329 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S267776AbUJHBlm (ORCPT
+	Thu, 7 Oct 2004 21:53:19 -0400
+Received: from fw.osdl.org ([65.172.181.6]:46826 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269846AbUJHBvh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 21:41:42 -0400
-X-pair-Authenticated: 66.190.53.4
-Message-ID: <4165F050.5050904@cybsft.com>
-Date: Thu, 07 Oct 2004 20:41:36 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>,
-       Florian Schmidt <mista.tapas@gmx.net>, Mark_H_Johnson@raytheon.com,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm3-T3
-References: <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu> <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu> <20041007105230.GA17411@elte.hu> <4165832E.1010401@cybsft.com> <4165A729.5060402@cybsft.com> <20041007215546.GA8541@elte.hu>
-In-Reply-To: <20041007215546.GA8541@elte.hu>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Oct 2004 21:51:37 -0400
+Date: Thu, 7 Oct 2004 18:51:31 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux-kernel@vger.kernel.org, piggin@cyberone.com.au
+Subject: Re: kswapd in tight loop 2.6.9-rc3-bk-recent
+Message-ID: <20041007185131.T2357@build.pdx.osdl.net>
+References: <20041007142019.D2441@build.pdx.osdl.net> <20041007164044.23bac609.akpm@osdl.org> <4165E0A7.7080305@yahoo.com.au> <20041007174242.3dd6facd.akpm@osdl.org> <20041007184134.S2357@build.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20041007184134.S2357@build.pdx.osdl.net>; from chrisw@osdl.org on Thu, Oct 07, 2004 at 06:41:34PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * K.R. Foley <kr@cybsft.com> wrote:
+* Chris Wright (chrisw@osdl.org) wrote:
+> * Andrew Morton (akpm@osdl.org) wrote:
+> > 
+> > OK, after backing out the `goto spaghetti;' patch and cleaning up a few
+> > thing I'll test the below.  It'll make kswapd much less aggressive.
 > 
-> 
->>>For me, this one wants to panic on boot when trying to find the root 
->>>filesystem. Acts like either the aic7xxx module is missing (which I 
->>>don't think is the case) or hosed, or it's having trouble with the label 
->>>for the root partition (Fedora system). Will investigate further when I 
->>>get home tonight, unless something jumps out at anyone.
->>>
->>>kr
->>
->>For clarification: This appears to be a problem in 2.6.9-rc3-mm3 also.
-> 
-> 
-> try root=/dev/sda3 (or whereever your root fs is) instead of
-> root=LABEL=/, in /etc/grub.conf.
-> 
-> 	Ingo
-> 
+> testing with this compile fix:
 
-Thanks. Tried that just to be sure. However, I don't seem to be the only 
-one having this problem with aic7xxx.
+passes initial simple testing (whereas I could get the mainline code, and the
+one-liner to spin right off).  
 
-kr
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

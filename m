@@ -1,87 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262423AbTCIFiB>; Sun, 9 Mar 2003 00:38:01 -0500
+	id <S262424AbTCIFti>; Sun, 9 Mar 2003 00:49:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262424AbTCIFiB>; Sun, 9 Mar 2003 00:38:01 -0500
-Received: from ip-33-237-104-152.anlai.com ([152.104.237.33]:46095 "EHLO
-	exchsh01.viatech.com.cn") by vger.kernel.org with ESMTP
-	id <S262423AbTCIFh7>; Sun, 9 Mar 2003 00:37:59 -0500
-Message-ID: <C373923C3B6ED611874200010250D52E155E27@exchsh01.viatech.com.cn>
-From: "Guangyu Kang (Shanghai)" <GuangyuKang@viatech.com.cn>
-To: "'Elladan'" <elladan@eskimo.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Help please: DVD ROM read difficulty
-Date: Sun, 9 Mar 2003 13:48:19 +0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="GB2312"
+	id <S262426AbTCIFti>; Sun, 9 Mar 2003 00:49:38 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:35846 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S262424AbTCIFth>; Sun, 9 Mar 2003 00:49:37 -0500
+Date: Sun, 9 Mar 2003 06:54:53 +0100
+From: Jurriaan <thunder7@xs4all.nl>
+To: Michal Semler <cijoml@volny.cz>
+Cc: linux-kernel@vger.kernel.org, jsimmons@infradead.org, vandrove@vc.cvut.cz
+Subject: Re: very buggy 3DFx framebuffer support!!! :(
+Message-ID: <20030309055453.GA9064@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+References: <E18rmiu-0000ew-00@notas>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E18rmiu-0000ew-00@notas>
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, and I forget to cc every one :-P
-I just come up from the lower layer, I suspected that it's the ide/ide-cd's
-flaw.
-If the upper layer is fine, there should be some thing due to interface. 
-To me, ide just seems fine, ide-cd have some trival issue on error handling,
-I don't think they are so bad that can be called flaw. While do abort on
-this or that error case is just all I can do in ide-cd.
+From: Michal Semler <cijoml@volny.cz>
+Date: Sat, Mar 08, 2003 at 11:23:18PM +0100
+> Hello,
+> 
+> I found out very buggy 3DFx framebuffer support :(
+> 
+> when I select nothing when console bootings, I got white background under 
+> Tux, rolling up with black background of text. Then everything under Tux has 
+> black background and white text, but there, where is tux icon everything on 
+> the right side of the icon has still white background
+> 
+> when I select in lilo 
+> append="video=tdfx:1024x768-24@75"
+> 
+> my console gets screws up and I can't see anything under it. X windows but 
+> works.
+> 
+> When I boot computer without append and then call it with fbset -a 
+> 1024x768-75 things are the same ;( and I still can select Xwindows with alt+f7
+> 
+> Please can anybody fix this?
+> 
+> Linux 2.4.20 vanilla, gcc 3.0.4, Debian woody 3.0r1, 3DFx card, P3 733 
+> Coppermine
+> 
+What 3dfx card? Output in log-files? Dmesg-output? output of 'dmesg' ?
 
-Now I do not have any more point - I will try what I said, just wait for my
-result, hehe.
-
-On Sun, Mar 09, 2003 at 11:35:53AM +0800, Guangyu Kang (Shanghai) wrote:
-> >> Looks like:
-> >> CDROM_IOCTL_LOCK
-> >> CDROM_IOCTRL_REALTIME_LOGICBLOCK_READ
-> >> The lock will make the driver refuse any more open to the driver, thus
-> the
-> >> driver can concdern on read
-> >> operation from my ioctl while not the request. If some one opened the
-> driver
-> >> already, lock will fail.
-> >> The read will be an re-organize of request handler code, adding more
-> >> straight-forward error handling,
-> >> which will get data from drive and copy it to user. Without the cache
-> layer,
-> >> in player case,
-> >> better performance may be the additional gain.
-> 
-> >Maybe what you need here is a variant of O_DIRECT ?
-> -J
-> 
-> 
-> 
-> Yeah should be it. Now I got another advice to use RAW device feature.
-> 
-> My old idea of the two ioctl will work like the stand alone DVD player set
-> which put its output directly into a TV. I mean there will be a single
-> buffer managed by player, seeking will done by player itself, and the dvd
-> rom driver works much more straight forward. 
-> 
-> And I took a look at the raw device code yesterday, it looks like an
-> re-organize of request processing code in ide-cd.c, I mean it works in a
-> loop that send the request one by one, there will not be too much request
-> that causes long delay. I think the cache mechanism will send a lot of
-> requests and thus driver must do a lot of 10 second device time out.
-> 
-> RAW read still will not return failt easily, and it has its own seeking
-> mechanism. This is troublesome.  You know libdvdread I'm using will do its
-> own UDF handling and seeking, etc. and then read the device /dev/hdc.
-> 
-> I think a combine of modified ide-cd.c that abort on HARDWARE_ERROR and
-RAW
-> and read/seek check will be sufficient.
-
-I dunno, I really don't know enough about the IDE driver and the block
-layer to help much here.  :-(
-
-I tried to read the IDE/Block/ISO9660 layers once to figure out why it
-sometimes crashes and puts processes into permanent D state, and the
-block and fs layers were nice and sensible, but as soon as I hit the IDE
-driver I just gave up.  Ugh.  More special cases than code.
-
-People in the mailist list don't seem all that interested, though, but
-they're the one with a clue...
-
--J
+Jurriaan
+-- 
+If Big Brother is watching you, stare back, he doesn't like it.
+	Shannon
+GNU/Linux 2.5.63 SMP/ReiserFS 3948 bogomips load av: 0.24 0.37 0.20

@@ -1,75 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261697AbTIOXjN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 19:39:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbTIOXjN
+	id S261696AbTIOXjU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 19:39:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbTIOXjT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 19:39:13 -0400
-Received: from hockin.org ([66.35.79.110]:53265 "EHLO www.hockin.org")
-	by vger.kernel.org with ESMTP id S261697AbTIOXiq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 19:38:46 -0400
-Date: Mon, 15 Sep 2003 16:26:52 -0700
-From: Tim Hockin <thockin@hockin.org>
-To: James Clark <jimwclark@ntlworld.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Discourage Uniform Driver Model
-Message-ID: <20030915162651.A27457@hockin.org>
-References: <200309140027.08610.jimwclark@ntlworld.com> <200309142138.32222.jimwclark@ntlworld.com> <1063577498.2472.3.camel@dhcp23.swansea.linux.org.uk> <200309160013.38466.jimwclark@ntlworld.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200309160013.38466.jimwclark@ntlworld.com>; from jimwclark@ntlworld.com on Tue, Sep 16, 2003 at 12:13:38AM +0100
+	Mon, 15 Sep 2003 19:39:19 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:13196
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S261696AbTIOXh7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 19:37:59 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH]O20.2int
+Date: Tue, 16 Sep 2003 09:46:06 +1000
+User-Agent: KMail/1.5.3
+Cc: Andrew Morton <akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_+8kZ/tkguL7MjQj"
+Message-Id: <200309160946.06735.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 16, 2003 at 12:13:38AM +0100, James Clark wrote:
-> I understand the way competitor binary interfaces work. Currently I'm not 
-> going to roll up my sleeves and write this system. I don't have the technical 
-> expertise to design such a thing and although I could learn the curve at this 
-> time is too steep. I do think that my experience with similar competitor 
-> systems allows me to speak on the subject. However, I feel that pushing for 
-> this change is a positive thing. It has started a debate on 'misusing' the 
-> GPL to prevent binary only modules and has resulted in some positive 
-> comments. If they debate it  rationally and then decide not to bother I will 
-> have achieved a lot. I do  feel qualified to make this (obvious) suggestion 
-> and comment on the design of any resulting interface.
 
-I and others have repeatedly pointed out the big failings in this, which you
-have ignored.
+--Boundary-00=_+8kZ/tkguL7MjQj
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-To do this means you must freeze the size of any structure passed across the
-kernel-module boundary.  You must freeze any functions which are in-lined.
+Not sure why I made this incorrect change in the first place, but it would 
+hardly be noticable except in latency tests. This patch reverts it. 
 
-spin_lock() must not have debugging code which is enabled by a CONFIG_
-option, or it must become a function call.  You can never optimize away
-stuff that only matters on SMP systems.  You can never have a structure
-include members conditionally upon CONFIG_ options, or you have to provide
-accessor functions for every field of every struct.
+Patch applies to 2.6.0-test5-mm2 or an O20.1int patched kernel. Diffs 
+available here:
 
-This is what you are not getting.  Because module code is a first-class
-citizen in Linux, you CAN'T decouple them, without imposing BIG UGLY
-restrictions on all modules.  Do you understand the examples I am giving
-you?  I can be more explicit, if you like.
+http://ck.kolivas.org/patches
 
-Now, if you, or someone can devise a cleanish way to do it, SHOW US CODE.
-It doesn't have to work fully, just enough to convince us it could work AT
-ALL.
+Con
 
-I assert that any solution will have one or more of the following
-attributes, any of which are unacceptable:
+--Boundary-00=_+8kZ/tkguL7MjQj
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="patch-O20.1-O20.2int"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline; filename="patch-O20.1-O20.2int"
 
-* will perform terribly
-* will be cumbersome to code
-* will impose new restrictions on kernel developers
-* will be unmaintainable
+--- linux-2.6.0-test5-mm2/kernel/sched.c	2003-09-16 09:25:58.000000000 +1000
++++ linux-2.6.0-test5-mm2-O20.2/kernel/sched.c	2003-09-16 09:27:57.000000000 +1000
+@@ -1430,7 +1430,7 @@ void scheduler_tick(int user_ticks, int 
+ 		 */
+ 		if (TASK_INTERACTIVE(p) && !((task_timeslice(p) -
+ 			p->time_slice) % TIMESLICE_GRANULARITY(p)) &&
+-			(p->time_slice >= (MIN_TIMESLICE * 2)) &&
++			(p->time_slice >= MIN_TIMESLICE) &&
+ 			(p->array == rq->active)) {
+ 
+ 			dequeue_task(p, rq->active);
 
-
-I BEG YOU to prove me wrong.
-
--- 
-Notice that as computers are becoming easier and easier to use,
-suddenly there's a big market for "Dummies" books.  Cause and effect,
-or merely an ironic juxtaposition of unrelated facts?
+--Boundary-00=_+8kZ/tkguL7MjQj--
 

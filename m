@@ -1,65 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277274AbRJEDru>; Thu, 4 Oct 2001 23:47:50 -0400
+	id <S277303AbRJEERM>; Fri, 5 Oct 2001 00:17:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277302AbRJEDrk>; Thu, 4 Oct 2001 23:47:40 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34062 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S277274AbRJEDr2> convert rfc822-to-8bit; Thu, 4 Oct 2001 23:47:28 -0400
-Date: Thu, 4 Oct 2001 20:47:23 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Linux 2.4.11-pre4
-Message-ID: <Pine.LNX.4.33.0110042045330.1042-100000@penguin.transmeta.com>
+	id <S277306AbRJEERC>; Fri, 5 Oct 2001 00:17:02 -0400
+Received: from jxmls03.se.mediaone.net ([24.129.0.111]:51443 "EHLO
+	jxmls03.se.mediaone.net") by vger.kernel.org with ESMTP
+	id <S277303AbRJEEQy>; Fri, 5 Oct 2001 00:16:54 -0400
+Message-ID: <3BBD3535.272FE822@mediaone.net>
+Date: Fri, 05 Oct 2001 00:21:09 -0400
+From: walt <wanthony@mediaone.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id UAA26654
+To: lamarts@flash.net, linux-kernel@vger.kernel.org
+Subject: Re:Failure to get login prompt - after compiled 2.4.10
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+----- Original Message -----
+From: "Lamar Seifuddin" <lamarts@flash.net>
+To: <linux-kernel@vger.kernel.org>
+Sent: Thursday, October 04, 2001 6:55 PM
+Subject: Failure to get login prompt - after compiled 2.4.10
 
-Continued merging from various sources..
 
-		Linus
+> All,
+>
+> I compiled the 2.4.10 linux kernel on my Compaq Armada E700 P-III
+> where RedHat 7.1 - 2.4.2-2 was located.
+>
+> I followed the directions using the "newbie" url
+>
+> http://kernelnewbies.org/faq/index.php3#compile.xml
+>
+> after several shots at it (more or less refining the type of
+configuration),
+> I was successful at creating a bzImage file.....loaded it......etc.
+>
+> After rebooting the pc, I can't seem to get back to the login page.
+> It's a black screen.  I'm sure I have to check the graphics
+configuration.
+>
+> Question:   How do I get back to some sort of prompt, so I can
+recompile
+> the kernel again?
+>
+> thank you,
+>
+> Lamar
+>
 
-----
 
-pre4:
- - Al Viro: separate out superblocks and FS namespaces: fs/super.c fathers
-   fs/namespace.c
- - David Woodhouse: large MTD and JFFS[2] update
- - Marcelo Tosatti: resurrect oom handling
- - Hugh Dickins: add_to_swap_cache racefix cleanup
- - Jean Tourrilhes: IrDA update
- - Martin Bligh: support clustered logical APIC for >8 CPU x86 boxes
- - Richard Henderson: alpha update
+Did you overwrite /boot/vmlinuz-2.4.x or did you copy bzImage to /boot
+and add it to lilo as
+"another" OS? If so, you should be able to boot off the orgional kernel.
 
-pre3:
- - Al Viro: superblock cleanups, partition handling fixes and cleanups
- - Ben Collins: firewire update
- - Jeff Garzik: network driver updates
- - Urban Widmark: smbfs updates
- - Kai Mäkisara: SCSI tape driver update
- - various: embarrassing lack of error checking in ELF loader
- - Neil Brown: md formatting cleanup.
+If not, the only thing I know to do is reinstall RH 7.1 and choose the
+upgrade option.
+Below is a sample of my /etc/lilo.conf which boots the orgional RH 6.2
+kernal as default,
+boots 2.2.19 as new, boots 2.4.2 as 2.4.2, and boots windows as dos.
 
-pre2:
- - me/Al Viro: fix bdget() oops with block device modules that don't
-   clean up after they exit
- - Alan Cox: continued merging (drivers, license tags)
- - David Miller: sparc update, network fixes
- - Christoph Hellwig: work around broken drivers that add a gendisk more
-   than once
- - Jakub Jelinek: handle more ELF loading special cases
- - Trond Myklebust: NFS client and lockd reclaimer cleanups/fixes
- - Greg KH: USB updates
- - Mikael Pettersson: sparate out local APIC / IO-APIC config options
+boot=/dev/hda
+map=/boot/map
+install=/boot/boot.b
+prompt
+timeout=50
+linear
+default=linux
 
-pre1:
- - Chris Mason: fix ppp race conditions
- - me: buffers-in-pagecache coherency, buffer.c cleanups
- - Al Viro: block device cleanups/fixes
- - Anton Altaparmakov: NTFS 1.1.20 update
- - Andrea Arcangeli: VM tweaks
+image=/boot/vmlinuz-2.2.14-5.0
+        label=linux
+        initrd=/boot/initrd-2.2.14-5.0.img
+        read-only
+        root=/dev/hda2
+
+image=/boot/bzImage
+        label=new
+        initrd=/boot/initrd-2.2.19.0.img
+        read-only
+        root=/dev/hda2
+
+image=/boot/bzImage-2.4
+        label=2.4
+        read-only
+        root=/dev/hda2
+
+other=/dev/hda1
+        label=dos
+
+
+walt
 

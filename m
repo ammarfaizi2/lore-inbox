@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313913AbSDJWjI>; Wed, 10 Apr 2002 18:39:08 -0400
+	id <S313914AbSDJWkq>; Wed, 10 Apr 2002 18:40:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313914AbSDJWjH>; Wed, 10 Apr 2002 18:39:07 -0400
-Received: from francis.hilman.org ([216.231.42.188]:40698 "HELO hilman.org")
-	by vger.kernel.org with SMTP id <S313913AbSDJWjG>;
-	Wed, 10 Apr 2002 18:39:06 -0400
-To: linux-kernel@vger.kernel.org
-Subject: ioremap() >= 128Mb (was: Memory problem with bttv driver)
-From: Kevin Hilman <kevin@hilman.org>
-Organization: None to speak of.
-Date: Wed, 10 Apr 2002 15:39:05 -0700
-Message-ID: <87sn63tbzq.fsf@bugs.hilman.org>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.2
- (i386-debian-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S313915AbSDJWkp>; Wed, 10 Apr 2002 18:40:45 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:57475 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S313914AbSDJWkn>; Wed, 10 Apr 2002 18:40:43 -0400
+Date: Wed, 10 Apr 2002 16:40:22 -0600
+Message-Id: <200204102240.g3AMeMn16102@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Aviv Shavit <avivshavit@yahoo.com>, Ken Brownfield <brownfld@irridia.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: vm-33, strongly recommended [Re: [2.4.17/18pre] VM and swap - it's really unusable]
+In-Reply-To: <20020410023006.B6875@dualathlon.random>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I followed the 'Memory problem with bttv driver' thread from the
-archives and was curious if there was any resolution.
+Andrea Arcangeli writes:
+> On Tue, Apr 09, 2002 at 06:07:50PM -0600, Richard Gooch wrote:
+> > Andrea Arcangeli writes:
+> > > I recommend everybody to never use a 2.4 kernel without first applying
+> > > this vm patch:
+> > [...]
+> > 
+> > The way you write this makes it sound that the unpatched kernel is
+> > very dangerous. Is this actually true? Or do you really just mean "the
+> > patched kernel has better handling under extreme loads"?
+> 
+> The unpatched kernel isn't dangerous in the sense it won't destroy
+> data, it won't corrupt memory and finally it won't deadlock on smp
+> locks, but it can theoretically deadlock with oom and it has various
+> other runtime issues starting from highmem balancing, too much
+> swapping, lru list balancing, related-bhs in highmem, numa broken
+> with += min etc... so IMHO it is better to _always_ use the patched
+> kernel that takes care of all problems that I know of at the moment,
+> plus it has further optimizations. OTOH for lots of workloads
+> mainline is just fine, the deadlocks never trigger and the runtime
+> behaviour is ok, but unless you are certain you don't need the
+> vm-33.gz patch, I recommend to apply it.
 
-The basic problem is that I have a machine with 1G physical memory and
-a device with an 128Mb of on-board memory that I would like to
-ioremap().  Of course, since VMALLOC_RESERVE is 128Mb this will always
-fail if there have been any previous calls to vmalloc() or ioremap()
-(which is aways true when the driver loads as a module.)
+So, in other words, 99.99% of users don't need to apply the patch.
+They should, in order to have a better system, but 99.99% of them
+won't notice the difference. That seems to be a more honest
+recommendation than the "panic stations" alert that you posted.
 
-So far I have a few workarounds, but no good long term solution.
-- boot the kernel with less than 1G on cmdline: mem=768M
-- hack VMALLOC_RESERVE 
+Just because you want people to apply your patches, doesn't mean you
+should resort to alarmist-sounding messages. Let's at least have truth
+in advertising in one small corner of the world :-)
 
-Is it reasonable to make VMALLOC_RESERVE be configurable at boot-time
-instead of compile time?
+				Regards,
 
-Or, is there a better way to get memory-mapped access to all of the
-devices on-board memory?
-
-Thanks.
--- 
-Kevin Hilman <kevin@hilman.org>
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

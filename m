@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262192AbTKIGci (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 01:32:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbTKIGci
+	id S262196AbTKIGuJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 01:50:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262197AbTKIGuJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 01:32:38 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:54727 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262192AbTKIGch (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 01:32:37 -0500
-Date: Sat, 8 Nov 2003 22:26:45 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: steiner@sgi.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] - Incorrect cpumask definition in net/core/flow.c
-Message-Id: <20031108222645.4e3d23f1.davem@redhat.com>
-In-Reply-To: <E1AIJIT-0002q9-00@gondolin.me.apana.org.au>
-References: <20031107210848.GA10774@sgi.com>
-	<E1AIJIT-0002q9-00@gondolin.me.apana.org.au>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 9 Nov 2003 01:50:09 -0500
+Received: from sitemail3.everyone.net ([216.200.145.37]:21995 "EHLO
+	omta10.mta.everyone.net") by vger.kernel.org with ESMTP
+	id S262196AbTKIGuH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Nov 2003 01:50:07 -0500
+Content-Type: text/plain
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+Date: Sat, 8 Nov 2003 22:50:00 -0800 (PST)
+From: john moser <bluefoxicy@linux.net>
+To: linux-kernel@vger.kernel.org
+Subject: RFC:  (WIP) FoxFS File System
+Reply-To: bluefoxicy@linux.net
+X-Originating-Ip: [68.33.187.247]
+Message-Id: <20031109065000.317E7AC06@sitemail.everyone.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 08 Nov 2003 13:57:57 +1100
-Herbert Xu <herbert@gondor.apana.org.au> wrote:
+I'm nearing the very end of my expertise here.  I'll be finishing out the Inode List format and polishing the Superblock handling.  After that I'll need to pick up some help for Quota Acceleration and for putting the final polish on the system.  If properly maintained (defragmented, assembled Inode Lists, contiguated free space), it should be fast.  Metajournaling-- a similar if not identical (I haven't researched it much) concept to what ReiserFS and ext3 use--should be especially useful on floppies and other small media with a journal (4K journal would be quite enough).
 
-> Here is a patch that changes the operations on the maps as well
-> for consistency.
+Any thoughts?  i'm lazy so it'll be a while before the specs are ready for coding.  Please CC replies directly to me.
 
-This is the correct patch, applied thanks.
+--Bluefox Phoenix Lucid
 
-I have another patch that cleans up this stuff in a better
-albeit intrusive way from Rusty, but let's be safe for 2.6.0
+_____________________________________________________________
+Linux.Net -->Open Source to everyone
+Powered by Linare Corporation
+http://www.linare.com/

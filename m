@@ -1,406 +1,889 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262148AbVBAW3Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262139AbVBAWdZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262148AbVBAW3Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 17:29:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262145AbVBAW2P
+	id S262139AbVBAWdZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 17:33:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262145AbVBAWdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 17:28:15 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:18568 "EHLO
+	Tue, 1 Feb 2005 17:33:24 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:19613 "EHLO
 	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S262142AbVBAWXl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 17:23:41 -0500
-Message-ID: <4200016C.6050201@acm.org>
-Date: Tue, 01 Feb 2005 16:23:40 -0600
+	id S262139AbVBAW0P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 17:26:15 -0500
+Message-ID: <42000203.1060908@acm.org>
+Date: Tue, 01 Feb 2005 16:26:11 -0600
 From: Corey Minyard <minyard@acm.org>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] Minor IPMI enhancements
+To: lkml <linux-kernel@vger.kernel.org>,
+       Sensors <sensors@stimpy.netroedge.com>, Andrew Morton <akpm@osdl.org>,
+       Frodo Looijaard <frodol@dds.nl>, Philip Edelbrock <phil@netroedge.com>,
+       "Mark D. Studebaker" <mdsxyz123@yahoo.com>
+Subject: [PATCH] Modify the i801 I2C driver to use the non-blocking interface.
 Content-Type: multipart/mixed;
- boundary="------------060104000601010903040001"
+ boundary="------------030900060509040002020003"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------060104000601010903040001
-Content-Type: text/plain; charset=us-ascii; format=flowed
+--------------030900060509040002020003
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
+I just posted my proposed non-blocking changes to the i2c driver.  This 
+is the changes for the i801 driver.
 
-
---------------060104000601010903040001
+--------------030900060509040002020003
 Content-Type: text/plain;
- name="ipmi_base.diff"
+ name="i2c_nonblock_i801.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="ipmi_base.diff"
+ filename="i2c_nonblock_i801.diff"
 
-
-This patch cleans up the DMI handling so that multiple interfaces
-can be reported from the DMI tables and so that the DMI slave
-address can be transferred up to the upper layer.  It also adds
-an option to specify the slave address as an init parm and removes
-some unnecessary initializers.
+This patch modifies the I801 SMBus driver to use the non-blocking
+interface.
 
 Signed-off-by: Corey Minyard <minyard@acm.org>
 
-Index: linux-2.6.11-rc2/drivers/char/ipmi/ipmi_si_intf.c
+Index: linux-2.6.11-rc2/drivers/i2c/busses/i2c-i801.c
 ===================================================================
---- linux-2.6.11-rc2.orig/drivers/char/ipmi/ipmi_si_intf.c
-+++ linux-2.6.11-rc2/drivers/char/ipmi/ipmi_si_intf.c
-@@ -176,6 +176,9 @@
- 	unsigned char ipmi_version_major;
- 	unsigned char ipmi_version_minor;
+--- linux-2.6.11-rc2.orig/drivers/i2c/busses/i2c-i801.c
++++ linux-2.6.11-rc2/drivers/i2c/busses/i2c-i801.c
+@@ -40,6 +40,14 @@
  
-+	/* Slave address, could be reported from DMI. */
-+	unsigned char slave_addr;
+ /* Note: we assume there can only be one I801, with one SMBus interface */
+ 
++/* Another note: This interface is extremely sensitive to timing and
++   failure handling.  If you don't wait at least one jiffie after
++   starting the transaction before checking things, you will screw it
++   up.  If you don't wait a jiffie after the final check, you will
++   screw it up.  If you screw it up by these manners or by abandoning
++   an operation in progress, the I2C bus is likely stuck and won't
++   work any more.  Gotta love this hardware. */
 +
- 	/* Counters and things for the proc filesystem. */
- 	spinlock_t count_lock;
- 	unsigned long short_timeouts;
-@@ -407,7 +410,7 @@
- 			/* Error fetching flags, just give up for
- 			   now. */
- 			smi_info->si_state = SI_NORMAL;
--		} else if (len < 3) {
-+		} else if (len < 4) {
- 			/* Hmm, no flags.  That's technically illegal, but
- 			   don't use uninitialized data. */
- 			smi_info->si_state = SI_NORMAL;
-@@ -897,21 +900,23 @@
- #define DEFAULT_REGSPACING	1
+ #include <linux/config.h>
+ #include <linux/module.h>
+ #include <linux/pci.h>
+@@ -79,7 +87,8 @@
+ #define SMBHSTCFG_I2C_EN	4
  
- static int           si_trydefaults = 1;
--static char          *si_type[SI_MAX_PARMS] = { NULL, NULL, NULL, NULL };
-+static char          *si_type[SI_MAX_PARMS];
- #define MAX_SI_TYPE_STR 30
- static char          si_type_str[MAX_SI_TYPE_STR];
--static unsigned long addrs[SI_MAX_PARMS] = { 0, 0, 0, 0 };
--static int num_addrs = 0;
--static unsigned int  ports[SI_MAX_PARMS] = { 0, 0, 0, 0 };
--static int num_ports = 0;
--static int           irqs[SI_MAX_PARMS] = { 0, 0, 0, 0 };
--static int num_irqs = 0;
--static int           regspacings[SI_MAX_PARMS] = { 0, 0, 0, 0 };
-+static unsigned long addrs[SI_MAX_PARMS];
-+static int num_addrs;
-+static unsigned int  ports[SI_MAX_PARMS];
-+static int num_ports;
-+static int           irqs[SI_MAX_PARMS];
-+static int num_irqs;
-+static int           regspacings[SI_MAX_PARMS];
- static int num_regspacings = 0;
--static int           regsizes[SI_MAX_PARMS] = { 0, 0, 0, 0 };
-+static int           regsizes[SI_MAX_PARMS];
- static int num_regsizes = 0;
--static int           regshifts[SI_MAX_PARMS] = { 0, 0, 0, 0 };
-+static int           regshifts[SI_MAX_PARMS];
- static int num_regshifts = 0;
-+static int slave_addrs[SI_MAX_PARMS];
-+static int num_slave_addrs = 0;
+ /* Other settings */
+-#define MAX_TIMEOUT		100
++#define MAX_TIMEOUT_US		100000
++#define RETRY_TIME_US		500 /* Retry minimum is 500us */
+ #define ENABLE_INT9		0	/* set to 0x01 to enable - untested */
  
+ /* I801 command constants */
+@@ -105,21 +114,35 @@
+ 		 "Forcibly enable the I801 at the given address. "
+ 		 "EXTREMELY DANGEROUS!");
  
- module_param_named(trydefaults, si_trydefaults, bool, 0);
-@@ -955,6 +960,12 @@
- 		 " IPMI register, in bits.  For instance, if the data"
- 		 " is read from a 32-bit word and the IPMI data is in"
- 		 " bit 8-15, then the shift would be 8");
-+module_param_array(slave_addrs, int, &num_slave_addrs, 0);
-+MODULE_PARM_DESC(slave_addrs, "Set the default IPMB slave address for"
-+		 " the controller.  Normally this is 0x20, but can be"
-+		 " overridden by this parm.  This is an array indexed"
-+		 " by interface number.");
-+
- 
- #define IPMI_MEM_ADDR_SPACE 1
- #define IPMI_IO_ADDR_SPACE  2
-@@ -1542,7 +1553,6 @@
- #endif
- 
- #ifdef CONFIG_X86
+-static int i801_transaction(void);
+-static int i801_block_transaction(union i2c_smbus_data *data,
+-				  char read_write, int command);
 -
- typedef struct dmi_ipmi_data
- {
- 	u8   		type;
-@@ -1550,24 +1560,29 @@
- 	unsigned long	base_addr;
- 	u8   		irq;
- 	u8              offset;
--}dmi_ipmi_data_t;
-+	u8              slave_addr;
-+} dmi_ipmi_data_t;
+ static unsigned short i801_smba;
+ static struct pci_dev *I801_dev;
+ static int isich4;
+ 
++struct i801_i2c_data
++{
++	int i;
++	int len;
++	unsigned char hostc;
++	int block;
++	int hwpec;
++	int xact;
++	int hststs;
++	int wait_intr;
++	int finished;
 +
-+static dmi_ipmi_data_t dmi_data[SI_MAX_DRIVERS];
-+static int dmi_data_entries;
- 
- typedef struct dmi_header
- {
- 	u8	type;
- 	u8	length;
- 	u16	handle;
--}dmi_header_t;
-+} dmi_header_t;
- 
--static int decode_dmi(dmi_header_t *dm, dmi_ipmi_data_t *ipmi_data)
-+static int decode_dmi(dmi_header_t *dm, int intf_num)
- {
- 	u8		*data = (u8 *)dm;
- 	unsigned long  	base_addr;
- 	u8		reg_spacing;
-+	dmi_ipmi_data_t *ipmi_data = dmi_data+intf_num;
- 
--	ipmi_data->type = data[0x04];
-+	ipmi_data->type = data[4];
- 
--	memcpy(&base_addr,&data[0x08],sizeof(unsigned long));
-+	memcpy(&base_addr, data+8, sizeof(unsigned long));
- 	if (base_addr & 1) {
- 		/* I/O */
- 		base_addr &= 0xFFFE;
-@@ -1591,33 +1606,36 @@
- 		ipmi_data->offset = 16;
- 		break;
- 	default:
--		printk("ipmi_si: Unknown SMBIOS IPMI Base Addr"
--		       " Modifier: 0x%x\n", reg_spacing);
-+		/* Some other interface, just ignore it. */
- 		return -EIO;
- 	}
- 
-+	ipmi_data->slave_addr = data[6];
++	/* Used to handle removal race conditions. */
++	int in_removal;
++	int in_use;
++};
++struct i801_i2c_data i801_data;
 +
- 	/* If bit 4 of byte 0x10 is set, then the lsb for the address
- 	   is odd. */
- 	ipmi_data->base_addr = base_addr | ((data[0x10] & 0x10) >> 4);
- 
- 	ipmi_data->irq = data[0x11];
- 
--	if (is_new_interface(-1, ipmi_data->addr_space,ipmi_data->base_addr))
--	    return 0;
-+	if (is_new_interface(-1, ipmi_data->addr_space,ipmi_data->base_addr)) {
-+		dmi_data_entries++;
-+		return 0;
-+	}
- 
- 	memset(ipmi_data,0,sizeof(dmi_ipmi_data_t));
- 
- 	return -1;
- }
- 
--static int dmi_table(u32 base, int len, int num,
--	dmi_ipmi_data_t *ipmi_data)
-+static int dmi_table(u32 base, int len, int num)
+ static int i801_setup(struct pci_dev *dev)
  {
- 	u8 		  *buf;
- 	struct dmi_header *dm;
- 	u8 		  *data;
- 	int 		  i=1;
- 	int		  status=-1;
-+	int               intf_num = 0;
+ 	int error_return = 0;
+ 	unsigned char temp;
  
- 	buf = ioremap(base, len);
- 	if(buf==NULL)
-@@ -1633,9 +1651,10 @@
-         		break;
- 
- 		if (dm->type == 38) {
--			if (decode_dmi(dm, ipmi_data) == 0) {
--				status = 0;
--				break;
-+			if (decode_dmi(dm, intf_num) == 0) {
-+				intf_num++;
-+				if (intf_num >= SI_MAX_DRIVERS)
-+					break;
- 			}
- 		}
- 
-@@ -1660,7 +1679,7 @@
- 	return (sum==0);
- }
- 
--static int dmi_iterator(dmi_ipmi_data_t *ipmi_data)
-+static int dmi_decode(void)
- {
- 	u8   buf[15];
- 	u32  fp=0xF0000;
-@@ -1678,7 +1697,7 @@
- 			u16 len=buf[7]<<8|buf[6];
- 			u32 base=buf[11]<<24|buf[10]<<16|buf[9]<<8|buf[8];
- 
--			if(dmi_table(base, len, num, ipmi_data) == 0)
-+			if(dmi_table(base, len, num) == 0)
- 				return 0;
- 		}
- 		fp+=16;
-@@ -1690,16 +1709,13 @@
- static int try_init_smbios(int intf_num, struct smi_info **new_info)
- {
- 	struct smi_info   *info;
--	dmi_ipmi_data_t   ipmi_data;
-+	dmi_ipmi_data_t   *ipmi_data = dmi_data+intf_num;
- 	char              *io_type;
--	int               status;
--
--	status = dmi_iterator(&ipmi_data);
- 
--	if (status < 0)
-+	if (intf_num >= dmi_data_entries)
+ 	/* Note: we keep on searching until we have found 'function 3' */
+-	if(PCI_FUNC(dev->devfn) != 3)
++	if (PCI_FUNC(dev->devfn) != 3)
  		return -ENODEV;
  
--	switch(ipmi_data.type) {
-+	switch(ipmi_data->type) {
- 		case 0x01: /* KCS */
- 			si_type[intf_num] = "kcs";
- 			break;
-@@ -1710,7 +1726,6 @@
- 			si_type[intf_num] = "bt";
- 			break;
- 		default:
--			printk("ipmi_si: Unknown SMBIOS SI type.\n");
- 			return -EIO;
- 	}
- 
-@@ -1721,15 +1736,15 @@
- 	}
- 	memset(info, 0, sizeof(*info));
- 
--	if (ipmi_data.addr_space == 1) {
-+	if (ipmi_data->addr_space == 1) {
- 		io_type = "memory";
- 		info->io_setup = mem_setup;
--		addrs[intf_num] = ipmi_data.base_addr;
-+		addrs[intf_num] = ipmi_data->base_addr;
- 		info->io.info = &(addrs[intf_num]);
--	} else if (ipmi_data.addr_space == 2) {
-+	} else if (ipmi_data->addr_space == 2) {
- 		io_type = "I/O";
- 		info->io_setup = port_setup;
--		ports[intf_num] = ipmi_data.base_addr;
-+		ports[intf_num] = ipmi_data->base_addr;
- 		info->io.info = &(ports[intf_num]);
+ 	I801_dev = dev;
+@@ -136,7 +159,7 @@
  	} else {
- 		kfree(info);
-@@ -1737,20 +1752,23 @@
- 		return -EIO;
- 	}
- 
--	regspacings[intf_num] = ipmi_data.offset;
-+	regspacings[intf_num] = ipmi_data->offset;
- 	info->io.regspacing = regspacings[intf_num];
- 	if (!info->io.regspacing)
- 		info->io.regspacing = DEFAULT_REGSPACING;
- 	info->io.regsize = DEFAULT_REGSPACING;
- 	info->io.regshift = regshifts[intf_num];
- 
--	irqs[intf_num] = ipmi_data.irq;
-+	info->slave_addr = ipmi_data->slave_addr;
-+
-+	irqs[intf_num] = ipmi_data->irq;
- 
- 	*new_info = info;
- 
- 	printk("ipmi_si: Found SMBIOS-specified state machine at %s"
--	       " address 0x%lx\n",
--	       io_type, (unsigned long)ipmi_data.base_addr);
-+	       " address 0x%lx, slave address 0x%x\n",
-+	       io_type, (unsigned long)ipmi_data->base_addr,
-+	       ipmi_data->slave_addr);
- 	return 0;
+ 		pci_read_config_word(I801_dev, SMBBA, &i801_smba);
+ 		i801_smba &= 0xfff0;
+-		if(i801_smba == 0) {
++		if (i801_smba == 0) {
+ 			dev_err(&dev->dev, "SMB base address uninitialized"
+ 				"- upgrade BIOS or use force_addr=0xaddr\n");
+ 			return -ENODEV;
+@@ -180,12 +203,93 @@
+ 	return error_return;
  }
- #endif /* CONFIG_X86 */
-@@ -2115,6 +2133,7 @@
- 			       new_smi,
- 			       new_smi->ipmi_version_major,
- 			       new_smi->ipmi_version_minor,
-+			       new_smi->slave_addr,
- 			       &(new_smi->intf));
- 	if (rv) {
- 		printk(KERN_ERR
-@@ -2216,6 +2235,10 @@
-    	        printk(", BT version %s", bt_smi_handlers.version);
- 	printk("\n");
  
-+#ifdef CONFIG_X86
-+	dmi_decode();
+-static int i801_transaction(void)
++static void i801_check_hststs(struct i2c_adapter *adap,
++			      struct i2c_op_q_entry *entry,
++			      struct i801_i2c_data *d)
++{
++	if (d->hststs & 0x10) {
++		entry->result = -EIO;
++		dev_dbg(&I801_dev->dev,
++			"Error: Failed bus transaction\n");
++	} else if (d->hststs & 0x08) {
++		entry->result = -EIO;
++		dev_err(&I801_dev->dev, "Bus collision!\n");
++		/* Clock stops and slave is stuck in mid-transmission */
++	} else if (d->hststs & 0x04) {
++		entry->result = -EIO;
++		dev_dbg(&I801_dev->dev, "Error: no response!\n");
++	}
++}
++
++static void i801_finish(struct i2c_adapter *adap,
++			struct i2c_op_q_entry *entry,
++			struct i801_i2c_data *d)
++{
++	d->finished = 1;
++
++#ifdef HAVE_PEC
++	if (isich4 && d->hwpec) {
++		if (entry->smbus.size != I2C_SMBUS_QUICK &&
++		   entry->smbus.size != I2C_SMBUS_I2C_BLOCK_DATA)
++			outb_p(0, SMBAUXCTL);
++	}
 +#endif
 +
- 	rv = init_one_smi(0, &(smi_infos[pos]));
- 	if (rv && !ports[0] && si_trydefaults) {
- 		/* If we are trying defaults and the initial port is
-Index: linux-2.6.11-rc2/include/linux/ipmi_smi.h
-===================================================================
---- linux-2.6.11-rc2.orig/include/linux/ipmi_smi.h
-+++ linux-2.6.11-rc2/include/linux/ipmi_smi.h
-@@ -106,11 +106,13 @@
- 	void (*poll)(void *send_info);
++	if (d->block || (entry->result < 0) ||
++	   ((entry->smbus.read_write == I2C_SMBUS_WRITE)
++	    || (d->xact == I801_QUICK)))
++		return;
++
++	switch (d->xact & 0x7f) {
++	case I801_BYTE:	/* Result put in SMBHSTDAT0 */
++	case I801_BYTE_DATA:
++		entry->smbus.data->byte = inb_p(SMBHSTDAT0);
++		break;
++	case I801_WORD_DATA:
++		entry->smbus.data->word = inb_p(SMBHSTDAT0)
++		    + (inb_p(SMBHSTDAT1) << 8);
++		break;
++	}
++}
++
++static void i801_transaction_final_check(struct i2c_adapter *adap,
++					 struct i2c_op_q_entry *entry,
++					 struct i801_i2c_data *d)
+ {
+-	int temp;
+-	int result = 0;
+-	int timeout = 0;
++	i801_check_hststs(adap, entry, d);
+ 
++	if ((inb_p(SMBHSTSTS) & 0x1f) != 0x00)
++		outb_p(inb(SMBHSTSTS), SMBHSTSTS);
++
++	if ((d->hststs = (0x1f & inb_p(SMBHSTSTS))) != 0x00) {
++		dev_dbg(&I801_dev->dev, "Failed reset at end of transaction"
++			"(%02x)\n", d->hststs);
++	}
++	dev_dbg(&I801_dev->dev, "Transaction (post): CNT=%02x, CMD=%02x, "
++		"ADD=%02x, DAT0=%02x, DAT1=%02x\n", inb_p(SMBHSTCNT),
++		inb_p(SMBHSTCMD), inb_p(SMBHSTADD), inb_p(SMBHSTDAT0),
++		inb_p(SMBHSTDAT1));
++}
++
++static void i801_transaction_poll(struct i2c_adapter *adap,
++				  struct i2c_op_q_entry *entry,
++				  struct i801_i2c_data *d)
++{
++	d->hststs = inb_p(SMBHSTSTS);
++	if (!(d->hststs & 0x01)) {
++		i801_transaction_final_check(adap, entry, d);
++		i801_finish(adap, entry, d);
++	} else if (entry->time_left <= 0) {
++		dev_dbg(&I801_dev->dev, "SMBus Timeout!\n");
++		entry->result = -EIO;
++		i801_transaction_final_check(adap, entry, d);
++	}
++}
++
++static void i801_transaction_start(struct i2c_adapter *adap,
++				   struct i2c_op_q_entry *entry,
++				   struct i801_i2c_data *d)
++{
+ 	dev_dbg(&I801_dev->dev, "Transaction (pre): CNT=%02x, CMD=%02x,"
+ 		"ADD=%02x, DAT0=%02x, DAT1=%02x\n", inb_p(SMBHSTCNT),
+ 		inb_p(SMBHSTCMD), inb_p(SMBHSTADD), inb_p(SMBHSTDAT0),
+@@ -193,331 +297,368 @@
+ 
+ 	/* Make sure the SMBus host is ready to start transmitting */
+ 	/* 0x1f = Failed, Bus_Err, Dev_Err, Intr, Host_Busy */
+-	if ((temp = (0x1f & inb_p(SMBHSTSTS))) != 0x00) {
++	if ((d->hststs = (0x1f & inb_p(SMBHSTSTS))) != 0x00) {
+ 		dev_dbg(&I801_dev->dev, "SMBus busy (%02x). Resetting... \n",
+-			temp);
+-		outb_p(temp, SMBHSTSTS);
+-		if ((temp = (0x1f & inb_p(SMBHSTSTS))) != 0x00) {
+-			dev_dbg(&I801_dev->dev, "Failed! (%02x)\n", temp);
+-			return -1;
++			d->hststs);
++		outb_p(d->hststs, SMBHSTSTS);
++		if ((d->hststs = (0x1f & inb_p(SMBHSTSTS))) != 0x00) {
++			dev_dbg(&I801_dev->dev, "Failed! (%02x)\n", d->hststs);
++			entry->result = -EIO;
++			return;
+ 		} else {
+ 			dev_dbg(&I801_dev->dev, "Successfull!\n");
+ 		}
+ 	}
+ 
+ 	outb_p(inb(SMBHSTCNT) | I801_START, SMBHSTCNT);
++}
+ 
+-	/* We will always wait for a fraction of a second! */
+-	do {
+-		msleep(1);
+-		temp = inb_p(SMBHSTSTS);
+-	} while ((temp & 0x01) && (timeout++ < MAX_TIMEOUT));
+-
+-	/* If the SMBus is still busy, we give up */
+-	if (timeout >= MAX_TIMEOUT) {
+-		dev_dbg(&I801_dev->dev, "SMBus Timeout!\n");
+-		result = -1;
++static void i801_block_finish(struct i2c_adapter *adap,
++			      struct i2c_op_q_entry *entry,
++			      struct i801_i2c_data *d)
++{
++	if (entry->smbus.size == I2C_SMBUS_I2C_BLOCK_DATA) {
++		/* restore saved configuration register value */
++		pci_write_config_byte(I801_dev, SMBHSTCFG, d->hostc);
+ 	}
+ 
+-	if (temp & 0x10) {
+-		result = -1;
+-		dev_dbg(&I801_dev->dev, "Error: Failed bus transaction\n");
+-	}
++	i801_finish(adap, entry, d);
++}
+ 
+-	if (temp & 0x08) {
+-		result = -1;
+-		dev_err(&I801_dev->dev, "Bus collision! SMBus may be locked "
+-			"until next hard reset. (sorry!)\n");
+-		/* Clock stops and slave is stuck in mid-transmission */
+-	}
++static void i801_block_poll_wait_intr(struct i2c_adapter *adap,
++				      struct i2c_op_q_entry *entry,
++				      struct i801_i2c_data *d)
++{
++#ifdef HAVE_PEC
++	if (entry->result >= 0 &&
++	   isich4 &&
++	   entry->smbus.size == I2C_SMBUS_BLOCK_DATA_PEC)
++	{
++		/* wait for INTR bit as advised by Intel */
++		d->hststs = inb_p(SMBHSTSTS);
++		if (d->hststs & 0x02) {
++			outb_p(d->hststs, SMBHSTSTS); 
++			i801_block_finish(adap, entry, d);
++		} else if (entry->time_left <= 0) {
++			/* Timed out */
++			outb_p(d->hststs, SMBHSTSTS); 
++			entry->result = -EIO;
++			dev_dbg(&I801_dev->dev, "PEC Timeout!\n");
++		}
++	} else
++#endif
++		i801_block_finish(adap, entry, d);
++}
+ 
+-	if (temp & 0x04) {
+-		result = -1;
+-		dev_dbg(&I801_dev->dev, "Error: no response!\n");
++static void i801_block_next_byte(struct i2c_adapter *adap,
++				 struct i2c_op_q_entry *entry,
++				 struct i801_i2c_data *d)
++{
++	int smbcmd;
++	unsigned char errmask;
++
++	if (d->i > d->len) {
++		d->wait_intr = 1;
++		entry->time_left = MAX_TIMEOUT_US;
++		i801_block_poll_wait_intr(adap, entry, d);
++		return;
+ 	}
+ 
+-	if ((inb_p(SMBHSTSTS) & 0x1f) != 0x00)
+-		outb_p(inb(SMBHSTSTS), SMBHSTSTS);
++	if (d->i == d->len && entry->smbus.read_write == I2C_SMBUS_READ)
++		smbcmd = I801_BLOCK_LAST;
++	else
++		smbcmd = I801_BLOCK_DATA;
++	outb_p(smbcmd | ENABLE_INT9, SMBHSTCNT);
+ 
+-	if ((temp = (0x1f & inb_p(SMBHSTSTS))) != 0x00) {
+-		dev_dbg(&I801_dev->dev, "Failed reset at end of transaction"
+-			"(%02x)\n", temp);
++	dev_dbg(&I801_dev->dev, "Block (pre %d): CNT=%02x, CMD=%02x, "
++		"ADD=%02x, DAT0=%02x, BLKDAT=%02x\n", d->i,
++		inb_p(SMBHSTCNT), inb_p(SMBHSTCMD), inb_p(SMBHSTADD),
++		inb_p(SMBHSTDAT0), inb_p(SMBBLKDAT));
++
++	/* Make sure the SMBus host is ready to start transmitting */
++	d->hststs = inb_p(SMBHSTSTS);
++	if (d->i == 1) {
++		/* Erronenous conditions before transaction: 
++		 * Byte_Done, Failed, Bus_Err, Dev_Err, Intr, Host_Busy */
++		errmask=0x9f; 
++	} else {
++		/* Erronenous conditions during transaction: 
++		 * Failed, Bus_Err, Dev_Err, Intr */
++		errmask=0x1e; 
++	}
++	if (d->hststs & errmask) {
++		dev_dbg(&I801_dev->dev, "SMBus busy (%02x). "
++			"Resetting... \n", d->hststs);
++		outb_p(d->hststs, SMBHSTSTS);
++		if (((d->hststs = inb_p(SMBHSTSTS)) & errmask) != 0x00) {
++			dev_err(&I801_dev->dev,
++				"Reset failed! (%02x)\n", d->hststs);
++			entry->result = -EIO;
++			return;
++		}
++		if (d->i != 1) {
++			/* if die in middle of block transaction, fail */
++			entry->result = -EIO;
++			return;
++		}
+ 	}
+-	dev_dbg(&I801_dev->dev, "Transaction (post): CNT=%02x, CMD=%02x, "
+-		"ADD=%02x, DAT0=%02x, DAT1=%02x\n", inb_p(SMBHSTCNT),
+-		inb_p(SMBHSTCMD), inb_p(SMBHSTADD), inb_p(SMBHSTDAT0),
+-		inb_p(SMBHSTDAT1));
+-	return result;
++
++	if (d->i == 1)
++		outb_p(inb(SMBHSTCNT) | I801_START, SMBHSTCNT);
+ }
+ 
+-/* All-inclusive block transaction function */
+-static int i801_block_transaction(union i2c_smbus_data *data, char read_write,
+-				  int command)
++/* Called on timer ticks.  This checks the result of the
++   transaction. */
++static void i801_block_poll(struct i2c_adapter *adap,
++			    struct i2c_op_q_entry *entry,
++			    struct i801_i2c_data *d)
+ {
+-	int i, len;
+-	int smbcmd;
+-	int temp;
+-	int result = 0;
+-	int timeout;
+-	unsigned char hostc, errmask;
+-
+-	if (command == I2C_SMBUS_I2C_BLOCK_DATA) {
+-		if (read_write == I2C_SMBUS_WRITE) {
+-			/* set I2C_EN bit in configuration register */
+-			pci_read_config_byte(I801_dev, SMBHSTCFG, &hostc);
+-			pci_write_config_byte(I801_dev, SMBHSTCFG,
+-					      hostc | SMBHSTCFG_I2C_EN);
+-		} else {
+-			dev_err(&I801_dev->dev,
+-				"I2C_SMBUS_I2C_BLOCK_READ not DB!\n");
+-			return -1;
++	d->hststs = inb_p(SMBHSTSTS);
++	if (!(d->hststs & 0x80)) {
++		/* Not ready yet */
++		if (entry->time_left <= 0) {
++			dev_dbg(&I801_dev->dev, "SMBus Timeout!\n");
++			entry->result = -EIO;
+ 		}
++		return;
+ 	}
+ 
+-	if (read_write == I2C_SMBUS_WRITE) {
+-		len = data->block[0];
+-		if (len < 1)
+-			len = 1;
+-		if (len > 32)
+-			len = 32;
+-		outb_p(len, SMBHSTDAT0);
+-		outb_p(data->block[1], SMBBLKDAT);
++	i801_check_hststs(adap, entry, d);
++	if (d->i == 1 && entry->smbus.read_write == I2C_SMBUS_READ) {
++		d->len = inb_p(SMBHSTDAT0);
++		if (d->len < 1)
++			d->len = 1;
++		if (d->len > 32)
++			d->len = 32;
++		entry->smbus.data->block[0] = d->len;
++	}
++
++	/* Retrieve/store value in SMBBLKDAT */
++	if (entry->smbus.read_write == I2C_SMBUS_READ)
++		entry->smbus.data->block[d->i] = inb_p(SMBBLKDAT);
++	if (entry->smbus.read_write == I2C_SMBUS_WRITE && d->i+1 <= d->len)
++		outb_p(entry->smbus.data->block[d->i+1], SMBBLKDAT);
++	if ((d->hststs & 0x9e) != 0x00)
++		outb_p(d->hststs, SMBHSTSTS);  /* signals SMBBLKDAT ready */
++	
++	if ((d->hststs = (0x1e & inb_p(SMBHSTSTS))) != 0x00) {
++		dev_dbg(&I801_dev->dev,
++			"Bad status (%02x) at end of transaction\n",
++			d->hststs);
++	}
++	dev_dbg(&I801_dev->dev, "Block (post %d): CNT=%02x, CMD=%02x, "
++		"ADD=%02x, DAT0=%02x, BLKDAT=%02x\n", d->i,
++		inb_p(SMBHSTCNT), inb_p(SMBHSTCMD), inb_p(SMBHSTADD),
++		inb_p(SMBHSTDAT0), inb_p(SMBBLKDAT));
++
++	if (entry->result)
++		return;
++
++	(d->i)++;
++	i801_block_next_byte(adap, entry, d);
++}
++
++static void i801_block_start(struct i2c_adapter *adap,
++			     struct i2c_op_q_entry *entry,
++			     struct i801_i2c_data *d)
++{
++	if (entry->smbus.read_write == I2C_SMBUS_WRITE) {
++		d->len = entry->smbus.data->block[0];
++		if (d->len < 1)
++			d->len = 1;
++		if (d->len > 32)
++			d->len = 32;
++		outb_p(d->len, SMBHSTDAT0);
++		outb_p(entry->smbus.data->block[1], SMBBLKDAT);
+ 	} else {
+-		len = 32;	/* max for reads */
++		d->len = 32;	/* max for reads */
+ 	}
+ 
+-	if(isich4 && command != I2C_SMBUS_I2C_BLOCK_DATA) {
++	if(isich4 && entry->smbus.size != I2C_SMBUS_I2C_BLOCK_DATA) {
+ 		/* set 32 byte buffer */
+ 	}
+ 
+-	for (i = 1; i <= len; i++) {
+-		if (i == len && read_write == I2C_SMBUS_READ)
+-			smbcmd = I801_BLOCK_LAST;
+-		else
+-			smbcmd = I801_BLOCK_DATA;
+-		outb_p(smbcmd | ENABLE_INT9, SMBHSTCNT);
+-
+-		dev_dbg(&I801_dev->dev, "Block (pre %d): CNT=%02x, CMD=%02x, "
+-			"ADD=%02x, DAT0=%02x, BLKDAT=%02x\n", i,
+-			inb_p(SMBHSTCNT), inb_p(SMBHSTCMD), inb_p(SMBHSTADD),
+-			inb_p(SMBHSTDAT0), inb_p(SMBBLKDAT));
+-
+-		/* Make sure the SMBus host is ready to start transmitting */
+-		temp = inb_p(SMBHSTSTS);
+-		if (i == 1) {
+-			/* Erronenous conditions before transaction: 
+-			 * Byte_Done, Failed, Bus_Err, Dev_Err, Intr, Host_Busy */
+-			errmask=0x9f; 
+-		} else {
+-			/* Erronenous conditions during transaction: 
+-			 * Failed, Bus_Err, Dev_Err, Intr */
+-			errmask=0x1e; 
+-		}
+-		if (temp & errmask) {
+-			dev_dbg(&I801_dev->dev, "SMBus busy (%02x). "
+-				"Resetting... \n", temp);
+-			outb_p(temp, SMBHSTSTS);
+-			if (((temp = inb_p(SMBHSTSTS)) & errmask) != 0x00) {
+-				dev_err(&I801_dev->dev,
+-					"Reset failed! (%02x)\n", temp);
+-				result = -1;
+-                                goto END;
+-			}
+-			if (i != 1) {
+-				/* if die in middle of block transaction, fail */
+-				result = -1;
+-				goto END;
+-			}
+-		}
++	d->i = 1;
++	i801_block_next_byte(adap, entry, d);
++}
+ 
+-		if (i == 1)
+-			outb_p(inb(SMBHSTCNT) | I801_START, SMBHSTCNT);
++/* General poll routine.  Called periodically by the i2c code. */
++static void i801_poll(struct i2c_adapter *adap,
++		      struct i2c_op_q_entry *entry,
++		      unsigned int us_since_last_poll)
++{
++	struct i801_i2c_data *d = entry->data;
+ 
+-		/* We will always wait for a fraction of a second! */
+-		timeout = 0;
+-		do {
+-			temp = inb_p(SMBHSTSTS);
+-			msleep(1);
+-		}
+-		    while ((!(temp & 0x80))
+-			   && (timeout++ < MAX_TIMEOUT));
++	dev_dbg(&I801_dev->dev, "Poll call for %p %p at %ld\n", adap, entry,
++		jiffies);
+ 
+-		/* If the SMBus is still busy, we give up */
+-		if (timeout >= MAX_TIMEOUT) {
+-			result = -1;
+-			dev_dbg(&I801_dev->dev, "SMBus Timeout!\n");
+-		}
++	if (!d)
++		/* The entry hasn't been started yet. */
++		return;
+ 
+-		if (temp & 0x10) {
+-			result = -1;
+-			dev_dbg(&I801_dev->dev,
+-				"Error: Failed bus transaction\n");
+-		} else if (temp & 0x08) {
+-			result = -1;
+-			dev_err(&I801_dev->dev, "Bus collision!\n");
+-		} else if (temp & 0x04) {
+-			result = -1;
+-			dev_dbg(&I801_dev->dev, "Error: no response!\n");
+-		}
++	if (d->finished) {
++		/* We delay an extra poll to keep the hardware happy.
++		   Otherwise the hardware is not ready when we start
++		   the next operation. */
++		i2c_op_done(adap, entry);
++		d->in_use = 0;
++		return;
++	}
+ 
+-		if (i == 1 && read_write == I2C_SMBUS_READ) {
+-			len = inb_p(SMBHSTDAT0);
+-			if (len < 1)
+-				len = 1;
+-			if (len > 32)
+-				len = 32;
+-			data->block[0] = len;
+-		}
++	/* Decrement timeout */
++	entry->time_left -= us_since_last_poll;
++
++	/* Wait a jiffie normally. */
++	entry->call_again_us = RETRY_TIME_US;
+ 
+-		/* Retrieve/store value in SMBBLKDAT */
+-		if (read_write == I2C_SMBUS_READ)
+-			data->block[i] = inb_p(SMBBLKDAT);
+-		if (read_write == I2C_SMBUS_WRITE && i+1 <= len)
+-			outb_p(data->block[i+1], SMBBLKDAT);
+-		if ((temp & 0x9e) != 0x00)
+-			outb_p(temp, SMBHSTSTS);  /* signals SMBBLKDAT ready */
+-
+-		if ((temp = (0x1e & inb_p(SMBHSTSTS))) != 0x00) {
+-			dev_dbg(&I801_dev->dev,
+-				"Bad status (%02x) at end of transaction\n",
+-				temp);
++	if (d->block) {
++		if (d->wait_intr) {
++			i801_block_poll_wait_intr(adap, entry, d);
++		} else {
++			i801_block_poll(adap, entry, d);
+ 		}
+-		dev_dbg(&I801_dev->dev, "Block (post %d): CNT=%02x, CMD=%02x, "
+-			"ADD=%02x, DAT0=%02x, BLKDAT=%02x\n", i,
+-			inb_p(SMBHSTCNT), inb_p(SMBHSTCMD), inb_p(SMBHSTADD),
+-			inb_p(SMBHSTDAT0), inb_p(SMBBLKDAT));
++		if (entry->result < 0)
++			/* Error, finish the transaction */
++			i801_block_finish(adap, entry, d);
++	} else {
++		i801_transaction_poll(adap, entry, d);
++		if (entry->result < 0)
++			/* Error, finish the transaction */
++			i801_finish(adap, entry, d);
++	}
++}
+ 
+-		if (result < 0)
+-			goto END;
++/* Start a general SMBUS transaction on the i801.  Figure out what
++   kind of transaction it is, set it up, and start it. */
++static void i801_start(struct i2c_adapter *adap,
++		       struct i2c_op_q_entry *entry)
++{
++	struct i801_i2c_data *d = adap->algo_data;
++
++	d->in_use = 1;
++	if (d->in_removal) {
++		d->in_use = 0;
++		entry->result = -ENODEV;
++		return;
+ 	}
+ 
+-#ifdef HAVE_PEC
+-	if(isich4 && command == I2C_SMBUS_BLOCK_DATA_PEC) {
+-		/* wait for INTR bit as advised by Intel */
+-		timeout = 0;
+-		do {
+-			temp = inb_p(SMBHSTSTS);
+-			msleep(1);
+-		} while ((!(temp & 0x02))
+-			   && (timeout++ < MAX_TIMEOUT));
++	dev_dbg(&I801_dev->dev, "start call for %p %p at %ld\n", adap, entry,
++		jiffies);
+ 
+-		if (timeout >= MAX_TIMEOUT) {
+-			dev_dbg(&I801_dev->dev, "PEC Timeout!\n");
++	if (entry->smbus.size == I2C_SMBUS_I2C_BLOCK_DATA) {
++		if (entry->smbus.read_write == I2C_SMBUS_WRITE) {
++			/* set I2C_EN bit in configuration register */
++			pci_read_config_byte(I801_dev, SMBHSTCFG, &d->hostc);
++			pci_write_config_byte(I801_dev, SMBHSTCFG,
++					      d->hostc | SMBHSTCFG_I2C_EN);
++		} else {
++			dev_err(&I801_dev->dev,
++				"I2C_SMBUS_I2C_BLOCK_READ not DB!\n");
++			d->in_use = 0;
++			entry->result = -EINVAL;
++			return;
+ 		}
+-		outb_p(temp, SMBHSTSTS); 
+ 	}
+-#endif
+-	result = 0;
+-END:
+-	if (command == I2C_SMBUS_I2C_BLOCK_DATA) {
+-		/* restore saved configuration register value */
+-		pci_write_config_byte(I801_dev, SMBHSTCFG, hostc);
+-	}
+-	return result;
+-}
+ 
+-/* Return -1 on error. */
+-static s32 i801_access(struct i2c_adapter * adap, u16 addr,
+-		       unsigned short flags, char read_write, u8 command,
+-		       int size, union i2c_smbus_data * data)
+-{
+-	int hwpec = 0;
+-	int block = 0;
+-	int ret, xact = 0;
++	d->block = 0;
++	d->hwpec = 0;
++	d->xact = 0;
++	d->wait_intr = 0;
++	d->finished = 0;
+ 
+ #ifdef HAVE_PEC
+-	if(isich4)
+-		hwpec = (flags & I2C_CLIENT_PEC) != 0;
++	if (isich4)
++		d->hwpec = (entry->smbus.flags & I2C_CLIENT_PEC) != 0;
+ #endif
+ 
+-	switch (size) {
++	switch (entry->smbus.size) {
+ 	case I2C_SMBUS_QUICK:
+-		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		outb_p(((entry->smbus.addr & 0x7f) << 1)
++		       | (entry->smbus.read_write & 0x01),
+ 		       SMBHSTADD);
+-		xact = I801_QUICK;
++		d->xact = I801_QUICK;
+ 		break;
+ 	case I2C_SMBUS_BYTE:
+-		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		outb_p(((entry->smbus.addr & 0x7f) << 1)
++		       | (entry->smbus.read_write & 0x01),
+ 		       SMBHSTADD);
+-		if (read_write == I2C_SMBUS_WRITE)
+-			outb_p(command, SMBHSTCMD);
+-		xact = I801_BYTE;
++		if (entry->smbus.read_write == I2C_SMBUS_WRITE)
++			outb_p(entry->smbus.command, SMBHSTCMD);
++		d->xact = I801_BYTE;
+ 		break;
+ 	case I2C_SMBUS_BYTE_DATA:
+-		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		outb_p(((entry->smbus.addr & 0x7f) << 1)
++		       | (entry->smbus.read_write & 0x01),
+ 		       SMBHSTADD);
+-		outb_p(command, SMBHSTCMD);
+-		if (read_write == I2C_SMBUS_WRITE)
+-			outb_p(data->byte, SMBHSTDAT0);
+-		xact = I801_BYTE_DATA;
++		outb_p(entry->smbus.command, SMBHSTCMD);
++		if (entry->smbus.read_write == I2C_SMBUS_WRITE)
++			outb_p(entry->smbus.data->byte, SMBHSTDAT0);
++		d->xact = I801_BYTE_DATA;
+ 		break;
+ 	case I2C_SMBUS_WORD_DATA:
+-		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		outb_p(((entry->smbus.addr & 0x7f) << 1)
++		       | (entry->smbus.read_write & 0x01),
+ 		       SMBHSTADD);
+-		outb_p(command, SMBHSTCMD);
+-		if (read_write == I2C_SMBUS_WRITE) {
+-			outb_p(data->word & 0xff, SMBHSTDAT0);
+-			outb_p((data->word & 0xff00) >> 8, SMBHSTDAT1);
++		outb_p(entry->smbus.command, SMBHSTCMD);
++		if (entry->smbus.read_write == I2C_SMBUS_WRITE) {
++			outb_p(entry->smbus.data->word & 0xff, SMBHSTDAT0);
++			outb_p((entry->smbus.data->word & 0xff00) >> 8,
++			       SMBHSTDAT1);
+ 		}
+-		xact = I801_WORD_DATA;
++		d->xact = I801_WORD_DATA;
+ 		break;
+ 	case I2C_SMBUS_BLOCK_DATA:
+ 	case I2C_SMBUS_I2C_BLOCK_DATA:
+ #ifdef HAVE_PEC
+ 	case I2C_SMBUS_BLOCK_DATA_PEC:
+-		if(hwpec && size == I2C_SMBUS_BLOCK_DATA)
+-			size = I2C_SMBUS_BLOCK_DATA_PEC;
++		if (d->hwpec && entry->smbus.size == I2C_SMBUS_BLOCK_DATA)
++			entry->smbus.size = I2C_SMBUS_BLOCK_DATA_PEC;
+ #endif
+-		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		outb_p(((entry->smbus.addr & 0x7f) << 1)
++		       | (entry->smbus.read_write & 0x01),
+ 		       SMBHSTADD);
+-		outb_p(command, SMBHSTCMD);
+-		block = 1;
++		outb_p(entry->smbus.command, SMBHSTCMD);
++		d->block = 1;
+ 		break;
+ 	case I2C_SMBUS_PROC_CALL:
+ 	default:
+-		dev_err(&I801_dev->dev, "Unsupported transaction %d\n", size);
+-		return -1;
++		dev_err(&I801_dev->dev, "Unsupported transaction %d\n",
++			entry->smbus.size);
++		entry->result = -EINVAL;
++		d->in_use = 0;
++		return;
+ 	}
+ 
+ #ifdef HAVE_PEC
+-	if(isich4 && hwpec) {
+-		if(size != I2C_SMBUS_QUICK &&
+-		   size != I2C_SMBUS_I2C_BLOCK_DATA)
++	if (isich4 && d->hwpec) {
++		if (entry->smbus.size != I2C_SMBUS_QUICK &&
++		   entry->smbus.size != I2C_SMBUS_I2C_BLOCK_DATA)
+ 			outb_p(1, SMBAUXCTL);	/* enable HW PEC */
+ 	}
+ #endif
+-	if(block)
+-		ret = i801_block_transaction(data, read_write, size);
+-	else {
+-		outb_p(xact | ENABLE_INT9, SMBHSTCNT);
+-		ret = i801_transaction();
+-	}
+-
+-#ifdef HAVE_PEC
+-	if(isich4 && hwpec) {
+-		if(size != I2C_SMBUS_QUICK &&
+-		   size != I2C_SMBUS_I2C_BLOCK_DATA)
+-			outb_p(0, SMBAUXCTL);
+-	}
+-#endif
+-
+-	if(block)
+-		return ret;
+-	if(ret)
+-		return -1;
+-	if ((read_write == I2C_SMBUS_WRITE) || (xact == I801_QUICK))
+-		return 0;
+-
+-	switch (xact & 0x7f) {
+-	case I801_BYTE:	/* Result put in SMBHSTDAT0 */
+-	case I801_BYTE_DATA:
+-		data->byte = inb_p(SMBHSTDAT0);
+-		break;
+-	case I801_WORD_DATA:
+-		data->word = inb_p(SMBHSTDAT0) + (inb_p(SMBHSTDAT1) << 8);
+-		break;
+-	}
+-	return 0;
++	if (d->block) {
++		i801_block_start(adap, entry, d);
++		if (entry->result < 0)
++			/* Error, finish the transaction */
++			i801_block_finish(adap, entry, d);
++	} else {
++		outb_p(d->xact | ENABLE_INT9, SMBHSTCNT);
++		i801_transaction_start(adap, entry, d);
++		if (entry->result < 0)
++			/* Error, finish the transaction */
++			i801_finish(adap, entry, d);
++	}
++
++	/* Wait extra long here, we want at least 2 ticks to guarantee
++	   we wait >= 1 tick. */
++	entry->call_again_us = (1000000 / HZ) * 2;
++	entry->time_left = MAX_TIMEOUT_US;
++
++	if (d->finished) {
++		i2c_op_done(adap, entry);
++		d->in_use = 0;
++	} else
++		entry->data = d;
+ }
+ 
+ 
+@@ -537,7 +678,8 @@
+ static struct i2c_algorithm smbus_algorithm = {
+ 	.name		= "Non-I2C SMBus adapter",
+ 	.id		= I2C_ALGO_SMBUS,
+-	.smbus_xfer	= i801_access,
++	.smbus_start	= i801_start,
++	.poll		= i801_poll,
+ 	.functionality	= i801_func,
  };
  
--/* Add a low-level interface to the IPMI driver. */
-+/* Add a low-level interface to the IPMI driver.  Note that if the
-+   interface doesn't know its slave address, it should pass in zero. */
- int ipmi_register_smi(struct ipmi_smi_handlers *handlers,
- 		      void                     *send_info,
- 		      unsigned char            version_major,
- 		      unsigned char            version_minor,
-+		      unsigned char            slave_addr,
- 		      ipmi_smi_t               *intf);
+@@ -545,6 +687,7 @@
+ 	.owner		= THIS_MODULE,
+ 	.class		= I2C_CLASS_HWMON,
+ 	.algo		= &smbus_algorithm,
++	.algo_data      = &i801_data,
+ 	.name		= "unset",
+ };
  
- /*
-Index: linux-2.6.11-rc2/drivers/char/ipmi/ipmi_msghandler.c
-===================================================================
---- linux-2.6.11-rc2.orig/drivers/char/ipmi/ipmi_msghandler.c
-+++ linux-2.6.11-rc2/drivers/char/ipmi/ipmi_msghandler.c
-@@ -1626,6 +1626,7 @@
- 		      void		       *send_info,
- 		      unsigned char            version_major,
- 		      unsigned char            version_minor,
-+		      unsigned char            slave_addr,
- 		      ipmi_smi_t               *intf)
+@@ -563,7 +706,8 @@
+ 
+ MODULE_DEVICE_TABLE (pci, i801_ids);
+ 
+-static int __devinit i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
++static int __devinit i801_probe(struct pci_dev *dev,
++				const struct pci_device_id *id)
  {
- 	int              i, j;
-@@ -1661,7 +1662,10 @@
- 			new_intf->intf_num = i;
- 			new_intf->version_major = version_major;
- 			new_intf->version_minor = version_minor;
--			new_intf->my_address = IPMI_BMC_SLAVE_ADDR;
-+			if (slave_addr == 0)
-+				new_intf->my_address = IPMI_BMC_SLAVE_ADDR;
-+			else
-+				new_intf->my_address = slave_addr;
- 			new_intf->my_lun = 2;  /* the SMS LUN. */
- 			rwlock_init(&(new_intf->users_lock));
- 			INIT_LIST_HEAD(&(new_intf->users));
-Index: linux-2.6.11-rc2/Documentation/IPMI.txt
-===================================================================
---- linux-2.6.11-rc2.orig/Documentation/IPMI.txt
-+++ linux-2.6.11-rc2/Documentation/IPMI.txt
-@@ -342,6 +342,7 @@
-        irqs=<irq1>,<irq2>... trydefaults=[0|1]
-        regspacings=<sp1>,<sp2>,... regsizes=<size1>,<size2>,...
-        regshifts=<shift1>,<shift2>,...
-+       slave_addrs=<addr1>,<addr2>,...
  
- Each of these except si_trydefaults is a list, the first item for the
- first interface, second item for the second interface, etc.
-@@ -383,6 +384,10 @@
- be in the lower 8 bits.  The regshifts parameter give the amount to shift
- the data to get to the actual IPMI data.
+ 	if (i801_setup(dev)) {
+@@ -582,6 +726,14 @@
  
-+The slave_addrs specifies the IPMI address of the local BMC.  This is
-+usually 0x20 and the driver defaults to that, but in case it's not, it
-+can be specified when the driver starts up.
+ static void __devexit i801_remove(struct pci_dev *dev)
+ {
++	struct i801_i2c_data *d = i801_adapter.algo_data;
 +
- When compiled into the kernel, the addresses can be specified on the
- kernel command line as:
- 
-@@ -392,6 +397,7 @@
-        ipmi_si.regspacings=<sp1>,<sp2>,...
-        ipmi_si.regsizes=<size1>,<size2>,...
-        ipmi_si.regshifts=<shift1>,<shift2>,...
-+       ipmi_si.slave_addrs=<addr1>,<addr2>,...
- 
- It works the same as the module parameters of the same names.
- 
++	/* Shut down any new requests and wait for any in-progress
++	   operations to complete. */
++	d->in_removal = 1;
++	while (d->in_use)
++		mdelay(1);
++
+ 	i2c_del_adapter(&i801_adapter);
+ 	release_region(i801_smba, (isich4 ? 16 : 8));
+ }
 
---------------060104000601010903040001--
+--------------030900060509040002020003--

@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281823AbRLBV1H>; Sun, 2 Dec 2001 16:27:07 -0500
+	id <S281834AbRLBVah>; Sun, 2 Dec 2001 16:30:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281811AbRLBV05>; Sun, 2 Dec 2001 16:26:57 -0500
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:46720 "EHLO
-	Elf.ucw.cz") by vger.kernel.org with ESMTP id <S281797AbRLBVYt>;
-	Sun, 2 Dec 2001 16:24:49 -0500
-Date: Sun, 2 Dec 2001 21:52:32 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Cc: braam@clusterfilesystem.com
-Subject: ENTRY macro (coda maintainers please listen)
-Message-ID: <20011202215232.A1751@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S281811AbRLBVa1>; Sun, 2 Dec 2001 16:30:27 -0500
+Received: from ns.suse.de ([213.95.15.193]:12554 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S281797AbRLBVaS>;
+	Sun, 2 Dec 2001 16:30:18 -0500
+Date: Sun, 2 Dec 2001 22:30:16 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Pavel Machek <pavel@suse.cz>, Henning Schmiedehausen <hps@intermeta.de>,
+        Alexander Viro <viro@math.psu.edu>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, Larry McVoy <lm@bitmover.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Coding style - a non-issue
+In-Reply-To: <E16Ae9Y-0004c9-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0112022225560.26183-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, 2 Dec 2001, Alan Cox wrote:
 
-linux/linkage.h includes macro "ENTRY(a)", while linux/coda_linux
-includes ... macro "ENTRY".
+> What would be much much more constructive isnt quite a hall of shame - its
+> to build a set of pages that take problem drivers and quote chunks of them
+> with an explanation of _why_ it is wrong, what should be used instead and
+> possible the "after" code if it also gets cleaned up.
 
-It would be good to rename one of them (they are probably not needed
-in one module, anyway, that's not clean)...
+I planned to do something like this for the kernel-janitor project.
+The janitor todo-list is aparently too terse for some people, and
+having a perl script to point out problems wasn't enough. Maybe having the
+script point to a webpage explaining /why/ xxxx needs changing would be
+more useful.
 
-Oh and there's no entry for CODA in MAINTAINERS file. You probably
-want to fix that.
-							Pavel
+The current TODO list there goes halfway toward this, but needs
+expanding, more explanations etc.. Any contributions more than
+welcomed.
+
+regards,
+Dave.
+
 -- 
-"I do not steal MS software. It is not worth it."
-                                -- Pavel Kankovsky
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

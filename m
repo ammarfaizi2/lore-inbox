@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270774AbRIWPYQ>; Sun, 23 Sep 2001 11:24:16 -0400
+	id <S270992AbRIWPyo>; Sun, 23 Sep 2001 11:54:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270992AbRIWPYG>; Sun, 23 Sep 2001 11:24:06 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:40900
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S270774AbRIWPX4>; Sun, 23 Sep 2001 11:23:56 -0400
-Date: Sun, 23 Sep 2001 11:24:00 -0400
-From: Chris Mason <mason@suse.com>
-To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        Beau Kuiper <kuib-kl@ljbc.wa.edu.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Significant performace improvements on reiserfs
- systems, kupdated bugfixes
-Message-ID: <1903280000.1001258640@tiny>
-In-Reply-To: <20010922213218.D31000@emma1.emma.line.org>
-In-Reply-To: <20010921152627.C13862@emma1.emma.line.org>
- <Pine.LNX.4.30.0109230226210.25332-100000@gamma.student.ljbc>
- <20010922213218.D31000@emma1.emma.line.org>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
+	id <S271569AbRIWPye>; Sun, 23 Sep 2001 11:54:34 -0400
+Received: from [200.203.199.88] ([200.203.199.88]:46600 "HELO netbank.com.br")
+	by vger.kernel.org with SMTP id <S270992AbRIWPyY>;
+	Sun, 23 Sep 2001 11:54:24 -0400
+Date: Sun, 23 Sep 2001 12:53:56 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: [PATCH *] page aging fixed, 2.4.9-ac14
+Message-ID: <Pine.LNX.4.33L.0109231251070.19147-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Alan,
+
+I've made a new page aging patch, this time against 2.4.9-ac14;
+this one has two added features over the patch against 2.4.9-ac12:
+
+1) uses min()/max() for smaller page_age_{up,down} functions
+
+2) if we have no free shortage, don't waste CPU time trying
+   to enforce the inactive target but rely on background
+   scanning only
+
+You can get the patch (a bit large for email) at:
+
+   http://www.surriel.com/patches/2.4/2.4.9-ac14-aging
+
+Please apply for the next 2.4.9-ac kernel, thanks.
+
+regards,
 
 
-On Saturday, September 22, 2001 09:32:18 PM +0200 Matthias Andree
-<matthias.andree@stud.uni-dortmund.de> wrote:
-> On Sun, 23 Sep 2001, Beau Kuiper wrote:
->
->> This code change does not affect the functionality of fsync(), only
->> kupdated. kupdated is responsible for flushing buffers that have been
->> sitting around too long to disk.
+Rik
+-- 
+IA64: a worthy successor to i860.
 
-Correct, fsync is unchanged, but sync() does rely on the super dirty bit.
-If the super isn't dirty, then sync doesn't try to force metadata to disk
-at all.
+http://www.surriel.com/		http://distro.conectiva.com/
 
-> 
-> Sorry, I didn't grok that when writing my previous mail in this thread.
-> I thought kupdate was the one that writes ReiserFS transactions, but
-> that's kreiserfsd, I think.
-
-Well, kreiserfsd usually writes the log blocks, when a transaction ends on
-its own (full, or too old).  If someone requests a synchronous commit
-(fsync, any caller of write_super), that process writes the log blocks
-themselves.  So, kupdated ends up writing log blocks too.
-
-Plus, reiserfs uses write_super as a trigger for metadata writeback, so
-kupdate writes those blocks as well.
-
--chris
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

@@ -1,68 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279170AbRKINit>; Fri, 9 Nov 2001 08:38:49 -0500
+	id <S279805AbRKINj6>; Fri, 9 Nov 2001 08:39:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279805AbRKINig>; Fri, 9 Nov 2001 08:38:36 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:37387 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S279170AbRKINi0>;
-	Fri, 9 Nov 2001 08:38:26 -0500
-Date: Fri, 9 Nov 2001 14:37:20 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Ronny Lampert (EED)" <Ronny.Lampert@eed.ericsson.se>
-Subject: Re: 2.4.14: crashing on heavy swap-load with SmartArray (dmesg/.config output)
-Message-ID: <20011109143720.T4946@suse.de>
-In-Reply-To: <3BEBD6E9.3F7F8057@eed.ericsson.se>
+	id <S279798AbRKINjp>; Fri, 9 Nov 2001 08:39:45 -0500
+Received: from ns.suse.de ([213.95.15.193]:14 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S279805AbRKINjb>;
+	Fri, 9 Nov 2001 08:39:31 -0500
+Date: Fri, 9 Nov 2001 14:39:30 +0100
+From: Andi Kleen <ak@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: ak@suse.de, alan@lxorguk.ukuu.org.uk, anton@samba.org, mingo@elte.hu,
+        linux-kernel@vger.kernel.org
+Subject: Re: speed difference between using hard-linked and modular drives?
+Message-ID: <20011109143930.C30575@wotan.suse.de>
+In-Reply-To: <E162BFV-0002y1-00@the-village.bc.nu> <20011109.045455.74749430.davem@redhat.com> <20011109141755.A30575@wotan.suse.de> <20011109.052554.41631501.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="Dxnq1zWXvFF0Q93v"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3BEBD6E9.3F7F8057@eed.ericsson.se>
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <20011109.052554.41631501.davem@redhat.com>; from davem@redhat.com on Fri, Nov 09, 2001 at 05:25:54AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Nov 09, 2001 at 05:25:54AM -0800, David S. Miller wrote:
+> Why in the world do we need indirection function call pointers
+> in TCP to handle that?
 
---Dxnq1zWXvFF0Q93v
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+To handle the case of not having a separate TIME-WAIT table
+(sorry for being unclear). Or alternatively several conditionals. 
 
-On Fri, Nov 09 2001, Ronny Lampert (EED) wrote:
-[smart array crashing]
+-Andi
 
-Apply this on top of 2.4.14 and you'll be fine.
-
--- 
-Jens Axboe
-
-
---Dxnq1zWXvFF0Q93v
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=cpq-dequeue-1
-
---- linux/drivers/block/cpqarray.c~	Thu Nov  8 11:33:11 2001
-+++ linux/drivers/block/cpqarray.c	Thu Nov  8 11:35:31 2001
-@@ -942,6 +942,8 @@
- 	if ((c = cmd_alloc(h,1)) == NULL)
- 		goto startio;
- 
-+	blkdev_dequeue_request(creq);
-+
- 	spin_unlock_irq(&io_request_lock);
- 
- 	bh = creq->bh;
-@@ -987,13 +989,10 @@
- DBGPX(	printk("Submitting %d sectors in %d segments\n", sect, seg); );
- 	c->req.hdr.sg_cnt = seg;
- 	c->req.hdr.blk_cnt = creq->nr_sectors;
--
--	spin_lock_irq(&io_request_lock);
--
--	blkdev_dequeue_request(creq);
--
- 	c->req.hdr.cmd = (creq->cmd == READ) ? IDA_READ : IDA_WRITE;
- 	c->type = CMD_RWREQ;
-+
-+	spin_lock_irq(&io_request_lock);
- 
- 	/* Put the request on the tail of the request queue */
- 	addQ(&h->reqQ, c);
-
---Dxnq1zWXvFF0Q93v--

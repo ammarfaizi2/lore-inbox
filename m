@@ -1,55 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269474AbUJFUth@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269488AbUJFU6U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269474AbUJFUth (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 16:49:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269470AbUJFUri
+	id S269488AbUJFU6U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 16:58:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269394AbUJFU4A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 16:47:38 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:59920 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S269474AbUJFUiW (ORCPT
+	Wed, 6 Oct 2004 16:56:00 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:45981 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269488AbUJFUva (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 16:38:22 -0400
-Date: Wed, 6 Oct 2004 22:38:18 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: "David S. Miller" <davem@davemloft.net>, hzhong@cisco.com, aebr@win.tue.nl,
-       joris@eljakim.nl, alan@lxorguk.ukuu.org.uk,
+	Wed, 6 Oct 2004 16:51:30 -0400
+Date: Wed, 6 Oct 2004 16:50:56 -0400 (EDT)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+cc: "'Andrew Morton'" <akpm@osdl.org>, nickpiggin@yahoo.com.au,
        linux-kernel@vger.kernel.org
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Message-ID: <20041006203818.GD4523@pclin040.win.tue.nl>
-References: <003301c4abdc$c043f350$b83147ab@amer.cisco.com> <41644D86.4010500@nortelnetworks.com> <20041006130615.4f65a920.davem@davemloft.net> <4164530F.7020605@nortelnetworks.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4164530F.7020605@nortelnetworks.com>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : 
+Subject: RE: Default cache_hot_time value back to 10ms
+In-Reply-To: <200410062038.i96KcJ608221@unix-os.sc.intel.com>
+Message-ID: <Pine.LNX.4.58.0410061643160.20121@devserv.devel.redhat.com>
+References: <200410062038.i96KcJ608221@unix-os.sc.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 06, 2004 at 02:18:23PM -0600, Chris Friesen wrote:
 
-> In any case, the current behaviour is not compliant with the POSIX text 
-> that Andries posted.  Perhaps this should be documented somewhere?
+On Wed, 6 Oct 2004, Chen, Kenneth W wrote:
 
-For the time being I wrote (in select.2)
+> Let me try to persuade ;-).  First, it hard to accept the fact that we
+> are leaving 11% of performance on the table just due to a poorly chosen
+> parameter. This much percentage difference on a db workload is a huge
+> deal.  It basically "unfairly" handicap 2.6 kernel behind competition,
+> even handicap ourselves compare to 2.4 kernel.  We have established from
+> various workloads that 10 ms works the best, from db to java workload.  
+> What more data can we provide to swing you in that direction?
 
-BUGS
-       It has been reported (Linux 2.6) that select may report  a
-       socket  file descriptor as "ready for reading", while nev-
-       ertheless a subsequent read  blocks.  This  could  perhaps
-       happen  when  data  has  arrived  but upon examination has
-       wrong checksum and is discarded. Thus it may be  safer  to
-       use non-blocking I/O.
+the problem is that 10 msec might be fine for a 9MB L2 cache CPU running a
+DB benchmark, but it will sure be too much of a migration cutoff for other
+boxes. And too much of a migration cutoff means increased idle time -
+resulting in CPU-under-utilization and worse performance.
 
-(I have not yet investigated, just read the lk posts. Does this
-really happen? All kernel versions? Is this the explanation for
-the reported behaviour?)
+so i'd prefer to not touch it for 2.6.9 (consider that tree closed from a
+scheduler POV), and we can do the auto-tuning in 2.6.10 just fine. It will
+need the same weeks-long testcycle that all scheduler balancing patches
+need. There are so many different type of workloads ...
 
-> Alternately, how about having the recvmsg() call return a zero, and (if 
-> appropriate) the length of the name set to zero?  This appears to comply 
-> with the man page for recvmsg().
+> Secondly, let me ask the question again from the first mail thread:  
+> this value *WAS* 10 ms for a long time, before the domain scheduler.  
+> What's so special about domain scheduler that all the sudden this
+> parameter get changed to 2.5? I'd like to see some justification/prior
+> measurement for such change when domain scheduler kicks in.
 
-Returning 0 for a read signifies end-of-file. Not what you want.
+iirc it was tweaked as a result of the other bug that you fixed. But, high
+sensitivity to this tunable was nevery truly established, and a 9 MB L2
+cache CPU is certainly not typical - and it is certainly the one that
+hurts most from migration effects.
 
-Andries
+anyway, we were running based on cache_decay_ticks for a long time - is
+that what was 10 msec on your box? The cache_decay_ticks calculation was
+pretty fine too, it scaled up with cachesize.
+
+	Ingo

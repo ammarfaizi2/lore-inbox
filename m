@@ -1,31 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263201AbTCYSpZ>; Tue, 25 Mar 2003 13:45:25 -0500
+	id <S263267AbTCYSoP>; Tue, 25 Mar 2003 13:44:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263213AbTCYSpZ>; Tue, 25 Mar 2003 13:45:25 -0500
-Received: from ip-161-71-171-238.corp-eur.3com.com ([161.71.171.238]:17306
-	"EHLO columba.www.eur.3com.com") by vger.kernel.org with ESMTP
-	id <S263201AbTCYSpX>; Tue, 25 Mar 2003 13:45:23 -0500
-X-Lotus-FromDomain: 3COM
-From: "Jon Burgess" <Jon_Burgess@eur.3com.com>
-To: usenet@hensema.net
-cc: linux-kernel@vger.kernel.org
-Message-ID: <80256CF4.0067B530.00@notesmta.eur.3com.com>
-Date: Tue, 25 Mar 2003 18:52:37 +0000
-Subject: Re: Negative dynamic priorities in 2.5.6[4-6]?
+	id <S263270AbTCYSoP>; Tue, 25 Mar 2003 13:44:15 -0500
+Received: from main.gmane.org ([80.91.224.249]:19371 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S263267AbTCYSoO>;
+	Tue, 25 Mar 2003 13:44:14 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Raja R Harinath <harinath@cs.umn.edu>
+Subject: Re: [CHECKER] potential dereference of user pointer errors
+Date: Tue, 25 Mar 2003 12:52:14 -0600
+Organization: Dept. of Computer Science, Univ. of Minnesota
+Message-ID: <d9u1drqnxd.fsf@bose.cs.umn.edu>
+References: <200303041112.h24BCRW22235@csl.stanford.edu> <Pine.GSO.4.44.0303202226230.24869-100000@elaine24.Stanford.EDU>
+ <d9llz4v1qh.fsf@bose.cs.umn.edu> <1048553088.7097.2.camel@rth.ninka.net>
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Gnus/5.090017 (Oort Gnus v0.17) Emacs/21.3.50 (gnu/linux)
+Cancel-Lock: sha1:hvE4/ugb5SUBGwwmkb+Z1KQANRo=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+"David S. Miller" <davem@redhat.com> writes:
 
-> top from procps-2.0.11 treats PRI as an unsigned long long
+> On Mon, 2003-03-24 at 14:28, Raja R Harinath wrote:
+>> Something like
+>> 
+>>   /* struct user_space should never be defined.  */
+>>   typedef struct user_space user_space;
+>> 
+>>   int copy_to_user (user_space *to, char *from, size_t len);
+>>   int copy_from_user (char *to, user_space *from, size_t len);
+>>   /* ... */
+>> 
+>>   #define TREAT_AS_USER_SPACE_POINTER(p) \
+>>             ({                                  \
+>>               BUG_ON(get_fs() != get_gs());     \
+>>               (user_space *)p;                  \
+>>             })
+>
+> A great idea, we'd need to use this struct user_space at every
+> system call, 
 
-Known problem with top, for fix see
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=85423
+Which is good, I think.  It annotates the source.
 
-     Jon
+> and it doesn't work to well when pointers are embedded inside of a
+> structure.
 
+I don't understand this point.  'struct user_space' will never be
+defined.  The C compiler ensure that 'struct user_space *p' cannot be
+dereferenced then, since it will be a pointer to an incomplete type.
+
+I don't see any difference between
+
+  struct foo { char *p; };
+
+and 
+
+  struct foo { user_space *p; };
+
+in terms of the code generated.  (On second reading, I don't think
+this was your point though).
+
+- Hari
+-- 
+Raja R Harinath ------------------------------ harinath@cs.umn.edu
 

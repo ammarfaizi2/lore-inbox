@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263214AbUDEVRJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 17:17:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263211AbUDEVOu
+	id S263258AbUDEVYA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 17:24:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263348AbUDEVWA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 17:14:50 -0400
-Received: from build.arklinux.oregonstate.edu ([128.193.0.51]:30115 "EHLO
-	test.arklinux.org") by vger.kernel.org with ESMTP id S263228AbUDEVOF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 17:14:05 -0400
-Date: Mon, 5 Apr 2004 14:23:42 -0700 (PDT)
-From: bero@arklinux.org
-X-X-Sender: bero@build.arklinux.oregonstate.edu
-To: Jamie Lokier <jamie@shareable.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Catching SIGSEGV with signal() in 2.6
-In-Reply-To: <20040405181707.GA21245@mail.shareable.org>
-Message-ID: <Pine.LNX.4.58.0404051422000.13367@build.arklinux.oregonstate.edu>
-References: <Pine.LNX.4.58.0404050824310.13367@build.arklinux.oregonstate.edu>
- <20040405181707.GA21245@mail.shareable.org>
-X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
-X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
+	Mon, 5 Apr 2004 17:22:00 -0400
+Received: from mailwasher.lanl.gov ([192.16.0.25]:63117 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S263258AbUDEVVU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 17:21:20 -0400
+Date: Mon, 5 Apr 2004 15:21:18 -0600 (MDT)
+From: Stephen Smoogen <smoogen@lanl.gov>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel stack challenge
+In-Reply-To: <4071CF6E.4030104@techsource.com>
+Message-ID: <Pine.LNX.4.58.0404051516210.24230@smoogen1.lanl.gov>
+References: <20040405205412.60071.qmail@web40504.mail.yahoo.com>
+ <4071CF6E.4030104@techsource.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Apr 2004, Jamie Lokier wrote:
+On Mon, 5 Apr 2004, Timothy Miller wrote:
 
-> > See http://www.openoffice.org/issues/show_bug.cgi?id=27162
-> > 
-> > Is this change intentional, or a bug?
-> 
-> On 2.6.3, x86, SIGSEGV is being caught just fine in my test program,
-> with the correct fault address, with or without SA_SIGINFO.
+>Sergiy Lozovsky wrote:
+>
+>> 
+>> 
+>> All LISP errors are incapsulated within LISP VM.
+>>  
+>
+>
+>A LISP VM is a big, giant, bloated.... *CHOKE* *COUGH* *SPUTTER* 
+>*SUFFOCATE* ... thing which SHOULD NEVER be in the kernel.
 
-Seems to be triggered only by some segfaults -- a simpler test app than 
-the one in the OpenOffice bug report works here too, the OpenOffice one 
-crashes.
+Ah your thinking of the days when 1 meg of memory was a lot and LISP was 
+considered huge..  With 4 gigs of memory today, it shouldnt be a problem 
+:). Actually a LISP vm can fit into a small amount of memory depending 
+on what you want it to do... 
 
-I'll try to debug it some more when I have some time, but that could take 
-a while (busy ATM)
+I think in the end, this is a 'When all you know is to hammer, 
+everything is a nail.' They know LISP.
 
-LLaP
-bero
+>Why do you choose LISP?  Don't you want to use a language that sysadmins 
+>will actually KNOW?
+
+Because how else can you get emacs to the only thing to run?
 
 -- 
-Ark Linux - Linux for the masses
-http://www.arklinux.org/
-
-Redistribution and processing of this message is subject to
-http://www.arklinux.org/terms.php
+Stephen John Smoogen		smoogen@lanl.gov
+Los Alamos National Lab  CCN-5 Sched 5/40  PH: 4-0645
+Ta-03 SM-1498 MailStop B255 DP 10S  Los Alamos, NM 87545
+-- You should consider any operational computer to be a security problem --

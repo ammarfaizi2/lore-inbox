@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271112AbTHHAO4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 20:14:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271123AbTHHAO4
+	id S271120AbTHHAab (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 20:30:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271123AbTHHAab
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 20:14:56 -0400
-Received: from holomorphy.com ([66.224.33.161]:35735 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S271112AbTHHAOz (ORCPT
+	Thu, 7 Aug 2003 20:30:31 -0400
+Received: from fw.osdl.org ([65.172.181.6]:59099 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271120AbTHHAaa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 20:14:55 -0400
-Date: Thu, 7 Aug 2003 17:16:10 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.0-test2-mm5
-Message-ID: <20030808001610.GB32488@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, Ingo Molnar <mingo@elte.hu>
-References: <20030806223716.26af3255.akpm@osdl.org> <14340000.1060300025@[10.10.2.4]>
+	Thu, 7 Aug 2003 20:30:30 -0400
+Date: Thu, 7 Aug 2003 17:32:30 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "H. J. Lu" <hjl@lucon.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Initrd problem with 2.6 kernel
+Message-Id: <20030807173230.13f57349.akpm@osdl.org>
+In-Reply-To: <20030807223019.GA27359@lucon.org>
+References: <20030807223019.GA27359@lucon.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <14340000.1060300025@[10.10.2.4]>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote (on Wednesday, August 06, 2003 22:37:16 -0700):
->> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test2/2.6.0-test2-mm5/
->> Lots of different things.  Mainly trying to get this tree stabilised again;
->> there has been some breakage lately.
+"H. J. Lu" <hjl@lucon.org> wrote:
+>
+> There is a chicken and egg problem with initrd on 2.6. When
+> root=/dev/xxx is passed to kernel, kernel will call try_name, which
+> uses /sys/block/drive/dev, to find out the device number for ROOT_DEV.
+> The problem is /sys/block/drive may not exist if the driver is loaded
+> by /linuxrc in initrd. As the result, /linuxrc can't use
+> /proc/sys/kernel/real-root-dev to determine the root device number.
 
-On Thu, Aug 07, 2003 at 04:47:07PM -0700, Martin J. Bligh wrote:
-> Mmmm. 4/4 split now boots again, but behaves rather oddly. This is with
-> Nick's AS fix, plus the 4/4 fix Andrew sent me last night, which I presume
-> is the same as what Bill sent out.
-> Difficult to tell what's going on exactly. For one, the machine has lost 
-> it's hostname, for another, it seems to have mounted the root fs readonly. 
-> End of the bootlog looks like this:
+You should be able to use the numeric identifier:
 
-It comes up normally here; not sure what's going on.
+	root=03:02
+
+that's major:minor, and it recently changed.  In 2.6.0-test2 that would be
+"0302".
 
 
--- wli

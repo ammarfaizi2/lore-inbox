@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316753AbSHXVWM>; Sat, 24 Aug 2002 17:22:12 -0400
+	id <S316789AbSHXVZa>; Sat, 24 Aug 2002 17:25:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316757AbSHXVWJ>; Sat, 24 Aug 2002 17:22:09 -0400
-Received: from keen.esi.ac.at ([193.170.117.2]:44810 "EHLO keen.esi.ac.at")
-	by vger.kernel.org with ESMTP id <S316753AbSHXVWH>;
-	Sat, 24 Aug 2002 17:22:07 -0400
-Date: Sat, 24 Aug 2002 23:26:20 +0200 (CEST)
-From: Gerald Teschl <gerald@esi.ac.at>
+	id <S316788AbSHXVZa>; Sat, 24 Aug 2002 17:25:30 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:51210 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S316789AbSHXVZa>; Sat, 24 Aug 2002 17:25:30 -0400
+Date: Sat, 24 Aug 2002 22:29:35 +0100
+From: John Levon <movement@marcelothewonderpenguin.com>
 To: linux-kernel@vger.kernel.org
-cc: linux-sound@vger.kernel.org
-Subject: [PATCH] ad1848 infinite loop fix
-Message-ID: <Pine.LNX.4.44.0208242324450.29094-100000@keen.esi.ac.at>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [RFC] make localconfig
+Message-ID: <20020824212935.GA6093@compsoc.man.ac.uk>
+References: <20020824222735.B21265@vdpas.hobby.nl> <Pine.LNX.4.44.0208241522061.3234-100000@hawkeye.luckynet.adm>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0208241522061.3234-100000@hawkeye.luckynet.adm>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Boards of Canada - Geogaddi
+X-Scanner: exiscan *17iiTQ-0001oj-00*ap27LxX5yR6* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Aug 24, 2002 at 03:25:58PM -0600, Thunder from the hill wrote:
 
-I think I found the problem which causes the infinite loop
-when the activation fails:
+> If you think it's a _deadly_bad_idea_to_do_ please tell me. It is, after 
+> all, just an RFC, means I request you to comment on this. I could even ask 
+> for kernel protection for the mice.
 
---- linux-2.4.19/drivers/sound/ad1848.c.orig    Sat Aug 24 23:19:54 2002
-+++ linux-2.4.19/drivers/sound/ad1848.c Sat Aug 24 23:20:58 2002
-@@ -3058,7 +3058,7 @@
-        else
-                printk(KERN_INFO "ad1848: Failed to initialize %s\n", 
-devname);
+It's an old idea that has been implemented at least once... I suggest
+you read the archives
 
--       return 0;
-+       return -ENODEV;
- }
+john
 
- static int __init ad1848_isapnp_probe(struct address_info *hw_config)
-
-
+-- 
+"When your name is Winner, that's it. You don't need a nickname."
+	- Loser Lane

@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261573AbUCDJiL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 04:38:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbUCDJiL
+	id S261626AbUCDJie (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 04:38:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbUCDJie
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 04:38:11 -0500
-Received: from web8304.mail.in.yahoo.com ([203.199.122.34]:27988 "HELO
-	web8304.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id S261573AbUCDJiI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 04:38:08 -0500
-Message-ID: <20040304093805.18936.qmail@web8304.mail.in.yahoo.com>
-Date: Thu, 4 Mar 2004 09:38:05 +0000 (GMT)
-From: =?iso-8859-1?q?Dinesh=20Ahuja?= <mdlinux7@yahoo.co.in>
-Subject: Using the Native POSIX Threading Library (NPTL) instead of linuxthreads.
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 4 Mar 2004 04:38:34 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51468 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261626AbUCDJib (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 04:38:31 -0500
+Date: Thu, 4 Mar 2004 09:38:26 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Dave Jones <davej@redhat.com>,
+       Cpufreq mailing list <cpufreq@www.linux.org.uk>,
+       kernel list <linux-kernel@vger.kernel.org>, davej@codemonkey.ork.uk,
+       paul.devriendt@amd.com
+Subject: Re: powernow-k8-acpi driver
+Message-ID: <20040304093826.B6052@flint.arm.linux.org.uk>
+Mail-Followup-To: Pavel Machek <pavel@suse.cz>,
+	Dave Jones <davej@redhat.com>,
+	Cpufreq mailing list <cpufreq@www.linux.org.uk>,
+	kernel list <linux-kernel@vger.kernel.org>, davej@codemonkey.ork.uk,
+	paul.devriendt@amd.com
+References: <20040303215435.GA467@elf.ucw.cz> <20040303222712.GA16874@redhat.com> <20040303223510.GE222@elf.ucw.cz> <20040303224841.GB16874@redhat.com> <20040303225405.GF222@elf.ucw.cz> <20040303233603.GA18722@redhat.com> <20040304000754.GK222@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040304000754.GK222@elf.ucw.cz>; from pavel@suse.cz on Thu, Mar 04, 2004 at 01:07:54AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Everbody,
+On Thu, Mar 04, 2004 at 01:07:54AM +0100, Pavel Machek wrote:
+> Ahha. Unfortunately, cpufreq mailing lists are only available to list
+> subscribers. Ouch.
 
-I am new to Linux world and fascinated with it. I have
-an experience of 2.5 years in C++,C,COM,ATL,VC++ and
-want to get into Linux World.I have build and
-installed Linux Kernel 2.6.0 after struggling for four
-days.
+So... subscribe to the list - if you don't actually want to receive
+mail, you can turn on an option which says that.
 
-I installed Linux 2.6.0 so that I should be able to
-work with NPTL which is POSIX1.b compliant. But, when
-I see ma for mq_open and mq_close functions, it
-doesn't shows me anything.
-
-I want to explore the NPTL and functionality provided
-by NPTL as I want to use POSIX Message Queues, Shared
-Memory and Semaphores.
-
-I was assuming the Linux Kernel 2.6.0 should have NPTL
-installed in it with default along with the neccessay
-headers.
-
-How can I see the detailed descriptions of the
-services provided by NPTL ? Please suggest me what are
-the neccessary steps requried to use NPTL in my Linux
-Kernel 2.6.0 ? Do I need to download some packages to
-work with NPTL in Linux Kernel 2.6.0 ?
-
-Thanks & Regards
-Dinesh
-
-________________________________________________________________________
-Yahoo! India Insurance Special: Be informed on the best policies, services, tools and more. 
-Go to: http://in.insurance.yahoo.com/licspecial/index.html
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

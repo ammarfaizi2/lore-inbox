@@ -1,91 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316609AbSGGWsq>; Sun, 7 Jul 2002 18:48:46 -0400
+	id <S316604AbSGGWsb>; Sun, 7 Jul 2002 18:48:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316610AbSGGWsp>; Sun, 7 Jul 2002 18:48:45 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:4300 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S316609AbSGGWsm>;
-	Sun, 7 Jul 2002 18:48:42 -0400
-Message-ID: <3D28C3F0.7010506@us.ibm.com>
-Date: Sun, 07 Jul 2002 15:42:56 -0700
+	id <S316609AbSGGWsa>; Sun, 7 Jul 2002 18:48:30 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:64459 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S316604AbSGGWs2>;
+	Sun, 7 Jul 2002 18:48:28 -0400
+Message-ID: <3C88087A.2030704@us.ibm.com>
+Date: Thu, 07 Mar 2002 16:40:26 -0800
 From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020227
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Thunder from the hill <thunder@ngforever.de>
-CC: Greg KH <greg@kroah.com>,
-       kernel-janitor-discuss 
-	<kernel-janitor-discuss@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: BKL removal
-References: <Pine.LNX.4.44.0207071551180.10105-100000@hawkeye.luckynet.adm>
+To: linux-kernel@vger.kernel.org
+Subject: truncate_list_pages() page lock confusion and BUG
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thunder from the hill wrote:
+I'm getting BUG()s from page_alloc.c:109 in 2.5.6-pre2
 
- >> "As long as I comment [and understand] why I am using the BKL."
- >> would be a bit more accurate.  How many places in the kernel have
- >> you seen comments about what the BKL is actually doing?  Could
- >> you point me to some of your comments where _you_ are using the
- >> BKL?  Once you fully understand why it is there, the extra step
- >> of removal is usually very small.
- >
- > Old Blue, could you please bring me an example on where in USB the
- > bkl shouldn't be used, but is?  And can you explain why it's wrong
- > to use bkl there?
+truncate_list_pages() contains
 
-Old Blue?  23 isn't _that_ old!
+failed = TryLockPage(page);
 
-BKL use isn't right or wrong -- it isn't a case of creating a deadlock 
-or a race.  I'm picking a relatively random function from "grep -r 
-lock_kernel * | grep /usb/".  I'll show what I think isn't optimal 
-about it.
+The page should always be locked when I get past there
 
-"up" is a local variable.  There is no point in protecting its 
-allocation.  If the goal is to protect data inside "up", there should 
-probably be a subsystem-level lock for all "struct uhci_hcd"s or a 
-lock contained inside of the structure itself.  Is this the kind of 
-example you're looking for?
+shortly after this, truncate_complete_page() can be called
 
-  static int uhci_proc_open(struct inode *inode, struct file *file)
-  {
-         const struct proc_dir_entry *dp = PDE(inode);
-         struct uhci_hcd *uhci = dp->data;
-         struct uhci_proc *up;
-         unsigned long flags;
-         int ret = -ENOMEM;
+truncate_complete_page() calls:
+         remove_inode_page(page);
+              if (!PageLocked(page))
+                 PAGE_BUG(page);
+followed immediately by
+         page_cache_release(page);
+             calls __free_pages_ok(page, 0);
+                 if (PageLocked(page))
+                    BUG();
 
--       lock_kernel();
+So, it appears that when truncate_complete_page() is called, it is a BUG 
+if the page is unlocked in remove_inode_page(), or locked in 
+page_cache_release().   What am I missing?  Actual bug follows:
 
-         up = kmalloc(sizeof(*up), GFP_KERNEL);
-         if (!up)
-                 goto out;
+kernel BUG at page_alloc.c:109!
+invalid operand: 0000
+CPU:    1
+EIP:    0010:[<c012f27c>]    Not tainted
+EFLAGS: 00010202
+eax: 01000001   ebx: c13ba15c   ecx: c13ba15c   edx: c13ba15c
+esi: 00000000   edi: db5aff20   ebp: 00000000   esp: db5afe90
+ds: 0018   es: 0018   ss: 0018
+Stack: c13ba15c 00000000 db5aff20 00000000 c13ba15c c13ba15c 00000000 
+c13ba15c
+        00000000 db5aff20 00000000 c012717a c13ba15c 00000000 c012fb05 
+c13ba15c
+        c01271c2 c13ba15c c13ba15c c0127326 c13ba15c 00000000 db5aff20 
+00000018
+Call Trace: [<c012717a>] [<c012fb05>] [<c01271c2>] [<c0127326>] 
+[<c01273db>]
+    [<c0125192>] [<c012a49d>] [<c01361fb>] [<c0108a23>]
+Code: 0f 0b 6d 00 60 89 24 c0 8b 4c 24 10 8b 41 18 a8 40 74 08 0f
 
-         up->data = kmalloc(MAX_OUTPUT, GFP_KERNEL);
-         if (!up->data) {
-                 kfree(up);
-                 goto out;
-         }
-
-+       lock_kernel();
-         spin_lock_irqsave(&uhci->frame_list_lock, flags);
-         up->size = uhci_sprint_schedule(uhci, up->data, MAX_OUTPUT);
-         spin_unlock_irqrestore(&uhci->frame_list_lock, flags);
-
-         file->private_data = up;
-+ 
-unlock_kernel();
-
-         ret = 0;
-  out:
--       unlock_kernel();
-         return ret;
-  }
-
-
+ >>EIP; c012f27c <__free_pages_ok+6c/29c>   <=====
+Trace; c012717a <do_flushpage+26/2c>
+Trace; c012fb05 <page_cache_release+2d/30>
+Trace; c01271c2 <truncate_complete_page+42/48>
+Trace; c0127326 <truncate_list_pages+15e/1c4>
+Trace; c01273db <truncate_inode_pages+4f/80>
+Trace; c0125192 <vmtruncate+be/154>
+Trace; c012a49d <generic_file_write+62d/6f8>
+Trace; c01361fb <sys_write+8f/10c>
+Trace; c0108a23 <syscall_call+7/b>
+Code;  c012f27c <__free_pages_ok+6c/29c>
+00000000 <_EIP>:
+Code;  c012f27c <__free_pages_ok+6c/29c>   <=====
+    0:   0f 0b                     ud2a      <=====
+Code;  c012f27e <__free_pages_ok+6e/29c>
+    2:   6d                        insl   (%dx),%es:(%edi)
+Code;  c012f27f <__free_pages_ok+6f/29c>
+    3:   00 60 89                  add    %ah,0xffffff89(%eax)
+Code;  c012f282 <__free_pages_ok+72/29c>
+    6:   24 c0                     and    $0xc0,%al
+Code;  c012f284 <__free_pages_ok+74/29c>
+    8:   8b 4c 24 10               mov    0x10(%esp,1),%ecx
+Code;  c012f288 <__free_pages_ok+78/29c>
+    c:   8b 41 18                  mov    0x18(%ecx),%eax
+Code;  c012f28b <__free_pages_ok+7b/29c>
+    f:   a8 40                     test   $0x40,%al
+Code;  c012f28d <__free_pages_ok+7d/29c>
+   11:   74 08                     je     1b <_EIP+0x1b> c012f297 
+<__free_pages_ok+87/29c>
+Code;  c012f28f <__free_pages_ok+7f/29c>
+   13:   0f 00 00                  sldt   (%eax)
 
 -- 
 Dave Hansen

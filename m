@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129547AbQKHS3d>; Wed, 8 Nov 2000 13:29:33 -0500
+	id <S129527AbQKHSce>; Wed, 8 Nov 2000 13:32:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129527AbQKHS3X>; Wed, 8 Nov 2000 13:29:23 -0500
-Received: from kanga.kvack.org ([216.129.200.3]:22542 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id <S129508AbQKHS3O>;
-	Wed, 8 Nov 2000 13:29:14 -0500
-Date: Wed, 8 Nov 2000 13:27:36 -0500 (EST)
-From: <kernel@kvack.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Brian Pomerantz <bapper@piratehaven.org>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Pentium 4 and 2.4/2.5
-In-Reply-To: <E13tZrA-0000HQ-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.3.96.1001108132530.8587A-100000@kanga.kvack.org>
+	id <S129508AbQKHScY>; Wed, 8 Nov 2000 13:32:24 -0500
+Received: from ss08.nc.us.ibm.com ([32.97.136.238]:4841 "EHLO
+	ddstreet.raleigh.ibm.com") by vger.kernel.org with ESMTP
+	id <S129527AbQKHScP>; Wed, 8 Nov 2000 13:32:15 -0500
+Date: Wed, 8 Nov 2000 12:12:31 -0500 (EST)
+From: Dan Streetman <ddstreet@us.ibm.com>
+To: linux-usb-devel <linux-usb-devel@lists.sourceforge.net>
+cc: Richard Polton <Richard.Polton@msdw.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] 2.4.0-test10 problems (power-down problem)
+In-Reply-To: <3A090F20.D4B42BDE@msdw.com>
+Message-ID: <Pine.LNX.4.10.10011081207210.25859-100000@ddstreet.raleigh.ibm.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Nov 2000, Alan Cox wrote:
 
-> What state does it leave the condition codes ?  That matters. 
+On Wed, 8 Nov 2000, Richard Polton wrote:
 
-Alan, rep ; nop is one of the suggested 2 byte fillers in the Athon
-optimization guide; it's handled during instruction decode and is
-completely free.  It also has no effect on K6s.
+>the power switch is disabled
+>too and the only way in which the machine responds is by switching
+>off at the wall and pulling the battery.
 
-		-ben
+I have seen this with my IBM Thinkpad 600E several times.
+
+Many (newer, at least) IBM machines I've seen will power down if you hold the
+power button down for 2-3 seconds.  Try that instead of pulling the plug and
+battery.
+
+It may be true for other machines also.
+
+-- 
+Dan Streetman
+ddstreet@us.ibm.com
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

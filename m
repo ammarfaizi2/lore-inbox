@@ -1,36 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292972AbSBVTn4>; Fri, 22 Feb 2002 14:43:56 -0500
+	id <S292971AbSBVTnD>; Fri, 22 Feb 2002 14:43:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292969AbSBVTnr>; Fri, 22 Feb 2002 14:43:47 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:34822 "EHLO
+	id <S292969AbSBVTmp>; Fri, 22 Feb 2002 14:42:45 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32774 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292974AbSBVTnh>; Fri, 22 Feb 2002 14:43:37 -0500
-Subject: Re: is CONFIG_PACKET_MMAP always a win?
-To: lk@tantalophile.demon.co.uk (Jamie Lokier)
-Date: Fri, 22 Feb 2002 19:57:33 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), dank@kegel.com (Dan Kegel),
-        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org),
-        zab@zabbo.net (Zach Brown)
-In-Reply-To: <20020222190431.A16926@kushida.apsleyroad.org> from "Jamie Lokier" at Feb 22, 2002 07:04:31 PM
+	id <S292970AbSBVTmZ>; Fri, 22 Feb 2002 14:42:25 -0500
+Subject: Re: Flash Back -- kernel 2.1.111
+To: andre@linuxdiskcert.org (Andre Hedrick)
+Date: Fri, 22 Feb 2002 19:56:12 +0000 (GMT)
+Cc: pmanuel@myrealbox.com (Pedro M. Rodrigues),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <Pine.LNX.4.10.10202221059340.32372-100000@master.linux-ide.org> from "Andre Hedrick" at Feb 22, 2002 11:03:48 AM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16eLoz-0002vD-00@the-village.bc.nu>
+Message-Id: <E16eLng-0002uy-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > You can process them in the ring buffer. If you can't keep up then you
-> > are screwed any way you look at it 8)
-> 
-> That still doesn't avoid copying: af_packet copies the whole packet (if
-> you want the whole packet) from the original skbuff to the ring buffer.
+> Does forcing a command to bypass the contents in the cache meaning
+> anything.  This is not a cache sync like SCSI.  It is a cache bypass and
+> will violate the journal on the down/commit block.
 
-I'd make a handwaved claim that the first copy of the packet from a DMA
-receiving source is free. Its certainly pretty close to free because the
-overhead of sucking it into L1 cache will dominate and you need to do that
-anyway.
-
-Zero copy is sometimes a false friend.
+Thats a really useful option for a whole load of operations. Database folk
+in paticular may well benefit as will O_DIRECT stuff

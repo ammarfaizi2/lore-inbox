@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288896AbSBVQ2p>; Fri, 22 Feb 2002 11:28:45 -0500
+	id <S292627AbSBVQgF>; Fri, 22 Feb 2002 11:36:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292627AbSBVQ2e>; Fri, 22 Feb 2002 11:28:34 -0500
-Received: from smtp3.cern.ch ([137.138.131.164]:45552 "EHLO smtp3.cern.ch")
-	by vger.kernel.org with ESMTP id <S288896AbSBVQ2Y>;
-	Fri, 22 Feb 2002 11:28:24 -0500
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Ben Greear <greearb@candelatech.com>, Petro <petro@auctionwatch.com>,
+	id <S292655AbSBVQf4>; Fri, 22 Feb 2002 11:35:56 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50193 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292627AbSBVQfi>;
+	Fri, 22 Feb 2002 11:35:38 -0500
+Message-ID: <3C767359.44CD415E@mandrakesoft.com>
+Date: Fri, 22 Feb 2002 11:35:37 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jes Sorensen <jes@sunsite.dk>
+CC: Ben Greear <greearb@candelatech.com>, Petro <petro@auctionwatch.com>,
         linux-kernel@vger.kernel.org
 Subject: Re: Eepro100 driver.
-In-Reply-To: <20020213211639.GB2742@auctionwatch.com> <3C6B2277.CA9A0BF8@mandrakesoft.com> <3C6B406E.1010706@candelatech.com> <3C6B4B20.FE4AE960@mandrakesoft.com>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 22 Feb 2002 17:27:00 +0100
-In-Reply-To: Jeff Garzik's message of "Thu, 14 Feb 2002 00:29:04 -0500"
-Message-ID: <d3sn7ttrcb.fsf@lxplus050.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
-MIME-Version: 1.0
+In-Reply-To: <20020213211639.GB2742@auctionwatch.com> <3C6B2277.CA9A0BF8@mandrakesoft.com> <3C6B406E.1010706@candelatech.com> <3C6B4B20.FE4AE960@mandrakesoft.com> <d3sn7ttrcb.fsf@lxplus050.cern.ch>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@mandrakesoft.com> writes:
+Jes Sorensen wrote:
+> Would be a lot nicer to see someone spending the time pulling the
+> useful bits out of e100 and putting it into eepro100. e100 is ugly and
+> bloated for no reason.
 
-> Soon but not terribly soon.  Intel has been responsive to feedback from
-> Andrew Morton and myself.  Once it passes our review and Intel's
-> testing, it will go in.  eepro100 will live on for a while, until we are
-> certain e100 is stable, though.  (and eepro100 won't disappear from 2.4
-> at all)
+When it passes my review, it will not be.
 
-Would be a lot nicer to see someone spending the time pulling the
-useful bits out of e100 and putting it into eepro100. e100 is ugly and
-bloated for no reason.
+e100 + my desired changes == eepro100 + my desired changes
 
-Jes
+-- 
+Jeff Garzik      | "UNIX enhancements aren't."
+Building 1024    |           -- says /usr/games/fortune
+MandrakeSoft     |

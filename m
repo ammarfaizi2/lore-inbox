@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272982AbTGaLjx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 07:39:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272456AbTGaLju
+	id S272456AbTGaLp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 07:45:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272997AbTGaLp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 07:39:50 -0400
-Received: from mail2.qmul.ac.uk ([138.37.6.6]:10705 "EHLO mail2.qmul.ac.uk")
-	by vger.kernel.org with ESMTP id S272982AbTGaLjW (ORCPT
+	Thu, 31 Jul 2003 07:45:59 -0400
+Received: from [213.69.232.58] ([213.69.232.58]:55049 "HELO schottelius.org")
+	by vger.kernel.org with SMTP id S272456AbTGaLp5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 07:39:22 -0400
-Message-ID: <1059651493.3f28ffa5d6cd2@webmail.stu.qmul.ac.uk>
-Date: Thu, 31 Jul 2003 12:38:13 +0100
-From: ha0124@qmul.ac.uk
-To: linux-kernel@vger.kernel.org
-Subject: kernel panic with gzip and hpt370 raid
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.0
-X-Originating-IP: 138.37.63.131
-X-Sender-Host-Address: 138.37.100.211
-X-QM-Scan-Accept: This message was accepted by ls_accept.so
+	Thu, 31 Jul 2003 07:45:57 -0400
+Date: Thu, 31 Jul 2003 13:44:27 +0200
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: rd superblocks / cramfs
+Message-ID: <20030731114427.GN264@schottelius.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="eGLW8NzjjVmDHwQh"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux flapp 2.6.0-test2
+X-Free86: doesn't compile currently
+X-Replacement: please tell me some (working)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a HPT370 embedder ide raid controller. If I use the 2.4.21 kernel wich 
-supports the mirroring features of this card, then my ADSL modem Alcatel)is not 
-detected by the drivers (Avalible on source forge.)
-I have sucesfully extracted the files from the 2.4.21 kernel and patched the 
-2.4.18 kernel with this code. The seems to work fine and compiled without any 
-probs.
 
-The only problem is that during the tape backup routine each night a kernel 
-panic occures when gzip is running. If I use bzip it works fine.
+--eGLW8NzjjVmDHwQh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-the obvious solution to this is if the bug preventing the 2.4.21 kernel from 
-using the modem is fixed. I am using exactly the smae settings in the config 
-file for both kernels so no items are missing that the drivers supports.
+Hello!
 
+Is this patch
+http://www.escape.de/users/outback/linux/patch-2.4.0-mk1
 
-many Thanks
+integrated in 2.6 ?
 
-James Cronin
+Or in other words:
+Can I use cramfs for booting a initrd?
 
+Nico
 
+--=20
+echo God bless America | sed 's/.*\(A.*\)$/Why \1?/'
+pgp: new id: 0x8D0E27A4 | ftp.schottelius.org/pub/familiy/nico/pgp-key.new
+
+--eGLW8NzjjVmDHwQh
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE/KQEbtnlUggLJsX0RAuLtAJ4n4BPkovj/K3K3q11Nh3kvyTQCHwCfT3k+
+6TdbQD0zK2yWvl0YXM/AA1A=
+=TkRd
+-----END PGP SIGNATURE-----
+
+--eGLW8NzjjVmDHwQh--

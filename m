@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262638AbVCXQ53@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262871AbVCXRAS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262638AbVCXQ53 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 11:57:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262867AbVCXQ53
+	id S262871AbVCXRAS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 12:00:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263102AbVCXRAQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 11:57:29 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:60879 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262638AbVCXQ5S (ORCPT
+	Thu, 24 Mar 2005 12:00:16 -0500
+Received: from mx1.suse.de ([195.135.220.2]:62104 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S262871AbVCXQ6f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 11:57:18 -0500
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH] ppc32/64: Map prefetchable PCI without guarded bit
-Date: Thu, 24 Mar 2005 08:55:54 -0800
-User-Agent: KMail/1.7.2
-Cc: Andrew Morton <akpm@osdl.org>, linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <1111645464.5569.15.camel@gaston> <200503240854.45741.jbarnes@engr.sgi.com>
-In-Reply-To: <200503240854.45741.jbarnes@engr.sgi.com>
+	Thu, 24 Mar 2005 11:58:35 -0500
+Message-ID: <4242CE43.1020806@suse.de>
+Date: Thu, 24 Mar 2005 15:27:15 +0100
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andy Isaacson <adi@hexapodia.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
+References: <20050323184919.GA23486@hexapodia.org>
+In-Reply-To: <20050323184919.GA23486@hexapodia.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503240855.55154.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, March 24, 2005 8:54 am, Jesse Barnes wrote:
-> On Wednesday, March 23, 2005 10:24 pm, Benjamin Herrenschmidt wrote:
-> > While experimenting with framebuffer access performances, we noticed a
-> > very significant improvement in write access to it when not setting
-> > the "guarded" bit on the MMU mappings. This bit basically says that
-> > reads and writes won't have side effects (it allows speculation). It
-> > appears that it also disables write combining.
->
-> Doesn't pgprot_writecombine imply non-guarded, so can't you use it instead?
-> Either way, you'll probably want to fix fbmem.c as well and turn off
-> _PAGE_GUARDED?
+Andy Isaacson wrote:
 
-Nevermind about this bit, I just scrolled a little further into your patch :)
+> Dmesg is attached; hardware is a Vaio r505te.
+> 
+> Unfortunately, the deadlock (?) is nondeterministic; it *sometimes*
+> suspends successfully, maybe one time out of 10.  And thinking back, I
+> *sometimes* saw failures to suspend with 2.6.11-rc3, maybe one failure
+> out of 20 suspends.
 
-Jesse
+Does it hang hard or is sysrq still working?
+If sysrq is still working, please try with "i8042.noaux" (this will kill
+your touchpad, which is what i intend :-)
+
+Best regards,
+
+    Stefan
+
+
+

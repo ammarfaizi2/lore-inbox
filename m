@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261957AbUAWJRk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 04:17:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265383AbUAWJRk
+	id S265327AbUAWJLX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 04:11:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265625AbUAWJLX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 04:17:40 -0500
-Received: from hibernia.jakma.org ([213.79.33.168]:3724 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S261957AbUAWJRi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 04:17:38 -0500
-Date: Fri, 23 Jan 2004 09:17:20 +0000 (GMT)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: David Ford <david+hb@blue-labs.org>
-cc: Jes Sorensen <jes@wildopensource.com>, Zan Lynx <zlynx@acm.org>,
-       Andreas Jellinghaus <aj@dungeon.inka.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Confirmation Spam Blocking was: List 'linux-dvb' closed to
- public posts
-In-Reply-To: <401000C1.9010901@blue-labs.org>
-Message-ID: <Pine.LNX.4.58.0401230912300.2140@fogarty.jakma.org>
-References: <ecartis-01212004203954.14209.1@mail.convergence2.de>
- <20040121194315.GE9327@redhat.com> <Pine.LNX.4.58.0401211155300.2123@home.osdl.org>
- <1074717499.18964.9.camel@localhost.localdomain> <20040121211550.GK9327@redhat.com>
- <20040121213027.GN23765@srv-lnx2600.matchmail.com>
- <pan.2004.01.21.23.40.00.181984@dungeon.inka.de> <1074731162.25704.10.camel@localhost.localdomain>
- <yq0hdyo15gt.fsf@wildopensource.com> <401000C1.9010901@blue-labs.org>
-X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 23 Jan 2004 04:11:23 -0500
+Received: from fw.osdl.org ([65.172.181.6]:47047 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265327AbUAWJLN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 04:11:13 -0500
+Date: Fri, 23 Jan 2004 01:11:58 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: glennpj@charter.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.2-rc1-mm1 oops with X
+Message-Id: <20040123011158.665ad574.akpm@osdl.org>
+In-Reply-To: <1074848612.23073.81.camel@imladris.demon.co.uk>
+References: <20040123061927.GA7025@gforce.johnson.home>
+	<20040122231814.149c8e8d.akpm@osdl.org>
+	<1074848612.23073.81.camel@imladris.demon.co.uk>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Jan 2004, David Ford wrote:
+David Woodhouse <dwmw2@infradead.org> wrote:
+>
+> On Thu, 2004-01-22 at 23:18 -0800, Andrew Morton wrote:
+> > It is maddeningly hard to debug even when you can reproduce it, which I can
+> > no longer do.
+> 
+> This is what GDB watchpoints were invented for, surely?
+> 
 
-> Considering that Bayesian filters are useless against the new spam
-> that is proliferating these days, that's laughable.  Spam now comes
-> with a good 5-10K of random dictionary words.
+I suppose that might help.  But for me the bug triggered towards the end of
+initscripts (it moves around) after we've been through that code path a
+zillion times.  It probably needs to be solved by inspection.  If one can
+get it to happen reliably.
 
-Right, but random words result in strange couplings of words.  
-Statistical filters should be working on phrases, not just individual
-words. So to the statistical filter random words will just be
-meaningless noise, neither an indicator of goodness nor of spamness.
-(unless a spammer reuses a boilerplate 'random word' section - in
-which case it'll be an indicator of spamness).
+I found that sysfs-class-10-vc.patch caused it to happen and
+use-kthread-primitives.patch made it go away again.  Neither patch has
+anything to do with tty refcounting and locking.
 
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-	warning: do not ever send email to spam@dishone.st
-Fortune:
-Men of lofty genius when they are doing the least work are most active.
-		-- Leonardo da Vinci

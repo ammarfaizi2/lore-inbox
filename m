@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270249AbRHMPTY>; Mon, 13 Aug 2001 11:19:24 -0400
+	id <S270250AbRHMPb0>; Mon, 13 Aug 2001 11:31:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270247AbRHMPTP>; Mon, 13 Aug 2001 11:19:15 -0400
-Received: from cmailg5.svr.pol.co.uk ([195.92.195.175]:20592 "EHLO
-	cmailg5.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S270250AbRHMPTB>; Mon, 13 Aug 2001 11:19:01 -0400
-Message-ID: <3B77EFE6.9020106@humboldt.co.uk>
-Date: Mon, 13 Aug 2001 16:19:02 +0100
-From: Adrian Cox <adrian@humboldt.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010801
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: tegeran@home.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: via82cxxx_audio driver bug?
-In-Reply-To: <01081307194201.00276@c779218-a>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S270252AbRHMPbP>; Mon, 13 Aug 2001 11:31:15 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:63362
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S270250AbRHMPbG>; Mon, 13 Aug 2001 11:31:06 -0400
+Date: Mon, 13 Aug 2001 08:31:00 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix compile of drivers/pci/pci.c in 2.4.9-pre2
+Message-ID: <20010813083100.C9133@cpe-24-221-152-185.az.sprintbbd.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicholas Knight wrote:
-> I just sent email to the maintainer of the via82cxxx_audio driver 
-> regarding this bug, hopefully I'll hear back from him soon, but I'd also 
-> like to hear from anyone else who has used and/or hacked at this driver, 
-> and if they've seen XMMS or other audio applications with access to 
-> /dev/mixer have strange, temporarily lockups when not in root/realtime 
-> priority. I've yet to be able to test this with other audio applications 
-> besides XMMS.
+Hello.  2.4.9-pre2 introduced the mandatory PM transition delays for PCI
+devices.  However, it currently doesn't compile, at least on PPC, since
+drivers/pci/pci.c doesn't include <asm/delay.h> to get the definition of
+udelay.  Please apply this to the next release.  Thanks.
 
-Are you using 2.4.7 or 2.4.8? Those kernels have new code to talk to the 
-AC97 codec, which cures lockups on some boards.
 -- 
-Adrian Cox   http://www.humboldt.co.uk/
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/
 
+===== drivers/pci/pci.c 1.17 vs edited =====
+--- 1.17/drivers/pci/pci.c	Sun Aug 12 23:55:22 2001
++++ edited/drivers/pci/pci.c	Mon Aug 13 08:25:35 2001
+@@ -25,6 +25,7 @@
+ 
+ #include <asm/page.h>
+ #include <asm/dma.h>	/* isa_dma_bridge_buggy */
++#include <asm/delay.h>	/* for udelay */
+ 
+ #undef DEBUG
+ 

@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264169AbTKSXsN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 18:48:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264172AbTKSXsN
+	id S264191AbTKSXxN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 18:53:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261151AbTKSXxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 18:48:13 -0500
-Received: from mail.kroah.org ([65.200.24.183]:59566 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264169AbTKSXsM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 18:48:12 -0500
-Date: Wed, 19 Nov 2003 15:47:08 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Cc: christophe.varoqui@free.fr, patmans@us.ibm.com
-Subject: Re: [ANNOUNCE] udev 006 release
-Message-ID: <20031119234708.GC23529@kroah.com>
-References: <20031119162912.GA20835@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031119162912.GA20835@kroah.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 19 Nov 2003 18:53:13 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7329 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264191AbTKSXxL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Nov 2003 18:53:11 -0500
+Message-ID: <3FBC0247.1000504@pobox.com>
+Date: Wed, 19 Nov 2003 18:52:39 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adam Radford <adam@nmt.edu>
+CC: marcelo.tosatti@cyclades.com, ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.23-rc3 fix scsi disk targets over 1TB to not EIO
+References: <200311192330.hAJNU0cV005517@speare5-1-13.nmt.edu>
+In-Reply-To: <200311192330.hAJNU0cV005517@speare5-1-13.nmt.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 19, 2003 at 08:29:12AM -0800, Greg KH wrote:
-> The major changes since the 005 release are:
+Adam Radford wrote:
+> diff -Naur linux-2.4.23-rc2/drivers/scsi/sd.c linux-2.4.23-rc3/drivers/scsi/sd.c
+> --- linux-2.4.23-rc2/drivers/scsi/sd.c	Mon Aug 25 04:44:42 2003
+> +++ linux-2.4.23-rc3/drivers/scsi/sd.c	Wed Nov 19 15:15:38 2003
+> @@ -294,7 +294,8 @@
+>  
+>  static int sd_init_command(Scsi_Cmnd * SCpnt)
+>  {
+> -	int dev, block, this_count;
+> +	int dev, this_count;
+> +	unsigned long block;
+>  	struct hd_struct *ppnt;
+>  	Scsi_Disk *dpnt;
+>  #if CONFIG_SCSI_LOGGING
 
-Oops, two more major changes I forgot to mention:
-	- udev.permissions can now handle wild cards.  So the following
-	  line would apply for all ttyUSB devices:
-	  	ttyUSB*:::0666
-	- I've added two external programs to the udev tarball, under
-	  the extras/ directory.  They are the scsi-id program from Pat
-	  Mansfield, and the multipath program from Christophe Varoqui.
-	  Both of them can work as CALLOUT programs.  I don't think they
-	  currently build properly within the tree, by linking against
-	  klibc, but patches to their Makefiles to fix this would be
-	  gladly accepted :)
 
-Thanks a lot to both Pat and Christophe for letting me include their
-programs in the main udev release, I appreciate it.  And if there's any
-other small programs that people want me to bundle within udev, please
-let me know.
+What about u64 instead of unsigned long?
 
-thanks,
+	Jeff
 
-greg k-h
+
+

@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265787AbSKOFMz>; Fri, 15 Nov 2002 00:12:55 -0500
+	id <S265798AbSKOFOc>; Fri, 15 Nov 2002 00:14:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265797AbSKOFMz>; Fri, 15 Nov 2002 00:12:55 -0500
-Received: from probity.mcc.ac.uk ([130.88.200.94]:39693 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S265787AbSKOFMw>; Fri, 15 Nov 2002 00:12:52 -0500
-Date: Fri, 15 Nov 2002 05:19:39 +0000
-From: John Levon <levon@movementarian.org>
+	id <S265815AbSKOFOb>; Fri, 15 Nov 2002 00:14:31 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:6381 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265798AbSKOFOa>;
+	Fri, 15 Nov 2002 00:14:30 -0500
+Date: Thu, 14 Nov 2002 21:20:33 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
 To: Corey Minyard <cminyard@mvista.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
+cc: Linus Torvalds <torvalds@transmeta.com>,
        "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
        "'Zwane Mwaikambo'" <zwane@holomorphy.com>,
-       Dipankar Sarma <dipankar@gamebox.net>, linux-kernel@vger.kernel.org
+       John Levon <levon@movementarian.org>,
+       Dipankar Sarma <dipankar@gamebox.net>, <linux-kernel@vger.kernel.org>
 Subject: Re: NMI handling rework for x86
-Message-ID: <20021115051939.GA32131@compsoc.man.ac.uk>
-References: <3DD47858.3060404@mvista.com> <20021115051207.GA29779@compsoc.man.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021115051207.GA29779@compsoc.man.ac.uk>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan *18CYtI-00027K-00*69KhBRR9VZ6* (Manchester Computing, University of Manchester)
+In-Reply-To: <3DD47858.3060404@mvista.com>
+Message-ID: <Pine.LNX.4.33L2.0211142118510.4777-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 15, 2002 at 05:12:07AM +0000, John Levon wrote:
+On Thu, 14 Nov 2002, Corey Minyard wrote:
 
-> also, the diff would be much easier to read as a separate "mv nmi.c
-> nmi_watchdog.c" then diff against that
+| Linus,
+|
+| John Levon suggested I send this to you.  It's a cleanup of the NMI
+| handling to make it into a request/release mechanism (instead of
+| hard-coding everything into traps.c).  It renames "nmi.c" to
+| "nmi_watchdog.c" (as it should be named) and moves the real NMI handling
+| code from traps.c to nmi.c.  It's been posted and reworked on lkml, and
+| it seems to have finally met approval.  The "cc-ed" people have reviewed
+| the patch (or at least made helpful suggestions :-).
+|
+| Since a lot of things are hacking into this code (lkcd, kdb, oprofile,
+| nmi watchdog, and now my IPMI watchdog pretimeout), it would be very
+| nice to get their junk out of this code and allow them to bind in
+| nicely, and allow binding from modules.
 
-Oh, and I suppose I agree with Zwane - stuff like this really needs
-hammering wrt testing. Have you actually tried oprofile against it
-yourself Corey ? It's probably the best source of huge amounts of NMIs
-:)
+Switching topics:
+Where is the watchdog pretimeout interface ("API") defined?
+Has there been any discussion of it?
 
-If you can fix up the patch I'll try and make some time to test it
-properly
+| (And this time it's a -p1 diff)
 
-regards
-john
+Looks like a -p0 diff to me.
+
 -- 
-Khendon's Law: If the same point is made twice by the same person,
-the thread is over.
+~Randy
+

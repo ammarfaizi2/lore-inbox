@@ -1,78 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262348AbTINItg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 04:49:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262357AbTINItg
+	id S262330AbTINIlp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 04:41:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262332AbTINIlp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 04:49:36 -0400
-Received: from h80ad2542.async.vt.edu ([128.173.37.66]:27580 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262348AbTINItc (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 04:49:32 -0400
-Message-Id: <200309140846.h8E8k3Sg025899@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Erik Andersen <andersen@codepoet.org>, linux-kernel@vger.kernel.org
-Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]] 
-In-Reply-To: Your message of "Sun, 14 Sep 2003 00:10:27 PDT."
-             <Pine.LNX.4.10.10309140004430.16744-100000@master.linux-ide.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.10.10309140004430.16744-100000@master.linux-ide.org>
+	Sun, 14 Sep 2003 04:41:45 -0400
+Received: from angband.namesys.com ([212.16.7.85]:7564 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S262330AbTINIln
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 04:41:43 -0400
+Date: Sun, 14 Sep 2003 12:41:41 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: George <george@xorgate.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6 kernel large file create problem
+Message-ID: <20030914084141.GA28617@namesys.com>
+References: <000501c37a0c$e2ad24a0$3eac18ac@geosxp> <3F63E898.4010803@namesys.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1183125595P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sun, 14 Sep 2003 04:45:53 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F63E898.4010803@namesys.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1183125595P
-Content-Type: text/plain; charset=us-ascii
+Hello!
 
-On Sun, 14 Sep 2003 00:10:27 PDT, Andre Hedrick said:
+On Sun, Sep 14, 2003 at 08:03:36AM +0400, Hans Reiser wrote:
 
-> Nope, you made threats.
+> >I have a 300G reiserfs 3.6 file system created above a RAID0 (HPT372
+> >controller) partition.  When I am using the 2.6.0-test5 kernel and create
+> >files larger that 4GB they are corrupted with lots of trash throughout the
+> >file.  When I use the same file system with the 2.4.22 kernel it works 
+> >fine.
+> this bug was just found and fixed, green has details.
 
-On Sat, 13 Sep 2003, Erik Andersen wrote:
-> I'll go even farther, and say that one might call the GPL_ONLY
-> symbols an "effective technological measure" that "effectively
-> controls access to a work" and "effectively protects a right of a
+Indeed.
+Try this patch, it should help.
+Tell us if you experience any problems with the patch.
 
-to which you replied:
+Bye,
+    Oleg
 
-On Sat, 13 Sep 2003 19:40:52 -0700, Andre Hedrick said:
-> Go have your "DADDY" write another legal letter for you and send it my
-> way.  I will be happy to shove it down your pie hole.
-
-Erik postulates a "one MIGHT" legal argument, and gets threatened with bodily
-harm?  I think you've given up any moral high ground regarding threats.
-
-You may want to just take a few days off - you're apparently not attached to
-the same reality as the rest of us:
-
-> If one reads ./include/linux/module.h
->
-> It clearly states any license is acceptable.
-
-Maybe if you apply the Bible Code to it, it's clearly stated, but all I see is
-a reference that the MODULE_LICENSE macro will accept a parameter of
-"Proprietary", and then goes on to say "it's there so the module in question
-can be treated properly - just like a Jew in Warsaw in 1941 had to wear a star".
-
-There. I said it.  The esteemed Mr Godwin says we're now free to get on with our lives.
-
-
-
---==_Exmh_-1183125595P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/ZCq+cC3lWbTT17ARAiAcAJ9Ix2J5OMED4F7r03Hhsa3G48cA/ACgsVIB
-vQA3Shr7Uf4Y+eDgMruaGrQ=
-=CN2a
------END PGP SIGNATURE-----
-
---==_Exmh_-1183125595P--
+===== fs/reiserfs/file.c 1.22 vs edited =====
+--- 1.22/fs/reiserfs/file.c	Fri Aug 15 05:17:00 2003
++++ edited/fs/reiserfs/file.c	Fri Sep 12 19:18:53 2003
+@@ -779,7 +779,7 @@
+     /* Now if all the write area lies past the file end, no point in
+        maping blocks, since there is none, so we just zero out remaining
+        parts of first and last pages in write area (if needed) */
+-    if ( (pos & ~(PAGE_CACHE_SIZE - 1)) > inode->i_size ) {
++    if ( (pos & ~((loff_t)PAGE_CACHE_SIZE - 1)) > inode->i_size ) {
+ 	if ( from != 0 ) {/* First page needs to be partially zeroed */
+ 	    char *kaddr = kmap_atomic(prepared_pages[0], KM_USER0);
+ 	    memset(kaddr, 0, from);
+@@ -801,9 +801,9 @@
+        we need to allocate (calculated above) */
+     /* Mask write position to start on blocksize, we do it out of the
+        loop for performance reasons */
+-    pos &= ~(inode->i_sb->s_blocksize - 1);
++    pos &= ~((loff_t) inode->i_sb->s_blocksize - 1);
+     /* Set cpu key to the starting position in a file (on left block boundary)*/
+-    make_cpu_key (&key, inode, 1 + ((pos) & ~(inode->i_sb->s_blocksize - 1)), TYPE_ANY, 3/*key length*/);
++    make_cpu_key (&key, inode, 1 + ((pos) & ~((loff_t) inode->i_sb->s_blocksize - 1)), TYPE_ANY, 3/*key length*/);
+ 
+     reiserfs_write_lock(inode->i_sb); // We need that for at least search_by_key()
+     for ( i = 0; i < num_pages ; i++ ) { 

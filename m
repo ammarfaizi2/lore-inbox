@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261703AbSJFQhA>; Sun, 6 Oct 2002 12:37:00 -0400
+	id <S261677AbSJFQ37>; Sun, 6 Oct 2002 12:29:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261707AbSJFQhA>; Sun, 6 Oct 2002 12:37:00 -0400
-Received: from bohnice.netroute.lam.cz ([212.71.169.62]:24049 "EHLO
-	vagabond.cybernet.cz") by vger.kernel.org with ESMTP
-	id <S261703AbSJFQg7>; Sun, 6 Oct 2002 12:36:59 -0400
-Date: Sun, 6 Oct 2002 18:42:28 +0200
-From: Jan Hudec <bulb@ucw.cz>
-To: linux-kernel@vger.kernel.org
-Cc: jw schultz <jw@pegasys.ws>
-Subject: Re: Unable to kill processes in D-state
-Message-ID: <20021006164228.GB17170@vagabond>
-Reply-To: Jan Hudec <bulb@vagabond.cybernet.cz>
-Mail-Followup-To: Jan Hudec <bulb@ucw.cz>, linux-kernel@vger.kernel.org,
-	jw schultz <jw@pegasys.ws>
-References: <20021005090705.GA18475@stud.ntnu.no> <1033841462.1247.3716.camel@phantasy> <20021005182740.GC16200@vagabond> <20021005235614.GC25827@stud.ntnu.no> <20021006021802.GA31878@pegasys.ws> <1033871869.1247.4397.camel@phantasy> <20021006024902.GB31878@pegasys.ws> <20021006105917.GB13046@stud.ntnu.no> <20021006122415.GE31878@pegasys.ws> <20021006143636.GA30441@stud.ntnu.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021006143636.GA30441@stud.ntnu.no>
-User-Agent: Mutt/1.4i
+	id <S261682AbSJFQ37>; Sun, 6 Oct 2002 12:29:59 -0400
+Received: from pa90.banino.sdi.tpnet.pl ([213.76.211.90]:4357 "EHLO
+	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
+	id <S261677AbSJFQ35>; Sun, 6 Oct 2002 12:29:57 -0400
+Subject: Re: [patch] fix parport_serial / serial link order (for 2.4.20-pr e8)
+In-Reply-To: <11E89240C407D311958800A0C9ACF7D13A79D1@EXCHANGE>
+To: Ed Vance <EdV@macrolink.com>
+Date: Sun, 6 Oct 2002 18:35:10 +0200 (CEST)
+CC: "'Russell King'" <rmk@arm.linux.org.uk>,
+       Marek Michalkiewicz <marekm@amelek.gda.pl>,
+       linux-kernel@vger.kernel.org, Tim Waugh <twaugh@redhat.com>
+X-Mailer: ELM [version 2.4ME+ PL95 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <E17yEN4-0007fZ-00@alf.amelek.gda.pl>
+From: Marek Michalkiewicz <marekm@amelek.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 06, 2002 at 04:36:36PM +0200, Thomas Lang?s wrote:
-> jw schultz:
-> > Are all those processes hanging because of NFS?  If so, i'd
-> > start by looking at the mount options as i said before.  I'd
-> > also look into the network and fileserver because something
-> > is wrong.  In my experience Solaris behaved the same way.
-> 
-> They're hanging because I killed of the autofs-processes, and
-> started it again. (And then every NFS-share is remounted).
-> So, basically, they're all hanging there, and will keep 
-> hanging there 'till I boot the machine. 
+Hi,
 
-If the shares were successfuly reloaded, then the processes should wake
-up. If they don't, it's a bug in NFS.
+here are the parport_serial / NM9835 patches, updated for 2.4.20-pre9:
 
-Try to reproduce it (ie. reboot some machine, let it start everything
-and then restart the autofsd and see if processes lock up) and then talk
-to NFS maintainers about that.
+http://www.amelek.gda.pl/linux-patches/2.4.20-pre9/00_parport_serial
+http://www.amelek.gda.pl/linux-patches/2.4.20-pre9/01_netmos
+http://www.amelek.gda.pl/linux-patches/2.4.20-pre9/02_sagatek
 
--------------------------------------------------------------------------------
-						 Jan 'Bulb' Hudec <bulb@ucw.cz>
+Please apply in this order, 00_parport_serial then 01_netmos.
+00_parport_serial is big because it moves parport_serial.c to
+a different directory (but no single line in that file is changed).
+01_netmos adds NetMos PCI multi I/O support, tested on NM9835 and
+working fine in two (soon three) machines here.  So I removed the
+"not tested" comments from the NM9835 lines of the original patch.
+
+In addition to the two patches, you get the third one (02_sagatek)
+for FREE :) - it is independent of the two, and adds support for
+a buggy USB/CompactFlash adapter, known under 3 different names:
+Datafab KECF-USB, Sagatek DCS-CF, Simpletech Flashlink UCF-100
+(I have the Sagatek DCS-CF, others tested by two other people).
+
+These are the patches I apply to every kernel I build (to support
+my hardware), in addition to the usual i2c and lm_sensors patches.
+
+Thanks,
+Marek
+

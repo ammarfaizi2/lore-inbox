@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283194AbRLDS3k>; Tue, 4 Dec 2001 13:29:40 -0500
+	id <S277380AbRLDSbA>; Tue, 4 Dec 2001 13:31:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281201AbRLDS2Y>; Tue, 4 Dec 2001 13:28:24 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:169 "EHLO
-	opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S283208AbRLDS1Z>; Tue, 4 Dec 2001 13:27:25 -0500
-Date: Tue, 4 Dec 2001 11:27:13 -0700
+	id <S281156AbRLDS3m>; Tue, 4 Dec 2001 13:29:42 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:64424
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S283251AbRLDSZU>; Tue, 4 Dec 2001 13:25:20 -0500
+Date: Tue, 4 Dec 2001 11:24:51 -0700
 From: Tom Rini <trini@kernel.crashing.org>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: dalecki@evision.ag, Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        linux-kernel@vger.kernel.org, Christoph Hellwig <hch@caldera.de>,
-        "Eric S. Raymond" <esr@thyrsus.com>, Keith Owens <kaos@ocs.com.au>,
-        kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com
+Cc: Giacomo Catenazzi <cate@dplanet.ch>, Wayne.Brown@altec.com,
+        kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
 Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-Message-ID: <20011204182713.GO17651@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <20011204181337.GL17651@cpe-24-221-152-185.az.sprintbbd.net> <E16BKGx-0002y5-00@the-village.bc.nu>
+Message-ID: <20011204182451.GN17651@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <3C0D0BFD.6080903@dplanet.ch> <E16BKBw-0002xO-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E16BKGx-0002y5-00@the-village.bc.nu>
+In-Reply-To: <E16BKBw-0002xO-00@the-village.bc.nu>
 User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 04, 2001 at 06:26:27PM +0000, Alan Cox wrote:
-> > > > Python2 - which means most users dont have it.
-> > 
-> > Most users sure as hell shouldn't be playing with 2.5.x right now
-> > anyways.  With any sort of 'luck' it'll be 6 months at least before
-> > 2.5.x becomes stable enough that it will probably compile all the time
-> > again and not have a random fs eating bug.  In 6 months even woody might
-> > be frozen :)
+On Tue, Dec 04, 2001 at 06:21:15PM +0000, Alan Cox wrote:
+> > make bzlilo modules modules_install: it would be a simble
+> > make install: (and you configure with CML1/CML2 what install
+> > means).
 > 
-> It wont become stable if nobody can configure it because nobody will build
-> it or run it. Lots of people build non stable kernels because its
-> 
-> a) fun
-> b) a way to learn and play with the system
-> c) they might make their own small fix and mark
-> 
-> not all of the them are demon kernel hackers.
+> How does it handle that when install means different things on each box of
+> a set of them NFS sharing the kernel tree. This is a real world example
 
-But they can't install python2?  I _think_ there's src.rpms on
-Python.org that will install as python2 even...
+I'd guess  you can change the module install path, and re-run 'install'
+without having anything rebuilt.  Admiditly a bit worse off than
+INSTALL_MOD_PATH=/nfs/boxA.  Or set the install paths to
+.../kernel-XXX/, tar and untar.
+
+Or if /usr/local/src/linux is NFS'ed, and you're installing per box, I
+don't get it.  Wouldn't you always install modules into /lib/modules/XXX
+?
 
 -- 
 Tom Rini (TR1265)

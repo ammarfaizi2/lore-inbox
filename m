@@ -1,43 +1,24 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262943AbREWBss>; Tue, 22 May 2001 21:48:48 -0400
+	id <S262947AbREWCGB>; Tue, 22 May 2001 22:06:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262944AbREWBsi>; Tue, 22 May 2001 21:48:38 -0400
-Received: from ns.suse.de ([213.95.15.193]:13317 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S262943AbREWBsW>;
-	Tue, 22 May 2001 21:48:22 -0400
-Date: Wed, 23 May 2001 03:48:21 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: Martin Knoblauch <martin.knoblauch@teraport.de>
-Cc: "H. Peter Anvin" <hpa@transmeta.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch] Output of L1,L2 and L3 cache sizes to /proc/cpuinfo
-In-Reply-To: <3B0AFCFB.CAE7A145@teraport.de>
-Message-ID: <Pine.LNX.4.30.0105230345440.22207-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262948AbREWCFv>; Tue, 22 May 2001 22:05:51 -0400
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:37158 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S262947AbREWCFh>; Tue, 22 May 2001 22:05:37 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Alan Cox <laughing@shared-source.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.4-ac14 
+In-Reply-To: Your message of "Tue, 22 May 2001 22:30:48 +0100."
+             <20010522223048.A9649@lightning.swansea.linux.org.uk> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 23 May 2001 12:05:19 +1000
+Message-ID: <7185.990583519@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 May 2001, Martin Knoblauch wrote:
-
->  They may not be stupid, just mislead :-( When Intel created the "cpuid"
-> Feature some way along the P3 line, they gave a stupid reason for it and
-> created a big public uproar. As silly as I think that was (on both
-> sides), the term "cpuid" is tainted. Some people just fear it like hell.
-> Anyway.
-
-I think you are confusing the CPU serial number with CPUID which is
-not the same. CPUID instruction has been around since late 486en.
-
-The P3 Serial number is still disabled by default in Linux,
-unless overridden with a boottime switch.
-
-regards,
-
-Davej.
-
--- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
+Is drivers/char/ser_a2232fw.ax supposed to be included?  Nothing uses it.
 

@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265030AbUELOmX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265097AbUELOp1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265030AbUELOmX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 10:42:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265097AbUELOmX
+	id S265097AbUELOp1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 10:45:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265102AbUELOp1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 10:42:23 -0400
-Received: from maxipes.logix.cz ([81.0.234.97]:17283 "EHLO maxipes.logix.cz")
-	by vger.kernel.org with ESMTP id S265030AbUELOmW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 10:42:22 -0400
-Date: Wed, 12 May 2004 16:42:21 +0200 (CEST)
-From: Michal Ludvig <michal@logix.cz>
-To: James Morris <jmorris@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] Support for VIA PadLock crypto engine
-In-Reply-To: <Xine.LNX.4.44.0405120933010.10943-100000@thoron.boston.redhat.com>
-Message-ID: <Pine.LNX.4.53.0405121546200.24118@maxipes.logix.cz>
-References: <Xine.LNX.4.44.0405120933010.10943-100000@thoron.boston.redhat.com>
+	Wed, 12 May 2004 10:45:27 -0400
+Received: from mail.uk.thalesgroup.com ([194.128.85.6]:31241 "EHLO
+	crawsmail1.uk.thalesgroup.com") by vger.kernel.org with ESMTP
+	id S265097AbUELOpU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 10:45:20 -0400
+Message-ID: <40A23879.4090008@uk.thalesgroup.com>
+From: Fisher Alex <Alex.Fisher@uk.thalesgroup.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Serial ATA (SATA) on Linux status report
+Date: Wed, 12 May 2004 15:45:13 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 May 2004, James Morris wrote:
+> Serial ATA (SATA) for Linux
+> status report
+> May 10, 2004
+> 
+> 
+> Hardware support
+> ================
+> 
 
-> On Tue, 11 May 2004, Michal Ludvig wrote:
->
-> > Second patch - now the PadLock-specific part.
->
-> Can you please just follow the model of arch/s390/crypto/ ?
->
-> This is arch-specific hardware, and should not need any changes to the
-> existing crypto API at this stage.
 
-I only briefly looked at the s390 crypto driver and it looks like it uses
-a special /dev node along with some read/write/ioctl calls to do the
-encryption. I.e. it doesn't seem to integrate with the CryptoAPI at all.
-How could that be used for e.g. IPsec, cryptoloop, etc?
+> Marvell
+> -------
+> libata driver status: in progress
+> 
 
-My padlock driver can be used for anything that uses CryptoAPI and in fact
-it speeds things a lot (see a simple disk-based benchmark at
-http://www.logix.cz/michal/dl/padlock.xp).
 
-In fact I believe that the hardware-specific drivers (e.g. the S/390 one)
-should be used in the cryptoapi as well and then the kernel should provide
-a single, universal device with read/write/ioctl calls for all of them.
-Not making a separete device for every piece of hardware on the market.
-Am I wrong?
+Hi.
+Does anybody know when this driver might become available?
+I'm currently trying to operate a Marvell 88SX6041 with a binary only 
+module and read operations from multiple disks are giving me grief :(
 
-Michal Ludvig
--- 
-* A mouse is a device used to point at the xterm you want to type in.
-* Personal homepage - http://www.logix.cz/michal
+I've noticed that sata support will be going into 2.4.27 and the patch 
+looks very clean.  Will backporting sata support to an older 2.4.20-pre2 
+kernel (http://source.mvista.com:14690//linuxppc_2_4_galileo) be as 
+hassle free?
+
+
+Many thanks,
+Alex
+
+
+This email and any attachments are confidential to the intended recipient
+and may also be privileged. If you are not the intended recipient please
+delete it from your system and notify Thales Underwater Systems on +44 1963
+370 551. You should not copy it or use it for any purpose nor disclose or
+distribute its contents to any other person.

@@ -1,50 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261907AbTCTVDc>; Thu, 20 Mar 2003 16:03:32 -0500
+	id <S262584AbTCTVHu>; Thu, 20 Mar 2003 16:07:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262291AbTCTVDb>; Thu, 20 Mar 2003 16:03:31 -0500
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:58859 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id <S261907AbTCTVDa>; Thu, 20 Mar 2003 16:03:30 -0500
-Date: Thu, 20 Mar 2003 22:14:04 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Eric Sandall <eric@sandall.us>, linux-kernel@vger.kernel.org
-Subject: Re: Deprecating .gz format on kernel.org
-Message-ID: <20030320211404.GA410@wohnheim.fh-wedel.de>
-References: <3E78D0DE.307@zytor.com> <Pine.LNX.4.44.0303192107270.3901-100000@einstein31.homenet> <20030320002127.GB7887@mail.jlokier.co.uk> <43255.134.121.46.137.1048182821.squirrel@mail.sandall.us> <20030320173920.GA2362@mail.jlokier.co.uk>
+	id <S262586AbTCTVHu>; Thu, 20 Mar 2003 16:07:50 -0500
+Received: from spc1.esa.lanl.gov ([128.165.67.191]:26241 "EHLO
+	spc1.esa.lanl.gov") by vger.kernel.org with ESMTP
+	id <S262584AbTCTVHt> convert rfc822-to-8bit; Thu, 20 Mar 2003 16:07:49 -0500
+Subject: Re: 2.5.65-mm2
+From: "Steven P. Cole" <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: Mike Galbraith <efault@gmx.de>
+Cc: Ed Tomlinson <tomlins@cam.org>, Andrew Morton <akpm@digeo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+In-Reply-To: <5.2.0.9.2.20030320220413.00ceaa98@pop.gmx.net>
+References: <5.2.0.9.2.20030320194530.01985440@pop.gmx.net>
+	 <200303192327.45883.tomlins@cam.org>
+	 <20030319012115.466970fd.akpm@digeo.com>
+	 <20030319163337.602160d8.akpm@digeo.com>
+	 <1048117516.1602.6.camel@spc1.esa.lanl.gov>
+	 <200303192327.45883.tomlins@cam.org>
+	 <5.2.0.9.2.20030320194530.01985440@pop.gmx.net>
+	 <5.2.0.9.2.20030320220413.00ceaa98@pop.gmx.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Organization: 
+Message-Id: <1048194922.1639.40.camel@spc1.esa.lanl.gov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030320173920.GA2362@mail.jlokier.co.uk>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.2-1mdk 
+Date: 20 Mar 2003 14:15:22 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 March 2003 17:39:20 +0000, Jamie Lokier wrote:
-> Eric Sandall wrote:
-> > 
-> > Why not get the signature from the .tar file, that way the compression
-> > method doesn't matter?  This is how Source Mage does it's checking, we
-> > create and md5sum (and soon GPG) signature based on the uncompressed .tar
-> > file.  This way, you can use any compression you want, even changing
-> > around the compression to your favourite one, and the signatures will
-> > always match.  :)
+On Thu, 2003-03-20 at 14:07, Mike Galbraith wrote:
+> At 01:12 PM 3/20/2003 -0700, Steven P. Cole wrote:
+> >On Thu, 2003-03-20 at 12:48, Mike Galbraith wrote:
+> > > At 07:36 AM 3/20/2003 -0700, Steven Cole wrote:
+> > > Bottom line is that once cpu hogs are falsely determined to be sleepers,
+> > > positive feedback kills you.
+> > >
+> > >          -Mike
+> > >
+> > >
+> >Sure, either post a patch against a known sync point, .65, .65-bk, or
+> >65-mm2, or send me the sched.c file itself (2600 lines might be a little
+> >too much for the entire list).
+> >
+> >If you send it in the next 2 hours, I can test today, otherwise I'll do
+> >it mañana.
 > 
-> (b) On something as large as a .tar, decompressing a bz2 file to check
->     the signature is really quite slow, compared with checking the
->     signature of the compressed file.
+> What the heck.  It is attached.
+> 
+>          -Mike
+> 
+> (and I repeat, don't _look_, just run it, and let me know;) 
 
-That shouldn't matter, most of the times. If you want to build the
-code, you have to [bg]unzip anyway, so there is no extra cost.
-And I have a hard time to think of a real-world application where you
-don't want to unpack but need to verify the signature.
+[steven@spc1 linux-2.5.65-mg]$ patch -p1 <../../xx.diff
+patching file include/linux/sched.h
+patching file kernel/fork.c
+patching file kernel/printk.c
+patching file kernel/sched.c
+patch: **** unexpected end of file in patch
 
-Jörn
+It looks like the last hunk has no trailing context lines.
+Did your patch get clobbered?
 
--- 
-If System.PrivateProfileString("",
-"HKEY_CURRENT_USER\Software\Microsoft\Office\9.0\Word\Security", "Level") <>
-"" Then  CommandBars("Macro").Controls("Security...").Enabled = False
--- from the Melissa-source
+Steven

@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130012AbRAKKBa>; Thu, 11 Jan 2001 05:01:30 -0500
+	id <S130017AbRAKKGU>; Thu, 11 Jan 2001 05:06:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130017AbRAKKBU>; Thu, 11 Jan 2001 05:01:20 -0500
-Received: from mean.netppl.fi ([195.242.208.16]:43535 "EHLO mean.netppl.fi")
-	by vger.kernel.org with ESMTP id <S130012AbRAKKBD>;
-	Thu, 11 Jan 2001 05:01:03 -0500
-Date: Thu, 11 Jan 2001 12:00:48 +0200
-From: Pekka Pietikainen <pp@evil.netppl.fi>
-To: Tim Sailer <sailer@bnl.gov>
-Cc: John Heffner <jheffner@psc.edu>, linux-kernel@vger.kernel.org,
-        jfung@bnl.gov
-Subject: Re: Network Performance?
-Message-ID: <20010111120048.A10115@netppl.fi>
-In-Reply-To: <20010109115302.A32135@bnl.gov> <Pine.NEB.4.05.10101091423060.3675-100000@dexter.psc.edu> <20010109155611.B3563@bnl.gov>
-Mime-Version: 1.0
+	id <S130337AbRAKKGK>; Thu, 11 Jan 2001 05:06:10 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:50439 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S130017AbRAKKF7>; Thu, 11 Jan 2001 05:05:59 -0500
+Message-ID: <3A5D8583.F5F30BD2@Hell.WH8.TU-Dresden.De>
+Date: Thu, 11 Jan 2001 11:05:55 +0100
+From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+Organization: Dept. Of Computer Science, Dresden University Of Technology
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en, de-DE
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: andrea@suse.de, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.1-pre1 breaks XFree 4.0.2 and "w"
+In-Reply-To: <3A5C6417.6670FCB7@Hell.WH8.TU-Dresden.De> <20010110181516.X10035@nightmaster.csn.tu-chemnitz.de> <3A5C96BB.96B19DB@Hell.WH8.TU-Dresden.De> <200101110841.AAA01652@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3i
-In-Reply-To: <20010109155611.B3563@bnl.gov>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2001 at 03:56:11PM -0500, Tim Sailer wrote:
-> > The defaults must be large unless your application calls setsockopt() to
-> > set the buffers itself.  (Some FTP clients and servers can do this, but
-> > for testing, your're still probably better always having the _max's and
-> > _default's the same.)
+Linus Torvalds wrote:
 > 
-> Hm.. OK. I think we tried that, but I'll check again.
-And make sure your ftp client/server isn't resetting it to something small
-afterwards. For testing this, I'd use a real IP benchmarking program
-like iperf/netperf/ttcp, as they'll let you test different buffer sizes
-easily (and in the case of iperf tell you what you're actually using
-if you hit the limit) For a fast WAN you want something like 
-512k-1M buffers easily.
+> Mind trying it with the "HAVE_FXSR" and "HAVE_XMM" macros in
+> 
+>         linux/include/asm-i386/processor.h
+> 
+> fixed? They _should_ be just
+> 
+>         #define HAVE_FXSR       (cpu_has_fxsr)
+>         #define HAVE_XMM        (cpu_has_xmm)
 
--- 
-Pekka Pietikainen
+That doesn't help either.
 
-
-
+-Udo.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

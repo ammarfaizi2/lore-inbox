@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269921AbRHJGO1>; Fri, 10 Aug 2001 02:14:27 -0400
+	id <S269915AbRHJGRq>; Fri, 10 Aug 2001 02:17:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269920AbRHJGOQ>; Fri, 10 Aug 2001 02:14:16 -0400
-Received: from neon-gw.transmeta.com ([63.209.4.196]:5134 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S269916AbRHJGOL>; Fri, 10 Aug 2001 02:14:11 -0400
-From: Linus Torvalds <torvalds@transmeta.com>
-Date: Thu, 9 Aug 2001 23:13:30 -0700
-Message-Id: <200108100613.f7A6DU101541@penguin.transmeta.com>
-To: elenstev@mesatop.com, linux-kernel@vger.kernel.org
-Subject: Re: Some dbench 32 results for 2.4.8-pre8, 2.4.7-ac10, and 2.4.7
-Newsgroups: linux.dev.kernel
-In-Reply-To: <200108100502.f7A52Ve23324@thor.mesatop.com>
+	id <S269916AbRHJGRg>; Fri, 10 Aug 2001 02:17:36 -0400
+Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:5896 "EHLO
+	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id <S269915AbRHJGRa>; Fri, 10 Aug 2001 02:17:30 -0400
+From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Fri, 10 Aug 2001 08:17:08 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: 2.4.4: thread dumping core
+CC: linux-kernel@vger.kernel.org
+Message-ID: <3B739883.8859.1BE32B@localhost>
+In-Reply-To: <3B72C08E.3800.1F80245@localhost> from "Ulrich Windl" at Aug 09, 2001 04:55:46 PM
+In-Reply-To: <E15UrQ3-0007Qq-00@the-village.bc.nu>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
+X-Content-Conformance: HerringScan-0.9/3.47+2.4+2.03.072+02 July 2001+64930@20010810.061232Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200108100502.f7A52Ve23324@thor.mesatop.com> you write:
->
->I ran dbench 32 for 2.4.8-pre8, 2.4.7-ac10, and 2.4.7.
->Each set of three runs were performed right after a boot,
->running vmstat, and time ./dbench 32 with no pauses in
->between.  The hardware is 384 MB, 450 P3, UP, IDE disk with
->ReiserFS on all partitions. The tests were done from a
->transparent Konsole and KDE2.
+On 9 Aug 2001, at 16:08, Alan Cox wrote:
 
-Note that dbench performs best when no writeback actually takes place:
-the whole benchmark is completely optimizable. As such, the best numbers
-for dbench tend to be with (a) kflushd stopped, and (b) the dirty
-threshold set high.
+> > I wonder whether the kernel does the right thing if a thread causes a 
+> > segmentation violation: Currently it seems the other LWPs just 
+> > continue. However in practice this means that the application does not 
+> 
+> This is a feature in most cases
+> 
+> > I suggest to terminate all LWPs if one receives a fatal signal.
+> 
+> So write some signal handlers. 
 
-Does the numbers change if you do something like
+Actually I'm using a wrapper library that is supposed to do that stuff 
+for me (libmilter from sendmail-8.12.0.Beta16).
 
-	killall -STOP kupdated
-	echo 80 64 64 256 500 6000 90 > /proc/sys/vm/bdflush
+> 
+> In all cases the other threads will continue for some time, so you gain
+> nothing by pretending they dont. 
 
-to make it less eager to write stuff out? (That just stops the
-every-five-second flush, and makes the dirty balancing numbers be 80/90%
-instead of the default 30/60%)
+Imagine you aquire a lock in one thread then that thread gets a 
+SIGSEGV. There are a lot of threads around, possibly consuming a lot of 
+CPU without getting any (a lot of) work done.
 
-In particular, the dirty balancing worked really badly before, and was
-just fixed.  I suspect that the bdflush numbers were tuned with the
-badly-working case, and they might be a bit too aggressive for dbench
-these days.. 
+Maybe the real problem is a simple a a binary incompatibility between 
+libpthread form SuSE 7.1 and SuSE 7.2 (which would be a very bad case).
+As for any real bug, the application works most of the time.
 
-			Linus
+Thanks for the statement.
+
+Ulrich
+

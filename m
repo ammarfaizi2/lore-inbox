@@ -1,70 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264310AbTLPDW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 22:22:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264311AbTLPDW3
+	id S264311AbTLPDhG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 22:37:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264324AbTLPDhG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 22:22:29 -0500
-Received: from fw.osdl.org ([65.172.181.6]:23981 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264310AbTLPDW1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 22:22:27 -0500
-Date: Mon, 15 Dec 2003 19:22:24 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Thomas Molina <tmolina@cablespeed.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: Is Rational rational?
-In-Reply-To: <Pine.LNX.4.58.0312152105550.5094@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0312151913460.3345@home.osdl.org>
-References: <Pine.LNX.4.58.0312152105550.5094@localhost.localdomain>
+	Mon, 15 Dec 2003 22:37:06 -0500
+Received: from out006pub.verizon.net ([206.46.170.106]:53971 "EHLO
+	out006.verizon.net") by vger.kernel.org with ESMTP id S264311AbTLPDhC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 22:37:02 -0500
+Message-ID: <3FDE7DDD.2060208@verizon.net>
+Date: Mon, 15 Dec 2003 22:37:01 -0500
+From: RunNHide <res0g1ta@verizon.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5.1) Gecko/20031208
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Adrian Bunk <bunk@fs.tum.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test11 intio.o build errors
+References: <3FD918D8.7020100@verizon.net> <20031215113923.GJ23184@fs.tum.de>
+In-Reply-To: <20031215113923.GJ23184@fs.tum.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [4.4.161.12] at Mon, 15 Dec 2003 21:37:01 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Dec 11, 2003 at 08:24:40PM -0500, RunNHide wrote:
 
-
-On Mon, 15 Dec 2003, Thomas Molina wrote:
+>> okay - I'm not a n00b but I'm no C programmer or driver developer, 
+>> either - figured I'd post this - understand there's not a lot of this 
+>> hardware out there so maybe this will be helpful:
+>> 
+>>  CC [M]  drivers/scsi/ini9100u.o
+>> drivers/scsi/ini9100u.c:111:2: #error Please convert me to 
+>> Documentation/DMA-mapping.txt
+>> drivers/scsi/ini9100u.c:146: warning: initialization from incompatible 
+>> pointer type
+>> drivers/scsi/ini9100u.c:151: warning: initialization from incompatible 
+>> pointer type
+>> drivers/scsi/ini9100u.c:152: warning: initialization from incompatible 
+>> pointer type
+>> drivers/scsi/ini9100u.c: In function `i91uAppendSRBToQueue':
+>> drivers/scsi/ini9100u.c:241: error: structure has no member named `next'
+>> drivers/scsi/ini9100u.c:246: error: structure has no member named `next'
+>> drivers/scsi/ini9100u.c: In function `i91uPopSRBFromQueue':
+>> drivers/scsi/ini9100u.c:268: error: structure has no member named `next'
+>> drivers/scsi/ini9100u.c:269: error: structure has no member named `next'
+>> drivers/scsi/ini9100u.c: In function `i91uBuildSCB':
+>> drivers/scsi/ini9100u.c:507: error: structure has no member named `address'
+>> drivers/scsi/ini9100u.c:516: error: structure has no member named `address'
+>> make[2]: *** [drivers/scsi/ini9100u.o] Error 1
+>> make[1]: *** [drivers/scsi] Error 2
+>> make: *** [drivers] Error 2
+>  
 >
-> Does the enclosed patch to fs/namei.c make sense?
 
-Hmm.. It may. Al is the final arbiter in this area, but from my fuzzy
-memory, the whole (and only) point of that parent check is because we
-didn't have proper locking for the whole path between rename/unlink. As
-far as I can tell, we do the locking right, and the test is nonsensical
-these days.
+This is a known problem.
 
-So what used to happen is that we could move the entry during the lookup,
-and now the "rm" would succeed even though the "mv" to another directory
-had _also_ succeeded (which is illogical).
+The driver is marked BROKEN in the Kconfig file, and you were only able 
+to choose it since you said "no" to
+  Select only drivers expected to compile cleanly
+.
 
-Al? Does your recollection match mine?
+Unless someone fixes this driver it will not be available in kernel 2.6.
 
-> I'm not really competent to evaluate this proposesd patch, but it
-> certainly makes me nervous.  Their comment on this also bothers me:
-> "Rational Software believes that the check that is removed by this patch
-> is one that should never fail for any properly operating filesystem. "
 
-I think they are right. But I may have overlooked something really subtle.
-
-		Linus
-
-> --- /usr/src/linux/fs/namei.c Tue Oct 30 10:03:52 2001
-> +++ /usr/src/linux-patched/namei.c Fri Jun 20 05:12:16 2003
-> @@ -907,7 +907,7 @@
-> static inline int may_delete(struct inode *dir,struct dentry *victim, int isdir)
-> {
->  	int error;
-> -	if (!victim->d_inode || victim->d_parent->d_inode != dir)
-> +	if (!victim->d_inode)
->  		return -ENOENT;
->  	error = permission(dir,MAY_WRITE | MAY_EXEC);
->  	if (error)
-
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>> Thanks,
+>> RunNHide
+>  
 >
+
+cu
+Adrian
+
+--------------------------------------------------------------------------------------
+
+Thanks for the reply - yes, I understand that the code is broken - however, unfortunately, I have one of those initio cards that needs that driver and I would like to be able to use the 2.6 series kernels. Until that driver is fixed, I'll be stuck on 2.4.x kernels.
+
+RunNHide
+
+
+
+

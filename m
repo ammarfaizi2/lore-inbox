@@ -1,30 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135759AbRD2MVu>; Sun, 29 Apr 2001 08:21:50 -0400
+	id <S135760AbRD2Mhn>; Sun, 29 Apr 2001 08:37:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135760AbRD2MVl>; Sun, 29 Apr 2001 08:21:41 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:47034 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S135759AbRD2MVa>;
-	Sun, 29 Apr 2001 08:21:30 -0400
-Date: Sun, 29 Apr 2001 14:21:11 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200104291221.OAA37952.aeb@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, mdharm-kernel@one-eyed-alien.net
-Subject: Re: Dane-Elec PhotoMate Combo
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-        mailhot@enst.fr, markus@schlup.net
+	id <S135765AbRD2Mhe>; Sun, 29 Apr 2001 08:37:34 -0400
+Received: from dire.bris.ac.uk ([137.222.10.60]:4856 "EHLO dire.bris.ac.uk")
+	by vger.kernel.org with ESMTP id <S135760AbRD2MhX>;
+	Sun, 29 Apr 2001 08:37:23 -0400
+Date: Sun, 29 Apr 2001 13:32:37 +0100 (BST)
+From: Matt <madmatt@bits.bris.ac.uk>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.x on sparc32
+Message-ID: <Pine.LNX.4.21.0104291322550.11010-100000@bits.bris.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+Can anyone tell me the current status of 2.4.x on sparc(32) platforms?
 
-    > (ii) this card needs usb/storage/dpcm.c which is compiled when
-    > CONFIG_USB_STORAGE_DPCM is set, but this variable is missing
-    > from usb/Config.in. Add it.
+I tried 2.4.2 previously which compiled fine, but would lock the machine
+up loading the kernel after the SILO prompt, (before Tux appears, etc.).
 
-    This config option is considered so immature that it's not ready for the
-    kernel config, even as an EXPERIMENTAL.  Use it at your own risk.
+I've tried 2.4.4 today, but that won't build as it appears this
+architecture is missing the pte_alloc_one_fast() definitions and such,
+(many warnings).
 
-Of course. But the choice is simple. Without it, one has a non-functional
-device. With it, one has a device that works beautifully.
+My box is an SS IPX (sun4c), PROM 2.9 & currently running 2.2.18 +RAID,
+which I've been told has been a meddlesome platform in the past.
+
+Thanks
+
+Matt
 

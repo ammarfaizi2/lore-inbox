@@ -1,50 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267310AbTABVu4>; Thu, 2 Jan 2003 16:50:56 -0500
+	id <S267309AbTABVye>; Thu, 2 Jan 2003 16:54:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267309AbTABVuq>; Thu, 2 Jan 2003 16:50:46 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:46855 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S267306AbTABVug>; Thu, 2 Jan 2003 16:50:36 -0500
-Date: Thu, 2 Jan 2003 16:56:50 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Tomas Szepe <szepe@pinerecords.com>
-cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] do justice to netfilter configuration
-In-Reply-To: <20030101174458.GK15200@louise.pinerecords.com>
-Message-ID: <Pine.LNX.3.96.1030102164458.20297F-100000@gatekeeper.tmr.com>
+	id <S267313AbTABVx0>; Thu, 2 Jan 2003 16:53:26 -0500
+Received: from smtp-101.nerim.net ([62.4.16.101]:27147 "EHLO kraid.nerim.net")
+	by vger.kernel.org with ESMTP id <S267309AbTABVwb>;
+	Thu, 2 Jan 2003 16:52:31 -0500
+Message-ID: <3E14B698.8030107@inet6.fr>
+Date: Thu, 02 Jan 2003 23:00:56 +0100
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andre Hedrick <andre@linux-ide.org>
+Cc: Teodor Iacob <Teodor.Iacob@astral.kappa.ro>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: UDMA 133 on a 40 pin cable
+References: <20030102182932.GA27340@linux.kappa.ro> <1041536269.24901.47.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1041536269.24901.47.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Jan 2003, Tomas Szepe wrote:
+Happy new year everybody
 
-> $subj.  I wanted to do this for a long time, so here comes:
-> 
-> o  Move all IPv4 netfilter config entries to net/ipv4/netfilter/Kconfig.
-> o  Move the netfilter submenu right under the netfilter on/off switch.
-> o  Move the netfilter debug option into the netfilter submenu.
-> o  Move all netfilter settings as close to their IPv6 sibling as possible.
-> o  Rename "IP: Netfilter Configuration" to "IPv4 Netfilter Configuration"
-> o  Rename "IPv6: Netfilter Configuration" to "IPv6 Netfilter Configuration"
 
-Another Christmas present. I'd just like to thank you for the work you
-have done on making the options make sense.
+Alan Cox wrote:
 
-I haven't tried the mods to PCMCIA yet, but I certainly would like to stop
-chasing through other menus to turn on the drivers I need. Repeat thought
-for USB.
+>It got CRC errors, not suprisingly and will drop back. Nevertheless it
+>shouldnt have gotten this wrong, so more info would be good.
+>  
+>
 
-Now if there was a way to symbolic link to required options, so instead of
-being told you can't config USB this-n-that because you didn't find human
-interface whatever, you could click into the menu to turn on the whatever
-and pop back to what you really wanted to do. Yes, this is definitely 2.7
-material (if at all) because someone will create either a loop or
-recursion, but I can dream, right?
+I'm wondering some things about IDE 40/80 pin cables since some time ago :
+- somehow the circuitry can make the difference between 40 and 80 pin 
+(probably some pins are shorted or not by the cables or some 
+cable-type-dependent impedance between wires is mesured) and set a bit 
+for us to use.
+- most probably the same circuitry can't verify the length of the cables 
+or their overall quality but I'm unsure.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+#1 How is the 40/80 pin detection done at the hardware level ?
+#2 Are there any other cable-quality hardware tests done by the chipsets 
+? How ?
+
+I've encountered a barebone design (Mocha P4, uses 2.5" drives) where 
+the IDE cable was 40-pin but :
+- has a single drive connector instead of the common two,
+- its length is only around 10 or 15 cm.
+A buyer contacted me for SiS IDE driver directions on this platform and 
+confirmed this at least for his purchase.
+
+#3 Is the above cable electrically able to sustain 66+ UDMA transfers 
+(could I hack a driver in order to bypass the 80pin cable detection and 
+make it work properly) ?
+#4 Are the electrical specs for 66+ UDMA transfers public (couldn't find 
+by googling) ? Where can we find them ?
+Here I mean some really basic specs (max Resistance/Capacity/Inductance 
+between wires, max signal propagation delays and so on) and not general 
+high level specs (material, connector design, length ranges allowed in 
+the general 80-pin, 2 drives case).
+
+Any hints on these Andre ?
+
+LB.
 

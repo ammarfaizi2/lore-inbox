@@ -1,62 +1,132 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275224AbSIUAYU>; Fri, 20 Sep 2002 20:24:20 -0400
+	id <S275175AbSIUAWK>; Fri, 20 Sep 2002 20:22:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275270AbSIUAYU>; Fri, 20 Sep 2002 20:24:20 -0400
-Received: from p50887F27.dip.t-dialin.net ([80.136.127.39]:32446 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S275224AbSIUAYT>; Fri, 20 Sep 2002 20:24:19 -0400
-Date: Fri, 20 Sep 2002 18:29:56 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Zach Brown <zab@zabbo.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] list_head debugging?
-In-Reply-To: <20020920165304.A4588@bitchcake.off.net>
-Message-ID: <Pine.LNX.4.44.0209201825330.342-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf/Steudnitz; Germany
+	id <S275224AbSIUAWK>; Fri, 20 Sep 2002 20:22:10 -0400
+Received: from momus.sc.intel.com ([143.183.152.8]:40935 "EHLO
+	momus.sc.intel.com") by vger.kernel.org with ESMTP
+	id <S275175AbSIUAWI>; Fri, 20 Sep 2002 20:22:08 -0400
+Message-ID: <D9223EB959A5D511A98F00508B68C20C0A53899F@orsmsx108.jf.intel.com>
+From: "Rhoads, Rob" <rob.rhoads@intel.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: "Rhoads, Rob" <rob.rhoads@intel.com>
+Subject: [ANNOUNCE] Linux Hardened Device Drivers Project 
+Date: Fri, 20 Sep 2002 17:26:47 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Before Fri, 20 Sep 2002, Zach Brown wrote:
+Project Announcement:
+--------------------
+We've started a new project on sourceforge.net w/ focus 
+on hardening Linux device drivers for highly available 
+systems. This project is being worked on with folks from 
+OSDL's CGL and DCL projects as well.
 
---- ./list.h.debug	Thu Sep 19 15:58:47 2002
-+++ ./list.h	Fri Sep 20 13:43:21 2002
-@@ -21,6 +21,25 @@
- 
- typedef struct list_head list_t;
- 
-+#define LIST_HEAD_DEBUGGING
-+#ifdef LIST_HEAD_DEBUGGING
-+
-+static inline void __list_valid(struct list_head *list)
-+{
-+	BUG_ON(list == NULL);
-+	BUG_ON(list->next == NULL);
-+	BUG_ON(list->prev == NULL);
-+	BUG_ON(list->next->prev != list);
-+	BUG_ON(list->prev->next != list);
-+	BUG_ON((list->next == list) && (list->prev != list));
-+	BUG_ON((list->prev == list) && (list->next != list));
-+}
-+#else 
+Initially we've created a specification, a few kernel modules
+that implement a set of driver programming interfaces, and
+a sample device driver that demonstrates those interfaces.
 
-It's all cool, but I'm not entirely convinced why it must be a BUG macro. 
-I'd rather have something said via printk here. If whatever we did was 
-bad, it will show up with a BUG() just too soon.
+We are actively soliciting involvement with others in the 
+Linux developer community. We need your help to make this 
+project relevant and useful. 
 
-I'd describe a macro.
+Below I've included an overview of the hardened driver project. 
+By no means is this complete or final. It's just our initial
+attempt at defining what is meant by the term hardened driver
+and the areas we want to focus on.
 
-#define list_assert(cond)				\
-	if (cond) printk(KERN_ERR "%s failed!\n", #cond)
+For additional info, please checkout the links at the bottom 
+of this message and the Hardened Drivers web site at 
+http://hardeneddrivers.sf.net.
 
-Or the like. BTW, I'd define LIST_HEAD_DEBUGGING as 1.
 
-			Thunder
--- 
-assert(typeof((fool)->next) == typeof(fool));	/* wrong */
+Hardened Driver Project Overview:
+--------------------------------
+Device drivers have traditionally been a significant source 
+of software faults. For this reason, they are of key concern
+in improving the availability and stability of the operating
+system. A critical element in creating Highly Available (HA)
+environment is to reduce the likelihood of faults in key 
+drivers, a methodology called driver hardening. 
+
+A device driver is typically implemented with emphasis on 
+the proper operation of the hardware. Attention to how it 
+will function in the event of hardware faults is often 
+minimal. Hardened drivers, on the other hand, are designed
+with the assumption that the underlying hardware that they
+control will fail. They need to respond to such failures by
+handling faults gracefully, limiting the impact on the overall
+system. Hardened device drivers must continue to operate when 
+the hardware has failed (e.g. allow device fail-over), and 
+must not allow the propagation of corrupt data from a failed 
+device to other components of the system.
+
+Hardened device drivers must also be active participants in 
+the recovery of detected faults, by locally recovering them or
+by reporting them to higher-level system management software 
+that subsequently instructs the driver to take a specific 
+action.
+
+The goal of a hardened driver is to provide an environment 
+in which hardware and software failures are transparent to 
+the applications using their services, where possible. The 
+way to effectively achieve this goal is to analyze a 
+driver's software design and implement appropriate changes
+to improve stability, reliability and availability, and 
+to provide instrumentation for management middleware.
+
+We believe that improving driver stability and reliability 
+includes such measures as ensuring that all wait loops are
+limited with a timeout, validating input and output data and
+structuring the driver to anticipate hardware errors. 
+Improving availability includes adding support for device
+hot swapping and validating the driver with fault injection.
+Instrumentation for management middleware includes functions
+such as reporting of statistical indicators and logging of 
+pertinent events to enable postmortem analysis in the event
+of a failure.
+
+To minimize instability contributed by device drivers and to 
+enhance the availability of HA systems, we've attempted to 
+define a set of requirements that a device driver should 
+adhere to in order to be considered a hardened driver. We 
+then define different hardening traits and the required 
+programming interfaces to support these hardening traits.
+
+We've identified four areas in which drivers can be hardened:
+o Hardening with code robustness
+o Hardening with event logging
+o Hardening with diagnostics
+o Hardening with resource monitoring and statistics
+
+We've also identified some key areas we feel are most critical
+to overall system stability and plan to focus initial hardening 
+efforts on drivers for network interface cards, physical storage, 
+and logical storage.
+
+Project Links:
+-------------
+o The Driver Hardening website:  
+  http://hardeneddrivers.sourceforge.net
+
+o The SourceForge project related info:
+  http://sourceforge.net/projects/hardeneddrivers
+
+o Hardened Drivers Mailing List Info (subscribe here):
+  http://lists.sourceforge.net/mailman/listinfo/hardeneddrivers-discuss
+
+
++=+=+
+Rob Rhoads                     mailto:rob.rhoads@intel.com
+Staff Software Engineer        office: 503-677-5498
+Telecom Software Platforms
+Intel Communications Group
+
+This email message solely contains my own personal views, and not
+necessarily those of my employer.
 

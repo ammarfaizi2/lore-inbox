@@ -1,88 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265964AbRGERmT>; Thu, 5 Jul 2001 13:42:19 -0400
+	id <S266079AbRGESAQ>; Thu, 5 Jul 2001 14:00:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266076AbRGERmJ>; Thu, 5 Jul 2001 13:42:09 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:27777 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S265964AbRGERl7>; Thu, 5 Jul 2001 13:41:59 -0400
-Date: Thu, 5 Jul 2001 13:41:48 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: mdaljeet@in.ibm.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: floating point problem
-In-Reply-To: <CA256A80.005F1790.00@d73mta01.au.ibm.com>
-Message-ID: <Pine.LNX.3.95.1010705133657.25259A-100000@chaos.analogic.com>
+	id <S266083AbRGESAG>; Thu, 5 Jul 2001 14:00:06 -0400
+Received: from gadolinium.btinternet.com ([194.73.73.111]:24572 "EHLO
+	gadolinium.btinternet.com") by vger.kernel.org with ESMTP
+	id <S266079AbRGER7w>; Thu, 5 Jul 2001 13:59:52 -0400
+Reply-To: <grant@aerodeck.prestel.co.uk>
+From: "Grant Fribbens" <Grant.Fribbens@btinternet.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] RE: 2.4.5-ac14 through to 2.4.6-ac1 fdomain.c initialisation for shared IRQ
+Date: Thu, 5 Jul 2001 18:57:23 +0100
+Message-ID: <000201c1057b$f8ff4600$0101a8c0@heron1>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Jul 2001 mdaljeet@in.ibm.com wrote:
+I have recently had a problem with the fdomain driver initialisation and
+have found the problem to be the way in which it requests the irq. Here is
+my patch that has so far work ok.
 
-> In Linux PPC, the MSR[FP] bit (that is floating point available bit) is off
-> (atleast for non-SMP).
->
+--- linux/drivers/scsi/fdomain.c	Thu Jul  5 13:35:41 2001
++++ fdomain.c	Thu Jun 28 08:08:03 2001
+@@ -981,8 +981,8 @@
+    } else {
+       /* Register the IRQ with the kernel */
 
-Yes, so the first FP instruction per process lets "lazy FPU" save/restore
-work.
+-      retcode = request_irq( interrupt_level,
+-			     do_fdomain_16x0_intr, 0, "fdomain", NULL);
++      retcode = request_irq( shpnt->irq,
++			     do_fdomain_16x0_intr, SA_SHIRQ, "fdomain", shpnt);
 
- 
-> Due to this, whenever some floating point instruction is executed in 'user
-> mode', it leads to a exception 'FPUnavailable'. The exception handler for
-> this exception apart from setting the MSR[FP] bit, also sets the MSR[FE0]
-> and MSR[FE1] bits. These bits basically enables the floating point
-> exceptions so that if there are some floating point exception conditions
-> encountered while exeuting a floating point instruction, an appropriate
-> exception is raised.
-> But whenever some floating point instruction is executed in 'kernel mode',
-> 'FPUnavailabe' exception handler code does not set the 'MSR[FE0] and
-> MSR[FE1]' bits.
->
+       if (retcode < 0) {
+ 	 if (retcode == -EINVAL) {
 
-The kernel is not supposed to use floating-point.
+Hope this is correct.
 
-[SNIPPED...]
+Regards
 
-I think all you need is this:
-
-/*
- *  Note FPU control only exists per process. Therefore, you have
- *  to set up the FPU before you use it in any program.
- */
-#include <i386/fpu_control.h>
-
-#define FPU_MASK (_FPU_MASK_IM |\
-                  _FPU_MASK_DM |\
-                  _FPU_MASK_ZM |\
-                  _FPU_MASK_OM |\
-                  _FPU_MASK_UM |\
-                  _FPU_MASK_PM)
-
-void fpu()
-{
-    __setfpucw(_FPU_DEFAULT & ~FPU_MASK);
-}
-
-
-main() {
-   double zero=0.0;
-   double one=1.0;
-   fpu();
-
-   one /=zero;
-}
-
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
+Grant Fribbens
 

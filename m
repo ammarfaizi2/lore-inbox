@@ -1,20 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261980AbSI1Poh>; Sat, 28 Sep 2002 11:44:37 -0400
+	id <S262013AbSI1QGF>; Sat, 28 Sep 2002 12:06:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262013AbSI1Poh>; Sat, 28 Sep 2002 11:44:37 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:57093 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S261980AbSI1Pog>; Sat, 28 Sep 2002 11:44:36 -0400
-Date: Sat, 28 Sep 2002 17:49:44 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Tomas Szepe <szepe@pinerecords.com>
-cc: Lightweight Patch Manager <patch@luckynet.dynu.com>,
+	id <S262061AbSI1QGF>; Sat, 28 Sep 2002 12:06:05 -0400
+Received: from pD9E23260.dip.t-dialin.net ([217.226.50.96]:24201 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S262013AbSI1QGE>; Sat, 28 Sep 2002 12:06:04 -0400
+Date: Sat, 28 Sep 2002 10:12:04 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: Tomas Szepe <szepe@pinerecords.com>,
+       Lightweight Patch Manager <patch@luckynet.dynu.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH][2.5] Single linked headed lists for Linux, v3
-In-Reply-To: <20020928142723.GB3337@louise.pinerecords.com>
-Message-ID: <Pine.LNX.4.44.0209281646310.8911-100000@serv>
+In-Reply-To: <Pine.LNX.4.44.0209281646310.8911-100000@serv>
+Message-ID: <Pine.LNX.4.44.0209280956440.7827-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,25 +24,19 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Sat, 28 Sep 2002, Tomas Szepe wrote:
+On Sat, 28 Sep 2002, Roman Zippel wrote:
+> Can anyone confirm this is his real name? This is simply not a typical
+> English name.
 
-> > Add using a real name to the list, using pseudonyms is just silly and
-> > patches from anonymous sources (without _very_ good reasons) are highly
-> > suspicious.
->
-> Would you kindly refrain from dissing the author on this silly level and
+It's not, and I think that's great since I'm not exactly a typical english
+guy.
 
-Can anyone confirm this is his real name? This is simply not a typical
-English name. If "Thunder from the hill" is his official name, I'll
-apologize. Sometimes there are good reason (e.g. padeluun in Germany), but
-until someone explains me this reason, this is just silly and I have real
-problems to take this seriously.
+> > actually evaluate the code he's submitting?
+> 
+> The "C for dummies" mailing list is somewhere else.
 
-> actually evaluate the code he's submitting?
+I urge you to try to understand why I'm using #define over inline. I've 
+explained that multiple times, and I won't abandon it.
 
-The "C for dummies" mailing list is somewhere else.
-
-bye, Roman
-
-
+			Thunder
 

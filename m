@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279956AbRJaCcq>; Tue, 30 Oct 2001 21:32:46 -0500
+	id <S280032AbRJaCs5>; Tue, 30 Oct 2001 21:48:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279962AbRJaCch>; Tue, 30 Oct 2001 21:32:37 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:21912 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S279956AbRJaCcd>;
-	Tue, 30 Oct 2001 21:32:33 -0500
-Date: Tue, 30 Oct 2001 21:33:09 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: John Levon <moz@compsoc.man.ac.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: rmmod whilst reading/writing sysctl
-In-Reply-To: <20011031022104.C22156@compsoc.man.ac.uk>
-Message-ID: <Pine.GSO.4.21.0110302128330.3707-100000@weyl.math.psu.edu>
+	id <S280030AbRJaCss>; Tue, 30 Oct 2001 21:48:48 -0500
+Received: from dfw-smtpout4.email.verio.net ([129.250.36.44]:62454 "EHLO
+	dfw-smtpout4.email.verio.net") by vger.kernel.org with ESMTP
+	id <S280044AbRJaCse>; Tue, 30 Oct 2001 21:48:34 -0500
+Message-ID: <3BDF66A6.1091D25A@bigfoot.com>
+Date: Tue, 30 Oct 2001 18:49:10 -0800
+From: Tim Moore <timothymoore@bigfoot.com>
+Organization: Yoyodyne Propulsion Systems, Inc.
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.20pre11vi i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Richard Kettlewell <rjk@greenend.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: problem with ide-scsi and IDE tape drive
+In-Reply-To: <wwvady8vhfs.fsf@rjk.greenend.org.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> If I try and save a tar to the tape twice in succession, rewinding and
+> reading forward to the same point each time first, the second attempt
+> fails (details below).
 
+I use 'dd if=<file> of=/dev/nst0 bs=512 conv=sync' all the time to move
+dumps from disk to tape w no problems.  Differences: 'mt tell' with 'mt seek'
+for positioning and only dd for I/O, no tar.  Weird.
+...
+kernel: scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+kernel: scsi : 1 host.
+kernel:   Vendor: HP        Model: COLORADO 20GB     Rev: 4.01
+kernel:   Type:   Sequential-Access                  ANSI SCSI revision: 02
+kernel: Detected scsi tape st0 at scsi0, channel 0, id 0, lun 0
+kernel: scsi : detected 1 SCSI generic 1 SCSI tape total.
+...
+kernel: st0: Error with sense data: Info fld=0xf000, Deferred st09:00: sns = f1  3  
+kernel: ASC=50 ASCQ= 1  
+kernel: Raw sense data:0xf1 0x00 0x03 0x00 0x00 0xf0 0x00 0x10 0x00 0x00 0x00 0x00
+0x50 0x01 0x00 0x00   
+kernel: st0: Error with sense data: Info fld=0xf000, Current st09:00: sns = f0  3  
+kernel: ASC=50 ASCQ= 1  
+kernel: Raw sense data:0xf0 0x00 0x03 0x00 0x00 0xf0 0x00 0x10 0x00 0x00 0x00 0x00
+0x50 0x01 0x00 0x00   
+kernel: st0: Error on write filemark.  
+...
+[tim@dell]> tar --version | head -1
+tar (GNU tar) 1.13.17
+[tim@dell]> mt -v
+mt-st v. 0.5b
+[tim@dell]> dd --version | head -1
+dd (GNU fileutils) 4.0p
+[tim@dell]> cat /proc/version
+Linux version 2.2.20pre6 (root@abit) (gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 
+release)) #4 Sun Oct 28 22:32:11 PST 2001
 
-On Wed, 31 Oct 2001, John Levon wrote:
-
-> 
-> Where is the prevention of module unload whilst a sysctl from a module is being read/written ?
-> 
-> sysctl syscall is protected by BKL, but I can't see similar code for the cat >/proc/sys/...
-
-... and that protection is worth nothing, since we copy data to/from
-userland.  Forget about BKL - it doesn't prevent races.
-
-There is a shitload of rmmod (and plain "we remove the object" - it doesn't
-have to be a module) races in that area.  Composite trees _suck_.  sysctls,
-devfs, ddfs - whatever.  If tree is served by several drivers - it's broken.
-
-In case of sysctls I have an old patch that could be turned into something
-working, but that will take a lot of changes in code that exports sysctls,
-so that may be very painful.
-
+rgds,
+tim.
+--

@@ -1,50 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270516AbTGQUTt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 16:19:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270889AbTGQUSr
+	id S270935AbTGQUWO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 16:22:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270948AbTGQUWO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 16:18:47 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:46030 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S270884AbTGQURN convert rfc822-to-8bit
+	Thu, 17 Jul 2003 16:22:14 -0400
+Received: from pd146.bielsko.sdi.tpnet.pl ([217.96.247.146]:34834 "EHLO
+	aquila.wombb.edu.pl") by vger.kernel.org with ESMTP id S270935AbTGQUWD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 16:17:13 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: ACPI oops 2.4.21-0.13mdkenterprise
-Date: Thu, 17 Jul 2003 13:32:04 -0700
-Message-ID: <F760B14C9561B941B89469F59BA3A847E9704B@orsmsx401.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ACPI oops 2.4.21-0.13mdkenterprise
-Thread-Index: AcNMEMuD8fMj3PrQQnGft3saSh7ikwAkXFTA
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "Jonathan Moore" <writetojon@hotmail.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 17 Jul 2003 20:32:04.0647 (UTC) FILETIME=[7C11F370:01C34CA2]
+	Thu, 17 Jul 2003 16:22:03 -0400
+Date: Thu, 17 Jul 2003 22:36:56 +0200
+From: =?iso-8859-2?Q?Przemys=B3aw_Stanis=B3aw?= Knycz 
+	<zolw@wombb.edu.pl>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [linux-2.6.0-test1] Missing #include lines with alsa at alpha
+Message-ID: <20030717203656.GA30959@aquila.wom.lan>
+References: <20030717092432.5737d88c.zolw@wombb.edu.pl> <s5hsmp5zdwg.wl@alsa2.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <s5hsmp5zdwg.wl@alsa2.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Jonathan Moore [mailto:writetojon@hotmail.com] 
-> I am deeply stumped! I have two systems with identical Mandrake 9.1
-> installations. One Intel D815EEA2L2 wake on lan works. The other Intel
-> SE7501WV2 wake on lan does not work. 
-> When I echo 5 >/proc/acpi/sleep on the 7501 I get the 
-> following kernel oops.
-> Is there anything I need to do 'special' when I power down? 
-> Is the echo 5 necessary?
-> I don't need it on the D815 motherboard for the WOL to work. 
-> I am sure the hardware works because on one occasion
-> I managed to get it to WOL successfully but I admit I pressed 
-> the power button a few times in desperation (or something) 
-> needless to say I cannot repeat.
+On Thu, Jul 17, 2003 at 11:43:59AM +0200, Takashi Iwai wrote:
+> could you tell me which file exactly?
 
-This is fixed in mainline kernels.
+sound/
+./pcmcia/vx/vxpocket.c
+./pci/rme9652/hdsp.c
+./drivers/opl4/opl4_lib.c
 
-BTW you should just run "poweroff" or "halt -p", not echo anything to
-proc.
+--- ./sound/pcmcia/vx/vxpocket.c~     2003-07-14 05:31:21.000000000 +0200
++++ ./sound/pcmcia/vx/vxpocket.c      2003-07-16 22:06:22.000000000 +0200
+@@ -35,6 +35,7 @@
+ #include <pcmcia/version.h>
+ #include "vxpocket.h"
+ #include <sound/initval.h>
++#include <linux/init.h>
+  
+ /*
+  */
+--- ./sound/pci/rme9652/hdsp.c~       2003-07-14 05:32:41.000000000 +0200
++++ ./sound/pci/rme9652/hdsp.c        2003-07-16 22:03:09.000000000 +0200
+@@ -26,6 +26,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/slab.h>
+ #include <linux/pci.h>
++#include <linux/init.h>
+  
+ #include <sound/core.h>
+ #include <sound/control.h>
+--- ./sound/drivers/opl4/opl4_lib.c~  2003-07-17 22:07:25.000000000 +0200
++++ ./sound/drivers/opl4/opl4_lib.c   2003-07-17 22:15:24.000000000 +0200
+@@ -21,6 +21,7 @@
+ #include <sound/initval.h>
+ #include <linux/ioport.h>
+ #include <asm/io.h>
++#include <linux/init.h>
+  
+ MODULE_AUTHOR("Clemens Ladisch <clemens@ladisch.de>");
+ MODULE_DESCRIPTION("OPL4 driver");
 
-Regards -- Andy
+
+This patches allow to build it without problems. Happy bugtracking :)
+
+-- 
+.----[ a d m i n at w o m b b dot e d u dot p l ]----.
+| Przemys³aw Stanis³aw Knycz,  Registered Linux User |
+| Net/Sys Administrator, PLD Developer,       213344 |
+`------ "Linux - the choice of GNU generation" ------'

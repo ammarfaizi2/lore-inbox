@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288012AbSBRVxO>; Mon, 18 Feb 2002 16:53:14 -0500
+	id <S288019AbSBRV5e>; Mon, 18 Feb 2002 16:57:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288005AbSBRVxF>; Mon, 18 Feb 2002 16:53:05 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:6919 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S287933AbSBRVwt>;
-	Mon, 18 Feb 2002 16:52:49 -0500
-Date: Mon, 18 Feb 2002 18:52:27 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.18-rc2
-In-Reply-To: <Pine.LNX.4.21.0202181815480.25479-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.33L.0202181851080.1930-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S288051AbSBRV5Z>; Mon, 18 Feb 2002 16:57:25 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64008 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S288019AbSBRV5M>; Mon, 18 Feb 2002 16:57:12 -0500
+Subject: Re: jiffies rollover, uptime etc.
+To: oh@novaville.de (Oliver Hillmann)
+Date: Mon, 18 Feb 2002 22:10:56 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10202182040260.11179-100000@rimini.novaville.de> from "Oliver Hillmann" at Feb 18, 2002 10:42:50 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16cvzs-0006y2-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Feb 2002, Marcelo Tosatti wrote:
+> counter, and I'm currently digging into that area... Stuff like a pc
+> speaker driver going wild bothers me a bit more...
 
-> Well hopefully have a 2.4.18 pretty soon..
->
-> rc2:
-> - Make get_user_pages handle VM_IO areas
->   gracefully					(Manfred Spraul)
-> - Fix SMP race on PID allocation		(Erik A. Hendriks)
-> - Fix SMP race on dnotify scheme		(Alexander Viro)
-> - Add missing checks to shmem_file_write	(Alan Cox)
+Fix the speaker driver I guess is the answer. It shouldnt have done that.
 
-I've just pushed this patch into my linux-2.4-vanilla
-bitkeeper tree, which is available from:
+> Could anybody perhaps tell me why he/she doesn't consider this a
+> problem? And is there a fundamental problem with solving this in
+> general? (I do see a problem with defining jiffies long long on x86,
+> because it might break a lot of things and probably wouldnt perform
+> as often as jiffies is touched... And you might sense I haven't
+> been into kernel hacking much...)
 
-	bk://linuxvm.bkbits.net/linux-2.4-vanilla/
-
-Of course the changes are also browsable online, just
-point your browser to the url using http ;)
-
-regards,
-
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Counting in long long is expensive and the drivers are meant to all use
+roll over safe compares

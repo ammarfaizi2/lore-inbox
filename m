@@ -1,39 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266957AbSKLWcC>; Tue, 12 Nov 2002 17:32:02 -0500
+	id <S266978AbSKLW04>; Tue, 12 Nov 2002 17:26:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266996AbSKLWcB>; Tue, 12 Nov 2002 17:32:01 -0500
-Received: from mail.parknet.co.jp ([210.134.213.6]:53259 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S266957AbSKLWb7>; Tue, 12 Nov 2002 17:31:59 -0500
-To: linux-kernel@vger.kernel.org
-Subject: pci_unregister_driver() problem?
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Wed, 13 Nov 2002 07:38:43 +0900
-Message-ID: <87el9ql8gc.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S266984AbSKLW04>; Tue, 12 Nov 2002 17:26:56 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:53704 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S266978AbSKLW0z>;
+	Tue, 12 Nov 2002 17:26:55 -0500
+Date: Tue, 12 Nov 2002 14:33:17 -0800 (PST)
+From: Nivedita Singhvi <niv@us.ibm.com>
+X-X-Sender: nivedita@w-nivedita.beaverton.ibm.com
+To: folkert@vanheusden.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: tcp_v4_get_port?
+Message-ID: <Pine.LNX.4.44.0211121431500.18229-100000@w-nivedita.beaverton.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Am I right that in net/ipv4/tcp_ipv4.c in function "tcp_v4_get_port" the
+> portnumber for a new connection is generated? Because fiddling with that
+> code seems to have no effect on the portnumbers generated for new
+> connections.
 
-I'm playing the pcmcia of 2.5.47 on my new machine. And, I got the
-Oops after yenta_socket.o was unloaded. It seems pci_unregister_driver()
-doesn't call pci_driver->remove().  So, pcmcia driver couldn't release
-the resouce.
+What change are you making and which kernel are you making it in?
 
-This reproduce it,
+thanks,
+Nivedita
 
-    # modprobe yenta_socket
-    # modprobe -r yenta_socket
-    ... happen the interrupt, because it was shared irq
-    Oops
-
-I think driver-model(?) expects using dev->release(), in this
-case. Corrent?  And, How should it fix?
-
-Regards
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

@@ -1,70 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263527AbSITVYV>; Fri, 20 Sep 2002 17:24:21 -0400
+	id <S263554AbSITVYp>; Fri, 20 Sep 2002 17:24:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263554AbSITVYV>; Fri, 20 Sep 2002 17:24:21 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:23045
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S263527AbSITVYU>; Fri, 20 Sep 2002 17:24:20 -0400
-Subject: Re: pre-empt and smp in 2.5.37 - is it supposed to work? [contains
-	2 oopses, one in set_cpus_allowed, one in md code]
-From: Robert Love <rml@tech9.net>
-To: thunder7@xs4all.nl
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020920210225.GA526@middle.of.nowhere>
-References: <20020920200441.GA3677@middle.of.nowhere>
-	<1032552562.966.832.camel@phantasy> 
-	<20020920210225.GA526@middle.of.nowhere>
-Content-Type: text/plain
+	id <S263579AbSITVYp>; Fri, 20 Sep 2002 17:24:45 -0400
+Received: from pr-66-150-46-254.wgate.com ([66.150.46.254]:16610 "EHLO
+	mail.tvol.net") by vger.kernel.org with ESMTP id <S263554AbSITVYn>;
+	Fri, 20 Sep 2002 17:24:43 -0400
+Message-ID: <3D8B934A.1060900@wgate.com>
+Date: Fri, 20 Sep 2002 17:29:46 -0400
+From: Michael Sinz <msinz@wgate.com>
+User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.1b) Gecko/20020813
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+CC: mks@sinz.org, marcelo@conectiva.com.br, Robert Love <rml@tech9.net>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>, riel@conectiva.com.br,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] kernel 2.4.19 & 2.5.38 - coredump sysctl
+References: <3D8B87C7.7040106@wgate.com> <3D8B8CAB.103C6CB8@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 20 Sep 2002 17:29:26 -0400
-Message-Id: <1032557366.2105.858.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-09-20 at 17:02, Jurriaan wrote:
+Andrew Morton wrote:
+> Michael Sinz wrote:
+> 
+>>coredump name format control via sysctl
+>>
+>>Provides for a way to securely move where core files show up and to
+>>set the name pattern for core files to include the UID, Program,
+>>Hostname, and/or PID of the process that caused the core dump.
+> 
+> 
+> That seems a reasonable thing to want to do.
+> 
+> 
+>>...
+>>The following format options are available in that string:
+>>
+>>       %P   The Process ID (current->pid)
+>>       %U   The UID of the process (current->uid)
+>>       %N   The command name of the process (current->comm)
+>>       %H   The nodename of the system (system_utsname.nodename)
+>>       %%   A "%"
+>>
+>>For example, in my clusters, I have an NFS R/W mount at /coredumps
+>>that all nodes have access to. The format string I use is:
+>>
+>>        sysctl -w "kernel.core_name_format=/coredumps/%H-%N-%P.core"
+>>
+> 
+> 
+> Does it need to be this fancy?  Why not just have:
+> 
+>         if (core_name_format is unset)
+>                 use "core"
+>         else
+>                 use core_name_format/nodename-uid-pid-comm.core
+> 
+> which saves all that string format processing, while giving
+> people everything they could want?
 
-> Trace; c01165f1 <schedule+3d/404>
-> Trace; c0116c3c <wait_for_completion+9c/f8>
-> Trace; c01169fc <default_wake_function+0/80>
-> Trace; c01169fc <default_wake_function+0/80>
-> Trace; c01180e6 <set_cpus_allowed+13a/744>
-> Trace; c0118158 <set_cpus_allowed+1ac/744>
-> Trace; c0118108 <set_cpus_allowed+15c/744>
-> Trace; c01054f1 <enable_hlt+1c9/1d0>
-> Trace; c01165f1 <schedule+3d/404>
-> Trace; c0116c3c <wait_for_completion+9c/f8>
-> Trace; c01169fc <default_wake_function+0/80>
-> Trace; c01169fc <default_wake_function+0/80>
-> Trace; c01180e6 <set_cpus_allowed+13a/744>
-> Trace; c012031d <__run_task_queue+dd/168>
-> Trace; c01202cc <__run_task_queue+8c/168>
-> Trace; c01054f1 <enable_hlt+1c9/1d0>
+Well, it depends on if you really need the complex form or not.
 
-This is known, its due to set_cpus_allowed() sleeping while holding a
-preempt_disable().  It is harmless but something I need to fix.
+There are some people who use a format of:
 
-> 8139too Fast Ethernet driver 0.9.26
-> Unable to handle kernel NULL pointer dereference at virtual address 0000000e
-> c024b6b9
-> *pde = 00000000
-> Oops: 0000
-> CPU:    0
-> EIP:    0060:[<c024b6b9>]    Not tainted
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> EFLAGS: 00010286
-> eax: 0000001e   ebx: fffffffa   ecx: c03675a8   edx: 00000292
-> esi: fffffffa   edi: ffffffea   ebp: 00002103   esp: f7737eec
-> ds: 0068   es: 0068   ss: 0068
-> Stack: 00002103 c024d562 fffffffa 00000931 00002103 00002103 00000000 c024dfd9 
->        00002103 00000931 f7ca5e40 00002103 f77a3ee0 00000000 00000000 f778ba00 
->        000061b0 00000001 00000000 00000006 00002103 00000000 00000000 00000000 
-> Call Trace: [<c024d562>] [<c024dfd9>] [<c014a826>] [<c0152d39>] [<c01071eb>] 
-> Code: 8b 43 14 85 c0 74 10 0f b7 50 10 b2 00 66 0f b6 40 10 09 c2 
+	%N.%P.core
 
-What is this?  Do you normally see this?
+which places the core file in the current directory but adds in the
+name of the program.  (Something that is very nice when you have
+a lot of programs that may core "together" when something bad happens)
 
-	Robert Love
+The string processing is not that much work anyway (very small)
+and, given the fact that I am about to write to disk a core dump,
+it can not be a critical path/fast path issue either :-)
+
+What can be done at the default pattern level in later kernels
+would be to make it a bit more than just "core" (such as maybe
+the "%N.%P.core" or something like that) but that is not that
+complex.
+
+Also, FreeBSD (yes, I know, it is not Linux) has a very simular
+feature that we used for the FreeBSD clusters we built.
+
+-- 
+Michael Sinz -- Director, Systems Engineering -- Worldgate Communications
+A master's secrets are only as good as
+	the master's ability to explain them to others.
+
 

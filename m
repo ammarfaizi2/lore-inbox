@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277670AbRJLNS0>; Fri, 12 Oct 2001 09:18:26 -0400
+	id <S277689AbRJLNdz>; Fri, 12 Oct 2001 09:33:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277668AbRJLNSQ>; Fri, 12 Oct 2001 09:18:16 -0400
-Received: from fe090.worldonline.dk ([212.54.64.152]:7183 "HELO
-	fe090.worldonline.dk") by vger.kernel.org with SMTP
-	id <S277670AbRJLNSE>; Fri, 12 Oct 2001 09:18:04 -0400
-Message-ID: <3BC6EBFE.2050408@eisenstein.dk>
-Date: Fri, 12 Oct 2001 15:11:26 +0200
-From: Jesper Juhl <juhl@eisenstein.dk>
-Organization: Eisenstein
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16 i586; en-US; m18) Gecko/20010131 Netscape6/6.01
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Steve Martin <ecprod@bellsouth.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: IEEE1284 parport code won't build in 2.4.12
-In-Reply-To: <3BC6E89A.BA8F98B6@bellsouth.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S277686AbRJLNdf>; Fri, 12 Oct 2001 09:33:35 -0400
+Received: from adsl-212-59-30-243.takas.lt ([212.59.30.243]:41722 "EHLO
+	gintaras.vetrunge.lt.eu.org") by vger.kernel.org with ESMTP
+	id <S277684AbRJLNd1>; Fri, 12 Oct 2001 09:33:27 -0400
+Date: Fri, 12 Oct 2001 15:33:22 +0200
+From: Marius Gedminas <mgedmin@centras.lt>
+To: linux-kernel@vger.kernel.org
+Subject: Re: keyboard + PS/2 mouse locks after opening psaux
+Message-ID: <20011012153322.A662@gintaras>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <200110112004.f9BK47b0070854@smtpzilla2.xs4all.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200110112004.f9BK47b0070854@smtpzilla2.xs4all.nl>
+User-Agent: Mutt/1.3.22i
+X-URL: http://ice.dammit.lt/~mgedmin/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 11, 2001 at 10:04:06PM +0200, Koos Vriezen wrote:
+> I had the same symptoms, console input froze for several minutes. I tried 
+> several things and after disabling CONFIG_X86_UP_APIC in the kernel, it 
+> didn't occur anymore (but I'm not sure it's the cause).
 
+CONFIG_X86_UP_APIC is disabled on my system.
 
-Steve Martin wrote:
+Today I tried some experimenting: after repeatedly switching between vt1
+and vt7 for some time I got the lockup.  Syslog didn't contain any
+interesting messages.  The counters for keyboard and PS/2 mouse in
+/proc/interrupts became stuck.  One interesting thing I noticed is that
+PS/2 mouse line disappeared for a short time during console switch.
+While gpm was running, fuser and lsof indicate that it didn't have
+/dev/mouse open -- only XFree86 did.
 
-> This has already been passed on to Tim Waugh, but here's
-> a heads-up:
-> 
-> drivers/parport/ieee1284_ops.c  -- invokes an undefined
-> enum entry from parport.h  -- as a result the code
-> won't build.
+I've waited for about 30 minutes for any keyboard timeouts to appear,
+but didn't see any.  Then I tried chvt 7 with no effect (vt7 was already
+the active console).  Then chvt 1 fixed the lockup.  Interrupt counters
+went alive again.  This time fuser and lsof showed that /dev/mouse is
+opened by gpm only.  It looks like both XFree and gpm close /dev/mouse
+when they're not active, and reopen it then they become active.
 
+I'm now compiling 2.4.9 with some printk()s added in open_aux and
+release_aux.  If I get any interesting results, I'll post them here.
 
-I believe that is the problem that Linus posted this fix for (try it out):
-
---- linux/drivers/parport/ieee1284_ops.c.origThu Oct 11 09:40:39 2001
-+++ linux/drivers/parport/ieee1284_ops.cThu Oct 11 09:40:42 2001
-@@ -362,7 +362,7 @@
-} else {
-DPRINTK (KERN_DEBUG "%s: ECP direction: failed to reverse\n",
-  port->name);
--port->ieee1284.phase = IEEE1284_PH_DIR_UNKNOWN;
-+port->ieee1284.phase = IEEE1284_PH_ECP_DIR_UNKNOWN;
-}  return retval;
-@@ -394,7 +394,7 @@
-DPRINTK (KERN_DEBUG
-  "%s: ECP direction: failed to switch forward\n",
-  port->name);
--port->ieee1284.phase = IEEE1284_PH_DIR_UNKNOWN;
-+port->ieee1284.phase = IEEE1284_PH_ECP_DIR_UNKNOWN;
-}
-
-
-
-Regards,
-Jesper Juhl
-
+Marius Gedminas
+-- 
+When all else fails, read the instructions.

@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261360AbTEKKuv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 06:50:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbTEKKuv
+	id S261280AbTEKK65 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 06:58:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbTEKK65
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 06:50:51 -0400
-Received: from mta03-svc.ntlworld.com ([62.253.162.43]:4525 "EHLO
-	mta03-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S261360AbTEKKrH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 06:47:07 -0400
-Message-ID: <3EBE2D24.1030208@POGGS.CO.UK>
-Date: Sun, 11 May 2003 11:59:48 +0100
-From: Peter Hicks <Peter.Hicks@POGGS.CO.UK>
-Organization: Poggs Computer Services
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030430 Debian/1.3-5
-X-Accept-Language: en-gb, en-us, en-au, en-ie, en
+	Sun, 11 May 2003 06:58:57 -0400
+Received: from pb148.mielec.sdi.tpnet.pl ([80.49.1.148]:3077 "EHLO
+	enigma.put.mielec.pl") by vger.kernel.org with ESMTP
+	id S261280AbTEKK6z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 06:58:55 -0400
+From: Grzesiek Wilk <toulouse@put.mielec.pl>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] SiS648 support for agpgart, kernel 2.4.21-rc2-ac1
+Date: Sun, 11 May 2003 13:11:31 +0200
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-To: jw schultz <jw@pegasys.ws>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: Trivial, pedantic spelling mistakes for 2.4.21-rc2
-References: <3EBDAB7F.4000905@wanadoo.es> <3EBE2436.80504@POGGS.CO.UK> <20030511104229.GE16654@pegasys.ws>
-In-Reply-To: <20030511104229.GE16654@pegasys.ws>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200305111311.31915.toulouse@put.mielec.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jw schultz wrote:
+This patch just adds sis648 chipset support as a generic sis chipset into
+agpgart. You need it if you want to get a 3d acceleration to work.
 
->>Your mailer ate it.  Wordwrap, tab2space and unchanged lines
->>are missing a leading space.
->>    
->>
-I give up, I'm going home!  
+So far it works fine on my Radeon 9000
+(glxgears 1200fps instead of 300, glTron works excellent).
 
-http://journal.poggs.com/2003/05/10/spell-2.4.21rc2.patch
-
-Its definitely there.  Intact.  Untouched by Mozilla.
+One thing i'm not sure is in which agp mode it is working. SiS648 as well as
+R9k supports agp 3.0 but I don't think that generic sis driver does.
+(correct me if i'm wrong).
 
 
-Peter.
-
+diff -u orig_linux.21rc2-ac1/drivers/char/agp/agpgart_be.c linux.21rc2-ac1/drivers/char/agp/agpgart_be.c
+--- orig_linux.21rc2-ac1/drivers/char/agp/agpgart_be.c	2003-05-11 12:23:51.000000000 +0200
++++ linux.21rc2-ac1/drivers/char/agp/agpgart_be.c	2003-05-11 12:39:03.000000000 +0200
+@@ -4655,6 +4655,12 @@
+ 		"SiS",
+ 		"646",
+ 		sis_generic_setup },
++	{ PCI_DEVICE_ID_SI_648,
++		PCI_VENDOR_ID_SI,
++		SIS_GENERIC,
++		"SiS",
++		"648",
++		sis_generic_setup },		
+ 	{ PCI_DEVICE_ID_SI_735,
+ 		PCI_VENDOR_ID_SI,
+ 		SIS_GENERIC,
 
 

@@ -1,57 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271095AbTGPUvG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 16:51:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271104AbTGPUvF
+	id S271110AbTGPUyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 16:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271112AbTGPUyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 16:51:05 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:10256 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S271095AbTGPUu6 (ORCPT
+	Wed, 16 Jul 2003 16:54:16 -0400
+Received: from mail.kroah.org ([65.200.24.183]:48094 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S271110AbTGPUyB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 16:50:58 -0400
-Date: Wed, 16 Jul 2003 23:05:48 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jens Axboe <axboe@suse.de>, Dave Jones <davej@codemonkey.org.uk>,
-       vojtech@suse.cz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PS2 mouse going nuts during cdparanoia session.
-Message-ID: <20030716210548.GA1951@win.tue.nl>
-References: <20030716165701.GA21896@suse.de> <20030716170352.GJ833@suse.de> <1058375425.6600.42.camel@dhcp22.swansea.linux.org.uk>
+	Wed, 16 Jul 2003 16:54:01 -0400
+Date: Wed, 16 Jul 2003 14:02:54 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] print_dev_t for 2.6.0-test1-mm
+Message-ID: <20030716210253.GD2279@kroah.com>
+References: <20030716184609.GA1913@kroah.com> <20030716130915.035a13ca.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1058375425.6600.42.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.25i
+In-Reply-To: <20030716130915.035a13ca.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 06:10:33PM +0100, Alan Cox wrote:
-> On Mer, 2003-07-16 at 18:03, Jens Axboe wrote:
-> > > The IDE CD drive is using DMA, and interrupts are unmasked.
-> > > according to the logs, its happened 32 times since I last
+On Wed, Jul 16, 2003 at 01:09:15PM -0700, Andrew Morton wrote:
+> > Here's a patch against 2.6.0-test1-mm that fixes up the different places
+> > where we export a dev_t to userspace.  This fixes all of the compiler
+> > warnings that were previously reported with these files.
 > 
-> So why isnt this occurring on 2.4 .. thats the important question here is
-> this a logging thing, a new input layer bug, an ide bug or what ?
+> I added this as well:
+> 
+> static inline char *format_dev_t(char *buffer, dev_t dev)
+> {
+> 	sprintf(buffer, "%04lx\n", (unsigned long)dev);
+> 	return buffer;
+> }
+> 
+> tp be placed direct in a printk().
 
-The default kernel can spend very large amounts of time in IDE code.
-With DMA it can be seconds.
-With PIO it can be minutes.
-This means that with PIO one may think that the system crashed, and see
-(under X) keyboard or mouse actions only after for example two minutes.
-With DMA things are much better, but still a delay of seconds
-is very noticeable.
+Nice.
 
-The input code used to have
+> We'll probably need to do something more fancy in here later, because once
+> a dev_t becomes 32:32, it'll need to be printed out with "%016llx", which
+> is daft.
+> 
+> So we'll need to come up with some standardised way of presenting a dev_t
+> to the user.  Presumably that will just be
+> 
+> 	sprintf(buf, "%d:%d", major(dev), minor(dev));
+> 	
+> But if we do this, will it break your existing stuff?
 
-        if (psmouse->pktcnt && time_after(jiffies, psmouse->last + HZ/20)) {
-                printk(KERN_WARNING "psmouse.c: Lost synchronization, throwing \
-%d bytes away.\n", psmouse->pktcnt);
-                psmouse->pktcnt = 0;
-        }
+No, I don't think there are any users of udev right now :)
 
-and I patched it to HZ/2, that helps, but is still not good enough.
+I wouldn't mind the ':' being there, makes my life a bit easier, but for
+some reason Al Viro didn't want to do that a long time ago...
 
+If we put the ':' in there, it protects userspace from having to deal
+with different sized dev_t, so that really makes sense.
 
-Andries
+thanks,
 
+greg k-h

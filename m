@@ -1,69 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293433AbSBYQqX>; Mon, 25 Feb 2002 11:46:23 -0500
+	id <S292482AbSBYQrd>; Mon, 25 Feb 2002 11:47:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293432AbSBYQqM>; Mon, 25 Feb 2002 11:46:12 -0500
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:42651 "EHLO
-	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
-	id <S293425AbSBYQqA>; Mon, 25 Feb 2002 11:46:00 -0500
-Message-Id: <200202251558.IAA20587@tstac.esa.lanl.gov>
-Content-Type: text/plain; charset=US-ASCII
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-To: Theodore Tso <tytso@mit.edu>
-Subject: [PATCH] 2.5.5-dj1 add five help texts to drivers/char/Config.help
-Date: Mon, 25 Feb 2002 09:44:18 -0700
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@suse.de>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
+	id <S291962AbSBYQrZ>; Mon, 25 Feb 2002 11:47:25 -0500
+Received: from loisexc2.loislaw.com ([12.5.234.240]:6150 "EHLO
+	loisexc2.loislaw.com") by vger.kernel.org with ESMTP
+	id <S293432AbSBYQqr>; Mon, 25 Feb 2002 11:46:47 -0500
+Message-ID: <4188788C3E1BD411AA60009027E92DFD063077C4@loisexc2.loislaw.com>
+From: "Rose, Billy" <wrose@loislaw.com>
+To: "'Andreas Dilger'" <adilger@turbolabs.com>, linux-kernel@vger.kernel.org
+Subject: RE: ext3 and undeletion
+Date: Mon, 25 Feb 2002 10:46:42 -0600
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds help texts for CONFIG_SERIAL_TX3912, 
-CONFIG_SERIAL_TX3912_CONSOLE, CONFIG_AU1000_SERIAL_CONSOLE,
-CONFIG_AU1000_UART, CONFIG_EUROTECH_WDT to drivers/char/Config.help.
+Is there work being done on a filesystem extension that allows admins to
+'undelete' files similar to the way Netware does? My company uses Netware
+only for that fact, and I would like to see more Linux boxes here. I have
+sold them on a couple of webservers and one application server, but they
+hold fast to the Netware file servers because loading a backup copy of some
+file from tape is not feasable with the amount of data we have (approaching
+1T). I have looked across the web and only found this:
+http://www.timpanogas.com/
+but I don't want a Netware filesystem running on Linux, I want a *native*
+Linux filesystem (i.e. ext3) that has the ability to queue deleted files
+should I configure it to. Is there such a thing? If not, do you feel it
+would be worth developing into the kernel? This would make Linux much more
+attractive to Netware houses I believe.
 
-Steven
+Billy Rose
 
---- linux-2.5.5-dj1/drivers/char/Config.help.orig       Mon Feb 25 08:55:03 2002
-+++ linux-2.5.5-dj1/drivers/char/Config.help    Mon Feb 25 09:30:35 2002
-@@ -425,6 +425,24 @@
-   read <file:Documentation/modules.txt>. The module will be called
-   istallion.o.
+-----Original Message-----
+From: Andreas Dilger [mailto:adilger@turbolabs.com]
+Sent: Sunday, February 24, 2002 11:08 PM
+To: Steven Walter; linux-kernel@vger.kernel.org
+Subject: Re: ext3 and undeletion
 
-+CONFIG_SERIAL_TX3912
-+  The TX3912 is a Toshiba RISC processor based o the MIPS 3900 core;
-+  see <http://www.toshiba.com/taec/components/Generic/risc/tx3912.htm>.
-+  Say Y here to enable kernel support for the on-board serial port.
-+
-+CONFIG_SERIAL_TX3912_CONSOLE
-+  The TX3912 is a Toshiba RISC processor based o the MIPS 3900 core;
-+  see <http://www.toshiba.com/taec/components/Generic/risc/tx3912.htm>.
-+  Say Y here to direct console I/O to the on-board serial port.
-+
-+CONFIG_AU1000_SERIAL_CONSOLE
-+  If you have an Alchemy AU1000 processor (MIPS based) and you want
-+  to use a console on a serial port, say Y.  Otherwise, say N.
-+
-+CONFIG_AU1000_UART
-+  If you have an Alchemy AU1000 processor (MIPS based) and you want
-+  to use serial ports, say Y.  Otherwise, say N.
-+
- CONFIG_SYNCLINK
-   Provides support for the SyncLink ISA and PCI multiprotocol serial
-   adapters. These adapters support asynchronous and HDLC bit
-@@ -942,6 +960,11 @@
-   module, say M here and read <file:Documentation/modules.txt>.  Most
-   people will say N.
 
-+CONFIG_EUROTECH_WDT
-+  Enable support for the watchdog timer on the Eurotech CPU-1220 and
-+  CPU-1410 cards.  These are PC/104 SBCs. Spec sheets and product
-+  information are at <http://www.eurotech.it/>.
-+
- CONFIG_IB700_WDT
-   This is the driver for the hardware watchdog on the IB700 Single
-   Board Computer produced by TMC Technology (www.tmc-uk.com). This watchdog
+On Feb 24, 2002  21:27 -0600, Steven Walter wrote:
+> After unintentionally deleting some file, I noticed what appears to be
+> an incosistency (or at least a change) in ext3.  Running debugfs and
+> executing the command "lsdel", I saw no inodes listed since I last ran
+> the partition as ext2.  Does ext3 not add its deleted inodes to whatever
+> list ext2 does?  And can this be fixed without compromising the speed or
+> data-integrity of ext3?
+
+Known problem.  Apparently difficult to fix, unfortunately.  It's not so
+much that ext2 adds deleted inodes to a list, as that it simply marks the
+inode "deleted" and doesn't overwrite any of the inode data on the disk.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

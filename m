@@ -1,95 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131418AbQL3UWC>; Sat, 30 Dec 2000 15:22:02 -0500
+	id <S135489AbQL3U2y>; Sat, 30 Dec 2000 15:28:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135170AbQL3UVw>; Sat, 30 Dec 2000 15:21:52 -0500
-Received: from tomts8.bellnexxia.net ([209.226.175.52]:7568 "EHLO
-	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S131418AbQL3UVh>; Sat, 30 Dec 2000 15:21:37 -0500
-From: Ed Tomlinson <tomlins@cam.org>
-Subject: Re: modutils 2.3.23 fails with tdfx.o with test13-pre6
-To: linux-kernel@vger.kernel.org
-Date: Sat, 30 Dec 2000 14:50:50 -0500
-Organization: me
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: KNode/0.3.3
-Message-Id: <20001230195051.7580E5E0D2@oscar.casa.dyndns.org>
+	id <S135170AbQL3U2p>; Sat, 30 Dec 2000 15:28:45 -0500
+Received: from front2m.grolier.fr ([195.36.216.52]:9682 "EHLO
+	front2m.grolier.fr") by vger.kernel.org with ESMTP
+	id <S131418AbQL3U2g> convert rfc822-to-8bit; Sat, 30 Dec 2000 15:28:36 -0500
+Date: Sat, 30 Dec 2000 19:57:44 +0100 (CET)
+From: Gérard Roudier <groudier@club-internet.fr>
+To: Linux <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
+Subject: SYM-2 driver released (:=sym53c8xx+ncr53c8xx).
+Message-ID: <Pine.LNX.4.10.10012301952070.886-100000@linux.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-This is lets it load.   The same missing symbols happen with mga as well... 
-This is from a patch posted here two weeks ago:
+I just released sym-2.1.0 driver, that, according to my personnal QA 
+plan :-), is the first Beta-release of this major driver version.
 
---- linux/drivers/char/drm/drmP.old        Thu Dec 28 16:27:34 2000
-+++ linux/drivers/char/drm/drmP.h        Sat Dec 23 13:57:08 2000
-@@ -40,6 +40,7 @@
- #include <asm/current.h>
- #endif /* __alpha__ */
- #include <linux/config.h>
-+#include <linux/modversions.h>
- #include <linux/module.h>
- #include <linux/kernel.h>
- #include <linux/miscdevice.h>
+People interested in either using or just trying it can found the
+reference tarball at the following URL:
 
-Not sure if this is more than a temporay fix though.
+ftp://ftp.tux.org/roudier/drivers/portable/sym-2.1.x/sym-2.1.0-20001230.tar.gz
 
-Ed Tomlinson
+This driver replaces functionnaly both sym53c8xx and ncr53c8xx.
+It is in fact the FreeBSD sym driver that got portable and that, for now, 
+also supports Linux.
 
-Frank Jacobberger wrote:
+The driver reference sources layout is the following:
 
-> I can't get the latest modutils to work with loading
-> tdfx.o... Even went to the directory where tdfx.o resides
-> and did a insmod -S tdfx.o and got the following :
-> 
-> BTW - test13-pre6 here
-> 
-> tdfx.o: unresolved symbol remap_page_range
-> tdfx.o: unresolved symbol __wake_up
-> tdfx.o: unresolved symbol mtrr_add
-> tdfx.o: unresolved symbol __generic_copy_from_user
-> tdfx.o: unresolved symbol schedule
-> tdfx.o: unresolved symbol kmalloc
-> tdfx.o: unresolved symbol si_meminfo
-> tdfx.o: unresolved symbol create_proc_entry
-> tdfx.o: unresolved symbol inter_module_put
-> tdfx.o: unresolved symbol __get_free_pages
-> tdfx.o: unresolved symbol boot_cpu_data
-> tdfx.o: unresolved symbol inter_module_get
-> tdfx.o: unresolved symbol remove_wait_queue
-> tdfx.o: unresolved symbol high_memory
-> tdfx.o: unresolved symbol iounmap
-> tdfx.o: unresolved symbol free_pages
-> tdfx.o: unresolved symbol __ioremap
-> tdfx.o: unresolved symbol del_timer
-> tdfx.o: unresolved symbol interruptible_sleep_on
-> tdfx.o: unresolved symbol __pollwait
-> tdfx.o: unresolved symbol kfree
-> tdfx.o: unresolved symbol remove_proc_entry
-> tdfx.o: unresolved symbol pci_find_slot
-> tdfx.o: unresolved symbol kill_fasync
-> tdfx.o: unresolved symbol fasync_helper
-> tdfx.o: unresolved symbol add_wait_queue
-> tdfx.o: unresolved symbol do_mmap_pgoff
-> tdfx.o: unresolved symbol mem_map
-> tdfx.o: unresolved symbol sprintf
-> tdfx.o: unresolved symbol jiffies
-> tdfx.o: unresolved symbol printk
-> tdfx.o: unresolved symbol add_timer
-> tdfx.o: unresolved symbol __generic_copy_to_user
-> 
-> So what gives here?
-> 
-> Frank
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+Common:
+    sym_conf.h   sym_defs.h  sym_fw.c    sym_fw.h
+    sym_fw1.h    sym_fw2.h   sym_hipd.c  sym_hipd.h
+    sym_malloc.c sym_misc.h  sym_nvram.c
 
+FreeBSD:
+    sym_glue.c   sym_glue.h
+
+Linux:
+    sym53c8xx.h  sym_glue.c  sym_glue.h
+
+All the files can also be clicked/clipped :) individually from the 
+the following directory:
+
+   ftp://ftp.tux.org/roudier/drivers/portable/sym-2.1.x/current/
+
+Given the genealogy of this driver, I have decided to maintain a high 
+level of compatibility with the sym53c8xx driver under Linux.
+But, due to the number of sources files (14 under Linux), the driver 
+sources will now own a separate directory instead of being dropped in 
+the huge drivers/scsi/ directory.
+
+The installation procedure supplied in the tarball moves the files to:
+
+       /usr/linux/drivers/scsi/sym53c8xx/
+
+As a result, a tiny patch is needed for the related kernel files to 
+be aware of the new driver files location. And, as I have limited 
+time, only patches for 2.2.16, 2.2.17 and 2.2.18 are supplied for now.
+
+People who will succeed installing the driver on other Linux kernel 
+releases, especially recent ones, can send me the corresponding tiny 
+kernel patch. Btw, this driver does not support Linux-2.0.X kernels.
+
+The major improvements against sym53c8xx driver can be summarized 
+as follows:
+
+- Don't use the scsi_obsolete interface anymore.
+  I could word it as 'use the new error handling interface', but the best 
+  advantage, in my opinion, is that driver entry points are not called 
+  recursively as does the old scsi code.
+
+- Support for the entire NCR/SYMBIOS/LSILOGIC 53C[8XX|1010] in a single 
+  driver without significant bloat of the object code.
+  The driver with all options enabled is about 73K not stripped and 59K 
+  stripped under Linux-2.2.18.
+
+- Refining of a couple of work-arounds that let me claim that the driver 
+  supports the best possible all chips of all revisions, even very early 
+  revisions of recent chips.
+
+I am highly interested in receiving reports, either success or problem, 
+about this driver version, especially when the driver is tried on non Intel 
+IA32 platforms.
+
+  Gérard.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

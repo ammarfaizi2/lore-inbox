@@ -1,106 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317059AbSGCUUw>; Wed, 3 Jul 2002 16:20:52 -0400
+	id <S317117AbSGCUVB>; Wed, 3 Jul 2002 16:21:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317117AbSGCUUv>; Wed, 3 Jul 2002 16:20:51 -0400
-Received: from pc132.utati.net ([216.143.22.132]:13442 "HELO
-	merlin.webofficenow.com") by vger.kernel.org with SMTP
-	id <S317059AbSGCUUt>; Wed, 3 Jul 2002 16:20:49 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Dave Jones <davej@suse.de>, Bill Davidsen <davidsen@tmr.com>
-Subject: Re: [OKS] Kernel release management
-Date: Wed, 3 Jul 2002 10:24:20 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.3.96.1020701140915.23920A-100000@gatekeeper.tmr.com> <20020703173421.B8934@suse.de>
-In-Reply-To: <20020703173421.B8934@suse.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020703200044.EB039C2C@merlin.webofficenow.com>
+	id <S317141AbSGCUVA>; Wed, 3 Jul 2002 16:21:00 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:4849 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S317117AbSGCUU6>; Wed, 3 Jul 2002 16:20:58 -0400
+Date: Wed, 3 Jul 2002 14:21:07 -0600
+From: Andreas Dilger <adilger@turbolinux.com>
+To: Anton Altaparmakov <aia21@cantab.net>
+Cc: sct@redhat.com, Andrew Morton <akpm@zip.com.au>,
+       LKML <linux-kernel@vger.kernel.org>, ext3-users@redhat.com
+Subject: Re: EXT3-fs error on kernel 2.4.18-pre3
+Message-ID: <20020703202107.GA14654@clusterfs.com>
+Mail-Followup-To: Anton Altaparmakov <aia21@cantab.net>, sct@redhat.com,
+	Andrew Morton <akpm@zip.com.au>,
+	LKML <linux-kernel@vger.kernel.org>, ext3-users@redhat.com
+References: <1025723138.3817.10.camel@storm.christs.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1025723138.3817.10.camel@storm.christs.cam.ac.uk>
+User-Agent: Mutt/1.3.28i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 July 2002 11:34 am, Dave Jones wrote:
-> On Mon, Jul 01, 2002 at 02:25:16PM -0400, Bill Davidsen wrote:
->  > I suggested that 2.5 be opened when 2.4 came out, so I like the idea of
->  > 2.7 starting when 2.6 is released. I think developers will maintain the
->  > 2.6 work out of pride and desire to have a platform for the "next big
->  > thing." And their code can always be placed on hold for 2.7 until they
->  > clarify their thinking on 2.6, if that's really needed.
->
-> Unfortunatly, there's the possibility of people thinking
-> "I'll fix it properly in 2.7, and backport", during which time,
-> 2.6 doesn't get fixed any faster.  People diving into 2.7 development
-> and leaving 2.6 to those that actually care about stabilising it was
-> Linus' concern if I understood correctly at the summit.
+On Jul 03, 2002  20:05 +0100, Anton Altaparmakov wrote:
+> I just noticed that my file server running 2.4.18-pre3 + IDE patches &
+> NTFS patches has this error message in the logs:
+> 
+> EXT3-fs error (device md(9,4)): ext3_free_blocks: Freeing blocks not in
+> datazone - block = 33554432, count = 1
+> 
+> This is the only ext3 error I have seen and the uptime is currently over
+> 74 days. The error actually appeared two weeks ago. The timing coincides
+> well with when this device (/dev/md4, a MD RAID-1 array) ran out of
+> space, so it may well be related.
 
-And leaving stabilization to the people who care about stabilization would be 
-a bad thing why?  2.4's first ten releases are a marvelous counter-example to 
-the "stonewall new development to speed up bugfixing" theory of software 
-development.  The musical rotating feature freeze/thaw/slush/slurpee halfway 
-through development cycles haven't been that effective either.
+This was fixed in newer kernels.
 
-Linus ain't so good at maintenance, and he has said as much on this list.  
-Linus's kernel sets the direction for Linux evolution, but he couldn't get 
-the 2.4.0 VM stabilized and Alan Cox did.  (Better than mainline, anyway.)  
-If Linus had handed over the stable series to Alan right after 2.4.1, taken a 
-month long vacation, and then opened a new branch that was a bit selective at 
-first about what it took and from who, does anybody think 2.4 would have 
-taken any longer to properly stabilize than it wound up doing?  (Did Jens's 
-bio patches really need to wait on the VM stabilization work?  Did Jens help 
-stabilize the 2.4 VM?)
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 
-We live in a world of multiple Linux kernel trees already, each with a 
-different maintainer who is good at different things.  Linus is a brilliant 
-architect who is great at plucking the best ideas from the cream layer of the 
-churning mass of Sturgeon's Law flung at him on a daily basis.  When 
-presented with four ways to do something, he'll spot the hidden fifth better 
-way like nobody else can.  But saying no in such a way as to promote 
-stability is a different skill, and last time Linus went into big time 
-"saying no" mode he wound up dropping VM stabilization patches from the then 
-VM maintainer.  And the feature freezes haven't historically been remarkably 
-effective at producing a stable kernel soon after either.
-
-A "stabilization fork" off of the development series could be done, as an 
-experiment, during the next "feature slush".  A maintainer who specializes in 
-stabilizing code (You, Alan, and Marcelo are all doing a decent job at this 
-now: it's not a common skill but not as rare as being a brilliant architect 
-like Linus) can fork a "fixes only" tree that may or may not become 2.6, and 
-see how it goes.
-
-It it works, great, if it doesn't work, fine.  You already maintain a fork 
-off of Linus's tree, and Alan maintains one off of Marcelo's tree.  Red Hat 
-and SuSE maintain their own forks as well.  The existence of such a fork, 
-with a compentent maintainer and its own user base, is not inherently 
-disruptive to the rest of the world.  Feeding patches from one tree into 
-another and dropping the rest until they're merged is what you and Alan do 
-normally anyway, so the down side of it NOT working (giving up after a few 
-months and going "shucks, people just won't listen to anyone but Linus") 
-isn't exactly catastrophic.  As long as the maintainer is competent at 
-merging to clean up the fork afterwards, and if they're not they can't 
-effectively maintain their own tree in the first place anyway.
-
-An explicit stabilization-only fork could even be a tool to help Linus's fork 
-stabilize (if that is or becomes the goal), by tracking down bugs and 
-performance tuning in a less turbulent environment while trying hard to 
-introduce as few new problems as possible, and that being the ONLY goal of 
-the fork.  Lots of bugs have been tracked down in -dj or -ac and the fix then 
-ported to the appropriate mainline later.
-
-If the stabilization fork DOES become 2.6, then 2.6 can START with a new 
-maintainer, like Marcelo for 2.4 and Alan for 2.2.  Stable branch maintainers 
-aren't normally expected to make major new architectural decisions anyway, 
-that's what development kernels are for. :)
-
-And if nothing else, it reduces the likelihood of development being stuck in 
-a nebulous "no new features, well, okay, one more but that's it" mode for 
-most of a year.
-
-Yes, in theory 2.5 should BECOME a stabilization fork, under Linus, during 
-the feature freeze.  It might even happen this time.  But how would hedging 
-the bet hurt?
-
->         Dave
-
-Rob

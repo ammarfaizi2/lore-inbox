@@ -1,116 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265385AbSJRTGp>; Fri, 18 Oct 2002 15:06:45 -0400
+	id <S265278AbSJRSy4>; Fri, 18 Oct 2002 14:54:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265379AbSJRTC0>; Fri, 18 Oct 2002 15:02:26 -0400
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:41169 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S265376AbSJRTB6>; Fri, 18 Oct 2002 15:01:58 -0400
+	id <S265350AbSJRSv1>; Fri, 18 Oct 2002 14:51:27 -0400
+Received: from f89.pav1.hotmail.com ([64.4.31.89]:20999 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S265278AbSJRSpl>;
+	Fri, 18 Oct 2002 14:45:41 -0400
+X-Originating-IP: [193.153.111.132]
+From: "Hermann =?ISO-8859-1?Q?K=E4ser=22?= <hermzz@hotmail.com>"@vax.home.local
 To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com, viro@math.psu.edu
-Subject: [PATCH][RFC] 2.5.42 (2/2): Filesystem capabilities user tool
-From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-Date: Fri, 18 Oct 2002 21:07:39 +0200
-Message-ID: <87smz3mupw.fsf@goat.bogus.local>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
- i386-debian-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Kernel panic! Unable to handle kernel NULL pointer dereference...
+Date: Fri, 18 Oct 2002 18:51:37 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F89v91ySHW1HSAHwNKL00004d8c@hotmail.com>
+X-OriginalArrivalTime: 18 Oct 2002 18:51:37.0685 (UTC) FILETIME=[635C8850:01C276D7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the change capabilities tool. It is a first cut at "managing"
-capabilities and not very comfortable.
+Kernel panic! Unable to handle kernel NULL pointer dereference
 
-You need to tell where the .capabilities file is. This must be located
-in the mountpoint of the filesystem.
+This happens during boot time after compiling latest stable kernel version 
+2.4.19
 
-Given a filename, how can I locate the mountpoint of the associated
-filesystem? If someone knows, how to do this, please tell me.
+kernel-2.4.19, boot, kernel panic
 
-Example:
+2.4.19
 
-# chmod u-s /bin/ping
-# chcap /.capabilities 0x2000 0 0x2000 /bin/ping
+printing eip:
+c02037aa
+*pde = 00000000
+Oops: 0000
+CPU: 0
+EIP: 0010:[<c02037aa>]  Not tainted
+EFLAGS: 00010282
+eax: 00000000  ebx: c02037aa  ecx: c116b380  edx: c116b384
+esi: c0372894 edi: c7fd82e4  ebp: 00000016  esp: c11ddef8
+ds: 0018  es: 0018  ss: 0018
+Process swapper: (pid:1, stackpage: c11dd0000)
+Stack: c01cf344 c031ffe0 c0430008 c0430114 c7fd8314 c7fds2e4 00000001 
+00000282
+00000001 00000001 c0119ccb c037cce1 00000246 c0119bdd c031f102 c031f1bd
+c7fd8200 c0430008 c01fc72b c031ebec c0430008 c1181437 c031f2e0 c7fd8200
+Call Trace: [<c01ff394>] [<c0119ccb>] [<c0119bdd>] [<c01fc72b>] [<c01fc204>] 
+[<c01fccca>] [<c01ff394>] [<c0105079>] [<c0107044>]
+Code: 8b 40 20 c7 40 24 00 00 00 00 a1 80 24 37 c0 a3 88 22 43 c0
+<0> Kernel panic: Attempted to kill init!
 
-This sets the effective and permitted CAP_NET_RAW capability for /bin/ping.
+Software: Linux Debian
 
-Regards, Olaf.
+Processor Info: Pentium III Celeron (Coppermine)
 
---- /dev/null	Thu Mar 21 19:31:20 2002
-+++ chcap.c	Fri Oct 18 21:02:15 2002
-@@ -0,0 +1,74 @@
-+#include <asm/types.h>
-+#include <sys/types.h>
-+#include <sys/stat.h>
-+#include <sys/fcntl.h>
-+#include <stdio.h>
-+#include <unistd.h>
-+
-+static const char *capfile;
-+static struct stat capbuf;
-+
-+static void chcap(ino_t ino, __u32 *caps)
-+{
-+	int fd = open(capfile, O_WRONLY);
-+	if (fd < 0) {
-+		perror(capfile);
-+		exit(1);
-+	} else {
-+		off_t rc = lseek(fd, ino * 3 * sizeof(*caps), SEEK_SET);
-+		if (rc == -1)
-+			perror(capfile);
-+		else
-+			write(fd, caps, 3 * sizeof(*caps));
-+
-+		close(fd);
-+	}
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	__u32 caps[3];
-+	int rc;
-+	int i = 1;
-+
-+	if (argc < 6) {
-+		fprintf(stderr, "usage: %s /path/to/.capabilities eff inh perm file ...\n", argv[0]);
-+		exit(2);
-+	}
-+
-+	capfile = argv[i++];
-+	rc = access(capfile, F_OK);
-+	if (rc != 0) {
-+		int fd = open(capfile, O_CREAT | O_EXCL | O_RDONLY, 0600);
-+		if (fd >= 0) {
-+			close(fd);
-+		} else {
-+			perror(capfile);
-+			exit(1);
-+		}
-+	}
-+
-+	rc = stat(capfile, &capbuf);
-+	if (rc != 0) {
-+		perror(capfile);
-+	}
-+
-+	caps[0] = strtol(argv[i++], 0, 0);
-+	caps[1] = strtol(argv[i++], 0, 0);
-+	caps[2] = strtol(argv[i++], 0, 0);
-+
-+	for (; i < argc; ++i) {
-+		struct stat buf;
-+		rc = stat(argv[i], &buf);
-+		if (rc == 0) {
-+			if (buf.st_dev == capbuf.st_dev)
-+				chcap(buf.st_ino, caps);
-+			else
-+				fprintf(stderr, "%s: %s is on different file system\n", argv[i], capfile);
-+		} else {
-+			perror(argv[i]);
-+		}
-+	}
-+
-+	return 0;
-+}
+
+
+
+_________________________________________________________________
+Broadband? Dial-up? Get reliable MSN Internet Access. 
+http://resourcecenter.msn.com/access/plans/default.asp
+

@@ -1,66 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281611AbRKMMC6>; Tue, 13 Nov 2001 07:02:58 -0500
+	id <S281614AbRKMMKT>; Tue, 13 Nov 2001 07:10:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281612AbRKMMCt>; Tue, 13 Nov 2001 07:02:49 -0500
-Received: from c0mailgw.prontomail.com ([216.163.180.10]:57274 "EHLO
-	c0mailgw07.prontomail.com") by vger.kernel.org with ESMTP
-	id <S281611AbRKMMCb>; Tue, 13 Nov 2001 07:02:31 -0500
-X-Version: beer 7.5.2333.0
-From: "william fitzgerald" <william.fitzgerald3@beer.com>
-Message-Id: <6169641FA9FA29E43946AEB269F1EA2E@william.fitzgerald3.beer.com>
-Date: Wed, 14 Nov 2001 12:07:19 +2400
-X-Priority: Normal
-Content-Type: text/plain; charset=iso-8859-1
-To: linux-kernel@vger.kernel.org
-Subject: printk performance logging without syslogd for router
-X-Mailer: Web Based Pronto
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+	id <S281615AbRKMMKK>; Tue, 13 Nov 2001 07:10:10 -0500
+Received: from mail.terraempresas.com.br ([200.177.96.20]:47120 "EHLO
+	mail.terraempresas.com.br") by vger.kernel.org with ESMTP
+	id <S281614AbRKMMJx>; Tue, 13 Nov 2001 07:09:53 -0500
+Message-ID: <004601c16c3c$8f865e70$1300a8c0@marcelo>
+From: "Marcelo Borges Ribeiro" <marcelo@datacom-telematica.com.br>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011112220630.A1200@bruder.net> <20011113121907.A9058@telia.com>
+Subject: Re: via82cxxx_audio problems
+Date: Tue, 13 Nov 2001 10:08:29 -0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all,
-
-(perforamnce logging of network stack through a
-linux router)
-
-the main question:
-
-is there a way i can buffer or record  the printk
-statements and print them to disk  after my
-packets have gone through the router?
-
-my understanding of printk is that each time it
-is encountered it is written to disk by syslogd
-as i have been told by Erik .so for a lot of
-packets there will be alot of writes,therefore
-slowing the system and producing false results.
-
-so lets cut out syslogd and just use the -f
-option on klogd.
-does this decrease the huge slow down of 
-writting printk's?
-
-basically is there a way i can buffer or record 
-the printk statements and print them to disk 
-after my packets have gone through the router?
-  do i edit the printk.c file and change the 
-line:
-
-                          static char buf[1024];
-  and increase the size of the array?
-
- or do i edit the klogd.c program and change
- something in there?
-
-i'm still at a loose end!
-
-many thanks in advance,
-will.
+The problem with via82xx is that it is locked in 48000Hz (you can see this
+in dmesg) and cannot play in any other rate. With mplayer you can see
+messages such as requested 16000Hz got (480000) that explains why it sounds
+like chip'n'dale ;-). P.s. I don´t know why it works with xmms  but with
+mpg123 it refuses to play at all becouse these sound rates.
+----- Original Message -----
+From: "André Dahlqvist" <andre.dahlqvist@telia.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Tuesday, November 13, 2001 9:19 AM
+Subject: Re: via82cxxx_audio problems
 
 
+> sergio@bruder.net <sergio@bruder.net> wrote:
+>
+> > With rapid fast-forward in mplayer, The sound just mutes itself and
+> > mplayer just crawls down to 1-2 frames per second. Looking at
+> > /var/log/messages Ive got:
+>
+> Try the latest 2.4.15-preX kernel since that has a much newer VIA audio
+> driver which might fix this.
+> --
+>
+> André Dahlqvist <andre.dahlqvist@telia.com>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-
-
-Beer Mail, brought to you by your friends at beer.com.

@@ -1,65 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281012AbRKGVUe>; Wed, 7 Nov 2001 16:20:34 -0500
+	id <S280992AbRKGVO4>; Wed, 7 Nov 2001 16:14:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280990AbRKGVSu>; Wed, 7 Nov 2001 16:18:50 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:34579 "EHLO toyota.com")
-	by vger.kernel.org with ESMTP id <S281006AbRKGVSH>;
-	Wed, 7 Nov 2001 16:18:07 -0500
-Message-ID: <3BE9A506.82D64AE4@lexus.com>
-Date: Wed, 07 Nov 2001 13:17:58 -0800
-From: J Sloan <jjs@lexus.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
+	id <S280995AbRKGVNi>; Wed, 7 Nov 2001 16:13:38 -0500
+Received: from ns1ca.ubisoft.qc.ca ([205.205.27.131]:32006 "EHLO
+	ns1ca.ubisoft.qc.ca") by vger.kernel.org with ESMTP
+	id <S280989AbRKGVMo>; Wed, 7 Nov 2001 16:12:44 -0500
+Message-ID: <9A1957CB9FC45A4FA6F35961093ABB8405491190@srvmail-mtl.ubisoft.qc.ca>
+From: Patrick Allaire <pallaire@gameloft.com>
+To: "Bradley D. LaRonde" <brad@ltc.com>,
+        Patrick Allaire <pallaire@gameloft.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Irq problems : [ Kernel booting on serial console ... crawling]
+Date: Wed, 7 Nov 2001 16:11:05 -0500 
 MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: disaster with 2.4.14+preempt
-In-Reply-To: <3BE8B460.A23E1A67@pobox.com> <1005109646.884.0.camel@phantasy>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
 
-> So I compiled 2.4.14+preempt, this time using ext2 like you.  I also
-> enabled highmem and SMP, although I don't need those.  Again I ran
-> multiple dbench runs, went into X, and here I am ... the kernel is
-> solid.
 
-OK I have replaced enough of the libs so that
-rpm works again, and was able to do a verify
-to get the rest of the pieces in order.
+Thank you for you answer ... I think my interrupt are not working ... I have
+added a printk line in my interrupt routine, it is called every 1000 jiffies
+!!!! if I do a cat /proc/interrupts ... once completed (c: I see that I dont
+receive any interrupt on IRQ 4 ... it is alwais 0 ... but the serial is
+registered.
 
-> What was the last kernel you had no problems with when used with
-> preempt?
+thank again !
 
-I was able to recover some stuff from old
-backups, including the kernels I last used
-under RH 7.1 -
 
-I see vmlinuz-2.4.12-ac6, and vmlinuz-2.4.13
-Both have preempt patches, and highmen
-& smp support.
 
-I know they were stable under the test.
+Patrick Allaire
+mailto:pallaire@gameloft.com
+If you can see it, but it's not there, it's virtual. 
+If you can't see it, but it is there, it's hidden. 
+It you can't see it and it isn't there, it's gone.
 
-I am pounding the old 2.4.13 kernel now
-(filesystems mounted as ext2) with dbench
-16, 32, 64, and 128 and it is holding up fine.
 
-I will compile 2.4.14 without the preempt
-patch and repeat -
 
-Finally, I will repeat the 2.4.14+preempt
-test, and I predict the box  will lock hard
-a few seconds after typing "dbench 16"
-
-Is there anything in particular you would
-like me to try?
-
-cu
-
-jjs
-
+> -----Original Message-----
+> From: Bradley D. LaRonde [mailto:brad@ltc.com]
+> Sent: November 6, 2001 5:11 PM
+> To: Patrick Allaire; Linux Kernel Mailing List
+> Subject: Re: Kernel booting on serial console ... crawling
+> 
+> 
+> I've seen something like that when my serial driver wasn't getting
+> interrupts.
+> 
+> Regards,
+> Brad
+> 
+> "Patrick Allaire" <pallaire@gameloft.com> said:
+> > I tried to boot my kernel using the serial console, using the
+> > console=ttyS0,115200 (it does the same thing with 9600) ... 
+> it work great
+> > until :
+> >
+> > Freeing unused kernel memory: 36k freed
+> > serial console detected.  Disabling virtual terminals.
+> > console=/dev/ttyS0
+> >
+> > At this point the output of the serial line slow down dramaticly ...
+> almost
+> > to a halt ... I get 1 line every 30 seconds !!!
+> 

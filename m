@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267206AbTAAHat>; Wed, 1 Jan 2003 02:30:49 -0500
+	id <S267207AbTAAHfI>; Wed, 1 Jan 2003 02:35:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267207AbTAAHat>; Wed, 1 Jan 2003 02:30:49 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:52740
+	id <S267208AbTAAHfI>; Wed, 1 Jan 2003 02:35:08 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:54020
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S267206AbTAAHas>; Wed, 1 Jan 2003 02:30:48 -0500
-Date: Tue, 31 Dec 2002 23:38:58 -0800 (PST)
+	id <S267207AbTAAHfH>; Wed, 1 Jan 2003 02:35:07 -0500
+Date: Tue, 31 Dec 2002 23:43:22 -0800 (PST)
 From: Andre Hedrick <andre@linux-ide.org>
 To: Hell.Surfers@cwctv.net, info@nvidia.com
-cc: linux-kernel@vger.kernel.org
-Subject: RE:Re: Re: Why is Nvidia given GPL'd code to use in closed source
- drivers?
-In-Reply-To: <0f8e32227050113DTVMAIL7@smtp.cwctv.net>
-Message-ID: <Pine.LNX.4.10.10212312322560.421-100000@master.linux-ide.org>
+cc: linux-kernel@vger.kernel.org, Richard Stallman <rms@gnu.org>
+Subject: RE:Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+In-Reply-To: <0facf3248050113DTVMAIL7@smtp.cwctv.net>
+Message-ID: <Pine.LNX.4.10.10212312340420.421-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+Hell.Surfers,
+
 On Wed, 1 Jan 2003 Hell.Surfers@cwctv.net wrote:
 
-> They are stealing by changing GPL files, and not giving the source, its
+> You must understand the GNU/LINUX community is being manipulated by NVidia.
 
-Before you call Nvidia a "THEIF", look in the mirror and read the legal
-license associated with the drivers you have, and you do not have
-hardware.
+   NVIDIA Corporate Office:
+   2701 San Tomas Expressway
+   Santa Clara, CA 95050
+   Tel: 408-486-2000
+   Fax: 408-486-2200
+   info@nvidia.com
+   Directions to Corporate Office
 
-http://www.nvidia.com/view.asp?IO=legal_info
+> Dean. Three ways to kill yourself, and ive been drove in one...
 
-The attached EULA is what you forgot to read, or maybe forgot understand.
+GO FOR IT!
 
-   International Offices
-   England:
-   Theale Court, 11-13 High Street
-   Theale, Reading, Berkshire, RG7
-   5AH
-   England
-   Tel: +44 (118) 903 3000
-   Fax: +44 (118) 930 5691
-
-> not for personal use so they are DISTRIBUTING it, and INCLUDING IT. BUT
-> they dont give out their DERIVED source. I work with C everyday and when
-> you put in a header file you are including it, all kernel headers are
-
-Well recall you said it was time for you to consult your
-"lawyer"/"solicitor", well lets see if I can help you do it faster.
-I am tired of your rants about NVIDIA and the commerial viability of
-binary library objects with public source wrappers.
-
-With any luck you can be the person to win or loose the case and make GPL
-viable or not.
-
-Are you willing to take the risk?
+I will love to see the fall out.
 
 Regards,
 
 Andre Hedrick
 LAD Storage Consulting Group
-
 

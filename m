@@ -1,54 +1,43 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154159AbQDEBgZ>; Tue, 4 Apr 2000 21:36:25 -0400
-Received: by vger.rutgers.edu id <S154175AbQDEBgF>; Tue, 4 Apr 2000 21:36:05 -0400
-Received: from h08005a360ca1.ne.mediaone.net ([24.128.40.44]:61763 "EHLO dns.datapower.com") by vger.rutgers.edu with ESMTP id <S154165AbQDEBeE>; Tue, 4 Apr 2000 21:34:04 -0400
-Date: Tue, 4 Apr 2000 21:40:15 -0400
-From: lk@datapower.com
-Message-Id: <200004050140.VAA13583@dns.datapower.com>
-To: linux-kernel@vger.rutgers.edu
-Subject: ANN: [LhD] Linux Hardware Database Relaunch
-Cc: lhdadmin@datapower.com
+Received: by vger.rutgers.edu via listexpand id <S154363AbQDHT7U>; Sat, 8 Apr 2000 15:59:20 -0400
+Received: by vger.rutgers.edu id <S154258AbQDHT7A>; Sat, 8 Apr 2000 15:59:00 -0400
+Received: from colorfullife.com ([216.156.138.34]:3023 "EHLO colorfullife.com") by vger.rutgers.edu with ESMTP id <S154415AbQDHT6p>; Sat, 8 Apr 2000 15:58:45 -0400
+Message-ID: <38EF9135.2A42DC6E@colorfullife.com>
+Date: Sat, 08 Apr 2000 22:06:13 +0200
+From: Manfred Spraul <manfreds@colorfullife.com>
+X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.2.14 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: linux-kernel@vger.rutgers.edu, linux-mm@kvack.org
+Subject: zap_page_range(): TLB flush race
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
+it seems we have a smp race in zap_page_range():
 
-The Linux Hardware Database is basically an effort to cut down on
-"is X supported by the Linux kernel?" posts. We are announcing it
-here for this reason, although the site is already pretty well known.
-We would also like feedback from the linux-kernel membership, and perhaps
-even some involvement from driver authors or maintainers.
+When we remove a page from the page tables, we must call:
 
-Linux Hardware Database (http://www.linhardware.com) has been
-relaunched. LhD is a site for Linux hardware information that provides: 
- 
-* User ratings of compatibility and performance
-* Workarounds for a product from other users
-* Linux driver information
-* Resources helpful in setting up a product
-* Actual product specs
- 
-all tied to well-described product records in a relational database. This makes it easier for users to find information about the precise PC compoment they own without wading through many search hits.
- 
-Come to LhD to:
-* Share your experience with others by rating the hardware you use * Get help in setting up your PC hardware with Linux
-* Find which components to buy for your next Linux box
- 
-There have been several relaunches in the past two months, and this is the culmination of them. We are really looking forward to some feedback from the community.
- 
-New features include:
-* A new much more readable and printable look
-* Improved usability: sortable colums, more informative displays, shop links, and other details
-* Comment-only postings that can be made without logging in
-* More data!
- 
+	flush_cache_page();
+	pte_clear();
+	flush_tlb_page();
+	free_page();
+
+We must not free the page before we have called flush_tlb_xy(),
+otherwise the second cpu could access memory that already freed.
+
+but zap_page_range() calls free_page() before the flush_tlb() call.
+
+Is that really a bug, has anyone a good idea how to fix that?
+
+filemap_sync() calls flush_tlb_page() for each page, but IMHO this is a
+really bad idea, the performance will suck with multi-threaded apps on
+SMP.
+
+Perhaps build a linked list, and free later?
+We could abuse the next pointer from "struct page".
 --
-LhD Administrator
-Linux Hardware Database
-http://www.linhardware.com
-
-
-
-
-
+	Manfred
 
 
 -

@@ -1,101 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266964AbRGHTDq>; Sun, 8 Jul 2001 15:03:46 -0400
+	id <S265463AbRGHT2w>; Sun, 8 Jul 2001 15:28:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266963AbRGHTDg>; Sun, 8 Jul 2001 15:03:36 -0400
-Received: from front3m.grolier.fr ([195.36.216.53]:31398 "EHLO
-	front3m.grolier.fr") by vger.kernel.org with ESMTP
-	id <S266962AbRGHTD1> convert rfc822-to-8bit; Sun, 8 Jul 2001 15:03:27 -0400
-Date: Sun, 8 Jul 2001 21:01:17 +0200 (CEST)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>
-X-X-Sender: <groudier@>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: SCSI Tape corruption - update
-In-Reply-To: <Pine.LNX.4.05.10107081519110.9473-100000@callisto.of.borg>
-Message-ID: <20010708204508.D804-100000@>
+	id <S266968AbRGHT2m>; Sun, 8 Jul 2001 15:28:42 -0400
+Received: from ns.suse.de ([213.95.15.193]:8719 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S266161AbRGHT22>;
+	Sun, 8 Jul 2001 15:28:28 -0400
+Subject: Re: recvfrom and sockaddr_in.sin_port
+From: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, davem@redhat.com
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+Date: 08 Jul 2001 21:28:27 +0200
+In-Reply-To: Adam's message of "8 Jul 2001 18:23:35 +0200"
+Message-ID: <ouppubbfcf8.fsf@pigdrop.muc.suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Adam <adam@eax.com> writes:
+> 
+> 	and as show in above example and other repeated test, the port
+> 	part is always set to 0. Shouldn't that be set to port number?
+
+SOCK_RAW has no ports, so no.
+
+> 
+> 	on similar token the "padding" part after the IP is always set
+> 	to the same pattern. Shouldn't it rather be zeroed, or be
+> 	some random data?
+
+It should stay at the old value or alternatively be zeroed. That's a 
+kernel bug.
+
+Here is a patch that implements the first alternative. David, please consider
+applying.
+
+diff -burp linux/include/linux/in.h linux-work/include/linux/in.h
+--- linux/include/linux/in.h	Thu Jul  5 13:18:27 2001
++++ linux-work/include/linux/in.h	Sun Jul  8 19:05:30 2001
+@@ -109,6 +109,10 @@ struct in_pktinfo
+ };
+ 
+ /* Structure describing an Internet (IP) socket address. */
++/* Note here and in others places is the assumption made that there
++   are no holes in in this structure. This is ok for all architectures
++   which layout structures members at worst to their natural
++   alignment. -AK */
+ #define __SOCK_SIZE__	16		/* sizeof(struct sockaddr)	*/
+ struct sockaddr_in {
+   sa_family_t		sin_family;	/* Address family		*/
+@@ -119,7 +123,7 @@ struct sockaddr_in {
+   unsigned char		__pad[__SOCK_SIZE__ - sizeof(short int) -
+ 			sizeof(unsigned short int) - sizeof(struct in_addr)];
+ };
+-#define sin_zero	__pad		/* for BSD UNIX comp. -FvK	*/
++#define sin_zero	__pad
+ 
+ 
+ /*
+diff -burp linux/net/ipv4/af_inet.c linux-work/net/ipv4/af_inet.c
+--- linux/net/ipv4/af_inet.c	Wed Jul  4 17:21:32 2001
++++ linux-work/net/ipv4/af_inet.c	Sun Jul  8 19:05:31 2001
+@@ -729,7 +729,7 @@ static int inet_getname(struct socket *s
+ 		sin->sin_port = sk->sport;
+ 		sin->sin_addr.s_addr = addr;
+ 	}
+-	*uaddr_len = sizeof(*sin);
++	*uaddr_len = sizeof(offsetof(struct sockaddr_in, sin_zero));
+ 	return(0);
+ }
+ 
+diff -burp linux/net/ipv4/raw.c linux-work/net/ipv4/raw.c
+--- linux/net/ipv4/raw.c	Wed Jul  4 17:21:32 2001
++++ linux-work/net/ipv4/raw.c	Sun Jul  8 19:06:10 2001
+@@ -493,7 +493,7 @@ int raw_recvmsg(struct sock *sk, struct 
+ 		goto out;
+ 
+ 	if (addr_len)
+-		*addr_len = sizeof(*sin);
++		*addr_len = offsetof(struct sockaddr_in, sin_zero);
+ 
+ 	if (flags & MSG_ERRQUEUE) {
+ 		err = ip_recv_error(sk, msg, len);
+diff -burp linux/net/ipv4/udp.c linux-work/net/ipv4/udp.c
+--- linux/net/ipv4/udp.c	Thu Apr 12 21:11:39 2001
++++ linux-work/net/ipv4/udp.c	Sun Jul  8 19:05:31 2001
+@@ -635,7 +635,7 @@ int udp_recvmsg(struct sock *sk, struct 
+ 	 *	Check any passed addresses
+ 	 */
+ 	if (addr_len)
+-		*addr_len=sizeof(*sin);
++		*addr_len=offsetof(struct sockaddr_in, sin_zero);
+ 
+ 	if (flags & MSG_ERRQUEUE)
+ 		return ip_recv_error(sk, msg, len);
 
 
-On Sun, 8 Jul 2001, Geert Uytterhoeven wrote:
-
-> On Thu, 21 Jun 2001, Geert Uytterhoeven wrote:
-> > On Tue, 8 May 2001, Geert Uytterhoeven wrote:
-> > > In the mean time I down/upgraded to 2.2.17 on my PPC box (CHRP LongTrail,
-> > > Sym53c875, HP C5136A  DDS1) and I can confirm that the problem does not happen
-> > > under 2.2.17 neither.
-> > >
-> > > My experiences:
-> > >   - reading works fine, writing doesn't
-> > >   - 2.2.x works fine, 2.4.x doesn't (at least since 2.4.0-test1-ac10)
-> > >   - hardware compression doesn't matter
-> > >   - I have a sym53c875, Lorenzo has an Adaptec, so most likely it's not a
-> > >     SCSI hardware driver bug
-> > >   - I have a PPC, Lorenzo doesn't, so it's not CPU-specific
-> > >   - corruption is always a block of 32 bytes being replaced by 32 bytes from
-> > >     the previous tape block (depending on block size!) (approx. 6 errors per
-> > >     256 MB)
-> > >
-> > > Lorenzo, can you please investigate the exact nature of the corruption on your
-> > > system?
-> > >   - How many successive bytes are corrupted?
-> > >   - Where do the corrupted data come from?
-> >
-> > Yesterday I noticed the same corruption under 2.2.19 (yes, I run amverify after
-> > backing up my system now, so it detects corruption through the gzip CRCs).
-> >
-> > I'll do some more tests (when I find time) to get a higher statistical
-> > certainty that it really doesn't happen under earlier 2.2.x kernels.
->
-> New findings:
->   - The problem doesn't happen with kernels <= 2.2.17. It does happen with all
->     kernels starting with 2.2.18-pre1.
->   - The only related stuff that changed in 2.2.18-pre1 seems to be the
->     Sym53c8xx driver itself. I'll do some more tests soon to isolate the
->     problem.
->   - The changes to the Sym53c8xx driver in 2.2.18-pre1 are _huge_. Are the
->     individual changes between sym53c8xx-1.3g and sym53c8xx-1.7.0 available
->     somewhere?
-
-No. But you can move the sym/ncr driver bundle from 2.2.18-pre1 to 2.2.17
-and vice-versa.
- sym53c8xx.h, sym53c8xx_defs.h, sym53c8xx.c,
- sym53c8xx_comm.h, ncr53c8xx.h, ncr53c8xx.c
-
-You also can download either sym-1.7.3c-ncr-3.4.3b, or sym-2.1.11, or just
-both and play with all that stuff under 2.2.17 and later 2.2 kernels.
-
- ftp://ftp.tux.org/pub/roudier/README-drivers-linux
-
-Btw, I am interested in results using sym-1.7.3c and sym-2.1.11 under
-kernel 2.2.17 and possibly 2.2.18.
-
-> BTW, I wrote a small test program which tries to analyze error bursts. You can
-> find it at http://home.tvd.be/cr26864/Download/genpseudorandom.c
->
-> Sample test using 200000000 bytes of data:
->
->     genpseudorandom -o -l 200000000  > /dev/tape
->     genpseudorandom -i < /dev/tape
-
-Unfortunately, I haven't any tape device.
-
-> So far I always saw problems when writing even only 10 MB to tape: ca. 3-5
-> bursts of 32 or 12 incorrect bytes, which are always a copy of the
-> corresponding bytes in the previous block. Of course I used a much larger test
-> stream to verify 2.2.17.
->
-> Thanks!
->
-> Gr{oetje,eeting}s,
->
-> 						Geert
-
-Thanks for your testings,
-  Gérard.
-
+-Andi

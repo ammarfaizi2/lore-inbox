@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267338AbUIEXUb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267341AbUIEX3s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267338AbUIEXUb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 19:20:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267341AbUIEXUb
+	id S267341AbUIEX3s (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 19:29:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267346AbUIEX3s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 19:20:31 -0400
-Received: from smtp09.auna.com ([62.81.186.19]:45302 "EHLO smtp09.retemail.es")
-	by vger.kernel.org with ESMTP id S267338AbUIEXU3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 19:20:29 -0400
-Date: Sun, 05 Sep 2004 23:20:13 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
+	Sun, 5 Sep 2004 19:29:48 -0400
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:26790 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S267341AbUIEX3r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 19:29:47 -0400
+Date: Sun, 5 Sep 2004 16:29:36 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Lee Revell <rlrevell@joe-job.com>, Tim Fairchild <tim@bcs4me.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Sid Boyce <sboyce@blueyonder.co.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: NVIDIA Driver 1.0-6111 fix
-To: linux-kernel@vger.kernel.org
-References: <200409050203.i8523X6W031952@localhost.localdomain>
-In-Reply-To: <200409050203.i8523X6W031952@localhost.localdomain> (from
-	vonbrand@inf.utfsm.cl on Sun Sep  5 04:03:33 2004)
-X-Mailer: Balsa 2.2.4
-Message-Id: <1094426413l.13777l.0l@werewolf.able.es>
-X-Balsa-Fcc: file:///home/magallon/mail/sentbox
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	Format=Flowed
+Message-ID: <20040905232936.GA3781@taniwha.stupidest.org>
+References: <41390988.2010503@blueyonder.co.uk> <200409041954.05272.tim@bcs4me.com> <1094327788.6575.209.camel@krustophenia.net> <200409050702.29007.tim@bcs4me.com> <1094332949.6575.360.camel@krustophenia.net> <1094385894.1078.31.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
+In-Reply-To: <1094385894.1078.31.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Sep 05, 2004 at 01:04:55PM +0100, Alan Cox wrote:
 
-On 2004.09.05, Horst von Brand wrote:
-> Lee Revell <rlrevell@joe-job.com> said:
-> > Tim Fairchild <tim@bcs4me.com> said:
-> 
-> [...]
-> 
-> > > Users don't really care about open and closed source. They just want 
-> > > to play quake 3 (etc).
-> 
-> > I have never understood why these people don't just run Windows.
-> 
-> Some run Linux because it _works_, and also want to play.
-> 
+> The source code ones only go for R2xx series, not R300/R400. A
+> browse of the documentation would have told you that. Whether this
+> will change nobody knows. Perhaps as R3xx ceases to be leading edge
+> ATI will be nice to us.
 
-and why do people think that a fast 3d card is only used to play ?
-I'm involved in graphics modelling, 3d simulation, 3d realtime and so on.
-Try to run softimage on top of software GL...
-Or run a lighting simulation of a building on top of the nv+mesa combo.
+Having fill specs doesn't buy much, the amount of work required to get
+a high-performance workable driver is enormous.  I suspect any open
+effort along these lines would take so long at to be uninteresting.
 
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandrakelinux release 10.1 (RC 1) for i586
-Linux 2.6.8.1-mm4 (gcc 3.4.1 (Mandrakelinux (Alpha 3.4.1-3mdk)) #8
+I'd much rather have ATI help work with the community in finding a
+solution to opening up their drivers (in whole or in part).  The same
+applies to nvidia of course, but much I'm much less optimistic there
+(which is a shame, because both vendors could gain a lot by working
+with the community rather than what feels like against it at times).
 
 
+  --cw

@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289602AbSAOTQs>; Tue, 15 Jan 2002 14:16:48 -0500
+	id <S290261AbSAOT0T>; Tue, 15 Jan 2002 14:26:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290251AbSAOTQi>; Tue, 15 Jan 2002 14:16:38 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:13828 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289602AbSAOTQZ>; Tue, 15 Jan 2002 14:16:25 -0500
-Subject: Re: Why not "attach" patches?
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Tue, 15 Jan 2002 19:28:23 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <a21qvo$375$1@penguin.transmeta.com> from "Linus Torvalds" at Jan 15, 2002 06:04:40 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S290257AbSAOT0K>; Tue, 15 Jan 2002 14:26:10 -0500
+Received: from [208.179.59.195] ([208.179.59.195]:59256 "EHLO
+	Booterz.killerlabs.com") by vger.kernel.org with ESMTP
+	id <S290261AbSAOT0B>; Tue, 15 Jan 2002 14:26:01 -0500
+Message-ID: <3C448241.7000104@blue-labs.org>
+Date: Tue, 15 Jan 2002 14:25:53 -0500
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020115
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.2 - reiserfs::procfs.c fails compile
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16QZFv-0005wy-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> all tools will see as a normal body), I simply WILL NOT apply it unless
-> I have strong reason to. I usually wont even bother looking at it,
-> unless I expected something special from the sender.
-> 
-> Really. Don't send patches as attachments. 
+Looks like a quick fix, ..I haven't inspected it tho.
 
-BTW: If you are sending me anything DO use attachments. Especially if you
-use any of the following, which seem to have some versions that mangle 
-inline diffs
+-d
 
-	Lotus Notes
-	Pine
-	Kmail
-	Mozilla
-	Netscape
-	MS Outlook
+gcc -D__KERNEL__ -I/usr/local/src/linux/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
+-march=i686  -DSMBFS_PARANOIA  -c -o inode.o inode.c
+procfs.c: In function `reiserfs_version_in_proc':
+procfs.c:80: conversion to non-scalar type requested
+procfs.c: In function `reiserfs_super_in_proc':
+procfs.c:137: conversion to non-scalar type requested
+procfs.c: In function `reiserfs_per_level_in_proc':
+procfs.c:217: conversion to non-scalar type requested
+procfs.c: In function `reiserfs_bitmap_in_proc':
+procfs.c:296: conversion to non-scalar type requested
+procfs.c: In function `reiserfs_on_disk_super_in_proc':
+procfs.c:337: conversion to non-scalar type requested
+procfs.c: In function `reiserfs_oidmap_in_proc':
+procfs.c:390: conversion to non-scalar type requested
+procfs.c: In function `reiserfs_journal_in_proc':
+procfs.c:441: conversion to non-scalar type requested
+procfs.c:494: incompatible type for argument 1 of `bdevname'
+procfs.c: In function `reiserfs_proc_register':
+procfs.c:581: aggregate value used where an integer was expected
+make[3]: *** [procfs.o] Error 1
+make[3]: Leaving directory `/usr/local/src/linux/fs/reiserfs'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/local/src/linux/fs/reiserfs'
 
-If you aren't sure if your mailer is ok then send yourself a block of text
-that contains a line over 80 chars long, a line ending in space, and a line
-with tabs in it
 
-Check the tabs are still there, the space on the end of the line hasnt been
-eaten (eg pine) and that the long line was not wrapped.
-
-Alan

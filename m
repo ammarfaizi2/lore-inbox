@@ -1,63 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266051AbUAVPpm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 10:45:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266285AbUAVPpm
+	id S264933AbUAVTWo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 14:22:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266281AbUAVTWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 10:45:42 -0500
-Received: from fed1mtao02.cox.net ([68.6.19.243]:36812 "EHLO
-	fed1mtao02.cox.net") by vger.kernel.org with ESMTP id S266051AbUAVPpk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 10:45:40 -0500
-Date: Thu, 22 Jan 2004 08:45:29 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Hollis Blanchard <hollisb@us.ibm.com>
-Cc: KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       George Anzinger <george@mvista.com>,
-       Powerpc Linux <linuxppc-dev@lists.linuxppc.org>,
-       "Amit S. Kale" <amitkale@emsyssoft.com>
-Subject: Re: PPC KGDB changes and some help?
-Message-ID: <20040122154529.GE15271@stop.crashing.org>
-References: <20040120172708.GN13454@stop.crashing.org> <200401211946.17969.amitkale@emsyssoft.com> <20040121153019.GR13454@stop.crashing.org> <200401212223.13347.amitkale@emsyssoft.com> <20040121184217.GU13454@stop.crashing.org> <20040121192128.GV13454@stop.crashing.org> <400F0759.5070309@mvista.com> <20040122150713.GC15271@stop.crashing.org> <30216351-4CEF-11D8-A2A1-000A95A0560C@us.ibm.com>
+	Thu, 22 Jan 2004 14:22:43 -0500
+Received: from mxsf03.cluster1.charter.net ([209.225.28.203]:9480 "EHLO
+	mxsf03.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S264933AbUAVTWl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 14:22:41 -0500
+Date: Thu, 22 Jan 2004 14:19:53 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Nvidia drivers and 2.6.x kernel
+Message-ID: <20040122191953.GA16677@forming>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200401221012.17121.chakkerz@optusnet.com.au> <200401211744.04064.paul@misner.org> <200401221105.12148.chakkerz@optusnet.com.au> <200401211824.10470.paul@misner.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <30216351-4CEF-11D8-A2A1-000A95A0560C@us.ibm.com>
+In-Reply-To: <200401211824.10470.paul@misner.org>
+X-Editor: GNU Emacs 21.1
+X-Operating-System: Debian GNU/Linux 2.6.1-rc1-mm1-vesa i686
+X-Uptime: 14:10:14 up 3 days, 11:29,  6 users,  load average: 7.27, 6.26, 5.64
 User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Josh McKinney <forming@charter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 22, 2004 at 09:25:19AM -0600, Hollis Blanchard wrote:
-> On Jan 22, 2004, at 9:07 AM, Tom Rini wrote:
-> >
-> >On Wed, Jan 21, 2004 at 03:12:25PM -0800, George Anzinger wrote:
-> >
-> >>A question I have been meaning to ask:  Why is the arch/common 
-> >>connection
-> >>via a structure of addresses instead of just calls?  I seems to me 
-> >>that
-> >>just calling is a far cleaner way to do things here.  All the struct 
-> >>seems
-> >>to offer is a way to change the backend on the fly.  I don't thing we 
-> >>ever
-> >>want to do that.  Am I missing something?
-> >
-> >I imagine it's a style thing.  I don't have a preference either way.
+On approximately Wed, Jan 21, 2004 at 06:24:10PM -0600, Paul Misner wrote:
+> On Wednesday 21 January 2004 06:05 pm, Christian Unger wrote:
+> > About module-init-tools ... dunno ... never heard of it, I'm on Slackware
+> > 9.1 so ... dunno ... Not sure. But like you say, if i could not initalize
+> > modules the nvidia module should be the least of my worries, plus
+> > everything loads in 2.4.22
 > 
-> I think we in PPC land have gotten used to that "style" because we have 
-> one kernel that supports different "platforms", i.e. it selects the 
-> appropriate code at runtime as George says. In general that's a little 
-> bit slower and a little bit bigger.
+> The 2.6 kernel needs new tools to load the kernel modules, because they have a 
+> different format (not just a different extension with .ko).  
+> module-init-tools provides those necessary upgrades, and also aids in 
+> creating /etc/modprobe.conf, which is used instead of /etc/modules.conf under 
+> the 2.6 kernels for loading modules on startup.  If you don't have 
+> module-init-tools, then I'm not surprised you are having problems.  You 
+> probably need an updated mkinitrd as well if you are using an initrd on 
+> system startup.
 > 
-> Unless you need to choose among PPC KGDB functions at runtime, which I 
-> don't think you do, you don't need it...
+> They should be at http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
+> 
+> You probably want to read a document that summarized the changes that happened 
+> in 2.6, which is where the link above was located.  It is 
+> http://www.linux.org.uk/~davej/docs/post-halloween-2.6.txt
+> 
+> Not knowing much about Slackware, I couldn't give you much help about where 
+> the best place to get your tools from might be, except for the source above.
+> 
+> > > What messages do you get about what is going wrong?  What happens when
+> > > you so a modprobe nvidia?  What does your log file from XFree show?
+> >
+> > on make install i get:
+> > FATAL: Error inserting nvidia (/lib/modules/2.6.1/kernel/drivers/video/
+> > nvidia.ko): Invalid module format
+> >
+> > That's the same thing that modprobe nvidia gets.
+> > I'll check the nv thing out.
+> >
 
-That's certainly true, so if (and if I understand Georges question
-right) Amit wants to change kgdb_arch into a set of required functions,
-with stubs in, say, kernel/kgdbdummy.c, (and just keep the flags / etc
-in the struct), that's fine with me.
+My guess is you need to have a "built" kernel tree.  Basically just
+build the kernel, install, reboot, then without touching the kernel
+tree you built rebuild the nvidia driver.  I hope that makes sense.
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Josh McKinney		     |	Webmaster: http://joshandangie.org
+--------------------------------------------------------------------------
+                             | They that can give up essential liberty
+Linux, the choice       -o)  | to obtain a little temporary safety deserve 
+of the GNU generation    /\  | neither liberty or safety. 
+                        _\_v |                          -Benjamin Franklin

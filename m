@@ -1,67 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289026AbSAIVe6>; Wed, 9 Jan 2002 16:34:58 -0500
+	id <S289031AbSAIVgs>; Wed, 9 Jan 2002 16:36:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289027AbSAIVes>; Wed, 9 Jan 2002 16:34:48 -0500
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:15541 "EHLO
-	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S289026AbSAIVek>; Wed, 9 Jan 2002 16:34:40 -0500
-Message-Id: <5.1.0.14.2.20020109213221.02dd5f80@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 09 Jan 2002 21:34:34 +0000
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: initramfs programs (was [RFC] klibc requirements)
-Cc: Greg KH <greg@kroah.com>, felix-dietlibc@fefe.de,
-        linux-kernel@vger.kernel.org,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-In-Reply-To: <1382203430.1010610946@[195.224.237.69]>
-In-Reply-To: <5.1.0.14.2.20020109103716.026a0b20@pop.cus.cam.ac.uk>
- <5.1.0.14.2.20020109103716.026a0b20@pop.cus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S289028AbSAIVgj>; Wed, 9 Jan 2002 16:36:39 -0500
+Received: from finch-post-11.mail.demon.net ([194.217.242.39]:39433 "EHLO
+	finch-post-11.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S289027AbSAIVgW>; Wed, 9 Jan 2002 16:36:22 -0500
+From: Stephen Kitchener <stephen@g6dzj.demon.co.uk>
+Reply-To: stephen@g6dzj.demon.co.uk
+Organization: none
+To: <linux-kernel@vger.kernel.org>
+Subject: Error message after lilo on 2.4.17
+Date: Wed, 9 Jan 2002 21:36:06 +0000
+X-Mailer: KMail [version 1.3.1]
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_6CXOVQUEFZV7UKG7COJZ"
+Message-Id: <E16OQOR-00072j-0B@finch-post-11.mail.demon.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 21:15 09/01/2002, Alex Bligh - linux-kernel wrote:
->>>Here's what I want to have in my initramfs:
->>>         - /sbin/hotplug
->>>         - /sbin/modprobe
->>>         - modules.dep (needed for modprobe, but is a text file)
->>>
->>>What does everyone else need/want there?
->>
->>It is planned to move partition discovery to userspace which would then
->>instruct the kernel of the positions of various partitions.
->>
->>The program(s) to do this will need to be in pretty much everyones
->>initramfs...
->
->What with mounting root via NFS, hence having to set up
->IP et al, mounting various different
->partition types, avoiding the kludge of fsck etc.,
->being able to recover from a corrupted root, you
->might as well just cpio up your /sbin and stick
->that in, and be able to run single user mode without
->a 'normal' root. <FX: ducks & runs>
->
->seriously point: ls /sbin gives a /maximum/ range I'd
->have thought.
 
-Partition discovery is currently done within the kernel itself. The code 
-will effectively 'just' move out into user space. As such it is not present 
-in /sbin now but it will be in initramfs. The same is true for various 
-other code I can imagine moving out of kernel mode into initramfs...
+--------------Boundary-00=_6CXOVQUEFZV7UKG7COJZ
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-Best regards,
+Hi,
 
-Anton
+I hope this it the right place, it is kernel related.
 
+I have built a 2.4.17 kernel from source on a machine here, via make 
+mrproper, make xconfig, make bZimage, make mdules, make modules_install, 
+,make install. Im just repeating them here so that you can see what I have 
+done :-).
+
+Checked the lilo.config, run /sbin/lilo and booted the machine.
+
+When the machine boots it finds the kernel, lilo dosnt hang but I get this...
+
+uncompressing linux. OK booting the kernel
+Unknown bridge resourse at 0: assuming transparent
+mkroot: mknod failed: 17
+mount error 16 Mounting ext3 flags. Kernel panic no init found.
+Try passing init=option to kernel.
+
+The first two lines appear when I am booting from a 2.4.8 kernel, but things 
+load correctly there and the 2.4.8 kernel and modules were installed the same 
+way as the 2.4.17 version, so I am at a loss as to what I have missed.
+
+Can someone help please
 
 -- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+Stephen Kitchener
+--------------Boundary-00=_6CXOVQUEFZV7UKG7COJZ
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="copy-of-lilo"
+Content-Transfer-Encoding: base64
+Content-Description: copy of lilo
+Content-Disposition: attachment; filename="copy-of-lilo"
 
+Ym9vdD0vZGV2L3NkYQptYXA9L2Jvb3QvbWFwCmluc3RhbGw9L2Jvb3QvYm9vdC5iCnZnYT1ub3Jt
+YWwKZGVmYXVsdD0yNDgtMzQxLXJhZGlvCmtleXRhYmxlPS9ib290L3VrLmtsdApsYmEzMgpwcm9t
+cHQKdGltZW91dD01MAptZXNzYWdlPS9ib290L21lc3NhZ2UKbWVudS1zY2hlbWU9d2I6Ync6d2I6
+YncKaW1hZ2U9L2Jvb3Qvdm1saW51egogICAgICAgIGxhYmVsPWxpbnV4CiAgICAgICAgcm9vdD0v
+ZGV2L3NkYTEKICAgICAgICBpbml0cmQ9L2Jvb3QvaW5pdHJkLmltZwogICAgICAgIGFwcGVuZD0i
+IGRldmZzPW1vdW50IHF1aWV0IgogICAgICAgIHZnYT03ODgKICAgICAgICByZWFkLW9ubHkKaW1h
+Z2U9L2Jvb3Qvdm1saW51egogICAgICAgIGxhYmVsPWxpbnV4LW5vbmZiCiAgICAgICAgcm9vdD0v
+ZGV2L3NkYTEKICAgICAgICBpbml0cmQ9L2Jvb3QvaW5pdHJkLmltZwogICAgICAgIGFwcGVuZD0i
+IGRldmZzPW1vdW50IgogICAgICAgIHJlYWQtb25seQppbWFnZT0vYm9vdC92bWxpbnV6CiAgICAg
+ICAgbGFiZWw9ZmFpbHNhZmUKICAgICAgICByb290PS9kZXYvc2RhMQogICAgICAgIGluaXRyZD0v
+Ym9vdC9pbml0cmQuaW1nCiAgICAgICAgYXBwZW5kPSIgZGV2ZnM9bW91bnQgZmFpbHNhZmUiCiAg
+ICAgICAgcmVhZC1vbmx5Cm90aGVyPS9kZXYvZmQwCiAgICAgICAgbGFiZWw9ZmxvcHB5CiAgICAg
+ICAgdW5zYWZlCgppbWFnZT0vYm9vdC92bWxpbnV6LTIuNC44LTM0LjFtZGsKICAgICAgICBsYWJl
+bD0yNDgtMzQxCiAgICAgICAgcm9vdD0vZGV2L3NkYTEKICAgICAgICByZWFkLW9ubHkKICAgICAg
+ICBvcHRpb25hbAogICAgICAgIHZnYT1ub3JtYWwKICAgICAgICBhcHBlbmQ9IiBkZXZmcz1tb3Vu
+dCBxdWlldCIKICAgICAgICBpbml0cmQ9L2Jvb3QvaW5pdHJkLTIuNC44LTM0LjFtZGsuaW1nCgpp
+bWFnZT0vYm9vdC92bWxpbnV6LTIuNC4xNwogICAgICAgIGxhYmVsPTI0MTcKICAgICAgICByb290
+PS9kZXYvc2RhMQogICAgICAgIHJlYWQtb25seQogICAgICAgIG9wdGlvbmFsCiAgICAgICAgdmdh
+PW5vcm1hbAogICAgICAgIGFwcGVuZD0iIGRldmZzPW1vdW50IHF1aWV0IgogICAgICAgIGluaXRy
+ZD0vYm9vdC9pbml0cmQtMi40LjE3LmltZwoKaW1hZ2U9L2Jvb3Qvdm1saW51ei0yLjQuOC0zNC4x
+bWRrLVJhZGlvCiAgICAgICAgbGFiZWw9MjQ4LTM0MS1SYWRpbwogICAgICAgIHJvb3Q9L2Rldi9z
+ZGExCiAgICAgICAgcmVhZC1vbmx5CiAgICAgICAgb3B0aW9uYWwKICAgICAgICB2Z2E9bm9ybWFs
+CiAgICAgICAgYXBwZW5kPSIgZGV2ZnM9bW91bnQgcXVpZXQiCiAgICAgICAgaW5pdHJkPS9ib290
+L2luaXRyZC0yLjQuOC0zNC4xbWRrLVJhZGlvLmltZw==
+
+--------------Boundary-00=_6CXOVQUEFZV7UKG7COJZ--

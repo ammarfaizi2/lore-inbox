@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261806AbTIYLV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 07:21:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbTIYLV4
+	id S261808AbTIYLPz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 07:15:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbTIYLPz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 07:21:56 -0400
-Received: from mail2.uu.nl ([131.211.16.76]:2197 "EHLO mail2.uu.nl")
-	by vger.kernel.org with ESMTP id S261806AbTIYLVz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 07:21:55 -0400
-Subject: more header annoyances
-From: Ronald Bultje <rbultje@ronald.bitfreak.net>
-To: kraxel@bytesex.org
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1064488998.2228.516.camel@shrek.bitfreak.net>
+	Thu, 25 Sep 2003 07:15:55 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:59598 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261808AbTIYLPy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 07:15:54 -0400
+Date: Thu, 25 Sep 2003 13:15:47 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Nicolas Mailhot <Nicolas.Mailhot@laposte.net>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: PS2 keyboard & mice mandatory again ?
+Message-ID: <20030925111547.GL15696@fs.tum.de>
+References: <1064428364.1673.11.camel@rousalka.dyndns.org> <20030925074656.GA22543@ucw.cz> <1064477341.13077.7.camel@ulysse.olympe.o2t>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 25 Sep 2003 13:23:18 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1064477341.13077.7.camel@ulysse.olympe.o2t>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Gerd,
+On Thu, Sep 25, 2003 at 10:11:45AM +0200, Nicolas Mailhot wrote:
+> 
+> Great, now a standard mass-market computer is an embedded device. I can
+> (and will) certainly do it, but this looks like a ticking bomb to me.
+>...
 
-/usr/src/linux-2.6.x/include/media/id.h says "/* FIXME: this
-temporarely, until these are included in linux/i2c-id.h */". Since these
-are now in i2c-id.h, could you consider removing that file?
+What does it cost if an unneeded driver is included in your kernel? 
+Perhaps a few kB?
 
-Reason:
--
-#include <media/tuner.h>
-#include <linux/i2c.h>
--
-...(in a driver) will break compilation...
--
-include/linux/i2c-id.h:79:1: warning: "I2C_DRIVERID_TDA9875" redefined
-In file included from include/media/tuner.h:25,
-                 from drivers/media/video/zr36120.c:42:
-include/media/id.h:19:1: warning: this is the location of the previous
-definition
--
+On a standard mass-market computer with 256 MB of RAM where the user 
+uses Mozilla under KDE this is quite irrelevant.
 
-Thanks,
+EMBEDDED is for people that really have to count every kB to put a 
+kernel onto a small floppy/flash/computer with limited RAM.
 
-Ronald
+> Regards,
+> Nicolas Mailhot
 
-PS I hope I'm not annoying you with all these small issues, I'm just
-trying to find & solve issues that I notice in 2.6.x while doing some
-random work on it. :).
+cu
+Adrian
 
 -- 
-Ronald Bultje <rbultje@ronald.bitfreak.net>
-Linux Video/Multimedia developer
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262981AbSLBBS0>; Sun, 1 Dec 2002 20:18:26 -0500
+	id <S262959AbSLBBRH>; Sun, 1 Dec 2002 20:17:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263105AbSLBBS0>; Sun, 1 Dec 2002 20:18:26 -0500
-Received: from web14506.mail.yahoo.com ([216.136.224.69]:19026 "HELO
-	web14506.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S262981AbSLBBSZ>; Sun, 1 Dec 2002 20:18:25 -0500
-Message-ID: <20021202012552.47909.qmail@web14506.mail.yahoo.com>
-Date: Sun, 1 Dec 2002 17:25:52 -0800 (PST)
-From: Arun Prasad Velu <arun_linux@yahoo.com>
-Subject: kgdb - compilation fails for i386_ksyms.c 
-To: linux-kernel@vger.kernel.org
+	id <S262981AbSLBBRH>; Sun, 1 Dec 2002 20:17:07 -0500
+Received: from [211.101.140.97] ([211.101.140.97]:41476 "EHLO
+	dns.rabbit.redflag-linux.com") by vger.kernel.org with ESMTP
+	id <S262959AbSLBBRH> convert rfc822-to-8bit; Sun, 1 Dec 2002 20:17:07 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Zou Pengcheng <pczou@redflag-linux.com>
+Organization: RedFlag Linux
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [PATCH] dnotify fix for readv/writev (Linux 2.4.20)
+Date: Mon, 2 Dec 2002 09:22:43 +0800
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200212020922.43820.pczou@redflag-linux.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+hi, Marcelo,
 
-I was trying to use kgdb.
-But I get the following error while trying to create
-the kernel image after applying kgdb patch.
-I couldn't copy paste the error and so typed the same
-here.
+this is a patch to fix the dnotify bug of readv/writev. 
 
-"
-i386_ksyms.c:172: 'do_BUG' undeclared here (not in a
-function)
-i386_ksyms.c:172: initializaer element is not a
-constant
-i386_ksyms.c:172: (near initialization for
-'__ksymtab_do_BUG.value')
-make[1]: *** [ie86_ksyms.o] Error 1
-make *** [_dir_arch/i386/kernel] Error 2
-"
+Orignally DN_MODIFY is issued on readv while DN_ACCESS is issued on writev, 
+which is obviously wrong. This patch fixes such problem.
 
-Your earlier response would ne of great help.
+cheers,
+  -- Pengcheng Zou
 
-Have a nice time.
-Warm Regards
-Arun
+diff -uNr fs/read_write.c.orig fs/read_write.c
+--- fs/read_write.c.orig        Mon Dec  2 09:07:34 2002
++++ fs/read_write.c     Mon Dec  2 09:08:26 2002
+@@ -315,7 +315,7 @@
+        /* VERIFY_WRITE actually means a read, as we write to user space */
+        if ((ret + (type == VERIFY_WRITE)) > 0)
+                dnotify_parent(file->f_dentry,
+-                       (type == VERIFY_WRITE) ? DN_MODIFY : DN_ACCESS);
++                       (type == VERIFY_WRITE) ? DN_ACCESS : DN_MODIFY);
+        return ret;
+ }
 
-
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
-http://mailplus.yahoo.com

@@ -1,29 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292092AbSBTRcE>; Wed, 20 Feb 2002 12:32:04 -0500
+	id <S292091AbSBTRfE>; Wed, 20 Feb 2002 12:35:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292091AbSBTRb6>; Wed, 20 Feb 2002 12:31:58 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:42762 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292178AbSBTRbs>; Wed, 20 Feb 2002 12:31:48 -0500
-Subject: Re: Lucent WinModem
-To: elieser@quatro.com.br (Elieser =?ISO-8859-1?Q?Le=E3o?=)
-Date: Wed, 20 Feb 2002 17:46:09 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <3C73DC99.4030405@quatro.com.br> from "Elieser =?ISO-8859-1?Q?Le=E3o?=" at Feb 20, 2002 02:27:53 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S292104AbSBTRes>; Wed, 20 Feb 2002 12:34:48 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:43136 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S292091AbSBTRce>;
+	Wed, 20 Feb 2002 12:32:34 -0500
+Date: Wed, 20 Feb 2002 09:30:34 -0800 (PST)
+Message-Id: <20020220.093034.112623671.davem@redhat.com>
+To: jgarzik@mandrakesoft.com
+Cc: jmerkey@vger.timpanogas.org, linux-kernel@vger.kernel.org,
+        jmerkey@timpanogas.org
+Subject: Re: ioremap()/PCI sickness in 2.4.18-rc2
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3C73DC34.E83CCD35@mandrakesoft.com>
+In-Reply-To: <20020220103320.A32211@vger.timpanogas.org>
+	<20020220103539.B32211@vger.timpanogas.org>
+	<3C73DC34.E83CCD35@mandrakesoft.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16daoj-0004D4-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> How can I use my LT Winmodem on Slackware???
-> I have a driver but doesn't work!!!! I don't know why...
+   From: Jeff Garzik <jgarzik@mandrakesoft.com>
+   Date: Wed, 20 Feb 2002 12:26:12 -0500
+   
+   type abuse aside, and alpha bugs aside, this looks ok... what is the
+   value of as->msize?
 
-Ask the binary only driver provider.
+Jeff and Jeff, the problem is one of two things:
 
-This list is about free software, and nobody else but the driver vendor
-can really help you
+1) when you have ~2GB of memory the vmalloc pool is very small
+   and this it the same place ioremap allocations come from
+
+2) the BIOS or Linus is not assigning resources of the device
+   properly, or it simple can't because the available PCI MEM space
+   with this much memory is too small
+
+I note that one of the resources of the card is 16MB or so.

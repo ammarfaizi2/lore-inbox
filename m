@@ -1,53 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281205AbRKYXSH>; Sun, 25 Nov 2001 18:18:07 -0500
+	id <S281214AbRKYXx6>; Sun, 25 Nov 2001 18:53:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281197AbRKYXR5>; Sun, 25 Nov 2001 18:17:57 -0500
-Received: from hall.mail.mindspring.net ([207.69.200.60]:28726 "EHLO
-	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S281205AbRKYXRr>; Sun, 25 Nov 2001 18:17:47 -0500
-Message-ID: <3C017C1B.8B8610DE@mindspring.com>
-Date: Sun, 25 Nov 2001 16:17:47 -0700
-From: Jim Henderson <hendersj@mindspring.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: J Sloan <jjs@pobox.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM:  kernel BUG at filemap.c:791
-In-Reply-To: <3C016E08.3C2D2537@mindspring.com> <3C017A6E.A4A3E2A6@pobox.com>
+	id <S281215AbRKYXxt>; Sun, 25 Nov 2001 18:53:49 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:47863
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S281214AbRKYXxb>; Sun, 25 Nov 2001 18:53:31 -0500
+Date: Sun, 25 Nov 2001 15:53:23 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>,
+        Dominik Kubla <kubla@sciobyte.de>, marcelo@conectiva.com.br,
+        linux-kernel@vger.kernel.org
+Subject: [RFC] 2.5/2.6/2.7 transition [was Re: Linux 2.4.16-pre1]
+Message-ID: <20011125155323.D30336@mikef-linux.matchmail.com>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Stephan von Krawczynski <skraw@ithnet.com>,
+	Dominik Kubla <kubla@sciobyte.de>, marcelo@conectiva.com.br,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011125151543.57a1159c.skraw@ithnet.com> <Pine.LNX.4.33.0111251007140.9377-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0111251007140.9377-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J Sloan wrote:
-> Wow, it must have taken quite some effort
-> to patch a 2.2 kernel for ext3!
+On Sun, Nov 25, 2001 at 10:17:15AM -0800, Linus Torvalds wrote:
 > 
-> OK, assuming you really mean 2.4.14, there
-> is a patch floating around the list for that -
+> On Sun, 25 Nov 2001, Stephan von Krawczynski wrote:
+> >
+> > The "problem" effectively arises from _fast_ releasing "stable" versions.
+> 
+> Actually, I think that is just the _symptom_ of the basic issue: I do not
+> like being a maintainer.
+> 
 
-You are correct, I fat-fingered the kernel version, 2.4.14 is what I'm
-running.  Been running 2.4.x kernels for quite a while now, and I catch
-myself freqently making that mistake when I type the version.
+Ok, here's *another* suggestion for future working of stable and development
+kernels...
 
-> I had a compaq 6500 that would scribble
-> on the disk and then lock up hard at some
-> random point in time - but that behaviour
-> could be triggered immediatley by running
-> dbench  - Look for the compaq patches from
-> Jens Axboe or better yet, lose 2.4.14 and go
-> straight to 2.4.16-pre1, since it has the ida
-> raid fixes, and ext3 support already.
+Linus,
 
-Will give the 2.4.16-pre1 kernel a shot and see how it behaves.
+You admit that you do not like to maintain.  We have seen that, and
+unfortunately for 2.4 it is true.
 
-I should have mentioned in my intial post as well that I've seen both
-hard locks (as in this case) and soft locks (where I could use the
-'magic sysreq key' feature), both of which referenced this particular
-code segment.
+Personally, I think that 2.4 was released too early.  It was when the
+Internet hype was going full force, and nobody (including myself) could be
+faulted for getting swept up in the wave that it was.
 
-Thanks for the quick response.
+I'd like to suggest two possibilities.
 
-Jim
+1) Develop 2.5 until it is ready to be 2.6 and immediately give it over to
+a maintainer, and start 2.7.
+
+2) Develop 2.5 until it has the features you want to go into 2.6, and give
+it over to the future 2.6 maintainer to stabalize and release it.  (there
+would be two develoment kernel at the same time for a short period with this)
+
+With both you would get to do what you like and won't get bored with, and
+let people share their latest code for many to see.
+
+Linus, can you say if you plan to do anything like this?
+
+MF

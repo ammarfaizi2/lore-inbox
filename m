@@ -1,107 +1,125 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292761AbSBVK3f>; Fri, 22 Feb 2002 05:29:35 -0500
+	id <S292783AbSBVKef>; Fri, 22 Feb 2002 05:34:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292783AbSBVK30>; Fri, 22 Feb 2002 05:29:26 -0500
-Received: from hera.reef.com ([195.138.195.148]:49132 "EHLO hera.reef.com")
-	by vger.kernel.org with ESMTP id <S292761AbSBVK3P>;
-	Fri, 22 Feb 2002 05:29:15 -0500
-X-WebMail-UserID: bogomips
-Date: Fri, 22 Feb 2002 11:26:33 +0100
-From: bogomips <bogomips@nirvanet.net>
-To: users@lists.freeswan.org
-Cc: linux-kernel@vger.kernel.org
-X-EXP32-SerialNo: 00002120
-Subject: scripts/Menuconfig: MCmenu7: command not found
-Message-ID: <3C6C7121@webmail.nirvanet.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebMail (Hydra) SMTP v3.61.08
+	id <S292797AbSBVKe0>; Fri, 22 Feb 2002 05:34:26 -0500
+Received: from mxout2.netvision.net.il ([194.90.9.21]:20986 "EHLO
+	mxout2.netvision.net.il") by vger.kernel.org with ESMTP
+	id <S292783AbSBVKeN>; Fri, 22 Feb 2002 05:34:13 -0500
+Date: Fri, 22 Feb 2002 12:42:03 +0200
+From: Gadi Oxman <gadio@netvision.net.il>
+Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
+To: Martin Dalecki <dalecki@evision-ventures.com>,
+        Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <00a201c1bb8d$90dd2740$0300a8c0@lemon>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+X-Priority: 3
+X-MSMail-priority: Normal
+In-Reply-To: <Pine.LNX.4.33.0202131434350.21395-100000@home.transmeta.com>
+ <3C723B15.2030409@evision-ventures.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi Martin,
 
-I have to make freeswan running of a RH 6.2 kernel 2.2.20 gateway.
+ide_module_t was designed to conceptually divide the code to multiple
+layers,
+whether one actually uses modules or compiles all the IDE code into the
+kernel,
+and in the future, to alow several parallel implementations of the same
+functionality
+which could reside in the kernel simultaneously.
 
-Unfortunetely, here is what I got after menugo.
+The job was not finished, but the original idea was to have:
 
-Can anybody help me?
+1. Core IDE code.
+2. Chipset modules.
+3. Probe modules.
+4. Subdriver modules.
 
-Do I have to patch something?
+ide_module_t was created so that the core IDE code could track all the
+modules
+currently available to it, and to be able to have several chipset drivers
+for the same
+chipset simultaneously, several probe modules simultaneously, and several
+subdrivers
+for the same device type (so that one could choose the one which works
+best).
 
-Regards & thank you in advance,
+The last example was actually used in ide-scsi.c. The intention in
+ide_module_t was
+that one would be able to have, for example, ide-cdrom + ide-scsi or
+ide-tape + ide-scsi
+in the kernel simultaneously (either compiled in or as modules), known to
+the
+core IDE code, and one could then change drivers for a single drive on the
+fly using
+something like "cat driver_name > /proc/ide/hdx/driver".
 
-Bogomips
+Upon receiving such a command, the IDE core could call the cleanup code of
+the driver which was originally assigned to hdx, the cleanup code would
+de-attach
+the driver from hdx without unloading the module and without affecting the
+other drives which are currently supported by it. The core code could then
+call the init code of the other driver to attach to the device.
 
-___________________________________________________
+The reason ide-probe was splitted to a different module is that in most of
+the
+time, one doesn't need the probe code in the kernel. It is needed during
+boot, and
+each time one "hot swaps" an IDE device. In addition, it could provide the
+framework
+for having several probe modules simultaneously, altough that never
+materialized.
 
-Menuconfig has encountered a possible error in one of the kernel's
-configuration files and is unable to continue.  Here is the error
-report:
+Cheers,
 
- Q> scripts/Menuconfig: MCmenu7: command not found
+Gadi
 
-Please report this to the maintainer <mec@shout.net>.  You may also
-send a problem report to <linux-kernel@vger.kernel.org>.
+----- Original Message -----
+From: "Martin Dalecki" <dalecki@evision-ventures.com>
+To: "Linus Torvalds" <torvalds@transmeta.com>
+Cc: "Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Sent: Tuesday, February 19, 2002 1:46 PM
+Subject: [PATCH] 2.5.5-pre1 IDE cleanup 9
 
-Please indicate the kernel version you are trying to configure and
-which menu you were trying to enter when this error occurred.
 
-make[1]: *** [menuconfig] Error 1
-make[1]: Leaving directory `/usr/src/linux'
-make: [mcf] Error 2 (ignored)
-cd lib ; make
-make[1]: Entering directory `/usr/kernel/freeswan-1.95/lib'
-ln -s ../libdes/des.h
-cc -I. -g -O3 -Wall -Wpointer-arith -Wcast-qual -Wstrict-prototypes 
--Wbad-function-cast    -c -o addrtoa.o addrtoa.c
-cc -I. -g -O3 -Wall -Wpointer-arith -Wcast-qual -Wstrict-prototypes 
--Wbad-function-cast    -c -o addrtot.o addrtot.c
-cc -I. -g -O3 -Wall -Wpointer-arith -Wcast-qual -Wstrict-prototypes 
--Wbad-function-cast    -c -o addrtypeof.o addrtypeof.c
-cc -I. -g -O3 -Wall -Wpointer-arith -Wcast-qual -Wstrict-prototypes 
--Wbad-function-cast    -c -o anyaddr.o anyaddr.c
-cc -I. -g -O3 -Wall -Wpointer-arith -Wcast-qual -Wstrict-prototypes 
--Wbad-function-cast    -c -o atoaddr.o atoaddr.c
-cc -I. -g -O3 -Wall -Wpointer-arith -Wcast-qual -Wstrict-prototypes 
--Wbad-function-cast    -c -o atoasr.o atoasr.c
-cc -I. -g -O3 -Wall -Wpointer-arith -Wcast-qual -Wstrict-prototypes 
--Wbad-function-cast    -c -o atosa.o atosa.c
-cc -I. -g -O3 -Wall -Wpointer-arith -Wcast-qual -Wstrict-prototypes 
--Wbad-function-cast    -c -o atosubnet.o atosubnet.c
-cc -I. -g -O3 -Wall -Wpointer-arith -Wcast-qual -Wstrict-prototypes 
--Wbad-function-cast    -c -o atoul.o atoul.c
-cc -I. -g -O3 -Wall -Wpointer-arith -Wcast-qual -Wstrict-prototypes 
--Wbad-function-cast    -c -o copyright.o copyright.c
-cc -I. -g -O3 -Wall -Wpointer-arith -Wcast-qual -Wstrict-prototypes 
--Wbad-function-cast    -c -o datatot.o datatot.c
-cc -I. -g -O3 -Wall -Wpointer-arith -Wcast-qual -Wstrict-prototypes 
--Wbad-function-cast    -c -o goodmask.o goodmask.c
-cc -I. -g -O3 -Wall -Wpointer-arith -Wcast-qual -Wstrict-prototypes 
--Wbad-function-cast    -c -o initaddr.o initaddr.c
-cc -I. -g -O3 -Wall -Wpointer-arith -Wcast-qual -Wstrict-prototypes 
--Wbad-function-cast    -c -o initsaid.o initsaid.c
-cc -I. -g -O3 -Wall -Wpointer-arith -Wcast-qual -Wstrict-prototypes 
--Wbad-function-cast    -c -o initsubnet.o initsubnet.c
-cc -I. -g -O3 -Wall -Wpointer-arith -Wcast-qual -Wstrict-prototypes 
--Wbad-function-cast    -c -o optionsfrom.o optionsfrom.c
-cc -I. -g -O3 -Wall -Wpointer-arith -Wcast-qual -Wstrict-prototypes 
--Wbad-function-cast    -c -o pfkey_v2_build.o pfkey_v2_build.c
-In file included from pfkey_v2_build.c:63:
-../pluto/defs.h:95: gmp.h: No such file or directory
-make[1]: *** [pfkey_v2_build.o] Error 1
-make[1]: Leaving directory `/usr/kernel/freeswan-1.95/lib'
-make: *** [programs] Error 2
-[root@beltram freeswan-1.95]# ls
-BUGS     COPYING  INSTALL   Makefile.inc  README  klips  libdes      pluto   
-testing  zlib
-CHANGES  CREDITS  Makefile  Makefile.ver  doc     lib    out.kpatch  rpm.in  
-utils
-[root@beltram freeswan-1.95]#
+> The attached patch does the following:
+>
+> 1.  Kill the ide-probe-mod by merging it with ide-mod. There is *really*
+>      no reaons for having this stuff split up into two different
+>     modules unless you wan't to create artificial module dependancies
+> and waste space
+>     of page boundaries during memmory allocation for the modules
+>
+> 2. Kill the ide_module_t - which is unnecessary and presents a
+> "reimplementation"
+>    of module handling inside the  ide driver. This is achieved by
+> attaching the
+>    initialization routine ot the ide_driver_t, which will be gone next
+> time,
+>    since there is no sane reason apparently, which this couldn't be done
+>    during the module-generic initialization of the corresponding driver
+> module.
+>
+> 3. Kill unnecessary tagging of "subdriver" with IDE_SUBDRIVER_VERSION - we
+>    have plenty of other mechanisms for module consistency checking. And
+> anyway
+>    the ide code didn't any consistence checks on this  value at all.
+>
+> NOTE: The ide_(un)register_module() functions will be killed in next
+round.
+>
+> This patch should apply to mainstream, however it waws created on top of
+> the others.
+>
+>
+>
 
-_________________________________________________
-OpenPGP key @ www.keyserver.net
-86A2 AEBA 0223 2D9F 78A4 60B7 855E F620 8D56 B690
+
 

@@ -1,72 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263530AbTDGQRe (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 12:17:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263531AbTDGQRe (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 12:17:34 -0400
-Received: from maila.telia.com ([194.22.194.231]:61945 "EHLO maila.telia.com")
-	by vger.kernel.org with ESMTP id S263530AbTDGQRb (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 12:17:31 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-Date: Mon, 07 Apr 2003 18:30:06 +0200 (CEST)
-Message-Id: <20030407.183006.25160342.cfmd@swipnet.se>
-To: kernel@kolivas.org
-Cc: schlicht@uni-mannheim.de, linux-kernel@vger.kernel.org
-Subject: Re: An idea for prefetching swapped memory...
-From: Magnus Danielson <cfmd@swipnet.se>
-In-Reply-To: <200304072021.17080.kernel@kolivas.org>
-References: <200304071026.47557.schlicht@uni-mannheim.de>
-	<200304072021.17080.kernel@kolivas.org>
-X-Mailer: Mew version 3.2 on Emacs 21.2 / Mule 5.0 (SAKAKI)
+	id S263503AbTDGQOr (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 12:14:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263520AbTDGQOr (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 12:14:47 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:9702 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263503AbTDGQOp (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 12:14:45 -0400
+Date: Mon, 7 Apr 2003 09:24:10 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: rml@tech9.net, linux-kernel@vger.kernel.org
+Subject: Re: Wanted: a limit on kernel log buffer size
+Message-Id: <20030407092410.33ecddc1.rddunlap@osdl.org>
+In-Reply-To: <200304070459_MC3-1-3358-A4AB@compuserve.com>
+References: <200304070459_MC3-1-3358-A4AB@compuserve.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Con Kolivas <kernel@kolivas.org>
-Subject: Re: An idea for prefetching swapped memory...
-Date: Mon, 7 Apr 2003 20:21:16 +1000
+On Mon, 7 Apr 2003 04:55:27 -0400 Chuck Ebbert <76306.1226@compuserve.com> wrote:
 
-> This has been argued before. Why would the last swapped out pages be the best 
-> to swap in? The vm subsystem has (somehow) decided they're the least likely 
-> to be used again so why swap them in? Alternatively how would it know which 
-> to swap in instead?
+| Robert Love
+| 
+| > I say if users cannot bother to read the documentation
+| >and understanding things, why are they compiling a kernel?
+| 
+| 
+|  True, but then they'll come bleating to l-k when all they get is
+| a blank, black screen on boot.  (At least _I_ figured out what
+| went wrong first...)
 
-I have been fooling around with similar thoughts, i.e. prefetching of swapped
-out pages, but under a different condition.
+Good that you figured it out.
 
-Consider that you have a system plauged by a set of fat (i.e. having a large
-memory footprint) batch-running processes such that when they are running they
-get swapped in (traditional deferred swapp-in on page-misses) and other
-processes gets swapped out for each run. The idea is to separate out fat batch
-processes so that they get scheduled in a separate queue but in a slower pace
-than normal batch processes such that when a fat batch is scheduled to run it
-gets to run longer, but it is also out of schedule longer. The effect would be
-to cause fewer swappings. The topping of this cake would be to prefetch pages
-for the next fat-process in the scheduling queue. A "fat" process requires
-effectively much more than average number of pages swapped in for each time it
-runs.
+Just how far does boot get?  What messages are printed before death?
 
-However, the benefit of deferred swapp-in is that only pages actually needed is
-tossed into the tight memory. This benefit can be missed with some processes
-in a inferred system, since a process which is constantly shifting its set of
-pages would only use part of the pages that got swapped in again. Other
-processes might have a large core of pages which is used throughout its
-processing. Some statistical analysis could aid (by keeping track of which
-pages where not actually used the last time(s) and not swapp it in again) but
-this naturally takes additional overheads (you need to trapp the page as if it
-where not available and then just page it in, since it was prefetched into
-physical memory and naturally also attend to the statistics).
-
-After that I became more doubtfull that prefetching pages would be of interest,
-but somebody might convince me otherwise. The scheduling idea might be enought,
-but I'm sure it's gonna bit chopped into pieces by scheduling experts.
-
-The idea really started with the question if the scheduler could make a better
-scheduling if it where aware of the additional processing cost caused by
-swapping in the VM. It might be that this is still a good question to ask.
-
-Before you ask or requests it:
-There is no code or numbers to show, this is armwaving around an idea.
-
-Cheers,
-Magnus
+--
+~Randy

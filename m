@@ -1,85 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315300AbSFEKog>; Wed, 5 Jun 2002 06:44:36 -0400
+	id <S315239AbSFEKpc>; Wed, 5 Jun 2002 06:45:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315358AbSFEKog>; Wed, 5 Jun 2002 06:44:36 -0400
-Received: from h-64-105-34-84.SNVACAID.covad.net ([64.105.34.84]:16335 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S315300AbSFEKoe>; Wed, 5 Jun 2002 06:44:34 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Wed, 5 Jun 2002 03:44:28 -0700
-Message-Id: <200206051044.DAA02529@baldur.yggdrasil.com>
-To: linux-kernel@vger.kernel.org
-Subject: Patch??: linux-2.5.20/fs/bio.c - ll_rw_kio could generate bio's bigger than queue could handle
+	id <S315257AbSFEKpb>; Wed, 5 Jun 2002 06:45:31 -0400
+Received: from port-213-20-228-67.reverse.qdsl-home.de ([213.20.228.67]:40207
+	"EHLO drocklinux.dyndns.org") by vger.kernel.org with ESMTP
+	id <S315239AbSFEKpa> convert rfc822-to-8bit; Wed, 5 Jun 2002 06:45:30 -0400
+Date: Wed, 05 Jun 2002 12:44:24 +0200 (CEST)
+Message-Id: <20020605.124424.607955686.rene.rebe@gmx.net>
+To: rabbit@rabbit.online.bg
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: amd k6-3 L3 cache 
+From: Rene Rebe <rene.rebe@gmx.net>
+In-Reply-To: <20020605044616.GA3297@rabbit.online.bg>
+X-Mailer: Mew version 2.2 on XEmacs 21.4.7 (Economic Science)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	I may very well be misunderstanding something, but it looks
-to like ll_rw_kio can generate bio's that have more segments or
-more sectors than their queues declare that they can handle.
+Hi.
 
-	As an extreme example, I could write a driver for a
-block device that has max_hw_segments == 1, max_phys_segments == 1,
-max_sectors == 1.  Right?
+On: Tue, 4 Jun 2002 23:46:16 -0500,
+    Peter Rabbitson <rabbit@rabbit.online.bg> wrote:
+> Hi everyone. I have a question regarding hardware caches. When I compile the
+> kernel on k6/2 cpu I get messages identifying L1 cache of 64k and L2 cache of
+> 1024k which are the actual hardware amounts. But kernel on a k6/3+ cpu gives
+> out this:
+> -------
+> CPU: L1 I Cache: 32K (32 bytes/line), D cache 32K (32 bytes/line)
+> CPU: L2 Cache: 256K (32 bytes/line)
+> CPU: After vendor init, caps: 008021bf c08029bf 00000000 00000002
+> CPU:     After generic, caps: 008021bf c08029bf 00000000 00000002
+> CPU:             Common caps: 008021bf c08029bf 00000000 00000002
+> ------
 
-	The intermediate bio merging code in drivers/block/ll_rw_blk.c
-obeys these constraints when it comes to merging requests that
-also are all within these constraints already, but it does break
-up bio's that are to big for the underlying queue.  As far as I
-can tell, it seems to be the responsibility of anything that
-calls submit_bio or generic_make_request to ensure that the
-bio that is submitted is within the request_queue_t's limits
-if the driver that pulls requests off of the queue is going to
-be able to use max_hw_segments, max_phys_segments and max_sectors
-as guarantees.  Right?
+This are the correct values - I do not know why a K6/2 kernel reports
+bogus ones.
 
-	If I got both of those statements correct, I would
-appreciate comments on the following untested patch (I have
-to go to sleep now, and I think it's more likely that I just
-misunderstanding something).
+The caches (incl. the L3 cache on the mainboard) are used by the
+silicon logic in you CPU and chipset automatically - no OS or BIOS
+support is needed for this.
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+> Does this mean that I am actually loosing the benefit of having 1m of cache 
+> on the motherboard (in this case L3)? Or the kernel still uses transparrent
+> bios routines and stores data in L3? Or maybe such cpus shopuld run kernel
+> compiled for k7/athlon cpus? I would appreciate any comments or suggestions,
+> nevertheless I am more than non-proficient in programming. Just a curious
+> cat in the linux community :)
+> 
+> Peter
 
+k33p h4ck1n6
+  René
 
---- linux-2.5.20/fs/bio.c	2002-06-02 18:44:40.000000000 -0700
-+++ linux/fs/bio.c	2002-06-05 03:27:19.000000000 -0700
-@@ -339,12 +339,14 @@
- void ll_rw_kio(int rw, struct kiobuf *kio, struct block_device *bdev, sector_t sector)
- {
- 	int i, offset, size, err, map_i, total_nr_pages, nr_pages;
- 	struct bio_vec *bvec;
- 	struct bio *bio;
- 	kdev_t dev = to_kdev_t(bdev->bd_dev);
-+	request_queue_t *q = bdev->bd_queue;
-+	int max_pages;
- 
- 	err = 0;
- 	if ((rw & WRITE) && is_read_only(dev)) {
- 		printk("ll_rw_bio: WRITE to ro device %s\n", kdevname(dev));
- 		err = -EPERM;
- 		goto out;
-@@ -364,14 +366,20 @@
- 	size = kio->length;
- 
- 	atomic_set(&kio->io_count, 1);
- 
- 	map_i = 0;
- 
-+	max_pages = q->max_sectors >> (PAGE_SHIFT - 9);
-+	if (max_pages > q->max_phys_segments)
-+		max_pages = q->max_phys_segments;
-+	if (max_pages > q->max_hw_segments)
-+		max_pages = q->max_hw_segments;
-+
- next_chunk:
--	nr_pages = BIO_MAX_SECTORS >> (PAGE_SHIFT - 9);
-+	nr_pages = max_pages;
- 	if (nr_pages > total_nr_pages)
- 		nr_pages = total_nr_pages;
- 
- 	atomic_inc(&kio->io_count);
- 
- 	/*
+--  
+René Rebe (Registered Linux user: #248718 <http://counter.li.org>)
+e-mail:   rene.rebe@gmx.net, rene@rocklinux.org
+web:      www.rocklinux.org, drocklinux.dyndns.org/rene/
+
+Anyone sending unwanted advertising e-mail to this address will be
+charged $25 for network traffic and computing time. By extracting my
+address from this message or its header, you agree to these terms.

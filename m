@@ -1,68 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264942AbTLFDVN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 22:21:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264944AbTLFDVN
+	id S264944AbTLFDqx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 22:46:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264945AbTLFDqx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 22:21:13 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:49085 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S264942AbTLFDVL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 22:21:11 -0500
-Message-Id: <200312060321.hB63L7K03324@zeus.kernel.org>
-From: "Cappa Consultants" <cappa_consultants1@tiscali.co.uk>
-Reply-To: cappa_consultants1@tiscali.co.uk
+	Fri, 5 Dec 2003 22:46:53 -0500
+Received: from ns3.mountaincable.net ([24.215.0.13]:27544 "EHLO
+	ns3.mountaincable.net") by vger.kernel.org with ESMTP
+	id S264944AbTLFDqw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 22:46:52 -0500
+Subject: shmem_file_setup creating SYSV00000000 files in (ext3) root
+	filesystem
+From: desrt <desrt@desrt.ca>
 To: linux-kernel@vger.kernel.org
-Date: Sat, 6 Dec 2003 04:21:29 +0100
-Subject: HSBC ENQUIRY.
-X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain
+Message-Id: <1070682344.17941.6.camel@peloton.desrt.ca>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 05 Dec 2003 22:45:44 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My name is Sarah Cappa.
-I am a senior partner in the firm of Cappa Consultants: Private Investigators
-and Security Consultants.
+kernel version is 2.4.23.
 
-We are conducting a standard process investigation on behalf of HSBC, the
-international Banking conglomerate. This
-investigation involves a client who shares the same surname with you and
-also the circumstances surrounding investments
-made by this client at HSBC Republic,the Private Banking arm of HSBC.
+the problem is caused by the fact that the checks that shmem_file_setup
+does to determine the location of the mountpoint of tmpfs fail to take
+into account the effect of pivot_root.
 
-The HSBC Private Banking client died in intestate and nominated no successor
-in title over the investments made with the bank. The essence of this communication
-with you is to request you provide us information/comments on any or all
-of the four issues:
+that is: if i mount a tmpfs as /, then mount a ext3 filesystem and
+pivot_root into it with put_old as, say, /var/tmp, then shmem_file_setup
+will still think that the tmpfs is mounted at / (and as a result creates
+shared memory files on the root filesystem instead of on /var/tmp as it
+ought to)
 
+i'm not actually sure what the code in mm/shmem.c:shmem_file_setup()
+does, but i assume the problem is this line:
+	        root = shm_mnt->mnt_root;
 
-1-Are you aware of any relative/relation who shares your same name whose
-last known contact address was Brussels Belgium?
+and somehow as a result, this happens:
+peloton:/proc# grep deleted */maps
+17923/maps:4201a000-4207a000 rw-s 00000000 00:04 21233690  
+/SYSV00000000 (deleted)
+17923/maps:424dd000-4253d000 rw-s 00000000 00:04 21266460  
+/SYSV00000000 (deleted)
+17926/maps:4201a000-4207a000 rw-s 00000000 00:04 21233690  
+/SYSV00000000 (deleted)
+17926/maps:424dd000-4253d000 rw-s 00000000 00:04 21266460  
+/SYSV00000000 (deleted)
+17927/maps:4201a000-4207a000 rw-s 00000000 00:04 21233690  
+/SYSV00000000 (deleted)
+[many many many lines follow]
 
-2-Are you aware of any investment of considerable value made by such a person
-at the Private Banking Division of HSBC Bank PLC?
+if you have any advice or can confirm to me that this is actually a bug
+in the kernel, please reply.  i'm not on the list.
 
-3-Born on the 1st of october 1930
-
-4-Can you establish beyond reasonable doubt your eligibility to assume status
-of successor in title to the deceased?
-
-It is pertinent that you inform us ASAP whether or not you are familiar
-with this personality that we may put an end to this
-communication with you and our inquiries surrounding this personality.
-
-You must appreciate that we are constrained from providing you with more
-detailed information at this point. Please respond to this mail as soon
-as possible to afford us the opportunity to close this investigation.
-
-Thank you for accommodating our enquiry.
-
-
-Ms Sarah Cappa
-For:Cappa Consultants
-06-12-2003
-
-
+thanks,
+ryan.
 

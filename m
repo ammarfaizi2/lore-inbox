@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbULVPOk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261858AbULVPVW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbULVPOk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 10:14:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbULVPOj
+	id S261858AbULVPVW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 10:21:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbULVPVW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 10:14:39 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:44171 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261252AbULVPOi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 10:14:38 -0500
-Subject: Re: [2.6 patch] ieee1394_core.c: remove unneeded EXPORT_SYMBOL's
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Lee Revell <rlrevell@joe-job.com>, Greg KH <greg@kroah.com>,
-       Adrian Bunk <bunk@stusta.de>, Dan Dennedy <dan@dennedy.org>,
-       Ben Collins <bcollins@debian.org>,
-       Linux1394-Devel <linux1394-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041221221924.GA12709@thunk.org>
-References: <20041220015320.GO21288@stusta.de>
-	 <1103508610.3724.69.camel@kino.dennedy.org>
-	 <20041220022503.GT21288@stusta.de>
-	 <1103510535.1252.18.camel@krustophenia.net>
-	 <1103516870.3724.103.camel@kino.dennedy.org>
-	 <20041220225324.GY21288@stusta.de>
-	 <1103583486.1252.102.camel@krustophenia.net>
-	 <20041221171702.GE1459@kroah.com>
-	 <1103649633.9220.12.camel@krustophenia.net>
-	 <20041221221924.GA12709@thunk.org>
-Content-Type: text/plain
+	Wed, 22 Dec 2004 10:21:22 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:7059 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261858AbULVPVU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Dec 2004 10:21:20 -0500
+Message-ID: <41C990CA.20208@sgi.com>
+Date: Wed, 22 Dec 2004 09:20:42 -0600
+From: Patrick Gefre <pfg@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       matthew@wil.cx
+Subject: Re: [PATCH] 2.6.10 Altix : ioc4 serial driver support
+References: <200412220028.iBM0SB3d299993@fsgi900.americas.sgi.com> <20041222134423.GA11750@infradead.org> <20041222140348.A1130@flint.arm.linux.org.uk>
+In-Reply-To: <20041222140348.A1130@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1103724502.8250.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 22 Dec 2004 14:08:23 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-12-21 at 22:19, Theodore Ts'o wrote:
-> > Yeah but I hope you can understand why someone would be hesitant to
-> > submit a broken driver.  It just makes the author look bad.  I would not
-> > feel right submitting something that didn't work.
+Russell King wrote:
+> On Wed, Dec 22, 2004 at 01:44:23PM +0000, Christoph Hellwig wrote:
 > 
-> That's what CONFIG_EXPERIMENTAL is for....
+>>>I still save off the pci_dev ptrs for all cards found, so I can
+>>>register with the serial core after probe (is there a better way?).
+>>>Should I register the driver separately for each card ? That seems a
+>>>bit overkill.
+>>
+>>You should register them with the serial core in ->probe.
+> 
+> 
+> You want to register with the serial core before you register with PCI.
+> Then add each port when you find it via the PCI driver ->probe method.
+> 
+> Removal is precisely the reverse order - remove each port in ->remove
+> method first, then unregister from serial core.
+> 
 
-If the symbols are not there then this doesn't help vendors wanting to
-produce GPL drivers because people have to rebuild entire kernels not
-just add a driver. 
+How do I know how many ports I have when I register with serial core ? I use the info I got when i 
+probed to fill in .nr
 
-You are also ignoring the cultural issues and personal preferences that
-lead some users not to submit code until it passes some quality level.
-This is common in both businesses and individuals and you see it
-regularly.
-
-Alan
-
+-- Pat

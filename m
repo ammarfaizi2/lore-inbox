@@ -1,32 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311719AbSCNShh>; Thu, 14 Mar 2002 13:37:37 -0500
+	id <S311721AbSCNSjH>; Thu, 14 Mar 2002 13:39:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311720AbSCNSh1>; Thu, 14 Mar 2002 13:37:27 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14097 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S311719AbSCNShW>; Thu, 14 Mar 2002 13:37:22 -0500
-Subject: Re: HPT370 RAID-1 or Software RAID-1, what's "best"?
-To: thunder@ngforever.de (Thunder from the hill)
-Date: Thu, 14 Mar 2002 18:53:11 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, nitrax@giron.wox.org (Martin Eriksson)
-In-Reply-To: <3C90ECDF.8EBC8FD4@ngforever.de> from "Thunder from the hill" at Mar 14, 2002 11:33:03 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S311720AbSCNSi5>; Thu, 14 Mar 2002 13:38:57 -0500
+Received: from dsl-213-023-038-002.arcor-ip.net ([213.23.38.2]:26533 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S311721AbSCNSio>;
+	Thu, 14 Mar 2002 13:38:44 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Momchil Velikov <velco@fadata.bg>, Anton Blanchard <anton@samba.org>
+Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
+Date: Thu, 14 Mar 2002 19:33:40 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20020313085217.GA11658@krispykreme> <20020314112725.GA2008@krispykreme> <87wuwfxp25.fsf@fadata.bg>
+In-Reply-To: <87wuwfxp25.fsf@fadata.bg>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16laLf-0001br-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16la2m-0000SX-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Software RAID is just your disk configuration. But I'd recommend
-> hardware raid because the rebuild after one disk crash is dog slow with
-> software raid. This problem been discussed in all possible linux
-> magazines...
+On March 14, 2002 02:21 pm, Momchil Velikov wrote:
+> >>>>> "Anton" == Anton Blanchard <anton@samba.org> writes:
+> Anton> Thats due to the way we manipulate the ppc hashed page table. Every
+> Anton> time we update the linux page tables we have to update the hashed
+> Anton> page table. There are some obvious optimisations we need to make,
+> 
+> Out of curiousity, why there's a need to update the linux page tables ?
+> Doesn't pte/pmd/pgd family functions provide enough abstraction in
+> order to maintain _only_ the hashed page table ?
 
-The raid rebuild time is identical for pretty much any set up. With the
-softraid its intentionally defaulting to a low fraction of I/O bandwidth
-so it doesnt disrupt normal operation.
+No, it's hardwired to the x86 tree view of page translation.
 
-Also as far is his question goes - both are software raid
+-- 
+Daniel

@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132462AbRDUDEc>; Fri, 20 Apr 2001 23:04:32 -0400
+	id <S132465AbRDUDJc>; Fri, 20 Apr 2001 23:09:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132465AbRDUDEW>; Fri, 20 Apr 2001 23:04:22 -0400
-Received: from mail1.panix.com ([166.84.0.212]:61401 "HELO mail1.panix.com")
-	by vger.kernel.org with SMTP id <S132462AbRDUDEQ>;
-	Fri, 20 Apr 2001 23:04:16 -0400
-Date: Fri, 20 Apr 2001 20:54:16 -0600
-From: Jeff Lightfoot <jeffml@pobox.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Athlon problem report summary
-Message-ID: <20010420205416.A229@panix.com>
-Reply-To: jeffml@pobox.com
-In-Reply-To: <fa.fkfenov.14jqeov@ifi.uio.no> <E14p894-00009E-00@the-village.bc.nu> <fa.fn57bnv.nno4p4@ifi.uio.no>
-Mime-Version: 1.0
+	id <S132468AbRDUDJW>; Fri, 20 Apr 2001 23:09:22 -0400
+Received: from smtp.mountain.net ([198.77.1.35]:54283 "EHLO riker.mountain.net")
+	by vger.kernel.org with ESMTP id <S132465AbRDUDJE>;
+	Fri, 20 Apr 2001 23:09:04 -0400
+Message-ID: <3AE0F999.BA288768@mountain.net>
+Date: Fri, 20 Apr 2001 23:08:09 -0400
+From: Tom Leete <tleete@mountain.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3 i486)
+X-Accept-Language: en-US,en-GB,en,fr,es,it,de,ru
+MIME-Version: 1.0
+To: Russell King <rmk@arm.linux.org.uk>
+CC: lkml <linux-kernel@vger.kernel.org>, parisc-linux@parisc-linux.org
+Subject: Re: [parisc-linux] Re: OK, let's try cleaning up another nit. Is anyone 
+ paying attention?
+In-Reply-To: <20010420085148.V13403@opus.bloom.county> <Pine.LNX.4.33.0104201206250.12186-100000@xanadu.home> <20010420125005.B8086@thyrsus.com> <20010420200859.B5510@flint.arm.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <fa.fn57bnv.nno4p4@ifi.uio.no>; from lkml@sigkill.net on Fri, Apr 20, 2001 at 11:56:55PM +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Disconnect wrote:
-> Addendum to 1. So far everyone (at least on LKML) who has had the
-> crash-immediatly-do-not-pass-go issues has been using an iwill kk266 (or
-> kk266r, IIRC) mobo.
-> 
-> Have we gotten any fix, other than not using K7 optimizations?
+[Cc: trimmed]
 
-I think it has something to do with the BIOS version also.  The
-original January KK266 BIOS can use K7 optimizations, but any BIOS
-after that crashes hard.
+Russell King wrote:
+> 
+[...]
+> 
+> Generally it seems like diff needs to produce one more line of context, and
+> most of these problems will go away.  Yes, there will still be the odd
+> problem, so then it becomes the "how much do you crank the setting" problem.
+>
+ 
+$ diff -6 ...
+will give 6 lines of context. patch will understand the output without any
+extra help.
+
+Cheers,
+Tom
 
 -- 
-Jeff Lightfoot   --    jeffml at pobox.com   --   http://thefoots.com/
+The Daemons lurk and are dumb. -- Emerson

@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290662AbSA3WRx>; Wed, 30 Jan 2002 17:17:53 -0500
+	id <S290656AbSA3WWC>; Wed, 30 Jan 2002 17:22:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290668AbSA3WQY>; Wed, 30 Jan 2002 17:16:24 -0500
-Received: from nycsmtp2out.rdc-nyc.rr.com ([24.29.99.227]:40590 "EHLO
-	nycsmtp2out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S290656AbSA3WP6>; Wed, 30 Jan 2002 17:15:58 -0500
-Message-ID: <3C58709C.1030908@nyc.rr.com>
-Date: Wed, 30 Jan 2002 17:15:56 -0500
-From: John Weber <weber@nyc.rr.com>
-Organization: WorldWideWeber
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: en-us
+	id <S290675AbSA3WUy>; Wed, 30 Jan 2002 17:20:54 -0500
+Received: from femail7.sdc1.sfba.home.com ([24.0.95.87]:41679 "EHLO
+	femail7.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S290656AbSA3WTK>; Wed, 30 Jan 2002 17:19:10 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Francois Romieu <romieu@cogenit.fr>
+Subject: Re: A modest proposal -- We need a patch penguin
+Date: Wed, 30 Jan 2002 17:20:19 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0201291938530.26901-100000@verdande.oobleck.net> <20020130210212.ZYOS23516.femail25.sdc1.sfba.home.com@there> <20020130230336.A2675@fafner.intra.cogenit.fr>
+In-Reply-To: <20020130230336.A2675@fafner.intra.cogenit.fr>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.3 Link Error
-In-Reply-To: <fa.c3ed77v.1cnie03@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020130221909.DLXM9269.femail7.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Weber wrote:
+On Wednesday 30 January 2002 05:03 pm, Francois Romieu wrote:
+> Rob Landley <landley@trommello.org> :
+> [...]
+>
+> > The problem right now is a lot of the maintainers don't seem to know who
+> > their corresponding lieutenant is.  We're still waiting for clarification
+> > from Linus...
+>
+> Feel free to send your patches here if you're lost.
 
->         -o vmlinux
-> fs/fs.o: In function `cap_info_llseek':
-> fs/fs.o(.text+0x4e1d1): undefined reference to `lock_kernel'
-> fs/fs.o(.text+0x4e220): undefined reference to `unlock_kernel'
-> fs/fs.o: In function `hdr_llseek':
-> fs/fs.o(.text+0x4e858): undefined reference to `lock_kernel'
-> fs/fs.o(.text+0x4e8b6): undefined reference to `unlock_kernel'
-> make: *** [vmlinux] Error 1
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I'm not a maintainer, just the friend of one who came close to burnout.
 
-I think this has something to do with <linux/smp_lock.h> not
-being included somewhere in the HFS filesystem headers.
+The "we" who are waiting for clarification is larger than the maintainer set, 
+because if the maintainers can't function the developers who depend on the 
+maintainers can't function either.
 
+Rob

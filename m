@@ -1,53 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316878AbSG1PYV>; Sun, 28 Jul 2002 11:24:21 -0400
+	id <S316897AbSG1PYU>; Sun, 28 Jul 2002 11:24:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316953AbSG1PXj>; Sun, 28 Jul 2002 11:23:39 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:30989 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S316898AbSG1PXS>; Sun, 28 Jul 2002 11:23:18 -0400
-Date: Sun, 28 Jul 2002 12:23:10 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: DervishD <raul@pleyades.net>
-cc: jdow@earthlink.net, <matti.aarnio@zmailer.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Censorship
-In-Reply-To: <3D43CC91.mailGV111EG6@viadomus.com>
-Message-ID: <Pine.LNX.4.44L.0207281219250.3086-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S316878AbSG1PXo>; Sun, 28 Jul 2002 11:23:44 -0400
+Received: from pat.uio.no ([129.240.130.16]:58515 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S316906AbSG1PXS>;
+	Sun, 28 Jul 2002 11:23:18 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15684.3367.337559.979006@charged.uio.no>
+Date: Sun, 28 Jul 2002 17:26:31 +0200
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       NFS maillist <nfs@lists.sourceforge.net>
+Subject: [PATCH] Support for cached lookups via readdirplus [5/6]
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 28 Jul 2002, DervishD wrote:
 
->     Yes, let's have a 'clean web' through censorship. This is an
-> advance. And, oh, well, let's forbid too politically incorrect
-> language, and, why not?
+Enable lookups of negative dentries using READDIRPLUS.
 
-You seem to be forgetting one important detail.
+If we find that the entire READDIR cache has been read, and we've seen
+that no pages are missing, and that the EOF has been reached, then we
+assume that the file does not exist.
 
-The internet is not public property, it is a large group of
-interconnected private properties.
+Cheers,
+  Trond
 
-The owners of each of these private properties can decide
-for themselves what content they do and do not want to have
-on their own properties.
-
-So-called "freedom of speech" is something that exists in
-public space, I can organise protests in public space and
-you can't do anything about it, but if I were to held a
-protest in your garden you'd have every right to kick me
-out. ;)
-
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+diff -u --recursive --new-file linux-2.5.29-rdplus4/fs/nfs/dir.c linux-2.5.29-rdplus5/fs/nfs/dir.c
+--- linux-2.5.29-rdplus4/fs/nfs/dir.c	Sat Jul 27 19:15:50 2002
++++ linux-2.5.29-rdplus5/fs/nfs/dir.c	Sat Jul 27 19:15:41 2002
+@@ -614,9 +614,11 @@
+ 			d_add(dentry, inode);
+ 			nfs_renew_times(dentry);
+ 			error = 0;
++			goto out;
+ 		}
+-		goto out;
+-	}
++		nfs_zap_caches(dir);
++	} else if (error == -ENOENT)
++		goto no_entry;
+ 
+ 	error = NFS_PROTO(dir)->lookup(dir, &dentry->d_name, &fhandle, &fattr);
+ 	if (error == -ENOENT)
+@@ -674,10 +676,10 @@
+ 	int res;
+ 
+ 	if (!NFS_USE_READDIRPLUS(dir))
+-		return -ENOENT;
++		return -ENOTSUPP;
+ 	server = NFS_SERVER(dir);
+ 	if (server->flags & NFS_MOUNT_NOAC)
+-		return -ENOENT;
++		return -EIO;
+ 	nfs_revalidate_inode(server, dir);
+ 
+ 	entry.fh = fh;
+@@ -698,15 +700,19 @@
+ 		}
+ 		page_cache_release(page);
+ 
+-		if (res == 0)
+-			goto out_found;
+-		if (res != -EAGAIN)
+-			break;
++		switch (res) {
++		case 0:
++			fattr->timestamp = timestamp;
++			return 0;
++		case -ENOENT:
++			return -ENOENT;
++		case -EAGAIN:
++			continue;
++		default:
++		}
++		break;
+ 	}
+-	return -ENOENT;
+- out_found:
+-	fattr->timestamp = timestamp;
+-	return 0;
++	return -EIO;
+ }
+ 
+ /*

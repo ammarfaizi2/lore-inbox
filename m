@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263324AbUCXMsn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 07:48:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263330AbUCXMsm
+	id S263329AbUCXNAM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 08:00:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263334AbUCXNAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 07:48:42 -0500
-Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:24197 "HELO
-	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263324AbUCXMsl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 07:48:41 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]
-Date: Wed, 24 Mar 2004 07:48:20 -0500
-User-Agent: KMail/1.6.1
-Cc: linux-kernel@vger.kernel.org, Jonathan Sambrook <swsusp@hmmn.org>,
-       Nigel Cunningham <ncunningham@users.sourceforge.net>,
-       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>
-References: <1079659165.15559.34.camel@calvin.wpcb.org.au> <200403232352.58066.dtor_core@ameritech.net> <20040324102233.GC512@elf.ucw.cz>
-In-Reply-To: <20040324102233.GC512@elf.ucw.cz>
+	Wed, 24 Mar 2004 08:00:12 -0500
+Received: from mailgw.cvut.cz ([147.32.3.235]:6027 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S263329AbUCXNAH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 08:00:07 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Hans-Peter Jansen <hpj@urpla.net>
+Date: Wed, 24 Mar 2004 13:59:34 +0200
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403240748.31837.dtor_core@ameritech.net>
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: VMware-workstation-4.5.1 on linux-2.6.4-x86_64 host fai
+Cc: linux-kernel@vger.kernel.org, mlists@arhont.com
+X-mailer: Pegasus Mail v3.50
+Message-ID: <19772436779@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 24 March 2004 05:22 am, Pavel Machek wrote:
-> On ?t 23-03-04 23:52:58, Dmitry Torokhov wrote:
-> > On Tuesday 23 March 2004 06:32 pm, Pavel Machek wrote:
-> > > Well, I'd hate
-> > > 
-> > > Nov 10 00:37:51 amd kernel: Buffer I/O error on device sr0, logical block 842340
-> > > Nov 10 00:37:53 amd kernel: end_request: I/O error, dev sr0, sector 6738472
-> > > 
-> > > to be obscured by progress bar.
-> > 
-> > OK, so you have an error condition on your CD. Does it prevent suspend from
-> > completing? If not then I probably would not care about it till later when
-> > I see it in syslog... I remember that the one thing that Pat
-> > complained
+On 24 Mar 04 at 11:43, Hans-Peter Jansen wrote:
+> On Tuesday 23 March 2004 23:05, Andrei Mikhailovsky wrote:
+> > I have successfully installed (well actually upgraded) to 4.5.1
+> > from 4.0.5. No patches where required and everything seems to work
+> > like a charm.
 > 
-> Except when it is not in syslog, because it was after atomic copy or
-> before atomic copy back. swsusp is pretty unique in this respect.
->
+> Am I right, that you're running on i586, while the problem expose
+> on x86_64 arch?
 
-And I would consider an error that happens after atomic copy critical. If
-this happens all attempts to draw progress bar, etc. should be stopped and
-suspend should probably abort as well.
+Not only. It builds & runs without patches if you use "right" x86_64
+kernels. Patch you posted is needed on SuSE (AFAIK) 2.4.x kernels and
+on 2.6.x kernels, while RedHat 2.4.x kernels works without patch. On
+other side ffs(0) returns 33 on RedHat's 2.4.x kernels (at least on
+one...) which can cause machine lockup in endless loop waiting until
+ffs(0) will become 0...
 
-What happens if swsusp1 gets such an error during atomic phase? Will it
-continue or abort? If it continues I would imagine user not noticing the
-message it it flashes the split second before the box powers off. 
+On 2.6.x kernels additionally (problem you are hitting now) SIO*BRIDGE
+ioctls were moved from "compatible" to "not so compatible" group.
+If you'll just mark them as "compatible", it will work sufficiently
+well to get networking in VMware.
 
--- 
-Dmitry
+Unfortunately I'm not aware about any way how to issue x86_64 ioctls
+from 32bit ia32 program, and spawning external program just to perform
+one ioctl on some file descriptor looks like overkill.
+
+I'll start supporting x86_64 in vmware-any-any- patches as soon as
+someone donates x86_64 system to me, or after ~ September 2004, whatever
+comes first. Until then you have to get it to work yourself - change
+you made is already done in vmware-any-any-update55, unfortunately
+other parts of that update do not build on x86_64 yet...
+                                                Petr Vandrovec
+

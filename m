@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316902AbSFKHuC>; Tue, 11 Jun 2002 03:50:02 -0400
+	id <S316900AbSFKHrl>; Tue, 11 Jun 2002 03:47:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316899AbSFKHto>; Tue, 11 Jun 2002 03:49:44 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:46094 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316902AbSFKHsF>; Tue, 11 Jun 2002 03:48:05 -0400
-Date: Tue, 11 Jun 2002 08:47:58 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Lightweight patch manager <patch@luckynet.dynu.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH][2.5] Double quote patches part one: drivers 1/2
-Message-ID: <20020611084758.B1346@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.44.0206102101520.20111-100000@hawkeye.luckynet.adm>
+	id <S316899AbSFKHrU>; Tue, 11 Jun 2002 03:47:20 -0400
+Received: from [195.157.147.30] ([195.157.147.30]:58893 "HELO
+	pookie.dev.sportingbet.com") by vger.kernel.org with SMTP
+	id <S316898AbSFKHqZ>; Tue, 11 Jun 2002 03:46:25 -0400
+Date: Tue, 11 Jun 2002 08:47:27 +0100
+From: Sean Hunter <sean@uncarved.com>
+To: DervishD <raul@pleyades.net>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: bandwidth 'depredation'
+Message-ID: <20020611084727.A5997@dev.sportingbet.com>
+Mail-Followup-To: Sean Hunter <sean@uncarved.com>,
+	DervishD <raul@pleyades.net>,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3D05AA6E.mailKB1BHA1W@viadomus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 10, 2002 at 09:07:17PM -0600, Lightweight patch manager wrote:
-> I spent my whole night correcting the double quotes. Someone pointed out 
-> yesterday that they had to be corrected. I did a checker script and am now 
-> running over the kernel.
+Build a kernel with traffic classifaction and CBQ, and use "tc".
+
+See the howtos.
+
+Sean
+
+On Tue, Jun 11, 2002 at 09:44:46AM +0200, DervishD wrote:
+>     Hello all :))
+>     
+>     I've noticed that, when using certain programs like 'wget', the
+> bandwidth seems to be 'depredated' by them. When I download a file
+> with lukemftp or with links, the bandwidth is then distributed
+> between all IP clients, but when using wget or some ftp clients, it
+> is not distributed. BTW, I'm using an ADSL line (128 up / 256 down).
 > 
-> This patch fixes broken double quotes in printk's and asm's.
-
-Not "broken" as such.  Just "new gcc warns".
-
-> +	" subs	%3, %3, #2          \n"
-> +	" bmi	2f                  \n"
-> +        "1:                         \n"
-
-Yuck.  Yuck yuck yuck yuck yuck.
-
-1. Spaces -> source bloat.
-2. No tab at the start of the file -> yuck when reading the ASM.
-
-My preferred way of fixing these in ARM stuff is to add <tab><tab><tab>\n\
-to each line (with the appropriate number of tabs.  See
-arch/arm/kernel/semaphore.c for an example.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+>     IMHO, the IP layer (well, in this case the TCP layer) should
+> distribute the bandwidth (although I don't know how to do this), and
+> the kernel seems to be not doing it.
+> 
+>     I don't know if this is the intended behaviour or even if this is
+> a kernel fault or not, but I think that is not good ;)
+> 
+>     Thanks :)
+>     Raúl
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

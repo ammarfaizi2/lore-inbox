@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268231AbTCFSIU>; Thu, 6 Mar 2003 13:08:20 -0500
+	id <S268171AbTCFSFo>; Thu, 6 Mar 2003 13:05:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268252AbTCFSIU>; Thu, 6 Mar 2003 13:08:20 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21259 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268231AbTCFSIT>; Thu, 6 Mar 2003 13:08:19 -0500
-Date: Thu, 6 Mar 2003 10:16:38 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: John Levon <levon@movementarian.org>
-cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@digeo.com>,
+	id <S268190AbTCFSFo>; Thu, 6 Mar 2003 13:05:44 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:694 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S268171AbTCFSFn>;
+	Thu, 6 Mar 2003 13:05:43 -0500
+Date: Thu, 6 Mar 2003 19:15:48 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: John Levon <levon@movementarian.org>, Andrew Morton <akpm@digeo.com>,
        Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
 Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
-In-Reply-To: <20030306181120.GA31439@compsoc.man.ac.uk>
-Message-ID: <Pine.LNX.4.44.0303061015230.7720-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0303061003110.7720-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0303061914250.16561-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 6 Mar 2003, John Levon wrote:
+On Thu, 6 Mar 2003, Linus Torvalds wrote:
+
+> > It's still there. Red Hat 8.0, 2.5.63. The  thing can pause for 15+
+> > seconds (and during this time madplay quite happily trundled on playing
+> > an mp3). Workload was KDE, gcc, nothing exciting...
 > 
-> Sorry, I think I misunderstood what you meant in your comment above. I
-> haven't actually tried these patches yet, worry not.
+> Oh, well. I didn't actually even verify that UNIX domain sockets will
+> cause synchronous wakeups, so the patch may literally be doing nothing
+> at all. You can try that theory out by just removing the test for
+> "in_interrupt()".
 
-Oh, ok. There is still hope. And as apparently you can see the problem 
-easily, maybe you can be one of the poor guinea-pigs for the patches 
-floating around.
+you are not referring to the 'synchronous wakeups' as used by fs/pipe.c,
+right? in_interrupt() isolates interrupt-context wakeups (asynchronous
+wakeups) and process-context wakeups - which can also be called
+synchronous, in a way.
 
-(Damn! 15 second lockups? That's just not much fun any more.)
+so i think your current patch should cover unix domain sockets just as
+well, they certain dont use IRQ-context wakeups.
 
-		Linus
+	Ingo
 

@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267271AbSLKUaT>; Wed, 11 Dec 2002 15:30:19 -0500
+	id <S267282AbSLKUbw>; Wed, 11 Dec 2002 15:31:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267280AbSLKUaT>; Wed, 11 Dec 2002 15:30:19 -0500
-Received: from pc2-cwma1-4-cust129.swan.cable.ntl.com ([213.105.254.129]:55235
+	id <S267292AbSLKUbv>; Wed, 11 Dec 2002 15:31:51 -0500
+Received: from pc2-cwma1-4-cust129.swan.cable.ntl.com ([213.105.254.129]:55747
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267271AbSLKUaS>; Wed, 11 Dec 2002 15:30:18 -0500
-Subject: Re: [PATCH] Notifier for significant events on i386
+	id <S267282AbSLKUbv>; Wed, 11 Dec 2002 15:31:51 -0500
+Subject: Re: [2.4]ALi M5451 sound hangs on init; workaround
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: John Levon <levon@movementarian.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021211202727.GF20735@compsoc.man.ac.uk>
-References: <1039471369.1055.161.camel@dell_ss3.pdx.osdl.net>
-	<20021211165153.A17546@in.ibm.com> <20021211111639.GJ9882@holomorphy.com>
-	<20021211171337.A17600@in.ibm.com> 
-	<20021211202727.GF20735@compsoc.man.ac.uk>
+To: Fedor Karpelevitch <fedor@apache.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Vicente Aguilar <bisente@bisente.com>,
+       alsa-devel@lists.sourceforge.net,
+       Debian-Laptops <debian-laptop@lists.debian.org>
+In-Reply-To: <200212111142.31709.fedor@apache.org>
+References: <200212110715.20617.fedor@apache.org>
+	<200212111036.21771.fedor@apache.org>
+	<1039635588.18587.8.camel@irongate.swansea.linux.org.uk> 
+	<200212111142.31709.fedor@apache.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 11 Dec 2002 21:15:36 +0000
-Message-Id: <1039641336.18587.30.camel@irongate.swansea.linux.org.uk>
+Date: 11 Dec 2002 21:12:34 +0000
+Message-Id: <1039641154.18412.28.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-12-11 at 20:27, John Levon wrote:
-> There are notifiers being used that sleep inside the called notifiers.
-> 
-> You could easily make a __notifier_call_chain that is lockless and
-> another one that readlocks the notifier_lock ...
+On Wed, 2002-12-11 at 19:42, Fedor Karpelevitch wrote:
+> So I wonder what toggling those bits is supposed to change. I would 
+> test that somehow then
 
-The notifier chains assume the users will do the locking needed for
-them. It might be possible to do cool things there with RCU
+6 channel audio mode
 

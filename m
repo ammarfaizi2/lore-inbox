@@ -1,60 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268041AbUIBJKj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268053AbUIBJNj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268041AbUIBJKj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 05:10:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268026AbUIBJKj
+	id S268053AbUIBJNj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 05:13:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268026AbUIBJNi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 05:10:39 -0400
-Received: from smtp.nedstat.nl ([194.109.98.184]:27835 "HELO smtp.nedstat.nl")
-	by vger.kernel.org with SMTP id S268041AbUIBJIA (ORCPT
+	Thu, 2 Sep 2004 05:13:38 -0400
+Received: from rproxy.gmail.com ([64.233.170.206]:40153 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268042AbUIBJM5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 05:08:00 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q8
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: mika.penttila@kolumbus.fi, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040902083205.GA22416@elte.hu>
-References: <20040902075712.DGPM28426.fep02-app.kolumbus.fi@mta.imail.kolumbus.fi>
-	 <20040902083205.GA22416@elte.hu>
-Content-Type: text/plain
-Message-Id: <1094116003.28961.207.camel@localhost.localdomain>
+	Thu, 2 Sep 2004 05:12:57 -0400
+Message-ID: <4699bb7b04090202121119a57b@mail.gmail.com>
+Date: Thu, 2 Sep 2004 21:12:56 +1200
+From: Oliver Hunt <oliverhunt@gmail.com>
+Reply-To: Oliver Hunt <oliverhunt@gmail.com>
+To: Hans Reiser <reiser@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives
+Cc: Linus Torvalds <torvalds@osdl.org>, David Masover <ninja@slaphack.com>,
+       Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+In-Reply-To: <4136E0B6.4000705@namesys.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 02 Sep 2004 11:06:43 +0200
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <20040902002431.GN31934@mail.shareable.org> <413694E6.7010606@slaphack.com> <Pine.LNX.4.58.0409012037300.2295@ppc970.osdl.org> <4136A14E.9010303@slaphack.com> <Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org> <4136C876.5010806@namesys.com> <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org> <4136E0B6.4000705@namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-02 at 10:32, Ingo Molnar wrote:
-> * mika.penttila@kolumbus.fi <mika.penttila@kolumbus.fi> wrote:
+How would we go about finding out how many data forks were in a file? 
+Because in order to be able to retrieve data from a fork we would need
+to know that the fork were there.  Currently this would imply that we
+go looking through mtab or some such to find out what fs we're running
+on, which seems ugly.
+
+Alternatively we go through the _exciting_ task of making every other
+fs (with the exceptions of ntfs, and whatever it is that macs use,
+which would need there own custom code) and add code that effectively
+goes
+
+getNumForks(fileref){ return 1;} 
+
+or add a new open call that can take a fork number...
+
+either way we have to add a new syscall, that doesn't conform to any
+real standard(though i suppose it would be possible to use
+macOS/windows style fork iopening interface)
+
+I personally like the concept of having multiple forks in a file, but
+in this case I'm inclined towards usermode first, then if it takes off
+add kernel level support.
+
+--Oliver Hunt
+
+On Thu, 02 Sep 2004 01:58:30 -0700, Hans Reiser <reiser@namesys.com> wrote:
+> Linus Torvalds wrote:
 > 
-> > Ingo,
-> > 
-> > I think there might be a problem with voluntary-preempt's hadling of
-> > softirqs. Namely, in cond_resched_softirq(), you do
-> > __local_bh_enable() and local_bh_disable(). But it may be the case
-> > that the softirq is handled from ksoftirqd, and then the preempt_count
-> > isn't elevated with SOFTIRQ_OFFSET (only PF_SOFTIRQ is set). So the
-> > __local_bh_enable() actually makes preempt_count negative, which might
-> > have bad effects. Or am I missing something?
+> > But _my_ point is, no user program is going to take _advantage_ of
+> >
+> >anything that only one filesystem on one system offers.
+> >
+> >
+> Apple does not have this problem....
 > 
-> you are right. Fortunately the main use of cond_resched_softirq() is via
-> cond_resched_all() - which is safe because it uses softirq_count(). But
-> the kernel/timer.c explicit call to cond_resched_softirq() is unsafe.
-> I've fixed this in my tree and i've added an assert to catch the
-> underflow when it happens.
+> and yes, the apps will take advantage of it, which is different from
+> depending on it.  If you use the wrong fs you will lose some of the
+> features of the app.
 > 
-> 	Ingo
-
-I've had linux-2.6.9-rc1-bk8-Q7 lock up on me this morning not long
-after starting a glibc compile resulting from: emerge -uo gnome
-although it did survive a make World on xorg-cvs.
-
-Could this have been caused by the bug under discussion?
-
-Unfortunatly I don't have much testing time before I go on hollidays,
-so for now I went back to linux-2.6.9-rc1-bk6-Q5 which on my machine is
-rock solid.
-
-Peter
-
+> For 30 years nothing much has happened in Unix filesystem semantics
+> because of sheer cowardice (excepting Clearcase, which priced itself
+> into a niche market).   It is 25 years past time for someone to change
+> things.  That someone will have first mover advantage, and the more
+> little semantic features possessed the more lure there will be to use it
+> which will increase market share which will lure more apps into
+> depending on it and in a few years the other filesystems will
+> (deservedly) have only a small market share because the apps won't all
+> work on them.
+> 
+> Besides, there are enhancements which are simply compelling.  You can
+> write a dramatically better performance version control system with a
+> much simpler design if the FS is atomic.    Our transaction manager
+> first draft was written by a version control guy, and he would probably
+> be happy to tell you how  lack of atomicity other than rename makes
+> version control software design hideous.
+> 
+> We have the performance lead.  By next year we will be stable enough for
+> mission critical servers, and then we start the serious semantic
+> enhancements.
+> 
+> If you don't embrace progress, then you doom Linux to following behind,
+> because the guys at Apple are pretty aggressive now that Jobs is back,
+> and they WILL change the semantics, and they will do so in compelling
+> ways, and Linux will be reduced to aping them when it should be leading
+> them.
+> 
+> Hans
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

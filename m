@@ -1,58 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265044AbUINX23@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267376AbUINX14@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265044AbUINX23 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 19:28:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266733AbUINX22
+	id S267376AbUINX14 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 19:27:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266733AbUINXZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 19:28:28 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:9403 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S265044AbUINX10 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 19:27:26 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Dave Airlie <airlied@linux.ie>
-Subject: Re: [PATCH] DRM: add missing pci_enable_device()
-Date: Tue, 14 Sep 2004 17:27:15 -0600
-User-Agent: KMail/1.6.2
-Cc: dri-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       Evan Paul Fletcher <evanpaul@gmail.com>, linux-kernel@vger.kernel.org
-References: <200409131651.05059.bjorn.helgaas@hp.com> <200409140845.59389.bjorn.helgaas@hp.com> <Pine.LNX.4.58.0409150008130.23838@skynet>
-In-Reply-To: <Pine.LNX.4.58.0409150008130.23838@skynet>
-MIME-Version: 1.0
+	Tue, 14 Sep 2004 19:25:52 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3751 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266304AbUINXYx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 19:24:53 -0400
+Date: Tue, 14 Sep 2004 18:41:58 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: swapping and the value of /proc/sys/vm/swappiness
+Message-ID: <20040914214158.GA363@logos.cnet>
+References: <413CB661.6030303@sgi.com> <cone.1094512172.450816.6110.502@pc.kolivas.org> <20040906162740.54a5d6c9.akpm@osdl.org> <1095186713.6309.15.camel@stantz.corp.sgi.com> <20040914201558.GA32254@logos.cnet> <41477661.9030204@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409141727.15643.bjorn.helgaas@hp.com>
+In-Reply-To: <41477661.9030204@kolivas.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 September 2004 5:12 pm, Dave Airlie wrote:
-> > OK, I'll assume you understand the issue and will resolve it.  In the
-> > meantime, users of DRM will have to supply "pci=routeirq".
+On Wed, Sep 15, 2004 at 08:53:21AM +1000, Con Kolivas wrote:
+> Marcelo Tosatti wrote:
+> >On Tue, Sep 14, 2004 at 11:31:53AM -0700, Florin Andrei wrote:
+> >
+> >>On Mon, 2004-09-06 at 16:27, Andrew Morton wrote:
+> >>
+> >>>Con Kolivas <kernel@kolivas.org> wrote:
+> >>
+> >>>>The change was not deliberate but there have been some other people 
+> >>>>report significant changes in the swappiness behaviour as well (see 
+> >>>>archives). It has usually been of the increased swapping variety 
+> >>>>lately. It has been annoying enough to the bleeding edge desktop users 
+> >>>>for a swag of out-of-tree hacks to start appearing (like mine).
+> >>>
+> >>>All of which is largely wasted effort.
+> >>
+> >>>From a highly-theoretical, ivory-tower perspective, maybe; i am not the
+> >>one to pass judgement.
+> >>>From a realistic, "fix it 'cause it's performing worse than MSDOS
+> >>without a disk cache" perspective, definitely not true.
+> >>
+> >>I've found a situation where the vanilla kernel has a behaviour that
+> >>makes no sense:
+> >>
+> >>http://marc.theaimsgroup.com/?l=linux-kernel&m=109237941331221&w=2
+> >>http://marc.theaimsgroup.com/?l=linux-kernel&m=109237959719868&w=2
+> >>http://marc.theaimsgroup.com/?l=linux-kernel&m=109238126314192&w=2
+> >>
+> >>A patch by Con Kolivas fixed it:
+> >>
+> >>http://marc.theaimsgroup.com/?l=linux-kernel&m=109410526607990&w=2
+> >>
+> >>I cannot offer more details, i have no time for experiments, i just need
+> >>a system that works. The vanilla kernel does not.
+> >
+> >
+> >Have you tried to decrease the value of /proc/sys/vm/swappiness 
+> >to say 30 and see what you get?
+> >
+> >Andrew's point is that we should identify the problem - Con's patch
+> >rewrites swapping policy.  
 > 
-> is this -mm only or is it mainline kernel stuff now?
+> I already answered this. That hard swappiness patch does not really 
+> rewrite swapping policy. It identifies exactly what has changed because 
+> it does not count "distress in the swap tendency". Therefore if the 
+> swappiness value is the same, the mapped ratio is the same (in the 
+> workload) yet the vm is swappinig more, it is getting into more 
+> "distress". The mapped ratio is the same but the "distress" is for some 
+> reason much higher in later kernels, meaning the priority of our 
+> scanning is getting more and more intense. This should help direct your 
+> searches.
 
-It's been in -mm for about a month so far, and it still
-needs some cooking before it's ready for mainline.  The
-remaining issues are:
+> These are the relevant lines of code _from mainline_:
+> 
+> distress = 100 >> zone->prev_priority
+> mapped_ratio = (sc->nr_mapped * 100) / total_memory;
+> swap_tendency = mapped_ratio / 2 + distress + vm_swappiness
+> if (swap_tendency >= 100)
+> -		reclaim_mapped = 1;
+> 
+> 
+> That hard swappiness patch effectively made "distress == 0" always.
 
-	- nvidia: Nvidia posted a patch for the open-source part
-		of their driver, but we'll likely have to keep
-		the "pci=routeirq" option longer than I originally
-		hoped.
-	- swsusp: Some devices like prism54, USB don't
-		work after suspend/resume.  Prototype patch
-		being tested.  I suspect we'll trip over
-		more issues here, because the resume hooks
-		are poorly documented and inconsistently
-		implemented.
-	- DRI: Sounds like you can do the trivial "enable-only"
-		change that will make things work.
+OK. 
 
-I'm a little surprised that I've only heard one report about
-DRI, actually.
+So isnt it true that decreasing vm_swappiness should compensate 
+distress and have the same effect of your patch? 
 
-> I'll throw an enable in to the bk tree later on....
+To be fair I'm just arguing, haven't really looked at the code.
 
-Great, thanks!
+
+

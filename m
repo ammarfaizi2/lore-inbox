@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267011AbTAFQMl>; Mon, 6 Jan 2003 11:12:41 -0500
+	id <S267022AbTAFQOS>; Mon, 6 Jan 2003 11:14:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267021AbTAFQMl>; Mon, 6 Jan 2003 11:12:41 -0500
-Received: from enchanter.real-time.com ([208.20.202.11]:38158 "EHLO
-	enchanter.real-time.com") by vger.kernel.org with ESMTP
-	id <S267011AbTAFQMk>; Mon, 6 Jan 2003 11:12:40 -0500
-Date: Mon, 6 Jan 2003 10:21:04 -0600
-From: Carl Wilhelm Soderstrom <chrome@real-time.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Dmitry Volkoff <vdb@mail.ru>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: fs corruption with 2.4.20 IDE+md+LVM
-Message-ID: <20030106102103.A8123@real-time.com>
-References: <20030106021412.GA3993@server1> <20030105224909.C24674@real-time.com> <1041865322.17472.13.camel@irongate.swansea.linux.org.uk>
+	id <S267025AbTAFQOR>; Mon, 6 Jan 2003 11:14:17 -0500
+Received: from smtp.mailix.net ([216.148.213.132]:26795 "EHLO smtp.mailix.net")
+	by vger.kernel.org with ESMTP id <S267022AbTAFQOQ>;
+	Mon, 6 Jan 2003 11:14:16 -0500
+Date: Mon, 6 Jan 2003 17:22:51 +0100
+From: Alex Riesen <fork0@users.sf.net>
+To: Dirk Bull <dirkbull102@hotmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: shmat problem
+Message-ID: <20030106162251.GA15900@steel>
+Reply-To: Alex Riesen <fork0@users.sf.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1041865322.17472.13.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Mon, Jan 06, 2003 at 03:02:02PM +0000
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 06, 2003 at 03:02:02PM +0000, Alan Cox wrote:
-> You are reporting problems in 2.4.20. 2.4.20 doesn't have the revamped IDE...
+> Doug, thanks for the reply. I've set SHM_RND in the call and used
+> "__attribute__ ((aligned(4096)))" during the the declaration of variable 
+> global01_
+> (as shown below) such that it is aligned on a page boundary. I'm porting 
+> code that was
+> written for a Unix system to Linux and the example shown below is how the 
+> code is implemented on Unix.
 
-I know. which is why I put that comment after the section of my mail
-regarding md bugs in 2.4.21
+on which exactly?
 
-> The IDE is getting updated because
+> The example included executed correctly on:
+> mandrake - ? (Can't remember, but it was an old version)
 > 
-> - Lots of new controllers dont work with the old code
-> - Lots of LBA48 problems exist with the older code
-> - SATA is right out with the older code
-> - Several existing controllers have weird bugs with the older code
+> but fails to work on:
+> redhat - 2.2.14-5.0
+> debian - 2.2.9
+> mandrake - 2.4.19-16mdk
 > 
-> I'd much prefer we didn't have to update the IDE too 8)
+> We are currently working on mandrake - kernel 2.4.19-16mdk.
 
-ok. I didn't see an extensive discussion of this on any of the kernel-digest
-forums (kerneltrap, kernel traffic). 
-I'll trust that you're doing the right thing, and try to avoid stepping in
-any other flamebait. ;)
+You have to add SHM_REMAP to shmat flags (see definitions of SHM_ flags).
 
-Carl Soderstrom.
--- 
-Systems Administrator
-Real-Time Enterprises
-www.real-time.com
+> 
+> 	if ( (shmptr = shmat(shmid, &global01_, SHM_RND)) == (void *) -1)
+> 		printf("shmat error: %d %s\n",errno, strerror(errno));
+> 	else
+
+add SHM_REMAP.
+
+-alex
+

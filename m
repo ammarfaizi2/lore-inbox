@@ -1,94 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261406AbULYWiK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbULYWst@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261406AbULYWiK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Dec 2004 17:38:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbULYWiJ
+	id S261589AbULYWst (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Dec 2004 17:48:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbULYWss
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Dec 2004 17:38:09 -0500
-Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:5268 "EHLO
-	acheron.informatik.uni-muenchen.de") by vger.kernel.org with ESMTP
-	id S261406AbULYWh7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Dec 2004 17:37:59 -0500
-Message-ID: <41CDEE8A.80407@bio.ifi.lmu.de>
-Date: Sat, 25 Dec 2004 23:49:46 +0100
-From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Jens Axboe <axboe@suse.de>, Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: kblockd/1: page allocation failure in 2.6.9
-References: <41C7D32D.2010809@bio.ifi.lmu.de>	 <41CAAB61.3030704@bio.ifi.lmu.de>	 <200412231551.15767.vda@port.imtp.ilyichevsk.odessa.ua>	 <41CAEA62.4060903@bio.ifi.lmu.de>  <20041224132006.GC2528@suse.de> <1103916492.5448.27.camel@mulgrave>
-In-Reply-To: <1103916492.5448.27.camel@mulgrave>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 25 Dec 2004 17:48:48 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.51]:56032 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S261589AbULYWso (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Dec 2004 17:48:44 -0500
+Date: Sat, 25 Dec 2004 23:48:43 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Ingo Molnar <mingo@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: apic and 8254 wraparound ...
+Message-ID: <20041225224843.GA32726@mail.13thfloor.at>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Ingo Molnar <mingo@redhat.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20041224001144.GA5192@mail.13thfloor.at> <1103845033.15193.6.camel@localhost.localdomain> <20041224200022.GA14956@mail.13thfloor.at> <1103917238.18115.11.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1103917238.18115.11.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Fri, Dec 24, 2004 at 07:40:38PM +0000, Alan Cox wrote:
+> On Gwe, 2004-12-24 at 20:00, Herbert Poetzl wrote:
+> > somehow I'm unable to locate it, I can see the 
+> > 430TX and 430HX but not the 430NX and 430LX ...
+> > 
+> > do you have an url for me?
+> 
+> Not to hand, its under the retired chipset stuff. The details are as
+> follows from memory
+> 
+> When you read one 8bit value from an 8254 timer the values latch for
+> read so that when you read the other half of the 16bit value you get the
+> value from the moment of the first read. On 
+> neptune that didn't work right so you got halves of two differing
+> samples. That means the error would be worst case a bit under 300 (257
+> for the wrap + a few for timing)
 
-thanks for caring! I don't fully understand what you are talking about
-in detail :-), but maybe I can give some more information that could help.
+okay, I still wasn't able to find the documentation 
+at the intel site, but I could extrapolate the issue
+from your explanation (thanks by the way)
 
-- If you suspect the gdth driver causing the error, it must be some very
-   special situation on this host causing it. We have 2 other hosts
-   with the same icp vortex GDT8514RZ controller like the host
-   where the kblockd message occured. They all have internal raid1 disks
-   (73gb or 146gb). One is our main NFS server (it has two raid1 with 146g
-   each) and it has a lot of I/O, sometimes 50GB or more a day with peaks
-   up to 200MB per second (reading), and we never saw any kblockd message
-   in the logs (I just checked them all).
+get_8254_timer_count() reads lo byte first, then the 
+high byte, so assuming that the latch doesn't work
+as expected on intel 430 NX and LX chipsets, can 
+result in the following type of error:
 
-- there were no messages "around" the kblockd messages in /var/log/messages
-   but the usual ones about remote ssh login, cron jobs etc., but the messages
-   were all more than 10 minutes "away" before and after the kblockd happened.
+counter >= 2^8 * N, 	LO is read (for example 0)
+counter is decremented
+counter <  2^8 * N  	HI is read (N - 1)
 
-- not much I/O can have taken place on the internal disks attached to the
-   icp controller when the bug was triggered, because all the I/O for
-   e.g. updates or backups happens only in the night for all hosts except
-   the NFS servers.
+so the read value will be exactly 2^8 lower than
+expected (assumed that the counter doesn't do more
+than 256 counts between the two inb_p()s)
 
-- the host where the error occured is the only one that (in addition to the icp
-   controller with the internal raid1) has two external SCSI-to-IDE-Raids
-   attached to the adaptec 29160 controller that runs with the aic7xxx modul.
+second the wrap-around will always happen _after_
+the counter reached zero, so we can further assume
+that the prev_count, has to be lower than 2^8, when
+we observe a wraparound (otherwise we don't care)
 
-- According to the user working a lot on this host, it is possible that he
-   did a dump of a large mysql database on the external SCSI-to-IDE raids
-   around the time where the kblockd messages occured. He can't tell
-   for sure if it was the same time.
-   Since we never had any problems on the other hosts with the icp
-   controllers and the gdth module, maybe the bug occurs in the aic7xxx
-   module? Or if it occurs in the gdth, maybe it's caused by some interaction
-   between the gdth and the aic7xxx driver both accessing the scsi bus?
-   The gdth driver is compiled into the kernel, the aic7xxx loads as module.
+let's further assume the counter does not decrement
+more than 2^7 between two consecutive gets, then we
+can change the wraparound check to something like
+this:
 
-- I did a "dd if=/dev/sd? of=/dev/null bs=500M" for all disks (sda on gdth,
-   sdb and sdc on aic7xxx) to check if it could be some disk error or sth..
-   but those dd went fine without triggering the bug.
+        curr_count = get_8254_timer_count();
 
-Don't know if this info helps...
+	do {
+        	prev_count = curr_count;
+	redo:
+        	curr_count = get_8254_timer_count();
 
-Please let me know if there is something I can do to help finding
-the bug. I don't mind to compile a special kernel for this host if I can
-turn on some debugging options. I saw some DEBUG_GDTH variable in gdth.c,
-but I don't know how to turn this on exactly, would I have to define the
-variable in the header file somehow? (Sorry, I'm not very familiar with
-C :-() For the aic7xxx I found two config options AIC7XXX_DEBUG_ENABLE
-and AIC7XXX_DEBUG_MASK. Could that help you identify the bug if I have all
-this enabled when the bug shows up again?
+		/* workaround for broken Mercury/Neptune */
+		if (prev_count - current_count >= 256)
+	    		goto redo;
 
-Thanks!
+		/* ignore values far off from zero */
+    		if (prev_count > 128)
+	    		continue;
 
-Frank
+	} while (prev_count >= curr_count)
 
 
+basically the check for (prev_count > 128) can be
+removed but it feels a little more comfortable ...
 
--- 
-Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
-Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
-LMU, Amalienstr 17            Phone: +49 89 2180-4049
-80333 Muenchen, Germany       Fax:              -4054
-* Rekursion kann man erst verstehen, wenn man Rekursion verstanden hat. *
+would such change be acceptable for mainline?
+
+TIA,
+Herbert
+
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

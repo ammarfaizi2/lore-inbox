@@ -1,73 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262079AbSJVDty>; Mon, 21 Oct 2002 23:49:54 -0400
+	id <S262080AbSJVDuB>; Mon, 21 Oct 2002 23:50:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262080AbSJVDty>; Mon, 21 Oct 2002 23:49:54 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:33189 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S262079AbSJVDtx>; Mon, 21 Oct 2002 23:49:53 -0400
-Date: Mon, 21 Oct 2002 20:53:59 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: Rik van Riel <riel@conectiva.com.br>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-mm mailing list <linux-mm@kvack.org>
-Subject: Re: ZONE_NORMAL exhaustion (dcache slab)
-Message-ID: <2622146086.1035233637@[10.10.2.3]>
-In-Reply-To: <3DB4C87E.7CF128F3@digeo.com>
-References: <3DB4C87E.7CF128F3@digeo.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S262089AbSJVDuB>; Mon, 21 Oct 2002 23:50:01 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:3374 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S262080AbSJVDuA>; Mon, 21 Oct 2002 23:50:00 -0400
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Bill Davidsen <davidsen@tmr.com>, Dave McCracken <dmccr@us.ibm.com>,
+       Andrew Morton <akpm@digeo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
+References: <m1bs5nvo2r.fsf@frodo.biederman.org>
+	<2577017645.1035188509@[10.10.2.3]>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 21 Oct 2002 21:54:21 -0600
+In-Reply-To: <2577017645.1035188509@[10.10.2.3]>
+Message-ID: <m17kgbuo0i.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I cannot make it happen here, either.  2.5.43-mm2 or current devel
-> stuff.  Heisenbug; maybe something broke dcache-rcu?  Or the math
-> overflow (unlikely).
+"Martin J. Bligh" <mbligh@aracnet.com> writes:
 
-Dipankar is going to give me some debug code once he's slept for
-a while ... that should help see if dcache-rcu went wacko.
- 
->> So it looks as though it's actually ext2_inode cache that's first against the wall.
+> >> In many cases, this will stop the box from falling over flat on it's 
+> >> face due to ZONE_NORMAL exhaustion (from pte-chains), or even total
+> >> RAM exhaustion (from PTEs). Thus the performance gain is infinite ;-)
+> > 
+> > So why has no one written a pte_chain reaper?  It is perfectly sane
+> > to allocate a swap entry and move an entire pte_chain to the swap
+> > cache.  
 > 
-> Well that's to be expected.  Each ext2 directory inode has highmem
-> pagecache attached to it, which pins the inode.  There's no highmem
-> eviction pressure so your normal zone gets stuffed full of inodes.
+> I think the underlying subsystem does not easily allow for dynamic regeneration,
+> so it's non-trivial. 
+
+We swap pages out all of the time in 2.4.x, and that is all I was suggesting 
+swap out some but not all of the pages, on a very long pte_chain.  And swapping
+out a page is not terribly complex, unless something very drastic has changed.
+
+> wli was looking at doing pagetable reclaim at some point,
+> IIRC.
 > 
-> There's a fix for this in Andrea's tree, although that's perhaps a
-> bit heavy on inode_lock for 2.5 purposes.  It's a matter of running
-> invalidate_inode_pages() against the inodes as they come off the
-> unused_list.  I haven't got around to it yet.
-
-Thanks; no urgent problem (though we did seem to have a customer hitting
-a very similar situation very easily in 2.4 ... we'll see if Andrea's
-fixes that, then I'll try to reproduce their problem on current 2.5).
- 
->> larry:~# egrep '(dentry|inode)' /proc/slabinfo
->> isofs_inode_cache      0      0    320    0    0    1 :  120   60
->> ext2_inode_cache  667345 809181    416 89909 89909    1 :  120   60
->> shmem_inode_cache      3      9    416    1    1    1 :  120   60
->> sock_inode_cache      16     22    352    2    2    1 :  120   60
->> proc_inode_cache      12     12    320    1    1    1 :  120   60
->> inode_cache          385    396    320   33   33    1 :  120   60
->> dentry_cache      1068289 1131096    160 47129 47129    1 :  248  124
 > 
-> OK, so there's reasonable dentry shrinkage there, and the inodes
-> for regular files whch have no attached pagecache were reaped.
-> But all the directory inodes are sitting there pinned.
+> IMHO, it's better not to fill memory with crap in the first place than
+> to invent complex methods of managing and shrinking it afterwards. You
+> only get into pathalogical conditions under sharing situation, else 
+> it's limited to about 1% of RAM (bad, but manageable) ... thus providing
+> this sort of sharing nixes the worst of it. Better cache warmth on 
+> switches (for TLB misses), faster fork+exec, etc. are nice side-effects.
 
-OK, this all makes a lot of sense ... apart from one thing:
-from looking at meminfo:
+I will agree with that if everything works so the sharing happens,
+this is a nice feature.
 
-HighTotal:    15335424 kB
-HighFree:     15066160 kB
+> The ultimate solution is per-object reverse mappings, rather than per
+> page, but that's a 2.7 thingy now.
+???
 
-Even if every highmem page is pagecache, that's only 67316 pages by
-my reckoning (is pagecache broken out seperately in meminfo? both
-Buffers and Cached seem to large). If I only have 67316 page of 
-pagecache, how can I have 667345 inodes with attatched pagecache pages?
-Or am I just missing something obvious and fundamental? 
+Last I checked we already had those in 2.4.x, and still in 2.5.x.  The
+list of place the address space is mapped.
+
+Eric
+

@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264529AbTDPQ4U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 12:56:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264521AbTDPQ4D
+	id S264480AbTDPQvP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 12:51:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264467AbTDPQtW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 12:56:03 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:18317 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264509AbTDPQyu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 12:54:50 -0400
-Date: Wed, 16 Apr 2003 10:08:14 -0700
-From: Greg KH <greg@kroah.com>
-To: Robert Schwebel <robert@schwebel.de>
-Cc: David Brownell <david-b@pacbell.net>,
-       linux-usb-devel <linux-usb-devel@lists.sourceforge.net>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Chosing the right Linux "USB Gadget" API and Driver Framework
-Message-ID: <20030416170814.GA18854@kroah.com>
-References: <20030416073635.GA10886@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030416073635.GA10886@pengutronix.de>
-User-Agent: Mutt/1.4.1i
+	Wed, 16 Apr 2003 12:49:22 -0400
+Received: from [205.205.44.10] ([205.205.44.10]:30212 "EHLO
+	sembo111.teknor.com") by vger.kernel.org with ESMTP id S264447AbTDPQrW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 12:47:22 -0400
+Message-ID: <5009AD9521A8D41198EE00805F85F18F039D3A65@sembo111.teknor.com>
+From: "Isabelle, Francois" <Francois.Isabelle@ca.kontron.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: "Audet, Jean-Michel" <Jean-Michel.Audet@ca.Kontron.com>
+Subject: Using kill_fasync for sig >= SIGRTMIN ?
+Date: Wed, 16 Apr 2003 12:59:13 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 16, 2003 at 09:36:35AM +0200, Robert Schwebel wrote:
-> I'm currently working on support for the USB gadget controller inside
-> the Intel PXA25x XScale processor. David Brownell has recently published
-> a new USB gadget API which was discussed on linux-usb-devel and which
-> seems to be a good starting point.
-> 
-> As there is at least one other API (by Belcarra, former Lineo code) I'm
-> wondering what Greg's and Linus' position concerning the new USB gadget
-> API is. A comment from your side would be welcome. 
+I'm using kernel 2.4.20.
 
-I've looked at both apis, and think the one from David looks much better
-than the old Lineo code (don't know if that has been updated in a long
-time, I might not be aware of newer developments with that code.)
+Is it possible to kill_fasync a signal >= SIGRTMIN to asynchronously notify
+a user of the availability of data from a driver ? 
 
-So, barring any unforseen pushes from the ex-Lineo developers I expect
-David's code to make it into the main kernel tree eventually.
+It seems to me the code always sends a SIGIO instead.
 
-Hope this helps,
+Looking at fs/fnctl.c and kernel/signal.c, it appears to fail in
+send_sig_info().
 
-greg k-h
+signal chosen is 40 ( lower than 64 on i386 )
+bad_signal() , should not fail, except if kernel mode is not allowed to send
+RT signals ...
+then deliver_signal is called, which in turns call send_signal() .
+rtsig-nr = 0  , rtsig-max = 1024, there is no reason to fail...
+
+Any explanation would help, thank you.
+
+Please CC me.
+
+Francois Isabelle

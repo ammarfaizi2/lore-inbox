@@ -1,62 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbVB1QVo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbVB1QYR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261673AbVB1QVo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 11:21:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbVB1QVo
+	id S261677AbVB1QYR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 11:24:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbVB1QYR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 11:21:44 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:53637 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261673AbVB1QVd (ORCPT
+	Mon, 28 Feb 2005 11:24:17 -0500
+Received: from fire.osdl.org ([65.172.181.4]:2507 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261677AbVB1QX7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 11:21:33 -0500
-Date: Mon, 28 Feb 2005 17:21:29 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Mark Haverkamp <markh@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, dm-devel@redhat.com
-Subject: Re: [PATCH] Fix panic in 2.6 with bounced bio and dm
-Message-ID: <20050228162128.GK8868@suse.de>
-References: <1109351021.5014.10.camel@markh1.pdx.osdl.net> <20050225161947.5fd6d343.akpm@osdl.org> <Pine.LNX.4.58.0502251640050.9237@ppc970.osdl.org> <20050226123934.GA1254@suse.de> <1109604737.30227.3.camel@markh1.pdx.osdl.net> <20050228155127.GI8868@suse.de> <1109607188.30227.16.camel@markh1.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1109607188.30227.16.camel@markh1.pdx.osdl.net>
+	Mon, 28 Feb 2005 11:23:59 -0500
+Date: Mon, 28 Feb 2005 08:25:07 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: two pipe bugfixes
+In-Reply-To: <20050228042544.GA8742@opteron.random>
+Message-ID: <Pine.LNX.4.58.0502272143500.25732@ppc970.osdl.org>
+References: <20050228042544.GA8742@opteron.random>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 28 2005, Mark Haverkamp wrote:
-> On Mon, 2005-02-28 at 16:51 +0100, Jens Axboe wrote:
-> > On Mon, Feb 28 2005, Mark Haverkamp wrote:
-> > > On Sat, 2005-02-26 at 13:39 +0100, Jens Axboe wrote:
-> > > > On Fri, Feb 25 2005, Linus Torvalds wrote:
-> > > > > 
-> > > > > 
-> > > > > On Fri, 25 Feb 2005, Andrew Morton wrote:
-> > > > > > 
-> > > > > > It seems very weird for dm to be shoving NULL page*'s into the middle of a
-> > > > > > bio's bvec array, so your fix might end up being a workaround pending a
-> > > > > > closer look at what's going on in there.
-> > > > > 
-> > > > > Yes. I don't see how this patch can be anything but bandaid to hide the 
-> > > > > real bug. Where do these "non-page" bvec's originate?
-> > > > 
-> > > > Yep that's the fishy part, there should not be NULL pages in the middle
-> > > > (or empty bios, for that matter) submitted for io.
-> > > > 
-> > > > Mark, what was the bug that triggered you to write this patch?
-> > > 
-> > > It happened when some pages of IO from a dm device were bounced.  It
-> > > looks to me when bio's are cloned in the dm code to split it for
-> > > physical devices that only the pointers to pages that apply to that
-> > > device are copied and th bi_idx is adjusted to point to the start,
-> > > leaving some NULL pointers at the start of the bio_vec.
-> > 
-> > This should fix it.
+
+
+On Mon, 28 Feb 2005, Andrea Arcangeli wrote:
 > 
-> Wouldn't this potentially create bounce pages that will never be used?
+> and it started to return this since 2.6.11-rc:
+> 
+> pipe([3, 4])                            = 0
+> write(4, "qqqqq", 5)                    = 5
+> select(5, [4], [4], [4], {0, 0})        = 2 (in [4], out [4], left {0,
+> 0})
+> close(3)                                = 0
+> write(4, "qqqqq", 5)                    = 5
 
-Well no, it just points them at the "top" pages from the original bio.
+Ahh, yes. The write merging code doesn't check for no readers. 
 
--- 
-Jens Axboe
+> IMHO the really wrong thing is that we always set POLLIN (even for
+> output filedescriptors that will never allow any data to be read).
 
+However, that has always been true. Look at the old code: it would set
+POLLIN for a non-empty pipe for both readers and writers (and do POLLOUT
+for empty pipes both for readers and writers). In fact, your very own
+original strace shows that - it shows "in [4]" even though fd 4 is a
+write-only fd.
+
+The new code does nothing really different. POLLIN is still there for a
+non-empty pipe, just like it was before. It's just that when you have
+multiple buffers, POLLOUT can _also_ be true, since even if you have
+_some_ data in the pipe, you can still do a write of a full PIPE_BUF.
+
+So the difference is not at all the one you're talking about, and the 
+"bug" you claim to fix was there before too.
+
+The fact is that if this broke python-twisted, then it just happened to
+work before by mistake. And python-twisted is just plain bogus.
+
+That said, I agree with the fact that it's probably not the right thing to
+do, and never was. And if fixing it makes a difference to python-twisted,
+then hey, that's a benefit, but not a reason for the patch.
+
+I don't agree with your patch, though - I don't like your lack of
+parenthesis ;)
+
+			Linus

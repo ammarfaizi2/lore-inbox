@@ -1,82 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129369AbQKGIgN>; Tue, 7 Nov 2000 03:36:13 -0500
+	id <S129892AbQKGIoF>; Tue, 7 Nov 2000 03:44:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129669AbQKGIgD>; Tue, 7 Nov 2000 03:36:03 -0500
-Received: from shodan.ibl.sk ([195.46.65.37]:6923 "HELO shodan.ibl.sk")
-	by vger.kernel.org with SMTP id <S129369AbQKGIfr> convert rfc822-to-8bit;
-	Tue, 7 Nov 2000 03:35:47 -0500
-From: Andrej Hosna <hosna@ibl.sk>
-Organization: IBL Software
-To: "David Schwartz" <davids@webmaster.com>
-Subject: RE: malloc(1/0) ??
-Date: Tue, 7 Nov 2000 08:59:40 +0100
-X-Mailer: KMail [version 1.0.29.2]
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <NCBBLIEPOCNJOAEKBEAKEEAJLMAA.davids@webmaster.com>
-In-Reply-To: <NCBBLIEPOCNJOAEKBEAKEEAJLMAA.davids@webmaster.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S129919AbQKGIn4>; Tue, 7 Nov 2000 03:43:56 -0500
+Received: from damoo.csun.edu ([130.166.15.27]:52748 "EHLO DaMOO.csun.edu")
+	by vger.kernel.org with ESMTP id <S129892AbQKGInl>;
+	Tue, 7 Nov 2000 03:43:41 -0500
+Date: Tue, 7 Nov 2000 00:38:33 -0800 (PST)
+From: Matthew Sanderson <matthew@DaMOO.csun.edu>
+To: linux-kernel@vger.kernel.org
+Subject: 2.2.17: do_try_to_free_pages fails, no OOM
+Message-ID: <Pine.LNX.3.96.1001106235858.875A-100000@DaMOO.csun.edu>
 MIME-Version: 1.0
-Message-Id: <00110709373507.05397@adino>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello ,
-> > why does this program works. when executed, it doesnt
-> > give a segmentation fault. when the program requests
-> > memory, is a standard chunk is allocated irrespective
-> > of the what the user specifies. please explain.
-> >
-> > main()
-> > {
-> >    char *s;
-> >    s = (char*)malloc(0);
-> >    strcpy(s,"fffff");
-> >    printf("%s\n",s);
-> > }
-> >
-> > NOTE:
-> >   i know its a 'C' problem. but i wanted to know how
-> > this works
+I'm running 2.2.17 vanilla on a UP x86 box, and getting occasionally a
+couple of 'VM: do_try_to_free_pages failed' messages.
+The system appears to be running perfectly. It's almost out of real RAM,
+but has about 100M swap unused.
 
-C problem? You would better say , library problem(but it's not a problem at
-all).
+I can't figure out how this happens. Specifically, how come the call to
+swap_out in do_try_to_free_pages didn't swap something out, return true,
+and avoid that message being printed?
+kswapd is not acting up in any way; the system doesn't appear to be OOM.
 
-> The program does not work. A program works if it does what it's supposed to
-> do. If you want to argue that this program is supposed to print "ffffff"
-> then explain to me why the 'malloc' contains a zero in parenthesis.
-> 
-> The program can't possibly work because it invokes undefined behavior. It
-> is impossible to determine what a program that invokes undefined behavior is
-> 'supposed to do'.
+If this isn't a bug then can we remove this printk'd message?
+If it does seem to be a bug and someone'll give me a crash course on this
+area of the VM I'll investigate further. I notice do_try_to_free_pages can
+be called either from kswapd, or under what look like memory-pressure
+conditions elsewhere.
 
-I dont think it's undefined behaviour ...
+I'm not on lkml, so please cc me on any replies.
 
-Text from malloc.c <glibc2.something>
-<------snip-------->
-Malloc Algorithm:
- 
-    The requested size is first converted into a usable form, `nb'.
-    This currently means to add 4 bytes overhead plus possibly more to
-    obtain 8-byte alignment and/or to obtain a size of at least
-    MINSIZE (currently 16, 24, or 32 bytes), the smallest allocatable
-    size.  (All fits are considered `exact' if they are within MINSIZE
-    bytes.)
-<----- snip --------->
-So some area of MINSIZE is alloced , and you can write there... 
-Problems will arrive with writing over this area, and overwriting next memory
-chunk header. Write is not a problem ... in your code you have 4KB to spare,
-but when you try to free() you'd probably get SIGSEG. 
+--matt
 
-Hope that you have idea how it works now. If not, read the malloc.c comments to
-find about about how malloc realy works.
 
-Adino
--- 
-/* Andrej Hosna - http://people.ibl.sk/adino - +421 903 852 696  */
-/* IBL Software Engineering - http://www.ibl.sk - +421 7 43427214 */
-                                                                
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

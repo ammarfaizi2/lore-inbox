@@ -1,71 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261342AbUK0Vib@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbUK0Vlj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261342AbUK0Vib (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 16:38:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbUK0Via
+	id S261341AbUK0Vlj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 16:41:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbUK0Vli
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 16:38:30 -0500
-Received: from ctb-mesg2.saix.net ([196.25.240.74]:25084 "EHLO
-	ctb-mesg2.saix.net") by vger.kernel.org with ESMTP id S261342AbUK0ViL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 16:38:11 -0500
-Subject: Re: ub: oops with preempt ("Sahara Workshop") [u]
-From: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20041123100247.2ea47e2d@lembas.zaitcev.lan>
-References: <20041123100247.2ea47e2d@lembas.zaitcev.lan>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-8QFnljjOnsrpvpgeU1S+"
-Date: Sat, 27 Nov 2004 23:38:15 +0200
-Message-Id: <1101591495.11949.42.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Sat, 27 Nov 2004 16:41:38 -0500
+Received: from wl-193.226.227-253-szolnok.dunaweb.hu ([193.226.227.253]:8652
+	"EHLO szolnok.dunaweb.hu") by vger.kernel.org with ESMTP
+	id S261341AbUK0Vlb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Nov 2004 16:41:31 -0500
+Message-ID: <41A8F4C3.9070000@freemail.hu>
+Date: Sat, 27 Nov 2004 22:42:27 +0100
+From: Zoltan Boszormenyi <zboszor@freemail.hu>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; hu; rv:1.7.3) Gecko/20041020
+X-Accept-Language: hu, en-us
+MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: CD-ROM problem on x86-64
+References: <41A84875.2030505@freemail.hu> <41A848C4.1030504@freemail.hu> <Pine.LNX.4.61.0411271035340.3173@montezuma.fsmlabs.com> <41A8C3BF.20904@freemail.hu> <Pine.LNX.4.61.0411271123350.3173@montezuma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.61.0411271123350.3173@montezuma.fsmlabs.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Zwane Mwaikambo írta:
+> On Sat, 27 Nov 2004, Zoltan Boszormenyi wrote:
+> 
+> 
+>>Zwane Mwaikambo �rta:
+>>
+>>>On Sat, 27 Nov 2004, Zoltan Boszormenyi wrote:
+>>>
+>>>
+>>>
+>>>>Sorry, this last statement is not true, just compare the two error
+>>>>reports above. Both hda and hdc show this error.
+>>>
+>>>
+>>>Please provide full dmesg, lspci and if possible state around which kernel
+>>>version the problems began occuring
+>>>
+>>
+>>They are attached. I am running the linuxconsole.sf.net multiconsole
+>>extension, I patched the Fedora Core 3 original and the second errata
+>>kernel with it and made a custom RPM.
+> 
+> 
+> Heavens =) Would it be possible for you to test latest -bk snapshot?
 
---=-8QFnljjOnsrpvpgeU1S+
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+:-)
 
-On Tue, 2004-11-23 at 10:02 -0800, Pete Zaitcev wrote:
+I will soon. Although I have to apply this patch also, more than one
+person use my machine at once. My 2 and a half year old son would be
+angry without his cartoons. ;-)
 
-Hi,
+In the meantime it turned out that downing eth1 did not solve this
+problem. The r8169 stopped spitting its messages but I still had one
 
-> I admit that the code should be locked properly instead, but the global p=
-lan
-> is to drop all P3 tagged printks anyway. So let it be guarded for the mom=
-ent.
->=20
+hda: dma_timer_expiry: dma status == 0x24
+hda: DMA interrupt recovery
+hda: lost interrupt
 
-Sorry for the delay, but I have not had any time to really test this
-again.  I did some minor testing, and only after really working it,
-I could get an oops, but not nearly the same (think it was deeper into
-the scsi layer or maybe kobject stuff).
+in dmesg.
 
-Will see when I can get some time to try and generate some consistent
-traces if any.
-
-
-Thanks,
-
---=20
-Martin Schlemmer
-
-
---=-8QFnljjOnsrpvpgeU1S+
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBqPPHqburzKaJYLYRAukpAJ9eW2OYhW5Wk0YL/58BequpfUmQZACeJnxL
-s0/G1DWDonnfsMTVJ9VqLSw=
-=2Q5c
------END PGP SIGNATURE-----
-
---=-8QFnljjOnsrpvpgeU1S+--
-
+Best regards,
+Zoltán Böszörményi

@@ -1,80 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261932AbUDCUQK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 15:16:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbUDCUQJ
+	id S261918AbUDCUPG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 15:15:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbUDCUPG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 15:16:09 -0500
-Received: from mail.daybyday.de ([213.191.85.38]:61594 "EHLO data.daybyday.de")
-	by vger.kernel.org with ESMTP id S261920AbUDCUQC (ORCPT
+	Sat, 3 Apr 2004 15:15:06 -0500
+Received: from fed1mtao02.cox.net ([68.6.19.243]:716 "EHLO fed1mtao02.cox.net")
+	by vger.kernel.org with ESMTP id S261918AbUDCUPB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 15:16:02 -0500
-In-Reply-To: <406E88F7.9090601@steudten.com>
-References: <7CA30FDE-84F1-11D8-8FED-000393C43976@postmail.ch> <20040402223550.GA12467@kroah.com> <406E88F7.9090601@steudten.com>
-Mime-Version: 1.0 (Apple Message framework v613)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <A38D0556-85AB-11D8-8FED-000393C43976@postmail.ch>
-Content-Transfer-Encoding: 7bit
-Cc: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org
-From: Stefan Wanner <stefan.wanner@postmail.ch>
-Subject: Re: SCSI generic support: Badness in kobject_get
-Date: Sat, 3 Apr 2004 22:15:23 +0200
-To: Greg KH <greg@kroah.com>
-X-Mailer: Apple Mail (2.613)
+	Sat, 3 Apr 2004 15:15:01 -0500
+Date: Sat, 3 Apr 2004 13:14:50 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH][2.6-mm] early_param console_setup clobbers commandline
+Message-ID: <20040403201450.GG31152@smtp.west.cox.net>
+References: <Pine.LNX.4.58.0404022026560.11690@montezuma.fsmlabs.com> <20040403030537.GF31152@smtp.west.cox.net> <Pine.LNX.4.58.0404031028090.11690@montezuma.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0404031028090.11690@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actualy the same applies to me, when using 2.6.4. And I also get many 
-of those warnings when compiling kernel modules (like Jay Maynard 
-wrote):
+On Sat, Apr 03, 2004 at 10:40:01AM -0500, Zwane Mwaikambo wrote:
 
-{standard input}: Assembler messages:
-{standard input}:4: Warning: setting incorrect section type for .got
-{standard input}:4: Warning: setting incorrect section attributes for 
-.got
+> On Fri, 2 Apr 2004, Tom Rini wrote:
+> 
+> > This shouldn't be a problem 'tho, since we don't allow for spaces in
+> > args, and we do find where the next space is, and ensure it's still a
+> > space after the call (because console can splice up the command line,
+> > but we'd skip over those bits anyhow).
+> 
+> Another new thing is that all setup functions get called with their
+> parameter and any other trailing arguments. So console_setup sees;
+> 
+> tty0 console=ttyS0,38400 hugepages=20 nmi_watchdog=2
+> 
+> That's different enough to cause potential problems in future.
 
-So I tried 2.6.5-rc2 with the corrected version of 
-"arch/alpha/kernel/alpha_ksyms.c" from rc3. The assembler messages are 
-still here... the kernel compiles.... and the message "Badness in 
-kobect_get" is gone when loading the sg module.
+I _thought_ I had put in bits to make it only pass along the argument,
+but perhaps that got lost in my testing/retesting.
 
-But what about those assembler messages??
+> > pci= will clobber as well, which is why I thought I asked Andrew to drop
+> > that part of the i386 patch (but perhaps I forgot, and with Rusty's
+> > patch, it becomes a non-issue again).
+> 
+> What is the patch name for Rusty's patch?
 
-Regards,
-Stefan
+I don't know, since I think once he got it working he forgot to CC lkml.
+But I certainly hope it's in the next -mm since it replaced the
+parse_early_options parsing code with parse_args, so all of the stupid
+things my re-implementation got wrong, it doesn't.
 
-
-On 03.04.2004, at 11:50, Thomas Steudten wrote:
-
-> Not on my alpha 2.6.4, as I post this message a few weeks ago.
->
-> Greg KH wrote:
->
->> On Sat, Apr 03, 2004 at 12:02:52AM +0200, Stefan Wanner wrote:
->>> Hi
->>>
->>> I have an Alpha AS400 with Debian Linux 3.0 and Kernel 2.6.3
->> Please use a newer kernel, this bug has been fixed in 2.6.4.
->> thanks,
->> greg k-h
->> -
->> To unsubscribe from this list: send the line "unsubscribe 
->> linux-alpha" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
-> -- 
-> Tom
->
-> LINUX user since kernel 0.99.x 1994.
-> RPM Alpha packages at http://alpha.steudten.com/packages
-> Want to know what S.u.S.E 1995 cdrom-set contains?
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-alpha" 
-> in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

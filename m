@@ -1,79 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264701AbUG2OGz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265106AbUG2OIu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264701AbUG2OGz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 10:06:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264726AbUG2OGF
+	id S265106AbUG2OIu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 10:08:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264702AbUG2OH2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 10:06:05 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:33532 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264701AbUG2OFp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 10:05:45 -0400
-Date: Thu, 29 Jul 2004 16:05:36 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: jgarzik@pobox.com, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: [2.6 patch] net/hamachi.c: remove bogus inline at function prototype (fwd)
-Message-ID: <20040729140535.GU2349@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Thu, 29 Jul 2004 10:07:28 -0400
+Received: from motgate8.mot.com ([129.188.136.8]:27028 "EHLO motgate8.mot.com")
+	by vger.kernel.org with ESMTP id S264668AbUG2OGv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 10:06:51 -0400
+In-Reply-To: <4108F845.7080305@timesys.com>
+References: <4108F845.7080305@timesys.com>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <85C49799-E168-11D8-B0AC-000393DBC2E8@freescale.com>
+Content-Transfer-Encoding: 7bit
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       LinuxPPC-dev Development <linuxppc-dev@lists.linuxppc.org>
+From: Kumar Gala <kumar.gala@freescale.com>
+Subject: Re: [BUG] PPC math-emu multiply problem
+Date: Thu, 29 Jul 2004 09:06:44 -0500
+To: Greg Weeks <greg.weeks@timesys.com>
+X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-FYI:
-The patch forwarded below is still required in 2.6.8-rc2-mm1.
+On Jul 29, 2004, at 8:14 AM, Greg Weeks wrote:
 
+> I'm seeing what appears to be a bug in the ppc kernel trap math 
+> emulator. An extreme case for multiplies isn't working the way gcc 
+> soft-float or hardware floating point is. The value in mindble is the 
+> smallest that can be represented in a double. When we try to divide it 
+> by two we should see an underflow and a return value of 0. We see this 
+> when using soft-float in gcc, or when there is HW floating point 
+> support, but it fails when the kernel trap emulator is used.
+>
+> If anyone can verify this on a PPC other than an 8560 without hardware 
+> floating point I'd appreciate it. I did all of these tests with a 
+> 2.6.X based kernels. The x86 was 2.6.6 vanilla, 8560 is 2.6.6 with 
+> lots of stuff added and support for 8560. The 8260 was 2.6.0 with 
+> changes. I bumped into this with the LSB ldexp test. A simple multiply 
+> shows the problem though.
+>
+> Greg Weeks
+>
+> mulbug.c file
+> ------------------------------------------
+> #include <stdio.h>
+> #include <stdlib.h>
+> #include <unistd.h>
+> #include <string.h>
+> #include <math.h>
+> #include <errno.h>
+>
+> int main()
+> {
+>        double  x, rtval;
+>        double mindble = 4.9406564584124654418e-324;
+>
+>        x = mindble;
+>
+>        printf("x = %.20g\n", x);
+>
+>        errno = 0;
+>        rtval = ldexp(x, -1);
+>
+>        printf("using ldexp(x, -1) ERRNO = %d - %s,  %.20g\n",
+>            errno, strerror(errno), rtval);
+>
+>        printf("using (x * .5) %.20g\n", (x * .5));
+>
+>   exit(0);
+> }
+> -----------------------------------------
+>
+> compile with:
+> gcc mulbug.c -lm -o mulbug
+>
+>
+> on an 8260 ppc with HW float.
+>
+> x = 4.9406564584124654418e-324
+> using ldexp(x, -1) ERRNO = 34 - Numerical result out of range,  0
+> using (x * .5) 0
+>
+> on an x86 with HW float.
+>
+> x = 4.9406564584124654418e-324
+> using ldexp(x, -1) ERRNO = 34 - Numerical result out of range,  0
+> using (x * .5) 0
+>
+> on an 8560 ppc with kernel trap float emulator.
+>
+> x = 4.9406564584124654418e-324
+> using ldexp(x, -1) ERRNO = 0 - Success,  4.9406564584124654418e-324
+> using (x * .5) 4.9406564584124654418e-324
 
------ Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
+I get the same results on an 8560, with 2.6.8-rc2.  I do not think this 
+is an issue with 8560, but the kernel math emulation's precision.  It 
+is most likely the case that the gcc soft-float code is 'more correct'. 
+  What version of gcc were you using?  It might be possible to replace 
+the kernel fp emulation with gcc's (never looked at how gcc does it).
 
-Date:	Wed, 14 Jul 2004 23:52:56 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: jgarzik@pobox.com
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: [2.6 patch] net/hamachi.c: remove bogus inline at function prototype
-
-Trying to compile drivers/net/hamachi.c in 2.6.8-rc1-mm1 using gcc 3.4 
-results in the folloeing compile error:
-
-<--  snip  -->
-
-...
-  CC      drivers/net/hamachi.o
-drivers/net/hamachi.c: In function `hamachi_interrupt':
-drivers/net/hamachi.c:562: sorry, unimplemented: inlining failed in call 
-to 'hamachi_rx': function body not available
-drivers/net/hamachi.c:1402: sorry, unimplemented: called from here
-make[2]: *** [drivers/net/hamachi.o] Error 1
-
-<--  snip  -->
-
-
-The inline at the prototype is bogus since the function itself is not 
-marked as inline.
-
-
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.6.7-mm6-full-gcc3.4/drivers/net/hamachi.c.old	2004-07-09 00:28:31.000000000 +0200
-+++ linux-2.6.7-mm6-full-gcc3.4/drivers/net/hamachi.c	2004-07-09 00:30:18.000000000 +0200
-@@ -559,7 +559,7 @@
- static void hamachi_init_ring(struct net_device *dev);
- static int hamachi_start_xmit(struct sk_buff *skb, struct net_device *dev);
- static irqreturn_t hamachi_interrupt(int irq, void *dev_instance, struct pt_regs *regs);
--static inline int hamachi_rx(struct net_device *dev);
-+static int hamachi_rx(struct net_device *dev);
- static inline int hamachi_tx(struct net_device *dev);
- static void hamachi_error(struct net_device *dev, int intr_status);
- static int hamachi_close(struct net_device *dev);
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
+> on an 8260 with soft-float in the gcc
+>
+> x = 4.9406564584124654418e-324
+> using ldexp(x, -1) ERRNO = 34 - Numerical result out of range,  0
+> using (x * .5) 0
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

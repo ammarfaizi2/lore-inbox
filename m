@@ -1,66 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261631AbSIXJ5I>; Tue, 24 Sep 2002 05:57:08 -0400
+	id <S261633AbSIXJ62>; Tue, 24 Sep 2002 05:58:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261632AbSIXJ5I>; Tue, 24 Sep 2002 05:57:08 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:52233 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S261631AbSIXJ5H>; Tue, 24 Sep 2002 05:57:07 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15760.14375.613276.807913@laputa.namesys.com>
-Date: Tue, 24 Sep 2002 14:02:15 +0400
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: Larry McVoy <lm@bitmover.com>
-Cc: Bill Davidsen <davidsen@tmr.com>, Peter Waechtler <pwaechtler@mac.com>,
-       linux-kernel@vger.kernel.org, ingo Molnar <mingo@redhat.com>
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-In-Reply-To: <20020923083004.B14944@work.bitmover.com>
-References: <20020922143257.A8397@work.bitmover.com>
-	<Pine.LNX.3.96.1020923055128.11375A-100000@gatekeeper.tmr.com>
-	<20020923083004.B14944@work.bitmover.com>
-X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
-X-Meat: Ptarmigan
+	id <S261634AbSIXJ62>; Tue, 24 Sep 2002 05:58:28 -0400
+Received: from unthought.net ([212.97.129.24]:2540 "EHLO mail.unthought.net")
+	by vger.kernel.org with ESMTP id <S261633AbSIXJ6Z>;
+	Tue, 24 Sep 2002 05:58:25 -0400
+Date: Tue, 24 Sep 2002 12:03:38 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Oleg Drokin <green@namesys.com>
+Cc: linux-kernel@vger.kernel.org, Hans Reiser <reiser@namesys.com>
+Subject: Re: ReiserFS buglet
+Message-ID: <20020924100338.GH2442@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Oleg Drokin <green@namesys.com>, linux-kernel@vger.kernel.org,
+	Hans Reiser <reiser@namesys.com>
+References: <20020924072455.GE2442@unthought.net> <20020924132110.A22362@namesys.com> <20020924092720.GF2442@unthought.net> <20020924134816.A23185@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20020924134816.A23185@namesys.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy writes:
- > > > Instead of taking the traditional "we've screwed up the normal system 
- > > > primitives so we'll event new lightweight ones" try this:
- > > > 
- > > > We depend on the system primitives to not be broken or slow.
- > > > 
- > > > If that's a true statement, and in Linux it tends to be far more true
- > > > than other operating systems, then there is no reason to have M:N.
- > > 
- > > No matter how fast you do context switch in and out of kernel and a sched
- > > to see what runs next, it can't be done as fast as it can be avoided.
- > 
- > You are arguing about how many angels can dance on the head of a pin.
- > Sure, there are lotso benchmarks which show how fast user level threads
- > can context switch amongst each other and it is always faster than going
- > into the kernel.  So what?  What do you think causes a context switch in
- > a threaded program?  What?  Could it be blocking on I/O?  Like 99.999%
- > of the time?  And doesn't that mean you already went into the kernel to
- > see if the I/O was ready?  And doesn't that mean that in all the real
- > world applications they are already doing all the work you are arguing
- > to avoid?
+On Tue, Sep 24, 2002 at 01:48:16PM +0400, Oleg Drokin wrote:
+> Hello!
+...
+> > Disk errors are common. Software can also flip that bit.
+> 
+> Not only disk errors are common, but also CPU/memory/chipset/wiring errors are.
 
-M:N threads are supposed to have other advantages beside fast context
-switches. Original paper on scheduler activations mentioned case when
-kernel thread is preempted while user level thread it runs held spin
-lock. When kernel notifies user level scheduler about preemption
-(through upcall) it can de-schedule all user level threads spinning on
-this lock, so that they will not waste their time slices burning CPU.
+It's a question of which errors one wishes to handle, and which you
+simply choose to ignore.
 
- > -- 
- > ---
- > Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+It's a compromise, and I understand that.
 
-Nikita.
+For example, BK uses checksums on all it's files (AFAIK).  This allows
+you to at least discover hardware errors.  CVS doesn't - but CVS is
+still "good enough" for a lot of people.
 
- > -
+Some hardware problems cannot be detected, much less recovered from,
+without adding some significant cost (run-time performance wise,
+complexity wise, or ...).
+
+This problem, however, you can both detect and recover from perfectly,
+with little extra effort.  Whether you want to do so or not is of course
+up to you.
+
+I'm not going to push - I just wanted to point it out  :)
+
+...
+> > I posted to LKML about a month ago with some questions regarding exactly
+> > this issue.  I had a disk that worked on 128 byte atomic writes - a
+> > standard IDE disk.
+> 
+> Hm. This is still much larger than 20 bytes we use.
+
+Assuming your 20 bytes do not span a 128 byte boundary  ;)
+
+Perhaps you're safe on current LVM/RAID/partition layers (which may
+guarantee a coarser alignment - today).
+
+And perhaps there is no disk out there with less than 128 byte atomic
+writes.  Maybe.   Do you know?  I certanly don't.
+
+> 
+> > The conclusion was something like "we know jack about the disk's
+> > internal logic" so we need consistency measures instead of relying on
+> > anything from the disk.
+> 
+> Actually we submit data to disk in 512 byte chunks (4k blocksize case),
+> and disk should not write any data before it receives all of it and
+> checks the integrity (hm, this is only true for UDMA, though.)
+> Still I do not see why any sane disk would start to write a sector before fully
+> receiving new sector's content (thinking of disk drives of course, solid state
+> stuff should take its own measures in this direction too).
+
+Please read the original mails about the IDE disk writing.
+
+The date is 5th of August this year, the subject was "Disk (block) write
+strangeness".
+
+The conclusion really was that there is no such thing as a 512 byte
+sector.  Not in the real world.  The disk interface may emulate it, but
+that doesn't mean that the disk is internally working with a concept
+even remotely close to that.
+
+> This is even more insane than ACKing data and putting it in not battery
+> backed cache to be lost on power loss (Yes, I know this is a common
+> practice now. At least there is a way either to turn such feature off
+> or to flush a cache on demand).
+
+I was pretty surprised about all this myself, and I just wanted to bring
+the issue to your attention.
+
+The real world just sucks sometimes  ;)
+
+> 
+> Thanks for bringing our attention to such issues, though changing disk format
+> is our of questions for reiser3 now, some kind of verifying single instance
+> on-disk structures may/will be incorporated in reiser4.
+
+Of course - I look forward to seeing how/if you will deal with the
+problem.
+
+Cheers,
+
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

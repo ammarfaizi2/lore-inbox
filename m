@@ -1,135 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273832AbRIXJjG>; Mon, 24 Sep 2001 05:39:06 -0400
+	id <S273836AbRIXJo6>; Mon, 24 Sep 2001 05:44:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273833AbRIXJi5>; Mon, 24 Sep 2001 05:38:57 -0400
-Received: from [217.6.75.131] ([217.6.75.131]:38368 "EHLO
-	mail.internetwork-ag.de") by vger.kernel.org with ESMTP
-	id <S273832AbRIXJiq>; Mon, 24 Sep 2001 05:38:46 -0400
-Message-ID: <3BAF0133.573EF0B7@internetwork-ag.de>
-Date: Mon, 24 Sep 2001 11:47:31 +0200
-From: Till Immanuel Patzschke <tip@internetwork-ag.de>
-Reply-To: tip@prs.de
-Organization: interNetwork AG
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.16 i686)
-X-Accept-Language: en
+	id <S273842AbRIXJov>; Mon, 24 Sep 2001 05:44:51 -0400
+Received: from embolism.psychosis.com ([216.242.103.100]:16146 "EHLO
+	embolism.psychosis.com") by vger.kernel.org with ESMTP
+	id <S273836AbRIXJof>; Mon, 24 Sep 2001 05:44:35 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: David Cinege <dcinege@psychosis.com>
+Reply-To: dcinege@psychosis.com
+To: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] PART1: Proposed init & module changes for 2.5
+Date: Mon, 24 Sep 2001 05:44:18 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E15lOLW-0000SC-00@wagner>
+In-Reply-To: <E15lOLW-0000SC-00@wagner>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: tip@prs.de, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        laughing@shared-source.org
-Subject: Re: [PATCH] 2.4.10-pre13: ATM drivers cause panic
-In-Reply-To: <E15kpGn-0003YQ-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E15lSGp-0000Ul-00@schizo.psychosis.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm - patch works fine for me - no sleeps! The only spin_lock(&atm_dev_lock)
-statement in my resource.c (the original from 2.4.10-pre13) is in free_atm_dev
-BUT the problem is the unmatched spin_unlock(&atm_dev_lock) statements in
-atm_dev_register...
-Why not just protecting the atm_dev_queue in alloc_atm_dev, atm_find_dev, and
-atm_free_dev individually PLUS removing the two spin_unlock statements in
-atm_dev_register.
+On Monday 24 September 2001 1:31, Rusty Russell wrote:
 
-What do you think
+> Convinced yet?
 
-(This is diffs from 2.4.10-pre13 ! BTW: Still the same in 2.4.10)
+If it's cleaner in operation then the current system, yes.
+What we've got now just seems so ugly.
 
---- resources.c.bug     Fri Dec 29 23:35:47 2000
-+++ resources.c.new     Mon Sep 24 11:39:42 2001
-@@ -36,13 +36,16 @@
-        if (!dev) return NULL;
-        memset(dev,0,sizeof(*dev));
-        dev->type = type;
--       dev->prev = last_dev;
-        dev->signal = ATM_PHY_SIG_UNKNOWN;
-        dev->link_rate = ATM_OC3_PCR;
-        dev->next = NULL;
-+
-+       spin_lock(&atm_dev_lock);
-+       dev->prev = last_dev;
-        if (atm_devs) last_dev->next = dev;
-        else atm_devs = dev;
-        last_dev = dev;
-+       spin_unlock(&atm_dev_lock);
-        return dev;
- }
+> Why not just put them in the initrd image?  
 
-@@ -65,9 +68,13 @@
- {
-        struct atm_dev *dev;
+Because images are not dynamic.  : P 
 
-+       spin_lock(&atm_dev_lock);
-        for (dev = atm_devs; dev; dev = dev->next)
--               if (dev->ops && dev->number == number) return dev;
--       return NULL;
-+               if (dev->ops && dev->number == number) goto done;
-+       dev=(atm_dev *)NULL;
-+ done:
-+       spin_unlock(&atm_dev_lock);
-+       return dev;
- }
+> Um, how do you get the modules into grub then?  If it can read ext2 at
+> boot, then it could create an initrd for me.  Otherwise, how is it
+> different from creating an initrd?
 
+Yep you're still using LILO...(that still does that absolute block
+offset shit.) GRUB is like syslinux in that it can read FS. But not just
+ext2. It also knows reiserfs, fat, bsd, and some more. It also has a complete 
+interactive commandline. Is more of a 'boot shell'. I gave you a like. Go try 
+it. : >
 
-@@ -105,12 +112,10 @@
-                if (atm_proc_dev_register(dev) < 0) {
-                        printk(KERN_ERR "atm_dev_register: "
-                            "atm_proc_dev_register failed for dev %s\n",type);
--                       spin_unlock (&atm_dev_lock);
-                        free_atm_dev(dev);
-                        return NULL;
-                }
- #endif
--       spin_unlock (&atm_dev_lock);
-        return dev;
- }
+Only the GRUB loader itself sits on an sbsolute sector.
+So via the ominopotent symlink, you would need to do...nothing
+after you install a new kernel to boot. With initrd, you would have
+to make another initrd. But actually you would need one for every
+kernel. (I've kept up to 6 active on my box at one time...)
+This sucks...and it's why we all compile everything we really need static.
 
+BTW if your initrd images gets corrupted or lost, you are paddling up fecal 
+creek with your hands.  Let's not forget how much fun it is if you get a 
+library mismatch on your initrd boot utils. Hope you compiled them all
+static.
 
+Loading system critcal kernel modules should be as straight forward
+as the feature I'm requesting. The boot loader puts it in memory. The kernel 
+loads it from memory. It's all good.
 
-Alan Cox wrote:
+> It'd be easy to implement now.  But it won't gain us anything, since
+> we'll all be using initrd-tng in 2.5 anyway.
 
-> > seems a couple of spin_lock(s) and a spin_unlock was missing.
-> > Why didn't this problem show up with earlier releases ???
-> > Anyways, please find a (quick) patch below. It would be great if this patch or
-> > any other similar could make it into the next release!
->
-> How about
->
-> static struct atm_dev *alloc_atm_dev(const char *type)
-> {
->         struct atm_dev *dev;
->
->         dev = kmalloc(sizeof(*dev),GFP_KERNEL);
->         if (!dev) return NULL;
->         memset(dev,0,sizeof(*dev));
->         dev->type = type;
->         dev->signal = ATM_PHY_SIG_UNKNOWN;
->         dev->link_rate = ATM_OC3_PCR;
->         dev->next = NULL;
->
->         spin_lock(&atm_dev_lock);
->
->         dev->prev = last_dev;
->
->         if (atm_devs) last_dev->next = dev;
->         else atm_devs = dev;
->         last_dev = dev;
->         spin_unlock(&atm_dev_lock);
->         return dev;
-> }
->
-> instead. That seems to fix alloc_atm_dev safely. Refcounting wants adding
-> to atm_dev objects too, its impossible currently to make atm_find_dev
-> remotely safe
->
-> Alan
+Oh jesus...what have I missed? (I've been off the list a long time)
 
---
-Till Immanuel Patzschke                 mailto: tip@internetwork-ag.de
-interNetwork AG                         Phone:  +49-(0)611-1731-121
-Bierstadter Str. 7                      Fax:    +49-(0)611-1731-31
-D-65189 Wiesbaden                       Web:    http://www.internetwork-ag.de
+> Cheers,
+> Rusty.
+> PS.  Am big fan of LRP: it rocks.
+
+I hope so...you're still imortalized in the POSIXness script. ; >
+LRP is unfortunatly dated to the point it doesn't really rock right
+now. : < It's simply cool.  : > If I ever get to work on LRP v5.0... (Hell I 
+never got to release V4.0... : P) it will rock like nothing else ever has.
+
+But since you bring up LRP, let's get down into the minimal space issues.
+It's a living hell tring to maintain kernels in an OS distibution and a 
+primary reason is that you have to play roulette deciding what to make
+static. Then when you get it good, you have to fuck it all up to squeeze
+it onto a boot disk. Adding what I want fixes this quite well. 
+
+With the work I've done with LRP and embedded systems, I doubt many people
+out there have played with the initrd more then me. If you haven't noticed
+I'm back on the list because I just posted a new version of initrd dynamic
+with tmpfs. It's a lifesaver for initrd, since now the FS 'creatation' is 
+100% dynamic the the 'image' can be multiple tar.gz archives.
+
+However as clean as it is, it's still not something I would want
+to load critical kernel parts for boot.
+
+Saying one should use only initrd for this is like saying the kernel
+should not handle starting MD devices at all. 
+
+As a programming ethic it sounds good but I think few programmer have
+actually used some of these ideals in 'real world' system
+adminstration. Try finding yourself staring at a mission critical server
+that you now can not get to boot at 03:00 and you can't get
+out to the net. That sort of experience changes your perspective. Been there.
+Many times. No fun.
+
+So just code this feature for me. Please. Make Dave happy.  ; >
 
 
+Dave
 
+-- 
+The time is now 22:19 (Totalitarian)  -  http://www.ccops.org/clock.html

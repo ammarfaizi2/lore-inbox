@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312361AbSDEIEK>; Fri, 5 Apr 2002 03:04:10 -0500
+	id <S312364AbSDEIFu>; Fri, 5 Apr 2002 03:05:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312364AbSDEIEA>; Fri, 5 Apr 2002 03:04:00 -0500
-Received: from dns.uni-trier.de ([136.199.8.101]:29902 "EHLO
-	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
-	id <S312361AbSDEIDs>; Fri, 5 Apr 2002 03:03:48 -0500
-Date: Fri, 5 Apr 2002 10:03:47 +0200 (CEST)
-From: Daniel Nofftz <nofftz@castor.uni-trier.de>
-X-X-Sender: nofftz@infcip10.uni-trier.de
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [Q] reiserfs error message at boot-time
-Message-ID: <Pine.LNX.4.40.0204050959290.13705-100000@infcip10.uni-trier.de>
+	id <S312370AbSDEIFk>; Fri, 5 Apr 2002 03:05:40 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5943 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S312364AbSDEIFh>; Fri, 5 Apr 2002 03:05:37 -0500
+To: <robert@schwebel.de>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: moving some boot code out of arch directories
+In-Reply-To: <Pine.LNX.4.33.0204050920180.16178-100000@callisto.local>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 05 Apr 2002 00:59:04 -0700
+Message-ID: <m1ofgypodz.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi!
+Robert Schwebel <robert@schwebel.de> writes:
 
-i just moved my linux partitition from ext3 to reiserfs.
-now my problem:
+> On 4 Apr 2002, Eric W. Biederman wrote:
+> > A have some thoughts but nothing to concrete right now.  On every
+> > architecture booting seems to be a completely roll your own solution.
+> > Which I find very annoying.  This one of the reasons I am also working
+> > on general linux booting linux support.  If we could get as far as a
+> > bootloader that works on multiple architectures perhaps we could start
+> > to unify some of these things.
+> 
+> You might want to have a look at PPCboot / ARMboot (the latter one is a
+> recent port to ARM) which seems to be very interesting! Only a port to x86
+> is missing (or, better, a unified project...)
 
-when i boot, i get this error-message:
-reiserfs: Unrecognized mount option errors
-reiserfs: Unrecognized mount option errors
+Do you have any pointers?
 
-i get this message also at shutdown ... and on the next boot, reiserfs
-replays the logfile ...
-
-reiserfs: checking transaction log (device 03:02) ...
-Warning, log replay starting on readonly filesystem
-
-in /etc/fstab i mount the filesystem with "defaults" ...
-
-where is the problem ?
-what do i do wrong ?
-hope someone can give me a hint ...
-
-daniel
-
-# Daniel Nofftz
-# Sysadmin CIP-Pool Informatik
-# University of Trier(Germany), Room V 103
-# Mail: daniel@nofftz.de
-
+Eric

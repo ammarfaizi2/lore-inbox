@@ -1,30 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263358AbTCNPWd>; Fri, 14 Mar 2003 10:22:33 -0500
+	id <S263371AbTCNPYW>; Fri, 14 Mar 2003 10:24:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263360AbTCNPWd>; Fri, 14 Mar 2003 10:22:33 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:2372 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S263358AbTCNPWc>; Fri, 14 Mar 2003 10:22:32 -0500
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200303141532.h2EFWIa24465@devserv.devel.redhat.com>
-Subject: Re: 2.5.64-ac4: mpparse.c doesn't compile
-To: bunk@fs.tum.de (Adrian Bunk)
-Date: Fri, 14 Mar 2003 10:32:18 -0500 (EST)
-Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org,
-       tomita@cinet.co.jp (Osamu Tomita)
-In-Reply-To: <20030314153107.GT16212@fs.tum.de> from "Adrian Bunk" at Mar 14, 2003 04:31:08 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S263370AbTCNPYW>; Fri, 14 Mar 2003 10:24:22 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:62163
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263369AbTCNPYV>; Fri, 14 Mar 2003 10:24:21 -0500
+Subject: Re: Never ever use word BitKeeper if Larry does not like you
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Lars Marowsky-Bree <lmb@suse.de>, Pavel Machek <pavel@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       vojtech@suse.cz
+In-Reply-To: <20030314152944.GC8937@work.bitmover.com>
+References: <20030314105132.GB14270@atrey.karlin.mff.cuni.cz>
+	 <20030314115055.GR1211@marowsky-bree.de>
+	 <20030314144347.GA8937@work.bitmover.com>
+	 <1047658249.29595.34.camel@irongate.swansea.linux.org.uk>
+	 <20030314151455.GB8937@work.bitmover.com>
+	 <1047659394.29595.38.camel@irongate.swansea.linux.org.uk>
+	 <20030314152944.GC8937@work.bitmover.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1047660225.29595.40.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 14 Mar 2003 16:43:46 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> arch/i386/kernel/mpparse.c: In function `get_smp_config':
-> arch/i386/kernel/mpparse.c:658: `pc98' undeclared (first use in this function)
-> arch/i386/kernel/mpparse.c:658: (Each undeclared identifier is reported only once
-> arch/i386/kernel/mpparse.c:658: for each function it appears in.)
-> make[1]: *** [arch/i386/kernel/mpparse.o] Error 1
+On Fri, 2003-03-14 at 15:29, Larry McVoy wrote:
+> > we'd all be happy and could go back to sleep ?
+> 
+> Nice try.  Let's try again (and we'll keep on trying until you do it)
+> 
+>     "Red Cap: a proprietary Red Hat clone"
+>     "The goal of this system is to produce a system compatible with Red Hat"
 
-For the moment build uniprocessor or make that "pc98" => 0
+Larry, stop being an asshole, just for once in your life and either answer the
+question or run for governor
+
+

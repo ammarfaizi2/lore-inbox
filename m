@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317308AbSHSF7u>; Mon, 19 Aug 2002 01:59:50 -0400
+	id <S318165AbSHSGCr>; Mon, 19 Aug 2002 02:02:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318165AbSHSF7u>; Mon, 19 Aug 2002 01:59:50 -0400
-Received: from aurora.nsu.ru ([193.124.215.195]:63184 "EHLO aurora.nsu.ru")
-	by vger.kernel.org with ESMTP id <S317308AbSHSF7t>;
-	Mon, 19 Aug 2002 01:59:49 -0400
-Date: Mon, 19 Aug 2002 13:03:32 +0700 (NOVST)
-From: "Dmitry N. Hramtsov" <hdn@nsu.ru>
-To: "David S. Miller" <davem@redhat.com>
-cc: linux-kernel@vger.kernel.org, <jack@suse.cz>
-Subject: Re: vfsv0 quota patch
-In-Reply-To: <20020818.221833.100352848.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0208191250120.28677-100000@aurora.nsu.ru>
+	id <S318172AbSHSGCr>; Mon, 19 Aug 2002 02:02:47 -0400
+Received: from [203.190.77.145] ([203.190.77.145]:13620 "HELO noc.chikka.com")
+	by vger.kernel.org with SMTP id <S318165AbSHSGCr>;
+	Mon, 19 Aug 2002 02:02:47 -0400
+Message-ID: <02bc01c24746$9d08d600$0300000a@nocpc2>
+From: "louie miranda" <louie@chikka.com>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+References: <20020818021522.GA21643@waste.org> <20020819054359.GB26519@think.thunk.org>
+Subject: *Challenge* Finding a solution (When kernel boots it does not display any system info)
+Date: Mon, 19 Aug 2002 14:06:52 +0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Is there a patch or any configuration's, info*.
+When the kernel boots.. it just display only the Lilo, etc. a few lines
+after lilo.. and just pauses for a while and after a few seconds
+display the login prompt?
 
-On Sun, 18 Aug 2002, David S. Miller wrote:
+I've seen this once!, but i can't remember where..
 
-> It is inaccessible because the city of Prague is currently under
-> several feet of water, if you haven't heard.
 
-I am sorry.  I haven't juxtapose this two facts.
-I hope that this force majeur is not for a long.
 
-Best regards,
-Dmitry N. Hramtsov
+
+=====
+Thanks,
+Louie Miranda...
+ 
+WebUrl: http://axis0.endofinternet.org
+Email: louie@linux.nu - louie@noc.chikka.com
 
 

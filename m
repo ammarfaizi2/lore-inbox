@@ -1,39 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289112AbSAJB3U>; Wed, 9 Jan 2002 20:29:20 -0500
+	id <S289117AbSAJBr0>; Wed, 9 Jan 2002 20:47:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289117AbSAJB3B>; Wed, 9 Jan 2002 20:29:01 -0500
-Received: from hank-fep6-0.inet.fi ([194.251.242.201]:64139 "EHLO
-	fep06.tmt.tele.fi") by vger.kernel.org with ESMTP
-	id <S289112AbSAJB2w>; Wed, 9 Jan 2002 20:28:52 -0500
-Message-ID: <3C3CEE53.3B35CCE3@pp.inet.fi>
-Date: Thu, 10 Jan 2002 03:28:51 +0200
-From: Jari Ruusu <jari.ruusu@pp.inet.fi>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.2.20aa1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Weinehall <tao@acc.umu.se>
-CC: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Announcement] linux-2.0.40-rc1
-In-Reply-To: <20020109003424.S5235@khan.acc.umu.se>
+	id <S289118AbSAJBrQ>; Wed, 9 Jan 2002 20:47:16 -0500
+Received: from mulga.cs.mu.OZ.AU ([128.250.1.22]:56049 "EHLO mulga.cs.mu.OZ.AU")
+	by vger.kernel.org with ESMTP id <S289117AbSAJBrH>;
+	Wed, 9 Jan 2002 20:47:07 -0500
+Date: Thu, 10 Jan 2002 12:47:02 +1100
+From: Fergus Henderson <fjh@cs.mu.OZ.AU>
+To: Peter Barada <pbarada@mail.wm.sps.mot.com>
+Cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] C undefined behavior fix
+Message-ID: <20020110124702.B30669@hg.cs.mu.oz.au>
+In-Reply-To: <20020108012734.E23665@werewolf.able.es> <20020109204043.T1027-100000@gerard> <20020110004952.A11641@werewolf.able.es> <200201100019.g0A0JOM32110@hyper.wm.sps.mot.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200201100019.g0A0JOM32110@hyper.wm.sps.mot.com>; from pbarada@mail.wm.sps.mot.com on Wed, Jan 09, 2002 at 07:19:24PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Weinehall wrote:
-> Hence I'm declaring this the first release candidate for 2.0.40.
-> Try it out, please.
+On 09-Jan-2002, Peter Barada <pbarada@mail.wm.sps.mot.com> wrote:
 > 
-> 2.0.40-rc1
-[snip]
-> o       Change array-size from 0 to 1 for       (me)
->         two arrays in the symbol-table
->         in include/linux/module.h
+> If the code is:
+> 
+> int b;
+> void stuff()
+> {
+>   volatile const a=5;
+> 
+>   b = a - a;
+> }
+> 
+> Then the code can be optimized to 'b = 0;'
 
-Please revert above change. It makes struct symbol_table.symbol[] one entry
-long, and effectively _kills_ module support.
+No, you're wrong here.  That would violate the following provisions of
+the C99 standard, because the two accesses to `a' would not have occurred.
+(It would also violate similar provisions of the C89 and C++ standards.)
+The "as if" rule -- which is stated in 5.1.2.3 [#3] in C99 -- is explicitly
+defined to NOT allow optimizing away accesses to volatile objects.
 
-Regards,
-Jari Ruusu <jari.ruusu@pp.inet.fi>
+ |        5.1.2.3  Program execution
+ ...
+ |        [#2]  Accessing  a  volatile  object,  modifying  an object,
+ |        modifying a file, or calling a function  that  does  any  of
+ |        those  operations are all side effects
+ ...
+ |        [#3] In the abstract machine, all expressions are  evaluated
+ |        as  specified  by  the  semantics.  An actual implementation
+ |        need not evaluate part of an expression  if  it  can  deduce
+ |        that  its  value is not used and that no needed side effects
+ |        are produced (including any caused by calling a function  or
+ |        accessing a volatile object).
+ ...
+ |        [#5] The least requirements on a  conforming  implementation
+ |        are:
+ | 
+ |          -- At  sequence points, volatile objects are stable in the
+ |             sense  that  previous   accesses   are   complete   and
+ |             subsequent accesses have not yet occurred.
 
+-- 
+Fergus Henderson <fjh@cs.mu.oz.au>  |  "I have always known that the pursuit
+The University of Melbourne         |  of excellence is a lethal habit"
+WWW: <http://www.cs.mu.oz.au/~fjh>  |     -- the last words of T. S. Garp.

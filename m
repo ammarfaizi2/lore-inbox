@@ -1,66 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264919AbSLQLKg>; Tue, 17 Dec 2002 06:10:36 -0500
+	id <S264939AbSLQLdv>; Tue, 17 Dec 2002 06:33:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264920AbSLQLKg>; Tue, 17 Dec 2002 06:10:36 -0500
-Received: from gw1.cosmosbay.com ([62.23.185.226]:56219 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP
-	id <S264919AbSLQLKf>; Tue, 17 Dec 2002 06:10:35 -0500
-Message-ID: <000b01c2a5bd$ebb6e870$760010ac@edumazet>
-From: "dada1" <dada1@cosmosbay.com>
-To: "Ulrich Drepper" <drepper@redhat.com>,
-       "Linus Torvalds" <torvalds@transmeta.com>
-Cc: "Dave Jones" <davej@codemonkey.org.uk>, "Ingo Molnar" <mingo@elte.hu>,
-       <linux-kernel@vger.kernel.org>, <hpa@transmeta.com>
-References: <Pine.LNX.4.44.0212162140500.1644-100000@home.transmeta.com> <3DFF023E.6030401@redhat.com>
-Subject: Re: Intel P6 vs P7 system call performance
-Date: Tue, 17 Dec 2002 12:17:42 +0100
+	id <S264940AbSLQLdu>; Tue, 17 Dec 2002 06:33:50 -0500
+Received: from 24.213.60.109.up.mi.chartermi.net ([24.213.60.109]:51875 "EHLO
+	front3.chartermi.net") by vger.kernel.org with ESMTP
+	id <S264939AbSLQLdt>; Tue, 17 Dec 2002 06:33:49 -0500
+Date: Tue, 17 Dec 2002 06:41:49 -0500 (EST)
+From: Nathaniel Russell <reddog83@chartermi.net>
+X-X-Sender: reddog83@reddog.example.net
+To: alan@redhat.com
+cc: linux-kernel@vger.kernel.org
+Subject: Via 8233 flooding of errors [2.4-ac]
+Message-ID: <Pine.LNX.4.44.0212170636420.1698-200000@reddog.example.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1837053877-1040125309=:1698"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> For the libc DSO I had to play some dirty tricks.  The x86 CPU has no
-> absolute call.  The variant with an immediate parameter is a relative
-> jump.  Only when jumping through a register or memory location is it
-> possible to jump to an absolute address.  To be clear, if I have
->
->     call 0xfffff000
->
-> in a DSO which is loaded at address 0x80000000 the jumps ends at
-> 0x7fffffff.  The problem is that the static linker doesn't know the load
-> address.  We could of course have the dynamic linker fix up the
-> addresses but this is plain stupid.  It would mean fixing up a lot of
-> places and making of those pages covered non-sharable.
->
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-You could have only one routine that would need a relocation / patch at
-dynamic linking stage :
+--8323328-1837053877-1040125309=:1698
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-absolute_syscall:
-    jmp  0xfffff000
+Hello
+When i play 3 or more songs in a row i get the error message of
+drained playback and my audio just shuts off until i exit the mp3 program
+and reload it. Every 3rd song though it stops playing. And plus once in
+awhile i get a Assertion failed message. Help please....
+Nathaniel
 
-Then all syscalls routine could use :
+--8323328-1837053877-1040125309=:1698
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="audio.error"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0212170641490.1698@reddog.example.net>
+Content-Description: Via 8233 Error
+Content-Disposition: attachment; filename="audio.error"
 
-getpid:
-    ...
-    call absolute_syscall
-    ...
-instead of "call 0xfffff000"
-
-
-If the kernel doesnt support the 0xfffff000 page, you could patch
-absolute_syscall (if it resides in .data section) with :
-    absolute_syscall:
-            int 0x80
-            ret
-(3 bytes instead of 5 bytes)
-
-See you
-
+W1NOSVBFRF0NClZpYSA2ODZhLzgyMzMvODIzNSBhdWRpbyBkcml2ZXIgMS45
+LjEtYWMNClBDSTogRm91bmQgSVJRIDExIGZvciBkZXZpY2UgMDA6MTEuNQ0K
+UENJOiBTaGFyaW5nIElSUSAxMSB3aXRoIDAwOjA5LjENClBDSTogU2hhcmlu
+ZyBJUlEgMTEgd2l0aCAwMDowYS4wDQp2aWE4MmN4eHg6IFNpeCBjaGFubmVs
+IGF1ZGlvIGF2YWlsYWJsZQ0KUENJOiBTZXR0aW5nIGxhdGVuY3kgdGltZXIg
+b2YgZGV2aWNlIDAwOjExLjUgdG8gNjQNCmFjOTdfY29kZWM6IEFDOTcgQXVk
+aW8gY29kZWMsIGlkOiBJQ0UxNyhJQ0UxMjMyKQ0KdmlhODJjeHh4OiBib2Fy
+ZCAjMSBhdCAweEU4MDAsIElSUSAxMQ0KW1NOSVBFRF0NCkFzc2VydGlvbiBm
+YWlsZWQhIGNoYW4tPmlzX2FjdGl2ZSA9PSBzZ19hY3RpdmUoY2hhbi0+aW9i
+YXNlKSx2aWE4MmN4eHhfYXVkaW8uYyx2aWFfY2hhbl9tYXliZV9zdGFydCxs
+aW5lPTEzNDcNCnZpYV9hdWRpbzogaWdub3JpbmcgZHJhaW4gcGxheWJhY2sg
+ZXJyb3IgLTUxMg0KW1NOSVBFRF0NCg==
+--8323328-1837053877-1040125309=:1698--

@@ -1,104 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264195AbTKKFBp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 00:01:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbTKKFBo
+	id S264231AbTKKFGi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 00:06:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264259AbTKKFGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 00:01:44 -0500
-Received: from mk-smarthost-1.mail.uk.tiscali.com ([212.74.114.37]:28177 "EHLO
-	mk-smarthost-1.mail.uk.tiscali.com") by vger.kernel.org with ESMTP
-	id S264195AbTKKFBi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 00:01:38 -0500
-Date: Tue, 11 Nov 2003 05:01:25 +0000
-Message-ID: <3FA537D70001C2C7@mk-cpfrontend-3.mail.uk.tiscali.com>
-From: zinoj_abari@tiscali.co.uk
-Subject: Private
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="========/3FA537D70001C2C7/mk-cpfrontend.uk.tiscali.com"
-To: unlisted-recipients:; (no To-header on input)
+	Tue, 11 Nov 2003 00:06:38 -0500
+Received: from nat-68-172-17-106.ne.rr.com ([68.172.17.106]:35831 "EHLO
+	trip.jpj.net") by vger.kernel.org with ESMTP id S264231AbTKKFGg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 00:06:36 -0500
+Subject: Re: I/O issues, iowait problems, 2.4 v 2.6
+From: Paul Venezia <pvenezia@jpj.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20031110205443.6422259f.akpm@osdl.org>
+References: <1068519213.22809.81.camel@soul.jpj.net>
+	 <20031110195433.4331b75e.akpm@osdl.org>
+	 <1068523328.25805.97.camel@soul.jpj.net>
+	 <20031110202819.7e7433a8.akpm@osdl.org>
+	 <1068524657.25804.110.camel@soul.jpj.net>
+	 <20031110205443.6422259f.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1068526547.22800.131.camel@soul.jpj.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 10 Nov 2003 23:55:48 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2003-11-10 at 23:54, Andrew Morton wrote:
 
---========/3FA537D70001C2C7/mk-cpfrontend.uk.tiscali.com
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+> >   0 10      0 1146444  18940 286856    0    0     0  2106 21450 25860  4 14 37 45
+> 
+> OK, the IO rates are obviously very poor, and the context switch rate is
+> suspicious as well.  Certainly, testing with the single disk would help.
 
-Please, Check attachment for information
+I'll get to that as soon as I can.
 
+> 
+> But.  If the workload here was a simple dd of /dev/zero onto a regular
+> file then why on earth is the pagecache size not rising?  
 
---========/3FA537D70001C2C7/mk-cpfrontend.uk.tiscali.com
-Content-Type: text/plain
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="Private.txt"
+This vmstat output was shot when I was first noticing this problem. The
+nbench tests were running at the time. Seems to indicate the same as
+below.
 
-MTFUSCBvY3QgMjAwMw0KRnJvbTogRW5nciBaaW5vIEphYmFyaQ0KRmVkZXJhbCBNaW5pc3RyeSBv
-ZiBXb3JrcyBBbmQgSG91c2luZw0KRmVkZXJhbCBTZWNyZXRhcmlhdCBDb21wbGV4DQpJa295aS1M
-YWdvcy4NCk5pZ2VyaWEuDQoNCiBVUkdFTlQgJiBTVFJJQ1RMWSBDT05GSURFTlRJQUwNCg0KQXR0
-bg0KR29vZCBmcmllbmQsDQoNCg0KICAgIEkgbXVzdCBzb2xpY2l0IHlvdXIgc3RyaWN0ZXN0IGNv
-bmZpZGVuY2UgaW4gdGhpcyBidXNpbmVzcyBwcm9wb3NhbCwNCnRoaXMgaXMgYnkgdmlydHVlIG9m
-IGl0J3MgbmF0dXJlIGFzIGJlaW5nIHV0dGVybHkgY29uZmlkZW50aWFsIGFuZCB0b3ANCnNlY3Jl
-dA0KYXMgeW91IHdlcmUgaW50cm9kdWNlZCBieSBhbiBhc3NvY2lhdGUgaW4gdGhlIGZvcmVpZ24g
-YWZmYWlycyBvZmZpY2Ugb2YNCnRoZSBOaWdlcmlhbiBDaGFtYmVycyBvZiBDb21tZXJjZSBhbmQg
-aW5kdXN0cnkgd2hvIGFzc3VyZWQgdXMgaW4gY29uZmlkZW5jZQ0Kb2YgeW91ciBhYmlsaXR5IGFu
-ZCByZWxpYWJpbGl0eSB0byBwcm9zZWN1dGUgYSB0cmFuc2FjdGlvbiBvZiBncmVhdA0KbWFnbml0
-dWRlDQppbnZvbHZpbmcgYSBwZW5kaW5nIGJ1c2luZXNzIHRyYW5zYWN0aW9uIHJlcXVpcmluZyBt
-YXhpbXVtIGNvbmZpZGVuY2UuIEkNCndhbnQgeW91IHRvIHN0dWR5IHRoaXMgbGV0dGVyIGNhcmVm
-dWxseSBhbmQgYWR2aWNlIGNhdGVnb3JpY2FsbHkgaWYgeW91DQp3aWxsIGJlIGFibGUgdG8gaGFu
-ZGxlIGl0Lg0KV2UgYXJlIHRvcCBvZmZpY2lhbHMgZnJvbSB0aGUgRmVkZXJhbCBNaW5pc3RyeSBv
-ZiBXb3JrcyAmIEhvdXNpbmcoRk1XJkgpLA0KRmVkZXJhbCBNaW5pc3RyeSBvZiBGaW5hbmNlIChG
-TUYpLCBhbmQgdGhlIFByZXNpZGVuY3ksIG1ha2luZyB1cCB0aGUNCkNvbnRyYWN0DQpSZXZpZXcg
-UGFuZWwgKENSUCkgc2V0IHVwIGJ5IHRoZSBGZWRlcmFsIEdvdmVybm1lbnQgb2YgTmlnZXJpYSB0
-byByZXZpZXcNCmNvbnRyYWN0cyBhd2FyZGVkIGJ5IHRoZSBwYXN0IE1pbGl0YXJ5IGFkbWluaXN0
-cmF0aW9uLg0KSW4gdGhlIGNvdXJzZSBvZiBvdXIgd29yayBpbiB0aGUgQ1JQLCB3ZSBkaXNjb3Zl
-cmVkIHRoZSBzdW0gb2YgVVMkMzIsMDAwMDAwDQpNaWxsaW9uIERvbGxhcnMgd2hpY2ggcmVzdWx0
-ZWQgZnJvbSBncm9zc2x5IG92ZXItaW52b2ljZWQgY29udHJhY3RzIHdoaWNoDQp3ZXJlIGV4ZWN1
-dGVkIGZvciB0aGUgRk1XJkggZHVyaW5nIHRoZSBsYXN0IGFkbWluaXN0cmF0aW9uLiBUaGUgY29t
-cGFuaWVzDQp0aGF0IGV4ZWN1dGVkIHRoZSBjb250cmFjdCBoYXZlIGJlZW4gZHVseSBwYWlkIGFu
-ZCB0aGUgY29udHJhY3RzDQpjb21taXNzaW9uZWQuDQpMZWF2aW5nIHRoZSBzdW0gYWJvdmUgZmxv
-YXRpbmcgaW4gdGhlIEVzY3JvdyBhY2NvdW50IG9mIHRoZSBDZW50cmFsIEJhbmsNCm9mIE5pZ2Vy
-aWEgcmVhZHkgZm9yIHBheW1lbnQuIEkgaGF2ZSB0aGVyZWZvcmUgYmVlbiBtYW5kYXRlZCBhcyBh
-IG1hdHRlcg0Kb2YgdHJ1c3QgYnkgbXkgY29sbGVhZ3VlcyBpbiB0aGUgUGFuZWwgdG8gbG9vayBm
-b3IgYW4gb3Zlci1zZWFzIHBhcnRuZXINCnRvIHdob20gd2UgY291bGQgdHJhbnNmZXIgdGhlIHN1
-bSBvZiBVUyQzMk0gYnkgTGVnYWxseSBzdWJjb250cmFjdGluZyB0aGUNCmNvbnRyYWN0IGVudGl0
-bGVtZW50IHRvIHlvdXIgY29tcGFueS4gVGhpcyBpcyBiZWFyaW5nIGluIG1pbmQgdGhhdCBvdXIg
-Y2l2aWwNCnNlcnZpY2UgY29kZSBvZiBjb25kdWN0IGZvcmJpZHMgdXMgZnJvbSBvd25pbmcgZm9y
-ZWlnbiBjb21wYW5pZXMgb3IgcnVubmluZw0KZm9yZWlnbiBhY2NvdW50cyB3aGlsZSBpbiBhY3Rp
-dmUgR292ZXJubWVudCBzZXJ2aWNlIGhlbmNlIHRoZSBuZWVkIGZvciBhbg0Kb3Zlci1zZWFzcGFy
-dG5lci4NCldlIGhhdmUgYWdyZWVkIHRoYXQgdGhlIGZ1bmRzIHdpbGwgYmUgc2hhcmVkIHRodXMg
-c2hvdWxkIHlvdSBiZSB3aWxsaW5nDQphZnRlciBpdCBoYXMgYmVlbiB0cmFuc2ZlcmVkIGludG8g
-eW91ciBhY2NvdW50Og0KKDEpMjUlIG9mIHRoZSBtb25leSB3aWxsIGdvIHRvIHlvdSBmb3IgYWN0
-aW5nIGFzIHRoZSBiZW5lZmljaWFyeSBvZiB0aGUNCmZ1bmQuDQooMik2NSUgdG8gdXMgdGhlIEdv
-dmVybm1lbnQgb2ZmaWNpYWxzICh3aXRoIHdoaWNoIHdlIGFyZSB0byBjb21tZW5jZSBhbg0KaW1w
-b3J0YXRpb24gYnVzaW5lc3MgaW4gY29uanVuY3Rpb24gd2l0aCB5b3UpLg0KKDN9IDEwJSBoYXMg
-YmVlbiBzZXQgYXNpZGUgYXMgYW4gYWJzdHJhY3QgcHJvamVjdGlvbiBmb3IgcmVpbWJ1cnNlbWVu
-dCB0bw0KYm90aCBwYXJ0aWVzIGZvciBpbmNpZGVudGFsIGV4cGVuc2VzIHN1Y2ggYXMgdGF4ZXMg
-cGhvbmUgYmlsbHMgYW5kDQpkb2N1bWVudGF0aW9uDQp0aGF0IG1heSBiZSBpbmN1cmVkIGluIHRo
-ZSBjb3Vyc2Ugb2YgdGhpcyB0cmFuc2FjdGlvbi4NCg0KQWxsIGxvZ2lzdGljcyBhcmUgaW4gcGxh
-Y2UgYW5kIGFsbCBtb2RhbGl0aWVzIHdvcmtlZCBvdXQgZm9yIHRoZSBzbW9vdGgNCmNvbmNsdXNp
-b24gb2YgdGhpcyB0cmFuc2FjdGlvbi4gV2l0aGluIHRlbiB0byBmb3VydGVlbiB3b3JraW5nIGRh
-eXMgb2YNCmNvbW1lbmNlbWVudA0KYmFzZWQgb24geW91ciBhY2NlcHRhbmNlIHRvIGFzc2lzdCB1
-cywgdGhlIGZ1bmRzIHdpbGwgYmUgaW4geW91ciBhY2NvdW50Lg0KV2Ugd2lsbCByZWdpc3RlciBh
-IGNvbXBhbnkgb24geW91ciBiZWhhbGYgZm9yIHlvdSBhbmQgd2Ugd2lsbCBhbHNvIHNlY3VyZQ0K
-YWxsIHRoZSBuZWNlc3NhcnkgZG9jdW1lbnRzIHRvIGdpdmUgaXQgYSBsZWdhbCBiYWNraW5nLiBC
-dXQgaWYgeW91IGFscmVhZHkNCmhhdmUgYSBjb21wYW55LCBwbGVhc2UgZnVybmlzaCB1cyB3aXRo
-IHRoZSBmb2xsb3dpbmcgaW5mb3JtYXRpb24gc28gdGhhdA0Kd2UgY2FuIHJlZ2lzdGVyIHRoZSBu
-ZXcgY29tcGFueSBoZXJlIGFzIGFuIGFmZmlsaWF0ZSB0byB0aGUgYWxyZWFkeSBleGlzdGluZw0K
-b25lOiBZb3VyIGNvbXBhbnkgbmFtZSwgYWRkcmVzcywgY29tcGFueSdzIGRldGFpbHMgYW5kIGFj
-dGl2aXRpZXMsIHRlbGVwaG9uZQ0KJiBmYXggbnVtYmVycy4gT24gcmVjZWlwdCBvZiB0
-aGUgaW5mb3JtYXRpb24gYXMgcGVybWlzc2lvbiwgd2Ugd2lsbCBtYWtlDQphcHBsaWNhdGlvbnMg
-YW5kIGxvZGdlIGNsYWltcyB0byB0aGUgY29uY2VybmVkIE1pbmlzdHJpZXMgJiBhZ2VuY2llcyBp
-bg0KZmF2b3VyIG9mIHRoZSBjb21wYW55IGFuZCBpdCBpcyBwZXJ0aW5lbnQgdG8gc3RhdGUgaGVy
-ZSB0aGF0IHRoaXMNCnRyYW5zYWN0aW9uDQppcyBlbnRpcmVseSBiYXNlZCBvbiB0cnVzdCBhcyB0
-aGUgU29sYXIgQmFuayBEcmFmdCBvciBDZXJ0aWZpZWQgQ2hlcXVlDQpkcmF3YWJsZQ0KaW4gYW55
-IG9mIHRoZSBDZW50cmFsIEJhbmsgb2YgTmlnZXJpYSBjb3JyZXNwb25kZW50IEJhbmtlcnMgd29y
-bGR3aWRlIGlzDQpnb2luZyB0byBiZSBtYWRlIGluIHlvdXIgbmFtZS4NCkkgd2FudCB0byBhc3N1
-cmUgeW91IHRoYXQgdGhpcyB0cmFuc2FjdGlvbiBpcyAxMDAlIHJpc2stZnJlZS4gUGxlYXNlDQph
-Y2tub3dsZWRnZQ0KdGhlIHJlY2VpcHQgb2YgdGhpcyBlbWFpbC4NCmFuZCBmZWVsIGZyZWUgdG8g
-cmVhY2ggbWUgaW1tZWRpYXRlbHkgdGhyb3VnaCB0aGUgYWJvdmUgZS1tYWlsLg0KDQpOb3RlIHRo
-YXQgdGhlcmUgYXJlIGEgZmV3IG1vcmUgZGV0YWlscyB3aGljaCB3aWxsIGJlIGNvbW11bmljYXRl
-ZCB0byB5b3UNCmJ5IHBob25lIGFuZCBmYXgNCnNvIGluY2x1ZGUgeW91IHBlcnNvbmFsIHBob25l
-IGFuZCBmYXggbnVtYmVycyBpbiB5b3VyIHJlcGx5Lg0KDQpUaGFuayB5b3UgYW5kIEdvZCBibGVz
-cw0KDQpFbmdyIFppbm8gSmFiYXJpDQoNCg0K
+> Could you please
+> do:
+> 
+> 	rm foo
+> 	cat /dev/zero > foo
+> 
+> and rerun the `vmstat 1' trace?  Make sure that after the big initial jump,
+> the `cache' column is increasing at a rate equal to the I/O rate.  Thanks.
 
---========/3FA537D70001C2C7/mk-cpfrontend.uk.tiscali.com--
+When I first ran this test, I killed it after 45s or so, noting that the vmstat
+output didn't look right. I then deleted the sample file. The file no longer existed,
+but the rm didn't exit in a timely fashion, the CPUs were at 100% iowait, the load 
+was rising and vmstat was showing a consistent pattern of 5056 blocks out every two 
+seconds.
+
+I rebooted and shot these, starting 5 seconds before the cat:
+
+ 0  0      0 1474524   7084  42420    0    0     0     0 1033    47  0  0 100  0
+ 0  0      0 1474524   7084  42420    0    0     0     0 1031    38  0  0 100  0
+ 0  0      0 1474524   7084  42420    0    0     0     0 1016    12  0  0 100  0
+ 1  0      0 1373716   7184 140376    0    0     0     0 1020    14  0 10 90  0
+ 1  2      0 1166548   7392 341652    0    0     8 18836 1028    56  0 21 43 36
+ 1  2      0 994132   7556 509312    0    0     4  1696 1030    63  0 17 27 56
+ 1  2      0 867732   7684 632264    0    0     4  2400 1033    65  0 12 27 60
+ 0  3      0 817748   7732 680700    0    0     4  9632 1033    66  0  5 27 67
+ 0  4      0 817748   7732 680700    0    0     0     0 1029    47  0  0 25 75
+ 2  2      0 817748   7732 680700    0    0     0  5372 1032    48  0  0 25 75
+ 0  4      0 810324   7740 688104    0    0     0   104 1032    49  0  1 25 74
+ 0  4      0 810324   7740 688104    0    0     0     0 1029    48  0  0 25 75
+ 0  4      0 810324   7740 688104    0    0     0  4892 1038    54  0  0 25 75
+ 0  4      0 810324   7740 688104    0    0     0     0 1024    46  0  0 25 75
+ 0  4      0 793492   7756 704544    0    0     0  9952 1033    52  0  2 25 73
+ 0  4      0 793492   7756 704544    0    0     0     0 1032    48  0  0 25 75
+ 0  4      0 793428   7756 704544    0    0     0     0 1031    48  0  0 25 75
+ 0  4      0 793428   7756 704544    0    0     0     0 1028    52  0  0 25 75
+ 0  4      0 768276   7780 729136    0    0     0  4996 1032    51  0  2 25 72
+ 0  4      0 768276   7780 729136    0    0     0     0 1035    46  0  0 25 75
+ 0  4      0 768276   7780 729136    0    0     0  4892 1026    50  0  0 25 75
+ 0  4      0 768276   7780 729136    0    0     0     0 1037    46  0  0 25 75
+ 0  4      0 763988   7784 733212    0    0     0  5060 1032    56  0  0 25 75
+ 0  4      0 763988   7784 733212    0    0     0     0 1032    46  0  0 25 75
+ 0  4      0 763988   7784 733212    0    0     0  4892 1033    48  0  0 25 75
+ 0  4      0 763988   7784 733212    0    0     0     0 1029    50  0  0 25 75
+ 0  4      0 751316   7796 745508    0    0     0  5060 1039    52  0  1 25 74
+ 0  4      0 751316   7796 745508    0    0     0     0 1025    52  0  0 25 75
+
+Very similar.
+
+-Paul
+

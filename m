@@ -1,82 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbVCKStv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVCKStw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261365AbVCKStv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 13:49:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVCKSnk
+	id S261275AbVCKStw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 13:49:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVCKSjs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 13:43:40 -0500
-Received: from mailfe10.swip.net ([212.247.155.33]:11737 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S261246AbVCKSXp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 13:23:45 -0500
-X-T2-Posting-ID: icQHdNe7aEavrnKIz+aKnQ==
-Subject: Re: Strange memory leak in 2.6.x
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: Tobias Hennerich <Tobias@Hennerich.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050311183207.A22397@bart.hennerich.de>
-References: <20050308133735.A13586@bart.hennerich.de>
-	 <20050308173811.0cd767c3.akpm@osdl.org>
-	 <20050309102740.D3382@bart.hennerich.de>
-	 <20050311183207.A22397@bart.hennerich.de>
-Content-Type: text/plain
-Date: Fri, 11 Mar 2005 19:23:40 +0100
-Message-Id: <1110565420.2501.12.camel@boxen>
+	Fri, 11 Mar 2005 13:39:48 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:24593 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261279AbVCKSQw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 13:16:52 -0500
+Date: Fri, 11 Mar 2005 19:16:45 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] unexport kmap_{pte,port} on !ppc
+Message-ID: <20050311181645.GL3723@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Please grab 2.6.11, apply the below patch, set CONFIG_PAGE_OWNER and follow
-> > > the below instructions.
-> > 
-> > thank you for you mails. We installed the patch from Alex on a test-system
-> > last night and will switch it to the production machine this evening. The
-> > problem will start after 48-72 hours, so we hope to send feedback
-> > on friday.
-> 
-> Ok, we had another crash this morning after an uptime of only 36
-> hours 8-(.
-> 
-> No oom-killer this time, but we got a very high load (>40) in the
-> end. Our cron-job which starts the page_owner-sort every 10 minutes
-> didn't return the last 4 times.
-> 
-> The new 2.6.11-kernel changed the graphs a little bit - values for
-> 'MemTree' are much higher, but values for 'Cached' and 'Buffered' are
-> still very low.
-> 
-> Here the graph for the last week:
-> 
->   http://download.hennerich.de/memory-leak2.png
-> 
-> (the left part is the same like our first graph last week
-> http://download.hennerich.de/memory-leak.png, the weekend is well visible)
-> 
-> Detailed view of the last 40 hours:
-> 
->   http://download.hennerich.de/memory-leak3.png
-> 
-> Some output of the page_owner-sort:
-> 
->
->   http://download.hennerich.de/page_owner_sorted_20050311_0820.bz2
+I haven't found any modular usage of kmap_{pte,port} on !ppc in the 
+kernel.
 
-Yikes something isn't right with these backtraces that page_owner is
-showing. Even without frame pointers it shouldn't be this noisy.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-I'm afraid I'm going to need to ask for more help, could you please
-select CONFIG_FRAME_POINTER under 
-Kernel hacking => "Compile the kernel with frame pointers"
+---
 
-And when that kernel is booted, could you directly send me the output
-of /proc/page_owner (sort or unsorted) so that I can see if something is
-wrong with the data it's producing (just to be sure).
+This patch was already sent on:
+- 21 Jan 2005
 
-If it works better with CONFIG_FRAME_POINTER, i'm also going to have to
-ask you to do another one of these runs that you just did.
+ arch/i386/mm/init.c  |    3 ---
+ arch/mips/mm/init.c  |    3 ---
+ arch/sparc/mm/init.c |    3 ---
+ 3 files changed, 9 deletions(-)
 
-Thanks
-Alexander
+--- linux-2.6.11-rc1-mm2-full/arch/i386/mm/init.c.old	2005-01-20 23:45:08.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/i386/mm/init.c	2005-01-20 23:45:20.000000000 +0100
+@@ -252,9 +252,6 @@
+ pte_t *kmap_pte;
+ pgprot_t kmap_prot;
+ 
+-EXPORT_SYMBOL(kmap_prot);
+-EXPORT_SYMBOL(kmap_pte);
+-
+ #define kmap_get_fixmap_pte(vaddr)					\
+ 	pte_offset_kernel(pmd_offset(pud_offset(pgd_offset_k(vaddr), vaddr), (vaddr)), (vaddr))
+ 
+--- linux-2.6.11-rc1-mm2-full/arch/sparc/mm/init.c.old	2005-01-20 23:45:27.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/sparc/mm/init.c	2005-01-20 23:45:32.000000000 +0100
+@@ -59,9 +59,6 @@
+ pte_t *kmap_pte;
+ pgprot_t kmap_prot;
+ 
+-EXPORT_SYMBOL(kmap_prot);
+-EXPORT_SYMBOL(kmap_pte);
+-
+ #define kmap_get_fixmap_pte(vaddr) \
+ 	pte_offset_kernel(pmd_offset(pgd_offset_k(vaddr), (vaddr)), (vaddr))
+ 
+--- linux-2.6.11-rc1-mm2-full/arch/mips/mm/init.c.old	2005-01-20 23:45:39.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/mips/mm/init.c	2005-01-20 23:45:46.000000000 +0100
+@@ -83,9 +83,6 @@
+ pte_t *kmap_pte;
+ pgprot_t kmap_prot;
+ 
+-EXPORT_SYMBOL(kmap_prot);
+-EXPORT_SYMBOL(kmap_pte);
+-
+ #define kmap_get_fixmap_pte(vaddr)					\
+ 	pte_offset_kernel(pmd_offset(pgd_offset_k(vaddr), (vaddr)), (vaddr))
+ 
 

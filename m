@@ -1,46 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261168AbTFITzV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 15:55:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbTFITzV
+	id S261151AbTFIUBj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 16:01:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbTFIUBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 15:55:21 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:60424 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S261168AbTFITzF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 15:55:05 -0400
-Subject: Re: 2.5.70-mm6
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Maciej Soltysiak <solt@dns.toxicfilms.tv>, Andrew Morton <akpm@digeo.com>,
-       LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-In-Reply-To: <51250000.1055184690@flay>
-References: <20030607151440.6982d8c6.akpm@digeo.com>
-	 <Pine.LNX.4.51.0306091943580.23392@dns.toxicfilms.tv>
-	 <46580000.1055180345@flay>
-	 <Pine.LNX.4.51.0306092017390.25458@dns.toxicfilms.tv>
-	 <51250000.1055184690@flay>
-Content-Type: text/plain
-Message-Id: <1055189322.600.1.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
-Date: 09 Jun 2003 22:08:42 +0200
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Jun 2003 16:01:39 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:24210 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id S261151AbTFIUBi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 16:01:38 -0400
+Date: Mon, 9 Jun 2003 15:15:02 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Christoph Hellwig <hch@infradead.org>
+cc: Jaroslav Kysela <perex@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
+       ALSA development <alsa-devel@alsa-project.org>,
+       <kbuild-devel@lists.sourceforge.net>
+Subject: Re: 2.5 kbuild: use of '-z muldefs' for LD?
+In-Reply-To: <20030609130438.A6417@infradead.org>
+Message-ID: <Pine.LNX.4.44.0306091512110.19484-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-06-09 at 20:51, Martin J. Bligh wrote:
-> >> If you don't nice the hell out of X, does it work OK?
-> > No.
-> > 
-> > The way I reproduce the sound skips:
-> > run xmms, run evolution, compose a mail with gpg.
-> > on mm6 the gpg part stops the sound for a few seconds. (with X -10 and 0)
-> > on mm5 xmms plays without stops. (with X -10)
-> 
-> Does this (from Ingo?) do anything useful to it?
+On Mon, 9 Jun 2003, Christoph Hellwig wrote:
 
-I can confirm that 2.5.70-mm6 with Ingo's patch and HZ set back to 1000
-is nearly perfect (it still takes some seconds for the scheduler to
-adjust dynamic priorities).
+> On Mon, Jun 09, 2003 at 01:56:59PM +0200, Jaroslav Kysela wrote:
+> > one object file for more targets. Example:
+> > 
+> > ------
+> > snd-ice1712-objs := ice1712.o delta.o hoontech.o ews.o ak4xxx.o
+> > snd-ice1724-objs := ice1724.o amp.o revo.o aureon.o ak4xxx.o
+> > 
+> > # Toplevel Module Dependency
+> > obj-$(CONFIG_SND_ICE1712) += snd-ice1712.o
+> > obj-$(CONFIG_SND_ICE1724) += snd-ice1724.o
+> > ------
+> > 
+> > The ak4xxx.o module is shared and has defined a few public functions.
+> > Unfortunately, the default build-in.o rule fails when targets are 
+> > requested to be included into the solid kernel because the public 
+> > functions are duplicated in snd-ice1712.o and snd-ice17124.o.
+> > 
+> > I can instruct the ld compiler to ignore the multiple definitions using 
+> > '-z muldefs':
+> > 
+> > EXTRA_LDFLAGS = -z muldefs
+> > 
+> > But it seems like a hack for me.
+> > Does anybody have another idea to solve my problem?
+> 
+> Move ak4xxx.o out of the multi-obj rules.  Just declare a new helper-
+> config option CONFIG_SND_AK4XXX that gets defined by all drivers
+> using it and add
+> 
+> obj-$(CONFIG_SND_AK4XXX)	+= ak4xxx.o
+
+I basically second this, though you don't even need a new config variable.
+
+	snd-ice1712-objs := ice1712.o delta.o hoontech.o ews.o
+	snd-ice1724-objs := ice1724.o amp.o revo.o aureon.o
+
+	# Toplevel Module Dependency
+	obj-$(CONFIG_SND_ICE1712) += snd-ice1712.o ak4xxx.o
+	obj-$(CONFIG_SND_ICE1724) += snd-ice1724.o ak4xxx.o
+
+If you think the functions are too trivial to justify a module of their
+own, you may want to consider to put them as static inline into a header
+file, as someone else suggested.
+
+--Kai
+
+
 

@@ -1,82 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265774AbUGDVGs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265777AbUGDVIr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265774AbUGDVGs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 17:06:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265775AbUGDVGs
+	id S265777AbUGDVIr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 17:08:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265781AbUGDVIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 17:06:48 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:20436 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S265774AbUGDVGq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 17:06:46 -0400
-Date: Sun, 4 Jul 2004 22:06:42 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Peter Osterlund <petero2@telia.com>, greg@kroah.com,
-       viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org,
-       axboe@suse.de
-Subject: Re: [PATCH] CDRW packet writing support for 2.6.7-bk13
-Message-ID: <20040704210642.GA8396@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, Peter Osterlund <petero2@telia.com>,
-	greg@kroah.com, viro@parcelfarce.linux.theplanet.co.uk,
-	linux-kernel@vger.kernel.org, axboe@suse.de
-References: <m2lli36ec9.fsf@telia.com> <m2u0wqqdpl.fsf@telia.com> <20040702150819.646b6103.akpm@osdl.org> <20040702224720.GA7969@kroah.com> <20040702155945.5c375bd2.akpm@osdl.org> <m27jtm0z7q.fsf@telia.com> <20040702165132.575cba5b.akpm@osdl.org> <m2fz88ugrw.fsf@telia.com> <20040704135842.48a32219.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040704135842.48a32219.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 4 Jul 2004 17:08:47 -0400
+Received: from agminet02.oracle.com ([141.146.126.229]:59542 "EHLO
+	agminet02.oracle.com") by vger.kernel.org with ESMTP
+	id S265777AbUGDVIa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 17:08:30 -0400
+Message-ID: <40E87277.4040206@oracle.com>
+Date: Sun, 04 Jul 2004 23:11:19 +0200
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040323
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: TCP window scaling still bad in 2.6.7-bk17
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 04, 2004 at 01:58:42PM -0700, Andrew Morton wrote:
-> Peter Osterlund <petero2@telia.com> wrote:
-> >
-> > But anyway, if __bdevname() leaks a module reference it should get
-> >  fixed, right?
-> 
-> Yes.  The questions is, where's the bug?
+I have a tcpdump and a description of what happens here
 
-in __bdevname.  It shouldn't try the get_gendisk.  I introduced that long
-ago, but it's wrong.  Use bdevname where you can, else we can't do much
-else than printing the namjor/minor sanely.
+http://xoomer.virgilio.it/incident/tcpdump.out
 
-The packet writing code should always use bdevname() (see my previous
-mail on how to get there), and here's a patch to fix __bdevname:
+with www.kernel.org, but I'm mostly shut off the entire 'net.
+
+The _only_ site I found I can browse without disabling TCP
+  window scaling is http://www.google.it.
 
 
---- 1.124/fs/partitions/check.c	2004-06-18 08:43:53 +02:00
-+++ edited/fs/partitions/check.c	2004-07-05 01:04:11 +02:00
-@@ -137,25 +137,14 @@
- EXPORT_SYMBOL(bdevname);
- 
- /*
-- * NOTE: this cannot be called from interrupt context.
-- *
-- * But in interrupt context you should really have a struct
-- * block_device anyway and use bdevname() above.
-+ * There's very little reason to use this, you should really
-+ * have a struct block_device just about everywhere and use
-+ * bdevname() instead.
-  */
- const char *__bdevname(dev_t dev, char *buffer)
- {
--	struct gendisk *disk;
--	int part;
--
--	disk = get_gendisk(dev, &part);
--	if (disk) {
--		buffer = disk_name(disk, part, buffer);
--		put_disk(disk);
--	} else {
--		snprintf(buffer, BDEVNAME_SIZE, "unknown-block(%u,%u)",
-+	snprintf(buffer, BDEVNAME_SIZE, "unknown-block(%u,%u)",
- 				MAJOR(dev), MINOR(dev));
--	}
--
- 	return buffer;
- }
- 
+My system:
+
+  RedHat 9 base distro
+  2.6.7-bk17 plus ACX100 out-of-kernel wireless driver (version
+   0.2.0-pre8_plus_fixes_13) from acx100.sf.net
+  built with binutils 2.15.91.0.1 and GCC 3.4.0
+
+System behaved properly until 2.6.7-bk1, was bad since 2.6.7-bk7
+  (haven't tried in-between kernels as I was on holiday).
+
+I also tried walking up to my router and connecting via eth0
+  instead of wlan0 (to rule out the wireless driver) - still the
+  connection to www.kernel.org hangs (always -bk17).
+
+
+I'm available for further digging, please CC: me on replies as I
+  only read lkml from the USSG archives.
+
+
+Thanks,
+
+--alessandro
+
+  "Practice is more important than theory. A _lot_ more important."
+     (Linus Torvalds on lkml, 1 June 2004)
+
+

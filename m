@@ -1,102 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbVALCbH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbVALCci@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261352AbVALCbH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 21:31:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbVALCbH
+	id S261544AbVALCci (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 21:32:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbVALCci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 21:31:07 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:41992 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261352AbVALCa4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 21:30:56 -0500
-Date: Wed, 12 Jan 2005 03:30:47 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Linus Torvalds <torvalds@osdl.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Tue, 11 Jan 2005 21:32:38 -0500
+Received: from orb.pobox.com ([207.8.226.5]:56012 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S261544AbVALCc3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 21:32:29 -0500
+Date: Tue, 11 Jan 2005 18:32:18 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: David Lang <dlang@digitalinsight.com>, Jesper Juhl <juhl-lkml@dif.dk>,
+       Andries Brouwer <aebr@win.tue.nl>, "Barry K. Nathan" <barryn@pobox.com>,
+       Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Lukasz Trabinski <lukasz@wsisiz.edu.pl>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] make uselib configurable (was Re: uselib()  & 2.6.X?)
-Message-ID: <20050112023047.GI29578@stusta.de>
-References: <Pine.LNX.4.58LT.0501071648160.30645@oceanic.wsisiz.edu.pl> <20050107170712.GK29176@logos.cnet> <1105136446.7628.11.camel@localhost.localdomain> <Pine.LNX.4.58.0501071609540.2386@ppc970.osdl.org> <20050107221255.GA8749@logos.cnet> <Pine.LNX.4.58.0501081042040.2386@ppc970.osdl.org> <20050111225127.GD4378@ip68-4-98-123.oc.oc.cox.net> <20050111235907.GG2760@pclin040.win.tue.nl> <20050112021246.GE4325@ip68-4-98-123.oc.oc.cox.net>
+Message-ID: <20050112023218.GF4325@ip68-4-98-123.oc.oc.cox.net>
+References: <20050111235907.GG2760@pclin040.win.tue.nl> <Pine.LNX.4.61.0501120203510.2912@dragon.hygekrogen.localhost> <Pine.LNX.4.60.0501111714450.18921@dlang.diginsite.com> <20050111223641.GA27100@logos.cnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050112021246.GE4325@ip68-4-98-123.oc.oc.cox.net>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050111223641.GA27100@logos.cnet>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 11, 2005 at 06:12:46PM -0800, Barry K. Nathan wrote:
->...
-> > People always claim that Linux is good in preserving binary compatibility.
-> > Don't know how true that was, but introducing such config options doesnt
-> > help.
-> 
-> Binary compatibility is good to have, but it isn't everything in life.
-> *Optionally* breaking compatibility with certain types of old binaries
-> doesn't seem so bad to me. People who want binary compatibility can have
-> it, and people who don't need it can choose to not install the old code
-> on their systems.
-> 
-> > Let me also mutter about something else.
-> > In principle configuration options are evil. Nobody wants fifty thousand
-> > configuration options. But I see them multiply like ioctls.
-> > There should be a significant gain in having a config option.
-> > 
-> > Maybe some argue that there is a gain in security here. Perhaps.
-> > Or a gain in memory. It is negligible.
-> > I see mostly a loss.
-> 
-> It's probably the case that on millions (and growing) of Linux systems
-> out there, the one and only possible use of this syscall is as a
-> security threat. On these systems, with no need for libc4/5 binaries
-> (and no installed versions of these libraries anyway), there is **NO**
-> other redeeming use for this syscall.
-> 
-> If removal of this syscall isn't a config option, then the alternatives
-> are out-of-tree patches, forking 2.7 over this issue alone, or settling
-> for the status quo. A 3rd-party patch would increase vendor kernel
-> divergence again (which is also evil), and starting 2.7 just for this
-> would be overkill. And I'm not the only person who is not satisfied
-> with the current situation.
+On Tue, Jan 11, 2005 at 08:36:41PM -0200, Marcelo Tosatti wrote:
+> On Tue, Jan 11, 2005 at 05:18:16PM -0800, David Lang wrote:
+[snip]
+> > how about something like the embedded, experimental, and broken options. 
+> > that way normal users can disable all of them at a stroke, people who need 
+> > them can add them in.
 
-uselib() is only one of the zillion places in the Linux kernel where 
-security vulnerabilities can occur. OK, now one was found there, but
-is this enough for changing the status quo if the zillion other places
-with possible vulnerabilities are still present and will stay?
-If a vendor chooses to diverge from the ftp.kernel.org kernel in this
-point, I don't see why this should cause any "evil" problems.
+That is what I had in mind for the longer term. Now that I think about
+it, my current patch is probably a bad way to get from here to there --
+it adds a config option that would later *need* to be renamed and moved
+to a different category.
 
-> > There are more ancient system calls, like old_stat and oldolduname.
-> > Do we want separate options for each system call that is obsoleted?
->
-> A config option for each one would be a bit much, I'll agree. However,
-> I think having a single config option for the whole bunch would be a
-> good idea. At the time that I wrote this patch, I was thinking that the
-> rest of the old syscalls would be a second config option, but now that I
-> think about it, it makes more sense for it to just be one config option,
-> not two.
-> 
-> FWIW, my current patch does uselib() alone, because I figured that would
-> be less controversial than trying to do all of the old syscalls now.
-> Maybe I'll rethink that decision though.
->...
+(To be specific, the concept I have in mind is to have an option that
+disables the syscalls that are usually used only by libc5 and earlier.)
 
-A patch for one config option for all pre-libc6 system calls might be 
-interesting if it allows to disable a serious amount of system calls and 
-is well-tested to not break any libc6, libc5 or libc4 binaries.
+> Thats just not an option - you would have zillions of config options. 
 
-> -Barry K. Nathan <barryn@pobox.com>
+I don't see how it would be zillions, but it's possible there's
+something I'm not yet understanding.
 
-cu
-Adrian
+> Moreover this is a system call, and the system call interface is one of the few 
+> supposed to be stable. You shouldnt simply assume that "no one will ever use sys_uselib()" - 
+> there might be programs out there who use it.
 
--- 
+And if you have programs that need it, you (or your vendor) can set the
+config option accordingly.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+-Barry K. Nathan <barryn@pobox.com>
 

@@ -1,63 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262694AbTI1To4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 15:44:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262695AbTI1To4
+	id S262695AbTI1TpT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 15:45:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262703AbTI1TpT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 15:44:56 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:49284 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262694AbTI1Toy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 15:44:54 -0400
-Date: Sun, 28 Sep 2003 20:44:05 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>, Geert Uytterhoeven <geert@linux-m68k.org>,
+	Sun, 28 Sep 2003 15:45:19 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:25272 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262695AbTI1TpN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 15:45:13 -0400
+Date: Sun, 28 Sep 2003 21:44:31 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Linus Torvalds <torvalds@osdl.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
        Bernardo Innocenti <bernie@develer.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Sam Ravnborg <sam@ravnborg.org>
 Subject: Re: Linux 2.6.0-test6
-Message-ID: <20030928194405.GA17235@mail.jlokier.co.uk>
-References: <20030928184642.GA1681@mars.ravnborg.org> <Pine.LNX.4.44.0309281150240.15408-100000@home.osdl.org>
+Message-ID: <20030928194431.GB16921@wohnheim.fh-wedel.de>
+References: <Pine.LNX.4.44.0309281213240.4929-100000@callisto> <Pine.LNX.4.44.0309281035370.6307-100000@home.osdl.org> <20030928184642.GA1681@mars.ravnborg.org> <20030928191622.GA16921@wohnheim.fh-wedel.de> <20030928193150.GA3074@mars.ravnborg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309281150240.15408-100000@home.osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030928193150.GA3074@mars.ravnborg.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> On Sun, 28 Sep 2003, Sam Ravnborg wrote:
-> > Would it help to require all major[1] header files to include all the
-> > header files needed for them to compile?
+On Sun, 28 September 2003 21:31:50 +0200, Sam Ravnborg wrote:
+> On Sun, Sep 28, 2003 at 09:16:22PM +0200, Jörn Engel wrote:
+> > How about a check_headers target that roughly works like this:
+> > 
+> > for (all header files in include/linux and include/asm) {
+> > 	echo "#include <$HEADER>" > header.c
+> > 	make header.o
+> > 	rm header.c header.o
+> > }
 > 
-> It causes tons of extra work for the compiler if the compiler doesn't 
-> optimize away redundant header files (same header file being included from 
-> a lot of different sources).
->
-> I did the pruning in sparse, and I think at least gcc-3 does it too, but 
-> I'm not sure.
+> That should do it. Can you also integrate the check Linus mentioned,
+> to make sure no declarations are present.
 
-GCC does optimise away multiple header file inclusion, and has done
-for a very long time, oh a decade or so :)
+If it's simple enough, you'll have it tomorrow.  Linus' check might
+take a bit longer, I'm not sure yet how to define an empty object
+file.  Is it enough if objdump -tT only shows sections?
 
-GCC will not reparse a header file if these conditions are met:
+> I would name the target: headercheck:
+> to be consistent with the other targets.
 
-	1. The file has already been parsed at least once.
+ok.
 
-	2. Apart from comments, the entire file is surrounded by
-	   "#ifndef symbol ... #endif" or "#if !defined (symbol) ... #endif".
+> It should be fine having it as a separate target, then we can ask
+> John Cherry to include it in his nightly builds.
 
-	3. "symbol" is defined.
+That would be nice, yes.
 
-	4. The file names are the same after removal of "." and ".." components
-	   and other path simplifications.
+Jörn
 
-> If so, then sure, we could just require that the header files compile 
-> cleanly, and for extra points verify that the end result is an empty 
-> object file (ie no bad declarations anywhere..).
-
-You can also use the "-H" option and check for a "Multiple include
-guards may be useful for:" message, to check those #ifndefs.
-
--- Jamie
+-- 
+Measure. Don't tune for speed until you've measured, and even then
+don't unless one part of the code overwhelms the rest.
+-- Rob Pike

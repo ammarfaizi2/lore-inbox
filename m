@@ -1,111 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269888AbUJMWiY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269891AbUJMWiq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269888AbUJMWiY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 18:38:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269890AbUJMWiY
+	id S269891AbUJMWiq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 18:38:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269890AbUJMWiq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 18:38:24 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:50324 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S269888AbUJMWiI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 18:38:08 -0400
-Date: Thu, 14 Oct 2004 00:33:40 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       kernel-janitors <kernel-janitors@lists.osdl.org>, chas@cmf.nrl.navy.mil,
-       greg@kroah.com
-Subject: Re: [KJ] [PATCH 2.6] firestream.c replace pci_find_device with pci_get_device
-Message-ID: <20041013223340.GA32276@electric-eye.fr.zoreil.com>
-References: <194130000.1097705759@w-hlinder.beaverton.ibm.com> <196320000.1097705843@w-hlinder.beaverton.ibm.com>
+	Wed, 13 Oct 2004 18:38:46 -0400
+Received: from fw.osdl.org ([65.172.181.6]:49084 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269893AbUJMWil (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 18:38:41 -0400
+Subject: Re: Announcing Binary Compatibility/Testing
+From: "Timothy D. Witham" <wookie@osdl.org>
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1097705813.6077.52.camel@wookie-zd7>
+References: <1097705813.6077.52.camel@wookie-zd7>
+Content-Type: text/plain
+Organization: Open Source Development Lab, Inc.
+Date: Wed, 13 Oct 2004 15:38:48 -0700
+Message-Id: <1097707128.6077.57.camel@wookie-zd7>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <196320000.1097705843@w-hlinder.beaverton.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+X-Mailer: Evolution 2.0.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hanna Linder <hannal@us.ibm.com> :
-[...]
+On Wed, 2004-10-13 at 15:16 -0700, Timothy D. Witham wrote:
+> Announcing Binary Compatibility/Testing 
+> 
+>   In talking to end users, distributions, OSS developers and 
+> large scale ISV's one issue kept popping up.  And that is 
+> the fact that binaries keep breaking.  
+> 
+>   This is a real problem for large end users deploying Linux
+> in that they like to be able to run/roll forward the same version
+> of an application for 5 or so years.  They can do this with their
+> legacy operating systems and we need to be able to do this 
+> with Linux.
+> 
+> One of the big problems is that these ISV's release and test
+> on a cycle that is measured in calendar quarters and of course
+> the OSS cycle is measured in days.   The idea is to move
+> testing of these binary applications upstream to match
+> the OSS development cycle.  For this purpose I've started
+> a mailing list to discuss how to accomplish this.   I've
+> got slides for anybody who is interested. (PDF.)
+> 
+> http://lists.osdl.org/mailman/listinfo/binary_sig
+> 
+> http://groups.osdl.org/sig  (Follow binary testing for slides)
 
-Too complicated.
+   http://groups.osdl.org/sigs not sig - sorry
 
+Tim
 
-Removal of dead code.
+> 
+> Let the flaming start. :-)
+> 
+> Tim
+> 
+> 
+-- 
+Timothy D. Witham - Chief Technology Officer - wookie@osdl.org
+Open Source Development Lab Inc - A non-profit corporation
+12725 SW Millikan Way - Suite 400 - Beaverton OR, 97005
+(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
+(503)-626-2436     (fax)
 
-Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
-
-diff -puN drivers/atm/firestream.c~firestream-10 drivers/atm/firestream.c
---- linux-2.6.9-rc3/drivers/atm/firestream.c~firestream-10	2004-10-14 00:28:36.000000000 +0200
-+++ linux-2.6.9-rc3-fr/drivers/atm/firestream.c	2004-10-14 00:29:18.000000000 +0200
-@@ -2012,66 +2012,6 @@ void __devexit firestream_remove_one (st
- 	func_exit ();
- }
- 
--
--#if 0
--int __init fs_detect(void)
--{
--	struct pci_dev  *pci_dev;
--	int devs = 0;
--
--	func_enter ();
--	pci_dev = NULL;
--	while ((pci_dev = pci_find_device(PCI_VENDOR_ID_FUJITSU_ME,
--					  PCI_DEVICE_ID_FUJITSU_FS50, 
--					  pci_dev))) {
--		if (fs_register_and_init (pci_dev, &fs_pci_tbl[0]))
--			break;
--		devs++;
--	}
--
--	while ((pci_dev = pci_find_device(PCI_VENDOR_ID_FUJITSU_ME,
--					  PCI_DEVICE_ID_FUJITSU_FS155, 
--					  pci_dev))) {
--		if (fs_register_and_init (pci_dev, FS_IS155)) 
--			break;
--		devs++;
--	}
--	func_exit ();
--	return devs;
--}
--#else
--
--#if 0
--int __init init_PCI (void)
--{ /* Begin init_PCI */
--	
--	int pci_count;
--	printk ("init_PCI\n");
--	/*
--	  memset (&firestream_driver, 0, sizeof (firestream_driver));
--	  firestream_driver.name = "firestream";
--	  firestream_driver.id_table = firestream_pci_tbl;
--	  firestream_driver.probe = fs_register_and_init;
--	*/
--	pci_count = pci_register_driver (&firestream_driver);
--	
--	if (pci_count <= 0) {
--		pci_unregister_driver (&firestream_driver);
--		pci_count = 0;
--	}
--
--	return(pci_count);
--
--} /* End init_PCI */
--#endif
--#endif
--
--/*
--#ifdef MODULE
--#define firestream_init init_module
--#endif 
--*/
--
- static struct pci_device_id firestream_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_FUJITSU_ME, PCI_DEVICE_ID_FUJITSU_FS50, 
- 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, FS_IS50},
-
-_

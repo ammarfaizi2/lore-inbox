@@ -1,81 +1,182 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275384AbTHGO7o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 10:59:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275362AbTHGO5Y
+	id S275371AbTHGOtf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 10:49:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275350AbTHGOsa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 10:57:24 -0400
-Received: from dhcp75.ists.dartmouth.edu ([129.170.249.155]:49280 "EHLO
-	uml.karaya.com") by vger.kernel.org with ESMTP id S275384AbTHGOy6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 10:54:58 -0400
-Message-Id: <200308071459.h77ExAf9001975@uml.karaya.com>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: torvalds@odsl.com
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] UML fixes 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 07 Aug 2003 10:59:10 -0400
-From: Jeff Dike <jdike@addtoit.com>
+	Thu, 7 Aug 2003 10:48:30 -0400
+Received: from gateway.cal.trlabs.ca ([209.115.224.130]:34826 "EHLO
+	gateway.cal.trlabs.ca") by vger.kernel.org with ESMTP
+	id S275364AbTHGOqt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 10:46:49 -0400
+Message-ID: <3F326650.1090607@cal.trlabs.ca>
+Date: Thu, 07 Aug 2003 08:46:40 -0600
+From: Scott Jacobsen <jacobsen@cal.trlabs.ca>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: mmap, PCI, segmentation fault, Dell Dimension 4550
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please pull
-	http://jdike.stearns.org:5000/fixes-2.5
 
-This update fixes a number of UML bugs.
 
-				Jeff
+Oops.  Private variable for the Software_Radio class.
 
- arch/um/drivers/chan_kern.c           |    1 
- arch/um/drivers/chan_user.c           |    4 -
- arch/um/drivers/hostaudio_kern.c      |   77 +++++++++++++++++++++++++++++++---
- arch/um/drivers/mconsole_kern.c       |   26 +++++------
- arch/um/drivers/ubd_user.c            |   50 +++++++++++++---------
- arch/um/include/kern_util.h           |    7 +--
- arch/um/include/mem.h                 |    1 
- arch/um/include/os.h                  |    2 
- arch/um/include/user_util.h           |    1 
- arch/um/kernel/mem.c                  |   11 +---
- arch/um/kernel/mem_user.c             |   10 ++--
- arch/um/kernel/process.c              |    4 -
- arch/um/kernel/process_kern.c         |    7 ++-
- arch/um/kernel/skas/include/mode.h    |    1 
- arch/um/kernel/skas/include/uaccess.h |    2 
- arch/um/kernel/skas/process.c         |   16 ++++++-
- arch/um/kernel/skas/process_kern.c    |   12 ++---
- arch/um/kernel/skas/util/mk_ptregs.c  |    1 
- arch/um/kernel/time.c                 |   12 +++--
- arch/um/kernel/time_kern.c            |    2 
- arch/um/kernel/trap_kern.c            |    6 ++
- arch/um/kernel/trap_user.c            |    2 
- arch/um/kernel/tt/include/uaccess.h   |   31 +++++++------
- arch/um/kernel/tt/process_kern.c      |   37 +++++++---------
- arch/um/kernel/tt/ptproxy/proxy.c     |    8 +--
- arch/um/kernel/tt/tracer.c            |    4 -
- arch/um/kernel/tt/uaccess_user.c      |   14 ++++++
- arch/um/kernel/um_arch.c              |   19 +++++---
- arch/um/kernel/umid.c                 |   47 +++++++++++---------
- arch/um/kernel/user_util.c            |   11 ----
- arch/um/os-Linux/file.c               |   31 +++++++++++++
- arch/um/util/mk_constants_kern.c      |    4 +
- 32 files changed, 310 insertions(+), 151 deletions(-)
+unsigned long * bar0, *bar1, *bar2, *bar3, *bar4
 
-ChangeSet@1.1455.16.1, 2003-07-25 01:23:07-04:00, jdike@uml.karaya.com
-  Merge uml.karaya.com:/home/jdike/linux/2.5/linus-2.6.0-test1
-  into uml.karaya.com:/home/jdike/linux/2.5/fixes-2.5
+Thx.
 
-ChangeSet@1.1310.128.2, 2003-07-23 23:41:57-04:00, jdike@uml.karaya.com
-  Fixed the NSEC_PER_SEC problem, which was that this was a kernel
-  constant in a userspace file, by adding it to mk_constants, and
-  including that in time.h.
+David B. Stevens wrote:
 
-ChangeSet@1.1310.128.1, 2003-07-18 13:22:14-04:00, jdike@uml.karaya.com
-  Merge uml.karaya.com:/home/jdike/linux/2.5/linus-2.5.72
-  into uml.karaya.com:/home/jdike/linux/2.5/fixes-2.5
+> Scott,
+>
+> Maybe I'm blind but where is bar0[x] ... defined.
+>
+> Cheers,
+>   Dave
+>
+>
+> Scott Jacobsen wrote:
+>
+>> Hi.  Sorry for the intrusion but I've searched the archives and can't 
+>> seem to find the answer for my problem.
+>>
+>> After using mmap() map a peripheral card's PCI base address registers 
+>> to user space on my Dell Dimension 4550 (Dell BIOS), I cause a 
+>> segmentation fault by accessing the mapped memory.
+>>
+>> My OS is Redhat 9 and the underlying kernel is 2.4.20-8.  The code 
+>> works fine on a generic computer (Award BIOS) running exactly the 
+>> same kernel.
+>>
+>> My driver for the card also maps the PCI base address registers in 
+>> kernel space for the driver's usage, but like I mentioned, the code 
+>> works fine on the other computer.
+>>
+>> Here's my code and command line output (please pardon my non-gdb 
+>> testing procedure):
+>>
+>> ////////////////////// code /////////////////////////
+>>
+>> int Software_Radio::get_bars()
+>> {
+>>   printf("get_bars\n");        // TEST LINE
+>>   uchar config_data[256];
+>>   off_t physical_bars[5];
+>>
+>>   if(ioctl(filep, CONFIG_READ, config_data) == -1)
+>>     perror("\nSoftware_Radio::get_bars() ioctl() CONFIG_READ failed");
+>>
+>>   physical_bars[0]=((off_t)config_data[PCI_BASE_ADDRESS_0] |
+>>            ((off_t)config_data[PCI_BASE_ADDRESS_0 + 1] << 8) |
+>>            ((off_t)config_data[PCI_BASE_ADDRESS_0 + 2] << 16) |
+>>            ((off_t)config_data[PCI_BASE_ADDRESS_0 + 3] << 24) );
+>>   physical_bars[1]=((off_t)config_data[PCI_BASE_ADDRESS_1] |
+>>            ((off_t)config_data[PCI_BASE_ADDRESS_1 + 1] << 8) |
+>>            ((off_t)config_data[PCI_BASE_ADDRESS_1 + 2] << 16) |
+>>            ((off_t)config_data[PCI_BASE_ADDRESS_1 + 3] << 24) );
+>>   physical_bars[2]=((off_t)config_data[PCI_BASE_ADDRESS_2] |
+>>            ((off_t)config_data[PCI_BASE_ADDRESS_2 + 1] << 8) |
+>>            ((off_t)config_data[PCI_BASE_ADDRESS_2 + 2] << 16) |
+>>            ((off_t)config_data[PCI_BASE_ADDRESS_2 + 3] << 24) );
+>>   physical_bars[3]=((off_t)config_data[PCI_BASE_ADDRESS_3] |
+>>            ((off_t)config_data[PCI_BASE_ADDRESS_3 + 1] << 8) |
+>>            ((off_t)config_data[PCI_BASE_ADDRESS_3 + 2] << 16) |
+>>            ((off_t)config_data[PCI_BASE_ADDRESS_3 + 3] << 24) );
+>>   physical_bars[4]=((off_t)config_data[PCI_BASE_ADDRESS_4] |
+>>            ((off_t)config_data[PCI_BASE_ADDRESS_4 + 1] << 8) |
+>>            ((off_t)config_data[PCI_BASE_ADDRESS_4 + 2] << 16) |
+>>            ((off_t)config_data[PCI_BASE_ADDRESS_4 + 3] << 24) );
+>>
+>>   int fd;
+>>   if((fd=open("/dev/mem",O_RDWR)) < 0) {
+>>     perror("opening /dev/mem");
+>>     return -1;
+>>   }
+>>   unsigned long * remapped_bars[5];
+>>   void * temp;
+>>   for (int i = 0; i < 5; i++) {
+>>     if((temp = mmap(0,bar_sizes[i],PROT_WRITE | PROT_READ,
+>>             MAP_SHARED | MAP_FILE, fd, physical_bars[i])) < 0) {
+>>       printf("MMAP failed.  Reason: %s\n",strerror(errno));
+>>       return -1;
+>>     }
+>>     remapped_bars[i] = (unsigned long *)temp;
+>>   }
+>>   bar0 = remapped_bars[0];
+>>   printf("bar0 = 0x%x\n",&bar0);    // TEST LINE
+>>   printf("bar0[15] = 0x%x\n",bar0[0]);  // THIS LINE, OR ANY bar0[0] 
+>> CAUSES A SEGMENTATION FAULT
+>>   bar1 = remapped_bars[1];
+>>   bar2 = remapped_bars[2];
+>>   bar3 = remapped_bars[3];
+>>   bar4 = remapped_bars[4];
+>>   close(fd);
+>> }
+>>
+>> /////////////////// command line //////////////////
+>>
+>> [root@jacobsen swr]# ./test
+>> main:line 1           opening device /dev/sidrv0
+>> get_bars
+>> bar0 = 0xbfffe0b0
+>> Segmentation fault
+>> [root@jacobsen swr]#
+>>
+>>
+>> //////////////////////////////////////////////////
+>>
+>> Any suggestions?
+>>
+>> Thanks,
+>>
+>> Scott Jacobsen
+>> MSc(Eng) Student
+>> University of Calgary
+>>
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe 
+>> linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+>>
+>
+>
+>
 
-ChangeSet@1.1215.148.1, 2003-07-17 10:28:18-04:00, jdike@uml.karaya.com
-  Untangling my repositories - this adds the fixes that came over from
-  the 2.4 pool.
+-- 
+TRLabs
+#280, 3553 - 31 Street NW
+Calgary, Alberta T2L 2K7
+Canada
+
+Phone: 403-210-3530
+Fax: 403-282-5870
+
+Email: jacobsen@cal.trlabs.ca
+
+ 
+
+
+
+
+
+-- 
+TRLabs
+#280, 3553 - 31 Street NW
+Calgary, Alberta T2L 2K7
+Canada
+
+Phone: 403-210-3530
+Fax: 403-282-5870
+
+Email: jacobsen@cal.trlabs.ca
+
+ 
+
 

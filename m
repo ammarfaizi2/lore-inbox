@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316364AbSGLNYS>; Fri, 12 Jul 2002 09:24:18 -0400
+	id <S316390AbSGLN23>; Fri, 12 Jul 2002 09:28:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316390AbSGLNYR>; Fri, 12 Jul 2002 09:24:17 -0400
-Received: from pD9E235D3.dip.t-dialin.net ([217.226.53.211]:46723 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316364AbSGLNYR>; Fri, 12 Jul 2002 09:24:17 -0400
-Date: Fri, 12 Jul 2002 07:26:52 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Dawson Engler <engler@csl.Stanford.EDU>, <linux-kernel@vger.kernel.org>,
-       <mc@cs.Stanford.EDU>
-Subject: Re: [CHECKER] 56 potential lock/unlock bugs in 2.5.8 
-In-Reply-To: <32493.1026479849@redhat.com>
-Message-ID: <Pine.LNX.4.44.0207120726310.3421-100000@hawkeye.luckynet.adm>
-X-Location: Potsdam; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316408AbSGLN22>; Fri, 12 Jul 2002 09:28:28 -0400
+Received: from mark.mielke.cc ([216.209.85.42]:13583 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S316390AbSGLN20>;
+	Fri, 12 Jul 2002 09:28:26 -0400
+Date: Fri, 12 Jul 2002 09:24:42 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Christian Ludwig <cl81@gmx.net>
+Cc: Daniel Phillips <phillips@arcor.de>, Ville Herva <vherva@niksula.hut.fi>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: bzip2 support against 2.4.18
+Message-ID: <20020712092442.A26797@mark.mielke.cc>
+References: <003d01c22819$ba1818b0$1c6fa8c0@hyper> <20020711062832.GU1548@niksula.cs.hut.fi> <002601c228ab$86b235e0$1c6fa8c0@hyper> <E17SheA-0002Uh-00@starship> <000901c2296e$7cab2ed0$1c6fa8c0@hyper>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <000901c2296e$7cab2ed0$1c6fa8c0@hyper>; from cl81@gmx.net on Fri, Jul 12, 2002 at 08:36:41AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Jul 12, 2002 at 08:36:41AM +0200, Christian Ludwig wrote:
+> On 11.07.2001 - 19:21 Daniel Phillips wrote:
+> > How about bz2Image, or, more natural in my mind, bz2linux.
+> bzImage stands for "big zipped Image". Zipped, in this case, means that it
+> is gzipped. Perhaps Linus never wants to support other compression formats
+> for the kernel.
 
-On Fri, 12 Jul 2002, David Woodhouse wrote:
-> That one can't ever actually happen -- it's effectively a default case in a
-> switch statement which can't ever be reached because we'd never get that far
-> unless one of the real cases is going to be taken. I think I'll replace the
-> return statement with panic("The world is broken");
+> Sure "bz2bzImage" is a bit ugly. I personally would prefer bzImage.bz2,
+> although it is some kind of self-extracting executable, thus *.bz2 is also
+> not correct. But it would imply better which sort of compression you are
+> using. But that also means that the standard kernel has to be called
+> "bzImage.gz". I did not want to mess up the standard names...
 
-But don't forget to unlock_kernel() before ;-)
+I would suggest keeping bzImage as the actual kernel name, and the
+compression format to be a CONFIG parameter. This leaves all the
+installation notes correct. As the executable is self-extracting,
+there is no need for the type to be specified outside of the image.
 
-							Regards,
-							Thunder
+> But the question is: who is responsible for all those naming conventions?
+> Does anyone has an idea?
+
+Not me... probably Linus... :-)
+
+mark
+
 -- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
 

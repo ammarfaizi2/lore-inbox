@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261893AbTEZRQo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 13:16:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbTEZRQO
+	id S261863AbTEZRUF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 13:20:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbTEZRSr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 13:16:14 -0400
-Received: from d06lmsgate-4.uk.ibm.com ([195.212.29.4]:10724 "EHLO
+	Mon, 26 May 2003 13:18:47 -0400
+Received: from d06lmsgate-4.uk.ibm.com ([195.212.29.4]:10213 "EHLO
 	d06lmsgate-4.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S261872AbTEZRON (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 13:14:13 -0400
-Date: Mon, 26 May 2003 19:23:29 +0200
+	id S261872AbTEZRQ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 13:16:28 -0400
+Date: Mon, 26 May 2003 19:26:15 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] s390 (1/10): arch fixes.
-Message-ID: <20030526172328.GB3748@mschwid3.boeblingen.de.ibm.com>
+Subject: [PATCH] s390 (6/10): 31 bit compat.
+Message-ID: <20030526172615.GG3748@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,691 +21,836 @@ User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Base s390 bug fixes:
- - arch: Do create_proc_entry for debug feature outside spin locked code.
- - arch: Fix system call tracing for 64 bit kernels.
- - arch: Export empty_zero_page for use in binfmt_elf32 module.
- - arch: Fix call trace output and remove dead remote-debug code.
- - arch: Correct OUTPUT_ARCH for 64 bit compiles.
- - arch: Fix in_atomic.
- - arch: Fix broken _PAGE_INVALID_xxx definitions.
- - arch: Add __kernel_old_dev_t for 64 bit.
- - arch: adapt to new do_fork interface.
- - arch: set CR5 to get program checks for space switching instructions.
- - cio: Fix /proc output of blacklist ranges.
- - cio: Restructure chsc to avoid GFP_KERNEL allocation while holding a lock.
- - cio: Fix wait_cons_dev.
- - qdio: use GFP_ATOMIC for memory allocations in interrupt.
+s390 32 bit compatability fixes:
+ - Fix compat entries in the system call table.
+ - Update to new compat_ioctl mechanism.
+ - Define compat_alloc_user_space.
 
 diffstat:
- arch/s390/defconfig            |   10 +++++
- arch/s390/kernel/debug.c       |   16 ++++++---
- arch/s390/kernel/entry64.S     |    4 +-
- arch/s390/kernel/head.S        |    2 -
- arch/s390/kernel/head64.S      |    2 -
- arch/s390/kernel/process.c     |   21 +++--------
- arch/s390/kernel/s390_ksyms.c  |    1 
- arch/s390/kernel/smp.c         |    3 +
- arch/s390/kernel/traps.c       |   31 +++++------------
- arch/s390/vmlinux.lds.S        |    2 -
- drivers/s390/cio/blacklist.c   |    4 +-
- drivers/s390/cio/chsc.c        |   72 ++++++++++++++++++-----------------------
- drivers/s390/cio/cio.c         |    7 +--
- drivers/s390/cio/qdio.c        |    7 ++-
- include/asm-s390/hardirq.h     |    2 -
- include/asm-s390/pgtable.h     |    6 +--
- include/asm-s390/posix_types.h |    1 
- 17 files changed, 92 insertions(+), 99 deletions(-)
+ arch/s390/kernel/compat_ioctl.c   |  405 +++++++++++++++-----------------------
+ arch/s390/kernel/compat_wrapper.S |   27 ++
+ arch/s390/kernel/s390_ksyms.c     |   14 -
+ arch/s390/kernel/syscalls.S       |   18 -
+ include/asm-s390/compat.h         |   11 +
+ include/linux/compat_ioctl.h      |   22 ++
+ 6 files changed, 231 insertions(+), 266 deletions(-)
 
-diff -urN linux-2.5/arch/s390/defconfig linux-2.5-s390/arch/s390/defconfig
---- linux-2.5/arch/s390/defconfig	Mon May  5 01:53:40 2003
-+++ linux-2.5-s390/arch/s390/defconfig	Mon May 26 19:20:42 2003
-@@ -19,6 +19,9 @@
- # CONFIG_BSD_PROCESS_ACCT is not set
- CONFIG_SYSCTL=y
- CONFIG_LOG_BUF_SHIFT=17
-+# CONFIG_EMBEDDED is not set
-+CONFIG_FUTEX=y
-+CONFIG_EPOLL=y
- 
- #
- # Loadable module support
-@@ -162,6 +165,7 @@
- # CONFIG_IPV6_PRIVACY is not set
- # CONFIG_INET6_AH is not set
- # CONFIG_INET6_ESP is not set
-+# CONFIG_INET6_IPCOMP is not set
- # CONFIG_XFRM_USER is not set
- 
- #
-@@ -228,6 +232,10 @@
- #
- # Ethernet (1000 Mbit)
- #
-+
-+#
-+# Ethernet (10000 Mbit)
-+#
- # CONFIG_PPP is not set
- # CONFIG_SLIP is not set
- 
-@@ -262,6 +270,7 @@
- CONFIG_EXT3_FS=y
- CONFIG_EXT3_FS_XATTR=y
- # CONFIG_EXT3_FS_POSIX_ACL is not set
-+# CONFIG_EXT3_FS_SECURITY is not set
- CONFIG_JBD=y
- # CONFIG_JBD_DEBUG is not set
- CONFIG_FS_MBCACHE=y
-@@ -292,6 +301,7 @@
- CONFIG_PROC_FS=y
- # CONFIG_DEVFS_FS is not set
- CONFIG_DEVPTS_FS=y
-+# CONFIG_DEVPTS_FS_XATTR is not set
- # CONFIG_TMPFS is not set
- CONFIG_RAMFS=y
- 
-diff -urN linux-2.5/arch/s390/kernel/debug.c linux-2.5-s390/arch/s390/kernel/debug.c
---- linux-2.5/arch/s390/kernel/debug.c	Mon May 26 19:20:25 2003
-+++ linux-2.5-s390/arch/s390/kernel/debug.c	Mon May 26 19:20:42 2003
-@@ -851,9 +851,17 @@
- 	int i;
- 	unsigned long flags;
- 	mode_t mode = S_IFREG;
-+	struct proc_dir_entry *pde;
- 
- 	if (!id)
- 		goto out;
-+	pde = create_proc_entry(view->name, mode, id->proc_root_entry);
-+	if (!pde){
-+		printk(KERN_WARNING "debug: create_proc_entry() failed! Cannot register view %s/%s\n", id->name,view->name);
-+		rc = -1;
-+		goto out;
-+	}
-+
- 	spin_lock_irqsave(&id->lock, flags);
- 	for (i = 0; i < DEBUG_MAX_VIEWS; i++) {
- 		if (id->views[i] == NULL)
-@@ -864,6 +872,7 @@
- 			id->name,view->name);
- 		printk(KERN_WARNING 
- 			"debug: maximum number of views reached (%i)!\n", i);
-+		remove_proc_entry(pde->name, id->proc_root_entry);
- 		rc = -1;
- 	}
- 	else {
-@@ -872,11 +881,8 @@
- 			mode |= S_IRUSR;
- 		if (view->input_proc)
- 			mode |= S_IWUSR;
--		id->proc_entries[i] = create_proc_entry(view->name, mode,
--							id->proc_root_entry);
--		if (id->proc_entries[i] != NULL)
--			id->proc_entries[i]->proc_fops = &debug_file_ops;
--		rc = 0;
-+		pde->proc_fops = &debug_file_ops;
-+		id->proc_entries[i] = pde;
- 	}
- 	spin_unlock_irqrestore(&id->lock, flags);
-       out:
-diff -urN linux-2.5/arch/s390/kernel/entry64.S linux-2.5-s390/arch/s390/kernel/entry64.S
---- linux-2.5/arch/s390/kernel/entry64.S	Mon May  5 01:53:03 2003
-+++ linux-2.5-s390/arch/s390/kernel/entry64.S	Mon May 26 19:20:42 2003
-@@ -249,14 +249,14 @@
- # special linkage: %r12 contains the return address for trace_svc
- #
- sysc_tracesys:
--	srl	%r7,3
-+	srl	%r7,2
- 	stg     %r7,SP_R2(%r15)
-         brasl   %r14,syscall_trace
- 	larl	%r1,.Lnr_syscalls
- 	clc	SP_R2(8,%r15),0(%r1)
- 	jl	sysc_tracego
- 	lg	%r7,SP_R2(%r15)   # strace might have changed the
--	sll     %r7,3             #  system call
-+	sll     %r7,2             #  system call
- 	lgf	%r8,0(%r7,%r10)
- sysc_tracego:
- 	lmg     %r3,%r6,SP_R3(%r15)
-diff -urN linux-2.5/arch/s390/kernel/head.S linux-2.5-s390/arch/s390/kernel/head.S
---- linux-2.5/arch/s390/kernel/head.S	Mon May  5 01:53:08 2003
-+++ linux-2.5-s390/arch/s390/kernel/head.S	Mon May 26 19:20:42 2003
-@@ -573,7 +573,7 @@
-         .long  .Lduct                   # cr2: dispatchable unit control table
-         .long  0                        # cr3: instruction authorization
-         .long  0                        # cr4: instruction authorization
--        .long  0                        # cr5:  various things
-+        .long  0xffffffff               # cr5: primary-aste origin
-         .long  0                        # cr6:  I/O interrupts
-         .long  0                        # cr7:  secondary space segment table
-         .long  0                        # cr8:  access registers translation
-diff -urN linux-2.5/arch/s390/kernel/head64.S linux-2.5-s390/arch/s390/kernel/head64.S
---- linux-2.5/arch/s390/kernel/head64.S	Mon May  5 01:53:09 2003
-+++ linux-2.5-s390/arch/s390/kernel/head64.S	Mon May 26 19:20:42 2003
-@@ -586,7 +586,7 @@
-         .quad  .Lduct                   # cr2: dispatchable unit control table
-         .quad  0                        # cr3: instruction authorization
-         .quad  0                        # cr4: instruction authorization
--        .quad  0                        # cr5:  various things
-+        .quad  0xffffffffffffffff       # cr5: primary-aste origin
-         .quad  0                        # cr6:  I/O interrupts
-         .quad  0                        # cr7:  secondary space segment table
-         .quad  0                        # cr8:  access registers translation
-diff -urN linux-2.5/arch/s390/kernel/process.c linux-2.5-s390/arch/s390/kernel/process.c
---- linux-2.5/arch/s390/kernel/process.c	Mon May  5 01:53:36 2003
-+++ linux-2.5-s390/arch/s390/kernel/process.c	Mon May 26 19:20:42 2003
-@@ -166,7 +166,6 @@
- 
- int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
- {
--	struct task_struct *p;
- 	struct pt_regs regs;
- 
- 	memset(&regs, 0, sizeof(regs));
-@@ -180,8 +179,8 @@
- 	regs.orig_gpr2 = -1;
- 
- 	/* Ok, create the new process.. */
--	p = do_fork(flags | CLONE_VM | CLONE_UNTRACED, 0, &regs, 0, NULL, NULL);
--	return IS_ERR(p) ? PTR_ERR(p) : p->pid;
-+	return do_fork(flags | CLONE_VM | CLONE_UNTRACED,
-+		       0, &regs, 0, NULL, NULL);
- }
- 
- /*
-@@ -272,16 +271,13 @@
- 
- asmlinkage int sys_fork(struct pt_regs regs)
- {
--	struct task_struct *p;
--        p = do_fork(SIGCHLD, regs.gprs[15], &regs, 0, NULL, NULL);
--	return IS_ERR(p) ? PTR_ERR(p) : p->pid;
-+	return do_fork(SIGCHLD, regs.gprs[15], &regs, 0, NULL, NULL);
- }
- 
- asmlinkage int sys_clone(struct pt_regs regs)
- {
-         unsigned long clone_flags;
-         unsigned long newsp;
--	struct task_struct *p;
- 	int *parent_tidptr, *child_tidptr;
- 
-         clone_flags = regs.gprs[3];
-@@ -290,9 +286,8 @@
- 	child_tidptr = (int *) regs.gprs[5];
-         if (!newsp)
-                 newsp = regs.gprs[15];
--        p = do_fork(clone_flags & ~CLONE_IDLETASK, newsp, &regs, 0,
--		    parent_tidptr, child_tidptr);
--	return IS_ERR(p) ? PTR_ERR(p) : p->pid;
-+        return do_fork(clone_flags & ~CLONE_IDLETASK, newsp, &regs, 0,
-+		       parent_tidptr, child_tidptr);
- }
- 
- /*
-@@ -307,10 +302,8 @@
+diff -urN linux-2.5/arch/s390/kernel/compat_ioctl.c linux-2.5-s390/arch/s390/kernel/compat_ioctl.c
+--- linux-2.5/arch/s390/kernel/compat_ioctl.c	Mon May  5 01:53:34 2003
++++ linux-2.5-s390/arch/s390/kernel/compat_ioctl.c	Mon May 26 19:20:46 2003
+@@ -11,32 +11,57 @@
+  *
   */
- asmlinkage int sys_vfork(struct pt_regs regs)
- {
--	struct task_struct *p;
--	p = do_fork(CLONE_VFORK | CLONE_VM | SIGCHLD,
--		    regs.gprs[15], &regs, 0, NULL, NULL);
--	return IS_ERR(p) ? PTR_ERR(p) : p->pid;
-+	return do_fork(CLONE_VFORK | CLONE_VM | SIGCHLD,
-+		       regs.gprs[15], &regs, 0, NULL, NULL);
- }
  
- /*
-diff -urN linux-2.5/arch/s390/kernel/s390_ksyms.c linux-2.5-s390/arch/s390/kernel/s390_ksyms.c
---- linux-2.5/arch/s390/kernel/s390_ksyms.c	Mon May 26 19:20:25 2003
-+++ linux-2.5-s390/arch/s390/kernel/s390_ksyms.c	Mon May 26 19:20:42 2003
-@@ -59,6 +59,7 @@
- EXPORT_SYMBOL(dump_fpu);
- EXPORT_SYMBOL(overflowuid);
- EXPORT_SYMBOL(overflowgid);
-+EXPORT_SYMBOL(empty_zero_page);
- 
- #ifdef CONFIG_S390_SUPPORT
- /*
-diff -urN linux-2.5/arch/s390/kernel/smp.c linux-2.5-s390/arch/s390/kernel/smp.c
---- linux-2.5/arch/s390/kernel/smp.c	Mon May  5 01:52:48 2003
-+++ linux-2.5-s390/arch/s390/kernel/smp.c	Mon May 26 19:20:42 2003
-@@ -469,7 +469,7 @@
-        /* don't care about the psw and regs settings since we'll never
-           reschedule the forked task. */
-        memset(&regs,0,sizeof(struct pt_regs));
--       return do_fork(CLONE_VM|CLONE_IDLETASK, 0, &regs, 0, NULL, NULL);
-+       return copy_process(CLONE_VM|CLONE_IDLETASK, 0, &regs, 0, NULL, NULL);
- }
- 
- int __cpu_up(unsigned int cpu)
-@@ -498,6 +498,7 @@
-                 printk("failed fork for CPU %d", cpu);
- 		return -EIO;
- 	}
-+	wake_up_forked_process(idle);
- 
-         /*
-          * We remove it from the pidhash and the runqueue
-diff -urN linux-2.5/arch/s390/kernel/traps.c linux-2.5-s390/arch/s390/kernel/traps.c
---- linux-2.5/arch/s390/kernel/traps.c	Mon May 26 19:20:25 2003
-+++ linux-2.5-s390/arch/s390/kernel/traps.c	Mon May 26 19:20:42 2003
-@@ -282,7 +282,7 @@
-                 const struct exception_table_entry *fixup;
-                 fixup = search_exception_tables(regs->psw.addr & PSW_ADDR_INSN);
-                 if (fixup)
--                        regs->psw.addr = fixup->fixup | ~PSW_ADDR_INSN;
-+                        regs->psw.addr = fixup->fixup | PSW_ADDR_AMODE;
-                 else
-                         die(str, regs, interruption_code);
-         }
-@@ -293,27 +293,14 @@
- 	return (void *)((regs->psw.addr-S390_lowcore.pgm_ilc) & PSW_ADDR_INSN);
- }
- 
--int do_debugger_trap(struct pt_regs *regs,int signal)
-+static int do_debugger_trap(struct pt_regs *regs)
- {
--	if(regs->psw.mask&PSW_MASK_PSTATE)
--	{
--		if(current->ptrace & PT_PTRACED)
--			force_sig(signal,current);
--		else
--			return 1;
--	}
--	else
--	{
--#ifdef CONFIG_REMOTE_DEBUG
--		if(gdb_stub_initialised)
--		{
--			gdb_stub_handle_exception(regs, signal);
--			return 0;
--		}
--#endif
--		return 1;
-+	if ((regs->psw.mask & PSW_MASK_PSTATE) &&
-+	    (current->ptrace & PT_PTRACED)) {
-+		force_sig(SIGTRAP,current);
-+		return 0;
- 	}
--	return 0;
-+	return 1;
- }
- 
- #define DO_ERROR(signr, str, name) \
-@@ -400,7 +387,7 @@
- 		*((__u16 *)opcode)=*((__u16 *)location);
- 	if (*((__u16 *)opcode)==S390_BREAKPOINT_U16)
-         {
--		if(do_debugger_trap(regs,SIGTRAP))
-+		if(do_debugger_trap(regs))
- 			signal = SIGILL;
- 	}
- #ifdef CONFIG_MATHEMU
-@@ -659,7 +646,7 @@
- 		per_info->lowcore.words.address=S390_lowcore.per_address;
- 		per_info->lowcore.words.access_id=S390_lowcore.per_access_id;
- 	}
--	if (do_debugger_trap(regs,SIGTRAP)) {
-+	if (do_debugger_trap(regs)) {
- 		/* I've seen this possibly a task structure being reused ? */
- 		printk("Spurious per exception detected\n");
- 		printk("switching off per tracing for this task.\n");
-diff -urN linux-2.5/arch/s390/vmlinux.lds.S linux-2.5-s390/arch/s390/vmlinux.lds.S
---- linux-2.5/arch/s390/vmlinux.lds.S	Mon May  5 01:53:12 2003
-+++ linux-2.5-s390/arch/s390/vmlinux.lds.S	Mon May 26 19:20:42 2003
-@@ -12,7 +12,7 @@
- jiffies = jiffies_64 + 4;
- #else
- OUTPUT_FORMAT("elf64-s390", "elf64-s390", "elf64-s390")
--OUTPUT_ARCH(s390)
-+OUTPUT_ARCH(s390:64-bit)
- ENTRY(_start)
- jiffies = jiffies_64;
- #endif
-diff -urN linux-2.5/drivers/s390/cio/blacklist.c linux-2.5-s390/drivers/s390/cio/blacklist.c
---- linux-2.5/drivers/s390/cio/blacklist.c	Mon May  5 01:53:09 2003
-+++ linux-2.5-s390/drivers/s390/cio/blacklist.c	Mon May 26 19:20:42 2003
-@@ -1,7 +1,7 @@
- /*
-  *  drivers/s390/cio/blacklist.c
-  *   S/390 common I/O routines -- blacklisting of specific devices
-- *   $Revision: 1.23 $
-+ *   $Revision: 1.24 $
-  *
-  *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
-  *			      IBM Corporation
-@@ -197,7 +197,7 @@
- 			while (++devno < __MAX_SUBCHANNELS)
- 				if (!test_bit(devno, bl_dev))
- 					break;
--			len += sprintf(page + len, "-0x%04lx", devno);
-+			len += sprintf(page + len, "-0x%04lx", --devno);
- 		}
- 		len += sprintf(page + len, "\n");
- 	}
-diff -urN linux-2.5/drivers/s390/cio/chsc.c linux-2.5-s390/drivers/s390/cio/chsc.c
---- linux-2.5/drivers/s390/cio/chsc.c	Mon May  5 01:53:31 2003
-+++ linux-2.5-s390/drivers/s390/cio/chsc.c	Mon May 26 19:20:42 2003
-@@ -1,7 +1,7 @@
- /*
-  *  drivers/s390/cio/chsc.c
-  *   S/390 common I/O routines -- channel subsystem call
-- *   $Revision: 1.67 $
-+ *   $Revision: 1.69 $
-  *
-  *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
-  *			      IBM Corporation
-@@ -71,12 +71,11 @@
- }
- 
- /* FIXME: this is _always_ called for every subchannel. shouldn't we
-- *	  process more than one at a time?*/
-+ *	  process more than one at a time? */
- static int
--chsc_get_sch_desc_irq(int irq)
-+chsc_get_sch_desc_irq(int irq, void *page)
- {
- 	int ccode, chpid, j;
--	int ret;
- 
- 	struct {
- 		struct chsc_header request;
-@@ -100,11 +99,7 @@
- 		u16 fla[8];	  /* full link addresses 0-7 */
- 	} *ssd_area;
- 
--	ssd_area = (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
--	if (!ssd_area) {
--		CIO_CRW_EVENT(0, "No memory for ssd area!\n");
--		return -ENOMEM;
--	}
-+	ssd_area = page;
- 
- 	ssd_area->request = (struct chsc_header) {
- 		.length = 0x0010,
-@@ -117,34 +112,29 @@
- 	ccode = chsc(ssd_area);
- 	if (ccode > 0) {
- 		pr_debug("chsc returned with ccode = %d\n", ccode);
--		ret = (ccode == 3) ? -ENODEV : -EBUSY;
--		goto out;
-+		return (ccode == 3) ? -ENODEV : -EBUSY;
- 	}
- 
- 	switch (ssd_area->response.code) {
- 	case 0x0001: /* everything ok */
--		ret = 0;
- 		break;
- 	case 0x0002:
- 		CIO_CRW_EVENT(2, "Invalid command!\n");
- 	case 0x0003:
- 		CIO_CRW_EVENT(2, "Error in chsc request block!\n");
--		ret = -EINVAL;
-+		return -EINVAL;
- 		break;
- 	case 0x0004:
- 		CIO_CRW_EVENT(2, "Model does not provide ssd\n");
--		ret = -EOPNOTSUPP;
-+		return -EOPNOTSUPP;
- 		break;
- 	default:
- 		CIO_CRW_EVENT(2, "Unknown CHSC response %d\n",
- 			      ssd_area->response.code);
--		ret = -EIO;
-+		return -EIO;
- 		break;
- 	}
- 
--	if (ret != 0)
--		goto out;
--
- 	/*
- 	 * ssd_area->st stores the type of the detected
- 	 * subchannel, with the following definitions:
-@@ -167,14 +157,14 @@
- 		 * time since this code was written; since we don't know which
- 		 * fields have meaning and what to do with it we just jump out
- 		 */
--		goto out;
-+		return 0;
- 	} else {
- 		const char *type[4] = {"I/O", "chsc", "message", "ADM"};
- 		CIO_CRW_EVENT(6, "ssd: sch %x is %s subchannel\n",
- 			      irq, type[ssd_area->st]);
- 		if (ioinfo[irq] == NULL)
- 			/* FIXME: we should do device rec. here... */
--			goto out;
-+			return 0;
- 
- 		ioinfo[irq]->ssd_info.valid = 1;
- 		ioinfo[irq]->ssd_info.type = ssd_area->st;
-@@ -195,9 +185,8 @@
- 			ioinfo[irq]->ssd_info.fla[j]   = ssd_area->fla[j];
- 		}
- 	}
--out:
--	free_page ((unsigned long) ssd_area);
--	return ret;
+-#include <linux/types.h>
+ #include <linux/compat.h>
++#include <linux/init.h>
++#include <linux/ioctl32.h>
+ #include <linux/kernel.h>
+-#include <linux/fs.h>
+-#include <linux/sched.h>
+ #include <linux/mm.h>
+-#include <linux/init.h>
++#include <linux/sched.h>
++#include <linux/types.h>
 +
-+	return 0;
- }
- 
- static int
-@@ -205,6 +194,7 @@
- {
- 	int irq;
- 	int err;
-+	void *page;
- 
- 	CIO_TRACE_EVENT( 4, "gsdesc");
- 
-@@ -212,11 +202,15 @@
- 	 * get information about chpids and link addresses
- 	 * by executing the chsc command 'store subchannel description'
- 	 */
-+	page = (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
-+	if (!page)
-+		return -ENOMEM;
++#include <asm/ioctls.h>
++#include <asm/types.h>
++#include <asm/uaccess.h>
 +
- 	for (irq = 0; irq <= highest_subchannel; irq++) {
- 		/*
- 		 * retrieve information for each sch
- 		 */
--		err = chsc_get_sch_desc_irq(irq);
-+		err = chsc_get_sch_desc_irq(irq, page);
- 		if (err) {
- 			static int cio_chsc_err_msg;
++#include <linux/blk.h>
++#include <linux/blkpg.h>
++#include <linux/cdrom.h>
++#include <linux/dm-ioctl.h>
++#include <linux/elevator.h>
+ #include <linux/file.h>
+-#include <linux/vt.h>
++#include <linux/fs.h>
++#include <linux/hdreg.h>
+ #include <linux/kd.h>
++#include <linux/loop.h>
++#include <linux/lp.h>
++#include <linux/mtio.h>
+ #include <linux/netdevice.h>
++#include <linux/nbd.h>
++#include <linux/ppp_defs.h>
++#include <linux/raid/md_u.h>
++#include <linux/random.h>
++#include <linux/raw.h>
+ #include <linux/route.h>
++#include <linux/vt.h>
++#include <linux/watchdog.h>
++
++#include <linux/auto_fs.h>
++#include <linux/devfs_fs.h>
+ #include <linux/ext2_fs.h>
+-#include <linux/hdreg.h>
++#include <linux/smb_fs.h>
++
+ #include <linux/if_bonding.h>
+-#include <linux/blkpg.h>
+-#include <linux/blk.h>
+-#include <linux/dm-ioctl.h>
+-#include <linux/loop.h>
+-#include <linux/elevator.h>
+-#include <asm/types.h>
+-#include <asm/uaccess.h>
++#include <linux/if_ppp.h>
++#include <linux/if_pppox.h>
++#include <linux/if_tun.h>
++
++#include <scsi/scsi.h>
++#include <scsi/scsi_ioctl.h>
++#include <scsi/sg.h>
++
+ #include <asm/dasd.h>
+-#include <asm/tape390.h>
+ #include <asm/sockios.h>
+-#include <asm/ioctls.h>
++#include <asm/tape390.h>
  
-@@ -230,8 +224,10 @@
- 			}
- 			return err;
- 		}
-+		clear_page(page);
- 	}
- 	cio_chsc_desc_avail = 1;
-+	free_page((unsigned long)page);
+ #include "compat_linux.h"
+ 
+@@ -49,7 +74,8 @@
+ 	__u32		start;
+ };  
+ 
+-static inline int hd_geometry_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
++static inline int hd_geometry_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg,
++				    struct file *f)
+ {
+ 	struct hd_geometry32 *hg32 = (struct hd_geometry32 *) A(arg);
+ 	struct hd_geometry hg;
+@@ -112,7 +138,8 @@
+         __u32	ifcbuf;
+ };
+ 
+-static int dev_ifname32(unsigned int fd, unsigned int cmd, unsigned long arg)
++static int dev_ifname32(unsigned int fd, unsigned int cmd,
++			unsigned long arg, struct file *f)
+ {
+ 	struct ireq32 *uir32 = (struct ireq32 *) A(arg);
+ 	struct net_device *dev;
+@@ -137,8 +164,8 @@
  	return 0;
  }
  
-@@ -352,14 +348,14 @@
- 
- static int
- s390_process_res_acc_sch(u8 chpid, __u16 fla, u32 fla_mask,
--			 struct subchannel *sch)
-+			 struct subchannel *sch, void *page)
+-static inline int dev_ifconf(unsigned int fd, unsigned int cmd,
+-			     unsigned long arg)
++static int dev_ifconf(unsigned int fd, unsigned int cmd,
++		      unsigned long arg, struct file *f)
  {
- 	int found;
- 	int chp;
- 	int ccode;
- 	
- 	/* Update our ssd_info */
--	if (chsc_get_sch_desc_irq(sch->irq))
-+	if (chsc_get_sch_desc_irq(sch->irq, page))
- 		return 0;
- 	
- 	found = 0;
-@@ -396,6 +392,7 @@
- 	int irq;
- 	int ret;
- 	char dbf_txt[15];
-+	void *page;
- 
- 	sprintf(dbf_txt, "accpr%x", chpid);
- 	CIO_TRACE_EVENT( 2, dbf_txt);
-@@ -412,22 +409,13 @@
- 	 * will we have to do.
- 	 */
- 
--	if (!cio_chsc_desc_avail)
--		chsc_get_sch_descriptions();
--
--	if (!cio_chsc_desc_avail) {
--		/*
--		 * Something went wrong...
--		 */
--		CIO_CRW_EVENT(0, "Error: Could not retrieve "
--			      "subchannel descriptions, will not process css"
--			      "machine check...\n");
--		return;
--	}
--
- 	if (!test_bit(chpid, chpids_logical))
- 		return; /* no need to do the rest */
- 
-+	page = (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
-+	if (!page)
-+		return;
-+
- 	for (irq = 0; irq < __MAX_SUBCHANNELS; irq++) {
- 		int chp_mask;
- 
-@@ -450,7 +438,10 @@
- 	
- 		spin_lock_irq(&sch->lock);
- 
--		chp_mask = s390_process_res_acc_sch(chpid, fla, fla_mask, sch);
-+		chp_mask = s390_process_res_acc_sch(chpid, fla, fla_mask,
-+						    sch, page);
-+		clear_page(page);
-+
- 		if (chp_mask == 0) {
- 
- 			spin_unlock_irq(&sch->lock);
-@@ -475,6 +466,7 @@
- 		if (fla_mask != 0)
- 			break;
- 	}
-+	free_page((unsigned long)page);
+ 	struct ioconf32 *uifc32 = (struct ioconf32 *) A(arg);
+ 	struct ifconf32 ifc32;
+@@ -202,7 +229,8 @@
+ 	return err;
  }
  
- static void
-diff -urN linux-2.5/drivers/s390/cio/cio.c linux-2.5-s390/drivers/s390/cio/cio.c
---- linux-2.5/drivers/s390/cio/cio.c	Mon May  5 01:53:56 2003
-+++ linux-2.5-s390/drivers/s390/cio/cio.c	Mon May 26 19:20:42 2003
-@@ -1,7 +1,7 @@
- /*
-  *  drivers/s390/cio/cio.c
-  *   S/390 common I/O routines -- low level i/o calls
-- *   $Revision: 1.97 $
-+ *   $Revision: 1.98 $
-  *
-  *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
-  *			      IBM Corporation
-@@ -146,7 +146,7 @@
- 		/* Not status pending or not operational. */
- 		return 1;
- 	sch = ioinfo[tpi_info->irq];
--	if (sch)
-+	if (!sch)
- 		return 1;
- 	irq_enter ();
- 	spin_lock(&sch->lock);
-@@ -658,8 +658,7 @@
- 	 * before entering the spinlock we may already have
- 	 * processed the interrupt on a different CPU...
- 	 */
--	if (!console_subchannel_in_use ||
--	    console_subchannel.schib.scsw.actl == 0)
-+	if (!console_subchannel_in_use)
- 		return;
+-static int bond_ioctl(unsigned long fd, unsigned int cmd, unsigned long arg)
++static int bond_ioctl(unsigned int fd, unsigned int cmd,
++		      unsigned long arg, struct file *f)
+ {
+ 	struct ifreq ifr;
+ 	mm_segment_t old_fs;
+@@ -254,8 +282,8 @@
+ 	return err;
+ }
  
- 	/* disable all but isc 7 (console device) */
-diff -urN linux-2.5/drivers/s390/cio/qdio.c linux-2.5-s390/drivers/s390/cio/qdio.c
---- linux-2.5/drivers/s390/cio/qdio.c	Mon May  5 01:53:32 2003
-+++ linux-2.5-s390/drivers/s390/cio/qdio.c	Mon May 26 19:20:42 2003
-@@ -55,7 +55,7 @@
- #include "ioasm.h"
- #include "chsc.h"
+-static inline int dev_ifsioc(unsigned int fd, unsigned int cmd,
+-			     unsigned long arg)
++static int dev_ifsioc(unsigned int fd, unsigned int cmd,
++			     unsigned long arg, struct file *f)
+ {
+ 	struct ifreq32 *uifr = (struct ifreq32 *) A(arg);
+ 	struct ifreq ifr;
+@@ -335,7 +363,8 @@
+ 	unsigned short	rt_irtt;	/* Initial RTT			*/
+ };
  
--#define VERSION_QDIO_C "$Revision: 1.48 $"
-+#define VERSION_QDIO_C "$Revision: 1.49 $"
+-static inline int routing_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
++static int routing_ioctl(unsigned int fd, unsigned int cmd,
++			 unsigned long arg, struct file *f)
+ {
+ 	struct rtentry32 *ur = (struct rtentry32 *) A(arg);
+ 	struct rtentry r;
+@@ -364,7 +393,8 @@
+ 	return ret;
+ }
  
- /****************** MODULE PARAMETER VARIABLES ********************/
- MODULE_AUTHOR("Utz Bacher <utz.bacher@de.ibm.com>");
-@@ -1668,6 +1668,7 @@
+-static int do_ext2_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
++static int do_ext2_ioctl(unsigned int fd, unsigned int cmd,
++			 unsigned long arg, struct file *f)
+ {
+ 	/* These are just misnamed, they actually get/put from/to user an int */
+ 	switch (cmd) {
+@@ -392,7 +422,8 @@
+ 	char			reserved[4];
+ };
  
- 	switch (irq_ptr->state) {
- 	case QDIO_IRQ_STATE_INACTIVE:
-+		/* FIXME: defer this past interrupt time */
- 		qdio_establish_handle_irq(cdev, cstat, dstat);
- 		break;
- 
-@@ -1763,7 +1764,8 @@
- 		u8  ocnt;
- 	} *ssqd_area;
- 
--	ssqd_area = (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
-+	/* FIXME make this GFP_KERNEL */
-+	ssqd_area = (void *)get_zeroed_page(GFP_ATOMIC | GFP_DMA);
- 	if (!ssqd_area) {
- 	        QDIO_PRINT_WARN("Could not get memory for chsc. Using all " \
- 				"SIGAs for sch x%x.\n", sch);
-@@ -2644,6 +2646,7 @@
- 		return result;
- 	}
+-static int loop_status(unsigned int fd, unsigned int cmd, unsigned long arg)
++static int loop_status(unsigned int fd, unsigned int cmd,
++		       unsigned long arg, struct file *f)
+ {
+ 	mm_segment_t old_fs = get_fs();
+ 	struct loop_info l;
+@@ -448,10 +479,12 @@
+ 	u32 data;
+ };
+                                 
+-static int blkpg_ioctl_trans(unsigned int fd, unsigned int cmd, struct blkpg_ioctl_arg32 *arg)
++static int blkpg_ioctl_trans(unsigned int fd, unsigned int cmd,
++			     unsigned long uarg, struct file *f)
+ {
+ 	struct blkpg_ioctl_arg a;
+ 	struct blkpg_partition p;
++	struct blkpg_ioctl_arg32 *arg = (void*)A(uarg);
+ 	int err;
+ 	mm_segment_t old_fs = get_fs();
  	
-+	/* FIXME: don't wait forever if hardware is broken */
- 	wait_event(cdev->private->wait_q,
- 		   irq_ptr->state == QDIO_IRQ_STATE_ESTABLISHED ||
- 		   irq_ptr->state == QDIO_IRQ_STATE_ERR);
-diff -urN linux-2.5/include/asm-s390/hardirq.h linux-2.5-s390/include/asm-s390/hardirq.h
---- linux-2.5/include/asm-s390/hardirq.h	Mon May 26 19:20:29 2003
-+++ linux-2.5-s390/include/asm-s390/hardirq.h	Mon May 26 19:20:42 2003
-@@ -83,7 +83,7 @@
- #define invoke_softirq() do_call_softirq()
+@@ -541,7 +574,7 @@
+ #define ICAZ90HARDRESET _IOC(_IOC_NONE, ICA_IOCTL_MAGIC, 0x12, 0)
+ #define ICAZ90HARDERROR _IOC(_IOC_NONE, ICA_IOCTL_MAGIC, 0x13, 0)
  
- #ifdef CONFIG_PREEMPT
--# define in_atomic()	(in_interrupt() || preempt_count() == PREEMPT_ACTIVE)
-+# define in_atomic()	((preempt_count() & ~PREEMPT_ACTIVE) != kernel_locked())
- # define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
- #else
- # define in_atomic()	(preempt_count() != 0)
-diff -urN linux-2.5/include/asm-s390/pgtable.h linux-2.5-s390/include/asm-s390/pgtable.h
---- linux-2.5/include/asm-s390/pgtable.h	Mon May  5 01:53:37 2003
-+++ linux-2.5-s390/include/asm-s390/pgtable.h	Mon May 26 19:20:42 2003
-@@ -218,9 +218,9 @@
- /* Mask and four different kinds of invalid pages. */
- #define _PAGE_INVALID_MASK	0x601
- #define _PAGE_INVALID_EMPTY	0x400
--#define _PAGE_INVALID_NONE	0x001
--#define _PAGE_INVALID_SWAP	0x200
--#define _PAGE_INVALID_FILE	0x201
-+#define _PAGE_INVALID_NONE	0x401
-+#define _PAGE_INVALID_SWAP	0x600
-+#define _PAGE_INVALID_FILE	0x601
+-static int do_rsa_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
++static int do_rsa_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg, struct file *f)
+ {
+ 	mm_segment_t old_fs = get_fs();
+ 	int err = 0;
+@@ -622,7 +655,8 @@
+ 	return err;
+ }
  
- #ifndef __s390x__
+-static int do_rsa_crt_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
++static int do_rsa_crt_ioctl(unsigned int fd, unsigned int cmd,
++			    unsigned long arg, struct file *f)
+ {
+ 	mm_segment_t old_fs = get_fs();
+ 	int err = 0;
+@@ -745,7 +779,8 @@
+ 	return err;
+ }
  
-diff -urN linux-2.5/include/asm-s390/posix_types.h linux-2.5-s390/include/asm-s390/posix_types.h
---- linux-2.5/include/asm-s390/posix_types.h	Mon May  5 01:52:48 2003
-+++ linux-2.5-s390/include/asm-s390/posix_types.h	Mon May 26 19:20:42 2003
-@@ -65,6 +65,7 @@
- typedef __kernel_gid_t __kernel_old_gid_t;
- typedef __kernel_uid_t __kernel_uid32_t;
- typedef __kernel_gid_t __kernel_gid32_t;
-+typedef unsigned short __kernel_old_dev_t;
+-static int w_long(unsigned int fd, unsigned int cmd, unsigned long arg)
++static int w_long(unsigned int fd, unsigned int cmd, unsigned long arg,
++		  struct file *f)
+ {
+ 	mm_segment_t old_fs = get_fs();
+ 	int err;
+@@ -759,216 +794,106 @@
+ 	return err;
+ }
  
- #endif /* __s390x__ */
+-struct ioctl32_handler {
+-	unsigned int cmd;
+-	int (*function)(unsigned int, unsigned int, unsigned long);
+-};
+-
+-struct ioctl32_list {
+-	struct ioctl32_handler handler;
+-	struct ioctl32_list *next;
+-};
+-
+-#define IOCTL32_DEFAULT(cmd)		{ { cmd, (void *) sys_ioctl }, 0 }
+-#define IOCTL32_HANDLER(cmd, handler)	{ { cmd, (void *) handler }, 0 }
+-
+-static struct ioctl32_list ioctl32_handler_table[] = {
+-	IOCTL32_DEFAULT(FIBMAP),
+-	IOCTL32_DEFAULT(FIGETBSZ),
+-
+-	IOCTL32_DEFAULT(DASDAPIVER),
+-	IOCTL32_DEFAULT(BIODASDDISABLE),
+-	IOCTL32_DEFAULT(BIODASDENABLE),
+-	IOCTL32_DEFAULT(BIODASDRSRV),
+-	IOCTL32_DEFAULT(BIODASDRLSE),
+-	IOCTL32_DEFAULT(BIODASDSLCK),
+-	IOCTL32_DEFAULT(BIODASDINFO),
+-	IOCTL32_DEFAULT(BIODASDFMT),
+-
+-	IOCTL32_DEFAULT(TAPE390_DISPLAY),
+-
+-	IOCTL32_DEFAULT(BLKROSET),
+-	IOCTL32_DEFAULT(BLKROGET),
+-	IOCTL32_DEFAULT(BLKRRPART),
+-	IOCTL32_DEFAULT(BLKFLSBUF),
+-	IOCTL32_DEFAULT(BLKRASET),
+-	IOCTL32_DEFAULT(BLKFRASET),
+-	IOCTL32_DEFAULT(BLKSECTSET),
+-	IOCTL32_DEFAULT(BLKSSZGET),
+-	IOCTL32_DEFAULT(BLKBSZGET),
+-	IOCTL32_DEFAULT(BLKGETSIZE64),
+-
+-	IOCTL32_HANDLER(HDIO_GETGEO, hd_geometry_ioctl),
+-
+-	IOCTL32_DEFAULT(TCGETA),
+-	IOCTL32_DEFAULT(TCSETA),
+-	IOCTL32_DEFAULT(TCSETAW),
+-	IOCTL32_DEFAULT(TCSETAF),
+-	IOCTL32_DEFAULT(TCSBRK),
+-	IOCTL32_DEFAULT(TCSBRKP),
+-	IOCTL32_DEFAULT(TCXONC),
+-	IOCTL32_DEFAULT(TCFLSH),
+-	IOCTL32_DEFAULT(TCGETS),
+-	IOCTL32_DEFAULT(TCSETS),
+-	IOCTL32_DEFAULT(TCSETSW),
+-	IOCTL32_DEFAULT(TCSETSF),
+-	IOCTL32_DEFAULT(TIOCLINUX),
+-
+-	IOCTL32_DEFAULT(TIOCGETD),
+-	IOCTL32_DEFAULT(TIOCSETD),
+-	IOCTL32_DEFAULT(TIOCEXCL),
+-	IOCTL32_DEFAULT(TIOCNXCL),
+-	IOCTL32_DEFAULT(TIOCCONS),
+-	IOCTL32_DEFAULT(TIOCGSOFTCAR),
+-	IOCTL32_DEFAULT(TIOCSSOFTCAR),
+-	IOCTL32_DEFAULT(TIOCSWINSZ),
+-	IOCTL32_DEFAULT(TIOCGWINSZ),
+-	IOCTL32_DEFAULT(TIOCMGET),
+-	IOCTL32_DEFAULT(TIOCMBIC),
+-	IOCTL32_DEFAULT(TIOCMBIS),
+-	IOCTL32_DEFAULT(TIOCMSET),
+-	IOCTL32_DEFAULT(TIOCPKT),
+-	IOCTL32_DEFAULT(TIOCNOTTY),
+-	IOCTL32_DEFAULT(TIOCSTI),
+-	IOCTL32_DEFAULT(TIOCOUTQ),
+-	IOCTL32_DEFAULT(TIOCSPGRP),
+-	IOCTL32_DEFAULT(TIOCGPGRP),
+-	IOCTL32_DEFAULT(TIOCSCTTY),
+-	IOCTL32_DEFAULT(TIOCGPTN),
+-	IOCTL32_DEFAULT(TIOCSPTLCK),
+-	IOCTL32_DEFAULT(TIOCGSERIAL),
+-	IOCTL32_DEFAULT(TIOCSSERIAL),
+-	IOCTL32_DEFAULT(TIOCSERGETLSR),
+-
+-	IOCTL32_DEFAULT(FIOCLEX),
+-	IOCTL32_DEFAULT(FIONCLEX),
+-	IOCTL32_DEFAULT(FIOASYNC),
+-	IOCTL32_DEFAULT(FIONBIO),
+-	IOCTL32_DEFAULT(FIONREAD),
+-
+-	IOCTL32_DEFAULT(PIO_FONT),
+-	IOCTL32_DEFAULT(GIO_FONT),
+-	IOCTL32_DEFAULT(KDSIGACCEPT),
+-	IOCTL32_DEFAULT(KDGETKEYCODE),
+-	IOCTL32_DEFAULT(KDSETKEYCODE),
+-	IOCTL32_DEFAULT(KIOCSOUND),
+-	IOCTL32_DEFAULT(KDMKTONE),
+-	IOCTL32_DEFAULT(KDGKBTYPE),
+-	IOCTL32_DEFAULT(KDSETMODE),
+-	IOCTL32_DEFAULT(KDGETMODE),
+-	IOCTL32_DEFAULT(KDSKBMODE),
+-	IOCTL32_DEFAULT(KDGKBMODE),
+-	IOCTL32_DEFAULT(KDSKBMETA),
+-	IOCTL32_DEFAULT(KDGKBMETA),
+-	IOCTL32_DEFAULT(KDGKBENT),
+-	IOCTL32_DEFAULT(KDSKBENT),
+-	IOCTL32_DEFAULT(KDGKBSENT),
+-	IOCTL32_DEFAULT(KDSKBSENT),
+-	IOCTL32_DEFAULT(KDGKBDIACR),
+-	IOCTL32_DEFAULT(KDSKBDIACR),
+-	IOCTL32_DEFAULT(KDGKBLED),
+-	IOCTL32_DEFAULT(KDSKBLED),
+-	IOCTL32_DEFAULT(KDGETLED),
+-	IOCTL32_DEFAULT(KDSETLED),
+-	IOCTL32_DEFAULT(GIO_SCRNMAP),
+-	IOCTL32_DEFAULT(PIO_SCRNMAP),
+-	IOCTL32_DEFAULT(GIO_UNISCRNMAP),
+-	IOCTL32_DEFAULT(PIO_UNISCRNMAP),
+-	IOCTL32_DEFAULT(PIO_FONTRESET),
+-	IOCTL32_DEFAULT(PIO_UNIMAPCLR),
+-
+-	IOCTL32_DEFAULT(VT_SETMODE),
+-	IOCTL32_DEFAULT(VT_GETMODE),
+-	IOCTL32_DEFAULT(VT_GETSTATE),
+-	IOCTL32_DEFAULT(VT_OPENQRY),
+-	IOCTL32_DEFAULT(VT_ACTIVATE),
+-	IOCTL32_DEFAULT(VT_WAITACTIVE),
+-	IOCTL32_DEFAULT(VT_RELDISP),
+-	IOCTL32_DEFAULT(VT_DISALLOCATE),
+-	IOCTL32_DEFAULT(VT_RESIZE),
+-	IOCTL32_DEFAULT(VT_RESIZEX),
+-	IOCTL32_DEFAULT(VT_LOCKSWITCH),
+-	IOCTL32_DEFAULT(VT_UNLOCKSWITCH),
+-
+-	IOCTL32_DEFAULT(SIOCGSTAMP),
+-
+-	IOCTL32_DEFAULT(DM_VERSION),
+-	IOCTL32_DEFAULT(DM_REMOVE_ALL),
+-	IOCTL32_DEFAULT(DM_DEV_CREATE),
+-	IOCTL32_DEFAULT(DM_DEV_REMOVE),
+-	IOCTL32_DEFAULT(DM_DEV_RELOAD),
+-	IOCTL32_DEFAULT(DM_DEV_SUSPEND),
+-	IOCTL32_DEFAULT(DM_DEV_RENAME),
+-	IOCTL32_DEFAULT(DM_DEV_DEPS),
+-	IOCTL32_DEFAULT(DM_DEV_STATUS),
+-	IOCTL32_DEFAULT(DM_TARGET_STATUS),
+-	IOCTL32_DEFAULT(DM_TARGET_WAIT),
+-
+-	IOCTL32_DEFAULT(LOOP_SET_FD),
+-	IOCTL32_DEFAULT(LOOP_CLR_FD),
+-
+-	IOCTL32_HANDLER(SIOCGIFNAME, dev_ifname32),
+-	IOCTL32_HANDLER(SIOCGIFCONF, dev_ifconf),
+-	IOCTL32_HANDLER(SIOCGIFFLAGS, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCSIFFLAGS, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCGIFMETRIC, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCSIFMETRIC, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCGIFMTU, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCSIFMTU, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCGIFMEM, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCSIFMEM, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCGIFHWADDR, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCSIFHWADDR, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCADDMULTI, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCDELMULTI, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCGIFINDEX, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCGIFMAP, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCSIFMAP, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCGIFADDR, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCSIFADDR, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCGIFBRDADDR, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCSIFBRDADDR, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCGIFDSTADDR, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCSIFDSTADDR, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCGIFNETMASK, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCSIFNETMASK, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCSIFPFLAGS, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCGIFPFLAGS, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCGIFTXQLEN, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCSIFTXQLEN, dev_ifsioc),
+-	IOCTL32_HANDLER(SIOCADDRT, routing_ioctl),
+-	IOCTL32_HANDLER(SIOCDELRT, routing_ioctl),
+-
+-	IOCTL32_HANDLER(SIOCBONDENSLAVE, bond_ioctl),
+-	IOCTL32_HANDLER(SIOCBONDRELEASE, bond_ioctl),
+-	IOCTL32_HANDLER(SIOCBONDSETHWADDR, bond_ioctl),
+-	IOCTL32_HANDLER(SIOCBONDSLAVEINFOQUERY, bond_ioctl),
+-	IOCTL32_HANDLER(SIOCBONDINFOQUERY, bond_ioctl),
+-	IOCTL32_HANDLER(SIOCBONDCHANGEACTIVE, bond_ioctl),
+-
+-	IOCTL32_HANDLER(EXT2_IOC32_GETFLAGS, do_ext2_ioctl),
+-	IOCTL32_HANDLER(EXT2_IOC32_SETFLAGS, do_ext2_ioctl),
+-	IOCTL32_HANDLER(EXT2_IOC32_GETVERSION, do_ext2_ioctl),
+-	IOCTL32_HANDLER(EXT2_IOC32_SETVERSION, do_ext2_ioctl),
+-
+-	IOCTL32_HANDLER(LOOP_SET_STATUS, loop_status),
+-	IOCTL32_HANDLER(LOOP_GET_STATUS, loop_status),
+-
+-	IOCTL32_HANDLER(ICARSAMODEXPO, do_rsa_ioctl),
+-	IOCTL32_HANDLER(ICARSACRT, do_rsa_crt_ioctl),
+-	IOCTL32_HANDLER(ICARSAMODMULT, do_rsa_ioctl),
+-	IOCTL32_DEFAULT(ICAZ90STATUS),
+-	IOCTL32_DEFAULT(ICAZ90QUIESCE),
+-	IOCTL32_DEFAULT(ICAZ90HARDRESET),
+-	IOCTL32_DEFAULT(ICAZ90HARDERROR),
+-
+-	IOCTL32_HANDLER(BLKRAGET, w_long),
+-	IOCTL32_HANDLER(BLKGETSIZE, w_long),
+-	IOCTL32_HANDLER(BLKFRAGET, w_long),
+-	IOCTL32_HANDLER(BLKSECTGET, w_long),
+-	IOCTL32_HANDLER(BLKPG, blkpg_ioctl_trans)
++int siocdevprivate_ioctl(unsigned int fd, unsigned int cmd,
++			 unsigned long arg, struct file *f)
++{
++	/* siocdevprivate cannot be emulated properly */
++	return -EINVAL;
++}
  
+-};
++#define COMPATIBLE_IOCTL(cmd)		HANDLE_IOCTL((cmd), NULL)
++#define HANDLE_IOCTL(cmd,handler)	{ (cmd), (handler), NULL },
++#define IOCTL_TABLE_START \
++	struct ioctl_trans ioctl_start[] = {
++#define IOCTL_TABLE_END \
++	}; struct ioctl_trans ioctl_end[0];
++
++IOCTL_TABLE_START
++#include <linux/compat_ioctl.h>
++
++COMPATIBLE_IOCTL(DASDAPIVER)
++COMPATIBLE_IOCTL(BIODASDDISABLE)
++COMPATIBLE_IOCTL(BIODASDENABLE)
++COMPATIBLE_IOCTL(BIODASDRSRV)
++COMPATIBLE_IOCTL(BIODASDRLSE)
++COMPATIBLE_IOCTL(BIODASDSLCK)
++COMPATIBLE_IOCTL(BIODASDINFO)
++COMPATIBLE_IOCTL(BIODASDFMT)
++
++COMPATIBLE_IOCTL(TAPE390_DISPLAY)
++COMPATIBLE_IOCTL(BLKRASET)
++COMPATIBLE_IOCTL(BLKFRASET)
++COMPATIBLE_IOCTL(BLKBSZGET)
++COMPATIBLE_IOCTL(BLKGETSIZE64)
++
++HANDLE_IOCTL(HDIO_GETGEO, hd_geometry_ioctl)
++
++COMPATIBLE_IOCTL(TCSBRKP)
++
++COMPATIBLE_IOCTL(TIOCGSERIAL)
++COMPATIBLE_IOCTL(TIOCSSERIAL)
++
++COMPATIBLE_IOCTL(SIOCGSTAMP)
++
++HANDLE_IOCTL(SIOCGIFNAME, dev_ifname32)
++HANDLE_IOCTL(SIOCGIFCONF, dev_ifconf)
++HANDLE_IOCTL(SIOCGIFFLAGS, dev_ifsioc)
++HANDLE_IOCTL(SIOCSIFFLAGS, dev_ifsioc)
++HANDLE_IOCTL(SIOCGIFMETRIC, dev_ifsioc)
++HANDLE_IOCTL(SIOCSIFMETRIC, dev_ifsioc)
++HANDLE_IOCTL(SIOCGIFMTU, dev_ifsioc)
++HANDLE_IOCTL(SIOCSIFMTU, dev_ifsioc)
++HANDLE_IOCTL(SIOCGIFMEM, dev_ifsioc)
++HANDLE_IOCTL(SIOCSIFMEM, dev_ifsioc)
++HANDLE_IOCTL(SIOCGIFHWADDR, dev_ifsioc)
++HANDLE_IOCTL(SIOCSIFHWADDR, dev_ifsioc)
++HANDLE_IOCTL(SIOCADDMULTI, dev_ifsioc)
++HANDLE_IOCTL(SIOCDELMULTI, dev_ifsioc)
++HANDLE_IOCTL(SIOCGIFINDEX, dev_ifsioc)
++HANDLE_IOCTL(SIOCGIFMAP, dev_ifsioc)
++HANDLE_IOCTL(SIOCSIFMAP, dev_ifsioc)
++HANDLE_IOCTL(SIOCGIFADDR, dev_ifsioc)
++HANDLE_IOCTL(SIOCSIFADDR, dev_ifsioc)
++HANDLE_IOCTL(SIOCGIFBRDADDR, dev_ifsioc)
++HANDLE_IOCTL(SIOCSIFBRDADDR, dev_ifsioc)
++HANDLE_IOCTL(SIOCGIFDSTADDR, dev_ifsioc)
++HANDLE_IOCTL(SIOCSIFDSTADDR, dev_ifsioc)
++HANDLE_IOCTL(SIOCGIFNETMASK, dev_ifsioc)
++HANDLE_IOCTL(SIOCSIFNETMASK, dev_ifsioc)
++HANDLE_IOCTL(SIOCSIFPFLAGS, dev_ifsioc)
++HANDLE_IOCTL(SIOCGIFPFLAGS, dev_ifsioc)
++HANDLE_IOCTL(SIOCGIFTXQLEN, dev_ifsioc)
++HANDLE_IOCTL(SIOCSIFTXQLEN, dev_ifsioc)
++HANDLE_IOCTL(SIOCADDRT, routing_ioctl)
++HANDLE_IOCTL(SIOCDELRT, routing_ioctl)
++HANDLE_IOCTL(SIOCBONDENSLAVE, bond_ioctl)
++HANDLE_IOCTL(SIOCBONDRELEASE, bond_ioctl)
++HANDLE_IOCTL(SIOCBONDSETHWADDR, bond_ioctl)
++HANDLE_IOCTL(SIOCBONDSLAVEINFOQUERY, bond_ioctl)
++HANDLE_IOCTL(SIOCBONDINFOQUERY, bond_ioctl)
++HANDLE_IOCTL(SIOCBONDCHANGEACTIVE, bond_ioctl)
++
++HANDLE_IOCTL(EXT2_IOC32_GETFLAGS, do_ext2_ioctl)
++HANDLE_IOCTL(EXT2_IOC32_SETFLAGS, do_ext2_ioctl)
++HANDLE_IOCTL(EXT2_IOC32_GETVERSION, do_ext2_ioctl)
++HANDLE_IOCTL(EXT2_IOC32_SETVERSION, do_ext2_ioctl)
++
++HANDLE_IOCTL(LOOP_SET_STATUS, loop_status)
++HANDLE_IOCTL(LOOP_GET_STATUS, loop_status)
++
++HANDLE_IOCTL(ICARSAMODEXPO, do_rsa_ioctl)
++HANDLE_IOCTL(ICARSACRT, do_rsa_crt_ioctl)
++HANDLE_IOCTL(ICARSAMODMULT, do_rsa_ioctl)
++
++COMPATIBLE_IOCTL(ICAZ90STATUS)
++COMPATIBLE_IOCTL(ICAZ90QUIESCE)
++COMPATIBLE_IOCTL(ICAZ90HARDRESET)
++COMPATIBLE_IOCTL(ICAZ90HARDERROR)
++
++HANDLE_IOCTL(BLKRAGET, w_long)
++HANDLE_IOCTL(BLKGETSIZE, w_long)
++HANDLE_IOCTL(BLKFRAGET, w_long)
++HANDLE_IOCTL(BLKSECTGET, w_long)
++HANDLE_IOCTL(BLKPG, blkpg_ioctl_trans)
+ 
+-#define NR_IOCTL32_HANDLERS	(sizeof(ioctl32_handler_table) /	\
+-				 sizeof(ioctl32_handler_table[0]))
++IOCTL_TABLE_END
+diff -urN linux-2.5/arch/s390/kernel/compat_wrapper.S linux-2.5-s390/arch/s390/kernel/compat_wrapper.S
+--- linux-2.5/arch/s390/kernel/compat_wrapper.S	Mon May  5 01:53:57 2003
++++ linux-2.5-s390/arch/s390/kernel/compat_wrapper.S	Mon May 26 19:20:46 2003
+@@ -220,12 +220,12 @@
+ 	lgfr	%r3,%r3			# int
+ 	jg	sys_umount		# branch to system call
+ 
+-	.globl  sys32_ioctl_wrapper 
+-sys32_ioctl_wrapper:
++	.globl  compat_sys_ioctl_wrapper
++compat_sys_ioctl_wrapper:
+ 	llgfr	%r2,%r2			# unsigned int
+ 	llgfr	%r3,%r3			# unsigned int
+ 	llgfr	%r4,%r4			# unsigned int
+-	jg	sys32_ioctl		# branch to system call
++	jg	compat_sys_ioctl	# branch to system call
+ 
+ 	.globl  compat_sys_fcntl_wrapper 
+ compat_sys_fcntl_wrapper:
+@@ -1209,3 +1209,24 @@
+ sys32_set_tid_address_wrapper:
+ 	llgtr	%r2,%r2			# int *
+ 	jg	sys_set_tid_address	# branch to system call
++
++	.globl  sys_epoll_create_wrapper
++sys_epoll_create_wrapper:
++	lgfr	%r2,%r2			# int
++	jg	sys_epoll_create	# branch to system call
++
++	.globl  sys_epoll_ctl_wrapper
++sys_epoll_ctl_wrapper:
++	lgfr	%r2,%r2			# int
++	lgfr	%r3,%r3			# int
++	lgfr	%r4,%r4			# int
++	llgtr	%r5,%r5			# struct epoll_event *
++	jg	sys_epoll_ctl		# branch to system call
++
++	.globl  sys_epoll_wait_wrapper
++sys_epoll_wait_wrapper:
++	lgfr	%r2,%r2			# int
++	llgtr	%r3,%r3			# struct epoll_event *
++	lgfr	%r4,%r4			# int
++	lgfr	%r5,%r5			# int
++	jg	sys_epoll_wait		# branch to system call
+diff -urN linux-2.5/arch/s390/kernel/s390_ksyms.c linux-2.5-s390/arch/s390/kernel/s390_ksyms.c
+--- linux-2.5/arch/s390/kernel/s390_ksyms.c	Mon May 26 19:20:43 2003
++++ linux-2.5-s390/arch/s390/kernel/s390_ksyms.c	Mon May 26 19:20:46 2003
+@@ -61,20 +61,6 @@
+ EXPORT_SYMBOL(overflowgid);
+ EXPORT_SYMBOL(empty_zero_page);
+ 
+-#ifdef CONFIG_S390_SUPPORT
+-/*
+- * Dynamically add/remove 31 bit ioctl conversion functions.
+- */
+-extern int register_ioctl32_conversion(unsigned int cmd,
+-				       int (*handler)(unsigned int, 
+-						      unsigned int,
+-						      unsigned long,
+-						      struct file *));
+-int unregister_ioctl32_conversion(unsigned int cmd);
+-EXPORT_SYMBOL(register_ioctl32_conversion);
+-EXPORT_SYMBOL(unregister_ioctl32_conversion);
+-#endif
+-
+ /*
+  * misc.
+  */
+diff -urN linux-2.5/arch/s390/kernel/syscalls.S linux-2.5-s390/arch/s390/kernel/syscalls.S
+--- linux-2.5/arch/s390/kernel/syscalls.S	Mon May  5 01:53:02 2003
++++ linux-2.5-s390/arch/s390/kernel/syscalls.S	Mon May 26 19:20:46 2003
+@@ -62,7 +62,7 @@
+ SYSCALL(sys_acct,sys_acct,sys32_acct_wrapper)
+ SYSCALL(sys_umount,sys_umount,sys32_umount_wrapper)
+ NI_SYSCALL							/* old lock syscall */
+-SYSCALL(sys_ioctl,sys_ioctl,sys32_ioctl_wrapper)
++SYSCALL(sys_ioctl,sys_ioctl,compat_sys_ioctl_wrapper)
+ SYSCALL(sys_fcntl,sys_fcntl,compat_sys_fcntl_wrapper)		/* 55 */
+ NI_SYSCALL							/* intel mpx syscall */
+ SYSCALL(sys_setpgid,sys_setpgid,sys32_setpgid_wrapper)
+@@ -83,9 +83,9 @@
+ SYSCALL(sys_sigsuspend_glue,sys_sigsuspend_glue,sys32_sigsuspend_glue)
+ SYSCALL(sys_sigpending,sys_sigpending,compat_sys_sigpending_wrapper)
+ SYSCALL(sys_sethostname,sys_sethostname,sys32_sethostname_wrapper)
+-SYSCALL(sys_setrlimit,sys_setrlimit,sys32_setrlimit_wrapper)	/* 75 */
+-SYSCALL(sys_old_getrlimit,sys_getrlimit,sys32_old_getrlimit_wrapper)
+-SYSCALL(sys_getrusage,sys_getrusage,sys32_getrusage_wrapper)
++SYSCALL(sys_setrlimit,sys_setrlimit,compat_sys_setrlimit_wrapper)	/* 75 */
++SYSCALL(sys_old_getrlimit,sys_getrlimit,compat_sys_old_getrlimit_wrapper)
++SYSCALL(sys_getrusage,sys_getrusage,compat_sys_getrusage_wrapper)
+ SYSCALL(sys_gettimeofday,sys_gettimeofday,sys32_gettimeofday_wrapper)
+ SYSCALL(sys_settimeofday,sys_settimeofday,sys32_settimeofday_wrapper)
+ SYSCALL(sys_getgroups16,sys_ni_syscall,sys32_getgroups16_wrapper)	/* 80 old getgroups16 syscall */
+@@ -122,7 +122,7 @@
+ SYSCALL(sys_vhangup,sys_vhangup,sys_vhangup)
+ NI_SYSCALL							/* old "idle" system call */
+ NI_SYSCALL							/* vm86old for i386 */
+-SYSCALL(sys_wait4,sys_wait4,sys32_wait4_wrapper)
++SYSCALL(sys_wait4,sys_wait4,compat_sys_wait4_wrapper)
+ SYSCALL(sys_swapoff,sys_swapoff,sys32_swapoff_wrapper)		/* 115 */
+ SYSCALL(sys_sysinfo,sys_sysinfo,sys32_sysinfo_wrapper)
+ SYSCALL(sys_ipc,sys_ipc,sys32_ipc_wrapper)
+@@ -199,7 +199,7 @@
+ NI_SYSCALL							/* streams1 */
+ NI_SYSCALL							/* streams2 */
+ SYSCALL(sys_vfork_glue,sys_vfork_glue,sys_vfork_glue)		/* 190 */
+-SYSCALL(sys_getrlimit,sys_getrlimit,sys32_getrlimit_wrapper)
++SYSCALL(sys_getrlimit,sys_getrlimit,compat_sys_getrlimit_wrapper)
+ SYSCALL(sys_mmap2,sys_mmap2,sys32_mmap2_wrapper)
+ SYSCALL(sys_truncate64,sys_ni_syscall,sys32_truncate64_wrapper)
+ SYSCALL(sys_ftruncate64,sys_ni_syscall,sys32_ftruncate64_wrapper)
+@@ -257,9 +257,9 @@
+ SYSCALL(sys_io_submit,sys_io_submit,sys_ni_syscall)
+ SYSCALL(sys_io_cancel,sys_io_cancel,sys_ni_syscall)
+ SYSCALL(sys_exit_group,sys_exit_group,sys32_exit_group_wrapper)
+-SYSCALL(sys_epoll_create,sys_epoll_create,sys_ni_syscall)
+-SYSCALL(sys_epoll_ctl,sys_epoll_ctl,sys_ni_syscall)		/* 250 */
+-SYSCALL(sys_epoll_wait,sys_epoll_wait,sys_ni_syscall)
++SYSCALL(sys_epoll_create,sys_epoll_create,sys_epoll_create_wrapper)
++SYSCALL(sys_epoll_ctl,sys_epoll_ctl,sys_epoll_ctl_wrapper)	/* 250 */
++SYSCALL(sys_epoll_wait,sys_epoll_wait,sys_epoll_wait_wrapper)
+ SYSCALL(sys_set_tid_address,sys_set_tid_address,sys32_set_tid_address_wrapper)
+ SYSCALL(sys_fadvise64,sys_fadvise64,sys_ni_syscall)
+ SYSCALL(sys_timer_create,sys_timer_create,sys_ni_syscall)
+diff -urN linux-2.5/include/asm-s390/compat.h linux-2.5-s390/include/asm-s390/compat.h
+--- linux-2.5/include/asm-s390/compat.h	Mon May  5 01:53:02 2003
++++ linux-2.5-s390/include/asm-s390/compat.h	Mon May 26 19:20:46 2003
+@@ -4,6 +4,7 @@
+  * Architecture specific compatibility types
+  */
+ #include <linux/types.h>
++#include <linux/sched.h>
+ 
+ #define COMPAT_USER_HZ	100
+ 
+@@ -122,4 +123,14 @@
+ 	return (void *)(unsigned long)(uptr & 0x7fffffffUL);
+ }
+ 
++static inline void *compat_alloc_user_space(long len)
++{
++	unsigned long stack;
++
++	stack = KSTK_ESP(current);
++	if (test_thread_flag(TIF_31BIT))
++		stack &= 0x7fffffffUL;
++	return (void *) (stack - len);
++}
++
+ #endif /* _ASM_S390X_COMPAT_H */
+diff -urN linux-2.5/include/linux/compat_ioctl.h linux-2.5-s390/include/linux/compat_ioctl.h
+--- linux-2.5/include/linux/compat_ioctl.h	Mon May  5 01:53:42 2003
++++ linux-2.5-s390/include/linux/compat_ioctl.h	Mon May 26 19:20:46 2003
+@@ -38,12 +38,14 @@
+ COMPATIBLE_IOCTL(TIOCGPTN)
+ COMPATIBLE_IOCTL(TIOCSPTLCK)
+ COMPATIBLE_IOCTL(TIOCSERGETLSR)
++#ifdef CONFIG_FB
+ /* Big F */
+ COMPATIBLE_IOCTL(FBIOGET_VSCREENINFO)
+ COMPATIBLE_IOCTL(FBIOPUT_VSCREENINFO)
+ COMPATIBLE_IOCTL(FBIOPAN_DISPLAY)
+ COMPATIBLE_IOCTL(FBIOGET_CON2FBMAP)
+ COMPATIBLE_IOCTL(FBIOPUT_CON2FBMAP)
++#endif
+ /* Little f */
+ COMPATIBLE_IOCTL(FIOCLEX)
+ COMPATIBLE_IOCTL(FIONCLEX)
+@@ -65,6 +67,7 @@
+ COMPATIBLE_IOCTL(HDIO_DRIVE_CMD)
+ COMPATIBLE_IOCTL(HDIO_SET_PIO_MODE)
+ COMPATIBLE_IOCTL(HDIO_SET_NICE)
++#ifndef CONFIG_ARCH_S390
+ /* 0x02 -- Floppy ioctls */
+ COMPATIBLE_IOCTL(FDMSGON)
+ COMPATIBLE_IOCTL(FDMSGOFF)
+@@ -82,6 +85,7 @@
+ COMPATIBLE_IOCTL(FDTWADDLE)
+ COMPATIBLE_IOCTL(FDFMTTRK)
+ COMPATIBLE_IOCTL(FDRAWCMD)
++#endif
+ /* 0x12 */
+ COMPATIBLE_IOCTL(BLKROSET)
+ COMPATIBLE_IOCTL(BLKROGET)
+@@ -186,6 +190,7 @@
+ COMPATIBLE_IOCTL(VT_RESIZEX)
+ COMPATIBLE_IOCTL(VT_LOCKSWITCH)
+ COMPATIBLE_IOCTL(VT_UNLOCKSWITCH)
++#if defined(CONFIG_VIDEO_DEV) || defined(CONFIG_VIDEO_DEV_MODULE)
+ /* Little v */
+ /* Little v, the video4linux ioctls (conflict?) */
+ COMPATIBLE_IOCTL(VIDIOCGCAP)
+@@ -212,6 +217,8 @@
+ COMPATIBLE_IOCTL(_IOR('v' , BASE_VIDIOCPRIVATE+5, int))
+ COMPATIBLE_IOCTL(_IOR('v' , BASE_VIDIOCPRIVATE+6, int))
+ COMPATIBLE_IOCTL(_IOR('v' , BASE_VIDIOCPRIVATE+7, int))
++#endif
++#if defined(CONFIG_RTC) || defined (CONFIG_RTC_MODULE)
+ /* Little p (/dev/rtc, /dev/envctrl, etc.) */
+ COMPATIBLE_IOCTL(RTC_AIE_ON)
+ COMPATIBLE_IOCTL(RTC_AIE_OFF)
+@@ -227,6 +234,7 @@
+ COMPATIBLE_IOCTL(RTC_SET_TIME)
+ COMPATIBLE_IOCTL(RTC_WKALM_SET)
+ COMPATIBLE_IOCTL(RTC_WKALM_RD)
++#endif
+ /* Little m */
+ COMPATIBLE_IOCTL(MTIOCTOP)
+ /* Socket level stuff */
+@@ -278,6 +286,7 @@
+ COMPATIBLE_IOCTL(SG_GET_REQUEST_TABLE)
+ COMPATIBLE_IOCTL(SG_SET_KEEP_ORPHAN)
+ COMPATIBLE_IOCTL(SG_GET_KEEP_ORPHAN)
++#if defined(CONFIG_PPP) || defined(CONFIG_PPP_MODULE)
+ /* PPP stuff */
+ COMPATIBLE_IOCTL(PPPIOCGFLAGS)
+ COMPATIBLE_IOCTL(PPPIOCSFLAGS)
+@@ -311,6 +320,7 @@
+ /* PPPOX */
+ COMPATIBLE_IOCTL(PPPOEIOCSFWD)
+ COMPATIBLE_IOCTL(PPPOEIOCDFWD)
++#endif
+ /* LP */
+ COMPATIBLE_IOCTL(LPGETSTATUS)
+ /* CDROM stuff */
+@@ -353,6 +363,7 @@
+ COMPATIBLE_IOCTL(LOOP_CLR_FD)
+ /* Big A */
+ /* sparc only */
++#if defined(CONFIG_SOUND) || defined (CONFIG_SOUND_MODULE)
+ /* Big Q for sound/OSS */
+ COMPATIBLE_IOCTL(SNDCTL_SEQ_RESET)
+ COMPATIBLE_IOCTL(SNDCTL_SEQ_SYNC)
+@@ -507,6 +518,7 @@
+ COMPATIBLE_IOCTL(SOUND_MIXER_GETLEVELS)
+ COMPATIBLE_IOCTL(SOUND_MIXER_SETLEVELS)
+ COMPATIBLE_IOCTL(OSS_GETVERSION)
++#endif
+ /* AUTOFS */
+ COMPATIBLE_IOCTL(AUTOFS_IOC_READY)
+ COMPATIBLE_IOCTL(AUTOFS_IOC_FAIL)
+@@ -523,6 +535,7 @@
+ COMPATIBLE_IOCTL(RAW_GETBIND)
+ /* SMB ioctls which do not need any translations */
+ COMPATIBLE_IOCTL(SMB_IOC_NEWCONN)
++#if defined(CONFIG_ATM) || defined(CONFIG_ATM_MODULE)
+ /* Little a */
+ COMPATIBLE_IOCTL(ATMSIGD_CTRL)
+ COMPATIBLE_IOCTL(ATMARPD_CTRL)
+@@ -539,6 +552,7 @@
+ COMPATIBLE_IOCTL(ATMTCP_REMOVE)
+ COMPATIBLE_IOCTL(ATMMPC_CTRL)
+ COMPATIBLE_IOCTL(ATMMPC_DATA)
++#endif
+ #if defined(CONFIG_BLK_DEV_LVM) || defined(CONFIG_BLK_DEV_LVM_MODULE)
+ /* 0xfe - lvm */
+ COMPATIBLE_IOCTL(VG_SET_EXTENDABLE)
+@@ -596,6 +610,7 @@
+ COMPATIBLE_IOCTL(RNDADDENTROPY)
+ COMPATIBLE_IOCTL(RNDZAPENTCNT)
+ COMPATIBLE_IOCTL(RNDCLEARPOOL)
++#if defined(CONFIG_BT) || defined(CONFIG_BT_MODULE)
+ /* Bluetooth ioctls */
+ COMPATIBLE_IOCTL(HCIDEVUP)
+ COMPATIBLE_IOCTL(HCIDEVDOWN)
+@@ -615,6 +630,8 @@
+ COMPATIBLE_IOCTL(HCISETACLMTU)
+ COMPATIBLE_IOCTL(HCISETSCOMTU)
+ COMPATIBLE_IOCTL(HCIINQUIRY)
++#endif
++#ifdef CONFIG_PCI
+ /* Misc. */
+ COMPATIBLE_IOCTL(0x41545900)		/* ATYIO_CLKR */
+ COMPATIBLE_IOCTL(0x41545901)		/* ATYIO_CLKW */
+@@ -622,6 +639,8 @@
+ COMPATIBLE_IOCTL(PCIIOC_MMAP_IS_IO)
+ COMPATIBLE_IOCTL(PCIIOC_MMAP_IS_MEM)
+ COMPATIBLE_IOCTL(PCIIOC_WRITE_COMBINE)
++#endif
++#if defined(CONFIG_USB) || defined(CONFIG_USB_MODULE)
+ /* USB */
+ COMPATIBLE_IOCTL(USBDEVFS_RESETEP)
+ COMPATIBLE_IOCTL(USBDEVFS_SETINTERFACE)
+@@ -634,6 +653,8 @@
+ COMPATIBLE_IOCTL(USBDEVFS_HUB_PORTINFO)
+ COMPATIBLE_IOCTL(USBDEVFS_RESET)
+ COMPATIBLE_IOCTL(USBDEVFS_CLEAR_HALT)
++#endif
++#if defined(CONFIG_MTD) || defined(CONFIG_MTD_MODULE)
+ /* MTD */
+ COMPATIBLE_IOCTL(MEMGETINFO)
+ COMPATIBLE_IOCTL(MEMERASE)
+@@ -641,6 +662,7 @@
+ COMPATIBLE_IOCTL(MEMUNLOCK)
+ COMPATIBLE_IOCTL(MEMGETREGIONCOUNT)
+ COMPATIBLE_IOCTL(MEMGETREGIONINFO)
++#endif
+ /* NBD */
+ COMPATIBLE_IOCTL(NBD_SET_SOCK)
+ COMPATIBLE_IOCTL(NBD_SET_BLKSIZE)

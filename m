@@ -1,58 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276505AbRJUSQD>; Sun, 21 Oct 2001 14:16:03 -0400
+	id <S276534AbRJUSXp>; Sun, 21 Oct 2001 14:23:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276507AbRJUSPx>; Sun, 21 Oct 2001 14:15:53 -0400
-Received: from zero.tech9.net ([209.61.188.187]:29459 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S276505AbRJUSPp>;
-	Sun, 21 Oct 2001 14:15:45 -0400
-Subject: Re: [PATCH] updated preempt-kernel
-From: Robert Love <rml@tech9.net>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Colin Phipps <cph@cph.demon.co.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <3BD2E89C.78D757A2@zip.com.au>
-In-Reply-To: <1003562833.862.65.camel@phantasy>,
-	<1003562833.862.65.camel@phantasy> <20011021120539.A1197@cph.demon.co.uk> 
-	<3BD2E89C.78D757A2@zip.com.au>
-Content-Type: text/plain
+	id <S276522AbRJUSXg>; Sun, 21 Oct 2001 14:23:36 -0400
+Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:28565 "EHLO
+	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S276511AbRJUSX0>;
+	Sun, 21 Oct 2001 14:23:26 -0400
+Message-ID: <3BD31287.6010105@stesmi.com>
+Date: Sun, 21 Oct 2001 20:23:03 +0200
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Federico Sevilla III <jijo@leathercollection.ph>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: VIA 686b Bug - once again :(
+In-Reply-To: <Pine.LNX.4.40.0110220136040.21933-100000@gusi.leathercollection.ph>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.99+cvs.2001.10.18.15.19 (Preview Release)
-Date: 21 Oct 2001 14:16:18 -0400
-Message-Id: <1003688179.1085.17.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2001-10-21 at 11:24, Andrew Morton wrote:
-> This one has been reported before.
+Hi.
 
-Colin, can you try Andrew's patch and report back?  This problem has
-been reported before -- its a tty bug that preempt (and SMP I wager)
-just aggravate.  I have a patch that I know fixes it, but Andrew's is
-_much_ simpler.  I will send you that if this fails.  Please let me
-know.
+>>You should be aware of that 3ware is dropping all their IDE RAID
+>>controllers so if you want it, buy it fast. They're going out of
+>>production. That is... if you want a product that won't be supported
+>>RSN.
+>>
+> 
+> Eh? This is interesting. I haven't heard of anything like this before, and
+> can't find anything in their website. Maybe you can point me to where you
+> got this bit of information? Rather alarming because I've got a 3ware
+> controller myself.
 
-> --- linux-2.4.12-ac3/drivers/char/console.c	Mon Oct 15 16:04:23 2001
-> +++ ac/drivers/char/console.c	Sun Oct 21 08:19:42 2001
-> @@ -2387,9 +2387,15 @@ static void con_flush_chars(struct tty_s
->  		return;
->  
->  	pm_access(pm_con);
-> -	acquire_console_sem();
-> -	set_cursor(vt->vc_num);
-> -	release_console_sem();
-> +	if (vt) {
-> +		/*
-> +		 * If we raced with con_close(), `vt' may be null.
-> +		 * Hence this bandaid.   - akpm
-> +		 */
-> +		acquire_console_sem();
-> +		set_cursor(vt->vc_num);
-> +		release_console_sem();
-> +	}
->  }
->  
->  /*
+The Linux XFS development list had a discussion about it a few weeks 
+ago. I even think someone from 3ware joined in or if someone had a quote 
+from someone at 3ware. But just go there and you'll see the site has 
+changed. The only graphic on the front page is now their IP storage 
+thing. The Palisade.
 
-	Robert Love
+Go to Products on their page. Notice the lack of information on the 
+Escalades.
+
+http://www.3ware.com, but I think you got that already.
+
+Only info on Escalades is:
+
+" Inquires regarding Escalade Storage Switch products should be directed 
+to 650.327.8600 or info@3ware.com."
+
+and a picture...
+
+// Stefan
+
 

@@ -1,65 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264095AbUBKLG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 06:06:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUBKLG7
+	id S264163AbUBKLOs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 06:14:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264132AbUBKLOs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 06:06:59 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:8604 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S264095AbUBKLG6 (ORCPT
+	Wed, 11 Feb 2004 06:14:48 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:62144 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S264113AbUBKLOo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 06:06:58 -0500
-Date: Wed, 11 Feb 2004 12:06:29 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: Michael Hayes <mike@aiinc.ca>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Spelling in 2.6.2
-In-Reply-To: <20040210171918.67ac6e48.rddunlap@osdl.org>
-Message-ID: <Pine.GSO.4.58.0402111205471.19627@waterleaf.sonytel.be>
-References: <200402102009.i1AK91T20554@aiinc.aiinc.ca>
- <20040210171918.67ac6e48.rddunlap@osdl.org>
+	Wed, 11 Feb 2004 06:14:44 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16426.3711.606419.745835@alkaid.it.uu.se>
+Date: Wed, 11 Feb 2004 12:14:07 +0100
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: "Moore, Eric Dean" <Emoore@lsil.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: RE: 2.4.25-rc1: Inconsistent ioctl symbol usage in drivers/messag
+	 e/fusion/mptctl.c
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E5703D1A97A@exa-atlanta.se.lsil.com>
+References: <0E3FA95632D6D047BA649F95DAB60E5703D1A97A@exa-atlanta.se.lsil.com>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Feb 2004, Randy.Dunlap wrote:
-> On Tue, 10 Feb 2004 12:09:01 -0800 Michael Hayes <mike@aiinc.ca> wrote:
-> | Relax, this is not a spelling patch.
-> |
-> | I was curious how fast spelling errors flow into the kernel, so I
-> | looked at the + lines in the 2.6.2 patch.  A few of the errors
-> | already existed, but most of them are new.  It turns out that there
-> | are around 200 new spelling errors in 2.6.2.
-> |
-> | A "wether" (castrated goat) has appeared, along with a "Rusell" that
-> | should be stamped out before it spreads.  Someone had a dreadful time
-> | with "technology" and its variants, spelling it wrong 9 different ways.
-> |
-> | Here's what I found:
-> |
-> | File                                      Error            Should be          #
-> | -------------------------------------------------------------------------------
->
-> Amazing (to me).  It's a good thing that we have a compiler to
+Moore, Eric Dean writes:
+ > On Tuesday, February 10, 2004 9:25 AM, Mikael Pettersson  wrote:
+ > > Moore, Eric Dean writes:
+ > >  > If we pass NULL as the 2nd parameter for 
+ > > register_ioctl32_conversion(),
+ > >  > the mpt_ioctl() entry point is *not* called when running a 32 bit
+ > >  > application in x86_64 mode.
+ > > 
+ > > Ok, but you still don't need sys_ioctl() since the one-liner
+ > > 
+ > >  > > filp->f_op->ioctl(filp->f_dentry->d_inode, filp, cmd, arg)
+ > > 
+ > > (or a hardcoded call to your ioctl() method) suffices.
+ > > 
+ > > sys_ioctl() mostly just checks for special case ioctls before
+ > > doing the line above, but those special cases can't occur
+ > > since the kernel has already matched your particular ioctl.
+ > > 
+ > > /Mikael
+ > > 
+ > 
+ > 
+ > Ok - I have modified the mpt fusion driver per your suggestions.
+ > Please advise if this would work.
+...
+ >  static int
+ > +compat_mptctl_ioctl(unsigned int fd, unsigned int cmd,
+ > +			unsigned long arg, struct file *filp)
+ > +{
+ > +	dctlprintk((KERN_INFO MYNAM "::compat_mptctl_ioctl() called\n"));
+ > +
+ > +	return mptctl_ioctl(filp->f_dentry->d_inode, filp, cmd, arg);
+ > +}
+ > +
+ > +static int
+ >  compat_mptfwxfer_ioctl(unsigned int fd, unsigned int cmd,
+ >  			unsigned long arg, struct file *filp)
+ >  {
+ > @@ -2864,30 +2872,31 @@
+ >  	}
+ >  
+ >  #ifdef MPT_CONFIG_COMPAT
+ > -	err = register_ioctl32_conversion(MPTIOCINFO, sys_ioctl);
+ > +	err = register_ioctl32_conversion(MPTIOCINFO, compat_mptctl_ioctl);
 
-Indeed.
+Looks fine to me.
 
-> check the non-comments, otherwise it might never boot.
+I forgot to mention that sys_ioctl() also does lock_kernel(), but
+AMD64's sys32_ioctl() does not. So if you rely on having the BKL
+you'll need to add lock_kernel() to your wrapper above.
 
-Where's the compiler for the spelling? ;-)
-
-    cpp -spell
-    gcc -spell
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+/Mikael

@@ -1,50 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292031AbSBOAt1>; Thu, 14 Feb 2002 19:49:27 -0500
+	id <S285618AbSBOA6h>; Thu, 14 Feb 2002 19:58:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292017AbSBOAtR>; Thu, 14 Feb 2002 19:49:17 -0500
-Received: from jalon.able.es ([212.97.163.2]:8408 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S292031AbSBOAtE>;
-	Thu, 14 Feb 2002 19:49:04 -0500
-Date: Fri, 15 Feb 2002 01:48:55 +0100
+	id <S285747AbSBOA62>; Thu, 14 Feb 2002 19:58:28 -0500
+Received: from jalon.able.es ([212.97.163.2]:36312 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S285618AbSBOA6R>;
+	Thu, 14 Feb 2002 19:58:17 -0500
+Date: Fri, 15 Feb 2002 01:58:10 +0100
 From: "J.A. Magallon" <jamagallon@able.es>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: ccroswhite@get2chip.com, linux-kernel@vger.kernel.org
-Subject: Re: Problems with VM
-Message-ID: <20020215014855.A14226@werewolf.able.es>
-In-Reply-To: <3C6C53C0.E7562704@get2chip.com> <E16bWX6-0001hc-00@the-village.bc.nu>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: pid allocator bug ?
+Message-ID: <20020215015810.C14226@werewolf.able.es>
+In-Reply-To: <20020214172941.A14007@hendriks.cx>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-In-Reply-To: <E16bWX6-0001hc-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on vie, feb 15, 2002 at 01:47:24 +0100
+In-Reply-To: <20020214172941.A14007@hendriks.cx>; from erik@hendriks.cx on vie, feb 15, 2002 at 01:29:41 +0100
 X-Mailer: Balsa 1.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 20020215 Alan Cox wrote:
->> as 'normal' ran.  Consequently, I will have a machine that has 5M
->> 'normal' RAM, 800M 'cache' RAM and the reset coming out of swap space.
->> I need this 'cache' RAM placed back into the available RAM pool to be
->> used by applications.  Is there a patch/kernel configuration that I can
->> change this behavior?
+On 20020215 Erik Arjan Hendriks wrote:
+>BProc 3.1.7 is out and in the usual spot:
 >
->2.4.18-rc1 should fix the worst of that. The rmap patches in 2.4.18-ac
->definitely fix it
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+>http://sourceforge.net/project/showfiles.php?group_id=24453&release_id=75172
+>
+>Release notes and change log follow:
+>
+...
+>
+>        * Added patch for Linux PID allocator bug.
 >
 
-Or oyu can try the next patch from Andrea Arcangeli for the vm, still
-to include in mainline. I have adapted it to apply cleanly on plain
-2.4.18-rc1:
+Patch is like this:
 
-http://giga.cps.unizar.es/~magallon/linux/2.4.18-rc1-slb1/00-vm-24.gz
+$Id: linux-2.4.17-fork-pid-alloc.patch,v 1.1 2002/02/14 17:21:35 hendriks Exp $
 
+This patch fixes a bug in the Linux process ID allocator.  It isn't quite
+SMP safe since it references "last_pid" after releasing the lock protecting
+it.  This can result in two processes getting assigned the same process ID.
 
+--- linux-2.4.17/kernel/fork.c.orig	Mon Feb  4 14:53:31 2002
++++ linux-2.4.17/kernel/fork.c	Mon Feb  4 14:53:53 2002
+@@ -85,6 +85,7 @@
+ {
+ 	static int next_safe = PID_MAX;
+ 	struct task_struct *p;
++	int pid;
+ 
+ 	if (flags & CLONE_PID)
+ 		return current->pid;
+@@ -120,9 +121,10 @@
+ 		}
+ 		read_unlock(&tasklist_lock);
+ 	}
++	pid = last_pid;
+ 	spin_unlock(&lastpid_lock);
+ 
+-	return last_pid;
++	return pid;
+ }
+ 
+ static inline int dup_mmap(struct mm_struct * mm)
+
+????
 
 -- 
 J.A. Magallon                           #  Let the source be with you...        

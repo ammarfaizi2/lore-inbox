@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267117AbTB0XuY>; Thu, 27 Feb 2003 18:50:24 -0500
+	id <S267277AbTB1AAI>; Thu, 27 Feb 2003 19:00:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267277AbTB0XuX>; Thu, 27 Feb 2003 18:50:23 -0500
-Received: from uucp.cistron.nl ([62.216.30.38]:61959 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id <S267117AbTB0XuX>;
-	Thu, 27 Feb 2003 18:50:23 -0500
-From: miquels@cistron-office.nl (Miquel van Smoorenburg)
-Subject: Re: Patch: 2.5.62 devfs shrink
-Date: Fri, 28 Feb 2003 00:00:42 +0000 (UTC)
-Organization: Cistron Group
-Message-ID: <b3m8ra$i9d$3@news.cistron.nl>
-References: <200302272313.PAA11724@baldur.yggdrasil.com>
+	id <S267281AbTB1AAI>; Thu, 27 Feb 2003 19:00:08 -0500
+Received: from packet.digeo.com ([12.110.80.53]:65417 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267277AbTB1AAH>;
+	Thu, 27 Feb 2003 19:00:07 -0500
+Date: Thu, 27 Feb 2003 16:06:56 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: dmccr@us.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: Rising io_load results Re: 2.5.63-mm1
+Message-Id: <20030227160656.40ebeb93.akpm@digeo.com>
+In-Reply-To: <200302281056.45501.kernel@kolivas.org>
+References: <20030227025900.1205425a.akpm@digeo.com>
+	<20030227134403.776bf2e3.akpm@digeo.com>
+	<118810000.1046383273@baldur.austin.ibm.com>
+	<200302281056.45501.kernel@kolivas.org>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1046390442 18733 62.216.29.200 (28 Feb 2003 00:00:42 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 Feb 2003 00:10:20.0456 (UTC) FILETIME=[C7F2D280:01C2DEBD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200302272313.PAA11724@baldur.yggdrasil.com>,
-Adam J. Richter <adam@yggdrasil.com> wrote:
->   devfs, a simpler approach might be to convert your non-devfs
->   system to use devfs-style names, at least for the devices that
->   are needed for booting (/dev/vc/0, /dev/vc/1... for virtual
->   consoles, /dev/discs/disc0/disc for the first whole hard disk,
->   /dev/discs/discs0/part1 for the first partition of the first
->   disk, /dev/floppy/0).
+Con Kolivas <kernel@kolivas.org> wrote:
+>
+> On Fri, 28 Feb 2003 09:01 am, Dave McCracken wrote:
+> > --On Thursday, February 27, 2003 13:44:03 -0800 Andrew Morton
+> >
+> > <akpm@digeo.com> wrote:
+> > >> ...
+> > >> Mapped:       4294923652 kB
+> > >
+> > > Well that's gotta hurt.  This metric is used in making writeback
+> > > decisions.  Probably the objrmap patch.
+> >
+> > Oops.  You're right.  Here's a patch to fix it.
+> 
+> Thanks. 
+> 
+> This looks better after a run:
+> 
+> MemTotal:       256156 kB
+> ...
+> Mapped:        4546752 kB
 
-If you're making it not 100% compatible anyway, now is the time
-to do away with that horrible 'disc' spelling ;). 'disk' is a
-harddisk or floppy disk, 'disc' is for compact disc (try Google
-on both spellings and you'll see that the world agrees ..).
-Just do s/disc/disk/g in devfs_register().
+No, it is still wrong.  Mapped cannot exceed MemTotal.
 
-Mike.
--- 
-Anyone who is capable of getting themselves made President should
-on no account be allowed to do the job -- Douglas Adams.
 

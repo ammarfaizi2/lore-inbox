@@ -1,49 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265335AbTL3WUs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 17:20:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265880AbTL3WUS
+	id S265857AbTL3WYE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 17:24:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265836AbTL3WNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 17:20:18 -0500
-Received: from sitemail3.everyone.net ([216.200.145.37]:55480 "EHLO
-	omta08.mta.everyone.net") by vger.kernel.org with ESMTP
-	id S263692AbTL3WTA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 17:19:00 -0500
-Content-Type: text/plain
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	Tue, 30 Dec 2003 17:13:51 -0500
+Received: from mail.kroah.org ([65.200.24.183]:52417 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265857AbTL3WGd convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 17:06:33 -0500
+Subject: Re: [PATCH] i2c driver fixes for 2.6.0
+In-Reply-To: <10728219702175@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Tue, 30 Dec 2003 14:06:10 -0800
+Message-Id: <10728219701628@kroah.com>
 Mime-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-Date: Tue, 30 Dec 2003 14:18:58 -0800 (PST)
-From: john moser <bluefoxicy@linux.net>
-To: linux-kernel@vger.kernel.org
-Subject: Slab allocator . . . cache?  WTF is it?
-Reply-To: bluefoxicy@linux.net
-X-Originating-Ip: [68.33.187.247]
-Message-Id: <20031230221859.15F503956@sitemail.everyone.net>
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mem:    775616k total,   747740k used,    27876k free,    96584k buffers
-Swap:   250480k total,    71340k used,   179140k free,   298852k cached
+ChangeSet 1.1496.8.31, 2003/12/17 16:04:10-08:00, mhoffman@lightlink.com
+
+[PATCH] I2C: improve chip detection in w83781d.c driver
+
+This patch improves chip detection.  It was forward ported from the
+lm_sensors project CVS, from these revisions:
+
+	1.104 (Khali) Enhance chip detection (stricter).
+	1.108 (Khali) Fix W83627HF detection.
 
 
-This is somewhat distressing.  Last time this happened, I started opening every
-program I had (including every OpenOffice.org product and every browser I had
-installed), and the "cached" value dropped quickly.
+ drivers/i2c/chips/w83781d.c |   24 ++++++++++++------------
+ 1 files changed, 12 insertions(+), 12 deletions(-)
 
-I'm wondering, what IS cache?  It seems to increase even when swap is not used,
-and sometimes when there's no swap partition enabled.  It also seems to cause
-me to run into swap when I have ample ram available, assuming that cache is just
-some sort of cache that is copied from and mirrors another portion of ram for
-some sort of speed increase.  It's wasteful to me, and I want to more understand
-its implimentation and its purpose, and in all honesty limit its impact if possible.
-I got this RAM upgrade because I was using about 676M of RAM total, including swap,
-at peak; and now I find myself using 820M RAM at peak and about 750-800 continually.
 
-As always, i'm not on the list, so I'd prefer to be CC'd replies.
+diff -Nru a/drivers/i2c/chips/w83781d.c b/drivers/i2c/chips/w83781d.c
+--- a/drivers/i2c/chips/w83781d.c	Tue Dec 30 12:30:38 2003
++++ b/drivers/i2c/chips/w83781d.c	Tue Dec 30 12:30:38 2003
+@@ -24,10 +24,11 @@
+     Supports following chips:
+ 
+     Chip	#vin	#fanin	#pwm	#temp	wchipid	vendid	i2c	ISA
+-    as99127f	7	3	1?	3	0x30	0x12c3	yes	no
+-    asb100 "bach" (type_name = as99127f)	0x30	0x0694	yes	no
+-    w83781d	7	3	0	3	0x10	0x5ca3	yes	yes
+-    w83627hf	9	3	2	3	0x20	0x5ca3	yes	yes(LPC)
++    as99127f	7	3	1?	3	0x31	0x12c3	yes	no
++    as99127f rev.2 (type_name = 1299127f)	0x31	0x5ca3	yes	no
++    asb100 "bach" (type_name = as99127f)	0x31	0x0694	yes	no
++    w83781d	7	3	0	3	0x10-1	0x5ca3	yes	yes
++    w83627hf	9	3	2	3	0x21	0x5ca3	yes	yes(LPC)
+     w83627thf	9	3	2	3	0x90	0x5ca3	no	yes(LPC)
+     w83782d	9	3	2-4	3	0x30	0x5ca3	yes	yes
+     w83783s	5-6	3	2	1-2	0x40	0x5ca3	yes	no
+@@ -1264,7 +1265,7 @@
+ 			goto ERROR2;
+ 		}
+ 		/* If Winbond SMBus, check address at 0x48.
+-		   Asus doesn't support */
++		   Asus doesn't support, except for as99127f rev.2 */
+ 		if ((!is_isa) && (((!(val1 & 0x80)) && (val2 == 0xa3)) ||
+ 				  ((val1 & 0x80) && (val2 == 0x5c)))) {
+ 			if (w83781d_read_value
+@@ -1295,18 +1296,17 @@
+ 			goto ERROR2;
+ 		}
+ 
+-		/* mask off lower bit, not reliable */
+-		val1 =
+-		    w83781d_read_value(new_client, W83781D_REG_WCHIPID) & 0xfe;
+-		if (val1 == 0x10 && vendid == winbond)
++		val1 = w83781d_read_value(new_client, W83781D_REG_WCHIPID);
++		if ((val1 == 0x10 || val1 == 0x11) && vendid == winbond)
+ 			kind = w83781d;
+ 		else if (val1 == 0x30 && vendid == winbond)
+ 			kind = w83782d;
+-		else if (val1 == 0x40 && vendid == winbond && !is_isa)
++		else if (val1 == 0x40 && vendid == winbond && !is_isa
++				&& address == 0x2d)
+ 			kind = w83783s;
+-		else if ((val1 == 0x20 || val1 == 0x90) && vendid == winbond)
++		else if ((val1 == 0x21 || val1 == 0x90) && vendid == winbond)
+ 			kind = w83627hf;
+-		else if (val1 == 0x30 && vendid == asus && !is_isa)
++		else if (val1 == 0x31 && !is_isa && address >= 0x28)
+ 			kind = as99127f;
+ 		else if (val1 == 0x60 && vendid == winbond && is_isa)
+ 			kind = w83697hf;
 
-_____________________________________________________________
-Linux.Net -->Open Source to everyone
-Powered by Linare Corporation
-http://www.linare.com/

@@ -1,108 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264955AbTFLTOf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 15:14:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264957AbTFLTOf
+	id S264957AbTFLTSj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 15:18:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264958AbTFLTSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 15:14:35 -0400
-Received: from devil.servak.biz ([209.124.81.2]:10431 "EHLO devil.servak.biz")
-	by vger.kernel.org with ESMTP id S264955AbTFLTOd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 15:14:33 -0400
-Subject: SBP2 hotplug doesn't update /proc/partitions
-From: Torrey Hoffman <thoffman@arnor.net>
-To: Ben Collins <bcollins@debian.org>
-Cc: Andrew Morton <akpm@digeo.com>,
-       linux firewire devel <linux1394-devel@lists.sourceforge.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030606025721.GJ625@phunnypharm.org>
-References: <1054770509.1198.79.camel@torrey.et.myrio.com>
-	 <3EDE870C.1EFA566C@digeo.com>
-	 <1054838369.1737.11.camel@torrey.et.myrio.com>
-	 <20030605175412.GF625@phunnypharm.org>
-	 <1054858724.3519.19.camel@torrey.et.myrio.com>
-	 <20030606025721.GJ625@phunnypharm.org>
-Content-Type: text/plain
+	Thu, 12 Jun 2003 15:18:39 -0400
+Received: from smtp1.clear.net.nz ([203.97.33.27]:49387 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S264957AbTFLTSf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 15:18:35 -0400
+Date: Fri, 13 Jun 2003 07:35:24 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: implicid declaration of function task_suspended	-	Was:	[PATCHSET]
+ 2.4.21-rc6-dis3 released
+In-reply-to: <1055431855.11780.5.camel@slappy>
+To: Disconnect <kernel@gotontheinter.net>
+Cc: Martin List-Petersen <martin@list-petersen.dk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1055446523.19667.2.camel@laptop-linux>
 Organization: 
-Message-Id: <1055446080.3480.291.camel@torrey.et.myrio.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 12 Jun 2003 12:28:00 -0700
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - devil.servak.biz
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [0 0]
-X-AntiAbuse: Sender Address Domain - arnor.net
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <1055410660.3ee849e439b96@support.tuxbox.dk>
+ <1055418435.17838.8.camel@laptop-linux> <1055431855.11780.5.camel@slappy>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am now running 2.5.70-bk15, and with slab debugging turned off SBP2
-mostly works.  However, I just had an interesting glitch show up.
+Beta19 is very old now, which will be why you're getting the problem.
+We're up to 1.0-pre7. You'll find 1.0-pre5 on Sourceforge and the last
+couple of incremental patches have been posted to the list. (I haven't
+gotten around to putting them on Sourceforge yet, but will do it now for
+you). If you apply them to your tree, you'll get a far more stable and
+feature complete swsusp - since beta19, there have been a ton of bug
+fixes (including this compile fix) and speed ups, including asynchronous
+I/O. Hence the 1.0pre series.
 
-I plugged in a 120 GB drive which had two VFAT partitions, mounted them,
-copied some data to them, unmounted them, and unplugged the drive.  
-That worked perfectly. (This was the first use of SBP2 after booting.)
+Regards,
 
-Then I plugged in a 250 GB drive with a single reiserfs partition.  The
-SBP2 driver detected the drive correctly, but the kernel's idea of what
-partitions are available was not updated.  
+Nigel
 
-/proc/partitions still has the old, stale data from the 120 GB drive and
-looks like this: (skipping my hda partitions)
+On Fri, 2003-06-13 at 03:30, Disconnect wrote:
+> On Thu, 2003-06-12 at 07:47, Nigel Cunningham wrote:
+> > TASK_SUSPENDED is a swsusp macro. What version of swsusp do you have
+> > included in your kernel? (There were some compile problems fixed a while
+> > ago - you probably have a version pre then).
+> 
+> It may not be directly related to swsusp - it may be that in wiggling a
+> patch I missed an #ifdef SWSUSP ...
+> 
+> ..
+> 
+> OK I looked there - its can_schedule() thats triggering it.  I'm going
+> to try a build without software suspend and see if I can reproduce.  In
+> the meantime, send me the .config file that triggered it. (And make sure
+> you did 'make mrproper ; make [x/menu/old]config ; make dep ; make
+> clean' ..)
+> 
+> FWIW its 2.4.21-rc6 with the following suspend-related patches:
+>   - ACPI 20030523-2.4.21-rc3.diff
+>   - patch-acpi-acpi20021212-swsusp19.gz
+>   - patch-agp for swsusp on i810 motherboards
+> 
+> > Regards,
+> > 
+> > Nigel
+> > 
+> > On Thu, 2003-06-12 at 21:37, Martin List-Petersen wrote:
+> > > I tried to compile this (both on rc6 and rc7) and the compile fails with:
+> > > 
+> > > kernel/kernel.o(.text+0x2d8): In function 'schedule':
+> > > : undefined reference to 'TASK_SUSPENDED'
+> > > kernel/kernel.o(.text+0x392): In function 'schedule':
+> > > : undefined reference to 'TASK_SUSPENDED'
+> > > 
+> > > The compile allready stated in the beginning:
+> > > sched.c: In function 'schedule':
+> > > sched.c:611: implicit declaration of function 'TASK_SUSPENDED'
+> > > 
+> > > Any idea's what i can leave out to avoid these failures ?
+> > > 
+> > > Regards,
+> > > Martin List-Petersen
+> > > martin at list-petersen dot dk
+> > > --
+> > > Q:	What do you get when you cross the Godfather with an attorney?
+> > > A:	An offer you can't understand.
+> > > 
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
 
-major minor  #blocks  name
-
-   8     0  117187500 sda
-   8     1   80011701 sda1
-   8     2   37174410 sda2
-
-fdisk /dev/sda believes the drive is only 120 GB but has a single 250 GB
-partition:
-
-[root@torrey mnt]# fdisk /dev/sda
-
-The number of cylinders for this disk is set to 14589.
-There is nothing wrong with that, but this is larger than 1024,
-and could in certain setups cause problems with:
-1) software that runs at boot time (e.g., old versions of LILO)
-2) booting and partitioning software from other OSs
-   (e.g., DOS FDISK, OS/2 FDISK)
-
-Command (m for help): p
-
-Disk /dev/sda: 120.0 GB, 120000000000 bytes
-255 heads, 63 sectors/track, 14589 cylinders
-Units = cylinders of 16065 * 512 = 8225280 bytes
-
-   Device Boot    Start       End    Blocks   Id  System
-/dev/sda1             1     30515 245111706   83  Linux
-
-
-Attempting to mount the partition fails and produces lots of errors,
-which is not surprising. A snippet of the system log:
-
-Jun 12 12:10:12 torrey kernel: found reiserfs format "3.6" with standard journal
-Jun 12 12:10:15 torrey kernel: limit=160023402
-Jun 12 12:10:15 torrey kernel: attempt to access beyond end of device
-Jun 12 12:10:15 torrey kernel: sda1: rw=0, want=394002440, limit=160023402
-Jun 12 12:10:15 torrey kernel: attempt to access beyond end of device
-
-
-Here is the system log of the 250 GB drive being plugged in and
-correctly detected:
-
-Jun 12 12:09:45 torrey /etc/hotplug/ieee1394.agent: Setup sbp2 for IEEE1394 product 0x000000/0x00609e/0x010483
-Jun 12 12:09:45 torrey kernel: ieee1394: sbp2: Logged into SBP-2 device
-Jun 12 12:09:45 torrey kernel: ieee1394: sbp2: Node[00:1023]: Max speed [S400] - Max payload [2048]Jun 12 12:09:45 torrey kernel:   Vendor: Maxtor 4  Model: A250J8            Rev:     
-Jun 12 12:09:45 torrey kernel:   Type:   Direct-Access                      ANSI SCSI revision: 06
-Jun 12 12:09:45 torrey kernel: error 1
-Jun 12 12:09:46 torrey devlabel: devlabel service started/restarted
-
-
-Thanks for your development efforts!
-
-Torrey Hoffman
-
-
+You see, at just the right time, when we were still powerless,
+Christ died for the ungodly.
+	-- Romans 5:6, NIV.
 

@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264593AbTGKS7s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 14:59:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265072AbTGKS7N
+	id S264887AbTGKSRS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 14:17:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264632AbTGKSMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 14:59:13 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:42184 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265091AbTGKSwz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 14:52:55 -0400
-Date: Fri, 11 Jul 2003 12:00:54 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: piggin@cyberone.com.au, rathamahata@php4.ru, linux-kernel@vger.kernel.org
-Subject: Re: Very HIGH File & VM system latencies and system stop responding
- while extracting big tar  archive file.
-Message-Id: <20030711120054.52c1902b.akpm@osdl.org>
-In-Reply-To: <20030711183950.GB976@matchmail.com>
-References: <3F0E8A22.6020700@cyberone.com.au>
-	<20030711034510.30065dc2.akpm@osdl.org>
-	<20030711183950.GB976@matchmail.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 11 Jul 2003 14:12:53 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:10628
+	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264809AbTGKR5n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 13:57:43 -0400
+Date: Fri, 11 Jul 2003 19:11:29 +0100
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200307111811.h6BIBTvg017302@hraefn.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: PATCH: fix security leaks in cmpci
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk <mfedyk@matchmail.com> wrote:
->
-> > No, this will be the reiserfs bug.
-> 
-> Is this in 2.5.75, or -mm?
-
-2.5.75 needs the patch.
-
-You are, as always, better off using the latest kernel.  That's 2.5.75 plus
-the "gzipped full patch" from
-http://www.kernel.org/pub/linux/kernel/v2.5/testing/cset/
-
-It has the reiserfs fix.
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.75/sound/oss/cmpci.c linux-2.5.75-ac1/sound/oss/cmpci.c
+--- linux-2.5.75/sound/oss/cmpci.c	2003-07-10 21:10:16.000000000 +0100
++++ linux-2.5.75-ac1/sound/oss/cmpci.c	2003-07-11 16:27:53.000000000 +0100
+@@ -1272,8 +1272,8 @@
+ 	VALIDATE_STATE(s);
+         if (cmd == SOUND_MIXER_INFO) {
+ 		mixer_info info;
+-		strlcpy(info.id, "cmpci", sizeof(info.id));
+-		strlcpy(info.name, "C-Media PCI", sizeof(info.name));
++		strncpy(info.id, "cmpci", sizeof(info.id));
++		strncpy(info.name, "C-Media PCI", sizeof(info.name));
+ 		info.modify_counter = s->mix.modcnt;
+ 		if (copy_to_user((void *)arg, &info, sizeof(info)))
+ 			return -EFAULT;
+@@ -1281,8 +1281,8 @@
+ 	}
+ 	if (cmd == SOUND_OLD_MIXER_INFO) {
+ 		_old_mixer_info info;
+-		strlcpy(info.id, "cmpci", sizeof(info.id));
+-		strlcpy(info.name, "C-Media cmpci", sizeof(info.name));
++		strncpy(info.id, "cmpci", sizeof(info.id));
++		strncpy(info.name, "C-Media cmpci", sizeof(info.name));
+ 		if (copy_to_user((void *)arg, &info, sizeof(info)))
+ 			return -EFAULT;
+ 		return 0;

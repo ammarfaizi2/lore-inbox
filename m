@@ -1,63 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264082AbTEGQoS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 12:44:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264083AbTEGQoS
+	id S264077AbTEGQmz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 12:42:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264082AbTEGQmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 12:44:18 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:59010 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264082AbTEGQoQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 12:44:16 -0400
-Date: Wed, 7 May 2003 12:59:17 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: petter wahlman <petter@bluezone.no>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The disappearing sys_call_table export.
-In-Reply-To: <1052323711.3739.750.camel@badeip>
-Message-ID: <Pine.LNX.4.53.0305071247360.12878@chaos>
-References: <1052321673.3727.737.camel@badeip>  <Pine.LNX.4.53.0305071147510.12652@chaos>
- <1052323711.3739.750.camel@badeip>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 May 2003 12:42:55 -0400
+Received: from keckclus.cs.usfca.edu ([138.202.170.7]:37506 "EHLO
+	keckclus.cs.usfca.edu") by vger.kernel.org with ESMTP
+	id S264077AbTEGQmy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 12:42:54 -0400
+Date: Wed, 7 May 2003 09:55:17 -0700
+From: Amol P Dharmadhikari <apdharmadhikari@usfca.edu>
+To: Sumit Narayan <sumit_uconn@lycos.com>
+Cc: fdavis@si.rr.com, linux-kernel@vger.kernel.org
+Subject: Re: Write file in EXT2
+Message-ID: <20030507165517.GA24547@keckclus.cs.usfca.edu>
+References: <JLODCPDJJDNBCDAA@mailcity.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <JLODCPDJJDNBCDAA@mailcity.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 May 2003, petter wahlman wrote:
+Hello,
 
-> On Wed, 2003-05-07 at 18:00, Richard B. Johnson wrote:
-> > On Wed, 7 May 2003, petter wahlman wrote:
-> >
-> > >
-> > > It seems like nobody belives that there are any technically valid
-> > > reasons for hooking system calls, but how should e.g anti virus
-> > > on-access scanners intercept syscalls?
-> > > Preloading libraries, ptracing init, patching g/libc, etc. are
-> >   ^^^^^^^^^^^^^^^^^^^
-> >                     |________  Is the way to go. That's how
-> > you communicate every system-call to a user-mode daemon that
-> > does whatever you want it to do, including phoning the National
-> > Security Administrator if that's the policy.
-> >
-> > > obviously not the way to go.
-> > >
-> >
-> > Oviously wrong.
->
->
-> And how would you force the virus to preload this library?
->
-> -p.
->
+> Hi,
+> 
+> Thanks for the details.
+> 
+> I wish to know which application access which file, when.. etc etc. I would like to create a log of that. I am unable to write this log to the file from within the kernel. I would not like to go to the user level programs. I am doing this from within the kernel, as I would like to know exactly when things are being done.
 
-The same way you would force a virus to not be statically linked.
-You make sure that only programs that interface with the kernel
-thorugh your hooks can run on that particular system.
+As Richard said in reply to your earlier email, when you are doing file
+I/O, you need to store the file descriptor of the open file in some
+process's fd table. If you "simply open" a file in the kernel, it is
+meaningless. The kernel just executes on behalf of the currently running
+process and does not have an execution context itself.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+So the idea is to create a kernel thread, and open the log file in its
+context. Also, you want to be sure that the filesystem on which the file
+you are accessing is mounted when you call the sys_open function. Else
+the first write to it might cause a panic. 
 
+-- 
+Amol P Dharmadhikari <apdharmadhikari@usfca.edu>

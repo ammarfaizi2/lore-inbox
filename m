@@ -1,113 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262325AbVDFWNe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262332AbVDFWPL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262325AbVDFWNe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 18:13:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbVDFWNe
+	id S262332AbVDFWPL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 18:15:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbVDFWPL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 18:13:34 -0400
-Received: from hammer.engin.umich.edu ([141.213.40.79]:39335 "EHLO
-	hammer.engin.umich.edu") by vger.kernel.org with ESMTP
-	id S262325AbVDFWNW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 18:13:22 -0400
-Date: Wed, 6 Apr 2005 18:13:16 -0400 (EDT)
-From: Christopher Allen Wing <wingc@engin.umich.edu>
-To: Andi Kleen <ak@muc.de>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Re: clock runs at double speed on x86_64 system w/ATI RS200
- chipset (workaround for APIC mode?)
-In-Reply-To: <20050405183141.GA27195@muc.de>
-Message-ID: <Pine.LNX.4.58.0504061758150.4573@hammer.engin.umich.edu>
-References: <200504031231.j33CVtHp021214@harpo.it.uu.se>
- <Pine.LNX.4.58.0504041050250.32159@hammer.engin.umich.edu> <m18y3x16rj.fsf@muc.de>
- <Pine.LNX.4.58.0504051351200.13242@hammer.engin.umich.edu>
- <20050405183141.GA27195@muc.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 6 Apr 2005 18:15:11 -0400
+Received: from wproxy.gmail.com ([64.233.184.196]:40779 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262332AbVDFWOd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 18:14:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=TqqnFtwDe2sehDcl5e13M8kBElxmnsuAqYxUd8JPG/dBTzwia8/Dzgmj8FBQT1u+eiZ54sJbGa9ahH4GQHg9Ni7aIBAZyL+R5p54BaLR9wYWvUKxSZh677By8VW1hYhD6DbUBNDU+8iH6Nz50kIgueZITFcM9/PkklP0h7dNJBw=
+Message-ID: <aec7e5c305040615146766e121@mail.gmail.com>
+Date: Thu, 7 Apr 2005 00:14:28 +0200
+From: Magnus Damm <magnus.damm@gmail.com>
+Reply-To: Magnus Damm <magnus.damm@gmail.com>
+To: Malcolm Rowe <malcolm-linux@farside.org.uk>
+Subject: Re: [PATCH][RFC] disable built-in modules V2
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <courier.4253F216.00001A20@mail.farside.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <20050405225747.15125.8087.59570@clementine.local>
+	 <courier.4253BAD7.000018D2@mail.farside.org.uk>
+	 <aec7e5c305040606104c86712c@mail.gmail.com>
+	 <courier.4253F216.00001A20@mail.farside.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attached patch gets the clock to work normally for me without
-disabling APIC mode entirely. But I'm still not sure what's going on.
+On Apr 6, 2005 4:28 PM, Malcolm Rowe <malcolm-linux@farside.org.uk> wrote:
+> Magnus Damm writes:
+> > And I guess the idea of replacing the initcall pointer with NULL will
+> > work both with and without function descriptors, right? So we should
+> > be safe on IA64 and PPC64.
+> 
+> I think so, though I don't really know a great deal about this area.
+> 
+> An IA64 descriptor is of the form { &code, &data_context }, and a function
+> pointer is a pointer to such a descriptor. Presumably, setting a function
+> pointer to NULL will either end up setting the pointer-to-descriptor to NULL
+> or the code pointer to NULL, but either way, I would expect the 'if
+> (!*call)' comparison to work as intended.
+> 
+> Best thing would be to get someone on IA64 and/or PPC64 to check this for
+> you. 
 
+I agree. Do we have any friendly IA64/PPC64 user out there?
 
-dmesg of 2.6.11.6 with default options (ACPI, APIC, 'apic=debug'):
-	http://www-personal.engin.umich.edu/~wingc/apictimer/dmesg/dmesg-2.6.11.6-acpi-apicdebug
-	http://www-personal.engin.umich.edu/~wingc/apictimer/dmesg/interrupts-2.6.11-6-acpi-apic
+> Also might be worth checking that the patch works as intended with
+> CONFIG_MODULES=n (assuming you haven't already).
 
-dmesg with patch, and 'timerhack apic=debug':
-	http://www-personal.engin.umich.edu/~wingc/apictimer/dmesg/dmesg-2.6.11.6-acpi-apicdebug-timerhack
-	http://www-personal.engin.umich.edu/~wingc/apictimer/dmesg/interrupts-2.6.11-6-acpi-apic-timerhack
+The code works both with CONFIG_MODULES set to "y" and unset.
 
+Thanks,
 
-The patch causes the timer to be routed via the "Virtual Wire IRQ" mode,
-and I see in /proc/interrupts:
-
-	  0:     376947  local-APIC-edge  timer
-
-instead of 'IO-APIC-edge'. I no longer get duplicate timer interrupts; it
-seems to track the 'LOC' interrupt count normally.
-
-
-The crucial part of the patch, besides skipping attempting to set up the
-timer IRQ through the APIC mp_INT or mp_ExtINT, is:
-
-	clear_IO_APIC_pin(0, pin1)
-
-
-Without this function call, I still get duplicate timer interrupts when
-using Virtual Wire to route the timer.
-
-
-I'm still seeing 'APIC error on CPU0: 00(40)' messages from time to time.
-
-
--Chris
-wingc@engin.umich.edu
-
-
-
---- linux-2.6.11.6/arch/x86_64/kernel/io_apic.c.orig	2005-03-25 22:28:21.000000000 -0500
-+++ linux-2.6.11.6/arch/x86_64/kernel/io_apic.c	2005-04-06 17:56:46.486511088 -0400
-@@ -1564,6 +1564,8 @@
-  * is so screwy.  Thanks to Brian Perkins for testing/hacking this beast
-  * fanatically on his truly buggy board.
-  */
-+static int timer_hack = 0;
-+
- static inline void check_timer(void)
- {
- 	int pin1, pin2;
-@@ -1592,6 +1594,10 @@
-
- 	apic_printk(APIC_VERBOSE,KERN_INFO "..TIMER: vector=0x%02X pin1=%d pin2=%d\n", vector, pin1, pin2);
-
-+    if (timer_hack) {
-+	/* for some reason this stops duplicate timer IRQ? */
-+	clear_IO_APIC_pin(0, pin1);
-+    } else {
- 	if (pin1 != -1) {
- 		/*
- 		 * Ok, does IRQ0 through the IOAPIC work?
-@@ -1633,6 +1639,7 @@
- 		clear_IO_APIC_pin(0, pin2);
- 	}
- 	printk(" failed.\n");
-+    }
-
- 	if (nmi_watchdog) {
- 		printk(KERN_WARNING "timer doesn't work through the IO-APIC - disabling NMI Watchdog!\n");
-@@ -1669,6 +1676,14 @@
- 	panic("IO-APIC + timer doesn't work! Try using the 'noapic' kernel parameter\n");
- }
-
-+static int __init timerhack(char *str)
-+{
-+	timer_hack = 1;
-+	return 1;
-+}
-+__setup("timerhack", timerhack);
-+
-+
- /*
-  *
-  * IRQ's that are handled by the PIC in the MPS IOAPIC case.
+/ magnus

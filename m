@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262266AbUK3T2i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262282AbUK3Tdc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262266AbUK3T2i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 14:28:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbUK3T2i
+	id S262282AbUK3Tdc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 14:33:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262287AbUK3TdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 14:28:38 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:7514 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S262266AbUK3T12
+	Tue, 30 Nov 2004 14:33:22 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:38001 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S262282AbUK3TbQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 14:27:28 -0500
-Date: Tue, 30 Nov 2004 20:27:44 +0100
+	Tue, 30 Nov 2004 14:31:16 -0500
+Date: Tue, 30 Nov 2004 20:31:36 +0100
 From: Sam Ravnborg <sam@ravnborg.org>
-To: Peter Chubb <peter@chubb.wattle.id.au>
-Cc: Sam Ravnborg <sam@ravnborg.org>, Russell King <rmk@arm.linux.co.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Config files that aren't mach_defconfig...
-Message-ID: <20041130192744.GA8777@mars.ravnborg.org>
-Mail-Followup-To: Peter Chubb <peter@chubb.wattle.id.au>,
-	Sam Ravnborg <sam@ravnborg.org>, Russell King <rmk@arm.linux.co.uk>,
-	linux-kernel@vger.kernel.org
-References: <16811.41030.901140.963491@wombat.chubb.wattle.id.au>
+To: George Anzinger <george@mvista.com>
+Cc: Sam Ravnborg <sam@ravnborg.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: A problem with xconfig
+Message-ID: <20041130193136.GB8777@mars.ravnborg.org>
+Mail-Followup-To: George Anzinger <george@mvista.com>,
+	Sam Ravnborg <sam@ravnborg.org>, lkml <linux-kernel@vger.kernel.org>
+References: <41ABA8E5.4060504@mvista.com> <20041130052824.GA8211@mars.ravnborg.org> <41AC4C1D.1050102@mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16811.41030.901140.963491@wombat.chubb.wattle.id.au>
+In-Reply-To: <41AC4C1D.1050102@mvista.com>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 30, 2004 at 09:18:46AM +1100, Peter Chubb wrote:
+On Tue, Nov 30, 2004 at 02:31:57AM -0800, George Anzinger wrote:
+> >
+> >It used to be so but was addressed in a patch to scripts/kconfig/Makefile
+> >a few weeks ago. Do you see it with latest -linus / -mm?
 > 
-> Hi Sam,
->    I've just finished porting Linux 2.6 to a new ARM board, that needs
-> a custom initramfs list.  My approach was to set
-> CONFIG_INITRAMFS_SOURCE to point to
-> "$(srctree)/arch/arm/configs/pleb2_initramfs" in the appropriate
-> defconfig for the board, as it's a default configuration item; but
-> Russell asks if there isn't a better place for a per-board default initramfs
-> script to live? 
+> Gosh, did I do that.  Forgot to say it was the 2.6.9 kernel.  Am I the only 
+> one using xconfig??
+No - but the fault only happens when you are starting from a fesh tree.
+Running mrporper would not delete the old .so file (kbuild 'lost' knowledge
+of it). So most people have just untarred a new kernel on top
+of the old one and it still worked.
 
-We have arch/$arch/configs for this specific purpose to store baord specific
-configuration. So mixing *_defconfig and _initramfs is a natural choice.
-Nothing is gained by introducing another directory for this purpose.
+Also the reason why I failed to fix it in the first place. xconfig and gconfig
+worked even after mrproper - because the .so file survived.
 
 	Sam

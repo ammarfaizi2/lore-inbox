@@ -1,85 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284272AbRLMPk7>; Thu, 13 Dec 2001 10:40:59 -0500
+	id <S284285AbRLMPnJ>; Thu, 13 Dec 2001 10:43:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284282AbRLMPku>; Thu, 13 Dec 2001 10:40:50 -0500
-Received: from chmls06.mediaone.net ([24.147.1.144]:7042 "EHLO
-	chmls06.mediaone.net") by vger.kernel.org with ESMTP
-	id <S284272AbRLMPka>; Thu, 13 Dec 2001 10:40:30 -0500
-Date: Thu, 13 Dec 2001 10:27:29 -0500
-To: Hans Reiser <reiser@namesys.com>
-Cc: Anton Altaparmakov <aia21@cam.ac.uk>, Nathan Scott <nathans@sgi.com>,
-        Andreas Gruenbacher <ag@bestbits.at>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: reiser4 (was Re: [PATCH] Revised extended attributes  interface)
-Message-ID: <20011213102729.B3812@pimlott.ne.mediaone.net>
-Mail-Followup-To: Hans Reiser <reiser@namesys.com>,
-	Anton Altaparmakov <aia21@cam.ac.uk>,
-	Nathan Scott <nathans@sgi.com>,
-	Andreas Gruenbacher <ag@bestbits.at>, linux-kernel@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org, linux-xfs@oss.sgi.com
-In-Reply-To: <20011205143209.C44610@wobbly.melbourne.sgi.com> <20011207202036.J2274@redhat.com> <20011208155841.A56289@wobbly.melbourne.sgi.com> <3C127551.90305@namesys.com> <20011211134213.G70201@wobbly.melbourne.sgi.com> <5.1.0.14.2.20011211184721.04adc9d0@pop.cus.cam.ac.uk> <3C1678ED.8090805@namesys.com> <20011212204333.A4017@pimlott.ne.mediaone.net> <3C1873A2.1060702@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C1873A2.1060702@namesys.com>
-User-Agent: Mutt/1.3.23i
-From: Andrew Pimlott <andrew@pimlott.ne.mediaone.net>
+	id <S284282AbRLMPm7>; Thu, 13 Dec 2001 10:42:59 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:36622 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S284285AbRLMPmt>; Thu, 13 Dec 2001 10:42:49 -0500
+Date: Thu, 13 Dec 2001 16:42:05 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: <roman@serv>
+To: Alexander Viro <viro@math.psu.edu>
+cc: "David C. Hansen" <haveblue@us.ibm.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Change locking in block_dev.c:do_open()
+In-Reply-To: <Pine.GSO.4.21.0112122101350.17470-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0112131629280.12325-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 13, 2001 at 12:23:46PM +0300, Hans Reiser wrote:
-> Andrew Pimlott wrote:
-> >First, I write a desktop application that wants to save an HTML file
-> >along with some other object that contains the name of the creating
-> >application.  The latter can go anywhere you want, except in the
-> >same stream as the HTML file.  The user has requested that the
-> >filename be /home/user/foo.html , and expects to be able to FTP this
-> >file to his ISP with a standard FTP program.  What calls does my
-> >application make to store the HTML and the application name?  If the
-> >answer is different depending on whether /home/user is NTFS or
-> >reiserfs4, explain both ways.
-> >
-> Are you sure that standard ftp will be able to handle extended 
-> attributes without modification?
+Hi,
 
-No, the ftp program only needs to transfer the HTML part.
+On Wed, 12 Dec 2001, Alexander Viro wrote:
 
-> One approach is to create a plugin called ..archive that when read is a 
-> virtual file consisting of an archive of everything in the directory. 
+> that area is not BKL.  It's *!@& damn devfs=only mess and code that does
+> direct assignment of ->bd_op before calling blkdev_get().  Until it's solved
+> (and the only decent way I see is to remove this misfeature) I'd seriously
+> recommend to leave the damn thing as is.
 
-Ok, does this mean that every directory in the filesystem (or in
-some part of it) will automatically have a node ..archive?
-Presumably, it will not appear in directory listings, but can be
-read but not written to?  Does this mean that a legacy application
-(pathological as it may be) that expects to be able to create a file
-called ..archive will fail?
+If it prevents a blkdev cleanup, I'd say we disable it at least and if it
+should be really needed, we can still fix it later. Is anyone actually
+using "devfs=only"? What's the use of it anyway? It only disables the
+ability to address a driver by dev_t, I didn't know we want to go that
+far.
 
-Or do you mean that the application would explicitly create the node
-associated with this plugin?
+bye, Roman
 
-> It would be interesting I think to attach said plugin to standard 
-> directories by default along with several other standard plugins like 
-> ..cat, etc.
-
-Anyway, you didn't answer the part I really care about.  What calls
-does the application make to store the HTML and the "extended
-attribute"?  You can pick whatever conventions you want, just give
-me an example.
-
-> >Second, I booted NT and created a directory in the NTFS filesystem
-> >called /foo .  In the directory, I created a file called bar.  I
-> >also created a named stream called bar, and an extended attribute
-> >called bar.  Now I boot Linux.  What calls do I make to see each of
-> >the three objects called bar?
-> >
-> 
-> You access /foo/bar, /foo/bar/,,bar, /foo/..bar by name.
-
-How do I access the file called ..bar (created in NT) in the
-directory /foo?
-
-(Anton, does NTFS define any reserved filename characters, or only
-win32?)
-
-Andrew

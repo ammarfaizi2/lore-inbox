@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261392AbUBYQjG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 11:39:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261404AbUBYQQG
+	id S261401AbUBYQp6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 11:45:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbUBYQp6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 11:16:06 -0500
-Received: from kinesis.swishmail.com ([209.10.110.86]:62482 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S261400AbUBYQP2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 11:15:28 -0500
-Message-ID: <403CCC77.6030405@techsource.com>
-Date: Wed, 25 Feb 2004 11:25:27 -0500
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Rik van Riel <riel@redhat.com>
-CC: Matti Aarnio <matti.aarnio@zmailer.org>, Greg KH <greg@kroah.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       "Woodruff, Robert J" <woody@co.intel.com>, linux-kernel@vger.kernel.org,
-       "Hefty, Sean" <sean.hefty@intel.com>,
-       "Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
-       "Davis, Arlin R" <arlin.r.davis@intel.com>,
-       marcelo.tosatti@cyclades.com, torvalds@osdl.org
-Subject: Re: PATCH - InfiniBand Access Layer (IBAL)
-References: <Pine.LNX.4.44.0402242238020.15091-100000@chimarrao.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0402242238020.15091-100000@chimarrao.boston.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 25 Feb 2004 11:45:58 -0500
+Received: from delerium.kernelslacker.org ([81.187.208.145]:42976 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S261401AbUBYQp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 11:45:57 -0500
+Date: Wed, 25 Feb 2004 16:44:46 +0000
+From: Dave Jones <davej@redhat.com>
+To: Sergey Vlasov <vsu@altlinux.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: usb-uhci rmmod fun
+Message-ID: <20040225164446.GA9346@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Sergey Vlasov <vsu@altlinux.ru>, linux-kernel@vger.kernel.org
+References: <20040225005241.GB11203@redhat.com> <20040225193343.47b7572f.vsu@altlinux.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040225193343.47b7572f.vsu@altlinux.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Feb 25, 2004 at 07:33:43PM +0300, Sergey Vlasov wrote:
+ > On Wed, 25 Feb 2004 00:52:41 +0000 Dave Jones wrote:
+ > 
+ > > (00:52:08:root@mindphaser:davej)# lsmod | grep floppy
+ > > (00:52:39:root@mindphaser:davej)# modprobe usb-uhci
+ > > (00:52:48:root@mindphaser:davej)# lsmod | grep floppy
+ > > (00:53:02:root@mindphaser:davej)# rmmod uhci_hcd
+ > > (00:53:11:root@mindphaser:davej)# lsmod | grep floppy
+ > > floppy                 58260  0
+ > > (00:53:13:root@mindphaser:davej)#
+ > > 
+ > > Unloading the usb controller loads the floppy controller!?
+ > 
+ > This thing seems to be triggered by updfstab (/etc/hotplug/usb.agent
+ > tries to run it during the remove handling).
 
+Bill Nottingham pointed out to me that on rmmod hotplug rescans
+all removable media, which seems a bit wacky, but that does
+seem to be the case.
 
-Rik van Riel wrote:
-> On Wed, 25 Feb 2004, Matti Aarnio wrote:
-> 
-> 
->>People building "cheap supercomputers" will be going that way
->>most definitely.  Slowest version is 2.5 Gbit/s, and most
->>common one appears to be running 4x that.
-> 
-> 
-> I'm sure infinibad will be inetresting once htere are
-> actual hardware driver.s  However, I'm not aware of any
-> open source drivers in existnace now, so what good is
-> a stack ?
-> 
-
-Chicken and egg.  If infiniband has some significant value, it would be 
-in everyone's favor if we took the initiative.  On the other hand, if 
-something else is better or adequate, like PCI Express (wasn't that 
-based in infiniband?), then there's no point.
+		Dave
 

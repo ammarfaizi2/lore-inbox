@@ -1,65 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280062AbRKITiT>; Fri, 9 Nov 2001 14:38:19 -0500
+	id <S280083AbRKITjt>; Fri, 9 Nov 2001 14:39:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280081AbRKITiJ>; Fri, 9 Nov 2001 14:38:09 -0500
-Received: from mailrelay3.inwind.it ([212.141.54.103]:46274 "EHLO
-	mailrelay3.inwind.it") by vger.kernel.org with ESMTP
-	id <S280062AbRKITiB> convert rfc822-to-8bit; Fri, 9 Nov 2001 14:38:01 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Roby <robylit@inwind.it>
-Reply-To: robylit@inwind.it
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: The module loop.o has an unresolved dependency: deactivate_page()
-Date: Fri, 9 Nov 2001 19:34:06 +0100
-X-Mailer: KMail [version 1.3.1]
+	id <S280082AbRKITjc>; Fri, 9 Nov 2001 14:39:32 -0500
+Received: from anime.net ([63.172.78.150]:65286 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S280061AbRKITjQ>;
+	Fri, 9 Nov 2001 14:39:16 -0500
+Date: Fri, 9 Nov 2001 11:38:54 -0800 (PST)
+From: Dan Hollis <goemon@anime.net>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+cc: Xavier Bestel <xavier.bestel@free.fr>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Andre Hedrick <andre@linux-ide.org>
+Subject: Re: Lockup in IDE code
+In-Reply-To: <200111091656.fA9GusD06947@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.LNX.4.30.0111091138140.30935-100000@anime.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011109193802Z280062-17408+12724@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel 2.4.14
+On Fri, 9 Nov 2001, Richard Gooch wrote:
+> GXavier Bestel writes:
+> > le ven 09-11-2001 à 03:17, Richard Gooch a écrit :
+> > >   Hi, all. I tried to use my IDE CD-ROM today, the first time in a
+> > > long while. When attempting to mount it, the machine locked up,
+> > > hard. Even SysReq didn't work.
+> > Do you have a read error on your CD ?
+> No. I did mention that when I turned off DMA, it worked fine.
 
-[1.] The module loop.o has an unresolved dependency: deactivate_page()
-[2.] If I compile the module loop.o as a module it compiles fine,but then it 
-has un unresolved dependency: deactivate_page(). This function once was in 
-the source file mm/swap.c, but in the kernel 2.4.14 it disappeared. I know 
-the function existed in the kernel 2.4.10.
-[3.] module, deactivate_page(), loop.o, swap.c
-[4.] Kernel 2.4.14, downloaded from www.kernel.org (vanilla, no ac patch)
-[7.2] processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 4
-model name      : AMD Athlon(tm) Processor
-stepping        : 2
-cpu MHz         : 1109.919
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov 
-pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
-bogomips        : 2215.11
+I don't see why read errors should lock up the kernel anyway... would it
+be acceptable for floppy read errors to lock up the kernel too?
 
-[8.] The function deactivate_page() is not defined elsewhere. What have I to 
-do for having the loop block device?
-[9.] ]$ cat version
-Linux version 2.4.14 (root@darkstar) (gcc version egcs-2.91.66 19990314/Linux 
-(egcs-1.1.2 release)) #6 Wed Nov 7 22:22:30 CET 2001
-
+-Dan
 -- 
-Roby
+[-] Omae no subete no kichi wa ore no mono da. [-]
 
-email
-robylit@inwind.it
-robylit@tiscali.it
-
-WEB Page
-http://web.tiscali.it/robylit

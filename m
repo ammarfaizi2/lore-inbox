@@ -1,97 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262539AbVBCKjl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262232AbVBCKis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262539AbVBCKjl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 05:39:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbVBCKjl
+	id S262232AbVBCKis (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 05:38:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbVBCKfB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 05:39:41 -0500
-Received: from ppsw-6.csi.cam.ac.uk ([131.111.8.136]:46497 "EHLO
-	ppsw-6.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S262944AbVBCKhl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 05:37:41 -0500
-Subject: Re: RFC: [PATCH-2.6] Add helper function to lock multiple page
-	cache pages.
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: nathans@sgi.com, Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       lkml <linux-kernel@vger.kernel.org>,
-       fsdevel <linux-fsdevel@vger.kernel.org>
-In-Reply-To: <20050202143422.41c29202.akpm@osdl.org>
-References: <Pine.LNX.4.60.0502021354540.16084@hermes-1.csi.cam.ac.uk>
-	 <20050202143422.41c29202.akpm@osdl.org>
-Content-Type: text/plain
-Organization: University of Cambridge Computing Service, UK
-Date: Thu, 03 Feb 2005 10:37:37 +0000
-Message-Id: <1107427057.9010.18.camel@imp.csi.cam.ac.uk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+	Thu, 3 Feb 2005 05:35:01 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:22483 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S262504AbVBCKaB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 05:30:01 -0500
+Message-ID: <42020C29.99CF1D87@tv-sign.ru>
+Date: Thu, 03 Feb 2005 14:34:01 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ram <linuxram@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Steven Pratt <slpratt@austin.ibm.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 3/4] readahead: factor out duplicated code
+References: <41FB6F45.848CEFF6@tv-sign.ru>  <41FB7517.418D556A@tv-sign.ru> <1107398594.5992.134.camel@localhost>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-02-02 at 14:34 -0800, Andrew Morton wrote:
-> Anton Altaparmakov <aia21@cam.ac.uk> wrote:
+Ram wrote:
+> > unsigned long page_cache_readahead(mapping, ra, filp, offset, req_size)
+> > {
+> > 	unsigned long max, newsize = req_size;
+> > 	int sequential = (offset == ra->prev_page + 1);
 > >
-> > Below is a patch which adds a function 
-> >  mm/filemap.c::find_or_create_pages(), locks a range of pages.  Please see 
-> >  the function description in the patch for details.
-> 
-> This isn't very nice, is it, really?  Kind of a square peg in a round hole.
+> > 	if (offset == ra->prev_page && req_size == 1 && ra->size != 0)
+> > 		goto out;
+> > 	ra->prev_page = offset;		<============== PLEASE LOOK HERE :)
+> > 	max = get_max_readahead(ra);
+> > 	newsize = min(req_size, max);
+> >
+> > 	if (newsize == 0 || (ra->flags & RA_FLAG_INCACHE)) {
+> > 		newsize = 1;
+>
+> At this point prev_page has to be updated:
+>               ra->prev_page = offset;
 
-Only followed your advice.  (-;  But yes, it is not very nice at all.
+Yes, it is already updated, before "max = get_max_readahead(ra);"
 
-> If you took the approach of defining a custom file_operations.write() then
-> I'd imagine that the write() side of things would fall out fairly neatly:
-> no need for s_umount and i_sem needs to be taken anyway.  No trylocking.
+> Otherwise this code looks much cleaner and correct. Can you send me a
+> updated patch. I will run it through my test harness.
 
-But the write() side of things don't need s_umount or trylocking with
-the proposed find_or_create_pages(), either...
+Well, currently I do not know, what should be changed :)
 
-Unfortunately it is not possible to do this since removing
-->{prepare,commit}_write() from NTFS would mean that we cannot use loop
-devices on NTFS any more and this is a really important feature for
-several Linux distributions (e.g. TopologiLinux) which install Linux on
-a loopback mounted NTFS file which they then use to place an ext3 (or
-whatever) fs on and use that as the root fs...
-
-So we definitely need full blown prepare/commit write.  (Unless we
-modify the loop device driver not to use ->{prepare,commit}_write
-first.)
-
-Any ideas how to solve that one?
-
-> And for the vmscan->writepage() side of things I wonder if it would be
-> possible to overload the mapping's ->nopage handler.  If the target page
-> lies in a hole, go off and allocate all the necessary pagecache pages, zero
-> them, mark them dirty?
-
-I guess it would be possible but ->nopage is used for the read case and
-why would we want to then cause writes/allocations?  Example: I create a
-sparse file of 2TiB size and put some data in relevant places.  Then an
-applications mmap()s it and does loads of reads on the mmap()ped file
-and perhaps a write here or there.  Do we really want that to start
-allocating and filling in all read holes?  That seems worse than having
-a square peg for a round hole that is hidden away in a single function.
-
-There is nothing in the proposed find_or_create_pages() that means it
-needs to go into mm/filemap.c.  It could easily be a private function in
-fs/ntfs/aops.c.  I just thought that other fs who want to support
-writing to large block sizes might find it useful and having a shared
-copy in mm/filemap.c would be better in that case.  But if it is too
-ugly to go in mm/filemap.c then that is fine, too.
-
-At the moment I cannot see a way to solve my problem without the
-proposed find_or_create_pages().  )-:
-
-Best regards,
-
-        Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+Oleg.

@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263279AbTFDMZz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 08:25:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263277AbTFDMZz
+	id S263277AbTFDMgT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 08:36:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263285AbTFDMgT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 08:25:55 -0400
-Received: from ams-iport-1.cisco.com ([144.254.74.5]:11596 "EHLO
-	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S263279AbTFDMZy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 08:25:54 -0400
-Date: Wed, 4 Jun 2003 13:39:20 +0100
-From: Derek Fawcus <dfawcus@cisco.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Linux and IBM : "unauthorized" mini-PCI : TCPA updates
-Message-ID: <20030604133920.B17680@edinburgh.cisco.com>
-References: <1054658974.2382.4279.camel@tori>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <1054658974.2382.4279.camel@tori>; from lincoln@EmperorLinux.com on Tue, Jun 03, 2003 at 12:49:34PM -0400
+	Wed, 4 Jun 2003 08:36:19 -0400
+Received: from [151.17.201.167] ([151.17.201.167]:46091 "EHLO mail.teamfab.it")
+	by vger.kernel.org with ESMTP id S263277AbTFDMgS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 08:36:18 -0400
+Message-ID: <3EDDE8F6.10506@teamfab.it>
+Date: Wed, 04 Jun 2003 14:41:26 +0200
+From: Luca Montecchiani <luca.montecchiani@teamfab.it>
+Organization: TeamSystem Spa
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; it-IT; rv:1.3.1) Gecko/20030519
+X-Accept-Language: it, en, en-us
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: partition table problem with 2.4.21-rc7
+References: <87brxemtev.fsf@mcs.anl.gov>  <3EDD9E5C.9060902@teamfab.it> <1054722814.9359.95.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1054722814.9359.95.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can't say I'm too suprised.
+Alan Cox ha scritto:
 
-This is fuzy recall,  but I seem to remember reading that 802.11? mini-PCI
-cards are not type approved (radio licence) by themselves,  but only in
-combination with the system they are to be fitted in.
+> 
+> That would make sense. The drive is attached to the null driver at
+> the point something tried to read the partition table initially. That
+> errors all I/O requests since they are meaningless.
+> 
+> I guess we shouldnt be partition probing those devices. I'll take a
+> look
 
-Hence they're not supposed to be available retail (now someone'll go and
-point out where they are :-)
+Cool,
+feel free to test any patch from you
 
-Mind,  that should just mean that the user makes changes at their own
-risk,  I wouldn't have thought that the PC manufacturer would have been
-required to limit the choice of usable radios.
+luca
 
-However given some of the obligations placed upon manufactures of the
-radio cards,  so that the user is prevented from changing configuration
-of the radio cards themselves,  I'm not too suprised - e.g. limits to
-prevent a user from raising the TX power to illegal levels,  despite
-the fact that they could easily still use illegal antenna gain.
 
-DF

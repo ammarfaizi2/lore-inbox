@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbVCCKuH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbVCCKuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261572AbVCCKuH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 05:50:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbVCCKtL
+	id S261553AbVCCKuI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 05:50:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbVCCKrS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 05:49:11 -0500
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:9652 "EHLO
+	Thu, 3 Mar 2005 05:47:18 -0500
+Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:12212 "EHLO
 	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S261572AbVCCKmy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 05:42:54 -0500
-Date: Thu, 3 Mar 2005 11:42:43 +0100
-Message-Id: <200503031042.j23Aghhj020757@faui31y.informatik.uni-erlangen.de>
+	id S261553AbVCCKnL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 05:43:11 -0500
+Date: Thu, 3 Mar 2005 11:43:00 +0100
+Message-Id: <200503031043.j23Ah0U4020772@faui31y.informatik.uni-erlangen.de>
 From: Martin Waitz <tali@admingilde.org>
 To: tali@admingilde.org
 Cc: linux-kernel@vger.kernel.org
 References: <20050303102852.GG8617@admingilde.org>
-Subject: [PATCH 11/16] DocBook: s/sgml/xml/ in Documentation/DocBook/Makefile
+Subject: [PATCH 13/16] [DocBook] kernel-docify comments
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DocBook: s/sgml/xml/ in Documentation/DocBook/Makefile
+[DocBook] kernel-docify comments
 Signed-off-by: Martin Waitz <tali@admingilde.org>
 
 
@@ -27,187 +27,120 @@ Signed-off-by: Martin Waitz <tali@admingilde.org>
 # Project Name: Linux kernel tree
 # This patch format is intended for GNU patch command version 2.5 or higher.
 # This patch includes the following deltas:
-#	           ChangeSet	1.2035  -> 1.2036 
-#	Documentation/DocBook/Makefile	1.50    -> 1.51   
+#	           ChangeSet	1.2037  -> 1.2038 
+#	      kernel/kfifo.c	1.2     -> 1.3    
+#	include/linux/kfifo.h	1.1     -> 1.2    
 #
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
-# 05/02/08	tali@admingilde.org	1.2036
-# DocBook: s/sgml/xml/ in Documentation/DocBook/Makefile
+# 05/03/02	tali@admingilde.org	1.2038
+# [DocBook] kernel-docify comments
 # 
 # Signed-off-by: Martin Waitz <tali@admingilde.org>
 # --------------------------------------------
 #
-diff -Nru a/Documentation/DocBook/Makefile b/Documentation/DocBook/Makefile
---- a/Documentation/DocBook/Makefile	Thu Mar  3 11:42:47 2005
-+++ b/Documentation/DocBook/Makefile	Thu Mar  3 11:42:47 2005
-@@ -6,38 +6,39 @@
- # To add a new book the only step required is to add the book to the
- # list of DOCBOOKS.
+diff -Nru a/include/linux/kfifo.h b/include/linux/kfifo.h
+--- a/include/linux/kfifo.h	Thu Mar  3 11:43:04 2005
++++ b/include/linux/kfifo.h	Thu Mar  3 11:43:04 2005
+@@ -44,7 +44,7 @@
+ extern unsigned int __kfifo_get(struct kfifo *fifo,
+ 				unsigned char *buffer, unsigned int len);
  
--DOCBOOKS := wanbook.sgml z8530book.sgml mcabook.sgml videobook.sgml \
--	    kernel-hacking.sgml kernel-locking.sgml via-audio.sgml \
--	    deviceiobook.sgml procfs-guide.sgml tulip-user.sgml \
--	    writing_usb_driver.sgml scsidrivers.sgml sis900.sgml \
--	    kernel-api.sgml journal-api.sgml lsm.sgml usb.sgml \
--	    gadget.sgml libata.sgml mtdnand.sgml librs.sgml
-+DOCBOOKS := wanbook.xml z8530book.xml mcabook.xml videobook.xml \
-+	    kernel-hacking.xml kernel-locking.xml via-audio.xml \
-+	    deviceiobook.xml procfs-guide.xml tulip-user.xml \
-+	    writing_usb_driver.xml scsidrivers.xml sis900.xml \
-+	    kernel-api.xml journal-api.xml lsm.xml usb.xml \
-+	    gadget.xml libata.xml mtdnand.xml librs.xml
+-/*
++/**
+  * __kfifo_reset - removes the entire FIFO contents, no locking version
+  * @fifo: the fifo to be emptied.
+  */
+@@ -53,7 +53,7 @@
+ 	fifo->in = fifo->out = 0;
+ }
  
- ###
- # The build process is as follows (targets):
--#              (sgmldocs)
--# file.tmpl --> file.sgml +--> file.ps  (psdocs)
--#                         +--> file.pdf  (pdfdocs)
--#                         +--> DIR=file  (htmldocs)
--#                         +--> man/      (mandocs)
-+#              (xmldocs)
-+# file.tmpl --> file.xml +--> file.ps   (psdocs)
-+#                        +--> file.pdf  (pdfdocs)
-+#                        +--> DIR=file  (htmldocs)
-+#                        +--> man/      (mandocs)
+-/*
++/**
+  * kfifo_reset - removes the entire FIFO contents
+  * @fifo: the fifo to be emptied.
+  */
+@@ -68,7 +68,7 @@
+ 	spin_unlock_irqrestore(fifo->lock, flags);
+ }
  
- ###
- # The targets that may be used.
--.PHONY:	sgmldocs psdocs pdfdocs htmldocs mandocs installmandocs
-+.PHONY:	xmldocs sgmldocs psdocs pdfdocs htmldocs mandocs installmandocs
+-/*
++/**
+  * kfifo_put - puts some data into the FIFO
+  * @fifo: the fifo to be used.
+  * @buffer: the data to be added.
+@@ -93,7 +93,7 @@
+ 	return ret;
+ }
  
- BOOKS := $(addprefix $(obj)/,$(DOCBOOKS))
--sgmldocs: $(BOOKS)
-+xmldocs: $(BOOKS)
-+sgmldocs: xmldocs
+-/*
++/**
+  * kfifo_get - gets some data from the FIFO
+  * @fifo: the fifo to be used.
+  * @buffer: where the data must be copied.
+@@ -124,7 +124,7 @@
+ 	return ret;
+ }
  
--PS := $(patsubst %.sgml, %.ps, $(BOOKS))
-+PS := $(patsubst %.xml, %.ps, $(BOOKS))
- psdocs: $(PS)
+-/*
++/**
+  * __kfifo_len - returns the number of bytes available in the FIFO, no locking version
+  * @fifo: the fifo to be used.
+  */
+@@ -133,7 +133,7 @@
+ 	return fifo->in - fifo->out;
+ }
  
--PDF := $(patsubst %.sgml, %.pdf, $(BOOKS))
-+PDF := $(patsubst %.xml, %.pdf, $(BOOKS))
- pdfdocs: $(PDF)
+-/*
++/**
+  * kfifo_len - returns the number of bytes available in the FIFO
+  * @fifo: the fifo to be used.
+  */
+diff -Nru a/kernel/kfifo.c b/kernel/kfifo.c
+--- a/kernel/kfifo.c	Thu Mar  3 11:43:04 2005
++++ b/kernel/kfifo.c	Thu Mar  3 11:43:04 2005
+@@ -25,7 +25,7 @@
+ #include <linux/err.h>
+ #include <linux/kfifo.h>
  
--HTML := $(patsubst %.sgml, %.html, $(BOOKS))
-+HTML := $(patsubst %.xml, %.html, $(BOOKS))
- htmldocs: $(HTML)
+-/*
++/**
+  * kfifo_init - allocates a new FIFO using a preallocated buffer
+  * @buffer: the preallocated buffer to be used.
+  * @size: the size of the internal buffer, this have to be a power of 2.
+@@ -56,7 +56,7 @@
+ }
+ EXPORT_SYMBOL(kfifo_init);
  
--MAN := $(patsubst %.sgml, %.9, $(BOOKS))
-+MAN := $(patsubst %.xml, %.9, $(BOOKS))
- mandocs: $(MAN)
+-/*
++/**
+  * kfifo_alloc - allocates a new FIFO and its internal buffer
+  * @size: the size of the internal buffer to be allocated.
+  * @gfp_mask: get_free_pages mask, passed to kmalloc()
+@@ -91,7 +91,7 @@
+ }
+ EXPORT_SYMBOL(kfifo_alloc);
  
- installmandocs: mandocs
-@@ -55,7 +56,7 @@
- # 1) To generate a dependency list for a .tmpl file
- # 2) To preprocess a .tmpl file and call kernel-doc with
- #     appropriate parameters.
--# The following rules are used to generate the .sgml documentation
-+# The following rules are used to generate the .xml documentation
- # required to generate the final targets. (ps, pdf, html).
- quiet_cmd_docproc = DOCPROC $@
-       cmd_docproc = SRCTREE=$(srctree)/ $(DOCPROC) doc $< >$@
-@@ -69,7 +70,7 @@
-         ) > $(dir $@).$(notdir $@).cmd
- endef
+-/*
++/**
+  * kfifo_free - frees the FIFO
+  * @fifo: the fifo to be freed.
+  */
+@@ -102,7 +102,7 @@
+ }
+ EXPORT_SYMBOL(kfifo_free);
  
--%.sgml: %.tmpl FORCE
-+%.xml: %.tmpl FORCE
- 	$(call if_changed_rule,docproc)
+-/*
++/**
+  * __kfifo_put - puts some data into the FIFO, no locking version
+  * @fifo: the fifo to be used.
+  * @buffer: the data to be added.
+@@ -135,7 +135,7 @@
+ }
+ EXPORT_SYMBOL(__kfifo_put);
  
- ###
-@@ -87,9 +88,9 @@
- ###
- # procfs guide uses a .c file as example code.
- # This requires an explicit dependency
--C-procfs-example = procfs_example.sgml
-+C-procfs-example = procfs_example.xml
- C-procfs-example2 = $(addprefix $(obj)/,$(C-procfs-example))
--$(obj)/procfs-guide.sgml: $(C-procfs-example2)
-+$(obj)/procfs-guide.xml: $(C-procfs-example2)
- 
- ###
- # Rules to generate postscript, PDF and HTML
-@@ -97,7 +98,7 @@
- 
- quiet_cmd_db2ps = DB2PS   $@
-       cmd_db2ps = db2ps -o $(dir $@) $<
--%.ps : %.sgml
-+%.ps : %.xml
- 	@(which db2ps > /dev/null 2>&1) || \
- 	 (echo "*** You need to install DocBook stylesheets ***"; \
- 	  exit 1)
-@@ -105,7 +106,7 @@
- 
- quiet_cmd_db2pdf = DB2PDF  $@
-       cmd_db2pdf = db2pdf -o $(dir $@) $<
--%.pdf : %.sgml
-+%.pdf : %.xml
- 	@(which db2pdf > /dev/null 2>&1) || \
- 	 (echo "*** You need to install DocBook stylesheets ***"; \
- 	  exit 1)
-@@ -116,7 +117,7 @@
- 		echo '<a HREF="$(patsubst %.html,%,$(notdir $@))/book1.html"> \
-          Goto $(patsubst %.html,%,$(notdir $@))</a><p>' > $@
- 
--%.html:	%.sgml
-+%.html:	%.xml
- 	@(which db2html > /dev/null 2>&1) || \
- 	 (echo "*** You need to install DocBook stylesheets ***"; \
- 	  exit 1)
-@@ -128,7 +129,7 @@
- ###
- # Rule to generate man files - output is placed in the man subdirectory
- 
--%.9:	%.sgml
-+%.9:	%.xml
- ifneq ($(KBUILD_SRC),)
- 	$(Q)mkdir -p $(objtree)/Documentation/DocBook/man
- endif
-@@ -156,8 +157,8 @@
- 	$(call cmd,fig2png)
- 
- ###
--# Rule to convert a .c file to inline SGML documentation
--%.sgml: %.c
-+# Rule to convert a .c file to inline XML documentation
-+%.xml: %.c
- 	@echo '  GEN     $@'
- 	@(                            \
- 	   echo "<programlisting>";   \
-@@ -171,24 +172,24 @@
- # Help targets as used by the top-level makefile
- dochelp:
- 	@echo  '  Linux kernel internal documentation in different formats:'
--	@echo  '  sgmldocs (SGML), psdocs (Postscript), pdfdocs (PDF)'
-+	@echo  '  xmldocs (XML DocBook), psdocs (Postscript), pdfdocs (PDF)'
- 	@echo  '  htmldocs (HTML), mandocs (man pages, use installmandocs to install)'
- 
- ###
- # Temporary files left by various tools
- clean-files := $(DOCBOOKS) \
--	$(patsubst %.sgml, %.dvi,  $(DOCBOOKS)) \
--	$(patsubst %.sgml, %.aux,  $(DOCBOOKS)) \
--	$(patsubst %.sgml, %.tex,  $(DOCBOOKS)) \
--	$(patsubst %.sgml, %.log,  $(DOCBOOKS)) \
--	$(patsubst %.sgml, %.out,  $(DOCBOOKS)) \
--	$(patsubst %.sgml, %.ps,   $(DOCBOOKS)) \
--	$(patsubst %.sgml, %.pdf,  $(DOCBOOKS)) \
--	$(patsubst %.sgml, %.html, $(DOCBOOKS)) \
--	$(patsubst %.sgml, %.9,    $(DOCBOOKS)) \
-+	$(patsubst %.xml, %.dvi,  $(DOCBOOKS)) \
-+	$(patsubst %.xml, %.aux,  $(DOCBOOKS)) \
-+	$(patsubst %.xml, %.tex,  $(DOCBOOKS)) \
-+	$(patsubst %.xml, %.log,  $(DOCBOOKS)) \
-+	$(patsubst %.xml, %.out,  $(DOCBOOKS)) \
-+	$(patsubst %.xml, %.ps,   $(DOCBOOKS)) \
-+	$(patsubst %.xml, %.pdf,  $(DOCBOOKS)) \
-+	$(patsubst %.xml, %.html, $(DOCBOOKS)) \
-+	$(patsubst %.xml, %.9,    $(DOCBOOKS)) \
- 	$(C-procfs-example)
- 
--clean-dirs := $(patsubst %.sgml,%,$(DOCBOOKS))
-+clean-dirs := $(patsubst %.xml,%,$(DOCBOOKS))
- 
- #man put files in man subdir - traverse down
- subdir- := man/
+-/*
++/**
+  * __kfifo_get - gets some data from the FIFO, no locking version
+  * @fifo: the fifo to be used.
+  * @buffer: where the data must be copied.

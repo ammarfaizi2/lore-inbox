@@ -1,88 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263760AbSLMNih>; Fri, 13 Dec 2002 08:38:37 -0500
+	id <S264004AbSLMNjT>; Fri, 13 Dec 2002 08:39:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264622AbSLMNih>; Fri, 13 Dec 2002 08:38:37 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:10880 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S263760AbSLMNid>; Fri, 13 Dec 2002 08:38:33 -0500
-Message-Id: <200212131345.gBDDjw27002677@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Alessandro Suardi <alessandro.suardi@oracle.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.5[01]]: Xircom Cardbus broken (PCI resource collisions) 
-In-Reply-To: Your message of "Fri, 13 Dec 2002 11:10:24 +0100."
-             <1039774224.1449.0.camel@laptop.fenrus.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <200212122247.gBCMlHgY011021@turing-police.cc.vt.edu>
-            <1039774224.1449.0.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1861548008P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 13 Dec 2002 08:45:58 -0500
+	id <S264622AbSLMNjS>; Fri, 13 Dec 2002 08:39:18 -0500
+Received: from [213.196.40.44] ([213.196.40.44]:25491 "EHLO blackstar.nl")
+	by vger.kernel.org with ESMTP id <S264004AbSLMNjG>;
+	Fri, 13 Dec 2002 08:39:06 -0500
+Date: Fri, 13 Dec 2002 13:53:06 +0100 (CET)
+From: Bas Vermeulen <bvermeul@blackstar.nl>
+To: Take Vos <Take.Vos@binary-magic.com>
+cc: Vojtech Pavlik <vojtech@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: PS/2 keyboard and mouse not available/working/weird
+In-Reply-To: <200212122036.18595.Take.Vos@binary-magic.com>
+Message-ID: <Pine.LNX.4.33.0212131351230.8757-100000@devel.blackstar.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1861548008P
-Content-Type: text/plain; charset=us-ascii
+On Thu, 12 Dec 2002, Take Vos wrote:
 
-On Fri, 13 Dec 2002 11:10:24 +0100, Arjan van de Ven said:
-> On Thu, 2002-12-12 at 23:47, Valdis.Kletnieks@vt.edu wrote:
-> > --- drivers/pcmcia/cardbus.c.dist	2002-12-03 01:49:29.000000000 -0500
-> > +++ drivers/pcmcia/cardbus.c	2002-12-03 01:50:23.000000000 -0500
-> > @@ -283,8 +283,6 @@
-> >  		dev->hdr_type = hdr & 0x7f;
-> >  
-> >  		pci_setup_device(dev);
-> > -		if (pci_enable_device(dev))
-> > -			continue;
-> >  
-> >  		strcpy(dev->dev.bus_id, dev->slot_name);
-> >  
-> > @@ -302,6 +300,8 @@
-> >  			pci_writeb(dev, PCI_INTERRUPT_LINE, irq);
-> >  		}
-> >  
-> > +		if (pci_enable_device(dev))
-> > +			continue;
-> >  		device_register(&dev->dev);
-> >  		pci_insert_device(dev, bus);
-> >  	}
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> interesting. BUT aren't we writing to the device 3 lines before where
-> you add the pci_enable_device()? That sounds like a bad plan to me ;(
+> On Tuesday 22 October 2002 16:34, Vojtech Pavlik wrote:
+> > On Tue, Oct 22, 2002 at 04:03:49PM +0200, Take Vos wrote:
+> > > In 2.5.44 both my PS/2 mice are not available, neither is my keyboard,
+> > > although after sufficient keystrokes, sometimes 5, sometimes more, the
+> > > keyboard is found, this is with Xfree.
+> I am now using 2.5.51 and I still have the problem when I reboot from a 2.5.51 
+> kernel to a 2.5.51 or 2.4.19 kernel both my internal keyboard and mouse (DELL 
+> Inspiron 8100) are not working anymore. The strange thing is the keyboard 
+> does work in grub.
+> 
+> relevant dmesg output:
+> 	device class 'input': registering
+> 	register interface 'mouse' with class 'input'
+> 	mice: PS/2 mouse device common for all mice
+> 	register interface 'joystick' with class 'input'
+> 	register interface 'event' with class 'input'
+> 	input: PS/2 Synaptics TouchPad on isa0060/serio1
+> 	serio: i8042 AUX port at 0x60,0x64 irq 12
+> 	input: AT Set 2 keyboard on isa0060/serio0
+> 	serio: i8042 KBD port at 0x60,0x64 irq 1
 
-That's where pci_enable_device() *USED* to be - this is backing out a change
-made in 2.5.50 - it added the if/continue wrapper and moved it up about 15
-lines in the code. The problem seems to be that for many devices,
-pci_enable_device() fails unless we do the pci_writeb() magic first.  Or
-perhaps it's the call to pci_assign_resource() - I don't know. ;) The 2.4.18
-tree has the pci_enable_device() at the same place - just without the if/
-continue around it.  It can't be THAT evil, as that's the way 2.4.0 to 2.4.18
-and 2.5.0 to 2.5.49 did it.. ;)
+I have exactly the same problem on an Inspiron 8000. Been that way since 
+2.5.4x (7 or 8), but cannot get a working 2.5.51 to test at this point.
 
-I see why the if/continue was added - you don't want to be calling
-device_register()/pci_insert_device() if pci_enable_device() loses.  I don't
-see why 2.5.50 moved the code up after pci_setup_device(). There's an outside
-chance that the concept of moving the call was correct, but that it should have
-been moved to between the calls to pci_assign_resource() and pci_readb().
-If that's the case, then you're correct as well....
+Just to add another data point. :)
 
-/Valdis (who shouldn't be trying to think before caffeine.. ;)
+Bas Vermeulen
 
+-- 
+"God, root, what is difference?" 
+	-- Pitr, User Friendly
 
---==_Exmh_1861548008P
-Content-Type: application/pgp-signature
+"God is more forgiving." 
+	-- Dave Aronson
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE9+eSVcC3lWbTT17ARArjGAJ9LBFpak9gOAPcIOg5epTJt5AN5BwCgkcKh
-awGdE3doCRRK91rx8LOpXYk=
-=hZVf
------END PGP SIGNATURE-----
-
---==_Exmh_1861548008P--

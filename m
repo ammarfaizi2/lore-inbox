@@ -1,47 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266184AbUAGLFR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 06:05:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266185AbUAGLFQ
+	id S265504AbUAGLSq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 06:18:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265510AbUAGLSq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 06:05:16 -0500
-Received: from play.smurf.noris.de ([192.109.102.42]:60862 "EHLO
-	play.smurf.noris.de") by vger.kernel.org with ESMTP id S266184AbUAGLFL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 06:05:11 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Newsgroups: smurf.list.linux.kernel
-Subject: Re: gaim problems in 2.6.0
-Date: Wed, 07 Jan 2004 11:38:25 +0100
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2004.01.07.10.38.22.960565@smurf.noris.de>
-References: <20040104172535.GA322@elf.ucw.cz> <3FF86F95.6040304@metalhen.de>
-NNTP-Posting-Host: linux.smurf.noris.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Trace: play.smurf.noris.de 1073471905 25192 192.109.102.39 (7 Jan 2004 10:38:25 GMT)
-X-Complaints-To: smurf@noris.de
-NNTP-Posting-Date: Wed, 7 Jan 2004 10:38:25 +0000 (UTC)
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+	Wed, 7 Jan 2004 06:18:46 -0500
+Received: from jaguar.mkp.net ([192.139.46.146]:35968 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S265504AbUAGLSk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 06:18:40 -0500
+To: Christoph Hellwig <hch@infradead.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] allow SGI IOC4 chipset support
+References: <20040106010924.GA21747@sgi.com>
+	<20040106102538.A14492@infradead.org>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 07 Jan 2004 06:18:30 -0500
+In-Reply-To: <20040106102538.A14492@infradead.org>
+Message-ID: <yq04qv8ypkp.fsf@wildopensource.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Benjamin Henne wrote:
+>>>>> "Christoph" == Christoph Hellwig <hch@infradead.org> writes:
 
-> I also have problems with gnome and freezing when using 2.6.0.
+Christoph> On Mon, Jan 05, 2004 at 05:09:24PM -0800, Jesse Barnes
+Christoph> wrote:
+>> The 'depends' directive for SGI IOC4 support is too restrictive.
+>> Just kill it altogether.
 
-Do you have CONFIG_PREEMPT turned on? I've noticed that it seems to
-kill the stability of my PPC box when running X. Maybe there's a common
-bug lurking somewhere.
+Christoph> Umm, it won't work for anything but a kernel with SN2
+Christoph> support compile in due to the bridge-level dma byteswapping
+Christoph> it needs (through a week symbol, that's why you don't see
+Christoph> compile failures for other architectures, eek!).
 
--- 
-Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
-Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
- - -
-The descent to Hades is the same from every place.
-		-- Anaxagoras
+Christoph> So at least make it depend on CONFIG_IA64
 
+What about adding this?
+
+Though shall not use weak symbols in though kernel ....
+
+Jes
+
+--- drivers/ide/pci/sgiioc4.c~	Tue Jan  6 01:43:41 2004
++++ drivers/ide/pci/sgiioc4.c	Wed Jan  7 03:13:13 2004
+@@ -719,6 +719,7 @@
+ 	return 0;
+ }
+ 
++#if defined(CONFIG_IA64_GENERIC) || defined(CONFIG_IA64_SGI_SN2)
+ /* This ensures that we can build this for generic kernels without
+  * having all the SN2 code sync'd and merged.
+  */
+@@ -726,9 +727,10 @@
+ 	PCIDMA_ENDIAN_BIG,
+ 	PCIDMA_ENDIAN_LITTLE
+ } pciio_endian_t;
+-pciio_endian_t __attribute__ ((weak)) snia_pciio_endian_set(struct pci_dev
+-					    *pci_dev, pciio_endian_t device_end,
+-					    pciio_endian_t desired_end);
++pciio_endian_t snia_pciio_endian_set(struct pci_dev
++				     *pci_dev, pciio_endian_t device_end,
++				     pciio_endian_t desired_end);
++#endif
+ 
+ static unsigned int __init
+ pci_init_sgiioc4(struct pci_dev *dev, ide_pci_device_t * d)
+@@ -754,6 +756,7 @@
+ 		return 1;
+ 	}
+ 
++#if defined(CONFIG_IA64_GENERIC) || defined(CONFIG_IA64_SGI_SN2)
+ 	/* Enable Byte Swapping in the PIC... */
+ 	if (snia_pciio_endian_set) {
+ 		snia_pciio_endian_set(dev, PCIDMA_ENDIAN_LITTLE,
+@@ -764,7 +767,7 @@
+ 		       d->name, dev->slot_name);
+ 		return 1;
+ 	}
+-
++#endif
+ 	return sgiioc4_ide_setup_pci_device(dev, d);
+ }
+ 

@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313016AbSEDOFD>; Sat, 4 May 2002 10:05:03 -0400
+	id <S313019AbSEDOJM>; Sat, 4 May 2002 10:09:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313019AbSEDOFC>; Sat, 4 May 2002 10:05:02 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:49618 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S313016AbSEDOFA>;
-	Sat, 4 May 2002 10:05:00 -0400
-Date: Sat, 4 May 2002 16:04:58 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200205041404.QAA02175@harpo.it.uu.se>
-To: marcelo@conectiva.com.br
-Subject: [PATCH] fix 2.4.19-pre8 UP APIC breakage
-Cc: linux-kernel@vger.kernel.org
+	id <S313022AbSEDOJL>; Sat, 4 May 2002 10:09:11 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:28938 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S313019AbSEDOJK>; Sat, 4 May 2002 10:09:10 -0400
+Date: Sat, 4 May 2002 16:09:03 +0200
+From: tomas szepe <kala@pinerecords.com>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] hpt374 support
+Message-ID: <20020504140903.GC20335@louise.pinerecords.com>
+In-Reply-To: <20020504050112.1B44989BC9@cx518206-b.irvn1.occa.home.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-OS: Linux/sparc 2.2.21-rc3-ext3-0.0.7a SMP (up 12 days, 6:39)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo,
+> > It has a problem with my 80 gigabyte Seagates - in UDMA133
+> > mode, writes are inexplicably slow.  I manually set UDMA100
+> > and it flies.
+> Hmmm... do 80GB Seagates even support UDMA133? I could be mistaken, but
+> as an owner of one, I'm pretty sure the answer is "no". In fact, I think
+> Maxtor's the only company making UDMA133 drives at this point in time.
 
-2.4.19-pre8 gets a linker error if CONFIG_X86_UP_APIC=y and
-CONFIG_X86_UP_IOAPIC=n:
+Right.
 
-init/main.o: In function `smp_init':
-init/main.o(.text.init+0x59e): undefined reference to `skip_ioapic_setup'
-arch/i386/kernel/kernel.o: In function `broken_pirq':
-arch/i386/kernel/kernel.o(.text.init+0x3272): undefined reference to `skip_ioapic_setup'
+hda: ST380021A, ATA DISK drive (i.e., Seagate Barracuda IV)
+hda: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=9729/255/63, UDMA(100)
 
-The patch below fixes this. Please apply.
+ Model=ST380021A, FwRev=3.75, SerialNo=3HV16GXT
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs RotSpdTol>.5% }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
+ BuffType=unknown, BuffSize=2048kB, MaxMultSect=16, MultSect=off
+ CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=156301488
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes: pio0 pio1 pio2 pio3 pio4
+ DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5
+ AdvancedPM=no
+ Drive Supports : Reserved : ATA-1 ATA-2 ATA-3 ATA-4 ATA-5
 
-/Mikael
+ATA-5 would be ATA100 AFAIK?
 
---- linux-2.4.19-pre8/arch/i386/kernel/dmi_scan.c.~1~	Sat May  4 14:45:18 2002
-+++ linux-2.4.19-pre8/arch/i386/kernel/dmi_scan.c	Sat May  4 15:33:26 2002
-@@ -418,7 +418,7 @@
- 	printk(KERN_INFO " *** If you see IRQ problems, in paticular SCSI resets and hangs at boot\n");
- 	printk(KERN_INFO " *** contact your hardware vendor and ask about updates.\n");
- 	printk(KERN_INFO " *** Building an SMP kernel may evade the bug some of the time.\n");
--#ifdef CONFIG_X86_UP_APIC
-+#ifdef CONFIG_X86_IO_APIC
- 	skip_ioapic_setup = 0;
- #endif
- 	return 0;
---- linux-2.4.19-pre8/init/main.c.~1~	Sat May  4 15:25:27 2002
-+++ linux-2.4.19-pre8/init/main.c	Sat May  4 15:33:32 2002
-@@ -293,11 +293,9 @@
- #ifndef CONFIG_SMP
- 
- #ifdef CONFIG_X86_LOCAL_APIC
--extern int skip_ioapic_setup;
- static void __init smp_init(void)
- {
--	if (!skip_ioapic_setup)
--		APIC_init_uniprocessor();
-+	APIC_init_uniprocessor();
- }
- #else
- #define smp_init()	do { } while (0)
+
+T.

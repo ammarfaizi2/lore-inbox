@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310740AbSCHIwt>; Fri, 8 Mar 2002 03:52:49 -0500
+	id <S310749AbSCHI77>; Fri, 8 Mar 2002 03:59:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310741AbSCHIwj>; Fri, 8 Mar 2002 03:52:39 -0500
-Received: from pc3-camc5-0-cust13.cam.cable.ntl.com ([80.4.125.13]:43484 "EHLO
-	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S310740AbSCHIwV>;
-	Fri, 8 Mar 2002 03:52:21 -0500
-Date: Fri, 8 Mar 2002 08:50:28 +0000
-From: Arjan van de Ven <arjan@fenrus.demon.nl>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Submitting PROMISE IDE Controllers Driver Patch
-Message-ID: <20020308085028.A14375@fenrus.demon.nl>
-In-Reply-To: <200203080823.g288NC514338@fenrus.demon.nl> <3C8877D7.2020708@evision-ventures.com>
+	id <S310748AbSCHI7t>; Fri, 8 Mar 2002 03:59:49 -0500
+Received: from [210.102.202.245] ([210.102.202.245]:22406 "EHLO
+	mercury.senux.com") by vger.kernel.org with ESMTP
+	id <S310746AbSCHI7c>; Fri, 8 Mar 2002 03:59:32 -0500
+Date: Fri, 8 Mar 2002 17:59:21 +0900
+From: Brian Lee <senux@senux.com>
+To: linux-kernel@vger.kernel.org
+Subject: [senux@senux.com: patch files in redhat linux kernel.]
+Message-ID: <20020308085921.GB14030@jupiter.senux.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C8877D7.2020708@evision-ventures.com>; from dalecki@evision-ventures.com on Fri, Mar 08, 2002 at 09:35:35AM +0100
+User-Agent: Mutt/1.3.27i
+X-homepage: http://www.senux.com/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 08, 2002 at 09:35:35AM +0100, Martin Dalecki wrote:
-> Please look closer at my posting. I just think, that since there
-> are apparently no tru hardware raid devices out there it would
-> be sufficient to expand the detection code to not ignore
-> RAID class devices at all. This would just prevent
-> us from having two different entries in the
-> device detection list. Not much more involved I think.
+Sorry but I think many guys here understand and may send
+me comment about this. (I forward this from enigma list in RH)
 
-There's one tiny glitch: there are exactly 2 "real" raid devices out there
-(that I know of at least). But anyway, a "don't look at" list will be
-MUCH shorter than a "look also at" list.
+----- Forwarded message from Brian Lee <senux@senux.com> -----
 
+Date: Fri, 8 Mar 2002 17:57:05 +0900
+From: Brian Lee <senux@senux.com>
+To: enigma-list@redhat.com
+Subject: patch files in redhat linux kernel.
+Content-Type: text/plain; charset=us-ascii
+User-Agent: Mutt/1.3.27i
+
+Hi,
+
+I opened kernel source rpm and saw about 300 patch files
+there. I want to know what each patch files does to linux
+kernel. 
+
+I tried to figure out by changelog but it is terrible for me.
+I want to know info of patch files especially about VM and
+swap which I heard issued to recenlt kernel.
+
+Sorry for short English but any replying and comments will
+be very helpful for me. Thank you.
+
+----- End forwarded message -----
+
+-- 
+ ____       Brian Lee       <senux@senux.com>
+ |o | i   / Homepage http://www.senux.com/en/
+ #######|<  GnuPG public key is   0x46C763A3
+(x-x-x-x) \ --------------------------------

@@ -1,65 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269939AbUJGXrI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269912AbUJGXGX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269939AbUJGXrI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 19:47:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269950AbUJGXqk
+	id S269912AbUJGXGX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 19:06:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269911AbUJGXAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 19:46:40 -0400
-Received: from mail.kroah.org ([69.55.234.183]:37510 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S269947AbUJGXlf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 19:41:35 -0400
-Date: Thu, 7 Oct 2004 16:40:38 -0700
-From: Greg KH <greg@kroah.com>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc3-mm3
-Message-ID: <20041007234038.GA2163@kroah.com>
-References: <20041007015139.6f5b833b.akpm@osdl.org> <200410071041.20723.sandersn@btinternet.com> <20041007025007.77ec1a44.akpm@osdl.org> <20041007114040.GV9106@holomorphy.com> <1097184341l.10532l.0l@werewolf.able.es> <1097185597l.10532l.1l@werewolf.able.es> <20041007150708.5d60e1c3.akpm@osdl.org> <1097188883l.6408l.1l@werewolf.able.es> <20041007155441.5a8e8e3a.akpm@osdl.org> <1097190413l.6408l.3l@werewolf.able.es>
+	Thu, 7 Oct 2004 19:00:44 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:27304
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S268232AbUJGWtO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 18:49:14 -0400
+Date: Thu, 7 Oct 2004 15:48:06 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: <hzhong@cisco.com>
+Cc: msipkema@sipkema-digital.com, cfriesen@nortelnetworks.com, jst1@email.com,
+       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       davem@redhat.com
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+Message-Id: <20041007154806.2b76f475.davem@davemloft.net>
+In-Reply-To: <012001c4acbf$786766f0$b83147ab@amer.cisco.com>
+References: <20041007152400.17e8f475.davem@davemloft.net>
+	<012001c4acbf$786766f0$b83147ab@amer.cisco.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1097190413l.6408l.3l@werewolf.able.es>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 07, 2004 at 11:06:53PM +0000, J.A. Magallon wrote:
-> 
-> On 2004.10.08, Andrew Morton wrote:
-> >"J.A. Magallon" <jamagallon@able.es> wrote:
-> >>
-> >> Thanks, that made it work again !!
-> >> 
-> >> Total set of patches to boot:
-> >> - your latest fix
-> >> - revert optimize profile + Andi's patch
-> >> - uhci fix (still needed ?)
-> >
-> >I don't know anything about the uhci fix.  Sending a changelogged,
-> >signed-off patch would hep get the ball rolling.
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=109690445623905&w=2
-> 
-> Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-> 
-> ===== drivers/usb/host/uhci-hcd.c 1.134 vs edited =====
-> --- 1.134/drivers/usb/host/uhci-hcd.c	2004-09-30 13:58:40 -04:00
-> +++ edited/drivers/usb/host/uhci-hcd.c	2004-10-04 10:37:21 -04:00
-> @@ -2412,7 +2412,7 @@
-> 		goto up_failed;
-> 
-> 	retval = pci_register_driver(&uhci_pci_driver);
-> -	if (retval)
-> +	if (retval < 0)
-> 		goto init_failed;
-> 
-> 	return 0;
+On Thu, 7 Oct 2004 15:46:23 -0700
+"Hua Zhong" <hzhong@cisco.com> wrote:
 
-This should not be needed anymore, as I've fixed up the
-pci_register_driver() call to be sane.  If you are having problems,
-please let me know about it.
+> The reason is that you haven't just admitted very clearly that 
+> "Linux select isn't Posix compliant and it was a design decision 
+> not to do so for performance reasons".
 
-thanks,
+It is, happy now? :-)
 
-greg k-h
+I never claimed it to be POSIX compliant.

@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267651AbUHJS55@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267674AbUHJS5a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267651AbUHJS55 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 14:57:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267679AbUHJSz3
+	id S267674AbUHJS5a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 14:57:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267651AbUHJSzt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 14:55:29 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:64200 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S267636AbUHJSvd
+	Tue, 10 Aug 2004 14:55:49 -0400
+Received: from hibernia.jakma.org ([212.17.55.49]:40331 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S267608AbUHJSrM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 14:51:33 -0400
-Message-ID: <41191929.4090305@free.fr>
-Date: Tue, 10 Aug 2004 20:51:21 +0200
-From: Eric Valette <eric.valette@free.fr>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Tue, 10 Aug 2004 14:47:12 -0400
+Date: Tue, 10 Aug 2004 19:46:48 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: "Luesley, William" <william.luesley@amsjv.com>
+cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Network routing issue
+In-Reply-To: <22CE8E75BE6AD3119A9800508B0FF7E9030BADD0@nmex02.nm.dsx.bae.co.uk>
+Message-ID: <Pine.LNX.4.60.0408101944200.2622@fogarty.jakma.org>
+References: <22CE8E75BE6AD3119A9800508B0FF7E9030BADD0@nmex02.nm.dsx.bae.co.uk>
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
 MIME-Version: 1.0
-To: Len Brown <len.brown@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Karol Kozimor <sziwan@hell.org.pl>
-Subject: Re: 2.6.8-rc4-mm1 : Hard freeze due to ACPI
-References: <41189098.4000400@free.fr>  <4118A500.1080306@free.fr> <1092151779.5028.40.camel@dhcppc4>
-In-Reply-To: <1092151779.5028.40.camel@dhcppc4>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Len Brown wrote:
+On Tue, 10 Aug 2004, Luesley, William wrote:
 
-> asus_acpi.c from Karol
-> http://linux-acpi.bkbits.net:8080/linux-acpi-test-2.6.7/gnupatch@4117a219yRjkVomavWT8WoMdRg7KHA
-> 
-> pci_link.c - resume fix from Nathan
-> http://linux-acpi.bkbits.net:8080/linux-acpi-test-2.6.7/gnupatch@41114fe37ez5dnzmR96KT2DHr4-elA
-> 
-> I'll poke around the mm patch to see if anything else looks suspicious.
+> In order to help testing, I have been asked to place a third machine between
+> these two which will be capable of intercepting and modifying any messages.
 
-Thanks for answering Len. Due to the usual delay, I had the time to 
-revert the paches myself before your answer and found that as expected 
-the problem still persist (I browsed the patch quickly directly from 
-bitkkeper acpi tree and found a priori nothing suspicious).
+> My initial plan was to have a device which could mimic both ends of the
+> connection (as I already have code to do this); with each connection being
+> on a separate NIC, leading to a setup as shown below:
+>
+>          A ------------ C  C  ---------- B
+> 192.168.1.1    192.168.1.2  192.168.1.1   192.168.1.2
+>                    (eth0)  (eth1)
 
-Curious that :
-	- acpi=off boot option makes the problem vanish,
-	- it looks like a deadlock due to an asynchronous event as it does not 
-always occur at the same time after the boot finishes,
-	- even without typing anything on the keyboard in single mode it deadlocks,
-	- I never saw the fan suddenly wake-up (except of couse when 
-temeratuire is too high) without a hard immediate reboot on this laptop. 
-Here, during video (framebuffer) initialization, while the screen it 
-still black they start spinning,
+> Can I use IP Tables, how?
+>
+> Or, am I on totally the wrong track?
 
-Will try andrew suggestion for the video-mode-handling-* patch
+You're on the wrong track. C doesnt even need IP addresses, two 
+choices:
 
--- eric
+- C as bridge and use ebtables (C doesnt even need addresses 
+theoretically)
 
+- C as router, use iptables. C needs one or more addresses which must 
+be different.
 
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+Fortune:
+Violence is a sword that has no handle -- you have to hold the blade.

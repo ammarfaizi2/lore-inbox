@@ -1,67 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261305AbVBVWa7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbVBVWfd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261305AbVBVWa7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 17:30:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVBVWaz
+	id S261308AbVBVWfd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 17:35:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVBVWfc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 17:30:55 -0500
-Received: from vanessarodrigues.com ([192.139.46.150]:233 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S261305AbVBVWam (ORCPT
+	Tue, 22 Feb 2005 17:35:32 -0500
+Received: from a.mail.sonic.net ([64.142.16.245]:2441 "EHLO a.mail.sonic.net")
+	by vger.kernel.org with ESMTP id S261308AbVBVWfQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 17:30:42 -0500
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch -mm series] ia64 specific /dev/mem handlers
-References: <16923.193.128608.607599@jaguar.mkp.net>
-	<1109109833.6024.109.camel@laptopd505.fenrus.org>
-From: Jes Sorensen <jes@wildopensource.com>
-Date: 22 Feb 2005 17:30:41 -0500
-In-Reply-To: <1109109833.6024.109.camel@laptopd505.fenrus.org>
-Message-ID: <yq04qg4i5wu.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Tue, 22 Feb 2005 17:35:16 -0500
+Date: Tue, 22 Feb 2005 14:34:48 -0800
+From: David Hinds <dhinds@sonic.net>
+To: Russell King <rmk@arm.linux.org.uk>, torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Why does printk helps PCMCIA card to initialise?
+Message-ID: <20050222223448.GA32644@sonic.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Arjan" == Arjan van de Ven <arjan@infradead.org> writes:
+On Mon, 21 Feb 2005, Linus Torvalds wrote:
+> On Mon, 21 Feb 2005, Russell King wrote:
+> >
+> > In cs.c, alloc_io_space(), find the line:
+> >
+> > if (*base & ~(align-1)) {
+> >
+> > delete the ~ and rebuild. This may resolve your problem.
+> 
+> Unlikely. The code is too broken for words.
 
-Arjan> On Tue, 2005-02-22 at 04:52 -0500, Jes Sorensen wrote:
->> Hi,
->> 
->> This patch introduces ia64 specific read/write handlers for
->> /dev/mem access which is needed to avoid uncached pages to be
->> accessed through the cached kernel window which can lead to random
->> corruption. It also introduces a new page-flag PG_uncached which
->> will be used to mark the uncached pages. I assume this may be
->> useful to other architectures as well where the CPU may use
->> speculative reads which conflict with uncached access. In addition
->> I moved do_write_mem to be under ARCH_HAS_DEV_MEM as it's only ever
->> used if that is defined.
->> 
->> The patch is needed for the new ia64 special memory driver (mspec -
->> former fetchop).
+The original code is correct; you are misinterpreting the meaning of
+the "align" variable here.  PCMCIA cards can request a specific base
+IO address, and can also specify how many IO address lines they
+decode.  The number of decoded lines determines a maximal alignment
+restriction for a card; if it only decodes 3 lines, then it should not
+reasonably ask for an IO region with more specificity than being on an
+8 port boundary.  The "align" variable here holds this alignment.  The
+"oddness" here is that the card is providing conflicting information,
+that it needs IO ports at a specific address, but is only decoding 3
+address lines (i.e. align=8).
 
-Arjan> is there ANY valid reason to allow access to cached uses at
-Arjan> all?  (eg kernel ram)
+The names of "base" and "align" have the expected meanings when a card
+only specifies one or the other.  It's only for the case where both
+are specified that the meaning is complicated.  Then, "base" is more
+like an offset into a block that has "align" alignment
 
-Arjan> why not just disable any such ram access entirely...
+Given an "odd" request for a base=0x260 and align=8, the allocator
+promotes this to align=0x400, and would allow addresses 0x260, 0x660,
+0xa60, 0xe60, etc, subject to restrictions in /etc/pcmcia/config.opts.
 
-You mean uncached?
+The real problem here is that all the IO address ranges the card
+claims to support were unavailable.  I'd first try adding:
 
-For userspace it's used by some of the MPI type apps in userland.
-Presumably there's cases where it gives better performance. For the
-SN2 hardware there's also a special mode known as fetchop mode which
-requires uncached memory, it's used quite heavily by the same types of
-apps.
+  include port 0x0600-0x07ff
 
-The problem is if you then have apps such as lcrash which may read
-through all kernel memory. If a page is mapped uncached to userland
-you can hit the memory corruption case if you access the same page
-cached from within a kernel cached mapping. I suspect the suspend code
-could hit similar problems, but I don't know that code well enough to
-say if it's the case or not.
+to /etc/pcmcia/config.opts to give the allocator more flexibility in
+choosing port ranges.  
 
-Cheers,
-Jes
+-- Dave

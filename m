@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262913AbTKEO3N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 09:29:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262909AbTKEO3N
+	id S262958AbTKEOms (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 09:42:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbTKEOmr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 09:29:13 -0500
-Received: from ns.suse.de ([195.135.220.2]:32899 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262913AbTKEO3K (ORCPT
+	Wed, 5 Nov 2003 09:42:47 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:33669 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S262958AbTKEOmq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 09:29:10 -0500
-Date: Wed, 5 Nov 2003 13:39:23 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-Message-ID: <20031105123923.GP1477@suse.de>
-References: <20031105084007.GZ1477@suse.de> <3FA8C916.3060702@gmx.de> <20031105095457.GG1477@suse.de> <3FA8CA87.2070201@gmx.de> <20031105100120.GH1477@suse.de> <3FA8CCF9.6070700@gmx.de> <20031105101207.GI1477@suse.de> <3FA8CEF1.1050200@gmx.de> <20031105102238.GJ1477@suse.de> <3FA8D17D.3060204@gmx.de>
-Mime-Version: 1.0
+	Wed, 5 Nov 2003 09:42:46 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FA8D17D.3060204@gmx.de>
+Content-Transfer-Encoding: 7bit
+Message-ID: <16297.3166.937468.9288@alkaid.it.uu.se>
+Date: Wed, 5 Nov 2003 15:42:38 +0100
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Klaus Umbach <Klaus.Umbach@doppelhertz.homelinux.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ide-scsi and SMP does not work together.
+In-Reply-To: <20031104234828.GA1641@DualPrinzip>
+References: <20031104234828.GA1641@DualPrinzip>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Klaus Umbach writes:
+ > Hello Support Center :-)
+ > 
+ > Since I have 2 CPUs on my mainboard and compiled the SMP-support in, I
+ > cannot use ide-scsi anymore. I guess it must have something to do with
+ > apic, because when I use "Local APIC support on uniprocessors", I have
+ > the same problem. With no SMP and no local APIC everything works fine.
+ > (except the second CPU, of course). Normal ide-cdrom support works, but
+ > recording CDs over atapi is not really what I want at the moment.
+ > 
+ > Mainboard: MSI 694D pro
+ > 
+ > 00:07.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev 10)
 
-(cc me, just caught your message by luck)
+SMP by default uses the I/O-APIC, and may (depending on kernel version
+and .config) also use ACPI, which in turn may trigger ACPI-controlled
+PCI IRQ routing.
 
-On Wed, Nov 05 2003, Prakash K. Cheemplavam wrote:
-> >>>it's a cdrecord option, I've never used k3b so cannot comment on how to
-> >>>make it enable that.
-> >>
-> >>Hmm, I'll take a look, but I don't really think it is a problem of the 
-> >>recording programme, otherwise how could my reader read it out completely?
-> >
-> >
-> >It isn't a problem of the recorder program. But some drives wont read
-> >the very end of a disc unless there are some pad blocks at the end.
-> >Thus, you should always use the cdrecord pad option.
-> 
-> Uhm, ok, I just took a look at the source image and the last (missing) 
-> 4096 bytes are just 00, so nothing critical missing anyway...so your pad 
-> parameter sounds sensible. :) Should drop a note to the k3b devs then, 
-> as well...
+Try "acpi=off", "pci=noacpi" (or however that don't-use-ACPI-for-PCI
+option is spelled), and "noapic" (don't use I/O-APIC).
 
-Good idea, if it's not already an option.
-
-> >Don't remember, sorry :)
-> 
-> I probably will make a new topic regarding issues (I think) I found with 
-> the new mm kernel.
-
-Fine, check the SG_IO thing first though.
-
--- 
-Jens Axboe
-
+/Mikael

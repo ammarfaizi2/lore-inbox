@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264659AbSJ3Kie>; Wed, 30 Oct 2002 05:38:34 -0500
+	id <S264666AbSJ3Kqy>; Wed, 30 Oct 2002 05:46:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264661AbSJ3Kie>; Wed, 30 Oct 2002 05:38:34 -0500
-Received: from uucp.cistron.nl ([62.216.30.38]:61451 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id <S264659AbSJ3Kid>;
-	Wed, 30 Oct 2002 05:38:33 -0500
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: TCP hangs in 2.4 - blocking write() in wait_for_tcp_memory
-Date: Wed, 30 Oct 2002 10:44:20 +0000 (UTC)
-Organization: Cistron
-Message-ID: <apod64$sv5$1@ncc1701.cistron.net>
-References: <apme9u$n2n$1@ncc1701.cistron.net>
-Content-Type: text/plain; charset=iso-8859-15
-X-Trace: ncc1701.cistron.net 1035974660 29669 62.216.29.67 (30 Oct 2002 10:44:20 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S264667AbSJ3Kqy>; Wed, 30 Oct 2002 05:46:54 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19467 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264666AbSJ3Kqx>;
+	Wed, 30 Oct 2002 05:46:53 -0500
+Message-ID: <3DBFB9FF.1030301@pobox.com>
+Date: Wed, 30 Oct 2002 05:52:47 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: andersen@codepoet.org
+CC: Miles Bader <miles@gnu.org>, Dave Cinege <dcinege@psychosis.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Abbott and Costello meet Crunch Time -- Penultimate 2.5 merge
+ candidate list.
+References: <200210272017.56147.landley@trommello.org> <200210300229.44865.dcinege@psychosis.com> <3DBF8CD5.1030306@pobox.com> <200210300322.17933.dcinege@psychosis.com> <20021030085149.GA7919@codepoet.org> <buofzuogv31.fsf@mcspd15.ucom.lsi.nec.co.jp> <3DBFA0F8.9000408@pobox.com> <20021030093644.GA8423@codepoet.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <apme9u$n2n$1@ncc1701.cistron.net>,
-Miquel van Smoorenburg <miquels@cistron.nl> wrote:
->On the gateway machine, the proxy consistantly hangs in a write().
->I've replaced the squid proxy with a simple perl script + nc to
->make sure it isn't a squid-related problem..
+Erik Andersen wrote:
 
-Right, I found the cause of the problem, but I'm not sure if the
-application of the kernel is wrong here.
+>On Wed Oct 30, 2002 at 04:06:00AM -0500, Jeff Garzik wrote:
+>  
+>
+>>Miles Bader wrote:
+>>    
+>>
+>>>[Well, OK, actually it'd be nice to have something like initramfs + some
+>>>other sort of fetch-the-bits-directly-from-ROM FS which I could
+>>>mix-n-match; anyway initramfs has got to be better than initrd...]
+>>>
+>>>
+>>>      
+>>>
+>>It should be pretty easy to populate initramfs from ROM...
+>>    
+>>
+>
+>I imagine so.  But that still leaves everything in RAM.  On a
+>system with just 1 or 2 MB of ram (I have run Linux on such
+>things :-) there really isn't much point in trying to use any
+>sortof ramfs. 
+>
+It depends on what you're talking about... if it's just the do_mount.c 
+and mount-root-filesystem code, that code gets unlinked and removed from 
+RAM completely after the kernel booting completes.
 
-On 2 machines do this:
+If it's other filesystem data you want hanging around after boot 
+completes, check out my reply to Miles... it's doable.
 
-machine1# socket -s 12345 < /dev/zero > /dev/null		# server
-machine2# socket -w machine1 12345 < /dev/zero			# client
+    Jeff
 
-The first command starts a listening process on port 12345, that
-sends an infinite stream of zeros to the remote side and sinks
-all data received.
 
-The second command connects to the first machine, sends an
-infinite stream of zeros, but never does a read() on the socket
-(the '-w' option).
-
-The 'socket' program doesn't make the sockets non-blocking, it just
-does a select() loop to find out readability/writeability on the
-file descriptors.
-
-This makes both socket programs hang in write(), in wait_for_tcp_memory.
-Shouldn't the kernel return a short write, instead of hanging
-both processes ? select() returned writeability.
-
-As I described in my first mail, this happens in the real world
-as well - an application is writing lots of data to the remote
-side, while the remote side is sending data too - hang.
-
-Oh, tested it on 2.4.19 and 2.4.20-pre11
-
-Mike.
 

@@ -1,78 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316235AbSHAR6C>; Thu, 1 Aug 2002 13:58:02 -0400
+	id <S315544AbSHASXQ>; Thu, 1 Aug 2002 14:23:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316289AbSHAR6C>; Thu, 1 Aug 2002 13:58:02 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:47668 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S316235AbSHAR6A>; Thu, 1 Aug 2002 13:58:00 -0400
-Date: Thu, 1 Aug 2002 20:01:05 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19rc4aa1
-Message-ID: <20020801180105.GD1141@dualathlon.random>
-References: <20020801055124.GB1132@dualathlon.random> <20020801141703.GT1132@dualathlon.random> <20020801142623.GA4606@junk.cps.unizar.es>
-Mime-Version: 1.0
+	id <S316397AbSHASXQ>; Thu, 1 Aug 2002 14:23:16 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:46353 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S315544AbSHASXP>;
+	Thu, 1 Aug 2002 14:23:15 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200208011826.g71IQH0383895@saturn.cs.uml.edu>
+Subject: Re: Linux 2.4.19ac3rc3 on IBM x330/x340 SMP - "ps" time skew
+To: ltd@cisco.com (Lincoln Dale)
+Date: Thu, 1 Aug 2002 14:26:17 -0400 (EDT)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
+       david_luyer@pacific.net.au (David Luyer),
+       alan@lxorguk.ukuu.org.uk ('Alan Cox'), linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.2.20020801190102.0295bea0@mira-sjcm-3.cisco.com> from "Lincoln Dale" at Aug 01, 2002 09:40:29 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020801142623.GA4606@junk.cps.unizar.es>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 01, 2002 at 04:26:23PM +0200, J.A. Magallon wrote:
-> 
-> On 20020801 Andrea Arcangeli wrote:
-> > On Thu, Aug 01, 2002 at 07:51:24AM +0200, Andrea Arcangeli wrote:
-> > > This may be the last update for a week (unless there's a quick bug to
-> > > fix before next morning :). I wanted to ship async-io and largepage
-> > 
-> > I would like to thank Randy Hron for reproducing this problem so
-> > quickly with the ltp testsuite:
-> > 
-> > >>EIP; 80132cc2 <shmem_writepage+22/130>   <=====
-> > 
-> 
-> Can be related to this (which I get on every shm related op, like a pipe in
-> bzip2 -cd | patch -p1 ):
-> 
-> kernel BUG at page_alloc.c:98!
-> invalid operand: 0000 2.4.19-rc5-jam0 #1 SMP Thu Aug 1 12:28:09 CEST 2002
-			^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ I love it :)
-> CPU:    0
-> EIP:    0010:[__free_pages_ok+87/752]    Tainted: P 
-> EIP:    0010:[<8013d227>]    Tainted: P 
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> EFLAGS: 00210286
-> eax: 00000000   ebx: 81128b10   ecx: 81128b10   edx: 00000000
-> esi: 8631fe74   edi: 00000000   ebp: 00000000   esp: 874e1f08
-> ds: 0018   es: 0018   ss: 0018
-> Process bonobo-moniker- (pid: 2103, stackpage=874e1000)
-> Stack: 00000000 8631fee4 8631fee8 00000115 00000000 00000000 8631fdc0 00000115 
->        00000115 00000000 8631fdc0 80141c8b 874e1f3c 81128b10 2b331000 00000000 
->        00000000 00001000 80141d6b 86fcb660 86fcb680 874e1f60 00000115 00000eeb 
-> Call Trace:    [do_shmem_file_read+299/432] [shmem_file_read+91/128] [sys_read+150/272] [system_call+51/56]
-> Call Trace:    [<80141c8b>] [<80141d6b>] [<801454b6>] [<80108e4b>]
-> Code: 0f 0b 62 00 7d 55 27 80 8b 0d 10 50 32 80 89 d8 29 c8 69 c0 
-> 
-> 
-> >>EIP; 8013d227 <__free_pages_ok+57/2f0>   <=====
+Lincoln Dale writes:
+> At 09:33 PM 31/07/2002 -0400, Albert D. Cahalan wrote:
 
-this is another issue, here the fix:
+>> No shit. Now, how do you create a ps executable that handles
+>> a 2.4.xx kernel with a modified HZ value? People did this all
+>> the time. I got many bug reports from these people, so don't
+>> go saying they don't exist. Remember: one executable, running
+>> on both of the these:
+>
+> thanks for the rant.  most entertaining.  for what its worth, i wasn't 
+> trolling.
+>
+>> 2.2.xx i386 as shipped by Linus
+>> 2.4.xx i386 with HZ modified
+>
+> (i assume you mean 2.4.xx i386 as shipped by Linus)
 
---- 2.4.19rc5aa1/mm/shmem.c.~1~	Thu Aug  1 17:04:45 2002
-+++ 2.4.19rc5aa1/mm/shmem.c	Thu Aug  1 19:56:38 2002
-@@ -1178,8 +1178,6 @@ static void do_shmem_file_read(struct fi
- 			__free_page(page);
- 		else
- 			page_cache_release(page);
--	
--		page_cache_release(page);
- 	}
- 
- 	*ppos = ((loff_t) index << page_shift) + offset;
+No.
 
-Andrea
+"Debian GNU/Linux 3.0 released July 19th, 2002
+...
+This version of Debian supports the 2.2 and 2.4
+releases of the Linux kernel."
+
+>> Come on, write the code if you think it's so easy.
+>> You get bonus points for supporting 2.0.xx kernels
+>> and the IA-64 kernel with that same executable.
+>
+> i suspect you're confusing me with someone else.
+
+Yes and no. You seem to express a common opinion.
+Unlike the others, you may have provided a more
+reliable hack than the one currently used.
+
+> in either case, for ELF executables, the kernel puts the CLOCKS_PER_TICK on 
+> the stack when loading an elf binary.
+> this is defined to be HZ on all platforms except ia32 where its set to 
+> 100.  one would hope that if you redefine HZ to something else, you also 
+> remember to redefine CLOCKS_PER_TICK to that same value too.
+
+Uh... that's not good. It makes AT_CLKTCK unreliable on i386, cris,
+mips, and mips64. I'll have to think about your "one would hope".
+
+> the following code determines the value of CLOCKS_PER_TICK in a reliable 
+> manner on the hosts i have here (2.4.xx, 2.5.xx, ia32):
+> i don't have any alpha or ia64 boxes here, but i'm confident it'll still 
+> give you the correct result.
+
+Thank you very much. I'll have to try this on a 64-bit box.
+It works on 32-bit ppc with the 2.4.16 kernel.
+
+> the code doesn't work on a 2.2.16 box here, given 2.2.16 doesn't have 
+> AT_CLKTCK, but i believe that is incidental to this discussion.
+
+Not really, but I might rely on sysconf() when AT_CLKTCK is missing.
+Then I can tolerate:
+
+a. any unmodified kernel, except alpha arch @ 1200HZ and user-mode @ 20HZ
+b. any 2.4.xx kernel with HZ==CLOCKS_PER_SEC, even with an old libc
+c. any 2.6.xx kernel, even with an old libc
+
+That might be good enough. Asking users to run 2.4.xx if they want
+to play with HZ is pretty reasonable. Asking them to run 2.5.xx,
+or hack up the proc filesystem, is not.
+
+

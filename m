@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269777AbUJGKQW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269774AbUJGKQC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269777AbUJGKQW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 06:16:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269780AbUJGKQW
+	id S269774AbUJGKQC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 06:16:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269779AbUJGKQB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 06:16:22 -0400
-Received: from smtp802.mail.ukl.yahoo.com ([217.12.12.139]:22865 "HELO
-	smtp802.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S269777AbUJGKPz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 06:15:55 -0400
-From: Nick Sanders <sandersn@btinternet.com>
-To: Andrew Morton <akpm@osdl.org>
+	Thu, 7 Oct 2004 06:16:01 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11790 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S269774AbUJGKPw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 06:15:52 -0400
+Date: Thu, 7 Oct 2004 11:15:41 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>
 Subject: Re: 2.6.9-rc3-mm3
-Date: Thu, 7 Oct 2004 11:16:06 +0100
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <20041007015139.6f5b833b.akpm@osdl.org> <200410071041.20723.sandersn@btinternet.com> <20041007025007.77ec1a44.akpm@osdl.org>
-In-Reply-To: <20041007025007.77ec1a44.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Message-ID: <20041007111541.D10716@flint.arm.linux.org.uk>
+Mail-Followup-To: Jesper Juhl <juhl-lkml@dif.dk>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Christoph Hellwig <hch@infradead.org>
+References: <20041007015139.6f5b833b.akpm@osdl.org> <Pine.LNX.4.61.0410071159010.13059@jjulnx.backbone.dif.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410071116.06967.sandersn@btinternet.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.61.0410071159010.13059@jjulnx.backbone.dif.dk>; from juhl-lkml@dif.dk on Thu, Oct 07, 2004 at 12:04:22PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 07 October 2004 10:50, Andrew Morton wrote:
-> Nick Sanders <sandersn@btinternet.com> wrote:
-> > On Thursday 07 October 2004 09:51, Andrew Morton wrote:
-> >  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc
-> >  >3/2.6 .9-rc3-mm3/
-> >
-> >  I get the following oops when booting and it also stops kde
-> > (artswrapper) from starting with the same call trace. USB seems to be
-> > working which is good.
->
-> Could you please do
->
->
-> cd /usr/src/linux
-> wget
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6
->.9-rc3-mm3/broken-out/optimize-profile-path-slightly.patch patch -R -p1 <
-> optimize-profile-path-slightly.patch
->
-> and retest?
-> -
+On Thu, Oct 07, 2004 at 12:04:22PM +0200, Jesper Juhl wrote:
+> After recieving some feedback from Christoph Hellwig I believe this is 
+> probably a better version of the patch (no reason not to use the 
+> access_ok checking version of copy_to_user) :
 
-Patch fixes problem. Thank you !
+Except that we've validated the user pointer _before_ performing any
+of the ioctl handling itself, so the non-__ copy_to_user is fairly
+redundant.
 
-Regards
-
-Nick
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

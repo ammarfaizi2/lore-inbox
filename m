@@ -1,35 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261667AbVCNSQK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbVCNSUa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261667AbVCNSQK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 13:16:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbVCNSPh
+	id S261661AbVCNSUa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 13:20:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbVCNSU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 13:15:37 -0500
-Received: from smtp7.poczta.onet.pl ([213.180.130.47]:27573 "EHLO
-	smtp7.poczta.onet.pl") by vger.kernel.org with ESMTP
-	id S261667AbVCNSOs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 13:14:48 -0500
-Message-ID: <4235D474.1000102@poczta.onet.pl>
-Date: Mon, 14 Mar 2005 19:14:12 +0100
-From: Wiktor <victorjan@poczta.onet.pl>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
+	Mon, 14 Mar 2005 13:20:29 -0500
+Received: from fmr19.intel.com ([134.134.136.18]:62429 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261661AbVCNSSa convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 13:18:30 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Building server-farm
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH 2/6] PCI Express Advanced Error Reporting Driver
+Date: Mon, 14 Mar 2005 10:18:22 -0800
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E502408070B47@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2/6] PCI Express Advanced Error Reporting Driver
+Thread-Index: AcUm2jQo26N+bjpLQ1myqV7ue6gnwQB5q3yg
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Greg KH" <greg@kroah.com>, "long" <tlnguyen@snoqualmie.dp.intel.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-pci@atrey.karlin.mff.cuni.cz>,
+       "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+X-OriginalArrivalTime: 14 Mar 2005 18:18:24.0691 (UTC) FILETIME=[36224830:01C528C2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Friday, March 11, 2005 11:25 PM Greg KH wrote:
+>> +static ssize_t aer_sysfs_consume_show(struct device_driver *dev,
+char >>*buf)
+>> +{
+>> +	return aer_fsprint_record(buf);
+>> +}
+>> +                  	
+>> +static ssize_t aer_sysfs_status_show(struct device_driver *dev, char
+>>*buf)
+>> +{
+>> +	return aer_fsprint_devices(buf);
+>> +}
+>> +                  	
+>
+>Why call wrapper functions that only do one thing?  Why have this extra
+>layer of indirection that is not needed from what I can tell?
 
-I'm looking for a way to connect multiple linux systems into one big 
-machine (server-farm) and I can't find any way of enabling it in kernel. 
-  Is this feature supported? If not, how can I build cluster from, let's 
-say, 5 machines (I'm interestied in sharing of processes, memory, disk 
-space and network interface). Thanks for replies.
+Agree, will make changes appropriately. Thanks for your comment.
 
---
-May the Source be with you
-Wiktor
+>> +static ssize_t aer_sysfs_verbose_show(struct device_driver *dev,
+char >>*buf)
+>> +{
+>> +	return sprintf(buf, "Verbose display set to %d\n", 
+>> +		aer_get_verbose());				
+>> +}
+>>
+>Just echo the value, don't print out pretty strings :)
+
+Agree, will make changes appropriately.
+
+>> +static ssize_t aer_sysfs_verbose_store(struct device_driver *drv, 	
+>> +					const char *buf, size_t count)  
+>> +{                            
+>> +	aer_set_verbose(buf[0] - 0x30);			
+>> +	return count;							
+>> +}
+>>
+>Oh, that's a problem waiting to happen... Please validate the user
+>provided value before acting on it.
+
+Agree, will make changes appropriately.
+
+>> +static ssize_t aer_sysfs_auto_show(struct device_driver *dev, char
+*buf)
+>> +{
+>> +	return sprintf(buf, "Automatic reporting is %s\n", 		
+>> +		(aer_get_auto_mode()) ? "on" : "off");
+
+>> +}
+>>
+>Again, just print on/off.
+
+Agree, will make changes appropriately.
+
+>> +static ssize_t aer_sysfs_auto_store(struct device_driver *drv, 	
+>> +					const char *buf, size_t count)
+
+>> +{                            
+>> +	aer_set_auto_mode(buf[0] - 0x30);			
+>> +	return count;							
+>> +}
+>>
+>Also validate this.
+
+Agree, will make changes appropriately.
+
+Thanks for all comments,
+Long

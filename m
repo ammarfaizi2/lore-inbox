@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264103AbTEaCJh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 22:09:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264104AbTEaCJh
+	id S264102AbTEaCHY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 22:07:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264103AbTEaCHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 22:09:37 -0400
-Received: from holomorphy.com ([66.224.33.161]:49554 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264103AbTEaCJg (ORCPT
+	Fri, 30 May 2003 22:07:24 -0400
+Received: from holomorphy.com ([66.224.33.161]:47506 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264102AbTEaCHX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 22:09:36 -0400
-Date: Fri, 30 May 2003 19:22:39 -0700
+	Fri, 30 May 2003 22:07:23 -0400
+Date: Fri, 30 May 2003 19:20:30 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Morten Helgesen <morten.helgesen@nextframe.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: list_head debugging patch
-Message-ID: <20030531022239.GF8978@holomorphy.com>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: viro@parcelfarce.linux.theplanet.co.uk,
+       Stewart Smith <stewartsmith@mac.com>, linux-kernel@vger.kernel.org,
+       trivial@rustcorp.com.au
+Subject: Re: buffer_head.b_bsize type
+Message-ID: <20030531022030.GU15692@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Morten Helgesen <morten.helgesen@nextframe.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1054292079.23566.22.camel@dhcp22.swansea.linux.org.uk> <Pine.SOL.4.30.0305301403090.1217-100000@mion.elka.pw.edu.pl>
+	Andries Brouwer <aebr@win.tue.nl>,
+	viro@parcelfarce.linux.theplanet.co.uk,
+	Stewart Smith <stewartsmith@mac.com>, linux-kernel@vger.kernel.org,
+	trivial@rustcorp.com.au
+References: <746529B0-91C0-11D7-9488-00039346F142@mac.com> <20030529103503.GZ8978@holomorphy.com> <20030529111517.GP14138@parcelfarce.linux.theplanet.co.uk> <20030529112841.GA8978@holomorphy.com> <20030530162434.A2700@pclin040.win.tue.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.SOL.4.30.0305301403090.1217-100000@mion.elka.pw.edu.pl>
+In-Reply-To: <20030530162434.A2700@pclin040.win.tue.nl>
 Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 30 May 2003, Alan Cox wrote:
->> The IDE code has real list mangling bugs at probe. They are fixed in -ac
->> but I'm still waiting for the taskfile stuff to get sorted so I can do
->> a sane merge of the stuff pending.
+On Fri, May 30, 2003 at 04:24:34PM +0200, Andries Brouwer wrote:
+> Not about this particular case, but as a general remark:
+> Use of unsigned is dangerous - use of int is far preferable,
+> everywhere that is possible.
+> With ints the test a+b > c is equivalent to the test a > c-b.
+> Intuition works.
+> As soon as there is some unsigned in an expression comparisons
+> get counterintuitive because -1 is very large.
+> Thus, 1+sizeof(int) > 3 is true, but 1 > 3-sizeof(int) is false.
+> It has happened several times that kernel code was broken because
+> some variable (that always was nonnegative) was made unsigned.
 
-On Fri, May 30, 2003 at 02:17:02PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> List mangling at probe is fixed in 2.5.69-ac1, but there are more bugs
-> with different triggerability.
+I don't see what the big deal is. Arithmetic in Z/2**32Z or whatever
+doesn't really define a comparison, we just artificially impose our
+favorite residues and have to check various preconditions for the
+results of comparisons to make sense (which obviously aren't checked
+in your example of garbage produced by a comparison).
 
-Bartlomiej fixed up everything I could see during boot, things have
-other, probably unrelated issues for me now (and mainline runs fine),
-and he's finding something I can't see myself.
-
+You are right in that some attempt at an audit should be done if it
+were to be changed, of course. I generally think of it as easy, and
+assume it will be done.
 
 -- wli

@@ -1,68 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264937AbUHaRLt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265053AbUHaRLq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264937AbUHaRLt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 13:11:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265044AbUHaRJj
+	id S265053AbUHaRLq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 13:11:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265051AbUHaRJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 13:09:39 -0400
-Received: from fw.osdl.org ([65.172.181.6]:55972 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264937AbUHaRFY (ORCPT
+	Tue, 31 Aug 2004 13:09:48 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:50618 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264953AbUHaRIv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 13:05:24 -0400
-Date: Tue, 31 Aug 2004 10:05:20 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Tim Fairchild <tim@bcs4me.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: K3b and 2.6.9?
-In-Reply-To: <200408312037.00994.tim@bcs4me.com>
-Message-ID: <Pine.LNX.4.58.0408310959340.2295@ppc970.osdl.org>
-References: <200408301047.06780.tim@bcs4me.com> <200408311151.25854.tim@bcs4me.com>
- <Pine.LNX.4.58.0408301917360.2295@ppc970.osdl.org> <200408312037.00994.tim@bcs4me.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 31 Aug 2004 13:08:51 -0400
+Date: Tue, 31 Aug 2004 13:08:39 -0400
+From: Alan Cox <alan@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.6.8.1-ac1
+Message-ID: <20040831170839.GA18799@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've posted up a 2.6.8.1-ac1. This is mostly aimed at people wanting to try
+the newer IDE stuff while I work on feeding it to Bartlomiej. 
 
+http://www.kernel.org/pub/linux/kernel/people/alan/2.6/linux-2.6/2.6.8.1/..
 
-On Tue, 31 Aug 2004, Tim Fairchild wrote:
-> 
-> On starting k3b seems to use 'safe for reading' commands and 'safe for 
-> writing' command 0x55 (mode_select?) to test the drive function.
+Change summary for Linux 2.6.8.1-ac1 versus 2.6.8.1
 
-Yes. MODE_SELECT is write-only, because that command can do some bad 
-things.
+[ * = submitted to maintainer, + = submitted but needs more work ]
 
-> file->f_mode is returning with 0x0d during 'safe for writing' command.
+*	Fix crash on boot or nonworking keyboard driver		(Alan Cox)
+		with E750x based systems in SMP
+*	Fix timing violation in i8042 driver code		(Alan Cox)
+*	Allow 3% slack for root in strict overcommit		(Alan Cox)
+*	Add support for 16byte (GPRS) pcmcia serial cards	(Alan Cox)
+*	Reformat buslogic ready for real fixing			(indent)
+*	Support VLAN on 3c59x/3c90x hardware		(Stefan de Konkink)
+*	Serial ATA reporting of ATA errors for real diagnostics	(Alan Cox)
++	Fix IDE locking, /proc races and other uglies		(Alan Cox)
++	Initial IT8212 IDE driver				(Alan Cox)
++	IDE hotplug (controller level)				(Alan Cox)
++	Fix IDE disk crash on bad geometry			(Alan Cox)
++	Fix mishandling of pure LBA devices			(Alan Cox)
++	Fix problems with non-decoded slaves			(Alan Cox)
+-	Fix failure to handle large drives on ALi controllers	(Alan Cox)
+	| Lost from 2.4-ac to 2.6.
+-	Initial code working at making jiffies removal easier	(Alan Cox)
 
-Yes, that's FMODE_READ | FMODE_LSEEK | FMODE_PREAD (ie the device not only 
-accepts reading, it can do seeks and "pread()" too). Which is what a block 
-device that was opened with O_RDONLY would have.
-
-> I believe FMODE_WRITE is 0x02  tho don't know where that is defined...
-
-Correct. It's a kernel-internal "readability" thing, defined in 
-<linux/fs.h> - it's invisible to user space (user space uses the O_RDONLY, 
-O_WRONLY and O_RDWR defines, which are in a different numbering space)
-
-> If this bit not set does it mean the device is opened for reading?
-
-Yes, it means that the user used O_RDONLY to open the device.
-
-> during a burn? 
-
-I agree, it doesn't make much sense, does it? But the fact is, it used to 
-work, and as a result programs can do it that way because they were tested 
-that wat.
-
-Linus' law: programs don't do things because they make sense. Programs do 
-things that happened to work for the programmer.
-
-But exactly _because_ it makes so much sense to just change K3b to use
-O_RDWR in its open, I'm hoping that the K3b developers won't complain too
-much about the kernel changing to require more strict checking (obviously,
-I can understand that _users_ will complain - they only see the "it
-stopped working" part).
-
-		Linus

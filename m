@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268270AbUIKSV1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268273AbUIKSZQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268270AbUIKSV1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 14:21:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268263AbUIKSV0
+	id S268273AbUIKSZQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 14:25:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268275AbUIKSZQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 14:21:26 -0400
-Received: from pointblue.com.pl ([81.219.144.6]:24850 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S268270AbUIKSVI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 14:21:08 -0400
-Message-ID: <4143420B.4040701@pointblue.com.pl>
-Date: Sat, 11 Sep 2004 20:20:59 +0200
-From: Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Anton Blanchard <anton@samba.org>
-Cc: Jakob Oestergaard <jakob@unthought.net>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Major XFS problems...
-References: <20040908123524.GZ390@unthought.net> <4142E3EB.3080308@pointblue.com.pl> <20040911133812.GC32755@krispykreme>
-In-Reply-To: <20040911133812.GC32755@krispykreme>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 11 Sep 2004 14:25:16 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:118 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S268273AbUIKSZL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 14:25:11 -0400
+Date: Sat, 11 Sep 2004 20:25:24 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6.9-rc1-bk16] ppc32: Use $(addprefix ...) on arch/ppc/boot/lib/
+Message-ID: <20040911182524.GA8380@mars.ravnborg.org>
+Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040909153031.GA2945@smtp.west.cox.net> <20040909163705.GA7830@mars.ravnborg.org> <20040911162946.GB11438@smtp.west.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040911162946.GB11438@smtp.west.cox.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard wrote:
+On Sat, Sep 11, 2004 at 09:29:46AM -0700, Tom Rini wrote:
+ 
+> How hard would it be make some sort of synchronisation point?  I know
+> SuSE folks who always build with -j5.
+This particular usage in ppc has vmlinux is synchronisation point - this
+way it is guaranteed that lib/zlib_inflate/ is not visited twice
+concurrently.
 
->>In my expierence XFS, was right after JFS the worst and the slowest 
->>filesystem ever made.
->>    
->>
->
->On our NFS benchmarks JFS is _significantly_ faster than ext3 and
->reiserfs. It depends on your workload but calling JFS the worst and
->slowest filesystem ever made is unfair.
->  
->
+So this will not break SuSE "make -j 5" builds.
+And current kernel compile fine with make -j 32 (only report the last
+couple of months was me re-introducing a warning - already fixed).
 
-as always, I am speaking for my own and colegues expierence.
-We are using dell SMP machines with p3 and p4, different speeds. Plus 
-hardware SCSI raid5's.
-For samba, and VoIP services, CVS, and mail. Maybe JFS works nicely with 
-NFS, but my expierence shows
-that XFS  is the slowest among all filesystems vaillia linux 2.6  can 
-serve.  JFS was not so extensively tested, but it doesn't do miracles, 
-and expierence shows it's rather close to XFS. Reiserfs so far was the 
-finest. Maybe because we have pretty much number of files, mostly small 
-ones. I don't know.
-I didn't ment to hurt anyone's feelings, just giving my opinion on FSs.
+Only issue seems to be file-stamps with no more than one second
+resolution - this may result in rebuild in second run - because
+some .o have equal timestamps.
 
-Thanks.
-
---
-GJ
+	Sam

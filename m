@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271895AbRIEJ6c>; Wed, 5 Sep 2001 05:58:32 -0400
+	id <S271923AbRIEJ5X>; Wed, 5 Sep 2001 05:57:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271929AbRIEJ6W>; Wed, 5 Sep 2001 05:58:22 -0400
-Received: from miranda.axis.se ([193.13.178.2]:47285 "EHLO miranda.axis.se")
-	by vger.kernel.org with ESMTP id <S271895AbRIEJ6Q>;
-	Wed, 5 Sep 2001 05:58:16 -0400
-Message-ID: <3B95F745.A1476AFD@axis.com>
-Date: Wed, 05 Sep 2001 11:58:29 +0200
-From: Orjan Friberg <orjan.friberg@axis.com>
-Organization: Axis Communications AB
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19 i686)
-X-Accept-Language: en
+	id <S271909AbRIEJ5M>; Wed, 5 Sep 2001 05:57:12 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:23967 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S271895AbRIEJ46>; Wed, 5 Sep 2001 05:56:58 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Alex Bligh - linux-kernel" <linux-kernel@alex.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Linux 2.4.9-ac6
+Date: Wed, 5 Sep 2001 02:57:17 -0700
+Message-ID: <NOEJJDACGOHCKNCOGFOMAECKDLAA.davids@webmaster.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: orjan.friberg@axis.com
-Subject: sa_sigaction signal handler: third parameter?
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <1257554973.999687013@[169.254.198.40]>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to make life easier for a user-defined SIGSEGV handler, the
-sa_sigaction one with 3 parameters.  The second parameter, the siginfo_t
-* one, is there.  Problem is, I would like to pass on additional
-information to the signal handler, more specifically information about
-whether there was a protection fault, read/write etc.  I've looked at
-some of the other ports (I'm working on the CRIS port BTW), and for
-example the i386 has fields in the task and sigcontext structs to keep
-this sort of information.  
 
-Question is how to pass this information on to the signal handler. 
-Looking at the code, it seems the third parameter (void *) is being used
-to send a ucontext_t * in (at least) the arm and mips cases.  I followed
-a lot of threads in the archive, but couldn't find one that adressed
-what this third parameter is actually meant to be used for.  Obviously,
-sending a ucontext would solve my problem, since it contains the
-sigcontext struct.  Is there a Right Way to do it?
+> >> 	I think, perhaps, the logic should be that a module
+> >> shouldn't taint the kernel if:
 
-(I'm not subscribed to the list, so please keep me on the CC list.)
+> >> 	1) The user built the module from source on that machine, OR
 
--- 
-Orjan Friberg              E-mail: orjan.friberg@axis.com
-Axis Communications AB     Phone:  +46 46 272 17 68
+> >> 	2) The module source is freely available without restriction
+
+> > 	I just realized two things. One, there's a strong argument that this
+> > should be an AND, not an OR.
+
+> And as all distributions would fail (1) in initial form, all
+> distributions would result in tainted kernels. Is this the
+> intent?
+
+	They wouldn't taint because the kernel signature would match the module
+signatures. I provided more detail on one possible way this scheme would
+work and it's not quite as simple as the summary above suggests.
+
+	Basically, when you compile (or install) the kernel, a random 'signature'
+goes in. When you compile a module, the signature goes in too. You can then
+compare the module's signature to the kernel's signature to ensure they were
+compiled as a unit. Unfortunately, this doesn't ensure that the user has the
+source.
+
+	I suppose, if the module source were freely available, then '2' would
+apply. If you keep it as an OR, then distributions wouldn't taint out of the
+box unless they included modules whose source distribution was limited. I
+think this is what you want.
+
+	DS
+

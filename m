@@ -1,108 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262624AbTCIVEm>; Sun, 9 Mar 2003 16:04:42 -0500
+	id <S262621AbTCIU6Q>; Sun, 9 Mar 2003 15:58:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262625AbTCIVEm>; Sun, 9 Mar 2003 16:04:42 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:61960 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S262624AbTCIVEk>;
-	Sun, 9 Mar 2003 16:04:40 -0500
-Date: Sun, 9 Mar 2003 22:15:18 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kconfig update
-Message-ID: <20030309211518.GA18087@mars.ravnborg.org>
-Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
-	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0303090432200.32518-100000@serv> <20030309190103.GA1170@mars.ravnborg.org> <Pine.LNX.4.44.0303092028020.32518-100000@serv> <20030309193439.GA15837@mars.ravnborg.org> <Pine.LNX.4.44.0303092115310.32518-100000@serv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303092115310.32518-100000@serv>
-User-Agent: Mutt/1.4i
+	id <S262623AbTCIU6Q>; Sun, 9 Mar 2003 15:58:16 -0500
+Received: from terminus.zytor.com ([63.209.29.3]:17096 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP
+	id <S262621AbTCIU6O>; Sun, 9 Mar 2003 15:58:14 -0500
+Message-ID: <3E6BAD57.803@zytor.com>
+Date: Sun, 09 Mar 2003 13:08:39 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
+X-Accept-Language: en-us, en, sv
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Reserving physical memory at boot time
+References: <Pine.LNX.3.95.1021204115837.29419B-100000@chaos.analogic.com> <Pine.LNX.4.33L2.0212040905230.8842-100000@dragon.pdx.osdl.net> <b442s0$pau$1@cesium.transmeta.com> <32981.4.64.238.61.1046844111.squirrel@www.osdl.org> <b453mj$qpi$1@cesium.transmeta.com> <20030306212607.GA173@elf.ucw.cz> <3E67D89B.1010308@zytor.com> <20030307231954.GB164@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 09, 2003 at 09:18:30PM +0100, Roman Zippel wrote:
-> I still don't see what you mean. :)
+Pavel Machek wrote:
+> 
+> Okay; which mem= options you want killed?
+> 
 
-Sample output:
-$ make mrproper
-$ make KBUILD_VERBOSE=0 defconfig
-  HOSTCC  scripts/fixdep
-  HOSTCC  scripts/split-include
-.....
-  HOSTLD  scripts/kconfig/conf
-SAM> Until here, just normal build output
-./scripts/kconfig/conf -d arch/i386/Kconfig
-SAM> OK, we run conf
-./arch/i386/defconfig:544: trying to assign nonexistent symbol NET_PCMCIA_RADIO
-SAM> One warning, but not fatal so we proceed
-*
-* Linux Kernel Configuration
-*
-Support for paging of anonymous memory (SWAP) [Y/n/?] y
+Anything that doesn't match the regexp (in Perl syntax):
 
-SAM> Snipped ~890 lines
+/^mem=(0[0-7]*|[1-9][0-9]*|0x[0-9a-f]+)[kmg]$/i
 
-Cryptographic API (CRYPTO) [N/y/?] n
-*
-* Library routines
-*
-CRC32 functions (CRC32) [N/m/y/?] n
-$ _
+> What about this?
 
-So executing "make KBUILD_VERBOSE=0 defconfig"
-results in ~930 lines of output, including one warning message.
+Looks good to me.
 
-What I request is that conf outputs essential stuff only, for example
-warnings.
-That would remove 900 lines of output when building a kernel,
-and maybe people actually paid attention to the warnings generated
-by kconfig.
+> 								Pavel
+> 
+> --- clean/arch/i386/kernel/setup.c	2003-03-06 23:25:14.000000000 +0100
+> +++ linux/arch/i386/kernel/setup.c	2003-03-08 00:18:21.000000000 +0100
+> @@ -527,6 +527,9 @@
+>  		 * to <mem>, overriding the bios size.
+>  		 * "mem=XXX[KkmM]@XXX[KkmM]" defines a memory region from
+>  		 * <start> to <start>+<mem>, overriding the bios size.
+> +		 *
+> +		 * HPA tells me bootloaders need to parse mem=, so no new
+> +		 * option should be mem=
+>  		 */
+>  		if (c == ' ' && !memcmp(from, "mem=", 4)) {
+>  			if (to != command_line)
+> @@ -535,8 +538,24 @@
+>  				from += 9+4;
+>  				clear_bit(X86_FEATURE_PSE, boot_cpu_data.x86_capability);
+>  				disable_pse = 1;
+> -			} else if (!memcmp(from+4, "exactmap", 8)) {
+> -				from += 8+4;
+> +			} else {
+> +				/* If the user specifies memory size, we
+> +				 * limit the BIOS-provided memory map to
+> +				 * that size. exactmap can be used to specify
+> +				 * the exact map. mem=number can be used to
+> +				 * trim the existing memory map.
+> +				 */
+> +				unsigned long long start_at, mem_size;
+> + 
+> +				mem_size = memparse(from+4, &from);
+> +			}
+> +		}
+> +
+> +		if (c == ' ' && !memcmp(from, "memmap=", 7)) {
+> +			if (to != command_line)
+> +				to--;
+> +			if (!memcmp(from+7, "exactmap", 8)) {
+> +				from += 8+7;
+>  				e820.nr_map = 0;
+>  				userdef = 1;
+>  			} else {
+> @@ -548,7 +567,7 @@
+>  				 */
+>  				unsigned long long start_at, mem_size;
+>   
+> -				mem_size = memparse(from+4, &from);
+> +				mem_size = memparse(from+7, &from);
+>  				if (*from == '@') {
+>  					start_at = memparse(from+1, &from);
+>  					add_memory_region(start_at, mem_size, E820_RAM);
+> @@ -565,6 +584,7 @@
+>  			}
+>  		}
+>  
+> +
+>  		/* "acpi=off" disables both ACPI table parsing and interpreter init */
+>  		if (c == ' ' && !memcmp(from, "acpi=off", 8))
+>  			acpi_disabled = 1;
+> 
+> 
 
-In general I prefer minimum output when building the kernel, without
-loosing the ability to follow progress.
-One reason why we have some of the warnings left all around in the kernel is
-due to the fact people does not see them when building their drivers etc.
-With default options to make, warnings simply does not show up as visible,
-and when the build proceeds the relevant parts scroll out.
-
-See my point now?
-
-Also speaking about warnings. How about sticking in a "warning:",
-to make the format gcc compatible.
-Something like attacted patch.
-
-	Sam
-
-===== scripts/kconfig/confdata.c 1.4 vs edited =====
---- 1.4/scripts/kconfig/confdata.c	Sun Dec  8 05:14:02 2002
-+++ edited/scripts/kconfig/confdata.c	Sun Mar  9 22:11:37 2003
-@@ -148,7 +148,7 @@
- 				*p2 = 0;
- 			sym = sym_find(line + 7);
- 			if (!sym) {
--				fprintf(stderr, "%s:%d: trying to assign nonexistent symbol %s\n", name, lineno, line + 7);
-+				fprintf(stderr, "%s:%d: warning: trying to assign nonexistent symbol %s\n", name, lineno, line + 7);
- 				break;
- 			}
- 			switch (sym->type) {
-@@ -181,7 +181,7 @@
- 					memmove(p2, p2 + 1, strlen(p2));
- 				}
- 				if (!p2) {
--					fprintf(stderr, "%s:%d: invalid string found\n", name, lineno);
-+					fprintf(stderr, "%s:%d: error: invalid string found\n", name, lineno);
- 					exit(1);
- 				}
- 			case S_INT:
-@@ -190,7 +190,7 @@
- 					S_VAL(sym->def) = strdup(p);
- 					sym->flags &= ~SYMBOL_NEW;
- 				} else {
--					fprintf(stderr, "%s:%d: symbol value '%s' invalid for %s\n", name, lineno, p, sym->name);
-+					fprintf(stderr, "%s:%d: error: symbol value '%s' invalid for %s\n", name, lineno, p, sym->name);
- 					exit(1);
- 				}
- 				break;

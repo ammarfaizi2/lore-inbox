@@ -1,64 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265245AbRGFSpO>; Fri, 6 Jul 2001 14:45:14 -0400
+	id <S266793AbRGFSte>; Fri, 6 Jul 2001 14:49:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266790AbRGFSpE>; Fri, 6 Jul 2001 14:45:04 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:62473 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265245AbRGFSo5>; Fri, 6 Jul 2001 14:44:57 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Why Plan 9 C compilers don't have asm("")
-Date: Fri, 6 Jul 2001 18:44:31 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9i50uf$tla$1@penguin.transmeta.com>
-In-Reply-To: <200107040337.XAA00376@smarty.smart.net> <20010704002436.C1294@ftsoj.fsmlabs.com> <9hvjd4$1ok$1@penguin.transmeta.com> <20010706023835.A5224@ftsoj.fsmlabs.com>
-X-Trace: palladium.transmeta.com 994445095 23486 127.0.0.1 (6 Jul 2001 18:44:55 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 6 Jul 2001 18:44:55 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S266797AbRGFStO>; Fri, 6 Jul 2001 14:49:14 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:17024 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S266793AbRGFStL>; Fri, 6 Jul 2001 14:49:11 -0400
+Date: Fri, 6 Jul 2001 14:48:46 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: linux-kernel@vger.kernel.org, becker@scyld.com
+Subject: Re: why this 1ms delay in mdio_read?  (cont'd from "are ioctl calls supposed  to take this long?")
+In-Reply-To: <3B4602BA.91C5DAD3@nortelnetworks.com>
+Message-ID: <Pine.LNX.3.95.1010706143953.5031A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010706023835.A5224@ftsoj.fsmlabs.com>,
-Cort Dougan  <cort@fsmlabs.com> wrote:
->I'm talking about _modern_ processors, not processors that dominate the
->modern age.  This isn't x86.
+On Fri, 6 Jul 2001, Chris Friesen wrote:
 
-NONE of my examples were about the x86.
+> The beginning of mdio_read() in tulip.c goes like this:
+> 
+> static int mdio_read(struct device *dev, int phy_id, int location)
+> {
+> 	struct tulip_private *tp = (struct tulip_private *)dev->priv;
+> 	int i;
+> 	int read_cmd = (0xf6 << 10) | (phy_id << 5) | location;
+> 	int retval = 0;
+> 	long ioaddr = dev->base_addr;
+> 	long mdio_addr = ioaddr + CSR9;
+> 
+> 	if (tp->chip_id == LC82C168) {
+> 		int i = 1000;
+> 		outl(0x60020000 + (phy_id<<23) + (location<<18), ioaddr + 0xA0);
+> 		inl(ioaddr + 0xA0);
+> 		inl(ioaddr + 0xA0);
+> 		while (--i > 0)
+> 			if ( ! ((retval = inl(ioaddr + 0xA0)) & 0x80000000))
+> 				return retval & 0xffff;
+> 		return 0xffff;
+> 	}
+> 
+> 	if (tp->chip_id == COMET) {
+> 		if (phy_id == 1) {
+> 			if (location < 7)
+> 				return inl(ioaddr + 0xB4 + (location<<2));
+> 			else if (location == 17)
+> 				return inl(ioaddr + 0xD0);
+> 			else if (location >= 29 && location <= 31)
+> 				return inl(ioaddr + 0xD4 + ((location-29)<<2));
+> 		}
+> 		return 0xffff;
+> 	}
+> 
+> 	mdelay(1); /* One ms delay... */
+> 
+> 	...rest of code...
+> 
 
-I gave the alpha as a specific example.  The same issues are true on
-ia64, sparc64, and mips64.  How more "modern" can you get? Name _one_
-reasonably important high-end CPU that is more modern than alpha and
-ia64.. 
+What? What kernel version? 
+The code here says:
+     /* Establish sync by sending at least 32 logic ones */
+     for (i = 32; i >=0; i--) {..........}
 
-On ia64, you probably end up with function calls costing even more than
-alpha, because not only does the function call end up being a
-synchronization point for the compiler, it also means that the compiler
-cannot expose any parallelism, so you get an added hit from there.  At
-least with other CPU's that find the parallelism dynamically they can do
-out-of-order stuff across function calls. 
+There is a mdio_delay() between each of the bit operations. This
+is required to give time for the chip's internals to set up.
 
->Unconditional branches are definitely predictable so icache pre-fetches are
->not more complicated that straight-line code.
+There is no mdelay in any of the code in .../linux/drivers/net/tulip/.
 
-Did you READ my mail at all?
+Cheers,
+Dick Johnson
 
-Most of these "unconditional branches" are indirect, because rather few
-64-bit architectures have a full 64-bit branch.  That means that in
-order to predict them, you either have to do data-prediction (pretty
-much nobody does this), or you have a branch target prediction cache,
-which works very well indeed but has the problem that it only works for
-stuff in the cache, and the cache tends to be fairly limited (because
-you need to cache the whole address - it's more than a "which direction
-do we go in"). 
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
-There are lots of good arguments for function calls: they improve icache
-when done right, but if you have some non-C-semantics assembler sequence
-like "cli" or a spinlock that you use a function call for, that would
-_decrease_ icache effectiveness simply because the call itself is bigger
-than the instruction (and it breaks up the instruction sequence so you
-get padding issues). 
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
-		Linus
+

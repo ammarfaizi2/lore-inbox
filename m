@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281587AbRK0RBx>; Tue, 27 Nov 2001 12:01:53 -0500
+	id <S281599AbRK0RE5>; Tue, 27 Nov 2001 12:04:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281541AbRK0RBo>; Tue, 27 Nov 2001 12:01:44 -0500
-Received: from getafix.lostland.net ([216.29.29.44]:60577 "EHLO
-	getafix.lostland.net") by vger.kernel.org with ESMTP
-	id <S281648AbRK0RBc> convert rfc822-to-8bit; Tue, 27 Nov 2001 12:01:32 -0500
-Date: Tue, 27 Nov 2001 12:01:13 -0500 (EST)
-From: lk@getafix.lostland.net
-To: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 'spurious 8259A interrupt: IRQ7'
-In-Reply-To: <3C03B890.29FDC654@loewe-komp.de>
-Message-ID: <Pine.BSO.4.40.0111271126400.15381-100000@getafix.lostland.net>
+	id <S281609AbRK0REo>; Tue, 27 Nov 2001 12:04:44 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19972 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281599AbRK0REb>; Tue, 27 Nov 2001 12:04:31 -0500
+Date: Tue, 27 Nov 2001 08:58:51 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: <rwhron@earthlink.net>
+cc: <linux-kernel@vger.kernel.org>, <ltp-list@lists.sourceforge.net>,
+        <andrea@suse.de>
+Subject: Re: VM tests on 5 recent kernels
+In-Reply-To: <20011127021513.A228@earthlink.net>
+Message-ID: <Pine.LNX.4.33.0111270853460.1860-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello,
+On Tue, 27 Nov 2001 rwhron@earthlink.net wrote:
+> 2.4.16		mp3 played 312 of 371 seconds 84%
+> 2.5.1-pre1		mp3 played 361 of 365 seconds 99%
 
-I recently enabled UP IOAPIC, and only then did I start seeing this
-message.  No hardware changes.
+Interesting. I thought those two were basically identical VM-wise, so the
+variance seems to be due to variance in the VM itself, not so much between
+VM's.
 
-via 82c686 with a 3com 905b.
+The other numbers (ie total time etc) are fairly close, but the mp3
+playing percentage seems to be inherently "unstable". Which is really
+interesting in itself.
 
-Seems to only pop up with apic (just recompiled without it and haven't
-gotten the message again).
+What happens to the MP3 numbers if you run it a few times on the exact
+same kernel?
 
-
-Regards,
-Adrian
-
-
-
-On Tue, 27 Nov 2001, Peter [iso-8859-1] Wächtler wrote:
-
-> "Martin A. Brooks" schrieb:
-> >
-> > > As far as I remember this was talked about earlier. Different mobos,
-> > > chipsets, processor brands, but always IRQ 7. /me wonders.
-> >
-> > In my research before posting, a common thread seemed to be the presence of
-> > a tulip card in the machine.  Has anyone seen this on a non-tulip box?
-> >
->
-> Yes. dmfe.o (Davicom "almost" 2114x)
->
-> Athlon with VIA82686_A_. Perhaps it's the Southbridge ?
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+		Linus
 

@@ -1,44 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312390AbSCUQvW>; Thu, 21 Mar 2002 11:51:22 -0500
+	id <S312388AbSCUQvW>; Thu, 21 Mar 2002 11:51:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312389AbSCUQvN>; Thu, 21 Mar 2002 11:51:13 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:61445
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S312388AbSCUQvH>; Thu, 21 Mar 2002 11:51:07 -0500
-Date: Thu, 21 Mar 2002 08:50:24 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Bernd Schmidt <bernds@redhat.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Chris Friesen <cfriesen@nortelnetworks.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: last write to drive issued with write cache off?
-In-Reply-To: <Pine.LNX.4.33.0203211601460.20748-100000@host140.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.10.10203210845450.4958-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S312390AbSCUQvN>; Thu, 21 Mar 2002 11:51:13 -0500
+Received: from tabaluga.ipe.uni-stuttgart.de ([129.69.22.180]:30361 "EHLO
+	tabaluga.ipe.uni-stuttgart.de") by vger.kernel.org with ESMTP
+	id <S312389AbSCUQvJ>; Thu, 21 Mar 2002 11:51:09 -0500
+From: Nils Rennebarth <nils@ipe.uni-stuttgart.de>
+Date: Thu, 21 Mar 2002 17:51:07 +0100
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: linker error in kernel-2.4.19-pre3-ac4
+Message-ID: <20020321165107.GN19783@ipe.uni-stuttgart.de>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PZYVFYZbFYjzBslI"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Mar 2002, Bernd Schmidt wrote:
 
-> On Thu, 21 Mar 2002, Alan Cox wrote:
-> 
-> > > "To prevent loss of customer data, it is recommended that the last write access
-> > > before power off be issued after setting the write cache off."
-> > 
-> > Standard 2.4 doesn't do this. 2.4.19-ac issues cache flushes.
-> 
-> Is this what's been causing my harddrives to make funny noises on shutdown
-> recently?
+--PZYVFYZbFYjzBslI
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Your so called funny noise is the process of flushing cache and putting
-your drive to sleep in a spin down.  It only happens if you are going to
-shutdown thw system.  If you are warm booting or rebooting you only get a
-flush cache.
 
-Cheers,
+Compiling the kernel stops with:
 
-Andre Hedrick
-LAD Storage Consulting Group
+find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map -b
+/data/src/v2.4/linux/debian/tmp-image -r 2.4.19-pre3-ac4; fi
+depmod: *** Unresolved symbols in
+/data/src/v2.4/linux/debian/tmp-image/lib/modules/2.4.19-pre3-ac4/kernel/dr=
+ivers/char/drm/sis.o
+depmod:         sis_malloc_Ra3329ed5
+depmod:         sis_free_Rced25333
+make[2]: *** [_modinst_post] Error 1
+make[2]: Leaving directory `/data/src/v2.4/linux'
+make[1]: *** [real_stamp_image] Error 2
+make[1]: Leaving directory `/data/src/v2.4/linux'
 
+Does anyone know a fix?
+
+Nils
+
+--
+                                     ______
+                                    (Muuuhh)
+Global Village Sau  =3D=3D>        ^..^ |/=AF=AF=AF=AF=AF
+(Kann Fremdsprache) =3D=3D>        (oo)
+
+--PZYVFYZbFYjzBslI
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8mg97qgAZ+sZlgs4RAr+wAJ9+p221MiAWx4CFBN30GH+dd60kCQCgx6+N
+4MNcZekyjszsIsSNGS1X1Lk=
+=QYVB
+-----END PGP SIGNATURE-----
+
+--PZYVFYZbFYjzBslI--

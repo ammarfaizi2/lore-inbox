@@ -1,28 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129719AbRCCTrU>; Sat, 3 Mar 2001 14:47:20 -0500
+	id <S129723AbRCCTvK>; Sat, 3 Mar 2001 14:51:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129723AbRCCTrK>; Sat, 3 Mar 2001 14:47:10 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:45835 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129719AbRCCTqz>; Sat, 3 Mar 2001 14:46:55 -0500
-Subject: Re: Linux 2.4.2ac11
-To: johnc@damncats.org (John Cavan)
-Date: Sat, 3 Mar 2001 19:49:28 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <3AA14870.E4439DF4@damncats.org> from "John Cavan" at Mar 03, 2001 02:39:28 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129725AbRCCTvA>; Sat, 3 Mar 2001 14:51:00 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:47122 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S129723AbRCCTuw>;
+	Sat, 3 Mar 2001 14:50:52 -0500
+Date: Sat, 3 Mar 2001 20:50:36 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: agrawal@ais.org, linux-kernel@vger.kernel.org
+Subject: Re: lingering loopback bugs?
+Message-ID: <20010303205036.N2528@suse.de>
+In-Reply-To: <20010303202458.L2528@suse.de> <Pine.GSO.4.21.0103031438520.19484-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14ZI1y-00041I-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0103031438520.19484-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sat, Mar 03, 2001 at 02:41:57PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ./drivers/char/i810_rng.c.rej
-> ./Makefile.rej
+On Sat, Mar 03 2001, Alexander Viro wrote:
+> > Look for the patch I posted yesterday (hint: just remove these two
+> > lines from loop_end_io_transfer)
+> > 
+> >                if (atomic_dec_and_test(&lo->lo_pending))
+> >                        up(&lo->lo_bh_mutex);
 > 
-> Also, a lot of them suceeded, but with offsets.
+> Uhh... And what will compensate for atomic_inc() in loop_make_request() in
+> case of loop over block device?
 
-Oops it was versus 2.4.3pre1. I'll fix it now
+There is no atomic_inc() in loop_make_request, I moved it to
+count pending bh on the queue only. But hmm, we should not
+be able to remove it while it has bhs in flight. Ok, I'll
+rearrange this a bit again...
+
+-- 
+Jens Axboe
+

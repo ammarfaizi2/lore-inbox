@@ -1,155 +1,179 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261817AbULUReN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261761AbULURnu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261817AbULUReN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 12:34:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbULUReN
+	id S261761AbULURnu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 12:43:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbULURnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 12:34:13 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:52712 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261817AbULURc5 (ORCPT
+	Tue, 21 Dec 2004 12:43:50 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:29570 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261761AbULURnm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 12:32:57 -0500
+	Tue, 21 Dec 2004 12:43:42 -0500
 From: Jesse Barnes <jbarnes@engr.sgi.com>
 To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] add mmap support to struct bin_attribute files
-Date: Tue, 21 Dec 2004 09:32:54 -0800
+Subject: [PATCH] export PCI resources in sysfs
+Date: Tue, 21 Dec 2004 09:43:39 -0800
 User-Agent: KMail/1.7.1
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_G5FyB/QTHydXiET"
-Message-Id: <200412210932.54961.jbarnes@engr.sgi.com>
+  boundary="Boundary-00=_MDGyBpDZCsE/WP6"
+Message-Id: <200412210943.40101.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_G5FyB/QTHydXiET
+--Boundary-00=_MDGyBpDZCsE/WP6
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-This patch adds an mmap method and some more error checking to struct 
-bin_attribute--good for things like exporting PCI resources directly.  I 
-wasn't sure about the return values for the case where an attribute is 
-missing a given method, and it looks like mm.h can't be included in sysfs.h, 
-so I had to forward declare struct vm_area_struct.  Other than that, it works 
-fine for my test cases.
+This patch sits on top of the last one that added mmap support to
+struct bin_attribute.  It exports PCI resources from each device as a
+file in the device's sysfs directory as resourceN where N is the
+resource number.  The file is mmapable so that userspace can do
+register reads and writes.
 
- fs/sysfs/bin.c        |   27 +++++++++++++++++++++++++--
- include/linux/sysfs.h |    6 ++++++
- 2 files changed, 31 insertions(+), 2 deletions(-)
+ drivers/pci/pci-sysfs.c |   72 ++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/pci.h     |    1
+ 2 files changed, 73 insertions(+)
 
 Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
 
 Thanks,
 Jesse
 
---Boundary-00=_G5FyB/QTHydXiET
+--Boundary-00=_MDGyBpDZCsE/WP6
 Content-Type: text/plain;
   charset="us-ascii";
-  name="bin-file-mmap-support.patch"
+  name="sysfs-pci-resource.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
-	filename="bin-file-mmap-support.patch"
+	filename="sysfs-pci-resource.patch"
 
-===== include/linux/sysfs.h 1.38 vs edited =====
---- 1.38/include/linux/sysfs.h	2004-11-01 12:47:02 -08:00
-+++ edited/include/linux/sysfs.h	2004-12-21 09:31:01 -08:00
-@@ -2,6 +2,7 @@
-  * sysfs.h - definitions for the device driver filesystem
-  *
-  * Copyright (c) 2001,2002 Patrick Mochel
-+ * Copyright (c) 2004 Silicon Graphics, Inc.
-  *
-  * Please see Documentation/filesystems/sysfs.txt for more information.
-  */
-@@ -47,11 +48,16 @@
+===== drivers/pci/pci-sysfs.c 1.13 vs edited =====
+--- 1.13/drivers/pci/pci-sysfs.c	2004-11-30 11:54:02 -08:00
++++ edited/drivers/pci/pci-sysfs.c	2004-12-21 09:38:49 -08:00
+@@ -20,6 +20,7 @@
+ #include <linux/pci.h>
+ #include <linux/stat.h>
+ #include <linux/topology.h>
++#include <linux/mm.h>
  
- #define attr_name(_attr) (_attr).attr.name
+ #include "pci.h"
  
-+struct vm_area_struct; /* circular dependencies? */
-+
- struct bin_attribute {
- 	struct attribute	attr;
- 	size_t			size;
-+	void			*private;
- 	ssize_t (*read)(struct kobject *, char *, loff_t, size_t);
- 	ssize_t (*write)(struct kobject *, char *, loff_t, size_t);
-+	int (*mmap)(struct kobject *, struct bin_attribute *attr,
-+		    struct vm_area_struct *vma);
- };
- 
- struct sysfs_ops {
-===== fs/sysfs/bin.c 1.19 vs edited =====
---- 1.19/fs/sysfs/bin.c	2004-11-01 12:46:46 -08:00
-+++ edited/fs/sysfs/bin.c	2004-12-21 09:32:08 -08:00
-@@ -1,5 +1,9 @@
- /*
-  * bin.c - binary file operations for sysfs.
-+ *
-+ * Copyright (c) 2003 Patrick Mochel
-+ * Copyright (c) 2003 Matthew Wilcox
-+ * Copyright (c) 2004 Silicon Graphics, Inc.
-  */
- 
- #undef DEBUG
-@@ -20,6 +24,9 @@
- 	struct bin_attribute * attr = to_bin_attr(dentry);
- 	struct kobject * kobj = to_kobj(dentry->d_parent);
- 
-+	if (!attr->read)
-+		return -EINVAL;
-+
- 	return attr->read(kobj, buffer, off, count);
- }
- 
-@@ -63,6 +70,9 @@
- 	struct bin_attribute *attr = to_bin_attr(dentry);
- 	struct kobject *kobj = to_kobj(dentry->d_parent);
- 
-+	if (!attr->write)
-+		return -EINVAL;
-+
- 	return attr->write(kobj, buffer, offset, count);
- }
- 
-@@ -92,6 +102,18 @@
+@@ -178,6 +179,32 @@
  	return count;
  }
  
-+static int mmap(struct file *file, struct vm_area_struct *vma)
++#ifdef HAVE_PCI_MMAP
++/**
++ * pci_mmap_resource - map a PCI resource into user memory space
++ * @kobj: kobject for mapping
++ * @attr: struct bin_attribute for the file being mapped
++ * @vma: struct vm_area_struct passed into the mmap
++ *
++ * Use the regular PCI mapping routines to map a PCI resource into userspace.
++ * FIXME: write combining?  maybe automatic for prefetchable regions?
++ */
++static int
++pci_mmap_resource(struct kobject *kobj, struct bin_attribute *attr,
++		  struct vm_area_struct *vma)
 +{
-+	struct dentry *dentry = file->f_dentry;
-+	struct bin_attribute *attr = to_bin_attr(dentry);
-+	struct kobject *kobj = to_kobj(dentry->d_parent);
++	struct pci_dev *pdev = to_pci_dev(container_of(kobj,
++						       struct device, kobj));
++	struct resource *res = (struct resource *)attr->private;
++	enum pci_mmap_state mmap_type;
 +
-+	if (!attr->mmap)
-+		return -EINVAL;
++	vma->vm_pgoff += res->start >> PAGE_SHIFT;
++	mmap_type = res->flags & IORESOURCE_MEM ? pci_mmap_mem : pci_mmap_io;
 +
-+	return attr->mmap(kobj, attr, vma);
++	return pci_mmap_page_range(pdev, vma, mmap_type, 0);
 +}
++#endif /* HAVE_PCI_MMAP */
 +
- static int open(struct inode * inode, struct file * file)
+ /**
+  * pci_write_rom - used to enable access to the PCI ROM display
+  * @kobj: kernel object handle
+@@ -261,6 +288,10 @@
+ 
+ int pci_create_sysfs_dev_files (struct pci_dev *pdev)
  {
- 	struct kobject *kobj = sysfs_get_kobject(file->f_dentry->d_parent);
-@@ -107,9 +129,9 @@
- 		goto Done;
++#ifdef HAVE_PCI_MMAP
++	int i;
++#endif
++
+ 	if (!sysfs_initialized)
+ 		return -EACCES;
  
- 	error = -EACCES;
--	if ((file->f_mode & FMODE_WRITE) && !attr->write)
-+	if ((file->f_mode & FMODE_WRITE) && !(attr->write || attr->mmap))
- 		goto Error;
--	if ((file->f_mode & FMODE_READ) && !attr->read)
-+	if ((file->f_mode & FMODE_READ) && !(attr->read || attr->mmap))
- 		goto Error;
+@@ -269,6 +300,31 @@
+ 	else
+ 		sysfs_create_bin_file(&pdev->dev.kobj, &pcie_config_attr);
  
- 	error = -ENOMEM;
-@@ -144,6 +166,7 @@
- struct file_operations bin_fops = {
- 	.read		= read,
- 	.write		= write,
-+	.mmap		= mmap,
- 	.llseek		= generic_file_llseek,
- 	.open		= open,
- 	.release	= release,
++#ifdef HAVE_PCI_MMAP
++	/* Expose the PCI resources from this device as files */
++	for (i = 0; i < PCI_ROM_RESOURCE; i++) {
++		struct bin_attribute *res_attr;
++
++		/* skip empty resources */
++		if (!pci_resource_len(pdev, i))
++			continue;
++
++		res_attr = kmalloc(sizeof(*res_attr) + 10, GFP_ATOMIC);
++		if (res_attr) {
++			pdev->res_attr[i] = res_attr;
++			/* Allocated above after the res_attr struct */
++			res_attr->attr.name = (char *)(res_attr + 1);
++			sprintf(res_attr->attr.name, "resource%d", i);
++			res_attr->size = pci_resource_len(pdev, i);
++			res_attr->attr.mode = S_IRUSR | S_IWUSR;
++			res_attr->attr.owner = THIS_MODULE;
++			res_attr->mmap = pci_mmap_resource;
++			res_attr->private = &pdev->resource[i];
++			sysfs_create_bin_file(&pdev->dev.kobj, res_attr);
++		}
++	}
++#endif /* HAVE_PCI_MMAP */
++
+ 	/* If the device has a ROM, try to expose it in sysfs. */
+ 	if (pci_resource_len(pdev, PCI_ROM_RESOURCE)) {
+ 		struct bin_attribute *rom_attr;
+@@ -299,10 +355,26 @@
+  */
+ void pci_remove_sysfs_dev_files(struct pci_dev *pdev)
+ {
++#ifdef HAVE_PCI_MMAP
++	int i;
++#endif
++
+ 	if (pdev->cfg_size < 4096)
+ 		sysfs_remove_bin_file(&pdev->dev.kobj, &pci_config_attr);
+ 	else
+ 		sysfs_remove_bin_file(&pdev->dev.kobj, &pcie_config_attr);
++
++#ifdef HAVE_PCI_MMAP
++	for (i = 0; i < PCI_ROM_RESOURCE; i++) {
++		struct bin_attribute *res_attr;
++
++		res_attr = pdev->res_attr[i];
++		if (res_attr) {
++			sysfs_remove_bin_file(&pdev->dev.kobj, res_attr);
++			kfree(res_attr);
++		}
++	}
++#endif /* HAVE_PCI_MMAP */
+ 
+ 	if (pci_resource_len(pdev, PCI_ROM_RESOURCE)) {
+ 		if (pdev->rom_attr) {
+===== include/linux/pci.h 1.142 vs edited =====
+--- 1.142/include/linux/pci.h	2004-10-31 14:10:04 -08:00
++++ edited/include/linux/pci.h	2004-12-21 09:08:37 -08:00
+@@ -539,6 +539,7 @@
+ 	u32		saved_config_space[16]; /* config space saved at suspend time */
+ 	struct bin_attribute *rom_attr; /* attribute descriptor for sysfs ROM entry */
+ 	int rom_attr_enabled;		/* has display of the rom attribute been enabled? */
++	struct bin_attribute *res_attr[DEVICE_COUNT_RESOURCE]; /* sysfs file for resources */
+ #ifdef CONFIG_PCI_NAMES
+ #define PCI_NAME_SIZE	96
+ #define PCI_NAME_HALF	__stringify(43)	/* less than half to handle slop */
 
---Boundary-00=_G5FyB/QTHydXiET--
+--Boundary-00=_MDGyBpDZCsE/WP6--

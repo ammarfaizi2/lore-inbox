@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131481AbRDFLip>; Fri, 6 Apr 2001 07:38:45 -0400
+	id <S131497AbRDFLqF>; Fri, 6 Apr 2001 07:46:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131484AbRDFLif>; Fri, 6 Apr 2001 07:38:35 -0400
-Received: from filesrv1.baby-dragons.com ([199.33.245.55]:8715 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S131481AbRDFLiU>; Fri, 6 Apr 2001 07:38:20 -0400
-Date: Fri, 6 Apr 2001 04:36:52 -0700 (PDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Ion Badulescu <ionut@cs.columbia.edu>
-cc: Andreas Dilger <adilger@turbolinux.com>, Andrew Daviel <advax@triumf.ca>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: syslog insmod please!
-In-Reply-To: <Pine.LNX.4.30.0104052147060.14947-100000@age.cs.columbia.edu>
-Message-ID: <Pine.LNX.4.32.0104060429500.17426-100000@filesrv1.baby-dragons.com>
+	id <S131498AbRDFLp4>; Fri, 6 Apr 2001 07:45:56 -0400
+Received: from escape.com ([198.6.71.10]:31441 "HELO escape.com")
+	by vger.kernel.org with SMTP id <S131497AbRDFLpq>;
+	Fri, 6 Apr 2001 07:45:46 -0400
+Date: Fri, 06 Apr 2001 11:46:55 UTC
+From: "Robert A. Morris" <ramorris@dilithium.net>
+Reply-To: ramorris@dilithium.net
+Subject: Re: 2.2.19 + ide 2.2.19 03252001 patch problem
+To: linux-kernel@vger.kernel.org
+Message-ID: <TradeClient.0.9.0.Linux-2.2.18.01040604465542.1473@ryoko.unguez.net>
+Organization: Massachusetts Institute of Technology
+X-Mailer: TradeClient 0.9.0 [en_US] Linux 2.2.18
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+Importance: Normal
+X-Accept-Language: en_US
+Sensitivity: Public-Document
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>This is a problem the old via-code did "82C686A" fine but knew nothing
+>about "82C686B" and the new code does not do well with "82C686A" but
+good
+>with "82C686B".
 
-	Hello Ion ,
+I'd be glad to test any patches....In the meantime, is 
+there an older patch that will work + apply relatively cleanly to 
+2.2.19?
 
-On Thu, 5 Apr 2001, Ion Badulescu wrote:
-> On Thu, 5 Apr 2001, Andreas Dilger wrote:
-> > Why do it from user space?  Simply add a printk() to sys_init_module() or
-> > similar.
-> Agreed, but at that point the solution has absolutely nothing to do with
-> insmod anymore. :-)
+>Why are we mixing drives this class?
 
-> Besides, as you said, I don't really see the point. It certainly doesn't
-> help with logging the actions of an attacker, and on the other hand kmod
-> already logs its own actions.
-	Not the problem being discussed ,  This is a user now root &
-	having gained root is now attempting to from the command line
-	to load a module .  How do we get this event recorded ?  kmod
-	only works when the user calles for the service & then it loads
-	it .  Tia ,  JimL
-       +----------------------------------------------------------------+
-       | James   W.   Laferriere | System  Techniques | Give me VMS     |
-       | Network        Engineer | 25416      22nd So |  Give me Linux  |
-       | babydr@baby-dragons.com | DesMoines WA 98198 |   only  on  AXP |
-       +----------------------------------------------------------------+
+On the same cable?  I seem to get better data rates (according 
+to testing with hdparm) if the newer drives are the masters.  It only
+amounts to a few tenths of a MB/sec, though, so I suppose the
+old drive could be the secondary master on the cable with the 
+DVD-ROM.  Would this help?
 
+Thanks for your help!

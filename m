@@ -1,318 +1,157 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271966AbTG2R6f (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 13:58:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271839AbTG2R4m
+	id S271965AbTG2SFY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 14:05:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271939AbTG2SFS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 13:56:42 -0400
-Received: from pat.uio.no ([129.240.130.16]:41463 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S271939AbTG2RyB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 13:54:01 -0400
-MIME-Version: 1.0
+	Tue, 29 Jul 2003 14:05:18 -0400
+Received: from ip67-95-245-82.z245-95-67.customer.algx.net ([67.95.245.82]:64012
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S271965AbTG2SCM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 14:02:12 -0400
+Date: Tue, 29 Jul 2003 11:02:09 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Greg KH <greg@kroah.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Hotplug Oops Re: Linux v2.6.0-test1
+Message-ID: <20030729180209.GB1185@matchmail.com>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030716201512.GA1821@matchmail.com> <20030718023141.GC5828@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16166.46256.737464.27553@charged.uio.no>
-Date: Tue, 29 Jul 2003 19:53:52 +0200
-To: Paul Mundt <lethal@linux-sh.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: NFS weirdness in 2.6.0-test1
-In-Reply-To: <20030726015007.GA18944@linux-sh.org>
-References: <20030725151127.GA2947@linux-sh.org>
-	<16161.25923.623651.618044@charged.uio.no>
-	<20030726015007.GA18944@linux-sh.org>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+Content-Disposition: inline
+In-Reply-To: <20030718023141.GC5828@kroah.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Paul Mundt <lethal@linux-sh.org> writes:
+On Thu, Jul 17, 2003 at 07:31:41PM -0700, Greg KH wrote:
+> On Wed, Jul 16, 2003 at 01:15:12PM -0700, Mike Fedyk wrote:
+> > Ok, I only see it when the system is booting, and after looking at the    
+> > hotplug script in init.d there is different behaviour on boot, and on later   
+> > invocations.                               
+> 
+> This is really wierd.  I can't see anything strange in your logs, until
+> the oops :)
+> 
+> I also can't duplicate it here myself, sorry, I don't really have any
+> ideas.
 
-     > I'm still left with corrupted data every time I get:
+Ok, I was going through some of my logs, and I came across this one, which
+is a little different.
 
-     > NFS: server cheating in read reply: count 1526 > recvd 1000
-     > NFS: server cheating in read reply: count 4096 > recvd 1000
-     > NFS: server cheating in read reply: count 1583 > recvd 1000
+Maybe it will help some...
 
-     > Any other suggestions?
+drivers/usb/host/uhci-hcd.c: USB Universal Host Controller Interface driver v2.1
+Unable to handle kernel paging request at virtual address d492e85c
+ printing eip:
+c01d3bdd
+*pde = 040ce067
+Oops: 0002 [#1]
+CPU:    0
+EIP:    0060:[kobject_add+121/244]    Not tainted
+EFLAGS: 00010292
+EIP is at kobject_add+0x79/0xf4
+eax: c03d2280   ebx: d4970184   ecx: d492e85c   edx: d497019c
+esi: c03d2288   edi: c03d2224   ebp: d2e13f34   esp: d2e13f28
+ds: 007b   es: 007b   ss: 0068
+Process modprobe (pid: 253, threadinfo=d2e12000 task=d3e28080)
+Stack: d4970184 d4970184 00000000 d2e13f4c c01d3c70 d4970184 d4970184 d4970184 
+       c03d2220 d2e13f70 c0238d6f d4970184 d4970184 d496ea1a 00000014 d4970140 
+       00000000 d49701e0 d2e13f7c c023912a d4970168 d2e13f94 c01d9ba0 d4970168 
+Call Trace:
+ [kobject_register+24/72] kobject_register+0x18/0x48
+ [bus_add_driver+63/140] bus_add_driver+0x3f/0x8c
+ [driver_register+54/60] driver_register+0x36/0x3c
+ [pci_register_driver+116/156] pci_register_driver+0x74/0x9c
+ [_end+340077356/1068944012] uhci_hcd_init+0xa0/0x10b [uhci_hcd]
+ [sys_init_module+280/576] sys_init_module+0x118/0x240
+ [syscall_call+7/11] syscall_call+0x7/0xb
 
-Does the following patch fix it?
+Code: 89 11 8b 43 24 8b 38 8d 4f 44 89 c8 ba ff ff 00 00 f0 0f c1 
+  <7>ohci-hcd: 2003 Feb 24 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
+ohci-hcd: block sizes: ed 64 td 64
+SysRq : Emergency Sync
+Emergency Sync complete
+SysRq : Emergency Remount R/O
 
-Note: I'm not entirely sure about whether or not we need those 2
-smp_rmb(), but since the value of req->rq_received may be changed from
-inside a softirq while we're working, I'm assuming that it is.
+Unable to handle kernel paging request at virtual address d493885c
+ printing eip:
+c01d3bdd
+*pde = 040ce067
+Oops: 0002 [#1]
+CPU:    0
+EIP:    0060:[kobject_add+121/244]    Not tainted
+EFLAGS: 00010292
+EIP is at kobject_add+0x79/0xf4
+eax: c03d2280   ebx: d49550c4   ecx: d493885c   edx: d49550dc
+esi: c03d2288   edi: c03d2224   ebp: d3731f34   esp: d3731f28
+ds: 007b   es: 007b   ss: 0068
+Process modprobe (pid: 209, threadinfo=d3730000 task=c4216080)
+Stack: d49550c4 d49550c4 00000000 d3731f4c c01d3c70 d49550c4 d49550c4 d49550c4 
+       c03d2220 d3731f70 c0238d6f d49550c4 d49550c4 d4953a8a 00000014 d4955080 
+       00000000 d4955120 d3731f7c c023912a d49550a8 d3731f94 c01d9ba0 d49550a8 
+Call Trace:
+ [kobject_register+24/72] kobject_register+0x18/0x48
+ [bus_add_driver+63/140] bus_add_driver+0x3f/0x8c
+ [driver_register+54/60] driver_register+0x36/0x3c
+ [pci_register_driver+116/156] pci_register_driver+0x74/0x9c
+ [_end+340077226/1068944012] init+0x1e/0x4c [ehci_hcd]
+ [sys_init_module+280/576] sys_init_module+0x118/0x240
+ [syscall_call+7/11] syscall_call+0x7/0xb
 
-Cheers,
-  Trond
+Code: 89 11 8b 43 24 8b 38 8d 4f 44 89 c8 ba ff ff 00 00 f0 0f c1 
+ <7>ohci-hcd: 2003 Feb 24 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
+ohci-hcd: block sizes: ed 64 td 64
+SysRq : HELP : loglevel0-8 reBoot tErm kIll saK showMem powerOff showPc unRaw Sync showTasks Unmount 
+SysRq : SAK
+SAK: killed process 13 (init): p->session==tty->session
+SAK: killed process 14 (rcS): p->session==tty->session
+SAK: killed process 205 (S36hotplug): p->session==tty->session
+SAK: killed process 207 (usb.rc): p->session==tty->session
+SAK: killed process 210 (modprobe): p->session==tty->session
+Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
+RPC: sendmsg returned error 101
+portmap: RPC call returned error 101
+RPC: sendmsg returned error 101
 
-diff -u --recursive --new-file linux-2.6.0-test2/include/linux/sunrpc/xprt.h linux-2.6.0-01-fix_rcv/include/linux/sunrpc/xprt.h
---- linux-2.6.0-test2/include/linux/sunrpc/xprt.h	2003-05-07 13:03:10.000000000 +0200
-+++ linux-2.6.0-01-fix_rcv/include/linux/sunrpc/xprt.h	2003-07-29 15:36:57.000000000 +0200
-@@ -98,6 +98,10 @@
- 
- 	struct list_head	rq_list;
- 
-+	struct xdr_buf		rq_private_buf;		/* The receive buffer
-+							 * used in the softirq.
-+							 */
-+
- 	/*
- 	 * For authentication (e.g. auth_des)
- 	 */
-diff -u --recursive --new-file linux-2.6.0-test2/net/sunrpc/clnt.c linux-2.6.0-01-fix_rcv/net/sunrpc/clnt.c
---- linux-2.6.0-test2/net/sunrpc/clnt.c	2003-07-16 02:02:31.000000000 +0200
-+++ linux-2.6.0-01-fix_rcv/net/sunrpc/clnt.c	2003-07-29 19:47:55.380468376 +0200
-@@ -659,7 +659,7 @@
- 	if (task->tk_status < 0)
- 		return;
- 	task->tk_status = xprt_prepare_transmit(task);
--	if (task->tk_status < 0)
-+	if (task->tk_status != 0)
- 		return;
- 	/* Encode here so that rpcsec_gss can use correct sequence number. */
- 	if (!task->tk_rqstp->rq_bytes_sent)
-@@ -685,7 +685,8 @@
- 	struct rpc_rqst	*req = task->tk_rqstp;
- 	int		status;
- 
--	if (req->rq_received != 0)
-+	smp_rmb();
-+	if (req->rq_received > 0 && !req->rq_bytes_sent)
- 		task->tk_status = req->rq_received;
- 
- 	dprintk("RPC: %4d call_status (status %d)\n", 
-@@ -789,17 +790,21 @@
- 		if (!clnt->cl_softrtry) {
- 			task->tk_action = call_transmit;
- 			clnt->cl_stats->rpcretrans++;
--		} else {
--			printk(KERN_WARNING "%s: too small RPC reply size (%d bytes)\n",
--				clnt->cl_protname, task->tk_status);
--			rpc_exit(task, -EIO);
-+			goto out_retry;
- 		}
-+		printk(KERN_WARNING "%s: too small RPC reply size (%d bytes)\n",
-+			clnt->cl_protname, task->tk_status);
-+		rpc_exit(task, -EIO);
- 		return;
- 	}
- 
-+	/* Check that the softirq receive buffer is valid */
-+	WARN_ON(memcmp(&req->rq_rcv_buf, &req->rq_private_buf,
-+				sizeof(req->rq_rcv_buf)) != 0);
-+
- 	/* Verify the RPC header */
- 	if (!(p = call_verify(task)))
--		return;
-+		goto out_retry;
- 
- 	/*
- 	 * The following is an NFS-specific hack to cater for setuid
-@@ -812,7 +817,7 @@
- 			task->tk_flags ^= RPC_CALL_REALUID;
- 			task->tk_action = call_bind;
- 			task->tk_suid_retry--;
--			return;
-+			goto out_retry;
- 		}
- 	}
- 
-@@ -822,6 +827,10 @@
- 		task->tk_status = decode(req, p, task->tk_msg.rpc_resp);
- 	dprintk("RPC: %4d call_decode result %d\n", task->tk_pid,
- 					task->tk_status);
-+	return;
-+out_retry:
-+	req->rq_received = 0;
-+	task->tk_status = 0;
- }
- 
- /*
-diff -u --recursive --new-file linux-2.6.0-test2/net/sunrpc/xprt.c linux-2.6.0-01-fix_rcv/net/sunrpc/xprt.c
---- linux-2.6.0-test2/net/sunrpc/xprt.c	2003-07-16 02:02:37.000000000 +0200
-+++ linux-2.6.0-01-fix_rcv/net/sunrpc/xprt.c	2003-07-29 19:48:15.107469416 +0200
-@@ -140,15 +140,20 @@
- static int
- __xprt_lock_write(struct rpc_xprt *xprt, struct rpc_task *task)
- {
-+	struct rpc_rqst *req = task->tk_rqstp;
-+
- 	if (!xprt->snd_task) {
--		if (xprt->nocong || __xprt_get_cong(xprt, task))
-+		if (xprt->nocong || __xprt_get_cong(xprt, task)) {
- 			xprt->snd_task = task;
-+			if (req)
-+				req->rq_bytes_sent = 0;
-+		}
- 	}
- 	if (xprt->snd_task != task) {
- 		dprintk("RPC: %4d TCP write queue full\n", task->tk_pid);
- 		task->tk_timeout = 0;
- 		task->tk_status = -EAGAIN;
--		if (task->tk_rqstp && task->tk_rqstp->rq_nresend)
-+		if (req && req->rq_nresend)
- 			rpc_sleep_on(&xprt->resend, task, NULL, NULL);
- 		else
- 			rpc_sleep_on(&xprt->sending, task, NULL, NULL);
-@@ -183,8 +188,12 @@
- 		if (!task)
- 			return;
- 	}
--	if (xprt->nocong || __xprt_get_cong(xprt, task))
-+	if (xprt->nocong || __xprt_get_cong(xprt, task)) {
-+		struct rpc_rqst *req = task->tk_rqstp;
- 		xprt->snd_task = task;
-+		if (req)
-+			req->rq_bytes_sent = 0;
-+	}
- }
- 
- /*
-@@ -424,6 +433,9 @@
- 	if (xprt_connected(xprt))
- 		goto out_write;
- 
-+	if (task->tk_rqstp)
-+		task->tk_rqstp->rq_bytes_sent = 0;
-+
- 	/*
- 	 * We're here because the xprt was marked disconnected.
- 	 * Start by resetting any existing state.
-@@ -716,11 +728,11 @@
- 
- 	dprintk("RPC: %4d received reply\n", task->tk_pid);
- 
--	if ((copied = rovr->rq_rlen) > repsize)
-+	if ((copied = rovr->rq_private_buf.len) > repsize)
- 		copied = repsize;
- 
- 	/* Suck it into the iovec, verify checksum if not done by hw. */
--	if (csum_partial_copy_to_xdr(&rovr->rq_rcv_buf, skb))
-+	if (csum_partial_copy_to_xdr(&rovr->rq_private_buf, skb))
- 		goto out_unlock;
- 
- 	/* Something worked... */
-@@ -843,7 +855,7 @@
- 		return;
- 	}
- 
--	rcvbuf = &req->rq_rcv_buf;
-+	rcvbuf = &req->rq_private_buf;
- 	len = desc->count;
- 	if (len > xprt->tcp_reclen - xprt->tcp_offset) {
- 		skb_reader_t my_desc;
-@@ -861,7 +873,7 @@
- 	xprt->tcp_copied += len;
- 	xprt->tcp_offset += len;
- 
--	if (xprt->tcp_copied == req->rq_rlen)
-+	if (xprt->tcp_copied == req->rq_private_buf.len)
- 		xprt->tcp_flags &= ~XPRT_COPY_DATA;
- 	else if (xprt->tcp_offset == xprt->tcp_reclen) {
- 		if (xprt->tcp_flags & XPRT_LAST_FRAG)
-@@ -1106,10 +1118,11 @@
- 	if (xprt->shutdown)
- 		return -EIO;
- 
--	if (task->tk_rpcwait)
--		rpc_remove_wait_queue(task);
--
- 	spin_lock_bh(&xprt->sock_lock);
-+	if (req->rq_received && !req->rq_bytes_sent) {
-+		err = req->rq_received;
-+		goto out_unlock;
-+	}
- 	if (!__xprt_lock_write(xprt, task)) {
- 		err = -EAGAIN;
- 		goto out_unlock;
-@@ -1119,11 +1132,6 @@
- 		err = -ENOTCONN;
- 		goto out_unlock;
- 	}
--
--	if (list_empty(&req->rq_list)) {
--		list_add_tail(&req->rq_list, &xprt->recv);
--		req->rq_received = 0;
--	}
- out_unlock:
- 	spin_unlock_bh(&xprt->sock_lock);
- 	return err;
-@@ -1148,6 +1156,20 @@
- 		*marker = htonl(0x80000000|(req->rq_slen-sizeof(*marker)));
- 	}
- 
-+	smp_rmb();
-+	if (!req->rq_received) {
-+		if (list_empty(&req->rq_list)) {
-+			spin_lock_bh(&xprt->sock_lock);
-+			/* Update the softirq receive buffer */
-+			memcpy(&req->rq_private_buf, &req->rq_rcv_buf,
-+					sizeof(req->rq_private_buf));
-+			/* Add request to the receive list */
-+			list_add_tail(&req->rq_list, &xprt->recv);
-+			spin_unlock_bh(&xprt->sock_lock);
-+		}
-+	} else if (!req->rq_bytes_sent)
-+		return;
-+
- 	/* Continue transmitting the packet/record. We must be careful
- 	 * to cope with writespace callbacks arriving _after_ we have
- 	 * called xprt_sendmsg().
-@@ -1162,8 +1184,12 @@
- 		if (xprt->stream) {
- 			req->rq_bytes_sent += status;
- 
--			if (req->rq_bytes_sent >= req->rq_slen)
-+			/* If we've sent the entire packet, immediately
-+			 * reset the count of bytes sent. */
-+			if (req->rq_bytes_sent >= req->rq_slen) {
-+				req->rq_bytes_sent = 0;
- 				goto out_receive;
-+			}
- 		} else {
- 			if (status >= req->rq_slen)
- 				goto out_receive;
-@@ -1184,9 +1210,6 @@
- 	 *	 hence there is no danger of the waking up task being put on
- 	 *	 schedq, and being picked up by a parallel run of rpciod().
- 	 */
--	if (req->rq_received)
--		goto out_release;
--
- 	task->tk_status = status;
- 
- 	switch (status) {
-@@ -1216,13 +1239,12 @@
- 		if (xprt->stream)
- 			xprt_disconnect(xprt);
- 	}
-- out_release:
- 	xprt_release_write(xprt, task);
--	req->rq_bytes_sent = 0;
- 	return;
-  out_receive:
- 	dprintk("RPC: %4d xmit complete\n", task->tk_pid);
- 	/* Set the task's receive timeout value */
-+	spin_lock_bh(&xprt->sock_lock);
- 	if (!xprt->nocong) {
- 		task->tk_timeout = rpc_calc_rto(&clnt->cl_rtt,
- 				task->tk_msg.rpc_proc->p_timer);
-@@ -1231,7 +1253,6 @@
- 			task->tk_timeout = req->rq_timeout.to_maxval;
- 	} else
- 		task->tk_timeout = req->rq_timeout.to_current;
--	spin_lock_bh(&xprt->sock_lock);
- 	/* Don't race with disconnect */
- 	if (!xprt_connected(xprt))
- 		task->tk_status = -ENOTCONN;
-@@ -1239,7 +1260,6 @@
- 		rpc_sleep_on(&xprt->pending, task, NULL, xprt_timer);
- 	__xprt_release_write(xprt, task);
- 	spin_unlock_bh(&xprt->sock_lock);
--	req->rq_bytes_sent = 0;
- }
- 
- /*
+kobject ehci_hcd: registering. parent: <NULL>, set: drivers
+Unable to handle kernel paging request at virtual address d493885c
+ printing eip:
+c01d3cb7
+*pde = 040ce067
+Oops: 0002 [#1]
+CPU:    0
+EIP:    0060:[kobject_add+163/292]    Not tainted
+EFLAGS: 00010292
+EIP is at kobject_add+0xa3/0x124
+eax: c03d2980   ebx: d49550c4   ecx: d493885c   edx: d49550dc
+esi: c03d2988   edi: c03d2924   ebp: d3ae3f28   esp: d3ae3f1c
+ds: 007b   es: 007b   ss: 0068
+Process modprobe (pid: 209, threadinfo=d3ae2000 task=d39612e0)
+Stack: d49550c4 d49550c4 00000000 d3ae3f40 c01d3d50 d49550c4 d49550c4 d49550c4 
+       c03d2920 d3ae3f70 c0238f2e d49550c4 d49550c4 d4953a8a 00000014 c036001c 
+       c0341452 d4953a8a d4955080 00000000 d4955120 d3ae3f7c c023931a d49550a8 
+Call Trace:
+ [kobject_register+24/72] kobject_register+0x18/0x48
+ [bus_add_driver+82/160] bus_add_driver+0x52/0xa0
+ [driver_register+54/60] driver_register+0x36/0x3c
+ [pci_register_driver+116/156] pci_register_driver+0x74/0x9c
+ [_end+340077226/1068944012] init+0x1e/0x4c [ehci_hcd]
+ [sys_init_module+280/576] sys_init_module+0x118/0x240
+ [syscall_call+7/11] syscall_call+0x7/0xb
+
+Code: 89 11 8b 43 24 8b 38 8d 4f 44 89 c8 ba ff ff 00 00 f0 0f c1 
+ <7>ohci-hcd: 2003 Feb 24 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
+ohci-hcd: block sizes: ed 64 td 64
+bus pci: add driver ohci-hcd
+kobject ohci-hcd: registering. parent: <NULL>, set: drivers
+SysRq : HELP : loglevel0-8 reBoot tErm kIll saK showMem powerOff showPc unRaw Sync showTasks Unmount 
+SysRq : SAK
+SAK: killed process 13 (init): p->session==tty->session
+SAK: killed process 14 (rcS): p->session==tty->session
+SAK: killed process 205 (S36hotplug): p->session==tty->session
+SAK: killed process 207 (usb.rc): p->session==tty->session
+SAK: killed process 210 (modprobe): p->session==tty->session
+Installing knfsd (copyright (C) 1996 okir@monad.swb.de).

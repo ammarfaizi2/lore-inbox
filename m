@@ -1,87 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261971AbULPScW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261976AbULPSgD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261971AbULPScW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 13:32:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbULPScW
+	id S261976AbULPSgD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 13:36:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261977AbULPSgD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 13:32:22 -0500
-Received: from h131n4c2o1027.bredband.skanova.com ([217.208.27.131]:33035 "EHLO
-	ogre.magicalforest.se") by vger.kernel.org with ESMTP
-	id S261971AbULPScJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 13:32:09 -0500
-Message-ID: <41C1D4A5.3080503@magicalforest.se>
-Date: Thu, 16 Dec 2004 19:32:05 +0100
-From: =?UTF-8?B?Q2hyaXN0aWFuIEJqw6RsZXZpaw==?= <nafallo@magicalforest.se>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041012)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-CC: Debian-Kernel <debian-kernel@lists.debian.org>
-Subject: PROBLEM: Cross-compiling fails (patch included)
-Content-Type: multipart/mixed;
- boundary="------------090008050409030504050500"
+	Thu, 16 Dec 2004 13:36:03 -0500
+Received: from main.gmane.org ([80.91.229.2]:20971 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261976AbULPSfv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 13:35:51 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Dan Stromberg <strombrg@dcs.nac.uci.edu>
+Subject: recovering data from a corrupt ext3?
+Date: Thu, 16 Dec 2004 10:20:44 -0800
+Message-ID: <pan.2004.12.16.18.20.43.438752@dcs.nac.uci.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: tesuji.nac.uci.edu
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090008050409030504050500
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
 
-  Hi there!
+I have an ext3, under lvm3, on a Fedora Core 3 system, that:
 
-When using kernel-package (Debian specific kernel-management) to 
-cross-compile a kernel in a i386-chroot on my x86_64 laptop 
-modules_install fails when trying to depmod things. Since we should not 
-depmod those things if the arch being built isn't the same as 'uname -m' 
-I wrote a patch for the Makefile to test those conditions.
+1) Is corrupt
 
-Sincererly
+2) Contains data I want back, including some financial records, some
+opensource applications I was developing, my list of URL's for conversion
+from HTML to palmdoc, and so on.
 
-PS I'm not subscribed to those lists, please CC me on reply. DS
--- 
-Christian     .-.    Bjälevik
-Eskilstuna    /v\    [SWEDEN]
-ICQ UIN      // \\   60036598
-Linux User  /(   )\  [344682]
-GPG Key ID   ^^-^^   23FE8EB7
-         Jabber & Email
-    nafallo@magicalforest.se
+I've tried the usual: booting up, fsck'ing, fsck'ing with alternative
+superblocks, running e2salvage, running e2extract...  But none are
+providing satisfaction.  The fsck's give "invalid superblock" or "invalid
+argument", running e2salvage apparently OOM'd with the message
+"Terminated", and e2extract just listed a huge number of 0 length files. 
+Also, when I boot from a Fedora Core 3 cdrom and let it try to mount my
+filesystems, it 
 
------------------------------
-diff -puN Makefile.orig Makefile
---- Makefile.orig       2004-12-09 00:08:43.000000000 +0100
-+++ Makefile    2004-12-08 23:59:34.000000000 +0100
-@@ -788,7 +788,9 @@ depmod_opts := -b $(INSTALL_MOD_PATH) -r
-  endif
-  .PHONY: _modinst_post
-  _modinst_post: _modinst_
-+ifeq ([ uname -m ],$(ARCH))
-         if [ -r System.map ]; then $(DEPMOD) -ae -F System.map 
-$(depmod_opts) $$+endif
+When I boot up into
+the FC3 rescue CD and let it try to find my fedora install, it gets really
+confused.  More specifically, it says:
 
-  else # CONFIG_MODULES
+Searching for Fedora Core installations...
+
+        0%              install exited abnormally -- received signal 15
+                                kernel panic - not syncing: Out of
+memory and no killable processes
 
 
---------------090008050409030504050500
-Content-Type: text/x-patch;
- name="cross-compiling.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="cross-compiling.patch"
+If I remove "quiet" and add "single" to my boot options, I get:
 
-diff -puN Makefile.orig Makefile
---- Makefile.orig	2004-12-09 00:08:43.000000000 +0100
-+++ Makefile	2004-12-08 23:59:34.000000000 +0100
-@@ -788,7 +788,9 @@ depmod_opts	:= -b $(INSTALL_MOD_PATH) -r
- endif
- .PHONY: _modinst_post
- _modinst_post: _modinst_
-+ifeq ([ uname -m ],$(ARCH))
- 	if [ -r System.map ]; then $(DEPMOD) -ae -F System.map $(depmod_opts) $(KERNELRELEASE); fi
-+endif
- 
- else # CONFIG_MODULES
- 
+EXT3-fs: INFO: recovery required on readonly filesystem.
+EXT3-fs: write access will be enabled during recovery.
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs: dm-0: orphan cleanup on readonly fs
 
---------------090008050409030504050500--
+...and there it hangs.
+
+
+
+
+My questions are:
+
+1) Is there a better tool for ext3 data recovery?
+
+2) If there isn't, is there a document that provides an overview of the
+ext3 on-disk filesystem structure, so that I might write a tool for doing
+the recovery?  (I wrote one once for the atari 800 floppy disk filesystem).
+
+3) Given that this ext3 is under LVM2, and that I haven't rearranged disk
+blocks within LVM2 (say, by mucking with pv's, vg's or lv's), is it then
+reasonably safe to conclude that the blocks of my ext3 are contiguous, as
+they would be if they weren't under LVM2?
+
+On the subject of question #2 immediately above, I'm primarily interested
+in:
+
+1) What kind of alignment assumptions can I make about the various data
+structures?  EG, if I can assume that a bunch of directory entries always
+start on a 512 byte boundary, that'll speed up directory entry hunting
+considerably.
+
+2) What are the relationships between the on-disk datastructures?  A tree
+diagram that indicates 1-n, n-1, 1-1 and n-n relationships would probably
+be really useful.  I believe I mostly grok the superblock, inode and
+directory entry datastructures, but the block_group and fragment
+structures are a relative unknown to me.  I am familiar with the idea of
+"cylinder groups" though - is that basically what the "block_group" stuff
+is about?
+
+3) Are there any on-disk data structures that are strictly (or
+mostly) contiguous? Or are the various pieces distributed throughout the
+filesystem to minimize track to track seeking?  Or are none of the
+datastructures contiguous, aside from some of the disk blocks belonging to
+individual files?
+
+Thanks!
+
+
+
+

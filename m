@@ -1,32 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289580AbSAJRt7>; Thu, 10 Jan 2002 12:49:59 -0500
+	id <S289352AbSAJR7s>; Thu, 10 Jan 2002 12:59:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289574AbSAJRtv>; Thu, 10 Jan 2002 12:49:51 -0500
-Received: from ns.suse.de ([213.95.15.193]:4356 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S289582AbSAJRre>;
-	Thu, 10 Jan 2002 12:47:34 -0500
-Date: Thu, 10 Jan 2002 18:47:32 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Giacomo Catenazzi <cate@debian.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: initramfs programs (was [RFC] klibc requirements)
-In-Reply-To: <3C3DD2F4.2090302@zytor.com>
-Message-ID: <Pine.LNX.4.33.0201101847090.21159-100000@wotan.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289122AbSAJR7k>; Thu, 10 Jan 2002 12:59:40 -0500
+Received: from mail.scsiguy.com ([63.229.232.106]:46860 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S289352AbSAJR7T>; Thu, 10 Jan 2002 12:59:19 -0500
+Message-Id: <200201101759.g0AHxGg81428@aslan.scsiguy.com>
+To: Nathan Myers <ncm-nospam@cantrip.org>
+cc: linux-kernel@vger.kernel.org, axboe@suse.de, davem@redhat.com
+Subject: Re: bad patch in aic7xxx_linux.c 
+In-Reply-To: Your message of "Thu, 10 Jan 2002 07:42:40 GMT."
+             <20020110074240.B25480@cantrip.org> 
+Date: Thu, 10 Jan 2002 10:59:16 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Jan 2002, H. Peter Anvin wrote:
+>One can guess, but there are no addresses for anyone noted there later 
+>than 1999.  In particular, Justin's address isn't listed.
 
-> Right, which is why you should look at the SSE feature flag and nothing
-> else.
+I monitor this list.  A Yahoo search using my name provides several
+hits for my email address.
 
-Agreed.
+>I am interested in hotplugged aic7xxx (1480 CardBus).  I will be posting 
+>an Oops shortly related to that, unless somebody tells me not to bother.  
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Feel free to send me the oops.
 
+--
+Justin

@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267346AbTB1AvP>; Thu, 27 Feb 2003 19:51:15 -0500
+	id <S267361AbTB1BB5>; Thu, 27 Feb 2003 20:01:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267354AbTB1AvP>; Thu, 27 Feb 2003 19:51:15 -0500
-Received: from blackbird.intercode.com.au ([203.32.101.10]:35344 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id <S267346AbTB1AvP>; Thu, 27 Feb 2003 19:51:15 -0500
-Date: Fri, 28 Feb 2003 12:01:10 +1100 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: latten@austin.ibm.com
-cc: davem@redhat.com, <kuznet@ms2.inr.ac.ru>, <linux-kernel@vger.kernel.org>,
-       <netdev@oss.sgi.com>
-Subject: Re: PATCH: IPSec not using padding when Null Encryption
-In-Reply-To: <200302272129.h1RLTJW28434@faith.austin.ibm.com>
-Message-ID: <Pine.LNX.4.44.0302281159400.24571-100000@blackbird.intercode.com.au>
+	id <S267368AbTB1BB5>; Thu, 27 Feb 2003 20:01:57 -0500
+Received: from rwcrmhc53.attbi.com ([204.127.198.39]:13251 "EHLO
+	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
+	id <S267361AbTB1BB4>; Thu, 27 Feb 2003 20:01:56 -0500
+Message-ID: <3E5EB9A8.3010807@kegel.com>
+Date: Thu, 27 Feb 2003 17:21:44 -0800
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
+X-Accept-Language: de-de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Protecting processes from the OOM killer
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Feb 2003 latten@austin.ibm.com wrote:
+For a while now, I've been trying to figure out how
+to make the oom killer not kill important processes.
 
-> I have tested it. Please let me know if all is well. 
+How about rewarding processes that have an
+RSS limit if they stay well below it?
+The operator can then mark processes that are important
+by using 'ulimit -m'.
+(This is orthogonal to Rik's recent patch.)
 
-Looks fine to me.
+--- oom_kill.c.orig	2002-09-26 17:31:12.000000000 -0700
++++ oom_kill.c	2003-02-27 16:59:46.000000000 -0800
+@@ -86,6 +90,18 @@
+  		points *= 2;
 
-(Perhaps change the name of the blksize variable to padto or similar, in 
-case someone later thinks it's the real block size).
-
-> --- esp.c.orig	2003-02-20 16:07:59.000000000 -0600
-> +++ esp.c	2003-02-27 10:30:25.000000000 -0600
-> @@ -360,7 +360,7 @@
->  	esp = x->data;
->  	alen = esp->auth.icv_trunc_len;
->  	tfm = esp->conf.tfm;
-> -	blksize = crypto_tfm_alg_blocksize(tfm);
-> +	blksize = (crypto_tfm_alg_blocksize(tfm) + 3) & ~3;
->  	clen = (clen + 2 + blksize-1)&~(blksize-1);
->  	if (esp->conf.padlen)
->  		clen = (clen + esp->conf.padlen-1)&~(esp->conf.padlen-1);
-> 
+  	/*
++	 * Processes which *have* an RSS limit, but which are under half of it,
++	 * are behaving well, so halve their badness points.
++	 * Do it again if they're under a quarter of their RSS limit.
++	 */
++	if (p->rlim[RLIMIT_RSS].rlim_max != ULONG_MAX) {
++		if (p->mm->rss < (p->rlim[RLIMIT_RSS].rlim_max >> (PAGE_SHIFT+1)))
++			points /= 2;
++		if (p->mm->rss < (p->rlim[RLIMIT_RSS].rlim_max >> (PAGE_SHIFT+2)))
++			points /= 2;
++	}
++
++	/*
+  	 * Superuser processes are usually more important, so we make it
+  	 * less likely that we kill those.
+  	 */
 
 -- 
-James Morris
-<jmorris@intercode.com.au>
-
+Dan Kegel
+http://www.kegel.com
+http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
 

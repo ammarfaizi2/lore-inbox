@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265275AbUIEEu6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265410AbUIEEwS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265275AbUIEEu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 00:50:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265410AbUIEEu6
+	id S265410AbUIEEwS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 00:52:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265487AbUIEEwS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 00:50:58 -0400
-Received: from [218.237.221.59] ([218.237.221.59]:9231 "HELO narmuz-lj.si")
-	by vger.kernel.org with SMTP id S265275AbUIEEu5 (ORCPT
+	Sun, 5 Sep 2004 00:52:18 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:60879 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S265410AbUIEEwJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 00:50:57 -0400
-Message-ID: <696e01c49304$c7ee60a6$26d10fc6@narmuz-lj.si>
-From: "Logan Stevenson" <lstevenson_gp@unihold.co.za>
-To: linux-kernel@vger.kernel.org
-Subject: Get a longer member
-Date: Sun, 05 Sep 2004 05:57:10 +0100
-MIME-Version: 1.0
+	Sun, 5 Sep 2004 00:52:09 -0400
+Date: Sat, 4 Sep 2004 21:52:05 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: torvalds@osdl.org, ak@muc.de, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix argument checking in sched_setaffinity
+Message-Id: <20040904215205.0a067ab8.pj@sgi.com>
+In-Reply-To: <20040904211749.3f713a8a.pj@sgi.com>
+References: <m3zn4bidlx.fsf@averell.firstfloor.org>
+	<20040831183655.58d784a3.pj@sgi.com>
+	<20040904133701.GE33964@muc.de>
+	<20040904171417.67649169.pj@sgi.com>
+	<Pine.LNX.4.58.0409041717230.4735@ppc970.osdl.org>
+	<20040904180548.2dcdd488.pj@sgi.com>
+	<Pine.LNX.4.58.0409041827280.2331@ppc970.osdl.org>
+	<20040904204850.48b7cfbd.pj@sgi.com>
+	<Pine.LNX.4.58.0409042055460.2331@ppc970.osdl.org>
+	<20040904211749.3f713a8a.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> starting with backing out the changes made to it this week.
 
-Plexus, the NATURAL male enhancement product with both
-immediate and long-term results.
-- Increase size up to 30%
-- Increase ejaculation amount
-- Intensified and longer 0rgasms
-- Increase in your stamina
-- End premature ejaculation
-- End erectile dysfunction
+Andi,
 
-We guarantee your satisfaction, or you get the money back.
+Given that Linus has gutted most of your patch to sched_setaffinity,
+do you have a preference between where the code started the week,
+and where it ended?
 
-We ship world wide, and no prescription is required!!
+If I'm reading Linus' mind right (well ... there's a first time
+for everything) then your preference, either way, would likely
+carry the day.
 
-Try it today you wont regret!
-
-Get it here: http://www.baby30.com/
-
-Best regards,
-Bobby Miller
-
-
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

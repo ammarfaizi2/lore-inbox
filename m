@@ -1,149 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265350AbTGHUmZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 16:42:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265375AbTGHUmY
+	id S267634AbTGHUs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 16:48:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267640AbTGHUsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 16:42:24 -0400
-Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:41094 "HELO
-	develer.com") by vger.kernel.org with SMTP id S265350AbTGHUmV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 16:42:21 -0400
-From: Bernardo Innocenti <bernie@develer.com>
-Organization: Develer
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Fix do_div() for all architectures
-Date: Tue, 8 Jul 2003 22:56:57 +0200
-User-Agent: KMail/1.5.9
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, andrea@suse.de,
-       peter@chubb.wattle.id.au, akpm@digeo.com, spyro@f2s.com
-References: <200307060133.15312.bernie@develer.com> <200307082027.26233.bernie@develer.com> <20030708113155.031b4bc2.akpm@osdl.org>
-In-Reply-To: <20030708113155.031b4bc2.akpm@osdl.org>
+	Tue, 8 Jul 2003 16:48:55 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:13977 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S267634AbTGHUsy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 16:48:54 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 8 Jul 2003 13:55:55 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Con Kolivas <kernel@kolivas.org>
+cc: Szonyi Calin <sony@etc.utt.ro>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] O3int interactivity for 2.5.74-mm2
+In-Reply-To: <200307090654.17408.kernel@kolivas.org>
+Message-ID: <Pine.LNX.4.55.0307081347310.4792@bigblue.dev.mcafeelabs.com>
+References: <200307070317.11246.kernel@kolivas.org> <200307081759.39215.kernel@kolivas.org>
+ <Pine.LNX.4.55.0307080806400.4544@bigblue.dev.mcafeelabs.com>
+ <200307090654.17408.kernel@kolivas.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200307082256.57007.bernie@develer.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 08 July 2003 20:31, Andrew Morton wrote:
- > Bernardo Innocenti <bernie@develer.com> wrote:
- > >  Andrew, would you like to pick this patch up for me and forward it
- > > to Linus after it received some testing in -mm?
- >
- > It got merged ages ago ;)  Linus simply removed the pure thing.
+On Wed, 9 Jul 2003, Con Kolivas wrote:
 
- Oops. He didn't remove it, he just picked up my older version
-which also missed an important bug fix.
+> > the ratio between timeslices. If you have three processes running with
+> > timeslices :
+> >
+> > A = 400
+> > B = 200
+> > C = 100
+> >
+> > the interactivity is the same of the one if you have :
+> >
+> > A = 100
+> > B = 50
+> > C = 25
+> >
+> > What changes is the maxiomum CPU blackout time that each task has to see
+> > before re-emerging again from the expired array. In the first case in
+> > "only" 700ms while in the first case is 175ms.
+>
+> and what happens to the throughput?
 
- Here's an incremental patch against 2.5.74-bk4. Please apply.
-
----------------------------------------------------------------------
-
-Fix problem introduced by previous do_div() patch:
-
- - export the __div64_32 symbol for modules;
-
- - add likely() to the fast path (divisor>>32 == 0);
-
- - add __attribute__((pure)) to __div64_32() prototype so
-   the compiler knows global memory isn't clobbered;
-
- - avoid building __div64_32() on 64bit architectures.
-
-
-diff -Nru linux-2.5.74-bk4.orig/include/asm-generic/div64.h linux-2.5.74-bk4/include/asm-generic/div64.h
---- linux-2.5.74-bk4.orig/include/asm-generic/div64.h	2003-07-08 22:29:32.000000000 +0200
-+++ linux-2.5.74-bk4/include/asm-generic/div64.h	2003-07-08 22:45:21.000000000 +0200
-@@ -18,6 +18,7 @@
-  */
- 
- #include <linux/types.h>
-+#include <linux/compiler.h>
- 
- #if BITS_PER_LONG == 64
- 
-@@ -31,12 +32,12 @@
- 
- #elif BITS_PER_LONG == 32
- 
--extern uint32_t __div64_32(uint64_t *dividend, uint32_t divisor);
-+extern uint32_t __div64_32(uint64_t *dividend, uint32_t divisor) __attribute_pure__;
- 
- # define do_div(n,base) ({				\
- 	uint32_t __base = (base);			\
- 	uint32_t __rem;					\
--	if (((n) >> 32) == 0) {				\
-+	if (likely(((n) >> 32) == 0)) {			\
- 		__rem = (uint32_t)(n) % __base;		\
- 		(n) = (uint32_t)(n) / __base;		\
- 	} else 						\
-diff -Nru linux-2.5.74-bk4.orig/include/linux/compiler.h linux-2.5.74-bk4/include/linux/compiler.h
---- linux-2.5.74-bk4.orig/include/linux/compiler.h	2003-07-08 22:23:25.000000000 +0200
-+++ linux-2.5.74-bk4/include/linux/compiler.h	2003-07-08 22:45:21.000000000 +0200
-@@ -56,6 +56,24 @@
- #define __attribute_used__	__attribute__((__unused__))
- #endif
- 
-+/*
-+ * From the GCC manual:
-+ *
-+ * Many functions have no effects except the return value and their
-+ * return value depends only on the parameters and/or global
-+ * variables.  Such a function can be subject to common subexpression
-+ * elimination and loop optimization just as an arithmetic operator
-+ * would be.
-+ * [...]
-+ * The attribute `pure' is not implemented in GCC versions earlier
-+ * than 2.96.
-+ */
-+#if (__GNUC__ == 2 && __GNUC_MINOR >= 96) || __GNUC__ > 2
-+#define __attribute_pure__	__attribute__((pure))
-+#else
-+#define __attribute_pure__	/* unimplemented */
-+#endif
-+
- /* This macro obfuscates arithmetic on a variable address so that gcc
-    shouldn't recognize the original var, and make assumptions about it */
- #define RELOC_HIDE(ptr, off)					\
-diff -Nru linux-2.5.74-bk4.orig/lib/div64.c linux-2.5.74-bk4/lib/div64.c
---- linux-2.5.74-bk4.orig/lib/div64.c	2003-07-08 22:29:32.000000000 +0200
-+++ linux-2.5.74-bk4/lib/div64.c	2003-07-08 22:45:21.000000000 +0200
-@@ -12,13 +12,17 @@
-  * The fast case for (n>>32 == 0) is handled inline by do_div(). 
-  *
-  * Code generated for this function might be very inefficient
-- * for some CPUs. div64_32() can be overridden by linking arch-specific
-+ * for some CPUs. __div64_32() can be overridden by linking arch-specific
-  * assembly versions such as arch/ppc/lib/div64.S and arch/sh/lib/div64.S.
-  */
- 
- #include <linux/types.h>
-+#include <linux/module.h>
- #include <asm/div64.h>
- 
-+/* Not needed on 64bit architectures */
-+#if BITS_PER_LONG == 32
-+
- uint32_t __div64_32(uint64_t *n, uint32_t base)
- {
- 	uint32_t low, low2, high, rem;
-@@ -43,3 +47,6 @@
- 	return rem;
- }
- 
-+EXPORT_SYMBOL(__div64_32);
-+
-+#endif /* BITS_PER_LONG == 32 */
+Nothing. You'll have more context switches in average but if you think
+that the context switch time will be diluted in tenths on ms runs you'll
+get nothing. I really don't like to talk w/out being backed up by numbers
+but currently I am really overbooked with other tasks and I cannot follow
+up this (even if I'd like to). I am currently working 12-14 hours/day on
+average, and I am one of those unperfect machines that still needs 6-7
+hours rest somewhere during the day :)
+(but I'll do it later if Ingo does not return from Mars or if someone else
+does not do it)
 
 
 
--- 
-  // Bernardo Innocenti - Develer S.r.l., R&D dept.
-\X/  http://www.develer.com/
-
-Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
-
+- Davide
 

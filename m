@@ -1,88 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261940AbTJ2WuT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 17:50:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbTJ2WuT
+	id S261943AbTJ2WxH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 17:53:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbTJ2WxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 17:50:19 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:60150 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261940AbTJ2WuM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 17:50:12 -0500
-Message-ID: <3FA0441E.9000205@mvista.com>
-Date: Wed, 29 Oct 2003 14:50:06 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	Wed, 29 Oct 2003 17:53:07 -0500
+Received: from mail018.syd.optusnet.com.au ([211.29.132.72]:23424 "EHLO
+	mail018.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261943AbTJ2WxE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Oct 2003 17:53:04 -0500
+From: Peter Chubb <peter@chubb.wattle.id.au>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: jim.houston@ccur.com, linux-kernel@vger.kernel.org
-Subject: Re: Is there a kgdb for Opteron for linux-2.6?
-References: <1066678923.1007.164.camel@new.localdomain>	<20031024135112.GE2286@wotan.suse.de>	<3F9EF206.1040105@mvista.com>	<20031029002517.47d8f329.ak@suse.de>	<3FA02DCF.4080906@mvista.com> <20031029222454.7ec07a9e.ak@suse.de>
-In-Reply-To: <20031029222454.7ec07a9e.ak@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16288.17470.778408.883304@wombat.chubb.wattle.id.au>
+Date: Thu, 30 Oct 2003 09:50:38 +1100
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Gabriel Paubert <paubert@iram.es>, john stultz <johnstul@us.ibm.com>,
+       Joe Korty <joe.korty@ccur.com>, Linus Torvalds <torvalds@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: gettimeofday resolution seriously degraded in test9
+In-Reply-To: <20031029113850.047282c4.shemminger@osdl.org>
+References: <20031027234447.GA7417@rudolph.ccur.com>
+	<1067300966.1118.378.camel@cog.beaverton.ibm.com>
+	<20031027171738.1f962565.shemminger@osdl.org>
+	<20031028115558.GA20482@iram.es>
+	<20031028102120.01987aa4.shemminger@osdl.org>
+	<20031029100745.GA6674@iram.es>
+	<20031029113850.047282c4.shemminger@osdl.org>
+X-Mailer: VM 7.14 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Wed, 29 Oct 2003 13:14:55 -0800
-> George Anzinger <george@mvista.com> wrote:
-> 
-> 
->>Andi Kleen wrote:
->>
->>>On Tue, 28 Oct 2003 14:47:34 -0800
->>>George Anzinger <george@mvista.com> wrote:
->>>
->>>
->>>
->>>
->>>>I see that Andrew has not picked up my latest kgdb.  In the latest version I 
->>>>have the dwarf2 stuff working in entry.S.  Just ask, off list.
->>>
->>>
->>>Do you use the .cfi* mnemonics in newer binutils? Without that it would get ugly.
->>
->>I use asm mnemonics .uleb*, .sleb*, .byte and .long.  For operands I use the 
->>defines in dwarf2.h (after fixing them to work with asm).  These are, for the 
->>most part DW_CFA_* and other DW_* things.  I put this together to build macros 
->>(CCP) so that I can code things like:
-> 
-> 
-> The latest binutils has new .cfi_* mnemonics in gas that make writing such a table
-> much cleaner and easier. My plan was to use that. It would require new binutils,
-> but make future mainteance much easier. When people don't have the new binutils
-> it can be defined away.
-> 
-> See http://www.logix.cz/~mic/devel/gas-cfi/
+>>>>> "Stephen" == Stephen Hemminger <shemminger@osdl.org> writes:
 
-Looks like good stuff if you want to do a blow by blow.  I decided against this 
-in the register save and restore code as it is hardly ever needed.  An asm 
-function is another matter and this looks good for that.
+Stephen> On Wed, 29 Oct 2003 11:07:45 +0100 Gabriel Paubert
+Stephen> <paubert@iram.es> wrote:
+>> for example.
 
-An observation:  Once you have the register save info in a CFI call frame, you 
-can refer to it from anyplace you do the same save order.  For example, in my 
-code, the trap save and the system call save as well as the interrupt saves are 
-all covered by the one cfi entry.  This does not work if you want to do a blow 
-by blow on the save and restore of the registers.  Also, I don't see the entries 
-to do expression evaluation (yet).
+Stephen> The suggestion of using time interpolation (like ia64) would
+Stephen> make the discontinuities smaller, but still relying on fine
+Stephen> grain gettimeofday for controlling servo loops with NTP
+Stephen> running seems risky. Perhaps what you want to use is the
+Stephen> monotonic_clock which gives better resolution (nanoseconds)
+Stephen> and doesn't get hit by NTP.
 
-> 
-> 
->>Which allows "bt" through entry.S code.  I did not try to allow you to get the 
->>correct answer if you stop in the middle of the register save or restore code.
-> 
-> 
-> On x86-64 it is unfortunately more complicated because it has a separate interrupt
-> or exception stack. The backtracker has to read the old stack pointer from the 
-> frame. This can be expressed in dwarf2, but is a bit tricky.
+monotonic_clock:
+	-- isn't implemented for most architectures
+	-- even for X86 only works for some timing sources
+	-- and for the most common case is variable rate because of
+	   power management functions changing the TSC clock rate.
 
-Yes, the expression stuff...
+As far as I know, there isn't a constant-rate monotonic clock
+available at present for all architectures in the linux kernel.  The
+nearest thing is scheduler_clock().
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
-
+Peter C

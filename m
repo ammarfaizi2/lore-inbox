@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264564AbTDPS2u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 14:28:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264567AbTDPS2t
+	id S264527AbTDPScf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 14:32:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264533AbTDPScf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 14:28:49 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:20189 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264564AbTDPS2l (ORCPT
+	Wed, 16 Apr 2003 14:32:35 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:30429 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264527AbTDPSce (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 14:28:41 -0400
-Date: Wed, 16 Apr 2003 11:39:05 -0700 (PDT)
+	Wed, 16 Apr 2003 14:32:34 -0400
+Date: Wed, 16 Apr 2003 11:42:59 -0700 (PDT)
 From: Patrick Mochel <mochel@osdl.org>
 X-X-Sender: mochel@cherise
-To: "Grover, Andrew" <andrew.grover@intel.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: Subtle semantic issue with sleep callbacks in drivers
-In-Reply-To: <F760B14C9561B941B89469F59BA3A84725A262@orsmsx401.jf.intel.com>
-Message-ID: <Pine.LNX.4.44.0304161133110.912-100000@cherise>
+To: Daniel Stekloff <dsteklof@us.ibm.com>
+cc: "Randy.Dunlap" <rddunlap@osdl.org>, Martin Hicks <mort@wildopensource.com>,
+       <hpa@zytor.com>, <pavel@ucw.cz>, <jes@wildopensource.com>,
+       <linux-kernel@vger.kernel.org>, <wildos@sgi.com>
+Subject: Re: [patch] printk subsystems
+In-Reply-To: <200304141533.18779.dsteklof@us.ibm.com>
+Message-ID: <Pine.LNX.4.44.0304161140160.912-100000@cherise>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Which strikes me as kind of silly since guess who called the ACPI resume
-> vector - the BIOS, so why didn't it do whatever stuff then? :) Anyways
-> it's not really relevant. The BIOS will never know about add-in cards,
-> and my contention is that even these can be woken up properly w/o bios
-> repost (after surmounting technical and potential lack-of-documentation
-> hurdles, which is why I'd think we would start with an old, ubiquitous,
-> thouroughly documented video card as our first guinea pig. Matrox
-> Millennium 2, perhaps?)
+> Would the debug level be for the entire subsystem? Do you think people would 
+> like to be able to set debug/logging level per driver or device, and not just 
+> subsystem? 
 
-I completely agree with Andy. We should not re-POST the video hardware, no
-matter what. The idea behind ACPI is that the OS takes care of everything, 
-including video save/restore. 
+I can see a use for doing per-object debug levels, but I'd rather not add 
+the overhead to every object, especially when it would be used by a small 
+minority of the populace. 
 
-We may not have the documentation to properly do that for all hardware 
-currently, but that is something that we have to suck up and deal with. 
-For now, we go with hardware that we're able to handle. 
+Such a flag could easily be placed in the subsystem-specific object, and 
+accessed through the logging/debugging wrappers.
 
-The drivers that cannot support reinitialization will not be able to 
-support suspend-to-RAM. When we get to a point where it really becomes an 
-issue (i.e. after we have decent working code), then we concentrate on 
-getting the appropriate docuementation (or code itself, source or binary) 
-to do it correctly. 
+> Is debugging level here the same as logging level? 
 
-Trying to figure out if we need to POST or not for different hardware, 
-based what the driver knows, is going to become quite a mess real fast. I 
-don't want to deal with the pain, and would rather take the high ground, 
-even if it means suffering in the short term. 
+Yes. 
+
+> I like the idea of having logging levels, which include debug, defined by 
+> subsystem. Each subsystem will have separate requirements for logging. 
+> Networking, for instance, already has the NETIF_MSG* levels defined in 
+> netdevice.h that can be set with Ethtool. I can see, for example, having the 
+> msg_enable not in the private data as it is now but in the subsystem or class 
+> structure for that device, such as in struct net_device. This could easily be 
+> exported through sysfs. 
+
+It would be nice. Unfortunately, it's only a nifty pipe-dream at the 
+moment, unless some lucky volunteer would like to step forward. ;)
 
 
 	-pat

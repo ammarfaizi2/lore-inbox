@@ -1,28 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261593AbREURG3>; Mon, 21 May 2001 13:06:29 -0400
+	id <S261598AbREURPT>; Mon, 21 May 2001 13:15:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261594AbREURGJ>; Mon, 21 May 2001 13:06:09 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31493 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261593AbREURGA>; Mon, 21 May 2001 13:06:00 -0400
-Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
-To: dalgoda@ix.netcom.com
-Date: Mon, 21 May 2001 18:03:21 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010521095938.A1529@thune.mrc-home.com> from "Mike Castle" at May 21, 2001 09:59:38 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S261599AbREURPJ>; Mon, 21 May 2001 13:15:09 -0400
+Received: from waste.org ([209.173.204.2]:61960 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S261598AbREURPE>;
+	Mon, 21 May 2001 13:15:04 -0400
+Date: Mon, 21 May 2001 12:16:18 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        <linux-fsdevel@vger.kernel.org>
+Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD 
+ w/info-PATCH]device arguments from lookup)
+In-Reply-To: <Pine.GSO.4.21.0105191933280.7162-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.30.0105211155530.17263-100000@waste.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E151t5W-0000Xo-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sun, May 20, 2001 at 11:33:20PM -0700, Ben Ford wrote:
-> > Not only that, but Alan said that somebody is rewriting it in C.
-> I'll believe it when I see it.
+On Sat, 19 May 2001, Alexander Viro wrote:
 
-and if not then obviously nobody hates the python one enough ;)
+> Let's distinguish between per-fd effects (that's what name in
+> open(name, flags) is for - you are asking for descriptor and telling
+> what behaviour do you want for IO on it) and system-wide side effects.
+>
+> IMO encoding the former into name is perfectly fine, and no write on
+> another file can be sanely used for that purpose. For the latter, though,
+> we need to write commands into files and here your miscdevices (or procfs
+> files, or /dev/foo/ctl - whatever) is needed.
+
+I'm a little skeptical about the necessity of these per-fd effects in the
+first place - after all, Plan 9 does without them.  There's only one
+floppy drive, yes? No concurrent users of serial ports? The counter that
+comes to mind is sound devices supporting multiple opens, but I think
+esound and friends are a better solution to that problem.
+
+What I'd like to see:
+
+- An interface for registering an array of related devices (almost always
+two: raw and ctl) and their legacy device numbers with a single userspace
+callout that does whatever /dev/ creation needs to be done. Thus, naming
+and permissions live in user space. No "device node is also a directory"
+weirdness which is overkill in the vast majority of cases. No kernel names
+or permissions leaking into userspace.
+
+- An unregister_devices that does the same, giving userspace a
+chance to persist permissions, etc.
+
+- A userspace program that keeps a mapping of kernel names to /dev/ names,
+permissions, etc.
+
+- An autofs hook that does the reverse mapping for running with modules
+(possibly calling modprobe directly)
+
+Possible future extension:
+
+- Allow exporting proc as a large collection of devices. Manage /proc in
+userspace on a tmpfs.
+
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

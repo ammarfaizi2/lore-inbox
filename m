@@ -1,52 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262918AbUCKAeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 19:34:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262932AbUCKAeY
+	id S262816AbUCKAlW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 19:41:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262912AbUCKAlW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 19:34:24 -0500
-Received: from post.tau.ac.il ([132.66.16.11]:55723 "EHLO post.tau.ac.il")
-	by vger.kernel.org with ESMTP id S262918AbUCKAeU (ORCPT
+	Wed, 10 Mar 2004 19:41:22 -0500
+Received: from ozlabs.org ([203.10.76.45]:42118 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262816AbUCKAlU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 19:34:20 -0500
-Date: Thu, 11 Mar 2004 02:33:47 +0200
-From: Micha Feigin <michf@post.tau.ac.il>
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Re: (0 == foo), rather than (foo == 0)
-Message-ID: <20040311003347.GC3053@luna.mooo.com>
-Mail-Followup-To: Linux kernel <linux-kernel@vger.kernel.org>
-References: <905989466451C34E87066C5C13DDF034593392@HYDMLVEM01.e2k.ad.ge.com> <20040310100215.1b707504.rddunlap@osdl.org> <Pine.LNX.4.53.0403101324120.18709@chaos> <404F6375.3080500@blue-labs.org> <20040310212942.GB31500@parcelfarce.linux.theplanet.co.uk> <404F949E.1020905@blue-labs.org> <Pine.LNX.4.53.0403101724250.24470@chaos>
+	Wed, 10 Mar 2004 19:41:20 -0500
+Subject: Re: [PATCH] 2.6.4-rc2: scripts/modpost.c
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Daniel Mack <daniel@zonque.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040304113749.GD5569@zonque.dyndns.org>
+References: <20040304113749.GD5569@zonque.dyndns.org>
+Content-Type: text/plain
+Message-Id: <1078965617.23891.103.camel@bach>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0403101724250.24470@chaos>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.24.0.6; VDF: 6.24.0.49; host: localhost)
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 11 Mar 2004 11:40:18 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 10, 2004 at 05:42:20PM -0500, Richard B. Johnson wrote:
-[ ... snip ... ]
-> 
-> When you want text to be read by others, you make sure they
-> can read it. It's just that simple. There are some assumptions
-> that you can make. You can assume that they have a way of
-> reading 80-column text, for instance.
-> 
+On Thu, 2004-03-04 at 22:37, Daniel Mack wrote:
 
-actually 72 is usually better since it leaves some room for the > of
-the replies to pile up a bit without passing the 80 column boundary.
+> --- linux-2.6.4-rc2.orig/scripts/modpost.c      2004-03-04 11:40:21.000000000 +0100
+> +++ linux-2.6.4-rc2/scripts/modpost.c   2004-03-04 11:23:08.000000000 +0100
+> @@ -63,16 +63,16 @@
+>  new_module(char *modname)
+>  {
+>         struct module *mod;
+> -       char *p;
+> +       int len;
+>  
+>         mod = NOFAIL(malloc(sizeof(*mod)));
+>         memset(mod, 0, sizeof(*mod));
+>         mod->name = NOFAIL(strdup(modname));
+>  
+>         /* strip trailing .o */
+> -       p = strstr(mod->name, ".o");
+> -       if (p)
+> -               *p = 0;
+> +       len = strlen(mod->name);
+> +       if (len > 2 && mod->name[len-2] == '.' && mod->name[len-1] == 'o')
+> +               mod->name[len-2] = 0;
+>  
+>         /* add to list */
+>         mod->next = modules;
 
-> 
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
->             Note 96.31% of all statistics are fiction.
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Please use strrchr(mod->name, '.').  More readable, simpler, and ever
+arguably more correct.
+
+Rusty.
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
+

@@ -1,21 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314747AbSEDRMr>; Sat, 4 May 2002 13:12:47 -0400
+	id <S314735AbSEDRMh>; Sat, 4 May 2002 13:12:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314829AbSEDRMr>; Sat, 4 May 2002 13:12:47 -0400
-Received: from bitmover.com ([192.132.92.2]:48566 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S314747AbSEDRMq>;
-	Sat, 4 May 2002 13:12:46 -0400
-From: Larry McVoy <lm@bitmover.com>
-Date: Sat, 4 May 2002 10:12:41 -0700
-Message-Id: <200205041712.g44HCfo26445@work.bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: more activity statistics for 2.5 branch
+	id <S314747AbSEDRMg>; Sat, 4 May 2002 13:12:36 -0400
+Received: from relay1.pair.com ([209.68.1.20]:50697 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id <S314735AbSEDRMg>;
+	Sat, 4 May 2002 13:12:36 -0400
+X-pair-Authenticated: 24.126.75.99
+Message-ID: <3CD41727.64D626D6@kegel.com>
+Date: Sat, 04 May 2002 10:15:19 -0700
+From: Dan Kegel <dank@kegel.com>
+Reply-To: dank@kegel.com
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: arjan@fenrus.demon.nl,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: khttpd newbie problem
+In-Reply-To: <200205041600.g44G0J708618@pc3-camc5-0-cust13.cam.cable.ntl.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://www.bitkeeper.com/stats/linux.html
+arjan@fenrus.demon.nl wrote:
+> Dan Kegel wrote:
+> > I can't get khttpd to serve any requests.
+> >
+> > echo /home/dank/stress > /proc/sys/net/khttpd/documentroot
+> > echo 80 > /proc/sys/net/khttpd/serverport
+> > echo 8000 > /proc/sys/net/khttpd/maxconnect
+> > echo 1 > /proc/sys/net/khttpd/start
+> 
+> what did you set the client port to ?
 
-Let me know what you think, I'd like to know if you find this useful
-because if you do, I can do something like this as a part of the
-BK/Web interface, then you get these stats for every tree on bkbits.
+That was it.  I finally read /usr/src/net/khttpd/README,
+and I should be ok now.  I am such a dork sometimes.
+
+Thanks,
+Dan
+
+p.s. also found http://lists.alt.org/pipermail/khttpd-users/
+which should be helpful.

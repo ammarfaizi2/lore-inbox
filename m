@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269725AbUJAHT7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269726AbUJAH0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269725AbUJAHT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 03:19:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269724AbUJAHT7
+	id S269726AbUJAH0S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 03:26:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269724AbUJAH0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 03:19:59 -0400
-Received: from colin2.muc.de ([193.149.48.15]:45322 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S269725AbUJAHTX (ORCPT
+	Fri, 1 Oct 2004 03:26:17 -0400
+Received: from mail.kroah.org ([69.55.234.183]:4530 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269726AbUJAH0N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 03:19:23 -0400
-Date: 1 Oct 2004 09:19:22 +0200
-Date: Fri, 1 Oct 2004 09:19:22 +0200
-From: Andi Kleen <ak@muc.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Suresh Siddha <suresh.b.siddha@intel.com>, linux-kernel@vger.kernel.org,
-       tom.l.nguyen@intel.com, James Cleverdon <jamesclv@us.ibm.com>
-Subject: Re: [Patch 1/2] Disable SW irqbalance/irqaffinity for E7520/E7320/E7525 - change TARGET_CPUS on x86_64
-Message-ID: <20041001071922.GA32950@muc.de>
-References: <2HSdY-7dr-3@gated-at.bofh.it> <m3mzzf99vz.fsf@averell.firstfloor.org> <20040930183235.F29549@unix-os.sc.intel.com> <20040930230133.0d4bcc0d.akpm@osdl.org>
+	Fri, 1 Oct 2004 03:26:13 -0400
+Date: Thu, 30 Sep 2004 23:52:09 -0700
+From: Greg KH <greg@kroah.com>
+To: Michael Hunold <hunold-ml@web.de>
+Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Subject: Re: [PATCH][2.6] Add command function to struct i2c_adapter
+Message-ID: <20041001065209.GA9561@kroah.com>
+References: <414F111C.9030809@linuxtv.org> <20040921154111.GA13028@kroah.com> <41545421.5080408@web.de> <20040924200503.652ccf8e.khali@linux-fr.org> <415481B4.10804@web.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040930230133.0d4bcc0d.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <415481B4.10804@web.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 30, 2004 at 11:01:33PM -0700, Andrew Morton wrote:
-> Suresh Siddha <suresh.b.siddha@intel.com> wrote:
-> >
-> > Set TARGET_CPUS on x86_64 to cpu_online_map. This brings the code inline
-> >  with x86 mach-default. Fix MSI_TARGET_CPU code which will break with this 
-> >  target_cpus change.
+On Fri, Sep 24, 2004 at 10:21:08PM +0200, Michael Hunold wrote:
+> >Also, how does this proposal interact with the work on the i2c classes?
+> >Although the classes carry more information than a simple flag or a
+> >complete separation, both were/may be introduced to achieve the same
+> >goal, isn't it?
 > 
-> This gets rejects all over the place against the x86_64 clustered APIC mode
-> patch.
+> Partly, yes.
 > 
-> Which has priority here?
+> The .class approach is necessary to have a finer grained access control 
+> by the i2c-core regarding bus classes, ie. not the client drivers have 
+> to check if the bus should be probed (for example dcc drivers on a dvb 
+> bus). This is useful in general.
+> 
+> If we have a PCI card where we exactly know what we are doing, we can 
+> use the NO_PROBE flag to effectively block any probing and can use the 
+> proposed interface to manually connect the clients.
 
-Definitely the MSI_TARGET_CPUS thingy.
+But why?  The .class feature can accomplish this too.  Just create a new
+class for this type of adapter and device.  Then only that device will
+be able to be connected to that adapter, just like you want to have
+happen, right?
 
-The Clustered APIC patch is far off pie in the sky for some future
-unreleased hardware. MSI workaround fixes basic compilation
-and the original patch from Suresh fixes shipping Intel chipsets.
+thanks,
 
--Andi
+greg k-h

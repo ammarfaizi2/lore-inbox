@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129319AbRCBRFW>; Fri, 2 Mar 2001 12:05:22 -0500
+	id <S129323AbRCBRRQ>; Fri, 2 Mar 2001 12:17:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129324AbRCBRFN>; Fri, 2 Mar 2001 12:05:13 -0500
-Received: from mask.uits.indiana.edu ([129.79.6.184]:55819 "EHLO
-	mask.uits.indiana.edu") by vger.kernel.org with ESMTP
-	id <S129319AbRCBRFA>; Fri, 2 Mar 2001 12:05:00 -0500
-Date: Fri, 2 Mar 2001 12:04:59 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.2 Kernel bug in page_alloc:75
-Message-ID: <20010302120458.A1013@indiana.edu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tKW2IUtsqtDRztdT"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-From: "Scott G. Miller" <scgmille@indiana.edu>
+	id <S129339AbRCBRRG>; Fri, 2 Mar 2001 12:17:06 -0500
+Received: from ns1.uklinux.net ([212.1.130.11]:59663 "EHLO s1.uklinux.net")
+	by vger.kernel.org with ESMTP id <S129323AbRCBRQ6>;
+	Fri, 2 Mar 2001 12:16:58 -0500
+Envelope-To: linux-kernel@vger.redhat.com
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200103021631.QAA01076@raistlin.arm.linux.org.uk>
+Subject: Re: Another rsync over ssh hang (repeatable, with 2.4.1 on both ends)
+To: kuznet@ms2.inr.ac.ru
+Date: Fri, 2 Mar 2001 16:31:07 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200103021547.SAA16651@ms2.inr.ac.ru> from "kuznet@ms2.inr.ac.ru" at Mar 02, 2001 06:47:18 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+kuznet@ms2.inr.ac.ru writes:
+> Russel, you are warned that kernels<2.2.17 and rsync is an incompatible
+> combination.
 
---tKW2IUtsqtDRztdT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+So, what you're saying is that because these kernels have known problems
+with rsync, the fact that my symptoms on 2.4.0 are 100% _precisely_ the
+same means its not the same bug?
 
-Linux 2.4.2 SMP Kernel died while I was logged in remotely.  When I got
-back to the box, the Kernel had spit out a kernel bug.  Here's what I
-copied down (didn't get the registers or stack trace, will do if it
-happens again):
+In addition, the fact that the tcp _retries_ indicate that both sides
+are behaving correctly _in this instance_ means that its not a 2.4 bug?
 
-bug in page_alloc:75
-invalid operand: 0000
-CPU: 1
-EIP: 0010:[<c012d37e>]
-Eflags: 00010282
-Code: 0f 0b 83 c4 0c 89 d8 2b 05 38 d8 27 c0 69 c0 f1 f0 f0 f0 c1
+If you still insist that it is purely a 2.2.15pre13 bug dispite the
+growing evidence against this, then I shall see if I can get everything
+together to put 2.2.18 on this machine.  I can't guarantee when I'll
+be able to do this though.
 
-        Scott
+Also, as I pointed out, since the machines are 40+ miles away for
+most of the week, and are without a reasonable net connection, I
+can only comment on what is _currently_ running, and I thought it at
+least useful to indicate that both my and Scott symptoms are identical.
 
---tKW2IUtsqtDRztdT
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+PS, could you please spell my name correctly?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+PPS, rather than arguing about this, can people proceed to investigate
+Scotts problem, and I'll "tag along" to see if my problem gets fixed.
+Thanks.
 
-iD8DBQE6n9K6r9IW4v3mHtQRAjFQAJ0bILXu/Dp8GBI0xKPnPIPMHIdkowCfbhvE
-0gfYDObu1kqqj22piJKyKLE=
-=ysnO
------END PGP SIGNATURE-----
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
---tKW2IUtsqtDRztdT--

@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbUDJBvR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Apr 2004 21:51:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbUDJBvR
+	id S261787AbUDJBwl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Apr 2004 21:52:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbUDJBwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Apr 2004 21:51:17 -0400
-Received: from 80-218-57-148.dclient.hispeed.ch ([80.218.57.148]:51717 "EHLO
-	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S261786AbUDJBvP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Apr 2004 21:51:15 -0400
-From: Daniel Ritz <daniel.ritz@gmx.ch>
-Reply-To: daniel.ritz@gmx.ch
-To: Ivica Ico Bukvic <ico@fuse.net>
-Subject: RE: [linux-audio-user] snd-hdsp+cardbus+M6807 notebook=distortion -- First good news
-Date: Sat, 10 Apr 2004 03:47:56 +0200
-User-Agent: KMail/1.5.2
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
+	Fri, 9 Apr 2004 21:52:40 -0400
+Received: from memebeam.org ([212.13.199.71]:15878 "EHLO jvb.vm.bytemark.co.uk")
+	by vger.kernel.org with ESMTP id S261787AbUDJBwj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Apr 2004 21:52:39 -0400
+Message-ID: <4077535D.6020403@neggie.net>
+Date: Fri, 09 Apr 2004 21:52:29 -0400
+From: John Belmonte <john@neggie.net>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Alex Williamson <alex.williamson@hp.com>
+CC: acpi-devel@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ACPI] Re: [PATCH] filling in ACPI method access via sysfs namespace
+References: <1081453741.3398.77.camel@patsy.fc.hp.com> <1081549317.2694.25.camel@patsy.fc.hp.com>
+In-Reply-To: <1081549317.2694.25.camel@patsy.fc.hp.com>
+X-Enigmail-Version: 0.83.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404100347.56786.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-you can get the same output with
-	hexdump -v /proc/bus/pci/BUS/DEVICE
-where BUS/DEVICE is the CB controller. eg. 00/09.0
+Alex Williamson wrote:
+>    Here's another approach that's far less ugly than the last and is
+> much more powerful.  The code is a little over half the size as a
+> bonus.  Rather than specifically poking for certain methods and exposing
+> them, this patch exposes everything.  The down side is that all reading
+> and writing of the files need to use binary acpi data structures.  This
+> interface certainly provides "shoot yourself in the foot" potential, but
+> the access to the namespace from userspace is hard to beat.  Any
+> thoughts on this approach versus the last?  This interface and a simple
+> set of libraries to go along with it has a lot of potential.  Thanks,
 
-about the bits:
-- at 81h, from D0 to 90: this is part of the system control register. the bit
-  that changed is "Memory read burst enable upstream"
-- at c9h, from 04 to 06: this is an undocumented test register. TI just says
-  reserved, EnE says test register, for the bit that changed it adds the 
-  comment TLTEnable (default to 1). no idea what it is. it _could_ have
-  something to do with the cardbus latency timer...you can try to play a bit
-  with the latency setting after resume when this bit is set. try writing to
-  offset 1Bh, put in at least 40h
+The limitation of this interface is that it's not able to call an ACPI 
+method with some arguments and get the return value, correct?
 
-to change the bits under linux, use setpci (also good for reading)
+-John
 
-about the memory read burst upstream: 2.6 kernels enable it for most of
-the TI chips and since 2.6.5 also for some TI clones from EnE (incl. EnE1410).
 
-rgds
--daniel
-
+-- 
+http:// if  ile.org/

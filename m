@@ -1,75 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261801AbVDCQB0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbVDCQTt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261801AbVDCQB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 12:01:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbVDCQB0
+	id S261813AbVDCQTt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 12:19:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVDCQTc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 12:01:26 -0400
-Received: from smtp.blackdown.de ([213.239.206.42]:39073 "EHLO
-	smtp.blackdown.de") by vger.kernel.org with ESMTP id S261801AbVDCQBY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 12:01:24 -0400
-From: Juergen Kreileder <jk@blackdown.de>
-To: Esben Stien <b0ef@esben-stien.name>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Logitech MX1000 Horizontal Scrolling
-References: <873bxfoq7g.fsf@quasar.esben-stien.name>
-	<87zmylaenr.fsf@quasar.esben-stien.name>
-	<20050204195410.GA5279@ucw.cz>
-	<873bvyfsvs.fsf@quasar.esben-stien.name>
-	<87zmxil0g8.fsf@quasar.esben-stien.name>
-	<1110056942.16541.4.camel@localhost>
-	<87sm37vfre.fsf@quasar.esben-stien.name>
-	<87wtsjtii6.fsf@quasar.esben-stien.name>
-	<20050308205210.GA3986@ucw.cz> <1112083646.12986.3.camel@localhost>
-	<87psxcsq06.fsf@quasar.esben-stien.name>
-X-PGP-Key: http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0x730A28A5
-X-PGP-Fingerprint: 7C19 D069 9ED5 DC2E 1B10  9859 C027 8D5B 730A 28A5
-Mail-Followup-To: Esben Stien <b0ef@esben-stien.name>,
-	linux-kernel@vger.kernel.org
-Date: Sun, 03 Apr 2005 18:01:21 +0200
-In-Reply-To: <87psxcsq06.fsf@quasar.esben-stien.name> (Esben Stien's message
-	of "Sun, 03 Apr 2005 01:44:25 +0200")
-Message-ID: <87u0mn3l4e.fsf@blackdown.de>
-Organization: Blackdown Java-Linux Team
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
+	Sun, 3 Apr 2005 12:19:32 -0400
+Received: from fmr15.intel.com ([192.55.52.69]:44502 "EHLO
+	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261813AbVDCQTX convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 12:19:23 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] fix subarch breakage in intel_cacheinfo.c
+Date: Sun, 3 Apr 2005 09:19:10 -0700
+Message-ID: <88056F38E9E48644A0F562A38C64FB600462976E@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] fix subarch breakage in intel_cacheinfo.c
+Thread-Index: AcU3r0BKLz2KdYXASmaMCbaTdDPMrQAuSNog
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "James Bottomley" <James.Bottomley@SteelEye.com>,
+       "Andrew Morton" <akpm@osdl.org>
+Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 03 Apr 2005 16:19:12.0409 (UTC) FILETIME=[DF4DA890:01C53868]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Esben Stien <b0ef@esben-stien.name> writes:
 
-> Jeremy Nickurak <atrus@rifetech.com> writes:
+Errr. That was my oversight. I will compile-test the patches 
+against all sub-archs in future. Thanks for catching this 
+and sending the patch.  
+
+Thanks,
+Venki
+
+>-----Original Message-----
+>From: James Bottomley [mailto:James.Bottomley@SteelEye.com] 
+>Sent: Saturday, April 02, 2005 10:10 AM
+>To: Andrew Morton
+>Cc: Pallipadi, Venkatesh; Linux Kernel
+>Subject: [PATCH] fix subarch breakage in intel_cacheinfo.c
 >
->> I'm playing with this under 2.6.11.4 
+>Not all x86 subarchitectures have support for hyperthreading, so every
+>piece you add for it has to be predicated on checks for CONFIG_X86_HT.
 >
-> I got 2.6.12-rc1 
+>The patch corrects this hyperthreading leakage problem in
+>intel_cacheinfo.c
 >
->> The vertical cruise control buttons work properly, with the
->> exception of the extra button press.
+>Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
 >
-> Yup, nice, I see the same
-
-Same here.
-
->> But the horizontal buttons are mapping to 6/7 as non-repeat
->> buttons, and adding simulateously the 4/5 events auto-repeated for
->> as long as the button is down. That is to say, pressing the the
->> horizontal scroll in a 2d scrolling area will scroll *diagonally*
->> one step, then vertically until the button is released.
+>===== arch/i386/kernel/cpu/intel_cacheinfo.c 1.3 vs edited =====
+>--- 1.3/arch/i386/kernel/cpu/intel_cacheinfo.c	2005-03-31 
+>05:06:44 -06:00
+>+++ edited/arch/i386/kernel/cpu/intel_cacheinfo.c	
+>2005-04-02 12:03:39 -06:00
+>@@ -311,8 +311,10 @@
+> 
+> 	if (num_threads_sharing == 1)
+> 		cpu_set(cpu, this_leaf->shared_cpu_map);
+>+#ifdef CONFIG_X86_HT
+> 	else if (num_threads_sharing == smp_num_siblings)
+> 		this_leaf->shared_cpu_map = cpu_sibling_map[cpu];
+>+#endif
+> 	else
+> 		printk(KERN_INFO "Number of CPUs sharing cache 
+>didn't match "
+> 				"any known set of CPUs\n");
 >
-> Yup, seeing exactly the same here. 
-
-Horizontal scrolling works fine for me.  I just get repeated 6/7
-events, nothing else.
-
-I'm using the configuration described at:
-http://blog.blackdown.de/2005/04/03/logitech-mx1000-configuration/
-
-
-        Juergen
-
--- 
-Juergen Kreileder, Blackdown Java-Linux Team
-http://blog.blackdown.de/
+>
+>

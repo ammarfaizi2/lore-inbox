@@ -1,28 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289779AbSA2SHj>; Tue, 29 Jan 2002 13:07:39 -0500
+	id <S289793AbSA2SKT>; Tue, 29 Jan 2002 13:10:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289793AbSA2SH2>; Tue, 29 Jan 2002 13:07:28 -0500
-Received: from harrier.mail.pas.earthlink.net ([207.217.120.12]:23295 "EHLO
-	harrier.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S289779AbSA2SHJ>; Tue, 29 Jan 2002 13:07:09 -0500
-Date: Tue, 29 Jan 2002 13:11:26 -0500
-To: linux-kernel@vger.kernel.org
-Cc: ltp-list@lists.sourceforge.net
-Subject: Re: repeatable oops on 2.5.3-pre6 from LTP socket01 test
-Message-ID: <20020129131126.A20089@earthlink.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: rwhron@earthlink.net
+	id <S289795AbSA2SKJ>; Tue, 29 Jan 2002 13:10:09 -0500
+Received: from ns.suse.de ([213.95.15.193]:26643 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S289793AbSA2SJ7>;
+	Tue, 29 Jan 2002 13:09:59 -0500
+Date: Tue, 29 Jan 2002 19:09:57 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Craig DeForest <zowie@euterpe.boulder.swri.edu>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: MTRR hangs dual-athlon SMP system (2.4.16 - 2.4.18p7)
+In-Reply-To: <15446.57543.295705.495830@euterpe.boulder.swri.edu>
+Message-ID: <Pine.LNX.4.33.0201291909020.13856-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 29 Jan 2002, Craig DeForest wrote:
 
-Forget that oops.  It's from 2.4.6.  Ancient history.
-2.5.3-pre6 completed LTP and other testing without incident.
+> Principal workaround is to switch off MTRR support.  That works for
+> me, but gives a noticeable (maybe 10%) performance hit in my application.
+> More memory-intensive applications will be hit harder.
+
+Can you include the output of /proc/mtrr, and any mtrr related
+messages in dmesg ?
 
 -- 
-Randy Hron
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 

@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129774AbRAIUhj>; Tue, 9 Jan 2001 15:37:39 -0500
+	id <S129406AbRAIUqo>; Tue, 9 Jan 2001 15:46:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130362AbRAIUh3>; Tue, 9 Jan 2001 15:37:29 -0500
-Received: from ns.caldera.de ([212.34.180.1]:270 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S129774AbRAIUhN>;
-	Tue, 9 Jan 2001 15:37:13 -0500
-Date: Tue, 9 Jan 2001 21:36:34 +0100
-Message-Id: <200101092036.VAA06353@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: torvalds@transmeta.com (Linus Torvalds)
-Cc: migo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <Pine.LNX.4.10.10101091212520.2331-100000@penguin.transmeta.com>
-User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
+	id <S129562AbRAIUqX>; Tue, 9 Jan 2001 15:46:23 -0500
+Received: from db0bm.automation.fh-aachen.de ([193.175.144.197]:50958 "EHLO
+	db0bm.ampr.org") by vger.kernel.org with ESMTP id <S129406AbRAIUqS>;
+	Tue, 9 Jan 2001 15:46:18 -0500
+Date: Tue, 9 Jan 2001 21:46:14 +0100
+From: f5ibh <f5ibh@db0bm.ampr.org>
+Message-Id: <200101092046.VAA27628@db0bm.ampr.org>
+To: linux-kernel@vger.kernel.org
+Subject: usb mouse, iomega zip and 2.2.19-pre7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.10.10101091212520.2331-100000@penguin.transmeta.com> you wrote:
+Hi,
 
+usb-mouse
+---------
+In 2.2.19-pre6 (and previous) we had a CONFIG_INPUT_MOUSEDEV. It has
+disapearead in 2.2.19-7. The only alternative for an usb mouse seems 
+to be CONFIG_USB_MOUSE which is for an USB HIDBP Mouse.
 
-> On Tue, 9 Jan 2001, Ingo Molnar wrote:
->> 
->>				 So i do believe that the networking
->> code is properly designed in this respect, and this concept goes to the
->> highest level of the networking code.
+So there is no mean to get mousedev & input compiled.
+Maybe "Input core support" is missing with the matching ../drivers/input 
+directory.
 
-> Absolutely. This is why I have no conceptual problems with the networking
-> layer changes, and why I am in violent disagreement with people who think
-> the networking layer should have used the (much inferior, in my opinion)
-> kiobuf/kiovec approach.
+Iomega ZIP support
+------------------
+IOMEGA parallel port (ppa - older drives)
+IOMEGA parallel port (imm - newer drives)
+Have vanished from the "SCSI low-level drivers" sub-menu.
 
-At least I (who has started this threads) haven't said htey should use iobufs
-internally.  I said: use iovecs in the interface, because this interface
-is a little more general and allows to integrate into other parts (namely Ben's
-aio work nicely).
+--------
 
-Also the tuple argument you gave earlier isn't right in this specific case:
+Regards
 
-when doing sendfile from pagecache to an fs, you have a bunch of pages,
-an offset in the first and a length that makes the data end before last
-page's end.
-
-> For people who worry about code re-use and argue for kiobuf/kiovec on
-> those grounds, I can only say that the code re-use should go the other
-> way. It should be "the bad code should re-use code from the good code". It
-> should NOT be "the new code should re-use code from the old code".
-
-It's not relly about reusing, but about compatiblity with other interfaces...
-
-	Christoph
-
--- 
-Whip me.  Beat me.  Make me maintain AIX.
+		Jean-Luc
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,51 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264067AbUFVOnS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264367AbUFVOsI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264067AbUFVOnS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 10:43:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264034AbUFVOnR
+	id S264367AbUFVOsI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 10:48:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264206AbUFVOrV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 10:43:17 -0400
-Received: from cantor.suse.de ([195.135.220.2]:39137 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264067AbUFVOm2 (ORCPT
+	Tue, 22 Jun 2004 10:47:21 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:28870 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S264444AbUFVOhV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 10:42:28 -0400
-Subject: Re: deadlocks caused by ext3/reiser dirty_inode calls during
-	do_mmap_pgoff
-From: Chris Mason <mason@suse.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040621171337.44d1b636.akpm@osdl.org>
-References: <1087837153.1512.176.camel@watt.suse.com>
-	 <20040621171337.44d1b636.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1087915399.1512.267.camel@watt.suse.com>
+	Tue, 22 Jun 2004 10:37:21 -0400
+Date: Tue, 22 Jun 2004 12:19:14 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Nobuhiro Tachino <ntachino@redhat.com>
+Cc: Takao Indoh <indou.takao@soft.fujitsu.com>, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@muc.de>
+Subject: Re: [3/4] [PATCH]Diskdump - yet another crash dump function
+Message-ID: <20040622101914.GA20623@elte.hu>
+References: <20040617121356.GA24338@elte.hu> <D3C4552C24A60Aindou.takao@soft.fujitsu.com> <40D747B1.9030406@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 22 Jun 2004 10:43:19 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40D747B1.9030406@redhat.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-06-21 at 20:13, Andrew Morton wrote:
 
-> It's super-improbable because we fault the source page in by hand in
-> generic_file_aio_write_nolock() via fault_in_pages_readable().  Of course,
-> that prefaulting isn't 100% reliable either, because the VM can come in and
-> steal the page (or at least unmap its pte) before we get to doing the copy.
-> 
-> I think we can fix both problems by changing filemap_copy_from_user() and
-> filemap_copy_from_user_iovec() to not fall back to kmap() - just fail the
-> copy in some way if the atomic copy failed.  Then, in
-> generic_file_aio_write_nolock(), do a zero-length ->commit_write(),
-> put_page(), then go back and retry the whole thing, starting with
-> fault_in_pages_readable().
+* Nobuhiro Tachino <ntachino@redhat.com> wrote:
 
-Oh, just realized this will break our data=ordered setup.  prepare_write
-is going to do things like allocating blocks in the file etc etc.  If we
-close the transaction via commit_write(0 size) and crash, we'll leak.
+> Your new dump_run_timers() calls __run_timers() directly. I think
+> that's the reason of unstability. __run_timers() calls
+> spin_unlock_irq() and enables IRQ, but diskdump expects everything
+> runs with IRQ disabled.
 
-We might need to do prefault + pin on the user pages.
+indeed!
 
--chris
+luckily we can solve this in the upstream kernel without too much fuss,
+see the patch below. All callers of __run_timers() run with irqs
+enabled.
 
+(NOTE: we unconditionally disable interrupts after having run the timer
+fn - this solves the problem of a timer fn keeping irqs disabled.)
 
+does this patch stabilize diskdump?
+
+	Ingo
+
+--- linux/kernel/timer.c.orig
++++ linux/kernel/timer.c
+@@ -423,8 +423,9 @@ static int cascade(tvec_base_t *base, tv
+ static inline void __run_timers(tvec_base_t *base)
+ {
+ 	struct timer_list *timer;
++	unsigned long flags;
+ 
+-	spin_lock_irq(&base->lock);
++	spin_lock_irqsave(&base->lock, flags);
+ 	while (time_after_eq(jiffies, base->timer_jiffies)) {
+ 		struct list_head work_list = LIST_HEAD_INIT(work_list);
+ 		struct list_head *head = &work_list;
+@@ -453,14 +454,14 @@ repeat:
+ 			set_running_timer(base, timer);
+ 			smp_wmb();
+ 			timer->base = NULL;
+-			spin_unlock_irq(&base->lock);
++			spin_unlock_irqrestore(&base->lock, flags);
+ 			fn(data);
+ 			spin_lock_irq(&base->lock);
+ 			goto repeat;
+ 		}
+ 	}
+ 	set_running_timer(base, NULL);
+-	spin_unlock_irq(&base->lock);
++	spin_unlock_irqrestore(&base->lock, flags);
+ }
+ 
+ #ifdef CONFIG_NO_IDLE_HZ

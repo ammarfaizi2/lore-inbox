@@ -1,75 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267961AbUJGWas@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268327AbUJGWcX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267961AbUJGWas (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 18:30:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269872AbUJGW2t
+	id S268327AbUJGWcX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 18:32:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269869AbUJGWbI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 18:28:49 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:60105 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S269851AbUJGW0a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 18:26:30 -0400
-Subject: Re: [RFC PATCH] scheduler: Dynamic sched_domains
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Paul Jackson <pj@sgi.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Andrew Morton <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
-       LSE Tech <lse-tech@lists.sourceforge.net>,
-       LKML <linux-kernel@vger.kernel.org>, simon.derr@bull.net,
-       frankeh@watson.ibm.com
-In-Reply-To: <4164A664.9040005@yahoo.com.au>
-References: <1097110266.4907.187.camel@arrakis>
-	 <4164A664.9040005@yahoo.com.au>
-Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1097187605.17473.37.camel@arrakis>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 07 Oct 2004 15:20:05 -0700
+	Thu, 7 Oct 2004 18:31:08 -0400
+Received: from c7ns3.center7.com ([216.250.142.14]:45005 "EHLO
+	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
+	id S267953AbUJGW2j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 18:28:39 -0400
+Message-ID: <4165BA70.5050208@drdos.com>
+Date: Thu, 07 Oct 2004 15:51:44 -0600
+From: "Jeff V. Merkey" <jmerkey@drdos.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dave Jones <davej@redhat.com>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>,
+       "jmerkey@comcast.net" <jmerkey@comcast.net>, jonathan@jonmasters.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
+References: <100120041740.9915.415D967600014EC2000026BB2200758942970A059D0A0306@comcast.net> <35fb2e590410011509712b7d1@mail.gmail.com> <415DD1ED.6030101@drdos.com> <1096738439.25290.13.camel@localhost.localdomain> <41659748.9090906@drdos.com> <8B592DC4-18A9-11D9-ABEB-000393ACC76E@mac.com> <4165B265.2050506@drdos.com> <20041007221826.GB5302@redhat.com>
+In-Reply-To: <20041007221826.GB5302@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-06 at 19:13, Nick Piggin wrote:
-> This is what I did in my first (that nobody ever saw) implementation of
-> sched domains. Ie. no sched_groups, just use sched_domains as the balancing
-> object... I'm not sure this works too well.
-> 
-> For example, your bottom level domain is going to basically be a redundant,
-> single CPU on most topologies, isn't it?
 
-I forgot to respond to this part in my last mail... :(
+>If you want to spend god alone knows how many hours tracking down
+>who wrote what and nuking the relevant bits, that's your time to throw
+>away. If you want the same featureset a little faster however, I
+>believe SCO are still selling Openserver licenses.
+>
+>		Dave
+>
+>
+>  
+>
+We would spend the time or remove the code. OpenServer??? Gag?? Puke??
+According to Carl "Mad Dog" McBride Linux is already his "product" (What a
+joke). OpenServer is not Linux.
 
-My benchmarks haven't shown any real deviation in performance from stock
--mm.  Granted, my benchmarking has been very limited, pretty much just
-running kernbench on a few different machines with different configs
-(ie: SMT, SMP & NUMA on/off).  A performance NOOP is exactly what I was
-hoping for, though.  I don't really expect these changes to be either a
-performance win or loss, but a functionality improvement.
+If I receive a confirmation from A) Linus or B) Alan then we will profer
+a license agreement for everyone to review and sign off on via PGP 
+secure email.
+We will worry about who is no longer available. We need the core folks 
+whose names
+appear as the original author in the master header of each file to sign 
+off. They will need to
+certify which files are theirs and send a confirmation.
 
-The patch is pretty dense because of all the renaming, but there are no
-single CPU domains.  The lowest level domain would be:
+This can be done, and if there is a process in place, others can come 
+and give money as well.
+It's time ALL YOU GUYS got rewarded for your hard work, and not just 
+those who
+positioned themselves to get fat stock options and IPO preffered stock 
+for .com stock market
+Google style IPO scams. It can happen.
 
-1) Node domains, for NUMA w/ SMP
-2) Sibling domains, for SMT or NUMA w/ SMT
-3) System domain, for flat SMP
+Jeff
 
-The pseudo code version of my arch_init_sched_domains() looks like:
 
-cpu_usable_map = cpu_online_map & ~cpu_isolated_map
-create system domain;
-if NUMA
-	for_each_node()
-		create node domain, parented to system domain;
-for_each_cpu(cpu_usable_map)
-	if SCHED_SMT
-		create sibling domain, parented to node domain;
-		attach sibling cpu to it's domain;
-	else
-		attach cpu to either its node domain or system domain;
-
-So there shouldn't be any redundant CPU domains.
-
--Matt
 

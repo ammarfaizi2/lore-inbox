@@ -1,80 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262397AbTHaCmf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 22:42:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262417AbTHaCmf
+	id S262386AbTHaCfR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 22:35:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262394AbTHaCfR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 22:42:35 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:61366
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262397AbTHaCmd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 22:42:33 -0400
-Date: Sun, 31 Aug 2003 04:42:48 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Jeff Sipek <jeffpc@optonline.net>
-Cc: Pascal Schmidt <der.eremit@email.de>, Larry McVoy <lm@bitmover.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: bandwidth for bkbits.net (good news)
-Message-ID: <20030831024248.GR24409@dualathlon.random>
-References: <20030830230701.GA25845@work.bitmover.com> <Pine.LNX.4.44.0308310256420.16308-100000@neptune.local> <20030831013928.GN24409@dualathlon.random> <200308302218.45779.jeffpc@optonline.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 30 Aug 2003 22:35:17 -0400
+Received: from auth22.inet.co.th ([203.150.14.104]:40201 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S262386AbTHaCfI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 22:35:08 -0400
+From: Michael Frank <mhf@linuxmail.org>
+Subject: 2.6.0-test4: Tested the Power Management Update
+Date: Sun, 31 Aug 2003 10:34:33 +0800
+User-Agent: KMail/1.5.2
+X-OS: KDE 3 on GNU/Linux
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200308302218.45779.jeffpc@optonline.net>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+To: Patrick Mochel <mochel@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-Id: <200308311027.08779.mhf@linuxmail.org>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 30, 2003 at 10:18:37PM -0400, Jeff Sipek wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On Saturday 30 August 2003 21:39, Andrea Arcangeli wrote:
-> > On Sun, Aug 31, 2003 at 03:05:37AM +0200, Pascal Schmidt wrote:
-> > > On Sat, 30 Aug 2003, Larry McVoy wrote:
-> > > >> All you have to do is drop the incoming packets if they exceed
-> > > >> a certain bandwidth.
-> > > >
-> > > > If you think we haven't done that, think again.
-> > > >
-> > > > We're at the wrong end of the pipe to do that, I'm pretty sure that
-> > > > what you are describing simply won't work.
-> > >
-> > > In a way, you're on the right end of the pipe because the system
-> > > that does your traffic shaping is part of the general network, viewed
-> > > from the machines behind the shaper.
-> > >
-> > > Dropping the packets means that the sending side, at least if we're
-> > > talking TCP, will throttle its sending rate. But, depending on the
-> > > distance in hops to the sender, it may take up to a few seconds for
-> > > this to kick in. So I guess that's why it doesn't work for your
-> > > VoIP case - the senders don't notice fast enough that they should
-> > > slow down.
-> >
-> > that's because you don't limit the bkbits.net to a fixed rate. If you
-> > want to give priorities, it won't work well because it takes time to be
-> > effective, but if you rate limit hard both ways it has to work, unless
-> > you're under syn-flood ;) The downside is that you will waste bandwith
-> > (i.e. you will hurt the bkbits.net service even when you don't use
-> > voip), but it will work.
-> 
-> How about giving something to voip as a hard limit and then using some shaper 
-> to give it more if needed.
+Patrick,
 
-it may take a few secs to rate limit the rest, the old tcp connections
-will keep sending packets that will get rejected when voip kicks in,
-that's the problem described in the email I answered to with the
-solution (i.e.  limit bkbits.net hard). I'm pretty sure that rate
-limting bkbits.net hard (like we do with my brother's computer when he
-generates heavy traffic) will let voip to work flawlessy, but it has the
-downside of limiting the bandwith available to bkbits users even when
-nobody place phone calls. Upgrading the current line and using the
-software rate limiting with the solution I proposed, or adding a new
-line dedicated to bkbits.net, wouldn't be much different in practice (if
-it was me I'd choose it only in function of what's more cost effective,
-after double checking that my algorithm infact works fine for higher
-bandwidth too, I only tested it on 640kbit).
+Thank you for taking this on.
 
-Andrea
+1) IMPROVED: S3/mem works better than ever - no resume failures encountered!
+
+2) WORKS AGAIN: S4/disk functionality restored, no problems seen.
+
+3) NEW: ACPI alarm function has new problem:
+
+echo > /proc/acpi/alarm often (not always) causes:
+
+Aug 31 09:16:36 mhfl2 kernel: irq 9: nobody cared!
+Aug 31 09:16:36 mhfl2 kernel: Call Trace:
+Aug 31 09:16:36 mhfl2 kernel:  [<c010c35b>] __report_bad_irq+0x2b/0x90
+Aug 31 09:16:36 mhfl2 kernel:  [<c010c363>] __report_bad_irq+0x33/0x90
+Aug 31 09:16:36 mhfl2 kernel:  [<c010c438>] note_interrupt+0x50/0x78
+Aug 31 09:16:36 mhfl2 kernel:  [<c010c5b2>] do_IRQ+0x96/0xf4
+Aug 31 09:16:36 mhfl2 kernel:  [<c010afe8>] common_interrupt+0x18/0x20
+Aug 31 09:16:36 mhfl2 kernel:  [<c011dd58>] do_softirq+0x48/0xb0
+Aug 31 09:16:36 mhfl2 kernel:  [<c010c600>] do_IRQ+0xe4/0xf4
+Aug 31 09:16:36 mhfl2 kernel:  [<c010afe8>] common_interrupt+0x18/0x20
+Aug 31 09:16:36 mhfl2 kernel:  [<c01e110d>] acpi_os_write_port+0x35/0x50
+Aug 31 09:16:36 mhfl2 kernel:  [<c01f65de>] acpi_hw_low_level_write+0x7e/0x11e
+Aug 31 09:16:36 mhfl2 kernel:  [<c01f632d>] acpi_hw_register_write+0xb9/0x1c0
+Aug 31 09:16:37 mhfl2 kernel:  [<c01f6046>] acpi_set_register+0x262/0x2d0
+Aug 31 09:16:37 mhfl2 kernel:  [<c020ac7c>] acpi_system_write_alarm+0x4f8/0x544
+Aug 31 09:16:37 mhfl2 kernel:  [<c01464fe>] vfs_write+0x9e/0xd0
+Aug 31 09:16:37 mhfl2 kernel:  [<c01465b0>] sys_write+0x30/0x50
+Aug 31 09:16:37 mhfl2 kernel:  [<c010adc7>] syscall_call+0x7/0xb
+Aug 31 09:16:37 mhfl2 kernel: 
+Aug 31 09:16:37 mhfl2 kernel: handlers:
+Aug 31 09:16:37 mhfl2 kernel: [<c01e0f6c>] (acpi_irq+0x0/0x1c)
+Aug 31 09:16:37 mhfl2 kernel: Disabling IRQ #9
+
+$ cat /proc/interrupts
+           CPU0
+  0:     786435          XT-PIC  timer
+  1:       2266          XT-PIC  i8042
+  2:          0          XT-PIC  cascade
+  5:          1          XT-PIC  0000:00:12.0
+  8:          0          XT-PIC  rtc
+  9:         96          XT-PIC  acpi
+ 10:       1003          XT-PIC  eth0
+ 12:       8252          XT-PIC  i8042
+ 14:       6937          XT-PIC  ide0
+NMI:          0
+ERR:          2
+
+4) UNCHANGED: Alarm wakeup from S3 powers up and hangs.
+
+5) MAJOR UNCHANGED: (ACPI routed) PCI interrupt links still stay dead 
+on S3 resume as their state was lost upon powerdown of the router and 
+on resume USB, Network and PCMCIA/Yenta are dead.
+
+I had posted a patch earlier to set all links again in ACPI prior to 
+resuming devices, Russell said it was discussed at OLS, what will be 
+done about it?
+
+6) MINOR UNCHANGED: As to the mouse, i8042 does not resume, so I 
+config i8042 as a module and reload it on resume. However, current 
+drivers/input/serio/Kconfig makes this impossible, which I whined 
+about a few times already ;)
+
+config SERIO_I8042
+tristate "i8042 PC Keyboard controller" if EMBEDDED || !X86
+
+Maybe bug in kconfig: Even when X86 if off, can't touch i8042 
+using menuconfig.
+
+
+Regards
+Michael
+

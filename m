@@ -1,40 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264855AbUDWPjI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264850AbUDWPlp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264855AbUDWPjI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 11:39:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264854AbUDWPjH
+	id S264850AbUDWPlp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 11:41:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264846AbUDWPlp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 11:39:07 -0400
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:39622 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S264855AbUDWPjF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 11:39:05 -0400
-Date: Fri, 23 Apr 2004 17:39:03 +0200 (CEST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Allen Martin <AMartin@nvidia.com>
-Cc: Len Brown <len.brown@intel.com>, Jamie Lokier <jamie@shareable.org>,
-       ross@datscreative.com.au,
-       =?iso-8859-1?Q?Christian_Kr=F6ner?= 
-	<christian.kroener@tu-harburg.de>,
-       Linux-Nforce-Bugs <Linux-Nforce-Bugs@exchange.nvidia.com>,
-       linux-kernel@vger.kernel.org
-Subject: RE: IO-APIC on nforce2 [PATCH]
-In-Reply-To: <DCB9B7AA2CAB7F418919D7B59EE45BAF49FBD4@mail-sc-6-bk.nvidia.com>
-Message-ID: <Pine.LNX.4.55.0404231734360.14494@jurand.ds.pg.gda.pl>
-References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49FBD4@mail-sc-6-bk.nvidia.com>
-Organization: Technical University of Gdansk
+	Fri, 23 Apr 2004 11:41:45 -0400
+Received: from kogut.o2.pl ([212.126.20.60]:48072 "EHLO kogut.o2.pl")
+	by vger.kernel.org with ESMTP id S264850AbUDWPl1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 11:41:27 -0400
+Message-ID: <408939AC.6050804@o2.pl>
+Date: Fri, 23 Apr 2004 17:43:40 +0200
+From: Dariusz Tylus <dtdarek@o2.pl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040312 Debian/1.6-3
+X-Accept-Language: en-us, en, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Rtlinux - kernel panic on rtlinux init
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Apr 2004, Allen Martin wrote:
+I have already instaled rtLinyx 3.2 pre3 with kernel 2.4.22
+When I type "rtlinux start" the system crash,
+there is kernel panic
+On the screen is dump of registers and some lines like this:
 
-> The 8254 PIT is hardwared to IRQ0 on all nForce chipsets, it can't be routed.
+Attempt to kill the idle task
+In idle task - not syncing.
+...
+Unable to handle kernel paging request at virtual adres 80731744
 
- Thanks for this info.  Thus the workaround can be unconditional.
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+I would like some advice what should I do,
+darek

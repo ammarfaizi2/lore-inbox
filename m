@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264625AbSJOJgp>; Tue, 15 Oct 2002 05:36:45 -0400
+	id <S263977AbSJOJud>; Tue, 15 Oct 2002 05:50:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264631AbSJOJgp>; Tue, 15 Oct 2002 05:36:45 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:8070 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S264625AbSJOJgo>;
-	Tue, 15 Oct 2002 05:36:44 -0400
-Date: Tue, 15 Oct 2002 11:42:00 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Kernel mailing list <linux-kernel@vger.kernel.org>,
-       Harald Dankworth <harald@pronto.tv>,
-       Atle =?iso-8859-1?Q?Sj=F8n=F8st?= <atle@pronto.tv>
-Subject: Re: cdrom_sysctl_register uses LOTS of CPU, and no cdrom is attached (2.4.20-pre10)
-Message-ID: <20021015094200.GA14722@suse.de>
-References: <Pine.LNX.4.44.0210150102120.1795-100000@montezuma.mastecende.com> <200210150949.16991.roy@karlsbakk.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210150949.16991.roy@karlsbakk.net>
+	id <S264001AbSJOJuc>; Tue, 15 Oct 2002 05:50:32 -0400
+Received: from gate.perex.cz ([194.212.165.105]:10255 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S263977AbSJOJuc>;
+	Tue, 15 Oct 2002 05:50:32 -0400
+Date: Tue, 15 Oct 2002 11:55:41 +0200 (CEST)
+From: Jaroslav Kysela <perex@perex.cz>
+X-X-Sender: <perex@pnote.perex-int.cz>
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ALSA update
+In-Reply-To: <Pine.NEB.4.44.0210151048240.20607-100000@mimas.fachschaften.tu-muenchen.de>
+Message-ID: <Pine.LNX.4.33.0210151154520.719-100000@pnote.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 15 2002, Roy Sigurd Karlsbakk wrote:
-> On Tuesday 15 October 2002 07:07, Zwane Mwaikambo wrote:
-> > On Mon, 14 Oct 2002, Roy Sigurd Karlsbakk wrote:
-> > > attached is the .config and these three readprofile output files
-> > > (pro[123]). see time to see the interval they have been created in
+On Tue, 15 Oct 2002, Adrian Bunk wrote:
+
+> On Mon, 14 Oct 2002, Jaroslav Kysela wrote:
+> 
+> > Linus, please do a
 > >
-> > These look like bungled up profiles of the magnitude that even i couldn't
-> > conjure up ;)
+> > 	bk pull http://linux-sound.bkbits.net/linux-sound
+> >...
 > 
-> excuse me?
-> made a new one now.
+> Hi Jaroslav,
 > 
-> why is cdrom_sysctl_register using all that cpu??? I mean - it's got nothing 
-> there to do!
+> could you make it available as a GNU patch for non-BK users and post the
+> URL?
 
-come on, the profile data is obvious bogus. take a look at
-cdrom_sysctl_register(), for chrissake.
+Sure. The latest patch is at
+ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-bk-2002-10-15.patch.gz
 
--- 
-Jens Axboe
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project  http://www.alsa-project.org
+SuSE Linux    http://www.suse.com
 

@@ -1,49 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262908AbTCSCsc>; Tue, 18 Mar 2003 21:48:32 -0500
+	id <S262963AbTCSCxH>; Tue, 18 Mar 2003 21:53:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262916AbTCSCsc>; Tue, 18 Mar 2003 21:48:32 -0500
-Received: from packet.digeo.com ([12.110.80.53]:44974 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262908AbTCSCsb>;
-	Tue, 18 Mar 2003 21:48:31 -0500
-Date: Tue, 18 Mar 2003 18:59:35 -0800
+	id <S262964AbTCSCxH>; Tue, 18 Mar 2003 21:53:07 -0500
+Received: from packet.digeo.com ([12.110.80.53]:54446 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262963AbTCSCxG>;
+	Tue, 18 Mar 2003 21:53:06 -0500
+Date: Tue, 18 Mar 2003 19:04:07 -0800
 From: Andrew Morton <akpm@digeo.com>
 To: george anzinger <george@mvista.com>
-Cc: tim@physik3.uni-rostock.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix nanosleep() granularity bumps
-Message-Id: <20030318185935.2735c583.akpm@digeo.com>
-In-Reply-To: <3E77D7DE.6090004@mvista.com>
-References: <Pine.LNX.4.33.0303182123510.30255-100000@gans.physik3.uni-rostock.de>
-	<3E77D107.30406@mvista.com>
-	<20030318203125.054b2704.akpm@digeo.com>
-	<3E77D7DE.6090004@mvista.com>
+Cc: async@cc.gatech.edu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] limits on SCHED_FIFO tasks
+Message-Id: <20030318190407.37a39db1.akpm@digeo.com>
+In-Reply-To: <3E77C40D.4090700@mvista.com>
+References: <20030318185135.D1361@tokyo.cc.gatech.edu>
+	<3E77C40D.4090700@mvista.com>
 X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Mar 2003 02:59:18.0314 (UTC) FILETIME=[886E70A0:01C2EDC3]
+X-OriginalArrivalTime: 19 Mar 2003 03:03:49.0969 (UTC) FILETIME=[2A59B410:01C2EDC4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 george anzinger <george@mvista.com> wrote:
 >
-> > There is currently a mysterious timer lockup happening on power4 machines. 
-> > I'd like to keep these changes well-separated in time so we can get an
-> > understanding of what code changes correlate with changed behaviour.
-> 
-> Tell me more...
+> If the issue is regaining control after some RT task goes into a loop, 
+> the way this is usually done is to keep a session around with a higher 
+> priority.  Using this concept, one might provide tools that, from 
+> userland, insure that such a session exists prior to launching the 
+> "suspect" code.  I fail to see the need for this sort of code in the 
+> kernel.
 
-Don't know much more really.  Anton has a machine which fairly repeatably
-locks up at jiffies = 0x100104100.
+That works, until your shell calls ext3_mark_inode_dirty(), which blocks on
+kjournald activity.  kjournald is SCHED_OTHER, and never runs...
 
-> Latest BK. Ive been getting this lockup for a while,
-> It _always_ triggers when jiffies = 0x100104100.
-> 
-> c000000000068a14 cascade+0x74
-> c0000000000694a4 run_timer_softirq+0x244
-> c0000000000614f0 do_softirq+0x174
-> c000000000012c10 timer_interrupt+0x1a8
-> c000000000012a0c cpu_idle+0xc0
 
-This _might_ be the timer-handler-does-add_timer(right now) lockup which was
-fixed in Linus's tree today.

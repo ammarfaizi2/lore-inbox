@@ -1,72 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262156AbTHTTN0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 15:13:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbTHTTNZ
+	id S262159AbTHTTGd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 15:06:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262151AbTHTTGd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 15:13:25 -0400
-Received: from main.gmane.org ([80.91.224.249]:991 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262156AbTHTTNX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 15:13:23 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: David Wuertele <dave-gnus@bfnet.com>
-Subject: 2.4.18 usb-storage hotplug implementation question
-Date: Wed, 20 Aug 2003 12:13:20 -0700
-Organization: Berkeley Fluent Network
-Message-ID: <m3d6f0xhv3.fsf@bfnet.com>
+	Wed, 20 Aug 2003 15:06:33 -0400
+Received: from c2mailgwalt.mailcentro.com ([207.183.238.112]:30360 "EHLO
+	c2mailgwalt.mailcentro.com") by vger.kernel.org with ESMTP
+	id S262159AbTHTTGb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 15:06:31 -0400
+X-Version: Mailcentro(english)
+X-SenderIP: 80.58.9.46
+X-SenderID: 7831070
+From: "Jose Luis Alarcon Sanchez" <jlalarcon@chevy.zzn.com>
+Message-Id: <E96C2F4A05ED921428A526DA41374385@jlalarcon.chevy.zzn.com>
+Date: Wed, 20 Aug 2003 21:06:25 +0200
+X-Priority: Normal
+Content-Type: text/plain; charset=iso-8859-1
+To: linuxmodule@altern.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test3 module compilation
+X-Mailer: Web Based Pronto
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.2 (gnu/linux)
-Cancel-Lock: sha1:9HbN7xpNYrmbbOIU1uao/dQpADs=
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am trying to augment the 2.4.18 SCSI/USB code (usb-storage) code
-to be able to hot-plug and detect usb-memory cards when
-plugged in. I have things working, except when I pull
-out a card when a lot of I/O is happening.
+---- Begin Original Message ----
+ From: <linuxmodule@altern.org>
+Sent: Wed, 20 Aug 2003 18:39:19 +0200 (CEST)
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test3 module compilation
 
-The general strategy that I am using is:
+I am trying to compile a module on 2.6.0-test3 kernel. The makefile i
+am using is a pretty normal one : 
 
-1. a task polls (READ_CAPACITY) for the 3 LUNs that i have
-   (using a Phison chip).
-2. When it succeeds, it mounts the device
+CFLAGS = -D__KERNEL__ -DMODULE -I/usr/src/linux-2.6.0-test3/include -O
+dummy.o: dummy.c
 
--- user process does file i/o --
+The module i am trying to compile is taken from the kernel itself
+(dummy network device driver). The
+compilation works flawlessly but when i try to insert the module i get
+: invalid module format.
+What am i doing wrong because i have modutils and module-init and both
+work, since the same module (dummy)
+compiled with the kernel itself can be inserted and removed without
+the previous error message.
+Is there something i should know about the compilation process ? The
+kernel-compiled module (dummy.ko) has
+about 10 Kbytes and dummy.ko compiled by me has only 2 Kbytes :(
 
-3. When the card is pulled, ideally, a READ_CAPACITY fails
-   and the processes with open files are sent a kill signal (SIGHUP)
-   and the device unmounted.
+Thank you in advance
+Snowdog
+---- End Original Message ----
 
-PROBLEM
-When a process is reading from the card, if the card is pulled
-the Phison chip sometimes locks up, so I:
-	1. reset the hub port
-	2. Fail the pending read
+  Try to give a look to this "Linux Weekly News" article:
 
-However there is times when the usb (submit) does not come back
-fast enough, so the READ_10 times out (seems to take over 10 seconds).
-The abort handler is called (by scsi), which unlinks the urb
-and says ok (to abort). I then return a DID_ERROR to the
-SCSI-CMD. However the bottom half handler of this command
-says that since the timer went off, it returns doing nothing.
-In the meanwhile the user-process is stuck inside the file/io
-routines (waiting on the buffer completion - in TASK_UNINTERRUPTIBLE
-state). So I cannot unmount the device (or handle new mounts).
+     http://lwn.net/Articles/21823
 
-Questions:
+  Good luck.
 
-1. Is there a better strategy than the above for dectecting
-   plug-unplug?
+  Regards.
 
-2. How do i handle the failure?
+  Jose.
 
-3. What am i supposed to do in abort handler, so that the SCSI
-   subsystem can continue working?
 
-Thanks,
-Dave
+http://linuxespana.scripterz.org
 
+FreeBSD RELEASE 4.8.
+Mandrake Linux 9.1 Kernel 2.6.0-test3 XFS.
+Registered BSD User 51101.
+Registered Linux User #213309.
+Memories..... You are talking about memories. 
+Rick Deckard. Blade Runner.
+
+
+Get your Free E-mail at http://chevy.zzn.com
+___________________________________________________________
+Get your own Web-based E-mail Service at http://www.zzn.com

@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264850AbSJVSwe>; Tue, 22 Oct 2002 14:52:34 -0400
+	id <S261784AbSJVSxx>; Tue, 22 Oct 2002 14:53:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264833AbSJVSwe>; Tue, 22 Oct 2002 14:52:34 -0400
-Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:55186 "EHLO
-	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S264834AbSJVSwd>; Tue, 22 Oct 2002 14:52:33 -0400
-From: Duncan Sands <baldrick@wanadoo.fr>
-To: Mark Mielke <mark@mark.mielke.cc>
-Subject: Re: Use of yield() in the kernel
-Date: Tue, 22 Oct 2002 20:58:55 +0200
-User-Agent: KMail/1.4.7
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@digeo.com>
-References: <200210151536.39029.baldrick@wanadoo.fr> <200210201110.33254.baldrick@wanadoo.fr> <20021022172404.GB1314@mark.mielke.cc>
-In-Reply-To: <20021022172404.GB1314@mark.mielke.cc>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S262126AbSJVSxw>; Tue, 22 Oct 2002 14:53:52 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:41070 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S261784AbSJVSxu>;
+	Tue, 22 Oct 2002 14:53:50 -0400
+Date: Tue, 22 Oct 2002 20:59:58 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Christoph Hellwig <hch@infradead.org>,
+       Jan Kasprzak <kas@informatics.muni.cz>, linux-kernel@vger.kernel.org,
+       marcelo@conectiva.com.br
+Subject: Re: 2.4.20-pre11 /proc/partitions read
+Message-ID: <20021022185958.GB26585@win.tue.nl>
+References: <20021022161957.N26402@fi.muni.cz> <20021022184034.GA26585@win.tue.nl> <20021022194514.B3867@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200210222058.55621.baldrick@wanadoo.fr>
+In-Reply-To: <20021022194514.B3867@infradead.org>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 22 October 2002 19:24, Mark Mielke wrote:
-> Would it be sensible to add a "yield_short()" function to the kernel?
+On Tue, Oct 22, 2002 at 07:45:14PM +0100, Christoph Hellwig wrote:
 
-You can do:
+> Andries, have you actually CHECKED whether he has it enabled?
 
-set_current_state(TASK_RUNNING);
-schedule();
+No.  I do not claim that his problem was caused by the stats.
+It is just that I get reports from people with mysterious mount
+and fdisk problems that go away when CONFIG_BLK_STATS is disabled.
+And requests from RedHat to put ugly patches into mount to
+tell stdio to use a larger buffer, increasing the probability that
+all is read in one go.
 
-I'm not clear on what you are guaranteed to get - for example,
-it looks as if it can sometimes return without sleeping at all.
-There is also cond_resched(), which is
 
-static inline void cond_resched(void)
-{
-        if (need_resched())
-                __cond_resched();
-}
+> I rather suspect it's the following bug (introduce by me, but not
+> depend on CONFIG_BLK_STATS):
 
-void __cond_resched(void)
-{
-        set_current_state(TASK_RUNNING);
-        schedule();
-}
+Good!
 
-I don't know when need_resched evaluates to true, I haven't
-had time to look into this yet.
+So the very reproducible problem is solved, and only the
+sporadic random problem is left.
 
-Ciao, Duncan.
+I still hope that you will remove it again.
+
+Andries
+

@@ -1,45 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279472AbRJXFdw>; Wed, 24 Oct 2001 01:33:52 -0400
+	id <S279473AbRJXFxz>; Wed, 24 Oct 2001 01:53:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279473AbRJXFdm>; Wed, 24 Oct 2001 01:33:42 -0400
-Received: from stingr.net ([212.193.33.37]:35336 "HELO stingray.sgu.ru")
-	by vger.kernel.org with SMTP id <S279472AbRJXFdf>;
-	Wed, 24 Oct 2001 01:33:35 -0400
-Date: Wed, 24 Oct 2001 09:34:04 +0400
-From: Paul P Komkoff Jr <i@stingr.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: netfilter / iptables version 1.2.4
-Message-ID: <20011024093404.A1090@stingr.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3BD64FA8.FF5C9BDB@frontgatesystems.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BD64FA8.FF5C9BDB@frontgatesystems.com>; from mdiwan@frontgatesystems.com on Wed, Oct 24, 2001 at 01:20:40AM -0400
-User-Agent: Agent Orange
-X-Mailer: mIRC32 v5.91 K.Mardam-Bey
-X-RealName: Stingray Greatest Jr
-Organization: Stingray Software
+	id <S279474AbRJXFxq>; Wed, 24 Oct 2001 01:53:46 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11022 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S279473AbRJXFxd>; Wed, 24 Oct 2001 01:53:33 -0400
+Date: Tue, 23 Oct 2001 22:52:28 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: linux-2.4.13..
+Message-ID: <Pine.LNX.4.33.0110232249090.1185-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: RIPEMD160
 
-Replying to Madhav Diwan:
->  Is the latest version of iptables 1.2.4 available in the 2.4.12 kernel
-> or will i have to patch up? . if so from what version of netfilter
-> should i begin patching?
+Things seem to be calming down a bit, which is nice.
 
-You have patch-o-matic, right ?
+Of course, it might possibly also be that everybody is off flaming about
+the DMCA and getting no work done ;)
 
-- -- 
-Paul P 'Stingray' Komkoff 'Greatest' Jr // (icq)23200764 // (irc)Spacebar
-  PPKJ1-RIPE // (smtp)i@stingr.net // (http)stingr.net // (pgp)0xA4B4ECA4
------BEGIN PGP SIGNATURE-----
+Whatever the cause, here's a 2.4.13. See if you can break it,
 
-iEYEAREDAAYFAjvWUssACgkQyMW8naS07KQIxwCeLQvPJN3grgSxddzcQ/9os69u
-VNkAoJWhe9XDadhNQAgYjOCDH4jIDEFw
-=vUcH
------END PGP SIGNATURE-----
+		Linus
+
+----
+final:
+ - page write-out throttling
+ - Pete Zaitcev: ymfpci sound driver update (make Civ:CTP happy with it)
+ - Alan Cox: i2o sync-up
+ - Andrea Arcangeli: revert broken x86 smp_call_function patch
+ - me: handle VM write load more gracefully. Merge parts of -aa VM
+
+pre6:
+ - Stephen Rothwell: APM idle time handling fixes, docbook update, cleanup
+ - Jeff Garzik: network driver updates
+ - Greg KH: USB updates
+ - Al Viro: UFS update, binfmt_misc rewrite.
+ - Andreas Dilger: /dev/random fixes
+ - David Miller: network/sparc updates
+
+pre5:
+ - Greg KH: usbnet fix
+ - Johannes Erdfelt: uhci.c bulk queueing fixes
+
+pre4:
+ - Al Viro: mnt_list init
+ - Jeff Garzik: network driver update (license tags, tulip driver)
+ - David Miller: sparc, net updates
+ - Ben Collins: firewire update
+ - Gerd Knorr: btaudio/bttv update
+ - Tim Hockin: MD cleanups
+ - Greg KH, Petko Manolov: USB updates
+ - Leonard Zubkoff: DAC960 driver update
+
+pre3:
+ - Jens Axboe: clean up duplicate unused request list
+ - Jeff Mahoney: reiserfs endianness finishing touches
+ - Hugh Dickins: some further swapoff fixes and cleanups
+ - prepare-for-Alan: move drivers/i2o into drivers/message/i2o
+ - Leonard Zubkoff: 2TB disk device fixes
+ - Paul Schroeder: mwave config enable
+ - Urban Widmark: fix via-rhine double free..
+ - Tom Rini: PPC fixes
+ - NIIBE Yutaka: SuperH update
+
+pre2:
+ - Alan Cox: more merging
+ - Ben Fennema: UDF module license
+ - Jeff Mahoney: reiserfs endian safeness
+ - Chris Mason: reiserfs O_SYNC/fsync performance improvements
+ - Jean Tourrilhes: wireless extension update
+ - Joerg Reuter: AX.25 updates
+ - David Miller: 64-bit DMA interfaces
+
+pre1:
+ - Trond Myklebust: deadlock checking in lockd server
+ - Tim Waugh: fix up parport wrong #define
+ - Christoph Hellwig: i2c update, ext2 cleanup
+ - Al Viro: fix partition handling sanity check.
+ - Trond Myklebust: make NFS use SLAB_NOFS, and not play games with PF_MEMALLOC
+ - Ben Fennema: UDF update
+ - Alan Cox: continued merging
+ - Chris Mason: get /proc buffer memory sizes right after buf-in-page-cache
+

@@ -1,59 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267189AbTBFOFR>; Thu, 6 Feb 2003 09:05:17 -0500
+	id <S267237AbTBFOPq>; Thu, 6 Feb 2003 09:15:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267237AbTBFOFR>; Thu, 6 Feb 2003 09:05:17 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:29961 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267189AbTBFOFQ>; Thu, 6 Feb 2003 09:05:16 -0500
-Date: Thu, 6 Feb 2003 14:14:52 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Christoph Hellwig <hch@infradead.org>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] Update of the input subsystem - 37 csets
-Message-ID: <20030206141452.A10148@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Vojtech Pavlik <vojtech@suse.cz>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
-References: <20030206141352.A10182@ucw.cz> <20030206134939.A9732@infradead.org> <20030206151025.A10594@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030206151025.A10594@ucw.cz>; from vojtech@suse.cz on Thu, Feb 06, 2003 at 03:10:25PM +0100
+	id <S267257AbTBFOPq>; Thu, 6 Feb 2003 09:15:46 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:57008 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S267237AbTBFOPp>;
+	Thu, 6 Feb 2003 09:15:45 -0500
+Date: Thu, 6 Feb 2003 15:23:35 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Willy Tarreau <willy@w.ods.org>
+cc: Larry McVoy <lm@work.bitmover.com>, Ben Collins <bcollins@debian.org>,
+       Andrea Arcangeli <andrea@e-mind.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: openbkweb-0.0
+In-Reply-To: <20030206060223.GB6859@alpha.home.local>
+Message-ID: <Pine.GSO.4.21.0302061522390.3301-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 06, 2003 at 03:10:25PM +0100, Vojtech Pavlik wrote:
-> On Thu, Feb 06, 2003 at 01:49:39PM +0000, Christoph Hellwig wrote:
-> 
-> >   * Some laptops take the 789uiojklm,. keys as number pad when NumLock is on.
-> >   * This seems a good reason to start with NumLock off.
-> >   */
-> > +#ifndef CONFIG_X86_PC9800
-> >  #define KBD_DEFLEDS 0
-> > +#else
-> > +#define KBD_DEFLEDS (1 << VC_NUMLOCK)
-> > +#endif
-> >  #endif
+On Thu, 6 Feb 2003, Willy Tarreau wrote:
+> On Wed, Feb 05, 2003 at 08:37:37PM -0800, Larry McVoy wrote:
+> > > You may want to enable mod_deflate, and then scripts can easily make use
+> > > of gzip compressed data. May not be an end-all, but something to
+> > > consider.
 > > 
-> > This ifdef is the wrong way around.
+> > Gzip will give 4:1 what these scripts are doing is more like 1000:1.  
+> > So gzipping the data gets you down to 250:1.  That's still way more
+> > bandwidth, way too much to be acceptable.
 > 
-> The ifdef is the right way around. KBD_DEFLEDS used to be 0. Now
-> KBD_DEFLEDS is also 0, except when CONFIG_X86_PC9800 is defined. Note
-> it's an if*n*def there.
+> Larry, would it be acceptable/possible to regularly push some data/metadata
+> to sites like kernel.org that people already consult for kernel development ?
+> This way, Andrea's tool would only have to check kernel.org, and not bkbits.net.
+> 
+> Another solution is to fetch from a reverse proxy-cache on a high-bandwidth
+> site, provided that we know what to cache, of course. This could even reduce
+> your current HTTP usage since nearly everything should be cacheable for a very
+> long period.
 
-yes, that's what I meant :)  Don't use ifndef nless nessecary.
-Sorry for the unclear wording.
+Can't all information be extracted from the bk-commits* mailing lists postings?
 
-> Hmm. I know this isn't the prefered way of doing it, but so far it's the
-> most convenient one - serio.h still changes now and then (adding new
-> #defines, etc), and the only one program using it is inputattach.c. To
-> me it seems quite sane to have inputattach.c include this kernel header.
-> If you know of any other reasonably maintainable way to do it ...
+Gr{oetje,eeting}s,
 
-split serio.h into serio_ids.h (the ids used by inputattach.c) and serio.h
-(the actual kernel header).  Copy over serio_ids.h to the inputattach source
-tarball and resync it whenever nessecary.
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

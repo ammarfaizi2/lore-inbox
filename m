@@ -1,68 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129723AbRCARJy>; Thu, 1 Mar 2001 12:09:54 -0500
+	id <S129733AbRCARLo>; Thu, 1 Mar 2001 12:11:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129730AbRCARJk>; Thu, 1 Mar 2001 12:09:40 -0500
-Received: from cr481834-a.ktchnr1.on.wave.home.com ([24.42.218.237]:28657 "EHLO
-	scotch.homeip.net") by vger.kernel.org with ESMTP
-	id <S129723AbRCARJX>; Thu, 1 Mar 2001 12:09:23 -0500
-Date: Thu, 1 Mar 2001 12:17:46 -0500 (EST)
-From: God <atm@pinky.penguinpowered.com>
+	id <S129730AbRCARLf>; Thu, 1 Mar 2001 12:11:35 -0500
+Received: from hermes.sistina.com ([208.210.145.141]:13324 "HELO sistina.com")
+	by vger.kernel.org with SMTP id <S129733AbRCARKN>;
+	Thu, 1 Mar 2001 12:10:13 -0500
+Date: Thu, 1 Mar 2001 11:09:53 -0600
+From: AJ Lewis <lewis@sistina.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: What is 2.4 Linux networking performance like compared to BSD?
-In-Reply-To: <3A9E72D3.36B28B8F@namesys.com>
-Message-ID: <Pine.LNX.4.21.0103011148540.918-100000@scotch.homeip.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: smartmedia adapter support??
+Message-ID: <20010301110953.L16667@sistina.com>
+In-Reply-To: <20010301100041.A22824@mediaone.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qyHYMwAXsHLOQihY"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010301100041.A22824@mediaone.net>; from tewalberg@mediaone.net on Thu, Mar 01, 2001 at 10:00:41AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Mar 2001, Hans Reiser wrote:
 
-> Date: Thu, 01 Mar 2001 19:03:31 +0300
-> 
-> Todd wrote:
+--qyHYMwAXsHLOQihY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > hans,
- 
-> > we've found that the TCP and UDP performance on 2.4 is *dramatically*
-> > better than 2.2.
+On Thu, Mar 01, 2001 at 10:00:41AM -0600, Tim Walberg wrote:
+> Just wondering whether anyone has successfully gotten
+> either a PCMCIA SmartMedia Adapter (specifically the
+> Viking Components one) or a FlashPath floppy SmartMedia
+> adapter working under 2.4.x. I've got both, and haven't
+> gotten either working under either 2.2.x or 2.4.x, but
+> I haven't had the time to work real hard at it either,
+> so I'm hoping someone can give me some pointers...
 
-[..]
+I have a Simple Technology PCMCIA adapter that just worked when I compiled
+the PCMCIA modules for my kernel.  It just looks like an IDE hard drive to
+linux and shows up as an /dev/hdxx device.
 
-> > i'd recommend it's networking performance to anyone.
+--=20
+AJ Lewis
+Sistina Software Inc.                  Voice:  612-379-3951
+1313 5th St SE, Suite 111              Fax:    612-379-3952
+Minneapolis, MN 55414                  E-Mail: lewis@sistina.com
+http://www.sistina.com
 
+Current GPG fingerprint =3D 3B5F 6011 5216 76A5 2F6B  52A0 941E 1261 0029 2=
+648
+Get my key at: http://www.sistina.com/~lewis/gpgkey
+ (Unfortunately, the PKS-type keyservers do not work with multiple sub-keys)
 
-> > 
-> > On Thu, 1 Mar 2001, Hans Reiser wrote:
+-----Begin Obligatory Humorous Quote----------------------------------------
+FATAL ERROR! SYSTEM HALTED! - Press any key to do nothing...
+-----End Obligatory Humorous Quote------------------------------------------
 
-> > > They know that iMimic's polymix performance on Linux 2.2.* is half what it is on
-> > > BSD.  Has the Linux 2.4 networking code caught up to BSD?
+--qyHYMwAXsHLOQihY
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-> > > Can I tell them not to worry about the Linux networking code strangling their
-> > > webcache product's performance, or not?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-> 
-> The problem is that I really need BSD vs. Linux experiences, not Linux 2.4 vs.
-> 2.2 experiences, because the webcache industry tends to strongly disparage Linux
-> networking code, so much better isn't necessarily good enough.
-> 
+iD8DBQE6noJhpE6/iGtdjLERAmWWAJ9g5O164bSCgriBnuskcFHdumi5RQCeJ9pJ
+kYq2cXmT+dkk32VZvCMxPeI=
+=gLiS
+-----END PGP SIGNATURE-----
 
-It isn't just the webcache industry, heh.  I have not yet played with 2.4,
-let alone under what I consider stress; but from experience with 2.2 and
-eairlier I could see why one would take fbsd over linux.  Between
-mysterious messages popping up on the console (be it they are related to
-NIC drivers or not), and other oddities as ram and fd's fill up, fbsd
-could be considered by some to be better suited.  
-
-
-On the topic of perfromance, I see Todd and a few others post some
-numbers, but has anyone kept track of them through kernel versions and 
-drivers?   It would be interesting to see something like lmbench run on
-each, and their results recorded.
-
-I'm tempted to run various tests before and after I upgrade from 2.2.x to
-2.4.x, just to see the difference ....
-
-</crazy>
-
+--qyHYMwAXsHLOQihY--

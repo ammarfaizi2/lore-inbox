@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290716AbSAYUGr>; Fri, 25 Jan 2002 15:06:47 -0500
+	id <S290735AbSAYULH>; Fri, 25 Jan 2002 15:11:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290735AbSAYUGh>; Fri, 25 Jan 2002 15:06:37 -0500
-Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:10371 "EHLO
-	phalynx") by vger.kernel.org with ESMTP id <S290716AbSAYUGU>;
-	Fri, 25 Jan 2002 15:06:20 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ryan Cumming <bodnar42@phalynx.dhs.org>
-To: Andreas Schwab <schwab@suse.de>
-Subject: Re: [ACPI] ACPI mentioned on lwn.net/kernel
-Date: Fri, 25 Jan 2002 12:05:55 -0800
-X-Mailer: KMail [version 1.3.8]
-Cc: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-        "Moore, Robert" <robert.moore@intel.com>,
-        "Therien, Guy" <guy.therien@intel.com>,
-        "Grover, Andrew" <andrew.grover@intel.com>,
-        "'lwn@lwn.net'" <lwn@lwn.net>,
-        "Acpi-linux (E-mail)" <acpi-devel@lists.sourceforge.net>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200201251550.g0PFoIPa002738@tigger.cs.uni-dortmund.de> <200201250802.32508.bodnar42@phalynx.dhs.org> <jeelkes8y5.fsf@sykes.suse.de>
-In-Reply-To: <jeelkes8y5.fsf@sykes.suse.de>
+	id <S290745AbSAYUK5>; Fri, 25 Jan 2002 15:10:57 -0500
+Received: from postal2.lbl.gov ([131.243.248.26]:45758 "EHLO postal2.lbl.gov")
+	by vger.kernel.org with ESMTP id <S290735AbSAYUKm>;
+	Fri, 25 Jan 2002 15:10:42 -0500
+Message-ID: <3C51B99D.976D2546@lbl.gov>
+Date: Fri, 25 Jan 2002 12:01:33 -0800
+From: Thomas Davis <tadavis@lbl.gov>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200201251205.55440.bodnar42@phalynx.dhs.org>
+To: Brian Lavender <brian@brie.com>, linux-kernel@vger.kernel.org
+Subject: Re: VAIO IRQ assignment problem of USB controller
+In-Reply-To: <20020124173421.B8732@brie.com> <20020125003306.A9759@brie.com> <3C51A1D7.74539585@lbl.gov>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 25, 2002 08:15, Andreas Schwab wrote:
-> These are all startup costs that are lost in the noise the longer the
-> program runs.
+Thomas Davis wrote:
+> 
+> This is another device that Sony has decided to configure via ACPI.
+> 
+> You'll need to check out the Linux ACPI project, and see about getting
+> the ACPI IRQ routing patch.
+> 
+> No, I don't know where it's at exactly..  try using google.
+> 
 
-Executable size is -not- just a startup cost. Larger executables will have a 
-bigger memory footprint and less cache locality. A KDE desktop on 64megs of 
-memory would be noticably more responsive if GCC generated executables the 
-same size as VC++, due to less swap thrashing alone.
+Having just this problem occur...  My Sony VAIO R505tsk needed this for
+not just the card slot, but the USB too!  (I'm running Sony's update
+WinXP bios on it).
 
--Ryan
+Here's the article with the patch:
+
+http://groups.google.com/groups?hl=en&selm=linux.kernel.Pine.LNX.4.33.0201171620510.19753-100000%40chaos.tp1.ruhr-uni-bochum.de
+
+-- 
+------------------------+--------------------------------------------------
+Thomas Davis		| ASG Cluster guy
+tadavis@lbl.gov		| 
+(510) 486-4524		| "80 nodes and chugging Captain!"

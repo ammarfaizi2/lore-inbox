@@ -1,87 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271145AbUJVBaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271159AbUJVBjJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271145AbUJVBaU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 21:30:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271143AbUJVBOH
+	id S271159AbUJVBjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 21:39:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271160AbUJVBhl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 21:14:07 -0400
-Received: from smtpq2.home.nl ([213.51.128.197]:9129 "EHLO smtpq2.home.nl")
-	by vger.kernel.org with ESMTP id S271171AbUJVBMz (ORCPT
+	Thu, 21 Oct 2004 21:37:41 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:44230 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S271161AbUJVBdq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 21:12:55 -0400
-Message-ID: <41785D8D.5070808@keyaccess.nl>
-Date: Fri, 22 Oct 2004 03:08:29 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+	Thu, 21 Oct 2004 21:33:46 -0400
+Message-ID: <41786344.9070504@engr.sgi.com>
+Date: Thu, 21 Oct 2004 18:32:52 -0700
+From: Jay Lan <jlan@engr.sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Timothy Miller <miller@techsource.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-References: <4176E08B.2050706@techsource.com>
-In-Reply-To: <4176E08B.2050706@techsource.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+To: lse-tech <lse-tech@lists.sourceforge.net>
+CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+Subject: [Lse-tech] [PATCH 2.6.9 1/2] enhanced accounting data collection
+References: <41785FE3.806@engr.sgi.com>
+In-Reply-To: <41785FE3.806@engr.sgi.com>
+Content-Type: multipart/mixed;
+ boundary="------------030504020306080704010903"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Miller wrote:
+This is a multi-part message in MIME format.
+--------------030504020306080704010903
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Reading this rather late and I see you've already gotten many replies. I 
-would like to emphasize the "onboard" reply you got though.
+1/2: acct_io
 
-> (1) Would the sales volumes of this product be enough to make it worth 
-> producing (ie. profitable)?
+Enahanced I/O accounting data collection.
 
-If you'd be producing "a videocard", unlikely. To a gamer, openness will 
-not offset non-stellar performance and stellar performance would very 
-likely propel the cost of this card very quickly far past the cost of a 
-comparable nVidia or ATI card.
+Signed-off-by: Jay Lan <jlan@sgi.com>
 
-Your users then, would likely need to be non-gamers such as myself. For 
-reference, my current videocard is an ATI Rage128 with 16MB and a TV-OUT 
-with which I'm still very pleased. For me, you would be competing with 
-onboard solutions, and especially Intel's onboard solutions since as far 
-as I'm aware those _are_ actually openly documented, at least upto the 
-level that I consider it important. That is, I can go read a datasheet, 
-go "cool stuff this" and then compile a completely opensource driver 
-into any kernel I please.
 
-My first computer was AMD based, my current computer is almost entirely 
-AMD (CPU and chipset, that is) and my next computer seems likely to be 
-an AMD64 machine. However, I should really say "EM64T machine", since it 
-is probably going to be an Intel one, completely due to the chipsets.
+--------------030504020306080704010903
+Content-Type: text/plain;
+ name="acct_io"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="acct_io"
 
-I'd actually prefer AMD, but the AMD market isn't offfering a solution 
-comparable to Intel's integrated video. That means AMD and VIA and the 
-like are loosing (some, mine at least :-) money since they don't have a 
-graphics solution comparable to Intel, in terms of openness and 
-basicness. I believe really only nForce and (to a degree; I hardly see 
-it) ATI IGP are available in the AMD motherboard market. If you could 
-produce something as good or better as Intel's, you might want to go 
-talk to VIA, or AMD directly, and have them license it from you and 
-massproduce it into their chipsets.
+Index: linux/fs/read_write.c
+===================================================================
+--- linux.orig/fs/read_write.c	2004-09-29 20:05:18.000000000 -0700
++++ linux/fs/read_write.c	2004-10-01 17:09:42.711763439 -0700
+@@ -216,8 +216,11 @@
+ 				ret = file->f_op->read(file, buf, count, pos);
+ 			else
+ 				ret = do_sync_read(file, buf, count, pos);
+-			if (ret > 0)
++			if (ret > 0) {
+ 				dnotify_parent(file->f_dentry, DN_ACCESS);
++				current->rchar += ret;
++			}
++			current->syscr++;
+ 		}
+ 	}
+ 
+@@ -260,8 +263,11 @@
+ 				ret = file->f_op->write(file, buf, count, pos);
+ 			else
+ 				ret = do_sync_write(file, buf, count, pos);
+-			if (ret > 0)
++			if (ret > 0) {
+ 				dnotify_parent(file->f_dentry, DN_MODIFY);
++				current->wchar += ret;
++			}
++			current->syscw++;
+ 		}
+ 	}
+ 
+@@ -540,6 +546,10 @@
+ 		fput_light(file, fput_needed);
+ 	}
+ 
++	if (ret > 0) {
++		current->rchar += ret;
++	}
++	current->syscr++;
+ 	return ret;
+ }
+ 
+@@ -558,6 +568,10 @@
+ 		fput_light(file, fput_needed);
+ 	}
+ 
++	if (ret > 0) {
++		current->wchar += ret;
++	}
++	current->syscw++;
+ 	return ret;
+ }
+ 
+@@ -636,6 +650,13 @@
+ 
+ 	retval = in_file->f_op->sendfile(in_file, ppos, count, file_send_actor, out_file);
+ 
++	if (retval > 0) {
++		current->rchar += retval;
++		current->wchar += retval;
++	}
++	current->syscr++;
++	current->syscw++;
++
+ 	if (*ppos > max)
+ 		retval = -EOVERFLOW;
+ 
+Index: linux/include/linux/sched.h
+===================================================================
+--- linux.orig/include/linux/sched.h	2004-10-01 17:01:21.412848229 -0700
++++ linux/include/linux/sched.h	2004-10-01 17:09:42.723482260 -0700
+@@ -591,6 +591,9 @@
+ 	struct rw_semaphore pagg_sem;
+ #endif
+ 
++/* i/o counters(bytes read/written, #syscalls */
++	unsigned long rchar, wchar, syscr, syscw;
++
+ };
+ 
+ static inline pid_t process_group(struct task_struct *tsk)
+Index: linux/kernel/fork.c
+===================================================================
+--- linux.orig/kernel/fork.c	2004-10-01 17:01:21.432379595 -0700
++++ linux/kernel/fork.c	2004-10-01 17:09:42.732271376 -0700
+@@ -995,6 +995,7 @@
+ 	p->real_timer.data = (unsigned long) p;
+ 
+ 	p->utime = p->stime = 0;
++	p->rchar = p->wchar = p->syscr = p->syscw = 0;
+ 	p->lock_depth = -1;		/* -1 = no lock */
+ 	p->start_time = get_jiffies_64();
+ 	p->security = NULL;
 
-> (2) How much would you be willing to pay for it?
+--------------030504020306080704010903--
 
-Nothing. I want it on my motherboard.
-
-> (3) How do you feel about the choice of neglecting 3D performance as a 
-> priority?  How important is 3D performance?  In what cases is it not?
-
-It's okay, and especially when board makers have the option to also 
-offer a "slotted" videocard in addition (or instead of) your onboard chip.
-
-> (4) How much extra would you be willing to pay for excellent 3D 
-> performance?
-
-Nothing.
-
-> (5) What's most important to you, performance, price, or stability?
-
-Stability, no fan, (very) good 2d picture quality/stability, price, 
-gadgets (tv-out), performance.
-
-Rene.

@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262648AbTJIWxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 18:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262654AbTJIWxY
+	id S262589AbTJIXGD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 19:06:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262611AbTJIXGD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 18:53:24 -0400
-Received: from fw.osdl.org ([65.172.181.6]:42112 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262648AbTJIWxW (ORCPT
+	Thu, 9 Oct 2003 19:06:03 -0400
+Received: from dodge.jordet.nu ([217.13.8.142]:38810 "EHLO dodge.hybel")
+	by vger.kernel.org with ESMTP id S262589AbTJIXGA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 18:53:22 -0400
-Date: Thu, 9 Oct 2003 15:53:02 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: linux-net@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: 2.6.0-test7-netx1
-Message-Id: <20031009155302.4f2fe835.shemminger@osdl.org>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.5claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+	Thu, 9 Oct 2003 19:06:00 -0400
+Subject: Re: Call trace when rmmod'ing saa7134 and error when compiling
+	static
+From: Stian Jordet <liste@jordet.nu>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, kraxel@bytesex.org
+In-Reply-To: <20031009212804.GD12618@kroah.com>
+References: <1065708534.737.2.camel@chevrolet.hybel>
+	 <20031009210805.GB12266@kroah.com>
+	 <1065734600.6237.0.camel@chevrolet.hybel>
+	 <20031009212804.GD12618@kroah.com>
+Content-Type: text/plain
+Message-Id: <1065740778.22357.0.camel@chevrolet.hybel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 10 Oct 2003 01:06:18 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+tor, 09.10.2003 kl. 23.28 skrev Greg KH:
+> On Thu, Oct 09, 2003 at 11:23:21PM +0200, Stian Jordet wrote:
+> > tor, 09.10.2003 kl. 23.08 skrev Greg KH:
+> > > On Thu, Oct 09, 2003 at 04:08:54PM +0200, Stian Jordet wrote:
+> > > > Hello,
+> > > > 
+> > > > when I try to rmmod the saa7134 module from kernel 2.6.0-test7, I get
+> > > > this call trace:
+> > > > 
+> > > > Device class 'i2c-1' does not have a release() function, it is broken
+> > > > and must be fixed.
+> > > 
+> > > This is when you remove the i2c-dev module, right?  Yeah, I know about
+> > > the problem and will fix it.
+> > 
+> > I have no idea, I just "rmmod saa7134" :)
+> 
+> Sorry, I ment to say, you have the i2c-dev module loaded, or built into
+> your kernel, right?  That will cause this warning to be printed out.
 
-http://developer.osdl.org/shemminger/netx/2.6/2.6.0-test7/2.6.0-test7-netx1/
+You're right. But I don't need it, so one problem solved :-)
 
-This is the first of a hopefuly continuing series of network related experimental 
-kernels.  This patch set will contain things like new network drivers, protocols 
-and infrastructure changes that are not related to the stability goal
-for the mainline kernel tree.
+Gerd: I still would like to be able to compile the driver static, though
+:)
 
-The initial installment includes:
-    * ISA device probing changes
-    * SimTel 4200 IRDA dongle (originally by Paul Stewart)
-    * IRDA hashbin cleanup
-    * WAN device bugfixes and cleanups
-    * TCP Vegas (from Dave Miller)
+Stian
 
-I am interested in receiving patches for network related stuff
-like:
-    * drivers for new hardware
-    * rework of old drives (will put in new e100 driver next time).
-    * TCP tuning options
-    * support for 1000's of network devices
-    * network async i/o
-    * per cpu network statistics
-
-
-
-
-    

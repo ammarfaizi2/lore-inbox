@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130013AbRCTSTn>; Tue, 20 Mar 2001 13:19:43 -0500
+	id <S130532AbRCTS2x>; Tue, 20 Mar 2001 13:28:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130065AbRCTSTe>; Tue, 20 Mar 2001 13:19:34 -0500
-Received: from snowbird.megapath.net ([216.200.176.7]:34573 "EHLO
-	megapathdsl.net") by vger.kernel.org with ESMTP id <S130013AbRCTSTP>;
-	Tue, 20 Mar 2001 13:19:15 -0500
-Subject: Re: [PATCH] Re: PCMCIA serial CardBus support vanished in
-	2.4.3-pre3 and  later
-From: Miles Lane <miles@megapathdsl.net>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Alessandro Suardi <alessandro.suardi@oracle.com>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>, tytso@mit.edu,
-        guthrie@infonautics.com
-In-Reply-To: <3AB77944.20018B9A@mandrakesoft.com>
-In-Reply-To: <Pine.LNX.3.96.1010320080638.18764C-100000@mandrakesoft.mandrakesoft.com>
-	<3AB77485.3BAB3AFE@oracle.com>  <3AB77944.20018B9A@mandrakesoft.com>
-Content-Type: text/plain
-X-Mailer: Evolution (0.9/+cvs.2001.03.16.09.00 - Preview Release)
-Date: 20 Mar 2001 10:20:02 -0800
-Mime-Version: 1.0
-Message-ID: <auto-000017105057@megapathdsl.net>
+	id <S130565AbRCTS2n>; Tue, 20 Mar 2001 13:28:43 -0500
+Received: from mailb.telia.com ([194.22.194.6]:65290 "EHLO mailb.telia.com")
+	by vger.kernel.org with ESMTP id <S130532AbRCTS20>;
+	Tue, 20 Mar 2001 13:28:26 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Roger Larsson <roger.larsson@norran.net>
+To: Nigel Gamble <nigel@nrg.org>
+Subject: Re: [PATCH for 2.5] preemptible kernel
+Date: Tue, 20 Mar 2001 19:25:32 +0100
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.05.10103141653350.3094-100000@cosmic.nrg.org>
+In-Reply-To: <Pine.LNX.4.05.10103141653350.3094-100000@cosmic.nrg.org>
+MIME-Version: 1.0
+Message-Id: <01032019253200.01487@jeloin>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20 Mar 2001 10:37:40 -0500, Jeff Garzik wrote:
-> On closer inspection, that patch I linked to appears to be incomplete.
-> 
-> Can you try the attached patch, to see if it fixes the
-> absence-of-serial_cb problem?
-> 
-> Thanks,
-> 
->       Jeff
-> 
-> 
-> P.S. I'm surprised serial_cb in 2.4 worked at all, for anybody.  I guess
-> they must be using pcmcia_cs's serial_cb, not the kernel's serial_cb...
+Hi,
+
+One little readability thing I found.
+The prev->state TASK_ value is mostly used as a plain value
+but the new TASK_PREEMPTED is or:ed together with whatever was there.
+Later when we switch to check the state it is checked against TASK_PREEMPTED
+only. Since TASK_RUNNING is 0 it works OK but...
+
+--- sched.c.nigel       Tue Mar 20 18:52:43 2001
++++ sched.c.roger       Tue Mar 20 19:03:28 2001
+@@ -553,7 +553,7 @@
+ #endif
+                        del_from_runqueue(prev);
+ #ifdef CONFIG_PREEMPT
+-               case TASK_PREEMPTED:
++               case TASK_RUNNING | TASK_PREEMPTED:
+ #endif
+                case TASK_RUNNING:
+        }
 
 
-Yes.  Well, this just strengthens the case for getting PCMCIA support
-migrated fully into the kernel tree so that we can pry people's finger
-loose from pcmcia_cs.  David Woodhouse is planning to take up this
-project early in the 2.5 development cycle.
+We could add all/(other common) combinations as cases 
 
-It's kind of a shame that more testing of the 2.4.x Cardbus/PCMCIA 
-drivers isn't happening, because a lot of the Cardbus/PCMCIA support
-in the kernel tree is really just fine.  We should all be using it and
-testing it and reporting bugs.
+	switch (prev->state) {
+		case TASK_INTERRUPTIBLE:
+			if (signal_pending(prev)) {
+				prev->state = TASK_RUNNING;
+				break;
+			}
+		default:
+#ifdef CONFIG_PREEMPT
+			if (prev->state & TASK_PREEMPTED)
+				break;
+#endif
+			del_from_runqueue(prev);
+#ifdef CONFIG_PREEMPT
+		case TASK_RUNNING		| TASK_PREEMPTED:
+		case TASK_INTERRUPTIBLE	| TASK_PREEMPTED:
+		case TASK_UNINTERRUPTIBLE	| TASK_PREEMPTED:
+#endif
+		case TASK_RUNNING:
+	}
 
-One of the work items will be getting the in-kernel PCMCIA support
-to work with the new hotplug stuff.
 
+Then the break in default case could almost be replaced with a BUG()...
+(I have not checked the generated code)
 
-    Miles
-
+/RogerL

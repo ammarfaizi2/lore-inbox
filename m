@@ -1,96 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129886AbRBTWmU>; Tue, 20 Feb 2001 17:42:20 -0500
+	id <S130188AbRBTWna>; Tue, 20 Feb 2001 17:43:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129873AbRBTWmK>; Tue, 20 Feb 2001 17:42:10 -0500
-Received: from oboe.it.uc3m.es ([163.117.139.101]:26385 "EHLO oboe.it.uc3m.es")
-	by vger.kernel.org with ESMTP id <S129294AbRBTWl6>;
-	Tue, 20 Feb 2001 17:41:58 -0500
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200102202241.f1KMftG31691@oboe.it.uc3m.es>
-Subject: plugging in 2.4. Does it work?
-To: "linux kernel" <linux-kernel@vger.kernel.org>
-Date: Tue, 20 Feb 2001 23:41:55 +0100 (MET)
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S130197AbRBTWnK>; Tue, 20 Feb 2001 17:43:10 -0500
+Received: from p91b.xDSL-1mm.sentex.ca ([64.7.134.220]:29943 "EHLO
+	littleboy.jernet.localnet") by vger.kernel.org with ESMTP
+	id <S130188AbRBTWnH>; Tue, 20 Feb 2001 17:43:07 -0500
+Message-ID: <3A92F17E.BFEDEADD@sympatico.ca>
+Date: Tue, 20 Feb 2001 17:36:46 -0500
+From: Jeremy Jackson <jeremy.jackson@sympatico.ca>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: Mike Dresser <mdresser@windsormachine.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [rfc] Near-constant time directory index for Ext2
+In-Reply-To: <01022020011905.18944@gimli> <96uijf$uer$1@penguin.transmeta.com> <3A92DCE0.BEE5E90E@sympatico.ca> <3A92DF84.E39E415C@windsormachine.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-More like "how does one get it to work".
+Mike Dresser wrote:
 
-Does anyone have a simple recipe for doing plugging right in 2.4?
-I'm doing something wrong.
+> the way i'm reading this, the problem is there's 65535 files in the directory
+> /where/postfix/lives.  rm * or what have you, is going to take forever and
+> ever, and bog the machine down while its doing it.  My understanding is you
+> could do the rm *, and instead of it reading the tree over and over for every
+> file that has to be deleted, it just jumps one or two blocks to the file that's
+> being deleted, instead of thousands of files to be scanned for each file
+> deleted.
+>
 
-When I disable plugging on my block driver (by registering a no-op
-plugging function), the driver works fine.  In particular my end_request
-code works fine - it does an if end_that_request_first return;
-end_that_request_last on the request to murder. Here it is
+I thought about it again, and the proformance problem with "rm *" is that
+the shell reads and sorts the directory, passes each file as a separate
+argument to rm, which then causes the kernel to lookup each file
+from a random directory block (random because of previous sort),
+modify that directory block, then read another... after a few seconds
+the modified blocks start to be written back to disk while new ones
+are looked up... disk seek contention.  and this becomes hard on the
+dir. block cache (wherever this is) since from source each dir entry
+is just over 256 bytes (?) 65535 files would require 16MB to
+cache dir entries.  Plus it has to read in all the inodes, modify,
+then write, taking up xxMB more.  You're probably swapping
+out,  with swap partition on same disk, the disk may explode.
 
- int my_end_request(struct request *req) {
-   unsigned long flags; int dequeue = 0;
-   spin_lock_irqsave(&io_request_lock, flags);
-   if (!req->errors) {
-     while (req->nr_sectors > 0) {
-       printk( KERN_DEBUG "running end_first on req with %d sectors\n",
-              req->nr_sectors);
-       if (!end_that_request_first (req, !req->errors, DEVICE_NAME))
-         break;
-     }
-   }
-   printk( KERN_DEBUG "running end_first on req with %d sectors\n",
-            req->nr_sectors);
-   if (!end_that_request_first (req, !req->errors, DEVICE_NAME)) {
-     printk( KERN_DEBUG "running end_last on req with %d sectors\n",
-              req->nr_sectors);
-     end_that_request_last(req);
-     dequeue = 1;
-   }
-   spin_unlock_irqrestore(&io_request_lock, flags);
-   return dequeue;
- }
+If it were truly doing a linear scan, it might be faster.  Two
+successive mods to same dir block would be merged
+onto same write.
 
-When I allow the kernel to use its default plugging function and
-enable read-ahead of 20, I see read requests being aggregated
-10-in-one with 1K blocks, but the userspace request hangs, or
-the calling process dies! Or worse. Sometimes I get some
-recordable logs .. and they show nothing wrong:
+Perhaps rm -rf . would be faster?  Let rm do glob expansion,
+without the sort.  Care to recreate those 65535 files and try it?
 
-Feb 20 10:46:42 barney kernel: running end_first on req with 20 sectors
-Feb 20 10:46:42 barney kernel: running end_first on req with 18 sectors
-Feb 20 10:46:42 barney kernel: running end_first on req with 16 sectors
-Feb 20 10:46:42 barney kernel: running end_first on req with 14 sectors
-Feb 20 10:46:42 barney kernel: running end_first on req with 12 sectors
-Feb 20 10:46:42 barney kernel: running end_first on req with 10 sectors
-Feb 20 10:46:42 barney kernel: running end_first on req with 8 sectors
-Feb 20 10:46:42 barney kernel: running end_first on req with 6 sectors
-Feb 20 10:46:42 barney kernel: running end_first on req with 4 sectors
-Feb 20 10:46:42 barney kernel: running end_first on req with 2 sectors
-Feb 20 10:46:42 barney kernel: running end_first on req with 2 sectors
-Feb 20 10:46:42 barney kernel: running end_last on req with 2 sectors
-Feb 20 10:52:47 barney kernel: running end_first on req with 2 sectors
-Feb 20 10:52:47 barney kernel: running end_first on req with 2 sectors
-Feb 20 10:52:47 barney kernel: running end_last on req with 2 sectors
+or use ls with the nosort flag pipe through xargs then to rm...
+again loose sorting but don't delete directory or subdirs.
 
-But death follows soomer rather than later.
-
-I've discovered that
-
-1) setting read-ahead to 0 disables request agregation by some means of
-which I am not aware, and everything goes hunky dory.
-
-2) setting read-ahead to 4 or 8 seems to be safe. I see 4K requests
-being formed and treated OK.
-
-3) disabling plugging stops request aggretaion and makes everything
-safe.
-
-Any clues? Is the trick just "powers of 2"? how is one supposed to
-handle plugging? Where is the canonical example. I can't see any driver
-that does it.
-
-Peter
+>
+> Jeremy Jackson wrote:
+>
+> > > In article <01022020011905.18944@gimli>,
+> > > Daniel Phillips  <phillips@innominate.de> wrote:
+> > > >Earlier this month a runaway installation script decided to mail all its
+> > > >problems to root.  After a couple of hours the script aborted, having
+> > > >created 65535 entries in Postfix's maildrop directory.  Removing those
+> > > >files took an awfully long time.  The problem is that Ext2 does each
+> > > >directory access using a simple, linear search though the entire
+> > > >directory file, resulting in n**2 behaviour to create/delete n files.
+> > > >It's about time we fixed that.
+> >
 

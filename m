@@ -1,113 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265678AbUBJHRJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 02:17:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265681AbUBJHRJ
+	id S265682AbUBJHSg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 02:18:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265681AbUBJHSg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 02:17:09 -0500
-Received: from ns.suse.de ([195.135.220.2]:12938 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265678AbUBJHRA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 02:17:00 -0500
-Date: Thu, 12 Feb 2004 00:23:38 +0100
-From: Andi Kleen <ak@suse.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
-Subject: Re: [BUG] get_unmapped_area() change -> non booting machine
-Message-Id: <20040212002338.2a82302d.ak@suse.de>
-In-Reply-To: <1076384799.893.5.camel@gaston>
-References: <1076384799.893.5.camel@gaston>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 10 Feb 2004 02:18:36 -0500
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:6872 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S265682AbUBJHSC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 02:18:02 -0500
+Message-ID: <402885CD.3060303@namesys.com>
+Date: Mon, 09 Feb 2004 23:18:37 -0800
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Edward Shishkin <edward@namesys.com>
+CC: Jamie Lokier <jamie@shareable.org>, the grugq <grugq@hcunix.net>,
+       Valdis.Kletnieks@vt.edu, Pavel Machek <pavel@ucw.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PATCH - ext2fs privacy (i.e. secure deletion) patch
+References: <4017E3B9.3090605@hcunix.net> <20040203222030.GB465@elf.ucw.cz> <40203DE1.3000302@hcunix.net> <200402040320.i143KCaD005184@turing-police.cc.vt.edu> <20040207002010.GF12503@mail.shareable.org> <40243C24.8080309@namesys.com> <40243F97.3040005@hcunix.net> <40247A63.1030200@namesys.com> <4024B618.2070202@hcunix.net> <20040207104712.GA16093@mail.shareable.org> <40251601.6050304@namesys.com> <40277807.6787981A@namesys.com>
+In-Reply-To: <40277807.6787981A@namesys.com>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Feb 2004 14:47:09 +1100
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> Just reverting the patch fixes it. Though, the patch do make sense in
-> some cases, paulus suggested to modify the code so that for a non
-> MAP_FIXED map, it still search from the passed-in address, but avoids
-> the spare between the current mm->brk and TASK_UNMAPPED_BASE, thus the
-> algorithm would still work for things outside of these areas.
-> 
-> Commment ?
+Edward Shishkin wrote:
 
-Can you test this patch please?  It essentially implements Paulus' suggestion.
-
-It also fixes another issue (don't use free_area_cache when the user gave an
-address hint).
-
---- linux-2.6.3rc1-amd64/mm/mmap.c-o	2004-01-28 17:12:37.000000000 +0100
-+++ linux-2.6.3rc1-amd64/mm/mmap.c	2004-02-12 00:16:35.000000000 +0100
-@@ -727,18 +727,20 @@
-  */
- #ifndef HAVE_ARCH_UNMAPPED_AREA
- static inline unsigned long
--arch_get_unmapped_area(struct file *filp, unsigned long addr,
-+arch_get_unmapped_area(struct file *filp, unsigned long uaddr,
- 		unsigned long len, unsigned long pgoff, unsigned long flags)
- {
- 	struct mm_struct *mm = current->mm;
- 	struct vm_area_struct *vma;
- 	unsigned long start_addr;
-+	unsigned long unmapped_base;
-+	unsigned long addr;
- 
- 	if (len > TASK_SIZE)
- 		return -ENOMEM;
- 
--	if (addr) {
--		addr = PAGE_ALIGN(addr);
-+	if (uaddr) {
-+		addr = PAGE_ALIGN(uaddr);
- 		vma = find_vma(mm, addr);
- 		if (TASK_SIZE - len >= addr &&
- 		    (!vma || addr + len <= vma->vm_start))
-@@ -747,28 +749,40 @@
- 		addr = mm->free_area_cache;
- 	start_addr = addr;
- 
-+	unmapped_base = TASK_UNMAPPED_BASE;
- full_search:
--	for (vma = find_vma(mm, addr); ; vma = vma->vm_next) {
-+	for (vma = find_vma(mm, addr); ; ) {
- 		/* At this point:  (!vma || addr < vma->vm_end). */
- 		if (TASK_SIZE - len < addr) {
- 			/*
- 			 * Start a new search - just in case we missed
- 			 * some holes.
- 			 */
--			if (start_addr != TASK_UNMAPPED_BASE) {
--				start_addr = addr = TASK_UNMAPPED_BASE;
-+			if (start_addr > unmapped_base) {
-+				start_addr = addr = unmapped_base;
- 				goto full_search;
- 			}
- 			return -ENOMEM;
- 		}
-+		/* On the first pass always skip the brk gap to not
-+		   confuse glibc malloc.  This can happen with user
-+		   address hints < TASK_UNMAPPED_BASE. */
-+		if (addr >= mm->brk && addr < unmapped_base) { 
-+			vma = find_vma(mm, unmapped_base); 
-+			addr = unmapped_base;
-+			continue;
-+		}
- 		if (!vma || addr + len <= vma->vm_start) {
- 			/*
--			 * Remember the place where we stopped the search:
-+			 * Remember the place where we stopped the search,
-+			 * but only if the user didn't give hints.
- 			 */
--			mm->free_area_cache = addr + len;
-+			if (uaddr == 0) 
-+				mm->free_area_cache = addr + len;
- 			return addr;
- 		}
- 		addr = vma->vm_end;
-+		vma = vma->vm_next;
- 	}
- }
- #else
+>
+>Also they will demand this random number since the court can consider it
+>as a part of your secret key. So just delete your secret key without creating
+>meaningless infrastructure ;)
+>Edward.
+>  
+>
+This is a good point.  A court may be able to demand your pass phrase, 
+but if you rm the key itself, they can hardly expect you to have 
+memorized that.....

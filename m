@@ -1,60 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267232AbUIVTrv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266786AbUIVTxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267232AbUIVTrv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 15:47:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266813AbUIVTrH
+	id S266786AbUIVTxX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 15:53:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266833AbUIVTxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 15:47:07 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:41187 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S266833AbUIVTmk (ORCPT
+	Wed, 22 Sep 2004 15:53:23 -0400
+Received: from mail.aknet.ru ([217.67.122.194]:19470 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S266786AbUIVTw5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 15:42:40 -0400
-Date: Wed, 22 Sep 2004 21:43:51 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Mark_H_Johnson@Raytheon.com
-Subject: Re: Oops in __posix_lock_file was:Re: [patch] voluntary-preempt-2.6.9-rc2-mm1-S2
-Message-ID: <20040922194351.GA30043@elte.hu>
-References: <20040907115722.GA10373@elte.hu> <1094597988.16954.212.camel@krustophenia.net> <20040908082050.GA680@elte.hu> <1094683020.1362.219.camel@krustophenia.net> <20040909061729.GH1362@elte.hu> <20040919122618.GA24982@elte.hu> <414F8CFB.3030901@cybsft.com> <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu> <4151B6B8.6000201@cybsft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4151B6B8.6000201@cybsft.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 22 Sep 2004 15:52:57 -0400
+Message-ID: <4151DA79.7000804@aknet.ru>
+Date: Thu, 23 Sep 2004 00:03:05 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: ru, en-us, en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+Cc: Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ESP corruption bug - what CPUs are affected?
+References: <3BFF2F87096@vcnet.vc.cvut.cz> <414C662D.5090607@aknet.ru> <20040918165932.GA15570@vana.vc.cvut.cz> <414C8924.1070701@aknet.ru> <20040918203529.GA4447@vana.vc.cvut.cz> <4151C949.1080807@aknet.ru> <Pine.LNX.4.53.0409221501440.1085@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.53.0409221501440.1085@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AV-Checked: ClamAV using ClamSMTP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* K.R. Foley <kr@cybsft.com> wrote:
+Richard B. Johnson wrote:
+> What problem is this supposed to fix?
+Richard, it will really help if you read the
+whole thread. I was answering this to Denis
+Vlasenko already - he agreed. Do I have to
+repeat the explanations?
 
-> Ingo Molnar wrote:
-> >i've released the -S2 VP patch:
-> >
-> >  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm1-S2
-> >
-> 
-> I don't know if this one has been fixed in S3 or not but I also saw
-> this in S1 I think. This just happened when I booted back into S2 so I
-> thought I would report it.
+> ESP is __not__ corrupted
+Right, but is not properly restored either,
+while it have to be.
 
-> 
-> kr
-> 
-> 
-> Sep 22 12:00:44 porky kernel: Unable to handle kernel NULL pointer 
-> dereference at virtual address 00000000
+> when returning to protected-mode or a different privilege level.
+It gets "corrupted" (not properly restored)
+exactly when returning to *protected mode*
+from another priv level. Please refer to the
+Intel docs I pointed to in that thread earlier.
 
-> Sep 22 12:00:45 porky kernel:  [<c0107175>] error_code+0x2d/0x38
-> Sep 22 12:00:45 porky kernel:  [<c01776dd>] __posix_lock_file+0x6d/0x5a0
+> You don't 'return' to protected mode from a virtual-8086 mode,
+Noone was speaking about v86. I don't see why
+you pick that up.
 
-yeah, this is one of the bugs that should be fixed in -S3.
+> The so-called bug is that when in real mode or in virtual-8086
+> mode, the high word of ESP is not changed.
+In short: Wrong.
+The complete explanations are easily locateable
+in that thread. And it have nothing to do with
+the real mode either.
 
-	Ingo
+> It is not a bug
+> because the high word doesn't even exist when in VM-86 mode!!
+Noone was speaking about v86, sorry. I am bypassing
+that part.
+
+> It is possible to use the 32-bit prefix, when in 16-bit mode,
+That's not about the prefixes either, sorry.
+We were talking about the 32bit PM code.
+
+> Please, somebody from Intel tell these guys to leave the thing
+> alone.
+Thanks many, they already left that alone once:)
+Maybe enough of leaving the bugs alone?
+I have lots of the DOS progs here that do not
+work under dosemu without that patch, and work
+perfectly with it. It should be enough. If
+you need an examples - well, OpenCubicPlayer
+for one. It will start, but crash as soon as
+the music is attempted to play. The patch fixes
+it. Other progs you'll have problems downloading
+anyway, but let me know if you need these.
+
+> I, for one, don't want a bunch of "fixes" that do nothing
+> except consume valuable RAM, making it near impossible to
+> use later versions of Linux in embedded systems.
+Well, my patch is purely in asm. How many
+valueable bytes does it take from you?
+As for performance - 8 asm insns on a generic
+path. Not too much either, as for me.
+

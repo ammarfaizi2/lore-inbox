@@ -1,98 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbUKCBNJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbUKCBMg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261276AbUKCBNJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 20:13:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbUKCBNJ
+	id S261265AbUKCBMg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 20:12:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbUKCBMf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 20:13:09 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:62180 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261276AbUKCBM2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 20:12:28 -0500
-Date: Tue, 2 Nov 2004 19:12:10 -0600
-From: Brent Casavant <bcasavan@sgi.com>
-Reply-To: Brent Casavant <bcasavan@sgi.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       hugh@veritas.com
-Subject: Re: [PATCH] Use MPOL_INTERLEAVE for tmpfs files
-In-Reply-To: <239530000.1099435919@flay>
-Message-ID: <Pine.SGI.4.58.0411021832240.79056@kzerza.americas.sgi.com>
-References: <Pine.SGI.4.58.0411011901540.77038@kzerza.americas.sgi.com><14340000.1099410418@[10.10.2.4]>
- <20041102155507.GA323@wotan.suse.de><40740000.1099414515@[10.10.2.4]>
- <Pine.SGI.4.58.0411021613300.79056@kzerza.americas.sgi.com> <239530000.1099435919@flay>
-Organization: "Silicon Graphics, Inc."
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 2 Nov 2004 20:12:35 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:15263 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261265AbUKCBMV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 20:12:21 -0500
+Date: Wed, 3 Nov 2004 02:12:54 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Karsten Wiese <annabellesgarden@yahoo.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.6.8
+Message-ID: <20041103011254.GA16884@elte.hu>
+References: <1099227269.1459.45.camel@krustophenia.net> <1099324040.3337.32.camel@thomas> <20041102150634.GA24871@elte.hu> <200411030009.53343.annabellesgarden@yahoo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200411030009.53343.annabellesgarden@yahoo.de>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Nov 2004, Martin J. Bligh wrote:
 
-> > The manner I'm concerned about is when a long-lived file (long-lived
-> > meaning at least for the duration of the run of a large multithreaded app)
-> > is placed in memory as an accidental artifact of the CPU which happened
-> > to create the file.
->
-> Agreed, I see that point - if it's a globally accessed file that's
-> created by one CPU, you want it spread around. However ... how the hell
-> is the VM meant to distinguish that? The correct way is for the application
-> to tell us that - ie use the NUMA API.
+* Karsten Wiese <annabellesgarden@yahoo.de> wrote:
 
-Right.  The application can already tell us that without this patch,
-but only if the file is mapped.  Using writes there doesn't appear to
-be any way to control this behavior (unless I overlooked something).
-So it is impossible to use normal system utilities (i.e. cp, dd, tar)
-and get appropriate placement.
+> Am Dienstag 02 November 2004 16:06 schrieb Ingo Molnar:
+> > i've uploaded a fixed kernel (-V0.6.8) to:
+> >
+> >   http://redhat.com/~mingo/realtime-preempt/
+> >
+> > (this kernel also has the module-put-unlock-kernel fix that should solve
+> > the other warning reported by Thomas and Bill.)
+> >
+> > 	Ingo
+> 
+> Fixed a deadlock in snd-es1968 with attached patch.
 
-This change gives us a method to get a different default (i.e write)
-behavior.
+thanks. This is a (SMP-only) bug in the vanilla driver too, correct?
 
-> > It's a tough situation, as shown above.  The HPC workload I mentioned
-> > would much prefer the tmpfs file to be distributed.  A non-HPC workload
-> > would prefer the tmpfs files be local.  Short of a sysctl I'm not sure
-> > how the system could make an intelligent decision about what to do under
-> > memory pressure -- it simply isn't knowledge the kernel can have.
->
-> It is if you tell it from the app ;-) But otherwise yes, I'd agree.
-
-Yep.  Also, bear in mind that many applications/utilities are not going
-to be very savvy in regard to tmpfs placement, and really shouldn't be.
-I wouldn't expect a compiler to have special code to lay out the generated
-objects in a friendly manner.  Currently, all it takes is one unaware
-application/utility to mess things up for us.
-
-With local-by-default placement, as today, every single application and
-utility needs to cooperate in order to be successful.
-
-Which, I guess, might be something to consider (thinking out loud here)...
-
-An application which uses the NUMA API obviously cares about placement.
-If it causes data to be placed locally when it would otherwise be placed
-globally, it will not cause a problem for a seperate application/utility
-which doesn't care (much?) about locality.
-
-However, if an application/utility which does not care (much?) about
-locality fails to use the NUMA API and causes data to be placed locally,
-it may very well cause a problem for a seperate application which does
-care about locality.
-
-Thus, to me, a default of spreading the allocation globally makes
-sense.  The burden of adding code to "do the right thing" falls to
-the applications which care.  No other program requires changes and
-as such everything will "just work".
-
-But, once again, I fess up to a bias. :)
-
-> Another way might be a tmpfs mount option ... I'd prefer that to a sysctl
-> personally, but maybe others wouldn't. Hugh, is that nuts?
-
-I kind of like that -- it shouldn't be too hard to stuff into the tmpfs
-superblock.  But I agree, Hugh knows better than I do.
-
-Brent
-
--- 
-Brent Casavant             bcasavan@sgi.com        Forget bright-eyed and
-Operating System Engineer  http://www.sgi.com/     bushy-tailed; I'm red-
-Silicon Graphics, Inc.     44.8562N 93.1355W 860F  eyed and bushy-haired.
+	Ingo

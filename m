@@ -1,55 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261280AbTEYDOS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 May 2003 23:14:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbTEYDOS
+	id S261292AbTEYDQS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 May 2003 23:16:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbTEYDQS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 May 2003 23:14:18 -0400
-Received: from nn8.excitenetwork.com ([207.159.120.62]:33363 "EHLO
-	xmxpita.excite.com") by vger.kernel.org with ESMTP id S261280AbTEYDOR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 May 2003 23:14:17 -0400
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.21-rc3 PCMCIA serial_cs.c Reproducible Hang
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: ID = 21f2811f0b913155067498016a2ddcb2
-Reply-To: paragw@excite.com
-From: "Parag Warudkar" <paragw@excite.com>
-MIME-Version: 1.0
-X-Mailer: PHP
-Content-Type: text/plain; charset="us-ascii"
+	Sat, 24 May 2003 23:16:18 -0400
+Received: from [128.173.39.63] ([128.173.39.63]:29312 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261292AbTEYDQQ (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sat, 24 May 2003 23:16:16 -0400
+Message-Id: <200305250329.h4P3TGoH004620@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Fix NMI watchdog documentation 
+In-Reply-To: Your message of "Sat, 24 May 2003 15:11:06 EDT."
+             <Pine.LNX.4.50.0305241509380.2267-100000@montezuma.mastecende.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <3ECFC2D6.2020007@gmx.net> <Pine.LNX.4.50.0305241505470.2267-100000@montezuma.mastecende.com>
+            <Pine.LNX.4.50.0305241509380.2267-100000@montezuma.mastecende.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1378069916P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20030525032719.AB01DB6B7@xmxpita.excite.com>
-Date: Sat, 24 May 2003 23:27:19 -0400 (EDT)
+Date: Sat, 24 May 2003 23:29:15 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1378069916P
+Content-Type: text/plain; charset=us-ascii
 
-[NOT SUBSCRIBED ]Pls. CC me to all replies.
+On Sat, 24 May 2003 15:11:06 EDT, Zwane Mwaikambo said:
 
-Using 2.4.21-rc3 - The kernel hangs in the process of booting, (No response to anything - including alt+sysrq) right after starting the PCMCIA service.
-Distro is RH 8.0 and I have CompactModem card in socket 1 -
-Cardctl ident reports this about the card:
-Socket 1:
-  product info: "PRETEC", "CompactModem 3.3V 56K", "021", "A"
-  manfid: 0x0013, 0x0000
-  function: 2 (serial)
-The hang is reproducible - always.
+> Forgot this bit;
+> 
+> w/ CONFIG_X86_LOCAL_APIC=y you only have nmi_watchdog=2
+> 
+> w/ CONFIG_X86_IO_APIC=y you have nmi_watchdog=1 and 2
+> 
+> w/ CONFIG_SMP you have nmi_watchdog=1 and 2 as it depends on 
+> CONFIG_X86_IO_APIC
 
-Booting with RH kernel 2.4.20-21 doesn't show this problem.
-Looking at drivers/char/pcmcia there seem to be good amount of
-differences between plain 2.4.20 and 2.4.21-rc3 serial_cs.c.
+% grep APIC /usr/src/linux-2.5.69/.config
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
 
-If I go back to serial_cs.c (v1.128) from 2.4.20 and compile it with 2.4.21-rc3, the hang is no longer reproducible. (BTW, serial_cs.c is compiled as a module)
+but 'dmesg' on my Dell Latitude C840 laptop tells me:
 
-Will try to narrow down to the change which actually causes the hang in
-2.4.21-rc3, so it can atleast be rolled back or better - fixed in 2.4.21.
+Dell Latitude with broken BIOS detected. Refusing to enable the local APIC.
 
---
-Parag
+Is this nmi_watchdog="forget about it dave" time, or is there some way to
+get this to work?
 
+--==_Exmh_1378069916P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-_______________________________________________
-Join Excite! - http://www.excite.com
-The most personalized portal on the Web!
+iD8DBQE+0DiLcC3lWbTT17ARAm11AKCd9QpA6GVpMPmWrsZPFaVlCq+/WgCg54Fu
+6ti05X6A8mtycT+TX/k1hsY=
+=orpQ
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1378069916P--

@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315171AbSEYSCI>; Sat, 25 May 2002 14:02:08 -0400
+	id <S315179AbSEYSHT>; Sat, 25 May 2002 14:07:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315182AbSEYSCH>; Sat, 25 May 2002 14:02:07 -0400
-Received: from bitmover.com ([192.132.92.2]:59090 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S315171AbSEYSCG>;
-	Sat, 25 May 2002 14:02:06 -0400
-Date: Sat, 25 May 2002 11:02:08 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Wolfgang Denk <wd@denx.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-Message-ID: <20020525110208.A15969@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Wolfgang Denk <wd@denx.de>, Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0205251015350.6515-100000@home.transmeta.com> <20020525175035.3580211972@denx.denx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S315182AbSEYSHS>; Sat, 25 May 2002 14:07:18 -0400
+Received: from air-2.osdl.org ([65.201.151.6]:50181 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S315179AbSEYSHR>;
+	Sat, 25 May 2002 14:07:17 -0400
+Date: Sat, 25 May 2002 11:04:59 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Eric Brunner-Williams in Portland Maine <brunner@nic-naa.net>
+cc: Larry McVoy <lm@bitmover.com>, Erwin Rol <erwin@muffin.org>,
+        <linux-kernel@vger.kernel.org>, RTAI users <rtai@rtai.org>
+Subject: Re: RTAI/RtLinux 
+In-Reply-To: <200205251740.g4PHeA7f000328@nic-naa.net>
+Message-ID: <Pine.LNX.4.33L2.0205251100570.18051-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 25, 2002 at 07:50:30PM +0200, Wolfgang Denk wrote:
-> I do like it very much when all code I write is GPLed, but there  are
-> situations  where  a there are good reasons for some application code
-> to remain closed. 
+On Sat, 25 May 2002, Eric Brunner-Williams in Portland Maine wrote:
 
-Yeah, like you're trying to make money.  Which is fine.  But if that 
-"application" needs to use the RT/Linux patent in order to work, it
-either has to buy a license or be GPLed.
+| > I expect that most of the continued growth of Linux will be
+| > in these 2 areas (servers and embedded) -- but we can't just
+| > abondon the desktop/workstation space either.
 
-It's somewhat two faced that the protesters here are arguing that
-everything has to be free in order for Linux to be used as a RT platform,
-but then come back and complain that the FSMlabs patent says everything
-has to be free if you don't want to pay.
+I didn't mean to suggest that we would abandon the desktop space.
+If I did, sorry about that.
 
-Maybe Victor should have used a different model: if no money changes hands,
-then it's free to use the patent, if money changes hand, FSMlabs wants a 
-cut.  I think that was the intent, but as with all things, it's hard to 
-state that clearly in a legal document.  If that was the intent, I support
-it, I think it's perfectly reasonable.  
+| Does any have clue on the Linux pick-up in schools
+| 	- in Mexico?
+| 	- in China?
+| 	- in India?
+
+Yes, some clue.
+And even in Portland, Oregon, with school districts fighting
+an M$ audit.  (old news, a few weeks old)
+
+  http://www.k12ltsp.org
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+~Randy
+

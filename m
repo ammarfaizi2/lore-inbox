@@ -1,50 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129387AbRADQeF>; Thu, 4 Jan 2001 11:34:05 -0500
+	id <S129455AbRADQfP>; Thu, 4 Jan 2001 11:35:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129455AbRADQdz>; Thu, 4 Jan 2001 11:33:55 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:64773 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129387AbRADQdj>; Thu, 4 Jan 2001 11:33:39 -0500
-Date: Thu, 4 Jan 2001 12:41:41 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Christoph Rohland <cr@sap.com>
-cc: Chris Mason <mason@suse.com>, Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] filemap_fdatasync & related changes
-In-Reply-To: <m3ae982yq5.fsf@linux.local>
-Message-ID: <Pine.LNX.4.21.0101041236400.1355-100000@freak.distro.conectiva>
+	id <S129561AbRADQfF>; Thu, 4 Jan 2001 11:35:05 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:41714 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129455AbRADQe7>; Thu, 4 Jan 2001 11:34:59 -0500
+Date: Thu, 4 Jan 2001 14:34:48 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: try_to_swap_out() return value problem?
+In-Reply-To: <Pine.LNX.4.10.10101040820180.15597-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0101041429130.1188-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 4 Jan 2001, Christoph Rohland wrote:
-
-> Chris Mason <mason@suse.com> writes:
-> > Just noticed the filemap_fdatasync code doesn't check the return value from
-> > writepage.  Linus, would you take a patch that redirtied the page, puts it
-> > back onto the dirty list (at the tail), and unlocks the page when writepage
-> > returns 1?
+On Thu, 4 Jan 2001, Linus Torvalds wrote:
+> On Thu, 4 Jan 2001, Rik van Riel wrote:
+> > On Wed, 3 Jan 2001, Linus Torvalds wrote:
+> > > On Thu, 4 Jan 2001, Marcelo Tosatti wrote:
 > > 
-> > That would loop forever if the writepage func kept returning 1 though...I
-> > think that's what we want, unless someone like ramfs made a writepage func
-> > that always returned 1.
+> > > I agree that the return value of swap_out() is fairly meaningless. It's
+> > > been fairly meaningless for a long time now, and it's entirely possible
+> > > that the "while (swap_out())" loop should be just something like
+> > > 
+> > > 	/* Scan the VM space, try to clean up the page tables a bit */
+> > > 	for (i = 0 ; i <= nr_threads >> priority; i++)
+> > > 		swap_out(gfp_mask);
+> > 
+> > The problem with this is that it means that page aging of
+> > the mapped active pages is no longer balanced against the
+> > aging of the unmapped active pages.
 > 
-> shmem has such a writepage for locked shm segments. 
+> Is there any reason to not just remove the lines
+> 
+>         if (!onlist)
+>                 /* The page is still mapped, so it can't be freeable... */
+>                 age_page_down_ageonly(page);
+> 
+>         /*
+>          * If the page is in active use by us, or if the page
+>          * is in active use by others, don't unmap it or
+>          * (worse) start unneeded IO.
+>          */
+>         if (page->age > 0)
+>                 goto out_failed;
+> 
+> from vmscan?
+> 
+> They look like a complete hack, although an understandable one
+> from the time when the virtual memory scan used to actually do
+> IO as well.
+>
+> These days, if you think of the VM scanning as just a "shrink
+> the page tables" operation, the down-aging doesn't make much
+> sense. That will happen once the page has been moved to the
+> lists, no?
 
-The correct thing seems to be wait for this lock in case of
-fdatasync/sync/etc, then.
+Hmmmm, I'm not sure ...
 
-What about a sync parameter to ->writepage() ? 
+I can't quite put my finger on it, but my gut feeling
+says that removing this lines could unbalance the page
+aging and/or cause other nasties.
 
-> return 1 if the swap space is exhausted. So everybody using shared
-> anonymous, SYSV shared or POSIX shared memory can hit this.
+Then again, in theory the current VM should already be
+unbalanced and we haven't felt any bad effects yet ;)
 
-In case of swap exhausted I think we should just fail.
+regards,
 
+Rik
+--
+Hollywood goes for world dumbination,
+	Trailer at 11.
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,67 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130404AbRCBKyH>; Fri, 2 Mar 2001 05:54:07 -0500
+	id <S130403AbRCBK5Z>; Fri, 2 Mar 2001 05:57:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130403AbRCBKxZ>; Fri, 2 Mar 2001 05:53:25 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:49976 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S130401AbRCBKxR>; Fri, 2 Mar 2001 05:53:17 -0500
-Date: Fri, 2 Mar 2001 04:53:03 -0600
-From: Philipp Rumpf <prumpf@mandrakesoft.com>
-To: tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: rml@ufl.edu, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.2ac8 lost char devices
-Message-ID: <20010302045303.A32397@mandrakesoft.mandrakesoft.com>
-In-Reply-To: <983511748.3a9f32c4e5ca2@webmail.ufl.edu> <snkwhfir.wl@frostrubin.open.nm.fujitsu.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4us
-In-Reply-To: <snkwhfir.wl@frostrubin.open.nm.fujitsu.co.jp>; from tachino Nobuhiro on Fri, Mar 02, 2001 at 03:05:32PM +0900
+	id <S130407AbRCBK5K>; Fri, 2 Mar 2001 05:57:10 -0500
+Received: from [62.172.234.2] ([62.172.234.2]:60514 "EHLO penguin.homenet")
+	by vger.kernel.org with ESMTP id <S130403AbRCBK43>;
+	Fri, 2 Mar 2001 05:56:29 -0500
+Date: Fri, 2 Mar 2001 10:55:39 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: [patch-2.4.2-ac8] misc_register() fix (was Re: Linux 2.4.2ac8
+In-Reply-To: <Pine.LNX.4.21.0103021010570.1338-100000@penguin.homenet>
+Message-ID: <Pine.LNX.4.21.0103021053290.1338-100000@penguin.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 02, 2001 at 03:05:32PM +0900, tachino Nobuhiro wrote:
+On Fri, 2 Mar 2001, Tigran Aivazian wrote:
+> On Thu, 1 Mar 2001, Alan Cox wrote:
+> > 2.4.2-ac8
+> > o	Stop two people claiming the same misc dev id	(Philipp Rumpf)
 > 
-> Hello, 
-> 
-> At Fri, 02 Mar 2001 00:42:28 -0500,
-> <rml@ufl.edu> wrote:
-> > 
-> > actually, its not just ps/2 mice -- it seems to be something generic to char
-> > devices. agpgartis failing to register itself, too.
-> > 
-> > what changed with char device handling from ac7 to ac8?
-> > 
-> > robert love
-> > rml@ufl.edu
-> > -
-> 
->   misc_register() in drivers/char/misc.c seems to have a problem.
+> is this what has broken misc devi registration on my machine? I have two
+> misc devices -- microcode and psaux -- now (ac8) I get none, /proc/misc is
+> empty. Also, on boot gpm generates an "oops" from gpm.c(968) saying
+> "/dev/mouse: No such device"
 
-I guess it's too late now to pretend it's not my fault.  I foolishly assumed
-if it would boot for me I couldn't have broken it too badly.
+Hi Alan,
 
-> +       c = misc_list.next;
-> +               
-> +       while ((c != &misc_list) && (c->minor != misc->minor))
-> +               c = c->next;
-> +       if (c == &misc_list) {
-> 
->   This should be  (c != &misc_list)
+here is the fix, tested, it works fine. The only unsatisfactory thing is
+that we do an extra if() on each iteration making misc_register()
+typically a few instructions slower. I will think a few minutes on how to
+make the old version work (i.e. I suspect it was just an incorrect walking
+of the misc_list in ac8).
 
-Correct.  Alan,
+Regards,
+Tigran
 
-
-diff -ur linux/drivers/char/misc.c linux-prumpf/drivers/char/misc.c
---- linux/drivers/char/misc.c	Fri Mar  2 02:48:04 2001
-+++ linux-prumpf/drivers/char/misc.c	Fri Mar  2 02:49:43 2001
-@@ -180,7 +180,7 @@
+--- linux/drivers/char/misc.c.0	Fri Mar  2 09:35:01 2001
++++ linux/drivers/char/misc.c	Fri Mar  2 10:01:17 2001
+@@ -175,14 +175,16 @@
+ 	
+ 	if (misc->next || misc->prev)
+ 		return -EBUSY;
++
+ 	down(&misc_sem);
+-	c = misc_list.next;
  
- 	while ((c != &misc_list) && (c->minor != misc->minor))
+-	while ((c != &misc_list) && (c->minor != misc->minor))
++	c = misc_list.next;
++	while (c != &misc_list) {
++		if (c->minor == misc->minor) {
++			up(&misc_sem);
++			return -EBUSY;
++		}
  		c = c->next;
 -	if (c == &misc_list) {
-+	if (c != &misc_list) {
- 		up(&misc_sem);
- 		return -EBUSY;
+-		up(&misc_sem);
+-		return -EBUSY;
  	}
+ 
+ 	if (misc->minor == MISC_DYNAMIC_MINOR) {
+

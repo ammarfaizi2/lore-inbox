@@ -1,200 +1,197 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271719AbTG2NQj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 09:16:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271728AbTG2NQi
+	id S271718AbTG2NPv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 09:15:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271719AbTG2NPv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 09:16:38 -0400
-Received: from modemcable198.171-130-66.que.mc.videotron.ca ([66.130.171.198]:59524
-	"EHLO gaston") by vger.kernel.org with ESMTP id S271719AbTG2NQY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 09:16:24 -0400
-Subject: [PATCH] PPC32: Update pmac_cpufreq driver back to working
-	conditions
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1059484561.8537.22.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 29 Jul 2003 09:16:02 -0400
+	Tue, 29 Jul 2003 09:15:51 -0400
+Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:31213 "EHLO
+	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
+	id S271718AbTG2NPf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 09:15:35 -0400
+Message-ID: <3F2673C4.9010302@pacbell.net>
+Date: Tue, 29 Jul 2003 06:16:52 -0700
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: weissg@vienna.at, kernel list <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] OHCI problems with suspend/resume
+References: <20030723220805.GA278@elf.ucw.cz>
+In-Reply-To: <20030723220805.GA278@elf.ucw.cz>
+Content-Type: multipart/mixed;
+ boundary="------------080601030404080107000309"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch updates the PowerMac cpufreq driver so that
-it builds & works in current 2.6
+This is a multi-part message in MIME format.
+--------------080601030404080107000309
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Please apply,
-Ben.
+Pavel Machek wrote:
+> Hi!
+> 
+> In 2.6.0-test1, OHCI is non-functional after first suspend/resume, and
+> kills machine during secon suspend/resume cycle.
 
-diff -urN linux-2.5/arch/ppc/platforms/pmac_cpufreq.c linuxppc-2.5-benh/arch/ppc/platforms/pmac_cpufreq.c
---- linux-2.5/arch/ppc/platforms/pmac_cpufreq.c	2003-07-29 08:50:25.000000000 -0400
-+++ linuxppc-2.5-benh/arch/ppc/platforms/pmac_cpufreq.c	2003-07-23 20:04:23.000000000 -0400
-@@ -1,4 +1,16 @@
-+/*
-+ *  arch/ppc/platforms/pmac_cpufreq.c
-+ *
-+ *  Copyright (C) 2002 - 2003 Benjamin Herrenschmidt <benh@kernel.crashing.org>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ */
-+
- #include <linux/config.h>
-+#include <linux/module.h>
- #include <linux/types.h>
- #include <linux/errno.h>
- #include <linux/kernel.h>
-@@ -36,6 +48,18 @@
- #define PMAC_CPU_LOW_SPEED	1
- #define PMAC_CPU_HIGH_SPEED	0
+OK, I can see that in 2.6.0-test2 iff there's a device connected;
+that's on OHCI hardware that doesn't retain power during suspend,
+which means it uses the restart() path.  Hardware that retains
+power depends on slightly different logic.
+
+
+> What happens is that ohci_irq gets ohci->hcca == NULL, and kills
+> machine. Why is ohci->hcca == NULL? ohci_stop was called from
+> hcd_panic() and freed ohci->hcca.
+
+Of course, the HC shouldn't have died and gone down those paths;
+but the "HC died" paths need to work right too.
+
+
+> I believe that we should
+> 
+> 1) not free ohci->hcca so that system has better chance surviving
+> hcd_panic()
+
+More like not calling stop() from hcd_panic.  Instead, all the
+devices should be disconnected, and their urbs cleaned up.  That
+way the controller will sit in a known and "safe" state (reset)
+until the driver is shut down and gets stop()ped.  I think that
+logic just "seemed to work" before, with subtle misbehaviors.
+
+We're still working to make sure that we do all the right stuff
+to shut down devices, no longer relying on USB device drivers to
+shut themselves down properly in their disconnect() methods.
+Many haven't, which can easily lead to oopsing on the shutdown
+paths that don't get used very regularly.
+
+Eventually I suspect that the HCD glue should grow logic to
+try restarting drivers after the hardware dies/resets, but first
+it's important to be sure they shut down properly.
+
+
+
+> 2) inform user when hcd panics.
+
+With a better diagnostic though.
+
+
+Here's a patch that makes things slightly better.  It's still
+not fully functional yet -- I forgot how many FIXMEs are in
+those PM code paths! -- and shouldn't be merged as-is, but it
+works slightly better:
+
+  - Has a more informative diagnostic message (which HC died);
+
+  - When HC dies, mark the whole tree as unavailable so that
+    new URB submissions using that HC will just fail;
+
+  - Then hcd_panic() just disconnects all the devices, still
+    keeping the root hub around.
+
+  - OHCI-specific (should be generic, hcd-pci.c):  don't
+    try resuming a halted controller.
+
+Where "better" means that it seems functional after the
+first suspend/resume cycle, and re-enumerates the device
+that's connected ... but there's still strangeness.  And
+I can see how some of it would be generic.
+
+- Dave
+
+
+
+--------------080601030404080107000309
+Content-Type: text/plain;
+ name="die.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="die.patch"
+
+--- 1.68/drivers/usb/core/hcd.c	Tue Jul 15 09:47:16 2003
++++ edited/drivers/usb/core/hcd.c	Sun Jul 27 19:42:46 2003
+@@ -1487,8 +1488,26 @@
  
-+/* There are only two frequency states for each processor. Values
-+ * are in kHz for the time being.
-+ */
-+#define CPUFREQ_HIGH                  PMAC_CPU_HIGH_SPEED
-+#define CPUFREQ_LOW                   PMAC_CPU_LOW_SPEED
-+
-+static struct cpufreq_frequency_table pmac_cpu_freqs[] = {
-+	{CPUFREQ_HIGH, 		0},
-+	{CPUFREQ_LOW,		0},
-+	{0,			CPUFREQ_TABLE_END},
-+};
-+
- static inline void
- wakeup_decrementer(void)
+ static void hcd_panic (void *_hcd)
  {
-@@ -192,37 +216,21 @@
- static int __pmac
- pmac_cpufreq_verify(struct cpufreq_policy *policy)
- {
--	if (!policy)
--		return -EINVAL;
--		
--	policy->cpu = 0; /* UP only */
--
--	cpufreq_verify_within_limits(policy, low_freq, hi_freq);
--
--	if ((policy->min > low_freq) && 
--	    (policy->max < hi_freq))
--		policy->max = hi_freq;
--
--	return 0;
-+	return cpufreq_frequency_table_verify(policy, pmac_cpu_freqs);
- }
- 
- static int __pmac
--pmac_cpufreq_setpolicy(struct cpufreq_policy *policy)
-+pmac_cpufreq_target(	struct cpufreq_policy *policy,
-+			unsigned int target_freq,
-+			unsigned int relation)
- {
--	int rc;
--	
--	if (!policy)
-+	unsigned int    newstate = 0;
+-	struct usb_hcd *hcd = _hcd;
+-	hcd->driver->stop (hcd);
++	struct usb_hcd		*hcd = _hcd;
++	struct usb_device	*hub = hcd->self.root_hub;
 +
-+	if (cpufreq_frequency_table_target(policy, pmac_cpu_freqs,
-+			target_freq, relation, &newstate))
- 		return -EINVAL;
--	if (policy->min > low_freq)
--		rc = do_set_cpu_speed(PMAC_CPU_HIGH_SPEED);
--	else if (policy->max < hi_freq)
--		rc = do_set_cpu_speed(PMAC_CPU_LOW_SPEED);
--	else if (policy->policy == CPUFREQ_POLICY_POWERSAVE)
--		rc = do_set_cpu_speed(PMAC_CPU_LOW_SPEED);
--	else
--		rc = do_set_cpu_speed(PMAC_CPU_HIGH_SPEED);
- 
--	return rc;
-+	return do_set_cpu_speed(newstate);
- }
- 
- unsigned int __pmac
-@@ -232,6 +240,27 @@
- 	return (i == 0) ? cur_freq : 0;
- }
- 
-+static int __pmac
-+pmac_cpufreq_cpu_init(struct cpufreq_policy *policy)
-+{
-+	if (policy->cpu != 0)
-+		return -ENODEV;
++	hub = usb_get_dev (hub);
++	usb_disconnect (&hub);
 +
-+	policy->policy = (cur_freq == low_freq) ? 
-+		CPUFREQ_POLICY_POWERSAVE : CPUFREQ_POLICY_PERFORMANCE;
-+	policy->cpuinfo.transition_latency	= CPUFREQ_ETERNAL;
-+	policy->cur = cur_freq;
-+
-+	return cpufreq_frequency_table_cpuinfo(policy, &pmac_cpu_freqs[0]);
++	/* FIXME either try to restart, or arrange to clean up the 
++	 * hc-internal state, like usb_hcd_pci_remove() does
++	 */
 +}
 +
-+static struct cpufreq_driver pmac_cpufreq_driver = {
-+	.verify 	= pmac_cpufreq_verify,
-+	.target 	= pmac_cpufreq_target,
-+	.init		= pmac_cpufreq_cpu_init,
-+	.name		= "powermac",
-+	.owner		= THIS_MODULE,
-+};
- 
- /* Currently, we support the following machines:
-  * 
-@@ -244,13 +273,9 @@
- pmac_cpufreq_setup(void)
- {	
- 	struct device_node	*cpunode;
--	struct cpufreq_driver   *driver;
- 	u32			*value;
- 	int			has_freq_ctl = 0;
--	int			rc;
- 	
--	memset(&driver, 0, sizeof(driver));
--
- 	/* Assume only one CPU */
- 	cpunode = find_type_devices("cpu");
- 	if (!cpunode)
-@@ -318,34 +343,11 @@
- 	if (!has_freq_ctl)
- 		return -ENODEV;
- 	
--	/* initialization of main "cpufreq" code*/
--	driver = kmalloc(sizeof(struct cpufreq_driver) + 
--			 NR_CPUS * sizeof(struct cpufreq_policy), GFP_KERNEL);
--	if (!driver)
--		return -ENOMEM;
--
--	driver->policy = (struct cpufreq_policy *) (driver + 1);
--
--	driver->verify		= &pmac_cpufreq_verify;
--	driver->setpolicy	= &pmac_cpufreq_setpolicy;
--	driver->init		= NULL;
--	driver->exit		= NULL;
--	strlcpy(driver->name, "powermac", sizeof(driver->name));
--
--	driver->policy[0].cpu				= 0;
--	driver->policy[0].cpuinfo.transition_latency	= CPUFREQ_ETERNAL;
--	driver->policy[0].cpuinfo.min_freq		= low_freq;
--	driver->policy[0].min				= low_freq;
--	driver->policy[0].max				= cur_freq;
--	driver->policy[0].cpuinfo.max_freq		= cur_freq;
--	driver->policy[0].policy			= (cur_freq == low_freq) ? 
--	    	CPUFREQ_POLICY_POWERSAVE : CPUFREQ_POLICY_PERFORMANCE;
--
--	rc = cpufreq_register_driver(driver);
--	if (rc)
--		kfree(driver);
--	return rc;
-+	pmac_cpu_freqs[CPUFREQ_LOW].frequency = low_freq;
-+	pmac_cpu_freqs[CPUFREQ_HIGH].frequency = hi_freq;
++void mark_gone (struct usb_device *dev)
++{
++	unsigned	i;
 +
-+	return cpufreq_register_driver(&pmac_cpufreq_driver);
++	dev->state = USB_STATE_NOTATTACHED;
++	for (i = 0; i < dev->maxchild; i++) {
++		if (dev->children [i])
++			mark_gone (dev->children [i]);
++	}
  }
  
--__initcall(pmac_cpufreq_setup);
-+module_init(pmac_cpufreq_setup);
+ /**
+@@ -1501,29 +1520,12 @@
+  */
+ void usb_hc_died (struct usb_hcd *hcd)
+ {
+-	struct list_head	*devlist, *urblist;
+-	struct hcd_dev		*dev;
+-	struct urb		*urb;
+-	unsigned long		flags;
+-	
+-	/* flag every pending urb as done */
+-	spin_lock_irqsave (&hcd_data_lock, flags);
+-	list_for_each (devlist, &hcd->dev_list) {
+-		dev = list_entry (devlist, struct hcd_dev, dev_list);
+-		list_for_each (urblist, &dev->urb_list) {
+-			urb = list_entry (urblist, struct urb, urb_list);
+-			dev_dbg (hcd->controller, "shutdown %s urb %p pipe %x, current status %d\n",
+-				hcd->self.bus_name, urb, urb->pipe, urb->status);
+-			if (urb->status == -EINPROGRESS)
+-				urb->status = -ESHUTDOWN;
+-		}
+-	}
+-	urb = (struct urb *) hcd->rh_timer.data;
+-	if (urb)
+-		urb->status = -ESHUTDOWN;
+-	spin_unlock_irqrestore (&hcd_data_lock, flags);
++	dev_err (hcd->controller, "HC died; pending I/O will be aborted.\n");
  
+-	/* hcd->stop() needs a task context */
++	/* prevent new submissions to devices in this tree */
++	mark_gone (hcd->self.root_hub);
++	
++	/* then usb_disconnect() them all, in a task context */
+ 	INIT_WORK (&hcd->work, hcd_panic, hcd);
+ 	(void) schedule_work (&hcd->work);
+ }
+--- 1.12/drivers/usb/host/ohci-pci.c	Mon Apr 14 02:51:40 2003
++++ edited/drivers/usb/host/ohci-pci.c	Sun Jul 27 18:51:21 2003
+@@ -199,6 +199,11 @@
+ 	int			retval = 0;
+ 	unsigned long		flags;
+ 
++	if (hcd->state == USB_STATE_HALT) {
++		ohci_dbg (ohci, "USB restart of halted device\n");
++		return -EL3HLT;
++	}
++
+ #ifdef CONFIG_PMAC_PBOOK
+ 	{
+ 		struct device_node *of_node;
+
+--------------080601030404080107000309--
+
 

@@ -1,133 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265063AbTLPF1L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 00:27:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265112AbTLPF1L
+	id S263537AbTLPFmj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 00:42:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263618AbTLPFmj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 00:27:11 -0500
-Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:11532 "EHLO
-	DYN320019.beaverton.ibm.com") by vger.kernel.org with ESMTP
-	id S265063AbTLPF1E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 00:27:04 -0500
-Date: Mon, 15 Dec 2003 14:22:14 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Rusty Russell <rusty@au1.ibm.com>
+	Tue, 16 Dec 2003 00:42:39 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:14989
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S263537AbTLPFmg convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 00:42:36 -0500
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: =?iso-8859-1?q?J=F6rn=20Engel?= <joern@wohnheim.fh-wedel.de>
+Subject: Re: Is there a "make hole" (truncate in middle) syscall?
+Date: Mon, 15 Dec 2003 23:43:10 -0600
+User-Agent: KMail/1.5
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [DOCUMENTATION] Revised Unreliable Kernel Locking Guide
-Message-ID: <20031215222213.GA1270@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20031212193559.GA1614@us.ibm.com> <20031215060851.1882C189E1@ozlabs.au.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <20031211125806.B2422@hexapodia.org> <200312121537.42303.rob@landley.net> <20031215124752.GA27005@wohnheim.fh-wedel.de>
+In-Reply-To: <20031215124752.GA27005@wohnheim.fh-wedel.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20031215060851.1882C189E1@ozlabs.au.ibm.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200312152343.11321.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 15, 2003 at 04:17:47PM +1100, Rusty Russell wrote:
-> In message <20031212193559.GA1614@us.ibm.com> you write:
-> 
-> > o	Software Interrupt / softirq: formatting botch "of'software".
-> > 	This would be "o'software", right?
-> 
-> Looks ok here:
-> 	Tasklets and softirqs both fall into the category of 'software interrupts'.
+On Monday 15 December 2003 06:47, Jörn Engel wrote:
+> On Fri, 12 December 2003 15:37:42 -0600, Rob Landley wrote:
+> > On Friday 12 December 2003 08:24, Jörn Engel wrote:
+> > > > ...and it sucks.  Same problem as with updatedb - 99% of all work is
+> > > > bogus, but you don't know which 99%, because the one knowing about
+> > > > it, the kernel, doesn't tell you a thing.
+> > >
+> > > Actually, updatedb sucks even worse.  The database is notoriously
+> > > outdated and each run of updatedb has the effect of flushing the
+> > > cache.  Because of the cache-flushing effect, you cannot even run it
+> > > with maximum niceness.  Running it still hurts you *afterwards*.
+> > >
+> > > Same goes for you userland daemon without kernel support.
+> >
+> > 1) The date optimization, only looking at files newer than the last run,
+> > means you can avoid looking at 90% of the filesystem.
+>
+> And how do you figure out the date?  ;)
 
-It was late and my eyes were tired.  Can't even blame it on
-my browser!!!
+You look at the dentry.  Yes, you have to traverse the filesystem.  There are 
+a number of things that care about traversing the filesystem, including 
+scheduled backups, updatedb, and potentially this thing.  I realise that you 
+believe nobody should ever do this.  I don't care.
 
-> > o	Preemption: Would it be worth changing the first bit
-> > 	of the second sentence to read something like: "In 2.5.4
-> > 	and later, when CONFIG_PREEMPT is set, this changes:"?
-> 
-> I was trying to make it a little future-proof: I think CONFIG_PREEMPT
-> should go away some day.
+> > 2) If drop-behind ever gets working, life is good for this sort of thing.
+> >  If not, there's always O_DIRECT or its replacement (whatever Linus and
+> > the oracle guy were arguing about last month)...
+>
+> Not sure what drop-behind is.  Sounds interesting.
 
-I hear you!  But I suspect that it may take quite some time for that day
-to arrive.
+Google for it.
 
-> > Overzealous Prevention Of Deadlocks:  Cute!!!
-> 
-> This is untouched from the old version of the document.  I had a
-> troubled youth...
+> Anyway, what updatedb, userspace defragmenters etc. need is a
+> notification, what has changed.
 
-;-)  Well, don't wring -all- of the fun out of the document!
+Most of this infrastructure is there already.  Documentation/dnotify.txt.
 
-> > Avoiding Locks: Read Copy Update
-> > 
-> > o	Might be worth noting explicitly early on that updaters are
-> > 	running concurrently with readers.  Should be obvious given
-> > 	that the readers aren't doing any explicit synchronization,
-> > 	but I have run into confusion on this point surprisingly often.
-> 
-> OK.  Changed the second paragraph from:
-> 
-> 	How do we get rid of read locks?  That is actually quite simple:
-> 
-> to:
-> 
-> 	How do we get rid of read locks?  Getting rid of read locks
-> 	means that writers may be changing the list underneath the readers.
-> 	That is actually quite simple:
+> Without this notification, they have
+> to look at everything and figure it out themselves.  Ask the network
+> people why select doesn't scale too well
 
-Looks good!  Upon rereading...  Does "wmb()" want to be "smp_wmb()"?
+Were you here for the discussion of I/O completion ports as a potential 
+solution to the "thundering herd" problem a few years ago?  Haven't checked 
+to see how similar epoll is, I haven't had a scalability bottleneck in that 
+area recently...
 
-> > o	Please add a note to the list_for_each_entry_rcu() description
-> > 	saying that writers (who hold appropriate locks) need not use
-> > 	the _rcu() variant.
-> 
-> OK:
-> 
->       Once again, there is a
->       <function>list_for_each_entry_rcu()</function>
->       (<filename>include/linux/list.h</filename>) to help you.  Of
->       course, writers can just use
->       <function>list_for_each_entry()</function>, since there cannot
->       be two simultaneous writers.
+> - updatedb is even worse
+> because it doesn't even notice that *anything* has changed, much less
+> what change happened.
 
-Also looks good!
+You don't WANT it to.  You want to batch up the work so that if a file changes 
+every thirty seconds you're not constantly being woken up to deal with it 
+again!
 
-Again, upon rereading, "read Read Copy Update code" probably wants to
-be "real Read Copy Update code".   I moused it this time, given
-my past record with eyeballing.  ;-)
+> O_DIRECT, O_STREAMING or O_WHATEVER is also a different beast.  With
+> streaming media, there is no way to avoid touching the data in the
+> first place.  If there was, we could do even better, but there isn't.
 
-> > o	If nothing blocks between the call to __cache_find() and the
-> > 	eventual object_put(), it is worthwhile to avoid the
-> > 	reference-count manipulation.  This would make all of
-> > 	cache_find() be almost as fast as UP, rather than just
-> > 	__cache_find().
-> 
-> Good point.  Text added at the bottom of that section:
-> 
-> <para>
-> There is a furthur optimization possible here: remember our original
-> cache code, where there were no reference counts and the caller simply
-> held the lock whenever using the object?  This is still possible: if
-> you hold the lock, noone can delete the object, so you don't need to
-> get and put the reference count.
-> </para>
-> 
-> <para>
-> Now, because the 'read lock' in RCU is simply disabling preemption, a
-> caller which always preemption disabled between calling
-                      disables preemption
-> <function>cache_find()</function> and
-> <function>object_put()</function> does not need to actually get and
-> put the reference count: we could expose
-> <function>__cache_find()</function> by making it non-static, and
-> such callers could simply call that.
-> </para>
-> <para>
-> The benefit here is that the reference count is not written to: the
-> object is not altered in any way, which is much faster on SMP
-> machines due to caching.
-> </para>
+If you need to look at the contents of the disk (to check for the runs of null 
+bytes), then you need to look at the contents of the disk.  Once you've 
+identified data you need to load in, if you don't want to push everything 
+else out of cache, you should be able to give some kind of hint that it 
+shouldn't keep this data around.  The new ionice work is at least a step in 
+this direction, although it doesn't address this particular problem, and I 
+believe the dentry cache is a different beast than the page cache...
 
-Other than the grammar nit above, looks good!
+> For updatedb there is.
 
-> I've uploaded a new draft with these and other fixes...
+I'm not talking about updatedb.
 
-Good stuff, thank you!!!
+> Jörn
 
-						Thanx, Paul
+Rob

@@ -1,75 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277390AbRJJUIP>; Wed, 10 Oct 2001 16:08:15 -0400
+	id <S277396AbRJJUJz>; Wed, 10 Oct 2001 16:09:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277391AbRJJUIF>; Wed, 10 Oct 2001 16:08:05 -0400
-Received: from oe64.law9.hotmail.com ([64.4.8.199]:53254 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S277390AbRJJUHu>;
-	Wed, 10 Oct 2001 16:07:50 -0400
-X-Originating-IP: [66.108.21.174]
-From: "Concerned Programmer" <tkhoadfdsaf@hotmail.com>
-To: "David Woodhouse" <dwmw2@infradead.org>,
-        "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Alexander Viro" <viro@math.psu.edu>, "Keith Owens" <kaos@ocs.com.au>,
-        "Morgan Collins [Ax0n]" <sirmorcant@morcant.org>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <E15rNBu-0008To-00@the-village.bc.nu> <4058.1002737910@redhat.com>
-Subject: Re: Tainted Modules Help Notices
-Date: Wed, 10 Oct 2001 16:06:42 -0400
+	id <S277394AbRJJUJq>; Wed, 10 Oct 2001 16:09:46 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:52706 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S277397AbRJJUJ2>; Wed, 10 Oct 2001 16:09:28 -0400
+Date: Wed, 10 Oct 2001 22:09:52 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: "attempt to access beyond end of device" in 2.4.10ac10
+In-Reply-To: <20011010125939.A524@mikef-linux.matchmail.com>
+Message-ID: <Pine.NEB.4.40.0110102205470.16121-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-ID: <OE64YU5ts1Tjkw1BzCf0000708c@hotmail.com>
-X-OriginalArrivalTime: 10 Oct 2001 20:08:16.0487 (UTC) FILETIME=[4C614770:01C151C7]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    I was under the same impression about the module licensing tagging.  I
-had read that it was suppose to be for maintainability (.i.e. source
-available so kernel gods can debug) and not to enforce ideological
-conformity.  Now I read that anything not licensed under the GPL, including
-BSD or simply public domain source code, will taint my kernel and modprobe
-complains about non-GPL stuff including parport_pc which apparently did not
-have a license.  Should I expect a Linux kernel KGB to show up next?
+On Wed, 10 Oct 2001, Mike Fedyk wrote:
 
-    Furthermore I have to agree with the previous poster.  Any module could
-easily lie to MODULE_LICENSE about its licensing terms and that would not
-make it's source automatically "free" and GPLable so I am now wondering if
-this tainting mechanism is of any use at all.
+> > I had a crash with 2.4.10-ac10 (the computer was totally frozen - I had to
+> > push the reset button). I found the following in syslog:
+> >
+> >
+> > Oct 10 19:03:05 r063144 kernel: attempt to access beyond end of device
+> > Oct 10 19:03:05 r063144 kernel: 03:06: rw=0, want=2147449990, limit=1959898
+>
+> Did you try earlier kernels with success?
 
-    Just out of curiosity do all of these license tags in the modules take
-up any permanent kernel memory, especially in a heavily modularize system?
+I didn't have this problem before - and I use 2.4(-ac) kernels since
+2.4.0-test times.
 
-> I believe that statement is as true as the assertion that nobody, even in
-> the Free World, can write GPL'd code which use the algorithms covered by
-> the patent.
->
-> Either way, I didn't think that a political stance against patents was the
-> point of the kernel tainting code - I thought it was about
-maintainability.
->
-> >  The problem we have is that "BSD without advertisment" can be claimed
-> > by almost any binary only module whose author doesnt include source or
-> > let it out fo their company ever
->
-> GPL can also be claimed by a module whose author doesn't publish either
-the
-> source or the binary, or who charges lots and lots of money for shipping
-the
-> binary and ships the source with it with a 'request' that the recipient
-> doesn't then give it away for free.
->
-> But if we're not going to allow BSD-licensed modules to be loaded without
-> tainting the kernel, we shouldn't mark any of the code distributed with
-the
-> kernel as BSD-licensed - we should make it all "Dual BSD/GPL" instead.
->
-> It might also be useful to have a 'Dual GPL/Other' option, for covering
-the
-> other randomly dual-licensed code (like JFFS2).
+> Are your partitions setup correctly?
+
+Yes.
+
+> Which file system(s) was/were on this drive?
+
+Several ext2 partitions are on the drive.
+
+> Any idea what was happening at the time?
+
+No.
+
+> Mike
+
+cu
+Adrian
+
+-- 
+
+Get my GPG key: finger bunk@debian.org | gpg --import
+
+Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
 

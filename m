@@ -1,24 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278450AbRJVJjv>; Mon, 22 Oct 2001 05:39:51 -0400
+	id <S278452AbRJVJmL>; Mon, 22 Oct 2001 05:42:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278452AbRJVJjl>; Mon, 22 Oct 2001 05:39:41 -0400
-Received: from [202.54.110.230] ([202.54.110.230]:61457 "EHLO
-	ngate.noida.hcltech.com") by vger.kernel.org with ESMTP
-	id <S278450AbRJVJjU>; Mon, 22 Oct 2001 05:39:20 -0400
-Message-ID: <5F4819C1F6544F4D9C904119C0C439D90D8F00@EXCH-01>
-From: Rajiv Malik <rmalik@noida.hcltech.com>
-Cc: dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: test
-Date: Mon, 22 Oct 2001 15:09:07 +0530
+	id <S278453AbRJVJmB>; Mon, 22 Oct 2001 05:42:01 -0400
+Received: from web14703.mail.yahoo.com ([216.136.224.120]:13836 "HELO
+	web14703.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S278457AbRJVJlv>; Mon, 22 Oct 2001 05:41:51 -0400
+Message-ID: <20011022094224.99093.qmail@web14703.mail.yahoo.com>
+Date: Mon, 22 Oct 2001 02:42:24 -0700 (PDT)
+From: Peter Moscatt <pmoscatt@yahoo.com>
+Subject: Can't See CDR-W After Compile ??
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-test!
+I have compiled my first kernel (2.4.10) and all has
+gone well except I now can't access the CDR-W.
 
-sorry list, but messages were not coming to me.
+I have included SCSI Support and included what I think
+may need to be loaded as well.
+
+I see it as an IDE drive but has no SCSI-Emulation.
+
+I have had a look through DMESG to get an idea what's
+happening, and I see the message:
+
+ "request_module[scsi_hostadapter]: Root fs not
+mounted"
+
+What have I left out ?
+
+Pete
+
+__________________________________________________
+Do You Yahoo!?
+Make a great connection at Yahoo! Personals.
+http://personals.yahoo.com

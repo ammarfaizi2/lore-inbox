@@ -1,75 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131489AbRCXMOW>; Sat, 24 Mar 2001 07:14:22 -0500
+	id <S131419AbRCXML3>; Sat, 24 Mar 2001 07:11:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131526AbRCXMOL>; Sat, 24 Mar 2001 07:14:11 -0500
-Received: from [195.67.32.61] ([195.67.32.61]:3856 "EHLO actionbase.se")
-	by vger.kernel.org with ESMTP id <S131489AbRCXMOC>;
-	Sat, 24 Mar 2001 07:14:02 -0500
-Message-ID: <3ABC8F97.88806231@marasystems.com>
-Date: Sat, 24 Mar 2001 13:14:15 +0100
-From: Henrik Nordstrom <hno@marasystems.com>
-Organization: MARA Systems
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.3-pre3-hno i686)
-X-Accept-Language: en
+	id <S131489AbRCXMLT>; Sat, 24 Mar 2001 07:11:19 -0500
+Received: from fe040.world-online.no ([213.142.64.154]:36810 "HELO
+	mail.world-online.no") by vger.kernel.org with SMTP
+	id <S131419AbRCXMLJ>; Sat, 24 Mar 2001 07:11:09 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Gerry <gerry@c64.org>
+To: linux-kernel@vger.kernel.org
+Subject: ..supermount ? no! (The Ultimate Solution :)
+Date: Sat, 24 Mar 2001 13:11:15 +0100
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-To: Henrik Nordstrom <hno@actionbase.se>
-CC: linux-kernel@vger.kernel.org
-Subject: sigtimedwait timeout
-In-Reply-To: <39CB844E.5ECBEA20@actionbase.se>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01032413111500.00832@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Change the removable device-drivers to detect change. Fx, with cdrom, change 
+the cdrom-part to detect when the disc tray ejects and when it goes back in, 
+both for manual (user push eject) and automatic (program sends 
+eject-request). This way the kernel just have to send a signal when this 
+happens on a device (to processes who have requested to get to know).
 
-Noticed that my sigtimedwait timeout patch got into the kernel, so polled signal I/O should now
-work much better.
+This has several advantages:
 
-The question on why the timeout is calculated with an +1 for non-zero timeouts is still open.
-AFAICT is is not needed as timespec_to_jiffies() does a correct rounding. The effect now is
+* Supermount don't need to be kernel-related at all, and so doesn't need to 
+be updated for each new kernel revision (cleaner kernel)
+* Possible to get autorun on linux
+* Can get rid of "insert cd and press ok"-like things (replace with "insert 
+cd or press cancel")
+* Imagination is the only limit :)
 
- timeout    sleeping
- 0          0
- 1ns        2 jiffies
- 1 jiffies  2 jiffies
- 2 jiffies  3 jiffies
- 3 jiffies  4 jiffies
- ...
+So, what do you say ? (I'm a newbie to this, so don't flame me to hard :)
 
-If the "+1" is taken out then the timeout scale becomes the expected one, starting at 1 jiffie, not
-2.
-
-
---
-Henirk Nordstrom
-
-
-Henrik Nordstrom wrote 22 September 2000:
-
-> As I mentioned earlier sigtimedwait with a zero timeout (0,0) should not
-> block, but it currently does for 10msec (one jiffie). This is a
-> performance problem for applications using polled signal queues. SUSV2
-> says specifically for this case "returns immediately with an error".
->
-> Attached is a new version of my patch. The previous version messed up
-> the signal mask if the signal queue was empty and a zero timeout was
-> selected.
->
-> It is still waiting one more jiffie than what is indicated by the
-> timeout value if other than zero, caused by the following code fragment:
->
->                         timeout = (timespec_to_jiffies(&ts)
->                                    + (ts.tv_sec || ts.tv_nsec));
->
-> Does anyone have any clue on why this +1 is there? I think this should
-> also go away to only read
->
->                         timeout = timespec_to_jiffies(&ts);
->
-> --
-> Henrik Nordstrom
-
-[patch deleted]
-
-
+Gerry

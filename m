@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261422AbTEKNqp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 09:46:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbTEKNqo
+	id S261387AbTEKNnt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 09:43:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbTEKNnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 09:46:44 -0400
-Received: from ulima.unil.ch ([130.223.144.143]:21937 "EHLO ulima.unil.ch")
-	by vger.kernel.org with ESMTP id S261411AbTEKNqn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 09:46:43 -0400
-Date: Sun, 11 May 2003 15:59:25 +0200
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: Jens Axboe <axboe@suse.de>
+	Sun, 11 May 2003 09:43:49 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:23817 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261387AbTEKNns (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 09:43:48 -0400
+Date: Sun, 11 May 2003 14:56:10 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Gregoire Favre <greg@ulima.unil.ch>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69 and ide-floppy errors
-Message-ID: <20030511135925.GA11050@ulima.unil.ch>
-References: <20030511124233.GB10013@ulima.unil.ch> <Pine.SOL.4.30.0305111445100.4788-100000@mion.elka.pw.edu.pl> <20030511125243.GK837@suse.de> <20030511131557.GA10688@ulima.unil.ch> <20030511134656.GL837@suse.de>
+Subject: Re: lilo and 2.5.69?
+Message-ID: <20030511145610.B20017@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Gregoire Favre <greg@ulima.unil.ch>, linux-kernel@vger.kernel.org
+References: <20030511130945.GA10607@ulima.unil.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030511134656.GL837@suse.de>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030511130945.GA10607@ulima.unil.ch>; from greg@ulima.unil.ch on Sun, May 11, 2003 at 03:09:45PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 11, 2003 at 03:46:56PM +0200, Jens Axboe wrote:
+On Sun, May 11, 2003 at 03:09:45PM +0200, Gregoire Favre wrote:
+> Is there something special to do with this new kernel?
 
-> It smells fishy. Does the zip usually work as slave with that drive as
-> master? IOW, what is your typical working config (kernel)?
+You need to fix lilo to not assume the names listet in /proc/partitions are
+actual device files.  In 2.5.69 there's a bug that it prints truncated devfs
+names instead of traditional device names as it should, but relying on the
+names to mean anything is broken - that kernel can't enforce the device names
+used.
 
-As DVD writting is broken in 2.5, I am usualy under 2.4, and before
-2.4.21-rc1-ac3 I was using ide-scsi (ide-scsi wasn't working with
-2.4.21-rc1-ac3), but yes, no problem sofar ;-)
+The following patch that is in Linus BK tree should get it working for you
+again for now..
 
-Does IOW mean In Other Word?
 
-I have put my config in http://ulima.unil.ch/greg/linux/ or directly:
-http://ulima.unil.ch/greg/linux/2.4.21-rc1-ac3-config
-http://ulima.unil.ch/greg/linux/2.5.69-config
-
-Thank you very much,
-
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+--- 1.108/fs/partitions/check.c	Tue Apr 29 17:42:50 2003
++++ edited/fs/partitions/check.c	Fri May  2 09:41:04 2003
+@@ -96,19 +96,6 @@
+ 
+ char *disk_name(struct gendisk *hd, int part, char *buf)
+ {
+-#ifdef CONFIG_DEVFS_FS
+-	if (hd->devfs_name[0] != '\0') {
+-		if (part)
+-			snprintf(buf, BDEVNAME_SIZE, "%s/part%d",
+-					hd->devfs_name, part);
+-		else if (hd->minors != 1)
+-			snprintf(buf, BDEVNAME_SIZE, "%s/disc", hd->devfs_name);
+-		else
+-			snprintf(buf, BDEVNAME_SIZE, "%s", hd->devfs_name);
+-		return buf;
+-	}
+-#endif
+-
+ 	if (!part)
+ 		snprintf(buf, BDEVNAME_SIZE, "%s", hd->disk_name);
+ 	else if (isdigit(hd->disk_name[strlen(hd->disk_name)-1]))

@@ -1,50 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270711AbRHTL22>; Mon, 20 Aug 2001 07:28:28 -0400
+	id <S271196AbRHTLjI>; Mon, 20 Aug 2001 07:39:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270741AbRHTL2R>; Mon, 20 Aug 2001 07:28:17 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55302 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270711AbRHTL2E>; Mon, 20 Aug 2001 07:28:04 -0400
-Subject: Re: [2.4.8-ac5 and earlier] fatal mount-problem
-To: viro@math.psu.edu (Alexander Viro)
-Date: Mon, 20 Aug 2001 12:30:23 +0100 (BST)
-Cc: andihartmann@freenet.de (Andreas Hartmann),
-        linux-kernel@vger.kernel.org (Kernel-Mailingliste)
-In-Reply-To: <Pine.GSO.4.21.0108200602010.1313-100000@weyl.math.psu.edu> from "Alexander Viro" at Aug 20, 2001 06:03:20 AM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S271173AbRHTLit>; Mon, 20 Aug 2001 07:38:49 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:44040 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S271109AbRHTLie>; Mon, 20 Aug 2001 07:38:34 -0400
+Date: Mon, 20 Aug 2001 07:10:16 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Mark Hemment <markhe@veritas.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kswap spinning
+In-Reply-To: <Pine.LNX.4.33.0108181538040.6247-100000@alloc.wat.veritas.com>
+Message-ID: <Pine.LNX.4.21.0108200706330.32519-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15YnGB-0005sr-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > (as modules) and you do the same mount again on the same (not unmounted)
-> > device, the mount-programm hangs up and never comes back. It doesn't
-> > recognize, that the device is allready mounted.
+
+
+On Sat, 18 Aug 2001, Mark Hemment wrote:
+
+> Hi,
 > 
-> strace, please. -ac5 and 2.4.9 have the same code in fs/super.c, so
-> I really wonder what the hell is happening...
+>   Jumping from 2.4.7 to 2.4.9 has shown up a problem with the VM balancing
+> code.
+>   Under load, I've seen kswapd become a CPU hog (on a 5GB box).  Now that
+> I've got a theory, I cannot reproduce the problem for confirmation, but
+> here is the theory anyway.
+> 
+>   The tests in free_shortage() and inactive_shortage() assume that the
+> memory state for a zone can be improved by calling refill_inactive_scan(),
+> page_launder(), the inode/dcache shrinking functions, and the general
+> slab-cache reaping func.  Usually, some combination of the reaping
+> functions will improve a zone's state - but not always.
+> 
+>   The problem is the DMA zone.  As it is (relatively) small on some archs
+> (IA-32 for example), it is possible that almost all pages from this zone
+> are being used by a sub-systems which simply won't give them up.  Examples
+> of use are; vmalloc()ed page for modules, pre-allocated socket buffs
+> for NICs, task-structs/kernel-stack - you get the idea.
+> 
+>   In the case I believe I'm seeing, both free_shortage() and
+> inactive_shortage() are returning a shortage for the DMA zone which
+> triggers all the work in do_try_to_free_pages().  But as there aren't any
+> DMA pages left in the page-cache, being used as anonymous pages, or being
+> used in the other places the code looks, do_try_to_free_pages() returns
+> non-zero to kswapd() and off we go again.  This also causes callers of
+> try_to_free_pages() (from __alloc_pages()) to suck CPU cycles as well.
+> 
+>   On HIGHMEM boxes, it is possible for the NORMAL zone to get into the
+> same state (although v unlikely).
+> 
+>   I'd rather not get into having specialist code in mm/vmscan.c (or arch
+> specific code) to handle a small DMA zone - so what are the other
+> solutions?  (Assuming the above theory holds true.)
+> 
+>   One possible solution is not to give DMA memory out, except for;
+> 	o explicit DMA allocations
+> 	o page-cache, anonymous page, allocations
+> assuming explicit DMA allocations are low, we'll at least know the
+> remaining DMA pages are somewhere we can get at them - would need to be
+> trigger by an arch specific flag for those that don't have a "tiny" zone.
+> However, I don't like this, feels like fixing the wrong problem. :(
 
-Duplicated here with 2.4.8-ac6
-Booted with ide-scsi as the cd driver
+The DMA zone problem _can_ happen, but it should also happen with 2.4.7 I
+think. (I'm not completly sure, though. Maybe Linus changes to
+try_to_free_pages() are the reason...)
 
-mount /dev/scd0 /mnt
-umount /dev/scs0
-mount /dev/scd0 /mnt
-umount /dev/scd0
+Lets first find out the actual problem.
 
-works fine
-
-mount /dev/scd0 /mnt
-mount /dev/scd0 /mmt
-
-hangs (D state)
-
-mount /dev/scd0 /mnt
-mount /dev/scd0 /tmp
-
-hangs (D state)
+Could you please boot with profile=2 and use readprofile to find out where
+kswapd is spending its time? 
 

@@ -1,74 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317047AbSFQVrx>; Mon, 17 Jun 2002 17:47:53 -0400
+	id <S317051AbSFQV4N>; Mon, 17 Jun 2002 17:56:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317045AbSFQVrw>; Mon, 17 Jun 2002 17:47:52 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:51889 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S317040AbSFQVru>;
-	Mon, 17 Jun 2002 17:47:50 -0400
-Date: Mon, 17 Jun 2002 14:47:38 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Kurt Garloff <garloff@suse.de>,
-       Linux kernel list <linux-kernel@vger.kernel.org>,
-       Linux SCSI list <linux-scsi@vger.kernel.org>
-Subject: Re: /proc/scsi/map
-Message-ID: <20020617144738.A14245@eng2.beaverton.ibm.com>
-References: <20020615133606.GC11016@gum01m.etpnet.phys.tue.nl> <20020617133534.A10174@eng2.beaverton.ibm.com> <20020617205750.GC1313@gum01m.etpnet.phys.tue.nl>
+	id <S317056AbSFQV4M>; Mon, 17 Jun 2002 17:56:12 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:15825 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S317051AbSFQV4M>; Mon, 17 Jun 2002 17:56:12 -0400
+Date: Tue, 18 Jun 2002 07:43:02 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Initcall depends
+Message-Id: <20020618074302.1bc72b56.rusty@rustcorp.com.au>
+In-Reply-To: <Pine.LNX.4.44.0206162007160.30474-100000@chaos.physics.uiowa.edu>
+References: <E17JkO6-0000nW-00@wagner.rustcorp.com.au>
+	<Pine.LNX.4.44.0206162007160.30474-100000@chaos.physics.uiowa.edu>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20020617205750.GC1313@gum01m.etpnet.phys.tue.nl>; from garloff@suse.de on Mon, Jun 17, 2002 at 10:57:50PM +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kurt -
+On Sun, 16 Jun 2002 20:17:44 -0500 (CDT)
+Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de> wrote:
+> As you're taking the effort of running some code to figure out the right 
+> ordering anyway, have you considered using the the information which is 
+> already there today, for all code which can be compiled modular.
 
-On Mon, Jun 17, 2002 at 10:57:50PM +0200, Kurt Garloff wrote:
-> Hi Patrick,
-> 
-> > I prefer we refer to the tuple as host, channel, id, lun (H, C, I, L), so
-> > as to more closely match /proc/scsi/scsi, /proc/scsi/sg, and attached
-> > messages:
-> 
-> You are refering to the naming of this 4-tuple, right: HCIL vs. CBTU?
+Unfortunately, this is rather painful:
 
-Yes.
+	1) File A contains an initcall.
+	2) Find Module A which File A is part of.
+	3) For each exported symbol used by Module A
+		4) Find Module B which exports this symbol.
+		5) Find Files B which make up Module B.
+		6) For each initcall in Files B, insert a dependency.
 
-> I chose for CBTU, because that on's used in devfs. Actually, as you can see
-> from scsidev, I like HCIL more. But that's a detail the kernel should not
-> care about. The header line should be removed anyway as Albert remarked.
-> And helping those people who think that 200 bytes is unacceptable bloat.
-> 
-> [...]
-> > > 3,0,12,00       0x00    1       sg12    c:15:0c sdf     b:08:50
-> > 
-> > Why not treat each upper layer driver the same? Type is already
-> > in /proc/scsi/scsi, or implied by the upper level drivers attached.
-> > Online should really be part of /proc/scsi/scsi.
-> 
-> I'm not sure I know what you mean. The fact that I decided to put
-> the sg device name first independently of the (potentially) random
-> order in which high-level drivers are assigned?
-
-Yes, I don't know why I took that to mean that sg was displayed differently.
-
-> Just I decided to report shg first. This has a very pratical reason:
-> I you want to use userspace tools to collect more advanced (and maybe type
-> dependant information), you will always want to use the sg device, which 
-> you can use to send SCSI commands and which you can open, even if there is
-> no medium or if the device is in use.
-
-No matter the column position sg can be found if each column includes
-the upper level name (sg, sd etc.). Then you do not need to know or
-check the scsi_type of the template, or explicitly locate the sg
-template in scsi_proc_map().
-
-And then without the header scsi_proc_map() gets really simple.
-
-> Regards,
-> -- 
-> Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-> GPG key: See mail header, key servers         Linux kernel development
-> SuSE Linux AG, Nuernberg, DE                            SCSI, Security
-
--- Patrick Mansfield
+Any clues for (2) and (5)?
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261953AbTIPRDQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 13:03:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261962AbTIPRDP
+	id S261980AbTIPQ7m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 12:59:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbTIPQ7m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 13:03:15 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:5394 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261953AbTIPRDO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 13:03:14 -0400
-Date: Tue, 16 Sep 2003 12:53:57 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Timothy Miller <miller@techsource.com>
-cc: Dave Jones <davej@redhat.com>, Jamie Lokier <jamie@shareable.org>,
-       richard.brunner@amd.com, alan@lxorguk.ukuu.org.uk, zwane@linuxpower.ca,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-In-Reply-To: <3F672B55.3000600@techsource.com>
-Message-ID: <Pine.LNX.3.96.1030916125253.27636A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 16 Sep 2003 12:59:42 -0400
+Received: from mail.kroah.org ([65.200.24.183]:26042 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261980AbTIPQ7l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 12:59:41 -0400
+Date: Tue, 16 Sep 2003 09:49:41 -0700
+From: Greg KH <greg@kroah.com>
+To: Norman Diamond <ndiamond@wta.att.ne.jp>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test5 vs. Ethernet cards
+Message-ID: <20030916164941.GI3593@kroah.com>
+References: <1b7201c37a73$844b7030$2dee4ca5@DIAMONDLX60> <20030914091702.B20889@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030914091702.B20889@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Sep 2003, Timothy Miller wrote:
-
-> 
-> 
-> Bill Davidsen wrote:
-> 
+On Sun, Sep 14, 2003 at 09:17:02AM +0100, Russell King wrote:
+> On Sun, Sep 14, 2003 at 12:51:29PM +0900, Norman Diamond wrote:
+> > Shutdown messages appear on the text console as follows:
+> > [...]
+> > Shutting down PCMCIA unregister_netdevice: waiting for eth0 to become free.
+> > Usage count = 1
+> > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
+> > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
+> > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
+> > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
+> > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
+> > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
+> > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
+> > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
+> > [...]
 > > 
-> > If the fixup were not in place, would it be useful to emit a warning
-> > like "you have booted a non-Athlon kernel on an Athlon process, user
-> > programs may get unexpected page faults." That's in init code, hopefully
-> > there is no critical size issue there, I assume, other than how large a
-> > kernel can be booted by the boot loader.
-> > 
+> > The only way to shut down at this point is to turn off the power.
 > 
-> How many bytes would that code require?
+> IIRC the problem is your hotplug scripts.  Maybe the hotplug folk can tell
+> you the minimum version for 2.6.
 
-No resident bytes, as noted it's in init and will be released at the end
-of boot.
+The last release version is the best for 2.6, but this doesn't look
+like a hotplug script issue at all.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+thanks,
 
+greg k-h

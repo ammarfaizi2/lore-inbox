@@ -1,83 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264370AbTCXT42>; Mon, 24 Mar 2003 14:56:28 -0500
+	id <S264375AbTCXT6U>; Mon, 24 Mar 2003 14:58:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264373AbTCXT42>; Mon, 24 Mar 2003 14:56:28 -0500
-Received: from packet.digeo.com ([12.110.80.53]:18328 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264370AbTCXT40>;
-	Mon, 24 Mar 2003 14:56:26 -0500
-Date: Mon, 24 Mar 2003 14:12:05 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: hugh@veritas.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       sct@redhat.com
-Subject: Re: [PATCH] anobjrmap 2/6 mapping
-Message-Id: <20030324141205.5a4eae0e.akpm@digeo.com>
-In-Reply-To: <1048534712.1907.398.camel@sisko.scot.redhat.com>
-References: <Pine.LNX.4.44.0303202310440.2743-100000@localhost.localdomain>
-	<Pine.LNX.4.44.0303202312560.2743-100000@localhost.localdomain>
-	<20030320224832.0334712d.akpm@digeo.com>
-	<1048534712.1907.398.camel@sisko.scot.redhat.com>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S264381AbTCXT6U>; Mon, 24 Mar 2003 14:58:20 -0500
+Received: from smtp018.mail.yahoo.com ([216.136.174.115]:43281 "HELO
+	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S264375AbTCXT6T>; Mon, 24 Mar 2003 14:58:19 -0500
+Date: Mon, 24 Mar 2003 21:05:26 +0100
+From: aradorlinux@yahoo.es
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: jgarzik@pobox.com, jbourne@mtroyal.ab.ca, linux-kernel@vger.kernel.org,
+       rml@tech9.net, mj@ucw.cz, alan@redhat.com, skraw@ithnet.com,
+       szepe@pinerecords.com, arjanv@redhat.com, pavel@ucw.cz
+Subject: Re: Ptrace hole / Linux 2.2.25
+Message-Id: <20030324210526.3d1bf983.aradorlinux@yahoo.es>
+In-Reply-To: <1240000.1048460079@[10.10.2.4]>
+References: <20030323193457.GA14750@atrey.karlin.mff.cuni.cz>
+	<200303231938.h2NJcAq14927@devserv.devel.redhat.com>
+	<20030323194423.GC14750@atrey.karlin.mff.cuni.cz>
+	<1048448838.1486.12.camel@phantasy.awol.org>
+	<20030323195606.GA15904@atrey.karlin.mff.cuni.cz>
+	<1048450211.1486.19.camel@phantasy.awol.org>
+	<402760000.1048451441@[10.10.2.4]>
+	<20030323203628.GA16025@atrey.karlin.mff.cuni.cz>
+	<Pine.LNX.4.51.0303231410250.17155@skuld.mtroyal.ab.ca>
+	<920000.1048456387@[10.10.2.4]>
+	<3E7E335C.2050509@pobox.com>
+	<1240000.1048460079@[10.10.2.4]>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Mar 2003 20:07:21.0530 (UTC) FILETIME=[FA8F01A0:01C2F240]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Stephen C. Tweedie" <sct@redhat.com> wrote:
->
-> Hi,
-> 
-> On Fri, 2003-03-21 at 06:48, Andrew Morton wrote:
-> 
-> > It goes BUG in try_to_free_buffers().
-> > 
-> > We really should fix this up for other reasons, probably by making ext3's
-> > per-page truncate operations wait on commit, and be more aggressive about
-> > pulling the page's buffers off the transaction at truncate time.
-> 
-> Ouch.
+On Sun, 23 Mar 2003 14:54:40 -0800
+"Martin J. Bligh" <mbligh@aracnet.com> wrote:
 
-But this is specifically for the case where truncate finds the page's buffers
-are attached to the committing transaction.
 
-At present we just give up; this can result in an alarming number of pages
-floating about on the LRU with no references at all except for their buffers.
-These pages cause the overcommit accounting to make grossly wrong decisions.
+> O(1) sched may be a bad example ... how about the fact that mainline VM
 
-I have a patch in -mm which liberates the pages when the commit has
-completed, but I don't like it - that freeing really should happen in the
-context of the truncate, not at some time in the future.  Doing it this way
-means that the pages are either pagecache or free, and there is not a time
-window in which they are simply AWOL.
+I guess alsa is even a better example. It's one of the very few things
+that really have sense (IMHO) to have in 2.4.
+After all, they're drivers; and many people has to use them to get support.
 
-> > The same thing _could_ happen with other filesystems; not too sure about
-> > that.
-> 
-> XFS used to have synchronous truncates, for similar sorts of reasons. 
-> It was dog slow for unlinks.  They worked pretty hard to fix that; I'd
-> really like to avoid adding extra synchronicity to ext3 in this case.
+(I remember in a interview somewhere where Marcelo said he wasn't going to
+merge them, but it'd be nice anyway....)
 
-I doubt it will matter much - usually the pages will be attached to the
-current transaction and we just zap them (I think - the "memory leak" isn't
-too hard to trigger).
 
-I haven't looked too closely lately, but I think journal_unmap_buffer() is
-being a bit silly - if it sees the buffer is on the committing transaction it
-just gives up.  But it doesn't need to do that for ordered-data buffers.  We
-could just grab journal_datalist_lock and pull those buffers off the
-transaction even during commit.
-
-> Pulling buffers off the transaction more aggressively would certainly be
-> worth looking at.  Trouble is, if a truncate transaction on disk gets
-> interrupted by a crash, you really do have to be able to undo it, so you
-> simply don't have the luxury of throwing the buffers away until a commit
-> has occurred (unless you're in writeback mode.)
-
-For metadata, yes.  But for ordered-data pages this doesn't matter.
-
-btw, I have a vague feeling that I've forgotten something here, but I've
-forgotten what it was.  I'll have a play with it.
-
+Diego Calleja

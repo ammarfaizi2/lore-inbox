@@ -1,37 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264659AbSLTSPP>; Fri, 20 Dec 2002 13:15:15 -0500
+	id <S264745AbSLTSVd>; Fri, 20 Dec 2002 13:21:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264688AbSLTSPP>; Fri, 20 Dec 2002 13:15:15 -0500
-Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:36101
-	"EHLO gw.goop.org") by vger.kernel.org with ESMTP
-	id <S264659AbSLTSPO>; Fri, 20 Dec 2002 13:15:14 -0500
-Subject: Re: [PATCH] Fix CPU bitmask truncation
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: Andreas Schwab <schwab@suse.de>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>, bjorn_helgaas@hp.com
-In-Reply-To: <je7ke4yje3.fsf@sykes.suse.de>
-References: <200212161213.29230.bjorn_helgaas@hp.com>
-	 <20021220103028.GB9704@holomorphy.com>  <je7ke4yje3.fsf@sykes.suse.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1040408597.1867.24.camel@ixodes.goop.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 20 Dec 2002 10:23:17 -0800
+	id <S264755AbSLTSVd>; Fri, 20 Dec 2002 13:21:33 -0500
+Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:41375 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S264745AbSLTSVb>;
+	Fri, 20 Dec 2002 13:21:31 -0500
+Message-ID: <3E036186.3020200@candelatech.com>
+Date: Fri, 20 Dec 2002 10:29:26 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jurgen Kramer <gtm.kramer@inter.nl.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: OT: Which Gigabit ethernet card?
+References: <1040391936.973.14.camel@paragon.slim>
+In-Reply-To: <1040391936.973.14.camel@paragon.slim>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-12-20 at 04:17, Andreas Schwab wrote:
-> This is useless.  Assigning -1 to any unsigned type is garanteed to give
-> you all bits one, and with two's complement this also holds for any signed
-> type.
+Jurgen Kramer wrote:
+> Hi,
+> 
+> I know this is a bit OT but because here are the kernel driver hackers
+> this might be the right place to ask.
+> 
+> I am looking for a couple of PCI Gigabit ethernet adapters to play
+> around with SAN/NAS stuff like iSCSI and HyperSCSI and the like. There
+> are variuos adapters around which work with Linux. My choice would be
+> based on the following:
+> 
+> - Relatively cheap, around $100/EUR100
+> - 32 bit/33MHz PCI compatible
 
-Only if the -1 is the same size as the unsigned type.  Otherwise it will
-be 0-extended.
+Try the Netgear 302t, with the tg3 driver.
 
-	J
+Works pretty good if you are not also running a bunch of other interfaces.
+If you are running lots of interfaces, it will still work, but may spew
+warning messages to the console (maybe it's been fixed...I saw this 1-2 months ago)
+
+Ben
+
+
+> - Low cpu usage
+> - Busmaster DMA
+> - Opensource Linux driver
+> - zero-copy capable
+> - etc.
+> 
+> What card is best? 3Com, Intel or National Semi based?
+> 
+> Thanks,
+> 
+> Jurgen
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
 

@@ -1,52 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265809AbTBYTSU>; Tue, 25 Feb 2003 14:18:20 -0500
+	id <S268270AbTBYTNe>; Tue, 25 Feb 2003 14:13:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267123AbTBYTSU>; Tue, 25 Feb 2003 14:18:20 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:43652 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S265809AbTBYTST>; Tue, 25 Feb 2003 14:18:19 -0500
-Date: Tue, 25 Feb 2003 14:31:01 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: atomic_t (24 bits???)
-In-Reply-To: <Pine.LNX.4.44.0302252014340.32518-100000@serv>
-Message-ID: <Pine.LNX.3.95.1030225143028.20279A-100000@chaos>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268272AbTBYTNe>; Tue, 25 Feb 2003 14:13:34 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:38596 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S268270AbTBYTNa>; Tue, 25 Feb 2003 14:13:30 -0500
+Date: Tue, 25 Feb 2003 20:23:39 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Ed Okerson <eokerson@quicknet.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.5 patch] fix compilation of drivers/telephony/ixj.c
+Message-ID: <20030225192339.GR7685@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Feb 2003, Roman Zippel wrote:
 
-> Hi,
-> 
-> On Tue, 25 Feb 2003, Richard B. Johnson wrote:
-> 
-> > In ../linux/include/asm/atomic.h, for versions 2.4.18 and
-> > above as far as I've checked, there are repeated warnings
-> > "Note that the guaranteed useful range of an atomic_t is
-> > only 24 bits."
-> > 
-> > I fail to see any reason why as atomic_t is typdefed to a
-> > volatile int which, on ix86 seems to be 32 bits.
-> > 
-> > Does anybody know if this is just some old comments from a
-> > previous atomic_t type of, perhaps, char[3]?  
-> 
-> include/asm-sparc/atomic.h
-> 
-> bye, Roman
-> 
-Thank you.
+I got the following compile error in 2.5.63:
+
+<--  snip  -->
+
+...
+  gcc -Wp,-MD,drivers/telephony/.ixj.o.d -D__KERNEL__ -Iinclude -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-pipe -mpreferred-stack-boundary=2 -march=k6 
+-Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    
+-DKBUILD_BASENAME=ixj -DKBUILD_MODNAME=ixj -c -o drivers/telephony/ixj.o 
+drivers/telephony/ixj.c
+drivers/telephony/ixj.c: In function `ixj_probe_isapnp':
+drivers/telephony/ixj.c:7720: too many arguments to function 
+`pnp_activate_dev'
+...
+make[2]: *** [drivers/telephony/ixj.o] Error 1
+
+<--  snip  -->
 
 
+The following patch fixes it:
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
 
+--- linux-2.5.63-notfull/drivers/telephony/ixj.c.old	2003-02-25 19:22:34.000000000 +0100
++++ linux-2.5.63-notfull/drivers/telephony/ixj.c	2003-02-25 19:23:01.000000000 +0100
+@@ -7717,7 +7717,7 @@
+ 				printk("pnp attach failed %d \n", result);
+ 				break;
+ 			}
+-			if (pnp_activate_dev(dev, NULL) < 0) {
++			if (pnp_activate_dev(dev) < 0) {
+ 				printk("pnp activate failed (out of resources?)\n");
+ 				pnp_device_detach(dev);
+ 				return -ENOMEM;
+
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267534AbTA3QHm>; Thu, 30 Jan 2003 11:07:42 -0500
+	id <S267535AbTA3QUv>; Thu, 30 Jan 2003 11:20:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267535AbTA3QHm>; Thu, 30 Jan 2003 11:07:42 -0500
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:5075 "EHLO
-	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S267534AbTA3QHl>; Thu, 30 Jan 2003 11:07:41 -0500
-Date: Thu, 30 Jan 2003 08:25:07 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: pci_set_mwi() ... why isn't it used more?
-To: Anton Blanchard <anton@samba.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Message-id: <3E3951E3.7060806@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-References: <3E2C42DF.1010006@pacbell.net> <20030120190055.GA4940@gtf.org>
- <3E2C4FFA.1050603@pacbell.net> <20030130135215.GF6028@krispykreme>
+	id <S267541AbTA3QUv>; Thu, 30 Jan 2003 11:20:51 -0500
+Received: from mail.interware.hu ([195.70.32.130]:18405 "EHLO
+	mail.interware.hu") by vger.kernel.org with ESMTP
+	id <S267535AbTA3QUu>; Thu, 30 Jan 2003 11:20:50 -0500
+Subject: Re: any brand recomendation for a linux laptop ?
+From: Hirling Endre <endre@interware.hu>
+To: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E36A91F.8F1168DB@cicese.mx>
+References: <200301161100.45552.Nicolas.Turro@sophia.inria.fr>
+	 <20030116113825.GB21239@codemonkey.org.uk>  <3E36A91F.8F1168DB@cicese.mx>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1043944207.4912.6.camel@dusk.interware.hu>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 30 Jan 2003 17:30:07 +0100
+Content-Transfer-Encoding: 7bit
+X-Scanner: exiscan *18eHZn-0000i8-00*LFkFT9MjFxs* (Interware Inc.)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard wrote:
->  
-> 
->>I suppose the potential for broken PCI devices is exactly why MWI
->>isn't automatically enabled when DMA mastering is enabled, though
->>I don't understand why the cacheline size doesn't get fixed then
->>(unless it's that same issue).  Devices can use the cacheline size
->>to get better Memory Read Line/Read Multiple" throughput; setting
->>it shouldn't be tied exclusively to enabling MWI.
-> 
-> 
-> There are a number of cases where we cant enable MWI either because
-> the PCI card doesnt support the CPU cacheline size or we have to set the
-> PCI card cacheline size to something smaller due to various bugs.
+On Tue, 2003-01-28 at 17:00, Serguei Miridonov wrote:
+> I'm writing this in Compaq Presario 900Z which seems to be similar to your Evo
+> 1015v. After installing RedHat 7.3 with nomce, nopci, etc. I've disabled kudzu and
+> then compiled 2.4.20+ac2+acpi-20021212-2.4.20 with sound and IDE fixes. Now I have
+> UDMA IDE, sound, and 802.11b with prism card (actually I'm writing this at home on
 
-At least the former case seems like it should be easily detectible.
-The cacheline setting "must" be supported (sez the PCI spec) if MWI
-can be enabled ... and may be supported in other cases too.
+What IDE controller is in the 900z? I have a fujitsu notebook with the
+igp320m chipset and ali southbridge and 2.5 can't do udma. 2.4 can but
+crashes often.
 
-
-> eg I understand earlier versions of the e100 dont support a 128 byte
-> cacheline (and the top bits are read only so setting it up for 128 bytes
-> will result in it it being set to 0). Not good for read multiple/line
-> and even worse if we decide to enable MWI :)
-
-At least on 2.5.59, the pci_generic_prep_mwi() code doesn't check
-for that type of error:  it just writes the cacheline size, and
-doesn't verify that setting it worked as expected.  Checking for
-that kind of problem would make it safer to call pci_set_mwi() in
-such cases ... e.g. using it on a P4 with 128 byte L1 cachelines
-would fail cleanly, while on an Athlon (64 byte L1) it might work
-(depending in which top bits are unusable).
-
-- Dave
+greetings
+endre
 
 

@@ -1,58 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262587AbTJTPRV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 11:17:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbTJTPRU
+	id S262648AbTJTPWk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 11:22:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262649AbTJTPWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 11:17:20 -0400
-Received: from www02.ies.inet6.fr ([62.210.153.202]:20114 "EHLO
-	smtp.ies.inet6.fr") by vger.kernel.org with ESMTP id S262587AbTJTPRT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 11:17:19 -0400
-Message-ID: <3F93FC7C.2090606@inet6.fr>
-Date: Mon, 20 Oct 2003 17:17:16 +0200
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: konsti@ludenkalle.de
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Mon, 20 Oct 2003 11:22:39 -0400
+Received: from [62.67.222.139] ([62.67.222.139]:30155 "EHLO mail.ku-gbr.de")
+	by vger.kernel.org with ESMTP id S262648AbTJTPWg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 11:22:36 -0400
+Date: Mon, 20 Oct 2003 17:22:35 +0200
+From: Konstantin Kletschke <konsti@ludenkalle.de>
+To: Meelis Roos <mroos@linux.ee>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Uncorrectable Error on IDE, significant accumulation
-References: <20031020132705.GA1171@synertronixx3> <E1ABaqY-0000jn-NG@rhn.tartu-labor> <20031020145316.GB593@synertronixx3>
-In-Reply-To: <20031020145316.GB593@synertronixx3>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20031020152235.GA815@synertronixx3>
+Reply-To: konsti@ludenkalle.de
+References: <20031020145316.GB593@synertronixx3> <Pine.GSO.4.44.0310201756190.1336-100000@math.ut.ee>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.44.0310201756190.1336-100000@math.ut.ee>
+X-PGP-Key: http://www.ludenkalle.de/konsti/pubkey.asc
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Konstantin Kletschke wrote the following on 10/20/2003 04:53 PM :
+On Mon, Oct 20, 2003 at 05:59:13PM +0300, Meelis Roos wrote:
+> 
+> Bad power supply can breaks disks like this. Bad mainborad or ide
 
->Can a bad Powersupply or weak mainboard create Uncorrectable Errors on
->HDDs? Again only a question to experience of this community...
->  
->
+OK, nice to know.
 
-It certainly can temporarily (under load).
+> cabling usually gives just CRC errors (like Abit KT7).
 
-Try offloading some power strain by removing some peripherals (CD-ROM, 
-non-mandatory disk drive) and see if it solves your problem.
+It is definately hardware.
 
-I might be mistaken (don't know the exact behavior of drive electronics) 
-but it seems unlikely that a bad PSU with underrated voltage could 
-damage a drive (overrated voltage is another matter). Usually under spec 
-PSUs fail to produce enough juice under load and the system simply 
-becomes unstable.
+> > So should I buy a new board or a new Powersupply...
+> 
+> Test it with a tester first, I would suggest.
 
-Best regards,
+You wont get fast transient power leakage with conventional
+measure-tools...
+
+You know what? I exchange Board AND PSU, I am too old for these copy
+actions with "UncorrectableError" all over my screen...
+One of these devices causes my HDDs break definately if I am seeing that
+right here...
+(my english becomes german, *lol*)
+
+Konsti
 
 -- 
-Lionel Bouton - inet6
----------------------------------------------------------------------
-   o              Siege social: 51, rue de Verdun - 92158 Suresnes
-  /      _ __ _   Acces Bureaux: 33 rue Benoit Malon - 92150 Suresnes
- / /\  /_  / /_   France
- \/  \/_  / /_/   Tel. +33 (0) 1 41 44 85 36
-  Inetsys S.A.    Fax  +33 (0) 1 46 97 20 10
- 
-
-
+2.6.0-test1-mm2
+Konstantin Kletschke <konsti@ludenkalle.de>, <konsti@ku-gbr.de>
+GPG KeyID EF62FCEF
+Fingerprint: 13C9 B16B 9844 EC15 CC2E  A080 1E69 3FDA EF62 FCEF
+keulator.homelinux.org up 56 min, 

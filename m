@@ -1,58 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291759AbSBXWvc>; Sun, 24 Feb 2002 17:51:32 -0500
+	id <S291741AbSBXWvM>; Sun, 24 Feb 2002 17:51:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291762AbSBXWvZ>; Sun, 24 Feb 2002 17:51:25 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:26117 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S291759AbSBXWvQ>; Sun, 24 Feb 2002 17:51:16 -0500
-Date: Sun, 24 Feb 2002 23:51:13 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: "David S. Miller" <davem@redhat.com>
-Cc: vojtech@suse.cz, paulus@samba.org, hozer@drgw.net,
-        dalecki@evision-ventures.com, torvalds@transmeta.com,
-        andre@linuxdiskcert.org, riel@conectiva.com.br,
-        linux-kernel@vger.kernel.org
-Subject: Re: Flash Back -- kernel 2.1.111
-Message-ID: <20020224235113.B2412@ucw.cz>
-In-Reply-To: <20020224231002.B2199@ucw.cz> <15481.26697.420856.1109@argo.ozlabs.ibm.com> <20020224233937.B2257@ucw.cz> <20020224.144423.104049454.davem@redhat.com>
+	id <S291759AbSBXWvH>; Sun, 24 Feb 2002 17:51:07 -0500
+Received: from aaf16.warszawa.sdi.tpnet.pl ([217.97.85.16]:58886 "EHLO
+	aaf16.warszawa.sdi.tpnet.pl") by vger.kernel.org with ESMTP
+	id <S291741AbSBXWus>; Sun, 24 Feb 2002 17:50:48 -0500
+Date: Sun, 24 Feb 2002 23:50:33 +0100
+From: Dominik Mierzejewski <dominik@aaf16.warszawa.sdi.tpnet.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Problem compiling (linking) linux-2.4.18-rc4
+Message-ID: <20020224225033.GB28657@rathann.rangers.eu.org>
+In-Reply-To: <200202242212.g1OMCQZ10840@ip68-4-73-243.oc.oc.cox.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020224.144423.104049454.davem@redhat.com>; from davem@redhat.com on Sun, Feb 24, 2002 at 02:44:23PM -0800
+In-Reply-To: <200202242212.g1OMCQZ10840@ip68-4-73-243.oc.oc.cox.net>
+User-Agent: Mutt/1.3.27i
+X-Linux-Registered-User: 134951
+X-Homepage: http://home.elka.pw.edu.pl/~dmierzej/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 24, 2002 at 02:44:23PM -0800, David S. Miller wrote:
+On Sunday, 24 February 2002, Meinhard E. Mayer wrote:
+> I got the following link error message when compiling linux-2.4.18-rc4 :
+[snip] 
+> Apparently the latest patch (rc3->rc4) messed something up in fs.
+> atomic_dec_and_loc occurs in 4 source files there.  
 
->    From: Vojtech Pavlik <vojtech@suse.cz>
->    Date: Sun, 24 Feb 2002 23:39:37 +0100
->    
->    > > happens if you plug in a 66MHz non-capable card to the 50 MHz bus.
->    > 
->    > The bus speed drops to 33MHz.
->    
->    Interesting. I'd expect 25 myself ... then we'll definitely need two
->    clock values in struct pci_bus - because the hi-speed one isn't always a
->    double the low one - as shown by your example.
-> 
-> You only need one, the current active one.
->
-> If you think that hot-plug is an issue, the arch dependant could would
-> need to recalculate the "current bus speed" and all would be fine.
-> 
-> So why do we need two values?
-
-Oh, you're right. We indeed need only one.
-
-Hmm, now hotplug changing the PCI clock would be quite a lot of fun -
-all running drivers will need to know about the change, because some may
-need to recompute the timings they have programmed into the chips ...
-
-Because virtually disconnecting and reconnecting all the cards for which
-the timings have changed will probably not be an option.
-
+No problems here. Which binutils version are you using?
+ 
 -- 
-Vojtech Pavlik
-SuSE Labs
+"The Universe doesn't give you any points for doing things that are easy."
+        -- Sheridan to Garibaldi in Babylon 5:"The Geometry of Shadows"
+Dominik 'Rathann' Mierzejewski <rathann(at)rangers.eu.org>

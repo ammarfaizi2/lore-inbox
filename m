@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286521AbSBIT5x>; Sat, 9 Feb 2002 14:57:53 -0500
+	id <S285424AbSBIUBN>; Sat, 9 Feb 2002 15:01:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285424AbSBIT5o>; Sat, 9 Feb 2002 14:57:44 -0500
-Received: from mail.cogenit.fr ([195.68.53.173]:33950 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S286521AbSBIT5j>;
-	Sat, 9 Feb 2002 14:57:39 -0500
-Date: Sat, 9 Feb 2002 20:57:34 +0100
-From: Francois Romieu <romieu@cogenit.fr>
-To: "Peter H. R?egg" <pruegg@eproduction.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with mke2fs on huge RAID-partition
-Message-ID: <20020209205734.A17825@fafner.intra.cogenit.fr>
-In-Reply-To: <3C640C90.E71E3F70@eproduction.ch> <E16ZFbD-0004TM-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16ZFbD-0004TM-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Feb 08, 2002 at 06:18:15PM +0000
-X-Organisation: Marie's fan club - II
+	id <S286161AbSBIUBD>; Sat, 9 Feb 2002 15:01:03 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24585 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S285424AbSBIUA4>; Sat, 9 Feb 2002 15:00:56 -0500
+Message-ID: <3C657FDF.5070605@zytor.com>
+Date: Sat, 09 Feb 2002 12:00:31 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011229
+X-Accept-Language: en-us, en, sv
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Andrew Morton <akpm@zip.com.au>, Hugh Dickins <hugh@veritas.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] BUG preserve registers
+In-Reply-To: <Pine.LNX.4.33.0202091335340.1196-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> :
-[...]
-> The limit is about 1Tb currently. You are hitting something else, perhaps
-> a driver or VM problem ?
+Linus Torvalds wrote:
 
-Promise driver + 2.4.17, see:
-Message-ID: <20020108003953.A16356@fafner.intra.cogenit.fr>
-Message-ID: <20020119230852.A18674@se1.cogenit.fr>
+> 
+> On Sat, 9 Feb 2002, Andrew Morton wrote:
+> 
+>>Is better, except the filename gets expanded multipe times into
+>>the object file.  How about:
+>>
+>>#define BUG()                   \
+>>        asm(    "ud2\n"         \
+>>                "\t.word %0\n"  \
+>>                "\t.long %1\n"  \
+>>                 : : "i" (__LINE__), "i" (__FILE__))
+>>
+> 
+> Even better.
+> 
+> That way you can actually totally remove the "verbose bug" config option,
+> because even the verbose BUG's aren't actually using up any noticeable
+> amounts of space.
+> 
+> This is all assuming that gcc doesn't create the string for inline
+> functions that aren't used, which it probably cannot, so maybe this
+> doesn't work out.
+> 
 
-                 | Intel | Promise
------------------+-------+--------
-raid1 creation   |  fast |  fast
-dd of=filesystem |  fast |  slow (*)
 
-mkfs doesn't behaves too badly but it did when I first tried to raid1 the 
-whole disks.
+Since gcc wouldn't even *see* a macro it didn't use, I find it hard to 
+imagine it would create anything.
 
-Raid1 is software only.
-As soon as a filesystem on the promise adapter comes into play, writes maxes 
-out at 2,5Mo/s. The previous machine (old PA2012 motherboard) with 8 times 
-less memory was able to stand 4~5Mo/s with vanilla broken kernel.
-Now it's running 2.4.18-pre3-ac2 but the behavior is the same with vanilla
-pre, vanilla + akpm ll, +ide patches. Feel free to ask if you want a test on a
-specific version. I have dedicated a partition on each disk for testing.
+However, you really want to do "asm volatile" rather than "asm"...
 
--- 
-Ueimor
+	-hpa
+
+

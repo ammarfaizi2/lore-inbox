@@ -1,48 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263499AbTC3CWE>; Sat, 29 Mar 2003 21:22:04 -0500
+	id <S263500AbTC3C1F>; Sat, 29 Mar 2003 21:27:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263500AbTC3CWE>; Sat, 29 Mar 2003 21:22:04 -0500
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:2491 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id <S263499AbTC3CWD>;
-	Sat, 29 Mar 2003 21:22:03 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Robert Love <rml@tech9.net>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: Bad interactive behaviour in 2.5.65-66 (sched.c)
-Date: Sun, 30 Mar 2003 12:33:03 +1000
-User-Agent: KMail/1.5
-Cc: Peter Lundkvist <p.lundkvist@telia.com>, akpm@digeo.com, mingo@elte.hu,
-       LKML <linux-kernel@vger.kernel.org>
-References: <3E8610EA.8080309@telia.com> <1048987260.679.7.camel@teapot> <1048989922.13757.20.camel@localhost>
-In-Reply-To: <1048989922.13757.20.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	id <S263501AbTC3C1F>; Sat, 29 Mar 2003 21:27:05 -0500
+Received: from mail207.mail.bellsouth.net ([205.152.58.147]:9449 "EHLO
+	imf43bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S263500AbTC3C1D>; Sat, 29 Mar 2003 21:27:03 -0500
+Subject: Re: 2.5 and modules ?
+From: Louis Garcia <louisg00@bellsouth.net>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: Maciej Soltysiak <solt@dns.toxicfilms.tv>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1048638632.1176.4.camel@teapot>
+References: <1048564993.2994.13.camel@tiger>
+	 <Pine.LNX.4.51.0303251219250.9373@dns.toxicfilms.tv>
+	 <1048636973.1569.20.camel@tiger>  <1048638632.1176.4.camel@teapot>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1048991950.1542.13.camel@tiger>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
+Date: 29 Mar 2003 21:39:10 -0500
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200303301233.03803.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 30 Mar 2003 12:05, Robert Love wrote:
-> On Sat, 2003-03-29 at 20:21, Felipe Alfaro Solana wrote:
-> > Theoretically, with interactivity enhancaments, you'll never need to
-> > renice X. In fact, I'm running X with no renice and it feels pretty
-> > snappy.
->
-> I know.
->
-> I was wondering, since we are working on an actual bug here, whether or
-> not renicing X is leading to a starvation issue between X and whatever
-> is starving.  I have seen it before.
->
-> My system is responsive, too, and I do not renice X.  But it might
-> help.  Or it might cause starvation issues.  We have a bug somewhere...
+One more question if you don't mind. These are the only errors I have
+left as boot. Are these not present in 2.5?
 
-Are you sure this should be called a bug? Basically X is an interactive 
-process. If it now is "interactive for a priority -10 process" then it should 
-be hogging the cpu time no? The priority -10 was a workaround for lack of 
-interactivity estimation on the old scheduler.
 
-Con
+Setting hostname tiger:                              [  OK  ]
+Initializing USB controller (usb-uhci):              [  OK  ]
+Mounting USB filesystem:                             [  OK  ]
+Initializing USB HID interface:                      [  OK  ]
+Initializing USB Keyboard: FATAL: Module keybdev not found.
+                                                     [ FAILED ]
+Initializing USB Mouse: FATAL: Module mousedev not found.
+                                                     [ FAILED ]
+
+--Lou
+
+
+On Tue, 2003-03-25 at 19:30, Felipe Alfaro Solana wrote:
+> On Wed, 2003-03-26 at 01:02, Louis Garcia wrote:
+> > Setting hostname tiger:                              [  OK  ]
+> > Initializing USB controller (usb-uhci): FATAL: Module usb_uhci
+> 
+> The USB UHCI module has been renamed. Now it's called uhci-hcd.ko. Make
+> sure the following line is present in "/etc/modprobe.conf":
+> 
+> alias usb-controller uhci-hcd
+> 
+> >  not found.                                          [ FAILED ]
+> > Mounting USB filesystem:                             [  OK  ]
+> > grep: /proc/bus/usb/drivers:  No such file or directory.
+> 
+> No more drivers in /proc/bus/usb.
+> 
+> > Mounting local filesystems:  mount: fs type ntfs not supported by
+> > kernel.  mount: fs type vfat not supported by kernel.
+> >                                                      [ FAILED ]
+> > 
+> > 
+> > I have built all required modules:
+> 
+> "cat /proc/sys/kernel/modprobe" should spit:
+> 
+>    /sbin/modprobe
+> 
+> Double check this... I found that rc.sysinit from RH8 and RH9 do
+> configure this to /sbin/true, thus invalidating dynamic kernel module
+> loading.
+> 
+> ________________________________________________________________________
+>         Felipe Alfaro Solana
+>    Linux Registered User #287198
+> http://counter.li.org
+> 
+

@@ -1,102 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261348AbUBZVUe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 16:20:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbUBZVUe
+	id S261208AbUBZVY6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 16:24:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbUBZVY6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 16:20:34 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:42436 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261348AbUBZVUa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 16:20:30 -0500
-From: Alexandre Oliva <aoliva@redhat.com>
-Subject: raid 5 with >= 5 members broken on x86
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, torvalds@osdl.org, arjanv@redhat.com, davej@redhat.com
-Date: 26 Feb 2004 15:36:10 -0300
-Organization: Red Hat Global Engineering Services Compiler Team
-Message-ID: <orznb5leqs.fsf@free.redhat.lsd.ic.unicamp.br>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Thu, 26 Feb 2004 16:24:58 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:393 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261208AbUBZVY4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 16:24:56 -0500
+Date: Thu, 26 Feb 2004 21:25:01 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Daniel McNeil <daniel@osdl.org>
+cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sync_sb_inodes sync hang
+In-Reply-To: <1077822584.1956.285.camel@ibm-c.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.44.0402262116390.21063-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Apologies if this is a dup (or a trip :-); I seem to be having
- trouble getting through the list spam filtering.  Too bad the failure
- is silent.]
+On 26 Feb 2004, Daniel McNeil wrote:
+> 
+> I tried the while loop below on a UP without PREEMPT and it has
+> not hung running 2.6.3-mm3 without your patch.
+> 
+> How long does it take to hang?
 
-There was a bug in the inline asm used to implement xor_p5_mmx_5.  It
-had pushes and pops although it took a +g operand.  It turned out
-that gcc chose to pass `lines' as an %esp+offset address.  With
-changes in esp, it wouldn't work.
+About 2 seconds.
 
-I suppose I could just change lines from +g to +r, like xor_pII_mmx_5,
-but avoiding the pushes and pops is more efficient, and making sure
-GCC doesn't get clever about sharing or reusing p4 and p5, it's just
-as safe.  This approach should probably be extended to the other uses
-of push and pop due to limitations in the number of operands.
+> Which file system?
 
-Yet another possibility is to just use +r for p4 and p5; this works in
-GCC 3.1 and above.  I wasn't sure the kernel was willing to require
-that, so I took the most conservative approach.
+ext2.
 
-Here's the patch.  More details at
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=116679
+(Of course my patch was very stupid one, merely allowing the
+busyloop to be broken into and eventually brought to an end:
+as I realized just after sending it, but knew I could rely
+on Andrew to see through its stupidity!)
 
-Here's the patch.
+Hugh
 
---- include/asm-i386/xor.h.orig	2004-02-26 15:13:03.000000000 -0300
-+++ include/asm-i386/xor.h	2004-02-26 15:18:20.000000000 -0300
-@@ -425,10 +425,28 @@
- 
- 	kernel_fpu_begin();
- 
--	/* need to save p4/p5 manually to not exceed gcc's 10 argument limit */
-+	/* GCC up to 3.0.x had this limitation of at most 10 asm
-+	   operands, and + operands counted as two (one input and one
-+	   output).  We unfortunately have to inform GCC that we're
-+	   modifying all of these registers.  The trick we use here is
-+	   to make sure the values of p4 and p5 are dissociated from
-+	   whatever other registers or stack locations they might have
-+	   been shared with, and make sure GCC knows they've been
-+	   modified after the asm statement.  This incurs no
-+	   additional costs and AFAICT is safe.
-+
-+	   Should it be found to not work, we'd have to resort to
-+	   passing to the asm statement a pointer to a stack save
-+	   area, and use that to preserve registers that had to be
-+	   marked as read only but that may have been clobbered, which
-+	   would impact performance without any actual advantage.
-+	   Note that we can't just push and pop the registers, because
-+	   this changes esp, and lines may be passed as an
-+	   esp-relative address.  Well, I suppose we could require
-+	   lines to be passed in a register...  -aoliva@redhat.com */
-+
-+	__asm__ ("" : "+r" (p4), "+r" (p5));
- 	__asm__ __volatile__ (
--	"	pushl %4\n"
--	"	pushl %5\n"        	
- 	" .align 32,0x90             ;\n"
- 	" 1:                         ;\n"
- 	"       movq   (%1), %%mm0   ;\n"
-@@ -487,12 +505,11 @@
- 	"       addl $64, %5         ;\n"
- 	"       decl %0              ;\n"
- 	"       jnz 1b               ;\n"
--	"	popl %5\n"
--	"	popl %4\n"
- 	: "+g" (lines),
- 	  "+r" (p1), "+r" (p2), "+r" (p3)
- 	: "r" (p4), "r" (p5)
- 	: "memory");
-+	__asm__ __volatile__ ("" : "+r" (p4), "+r" (p5));
- 
- 	kernel_fpu_end();
- }
+> On Tue, 2004-02-24 at 08:52, Hugh Dickins wrote:
+> > 2.6.3-mm UP without PREEMPT easily hangs looping around pdflush's
+> > sync_sb_inodes, failing the down_read_trylock in do_writepages,
+> > but giving the concurrent sync no chance to complete: just try
+> > while : ; do echo $SECONDS; sync; cp /etc/termcap .; done
+> > 
+> > I think sync_sb_inodes is the only loop vulnerable to that
+> > change in do_writepages, so site the cond_resched() here.
+> > 
+> > Hugh
+> > 
+> > --- 2.6.3-mm3/fs/fs-writeback.c	2004-02-23 12:51:49.000000000 +0000
+> > +++ linux/fs/fs-writeback.c	2004-02-24 16:14:49.000000000 +0000
+> > @@ -326,6 +326,7 @@ sync_sb_inodes(struct super_block *sb, s
+> >  			writeback_release(bdi);
+> >  		spin_unlock(&inode_lock);
+> >  		iput(inode);
+> > +		cond_resched();
+> >  		spin_lock(&inode_lock);
+> >  		if (wbc->nr_to_write <= 0)
+> >  			break;
 
--- 
-Alexandre Oliva   Enjoy Guarana', see http://www.ic.unicamp.br/~oliva/
-Happy GNU Year!                     oliva@{lsd.ic.unicamp.br, gnu.org}
-Red Hat GCC Developer                 aoliva@{redhat.com, gcc.gnu.org}
-Free Software Evangelist                Professional serial bug killer

@@ -1,66 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270009AbRIGAlP>; Thu, 6 Sep 2001 20:41:15 -0400
+	id <S270031AbRIGAq0>; Thu, 6 Sep 2001 20:46:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270031AbRIGAlG>; Thu, 6 Sep 2001 20:41:06 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:13504 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S270009AbRIGAkt>;
-	Thu, 6 Sep 2001 20:40:49 -0400
-From: David Mosberger <davidm@hpl.hp.com>
+	id <S270101AbRIGAqP>; Thu, 6 Sep 2001 20:46:15 -0400
+Received: from smtp-server2.tampabay.rr.com ([65.32.1.39]:56300 "EHLO
+	smtp-server2.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id <S270031AbRIGApz>; Thu, 6 Sep 2001 20:45:55 -0400
+Message-Id: <200109070046.f870kEM06465@smtp-server2.tampabay.rr.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Phillip Susi <psusi@cfl.rr.com>
+Reply-To: psusi@cfl.rr.com
+To: Robert Love <rml@tech9.net>
+Subject: Re: [PATCH] (Updated) Preemptible Kernel
+Date: Thu, 6 Sep 2001 20:39:25 +0000
+X-Mailer: KMail [version 1.3]
+In-Reply-To: <999813729.2039.9.camel@phantasy>
+In-Reply-To: <999813729.2039.9.camel@phantasy>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15256.6038.599811.557582@napali.hpl.hp.com>
-Date: Thu, 6 Sep 2001 17:40:54 -0700
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: David Mosberger <davidm@hpl.hp.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] proposed fix for ptrace() SMP race
-In-Reply-To: <20010907021900.L11329@athlon.random>
-In-Reply-To: <200109062300.QAA27430@napali.hpl.hp.com>
-	<20010907021900.L11329@athlon.random>
-X-Mailer: VM 6.76 under Emacs 20.4.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 7 Sep 2001 02:19:00 +0200, Andrea Arcangeli <andrea@suse.de> said:
+This sounds interesting, but am I correct in assuming that this only allows 
+preemption during code that is called from user space?  For instance, it 
+would be bad to preempt an ISR or BH, right?  Actually... what happens if 
+say, the kernel called from user space is holding a lock, and gets preempted? 
+ Is there a mechanism to disable preemption while holding locks or at other 
+resources that need to be freed before another task is run?
 
-  Andrea> Last time I checked for such race it was looking ok (on
-  Andrea> x86). Do you have a testcase to demonstrate it?
+By the way, are there any other 'modes of execution' for lack of a better 
+word, besides IRS, B, and.... 'called from user space', also for lack of a 
+better word.  Forgive me, I'm not that familiar with the Linux kernel yet.  
 
-For ia64, yes.  I didn't look at x86.  Other platforms may or may not
-be affected, that is true, but the races are so subtle, I'd rather
-make sure this problem cannot occur on any platform.
+On Thursday 06 September 2001 10:02 pm, Robert Love wrote:
+> Available at (about 29K):
+>
+> http://tech9.net/rml/linux/patch-rml-2.4.10-pre4-preempt-kernel-1
+> http://tech9.net/rml/linux/patch-rml-2.4.9-ac9-preempt-kernel-1
+>
+> for kernel 2.4.10-pre4 and 2.4.9-ac9, respectively.
+>
+> Changes since previous post:
+> * update for new kernels
+> * fix newline/space format buglet
+>
+> Changes since original patch:
+> * fix compile bug -- CONFIG_HAVE_DEC_LOCK is set as needed, now.
+>
+> This patch allows a new config setting, CONFIG_PREEMPT (set in
+> `Processor Type and Features') that enables a fully preemptible kernel.
+> Preemption is controled via SMP lock points.  Control of execution is
+> yielded to higher processes even if the currently running process is in
+> kernel space.
+>
+> This should increase response and decrease latency, and is a highly
+> recommended patch for real-time, audio, and embedded systems.  However,
+> it is recommended for anyone.  I use it on my everyday workstation.
+>
+> An interesting new article on a preemptible kernel in linux is available
+> at:
+>
+> http://www.linuxdevices.com/articles/AT5152980814.html
 
-  Andrea> but it cannot be running in "userspace" any longer once it
-  Andrea> is set to TASK_STOPPED which should be the _only_ thing we
-  Andrea> care in ptrace. If it's still running it's in its way to
-  Andrea> schedule() a few lines after the setting of tsk->state to
-  Andrea> TASK_STOPPED and that's ok for ptrace.
-
-Yes, the code running in schedule() is sufficient.  On ia64, what
-happened is that switch_to() may end up saving the floating-point
-registers f32-f127.  After doing so, it will set a bit in the thread
-flags and since this is done non-atomically (for good reason), it
-creates a race with the code in ptrace() which also updates the thread
-flags.
-
-  Andrea> abusing cpus_allowed to forbid scheduling is racy so quite
-  Andrea> unacceptable, we want to preserve the cpus_allowed field for
-  Andrea> the administrator (he could as well set it during the
-  Andrea> ptrace).
-
-As long as the CPU manipulates cpus_allowed in an atomic fashion (xchg
-or cmpxchg) this will be fine.  I'd argue it has to do this anyhow
-(unless a task is changing its own cpus_allowed field).
-
-If you don't like the cpus_allowed approach, please propose another
-solution that ensures that the task does not get woken up while ptrace
-is running.  I don't really care very much what the solution is, but I
-do want to make sure we can guarantee that the task does not start
-running while ptrace() is doing it's job.  Having to prove that race
-conditions in ptrace() are harmless is far too painful (and bound to
-be violated as code changes in the future...).
-
-	--david
+-- 
+--> Phill Susi

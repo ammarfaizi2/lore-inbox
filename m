@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262817AbULRCdj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262821AbULRCiq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262817AbULRCdj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 21:33:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262818AbULRCdj
+	id S262821AbULRCiq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 21:38:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262818AbULRCiq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 21:33:39 -0500
-Received: from thunk.org ([69.25.196.29]:53707 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S262817AbULRCdi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 21:33:38 -0500
-Date: Fri, 17 Dec 2004 21:33:35 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] debugfs for 2.6.10-rc3
-Message-ID: <20041218023335.GA19699@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, Greg KH <greg@kroah.com>,
-	linux-kernel@vger.kernel.org
-References: <20041216213645.GA9710@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041216213645.GA9710@kroah.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 17 Dec 2004 21:38:46 -0500
+Received: from smtp-out1.blueyonder.co.uk ([195.188.213.4]:45947 "EHLO
+	smtp-out1.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S262821AbULRCio (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 21:38:44 -0500
+Message-ID: <41C39833.40103@blueyonder.co.uk>
+Date: Sat, 18 Dec 2004 02:38:43 +0000
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+Reply-To: sboyce@blueyonder.co.uk
+Organization: blueyonder.co.uk
+User-Agent: Mozilla Thunderbird 1.0RC1 (X11/20041201)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc3 vs clock
+References: <41C3746D.8090308@blueyonder.co.uk> <200412171938.05269.gene.heskett@verizon.net>
+In-Reply-To: <200412171938.05269.gene.heskett@verizon.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Dec 2004 02:39:13.0613 (UTC) FILETIME=[C2BFA7D0:01C4E4AA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 16, 2004 at 01:36:45PM -0800, Greg KH wrote:
-> I've added debugfs to my bk driver tree (located at
-> bk://kernel.bkbits.net/gregkh/linux/driver-2.6) so it will show up in
-> the next -mm release.  
+Gene Heskett wrote:
+> On Friday 17 December 2004 19:06, Sid Boyce wrote:
+> 
+>>Bill Davidsen wrote:
+>>
+>>Gene Heskett wrote:
+>>
+>>clocks...
+>>
+>>Gene Heskett suggested I play around with tickadj and I found that a
+>>value of 9962 on this SuSE 9.2/XP3000+ has kept it rock solid over
+>>the last 4 days. On the x86_64 laptop with XP3000+-Mobile, it's
+>>never been out, both of them running 2.6.10-rc3 and using ntpd to
+>>keep in step. On the other box with Mandrake 10.1/XP2800+ and
+>>2.6.10-rc3, I had to set it to 9958. Something has definitely
+>>changed with 2.6.10-rc3.
+>>Regards
+>>Sid.
+> 
+> 
+> Thats not as far off as I was here Sid. I have to use 9926 on this
+> box, an XP2800 athlon with a gig of ram, and high mem turned on.
+> 
+> And your quoting mechanism in that MTA is broken Sid. :)
+> 
 
-Debugfs is a very natural name, but it will undoubtedly cause
-confusion since we already have debugfs(8) in e2fsprogs.  One is a
-filesystem, and the other is a user-mode command, so it's not a total
-name collision, but it could cause some communication mixups.  
-
-On the other hand, I couldn't think of a better name, so perhaps we
-should just live with it.  I did want to point out the potential
-problem now while there's still a chance to change it, though....
-
-						- Ted
+Quoting was done manually as I am not subscribed.
+Regards
+Sid.
+-- 
+Sid Boyce .... Hamradio G3VBV and keen Flyer
+=====LINUX ONLY USED HERE=====

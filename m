@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310366AbSCKSOC>; Mon, 11 Mar 2002 13:14:02 -0500
+	id <S310333AbSCKSRW>; Mon, 11 Mar 2002 13:17:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310333AbSCKSNy>; Mon, 11 Mar 2002 13:13:54 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:28938 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S310331AbSCKSNp>; Mon, 11 Mar 2002 13:13:45 -0500
-Date: Mon, 11 Mar 2002 19:04:33 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Jay Estabrook <Jay.Estabrook@compaq.com>
-Cc: Kurt Garloff <garloff@suse.de>, Jochen Friedrich <jochen@scram.de>,
-        linux-kernel@vger.kernel.org, Richard Henderson <rth@twiddle.net>
-Subject: Re: Busmaster DMA broken in 2.4.18 on Alpha
-Message-ID: <20020311190433.A16552@jurassic.park.msu.ru>
-In-Reply-To: <Pine.NEB.4.33.0203111049580.1675-100000@www2.scram.de> <20020311124511.J2346@nbkurt.etpnet.phys.tue.nl> <20020311171058.A9038@jurassic.park.msu.ru> <20020311100200.A1181@linux04.mro.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020311100200.A1181@linux04.mro.cpqcorp.net>; from Jay.Estabrook@compaq.com on Mon, Mar 11, 2002 at 10:02:00AM -0500
+	id <S310364AbSCKSRM>; Mon, 11 Mar 2002 13:17:12 -0500
+Received: from fmfdns01.fm.intel.com ([132.233.247.10]:5853 "EHLO
+	calliope1.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S310333AbSCKSRI>; Mon, 11 Mar 2002 13:17:08 -0500
+Message-ID: <59885C5E3098D511AD690002A5072D3C02AB7CCE@orsmsx111.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Wolly'" <wwolly@gmx.net>, acpi-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: [patch] minimal ACPI bugfix
+Date: Mon, 11 Mar 2002 10:17:05 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 11, 2002 at 10:02:00AM -0500, Jay Estabrook wrote:
-> There are ISA cards, regardless of what ISA bus machine they are
-> plugged into, that are able to generate only something less than
-> 32-bits worth of address.
+> From: Wolly [mailto:wwolly@gmx.net]
+> "Avoid creating multiple /proc entries when (buggy) ACPI
+> BIOS tables erroneously list both fixed- and generic-
+> feature buttons."
+> While the function already prints a disgnostic message 
+> on this and registers the new button dir in /proc, it fails to 
+> remove the old one. 
 
-Indeed, I missed that.
+> Patch is against 2.4.18 kernel;
+> patched file sm_osl.c is in drivers/acpi/ospm/button/
 
-> Since ISA devices don't have pci_dev structures, there's (currently)
-> no way to pass an ISA device-dependent DMA mask to the IOMMU routines.
-> Perhaps there needs to be an addition to the API that would allow
-> for this (pci_set_isa_device_dma_mask()) ???
+Hi Wolly,
 
-Yes, it would be nice to have something like this.
+ACPI development is happening out of the mainline for now, until it
+stabilizes. Please try the latest patches available at
+http://sf.net/projects/acpi . AFAIK the button thing is fixed in the latest
+ACPI patch, although the sysrq hookup feature is new, so that is definitely
+useful code, thanks.
 
-Another workaround also seems to be possible - for ISA devices
-use mask other than 0x00ffffff _only_ if we don't have working
-IOMMU. This doesn't help to get older Miatas work with such
-type of ISA cards though...
-
-Ivan.
+Regards -- Andy

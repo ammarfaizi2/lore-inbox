@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267692AbTBNPJR>; Fri, 14 Feb 2003 10:09:17 -0500
+	id <S268431AbTBNPJd>; Fri, 14 Feb 2003 10:09:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268422AbTBNPJR>; Fri, 14 Feb 2003 10:09:17 -0500
-Received: from zmamail01.zma.compaq.com ([161.114.64.101]:58885 "EHLO
-	zmamail01.zma.compaq.com") by vger.kernel.org with ESMTP
-	id <S267692AbTBNPJQ>; Fri, 14 Feb 2003 10:09:16 -0500
-Date: Fri, 14 Feb 2003 09:20:12 +0600
-From: steve cameron <steve.cameron@hp.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Accessing the same disk via multiple channels 
-Message-ID: <20030214032012.GA5481@zuul.cca.cpqcorp.net>
+	id <S268426AbTBNPJd>; Fri, 14 Feb 2003 10:09:33 -0500
+Received: from bitmover.com ([192.132.92.2]:50342 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S268422AbTBNPJb>;
+	Fri, 14 Feb 2003 10:09:31 -0500
+Date: Fri, 14 Feb 2003 07:19:20 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: David Dillow <dillowd@y12.doe.gov>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: 3Com 3cr990 driver release
+Message-ID: <20030214151920.GA3188@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	David Dillow <dillowd@y12.doe.gov>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linux-net@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+References: <3E4C9FAA.FC8A2DC7@y12.doe.gov> <1045233209.7958.11.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1045233209.7958.11.camel@irongate.swansea.linux.org.uk>
 User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Lars Marowsky-Bree (lmb@suse.de) wrote:
-
-> SuSE (Jens Axboe and myself) have also done work on the md multipathing,
-> supporting failover and load balancing and in general giving the code a rinse;
-> as well as extensions to mdadm to make them work.
+On Fri, Feb 14, 2003 at 02:33:30PM +0000, Alan Cox wrote:
+> On Fri, 2003-02-14 at 07:50, David Dillow wrote:
+> > There are a few issues with the firmware -- DMA to a 2 byte aligned address
+> > hangs the firmware, so we cannot easily align the IP header, and the firmware
+> > will always strip the VLAN tags on packet reception, regardless of our
+> > desires. I hope to work with 3Com to resolve these issues.
+> > 
+> > The code is available via BK at
+> > http://typhoon.bkbits.net/typhoon-2.4
+> > http://typhoon.bkbits.net/typhoon-2.5
 > 
-Yay!  We noticed that if a controller fails in such a way that
-no interrupts are generated then md driver doesn't notice anything is 
-wrong.  Commands don't fail, but don't complete either.  I played around with
-feature in the low level driver to periodically send a no-op command
-down to the controller and fail all outstanding commands and disable
-the controller if that command didn't come back pretty quickly, that 
-seemed to work pretty well in a failover type situation. 
-(Better than putting a timeout on every command.)  Also, md multipath 
-doesn't notice if the backup path has failed, to warn the user that 
-redundancy is no longer in effect.  (Though if you set up things so i/o 
-is going down both paths, not such a big deal, as md will notice.
-Probably you know all this already.
+> Would you care to make the patches available in a format those of us who
+> work on open source version control systems can use. Right now Mr McVoy
+> prohibits me from reviewing your patches.
 
-> The patches currently live at http://lars.marowsky-bree.de/dl/md-mp/
-> 
-> (And are included in SuSE's kernel release, of course ;-)
-> 
-> Currently, for 2.5 / 2.6, I think I really like the SCSI midlayer stuff. In
-> the past, I didn't, because it constrains everything to SCSI. But then,
-> everything so far _has_ been SCSI, except for weird arch stuff like s390(x)
-> DASDs ;-)
-
-Well, the cciss driver is not a SCSI driver (except for purpsoes of 
-tape drives & tape changers) and HP/Compaq has sold more than one 
-million of those controllers (does popularity mean they aren't 
-"weird"? :-), and we have mulitpath capable storage boxes they 
-can connect to.
-
--- steve
-
+That seems a bit extreme, Alan.  I don't recall prohibiting you from anything
+of the kind.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

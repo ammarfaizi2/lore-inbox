@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270576AbRHNLxV>; Tue, 14 Aug 2001 07:53:21 -0400
+	id <S270579AbRHNLvC>; Tue, 14 Aug 2001 07:51:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270577AbRHNLwg>; Tue, 14 Aug 2001 07:52:36 -0400
-Received: from alfik.ms.mff.cuni.cz ([195.113.19.71]:6404 "EHLO
+	id <S270577AbRHNLug>; Tue, 14 Aug 2001 07:50:36 -0400
+Received: from alfik.ms.mff.cuni.cz ([195.113.19.71]:27411 "EHLO
 	alfik.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S270581AbRHNLwN>; Tue, 14 Aug 2001 07:52:13 -0400
-Date: Sat, 11 Aug 2001 12:06:04 +0000
+	id <S270573AbRHNLuH>; Tue, 14 Aug 2001 07:50:07 -0400
+Date: Sat, 11 Aug 2001 12:10:55 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Mike Black <mblack@csihq.com>, tridge@valinux.com,
-        marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
-        riel@conectiva.com.br, Andrew Morton <andrewm@uow.edu.au>
-Subject: Re: 2.4.8preX VM problems
-Message-ID: <20010811120604.C35@toy.ucw.cz>
-In-Reply-To: <Pine.LNX.4.21.0108010504160.9379-100000@freak.distro.conectiva> <20010801105419.8F078424A@lists.samba.org> <020001c11a803297110@csihq.com> <01080120392200.00933@starship>
+To: Joshua Jore <moomonk@daisy-chan.org>
+Cc: Anton Altaparmakov <aia21@cus.cam.ac.uk>,
+        Helge Hafting <helgehaf@idb.hist.no>,
+        James Simmons <jsimmons@transvirtual.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [OT] DMCA loop hole
+Message-ID: <20010811121054.D35@toy.ucw.cz>
+In-Reply-To: <Pine.SOL.3.96.1010801120427.25852A-100000@libra.cus.cam.ac.uk> <Pine.BSO.4.33.0108010137240.7994-100000@aaieee.daisy-chan.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <01080120392200.00933@starship>; from phillips@bonn-fries.net on Wed, Aug 01, 2001 at 08:39:22PM +0200
+In-Reply-To: <Pine.BSO.4.33.0108010137240.7994-100000@aaieee.daisy-chan.org>; from moomonk@daisy-chan.org on Wed, Aug 01, 2001 at 01:44:25AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > I have come to the opinion that kswapd needs to be a little smarter
-> > -- if it doesn't find anything to swap shouldn't it go to sleep a
-> > little longer before trying again?  That way it could gracefully
-> > degrade itself when it's not making any progress.
-> >
-> > In my testing (on a dual 1Ghz/2G machine) the machine "locks up" for
-> > long periods of time while kswapd runs around trying to do it's
-> > thing. If I could disable kswapd I would just to test this.
+> You know, I've heard this arguement a few times in various contexts and
+> it's bothered me everytime. If a virus was designed with specific
+> properties that hinder unauthorized copyright infringement then attempts
+> to circumvent the limitations would be an example of DMCA circumvention.
 > 
-> Your wish is my command.  This patch provides a crude-but-effective 
-> method of disabling kswapd, using:
-> 
->   echo 1 >/proc/sys/kernel/disable_kswapd
-> 
-> I tested this with dbench and found it runs about half as fast, but 
-> runs.  This is reassuring because kswapd is supposed to be doing 
-> something useful.
+> This misses the whole point that in order to deliver the second and more
+> important part of the virus requires the author to self-identify to the
+> US federal government and somehow get them to prosecute the offender. Now
 
-Why not just killall -STOP kswapd?
-
-What is expected state of system without kswapd, BTW? Without kflushd, 
-I give up guaranteed time to get data safely to disk [and its usefull
-for spindown]. What happens without kswapd?
+Writing virus is not illegal (its just fine for educational purposes). Letting
+it into wild probably is. So maybe author _could_ identify to government if
+*he* did not sent virus in the wild.
 								Pavel
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,

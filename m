@@ -1,65 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261904AbUCGNEF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 08:04:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261915AbUCGNEF
+	id S261915AbUCGNO5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 08:14:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbUCGNO5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 08:04:05 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:17313 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261904AbUCGNEC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 08:04:02 -0500
-Subject: Re: External kernel modules, second try
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Andreas Gruenbacher <agruen@suse.de>, lkml <linux-kernel@vger.kernel.org>,
-       "kbuild-devel@lists.sourceforge.net" 
-	<kbuild-devel@lists.sourceforge.net>
-In-Reply-To: <20040307125348.GA2020@mars.ravnborg.org>
-References: <1078620297.3156.139.camel@nb.suse.de>
-	 <20040307125348.GA2020@mars.ravnborg.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-LeVtQ4ZMwCtcq1Cdo9IC"
-Organization: Red Hat, Inc.
-Message-Id: <1078664629.9812.1.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Sun, 07 Mar 2004 14:03:50 +0100
+	Sun, 7 Mar 2004 08:14:57 -0500
+Received: from 1-1-3-7a.rny.sth.bostream.se ([82.182.133.20]:32517 "EHLO
+	pc16.dolda2000.com") by vger.kernel.org with ESMTP id S261915AbUCGNO4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 08:14:56 -0500
+From: Fredrik Tolf <fredrik@dolda2000.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16459.8267.876074.457599@pc7.dolda2000.com>
+Date: Sun, 7 Mar 2004 14:14:51 +0100
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IP_TOS setsockopt filters away MinCost
+In-Reply-To: <20040306223450.1b569ad3.davem@redhat.com>
+References: <16458.44160.469394.230025@pc7.dolda2000.com>
+	<20040306223450.1b569ad3.davem@redhat.com>
+X-Mailer: VM 7.17 under Emacs 21.2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David S. Miller writes:
+ > On Sun, 7 Mar 2004 06:00:48 +0100
+ > Fredrik Tolf <fredrik@dolda2000.com> wrote:
+ > 
+ > > This didn't make sense to me. Is there some reason behind this, and
+ > > would someone like to explain it to me in that case? I just spent an
+ > > hour trying to debug my program to find it why it didn't want to set
+ > > minimal cost, while the other three TOS options worked.
+ > 
+ > Please read the diffserv RFCs for the current meanins of the TOS
+ > bits.
 
---=-LeVtQ4ZMwCtcq1Cdo9IC
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Well, I was thinking that it might be diffserv, but on the next line
+in that code, it checks the TOS precedence value, so I thought it
+can't be. Also, it only resets these bits for SOCK_STREAM sockets - it
+doesn't touch SOCK_DGRAMs. Is diffserv still somehow the reason behind
+it?
 
-
->=20
-> Could you explain what is the actually gain of using the
-> modversions file your patch creates. (modpost changes)
-
-distributions don't like to install the vmlinux since it's big(ish) and
-means customers need to download a new vmlinux at each kernel erratum.
-The same information is btw also present in System.map so imo the real
-solution is to make modpost use System.map instead ;)
-> > modules SUBDIRS=3D$PWD'' works against a read-only tree.
-> Agree - should be easy to test using a CD.
-> Are there an easy way to mount just a directory structure RO?
-
-not without making it a separate partition or loopback device.
-
-
---=-LeVtQ4ZMwCtcq1Cdo9IC
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBASx20xULwo51rQBIRAoxLAKCqLx/mgbNqmS9P0Z6jPQNCM4KhFwCdFFIW
-8BCs/sdPBhOrkkV2OzU1cX0=
-=5Olr
------END PGP SIGNATURE-----
-
---=-LeVtQ4ZMwCtcq1Cdo9IC--
+Fredrik Tolf
 

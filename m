@@ -1,40 +1,82 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315278AbSELCHo>; Sat, 11 May 2002 22:07:44 -0400
+	id <S315279AbSELCLk>; Sat, 11 May 2002 22:11:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315279AbSELCHn>; Sat, 11 May 2002 22:07:43 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11532 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315278AbSELCHn>;
-	Sat, 11 May 2002 22:07:43 -0400
-Date: Sun, 12 May 2002 03:07:42 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
-Subject: Re: fs/locks.c BKL removal
-Message-ID: <20020512030742.P32414@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <3CDC4037.8040104@us.ibm.com> <20020511204551.M32414@parcelfarce.linux.theplanet.co.uk> <3CDDC7F0.6010407@us.ibm.com>
+	id <S316295AbSELCLj>; Sat, 11 May 2002 22:11:39 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:58635 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S315279AbSELCLi>;
+	Sat, 11 May 2002 22:11:38 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@redhat.com>
+Subject: [patch] 2.4.19-pre8-ac2 kbuild 2.4 tmp_include_depends
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Date: Sun, 12 May 2002 12:11:24 +1000
+Message-ID: <20819.1021169484@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 11, 2002 at 06:40:00PM -0700, Dave Hansen wrote:
-> Do you really think a single lock is the way to go?  Maybe I'm just 
-> paranoid, but somebody is going to run into a locking bottleneck here 
-> eventually.  I also just don't like global locks.
+make clean dep works, make dep clean deletes the .tmp file created by
+make dep and complains 'no rule to make .tmp_include_depends'.  Change
+the filenames to avoid make clean and add them to mrproper.
 
-Well, we have a global entity being protected -- the file_lock_list.
-Clearly we don't want to use one of the existing per-inode semaphores
-since semaphores have a noted bad effect on both benchmarks and real-world
-scenarios.  And I don't think introducing a new per-inode lock would
-really be welcome.
+diff -urN 2.4.19-pre8-ac2/Makefile 2.4.19-pre8-ac2-test/Makefile
+--- 2.4.19-pre8-ac2/Makefile	Sun May 12 11:24:45 2002
++++ 2.4.19-pre8-ac2-test/Makefile	Sun May 12 12:00:26 2002
+@@ -226,6 +226,7 @@
+ # files removed with 'make mrproper'
+ MRPROPER_FILES = \
+ 	include/linux/autoconf.h include/linux/version.h \
++	tmp* \
+ 	drivers/net/hamradio/soundmodem/sm_tbl_{afsk1200,afsk2666,fsk9600}.h \
+ 	drivers/net/hamradio/soundmodem/sm_tbl_{hapn4800,psk4800}.h \
+ 	drivers/net/hamradio/soundmodem/sm_tbl_{afsk2400_7,afsk2400_8}.h \
+@@ -353,13 +354,13 @@
+ 
+ comma	:= ,
+ 
+-init/version.o: init/version.c include/linux/compile.h .tmp_include_depends
++init/version.o: init/version.c include/linux/compile.h tmp_include_depends
+ 	$(CC) $(CFLAGS) $(CFLAGS_KERNEL) -DUTS_MACHINE='"$(ARCH)"' -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) -c -o init/version.o init/version.c
+ 
+-init/main.o: init/main.c .tmp_include_depends
++init/main.o: init/main.c tmp_include_depends
+ 	$(CC) $(CFLAGS) $(CFLAGS_KERNEL) $(PROFILING) -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) -c -o $*.o $<
+ 
+-init/do_mounts.o: init/do_mounts.c .tmp_include_depends
++init/do_mounts.o: init/do_mounts.c tmp_include_depends
+ 	$(CC) $(CFLAGS) $(CFLAGS_KERNEL) $(PROFILING) -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) -c -o $*.o $<
+ 
+ fs lib mm ipc kernel drivers net: dummy
+@@ -386,7 +387,7 @@
+ modules: $(patsubst %, _mod_%, $(SUBDIRS))
+ 
+ .PHONY: $(patsubst %, _mod_%, $(SUBDIRS))
+-$(patsubst %, _mod_%, $(SUBDIRS)) : include/linux/version.h .tmp_include_depends
++$(patsubst %, _mod_%, $(SUBDIRS)) : include/linux/version.h tmp_include_depends
+ 	$(MAKE) -C $(patsubst _mod_%, %, $@) CFLAGS="$(CFLAGS) $(MODFLAGS)" MAKING_MODULES=1 modules
+ 
+ .PHONY: modules_install
+@@ -491,13 +492,13 @@
+ ifdef CONFIG_MODVERSIONS
+ 	$(MAKE) update-modverfile
+ endif
+-	(find $(TOPDIR) \( -name .depend -o -name .hdepend \) -print | xargs $(AWK) -f scripts/include_deps) > .tmp_include_depends
+-	sed -ne 's/^\([^ ].*\):.*/  \1 \\/p' .tmp_include_depends > .tmp_include_depends_1
+-	(echo ""; echo "all: \\"; cat .tmp_include_depends_1; echo "") >> .tmp_include_depends
+-	rm .tmp_include_depends_1
++	(find $(TOPDIR) \( -name .depend -o -name .hdepend \) -print | xargs $(AWK) -f scripts/include_deps) > tmp_include_depends
++	sed -ne 's/^\([^ ].*\):.*/  \1 \\/p' tmp_include_depends > tmp_include_depends_1
++	(echo ""; echo "all: \\"; cat tmp_include_depends_1; echo "") >> tmp_include_depends
++	rm tmp_include_depends_1
+ 
+-.tmp_include_depends: include/config/MARKER dummy
+-	$(MAKE) -r -f .tmp_include_depends all
++tmp_include_depends: include/config/MARKER dummy
++	$(MAKE) -r -f tmp_include_depends all
+ 
+ ifdef CONFIG_MODVERSIONS
+ MODVERFILE := $(TOPDIR)/include/linux/modversions.h
 
-> I'll ask our benchmarking team if they have test suites for file 
-> locking.  I crossing my fingers.
-
-Cool, thanks.
-
--- 
-Revolutions do not require corporate support.

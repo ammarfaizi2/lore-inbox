@@ -1,78 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289106AbSA3LRF>; Wed, 30 Jan 2002 06:17:05 -0500
+	id <S289120AbSA3Lme>; Wed, 30 Jan 2002 06:42:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289108AbSA3LQz>; Wed, 30 Jan 2002 06:16:55 -0500
-Received: from aboukir-101-2-1-easter.adsl.nerim.net ([62.4.19.191]:23170 "HELO
-	verveine") by vger.kernel.org with SMTP id <S289106AbSA3LQt>;
-	Wed, 30 Jan 2002 06:16:49 -0500
-Date: Wed, 30 Jan 2002 12:16:40 +0100
-From: "'Brugier Pascal'" <pbrugier@easter-eggs.com>
+	id <S289118AbSA3LmP>; Wed, 30 Jan 2002 06:42:15 -0500
+Received: from tangens.hometree.net ([212.34.181.34]:38282 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S289117AbSA3LmG>; Wed, 30 Jan 2002 06:42:06 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.14 cpqarray eepro100 ext3
-Message-ID: <20020130121640.A3571@easter-eggs.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020122145844.A622@easter-eggs.com> <000b01c1a34f$65e6e860$2a0110ac@netlinkaccess.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <000b01c1a34f$65e6e860$2a0110ac@netlinkaccess.com>; from akropel1@rochester.rr.com on Tue, Jan 22, 2002 at 09:16:34AM -0500
-X-Operating-System: Debian Gnu/Linux 2.4.14
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: A modest proposal -- We need a patch penguin
+Date: Wed, 30 Jan 2002 11:42:04 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <a38m6c$76d$1@forge.intermeta.de>
+In-Reply-To: <Pine.LNX.4.33.0201291603520.7176-100000@localhost.localdomain> <E16VYVH-0003x8-00@the-village.bc.nu> <20020129144753.D9149@suse.de>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1012390924 31483 212.34.181.4 (30 Jan 2002 11:42:04 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Wed, 30 Jan 2002 11:42:04 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 22, 2002 at 09:16:34AM -0500, Adam Kropelin wrote:
-> Brugier Pascal:
-> > Hi
-> > 
-> > I'm not on the mailling list can you CC'ed the answers/comments
-> > posted to the list in response to my posting? thank you.
-> > 
-> > I have a Compaq Prolient DL 360, 1 PIII 1 GHz, 2 scsi hd in Raid 1
-> > 2 ethernet controlers eepro100 (only one is used) and ext3 fs.
-> 
-> <snip>
-> 
-> > Invalid operand 00000 (i'm not sur about thenumber of 0 because
-> > someone else read for me and doesn't remember)
-> 
-> <snip>
-> 
-> Pascal,
-> 
-> I had this same problem on my home-grown server (i.e., not a Compaq)
-> running a Compaq Smart 221. It followed me across kernel versions and
-> across cpqarray driver versions. In my case it turned out to be bad RAM
-> in the server uncovered by memtest86. With new RAM it's now rock-solid
-> for me.
-> 
-> There is an updated version of cpqarray in 2.4.13-ac7 (not sure which
-> -ac it came in at, but that's the one I grabbed it from) which you can
-> copy directly into 2.4.17 if you want. I see slightly improved
-> performance with that update, though it was the RAM that actually solved
-> my issue. 
-> 
+Dave Jones <davej@suse.de> writes:
 
-Hi 
+> Now that we have an open development branch again, perhaps its
+> time for a lot of the things that have been proven stable in vendor
+> kernels for a long time to get a looksee in mainline.
+> Some things I feel will likely still be vendor-kernel only for some time.
+> And some of them, rightly so.
 
-I'm sur now that it's not a memory problem, i downgrad to 2.4.13
-and everything work fine.
+Bah. RedHat puts what? 120+? Patches into 2.2 (!) to ship their vendor
+kernel. And it is still much more stable than any 2.4 I've encountered
+till today.
 
-I'll send a new mail with more explications to the list (now i'd
-suscribe), to explain my problem and what i found (with from others 
-of course).
+I personally run a heavily patched 2.2 (+aa, +ide +reiser +ext3 +raid
+and so on) and still get uptimes on busy and heavily loaded servers
+(think newsserver with 50+ MBit/sec continous traffic. Think web
+accelerator for one of the busiest web sites in Germany. Think mail
+system for 1M users) far beyond 200 days uptime.
 
-Best regards
+Will these patches ever be integrated? No. And same will go to some
+sore spots of 2.4. Think RAID for 2.2. Think NFS for 2.2 where we
+almost had to strangle Alan just to put in the most obvious bug fixes
+from Trond :-) . In what? 2.2.16?
+
+Do we have NFSv3 over TCP (which is in the real world available for
+how many years?)? A really reliable IDE driver (Hi Andre :-) )? A raid
+code that won't stuble over recoverable SCSI errors? That does not
+interact badly with some FS types (and of course with those where RAID
+would be really interesting)?
+
+We have a kernel based Webserver. But not reliable media detection for
+run-of-the-mill network cards. Something which "that other OS" has
+since 1995.
+
+	Regards
+		Henning
 
 -- 
-Pascal Brugier
----------------------------------------------------------------
-Easter-eggs                               Spécialiste GNU/Linux
-44-46 rue de l'Ouest  -  75014 Paris  -  France  -  Métro Gaité
-Phone: +33 (0) 1 43 35 00 37    -    Fax: +33 (0) 1 43 35 00 76
-mailto:pbrugier@easter-eggs.com  -   http://www.easter-eggs.com
----------------------------------------------------------------
-709D77A2 -   ED24 4E29 E5B4 FDE7 56A4  352D F24E 7E68 709D 77A2
-_______________________________________________________________
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316088AbSEZNvG>; Sun, 26 May 2002 09:51:06 -0400
+	id <S316094AbSEZOKG>; Sun, 26 May 2002 10:10:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316089AbSEZNvE>; Sun, 26 May 2002 09:51:04 -0400
-Received: from waste.org ([209.173.204.2]:56737 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S316088AbSEZNvE>;
-	Sun, 26 May 2002 09:51:04 -0400
-Date: Sun, 26 May 2002 08:50:55 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Robert Schwebel <robert@schwebel.de>, <linux-kernel@vger.kernel.org>
+	id <S316096AbSEZOKF>; Sun, 26 May 2002 10:10:05 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:22793 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S316094AbSEZOKF>; Sun, 26 May 2002 10:10:05 -0400
+Date: Sun, 26 May 2002 16:09:46 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+To: yodaiken@fsmlabs.com
+cc: David Woodhouse <dwmw2@infradead.org>, Larry McVoy <lm@bitmover.com>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        Linus Torvalds <torvalds@transmeta.com>, Wolfgang Denk <wd@denx.de>,
+        linux-kernel@vger.kernel.org
 Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-In-Reply-To: <Pine.LNX.4.44.0205252116240.1028-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0205260053000.2614-100000@waste.org>
+In-Reply-To: <20020526072637.A18692@hq.fsmlabs.com>
+Message-ID: <Pine.LNX.4.21.0205261607470.17583-100000@serv>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 May 2002, Linus Torvalds wrote:
+Hi,
 
-> On Sat, 25 May 2002, Oliver Xymoron wrote:
-> >
-> > I'm sure you know this route is not very useful - there's practically
-> > nothing that we can push across the hard RT divide anyway. We can't do
-> > meaningful filesystem I/O, memory allocation, networking, or VM fiddling -
-> > what's left?
->
-> Atomic memory allocation, for one. Potentially very useful.
+On Sun, 26 May 2002 yodaiken@fsmlabs.com wrote:
 
-Dunno. That implies reservations on the Linux side - generally RT apps
-are going to be sensitive to memory exhaustion. Given that, it's easier
-just to budget for them all up front and carve that memory out at boot.
+> > It's been asserted that the patent licence requires that _all_ userspace 
+> > apps running on the system by GPL'd. Yet there are many Free Software 
+> > applications in a standard Linux distribution that are under 
+> > GPL-incompatible licences. Apache, xinetd, etc...
+> > 
+> > If that interpretation is true, it _would_ be a problem, and not just for 
+> > those trying to make money from it.
+> 
+> That interpretation is not just false, it is silly.
 
-Not that I'm against a reservation scheme.  I've been arguing for one for
-a while to avoid deadlocks with network storage.
+Then why don't you specify in the license what "use of the Patented
+Process" means?
 
-> > Cleaning up soft RT latencies will make the vast majority of people who
-> > think they want hard RT happy anyway.
->
-> I certainly personally agree with you, but the hard-liners don't.
-
-Making subsystems of the kernel RT-safe won't buy much for them and won't
-help latencies. The people who would want you to do that are from the
-buzzword camp.
-
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+bye, Roman
 

@@ -1,82 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261509AbSJYSLR>; Fri, 25 Oct 2002 14:11:17 -0400
+	id <S261527AbSJYSP5>; Fri, 25 Oct 2002 14:15:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261514AbSJYSLR>; Fri, 25 Oct 2002 14:11:17 -0400
-Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:28596
-	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
-	id <S261509AbSJYSLQ>; Fri, 25 Oct 2002 14:11:16 -0400
-From: Tim Hockin <thockin@hockin.org>
-Message-Id: <200210251817.g9PIHTw02950@www.hockin.org>
-Subject: Re: [BK PATCH 1/4] fix NGROUPS hard limit (resend)
-To: jw@pegasys.ws (jw schultz)
-Date: Fri, 25 Oct 2002 11:17:29 -0700 (PDT)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <20021025124901.GE10440@pegasys.ws> from "jw schultz" at Oct 25, 2002 05:49:01 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S261528AbSJYSP5>; Fri, 25 Oct 2002 14:15:57 -0400
+Received: from freeside.toyota.com ([63.87.74.7]:31666 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP
+	id <S261527AbSJYSP4>; Fri, 25 Oct 2002 14:15:56 -0400
+Message-ID: <3DB98BA9.6070105@lexus.com>
+Date: Fri, 25 Oct 2002 11:21:29 -0700
+From: J Sloan <jjs@lexus.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020913
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Daniel Egger <degger@fhm.edu>
+CC: hps@intermeta.de, linux-kernel@vger.kernel.org
+Subject: [OT] Re: One for the Security Guru's
+References: <20021023130251.GF25422@rdlg.net>	<1035411315.5377.8.camel@god.stev.org>  <ap8fjq$8ia$1@forge.intermeta.de> <1035500731.439.4.camel@sonja.de.interearth.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	example group file extract:
-> 		webroot:x:103:www,jim,joy
-> 		custadm:x:140:%webroot,bob,carol,ted,alice
-> 		webcusts:x:1000:%webcust1,%webcust2,%webcust3
-> 		webcust1:x:1001:%custadm,%custwebs,Matt,Christoph
-> 		webcust2:x:1002:%custadm,%custwebs,Suparna,Aaron,Tim
-> 		webcust3:x:1003:%custadm,%custwebs,Randal,Jesse
+It certainly seems that taking down a server
+to do a reinstall is fairly catastrophic compared
+to the mere possibility of running X11 -
 
-I've always wanted something like this.  It really is not too difficult to
-do, but it is entirely a library problem.
+MfG,
 
-> 	Now, changing it at this level would require that
-> 	the libs be updated (but so would infinite groups)
-> 	and a way to inform the kernel of the nested group
-> 	memberships.
+Jup
 
-unlimited groups requires a TRIVIAL change to libc.
+Daniel Egger wrote:
 
-> 	For informing the kernel i lean toward a sysfs
-> 	interface fed by a user-space utility that would
-> 	build or update a pinned table.  The in-kernel group
-> 	lists would be unrolled (per the example
-> 	webroot=custadm,webcust1,webcust2,webcust3)
+>Am Don, 2002-10-24 um 11.47 schrieb Henning P. Schmiedehausen:
+>
+>  
+>
+>>Sheesh, some even install a full desktop with "[gnome|kde]-games" on a
+>>server. What is this? Microsoft Windows <insert your poison here>" ?
+>>    
+>>
+>
+>Don't laugh; I had such a box reinstalled from ground just the day
+>before yesterday because I found a RedHat full Install on it. Not to
+>mention that there're "admins" out there who use GNOME as root on a
+>fairly busy mailserver <shudder>...
+>
+>  
+>
 
-gahh..Why does the kernel need to know about a group and members?  At login
-time (or rather, setgroups() time, likely login, but could be other)
-getgrent() or whatnot does a full expansion on the nested group file
-(handling recursion properly!).  You call setgroups() with the full list of
-GIDs for your user.  The kernel should not know about a group beyond a GID,
-unless we're talking about vastly different semantics than traditional users
-and groups.
-
-> 	There would be problems with existing utilities due
-
-problems with things that parse /etc/group.  Not problems with things that
-use the getgr*() functions.
-
-> 	It also provides a way to have 400 (out of 16000)
-> 	users in a group without infinite line length in
-> 	/etc/group.
-
-Line length is/was an real issue.  Last I tried to do something like having
-5000 users in a group, libc would not parse it.  Can't say I've tried
-lately.  That, however, is another purely library problem.
-
-> The important thing either way would be that you would save
-> on memory for group lists and it would work over NFS without
-> a protocol change.
-
-No, it wouldn't work on NFS except to another system which understands this
-scheme.  The patch I proposed uses CoW grouplists.  This is good
-enough for the vast majority of cases - not too many apps call setgroups()
-themselves, being a restricted syscall, and all that.
-
-> I've actually wanted the nested group memberships for a long
-> time.
-
-So have I, but it is a different problem...Patches should be sent to
-glibc developers.
 

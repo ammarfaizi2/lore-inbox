@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319799AbSIMVbv>; Fri, 13 Sep 2002 17:31:51 -0400
+	id <S319794AbSIMV2a>; Fri, 13 Sep 2002 17:28:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319800AbSIMVbv>; Fri, 13 Sep 2002 17:31:51 -0400
-Received: from holomorphy.com ([66.224.33.161]:9685 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S319799AbSIMVbu>;
-	Fri, 13 Sep 2002 17:31:50 -0400
-Date: Fri, 13 Sep 2002 14:30:42 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@digeo.com>, Dave Hansen <haveblue@us.ibm.com>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] per-zone kswapd process
-Message-ID: <20020913213042.GD3530@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@digeo.com>,
-	Dave Hansen <haveblue@us.ibm.com>,
-	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <3D815C8C.4050000@us.ibm.com> <3D81643C.4C4E862C@digeo.com> <20020913045938.GG2179@holomorphy.com> <1031922352.9056.14.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <1031922352.9056.14.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S319796AbSIMV2a>; Fri, 13 Sep 2002 17:28:30 -0400
+Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:42645 "EHLO
+	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S319794AbSIMV23>; Fri, 13 Sep 2002 17:28:29 -0400
+Date: Fri, 13 Sep 2002 18:33:04 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Pavel Machek <pavel@ucw.cz>
+cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Good way to free as much memory as possible under 2.5.34?
+In-Reply-To: <20020913212921.GA17627@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.44L.0209131830560.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-09-13 at 05:59, William Lee Irwin III wrote:
->> Machines without observable NUMA effects can benefit from it if it's
->> per-zone. It also follows that if there's more than one task doing this,
->> page replacement is less likely to block entirely. Last, but not least,
->> when I devised it, "per-zone" was the theme.
+On Fri, 13 Sep 2002, Pavel Machek wrote:
 
-On Fri, Sep 13, 2002 at 02:05:52PM +0100, Alan Cox wrote:
-> It will also increase the amount of disk head thrashing surely ?
+> Allocating memory is pain because I have to free it afterwards. Yep I
+> have such code, but it is ugly. try_to_free_pages() really seems like
+> cleaner solution to me... if you only tell me how to fix it :-).
 
-I doubt it. Writeout isn't really supposed to happen there in 2.4
-either, except under duress. OTOH I've not been doing much with this
-directly since rmap10c.
+"Fixing" the VM just so it behaves the way swsuspend wants is
+out. If swsuspend relies on all other subsystems playing nicely,
+I think it should be removed from the kernel.
 
+I suspect only very few people will use swsuspend, so it should
+not be intrusive.
 
-Cheers,
-Bill
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Spamtraps of the month:  september@surriel.com trac@trac.org
+

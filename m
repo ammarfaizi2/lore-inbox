@@ -1,45 +1,91 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316167AbSEJXe2>; Fri, 10 May 2002 19:34:28 -0400
+	id <S316168AbSEJXp1>; Fri, 10 May 2002 19:45:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316168AbSEJXe1>; Fri, 10 May 2002 19:34:27 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:33241 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S316167AbSEJXe0>;
-	Fri, 10 May 2002 19:34:26 -0400
-Date: Fri, 10 May 2002 16:34:24 -0700
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: jt@hpl.hp.com, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        irda-users@lists.sourceforge.net,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] : ir253_smc_msg.diff
-Message-ID: <20020510163424.A14554@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-In-Reply-To: <20020510154108.B14407@bougret.hpl.hp.com> <3CDC4648.207@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S316169AbSEJXp1>; Fri, 10 May 2002 19:45:27 -0400
+Received: from 212.Red-80-35-44.pooles.rima-tde.net ([80.35.44.212]:21390 "EHLO
+	DervishD.viadomus.com") by vger.kernel.org with ESMTP
+	id <S316168AbSEJXp0>; Fri, 10 May 2002 19:45:26 -0400
+Date: Sat, 11 May 2002 01:50:21 +0200
+Organization: ViaDomus
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Subject: Re: mmap() doesn't like certain value...
+Cc: marcelo@conectiva.com.br, Linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <3CDC5CBD.mail72C11PGID@viadomus.com>
+In-Reply-To: <3CD983C5.mail1K71EX1NG@viadomus.com>
+ <200205100810.g4A8AaX28554@Port.imtp.ilyichevsk.odessa.ua>
+ <3CDB8740.mailBO1BW5NO@viadomus.com>
+ <200205101438.g4AEc9X29850@Port.imtp.ilyichevsk.odessa.ua>
+User-Agent: nail 9.29 12/10/01
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+From: DervishD <raul@viadomus.com>
+Reply-To: DervishD <raul@viadomus.com>
+X-Mailer: DervishD TWiSTiNG Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 11, 2002 at 12:14:32AM +0200, Martin Dalecki wrote:
-> Uz.ytkownik Jean Tourrilhes napisa?:
+    Hi Denis and Marcelo :)
 
-	Qu'est ce que ca veux dire ?
+>>     And is corrected just by inverting the two quoted code snips :)
+>You are right
 
-> Should read:
->    +     IRDA_DEBUG(0, "%s (), releasin.... ", __FUNCTION__,
-> 
-> due to the fact that newer versions of GCC will be more standard
-> aheren. Well the motivation is to coalesce all the places
-> where __FUNCTION__ is used in to one instance of the corresponding
-> string only.
+    I've added a couple of comments and one more test. I don't think
+that mmap() should return 'addr' when len=0. Moreover, mmap() cannot
+return '0' under *any* circumstance (so says the man page).
 
-	Don't mention it. The IrDA code is full of it :-( If you want
-to fix that, be my guest...
+    I've tested the patch with a little program to test every
+possible 'len' value and checking for mmap() returning the correct
+value.
 
-	Jean
+    This is the patch:
+
+--- begin ---
+
+--- mm/mmap.c.orig	2002-05-10 10:40:51.000000000 +0200
++++ mm/mmap.c	2002-05-10 10:47:54.000000000 +0200
+@@ -389,6 +389,11 @@
+ 	return 0;
+ }
+ 
++
++/*
++	NOTE: in this function we rely on TASK_SIZE being lower than
++SIZE_MAX-PAGE_SIZE at least. I'm pretty sure that it is.
++*/
+ unsigned long do_mmap_pgoff(struct file * file, unsigned long addr, unsigned long len,
+ 	unsigned long prot, unsigned long flags, unsigned long pgoff)
+ {
+@@ -402,12 +407,11 @@
+ 	if (file && (!file->f_op || !file->f_op->mmap))
+ 		return -ENODEV;
+ 
+-	if ((len = PAGE_ALIGN(len)) == 0)
+-		return addr;
+-
+-	if (len > TASK_SIZE)
++	if (!len || len > TASK_SIZE)
+ 		return -EINVAL;
+ 
++	len = PAGE_ALIGN(len);  /* This CANNOT be zero */
++
+ 	/* offset overflow? */
+ 	if ((pgoff + (len >> PAGE_SHIFT)) < pgoff)
+ 		return -EINVAL;
+
+--- end ---
+
+>>     I'll give a try to the inversion, that should work. I have
+>> written a small stress program for mmap, so in a few hours the patch
+>> will be ready. Must I post it here or send it directly to Marcello?
+>Post here and to Marcelo. BTW, is 2.5 affected?
+
+    I don't really know, but I'm pretty sure... Anyway I think that
+the same patch is valid for both kernels with little or no
+modification.
+
+    BTW, the patch is not only mine, David Gómez Espinosa
+(davidge@viadomus.com) has helped me with this issue too.
+
+    Raúl

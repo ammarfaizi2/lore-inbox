@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261170AbUBZWTH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 17:19:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbUBZWTH
+	id S261184AbUBZW1H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 17:27:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbUBZW1H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 17:19:07 -0500
-Received: from mail010.syd.optusnet.com.au ([211.29.132.56]:54224 "EHLO
-	mail010.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261170AbUBZWTE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 17:19:04 -0500
-From: Peter Chubb <peter@chubb.wattle.id.au>
+	Thu, 26 Feb 2004 17:27:07 -0500
+Received: from fw.osdl.org ([65.172.181.6]:34476 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261210AbUBZW0z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 17:26:55 -0500
+Date: Thu, 26 Feb 2004 14:32:37 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alexandre Oliva <aoliva@redhat.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, arjanv@redhat.com, davej@redhat.com,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: raid 5 with >= 5 members broken on x86
+In-Reply-To: <or1xohpjzn.fsf@free.redhat.lsd.ic.unicamp.br>
+Message-ID: <Pine.LNX.4.58.0402261426460.7830@ppc970.osdl.org>
+References: <orznb5leqs.fsf@free.redhat.lsd.ic.unicamp.br>
+ <Pine.LNX.4.58.0402261329450.7830@ppc970.osdl.org> <or1xohpjzn.fsf@free.redhat.lsd.ic.unicamp.br>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16446.28626.290987.585867@wombat.chubb.wattle.id.au>
-Date: Fri, 27 Feb 2004 09:14:42 +1100
-To: Kingsley Cheung <kingsley@aurema.com>
-Cc: Andrew Morton <akpm@osdl.org>, davidm@hpl.hp.com, davidm@napali.hpl.hp.com,
-       peter@chubb.wattle.id.au, linux-kernel@vger.kernel.org,
-       Daniel Jacobowitz <dan@debian.org>
-Subject: Re: /proc visibility patch breaks GDB, etc.
-In-Reply-To: <20040227085941.A21764@aurema.com>
-References: <16445.37304.155370.819929@wombat.chubb.wattle.id.au>
-	<20040225224410.3eb21312.akpm@osdl.org>
-	<16446.19305.637880.99704@napali.hpl.hp.com>
-	<20040226120959.35b284ff.akpm@osdl.org>
-	<20040227085941.A21764@aurema.com>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Kingsley" == Kingsley Cheung <kingsley@aurema.com> writes:
 
-Kingsley> On Thu, Feb 26, 2004 at 12:09:59PM -0800, Andrew Morton
-Kingsley> wrote:
 
-Kingsley> The patch that broke backwards compatibility for GDB
-Kingsley> likewise changed that.  It enforces that tid must be a part
-Kingsley> of the pid thread group.
+On Thu, 26 Feb 2004, Alexandre Oliva wrote:
+> 
+> There's a reason why I added both asms, one with volatile and one
+> without.  I know what I'm doing.  I even tried to explain it in the
+> comments.  Did you read them?  Let me try again.
 
-For what it's worth, the patch also breaks JVM 1.4re2.
+Ok, I'll buy it.
 
-Peter C
+> > There is nothing to say that gcc wouldn't do a re-load or something
+> > in between, so you really need to tell the _first_ ask about it.
+> 
+> The only other reload it could do is an input reload of p4 and p5,
+> which, again, doesn't matter, because p4 and p5 are dead anyway.
+
+Ok. That's the missing piece. The thing is wrong, but we don't care, 
+because even if gcc saves the old values for some silly reload, they're 
+dead and uninteresting.
+
+Ok. I did the silly one-liner, but if the "don't care" approach really 
+improves code generation, feel free to send one that fixes both the P5 and 
+PII cases..
+
+		Linus

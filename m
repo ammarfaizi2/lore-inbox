@@ -1,63 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312834AbSDBJgF>; Tue, 2 Apr 2002 04:36:05 -0500
+	id <S312839AbSDBKvc>; Tue, 2 Apr 2002 05:51:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312836AbSDBJfz>; Tue, 2 Apr 2002 04:35:55 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:15118 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S312834AbSDBJfo>; Tue, 2 Apr 2002 04:35:44 -0500
-Message-ID: <3CA97B1A.13E6765D@aitel.hist.no>
-Date: Tue, 02 Apr 2002 11:34:18 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.7 i686)
-X-Accept-Language: no, en, en
+	id <S312841AbSDBKvN>; Tue, 2 Apr 2002 05:51:13 -0500
+Received: from ns1.advfn.com ([212.161.99.144]:44806 "EHLO mail.advfn.com")
+	by vger.kernel.org with ESMTP id <S312839AbSDBKvK>;
+	Tue, 2 Apr 2002 05:51:10 -0500
+Message-Id: <200204021051.g32Ap6s12049@mail.advfn.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Tim Kay <timk@advfn.com>
+Reply-To: timk@advfn.com
+Organization: Advfn.com
+To: linux-kernel@vger.kernel.org
+Subject: What am I losing with noapic
+Date: Tue, 2 Apr 2002 10:53:08 +0000
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, linux-kernel@vger.kernel.org
-Subject: Re: [Q] FAT driver enhancement
-In-Reply-To: <20020328135555.U6796-100000@snail.stack.nl> <871ye479sz.fsf@devron.myhome.or.jp>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi wrote:
-> 
-> Jos Hulzink <josh@stack.nl> writes:
-> 
-> > Hi,
-> >
-> > A while ago I initiated a thread about mounting a NTFS partition as FAT
-> > partition. The problem is that FAT partitions do not have a real
-> > fingerprint, so the FAT driver mounts almost anything.
-> >
-> > The current 2.5 driver only tests if some values in the bootsector are
-> > non-zero. IMHO, this is not strict enough. For example, the number of FATs
-> > is always 1 or 2 (anyone ever seen more ?). Besides, when there are two
-> > FATs, all entries in those FATs should be equal. If they are not, we deal
-> > with a non-FAT or broken FAT partition, and we should not mount.
-> >
-> > It's not a real fingerprint, but what are the chances all sectors of what
-> > we think is the FAT are equal on non-FAT filesystems ? Yes, when you just
-> > did a
-> >
-> > dd if=/dev/zero of=/dev/partition; mkfs.somefs /dev/partition
-> >
-> > there is a chance, but that's an empty filesystem. Data corruption isn't
-> > that bad on an empty disk. We know that a FAT is at the beginning of a
-> > partition and I assume that any other filesystem will fill up those first
-> > sectors very soon.
-> >
-> > Questions:
-> >
-> > 1) How do you think about the checking of the FAT tables ? It definitely
-> >    will slow down the mount.
-> 
-> Unfortunately if FAT table has bad sector, FAT tables may not be the
-> same.
+Hi all,
+	Does anyone know what I'm actually losing with having to set noapic on 
+bootup? I mean in real terms how much harder / slower is an SMP machine 
+working when it's doing standard multi-bus xt polling compared to when it's 
+in APIC poll state. I appreciate that there can be a reduction in interrupt 
+response latency using the damn thing but is this a measurable amount given a 
+machine processing about 1200 interrupts/sec? (this figure is a sum rather 
+than per processor). As an added complication how do I get around interrupt 
+routing conflicts in noapic mode and do the 'routing conflict for xx:xx:xx 
+have X want Y' messages make any difference to this performance?
 
-And then you don't want to mount unless you know what you
-are doing.  And those knowing what they are doing can be bothered
-to use some kind of "force" option in this case.  Or perhaps an
-option that selects which FAT to trust.
+	A useful URL (I couldn't find any) or reference would suffice if this is too 
+invloved or boring a topic to explain easily.
 
-Helge Hafting
+TIA
+
+Tim
+
+-- 
+----------------
+Tim Kay
+systems administrator
+Advfn.com Plc - http://www.advfn.com/

@@ -1,22 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbULCWrL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262503AbULCWsK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262453AbULCWrL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 17:47:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbULCWrK
+	id S262503AbULCWsK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 17:48:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbULCWru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 17:47:10 -0500
-Received: from fw.osdl.org ([65.172.181.6]:11463 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262450AbULCWqo (ORCPT
+	Fri, 3 Dec 2004 17:47:50 -0500
+Received: from fw.osdl.org ([65.172.181.6]:19143 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262457AbULCWr0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 17:46:44 -0500
-Date: Fri, 3 Dec 2004 14:50:56 -0800
+	Fri, 3 Dec 2004 17:47:26 -0500
+Date: Fri, 3 Dec 2004 14:51:40 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: franz_pletz@t-online.de (Franz Pletz)
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org, ludoschmidt@web.de
+To: franz_pletz@t-online.de, axboe@suse.de, linux-kernel@vger.kernel.org,
+       ludoschmidt@web.de
 Subject: Re: [PATCH] loopback device can't act as its backing store
-Message-Id: <20041203145056.541308d1.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0412032028220.10184@sgx.home>
+Message-Id: <20041203145140.002e338f.akpm@osdl.org>
+In-Reply-To: <20041203145056.541308d1.akpm@osdl.org>
 References: <Pine.LNX.4.61.0412032028220.10184@sgx.home>
+	<20041203145056.541308d1.akpm@osdl.org>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,88 +25,91 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-franz_pletz@t-online.de (Franz Pletz) wrote:
+Andrew Morton <akpm@osdl.org> wrote:
 >
-> The patch below fixes a bug in loop which apparently causes the kernel to call
-> the initialization routine of a loopback device recursively while trying to set
-> the backing store to the loopback device it's being mapped to.
-
-Your patch addresses direct loop0-on-loop0 recursion, but does it fix the
-more complex loop-stacks which Chris Spiegel identified?
-
-I don't think there's any actual infinite recursion in Chris's example - in
-his case we simply stacked loop deveces too deep.  But a fix for Chris's
-scenario will also fix the one which you identify, I think.  Andries posted
-such a patch but I have not yet got around to looking at it.
-
+> Andries posted such a patch
 
 
 
 Begin forwarded message:
 
-Date: Fri, 12 Nov 2004 02:49:34 -0800
-From: Chris Spiegel <lkml@happyjack.org>
-To: linux-kernel@vger.kernel.org
-Subject: Oops with loop devices on 2.6.9
+Date: Sun, 14 Nov 2004 23:31:21 +0100 (MET)
+From: <Andries.Brouwer@cwi.nl>
+To: akpm@osdl.org, lkml@happyjack.org, torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH?] prevent loop infinite recursion
 
 
-Hi,
-  While playing around with loop mounts on kernel 2.6.9 I managed to get
-a kernel panic.  After messing around with it I can reproduce the
-problem reliably.  The sequence I came up with to cause the problem:
+After "losetup /dev/loop0 /dev/loop0" I see a hard crash upon
+access of /dev/loop0. And of course the same happens after
+"losetup /dev/loop0 /dev/loop1; "losetup /dev/loop1 /dev/loop0"
 
-mount -o loop /dev/loop/0 /mnt
-mount -o loop /dev/loop/1 /mnt
-mount -o loop /dev/loop/2 /mnt
-mount /dev/loop/0 /mnt -t ext2
+Chris Spiegel reports a slightly different crash doing similar things.
 
-I know the above is silly and contrived.
+The easiest fix is saying "don't do that then".
 
-An example oops is as follows (I copied this down on paper and then
-back, so hopefully I made no transcription errors):
+The patch below adds a (somewhat ugly) test for recursion.
+Maybe someone can think of a nicer version.
 
-Unable to handle kernel paging request at virtual address 98858a6f
- printing eip:
-c011345a
-*pde = 00000000
-Oops: 0000 [#1]
-SMP
-Modules linked in:
-CPU     0
-EIP     0060:[<c011345a>]    Not tainted VLI
-EFLAGS  00010083   (2.6.9)
-EIP is at do_page_fault+0x99/0x599
-eax: c9100000   ebx: 65642f3c   ecx: 0000007b   edx: f7d4858b
-esi: 00000000   edi: c01133c1   ebp: 988589ff   esp: c9100108
-ds: 007b   es: 007b   ss: 0068
-Unable to handle kernel NULL pointer dereference at virtual address 00000070
- printing eip:
-c011345a
-*pde = 00000000
+Andries
 
-I ran this through ksymoops, but it just spit it back at me with the
-following tacked on:
-
-Warning (Oops_read): Code line not seen, dumping what data is available
-
-
->>eax; c9100000 <pg0+8b9f000/3fa9d400>
->>edx; f7d4858b <pg0+377e758b/3fa9d400>
->>edi; c01133c1 <do_page_fault+0/599>
->>esp; c9100108 <pg0+8b9f108/3fa9d400>
-
-
-1 warning issued.  Results may not be reliable.
-
-
-So I'm not sure if that's useful.  I could also get my system to lock up
-if I did the above, but without the loop1 and 2 devices.  One time it
-just froze, no messages.  Another time I got:
-double fault, gdt at c1408260 [255 bytes]
-
-I'm attaching my kernel config if that's of any help.  If you'd like me
-to reply to the list, please CC me so I can set the In-Reply-To header
-properly.
-
-Chris
-
+diff -uprN -X /linux/dontdiff a/drivers/block/loop.c b/drivers/block/loop.c
+--- a/drivers/block/loop.c	2004-08-26 22:05:15.000000000 +0200
++++ b/drivers/block/loop.c	2004-11-14 22:43:31.000000000 +0100
+@@ -622,10 +622,17 @@ static int loop_change_fd(struct loop_de
+ 	return error;
+ }
+ 
++static inline int is_loop_device(struct file *file)
++{
++	struct inode *i = file->f_mapping->host;
++
++	return i && S_ISBLK(i->i_mode) && MAJOR(i->i_rdev) == LOOP_MAJOR;
++}
++
+ static int loop_set_fd(struct loop_device *lo, struct file *lo_file,
+ 		       struct block_device *bdev, unsigned int arg)
+ {
+-	struct file	*file;
++	struct file	*file, *f;
+ 	struct inode	*inode;
+ 	struct address_space *mapping;
+ 	unsigned lo_blocksize;
+@@ -636,15 +643,28 @@ static int loop_set_fd(struct loop_devic
+ 	/* This is safe, since we have a reference from open(). */
+ 	__module_get(THIS_MODULE);
+ 
+-	error = -EBUSY;
+-	if (lo->lo_state != Lo_unbound)
+-		goto out;
+-
+ 	error = -EBADF;
+ 	file = fget(arg);
+ 	if (!file)
+ 		goto out;
+ 
++	error = -EBUSY;
++	if (lo->lo_state != Lo_unbound)
++		goto out_putf;
++
++	/* Avoid recursion */
++	f = file;
++	while (is_loop_device(f)) {
++		struct loop_device *l;
++
++		if (f->f_mapping->host == lo_file->f_mapping->host)
++			goto out_putf;
++		l = f->f_mapping->host->i_bdev->bd_disk->private_data;
++		if (l->lo_state == Lo_unbound)
++			break;
++		f = l->lo_backing_file;
++	}
++
+ 	mapping = file->f_mapping;
+ 	inode = mapping->host;
+ 
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

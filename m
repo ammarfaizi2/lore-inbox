@@ -1,70 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262027AbREPR4R>; Wed, 16 May 2001 13:56:17 -0400
+	id <S262042AbREPSAr>; Wed, 16 May 2001 14:00:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262033AbREPR4H>; Wed, 16 May 2001 13:56:07 -0400
-Received: from fandango.cs.unitn.it ([193.205.199.228]:17939 "EHLO
-	fandango.cs.unitn.it") by vger.kernel.org with ESMTP
-	id <S262040AbREPRzt>; Wed, 16 May 2001 13:55:49 -0400
-From: Massimo Dal Zotto <dz@cs.unitn.it>
-Message-Id: <200105161205.OAA13638@nikita.dz.net>
-Subject: [PATCH] move aic7xxx ld in drivers/scsi/Makefile
-To: alan@redhat.com
-Date: Wed, 16 May 2001 14:05:16 +0200 (MEST)
-CC: linux-kernel@vger.kernel.org, tmm@image.dk
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S262038AbREPSAh>; Wed, 16 May 2001 14:00:37 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:6663 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262058AbREPSAY>; Wed, 16 May 2001 14:00:24 -0400
+Date: Wed, 16 May 2001 11:00:02 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Christoph Rohland <cr@sap.com>
+cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rootfs (part 1)
+In-Reply-To: <m3ofst5gs5.fsf@linux.local>
+Message-ID: <Pine.LNX.4.21.0105161055270.4738-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-while examining the makefiles of kernel-2.4.4 I noticed that the top Makefile
-contains a specific reference to the aic7xxx driver which should IMHO be
-referenced only by the drivers/scsi/Makefile.
-While this is not a real bug I suggest anyway the following patch which moves
-the aic7xxx compilation entirely in the drivers/scsi makefile:
+On 16 May 2001, Christoph Rohland wrote:
+> 
+> cr:/speicher/src/u4ac9 $ ls -l mm/shmem.o*
+> -rw-r--r--    1 cr       users      154652 Mai 16 19:27 mm/shmem.o-tmpfs
+> -rw-r--r--    1 cr       users      180764 Mai 16 19:24 mm/shmem.o+tmpfs
+> cr:/speicher/src/u4ac9 $ ls -l fs/ramfs/ramfs.o
+> -rw-r--r--    1 cr       users      141452 Mai 16 19:27 fs/ramfs/ramfs.o
+> 
+> So CONFIG_TMPFS adds 26k and ramfs 140k.
 
---- Makefile.orig	Sat May  5 11:58:47 2001
-+++ Makefile	Wed May 16 09:39:37 2001
-@@ -155,7 +155,6 @@
- DRIVERS-$(CONFIG_ATM) += drivers/atm/atm.o
- DRIVERS-$(CONFIG_IDE) += drivers/ide/idedriver.o
- DRIVERS-$(CONFIG_SCSI) += drivers/scsi/scsidrv.o
--DRIVERS-$(CONFIG_SCSI_AIC7XXX) += drivers/scsi/aic7xxx/aic7xxx_drv.o
- DRIVERS-$(CONFIG_IEEE1394) += drivers/ieee1394/ieee1394drv.o
- 
- ifneq ($(CONFIG_CD_NO_IDESCSI)$(CONFIG_BLK_DEV_IDECD)$(CONFIG_BLK_DEV_SR)$(CONFIG_PARIDE_PCD),)
---- drivers/scsi/Makefile.orig	Tue Mar 27 01:36:30 2001
-+++ drivers/scsi/Makefile	Wed May 16 13:30:47 2001
-@@ -33,6 +33,10 @@
- 
- obj-$(CONFIG_SCSI)		+= scsi_mod.o
- 
-+ifeq ($(CONFIG_SCSI_AIC7XXX),y)
-+  obj-$(CONFIG_SCSI_AIC7XXX)	+= aic7xxx/aic7xxx_mod.o
-+endif
-+
- obj-$(CONFIG_A4000T_SCSI)	+= amiga7xx.o	53c7xx.o
- obj-$(CONFIG_A4091_SCSI)	+= amiga7xx.o	53c7xx.o
- obj-$(CONFIG_BLZ603EPLUS_SCSI)	+= amiga7xx.o	53c7xx.o
-@@ -184,3 +188,6 @@
- sim710_u.h: sim710_d.h
- 
- sim710.o : sim710_d.h
-+
-+aic7xxx/aic7xxx_mod.o:
-+	make -C aic7xxx
+What the hell are you doing? Compiling with debugging or something?
 
+The ramfs inode.o file (the only file that ramfs contains) has 376 bytes
+of data and 1612 bytes of code. BYTES. The whole final object file with
+all the relocation information is
 
--- 
-Massimo Dal Zotto
+	-rw-r--r--    1 torvalds eng          5734 May 16 10:58 ramfs.o
 
-+----------------------------------------------------------------------+
-|  Massimo Dal Zotto               email: dz@cs.unitn.it               |
-|  Via Marconi, 141                phone: ++39-0461534251              |
-|  38057 Pergine Valsugana (TN)      www: http://www.cs.unitn.it/~dz/  |
-|  Italy                             pgp: see my www home page         |
-+----------------------------------------------------------------------+
+but out of that 5.5kB, only 2kB are actually linked into the kernel and
+are used to _run_.
+
+How do you get it to 140kB? You're doing something _seriously_
+wrong. You're off by a factor of 70.
+
+		Linus
+

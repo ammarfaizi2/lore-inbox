@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280184AbRJaMWq>; Wed, 31 Oct 2001 07:22:46 -0500
+	id <S280186AbRJaM01>; Wed, 31 Oct 2001 07:26:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280182AbRJaMWh>; Wed, 31 Oct 2001 07:22:37 -0500
-Received: from mail004.mail.bellsouth.net ([205.152.58.24]:9678 "EHLO
-	imf04bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S280184AbRJaMW1>; Wed, 31 Oct 2001 07:22:27 -0500
-Message-ID: <3BDFED26.4350646B@mandrakesoft.com>
-Date: Wed, 31 Oct 2001 07:23:02 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre5 i686)
-X-Accept-Language: en
+	id <S280185AbRJaM0Q>; Wed, 31 Oct 2001 07:26:16 -0500
+Received: from [213.98.126.44] ([213.98.126.44]:11780 "HELO anano.mitica")
+	by vger.kernel.org with SMTP id <S280182AbRJaM0F>;
+	Wed, 31 Oct 2001 07:26:05 -0500
+To: Shawn Walker <swalker@fs1.theiqgroup.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: status of supermount?
+In-Reply-To: <200110241859.f9OIx7h27817@fs1.theiqgroup.com>
+X-Url: http://www.lfcia.org/~quintela
+From: Juan Quintela <quintela@mandrakesoft.com>
+In-Reply-To: <200110241859.f9OIx7h27817@fs1.theiqgroup.com>
+Date: 31 Oct 2001 13:07:45 +0100
+Message-ID: <m2ofmoui5q.fsf@anano.mitica>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: Lorenzo Allegrucci <lenstra@tiscalinet.it>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: VM: qsbench
-In-Reply-To: <3.0.6.32.20011031131253.01fb8e40@pop.tiscalinet.it>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lorenzo Allegrucci wrote:
-> Linux-2.4.14-pre6:
-> lenstra:~/src/qsort> time ./qsbench -n 90000000 -p 1 -s 140175100
-> Out of Memory: Killed process 224 (qsbench).
-> 69.890u 3.430s 2:12.48 55.3%    0+0k 0+0io 16374pf+0w
-> lenstra:~/src/qsort> time ./qsbench -n 90000000 -p 1 -s 140175100
-> Out of Memory: Killed process 226 (qsbench).
-> 69.550u 2.990s 2:11.31 55.2%    0+0k 0+0io 15374pf+0w
-> lenstra:~/src/qsort> time ./qsbench -n 90000000 -p 1 -s 140175100
-> Out of Memory: Killed process 228 (qsbench).
-> 69.480u 3.100s 2:13.33 54.4%    0+0k 0+0io 15950pf+0w
-> 0:01 kswapd
-> 
-> This is interesting, -pre6 killed qsbench _just_ before qsbench exited.
-> Unreliable results.
+>>>>> "shawn" == Shawn Walker <swalker@fs1.theiqgroup.com> writes:
 
-Can you give us some idea of the memory usage of this application?  Your
-amount of RAM and swap?
+shawn> Does anyone know if supermount has been ported to a more recent kernel by anyone? The last version of supermount I could find was for 2.4.0
 
-	Jeff
+You can get patches from:
+
+ftp://ftp.mandrakesoft.com/pub/quintela/
+
+for 2.4.8-ac12, I have patches for more recent kernel, but they are
+still not there.  I expect to put there tomorrow of the following day.
+
+Any comments, suggestions are welcome.  I am in the middle of trying
+ot get _some_ sane lock to supermount, as the beast basically don't
+have any look at the moment, normally works due to de the fact that
+normally there are not one hundred concurrent users of the floppy or
+cd :(
+
+Later, Juan.
 
 
 -- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
-
+In theory, practice and theory are the same, but in practice they 
+are different -- Larry McVoy

@@ -1,82 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261610AbSIXISz>; Tue, 24 Sep 2002 04:18:55 -0400
+	id <S261611AbSIXIYl>; Tue, 24 Sep 2002 04:24:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261611AbSIXISz>; Tue, 24 Sep 2002 04:18:55 -0400
-Received: from [80.120.128.82] ([80.120.128.82]:33811 "EHLO hofr.at")
-	by vger.kernel.org with ESMTP id <S261610AbSIXISy>;
-	Tue, 24 Sep 2002 04:18:54 -0400
-From: Der Herr Hofrat <der.herr@mail.hofr.at>
-Message-Id: <200209240726.g8O7QNA06595@hofr.at>
-Subject: mmap question
-To: linux-kernel@vger.kernel.org
-Date: Tue, 24 Sep 2002 09:26:23 +0200 (CEST)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S261612AbSIXIYl>; Tue, 24 Sep 2002 04:24:41 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:24512 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261611AbSIXIYk>;
+	Tue, 24 Sep 2002 04:24:40 -0400
+Date: Tue, 24 Sep 2002 01:19:47 -0700 (PDT)
+Message-Id: <20020924.011947.11684681.davem@redhat.com>
+To: rusty@rustcorp.com.au
+Cc: mingo@elte.hu, torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] streq() 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020924072814.CFC332C1AC@lists.samba.org>
+References: <20020923.232413.08022213.davem@redhat.com>
+	<20020924072814.CFC332C1AC@lists.samba.org>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Rusty Russell <rusty@rustcorp.com.au>
+   Date: Tue, 24 Sep 2002 17:28:00 +1000
 
-Hi !
+   In message <20020923.232413.08022213.davem@redhat.com> you write:
+   > Another idea is to make a gfp_flags_t, that worked very well
+   > for things like mm_segment_t.
+   
+   But you can't or them together without some icky macro, unless they're
+   typedef to an integer type in which case gcc doesn't warn you if you
+   just stuck a "sizeof(x)" in there.
 
- trying to write up a simple mmap for a pseudo device that accesses a 
- kmalloc'ed area.
+Maybe if you make it unsigned char or something.
 
- The driver is a character driver that only has mmap implemented - the kmalloc
- is done in init module and the pointer to the buffer is in global context.
- I expected to be able to write to the mmap'ed area from user-space but it
- never shows up in kernel space (the printk in driver_mmap always shows the
- init_msg passed in init_module). 
-
- the basic framework I'm using is below - can anybody point me to an obvious
- error or to some docs that would explain how to share an kmalloc'ed area
- with user-space via mmap ? 
-
-thx !
-hofrat
- 
----driver---
-char *kmalloc_area;
-...
-static int
-driver_mmap(struct file *file,
-	struct vm_area_struct *vma)
-{
-	vma->vm_flags |= VM_LOCKED|VM_SHARED;
-
-	printk("message buffer: %s\",kmalloc_area); 
-	remap_page_range(vma->vm_start,
-		virt_to_phys(kmalloc_area),
-		LEN,
-		PAGE_SHARED);
-	return 0;
-}
-	
-static struct file_operations simple_fops={
-    mmap:	driver_mmap,
-};
-
-int
-init_module(void){
-	...
-	kmalloc_area=kmalloc(LEN,GFP_USER);
-	strncpy(kmalloc_area,init_msg,sizeof(init_msg));
-	...
-}
-
----user-app---
-
-int main(void)
-{
-	int fd;
-	char msg[]="some message - should appear in kernel space";
-	unsigned int *addr;
-
-	if((fd=open("/dev/simple-device", O_RDWR))<0)
-	addr = mmap(0, LEN, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
-	memset(addr,0,LEN); 
-	strncpy(addr,msg,sizeof(msg));
-	return 0;
-}
+If there aren't too many spots which need to "or" stuff,
+all the "icky macro" stuff could be contained to gfp.h

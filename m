@@ -1,54 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261479AbULPQXr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261430AbULPQ0f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261479AbULPQXr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 11:23:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbULPQXr
+	id S261430AbULPQ0f (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 11:26:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261183AbULPQ0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 11:23:47 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:44764 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261479AbULPQXm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 11:23:42 -0500
-Date: Thu, 16 Dec 2004 16:23:38 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "H. Peter Anvin" <hpa@zytor.com>, "J.A. Magallon" <jamagallon@able.es>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: What if?
-In-Reply-To: <1103203426.3804.16.camel@localhost.localdomain>
-Message-ID: <Pine.GSO.4.61.0412161622060.15893@waterleaf.sonytel.be>
-References: <41AE5BF8.3040100@gmail.com> <20041202044034.GA8602@thunk.org>
- <1101976424l.5095l.0l@werewolf.able.es> <1101984361.28965.10.camel@tara.firmix.at>
- <cpkc5i$84f$1@terminus.zytor.com> <1102972125l.7475l.0l@werewolf.able.es>
- <1103158646.3585.35.camel@localhost.localdomain> <41C0F67D.4000506@zytor.com>
- <1103203426.3804.16.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 16 Dec 2004 11:26:30 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:55529 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261523AbULPQ0M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 11:26:12 -0500
+Message-Id: <200412161626.iBGGQ5CI020770@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.10-rc3-mm1-V0.7.33-03 and NVidia wierdness, with workaround...
+From: Valdis.Kletnieks@vt.edu
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-787537636P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 16 Dec 2004 11:26:05 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Dec 2004, Alan Cox wrote:
-> On Iau, 2004-12-16 at 02:44, H. Peter Anvin wrote:
-> > Yes, but there is also no really big deal compiling C code with a C++ 
-> > compiler.  Yes, it was a disaster in 0.99.14, but that was 10 years ago.
-> 
-> g++ is still much slower. We don't know how many bugs it would show up
-> in the compiler and tools either, especially on embedded platforms.
+--==_Exmh_-787537636P
+Content-Type: text/plain; charset="us-ascii"
+Content-Id: <16488.1103214353.1@turing-police.cc.vt.edu>
 
-Interesting to find out, anyway (for the g++-developers :-)
+(Yes, I know NVidia is evil and all that.. If you're not Ingo or NVidia,
+consider this "documenting the workaround" ;)
 
-> Finally the current kernel won't go through a C++ compiler because we
-> use variables like "new" quite often.
+For reasons I can't explain, the NVidia module won't initialize
+correctly with V0-0.7.33-03 if built with CONFIG_SPINLOCK_BKL.  It however
+works fine with CONFIG_PREEMPT_BKL, changing nothing else in the config.
+It also works fine with 2.6.10-rc3-mm1 without Ingo's patch.
 
-Not something that can't be worked around using a simple #define...
+Relevant .config snippet from the /proc/config.gz I'm running with right now:
 
-Gr{oetje,eeting}s,
+# CONFIG_PREEMPT_NONE is not set
+# CONFIG_PREEMPT_VOLUNTARY is not set
+CONFIG_PREEMPT_DESKTOP=y
+# CONFIG_PREEMPT_RT is not set
+CONFIG_PREEMPT=y
+CONFIG_PREEMPT_SOFTIRQS=y
+CONFIG_PREEMPT_HARDIRQS=y
+# CONFIG_SPINLOCK_BKL is not set
+CONFIG_PREEMPT_BKL=y
 
-						Geert
+If built with SPINLOCK_BKL, we get this in the kernel messages:
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Dec 16 01:12:41 turing-police kernel: NVRM: rm_init_adapter failed
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+rm_init_adapter is in NVidia's binary code, so I can't shoot it.
+
+The *odd* part is that it's failing with the spinlock but *not* the preempt version
+or the unpatched version. (I was *expecting* that code that was happy with
+the old-style BKL in -mm1 would be happy with the spinlock version and complain
+if somebody hit the preempt flavor, not the other way around...)
+
+Ingo? This ring any bells?
+
+--==_Exmh_-787537636P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBwbcccC3lWbTT17ARAiKCAKCQ8RTIOZVyar21ZVVwjoH2PzFGYACgjuZo
+W3XEauHD1Msnwe8nYPLdfbE=
+=OBpG
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-787537636P--

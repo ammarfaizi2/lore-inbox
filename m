@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267879AbRHOWUb>; Wed, 15 Aug 2001 18:20:31 -0400
+	id <S268133AbRHOXBl>; Wed, 15 Aug 2001 19:01:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267844AbRHOWUL>; Wed, 15 Aug 2001 18:20:11 -0400
-Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:55447 "EHLO
-	pga.intervu.net") by vger.kernel.org with ESMTP id <S267890AbRHOWTv>;
-	Wed, 15 Aug 2001 18:19:51 -0400
-Message-ID: <3B7AF742.9A1F6DDB@randomlogic.com>
-Date: Wed, 15 Aug 2001 15:27:14 -0700
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S268140AbRHOXBa>; Wed, 15 Aug 2001 19:01:30 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:12299 "HELO holly.csn.ul.ie")
+	by vger.kernel.org with SMTP id <S268133AbRHOXBX>;
+	Wed, 15 Aug 2001 19:01:23 -0400
+Date: Thu, 16 Aug 2001 00:01:26 +0100 (IST)
+From: Dave Airlie <airlied@skynet.ie>
+X-X-Sender: <airlied@skynet>
+To: <linux-kernel@vger.kernel.org>
+Subject: old_select vs sys_select
+Message-ID: <Pine.LNX.4.32.0108152359270.1907-100000@skynet>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>
-Subject: [ANNOUNCE] Linux 2.4.8 Kernel Source Docs and Metrics
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux kernel 2.4.8 source code documentation and metrics is now up at http://www2.randomlogic.com/linux_html/
 
-The tarball is up at http://www.randomlogic.com/files/linux_html.tar.gz
+On the VAX port I'm updating my syscalls to match some of the other
+platforms,
 
-PGA
+why do some platforms defined old_select and some just use sys_ni_syscall
+for the system call number for the old_select... is this purely to deal
+with old applications that were compiled against old kernels, and so this
+means I don't have to implement old_select on the VAX at all..
+
+Dave.
 
 -- 
-Paul G. Allen
-UNIX Admin II/Programmer
-Akamai Technologies, Inc.
-www.akamai.com
-Work: (858)909-3630
-Cell: (858)395-5043
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied@skynet.ie
+pam_smb / Linux DecStation / Linux VAX / ILUG person
+
+

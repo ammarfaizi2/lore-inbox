@@ -1,65 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbTFXVqo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 17:46:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbTFXVqo
+	id S262409AbTFXVud (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 17:50:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262423AbTFXVud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 17:46:44 -0400
-Received: from dm6-35.slc.aros.net ([66.219.221.35]:7306 "EHLO cyprus")
-	by vger.kernel.org with ESMTP id S262598AbTFXVql (ORCPT
+	Tue, 24 Jun 2003 17:50:33 -0400
+Received: from [62.67.222.139] ([62.67.222.139]:1491 "EHLO kermit")
+	by vger.kernel.org with ESMTP id S262409AbTFXVuc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 17:46:41 -0400
-Message-ID: <3EF8CA10.4030701@aros.net>
-Date: Tue, 24 Jun 2003 16:00:48 -0600
-From: Lou Langholtz <ldl@aros.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: jds <jds@soltis.cc>
-Cc: linux-kernel@vger.kernel.org, akpm@digeo.com
-Subject: Re: Kernel Panic in 2.5.73-mm1 OOps part.
-References: <20030624191740.M38428@soltis.cc> <3EF8C9A3.5020206@aros.net>
-In-Reply-To: <3EF8C9A3.5020206@aros.net>
-Content-Type: multipart/mixed;
- boundary="------------080805060305090804050004"
+	Tue, 24 Jun 2003 17:50:32 -0400
+Date: Wed, 25 Jun 2003 00:04:36 +0200
+From: Konstantin Kletschke <konsti@ludenkalle.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: medium Oops on 2.5.73-mm1
+Message-ID: <20030624220436.GA1610@sexmachine.doom>
+Reply-To: Konstantin Kletschke <konsti@ludenkalle.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030624164026.GA2934@sexmachine.doom> <20030624210414.GA1533@sexmachine.doom> <20030624142214.67e5c5f4.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030624142214.67e5c5f4.akpm@digeo.com>
+Organization: Kletschke & Uhlig GbR
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080805060305090804050004
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+* Andrew Morton <akpm@digeo.com> [Tue, Jun 24, 2003 at 02:22:14PM -0700]:
+> 
+> Please see if it is repeatable without the nVidia driver loaded.
 
->
->
->> .. . .
->
-> I'm *guestimating* that the following patch will fix this problem. Let 
-> me know if you use it wether it makes this problem go away or not. 
-> Note that to me at least, blk_init_queue() should be responsible for 
-> initializing this memory not the driver. Either way, something has to 
-> initialize request_queue.kobj.kset otherwise I think this is the 
-> result when the kset field can be any value.
->
-Woops... pressed send before doing the attachment...
+Yes, there is no way around that, actually running X with nv driver, and
+its hard to use only one Monitor instead of them both :(
 
---------------080805060305090804050004
-Content-Type: text/plain;
- name="patch-2.5.73-nbd"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-2.5.73-nbd"
+But, lets see what is happening without this nvidia.ko module...
 
---- drivers/block/nbd.c	2003-06-24 14:39:59.043718133 -0600
-+++ drivers/block/nbd-new.c	2003-06-24 15:28:04.318158305 -0600
-@@ -695,6 +695,7 @@
- 			put_disk(disk);
- 			goto out;
- 		}
-+		memset(disk->queue, 0, sizeof(struct request_queue));
- 		blk_init_queue(disk->queue, do_nbd_request, &nbd_lock);
- 	}
- 
+Konsti
 
---------------080805060305090804050004--
+PS.: Sorry Andrew, again I typed r instead of L so you got an personal
+mail from me, this was not intentional!
 
+-- 
+2.5.73-mm1
+Konstantin Kletschke <konsti@ludenkalle.de>, <konsti@ku-gbr.de>
+GPG KeyID EF62FCEF
+Fingerprint: 13C9 B16B 9844 EC15 CC2E  A080 1E69 3FDA EF62 FCEF
+keulator.homelinux.org up 6 min, 

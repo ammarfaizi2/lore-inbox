@@ -1,102 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264265AbUFGARA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264272AbUFGAUH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264265AbUFGARA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 20:17:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264261AbUFGAQ7
+	id S264272AbUFGAUH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 20:20:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264270AbUFGAUH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 20:16:59 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:4745 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S264269AbUFGAQo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 20:16:44 -0400
-Message-ID: <40C3B4E6.8020809@elegant-software.com>
-Date: Sun, 06 Jun 2004 20:20:54 -0400
-From: Russell Leighton <russ@elegant-software.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Sun, 6 Jun 2004 20:20:07 -0400
+Received: from shua3622.serverfarm.hu ([195.70.43.230]:15624 "EHLO korus.hu")
+	by vger.kernel.org with ESMTP id S264261AbUFGATu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 20:19:50 -0400
+Message-ID: <40C3B49A.5DEF7D47@engard.hu>
+Date: Mon, 07 Jun 2004 02:19:38 +0200
+From: Ferenc Engard <ferenc@engard.hu>
+X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Robert Love <rml@ximian.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Using getpid() often, another way? [was Re: clone() <->	getpid()
- bug in 2.6?]
-References: <40C1E6A9.3010307@elegant-software.com>	 <Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org>	 <40C32A44.6050101@elegant-software.com>	 <40C33A84.4060405@elegant-software.com> <1086536650.2804.20.camel@localhost>
-In-Reply-To: <1086536650.2804.20.camel@localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: ext3 errors
+Content-Type: text/plain; charset=iso-8859-2
 Content-Transfer-Encoding: 7bit
+X-Scanner: exiscan *1BX7j9-00064Z-00*vamUDfgV1ew* (korus.hu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-Ah, the stack. Yes, I think that will work. You see, the functions that 
-need this test
-always take a pointer to a struct that holds all the thread info called 
-'mon'. That info is the pid of the
-thread , the ptr to the stack mmap'd and the size of the stack, I think 
-I can change the test to:
+I have installed a new server, and created ext3 (data=ordered)
+filesystems on RAID1 partitions. I finished the installation a few weeks
+ago, and today I tried to install in in the place of the old one.
 
-{
-   int32_t
-     stackvar;
+I have worked a few hours on the server, mainly in the /etc directory,
+and copied a few gig's to the /home dir, which was on a separate
+partition than root. After that I have rebooted, to check that
+everything going up OK. Well, nothing was OK.
 
-    /* if address of the stackvar is OUTSIDE the stack of handler 
-thread, then
-         you are not running this function from the handler thread */
-   if ( &stackvar < mon->handler_q.thread->stack ||
-         &stackvar > mon->handler_q.thread->stack + 
-mon->handler_q.thread->stacksize - 1) {
+The fsck failed with many "Freeing blocks not in datazone" and "Journal
+aborting" errors, and I came up with a read-only root partition. I
+manually e2fsck'd it, saying yes to all questions, and rebooted again.
+Next time it was the same story: fsck always failed, found many errors,
+the lost+found growed... 
 
-        fprintf(stderr, "bad, bad, bad!\n");
-        exit(-1);
+AND, the real interesting story: all of my modifications in the /etc
+directory, which I made at least an hour or more, was lost! Just as if
+nothing has been written to the disk from the journal for at least an
+hour. Also, there were some corrupted files, and also, some obvious fs
+errors after an fsck, for example, accessing /etc/apache-ssl/apache.conf
+resulted some errors like this:
 
-    }
+Jun  6 21:56:25 zeratul kernel: attempt to access beyond end of device
+Jun  6 21:56:25 zeratul kernel: 09:01: rw=0, want=1085624632,
+limit=20972736
 
-}
+The end of the story: I booted from CD, copied the whole root
+partition's contents off-disk, reformatted the RAID1 partition with
+mke2fs -j, copied back the contents, and it seems that now everything is
+good (so far). I don't think that the problem is in hardware, because of
+the RAID1, and also, these are brand-new 80G Maxtor SCSI drives.
 
-Would that work? If so, that is nice because no syscall.
+What can cause an error like this? This is a linux 2.4.26 on a PIV-2666,
+debian testing dist.
 
-Robert Love wrote:
-
->On Sun, 2004-06-06 at 11:38 -0400, Russell Leighton wrote:
->
->  
->
->>  Given a code library with some exported functions which CAN be 
->>executed outside a particular thread and others that MUST be executed in 
->>a particular thread, how can I efficiently prevent or trap using of 
->>these functions outside the proper execution context?
->>    
->>
->
->Are you sure you cannot use pthreads?  The new implementation (NPTL) has
->a lot of improvements, including saner signal handling behavior.
->
->If not, you probably are out of luck.  Best I can think of is somehow
->using thread-specific storage, but you would obviously need to index
->into it using something OTHER than the PID.  Which basically leaves you
->with the stack.  So, unless you could cache the PID in a local
->variable..
->
->  
->
->> Would gettid() be any better?
->>    
->>
->
->If you aren't using CLONE_THREAD, gettid() will just return the PID.
->And if you were using CLONE_THREAD, then getpid() would be worthless for
->you and you would have to use gettid().  Either way, though, they
->basically do the same thing (return current->tid vs. current->pid).
->
->	Robert Love
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
+Thanks,
+Ferenc Engard
 

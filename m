@@ -1,65 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261361AbSJHRGE>; Tue, 8 Oct 2002 13:06:04 -0400
+	id <S261379AbSJHRJ0>; Tue, 8 Oct 2002 13:09:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261364AbSJHRF7>; Tue, 8 Oct 2002 13:05:59 -0400
-Received: from smtp2.ispsnet.net ([64.63.192.12]:61148 "EHLO ispsnet.net")
-	by vger.kernel.org with ESMTP id <S261361AbSJHRF5>;
-	Tue, 8 Oct 2002 13:05:57 -0400
-Subject: email I recieved
-From: linuxguruguy <linuxguruguy@aaahawk.com>
-To: linux-kernel@vger.kernel.org
+	id <S261381AbSJHRJ0>; Tue, 8 Oct 2002 13:09:26 -0400
+Received: from dodge.jordet.nu ([217.13.8.142]:64521 "EHLO dodge.hybel")
+	by vger.kernel.org with ESMTP id <S261379AbSJHRJZ>;
+	Tue, 8 Oct 2002 13:09:25 -0400
+Subject: Re: Mouse/Keyboard problems with 2.5.38
+From: Stian Jordet <liste@jordet.nu>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org, Thomas Molina <tmolina@cox.net>
+In-Reply-To: <20021008085842.A4412@ucw.cz>
+References: <20021008085842.A4412@ucw.cz>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 07 Oct 2002 12:59:39 -0400
-Message-Id: <1034009983.8458.1.camel@nofuture.deadbodies.net>
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 08 Oct 2002 19:14:19 +0200
+Message-Id: <1034097327.902.8.camel@chevrolet>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently got an email from some one with a windows binary file
-attached it seems to have come from linux-kernel-owner@vger.kernel.org
-below is the email (minus the attachment)if anyone could help with
-determining who did this behavior it would be greatly appreciated
+tir, 2002-10-08 kl. 08:58 skrev Vojtech Pavlik:
+> 
+> > But now I decided I should try again. I got 2.5.38 booted after some
+> > initial trouble. But, I have a couple of weird problems. First, the
+> > mouse. I have a Logitech Cordless Optical mouse. With kernel 2.4.x I use
+> > MouseManPlusPS/2 as the XFree mouse-driver. Then I can use the wheel and
+> > the fourth button just as expected. But with kernel 2.5.38 neither the
+> > wheel or the fourth button works. I change protocol to IMPS/2 in XFree,
+> > and everything works like expected, but the fourth button works just
+> > like pussing the wheel (third button). This is excactly the same
+> > behavior as with 2.4.20-pre7 (that's why I use MouseManPlusPS/2). Anyone
+> > have a clue why this doesn't work with kernel 2.5.38?
+> 
+> Does it work when you use "ExplorerPS/2" instead?
 
->From - 
-Return-path:
-<linux-kernel-owner+grstuhrberg=40aaahawk.com@vger.kernel.org>
-Received: from vger.kernel.org (unverified [209.116.70.75]) by
-	Modus1.aaahawk.com (Vircom SMTPRS 1.4.232) with SMTP id
-	<B0003566113@Modus1.aaahawk.com> for <grstuhrberg@aaahawk.com>; Mon, 7
-Oct
-	2002 18:14:14 -0700
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-id
-	<S262673AbSJGW1z>; Mon, 7 Oct 2002 18:27:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id
-	<S263145AbSJGW1z>; Mon, 7 Oct 2002 18:27:55 -0400
-Received: from moutvdom.kundenserver.de ([195.20.224.149]:56008 "EHLO
-	moutvdom.kundenserver.de") by vger.kernel.org with ESMTP id
-	<S262673AbSJGW1m>; Mon, 7 Oct 2002 18:27:42 -0400
-Received: from [195.20.224.199] (helo=mrvdomng.kundenserver.de) by
-	moutvdom.kundenserver.de with esmtp (Exim 3.35 #1) id 17ygL1-0005cS-00;
-	Tue, 08 Oct 2002 00:26:55 +0200
-Received: from [217.81.46.31] (helo=meinserver) by
-mrvdomng.kundenserver.de
-	with smtp (Exim 3.35 #1) id 17ygKv-0004kj-00; Tue, 08 Oct 2002 00:26:49
-	+0200
-From:	hacker@online.de
-Subject:  test
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="----------5EVWJAYZ8SKKYW"
-Message-Id: <E17ygKv-0004kj-00@mrvdomng.kundenserver.de>
-Date:	Tue, 08 Oct 2002 00:26:49 +0200
-To:	unlisted-recipients:; (no To-header on input)
-Sender:	linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-X-Mailing-List:	linux-kernel@vger.kernel.org
-X-Evolution-Source: pop://grstuhrberg@mail1.aaahawk.com/inbox
-
-
-
+Uhm, you answered that 26th september, and I replied the same day.Yes,
+it works perfect now :)
  
+> > Second problem, if I press SHIFT+PAGEUP, my computer freezes. It spits
+> > out this message: "input: AT Set 2 keyboard on isa0060/serio0, and then
+> > it's dead. I have a Logitech cordless keyboard. 
+> 
+> It should be fixed in 2.5.39 or 2.5.40. Does it work fine on 2.5.41?
 
+It does not. I'll answer your other mail instead :)
+
+Best regards,
+Stian Jordet
 

@@ -1,65 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261473AbTJ0JqV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 04:46:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbTJ0JqV
+	id S261262AbTJ0Jtx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 04:49:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbTJ0Jtw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 04:46:21 -0500
-Received: from smtp1.att.ne.jp ([165.76.15.137]:19152 "EHLO smtp1.att.ne.jp")
-	by vger.kernel.org with ESMTP id S261473AbTJ0JqT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 04:46:19 -0500
-Message-ID: <3cba01c39c6f$141529a0$24ee4ca5@DIAMONDLX60>
-From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: "Mudama, Eric" <eric_mudama@Maxtor.com>,
-       "'Hans Reiser '" <reiser@namesys.com>,
-       "'Wes Janzen '" <superchkn@sbcglobal.net>,
-       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
-       "'John Bradford '" <john@grabjohn.com>, <linux-kernel@vger.kernel.org>,
-       <nikita@namesys.com>, "'Pavel Machek '" <pavel@ucw.cz>,
-       "'Justin Cormack '" <justin@street-vision.com>,
-       "'Vitaly Fertman '" <vitaly@namesys.com>,
-       "'Krzysztof Halasa '" <khc@pm.waw.pl>
-References: <785F348679A4D5119A0C009027DE33C105CDB39B@mcoexc04.mlm.maxtor.com>
-Subject: Re: Blockbusting news, results get worse
-Date: Mon, 27 Oct 2003 18:34:48 +0900
-MIME-Version: 1.0
+	Mon, 27 Oct 2003 04:49:52 -0500
+Received: from totor.bouissou.net ([82.67.27.165]:9349 "EHLO
+	totor.bouissou.net") by vger.kernel.org with ESMTP id S261262AbTJ0JtR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 04:49:17 -0500
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+  charset="iso-8859-2"
+From: Michel Bouissou <michel@bouissou.net>
+Organization: Completely disorganized
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: Patch for Promise PDC20276
+Date: Mon, 27 Oct 2003 10:49:15 +0100
+User-Agent: KMail/1.4.3
+Cc: abrutschy@xylon.de, linux-kernel@vger.kernel.org
+References: <200310271009.13054@totor.bouissou.net> <200310271049.32819.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200310271049.32819.bzolnier@elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200310271049.15348@totor.bouissou.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Mudama wrote:
+Le Lundi 27 Octobre 2003 10:49, Bartlomiej Zolnierkiewicz a écrit :
+>
+> This was discussed few times before.
+> Just enable "Special FastTrak feature" (overriding BIOS) config option.
 
-> 1. Pay a premium for longer warranty.
+Uh. I may have misunderstood, but I understood that using this option would 
+activate the controller's hardware RAID feature, which I don't want.
 
-I've commented on this already.
+I need to use the controller as a normal, non-RAID, IDE controller (and if 
+ever if was setup as hardware RAID, I'm afraid it would destroy my data..)
 
-> 2. Do qualification tests yourself during the first year of operation.
+Cheers.
 
-Yeah, I need to deliberately damage one block in order to test the firmware,
-but I don't want to damage multiple blocks and use up the reallocation
-space.  I am a home user, even if I also do programming at work, even if I
-also volunteer one day each weekend to test Linux.  How can I arrange to
-damage one block on a disk?
-
-> 3. Look at what products are being shipped in large volume from OEMs, and
-> buy the same product yourself.  Dell or HP or IBM can't afford to ship
-> products that don't have the lowest in-the-field failure rates, so buying
-> what they buy would make sense since they'll run their own tests like #2.
-
-I'm not sure how many Dell notebooks you'll have to open to see a Toshiba
-drive, but I'll bet the number is low.  Also do you recognize the name
-Toshiba as a large maker of notebook PCs, and do you have any guesses as to
-how many Toshiba notebooks you'll have to open to see a Toshiba drive?
-Toshiba already reduced their former US 3-year warranties to 1 year and
-provide 0 warranty directly to customers in Japan.  (Maybe they should
-follow the ideas of a certain dominant software maker and pretend to have a
-90-day warranty but in fact renege every time a failure occurs?  There would
-be 0 difference in what needs to be done in software to make up for it.)
-
+-- 
+Michel Bouissou <michel@bouissou.net> OpenPGP ID 0xDDE8AC6E

@@ -1,42 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278293AbRJMOJ4>; Sat, 13 Oct 2001 10:09:56 -0400
+	id <S278297AbRJMOLQ>; Sat, 13 Oct 2001 10:11:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278296AbRJMOJr>; Sat, 13 Oct 2001 10:09:47 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:21873 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S278293AbRJMOJg>; Sat, 13 Oct 2001 10:09:36 -0400
-Date: Sat, 13 Oct 2001 16:10:01 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Duncan Sands <duncan.sands@math.u-psud.fr>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: xine pauses with recent (not -ac) kernels
-Message-ID: <20011013161001.H714@athlon.random>
-In-Reply-To: <01101208552800.00838@baldrick> <01101300085600.00832@baldrick> <20011013001553.F714@athlon.random> <01101315245500.01180@baldrick>
-Mime-Version: 1.0
+	id <S278296AbRJMOLH>; Sat, 13 Oct 2001 10:11:07 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:22146 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S278297AbRJMOKw>; Sat, 13 Oct 2001 10:10:52 -0400
+From: "Paul E. McKenney" <pmckenne@us.ibm.com>
+Message-Id: <200110131411.f9DEBAK07090@eng4.beaverton.ibm.com>
+Subject: Re: Re: RFC: patch to allow lock-free traversal of lists
+To: davidel@xmailserver.org (Davide Libenzi)
+Date: Sat, 13 Oct 2001 07:11:08 -0700 (PDT)
+Cc: paulus@samba.org (Paul Mackerras), torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.40.0110121834150.1505-100000@blue1.dev.mcafeelabs.com> from "Davide Libenzi" at Oct 12, 2001 05:54:36 PM PST
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <01101315245500.01180@baldrick>; from duncan.sands@math.u-psud.fr on Sat, Oct 13, 2001 at 03:24:55PM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 13, 2001 at 03:24:55PM +0200, Duncan Sands wrote:
->    procs                      memory    swap          io     system         cpu
->  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
->  3  0  0  25684   3056  40232  88744   0   0   924     0  429  2492  92   8   0
->  2  0  0  25684   3056  41112  87824   0   0   880     0  421  2420  90  10   0
->  1  0  0  25684   3056  42140  86788   0   0  1028     0  455  2638  88  12   0
->  2  0  0  25684   3056  43184  85696   0   0  1044     0  462  2518  87  13   0
->  1  0  0  25684   3056  44144  84732   0   0   960     0  439  2501  94   6   0
->  1  0  0  25684   3112  45096  83756   0   0   952     0  440  2351  89   4   7
->  0  0  0  25684  27260  45096  70380   0   0     0     0  178   283   0   6  94
->  0  0  0  25684  27260  45096  70380   0   0     0     0  122   127   0   2  98
+>> To set the record straight, the PPC architecture spec says that
+>> implementations *can* speculate reads, but they have to make it look
+>> as if dependent loads have a read barrier between them.
+>>
+>> And it isn't speculated reads that are the problem in the alpha case,
+>> it's the fact that the cache can reorder invalidations that are
+>> received from the bus.  That's why you can read the new value of p but
+>> the old value of *p on one processor after another processor has just
+>> done something like a = 1; wmb(); p = &a.
+>
+>I think that necessary condition to have a reordering of bus sent
+>invalidations is to have a partitioned cache architecture.
+>I don't see any valid reason for a cache controller of a linear cache
+>architecture to reorder an invalidation stream coming from a single cpu.
+>If the invalidation sequence for cpu1 ( in a linear cache architecture )
+>is 1a, 1b, 1c, ... this case can happen :
+>
+>1a, 2a, 1b, 2b, 2c, 1c, ...
+>|       |           |
+>.........................
+>
+>but not this :
+>
+>1a, 2a, 2b, 1c, 2c, 1b, ...
+>|           |       |
+>...............><........
 
-some pagecache is released so this could proof Linus's theory that we
-block releasing the pagecache on the blkdev at the last close.
+A split cache is certainly one way to get the updates reordered.  It is
+not the only one.  As Linus pointed out earlier, value speculation can
+have the same effect (though I do not believe that value speculation is
+in the cards for the i386 architecture).
 
-Can you try if his suggested workaround fixes the problem for you?
+>> My impression from what Paul McKenney was saying was that on most
+>> modern architectures other than alpha, dependent loads act as if they
+>> have a read barrier between them.  What we need to know is which
+>> architectures specify that behaviour in their architecture spec, as
+>> against those which do that today but which might not do it tomorrow.
+>
+>Uhmm, an architecture that with  a = *p;  schedule the load of  *p  before
+>the load of  p  sounds screwy to me.
 
-Andrea
+Agreed, but value speculation could do just that.  However, value
+speculation would be handled correctly by rmbdd() and by wmbdd(),
+though the latter case relies on precise interrupts.
+
+>The problem is that even if cpu1 schedule the load of  p  before the
+>load of  *p  and cpu2 does  a = 1; wmb(); p = &a; , it could happen that
+>even if from cpu2 the invalidation stream exit in order, cpu1 could see
+>the value of  p  before the value of  *p  due a reordering done by the
+>cache controller delivering the stream to cpu1.
+
+Yep!  I did not create Alpha, I am just trying to help everyone understand
+how to live with it.  ;-)
+
+					Thanx, Paul

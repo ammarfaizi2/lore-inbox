@@ -1,92 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262918AbTIAPHI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 11:07:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262943AbTIAPHI
+	id S262943AbTIAPNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 11:13:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262976AbTIAPNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 11:07:08 -0400
-Received: from vsmtp2.tin.it ([212.216.176.222]:35210 "EHLO vsmtp2.tin.it")
-	by vger.kernel.org with ESMTP id S262918AbTIAPHB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 11:07:01 -0400
-Message-ID: <00f601c3709a$bcc50990$0200a8c0@yakuzad6e0kj9b>
-From: "Juri Bracchi Tkachenok" <yakuza@ircitalia.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: kernel BUG at rmap.c:398
-Date: Mon, 1 Sep 2003 17:07:17 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Mon, 1 Sep 2003 11:13:25 -0400
+Received: from m206.net81-67-10.noos.fr ([81.67.10.206]:63458 "EHLO
+	deep-space-9.dsnet") by vger.kernel.org with ESMTP id S262943AbTIAPNJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 11:13:09 -0400
+Date: Mon, 1 Sep 2003 17:13:07 +0200
+From: Stelian Pop <stelian@popies.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH 2.6.0-test4] meye driver update
+Message-ID: <20030901151307.GC27269@deep-space-9.dsnet>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sep  1 06:22:39 serv1 kernel: ------------[ cut here ]------------
-Sep  1 06:22:39 serv1 kernel: kernel BUG at rmap.c:398!
-Sep  1 06:22:39 serv1 kernel: invalid operand: 0000
-Sep  1 06:22:39 serv1 kernel: ipv6 autofs eepro100 mii ext3 jbd usb-uhci
-usbcore
-Sep  1 06:22:39 serv1 kernel: CPU:    0
-Sep  1 06:22:39 serv1 kernel: EIP:    0010:[try_to_unmap_one+66/224]    Not
-tainted
-Sep  1 06:22:39 serv1 kernel: EFLAGS: 00010246
-Sep  1 06:22:39 serv1 kernel:
-Sep  1 06:22:39 serv1 kernel: EIP is at try_to_unmap_one [kernel] 0x42
-(2.4.20-19.7custom)
-Sep  1 06:22:39 serv1 kernel: eax: c100000c   ebx: 00200000   ecx: 00000000
-edx: c1d0000c
-Sep  1 06:22:39 serv1 kernel: esi: 00200000   edi: e5924b00   ebp: 00000000
-esp: c33ddf20
-Sep  1 06:22:39 serv1 kernel: ds: 0018   es: 0018   ss: 0018
-Sep  1 06:22:39 serv1 kernel: Process kswapd (pid: 5, stackpage=c33dd000)
-Sep  1 06:22:39 serv1 kernel: Stack: 032e1200 00000800 c115f520 c115f520
-c115f520 e5924b00 e5924b00 00000008
-Sep  1 06:22:39 serv1 kernel:        c01398df 032e1200 c115f520 00000020
-00000008 00000000 00000000 c115f520
-Sep  1 06:22:39 serv1 kernel:        c115f520 00000000 000001d0 c0131047
-00000001 00000367 c02da628 00000098
-Sep  1 06:22:39 serv1 kernel: Call Trace:   [try_to_unmap+191/384]
-try_to_unmap [kernel] 0xbf (0xc33ddf40))
-Sep  1 06:22:39 serv1 kernel: [launder_page+1143/1696] launder_page [kernel]
-0x477 (0xc33ddf6c))
-Sep  1 06:22:39 serv1 kernel: [rebalance_dirty_zone+90/144]
-rebalance_dirty_zone [kernel] 0x5a (0xc33ddf84))
-Sep  1 06:22:39 serv1 kernel: [do_try_to_free_pages_kswapd+108/784]
-do_try_to_free_pages_kswapd [kernel] 0x6c (0xc33ddfa4))
-Sep  1 06:22:39 serv1 kernel: [kswapd+321/1248] kswapd [kernel] 0x141
-(0xc33ddfd4))
-Sep  1 06:22:39 serv1 kernel: [_stext+0/48] stext [kernel] 0x0 (0xc33ddfe8))
-Sep  1 06:22:39 serv1 kernel: [arch_kernel_thread+38/48] arch_kernel_thread
-[kernel] 0x26 (0xc33ddff0))
-Sep  1 06:22:39 serv1 kernel: [kswapd+0/1248] kswapd [kernel] 0x0
-(0xc33ddff8))
-Sep  1 06:22:39 serv1 kernel:
-Sep  1 06:22:39 serv1 kernel:
-Sep  1 06:22:39 serv1 kernel: Code: 0f 0b 8e 01 56 07 23 c0 56 55 e8 ef e6
-fe ff 59 89 c7 85 ff
+Hi,
 
+The attached patch implements the needed 'release' callback in order
+to make videodev/sysfs happy again.
 
+Linus, please apply.
 
-after this my server is crash.
+Thanks,
 
-I have  2.4.20-19.7 RedHat Kernel
+Stelian.
 
-in witch mode a fix it ??
-
-if i update to 2.4.22 from source this bug is fix ?? of this is any patch to
-add to kernel ?
-
-why is generate this error ? (any modules ?)
-if i disable it, the error go away?
-
-
-Juri Bracchi
-Extracon.it Hosting Solution
-
-
-
-
+===== drivers/media/video/meye.h 1.8 vs edited =====
+--- 1.8/drivers/media/video/meye.h	Wed Apr 16 12:01:38 2003
++++ edited/drivers/media/video/meye.h	Tue Aug 26 16:48:06 2003
+@@ -312,7 +312,7 @@
+ 
+ 	struct meye_queue grabq;	/* queue for buffers to be grabbed */
+ 
+-	struct video_device video_dev;	/* video device parameters */
++	struct video_device *video_dev;	/* video device parameters */
+ 	struct video_picture picture;	/* video picture parameters */
+ 	struct meye_params params;	/* additional parameters */
+ #ifdef CONFIG_PM
+===== drivers/media/video/meye.c 1.18 vs edited =====
+--- 1.18/drivers/media/video/meye.c	Thu Jul 31 17:59:04 2003
++++ edited/drivers/media/video/meye.c	Wed Aug 27 11:24:51 2003
+@@ -920,7 +920,7 @@
+ 
+ 	case VIDIOCGCAP: {
+ 		struct video_capability *b = arg;
+-		strcpy(b->name,meye.video_dev.name);
++		strcpy(b->name,meye.video_dev->name);
+ 		b->type = VID_TYPE_CAPTURE;
+ 		b->channels = 1;
+ 		b->audios = 0;
+@@ -1225,6 +1225,8 @@
+ 	.type		= VID_TYPE_CAPTURE,
+ 	.hardware	= VID_HARDWARE_MEYE,
+ 	.fops		= &meye_fops,
++	.release	= video_device_release,
++	.minor		= -1,
+ };
+ 
+ #ifdef CONFIG_PM
+@@ -1275,10 +1277,17 @@
+ 		goto out1;
+ 	}
+ 
+-	sonypi_camera_command(SONYPI_COMMAND_SETCAMERA, 1);
+-
+ 	meye.mchip_dev = pcidev;
+-	memcpy(&meye.video_dev, &meye_template, sizeof(meye_template));
++	meye.video_dev = video_device_alloc();
++	if (!meye.video_dev) {
++		printk(KERN_ERR "meye: video_device_alloc() failed!\n");
++		ret = -EBUSY;
++		goto out1;
++	}
++	memcpy(meye.video_dev, &meye_template, sizeof(meye_template));
++	meye.video_dev->dev = &meye.mchip_dev->dev;
++
++	sonypi_camera_command(SONYPI_COMMAND_SETCAMERA, 1);
+ 
+ 	if ((ret = pci_enable_device(meye.mchip_dev))) {
+ 		printk(KERN_ERR "meye: pci_enable_device failed\n");
+@@ -1335,7 +1344,7 @@
+ 	wait_ms(1);
+ 	mchip_set(MCHIP_MM_INTA, MCHIP_MM_INTA_HIC_1_MASK);
+ 
+-	if (video_register_device(&meye.video_dev, VFL_TYPE_GRABBER, video_nr) < 0) {
++	if (video_register_device(meye.video_dev, VFL_TYPE_GRABBER, video_nr) < 0) {
+ 
+ 		printk(KERN_ERR "meye: video_register_device failed\n");
+ 		ret = -EIO;
+@@ -1383,6 +1392,9 @@
+ out3:
+ 	pci_disable_device(meye.mchip_dev);
+ out2:
++	video_device_release(meye.video_dev);
++	meye.video_dev = NULL;
++
+ 	sonypi_camera_command(SONYPI_COMMAND_SETCAMERA, 0);
+ out1:
+ 	return ret;
+@@ -1390,7 +1402,7 @@
+ 
+ static void __devexit meye_remove(struct pci_dev *pcidev) {
+ 
+-	video_unregister_device(&meye.video_dev);
++	video_unregister_device(meye.video_dev);
+ 
+ 	mchip_hic_stop();
+ 
+-- 
+Stelian Pop <stelian@popies.net>

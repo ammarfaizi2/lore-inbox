@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262752AbSJCGct>; Thu, 3 Oct 2002 02:32:49 -0400
+	id <S262753AbSJCGi1>; Thu, 3 Oct 2002 02:38:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262753AbSJCGct>; Thu, 3 Oct 2002 02:32:49 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:4983 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S262752AbSJCGcs>; Thu, 3 Oct 2002 02:32:48 -0400
-Date: Thu, 3 Oct 2002 02:38:14 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: Pete Zaitcev <zaitcev@redhat.com>
-Subject: virt_to_page(pci_alloc_consistent())
-Message-ID: <20021003023814.A5856@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S262756AbSJCGi1>; Thu, 3 Oct 2002 02:38:27 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:18123 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S262753AbSJCGi0>;
+	Thu, 3 Oct 2002 02:38:26 -0400
+Date: Thu, 3 Oct 2002 08:54:17 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: colpatch@us.ibm.com, linux-kernel <linux-kernel@vger.kernel.org>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>
+Subject: Re: [rfc][patch] kernel/sched.c oddness?
+In-Reply-To: <3D9B89FD.1060400@cyberone.com.au>
+Message-ID: <Pine.LNX.4.44.0210030840110.4477-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guys,
 
-I just noticed that sound drivers use the address from
-pci_alloc_consistent() as the input to virt_to_page() all
-over the place. I looked into the Documentation/DMA-mapping.txt,
-and it says:
+> [...] However, I noticed on my 2xSMP system that quite unbalanced loads
+> weren't getting even CPU time best example - 3 processes in busywait
+> loops - one would get 100% of one cpu while two would get 50% each of
+> the other.
 
-  This routine will allocate RAM for that region, so it acts similarly to
-  __get_free_pages (but takes size instead of a page order).
+this was done intentionally, and this scenario (1+2 tasks) is the very
+worst scenario. The problem is that by trying to balance all 3 tasks we
+now have 3 tasks that trash their cache going from one CPU to another.  
+(this is what happens with your patch - even with another approach we'd
+have to trash at least one task)
 
-I know for fact I got it wrong in sparc in whole 2.4, and it seems
-RMK got it wrong in arm. I suggest other architecture maintainers
-to look at it ASAP. May even be oopsabe, by indexing outside of
-mem_map[] with a suitable sound driver.
+By keeping 2 tasks on one CPU and 1 task on the other CPU we avoid
+cross-CPU migration of threads. Think about the 2+3 or 4+5 tasks case
+rather, do we want absolutely perfect balancing, or good SMP affinity and
+good combined performance?
 
--- Pete
+	Ingo
+

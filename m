@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261600AbSJ1WNG>; Mon, 28 Oct 2002 17:13:06 -0500
+	id <S261549AbSJ1WSs>; Mon, 28 Oct 2002 17:18:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261578AbSJ1WLa>; Mon, 28 Oct 2002 17:11:30 -0500
-Received: from mail.scram.de ([195.226.127.117]:3536 "EHLO mail.scram.de")
-	by vger.kernel.org with ESMTP id <S261570AbSJ1WLB>;
-	Mon, 28 Oct 2002 17:11:01 -0500
-Date: Mon, 28 Oct 2002 23:11:41 +0100 (CET)
-From: Jochen Friedrich <jochen@scram.de>
-X-X-Sender: jochen@gfrw1044.bocc.de
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] IPv6 on Token Ring
-Message-ID: <Pine.LNX.4.44.0210282310060.774-100000@gfrw1044.bocc.de>
+	id <S261545AbSJ1WSQ>; Mon, 28 Oct 2002 17:18:16 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:21214 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261352AbSJ1WRp>; Mon, 28 Oct 2002 17:17:45 -0500
+Message-ID: <3DBDB664.7050808@watson.ibm.com>
+Date: Mon, 28 Oct 2002 17:12:52 -0500
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: bert hubert <ahu@ds9a.nl>
+Cc: Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org,
+       davidel@xmailserver.org, linux-aio@vger.kernel.org,
+       lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] Re: [PATCH] epoll more scalable than poll
+References: <53100000.1035832459@w-hlinder> <20021028220809.GB27798@outpost.ds9a.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-while most parts for IPv6 on Token Ring are already in the kernel, one
-small patch is still missing.
+bert hubert wrote:
+> On Mon, Oct 28, 2002 at 11:14:19AM -0800, Hanna Linder wrote:
+> 
+> 
+>>	The results of our testing show not only does the system call 
+>>interface to epoll perform as well as the /dev interface but also that epoll 
+>>is many times better than standard poll. No other implementations of poll 
+> 
+> 
+> Hanna,
+> 
+> Sure that this works? The following trivial program doesn't work on stdinput
+> when I'd expect it to. It just waits until the timeout passes end then
+> returns 0. It also does not work on a file, which is to be expected,
+> although 'select' returns with an immediate availability of data on a file
+> according to SuS.
 
---jochen
+I'm checking this and will let you know.
 
-diff -u -r linux-2.5.44.orig/net/802/tr.c linux-2.5.44/net/802/tr.c
---- linux-2.5.44.orig/net/802/tr.c	2002-10-19 06:01:09.000000000 +0200
-+++ linux-2.5.44/net/802/tr.c	2002-10-26 10:32:28.000000000 +0200
-@@ -91,10 +91,10 @@
- 	int hdr_len;
 
- 	/*
--	 * Add the 802.2 SNAP header if IP as the IPv4 code calls
-+	 * Add the 802.2 SNAP header if IP as the IPv4/IPv6 code calls
- 	 * dev->hard_header directly.
- 	 */
--	if (type == ETH_P_IP || type == ETH_P_ARP)
-+	if (type == ETH_P_IP || type == ETH_P_IPV6 || type == ETH_P_ARP)
- 	{
- 		struct trllc *trllc=(struct trllc *)(trh+1);
+> Furthermore, there is some const weirdness going on, the ephttpd server has
+> a different second argument to sys_epoll_wait.
 
-@@ -216,6 +216,7 @@
+You're right. The ephttpd server on Davide's page needs to add a cast
+(struct pollfd const **) to the second arg passed to sys_epoll_wait.
+The version of dphttpd used to generate the results had that fix in it.
 
- 	if (trllc->dsap == EXTENDED_SAP &&
- 	    (trllc->ethertype == ntohs(ETH_P_IP) ||
-+	     trllc->ethertype == ntohs(ETH_P_IPV6) ||
- 	     trllc->ethertype == ntohs(ETH_P_ARP)))
- 	{
- 		skb_pull(skb, sizeof(struct trllc));
+
+
+-- Shailabh
+
 

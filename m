@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137089AbREKJsW>; Fri, 11 May 2001 05:48:22 -0400
+	id <S137090AbREKJym>; Fri, 11 May 2001 05:54:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137090AbREKJsM>; Fri, 11 May 2001 05:48:12 -0400
-Received: from 13dyn241.delft.casema.net ([212.64.76.241]:6153 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S137089AbREKJsG>; Fri, 11 May 2001 05:48:06 -0400
-Message-Id: <200105110947.LAA18167@cave.bitwizard.nl>
-Subject: Source code compatibility in Stable series????
+	id <S137092AbREKJyd>; Fri, 11 May 2001 05:54:33 -0400
+Received: from ghostwheel.underley.eu.org ([217.97.235.9]:1293 "EHLO
+	bobas.nowytarg.top.pl") by vger.kernel.org with ESMTP
+	id <S137090AbREKJyO>; Fri, 11 May 2001 05:54:14 -0400
+From: Daniel Podlejski <underley@witch.underley.eu.org>
 To: linux-kernel@vger.kernel.org
-Date: Fri, 11 May 2001 11:47:59 +0200 (MEST)
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Subject: Re: reiserfs, xfs, ext2, ext3
+In-Reply-To: <20010511103233.A2252@gruyere.muc.suse.de>
+In-Reply-To: <alan@lxorguk.ukuu.org.uk> <20010511103233.A2252@gruyere.muc.suse.de>
+X-PGP-Fingerprint: 4D 72 53 F8 FE 8C 53 B9  66 AD F6 EA C9 17 CD 82
+X-Homepage: http://www.underley.eu.org/
+Message-Id: <20010511093456Z5269733-750+13@witch.underley.eu.org>
+Date: Fri, 11 May 2001 11:34:55 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On linux-kernel, ak@suse.de (Andi Kleen) wrote:
+[...]
+:  If /arc is not on a different hd it is probably a good idea to make 
+:  sure test.tar.gz is small enough to fit into memory and has been read
+:  at least once to be cache hot (that was the case with my test tar). 
+:  Otherwise you're testing how fast the hd can seek between the two places 
+:  and how far XFS and ext2 are away, and both are not very interesting.
 
-Hi,
+hda: IBM-DTLA-307030, ATA DISK drive
+hdc: ST34312A, ATA DISK drive
+hda: 60036480 sectors (30739 MB) w/1916KiB Cache, CHS=3737/255/63, UDMA(66)
+hdc: 8420832 sectors (4311 MB) w/512KiB Cache, CHS=524/255/63, UDMA(33)
 
-It seems that in 2.4.4 suddenly the function "skb_cow" no longer
-returns the modified skb, but it retuns and integer for
-succes/failure.
+/arc is logical volume on hda, /mobile is partition on hdc (mobile -
+becouse it's on disk in mobile rack ;)), so test is good.
 
-This means that for networking modules requiring this function, there
-is no source code compatibilty between 2.4.3 and 2.4.4.
-
-			Roger. 
+Soon I will test this on SCSI disk.
 
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+Daniel Podlejski <underley@underley.eu.org>
+   ... A blind man kneels on broken class
+   Building the bars of his own case ...

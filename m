@@ -1,48 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317695AbSG2AnA>; Sun, 28 Jul 2002 20:43:00 -0400
+	id <S317446AbSG2AkU>; Sun, 28 Jul 2002 20:40:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317907AbSG2AnA>; Sun, 28 Jul 2002 20:43:00 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48905 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317695AbSG2Am7>; Sun, 28 Jul 2002 20:42:59 -0400
-Date: Sun, 28 Jul 2002 17:47:39 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
+	id <S317463AbSG2AkU>; Sun, 28 Jul 2002 20:40:20 -0400
+Received: from holomorphy.com ([66.224.33.161]:14506 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S317446AbSG2AkU>;
+	Sun, 28 Jul 2002 20:40:20 -0400
+Date: Sun, 28 Jul 2002 17:43:25 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
 To: Andrew Morton <akpm@zip.com.au>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 11/13] don't hold i_sem during O_DIRECT writes to blockdevs
-In-Reply-To: <3D448EAA.CE3382D8@zip.com.au>
-Message-ID: <Pine.LNX.4.44.0207281739360.8208-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH 2.5] Introduce 64-bit versions of PAGE_{CACHE_,}{MASK,ALIGN}
+Message-ID: <20020729004325.GS25038@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@zip.com.au>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <5.1.0.14.2.20020728193528.04336a80@pop.cus.cam.ac.uk> <Pine.LNX.4.44.0207281622350.8208-100000@home.transmeta.com> <3D448808.CF8D18BA@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <3D448808.CF8D18BA@zip.com.au>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
+>> Dream on. It's good, and it's not getting removed. The "struct page" is
+>> size-critical, and also correctness-critical (see above on gcc issues).
+
+32-bit is a sad, broken, and depressing reality we're going to be
+saddled with on mainstream systems for ages. It's stinking up the
+kernel like a dead woodchuck under the porch as it is, and the 64GB
+abominations on their way out the ass-end of hardware vendor pipelines
+are truly vomitous.
 
 
-On Sun, 28 Jul 2002, Andrew Morton wrote:
->
-> We can do the rwsem thing, and that would be good.  But there may
-> be filesystems which are relying on i_sem to provide protection
-> against concurrent invokations of get_block(create=1), inside i_size.
+On Sun, Jul 28, 2002 at 05:10:48PM -0700, Andrew Morton wrote:
+> Plan B is to remove page->index.
+> - Replace ->mapping with a pointer to the page's radix tree
+>   slot.   Use address masking to go from page.radix_tree_slot
+>   to the radix tree node.
+> - Store the base index in the radix tree node, use math to
+>   derive page->index.  Gives 64-bit index without increasing
+>   the size of struct page. 4 bytes saved.  
+> - Implement radix_tree_gang_lookup() as previously described.  Use
+>   this in truncate_inode_pages, invalidate_inode_pages[2], readahead
+>   and writeback.
+> - The only thing we now need page.list for is tracking dirty pages.
+>   Implement a 64-bit dirtiness bitmap in radix_tree_node, propagate
+>   that up the radix tree so we can efficiently traverse dirty pages
+>   in a mapping.  This also allows writeback to always write in ascending
+>   index order.  Remove page->list.  8 bytes saved.
+> - Few pages use ->private for much.  Hash for it.  4(ish) bytes
+>   saved.
+> - Remove ->virtual, do page_address() via a hash.  4(ish) bytes saved.
+> - Remove the rmap chain (I just broke ptep_to_address() anyway).  4 bytes
+>   saved.  struct page is now 20 bytes.
+> There look.  In five minutes I shrunk 24 bytes from the page
+> structure.  Who said programming was hard?
 
-We actually want to retain i_sem for directory operations anyway (ie the
-rw-semaphore would be an addition, not a replacement), so the easiest
-transition would probably be to move the i_sem thing into the filesystems
-when the rwsem thing is done (the same way the BKL removal worked), and
-then let the filesystems make their own decisions on when they need it
-(and the decision might well be to take it in the "create = 1" case, which
-is likely to be fairly rare for non-extending writes)
+This is so aggressive I'm obligated to pursue it. The pte_chain will
+die shortly if I get my way as it is.
 
-The other alternative is to move this _all_ into the filesystem entirely,
-and not have "generic_file_write()" take any lock at all. Let the
-filesystem first take whatever lock it thinks it needs, and then call
-"generic_file_write()". Filesystems migh choose to just get i_sem
-unconditionally both for extending and non-extending writes.
 
-That would mean that the filesystems would have to always wrap their use
-of "generic_file_write()", but a number of them do so anyway because they
-want to do some other book-keeping. I dunno.
-
-			Linus
-
+Cheers,
+Bill

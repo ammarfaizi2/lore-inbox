@@ -1,113 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVAXT1u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbVAXT2K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261579AbVAXT1u (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 14:27:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVAXTZ0
+	id S261589AbVAXT2K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 14:28:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVAXT2I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 14:25:26 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:11215 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S261579AbVAXTYQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 14:24:16 -0500
-Date: Mon, 24 Jan 2005 22:46:54 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
-Message-ID: <20050124224654.6b20ab50@zanzibar.2ka.mipt.ru>
-In-Reply-To: <20050124190320.GO3515@stusta.de>
-References: <20050124021516.5d1ee686.akpm@osdl.org>
-	<20050124175449.GK3515@stusta.de>
-	<20050124214336.2c555b53@zanzibar.2ka.mipt.ru>
-	<20050124182926.GM3515@stusta.de>
-	<20050124221929.590418e2@zanzibar.2ka.mipt.ru>
-	<20050124190320.GO3515@stusta.de>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Mon, 24 Jan 2005 14:28:08 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:36369 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261592AbVAXT0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 14:26:08 -0500
+Date: Mon, 24 Jan 2005 20:26:05 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] update scripts/namespace.pl
+Message-ID: <20050124192605.GR3515@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jan 2005 20:03:20 +0100
-Adrian Bunk <bunk@stusta.de> wrote:
+The patch below removes some false positives I've observed.
 
-> On Mon, Jan 24, 2005 at 10:19:29PM +0300, Evgeniy Polyakov wrote:
-> > On Mon, 24 Jan 2005 19:29:26 +0100
-> > Adrian Bunk <bunk@stusta.de> wrote:
-> > 
-> > > On Mon, Jan 24, 2005 at 09:43:36PM +0300, Evgeniy Polyakov wrote:
-> > > > On Mon, 24 Jan 2005 18:54:49 +0100
-> > > > Adrian Bunk <bunk@stusta.de> wrote:
-> > > > 
-> > > > > It seems noone who reviewed the SuperIO patches noticed that there are 
-> > > > > now two modules "scx200" in the kernel...
-> > > > 
-> > > > They are almost mutually exlusive(SuperIO contains more advanced), 
-> > > > so I do not see any problem here.
-> > > 
-> > > The Kconfig files allow building both modular at the same time.
-> > > 
-> > > > Only one of them can be loaded in a time.
-> > > 
-> > > You are assuming the module support was in able to correctly handle two 
-> > > modules with the same name...
-> > > 
-> > > > So what does exactly bother you?
-> > > 
-> > > if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.6.11-rc2-mm1; fi
-> > > WARNING: /lib/modules/2.6.11-rc2-mm1/kernel/drivers/i2c/busses/scx200_i2c.ko needs unknown symbol scx200_gpio_base
-> > > WARNING: /lib/modules/2.6.11-rc2-mm1/kernel/drivers/i2c/busses/scx200_i2c.ko needs unknown symbol scx200_gpio_configure
-> > > WARNING: /lib/modules/2.6.11-rc2-mm1/kernel/drivers/i2c/busses/scx200_i2c.ko needs unknown symbol scx200_gpio_shadow
-> > > WARNING: /lib/modules/2.6.11-rc2-mm1/kernel/drivers/char/scx200_gpio.ko needs unknown symbol scx200_gpio_base
-> > > WARNING: /lib/modules/2.6.11-rc2-mm1/kernel/drivers/char/scx200_gpio.ko needs unknown symbol scx200_gpio_configure
-> > > WARNING: /lib/modules/2.6.11-rc2-mm1/kernel/drivers/char/scx200_gpio.ko needs unknown symbol scx200_gpio_shadow
-> > 
-> > Sorry, I can not buy it.
-> > Above symbols are defined in old scx200 driver, and I it is depmod
-> > who tries to get them from superio.
-> 
-> More exactly, "make modules_install" does install only one of the two 
-> drivers.
-> 
-> > I definitely sure that it must be solved on the other layers.
-> >...
-> 
-> Two modules with the same name are simply a _very_ bad idea.
-> 
-> Even if they weren't allowed to be compiled at the same time, they 
-> should be named differently or it will cause much confusion for 
-> everyone (or don't you want to see from the output of "lsmod" which of 
-> the two modules is loaded?).
-
-I do not agree with you, Adrian, but I will not contend.
-As I say, noone protects against the same program names and there are
-mechnisms to differ modules by simply looking in lsmod output.
-Noone can damage systrem by loading "wrong" module.
-
-So I still do not see problems here.
-
-As I say I will change superio scx200 name since it is easier than
-flood about unmatched points of view.
-
-I will send patch through Greg and Andrew later.
-
-Thank you, Adrian, for your comments.
- 
-> cu
-> Adrian
-> 
-> -- 
-> 
->        "Is there not promise of rain?" Ling Tan asked suddenly out
->         of the darkness. There had been need of rain for many days.
->        "Only a promise," Lao Er said.
->                                        Pearl S. Buck - Dragon Seed
+Is this correct, or is there another correct solution?
 
 
-	Evgeniy Polyakov
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Only failure makes us experts. -- Theo de Raadt
+--- linux-2.6.11-rc2-mm1-full/scripts/namespace.pl.old	2005-01-24 19:45:52.000000000 +0100
++++ linux-2.6.11-rc2-mm1-full/scripts/namespace.pl	2005-01-24 20:20:58.000000000 +0100
+@@ -406,6 +406,11 @@
+ 					&& $name !~ /^__.*per_cpu_end/
+ 					&& $name !~ /^__alt_instructions/
+ 					&& $name !~ /^__setup_/
++					&& $name !~ /^jiffies/
++					&& $name !~ /^__mod_timer/
++					&& $name !~ /^__mod_page_state/
++					&& $name !~ /^init_module/
++					&& $name !~ /^cleanup_module/
+ 				) {
+ 					printf "Cannot resolve ";
+ 					printf "weak " if ($type eq "w");
+

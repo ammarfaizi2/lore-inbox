@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273355AbTG3T1G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 15:27:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273358AbTG3T1G
+	id S273334AbTG3TTx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 15:19:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273336AbTG3TTx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 15:27:06 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:1808 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S273355AbTG3TZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 15:25:37 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Shawn <core@enodev.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Buffer I/O error on device hde3, logical block 4429
-Date: Wed, 30 Jul 2003 21:25:27 +0200
-User-Agent: KMail/1.5.2
-References: <1059585712.11341.24.camel@localhost> <1059592520.11341.47.camel@localhost>
-In-Reply-To: <1059592520.11341.47.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307302125.27898.m.c.p@wolk-project.de>
+	Wed, 30 Jul 2003 15:19:53 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:50105 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S273334AbTG3TTv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 15:19:51 -0400
+Date: Wed, 30 Jul 2003 21:18:54 +0200 (MEST)
+Message-Id: <200307301918.h6UJIskn020572@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: ak@suse.de
+Subject: Re: [PATCH] NMI watchdog documentation
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br, torvalds@osdl.org,
+       vherva@niksula.hut.fi
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 30 July 2003 21:15, Shawn wrote:
+On Tue, 29 Jul 2003 18:06:30 +0200, Andi Kleen wrote:
+>Right, 1 and 2 need to be exchanged. Anyways local apic mode does not seem
+>to work, the kernel always reportss "NMI stuck" at bootup.
+>IO APIC mode for is default.
 
-Hi,
+That's strange. I've tested perfctr-generated interrupts through
+the local APIC on Opteron, and they work with the perfctr driver.
 
-> It appears Mike Galbraith has seen something similar in -vanilla.
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0307.3/1987.html
-> Does anyone have any interest at all in pursuing this? Hopefully? I'm
-> glad to try and be the pig of Guinea. Kill piggy!
+Two things you might want to test:
+- In case the unofficial event 0x76 really doesn't work in your
+  version of the chip, try this event specifier instead: it
+  creates a clock-like event using an inverted threshold approach.
+  I've tested this on K8 and P6 with the perfctr driver. The event
+  code (0xC0) is immaterial, 0x00 and 0xFF work equally well.
 
-> > I am running 2.6.0-test2-mm1, and upon boot have received a gift of many
-> > "Buffer I/O error on device hde3" messages in my log. After they quit,
-> > they never seem to come back.
-hmm, I had the same errors yesterday and the culprit was a "data=writeback" 
-for a reiserfs partition. 2.6 don't know about data= for reiserfs.
+--- linux-2.6.0-test2/arch/x86_64/kernel/nmi.c.~1~	2003-07-03 12:32:44.000000000 +0200
++++ linux-2.6.0-test2/arch/x86_64/kernel/nmi.c	2003-07-30 20:46:21.412657728 +0200
+@@ -51,7 +51,7 @@
+ #define K7_EVNTSEL_OS		(1 << 17)
+ #define K7_EVNTSEL_USR		(1 << 16)
+ #define K7_EVENT_CYCLES_PROCESSOR_IS_RUNNING	0x76
+-#define K7_NMI_EVENT		K7_EVENT_CYCLES_PROCESSOR_IS_RUNNING
++#define K7_NMI_EVENT		(0xC0 | (1<<23) | (0xFF << 24))
+ 
+ #define P6_EVNTSEL0_ENABLE	(1 << 22)
+ #define P6_EVNTSEL_INT		(1 << 20)
 
-Could it be your problem too?
+- My perfctr driver routes interrupts through LVTPC programmed for
+  Fixed delivery mode. Maybe the NMI delivery mode is broken. You
+  could try changing the NMI watchdog to use a new vector and Fixed
+  delivery mode, just to see if the watchdog starts ticking.
 
-ciao, Marc
-
+/Mikael

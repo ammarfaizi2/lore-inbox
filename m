@@ -1,41 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129406AbRADR6S>; Thu, 4 Jan 2001 12:58:18 -0500
+	id <S129911AbRADSAs>; Thu, 4 Jan 2001 13:00:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129557AbRADR6I>; Thu, 4 Jan 2001 12:58:08 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:39439 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129406AbRADR5y>; Thu, 4 Jan 2001 12:57:54 -0500
-Subject: Re: Journaling: Surviving or allowing unclean shutdown?
-To: david.lang@digitalinsight.com (David Lang)
-Date: Thu, 4 Jan 2001 17:59:17 +0000 (GMT)
-Cc: phillips@innominate.de (Daniel Phillips),
-        helgehaf@idb.hist.no (Helge Hafting), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.31.0101040942550.10387-100000@dlang.diginsite.com> from "David Lang" at Jan 04, 2001 09:43:48 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129655AbRADSAi>; Thu, 4 Jan 2001 13:00:38 -0500
+Received: from warden.digitalinsight.com ([208.29.163.2]:1246 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S129557AbRADSAZ>; Thu, 4 Jan 2001 13:00:25 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Daniel Phillips <phillips@innominate.de>,
+        Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
+Date: Thu, 4 Jan 2001 10:00:01 -0800 (PST)
+Subject: Re: Journaling: Surviving or allowing unclean shutdown? 
+In-Reply-To: <10290.978630745@redhat.com>
+Message-ID: <Pine.LNX.4.31.0101040954040.10387-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14EEfY-00067i-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> for crying out loud, even windows tells the users they need to shutdown
-> first and gripes at them if they pull the plug. what users are you trying
-> to protect, ones to clueless to even run windows?
+in an enbedded device you can
 
-Clueless ?  Hardly. Every other appliance in the home you turn it off and it
-goes off. You turn it on and it comes on. You get confused you turn it off and
-on. Its the definitive model of how home appliances works and its how people
-expect them to work.
+1. setup the power switch so it doesn't actually turn things off (it
+issues the shutdown command instead)
 
-In the embedded world you will regularly see adherence to that model in 
-the specification. Firstly because the users do it, secondly because power
-cuts ensure it happens anyway
+2.  run from read-only media almost exclusivly so that power event's don't
+bother you much
 
-Alan
+3. you can add extra power inside the device so that if someone does pull
+the plug, you have a few seconds of power to do the clean shutdown
 
+4. you can run out of ram and force the user to do an extra step to save
+any changes to non-volitile storage (and if they power off during the save
+the results are undefined)
+
+I have seen all of these approaches used in different devices (that are
+not running linux). This is not a new problem and the people working in
+this space have a bunch of answers.
+
+an improved filesystem that tolorates bad shutdowns reasonably well will
+be welcomed for other reasons, but should not be viewed as a fix for
+people pulling the plug on you.
+
+David Lang
+
+
+
+On Thu, 4 Jan 2001, David Woodhouse wrote:
+
+> Date: Thu, 04 Jan 2001 17:52:25 +0000
+> From: David Woodhouse <dwmw2@infradead.org>
+> To: David Lang <david.lang@digitalinsight.com>
+> Cc: Daniel Phillips <phillips@innominate.de>,
+>      Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
+> Subject: Re: Journaling: Surviving or allowing unclean shutdown?
+>
+>
+> david.lang@digitalinsight.com said:
+> > for crying out loud, even windows tells the users they need to
+> > shutdown first and gripes at them if they pull the plug. what users
+> > are you trying to protect, ones to clueless to even run windows?
+>
+> Precisely. Users of embedded devices don't expect to have to treat them
+> like computers.
+>
+> --
+> dwmw2
+>
+>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

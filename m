@@ -1,48 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311275AbSCLQiS>; Tue, 12 Mar 2002 11:38:18 -0500
+	id <S311280AbSCLQks>; Tue, 12 Mar 2002 11:40:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311280AbSCLQiJ>; Tue, 12 Mar 2002 11:38:09 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:24073 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S311275AbSCLQiD>; Tue, 12 Mar 2002 11:38:03 -0500
-Date: Tue, 12 Mar 2002 11:36:19 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Erik Andersen <andersen@codepoet.org>
-cc: LKML <linux-kernel@vger.kernel.org>
+	id <S311281AbSCLQkj>; Tue, 12 Mar 2002 11:40:39 -0500
+Received: from sproxy.gmx.de ([213.165.64.20]:19447 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S311280AbSCLQkT>;
+	Tue, 12 Mar 2002 11:40:19 -0500
+Date: Tue, 12 Mar 2002 17:44:33 +0100
+From: Sebastian Droege <sebastian.droege@gmx.de>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [patch] My AMD IDE driver, v2.7
-In-Reply-To: <20020312044112.GA18857@codepoet.org>
-Message-ID: <Pine.LNX.3.96.1020312113327.31421B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20020312174433.665239e6.sebastian.droege@gmx.de>
+In-Reply-To: <20020312172134.A5026@ucw.cz>
+In-Reply-To: <E16kYXz-0001z3-00@the-village.bc.nu>
+	<Pine.LNX.4.33.0203111431340.15427-100000@penguin.transmeta.com>
+	<20020311234553.A3490@ucw.cz>
+	<3C8DDFC8.5080501@evision-ventures.com>
+	<20020312165937.A4987@ucw.cz>
+	<3C8E28A1.1070902@evision-ventures.com>
+	<20020312172134.A5026@ucw.cz>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.w+EkXN9yadg:Js"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Mar 2002, Erik Andersen wrote:
+--=.w+EkXN9yadg:Js
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-> On Mon Mar 11, 2002 at 10:10:36PM -0500, Jeff Garzik wrote:
-> > 1) There should be a raw device command interface (not ATA or SCSI specific)
+Hi,
+
+On Tue, 12 Mar 2002 17:21:34 +0100
+Vojtech Pavlik <vojtech@suse.cz> wrote:
+
+> VIA is already OK, well, it has my name in it. :) AMD is now also (well,
+> that one wasn't broken, just ugly), SiS is being revamped by Lionel
+> Bouton (whom I'm trying to help as much as I can), so yes, PIIX would be
+> next.
 > 
-> Hmm.  If such a generic low-level raw device layer were to be
-> implemented (presumably as the foundation for the block layer), I
-> expect the interface would be somthing like the cdrom layer, and
-> would abstract out all the normal things that raw mass-storage
-> devices can do.
-> 
-> But the minute such a layer is in place, people will begin going
-> straight to the sub-low-level raw device layers so they can use
-> all the exciting new extended features of their XP370000 quantum
-> storage array which needs the special frob-electrons command to
-> make it work...
+> PIIX and ICH are pretty crazy hardware from the design perspective, very
+> legacy-bound back to the first Intel PIIX chip. And the driver for these
+> in the kernel has similarly evolved following the hardware. However, it
+> doesn't seem to be wrong at the first glance. Nevertheless, I'll take a
+> look at it. Unfortunately, I don't have any Intel hardware at hand to
+> test it with.
 
-Given that this has not happened with sg, nor with people using the
-sg+ide-scsi, I think you would have to provide a good reason why this
-would happen. The most likely path would be a separate driver or enhanced
-IDE driver patch. User programs generally do read, write and seek, not
-ioctl level hacking.
+I have one Intel Corp. 82371AB PIIX4 IDE (rev 01) here and I can test it for you.
+This machine isn't very important so it doesn't matter if some data gets shredded ;)
+Just send me the patch when you've finished it.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Bye
+--=.w+EkXN9yadg:Js
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+
+iD8DBQE8jjB0e9FFpVVDScsRAq2/AKDyCo3u6LFW1jXoIs6SZxMhXJp49ACeJYEJ
+qhdMVUxLPctDwRvI2R3yu8M=
+=nu2D
+-----END PGP SIGNATURE-----
+
+--=.w+EkXN9yadg:Js--
 

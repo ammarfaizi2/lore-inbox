@@ -1,70 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265002AbSJPJ5m>; Wed, 16 Oct 2002 05:57:42 -0400
+	id <S265003AbSJPJ6v>; Wed, 16 Oct 2002 05:58:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265003AbSJPJ5m>; Wed, 16 Oct 2002 05:57:42 -0400
-Received: from apollo.nbase.co.il ([194.90.137.2]:58630 "EHLO
-	apollo.nbase.co.il") by vger.kernel.org with ESMTP
-	id <S265002AbSJPJ5l>; Wed, 16 Oct 2002 05:57:41 -0400
-Message-ID: <3DAD3A68.4090200@mrv.com>
-Date: Wed, 16 Oct 2002 12:07:36 +0200
-From: Eran Mann <emann@mrv.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: lkml <linux-kernel@vger.kernel.org>, johnstul@us.ibm.com
-Subject: Re: Linux 2.4.20-pre11 - UP compile fails
-References: <Pine.LNX.4.44L.0210152109360.31342-100000@freak.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265004AbSJPJ6v>; Wed, 16 Oct 2002 05:58:51 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:24841 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S265003AbSJPJ6u>; Wed, 16 Oct 2002 05:58:50 -0400
+Date: Wed, 16 Oct 2002 03:04:39 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: mapping 36 bit physical addresses into 32 bit virtual
+Message-ID: <20021016100439.GF7844@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <20021015165947.50642.qmail@web13801.mail.yahoo.com> <aoi6bb$309$1@cesium.transmeta.com> <20021016072345.GE7844@pegasys.ws> <buo4rbmvlq8.fsf@mcspd15.ucom.lsi.nec.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <buo4rbmvlq8.fsf@mcspd15.ucom.lsi.nec.co.jp>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.20-pre11 compile with CONFIG_X86_LOCAL_APIC but without 
-CONFIG_X86_IO_APIC fails in mpparse.c:
-gcc -D__KERNEL__ -I/usr/src/2.4.20/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer 
--pipe -mpreferred-stack-boundary=2 -march=i686   -nostdinc -iwithprefix 
-include -DKBUILD_BASENAME=mpparse  -c -o mpparse.o mpparse.c
-mpparse.c:70: `dest_LowestPrio' undeclared here (not in a function)
-make[1]: *** [mpparse.o] Error 1
-make[1]: Leaving directory `/usr/src/2.4.20/arch/i386/kernel'
-make: *** [_dir_arch/i386/kernel] Error 2
-
-The offending line is:
-mpparse.c:70:unsigned char int_delivery_mode = dest_LowestPrio;
-
-This fails because mpparse.c compile depends on CONFIG_X86_LOCAL_APIC 
-while dest_LowestPrio definition in include/asm-i386/io_apic.h depends 
-on CONFIG_X86_IO_APIC.
-
-Marcelo Tosatti wrote:
-> Hi,
+On Wed, Oct 16, 2002 at 05:20:15PM +0900, Miles Bader wrote:
+> jw schultz <jw@pegasys.ws> writes:
+> > i distinctly remember the working with the newest R400x in 1993 which
+> > was still 32bit.  I know MIPS went to 64bit sometime not too long
+> > after that (mid 90's?) but by then Alpha and Sparc had beaten them to
+> > the punch.
 > 
-> Here goes -pre11 with a lot of misc fixes.
+> You're wrong -- the R4000 was absolutely 64-bit, and was released in
+> 1991.  The 64-bit sparc was circa '93, and alpha I dunno, but I think
+> '91-'92.
 > 
-....
+> [note that I'm talking about chips, not software; I believe it was quite
+> a while before the OS stuff caught up with the 64-bit mips processors]
 
-> <johnstul@us.ibm.com>:
->   o Cleanup clustered APIC code to allow others to use it
-This seems to be the ChangeSet that introduced the failing line:
-http://linux.bkbits.net:8080/linux-2.4/cset@1.783
-
-
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+OK. I guess i'm wrong.  It may be that the hardware was
+locked into 32bit mode.  The development period was a couple
+of years so we were running on essentially 89-90 tech with a
+faster clock.
 
 -- 
-Eran Mann
-Senior Software Engineer
-MRV International
-Tel: 972-4-9936297
-Fax: 972-4-9890430
-www.mrv.com
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
+		Remember Cernan and Schmitt

@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282070AbRKVIXU>; Thu, 22 Nov 2001 03:23:20 -0500
+	id <S282073AbRKVIbk>; Thu, 22 Nov 2001 03:31:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282071AbRKVIXK>; Thu, 22 Nov 2001 03:23:10 -0500
-Received: from aragorn.ics.muni.cz ([147.251.4.33]:58528 "EHLO
-	aragorn.ics.muni.cz") by vger.kernel.org with ESMTP
-	id <S282070AbRKVIXD>; Thu, 22 Nov 2001 03:23:03 -0500
-Date: Thu, 22 Nov 2001 09:23:00 +0100
-From: Jan Kasprzak <kas@informatics.muni.cz>
-To: Bernd Eckenfels <ecki@lina.inka.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VM tuning for Linux routers
-Message-ID: <20011122092300.D2421@informatics.muni.cz>
-In-Reply-To: <20011117134127.A8041@se1.cogenit.fr> <E1658YH-0008Jp-00@calista.inka.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <E1658YH-0008Jp-00@calista.inka.de>; from ecki@lina.inka.de on Sat, Nov 17, 2001 at 05:42:45PM +0100
+	id <S282074AbRKVIbb>; Thu, 22 Nov 2001 03:31:31 -0500
+Received: from mx5.sac.fedex.com ([199.81.194.37]:38162 "EHLO
+	mx5.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S282073AbRKVIbO>; Thu, 22 Nov 2001 03:31:14 -0500
+Date: Thu, 22 Nov 2001 16:30:58 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: "Marcel J.E. Mol" <marcel@mesa.nl>
+cc: Jeff Chua <jeffchua@silk.corp.fedex.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Dominik Kubla <kubla@sciobyte.de>,
+        Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: New ac patch???
+In-Reply-To: <20011122082930.A18888@joshua.mesa.nl>
+Message-ID: <Pine.LNX.4.42.0111221628520.1799-100000@boston.corp.fedex.com>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 11/22/2001
+ 04:31:08 PM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 11/22/2001
+ 04:31:11 PM,
+	Serialize complete at 11/22/2001 04:31:11 PM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Eckenfels wrote:
-: Most important you can configure the
-: kernel for large window sizes and advanced routing.
 
-	Advanced routing is a feature tuning, not a performance one, I think
-(yes, I have advanced routing configured in - I use the "ip rule" mechanism
-for simple filtering. It is faster than iptables, because it uses the
-routing cache).
+On Thu, 22 Nov 2001, Marcel J.E. Mol wrote:
 
-	Large window sizes do matter only for TCP servers, not for
-an IP router/firewall, I think. The only TCP my firewall does itself
-is incoming ssh and outgoing smtp messages from my IDS.
+> Does it have write caching enabled? check with hdparm ( I think you need one of
+> the latest hdparm versions...)
 
-: > However you can increase the length of the Rx/Tx rings on the 100Mb/s side 
-: > and tune the pci latency timers (depends on the hardware fifo size). 
-: 
-: Increasing rx/rx rings is not a particular good idea cause it slows down
-: TCPs adaption to network congestion and router overload.
+# hdparm -i /dev/hda
 
-	OK. I have the following:
+/dev/hda:
 
-/proc/sys/net/core/optmem_max	10240
-/proc/sys/net/core/rmem_default	65535
-/proc/sys/net/core/rmem_max	131071
-/proc/sys/net/core/wmem_default	65535
-/proc/sys/net/core/wmem_max	131071
+ Model=IBM-DJSA-220, FwRev=JS4OAC2A, SerialNo=44T44P30559
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
+ BuffType=DualPortCache, BuffSize=1874kB, MaxMultSect=16, MultSect=16
+ CurCHS=17475/15/63, CurSects=4216520955, LBA=yes, LBAsects=39070080
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes: pio0 pio1 pio2 pio3 pio4
+ DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4
+ AdvancedPM=yes: mode=0x80 (128) WriteCache=enabled
+ Drive Supports : ATA/ATAPI-5 T13 1321D revision 1 : ATA-2 ATA-3 ATA-4
+ATA-5
 
-	I can surely increase rmem_max, wmem_max (and _default).
-What is the optmem_max? What is the difference between [rw]mem_max
-and _default?
+Jeff
 
--Yenya
-
--- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
-               #include <stdio.h>
-               int main(void) { printf("\t\b\b"); return 0; }

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272976AbTHRQvO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 12:51:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272691AbTHRQvO
+	id S275001AbTHRQ5J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 12:57:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275050AbTHRQ5B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 12:51:14 -0400
-Received: from [63.247.75.124] ([63.247.75.124]:43409 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S272976AbTHRQvK (ORCPT
+	Mon, 18 Aug 2003 12:57:01 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:29313 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S274813AbTHRQ4o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 12:51:10 -0400
-Date: Mon, 18 Aug 2003 12:51:09 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: rth@twiddle.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ALPHA] Update for "name" out of struct device.
-Message-ID: <20030818165109.GG24693@gtf.org>
-References: <200308181611.h7IGBEcW024487@hera.kernel.org> <20030818164512.GF24693@gtf.org>
+	Mon, 18 Aug 2003 12:56:44 -0400
+Date: Mon, 18 Aug 2003 09:49:55 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] RFC: kills consistent_dma_mask
+Message-Id: <20030818094955.3aa5c1c2.davem@redhat.com>
+In-Reply-To: <m365kvufjx.fsf@defiant.pm.waw.pl>
+References: <m3oeynykuu.fsf@defiant.pm.waw.pl>
+	<20030817233705.0bea9736.davem@redhat.com>
+	<m3r83jyw2k.fsf@defiant.pm.waw.pl>
+	<20030818054341.2ef07799.davem@redhat.com>
+	<m365kvufjx.fsf@defiant.pm.waw.pl>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030818164512.GF24693@gtf.org>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 18, 2003 at 12:45:12PM -0400, Jeff Garzik wrote:
-> What do you think about the following patch?  It follows the style of
-> other PCI core messages, and prints out the same information as before.
+On 18 Aug 2003 17:54:42 +0200
+Krzysztof Halasa <khc@pm.waw.pl> wrote:
 
-...except for the pretty name, of course.
+> "David S. Miller" <davem@redhat.com> writes:
+> 
+> > Because the other platforms don't to do anything special wrt. this
+> > they can just ignore consitent_dma_mask altogether.
+> 
+> No. The documentation states that consistent_dma_mask (and not dma_mask)
+> will be used when doing pci_alloc_consistent().
 
-But IMO we need to stop drivers and core from printing out pretty-name
-at all, which is another reason for my patch.  Having name information
-like this in the kernel, overall, is a waste, IMO.  _Especially_ when
-that information is conditional.  We should be consistent with what we
-print out, to reduce user confusion.
-
-	Jeff
-
-
-
+Then the platforms need to implement the code.

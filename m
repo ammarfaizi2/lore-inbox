@@ -1,51 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264192AbTGGRPS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 13:15:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265076AbTGGRPR
+	id S264178AbTGGRMN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 13:12:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264192AbTGGRMN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 13:15:17 -0400
-Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:53299 "HELO
-	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264192AbTGGRPP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 13:15:15 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Peter Berg Larsen <pebl@math.ku.dk>
-Subject: Re: [PATCH] Synaptics: support for pass-through port (stick)
-Date: Mon, 7 Jul 2003 12:31:15 -0500
+	Mon, 7 Jul 2003 13:12:13 -0400
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:17619 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S264178AbTGGRML (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 13:12:11 -0400
+From: werner-schmi@t-online.de (Werner Schmidt)
+To: linux-kernel@vger.kernel.org
+Subject: linux-2.4.22-pre3 Compiler warning, Makefile insert
+Date: Mon, 7 Jul 2003 19:27:36 +0200
 User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-References: <Pine.LNX.4.40.0307071400140.28730-100000@shannon.math.ku.dk>
-In-Reply-To: <Pine.LNX.4.40.0307071400140.28730-100000@shannon.math.ku.dk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307071231.16178.dtor_core@ameritech.net>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_I2aC/hC5D3qZ+qT"
+Message-Id: <200307071927.37061.werner-schmi@t-online.de>
+X-Seen: false
+X-ID: VaHPsiZ6oeZq7LtAe3vPhCxPeLjkJaS8aM6LdmRmpBRjARqXrP6OE9@t-dialin.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 07 July 2003 07:09 am, Peter Berg Larsen wrote:
-> On Mon, 7 Jul 2003, Peter Berg Larsen wrote:
->
-> Replying to myself.
->
-> > > button reporting (only left and right as I am not sure to which buttons
-> > > up/down should be mapped),
-> >
-> > hmm. You dont know what the guest protocol, so you can't just | the
-> > button information. However, reallity is that this will work for nearly
-> > anybody now.
->
-> This is not the greatest idea as the guest sometimes does not recieve the
-> button release. This is bad only if the userdriver multiplex the
-> micebuttons from different mice, because it would then seem as the user
-> holds the button down.
->
 
-So should we just get rid of all button multiplexing in kernel module and 
-leave it to the userland (gpm/XFree)? Not trying to bail out, just want to 
-find the best solution...
+--Boundary-00=_I2aC/hC5D3qZ+qT
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Dmitry
+Hallo,
+
+Compiler warning:
+hid-core.c:879: Warnung: implicit declaration of function `hiddev_report_event'
+
+Makefile insert:
+make clean, make mrproper - lib/crc32tahle.h wird nicht entfernt.
+
+mfg: Werner Schmidt
+--Boundary-00=_I2aC/hC5D3qZ+qT
+Content-Type: text/x-diff;
+  charset="iso-8859-15";
+  name="patch-hiddev"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="patch-hiddev"
+
+diff -Naur linux-2.4.22-pre3/include/linux/hiddev.h linux-2.4.22-pre4/include/linux/hiddev.h
+--- linux-2.4.22-pre3/include/linux/hiddev.h	2003-07-06 11:20:50.000000000 +0200
++++ linux-2.4.22-pre4/include/linux/hiddev.h	2003-07-06 12:25:13.000000000 +0200
+@@ -204,6 +204,7 @@
+ void hiddev_disconnect(struct hid_device *);
+ void hiddev_hid_event(struct hid_device *hid, struct hid_field *field,
+ 		      struct hid_usage *usage, __s32 value);
++void hiddev_report_event(struct hid_device *hid, struct hid_report *report);
+ int __init hiddev_init(void);
+ void __exit hiddev_exit(void);
+ #else
+
+--Boundary-00=_I2aC/hC5D3qZ+qT
+Content-Type: text/x-diff;
+  charset="iso-8859-15";
+  name="patch Makefile"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="patch Makefile"
+
+diff -Naur linux-2.4.22-pre3/Makefile linux-2.5.2-pre4/Makefile
+--- linux-2.4.21-pre3/Makefile	2003-07-06 11:20:44.000000000 +0200
++++ linux-2.4.22-pre4/Makefile	2003-07-06 12:14:13.000000000 +0200
+@@ -220,6 +221,7 @@
+ 	drivers/scsi/aic7xxx/aicasm/aicdb.h \
+ 	drivers/scsi/aic7xxx/aicasm/y.tab.h \
+ 	drivers/scsi/53c700_d.h \
++	lib/crc32table.h \
+ 	net/khttpd/make_times_h \
+ 	net/khttpd/times.h \
+ 	submenu*
+@@ -241,6 +243,7 @@
+ 	drivers/sound/pndspini.c \
+ 	drivers/atm/fore200e_*_fw.c drivers/atm/.fore200e_*.fw \
+ 	.version .config* config.in config.old \
++	lib/crc32table.h \
+ 	scripts/tkparse scripts/kconfig.tk scripts/kconfig.tmp \
+ 	scripts/lxdialog/*.o scripts/lxdialog/lxdialog \
+ 	.menuconfig.log \
+
+--Boundary-00=_I2aC/hC5D3qZ+qT--
+

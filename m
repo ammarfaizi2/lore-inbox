@@ -1,103 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbVALBXR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262974AbVALBgS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261655AbVALBXR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 20:23:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbVALBXR
+	id S262974AbVALBgS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 20:36:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262978AbVALBgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 20:23:17 -0500
-Received: from [209.195.52.120] ([209.195.52.120]:49126 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S261655AbVALBXJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 20:23:09 -0500
-Date: Tue, 11 Jan 2005 17:18:16 -0800 (PST)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Jesper Juhl <juhl-lkml@dif.dk>
-cc: Andries Brouwer <aebr@win.tue.nl>, "Barry K. Nathan" <barryn@pobox.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Lukasz Trabinski <lukasz@wsisiz.edu.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] make uselib configurable (was Re: uselib()  & 2.6.X?)
-In-Reply-To: <Pine.LNX.4.61.0501120203510.2912@dragon.hygekrogen.localhost>
-Message-ID: <Pine.LNX.4.60.0501111714450.18921@dlang.diginsite.com>
-References: <Pine.LNX.4.58LT.0501071648160.30645@oceanic.wsisiz.edu.pl><20050107170712.GK29176@logos.cnet>
- <1105136446.7628.11.camel@localhost.localdomain><Pine.LNX.4.58.0501071609540.2386@ppc970.osdl.org>
- <20050107221255.GA8749@logos.cnet><Pine.LNX.4.58.0501081042040.2386@ppc970.osdl.org><20050111225127.GD4378@ip68-4-98-123.oc.oc.cox.net>
- <20050111235907.GG2760@pclin040.win.tue.nl>
- <Pine.LNX.4.61.0501120203510.2912@dragon.hygekrogen.localhost>
+	Tue, 11 Jan 2005 20:36:18 -0500
+Received: from web52610.mail.yahoo.com ([206.190.39.148]:5526 "HELO
+	web52610.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262974AbVALBgK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 20:36:10 -0500
+Message-ID: <20050112013610.20873.qmail@web52610.mail.yahoo.com>
+Date: Wed, 12 Jan 2005 12:36:10 +1100 (EST)
+From: Srihari Vijayaraghavan <sriharivijayaraghavan@yahoo.com.au>
+Subject: Re: [PROBLEM] Badness in cfq_account_completion at drivers/block/cfq-iosched.c:916
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org, sriharivijayaraghavan@yahoo.com.au
+In-Reply-To: <20050111090421.GG4551@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Jan 2005, Jesper Juhl wrote:
+ --- Jens Axboe <axboe@suse.de> wrote: 
+> ... 
+> Does this fix it?
+> 
+> ===== drivers/block/cfq-iosched.c 1.17 vs edited
+> =====
+> --- 1.17/drivers/block/cfq-iosched.c	2004-12-24
+> 09:12:58 +01:00
+> +++ edited/drivers/block/cfq-iosched.c	2005-01-11
+> 10:03:17 +01:00
+> @@ -622,8 +622,10 @@
+>  			cfq_sort_rr_list(cfqq, 0);
+>  		}
+>  
+> -		crq->accounted = 0;
+> -		cfqq->cfqd->rq_in_driver--;
+> +		if (crq->accounted) {
+> +			crq->accounted = 0;
+> +			cfqq->cfqd->rq_in_driver--;
+> +		}
+>  	}
+>  	list_add(&rq->queuelist, &q->queue_head);
+>  }
 
-> On Wed, 12 Jan 2005, Andries Brouwer wrote:
->
->> On Tue, Jan 11, 2005 at 02:51:27PM -0800, Barry K. Nathan wrote:
->>> On Sat, Jan 08, 2005 at 10:46:19AM -0800, Linus Torvalds wrote:
->>>> Another issue is likely that we should make the whole "uselib()"
->>>> interfaces configurable. I don't think modern binaries use it (where
->>>> "modern" probably means "compiled within the last 8 years" ;).
->>
->> libc 5.4.46 is from 1998-06-21 or so, glibc 2.0.5 from 1997-08-25 or so.
->>
->>> +config SYS_USELIB
->>> +	bool "sys_uselib syscall support (needed for old binaries)"
->>> +	---help---
->>> +	  Many old binaries (e.g. dynamically linked a.out binaries, and
->>> +	  ELF binaries that are dynamically linked against libc5), require
->>> +	  the sys_uselib syscall. However, on the typical Linux system, this
->>> +	  code is just old cruft that no longer serves a purpose.
->>> +
->>> +	  If you are unsure, say "N" if you care more about security and
->>> +	  trimming bloat, or say "Y" if you care more about compatibility
->>> +	  with old software. (If you will answer "Y" or "M" to BINFMT_AOUT,
->>> +	  below, you probably should answer "Y" here.)
->>
->> s/sys_uselib/uselib/
->> The system call is uselib().
->>
->> Hmm - old cruft.. Why insult your users?
->> I do not have source for Maple. And my xmaple binary works just fine.
->> But it is a libc4 binary.
->>
->> You mean "on the typical recently installed Linux system, with nothing
->> but the usual Linux utilities".
->>
->> People always claim that Linux is good in preserving binary compatibility.
->> Don't know how true that was, but introducing such config options doesnt
->> help.
->>
->> Let me also mutter about something else.
->> In principle configuration options are evil. Nobody wants fifty thousand
->> configuration options. But I see them multiply like ioctls.
->> There should be a significant gain in having a config option.
->>
-> I don't have much to say exceppt express my agreement. That is so very
-> true.
-> The less config options the user is presented with the better, and for
-> each config option there should be a very good reason. Very much agreed.
->
->
->> Maybe some argue that there is a gain in security here. Perhaps.
->> Or a gain in memory. It is negligible.
->> I see mostly a loss.
->>
->> There are more ancient system calls, like old_stat and oldolduname.
->> Do we want separate options for each system call that is obsoleted?
->>
-> IMO, no, we do not.
+Yes, it does fix the problem with cfq, and the system
+works fine. No more "Badness" error messages. Thanks
+Jens.
 
-how about something like the embedded, experimental, and broken options. 
-that way normal users can disable all of them at a stroke, people who need 
-them can add them in.
+While you are at it, is this acceptable?:
+--- test/drivers/block/elevator.c.orig	2005-01-11
+15:47:07.000000000 +1100
++++ test/drivers/block/elevator.c	2005-01-12
+12:16:19.365813400 +1100
+@@ -170,8 +170,6 @@
+ #else
+ #error "You must build at least 1 IO scheduler into
+the kernel"
+ #endif
+-	printk(KERN_INFO "elevator: using %s as default io
+scheduler\n",
+-							chosen_elevator);
+ }
+ 
+ static int __init elevator_setup(char *str)
+@@ -516,6 +514,9 @@
+ 	spin_unlock_irq(&elv_list_lock);
+ 
+ 	printk(KERN_INFO "io scheduler %s registered\n",
+e->elevator_name);
++	if (!strcmp(e->elevator_name, chosen_elevator))
++		printk(KERN_INFO "elevator: using %s as default io
+scheduler\n",
++                                                     
+  e->elevator_name);
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(elv_register);
 
-David Lang
+It has an advantage of working even when one uses
+"elevator=" kernel boot parameter. If it is wrong
+completely, I am sorry about it.
+
+Thank you.
+Hari
+
+PS: I am using web email interface, if things appear
+funny, sorry about that.
 
 
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+Find local movie times and trailers on Yahoo! Movies.
+http://au.movies.yahoo.com

@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVAXQw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbVAXQwt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261152AbVAXQw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 11:52:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbVAXQuT
+	id S261341AbVAXQwt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 11:52:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbVAXQue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 11:50:19 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:46486 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261532AbVAXQtl
+	Mon, 24 Jan 2005 11:50:34 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:48534 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261533AbVAXQt6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 11:49:41 -0500
-Subject: Re: kernel oops!
+	Mon, 24 Jan 2005 11:49:58 -0500
+Subject: Re: Bug report : drivers/net/hamradio/Kconfig
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Sergey Vlasov <vsu@altlinux.ru>, ierdnah <ierdnah@go.ro>,
+To: Chris Wedgwood <cw@f00f.org>
+Cc: 2df@tuxfamily.org,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0501230956100.4191@ppc970.osdl.org>
-References: <1106437010.32072.0.camel@ierdnac>
-	 <Pine.LNX.4.58.0501222223090.4191@ppc970.osdl.org>
-	 <20050123161512.149cc9de.vsu@altlinux.ru>
-	 <Pine.LNX.4.58.0501230956100.4191@ppc970.osdl.org>
+In-Reply-To: <20050121090223.GA31843@taniwha.stupidest.org>
+References: <1218.213.228.36.71.1106293102.squirrel@webmail.tuxfamily.org>
+	 <20050121090223.GA31843@taniwha.stupidest.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1106509705.6154.12.camel@localhost.localdomain>
+Message-Id: <1106511455.6148.26.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 24 Jan 2005 15:44:56 +0000
+Date: Mon, 24 Jan 2005 15:45:04 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2005-01-23 at 18:22, Linus Torvalds wrote:
-> I think it's only the tty_ldisc_ref_wait() thing that can deadlock (and 
-> even that is likely safe if you just specify an order - "masters first" or 
-> something). Adding a nonblocking "tty_ldisc_ref()" looks safe, ie 
-> something like the appended.
+On Gwe, 2005-01-21 at 09:02, Chris Wedgwood wrote:
+> On Fri, Jan 21, 2005 at 08:38:22AM +0100, 2df@tuxfamily.org wrote:
+> 
+> > Hello, i'm translating some Kconfig files to french for the kernelFR
+> > project (http://kernelfr.traduc.org), and while i was reading
+> > drivers/net/hamradio/Kconfig
+> 
+> i really think this is a bad idea, it will be *much* work to keep
+> things in-sync and will probably just make (more) noise on lkml
 
-Yes.
+People have been doing this for years, and if the file only shipped in
+French you'd probably be doing the same rather than making what seems a
+remarkable dumb comment 8)
 
-> This has the problem (apart from the fact that it's obviously totally
-> untested ;) that it looks like every single pty function would need to do
-> it, so it would be nicer if "tty_ldisc_ref_wait()" would just always get
-> both references (ie do the ordering). Alan?
-
-Almost every user of tty_ldisc_ref_* doesn't need to lock two objects
-and
-the code at that layer has no knowledge of pty/tty pairs. The needed
-info is exposed however in order to do this since the tty knows if its a
-tty/pty pair. I'll take a look - chances are it can be buried in
-tty_ldisc_ref.
-
-I'm dubious this is the actual bug although vhangup on a pty might
-trigger it I guess.
-
-Alan
+There are translations of Kconfig files to numerous languages
 

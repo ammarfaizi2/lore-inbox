@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262551AbVAETE0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262553AbVAETLQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262551AbVAETE0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 14:04:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbVAETE0
+	id S262553AbVAETLQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 14:11:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbVAETLQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 14:04:26 -0500
-Received: from rproxy.gmail.com ([64.233.170.192]:4336 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262551AbVAETEY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 14:04:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=MWfFAKO7CZPlWUxzMxJyQ3p7uh/yZizCzINNWbUCldYpqMYGdZg3nUfjGalYUweDlex35Ji6iIryqvYMzaZSZBJQ5KEeRSEsHw8/GZyi1TH6ZtJviDuSe8kFRu5ojilatJT5vSFcGLV8g9sCxZqMVT87VQqRWvLlO5jJWaLwcSI=
-Message-ID: <d120d50005010510543532e0bf@mail.gmail.com>
-Date: Wed, 5 Jan 2005 13:54:45 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Meelis Roos <mroos@linux.ee>
-Subject: Re: 2.6.9+ keyboard LED problem
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.SOC.4.61.0501052035430.9146@math.ut.ee>
+	Wed, 5 Jan 2005 14:11:16 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:39833 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262553AbVAETLP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 14:11:15 -0500
+Date: Wed, 5 Jan 2005 19:11:13 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: "Jack O'Quin" <joq@io.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050105191113.GA5720@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Lee Revell <rlrevell@joe-job.com>, Jack O'Quin <joq@io.com>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+	Ingo Molnar <mingo@elte.hu>
+References: <1104374603.9732.32.camel@krustophenia.net> <20050103140359.GA19976@infradead.org> <1104862614.8255.1.camel@krustophenia.net> <20050104182010.GA15254@infradead.org> <87u0pxhvn0.fsf@sulphur.joq.us> <1104865198.8346.8.camel@krustophenia.net> <20050105112516.GA31119@infradead.org> <1104946367.8589.29.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <Pine.SOC.4.61.0501051856090.9146@math.ut.ee>
-	 <200501051328.37849.dtor_core@ameritech.net>
-	 <Pine.SOC.4.61.0501052035430.9146@math.ut.ee>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1104946367.8589.29.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jan 2005 20:38:34 +0200 (EET), Meelis Roos <mroos@linux.ee> wrote:
-> > Seems to work fine here. The led is blinking rapidly but I can type just
-> > fine and touchpad works as well.
-> >
-> > What kind of box do you have? UP/SMP, Preempt?
-> 
-> UP, Celeron 900 on i815. Happens on 2 identical computers, one preempt,
-> one not preempt. PS/2 keyboard and mouse on one, only PS/2 keyboard on
-> the other (and USB mouse that is probably unimportant).
->
+On Wed, Jan 05, 2005 at 12:32:47PM -0500, Lee Revell wrote:
+> Really?  I would expect any sane engineer to use the best tool for the
+> job.
 
-The big input update went in with 2.6.9-rc2-bk4.Could you try booting
--bk3 and -bk4 to verify that those changes are to blame?
+Sure.
 
--- 
-Dmitry
+> If you actually think it's Linux, I suggest you try it sometime.
+
+You don't want to run Darwin, trust me.  If you don't read through their
+sources..
+

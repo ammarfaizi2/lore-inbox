@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268972AbRHCMTR>; Fri, 3 Aug 2001 08:19:17 -0400
+	id <S269021AbRHCM1h>; Fri, 3 Aug 2001 08:27:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268996AbRHCMTG>; Fri, 3 Aug 2001 08:19:06 -0400
-Received: from [212.113.174.249] ([212.113.174.249]:26147 "EHLO
-	smtp.netcabo.pt") by vger.kernel.org with ESMTP id <S268972AbRHCMTA> convert rfc822-to-8bit;
-	Fri, 3 Aug 2001 08:19:00 -0400
-From: =?iso-8859-1?Q?Andr=E9_Cruz?= <afafc@rnl.ist.utl.pt>
-To: <linux-kernel@vger.kernel.org>
-Subject: BUG can fill process table
-Date: Fri, 3 Aug 2001 13:18:37 +0100
-Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAArqXyEnDnsk6P8VUX1zHRj8KAAAAQAAAAKlzCr9qk3UyKnk0nEVtzhwEAAAAA@rnl.ist.utl.pt>
+	id <S269002AbRHCM1S>; Fri, 3 Aug 2001 08:27:18 -0400
+Received: from [194.30.80.67] ([194.30.80.67]:5130 "EHLO
+	serv_correo.ingecom.net") by vger.kernel.org with ESMTP
+	id <S269001AbRHCM04>; Fri, 3 Aug 2001 08:26:56 -0400
+Message-ID: <014101c11c17$a6dd21a0$66011ec0@frank>
+From: "Frank Torres" <frank@ingecom.net>
+To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
+Subject: Duplicate console output to a RS232C and keep keyb where it is
+Date: Fri, 3 Aug 2001 14:27:20 +0200
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2526.0000
-X-OriginalArrivalTime: 03 Aug 2001 12:15:14.0576 (UTC) FILETIME=[F35A5900:01C11C15]
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When a process (say dhcpcd) changes the IFF_UP flag to TRUE on an
-interface (say eth0) to bring it up, a new process is created named
-after the interface (eth0 in this case) and it's PPID is dhcpcd. 
+How do I make Linux to use the serial port RS232C as console and get the
+keyb entry from the normal console?
 
-If dhcpcd later changes the IFF_UP flag to FALSE to bring the interface
-down, the eth0 process dies but stays as a zombie. The problem is that
-dhcpcd never receives a sigchld (suposedly eth0 is it's child) and even
-if it executes a wait() no process is reaped and wait() returns -1. 
+The RS232C is a serial port with 12V and there I have a BA63 20x4 display
+connected. (info worldwide)
+It is setted with the right speed, parity, etc. I use echo whatever
+>/dev/ttyS2 and it works.
+If I use the command line parameter everybody says:  (odd and 8 data bits is
+what I use)
+            serial=2,9600o8
+            console=ttyS2,9600o8 console=tty0
+it shows the kernel messages in tty0 and it also sends it to the serial port
+(of course, but without configuring it, though, almost illegible) at the
+point of starting init, it stops the output.
 
-The worse part of this is that when dhcpcd wants to bring up the
-interface again a NEW eth0 process is created and so this starts to fill
-up the process table. 
+If I swap the consoles (console=tty0 console=ttyS2,9600o8) it sends the
+kernel messages to both, the tty0 and the ttySn, but when init starts, it
+begins to send the Welcome... adn the Press I to enter... messages
+repetedely each time further one from another. Seldom it continues executing
+rc.sysinit processes, but it never comes to the end. I check it by
+connecting the serial output to a serial input in a PC also running Linux
+and using cat /dev/ttyS0.
 
-I see two solutions for this: either the interface process start with a
-PPID of 1 (I noticed that init has no problems dealing with them when
-they die) or dhcpcd should receive a sigchld and be able to reap them. 
+I also used the line s0:1234:respawn .... at inittab,   but it creates a new
+line for loggin where you say it to do it. If I dont change lilo.conf but
+only inittab, I can see the loggin message. I don't want that. I just want
+it to get se loggin from the console I'm working with.
 
-Btw why are these process even created? 2.2 didn't do it I think.
+What I expect it to obtain all the console output through the serial port
+and the input through my keyboard using any of the virual consoles (let's
+say tty1), not comming from serial. Is there any way to do that?
 
-I don't know where the problem lies so if someone could tell me who to
-contact about this that would be great. Or maybe if this is already
-known?
-
-Thanks
-
-
-----------
-André Cruz
+Thanx from advance. Frank.
 

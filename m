@@ -1,86 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268050AbUHQAwt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268056AbUHQA7r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268050AbUHQAwt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 20:52:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268056AbUHQAwt
+	id S268056AbUHQA7r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 20:59:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268057AbUHQA7r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 20:52:49 -0400
-Received: from tim.plush.org ([168.150.236.223]:28633 "EHLO tim.plush.org")
-	by vger.kernel.org with ESMTP id S268050AbUHQAwW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 20:52:22 -0400
-Date: Mon, 16 Aug 2004 17:52:18 -0700
-From: Gabriel Rosa <grosa@plush.org>
-To: linux-kernel@vger.kernel.org
-Subject: ich6r/ich6w and ata_piix, hidden drive
-Message-ID: <20040817005218.GA22778@foo.plush.org>
-Mail-Followup-To: Gabriel Rosa <grosa@plush.org>,
-	linux-kernel@vger.kernel.org
+	Mon, 16 Aug 2004 20:59:47 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:17312 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268056AbUHQA7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 20:59:44 -0400
+Subject: Re: [Jackit-devel] Re: [patch] voluntary-preempt-2.6.8-rc2-M5
+From: Lee Revell <rlrevell@joe-job.com>
+To: "Jack O'Quin" <joq@io.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Takashi Iwai <tiwai@suse.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Scott Wood <scott@timesys.com>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>
+In-Reply-To: <87n00vcd2e.fsf@sulphur.joq.us>
+References: <20040726124059.GA14005@elte.hu>
+	 <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu>
+	 <1091141622.30033.3.camel@mindpipe> <20040730064431.GA17777@elte.hu>
+	 <1091228074.805.6.camel@mindpipe> <s5hfz75sh30.wl@alsa2.suse.de>
+	 <1091847265.949.8.camel@mindpipe> <s5h8ycfbc5c.wl@alsa2.suse.de>
+	 <1092652981.13981.11.camel@krustophenia.net>
+	 <20040816104811.GA24747@elte.hu>
+	 <1092653547.13981.15.camel@krustophenia.net>
+	 <1092654488.13981.20.camel@krustophenia.net>
+	 <87n00vcd2e.fsf@sulphur.joq.us>
+Content-Type: text/plain
+Message-Id: <1092704438.13981.125.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 16 Aug 2004 21:00:38 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2004-08-16 at 11:33, Jack O'Quin wrote:
+> Lee Revell <rlrevell@joe-job.com> writes:
+> 
+> > On Mon, 2004-08-16 at 06:52, Lee Revell wrote:
+> > > On Mon, 2004-08-16 at 06:48, Ingo Molnar wrote:
+> > >  if the former then does jackd set itself up (does an mlockall, etc.) 
+> > > > before it opens the audio device? If the audio device has an event for
+> > > > jackd the moment the device is opened, and jackd opens the audio device
+> > > > early during startup, then jackd might not be able to process this event
+> > > > until it has started up (which can take milliseconds).
+> > > 
+> > > This is probably what is happening, the kernel-side issue seems fixed,
+> > 
+> > It looks like this is what happens - jackd calls snd_pcm_start, then
+> > does several other thinks like malloc'ing memory for the array of fd's
+> > to poll() before entering the polling loop, by which time there has been
+> > data ready for a while.  This may or may not be worth fixing, I am
+> > adding jackit-devel to the cc: list.
+> 
+> Yep.  This looks like a bug to me.  While jackd, itself, seems to
+> allocate everything before calling driver->start(), the ALSA driver
+> internally calls malloc() *after* calling snd_pcm_start().  I doubt
+> anyone has ever made a concerted effort to clean up this path for
+> realtime safety.
+> 
+> I think it should be fixed (I need to study the code in more detail).
+> There's probably nothing to prevent us moving the free() and malloc()
+> calls up nearer the top of alsa_driver_start().  That will probably
+> require an extra error test and free in case snd_pcm_start() fails.
 
-Greetings,
+I made this change and it seems to work fine, snd_pcm_start is now the
+very last thing that happens in alsa_driver_start, and we free() if
+snd_pcm_start fails.
 
-I have an interesting situation with a Dell XPS system (actually 6 of them)
-with Intel ICH6 SATA controllers running kernel 2.6.7.
+I still get the xruns at startup, but they were ~100ms before, now they
+are more like 20ms.  Unfortunately the OO-ness of the code makes it hard
+for me to figure out where alsa_driver_start gets called from, so I'm
+not sure what else happens before we enter the polling loop.
 
-the setup is as follows (as seen by the bios):
+Lee  
 
-sata-0 250gb drive
-sata-1 empty
-sata-2 250gb drive
-sata-3 empty
-pata-0 cdrom
-pata-1 empty
-
-this particular bios has 4 settings:
-
-AHCI, SATA, Raid (bios software raid), Combination (SATA/PATA)
-
-in AHCI or Raid mode, no drives are detected. This is unusual, because I
-thought the ata_piix driver was supposed to handle AHCI (ie, enhanced) mode
-fully.
-
-in SATA mode, only sata-0 is detected.
-
-in SATA/PATA mode, both drives are handled by the ide subsystem, with abysmal
-performance (~6.0 MB/sec with hdparm -t)
-
-I am particularly interested in making AHCI mode work, but would be fairly
-happy with SATA mode (excellent performance, now if only the second drive 
-showed up). Any ideas?
-
-here are some relevant lines:
-
-lspci:
-0000:00:1f.2 IDE interface: Intel Corp. 82801FR/FRW (ICH6R/ICH6RW) SATA Controller (rev 03)
-
-dmesg:
-SCSI subsystem initialized
-libata version 1.02 loaded.
-ata_piix version 1.02
-PCI: Setting latency timer of device 0000:00:1f.2 to 64
-ata1: SATA max UDMA/133 cmd 0xFE00 ctl 0xFE12 bmdma 0xFEA0 irq 20
-ata2: SATA max UDMA/133 cmd 0xFE20 ctl 0xFE32 bmdma 0xFEA8 irq 20
-ata1: dev 0 cfg 49:2f00 82:3469 83:7f61 84:4003 85:3469 86:3e41 87:4003 88:207f
-ata1: dev 0 ATA, max UDMA/133, 488281250 sectors: lba48
-ata1: dev 0 configured for UDMA/133
-scsi0 : ata_piix
-ata2: SATA port has no device.
-scsi1 : ata_piix
-Using anticipatory io scheduler
-  Vendor: ATA       Model: WDC WD2500JD-75H  Rev: 08.0
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-SCSI device sda: 488281250 512-byte hdwr sectors (250000 MB)
-SCSI device sda: drive cache: write back
- /dev/scsi/host0/bus0/target0/lun0: p1 p2 p3
-
-I'd be happy to provide more details.
-
-thanks,
--Gabe

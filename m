@@ -1,52 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278416AbRJSN6E>; Fri, 19 Oct 2001 09:58:04 -0400
+	id <S278420AbRJSOGH>; Fri, 19 Oct 2001 10:06:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278417AbRJSN5z>; Fri, 19 Oct 2001 09:57:55 -0400
-Received: from ns.suse.de ([213.95.15.193]:46086 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S278416AbRJSN5g> convert rfc822-to-8bit;
-	Fri, 19 Oct 2001 09:57:36 -0400
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] block highmem zero-bounce #17
-In-Reply-To: <20011018144047.E4825@suse.de> <jen12n4w1v.fsf@sykes.suse.de>
-	<20011019151023.D5509@suse.de>
-X-Yow: I love FRUIT PICKERS!!
-From: Andreas Schwab <schwab@suse.de>
-Date: 19 Oct 2001 15:58:07 +0200
-In-Reply-To: <20011019151023.D5509@suse.de> (Jens Axboe's message of "Fri, 19 Oct 2001 15:10:24 +0200")
-Message-ID: <jed73j4tqo.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.107
+	id <S278421AbRJSOF4>; Fri, 19 Oct 2001 10:05:56 -0400
+Received: from gw-nl4.philips.com ([212.153.190.6]:58117 "EHLO
+	gw-nl4.philips.com") by vger.kernel.org with ESMTP
+	id <S278420AbRJSOFq>; Fri, 19 Oct 2001 10:05:46 -0400
+From: fabrizio.gennari@philips.com
+Subject: Compilation fails if SERIAL_DEBUG_PCI is set
+To: linux-kernel@vger.kernel.org
+Date: Fri, 19 Oct 2001 16:05:51 +0200
+Message-ID: <OFBC87643B.976FB0A4-ONC1256AEA.004D3195@diamond.philips.com>
+X-MIMETrack: Serialize by Router on hbg001soh/H/SERVER/PHILIPS(Release 5.0.5 |September
+ 22, 2000) at 19/10/2001 16:22:35
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> writes:
+In kernel 2.4.12, the file drivers/char/serial.c fails to compile if SERIAL_DEBUG_PCI is set (line 128). The compiler giver the error:
 
-|> On Fri, Oct 19 2001, Andreas Schwab wrote:
-|> > Jens Axboe <axboe@suse.de> writes:
-|> > 
-|> > |> Patch is considered solid. Find it here:
-|> > |> 
-|> > |> *.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.13-pre4/block-highmem-all-17.bz2
-|> > 
-|> > Your patch still makes bad use of struct scatterlist which is architecture
-|> > dependent.  Either fix the definitions in asm-*/scatterlist.h or go back
-|> > using a private struct.  Why did you switch to struct scatterlist in the
-|> > first place??
-|> 
-|> What are you talking about? Please expand. struct scatterlist has very
-|> intentionally been changed to its current look, and if an arch is not
-|> uptodate please let me know.
+serial.c:4147 Structure has not a member subdevice
 
-Currently ia64 does not build due to this.
+(or something like that).
 
-Andreas.
+---------------------------------------------------------
+Fabrizio Gennari          tel. +39 039 203 7816
+Philips Research Monza    fax  +39 039 203 7800
+via G. Casati 23          fabrizio.gennari@philips.com
+20052 Monza (MI) Italy    http://www.research.philips.com
 
--- 
-Andreas Schwab                                  "And now for something
-Andreas.Schwab@suse.de				completely different."
-SuSE Labs, SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+

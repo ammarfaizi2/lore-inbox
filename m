@@ -1,51 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317877AbSHHTZz>; Thu, 8 Aug 2002 15:25:55 -0400
+	id <S317872AbSHHTgJ>; Thu, 8 Aug 2002 15:36:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317888AbSHHTZz>; Thu, 8 Aug 2002 15:25:55 -0400
-Received: from tolkor.SGI.COM ([192.48.180.13]:25481 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S317877AbSHHTZy>;
-	Thu, 8 Aug 2002 15:25:54 -0400
-Date: Thu, 8 Aug 2002 14:29:33 -0500
-From: Robin Holt <holt@sgi.com>
-X-X-Sender: <holt@fsgi123.americas.sgi.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: What about adding L1_CACHE_MASK and L1_CACHE_ALIGNED?
-Message-ID: <Pine.SGI.4.33.0208081416080.100441-100000@fsgi123.americas.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317888AbSHHTgI>; Thu, 8 Aug 2002 15:36:08 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:47855 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317872AbSHHTgI>; Thu, 8 Aug 2002 15:36:08 -0400
+Subject: Re: What about adding L1_CACHE_MASK and L1_CACHE_ALIGNED?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Robin Holt <holt@sgi.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.SGI.4.33.0208081416080.100441-100000@fsgi123.americas.sgi.com>
+References: <Pine.SGI.4.33.0208081416080.100441-100000@fsgi123.americas.sgi.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 08 Aug 2002 21:59:52 +0100
+Message-Id: <1028840392.30103.90.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2002-08-08 at 20:29, Robin Holt wrote:
+> 
+> While doing some work with a hardware specific driver, I kept running
+> across cases where the following mod to <linux/cache.h> would be helpful.
+> What is the general opinion towards getting this accepted into 2.5?  How
+> about 2.4.20?
 
-While doing some work with a hardware specific driver, I kept running
-across cases where the following mod to <linux/cache.h> would be helpful.
-What is the general opinion towards getting this accepted into 2.5?  How
-about 2.4.20?
-
-Thanks,
-Robin Holt
-
----------------------------  Diff follows  ---------------------------
---- linux-2.4.19/include/linux/cache.h  Fri Dec 21 11:42:03 2001
-+++ linux-2.4.19-modified/include/linux/cache.h Thu Aug  8 14:26:32 2002
-@@ -4,8 +4,16 @@
- #include <linux/config.h>
- #include <asm/cache.h>
-
-+#ifndef L1_CACHE_MASK
-+#define L1_CACHE_MASK  L1_CACHE_BYTES - 1
-+#endif
-+
- #ifndef L1_CACHE_ALIGN
--#define L1_CACHE_ALIGN(x) (((x)+(L1_CACHE_BYTES-1))&~(L1_CACHE_BYTES-1))
-+#define L1_CACHE_ALIGN(x) (((x)+(L1_CACHE_MASK))&~(L1_CACHE_MASK))
-+#endif
-+
-+#ifndef L1_CACHE_ALIGNED
-+#define L1_CACHE_ALIGNED(_p)    (((u64)(_p) & L1_CACHE_MASK) == 0)
- #endif
-
- #ifndef SMP_CACHE_BYTES
-
+Seems a sound idea. Get it in 2.5 and for 2.4 to follow should be simple
 

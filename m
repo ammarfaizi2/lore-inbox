@@ -1,46 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132121AbRCVS31>; Thu, 22 Mar 2001 13:29:27 -0500
+	id <S132135AbRCVSeR>; Thu, 22 Mar 2001 13:34:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132131AbRCVS3T>; Thu, 22 Mar 2001 13:29:19 -0500
-Received: from mail.mp3.com ([192.215.249.224]:18561 "HELO mp3.com")
-	by vger.kernel.org with SMTP id <S132121AbRCVSY3>;
-	Thu, 22 Mar 2001 13:24:29 -0500
-Message-ID: <3ABA432D.271E42CB@mp3.com>
-Date: Thu, 22 Mar 2001 10:23:41 -0800
-From: Matthew Costello <matthew@mp3.com>
-Organization: MP3.com
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: gibbs@scsiguy.com
-CC: linux-kernel@vger.kernel.org
-Subject: aic7xxx in 2.4.3-pre6 missing db.h
+	id <S132140AbRCVSeJ>; Thu, 22 Mar 2001 13:34:09 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:23272 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S132135AbRCVSd6>;
+	Thu, 22 Mar 2001 13:33:58 -0500
+Date: Thu, 22 Mar 2001 18:18:08 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        arjanv@redhat.com, Rik van Riel <riel@nl.linux.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Thinko in kswapd?
+Message-ID: <20010322181808.B7756@redhat.com>
+In-Reply-To: <20010322145810.A7296@redhat.com> <Pine.LNX.4.31.0103220931330.18728-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.31.0103220931330.18728-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Mar 22, 2001 at 09:36:48AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am trying to compile the 2.4.3-pre6 linux kernel and it is failing
-because
-it cannot find the "db.h" header file.  I've got no such file on my
-system nor
-as there any reference to "db.h" in the whole of the kernel source.
-According
-to the changelog this is a new version of the aic7xxx driver added in
-2.4.3-pre2.
+Hi,
 
-    make[5]: Entering directory
-`/usr/src/linux-2.4.3-pre6/drivers/scsi/aic7xxx/aicasm'
-    kgcc -I/usr/include -ldb1 aicasm_gram.c aicasm_scan.c aicasm.c
-aicasm_symbol.c -o aicasm
-    aicasm_symbol.c:39: db1/db.h: No such file or directory
+On Thu, Mar 22, 2001 at 09:36:48AM -0800, Linus Torvalds wrote:
+> On Thu, 22 Mar 2001, Stephen C. Tweedie wrote:
+> >
+> > There is what appears to be a simple thinko in kswapd.  We really
+> > ought to keep kswapd running as long as there is either a free space
+> > or an inactive page shortfall; but right now we only keep going if
+> > _both_ are short.
+> 
+> Hmm.. The comment definitely says "or", so changing it to "and" in the
+> sources makes the comment be non-sensical.
 
-The machine is running RedHat 7.0 (thus the kgcc) without any of the
-updates;
-it is a dual PIII w/ onboard Adaptec SCSI.  The aic7xxx driver is being
-compiled
-into the kernel, although the kernel is module aware.
+Indeed.  
+ 
+> I suspect that the comment and the code were true at some point. The
+> behaviour of "do_try_to_free_pages()" has changed, though, and I suspect
+> your suggested change makes more sense now (it certainly seems to be
+> logical to have the reverse condition for sleeping and for when to call
+> "do_try_to_free_pages()").
 
---- Matthew Costello <matthew@mp3.com>
+> The only way to know is to test the behaviour. My only real worry is that
+> kswapd might end up eating too much CPU time and make the system feel bad,
+> but on the other hand the same can certainly be true from _not_ doing this
 
+Yes, it's more the inconsistency between the tests than the tests that
+prompted me to try it, and the scale of the interactive performance
+improvement was quite a surprise.
+
+On the other hand, Alan is now reporting that on one of his workloads
+it does cause erratic behaviour for interactive loads.  So this is
+definitely not a cure-all.
+
+We already do have some problems with excessive swap time being
+consumed under some loads: I can reproduce stalls of several seconds
+on a PAE box with simple "dd > /dev/sd*".  That's something I need to
+follow up further once we've found the source of some SMP data
+corruption we're still seeing on big boxes (I'll be sending patches
+for a shm race shortly that we found while chasing this.)
+
+I suspect we'll need to instrument the activity of the various lrus in
+the VM more accurately before we'll ever understand _why_ the VM works
+well or badly in any given situation.
+
+Cheers,
+ Stephen

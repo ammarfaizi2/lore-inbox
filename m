@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262099AbTKYIFS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 03:05:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbTKYIFS
+	id S262101AbTKYIP5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 03:15:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbTKYIP5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 03:05:18 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:43278
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S262099AbTKYIFP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 03:05:15 -0500
-Date: Tue, 25 Nov 2003 00:05:12 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: OOps! was: 2.6.0-test9-mm5
-Message-ID: <20031125080512.GA1356@mis-mike-wstn.matchmail.com>
-Mail-Followup-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <Pine.LNX.4.58.0311241840380.8180@montezuma.fsmlabs.com> <20031124235807.GA1586@mis-mike-wstn.matchmail.com> <20031125003658.GA1342@mis-mike-wstn.matchmail.com> <Pine.LNX.4.58.0311242013270.1859@montezuma.fsmlabs.com> <20031125051018.GA1331@mis-mike-wstn.matchmail.com> <Pine.LNX.4.58.0311250033170.4230@montezuma.fsmlabs.com> <20031125054709.GC1331@mis-mike-wstn.matchmail.com> <Pine.LNX.4.58.0311250053410.4230@montezuma.fsmlabs.com> <20031125063602.GA1329@mis-mike-wstn.matchmail.com> <20031125075421.GA1342@mis-mike-wstn.matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 25 Nov 2003 03:15:57 -0500
+Received: from moutng.kundenserver.de ([212.227.126.171]:6854 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262101AbTKYIP4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 03:15:56 -0500
+From: Amon Ott <ao@rsbac.org>
+Organization: RSBAC
+To: linux-kernel@vger.kernel.org
+Subject: Re: hard links create local DoS vulnerability and security problems
+Date: Tue, 25 Nov 2003 09:15:57 +0100
+User-Agent: KMail/1.5.4
+References: <200311241736.23824.jlell@JakobLell.de> <bpu5fk$vsn$1@gatekeeper.tmr.com> <20031124163553.B16684@osdlab.pdx.osdl.net>
+In-Reply-To: <20031124163553.B16684@osdlab.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031125075421.GA1342@mis-mike-wstn.matchmail.com>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200311250915.57221.ao@rsbac.org>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:e784f4497a7e52bfc8179ee7209408c3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 24, 2003 at 11:54:21PM -0800, Mike Fedyk wrote:
-> On Mon, Nov 24, 2003 at 10:36:02PM -0800, Mike Fedyk wrote:
-> > Reverted pnp-fix-2:
-> > Still OOpses.
+On Dienstag, 25. November 2003 01:35, Chris Wright wrote:
+> * bill davidsen (davidsen@tmr.com) wrote:
+> > 
+> > While I think you're overblowing the problem, it is an issue which might
+> > be addressed in SE Linux or somewhere. I have an idea on that, but I
+> > want to look before I suggest anything.
 > 
-> same with pnp-fix-3
-> 
+> SELinux controls hard link creation by checking, among other things,
+> the security context of the process attempting the link, and the security
+> context of the target (oldpath).  Other MAC systems do similar, and some
+> patches such as grsec and owl simply disable linking to files the user
+> can't read/write to for example.
 
-and pnp-fix-4
+..and in RSBAC, LINK_HARD has been a controlled separate type of access since 
+the very first version back in 1997. It has always been treated like a write 
+access to the target file by all decision modules, because of the 
+implications mentioned in this thread.
 
-Trying the last one...
+Amon.
+-- 
+http://www.rsbac.org - GnuPG: 2048g/5DEAAA30 2002-10-22
+

@@ -1,115 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265982AbTIJXHy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 19:07:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265984AbTIJXHy
+	id S265882AbTIJWeK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 18:34:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265830AbTIJWdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 19:07:54 -0400
-Received: from amsfep12-int.chello.nl ([213.46.243.18]:41268 "EHLO
-	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id S265982AbTIJXHW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 19:07:22 -0400
-Subject: [2.4.22] umount usb memory card fails
-From: Harm Verhagen <h.verhagen@chello.nl>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1063235214.5729.14.camel@i141046.upc-i.chello.nl>
+	Wed, 10 Sep 2003 18:33:11 -0400
+Received: from port-212-202-40-6.reverse.qsc.de ([212.202.40.6]:1920 "EHLO
+	schillernet.dyndns.org") by vger.kernel.org with ESMTP
+	id S265883AbTIJW02 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 18:26:28 -0400
+Date: Wed, 10 Sep 2003 22:26:20 +0000 (UTC)
+Message-Id: <20030910.222620.730549923.rene.rebe@gmx.net>
+To: benh@kernel.crashing.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: dmasound_pmac (2.4.x{,-benh}) does not restore mixer during
+ PM-wake
+From: Rene Rebe <rene.rebe@gmx.net>
+In-Reply-To: <1063221565.678.2.camel@gaston>
+References: <20030910.211509.184824199.rene.rebe@gmx.net>
+	<1063221565.678.2.camel@gaston>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.13 (Rational FORTRAN)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 11 Sep 2003 01:06:57 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+Hi,
 
-When I upgraded my kernel version from 2.4.20-19.9(RedHat) to 2.4.22
-vanilla, unmounting my smartmedia cardreader (apacer combo reader)
-stopped working.
+On: Wed, 10 Sep 2003 21:19:25 +0200,
+    Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> 
+> > The code in tas3004_leave_sleep() looks ok so ... any idea (maybe I
+> > need to add a printk do test if it is really called?)?
+> 
+> Either that or we need some delay after powering the chip back
+> up and before we can write to its mixer ?
 
+Ok, here we go:
 
-[/home/harm]$umount /mnt/usbreader
-umount: /mnt/usbreader: device is busy
+...
+PCI: Enabling bus mastering for device 10:18.0
+host/usb-ohci.c: USB continue: usb-10:18.0 from host wakeup
+PCI: Enabling bus mastering for device 10:19.0
+host/usb-ohci.c: USB continue: usb-10:19.0 from host wakeup
+eth0: resuming
+adb: starting probe task...
+adb devices: [2]: 2 c4 [3]: 3 1 [7]: 7 1f
+ADB keyboard at 2, handler 1
+ADB mouse at 3, handler set to 4 (trackpad)
+adb: finished probe task...
+RxR: 1
+RxR: 2
+tas: I2C byte write failed
+udio jack plugged, muting speakers.
+eth0: Link is up at 100 Mbps, half-duplex.
+...
+#
+(I overread the "tas: I2C byte write failed" before ...)
 
-$fuser /mnt/usbreader shows  its not in use at all.
+Where I instrumented the code with:
 
-Mounting and writing/reading does work.
+static int
+tas3004_leave_sleep(struct tas3004_data_t *self)
+{
+        unsigned char mcr = (1<<6)+(2<<4)+(2<<2);
 
-weird thing:
-This only happens when the PC boots with the card reader connected.
-If I actually unplug the device and plug it back in, then
-mounting/unmounting does work.
+        printk("RxR: 1\n");
 
-Anyone an idea ?
+        if (!self)
+                return -1;
 
-Regards,
-Harm Verhagen
+        printk("RxR: 2\n");
 
+        /* Make sure something answers on the i2c bus */
+        if (tas3004_write_register(self, TAS3004_REG_MCR, &mcr,
+            WRITE_NORMAL | FORCE_WRITE) < 0)
+                return -1;
 
-usb reader info (from /proc/usb/devices)
-T:  Bus=04 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  2 Spd=12  MxCh= 0
-D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=0d7d ProdID=0240 Rev= 1.00
-S:  Manufacturer=
-S:  Product=USB Reader
-S:  SerialNumber=032702000797
-C:* #Ifs= 1 Cfg#= 1 Atr=80 MxPwr=100mA
+        printk("RxR: 3\n");
 
-dmesg info when I plugin the device:
+so hm?!? - is the wakeup order of the devices incorrect (i2c needs to
+be before damsound_pmac ...)?
 
-USB Mass Storage device found at 3
-sda: Unit Not Ready, sense:
-Current 00:00: sense key Not Ready
-Additional sense indicates Medium not present
-sda : READ CAPACITY failed.
-sda : status = 1, message = 00, host = 0, driver = 08
-Current sd00:00: sense key Not Ready
-Additional sense indicates Medium not present
-sda : block size assumed to be 512 bytes, disk size 1GB.
-sda: Write Protect is off
- sda: I/O error: dev 08:00, sector 0
- I/O error: dev 08:00, sector 0
- unable to read partition table
-sdb: Unit Not Ready, sense:
-Current 00:00: sense key Not Ready
-Additional sense indicates Medium not present
-sdb : READ CAPACITY failed.
-sdb : status = 1, message = 00, host = 0, driver = 08
-Current sd00:00: sense key Not Ready
-Additional sense indicates Medium not present
-sdb : block size assumed to be 512 bytes, disk size 1GB.
-sdb: Write Protect is off
- sdb: I/O error: dev 08:10, sector 0
- I/O error: dev 08:10, sector 0
- unable to read partition table
-sdc: Unit Not Ready, sense:
-Current 00:00: sense key Not Ready
-Additional sense indicates Medium not present
-sdc : READ CAPACITY failed.
-sdc : status = 1, message = 00, host = 0, driver = 08
-Current sd00:00: sense key Not Ready
-Additional sense indicates Medium not present
-sdc : block size assumed to be 512 bytes, disk size 1GB.
-sdc: Write Protect is on
- sdc: I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- unable to read partition table
-sdc: Unit Not Ready, sense:
-Current 00:00: sense key Not Ready
-Additional sense indicates Medium not present
-sdc : READ CAPACITY failed.
-sdc : status = 1, message = 00, host = 0, driver = 08
-Current sd00:00: sense key Not Ready
-Additional sense indicates Medium not present
-sdc : block size assumed to be 512 bytes, disk size 1GB.
-sdc: Write Protect is on
- sdc: I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- unable to read partition table
+> ben.
 
+Sincerely yours,
+  René Rebe
+    - ROCK Linux stable release maintainer
 
-
--- 
-Harm Verhagen <h.verhagen@chello.nl>
+--  
+René Rebe - Europe/Germany/Berlin
+  rene@rocklinux.org rene.rebe@gmx.net
+http://www.rocklinux.org http://www.rocklinux.net/people/rene
+http://gsmp.tfh-berlin.de/gsmp http://gsmp.tfh-berlin.de/rene
 

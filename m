@@ -1,70 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262462AbTHWKKL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 06:10:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262485AbTHWKKK
+	id S263498AbTHWKSf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 06:18:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263497AbTHWKSf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 06:10:10 -0400
-Received: from mail.mediaways.net ([193.189.224.113]:15804 "HELO
-	mail.mediaways.net") by vger.kernel.org with SMTP id S262462AbTHWKKD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 06:10:03 -0400
-Subject: HPT37x hangs on bus load (IDE DMA hangs on KT400 (shared IRQ
-	problem?))
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: chuck@encinc.com
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1061632825.13919.18.camel@localhost>
+	Sat, 23 Aug 2003 06:18:35 -0400
+Received: from 217-124-19-86.dialup.nuria.telefonica-data.net ([217.124.19.86]:43140
+	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
+	id S263498AbTHWKSd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 06:18:33 -0400
+Date: Sat, 23 Aug 2003 12:18:31 +0200
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: evms or lvm?
+Message-ID: <20030823101831.GA2857@localhost>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <3F47347F.7070103@mscc.huji.ac.il>
 Mime-Version: 1.0
-Date: 23 Aug 2003 12:00:25 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F47347F.7070103@mscc.huji.ac.il>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have a machine with a Soyo Dragon motherboard (Via KT400 chipset). It has
-> an onboard Highpoint HPT372 IDE controller in addition to the Via
-> chipset's. I run into trouble reading from these drives with DMA enabled at
-> the same time as heavy network activity. (a hang with or without errors or
-> a panic, depending on the kernel version). If it manages to work for a few
-> minutes, I'll get corruption on the disk reads. With DMA off, everything
-> seems OK.
+On Saturday, 23 August 2003, at 12:31:43 +0300,
+Voicu Liviu wrote:
 
-Wow, that seems to be exactly/very close to the problem that I do
-observe. When I turn off DMA everything is fine here too.
+> I'm planing to move to 2.6x kernels and I don't know what should I use,
+> lvm or evms, any 1 could help me to decide?
+> I've heard that evms will not continue with 2.6, is it true?
+> Best regards
+> 
+2.6.0 will have many changes with respect to LVM and EVMS. LVM is
+updated to newer version 2 (LVM2), based on DM (Device Mapper), sort of
+a simplified in-kernel LVM that just handles discovering the drives.
+Updated userspace utilities (LVM2) are already available to drive this.
 
-> IRQ 11 is shared between two of these controllers and the network interface.
-> Also sharing that IRQ is a SCSI controller I'm booting off of, but activity on
-> that device at the same time as the others doesn't seem to cause any problem.
->
-> With 2.4.22-rc2 and 2.6.0-test3, I get these messages:
->
-> hdc: dma_timer_expiry: dma status == 0x24
+On the other part, EVMS was completely redesigned. Former EVMS
+implementation was duplicating too much code, and in general it was
+regarded as a bad implementation on a very good idea, so the people at
+IBM in charge on EVMS development took what it look to everyone as a
+very clever move, and for 2.6.x they implemented EVMS on top of DM. User
+space utilities for EVMS are (from the user's point of view) the same as
+before, but now the inner details are different: no reimplementation of
+software RAID, no reimplementation of LVM, etc.
 
-I get mostly nothing (i.e. just a hang, where num look etc is ok, but
-the ide stuff seems to wait forever sysrq-t/b is no longer working or
-u/s finally hangs the machine completely (no more num working).
+Have a look at both projects websites to get more accurate and detailled
+information about them:
+http://evms.sourceforge.net/
+http://www.sistina.com/products_lvm.htm
 
-Sometimes I see this: 
-hde: dma_intr: bad DMA status (dma_stat=76)
-hde: dma_intr: status=0x50 { DriveReady SeekComplete }
+Regards,
 
-
-I have a hpt370a which does not share interrupts. When I play a movie
-through a dxr3 while causing some disk activity the machine hangs sooner
-or later.
-
-This happens without on a asus a7v8x (KT400 via) with highmem disabled
-all pci cards - except for the dxr3 a plain s3 graphics adapter and the
-htp370 card - removed.
-
-My guess is that the hpt driver is waiting for some event that never
-happens... maybe because it gets interrupted by the network device or
-the dxr3 in my case.
-
-that happens with kernel versions 2.4.21 and 2.4.22-rc2 here.
-
-does anyone know where it could hang ?
-
-Soeren.
-
+-- 
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Sid (Linux 2.6.0-test3-mm2)

@@ -1,90 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271352AbTHHGsQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 02:48:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271353AbTHHGsQ
+	id S271245AbTHHG7W (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 02:59:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271272AbTHHG7W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 02:48:16 -0400
-Received: from [203.145.184.221] ([203.145.184.221]:1810 "EHLO naturesoft.net")
-	by vger.kernel.org with ESMTP id S271352AbTHHGsO (ORCPT
+	Fri, 8 Aug 2003 02:59:22 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:7626 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S271245AbTHHG7N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 02:48:14 -0400
-From: "Krishnakumar. R" <krishnakumar@naturesoft.net>
-Reply-To: krishnakumar@naturesoft.net
-Organization: Naturesoft
-To: trivial@rustcorp.com.au
-Subject: [PATCH - 2.6.0-test2][BUG #568]compile failure in drivers/isdn/hisax/diva.c
-Date: Fri, 8 Aug 2003 12:21:17 +0530
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Aug 2003 02:59:13 -0400
+Date: Fri, 8 Aug 2003 08:59:08 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Lou Langholtz <ldl@aros.net>
+Cc: Paul Clements <Paul.Clements@SteelEye.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.6.0 NBD driver: remove send/recieve race for request
+Message-ID: <20030808065908.GB18823@suse.de>
+References: <3F2FE078.6020305@aros.net> <3F300760.8F703814@SteelEye.com> <3F303430.1080908@aros.net> <3F30510A.E918924B@SteelEye.com> <3F30AF81.4070308@aros.net> <3F332ED7.712DFE5D@SteelEye.com> <3F334396.7030008@aros.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308081221.17084.krishnakumar@naturesoft.net>
+In-Reply-To: <3F334396.7030008@aros.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi John,
+On Fri, Aug 08 2003, Lou Langholtz wrote:
+> >@@ -499,12 +508,14 @@ static void do_nbd_request(request_queue
+> >					lo->disk->disk_name);
+> >			spin_lock(&lo->queue_lock);
+> >			list_del_init(&req->queuelist);
+> >+			req->ref_count--;
+> >			spin_unlock(&lo->queue_lock);
+> >			nbd_end_request(req);
+> >			spin_lock_irq(q->queue_lock);
+> >			continue;
+> >		}
+> >
+> >+		req->ref_count--;
+> >		spin_lock_irq(q->queue_lock);
+> >
+> Since ref_count isn't atomic, shouldn't ref_count only be changed while 
+> the queue_lock is held???
 
-Here is the patch which will enable the compilation of the diva.c file.
+Indeed, needs to be done after regrabbing the lock.
 
-The patch is against 2.6.0-test2.
-
-
-Regards
-KK
-
-
-===========================================================
-diffstat output:
-
-diva.c |   22 +++++++++++-----------
-1 files changed, 11 insertions(+), 11 deletions(-)
-
-===========================================================
-
-The following is the patch.
-
-
-
---- linux-2.6.0-test2/drivers/isdn/hisax/diva.orig.c    2003-08-05 22:22:04.000000000 +0530
-+++ linux-2.6.0-test2/drivers/isdn/hisax/diva.c 2003-08-05 22:41:42.000000000 +0530
-@@ -751,24 +751,24 @@
-                                        card->para[1] = pnp_port_start(pd, 0);
-                                        card->para[0] = pnp_irq(pd, 0);
-                                        if (pdev->function == ISAPNP_FUNCTION(0xA1)) {
--                                               if (diva_ipac_isa_probe(cs->card, cs))
-+                                               if (diva_ipac_isa_probe(card->cs, card))
-                                                        return 0;
-                                                return 1;
-                                        } else {
--                                               if (diva_isac_isa_probe(cs->card, cs))
-+                                               if (diva_isac_isa_probe(card->cs, card))
-                                                        return 0;
-                                                return 1;
--                                       } else {
--                                               printk(KERN_ERR "Diva PnP: PnP error card found, no device\n");
--                                               return(0);
--                                       }
-+                                       } 
-+                               }else {
-+                                       printk(KERN_ERR "Diva PnP: PnP error card found, no device\n");
-+                                       return(0);
-                                }
--                               pdev++;
--                               pnp_c=NULL;
--                       } 
--                       if (!pdev->card_vendor) {
--                               printk(KERN_INFO "Diva PnP: no ISAPnP card found\n");
-                        }
-+                       pdev++;
-+                       pnp_c=NULL;
-+               }
-+               if (!pdev->card_vendor) {
-+                       printk(KERN_INFO "Diva PnP: no ISAPnP card found\n");
-                }
-        }
- #endif
+-- 
+Jens Axboe
 

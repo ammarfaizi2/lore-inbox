@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264650AbRFTWTR>; Wed, 20 Jun 2001 18:19:17 -0400
+	id <S263167AbRFTWW5>; Wed, 20 Jun 2001 18:22:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264653AbRFTWTH>; Wed, 20 Jun 2001 18:19:07 -0400
-Received: from shell.ca.us.webchat.org ([216.152.64.152]:33490 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S264651AbRFTWTC>; Wed, 20 Jun 2001 18:19:02 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Victor Yodaiken" <yodaiken@fsmlabs.com>
-Cc: "Larry McVoy" <lm@bitmover.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Why use threads ( was: Alan Cox quote?)
-Date: Wed, 20 Jun 2001 15:18:58 -0700
-Message-ID: <NCBBLIEPOCNJOAEKBEAKOENMPPAA.davids@webmaster.com>
+	id <S264658AbRFTWWs>; Wed, 20 Jun 2001 18:22:48 -0400
+Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:55818 "HELO
+	clueserver.org") by vger.kernel.org with SMTP id <S263167AbRFTWWn>;
+	Wed, 20 Jun 2001 18:22:43 -0400
+Date: Wed, 20 Jun 2001 16:34:11 -0700 (PDT)
+From: Alan Olsen <alan@clueserver.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Miles Lane <miles@megapathdsl.net>, linux-kernel@vger.kernel.org
+Subject: Re: The latest Microsoft FUD.  This time from BillG, himself.
+In-Reply-To: <E15Cq9u-0000CX-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10106201629450.12664-100000@clueserver.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
-Importance: Normal
-In-Reply-To: <20010620152604.B32617@hq2>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 20 Jun 2001, Alan Cox wrote:
 
-> On Wed, Jun 20, 2001 at 02:01:16PM -0700, David Schwartz wrote:
+> > http://www.zdnet.com/zdnn/stories/news/0,4586,5092935,00.html > 
+> 
+> Of course the URL that goes with that is :
+> 	http://www.microsoft.com/windows2000/interix/features.asp
+> 
+> Yes., Microsoft ship GNU C (quite legally) as part of their offerings...
 
-> > 	It's very hard to use processes for this purpose. Consider,
-> > for example, a
-> > web server. You don't want to use one process for each client
-> > because that
-> > would limit your scalability (16,000 clients would become difficult, and
-> > with threads it's trivial). You don't want to use one thread
-> > for each client
+As well as:
 
-> How is it trivial? How do you debug a 16,000 thread application?
+http://www.microsoft.com/presspass/press/2000/Apr00/WinUNIXPR.asp
 
-	As I said, you don't want to use one thread for each client. You use, say,
-10 threads for the 16,000 clients. That way, if an occasional client
-ambushes a thread (say by reading a file off an NFS server or by using some
-infrequently used code that was swapped to a busy disk), your server will
-keep on humming.
+where they announce distributing ActiveState's Perl 5.6 as part of their
+toolset. (Which they funded the development of...)
 
-	DS
+Seems they are willing to use Open Source if it suits their purposes...
 
+alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
+Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
+ "All power is derived from the barrel of a gnu." - Mao Tse Stallman
 

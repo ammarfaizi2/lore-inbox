@@ -1,59 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261803AbREPG5c>; Wed, 16 May 2001 02:57:32 -0400
+	id <S261805AbREPHRd>; Wed, 16 May 2001 03:17:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261802AbREPG5W>; Wed, 16 May 2001 02:57:22 -0400
-Received: from geos.coastside.net ([207.213.212.4]:56776 "EHLO
-	geos.coastside.net") by vger.kernel.org with ESMTP
-	id <S261803AbREPG5F>; Wed, 16 May 2001 02:57:05 -0400
+	id <S261806AbREPHRY>; Wed, 16 May 2001 03:17:24 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:6669 "HELO mx.in-addr.de")
+	by vger.kernel.org with SMTP id <S261805AbREPHRG>;
+	Wed, 16 May 2001 03:17:06 -0400
+Date: Wed, 16 May 2001 09:17:03 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Christoph Biardzki <cbi@cebis.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Storage - redundant path failover / failback - quo vadis linux?
+Message-ID: <20010516091703.F573@marowsky-bree.de>
+In-Reply-To: <Pine.LNX.4.21.0105160815100.10476-100000@ameise.opto.de>
 Mime-Version: 1.0
-Message-Id: <p0510033db727cdc4a244@[207.213.214.37]>
-In-Reply-To: <3B01E670.E96A2865@uow.edu.au>
-In-Reply-To: <Pine.LNX.4.21.0105151309460.2470-100000@penguin.transmeta.com>,	
- <Pine.LNX.4.21.0105151309460.2470-100000@penguin.transmeta.com>
- <p05100330b7277e2beea6@[207.213.214.37]> <3B01E670.E96A2865@uow.edu.au>
-Date: Tue, 15 May 2001 23:56:41 -0700
-To: Andrew Morton <andrewm@uow.edu.au>
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: LANANA: To Pending Device Number Registrants
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.3i
+In-Reply-To: <Pine.LNX.4.21.0105160815100.10476-100000@ameise.opto.de>; from "Christoph Biardzki" on 2001-05-16T08:34:00
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:31 PM +1000 2001-05-16, Andrew Morton wrote:
->  > When I ifconfig one of a collection of interfaces, I'm very much
->>  talking about the specific physical interface connected via a
->  > specific physical cable to a specific physical switch port.
->>
->
->Yes, it can be a security trap as well - physically move a card and
->your firewall rules end up being applied to the wrong connection.
->
->The 2.4 kernel allows you to rename an interface.  So you can build
->a little database of (MAC address/name) pairs. Apply this after booting
->and before bringing up the interfaces and everything has the name
->you wanted, based on MAC address.
->
->Andi Kleen has an app which does this:
->
->	ftp://ftp.firstfloor.org/pub/ak/smallsrc/nameif.c
->
->but apparently some additional kernel work is needed to make
->this work 100% correctly.  I do not know what the specific
->problem is.
+On 2001-05-16T08:34:00,
+   Christoph Biardzki <cbi@cebis.net> said:
 
-There's a bit of a catch 22, though, if you don't have unique MAC 
-addresses in the system (across multiple interfaces). It's common 
-practice in the SPARC world (Solaris, anyway) for all the interfaces 
-to default to a single system-wide MAC address. The fact that MAC 
-addresses are at least semi-volatile is also bothersome.
+> I was investigating redundant path failover with FibreChannel disk devices
+> during the last weeks. The idea is to use a second, redundant path to a
+> storage device when the first one fails. Ideally one could also implement
+> load balancing with these paths.
+> 
+> The problem is really important when using linux for mission-critical
+> applications which require large amounts of external storage.
 
-It's also  true that some buses simply don't yield up physical 
-locations (ISA springs to mind, and I gather that FC is squishy that 
-way), but it's desirable to be able to make the connection all ways 
-(eth# <-> bus location <-> physical location <-> MAC address) in a 
-uniform manner. (Where MAC address might be something else in a 
-non-Ethernet domain.)
+Yes.
+
+Device handling under Linux in the face of HA generally faces some annoying
+issues - the one you mention is actually the least of it ;-)
+
+Error handling and reporting is the most annoying one to me - no good way to
+find out whether a device has had an error. And even if the kernel logs a read
+error on device sda1 - great, what LVM volumes are affected?
+
+But on to your question... ;-)
+
+> - The "T3"-Patch for 2.2-Kernels which patches the sd-Driver und the
+> Qlogic-FC-HBA-Driver. When you pull an FC-Cable on a host equiped with two
+> HBAs the failover is almost immediate and an automatic failback (after
+> "repairing") is possible
+
+I actually like this one best, if it was forward ported to 2.4.
+
+> The low-level-approach of the "T3"-patch requires changes to the
+> scsi-drivers and the hardware-drivers but provides optimal communication
+> between the driver and the hardware
+
+The changes required for the hardware drivers are rather minimal.
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
 -- 
-/Jonathan Lundell.
+Perfection is our goal, excellence will be tolerated. -- J. Yahl
+

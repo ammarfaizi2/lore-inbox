@@ -1,57 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271185AbRHOOCU>; Wed, 15 Aug 2001 10:02:20 -0400
+	id <S271203AbRHOOJj>; Wed, 15 Aug 2001 10:09:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271195AbRHOOCK>; Wed, 15 Aug 2001 10:02:10 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:39552 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S271185AbRHOOB4>;
-	Wed, 15 Aug 2001 10:01:56 -0400
-Date: Wed, 15 Aug 2001 07:02:04 -0700 (PDT)
-Message-Id: <20010815.070204.39155321.davem@redhat.com>
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org, andrea@suse.de
-Subject: Re: [patch] zero-bounce highmem I/O
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20010815151052.C4352@suse.de>
-In-Reply-To: <20010815140740.A4352@suse.de>
-	<20010815.053524.48804759.davem@redhat.com>
-	<20010815151052.C4352@suse.de>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S271202AbRHOOJ3>; Wed, 15 Aug 2001 10:09:29 -0400
+Received: from d6.as10.nwbl1.wi.voyager.net ([169.207.86.198]:45317 "EHLO
+	udcnet.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S271199AbRHOOJR>; Wed, 15 Aug 2001 10:09:17 -0400
+Date: Wed, 15 Aug 2001 09:09:25 -0500 (CDT)
+From: David Acklam <dackl@post.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Pegasus driver fails to initialize when not a module (re-post)
+Message-ID: <Pine.LNX.4.30.0108150906570.17607-100000@udcnet.dyn.dhs.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jens Axboe <axboe@suse.de>
-   Date: Wed, 15 Aug 2001 15:10:52 +0200
+--> I don't know if this message made it to the list (I had some e-mail
+--> trouble), so I'm trying again.
 
-   On Wed, Aug 15 2001, David S. Miller wrote:
-   >    The only truly problematic area is the alt_address thing.
-   >    It is would be a nice thing to rip this eyesore out of the scsi
-   >    layer anyways.
-   
-   The SCSI issue was exactly what was on my mind, and is indeed the reason
-   why I didn't go all the way and did a complete conversion there. The
-   SCSI layer is _not_ very clean in this regard, didn't exactly enjoy this
-   part of the work...
-   
-I just took a quick look at this, and I think I can make this
-alt_address thing into a scsi-layer-specific mechanism and
-thus be able to safely remove it from struct scatterlist.
+Chipsets: VIA KT133, VIA MVP4
+Adapter: DLink DSB-650 (pegasus version, NOT the klsi one).
+Drivers Used: usb-uhci -or- uhci, pegasus
+Kernel Versions: 2.4.3, 2.4.6, 2.4.8, 2.4.8-ac2 (at least as far as I've tested).
 
-Would you like me to whip up such a set of changes?  I'll be
-more than happy to work on it.
+Problem:
+I've got a DLink DSB-650 USB net adapter based on the pegasus chipset. It
+works fine when the driver is compiled as a module, but when the driver is
+linked into the kernel, it fails to detect the adapter. The USB layer
+initializes ok, and my USB keyboard and mouse are detected (although
+doing this on a system with a PS/2 or AT kb/mouse changes nothing), but
+the NIC is not, even though the pegasus driver prints out  it's loading
+string and copyright message.
 
-   >    Yep. Want me to add in the x86 parts of your patch?
-   > 
-   > Please let me finish up my prototype with sparc64 building and
-   > working, then I'll send you what I have ok?
-   
-   Fine
-   
-This is forthcoming.
+--ex--
+pegasus.c: v0.4.19 2001/06/07 (C) 1999-2001:ADMtek AN986 Pegasus USB
+Ethernet driver
+usb.c: registered new driver pegasus
+--ex--
 
-Later,
-David S. Miller
-davem@redhat.com
+After this, the kernel loads the net drivers, and (in my case) horks
+because there is no eth0 to autoconfigure and mount a nfsroot filesystem
+from.
+
+However, on the same system with the same BIOS settings, and the only
+change being that pagasus.c is compiled as a module (and not into the
+kernel) it works perfectly, and I can use the USB adapter without trouble.
+
+ This happens under either UHCI driver, and regardless of what USB options
+are set. With debug on, I get a 'set_configuration_failed()' message from
+pegasus under 'normal' uhci, and no notable error message under uhci-je.
+
+My best guess is that either (a) something's wrong with the driver that
+makes it not work when linked in, or (b) the driver is working, but is
+dong it's initialization in the background, and is not
+finishing in time to have eth0 ready for autoconfig/nfsroot (i.e. eth0
+would appear some time after 'init' kicked off.
+
+Any suggestions?
+
+- Dave Acklam
+  dackl@post.com
+
+P.S. Yes, I read the lkml faq, the kernel docs, the source for
+pegasus.c/pegasus.h, et al... Please don't shoot the first-time poster...
+
+If you need the kernel config, I'll be happy to e-mail it to you
+
+

@@ -1,77 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270481AbTGNPMd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 11:12:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270057AbTGNPIC
+	id S270656AbTGNPRk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 11:17:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270644AbTGNPQc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 11:08:02 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:59154 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S270465AbTGNPCl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 11:02:41 -0400
-Date: Mon, 14 Jul 2003 16:17:28 +0100
-From: John Levon <levon@movementarian.org>
-To: torvalds@osdl.org, linux-kernel@vger.kernel.org, ak@suse.de
-Cc: oprofile-list@lists.sf.net
-Subject: [PATCH] OProfile: dynamically allocate MSR struct
-Message-ID: <20030714151727.GA69617@compsoc.man.ac.uk>
+	Mon, 14 Jul 2003 11:16:32 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:38338
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S270598AbTGNPNb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 11:13:31 -0400
+Subject: Re: mmap method implementation question
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <7A25937D23A1E64C8E93CB4A50509C2A0179B6D2@stca204a.bus.sc.rolm.com>
+References: <7A25937D23A1E64C8E93CB4A50509C2A0179B6D2@stca204a.bus.sc.rolm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1058196344.561.80.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: King of Woolworths - L'Illustration Musicale
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19c54y-000Pv4-M8*..aZDQRazHo*
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 14 Jul 2003 16:25:45 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Llu, 2003-07-14 at 13:49, Bloch, Jack wrote:
+> I jave a device driver which was originaly created for a Kernel 2.4.18-3. It
+> has an mmap method which uses a call to remap_page_range. In this call, I
+> pass the in the logical start address, the physical address, the size and
+> protection mappings. I have upgraded the Kernel to a 2.4.20-8 and now my
+> remap_page_range call does not compile. It requires me to pass the vma
+> structure as a first parameter. What changed? Whys is this necessary?
 
-Andi pointed out to me that cpu_msrs was a source of bloat. Dynamically
-allocate it instead. Tested on my SMP box.
+You should ask Red Hat. 2.4.20 doesn't have this property.
 
-Note that we could eventually use per cpu stuff here, but I'd like to
-wait on that for now.
-
-regards
-john
-
-
-diff -Naur -X dontdiff linux-cvs/arch/i386/oprofile/nmi_int.c linux-fixes/arch/i386/oprofile/nmi_int.c
---- linux-cvs/arch/i386/oprofile/nmi_int.c	2003-06-18 15:06:05.000000000 +0100
-+++ linux-fixes/arch/i386/oprofile/nmi_int.c	2003-07-14 15:34:29.000000000 +0100
-@@ -12,6 +12,7 @@
- #include <linux/smp.h>
- #include <linux/oprofile.h>
- #include <linux/sysdev.h>
-+#include <linux/slab.h>
- #include <asm/nmi.h>
- #include <asm/msr.h>
- #include <asm/apic.h>
-@@ -20,7 +21,7 @@
- #include "op_x86_model.h"
-  
- static struct op_x86_model_spec const * model;
--static struct op_msrs cpu_msrs[NR_CPUS];
-+static struct op_msrs * cpu_msrs;
- static unsigned long saved_lvtpc[NR_CPUS];
-  
- static int nmi_start(void);
-@@ -125,6 +126,10 @@
- 
- static int nmi_setup(void)
- {
-+	cpu_msrs = kmalloc(sizeof(struct op_msrs) * NR_CPUS, GFP_KERNEL);
-+	if (!cpu_msrs)
-+		return -ENOMEM;
-+
- 	/* We walk a thin line between law and rape here.
- 	 * We need to be careful to install our NMI handler
- 	 * without actually triggering any NMIs as this will
-@@ -185,6 +190,7 @@
- 	on_each_cpu(nmi_cpu_shutdown, NULL, 0, 1);
- 	unset_nmi_callback();
- 	enable_lapic_nmi_watchdog();
-+	kfree(cpu_msrs);
- }
- 
-  

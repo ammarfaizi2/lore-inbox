@@ -1,73 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261560AbSJALIj>; Tue, 1 Oct 2002 07:08:39 -0400
+	id <S261563AbSJALJu>; Tue, 1 Oct 2002 07:09:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261563AbSJALIj>; Tue, 1 Oct 2002 07:08:39 -0400
-Received: from mta04bw.bigpond.com ([139.134.6.87]:10231 "EHLO
-	mta04bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S261560AbSJALIi>; Tue, 1 Oct 2002 07:08:38 -0400
-Message-ID: <08e001c2693b$8e64e8c0$41368490@archaic>
-From: "David McIlwraith" <quack@bigpond.net.au>
-To: "Martin Diehl" <lists@mdiehl.de>
-Cc: <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.21.0210010523290.485-100000@notebook.diehl.home>
-Subject: Re: calling context when writing to tty_driver
-Date: Tue, 1 Oct 2002 21:13:22 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.3663.0
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3663.0
+	id <S261568AbSJALJu>; Tue, 1 Oct 2002 07:09:50 -0400
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:55785 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S261564AbSJALJt>;
+	Tue, 1 Oct 2002 07:09:49 -0400
+Date: Tue, 1 Oct 2002 12:18:26 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: "David L. DeGeorge" <dld@degeorge.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CPU/cache detection wrong
+Message-ID: <20021001111826.GA18583@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	"David L. DeGeorge" <dld@degeorge.org>,
+	linux-kernel@vger.kernel.org
+References: <200209302106.10518.dld@degeorge.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200209302106.10518.dld@degeorge.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Semaphores may sleep - therefore, they cannot be used from a 'non-sleep'
-context.
+On Mon, Sep 30, 2002 at 09:06:10PM -0400, David L. DeGeorge wrote:
+ > I too have incorrect CPU/cache detection using  2.4.20-pre7-ac3. I seem to 
+ > recall it working correctly on 2.4.19-ac1 (this was the version in which the 
+ > ac did not get added by the patch). Anyway I have a tualatin PIII with a 512K 
+ > L2 cache.
 
-Sincerely,
-David McIlwraith quack@bigpond.net.au
+Some of the tualatins have an errata which makes L2 cache sizing
+impossible. They actually report they have 0K L2 cache. By checking
+the CPU model, we can guess we have at least 256K (which is where Linux
+got that number from in your case). But this however means the 512K
+models will report as 256K too.
+To work around it, boot with cachesize=512 and all will be good.
 
------ Original Message -----
-From: "Martin Diehl" <lists@mdiehl.de>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Greg KH" <greg@kroah.com>
-Sent: Tuesday, October 01, 2002 8:37 PM
-Subject: calling context when writing to tty_driver
+		Dave
 
-
->
-> Hi,
->
-> just hitting another "sleeping on semaphore from illegal context" issue
-> with 2.5.39. Happened on down() in either usbserial->write_room() or
-> usbserial->write(), when invoked from bh context.
->
-> Some grepping reveals no documentation of calling context requirements
-> for those driver calls and existing serial code seems to be happy with bh
-> context. Therefore I'm wondering whether it is permitted to call from
-> don't-sleep context?
->
-> Since write_room() is usually called immediately before write()'ing stuff
-> to the driver it would be a good idea to keep them both callable from bh,
-> IMHO. For example tty_ldisc->write_wakeup() might probably want to issue
-> write_room() followed by write().
->
-> Currently, usbserial calls write_wakeup() from bh (on OUT urb completion)
-> but needs process context for write_room() and write(). My impression is
-> the whole point of write_room() is to find out how many data can be
-> accepted by the write() - if write() would be allowed to sleep it could
-> just block to deal with any amount of data.
->
-> TIA for any insight.
->
-> Martin
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

@@ -1,76 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129761AbQK3Ew5>; Wed, 29 Nov 2000 23:52:57 -0500
+        id <S131070AbQK3Ex5>; Wed, 29 Nov 2000 23:53:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130235AbQK3Evr>; Wed, 29 Nov 2000 23:51:47 -0500
+        id <S131093AbQK3Ext>; Wed, 29 Nov 2000 23:53:49 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:25872 "EHLO zeus.kernel.org")
-        by vger.kernel.org with ESMTP id <S129932AbQK3Ev1>;
-        Wed, 29 Nov 2000 23:51:27 -0500
-Message-ID: <20001129225210.A10380@bastion.sprileet.net>
-Date: Wed, 29 Nov 2000 22:52:10 -0600
-From: Damacus Porteng <kernel@bastion.yi.org>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+        by vger.kernel.org with ESMTP id <S130000AbQK3Evi>;
+        Wed, 29 Nov 2000 23:51:38 -0500
+Date: Wed, 29 Nov 2000 20:08:55 -0500 (EST)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+To: Kurt Garloff <kurt@garloff.de>
+cc: --Damacus Porteng-- <kernel@bastion.yi.org>,
+        Linux kernel list <linux-kernel@vger.kernel.org>
 Subject: Re: IDE-SCSI/HPT366 Problem
-In-Reply-To: <20001129191402.F5891@garloff.etpnet.phys.tue.nl> <Pine.LNX.4.10.10011291025411.1743-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <Pine.LNX.4.10.10011291025411.1743-100000@master.linux-ide.org>; from Andre Hedrick on Wed, Nov 29, 2000 at 10:27:17AM -0800
+In-Reply-To: <20001129191402.F5891@garloff.etpnet.phys.tue.nl>
+Message-ID: <Pine.LNX.4.30.0011292007080.22577-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+Copyright: Copyright 2000 by Mike A. Harris - All rights reserved
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre:
+On Wed, 29 Nov 2000, Kurt Garloff wrote:
 
-Is that to say that I'd experience this problem with any EIDE CDRW used on one
-of the HPT366 channels, or is it to say that only several CDRWs aren't
-supported under this chipset?
+>Date: Wed, 29 Nov 2000 19:14:02 +0100
+>From: Kurt Garloff <kurt@garloff.de>
+>To: --Damacus Porteng-- <kernel@bastion.yi.org>
+>Cc: Linux kernel list <linux-kernel@vger.kernel.org>
+>Content-Type: multipart/signed; micalg=pgp-md5;
+>        protocol="application/pgp-signature"; boundary="tmoQ0UElFV5VgXgH"
+>Subject: Re: IDE-SCSI/HPT366 Problem
+>
+>On Wed, Nov 29, 2000 at 01:06:16PM -0600, --Damacus Porteng-- wrote:
+>> Problem:
+>> 	The problem lies with using my EIDE CDRW - I set it up properly using
+>> 	IDE-SCSI.  I can use my mp3tocdda shell script to encode mp3s to CD
+>> 	(uses cdrecord as well) on the fly using either drive, however, when I
+>> 	use cdrecord to write a data CD, the system hard-locks, no kernel
+>> 	panic messages, and no Magic SysRQ keystroke works.
+>>
+>> 	Quite odd that I could do the cdrecord for audio tracks, but not
+>> 	data..
+>
+>Strange. If you read data from the harddisk on an IDE channel and write it
+>(with cdrecord) to some CDRW on the same IDE channel, you have to expect
+>trouble: As with IDE there is no disconnect from the bus (as opposed to
+>SCSI), you risk buffer underruns.
+>A lockup however is not to be expected :-(
 
-Also, in regards to Kurt, I wasn't running the CDRW on the same channel as the
-source.
+I reported this before as well.  Blanking a CDRW on an IDE writer
+and trying to mount a cdrom on an IDE reader on the slave on the
+same IDE channel produces a dual oops.  I got an initial response
+from Alan, and I believe Jens Axboe, and never heard about it
+again.  I dunno if it was fixed or not.  It still oops's though.
 
-Intel PIIX4		HPT366
------------		------
-/dev/hda (CDRW, worked)	/dev/hde (boot: 36.5G)
-/dev/hdb		/dev/hdf (storage: 61.4G)
-/dev/hdc		/dev/hdg (CDRW, failed)
-/dev/hdd		/dev/hdh
 
-In the crashing setup, the boot drive was /dev/hde, source drive was /dev/hdf.
-CDRW was /dev/hdg (Second channel, master.)  In the working setup, boot and
-source were the same, CDRW was moved to hda.
+----------------------------------------------------------------------
+      Mike A. Harris  -  Linux advocate  -  Open source advocate
+          This message is copyright 2000, all rights reserved.
+  Views expressed are my own, not necessarily shared by my employer.
+----------------------------------------------------------------------
 
-Regards,
+Be up to date on nerd news and stuff that matters:  http://slashdot.org
 
-Damacus Porteng
-
-On Wed, Nov 29, 2000 at 10:27:17AM -0800, Andre Hedrick wrote:
-> On Wed, 29 Nov 2000, Kurt Garloff wrote:
-> 
-> > Strange. If you read data from the harddisk on an IDE channel and write it
-> > (with cdrecord) to some CDRW on the same IDE channel, you have to expect
-> > trouble: As with IDE there is no disconnect from the bus (as opposed to
-> > SCSI), you risk buffer underruns. 
-> > A lockup however is not to be expected :-(
-> 
-> It is completely expected bacause of teh active timing changes done on
-> this chipset design.  The timings are for ATA DMA and not ATAPI.
-> You should expect a 100% hardlock on mistimed IO access.
-> 
-> Cheers,
-> 
-> Andre Hedrick
-> CTO Timpanogas Research Group
-> EVP Linux Development, TRG
-> Linux ATA Development
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-
--- 
-Damnit, Linus, I'm a network admin, not a kernel hacker!
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

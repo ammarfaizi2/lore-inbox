@@ -1,67 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282867AbRLGR4Z>; Fri, 7 Dec 2001 12:56:25 -0500
+	id <S284138AbRLGR7P>; Fri, 7 Dec 2001 12:59:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282877AbRLGR4Q>; Fri, 7 Dec 2001 12:56:16 -0500
-Received: from avplin.lanet.lv ([195.13.129.97]:59881 "HELO avplin.lanet.lv")
-	by vger.kernel.org with SMTP id <S282878AbRLGR4D>;
-	Fri, 7 Dec 2001 12:56:03 -0500
-Date: Fri, 7 Dec 2001 19:37:45 +0200 (WET)
-From: Andris Pavenis <pavenis@lanet.lv>
-To: Nathan Bryant <nbryant@optonline.net>
-Cc: linux-kernel@vger.kernel.org, dledford@redhat.com
-Subject: Re: [PATCH] i810_audio fix for version 0.11
-In-Reply-To: <3C10F9E0.7010906@optonline.net>
-Message-ID: <Pine.A41.4.05.10112071930350.74408-100000@ieva06>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282893AbRLGR7G>; Fri, 7 Dec 2001 12:59:06 -0500
+Received: from ns.suse.de ([213.95.15.193]:38152 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S282878AbRLGR6s>;
+	Fri, 7 Dec 2001 12:58:48 -0500
+Date: Fri, 7 Dec 2001 18:58:47 +0100
+From: Andi Kleen <ak@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: horrible disk thorughput on itanium
+Message-ID: <20011207185847.A20876@wotan.suse.de>
+In-Reply-To: <p73n10v6spi.fsf@amdsim2.suse.de> <Pine.LNX.4.33.0112070941330.8465-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0112070941330.8465-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> You can be thread-safe without sucking dead baby donkeys through a straw.
+> I already mentioned two possible ways to fix it so that you have locking
+> when you need to, and no locking when you don't.
 
+Your proposals sound rather dangerous. They would silently break recompiled
+threaded programs that need the locking and don't use -D__REENTRANT (most
+people do not seem to use it). I doubt the possible pain from that is 
+worth it for speeding up an basically obsolete interface like putc. 
 
-On Fri, 7 Dec 2001, Nathan Bryant wrote:
+i.e. if someone wants speed they definitely shouldn't use putc()
 
-> Andris Pavenis wrote:
-> 
-> >  > With this patch, it seems to work fine. Without, it hangs on write.
-> > 
-> > I met case when dmabuf->count==0 when __start_dac() is called. As result
-> > I still got system freezing even if PCM_ENABLE_INPUT or 
-> > PCM_ENABLE_OUTPUT were set accordingly (I used different patch, see 
-> > another patch I sent today).
-> > 
-> > My latest revision of patch "survives" without problems already some 
-> > hours (normally I'm not listening radio through internet all time, but 
-> > this time I do ...)
-> > 
-> > Andris
-> 
-> i knew i shoula been a little less lazy with that one...
-> 
-> haven't looked at your revision yet but we should just clean up and make 
-> update_lvi self-contained so that it always does *something* appropriate 
-> regardless of state. maybe that's what you did. ;-)
-> 
-> (fyi, i'm not subscribed to linux-kernel, too much volume for the few 
-> specific interests i have, i don't see some of this stuff until, and if, 
-> i go digging thru archives)
-> 
-
-It seems that I can remove debug code from my version of update (or put
-it inside '#ifdef DEBUG'). I'm torturing it practically without stop
-and no problems found yet (initially listening some radio station with
-RealPlayer, now put noatun playing one MP3 in a loop without stop)
-
-About my patch: I changed __start_dac, start_dac, __start_adc and
-start_adc to return integer (non zero if it is doing something at all).
-I used this return code to see whether I should do a loop in 
-__i810_update_lvi. 
-
-At least I haven't got any message from debuging output I left in.
-
-Andris
-
-
-
-
+-Andi

@@ -1,47 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261732AbUBYTHv (ORCPT <rfc822;willy@w.ods.org>);
+	id S261763AbUBYTHv (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 25 Feb 2004 14:07:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbUBYTGj
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbUBYTGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 14:06:39 -0500
-Received: from fw.osdl.org ([65.172.181.6]:33718 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261763AbUBYTEx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 14:04:53 -0500
-Date: Wed, 25 Feb 2004 11:05:15 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Timothy Miller <miller@techsource.com>, Rik van Riel <riel@redhat.com>,
-       Matti Aarnio <matti.aarnio@zmailer.org>, Greg KH <greg@kroah.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       "Woodruff, Robert J" <woody@co.intel.com>, linux-kernel@vger.kernel.org,
-       "Hefty, Sean" <sean.hefty@intel.com>,
-       "Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
-       "Davis, Arlin R" <arlin.r.davis@intel.com>,
-       marcelo.tosatti@cyclades.com
-Subject: Re: PATCH - InfiniBand Access Layer (IBAL)
-In-Reply-To: <20040225195515.GA2712@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.58.0402251103500.2461@ppc970.osdl.org>
-References: <Pine.LNX.4.44.0402242238020.15091-100000@chimarrao.boston.redhat.com>
- <403CCC77.6030405@techsource.com> <20040225185553.GA2474@mars.ravnborg.org>
- <Pine.LNX.4.58.0402251003440.2461@ppc970.osdl.org> <20040225195515.GA2712@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 25 Feb 2004 14:06:50 -0500
+Received: from linux.us.dell.com ([143.166.224.162]:3301 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S262430AbUBYTEI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 14:04:08 -0500
+Date: Wed, 25 Feb 2004 13:03:28 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Matthew Wilcox <willy@debian.org>
+Cc: "'Christoph Hellwig'" <hch@infradead.org>, "Mukker, Atul" <Atulm@lsil.com>,
+       "'Arjan van de Ven'" <arjanv@redhat.com>,
+       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
+       "'Paul Wagland'" <paul@wagland.net>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
+Subject: Re: [SUBJECT CHANGE]: megaraid unified driver version 2.20.0.0-alpha1
+Message-ID: <20040225130328.B14838@lists.us.dell.com>
+References: <0E3FA95632D6D047BA649F95DAB60E57033BC3E2@exa-atlanta.se.lsil.com> <20040225131640.A3966@infradead.org> <20040225112839.A14838@lists.us.dell.com> <20040225173540.GB25779@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040225173540.GB25779@parcelfarce.linux.theplanet.co.uk>; from willy@debian.org on Wed, Feb 25, 2004 at 05:35:40PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 25 Feb 2004, Sam Ravnborg wrote:
-> > 
-> > And why should we take the vendor perspective?
+On Wed, Feb 25, 2004 at 05:35:40PM +0000, Matthew Wilcox wrote:
+> On Wed, Feb 25, 2004 at 11:28:39AM -0600, Matt Domsch wrote:
+> > The list of PCI devices should be ordered in two buckets: ROMBs first,
+> > then add in cards; secondarily, oldest to newest.  We do this with
+> > aacraid today.
 > 
-> The people developing Inifiband support ask for a review.
+> In 2.4, you can do what you like.  The list of PCI devices is in PCI
+> bus number order, and that's the order you get when you use the hotplug
+> interfaces.
 
-Oh, I agree that _reviewing_ code is good, together with feedback on what
-would improve its chances of getting accepted later on. But it should be
-clear that regardless, we don't add features that nobody can sanely test
-and where hardware isn't available.
+Ahh, yes, of course.  
 
-		Linus
+> Yes, this is a painful customer-visible change, but if they use scsi
+> discs, they must already be used to devices changing name at random.
+
+Well, to be fair, most people count on it not changing, i.e. it is
+deterministic at least, such that if you don't change hardware or add
+logical drives, you won't see any changes between boots.  For most
+users, file system labels serve quite well to keep things consistent.
+For swap, raw devices, and the like, devlabel or udev are used, but at
+least devlabel (sorry Greg, I haven't played with udev too much yet)
+uses SCSI inquiry page 83 or 80 data if it's there, which megaraid
+doesn't provide.
+
+For the install scenario, EDD (which megaraid *does* provide) will
+suffice, but I need to get distro installers to start using it. ;-)
+Oh, and get it working on x86-64.  That should be easy, soon as I have
+access to such a system for a few days.
+
+
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

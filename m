@@ -1,50 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266930AbSK2CFf>; Thu, 28 Nov 2002 21:05:35 -0500
+	id <S266931AbSK2CO2>; Thu, 28 Nov 2002 21:14:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266931AbSK2CFf>; Thu, 28 Nov 2002 21:05:35 -0500
-Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:7926 "EHLO
-	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S266930AbSK2CFe>; Thu, 28 Nov 2002 21:05:34 -0500
-To: Sean Neakums <sneakums@zork.net>
+	id <S266933AbSK2CO2>; Thu, 28 Nov 2002 21:14:28 -0500
+Received: from zok.sgi.com ([204.94.215.101]:10441 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S266931AbSK2CO0>;
+	Thu, 28 Nov 2002 21:14:26 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: kdb@oss.sgi.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] [2.5.49] symbol_get doesn't work
-References: <20021128234536.DC53A2C113@lists.samba.org>
-	<buohee16u19.fsf@mcspd15.ucom.lsi.nec.co.jp>
-	<6uel955e1u.fsf@zork.zork.net>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 29 Nov 2002 11:11:42 +0900
-In-Reply-To: <6uel955e1u.fsf@zork.zork.net>
-Message-ID: <buod6op6s69.fsf@mcspd15.ucom.lsi.nec.co.jp>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Announce: kdb v2.5 is available for kernel 2.4.20
+Date: Fri, 29 Nov 2002 13:20:22 +1100
+Message-ID: <4644.1038536422@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sean Neakums <sneakums@zork.net> writes:
-> > I find the name a bit wierd, BTW -- it sounds like it's going to return
-> > the _value_ of the symbol.  How about something like `symbol_addr' instead?
-> 
-> Surely the value of a symbol is precisely that: an address.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Perhaps; but in my mind the concept of `symbol' (in C) is sort of fuzzy,
-and conflated with the objects to which they refer.  If I see
+Content-Type: text/plain; charset=us-ascii
 
-   x = symbol_get(some_variable);
+ftp://oss.sgi.com/projects/kdb/download/v2.5/
 
-it _looks_, at first glance, like it's going to return the value of
-some_variable (maybe this simply indicates that I'm a moron, but anyway).
+  kdb-v2.5-2.4.20-common-1.bz2
+  kdb-v2.5-2.4.20-i386-1.bz2
+  No kdb ia64-2.4.20 patch yet, waiting for base 2.4.20-ia64 patch.
 
-This:
+Changelog extracts since 2.4.19.
 
-   x = symbol_addr(some_variable);
+2.4.20-common-1
 
-is a whole lot more obvious, I think, regardless of how clued in you are.
+2002-11-29 Keith Owens  <kaos@sgi.com>
 
--Miles
--- 
-Come now, if we were really planning to harm you, would we be waiting here, 
- beside the path, in the very darkest part of the forest?
+	* Upgrade to 2.4.20.
+	* Correct Documentation/kdb/kdb_sr.man.
+	* Remove leading zeroes from pids, they are decimal, not octal.
+	* kdb v2.5-2.4.20-common-1.
+
+2002-11-14 Keith Owens  <kaos@sgi.com>
+
+	* Upgrade to 2.4.20-rc1.
+	* kdb v2.5-2.4.20-rc1-common-1.
+
+2.4.20-i386-1
+
+2002-11-29 Keith Owens  <kaos@sgi.com>
+
+	* Upgrade to 2.4.20.
+	* kdb v2.5-2.4.20-i386-1.
+
+2002-11-14 Keith Owens  <kaos@sgi.com>
+
+	* Upgrade to 2.4.20-rc1.
+	* kdb v2.5-2.4.20-rc1-i386-1.
+
+v2.5/README
+
+Starting with kdb v2.0 there is a common patch against each kernel which
+contains all the architecture independent code plus separate architecture
+dependent patches.  Apply the common patch for your kernel plus at least
+one architecture dependent patch, the architecture patches activate kdb.
+
+The naming convention for kdb patches is :-
+
+ vx.y    The version of kdb.  x.y is updated as new features are added to kdb.
+ -v.p.s  The kernel version that the patch applies to.  's' may include -pre,
+	 -rc or whatever numbering system the kernel keepers have thought up this
+	 week.
+ -common The common kdb code.  Everybody needs this.
+ -i386   Architecture dependent code for i386.
+ -ia64   Architecture dependent code for ia64, etc.
+ -n      If there are multiple kdb patches against the same kernel version then
+	 the last number is incremented.
+
+To build kdb for your kernel, apply the common kdb patch which is less
+than or equal to the kernel v.p.s, taking the highest value of '-n'
+if there is more than one.  Apply the relevant arch dependent patch
+with the same value of 'vx.y-v.p.s-', taking the highest value of '-n'
+if there is more than one.
+
+For example, to use kdb for i386 on kernel 2.4.20, apply
+  kdb-v2.5-2.4.20-common-<n>            (use highest value of <n>)
+  kdb-v2.5-2.4.20-i386-<n>              (use highest value of <n>)
+in that order.  To use kdb for ia64-020821 on kernel 2.4.20, apply
+  kdb-v2.5-2.4.20-common-<n>            (use highest value of <n>)
+  kdb-v2.5-2.4.20-ia64-020821-<n>       (use highest value of <n>)
+in that order.
+
+Use patch -p1 for all patches.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE95s7ji4UHNye0ZOoRAqduAJ0ZJssTNckBsAW8/BE+XV3OOKf3hwCfXRcf
+W0NSiZlxuul/dAiONBleKhw=
+=Tge0
+-----END PGP SIGNATURE-----
+

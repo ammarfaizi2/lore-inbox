@@ -1,38 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261255AbVAGAij@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVAGAni@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261255AbVAGAij (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 19:38:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbVAGAen
+	id S261246AbVAGAni (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 19:43:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbVAGAna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 19:34:43 -0500
-Received: from colin2.muc.de ([193.149.48.15]:25093 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S261210AbVAGAbN (ORCPT
+	Thu, 6 Jan 2005 19:43:30 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:1929 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261152AbVAGAlb convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 19:31:13 -0500
-Date: 7 Jan 2005 01:31:11 +0100
-Date: Fri, 7 Jan 2005 01:31:11 +0100
-From: Andi Kleen <ak@muc.de>
-To: Anton Blanchard <anton@samba.org>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Steve Longerbeam <stevel@mvista.com>, Hugh Dickins <hugh@veritas.com>,
-       Ray Bryant <raybry@sgi.com>, Christoph Lameter <clameter@sgi.com>,
-       Hirokazu Takahashi <taka@valinux.co.jp>,
-       Marcello Tosatti <marcelo.tosatti@cyclades.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>, andrew morton <akpm@osdl.org>
-Subject: Re: page migration patchset
-Message-ID: <20050107003111.GA51656@muc.de>
-References: <Pine.LNX.4.44.0501052008160.8705-100000@localhost.localdomain> <41DC7EAD.8010407@mvista.com> <20050106144307.GB59451@muc.de> <20050106223046.GB9636@holomorphy.com> <20050106235300.GC14239@krispykreme.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 6 Jan 2005 19:41:31 -0500
+From: Jason Gaston <jason.d.gaston@intel.com>
+Organization: Intel Corp.
+To: greg@kroah.com
+Subject: [PATCH] I2C support for Intel ICH7 - 2.6.10 - resubmit
+Date: Thu, 6 Jan 2005 09:47:14 -0800
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, jason.d.gaston@intel.com
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20050106235300.GC14239@krispykreme.ozlabs.ibm.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200501060947.14595.jason.d.gaston@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Can we have a complete bug report on it so the rest of us can try to assist?
+This patch adds the Intel ICH7 DID to the i2c-i801.c driver and adds an entry to Kconfig for I2C(SMBus) support.  
+Note: This patch relies on the already submitted and accepted PATA patch to pci_ids.h containing all ICH7 DID's.
+If acceptable, please apply. 
 
-The crash bug seems to be x86-64 specific. 
+Thanks,
 
--Andi
+Jason Gaston
+
+Signed-off-by:  Jason Gaston <Jason.d.gaston@intel.com>
+
+--- linux-2.6.10/drivers/i2c/busses/i2c-i801.c.orig	2004-12-30 05:58:04.000000000 -0800
++++ linux-2.6.10/drivers/i2c/busses/i2c-i801.c	2004-12-30 06:01:35.000000000 -0800
+@@ -30,6 +30,7 @@
+     82801EB		24D3   (HW PEC supported, 32 byte buffer not supported)
+     6300ESB		25A4
+     ICH6		266A
++    ICH7		27DA
+     This driver supports several versions of Intel's I/O Controller Hubs (ICH).
+     For SMBus support, they are similar to the PIIX4 and are part
+     of Intel's '810' and other chipsets.
+@@ -596,6 +597,12 @@
+ 		.subvendor =	PCI_ANY_ID,
+ 		.subdevice =	PCI_ANY_ID,
+ 	},
++	{
++		.vendor =	PCI_VENDOR_ID_INTEL,
++		.device =	PCI_DEVICE_ID_INTEL_ICH7_17,
++		.subvendor =	PCI_ANY_ID,
++		.subdevice =	PCI_ANY_ID,
++	},
+ 	{ 0, }
+ };
+ 
+--- linux-2.6.10/drivers/i2c/busses/Kconfig.orig	2004-12-30 06:02:04.000000000 -0800
++++ linux-2.6.10/drivers/i2c/busses/Kconfig	2004-12-30 06:02:39.000000000 -0800
+@@ -112,6 +112,7 @@
+ 	    82801EB
+ 	    6300ESB
+ 	    ICH6
++	    ICH7
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-i801.

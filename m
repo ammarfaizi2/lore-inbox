@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313238AbSDULtj>; Sun, 21 Apr 2002 07:49:39 -0400
+	id <S312913AbSDUM6H>; Sun, 21 Apr 2002 08:58:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313311AbSDULti>; Sun, 21 Apr 2002 07:49:38 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:61604 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S313238AbSDULti>; Sun, 21 Apr 2002 07:49:38 -0400
-Date: Sun, 21 Apr 2002 07:49:30 -0400
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Tigran Aivazian <tigran@veritas.com>
-Cc: Michal Semler <cijoml@volny.cz>, Arjan van de Ven <arjanv@redhat.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Intel Speedstep technology switch
-Message-ID: <20020421074930.A27740@devserv.devel.redhat.com>
-In-Reply-To: <20020421105908.0B5ACAFA88@notas> <Pine.LNX.4.33.0204211242560.1662-100000@einstein.homenet>
+	id <S313267AbSDUM6G>; Sun, 21 Apr 2002 08:58:06 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:48063 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S312913AbSDUM6G>;
+	Sun, 21 Apr 2002 08:58:06 -0400
+Date: Sun, 21 Apr 2002 22:53:32 +1000
+From: Anton Blanchard <anton@samba.org>
+To: linux-kernel@vger.kernel.org
+Cc: viro@math.psu.edu
+Subject: [PATCH] double down() in nfsd_symlink
+Message-ID: <20020421125332.GA28702@krispykreme>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 21, 2002 at 12:45:37PM +0100, Tigran Aivazian wrote:
-> Hi Michal,
-> 
-> I don't think it does but I think Arjan was working in the area related to
-> what you are asking. I cc'd him and the "whole world, or what is left of
-> it" -- maybe they know.
 
-We're getting close.  Right now AMD K6+, K7 PowerNOW
-(AMD speak for Speedstep) is supported, as well as Cyrix cpus. Intel
-is lagging a bit due to Intel not giving
-specs; but the reverse engineering is making progress on this part.
- 
+Hi,
 
--- 
-But when you distribute the same sections as part of a whole which is a work 
-based on the Program, the distribution of the whole must be on the terms of 
-this License, whose permissions for other licensees extend to the entire whole,
-and thus to each and every part regardless of who wrote it. [sect.2 GPL]
+Probably as a result of the recent BKL removal in notify_change,
+nfsd_symlink downs the inode semaphore twice (the first time is in
+fh_lock). Al does this patch look OK to you?
+
+
+--- linux-2.5/fs/nfsd/vfs.c	Sun Apr 21 22:48:04 2002
++++ linux-2.5_work/fs/nfsd/vfs.c	Sun Apr 21 22:38:28 2002
+@@ -1127,9 +1127,7 @@
+ 				iap->ia_valid |= ATTR_CTIME;
+ 				iap->ia_mode = (iap->ia_mode&S_IALLUGO)
+ 					| S_IFLNK;
+-				down(&dentry->d_inode->i_sem);
+ 				err = notify_change(dnew, iap);
+-				up(&dentry->d_inode->i_sem);
+ 				if (!err && EX_ISSYNC(fhp->fh_export))
+ 					write_inode_now(dentry->d_inode, 1);
+ 		       }
+
+Anton

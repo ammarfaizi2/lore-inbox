@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265334AbUBPDmq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 22:42:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265339AbUBPDmp
+	id S265351AbUBPD6j (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 22:58:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265356AbUBPD6j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 22:42:45 -0500
-Received: from dp.samba.org ([66.70.73.150]:56736 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S265334AbUBPDmj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 22:42:39 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Christophe Saout <christophe@saout.de>
-Subject: Re: kthread vs. dm-daemon (was: Oopsing cryptoapi (or loop device?) on 2.6.*) 
-Cc: Joe Thornber <thornber@redhat.com>, linux-kernel@vger.kernel.org
-In-reply-to: Your message of "Sun, 15 Feb 2004 21:24:28 BST."
-             <1076876668.21968.22.camel@leto.cs.pocnet.net> 
-Date: Mon, 16 Feb 2004 14:02:04 +1100
-Message-Id: <20040216034250.EDCC82C053@lists.samba.org>
+	Sun, 15 Feb 2004 22:58:39 -0500
+Received: from h80ad24fd.async.vt.edu ([128.173.36.253]:35478 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265351AbUBPD6i (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 22:58:38 -0500
+Message-Id: <200402160358.i1G3wC6W013389@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Chip Salzenberg <chip@pobox.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Linux 2.6.3-rc3 - IDE DMA errors on Thinkpad A30 
+In-Reply-To: Your message of "Sun, 15 Feb 2004 22:47:37 EST."
+             <40303D59.4030605@pobox.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <E1AsO6X-0003hW-1u@tytlal> <200402151658.57710.bzolnier@elka.pw.edu.pl> <20040215163438.GC3789@perlsupport.com> <200402151808.42611.bzolnier@elka.pw.edu.pl> <20040216005523.GD3789@perlsupport.com> <40302783.6020505@pobox.com> <20040216033740.GE3789@perlsupport.com>
+            <40303D59.4030605@pobox.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1198498653P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 15 Feb 2004 22:58:12 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <1076876668.21968.22.camel@leto.cs.pocnet.net> you write:
-> Am So, den 15.02.2004 schrieb Christoph Hellwig um 20:46:
-> 
-> > > The only reason, I guess, is that it depends on this very small
-> > > dm-daemon thing:
-> > > http://people.sistina.com/~thornber/dm/patches/2.6-unstable/2.6.2/2.6.2-u
-dm1/00016.patch
-> >
-> > Well, actually the above code should not enter the kernel tree at all.
-> > Care to rewrite dm-crypt to use Rusty's kthread code in -mm instead and
-> > submit a patch to Andrew?  Whenever he merges the kthread stuff to mainline
-> > he could just include dm-crypt then.
-> 
-> Sure I could.
-> 
-> But kthread is currently not a full replacement for dm-daemon. kthread
-> provides thread creation and destruction functions. But dm-daemon
-> additionaly does mainloop handling.
+--==_Exmh_1198498653P
+Content-Type: text/plain; charset=us-ascii
 
-Yes, looks like dm-daemon is a workqueue.
+On Sun, 15 Feb 2004 22:47:37 EST, Jeff Garzik said:
+> One for the todo list, I suppose...  a useable workaround for this is 
+> probably good ole 'e2fsck -c', i.e. badblocks...  That says "check again 
+> to see if this sector is bad", and -hopefully- will unmark bad blocks 
+> that were incorrectly marked bad.
 
-> There seems to beg a small race conditition that can appear when using
-> only wake_up for notifies so dm-daemon uses an additional atomic_t
-> variable to make sure nothing gets missed. Just see the function
-> ``daemon'' in dm-daemon.c.
+Does e2fsck/badblocks issue the right ioctls/etc to make the disk read the
+*original* block, or will the disk simply check the *redirected* block?
 
-This is why using a workqueue, rather than having everyone invent
-their own methods, is a good idea.
+--==_Exmh_1198498653P
+Content-Type: application/pgp-signature
 
-> It seems to me that this functionality could perhaps be somehow added to
-> kthread without changing it too much... ?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-You could build it on top of kthread probably.  You could also change
-workqueues to resize dynamically, rather than be one per cpu (but
-that's some fairly tricky code).
+iD8DBQFAMD/TcC3lWbTT17ARAjS8AJ9MqwKfxZYd1aZJo4cjn8DQcKTKbQCdGrO9
+XaacG20aQPRxXJR/Y1WlIm0=
+=SdjD
+-----END PGP SIGNATURE-----
 
-Thanks for bringing this code to my attention...
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+--==_Exmh_1198498653P--

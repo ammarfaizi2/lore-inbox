@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269356AbUJRCRA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269367AbUJRCSj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269356AbUJRCRA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 22:17:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269357AbUJRCRA
+	id S269367AbUJRCSj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 22:18:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269366AbUJRCSg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 22:17:00 -0400
-Received: from rproxy.gmail.com ([64.233.170.199]:55992 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S269356AbUJRCQ6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 22:16:58 -0400
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=udp/vzBLHhtPVskmcAyAgfB5y+hMbKiCN5mE0bjyCM94KMDUKj26ZViBujk1QbCHKePospqwKD/utVFRcQz8+NJlEH6eQL5HdvcFMaSvAz/z0uV65T2H9GSPLk+pVnPmk9UWmSUhYvPUl7XXuTq2fjHRsq/Zy7AA7gSPkrQlMmY
-Message-ID: <35fb2e59041017191624c9b44b@mail.gmail.com>
-Date: Mon, 18 Oct 2004 03:16:58 +0100
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Subject: Re: Running user processes in kernel mode; Java and .NET support in kernel
-Cc: Simon Kissane <skissane@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200410172253.28215.vda@port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 17 Oct 2004 22:18:36 -0400
+Received: from sigma957.CIS.McMaster.CA ([130.113.64.83]:11233 "EHLO
+	sigma957.cis.mcmaster.ca") by vger.kernel.org with ESMTP
+	id S269358AbUJRCS1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 22:18:27 -0400
+Subject: Re: [RFC][PATCH] inotify 0.14
+From: John McCutchan <ttb@tentacle.dhs.org>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Robert Love <rml@novell.com>, v13@priest.com, linux-kernel@vger.kernel.org,
+       gamin-list@gnome.org, viro@parcelfarce.linux.theplanet.co.uk,
+       akpm@osdl.org, bkonrath@redhat.com, greg@kroah.com
+In-Reply-To: <20041018113237.4c4c1d11.sfr@canb.auug.org.au>
+References: <1097808272.4009.0.camel@vertex>
+	 <200410180246.27654.v13@priest.com> <1098057129.5497.107.camel@localhost>
+	 <20041018112807.3a7edbf7.sfr@canb.auug.org.au>
+	 <20041018113237.4c4c1d11.sfr@canb.auug.org.au>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-References: <82fa66380410152111143f75ec@mail.gmail.com>
-	 <82fa6638041016055934097b80@mail.gmail.com>
-	 <200410172253.28215.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-Id: <1098065866.16758.0.camel@vertex>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 17 Oct 2004 22:17:46 -0400
+X-PMX-Version-Mac: 4.7.0.111621, Antispam-Engine: 2.0.1.0, Antispam-Data: 2004.10.17.0
+X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __MIME_VERSION 0, __SANE_MSGID 0'
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Oct 2004 22:53:28 +0300, Denis Vlasenko
-<vda@port.imtp.ilyichevsk.odessa.ua> wrote:
-> On Saturday 16 October 2004 15:59, Simon Kissane wrote:
+On Sun, 2004-10-17 at 21:32, Stephen Rothwell wrote:
+> On Mon, 18 Oct 2004 11:28:07 +1000 Stephen Rothwell <sfr@canb.auug.org.au>
+> wrote:
+> >
+> > And you create setattr_mask_dnotify for which I can find no caller.
+> 
+> Similarly setattr_mask_inotify appears to have no callers (I assume it is
+> left over from a previous version).
 
-> > Also, I found a website by someone who had this idea before me (and
-> > unlike me, actually implemented it!).
-> > "Kernel Mode Linux" by Toshiyuki Maeda
-> > http://web.yl.is.s.u-tokyo.ac.jp/~tosh/kml/
+Yes it is. setattr_mask () computes both dnotify and inotify masks.
 
-> Nice page. Doubly nice considering that they have working code.
+John
 
-We looked at it briefly as part of a discussion in the office about
-user mode device drivers, not really that seriously - one of those
-lunchtime things. In the end it's far better to just mmap /dev/mem and
-be done with it anyway. Other than that I can see little use for this.
-Machines without an MMU running uclinux effectively run like this
-anyway.
-
-Jon.

@@ -1,1215 +1,1811 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262932AbUGRATp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263713AbUGRB1A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262932AbUGRATp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jul 2004 20:19:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263032AbUGRATp
+	id S263713AbUGRB1A (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jul 2004 21:27:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263733AbUGRB1A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jul 2004 20:19:45 -0400
-Received: from mail.dif.dk ([193.138.115.101]:47494 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262932AbUGRASt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jul 2004 20:18:49 -0400
-Date: Sun, 18 Jul 2004 02:17:06 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Roger Luethi <rl@hellgate.ch>
-Cc: Jesus Delgado <jdelgado@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Broken driver via-rhine.c in kernel 2.6.8-rc1
-In-Reply-To: <20040713110226.GB30087@k3.hellgate.ch>
-Message-ID: <Pine.LNX.4.56.0407180209330.29165@jjulnx.backbone.dif.dk>
-References: <57861437040712220518dee67d@mail.gmail.com>
- <20040713110226.GB30087@k3.hellgate.ch>
+	Sat, 17 Jul 2004 21:27:00 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:58357 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S263713AbUGRBZg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jul 2004 21:25:36 -0400
+To: long <tlnguyen@snoqualmie.dp.intel.com>
+Cc: ak@muc.de, akpm@osdl.org, greg@kroah.com, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, tom.l.nguyen@intel.com,
+       zwane@linuxpower.ca
+Subject: Re: [PATCH]2.6.7 MSI-X Update
+X-Message-Flag: Warning: May contain useful information
+References: <200407132202.i6DM2hRa007928@snoqualmie.dp.intel.com>
+From: Roland Dreier <roland@topspin.com>
+Date: Sat, 17 Jul 2004 18:25:30 -0700
+In-Reply-To: <200407132202.i6DM2hRa007928@snoqualmie.dp.intel.com> (long's
+ message of "Tue, 13 Jul 2004 15:02:43 -0700")
+Message-ID: <52pt6uayyd.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 18 Jul 2004 01:25:30.0737 (UTC) FILETIME=[1D4E9610:01C46C66]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Jul 2004, Roger Luethi wrote:
-
-> On Tue, 13 Jul 2004 00:05:10 -0500, Jesus Delgado wrote:
-> > The problems with driver via-rhine.c version v1.10-LK1.1.20-2.6
-> > May-23-2004:via-rhine: probe of 0000:00:12.0 failed with error -5
-> > Invalid MAC address for card #0
-> >
-> > kernel 2.6.7 and kernel 2.6.7-mm7  working good via-rhine.c
->
-> I can't reproduce the bug on any of my hardware right now (it was there
-> once, it's gone now). But Jesper Juhl can and he's narrowing down what
-> makes the difference between those drivers.
->
-> Can you guys send me your .config? And btw, does using an old via-rhine
-> driver (say from vanilla 2.6.7) with 2.6.8-rc1 fix the problem?
->
-
-As I believe I said in my original mail vanilla 2.6.7 works just fine
-here. currently I'm running 2.6.8-rc1 with the driver from 2.6.7-mm7 -
-also with fine results.
-
-I'm still in the process of testing the patches you send me links to, but
-it's a bit slow going since I've been tied up in personal matters for a
-few days - I'll have some results for you very soon I hope.
-
-My current .config that I'm using with 2.6.8-rc1 with the driver from -mm7
-is below, it's identical to the one I use with an unmodified 2.6.8-rc1
-which breaks the via-rhine driver, and is also (as closte as possible)
-identical to the one I use with vanilla 2.6.7 (and -mm7) without trouble. :
-
-
-#
-# Automatically generated make config: don't edit
-#
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_STANDALONE=y
-CONFIG_BROKEN_ON_SMP=y
-
-#
-# General setup
-#
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_POSIX_MQUEUE=y
-CONFIG_BSD_PROCESS_ACCT=y
-# CONFIG_BSD_PROCESS_ACCT_V3 is not set
-CONFIG_SYSCTL=y
-# CONFIG_AUDIT is not set
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_HOTPLUG=y
-CONFIG_IKCONFIG=y
-CONFIG_IKCONFIG_PROC=y
-# CONFIG_EMBEDDED is not set
-CONFIG_KALLSYMS=y
-# CONFIG_KALLSYMS_EXTRA_PASS is not set
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IOSCHED_DEADLINE=y
-CONFIG_IOSCHED_CFQ=y
-# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
-
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_MODULE_FORCE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-# CONFIG_MODVERSIONS is not set
-CONFIG_KMOD=y
-
-#
-# Processor type and features
-#
-CONFIG_X86_PC=y
-# CONFIG_X86_ELAN is not set
-# CONFIG_X86_VOYAGER is not set
-# CONFIG_X86_NUMAQ is not set
-# CONFIG_X86_SUMMIT is not set
-# CONFIG_X86_BIGSMP is not set
-# CONFIG_X86_VISWS is not set
-# CONFIG_X86_GENERICARCH is not set
-# CONFIG_X86_ES7000 is not set
-# CONFIG_M386 is not set
-# CONFIG_M486 is not set
-# CONFIG_M586 is not set
-# CONFIG_M586TSC is not set
-# CONFIG_M586MMX is not set
-# CONFIG_M686 is not set
-# CONFIG_MPENTIUMII is not set
-# CONFIG_MPENTIUMIII is not set
-# CONFIG_MPENTIUMM is not set
-# CONFIG_MPENTIUM4 is not set
-# CONFIG_MK6 is not set
-CONFIG_MK7=y
-# CONFIG_MK8 is not set
-# CONFIG_MCRUSOE is not set
-# CONFIG_MWINCHIPC6 is not set
-# CONFIG_MWINCHIP2 is not set
-# CONFIG_MWINCHIP3D is not set
-# CONFIG_MCYRIXIII is not set
-# CONFIG_MVIAC3_2 is not set
-# CONFIG_X86_GENERIC is not set
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_USE_3DNOW=y
-CONFIG_HPET_TIMER=y
-# CONFIG_HPET_EMULATE_RTC is not set
-# CONFIG_SMP is not set
-CONFIG_PREEMPT=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-# CONFIG_X86_MCE_P4THERMAL is not set
-# CONFIG_TOSHIBA is not set
-# CONFIG_I8K is not set
-# CONFIG_MICROCODE is not set
-CONFIG_X86_MSR=y
-CONFIG_X86_CPUID=y
-
-#
-# Firmware Drivers
-#
-# CONFIG_EDD is not set
-CONFIG_NOHIGHMEM=y
-# CONFIG_HIGHMEM4G is not set
-# CONFIG_HIGHMEM64G is not set
-# CONFIG_MATH_EMULATION is not set
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-# CONFIG_REGPARM is not set
-
-#
-# Power management options (ACPI, APM)
-#
-CONFIG_PM=y
-# CONFIG_SOFTWARE_SUSPEND is not set
-# CONFIG_PM_DISK is not set
-
-#
-# ACPI (Advanced Configuration and Power Interface) Support
-#
-# CONFIG_ACPI is not set
-CONFIG_ACPI_BOOT=y
-
-#
-# APM (Advanced Power Management) BIOS Support
-#
-CONFIG_APM=y
-# CONFIG_APM_IGNORE_USER_SUSPEND is not set
-CONFIG_APM_DO_ENABLE=y
-CONFIG_APM_CPU_IDLE=y
-# CONFIG_APM_DISPLAY_BLANK is not set
-CONFIG_APM_RTC_IS_GMT=y
-# CONFIG_APM_ALLOW_INTS is not set
-# CONFIG_APM_REAL_MODE_POWER_OFF is not set
-
-#
-# CPU Frequency scaling
-#
-# CONFIG_CPU_FREQ is not set
-
-#
-# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
-#
-CONFIG_PCI=y
-# CONFIG_PCI_GOBIOS is not set
-# CONFIG_PCI_GOMMCONFIG is not set
-# CONFIG_PCI_GODIRECT is not set
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_MMCONFIG=y
-# CONFIG_PCI_USE_VECTOR is not set
-CONFIG_PCI_LEGACY_PROC=y
-CONFIG_PCI_NAMES=y
-# CONFIG_ISA is not set
-# CONFIG_MCA is not set
-# CONFIG_SCx200 is not set
-
-#
-# PCMCIA/CardBus support
-#
-# CONFIG_PCMCIA is not set
-
-#
-# PCI Hotplug Support
-#
-# CONFIG_HOTPLUG_PCI is not set
-
-#
-# Executable file formats
-#
-CONFIG_BINFMT_ELF=y
-# CONFIG_BINFMT_AOUT is not set
-CONFIG_BINFMT_MISC=y
-
-#
-# Device Drivers
-#
-
-#
-# Generic Driver Options
-#
-CONFIG_PREVENT_FIRMWARE_BUILD=y
-CONFIG_FW_LOADER=m
-
-#
-# Memory Technology Devices (MTD)
-#
-# CONFIG_MTD is not set
-
-#
-# Parallel port support
-#
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-CONFIG_PARPORT_PC_CML1=y
-# CONFIG_PARPORT_SERIAL is not set
-# CONFIG_PARPORT_PC_FIFO is not set
-# CONFIG_PARPORT_PC_SUPERIO is not set
-# CONFIG_PARPORT_OTHER is not set
-# CONFIG_PARPORT_1284 is not set
-
-#
-# Plug and Play support
-#
-
-#
-# Block devices
-#
-CONFIG_BLK_DEV_FD=y
-# CONFIG_PARIDE is not set
-# CONFIG_BLK_CPQ_DA is not set
-# CONFIG_BLK_CPQ_CISS_DA is not set
-# CONFIG_BLK_DEV_DAC960 is not set
-# CONFIG_BLK_DEV_UMEM is not set
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_DEV_CRYPTOLOOP=m
-# CONFIG_BLK_DEV_NBD is not set
-# CONFIG_BLK_DEV_SX8 is not set
-CONFIG_BLK_DEV_RAM=m
-CONFIG_BLK_DEV_RAM_SIZE=4096
-# CONFIG_LBD is not set
-
-#
-# ATA/ATAPI/MFM/RLL support
-#
-# CONFIG_IDE is not set
-
-#
-# SCSI device support
-#
-CONFIG_SCSI=y
-CONFIG_SCSI_PROC_FS=y
-
-#
-# SCSI support type (disk, tape, CD-ROM)
-#
-CONFIG_BLK_DEV_SD=y
-# CONFIG_CHR_DEV_ST is not set
-# CONFIG_CHR_DEV_OSST is not set
-CONFIG_BLK_DEV_SR=y
-# CONFIG_BLK_DEV_SR_VENDOR is not set
-CONFIG_CHR_DEV_SG=m
-
-#
-# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
-#
-# CONFIG_SCSI_MULTI_LUN is not set
-CONFIG_SCSI_CONSTANTS=y
-# CONFIG_SCSI_LOGGING is not set
-
-#
-# SCSI Transport Attributes
-#
-# CONFIG_SCSI_SPI_ATTRS is not set
-# CONFIG_SCSI_FC_ATTRS is not set
-
-#
-# SCSI low-level drivers
-#
-# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
-# CONFIG_SCSI_3W_9XXX is not set
-# CONFIG_SCSI_ACARD is not set
-# CONFIG_SCSI_AACRAID is not set
-CONFIG_SCSI_AIC7XXX=y
-CONFIG_AIC7XXX_CMDS_PER_DEVICE=250
-CONFIG_AIC7XXX_RESET_DELAY_MS=15000
-# CONFIG_AIC7XXX_BUILD_FIRMWARE is not set
-# CONFIG_AIC7XXX_DEBUG_ENABLE is not set
-CONFIG_AIC7XXX_DEBUG_MASK=0
-# CONFIG_AIC7XXX_REG_PRETTY_PRINT is not set
-# CONFIG_SCSI_AIC7XXX_OLD is not set
-# CONFIG_SCSI_AIC79XX is not set
-# CONFIG_SCSI_DPT_I2O is not set
-# CONFIG_SCSI_MEGARAID is not set
-# CONFIG_SCSI_SATA is not set
-# CONFIG_SCSI_BUSLOGIC is not set
-# CONFIG_SCSI_DMX3191D is not set
-# CONFIG_SCSI_EATA is not set
-# CONFIG_SCSI_EATA_PIO is not set
-# CONFIG_SCSI_FUTURE_DOMAIN is not set
-# CONFIG_SCSI_GDTH is not set
-# CONFIG_SCSI_IPS is not set
-# CONFIG_SCSI_INIA100 is not set
-# CONFIG_SCSI_PPA is not set
-# CONFIG_SCSI_IMM is not set
-# CONFIG_SCSI_SYM53C8XX_2 is not set
-# CONFIG_SCSI_IPR is not set
-# CONFIG_SCSI_QLOGIC_ISP is not set
-# CONFIG_SCSI_QLOGIC_FC is not set
-# CONFIG_SCSI_QLOGIC_1280 is not set
-CONFIG_SCSI_QLA2XXX=y
-# CONFIG_SCSI_QLA21XX is not set
-# CONFIG_SCSI_QLA22XX is not set
-# CONFIG_SCSI_QLA2300 is not set
-# CONFIG_SCSI_QLA2322 is not set
-# CONFIG_SCSI_QLA6312 is not set
-# CONFIG_SCSI_QLA6322 is not set
-# CONFIG_SCSI_DC395x is not set
-# CONFIG_SCSI_DC390T is not set
-# CONFIG_SCSI_NSP32 is not set
-# CONFIG_SCSI_DEBUG is not set
-
-#
-# Multi-device support (RAID and LVM)
-#
-# CONFIG_MD is not set
-
-#
-# Fusion MPT device support
-#
-# CONFIG_FUSION is not set
-
-#
-# IEEE 1394 (FireWire) support
-#
-# CONFIG_IEEE1394 is not set
-
-#
-# I2O device support
-#
-# CONFIG_I2O is not set
-
-#
-# Networking support
-#
-CONFIG_NET=y
-
-#
-# Networking options
-#
-CONFIG_PACKET=y
-# CONFIG_PACKET_MMAP is not set
-CONFIG_NETLINK_DEV=y
-CONFIG_UNIX=y
-CONFIG_NET_KEY=y
-CONFIG_INET=y
-# CONFIG_IP_MULTICAST is not set
-# CONFIG_IP_ADVANCED_ROUTER is not set
-# CONFIG_IP_PNP is not set
-# CONFIG_NET_IPIP is not set
-# CONFIG_NET_IPGRE is not set
-# CONFIG_ARPD is not set
-CONFIG_SYN_COOKIES=y
-CONFIG_INET_AH=m
-CONFIG_INET_ESP=m
-CONFIG_INET_IPCOMP=m
-
-#
-# IP: Virtual Server Configuration
-#
-# CONFIG_IP_VS is not set
-# CONFIG_IPV6 is not set
-CONFIG_NETFILTER=y
-# CONFIG_NETFILTER_DEBUG is not set
-
-#
-# IP: Netfilter Configuration
-#
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_IP_NF_FTP=m
-CONFIG_IP_NF_IRC=m
-CONFIG_IP_NF_TFTP=m
-CONFIG_IP_NF_AMANDA=m
-CONFIG_IP_NF_QUEUE=m
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_IPRANGE=m
-CONFIG_IP_NF_MATCH_MAC=m
-CONFIG_IP_NF_MATCH_PKTTYPE=m
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-CONFIG_IP_NF_MATCH_RECENT=m
-CONFIG_IP_NF_MATCH_ECN=m
-CONFIG_IP_NF_MATCH_DSCP=m
-CONFIG_IP_NF_MATCH_AH_ESP=m
-CONFIG_IP_NF_MATCH_LENGTH=m
-CONFIG_IP_NF_MATCH_TTL=m
-CONFIG_IP_NF_MATCH_TCPMSS=m
-CONFIG_IP_NF_MATCH_HELPER=m
-CONFIG_IP_NF_MATCH_STATE=m
-CONFIG_IP_NF_MATCH_CONNTRACK=m
-CONFIG_IP_NF_MATCH_OWNER=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-CONFIG_IP_NF_TARGET_NETMAP=m
-CONFIG_IP_NF_TARGET_SAME=m
-# CONFIG_IP_NF_NAT_LOCAL is not set
-# CONFIG_IP_NF_NAT_SNMP_BASIC is not set
-CONFIG_IP_NF_NAT_IRC=m
-CONFIG_IP_NF_NAT_FTP=m
-CONFIG_IP_NF_NAT_TFTP=m
-CONFIG_IP_NF_NAT_AMANDA=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_ECN=m
-CONFIG_IP_NF_TARGET_DSCP=m
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_CLASSIFY=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IP_NF_TARGET_ULOG=m
-CONFIG_IP_NF_TARGET_TCPMSS=m
-CONFIG_IP_NF_ARPTABLES=m
-CONFIG_IP_NF_ARPFILTER=m
-CONFIG_IP_NF_ARP_MANGLE=m
-# CONFIG_IP_NF_COMPAT_IPCHAINS is not set
-# CONFIG_IP_NF_COMPAT_IPFWADM is not set
-CONFIG_IP_NF_TARGET_NOTRACK=m
-CONFIG_IP_NF_RAW=m
-CONFIG_IP_NF_MATCH_ADDRTYPE=m
-CONFIG_IP_NF_MATCH_REALM=m
-CONFIG_XFRM=y
-CONFIG_XFRM_USER=y
-
-#
-# SCTP Configuration (EXPERIMENTAL)
-#
-CONFIG_IP_SCTP=m
-# CONFIG_SCTP_DBG_MSG is not set
-# CONFIG_SCTP_DBG_OBJCNT is not set
-# CONFIG_SCTP_HMAC_NONE is not set
-# CONFIG_SCTP_HMAC_SHA1 is not set
-CONFIG_SCTP_HMAC_MD5=y
-# CONFIG_ATM is not set
-# CONFIG_BRIDGE is not set
-# CONFIG_VLAN_8021Q is not set
-# CONFIG_DECNET is not set
-# CONFIG_LLC2 is not set
-# CONFIG_IPX is not set
-# CONFIG_ATALK is not set
-# CONFIG_X25 is not set
-# CONFIG_LAPB is not set
-# CONFIG_NET_DIVERT is not set
-# CONFIG_ECONET is not set
-# CONFIG_WAN_ROUTER is not set
-# CONFIG_NET_FASTROUTE is not set
-# CONFIG_NET_HW_FLOWCONTROL is not set
-
-#
-# QoS and/or fair queueing
-#
-# CONFIG_NET_SCHED is not set
-CONFIG_NET_CLS_ROUTE=y
-
-#
-# Network testing
-#
-# CONFIG_NET_PKTGEN is not set
-# CONFIG_NETPOLL is not set
-# CONFIG_NET_POLL_CONTROLLER is not set
-# CONFIG_HAMRADIO is not set
-# CONFIG_IRDA is not set
-# CONFIG_BT is not set
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=m
-# CONFIG_BONDING is not set
-# CONFIG_EQUALIZER is not set
-# CONFIG_TUN is not set
-# CONFIG_ETHERTAP is not set
-
-#
-# ARCnet devices
-#
-# CONFIG_ARCNET is not set
-
-#
-# Ethernet (10 or 100Mbit)
-#
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-# CONFIG_HAPPYMEAL is not set
-# CONFIG_SUNGEM is not set
-# CONFIG_NET_VENDOR_3COM is not set
-
-#
-# Tulip family network device support
-#
-# CONFIG_NET_TULIP is not set
-# CONFIG_HP100 is not set
-CONFIG_NET_PCI=y
-# CONFIG_PCNET32 is not set
-# CONFIG_AMD8111_ETH is not set
-# CONFIG_ADAPTEC_STARFIRE is not set
-# CONFIG_B44 is not set
-# CONFIG_FORCEDETH is not set
-# CONFIG_DGRS is not set
-# CONFIG_EEPRO100 is not set
-# CONFIG_E100 is not set
-# CONFIG_FEALNX is not set
-# CONFIG_NATSEMI is not set
-# CONFIG_NE2K_PCI is not set
-# CONFIG_8139CP is not set
-# CONFIG_8139TOO is not set
-# CONFIG_SIS900 is not set
-# CONFIG_EPIC100 is not set
-# CONFIG_SUNDANCE is not set
-# CONFIG_TLAN is not set
-CONFIG_VIA_RHINE=y
-CONFIG_VIA_RHINE_MMIO=y
-# CONFIG_VIA_VELOCITY is not set
-
-#
-# Ethernet (1000 Mbit)
-#
-# CONFIG_ACENIC is not set
-# CONFIG_DL2K is not set
-# CONFIG_E1000 is not set
-# CONFIG_NS83820 is not set
-# CONFIG_HAMACHI is not set
-# CONFIG_YELLOWFIN is not set
-# CONFIG_R8169 is not set
-# CONFIG_SK98LIN is not set
-# CONFIG_TIGON3 is not set
-
-#
-# Ethernet (10000 Mbit)
-#
-# CONFIG_IXGB is not set
-# CONFIG_S2IO is not set
-
-#
-# Token Ring devices
-#
-# CONFIG_TR is not set
-
-#
-# Wireless LAN (non-hamradio)
-#
-# CONFIG_NET_RADIO is not set
-
-#
-# Wan interfaces
-#
-# CONFIG_WAN is not set
-# CONFIG_FDDI is not set
-# CONFIG_HIPPI is not set
-# CONFIG_PLIP is not set
-# CONFIG_PPP is not set
-# CONFIG_SLIP is not set
-# CONFIG_NET_FC is not set
-# CONFIG_SHAPER is not set
-# CONFIG_NETCONSOLE is not set
-
-#
-# ISDN subsystem
-#
-# CONFIG_ISDN is not set
-
-#
-# Telephony Support
-#
-# CONFIG_PHONE is not set
-
-#
-# Input device support
-#
-CONFIG_INPUT=y
-
-#
-# Userland interfaces
-#
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1600
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=1200
-# CONFIG_INPUT_JOYDEV is not set
-# CONFIG_INPUT_TSDEV is not set
-CONFIG_INPUT_EVDEV=m
-# CONFIG_INPUT_EVBUG is not set
-
-#
-# Input I/O drivers
-#
-# CONFIG_GAMEPORT is not set
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-# CONFIG_SERIO_SERPORT is not set
-# CONFIG_SERIO_CT82C710 is not set
-# CONFIG_SERIO_PARKBD is not set
-# CONFIG_SERIO_PCIPS2 is not set
-
-#
-# Input Device Drivers
-#
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-# CONFIG_KEYBOARD_SUNKBD is not set
-# CONFIG_KEYBOARD_LKKBD is not set
-# CONFIG_KEYBOARD_XTKBD is not set
-# CONFIG_KEYBOARD_NEWTON is not set
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-# CONFIG_MOUSE_SERIAL is not set
-# CONFIG_MOUSE_VSXXXAA is not set
-# CONFIG_INPUT_JOYSTICK is not set
-# CONFIG_INPUT_TOUCHSCREEN is not set
-CONFIG_INPUT_MISC=y
-# CONFIG_INPUT_PCSPKR is not set
-CONFIG_INPUT_UINPUT=m
-
-#
-# Character devices
-#
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-# CONFIG_SERIAL_NONSTANDARD is not set
-
-#
-# Serial drivers
-#
-CONFIG_SERIAL_8250=y
-# CONFIG_SERIAL_8250_CONSOLE is not set
-CONFIG_SERIAL_8250_NR_UARTS=2
-# CONFIG_SERIAL_8250_EXTENDED is not set
-
-#
-# Non-8250 serial port support
-#
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-# CONFIG_LEGACY_PTYS is not set
-CONFIG_PRINTER=m
-# CONFIG_LP_CONSOLE is not set
-CONFIG_PPDEV=m
-# CONFIG_TIPAR is not set
-# CONFIG_QIC02_TAPE is not set
-
-#
-# IPMI
-#
-# CONFIG_IPMI_HANDLER is not set
-
-#
-# Watchdog Cards
-#
-# CONFIG_WATCHDOG is not set
-CONFIG_HW_RANDOM=y
-# CONFIG_NVRAM is not set
-CONFIG_RTC=y
-# CONFIG_DTLK is not set
-# CONFIG_R3964 is not set
-# CONFIG_APPLICOM is not set
-# CONFIG_SONYPI is not set
-
-#
-# Ftape, the floppy tape device driver
-#
-# CONFIG_FTAPE is not set
-CONFIG_AGP=m
-# CONFIG_AGP_ALI is not set
-# CONFIG_AGP_ATI is not set
-# CONFIG_AGP_AMD is not set
-# CONFIG_AGP_AMD64 is not set
-# CONFIG_AGP_INTEL is not set
-# CONFIG_AGP_INTEL_MCH is not set
-# CONFIG_AGP_NVIDIA is not set
-# CONFIG_AGP_SIS is not set
-# CONFIG_AGP_SWORKS is not set
-# CONFIG_AGP_VIA is not set
-# CONFIG_AGP_EFFICEON is not set
-# CONFIG_DRM is not set
-# CONFIG_MWAVE is not set
-# CONFIG_RAW_DRIVER is not set
-CONFIG_HANGCHECK_TIMER=m
-
-#
-# I2C support
-#
-# CONFIG_I2C is not set
-
-#
-# Misc devices
-#
-# CONFIG_IBM_ASM is not set
-
-#
-# Multimedia devices
-#
-# CONFIG_VIDEO_DEV is not set
-
-#
-# Digital Video Broadcasting Devices
-#
-# CONFIG_DVB is not set
-
-#
-# Graphics support
-#
-CONFIG_FB=y
-# CONFIG_FB_CIRRUS is not set
-# CONFIG_FB_PM2 is not set
-# CONFIG_FB_CYBER2000 is not set
-# CONFIG_FB_ASILIANT is not set
-# CONFIG_FB_IMSTT is not set
-# CONFIG_FB_VGA16 is not set
-CONFIG_FB_VESA=y
-CONFIG_VIDEO_SELECT=y
-# CONFIG_FB_HGA is not set
-# CONFIG_FB_RIVA is not set
-# CONFIG_FB_MATROX is not set
-# CONFIG_FB_RADEON_OLD is not set
-# CONFIG_FB_RADEON is not set
-# CONFIG_FB_ATY128 is not set
-# CONFIG_FB_ATY is not set
-# CONFIG_FB_SIS is not set
-# CONFIG_FB_NEOMAGIC is not set
-# CONFIG_FB_KYRO is not set
-# CONFIG_FB_3DFX is not set
-# CONFIG_FB_VOODOO1 is not set
-# CONFIG_FB_TRIDENT is not set
-# CONFIG_FB_VIRTUAL is not set
-
-#
-# Console display driver support
-#
-CONFIG_VGA_CONSOLE=y
-# CONFIG_MDA_CONSOLE is not set
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-# CONFIG_FONTS is not set
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
-
-#
-# Logo configuration
-#
-CONFIG_LOGO=y
-CONFIG_LOGO_LINUX_MONO=y
-CONFIG_LOGO_LINUX_VGA16=y
-CONFIG_LOGO_LINUX_CLUT224=y
-
-#
-# Sound
-#
-CONFIG_SOUND=y
-
-#
-# Advanced Linux Sound Architecture
-#
-CONFIG_SND=y
-CONFIG_SND_TIMER=y
-CONFIG_SND_PCM=y
-CONFIG_SND_HWDEP=y
-CONFIG_SND_RAWMIDI=y
-CONFIG_SND_SEQUENCER=y
-# CONFIG_SND_SEQ_DUMMY is not set
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_RTCTIMER=y
-# CONFIG_SND_VERBOSE_PRINTK is not set
-# CONFIG_SND_DEBUG is not set
-
-#
-# Generic devices
-#
-# CONFIG_SND_DUMMY is not set
-# CONFIG_SND_VIRMIDI is not set
-# CONFIG_SND_MTPAV is not set
-# CONFIG_SND_SERIAL_U16550 is not set
-# CONFIG_SND_MPU401 is not set
-
-#
-# PCI devices
-#
-CONFIG_SND_AC97_CODEC=y
-# CONFIG_SND_ALI5451 is not set
-# CONFIG_SND_ATIIXP is not set
-# CONFIG_SND_AU8810 is not set
-# CONFIG_SND_AU8820 is not set
-# CONFIG_SND_AU8830 is not set
-# CONFIG_SND_AZT3328 is not set
-# CONFIG_SND_BT87X is not set
-# CONFIG_SND_CS46XX is not set
-# CONFIG_SND_CS4281 is not set
-CONFIG_SND_EMU10K1=y
-# CONFIG_SND_KORG1212 is not set
-# CONFIG_SND_MIXART is not set
-# CONFIG_SND_NM256 is not set
-# CONFIG_SND_RME32 is not set
-# CONFIG_SND_RME96 is not set
-# CONFIG_SND_RME9652 is not set
-# CONFIG_SND_HDSP is not set
-# CONFIG_SND_TRIDENT is not set
-# CONFIG_SND_YMFPCI is not set
-# CONFIG_SND_ALS4000 is not set
-# CONFIG_SND_CMIPCI is not set
-# CONFIG_SND_ENS1370 is not set
-# CONFIG_SND_ENS1371 is not set
-# CONFIG_SND_ES1938 is not set
-# CONFIG_SND_ES1968 is not set
-# CONFIG_SND_MAESTRO3 is not set
-# CONFIG_SND_FM801 is not set
-# CONFIG_SND_ICE1712 is not set
-# CONFIG_SND_ICE1724 is not set
-# CONFIG_SND_INTEL8X0 is not set
-# CONFIG_SND_INTEL8X0M is not set
-# CONFIG_SND_SONICVIBES is not set
-# CONFIG_SND_VIA82XX is not set
-# CONFIG_SND_VX222 is not set
-
-#
-# ALSA USB devices
-#
-# CONFIG_SND_USB_AUDIO is not set
-
-#
-# Open Sound System
-#
-# CONFIG_SOUND_PRIME is not set
-
-#
-# USB support
-#
-CONFIG_USB=y
-# CONFIG_USB_DEBUG is not set
-
-#
-# Miscellaneous USB options
-#
-CONFIG_USB_DEVICEFS=y
-# CONFIG_USB_BANDWIDTH is not set
-# CONFIG_USB_DYNAMIC_MINORS is not set
-
-#
-# USB Host Controller Drivers
-#
-CONFIG_USB_EHCI_HCD=m
-# CONFIG_USB_EHCI_SPLIT_ISO is not set
-# CONFIG_USB_EHCI_ROOT_HUB_TT is not set
-# CONFIG_USB_OHCI_HCD is not set
-CONFIG_USB_UHCI_HCD=m
-
-#
-# USB Device Class drivers
-#
-# CONFIG_USB_AUDIO is not set
-# CONFIG_USB_BLUETOOTH_TTY is not set
-# CONFIG_USB_MIDI is not set
-# CONFIG_USB_ACM is not set
-CONFIG_USB_PRINTER=m
-CONFIG_USB_STORAGE=m
-# CONFIG_USB_STORAGE_DEBUG is not set
-# CONFIG_USB_STORAGE_RW_DETECT is not set
-# CONFIG_USB_STORAGE_DATAFAB is not set
-# CONFIG_USB_STORAGE_FREECOM is not set
-# CONFIG_USB_STORAGE_DPCM is not set
-# CONFIG_USB_STORAGE_HP8200e is not set
-# CONFIG_USB_STORAGE_SDDR09 is not set
-# CONFIG_USB_STORAGE_SDDR55 is not set
-# CONFIG_USB_STORAGE_JUMPSHOT is not set
-
-#
-# USB Human Interface Devices (HID)
-#
-CONFIG_USB_HID=m
-CONFIG_USB_HIDINPUT=y
-# CONFIG_HID_FF is not set
-# CONFIG_USB_HIDDEV is not set
-
-#
-# USB HID Boot Protocol drivers
-#
-# CONFIG_USB_KBD is not set
-# CONFIG_USB_MOUSE is not set
-# CONFIG_USB_AIPTEK is not set
-# CONFIG_USB_WACOM is not set
-# CONFIG_USB_KBTAB is not set
-# CONFIG_USB_POWERMATE is not set
-# CONFIG_USB_MTOUCH is not set
-# CONFIG_USB_EGALAX is not set
-# CONFIG_USB_XPAD is not set
-# CONFIG_USB_ATI_REMOTE is not set
-
-#
-# USB Imaging devices
-#
-# CONFIG_USB_MDC800 is not set
-# CONFIG_USB_MICROTEK is not set
-# CONFIG_USB_HPUSBSCSI is not set
-
-#
-# USB Multimedia devices
-#
-# CONFIG_USB_DABUSB is not set
-
-#
-# Video4Linux support is needed for USB Multimedia device support
-#
-
-#
-# USB Network adaptors
-#
-# CONFIG_USB_CATC is not set
-# CONFIG_USB_KAWETH is not set
-# CONFIG_USB_PEGASUS is not set
-# CONFIG_USB_RTL8150 is not set
-# CONFIG_USB_USBNET is not set
-
-#
-# USB port drivers
-#
-# CONFIG_USB_USS720 is not set
-
-#
-# USB Serial Converter support
-#
-# CONFIG_USB_SERIAL is not set
-
-#
-# USB Miscellaneous drivers
-#
-# CONFIG_USB_EMI62 is not set
-# CONFIG_USB_EMI26 is not set
-# CONFIG_USB_TIGL is not set
-# CONFIG_USB_AUERSWALD is not set
-# CONFIG_USB_RIO500 is not set
-# CONFIG_USB_LEGOTOWER is not set
-# CONFIG_USB_LCD is not set
-# CONFIG_USB_LED is not set
-# CONFIG_USB_CYTHERM is not set
-# CONFIG_USB_PHIDGETSERVO is not set
-# CONFIG_USB_TEST is not set
-
-#
-# USB Gadget Support
-#
-# CONFIG_USB_GADGET is not set
-
-#
-# File systems
-#
-CONFIG_EXT2_FS=y
-# CONFIG_EXT2_FS_XATTR is not set
-CONFIG_EXT3_FS=y
-# CONFIG_EXT3_FS_XATTR is not set
-CONFIG_JBD=y
-# CONFIG_JBD_DEBUG is not set
-CONFIG_REISERFS_FS=y
-# CONFIG_REISERFS_CHECK is not set
-# CONFIG_REISERFS_PROC_INFO is not set
-# CONFIG_REISERFS_FS_XATTR is not set
-# CONFIG_JFS_FS is not set
-# CONFIG_XFS_FS is not set
-# CONFIG_MINIX_FS is not set
-# CONFIG_ROMFS_FS is not set
-# CONFIG_QUOTA is not set
-# CONFIG_AUTOFS_FS is not set
-# CONFIG_AUTOFS4_FS is not set
-
-#
-# CD-ROM/DVD Filesystems
-#
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_ZISOFS_FS=y
-CONFIG_UDF_FS=y
-CONFIG_UDF_NLS=y
-
-#
-# DOS/FAT/NT Filesystems
-#
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_FAT_DEFAULT_CODEPAGE=865
-CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
-# CONFIG_NTFS_FS is not set
-
-#
-# Pseudo filesystems
-#
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_SYSFS=y
-# CONFIG_DEVFS_FS is not set
-# CONFIG_DEVPTS_FS_XATTR is not set
-CONFIG_TMPFS=y
-# CONFIG_HUGETLBFS is not set
-# CONFIG_HUGETLB_PAGE is not set
-CONFIG_RAMFS=y
-
-#
-# Miscellaneous filesystems
-#
-# CONFIG_ADFS_FS is not set
-# CONFIG_AFFS_FS is not set
-# CONFIG_HFS_FS is not set
-# CONFIG_HFSPLUS_FS is not set
-# CONFIG_BEFS_FS is not set
-# CONFIG_BFS_FS is not set
-# CONFIG_EFS_FS is not set
-# CONFIG_CRAMFS is not set
-# CONFIG_VXFS_FS is not set
-# CONFIG_HPFS_FS is not set
-# CONFIG_QNX4FS_FS is not set
-# CONFIG_SYSV_FS is not set
-# CONFIG_UFS_FS is not set
-
-#
-# Network File Systems
-#
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-# CONFIG_NFS_V4 is not set
-# CONFIG_NFS_DIRECTIO is not set
-CONFIG_NFSD=y
-CONFIG_NFSD_V3=y
-# CONFIG_NFSD_V4 is not set
-CONFIG_NFSD_TCP=y
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=y
-CONFIG_SUNRPC=y
-# CONFIG_RPCSEC_GSS_KRB5 is not set
-CONFIG_SMB_FS=m
-CONFIG_SMB_NLS_DEFAULT=y
-CONFIG_SMB_NLS_REMOTE="cp865"
-CONFIG_CIFS=m
-# CONFIG_CIFS_STATS is not set
-CONFIG_CIFS_POSIX=y
-# CONFIG_NCP_FS is not set
-# CONFIG_CODA_FS is not set
-# CONFIG_AFS_FS is not set
-
-#
-# Partition Types
-#
-# CONFIG_PARTITION_ADVANCED is not set
-CONFIG_MSDOS_PARTITION=y
-
-#
-# Native Language Support
-#
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_CODEPAGE_737=m
-CONFIG_NLS_CODEPAGE_775=m
-CONFIG_NLS_CODEPAGE_850=y
-CONFIG_NLS_CODEPAGE_852=m
-CONFIG_NLS_CODEPAGE_855=m
-CONFIG_NLS_CODEPAGE_857=m
-CONFIG_NLS_CODEPAGE_860=m
-CONFIG_NLS_CODEPAGE_861=m
-CONFIG_NLS_CODEPAGE_862=m
-CONFIG_NLS_CODEPAGE_863=m
-CONFIG_NLS_CODEPAGE_864=m
-CONFIG_NLS_CODEPAGE_865=y
-CONFIG_NLS_CODEPAGE_866=m
-CONFIG_NLS_CODEPAGE_869=m
-CONFIG_NLS_CODEPAGE_936=m
-CONFIG_NLS_CODEPAGE_950=m
-CONFIG_NLS_CODEPAGE_932=m
-CONFIG_NLS_CODEPAGE_949=m
-CONFIG_NLS_CODEPAGE_874=m
-CONFIG_NLS_ISO8859_8=m
-CONFIG_NLS_CODEPAGE_1250=m
-CONFIG_NLS_CODEPAGE_1251=m
-CONFIG_NLS_ASCII=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_NLS_ISO8859_2=m
-CONFIG_NLS_ISO8859_3=m
-CONFIG_NLS_ISO8859_4=m
-CONFIG_NLS_ISO8859_5=m
-CONFIG_NLS_ISO8859_6=m
-CONFIG_NLS_ISO8859_7=m
-CONFIG_NLS_ISO8859_9=m
-CONFIG_NLS_ISO8859_13=m
-CONFIG_NLS_ISO8859_14=m
-CONFIG_NLS_ISO8859_15=y
-CONFIG_NLS_KOI8_R=m
-CONFIG_NLS_KOI8_U=m
-CONFIG_NLS_UTF8=y
-
-#
-# Profiling support
-#
-# CONFIG_PROFILING is not set
-
-#
-# Kernel hacking
-#
-# CONFIG_DEBUG_KERNEL is not set
-CONFIG_EARLY_PRINTK=y
-CONFIG_DEBUG_SPINLOCK_SLEEP=y
-CONFIG_FRAME_POINTER=y
-# CONFIG_4KSTACKS is not set
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-
-#
-# Security options
-#
-# CONFIG_SECURITY is not set
-
-#
-# Cryptographic options
-#
-CONFIG_CRYPTO=y
-CONFIG_CRYPTO_HMAC=y
-# CONFIG_CRYPTO_NULL is not set
-# CONFIG_CRYPTO_MD4 is not set
-CONFIG_CRYPTO_MD5=y
-CONFIG_CRYPTO_SHA1=m
-CONFIG_CRYPTO_SHA256=m
-CONFIG_CRYPTO_SHA512=m
-CONFIG_CRYPTO_DES=m
-CONFIG_CRYPTO_BLOWFISH=m
-CONFIG_CRYPTO_TWOFISH=m
-CONFIG_CRYPTO_SERPENT=m
-CONFIG_CRYPTO_AES=m
-CONFIG_CRYPTO_CAST5=m
-CONFIG_CRYPTO_CAST6=m
-CONFIG_CRYPTO_TEA=m
-CONFIG_CRYPTO_ARC4=m
-CONFIG_CRYPTO_DEFLATE=m
-CONFIG_CRYPTO_MICHAEL_MIC=m
-CONFIG_CRYPTO_CRC32C=m
-# CONFIG_CRYPTO_TEST is not set
-
-#
-# Library routines
-#
-CONFIG_CRC_CCITT=m
-CONFIG_CRC32=y
-CONFIG_LIBCRC32C=m
-CONFIG_ZLIB_INFLATE=y
-CONFIG_ZLIB_DEFLATE=m
-CONFIG_X86_BIOS_REBOOT=y
-CONFIG_PC=y
-
-
---
-Jesper Juhl <juhl-lkml@dif.dk>
+This looks great now.  I've tested both MSI and MSI-X with my mthca
+driver, and everything works well.
+
+I've rediffed against latest bk.  Greg, I think this is ready to be
+applied.  It would be great to get this in before 2.6.8, since current
+MSI-X support is not very usable.  For the changelog, here's a summary
+of the patch:
+
+MSI-X update:
+ - msi.c uses pci_{read,write}_config_xxx instead of raw access to bus->ops
+ - separate MSI and MSI-X APIs to pci_enable_msi()/pci_disable_msi()
+   and pci_enable_msix()/pci_disable_msix()
+ - MSI/MSI-X vectors are no longer freed by free_irq(); devices keep
+   allocated vectors until pci_disable_msi()/pci_disable_msix()
+
+Thanks,
+  Roland
+
+Signed-off-by: Roland Dreier <roland@topspin.com>
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+
+Index: linux-bk/Documentation/MSI-HOWTO.txt
+===================================================================
+--- linux-bk.orig/Documentation/MSI-HOWTO.txt
++++ linux-bk/Documentation/MSI-HOWTO.txt
+@@ -3,13 +3,14 @@
+ 			10/03/2003
+ 	Revised Feb 12, 2004 by Martine Silbermann
+ 		email: Martine.Silbermann@hp.com
++	Revised Jun 25, 2004 by Tom L Nguyen
+ 
+ 1. About this guide
+ 
+-This guide describes the basics of Message Signaled Interrupts(MSI), the
+-advantages of using MSI over traditional interrupt mechanisms, and how
+-to enable your driver to use MSI or MSI-X. Also included is a Frequently
+-Asked Questions.
++This guide describes the basics of Message Signaled Interrupts (MSI), 
++the advantages of using MSI over traditional interrupt mechanisms, 
++and how to enable your driver to use MSI or MSI-X. Also included is 
++a Frequently Asked Questions.
+ 
+ 2. Copyright 2003 Intel Corporation
+ 
+@@ -35,7 +36,7 @@
+ the MSI/MSI-X capability structure in its PCI capability list. The
+ device function may implement both the MSI capability structure and
+ the MSI-X capability structure; however, the bus driver should not
+-enable both, but instead enable only the MSI-X capability structure.
++enable both.
+ 
+ The MSI capability structure contains Message Control register,
+ Message Address register and Message Data register. These registers
+@@ -86,7 +87,7 @@
+ support for better interrupt performance.
+ 
+ Using MSI enables the device functions to support two or more
+-vectors, which can be configure to target different CPU's to
++vectors, which can be configured to target different CPU's to
+ increase scalability.
+ 
+ 5. Configuring a driver to use MSI/MSI-X
+@@ -95,26 +96,53 @@
+ support this capability. The CONFIG_PCI_USE_VECTOR kernel option
+ must be selected to enable MSI/MSI-X support.
+ 
+-5.1 Including MSI support into the kernel
++5.1 Including MSI/MSI-X support into the kernel
+ 
+-To allow MSI-Capable device drivers to selectively enable MSI (using
+-pci_enable_msi as described below), the VECTOR based scheme needs to
+-be enabled by setting CONFIG_PCI_USE_VECTOR.
++To allow MSI/MSI-X capable device drivers to selectively enable 
++MSI/MSI-X (using pci_enable_msi()/pci_enable_msix() as described 
++below), the VECTOR based scheme needs to be enabled by setting 
++CONFIG_PCI_USE_VECTOR during kernel config.
+ 
+ Since the target of the inbound message is the local APIC, providing
+-CONFIG_PCI_USE_VECTOR is dependent on whether CONFIG_X86_LOCAL_APIC
+-is enabled or not.
++CONFIG_X86_LOCAL_APIC must be enabled as well as CONFIG_PCI_USE_VECTOR.
+ 
+-int pci_enable_msi(struct pci_dev *)
++5.2 Configuring for MSI support
++
++Due to the non-contiguous fashion in vector assignment of the
++existing Linux kernel, this version does not support multiple
++messages regardless of a device function is capable of supporting
++more than one vector. To enable MSI on a device function's MSI
++capability structure requires a device driver to call the function 
++pci_enable_msi() explicitly. 
++
++5.2.1 API pci_enable_msi
++
++int pci_enable_msi(struct pci_dev *dev)
+ 
+ With this new API, any existing device driver, which like to have
+-MSI enabled on its device function, must call this explicitly. A
+-successful call will initialize the MSI/MSI-X capability structure
+-with ONE vector, regardless of whether the device function is
++MSI enabled on its device function, must call this API to enable MSI
++A successful call will initialize the MSI capability structure
++with ONE vector, regardless of whether a device function is
+ capable of supporting multiple messages. This vector replaces the
+ pre-assigned dev->irq with a new MSI vector. To avoid the conflict
+ of new assigned vector with existing pre-assigned vector requires
+-the device driver to call this API before calling request_irq(...).
++a device driver to call this API before calling request_irq().
++
++5.2.2 API pci_disable_msi
++
++void pci_disable_msi(struct pci_dev *dev)
++
++This API should always be used to undo the effect of pci_enable_msi()
++when a device driver is unloading. This API restores dev->irq with
++the pre-assigned IOAPIC vector and switches a device's interrupt 
++mode to PCI pin-irq assertion/INTx emulation mode.    
++
++Note that a device driver should always call free_irq() on MSI vector
++it has done request_irq() on before calling this API. Failure to do  
++so results a BUG_ON() and a device will be left with MSI enabled and 
++leaks its vector. 
++
++5.2.3 MSI mode vs. legacy mode diagram
+ 
+ The below diagram shows the events, which switches the interrupt
+ mode on the MSI-capable device function between MSI mode and
+@@ -124,105 +152,258 @@
+ 	|	     | <===============	| 			 |
+ 	| MSI MODE   |	  	     	| PIN-IRQ ASSERTION MODE |
+ 	| 	     | ===============>	|			 |
+- 	 ------------	free_irq      	 ------------------------
++ 	 ------------	pci_disable_msi  ------------------------
+ 
+-5.2 Configuring for MSI support
+ 
+-Due to the non-contiguous fashion in vector assignment of the
+-existing Linux kernel, this version does not support multiple
+-messages regardless of the device function is capable of supporting
+-more than one vector. The bus driver initializes only entry 0 of
+-this capability if pci_enable_msi(...) is called successfully by
+-the device driver.
++Figure 1.0 MSI Mode vs. Legacy Mode
++
++In Figure 1.0, a device operates by default in legacy mode. Legacy
++in this context means PCI pin-irq assertion or PCI-Express INTx 
++emulation. A successful MSI request (using pci_enable_msi()) switches 
++a device's interrupt mode to MSI mode. A pre-assigned IOAPIC vector
++stored in dev->irq will be saved by the PCI subsystem and a new 
++assigned MSI vector will replace dev->irq. 
++
++To return back to its default mode, a device driver should always call
++pci_disable_msi() to undo the effect of pci_enable_msi(). Note that a
++device driver should always call free_irq() on MSI vector it has done
++request_irq() on before calling pci_disable_msi(). Failure to do so 
++results a BUG_ON() and a device will be left with MSI enabled and 
++leaks its vector. Otherwise, the PCI subsystem restores a device's
++dev->irq with a pre-assigned IOAPIC vector and marks released
++MSI vector as unused. 
++
++Once being marked as unused, there is no guarantee that the PCI 
++subsystem will reserve this MSI vector for a device. Depending on 
++the availability of current PCI vector resources and the number of 
++MSI/MSI-X requests from other drivers, this MSI may be re-assigned. 
++
++For the case where the PCI subsystem re-assigned this MSI vector 
++another driver, a request to switching back to MSI mode may result 
++in being assigned a different MSI vector or a failure if no more 
++vectors are available.  
+ 
+ 5.3 Configuring for MSI-X support
+ 
+-Both the MSI capability structure and the MSI-X capability structure
+-share the same above semantics; however, due to the ability of the
+-system software to configure each vector of the MSI-X capability
+-structure with an independent message address and message data, the
+-non-contiguous fashion in vector assignment of the existing Linux
+-kernel has no impact on supporting multiple messages on an MSI-X
+-capable device functions. By default, as mentioned above, ONE vector
+-should be always allocated to the MSI-X capability structure at
+-entry 0. The bus driver does not initialize other entries of the
+-MSI-X table.
+-
+-Note that the PCI subsystem should have full control of a MSI-X
+-table that resides in Memory Space. The software device driver
+-should not access this table.
+-
+-To request for additional vectors, the device software driver should
+-call function msi_alloc_vectors(). It is recommended that the
+-software driver should call this function once during the
++Due to the ability of the system software to configure each vector of
++the MSI-X capability structure with an independent message address 
++and message data, the non-contiguous fashion in vector assignment of
++the existing Linux kernel has no impact on supporting multiple 
++messages on an MSI-X capable device functions. To enable MSI-X on 
++a device function's MSI-X capability structure requires its device 
++driver to call the function pci_enable_msix() explicitly.
++
++The function pci_enable_msix(), once invoked, enables either
++all or nothing, depending on the current availability of PCI vector
++resources. If the PCI vector resources are available for the number 
++of vectors requested by a device driver, this function will configure 
++the MSI-X table of the MSI-X capability structure of a device with
++requested messages. To emphasize this reason, for example, a device 
++may be capable for supporting the maximum of 32 vectors while its 
++software driver usually may request 4 vectors. It is recommended
++that the device driver should call this function once during the 
+ initialization phase of the device driver.
+ 
+-The function msi_alloc_vectors(), once invoked, enables either
+-all or nothing, depending on the current availability of vector
+-resources. If no vector resources are available, the device function
+-still works with ONE vector. If the vector resources are available
+-for the number of vectors requested by the driver, this function
+-will reconfigure the MSI-X capability structure of the device with
+-additional messages, starting from entry 1. To emphasize this
+-reason, for example, the device may be capable for supporting the
+-maximum of 32 vectors while its software driver usually may request
+-4 vectors.
+-
+-For each vector, after this successful call, the device driver is
+-responsible to call other functions like request_irq(), enable_irq(),
+-etc. to enable this vector with its corresponding interrupt service
+-handler. It is the device driver's choice to have all vectors shared
+-the same interrupt service handler or each vector with a unique
+-interrupt service handler.
+-
+-In addition to the function msi_alloc_vectors(), another function
+-msi_free_vectors() is provided to allow the software driver to
+-release a number of vectors back to the vector resources. Once
+-invoked, the PCI subsystem disables (masks) each vector released.
+-These vectors are no longer valid for the hardware device and its
+-software driver to use. Like free_irq, it recommends that the
+-device driver should also call msi_free_vectors to release all
+-additional vectors previously requested.
+-
+-int msi_alloc_vectors(struct pci_dev *dev, int *vector, int nvec)
+-
+-This API enables the software driver to request the PCI subsystem
+-for additional messages. Depending on the number of vectors
+-available, the PCI subsystem enables either all or nothing.
++Unlike the function pci_enable_msi(), the function pci_enable_msix() 
++does not replace the pre-assigned IOAPIC dev->irq with a new MSI 
++vector because the PCI subsystem writes the 1:1 vector-to-entry mapping
++into the field vector of each element contained in a second argument. 
++Note that the pre-assigned IO-APIC dev->irq is valid only if the device
++operates in PIN-IRQ assertion mode. In MSI-X mode, any attempt of
++using dev->irq by the device driver to request for interrupt service
++may result unpredictabe behavior. 
++
++For each MSI-X vector granted, a device driver is responsible to call 
++other functions like request_irq(), enable_irq(), etc. to enable
++this vector with its corresponding interrupt service handler. It is 
++a device driver's choice to assign all vectors with the same 
++interrupt service handler or each vector with a unique interrupt 
++service handler. 
++
++5.3.1 Handling MMIO address space of MSI-X Table
++
++The PCI 3.0 specification has implementation notes that MMIO address
++space for a device's MSI-X structure should be isolated so that the 
++software system can set different page for controlling accesses to 
++the MSI-X structure. The implementation of MSI patch requires the PCI
++subsystem, not a device driver, to maintain full control of the MSI-X
++table/MSI-X PBA and MMIO address space of the MSI-X table/MSI-X PBA. 
++A device driver is prohibited from requesting the MMIO address space 
++of the MSI-X table/MSI-X PBA. Otherwise, the PCI subsystem will fail 
++enabling MSI-X on its hardware device when it calls the function 
++pci_enable_msix().
++
++5.3.2 Handling MSI-X allocation
++
++Determining the number of MSI-X vectors allocated to a function is 
++dependent on the number of MSI capable devices and MSI-X capable
++devices populated in the system. The policy of allocating MSI-X 
++vectors to a function is defined as the following:
++
++#of MSI-X vectors allocated to a function = (x - y)/z where
++
++x = 	The number of available PCI vector resources by the time 
++	the device driver calls pci_enable_msix(). The PCI vector
++	resources is the sum of the number of unassigned vectors
++	(new) and the number of released vectors when any MSI/MSI-X
++	device driver switches its hardware device back to a legacy
++	mode or is hot-removed.	The number of unassigned vectors
++	may exclude some vectors reserved, as defined in parameter
++	NR_HP_RESERVED_VECTORS, for the case where the system is 
++	capable of supporting hot-add/hot-remove operations. Users
++	may change the value defined in NR_HR_RESERVED_VECTORS to
++	meet their specific needs. 
++
++y =	The number of MSI capable devices populated in the system.
++	This policy ensures that each MSI capable device has its
++	vector reserved to avoid the case where some MSI-X capable
++	drivers may attempt to claim all available vector resources.
++
++z =	The number of MSI-X capable devices pupulated in the system.
++	This policy ensures that maximum (x - y) is distributed 
++	evenly among MSI-X capable devices.	
++    
++Note that the PCI subsystem scans y and z during a bus enumeration.
++When the PCI subsystem completes configuring MSI/MSI-X capability
++structure of a device as requested by its device driver, y/z is 
++decremented accordingly.  
++
++5.3.3 Handling MSI-X shortages
++
++For the case where fewer MSI-X vectors are allocated to a function 
++than requested, the function pci_enable_msix() will return the
++maximum number of MSI-X vectors available to the caller. A device 
++driver may re-send its request with fewer or equal vectors indicated
++in a return. For example, if a device driver requests 5 vectors, but 
++the number of available vectors is 3 vectors, a value of 3 will be a 
++return as a result of pci_enable_msix() call. A function could be 
++designed for its driver to use only 3 MSI-X table entries as 
++different combinations as ABC--, A-B-C, A--CB, etc. Note that this 
++patch does not support multiple entries with the same vector. Such 
++attempt by a device driver to use 5 MSI-X table entries with 3 vectors
++as ABBCC, AABCC, BCCBA, etc will result as a failure by the function
++pci_enable_msix(). Below are the reasons why supporting multiple 
++entries with the same vector is an undesirable solution.
++	
++	- The PCI subsystem can not determine which entry, which
++	  generated the message, to mask/unmask MSI while handling
++	  software driver ISR. Attempting to walk through all MSI-X 
++	  table entries (2048 max) to mask/unmask any match vector 
++	  is an undesirable solution. 
++
++	- Walk through all MSI-X table entries (2048 max) to handle
++	  SMP affinity of any match vector is an undesirable solution. 
++
++5.3.4 API pci_enable_msix
++
++int pci_enable_msix(struct pci_dev *dev, u32 *entries, int nvec)
++
++This API enables a device driver to request the PCI subsystem
++for enabling MSI-X messages on its hardware device. Depending on 
++the availability of PCI vectors resources, the PCI subsystem enables
++either all or nothing.
+ 
+ Argument dev points to the device (pci_dev) structure.
+-Argument vector is a pointer of integer type. The number of
+-elements is indicated in argument nvec.
++
++Argument entries is a pointer of unsigned integer type. The number of
++elements is indicated in argument nvec. The content of each element 
++will be mapped to the following struct defined in /driver/pci/msi.h.
++
++struct msix_entry {
++	u16 	vector; /* kernel uses to write alloc vector */
++	u16	entry; /* driver uses to specify entry */
++};
++
++A device driver is responsible for initializing the field entry of 
++each element with unique entry supported by MSI-X table. Otherwise, 
++-EINVAL will be returned as a result. A successful return of zero 
++indicates the PCI subsystem completes initializing each of requested 
++entries of the MSI-X table with message address and message data. 
++Last but not least, the PCI subsystem will write the 1:1 
++vector-to-entry mapping into the field vector of each element. A 
++device driver is responsible of keeping track of allocated MSI-X
++vectors in its internal data structure.
++
+ Argument nvec is an integer indicating the number of messages
+ requested.
+-A return of zero indicates that the number of allocated vector is
+-successfully allocated. Otherwise, indicate resources not
+-available.
+-
+-int msi_free_vectors(struct pci_dev* dev, int *vector, int nvec)
+-
+-This API enables the software driver to inform the PCI subsystem
+-that it is willing to release a number of vectors back to the
+-MSI resource pool. Once invoked, the PCI subsystem disables each
+-MSI-X entry associated with each vector stored in the argument 2.
+-These vectors are no longer valid for the hardware device and
+-its software driver to use.
+ 
+-Argument dev points to the device (pci_dev) structure.
+-Argument vector is a pointer of integer type. The number of
+-elements is indicated in argument nvec.
+-Argument nvec is an integer indicating the number of messages
+-released.
+-A return of zero indicates that the number of allocated vectors
+-is successfully released. Otherwise, indicates a failure.
++A return of zero indicates that the number of MSI-X vectors is
++successfully allocated. A return of greater than zero indicates
++MSI-X vector shortage. Or a return of less than zero indicates
++a failure. This failure may be a result of duplicate entries 
++specified in second argument, or a result of no available vector,
++or a result of failing to initialize MSI-X table entries.
++
++5.3.5 API pci_disable_msix
++
++void pci_disable_msix(struct pci_dev *dev)
++
++This API should always be used to undo the effect of pci_enable_msix()
++when a device driver is unloading. Note that a device driver should 
++always call free_irq() on all MSI-X vectors it has done request_irq() 
++on before calling this API. Failure to do so results a BUG_ON() and 
++a device will be left with MSI-X enabled and leaks its vectors. 
++
++5.3.6 MSI-X mode vs. legacy mode diagram
++
++The below diagram shows the events, which switches the interrupt
++mode on the MSI-X capable device function between MSI-X mode and
++PIN-IRQ assertion mode (legacy).
++
++	 ------------   pci_enable_msix(,,n) ------------------------
++	|	     | <===============	    | 			     |
++	| MSI-X MODE |	  	     	    | PIN-IRQ ASSERTION MODE |
++	| 	     | ===============>	    |			     |
++ 	 ------------	pci_disable_msix     ------------------------
++
++Figure 2.0 MSI-X Mode vs. Legacy Mode
++
++In Figure 2.0, a device operates by default in legacy mode. A 
++successful MSI-X request (using pci_enable_msix()) switches a 
++device's interrupt mode to MSI-X mode. A pre-assigned IOAPIC vector
++stored in dev->irq will be saved by the PCI subsystem; however, 
++unlike MSI mode, the PCI subsystem will not replace dev->irq with 
++assigned MSI-X vector because the PCI subsystem already writes the 1:1 
++vector-to-entry mapping into the field vector of each element 
++specified in second argument.
++
++To return back to its default mode, a device driver should always call
++pci_disable_msix() to undo the effect of pci_enable_msix(). Note that 
++a device driver should always call free_irq() on all MSI-X vectors it 
++has done request_irq() on before calling pci_disable_msix(). Failure 
++to do so results a BUG_ON() and a device will be left with MSI-X 
++enabled and leaks its vectors. Otherwise, the PCI subsystem switches a
++device function's interrupt mode from MSI-X mode to legacy mode and 
++marks all allocated MSI-X vectors as unused. 
++
++Once being marked as unused, there is no guarantee that the PCI 
++subsystem will reserve these MSI-X vectors for a device. Depending on 
++the availability of current PCI vector resources and the number of 
++MSI/MSI-X requests from other drivers, these MSI-X vectors may be 
++re-assigned. 
++
++For the case where the PCI subsystem re-assigned these MSI-X vectors
++to other driver, a request to switching back to MSI-X mode may result
++being assigned with another set of MSI-X vectors or a failure if no 
++more vectors are available.  
++
++5.4 Handling function implementng both MSI and MSI-X capabilities
++
++For the case where a function implements both MSI and MSI-X 
++capabilities, the PCI subsystem enables a device to run either in MSI
++mode or MSI-X mode but not both. A device driver determines whether it
++wants MSI or MSI-X enabled on its hardware device. Once a device 
++driver requests for MSI, for example, it is prohibited to request for
++MSI-X; in other words, a device driver is not permitted to ping-pong
++between MSI mod MSI-X mode during a run-time.
+ 
+-5.4 Hardware requirements for MSI support
+-MSI support requires support from both system hardware and
++5.5 Hardware requirements for MSI/MSI-X support
++MSI/MSI-X support requires support from both system hardware and
+ individual hardware device functions.
+ 
+-5.4.1 System hardware support
++5.5.1 System hardware support
+ Since the target of MSI address is the local APIC CPU, enabling
+-MSI support in Linux kernel is dependent on whether existing
++MSI/MSI-X support in Linux kernel is dependent on whether existing
+ system hardware supports local APIC. Users should verify their
+ system whether it runs when CONFIG_X86_LOCAL_APIC=y.
+ 
+@@ -231,14 +412,14 @@
+ CONFIG_X86_LOCAL_APIC. Once CONFIG_X86_LOCAL_APIC=y, setting
+ CONFIG_PCI_USE_VECTOR enables the VECTOR based scheme and
+ the option for MSI-capable device drivers to selectively enable
+-MSI (using pci_enable_msi as described below).
++MSI/MSI-X.
+ 
+-Note that CONFIG_X86_IO_APIC setting is irrelevant because MSI
+-vector is allocated new during runtime and MSI support does not
+-depend on BIOS support. This key independency enables MSI support
+-on future IOxAPIC free platform.
++Note that CONFIG_X86_IO_APIC setting is irrelevant because MSI/MSI-X
++vector is allocated new during runtime and MSI/MSI-X support does not
++depend on BIOS support. This key independency enables MSI/MSI-X 
++support on future IOxAPIC free platform.
+ 
+-5.4.2 Device hardware support
++5.5.2 Device hardware support
+ The hardware device function supports MSI by indicating the
+ MSI/MSI-X capability structure on its PCI capability list. By
+ default, this capability structure will not be initialized by
+@@ -249,17 +430,19 @@
+ MSI-capable hardware is responsible for whether calling
+ pci_enable_msi or not. A return of zero indicates the kernel
+ successfully initializes the MSI/MSI-X capability structure of the
+-device funtion. The device function is now running on MSI mode.
++device funtion. The device function is now running on MSI/MSI-X mode.
+ 
+-5.5 How to tell whether MSI is enabled on device function
++5.6 How to tell whether MSI/MSI-X is enabled on device function
+ 
+-At the driver level, a return of zero from pci_enable_msi(...)
+-indicates to the device driver that its device function is
+-initialized successfully and ready to run in MSI mode.
++At the driver level, a return of zero from the function call of 
++pci_enable_msi()/pci_enable_msix() indicates to a device driver that
++its device function is initialized successfully and ready to run in 
++MSI/MSI-X mode.
+ 
+ At the user level, users can use command 'cat /proc/interrupts'
+-to display the vector allocated for the device and its interrupt
+-mode, as shown below.
++to display the vector allocated for a device and its interrupt
++MSI/MSI-X mode ("PCI MSI"/"PCI MSIX"). Below shows below MSI mode is 
++enabled on a SCSI Adaptec 39320D Ultra320.  
+ 
+            CPU0       CPU1
+   0:     324639          0    IO-APIC-edge  timer
+Index: linux-bk/drivers/pci/msi.c
+===================================================================
+--- linux-bk.orig/drivers/pci/msi.c
++++ linux-bk/drivers/pci/msi.c
+@@ -67,12 +67,10 @@
+ 		unsigned int	mask_bits;
+ 
+ 		pos = entry->mask_base;
+-	        entry->dev->bus->ops->read(entry->dev->bus, entry->dev->devfn,
+-				pos, 4, &mask_bits);
++		pci_read_config_dword(entry->dev, pos, &mask_bits);
+ 		mask_bits &= ~(1);
+ 		mask_bits |= flag;
+-	        entry->dev->bus->ops->write(entry->dev->bus, entry->dev->devfn,
+-				pos, 4, mask_bits);
++		pci_write_config_dword(entry->dev, pos, mask_bits);
+ 		break;
+ 	}
+ 	case PCI_CAP_ID_MSIX:
+@@ -105,15 +103,13 @@
+    		if (!(pos = pci_find_capability(entry->dev, PCI_CAP_ID_MSI)))
+ 			return;
+ 
+-	        entry->dev->bus->ops->read(entry->dev->bus, entry->dev->devfn,
+-			msi_lower_address_reg(pos), 4,
++		pci_read_config_dword(entry->dev, msi_lower_address_reg(pos),
+ 			&address.lo_address.value);
+ 		address.lo_address.value &= MSI_ADDRESS_DEST_ID_MASK;
+ 		address.lo_address.value |= (cpu_mask_to_apicid(cpu_mask) <<
+ 			MSI_TARGET_CPU_SHIFT);
+ 		entry->msi_attrib.current_cpu = cpu_mask_to_apicid(cpu_mask);
+-		entry->dev->bus->ops->write(entry->dev->bus, entry->dev->devfn,
+-			msi_lower_address_reg(pos), 4,
++		pci_write_config_dword(entry->dev, msi_lower_address_reg(pos),
+ 			address.lo_address.value);
+ 		break;
+ 	}
+@@ -158,13 +154,25 @@
+ 
+ static unsigned int startup_msi_irq_wo_maskbit(unsigned int vector)
+ {
++	struct msi_desc *entry;
++	unsigned long flags;
++
++	spin_lock_irqsave(&msi_lock, flags);
++	entry = msi_desc[vector];
++	if (!entry || !entry->dev) {
++		spin_unlock_irqrestore(&msi_lock, flags);
++		return 0;
++	}
++	entry->msi_attrib.state = 1;	/* Mark it active */
++	spin_unlock_irqrestore(&msi_lock, flags);
++	
+ 	return 0;	/* never anything pending */
+ }
+ 
+-static void pci_disable_msi(unsigned int vector);
++static void release_msi(unsigned int vector);
+ static void shutdown_msi_irq(unsigned int vector)
+ {
+-	pci_disable_msi(vector);
++	release_msi(vector);
+ }
+ 
+ #define shutdown_msi_irq_wo_maskbit	shutdown_msi_irq
+@@ -179,6 +187,18 @@
+ 
+ static unsigned int startup_msi_irq_w_maskbit(unsigned int vector)
+ {
++	struct msi_desc *entry;
++	unsigned long flags;
++
++	spin_lock_irqsave(&msi_lock, flags);
++	entry = msi_desc[vector];
++	if (!entry || !entry->dev) {
++		spin_unlock_irqrestore(&msi_lock, flags);
++		return 0;
++	}
++	entry->msi_attrib.state = 1;	/* Mark it active */
++	spin_unlock_irqrestore(&msi_lock, flags);
++	
+ 	unmask_MSI_irq(vector);
+ 	return 0;	/* never anything pending */
+ }
+@@ -200,7 +220,7 @@
+  * which implement the MSI-X Capability Structure.
+  */
+ static struct hw_interrupt_type msix_irq_type = {
+-	.typename	= "PCI MSI-X",
++	.typename	= "PCI-MSI-X",
+ 	.startup	= startup_msi_irq_w_maskbit,
+ 	.shutdown	= shutdown_msi_irq_w_maskbit,
+ 	.enable		= enable_msi_irq_w_maskbit,
+@@ -216,7 +236,7 @@
+  * Mask-and-Pending Bits.
+  */
+ static struct hw_interrupt_type msi_irq_w_maskbit_type = {
+-	.typename	= "PCI MSI",
++	.typename	= "PCI-MSI",
+ 	.startup	= startup_msi_irq_w_maskbit,
+ 	.shutdown	= shutdown_msi_irq_w_maskbit,
+ 	.enable		= enable_msi_irq_w_maskbit,
+@@ -232,7 +252,7 @@
+  * Mask-and-Pending Bits.
+  */
+ static struct hw_interrupt_type msi_irq_wo_maskbit_type = {
+-	.typename	= "PCI MSI",
++	.typename	= "PCI-MSI",
+ 	.startup	= startup_msi_irq_wo_maskbit,
+ 	.shutdown	= shutdown_msi_irq_wo_maskbit,
+ 	.enable		= enable_msi_irq_wo_maskbit,
+@@ -265,6 +285,7 @@
+ 	msi_address->lo_address.value |= (MSI_TARGET_CPU << MSI_TARGET_CPU_SHIFT);
+ }
+ 
++static int msi_free_vector(struct pci_dev* dev, int vector, int reassign);
+ static int assign_msi_vector(void)
+ {
+ 	static int new_vector_avail = 1;
+@@ -278,6 +299,8 @@
+ 	spin_lock_irqsave(&msi_lock, flags);
+ 
+ 	if (!new_vector_avail) {
++		int free_vector = 0;
++		
+ 		/*
+ 	 	 * vector_irq[] = -1 indicates that this specific vector is:
+ 	 	 * - assigned for MSI (since MSI have no associated IRQ) or
+@@ -294,13 +317,34 @@
+ 		for (vector = FIRST_DEVICE_VECTOR; vector < NR_IRQS; vector++) {
+ 			if (vector_irq[vector] != 0)
+ 				continue;
+-			vector_irq[vector] = -1;
+-			nr_released_vectors--;
+-			spin_unlock_irqrestore(&msi_lock, flags);
+-			return vector;
++			free_vector = vector;
++			if (!msi_desc[vector]) 
++			      	break;	
++			else
++				continue;
+ 		}
++		if (!free_vector) {
++			spin_unlock_irqrestore(&msi_lock, flags);
++			return -EBUSY;
++		}	
++		vector_irq[free_vector] = -1;
++		nr_released_vectors--;
+ 		spin_unlock_irqrestore(&msi_lock, flags);
+-		return -EBUSY;
++		if (msi_desc[free_vector] != NULL) {
++			struct pci_dev *dev;
++			int tail;
++			
++			/* free all linked vectors before re-assign */
++			do {
++				spin_lock_irqsave(&msi_lock, flags);
++				dev = msi_desc[free_vector]->dev;
++				tail = msi_desc[free_vector]->link.tail;
++				spin_unlock_irqrestore(&msi_lock, flags);
++				msi_free_vector(dev, tail, 1);
++			} while (free_vector != tail);
++		}
++	       	
++		return free_vector;
+ 	}
+ 	vector = assign_irq_vector(AUTO_ASSIGN);
+ 	last_alloc_vector = vector;
+@@ -333,6 +377,15 @@
+ 		printk(KERN_INFO "WARNING: MSI INIT FAILURE\n");
+ 		return status;
+ 	}
++	last_alloc_vector = assign_irq_vector(AUTO_ASSIGN);
++	if (last_alloc_vector < 0) {
++		pci_msi_enable = 0;
++		printk(KERN_INFO "WARNING: ALL VECTORS ARE BUSY\n");
++		status = -EBUSY;
++		return status;
++	}
++	vector_irq[last_alloc_vector] = 0;
++	nr_released_vectors++;
+ 	printk(KERN_INFO "MSI INIT SUCCESS\n");
+ 
+ 	return status;
+@@ -383,55 +436,49 @@
+ 
+ static void enable_msi_mode(struct pci_dev *dev, int pos, int type)
+ {
+-	u32 control;
++	u16 control;
+ 
+-	dev->bus->ops->read(dev->bus, dev->devfn,
+-		msi_control_reg(pos), 2, &control);
++	pci_read_config_word(dev, msi_control_reg(pos), &control);
+ 	if (type == PCI_CAP_ID_MSI) {
+ 		/* Set enabled bits to single MSI & enable MSI_enable bit */
+ 		msi_enable(control, 1);
+-	        dev->bus->ops->write(dev->bus, dev->devfn,
+-			msi_control_reg(pos), 2, control);
++		pci_write_config_word(dev, msi_control_reg(pos), control);
+ 	} else {
+ 		msix_enable(control);
+-	        dev->bus->ops->write(dev->bus, dev->devfn,
+-			msi_control_reg(pos), 2, control);
++		pci_write_config_word(dev, msi_control_reg(pos), control);
+ 	}
+     	if (pci_find_capability(dev, PCI_CAP_ID_EXP)) {
+ 		/* PCI Express Endpoint device detected */
+-		u32 cmd;
+-	        dev->bus->ops->read(dev->bus, dev->devfn, PCI_COMMAND, 2, &cmd);
++		u16 cmd;
++		pci_read_config_word(dev, PCI_COMMAND, &cmd);
+ 		cmd |= PCI_COMMAND_INTX_DISABLE;
+-	        dev->bus->ops->write(dev->bus, dev->devfn, PCI_COMMAND, 2, cmd);
++		pci_write_config_word(dev, PCI_COMMAND, cmd);
+ 	}
+ }
+ 
+ static void disable_msi_mode(struct pci_dev *dev, int pos, int type)
+ {
+-	u32 control;
++	u16 control;
+ 
+-	dev->bus->ops->read(dev->bus, dev->devfn,
+-		msi_control_reg(pos), 2, &control);
++	pci_read_config_word(dev, msi_control_reg(pos), &control);
+ 	if (type == PCI_CAP_ID_MSI) {
+ 		/* Set enabled bits to single MSI & enable MSI_enable bit */
+ 		msi_disable(control);
+-	        dev->bus->ops->write(dev->bus, dev->devfn,
+-			msi_control_reg(pos), 2, control);
++		pci_write_config_word(dev, msi_control_reg(pos), control);
+ 	} else {
+ 		msix_disable(control);
+-	        dev->bus->ops->write(dev->bus, dev->devfn,
+-			msi_control_reg(pos), 2, control);
++		pci_write_config_word(dev, msi_control_reg(pos), control);
+ 	}
+     	if (pci_find_capability(dev, PCI_CAP_ID_EXP)) {
+ 		/* PCI Express Endpoint device detected */
+-		u32 cmd;
+-	        dev->bus->ops->read(dev->bus, dev->devfn, PCI_COMMAND, 2, &cmd);
++		u16 cmd;
++		pci_read_config_word(dev, PCI_COMMAND, &cmd);
+ 		cmd &= ~PCI_COMMAND_INTX_DISABLE;
+-	        dev->bus->ops->write(dev->bus, dev->devfn, PCI_COMMAND, 2, cmd);
++		pci_write_config_word(dev, PCI_COMMAND, cmd);
+ 	}
+ }
+ 
+-static int msi_lookup_vector(struct pci_dev *dev)
++static int msi_lookup_vector(struct pci_dev *dev, int type)
+ {
+ 	int vector;
+ 	unsigned long flags;
+@@ -439,11 +486,11 @@
+ 	spin_lock_irqsave(&msi_lock, flags);
+ 	for (vector = FIRST_DEVICE_VECTOR; vector < NR_IRQS; vector++) {
+ 		if (!msi_desc[vector] || msi_desc[vector]->dev != dev ||
+-			msi_desc[vector]->msi_attrib.entry_nr ||
++			msi_desc[vector]->msi_attrib.type != type ||
+ 			msi_desc[vector]->msi_attrib.default_vector != dev->irq)
+-			continue;	/* not entry 0, skip */
++			continue;	
+ 		spin_unlock_irqrestore(&msi_lock, flags);
+-		/* This pre-assigned entry-0 MSI vector for this device
++		/* This pre-assigned MSI vector for this device
+ 		   already exits. Override dev->irq with this vector */
+ 		dev->irq = vector;
+ 		return 0;
+@@ -458,10 +505,9 @@
+ 	if (!dev)
+ 		return;
+ 
+-   	if (pci_find_capability(dev, PCI_CAP_ID_MSIX) > 0) {
+-		nr_reserved_vectors++;
++   	if (pci_find_capability(dev, PCI_CAP_ID_MSIX) > 0) 
+ 		nr_msix_devices++;
+-	} else if (pci_find_capability(dev, PCI_CAP_ID_MSI) > 0)
++	else if (pci_find_capability(dev, PCI_CAP_ID_MSI) > 0)
+ 		nr_reserved_vectors++;
+ }
+ 
+@@ -480,22 +526,10 @@
+ 	struct msg_address address;
+ 	struct msg_data data;
+ 	int pos, vector;
+-	u32 control;
++	u16 control;
+ 
+    	pos = pci_find_capability(dev, PCI_CAP_ID_MSI);
+-	if (!pos)
+-		return -EINVAL;
+-
+-	dev->bus->ops->read(dev->bus, dev->devfn, msi_control_reg(pos),
+-		2, &control);
+-	if (control & PCI_MSI_FLAGS_ENABLE)
+-		return 0;
+-
+-	if (!msi_lookup_vector(dev)) {
+-		/* Lookup Sucess */
+-		enable_msi_mode(dev, pos, PCI_CAP_ID_MSI);
+-		return 0;
+-	}
++	pci_read_config_word(dev, msi_control_reg(pos), &control);
+ 	/* MSI Entry Initialization */
+ 	if (!(entry = alloc_msi_entry()))
+ 		return -ENOMEM;
+@@ -504,11 +538,14 @@
+ 		kmem_cache_free(msi_cachep, entry);
+ 		return -EBUSY;
+ 	}
++	entry->link.head = vector;
++	entry->link.tail = vector;
+ 	entry->msi_attrib.type = PCI_CAP_ID_MSI;
++	entry->msi_attrib.state = 0;			/* Mark it not active */
+ 	entry->msi_attrib.entry_nr = 0;
+ 	entry->msi_attrib.maskbit = is_mask_bit_support(control);
+-	entry->msi_attrib.default_vector = dev->irq;
+-	dev->irq = vector;	/* save default pre-assigned ioapic vector */
++	entry->msi_attrib.default_vector = dev->irq;	/* Save IOAPIC IRQ */
++	dev->irq = vector;	
+ 	entry->dev = dev;
+ 	if (is_mask_bit_support(control)) {
+ 		entry->mask_base = msi_mask_bits_reg(pos,
+@@ -521,27 +558,27 @@
+ 	msi_data_init(&data, vector);
+ 	entry->msi_attrib.current_cpu = ((address.lo_address.u.dest_id >>
+ 				MSI_TARGET_CPU_SHIFT) & MSI_TARGET_CPU_MASK);
+-	dev->bus->ops->write(dev->bus, dev->devfn, msi_lower_address_reg(pos),
+-				4, address.lo_address.value);
++	pci_write_config_dword(dev, msi_lower_address_reg(pos),
++			address.lo_address.value);
+ 	if (is_64bit_address(control)) {
+-		dev->bus->ops->write(dev->bus, dev->devfn,
+-			msi_upper_address_reg(pos), 4, address.hi_address);
+-		dev->bus->ops->write(dev->bus, dev->devfn,
+-			msi_data_reg(pos, 1), 2, *((u32*)&data));
++		pci_write_config_dword(dev, 
++			msi_upper_address_reg(pos), address.hi_address);
++		pci_write_config_word(dev, 
++			msi_data_reg(pos, 1), *((u32*)&data));
+ 	} else
+-		dev->bus->ops->write(dev->bus, dev->devfn,
+-			msi_data_reg(pos, 0), 2, *((u32*)&data));
++		pci_write_config_word(dev, 
++			msi_data_reg(pos, 0), *((u32*)&data));
+ 	if (entry->msi_attrib.maskbit) {
+ 		unsigned int maskbits, temp;
+ 		/* All MSIs are unmasked by default, Mask them all */
+-	        dev->bus->ops->read(dev->bus, dev->devfn,
+-			msi_mask_bits_reg(pos, is_64bit_address(control)), 4,
++		pci_read_config_dword(dev, 
++			msi_mask_bits_reg(pos, is_64bit_address(control)),
+ 			&maskbits);
+ 		temp = (1 << multi_msi_capable(control));
+ 		temp = ((temp - 1) & ~temp);
+ 		maskbits |= temp;
+-		dev->bus->ops->write(dev->bus, dev->devfn,
+-			msi_mask_bits_reg(pos, is_64bit_address(control)), 4,
++		pci_write_config_dword(dev, 
++			msi_mask_bits_reg(pos, is_64bit_address(control)),
+ 			maskbits);
+ 	}
+ 	attach_msi_entry(entry, vector);
+@@ -556,238 +593,219 @@
+  * @dev: pointer to the pci_dev data structure of MSI-X device function
+  *
+  * Setup the MSI-X capability structure of device funtion with a
+- * single MSI-X vector. A return of zero indicates the successful setup
+- * of an entry zero with the new MSI-X vector or non-zero for otherwise.
+- * To request for additional MSI-X vectors, the device drivers are
+- * required to utilize the following supported APIs:
+- * 1) msi_alloc_vectors(...) for requesting one or more MSI-X vectors
+- * 2) msi_free_vectors(...) for releasing one or more MSI-X vectors
+- *    back to PCI subsystem before calling free_irq(...)
++ * single MSI-X vector. A return of zero indicates the successful setup of
++ * requested MSI-X entries with allocated vectors or non-zero for otherwise.
+  **/
+-static int msix_capability_init(struct pci_dev	*dev)
++static int msix_capability_init(struct pci_dev *dev, 
++				struct msix_entry *entries, int nvec)
+ {
+-	struct msi_desc *entry;
++	struct msi_desc *head = NULL, *tail = NULL, *entry = NULL;
+ 	struct msg_address address;
+ 	struct msg_data data;
+-	int vector = 0, pos, dev_msi_cap, i;
++	int vector, pos, i, j, nr_entries, temp = 0;
+ 	u32 phys_addr, table_offset;
+-	u32 control;
++ 	u16 control;
+ 	u8 bir;
+ 	void *base;
+-
++	
+    	pos = pci_find_capability(dev, PCI_CAP_ID_MSIX);
+-	if (!pos)
+-		return -EINVAL;
+-
+ 	/* Request & Map MSI-X table region */
+-	dev->bus->ops->read(dev->bus, dev->devfn, msi_control_reg(pos), 2,
+-		&control);
+-	if (control & PCI_MSIX_FLAGS_ENABLE)
+-		return 0;
+-
+-	if (!msi_lookup_vector(dev)) {
+-		/* Lookup Sucess */
+-		enable_msi_mode(dev, pos, PCI_CAP_ID_MSIX);
+-		return 0;
+-	}
+-
+-	dev_msi_cap = multi_msix_capable(control);
+-	dev->bus->ops->read(dev->bus, dev->devfn,
+-		msix_table_offset_reg(pos), 4, &table_offset);
++ 	pci_read_config_word(dev, msi_control_reg(pos), &control);
++	nr_entries = multi_msix_capable(control);
++ 	pci_read_config_dword(dev, msix_table_offset_reg(pos),
++ 		&table_offset);
+ 	bir = (u8)(table_offset & PCI_MSIX_FLAGS_BIRMASK);
+ 	phys_addr = pci_resource_start (dev, bir);
+ 	phys_addr += (u32)(table_offset & ~PCI_MSIX_FLAGS_BIRMASK);
+ 	if (!request_mem_region(phys_addr,
+-		dev_msi_cap * PCI_MSIX_ENTRY_SIZE,
+-		"MSI-X iomap Failure"))
++		nr_entries * PCI_MSIX_ENTRY_SIZE,
++		"MSI-X vector table"))
+ 		return -ENOMEM;
+-	base = ioremap_nocache(phys_addr, dev_msi_cap * PCI_MSIX_ENTRY_SIZE);
+-	if (base == NULL)
+-		goto free_region;
+-	/* MSI Entry Initialization */
+-	entry = alloc_msi_entry();
+-	if (!entry)
+-		goto free_iomap;
+-	if ((vector = get_msi_vector(dev)) < 0)
+-		goto free_entry;
+-
+-	entry->msi_attrib.type = PCI_CAP_ID_MSIX;
+-	entry->msi_attrib.entry_nr = 0;
+-	entry->msi_attrib.maskbit = 1;
+-	entry->msi_attrib.default_vector = dev->irq;
+-	dev->irq = vector;	/* save default pre-assigned ioapic vector */
+-	entry->dev = dev;
+-	entry->mask_base = (unsigned long)base;
+-	/* Replace with MSI handler */
+-	irq_handler_init(PCI_CAP_ID_MSIX, vector, 1);
+-	/* Configure MSI-X capability structure */
+-	msi_address_init(&address);
+-	msi_data_init(&data, vector);
+-	entry->msi_attrib.current_cpu = ((address.lo_address.u.dest_id >>
+-				MSI_TARGET_CPU_SHIFT) & MSI_TARGET_CPU_MASK);
+-	writel(address.lo_address.value, base + PCI_MSIX_ENTRY_LOWER_ADDR_OFFSET);
+-	writel(address.hi_address, base + PCI_MSIX_ENTRY_UPPER_ADDR_OFFSET);
+-	writel(*(u32*)&data, base + PCI_MSIX_ENTRY_DATA_OFFSET);
+-	/* Initialize all entries from 1 up to 0 */
+-	for (i = 1; i < dev_msi_cap; i++) {
+-		writel(0, base + i * PCI_MSIX_ENTRY_SIZE +
++	base = ioremap_nocache(phys_addr, nr_entries * PCI_MSIX_ENTRY_SIZE);
++	if (base == NULL) {
++		release_mem_region(phys_addr, nr_entries * PCI_MSIX_ENTRY_SIZE);
++		return -ENOMEM;
++	}
++	/* MSI-X Table Initialization */
++	for (i = 0; i < nvec; i++) {
++		entry = alloc_msi_entry();
++		if (!entry)
++			break;	
++		if ((vector = get_msi_vector(dev)) < 0)
++			break; 	
++
++ 		j = entries[i].entry;
++ 		entries[i].vector = vector;
++		entry->msi_attrib.type = PCI_CAP_ID_MSIX;
++ 		entry->msi_attrib.state = 0;		/* Mark it not active */
++		entry->msi_attrib.entry_nr = j;
++		entry->msi_attrib.maskbit = 1;
++		entry->msi_attrib.default_vector = dev->irq;
++		entry->dev = dev;
++		entry->mask_base = (unsigned long)base;
++		if (!head) {
++			entry->link.head = vector;
++			entry->link.tail = vector;
++			head = entry;
++		} else {
++			entry->link.head = temp;
++			entry->link.tail = tail->link.tail;
++			tail->link.tail = vector;
++			head->link.head = vector;
++		}
++		temp = vector;
++		tail = entry;
++		/* Replace with MSI-X handler */
++		irq_handler_init(PCI_CAP_ID_MSIX, vector, 1);
++		/* Configure MSI-X capability structure */
++		msi_address_init(&address);
++		msi_data_init(&data, vector);
++		entry->msi_attrib.current_cpu = 
++			((address.lo_address.u.dest_id >>
++			MSI_TARGET_CPU_SHIFT) & MSI_TARGET_CPU_MASK);
++		writel(address.lo_address.value, 
++			base + j * PCI_MSIX_ENTRY_SIZE +
+ 			PCI_MSIX_ENTRY_LOWER_ADDR_OFFSET);
+-		writel(0, base + i * PCI_MSIX_ENTRY_SIZE +
++		writel(address.hi_address, 
++			base + j * PCI_MSIX_ENTRY_SIZE +
+ 			PCI_MSIX_ENTRY_UPPER_ADDR_OFFSET);
+-		writel(0, base + i * PCI_MSIX_ENTRY_SIZE +
++		writel(*(u32*)&data, 
++			base + j * PCI_MSIX_ENTRY_SIZE +
+ 			PCI_MSIX_ENTRY_DATA_OFFSET);
++		attach_msi_entry(entry, vector);
+ 	}
+-	attach_msi_entry(entry, vector);
+-	/* Set MSI enabled bits	 */
++	if (i != nvec) {
++		i--;
++		for (; i >= 0; i--) {
++			vector = (entries + i)->vector;
++			msi_free_vector(dev, vector, 0);
++			(entries + i)->vector = 0;
++		}
++		return -EBUSY;
++	}
++	/* Set MSI-X enabled bits */
+ 	enable_msi_mode(dev, pos, PCI_CAP_ID_MSIX);
+-
++	
+ 	return 0;
+-
+-free_entry:
+-	kmem_cache_free(msi_cachep, entry);
+-free_iomap:
+-	iounmap(base);
+-free_region:
+-	release_mem_region(phys_addr, dev_msi_cap * PCI_MSIX_ENTRY_SIZE);
+-
+-	return ((vector < 0) ? -EBUSY : -ENOMEM);
+ }
+ 
+ /**
+- * pci_enable_msi - configure device's MSI(X) capability structure
+- * @dev: pointer to the pci_dev data structure of MSI(X) device function
++ * pci_enable_msi - configure device's MSI capability structure
++ * @dev: pointer to the pci_dev data structure of MSI device function
+  *
+- * Setup the MSI/MSI-X capability structure of device function with
+- * a single MSI(X) vector upon its software driver call to request for
+- * MSI(X) mode enabled on its hardware device function. A return of zero
+- * indicates the successful setup of an entry zero with the new MSI(X)
++ * Setup the MSI capability structure of device function with
++ * a single MSI vector upon its software driver call to request for
++ * MSI mode enabled on its hardware device function. A return of zero
++ * indicates the successful setup of an entry zero with the new MSI
+  * vector or non-zero for otherwise.
+  **/
+ int pci_enable_msi(struct pci_dev* dev)
+ {
+-	int status = -EINVAL;
++	int pos, temp = dev->irq, status = -EINVAL;
++	u16 control;
+ 
+ 	if (!pci_msi_enable || !dev)
+  		return status;
+ 
+-	if (msi_init() < 0)
+-		return -ENOMEM;
++	if ((status = msi_init()) < 0)
++		return status;
+ 
+-	if ((status = msix_capability_init(dev)) == -EINVAL)
+-		status = msi_capability_init(dev);
+-	if (!status)
+-		nr_reserved_vectors--;
++   	if (!(pos = pci_find_capability(dev, PCI_CAP_ID_MSI)))
++		return -EINVAL;
++
++	pci_read_config_word(dev, msi_control_reg(pos), &control);
++	if (control & PCI_MSI_FLAGS_ENABLE)
++		return 0;			/* Already in MSI mode */
++
++	if (!msi_lookup_vector(dev, PCI_CAP_ID_MSI)) {
++		/* Lookup Sucess */
++		unsigned long flags;
++
++		spin_lock_irqsave(&msi_lock, flags);
++		if (!vector_irq[dev->irq]) {
++			msi_desc[dev->irq]->msi_attrib.state = 0; 	
++			vector_irq[dev->irq] = -1;			
++			nr_released_vectors--;
++			spin_unlock_irqrestore(&msi_lock, flags);
++			enable_msi_mode(dev, pos, PCI_CAP_ID_MSI);
++			return 0;
++		}
++		spin_unlock_irqrestore(&msi_lock, flags);
++		dev->irq = temp;
++	}
++	/* Check whether driver already requested for MSI-X vectors */
++   	if ((pos = pci_find_capability(dev, PCI_CAP_ID_MSIX)) > 0 && 
++		!msi_lookup_vector(dev, PCI_CAP_ID_MSIX)) {
++			printk(KERN_INFO "Can't enable MSI. Device already had MSI-X vectors assigned\n");
++			dev->irq = temp;
++			return -EINVAL;	
++	}		
++	status = msi_capability_init(dev);
++	if (!status) {
++   		if (!pos) 
++			nr_reserved_vectors--;	/* Only MSI capable */
++		else if (nr_msix_devices > 0) 
++			nr_msix_devices--;	/* Both MSI and MSI-X capable, 
++						   but choose enabling MSI */
++	}
+ 
+ 	return status;
+ }
+ 
+-static int msi_free_vector(struct pci_dev* dev, int vector);
+-static void pci_disable_msi(unsigned int vector)
++void pci_disable_msi(struct pci_dev* dev)
+ {
+-	int head, tail, type, default_vector;
+ 	struct msi_desc *entry;
+-	struct pci_dev *dev;
++	int pos, default_vector;
++	u16 control;
+ 	unsigned long flags;
+ 
++   	if (!dev || !(pos = pci_find_capability(dev, PCI_CAP_ID_MSI)))
++		return;
++
++	pci_read_config_word(dev, msi_control_reg(pos), &control);
++	if (!(control & PCI_MSI_FLAGS_ENABLE)) 
++		return;
++	
+ 	spin_lock_irqsave(&msi_lock, flags);
+-	entry = msi_desc[vector];
+-	if (!entry || !entry->dev) {
++	entry = msi_desc[dev->irq];
++	if (!entry || !entry->dev || entry->msi_attrib.type != PCI_CAP_ID_MSI) {
+ 		spin_unlock_irqrestore(&msi_lock, flags);
+ 		return;
+ 	}
+-	dev = entry->dev;
+-	type = entry->msi_attrib.type;
+-	head = entry->link.head;
+-	tail = entry->link.tail;
+-	default_vector = entry->msi_attrib.default_vector;
+-	spin_unlock_irqrestore(&msi_lock, flags);
+-
+-	disable_msi_mode(dev, pci_find_capability(dev, type), type);
+-	/* Restore dev->irq to its default pin-assertion vector */
+-	dev->irq = default_vector;
+-	if (type == PCI_CAP_ID_MSIX && head != tail) {
+-		/* Bad driver, which do not call msi_free_vectors before exit.
+-		   We must do a cleanup here */
+-		while (1) {
+-			spin_lock_irqsave(&msi_lock, flags);
+-			entry = msi_desc[vector];
+-			head = entry->link.head;
+-			tail = entry->link.tail;
+-			spin_unlock_irqrestore(&msi_lock, flags);
+-			if (tail == head)
+-				break;
+-			if (msi_free_vector(dev, entry->link.tail))
+-				break;
+-		}
++	if (entry->msi_attrib.state) {
++		spin_unlock_irqrestore(&msi_lock, flags);
++		printk(KERN_DEBUG "Driver[%d:%d:%d] unloaded wo doing free_irq on vector->%d\n", 
++		dev->bus->number, PCI_SLOT(dev->devfn),	PCI_FUNC(dev->devfn),
++		dev->irq);
++		BUG_ON(entry->msi_attrib.state > 0);
++	} else {
++		vector_irq[dev->irq] = 0; /* free it */
++		nr_released_vectors++;
++		default_vector = entry->msi_attrib.default_vector;
++		spin_unlock_irqrestore(&msi_lock, flags);
++		/* Restore dev->irq to its default pin-assertion vector */
++		dev->irq = default_vector;
++		disable_msi_mode(dev, pci_find_capability(dev, PCI_CAP_ID_MSI),
++					PCI_CAP_ID_MSI);
+ 	}
+ }
+ 
+-static int msi_alloc_vector(struct pci_dev* dev, int head)
++static void release_msi(unsigned int vector)
+ {
+ 	struct msi_desc *entry;
+-	struct msg_address address;
+-	struct msg_data data;
+-	int i, offset, pos, dev_msi_cap, vector;
+-	u32 low_address, control;
+-	unsigned long base = 0L;
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&msi_lock, flags);
+-	entry = msi_desc[dev->irq];
+-	if (!entry) {
+-		spin_unlock_irqrestore(&msi_lock, flags);
+-		return -EINVAL;
+-	}
+-	base = entry->mask_base;
++	entry = msi_desc[vector];
++	if (entry && entry->dev) 
++		entry->msi_attrib.state = 0;	/* Mark it not active */
+ 	spin_unlock_irqrestore(&msi_lock, flags);
+-
+-   	pos = pci_find_capability(dev, PCI_CAP_ID_MSIX);
+-	dev->bus->ops->read(dev->bus, dev->devfn, msi_control_reg(pos),
+-		2, &control);
+-	dev_msi_cap = multi_msix_capable(control);
+-	for (i = 1; i < dev_msi_cap; i++) {
+-		if (!(low_address = readl(base + i * PCI_MSIX_ENTRY_SIZE)))
+-			 break;
+-	}
+-	if (i >= dev_msi_cap)
+-		return -EINVAL;
+-
+-	/* MSI Entry Initialization */
+-	if (!(entry = alloc_msi_entry()))
+-		return -ENOMEM;
+-
+-	if ((vector = get_new_vector()) < 0) {
+-		kmem_cache_free(msi_cachep, entry);
+-		return vector;
+-	}
+-	entry->msi_attrib.type = PCI_CAP_ID_MSIX;
+-	entry->msi_attrib.entry_nr = i;
+-	entry->msi_attrib.maskbit = 1;
+-	entry->dev = dev;
+-	entry->link.head = head;
+-	entry->mask_base = base;
+-	irq_handler_init(PCI_CAP_ID_MSIX, vector, 1);
+-	/* Configure MSI-X capability structure */
+-	msi_address_init(&address);
+-	msi_data_init(&data, vector);
+-	entry->msi_attrib.current_cpu = ((address.lo_address.u.dest_id >>
+-				MSI_TARGET_CPU_SHIFT) & MSI_TARGET_CPU_MASK);
+-	offset = entry->msi_attrib.entry_nr * PCI_MSIX_ENTRY_SIZE;
+-	writel(address.lo_address.value, base + offset +
+-		PCI_MSIX_ENTRY_LOWER_ADDR_OFFSET);
+-	writel(address.hi_address, base + offset +
+-		PCI_MSIX_ENTRY_UPPER_ADDR_OFFSET);
+-	writel(*(u32*)&data, base + offset + PCI_MSIX_ENTRY_DATA_OFFSET);
+-	writel(1, base + offset + PCI_MSIX_ENTRY_VECTOR_CTRL_OFFSET);
+-	attach_msi_entry(entry, vector);
+-
+-	return vector;
+ }
+ 
+-static int msi_free_vector(struct pci_dev* dev, int vector)
++static int msi_free_vector(struct pci_dev* dev, int vector, int reassign)
+ {
+ 	struct msi_desc *entry;
+-	int entry_nr, type;
++	int head, entry_nr, type;
+ 	unsigned long base = 0L;
+ 	unsigned long flags;
+ 
+@@ -799,66 +817,177 @@
+ 	}
+ 	type = entry->msi_attrib.type;
+ 	entry_nr = entry->msi_attrib.entry_nr;
++	head = entry->link.head;
+ 	base = entry->mask_base;
+-	if (entry->link.tail != entry->link.head) {
+-		msi_desc[entry->link.head]->link.tail = entry->link.tail;
+-		if (entry->link.tail)
+-			msi_desc[entry->link.tail]->link.head = entry->link.head;
+-	}
++	msi_desc[entry->link.head]->link.tail = entry->link.tail;
++	msi_desc[entry->link.tail]->link.head = entry->link.head;
+ 	entry->dev = NULL;
+-	vector_irq[vector] = 0;
+-	nr_released_vectors++;
++	if (!reassign) {
++		vector_irq[vector] = 0;
++		nr_released_vectors++;
++	}
+ 	msi_desc[vector] = NULL;
+ 	spin_unlock_irqrestore(&msi_lock, flags);
+ 
+ 	kmem_cache_free(msi_cachep, entry);
+-	if (type == PCI_CAP_ID_MSIX) {
+-		int offset;
+ 
+-		offset = entry_nr * PCI_MSIX_ENTRY_SIZE;
+-		writel(1, base + offset + PCI_MSIX_ENTRY_VECTOR_CTRL_OFFSET);
+-		writel(0, base + offset + PCI_MSIX_ENTRY_LOWER_ADDR_OFFSET);
++	if (type == PCI_CAP_ID_MSIX) {
++		if (!reassign) 
++			writel(1, base + 
++				entry_nr * PCI_MSIX_ENTRY_SIZE +
++				PCI_MSIX_ENTRY_VECTOR_CTRL_OFFSET);
++		
++		if (head == vector) {
++			/* 
++			 * Detect last MSI-X vector to be released.
++			 * Release the MSI-X memory-mapped table.
++			 */
++			int pos, nr_entries;
++			u32 phys_addr, table_offset;
++			u16 control;
++			u8 bir;
++
++   			pos = pci_find_capability(dev, PCI_CAP_ID_MSIX);
++			pci_read_config_word(dev, msi_control_reg(pos), 
++				&control);
++			nr_entries = multi_msix_capable(control);
++			pci_read_config_dword(dev, msix_table_offset_reg(pos),
++				&table_offset);
++			bir = (u8)(table_offset & PCI_MSIX_FLAGS_BIRMASK);
++			phys_addr = pci_resource_start (dev, bir);
++			phys_addr += (u32)(table_offset & 
++				~PCI_MSIX_FLAGS_BIRMASK);
++			iounmap((void*)base);
++			release_mem_region(phys_addr, 
++				nr_entries * PCI_MSIX_ENTRY_SIZE);
++		}
+ 	}
+ 
+ 	return 0;
+ }
+ 
++static int reroute_msix_table(int head, struct msix_entry *entries, int *nvec)
++{
++	int vector = head, tail = 0;
++	int i = 0, j = 0, nr_entries = 0;
++	unsigned long base = 0L;
++	unsigned long flags;
++		
++	spin_lock_irqsave(&msi_lock, flags);
++	while (head != tail) {
++		nr_entries++;
++		tail = msi_desc[vector]->link.tail;
++		if (entries[0].entry == msi_desc[vector]->msi_attrib.entry_nr)
++			j = vector;
++		vector = tail;
++	}
++	if (*nvec > nr_entries) {
++		spin_unlock_irqrestore(&msi_lock, flags);
++		*nvec = nr_entries;
++		return -EINVAL;
++	}
++	vector = ((j > 0) ? j : head);
++	for (i = 0; i < *nvec; i++) {
++		j = msi_desc[vector]->msi_attrib.entry_nr;
++		msi_desc[vector]->msi_attrib.state = 0;	/* Mark it not active */
++		vector_irq[vector] = -1;		/* Mark it busy */	
++		nr_released_vectors--;
++		entries[i].vector = vector;
++		if (j != (entries + i)->entry) {
++			base = msi_desc[vector]->mask_base;
++			msi_desc[vector]->msi_attrib.entry_nr =	
++				(entries + i)->entry;
++			writel( readl(base + j * PCI_MSIX_ENTRY_SIZE +
++				PCI_MSIX_ENTRY_LOWER_ADDR_OFFSET), base + 
++				(entries + i)->entry * PCI_MSIX_ENTRY_SIZE +
++				PCI_MSIX_ENTRY_LOWER_ADDR_OFFSET);
++			writel(	readl(base + j * PCI_MSIX_ENTRY_SIZE +
++				PCI_MSIX_ENTRY_UPPER_ADDR_OFFSET), base + 
++				(entries + i)->entry * PCI_MSIX_ENTRY_SIZE +
++				PCI_MSIX_ENTRY_UPPER_ADDR_OFFSET);
++			writel( (readl(base + j * PCI_MSIX_ENTRY_SIZE +
++				PCI_MSIX_ENTRY_DATA_OFFSET) & 0xff00) | vector,
++				base + (entries+i)->entry*PCI_MSIX_ENTRY_SIZE + 
++				PCI_MSIX_ENTRY_DATA_OFFSET);
++		}
++		vector = msi_desc[vector]->link.tail;
++	}
++	spin_unlock_irqrestore(&msi_lock, flags);
++	
++	return 0;
++}
++
+ /**
+- * msi_alloc_vectors - allocate additional MSI-X vectors
++ * pci_enable_msix - configure device's MSI-X capability structure
+  * @dev: pointer to the pci_dev data structure of MSI-X device function
+- * @vector: pointer to an array of new allocated MSI-X vectors
++ * @data: pointer to an array of MSI-X entries
+  * @nvec: number of MSI-X vectors requested for allocation by device driver
+  *
+- * Allocate additional MSI-X vectors requested by device driver. A
+- * return of zero indicates the successful setup of MSI-X capability
+- * structure with new allocated MSI-X vectors or non-zero for otherwise.
++ * Setup the MSI-X capability structure of device function with the number
++ * of requested vectors upon its software driver call to request for
++ * MSI-X mode enabled on its hardware device function. A return of zero
++ * indicates the successful configuration of MSI-X capability structure 
++ * with new allocated MSI-X vectors. A return of < 0 indicates a failure. 
++ * Or a return of > 0 indicates that driver request is exceeding the number
++ * of vectors available. Driver should use the returned value to re-send 
++ * its request.
+  **/
+-int msi_alloc_vectors(struct pci_dev* dev, int *vector, int nvec)
++int pci_enable_msix(struct pci_dev* dev, struct msix_entry *entries, int nvec)
+ {
+-	struct msi_desc *entry;
+-	int i, head, pos, vec, free_vectors, alloc_vectors;
+-	int *vectors = (int *)vector;
+-	u32 control;
++	int status, pos, nr_entries, free_vectors;
++	int i, j, temp;
++	u16 control;
+ 	unsigned long flags;
+ 
+-	if (!pci_msi_enable || !dev)
++	if (!pci_msi_enable || !dev || !entries)
+  		return -EINVAL;
+-
++	
++	if ((status = msi_init()) < 0)
++		return status;
++	
+    	if (!(pos = pci_find_capability(dev, PCI_CAP_ID_MSIX)))
+  		return -EINVAL;
+-
+-	dev->bus->ops->read(dev->bus, dev->devfn, msi_control_reg(pos), 			2, &control);
+-	if (nvec > multi_msix_capable(control))
+-		return -EINVAL;
+-
+-	spin_lock_irqsave(&msi_lock, flags);
+-	entry = msi_desc[dev->irq];
+-	if (!entry || entry->dev != dev ||		/* legal call */
+-	   entry->msi_attrib.type != PCI_CAP_ID_MSIX || /* must be MSI-X */
+-	   entry->link.head != entry->link.tail) {	/* already multi */
+-		spin_unlock_irqrestore(&msi_lock, flags);
++		
++	pci_read_config_word(dev, msi_control_reg(pos), &control);
++	if (control & PCI_MSIX_FLAGS_ENABLE)
++		return -EINVAL;			/* Already in MSI-X mode */
++	
++	nr_entries = multi_msix_capable(control);
++	if (nvec > nr_entries)
+ 		return -EINVAL;
++	
++	/* Check for any invalid entries */
++	for (i = 0; i < nvec; i++) {
++		if (entries[i].entry >= nr_entries)
++			return -EINVAL;		/* invalid entry */
++		for (j = i + 1; j < nvec; j++) {
++			if (entries[i].entry == entries[j].entry)
++				return -EINVAL;	/* duplicate entry */
++		}
++	}
++	temp = dev->irq;
++	if (!msi_lookup_vector(dev, PCI_CAP_ID_MSIX)) {
++		/* Lookup Sucess */
++		nr_entries = nvec;	
++		/* Reroute MSI-X table */
++		if (reroute_msix_table(dev->irq, entries, &nr_entries)) {
++			/* #requested > #previous-assigned */
++			dev->irq = temp;
++			return nr_entries;
++		}
++		dev->irq = temp;
++		enable_msi_mode(dev, pos, PCI_CAP_ID_MSIX);
++		return 0;
++	}
++	/* Check whether driver already requested for MSI vector */
++   	if (pci_find_capability(dev, PCI_CAP_ID_MSI) > 0 &&
++		!msi_lookup_vector(dev, PCI_CAP_ID_MSI)) {
++		printk(KERN_INFO "Can't enable MSI-X. Device already had MSI vector assigned\n");
++		dev->irq = temp;
++		return -EINVAL;	
+ 	}
++	
++	spin_lock_irqsave(&msi_lock, flags);
+ 	/*
+ 	 * msi_lock is provided to ensure that enough vectors resources are
+ 	 * available before granting.
+@@ -874,71 +1003,65 @@
+ 		free_vectors /= nr_msix_devices;
+ 	spin_unlock_irqrestore(&msi_lock, flags);
+ 
+-	if (nvec > free_vectors)
+-		return -EBUSY;
++	if (nvec > free_vectors) {
++		if (free_vectors > 0)
++			return free_vectors;
++		else
++			return -EBUSY;
++	}	
+ 
+-	alloc_vectors = 0;
+-	head = dev->irq;
+-	for (i = 0; i < nvec; i++) {
+-		if ((vec = msi_alloc_vector(dev, head)) < 0)
+-			break;
+-		*(vectors + i) = vec;
+-		head = vec;
+-		alloc_vectors++;
+-	}
+-	if (alloc_vectors != nvec) {
+-		for (i = 0; i < alloc_vectors; i++) {
+-			vec = *(vectors + i);
+-			msi_free_vector(dev, vec);
+-		}
+-		spin_lock_irqsave(&msi_lock, flags);
+-		msi_desc[dev->irq]->link.tail = msi_desc[dev->irq]->link.head;
+-		spin_unlock_irqrestore(&msi_lock, flags);
+-		return -EBUSY;
+-	}
+-	if (nr_msix_devices > 0)
++	status = msix_capability_init(dev, entries, nvec);
++	if (!status && nr_msix_devices > 0)
+ 		nr_msix_devices--;
+-
+-	return 0;
++	
++	return status;
+ }
+ 
+-/**
+- * msi_free_vectors - reclaim MSI-X vectors to unused state
+- * @dev: pointer to the pci_dev data structure of MSI-X device function
+- * @vector: pointer to an array of released MSI-X vectors
+- * @nvec: number of MSI-X vectors requested for release by device driver
+- *
+- * Reclaim MSI-X vectors released by device driver to unused state,
+- * which may be used later on. A return of zero indicates the
+- * success or non-zero for otherwise. Device driver should call this
+- * before calling function free_irq.
+- **/
+-int msi_free_vectors(struct pci_dev* dev, int *vector, int nvec)
++void pci_disable_msix(struct pci_dev* dev)
+ {
+-	struct msi_desc *entry;
+-	int i;
+-	unsigned long flags;
++	int pos, temp;
++	u16 control;
++	
++   	if (!dev || !(pos = pci_find_capability(dev, PCI_CAP_ID_MSIX)))
++		return;
+ 
+-	if (!pci_msi_enable)
+- 		return -EINVAL;
++	pci_read_config_word(dev, msi_control_reg(pos), &control);
++	if (!(control & PCI_MSIX_FLAGS_ENABLE)) 
++		return;
++	
++	temp = dev->irq;
++	if (!msi_lookup_vector(dev, PCI_CAP_ID_MSIX)) {
++		int state, vector, head, tail = 0, warning = 0;
++		unsigned long flags;
+ 
+-	spin_lock_irqsave(&msi_lock, flags);
+-	entry = msi_desc[dev->irq];
+-	if (!entry || entry->dev != dev ||
+-	   	entry->msi_attrib.type != PCI_CAP_ID_MSIX ||
+-		entry->link.head == entry->link.tail) {	/* Nothing to free */
++		vector = head = dev->irq;
++		spin_lock_irqsave(&msi_lock, flags);
++		while (head != tail) {
++			state = msi_desc[vector]->msi_attrib.state;
++			if (state) 
++				warning = 1;
++			else {
++				vector_irq[vector] = 0; /* free it */
++				nr_released_vectors++;
++			}
++			tail = msi_desc[vector]->link.tail;
++			vector = tail;
++		}
+ 		spin_unlock_irqrestore(&msi_lock, flags);
+-		return -EINVAL;
+-	}
+-	spin_unlock_irqrestore(&msi_lock, flags);
++		if (warning) {
++			dev->irq = temp;
++			printk(KERN_DEBUG "Driver[%d:%d:%d] unloaded wo doing free_irq on all vectors\n", 
++			dev->bus->number, PCI_SLOT(dev->devfn),	
++			PCI_FUNC(dev->devfn));
++			BUG_ON(warning > 0);
++		} else {
++			dev->irq = temp;
++			disable_msi_mode(dev, 
++				pci_find_capability(dev, PCI_CAP_ID_MSIX),
++				PCI_CAP_ID_MSIX);
+ 
+-	for (i = 0; i < nvec; i++) {
+-		if (*(vector + i) == dev->irq)
+-			continue;/* Don't free entry 0 if mistaken by driver */
+-		msi_free_vector(dev, *(vector + i));
++		}
+ 	}
+-
+-	return 0;
+ }
+ 
+ /**
+@@ -952,62 +1075,73 @@
+  **/
+ void msi_remove_pci_irq_vectors(struct pci_dev* dev)
+ {
+-	struct msi_desc *entry;
+-	int type, temp;
++	int state, pos, temp;
+ 	unsigned long flags;
+-
++	
+ 	if (!pci_msi_enable || !dev)
+  		return;
+-
+-   	if (!pci_find_capability(dev, PCI_CAP_ID_MSI)) {
+-   		if (!pci_find_capability(dev, PCI_CAP_ID_MSIX))
+-			return;
+-	}
+-	temp = dev->irq;
+-	if (msi_lookup_vector(dev))
+-		return;
+-
+-	spin_lock_irqsave(&msi_lock, flags);
+-	entry = msi_desc[dev->irq];
+-	if (!entry || entry->dev != dev) {
++	
++	temp = dev->irq;		/* Save IOAPIC IRQ */
++   	if ((pos = pci_find_capability(dev, PCI_CAP_ID_MSI)) > 0 &&
++		!msi_lookup_vector(dev, PCI_CAP_ID_MSI)) {
++		spin_lock_irqsave(&msi_lock, flags);
++		state = msi_desc[dev->irq]->msi_attrib.state;
+ 		spin_unlock_irqrestore(&msi_lock, flags);
+-		return;
+-	}
+-	type = entry->msi_attrib.type;
+-	spin_unlock_irqrestore(&msi_lock, flags);
+-
+-	msi_free_vector(dev, dev->irq);
+-	if (type == PCI_CAP_ID_MSIX) {
+-		int i, pos, dev_msi_cap;
+-		u32 phys_addr, table_offset;
+-		u32 control;
+-		u8 bir;
+-
+-   		pos = pci_find_capability(dev, PCI_CAP_ID_MSIX);
+-		dev->bus->ops->read(dev->bus, dev->devfn, msi_control_reg(pos), 			2, &control);
+-		dev_msi_cap = multi_msix_capable(control);
+-		dev->bus->ops->read(dev->bus, dev->devfn,
+-			msix_table_offset_reg(pos), 4, &table_offset);
+-		bir = (u8)(table_offset & PCI_MSIX_FLAGS_BIRMASK);
+-		phys_addr = pci_resource_start (dev, bir);
+-		phys_addr += (u32)(table_offset & ~PCI_MSIX_FLAGS_BIRMASK);
+-		for (i = FIRST_DEVICE_VECTOR; i < NR_IRQS; i++) {
++		if (state) { 	
++			printk(KERN_DEBUG "Driver[%d:%d:%d] unloaded wo doing free_irq on vector->%d\n", 
++			dev->bus->number, PCI_SLOT(dev->devfn),	
++			PCI_FUNC(dev->devfn), dev->irq);
++			BUG_ON(state > 0);
++		} else /* Release MSI vector assigned to this device */
++			msi_free_vector(dev, dev->irq, 0);
++		dev->irq = temp;		/* Restore IOAPIC IRQ */
++	}
++   	if ((pos = pci_find_capability(dev, PCI_CAP_ID_MSIX)) > 0 &&
++		!msi_lookup_vector(dev, PCI_CAP_ID_MSIX)) {
++		int vector, head, tail = 0, warning = 0;
++		unsigned long base = 0L;
++		
++		vector = head = dev->irq;
++		while (head != tail) {
+ 			spin_lock_irqsave(&msi_lock, flags);
+-			if (!msi_desc[i] || msi_desc[i]->dev != dev) {
+-				spin_unlock_irqrestore(&msi_lock, flags);
+-				continue;
+-			}
++			state = msi_desc[vector]->msi_attrib.state;
++			tail = msi_desc[vector]->link.tail;
++			base = msi_desc[vector]->mask_base;
+ 			spin_unlock_irqrestore(&msi_lock, flags);
+-			msi_free_vector(dev, i);
++			if (state)  	
++				warning = 1;
++			else if (vector != head) /* Release MSI-X vector */
++				msi_free_vector(dev, vector, 0);
++			vector = tail;
++		}
++		msi_free_vector(dev, vector, 0);
++		if (warning) {
++			/* Force to release the MSI-X memory-mapped table */
++			u32 phys_addr, table_offset;
++			u16 control;
++			u8 bir;
++
++			pci_read_config_word(dev, msi_control_reg(pos), 
++				&control);
++			pci_read_config_dword(dev, msix_table_offset_reg(pos),
++				&table_offset);
++			bir = (u8)(table_offset & PCI_MSIX_FLAGS_BIRMASK);
++			phys_addr = pci_resource_start (dev, bir);
++			phys_addr += (u32)(table_offset & 
++				~PCI_MSIX_FLAGS_BIRMASK);
++			iounmap((void*)base);
++			release_mem_region(phys_addr, PCI_MSIX_ENTRY_SIZE *
++				multi_msix_capable(control));
++			printk(KERN_DEBUG "Driver[%d:%d:%d] unloaded wo doing free_irq on all vectors\n", 
++				dev->bus->number, PCI_SLOT(dev->devfn),	
++				PCI_FUNC(dev->devfn));
++			BUG_ON(warning > 0);
+ 		}
+-		writel(1, entry->mask_base + PCI_MSIX_ENTRY_VECTOR_CTRL_OFFSET);
+-		iounmap((void*)entry->mask_base);
+-		release_mem_region(phys_addr, dev_msi_cap * PCI_MSIX_ENTRY_SIZE);
++		dev->irq = temp;		/* Restore IOAPIC IRQ */
+ 	}
+-	dev->irq = temp;
+-	nr_reserved_vectors++;
+ }
+ 
+ EXPORT_SYMBOL(pci_enable_msi);
+-EXPORT_SYMBOL(msi_alloc_vectors);
+-EXPORT_SYMBOL(msi_free_vectors);
++EXPORT_SYMBOL(pci_disable_msi);
++EXPORT_SYMBOL(pci_enable_msix);
++EXPORT_SYMBOL(pci_disable_msix);
+Index: linux-bk/drivers/pci/msi.h
+===================================================================
+--- linux-bk.orig/drivers/pci/msi.h
++++ linux-bk/drivers/pci/msi.h
+@@ -140,7 +140,8 @@
+ 	struct {
+ 		__u8	type	: 5; 	/* {0: unused, 5h:MSI, 11h:MSI-X} */
+ 		__u8	maskbit	: 1; 	/* mask-pending bit supported ?   */
+-		__u8	reserved: 2; 	/* reserved			  */
++		__u8	state	: 1; 	/* {0: free, 1: busy}		  */
++		__u8	reserved: 1; 	/* reserved			  */
+ 		__u8	entry_nr;    	/* specific enabled entry 	  */
+ 		__u8	default_vector; /* default pre-assigned vector    */
+ 		__u8	current_cpu; 	/* current destination cpu	  */
+Index: linux-bk/include/linux/pci.h
+===================================================================
+--- linux-bk.orig/include/linux/pci.h
++++ linux-bk/include/linux/pci.h
+@@ -831,16 +831,27 @@
+ extern struct pci_dev *isa_bridge;
+ #endif
+ 
++struct msix_entry {
++	u16 	vector;	/* kernel uses to write allocated vector */
++	u16	entry;	/* driver uses to specify entry, OS writes */
++};
++
+ #ifndef CONFIG_PCI_USE_VECTOR
+ static inline void pci_scan_msi_device(struct pci_dev *dev) {}
+ static inline int pci_enable_msi(struct pci_dev *dev) {return -1;}
++static inline void pci_disable_msi(struct pci_dev *dev) {}
++static inline int pci_enable_msix(struct pci_dev* dev, 
++	struct msix_entry *entries, int nvec) {return -1;}
++static inline void pci_disable_msix(struct pci_dev *dev) {}
+ static inline void msi_remove_pci_irq_vectors(struct pci_dev *dev) {}
+ #else
+ extern void pci_scan_msi_device(struct pci_dev *dev);
+ extern int pci_enable_msi(struct pci_dev *dev);
++extern void pci_disable_msi(struct pci_dev *dev);
++extern int pci_enable_msix(struct pci_dev* dev, 
++	struct msix_entry *entries, int nvec);
++extern void pci_disable_msix(struct pci_dev *dev);
+ extern void msi_remove_pci_irq_vectors(struct pci_dev *dev);
+-extern int msi_alloc_vectors(struct pci_dev* dev, int *vector, int nvec);
+-extern int msi_free_vectors(struct pci_dev* dev, int *vector, int nvec);
+ #endif
+ 
+ #endif /* CONFIG_PCI */

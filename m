@@ -1,62 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281566AbRLALWJ>; Sat, 1 Dec 2001 06:22:09 -0500
+	id <S284067AbRLALY2>; Sat, 1 Dec 2001 06:24:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281562AbRLALV6>; Sat, 1 Dec 2001 06:21:58 -0500
-Received: from fever.semiotek.com ([216.138.209.203]:23567 "HELO
-	fever.semiotek.com") by vger.kernel.org with SMTP
-	id <S281561AbRLALVo>; Sat, 1 Dec 2001 06:21:44 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re:  Re: Please tag tested releases of the 2.4.x kernel
-Message-Id: <20011201113734.5187E38329@fever.semiotek.com>
-Date: Sat,  1 Dec 2001 06:37:34 -0500 (EST)
-From: jread@semiotek.com (Justin Wells)
+	id <S281562AbRLALYV>; Sat, 1 Dec 2001 06:24:21 -0500
+Received: from netfinity.realnet.co.sz ([196.28.7.2]:53646 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S280203AbRLALYH>; Sat, 1 Dec 2001 06:24:07 -0500
+Date: Sat, 1 Dec 2001 13:28:56 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: <sct@redhat.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] JBD code path (kfree cleanup)
+Message-ID: <Pine.LNX.4.33.0112011324370.11026-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The intent of this patch is to remove unecessary if (foo) kfree(foo)
+checks and also a slight change in the code path. This is a small part of
+my i-spent-friday-night-at-home-grepping-for-kfree patch to cleanup kfree
+usage.
 
-Christoph Hellwig <hch@ns.caldera.de> wrote:
+Please comment on the code path change, it seems sane to me.
 
->In article <20011130220451.9D5AD38326@fever.semiotek.com> you wrote:
->>
->> It would be great if on kernel.org there were a note indicating which 
->> releases of the linux kernel had been favourably received. 
->>
->> If you could organize a bit you could even mark a release as "TESTED",
->> or even "APPROVED". All it would mean is that after it had been out for
->> a week or two nobody found any really serious problems.
+Regards,
+	Zwane Mwaikambo
 
->Approved kernel are usually come in files ending in i386.rpm,
->ia64.rpm or .deb.
+diffed against 2.5.1-pre4
 
->Come on, no one expects stock kernel to be tested.  Distributors
->on the other hand spend a lot of effort on testing their releases,
->so go for a distribution kernel if you need something tested.  Really.
+diff -urN linux-2.5.1-pre4.orig/fs/jbd/commit.c linux-2.5.1-pre4.kfree/fs/jbd/commit.c
+--- linux-2.5.1-pre4.orig/fs/jbd/commit.c	Sat Nov 10 00:25:04 2001
++++ linux-2.5.1-pre4.kfree/fs/jbd/commit.c	Fri Nov 30 23:08:58 2001
+@@ -619,17 +619,15 @@
+ 		 *
+ 		 * Otherwise, we can just throw away the frozen data now.
+ 		 */
+-		if (jh->b_committed_data) {
+-			kfree(jh->b_committed_data);
+-			jh->b_committed_data = NULL;
+-			if (jh->b_frozen_data) {
+-				jh->b_committed_data = jh->b_frozen_data;
+-				jh->b_frozen_data = NULL;
+-			}
+-		} else if (jh->b_frozen_data) {
++		kfree(jh->b_committed_data);
++		jh->b_committed_data = NULL;
++
++		if (jh->b_frozen_data)
++			jh->b_committed_data = jh->b_frozen_data;
++		else
+ 			kfree(jh->b_frozen_data);
+-			jh->b_frozen_data = NULL;
+-		}
++
++		jh->b_frozen_data = NULL;
 
-I'm sure I'm not the only one who would like to know which stock kernels 
-are relatively stable, and which ones aren't. There must be at least two
-more people, just like me, who wonder which stock kernel to use.
+ 		spin_lock(&journal_datalist_lock);
+ 		cp_transaction = jh->b_cp_transaction;
+diff -urN linux-2.5.1-pre4.orig/fs/jbd/transaction.c linux-2.5.1-pre4.kfree/fs/jbd/transaction.c
+--- linux-2.5.1-pre4.orig/fs/jbd/transaction.c	Sat Nov 10 00:25:04 2001
++++ linux-2.5.1-pre4.kfree/fs/jbd/transaction.c	Fri Nov 30 23:29:20 2001
+@@ -739,8 +739,7 @@
+ 	journal_cancel_revoke(handle, jh);
 
-Just because I like to apply a few patches that my distributor doesn't 
-ship doesn't mean that I want to play russian roulette with my system,
-though I'm willing to risk the occasional bug or problem when
-I compile my own kernel.
+ out_unlocked:
+-	if (frozen_buffer)
+-		kfree(frozen_buffer);
++	kfree(frozen_buffer);
 
-And the kernels on kernel.org *are* tested, by lots of people, by kernel 
-developers, by lots of ordinary folks even. I bet right after theren's 
-an announce on slashdot you see lots of traffic on the ftp/http sites.
-
-After a week or two I bet you even have some pretty good idea which
-stock kernels are relatively stable, and which ones have big issues.
-
-The word "relatively" is important here, everyone knows that if you roll 
-your own kernel you're facing some risks. But everyone also knows that 
-for some of the stock kernels the risks are reasonable, and for some of
-them the risks are unreasonable.
-
-I'm not asking for any additional testing, I'm just asking someone to 
-summarize the consensus about a kernel once it's been kicked around 
-for a week or two.
-
-Justin
+ 	JBUFFER_TRACE(jh, "exit");
+ 	return error;
 

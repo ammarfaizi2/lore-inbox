@@ -1,88 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290380AbSAPHH2>; Wed, 16 Jan 2002 02:07:28 -0500
+	id <S290378AbSAPHHs>; Wed, 16 Jan 2002 02:07:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290378AbSAPHHS>; Wed, 16 Jan 2002 02:07:18 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:16400 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S290375AbSAPHHL>;
-	Wed, 16 Jan 2002 02:07:11 -0500
-Date: Wed, 16 Jan 2002 08:07:05 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: block completion races
-Message-ID: <20020116080705.F3805@suse.de>
-In-Reply-To: <3C44DC7B.D960D15D@zip.com.au>
+	id <S290375AbSAPHHj>; Wed, 16 Jan 2002 02:07:39 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:39653 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S290379AbSAPHHY>; Wed, 16 Jan 2002 02:07:24 -0500
+Date: Wed, 16 Jan 2002 09:07:11 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Ed Sweetman <ed.sweetman@wmich.edu>
+Cc: Nicholas Lee <nj.lee@plumtree.co.nz>, linux-kernel@vger.kernel.org
+Subject: Re: Disk corruption - Abit KT7, 2.2.19+ide patches
+Message-ID: <20020116070710.GT51774@niksula.cs.hut.fi>
+In-Reply-To: <20020115202302.GA598@inktiger.kiwa.co.nz> <20020115205116.GH51648@niksula.cs.hut.fi> <20020115211032.GC598@inktiger.kiwa.co.nz> <20020115214049.GI51648@niksula.cs.hut.fi> <20020115220211.GE598@inktiger.kiwa.co.nz> <000f01c19e18$469a3700$0501a8c0@psuedogod>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3C44DC7B.D960D15D@zip.com.au>
+In-Reply-To: <000f01c19e18$469a3700$0501a8c0@psuedogod>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 15 2002, Andrew Morton wrote:
-> void end_that_request_last(struct request *req)
-> {
->         if (req->waiting != NULL)
->                 complete(req->waiting);
+On Tue, Jan 15, 2002 at 05:59:19PM -0500, you [Ed Sweetman] claimed:
 > 
->         blkdev_release_request(req);
-> }
-> 
-> 
-> I think a bug.  Sometimes (eg, cdrom_queue_packet_command())
-> the request is allocated on a task's kernel stack.  As soon as
-> we call complete(), that task can wake and release the request
-> while blkdev_release_request() is diddling it on this CPU.
-> 
-> Do you see any problem with releasing the request before running
-> complete()?.  Also I think it's best to uninline blkdev_release_request().
-> It's 104 bytes long, and we have four copies of it in ll_rw_blk.c.  A
-> patch is here.
+> sounds like you're using the shared irq slot, might want to verify that with
+> lspci -vvv to see if anything else is using an irq at the time that's the
+> same as the card in that slot.  Also some places will do various special
+> things to one of the last pci slots, you should be able to find out by
+> looking in the manual.  Some cards just dont play nicely with shared irqs.
 
-Agreed, patch is fine with me.
+Oh, I check some time ago. Sorry for baing vague, but as I said, we expect
+to post more info in a couple of days. 
 
-> Also, there is this code in ide_do_drive_cmd():
-> 
->         if (action == ide_wait) {
->                 wait_for_completion(&wait);     /* wait for it to be serviced */
->                 return rq->errors ? -EIO : 0;   /* return -EIO if errors */
->         }
-> 
-> Is it safe to use `rq' here?  It has just been recycled in
-> end_that_request_last() and we don't own it any more.
+The card was in a slot that shares an IQR with something called "serial bus
+controller" (and USB gadget, I gather.) It's _not_ in the slot that shares
+the IRQ with (both) HPT370 controllers.
 
-Not really, I guess it would be easiest to make end_that_request_last
-return errors status.
+USB is disabled in BIOS and in kernel config. Ansolutely no USB devices
+attached.
 
-> --- linux-2.4.18-pre4/drivers/block/ll_rw_blk.c	Tue Jan 15 15:08:24 2002
-> +++ linux-akpm/drivers/block/ll_rw_blk.c	Tue Jan 15 17:39:22 2002
-> @@ -546,7 +546,7 @@ static inline void add_request(request_q
->  /*
->   * Must be called with io_request_lock held and interrupts disabled
->   */
-> -inline void blkdev_release_request(struct request *req)
-> +void blkdev_release_request(struct request *req)
->  {
->  	request_queue_t *q = req->q;
->  	int rw = req->cmd;
-> @@ -1084,10 +1084,11 @@ int end_that_request_first (struct reque
->  
->  void end_that_request_last(struct request *req)
->  {
-> -	if (req->waiting != NULL)
-> -		complete(req->waiting);
-> +	struct completion *waiting = req->waiting;
->  
->  	blkdev_release_request(req);
-> +	if (waiting != NULL)
-> +		complete(waiting);
->  }
->  
->  #define MB(kb)	((kb) << 10)
+> describing.   I'm not really sure how this is a linux problem though since
+> you mention it's occuring only in a certain physical slot.
 
-I've applied this.
+No. I'm pretty positive this is a case of Via PCI being flaky.
 
--- 
-Jens Axboe
 
+-- v --
+
+v@iki.fi

@@ -1,79 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280916AbRKLSqD>; Mon, 12 Nov 2001 13:46:03 -0500
+	id <S280917AbRKLSsD>; Mon, 12 Nov 2001 13:48:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280921AbRKLSpy>; Mon, 12 Nov 2001 13:45:54 -0500
-Received: from mout04.kundenserver.de ([195.20.224.89]:14191 "EHLO
-	mout04.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S280917AbRKLSpj>; Mon, 12 Nov 2001 13:45:39 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Hans-Peter Jansen <hpj@urpla.net>
-Organization: TreeWater Society Berlin
-To: Jason Lunz <j@falooley.org>
-Subject: Re: new aic7xxx bug, 2.4.13/6.2.4
-Date: Mon, 12 Nov 2001 19:45:31 +0100
-X-Mailer: KMail [version 1.3]
-In-Reply-To: <20011101222455.A5885@orr.falooley.org> <200111021443.fA2EhRY46335@aslan.scsiguy.com> <20011102143545.A30381@trellisinc.com>
-In-Reply-To: <20011102143545.A30381@trellisinc.com>
+	id <S280921AbRKLSrx>; Mon, 12 Nov 2001 13:47:53 -0500
+Received: from cc797718-a.jrsycty1.nj.home.com ([24.253.208.156]:55051 "EHLO
+	buggy.badula.org") by vger.kernel.org with ESMTP id <S280917AbRKLSrr>;
+	Mon, 12 Nov 2001 13:47:47 -0500
+Date: Mon, 12 Nov 2001 13:44:53 -0500
+Message-Id: <200111121844.fACIirV23633@buggy.badula.org>
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Marc Haber <mh+linux-kernel@zugschlus.de>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011112184533.1DE6A1027@shrek.lisa.de>
+Subject: Re: xircom_cb and promiscious mode
+In-Reply-To: <20011101193437.B924@torres.ka0.zugschlus.de>
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.14 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 2. November 2001 20:35, Jason Lunz wrote:
-> In mlist.linux-kernel, you wrote:
+Hi Marc,
 
-[...]
+Sorry for the late reply, I've been on vacation for the last week..
 
-> > But the mid-layer has already decided that it can't recover this device,
-> > so it calls it dead and refuses to allow I/O to it anymore.
->
-> This is definitely wrong. The drive won't do anything now without a
-> reboot (or maybe removing and reinserting all scsi modules; I could do
-> that but I haven't tried it).
->
-> > Have you recently changed your version of cdrdao?  Perhaps that program
-> > is issuing a command that this particular drive simply will not accept?
->
-> This is the same drive and version of cdrdao that have ripped more than
-> 100 CDs. It's just this particular CD that breaks in this way at the
-> same spot every time.
->
-> If the DVD-ROM can't handle that CD then that's fine, but it would be
-> nice if such a broken CD didn't result in not being able to use that
-> drive at all anymore.
+On Thu, 1 Nov 2001 19:34:37 +0100, Marc Haber <mh+linux-kernel@zugschlus.de> wrote:
+> On Thu, Nov 01, 2001 at 10:47:03AM -0500, Ion Badulescu wrote:
+>> What does mii-tool report?
+> 
+> This is what mii-tool reports while the link is still up:
+> |Basic registers of MII PHY #0:  1000 782d 0040 6331 00a1 45e1 0005 2001.
+> | The autonegotiated capability is 00a0.
+> |The autonegotiated media type is 100baseTx.
+> | Basic mode control register 0x1000: Auto-negotiation enabled.
+> | You have link beat, and everything is working OK.
+> | Your link partner advertised 45e1: Flow-control 100baseTx-FD 100baseTx 10baseT-FD 10baseT, w/ 802.3X flow control.
+> |   End of basic transceiver informaion.
 
-FYI: I've found a similar result under totally different conditions:
-2.4.13-ac7
-Vendor: TOSHIBA  Model: DVD-ROM SD-M1502 Rev: 1012
-Type:   CD-ROM                           ANSI SCSI revision: 02
-via ide-scsi
+All right, so far so good.
 
-cdrdao read-cd --device /dev/sr0 --driver generic-mmc --buffers 80 -n
---eject --paranoia-mode 0 toc
-[...]
-?: Input/output error.  : scsi sendcmd: retryable error
-CDB:  BE 00 00 04 2C 67 00 00 1A F8 01 00
-status: 0x0 (GOOD STATUS)
-cmd finished after 20.101s timeout 20s
-?: Input/output error.  : scsi sendcmd: retryable error
-CDB:  BE 00 00 04 2E 43 00 00 1A F8 01 00
-status: 0x0 (GOOD STATUS)
-cmd finished after 20.101s timeout 20s
-[...]
-killed with ^c
+> Invoking mii-diag after provoking the network freeze freezes the
+> entire machine. Not even magic sqsrq works in that situation.
 
-locked the drive completely. Need to reboot to eject the cd...
-I suspect some bad interference between DVD firmware, kernel 
-SCSI error handling and cdrdao. A plextor reader finally 
-succeeded on this job (wink :)
+This, however, is not good. Not good at all. If sysrq is not working, that 
+means the interrupts are disabled or the bus is completely wedged. The 
+driver never disables interrupts, and the ioctl() function is not called 
+with the interrupts disabled, so that's not a possible cause. Furthermore, 
+the ioctl() function does something very mundane (reading a few 
+registers), which definitely shouldn't cause lock ups.
 
-Maybe you're barking up the wrong tree.
+I'm sorry, I don't have any good news for you... I really don't think the 
+problem is in the driver.
 
-Hans-Peter
+Just for the kicks, can you strace mii-diag when it locks up, to see on 
+which ioctl() call it locks up? I don't think that will help much, but...
 
-> thanks for your help,
->
-> Jason
+> Sometimes, I get a "spurious 8259A interrupt: IRQ7" or " spurious
+> 8259A interrupt: IRQ15" message on console and syslog, though.
+
+I get the IRQ7 one as well, it's not something to be overly concerned 
+with.
+
+> I cannot rule out that my notebook is broken, Chicony has a history of
+> making abysmally bad hardware, and the machine is about two years old.
+
+Could very well be broken, unfortunately.
+
+> I don't have a reference notebook that has Linux installed and can do
+> Cardbus to cross-check, sorry.
+
+Do you have any other cardbus cards to test if they work with this laptop?
+
+Thanks,
+Ion
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.

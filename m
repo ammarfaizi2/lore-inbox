@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263679AbUBDRFM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 12:05:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263695AbUBDRFM
+	id S263620AbUBDREW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 12:04:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262686AbUBDRET
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 12:05:12 -0500
-Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:54708
-	"EHLO gaimboi.tmr.com") by vger.kernel.org with ESMTP
-	id S263679AbUBDRFF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 12:05:05 -0500
-Message-ID: <402126B3.7080005@tmr.com>
-Date: Wed, 04 Feb 2004 12:06:59 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: raymond jennings <highwind747@hotmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Create a message board?
-References: <BAY1-F172CvbQPgmStr0006974a@hotmail.com>
-In-Reply-To: <BAY1-F172CvbQPgmStr0006974a@hotmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 4 Feb 2004 12:04:19 -0500
+Received: from adsl-64-109-89-108.dsl.chcgil.ameritech.net ([64.109.89.108]:30849
+	"EHLO redscar") by vger.kernel.org with ESMTP id S263620AbUBDREQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 12:04:16 -0500
+Subject: Re: 2.6: Voyager requires SMP?
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Han Boetes <han@mijncomputer.nl>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040204082213.GT4443@fs.tum.de>
+References: <20040127233402.6f5d3497.akpm@osdl.org>
+	<20040128083645.GI2650@boetes.org> <20040130025142.GE3004@fs.tum.de>
+	<20040130060028.GB13535@boetes.org>  <20040204082213.GT4443@fs.tum.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 04 Feb 2004 12:04:09 -0500
+Message-Id: <1075914250.2028.77.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-raymond jennings wrote:
-> Would a message board based forum help to alleviate some of the mailing 
-> list traffic by keeping information exchanges thread local (no pun 
-> intended)?  This way the developers specializing in a certain portion of 
-> the kernel aren't swamped with information about something totally 
-> irrelevant, thus they can focus on what they know.  Example:  File 
-> system programmers getting messages relating to sound cards.
-> 
-> I am interested in any feedback on this idea.
+On Wed, 2004-02-04 at 03:22, Adrian Bunk wrote:
+> @James:
+> Is X86_VOYAGER=y and SMP=n a valid configuration that should compile, or 
+> should X86_VOYAGER select SMP?
 
-There are other mailing lists for subtopics.
+It is a valid (but rather rare configuration).  I know it's broken but
+haven't paid much attention to fixing it.  Even the debian and Red Hat
+boot systems for voyager have SMP kernels.
 
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+I'll look and see if there's a quick fix.
+
+James
+
+

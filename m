@@ -1,59 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290237AbSAOSSH>; Tue, 15 Jan 2002 13:18:07 -0500
+	id <S290231AbSAOSUH>; Tue, 15 Jan 2002 13:20:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290232AbSAOSR6>; Tue, 15 Jan 2002 13:17:58 -0500
-Received: from warden.digitalinsight.com ([208.29.163.2]:62453 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S290233AbSAOSRj>; Tue, 15 Jan 2002 13:17:39 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Aaron Lehmann <aaronl@vitelus.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Date: Tue, 15 Jan 2002 10:17:29 -0800 (PST)
-Subject: Re: Hardwired drivers are going away?
-In-Reply-To: <20020115172413.GD7030@vitelus.com>
-Message-ID: <Pine.LNX.4.40.0201151010560.24005-100000@dlang.diginsite.com>
+	id <S290240AbSAOST6>; Tue, 15 Jan 2002 13:19:58 -0500
+Received: from Morgoth.esiway.net ([193.194.16.157]:7180 "EHLO
+	Morgoth.esiway.net") by vger.kernel.org with ESMTP
+	id <S290232AbSAOSTk>; Tue, 15 Jan 2002 13:19:40 -0500
+Date: Tue, 15 Jan 2002 19:19:38 +0100 (CET)
+From: Marco Colombo <marco@esi.it>
+To: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
+cc: Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery --
+ the elegant solution)
+In-Reply-To: <1011114263.1145.13.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0201151910530.11441-100000@Megathlon.ESI>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CML2 is a tradeoff in the kernel config process. it (currently) trades
-time for correctness. It has no effect after you have built the kernel.
+On 15 Jan 2002, Thomas Duffy wrote:
 
-I like this becouse there have been several times where I have had to go
-on a scavanger hunt to figure out what option I need to turn on before I
-can turn on another option (something that CML2 will fix)
+> On Tue, 2002-01-15 at 04:29, Andrew Pimlott wrote:
+> 
+> > - Building from source is good karma.
+> > 
+> > You might think these are trifles and < 1% cases.  My intuition
+> > tells me that they add up in the long run.  At least it's worth
+> > considering.
+> 
+> - Someday, a stupid government or court decides that there is a strict
+> separation between source and binary.  Source is protected speech, but
+> binaries are not.  Linux decides it wants a really fast DVD decryption
+> in the kernel, so it adds it in drivers.  But now, distro's cannot
+> compile and distribute a binary kernel package and the end user will
+> need to compile the source code in order to watch their DVD.
+> 
+> Why is it unrealistic for everybody to compile their kernel when they do
+> an install?  If it is rather automated, then it just becomes another
+> step on the progress bar.
 
-as for the kbuild 2.5 performance 'penalty', is it really slower then
-always doign make dep; make clean; make bzImage? Yes I know I don't always
-have to do that, but I don't understand the rules as to when I do and when
-I don't (they sound simple at first but there keep being exceptions
-raised). having the new kernel build process always get this right is
-valuble.
+Every distro supplies a package with the source used to build their own
+kernel. Just recomplile it. You can do it today. Yes, it takes longer
+than building an autoconfigured kernel, since you're compiling a lot
+of unused stuff. Yet the autoconfigurator belongs to the 'Kernel compiling
+sybsystem' of that distribution. Don't forget that vanilla kernels can
+even be incompatible with the one provided by the distro maker.
 
-also the time penalties associated with these two options is something
-that can (and will) be dealt with over time as they get optimized and
-rewritten to be faster.
+Doing it at install time is somewhat unrelated (it's even more distro-
+dependant).
 
-these are VERY different from the modules thing which is permanently
-introducing additional penalties into the system that can affect it for
-as long as it's running.
+> 
+> -tduffy
+> 
 
-David Lang
+.TM.
+-- 
+      ____/  ____/   /
+     /      /       /			Marco Colombo
+    ___/  ___  /   /		      Technical Manager
+   /          /   /			 ESI s.r.l.
+ _____/ _____/  _/		       Colombo@ESI.it
 
-
- On Tue, 15 Jan 2002, Aaron Lehmann wrote:
-
-> On Mon, Jan 14, 2002 at 10:50:20AM -0800, David Lang wrote:
-> > I can see a couple reasons for building a kernel without useing modules.
->
-> I agree with all of yours. IMHO, the proposed scheme for 2.5 is plain
-> bad. It will require an initrd (initramfs, or whatever), and force
-> kernel installation to be more difficult. The performance overhead
-> sounds like a major downside, epsecially when currently people know
-> what hardware they have and build things into the kernel accordingly.
->
-> Between this and CML2, my mental image of 2.5+ is starting to look
-> very grim.
->

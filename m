@@ -1,68 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291179AbSBGSVS>; Thu, 7 Feb 2002 13:21:18 -0500
+	id <S291173AbSBGSXS>; Thu, 7 Feb 2002 13:23:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291197AbSBGSVJ>; Thu, 7 Feb 2002 13:21:09 -0500
-Received: from 216-21-153-9.ip.van.radiant.net ([216.21.153.9]:54534 "HELO
-	innerfire.net") by vger.kernel.org with SMTP id <S291193AbSBGSUx>;
-	Thu, 7 Feb 2002 13:20:53 -0500
-Date: Thu, 7 Feb 2002 10:46:31 +0000 (/etc/localtime)
-From: <gmack@innerfire.net>
-To: postmaster@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: YIKES MAIL LOOP WARNING
-Message-ID: <Pine.LNX.4.21.0202071045161.27853-100000@innerfire.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291193AbSBGSXI>; Thu, 7 Feb 2002 13:23:08 -0500
+Received: from ns.caldera.de ([212.34.180.1]:41908 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S291173AbSBGSW4>;
+	Thu, 7 Feb 2002 13:22:56 -0500
+Date: Thu, 7 Feb 2002 19:22:42 +0100
+Message-Id: <200202071822.g17IMgS14802@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: Martin.Wirth@dlr.de (Martin Wirth)
+Cc: akpm@zip.com.au, torvalds@transmet.com, mingo@elte.hu, rml@tech9.net,
+        nigel@nrg.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] New locking primitive for 2.5
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <3C629F91.2869CB1F@dlr.de>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.13 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is not good.. I suspect somone is trying to be funny but it needs to
-be undone before everyone gets flooded.
+In article <3C629F91.2869CB1F@dlr.de> you wrote:
+> The new lock uses a combination of a spinlock and a (mutex-)semaphore.
+> You can lock it for short-term issues in a spin-lock mode:
+>
+>         combi_spin_lock(struct combilock *x)
+>         combi_spin_unlock(struct combilock *x)
+>
+> and for longer lasting tasks in a sleeping mode by:
+>
+>         combi_mutex_lock(struct combilock *x)
+>         combi_mutex_unlock(struct combilock *x)
 
-	Gerhard
+I think this API is really ugly.  If both pathes actually do the same,
+just with different defaults, one lock function with a flag would be
+much nicer.  Also why do we need two unlock functions?
 
+What about the following instead:
 
---
-Gerhard Mack
+	combi_lock(struct combilock *x, int spin);
+	combi_unlock(struct combilock *x);
 
-gmack@innerfire.net
+> If a spin_lock request is blocked by a mutex_lock call, the spin_lock
+> attempt also sleeps i.e. behaves like a semaphore.
+> If you gained ownership of the lock, you can switch between spin-mode
+> and mutex-(ie.e sleeping) mode by calling:
+>
+>         combi_to_mutex_mode(struct combilock *x)
+>         combi_to_spin_mode(struct combilock *x)
+>
+> without loosing the lock. So you may start with a spin-lock and relax
+> to a sleeping lock if for example you need to call a non-atomic kmalloc.
 
-<>< As a computer I find your faith in technology amusing.
+This looks really ugly.  I'd really prefer an automatic fallback from
+spinning to sleeping after some timeout like e.g. solaris adaptive
+mutices.
 
----------- Forwarded message ----------
-Date: Thu, 7 Feb 2002 13:12:28 -0500
-From: Majordomo@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Subject: Confirmation for subscribe linux-kernel
+>   * Does it make sense to also provide irq-save versions of the
+>     locking functions? This means you could use the unlock functions
+>     from interrupt context. But the main use in this situation is
+>     completion handling and there are already (new) completion handlers
+>     available. So I don't think this is a must have.
 
---
+You are no supposed to sleep in irq context, so irq-save combi-locks
+don't make that much sense, IMHO.
 
-Someone (possibly you) has requested that your email address be added
-to or deleted from the mailing list "linux-kernel@vger.kernel.org".
+	Christoph
 
-If you really want this action to be taken, please send the following
-commands (exactly as shown) back to "Majordomo@vger.kernel.org":
-
-	auth 27467a8e subscribe linux-kernel linux-kernel@vger.kernel.org
-
-If you do not want this action to be taken, simply ignore this message
-and the request will be disregarded.
-
-If your mailer will not allow you to send the entire command as a single
-line, you may split it using backslashes, like so:
-
-        auth 27467a8e subscribe linux-kernel \
-        linux-kernel@vger.kernel.org
-
-If you have any questions about the policy of the list owner, please
-contact "linux-kernel-approval@vger.kernel.org".
-
-Thanks!
-
-Majordomo@vger.kernel.org
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+-- 
+Of course it doesn't work. We've performed a software upgrade.

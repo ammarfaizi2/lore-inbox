@@ -1,72 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262052AbUKJTwV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262110AbUKJTwO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262052AbUKJTwV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 14:52:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbUKJTwV
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 14:52:21 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:50322 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262052AbUKJTwO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S262110AbUKJTwO (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 10 Nov 2004 14:52:14 -0500
-Subject: Re: CELF interest in suspend-to-flash
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: tglx@linutronix.de
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Tim Bird <tim.bird@am.sony.com>, LKML <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-In-Reply-To: <1100115592.3405.36.camel@thomas>
-References: <419256F8.3010305@am.sony.com>
-	 <1100109991.12290.41.camel@desktop.cunninghams>
-	 <20041110154136.GA12444@logos.cnet>  <1100115592.3405.36.camel@thomas>
-Content-Type: text/plain
-Message-Id: <1100116269.3876.12.camel@desktop.cunninghams>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbUKJTwN
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 10 Nov 2004 14:52:13 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:56040 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S262110AbUKJTvn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 14:51:43 -0500
+Date: Wed, 10 Nov 2004 20:52:00 +0100
+From: Stelian Pop <stelian@popies.net>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] drivers/net/pcmcia: use module_param() instead of MODULE_PARM()
+Message-ID: <20041110195200.GJ2706@deep-space-9.dsnet>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	"Randy.Dunlap" <rddunlap@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Dominik Brodowski <linux@dominikbrodowski.de>,
+	Andrew Morton <akpm@osdl.org>
+References: <20041104112736.GT3472@crusoe.alcove-fr> <418AE490.1010304@pobox.com> <20041110155903.GA8542@sd291.sivit.org> <20041110160058.GB8542@sd291.sivit.org> <41924339.1070809@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 11 Nov 2004 06:51:09 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41924339.1070809@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 10, 2004 at 08:35:05AM -0800, Randy.Dunlap wrote:
+
+> Hi Stelian,
+
 Hi.
-
-On Thu, 2004-11-11 at 06:39, Thomas Gleixner wrote:
-> On Wed, 2004-11-10 at 13:41 -0200, Marcelo Tosatti wrote:
-> > > On Thu, 2004-11-11 at 04:59, Tim Bird wrote:
-> > > > Hi all,
-> > > > 
-> > > > Lately, the CE Linux Forum power management working group is showing some
-> > > > interest in suspend-to-flash.  Is there any current work in this area?
-> > > > 
-> > > > Who should we talk to if we want to get involved with this (or lead
-> > > > an effort if there isn't one)?
-> > > 
-> > > Can flash be treated as a swap device at the moment? If so, it might
-> > > simply be a matter of specifying the same parameter used in swapon for
-> > > the resume2= boot parameter.
-> > 
-> > Sure, you only need to have the flash as a block device (ie driven 
-> > by the IDE code).
 > 
-> That's true, if you are talking about Compact FLash which pretends to be
-> a harddisk, but I assume that the embedded people are talking about raw
-> FLASH chips. It's possible do this, but it will need some tweaks to the
-> MTD code
+> Several of these changes expose module parameters to sysfs
+> (i.e., have permissions of non-zero value) without need for that IMO.
+> 
+> This came up yesterday on the kernel-janitors mailing list.
+> When asked about it, Greg KH replied:
 
-Alternatively, a new module could be written for suspend to read/write
-to it. If your idea is just tweaks, it will probably be quicker to
-implement (and... I don't have access to the hardware).
+:)
 
-Regards,
+I shouldn't probably discuss Greg's advice, but...
+> 
+> > Can someone please clarify the "official guidelines" for
+> > module parameter permissions in sysfs?
+> 
+> "When it makes sense to have it exposed to userspace"
+> 
+> Yeah, it's vague, sorry, but it all depends.
+> 
+> For things that can be changed on the fly, expose it.
 
-Nigel
+... with a write permission. Agreed.
+
+> For things that don't really matter, and no one will ever look them up,
+> don't. 
+>I think the irq stuff is in the "don't" category, as almost no
+> one messes with them anymore.
+
+In this case why is this a module parameter at all ? If it doesn't
+matter at all then it should get removed from all places.
+
+In fact, I do think that all module parameter should be exposed in
+/sys, and that a '0' in module_param() should really mean 0400.
+
+It can be useful to know what parameters have been passed to a module,
+and I cannot think of a single case where we want to hide this 
+information (and no, security doesn't really apply here. If you have
+root rights than you can also look into the kernel memory and find
+out the value by yourself).
+
+The only questions one should ask himself about a module parameter is
+whether:
+	- it is a R/O or a R/W value (and this is determined by
+	  the code who uses this value, if it is dynamic then let
+	  the parameter be R/W, if it's only used to make assumptions
+	  in the init phase then it must be R/O).
+
+	- it can be shown to everybody, or only root should be able
+	  to read the value (0400 vs 0440/0444). I'm not sure this is
+	  really useful since /etc/modprobe.conf is generaly 0644,
+	  but it could be in some cases...
+
+Stelian.
 -- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
-
+Stelian Pop <stelian@popies.net>

@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265083AbTFMAaJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 20:30:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265084AbTFMAaJ
+	id S265087AbTFMAbs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 20:31:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265086AbTFMAbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 20:30:09 -0400
-Received: from quechua.inka.de ([193.197.184.2]:208 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S265083AbTFMAaG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 20:30:06 -0400
-From: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
+	Thu, 12 Jun 2003 20:31:21 -0400
+Received: from 12-226-168-214.client.attbi.com ([12.226.168.214]:57768 "EHLO
+	marta.kurtwerks.com") by vger.kernel.org with ESMTP id S265085AbTFMAbI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 20:31:08 -0400
+Date: Thu, 12 Jun 2003 20:44:54 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Real multi-user linux
-In-Reply-To: <20030612231942.78086.qmail@web12905.mail.yahoo.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.17-20030301 ("Bubbles") (UNIX) (Linux/2.4.20-xfs (i686))
-Message-Id: <E19QcfW-0003ce-00@calista.inka.de>
-Date: Fri, 13 Jun 2003 02:43:50 +0200
+Subject: Re: 2.5.70: Lilo needs patching?
+Message-ID: <20030613004454.GQ15330@kurtwerks.com>
+References: <200306122329.47365.Unai.Garro@ee.ed.ac.uk> <20030612154333.608bca2c.akpm@digeo.com> <1055442915.2690.9.camel@garaged.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1055442915.2690.9.camel@garaged.homeip.net>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.20-krw
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030612231942.78086.qmail@web12905.mail.yahoo.com> you wrote:
-> is it possible to use several logical terminals
-> (=tupels of monitor, keyboard and mouse) directly
-> connected to _one_ system?
+Quoth Max Valdez:
+> I wish I knew that before ruining my boot sector
+> 
+> But at the end I got to give gentoo a try, so, now i need to go back and
+> compile 2.5 and try it with that trick
+> 
+> BTW, only woosies have a boot disk, if anybody is willing to make the
+> comment :-P
 
-Yes sure.
+Put me down as a major league "woosie", then, whatever that is.
 
-> But is there a possibility to group these to allow two
-> users work simultanously on the same machine without
-> having to go via serial console or network?
-
-the main problem is the hardware. It is most often easier to have a diskless
-terminal connected via network, than to have a VGA cable to two workplaces.
-
-Linux supports multiple XServers (on multiple cards or cards with multiple
-ports), can you can configure them for multiple serial ports or usb ports
-for the mouse. For the keyboard you can have one ps2 and multiple usb ports
-(under x). I am not sure how the console handles multiple usb keyboards.
-
-Greetings
-Bernd
+Kurt
 -- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+Why did the Lord give us so much quickness of movement unless it was to
+avoid responsibility with?

@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261515AbRF1Sg3>; Thu, 28 Jun 2001 14:36:29 -0400
+	id <S261173AbRF1Sfq>; Thu, 28 Jun 2001 14:35:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261289AbRF1SgR>; Thu, 28 Jun 2001 14:36:17 -0400
-Received: from ncc1701.cistron.net ([195.64.68.38]:27399 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S261268AbRF1SgM>; Thu, 28 Jun 2001 14:36:12 -0400
-From: miquels@cistron-office.nl (Miquel van Smoorenburg)
-Subject: Re: Cosmetic JFFS patch.
-Date: Thu, 28 Jun 2001 18:36:11 +0000 (UTC)
-Organization: Cistron Internet Services B.V.
-Message-ID: <9hfter$9e7$1@ncc1701.cistron.net>
-In-Reply-To: <Pine.LNX.4.33.0106281040000.10308-100000@localhost.localdomain> <Pine.LNX.4.33.0106281057170.15199-100000@penguin.transmeta.com> <20010628131641.5e10ecca.reynolds@redhat.com>
-X-Trace: ncc1701.cistron.net 993753371 9671 195.64.65.67 (28 Jun 2001 18:36:11 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+	id <S261268AbRF1Sfg>; Thu, 28 Jun 2001 14:35:36 -0400
+Received: from [142.176.139.106] ([142.176.139.106]:7172 "EHLO ve1drg.com")
+	by vger.kernel.org with ESMTP id <S261173AbRF1Sf2>;
+	Thu, 28 Jun 2001 14:35:28 -0400
+Date: Thu, 28 Jun 2001 15:35:25 -0300 (ADT)
+From: Ted Gervais <ve1drg@ve1drg.com>
 To: linux-kernel@vger.kernel.org
+Subject: kernel 2.4.5 Ooops
+Message-ID: <Pine.LNX.4.21.0106281533140.1222-100000@ve1drg.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010628131641.5e10ecca.reynolds@redhat.com>,
-Tommy Reynolds  <reynolds@redhat.com> wrote:
->Linus Torvalds <torvalds@transmeta.com> was pleased to say:
->
->> If they are shut off, then where's the drumming? Because if people start
->> making copyright printk's normal, I will make "quiet" the default.
->
->Amen.  This is like editing a program to remove the "harmless" compiler warning
->messages.  If I don't get a useless message, I don't have to decide to ignore
->it.  Describing what's happening is OK; don't gush.
+I am getting an Oops/kernel panic with kernel 2.4.5.
+Here is what the panic notice says in part:
 
-Yep - a driver should print out that it loaded and what hardware it
-found. Nothing else.
+The panic notice said:
 
-You know what I hate? Debugging stuff like BIOS-e820, zone messages,
-dentry|buffer|page-cache hash table entries, CPU: Before vendor init,
-CPU: After vendor init, etc etc, PCI: Probing PCI hardware, 
-ip_conntrack (256 buckets, 2048 max), the complete APIC tables, etc
+Unable to handle kernel paging request at virtual address 846ea4e6
+*pde = 0
+Oops: 0 0 0 0
+cpu: 0
+EIP: 0010:[<c024724c>]
+EFLAGS: 00010286
+Process ax25ipd (pid:270,stackpage=c54a700)
+call trace:
+CODE: 8a 40 40 25 ff 00 00 00 83 c0 02 8d 14 c5 00 00 00 00 29 c2
+Kernel panic: Aiee, Killing interrupt handler!
+In interrupt handler - not syncing..
 
-That's stuff that noone cares about. If the system fails to boot
-boot it with a debug flag. If it does boot, _fine_.
 
-Mike.
+Not sure what to do now other than to go back to a previous release.
+Is anyone else having this problem?  Is there a solution?  Or 
+maybe I haven't provided enough info..
+
+The above is all that the Oops notice reported other than some numbers for
+call trace, etc.. Its all there otherwise..
+
+---
+It's never too late to have a happy childhood.
+                
+Ted Gervais <ve1drg@ve1drg.com>
+44.135.34.201 linux.ve1drg.ampr.org
 
 

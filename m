@@ -1,75 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262575AbTJOXQ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 19:16:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262580AbTJOXQ5
+	id S262621AbTJOX0j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 19:26:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262671AbTJOX0j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 19:16:57 -0400
-Received: from fw.osdl.org ([65.172.181.6]:9386 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262575AbTJOXQz (ORCPT
+	Wed, 15 Oct 2003 19:26:39 -0400
+Received: from tog-wakko4.prognet.com ([207.188.29.244]:42114 "EHLO virago")
+	by vger.kernel.org with ESMTP id S262621AbTJOX00 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 19:16:55 -0400
-Date: Wed, 15 Oct 2003 16:17:05 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: James Simmons <jsimmons@infradead.org>
-Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Chris Heath <chris@heathens.co.nz>
-Subject: Re: FBDEV 2.6.0-test7 updates.
-Message-Id: <20031015161705.221a579b.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0310152345210.13660-100000@phoenix.infradead.org>
-References: <Pine.LNX.4.44.0310152345210.13660-100000@phoenix.infradead.org>
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Wed, 15 Oct 2003 19:26:26 -0400
+Date: Wed, 15 Oct 2003 16:25:53 -0700
+From: Tom Marshall <tmarshall@real.com>
+To: George Anzinger <george@mvista.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: missed itimer signals in 2.6
+Message-ID: <20031015232553.GB4034@real.com>
+References: <20031013163411.37423e4e.akpm@osdl.org> <3F8C8692.5010108@mvista.com> <20031014235213.GC860@real.com> <3F8D63AA.9000509@mvista.com> <20031015165016.GA2167@real.com> <3F8DCF73.3000707@mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0ntfKIWw70PvrIHh"
+Content-Disposition: inline
+In-Reply-To: <3F8DCF73.3000707@mvista.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Simmons <jsimmons@infradead.org> wrote:
->
-> Here is the latest fbdev patches. Please test!!! Many new enhancements. 
-> Several fixes. The patch is against 2.6.0-test7
-> 
-> http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
 
-Cool.  I've had the below fix floating about for a while.  Is it still
-relevant?
+--0ntfKIWw70PvrIHh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+> >I expect there are at least a few applications that will misbehave becau=
+se
+> >the developers did not expect a timer to behave this way (regardless of
+> >whether it's proper according to the spec).
+> >
+> >Is it possible to choose a timer resolution that errs on the high side of
+> >1ms instead of the low side? [*]  It seems to me that would result in the
+> >application getting very close to the expected number of alarm signals. =
+ I
+> >am not at all familiar with the kernel design so I don't know if this wo=
+uld
+> >be feasible or not.
+> >
+> >[*] If this is the 8254 timer, using 1192 as a divisor should result in a
+> >resolution of ~1,000,686 nanoseconds.
+>=20
+> Well here is the rub.  Your high side give an error of 686 PPM while the=
+=20
+> low side has an error of only 152 PPM.  This assumes, of course, that you=
+=20
+> are trying to hit exactly 1,000,000 nano seconds per tick.
+>=20
+> On the other hand, since we do correct for this error, I suspect one coul=
+d=20
+> use the high side number.
 
+It doesn't really matter to me, as an application developer, what the actual
+numbers are.  What matters is that when I ask for a timer in the 1..50ms
+range, I get a reasonably close number of SIGALRMs to what I requested.=20
+Having to adjust the resolution by 9% at 10ms when I know the system clock
+is ticking at 10x that rate seems to be a bit broken from that perspective
+(not technically, but perceptually).
 
-From: Chris Heath <chris@heathens.co.nz>
+> Still, if an application depends on the count rather than just reading th=
+e=20
+> clock, I suspect that some would consider it broken.  Timer signals can b=
+e=20
+> delayed and may, in fact overrun with out notice (unlike POSIX timers whi=
+ch=20
+> tell you when they overrun).
 
-I am still seeing a lot of cursors being left behind.  It is not a race
-condition or anything -- in the TTY line editor, it happens about 50% of
-the time when you press backspace.
+Our code does not depend solely on the delivery of SIGALRM.  It resyncs
+periodically using gettimeofday().
 
-What appears to be happening is the cursor is flashing twice as slowly
-as the driver thinks it is, so of course it's wrong half the time when
-it comes to erase the cursor.
+> What you really need is a higher resolution timer.  Funny, there seems to=
+=20
+> be a reference to such a thing in my signature :)
 
-The patch below fixes it for me.
+I have rewritten our timer code to take the information learned in this
+thread into account.  It turns out that at least one other *nix platform has
+problems with the magical 10ms number and, unlike the 2.6 kernel, does not
+seem to fill in the actual interval for getitimer().
 
+Thanks again for taking the time to explain the timer system to me.
 
+--=20
+Never argue with an idiot.  They drag you down to their level, then beat you
+with experience.
 
- drivers/video/softcursor.c |    6 ++++++
- 1 files changed, 6 insertions(+)
+--0ntfKIWw70PvrIHh
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-diff -puN drivers/video/softcursor.c~cursor-flashing-fix drivers/video/softcursor.c
---- 25/drivers/video/softcursor.c~cursor-flashing-fix	2003-08-16 14:01:15.000000000 -0700
-+++ 25-akpm/drivers/video/softcursor.c	2003-08-16 14:01:15.000000000 -0700
-@@ -74,6 +74,12 @@ int soft_cursor(struct fb_info *info, st
- 
- 	if (info->cursor.image.data)
- 		info->fbops->fb_imageblit(info, &info->cursor.image);
-+
-+	if (!info->cursor.enable) {
-+		for (i = 0; i < size; i++)
-+			dst[i] ^= info->cursor.mask[i];
-+	}
-+
- 	return 0;
- }
- 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-_
+iD8DBQE/jdeBqznSmcYu2m8RAhwfAJ469EdlhKw9Wa2Y18yb8951PC7eFwCgjoyA
+Bn8A7y+HJ/Tx3Vm+zKjRuRI=
+=C7vf
+-----END PGP SIGNATURE-----
 
+--0ntfKIWw70PvrIHh--

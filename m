@@ -1,60 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318870AbSIKOIU>; Wed, 11 Sep 2002 10:08:20 -0400
+	id <S318948AbSIKOQE>; Wed, 11 Sep 2002 10:16:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318769AbSIKOIU>; Wed, 11 Sep 2002 10:08:20 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:32702 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S318870AbSIKOIT>; Wed, 11 Sep 2002 10:08:19 -0400
-Date: Wed, 11 Sep 2002 07:10:57 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: "David S. Miller" <davem@redhat.com>, hadi@cyberus.ca,
-       tcw@tempest.prismnet.com, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, Nivedita Singhvi <niv@us.ibm.com>
-Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
-Message-ID: <477096648.1031728254@[10.10.2.3]>
-In-Reply-To: <m1hegwoppm.fsf@frodo.biederman.org>
-References: <m1hegwoppm.fsf@frodo.biederman.org>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
+	id <S318971AbSIKOQE>; Wed, 11 Sep 2002 10:16:04 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:20745 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S318948AbSIKOQC>; Wed, 11 Sep 2002 10:16:02 -0400
+Message-Id: <200209111420.g8BEKdx01979@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Patrick Mansfield <patmans@us.ibm.com>
+cc: Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [RFC] Multi-path IO in 2.5/2.6 ? 
+In-Reply-To: Message from Patrick Mansfield <patmans@us.ibm.com> 
+   of "Tue, 10 Sep 2002 12:26:50 PDT." <20020910122650.A13738@eng2.beaverton.ibm.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Date: Wed, 11 Sep 2002 09:20:38 -0500
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > Ie. the headers that don't need to go across the bus are the critical
->> > resource saved by TSO.
->> 
->> I'm not sure that's entirely true in this case - the Netfinity
->> 8500R is slightly unusual in that it has 3 or 4 PCI buses, and
->> there's 4 - 8 gigabit ethernet cards in this beast spread around
->> different buses (Troy - are we still just using 4? ... and what's
->> the raw bandwidth of data we're pushing? ... it's not huge). 
->> 
->> I think we're CPU limited (there's no idle time on this machine), 
->> which is odd for an 8 CPU 900MHz P3 Xeon,
-> 
-> Quite possibly.  The P3 has roughly an 800MB/s FSB bandwidth, that must
-> be used for both I/O and memory accesses.  So just driving a gige card at
-> wire speed takes a considerable portion of the cpus capacity.  
-> 
-> On analyzing this kind of thing I usually find it quite helpful to
-> compute what the hardware can theoretically to get a feel where the
-> bottlenecks should be.
+patmans@us.ibm.com said:
+> The scsi multi-path code is not in 2.5.x, and I doubt it will be
+> accepted without the support of James and others. 
 
-We can push about 420MB/s of IO out of this thing (out of that 
-theoretical 800Mb/s). Specweb is only pushing about 120MB/s of
-total data through it, so it's not bus limited in this case.
-Of course, I should have given you that data to start with, 
-but ... ;-)
+I haven't said "no" yet (and Doug and Jens haven't said anything).  I did say 
+when the patches first surfaced that I didn't like the idea of replacing 
+Scsi_Device with Scsi_Path at the bottom and the concomitant changes to all 
+the Low Level Drivers which want to support multi-pathing.  If this is to go 
+in the SCSI subsystem it has to be self contained, transparent and easily 
+isolated.  That means the LLDs shouldn't have to be multipath aware.
 
-M.
+I think we all agree:
 
-PS. This thing actually has 3 system buses, 1 for each of the two
-sets of 4 CPUs, and 1 for all the PCI buses, and the three buses
-are joined by an interconnect in the middle. But all the IO goes
-through 1 of those buses, so for the purposes of this discussion,
-it makes no difference whatsoever ;-)
+1) that multi-path in SCSI isn't the way to go in the long term because other 
+devices may have a use for the infrastructure.
+
+2) that the scsi-error handler is the big problem
+
+3) that errors (both medium and transport) may need to be propagated 
+immediately up the block layer in order for multi-path to be handled 
+efficiently.
+
+Although I outlined my ideas for a rework of the error handler, they got lost 
+in the noise of the abort vs reset debate.  These are some of the salient 
+features that will help in this case
+
+- no retries from the tasklet.
+
+- Quiesce from above, not below (commands return while eh processes, so we 
+begin with the first error and don't have to wait for all commands to return 
+or error out)
+
+- It's the object of the error handler to return all commands to the block 
+layer for requeue and reorder as quickly as possible.  They have to be 
+returned with an indication from the error handler that it would like them 
+retried.  This indication can be propagated up (although I haven't given 
+thought how to do that).  Any commands that are sent down to probe the device 
+are generated from within the error handler thread (no device probing with 
+live commands).
+
+What other features do you need on the eh wishlist?
+
+James
+
+

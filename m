@@ -1,73 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135422AbRDMGGV>; Fri, 13 Apr 2001 02:06:21 -0400
+	id <S135429AbRDMGqG>; Fri, 13 Apr 2001 02:46:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135424AbRDMGGL>; Fri, 13 Apr 2001 02:06:11 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:39428 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S135422AbRDMGF7>;
-	Fri, 13 Apr 2001 02:05:59 -0400
-Message-ID: <3AD69D7F.36B2BA87@candelatech.com>
-Date: Thu, 12 Apr 2001 23:32:31 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14 i686)
-X-Accept-Language: en
+	id <S135427AbRDMGpr>; Fri, 13 Apr 2001 02:45:47 -0400
+Received: from tantale.fifi.org ([216.15.47.52]:57492 "EHLO tantale.fifi.org")
+	by vger.kernel.org with ESMTP id <S135426AbRDMGpj>;
+	Fri, 13 Apr 2001 02:45:39 -0400
+To: Jason Gunthorpe <jgg@debian.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Lost O_NONBLOCK (Bug?)
+In-Reply-To: <Pine.LNX.3.96.1010409223803.3856M-100000@wakko.deltatee.com>
+From: Philippe Troin <phil@fifi.org>
+Date: 12 Apr 2001 23:45:36 -0700
+In-Reply-To: <Pine.LNX.3.96.1010409223803.3856M-100000@wakko.deltatee.com>
+Message-ID: <87wv8p70xb.fsf@tantale.fifi.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-To: Bret Indrelee <bret@io.com>
-CC: george anzinger <george@mvista.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        high-res-timers-discourse@lists.sourceforge.net
-Subject: Re: No 100 HZ timer!
-In-Reply-To: <Pine.LNX.4.21.0104122258060.7396-100000@fnord.io.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bret Indrelee wrote:
-> 
-> On Thu, 12 Apr 2001, george anzinger wrote:
-> > Bret Indrelee wrote:
-> > >
-> > > On Thu, 12 Apr 2001, george anzinger wrote:
-> > > > Bret Indrelee wrote:
-> > > > > Keep all timers in a sorted double-linked list. Do the insert
-> > > > > intelligently, adding it from the back or front of the list depending on
-> > > > > where it is in relation to existing entries.
-> > > >
-> > > > I think this is too slow, especially for a busy system, but there are
-> > > > solutions...
-> > >
-> > > It is better than the current solution.
-> >
-> > Uh, where are we talking about.  The current time list insert is real
-> > close to O(1) and never more than O(5).
-> 
-> I don't like the cost of the cascades every (as I recall) 256
-> interrupts. This is more work than is done in the rest of the interrupt
-> processing, happens during the tick interrupt, and results in a rebuild of
-> much of the table.
-> 
-> -Bret
+Jason Gunthorpe <jgg@debian.org> writes:
 
-Wouldn't a heap be a good data structure for a list of timers?  Insertion
-is log(n) and finding the one with the least time is O(1), ie pop off the
-front....  It can be implemented in an array which should help cache
-coherency and all those other things they talked about in school :)
+> I've run into the following weird behavior on my system with 2.4.0. I have
+> the following code:
 
-Ben
-> 
-> ------------------------------------------------------------------------------
-> Bret Indrelee |  Sometimes, to be deep, we must act shallow!
-> bret@io.com   |  -Riff in The Quatrix
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Apt I guess ? It has a very strange behavior when backgrounded...
 
--- 
-Ben Greear (greearb@candelatech.com)  http://www.candelatech.com
-Author of ScryMUD:  scry.wanfear.com 4444        (Released under GPL)
-http://scry.wanfear.com               http://scry.wanfear.com/~greear
+> if (fork() == 0)
+> {
+>     int Flags,dummy;
+>     if ((Flags = fcntl(STDIN_FILENO,F_GETFL,dummy)) < 0)
+>         _exit(100);
+>     if (fcntl(STDIN_FILENO,F_SETFL,Flags | O_NONBLOCK) < 0)
+>          _exit(100);
+>     while (read(STDIN_FILENO,&dummy,1) == 1);
+>     if (fcntl(STDIN_FILENO,F_SETFL,Flags & (~(long)O_NONBLOCK)) < 0)
+>          _exit(100);
+>  
+>     // exec something
+> }
+> 
+> Which works fine, unless the parent process was backgrounded by the shell
+> (^Z then bg).  If that is the case then the O_NONBLOCK seems to be lost. I
+> straced this: 
+> 
+> fcntl(0, F_GETFL)                       = 0x2 (flags O_RDWR)
+> fcntl(0, F_SETFL, O_RDWR|O_NONBLOCK)    = 0
+> read(0, 0xbfffea38, 1)                  = ? ERESTARTSYS (To be restarted)
+> --- SIGTTIN (Stopped (tty input)) ---
+> --- SIGTTIN (Stopped (tty input)) ---
+> read(0, 0xbfffea38, 1)                  = ? ERESTARTSYS (To be restarted)
+> --- SIGTTIN (Stopped (tty input)) ---
+> --- SIGTTIN (Stopped (tty input)) ---
+> [.. etc, again and again in a tight loop ..]
+> --- SIGTTIN (Stopped (tty input)) ---
+> --- SIGTTIN (Stopped (tty input)) ---
+> read(0,
+> 
+> The last read was after the process was forgrounded. The read waits
+> forever, the non-block flag seems to have gone missing. It is also a
+> little odd I think that it repeated to get SIGTTIN which was never
+> actually delivered to the program.. Shouldn't SIGTTIN suspend the process?
+
+Strace can perturbate signal delivery, especially for terminal-related
+signals, I wouldn't trust it...
+
+O_NONBLOCK is not lost... Attempting to read from the controlling tty
+even from a O_NONBLOCK descriptor will trigger SIGTTIN.
+
+>From the code, it looks like you're trying to flush stdin before
+exec'ing.
+
+Why not use tcflush(STDIN_FILENO, TCIFLUSH) rather than using
+O_NONBLOCK ?
+
+This will not prevent SIGGTTIN from getting sent... You could catch it
+or just ignore it...
+
+But why would you want to flush stdin if you're in the background ?
+Why not using:
+
+  if (fork()==0)
+  {
+    if (tcgetpgrp(STDIN_FILENO) == getpgrp())
+    {
+      /* We're the foreground process of the controlling tty */
+      tcflush(STDIN_FILENO, TCIFLUSH);
+    }
+
+    exec(...);
+  }
+
+Here you just don't care flushing stdin if you're not the foreground
+process (which is the *right* thing to do).
+
+There's a race condition if the process is backgrounded between the
+tcgetgrp() and the tcflush(), but you'll have to leave with it...
+
+Phil.

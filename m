@@ -1,72 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318015AbSG1X4p>; Sun, 28 Jul 2002 19:56:45 -0400
+	id <S318026AbSG1X6z>; Sun, 28 Jul 2002 19:58:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318016AbSG1X4p>; Sun, 28 Jul 2002 19:56:45 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:39156 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S318015AbSG1X4o>;
-	Sun, 28 Jul 2002 19:56:44 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Mon, 29 Jul 2002 01:59:42 +0200 (MEST)
-Message-Id: <UTC200207282359.g6SNxgW24418.aeb@smtp.cwi.nl>
-To: axboe@suse.de, torvalds@transmeta.com
-Subject: Re: [PATCH] 2.5.28 small REQ_SPECIAL abstraction
-Cc: linux-kernel@vger.kernel.org, martin@dalecki.de
+	id <S318027AbSG1X6y>; Sun, 28 Jul 2002 19:58:54 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64528 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318026AbSG1X6y>;
+	Sun, 28 Jul 2002 19:58:54 -0400
+Message-ID: <3D448808.CF8D18BA@zip.com.au>
+Date: Sun, 28 Jul 2002 17:10:48 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3-ac3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH 2.5] Introduce 64-bit versions of   
+ PAGE_{CACHE_,}{MASK,ALIGN}
+References: <5.1.0.14.2.20020728193528.04336a80@pop.cus.cam.ac.uk> <Pine.LNX.4.44.0207281622350.8208-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    On Sun, 28 Jul 2002, Jens Axboe wrote:
+Linus Torvalds wrote:
+> 
+> ...
+> Dream on. It's good, and it's not getting removed. The "struct page" is
+> size-critical, and also correctness-critical (see above on gcc issues).
+> 
 
-    > But the crap still got merged, sigh... Yet again an excellent point of
-    > why stuff like this should go through the maintainer. Apparently Linus
-    > blindly applies this stuff.
+Plan B is to remove page->index.
 
-    Ehh, since there is no proactive maintainer for SCSI, I don't have much
-    choice, do I?
+- Replace ->mapping with a pointer to the page's radix tree
+  slot.   Use address masking to go from page.radix_tree_slot
+  to the radix tree node.
 
-    SCSI has been maintainerless for the last few years. Right now three
-    people work on it to some degree (Doug Ledford, James Bottomley and you),
-    but I don't get timely patches, and neither does apparently anybody else.
+- Store the base index in the radix tree node, use math to
+  derive page->index.  Gives 64-bit index without increasing
+  the size of struct page. 4 bytes saved.  
 
-    Case in point: I was debugging some USB storage issues with Matthew Dharm
-    yesterday, and he sent me patches to the SCSI subsystem that he claims
-    were supposedly considered valid on the scsi mailing list back in May.
+- Implement radix_tree_gang_lookup() as previously described.  Use
+  this in truncate_inode_pages, invalidate_inode_pages[2], readahead
+  and writeback.
 
-    Guess what? I've not seen the patches from any of the three people I
-    consider closest to being maintainers.
+- The only thing we now need page.list for is tracking dirty pages.
+  Implement a 64-bit dirtiness bitmap in radix_tree_node, propagate
+  that up the radix tree so we can efficiently traverse dirty pages
+  in a mapping.  This also allows writeback to always write in ascending
+  index order.  Remove page->list.  8 bytes saved.
 
-    So your "should go through the maintainer" complaint is obviously a bunch
-    of bull. Feel free to step up to the plate, but before you do, don't throw
-    rocks in glass houses.
+- Few pages use ->private for much.  Hash for it.  4(ish) bytes
+  saved.
 
-Ha, Linus,
+- Remove ->virtual, do page_address() via a hash.  4(ish) bytes saved.
 
-Yes, an interesting discussion with Matthew Dharm.
-I have seen several messages discussing the topic today -
-linux-scsi is not silent about it.
+- Remove the rmap chain (I just broke ptep_to_address() anyway).  4 bytes
+  saved.  struct page is now 20 bytes.
 
-You killed the idea of maintainers yourself, proclaiming
-that you did not work with maintainers but with lieutenants.
+There look.  In five minutes I shrunk 24 bytes from the page
+structure.  Who said programming was hard?
 
-In the mathematical world, if someone wants to publish a paper,
-it is sent to a handful of referees. These reply "reject",
-or "accept", or "accept, but correct the following mistakes ...",
-or procrastinate so much that the editor takes some random decision
-herself.
-
-Such a system would not be unreasonable in the Linux world.
-A SCSI patch is sent to linux-scsi and also to the five people
-active today in the area. They reply, preferably both to you
-and on linux-scsi, and if within one or two days after a positive
-reply no negative reply comes in, then apparently there are
-no objections.
-
-In the absence of a single active maintainer, peer review is a
-good alternative.
-
-Andries
-
-
-[By the way, have you asked these people to be maintainer?
-Many people are too modest to suggest themselves, but will
-accept when asked.]
+-

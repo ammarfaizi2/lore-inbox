@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268489AbTBWPL5>; Sun, 23 Feb 2003 10:11:57 -0500
+	id <S268500AbTBWPXR>; Sun, 23 Feb 2003 10:23:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268487AbTBWPKT>; Sun, 23 Feb 2003 10:10:19 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:8465 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268483AbTBWPKO>; Sun, 23 Feb 2003 10:10:14 -0500
-To: LKML <linux-kernel@vger.kernel.org>
-CC: Linus Torvalds <torvalds@transmeta.com>
-From: Russell King <rmk@arm.linux.org.uk>
-Subject: [PATCH] [2/6] Remove unused "dev" argument from cb_setup_cis_mem
-Message-Id: <20020223151802@raistlin.arm.linux.org.uk>
-References: <20020223151801@raistlin.arm.linux.org.uk>
-In-Reply-To: <20020223151801@raistlin.arm.linux.org.uk>
-Date: Sun, 23 Feb 2003 15:20:21 +0000
+	id <S268501AbTBWPXQ>; Sun, 23 Feb 2003 10:23:16 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:20870 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S268500AbTBWPXP>;
+	Sun, 23 Feb 2003 10:23:15 -0500
+Date: Sun, 23 Feb 2003 16:34:39 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [ak@suse.de: Re: iosched: impact of streaming read on read-many-files]
+Message-ID: <20030223153439.GE29467@dualathlon.random>
+References: <20030222054307.GA22074@wotan.suse.de> <20030221230716.630934cf.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030221230716.630934cf.akpm@digeo.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch appears not to be in 2.5.62, but applies cleanly.
+On Fri, Feb 21, 2003 at 11:07:16PM -0800, Andrew Morton wrote:
+> request within ten milliseconds is an impossibility.  Attempting to 
+> achieve it will result in something which seeks all over the place.
 
-Subject: [2/6] Remove unused "dev" argument from cb_setup_cis_mem
-cb_setup_cis_mem doesn't reference the pci device.  Remove this unused
-argument.
+This is called SFQ, or CFQ with 0 dispatch queue level and it works
+fine (given a fixed amount of tasks doing I/O). You still don't
+understand you don't care about throughput and seeks if you only need to
+read 1 block with the max fairness and you don't mind to read another
+block within 1 second. seeking is the last problem here, waiting more
+than 1 second is the only problem here.
 
- drivers/pcmcia/cardbus.c |    4 ++--
- 1 files changed, 2 insertions, 2 deletions
-
-diff -ur -x sa11* -x Kconfig -x Makefile orig/drivers/pcmcia/cardbus.c linux/drivers/pcmcia/cardbus.c
---- orig/drivers/pcmcia/cardbus.c	Sun Feb 23 12:39:27 2003
-+++ linux/drivers/pcmcia/cardbus.c	Sun Feb 23 12:17:52 2003
-@@ -146,7 +146,7 @@
- 	}
- }
- 
--static int cb_setup_cis_mem(socket_info_t * s, struct pci_dev *dev, struct resource *res)
-+static int cb_setup_cis_mem(socket_info_t * s, struct resource *res)
- {
- 	unsigned int start, size;
- 
-@@ -201,7 +201,7 @@
- 	if (!res->flags)
- 		goto fail;
- 
--	if (cb_setup_cis_mem(s, dev, res) != 0)
-+	if (cb_setup_cis_mem(s, res) != 0)
- 		goto fail;
- 
- 	if (space == 7) {
+Andrea

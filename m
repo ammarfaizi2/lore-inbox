@@ -1,134 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266304AbUGJRFZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266311AbUGJRhg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266304AbUGJRFZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 13:05:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266305AbUGJRFZ
+	id S266311AbUGJRhg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 13:37:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266314AbUGJRhg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 13:05:25 -0400
-Received: from [212.20.83.41] ([212.20.83.41]:17156 "EHLO chudak.century.cz")
-	by vger.kernel.org with ESMTP id S266304AbUGJRFH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 13:05:07 -0400
-Message-ID: <40F021B8.1@century.cz>
-Date: Sat, 10 Jul 2004 19:04:56 +0200
-From: Petr Titera <P.Titera@century.cz>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8a2) Gecko/20040704
+	Sat, 10 Jul 2004 13:37:36 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:10165 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S266311AbUGJRhe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 13:37:34 -0400
+Message-ID: <40F02963.5040500@namesys.com>
+Date: Sat, 10 Jul 2004 10:37:39 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Robert Lowery <rlowery@optusnet.com.au>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Belkin Bluetooth Access Point GPL violation
-References: <200407100920.i6A9Kr808614@mail001.syd.optusnet.com.au>
-In-Reply-To: <200407100920.i6A9Kr808614@mail001.syd.optusnet.com.au>
+To: Dave Jones <davej@redhat.com>
+CC: jmerkey@comcast.net, Pete Harlan <harlan@artselect.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Ext3 File System "Too many files" with snort
+References: <070920041920.2370.40EEEFFD000B341B000009422200763704970A059D0A0306@comcast.net> <40EF797E.6060601@namesys.com> <20040710083347.GC6386@redhat.com>
+In-Reply-To: <20040710083347.GC6386@redhat.com>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.1 (chudak.century.cz [192.168.0.2]); Sat, 10 Jul 2004 19:04:57 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Lowery wrote:
+Dave Jones wrote:
 
->Hi Marcel,
 >
->At this point, I have not tried pulling the firmware apart, all I have done is telnetted into 
->it and poked around a bit.
->
->If I manage to get the kernel source, my next step will be to try and work out how to 
->pull apart their firmware and repackage it with a custom kernel.
->
->-Robert
+>The *only* times we _refuse_ to apply bugfixes are when said bugfixes
+>cause more problems than they are alleged to fix, or when those
+>fixes aren't relevant for some reason, but don't let facts get in
+>the way of a good rant.
 >
 >  
 >
-Hello,
+You guys have refused to apply reiserfs bugfixes for a long time.  Users 
+don't know that redhat doesn't apply our bugfixes, and when they use 
+redhat and decide to experiment with reiserfs, they encounter bugs and 
+conclude that RedHat is right to not support reiserfs, which is exactly 
+the redhat intended effect.
 
-    I've try to look at firware image and it really seems that they do 
-not use modules in kernel and that bluetooth drivers are compiled in. So it
-really seems that they should either distribute source for their stack 
-or do not distribute it at all.
-
-Petr Titera
-
-
->>Marcel Holtmann <marcel@holtmann.org> wrote:
->>
->>Hi Robert,
->>
->>    
->>
->>>I recently purchase a Belkin Bluetooth Access Point with USB Print
->>>Server
->>>
->>>      
->>>
->>http://catalog.belkin.com/IWCatProductPage.process?Merchant_Id=&Section_
->>
->>    
->>
->>>Id=200583&pcount=&Product_Id=134669
->>>
->>>By telnetting into it, I was able to find that it runs linux,
->>>specifically uClinux version 2.0.38.1pre7arm.
->>>
->>>Investigating further, I found the device is made by
->>>www.rovingnetworks.com
->>>
->>>The latest version of firmware may be obtained from
->>>http://www.belkin.com/firmware/bluetooth/f8t030/flash.bin or a beta
->>>version that includes PAN support at
->>>www.rovingnetworks.com/belkinpan4.bin
->>>
->>>I contacted them at support@rovingnetworks.com  Mike Conrad replied 
->>>      
->>>
->>to
->>    
->>
->>>my request.
->>>
->>>Initially, he said they wanted $5000 for a source code license.  When 
->>>      
->>>
->>I
->>    
->>
->>>Informed him of their GPL violation, he said
->>>"you could possibly have the linux os changes we made, but our 
->>>      
->>>
->>bluetooth
->>    
->>
->>>stack, for example, is not covered under the GPL. And we have special
->>>tools that enable web download, and  create the image that is loaded,
->>>etc."
->>>
->>>Looking at the running system, it is not running any kernel modules, 
->>>      
->>>
->>so
->>    
->>
->>>I would expect the bluetooth stack to be compiled into the kernel
->>>proper, which in my understanding would mean they have to release the
->>>source.
->>>      
->>>
->>may you tell me how you extracted the kernel and the filesystem from 
->>the
->>firmware files. I wanna take a look at it and find out what Bluetooth
->>stack they are using.
->>
->>Regards
->>
->>Marcel
->>    
->>
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->
-
+Fedora is something new.  It is good that fedora tracks the mainline.  
+Kudos for that.  You should do that with RHEL.

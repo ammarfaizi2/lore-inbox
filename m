@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267276AbSLKTH6>; Wed, 11 Dec 2002 14:07:58 -0500
+	id <S267275AbSLKTKH>; Wed, 11 Dec 2002 14:10:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267281AbSLKTH6>; Wed, 11 Dec 2002 14:07:58 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:31361 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S267276AbSLKTH5>;
-	Wed, 11 Dec 2002 14:07:57 -0500
-Date: Wed, 11 Dec 2002 19:14:14 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Daniel Egger <degger@fhm.edu>,
-       Joseph <jospehchan@yahoo.com.tw>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why does C3 CPU downgrade in kernel 2.4.20?
-Message-ID: <20021211191414.GE10008@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Bill Davidsen <davidsen@tmr.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Daniel Egger <degger@fhm.edu>,
-	Joseph <jospehchan@yahoo.com.tw>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1039539080.14302.29.camel@irongate.swansea.linux.org.uk> <Pine.LNX.3.96.1021211134909.19397B-100000@gatekeeper.tmr.com>
+	id <S267278AbSLKTKH>; Wed, 11 Dec 2002 14:10:07 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:32783 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S267275AbSLKTKG>;
+	Wed, 11 Dec 2002 14:10:06 -0500
+Date: Wed, 11 Dec 2002 11:16:32 -0800
+From: Greg KH <greg@kroah.com>
+To: Wil Reichert <wilreichert@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: "bio too big" error
+Message-ID: <20021211191632.GB16615@kroah.com>
+References: <1039572597.459.82.camel@darwin> <3DF6A673.D406BC7F@digeo.com> <1039577938.388.9.camel@darwin> <20021211051100.GA13718@kroah.com> <1039614035.478.48.camel@darwin>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1021211134909.19397B-100000@gatekeeper.tmr.com>
+In-Reply-To: <1039614035.478.48.camel@darwin>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 11, 2002 at 01:51:13PM -0500, Bill Davidsen wrote:
+On Wed, Dec 11, 2002 at 08:40:35AM -0500, Wil Reichert wrote:
+> > Did you try the dm patches that were just posted to lkml today?
+> 
+> Just subscribed today, missed 'em.  You're refering to
+> 
+> http://people.sistina.com/~thornber/patches/2.5-stable/2.5.50/2.5.50-dm-2.tar.bz2 ?
 
- > Is this the CPU in the $200 "Lindows" PC Wal-Mart is selling?
+Nope, try the ones at:
+	http://people.sistina.com/~thornber/patches/2.5-stable/2.5.51/
 
-Yes. Looks like it judging from
-http://www.walmart.com/catalog/product_listing.gsp?path=0%3A3944%3A3951%3A41937%3A86796%3A96356&dept=3944&cat=96356&sb=61&bti=0
+thanks,
 
- > I was thinking of one for a low volume router,
-
-Seems to do the job nicely for me.
- 
- > and it looks as if there are two
- > VIA chips called C3 (or advertizers have hacked the specs).
-
-http://www.viaarena.com/?PageID=15
- 
-		Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+greg k-h

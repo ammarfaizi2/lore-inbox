@@ -1,62 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264539AbTF1Fg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 01:36:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264544AbTF1Fg0
+	id S264537AbTF1Fk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 01:40:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264544AbTF1Fk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 01:36:26 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:33486 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264539AbTF1FgV
+	Sat, 28 Jun 2003 01:40:27 -0400
+Received: from auth22.inet.co.th ([203.150.14.104]:7951 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S264537AbTF1FkX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 01:36:21 -0400
-Date: Fri, 27 Jun 2003 22:50:35 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Frank Cusack <fcusack@fcusack.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bkbits.net is down
-Message-ID: <20030628055035.GD21243@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Frank Cusack <fcusack@fcusack.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.21.0306271228200.17138-100000@ns.snowman.net> <20030627163720.GF357@zip.com.au> <1056732854.3172.56.camel@dhcp22.swansea.linux.org.uk> <20030627235150.GA21243@work.bitmover.com> <20030627165519.A1887@beaverton.ibm.com> <20030628001625.GC18676@work.bitmover.com> <20030627205140.F29149@newbox.localdomain> <20030628031920.GF18676@work.bitmover.com> <1056773286.10255.5.camel@granite> <20030627224200.A14560@google.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 28 Jun 2003 01:40:23 -0400
+From: Michael Frank <mflt1@micrologica.com.hk>
+To: Andrew Morton <akpm@digeo.com>
+Subject: Re: 2.5.73-mm1 nbd: boot hang in add_disk at first call from nbd_init
+Date: Sat, 28 Jun 2003 13:51:34 +0800
+User-Agent: KMail/1.5.2
+Cc: ldl@aros.net, linux-kernel@vger.kernel.org
+References: <200306271943.13297.mflt1@micrologica.com.hk> <20030627194154.01a06c5d.akpm@digeo.com> <200306281255.36048.mflt1@micrologica.com.hk>
+In-Reply-To: <200306281255.36048.mflt1@micrologica.com.hk>
+X-OS: KDE 3 on GNU/Linux
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20030627224200.A14560@google.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+Message-Id: <200306281346.53609.mflt1@micrologica.com.hk>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 27, 2003 at 10:42:00PM -0700, Frank Cusack wrote:
-> On Fri, Jun 27, 2003 at 09:08:06PM -0700, Joshua Penix wrote:
-> > On Fri, 2003-06-27 at 20:19, Larry McVoy wrote:
-> > > On Fri, Jun 27, 2003 at 08:51:40PM -0400, Scott McDermott wrote:
-> > > > Larry McVoy on Fri 27/06 17:16 -0700:
-> > > > > I don't know if you all realize this but at one point we
-> > > > > had corrupted data in several repositories and the backups
-> > > > > were also shot.
-> > > > 
-> > > > ever hear of tapes?
-> > > 
-> > > bkbits is 45GB of data and growing.  Tapes are completely impractical,
-> > > that's why we have hot spares.
-> > 
-> > Boy you do need a good admin :)  Done correctly, tapes are quite
-> > practical for that amount of data.
-> 
-> Totally.  45GB of data is nothing.  Even a terabyte is easily backed up
-> with today's [tape] technology.  You can start talking about impractical
-> when you get to petabytes. :-)  (ok, dozens of terabytes)
+On Saturday 28 June 2003 12:55, Michael Frank wrote:
+> On Saturday 28 June 2003 10:41, Andrew Morton wrote:
+> > Michael Frank <mflt1@micrologica.com.hk> wrote:
+> > > Changes were recently made to the nbd.c in 2.5.73-mm1
+> >
+> > And tons more will be in -mm2, which I shall prepare right now.
+> > Please retest on that and if it still hangs, capture the output
+> > from pressing alt-sysrq-T.
+>
+> Legacy free, no serial port.
+>
+>
+>
+> Sorry, -mm2 hang at booting kernel on 2 machines.
+>
 
-Sounds great.  Send me a tape drive and some media and I'll be happy to
-use it.  Let's not forget that this is a service we provide for free that
-already has a fixed $1400/month cost not counting human costs.  If you
-are volunteering to donate the hardware and the media that's great, we
-appreciate it.
+Oh Murphy! Bug: 250K log buffer causes a hang on boot. 
+
+Sorry for the shock. I configured the log buffer bigger - 250K and it hangs on boot.
+
+Default 14K log buffer all OK, the NBD hang is fixed too.
+
+This was my only config change besides that driver which didn't compile ;)
+
+I want a bigger log buffer in preparation for testing swsusp on 2.5. On 2.4, 
+the test io load prevent the big swsusp logs from making it to disk...
+
+Thank you
+
+Regards
+Michael
+
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Powered by linux-2.5.73-mm2, compiled with gcc-2.95-3 - not fancy but rock solid
+
+My current linux related activities:
+- Test development and testing of swsusp
+- Everyday usage of 2.5 kernel
+
+More info on the 2.5 kernel: http://www.codemonkey.org.uk/post-halloween-2.5.txt
+

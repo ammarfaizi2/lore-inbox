@@ -1,62 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbULJVNE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261809AbULJVZr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261205AbULJVNE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 16:13:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbULJVND
+	id S261809AbULJVZr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 16:25:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbULJVZq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 16:13:03 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:9679
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261205AbULJVMq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 16:12:46 -0500
-Date: Fri, 10 Dec 2004 13:06:34 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Robin Holt <holt@sgi.com>
-Cc: holt@sgi.com, yoshfuji@linux-ipv6.org, akpm@osdl.org,
-       hirofumi@parknet.co.jp, torvalds@osdl.org, dipankar@ibm.com,
-       laforge@gnumonks.org, bunk@stusta.de, herbert@apana.org.au,
-       paulmck@ibm.com, netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-       gnb@sgi.com
-Subject: Re: [RFC] Limit the size of the IPV4 route hash.
-Message-Id: <20041210130634.251c46f9.davem@davemloft.net>
-In-Reply-To: <20041210210006.GB23222@lnx-holt.americas.sgi.com>
-References: <20041210190025.GA21116@lnx-holt.americas.sgi.com>
-	<20041210114829.034e02eb.davem@davemloft.net>
-	<20041210210006.GB23222@lnx-holt.americas.sgi.com>
-X-Mailer: Sylpheed version 1.0.0beta3 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Fri, 10 Dec 2004 16:25:46 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:55002 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261212AbULJVZR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 16:25:17 -0500
+Date: Fri, 10 Dec 2004 22:24:51 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-15
+Message-ID: <20041210212451.GF5864@elte.hu>
+References: <OF8AB2B6D9.572374AA-ON86256F66.0061EFA8-86256F66.0061F00A@raytheon.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF8AB2B6D9.572374AA-ON86256F66.0061EFA8-86256F66.0061F00A@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
+	BAYES_00 -4.90, SORTED_RECIPS 2.70
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Dec 2004 15:00:06 -0600
-Robin Holt <holt@sgi.com> wrote:
 
-> > Also, 1 page even in your case is (assuming you are on a 64-bit platform,
-> > you didn't mention) going to give us 1024 hash chains.  A reasonably
-> > busy web server will easily be talking to more than 1K unique hosts at
-> > a given point in time.  This is especially true as slow long distance
-> > connections bunch up.
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
+
+> [...] I also had several cases where I "triggered" a trace but no
+> output - I assume those are related symptoms. For example:
 > 
-> But 1k hosts is not the limit with a 16k page.  There are 1k buckets,
-> but each is a list.  A reasonably well designed hash will scale to greater
-> than one item per bucket.  Additionally, for the small percentage of web
-> servers with enough network traffic that they will be affected by the
-> depth of the entries, they can set rhash_entries for their specific needs.
+> # ./cpu_delay 0.000100
+> Delay limit set to 0.00010000 seconds
+> calibrating loop ....
+> time diff= 0.504598 or 396354830 loops/sec.
+> Trace activated with 0.000100 second delay.
+> Trace triggered with 0.000102 second delay. [not recorded]
+> Trace activated with 0.000100 second delay.
+> Trace triggered with 0.000164 second delay. [not recorded]
 
-We want to aim for a depth of 1 in each chain, so that, assuming the
-hash is decent, we'll achieve O(1) lookup complexity.  That is why we
-want the number of chains to be at least as large as the number of
-active routing cache entries we'll work with.
+is the userspace delay measurement nested inside the kernel-based
+method? I.e. is it something like:
 
-> I realize I have a special case which highlighted the problem.  My case
-> shows that not putting an upper limit or at least a drastically aggressive
-> non-linear growth cap does cause issues.  For the really large system,
-> we were seeing a size of 512MB for the hash which was limited because
-> that was the largest amount of memory available on a single node.
+	gettimeofday(0,1);
+	timestamp1 = cycles();
 
-That's true, 512MB is just too much.  So let's define some reasonable
-default cap like 16MB or 32MB, and as current it is overridable via
-rhash_entries.
+	... loop some ...
+
+	timestamp2 = cycles();
+	gettimeofday(0,0);
+
+and do you get 'unreported' latencies in such a case too? If yes then
+that would indeed indicate a tracer bug. But if the measurement is done
+like this:
+
+	gettimeofday(0,1);
+	timestamp1 = cycles();
+
+	... loop some ...
+
+	gettimeofday(0,0);		// [1]
+	timestamp2 = cycles();		// [2]
+
+then a delay could get inbetween [1] and [2].
+
+OTOH if the 'loop some' time is long enough then the [1]-[2] window is
+too small to be significant statistically, while your logs show a near
+50% 'miss rate'.
+
+	Ingo

@@ -1,158 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267860AbUIAUwj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267839AbUIAU7K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267860AbUIAUwj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 16:52:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267599AbUIAUuy
+	id S267839AbUIAU7K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 16:59:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267519AbUIAU7F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 16:50:54 -0400
-Received: from ahmler2.mail.eds.com ([192.85.154.72]:41364 "EHLO
-	ahmler2.mail.eds.com") by vger.kernel.org with ESMTP
-	id S267519AbUIAUnc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 16:43:32 -0400
-Message-ID: <1CF4FE310DCDD3119A1F00508BDF0A6823C3DF9E@usahm019.exmi01.exch.eds.com>
-From: "Bailey, Scott" <scott.bailey@EDS.COM>
-To: "'mjacob@feral.com'" <mjacob@feral.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "Bailey, Scott" <scott.bailey@EDS.COM>
-Subject: RE: [BUG?] Recent feral ISP interaction with alpha dma
-Date: Wed, 1 Sep 2004 16:42:31 -0400 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain
+	Wed, 1 Sep 2004 16:59:05 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:19336 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S268003AbUIAU5t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 16:57:49 -0400
+Subject: [patch 23/25]  nwflash: replace schedule_timeout() with 	msleep()
+To: linux-kernel@vger.kernel.org
+Cc: akpm@digeo.com, janitor@sternwelten.at
+From: janitor@sternwelten.at
+Date: Wed, 01 Sep 2004 22:57:44 +0200
+Message-ID: <E1C2cAr-0007Vh-30@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew, just a quick update for your amusement or peace of mind or
-whatever... :-)
 
-I have continued slogging along with this, mostly upgrading to newer kernel
-releases as they appeared and trying to ignore the dma errors. I now am up
-to kernel 2.4.27, compiled with gcc 3.3.4 (actually Debian's gcc
-3.3.4-6sarge1.0.1 package) and amazingly the errors seem to have disappeared
-for me. They were always a bit sporadic, so this isn't a totally sure thing,
-but I've been running for a couple days now and done all the things that
-tending to spazz it out before, and everything has been quite nice.
 
-Maybe something between 2.4.26 and 2.4.27 fixed this, but I have given up
-trying to figure out what.
 
-Anyway, I wanted to let you know that your driver is still working fine for
-me and I'm really glad to have it, since our Alphaservers are just infested
-with QLogic-based KZPBA controllers :-) and I really need to be able to use
-disks and tape drives.
 
-Thanks again,
 
-	Scott
 
-R. Scott Bailey
-EDS - Software Services Linux/Tru64 UNIX Capability
-MS 2O
-1075 W. Entrance Dr.
-Auburn Hills, MI  48326
+I would appreciate any comments from the janitor@sternweltens list. This is one (of
+many) cases where I made a decision about replacing
+
+set_current_state(TASK_INTERRUPTIBLE);
+schedule_timeout(some_time);
+
+with
+
+msleep(jiffies_to_msecs(some_time));
+
+msleep() is not exactly the same as the previous code, but I only did
+this replacement where I thought long delays were *desired*. If this is
+not the case here, then just disregard this patch.
+
+Note: I could not find any current Maintainer for this driver. If there
+is one I should sent the patch too, please let me know.
+
+Thanks,
+Nish
+
+
+
+Description: Uses msleep() instead of schedule_timeout() to guarantee
+the task delays at least the desired time amount.
+
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+
+
+
+---
+
+ linux-2.6.9-rc1-bk7-max/drivers/char/nwflash.c |   19 +++++--------------
+ 1 files changed, 5 insertions(+), 14 deletions(-)
+
+diff -puN drivers/char/nwflash.c~msleep-drivers_char_nwflash drivers/char/nwflash.c
+--- linux-2.6.9-rc1-bk7/drivers/char/nwflash.c~msleep-drivers_char_nwflash	2004-09-01 19:34:46.000000000 +0200
++++ linux-2.6.9-rc1-bk7-max/drivers/char/nwflash.c	2004-09-01 19:34:46.000000000 +0200
+@@ -60,15 +60,6 @@ static DECLARE_MUTEX(nwflash_sem);
  
-( Phone:+1-248-276-5770 (8-351)
-+ mailto:scott.bailey@eds.com
+ extern spinlock_t gpio_lock;
+ 
+-/*
+- * the delay routine - it is often required to let the flash "breeze"...
+- */
+-void flash_wait(int timeout)
+-{
+-	current->state = TASK_INTERRUPTIBLE;
+-	schedule_timeout(timeout);
+-}
+-
+ static int get_flash_id(void)
+ {
+ 	volatile unsigned int c1, c2;
+@@ -401,7 +392,7 @@ static int erase_block(int nBlock)
+ 	/*
+ 	 * wait 10 ms
+ 	 */
+-	flash_wait(HZ / 100);
++	msleep(10);
+ 
+ 	/*
+ 	 * wait while erasing in process (up to 10 sec)
+@@ -409,7 +400,7 @@ static int erase_block(int nBlock)
+ 	timeout = jiffies + 10 * HZ;
+ 	c1 = 0;
+ 	while (!(c1 & 0x80) && time_before(jiffies, timeout)) {
+-		flash_wait(HZ / 100);
++		msleep(10);
+ 		/*
+ 		 * read any address
+ 		 */
+@@ -440,7 +431,7 @@ static int erase_block(int nBlock)
+ 	/*
+ 	 * just to make sure - verify if erased OK...
+ 	 */
+-	flash_wait(HZ / 100);
++	msleep(10);
+ 
+ 	pWritePtr = (unsigned char *) ((unsigned int) (FLASH_BASE + (nBlock << 16)));
+ 
+@@ -587,7 +578,7 @@ static int write_block(unsigned long p, 
+ 				/*
+ 				 * wait couple ms
+ 				 */
+-				flash_wait(HZ / 100);
++				msleep(10);
+ 				/*
+ 				 * red LED == write
+ 				 */
+@@ -612,7 +603,7 @@ static int write_block(unsigned long p, 
+ 	leds_event(led_amber_off);
+ 	leds_event(led_green_on);
+ 
+-	flash_wait(HZ / 100);
++	msleep(10);
+ 
+ 	pWritePtr = (unsigned char *) ((unsigned int) (FLASH_BASE + p));
+ 
 
-
------Original Message-----
-From: Matthew Jacob [mailto:mjacob@feral.com] 
-Sent: Wednesday, March 03, 2004 8:38 PM
-To: Bailey, Scott
-Cc: 'linux-kernel@vger.kernel.org'
-Subject: Re: [BUG?] Recent feral ISP interaction with alpha dma
-
-
-
-Thanks for spotting this...
-
-Hmm- I guess I never really asked anyone what sg_dma_len was supposed to
-apply to.
-
-The best comment about this seems to be in the mips header
-
-/*
- * These macros should be used after a pci_map_sg call has been done
- * to get bus addresses of each of the SG entries and their lengths.
- * You should only work with the number of sg entries pci_map_sg
- * returns, or alternatively stop on the first sg_dma_len(sg) which
- * is 0.
- */
-
-So- I believe I'm using it correctly (well, not quite as I'm not
-checking for a length of zero) - I call pci_map_sg, and for each
-platform I should be using sg_dma_len- after all, there may be
-architectures which don't have sg->length.
-
-The scatterlist code in sg_classify isn't quite what you need to look
-at- this sets up some kind of private scheme in alpha which then gets
-decoded into an output list in sg_fill where it looks like more
-dma_length entries get filled than the 'leader'.
-
-I just gave away my Alphaserver 4100, but I know that the 2.4.18 kernels
-used to work with my stuff on it- I wonder what the real issue is?
-
-On Wed, 3 Mar 2004, Bailey, Scott wrote:
-
-> Here's a weird problem for which I maybe have an answer except I'm not
-sure
-> if it's right. Hopefully the "many eyes" safety net will stop me from
-doing
-> anything truly stupid. :-)
->
-> I have an Alphaserver 4100 where I have been testing a build of kernel
-> 2.4.24 with the most recent snapshot of the feral isp driver. (A previous
-> release of the driver, patched onto 2.4.22, is running great but I want to
-> get onto the newer kernel.)
->
-> The system boots happily enough, but eventually I start seeing sequences
-of:
->
-> pci_map_sg failed: could not allocate dma page tables
-> isp2: unable to dma map request
->
-> and processes start wedging.
->
-> After poking around in the source, I am suspecting my problem in the feral
-> isp_pci.c:tdma_mk() where a little snippet goes:
->
-> while (resid > 0) {
->     nseg++;
->     resid -= sg_dma_len(sg);
->     sg++;
-> }
->
-> The previous (working) version of this code is:
->
-> while (resid > 0) {
->     nseg++;
->     resid -= sg->length;
->     sg++;
-> }
->
-> The problem is, that looking at
-arch/alpha/kernel/pci_iommu.c:sg_classify()
-> in the recent 2.4 kernels, I see that sg->dma_length only gets filled in
-for
-> scatterlist elements that are leaders. I suspect the non-leader elements
-> contain crud that confuse the resid count in unpredictable ways.
->
-> The question for everybody: is it better to fix this by reverting the
-> isp_pci.c stuff to refer to sg->length again instead of sg->dma_length, so
-> that I'm always referencing a valid quantity, or should I tweak
-pci_iommu.c
-> so it sets this value to 0 for non-leader elements (and ignore the fact
-that
-> code may still not be paying attention to sg->dma_address before making
-> decisions about the element)?
->
-> I couldn't figure out what other architectures were doing from sniffing
-> around the other directories.
->
-> What will break the least? :-)
->
-> Thanks,
->
-> 	Scott Bailey
-> 	scott <dot> bailey <at> eds <dot> com
->
+_

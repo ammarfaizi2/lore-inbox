@@ -1,69 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264924AbUD2Suk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264925AbUD2Suq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264924AbUD2Suk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 14:50:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264921AbUD2Suk
+	id S264925AbUD2Suq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 14:50:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264921AbUD2Suq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 14:50:40 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:11490 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S264924AbUD2St3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 14:49:29 -0400
-In-Reply-To: <20040429031040.GA5336@kroah.com>
-References: <20040428181806.GA36322@atlantis.8hz.com> <80928E9A-9983-11D8-9ADE-000A95B17CC2@comcast.net> <20040429031040.GA5336@kroah.com>
-Mime-Version: 1.0 (Apple Message framework v613)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <EF9BE23E-9A0D-11D8-B72E-000A95B17CC2@comcast.net>
+	Thu, 29 Apr 2004 14:50:46 -0400
+Received: from mail2.webmessenger.it ([193.70.193.55]:29635 "EHLO
+	mail1a.webmessenger.it") by vger.kernel.org with ESMTP
+	id S264925AbUD2Stf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 14:49:35 -0400
+Message-ID: <40914C35.1030802@copeca.dsnet.it>
+Date: Thu, 29 Apr 2004 20:40:53 +0200
+From: Giuliano Colla <copeca@copeca.dsnet.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; it-IT; rv:1.5) Gecko/20031007
+X-Accept-Language: it, en, en-us
+MIME-Version: 1.0
+To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
+       hsflinux@lists.mbsi.ca
+CC: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [hsflinux] [PATCH] Blacklist binary-only modules lying about
+ their	license
+References: <408DC0E0.7090500@gmx.net>
+In-Reply-To: <408DC0E0.7090500@gmx.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Cc: Sean Young <sean@mess.org>, Chester <fitchett@phidgets.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-From: Bryan Small <code_smith@comcast.net>
-Subject: Re: [PATCH] USB: add new USB PhidgetServo driver
-Date: Thu, 29 Apr 2004 14:49:25 -0400
-To: Greg KH <greg@kroah.com>
-X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The IFkit ( both 8/8/8 and 0/8/8) and the TextLCD will work nearly the 
-same as Sean's servo control. They will use sysfs also. They will be 
-blacklisted from HID. Sean, what phidget did you want to work on next. 
-I just wanted to make sure, I was not stepping on others toes by 
-jumping on the ones I picked. If you want Chester can just make us a 
-big ol punchlist and we can just start knocking them out. I have most 
-of the phidgets except the stepper controller, power bar, dc 
-controller, and the new 0/16/16. I think thats correct, right 
-Chester..?
+Carl-Daniel Hailfinger ha scritto:
 
-And yay I finally got my linux dev. box back from dead. I was beginning 
-to worry, I was not going to be able to do anything, and Sean would 
-have finished it all. :-) But hopefully by tonight I will have 
-everything ready to go.
+>Hi,
+>
+>LinuxAnt offers binary only modules without any sources. To circumvent our
+>MODULE_LICENSE checks LinuxAnt has inserted a "\0" into their declaration:
+>
+>MODULE_LICENSE("GPL\0for files in the \"GPL\" directory; for others, only
+>LICENSE file applies");
+>
+>Since string comparisons stop at the first "\0" character, the kernel is
+>tricked into thinking the modules are GPL. Btw, the "GPL" directory they
+>are speaking about is empty.
+>
+>The attached patch blacklists all modules having "Linuxant" or "Conexant"
+>in their author string. This may seem a bit broad, but AFAIK both
+>companies never have released anything under the GPL and have a strong
+>history of binary-only modules.
+>
+>
+>Regards,
+>Carl-Daniel
+>  
+>
+<snip>
+
+Let's try not to be ridiculous, please.
+
+As an end user, if I buy a full fledged modem, I get some amount of 
+proprietary, non GPL, code  which executes within the board or the 
+PCMCIA card of the modem. The GPL driver may even support the 
+functionality of downloading a new version of *proprietary* code into 
+the flash Eprom of the device. The GPL linux driver interfaces with it, 
+and all is kosher.
+On the other hand, I have the misfortune of being stuck with a 
+soft-modem, roughly the *same* proprietary code is provided as a binary 
+file, and a linux driver (source provided) interfaces with it. In that 
+case the kernel is flagged as "tainted".
+
+But in both cases, if the driver is poorly written, because of 
+developer's inadequacy, or because of the proprietary code being poorly 
+documented and/or implemented, my kernel may go nuts, be it tainted or not.
+
+Can you honestly tell apart the two cases, if you don't make a it a case 
+of "religion war"?
+
+For sake of completeness. *My* download of
+
+https://www.linuxant.com/drivers/hsf/full/archive/hsfmodem-6.03.00lnxt04032800full/hsfmodem-6.03.00lnxt04032800full.tar.gz
+
+contains, in the /modules/GPL/ directory the following files:
+
+-rw-r--r--    1 colla    colla       18860 ago 23  2003 COPYING
+-rw-r--r--    1 colla    colla       13609 gen 18 00:51 oscompat.h
+-rw-r--r--    1 colla    colla       32573 mar 26 09:16 serial_cnxt.c
+-rw-r--r--    1 colla    colla        3392 ago 23  2003 serial_cnxt.h
+-rw-r--r--    1 colla    colla       57857 ago 24  2003 serial_core.c
+-rw-r--r--    1 colla    colla        9789 ago 22  2003 serial_core.h
+
+I strongly hope that developers' efforts will be addressed to more 
+valuable topics than detecting the "Linuxant" string in a loadable 
+module. Not forgetting  that Linux\0ant, L\0inuxant, etc. would display 
+the same way ;-)
+
+Kind Regards
+
+-- 
+Ing. Giuliano Colla
+Direttore Tecnico
+Copeca srl
+Bologna 
+Italy
 
 
-Bryan Small
-
-On Apr 28, 2004, at 11:10 PM, Greg KH wrote:
-
-> On Wed, Apr 28, 2004 at 10:18:28PM -0400, Bryan Small wrote:
->>   Really cool Sean. I am currently working on the IfKit for both the
->> 8/8/8 and the 0/8/8 on the textlcds. Also working on the textlcds
->> output.
->
-> What kernel/userspace interface were you going to use?  Or are you 
-> using
-> a pure libusb/usbfs type interface?
->
->> If I get these done soon was thinking of moving to RFID, so that we 
->> can
->> also possibly throw in Chesters PAM auth module idea in.
->
-> That is a cool project, again, what kind of kernel interaction would 
-> you
-> want for it?
->
-> thanks,
->
-> greg k-h
->
 

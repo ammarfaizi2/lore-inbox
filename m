@@ -1,68 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261619AbVAXU1A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261620AbVAXVdQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261619AbVAXU1A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 15:27:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbVAXUZT
+	id S261620AbVAXVdQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 16:33:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbVAXVbs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 15:25:19 -0500
-Received: from bernache.ens-lyon.fr ([140.77.167.10]:17831 "EHLO
-	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S261619AbVAXUYM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 15:24:12 -0500
-Date: Mon, 24 Jan 2005 21:24:09 +0100
-From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, netfilter-devel@lists.netfilter.org
-Subject: Re: 2.6.11-rc2-mm1 - compile fix
-Message-ID: <20050124202409.GG1847@ens-lyon.fr>
-References: <20050124021516.5d1ee686.akpm@osdl.org>
+	Mon, 24 Jan 2005 16:31:48 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:52377
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261620AbVAXU1U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 15:27:20 -0500
+Date: Mon, 24 Jan 2005 12:23:50 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: akpm@osdl.org, hugh@veritas.com, linux-ia64@vger.kernel.org,
+       torvalds@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: Extend clear_page by an order parameter
+Message-Id: <20050124122350.1142ee81.davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.58.0501240835041.15963@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0501041512450.1536@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.44.0501082103120.5207-100000@localhost.localdomain>
+	<20050108135636.6796419a.davem@davemloft.net>
+	<Pine.LNX.4.58.0501211210220.25925@schroedinger.engr.sgi.com>
+	<20050122234517.376ef3f8.akpm@osdl.org>
+	<Pine.LNX.4.58.0501240835041.15963@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050124021516.5d1ee686.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
-X-Spam-Report: 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 24, 2005 at 02:15:16AM -0800, Andrew Morton wrote:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc1/2.6.11-rc1-mm1/
-> 
-> 
-> - Lots of updates and fixes all over the place.
-> 
-> - On my test box there is no flashing cursor on the vga console.  Known bug,
->   please don't report it.
-> 
->   Binary searching shows that the bug was introduced by
->   cleanup-vc-array-access.patch but that patch is, unfortunately, huge.
-> 
-> 
+On Mon, 24 Jan 2005 08:37:15 -0800 (PST)
+Christoph Lameter <clameter@sgi.com> wrote:
 
-The patch below fixes the compilation of the tftp nat module
+> Then it may also be better to pass the page struct to clear_pages
+> instead of a memory address.
 
-net/ipv4/netfilter/ip_nat_tftp.o(.bss+0x0):net/ipv4/netfilter/ip_nat_tftp.c:44: multiple definition of `ip_nat_tftp_hook'
-net/ipv4/netfilter/ip_conntrack_tftp.o(.bss+0x0):net/ipv4/netfilter/ip_conntrack_tftp.c:49: first defined here
-make[3]: *** [net/ipv4/netfilter/built-in.o] Error 1
-make[2]: *** [net/ipv4/netfilter] Error 2
-make[1]: *** [net/ipv4] Error 2
-make: *** [net] Error 2
+What is more generally available at the call sites at this time?
+Consider both HIGHMEM and non-HIGHMEM setups in your estimation
+please :-)
 
-Signed-off-by: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-
-
---- linux-clean/include/linux/netfilter_ipv4/ip_conntrack_tftp.h	2005-01-24 12:44:29.000000000 +0100
-+++ linux-test/include/linux/netfilter_ipv4/ip_conntrack_tftp.h	2005-01-24 21:11:05.000000000 +0100
-@@ -13,8 +13,8 @@ struct tftphdr {
- #define TFTP_OPCODE_ACK		4
- #define TFTP_OPCODE_ERROR	5
- 
--unsigned int (*ip_nat_tftp_hook)(struct sk_buff **pskb,
--				 enum ip_conntrack_info ctinfo,
--				 struct ip_conntrack_expect *exp);
-+extern unsigned int (*ip_nat_tftp_hook)(struct sk_buff **pskb,
-+					enum ip_conntrack_info ctinfo,
-+					struct ip_conntrack_expect *exp);
- 
- #endif /* _IP_CT_TFTP */

@@ -1,65 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263448AbTJBSjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 14:39:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263464AbTJBSjZ
+	id S262130AbTJBSua (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 14:50:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263411AbTJBSua
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 14:39:25 -0400
-Received: from opersys.com ([64.40.108.71]:56077 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S263448AbTJBSjI (ORCPT
+	Thu, 2 Oct 2003 14:50:30 -0400
+Received: from 72.dom-sp.ru ([212.57.164.72]:36616 "EHLO mail.ward.six")
+	by vger.kernel.org with ESMTP id S262130AbTJBSu1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 14:39:08 -0400
-Message-ID: <3F7C7180.2020404@opersys.com>
-Date: Thu, 02 Oct 2003 14:42:08 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-CC: "Theodore Ts'o" <tytso@mit.edu>, xen-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, Jacques Gelinas <jack@solucorp.qc.ca>
-Subject: Re: [Xen-devel] Re: [ANNOUNCE] Xen high-performance x86 virtualization
-References: <E1A57B6-0007y9-00@wisbech.cl.cam.ac.uk>
-In-Reply-To: <E1A57B6-0007y9-00@wisbech.cl.cam.ac.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Oct 2003 14:50:27 -0400
+Date: Fri, 3 Oct 2003 00:50:16 +0600
+From: Denis Zaitsev <zzz@anda.ru>
+To: linux-scsi@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, gibbs@scsiguy.com, dledford@redhat.com,
+       marcelo@conectiva.com.br
+Subject: [PATCH][TRIVIAL] (2.4.22) Allow aic7xxx_osm.c to be compiled without CONFIG_PCI
+Message-ID: <20031003005016.A8496@natasha.ward.six>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is the trivial #ifdef patch for CONFIG_PCI/EISA.  In my case it
+allows the Adaptec SCSI driver (the "new" one) to be compiled for
+non-PCI (EISA) system.  Else there are an <undefined symbol> errors.
+The 2.6 branch needs the same patch, as I understand.
 
-Keir Fraser wrote:
-> Full recursion needs full virtualization. Our approach offers much
-> better performance in the situations where full virtualization isn't
-> required -- i.e., where it's feasible to distribute a ported OS.
+Please, apply it.  (I don't know who is the maintainer for now!)
 
-I noticed that the SOSP Xen paper briefly mentions Jacques Gelinas' work
-on VServers (http://www.solucorp.qc.ca/miscprj/s_context.hc). While
-Jacques' work hasn't attracted as much public attention as other Linux
-virtualization efforts, I've personally found the approach and concepts
-quite fascinating. Among other things, most of the code implementing the
-contexts is architecture-independent (save for a few syscalls added to
-arch/*/kernel/entry.S). So, thinking aloud here, I'm wondering in what
-circumstances I'd prefer using something as architecture specific as
-Xen over something as architecture independent as Jacques' VServers?
-(Granted VServers can't run Windows, but I'm asking this from the angle
-of people looking for resource isolation in the Linux context.) Among
-other things, VServers are already in use by many ISPs to provide
-simultaneous hosting of many "virtual machines" on the same box while
-maintaining strict separation between machines and still providing a
-secure environment.
 
-Karim
-
-P.S.:
-For those who aren't familiar with Jacques' stuff, have a look at this
-document here:
-http://www.solucorp.qc.ca/miscprj/s_context.hc?prjstate=1&nodoc=0
-The actual concepts implemented in VServers are here:
-http://www.solucorp.qc.ca/miscprj/s_context.hc?s1=2&s2=0&s3=0&s4=0&full=0&prjstate=1&nodoc=0
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 514-812-4145
-
+--- drivers/scsi/aic7xxx/aic7xxx_osm.c.orig	2003-09-15 01:56:14.000000000 +0600
++++ drivers/scsi/aic7xxx/aic7xxx_osm.c	2003-09-16 22:57:11.000000000 +0600
+@@ -1552,6 +1552,7 @@ ahc_softc_comp(struct ahc_softc *lahc, s
+ 
+ 	/* Still equal.  Sort by BIOS address, ioport, or bus/slot/func. */
+ 	switch (rvalue) {
++#ifdef CONFIG_PCI
+ 	case AHC_PCI:
+ 	{
+ 		char primary_channel;
+@@ -1584,6 +1585,8 @@ ahc_softc_comp(struct ahc_softc *lahc, s
+ 			value = 1;
+ 		break;
+ 	}
++#endif
++#ifdef CONFIG_EISA
+ 	case AHC_EISA:
+ 		if ((rahc->flags & AHC_BIOS_ENABLED) != 0) {
+ 			value = rahc->platform_data->bios_address
+@@ -1593,6 +1596,7 @@ ahc_softc_comp(struct ahc_softc *lahc, s
+ 			      - lahc->bsh.ioport; 
+ 		}
+ 		break;
++#endif
+ 	default:
+ 		panic("ahc_softc_sort: invalid bus type");
+ 	}

@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265201AbUBFJEA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 04:04:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265237AbUBFJEA
+	id S265105AbUBFJF5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 04:05:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265237AbUBFJF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 04:04:00 -0500
-Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:62125 "EHLO
-	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S265201AbUBFJD5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 04:03:57 -0500
-Date: Fri, 06 Feb 2004 18:03:38 +0900 (JST)
-Message-Id: <20040206.180338.640917915.nomura@linux.bs1.fc.nec.co.jp>
-To: hugh@veritas.com
-Cc: j-nomura@ce.jp.nec.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.4] heavy-load under swap space shortage
-From: j-nomura@ce.jp.nec.com
-In-Reply-To: <Pine.LNX.4.44.0402051834070.1396-100000@localhost.localdomain>
-References: <20040204.204058.1025214600.nomura@linux.bs1.fc.nec.co.jp>
-	<Pine.LNX.4.44.0402051834070.1396-100000@localhost.localdomain>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.14 (Reasonable Discussion)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Fri, 6 Feb 2004 04:05:57 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:58024 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S265105AbUBFJFf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 04:05:35 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16419.22749.486759.348150@laputa.namesys.com>
+Date: Fri, 6 Feb 2004 12:05:33 +0300
+To: Micha Feigin <michf@post.tau.ac.il>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: reiserfs - difference between a commit and a transaction
+In-Reply-To: <20040206002346.GA2571@luna.mooo.com>
+References: <20040206002346.GA2571@luna.mooo.com>
+X-Mailer: VM 7.17 under 21.5  (beta16) "celeriac" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > With slight modification (please see the patch below), it's really helpful.
-> > I hope you push it again to the mainline.
-> 
-> Okay, glad to hear it, I'll try pushing to Marcelo in 2.4.26-pre.
+Micha Feigin writes:
+ > I am trying to do some work on reiserfs to make it laptop-mode
+ > compliant. After looking at the code because it was still noisy after I
+ > thought I told correctly to be quite, raised a question that I was
+ > hoping someone can clarify for me.
+ > 
+ > Reiserfs has both a transaction and a commit and I was wondering what
+ > is which.
 
-Thank you.
+Transaction is a sequence of file system modifications that (by the
+virtue of file system implementation) is bound to either be completed as
+a whole or be aborted as a whole (this is called "atomicity").
 
-> Can you describe the benefit you see?
+Commit is a certain operation performed during transaction life-time to
+implement its atomicity.
 
-OK.
-The benefit is simple.
+ > 
+ > (I am mostly interested in this from the point of what max_trans_age
+ > and max_commit_age affect)
 
-Before applying your patch, the system became hardly responsive
-under a certain situation (that is no free swap space, running page cache
-intensive applications).
-The system time went up 80-100% for long time (30 minutes to hours).
+Take a look at the "commit" mount option of reiserfs.
 
-After applying your patch, under the same situation, the responsiveness
-of the system does not get worse.
-The system time goes up high for a few seconds, but it goes down soon.
+ > 
+ > Thanks
 
-> > I added the check for 'mm == swap_mm'. It might be necessary to avoid
-> > the corner case where mmlist_lock being held too long.
-> 
-> Oh, good point.  But I'm uneasy about treating a trip round the mmlist
-> failing to get a lock as the same thing as finding no pages to free,
-> your "goto empty": drop lock and come around again instead, as below?
-
-I feel your approach is better than mine to keep the current semantics.
-
-Best regards.
---
-NOMURA, Jun'ichi <j-nomura@ce.jp.nec.com>
+Nikita.

@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129870AbQLNXmv>; Thu, 14 Dec 2000 18:42:51 -0500
+	id <S129894AbQLNXmv>; Thu, 14 Dec 2000 18:42:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129880AbQLNXmk>; Thu, 14 Dec 2000 18:42:40 -0500
-Received: from jalon.able.es ([212.97.163.2]:47511 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129870AbQLNXmi>;
-	Thu, 14 Dec 2000 18:42:38 -0500
-Date: Fri, 15 Dec 2000 00:12:04 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [lkml]Re: VM problems still in 2.2.18
-Message-ID: <20001215001204.C1331@werewolf.able.es>
-In-Reply-To: <20001214210941.A707@middle.of.nowhere> <E146h1W-000081-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <E146h1W-000081-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Dec 14, 2000 at 23:38:49 +0100
-X-Mailer: Balsa 1.0.0
+	id <S129870AbQLNXmk>; Thu, 14 Dec 2000 18:42:40 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:22022 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129784AbQLNXmd>; Thu, 14 Dec 2000 18:42:33 -0500
+Date: Thu, 14 Dec 2000 15:11:33 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Bernhard Rosenkraenzer <bero@redhat.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Signal 11
+In-Reply-To: <Pine.LNX.4.30.0012142351520.19104-100000@bochum.redhat.de>
+Message-ID: <Pine.LNX.4.10.10012141507070.12451-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 2000/12/14 Alan Cox wrote:
-> > slrnpull --expire on a news-spool of about 600 Mb in 200,000 files gave
-> > a lot of 'trying_to_free..' errors.
-> > 
-> > 2.2.18 + VM-global, booted with mem=32M:
-> > 
-> > slrnpull --expire on the same spool worked fine.
+
+On Thu, 14 Dec 2000, Bernhard Rosenkraenzer wrote:
+> >
+> > gcc-2.95.2 is at least a real release, from a branch that is actively
+> > maintained
 > 
-> I think Andrea just earned his official God status ;)
+> Not very actively.
+> Please take the time to compare the activity in gcc_2_95_branch with the
+> patches in the current "2.96" version in rawhide.
+
+Take a look at the differences in linux-2.2.x and linux-2.3.x.
+
+linux-2.3.x is was a h*ll of a lot more "actively maintained".
+
+But nobody really considers that to be an argument for RedHat (or anybody
+else) to installa 2.3.x kernel by default. Sure, most distributions have a
+"hacker kernel", but it's NOT installed by default, and it is clearly
+marked as experimental.
+
+Your arguments make no sense.
+
+The compiler is often _more_ important to system stability than the
+kernel. A "real release" implies that it at least had testing, and that
+people know what the problem spots tend to be.
+
+Note that the "know what the problem spots tend to be" is important.
+
+> > As to X compile problems - neither egcs nor 2.95.2 appears to have any
+> > trouble with the CVS tree.
 > 
+> Neither does 2.96-68.
 
-How about a 2.2.19-pre1 == 2.2.18-aa2 ?
+Good. Maybe you'd make it clearer to everybody who installed from your
+CD's that they had better upgrade. Pronto.
 
--- 
-Juan Antonio Magallon Lacarta                                 #> cd /pub
-mailto:jamagallon@able.es                                     #> more beer
-
-Linux werewolf 2.2.18-aa2 #1 SMP Thu Dec 14 21:22:40 CET 2000 i686
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,47 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbRBMKMc>; Tue, 13 Feb 2001 05:12:32 -0500
+	id <S129769AbRBMKRm>; Tue, 13 Feb 2001 05:17:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129837AbRBMKMW>; Tue, 13 Feb 2001 05:12:22 -0500
-Received: from comunit.de ([195.21.213.33]:13898 "HELO comunit.de")
-	by vger.kernel.org with SMTP id <S129267AbRBMKMI>;
-	Tue, 13 Feb 2001 05:12:08 -0500
-Date: Tue, 13 Feb 2001 11:12:01 +0100 (CET)
-From: Sven Koch <haegar@sdinet.de>
-X-X-Sender: <haegar@space.comunit.de>
-To: "Mike A. Harris" <mharris@opensourceadvocate.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: lkml subject line
-In-Reply-To: <Pine.LNX.4.33.0102130341580.1123-100000@asdf.capslock.lan>
-Message-ID: <Pine.LNX.4.32.0102131107400.21378-100000@space.comunit.de>
+	id <S129414AbRBMKRc>; Tue, 13 Feb 2001 05:17:32 -0500
+Received: from fisica.ufpr.br ([200.17.209.129]:25340 "EHLO
+	hoggar.fisica.ufpr.br") by vger.kernel.org with ESMTP
+	id <S129550AbRBMKRR>; Tue, 13 Feb 2001 05:17:17 -0500
+From: Carlos Carvalho <carlos@fisica.ufpr.br>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14985.2457.869083.246477@hoggar.fisica.ufpr.br>
+Date: Tue, 13 Feb 2001 08:16:57 -0200
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.19pre10 doesn't compile on alphas (sunrpc)
+In-Reply-To: <shslmra9a9f.fsf@charged.uio.no>
+In-Reply-To: <E14SQqi-0008Bm-00@the-village.bc.nu>
+	<shslmra9a9f.fsf@charged.uio.no>
+X-Mailer: VM 6.90 under Emacs 19.34.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Feb 2001, Mike A. Harris wrote:
+Trond Myklebust (trond.myklebust@fys.uio.no) wrote on 13 February 2001 10:56:
+ >Actually, since BUG() only seems to be defined on i386 platforms for
+ >2.2.x, perhaps the easiest thing to do (unless somebody wants to
+ >volunteer to backport all the `safe' definitions from 2.4.x) would be
+ >to add the generic `*(int *)0 = 0' definition for local use by ping()
+ >itself.
 
-[cc-list trimmed]
-
-> That said, and while we're on the topic.. Does anyone have a
-> *PERFECT* recipe for procmail to REMOVE the stupid [Dummy] things
-> most GNU mailman lists and others prepend to the subject?
-
-I am using the following to sort the suse-security-list (for example, I do
-the same on all lists that tag something into the subject):
-
-:0 fhw
-* ^TO_suse-security@suse.com
-| sed -e '/^Subject:/s/\[suse-security\] //'
-:0 A:
-SuSE-Security$MONTH
-
-
-c'ya
-sven
-
--- 
-
-The Internet treats censorship as a routing problem, and routes around it.
-(John Gilmore on http://www.cygnus.com/~gnu/)
-
+Yes, this is what I wanted, something just enough to catch the bug and
+run 2.2.19 until we can use 2.4. Thanks.

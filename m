@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130321AbQLKA2I>; Sun, 10 Dec 2000 19:28:08 -0500
+	id <S130560AbQLKA3I>; Sun, 10 Dec 2000 19:29:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130560AbQLKA16>; Sun, 10 Dec 2000 19:27:58 -0500
-Received: from rmx470-mta.mail.com ([165.251.48.48]:47025 "EHLO
-	rmx470-mta.mail.com") by vger.kernel.org with ESMTP
-	id <S130321AbQLKA1s>; Sun, 10 Dec 2000 19:27:48 -0500
-Message-ID: <386943387.976492639239.JavaMail.root@web395-wra.mail.com>
-Date: Sun, 10 Dec 2000 18:57:18 -0500 (EST)
-From: Frank Davis <fdavis112@juno.com>
-To: torvalds@transmeta.com
-Subject: [PATCH]test12-pre8 i2o_lan.c
-CC: linux-kernel@vger.kernel.org
+	id <S131192AbQLKA26>; Sun, 10 Dec 2000 19:28:58 -0500
+Received: from jalon.able.es ([212.97.163.2]:5539 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S130560AbQLKA2z>;
+	Sun, 10 Dec 2000 19:28:55 -0500
+Date: Mon, 11 Dec 2000 00:58:21 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: "David D . W . Downey" <pgpkeys@hislinuxbox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: No shared memory??
+Message-ID: <20001211005821.A2556@werewolf.able.es>
+Reply-To: jamagallon@able.es
+In-Reply-To: <Pine.LNX.4.30.0012100306530.4353-100000@playtoy.hislinuxbox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Mailer: mail.com
-X-Originating-IP: 151.201.242.214
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.30.0012100306530.4353-100000@playtoy.hislinuxbox.com>; from pgpkeys@hislinuxbox.com on Sun, Dec 10, 2000 at 12:11:14 +0100
+X-Mailer: Balsa 1.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-   I just downloaded test12-pre8 from ftp.kernel.org and received the following error, as I did in the old test12-pre8. The following error appears to fix the problem.
-Regards,
-Frank
 
-i2o_lan.c:116: warning: initialization makes integer from pointer
-   without a cast
-   i2o_lan.c:1404: structure has no member named 'next'
-   make[2]: *** [i2o_lan.o] Error 1
-   make[2]: *** Leaving directory '/usr/src/linux/drivers/i2o
+On Sun, 10 Dec 2000 12:11:14 David D.W. Downey wrote:
+> 
+> OK, got a tiny little bug here.
+> 
+> When running top, procinfo, or free I get 0 for Shared memory. Obviously
+> this is incorrect. What has changed from the 2.2.x and the 2.4.x that
+> would cause these apps to misreport this information.
+> 
 
---- drivers/i2o/i2o_lan.c.old	Sun Dec 10 18:02:22 2000
-+++ drivers/i2o/i2o_lan.c	Sun Dec 10 18:35:01 2000
-@@ -1401,7 +1401,7 @@
- 	atomic_set(&priv->tx_out, 0);
- 	priv->tx_count = 0;
- 
--	priv->i2o_batch_send_task.next    = NULL;
-+	INIT_LIST_HEAD(&priv->i2o_batch_send_task.list);
- 	priv->i2o_batch_send_task.sync    = 0;
- 	priv->i2o_batch_send_task.routine = (void *)i2o_lan_batch_send;
- 	priv->i2o_batch_send_task.data    = (void *)dev;
+Have you mounted /dev/shm (shared memory) filesystem ?
+Take a look at kernel documentation under linux/Documentation/Changes.
 
+-- 
+Juan Antonio Magallon Lacarta                                 #> cd /pub
+mailto:jamagallon@able.es                                     #> more beer
+
+Linux werewolf 2.2.18-pre25-vm #4 SMP Fri Dec 8 01:59:48 CET 2000 i686
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,51 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbUCVFGN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 00:06:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbUCVFGN
+	id S261724AbUCVFH4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 00:07:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbUCVFH4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 00:06:13 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:38559
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S261706AbUCVFGK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 00:06:10 -0500
-Date: Mon, 22 Mar 2004 06:07:02 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Drop O_LARGEFILE from F_GETFL for POSIX compliance
-Message-ID: <20040322050701.GM3649@dualathlon.random>
-References: <20040322051318.597ad1f9.ak@suse.de> <20040322043454.GL3649@dualathlon.random> <20040322054512.0333dad8.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040322054512.0333dad8.ak@suse.de>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Mon, 22 Mar 2004 00:07:56 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:16512 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261724AbUCVFHx convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 00:07:53 -0500
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: =?iso-8859-1?q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       "Patrick J. LoPresti" <patl@users.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cowlinks v2
+References: <Pine.LNX.4.44.0403211623400.12699-100000@bigblue.dev.mdolabs.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 21 Mar 2004 22:07:40 -0700
+In-Reply-To: <Pine.LNX.4.44.0403211623400.12699-100000@bigblue.dev.mdolabs.com>
+Message-ID: <m1ad298o6b.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 22, 2004 at 05:45:12AM +0100, Andi Kleen wrote:
-> On Mon, 22 Mar 2004 05:34:54 +0100
-> Andrea Arcangeli <andrea@suse.de> wrote:
-> 
-> 
-> > 32bit archs needs to get O_LARGEFILE in return from getfl (if they set
-> > it [it's not set implicitly in 32bit archs] they will be able to handle
-> > it transparently in glibc too, and I believe they really want it). 64bit
-> > archs not, hence the fix.
-> 
-> If 32bit archs need it then 64bit archs need it too (think 32bit emulated processes
-> on 64bit jernels)  But I think in practice it doesn't matter, so I would prefer to be 
-> consistent between 32bit and 64bit.
-> 
-> I don't feel very strongly about this however ...
+Davide Libenzi <davidel@xmailserver.org> writes:
 
-I agree it'd be a lot simpler to handle 32bit user on 64bit kernel if we
-can clear it unconditionally (otherwise we've to trap getfl with a
-ia32 wrapper) but I'm afraid the api may break if we clear that bit
-unconditionally. I can't tell you for sure by memory though because the
-last time I worked on this was one year and half ago and this is really
-a matter of API. We should ask the glibc people for another confirmation
-before choosing if to clear it only in 64bit archs or in 32bit too.
+> On 21 Mar 2004, Eric W. Biederman wrote:
+> 
+> > Jörn Engel <joern@wohnheim.fh-wedel.de> writes:
+> > 
+> > > On Sun, 21 March 2004 09:59:39 -0800, Davide Libenzi wrote:
+> > > > 
+> > > > When I did that, fumes of an in-kernel implementation invaded my head for
+> 
+> > > > a little while. Then you start thinking that you have to teach apps of new
+> 
+> > > > open(2) semantics, you have to bloat kernel code a little bit and you have
+> 
+> > > > to deal with a new set of errors cases that open(2) is not expected to 
+> > > > deal with. A fully userspace implementation did fit my needs at that time,
+> 
+> > > > even if the LD_PRELOAD trick might break if weak aliases setup for open 
+> > > > functions change inside glibc.
+> > > 
+> > > 209 fairly simple lines definitely have more appear than a full
+> > > in-kernel implementation with many new corner-cases, yes.  But it
+> > > looks as if you ignore the -ENOSPC case, so you cheated a little. ;)
+> > > 
+> > > No matter how you try, there is no way around an additional return
+> > > code for open(), so we have to break compatibility anyway.  The good
+> > > news is that a) people not using this feature won't notice and b) all
+> > > programs I tried so far can deal with the problem.  Vim even has a
+> > > decent error message - as if my patch was anticipated already.
+> > 
+> > Actually there is...  You don't do the copy until an actual write occurs.
+> > Some files are opened read/write when there is simply the chance they might
+> > be written to so delaying the copy is generally a win.
+> 
+> What about open+mmap?
+
+The case is nothing really different from having a hole in your file.
+
+There are two pieces to implementing this.  First you create separate
+page cache  entries for the cow file and it's original, so the
+laziness of mmapped file writes will not bite you..  Second you make
+aops -> writepage trigger the actual copy of the file, and have it
+return -ENOSPC if you can't do the copy.
+
+If cow links became sufficiently common you might want to dig into
+the VFS and make it possible to do the copy when a write-fault occurs.
+At which point you could share the page cache until you do a copy.
+
+Eric

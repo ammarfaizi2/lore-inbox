@@ -1,82 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265887AbUG1WMW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265722AbUG1WNy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265887AbUG1WMW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 18:12:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265722AbUG1WMV
+	id S265722AbUG1WNy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 18:13:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265893AbUG1WNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 18:12:21 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:6121 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S265521AbUG1WL5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 18:11:57 -0400
-Date: Wed, 28 Jul 2004 17:11:51 -0500
-From: Greg Howard <ghoward@sgi.com>
-X-X-Sender: ghoward@gallifrey.americas.sgi.com
+	Wed, 28 Jul 2004 18:13:54 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:18093 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S265722AbUG1WM6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 18:12:58 -0400
+Date: Wed, 28 Jul 2004 18:49:21 -0400
+From: Adam Kropelin <akropel1@rochester.rr.com>
 To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Altix system controller communication driver
-In-Reply-To: <20040728085737.26e0bfd2.akpm@osdl.org>
-Message-ID: <Pine.SGI.4.58.0407281641210.1656@gallifrey.americas.sgi.com>
-References: <Pine.SGI.4.58.0407271457240.1364@gallifrey.americas.sgi.com>
- <20040728085737.26e0bfd2.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: 2.6.8-rc2-mm1
+Message-ID: <20040728184921.A17143@mail.kroptech.com>
+References: <20040728020444.4dca7e23.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040728020444.4dca7e23.akpm@osdl.org>; from akpm@osdl.org on Wed, Jul 28, 2004 at 02:04:44AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+On Wed, Jul 28, 2004 at 02:04:44AM -0700, Andrew Morton wrote:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc2/2.6.8-rc2-mm1/
 
-On Wed, 28 Jul 2004, Andrew Morton wrote:
+<snip>
 
-> As Jes says,
->
-> 	.owner	= THIS_MODULE,
->
-> is preferred here.
-. . .
->
-> There's no need to cast the return value of kmalloc.
->
-> 	scd = kmalloc(sizeof(*scd), GFP_KERNEL);
->
-> would suffice here.
+> - If people have patches in here which are important for a 2.6.8 release,
+>   please let me know.
 
-I fixed these.  I plan to repost shortly.
+There's a trivial yet fairly important fix to hiddev.h in bk-input that
+it would be nice to get merged before 2.6.8. Distros have been
+shipping the current in-tree (broken) version with their kernel headers
+packages so a number of userspace apps cannot build. I've broken out the
+patch below.
 
-. . .
-> hm.  O_NONBLOCK means "don't wait for more input to arrive" rather than
-> "don't block if someone else is holding a lock I want".  But given that the
-> semaphore is held by !O_NONBLOCK readers, it has to be done this way.
->
-> I guess there's no bug here, but it's a bit odd.
+There's also a hiddev oops-on-removal fix that ought to be merged fairly
+soon, but I can understand if Vojtech wants that tested a bit longer
+first.
 
-I'm certainly willing to try other ways, but this was the best I
-could think of.  It seems to work at least.
+--Adam
 
->
-> > +		copy_to_user(buf, sd->sd_rb, len);
->
-> What Jes said: return -EFAULT if copy_to_user() returns non-zero.
+diff -Nru a/include/linux/hiddev.h b/include/linux/hiddev.h
+--- a/include/linux/hiddev.h	2004-07-27 18:37:32 -07:00
++++ b/include/linux/hiddev.h	2004-07-27 18:37:32 -07:00
+@@ -128,10 +128,11 @@
+ 
+ /* hiddev_usage_ref_multi is used for sending multiple bytes to a control.
+  * It really manifests itself as setting the value of consecutive usages */
++#define HID_MAX_MULTI_USAGES 1024
+ struct hiddev_usage_ref_multi {
+ 	struct hiddev_usage_ref uref;
+ 	__u32 num_values;
+-	__s32 values[HID_MAX_USAGES];
++	__s32 values[HID_MAX_MULTI_USAGES];
+ };
+ 
+ /* FIELD_INDEX_NONE is returned in read() data from the kernel when flags
+@@ -211,6 +212,11 @@
+ /*
+  * In-kernel definitions.
+  */
++
++struct hid_device;
++struct hid_usage;
++struct hid_field;
++struct hid_report;
+ 
+ #ifdef CONFIG_USB_HIDDEV
+ int hiddev_connect(struct hid_device *);
 
-Fixed this.
-
->
-> > +static unsigned int
-> > +scdrv_poll(struct file *file, struct poll_table_struct *wait)
-> > +{
-> > +	unsigned int mask = 0;
-> > +	int status = 0;
-> > +	struct subch_data_s *sd = (struct subch_data_s *) file->private_data;
-> > +	unsigned long flags;
-> > +
-> > +	scdrv_lock_all(sd, &flags);
-> > +	poll_wait(file, &sd->sd_rq, wait);
-> > +	poll_wait(file, &sd->sd_wq, wait);
->
-> This function will sleep with spinlocks held, won't it?
-
-My understanding is that poll_wait just sets up a poll_table
-structure; it doesn't sleep itself.
-
-Thanks for the suggestions.
-- Greg

@@ -1,48 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263373AbTDGKu3 (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 06:50:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263375AbTDGKu3 (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 06:50:29 -0400
-Received: from dspnet.fr.eu.org ([62.73.5.179]:3850 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S263373AbTDGKu2 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 06:50:28 -0400
-Date: Mon, 7 Apr 2003 13:02:03 +0200
-From: Olivier Galibert <galibert@pobox.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] new syscall: flink
-Message-ID: <20030407110203.GA53597@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	linux-kernel@vger.kernel.org
-References: <3E907A94.9000305@kegel.com> <200304062156.37325.oliver@neukum.org> <1049663559.1602.46.camel@dhcp22.swansea.linux.org.uk> <b6qo2a$ecl$1@cesium.transmeta.com> <b6qnr6$s4h$1@abraham.cs.berkeley.edu> <20030407100915.A2493@clueful.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030407100915.A2493@clueful.co.uk>
-User-Agent: Mutt/1.4i
+	id S263377AbTDGLFZ (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 07:05:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263378AbTDGLFZ (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 07:05:25 -0400
+Received: from grunt5.ihug.co.nz ([203.109.254.45]:61666 "EHLO
+	grunt5.ihug.co.nz") by vger.kernel.org with ESMTP id S263377AbTDGLFY (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 07:05:24 -0400
+Message-ID: <000201c2fda7$727744e0$0b721cac@stacy>
+From: "dave" <davekern@ihug.co.nz>
+To: <linux-kernel@vger.kernel.org>
+Subject: Help writing FS and proc
+Date: Tue, 8 Apr 2003 00:57:48 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2720.3000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 07, 2003 at 10:09:15AM +0100, Malcolm Beattie wrote:
-> Here's another example along similar lines: you can open a file
-> O_APPEND and pass the descriptor along to another process (e.g. a
-> security mediator process that hands out a file descriptor to a
-> less-trusted recipient that it can use for appending entries only).
-> fcntl() explicity prevents the clearing of the O_APPEND flag on a
-> file which was opened with O_APPEND. With flink, one could flink()
-> and re-open without O_APPEND: security hole.
+I am writing a 2.4.x device driver LNVRM I was going to use proc for debug
+and interface
+But proc dose not support report files because it dose not have OPEN and
+RELASE functions
 
-That would be a big security hole waiting to happen though.  Nothing
-forces the less trusted recipient not to send in zeroes or finish the
-lines (for a text file) or respect a particular format (for a binary
-file).
+My report files work like this
+    1. OPEN
+        Memory is allocated and status information is loaded into the memory
+    2. READ
+        Normal read of the memory (report)
+    5. REALISE
+        The report memory is freed
 
-In practice, I tend to think that any secutiry scheme flink breaks is
-brittle at best.  It requires passing a fd to a file which is owned by
-the same uid than the untrusted process, and rely somehow on the
-directory structure to prevent direct access to said file.  But the
-trusted process must have had access to the file somehow, so, well,
-it's really, really brittle.
+so now I want my driver when is starts to make an mount point in /proc/lnvrm
+and then
+auto mount my FS also my FS will have whatever status info and a fixed file
+in it called
+device witch will be a char device node witch will point to my auto assigned
+mayor / minor
+number  I do not want to use 2.4.x vdev as this way just dose it all in one
 
-/proc breaking it already isn't very surprising.
+I have done proc code before but run into lots of brick wills I guest I need
+to know
+1. how do you make a mount point in /proc ?
+2. how do you auto mount that point ?
+3     how do you make a device node in proc ? (I wont use this but it is
+interesting to me)
 
-  OG.
+also I have written a read / write FS before but this was mainly by locking
+at outer peoples work
+is there some relay good info on writing a linux FS for free download ? (no
+I don't have any CC's)
+
+
+thank you
+
+
+
+
 

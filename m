@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265508AbSKFOag>; Wed, 6 Nov 2002 09:30:36 -0500
+	id <S265587AbSKFOiE>; Wed, 6 Nov 2002 09:38:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265547AbSKFOag>; Wed, 6 Nov 2002 09:30:36 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:35594 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S265508AbSKFOad>; Wed, 6 Nov 2002 09:30:33 -0500
-Date: Wed, 6 Nov 2002 09:35:34 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Rob Landley <landley@trommello.org>
-cc: Tom Rini <trini@kernel.crashing.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: CONFIG_TINY
-In-Reply-To: <200211051755.56586.landley@trommello.org>
-Message-ID: <Pine.LNX.3.96.1021106093413.23780C-100000@gatekeeper.tmr.com>
+	id <S265600AbSKFOiE>; Wed, 6 Nov 2002 09:38:04 -0500
+Received: from smtp02.fields.gol.com ([203.216.5.132]:7911 "EHLO
+	smtp02.fields.gol.com") by vger.kernel.org with ESMTP
+	id <S265587AbSKFOiD>; Wed, 6 Nov 2002 09:38:03 -0500
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: yet another update to the post-halloween doc
+In-Reply-To: <20021106140844.GA5463@suse.de>
+References: <20021106140844.GA5463@suse.de>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+From: Miles Bader <miles@gnu.org>
+Date: 06 Nov 2002 23:44:31 +0900
+Message-ID: <87r8dylpv4.fsf@tc-1-100.kawasaki.gol.ne.jp>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-Abuse-Complaints: abuse@gol.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Nov 2002, Rob Landley wrote:
+Dave Jones <davej@codemonkey.org.uk> writes:
+> Ports.
+> ~~~~~~
+> - 2.5 features support for several new architectures.
+...
+>   - uCLinux. 68k(w/o MMU) and v850 platforms.
 
-> Reason 4 is inertia.  You are explicitly considering inertia a good reason, 
-> then?  I remember back around 1998, the argument over "-fno-strength-reduce" 
-> which accomplished nothing whatsoever (and was in fact disabled in gcc 2.7.x 
-> for i386) but was in the kernel compile for a long time becaue nobody could 
-> be bothered to remove it...
+A nit, I suppose, but the v850 is not a `platform' in the conventional
+sense of the term, it's a completely new architecture.  uCLinux, OTOH,
+is not an architecture, but a tweak to various parts of the kernel to
+remove the requirement for an MMU (yeah I know what you meant, but
+others may not).
 
-However, there were versions of gcc which generated bad x86 code if you
-didn't use it. It stayed until that version would no longer compile the
-kernel.
+Thanks,
 
+-Miles
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+I have seen the enemy, and he is us.  -- Pogo

@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132357AbQLRSpv>; Mon, 18 Dec 2000 13:45:51 -0500
+	id <S132418AbQLRStD>; Mon, 18 Dec 2000 13:49:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132418AbQLRSpb>; Mon, 18 Dec 2000 13:45:31 -0500
-Received: from jump-isi.interactivesi.com ([207.8.4.2]:26612 "HELO
-	dinero.interactivesi.com") by vger.kernel.org with SMTP
-	id <S132357AbQLRSp0>; Mon, 18 Dec 2000 13:45:26 -0500
-Date: Mon, 18 Dec 2000 12:15:00 -0600
-From: Timur Tabi <ttabi@interactivesi.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <14910.10020.692884.302587@wire.cadcamlab.org>
-In-Reply-To: <20001217153444N.dyky@df-usa.com> <20001218033154.F3199@cadcamlab.org> 
-	<20001218154907.A16749@athlon.random>
+	id <S132451AbQLRSsw>; Mon, 18 Dec 2000 13:48:52 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:54277 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132418AbQLRSso>; Mon, 18 Dec 2000 13:48:44 -0500
 Subject: Re: 2.2.18 asm-alpha/system.h has a problem
-X-Mailer: The Polarbar Mailer; version=1.19; build=71
-Message-Id: <20001218184531Z132357-439+4699@vger.kernel.org>
+To: ttabi@interactivesi.com (Timur Tabi)
+Date: Mon, 18 Dec 2000 18:20:17 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20001218184531Z132357-439+4699@vger.kernel.org> from "Timur Tabi" at Dec 18, 2000 12:15:00 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1484tX-0005xN-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-** Reply to message from Peter Samuelson <peter@cadcamlab.org> on Mon, 18 Dec
-2000 09:03:00 -0600 (CST)
+> programmer for a C++ programmer.  All the C programmer needs to do is
+> acknowledge that someone might want to use a C++ compiler on the code, and just
+> make a few minor changes that have no negative affect at all.
 
+All C++ folks need to do is to use
 
-> Not a compiler bug, a source bug of assuming a C header file can be
-> included by a C++ program.  The right solution, as always, is to make a
-> copy of the header (assuming you really do need it) and edit the copy
-> as necessary. 
+extern "C" {
+#include "macrosforthestuffthecplusplusstandardspeoplegotwrong.h"
+#include "cheaderfile"
+#include "nowmakethemacrosgoaway.h"
+}
 
-That just creates more maintenance problems.  What if the kernel header file
-changes?  Then he'll have to change his copy as well.  He'll forever need to
-check changes in that kernel header file, or risk having an obscure bug that's
-otherwise hard to track.
+where those redefine new private etc
 
-
-Yes, it's perfectly valid C, but so what?  That doesn't mean that it's a good
-idea.  It does no harm to make a minor change to the header file to allow a C++
-compiler to digest it.  I consider it to be a "professional courtesy" of a C
-programmer for a C++ programmer.  All the C programmer needs to do is
-acknowledge that someone might want to use a C++ compiler on the code, and just
-make a few minor changes that have no negative affect at all.
-
-
--- 
-Timur Tabi - ttabi@interactivesi.com
-Interactive Silicon - http://www.interactivesi.com
-
-When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

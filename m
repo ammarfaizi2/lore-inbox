@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262493AbUCCPpu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 10:45:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262492AbUCCPpt
+	id S262491AbUCCPuM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 10:50:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262492AbUCCPuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 10:45:49 -0500
-Received: from gruby.cs.net.pl ([62.233.142.99]:65297 "EHLO gruby.cs.net.pl")
-	by vger.kernel.org with ESMTP id S262491AbUCCPps (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 10:45:48 -0500
-Date: Wed, 3 Mar 2004 16:45:47 +0100
-From: Jakub Bogusz <qboosh@pld-linux.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6] USB_GADGET depends on USB
-Message-ID: <20040303154547.GK7223@gruby.cs.net.pl>
-References: <20040303135756.GH7223@gruby.cs.net.pl> <20040303152738.GH25687@kroah.com>
-Mime-Version: 1.0
+	Wed, 3 Mar 2004 10:50:12 -0500
+Received: from citrine.spiritone.com ([216.99.193.133]:12695 "EHLO
+	citrine.spiritone.com") by vger.kernel.org with ESMTP
+	id S262491AbUCCPuI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 10:50:08 -0500
+Date: Wed, 03 Mar 2004 07:46:32 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>
+cc: linux-kernel@vger.kernel.org, hugh@veritas.com, wli@holomorphy.com,
+       dmccr@us.ibm.com
+Subject: Re: 230-objrmap fixes for 2.6.3-mjb2
+Message-ID: <7440000.1078328791@[10.10.2.4]>
+In-Reply-To: <20040303025820.2cf6078a.akpm@osdl.org>
+References: <20040303070933.GB4922@dualathlon.random> <20040303025820.2cf6078a.akpm@osdl.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040303152738.GH25687@kroah.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 03, 2004 at 07:27:40AM -0800, Greg KH wrote:
-> On Wed, Mar 03, 2004 at 02:57:56PM +0100, Jakub Bogusz wrote:
-> > Up to current cset it's possible to select USB_GADGET even if USB is
-> > disabled (causing only compilation errors). This patch adds depends
-> > rules to disallow USB_GADGET if USB is not enabled (similar to those
-> > found in other drivers/usb/*/Kconfig files).
+--Andrew Morton <akpm@osdl.org> wrote (on Wednesday, March 03, 2004 02:58:20 -0800):
+
+> Andrea Arcangeli <andrea@suse.de> wrote:
+>> 
+>> --- sles-objrmap/mm/rmap.c.~1~	2004-03-03 06:45:38.995594456 +0100
+>>  +++ sles-objrmap/mm/rmap.c	2004-03-03 07:01:39.200621104 +0100
+>>  @@ -470,7 +470,7 @@ try_to_unmap_obj_one(struct vm_area_stru
+>>   	if (!pte)
+>>   		goto out;
+>>   
+>>  -	if (vma->vm_flags & VM_LOCKED) {
+>>  +	if (vma->vm_flags & (VM_LOCKED|VM_RESERVED)) {
+>>   		ret =  SWAP_FAIL;
+>>   		goto out_unmap;
 > 
-> But why would you want to do that?  You can have a box with USB gadget
-> support but not USB "host" support on it just fine.
-> 
-> This patch is not correct, nor needed.
+> I keep on wanting to put that in there too.  But pages in a VM_RESERVED vma
+> should not find their way onto the LRU.  Maybe we should be checking for
+> that in do_no_page().
 
-Now I know, David Brownell already explained it to me.
+There was talk at one point of moving the "unswappable" state down into 
+the struct page. Is that still realistic? It would seem rather more
+efficient, but I forget what problem we ran into with it.
 
-It was because make (old)config) asks questions about USB_GADGET,
-USB_ETH, USB_FILE_STORAGE, USB_G_SERIAL, USB_ZERO, USB_GADGETFS even on
-platforms where no USB peripheral controller is available (like sparc32) -
-which make no sense as none of them can be built without any
-CONFIG_USB_GADGET_*.
-These options could be omitted on such platforms...
+M.
 
-
--- 
-Jakub Bogusz    http://cyber.cs.net.pl/~qboosh/
-PLD Team        http://www.pld-linux.org/

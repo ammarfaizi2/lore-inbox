@@ -1,73 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261589AbTEYEQU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 May 2003 00:16:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbTEYEQU
+	id S261312AbTEYEUr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 May 2003 00:20:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbTEYEUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 00:16:20 -0400
-Received: from smtp4.knology.net ([24.214.63.227]:42724 "HELO
-	smtp4.knology.net") by vger.kernel.org with SMTP id S261589AbTEYEQR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 00:16:17 -0400
-Subject: Re: Still more Redhat Module Troubles
-From: John Shillinglaw <linuxtech@knology.net>
-To: mikpe@csd.uu.se
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200305241014.h4OAE8s0011456@harpo.it.uu.se>
-References: <200305241014.h4OAE8s0011456@harpo.it.uu.se>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1053836965.2912.5.camel@Aragorn>
+	Sun, 25 May 2003 00:20:47 -0400
+Received: from vsat-148-64-8-86.c119.t7.mrt.starband.net ([148.64.8.86]:260
+	"EHLO chaos.mshome.net") by vger.kernel.org with ESMTP
+	id S261312AbTEYEUp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 00:20:45 -0400
+Date: Sat, 24 May 2003 22:33:20 -0600
+From: Robert Creager <Robert_Creager@LogicalChaos.org>
+To: linux-kernel@vger.kernel.org
+Subject: Problem with virtually no buffer usage in 2.4.21mdk kernel
+Message-Id: <20030524223320.7c1ac413.Robert_Creager@LogicalChaos.org>
+Organization: Starlight Vision, LLC.
+X-Mailer: Sylpheed version 0.8.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 25 May 2003 00:29:26 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.qD0gm5wG3w1/.h"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks again,
+--=.qD0gm5wG3w1/.h
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-My only real problem now seems to be that while X loads like it's
-supposed to, my mouse ( generic ps/2 wheel mouse ) doesn't move once X
-has started.
 
-Only other problems were a message about keybdev being not found which I
-understand is normal, and a usb-ohci not found error which hopefully I
-found the missing config setting for.
+[Please CC me personally, as I'm not subscribed]
 
-If I can just figure out why the mouse doesn't work, I'll be running on
-2.5.69
+Hey folks,
 
-Thanks again
-On Sat, 2003-05-24 at 06:14, mikpe@csd.uu.se wrote:
-> On 24 May 2003 00:02:30 -0400, John Shillinglaw wrote:
-> >Anyway I get not found messages when redhat modprobes char-major-10-1,
-> >eth1, etc. when it boots up. This seems to be related to aliases since
-> >eth1 is aliased to sis900 and char-major-10-1 to psaux. All help greatly
-> >appreciated... exact details and .config file below:
-> ...
-> >I also tried to run the generate modprobe.conf script with no changes to
-> >the behavior.
-> 
-> Did you install the generated modprobe.conf in /etc? If not, do so.
-> 
-> rc.sysinit has a known problem that causes it to disable module
-> autoloading in 2.5 kernels. Fixed by the patch below.
-> 
-> mkinitrd generally doesn't work with 2.5 modules, or once the new
-> module-init-tools have been installed. I don't know how to fix
-> that; maybe an LKML archive search will find something.
-> 
-> --- /etc/rc.d/rc.sysinit~	2003-02-24 22:54:17.000000000 +0100
-> +++ /etc/rc.d/rc.sysinit	2003-05-01 17:07:09.000000000 +0200
-> @@ -357,7 +357,7 @@
->      IN_INITLOG=
->  fi
->  
-> -if ! LC_ALL=C grep -iq nomodules /proc/cmdline 2>/dev/null && [ -f /proc/ksyms ]; then
-> +if ! LC_ALL=C grep -iq nomodules /proc/cmdline 2>/dev/null && [ -f /proc/modules ]; then
->      USEMODULES=y
->  fi
->  
-> 
+I'm using a custom built 2.4.21 kernel from the Mandrake 9.1 distribution.  The hardware is dual AMD Athlon 2600+ system with 2Gb of registered DDR ECC memory, SCSI and ATA disks.
+
+My apparent problem is I'm seeing virtually no buffer usage, as checked from /proc/meminfo.  The system has been up for 11 days, with heavy dB and file access activity (Gb's worth per day), yet the buffer usage never budges.  Am I missing something fundamental, have I boffed the kernel build, or is there a problem?  I would appreciate any pointers.
+
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  2119151616 2068426752 50724864        0    90112 1888358400
+Swap: 2089177088 70832128 2018344960
+MemTotal:      2069484 kB
+MemFree:         49536 kB
+MemShared:           0 kB
+Buffers:            88 kB
+Cached:        1823808 kB
+SwapCached:      20292 kB
+Active:        1209640 kB
+Inactive:       712324 kB
+HighTotal:     1179136 kB
+HighFree:         2044 kB
+LowTotal:       890348 kB
+LowFree:         47492 kB
+SwapTotal:     2040212 kB
+SwapFree:      1971040 kB
+
+Thanks for your time,
+Rob
+
+-- 
+O_
+
+--=.qD0gm5wG3w1/.h
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iEYEARECAAYFAj7QR5EACgkQgy51bQc2FFkIdwCg3h6/6edI4AuxL+uT/cyWOgJ/
+zx8AnjFrTJeCApNqbGspLWo88rw2Jxl1
+=AfKr
+-----END PGP SIGNATURE-----
+
+--=.qD0gm5wG3w1/.h--
 

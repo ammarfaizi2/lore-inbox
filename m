@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263018AbTJGXnx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 19:43:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263036AbTJGXnx
+	id S262927AbTJHADg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 20:03:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262929AbTJHADg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 19:43:53 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:42254 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S263018AbTJGXnv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 19:43:51 -0400
-Date: Tue, 7 Oct 2003 19:43:40 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Domen Puncer <domen@coderock.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 3c59x on 2.6.0-test3->test6 slow
-In-Reply-To: <200310070949.31220.domen@coderock.org>
-Message-ID: <Pine.LNX.4.53.0310071349560.19396@montezuma.fsmlabs.com>
-References: <200310061529.56959.domen@coderock.org> <200310070144.47822.domen@coderock.org>
- <Pine.LNX.4.53.0310062016340.19396@montezuma.fsmlabs.com>
- <200310070949.31220.domen@coderock.org>
+	Tue, 7 Oct 2003 20:03:36 -0400
+Received: from mail47-s.fg.online.no ([148.122.161.47]:44237 "EHLO
+	mail47.fg.online.no") by vger.kernel.org with ESMTP id S262927AbTJHADe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 20:03:34 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: devfs and udev
+References: <20031007131719.27061.qmail@web40910.mail.yahoo.com>
+	<200310072128.09666.insecure@mail.od.ua>
+	<20031007194124.GA2670@kroah.com>
+	<200310072347.41749.insecure@mail.od.ua>
+	<20031007205244.GA2978@kroah.com>
+	<yw1xvfr0wxfa.fsf@users.sourceforge.net>
+	<20031007213758.GB3095@kroah.com>
+	<yw1xr81owvv0.fsf@users.sourceforge.net>
+	<1065564766.1238.144.camel@serpentine.internal.keyresearch.com>
+	<yw1x7k3gwtmi.fsf@users.sourceforge.net>
+	<20031007232706.GA3621@kroah.com>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: Wed, 08 Oct 2003 02:03:28 +0200
+In-Reply-To: <20031007232706.GA3621@kroah.com> (Greg KH's message of "Tue, 7
+ Oct 2003 16:27:06 -0700")
+Message-ID: <yw1x3ce4wq7j.fsf@users.sourceforge.net>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Oct 2003, Domen Puncer wrote:
+Greg KH <greg@kroah.com> writes:
 
-> > What is your link peer?
-> 
-> Not native english speaker, but if "link peer"  is the remote end, then this is a
-> friend's computer. (and a hub is between computers)
+> Hey look, documentation, a presentation, and wow, a statement saying
+> that the code sucks, and is merely a proof of concept, and that it will
 
-Ok in this case it would be the hub, sometimes these aren't the best when 
-it comes to advertising capabilities.
+I never meant to say that udev never will be a viable solution.  I
+also understand now that devfs has problems that nobody is willing
+solve.  Thus the marking as obsolete may be justified.  However, the
+statement that it has been obsoleted *by* udev, is, IMHO, a little
+bold.
 
-> # strace mii-tool eth0
-> execve("/sbin/mii-tool", ["mii-tool", "eth0"], [/* 37 vars */]) = 0
-> socket(PF_INET, SOCK_DGRAM, IPPROTO_IP) = 3
-> ioctl(3, 0x89f0, 0x804b460)             = -1 EOPNOTSUPP (Operation not supported)
-> write(2, "SIOCGMIIPHY on \'eth0\' failed: Op"..., 54SIOCGMIIPHY on 'eth0' failed: Operation not supported
-> ) = 54
-> close(3)                                = 0
-
-Could you try updating your mii-tool please.
-
-#define SIOCGMIIREG	0x8948		/* Read MII PHY register.	*/
-
-I'm not sure what your current binary is doing. I have the following 
-version;
-
-Name        : net-tools                    Relocations: (not relocateable)
-Version     : 1.60                              Vendor: Red Hat, Inc.
-Release     : 12                            Build Date: Tue 11 Feb 2003 09:33:32 AM EST
-Install Date: Sat 19 Apr 2003 11:57:08 AM EDT      Build Host: tweety.devel.redhat.com
-Group       : System Environment/Base       Source RPM: net-tools-1.60-12.src.rpm
-Size        : 611073                           License: GPL
-Signature   : DSA/SHA1, Mon 24 Feb 2003 01:37:21 AM EST, Key ID 219180cddb42a60e
-Packager    : Red Hat, Inc. <http://bugzilla.redhat.com/bugzilla>
-Summary     : Basic networking tools.
-Description :
-The net-tools package contains basic networking tools, including
-ifconfig, netstat, route, and others.
+-- 
+Måns Rullgård
+mru@users.sf.net

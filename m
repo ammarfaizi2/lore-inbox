@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130144AbQL2CV0>; Thu, 28 Dec 2000 21:21:26 -0500
+	id <S129257AbQL2C10>; Thu, 28 Dec 2000 21:27:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130361AbQL2CVG>; Thu, 28 Dec 2000 21:21:06 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:5637 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130231AbQL2CVB>; Thu, 28 Dec 2000 21:21:01 -0500
-Subject: Re: Repeatable Oops in 2.4t13p4ac2
-To: cw@f00f.org (Chris Wedgwood)
-Date: Fri, 29 Dec 2000 01:52:07 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        marcelo@conectiva.com.br (Marcelo Tosatti), chris@freedom2surf.net,
+	id <S129525AbQL2C1Q>; Thu, 28 Dec 2000 21:27:16 -0500
+Received: from a203-167-249-89.reverse.clear.net.nz ([203.167.249.89]:31239
+	"HELO metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S129257AbQL2C1E>; Thu, 28 Dec 2000 21:27:04 -0500
+Date: Fri, 29 Dec 2000 14:56:36 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, chris@freedom2surf.net,
         linux-kernel@vger.kernel.org
-In-Reply-To: <20001229144609.B16930@metastasis.f00f.org> from "Chris Wedgwood" at Dec 29, 2000 02:46:09 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+Subject: Re: Repeatable Oops in 2.4t13p4ac2
+Message-ID: <20001229145636.C16930@metastasis.f00f.org>
+In-Reply-To: <20001229144609.B16930@metastasis.f00f.org> <E14BoiI-0004ch-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14BoiI-0004ch-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14BoiI-0004ch-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Dec 29, 2000 at 01:52:07AM +0000
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am fairly confident something in ac2 is fishy. I can repeatable get
-> ac2 to fail with PCMCIA and also reiserfs under load, I absolutely
-> cannot get these failures without ac2.
+On Fri, Dec 29, 2000 at 01:52:07AM +0000, Alan Cox wrote:
 
-The PCMCIA thing is unlikely to be related (there are no changes on any PCMCIA
-that actually worked on 13pre4). Reiserfs might be the trigger because the
-quota code changed, but if it did touch it I'd expect it to have failed
-to compile
+    The PCMCIA thing is unlikely to be related (there are no changes
+    on any PCMCIA that actually worked on 13pre4). 
 
-> This is totally repeatable so if you want further diagnostics please
-> let me know....
+Oh, I'm sure it is unrelated -- it's just a good trigger for the
+problem on my laptop.
 
-I'm going to go and do a detailed audit of the mm bits I have differing from
-Linus. For one I'd be much happier to differ in drivers with Linus and avoid
-differing in mm/vm internals stuff.
+    Reiserfs might be the trigger because the quota code changed, but
+    if it did touch it I'd expect it to have failed to compile
 
-Alan
+No quotas, local version of reiserfs but probably not too divergent
+from what else is out there.
 
+    I'm going to go and do a detailed audit of the mm bits I have
+    differing from Linus. For one I'd be much happier to differ in
+    drivers with Linus and avoid differing in mm/vm internals stuff.
+
+I'll resync to t13p5 and any new reiserfs change that might be
+relevant and see how that goes; if that works I'll start merging in
+ac2 and see when it breaks.
+
+
+
+  --cw
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263348AbUJ2OZq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263355AbUJ2OZO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263348AbUJ2OZq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 10:25:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263352AbUJ2OZq
+	id S263355AbUJ2OZO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 10:25:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263344AbUJ2OXH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 10:25:46 -0400
-Received: from mailserv.intranet.GR ([146.124.14.106]:27798 "EHLO
-	mailserv.intranet.gr") by vger.kernel.org with ESMTP
-	id S263348AbUJ2OY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 10:24:59 -0400
-Message-ID: <4182519D.3020205@intracom.gr>
-Date: Fri, 29 Oct 2004 17:20:13 +0300
-From: Pantelis Antoniou <panto@intracom.gr>
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.7.3) Gecko/20040920
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Tom Rini <trini@kernel.crashing.org>,
-       Linuxppc-Embedded <linuxppc-embedded@lists.linuxppc.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix early request_irq
-References: <41824E15.4090906@intracom.gr> <20041029141648.GB25204@elte.hu>
-In-Reply-To: <20041029141648.GB25204@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 29 Oct 2004 10:23:07 -0400
+Received: from pat.uio.no ([129.240.130.16]:42400 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S263336AbUJ2OUl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 10:20:41 -0400
+Subject: Re: How to safely reduce stack usage in nfs code?
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1099040501.2641.9.camel@laptop.fenrus.org>
+References: <200410290020.01400.vda@port.imtp.ilyichevsk.odessa.ua>
+	 <1099040501.2641.9.camel@laptop.fenrus.org>
+Content-Type: text/plain
+Date: Fri, 29 Oct 2004 10:20:25 -0400
+Message-Id: <1099059626.11099.10.camel@dh138.citi.umich.edu>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
+fr den 29.10.2004 Klokka 11:01 (+0200) skreiv Arjan van de Ven:
+> On Fri, 2004-10-29 at 00:20 +0300, Denis Vlasenko wrote:
+> 
+> > I can convert these into kmalloc'ed variants but hesitate to do so
+> > because of possible 'need to kmalloc in order to free memory for kmalloc'
+> > deadlocks.
+> 
+> how about a memory pool?
+> 
+> It's not THE solution but I suspect the depth of callchains of these isn't too deep so it would work
 
->* Pantelis Antoniou <panto@intracom.gr> wrote:
->
->  
->
->>Hi there
->>
->>The recent consolidation of the IRQ code has caused
->>a number of PPC embedded cpus to stop working.
->>
->>The problem is that on init_IRQ these platforms call
->>request_irq very early, which in turn calls kmalloc
->>without the memory subsystem being initialized.
->>
->>The following patch fixes it by keeping a small static
->>array of irqactions just for this purpose.
->>    
->>
->
->this is quite broken. Those places should use setup_irq(),
->not request_irq().
->
->	Ingo
->
->
->  
->
-Sorry, didn't know about setup_irq.
+I can't see that any of the callchains Denis listed can deadlock. None
+of them appear to lie in the memory reclaim paths.
 
-Will fix.
+Cheers,
+  Trond
 
-Regards
-
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 

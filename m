@@ -1,50 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275317AbTHGMzq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 08:55:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275318AbTHGMzq
+	id S275322AbTHGNC3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 09:02:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275323AbTHGNC3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 08:55:46 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:44197 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S275317AbTHGMzp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 08:55:45 -0400
-Message-ID: <3F324C4D.9000008@namesys.com>
-Date: Thu, 07 Aug 2003 16:55:41 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030210
+	Thu, 7 Aug 2003 09:02:29 -0400
+Received: from choke.semantico.com ([212.74.15.98]:19440 "EHLO semantico.com")
+	by vger.kernel.org with ESMTP id S275322AbTHGNCY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 09:02:24 -0400
+Message-ID: <3F324DDE.3040409@buttersideup.com>
+Date: Thu, 07 Aug 2003 14:02:22 +0100
+From: Tim Small <tim@buttersideup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030513
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: =?ISO-8859-15?Q?Diego_Calleja_Garc=EDa?= <diegocg@teleline.es>
-CC: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: Filesystem Tests
-References: <3F306858.1040202@mrs.umn.edu>	<20030805224152.528f2244.akpm@osdl.org>	<3F310B6D.6010608@namesys.com> <20030806183410.49edfa89.diegocg@teleline.es>
-In-Reply-To: <20030806183410.49edfa89.diegocg@teleline.es>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Russell King <rmk@arm.linux.org.uk>
+Cc: Pavel Roskin <proski@gnu.org>, linux-pcmcia@lists.infradead.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: TI yenta-alikes
+References: <200308062025.08861.daniel.ritz@gmx.ch>	 <20030806194430.D16116@flint.arm.linux.org.uk>	 <Pine.LNX.4.56.0308061452310.3849@marabou.research.att.com>	 <20030806203217.F16116@flint.arm.linux.org.uk>	 <Pine.LNX.4.56.0308061554480.4178@marabou.research.att.com>	 <3F317FD7.6020209@buttersideup.com>	 <Pine.LNX.4.56.0308062301550.1995@marabou.research.att.com>	 <20030807100211.A17690@flint.arm.linux.org.uk> <1060258695.3123.36.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1060258695.3123.36.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diego Calleja García wrote:
+Alan Cox wrote:
 
->El Wed, 06 Aug 2003 18:06:37 +0400 Hans Reiser <reiser@namesys.com> escribió:
->
+>On Iau, 2003-08-07 at 10:02, Russell King wrote:
 >  
 >
->>I don't think ext2 is a serious option for servers of the sort that 
->>Linux specializes in, which is probably why he didn't measure it.
+>>doing is *wrong*.  The only people who know whether the pin has been
+>>wired for INTA or IRQ3 are the _designers_ of the hardware, not the
+>>Linux kernel.
 >>    
 >>
 >
->Why?
+>That assumes the yenta controller isnt hotplugged.
+>  
 >
-Run fsck on a 1 terabyte array while a department waits for their server 
-to come back up instead of having it back in 90 seconds and.....
+Some (all?) PCI add-in cards leave this up to the OS/driver as well.  
+The card I have has no firmware on board, and from a quick look at the 
+PCI1031 datasheet, I can't see any easy way of adding one.  The default 
+power-on state (at least for the PCI1031) is to disable all interrupts.
 
-disk speeds have increased linearly while their capacity has increased 
-quadratically.
+>>Currently, the Linux kernel assumes a "greater than designers" approach
+>>to fiddling with the registers which control the function of these pins,
+>>and so far I've seen:
+>>
+>>- changing the mode from serial PCI interrupts to parallel PCI interrupts
+>>  causes the machine to lock hard (since some cardbus controllers use the
+>>  same physical pins for both functions.)
+>>    
+>>
+>
+>Basically we got burned by changing the IRQMUX register rather than just
+>using it as an information source.
+>  
+>
+I think it should be possible to use the IRQMUX, and other registers to 
+work out whether the bridge has been setup or not..  e.g.
 
--- 
-Hans
+"device control register bits2,1:  R/W, Interrupt mode.
+Bits 2 1 select the interrupt mode used by the PCI1031. Bits 2 1 are 
+encoded as: 00 = No interrupts enabled (default) 01 = ISA 10 = 
+Serialized IRQ type interrupt scheme 11 = Reserved"
 
+If these bits are non-zero, I suppose we should probably leave the IRQ 
+routing registers alone, as it would seem to be a good indicator that 
+the BIOS has programmed these for us.  This is just on the 1031, 
+however, I haven't checked any of the other datasheets...
+
+
+Tim.
 

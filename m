@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262221AbTENNjS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 09:39:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbTENNjS
+	id S262231AbTENNwM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 09:52:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbTENNwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 09:39:18 -0400
-Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:22504 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S262221AbTENNjR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 09:39:17 -0400
-Message-ID: <20030514135256.26073.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
+	Wed, 14 May 2003 09:52:12 -0400
+Received: from ns.suse.de ([213.95.15.193]:1796 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262231AbTENNwG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 09:52:06 -0400
+Date: Wed, 14 May 2003 16:04:49 +0200
+From: Dave Jones <davej@suse.de>
+To: Thomas Horsten <thomas@horsten.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, "H . Peter Anvin" <hpa@zytor.com>,
+       Michael Elizabeth Chastain <mec@shout.net>
+Subject: Re: [PATCH] 2.5.69 Changes to Kconfig and i386 Makefile to include support for various K7 optimizations
+Message-ID: <20030514160449.B28115@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Thomas Horsten <thomas@horsten.com>,
+	LKML <linux-kernel@vger.kernel.org>,
+	"H . Peter Anvin" <hpa@zytor.com>,
+	Michael Elizabeth Chastain <mec@shout.net>
+References: <200305071834.26789.thomas@horsten.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Dean McEwan" <dean_mcewan@linuxmail.org>
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Date: Wed, 14 May 2003 13:52:56 +0000
-Subject: Re: Digital Rights Management - An idea (limited lease, renting,
-    expiration, verification) NON HARWARE BASED.
-X-Originating-Ip: 195.195.129.3
-X-Originating-Server: ws5-8.us4.outblaze.com
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200305071834.26789.thomas@horsten.com>; from thomas@horsten.com on Wed, May 07, 2003 at 06:34:26PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> said :
-> You can set this up with both rsbac and selinux
-> 
-Im thinking of much more...
-It would be set up so that files have an internal signature (ELF format might have to be
-fiddled with). It would verify itself by sending info to the creator of the contents PC OR server
-asking for verification of itself, files could be limited lease, rented, or automatically expire 
-after some time.
+On Wed, May 07, 2003 at 06:34:26PM +0100, Thomas Horsten wrote:
 
-NB
-===
-I get the whole Palladium thing and no I don't wan't one central server e.t.c. so the GOV.T
-and M$ can control everything, it would be a opt out affair, and it definately would NOT
-work with the FRITZ chip. Decentralised, giving authors control over their work(s.), except
-where license forbids this.
+[ick, backlog]
 
-E.G. a kernel could refuse to work after one year forcing its users to upgrade their kernel, preventing exploits being left in place, and creators of the prefab kernels in
-a sticky liable mess.
+ > I made this patch to support the various K7 model-specific
+ > optimizations that the later GCC compilers can use.
+ > 
+ > Please have a look, and pass me any comments.
 
+I don't think this is worth the extra complication. The potential wins
+(if any) outweigh the confusion to users who might have no clue as to
+what core they have.  Additionally, some gcc's got these options wrong.
+The athlon4 option was completely wrong for a while for eg.
+
+ > I also have the same patch for 2.4, if you are interested it's
+ > available on my Linux page on http://www.infowares.com/linux
+
+For 2.4, it's an even worse idea IMO.
+
+        Dave
 
 -- 
-______________________________________________
-http://www.linuxmail.org/
-Now with e-mail forwarding for only US$5.95/yr
-
-Powered by Outblaze
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

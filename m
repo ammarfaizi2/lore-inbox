@@ -1,66 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269291AbUJKWIL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269285AbUJKWKq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269291AbUJKWIL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 18:08:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269285AbUJKWF4
+	id S269285AbUJKWKq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 18:10:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269292AbUJKWKp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 18:05:56 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:58600 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269298AbUJKWFM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 18:05:12 -0400
-Subject: Re: voluntary-preempt T3 latency spikes with fan speed change
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andrew Rodland <arodland@entermail.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <ckeec5$id4$1@sea.gmane.org>
-References: <20041009104702.GA14649@mobilat.informatik.uni-bremen.de>
-	 <ckeec5$id4$1@sea.gmane.org>
-Content-Type: text/plain
-Message-Id: <1097531790.1453.55.camel@krustophenia.net>
+	Mon, 11 Oct 2004 18:10:45 -0400
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:17616 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S269285AbUJKWKO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 18:10:14 -0400
+Date: Tue, 12 Oct 2004 00:11:04 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: ptep_establish smp race x86 PAE >4G
+Message-ID: <20041011221104.GA17372@dualathlon.random>
+References: <20040930060851.GJ22008@dualathlon.random> <20040930172650.4301ec92.akpm@osdl.org> <20041001003613.GE32279@dualathlon.random> <20040930175232.4d65ef50.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 11 Oct 2004 17:56:31 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040930175232.4d65ef50.akpm@osdl.org>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-10-11 at 13:03, Andrew Rodland wrote:
-> torbenh@gmx.de wrote:
-> 
-> > 
-> > hi...
-> > 
-> > i am seeing latency spikes (ie jack xruns) when the fan of my
-> > asus l3d laptop changes speed.
-> > 
-> > is there any chance to fix this ?
-> > i have turned off acpi in the kernel, as this gives me latency spikes
-> > all over.
-> > 
-> > i am quite new to the VP patches, and want to help where i can.
-> > 
-> > i also got a quite strange latency trace here:
-> > 
-> > could someone sched some light on this please ?
-> > 
-> 
-> I can't say for certain, but I'm guessing that your laptop has a deeply
-> broken BIOS that implements ACPI and suchlike by using SMM, which blocks
-> out interrupts, and there's nothing, I believe, you can do about it.
-> Disabling ACPI seems sensible; at least you can avoid causing these delays
-> intentionally, but if some sensor interrupt triggers a flip into SMM to
-> enable the fan, you're just screwed for a number of milliseconds.
-> 
+This avoid userspace mm corruption during COWs with threads (i.e.
+malloc;fork;clone) on x86 PAE with >4G of ram
 
-Many, many people are seeing this problem (weird, often periodic latency
-spikes on laptops that go away when ACPI is disabled).  This would
-explain a lot of weird bug reports.  So are most laptops just
-incompatible with low latency applications, or are we talking about a
-small minority of broken hardware?
+Signed-Off-By: Andrea Arcangeli <andrea@novell.com>
 
-Is there any way to tell a priori whether a machine will have this
-problem?
-
-Lee
-
+Index: linux-2.5/include/asm-i386/pgtable-3level.h
+===================================================================
+RCS file: /home/andrea/crypto/cvs/linux-2.5/include/asm-i386/pgtable-3level.h,v
+retrieving revision 1.20
+diff -u -p -r1.20 pgtable-3level.h
+--- linux-2.5/include/asm-i386/pgtable-3level.h	24 Aug 2004 18:28:07 -0000	1.20
++++ linux-2.5/include/asm-i386/pgtable-3level.h	11 Oct 2004 21:17:56 -0000
+@@ -54,6 +54,7 @@ static inline void set_pte(pte_t *ptep, 
+ 	smp_wmb();
+ 	ptep->pte_low = pte.pte_low;
+ }
++#define __HAVE_ARCH_SET_PTE_ATOMIC
+ #define set_pte_atomic(pteptr,pteval) \
+ 		set_64bit((unsigned long long *)(pteptr),pte_val(pteval))
+ #define set_pmd(pmdptr,pmdval) \
+Index: linux-2.5/include/asm-generic/pgtable.h
+===================================================================
+RCS file: /home/andrea/crypto/cvs/linux-2.5/include/asm-generic/pgtable.h,v
+retrieving revision 1.8
+diff -u -p -r1.8 pgtable.h
+--- linux-2.5/include/asm-generic/pgtable.h	29 Jul 2004 06:01:30 -0000	1.8
++++ linux-2.5/include/asm-generic/pgtable.h	11 Oct 2004 22:07:31 -0000
+@@ -13,11 +13,19 @@
+  * Note: the old pte is known to not be writable, so we don't need to
+  * worry about dirty bits etc getting lost.
+  */
++#ifndef __HAVE_ARCH_SET_PTE_ATOMIC
+ #define ptep_establish(__vma, __address, __ptep, __entry)		\
+ do {				  					\
+ 	set_pte(__ptep, __entry);					\
+ 	flush_tlb_page(__vma, __address);				\
+ } while (0)
++#else /* __HAVE_ARCH_SET_PTE_ATOMIC */
++#define ptep_establish(__vma, __address, __ptep, __entry)		\
++do {				  					\
++	set_pte_atomic(__ptep, __entry);				\
++	flush_tlb_page(__vma, __address);				\
++} while (0)
++#endif /* __HAVE_ARCH_SET_PTE_ATOMIC */
+ #endif
+ 
+ #ifndef __HAVE_ARCH_PTEP_SET_ACCESS_FLAGS

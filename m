@@ -1,74 +1,121 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132500AbRCaVQm>; Sat, 31 Mar 2001 16:16:42 -0500
+	id <S132491AbRCaTu7>; Sat, 31 Mar 2001 14:50:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132501AbRCaVQc>; Sat, 31 Mar 2001 16:16:32 -0500
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:30113 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id <S132500AbRCaVQT>; Sat, 31 Mar 2001 16:16:19 -0500
-Date: Sat, 31 Mar 2001 15:06:52 -0600
-From: "Glenn C. Hofmann" <hofmanng@swbell.net>
-Subject: Re: VIA IDE driver status ?
-In-Reply-To: <20010331151447.J111@pervalidus>
-To: "=?ISO-8859-1?Q?Fr=E9d=E9ric?= L. W. Meunier" <0@pervalidus.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Message-id: <986072813.10078.1.camel@hofmann1>
-MIME-version: 1.0
-X-Mailer: Evolution/0.10+cvs.2001.03.31.09.00 (Preview Release)
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 8BIT
-In-Reply-To: <20010331004132.D111@pervalidus> <986061646.10078.0.camel@hofmann1>
- <20010331151447.J111@pervalidus>
+	id <S132488AbRCaTut>; Sat, 31 Mar 2001 14:50:49 -0500
+Received: from dns.uni-trier.de ([136.199.8.101]:39672 "EHLO
+	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
+	id <S132485AbRCaTul> convert rfc822-to-8bit; Sat, 31 Mar 2001 14:50:41 -0500
+Date: Sat, 31 Mar 2001 21:49:56 +0200 (CEST)
+From: Daniel Nofftz <nofftz@castor.uni-trier.de>
+To: linux-kernel@vger.kernel.org
+Subject: via busmaster driver 
+Message-ID: <Pine.LNX.4.21.0103312140310.6125-100000@infcip10.uni-trier.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It should support both, to my knowledge (which is very limited, mind
-you).  I also went out to the store and purchased a new cable, which
-made the driver recognize the cable correctly, whereas it did not
-before.  I wonder if there is not a serious deficiency in the cables
-sent out with motherboards, which is contributing to the problems a lot
-of people are having in this area.  Hope this helps some.
+hi!
 
-Chris
+when i enable the ultra dma 33 mode on my computer, the disk
+performance goes down by around 30 % compared to normal pio mode 4. is
+this a bug, or is there any solution to get this ultra dma working
+correctly ? this happens with 2.4.2 and 2.4.3 ...
+i have a shuttle hot-603 motherboard with the amd640 aka Via Apollo  
+VP2/97 chipset. the diskdrive is an Maxtor 33073U4, ATA DISK drive (ultra
+dma 66 possible).
 
-On 31 Mar 2001 15:14:47 -0300, Frédéric L. W. Meunier wrote:
-> I'm not overclocking. It's an ASUS A7Pro with Athlon 1000. I
-> had the same problem with an ASUS K7V with Athlon 700. But
-> the processor died after my cooler failed for 20 minutes!
-> 
-> BTW, how do I know if my cable is ATA100/ATA66, not only ATA66
-> ? The manual from the A7Pro says it supports both, but at the
-> site it says the cable shipped with this motherboard is ATA66.
-> 
-> On Sat, Mar 31, 2001 at 12:00:41PM -0600, Glenn C. Hofmann wrote:
-> > I am not sure if this applies in your case, but I was getting problems
-> > such as this on my Abit KT7-RAID and had the correct cables, also.  One
-> > day, on a hunch after reading a post from Alan about overclocking, I
-> > took my Athlon 750 down to 850 from 1.05 GHz and all is working great
-> > now.  If your overclocking, I would suggest not doing so (at least not
-> > so much), based on my experience.  I am also using the v4.0 driver.
-> > 
-> > Chris
-> > 
-> >   On 31 Mar 2001 00:41:32 -0300, Frédéric L. W. Meunier wrote:
-> > > Hi. I really can't get UDMA66 with the VIA driver. I tried
-> > > everything, also a new motherboard (ASUS A7Pro) with a
-> > > ATA100/ATA66 cable (using both ends...)!
-> > > 
-> > > All I get are the usual CRC error messages.
-> > > 
-> > > So, there's no UDMA66 for any vt82c686a ? I'm using 2.4.3.
-> > > 
-> > > If there's no UDMA66, what are the advantages using this
-> > > driver ?
-> > > 
-> > > TIA.
-> 
-> -- 
-> 0@pervalidus.{net, {dyndns.}org} Tel: 55-21-717-2399 (Niterói-RJ BR)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+any suggestions ?
+
+daniel
+
+lspci output:
+00:00.0 Host bridge: VIA Technologies, Inc. VT82C595/97 [Apollo VP2/97]
+(rev 03)
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C586/A/B PCI-to-ISA [Apollo
+VP] (rev 31)
+00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev
+06)
+00:07.3 Bridge: VIA Technologies, Inc. VT82C586B ACPI (rev 01)
+
+hdparm -i /dev/hda :
+
+ Model=Maxtor 33073U4, FwRev=BAC51KJ0, SerialNo=N40SZZ8C
+ Config={ Fixed }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
+ BuffType=DualPortCache, BuffSize=512kB, MaxMultSect=16, MultSect=16
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=60030432
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes: pio0 pio1 pio2 pio3 pio4 
+ DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4 
+
+cat /proc/ide/via :
+
+----------VIA BusMastering IDE Configuration----------------
+Driver Version:                     3.20
+South Bridge:                       VIA vt82c586b
+Revision:                           ISA 0x31 IDE 0x6
+BM-DMA base:                        0x6300
+PCI clock:                          33MHz
+Master Read  Cycle IRDY:            1ws
+Master Write Cycle IRDY:            1ws
+BM IDE Status Register Read Retry:  yes
+Max DRDY Pulse Width:               No limit
+-----------------------Primary IDE-------Secondary IDE------
+Read DMA FIFO flush:          yes                 yes
+End Sector FIFO flush:         no                  no
+Prefetch Buffer:              yes                 yes
+Post Write Buffer:            yes                  no
+Enabled:                      yes                 yes
+Simplex only:                  no                  no
+Cable Type:                   40w                 40w
+-------------------drive0----drive1----drive2----drive3-----
+Transfer Mode:       UDMA       PIO      UDMA       PIO
+Address Setup:       30ns     120ns      30ns      90ns
+Cmd Active:          90ns      90ns     330ns     330ns
+Cmd Recovery:        30ns      30ns     270ns     270ns
+Data Active:         90ns     330ns      90ns     300ns
+Data Recovery:       30ns     270ns      30ns     300ns
+Cycle Time:          60ns     600ns      60ns     600ns
+Transfer Rate:   33.0MB/s   3.3MB/s  33.0MB/s   3.3MB/s
+
+other devices conneted:
+
+Mar 31 19:50:31 hyperion kernel: hda: Maxtor 33073U4, ATA DISK drive
+Mar 31 19:50:31 hyperion kernel: hdc: TOSHIBA CD-ROM XM-6702B, ATAPI
+CD/DVD-ROM drive
+Mar 31 19:50:31 hyperion kernel: hdd: IOMEGA ZIP 100 ATAPI, ATAPI FLOPPY
+drive
+
+driveroutput during boottime:
+Mar 31 19:50:31 hyperion kernel: Uniform Multi-Platform E-IDE driver
+Revision: 6.31
+Mar 31 19:50:31 hyperion kernel: ide: Assuming 33MHz system bus speed for
+PIO modes; override with idebus=xx
+Mar 31 19:50:31 hyperion kernel: VP_IDE: IDE controller on PCI bus 00 dev
+39
+Mar 31 19:50:31 hyperion kernel: VP_IDE: chipset revision 6
+Mar 31 19:50:31 hyperion kernel: VP_IDE: not 100%% native mode: will probe
+irqs later
+Mar 31 19:50:31 hyperion kernel: ide: Assuming 33MHz system bus speed for
+PIO modes; override with idebus=xx
+Mar 31 19:50:31 hyperion kernel: VP_IDE: VIA vt82c586b (rev 31) IDE UDMA33
+controller on pci00:07.1
+Mar 31 19:50:31 hyperion kernel:     ide0: BM-DMA at 0x6300-0x6307, BIOS
+settings: hda:pio, hdb:pio
+Mar 31 19:50:31 hyperion kernel:     ide1: BM-DMA at 0x6308-0x630f, BIOS
+settings: hdc:pio, hdd:pio
+
+
+***************************************************
+Daniel Nofftz
+Sysadmin CIP Pool der Informatik 
+Universität Trier, V 103
+Mail: daniel@nofftz.de
+***************************************************
+
+"One World, One Web, One Program" - Microsoft Promotional Ad 
+"Ein Volk, Ein Reich, Ein Fuhrer" - Third Reich Promotional Ad
 

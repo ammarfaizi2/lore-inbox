@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129824AbRBFCaD>; Mon, 5 Feb 2001 21:30:03 -0500
+	id <S129650AbRBFDgo>; Mon, 5 Feb 2001 22:36:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136298AbRBFC3x>; Mon, 5 Feb 2001 21:29:53 -0500
-Received: from r67h147.res.gatech.edu ([128.61.67.147]:31236 "HELO
-	kermit.wreck.org") by vger.kernel.org with SMTP id <S130869AbRBFC3l>;
-	Mon, 5 Feb 2001 21:29:41 -0500
-Date: Mon, 5 Feb 2001 21:29:39 -0500 (EST)
-From: Misc Mail for Erich <junkmail@wreck.org>
-To: linux-kernel@vger.kernel.org
-Subject: FA-311 / Natsemi problems with 2.4.1
-Message-ID: <Pine.LNX.4.21.0101310919330.7723-100000@kermit.wreck.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129657AbRBFDgf>; Mon, 5 Feb 2001 22:36:35 -0500
+Received: from cold.fortyoz.org ([64.40.111.214]:54024 "HELO cold.fortyoz.org")
+	by vger.kernel.org with SMTP id <S129650AbRBFDg2>;
+	Mon, 5 Feb 2001 22:36:28 -0500
+Date: Mon, 5 Feb 2001 19:37:03 -0800
+From: David Raufeisen <david@fortyoz.org>
+To: Vladimir Kukuruzovic <kuki@sezampro.yu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: hpt370
+Message-ID: <20010205193703.A26178@fortyoz.org>
+Reply-To: David Raufeisen <david@fortyoz.org>
+In-Reply-To: <NEBBKCIPKLPNDBIKKMBACENIFFAA.kuki@sezampro.yu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <NEBBKCIPKLPNDBIKKMBACENIFFAA.kuki@sezampro.yu>; from "Vladimir Kukuruzovic" on Tuesday, 06 February 2001, at 02:38:29 (+0100)
+X-Operating-System: Linux 2.2.17 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Booted fine on a box I installed 2.4.1 on..
 
-I'm having problems with the natsemi drivers on my Netgear FA-311 card.
+On Tuesday, 06 February 2001, at 02:38:29 (+0100),
+Vladimir Kukuruzovic wrote:
 
-On one host, I get lots of messages like this:
+> Hi,
+> Maybe you don't know, but current Linux kernel (starting somewhere in
+> testNN, probably test10 series) won't boot with HPT370 controller. With
+> current setup (only one disk on that controller, no raid, no fancy stuff)
+> the kernel locks after writing ide2: line :( Well, it used to work earlier,
+> can it be unpatched so it starts working again? :)
+> 
+> Regards, Vladimir
+> 
 
-eth1: Something Wicked happened! 0700.
-eth1: Something Wicked happened! 0740.
-eth1: Something Wicked happened! 0740.
-eth1: Something Wicked happened! 0740.
-eth1: Something Wicked happened! 0740.
-eth1: Something Wicked happened! 0740.
-eth1: Something Wicked happened! 0540.
-
-This is on a K6-166
-
-On my athlon/duron, I don't get those messages, but once in a while it will 
-just stop working.  If I bring the interface down, remove the module, and 
-bring the interface back up again it will start to work again.
-
-These two cards are connected by a crossover cable.  When the cards are 
-working the link works just fine.
-
-What more information do I need to obtain?  Please cc me, though I'll
-be watching the list archives as well.
-
-
+-- 
+David Raufeisen <david@fortyoz.org>
+Cell: (604) 818-3596
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

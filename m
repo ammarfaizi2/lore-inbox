@@ -1,75 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262621AbSKDSrI>; Mon, 4 Nov 2002 13:47:08 -0500
+	id <S262665AbSKDSsJ>; Mon, 4 Nov 2002 13:48:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262625AbSKDSrH>; Mon, 4 Nov 2002 13:47:07 -0500
-Received: from ophelia.ess.nec.de ([193.141.139.8]:908 "EHLO
-	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
-	id <S262621AbSKDSrG>; Mon, 4 Nov 2002 13:47:06 -0500
-From: Erich Focht <efocht@ess.nec.de>
-To: David Mosberger <davidm@hpl.hp.com>
-Subject: O(1) scheduler fix for 2.5-ia64
-Date: Mon, 4 Nov 2002 19:53:07 +0100
-User-Agent: KMail/1.4.1
-Cc: "linux-ia64" <linux-ia64@linuxia64.org>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
+	id <S262664AbSKDSsI>; Mon, 4 Nov 2002 13:48:08 -0500
+Received: from web20504.mail.yahoo.com ([216.136.226.139]:27706 "HELO
+	web20504.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S262665AbSKDSsC>; Mon, 4 Nov 2002 13:48:02 -0500
+Message-ID: <20021104185435.11019.qmail@web20504.mail.yahoo.com>
+Date: Mon, 4 Nov 2002 10:54:35 -0800 (PST)
+From: vasya vasyaev <vasya197@yahoo.com>
+Subject: Re: Machine's high load when HIGHMEM is enabled
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <3DC5337C.4090506@quark.didntduck.org>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_J4F2COX2VVUOJ7Q6FZ8W"
-Message-Id: <200211041953.07209.efocht@ess.nec.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---------------Boundary-00=_J4F2COX2VVUOJ7Q6FZ8W
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
+First of all - thanks to these people, who responded
+to my question.
 
-Hi David,
+I have some news...
 
-this problem is wellknown and I actually thought that it was
-solved. But it looks like the complex prepare_arch_switch()
-etc. macros didn't make it into the 2.5 kernels for IA64. They are
-needed on IA64 because we have to release the runqueue lock during
-context switch. This is similar to sparc64. Thanks to John Hawks for
-noticing this.
+I've tried kernels:
+2.4.19 - the same result
+2.5.44 - the same result
+2.5.45 - the same result
 
-Please include this into your kernel tree.
+If I take 1 Gb of memory away, then computer works
+much better, faster (something like without enabled
+HIGHMEM at all).
+The same effect takes place if I say mem=1024M while
+physically box has 2Gb of RAM - everything is fine!
+But if I start HIGHMEM enabled kernel on this box (2Gb
+RAM), then it works too slowly...
 
-Regards,
-Erich
 
---------------Boundary-00=_J4F2COX2VVUOJ7Q6FZ8W
-Content-Type: text/x-diff;
-  charset="iso-8859-15";
-  name="O1_switch_fix-2.5.45.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="O1_switch_fix-2.5.45.patch"
+The questions are:
+1. is there anyone on the list, who has the same or
+near configuration ? (main is that the box has >=2Gb
+of RAM)
+2. do you experience the same problems ?
+3. maybe it's not a problem at all?!? I mean maybe
+linux kernel works this way with such amount of memory
+and there is no problem with that?
+4. the case I've described =
+http://www.cs.helsinki.fi/linux/linux-kernel/2001-02/0292.html
+?
 
-diff -urNp linux-2.5.45-ia64/include/asm-ia64/system.h linux-2.5.45-ia64-o1fix/include/asm-ia64/system.h
---- linux-2.5.45-ia64/include/asm-ia64/system.h	Mon Nov  4 19:31:52 2002
-+++ linux-2.5.45-ia64-o1fix/include/asm-ia64/system.h	Mon Nov  4 19:46:35 2002
-@@ -432,6 +432,18 @@ extern void ia64_load_extra (struct task
- } while (0)
- #endif
- 
-+#define prepare_arch_switch(rq, next)		\
-+do {	spin_lock(&(next)->switch_lock);	\
-+	spin_unlock(&(rq)->lock);		\
-+} while (0)
-+
-+#define finish_arch_switch(rq, prev)		\
-+do {	spin_unlock_irq(&(prev)->switch_lock);	\
-+} while (0)
-+
-+#define task_running(rq, p) \
-+	((rq)->curr == (p) || spin_is_locked(&(p)->switch_lock))
-+
- #endif /* __KERNEL__ */
- 
- #endif /* __ASSEMBLY__ */
+and finally, if this could be solved - please tell,
+how should I set up the kernel/kernel settings to get
+appropriate results in performance ?
 
---------------Boundary-00=_J4F2COX2VVUOJ7Q6FZ8W--
 
+Thank you.
+
+
+--- Brian Gerst <bgerst@quark.didntduck.org> wrote:
+> 2.4 can only do I/O to and from lowmem.  This means
+> highmem pages have 
+> to use bounce buffers in lowmem, and th edata is
+> copied to/from highmem 
+> which is causing the cpu load.  This has been
+> corrected in 2.5, which 
+> can do I/O to any page the device can DMA from.
+
+
+__________________________________________________
+Do you Yahoo!?
+HotJobs - Search new jobs daily now
+http://hotjobs.yahoo.com/

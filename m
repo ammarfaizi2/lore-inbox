@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261599AbREURQj>; Mon, 21 May 2001 13:16:39 -0400
+	id <S261600AbREURV3>; Mon, 21 May 2001 13:21:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261600AbREURQ3>; Mon, 21 May 2001 13:16:29 -0400
-Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:16645 "HELO
-	innerfire.net") by vger.kernel.org with SMTP id <S261599AbREURQV>;
-	Mon, 21 May 2001 13:16:21 -0400
-Date: Mon, 21 May 2001 10:17:55 -0700 (PDT)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        Axel Thimm <Axel.Thimm@physik.fu-berlin.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Au-Ja <doelf@au-ja.de>, Yiping Chen <YipingChen@via.com.tw>,
-        support@msi.com.tw, info@msi-computer.de, support@via-cyrix.de,
-        John R Lenton <john@grulic.org.ar>
-Subject: Re: VIA's Southbridge bug: Latest (pseudo-)patch
-In-Reply-To: <E151Z3l-0002m3-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10105211016560.1356-100000@innerfire.net>
+	id <S261615AbREURVU>; Mon, 21 May 2001 13:21:20 -0400
+Received: from waste.org ([209.173.204.2]:15118 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S261600AbREURVI>;
+	Mon, 21 May 2001 13:21:08 -0400
+Date: Mon, 21 May 2001 12:22:35 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+        <linux-fsdevel@vger.kernel.org>
+Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD 
+ w/info-PATCH]device arguments from lookup)
+In-Reply-To: <3B0717CE.57613D4A@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.30.0105211219040.17263-100000@waste.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Its what I would describe as lack of enforcement by trading standards bodies,
-> and I suspect what the US would call 'insufficient class action lawsuits'
+On Sat, 19 May 2001, Jeff Garzik wrote:
 
-What we need is a web page for listing crap hardware so less people buy
-it.
+> Why are LVM and EVMS(competing LVM project) needed at all?
+>
+> Surely the same can be accomplished with
+> * md
+> * snapshot blkdev (attached in previous e-mail)
+> * giving partitions and blkdevs the ability to grow and shrink
+> * giving filesystems the ability to grow and shrink
 
-	Gerhard
+You can migrate data off disks while the filesystems on top of them are
+live. Add disk b, migrate a->b, remove disk a. Perhaps this is intrinsic
+in the above somehow but I don't see it.
 
 --
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

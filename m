@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261761AbTICKD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 06:03:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261795AbTICKD5
+	id S261929AbTICKKp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 06:10:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbTICKKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 06:03:57 -0400
-Received: from uucp.cistron.nl ([62.216.30.38]:8972 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S261761AbTICKD4 (ORCPT
+	Wed, 3 Sep 2003 06:10:44 -0400
+Received: from ns.suse.de ([195.135.220.2]:55461 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261929AbTICKKk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 06:03:56 -0400
-From: dth@ncc1701.cistron.net (Danny ter Haar)
-Subject: Re: 2.6.0-test4(-mmX) via-rhine ethernet onboard C3 mini-itx doesn't work
-Date: Wed, 3 Sep 2003 10:03:55 +0000 (UTC)
-Organization: Cistron
-Message-ID: <bj4eab$5e5$2@news.cistron.nl>
-References: <bj447c$el6$1@news.cistron.nl> <20030903074902.GA1786@deimos.one.pl> <1062576819.5058.2.camel@laptop.fenrus.com> <20030903091729.GA28495@k3.hellgate.ch>
-X-Trace: ncc1701.cistron.net 1062583435 5573 62.216.30.38 (3 Sep 2003 10:03:55 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: dth@ncc1701.cistron.net (Danny ter Haar)
-To: linux-kernel@vger.kernel.org
+	Wed, 3 Sep 2003 06:10:40 -0400
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: CONFIG_64_BIT
+References: <Pine.GSO.4.21.0309031039071.6985-100000@waterleaf.sonytel.be>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: Join the PLUMBER'S UNION!!
+Date: Wed, 03 Sep 2003 12:10:12 +0200
+In-Reply-To: <Pine.GSO.4.21.0309031039071.6985-100000@waterleaf.sonytel.be> (Geert
+ Uytterhoeven's message of "Wed, 3 Sep 2003 10:39:53 +0200 (MEST)")
+Message-ID: <je1xuy6v3v.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roger Luethi  <rl@hellgate.ch> wrote:
->What I've been seeing lately is people complaining it used to work with
->previous kernels but later ones don't.
+Geert Uytterhoeven <geert@linux-m68k.org> writes:
 
-Exactly. I installed from CD with 2.4.18-something and that seemed to work.
-It's sort of natural that your upgrade to a newer kernel and since 2.6.0 
-is to be declared "stable" i thought it would be best if it's known that
-there are still problems.
+> Why do some many mails from lkml have duplicated contents?
 
-Danny
+Might be a problem on your side, I didn't see that.
+
+Andreas.
 
 -- 
-I think so Brain, but why does a forklift 
-have to be so big if all it does is lift forks?
-
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

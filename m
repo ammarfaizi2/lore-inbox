@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289386AbSAODWW>; Mon, 14 Jan 2002 22:22:22 -0500
+	id <S289385AbSAODZb>; Mon, 14 Jan 2002 22:25:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289388AbSAODWM>; Mon, 14 Jan 2002 22:22:12 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:55301 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S289386AbSAODV5>; Mon, 14 Jan 2002 22:21:57 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 14 Jan 2002 19:27:44 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Ed Tomlinson <tomlins@cam.org>
-cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
-        Dave Jones <davej@suse.de>
-Subject: Re: [patch] O(1) scheduler-H6/H7 and nice +19
-In-Reply-To: <20020115031905.01B0624AC1@oscar.casa.dyndns.org>
-Message-ID: <Pine.LNX.4.40.0201141927090.934-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289387AbSAODZV>; Mon, 14 Jan 2002 22:25:21 -0500
+Received: from cerebus.wirex.com ([65.102.14.138]:36847 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S289385AbSAODZS>; Mon, 14 Jan 2002 22:25:18 -0500
+Date: Mon, 14 Jan 2002 19:28:40 -0800
+From: Chris Wright <chris@wirex.com>
+To: Christopher James <cjames@berkeley.innomedia.com>
+Cc: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
+Subject: Re: Multicast fails when interface changed
+Message-ID: <20020114192840.A23120@figure1.int.wirex.com>
+Mail-Followup-To: Christopher James <cjames@berkeley.innomedia.com>,
+	kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
+In-Reply-To: <200201142016.XAA10180@ms2.inr.ac.ru> <3C4374BA.F8E26684@berkeley.innomedia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C4374BA.F8E26684@berkeley.innomedia.com>; from cjames@berkeley.innomedia.com on Mon, Jan 14, 2002 at 04:15:54PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jan 2002, Ed Tomlinson wrote:
+* Christopher James (cjames@berkeley.innomedia.com) wrote:
 
-> On January 14, 2002 09:33 pm, Davide Libenzi wrote:
-> > try to replace :
-> >
-> > PRIO_TO_TIMESLICE() and RT_PRIO_TO_TIMESLICE() with :
-> >
-> > #define NICE_TO_TIMESLICE(n)    (MIN_TIMESLICE + ((MAX_TIMESLICE - \
-> > 	MIN_TIMESLICE) * ((n) + 20)) / 39)
-> >
-> >
-> > NICE_TO_TIMESLICE(p->__nice)
->
-> Not sure about this change.  gkrellm shows the compile getting about 40%
-> cpu.  Best result here seems to be with a larger range of timeslices.  ie
-> 1-15 ((10*HZ)/1000...) instead lets the compile get 80% of the cpu.  wonder
-> if this might be the way to go?
+> It was our expectation that the switch from the first to second
+> interface  should  work without any involvement from the application
+> because the second interface is configured exactly the same as the
+> first interface.  After the switch, everything seems to work with the
+> exception of multicasting:  the multicast membership information is not
+> propagated to the second interface, it stays with the first interface.
 
-What's the MIN/MAX_TIMESLICE range that you used to get 80% of cpu ?
+i don't think this is a valid expectation.  joining a multicast group
+is a device specific action.  when you join, you either specify an
+interface to join on (imr_interface=dev_ip_addr) or let the kernel choose
+(imr_interface=INADDR_ANY).  in either case, you are telling some hardware
+to adjust its multicast filter and identifying that hardware by a unique
+device index.  as alexey mentioned, it sounds like your app has never told
+the second interface that is should even care about multicast packets.
+did you try joining on both interfaces?  (you may find using a unique
+service ip addr on each interface, and failing over an application ip
+addr using aliases will help)
 
-
-
-
-- Davide
-
-
+cheers,
+-chris

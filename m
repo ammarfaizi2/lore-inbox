@@ -1,75 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293196AbSDSAhh>; Thu, 18 Apr 2002 20:37:37 -0400
+	id <S311147AbSDSAp3>; Thu, 18 Apr 2002 20:45:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311147AbSDSAhg>; Thu, 18 Apr 2002 20:37:36 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:43025 "HELO holly.csn.ul.ie")
-	by vger.kernel.org with SMTP id <S293196AbSDSAhg>;
-	Thu, 18 Apr 2002 20:37:36 -0400
-Date: Fri, 19 Apr 2002 01:37:25 +0100 (IST)
-From: Mel <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: page_alloc.c comments patch v2
-In-Reply-To: <1937110000.1019179067@flay>
-Message-ID: <Pine.LNX.4.44.0204190127080.8173-100000@skynet>
+	id <S313507AbSDSAp2>; Thu, 18 Apr 2002 20:45:28 -0400
+Received: from roc-24-95-199-137.rochester.rr.com ([24.95.199.137]:19193 "EHLO
+	www.kroptech.com") by vger.kernel.org with ESMTP id <S311147AbSDSAp2>;
+	Thu, 18 Apr 2002 20:45:28 -0400
+Message-ID: <03c401c1e73b$7b3c2330$02c8a8c0@kroptech.com>
+From: "Adam Kropelin" <akropel1@rochester.rr.com>
+To: "Jens Axboe" <axboe@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <02e001c1e66d$8e927070$02c8a8c0@kroptech.com> <20020418061405.GF858@suse.de>
+Subject: Re: 2.5.8-dj1 with IDE TCQ doesn't survive boot
+Date: Thu, 18 Apr 2002 20:45:19 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Apr 2002, Martin J. Bligh wrote:
-
-> Firstly, nice idea to actually comment the code ;-)
+Jens Axboe wrote:
+> On Wed, Apr 17 2002, Adam Kropelin wrote:
+>> Jens,
+>> 
+>> Tried 2.5.8-dj1 here with IDE TCQ and it doesn't make it through
+>> bootup. The lockup (no oops) happens at various places, usually during
 >
+> - First try a later kernel, there have been lots of changes since 2.5.8
+>   wrt TCQ. 
 
-Thanks
+<snip>
 
-> Re: __alloc_pages
->
-> > + * @zonelist: The preferred zone to allocate from
->
-> Zonelist is not a zone, it's a list of zones suitable for the given
-> zonemask on that pg_data_t in order of preference. Maybe I'm
-> just misreading your syntax.
->
+> - If that doesn't change anything, please also try and disable
+>   CONFIG_BLK_DEV_IDE_TCQ_FULL.
 
-Bad choice of words. I've changed it to
+The problem persists in both cases, but there are subtle differences...
 
-@zonelist: A list of zones to allocate from starting with the preferred one
+With CONFIG_BLK_DEV_IDE_TCQ_FULL it will lock regularly.
+The auto fsck at boot is good at killing it; it locked up at 51% last time.
+Occasionally it will make it as far as PostgreSQL and nfslock startup,
+but no further.
 
-> > +		 * QUERY: If there was more than one zone in ZONE_NORMAL and
-> > +		 *        each zone had a pages_low value of 10, wouldn't the
-> > +		 *        second zone have a min value of 20, the third of 30
-> > +		 *        and so on? Wouldn't this possibly wake kswapd before
-> > +		 *        it was really needed? Is this the expected behaviour?
->
-> I don't see how there could be "more that one zone in ZONE_NORMAL"?
-> There can only be one ZONE_NORMAL per pgdata_t.
->
+With !CONFIG_BLK_DEV_IDE_TCQ_FULL it survives fsck
+regularly. However, it still locks up around nfslock and PostgreSQL
+startup. Interestingly, if I disable those two items, it boots every
+time and (even more interestingly) I can start both by hand after
+boot and it "seems" stable.
 
-I got confused when I was examining the code and got mixed up. I see now
-the question about more that one ZONE_NORMAL in this pgdata_t is off, but
-the query still (sortof) holds. Let me try again.
+> If none of this makes it work, I'm hoping you can setup a serial console
+> and do some debug logging for me? If you can, I'll let you know how and
+> what to capture.
 
-I am an allocator and I start in HIGHMEM which has a pages_low value of 10
-(arbitary number). I find I would hit it if I allocated from there so I
-move to NORMAL which also has a pages_low of 10 but now I am making sure I
-am at least 20 pages are free in the NORMAL zone, not 10 and possibly
-(presuming pages_low in DMA is 10) making sure 30 are free in DMA. Is this
-the way things are meant to happen?
+Your wish is my command...
 
-I see what the benefit of it would be, it would mean we would be less
-likely to use an undesirable zone, but was that what it was intended? If
-it was, I'll put in the comments explaining that.
+--Adam
 
-> Look at build_zonelists to see how the fallback lists (zonelist) are built
-> up.
+P.S. The following messages in reference to the CDROM are now emitted
+during device detection. I assume it's because I have no media in the drive,
+but since this is new behavior with the patch you sent I figured I'd note it.
 
-I did, I even have a comment posted for it but managed to miss the
-full significance of it in a fit of brillance :-). Thanks for your time
-
-		Mel
+hdd: request sense failure: status=0x51 { DriveReady SeekComplete Error }
+hdd: request sense failure: error=0x24
+hdd: request sense failure: status=0x51 { DriveReady SeekComplete Error }
+hdd: request sense failure: error=0x24
+hdd: request sense failure: status=0x51 { DriveReady SeekComplete Error }
+hdd: request sense failure: error=0x24
 
 

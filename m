@@ -1,62 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278525AbRJPFHe>; Tue, 16 Oct 2001 01:07:34 -0400
+	id <S278090AbRJPE6a>; Tue, 16 Oct 2001 00:58:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278524AbRJPFHY>; Tue, 16 Oct 2001 01:07:24 -0400
-Received: from smtp02.uc3m.es ([163.117.136.122]:55050 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S278091AbRJPFHO>;
-	Tue, 16 Oct 2001 01:07:14 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200110160507.f9G57f509413@oboe.it.uc3m.es>
-Subject: Re: very slow RAID-1 resync
-In-Reply-To: <Pine.LNX.4.33.0110151653120.13462-100000@windmill.gghcwest.com>
- from "Jeffrey W. Baker" at "Oct 15, 2001 05:02:21 pm"
-To: "Jeffrey W. Baker" <jwbaker@acm.org>
-Date: Tue, 16 Oct 2001 07:07:41 +0200 (MET DST)
-Cc: "linux kernel" <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S278524AbRJPE6V>; Tue, 16 Oct 2001 00:58:21 -0400
+Received: from rj.sgi.com ([204.94.215.100]:30935 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S278090AbRJPE6M>;
+	Tue, 16 Oct 2001 00:58:12 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Ryan Sweet <rsweet@atos-group.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: random reboots of diskless nodes - 2.4.7 (fwd) 
+In-Reply-To: Your message of "Tue, 16 Oct 2001 02:28:46 +0200."
+             <Pine.LNX.4.30.0110160228000.18043-100000@core-0> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 16 Oct 2001 14:58:37 +1000
+Message-ID: <20123.1003208317@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago Jeffrey W. Baker wrote:"
-> I just plugged in a new RAID-1(+0, 2 2-disk stripe sets mirrored) to a
-> 2.4.12-ac3 machine.  The md code decided it was going to resync the mirror
-> at between 100KB/sec and 100000KB/sec.  The actual rate was 100KB/sec,
-> while the device was otherwise idle.  By increasing
-> /proc/.../speed_limit_min, I was able to crank the resync rate up to
-> 20MB/sec, which is slightly more reasonable but still short of the
-> ~60MB/sec this RAID is capable of.
-> 
-> So, two things: there is something wrong with the resync code that makes
-> it run at the minimum rate even when the device is idle, and why is the
-> resync proceeding so slowly?
+On Tue, 16 Oct 2001 02:28:46 +0200 (CEST), 
+Ryan Sweet <rsweet@atos-group.nl> wrote:
+>Questions:
+>- what the heck can I do to isolate the problem?
 
-This has  been the trend throughout the 2.4 series. 2.4.0 was quite
-snappish at resyncs and speed has generally dropped from version to
-version. I recall seeing a speed halving somewhere early in the series
-(2.4.2?).
+Debugger over a serial console.
 
-> raid1d and raid1syncd are barely getting any CPU time on this otherwise
-> idle SMP system.
-> 
-> There must be some optimization to mostly skip the sync on an array of new
-> drives, ja?
+>- why would the system re-boot instead of hanging on whatever caused it to
+>crash (ie, why don't I see an oops message?)
 
-Not that I have seen. Raid resyncs are throttled via a braking mechanism
-in the generic md code (I think it's called fooresyncbar). It attempts
-to guage the current resync speed and compares with the min and max values
-and either calls for more resyncs or schedules. But even removing this
-brake from the code doesnt't spped things up, so I am mystified as to
-where the throttling effect comes from. It must be somewhere else in
-the structire of the code.
+Probably triple fault on ix86, which forces a reboot.  That is, a fault
+was detected, trying to report the fault caused an error which caused a
+third error.  Say goodnight, Dick.  The other main possibility is a
+hardware or software watchdog that thinks the system has hung and is
+forcing a reboot, do you have one of those?
 
-Another problem is that there seem sto be some kind of state .. if the
-raid resync starts while the machine is under load, then it runs slowly
-and continues at that rate even when the other load is removed.
+>- how can I tell the system not to re-boot when it crashes (or is it
+>crashing at all???)
 
-Peter
+If it is a triple fault, you have to catch the error before the third
+fault.  Tricky.
+
+>- is it worth trying all the newer kernel versions (this does not sound
+>very appealing, especially given the troubles reported with 2.4.10 and
+>also the split over which vm to use, etc..., also the changelogs don't
+>really point to anything that appears to precisely describe my problem)?
+
+Maybe.  OTOH if you wait until you capture some diagnostics it will
+give you a better indication if the later kernels actually fix the
+problem.
+
+>- if I patch with kgdb and use a null modem connection from the gateway to
+>run gdb can I expect to gain any useful info from a backtrace?
+
+It is definitely worth trying kgdb or kdb[1] over a serial console.  I
+am biased towards kdb (I maintain it) but either are worth a go.
+
+Unfortunately the most common triple fault is a kernel stack overflow
+and the ix86 kernel design has no way to recover from that error, the
+error handler needs stack space to report anything, both kgdb and kdb
+need stack space as well.  If you suspect stack overflow, look at the
+IKD patch[2], it has code to warn about potential stack overflows
+before they are completely out of hand.
+
+[1] ftp://oss.sgi.com/projects/kdb/download/ix86, old for 2.4.7.
+[2] ftp://ftp.kernel.org/pub/linux/kernel/people/andrea/ikd/
+

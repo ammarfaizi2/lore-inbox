@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262181AbVCOXxG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262127AbVCOX5O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262181AbVCOXxG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 18:53:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbVCOXuV
+	id S262127AbVCOX5O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 18:57:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262126AbVCOXyY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 18:50:21 -0500
-Received: from fire.osdl.org ([65.172.181.4]:15031 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262162AbVCOXq1 (ORCPT
+	Tue, 15 Mar 2005 18:54:24 -0500
+Received: from pat.uio.no ([129.240.130.16]:6531 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262127AbVCOXxT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 18:46:27 -0500
-Date: Tue, 15 Mar 2005 15:46:08 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Noah Meyerhans <noahm@csail.mit.edu>
+	Tue, 15 Mar 2005 18:53:19 -0500
+Subject: Re: 2.6.11-mm3: BUG: atomic counter underflow at: rpcauth_destroy
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Borislav Petkov <petkov@uni-muenster.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: OOM problems with 2.6.11-rc4
-Message-Id: <20050315154608.29cee352.akpm@osdl.org>
-In-Reply-To: <20050315204413.GF20253@csail.mit.edu>
-References: <20050315204413.GF20253@csail.mit.edu>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+In-Reply-To: <200503152321.52799.petkov@uni-muenster.de>
+References: <200503152321.52799.petkov@uni-muenster.de>
+Content-Type: text/plain
+Date: Tue, 15 Mar 2005 18:52:58 -0500
+Message-Id: <1110930779.22062.13.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.367, required 12,
+	autolearn=disabled, AWL 1.58, FORGED_RCVD_HELO 0.05,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Noah Meyerhans <noahm@csail.mit.edu> wrote:
->
-> Active:12382 inactive:280459 dirty:214 writeback:0 unstable:0 free:2299 slab:220221 mapped:12256 pagetables:122
+ty den 15.03.2005 Klokka 23:21 (+0100) skreiv Borislav Petkov:
 
-Vast amounts of slab - presumably inode and dentries.
+> After some rookie debugging I think I've found the evildoer:
+> 
+> rpcauth_create used to have a line that inits rpc_auth->au_count to one
+> atomically. This line is now missing so when you release the rpc
+> authentication handle, the au_count underflows. Here's a fix:
+> 
+> Signed-off-by: Borislav Petkov <petkov@uni-muenster.de>
+> 
+> --- net/sunrpc/auth.c.orig 2005-03-15 22:34:58.000000000 +0100
+> +++ net/sunrpc/auth.c 2005-03-15 22:36:23.000000000 +0100
+> @@ -70,6 +70,7 @@ rpcauth_create(rpc_authflavor_t pseudofl
+>   auth = ops->create(clnt, pseudoflavor);
+>   if (!auth)
+>    return NULL;
+> + atomic_set(&auth->au_count, 1);
+>   if (clnt->cl_auth)
+>    rpcauth_destroy(clnt->cl_auth);
+>   clnt->cl_auth = auth;
 
-What sort of local filesystems are in use?
+The correct fix for this has already been committed to Linus' bitkeeper
+repository. See
 
-Can you take a copy of /proc/slabinfo when the backup has run for a while,
-send it?
+http://linux.bkbits.net:8080/linux-2.6/cset@42332338Oz6uYqdnuwFBM5JHXlBCCQ?nav=index.html|ChangeSet@-4d
 
-It's useful to run `watch -n1 cat /proc/meminfo', see what the various
-caches are doing during the operation.
-
-Also, run slabtop if you have it.  Or bloatmeter
-(http://www.zip.com.au/~akpm/linux/patches/stuff/bloatmon and
-http://www.zip.com.au/~akpm/linux/patches/stuff/bloatmeter).  The thing to
-watch for here is the internal fragmentation of the slab caches:
-
-        dentry_cache:    76505KB    82373KB   92.87
-
-93% is good.  Sometimes it gets much worse - very regular directory
-patterns can trigger high fragmentation levels.
-
-Does increasing /proc/sys/vm/vfs_cache_pressure help?  If you're watching
-/proc/meminfo you should be able to observe the effect of that upon the
-Slab: figure.
+Cheers,
+  Trond
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 

@@ -1,81 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289272AbSDQP2b>; Wed, 17 Apr 2002 11:28:31 -0400
+	id <S290797AbSDQPcF>; Wed, 17 Apr 2002 11:32:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290593AbSDQP2a>; Wed, 17 Apr 2002 11:28:30 -0400
-Received: from mail3.aracnet.com ([216.99.193.38]:55183 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S289272AbSDQP23>; Wed, 17 Apr 2002 11:28:29 -0400
-Date: Wed, 17 Apr 2002 08:28:19 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Adam Kropelin <akropel1@rochester.rr.com>
-cc: Frank Davis <fdavis@si.rr.com>, linux-kernel@vger.kernel.org,
-        davej@suse.de, Brian Gerst <bgerst@didntduck.org>
-Subject: Re: 2.5.8-dj1 : arch/i386/kernel/smpboot.c error
-Message-ID: <2673595977.1019032098@[10.10.2.3]>
-In-Reply-To: <20020417123044.GA8833@www.kroptech.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S290818AbSDQPcE>; Wed, 17 Apr 2002 11:32:04 -0400
+Received: from glade.nmd.msu.ru ([193.232.112.67]:37135 "HELO glade.nmd.msu.ru")
+	by vger.kernel.org with SMTP id <S290797AbSDQPcD>;
+	Wed, 17 Apr 2002 11:32:03 -0400
+Date: Wed, 17 Apr 2002 19:31:57 +0400
+From: Andrey Slepuhin <pooh@msu.ru>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx driver v6.2.5 freezes the kernel
+Message-ID: <20020417153157.GH7342@glade.nmd.msu.ru>
+In-Reply-To: <20020417111515.GE7342@glade.nmd.msu.ru> <200204171454.g3HEsB904317@aslan.scsiguy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cc'ed Brian - this is your io.h cleanup patch
-
-> As I said, -dj has an optimization in asm-i386/io.o:
+On Wed, Apr 17, 2002 at 08:54:11AM -0600, Justin T. Gibbs wrote:
+> >All other changes were successfully merged without any problems.
+> >BTW, version 6.2.6 of the driver from 2.4.19-pre7 freezes the system too.
 > 
->> # ifdef CONFIG_MULTIQUAD
->> extern void *xquad_portio;    /* Where the IO area was mapped */
->> # else
->> # define xquad_portio (0)
->> # endif
+> What motherboard is this again?
 
-Ah, OK, I missed that - makes more sense now ;-). 
+P3TDER with dual channel U160 aic7899 controller onboard:
 
-> Even though clustered_apic_mode is 0, the compiler still complains
-> about the second one and the first one doesn't depend on
-> clustered_apic_mode at all.
+00:05.0 SCSI storage controller: Adaptec 7899P (rev 01)
+        Subsystem: Unknown device 9d15:0001
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 40 min, 25 max, 64 set, cache line size 04
+        Interrupt: pin A routed to IRQ 26
+        BIST result: 00
+        Region 0: I/O ports at d000 [disabled] [size=256]
+        Region 1: Memory at feafc000 (64-bit, non-prefetchable) [size=4K]
+        Expansion ROM at feaa0000 [disabled] [size=128K]
+        Capabilities: [dc] Power Management version 2
+                Flags: PMEClk- AuxPwr- DSI- D1- D2- PME-
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-Hmmm ... not sure why the compiler complains about the second one,
-that's very strange ;-)
- 
-> I don't like spreading around more #ifdef's, but the spirit of the
-> changes seemed to be to get rid of the declaration of xquad_portio
-> when !CONFIG_MULTIQUAD. Suggestions for improvement welcome.
+00:05.1 SCSI storage controller: Adaptec 7899P (rev 01)
+        Subsystem: Unknown device 9d15:0001
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 40 min, 25 max, 64 set, cache line size 04
+        Interrupt: pin B routed to IRQ 27
+        BIST result: 00
+        Region 0: I/O ports at d800 [disabled] [size=256]
+        Region 1: Memory at feaff000 (64-bit, non-prefetchable) [size=4K]
+        Expansion ROM at feac0000 [disabled] [size=128K]
+        Capabilities: [dc] Power Management version 2
+                Flags: PMEClk- AuxPwr- DSI- D1- D2- PME-
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-The cleanups we gained in io.h by Brian's patch more than compensate
-for this, but it's still a shame to have to do.
 
-I wonder if we can play the same trick we've played before ....
-haven't tested the appended, but maybe it, or something like it
-will work without the ifdef's?
 
-M.
+>  Perhaps your PCI bus is running just
+> a hair bit faster than 66MHz?
 
---- linux-2.5.8-dj1/include/asm-i386/io.h	Wed Apr 17 05:06:20 2002
-+++ linux-2.5.8-dj1/include/asm-i386/io.h.new	Wed Apr 17 15:07:11 2002
-@@ -330,7 +330,8 @@
- }
- 
- #ifdef CONFIG_MULTIQUAD
--extern void *xquad_portio;    /* Where the IO area was mapped */
-+#define xquad_portio real_xquad_portio
-+extern void *real_xquad_portio;    /* Where the IO area was mapped */
- #else
- #define xquad_portio (0)
- #endif
---- linux-2.5.8-dj1/arch/i386/kernel/smpboot.c	Sun Apr 14 12:18:52 2002
-+++ linux-2.5.8-dj1/arch/i386/kernel/smpboot.c.new	Wed Apr 17 15:08:25 2002
-@@ -1005,7 +1005,7 @@
- 
- static int boot_cpu_logical_apicid;
- /* Where the IO area was mapped on multiquad, always 0 otherwise */
--void *xquad_portio = NULL;
-+void *real_xquad_portio = NULL;
- 
- int cpu_sibling_map[NR_CPUS] __cacheline_aligned;
- 
+I doubt it. 
 
+>  A similar issue was discovered with the
+> U320 controllers running at 133MHz PCI-X where some amount of delay is
+> required prior to accessing chip registers again after setting
+> CHIPRST.
+> 
+> The code was flipped so that the delay was acurate.  In PCI, you
+> are only guaranteed that the write has been flushed all the way to the
+> device by performing a read to that device.  I guess we'll just have to
+> hope that our write transaction isn't stalled.
+> 
+> I'll make a 6.2.7 <sigh> drop later today.
+
+Ok, I'll test it.
+
+Andrey.
+
+-- 
+A right thing should be simple (tm)

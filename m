@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264822AbUEJP5C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264836AbUEJP6R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264822AbUEJP5C (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 11:57:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264846AbUEJP5B
+	id S264836AbUEJP6R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 11:58:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264843AbUEJP6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 11:57:01 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:9108 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S264822AbUEJP4v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 11:56:51 -0400
-Date: Mon, 10 May 2004 17:56:25 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       linux-kernel@vger.kernel.org, Jamie Lokier <jamie@shareable.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [ANNOUNCEMENT PATCH COW] proof of concept impementation of cowlinks
-Message-ID: <20040510155624.GC16182@wohnheim.fh-wedel.de>
-References: <20040506131731.GA7930@wohnheim.fh-wedel.de> <200405081645.06969.vda@port.imtp.ilyichevsk.odessa.ua> <20040508221017.GA29255@atrey.karlin.mff.cuni.cz> <200405091709.37518.vda@port.imtp.ilyichevsk.odessa.ua> <20040509215351.GA15307@atrey.karlin.mff.cuni.cz> <20040510154450.GA16182@wohnheim.fh-wedel.de> <20040510155127.GD27008@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Mon, 10 May 2004 11:58:17 -0400
+Received: from mail.cyberdeck.net ([213.30.142.148]:50105 "EHLO
+	mail.cyberdeck.com") by vger.kernel.org with ESMTP id S264836AbUEJP6E
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 11:58:04 -0400
+From: Patrice Bouchand <PBouchand@cyberdeck.com>
+Organization: Cyberdeck
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] ib700wdt watchdog driver for 2.6.6
+Date: Mon, 10 May 2004 17:57:58 +0200
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040510155127.GD27008@atrey.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200405101757.58104.PBouchand@cyberdeck.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 May 2004 17:51:27 +0200, Pavel Machek wrote:
-> > 
-> > What about ino?  I currently return 1, so diff remains fast without
-> > any changes.  If someone really needs the difference between inode 2
-> > and 3, I would introduce a cstat() system call similar to lstat(),
-> > which would return ino=2.
-> 
-> I think you need to return 2, otherwise inode numbers change when
-> cowling is broken.... and that would be bad.
+Hello all,
 
-Makes sense.  Damn, now I gotta touch diff as well. :(
+        The following is a kernel 2.6.6 patch for the ib700wdt watchdog 
+driver. I tried to mail Charles Howes, but his address seems to be down.
 
-> Aha.. That is another neccessary property for get_cow_inode():
-> cow_inode can change, any time, unlike normal inode.
+	The modified file is ib700wdt.c
 
-Correct.  Still, I prefer cstat(), even though almost all information
-is identical to stat.  But the device might change as well, one day.
+	The thing which is modified :
 
-Jörn
+ ibwdt_ping() : a bug removed ,port value must be written not the timeout in 
+second
 
--- 
-With a PC, I always felt limited by the software available. On Unix, 
-I am limited only by my knowledge.
--- Peter J. Schoenster
+        Comments are welcome,
+
+        Best regards
+
+        Patrice BOUCHAND 
+
+------------------------------------------------------------------------------------------------------------------
+
+--- ./ib700wdt.c.orig   2004-05-10 08:57:54.000000000 +0200
++++ ./ib700wdt.c        2004-05-10 08:44:50.000000000 +0200
+@@ -135,7 +135,7 @@
+ ibwdt_ping(void)
+ {
+        /* Write a watchdog value */
+-       outb_p(wd_times[wd_margin], WDT_START);
++       outb_p(wd_margin, WDT_START);
+ }
+
+ static ssize_t
+
+

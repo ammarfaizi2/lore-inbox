@@ -1,88 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319378AbSHQKTB>; Sat, 17 Aug 2002 06:19:01 -0400
+	id <S316185AbSHQLFC>; Sat, 17 Aug 2002 07:05:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319379AbSHQKTB>; Sat, 17 Aug 2002 06:19:01 -0400
-Received: from 212.68.254.82.brutele.be ([212.68.254.82]:33542 "EHLO debian")
-	by vger.kernel.org with ESMTP id <S319378AbSHQKTA>;
-	Sat, 17 Aug 2002 06:19:00 -0400
-Date: Sat, 17 Aug 2002 12:22:59 +0200
-From: Stephane Wirtel <stephane.wirtel@belgacom.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20-pre3
-Message-ID: <20020817102259.GA4174@debian>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20020817045924.GC377@hendrix> <Pine.LNX.4.44.0208170117360.8089-100000@freak.distro.conectiva>
+	id <S317072AbSHQLFB>; Sat, 17 Aug 2002 07:05:01 -0400
+Received: from users-vst.linvision.com ([62.58.92.114]:57219 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S316185AbSHQLFB>; Sat, 17 Aug 2002 07:05:01 -0400
+Date: Sat, 17 Aug 2002 13:08:31 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alexander Viro <viro@math.psu.edu>, Larry McVoy <lm@bitmover.com>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: IDE?
+Message-ID: <20020817130831.A23498@bitwizard.nl>
+References: <Pine.GSO.4.21.0208162057550.14493-100000@weyl.math.psu.edu> <Pine.LNX.4.44.0208161822130.1674-100000@home.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208170117360.8089-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: GNU/Linux
-X-LUG: Linux Users Group Mons ( Linux-Mons )
-X-URL: http://www.linux-mons.be
+In-Reply-To: <Pine.LNX.4.44.0208161822130.1674-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.22.1i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-about the patch of devfs, why don't add directly this patch in the new 2.4.20-pre3
-?
+On Fri, Aug 16, 2002 at 06:35:29PM -0700, Linus Torvalds wrote:
+> And yes, by now this all is obviously 2.7.x material.
 
+Linus, 
 
+I sure hope that you're talking about "finishing" your project plan,
+and not about "starting it". I would really prefer to have work on
+the IDE-TNG started soonish, rather than defered another year or so.
 
-On Sat, Aug 17, 2002 at 01:18:17AM -0300, Marcelo Tosatti wrote:
-> 
-> 
-> On Sat, 17 Aug 2002, Skidley wrote:
-> 
-> > check.c: In function `devfs_register_disc':
-> > check.c:328: structure has no member named `number'
-> > check.c:329: structure has no member named `number'
-> > check.c: In function `devfs_register_partitions':
-> > check.c:361: structure has no member named `number'
-> > make[3]: *** [check.o] Error 1
-> > make[3]: Leaving directory
-> > `/home/skidley/kernel/linux-2.4.20-pre3/fs/partitions'
-> > make[2]: *** [first_rule] Error 2
-> > make[2]: Leaving directory
-> > `/home/skidley/kernel/linux-2.4.20-pre3/fs/partitions'
-> > make[1]: *** [_subdir_partitions] Error 2
-> > make[1]: Leaving directory `/home/skidley/kernel/linux-2.4.20-pre3/fs'
-> > make: *** [_dir_fs] Error 2
-> 
-> Yeah, I forgot to apply the fix to this one, sorry.
-> 
-> Here it is:
-> 
-> Subject: [PATCH] fix current BK tree compilation with devfs enabled
-> 
-> 
-> Not that I care for devfs, but there was at least one report on lkml.
-> 
-> I tried to also put the devfs_handle_t under CONFIG_DEVFS_FS, but the
-> devfs wrappers require it.  And yes, I'm seriously pissed that devfs
-> puts wordsize objects everywhere even if not enabled.
-> 
-> 
-> --- linux-2.4.20-bk-20020810/include/linux/genhd.h	Sat Aug 10 14:37:16 2002
-> +++ linux/include/linux/genhd.h	Mon Aug 12 23:40:37 2002
-> @@ -62,7 +62,9 @@ struct hd_struct {
->  	unsigned long start_sect;
->  	unsigned long nr_sects;
->  	devfs_handle_t de;              /* primary (master) devfs entry  */
-> -
-> +#ifdef CONFIG_DEVFS_FS
-> +	int number;
-> +#endif /* CONFIG_DEVFS_FS */
->  #ifdef CONFIG_BLK_STATS
->  	/* Performance stats: */
->  	unsigned int ios_in_flight;
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+There will be plenty of bugs to be found, which can benefit from a
+longer testing-period by people daring enough to try the new and
+experimental driver.....
+
+			Roger. 
 
 -- 
-Stephane Wirtel <stephane.wirtel@belgacom.net>
-Web : www.linux-mons.be	 "Linux Is Not UniX !!!"
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

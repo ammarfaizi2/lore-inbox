@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVBJTQP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261441AbVBJTTI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261359AbVBJTQP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 14:16:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVBJTPz
+	id S261441AbVBJTTI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 14:19:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVBJTTI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 14:15:55 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:42631 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261359AbVBJTPi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 14:15:38 -0500
-Date: Thu, 10 Feb 2005 19:15:25 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Patrick Gefre <pfg@sgi.com>, Christoph Hellwig <hch@infradead.org>,
-       linux-kernel@vger.kernel.org, matthew@wil.cx,
-       B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: Re: [PATCH] Altix : ioc4 serial driver support
-Message-ID: <20050210191525.GA11284@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jesse Barnes <jbarnes@engr.sgi.com>, Patrick Gefre <pfg@sgi.com>,
-	linux-kernel@vger.kernel.org, matthew@wil.cx,
-	B.Zolnierkiewicz@elka.pw.edu.pl
-References: <20050103140938.GA20070@infradead.org> <20050207162525.GA15926@infradead.org> <4208EE3A.6010500@sgi.com> <200502101109.43455.jbarnes@engr.sgi.com>
+	Thu, 10 Feb 2005 14:19:08 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:39837 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261441AbVBJTQ6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 14:16:58 -0500
+Subject: Re: [RFC] Changing COW detection to be memory hotplug friendly
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Hugh Dickins <hugh@veritas.com>, IWAMOTO Toshihiro <iwamoto@valinux.co.jp>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lhms <lhms-devel@lists.sourceforge.net>
+In-Reply-To: <20050210190521.GN18573@opteron.random>
+References: <20050203035605.C981A7046E@sv1.valinux.co.jp>
+	 <Pine.LNX.4.61.0502072041130.30212@goblin.wat.veritas.com>
+	 <Pine.LNX.4.61.0502081549320.2203@goblin.wat.veritas.com>
+	 <20050210190521.GN18573@opteron.random>
+Content-Type: text/plain
+Date: Thu, 10 Feb 2005 11:16:44 -0800
+Message-Id: <1108063004.29712.54.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200502101109.43455.jbarnes@engr.sgi.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 10, 2005 at 11:09:43AM -0800, Jesse Barnes wrote:
-> On Tuesday, February 8, 2005 8:52 am, Patrick Gefre wrote:
-> > I've update the patch with changes from the comments below.
-> >
-> > ftp://oss.sgi.com/projects/sn2/sn2-update/033-ioc4-support
-> >
-> > Christoph Hellwig wrote:
-> > > On Mon, Feb 07, 2005 at 09:58:33AM -0600, Patrick Gefre wrote:
-> > >>Latest version with review mods:
-> > >>ftp://oss.sgi.com/projects/sn2/sn2-update/033-ioc4-support
-> > >
-> > >  - still not __iomem annotations.
-> >
-> > I *think* I have this right ??
-> 
-> Here's the output from 'make C=1' with your driver patched in (you if you want
-> to run it yourself, just copy tomahawk.engr:~jbarnes/bin/sparse to somewhere
-> in your path and run 'make C=1').  I think most of these warning would be
-> fixed up if the structure fields referring to registers were declared as
-> __iomem, but I haven't looked carefully.
+On Thu, 2005-02-10 at 20:05 +0100, Andrea Arcangeli wrote:
+> Overall I see nothing wrong in preventing memory removal while rawio is
+> in flight. rawio cannot be in flight forever (ptrace and core dump as
+> well should complete eventually). Why can't you simply drop pages from
+> the freelist one by one until all of them are removed from the freelist?
 
-Actually the pointers to the struct need to be declared __iomem.  
+We actually do that, in addition to the more active methods of capturing
+the memory that we're about to remove.
+
+You're right, I don't really see a problem with ignoring those pages, at
+least in the active migration code.  We would, of course, like to keep
+the number of things that we depend on good faith to get migrated to a
+minimum, but things under I/O are the least of our problems.
+
+The only thing we might want to do is put something in the rawio code to
+look for the PG_capture pages to ensure that it gives the migration code
+a shot at them every once in a while (when I/O is not in flight,
+obviously).
+
+-- Dave
 

@@ -1,60 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262627AbTDQUro (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 16:47:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262629AbTDQUro
+	id S261809AbTDQUyv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 16:54:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262637AbTDQUyv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 16:47:44 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29708 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S262627AbTDQUrn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 16:47:43 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: problems booting 2.5 kernel, rh9
-Date: 17 Apr 2003 13:59:11 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b7n4iv$dub$1@cesium.transmeta.com>
-References: <000501c3048d$a3e41700$0200a8c0@satellite> <20030417111714.GA16335@wind.cocodriloo.com>
+	Thu, 17 Apr 2003 16:54:51 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:5542 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261809AbTDQUyt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 16:54:49 -0400
+Message-ID: <3E9F175E.1000504@nortelnetworks.com>
+Date: Thu, 17 Apr 2003 17:06:38 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+To: linux-kernel@vger.kernel.org
+Subject: trying to understand mmap, msync, O_SYNC, and devices
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20030417111714.GA16335@wind.cocodriloo.com>
-By author:    Antonio Vargas <wind@cocodriloo.com>
-In newsgroup: linux.dev.kernel
-> 
-> Dave, since your ISP is blocking my mail, I reply on lkml...
-> 
-> I booted fine the 2.5 kernel by tagging it for netboot and
-> then placing it on my tftp directory. I never use harddisk
-> bootloaders, so if you can not make it work with grub,
-> I would get ahead and make it boot from floppy. Yes, it
-> takes a minute to load a kernel, but it works and is simple.
-> 
-> I use syslinux for that, it's fairly simple and you can
-> enter kernel options directly at the boot prompt.
-> 
-> Also, since it's a dos 8.3-formatted floppy, you can upgrade
-> your kernel by simply replacing the kernel file.
-> 
-> If you need a dos-formatted empty disk, I can post one to my
-> homepage for you to download.
-> 
 
-Especially on recent 2.5, you can just "make bzdisk" and have it make
-a syslinux floppy.  make bzdisk FDARGS='blah' lets you set the default
-options right on the fly.  You need syslinux 2.02 or later (and, of
-course, write permission to the floppy drive) if you want to do this
-as non-root.
+With the discussions over the past while, it is now clear that shared mappings 
+of normal files will not be written out until forced to, and that this is the 
+correct thing to do in almost all cases.
 
-	-hpa
+In this case, changing something in the mapped area will make the changes 
+visible to all other processes mapping the same area, but the changes are not 
+guaranteed to be flushed to the backing store.
+
+What I am not clear on is how this interacts with mapping *devices*.  Does it 
+still go through the buffer cache?
+
+
+Details follow for those who are interested:
+
+I have hardware which does not wipe ram on reset as long as it is not powered 
+off.  On boot I force a limit on the amount of memory used by the kernel, which 
+leaves a chunk of unused memory beyond normally-accessable memory.  I have a 
+char driver which then implements mmap by mapping this memory to the calling 
+process.  This mapping is shared between many processes and is used for logging, 
+with appropriate locking mechanisms.
+
+My key issue is this--how do I ensure that the contents of this memory are 
+consistant and up to date when the board may be rebooted at any time?
+
+I have three levels of enforcement that I have considered:
+
+1) Opening the device with O_SYNC.  This also tells the mmap code in the driver 
+to set the memory to uncached, the same way that mem.c does in pgprot_noncached().
+
+2) Calls to wmb() in the code to enforce order when setting critical fields.
+
+3) Explicit calls to msync() in place of the wmb() calls. (Which slows it down 
+by a factor of 2.5 as compared to #2.)
+
+
+I assume that #1 is required to guard against resetting of the board.  Beyond 
+that is #2 sufficient, or is #3 required?
+
+Thanks,
+
+Chris
+
 
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

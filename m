@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261957AbTILXpJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 19:45:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbTILXpJ
+	id S261974AbTIMAXT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 20:23:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbTIMAXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 19:45:09 -0400
-Received: from fed1mtao08.cox.net ([68.6.19.123]:59887 "EHLO
-	fed1mtao08.cox.net") by vger.kernel.org with ESMTP id S261957AbTILXpF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 19:45:05 -0400
-Message-ID: <3F625A26.7050305@cox.net>
-Date: Fri, 12 Sep 2003 16:43:34 -0700
-From: "Kevin P. Fleming" <kpfleming@cox.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: Andreas Schwab <schwab@suse.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] new ioctl type checking causes gcc warning
-References: <3F621AC4.4070507@cox.net> <je65jx3hdk.fsf@sykes.suse.de> <200309121453.07111.arnd@arndb.de>
-In-Reply-To: <200309121453.07111.arnd@arndb.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Sep 2003 20:23:19 -0400
+Received: from fw.osdl.org ([65.172.181.6]:44518 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261974AbTIMAXP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 20:23:15 -0400
+Date: Fri, 12 Sep 2003 17:23:12 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: torvalds@osdl.org
+Cc: akpm@osdl.org, greg@kroah.com, linux-kernel@vger.kernel.org,
+       sds@epoch.ncsc.mil
+Subject: [PATCH 2/4] 2.6.0-test5-bk Add LSM maintainer entry
+Message-ID: <20030912172312.B8718@build.pdx.osdl.net>
+References: <20030912171833.A8718@build.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030912171833.A8718@build.pdx.osdl.net>; from chrisw@osdl.org on Fri, Sep 12, 2003 at 05:18:33PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann wrote:
+ Add LSM maintainer entry
 
-> I had tried that first, but found that there are places that
-> use asm/ioctl.h without including asm/posix_types.h first, so 
-> size_t might not be declared. unsigned int (or unsigned long)
-> is the better alternative here. Does this look ok to everyone?
+ MAINTAINERS |    7 +++++++
+ 1 files changed, 7 insertions(+)
 
-After working on this some more this afternoon, I realize now that 
-it's much better to have the typechecking in place than not, even for 
-userspace. Maybe the best solution is to still leave the typechecking 
-(don't wrap it in #ifdef __KERNEL__), and just
-
-#ifdef size_t
-extern size_t __invalid_size_argument_for_IOC;
-#else
-extern unsigned int __invalid_size_argument_for_IOC;
-#endif
-
-Would the type specification of this non-existent variable ever 
-actually effect the generated code? If not, then even putting this 
-#ifdef in is overkill.
-
+--- 2.6.0-test5-bk/MAINTAINERS.maint	Wed Sep  3 23:39:56 2003
++++ 2.6.0-test5-bk/MAINTAINERS	Fri Sep 12 15:41:12 2003
+@@ -1159,6 +1159,13 @@
+ L:	linuxppc64-dev@lists.linuxppc.org
+ S:	Supported
+ 
++LINUX SECURITY MODULE (LSM) FRAMEWORK
++P:	Chris Wright
++M:	chrisw@osdl.org
++L:	linux-security-module@wirex.com
++W:	http://lsm.immunix.org
++S:	Supported
++
+ LOGICAL DISK MANAGER SUPPORT (LDM, Windows 2000/XP Dynamic Disks)
+ P:	Richard Russon (FlatCap)
+ M:	ldm@flatcap.org

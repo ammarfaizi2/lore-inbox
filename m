@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267209AbUGMWx4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267198AbUGMWyt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267209AbUGMWx4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 18:53:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267214AbUGMWxz
+	id S267198AbUGMWyt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 18:54:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267215AbUGMWyI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 18:53:55 -0400
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:14797 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S267209AbUGMWx2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 18:53:28 -0400
-Date: Wed, 14 Jul 2004 00:53:05 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: paul@linuxaudiosystems.com, rlrevell@joe-job.com,
-       linux-audio-dev@music.columbia.edu, mingo@elte.hu, arjanv@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel Preemption Patch
-Message-ID: <20040713225305.GO974@dualathlon.random>
-References: <200407130001.i6D01pkJ003489@localhost.localdomain> <20040712170844.6bd01712.akpm@osdl.org> <20040713162539.GD974@dualathlon.random> <20040713114829.705b9607.akpm@osdl.org> <20040713213847.GH974@dualathlon.random> <20040713145424.1217b67f.akpm@osdl.org> <20040713220103.GJ974@dualathlon.random> <20040713152532.6df4a163.akpm@osdl.org> <20040713223701.GM974@dualathlon.random> <20040713154448.4d29e004.akpm@osdl.org>
+	Tue, 13 Jul 2004 18:54:08 -0400
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:6274 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S267198AbUGMWjh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 18:39:37 -0400
+Date: Tue, 13 Jul 2004 15:39:23 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: Anton Ertl <anton@mips.complang.tuwien.ac.at>,
+       linux-kernel@vger.kernel.org, Jan Knutar <jk-lkml@sci.fi>,
+       L A Walsh <lkml@tlinx.org>
+Subject: Re: XFS: how to NOT null files on fsck?
+Message-ID: <20040713223923.GC7980@taniwha.stupidest.org>
+References: <200407050247.53743.norberto+linux-kernel@bensa.ath.cx> <200407102143.49838.jk-lkml@sci.fi> <20040710184601.GB5014@taniwha.stupidest.org> <200407101555.27278.norberto+linux-kernel@bensa.ath.cx> <20040710191914.GA5471@taniwha.stupidest.org> <2hgxc-5x9-9@gated-at.bofh.it> <2004Jul13.092529@mips.complang.tuwien.ac.at> <20040713222411.GA1035@hh.idb.hist.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040713154448.4d29e004.akpm@osdl.org>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040713222411.GA1035@hh.idb.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 13, 2004 at 03:44:48PM -0700, Andrew Morton wrote:
-> Yeah, I know.  might_sleep() in cond_resched() makes sense.
+On Wed, Jul 14, 2004 at 12:24:11AM +0200, Helge Hafting wrote:
 
-What I'm doing is basically to replace all might_sleep with cond_resched
-and then I add might_sleep in cond_resched. I also merged all
-new might_sleep in Ingo's patch (converted to cond_resched). We'll see
-what happens then when I try to boot such a thing (the sti and
-sched_yield already given me some troubles).
+> There is another solution - zero blocks when freeing them.
 
-I was considering adding a cond_resched_costly but I didn't see anything
-really that costly to need a CONFIG_LOW_RESCHED_OVERHEAD.
+slow
 
-btw, cond_resched should only be defined as might_sleep with PREEMPT
-enabled, otherwise it's pointless to check need_resched at almost every
-spin_unlock and to do it during cond_resched too. if might_sleep doesn't
-BUG it means we didn't need to check need_resched in the first place if
-preempt is enabled.
+> (Or put them on a list for later zeroing when the fs isn't busy, in
+> order to kee??????p good performance)
 
-cond_resched_lock is another story of course.
+complicated, doesn't buy as anything, it also means the blocks are
+tied up whilst they are being zeroed (consider a truncated on a
+multi-gb file, fairly common)
+
+> With this approach you don't need to zero a half-written
+> block after a crash, which means you destroy less data.
+
+it doesn't zero after a crash, what happens is the blocks never make
+it to disk and the metadata (which did make it to disk) reflects this
+so read returns nulls
+
+as is, you can truncate a multi-gb file, write over it and the only IO
+you see will be the new data being written out,  zeroing in between
+would be horribly pianful
+
+
+  --cw

@@ -1,171 +1,115 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314548AbSDVTeM>; Mon, 22 Apr 2002 15:34:12 -0400
+	id <S314463AbSDVTlQ>; Mon, 22 Apr 2002 15:41:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314662AbSDVTeL>; Mon, 22 Apr 2002 15:34:11 -0400
-Received: from zero.tech9.net ([209.61.188.187]:25098 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S314548AbSDVTeJ>;
-	Mon, 22 Apr 2002 15:34:09 -0400
-Subject: [PATCH][RFC] task cpu affinity syscalls for 2.4-O(1)
-From: Robert Love <rml@tech9.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 22 Apr 2002 15:34:13 -0400
-Message-Id: <1019504054.939.108.camel@phantasy>
+	id <S314468AbSDVTlP>; Mon, 22 Apr 2002 15:41:15 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:22278 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S314463AbSDVTlN>; Mon, 22 Apr 2002 15:41:13 -0400
+Message-Id: <5.1.0.14.2.20020422202923.00b1d530@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 22 Apr 2002 20:41:20 +0100
+To: Daniel Phillips <phillips@bonn-fries.net>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E16zMNA-0001JU-00@starship>
 Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Following patch implements the 2.5 task affinity syscalls on top of the
-2.4 O(1) scheduler patches I recently posted.  We can implement these
-now since 2.4's O(1) scheduler now has the migration_thread. 
-Previously, the 2.4 patches I did only worked on the "stock" scheduler.
+<cc list trimmed because this is getting silly>
 
-I have a request for comments:
+At 19:47 21/04/02, Daniel Phillips wrote:
+>On Monday 22 April 2002 20:29, Anton Altaparmakov wrote:
+> > >Please don't assign me membership in any anti-bitkeeper crew.  I am not
+> > >anti-BitKeeper.  If you must have an epithet, try
+> > >"anti-advertising-in-the-tree"
+> > >crew.
+> >
+> > Oh I wasn't refering just to you.
+>
+>Don't refer to me at all in that context, thankyou.
 
-The locking is no good in this patch.  set_cpus_allowed is not atomic
-and it is certainly not safe to hold a spinlock across a call to it. 
-However, before we call set_cpus_allowed we need a valid reference to
-the task and assurance the task won't slip away out from under us.
+Ok, no problem.
 
-So you say "ah grab tasklist_lock" but we can't hold it across
-set_cpus_allowed.  In 2.5, we solve this by bumping the task_struct's
-usage count via get_task_struct - this assures us at least the
-task_struct will not go anywhere until we put_task_struct.  We have no
-such luxury in 2.4...
+> > I was refering to the "silently seething"
+> > kernel hackers you mentioned but refused to name...
+>
+>Indeed.  Please get a clue a read the thread.  Sheesh.  No, I'm still not 
+>going to name anybody, figure it out yourself.
 
-In this patch, we grab tasklist_lock.  My testing isn't showing any
-deadlocks, so feel free to play, but this approach is not safe.
+Anyone not prepared to say their name obviously doesn't care enough about 
+the issue therefore their needs need not be considered (pun intended). 
+Considering you are speaking for others who as we said before do not care 
+enough you don't speak for any one who cares anough so you should stop now. 
+Sounds harsh? It's the truth. Think about it. At least you claim to not be 
+an anti-bk person but that you speak for the many anti-bk people. I have to 
+still read from a single line from one of those imaginary figures you have 
+in your head...
 
-Any ideas of a how to (a) assure a task is valid and will remain so
-through a call to set_cpus_allowed, (b) do (a) without a spinlock?
+> > > > then moving the
+> > > > document out won't either, so moving it out would be a waste of time in
+> > > > addition to penalizing people who want to use bitkeeper, which is 
+> unfair
+> > > > and incorrect.
+> > >
+> > >Changing the documents for a url penalizes you exactly how?
+> >
+> > You obviously didn't read my mail properly. )-:
+> >
+> > It is an inconvenience having to go lookup some website instead of having
+> > the doc right there.
+>
+>Good thing you've got a computer to look it up for you then, isn't it.
+>(moral of this, don't say really stupid things if you don't want an even
+>stupider reply).
 
-	Robert Love
+I didn't say anything stupid. You did. And your reply is out of context 
+because I am talking about disconnectedness.
 
-diff -urN linux-O1/arch/i386/kernel/entry.S linux/arch/i386/kernel/entry.S
---- linux-O1/arch/i386/kernel/entry.S	Mon Apr 22 15:22:10 2002
-+++ linux/arch/i386/kernel/entry.S	Mon Apr 22 15:23:14 2002
-@@ -639,8 +639,8 @@
-  	.long SYMBOL_NAME(sys_tkill)
- 	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for sendfile64 */
- 	.long SYMBOL_NAME(sys_ni_syscall)	/* 240 reserved for futex */
--	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for sched_setaffinity */
--	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for sched_getaffinity */
-+	.long SYMBOL_NAME(sys_sched_setaffinity)
-+	.long SYMBOL_NAME(sys_sched_getaffinity)
- 
- 	.rept NR_syscalls-(.-sys_call_table)/4
- 		.long SYMBOL_NAME(sys_ni_syscall)
-diff -urN linux-O1/include/linux/capability.h linux/include/linux/capability.h
---- linux-O1/include/linux/capability.h	Mon Apr 22 15:21:46 2002
-+++ linux/include/linux/capability.h	Mon Apr 22 15:22:31 2002
-@@ -243,6 +243,7 @@
- /* Allow use of FIFO and round-robin (realtime) scheduling on own
-    processes and setting the scheduling algorithm used by another
-    process. */
-+/* Allow setting cpu affinity on other processes */
- 
- #define CAP_SYS_NICE         23
- 
-diff -urN linux-O1/kernel/sched.c linux/kernel/sched.c
---- linux-O1/kernel/sched.c	Mon Apr 22 15:21:46 2002
-+++ linux/kernel/sched.c	Mon Apr 22 15:22:31 2002
-@@ -1184,6 +1184,93 @@
- 	return retval;
- }
- 
-+/**
-+ * sys_sched_setaffinity - set the cpu affinity of a process
-+ * @pid: pid of the process
-+ * @len: length in bytes of the mask pointed to by new_mask_ptr
-+ * @new_mask: user-space pointer to the new cpu mask
-+ */
-+asmlinkage int sys_sched_setaffinity(pid_t pid, unsigned int len,
-+				     unsigned long *new_mask_ptr)
-+{
-+	unsigned long new_mask;
-+	task_t *p;
-+	int retval;
-+
-+	if (len < sizeof(new_mask))
-+		return -EINVAL;
-+
-+	if (copy_from_user(&new_mask, new_mask_ptr, sizeof(new_mask)))
-+		return -EFAULT;
-+
-+	new_mask &= cpu_online_map;
-+	if (!new_mask)
-+		return -EINVAL;
-+
-+	/*
-+	 * FIXME: It is unsafe to call set_cpus_allowed while
-+	 * holding a lock.  In 2.5, we can bump the task_struct's
-+	 * usage count - for 2.4, we have no such luxury.  Holding
-+	 * tasklist_lock here is a temporary hack.  You are warned.
-+	 */
-+	write_lock(&tasklist_lock);
-+
-+	retval = -ESRCH;
-+	p = find_process_by_pid(pid);
-+	if (!p)
-+		goto out_unlock;
-+
-+	retval = -EPERM;
-+	if ((current->euid != p->euid) && (current->euid != p->uid) &&
-+			!capable(CAP_SYS_NICE))
-+		goto out_unlock;
-+
-+	retval = 0;
-+	set_cpus_allowed(p, new_mask);
-+
-+out_unlock:
-+	write_unlock(&tasklist_lock);
-+	return retval;
-+}
-+
-+/**
-+ * sys_sched_getaffinity - get the cpu affinity of a process
-+ * @pid: pid of the process
-+ * @len: length in bytes of the mask pointed to by user_mask_ptr
-+ * @user_mask_ptr: userspace pointer to the mask
-+ */
-+asmlinkage int sys_sched_getaffinity(pid_t pid, unsigned int len,
-+				     unsigned long *user_mask_ptr)
-+{
-+	unsigned long mask;
-+	unsigned int real_len;
-+	task_t *p;
-+	int retval;
-+
-+	real_len = sizeof(mask);
-+
-+	if (len < real_len)
-+		return -EINVAL;
-+
-+	read_lock(&tasklist_lock);
-+
-+	retval = -ESRCH;
-+	p = find_process_by_pid(pid);
-+	if (!p)
-+		goto out_unlock;
-+
-+	retval = 0;
-+	mask = p->cpus_allowed & cpu_online_map;
-+
-+out_unlock:
-+	read_unlock(&tasklist_lock);
-+	if (retval)
-+		return retval;
-+	if (copy_to_user(user_mask_ptr, &mask, real_len))
-+		return -EFAULT;
-+	return real_len;
-+}
-+
- asmlinkage long sys_sched_yield(void)
- {
- 	runqueue_t *rq;
+> > What part of that do you not understand?
+>
+>I don't understand the part where you find clicking a url difficult.  Please
+>tell me it ain't so.
+
+I click URL and wait and wait and I get "could not contact server". No 
+internet connection damn!
+
+> > Perhaps you
+> > have a 24x7 internet connection, many people don't. Perhaps this is a
+> > surpise to you?
+>
+>OK, let me get this straight.  You've got BitKeeper loaded on your system
+>and you've got a kernel tree, and you've made a patch, and you eventually
+>want to push it to Linus, or have him pull it, but you can't get the docs
+>because you're not connected?  Yeesh.  I can't believe I responded to this.
+
+There are people who work without an internet connection and just carry a 
+floppy around to internet cafes / work, etc. On occasion they use a CDR. I 
+know people who do that. I do that when I go on holiday. Last holiday 
+before leaving I burned the bk tree on a CDR and took it with me together 
+with my laptop.
+
+I worked for two weeks completely disconnected. The only means of 
+connection would have been going to an internet cafe and using a floppy. I 
+chose not to go into an internet cafe, I wanted piece and quiet for two 
+weeks. Going to lookup a URL would have wasted time and money. If that 
+isn't an inconvenience I don't know what is...
+
+If you can't see how disconnectedness can be a problem perhaps you don't 
+take enough holidays? (-;
+
+Best reagards,
+
+Anton
 
 
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

@@ -1,41 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261767AbREPBw0>; Tue, 15 May 2001 21:52:26 -0400
+	id <S261772AbREPCfM>; Tue, 15 May 2001 22:35:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261768AbREPBwP>; Tue, 15 May 2001 21:52:15 -0400
-Received: from geos.coastside.net ([207.213.212.4]:9661 "EHLO
-	geos.coastside.net") by vger.kernel.org with ESMTP
-	id <S261767AbREPBwF>; Tue, 15 May 2001 21:52:05 -0400
-Mime-Version: 1.0
-Message-Id: <p05100335b7278c9651ef@[207.213.214.37]>
-In-Reply-To: <Pine.LNX.4.33.0105152132580.30128-100000@xanadu.home>
-In-Reply-To: <Pine.LNX.4.33.0105152132580.30128-100000@xanadu.home>
-Date: Tue, 15 May 2001 18:51:45 -0700
-To: Nicolas Pitre <nico@cam.org>, Daniel Phillips <phillips@bonn-fries.net>
-From: Jonathan Lundell <jlundell@pobox.com>
+	id <S261770AbREPCev>; Tue, 15 May 2001 22:34:51 -0400
+Received: from horus.its.uow.edu.au ([130.130.68.25]:19593 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S261769AbREPCel>; Tue, 15 May 2001 22:34:41 -0400
+Message-ID: <3B01E670.E96A2865@uow.edu.au>
+Date: Wed, 16 May 2001 12:31:12 +1000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac13 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jonathan Lundell <jlundell@pobox.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: LANANA: To Pending Device Number Registrants
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+In-Reply-To: <Pine.LNX.4.21.0105151309460.2470-100000@penguin.transmeta.com>,
+		<Pine.LNX.4.21.0105151309460.2470-100000@penguin.transmeta.com> <p05100330b7277e2beea6@[207.213.214.37]>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 9:34 PM -0400 2001-05-15, Nicolas Pitre wrote:
->On Wed, 16 May 2001, Daniel Phillips wrote:
->
->>  On Tuesday 15 May 2001 23:20, Nicolas Pitre wrote:
->>  > Personally, I'd really like to see /dev/ttyS0 be the first detected
->>  > serial port on a system, /dev/ttyS1 the second, etc.
->>
->>  There are well-defined rules for the first four on PC's.  The ttySx
->>  better match the labels the OEM put on the box.
->
->Then just make them be detected first.
+Jonathan Lundell wrote:
+> 
+> ...
+> I *like* eth0..n (I'd like net0..n better). And I *can't* ask what
+> eth0 and eth1 are, by the way, but I should be able to (Jeff Garzik
+> has proposed an extension to ethtool to help out this lack, but it's
+> not in Linux today, and needs concrete implementation anyway).
+> 
+> But that's not my point. I'm *not* proposing that we exchange eth0
+> for geographic names. I'm suggesting, though, that the location of
+> the device is *not* meaningless, because it's the physically-located
+> RJ45 socket (or whatever) that I have to connect a particular cable
+> to. Sure, no big deal for systems with a single connection, but it
+> becomes a real pain when you've got a dozen, which is a reasonable
+> number for some network-infrastructure functions (eg firewalls).
+> 
+> When I ifconfig one of a collection of interfaces, I'm very much
+> talking about the specific physical interface connected via a
+> specific physical cable to a specific physical switch port.
+> 
 
-Well, they traditionally start with 1, not 0, too. Or have cute 
-little icons and no text. Or aren't labelled at all. I'm using one 
-fairly well-known dual-port PCI serial board that silently 
-interchanged the two ports on a rev change, with no labelling change 
-at all ('cause there was no label!). Make your ttySx match *that*!
+Yes, it can be a security trap as well - physically move a card and
+your firewall rules end up being applied to the wrong connection.
 
--- 
-/Jonathan Lundell.
+The 2.4 kernel allows you to rename an interface.  So you can build
+a little database of (MAC address/name) pairs. Apply this after booting
+and before bringing up the interfaces and everything has the name
+you wanted, based on MAC address.
+
+Andi Kleen has an app which does this:
+
+	ftp://ftp.firstfloor.org/pub/ak/smallsrc/nameif.c
+
+but apparently some additional kernel work is needed to make
+this work 100% correctly.  I do not know what the specific
+problem is.
+
+
+-

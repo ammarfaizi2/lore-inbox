@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263264AbTEIPZM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 11:25:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263275AbTEIPZM
+	id S263295AbTEIPyd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 11:54:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263298AbTEIPyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 11:25:12 -0400
-Received: from holomorphy.com ([66.224.33.161]:50080 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263264AbTEIPZM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 11:25:12 -0400
-Date: Fri, 9 May 2003 08:37:45 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.69-mm3
-Message-ID: <20030509153745.GW8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20030508013958.157b27b7.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030508013958.157b27b7.akpm@digeo.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Fri, 9 May 2003 11:54:33 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:9995 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263295AbTEIPyc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 11:54:32 -0400
+Date: Fri, 9 May 2003 09:06:34 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jamie Lokier <jamie@shareable.org>
+cc: Roland McGrath <roland@redhat.com>, Andrew Morton <akpm@digeo.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] i386 uaccess to fixmap pages
+In-Reply-To: <20030509124042.GB25569@mail.jlokier.co.uk>
+Message-ID: <Pine.LNX.4.44.0305090856500.9705-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 08, 2003 at 01:39:58AM -0700, Andrew Morton wrote:
-> http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.69-mm3.gz
->   Will appear sometime at
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.69/2.5.69-mm3/
 
-I was just looking over this and noticed 2.4.x makes u64 dma_addr_t
-conditional on CONFIG_HIGHMEM64G where 2.5.x uses CONFIG_HIGHMEM. It's
-clearly not necessary on CONFIG_HIGHMEM4G, hence this obvious (but
-untested) patch:
+On Fri, 9 May 2003, Jamie Lokier wrote:
+>
+> Why don't you change TASK_SIZE to 0xc0001000 (or so) and place the
+> user-visible fixmaps at 0xc0000000?
 
--- wli
+I think I almost agree..
 
+> That would have no cost at all.
 
-diff -prauN linux-2.5.69-1/include/asm-i386/types.h types-2.5.69-1/include/asm-i386/types.h
---- linux-2.5.69-1/include/asm-i386/types.h	Mon Dec 30 20:14:21 2002
-+++ types-2.5.69-1/include/asm-i386/types.h	Fri May  9 08:29:57 2003
-@@ -51,7 +51,7 @@
- 
- /* DMA addresses come in generic and 64-bit flavours.  */
- 
--#ifdef CONFIG_HIGHMEM
-+#ifdef CONFIG_HIGHMEM64G
- typedef u64 dma_addr_t;
- #else
- typedef u32 dma_addr_t;
+It actually does have some cost in that form, namely the fact that the
+kernel 1:1 mapping needs to be 4MB-aligned in order to take advantage of
+large-pte support. So we'd have to move the kernel to something like
+0xc0400000 (and preferably higher, to make sure there is a nice hole in
+between - say 0xc1000000), which in turn has a cost of verifying that 
+nothing assumes the current lay-out (we've had the 1/2/3GB TASK_SIZE 
+patches floating around, but they've never had "odd sizes").
+
+There's another cost, which is that right now we share the pgd with the 
+kernel fixmaps, and this would mean that we'd have a new one. That's just 
+a single page, though.
+
+But it might "just work", and it would be interesting to see what the
+patch would look like. Hint hint.
+
+[ The current "TASK_SIZE comes up to start of kernel" is actually a bad 
+  design, since it makes the boundary between user mapping a kernel 
+  mapping a very abrupt one without any hole in between - opening us up
+  for problems with overflows from user space addresses to kernel
+  addresses on x86.
+
+  In particular, if we use the wrong size to "access_ok()", a user program
+  could fool the kernel to access low kernel memory. I don't know of any
+  such bug, but having to be careful about it _did_ complicate
+  "strcpy_from_user()" on x86. So from a security angle it would also be
+  good to do this ]
+
+		Linus
+

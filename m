@@ -1,46 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129230AbQKIN2g>; Thu, 9 Nov 2000 08:28:36 -0500
+	id <S129609AbQKINa0>; Thu, 9 Nov 2000 08:30:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129616AbQKIN21>; Thu, 9 Nov 2000 08:28:27 -0500
-Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:42493 "EHLO
-	passion.cygnus") by vger.kernel.org with ESMTP id <S129230AbQKIN2N>;
-	Thu, 9 Nov 2000 08:28:13 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <00110822033500.04252@dax.joh.cam.ac.uk> 
-In-Reply-To: <00110822033500.04252@dax.joh.cam.ac.uk>  <200011081205.eA8C5ui27838@pincoya.inf.utfsm.cl> <00110819463200.01915@dax.joh.cam.ac.uk> <3A09B856.EC897A92@mvista.com> 
-To: "James A. Sutherland" <jas88@cam.ac.uk>
-Cc: George Anzinger <george@mvista.com>,
-        Horst von Brand <vonbrand@inf.utfsm.cl>,
-        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Installing kernel 2.4 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 09 Nov 2000 13:25:50 +0000
-Message-ID: <12370.973776350@redhat.com>
+	id <S129914AbQKINaQ>; Thu, 9 Nov 2000 08:30:16 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:45979 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129609AbQKINaD>;
+	Thu, 9 Nov 2000 08:30:03 -0500
+Date: Thu, 9 Nov 2000 08:30:02 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+cc: Christoph Rohland <cr@sap.com>, Larry McVoy <lm@bitmover.com>,
+        richardj_moore@uk.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
+In-Reply-To: <3A0AA063.DD5AB6D0@holly-springs.nc.us>
+Message-ID: <Pine.GSO.4.21.0011090812500.11045-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-jas88@cam.ac.uk said:
->  I think a default whereby the kernel built will run on any
-> Linux-capable machine of that architecture would be sensible - so if I
-> grab the 2.4.0t10 tarball and build it now, with no changes, I'll be
-> able to boot the kernel on any x86 machine.
 
-I have four machines on my desk at the moment. The workstation is a dual 
-P-III. I suppose I agree that it might be nice if the kernel for that also 
-worked on the embedded 386 board. But it'd also be nice if it worked on the 
-Alpha and the SH boards which are also on my desk. How about putting the 
-whole lot into a single kernel image? It's the logical extension of what's 
-being suggested.
+On Thu, 9 Nov 2000, Michael Rothwell wrote:
 
---
-dwmw2
+> Alexander Viro wrote:
+> > 
+> > On Thu, 9 Nov 2000, Michael Rothwell wrote:
+> > 
+> > > Same as before -- freedom and low cost. The primary advantae of Linux
+> > > over other OSes is the GPL.
+> > 
+> > Now, that's more than slightly insulting...
+> 
+> Well, it wasn't meant to be. I imagine RMS would make the same type of
+> statement -- Linux is libre, therefore superior. There's a number of
 
+<shrug> RMS had repeatedly demonstrated what he's worth as a designer
+and programmer. Way below zero. You may like or dislike his ideology,
+but when it comes to technical stuff... Not funny.
+
+> OSes that have advantages of Linux in some area; Solaris can use more
+> processors; QNX is real-time, smaller and still posix; Windows has
+> better application support (i.e., more of them); MacOS has better color
+> and font management. But, Linux is free. Let's say for a moment that
+> Linux was exactly the same as Solaris, technically. Linux would be
+
+You mean, bloated tasteless parody on UNIX? Thanks, but no thanks.
+
+> superior because it is licensed under the GPL, and is free; whereas
+> Solaris would not be.
+
+Small solace it would be.
+
+> > The problem with the hooks et.al. is very simple - they promote every
+> > bloody implementation detail to exposed API. Sorry, but... See Figure 1.
+> > It won't fly.
+> 
+> Figure 1?
+
+Use search engine. On google "See Figure 1" brings the thing in the first
+5 hits.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

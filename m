@@ -1,79 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265871AbSKBD3Q>; Fri, 1 Nov 2002 22:29:16 -0500
+	id <S265872AbSKBDio>; Fri, 1 Nov 2002 22:38:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265872AbSKBD3Q>; Fri, 1 Nov 2002 22:29:16 -0500
-Received: from packet.digeo.com ([12.110.80.53]:28837 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265871AbSKBD3P>;
-	Fri, 1 Nov 2002 22:29:15 -0500
-Message-ID: <3DC34808.A8FE6FAC@digeo.com>
-Date: Fri, 01 Nov 2002 19:35:36 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.45 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: linux-kernel@vger.kernel.org, riel@surriel.com, mingo@elte.hu,
-       pbadari@us.ibm.com
+	id <S265873AbSKBDin>; Fri, 1 Nov 2002 22:38:43 -0500
+Received: from 3-090.ctame701-1.telepar.net.br ([200.193.161.90]:25797 "EHLO
+	3-090.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S265872AbSKBDin>; Fri, 1 Nov 2002 22:38:43 -0500
+Date: Sat, 2 Nov 2002 01:44:47 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrew Morton <akpm@digeo.com>
+cc: William Lee Irwin III <wli@holomorphy.com>, <linux-kernel@vger.kernel.org>,
+       <mingo@elte.hu>, <pbadari@us.ibm.com>
 Subject: Re: idle time & iowait accounting
-References: <20021102031810.GA12891@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Nov 2002 03:35:37.0174 (UTC) FILETIME=[E88A5760:01C28220]
+In-Reply-To: <3DC34808.A8FE6FAC@digeo.com>
+Message-ID: <Pine.LNX.4.44L.0211020143500.1697-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> 
-> ...
-> 
-> +unsigned long nr_iowait(void)
-> +{
-> +       unsigned long i, sum = 0;
-> +
-> +       for (i = 0; i < NR_CPUS; ++i)
-> +               sum += atomic_read(&cpu_rq(i)->nr_iowait);
-> +
-> +       return sum;
-> +}
-> +
+On Fri, 1 Nov 2002, Andrew Morton wrote:
 
-We need to make a habit of checking cpu_online(i) in here.  I'd rather
-this consume 4 cachelines than 32, thanks ;)
+> > +       preempt_disable();
+> > +       rq = this_rq();
+> > +       atomic_inc(&rq->nr_iowait);
+> > +       schedule();
+> > +       atomic_dec(&rq->nr_iowait);
+> > +       preempt_enable();
 
-Also, if we decide to allocate each CPU's per-cpu memory separately
-any for-all-CPUs loop which uses per-cpu data MUST make this check,
-else it'll oops.
+> "scheduling while atomic".
 
-Not applicable in this case, and alas the cpu iterator helper macros
-(for_each_online_cpu(), etc) are currently AWOL, but...
+Point.
 
-> +void io_schedule(void)
-> +{
-> +       struct runqueue *rq;
-> +       preempt_disable();
-> +       rq = this_rq();
-> +       atomic_inc(&rq->nr_iowait);
-> +       schedule();
-> +       atomic_dec(&rq->nr_iowait);
-> +       preempt_enable();
-> +}
+> You'll need to reacquire the runqueue pointer on waking up.
 
-"scheduling while atomic".  You'll need to reacquire the runqueue pointer
-on waking up.
+No. It makes sense to decrement the same counter that was
+incremented before.
 
-> +
-> +void io_schedule_timeout(long timeout)
-> +{
-> +       struct runqueue *rq;
-> +       preempt_disable();
-> +       rq = this_rq();
-> +       atomic_inc(&rq->nr_iowait);
-> +       schedule_timeout(timeout);
-> +       atomic_dec(&rq->nr_iowait);
-> +       preempt_enable();
-> +}
+regards,
 
-And here too.
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
 
-Apart from that, looks very good, thanks.

@@ -1,56 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270664AbRHJWna>; Fri, 10 Aug 2001 18:43:30 -0400
+	id <S270667AbRHJWvA>; Fri, 10 Aug 2001 18:51:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270666AbRHJWnU>; Fri, 10 Aug 2001 18:43:20 -0400
-Received: from four.malevolentminds.com ([216.177.76.238]:11024 "EHLO
-	four.malevolentminds.com") by vger.kernel.org with ESMTP
-	id <S270664AbRHJWnK>; Fri, 10 Aug 2001 18:43:10 -0400
-Date: Fri, 10 Aug 2001 15:43:15 -0700 (PDT)
-From: Khyron <khyron@khyron.com>
-X-X-Sender: <khyron@four.malevolentminds.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PROBLEM] 2.4.5: Sending TCP doesn't send
-Message-ID: <Pine.BSF.4.33.0108100143060.92008-100000@four.malevolentminds.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270668AbRHJWuu>; Fri, 10 Aug 2001 18:50:50 -0400
+Received: from eriador.apana.org.au ([203.14.152.116]:48135 "EHLO
+	eriador.apana.org.au") by vger.kernel.org with ESMTP
+	id <S270667AbRHJWuo>; Fri, 10 Aug 2001 18:50:44 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+Subject: Re: Remotely rebooting a machine with state 'D' processes, how?
+In-Reply-To: <200108102159.f7ALxb908284@penguin.transmeta.com>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.7-686-smp (i686))
+Message-Id: <E15VL6x-0007Jm-00@gondolin.me.apana.org.au>
+Date: Sat, 11 Aug 2001 08:50:35 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't know if anyone has seen this (or if its even really
-a problem), but I have 2 servers running patched 2.4.5 kernels.
-For completeness, the patches are XFS 06042001 and JFS 0.3.4.
-ReiserFS and IPChains are compiled in.
+Linus Torvalds <torvalds@transmeta.com> wrote:
+> In article <20010810231906.A21435@bonzo.nirvana> you write:
 
-Anyway, the problem is that the sending TCP continues to
-accumulate data in the send buffer (which has been increased
-to 2 MB) w/o sending it. This is causing our custom application
-to hang, and we expect to see (but haven't yet seen) the buffer
-overflow.
+> You have to use the reboot() system call directly as root, with the
+> proper arguments to make it avoid doing even any sync. See
 
-The scenario is that the sending TCP has stops sending, plain
-and simple. This only seems to occur with packets of about 4K
-and larger.
+>        man 2 reboot
 
-I am not the developer who recognized this issue, but I am
-trying to find out if anyone else has noticed this type of
-behavior and how we might deal with it.
-
-If more information is required, let me know and I"ll see what I
-can do. I am planning on integrating a kernel debugger and maybe
-even SGI's kernel profiling, but I don't know how effective either
-of these approaches could be in solving this problem.
-
-Thoughts, suggestions and questions welcome, as I have no idea
-how to attack this problem correctly.
-
-TIA!
-
-////////////////////////////////////////////////////////////////////
-Khyron					    mailto:khyron@khyron.com
-Key fingerprint = 53BB 08CA 6A4B 8AF8 DF9B  7E71 2D20 AD30 6684 E82D
-			"Drama free in 2001!"
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-
-
-
+How do you do this when the process in the D state is holding the BKL?
+-- 
+Debian GNU/Linux 2.2 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

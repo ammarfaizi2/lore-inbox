@@ -1,59 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135432AbRDRW3m>; Wed, 18 Apr 2001 18:29:42 -0400
+	id <S135437AbRDRWcM>; Wed, 18 Apr 2001 18:32:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135434AbRDRW3d>; Wed, 18 Apr 2001 18:29:33 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:12044 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S135432AbRDRW3Z>; Wed, 18 Apr 2001 18:29:25 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: /dev/pts question
-Date: 18 Apr 2001 15:29:01 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9bl4fd$amr$1@cesium.transmeta.com>
-In-Reply-To: <01041822354404.00617@ElkOS>
+	id <S135441AbRDRWcC>; Wed, 18 Apr 2001 18:32:02 -0400
+Received: from m264-mp1-cvx1a.col.ntl.com ([213.104.69.8]:10114 "EHLO
+	[213.104.69.8]") by vger.kernel.org with ESMTP id <S135435AbRDRWbw>;
+	Wed, 18 Apr 2001 18:31:52 -0400
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: "'Simon Richter'" <Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
+        "Acpi-PM (E-mail)" <linux-power@phobos.fachschaften.tu-muenchen.de>,
+        "'Pavel Machek'" <pavel@suse.cz>,
+        Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Let init know user wants to shutdown
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDDD9D@orsmsx35.jf.intel.com>
+From: John Fremlin <chief@bandits.org>
+Date: 18 Apr 2001 23:30:13 +0100
+In-Reply-To: "Grover, Andrew"'s message of "Wed, 18 Apr 2001 14:46:16 -0700"
+Message-ID: <m2wv8h3kp6.fsf@boreas.yi.org.>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <01041822354404.00617@ElkOS>
-By author:    elko <elko@home.nl>
-In newsgroup: linux.dev.kernel
+"Grover, Andrew" <andrew.grover@intel.com> writes:
+
+[...]
+
+> > ACPI != PM. I don't see why ACPI details should be exposed to PM
+> > interface at all.
 > 
-> as I understand, /dev/pts was created
-> to make an end to the overload in /dev/<devices>
-> and let the kernel put the entries in /dev/pts
-> when they are used/needed/installed.
-> 
+> ACPI has by far the richest set of capabilities. It is a superset of
+> APM.  Therefore a combined APM/ACPI interface is going to look a lot
+> like an ACPI interface.
 
-You understand wrong.  /dev/pts was constructed because the semantics
-of BSD pty's is broken (there are issues with permissions.)
+First, lets stop being so Intel/x86 centric ;-)
+There are more PM interfaces than APM/ACPI as Stephen Rothwell pointed
+out to me: more are already supported by the kernel. PPC has one, ARM
+has one, etc. And that's not even touching on UPSs and miscellaneous
+portable whatnots with their own special PM bits and pieces like IBM
+laptops.
 
-> but still, when I enable /dev/pts, I have to
-> keep the /dev/<devices> for backward compatibility
-> with already installed applications that rely on them.
+ACPI might be able to handle all that but it would require a very
+complex interface, if what I've seen of ACPI is anything to go by. Is
+this correct?
 
-You should fix your applications.
+A much simpler interface might not lose much functionality.
 
-> would it be possible/sane to make like a
-> /dev/* (some sort of a /dev/B-compatible) besides
-> /dev/pts, where the kernel `translates' the
-> /dev/<device> request to /dev/* and then
-> `translate' that to the correct /dev/pts entry ??
+> IMHO an abstracted interface at this point is overengineering. Maybe
+> later it will make sense, though.
 
-Absolutely not.  BSD and Unix98 ptys have different semantics, and
-absolutely, positively, must be kept separate -- or you have a
-security hole in your machine.
+Each PM scheme has its own daemon and suspend/sleep tools at the
+moment. It makes sense to have just one daemon and toolset so that
+advanced functionality can be shared. Should the kernel present a
+common interface like HID, or should the daemon be able to understand
+all the various protocols (like gpm for mice)?
 
-Fix your old applications.
-
-	-hpa
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+
+	http://www.penguinpowered.com/~vii

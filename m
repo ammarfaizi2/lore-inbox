@@ -1,78 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263518AbTJBWgX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 18:36:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263527AbTJBWgX
+	id S263535AbTJBWqo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 18:46:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263536AbTJBWqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 18:36:23 -0400
-Received: from daffy.hulpsystems.net ([64.246.21.252]:8097 "EHLO
-	daffy.hulpsystems.net") by vger.kernel.org with ESMTP
-	id S263518AbTJBWgV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 18:36:21 -0400
-Subject: Re: Serial ATA on Dell Dimension 8300 (Was: Re: Serial ATA support
-	in	2.4.22)
-From: Martin List-Petersen <martin@list-petersen.se>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andrew Marold <andrew.marold@wlm.edial.com>, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Bernhard Rosenkraenzer <bero@arklinux.org>
-In-Reply-To: <3F7C9FE7.3070400@pobox.com>
-References: <C67EF1F46A97534FADC870220F3AC8B79D4FDD@exchange.edial.office>
-	 <3F7AEF15.1070301@pobox.com>  <3F7B0209.7070509@pobox.com>
-	 <1065130970.5842.193.camel@loke>  <3F7C9CFF.8090002@pobox.com>
-	 <1065131571.5842.196.camel@loke>  <3F7C9FE7.3070400@pobox.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-hV/207keLHcfwycXexTG"
-Message-Id: <1065134159.5842.208.camel@loke>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 03 Oct 2003 00:35:59 +0200
+	Thu, 2 Oct 2003 18:46:44 -0400
+Received: from mail006.syd.optusnet.com.au ([211.29.132.63]:16800 "EHLO
+	mail006.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S263535AbTJBWqn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Oct 2003 18:46:43 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16252.43722.76247.635594@wombat.chubb.wattle.id.au>
+Date: Fri, 3 Oct 2003 08:46:34 +1000
+To: Hans-Georg Thien <1682-600@onlinehome.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: getting timestamp of last interrupt?
+In-Reply-To: <3F7C6319.4010407@onlinehome.de>
+References: <3EB19625.6040904@onlinehome.de>
+	<3EBAAC12.F4EA298D@hp.com>
+	<3ED3CECA.9020706@onlinehome.de>
+	<20030527231026.6deff7ed.subscript@free.fr>
+	<3F7C6319.4010407@onlinehome.de>
+X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Hans-Georg" == Hans-Georg Thien <1682-600@onlinehome.de> writes:
 
---=-hV/207keLHcfwycXexTG
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Hans-Georg> I am looking for a possibility to read out the last
+Hans-Georg> timestamp when an interrupt has occured.
 
-On Fri, 2003-10-03 at 00:00, Jeff Garzik wrote:
-> does ide0=3Dnoprobe do anything?
+Hans-Georg> e.g.: the user presses a key on the keyboard. Where can I
+Hans-Georg> read out the timestamp of this event?
 
-No, that does not change anything, however, you just figured
-(unknowingly) my problem for the the ac4 kernel out.
-Lilo updated the wrong sata harddisc in my system. My system came with 2
-sata discs on a Promise S150 TX2plus, since i couldn't get that to work
-at first, i tried to go for the onboard ICH5 SATA controller and moved
-one disk there, however even though i told lilo that /dev/sda should be
-bios=3D0x80, it kept on writing to the harddisk on the promise.
+Hans-Georg> To be more precise, I 'm looking for
 
-So status is now:
-ac1 does not book - binfmt error
-ac4 does boot
-bk25+sata - reiserfs is broken
+Hans-Georg> ( )a function call ( ) a callback where I can register to
+Hans-Georg> be notified when an event occurs ( ) a global accessible
+Hans-Georg> variable ( ) a /proc entry
 
-I will try bk28 tomorrow and see, where it get's me.
+Hans-Georg> or something like that.
 
-Thanks for the response.
+Hans-Georg> Any ideas ?
 
-Regards,
-Martin List-Petersen
-martin at list-petersen dot se
---
-How much does it cost to entice a dope-smoking UNIX system guru to
-Dayton?
--- Brian Boyle, UNIX/WORLD's First Annual Salary Survey
+If you have the microstate accoounting patch applied, then the
+timestamp of each  last IRQ is in the array msa_irq_entered[cpu][irq],
+measured as an architecture-specific number.  Convert it to
+nanoseconds since boot with MSA_TO_NSEC
 
---=-hV/207keLHcfwycXexTG
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/fKhPzAGaxP8W1ugRAtUUAJ9Kh/eUEqwdtxuTEa1cEo+/va7rZgCgpN8K
-BGOCeNnc1w7SXnj/k/diJcE=
-=Qh/P
------END PGP SIGNATURE-----
-
---=-hV/207keLHcfwycXexTG--
-
+Peter C

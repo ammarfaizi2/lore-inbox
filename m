@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269066AbUJUAH2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268907AbUJUAH2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269066AbUJUAH2 (ORCPT <rfc822;willy@w.ods.org>);
+	id S268907AbUJUAH2 (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 20 Oct 2004 20:07:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270452AbUJUAD1
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269066AbUJUADN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 20:03:27 -0400
-Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:7432 "EHLO
-	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S270439AbUJTX7z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 19:59:55 -0400
-X-BrightmailFiltered: true
-Reply-To: <hzhong@cisco.com>
-From: "Hua Zhong" <hzhong@cisco.com>
-To: <eric@cisu.net>, "'Jeff V. Merkey'" <jmerkey@drdos.com>
-Cc: "'Linus Torvalds'" <torvalds@osdl.org>,
-       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: Linux v2.6.9 and GPL Buyout
-Date: Wed, 20 Oct 2004 16:59:51 -0700
-Organization: Cisco Systems
-Message-ID: <002c01c4b700$e32ff330$5f3147ab@amer.cisco.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Wed, 20 Oct 2004 20:03:13 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:19520 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S270452AbUJUAAb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 20:00:31 -0400
+Subject: Re: Fwd: [Bug 3592] New: pppd "IPCP: timeout sending
+	Config-Requests"
+From: Paul Fulghum <paulkf@microgate.com>
+To: Alan Cox <alan@redhat.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <20041020234659.GA26810@devserv.devel.redhat.com>
+References: <20041019131240.A20243@flint.arm.linux.org.uk>
+	 <1098195468.8467.7.camel@deimos.microgate.com>
+	 <1098199942.2857.7.camel@deimos.microgate.com>
+	 <1098309449.12411.57.camel@localhost.localdomain>
+	 <1098315760.6006.13.camel@at2.pipehead.org>
+	 <20041020234659.GA26810@devserv.devel.redhat.com>
+Content-Type: text/plain
+Message-Id: <1098316806.6006.23.camel@at2.pipehead.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 20 Oct 2004 19:00:06 -0500
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-In-Reply-To: <200410201843.49835.eric@cisu.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4939.300
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->	However I urge all you developers to stand up and say no.
+On Wed, 2004-10-20 at 18:46, Alan Cox wrote:
+> On Wed, Oct 20, 2004 at 06:42:40PM -0500, Paul Fulghum wrote:
+> > I'm not sure I would characterize using DCD
+> > for a serial connection indicator as odd.
+> 
+> The default setup trusts LCP closes sent between the two ends
 
-What's the point? It's a troll, so just ignore him. Does he himself
-sincerely believe this "business plan"? I don't think so. He just tries to
-annoy and disturb people. 
+Yes.
 
-Hua
+In the case of this bug report, it looks like Window NT4
+is dropping the connection without sending the LCP close.
+That is crappy behavior.
+
+DCD makes a good check on the physical layer in case
+your POTS line is on the crackly side.
+May I never suffer dialup again :-P
+
+-- 
+Paul Fulghum
+paulkf@microgate.com
+
 

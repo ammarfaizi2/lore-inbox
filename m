@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265775AbUA1A7Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 19:59:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265709AbUA1A56
+	id S265681AbUA1A54 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 19:57:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265709AbUA1A54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 19:57:58 -0500
-Received: from dp.samba.org ([66.70.73.150]:51629 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S265687AbUA1A5q (ORCPT
+	Tue, 27 Jan 2004 19:57:56 -0500
+Received: from dp.samba.org ([66.70.73.150]:51373 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265681AbUA1A5q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 27 Jan 2004 19:57:46 -0500
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Nick Piggin <piggin@cyberone.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: New NUMA scheduler and hotplug CPU 
-In-reply-to: Your message of "Tue, 27 Jan 2004 07:27:11 -0800."
-             <368660000.1075217230@[10.10.2.4]> 
-Date: Wed, 28 Jan 2004 11:23:59 +1100
-Message-Id: <20040128005801.6AFD22C238@lists.samba.org>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, torvalds@osdl.org,
+       stern@rowland.harvard.edu, greg@kroah.com, linux-kernel@vger.kernel.org,
+       mochel@digitalimplant.org
+To: Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: PATCH: (as177) Add class_device_unregister_wait() and platform_device_unregister_wait() to the driver model core 
+In-reply-to: Your message of "Tue, 27 Jan 2004 14:56:06 BST."
+             <Pine.LNX.4.58.0401271142510.7855@serv> 
+Date: Wed, 28 Jan 2004 10:29:23 +1100
+Message-Id: <20040128005801.5B1A92C12C@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <368660000.1075217230@[10.10.2.4]> you write:
-> > Yeah, I talked it over with Rusty some on IRC. I have more of a feeling
-> > why he's trying to do it that way now. 
-> 
-> BTW, Rusty - what are the locking rules for cpu_online_map under hotplug?
-> Is it RCU or something? The sched domains usage of it doesn't seem to take 
-> any locks.
+In message <Pine.LNX.4.58.0401271142510.7855@serv> you write:
+> Hi,
 
-The trivial usage is to take the cpucontrol sem (down_cpucontrol()).
-There's a grace period between taking the cpu offline and actually
-killing it too, so for most usages RCU is sufficient.
+Hi Roman!
 
-Fortunately, I've yet to hit a case where this isn't sufficient.  For
-the scheduler there's an explicit "move all tasks off the CPU" call
-which takes the tasklist lock and walks the tasks.
+> Fixing this requires changing every single module, but in the end it
+> would be worth it, as it avoids the duplicated protection and we had
+> decent module unload semantics.
+
+And I still disagree. <shrug>
+
+If it's any consolation, I don't plan any significant module work in
+2.7.  If you want to work on this, you're welcome to it.  Perhaps you
+can convince Linus et al that it's worth the pain?
 
 Cheers,
 Rusty.

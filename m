@@ -1,72 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265198AbTATB2w>; Sun, 19 Jan 2003 20:28:52 -0500
+	id <S267673AbTATBfP>; Sun, 19 Jan 2003 20:35:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267673AbTATB2w>; Sun, 19 Jan 2003 20:28:52 -0500
-Received: from h80ad248b.async.vt.edu ([128.173.36.139]:24194 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S265198AbTATB2v>; Sun, 19 Jan 2003 20:28:51 -0500
-Message-Id: <200301200137.h0K1bmIJ012718@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: David Schwartz <davids@webmaster.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Is the BitKeeper network protocol documented? 
-In-Reply-To: Your message of "Sun, 19 Jan 2003 17:05:02 PST."
-             <20030120010504.AAA18836%shell.webmaster.com@whenever> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030120010504.AAA18836%shell.webmaster.com@whenever>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-43454828P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sun, 19 Jan 2003 20:37:47 -0500
+	id <S267674AbTATBfP>; Sun, 19 Jan 2003 20:35:15 -0500
+Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:58241 "EHLO
+	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S267673AbTATBfO>; Sun, 19 Jan 2003 20:35:14 -0500
+Date: Sun, 19 Jan 2003 23:44:10 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Pavel Machek <pavel@ucw.cz>
+cc: kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       Andrew Grover <andrew.grover@intel.com>
+Subject: Re: Code obfuscation in acpi
+In-Reply-To: <20030118213134.GA8968@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.50L.0301192333100.18171-100000@imladris.surriel.com>
+References: <20030118213134.GA8968@elf.ucw.cz>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-43454828P
-Content-Type: text/plain; charset=us-ascii
+On Sat, 18 Jan 2003, Pavel Machek wrote:
 
-On Sun, 19 Jan 2003 17:05:02 PST, David Schwartz said:
-> 	Don't blame me. The GPL just says the "preferred" form and leaves us 
-> to wonder. As I understand it, however, you cannot ship binaries of a 
-> GPL'd project unless you can distribute the source code in the 
-> "preferred form .. for making modifications to it".
+> #define acpi_driver_data(d)     ((d)->driver_data)
+>
+> ... very nice for obfuscating code ...
 
-Hmm... <ponders a bit>
+This is usually called "abstraction" and allows you to change
+the data structures (when needed) without breaking all the code.
 
-> 	I'm still perplexed what you do if the preferred modification form 
-> for a work requires consent to a license more restrictive than the 
-> GPL in order to make modifications to it. As I see it, you just can't 
-> GPL such a project.
+You can learn from this.  If swsusp used abstractions it wouldn't
+need to have to stick its nose into the code and data structures
+from other subsystems and it might even stop breaking every other
+release.
 
-<ponders a bit more>
+cheers,
 
-It's a red herring, folks.
-
-The preferred form for *MAKING* modifications is a /usr/src/linux source
-tree.  The form that's in  BitKeeper is in the preferred format for *tracking*
-and *managing* changes.  Remember - you have to check the source out of
-the repository to do the edit/compile/test loop, and then commit it back
-when you're done.  So the BK repository isn't where actual development happens,
-because gcc and make can't read the repository.
-
-Of course, having written this, some damn fool will prove me wrong by writing
-a  'bkfs' file system (similar to the various 'pgfs' front-ends for Postgres)
-so you actually *CAN* do a 'make' of the repository :)
-
-/Valdis
-
-
---==_Exmh_-43454828P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+K1LrcC3lWbTT17ARAuz4AJ4+BjDV0P6+3HeUEHfHSykXImpAowCdFOm6
-w8yoBgiczSeedCUPLC0jNz8=
-=Vd42
------END PGP SIGNATURE-----
-
---==_Exmh_-43454828P--
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

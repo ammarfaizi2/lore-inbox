@@ -1,79 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261817AbVBIQC5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261840AbVBIQGA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261817AbVBIQC5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 11:02:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbVBIQC5
+	id S261840AbVBIQGA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 11:06:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbVBIQGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 11:02:57 -0500
-Received: from styx.suse.cz ([82.119.242.94]:22413 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S261817AbVBIQCm (ORCPT
+	Wed, 9 Feb 2005 11:06:00 -0500
+Received: from cantor.suse.de ([195.135.220.2]:64385 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261840AbVBIQFz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 11:02:42 -0500
-Date: Wed, 9 Feb 2005 17:03:45 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-Cc: Jirka Bohac <jbohac@suse.cz>, lkml <linux-kernel@vger.kernel.org>,
-       roman@augan.com, hch@nl.linux.org
-Subject: Re: [rfc] keytables - the new keycode->keysym mapping
-Message-ID: <20050209160345.GA16487@ucw.cz>
-References: <20050209132654.GB8343@dwarf.suse.cz> <20050209152740.GD12100@apps.cwi.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050209152740.GD12100@apps.cwi.nl>
-User-Agent: Mutt/1.5.6i
+	Wed, 9 Feb 2005 11:05:55 -0500
+Message-ID: <420A34E1.2020608@suse.de>
+Date: Wed, 09 Feb 2005 17:05:53 +0100
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: aurelien francillon <aurel@naurel.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG]  linux-2.6.11-rc3 probably in ACPI  battery procfs ...
+References: <4207557B.2090500@naurel.org>
+In-Reply-To: <4207557B.2090500@naurel.org>
+Content-Type: multipart/mixed;
+ boundary="------------080202030507080406040101"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 09, 2005 at 04:27:40PM +0100, Andries Brouwer wrote:
+This is a multi-part message in MIME format.
+--------------080202030507080406040101
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-> > The keycodes are mapped into keysyms using so-called keymaps. A keymap is
-> > an array (of 255 elements per default) of keysyms, and there is one such
-> > keymap for each modifier combination. There are 9 modifiers (such as Alt,
-> > Ctrl, ....), so one would need to allocate 2^9 = 512 such keymaps to make
-> > use of all modifier combinations. However, there is a limit of 256 keymaps
-> > to prevent them eating too much memory. In short, you need a whole keymap
-> > to add a new modifier combination to a single key -- bad.
-> > 
-> > The problem is, that not all keyboard modifiers can actually be assigned a
-> > keyboard map - CapsLock and NumLock simply aren't on the list.
-> 
-> The current keyboard code is far more powerful than you seem to think.
-> 
-> Keymaps are allocated dynamically, and only few people use more than 16.
-> You can have 256 keymaps, but they are not necessarily the 2^8 maps
-> belonging to all 2^8 combinations of simultaneously pressed modifier keys.
-> 
-> You can assign the "modifier" property to any key you like.
-> You can assign the effect of each modifier key as you like.
-> There are modifier keys with action while pressed, and modifier keys
-> that act on the next non-modifier keystroke (say, for handicapped),
-> and modifier keys that lock a state (say, to switch between Latin
-> and Cyrillic keyboards).
-> 
-> It seems very unlikely that you cannot handle Czech with all
-> combinations of 8 keys pressed, and need 9.
+aurelien francillon wrote:
 
-A czech keyboard has the letters 'escrzyaie' with accents on the number
-row of keys. With a Shift, they are supposed to produce the original
-numbers, but with a CapsLock, they're supposed to produce the uppercase.
-With a right alt or one of three czech dead keys they should produce
-the !@#$%^&*() symbols.
+> CONFIG_ACPI_DEBUG=y
 
-It's kind of logical, kind of stupid, but anyway it's the national standard.
+This one is also bad for you. If you unset this, it will even run fast
+even without the object cache (i'm recompiling right now with object
+cache _and_ unset debug to see what i can gain from this :-)
+Maybe a patch like the attached one for the Kconfig help text is apropriate.
 
-You can't do that currently. The main problem is that CapsLock is
-hardcoded to work as a Shift on keys and you can't make it work
-differently for normal letter keys and for the upper row of keys.
+Good luck
 
-> Please document carefully what you want to do and why you want
-> to do it. I think most reasonable things are possible.
-> 
-> (The weakest part is the support for Unicode / UTF8 - don't know
-> whether improvement would be good - it is clear that one doesnt
-> want to have full Unicode support in the kernel, but there is
-> continued pressure to add some support for diacriticals. We might.)
+    Stefan
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+--------------080202030507080406040101
+Content-Type: text/plain;
+ name="acpi-debug.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="acpi-debug.diff"
+
+--- linux/drivers/acpi/Kconfig~	2005-02-09 17:02:27.000000000 +0100
++++ linux/drivers/acpi/Kconfig	2005-02-09 17:03:47.000000000 +0100
+@@ -276,7 +276,8 @@
+ 	help
+ 	  The ACPI driver can optionally report errors with a great deal
+ 	  of verbosity. Saying Y enables these statements. This will increase
+-	  your kernel size by around 50K.
++	  your kernel size by around 50K. It may also severely impact the
++	  performance of the system.
+ 
+ config ACPI_BUS
+ 	bool
+
+--------------080202030507080406040101--

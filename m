@@ -1,65 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316289AbSFEUZe>; Wed, 5 Jun 2002 16:25:34 -0400
+	id <S316243AbSFEU1r>; Wed, 5 Jun 2002 16:27:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316210AbSFEUZd>; Wed, 5 Jun 2002 16:25:33 -0400
-Received: from unicorn.it.wsu.edu ([134.121.1.1]:32010 "EHLO
-	unicorn.it.wsu.edu") by vger.kernel.org with ESMTP
-	id <S316289AbSFEUZa>; Wed, 5 Jun 2002 16:25:30 -0400
-Date: Wed, 5 Jun 2002 13:25:06 -0700 (PDT)
-From: Eric Kristopher Sandall <sandalle@wsunix.wsu.edu>
-To: Michael Zhu <mylinuxk@yahoo.ca>
-cc: John Tyner <jtyner@cs.ucr.edu>, kernelnewbies@nl.linux.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: Load kernel module automatically
-In-Reply-To: <20020605194148.43165.qmail@web14907.mail.yahoo.com>
-Message-ID: <Pine.OSF.4.10.10206051320110.304-100000@unicorn.it.wsu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316408AbSFEU1r>; Wed, 5 Jun 2002 16:27:47 -0400
+Received: from www.microgate.com ([216.30.46.105]:30733 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP
+	id <S316243AbSFEU1p>; Wed, 5 Jun 2002 16:27:45 -0400
+Subject: Problem with new driver model?
+From: Paul Fulghum <paulkf@microgate.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.4 
+Date: 05 Jun 2002 15:25:08 -0500
+Message-Id: <1023308709.791.8.camel@diemos.microgate.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jun 2002, Michael Zhu wrote:
+When testing the drivers I maintain on 2.5.20, I hit the
+BUG_ON in include/linux/devices.txt:115.
 
-> Hi, I couldn't find the /etc/modules file in my Linux
-> machine. There is only a modules.conf file under /etc
-> directory. My Linux is RedHat 7.2 with kernel version
-> 2.4.7-10. What is wrong with this?
-> 
-> Michael
+This is in get_driver() which is called in a chain from:
+driver_for_each_dev()
+driver_unbind()
+do_driver_unbind()
+free_module()
+sys_delete_module()
 
-Just create the file, and then put in the text.
+This occurs when unloading the modules (rmmod).
+This was not the case on 2.5.14 (the last kernel I tested).
 
-/etc/modules.conf is for module options and aliases.
-example: My sound card is a sb16, with irq=7 io=0x220, dma1=0, dma2=5
+The machine is an SMP dual PentiumII-400.
 
-in /etc/modules.conf (this is from memory, might not be exact)
-alias  eth0   3c59x
-alias  sound  sb
-options  sb  irq=7, io=0x220, dma=0, dma16=5
+A reading of Documentation/driver-model.txt indicates that
+changes were made to the global driver model that should not require
+changes to individual device specific drivers.
 
-Now, I can do "modprobe sound"[0] and it will load my sb module with those
-paramaters.  I could also do "modprobe sb" and it will load my sb module
-with those parameters.  I can also do "modprobe eth0" and it will load my
-3c59x module.
+Is the documentation correct and this is a bug with the
+new driver model code, or are there changes required for
+all the device specific drivers.
 
-You may also put the aliased names in /etc/modules.
+Thanks,
 
-example:
+Paul Fulghum
+paulkf@microgate.com
 
-eth0
-sound
-vfat
 
-[0] modprobe is the preferred way to load modules, instead of insmod.
-modprobe will load any dependencies your module needs, and will unload all
-of them if one fails to load.
 
--ES
 
---
-Eric Sandall                  |   (P)e-mail: sandalle@mail.wsu.edu
-Debian Linux Beowulf Cluster  |      (P)web: http://hellhound.homeip.net/
-ICQ: 667348                   | User 196285: http://counter.li.org/
-SysAdmin, Shock Physics, WSU  |      (W)web: http://www.shock.wsu.edu/
+
 

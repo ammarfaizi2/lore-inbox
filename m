@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287627AbSAHLwx>; Tue, 8 Jan 2002 06:52:53 -0500
+	id <S287996AbSAHMSM>; Tue, 8 Jan 2002 07:18:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287631AbSAHLwn>; Tue, 8 Jan 2002 06:52:43 -0500
-Received: from mailgate.bodgit-n-scarper.com ([62.49.233.146]:13063 "HELO
-	mould.bodgit-n-scarper.com") by vger.kernel.org with SMTP
-	id <S287627AbSAHLwi>; Tue, 8 Jan 2002 06:52:38 -0500
-Date: Tue, 8 Jan 2002 12:02:07 +0000
-From: Matt Dainty <matt@bodgit-n-scarper.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: rgooch@ras.ucalgary.ca, hpa@zytor.com, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Re: [PATCH] DevFS support for /dev/cpu/X/(cpuid|msr)
-Message-ID: <20020108120207.A15498@mould.bodgit-n-scarper.com>
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
-	rgooch@ras.ucalgary.ca, hpa@zytor.com, linux-kernel@vger.kernel.org,
-	torvalds@transmeta.com
-In-Reply-To: <20020106181749.A714@butterlicious.bodgit-n-scarper.com> <200201061934.g06JYnZ15633@vindaloo.ras.ucalgary.ca> <3C38BC6B.7090301@zytor.com> <200201062108.g06L8lM17189@vindaloo.ras.ucalgary.ca> <3C38BD32.6000900@zytor.com> <200201070131.g071VrM20956@vindaloo.ras.ucalgary.ca> <3C38FAB0.4000503@zytor.com> <200201070140.g071ewk21192@vindaloo.ras.ucalgary.ca> <20020108111302.A14860@mould.bodgit-n-scarper.com> <20020108201451.088f7f99.rusty@rustcorp.com.au>
-Mime-Version: 1.0
+	id <S287997AbSAHMSC>; Tue, 8 Jan 2002 07:18:02 -0500
+Received: from mail.loewe-komp.de ([62.156.155.230]:60428 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S287996AbSAHMR7>; Tue, 8 Jan 2002 07:17:59 -0500
+Message-ID: <3C3AE450.E3255D64@loewe-komp.de>
+Date: Tue, 08 Jan 2002 13:21:36 +0100
+From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Organization: LOEWE. Hannover
+X-Mailer: Mozilla 4.78 [de] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Rene Engelhard <mail@rene-engelhard.de>
+CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Getting ScanLogic USB-ATAPI Adapter to work
+In-Reply-To: <20020107211757.A4196@rene-engelhard.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020108201451.088f7f99.rusty@rustcorp.com.au>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.20 on i686 SMP (mould)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 08, 2002 at 08:14:51PM +1100, Rusty Russell wrote:
-> On Tue, 8 Jan 2002 11:13:02 +0000
-> Matt Dainty <matt@bodgit-n-scarper.com> wrote:
+Rene Engelhard schrieb:
 > 
-> > On Sun, Jan 06, 2002 at 06:40:58PM -0700, Richard Gooch wrote:
-> > > 
-> > > So I'd like to propose a new file (say kernel/smp.c) which has generic
-> > > startup code for each CPU. To start with, it can have a
-> > > generic_cpu_init() function, which is called by each arch. Note that
-> > > this function would be called for the boot CPU too.
-> > 
-> > Would this also be hacked into whatever Hotswap CPU support exists? Such
+> Hi Greg, hi Kernel-Hackers,
 > 
-> We use /proc/sys/cpu/#/.  I don't understand what /dev/cpu/xxx is supposed to
-> do.
+> a long time ago I bought the Adapter mentioned above and got it
+> working.
+> 
+> Now, 6 months after that I bought it, my testing is over and I got the
+> result: The device is working by changing the usb-storage sources; this
+> has not affected any other thing. All my devices (3 of USB) runs perfectly.
+> 
+> So I send you this patch.
+> 
+> It's against 2.5.2-pre9 and the patch from Alan with the comment that
+> you need SCSI Support is applied in my tree, so this is needed before
+> applying this patch (but I saw you did it Greg, you can do this)
+> 
+> Because of testing this patch 6 months, I do not consider to say that
+> this patch is experimental, so I did not write $CONFIG_EXPERIMENTAL at
+> the end of the dep_mbool statement.
+> 
 
-/dev/cpu/[0...]/... contains (on i386 at least), the cpuid and msr character
-devices, except on devfs-enabled boxen, these don't appear automatically.
+I sent a patch to unusual_devs.h but didn't get any response yet.
+I need to set "CONFIG_SCSI_MULTI_LUN=y" and use the second device for 
+CompactFlash.
+No other needed change here:
 
-Matt
--- 
-"Phased plasma rifle in a forty-watt range?"
-"Hey, just what you see, pal"
+
+UNUSUAL_DEV(  0x04ce, 0x0002, 0x0074, 0x0074,
+                "ScanLogic",
+                "SL11R-IDE",
+                US_SC_SCSI, US_PR_BULK, NULL,
+                US_FL_FIX_INQUIRY),

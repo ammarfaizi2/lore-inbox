@@ -1,62 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261297AbTCJLVD>; Mon, 10 Mar 2003 06:21:03 -0500
+	id <S261299AbTCJL2Q>; Mon, 10 Mar 2003 06:28:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261299AbTCJLVD>; Mon, 10 Mar 2003 06:21:03 -0500
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:35087 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S261297AbTCJLVC>; Mon, 10 Mar 2003 06:21:02 -0500
-Date: Mon, 10 Mar 2003 12:31:39 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Douglas Gilbert <dougg@torque.net>
+	id <S261300AbTCJL2Q>; Mon, 10 Mar 2003 06:28:16 -0500
+Received: from [66.70.28.20] ([66.70.28.20]:25106 "EHLO
+	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
+	id <S261299AbTCJL2P>; Mon, 10 Mar 2003 06:28:15 -0500
+Date: Sun, 9 Mar 2003 11:31:04 +0100
+From: DervishD <raul@pleyades.net>
+To: "H. Peter Anvin" <hpa@zytor.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4: high system load with SG_IO on IDE-SCSI: PIO?
-Message-ID: <20030310113139.GA6101@merlin.emma.line.org>
-Mail-Followup-To: Douglas Gilbert <dougg@torque.net>,
-	linux-kernel@vger.kernel.org
-References: <3E6C2436.1000007@torque.net>
+Subject: Re: Unable to boot a raw kernel image :??
+Message-ID: <20030309103104.GA61@DervishD>
+References: <20021129132126.GA102@DervishD> <15974.7817.474141.453202@gargle.gargle.HOWL> <3E661F8F.50100@zytor.com> <15975.8192.437452.801287@gargle.gargle.HOWL> <b48b0l$5rl$1@cesium.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <3E6C2436.1000007@torque.net>
-User-Agent: Mutt/1.5.3i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <b48b0l$5rl$1@cesium.transmeta.com>
+User-Agent: Mutt/1.4i
+Organization: Pleyades
+User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Mar 2003, Douglas Gilbert wrote:
+    Hi HPA :)
 
-> The experience from the early 2.4 series was that the ide
-> subsystem was too aggressive in its DMA settings for CD/DVD
-> burners. [My experience with scsi devices is that disks have
-> much better target implementations (i.e. more robust) than
-> CD/DVD devices and scanners.] Later versions of the 2.4 series
+> > Indeed. The SYSLINUX 2.02 + mtools combination works like a charm
+> > for 'make bzdisk'. I'm happy with your nobootsect patch.
+> Well, Linus keeps dropping it on the floor, so I don't know if we'll
+> see a working "make bzdisk" in the kernel any time soon :(
 
-ATAPI scanners? Cool stuff. Seriously, there is cheap ATAPI junk and
-there is serious stuff.
+    Do you know why?
 
-> are a lot more conservative in their speed treatment of ATAPI
-> devices. The robustness comes at the expense of system load.
-
-Well, some amount of configurability would be nice for the ones of us
-who have working ATAPI hardware. Even if it's a boot-time parameter like
-"hdc=atapidma" or something (that's what FreeBSD does, with the
-boot-time variable hw.ata.atapi_dma, it defaults to 0 but drop
-hw.ata.atapi_dma="1" into /boot/loader.conf.local and have the machine
-talk DMA to ATAPI stuff). Am I missing such an option?
-
-I am currently facing the choice "switch to some other OS that talks DMA
-to my CD-writer" or "buy an ATAPI-SCSI-converter" (which is above 100
-EUR). I'd like to have a third option to choose, tell the kernel "forget
-your sorrows and talk DMA." -- it could use a (user-space) whitelist,
-say "Plextor CD-R   4824TA 1.04 is fine".
-
-> ** Even though a CD writer appears as /dev/scd0 with ide-scsi
-> appropriately configured, the hdparm command can still be used
-> on /dev/hdd (for example, if the writer is the slave on the
-> second IDE bus).
-
-/sbin/hdparm -X66 -d1 -u1 happens at boot time (for hdc) -- still I'm
-facing unreasonably high system load when writing a CD.
-
--- 
-Matthias Andree
+    Raúl

@@ -1,89 +1,133 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263136AbTJaJqt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 04:46:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263142AbTJaJqt
+	id S263170AbTJaJ4d (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 04:56:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263172AbTJaJ4d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 04:46:49 -0500
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:2823 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263136AbTJaJqr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 04:46:47 -0500
-Date: Fri, 31 Oct 2003 09:46:45 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: linux-kernel@vger.kernel.org, Kurt Garloff <garloff@suse.de>,
-       Matthias Andree <matthias.andree@gmx.de>
-Subject: Re: [PATCH] Re: AMD 53c974 SCSI driver in 2.6
-Message-ID: <20031031094645.A14820@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-	linux-kernel@vger.kernel.org, Kurt Garloff <garloff@suse.de>,
-	Matthias Andree <matthias.andree@gmx.de>
-References: <Pine.LNX.4.44.0310262035270.3346-100000@poirot.grange> <Pine.LNX.4.44.0310302221400.5533-100000@poirot.grange>
+	Fri, 31 Oct 2003 04:56:33 -0500
+Received: from fw.osdl.org ([65.172.181.6]:34700 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263170AbTJaJ4Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 04:56:24 -0500
+Date: Fri, 31 Oct 2003 01:58:18 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: sluskyb@paranoiacs.org, jariruusu@users.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove useless highmem bounce from loop/cryptoloop
+Message-Id: <20031031015818.446e4f5a.akpm@osdl.org>
+In-Reply-To: <20031031015559.6239a4a4.akpm@osdl.org>
+References: <20031030134137.GD12147@fukurou.paranoiacs.org>
+	<3FA15506.B9B76A5D@users.sourceforge.net>
+	<20031030133000.6a04febf.akpm@osdl.org>
+	<20031031005246.GE12147@fukurou.paranoiacs.org>
+	<20031031015500.44a94f88.akpm@osdl.org>
+	<20031031015559.6239a4a4.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0310302221400.5533-100000@poirot.grange>; from g.liakhovetski@gmx.de on Thu, Oct 30, 2003 at 11:12:57PM +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Any reason you fix this driver?  The tmcsim one for the same hardware
-looks like much better structured (though a bit obsufacted :))?
+Andrew Morton <akpm@osdl.org> wrote:
+>
+>  Andrew Morton <akpm@osdl.org> wrote:
+>  >
+>  > Here's the patch;
+> 
+>  And here's your cleanup patch on top of that.
 
-> +#include <linux/version.h>
+And here are some fixes against your patch.  kunmap_atomic() takes a kernel
+virtual address, not a pageframe pointer.  And there were a couple of stray
+kunmap()s left over.
 
-What do you need version.h for?
 
-> +#undef AM53C974_MULTIPLE_CARD
-> +#ifdef AM53C974_MULTIPLE_CARD
-> +#error "FIXME! Multiple card support is broken. Looks like it never really worked. Might have to be fixed."
->  static struct Scsi_Host *first_host;	/* Head of list of AMD boards */
-> +#endif
+--- 25/drivers/block/loop.c~loop-highmem-fixes	2003-10-31 00:55:17.000000000 -0800
++++ 25-akpm/drivers/block/loop.c	2003-10-31 01:01:32.000000000 -0800
+@@ -81,18 +81,16 @@ static int transfer_none(struct loop_dev
+ 			 struct page *loop_page, unsigned loop_off,
+ 			 int size, sector_t real_block)
+ {
+-	char	*raw_buf = kmap_atomic(raw_page, KM_USER0) + raw_off;
+-	char	*loop_buf = kmap_atomic(loop_page, KM_USER1) + loop_off;
++	char *raw_buf = kmap_atomic(raw_page, KM_USER0) + raw_off;
++	char *loop_buf = kmap_atomic(loop_page, KM_USER1) + loop_off;
+ 
+-	if (raw_buf != loop_buf) {
+-		if (cmd == READ)
+-			memcpy(loop_buf, raw_buf, size);
+-		else
+-			memcpy(raw_buf, loop_buf, size);
+-	}
++	if (cmd == READ)
++		memcpy(loop_buf, raw_buf, size);
++	else
++		memcpy(raw_buf, loop_buf, size);
+ 
+-	kunmap_atomic(raw_page, KM_USER0);
+-	kunmap_atomic(loop_page, KM_USER1);
++	kunmap_atomic(raw_buf, KM_USER0);
++	kunmap_atomic(loop_buf, KM_USER1);
+ 	cond_resched();
+ 	return 0;
+ }
+@@ -102,10 +100,10 @@ static int transfer_xor(struct loop_devi
+ 			struct page *loop_page, unsigned loop_off,
+ 			int size, sector_t real_block)
+ {
+-	char	*raw_buf = kmap_atomic(raw_page, KM_USER0) + raw_off;
+-	char	*loop_buf = kmap_atomic(loop_page, KM_USER1) + loop_off;
+-	char	*in, *out, *key;
+-	int	i, keysize;
++	char *raw_buf = kmap_atomic(raw_page, KM_USER0) + raw_off;
++	char *loop_buf = kmap_atomic(loop_page, KM_USER1) + loop_off;
++	char *in, *out, *key;
++	int i, keysize;
+ 
+ 	if (cmd == READ) {
+ 		in = raw_buf;
+@@ -120,8 +118,8 @@ static int transfer_xor(struct loop_devi
+ 	for (i = 0; i < size; i++)
+ 		*out++ = *in++ ^ key[(i & 511) % keysize];
+ 
+-	kunmap_atomic(raw_page, KM_USER0);
+-	kunmap_atomic(loop_page, KM_USER1);
++	kunmap_atomic(raw_buf, KM_USER0);
++	kunmap_atomic(loop_buf, KM_USER1);
+ 	cond_resched();
+ 	return 0;
+ }
+@@ -225,17 +223,19 @@ do_lo_send(struct loop_device *lo, struc
+ 						 bvec->bv_page, bv_offs,
+ 						 size, IV);
+ 		if (transfer_result) {
++			char *kaddr;
++
+ 			/*
+ 			 * The transfer failed, but we still write the data to
+ 			 * keep prepare/commit calls balanced.
+ 			 */
+ 			printk(KERN_ERR "loop: transfer error block %llu\n",
+ 			       (unsigned long long)index);
+-			memset(kmap_atomic(page, KM_USER0) + offset, 0, size);
+-			kunmap_atomic(page, KM_USER0);
++			kaddr = kmap_atomic(page, KM_USER0);
++			memset(kaddr + offset, 0, size);
++			kunmap_atomic(kaddr, KM_USER0);
+ 		}
+ 		flush_dcache_page(page);
+-		kunmap(page);
+ 		if (aops->commit_write(file, page, offset, offset+size))
+ 			goto unlock;
+ 		if (transfer_result)
+@@ -250,7 +250,6 @@ do_lo_send(struct loop_device *lo, struc
+ 	}
+ 	up(&mapping->host->i_sem);
+ out:
+-	kunmap(bvec->bv_page);
+ 	return ret;
+ 
+ unlock:
 
-Why do you need the undef?  It looks like you need to kill a #define for
-this symbol somewhere else :)
-
-> -	save_flags(flags);
-> -	cli();
-> +	local_irq_save(flags);
-
-That's not safe on SMP, you must mark the driver BROKEN_ON_SMP or better fix
-this.
-
->  static void AM53C974_print(struct Scsi_Host *instance)
->  {
->  	AM53C974_local_declare();
-> +#if 0 /* Called only from error-handling paths with sufficient protection? */
->  	unsigned long flags;
-> +#endif
-
-So don't if 0 it but completely kill it.
-
->  /* Set up an interrupt handler if we aren't already sharing an IRQ with another board */
-> +#ifdef AM53C974_MULTIPLE_CARD
->  	for (search = first_host;
->  	     search && (((the_template != NULL) && (search->hostt != the_template)) ||
->  		 (search->irq != instance->irq) || (search == instance));
->  	     search = search->next);
->  	if (!search) {
-> +#endif
-
-Not sure whether you're interested in fixing this, but the proper way
-to fix that would be to call request_irq for each card, mark the irq's
-sharable.  The irq handler then can use the void * argument to find the
-right host and you can kill all this ugly host list walking.  That shold
-get multiple host support working again in theory  (ok, except that the
-driver has a totally broken single state machine..)
-
->  	if (cmd->use_sg) {
->  		cmd->SCp.buffer = (struct scatterlist *) cmd->buffer;
->  		cmd->SCp.buffers_residual = cmd->use_sg - 1;
-> -		cmd->SCp.ptr = (char *) cmd->SCp.buffer->address;
-> +		cmd->SCp.ptr = (char *) page_address(cmd->SCp.buffer->page) + cmd->SCp.buffer->offset;
-
-This means you need a dma_mask < highmem to work.  I don't think we
-want such crude hacks merged, could you please convert it to the proper
-dma API?
+_
 

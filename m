@@ -1,65 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261871AbVASUUM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261873AbVASUWy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261871AbVASUUM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 15:20:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbVASUUM
+	id S261873AbVASUWy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 15:22:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbVASUWo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 15:20:12 -0500
-Received: from modemcable240.48-200-24.mc.videotron.ca ([24.200.48.240]:43648
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261871AbVASUUD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 15:20:03 -0500
-Date: Wed, 19 Jan 2005 15:19:16 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@localhost.localdomain
-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-cc: Jean Delvare <khali@linux-fr.org>, Jonas Munsin <jmunsin@iki.fi>,
-       Simone Piunno <pioppo@ferrara.linux.it>, djg@pdp8.net, greg@kroah.com
-Subject: Re: 2.6.10-mm2: it87 sensor driver stops CPU fan
-In-Reply-To: <20050110203427.5061cf0d.khali@linux-fr.org>
-Message-ID: <Pine.LNX.4.61.0501191448160.5315@localhost.localdomain>
-References: <200501080150.44653.pioppo@ferrara.linux.it>
- <20050108172020.64999e50.khali@linux-fr.org> <200501082023.54881.pioppo@ferrara.linux.it>
- <200501102023.44847.pioppo@ferrara.linux.it> <20050110203427.5061cf0d.khali@linux-fr.org>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1996361894-1106165218=:5315"
-Content-ID: <Pine.LNX.4.61.0501191508430.5315@localhost.localdomain>
+	Wed, 19 Jan 2005 15:22:44 -0500
+Received: from waste.org ([216.27.176.166]:31657 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261868AbVASUWZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 15:22:25 -0500
+Date: Wed, 19 Jan 2005 12:22:20 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Roger Luethi <rl@hellgate.ch>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] use mmiowb in via-rhine
+Message-ID: <20050119202220.GT12076@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Use the generic PCI memory barrier. Test-compiled.
 
---8323328-1996361894-1106165218=:5315
-Content-Type: TEXT/PLAIN; CHARSET=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-ID: <Pine.LNX.4.61.0501191508431.5315@localhost.localdomain>
+Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-On Mon, 10 Jan 2005, Jean Delvare wrote:
+Index: bk/drivers/net/via-rhine.c
+===================================================================
+--- bk.orig/drivers/net/via-rhine.c	2005-01-19 12:06:52.283455936 -0800
++++ bk/drivers/net/via-rhine.c	2005-01-19 12:18:02.536561976 -0800
+@@ -351,9 +351,6 @@
+  * indicator. In addition, Tx and Rx buffers need to 4 byte aligned.
+  */
+ 
+-/* Beware of PCI posted writes */
+-#define IOSYNC	do { ioread8(ioaddr + StationAddr); } while (0)
+-
+ static struct pci_device_id rhine_pci_tbl[] =
+ {
+ 	{0x1106, 0x3043, PCI_ANY_ID, PCI_ANY_ID, 0, 0, }, /* VT86C100A */
+@@ -596,7 +593,7 @@
+ 	void __iomem *ioaddr = rp->base;
+ 
+ 	iowrite8(Cmd1Reset, ioaddr + ChipCmd1);
+-	IOSYNC;
++	mmiowb();
+ 
+ 	if (ioread8(ioaddr + ChipCmd1) & Cmd1Reset) {
+ 		printk(KERN_INFO "%s: Reset not complete yet. "
+@@ -1305,7 +1302,7 @@
+ 	/* Wake the potentially-idle transmit channel */
+ 	iowrite8(ioread8(ioaddr + ChipCmd1) | Cmd1TxDemand,
+ 	       ioaddr + ChipCmd1);
+-	IOSYNC;
++	mmiowb();
+ 
+ 	if (rp->cur_tx == rp->dirty_tx + TX_QUEUE_LEN)
+ 		netif_stop_queue(dev);
+@@ -1339,7 +1336,7 @@
+ 		if (intr_status & IntrTxDescRace)
+ 			iowrite8(0x08, ioaddr + IntrStatus2);
+ 		iowrite16(intr_status & 0xffff, ioaddr + IntrStatus);
+-		IOSYNC;
++		mmiowb();
+ 
+ 		if (debug > 4)
+ 			printk(KERN_DEBUG "%s: Interrupt, status %8.8x.\n",
+@@ -1602,7 +1599,7 @@
+ 		       ioaddr + ChipCmd);
+ 		iowrite8(ioread8(ioaddr + ChipCmd1) | Cmd1TxDemand,
+ 		       ioaddr + ChipCmd1);
+-		IOSYNC;
++		mmiowb();
+ 	}
+ 	else {
+ 		/* This should never happen */
 
-> When I get this, I'll compare with the datasheets so as to understand
-> how your chip is configured (or left unconfigured) by your BIOS. This
-> will both help me propose a workaround in the it87 driver and explain
-> the Gigabyte support what I think they should do.
-
-FWIW, I have a Gigabyte motherboard with an it87 chip too.  Reading 
-about this it87 polarity thing I'm suspecting something is really wrong 
-here:
-
-When system is idle, the sensors report shows:
-CPU temp = +25°C and CPU fan = 2136 RPM (and rather noisy)
-
-When system is 100% busy (with dd if=/dev/urandom of=/dev/null):
-CPU temp = +41°C and CPU fan =   1288 RPM (and obviously much quieter)
-
-I'm running a 2.6.10 kernel (not -mm) so I guess the BIOS settings for 
-fan control are not altered.  And incidentally the BIOS has a setting 
-called "smart fan control" set to "enabled" which maps to the ITxxF 
-automatic PWM control mode I suppose.  So if the BIOS actually set the 
-fan polarity wrong then the fan would slow down when the temperature 
-rises and vice versa, right?
-
-
-Nicolas
---8323328-1996361894-1106165218=:5315--
+-- 
+Mathematics is the supreme nostalgia of our time.

@@ -1,67 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129505AbQKGPeJ>; Tue, 7 Nov 2000 10:34:09 -0500
+	id <S129731AbQKGPqp>; Tue, 7 Nov 2000 10:46:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129731AbQKGPeA>; Tue, 7 Nov 2000 10:34:00 -0500
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:17171 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S129505AbQKGPds>; Tue, 7 Nov 2000 10:33:48 -0500
-Date: Tue, 7 Nov 2000 16:33:25 +0100
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Abel Muñoz Alcaraz <abel@trymedia.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+	id <S129767AbQKGPqe>; Tue, 7 Nov 2000 10:46:34 -0500
+Received: from ppp-96-111-an01u-dada6.iunet.it ([151.35.96.111]:17926 "HELO
+	home.bogus") by vger.kernel.org with SMTP id <S129731AbQKGPqT>;
+	Tue, 7 Nov 2000 10:46:19 -0500
+From: Davide Libenzi <davidel@xmail.virusscreen.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: A question about memory fragmentation
-Message-ID: <20001107163325.F20883@arthur.ubicom.tudelft.nl>
-In-Reply-To: <CAEBJLAGJIDLDINHENLOGEMOCGAA.abel@trymedia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <CAEBJLAGJIDLDINHENLOGEMOCGAA.abel@trymedia.com>; from abel@trymedia.com on Tue, Nov 07, 2000 at 04:20:20PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
-X-Loop: erik@arthur.ubicom.tudelft.nl
+Date: Tue, 7 Nov 2000 17:58:26 +0100
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <CAEBJLAGJIDLDINHENLOGEMOCGAA.abel@trymedia.com> <20001107163325.F20883@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20001107163325.F20883@arthur.ubicom.tudelft.nl>
+MIME-Version: 1.0
+Message-Id: <00110718025900.00535@linux1.home.bogus>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 07, 2000 at 04:20:20PM +0100, Abel Muñoz Alcaraz wrote:
-> 	I have a question for you; How Linux avoids the memory fragmentation in
-> linked lists?
+On Tue, 07 Nov 2000, Erik Mouw wrote:
 > 
-> 	Windows 9x/NT/2000 (sorry, ;-)), have specific functions (like List_Create,
-> ExInitializeSListHead, ...) to create generic linked lists but I don't find
-> something similar in Linux.
-> 	Has Linux a generic linked list management API ?
+> > 	Is the kernel memory fragmentation a solved problem in Linux? (I wish it).
+> 
+> My guess is that the slab allocator solves this, but I don't know that
+> much about the MM.
 
-Yes.
-
-> 	Must I develop this?
-
-No.
-
-> 	Is the kernel memory fragmentation a solved problem in Linux? (I wish it).
-
-My guess is that the slab allocator solves this, but I don't know that
-much about the MM.
-
-> 	I have develop my own API but I don't know if Linux can do this for me.
-
-Have a look in include/linux/list.h.
-
-Or install jadetex and the DocBook style sheets and type "make psdocs"
-in the kernel tree. That will create the file
-Documentation/DocBook/kernel-api.ps in which the linked list API (and
-much more) is described.
+Linux lists implementation stores linking informations directly inside the
+block of data We're going to link.
+This has the advantage that no extra list nodes are allocated to store the data
+pointer but has the drawback that if We've to link the same data to more than
+one list We've to declare more than one listhead.
+See at the different links We've inside the task_struct for example.
 
 
-Erik
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+- Davide
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

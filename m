@@ -1,36 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264890AbRFYRLL>; Mon, 25 Jun 2001 13:11:11 -0400
+	id <S264896AbRFYRMa>; Mon, 25 Jun 2001 13:12:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264894AbRFYRLA>; Mon, 25 Jun 2001 13:11:00 -0400
-Received: from mnh-1-19.mv.com ([207.22.10.51]:25350 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S264890AbRFYRKu>;
-	Mon, 25 Jun 2001 13:10:50 -0400
-Message-Id: <200106251825.NAA02909@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: "Bulent Abali" <abali@us.ibm.com>
-cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        James Stevenson <mistral@stev.org>, riel@conectiva.com.br
-Subject: Re: all processes waiting in TASK_UNINTERRUPTIBLE state 
-In-Reply-To: Your message of "Mon, 25 Jun 2001 12:48:46 -0400."
-             <OF831FC2D7.C211A862-ON85256A76.005AEC98@pok.ibm.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 25 Jun 2001 13:25:22 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S264894AbRFYRMU>; Mon, 25 Jun 2001 13:12:20 -0400
+Received: from carbon.btinternet.com ([194.73.73.92]:38347 "EHLO
+	carbon.btinternet.com") by vger.kernel.org with ESMTP
+	id <S264896AbRFYRML>; Mon, 25 Jun 2001 13:12:11 -0400
+Date: Mon, 25 Jun 2001 18:11:01 +0100 (BST)
+From: <asmith@14inverleith.freeserve.co.uk>
+X-X-Sender: <asmith@vtrl22.vtrl.co.uk>
+To: William T Wilson <fluffy@snurgle.org>
+cc: Rob Landley <landley@webofficenow.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Alan Chandler <alan@chandlerfamily.org.uk>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Microsoft and Xenix.
+In-Reply-To: <Pine.LNX.4.21.0106242055390.2101-100000@benatar.snurgle.org>
+Message-ID: <Pine.LNX.4.33.0106251726390.18127-100000@vtrl22.vtrl.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-abali@us.ibm.com said:
-> Can you give more details?  Was there an aic7xxx scsi driver on the
-> box? run_task_queue(&tq_disk) should eventually unlock those pages but
-> they remain locked.  I am trying to narrow it down to fs/buffer code
-> or the SCSI driver aic7xxx in my case.
+Hi,
 
-Rik would be the one to tell you whether there was an aic7xxx driver on the 
-physical box.  There obviously isn't one on UML, so if we're looking at the 
-same bug, it's in the generic code.
+I first used  Unix on a PDP11/44 whilst studying for my Computer Engineering
+degree at Heriot-Watt University in Edinburgh.  I think they and Queen
+Margaret
+College, London were the first folk running Unix version 6 outside Bell Labs.
+If anyone knows where Patrick O'Callaghan is now (ask him).
 
-				Jeff
+Another Unix like OS was Cromemco Cromix running on  bank switched Z80 S-100
+kit.(later 68000).
 
+I then used SCO Xenix 286 on early Compaq 286 PC's.   Companies like Chase,
+Specialix and Stallion grew up as suppliers of intelligent RS-232 boards.  As
+a result of all these Xenix machines, Wyse sold a hell of a lot of WY50
+terminals.
+
+Who remembers terminals from Lear Siegler and Beehive.   All this was before
+networking came about.  Then the Chase Iolan to connect these same Wyse
+terminals to the SCO box but through one bit of co-ax instead of multi-core
+cables.  Also you could get 100m  away from your SCO box  with co-ax.
+
+--
+Andrew Smith in Edinburgh
+
+On Sun, 24 Jun
+2001, William T Wilson wrote:
+
+> On Sun, 24 Jun 2001, Rob Landley wrote:
+>
+> > I know the geos had nothing to do with digital, it started as a
+> > windowing GUI for the commodore 64, if you can believe that...
+>
+> I've actually got a copy, but it's for the Apple // :}
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

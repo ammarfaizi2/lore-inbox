@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271969AbTHEVN3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 17:13:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271970AbTHEVN2
+	id S271924AbTHEVJo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 17:09:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271969AbTHEVJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 17:13:28 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41624 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S271969AbTHEVNY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 17:13:24 -0400
-Message-ID: <3F301DDC.2050502@pobox.com>
-Date: Tue, 05 Aug 2003 17:13:00 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] revert to static = {0}
-References: <20030805174429.GA26933@gtf.org> <Pine.LNX.4.44.0308051949130.1849-100000@localhost.localdomain> <20030805190659.GT32488@holomorphy.com>
-In-Reply-To: <20030805190659.GT32488@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 5 Aug 2003 17:09:43 -0400
+Received: from [163.118.102.59] ([163.118.102.59]:14999 "EHLO
+	mail.drunkencodepoets.com") by vger.kernel.org with ESMTP
+	id S271924AbTHEVJ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 17:09:26 -0400
+Date: Tue, 5 Aug 2003 17:05:58 -0400
+From: s0be <s0be@DrunkenCodePoets.com>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel Oops in 2.6.0-test2-mm4
+Message-Id: <20030805170558.3ee38204.s0be@DrunkenCodePoets.com>
+Organization: DrunkenCodePoets.com
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> On Tue, 5 Aug 2003, Jeff Garzik wrote:
-> 
->>>If it's const, it shouldn't be linked into anything at all... right?
-> 
-> 
-> On Tue, Aug 05, 2003 at 07:51:41PM +0100, Hugh Dickins wrote:
-> 
->>Sorry, Jeff, I don't get your point.
-> 
-> 
-> I suspect this assumes const values will get constant folded, which I'm
-> not sure is the case, though it certainly sounds legal and worthwhile
-> for a compiler to do when reasonable (i.e. for small structures and/or
-> extractions of small fields of const structures).
+here's the oops from dmesg and the surrounding messages.  I'm guessing it was caused by smb, but I can't confirm it.  trying to recreate it.
 
+SMB connection re-established (-5)
+smb_errno: class ERRSRV, code 91 from command 0x80
+SMB connection re-established (-5)
+smb_errno: class ERRSRV, code 91 from command 0x80
+SMB connection re-established (-5)
+smb_errno: class ERRSRV, code 91 from command 0x80
+SMB connection re-established (-5)
+smb_errno: class ERRSRV, code 91 from command 0x80
+Debug: sleeping function called from invalid context at include/asm/uaccess.h:512Call Trace:
+ [<c011fd3c>] __might_sleep+0x5c/0x5e
+ [<c010da1a>] save_v86_state+0x6a/0x200
+ [<c010e565>] handle_vm86_fault+0xa5/0x8c0
+ [<c0170a23>] dput+0x23/0x200
+ [<c010c030>] do_general_protection+0x0/0xa0
+ [<c032519f>] error_code+0x2f/0x38
+ [<c0324733>] syscall_call+0x7/0xb
 
-Correct.  In fact, some Linux kernel code _assumes_ the compiler will 
-fold constants...
+SMB connection re-established (-5)
+smb_errno: class ERRSRV, code 91 from command 0x80
+XFS mounting filesystem hda1
 
-	Jeff
+pat
 
-
-
+-- 

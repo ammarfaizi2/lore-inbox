@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265607AbUBBErB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 23:47:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265611AbUBBErB
+	id S265621AbUBBFVr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 00:21:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265629AbUBBFVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 23:47:01 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:16086 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S265607AbUBBEq7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 23:46:59 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Daniel Jacobowitz <dan@debian.org>
-Date: Mon, 2 Feb 2004 15:46:49 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16413.54841.104599.928032@notabene.cse.unsw.edu.au>
+	Mon, 2 Feb 2004 00:21:47 -0500
+Received: from mail.kroah.org ([65.200.24.183]:18912 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265621AbUBBFVp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 00:21:45 -0500
+Date: Sun, 1 Feb 2004 21:13:02 -0800
+From: Greg KH <greg@kroah.com>
+To: Gene Heskett <gene.heskett@verizon.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: RAID arrays not reconstructing in 2.6
-In-Reply-To: message from Daniel Jacobowitz on Sunday February 1
-References: <20040201171525.GA2092@nevyn.them.org>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Subject: Re: hotplug question
+Message-ID: <20040202051302.GA21549@kroah.com>
+Reply-To: linux-kernel@vger.kernel.org
+References: <200402012359.46020.gene.heskett@verizon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200402012359.46020.gene.heskett@verizon.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday February 1, dan@debian.org wrote:
-> I saw this a couple of weeks ago in a 2.6.0-test kernel, and today in
-> 2.6.2-rc3.  When I have to hit the hard reset button on my desktop, whose
-> root filesystem is RAID5 on /dev/md0, it comes back up cleanly - no
-> reconstruction.
-
-Cool, isn't it!
-
+On Sun, Feb 01, 2004 at 11:59:45PM -0500, Gene Heskett wrote:
+> Greetings;
 > 
-> Have we gotten a whole lot more enthusiastic about marking superblocks clean
-> lately, or should I be worried?  Obviously this always used to trigger
-> reconstruction, until recently.
-
-Yes.  Lots more enthusiastic.
-If there is no write activity for 20msec, we mark the superblock clean
-and write it out, and are careful to write out a dirty superblock
-before allowing another write to complete.
-
-NeilBrown
-
+> About a week ago I did and rm -fR on the hotplug stuffs because it was 
+> totally hanging the boot for some reason.
 > 
-> -- 
-> Daniel Jacobowitz
-> MontaVista Software                         Debian GNU/Linux Developer
+> Tonight I re-installed it and did a test reboot to 2.6.2-rc3.  When it 
+> got to "Starting hotplug", the init script sat there for around 30 
+> seconds, and eventually said OK.  It did load the one module I have 
+> set as a module, for the pl-2303 seriel to usb adaptor.  Or at least 
+> I didn't have to do it by hand with modprobe.
+> 
+> Is this huge, even worse than kudzu, boot delay normal for hotplug?
+
+Try enabling the debug messages in the hotplug system to see what is
+taking so long.
+
+Yeah, I've seen it take quite some time on some hardware before, as the
+different drivers would pause the system as they were loaded.
+
+greg k-h

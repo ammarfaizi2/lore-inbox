@@ -1,117 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268663AbUILLI0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268664AbUILLNW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268663AbUILLI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 07:08:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268664AbUILLI0
+	id S268664AbUILLNW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 07:13:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268665AbUILLNW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 07:08:26 -0400
-Received: from holomorphy.com ([207.189.100.168]:56708 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268663AbUILLIP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 07:08:15 -0400
-Date: Sun, 12 Sep 2004 04:08:10 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: /proc/sys/kernel/pid_max issues
-Message-ID: <20040912110810.GQ2660@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ingo Molnar <mingo@elte.hu>, Anton Blanchard <anton@samba.org>,
-	linux-kernel@vger.kernel.org,
-	viro@parcelfarce.linux.theplanet.co.uk
-References: <20040912085609.GK32755@krispykreme> <20040912093605.GJ2660@holomorphy.com> <20040912095805.GL2660@holomorphy.com> <20040912101350.GA13164@elte.hu> <20040912104314.GN2660@holomorphy.com> <20040912104524.GO2660@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040912104524.GO2660@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Sun, 12 Sep 2004 07:13:22 -0400
+Received: from natsmtp00.rzone.de ([81.169.145.165]:26331 "EHLO
+	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S268664AbUILLNT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 07:13:19 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Anton Blanchard <anton@samba.org>
+Subject: Re: [PATCH] Yielding processor resources during lock contention
+Date: Sun, 12 Sep 2004 13:12:17 +0200
+User-Agent: KMail/1.6.2
+Cc: Zwane Mwaikambo <zwane@fsmlabs.com>, Linus Torvalds <torvalds@osdl.org>,
+       Paul Mackerras <paulus@samba.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, "Nakajima, Jun" <jun.nakajima@intel.com>,
+       Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Eberhard Pasch <epasch@de.ibm.com>
+References: <Pine.LNX.4.58.0409021231570.4481@montezuma.fsmlabs.com> <200409121210.32259.arnd@arndb.de> <20040912104306.GA25741@krispykreme>
+In-Reply-To: <20040912104306.GA25741@krispykreme>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_V8CRB6ClQZpeqR1";
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409121312.21358.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 12, 2004 at 03:43:14AM -0700, William Lee Irwin III wrote:
->> I like the update. But I see other issues. For instance (also untested):
->> pid wrapping doesn't honor RESERVED_PIDS.
 
-On Sun, Sep 12, 2004 at 03:45:24AM -0700, William Lee Irwin III wrote:
-> last_pid is not honored because next_free_map(map - 1, ...) may return
-> the same map and so restart with a lesser offset.
+--Boundary-02=_V8CRB6ClQZpeqR1
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Forgot to check map->page in the first spin:
+On Sonntag, 12. September 2004 12:43, Anton Blanchard wrote:
+> cpu_relax doesnt tell us why we are busy looping. In this particular
+> case we want to pass to the hypervisor which virtual cpu we are waiting
+> on so the hypervisor make better scheduling decisions.
 
-last_pid is not honored because next_free_map(map - 1, ...) may return
-the same map and so restart with a lesser offset.
+Ah, interesting. I think s390 could do the same with the upcoming 5.1 release
+of z/VM. However, we decided to ask for an implementation of a futex hypercall
+instead, which lets us implement the linux spinlock as a hypervisor semaphore.
 
-Index: mm4-2.6.9-rc1/kernel/pid.c
-===================================================================
---- mm4-2.6.9-rc1.orig/kernel/pid.c	2004-09-12 03:26:50.063164288 -0700
-+++ mm4-2.6.9-rc1/kernel/pid.c	2004-09-12 04:00:03.230156848 -0700
-@@ -64,6 +64,21 @@
- 	atomic_inc(&map->nr_free);
- }
- 
-+static void alloc_pidmap_page(pidmap_t *map)
-+{
-+	unsigned long page = get_zeroed_page(GFP_KERNEL);
-+	/*
-+	 * Free the page if someone raced with us
-+	 * installing it:
-+	 */
-+	spin_lock(&pidmap_lock);
-+	if (map->page)
-+		free_page(page);
-+	else
-+		map->page = (void *)page;
-+	spin_unlock(&pidmap_lock);
-+}
-+
- /*
-  * Here we search for the next map that has free bits left.
-  * Normally the next map has free PIDs.
-@@ -76,18 +91,7 @@
- 		if (++map > map_limit)
- 			map = pidmap_array;
- 		if (unlikely(!map->page)) {
--			unsigned long page = get_zeroed_page(GFP_KERNEL);
--			/*
--			 * Free the page if someone raced with us
--			 * installing it:
--			 */
--			spin_lock(&pidmap_lock);
--			if (map->page)
--				free_page(page);
--			else
--				map->page = (void *)page;
--			spin_unlock(&pidmap_lock);
--
-+			alloc_pidmap_page(map);
- 			if (!map->page)
- 				break;
- 		}
-@@ -119,11 +123,20 @@
- 		atomic_dec(&map->nr_free);
- 		last_pid = pid;
- 		return pid;
--	}
--	
--	if (!offset || !atomic_read(&map->nr_free)) {
--		if (!offset)
--			map--;
-+	} else if (!offset) {
-+		if (map->page) {
-+			if (atomic_read(&map->nr_free))
-+				goto scan_more;
-+			else
-+				goto next_map;
-+		} else {
-+			alloc_pidmap_page(map);
-+			if (map->page)
-+				goto scan_more;
-+			else
-+				goto failure;
-+		}
-+	} else if (!atomic_read(&map->nr_free)) {
- next_map:
- 		map = next_free_map(map, &max_steps);
- 		if (!map)
+> Did you manage to see any improvement by yielding to the hypervisor
+> in cpu_relax?
+I'm not sure if this has been measured, maybe Martin or Eberhard knows more.
+
+	Arnd <><
+
+--Boundary-02=_V8CRB6ClQZpeqR1
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBRC8U5t5GS2LDRf4RAtFOAJ9LxZiwPuovwKKeYhrsQN0FnbiOgACfX9Nh
+2UNduPRAMB4hmVnYKRKgJ6E=
+=rjLq
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_V8CRB6ClQZpeqR1--

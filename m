@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262974AbTDYBaQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 21:30:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262977AbTDYBaQ
+	id S262837AbTDYB2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 21:28:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262856AbTDYB2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 21:30:16 -0400
-Received: from mail-7.tiscali.it ([195.130.225.153]:37885 "EHLO
-	mail-7.tiscali.it") by vger.kernel.org with ESMTP id S262974AbTDYBaP
+	Thu, 24 Apr 2003 21:28:16 -0400
+Received: from miranda.zianet.com ([216.234.192.169]:61706 "HELO
+	miranda.zianet.com") by vger.kernel.org with SMTP id S262837AbTDYB2P
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 21:30:15 -0400
-Date: Fri, 25 Apr 2003 03:42:08 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Daniel McNeil <daniel@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.68 2/2] i_size atomic access
-Message-ID: <20030425014208.GC26194@dualathlon.random>
-References: <1051230056.2448.16.camel@ibm-c.pdx.osdl.net> <20030424180503.2c2a8bea.akpm@digeo.com>
+	Thu, 24 Apr 2003 21:28:15 -0400
+Subject: Re: How did the Spelling Police miss this one?
+From: Steven Cole <elenstev@mesatop.com>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: "viro@parcelfarce.linux.theplanet.co.uk" 
+	<viro@parcelfarce.linux.theplanet.co.uk>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Johannes Ruscheinski <ruschein@mail-infomine.ucr.edu>
+In-Reply-To: <200304241929_MC3-1-35E8-687A@compuserve.com>
+References: <200304241929_MC3-1-35E8-687A@compuserve.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1051234759.22271.143.camel@spc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030424180503.2c2a8bea.akpm@digeo.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 24 Apr 2003 19:39:19 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 24, 2003 at 06:05:03PM -0700, Andrew Morton wrote:
-> And if the race _does_ hit, what is the effect?  Assuming stat() was fixed
-> with i_sem, I don't think the race has a very serious effect.  We won't
+On Thu, 2003-04-24 at 17:25, Chuck Ebbert wrote:
+> Al Viro wrote:
+> 
+> 
+> >> On the other hand, "canonicalize", while strange and new, unambiguously 
+> >> means (b).
+> >> 
+> >> Is there an already-existing word which means (b)?
+> >
+> >% webster normalize
+> 
+> 
+>   There is a subtle difference between 'normal' and 'canonical',
+> but I can't quite put my finger on it. 
 
-writepage needs it too to avoid returning -EIO and I doubt you want to
-take the i_sem in writepage
+Another sense of "normal" is as in "normal vector", which is
+perpendicular or orthogonal to a surface.  Orthogonal is a good
+description of what this thread has become, but that's normal.
 
-readpage is another obvious candidate where taking the i_sem is not an
-option (even if it's one not risking to lose info in the fs, but it can
-lose info in userspace or generate a malfunction).
+Steven
 
-Andrea

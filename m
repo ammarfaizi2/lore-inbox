@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263809AbTKZAPQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 19:15:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263840AbTKZAPQ
+	id S263106AbTKZAXX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 19:23:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263221AbTKZAXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 19:15:16 -0500
-Received: from bay1-dav15.bay1.hotmail.com ([65.54.244.119]:16 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S263809AbTKZAPN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 19:15:13 -0500
-X-Originating-IP: [199.206.254.70]
-X-Originating-Email: [icerbofh@hotmail.com]
-From: "Mr. BOFH" <icerbofh@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Fire Engine??
-Date: Tue, 25 Nov 2003 16:15:12 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4927.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
-Message-ID: <BAY1-DAV15JU71pROHD000040e2@hotmail.com>
-X-OriginalArrivalTime: 26 Nov 2003 00:15:13.0217 (UTC) FILETIME=[5C64DB10:01C3B3B2]
+	Tue, 25 Nov 2003 19:23:23 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:57535 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S263106AbTKZAXW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 19:23:22 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Wed, 26 Nov 2003 01:22:33 +0100 (MET)
+Message-Id: <UTC200311260022.hAQ0MXB01287.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, jdinardo@nycap.rr.com
+Subject: Re: 2.6.0-test10 kernel panic with INVALID GEOMETRY
+Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> disk works fine with 2.3.21.
+> doesn't work but is ignored with 2.4.22.
+> causes a panic with 2.6.0-test9,test10
 
-Sun has announced that they have redone their TCP/IP stack and is showing
-for some instances a 30% improvement over Linux....
+> hdd: ,ATA DISK drive
+> hdd: 0 sectors (0MB), CHS=0/0/0
+> hdd: INVALID GEOMETRY: 0 PHYSICAL HEADS
+> ide-default: hdd: Failed to register with ide.c
+> Kernel panic: ide: default attach failed
 
-http://www.theregister.co.uk/content/61/33440.html
+> In the working case the model is
+> hdd: ICBSL040AVVA07-0, ATA ...
+
+> In the non-working case all identify data is zero.
 
 
+OK. So this is not a geometry problem but an I/O problem:
+the identify data is not read correctly. When 2.4 sees all
+zeros it just ignores this disk. When 2.6 sees all zeros
+it panics in ide.c:ata_attach.
+
+You can change the "panic" in
+    panic("ide: default attach failed");
+(in ide.c:ata_attach) to "printk" and see how far your boot gets.
+
+Do you know why the identify data is not read correctly?
+(Or under what circumstances it is read correctly?)
+
+Andries
+
+
+Probably the panic is too strong a reaction, since it can happen.

@@ -1,231 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266489AbRGDCUB>; Tue, 3 Jul 2001 22:20:01 -0400
+	id <S266484AbRGDCPV>; Tue, 3 Jul 2001 22:15:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266487AbRGDCTx>; Tue, 3 Jul 2001 22:19:53 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:45168 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S266485AbRGDCTk>; Tue, 3 Jul 2001 22:19:40 -0400
-Date: Tue, 3 Jul 2001 22:19:36 -0400 (EDT)
-From: Ben LaHaise <bcrl@redhat.com>
-X-X-Sender: <bcrl@toomuch.toronto.redhat.com>
-To: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
-cc: <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <mike@bigstorage.com>, <kevin@bigstorage.com>
-Subject: [PATCH] 64 bit scsi read/write
-In-Reply-To: <20010703065312.J4841@vestdata.no>
-Message-ID: <Pine.LNX.4.33.0107032211120.30968-100000@toomuch.toronto.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S266485AbRGDCPL>; Tue, 3 Jul 2001 22:15:11 -0400
+Received: from p0043.as-l042.contactel.cz ([194.108.237.43]:32384 "EHLO
+	p0043.as-l042.contactel.cz") by vger.kernel.org with ESMTP
+	id <S266484AbRGDCOw>; Tue, 3 Jul 2001 22:14:52 -0400
+Date: Wed, 4 Jul 2001 03:38:07 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: andrew.grover@intel.com
+Cc: linux-kernel@vger.kernel.org
+Subject: What are rules for acpi_ex_enter_interpreter?
+Message-ID: <20010704033807.A1469@ppc.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Jul 2001, Ragnar Kjørstad wrote:
+Hi Andrew,
+  ACPI was reporting no S* states on my machine (ASUS A7V) for some time
+and today I finally got some time to debug it. Problem is that during
+initialization namespace init calls acpi_walk_namespace without
+interpreter lock held - but it is wrong - as you can see from stack
+trace, acpi_walk_namespace can call down to acpi_ev_address_space_dispatch,
+which can call acpi_ex_exit_interpreter - and this is fatal on unlocked
+lock :-(
 
-> What about LVM?
+  This points us to another problem - when acpi is compiled into kernel,
+for some reason there is pending signal in thread doing ospm_busmgr and 
+ospm_system initialization, so it fails to acquire lock because of
+down_interruptible fails... but does not print any message, just no
+valid S states are found. When acpi is compiled as module, modprobe
+hangs until you hit ^C - then it is converted to previous case - module
+says OK, but did nothing in reality.
 
-Errr, I'll refrain from talking about LVM.
+  I did NOT verified other callers of acpi_walk_namespace... And there
+is still some problem left, as although now S5 is listed as available,
+poweroff still does nothing instead of poweroff.
+					Best regards,
+						Petr Vandrovec
+						vandrove@vc.cvut.cz
 
-> We'll see what we can do to test the scsi-code. Please send it to us
-> when you have code. I guess there are fixes for both generic-scsi code
-> and for each controller, right? What controllers are you planning on
-> fixing first?
-> What tests do you recommend?
-> mkfs on a big device, and then putting >2TB data on it?
+Jul  4 02:03:02 ppc kernel: CPU:    0
+Jul  4 02:03:02 ppc kernel: EIP:    0010:[printstate+9/48]
+Jul  4 02:03:02 ppc kernel: EFLAGS: 00000202
+Jul  4 02:03:02 ppc kernel: eax: 0000000e   ebx: c01680d0   ecx: c020e996   edx: 00000001
+Jul  4 02:03:02 ppc kernel: esi: cff75e3c   edi: c1428a4c   ebp: c1428c8c   esp: c140dc34
+Jul  4 02:03:02 ppc kernel: ds: 0018   es: 0018   ss: 0018
+Jul  4 02:03:02 ppc kernel: Process swapper (pid: 1, stackpage=c140d000)
+Jul  4 02:03:02 ppc kernel: Stack: c140dc38 00000018 c016955a c016206c 000fdf00 00000000 00000000 00000000 
+Jul  4 02:03:02 ppc kernel:        c1428a4c c140dcd4 c0166438 c1428a4c 00000001 000fdf00 00000000 00000020 
+Jul  4 02:03:02 ppc kernel:        c140dcd4 c140e50c c020c5cc c015c8a5 c140e50c c020c685 00000001 c020e320 
+Jul  4 02:03:02 ppc kernel: Call Trace: [acpi_ex_exit_interpreter+26/48] [acpi_ev_address_space_dispatch+124/208] [acpi_ex_read_field_datum+120/224] [debug_print+21/160] [function_status_exit+49/64] 
+Jul  4 02:03:02 ppc kernel:    [acpi_ex_extract_from_field+123/432] [acpi_ex_common_access_field+56/64] [acpi_ex_access_region_field+36/64] [acpi_ex_read_data_from_field+220/288] [acpi_ex_resolve_node_to_value+411/560] [acpi_ex_resolve_to_value+42/80] 
+Jul  4 02:03:02 ppc kernel:    [acpi_ex_resolve_operands+282/768] [acpi_ds_eval_region_operands+56/144] [acpi_ds_exec_end_op+705/752] [acpi_ps_parse_loop+945/1904] [acpi_ut_release_mutex+103/144] [acpi_ut_create_generic_state+63/128] 
+Jul  4 02:03:02 ppc kernel:    [acpi_ps_parse_aml+519/640] [acpi_ds_get_region_arguments+222/256] [acpi_ds_exec_begin_op+0/304] [acpi_ds_exec_end_op+0/752] [acpi_ns_init_one_object+91/96] [acpi_ns_walk_namespace+193/288] 
+Jul  4 02:03:02 ppc kernel:    [acpi_ns_init_one_object+0/96] [acpi_walk_namespace+85/128] [acpi_ns_init_one_object+0/96] [acpi_ns_initialize_objects+61/80] [acpi_ns_init_one_object+0/96] [acpi_enable_subsystem+149/320] 
+Jul  4 02:03:02 ppc kernel:    [acpi_enable_subsystem+188/320] [acpi_init+283/352] [rest_init+0/48] [init+11/320] [rest_init+0/48] [kernel_thread+38/48] 
+Jul  4 02:03:02 ppc kernel:    [init+0/320] 
+Jul  4 02:03:02 ppc kernel: 
+Jul  4 02:03:02 ppc kernel: Code: 50 1e 06 50 55 57 56 52 51 53 89 e0 50 e8 b5 fe ff ff 83 c4 
 
-Here's the [completely untested] generic scsi fixup, but I'm told that
-some controllers will break with it.  Give it a whirl and let me know how
-many pieces you're left holding. =)  Please note that msdos partitions do
-*not* work on devices larger than 2TB, so you'll have to use the scsi disk
-directly.  This patch applies on top of v2.4.6-pre8-largeblock4.diff.
-
-Testing wise, I'm looking for tests on ext2, the block device and raw
-devices that write out enough data to fill the device and then reads the
-data back looking for any corruption.  There are a few test programs I've
-got to this end, but I need to clean them up before releasing them.  If
-anyone wants to help sort out issues on other filesystems, I'll certainly
-track patches and feedback.  Cheers,
-
-		-ben
-
-.... ~/patches/v2.4.6-pre8-lb-scsi.diff ....
-diff -ur lb-2.4.6-pre8/drivers/scsi/scsi.h lb-2.4.6-pre8.scsi/drivers/scsi/scsi.h
---- lb-2.4.6-pre8/drivers/scsi/scsi.h	Tue Jul  3 01:31:47 2001
-+++ lb-2.4.6-pre8.scsi/drivers/scsi/scsi.h	Tue Jul  3 22:03:16 2001
-@@ -351,7 +351,7 @@
- #define DRIVER_MASK         0x0f
- #define SUGGEST_MASK        0xf0
-
--#define MAX_COMMAND_SIZE    12
-+#define MAX_COMMAND_SIZE    16
- #define SCSI_SENSE_BUFFERSIZE   64
-
- /*
-@@ -613,6 +613,7 @@
- 	unsigned expecting_cc_ua:1;	/* Expecting a CHECK_CONDITION/UNIT_ATTN
- 					 * because we did a bus reset. */
- 	unsigned device_blocked:1;	/* Device returned QUEUE_FULL. */
-+	unsigned sixteen:1;		/* use 16 byte read / write */
- 	unsigned ten:1;		/* support ten byte read / write */
- 	unsigned remap:1;	/* support remapping  */
- 	unsigned starved:1;	/* unable to process commands because
-diff -ur lb-2.4.6-pre8/drivers/scsi/sd.c lb-2.4.6-pre8.scsi/drivers/scsi/sd.c
---- lb-2.4.6-pre8/drivers/scsi/sd.c	Tue Jul  3 22:08:28 2001
-+++ lb-2.4.6-pre8.scsi/drivers/scsi/sd.c	Tue Jul  3 22:05:46 2001
-@@ -277,11 +277,12 @@
-
- static int sd_init_command(Scsi_Cmnd * SCpnt)
- {
--	int dev, devm, block, this_count;
-+	int dev, devm, this_count;
- 	Scsi_Disk *dpnt;
- #if CONFIG_SCSI_LOGGING
- 	char nbuff[6];
- #endif
-+	blkoff_t block;
-
- 	devm = SD_PARTITION(SCpnt->request.rq_dev);
- 	dev = DEVICE_NR(SCpnt->request.rq_dev);
-@@ -289,7 +290,7 @@
- 	block = SCpnt->request.sector;
- 	this_count = SCpnt->request_bufflen >> 9;
-
--	SCSI_LOG_HLQUEUE(1, printk("Doing sd request, dev = %d, block = %d\n", devm, block));
-+	SCSI_LOG_HLQUEUE(1, printk("Doing sd request, dev = %d, block = %"BLKOFF_FMT"\n", devm, block));
-
- 	dpnt = &rscsi_disks[dev];
- 	if (devm >= (sd_template.dev_max << 4) ||
-@@ -374,7 +375,21 @@
-
- 	SCpnt->cmnd[1] = (SCpnt->lun << 5) & 0xe0;
-
--	if (((this_count > 0xff) || (block > 0x1fffff)) || SCpnt->device->ten) {
-+	if (SCpnt->device->sixteen) {
-+		SCpnt->cmnd[0] += READ_16 - READ_6;
-+		SCpnt->cmnd[2] = (unsigned char) (block >> 56) & 0xff;
-+		SCpnt->cmnd[3] = (unsigned char) (block >> 48) & 0xff;
-+		SCpnt->cmnd[4] = (unsigned char) (block >> 40) & 0xff;
-+		SCpnt->cmnd[5] = (unsigned char) (block >> 32) & 0xff;
-+		SCpnt->cmnd[6] = (unsigned char) (block >> 24) & 0xff;
-+		SCpnt->cmnd[7] = (unsigned char) (block >> 16) & 0xff;
-+		SCpnt->cmnd[8] = (unsigned char) (block >> 8) & 0xff;
-+		SCpnt->cmnd[9] = (unsigned char) block & 0xff;
-+		SCpnt->cmnd[10] = (unsigned char) (this_count >> 24) & 0xff;
-+		SCpnt->cmnd[11] = (unsigned char) (this_count >> 16) & 0xff;
-+		SCpnt->cmnd[12] = (unsigned char) (this_count >> 8) & 0xff;
-+		SCpnt->cmnd[13] = (unsigned char) this_count & 0xff;
-+	} else if (SCpnt->device->ten || (this_count > 0xff) || (block > 0x1fffff)) {
- 		if (this_count > 0xffff)
- 			this_count = 0xffff;
-
-@@ -882,14 +897,61 @@
- 		 */
- 		rscsi_disks[i].ready = 1;
-
--		rscsi_disks[i].capacity = 1 + ((buffer[0] << 24) |
--					       (buffer[1] << 16) |
--					       (buffer[2] << 8) |
--					       buffer[3]);
-+		rscsi_disks[i].capacity = buffer[0];
-+		rscsi_disks[i].capacity <<= 8;
-+		rscsi_disks[i].capacity |= buffer[1];
-+		rscsi_disks[i].capacity <<= 8;
-+		rscsi_disks[i].capacity |= buffer[2];
-+		rscsi_disks[i].capacity <<= 8;
-+		rscsi_disks[i].capacity |= buffer[3];
-+		rscsi_disks[i].capacity += 1;
-
- 		sector_size = (buffer[4] << 24) |
- 		    (buffer[5] << 16) | (buffer[6] << 8) | buffer[7];
-
-+
-+		/* Is this disk larger than 32 bits? */
-+		if (rscsi_disks[i].capacity == 0x100000000) {
-+			cmd[0] = READ_CAPACITY;
-+			cmd[1] = (rscsi_disks[i].device->lun << 5) & 0xe0;
-+			cmd[1] |= 0x2;	/* Longlba */
-+			memset((void *) &cmd[2], 0, 8);
-+			memset((void *) buffer, 0, 8);
-+			SRpnt->sr_cmd_len = 0;
-+			SRpnt->sr_sense_buffer[0] = 0;
-+			SRpnt->sr_sense_buffer[2] = 0;
-+
-+			SRpnt->sr_data_direction = SCSI_DATA_READ;
-+			scsi_wait_req(SRpnt, (void *) cmd, (void *) buffer,
-+				    8, SD_TIMEOUT, MAX_RETRIES);
-+
-+			/* cool!  64 bit goodness... */
-+			if (!SRpnt->sr_result) {
-+				rscsi_disks[i].capacity = buffer[0];
-+				rscsi_disks[i].capacity <<= 8;
-+				rscsi_disks[i].capacity |= buffer[1];
-+				rscsi_disks[i].capacity <<= 8;
-+				rscsi_disks[i].capacity |= buffer[2];
-+				rscsi_disks[i].capacity <<= 8;
-+				rscsi_disks[i].capacity |= buffer[3];
-+				rscsi_disks[i].capacity <<= 8;
-+				rscsi_disks[i].capacity |= buffer[4];
-+				rscsi_disks[i].capacity <<= 8;
-+				rscsi_disks[i].capacity |= buffer[5];
-+				rscsi_disks[i].capacity <<= 8;
-+				rscsi_disks[i].capacity |= buffer[6];
-+				rscsi_disks[i].capacity <<= 8;
-+				rscsi_disks[i].capacity |= buffer[7];
-+				rscsi_disks[i].capacity += 1;
-+
-+				sector_size = (buffer[8] << 24) |
-+				    (buffer[9] << 16) | (buffer[10] << 8) |
-+				     buffer[11];
-+
-+				SRpnt->sr_device->sixteen = 1;
-+			}
-+		}
-+
- 		if (sector_size == 0) {
- 			sector_size = 512;
- 			printk("%s : sector size 0 reported, assuming 512.\n",
-@@ -930,7 +992,7 @@
- 			 */
- 			int m;
- 			int hard_sector = sector_size;
--			int sz = rscsi_disks[i].capacity * (hard_sector/256);
-+			blkoff_t sz = rscsi_disks[i].capacity * (hard_sector/256);
-
- 			/* There are 16 minors allocated for each major device */
- 			for (m = i << 4; m < ((i + 1) << 4); m++) {
-@@ -938,7 +1000,7 @@
- 			}
-
- 			printk("SCSI device %s: "
--			       "%d %d-byte hdwr sectors (%d MB)\n",
-+			       "%"BLKOFF_FMT" %d-byte hdwr sectors (%"BLKOFF_FMT" MB)\n",
- 			       nbuff, rscsi_disks[i].capacity,
- 			       hard_sector, (sz/2 - sz/1250 + 974)/1950);
- 		}
-diff -ur lb-2.4.6-pre8/drivers/scsi/sd.h lb-2.4.6-pre8.scsi/drivers/scsi/sd.h
---- lb-2.4.6-pre8/drivers/scsi/sd.h	Tue Jul  3 01:31:47 2001
-+++ lb-2.4.6-pre8.scsi/drivers/scsi/sd.h	Tue Jul  3 22:03:16 2001
-@@ -26,7 +26,7 @@
- extern struct hd_struct *sd;
-
- typedef struct scsi_disk {
--	unsigned capacity;	/* size in blocks */
-+	u64 capacity;	/* size in blocks */
- 	Scsi_Device *device;
- 	unsigned char ready;	/* flag ready for FLOPTICAL */
- 	unsigned char write_prot;	/* flag write_protect for rmvable dev */
-diff -ur lb-2.4.6-pre8/include/scsi/scsi.h lb-2.4.6-pre8.scsi/include/scsi/scsi.h
---- lb-2.4.6-pre8/include/scsi/scsi.h	Thu May  3 11:22:20 2001
-+++ lb-2.4.6-pre8.scsi/include/scsi/scsi.h	Tue Jul  3 18:06:43 2001
-@@ -78,6 +78,9 @@
- #define MODE_SENSE_10         0x5a
- #define PERSISTENT_RESERVE_IN 0x5e
- #define PERSISTENT_RESERVE_OUT 0x5f
-+#define READ_16               0x88
-+#define WRITE_16              0x8a
-+#define WRITE_VERIFY_16       0x8e
- #define MOVE_MEDIUM           0xa5
- #define READ_12               0xa8
- #define WRITE_12              0xaa
-
+diff -urdN linux/drivers/acpi/namespace/nsinit.c linux/drivers/acpi/namespace/nsinit.c
+--- linux/drivers/acpi/namespace/nsinit.c	Tue Jul  3 15:58:35 2001
++++ linux/drivers/acpi/namespace/nsinit.c	Wed Jul  4 02:20:49 2001
+@@ -27,6 +27,7 @@
+ #include "acpi.h"
+ #include "acnamesp.h"
+ #include "acdispat.h"
++#include "acinterp.h"
+ 
+ #define _COMPONENT          ACPI_NAMESPACE
+ 	 MODULE_NAME         ("nsinit")
+@@ -62,10 +63,17 @@
+ 
+ 	/* Walk entire namespace from the supplied root */
+ 
++	status = acpi_ex_enter_interpreter();
++	if (ACPI_FAILURE(status)) {
++		return status;
++	}
++	
+ 	status = acpi_walk_namespace (ACPI_TYPE_ANY, ACPI_ROOT_OBJECT,
+ 			  ACPI_UINT32_MAX, acpi_ns_init_one_object,
+ 			  &info, NULL);
+ 
++	acpi_ex_exit_interpreter();
++	
+ 	return (AE_OK);
+ }
+ 

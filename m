@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262252AbUBXOLb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 09:11:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbUBXOLb
+	id S262255AbUBXO05 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 09:26:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbUBXO05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 09:11:31 -0500
-Received: from ns.adis.at ([195.64.0.34]:39686 "EHLO ns.adis.at")
-	by vger.kernel.org with ESMTP id S262252AbUBXOKR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 09:10:17 -0500
-Message-ID: <403B5B47.2030907@petermair.at>
-Date: Tue, 24 Feb 2004 15:10:15 +0100
-From: Patrick Petermair <kernel-ml@petermair.at>
-Reply-To: kernel-ml@petermair.at
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Tue, 24 Feb 2004 09:26:57 -0500
+Received: from ambr.mtholyoke.edu ([138.110.1.10]:8976 "EHLO
+	ambr.mtholyoke.edu") by vger.kernel.org with ESMTP id S262255AbUBXO0x
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 09:26:53 -0500
+Date: Tue, 24 Feb 2004 09:26:50 -0500 (EST)
+From: Ron Peterson <rpeterso@MtHolyoke.edu>
 To: linux-kernel@vger.kernel.org
-Subject: Adaptec 1210SA SATA Controller Performance
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: network / performance problems
+In-Reply-To: <Pine.OSF.4.21.0402232326560.192063-100000@mhc.mtholyoke.edu>
+Message-ID: <Pine.OSF.4.21.0402240922280.430603-100000@mhc.mtholyoke.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-Yesterday I've setup a server with Adaptec's 1210SA SATA Controller and 
-2 SATA disks. According to the kernel changelog the controller is 
-supported since 2.6.2
+On Mon, 23 Feb 2004, Ron Peterson wrote:
+> On Mon, 23 Feb 2004, Ron Peterson wrote:
+> > 
+> > more graphs, and more graphs.
+> > 
+> > http://depot.mtholyoke.edu:8080/tmp/must-mhc/2002-02-23_17:00/
+> 
+> ...and another graph to follow up.  Same setup, but now running
+> 2.4.20.  Looks much better.
+> 
+> http://depot.mtholyoke.edu:8080/tmp/must-mhc/2002-02-23_23:00/
 
-I've installed Debian on an IDE disk, built a 2.6.3 kernel with 
-CONFIG_SCSI_SATA_SIL, rebooted and the kernel detected the controller 
-plus both SATA disks (sda, sdb). As the next step I wanted to create a 
-software raid 1 with the 2 SATA disks. Because it took mdadm forever to 
-finish, I checked /proc/mdstat and saw a progress bar with a rate of 12MB/s!
+And a follow up to the follow up.  Things have stabilized long enough now
+that the trend appears real.
 
-Even my oldest IDE disk is faster than this. Is there a way to tweak the 
-SATA controller/disk with some kernel-options or is the driver not 
-providing more speed?
+http://depot.mtholyoke.edu:8080/tmp/must-mhc/2002-02-24_8:40/
 
-Any hints?
-Thanks..
-Patrick
+Was it Mark Twain who said that interpolation is like standing on the
+south side of a cliff and walking north because the ground has been flat
+so far?
+
+I've also added some graphs of must monitoring mist (which is the machine
+I actually care about the most right now).  Mist ping latencies are
+predictably on the upswing again.  I'll likely be rebooting soon.
+
+http://depot.mtholyoke.edu:8080/tmp/must-mist/2002-02-24_8:40/
+
+_________________________
+Ron Peterson
+Network & Systems Manager
+Mount Holyoke College
+

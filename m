@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262456AbTENPOW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 11:14:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbTENPMk
+	id S262589AbTENP17 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 11:27:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262590AbTENP17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 11:12:40 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:2236 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S262457AbTENPLI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 11:11:08 -0400
-Date: Wed, 14 May 2003 14:09:50 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: James Simmons <jsimmons@infradead.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] 2.5.69 - no setfont and loadkeys on tty > 1
-Message-ID: <20030514120950.GA302@elf.ucw.cz>
-References: <20030511173817.GA2155@elf.ucw.cz> <Pine.LNX.4.44.0305122223570.14641-100000@phoenix.infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 14 May 2003 11:27:59 -0400
+Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:25561 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S262589AbTENP15
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 11:27:57 -0400
+Message-ID: <20030514154028.12556.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0305122223570.14641-100000@phoenix.infradead.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Dean McEwan" <dean_mcewan@linuxmail.org>
+To: core@enodev.com
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Wed, 14 May 2003 15:40:28 +0000
+Subject: Re: Digital Rights Management - An idea
+X-Originating-Ip: 213.120.30.217
+X-Originating-Server: ws5-2.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > > I'am wondering why setfont and loadkeys in setting only on first tty.
-> > > It works (setting font map on all six tty) in 2.{2,4}.x.
-> > > 
-> > > I'am using _radeonfb_ with rv250if, could it be the reason?
-> > 
-> > FYI, its same as vesafb here.
+
+> How exactly would you do this specifically for "downloaded" files except
+> by snooping into every ftp/http, much less having to decrypt the
+> protocols like https or scp?
+
+Files would be recompiled for DRM...
+
+> Anyway, assuming you meant "downloaded file == any file", that's simple,
+> and already being discussed, most likely by companies like TiVo, etc.
 > 
-> Try this patch. If it works I will pass it on to linus. thank you.
 
-Does not work. Setfont still only changes tty it is run on.
-
-There are more problems. Emacs changes cursor to "more visible" one,
-this somehow leaks between ttys.
-
-Last but not least: Try this on your tty:
-
-echo -e "\33[10;5000]\33[11;50]\33[?18;0;136c\33[?102m"
-
-It is supposed to start "softcursor". Unfortunately, with 2.5.68+
-softcursor is not cleared properly. Try typing foo^H^H^H in bash
-:-(. [Or try most /some/file]. 
-
-								Pavel
+FOR LINUX?
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+______________________________________________
+http://www.linuxmail.org/
+Now with e-mail forwarding for only US$5.95/yr
+
+Powered by Outblaze

@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311884AbSDPTBI>; Tue, 16 Apr 2002 15:01:08 -0400
+	id <S312600AbSDPTIj>; Tue, 16 Apr 2002 15:08:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312590AbSDPTBH>; Tue, 16 Apr 2002 15:01:07 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46859 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S311884AbSDPTBH>; Tue, 16 Apr 2002 15:01:07 -0400
-Date: Tue, 16 Apr 2002 11:59:20 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "David S. Miller" <davem@redhat.com>, <haveblue@us.ibm.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix ips driver compile problems
-In-Reply-To: <E16xXia-0000Zb-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0204161158190.1340-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312855AbSDPTIi>; Tue, 16 Apr 2002 15:08:38 -0400
+Received: from [194.46.8.33] ([194.46.8.33]:37384 "EHLO angusbay.vnl.com")
+	by vger.kernel.org with ESMTP id <S312600AbSDPTIi>;
+	Tue, 16 Apr 2002 15:08:38 -0400
+Date: Tue, 16 Apr 2002 19:05:06 +0100
+From: Dale Amon <amon@vnl.com>
+To: linux-kernel@vger.kernel.org
+Subject: ETA on Buslogic driver fixes for 2.5?
+Message-ID: <20020416180506.GA15960@vnl.com>
+Mail-Followup-To: Dale Amon <amon@vnl.com>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux, the choice of a GNU generation
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+2.5.8 still won't compile for me since my test machine (for that
+matter quite a few of my machines) has a Buslogic SCSI:
 
-On Tue, 16 Apr 2002, Alan Cox wrote:
-> 
-> In which case can you do it so that virt_to_bus() being exposed requires
-> the user selects
-> 
-> CONFIG_UNPORTED_CRAP_WORKAROUNDS 
+init/main.c: In function `start_kernel':
+init/main.c:347: warning: implicit declaration of function `setup_per_cpu_areas'
+ide-proc.c: In function `create_proc_ide_drives':
+ide-proc.c:425: warning: unused variable `ent'
+BusLogic.c:32: #error Please convert me to Documentation/DMA-mapping.txt
+BusLogic.c: In function `BusLogic_QueueCommand':
+BusLogic.c:3406: structure has no member named `address'
+BusLogic.c: In function `BusLogic_BIOSDiskParameters':
+BusLogic.c:4132: warning: implicit declaration of function `scsi_bios_ptable'
+BusLogic.c:4132: warning: assignment makes pointer from integer without a cast
+make[3]: *** [BusLogic.o] Error 1
+make[2]: *** [first_rule] Error 2
+make[1]: *** [_subdir_scsi] Error 2
+make: *** [_dir_drivers] Error 2
 
-On by default on x86 ;)
-
-> or similar - so that we can find them, and that can't be selected on non
-> x86 ?
-
-Absolutely. The 2.5.8 headers right now expose the old virt_to_bus() 
-stuff, but only on x86.  Other architectures will error the same way 
-they've done since the bio stuff was updated.
-
-		Linus
-
+I spoke with Andy about a month ago, but his email address has 
+since gone bad. Is anyone working on the Buslogic and is
+there any time frame on when 2.5 might support it? I'm in
+no rush, I'd just like to play.

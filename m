@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267196AbRHRUeQ>; Sat, 18 Aug 2001 16:34:16 -0400
+	id <S267621AbRHRUhG>; Sat, 18 Aug 2001 16:37:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267520AbRHRUeG>; Sat, 18 Aug 2001 16:34:06 -0400
-Received: from mueller.uncooperative.org ([216.254.102.19]:34827 "EHLO
-	mueller.datastacks.com") by vger.kernel.org with ESMTP
-	id <S267196AbRHRUdw>; Sat, 18 Aug 2001 16:33:52 -0400
-Date: Sat, 18 Aug 2001 16:34:06 -0400
-From: Crutcher Dunnavant <crutcher@datastacks.com>
-To: linux-kernel@vger.kernel.org
-Cc: alan@redhat.com
-Subject: s/fs\/uni/fs\/ntfs\/uni/
-Message-ID: <20010818163406.D6893@mueller.datastacks.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org, alan@redhat.com
-In-Reply-To: <20010818163039.C6893@mueller.datastacks.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010818163039.C6893@mueller.datastacks.com>; from crutcher@datastacks.com on Sat, Aug 18, 2001 at 04:30:39PM -0400
+	id <S267852AbRHRUg5>; Sat, 18 Aug 2001 16:36:57 -0400
+Received: from pille1.addcom.de ([62.96.128.35]:8467 "HELO pille1.addcom.de")
+	by vger.kernel.org with SMTP id <S267621AbRHRUgq>;
+	Sat, 18 Aug 2001 16:36:46 -0400
+Date: Sat, 18 Aug 2001 22:29:04 +0200 (CEST)
+From: Frank Neuber <frank.neuber@gmx.de>
+To: Jussi Laako <jlaako@pp.htv.fi>
+cc: andre@linux-ide.org, linux-kernel@vger.kernel.org
+Subject: Re: BUGFIX: UDMA-SiS5513 chipset support
+In-Reply-To: <3B7EC60B.5BFFA6D8@pp.htv.fi>
+Message-ID: <Pine.LNX.3.96.1010818222443.5810A-100000@mars.private.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-++ 18/08/01 16:30 -0400 - Crutcher Dunnavant:
-> Subject pretty much says it all, fs/unistr.h uses min(),
-Subject pretty much says it all, fs/ntfs/unistr.h uses min(),
+On Sat, 18 Aug 2001, Jussi Laako wrote:
+> 
+> Same mobo here, with -ac kernel. I've never had any problems with any kernel
+> version (IBM/Maxtor/Seagate HDDs). So I'd suggest faulty HDD, not the
+> controller nor driver.
+With my old kernel linux-2.0.34 I had no problems with UDMA. Maybe you are
+right, my ATAPI-CD-Drive works with UDMA on 2.4.7.
 
-oopse. But the patch still holds.
+Thanks for your response
+ Frank
 
--- 
-Crutcher        <crutcher@datastacks.com>
-GCS d--- s+:>+:- a-- C++++$ UL++++$ L+++$>++++ !E PS+++ PE Y+ PGP+>++++
-    R-(+++) !tv(+++) b+(++++) G+ e>++++ h+>++ r* y+>*$
+--
+     _/_/_/_/ _//   _/ Frank Neuber
+    _/       _/_/  _/  frank.neuber@gmx.de (private)
+   _/_/_/   _/ _/ _/
+  _/       _/  _/_/    neuber@opensource-systemberatung.de
+ _/       _/    // http://www.opensource-systemberatung.de
+

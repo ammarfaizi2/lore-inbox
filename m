@@ -1,94 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266844AbTAFOpN>; Mon, 6 Jan 2003 09:45:13 -0500
+	id <S266763AbTAFOof>; Mon, 6 Jan 2003 09:44:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266868AbTAFOpN>; Mon, 6 Jan 2003 09:45:13 -0500
-Received: from f10.sea1.hotmail.com ([207.68.163.10]:28175 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S266844AbTAFOpJ>;
-	Mon, 6 Jan 2003 09:45:09 -0500
-X-Originating-IP: [196.44.34.77]
-From: "Dirk Bull" <dirkbull102@hotmail.com>
-To: doug@mcnaught.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: shmat problem
-Date: Mon, 06 Jan 2003 14:53:41 +0000
+	id <S266844AbTAFOof>; Mon, 6 Jan 2003 09:44:35 -0500
+Received: from ppp-217-133-219-133.dialup.tiscali.it ([217.133.219.133]:41088
+	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
+	id <S266763AbTAFOod>; Mon, 6 Jan 2003 09:44:33 -0500
+Date: Mon, 6 Jan 2003 15:46:01 +0100
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Set TIF_IRET in more places
+Message-ID: <20030106144601.GA2447@ldb>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Linux-Kernel ML <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F10zrLCCtgx8VUkRacU000005ae@hotmail.com>
-X-OriginalArrivalTime: 06 Jan 2003 14:53:41.0703 (UTC) FILETIME=[67428D70:01C2B593]
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="6TrnltStXW4iwmi0"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug, thanks for the reply. I've set SHM_RND in the call and used
-"__attribute__ ((aligned(4096)))" during the the declaration of variable 
-global01_
-(as shown below) such that it is aligned on a page boundary. I'm porting 
-code that was
-written for a Unix system to Linux and the example shown below is how the 
-code is
-implemented on Unix.
 
-The example included executed correctly on :
-mandrake - ? (Can't remember, but it was an old version)
+--6TrnltStXW4iwmi0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-but fails to work on:
-redhat - 2.2.14-5.0
-debian - 2.2.9
-mandrake - 2.4.19-16mdk
+This patch adds code to set TIF_IRET in sigsuspend and rt_sigsuspend
+(since they change registers to invoke signal handlers) and ptrace
+setregs.  This prevents clobbering of %ecx and %edx.
 
 
+diff --exclude-from=3D/home/ldb/src/exclude -urNdp --exclude=3D'speedtouch.=
+*' --exclude=3D'atmsar.*' linux-2.5.54/arch/i386/kernel/ptrace.c linux-2.5.=
+54-ldb/arch/i386/kernel/ptrace.c
+--- linux-2.5.54/arch/i386/kernel/ptrace.c	2003-01-02 04:21:29.000000000 +0=
+100
++++ linux-2.5.54-ldb/arch/i386/kernel/ptrace.c	2003-01-04 19:06:07.00000000=
+0 +0100
+@@ -74,6 +74,8 @@ static inline int put_stack_long(struct=20
+ static int putreg(struct task_struct *child,
+ 	unsigned long regno, unsigned long value)
+ {
++	set_tsk_thread_flag(child, TIF_IRET);
++
+ 	switch (regno >> 2) {
+ 		case FS:
+ 			if (value && (value & 3) !=3D 3)
+diff --exclude-from=3D/home/ldb/src/exclude -urNdp --exclude=3D'speedtouch.=
+*' --exclude=3D'atmsar.*' linux-2.5.54/arch/i386/kernel/signal.c linux-2.5.=
+54-ldb/arch/i386/kernel/signal.c
+--- linux-2.5.54/arch/i386/kernel/signal.c	2003-01-02 04:21:53.000000000 +0=
+100
++++ linux-2.5.54-ldb/arch/i386/kernel/signal.c	2003-01-04 19:06:07.00000000=
+0 +0100
+@@ -44,6 +44,7 @@ sys_sigsuspend(int history0, int history
+ 	spin_unlock_irq(&current->sig->siglock);
+=20
+ 	regs->eax =3D -EINTR;
++	set_thread_flag(TIF_IRET);
+ 	while (1) {
+ 		current->state =3D TASK_INTERRUPTIBLE;
+ 		schedule();
+@@ -73,6 +74,7 @@ sys_rt_sigsuspend(sigset_t *unewset, siz
+ 	spin_unlock_irq(&current->sig->siglock);
+=20
+ 	regs->eax =3D -EINTR;
++	set_thread_flag(TIF_IRET);=09
+ 	while (1) {
+ 		current->state =3D TASK_INTERRUPTIBLE;
+ 		schedule();
 
-We are currently working on mandrake - kernel 2.4.19-16mdk.
+--6TrnltStXW4iwmi0
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-Dirk
+iD8DBQE+GZaodjkty3ft5+cRAqsdAKDLzZ+YJbCK44Bk+B17dARR8UIMFQCeJRTv
+70Udo+UTLhNMPRpDSDpGFI8=
+=BD/T
+-----END PGP SIGNATURE-----
 
--------------------------------------------------------------------------------
-Example program:
--------------------------------------------------------------------------------
-
-#include <stdio.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
-#include <errno.h>
-
-#define SHM_MODE (SHM_R | SHM_W)
-
-union {
-	long IN[2048];
-} global01_ __attribute__ ((aligned(4096)));
-
-int main(void) {
-	int shmid;
-	char *shmptr;
-
-
-	if ( (shmid = shmget(IPC_PRIVATE, sizeof(global01_), SHM_MODE)) < 0){
-		printf("shmget error: %d %s\n",errno, strerror(errno));
-		exit(0);
-	}
-
-	if ( (shmptr = shmat(shmid, &global01_, SHM_RND)) == (void *) -1)
-		printf("shmat error: %d %s\n",errno, strerror(errno));
-	else
-		printf("shared memory attached from %x to %x\n",
-				shmptr, shmptr+sizeof(global01_));
-
-	if (shmctl(shmid, IPC_RMID, 0) < 0)
-		printf("shmctl error: %d %s\n",errno, strerror(errno));
-
-	exit(0);
-}
-
-
-
-
-
-
-
-
-
-_________________________________________________________________
-Protect your PC - get McAfee.com VirusScan Online 
-http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963
-
+--6TrnltStXW4iwmi0--

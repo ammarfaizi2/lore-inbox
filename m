@@ -1,89 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261745AbTCQPeX>; Mon, 17 Mar 2003 10:34:23 -0500
+	id <S261743AbTCQPiB>; Mon, 17 Mar 2003 10:38:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261746AbTCQPeX>; Mon, 17 Mar 2003 10:34:23 -0500
-Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:53153 "EHLO
-	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id <S261745AbTCQPeV>; Mon, 17 Mar 2003 10:34:21 -0500
-Message-Id: <200303171543.h2HFhFGi012501@locutus.cmf.nrl.navy.mil>
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: Andrew Morton <akpm@digeo.com>, davem@redhat.com,
-       linux-atm-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Linux-ATM-General] Re: 2.5.64-mm8: drivers/atm/idt77252.c doesn't compile 
-In-reply-to: Your message of "Sun, 16 Mar 2003 16:44:14 +0100."
-             <20030316154414.GB10253@fs.tum.de> 
-X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
-X-mailer: nmh 1.0
-Date: Mon, 17 Mar 2003 10:43:15 -0500
-From: chas williams <chas@locutus.cmf.nrl.navy.mil>
+	id <S261744AbTCQPiB>; Mon, 17 Mar 2003 10:38:01 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:14858 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S261743AbTCQPiA>; Mon, 17 Mar 2003 10:38:00 -0500
+Date: Mon, 17 Mar 2003 16:48:48 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Andries.Brouwer@cwi.nl
+cc: torvalds@transmeta.com, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix affs/super.c
+In-Reply-To: <UTC200303171509.h2HF95N15581.aeb@smtp.cwi.nl>
+Message-ID: <Pine.LNX.4.44.0303171647000.12110-100000@serv>
+References: <UTC200303171509.h2HF95N15581.aeb@smtp.cwi.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030316154414.GB10253@fs.tum.de>,Adrian Bunk writes:
-> tx_inuse was removed from struct atm_vcc in include/linux/atmdev.h but 
-> drivers/atm/idt77252.c still needs it:
+Hi,
 
-it doesnt need it -- it just needs to use the right member.  the following
-patch should fix the current errors.  i missed these bits during my
-earlier changes.
+On Mon, 17 Mar 2003 Andries.Brouwer@cwi.nl wrote:
 
+> Mounting a non-affs filesystem as affs crashes the kernel.
+> The reason is the
+> 	sbi = kmalloc(sizeof(struct affs_sb_info), GFP_KERNEL);
+> 	memset(sbi, 0, sizeof(*AFFS_SB));
+> where the second sizeof is 1, so that sbi is not zeroed at all.
 
-Index: linux/net/sched/sch_atm.c
-===================================================================
-RCS file: /home/chas/CVSROOT/linux/net/sched/sch_atm.c,v
-retrieving revision 1.1.1.1
-retrieving revision 1.2
-diff -u -r1.1.1.1 -r1.2
---- linux/net/sched/sch_atm.c	20 Feb 2003 13:46:33 -0000	1.1.1.1
-+++ linux/net/sched/sch_atm.c	11 Mar 2003 15:20:25 -0000	1.2
-@@ -508,7 +508,7 @@
- 			ATM_SKB(skb)->vcc = flow->vcc;
- 			memcpy(skb_push(skb,flow->hdr_len),flow->hdr,
- 			    flow->hdr_len);
--			atomic_add(skb->truesize,&flow->vcc->tx_inuse);
-+			atomic_add(skb->truesize,&flow->vcc->sk->wmem_alloc);
- 			ATM_SKB(skb)->iovcnt = 0;
- 			/* atm.atm_options are already set by atm_tc_enqueue */
- 			(void) flow->vcc->send(flow->vcc,skb);
-Index: linux/net/atm/pppoatm.c
-===================================================================
-RCS file: /home/chas/CVSROOT/linux/net/atm/pppoatm.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 pppoatm.c
---- linux/net/atm/pppoatm.c	20 Feb 2003 13:46:30 -0000	1.1.1.1
-+++ linux/net/atm/pppoatm.c	15 Mar 2003 14:35:27 -0000
-@@ -231,7 +231,7 @@
- 		kfree_skb(skb);
- 		return 1;
- 	}
--	atomic_add(skb->truesize, &ATM_SKB(skb)->vcc->tx_inuse);
-+	atomic_add(skb->truesize, &ATM_SKB(skb)->vcc->sk->wmem_alloc);
- 	ATM_SKB(skb)->iovcnt = 0;
- 	ATM_SKB(skb)->atm_options = ATM_SKB(skb)->vcc->atm_options;
- 	DPRINTK("(unit %d): atm_skb(%p)->vcc(%p)->dev(%p)\n",
-Index: linux/drivers/atm/idt77252.c
-===================================================================
-RCS file: /home/chas/CVSROOT/linux/drivers/atm/idt77252.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 idt77252.c
---- linux/drivers/atm/idt77252.c	20 Feb 2003 13:45:03 -0000	1.1.1.1
-+++ linux/drivers/atm/idt77252.c	16 Mar 2003 13:17:56 -0000
-@@ -730,7 +730,7 @@
- 		struct atm_vcc *vcc = vc->tx_vcc;
- 
- 		vc->estimator->cells += (skb->len + 47) / 48;
--		if (atomic_read(&vcc->tx_inuse) > (vcc->sk->sndbuf >> 1)) {
-+		if (atomic_read(&vcc->sk->wmem_alloc) > (vcc->sk->sndbuf >> 1)) {
- 			u32 cps = vc->estimator->maxcps;
- 
- 			vc->estimator->cps = cps;
-@@ -2025,7 +2025,7 @@
- 		atomic_inc(&vcc->stats->tx_err);
- 		return -ENOMEM;
- 	}
--	atomic_add(skb->truesize + ATM_PDU_OVHD, &vcc->tx_inuse);
-+	atomic_add(skb->truesize + ATM_PDU_OVHD, &vcc->sk->wmem_alloc);
- 	ATM_SKB(skb)->iovcnt = 0;
- 
- 	memcpy(skb_put(skb, 52), cell, 52);
+Thanks, I found this bug last weekend too. :)
+(But it hasn't left the m68k repository yet.)
+
+> The patch below also does a little random polishing nearby.
+
+Could you please keep this separate?
+
+bye, Roman
+

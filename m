@@ -1,48 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpOXEQNYstx/TT82GMSIUQHA9YA==
+thread-index: AcQVpGnVyHPBPIpuQlyXdGaibCBPoQ==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Mon, 05 Jan 2004 23:19:03 +0000
-Message-ID: <03fb01c415a4$e5c417f0$d100000a@sbs2003.local>
+Delivery-date: Sun, 04 Jan 2004 04:27:54 +0000
+Message-ID: <019d01c415a4$69d5b6d0$d100000a@sbs2003.local>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft CDO for Exchange 2000
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 29 Mar 2004 16:42:16 +0100
 Content-Class: urn:content-classes:message
 Importance: normal
 Priority: normal
+From: "Davide Libenzi" <davidel@xmailserver.org>
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-Date: Mon, 29 Mar 2004 16:45:44 +0100
-From: "Martin J. Bligh" <mbligh@aracnet.com>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
 To: <Administrator@smtp.paston.co.uk>
-Cc: <colpatch@us.ibm.com>, <linux-kernel@vger.kernel.org>,
-        "Andrew Morton" <akpm@digeo.com>
-Subject: Re: [TRIVIAL PATCH] Ensure pfn_to_nid() is always defined for i386
-In-Reply-To: <20040105225340.GB1882@matchmail.com>
-References: <3FE74984.3000602@us.ibm.com> <1814780000.1072139199@flay> <20040105225340.GB1882@matchmail.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+Cc: "Linus Torvalds" <torvalds@osdl.org>, "Andrew Morton" <akpm@osdl.org>,
+        <mingo@redhat.com>,
+        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/2] kthread_create 
+In-Reply-To: <20040104015037.AE9A62C0AB@lists.samba.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN;
+	charset="US-ASCII"
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:45:45.0593 (UTC) FILETIME=[E64E5690:01C415A4]
+X-OriginalArrivalTime: 29 Mar 2004 15:42:18.0390 (UTC) FILETIME=[6ACDAB60:01C415A4]
 
->> + * for now assume that 64Gb is max amount of RAM for whole system
->> + *    64Gb / 4096bytes/page = 16777216 pages
->> + */
->> +#define MAX_NR_PAGES 16777216
->> +#define MAX_ELEMENTS 256
->> +#define PAGES_PER_ELEMENT (MAX_NR_PAGES/MAX_ELEMENTS)
-> 
-> Why not do the calculation in the define, and use PAGE_SIZE?
-> 
-> If PAGE_SIZE isn't 4k will it break the rest of this code, or will the
-> calculations make sence with larger PAGE_SIZE?
-> 
-> Might as well make it easier to go in the direction of variable PAGE_SIZE
-> instead of keeping the assumption.
+On Sat, 3 Jan 2004, Rusty Russell wrote:
 
-The patch is just moving the code, not changing it ;-)
-But yes, that value could probably be derived instead of hardcoded.
-Separate patch though.
+> Still do.  It's *simple*, and I refuse to be ashamed of that.
+> 
+> My words were harsh, but I completely disagree with you.  I believe
+> you are wrong.  I would never have coded it the way you did.  I read
+> your code and I still think you are wrong, and find your code both
+> bloated and ugly.
 
-M.
+Bloated ? This is the diffstat of my "ashamed" patch over your bits :-)
+
+include/linux/init_task.h |    3 +
+include/linux/sched.h     |    8 ++++
+kernel/kthread.c          |   78 ++++++++++++++++------------------------------
+3 files changed, 39 insertions(+), 50 deletions(-)
+
+
+
+> Now, on something we do agree: I dislike the global structure myself.
+> By all means try changing the code to use a pipe between child and
+> parent for the initfn result.  But I've told you that I will not
+> submit any solution which adds to a generic structure for a specific
+> problem.
+> 
+> I'm very, very sorry this has gotten a little heated: I generally
+> enjoy our discussions.  But I don't think I should have to say "no"
+> four times.
+
+It's ok Rusty, I enjoy the discussion in any case :-) Since I told you in 
+a private email that I was convinced myself about adding stuff inside the 
+struct, you could have avoided the "ashamed" thing. But it's fine, a 
+little bit of sarcasm is the salt of life.
+
+
+
+
+- Davide
+
 

@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313711AbSHOGo7>; Thu, 15 Aug 2002 02:44:59 -0400
+	id <S313571AbSHOGtT>; Thu, 15 Aug 2002 02:49:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315472AbSHOGo7>; Thu, 15 Aug 2002 02:44:59 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:54931 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S313711AbSHOGo6>;
-	Thu, 15 Aug 2002 02:44:58 -0400
-Date: Thu, 15 Aug 2002 08:49:19 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] user-vm-unlock-2.5.31-A2
-In-Reply-To: <20020815050343.A27963@kushida.apsleyroad.org>
-Message-ID: <Pine.LNX.4.44.0208150846120.2197-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315472AbSHOGtT>; Thu, 15 Aug 2002 02:49:19 -0400
+Received: from dp.samba.org ([66.70.73.150]:61057 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S313571AbSHOGtT>;
+	Thu, 15 Aug 2002 02:49:19 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: davidm@hpl.hp.com, torvalds@transmeta.com, ak@suse.de
+Subject: Getting rid of irq_stat_t
+Date: Thu, 15 Aug 2002 16:52:52 +1000
+Message-Id: <20020815015340.52C2B2C24B@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-On Thu, 15 Aug 2002, Jamie Lokier wrote:
+	Doing per-cpu cleanups: everyone except ia64 and x86_64 use
+the generic irq_stat_t macros.  There are two obvious ways to go: one
+is to simply use per-cpu macros directly (nice and clean), the other
+is to rework the softirq_pending() etc macros (adding
+local_softirq_pending()) to use per-cpu everywhere except your two
+platforms, which means callers need to disable preemption explicitly
+(get_* and put* versions of the macros seems overkill).
 
-> Is this correct?  I would have expected this, given that stacks are
-> pre-decrement, and given that the value of `esp' is typically just after
-> the end of an mmaped region:
-> 
-> +		childregs->esp -= sizeof(0UL);
-> +		p->user_vm_lock = (long *) childregs->esp;
+	The motivation is that accessing irq_stat_t is one of the main
+reasons for smp_processor_id() etc.
 
-btw., i backported all the recent threading improvements to 2.4, and
-current pthreads sources already use the new APIs, which worked this
-CLONE_VM_RELEASE API uncleanliness around - but it's of course cleaner to
-have your fix in. In any case, all the new APIs are fully functional.
-
-	Ingo
-
+Thoughts?
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

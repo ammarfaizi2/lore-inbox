@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130271AbRBZOeg>; Mon, 26 Feb 2001 09:34:36 -0500
+	id <S130257AbRBZOef>; Mon, 26 Feb 2001 09:34:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130368AbRBZOcI>; Mon, 26 Feb 2001 09:32:08 -0500
+	id <S130412AbRBZOcd>; Mon, 26 Feb 2001 09:32:33 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:53191 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S130253AbRBZO3T>;
-	Mon, 26 Feb 2001 09:29:19 -0500
-Date: Mon, 26 Feb 2001 12:07:04 +0100
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Chris Mason <mason@suse.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        Nick Pasich <npasich@crash.cts.com>, reiserfs-list@namesys.com
-Subject: Re: [PATCH] Re: reiserfs: still problems with tail conversion
-Message-ID: <20010226120704.A12809@arthur.ubicom.tudelft.nl>
-In-Reply-To: <20010225183201.D866@arthur.ubicom.tudelft.nl> <1136530000.983155244@tiny>
-Mime-Version: 1.0
+	by vger.kernel.org with ESMTP id <S130260AbRBZO3i>;
+	Mon, 26 Feb 2001 09:29:38 -0500
+Message-ID: <3A9A30C7.3C62E34@colorfullife.com>
+Date: Mon, 26 Feb 2001 11:32:39 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1-ac15 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: pat@isis.co.za, linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com,
+        Alan@redhat.com
+Subject: Re: PROBLEM: Network hanging - Tulip driver with Netgear (Lite-On)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1136530000.983155244@tiny>; from mason@suse.com on Sun, Feb 25, 2001 at 09:40:44PM -0500
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 25, 2001 at 09:40:44PM -0500, Chris Mason wrote:
-> This patch should take care of the other cause for null bytes
-> in small files.  It has been through a few hours of testing,
-> with some of the usual load programs + Erik's code concurrently.
-> 
-> I'll let things run overnight to try and find more bugs.  The
-> patch is against 2.4.2, and does a few things:
-> 
-> don't dirty the direct->indirect target until all direct items
-> have been copied in.  Before it was dirtied for each direct item.
-> 
-> make the target up to date before dirtying (it was done after).
-> 
-> don't try to zero the unused part of the target until all bytes
-> have been copied.  This was the big bug, it was zeroing previously
-> copied bytes.
-> 
-> Any testing on non-production machines would be appreciated,
-> I'll forward to Linus/Alan once I've gotten more feedback.
+I think I found the bug:
 
-Yes, this did the trick, I can't repeat it anymore after a first run.
-I'll let my code run for a couple of times to stress the system, but at
-first glance the bug seems to be fixed.
+Someone (Jeff?) removed the line
 
+	tp->advertising[phy_idx++] = reg4;
 
-Thanks for your efforts,
-Erik
+from tulip/tulip_core.c
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+pnic_check_duplex uses that variable :-(
+
+There are 2 workarounds:
+
+* change pnic_check_duplex:
+s/tp->advertising[0]/tp->mii_advertise/g
+
+* remove the new mii_advertise variable and replace it with
+'tp->advertising[i]'.
+
+Jeff, is it really a good idea to have one global mii_advertise
+variable? If someone builds a card with multiple transceivers, then
+they'll probably support different medias.
+
+--
+	Manfred

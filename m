@@ -1,29 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271147AbRHTJ4k>; Mon, 20 Aug 2001 05:56:40 -0400
+	id <S271153AbRHTKDa>; Mon, 20 Aug 2001 06:03:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271151AbRHTJ4a>; Mon, 20 Aug 2001 05:56:30 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11526 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271147AbRHTJ4M>; Mon, 20 Aug 2001 05:56:12 -0400
-Subject: Re: VIA fix breaks BTTV overlay
-To: m.guntsche@epitel.at (Michael Guntsche)
-Date: Mon, 20 Aug 2001 10:59:12 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <NDBBJOKGIPCDBEEFHNFPEEMGCAAA.m.guntsche@epitel.at> from "Michael Guntsche" at Aug 20, 2001 07:23:55 AM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S271155AbRHTKDU>; Mon, 20 Aug 2001 06:03:20 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:59554 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S271153AbRHTKDG>;
+	Mon, 20 Aug 2001 06:03:06 -0400
+Date: Mon, 20 Aug 2001 06:03:20 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andreas Hartmann <andihartmann@freenet.de>
+cc: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.8-ac5 and earlier] fatal mount-problem
+In-Reply-To: <3B80DA50.49F43B10@athlon.maya.org>
+Message-ID: <Pine.GSO.4.21.0108200602010.1313-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Ylpw-0005hz-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I noticed following problem with recent kernels 2.4.[3-8]. If I use overlay
-> with my Brooktree card and the window has a certain size, the picture is
-> broken. After digging through the mailinglist archive I found a fix.
 
-use the -ac kernel tree. That problem has been fixed in -ac for ages. So far
-Linus hasn't taken the patch to sort it
+
+On Mon, 20 Aug 2001, Andreas Hartmann wrote:
+
+> Hello all,
+> 
+> 
+> If you mount a device like ide-cdrom with the scsi-emulation turned on
+> (as modules) and you do the same mount again on the same (not unmounted)
+> device, the mount-programm hangs up and never comes back. It doesn't
+> recognize, that the device is allready mounted.
+
+strace, please. -ac5 and 2.4.9 have the same code in fs/super.c, so
+I really wonder what the hell is happening...
 

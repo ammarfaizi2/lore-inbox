@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261940AbUCVMza (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 07:55:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbUCVMz3
+	id S261961AbUCVNOI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 08:14:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbUCVNOI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 07:55:29 -0500
-Received: from pr-117-210.ains.net.au ([202.147.117.210]:1476 "EHLO
-	mail.ocs.com.au") by vger.kernel.org with ESMTP id S261940AbUCVMz1
+	Mon, 22 Mar 2004 08:14:08 -0500
+Received: from mail.mellanox.co.il ([194.90.237.34]:30634 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S261961AbUCVNOG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 07:55:27 -0500
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Stepan Yakovenko <yakovenko@ngs.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: =?KOI8-R?Q?=E1_trouble_with_2=2E4=2E25_linux_kernel?= 
-In-reply-to: Your message of "Mon, 22 Mar 2004 18:38:21 +0600."
-             <405EDE3D.6050805@ngs.ru> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 22 Mar 2004 23:54:57 +1100
-Message-ID: <2784.1079960097@ocs3.ocs.com.au>
+	Mon, 22 Mar 2004 08:14:06 -0500
+Message-ID: <405EE706.2030004@mellanox.co.il>
+Date: Mon, 22 Mar 2004 15:15:50 +0200
+From: Eli Cohen <mlxk@mellanox.co.il>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: locking user space memory in kernel
+References: <405D7D2F.9050507@colorfullife.com> <52u10i2lx6.fsf@topspin.com>	<405DCDA1.3080008@colorfullife.com> <52ptb62hdt.fsf@topspin.com>
+In-Reply-To: <52ptb62hdt.fsf@topspin.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Mar 2004 18:38:21 +0600, 
-Stepan Yakovenko <yakovenko@ngs.ru> wrote:
->In file included from 
->/root/linux-2.4.25/include/linux/modversions.h:69,       
->/root/linux-2.4.25/include/linux/module.h:21,            
->ksyms.c:14:                                              
->/root/linux-2.4.25/include/linux/modules/dec_and_lock.ver:2: warning: 
->`atomic_dec_and_lock' redefined                                                          
+Roland Dreier wrote:
 
-You must 'make dep' after changing processor type in 2.4 kernels.  To
-be absolutely safe, move your .config to another directory, make
-mrproper, move .config back then make oldconfig dep.
-
+>I don't think copying all the registered memory on fork() is feasible,
+>because it's going to kill performance (especially since exec() is
+>likely to immediately follow the fork() in the child).  Also, there
+>may not be enough memory around to copy everything.
+>
+>  
+>
+Suppose a new vma flag is introduced, VM_NOCOW and an API to apply this 
+flag on a range of addreses, splitting or unifying vmas as necessary. A 
+driver which registers memory with hardware would call this function. 
+When fork takes place, the ptes of the parent belonging to such vmas 
+will not be changed to read only thus they will not undergo COW. The 
+kernel will copy the first and last pages of theses vmas to the child. 
+All the pages in between will be marked read only and will undergo COW 
+when written to. One problem would be that that child can read pages of 
+the parent after the parent modifies them but that could be avoided if 
+the address space of the child does not inherit the range of the moddle 
+pages. ???
+Eli

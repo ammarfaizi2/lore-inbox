@@ -1,53 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261569AbVAaI5v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbVAaJGE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261569AbVAaI5v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 03:57:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbVAaI5v
+	id S261635AbVAaJGE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 04:06:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbVAaJGD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 03:57:51 -0500
-Received: from styx.suse.cz ([82.119.242.94]:45728 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S261569AbVAaI5t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 03:57:49 -0500
-Date: Mon, 31 Jan 2005 10:01:26 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Roman Zippel <zippel@linux-m68k.org>, Andries Brouwer <aebr@win.tue.nl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Possible bug in keyboard.c (2.6.10)
-Message-ID: <20050131090126.GB27820@ucw.cz>
-References: <Pine.LNX.4.61.0501270318290.4545@82.117.197.34> <20050129045055.GS8859@parcelfarce.linux.theplanet.co.uk> <20050129112510.GB2268@ucw.cz> <200501291835.59597.dtor_core@ameritech.net>
+	Mon, 31 Jan 2005 04:06:03 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:4259 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261635AbVAaJF4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 04:05:56 -0500
+Subject: Re: 2.4.29, e100 and a WOL packet causes keventd going mad
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: sfeldma@pobox.com
+Cc: David =?ISO-8859-1?Q?H=E4rdeman?= <david@2gen.com>,
+       Michael Gernoth <simigern@stud.uni-erlangen.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+In-Reply-To: <1107152056.21273.56.camel@desktop.cunninghams>
+References: <20050130171849.GA3354@hardeman.nu>
+	 <1107143255.18167.428.camel@localhost.localdomain>
+	 <1107143905.21273.33.camel@desktop.cunninghams>
+	 <1107147615.18167.433.camel@localhost.localdomain>
+	 <1107152056.21273.56.camel@desktop.cunninghams>
+Content-Type: text/plain
+Message-Id: <1107162475.4234.26.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200501291835.59597.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Mon, 31 Jan 2005 20:08:03 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 29, 2005 at 06:35:59PM -0500, Dmitry Torokhov wrote:
-> On Saturday 29 January 2005 06:25, Vojtech Pavlik wrote:
-> > On Sat, Jan 29, 2005 at 04:50:55AM +0000, Al Viro wrote:
-> > 
-> > > > I'm very sorry about the locking, but the thing grew up in times of
-> > > > kernel 2.0, which didn't require any locking. There are a few possible
-> > > 
-> > > Incorrect.  You have blocking allocations in critical areas and they
-> > > required locking all way back.
-> > 
-> > Ok. I see a problem where input_register_device() calls input handler
-> > connect methods, which do kmalloc(). This would be bad even on 2.0.
-> > 
-> > Anything else? I believe the ->open()/->release() methods are still
-> > protected.
-> > 
+Hi again.
+
+Ignore that :> I realised later that there's only one badly named
+routine and my assumption that there was another called disable_.. was
+wrong :>
+
+Nigel
+
+On Mon, 2005-01-31 at 17:14, Nigel Cunningham wrote:
+> Hi.
 > 
-> evdev, tsdev, mousedev, joydev need to protect their client lists because
-> interrupt could try to deliver event to already deleted device (client)
-
-Oh, of course. The protection doesn't apply to the event routine.
-
+> On Mon, 2005-01-31 at 16:00, Scott Feldman wrote:
+> > On Sun, 2005-01-30 at 19:58, Nigel Cunningham wrote:
+> > > Do you also disable the WOL event when resuming?
+> > 
+> > Good catch.  How's this look?
+> 
+> I looked at it last week because I used it for an example of device
+> model drivers at the CELF conference. I got your intel address from the
+> top of the .c file, but IIRC it bounced. Providence :>
+> 
+> [...]
+> 
+> > @@ -2333,6 +2331,7 @@ static int e100_resume(struct pci_dev *p
+> >  	struct nic *nic = netdev_priv(netdev);
+> >  
+> >  	pci_set_power_state(pdev, PCI_D0);
+> > +	pci_enable_wake(pdev, PCI_D0, 0);
+> >  	pci_restore_state(pdev);
+> >  	e100_hw_init(nic);
+> 
+> Shouldn't this be disable_wake?
+> 
+> Regards,
+> 
+> Nigel
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Nigel Cunningham
+Software Engineer, Canberra, Australia
+http://www.cyclades.com
+
+Ph: +61 (2) 6292 8028      Mob: +61 (417) 100 574
+

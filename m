@@ -1,29 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267771AbTAMCL4>; Sun, 12 Jan 2003 21:11:56 -0500
+	id <S267764AbTAMCMi>; Sun, 12 Jan 2003 21:12:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267773AbTAMCL4>; Sun, 12 Jan 2003 21:11:56 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:61404 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S267771AbTAMCLz>;
-	Sun, 12 Jan 2003 21:11:55 -0500
-Date: Sun, 12 Jan 2003 21:20:39 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       NFS maillist <nfs@lists.sourceforge.net>
-Subject: Re: [PATCH] Secure user authentication for NFS using RPCSEC_GSS [0/6]
-Message-ID: <20030113022039.GF18756@gtf.org>
-References: <15906.1154.649765.791797@charged.uio.no> <20030113021951.GE18756@gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030113021951.GE18756@gtf.org>
-User-Agent: Mutt/1.3.28i
+	id <S267773AbTAMCMi>; Sun, 12 Jan 2003 21:12:38 -0500
+Received: from mta10.srv.hcvlny.cv.net ([167.206.5.45]:39823 "EHLO
+	mta10.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S267764AbTAMCMf>; Sun, 12 Jan 2003 21:12:35 -0500
+Date: Sun, 12 Jan 2003 21:19:28 -0500
+From: Rob Wilkens <robw@optonline.net>
+Subject: Re: any chance of 2.6.0-test*?
+In-reply-to: <20030113015116.GA3433@hobbes.itsari.int>
+To: Nuno Monteiro <nuno.monteiro@ptnix.com>
+Cc: linux-kernel@vger.kernel.org
+Reply-to: robw@optonline.net
+Message-id: <1042424368.3162.322.camel@RobsPC.RobertWilkens.com>
+Organization: Robert Wilkens
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com>
+ <1042400094.1208.26.camel@RobsPC.RobertWilkens.com>
+ <20030112211530.GP27709@mea-ext.zmailer.org>
+ <1042406849.3162.121.camel@RobsPC.RobertWilkens.com>
+ <20030112215949.GA2392@www.kroptech.com>
+ <1042410059.1208.150.camel@RobsPC.RobertWilkens.com>
+ <1850.4.64.197.173.1042420003.squirrel@www.osdl.org>
+ <1042420910.3162.277.camel@RobsPC.RobertWilkens.com>
+ <20030113015116.GA3433@hobbes.itsari.int>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 12, 2003 at 09:19:51PM -0500, Jeff Garzik wrote:
-> OTOH why not do all this authentication and stuff in userspace?
+On Sun, 2003-01-12 at 20:51, Nuno Monteiro wrote:
+> You dont realistically expect to learn how to program reading 
+> Documentation/CodingStyle, do you? CodingStyle merely serves as general 
 
-Please forgive me:  ENOCAFFEINE.  I re-read your mail...
+No, but I would expect rules of kernel coding to be in there.  For
+example, we were talking about using return mid-function.  I always
+considerred that perfectly OK.  Others were saying that's a no-no.  If
+it's a no-no, it should be documented.  That is, if it's a no-no.  That
+may be a situational thing though.
+
+> See things from this end -- when 99% of the people tell you you're wrong, 
+> consider the possibility you are _actually_ wrong, and not the other way 
+> around.
+
+99% of the people are running a microsoft based OS (It has 95% of the
+market in terms of sales, but factor in pirated copies and your figure
+will get close), of the 0.5% running linux, 0.025% of them are probably
+subscribed to this mailing list.  Of that, probably 5% read it
+regularly.  Now, of those 5% (of 0.25% of 0.5%), I'm probably getting
+5-10 people reacting negatively (the rest are neutral reactions or no
+reactions), and claiming to speak (in a rather -- shall we say --
+arrogant and self-important manor) for the list as a whole.  
+
+> Now, off to ~/.killfile you go.
+
+Yeah, yeah, should've done it before..
+
+-Rob
+
+p.s. Yes, all statistics are made up on the spot for comical purposes
+only and are only half-way intended to represent the real world.  p.p.s.
+given those percentages, 5-10 people may be a lot percentagewise, I
+don't know, I haven't done the math.
+

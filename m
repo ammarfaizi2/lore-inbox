@@ -1,40 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262097AbVCJWLg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263287AbVCJWRf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262097AbVCJWLg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 17:11:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262913AbVCJWDa
+	id S263287AbVCJWRf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 17:17:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262992AbVCJWOR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 17:03:30 -0500
-Received: from pimout1-ext.prodigy.net ([207.115.63.77]:2799 "EHLO
-	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S262806AbVCJVvU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 16:51:20 -0500
-Date: Thu, 10 Mar 2005 13:33:09 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.4.x --- early boot code references check_acpi_pci()
-Message-ID: <20050310213309.GA17298@taniwha.stupidest.org>
+	Thu, 10 Mar 2005 17:14:17 -0500
+Received: from waste.org ([216.27.176.166]:31648 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262806AbVCJWDg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 17:03:36 -0500
+Date: Thu, 10 Mar 2005 14:03:29 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] rol/ror type cleanup
+Message-ID: <20050310220329.GN3120@waste.org>
+References: <200503082005.j28K5lBp028415@hera.kernel.org> <Pine.LNX.4.62.0503101032500.9286@numbat.sonytel.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0503101032500.9286@numbat.sonytel.be>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For x86 (and friends) ACPI_BOOT=y (always) and this code wants to call
-check_acpi_pci().
+On Thu, Mar 10, 2005 at 10:33:29AM +0100, Geert Uytterhoeven wrote:
+> `unsigned int', while we're at it?
 
-Signed-off-by: Chris Wedgwood <cw@f00f.org>
+Minor type cleanup.
 
-===== arch/i386/kernel/earlyquirk.c 1.1 vs edited =====
---- 1.1/arch/i386/kernel/earlyquirk.c	2005-02-18 06:53:58 -08:00
-+++ edited/arch/i386/kernel/earlyquirk.c	2005-03-10 13:29:55 -08:00
-@@ -8,7 +8,7 @@
- #include <asm/pci-direct.h>
- #include <asm/acpi.h>
- 
--#ifdef CONFIG_ACPI
-+#ifdef CONFIG_ACPI_BOOT
- static int __init check_bridge(int vendor, int device) 
+Signed-off-by: Matt Mackall <mpm@selenic.com>
+
+Index: bk/include/linux/bitops.h
+===================================================================
+--- bk.orig/include/linux/bitops.h	2005-03-10 13:52:49.000000000 -0800
++++ bk/include/linux/bitops.h	2005-03-10 13:59:51.000000000 -0800
+@@ -140,7 +140,7 @@ static inline unsigned long hweight_long
+  * @word: value to rotate
+  * @shift: bits to roll
+  */
+-static inline __u32 rol32(__u32 word, int shift)
++static inline __u32 rol32(__u32 word, unsigned int shift)
  {
- 	/* According to Nvidia all timer overrides are bogus. Just ignore
+ 	return (word << shift) | (word >> (32 - shift));
+ }
+@@ -151,7 +151,7 @@ static inline __u32 rol32(__u32 word, in
+  * @word: value to rotate
+  * @shift: bits to roll
+  */
+-static inline __u32 ror32(__u32 word, int shift)
++static inline __u32 ror32(__u32 word, unsigned int shift)
+ {
+ 	return (word >> shift) | (word << (32 - shift));
+ }
+
+-- 
+Mathematics is the supreme nostalgia of our time.

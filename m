@@ -1,75 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313687AbSFIRWy>; Sun, 9 Jun 2002 13:22:54 -0400
+	id <S313698AbSFIRaB>; Sun, 9 Jun 2002 13:30:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313698AbSFIRWy>; Sun, 9 Jun 2002 13:22:54 -0400
-Received: from front1.mail.megapathdsl.net ([66.80.60.31]:15 "EHLO
-	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S313687AbSFIRWw>; Sun, 9 Jun 2002 13:22:52 -0400
-Message-ID: <3D038E60.7030105@megapathdsl.net>
-Date: Sun, 09 Jun 2002 10:20:32 -0700
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020606
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Skip Ford <skip.ford@verizon.net,LKML" 
-	<linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.21 -- emumpu401.c:309: parse error before "emu10k1_midi_init"
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S314077AbSFIRaA>; Sun, 9 Jun 2002 13:30:00 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:5391 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S313698AbSFIR37>; Sun, 9 Jun 2002 13:29:59 -0400
+Message-Id: <200206091729.g59HTnv08471@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+Cc: davej@suse.de, James.Bottomley@HansenPartnership.com
+Subject: [PATCH 2.5.21] i386 arch subdivision into machine types
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 09 Jun 2002 13:29:49 -0400
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Skip Ford wrote:
- >
- > I guess this file also needs init.h
- >
- >
- > --- linux/sound/pci/emu10k1/emumpu401.c~        Sun Jun  9 04:30:46 2002
- > +++ linux/sound/pci/emu10k1/emumpu401.c Sun Jun  9 04:31:51 2002
- > @@ -22,6 +22,7 @@
- >  #define __NO_VERSION__
- >  #include <sound/driver.h>
- >  #include <linux/time.h>
- > +#include <linux/init.h>
- >  #include <sound/core.h>
- >  #include <sound/emu10k1.h>
+This code rearranges the arch/i386 directory structure to allow for sliding 
+additional non-pc hardware in here in an easily separable (and thus easily 
+maintainable) fashion.  The idea is that all the code for the particular 
+problem hardware should be able to go in a separate directory with only 
+additional build options in config.in.
 
-After applying your patch, I get:
+The current patch really only pulls out the visws code from the core and 
+places it into a separate directory (sort of a simple example case).  It also 
+creates a generic directory (for standard x86 PCs) with all of the hooks 
+documented.
 
-   gcc -Wp,-MD,.emupcm.o.d -D__KERNEL__ -I/usr/src/linux/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
--march=athlon  -nostdinc -iwithprefix include -DMODULE 
--DKBUILD_BASENAME=emupcm   -c -o emupcm.o emupcm.c
-emupcm.c:964: parse error before "snd_emu10k1_pcm"
-emupcm.c:965: warning: return type defaults to `int'
-emupcm.c:1012: parse error before "snd_emu10k1_pcm_mic"
-emupcm.c:1013: warning: return type defaults to `int'
-emupcm.c:1115: parse error before "snd_emu10k1_pcm_efx"
-emupcm.c:1116: warning: return type defaults to `int'
-make[3]: *** [emupcm.o] Error 1
-make[3]: Leaving directory `/usr/src/linux/sound/pci/emu10k1'
+This code is a merger with the Patrick Mochel/Dave Jones setup and cpu split.  
+It also includes documentation for all of the created hooks inside arch/i386.
 
-CONFIG_SOUND=m
+The 165k diff file is at
 
-#
-# Advanced Linux Sound Architecture
-#
-CONFIG_SND=m
-CONFIG_SND_SEQUENCER=m
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=m
-CONFIG_SND_PCM_OSS=m
-CONFIG_SND_SEQUENCER_OSS=m
-CONFIG_SND_RTCTIMER=m
-CONFIG_SND_VERBOSE_PRINTK=y
-CONFIG_SND_DEBUG=y
-CONFIG_SND_DEBUG_MEMORY=y
-CONFIG_SND_DEBUG_DETECT=y
+http://www.hansenpartnership.com/voyager/files/arch-split-2.5.21.diff
 
-#
-# PCI devices
-#
-CONFIG_SND_EMU10K1=m
+There's also a bitkeeper repository with all this in at
+
+http://linux-voyager.bkbits.net/arch-split-2.5
+
+James Bottomley
+
+
 

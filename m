@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293052AbSB1Ei4>; Wed, 27 Feb 2002 23:38:56 -0500
+	id <S293164AbSB1FGf>; Thu, 28 Feb 2002 00:06:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293156AbSB1EhC>; Wed, 27 Feb 2002 23:37:02 -0500
-Received: from [65.169.83.229] ([65.169.83.229]:32137 "EHLO
-	hst000004380um.kincannon.olemiss.edu") by vger.kernel.org with ESMTP
-	id <S293135AbSB1Ef3>; Wed, 27 Feb 2002 23:35:29 -0500
-Date: Wed, 27 Feb 2002 22:34:41 -0600
-From: Benjamin Pharr <ben@benpharr.com>
-To: linux-kernel@vger.kernel.org
-Subject: .text problems in 2.5.6-pre1
-Message-ID: <20020228043441.GA32149@hst000004380um.kincannon.olemiss.edu>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="Nq2Wo0NMKNjxTN9z"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-Operating-System: Linux 2.4.19pre1
-X-PGP-ID: 0x6859792C
-X-PGP-Key: http://www.benpharr.com/public_key.asc
-X-PGP-Fingerprint: 7BF0 E432 3365 C1FC E0E3  0BE2 44E1 3E1E 6859 792C
+	id <S293169AbSB1FFc>; Thu, 28 Feb 2002 00:05:32 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:7434 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S293164AbSB1FEy>; Thu, 28 Feb 2002 00:04:54 -0500
+Date: Wed, 27 Feb 2002 20:51:44 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Tim Moore <timothymoore@bigfoot.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: disk transfer speed problem
+In-Reply-To: <3C7D90BC.394C1E2A@bigfoot.com>
+Message-ID: <Pine.LNX.4.10.10202272049180.22351-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Nq2Wo0NMKNjxTN9z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+What is more useful is the cat /proc/ide/ide0/config !!!
 
-I saw a couple of mentions in the changelog that the .text problem had
-been fixed in this version. However, I found this one while compiling:
+>From that I can tell you what is going on completely about the system.
 
+Oh and for those not reading this email, it is a side note on why the ide
+proc-pci interface had best be left alone and in tact. 
 
+Cheers,
 
---Nq2Wo0NMKNjxTN9z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename=error_log
-
-make[2]: Leaving directory `/usr/src/linux-2.5.6-pre1/arch/i386/lib'
-make[1]: Leaving directory `/usr/src/linux-2.5.6-pre1/arch/i386/lib'
-ld -m elf_i386 -T /usr/src/linux-2.5.6-pre1/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o init/do_mounts.o \
-	--start-group \
-	arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
-	/usr/src/linux-2.5.6-pre1/arch/i386/lib/lib.a /usr/src/linux-2.5.6-pre1/lib/lib.a /usr/src/linux-2.5.6-pre1/arch/i386/lib/lib.a \
-	 drivers/base/base.o drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/char/agp/agp.o drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/cdrom/driver.o sound/sound.o drivers/pci/driver.o drivers/pnp/pnp.o drivers/video/video.o drivers/usb/usbdrv.o \
-	net/network.o \
-	--end-group \
-	-o vmlinux
-drivers/char/drm/drm.o: In function `i810_dma_initialize':
-drivers/char/drm/drm.o(.text+0x1dc19): undefined reference to `virt_to_bus_not_defined_use_pci_map'
-make: *** [vmlinux] Error 1
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
 
 
---Nq2Wo0NMKNjxTN9z--
+On Wed, 27 Feb 2002, Tim Moore wrote:
+
+> >  #dmesg|grep UDMA
+> > hda: 14668290 sectors (7510 MB) w/418KiB Cache, CHS=913/255/63, UDMA(66)
+> > (this is the boot disk)
+> > 
+> > hdc: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=155061/16/63,
+> > UDMA(100
+> > hdd: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=155061/16/63,
+> > UDMA(100)
+> 
+> Please post dmesg, /proc/pci and chipset info from /proc/ide.  Also,
+> what is result from 'hdparm -tT /dev/hda'?
+> 
+> rgds,
+> tim.
+> --
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

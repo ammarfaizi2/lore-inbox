@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265247AbUFWKnn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265213AbUFWLLU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265247AbUFWKnn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 06:43:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265260AbUFWKnn
+	id S265213AbUFWLLU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 07:11:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265261AbUFWLLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 06:43:43 -0400
-Received: from zero.aec.at ([193.170.194.10]:7 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S265247AbUFWKnm (ORCPT
+	Wed, 23 Jun 2004 07:11:20 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:35516 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S265213AbUFWLLT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 06:43:42 -0400
-To: Steve Holland <sdh4_no_spammers_throwaway_acct@cornell.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: x86-64 general protection fault in ioremap_nocache() possibly 
-	related to memory beyond 4GB
-References: <2a4AK-6Ww-11@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Wed, 23 Jun 2004 12:43:37 +0200
-In-Reply-To: <2a4AK-6Ww-11@gated-at.bofh.it> (Steve Holland's message of
- "Wed, 23 Jun 2004 03:20:06 +0200")
-Message-ID: <m37jty4krq.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+	Wed, 23 Jun 2004 07:11:19 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] ppc32: Support for new Apple laptop models
+Date: Wed, 23 Jun 2004 07:10:15 -0400
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <1087934829.1832.3.camel@gaston> <200406221745.31553.jbarnes@engr.sgi.com> <1087940927.1854.43.camel@gaston>
+In-Reply-To: <1087940927.1854.43.camel@gaston>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406230710.15104.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Holland <sdh4_no_spammers_throwaway_acct@cornell.edu> writes:
+On Tuesday, June 22, 2004 5:48 pm, Benjamin Herrenschmidt wrote:
+> Can you check out in more details the OS X driver ? I think there
+> need to be some i2s tweaking when changing the format and/or the
+> frequency. Doing that right would allow to support 8 & 16 bits
+> properly at least.
 
-> I'm having a memory/io mapping related problem with the 2.6 kernel
-> (as shipped with Fedora Core 2, tested with kernel-2.6.5-1.358
-> and kernel-2.6.6-1.435).
+Sure, do you have an URL for that stuff?  I don't want to have to go through 
+any red tape to get access to the Darwin sources...
 
-Please try a 2.6.7 kernel.org kernel.
+> Also, don't leave the commented out line, especially with  the c++
+> style comments. If the chip can byteswap, make sure you have proper
+> code to do this, if not, leave can_byteswap to 0, or people will
+> experience all sorts of funny troubles ;)
 
-Also your oops messages don't contain registers for some reasons.
-Please post full oops messages next time.
+Sure.
 
--Andi 
-
+Jesse

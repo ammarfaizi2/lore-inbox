@@ -1,75 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261489AbTC3Qgn>; Sun, 30 Mar 2003 11:36:43 -0500
+	id <S261488AbTC3QaC>; Sun, 30 Mar 2003 11:30:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261490AbTC3Qgm>; Sun, 30 Mar 2003 11:36:42 -0500
-Received: from vsmtp2.tin.it ([212.216.176.222]:4817 "EHLO smtp2.cp.tin.it")
-	by vger.kernel.org with ESMTP id <S261489AbTC3Qgl>;
-	Sun, 30 Mar 2003 11:36:41 -0500
-Date: Sun, 30 Mar 2003 18:36:56 +0200
-From: Simone Piunno <pioppo@ferrara.linux.it>
-To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>
-Cc: davem@redhat.com, kuznet@ms2.inr.ac.ru, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org, usagi@linux-ipv6.org
-Subject: Re: [PATCH] IPv6: Don't assign a same IPv6 address on a same interface (is Re: IPv6 duplicate address bugfix)
-Message-ID: <20030330163656.GA18645@ferrara.linux.it>
-References: <20030330122705.GA18283@ferrara.linux.it> <20030330.220829.129728506.yoshfuji@linux-ipv6.org> <20030330.235809.70243437.yoshfuji@linux-ipv6.org>
+	id <S261489AbTC3QaC>; Sun, 30 Mar 2003 11:30:02 -0500
+Received: from main.gmane.org ([80.91.224.249]:18058 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S261488AbTC3QaB>;
+	Sun, 30 Mar 2003 11:30:01 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Nicholas Wourms <nwourms@myrealbox.com>
+Subject: Re: Update direct-rendering to current DRI CVS tree.
+Date: Sun, 30 Mar 2003 09:14:58 -0500
+Message-ID: <3E86FBE2.8080804@myrealbox.com>
+References: <200303300712.h2U7CVB32581@hera.kernel.org> <20030330114544.GB16060@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030330.235809.70243437.yoshfuji@linux-ipv6.org>
-User-Agent: Mutt/1.4i
-Organization: Ferrara LUG
-X-Operating-System: Linux 2.4.20-skas3
-X-Message: GnuPG/PGP5 are welcome
-X-Key-ID: 860314FC/C09E842C
-X-Key-FP: 9C15F0D3E3093593AC952C92A0CD52B4860314FC
-X-Key-URL: http://members.ferrara.linux.it/pioppo/mykey.asc
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Mozilla/5.0 (Windows; U; Win 9x 4.90; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
+Cc: dri-devel@lists.sourceforge.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 30, 2003 at 11:58:09PM +0900, YOSHIFUJI Hideaki wrote:
-
-> > And, patch does not seem optimal. I'd take a look at very soon.
+Dave Jones wrote:
+>  >  #if LINUX_VERSION_CODE <= KERNEL_VERSION(2,4,2)
+>  >  #define down_write down
+>  >  #define up_write up
 > 
-> Here's our patch based on our fix in August, 2001.
-> Question: should we use spin_lock_bh() instead of spin_lock()?
+> #if can go, like it did in other parts of the patch.
 
-Because everywhere else in the file {read,write}_lock_bh() is used 
-instead of {read,write}_lock(), so I'm assuming that _bh is required 
-but I really don't know why.
+What will replace it?  If you intend to keep the two 
+projects in sync and easy to update, I'm afraid that it will 
+call for putting all the later (>=2.4.16) #if's back, as 
+well as adding gaurds for the current 2.5-specific 
+scheduling/worqueue changes.  Unless, of course, the dri 
+maintainers are willing to make TRUNK incompatible with 
+linux-2.4...
 
-Anyway I have some critics over your patch: 
+Cheers,
+Nicholas
 
- - locking inside ipv6_add_addr() is simpler and more linear but
-   semantically wrong because you're unable to tell the user why his 
-   "ip addr add" failed.  E.g. you answer ENOBUFS instead of EEXIST.
 
- - your ipv6_chk_same_addr() does a useless check for (dev != NULL)
-
-   > +static
-   > +int ipv6_chk_same_addr(const struct in6_addr *addr, struct net_device *dev)
-   > +{
-   > +	struct inet6_ifaddr * ifp;
-   > +	u8 hash = ipv6_addr_hash(addr);
-   > +
-   > +	read_lock_bh(&addrconf_hash_lock);
-   > +	for(ifp = inet6_addr_lst[hash]; ifp; ifp=ifp->lst_next) {
-   > +		if (ipv6_addr_cmp(&ifp->addr, addr) == 0) {
-   > +			if (dev != NULL && ifp->idev->dev == dev)
-   >  				break;
-   >  		}
-
-   your never "break" if dev == NULL, so you could return 0 before
-   even acquiring the lock.
-
-Regards,
-  Simone
-
--- 
- Simone Piunno -- http://members.ferrara.linux.it/pioppo 
-.-------  Adde parvum parvo magnus acervus erit  -------.
- Ferrara Linux Users Group - http://www.ferrara.linux.it 
- Deep Space 6, IPv6 on Linux - http://www.deepspace6.net 
- GNU Mailman, Mailing List Manager - http://www.list.org 
-`-------------------------------------------------------'

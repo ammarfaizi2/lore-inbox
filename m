@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316855AbSFKGiK>; Tue, 11 Jun 2002 02:38:10 -0400
+	id <S316860AbSFKGnB>; Tue, 11 Jun 2002 02:43:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316857AbSFKGiJ>; Tue, 11 Jun 2002 02:38:09 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:21969 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S316855AbSFKGiH>;
-	Tue, 11 Jun 2002 02:38:07 -0400
-Date: Tue, 11 Jun 2002 08:34:47 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Chris Faherty <rallymonkey@bellsouth.net>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Logitech Mouseman Dual Optical defaults to 400cpi
-Message-ID: <20020611083447.A6592@ucw.cz>
-In-Reply-To: <20020608165243Z317422-22020+923@vger.kernel.org> <20020611045213.8B1FA59D354@kerberos.suse.cz> <20020611075643.C6425@ucw.cz> <20020611062940.8172959D354@kerberos.suse.cz>
+	id <S316861AbSFKGnA>; Tue, 11 Jun 2002 02:43:00 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:30658 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316860AbSFKGm7>;
+	Tue, 11 Jun 2002 02:42:59 -0400
+Date: Mon, 10 Jun 2002 23:38:50 -0700 (PDT)
+Message-Id: <20020610.233850.60926092.davem@redhat.com>
+To: oliver@neukum.name
+Cc: roland@topspin.com, wjhun@ayrnetworks.com, paulus@samba.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: PCI DMA to small buffers on cache-incoherent arch
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200206110823.52065.oliver@neukum.name>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 11, 2002 at 02:30:28AM -0400, Chris Faherty wrote:
+   From: Oliver Neukum <oliver@neukum.name>
+   Date: Tue, 11 Jun 2002 08:23:52 +0200
+   
+   That would mean doing things like memory allocations for one single
+   byte. Also it would affect things like the scsi layer (sense buffer in
+   the structure).
+   And it would be additional overhead for everybody for the benefit
+   of a small minority. An alignment macro could be turned into a nop
+   on some architectures.
 
-> On Tuesday 11 June 2002 01:56 am, Vojtech Pavlik wrote:
-> 
-> > Btw, for more frequent reporting it's enough to modify the irq interrupt
-> > rate in the HID driver, works for any mouse.
-> 
-> I want I want!  But I can't figure it out.  Can you give me an example of 
-> how I would change the irq interrupt rate so that my mouse reports at 200Hz 
-> in kernel 2.2.20?  Thanks.
-
-Change the last argument of
-
-FILL_INT_URB(hid->urbin, dev, pipe, hid->inbuf, 0, hid_irq_in, hid, endpoint->bInterval);
-
-to 5. The normal value is 10. And it's milliseconds per poll of the
-mouse. This may be made a quirk also.
-
--- 
-Vojtech Pavlik
-SuSE Labs
+The problem is people are going to get it wrong if we expose all of
+this cacheline crap to the drivers.

@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263995AbUEMPHY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263851AbUEMPIh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263995AbUEMPHY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 11:07:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbUEMPHX
+	id S263851AbUEMPIh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 11:08:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263831AbUEMPId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 11:07:23 -0400
-Received: from vsmtp1b.tin.it ([212.216.176.141]:11402 "EHLO vsmtp1.tin.it")
-	by vger.kernel.org with ESMTP id S263831AbUEMPGZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 11:06:25 -0400
-Message-ID: <40A38EEC.9070501@stanchina.net>
-Date: Thu, 13 May 2004 17:06:20 +0200
-From: Flavio Stanchina <flavio@stanchina.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
+	Thu, 13 May 2004 11:08:33 -0400
+Received: from mail-relay-1.tiscali.it ([212.123.84.91]:49370 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S263851AbUEMPHp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 11:07:45 -0400
+From: Lorenzo Allegrucci <l_allegrucci@despammed.com>
+Organization: -ENOENT
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.6-mm2
+Date: Thu, 13 May 2004 17:07:36 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <20040513032736.40651f8e.akpm@osdl.org>
+In-Reply-To: <20040513032736.40651f8e.akpm@osdl.org>
 MIME-Version: 1.0
-To: Pavel Roskin <proski@gnu.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Weird cold boot problems with Abit KT7 motherboard
-References: <Pine.LNX.4.58.0405121815120.2967@marabou.research.att.com>
-In-Reply-To: <Pine.LNX.4.58.0405121815120.2967@marabou.research.att.com>
-X-Enigmail-Version: 0.83.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200405131707.36807.l_allegrucci@despammed.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Roskin wrote:
-> I have noticed several anomalies with Abit KT7 motherboard. [...]
+On Thursday 13 May 2004 12:27, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6/2.6.6-m
+>m2/
 
-Your board is broken in some way. I have one right next to me at this 
-very moment and it's been running Linux and occasionally Windows XP 
-(only for games, of course) for years without a glitch. I don't remember 
-if I ever put my only 3c900 in it, but a couple of my 3c905s certainly 
-did and they never show problems.
-
-I also have a KT7A which has been my workstation for 3 years and it 
-never had any problems like the ones you're reporting, but that's 
-different enough to not count as an example.
+make[2]: *** No rule to make target `fs/xfs/support/qsort.s', needed by 
+`fs/xfs/support/qsort.o'.  Stop.
+make[1]: *** [fs/xfs] Error 2
+make: *** [fs] Error 2
 
 -- 
-Ciao, Flavio
-
+Lorenzo

@@ -1,41 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262731AbUC2H6q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 02:58:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262732AbUC2H6p
+	id S262733AbUC2IJr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 03:09:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262744AbUC2IJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 02:58:45 -0500
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:62981 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S262731AbUC2H6p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 02:58:45 -0500
-Subject: Re: 2.6.5-rc2-mm1 - swapoff dies with OOM, why?
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: John Stoffel <stoffel@lucent.com>
-Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <16487.35872.160526.477780@gargle.gargle.HOWL>
-References: <16487.35872.160526.477780@gargle.gargle.HOWL>
-Content-Type: text/plain
-Message-Id: <1080547117.1137.1.camel@teapot.felipe-alfaro.com>
+	Mon, 29 Mar 2004 03:09:47 -0500
+Received: from [196.25.168.8] ([196.25.168.8]:54756 "EHLO lbsd.net")
+	by vger.kernel.org with ESMTP id S262733AbUC2IJn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 03:09:43 -0500
+Date: Mon, 29 Mar 2004 10:09:36 +0200
+From: Nigel Kukard <nkukard@lbsd.net>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] DVD+-RW support for 2.6.x
+Message-ID: <20040329080936.GO19235@lbsd.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
-Date: Mon, 29 Mar 2004 09:58:37 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Sr6hGnsCY8KeifOY"
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-PHP-Key: http://www.lbsd.net/~nkukard/keys/gpg_public.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-03-29 at 04:38, John Stoffel wrote:
-> Hi all,
-> 
-> I've run into a strange situation here.  I was having *terrible*
-> performance while doing a complile of the 2.6.5-rc2-mm2 kernel on my
-> system (Debian completely bleeding edge, plus udev and hotplug) along
-> with dealing with a USB problem where if I removed my Cuzer USB
-> device, it would never get de-allocated properly and the system load
-> would start to hang.
 
-Are you using ext3? 2.6.5-rc2-mm1 has a memory leak that affects ext3
-code. Thus, after some uptime of disk intensive work, nearly all memory
-is wasted up. Please, upgrade to latest -mm tree (which ATM is
-2.6.5-rc2-mm4).
+--Sr6hGnsCY8KeifOY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+Hi,
+
+I've re-worked the DVD+-RW support for 2.6.x, all bugs should now be
+fixed.
+
+This patch applies cleanly...
+http://www.lbsd.net//downloads/kernel/linux-2.6.4_dvd+rw-rc2.patch.bz2
+
+This patch (support for DVD-RW) requires the packet writing patch to
+be applied first...
+http://www.lbsd.net//downloads/kernel/linux-2.6.4_dvd-rw-rc1.patch.bz2
+
+Packet writing patch can be found here...
+http://w1.894.telia.com/~u89404340/patches/packet/2.6/
+
+Updates to the DVD+-RW patches can be found at...
+http://www.lbsd.net//display.php?page=downloads
+
+
+Regards
+Nigel Kukard
+
+
+--Sr6hGnsCY8KeifOY
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFAZ9nAKoUGSidwLE4RAt4bAJ4rJeFAE4IeZsFkEq2L6MfFrGQ10ACfSHhv
+MEAQNBN0Cgw/DW/btZVc75s=
+=LV4N
+-----END PGP SIGNATURE-----
+
+--Sr6hGnsCY8KeifOY--

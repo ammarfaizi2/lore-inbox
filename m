@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267423AbUJVRZT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265207AbUJVRLw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267423AbUJVRZT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 13:25:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267306AbUJVRV3
+	id S265207AbUJVRLw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 13:11:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271452AbUJVRCZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 13:21:29 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:9704 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266578AbUJVROn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 13:14:43 -0400
-Date: Fri, 22 Oct 2004 13:14:27 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Shift key-related error codes up and insert ECANCELED
-Message-ID: <20041022171427.GN31909@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <20498.1098464262@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 22 Oct 2004 13:02:25 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:56586 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S271451AbUJVQ5P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 12:57:15 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: cijoml@volny.cz
+Subject: Re: Hibernation and time and dhcp
+Date: Fri, 22 Oct 2004 19:56:58 +0300
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <200410202045.24388.cijoml@volny.cz> <200410211531.50238.vda@port.imtp.ilyichevsk.odessa.ua> <200410220113.16593.cijoml@volny.cz>
+In-Reply-To: <200410220113.16593.cijoml@volny.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20498.1098464262@redhat.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200410221956.59112.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 22, 2004 at 05:57:42PM +0100, David Howells wrote:
+On Friday 22 October 2004 02:13, Michal Semler wrote:
+
+> > These should be handled in userspace. You can put together
+> > some simple shell script to do it with (hwclock or ntpdate) and [u]dhcp*
 > 
-> This patch shifts the key-related error codes up by one and inserts an
-> ECANCELED error code where not already defined. It seems that has been defined
-> in glibc without passing it back to the kernel:-/
+> Yes, it's possible, but many programs crashes when time is moved about hours 
+> or days. And till time they will be repaired, we should ask for time BIOS to 
+> have little time difference.
 
-Not sure what's the story behind ECANCELED not being in kernel headers,
-certainly it is something only userland needs ATM.
-It is a POSIX mandated errno code used in aio_* that glibc is using
-since 1998, so it would be really bad to break all apps using aio.
+Those programs are buggy.
+--
+vda
 
-The values you posted match exactly what glibc is using:
-
-libc/sysdeps/unix/sysv/sysv4/solaris2/bits/errno.h:# define ECANCELED   47      /* Operation canceled.  */
-libc/sysdeps/unix/sysv/aix/bits/errno.h:# define ECANCELED      117     /* Asynchronous i/o cancelled.  */
-libc/sysdeps/unix/sysv/linux/alpha/bits/errno.h:#  define ECANCELED     131
-libc/sysdeps/unix/sysv/linux/sparc/bits/errno.h:#  define ECANCELED     127
-libc/sysdeps/unix/sysv/linux/bits/errno.h:#  define ECANCELED   125
-libc/sysdeps/unix/sysv/linux/hppa/bits/errno.h:#  define ECANCELED      ECANCELLED
-libc/sysdeps/mach/hurd/bits/errno.h:#define     ECANCELED       _HURD_ERRNO (118)/* Operation canceled */
-
-just maybe asm-parisc/errno.h could have
-#define ECANCELED ECANCELLED
-added (ECANCELED is the POSIX mandated spelling, while asm-parisc/errno.h
-for some reason defines ECANCELLED).
-
-	Jakub

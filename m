@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262633AbVAPWbf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262631AbVAPWfR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262633AbVAPWbf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 17:31:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262642AbVAPWbe
+	id S262631AbVAPWfR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 17:35:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262630AbVAPWfR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 17:31:34 -0500
-Received: from [195.110.122.101] ([195.110.122.101]:34275 "EHLO
-	cadalboia.ferrara.linux.it") by vger.kernel.org with ESMTP
-	id S262647AbVAPW2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 17:28:06 -0500
-From: Simone Piunno <pioppo@ferrara.linux.it>
-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.10-mm2: it87 sensor driver stops CPU fan
-Date: Sun, 16 Jan 2005 23:32:10 +0100
-User-Agent: KMail/1.7.2
-Cc: "Greg KH" <greg@kroah.com>, "Jonas Munsin" <jmunsin@iki.fi>, djg@pdp8.net
-References: <g7Idbr9m.1105713630.9207120.khali@localhost> <200501151654.46412.pioppo@ferrara.linux.it> <20050115175545.743a39f9.khali@linux-fr.org>
-In-Reply-To: <20050115175545.743a39f9.khali@linux-fr.org>
-X-Key-URL: http://members.ferrara.linux.it/pioppo/mykey.asc
-X-Key-FP: 9C15F0D3E3093593AC952C92A0CD52B4860314FC
-X-Key-ID: 860314FC/C09E842C
-X-Message: GnuPG/PGP5 are welcome
+	Sun, 16 Jan 2005 17:35:17 -0500
+Received: from out004pub.verizon.net ([206.46.170.142]:56220 "EHLO
+	out004.verizon.net") by vger.kernel.org with ESMTP id S262638AbVAPWda
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 17:33:30 -0500
+Message-ID: <41EAEBB8.6040900@cwazy.co.uk>
+Date: Sun, 16 Jan 2005 17:33:28 -0500
+From: Jim Nelson <james4765@cwazy.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kernel-janitors@lists.osdl.org
+Subject: Re: [PATCH 0/13] remove cli()/sti() in drivers/char/*
+References: <20050116135223.30109.26479.55757@localhost.localdomain>	 <20050116130452.10fabe52.akpm@osdl.org> <1105908079.12201.6.camel@localhost.localdomain>
+In-Reply-To: <1105908079.12201.6.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501162332.14324.pioppo@ferrara.linux.it>
+X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [70.16.225.90] at Sun, 16 Jan 2005 16:33:29 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+> On Sul, 2005-01-16 at 21:04, Andrew Morton wrote:
+> 
+>>James Nelson <james4765@cwazy.co.uk> wrote:
+>>
+>>>This series of patches removes the last cli()/sti()/save_flags()/restore_flags()
+>>> function calls in drivers/char.
+>>
+>>I don't see much point in this, really.  Those cli() calls are a big fat
+>>sign saying "broken on smp" and they now generate compile-time warnings
+>>emphasising that.  These drivers still need to be fixed up - we may las
+>>well leave them as-is until someone gets onto doing that.
+> 
+> 
+> Please drop all the serial ones. I'm slowly working through the serial
+> drivers that are relevant to any kind of users and fixing them up or
+> importing fixes from vendor branches as appropriate.
+> 
+> Simple substitions don't work here, and in some cases even simple tty
+> device locks because many cards are chip level interfaces not port
+> level.
+> 
+> Alan
+> 
+>
 
-Hi,
-
-While we're at it, the fan speed sensor reports an absurd speed when the fan 
-is driven with very low but non-zero pwm values.  For example, driving it 
-with pwm=2 I get speeds over 50K rpms, while of course the fan is stopped 
-(almost?).  This could be just an hardware sensitivity problem in the sensor 
-chip, or a false measure triggered by fan vibration, but maybe you know 
-better.
-
-/Simone
-
--- 
-http://thisurlenablesemailtogetthroughoverzealousspamfilters.org
+Right.  Please disregard this set of patches - I think I'm done flogging this 
+directory for awhile :)

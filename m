@@ -1,83 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314543AbSDSEj7>; Fri, 19 Apr 2002 00:39:59 -0400
+	id <S314546AbSDSEpu>; Fri, 19 Apr 2002 00:45:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314546AbSDSEj7>; Fri, 19 Apr 2002 00:39:59 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:5129 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S314543AbSDSEj6> convert rfc822-to-8bit; Fri, 19 Apr 2002 00:39:58 -0400
-Date: Thu, 18 Apr 2002 21:39:00 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: =?ISO-8859-15?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>
+	id <S314549AbSDSEpt>; Fri, 19 Apr 2002 00:45:49 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:5012 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S314546AbSDSEps>;
+	Fri, 19 Apr 2002 00:45:48 -0400
+Date: Fri, 19 Apr 2002 00:45:41 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] ide-2.4.19-p7.all.convert.5.patch
-In-Reply-To: <3CBF996D.1070900@wanadoo.fr>
-Message-ID: <Pine.LNX.4.10.10204182123450.17538-100000@master.linux-ide.org>
+Subject: [PATCH] (1/6) alpha fixes
+Message-ID: <Pine.GSO.4.21.0204190037400.20383-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Contents:
+1)	bogus return value type for ->open() and ->release() on nfsd
+(generic, caught on alpha since there ssize_t != int)
 
-One caviate just found ... HPT372 is not ultra 133 friendly.
-At least the 1103:0004 rev5 which is the 366 device id.
+2)	missing defines/fields/includes for alpha (accumulated since 2.5.0)
 
-Currently the HPT37/HPT374 do not like Ultra133.
+3)	s/p_pptr/parent/, s/p_opptr/real_parent/ done for alpha
 
-So patch number 6 will come soon.
+4)	(dumb) default_idle() provided (alpha)
 
-Export the error handling to the local personality drivers as proper.
+5)	alpha/mm/init.c forgot to set max_pfn
 
-Will now begin adding in the MMIO trasition HOST interface for the future
-MMIO/ADMA/VirtualDMA (future is now) support of these devices.
+6)	fixed off-by-PAGE_OFFSET in populate_pmd() (alpha, again)
 
-It will generate its own nasty bug reports that will begin to expose the
-lack of error recovery paths back to the top layer FS.  
+	With that patchset the thing builds, boots and seems to be working
+(on AS200).
 
-Fix the error recovery to be handled local in the driver and then permit
-the goal of partial completions w/ fast/safe path IO's.
-
-Final add in TCQ that has been on hold since 2.3.99-pre6, but requires a
-working clean taskfile data-phase handler set to work proper.  The
-soft-driver junk will be added after adding the golden jewels of hardware
-driven TCQ so using any drive with the new ATA-Bridge support to be
-announced later will do it clean.  This is hardware PCI-ATA card is a TOE
-for TCQ.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-
-On Fri, 19 Apr 2002, [ISO-8859-15] François Cami wrote:
-
-> Andre Hedrick wrote:
-> > http://www.linuxdiskcert.org/ide-2.4.19-p7.all.convert.5.patch.bz2
-> > 
-> > This now has clean taskfile io tested on two archs.
-> > 
-> > Both PowerMac UP and x86 all appear stable with taskfile io enabled.
-> > PPC well generate a random missed interrupt in mult-mode pio on a sync
-> > call but it never misses a beat or hangs.
-> > 
-> > Feed back from a few people have stated Sparc ?? amnd PPC64 appear stable.
-> > 
-> > IA-64 is the only know broken arch.  Since returning the heater^WItanic^box 
-> > testing various hardware there is not practical.
-> > 
-> > Cheers and Complain if it does not work.
-> 
-> Testing begins immediately on 3 different comps (x86) with
-> different IDE controllers and hard drives.
-> 
-> > Andre Hedrick
-> > LAD Storage Consulting Group
-> 
-> I'll report any bugs / unusual behaviour.
-> 
-> François Cami
-> 
-> 
+diff -urN C8/fs/nfsd/nfsctl.c C8-nfsctl/fs/nfsd/nfsctl.c
+--- C8/fs/nfsd/nfsctl.c	Sun Apr 14 17:53:09 2002
++++ C8-nfsctl/fs/nfsd/nfsctl.c	Thu Apr 18 23:21:29 2002
+@@ -98,13 +98,13 @@
+ 	return size;
+ }
+ 
+-static ssize_t TA_open(struct inode *inode, struct file *file)
++static int TA_open(struct inode *inode, struct file *file)
+ {
+ 	file->private_data = NULL;
+ 	return 0;
+ }
+ 
+-static ssize_t TA_release(struct inode *inode, struct file *file)
++static int TA_release(struct inode *inode, struct file *file)
+ {
+ 	void *p = file->private_data;
+ 	file->private_data = NULL;
 

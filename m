@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288277AbSATLWe>; Sun, 20 Jan 2002 06:22:34 -0500
+	id <S288245AbSATLZO>; Sun, 20 Jan 2002 06:25:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288245AbSATLW1>; Sun, 20 Jan 2002 06:22:27 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:58382 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S288277AbSATLWO>; Sun, 20 Jan 2002 06:22:14 -0500
-Message-ID: <3C4AA77E.1090408@namesys.com>
-Date: Sun, 20 Jan 2002 14:18:22 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
+	id <S288283AbSATLY6>; Sun, 20 Jan 2002 06:24:58 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:47024 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S288245AbSATLYi>;
+	Sun, 20 Jan 2002 06:24:38 -0500
+Date: Sun, 20 Jan 2002 14:22:04 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [sched] [patch] uninline-wakeup-2.5.3-pre2-A0
+Message-ID: <Pine.LNX.4.33.0201201419410.7972-200000@localhost.localdomain>
 MIME-Version: 1.0
-To: refuse7@poczta.fm, linux-kernel@vger.kernel.org
-Subject: Re: reiserFS undeletion
-In-Reply-To: <20020119121610.DD9D02B5D9@pa160.grajewo.sdi.tpnet.pl> <20020119172934.4240F2B5D9@pa160.grajewo.sdi.tpnet.pl> <001301c1a11a$79884580$0201a8c0@HOMER> <20020119224504.6470F2BB61@pa160.grajewo.sdi.tpnet.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-797276765-1011532924=:7972"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gniazdowski wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
->19 Jan 2002 19:52, Martin Eriksson wrote:
->
->>>19 Jan 2002 17:41, Hans Reiser wrote:
->>>
->>>>we only log metadata.
->>>>
->>>I know. Butt if i delete some file, it dosnt mean i set zero on sectors
->>>on disk. So imvho all is needet is meta data.
->>>
->>Yes, but (not butt =) if you have done some other file operations after the
->>delete, your deleted file might have been overwritten by another file.
->>Especially if you have little free space on your hard disk.
->>
->
->Yep but ( ;)  80% situations is like "ups i deleted it" and undeletion 
->operation is taken straight after that. So it would be nice to have it... 
->Just a sugestion...
->
->Regards Gniazdowski.
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
-yes, it would be nice, and patches to create a /..graves (notice the 
-copyright avoidance naming scheme, and the opportunity for the gui guys 
-to have some fun) will be accepted by me (though whether they will get 
-past Linus I don't know, I think he prefers that libc do it, so I 
-suggest making it a patch to libc.)
-
-Hans
+--8323328-797276765-1011532924=:7972
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
 
+the attached patch removes the inlining of wake_up_process within
+kernel/sched.c - the only user is sched_init() which clearly does not need
+the inlining. This saves a few bytes.
+
+	Ingo
+
+--8323328-797276765-1011532924=:7972
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="uninline-wakeup-2.5.3-pre2-A0"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0201201422040.7972@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename="uninline-wakeup-2.5.3-pre2-A0"
+
+LS0tIGxpbnV4L2tlcm5lbC9zY2hlZC5jLm9yaWcJU3VuIEphbiAyMCAxMToz
+NzoyMSAyMDAyDQorKysgbGludXgva2VybmVsL3NjaGVkLmMJU3VuIEphbiAy
+MCAxMTozODozOCAyMDAyDQpAQCAtMjMyLDcgKzIzMiw3IEBADQogCXJldHVy
+biBzdWNjZXNzOw0KIH0NCiANCi1pbmxpbmUgaW50IHdha2VfdXBfcHJvY2Vz
+cyh0YXNrX3QgKiBwKQ0KK2ludCB3YWtlX3VwX3Byb2Nlc3ModGFza190ICog
+cCkNCiB7DQogCXJldHVybiB0cnlfdG9fd2FrZV91cChwLCAwKTsNCiB9DQo=
+--8323328-797276765-1011532924=:7972--

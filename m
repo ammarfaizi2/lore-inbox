@@ -1,89 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265331AbUFTO2N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265494AbUFTOeo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265331AbUFTO2N (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 10:28:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265494AbUFTO2N
+	id S265494AbUFTOeo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 10:34:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265541AbUFTOeo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 10:28:13 -0400
-Received: from mailout.despammed.com ([65.112.71.29]:26535 "EHLO
-	mailout.despammed.com") by vger.kernel.org with ESMTP
-	id S265331AbUFTO2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 10:28:06 -0400
-Date: Sun, 20 Jun 2004 09:14:35 -0500 (CDT)
-Message-Id: <200406201414.i5KEEZk18928@mailout.despammed.com>
-From: alftanner@despammed.com
+	Sun, 20 Jun 2004 10:34:44 -0400
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:39081 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S265494AbUFTOem (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 10:34:42 -0400
+From: Hans-Frieder Vogt <hfvogt@arcor.de>
+Reply-To: hfvogt@arcor.de
 To: linux-kernel@vger.kernel.org
-Subject: Please help for SiS 180 parallel ata
-X-Mailer: despammed.com
+Subject: Re: linux-2.6.7-bk2 runs faster than linux-2.6.7 ;)
+Date: Sun, 20 Jun 2004 16:36:13 +0200
+User-Agent: KMail/1.6.1
+Cc: len.brown@intel.com
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406201636.13058.hfvogt@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
+Hi List,
 
-I own a brand new mb for my AMD3200+, Jetway S755max
-with a Sis chipset 755, southbridge 963 + Sis 180.
+I traced the current double-speed issue for 2.6.7-bk2 on x86-64 back to an 
+ACPI-change in mpparse.c. The small attached patch solved the issue at least 
+on my MSI K8T Neo (Athlon 64 3200+) system.
 
-I would like to use my Pioneer dvd recorder on the
-third parallel ide, controlled by the sis 180 chipset.
-I am running fedora core 1, with
-kernel-2.4.22-1.2188.nptl.
-I have tried this patch for kernel 2.4.25
+--- linux-2.6.7-bk2.orig/arch/x86_64/kernel/mpparse.c	2004-06-19 
+17:17:15.824315000 +0200
++++ linux-2.6.7-bk2/arch/x86_64/kernel/mpparse.c	2004-06-20 16:02:34.974446912 
++0200
+@@ -861,7 +861,7 @@
+ 
+ 		for (idx = 0; idx < mp_irq_entries; idx++)
+ 			if (mp_irqs[idx].mpc_srcbus == MP_ISA_BUS &&
+-				(mp_irqs[idx].mpc_dstapic == ioapic) &&
++				(mp_irqs[idx].mpc_dstapic == intsrc.mpc_dstapic) &&
+ 				(mp_irqs[idx].mpc_srcbusirq == i ||
+ 				mp_irqs[idx].mpc_dstirq == i))
+ 					break;
 
-2.4.25-libata16.patch.bz2 
-found at:
-http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/old/
-
-and enabled sata_sis.c, compiling it directly in the
-kernel (not as module).
-
-Unfortunately it is not detected at boot time. The
-lspci -vv output gives:
-00:0c.0 RAID bus controller: Silicon Integrated
-Systems [SiS]: Unknown device 0180 (prog-if 85)
-        Subsystem: Silicon Integrated Systems [SiS]:
-Unknown device 0180
-        Control: I/O+ Mem+ BusMaster+ SpecCycle-
-MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz+ UDF- FastB2B- ParErr-
-DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 128
-        Interrupt: pin A routed to IRQ 12
-        Region 0: I/O ports at d400 [size=8]
-        Region 1: I/O ports at d800 [size=4]
-        Region 2: I/O ports at dc00 [size=8]
-        Region 3: I/O ports at e000 [size=4]
-        Region 4: I/O ports at e400 [size=16]
-        Region 5: I/O ports at <unassigned>
-        Expansion ROM at <unassigned> [disabled]
-[size=64K]
-
-
-I have installed the SiS driver and xp is happy with
-the dvd recorder. It is correctly detected by the
-bios.
-
-Afterwards, I tried to compile sata_sis as a module.
-
-The parallel Pioneer is still not recognised:
-
-When I modprobe sata_sis I obtain:
-
-libata version 1.02 loaded.
-ata1: SATA max UDMA/133 cmd 0xD400 ctl 0xD802 bmdma
-0xE400 irq 12
-ata2: SATA max UDMA/133 cmd 0xDC00 ctl 0xE002 bmdma
-0xE408 irq 12
-ata1: no device found (phy stat 41b7c0c6)
-ata1: thread exiting
-i8253 count too high! resetting..
-ata2: no device found (phy stat 00ff078b)
-ata2: thread exiting
-scsi1 : sata_sis
-scsi2 : sata_sis
-i8253 count too high! resetting..
-
-Does it mean that Sis 180 works only with sata, not
-with its parallel port?
-
-Thanks
-
+-- 
+--
+Hans-Frieder Vogt                 e-mail: hfvogt (at) arcor (dot) de

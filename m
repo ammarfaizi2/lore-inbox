@@ -1,110 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313477AbSF3Vs4>; Sun, 30 Jun 2002 17:48:56 -0400
+	id <S313202AbSF3WEv>; Sun, 30 Jun 2002 18:04:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313687AbSF3Vs4>; Sun, 30 Jun 2002 17:48:56 -0400
-Received: from 16.Red-80-32-164.pooles.rima-tde.net ([80.32.164.16]:14464 "EHLO
-	blitzkrieg.battleship") by vger.kernel.org with ESMTP
-	id <S313477AbSF3Vsz>; Sun, 30 Jun 2002 17:48:55 -0400
-Date: Sun, 30 Jun 2002 23:51:10 +0200
-From: "Guillermo S. Romero" <gsromero@alumnos.euitt.upm.es>
-To: marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-Subject: Patch for ISO 9660 in 2.4.18 [~janitor]
-Message-ID: <20020630235109.A18275@blitzkrieg.battleship>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S313687AbSF3WEu>; Sun, 30 Jun 2002 18:04:50 -0400
+Received: from [64.246.18.23] ([64.246.18.23]:40083 "EHLO ensim.2hosting.net")
+	by vger.kernel.org with ESMTP id <S313202AbSF3WEt>;
+	Sun, 30 Jun 2002 18:04:49 -0400
+Reply-To: <steve@tuxsoft.com>
+From: "Stephen Lee" <steve@tuxsoft.com>
+To: "'Ken Witherow'" <ken@krwtech.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Tyan 2460/Dual Athlon MP hangs
+Date: Sun, 30 Jun 2002 17:09:16 -0500
+Message-ID: <000601c22082$cd14b980$1401a8c0@saturn>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+In-Reply-To: <Pine.LNX.4.44.0206301524330.340-100000@death>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi:
+Ken,
+	Try a different video card.  My Dual Athlon system (A7M266-D)
+works like a charm with my GeForce 2 MX-400 but if I swap it with my
+GeForce 3 Ti500 the system will completely shutdown at some point
+(guaranteed).  This happens with the system idle or while under a load.
 
-I discovered that the Linux ISO 9660 implementation had still some
-problems with the bad multi volume specification afair (lots of
-IGNORE_WRONG_MULTI_VOLUME_SPECS in the code). It has been bitting me
-for some time, cos I use what the spec calls volume set to group CDs,
-so programs can determine the relation by just looking at the header
-of the CDs (in the spec a CD is a volume, see 4.17, they do not use
-volume as in hard disk drives, nor they make any strong tie about
-volume sets, other than the header and that data must form a group,
-like 1 of X to X of X floppies).
+Steve
 
-The patch adds the links to the documentation I have used, ECMA 119
-2nd edition (which is described as what later was named ISO 9660) and
-what looks like a copy of the ISO doc in HTML. I think there should be
-no problem at all with this part.
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Ken Witherow
+Sent: Sunday, June 30, 2002 2:34 PM
+To: Jakob Oestergaard
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Tyan 2460/Dual Athlon MP hangs
 
-The code part is easy too, I just put the test that is wrong inside a
-IGNORE_WRONG_MULTI_VOLUME_SPECS, like the rest of tests that check for
-similar things. I have been using this solution since February, and it
-works, cos the ID data in the header is just that, info in case a
-program or person wants to look at it instead of at the imprint in the
-top side of the CD (pretty useful for robots, they can read CDs but
-not view them). A similar patch was in RedHat by my request, but I
-think it is time to make the patch for everyone.
+On Sun, 30 Jun 2002, Jakob Oestergaard wrote:
 
-I think this file needs a cleanup, it gave me headaches when trying to
-understand what was going, making me doubt if I was reading the
-specification wrong or the file was wrong. The best cleanup I can
-think is removing all the IGNORE_WRONG_MULTI_VOLUME_SPECS and put the
-comments up to date with the code (sometimes they contradict code or
-just do things without clear base), specially following the ECMA
-documentation avaliable, but I think there must be first this simple
-patch, then if people is interested, a total review of the file.
+> On Sun, Jun 30, 2002 at 02:55:18PM -0400, Ken Witherow wrote:
+> > [1.] One line summary of the problem:
+> > Random hangs occur on dual athlon system
+>
+> The 2460 systems (and many other dual athlon systems) are very
+sensitive
+> to temperature.
 
-The patch:
+seems to happen regardless of temperature. In fact, it most frequenly
+happens under no load. After doing some compiling, the current
+temperatures read CPU0: 131F/55C, CPU1: 136F/58C, MB: 122F/50C. At idle,
+they're normally in the 114/45, 120/48, 110/43 range respectively.
+Currenly at about 70 minutes of uptime with the longest being about 36
+hours.
 
----8<---
-diff -ur linux-2.4.18-orig/Documentation/filesystems/isofs.txt linux/Documentation/filesystems/isofs.txt
---- linux-2.4.18-orig/Documentation/filesystems/isofs.txt	Wed May 26 19:01:43 1999
-+++ linux/Documentation/filesystems/isofs.txt	Sun Jun 30 22:15:10 2002
-@@ -29,3 +29,10 @@
-   unhide        Show hidden files.
-   session=x     Select number of session on multisession CD
-   sbsector=xxx  Session begins from sector xxx
-+
-+Recommended documents about ISO 9660 standard are located at:
-+http://www.y-adagio.com/public/standards/iso_cdromr/tocont.htm
-+ftp://ftp.ecma.ch/ecma-st/Ecma-119.pdf
-+Quoting from the PDF "This 2nd Edition of Standard ECMA-119 is technically 
-+identical with ISO 9660.", so it is a valid and gratis substitute of the
-+official ISO specification.
-diff -ur linux-2.4.18-orig/fs/isofs/inode.c linux/fs/isofs/inode.c
---- linux-2.4.18-orig/fs/isofs/inode.c	Mon Feb 25 20:38:08 2002
-+++ linux/fs/isofs/inode.c	Sun Jun 30 22:25:33 2002
-@@ -1283,6 +1283,15 @@
- 	/* get the volume sequence number */
- 	volume_seq_no = isonum_723 (de->volume_sequence_number) ;
- 
-+    /*
-+     * Multi volume means tagging a group of CDs with info in their headers.
-+     * All CDs of a group must share the same vol set name and vol set size
-+     * and have different vol set seq num. Deciding that data is wrong based
-+     * in that three fields is wrong. The fields are informative, for
-+     * cataloging purposes in a big jukebox, ie. Read sections 4.17, 4.18, 6.6
-+     * of ftp://ftp.ecma.ch/ecma-st/Ecma-119.pdf (ECMA 119 2nd Ed = ISO 9660)
-+     */
-+#ifndef IGNORE_WRONG_MULTI_VOLUME_SPECS
- 	/*
- 	 * Disable checking if we see any volume number other than 0 or 1.
- 	 * We could use the cruft option, but that has multiple purposes, one
-@@ -1296,6 +1305,7 @@
- 		       "Enabling \"cruft\" mount option.\n", volume_seq_no);
- 		inode->i_sb->u.isofs_sb.s_cruft = 'y';
- 	}
-+#endif /*IGNORE_WRONG_MULTI_VOLUME_SPECS */
- 
- 	/* Install the inode operations vector */
- #ifndef IGNORE_WRONG_MULTI_VOLUME_SPECS
---->8---
+> > [2.] Full description of the problem/report:
+> > Sometimes the system hangs during boot, sometimes at the console and
+> > other times while I'm in X. Happens whether or not I use the
+mem=nopentium
+> > and noapic options. Frequently, I can't catch the OOPS because I'm
+in X
+> > and everything freezes.
+>
+> Can it happen during boot, if you let the system cool down for an hour
+> before powering it on ?
 
-I hope you like it. Interested in the clean up? Any comments?
-Questions? The bug is not listed in kernel janitor tasks, but they
-helped me about what to do with the patch.
+I'll have to try letting it cool the next time it happens to see if that
+is indeed the cause.
 
-[Note: I am not subscribed to lkml, so remember to send a copy
-directly to me too]
+> Also be sure that the PSU is big enough.
 
-GSR
- 
+PSU is an Antec PP-412X 400 watt.
+
+-- 
+ Ken Witherow <phantoml AT rochester.rr.com> ICQ: 21840670
+         KRW Technologies http://www.krwtech.com
+    Linux 2.4.18 - because I'd like to get there today
+to remain free, we must remain free of intrusive government
+
+
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+

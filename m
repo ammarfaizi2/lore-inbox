@@ -1,43 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261402AbSJHWJs>; Tue, 8 Oct 2002 18:09:48 -0400
+	id <S261696AbSJHWZa>; Tue, 8 Oct 2002 18:25:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261321AbSJHWJs>; Tue, 8 Oct 2002 18:09:48 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:50168 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S261402AbSJHWJq>; Tue, 8 Oct 2002 18:09:46 -0400
-X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20021008.150444.118305428.davem@redhat.com> 
-References: <20021008.150444.118305428.davem@redhat.com>  <200210060846.g968klWf000632@pool-141-150-241-241.delv.east.verizon.net> <3D9FFD21.8040404@pobox.com> <8973.1034111628@passion.cambridge.redhat.com> 
-To: "David S. Miller" <davem@redhat.com>
-Cc: skip.ford@verizon.net, jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: New BK License Problem? 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 08 Oct 2002 23:15:20 +0100
-Message-ID: <18079.1034115320@passion.cambridge.redhat.com>
+	id <S261571AbSJHWYO>; Tue, 8 Oct 2002 18:24:14 -0400
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:40472 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S261675AbSJHWXt>;
+	Tue, 8 Oct 2002 18:23:49 -0400
+From: <Hell.Surfers@cwctv.net>
+To: gmack@innerfire.net, jw@pegasys.ws, linux-kernel@vger.kernel.org
+Date: Tue, 8 Oct 2002 23:28:29 +0100
+Subject: RE:Re: The end of embedded Linux?
+MIME-Version: 1.0
+X-Mailer: Liberate TVMail 2.6
+Content-Type: multipart/mixed;
+ boundary="1034116109303"
+Message-ID: <0be8217262208a2DTVMAIL4@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-davem@redhat.com said:
->  Should we have two lists, one for 2.4 and one for 2.5?
-> I'll set it up once decided.
+--1034116109303
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Probably one for each. We could add headers which say which branch it is 
-but that's still a lot of extra traffic for subscribers who only want the 
-stable branch info and will filter the 2.5 ones to /dev/null.
+yeah!
 
-How about
- bk-commits-head
- bk-commits-2.4
+Cheers, Dean.
 
-then later bk-commits-2.6 etc...
+On 	Tue, 8 Oct 2002 10:22:03 -0400 (EDT) 	Gerhard Mack <gmack@innerfire.net> wrote:
 
+--1034116109303
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
+	 Tue, 8 Oct 2002 15:40:57 +0100
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id <S261459AbSJHOQX>; Tue, 8 Oct 2002 10:16:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org
+	id <S261462AbSJHOQX>; Tue, 8 Oct 2002 10:16:23 -0400
+Received: from h66-38-216-165.gtconnect.net ([66.38.216.165]:22291 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S261459AbSJHOQW>;
+	Tue, 8 Oct 2002 10:16:22 -0400
+Received: (qmail 29010 invoked by uid 1000); 8 Oct 2002 14:22:03 -0000
+Received: from localhost (sendmail-bs@127.0.0.1)
+  by localhost with SMTP; 8 Oct 2002 14:22:03 -0000
+Date: Tue, 8 Oct 2002 10:22:03 -0400 (EDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Hell.Surfers@cwctv.net
+cc: jw@pegasys.ws, <linux-kernel@vger.kernel.org>
+Subject: RE:Re: The end of embedded Linux?
+In-Reply-To: <0372021510908a2DTVMAIL6@smtp.cwctv.net>
+Message-ID: <Pine.LNX.4.44.0210081020430.28170-100000@innerfire.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
+
+On Tue, 8 Oct 2002 Hell.Surfers@cwctv.net wrote:
+
+> limitation of mailer.
+
+Are you emailing from your TV set top box!?
+
+	Gerhard
 
 --
-dwmw2
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+--1034116109303--
 
 

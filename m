@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129593AbQK1FXG>; Tue, 28 Nov 2000 00:23:06 -0500
+        id <S129834AbQK1GSw>; Tue, 28 Nov 2000 01:18:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129834AbQK1FW5>; Tue, 28 Nov 2000 00:22:57 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:47115 "EHLO
-        neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-        id <S129593AbQK1FWq>; Tue, 28 Nov 2000 00:22:46 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: A20 gate (was: KERNEL BUG: console not working in linux)
-Date: 27 Nov 2000 20:52:12 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8vvdls$8bd$1@cesium.transmeta.com>
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDD86@orsmsx31.jf.intel.com>
+        id <S130008AbQK1GSn>; Tue, 28 Nov 2000 01:18:43 -0500
+Received: from marks-43.caltech.edu ([131.215.92.43]:27662 "EHLO
+        velius.chaos2.org") by vger.kernel.org with ESMTP
+        id <S129834AbQK1GSg>; Tue, 28 Nov 2000 01:18:36 -0500
+Date: Mon, 27 Nov 2000 21:48:04 -0800 (PST)
+From: Jacob Luna Lundberg <jacob@velius.chaos2.org>
+To: Toby Jaffey <toby@earth.li>
+cc: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
+Subject: Re: test-10 tulip "eth0 timed out" (smp, heavy IDE use)
+Message-ID: <Pine.LNX.4.21.0011272132240.10109-100000@velius.chaos2.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <D5E932F578EBD111AC3F00A0C96B1E6F07DBDD86@orsmsx31.jf.intel.com>
-By author:    "Dunlap, Randy" <randy.dunlap@intel.com>
-In newsgroup: linux.dev.kernel
-> 
-> Just curious: Are you (Alan?) saying this ("standard") based on the
-> unpublished IBM PC specs (well, it was when I needed it around
-> 1990; don't know about now ???).  Or do you have a copy
-> of it?  They were mighty hard to come by, and I was working
-> on a contract for IBM at the time (not at Intel).
-> 
 
-There is nothing unpublished about them.  They are old, but definitely
-published.  As far as System Control Port A, they were published in
-the PS/2 reference manuals.
+> > Linksys LNE version 4, 00:0d.0 Ethernet controller: Bridgecom, Inc:
+> > Unknown device 0985 (rev 11)
+[...]
+> > Nov 28 04:04:52 twoey kernel: NETDEV WATCHDOG: eth0: transmit timed out
+> > Nov 28 04:04:52 twoey kernel: eth0: Transmit timed out, status fc664010,
+> > CSR12 00000000, resetting...
 
-	-hpa
+I can replicate this message any day you want.  It seems that this card is
+perhaps a bit too sensitive to high interrupt latencies or something to
+that effect.  Dan Hollis worked on my box for several days and we found
+that the problem tends to trigger (in my case) when nfs is in use.  But I
+still haven't had time to explore further.  :(
+
+Dan tells me the chip in question is a Centaur so I presume eventually
+kernels will identify it correctly once somebody adds it to the list.  :)
+
+-Jacob
+
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+
+" ... mutant DEC .au files ... "
+
+-http://ocean.hhardy.net/ftp/systems/linux/snd/Lsox/Sox/
+ [1999.09.22 - sorry, link is dead nowadays]
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

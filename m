@@ -1,65 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263187AbVCKFj1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263216AbVCKFl1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263187AbVCKFj1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 00:39:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbVCKFj0
+	id S263216AbVCKFl1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 00:41:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbVCKFjz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 00:39:26 -0500
-Received: from [205.233.219.253] ([205.233.219.253]:8661 "EHLO
-	conifer.conscoop.ottawa.on.ca") by vger.kernel.org with ESMTP
-	id S263187AbVCKFdP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 00:33:15 -0500
-Date: Fri, 11 Mar 2005 00:31:44 -0500
-From: Jody McIntyre <scjody@modernduck.com>
+	Fri, 11 Mar 2005 00:39:55 -0500
+Received: from gate.crashing.org ([63.228.1.57]:61145 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S263190AbVCKFh2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 00:37:28 -0500
+Subject: [PATCH] don't call unblank at irq time
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, willy@debian.org,
-       Nathan Scott <nathans@sgi.com>
-Subject: Re: [PATCH, RFC 1/3] Add sem_getcount() to arches that lack it
-Message-ID: <20050311053144.GP1111@conscoop.ottawa.on.ca>
-References: <20050311000646.GJ1111@conscoop.ottawa.on.ca> <20050310205503.6151ab83.akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Fri, 11 Mar 2005 16:37:14 +1100
+Message-Id: <1110519434.5810.5.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050310205503.6151ab83.akpm@osdl.org>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 10, 2005 at 08:55:03PM -0800, Andrew Morton wrote:
-> Jody McIntyre <scjody@modernduck.com> wrote:
-> >
-> > parisc and frv define sem_getcount() in semaphore.h, which returns the
-> >  current semaphore value.  This is cleaner than doing
-> >  atomic_read(&semaphore.count), currently done in
-> >  drivers/ieee1394/nodemgr.c and fs/xfs/linux-2.6/xfs_buf.c, and will work
-> >  on all architectures if sem_getcount() is added.
-> 
-> That's a fairly bizarre thing to want to do.  Would it be hard to modify
-> xfs and 1394 to stop wanting to read a semaphore's up() count?
+Hi !
 
-The count is the number of free transaction labels (1394 async is
-transaction-based) and is initialized to 64.  When a new transaction label
-is needed, the requestor does a down(), then locks the tlabel variables
-and allocates a new one.  When a transaction label is freed, an up()
-occurs.  The semaphore's up() count is therefore the number of free
-tlabels, and the number of outstanding transactions is (64 - count).  I
-can imagine situations in which this would be a useful statistic, but
-I'm not sure any of them actually exist.
+This patch removes the call to unblank() from printk, and avoids calling
+unblank at irq() time _unless_ oops_in_progress is 1. I also export
+oops_in_progress() so drivers who care like radeonfb can test it and
+know what to do. I audited call sites of unblank_screen(),
+console_unblank(), etc... and I _hope_ I got them all, the patch
+includes a small patch to the s390 bust_spinlocks code that sets
+oops_in_progress back to 0 _after_ unblanking for example.
 
-I haven't investigated xfs, but modifying 1394 would be fairly easy.  I
-could add a second variable that tracks the up() count, or just drop the
-sysfs attribute that reports the number.  The first option seems a bit
-wasteful, but only slightly.  I thought this patch was worthwhile based
-on xfs wanting to do this and 3 arches already having (unused)
-implementations of sem_getcount/sema_count.
+I added a few might_sleep() to help us catch possible remaining callers.
 
-If this patch isn't accepted, we should get rid of the xfs and 1394
-hacks and delete sem_getcount (parisc, frv) and sema_count (arm) as they
-are unused.
+I'll soon write a document explaining fbdev locking. The current
+situation after this patch is that:
 
-Jody
+ - All callbacks have console_semaphore held (fbdev's are fully
+serialised).
 
-> 
-> (Why do they want to do this anyway?)
+ - Everything is called in schedule'able context, except the cfb_*
+rendering operations and cursor operations, with the special case of
+unblank who can be called at any time when "oops_in_progress" is true. A
+driver that needs to sleep in it's unblank implementation is welcome to
+test that variable and use a fallback path (or just do nothing if it's
+not simple).
 
--- 
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+
+Index: linux-work/kernel/printk.c
+===================================================================
+--- linux-work.orig/kernel/printk.c	2005-03-10 11:37:34.000000000 +1100
++++ linux-work/kernel/printk.c	2005-03-11 14:51:42.000000000 +1100
+@@ -54,7 +54,12 @@
+ 
+ EXPORT_SYMBOL(console_printk);
+ 
++/*
++ * Low lever drivers may need that to know if they can schedule in
++ * their unblank() callback or not. So let's export it.
++ */
+ int oops_in_progress;
++EXPORT_SYMBOL(oops_in_progress);
+ 
+ /*
+  * console_sem protects the console_drivers list, and also
+@@ -744,12 +749,15 @@
+ 	struct console *c;
+ 
+ 	/*
+-	 * Try to get the console semaphore. If someone else owns it
+-	 * we have to return without unblanking because console_unblank
+-	 * may be called in interrupt context.
++	 * console_unblank can no longer be called in interrupt context unless
++	 * oops_in_progress is set to 1..
+ 	 */
+-	if (down_trylock(&console_sem) != 0)
+-		return;
++	if (oops_in_progress) {
++		if (down_trylock(&console_sem) != 0)
++			return;
++	} else
++		acquire_console_sem();
++
+ 	console_locked = 1;
+ 	console_may_schedule = 0;
+ 	for (c = console_drivers; c != NULL; c = c->next)
+Index: linux-work/arch/s390/mm/fault.c
+===================================================================
+--- linux-work.orig/arch/s390/mm/fault.c	2005-01-24 17:09:26.000000000 +1100
++++ linux-work/arch/s390/mm/fault.c	2005-03-11 14:46:21.000000000 +1100
+@@ -62,8 +62,8 @@
+ 		oops_in_progress = 1;
+ 	} else {
+ 		int loglevel_save = console_loglevel;
+-		oops_in_progress = 0;
+ 		console_unblank();
++		oops_in_progress = 0;
+ 		/*
+ 		 * OK, the message is on the console.  Now we call printk()
+ 		 * without oops_in_progress set so that printk will give klogd
+Index: linux-work/drivers/char/vt.c
+===================================================================
+--- linux-work.orig/drivers/char/vt.c	2005-03-10 11:37:24.000000000 +1100
++++ linux-work/drivers/char/vt.c	2005-03-11 14:54:05.000000000 +1100
+@@ -2220,9 +2220,6 @@
+ 	}
+ 	set_cursor(vc);
+ 
+-	if (!oops_in_progress)
+-		poke_blanked_console();
+-
+ quit:
+ 	clear_bit(0, &printing);
+ }
+@@ -2823,6 +2820,13 @@
+ {
+ 	struct vc_data *vc;
+ 
++	/* This should now always be called from a "sane" (read: can schedule)
++	 * context for the sake of the low level drivers, except in the special
++	 * case of oops_in_progress
++	 */
++	if (!oops_in_progress)
++		might_sleep();
++
+ 	WARN_CONSOLE_UNLOCKED();
+ 
+ 	ignore_poke = 0;
+@@ -2879,6 +2883,14 @@
+ {
+ 	WARN_CONSOLE_UNLOCKED();
+ 
++	/* Add this so we quickly catch whoever might call us in a non
++	 * safe context. Nowadays, unblank_screen() isn't to be called in
++	 * atomic contexts and is allowed to schedule (with the special case
++	 * of oops_in_progress, but that isn't of any concern for this
++	 * function. --BenH.
++	 */
++	might_sleep();
++
+ 	/* This isn't perfectly race free, but a race here would be mostly harmless,
+ 	 * at worse, we'll do a spurrious blank and it's unlikely
+ 	 */
+
+

@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289761AbSBETDi>; Tue, 5 Feb 2002 14:03:38 -0500
+	id <S289762AbSBETXN>; Tue, 5 Feb 2002 14:23:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289767AbSBETD2>; Tue, 5 Feb 2002 14:03:28 -0500
-Received: from [199.203.178.211] ([199.203.178.211]:59666 "EHLO
-	exchange.store-age.com") by vger.kernel.org with ESMTP
-	id <S289762AbSBETDX>; Tue, 5 Feb 2002 14:03:23 -0500
-Message-ID: <BDE817654148D51189AC00306E063AAE054628@exchange.store-age.com>
-From: Alexander Sandler <ASandler@store-age.com>
-To: "'Arjan van de Ven'" <arjan@fenrus.demon.nl>,
-        Tim Pepper <tpepper@vato.org>
-Cc: Alexander Sandler <ASandler@store-age.com>,
-        "Linux Kernel Mailing List (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: RE: 2.4.17: Bug?
-Date: Tue, 5 Feb 2002 21:02:56 +0200 
+	id <S289768AbSBETXC>; Tue, 5 Feb 2002 14:23:02 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:53255 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S289762AbSBETWp>; Tue, 5 Feb 2002 14:22:45 -0500
+Date: Tue, 5 Feb 2002 16:12:27 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: linux-kernel@vger.kernel.org, Jan Yenya Kasprzak <kas@fi.muni.cz>
+Subject: Re: [patch] fix 2.4.18-pre8 compile error in cosa.c
+In-Reply-To: <Pine.NEB.4.44.0202051546330.24218-100000@mimas.fachschaften.tu-muenchen.de>
+Message-ID: <Pine.LNX.4.21.0202051612150.14994-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="x-user-defined"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry about this. I though it is good anough.
 
-Anyway, Arjan, do you have any suggestions for me? With problems in device
-detection QLogic's drivers have (those from their web site) it appears that
-there is no solution for this problem right now. Am I correct?
 
-> Misunderstanding; I did not say (or intend to say) that it 
-> will go into 2.4.18; it's not good enough yet.
+On Tue, 5 Feb 2002, Adrian Bunk wrote:
 
-Sasha.
+> Hi Marcelo,
+> 
+> the patch below fixes the following compile error in 2.4.18-pre8:
+
+Hi Adrian,
+
+Patch applied.
+
+Thanks
+

@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317766AbSFSE6Y>; Wed, 19 Jun 2002 00:58:24 -0400
+	id <S317767AbSFSE7m>; Wed, 19 Jun 2002 00:59:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317767AbSFSE6X>; Wed, 19 Jun 2002 00:58:23 -0400
-Received: from ns.suse.de ([213.95.15.193]:32273 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317766AbSFSE6X>;
-	Wed, 19 Jun 2002 00:58:23 -0400
-Date: Wed, 19 Jun 2002 06:58:24 +0200
-From: Dave Jones <davej@suse.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.x: arch/i386/kernel/cpu
-Message-ID: <20020619065823.C25509@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-References: <aeouoe$a66$1@cesium.transmeta.com> <20020619063807.B25509@suse.de> <3D100BE7.4040802@zytor.com>
+	id <S317768AbSFSE7l>; Wed, 19 Jun 2002 00:59:41 -0400
+Received: from w007.z208177138.sjc-ca.dsl.cnc.net ([208.177.141.7]:24460 "HELO
+	mail.gurulabs.com") by vger.kernel.org with SMTP id <S317767AbSFSE7k>;
+	Wed, 19 Jun 2002 00:59:40 -0400
+Subject: Anyone using NFSv4?
+From: Dax Kelson <dax@gurulabs.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <008001c216c8$d0bfdba0$294b82ce@connecttech.com>
+References: <11E89240C407D311958800A0C9ACF7D13A7881@EXCHANGE>
+	<200206171900.03955.rwhite@pobox.com> 
+	<008001c216c8$d0bfdba0$294b82ce@connecttech.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 18 Jun 2002 22:59:41 -0600
+Message-Id: <1024462781.17191.18.camel@thud>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3D100BE7.4040802@zytor.com>; from hpa@zytor.com on Tue, Jun 18, 2002 at 09:43:19PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 18, 2002 at 09:43:19PM -0700, H. Peter Anvin wrote:
+I noticed that the CITI group release a new June snapshot of NFSv4
+support for Linux. It is a patch against 2.4.18.
 
- > > Patrick Mochel takes credit/glory/fame/blame for this one.
- > Note that this is great.  We should do the same with bugs.h which is, if 
- > anything, an even worse mess.
+http://www.citi.umich.edu/projects/nfsv4/june_2002_rel/index.html
 
-Agreed. Patrick also did similar work on the mtrr driver which isn't
-merged anywhere yet. That's something else that's been long overdue
-this treatment.  (Also on my list for chopping into bits is
-agpgart_be.c, but that's another story..)
+They say, "The current version passes all Connectathon tests, and
+interoperates with other implementations".
 
- > > On my Cyrix III box before..
- > > Interesting how it's picking up that 8 in the 2nd set of caps, but
- > > not any of the other bits..
- > 
- > That's the 3DNow! bit... I was thinking it might be handled specially, 
- > but it looks like that's only done for Centaur chips.  Are you sure your 
- > CPU isn't being mis-identified as Centaur by the new code?
+Currently NFSv2/3 is too insecure for my tastes, I'm greatly looking
+forward to the strong authentication, integrity, and privacy that NFSv4
+with secure RPC offers. I can envision handy uses for the "pseudo path"
+feature of NFSv4 as well.
 
-It is being (correctly) identified as Centaur.
-VIA Cyrixen are CentaurHauls family 6
+I was just wondering if anyone (other that CITI) is keeping an eye on
+it? Are there any pieces worth merging yet?  Just curious.
 
-        Dave
+Dax Kelson
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs

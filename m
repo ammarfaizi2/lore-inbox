@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287149AbSC1AUY>; Wed, 27 Mar 2002 19:20:24 -0500
+	id <S310858AbSC1AWO>; Wed, 27 Mar 2002 19:22:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310769AbSC1AUO>; Wed, 27 Mar 2002 19:20:14 -0500
-Received: from marc2.theaimsgroup.com ([63.238.77.172]:525 "EHLO
-	marc2.theaimsgroup.com") by vger.kernel.org with ESMTP
-	id <S287149AbSC1AUF>; Wed, 27 Mar 2002 19:20:05 -0500
-Date: Wed, 27 Mar 2002 19:20:04 -0500
-Message-Id: <200203280020.g2S0K4g01218@marc2.theaimsgroup.com>
-From: Hank Leininger <linux-kernel@progressive-comp.com>
-Reply-To: Hank Leininger <hlein@progressive-comp.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: SMP motherboards (760 MPX chipset) and SMP howto
-X-Shameless-Plug: Check out http://marc.theaimsgroup.com/
-X-Warning: This mail posted via a web gateway at marc.theaimsgroup.com
-X-Warning: Report any violation of list policy to abuse@progressive-comp.com
-X-Posted-By: Hank Leininger <hlein@progressive-comp.com>
+	id <S310917AbSC1AWF>; Wed, 27 Mar 2002 19:22:05 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35847 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S310816AbSC1AVx>; Wed, 27 Mar 2002 19:21:53 -0500
+Subject: Re: DE and hot-swap disk caddies
+To: andersen@codepoet.org
+Date: Thu, 28 Mar 2002 00:37:45 +0000 (GMT)
+Cc: andre@linux-ide.org (Andre Hedrick), josh@stack.nl (Jos Hulzink),
+        jw@pegasys.ws (jw schultz), linux-kernel@vger.kernel.org
+In-Reply-To: <20020328001709.GA16582@codepoet.org> from "Erik Andersen" at Mar 27, 2002 05:17:09 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16qNvF-0006Xv-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-03-27, Bill Davidsen <davidsen@tmr.com> wrote:
+> Ok.  How about my laptop?  I have an ATAPI zip drive I can plug
+> in instead of a second battery.  It is the only device on the
+> second IDE bus (hdc).  In windows there is a little hotplug
+> utility thing one runs before unplugging the zip drive.  In Linux
+> I currently have to reboot if I want the ide-floppy driver to see
+> the device...  I'm willing to bet that Dell has done mysterious
+> stuff to make the electrical part work.  It would sure be nice if
+> I could ask the ide driver to kindly re-scan for /dev/hdc now.
 
-> On 27 Mar 2002, Emmanuel Michon wrote:
-
-> > I'm sorry to write here for a problem only about SMP: there used to
-> > be a linux-smp mailing list but it seems it's not active anymore.
-
->   I, too, am (was?) a member of that list. I believe it has died
-> because SMP is mainline now, instead of cutting edge. Discussion is
-> probably appropriate here more than anywhere else.
-
-What are you guys talking about?  ;)
-
-The linux-smp list is alive and well.  It was hosted by vger.rutgers.edu
-along with l-k and others; perhaps that death is what you're thinking of? 
-linux-smp is avail now from vger.kernel.org.  It's not terribly high
-volume, but various notes-comparing about hardware compatability, etc goes
-on steadily.
-
-[ ObShamelessPlug: archives of it at:
-  http://marc.theaimsgroup.com/?l=linux-smp&r=1&w=2 ]
-
---
-Hank Leininger <hlein@progressive-comp.com> 
-  
+I would imagine Dell have stuff there to do electrical isolation, or that
+they have parts of the IDE controller built into the actually removable drive 
+unit itself. With additional electronics you can safely do IDE hot plugging,
+but you do need the electronics and the host co-operation.

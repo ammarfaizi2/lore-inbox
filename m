@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315457AbSHVSTb>; Thu, 22 Aug 2002 14:19:31 -0400
+	id <S315427AbSHVSRa>; Thu, 22 Aug 2002 14:17:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315485AbSHVSTa>; Thu, 22 Aug 2002 14:19:30 -0400
-Received: from ns1.ionium.org ([62.27.22.2]:44814 "HELO mail.ionium.org")
-	by vger.kernel.org with SMTP id <S315457AbSHVST2> convert rfc822-to-8bit;
-	Thu, 22 Aug 2002 14:19:28 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Justin Heesemann <jh@ionium.org>
-Organization: ionium Technologies
-To: linux-kernel@vger.kernel.org
-Subject: Re: P4 with i845E not booting with 2.4.19 / 3.5.31
-Date: Thu, 22 Aug 2002 20:28:10 +0200
-User-Agent: KMail/1.4.2
-References: <3D6245DC.3A189656@hrzpub.tu-darmstadt.de> <3D64AB95.DC8FD965@hrzpub.tu-darmstadt.de> <1030038521.3161.17.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <1030038521.3161.17.camel@irongate.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200208222028.10303.jh@ionium.org>
+	id <S315440AbSHVSR3>; Thu, 22 Aug 2002 14:17:29 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:61427 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315427AbSHVSR2>; Thu, 22 Aug 2002 14:17:28 -0400
+Subject: Re: 2.4 and full ipv6 - will it happen?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Thunder from the hill <thunder@lightweight.ods.org>
+Cc: Bernd Eckenfels <ecki-news2002-08@lina.inka.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0208220009110.3234-100000@hawkeye.luckynet.adm>
+References: <Pine.LNX.4.44.0208220009110.3234-100000@hawkeye.luckynet.adm>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 22 Aug 2002 19:22:41 +0100
+Message-Id: <1030040562.3090.47.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 22 August 2002 19:48, you wrote:
-> On Thu, 2002-08-22 at 10:15, Jens Wiesecke wrote:
-> > So again my question: Can I do anything to help to debug this problem ?
->
-> The version it broke at it is itself a lot of help. Build a kernel with
-> no apm, no acpi, no agp, no compiled in audio, non smp, non numa, no
-> apic support.
->
-> Let me know if that boots
+On Thu, 2002-08-22 at 07:12, Thunder from the hill wrote:
+> Well, it's not too easy any more to say "I am the Alan Cox client. Send me
+> naked children." If you were ever hit by that or similar, you'd certainly
+> think differently, once you've seen that these "tools" for IPv4 are
 
-i guess it won't help..
-if Jens Problem really is the very same as mine (which looks like it.. same 
-pre6 works, pre7 fails) then the problem seems to be located in 
-arch/i386/kernel/setup.c
+Its trivial. IPv4 or IPv6 it takes a couple of minutes of fiddling from
+a suitably connected point. I wouldnt actually bother with that anyway,
+the people who maintain web cache logs are normally paid so little that
+$1000 for running a provided script really would be less hassle for your
+budding organised criminal or government agent.
 
-if i use a pre7 kernel, with the arch/i386/kernel/setup.c from pre6... then 
-the kernel will boot !
+There is no difference in the security between IPv4 and IPv6. None at
+all.
 
---
-Best Regards
-Justin Heesemann
+
+

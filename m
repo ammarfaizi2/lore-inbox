@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261766AbTIPDGk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 23:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbTIPDEj
+	id S261764AbTIPDEd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 23:04:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbTIPDEd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 23:04:39 -0400
-Received: from GOL139579-1.gw.connect.com.au ([203.63.118.157]:17902 "EHLO
-	goldweb.com.au") by vger.kernel.org with ESMTP id S261766AbTIPDDg
+	Mon, 15 Sep 2003 23:04:33 -0400
+Received: from GOL139579-1.gw.connect.com.au ([203.63.118.157]:10478 "EHLO
+	goldweb.com.au") by vger.kernel.org with ESMTP id S261764AbTIPDDB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 23:03:36 -0400
-Message-ID: <1063681408.3f667d8031f3a@dubai.stillhq.com>
-Date: Tue, 16 Sep 2003 13:03:28 +1000
+	Mon, 15 Sep 2003 23:03:01 -0400
+Message-ID: <1063681376.3f667d6089d17@dubai.stillhq.com>
+Date: Tue, 16 Sep 2003 13:02:56 +1000
 From: Michael Still <mikal@stillhq.com>
 To: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: [2.6 Patch] Kernel-doc updates 4 of 15 -- /drivers/serial/8250.c
+Subject: [2.6 Patch] Kernel-doc updates 3 of 15 -- /drivers/pci/pci.c
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -34,32 +34,28 @@ Mikal
 --------------------------
 
 
-diff -Nur linux-2.6.0-test4-bk5-mandocs/drivers/serial/8250.c
-linux-2.6.0-test4-bk5-mandocs_tweaks/drivers/serial/8250.c
---- linux-2.6.0-test4-bk5-mandocs/drivers/serial/8250.c	2003-09-04
-10:56:01.000000000 +1000
-+++ linux-2.6.0-test4-bk5-mandocs_tweaks/drivers/serial/8250.c	2003-09-10
-13:23:05.000000000 +1000
-@@ -2097,7 +2097,8 @@
+diff -Nur linux-2.6.0-test4-bk5-mandocs/drivers/pci/pci.c
+linux-2.6.0-test4-bk5-mandocs_tweaks/drivers/pci/pci.c
+--- linux-2.6.0-test4-bk5-mandocs/drivers/pci/pci.c	2003-09-04
+10:55:55.000000000 +1000
++++ linux-2.6.0-test4-bk5-mandocs_tweaks/drivers/pci/pci.c	2003-09-09
+16:09:35.000000000 +1000
+@@ -126,11 +126,13 @@
  
  /**
-  *	serial8250_suspend_port - suspend one serial port
-- *	@line: serial line number
-+ *	@line:  serial line number
-+ *      @level: the level of port suspension, as per uart_suspend_port
+  * pci_bus_find_capability - query for devices' capabilities 
+- * @dev: PCI device to query
+- * @cap: capability code
++ * @bus:   the PCI bus to query
++ * @devfn: PCI device to query
++ * @cap:   capability code
   *
-  *	Suspend one serial port.
-  */
-@@ -2108,7 +2109,8 @@
- 
- /**
-  *	serial8250_resume_port - resume one serial port
-- *	@line: serial line number
-+ *	@line:  serial line number
-+ *      @level: the level of port resumption, as per uart_resume_port
-  *
-  *	Resume one serial port.
-  */
+  * Like pci_find_capability() but works for pci devices that do not have a
+  * pci_dev structure set up yet. 
++ *
+  * Returns the address of the requested capability structure within the
+  * device's PCI configuration space or 0 in case the device does not
+  * support it.
 
 -- 
 

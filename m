@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270721AbUJUSmx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270801AbUJUSn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270721AbUJUSmx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 14:42:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270814AbUJUSll
+	id S270801AbUJUSn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 14:43:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270800AbUJUSnC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 14:41:41 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:59107 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S270721AbUJUSgG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 14:36:06 -0400
-Date: Thu, 21 Oct 2004 11:35:49 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>,
-       kernel-janitors <kernel-janitors@lists.osdl.org>
-cc: greg@kroah.com, hannal@us.ibm.com,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: [PATCH 2.6] cyclades.c: replace pci_find_device
-Message-ID: <267570000.1098383749@w-hlinder.beaverton.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 21 Oct 2004 14:43:02 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:54237 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S270812AbUJUSkn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 14:40:43 -0400
+Subject: Re: [2.6.9-ac1] "suid_dumpable" [security/commoncap.ko] undefined
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Piotr Kaczuba <pepe@attika.ath.cx>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1098379429l.8350l.0l@orbiter>
+References: <1098379429l.8350l.0l@orbiter>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <1098380274.17095.162.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 21 Oct 2004 18:37:55 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Iau, 2004-10-21 at 18:23, Piotr Kaczuba wrote:
+> Building the kernel reports this when building modules:
+> 
+> *** Warning: "suid_dumpable" [security/commoncap.ko] undefined!
+> 
+> The capability module fails then to load because it depends on  
+> commoncap. As a consequence bind cannot be run with the -u option to  
+> switch its user.
 
-As pci_find_device is going away I've replaced it with pci_get_device.
-If someone with this hardware could test it I would appreciate it.
+Thanks. Add
 
-Thanks.
-
-Hanna Linder
-IBM Linux Technology Center
-
-Signed-off-by: Hanna Linder <hannal@us.ibm.com>
-
----
-diff -Nrup linux-2.6.9cln/drivers/char/cyclades.c linux-2.6.9patch/drivers/char/cyclades.c
---- linux-2.6.9cln/drivers/char/cyclades.c	2004-10-18 16:35:53.000000000 -0700
-+++ linux-2.6.9patch/drivers/char/cyclades.c	2004-10-20 15:31:49.803025392 -0700
-@@ -4765,7 +4765,7 @@ cy_detect_pci(void)
-         for (i = 0; i < NR_CARDS; i++) {
-                 /* look for a Cyclades card by vendor and device id */
-                 while((device_id = cy_pci_dev_id[dev_index]) != 0) {
--                        if((pdev = pci_find_device(PCI_VENDOR_ID_CYCLADES,
-+                        if((pdev = pci_get_device(PCI_VENDOR_ID_CYCLADES,
-                                         device_id, pdev)) == NULL) {
-                                 dev_index++;    /* try next device id */
-                         } else {
+EXPORT_SYMBOL(suid_dumpable) to fs/exec.c and that should fix it. I'll
+fix it for -ac3
 

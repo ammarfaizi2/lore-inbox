@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313339AbSDPMbm>; Tue, 16 Apr 2002 08:31:42 -0400
+	id <S313377AbSDPMgC>; Tue, 16 Apr 2002 08:36:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313355AbSDPMbl>; Tue, 16 Apr 2002 08:31:41 -0400
-Received: from m7.limsi.fr ([192.44.78.7]:52750 "EHLO m7.limsi.fr")
-	by vger.kernel.org with ESMTP id <S313339AbSDPMbk>;
-	Tue, 16 Apr 2002 08:31:40 -0400
-Message-ID: <3CBC1CF3.3060200@limsi.fr>
-Date: Tue, 16 Apr 2002 14:45:39 +0200
-From: Damien Touraine <damien.touraine@limsi.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020313
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Problem with IRIX NFS server ...
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S313665AbSDPMgB>; Tue, 16 Apr 2002 08:36:01 -0400
+Received: from swan.mail.pas.earthlink.net ([207.217.120.123]:60898 "EHLO
+	swan.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S313377AbSDPMgB>; Tue, 16 Apr 2002 08:36:01 -0400
+Date: Tue, 16 Apr 2002 08:42:23 -0400
+To: joe@tmsusa.com, akpm@zip.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.8 final - another data point
+Message-ID: <20020416084223.A1817@rushmore>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+>>Patience.  2.5.later-on will perform well.  :)
 
-I still have problem with a SGI NFS server and Linux kernel 2.4.6 
-concerning a file listing of remote directories.
-Actually, I saw a web page that explain the bug is plan to be corrected 
-in IRIX 6.5.13 (the page was before this release). I installed it on the 
-SGI server, however, the bug always exists !
+> It's already quite usable for some workloads, and the
+> latency for workstation use is quite good -  I am looking
+> forward to the maturation of this diamond in the rough
 
-Is there any solution to get correct file list with this configuration 
-(an IRIX patch, a newer version of linux kernel) ?
+I noticed a dbench regression in 2.5.8 too.  The light at 
+the end of the tunnel looks bright and close though. :)
+(reference to near-death experience - not a train. :)
 
-Friendly
-   Damient TOURAINE
+Running dbench 128 on ext2 mounted with delalloc and Andrew's
+patches from http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.8/
+was 7.5x faster than 2.5.8 vanilla and 1.5x faster than 
+2.4.19pre6aa1.
+
+It will be fun to see what the other i/o benchmarks
+and OSDB do with Andrew's delalloc patches.
+
+-- 
+Randy Hron
 

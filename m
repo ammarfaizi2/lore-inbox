@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262129AbTJFTBq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 15:01:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbTJFTBq
+	id S261500AbTJFSrq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 14:47:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbTJFSrq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 15:01:46 -0400
-Received: from mail0-96.ewetel.de ([212.6.122.96]:53757 "EHLO mail0.ewetel.de")
-	by vger.kernel.org with ESMTP id S262129AbTJFTBo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 15:01:44 -0400
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC 0/6] Backing Store for sysfs
-In-Reply-To: <DI7S.58w.13@gated-at.bofh.it>
-References: <Dzxw.1wW.3@gated-at.bofh.it> <DGfG.4UY.3@gated-at.bofh.it> <DHv1.5Ir.1@gated-at.bofh.it> <DHEU.7ET.19@gated-at.bofh.it> <DHY6.3c0.7@gated-at.bofh.it> <DI7S.58w.13@gated-at.bofh.it>
-Date: Mon, 6 Oct 2003 21:01:40 +0200
-Message-Id: <E1A6ac0-0000rX-00@neptune.local>
-From: Pascal Schmidt <der.eremit@email.de>
-X-CheckCompat: OK
+	Mon, 6 Oct 2003 14:47:46 -0400
+Received: from ip213-185-39-113.laajakaista.mtv3.fi ([213.185.39.113]:7401
+	"HELO dag.newtech.fi") by vger.kernel.org with SMTP id S261500AbTJFSro
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 14:47:44 -0400
+Message-ID: <20031006184742.18117.qmail@dag.newtech.fi>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-0.27
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: Dag Nygren <dag@newtech.fi>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, dag@newtech.fi
+Subject: Re: Bug in the sg driver 
+In-Reply-To: Message from "Randy.Dunlap" <rddunlap@osdl.org> 
+   of "Mon, 06 Oct 2003 11:20:28 PDT." <20031006112028.1242199d.rddunlap@osdl.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 06 Oct 2003 21:47:42 +0300
+From: Dag Nygren <dag@newtech.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 06 Oct 2003 20:20:16 +0200, you wrote in linux.kernel:
+> 
+> from MAINTAINERS file:
+> SCSI SG DRIVER
+> P:	Doug Gilbert
+> M:	dgilbert@interlog.com
+> L:	linux-scsi@vger.kernel.org
+> W:	http://www.torque.net/sg
+> S:	Maintained
 
-> Does that make more sense?  We can't just look at what happens with this
-> patch without actually accessing all of the sysfs tree, as that will be
-> the "normal" case.
+Should I send a bug report to him or is he online here?
 
-Well, the normal case for me and other people not using any hot-pluggable
-devices will be to run a hotplug agent that does absolutely nothing... so
-in my case, the proposed patch would help - more memory available for the
-normal work I do.
+> Any details, like kernel version, oops or panic logs, etc.?
 
-With a static /dev and no hotpluggable stuff around, there is no need
-for and hotplug agent being there at all. And I do think such system
-are not too uncommon, so considering them would probably be nice.
+Kernel version is 2.4.20 (Redhat 9.0 + newest upgrade)
 
--- 
-Ciao,
-Pascal
+The oops and the panic logs were not written down as the major focus
+was getting this (production) system up and running, sorry for that
+
+ Dag
+
+

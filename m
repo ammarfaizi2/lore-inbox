@@ -1,59 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136194AbRD0TeX>; Fri, 27 Apr 2001 15:34:23 -0400
+	id <S136196AbRD0TkW>; Fri, 27 Apr 2001 15:40:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136192AbRD0TeL>; Fri, 27 Apr 2001 15:34:11 -0400
-Received: from maniola.plus.net.uk ([195.166.135.195]:62207 "HELO
-	mail.plus.net.uk") by vger.kernel.org with SMTP id <S136191AbRD0TeC>;
-	Fri, 27 Apr 2001 15:34:02 -0400
-Content-Type: Multipart/Mixed;
-  charset="iso-8859-1";
-  boundary="------------Boundary-00=_XAUG8AXX8XYK9S4EE0KL"
-From: "D.W.Howells" <dhowells@astarte.free-online.co.uk>
-To: torvalds@transmeta.com
-Subject: [PATCH] rw_semaphores, exported symbol non-versioning
-Date: Fri, 27 Apr 2001 20:32:57 +0100
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org, dhowells@redhat.com
+	id <S136197AbRD0TkM>; Fri, 27 Apr 2001 15:40:12 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:61110 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S136196AbRD0TkG>;
+	Fri, 27 Apr 2001 15:40:06 -0400
+Date: Fri, 27 Apr 2001 15:40:04 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Atrocious icache/dcache in 2.4.2
+In-Reply-To: <20010427150114.A23960@devserv.devel.redhat.com>
+Message-ID: <Pine.GSO.4.21.0104271528500.18661-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Message-Id: <01042720325700.06424@orion.ddi.co.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---------------Boundary-00=_XAUG8AXX8XYK9S4EE0KL
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
 
-This patch (made against linux-2.4.4-pre8) turns off module export versioning 
-on the rwsem symbols called from inline assembly.
+On Fri, 27 Apr 2001, Pete Zaitcev wrote:
 
-David
-
---------------Boundary-00=_XAUG8AXX8XYK9S4EE0KL
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="rwsem-exp.diff"
-Content-Transfer-Encoding: 8bit
-Content-Description: rw-semaphore patch, exported symbol versioning
-Content-Disposition: attachment; filename="rwsem-exp.diff"
-
-diff -uNr linux-2.4.4-pre8/lib/rwsem.c linux-rwsem/lib/rwsem.c
---- linux-2.4.4-pre8/lib/rwsem.c	Fri Apr 27 20:10:11 2001
-+++ linux-rwsem/lib/rwsem.c	Fri Apr 27 20:27:03 2001
-@@ -202,9 +202,9 @@
- 	return sem;
- }
+> Hello:
+> 
+> My box here slows down dramatically after a while, and starts
+> behaving as if it has very little memory, e.g. programs page
+> each other out. It turns out that out of 40MB total, about
+> 35MB is used for dcache and icache, and system basically
+> runs in 5MB of RAM.
+> 
+> When I tried to discuss it with riel, viro, and others,
+> I got an immediate and very strong knee jerk reaction "we fixed
+> it in 2.4.4-pre4!" "we gotta call prune_dcache more!".
+> That just does not sound persuasive to me.
  
--EXPORT_SYMBOL(rwsem_down_read_failed);
--EXPORT_SYMBOL(rwsem_down_write_failed);
--EXPORT_SYMBOL(rwsem_wake);
-+EXPORT_SYMBOL_NOVERS(rwsem_down_read_failed);
-+EXPORT_SYMBOL_NOVERS(rwsem_down_write_failed);
-+EXPORT_SYMBOL_NOVERS(rwsem_wake);
- #if RWSEM_DEBUG
- EXPORT_SYMBOL(rwsemtrace);
- #endif
+[snip]
+> written to disk if was changed), drop it into kmem_cache_free(),
+> but retain on hash (forget about poisoning for a momemt).
 
---------------Boundary-00=_XAUG8AXX8XYK9S4EE0KL--
+What for?
+
+I'm with you until now. But why bother keeping them resurrectable?
+They are not refered by dentries. They have no IO happening on
+them. Why retain them in cache for long?
+
+Notice that icache is behind the dcache, so you are looking at the
+second-order effects here. With the data you've shown on #kernel
+it looks like half of your icache is just sitting there for no
+ggod reason and slows down hash lookups.
+
+It makes sense to retain them for a while, but inode sitting there
+unreferenced by anything for minutes is a dead weight and nothing
+else.
+
+Notice that actually percent of the needlessly held inodes is higher -
+2.4.2 _really_ keeps stale stuff in dcache and that means stale
+stuff in icache. I.e. the only reference is from dentry that hadn't
+been touched by anything for a _long_ time.
+
+IOW, we just need to make sure that unreferenced inodes get freed
+once they are not dirty / not locked. Fast. No need to keep them
+on hash - just free them for real. Moreover, that will get
+fragmentation down.
+

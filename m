@@ -1,38 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317611AbSHBB7B>; Thu, 1 Aug 2002 21:59:01 -0400
+	id <S317693AbSHBCHE>; Thu, 1 Aug 2002 22:07:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317693AbSHBB7B>; Thu, 1 Aug 2002 21:59:01 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:40095 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317611AbSHBB7B>;
-	Thu, 1 Aug 2002 21:59:01 -0400
-Date: Thu, 01 Aug 2002 18:50:29 -0700 (PDT)
-Message-Id: <20020801.185029.79271639.davem@redhat.com>
-To: riel@conectiva.com.br
-Cc: akpm@zip.com.au, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       rohit.seth@intel.com, sunil.saxena@intel.com, asit.k.mallick@intel.com,
-       gh@us.ibm.com
-Subject: Re: large page patch
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44L.0208012246390.23404-100000@imladris.surriel.com>
-References: <20020801.174301.123634127.davem@redhat.com>
-	<Pine.LNX.4.44L.0208012246390.23404-100000@imladris.surriel.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S317694AbSHBCHE>; Thu, 1 Aug 2002 22:07:04 -0400
+Received: from smtp.castel.nl ([195.85.130.71]:63406 "EHLO
+	mastermail.keyaccess.nl") by vger.kernel.org with ESMTP
+	id <S317693AbSHBCHD>; Thu, 1 Aug 2002 22:07:03 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rene Herman <rene.herman@keyaccess.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Documentation for Pro Audio Spectrum?
+Date: Fri, 2 Aug 2002 04:15:13 +0200
+X-Mailer: KMail [version 1.2]
+References: <20020802010840.53647.qmail@mail.com>
+In-Reply-To: <20020802010840.53647.qmail@mail.com>
+MIME-Version: 1.0
+Message-Id: <02080204151303.00253@7ixe4>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Rik van Riel <riel@conectiva.com.br>
-   Date: Thu, 1 Aug 2002 22:55:05 -0300 (BRT)
-   
-   IMHO we shouldn't blindly decide for (or against!) this patch
-   but also carefully look at the large page patch from RHAS (which
-   got added to -aa recently) and the large page patch which IBM
-   is working on.
+On Friday 02 August 2002 03:08, Dave Jones wrote:
 
-And the one from Naohiko Shimizu which is my personal favorite
-because sparc64 support is there :)
+>>>> Are there any OSS drivers for any particular cards for which we
+>>>> don't have an equivalent ALSA driver ?
+>>>
+>>> At least the Media Vision Pro Audio Spectrum 16 (PAS). An old and
+>>> rather quirky ISA card, but one that does have particularly decent
+>>> audio quality; much better then the usual ISA soundblaster[-clones]
+>>> anyways. As such, some people might grumble a bit if Linux support for
+>>> it was completely dropped.
+>>>
+>>> The ALSA project seems rather set on "no documentation == no driver"
+>>> and seeing as how Media Vision (and its successor company, the name of
+>>> which I have now forgotten; it was bought out by creative labs) is out
+>>> of business and how I've never seen a PAS datasheet "out in the wild"
+>>> getting ALSA support for this and perhaps other such older hardware
+>>> could prove troublesome still ...
+>>
+>> Bring this up on the kernel list.
+>> *someone* must still have documentation for this beast.
 
-http://shimizu-lab.dt.u-tokai.ac.jp/lsp.html
+My own PAS16 sports the following chips (may have misidentified their 
+function):
+
+MV Spectrum MVD101D - Multimedia controller (native interface)
+MV Spectrum MVA416  - PCM
+MV Spectrum MVA508  - Mixer
+MV Thunder  MVD201A - SB Pro compatible part
+
+and a 28MHz oscilator (which is I believe relevant since not all PASs use the 
+same clock or something)
+
+Note: the PAS16 is not SB Pro compatible, it just /has/ an SB Pro compatible 
+part; with the current OSS drivers you get /dev/{audio,dsp,mixer}{0,1} with 0 
+being the native PAS16 stuff and, unless you disable it, 1 the SBP stuff
+
+The card's quirky in that it doesn't seem to (directly, natively) support a 
+44100 sampling rate; I had to resample to a supported rate to get it to 
+produce something audible under Linux. The Windows driver seems to compensate 
+for that automagically (and has that "28MHz clock source" as a driver 
+option). Simply catting an .au to /dev/audio0 does let Linus pronounce Linux 
+(in both Swedish and English) though.
+
+Rene.

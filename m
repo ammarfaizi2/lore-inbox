@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131091AbRA2S57>; Mon, 29 Jan 2001 13:57:59 -0500
+	id <S129532AbRA2TB7>; Mon, 29 Jan 2001 14:01:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131525AbRA2S5t>; Mon, 29 Jan 2001 13:57:49 -0500
-Received: from www.topmail.de ([212.255.16.226]:3559 "HELO www.topmail.de")
-	by vger.kernel.org with SMTP id <S131091AbRA2S5g> convert rfc822-to-8bit;
-	Mon, 29 Jan 2001 13:57:36 -0500
-Message-ID: <016501c08a25$527d2490$0100a8c0@homeip.net>
-From: "mirabilos" <eccesys@topmail.de>
-To: "Linux-Kernel ML" <linux-kernel@vger.kernel.org>,
-        "Andreas Huppert" <Andreas.Huppert@philosys.de>
-In-Reply-To: <200101291827.TAA21302@mail.philosys.de>
-Subject: Re: dos-partition mount bug
-Date: Mon, 29 Jan 2001 18:54:00 -0000
-Organization: eccesys.net Linux Distribution Development
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S132432AbRA2TBw>; Mon, 29 Jan 2001 14:01:52 -0500
+Received: from tetsuo.zabbo.net ([204.138.55.44]:19213 "HELO tetsuo.zabbo.net")
+	by vger.kernel.org with SMTP id <S129532AbRA2TBd>;
+	Mon, 29 Jan 2001 14:01:33 -0500
+Date: Tue, 30 Jan 2001 03:31:31 -0500
+From: Zach Brown <zab@zabbo.net>
+To: Tom Sightler <ttsig@tuxyturvy.com>
+Cc: barryn@pobox.com, "Michael B. Trausch" <fd0man@crosswinds.net>,
+        Georg Nikodym <georgn@somanetworks.com>, linux-kernel@vger.kernel.org
+Subject: Re: Possible Bug:  drivers/sound/maestro.c
+Message-ID: <20010130033131.I25752@tetsuo.zabbo.net>
+In-Reply-To: <200101262057.MAA02372@cx518206-b.irvn1.occa.home.com> <006d01c087dc$7dd7e670$1a040a0a@zeusinc.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <006d01c087dc$7dd7e670$1a040a0a@zeusinc.com>; from ttsig@tuxyturvy.com on Fri, Jan 26, 2001 at 04:11:01PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas,
+> > have this problem (or a similar one, anyway -- sometimes the sound becomes
+> > distorted or comes only through one speaker) under both Linux 2.2 and
+> > Win2K. If it was just Linux, I'd assume it was a driver problem, but the
 
-I've checked the bootsector (aka superblock) [i hate od...]
-and found no problems. It even gives the right info about
-start sector and length (same as fdisk).
+This is a long-standing bug with the maestro2 driver.  
 
-Your filesystem seems to be intact, but I'd suggest running
-sp^Hcandisk although. Maybe there are other things like a
-corrupt FAT the driver complains about.
-AFAIK it only ought to complain if the bootsector (BPB and
-55AA magic) is corrupt. (Or did so in 2.0.33)
+My current theory is that its a race condition where the APUs get
+confused while we update their control memory, but this doesn't make
+total sense.  Some of the bug reports I get are implying that the sound
+is breaking when we're not touching the apu's control mem.  Maybe
+implying a nastier silicon bug..
 
-Sorry can't help, seems to be a fs-driver flaw.
+I've been meaning to try implementing a work around to the theoretical
+bug, but I've always had trouble triggering it :/
 
--mirabilos
+The fun part of this (and why you would see the bug in win2k) is that
+the maestro2 is very poorly documented.  I've never heard of anyone
+having full docs on the APUs, including the people I've talked to at ESS.
+They bought the part from another company.. (and thankfully axed it in
+the maestro3)
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12+(proprietary extensions) # Updated:20010129 nick=mirabilos
-GO/S d@ s--: a--- C++ UL++++ P--- L++$(-^lang) E----(joe) W+(++) loc=.de
-N? o K? w-(+$) O+>+++ M-- V- PS+++@ PE(--) Y+ PGP t+ 5? X+ R+ !tv(silly)
-b++++* DI- D+ G(>++) e(^age) h! r(-) y--(!y+) /* lang=NASM;GW-BASIC;C */
-------END GEEK CODE BLOCK------
+so we're stabbing in the dark.
 
-
-
+- z
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

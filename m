@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262866AbVAKXJz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262927AbVAKXNb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262866AbVAKXJz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 18:09:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262870AbVAKXJx
+	id S262927AbVAKXNb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 18:13:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262870AbVAKXKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 18:09:53 -0500
-Received: from waste.org ([216.27.176.166]:23485 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262866AbVAKXHS (ORCPT
+	Tue, 11 Jan 2005 18:10:19 -0500
+Received: from fw.osdl.org ([65.172.181.6]:40667 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262918AbVAKXGA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 18:07:18 -0500
-Date: Tue, 11 Jan 2005 15:06:42 -0800
-From: Matt Mackall <mpm@selenic.com>
+	Tue, 11 Jan 2005 18:06:00 -0500
+Date: Tue, 11 Jan 2005 15:05:56 -0800
+From: Chris Wright <chrisw@osdl.org>
 To: Paul Davis <paul@linuxaudiosystems.com>
-Cc: Chris Wright <chrisw@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+Cc: Arjan van de Ven <arjanv@redhat.com>, Lee Revell <rlrevell@joe-job.com>,
+       Matt Mackall <mpm@selenic.com>, Chris Wright <chrisw@osdl.org>,
        "Jack O'Quin" <joq@io.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, arjanv@redhat.com, mingo@elte.hu,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+       Andrew Morton <akpm@osdl.org>, mingo@elte.hu, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-ID: <20050111230642.GD2940@waste.org>
-References: <20050111212823.GX2940@waste.org> <200501112248.j0BMmh9t006949@localhost.localdomain>
+Message-ID: <20050111150556.S10567@build.pdx.osdl.net>
+References: <20050111214152.GA17943@devserv.devel.redhat.com> <200501112251.j0BMp9iZ006964@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200501112248.j0BMmh9t006949@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200501112251.j0BMp9iZ006964@localhost.localdomain>; from paul@linuxaudiosystems.com on Tue, Jan 11, 2005 at 05:51:09PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 11, 2005 at 05:48:43PM -0500, Paul Davis wrote:
-> >But I'm also still not convinced this policy can't be most flexibly
-> >handled by a setuid helper together with the mlock rlimit.
+* Paul Davis (paul@linuxaudiosystems.com) wrote:
+> >On Tue, Jan 11, 2005 at 04:38:14PM -0500, Lee Revell wrote:
+> >> Yes but a bug in an app running as root can trash the filesystem.  The
+> >> worst you can do with RT privileges is lock up the machine.
+> >
+> >several filesystem and IO threads run at prio -10 but not RT.
+> >That makes me a bit less sure of your statement....
 > 
-> This has been explained several times already.
-> 
-> When you run a JACK client, the user should not be required to use a
-> different command sequence depending on whether or not JACK is running
-> with RT scheduling or not. That's almost more arcane than the current
-> situation and is a step backwards from even 2.4, where we use
-> capabilities to allow JACK itself to pass on the ability to use RT
-> scheduling and memlock to its clients.
+> Its completely orthogonal. Lee didn't say "tasks running without RT
+> can't mess up filesystems". He said "tasks running as root can trash
+> the filesystem" and "tasks running as RT can lock up the
+> machine". obviously, the intersection point (a root, RT task) is
+> double trouble.
 
-And that is a failure of imagination on the part of the JACK
-developers. Simply add a library function to libjack or whatever:
+This is straying from the core issue...  But, Arjan's saying that an RT
+(non-root) task could trash the filesystem if it deadlocks the machine
+(because those important fs and IO threads don't run).
 
- jack_make_me_important(...); /* pretty please */
-
-A client starts at normal priority, asks jack nicely to promote it to
-RT, then jackd, if so configured/enabled, calls the wrapper with a PID
-and a priority level. The wrapper checks the UID/priority/executable
-name against its permission table and does sched_set{scheduler,param}
-if allowed.
-
-This is nice because Jack gets to make the decisions about what the
-appropriate priorities for its clients are (eg they can't be higher
-priority than jackd, etc.) and it all gracefully falls back if the
-helper isn't enabled.
-
+thanks,
+-chris
 -- 
-Mathematics is the supreme nostalgia of our time.
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

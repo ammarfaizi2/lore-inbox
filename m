@@ -1,95 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263848AbTGAV1H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 17:27:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263861AbTGAV1H
+	id S263952AbTGAVbi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 17:31:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263875AbTGAVbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 17:27:07 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:14229 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S263848AbTGAV1D (ORCPT
+	Tue, 1 Jul 2003 17:31:32 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:17917 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263897AbTGAVb2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 17:27:03 -0400
-Date: Tue, 1 Jul 2003 22:41:25 +0100 (IST)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: What to expect with the 2.6 VM
-In-Reply-To: <200306301943.04326.phillips@arcor.de>
-Message-ID: <Pine.LNX.4.53.0307012202510.16265@skynet>
-References: <Pine.LNX.4.53.0307010238210.22576@skynet> <200306301943.04326.phillips@arcor.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 1 Jul 2003 17:31:28 -0400
+Date: Tue, 1 Jul 2003 14:45:50 -0700
+From: Greg KH <greg@kroah.com>
+To: torvalds@transmeta.com
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [BK PATCH] More USB fixes for 2.5.73
+Message-ID: <20030701214550.GA1184@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Jun 2003, Daniel Phillips wrote:
+Hi,
 
-> On Tuesday 01 July 2003 03:39, Mel Gorman wrote:
-> > I'm writing a small paper on the 2.6 VM for a conference.
->
-> Nice stuff, and very timely.
->
+Here are some USB fixes and cleanups for 2.5.73.  There are some
+usb-storage changes, a few minor bugfixes, and the conversion of the
+usb_bus structures to fit into the kernel driver model.
 
-I was hoping someone else would write it so I could read it but thats what
-I said about the 2.4 VM :-) . Yep, once again, my contributions are mainly
-documenting related, believe it or not, I actually do code a bit from time
-to time
+Please pull from:  bk://kernel.bkbits.net/gregkh/linux/linus-2.5
 
-I was going to update the whole document based on this thread and repost
-it but it's looking like it'll take me a few days for a week before I work
-through it all (so I'm slow, sue me). This is especially true as there is
-a lot of old email threads I need to read before I understand 100% of the
-current discussion (which is also why I'm not replying to most posts in
-this thread). Instead, I'm going to post up the bits that are changed and
-hopefully get everything together.
+Patches will be posted to linux-usb-devel as a follow-up thread for
+those who want to see them.
 
-This is the first change....
+thanks,
 
-> You probably ought to mention that this is only needed by 32 bit architectures
-> with silly amounts of memory installed.
+greg k-h
 
-Point... Taking into account what Martin said, the introduction to "PTEs
-in high memory" now reads;
+ drivers/usb/core/hcd-pci.c         |   16 ++-
+ drivers/usb/core/hcd.c             |   83 ++++++++++++--------
+ drivers/usb/core/hcd.h             |    5 -
+ drivers/usb/core/usb.c             |   12 ++
+ drivers/usb/host/ehci-dbg.c        |   51 ++++++------
+ drivers/usb/host/hc_sl811.c        |    2 
+ drivers/usb/host/ohci-dbg.c        |   42 ++++++----
+ drivers/usb/host/uhci-hcd.c        |    9 +-
+ drivers/usb/net/usbnet.c           |   18 ++++
+ drivers/usb/storage/scsiglue.c     |    8 +
+ drivers/usb/storage/transport.c    |  131 ++++++++++++++++++--------------
+ drivers/usb/storage/unusual_devs.h |  141 +++++++++++++++--------------------
+ drivers/usb/storage/usb.c          |  149 +++++++++++++++++++++++--------------
+ drivers/usb/storage/usb.h          |   32 +++++--
+ drivers/usb/usb-skeleton.c         |   22 +++--
+ include/linux/usb.h                |    4 
+ 16 files changed, 427 insertions(+), 298 deletions(-)
+-----
 
---Begin Extract--
-   PTEs in High Memory
-   ===================
+<grigouze:noos.fr>:
+  o USB: zaurus SL-C700
 
-   In 2.4, Page Table Entries (PTEs) must be allocated from ZONE_NORMAL as
-   the kernel needs to address them directly for page table traversal. In a
-   system with many tasks or with large mapped memory regions, this can place
-   significant pressure on ZONE_NORMAL so 2.6 has the option of allocating
-   PTEs from high memory.
+Alan Stern:
+  o USB: Reconcile unusual_devs.h in 2.4 and 2.5
 
-   Allocating PTEs from high memory is a compile time option for two reasons.
-   First and foremost, this is only really needed by 32 bit architectures
-   with very large amounts of memory or when the workloads require many
-   processes to share pages. With lower memory machines or 64 bit
-   architectures, it is simply not required. Patches were submitted that
-   would allow page tables to be shared between processes in a Copy-On-Write
-   fashion which would mitigate the need for high memory PTEs but they were
-   never merged.
---End Extract--
+Greg Kroah-Hartman:
+  o USB: move ohci's sysfs files to the class device instead of the pci device
+  o USB: move ehci's sysfs files to the class device instead of the pci device
+  o USB: make struct usb_bus a struct class_device
+  o USB: turn down some debugging messages in uhci-hcd
+  o Cset exclude: cweidema@indiana.edu|ChangeSet|20030621162021|08529
 
-> On that topic, you might mention
-> that the VM subsystem generally gets simpler and in some cases faster (i.e.,
-> no more highmem mapping cost) in the move to 64 bits.
->
+Kay Sievers:
+  o USB: usb-skeleton.c usb_buffer_free() not called
 
-I'm wary of making a statement like that. I'm not sure the code actually
-simpler with 64 bit but to me it looks about as complicated (or simple
-depending on your perspective). On the faster point, I understand that it
-is possible to have a net loss due to TLB and CPU cache misses. In this
-case, I think I'll just keep quiet
+Matthew Dharm:
+  o USB storage: logic cleanup
+  o USB storage: General purpose I/O buffer allocation and management
+  o USB storage: Cosmetic cleanups
+  o USB storage: create private I/O buffer
+  o USB storage: avoid sending URBs when disconnecting
+  o USB storage: create associate_dev(), more US_*_DEVICE printout
+  o USB storage: unusual_devs.h cleanups
 
-> You also might want to mention pdflush.
->
-
-Added to the todo list as well as object based rmap. I know object based
-rmap isn't merged but it is discussed enough that I'll put the time in to
-write about it.
-
--- 
-Mel Gorman

@@ -1,80 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268032AbTCFTqE>; Thu, 6 Mar 2003 14:46:04 -0500
+	id <S268256AbTCFTvM>; Thu, 6 Mar 2003 14:51:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268276AbTCFTqE>; Thu, 6 Mar 2003 14:46:04 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:42200 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S268032AbTCFTqB>; Thu, 6 Mar 2003 14:46:01 -0500
-Date: Thu, 6 Mar 2003 20:56:28 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] 2.5.64-ac1: fix apic.c compile
-Message-ID: <20030306195628.GC17691@fs.tum.de>
-References: <200303061915.h26JFAP06033@devserv.devel.redhat.com>
+	id <S268317AbTCFTvM>; Thu, 6 Mar 2003 14:51:12 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:52135
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268256AbTCFTvL>; Thu, 6 Mar 2003 14:51:11 -0500
+Subject: Re: [PATCH] move SWAP option in menu
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Gabriel Paubert <paubert@iram.es>
+Cc: Tom Rini <trini@kernel.crashing.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       randy.dunlap@verizon.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <20030306193344.GA29166@iram.es>
+References: <3E657EBD.59E167D6@verizon.net> <20030305181748.GA11729@iram.es>
+	 <20030305131444.1b9b0cf2.rddunlap@osdl.org>
+	 <20030306184332.GA23580@ip68-0-152-218.tc.ph.cox.net>
+	 <20030306193344.GA29166@iram.es>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1046984808.18158.115.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200303061915.h26JFAP06033@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 06 Mar 2003 21:06:49 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The -ac patch adds a second definition of enable_NMI_through_LVT0 to 
-apic.c resulting in the following compile error:
+On Thu, 2003-03-06 at 19:33, Gabriel Paubert wrote:
+> I'd be very surprised if it were possible to have swap on a MMU-less 
+> machine (no virtual memory, page faults, etc.). Except for this nitpick, 
+> the patch looks fine, but my knowledge of MM is close to zero (and 
+> also of the new config language, but I'll have to learn it soon).
 
-<--  snip  -->
+You can, and people have had swapping long before virtual memory. Most
+ucLinux platforms can't swap because they can't dynamically relocate code.
+Linux 8086 can swap because it can use CS/DS updates to relocate code/data.
 
-...
-  gcc -Wp,-MD,arch/i386/kernel/.apic.o.d -D__KERNEL__ -Iinclude -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=k6 
--Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    
--DKBUILD_BASENAME=apic -DKBUILD_MODNAME=apic -c -o 
-arch/i386/kernel/apic.o arch/i386/kernel/apic.c
-arch/i386/kernel/apic.c:72: redefinition of `enable_NMI_through_LVT0'
-arch/i386/kernel/apic.c:60: `enable_NMI_through_LVT0' previously defined here
-{standard input}: Assembler messages:
-{standard input}:126: Error: symbol `enable_NMI_through_LVT0' is already defined
-make[1]: *** [arch/i386/kernel/apic.o] Error 1
-
-<--  snip  -->
-
-
-Please remove the following part of the -ac patch:
-
-
---- linux-2.5.64/arch/i386/kernel/apic.c	2003-03-06 17:04:22.000000000 +0000
-+++ linux-2.5.64-ac1/arch/i386/kernel/apic.c	2003-03-06 17:08:59.000000000 +0000
-@@ -66,6 +68,18 @@
- 	apic_write_around(APIC_LVT0, v);
- }
- 
-+void enable_NMI_through_LVT0 (void * dummy)
-+{
-+	unsigned int v, ver;
-+
-+	ver = apic_read(APIC_LVR);
-+	ver = GET_APIC_VERSION(ver);
-+	v = APIC_DM_NMI;			/* unmask and set to NMI */
-+	if (!APIC_INTEGRATED(ver))		/* 82489DX */
-+		v |= APIC_LVT_LEVEL_TRIGGER;
-+	apic_write_around(APIC_LVT0, v);
-+}
-+
- int get_maxlvt(void)
- {
- 	unsigned int v, ver, maxlvt;
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+The way it worked on older systems is that you never run a program which
+isnt entirely in memory. With that constraint you know it won't suddenely
+want data you don't have
 

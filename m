@@ -1,78 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274966AbTHLBOX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 21:14:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274968AbTHLBOX
+	id S274968AbTHLB3z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 21:29:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274969AbTHLB3y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 21:14:23 -0400
-Received: from mail14.speakeasy.net ([216.254.0.214]:13003 "EHLO
-	mail.speakeasy.net") by vger.kernel.org with ESMTP id S274966AbTHLBOP
+	Mon, 11 Aug 2003 21:29:54 -0400
+Received: from pop016pub.verizon.net ([206.46.170.173]:757 "EHLO
+	pop016.verizon.net") by vger.kernel.org with ESMTP id S274968AbTHLB3v
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 21:14:15 -0400
-Message-Id: <5.2.1.1.0.20030811180413.01a67dc0@no.incoming.mail>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Mon, 11 Aug 2003 18:13:50 -0700
-To: Andries Brouwer <aebr@win.tue.nl>
-From: Jeff Woods <kazrak+kernel@cesmail.net>
-Subject: Re: [PATCH] oops in sd_shutdown
-Cc: linux-scsi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20030812002844.B1353@pclin040.win.tue.nl>
-References: <Pine.LNX.4.53.0308111426570.16008@thevillage.soulcatcher>
- <Pine.LNX.4.53.0308111426570.16008@thevillage.soulcatcher>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Mon, 11 Aug 2003 21:29:51 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+To: Michael Buesch <fsdeveloper@yahoo.de>, Adrian Bunk <bunk@fs.tum.de>
+Subject: Re: [2.6 patch] add an -Os config option
+Date: Mon, 11 Aug 2003 21:29:48 -0400
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
+References: <20030811211145.GA569@fs.tum.de> <200308112319.43384.fsdeveloper@yahoo.de>
+In-Reply-To: <200308112319.43384.fsdeveloper@yahoo.de>
+Organization: None that appears to be detectable by casual observers
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308112129.48990.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at pop016.verizon.net from [151.205.10.14] at Mon, 11 Aug 2003 20:29:50 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At +0200 12:28 AM 8/12/2003, Andries Brouwer wrote (in part):
->The obvious patch (with whitespace damage)
+On Monday 11 August 2003 17:19, Michael Buesch wrote:
+>-----BEGIN PGP SIGNED MESSAGE-----
+>Hash: SHA1
 >
->diff -u --recursive --new-file -X /linux/dontdiff a/drivers/scsi/sd.c 
->b/drivers/scsi/sd.c
->--- a/drivers/scsi/sd.c Mon Jul 28 05:39:31 2003
->+++ b/drivers/scsi/sd.c Tue Aug 12 01:24:51 2003
->@@ -1351,10 +1351,14 @@
->  static void sd_shutdown(struct device *dev)
->  {
->         struct scsi_device *sdp = to_scsi_device(dev);
->-       struct scsi_disk *sdkp = dev_get_drvdata(dev);
->+       struct scsi_disk *sdkp;
->         struct scsi_request *sreq;
->         int retries, res;
+>On Monday 11 August 2003 23:11, Adrian Bunk wrote:
+>> +	  The resulting kernel might be significantly slower.
 >
->+       sdkp = dev_get_drvdata(dev);
->+       if (!sdkp)
->+               return;         /* this can happen */
->+
->         if (!sdp->online || !sdkp->WCE)
->                 return;
+>With my poor english knowledge I would say it should be
+> "significant". Correct?
+>
+No, the quoted "significantly" version is the correct english useage 
+in this apparently present tense.
 
-
-Looking only at the above code snippet, I'd suggest something more like:
-~~~~~~~~~~~~~~~~~~
-diff -u --recursive --new-file -X /linux/dontdiff a/drivers/scsi/sd.c 
-b/drivers/scsi/sd.c
---- a/drivers/scsi/sd.c Mon Jul 28 05:39:31 2003
-+++ b/drivers/scsi/sd.c Tue Aug 12 01:24:51 2003
-@@ -1351,10 +1351,14 @@
-  static void sd_shutdown(struct device *dev)
-  {
-         struct scsi_device *sdp = to_scsi_device(dev);
-         struct scsi_disk *sdkp = dev_get_drvdata(dev);
-         struct scsi_request *sreq;
-         int retries, res;
-
--       if (!sdp->online || !sdkp->WCE)
-+       if (!sdp || !sdp->online || !sdkp || !sdkp->WCE)
-                 return;
-~~~~~~~~~~~~~~~~~~
-If sdp can *never* be NULL *and* this is a performance-critical code-path 
-then perhaps it makes sense to leave off the "!sdp || " which I added to 
-the logic, but it seems a very small cost to pay for the insurance checking 
-in sd_shutdown().
-
---
-Jeff Woods <kazrak+kernel@cesmail.net> 
-
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 

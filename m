@@ -1,83 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbUJYANJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbUJYAM4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261635AbUJYANJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 20:13:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbUJYANJ
+	id S261630AbUJYAM4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 20:12:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbUJYAM4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 20:13:09 -0400
-Received: from [203.2.177.22] ([203.2.177.22]:64519 "EHLO pinot.tusc.com.au")
-	by vger.kernel.org with ESMTP id S261635AbUJYAMy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 20:12:54 -0400
-Subject: X.25 : Debug: sleeping function called from invalid context at
-	net/core/sock.c:1203
-From: Andrew Hendry <ahendry@tusc.com.au>
-To: linux-x25@vger.kernel.org, eis@baty.hanse.de
-Cc: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1098663030.3099.162.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 25 Oct 2004 10:10:30 +1000
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Oct 2004 00:13:09.0875 (UTC) FILETIME=[68D8DC30:01C4BA27]
+	Sun, 24 Oct 2004 20:12:56 -0400
+Received: from smtp07.auna.com ([62.81.186.17]:31437 "EHLO smtp07.retemail.es")
+	by vger.kernel.org with ESMTP id S261630AbUJYAMw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 20:12:52 -0400
+Date: Mon, 25 Oct 2004 00:12:51 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: 2.6.9-mm1
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+References: <20041022032039.730eb226.akpm@osdl.org>
+In-Reply-To: <20041022032039.730eb226.akpm@osdl.org> (from akpm@osdl.org on
+	Fri Oct 22 12:20:39 2004)
+X-Mailer: Balsa 2.2.5
+Message-Id: <1098663171l.6459l.1l@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	Format=Flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.8.1
 
-When called from x25_heartbeat_expiry, x25_destroy_socket trips the
-following:
+On 2004.10.22, Andrew Morton wrote:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9/2.6.9-mm1/
+> 
 
-Oct 20 12:19:01 localhost kernel: Debug: sleeping function called from
-invalid context at net/core/sock.c:1203
-Oct 20 12:19:01 localhost kernel: in_atomic():1, irqs_disabled():0
-Oct 20 12:19:01 localhost kernel:  [<c0117e55>] __might_sleep+0x9a/0xa2
-Oct 20 12:19:01 localhost kernel:  [<c025964e>] lock_sock+0x12/0x3d
-Oct 20 12:19:01 localhost kernel:  [<f89a1a1e>]
-x25_heartbeat_expiry+0x0/0x4d [x25]
-Oct 20 12:19:01 localhost kernel:  [<f899d3e2>]
-x25_destroy_socket+0x10/0xd5 [x25]
-Oct 20 12:19:01 localhost kernel:  [<f89a1a1e>]
-x25_heartbeat_expiry+0x0/0x4d [x25]
-Oct 20 12:19:01 localhost kernel:  [<c01202f4>]
-run_timer_softirq+0xa1/0x13c
-Oct 20 12:19:01 localhost kernel:  [<c0120466>] do_timer+0xcd/0xd2
-Oct 20 12:19:01 localhost kernel:  [<c011ceaf>] __do_softirq+0x77/0x79
-Oct 20 12:19:01 localhost kernel:  [<c011ced7>] do_softirq+0x26/0x28
-Oct 20 12:19:01 localhost kernel:  [<c010749d>] do_IRQ+0xd4/0x107
-Oct 20 12:19:01 localhost kernel:  [<c0105d90>]
-common_interrupt+0x18/0x20
-Oct 20 12:19:01 localhost kernel:  [<c01da7ae>]
-acpi_processor_idle+0xd4/0x1c7
-Oct 20 12:19:01 localhost kernel:  [<c010409b>] cpu_idle+0x2c/0x35
-Oct 20 12:19:01 localhost kernel:  [<c034c655>] start_kernel+0x163/0x19f
-Oct 20 12:19:01 localhost kernel:  [<c034c2cf>]
-unknown_bootoption+0x0/0x144
+I suppose this is from the preempt debug code:
 
-Looking at other protocols setup the same way, rose and ax25 dont have
-the lock_sock in destroy. Is the lock_sock needed here?
+Oct 24 23:23:21 werewolf kernel: using smp_processor_id() in preemptible code: pump/4673
+Oct 24 23:23:21 werewolf kernel:  [smp_processor_id+135/147] smp_processor_id+0x87/0x93
+Oct 24 23:23:22 werewolf kernel:  [<b0116b5e>] smp_processor_id+0x87/0x93
+Oct 24 23:23:22 werewolf kernel:  [pg0+1080536608/1338123264] destroy_conntrack+0xc1/0x118 [ip_conntrack]
+Oct 24 23:23:22 werewolf kernel:  [<f0a56e20>] destroy_conntrack+0xc1/0x118 [ip_conntrack]
+Oct 24 23:23:22 werewolf kernel:  [pg0+1080542311/1338123264] ip_ct_selective_cleanup+0x48/0x6a [ip_conntrack]
+Oct 24 23:23:22 werewolf kernel:  [<f0a58467>] ip_ct_selective_cleanup+0x48/0x6a [ip_conntrack]
+Oct 24 23:23:22 werewolf kernel:  [pg0+1080509266/1338123264] masq_inet_event+0x14/0x17 [ipt_MASQUERADE]
+Oct 24 23:23:22 werewolf kernel:  [<f0a50352>] masq_inet_event+0x14/0x17 [ipt_MASQUERADE]
+Oct 24 23:23:22 werewolf kernel:  [notifier_call_chain+21/43] notifier_call_chain+0x15/0x2b
+Oct 24 23:23:22 werewolf kernel:  [<b0126cfb>] notifier_call_chain+0x15/0x2b
+Oct 24 23:23:22 werewolf kernel:  [inet_insert_ifa+206/335] inet_insert_ifa+0xce/0x14f
+Oct 24 23:23:22 werewolf kernel:  [<b02c1bb4>] inet_insert_ifa+0xce/0x14f
+Oct 24 23:23:22 werewolf kernel:  [.text.lock.devinet+85/182] .text.lock.devinet+0x55/0xb6
+Oct 24 23:23:22 werewolf kernel:  [<b02c3653>] .text.lock.devinet+0x55/0xb6
+Oct 24 23:23:22 werewolf kernel:  [devinet_ioctl+1273/1614] devinet_ioctl+0x4f9/0x64e
+Oct 24 23:23:22 werewolf kernel:  [<b02c2663>] devinet_ioctl+0x4f9/0x64e
+Oct 24 23:23:22 werewolf kernel:  [inet_ioctl+212/231] inet_ioctl+0xd4/0xe7
+Oct 24 23:23:22 werewolf kernel:  [<b02c45cb>] inet_ioctl+0xd4/0xe7
+Oct 24 23:23:22 werewolf kernel:  [sock_ioctl+424/609] sock_ioctl+0x1a8/0x261
+Oct 24 23:23:22 werewolf kernel:  [<b028155d>] sock_ioctl+0x1a8/0x261
+Oct 24 23:23:22 werewolf kernel:  [fget+73/94] fget+0x49/0x5e
+Oct 24 23:23:22 werewolf kernel:  [<b01532ec>] fget+0x49/0x5e
+Oct 24 23:23:22 werewolf kernel:  [sys_ioctl+489/581] sys_ioctl+0x1e9/0x245
+Oct 24 23:23:22 werewolf kernel:  [<b016354c>] sys_ioctl+0x1e9/0x245
+Oct 24 23:23:22 werewolf kernel:  [filp_close+72/138] filp_close+0x48/0x8a
+Oct 24 23:23:22 werewolf kernel:  [<b0151bcb>] filp_close+0x48/0x8a
+Oct 24 23:23:22 werewolf kernel:  [sysenter_past_esp+82/113] sysenter_past_esp+0x52/0x71
+Oct 24 23:23:22 werewolf kernel:  [<b0103da5>] sysenter_past_esp+0x52/0x71
 
-diff -up linux-2.6.8.1/net/x25/af_x25.c.orig
-linux-2.6.8.1/net/x25/af_x25.c
---- linux-2.6.8.1/net/x25/af_x25.c.orig 2004-10-25 08:49:40.780391664
-+1000
-+++ linux-2.6.8.1/net/x25/af_x25.c      2004-10-25 09:47:02.578158872
-+1000
-@@ -322,7 +322,6 @@ void x25_destroy_socket(struct sock *sk)
-        struct sk_buff *skb;
-  
-        sock_hold(sk);
--       lock_sock(sk);
-        x25_stop_heartbeat(sk);
-        x25_stop_timer(sk);
-  
-@@ -353,7 +352,6 @@ void x25_destroy_socket(struct sock *sk)
-                __sock_put(sk);
-        }
-  
--       release_sock(sk);
-        sock_put(sk);
- }
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.1 (Community) for i586
+Linux 2.6.9-jam1 (gcc 3.4.1 (Mandrakelinux 10.1 3.4.1-4mdk)) #1
 
 

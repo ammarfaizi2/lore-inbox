@@ -1,68 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268955AbUJPXHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268957AbUJPXQI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268955AbUJPXHe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 19:07:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268959AbUJPXHe
+	id S268957AbUJPXQI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 19:16:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268959AbUJPXQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 19:07:34 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:57294 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S268955AbUJPXHc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 19:07:32 -0400
-Subject: Re: [BUG] JVM crashes with 2.6.9-rc2
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Andrew Morton <akpm@osdl.org>
-Cc: roland@redhat.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20041016124519.627456de.akpm@osdl.org>
-References: <1097928466.13431.8.camel@localhost>
-	 <20041016124519.627456de.akpm@osdl.org>
-Date: Sun, 17 Oct 2004 02:07:38 +0300
-Message-Id: <1097968058.8033.8.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.0.0 
+	Sat, 16 Oct 2004 19:16:08 -0400
+Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:18305 "EHLO
+	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S268957AbUJPXQG convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 19:16:06 -0400
+X-OB-Received: from unknown (205.158.62.156)
+  by wfilter.us4.outblaze.com; 16 Oct 2004 23:16:05 -0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Panos Polychronis" <maxsoft@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Date: Sun, 17 Oct 2004 07:16:05 +0800
+Subject: Linux Kernel 2.6.9-rcX & -final warnings
+X-Originating-Ip: 62.38.210.241
+X-Originating-Server: ws5-7.us4.outblaze.com
+Message-Id: <20041016231605.5D7DF2B2B86@ws5-7.us4.outblaze.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Date: 2004-10-15 (21:30):   0w,0e    11w,0e  1950w,0e  (2.6.9-final)
 
-At some point in time, I wrote:
-> > I also tested 2.6.7, 2.6.8.1, and 2.6.9-rc1 and they all work fine.
-> > Reverting Roland's i386 syscall tracing patch [2] from 2.6.9-rc2 makes
-> > the problem go away for me.
+what will happen with all those warnings ?
 
-On Sat, 2004-10-16 at 12:45 -0700, Andrew Morton wrote:
-> That's peculiar.  Are you sure about that?
+-- 
+______________________________________________
+Check out the latest SMS services @ http://www.linuxmail.org 
+This allows you to send and receive SMS through your mailbox.
 
-I tested again and I now get the crash with _all_ of the above kernels
-so it's definitely not the patch.  Sorry about that.  I'll run memtest86
-tomorrow to see if my hardware is broken.
 
-In case anyone is interested, here's the error message:
-
-#
-# HotSpot Virtual Machine Error, Internal Error
-# Please report this error at
-# http://java.sun.com/cgi-bin/bugreport.cgi
-#
-# Java VM: Java HotSpot(TM) Client VM (1.4.2_06-b03 mixed mode)
-#
-# Error ID: 43113F32554E54494D45110E4350500308
-#
-# Problematic Thread: prio=1 tid=0x0805bb08 nid=0x1f48 runnable
-#
-
-Heap at VM Abort:
-Heap
- def new generation   total 576K, used 576K [0x44750000, 0x447f0000, 0x44c30000)
-  eden space 512K, 100% used [0x44750000, 0x447d0000, 0x447d0000)
-  from space 64K, 100% used [0x447e0000, 0x447f0000, 0x447f0000)
-  to   space 64K,   0% used [0x447d0000, 0x447d0000, 0x447e0000)
- tenured generation   total 4716K, used 3965K [0x44c30000, 0x450cb000, 0x48750000)
-   the space 4716K,  84% used [0x44c30000, 0x4500f7c8, 0x4500f800, 0x450cb000)
- compacting perm gen  total 11520K, used 11510K [0x48750000, 0x49290000, 0x4c750000)
-   the space 11520K,  99% used [0x48750000, 0x4928daa0, 0x4928dc00, 0x49290000)
-
-		Pekka
-
+Powered by Outblaze

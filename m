@@ -1,95 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265417AbTGCWPp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 18:15:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265426AbTGCWPp
+	id S265422AbTGCWXq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 18:23:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265429AbTGCWXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 18:15:45 -0400
-Received: from mailadmin.live365.com ([216.235.80.39]:45326 "EHLO
-	mailadmin.live365.com") by vger.kernel.org with ESMTP
-	id S265417AbTGCWPn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 18:15:43 -0400
-Message-ID: <3F04AE65.1000604@nospam.com>
-Date: Thu, 03 Jul 2003 15:29:57 -0700
-From: "John E. Leon Guerrero" <jguerrero-useatsign-live365.com@nospam.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4b) Gecko/20030507
-X-Accept-Language: en-us, en
+	Thu, 3 Jul 2003 18:23:46 -0400
+Received: from front2.netvisao.pt ([213.228.128.57]:28876 "HELO
+	front2.netvisao.pt") by vger.kernel.org with SMTP id S265422AbTGCWXo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 18:23:44 -0400
+Message-ID: <003d01c341b3$aa4c89c0$cc3a81d9@netvisao.pt>
+From: "NunO fELICIO" <nmpf@netvisao.pt>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.40.0307031759060.10456-100000@domesticus.fery-local.hu>
+Subject: Re: Geode GX1, video acceleration -> crash
+Date: Thu, 3 Jul 2003 23:37:18 +0100
 MIME-Version: 1.0
-To: Roberto Slepetys Ferreira <slepetys@homeworks.com.br>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM:  2.4.20 os hang when accessing local ide harddrive
-References: <3EDFDDBA.2060706@live365.com> <3F0475F7.1070208@nospam.com> <018901c3419a$69efd440$3300a8c0@Slepetys>
-In-Reply-To: <018901c3419a$69efd440$3300a8c0@Slepetys>
-X-Enigmail-Version: 0.75.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2720.3000
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Roberto,
+Yes, i have some troubles with that, do not use the fb driver from national,
+look at http://www.directfb.org/ , they have very good drivers =).
 
-Here is more information from a test i did a minute ago:
-1. i just started the machine, mounted a directory from another system 
-which has a very large tar file, and then i untarred it to the ide drive 
-mounted on the scsi root drive.  this was done on the first console screen.
-2. after a couple of minutes, the untar stops writing to the screen.  i 
-notice that the case-hard-drive-light is stuck on.
-3. i was tailing /var/log/message in another window over ssh from 
-another machine.  nothing happened in that screen.  i exited the tail 
-and checked if anything was written to syslog.  notice that at this 
-point, i think the ide harddrive is frozen yet i am still able to run 
-commands like i would expect.
-4. on the console, i log in on the 2nd console screen and try to startx. 
-  this hangs and does not respond to control-c.
-5. in my ssh window, i try df -k.  now, this hangs and ignores control-c.
-6. i try to start another ssh window...this no longer works and just hangs.
-7. at this point, i reboot the machine.
 
-on a related note, i have yet a 3rd machine to experience this type of 
-hang just this morning.  it is running the exact same kernel from the 
-first machine...compiled from the 2.4.20 sources.  in this scenario:
-1. i was running xmms and listening to internet radio (live365 of course :)
-2. in a ssh window, i changed directories to an ide drive (mounted on 
-another ide drive this time.)
-3. i tried to lists the contents of a file and noticed that it hung.  at 
-that point, i noticed that x windows was frozen and the sound was 
-looping.  i didn't have my head phones on at the time the problem 
-started so unfortunately, i cannot positively say that listing the file 
-caused the entire system to hang but that is my gut feel.
-4. this system had been up for weeks.  the root file system was 
-definitely active in that time frame, but the mounted ide drive was idle 
-  for at least a week before i tried to access that file.  also, i saw 
-that the case-hard-drive-light was stuck on just like in the first 
-problem that i reported.
-5. i checked and there was nothing in messages nor syslog at the time of 
-the hang.
+Nuno Felicio
+---------------------
+Systems and Coca Cola
 
-if it is related, the other machine that hung happened after mounting 
-and unmounting some floppies.  that was also on 2.4.20, debian 
-woody...but built separately from the other 2 machines.
+----- Original Message -----
+From: "Ferenc Engard" <ferenc@engard.hu>
+To: <linux-kernel@vger.kernel.org>
+Sent: Thursday, July 03, 2003 5:24 PM
+Subject: Geode GX1, video acceleration -> crash
 
-jlg
 
-Roberto Slepetys Ferreira wrote:
-
-> Hi Guerrero,
-> 
-> I am having some hangs with the 2.4.20 kernel without isolatting the source
-> of the trouble.
-> 
-> Is there any strange message at /var/log/message ? How do you concluded that
-> is the IDE drive ?
-> 
-> In my linux box, it halts without any clue of what is going on. First I
-> thank that the trouble was with AIC7xxx and SCSI drives, because of a
-> correlation of large I/O and linux halt, but after a big help from Justin
-> Gibbs, when I upgraded the AICxxx module to the newer, the system hangs
-> without the old message: Locking max tag count...
-> 
-> []s
-> Slepetys
-> 
-> 
-
+> Hello there,
+>
+> First of all, I am new to the framebuffer business, and looks like
+> that the linux-fbdev.org site is down. Where can I find a mailing list
+> or other information resource about framebuffers in general, and about
+> Geode hardware specifically? It is a nightmare to find any information
+> for Geode on linux... :((
+>
+> I am developing a graphical app for an Advantech PCM-5820 (I think :),
+> i.e. a Geode GX1 / CS5530 board, 64MB RAM, which I want to run a linux
+> / framebuffer application on.
+>
+> Now, about my problem:
+>
+> I have installed the 2.4.17 kernel, patched with NSC's original Geode
+> fb driver (nsc-kfb-driver-2.7.7.tar.gz), and compiled it successfully.
+> Also, as I couldn't find in other places, I have downloaded the
+> nsc_xfree_2.7.6.tgz package just to compile the GAL library
+> (nsc_galfns.c) in it, as this was what I needed.
+>
+> First surprise: I cannot switch into 32bpp modes! Did I miss
+> something? fbset refuses it, setting at boot time do not work either.
+>
+> Next, I have written a small application to test the processor's
+> bitblt capability. The program calls Gal_screen_to_screen_blt() to
+> scroll a rectangle on the screen, then usleeps a bit. It does work,
+> although the scheduler do not give back the run to the task until
+> approx. 20ms elapses (no problem at now), and in 16bpp, it do not
+> scroll the region but inverses it(?!).  I suppose that it is not good
+> that the console writes out things while the bitblt engine works.
+> Question: should I disable writing to the console while my app runs?
+> How?
+>
+> But the real problem is, that I wanted to benchmark the system while
+> the scrolling continues, and issued a
+> dd if=/dev/mem of=/dev/null bs=1024 count=32768
+> command. For the second go, the system freezed like a good
+> refrigerator. No kernel panic, nothing, just freezed. It can be
+> repeated, if I copy just the 1st MB of RAM, then it freezes for the
+> 5-6th go. :((
+>
+> What can I do? How to debug?
+>
+> Please cc your answers to ferenc@engard.hu, too!
+>
+> Thank you:
+> Circum
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

@@ -1,48 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267404AbUHXKSO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266566AbUHXKWY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267404AbUHXKSO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 06:18:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267405AbUHXKSN
+	id S266566AbUHXKWY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 06:22:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267400AbUHXKWY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 06:18:13 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59146 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S267404AbUHXKR6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 06:17:58 -0400
-Date: Tue, 24 Aug 2004 11:17:51 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.6.9-rc1 compile fix: nfsroot.c
-Message-ID: <20040824111751.A23041@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
+	Tue, 24 Aug 2004 06:22:24 -0400
+Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:56502 "EHLO
+	zoo.weinigel.se") by vger.kernel.org with ESMTP id S266566AbUHXKWW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 06:22:22 -0400
+To: Kai Makisara <Kai.Makisara@kolumbus.fi>
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, der.eremit@email.de,
+       christer@weinigel.se, linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+References: <2ptdY-42Y-55@gated-at.bofh.it> <2uPdM-380-11@gated-at.bofh.it>
+	<2uUwL-6VP-11@gated-at.bofh.it> <2uWfh-8jo-29@gated-at.bofh.it>
+	<2uXl0-Gt-27@gated-at.bofh.it> <2vge2-63k-15@gated-at.bofh.it>
+	<2vgQF-6Ai-39@gated-at.bofh.it> <2vipq-7O8-15@gated-at.bofh.it>
+	<2vj2b-8md-9@gated-at.bofh.it> <2vDtS-bq-19@gated-at.bofh.it>
+	<E1ByXMd-00007M-4A@localhost> <412770EA.nail9DO11D18Y@burner>
+	<412889FC.nail9MX1X3XW5@burner>
+	<Pine.LNX.4.58.0408221450540.297@neptune.local>
+	<m37jrr40zi.fsf@zoo.weinigel.se> <4128CAA2.nail9RG21R1OG@burner>
+	<Pine.LNX.4.58.0408232113030.4258@kai.makisara.local>
+From: Christer Weinigel <christer@weinigel.se>
+Organization: Weinigel Ingenjorsbyra AB
+Date: 24 Aug 2004 12:22:21 +0200
+In-Reply-To: <Pine.LNX.4.58.0408232113030.4258@kai.makisara.local>
+Message-ID: <m3llg4bztu.fsf@zoo.weinigel.se>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's an untested patch for this error:
+Kai Makisara <Kai.Makisara@kolumbus.fi> writes:
 
-fs/nfs/nfsroot.c: In function `root_nfs_get_handle':
-fs/nfs/nfsroot.c:499: error: incompatible type for argument 1 of `nfs_copy_fh'
-fs/nfs/nfsroot.c:499: error: incompatible type for argument 2 of `nfs_copy_fh'
+> On Sun, 22 Aug 2004, Joerg Schilling wrote:
+> 
+> > Christer Weinigel <christer@weinigel.se> wrote:
+> > BTW: 'mt' should not need to send SCSI comands. THis shoul dbe handled via
+> > specilized ioctls.
+> > 
+> There are already ioctls for changing the tape parameters. Christer, there 
+> is no need to introduce tapes into this discussion.
 
-diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej orig/fs/nfs/nfsroot.c linux/fs/nfs/nfsroot.c
---- orig/fs/nfs/nfsroot.c	Tue Aug 24 09:56:32 2004
-+++ linux/fs/nfs/nfsroot.c	Tue Aug 24 11:11:01 2004
-@@ -496,7 +496,7 @@ static int __init root_nfs_get_handle(vo
- 		printk(KERN_ERR "Root-NFS: Server returned error %d "
- 				"while mounting %s\n", status, nfs_path);
- 	else
--		nfs_copy_fh(nfs_data.root, fh);
-+		nfs_copy_fh(&nfs_data.root, &fh);
- 
- 	return status;
- }
+It was en example of another application that needs to modify the mode
+pages, and it's interesting to look at how we have solved similar
+problems before.
+
+So if we want to be consistent we ought to introduce specialized
+ioctls for everything cdrecord wants to do.  Otoh, tape drives don't
+seem to be such a fast moving target as CD and DVD burners.
+
+  /Christer
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+"Just how much can I get away with and still go to heaven?"
+
+Freelance consultant specializing in device driver programming for Linux 
+Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129905AbRAaDU0>; Tue, 30 Jan 2001 22:20:26 -0500
+	id <S129584AbRAaD1i>; Tue, 30 Jan 2001 22:27:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129992AbRAaDUQ>; Tue, 30 Jan 2001 22:20:16 -0500
-Received: from [200.216.82.35] ([200.216.82.35]:19072 "EHLO
-	pervalidus.dyndns.org") by vger.kernel.org with ESMTP
-	id <S129905AbRAaDUB>; Tue, 30 Jan 2001 22:20:01 -0500
-Date: Wed, 31 Jan 2001 01:19:14 -0200
-From: Frédéric L. W. Meunier <0@pervalidus.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: VIA VT82C686X
-Message-ID: <20010131011914.D160@pervalidus>
+	id <S129742AbRAaD13>; Tue, 30 Jan 2001 22:27:29 -0500
+Received: from odin.sinectis.com.ar ([216.244.192.158]:8461 "EHLO
+	mail.sinectis.com.ar") by vger.kernel.org with ESMTP
+	id <S129584AbRAaD10>; Tue, 30 Jan 2001 22:27:26 -0500
+Date: Wed, 31 Jan 2001 00:27:27 -0300
+From: John R Lenton <john@grulic.org.ar>
+To: Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: Disk is cheap?
+Message-ID: <20010131002727.G3439@grulic.org.ar>
+Mail-Followup-To: Linux-Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <00fc01c08aee$e6c28090$0100a8c0@homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.14i
-X-Mailer: Mutt/1.3.14i - Linux 2.4.1
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <00fc01c08aee$e6c28090$0100a8c0@homeip.net>; from eccesys@topmail.de on Tue, Jan 30, 2001 at 06:58:22PM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Me too. But I couldn't get UDMA 66 after changing my BIOS
-settings and booting. With 33 it's very stable (what I used
-with 2.4.0). A diff:
+On Tue, Jan 30, 2001 at 06:58:22PM -0000, mirabilos wrote:
+> I accept donations in IDE and SCSI, as well as parport devices.
 
--hda: 30015216 sectors (15368 MB) w/2048KiB Cache, CHS=1868/255/63, UDMA(33)
-+hda: 30015216 sectors (15368 MB) w/2048KiB Cache, CHS=1868/255/63, UDMA(66)
-...
-+hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-+hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-VFS: Mounted root (ext2 filesystem) readonly.
--Freeing unused kernel memory: 200k freed
-+Freeing unused kernel memory: 204k freed
-+hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-+hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-+hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-+hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-+hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-+hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-+hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-+hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-+ide0: reset: success
-
-I know this is a known issue, but I thought testing would be
-OK. ASUS K7V with the shipped cable.
+I have a parport device (one of the few things left from my XT).
+I can send it to you if you pay shipping.
 
 -- 
-0@pervalidus.{net, {dyndns.}org} Tel: 55-21-717-2399 (Niterói-RJ BR)
+John Lenton (john@grulic.org.ar) -- Random fortune:
+Saints should always be judged guilty until they are proven innocent.
+- George Orwell
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290771AbSARRxx>; Fri, 18 Jan 2002 12:53:53 -0500
+	id <S290773AbSARSOh>; Fri, 18 Jan 2002 13:14:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290772AbSARRxn>; Fri, 18 Jan 2002 12:53:43 -0500
-Received: from mailhost.nmt.edu ([129.138.4.52]:18695 "EHLO mailhost.nmt.edu")
-	by vger.kernel.org with ESMTP id <S290771AbSARRxi>;
-	Fri, 18 Jan 2002 12:53:38 -0500
-Subject: Re: 2.5.3-pre1 emu10k1
-From: Quinn Harris <quinn@nmt.edu>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020117103204.GA8938@profive.com>
-In-Reply-To: <20020117103204.GA8938@profive.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 18 Jan 2002 10:53:36 -0700
-Message-Id: <1011376417.644.0.camel@quinn.rcn.nmt.edu>
-Mime-Version: 1.0
+	id <S290774AbSARSO3>; Fri, 18 Jan 2002 13:14:29 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:14208 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S290773AbSARSOY>; Fri, 18 Jan 2002 13:14:24 -0500
+Date: Fri, 18 Jan 2002 13:15:01 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Brian Gerst <bgerst@didntduck.org>
+cc: Raman S <raman_s_@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: int 0x40
+In-Reply-To: <3C485FB5.FC5CB8C3@didntduck.org>
+Message-ID: <Pine.LNX.3.95.1020118131406.1503A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Change the MINOR(...) to minor(&...) on that line.  There might be a few
-more like that.
+On Fri, 18 Jan 2002, Brian Gerst wrote:
 
-This worked for the cvs emu10k1 audigy branch for me.
+> Raman S wrote:
+> > 
+> > Hi,
+> >   I relatively new to the kernel and am trying to understand how the linux
+> > kernel handles interrupts. For this I attempted to
 
-The 2.5.x kernels are working toward a better way of managing device
-identifiers.  kdev_t is now a structure not a short.  MINOR(x) is a
-macro that wants a short, just like its always been.  But minor(x) is an
-inlined function that wants a pointer to the new kdev_t struct and
-returns a char representing the device minor number.  I expect MINOR
-will be depreciated.
-
-Quinn Harris
-
-On Thu, 2002-01-17 at 03:32, Mathias Wiklander wrote:
-> When I try to compile emu10k1 as a module i get this error.
+[SNIPPED...]
 > 
-> gcc -D__KERNEL__ -I/usr/src/v2.5.2/linux/include -Wall -Wstrict-prototypes
-> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-
-> strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686
-> -DMODULE -DEMU10K1_SEQUENCER  -c -o audio.o a
-> udio.c
-> audio.c: In function mu10k1_audio_open':
-> audio.c:1101: invalid operands to binary &
-> make[3]: *** [audio.o] Error 1
-> make[3]: Leaving directory /usr/src/v2.5.2/linux/drivers/sound/emu10k1'
+> The IRQ setup code is probably overwriting it.  You'll need to make the
+> code in i8259.c skip over vector 0x40 as well as SYSCALL_VECTOR (0x80).
 > 
-> /Eastbay
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> --
 > 
+> 				Brian Gerst
+
+Yes. It looks like this is what is happening.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
 

@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262814AbSJWDon>; Tue, 22 Oct 2002 23:44:43 -0400
+	id <S262815AbSJWECF>; Wed, 23 Oct 2002 00:02:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262815AbSJWDon>; Tue, 22 Oct 2002 23:44:43 -0400
-Received: from [213.95.15.193] ([213.95.15.193]:17931 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S262814AbSJWDol>;
-	Tue, 22 Oct 2002 23:44:41 -0400
-To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.44: How to decode call trace
-References: <87elai82xb.fsf@goat.bogus.local.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 23 Oct 2002 05:50:41 +0200
-In-Reply-To: Olaf Dietsche's message of "23 Oct 2002 01:34:17 +0200"
-Message-ID: <p73isztstim.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S262826AbSJWECF>; Wed, 23 Oct 2002 00:02:05 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18447 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262815AbSJWECE>; Wed, 23 Oct 2002 00:02:04 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] linux-2.5.44_vsyscall_A1
+Date: 22 Oct 2002 21:08:08 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <ap57b8$2go$1@cesium.transmeta.com>
+References: <1035336629.954.90.camel@cog> <3DB60363.8040104@pobox.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de> writes:
-> and this is the code:
-> static int __fscap_lookup(struct vfsmount *mnt, struct nameidata *nd)
-> {
-> 	static char name[] = ".capabilities";
-> 	nd->mnt = mntget(mnt);
-> 	nd->dentry = dget(mnt->mnt_sb->s_root);
-> 	nd->flags = 0;
-> 	return path_walk(name, nd);
-> }
+Followup to:  <3DB60363.8040104@pobox.com>
+By author:    Jeff Garzik <jgarzik@pobox.com>
+In newsgroup: linux.dev.kernel
 > 
-> What does .text.lock.namei and name.810 mean?
+> In terms of implementation, I think it's way too x86-specific...  some 
+> of the vsyscall infrastructure can be more generic, making it easier for 
+> other arches to implement the same functionality.  Also use of TSC isn't 
+> a terribly good idea...
+> 
 
-.text.lock.namei means that it hung in the slow path of a spinlock that
-is referenced from namei.c
+Sure it is: on the systems which have a working TSC it is extremely
+efficient -- cheap and high precision.
 
-name.810 is a static data variable, probably the static char name[]
-shown above. Remember the kernel backtrace is not exact and can print
-random stack junk that looks like return addresses too. You always have 
-to sanity check each entry.
-
-> Is there a way to get the line number out of these hex values?
-
-addr2line -e vmlinux ... does this when you compile the kernel with -g 
-
--Andi
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261281AbTDYWXO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 18:23:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262710AbTDYWXO
+	id S262710AbTDYWcm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 18:32:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263705AbTDYWcm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 18:23:14 -0400
-Received: from smtp-out.comcast.net ([24.153.64.116]:21290 "EHLO
-	smtp-out.comcast.net") by vger.kernel.org with ESMTP
-	id S261281AbTDYWXN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 18:23:13 -0400
-Date: Fri, 25 Apr 2003 18:32:44 -0400
-From: rmoser <mlmoser@comcast.net>
-Subject: Re:  Re:  Swap Compression
-To: linux-kernel@vger.kernel.org
-Message-id: <200304251832440510.00D02649@smtp.comcast.net>
-MIME-version: 1.0
-X-Mailer: Calypso Version 3.30.00.00 (3)
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
+	Fri, 25 Apr 2003 18:32:42 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:15757 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S262710AbTDYWcl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 18:32:41 -0400
+Date: Fri, 25 Apr 2003 15:10:40 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andi Kleen <ak@muc.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: TASK_UNMAPPED_BASE & stack location
+Message-ID: <3600000.1051308616@[10.10.2.4]>
+In-Reply-To: <m3sms644zz.fsf@averell.firstfloor.org>
+References: <20030425204012$4424@gated-at.bofh.it>
+ <m3sms644zz.fsf@averell.firstfloor.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yeah you did but I'm going into a bit more detail, and with a very tight algorithm.  Heck the algo was originally designed based on another compression algorithm, but for a 6502 packer.  I aimed at speed, simplicity, and minimal RAM usage (hint:  it used 4k for the code AND the compressed data on a 6502, 336 bytes for code, and if I turn it into just a straight packer I can go under 200 bytes on the 6502).
+>> Is there any good reason we can't remove TASK_UNMAPPED_BASE, and just
+>> shove libraries directly above the program text? Red Hat seems to have
+>> patches to dynamically tune it on a per-processes basis anyway ...
+> 
+> Yes. You won't get a continuous sbrk/brk heap then anymore. Not sure it
+> is a  big problem though.
 
-Honestly, I just never looked.  I look in my kernel.  But still, the stuff I defined about swapon options, swap-on-ram, and how the compression works (yes, compressed without headers) is all the detail you need about it to go do it AFAIK.  Preplanning should be done there--done meaning workable, not "the absolute best."
+Me no understand. I think this *makes* it a contiguous space. The way I see
+it, we currently allocate from TASK_UNMAPPED_BASE up to the top, then start
+again above program text. Which seems a bit silly.
 
---Bluefox Icy
+> It's probably worth a sysctl at least.
 
----- ORIGINAL MESSAGE ----
-List:     linux-kernel
-Subject:  Re: Swap Compression
-From:     John Bradford <john () grabjohn ! com>
-Date:     2003-04-25 21:17:11
-[Download message RAW]
+mmm. I'd prefer a config option. Defaulting to 'y' ;-)
 
-> Sorry if this is HTML mailed.  I don't know how to control those settings
+>> Moreover, can we put the stack back where it's meant to be, below the
+>> program text, in that wasted 128MB of virtual space? Who really wants 
+>>> 128MB of stack anyway (and can't fix their app)?
+> 
+> You could, but I bet it would break some programs
+> (e.g. just moving __PAGE_OFFSET on amd64 to 4GB for 32bit broke some
+> things)
 
-HTML mail is automatically filtered from LKML.
+I've moved PAGE_OFFSET around a lot (which moves the stack, as you say). 
+Haven't seen it break anything yet ... IMHO it was broken anyway if this
+hurts it. Obviously not something one could do in a stable kernel series,
+but 2.5 seems like a perfect time for it to me ... unless I'm missing some
+glibc / linker thing, it seems like a simple change.
 
-> COMPRESSED SWAP
-
-We discussed this on the list quite recently, have a look at:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=105018674018129&w=2
-
-and:
-
-http://linuxcompressed.sourceforge.net/
-
-John.
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+M.
 

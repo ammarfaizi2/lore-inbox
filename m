@@ -1,51 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273474AbRIQFmn>; Mon, 17 Sep 2001 01:42:43 -0400
+	id <S273487AbRIQFty>; Mon, 17 Sep 2001 01:49:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273484AbRIQFmd>; Mon, 17 Sep 2001 01:42:33 -0400
-Received: from mail.fbab.net ([212.75.83.8]:4617 "HELO mail.fbab.net")
-	by vger.kernel.org with SMTP id <S273474AbRIQFmU>;
-	Mon, 17 Sep 2001 01:42:20 -0400
-X-Qmail-Scanner-Mail-From: mag@fbab.net via mail.fbab.net
-X-Qmail-Scanner-Rcpt-To: linux-kernel@vger.kernel.org
-X-Qmail-Scanner: 0.94 (No viruses found. Processed in 8.446239 secs)
-Message-ID: <12ca01c13f3b$e1ee8490$020a0a0a@totalmef>
-From: "Magnus Naeslund\(f\)" <mag@fbab.net>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: IBM DTLA IDE Made In Hungary
-Date: Mon, 17 Sep 2001 07:44:56 +0200
+	id <S273485AbRIQFtn>; Mon, 17 Sep 2001 01:49:43 -0400
+Received: from mx01-a.netapp.com ([198.95.226.53]:40070 "EHLO
+	mx01-a.netapp.com") by vger.kernel.org with ESMTP
+	id <S273490AbRIQFtc>; Mon, 17 Sep 2001 01:49:32 -0400
+Date: Sun, 16 Sep 2001 22:49:13 -0700 (PDT)
+From: Kip Macy <kmacy@netapp.com>
+To: "Magnus Naeslund(f)" <mag@fbab.net>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: IBM DTLA IDE Made In Hungary
+In-Reply-To: <12ca01c13f3b$e1ee8490$020a0a0a@totalmef>
+Message-ID: <Pine.GSO.4.10.10109162248350.11609-100000@cranford-fe.eng.netapp.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A while ago I read about these drives on lkml.
-Someone was experiencing problems with them, and now I am too.
-We have a sh*tload of systems using these in a Promise SuperTrak IDE RAID
-setups.
-So we have 8raid*6drives running over here, and I'm afraid that they will
-start falling apart.
+IBM has excellent customer service (in my experience), I sent them a bad
+drive and they sent me a replacement a couple of days later.
 
-Does anyone have any info on these problems ?
-URL:s, pointers, whatever?
-Has IBM said anything about this?
+		-Kip
 
-Should I demand that the company selling these drives to us exhange those
-for some other brand, or what?
+=========================================================================
+For RAIDANT status see: 
+http://legacy-web.corp.netapp.com/engineering/projects/raidv2/testing/ant
+To submit RAIDANT test descriptions go to:
+http://legacy-web.corp.netapp.com/engineering/projects/raidv2/testing/ 
 
-Cheers
+On Mon, 17 Sep 2001, Magnus Naeslund(f) wrote:
 
-Magnus
-
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
- Programmer/Networker [|] Magnus Naeslund
- PGP Key: http://www.genline.nu/mag_pgp.txt
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
+> A while ago I read about these drives on lkml.
+> Someone was experiencing problems with them, and now I am too.
+> We have a sh*tload of systems using these in a Promise SuperTrak IDE RAID
+> setups.
+> So we have 8raid*6drives running over here, and I'm afraid that they will
+> start falling apart.
+> 
+> Does anyone have any info on these problems ?
+> URL:s, pointers, whatever?
+> Has IBM said anything about this?
+> 
+> Should I demand that the company selling these drives to us exhange those
+> for some other brand, or what?
+> 
+> Cheers
+> 
+> Magnus
+> 
+> -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+>  Programmer/Networker [|] Magnus Naeslund
+>  PGP Key: http://www.genline.nu/mag_pgp.txt
+> -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

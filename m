@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266181AbTGDVHP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 17:07:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266185AbTGDVHO
+	id S266194AbTGDVKt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 17:10:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266185AbTGDVKt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 17:07:14 -0400
-Received: from qlink.QueensU.CA ([130.15.126.18]:55504 "EHLO qlink.queensu.ca")
-	by vger.kernel.org with ESMTP id S266181AbTGDVHO (ORCPT
+	Fri, 4 Jul 2003 17:10:49 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:11406 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S266192AbTGDVKr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 17:07:14 -0400
-Subject: [PATCH] rpm release number
-From: Nathan Fredrickson <8nrf@qlink.queensu.ca>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1057353620.5390.20.camel@rocky>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 04 Jul 2003 17:20:20 -0400
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Jul 2003 17:10:47 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Fri, 4 Jul 2003 23:25:12 +0200 (MEST)
+Message-Id: <UTC200307042125.h64LPCq07319.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, mdharm-kernel@one-eyed-alien.net
+Subject: Re: scsi mode sense broken again
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       torvalds@osdl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-I needed this patch to the Makefile to get the RPM release number to
-correctly increment on successive builds.
+    From mdharm@ziggy.one-eyed-alien.net  Fri Jul  4 23:09:37 2003
 
+    Okay, so the question as I see it is this:
+    Do we go back to use_10_for_ms = 0 for the default,
+    or do we make the IMM driver set it to 0 in the
+    slave_configure() function?
 
---- linux-2.5.74/Makefile       2003-07-04 16:58:51.034025712 -0400
-+++ linux/Makefile      2003-07-04 16:41:39.012916768 -0400
-@@ -781,7 +781,8 @@
-        tar -cvz $(RCS_TAR_IGNORE) -f $(KERNELPATH).tar.gz
-$(KERNELPATH)/. ; \
-        rm $(KERNELPATH) ; \
-        cd $(TOPDIR) ; \
--       $(CONFIG_SHELL) $(srctree)/scripts/mkversion > .version ; \
-+       $(CONFIG_SHELL) $(srctree)/scripts/mkversion > .tmp_version ; \
-+       mv -f .tmp_version .version; \
-        $(RPM) -ta $(TOPDIR)/../$(KERNELPATH).tar.gz ; \
-        rm $(TOPDIR)/../$(KERNELPATH).tar.gz
-  
+I agree completely - that is the question.
+The answer I gave is
 
+  -       sdev->use_10_for_ms = 1;
+  +       sdev->use_10_for_ms = 0;
+ 
+  It is possible to have use_10_for_ms == 1 as the default, but then
+  all drivers that cannot handle that must change that setting privately.
+  Maybe that is the future, but for today I would prefer
+  the known working version.
 
+Andries

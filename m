@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270654AbTGNNID (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 09:08:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270648AbTGNNHz
+	id S270622AbTGNNHi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 09:07:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270615AbTGNNA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 09:07:55 -0400
-Received: from exzh001.alcatel.ch ([212.243.156.171]:1297 "HELO
-	exzh001.alcatel.ch") by vger.kernel.org with SMTP id S270647AbTGNNG6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 09:06:58 -0400
-Message-ID: <33A932AD8C46D411A30F00508BACE9A3028758D8@exzh003.alcatel.ch>
-From: Ritz Daniel <daniel.ritz@alcatel.ch>
-To: "'ttsig@tuxyturvy.com'" <ttsig@tuxyturvy.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'MatthewK@hsius.com'" <MatthewK@hsius.com>
-Subject: Re: airo_cs load error
-Date: Mon, 14 Jul 2003 15:21:36 +0200
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
+	Mon, 14 Jul 2003 09:00:29 -0400
+Received: from mail.cpt.sahara.co.za ([196.41.29.142]:49657 "EHLO
+	workshop.saharact.lan") by vger.kernel.org with ESMTP
+	id S270597AbTGNNAB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 09:00:01 -0400
+Subject: Re: gcc-3.3.1 breaks kernel
+From: Martin Schlemmer <azarah@gentoo.org>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Christian Kujau <evil@g-house.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030712004301.GE2791@werewolf.able.es>
+References: <8avk.6lp.3@gated-at.bofh.it> <3F0F4C10.9050204@g-house.de>
+	 <20030712004301.GE2791@werewolf.able.es>
 Content-Type: text/plain
+Organization: 
+Message-Id: <1058188482.1164.352.camel@workshop.saharacpt.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3- 
+Date: 14 Jul 2003 15:14:43 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->@@ -4838,7 +4850,7 @@
-> 	readCapabilityRid(local, &cap_rid);
+On Sat, 2003-07-12 at 02:43, J.A. Magallon wrote:
+> On 07.12, Christian Kujau wrote:
+> > J.A. Magallon wrote:
+> > > Hi all...
+> > > 
+> > > Any brave soul there is using a prerelease of gcc-3.3.1 to build kernels ?
+> > > (don't know if RawHide or SuSE beta or any other have that, apart from
+> > > MandrakeCooker).
+> > 
+> > yes, 2.4.2x and 2.5.7x build properly with Debians gcc-3.3.1 here (x86).
+> > 
 > 
-> 	dwrq->length = sizeof(struct iw_range);
->-	memset(range, 0, sizeof(*range));
->+	memset(range, 0, sizeof(range));
-> 	range->min_nwid = 0x0000;
-> 	range->max_nwid = 0x0000;
-> 	range->num_channels = 14;
+> Plz, can you tell me the exact version of gcc (date of snapshot or the
+> like). My cooker gcc is:
+> 
+> - Update to 3.3-hammer branch as of 2003/07/03
+> 
 
-this is wrong, sizeof(*range) is correct.
+This is known to break many things for x86 (p3/4 as well as athlon).
+I have not checked it in some time, so not sure if all the issues
+we had was fixed.  Rather stip the hammer stuff.
 
-btw. the driver is broken anyway, transmit can kill keventd.
-(see reports on sf.net, redhat-bugzilla, list-archive)
-i'm fixing it, currently testing a 2.4 patch, 2.6-test
-patch follows as soon as 2.4 is ok again.
 
-thx
--daniel
+Cheers,
+
+-- 
+Martin Schlemmer
+
+

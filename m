@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbVAMPqP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261686AbVAMPqP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261677AbVAMPqP (ORCPT <rfc822;willy@w.ods.org>);
+	id S261686AbVAMPqP (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 13 Jan 2005 10:46:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbVAMPmw
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261667AbVAMPmf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 10:42:52 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24279 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261649AbVAMPhX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 10:37:23 -0500
-Date: Thu, 13 Jan 2005 10:09:00 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Scott Doty <scott@sonic.net>
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com,
-       Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: 2.4.28(+?): Strange ARP problem
-Message-ID: <20050113120900.GA5681@logos.cnet>
-References: <20050113145029.GA22622@sonic.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050113145029.GA22622@sonic.net>
-User-Agent: Mutt/1.5.5.1i
+	Thu, 13 Jan 2005 10:42:35 -0500
+Received: from ms-2.rz.RWTH-Aachen.DE ([134.130.3.131]:37005 "EHLO
+	ms-dienst.rz.rwth-aachen.de") by vger.kernel.org with ESMTP
+	id S261679AbVAMPkw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 10:40:52 -0500
+Date: Mon, 22 Oct 2001 20:45:22 +0200 (CEST)
+From: jarausch@belgacom.net
+Subject: 2.4.13-pre6 breaks Nvidia's kernel module
+To: linux-kernel@vger.kernel.org
+Reply-to: jarausch@belgacom.net
+Message-id: <20050113151050.051BEFEC0E@numa-i.igpm.rwth-aachen.de>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; CHARSET=us-ascii
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 13, 2005 at 06:50:29AM -0800, Scott Doty wrote:
-> Hi,
-> 
-> We use Linux extensively here at Sonic.net.  Our web servers have two
-> NIC's -- a NIC with a public IP address, and a NIC on our SAN (with NetApps).
-> 
-> When we tried to upgrade to 2.4.28, we encountered a problem with NetApp
-> reachability, which turns out to have been a problem with ARP:  we
-> were seeing two ARP entries for the NetApp IP's.  One would be correct, and
-> one would be "incomplete".
-> 
-> Occasionally, a system would glom onto the incomplete entry, and NFS
-> connectivity would tank.  This doesn't happen with 2.4.27.
-> 
-> We'd like to upgrade to 2.4.29-rc2, but we have much trepidation about doing
-> so.  I certainly don't want to treat the list as "our own personal help
-> desk" (as warned about in the FAQ), but was hoping someone could shed some
-> light on the problem.  I think either myself or one of our guys can write a
-> patch to fix it, if someone would point us in the right direction.
-> 
-> Thank you,
+Hello,
 
-Scott, 
+yes I know, you don't like modules without full sources available.
+But Nvidia is the leading vendor of video cards and all 2.4.x
+kernels up to 2.4.13-pre5 work nice with this module.
 
-I have no idea of what might be causing such regression - I see a few ARP
-related changelogs on v2.4.28-rc2:
+Running pre6 I get
+(==) NVIDIA(0): Write-combining range (0xf0000000,0x2000000)
+(EE) NVIDIA(0): Failed to allocate LUT context DMA
+(EE) NVIDIA(0):  *** Aborting ***
 
-  o [IPV4]: Set ARP hw type correctly for BOOTP over FDDI
-  o [IPV4]: Permit the official ARP hw type in SIOCSARP for FDDI
 
-Maybe you can try earlier v2.4.28's (-rc1 for one) to check where 
-the problem starts to happen?
+This is Nvidia's 1.0-1541 version of its Linux drivers
 
-David, Herbert, any ideas?
+Please keep this driver going during the 2.4.x series of the
+kernel if at all possible.
+
+Thanks for looking into it,
+
+Helmut Jarausch
+
+Inst. of Technology
+RWTH Aachen
+Germany
+
+
+Please CC to my private email
+
+jarausch@belgacom.net
+
 
 

@@ -1,100 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261985AbVCLX4v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262244AbVCLX6Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261985AbVCLX4v (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 18:56:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262244AbVCLX4v
+	id S262244AbVCLX6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 18:58:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262462AbVCLX6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 18:56:51 -0500
-Received: from gate.crashing.org ([63.228.1.57]:25069 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261985AbVCLX4r (ORCPT
+	Sat, 12 Mar 2005 18:58:24 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:49625 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262244AbVCLX6L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 18:56:47 -0500
-Subject: [PATCH] Test: Improve radeonfb mode setting on CRT
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Content-Type: text/plain
-Date: Sun, 13 Mar 2005 10:56:10 +1100
-Message-Id: <1110671770.19810.57.camel@gaston>
+	Sat, 12 Mar 2005 18:58:11 -0500
+Date: Sat, 12 Mar 2005 18:58:04 -0500
+From: Dave Jones <davej@redhat.com>
+To: Dave Airlie <airlied@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: DRI breakage, 2.6.11-mm[123]
+Message-ID: <20050312235804.GD32494@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Dave Airlie <airlied@gmail.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20050312034222.12a264c4.akpm@osdl.org> <6uzmx87k48.fsf@zork.zork.net> <6uu0ng7je7.fsf@zork.zork.net> <21d7e9970503121513113ecb81@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <21d7e9970503121513113ecb81@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Sun, Mar 13, 2005 at 10:13:49AM +1100, Dave Airlie wrote:
+ > On Sat, 12 Mar 2005 19:29:20 +0000, Sean Neakums <sneakums@zork.net> wrote:
+ > > Sean Neakums <sneakums@zork.net> writes:
+ > > 
+ > > > The following happens with 2.6.11-mm[123].  (I didn't have time to
+ > > > investigate earlier; sorry.)  It does not happen with 2.6.11-rc3-mm2
+ > > > and 2.6.11.  I have tested 2.6.11-mm3 with dri disabled (by not
+ > > > loading X's dri module) and it also does not happen then.
+ > > 
+ > > Also happens on 2.6.11-mm3 with bk-drm.patch reverted.
+ > > 
+ > > To expand on my crappy report, the graphics card is a Radeon 9200:
+ > 
+ > Wierd the -mm tree has currently very few drm changes over the non-mm
+ > tree and if reverting bk-drm doesn't help it sounds like something in
+ > the generic ioctl code may be gone wrong...
+ > 
+ > Can you try a 2.6.12-bk snapshot.. it may be the multi-head patches
+ > are buggy....
 
-Recent radeonfb's tend to be a bit anal with accepting or refusing a
-mode on a CRT since they expect exact resolution, which doesn't really
-happen with fbcon.
+Could be. Given the other agp problems didn't get spotted in -mm
+my confidence in those patches has dropped off somewhat in the
+last few days.
 
-This patch reworks the mode matching function to fix that issue, but I
-didn't have a chance to test it, so feedback appreciated.
+Hopefully it's something simple.
 
-Index: linux-work/drivers/video/aty/radeon_monitor.c
-===================================================================
---- linux-work.orig/drivers/video/aty/radeon_monitor.c	2005-03-11 16:54:25.000000000 +1100
-+++ linux-work/drivers/video/aty/radeon_monitor.c	2005-03-11 16:58:04.000000000 +1100
-@@ -903,7 +903,7 @@
-  */
- 
- /*
-- * This is used when looking for modes. We assign a "goodness" value
-+ * This is used when looking for modes. We assign a "distance" value
-  * to a mode in the modedb depending how "close" it is from what we
-  * are looking for.
-  * Currently, we don't compare that much, we could do better but
-@@ -912,13 +912,11 @@
- static int radeon_compare_modes(const struct fb_var_screeninfo *var,
- 				const struct fb_videomode *mode)
- {
--	int goodness = 0;
-+	int distance = 0;
- 
--	if (var->yres == mode->yres)
--		goodness += 10;
--	if (var->xres == mode->xres)
--		goodness += 9;
--	return goodness;
-+	distance = mode->yres - var->yres;
-+	distance += (mode->xres - var->xres)/2;
-+	return distance;
- }
- 
- /*
-@@ -940,7 +938,7 @@
- 	const struct fb_videomode	*db = vesa_modes;
- 	int				i, dbsize = 34;
- 	int				has_rmx, native_db = 0;
--	int				goodness = 0;
-+	int				distance = INT_MAX;
- 	const struct fb_videomode	*candidate = NULL;
- 
- 	/* Start with a copy of the requested mode */
-@@ -976,19 +974,19 @@
- 	/* Now look for a mode in the database */
- 	while (db) {
- 		for (i = 0; i < dbsize; i++) {
--			int g;
-+			int d;
- 
- 			if (db[i].yres < src->yres)
- 				continue;	
- 			if (db[i].xres < src->xres)
- 				continue;
--			g = radeon_compare_modes(src, &db[i]);
-+			d = radeon_compare_modes(src, &db[i]);
- 			/* If the new mode is at least as good as the previous one,
- 			 * then it's our new candidate
- 			 */
--			if (g >= goodness) {
-+			if (d < distance) {
- 				candidate = &db[i];
--				goodness = g;
-+				distance = d;
- 			}
- 		}
- 		db = NULL;
-
+		Dave
 

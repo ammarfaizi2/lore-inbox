@@ -1,72 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129991AbRAQXZW>; Wed, 17 Jan 2001 18:25:22 -0500
+	id <S129847AbRAQX0c>; Wed, 17 Jan 2001 18:26:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129847AbRAQXZO>; Wed, 17 Jan 2001 18:25:14 -0500
-Received: from [24.65.192.120] ([24.65.192.120]:4848 "EHLO webber.adilger.net")
-	by vger.kernel.org with ESMTP id <S129991AbRAQXYg>;
-	Wed, 17 Jan 2001 18:24:36 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200101172323.f0HNNt529625@webber.adilger.net>
-Subject: Re: Linux not adhering to BIOS Drive boot order?
-In-Reply-To: <3A657885.6D6F64C4@uni-mb.si> "from David Balazic at Jan 17, 2001
- 11:48:37 am"
-To: David Balazic <david.balazic@uni-mb.si>
-Date: Wed, 17 Jan 2001 16:23:55 -0700 (MST)
-CC: Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
-MIME-Version: 1.0
+	id <S131503AbRAQX0W>; Wed, 17 Jan 2001 18:26:22 -0500
+Received: from jalon.able.es ([212.97.163.2]:8914 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129847AbRAQX0D>;
+	Wed, 17 Jan 2001 18:26:03 -0500
+Date: Thu, 18 Jan 2001 00:25:51 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Joel Franco Guzmán <joel@gds-corp.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: 128M memory OK, but with 192M sound card es1391 trouble
+Message-ID: <20010118002551.C883@werewolf.able.es>
+In-Reply-To: <Pine.LNX.4.30.0101172037310.1309-100000@thor.gds-corp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.30.0101172037310.1309-100000@thor.gds-corp.com>; from joel@gds-corp.com on Thu, Jan 18, 2001 at 00:11:36 +0100
+X-Mailer: Balsa 1.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Balazic writes:
-> Andreas Dilger <adilger@turbolinux.com> wrote :
-> > In the end I re-wrote most of the patch, so
-> > that we resolve ROOT_DEV before calling mount_root(), just to be a bit
-> > more consistent. I will release a new patch for 2.2.18 and 2.4.0 after
-> > David Balazic has a look at it.
+
+On 2001.01.18 Joel Franco Guzmán wrote:
+> 1. 128M memory OK, but with 192M the sound card generate a noise while
+> use the DSP.
+.. 
+> the problem: The sound card generates a toc.. toc.. toc .. toc...while
+> playing a sound using the DSP of the soundcard. Two "tocs"/sec
+> aproxiumadetely.
 > 
-> Cool, send it to me !
-
-Need to test it a bit first (i.e. at least compile it)...
-
-> > I know a bit about LILO, so I should be able to get the "root=LABEL=" to
-> > work there as well.   
 > 
-> There were no problems with the original patch with LILO.
-> You just must use append="root=xxxxx" instead of simply
-> root=xxx , because LILO tries to be "smart" .... at least the
-> version I used then did.
+> Linux thor.gds-corp.com 2.4.1-pre8 #2 Wed Jan 17 19:44:31 BRST 2001
+> i686 unknownKernel modules         2.3.21
 
-Actually, there are 2 ways to go about this: LILO could do the UUID/LABEL
-resolution at the time lilo is run (to store root dev into kernel), and
-_also_ append "root=LABEL=X" to kernel options, so that if the kernel
-can't resolve the UUID/LABEL (i.e. no support for this option) we can fall
-back to the root dev from when LILO was run.
+Don't know if it is related, but you should upgrade your modutils up to
+2.4, even 2.4.1 is yet available.
 
-> > One reason why this may NOT ever make it into the kernel is that I know
-> > "kernel poking at devices" is really frowned upon.
-> 
-> This an ugly hack , if you ask me. The identificators ( be it labels ,
-> UUIDs or whatever ) should be outside the partitions. Otherwise cases with
-> swap partitions , <any FS that doesn't support labels/UUIDs> unformatted
-> partitions etc. can not be handled.
+I have noticed something similar. If I start gqmpeg from the command line in
+a terminal (rxvt), sounds fine. If I start it from the icon in the gnome
+panel, it makes that 'toc toc' noise you describe. ????
+(I know it sounds strange, but real...)
 
-LVM now has UUID-like identifiers for all "partitions" (Logical Volumes),
-although they are not really accessible by any tools right now. The "LABEL"
-is actually the LV name, so it is used directly all the time:
+How do you launch your sound test ? (btw, which do you use to play sound ?) 
 
-/dev/vgroot/lvroot	/	ext3	defaults	1	1
-/dev/vgroot/lvswap	none	swap	sw,pri=100	0	0
-
-This obviates most of the reason for the UUID/LABEL support, but not
-everyone runs LVM (yet ;-) and ext2 UUID/LABELs are still useful.
-
-Cheers, Andreas
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+J.A. Magallon                                                      $> cd pub
+mailto:jamagallon@able.es                                          $> more beer
+
+Linux werewolf 2.4.0-ac9 #2 SMP Sun Jan 14 01:46:07 CET 2001 i686
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

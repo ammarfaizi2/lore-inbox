@@ -1,41 +1,46 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S153893AbPGJBTs>; Fri, 9 Jul 1999 21:19:48 -0400
-Received: by vger.rutgers.edu id <S153849AbPGJBTb>; Fri, 9 Jul 1999 21:19:31 -0400
-Received: from stm.lbl.gov ([131.243.16.51]:3013 "EHLO stm.lbl.gov") by vger.rutgers.edu with ESMTP id <S153864AbPGJBRi>; Fri, 9 Jul 1999 21:17:38 -0400
-Date: Fri, 9 Jul 1999 18:17:25 -0700
-From: David Schleef <ds@stm.lbl.gov>
-To: Dale Amon <amon@vnl.com>
-Cc: linux-kernel@vger.rutgers.edu
-Subject: Re: Linux and real time process control (Can't sleep less than 20ms)
-Message-ID: <19990709181725.A3577@stm.lbl.gov>
-References: <19990709202830Z154016-4163+689@vger.rutgers.edu> <Pine.LNX.3.96.990710010050.25053F-100000@angusbay.vnl.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4us
-In-Reply-To: <Pine.LNX.3.96.990710010050.25053F-100000@angusbay.vnl.com>; from Dale Amon on Sat, Jul 10, 1999 at 01:25:27AM +0100
+Received: by vger.rutgers.edu via listexpand id <S154224AbPGKMGO>; Sun, 11 Jul 1999 08:06:14 -0400
+Received: by vger.rutgers.edu id <S154203AbPGKMFz>; Sun, 11 Jul 1999 08:05:55 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:4116 "EHLO smtp1.cern.ch") by vger.rutgers.edu with ESMTP id <S154172AbPGKMEb>; Sun, 11 Jul 1999 08:04:31 -0400
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Klaus Nielsen <jimbo@zorland.dk>, Linux Kernel list <linux-kernel@vger.rutgers.edu>
+Subject: Re: Unable to read memory mapped PCI memory the second time == freezeup..
+References: <Pine.GSO.3.96.990710104147.7017A-100000@ext1>
+From: Jes Sorensen <Jes.Sorensen@cern.ch>
+Date: 11 Jul 1999 14:03:51 +0200
+In-Reply-To: Jeff Garzik's message of "Sat, 10 Jul 1999 10:44:15 -0400 (EDT)"
+Message-ID: <d3emifs89k.fsf@dxplus05.cern.ch>
+X-Mailer: Gnus v5.6.45/Emacs 20.2
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Sat, Jul 10, 1999 at 01:25:27AM +0100, Dale Amon wrote:
-> First, I spent nearly 10 years doing 
-> real time process control type things.
-> We never used Unix because it lacked the ability
-> to accurately control time-based events where
-> you simply could NOT get things out of sequence or
-> have two events execute at other than a correct
-> time +/- some delta. Mostly I was not dealing
-> with life and death... mostly.
+>>>>> "Jeff" == Jeff Garzik <jgarzik@pobox.com> writes:
 
-Look at either POSIX real-time extensions (man
-sched_setscheduler()), or if that is not good
-enough, use RTLinux, a hard real-time extension
-to Linux.  (www.rtlinux.org)  People routinely
-report performance that can only be envied by other
-OS's.
+Jeff> Read linux/Documentation/IO-mapping.txt, and then use read?()
+Jeff> and write?() for MMIO.  For example:
 
+Jeff> 	byArgh = readb(global_vmemaddr); if(byArgh==0)
+Jeff> printk(KERN_DEBUG "byArgh\n"); writeb (0x5a, global_vmemaddr);
+Jeff> byArgh = readb(global_vmemaddr);
 
+There is a number of memory barrier instructions missing in that
+example, you need to put an mb() in after the writeb to make sure the
+compiler doesn't cache the value written to the register. On
+architectures which do not guarantee write ordering this shows up even
+more since the CPU may decide to issue the instructions in a different
+order (though this is mainly of interest if you are accessing several
+different registers in the mapped area). Anyway the correct way to do
+things is this way:
 
-dave...
+	byArgh = readb(global_vmemaddr);
+	if(byArgh==0) printk(KERN_DEBUG "byArgh\n");
+	writeb (0x5a, global_vmemaddr);
+	mb();
+	byArgh = readb(global_vmemaddr);
 
+You are absolutely right about the use of readb/writeb though, one
+should _never_ access PCI shared memory directly.
+
+Jes
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,37 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbVCGIvk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261712AbVCGI7k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbVCGIvk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 03:51:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbVCGIvk
+	id S261712AbVCGI7k (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 03:59:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbVCGI7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 03:51:40 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:27084 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261706AbVCGIvf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 03:51:35 -0500
+	Mon, 7 Mar 2005 03:59:40 -0500
+Received: from fire.osdl.org ([65.172.181.4]:52659 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261712AbVCGI7h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 03:59:37 -0500
+Date: Mon, 7 Mar 2005 00:58:40 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: 2.6.11-mm1
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050304033215.1ffa8fec.akpm@osdl.org>
+Message-Id: <20050307005840.4a877d0c.akpm@osdl.org>
+In-Reply-To: <1110185497.8407.4.camel@frecb000711.frec.bull.fr>
 References: <20050304033215.1ffa8fec.akpm@osdl.org>
-Date: Mon, 07 Mar 2005 09:51:36 +0100
-Message-Id: <1110185497.8407.4.camel@frecb000711.frec.bull.fr>
+	<1110185497.8407.4.camel@frecb000711.frec.bull.fr>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 07/03/2005 10:00:43,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 07/03/2005 10:00:44,
-	Serialize complete at 07/03/2005 10:00:44
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't see the connector module [cn.ko] in this new release. Do you
-remove it from your tree definitely?
+Guillaume Thouvenin <guillaume.thouvenin@bull.net> wrote:
+>
+> I don't see the connector module [cn.ko] in this new release. Do you
+> remove it from your tree definitely?
+> 
 
-Best regards,
-Guillaume
+I was pulling it in via one of Greg's trees.  I don't know why he dropped
+it.
+
+Maybe it was my fault ;) I mentioned to Greg the other day that I had some
+concerns with the implementation and meant to give it a close review, but I
+haven't got onto it yet.
 

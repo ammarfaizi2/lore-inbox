@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262281AbTHTWYI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 18:24:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbTHTWYI
+	id S262288AbTHTWR6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 18:17:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262290AbTHTWR6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 18:24:08 -0400
-Received: from allele206.gprs.suomen2g.fi ([62.78.113.206]:4 "EHLO
-	norsu.vuoristo.fi") by vger.kernel.org with ESMTP id S262281AbTHTWYD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 18:24:03 -0400
-Date: Thu, 21 Aug 2003 01:24:50 +0300
-To: linux-kernel@vger.kernel.org
-Subject: buffer cache hash table size
-Message-ID: <20030820222450.GA344@norsu.vuoristo.fi>
+	Wed, 20 Aug 2003 18:17:58 -0400
+Received: from havoc.gtf.org ([63.247.75.124]:42381 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S262288AbTHTWR4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 18:17:56 -0400
+Date: Wed, 20 Aug 2003 18:17:55 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] fix ioapic build breakage
+Message-ID: <20030820221755.GA20633@gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Touko Korpela <tkorpela@phnet.fi>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I noticed following when telling kernel to use only 63.5 MB of total
-64 MB memory.
-Buffer cache is four times smaller, while others remain the same.
-(In 2.6.0-test3-bk1 parsing of mem= has changed and different caches are
-used. There PID hash table shrinks to half while other caches remain same.)
-Motherboard is old K6/Pentium which only caches 63.5 of memory.
 
-No memory size specified:
 
-Memory: 62244k/65536k available (1365k kernel code, 2904k reserved, 333k data, 268k init, 0k highmem)
-Dentry cache hash table entries: 8192 (order: 4, 65536 bytes)
-Inode cache hash table entries: 4096 (order: 3, 32768 bytes)
-Mount cache hash table entries: 512 (order: 0, 4096 bytes)
-Buffer cache hash table entries: 4096 (order: 2, 16384 bytes)
-Page-cache hash table entries: 16384 (order: 4, 65536 bytes)
-
-mem=65024k specified:
-
-Memory: 61736k/65024k available (1365k kernel code, 2900k reserved, 333k data, 268k init, 0k highmem)
-Dentry cache hash table entries: 8192 (order: 4, 65536 bytes)
-Inode cache hash table entries: 4096 (order: 3, 32768 bytes)
-Mount cache hash table entries: 512 (order: 0, 4096 bytes)
-Buffer cache hash table entries: 1024 (order: 0, 4096 bytes)
-Page-cache hash table entries: 16384 (order: 4, 65536 bytes)
+===== arch/i386/kernel/setup.c 1.92 vs edited =====
+--- 1.92/arch/i386/kernel/setup.c	Tue Aug 19 16:01:09 2003
++++ edited/arch/i386/kernel/setup.c	Wed Aug 20 18:15:34 2003
+@@ -543,11 +543,13 @@
+ 			if (!acpi_force) acpi_disabled = 1;
+ 		}
+ 
++#ifdef CONFIG_X86_LOCAL_APIC
+ 		/* disable IO-APIC */
+ 		else if (!memcmp(from, "noapic", 6)) {
+ 			skip_ioapic_setup = 1;
+ 		}
+-#endif
++#endif /* CONFIG_X86_LOCAL_APIC */
++#endif /* CONFIG_ACPI_BOOT */
+ 
+ 		/*
+ 		 * highmem=size forces highmem to be exactly 'size' bytes.

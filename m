@@ -1,96 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129557AbQLATBB>; Fri, 1 Dec 2000 14:01:01 -0500
+	id <S130003AbQLATBv>; Fri, 1 Dec 2000 14:01:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130003AbQLATAv>; Fri, 1 Dec 2000 14:00:51 -0500
-Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:51470 "HELO
-	ztxmail03.ztx.compaq.com") by vger.kernel.org with SMTP
-	id <S129557AbQLATAo>; Fri, 1 Dec 2000 14:00:44 -0500
-Date: Fri, 1 Dec 2000 13:30:10 -0500 (EST)
-From: Phillip Ezolt <ezolt@perf.zko.dec.com>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Andrea Arcangeli <andrea@suse.de>, rth@twiddle.net,
-        Jay.Estabrook@compaq.com, linux-kernel@vger.kernel.org,
-        wcarr@perf.zko.dec.com
-Subject: Re: Alpha SCSI error on 2.4.0-test11
-In-Reply-To: <20001201145619.A553@jurassic.park.msu.ru>
-Message-ID: <Pine.OSF.3.96.1001201132729.32335G-100000@perf.zko.dec.com>
+	id <S130027AbQLATBm>; Fri, 1 Dec 2000 14:01:42 -0500
+Received: from cliff.mcs.anl.gov ([140.221.9.17]:54147 "EHLO mcs.anl.gov")
+	by vger.kernel.org with ESMTP id <S130003AbQLATB2>;
+	Fri, 1 Dec 2000 14:01:28 -0500
+Message-ID: <3A27EDF5.6060609@mcs.anl.gov>
+Date: Fri, 01 Dec 2000 12:29:09 -0600
+From: JP Navarro <navarro@mcs.anl.gov>
+Organization: Argonne National Laboratory
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; m18) Gecko/20001108 Netscape6/6.0
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: IP fragmentation (DF) and ip_no_pmtu_disc in 2.2 vs 2.4
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan,
+In 2.2.17 when /proc/sys/net/ipv4/ip_no_pmtu_disc is 0/false we're 
+seeing outbound udp packets with the IP DF (don't fragment) bit clear. 
+With 2.4.0-test11, when ip_no_pmtu_disc is still 0/false we're seeing 
+outbound udp packets with the IP DF bit set.  Is this change in default 
+behavior a fix or a break?
 
-I have tried test12-pre3 with and without your patch, it fails in the same
-way. 
+[start non expert thinking]
+ip_no_pmtu_disc = 0/false means that we DO want MTU discovery.
+ip_no_pmtu_disc = 1/true means that we DON't want MTU discovery.
+to do MTU discovery you want DF set, so if fragmenting is necessary to 
+reach your target you get an unreachable error and can try smaller MTUs.
 
-The Qlogic SCSI controller continues to fail if we have >1 gig in the machine.
-(But works fine without it.)
+So, it appears that 2.4 fixed a problem with 2.2, correct?
+[stop non expert thinking]
 
-Any ideas? (Or patches that I can test... ;-) ) 
+The problem that led us to notice this behavior was:
 
-Thanks,
---Phil
+Intel PXE uses tftp to download boot images and discards IP packets with 
+the DF bit set; so a tftpd server on 2.4 with the default 
+ip_no_pmtu_disc set to 0/false can't serve tftp to PXE. Changing 
+ip_no_pmtu_disc to 1/true "fixes it". One problem is that we'd rather 
+have our tftpd server w/ 2.4 configured for mtu discovery.
 
-Compaq:  High Performance Server Division/Benchmark Performance Engineering 
----------------- Alpha, The Fastest Processor on Earth --------------------
-Phillip.Ezolt@compaq.com        |C|O|M|P|A|Q|        ezolt@perf.zko.dec.com
-------------------- See the results at www.spec.org -----------------------
+We've tried to setsockopt(sock, SOL_IP, IP_MTU_DISCOVER, ...) with the 
+IP_PMTUDISC_DONT option but can't make it work. How does one change MTU 
+discovery and/or the don't fragment bit on a single socket?
 
-On Fri, 1 Dec 2000, Ivan Kokshaysky wrote:
 
-> On Thu, Nov 30, 2000 at 11:37:42PM +0100, Andrea Arcangeli wrote:
-> > test12-pre2 crashes at boot on my DS20. This patch workaround the problem
-> > but I would be _very_ surprised if this is the right fix :) It's obviously not
-> > meant for inclusion.
-> ...
-> > -			struct resource_list *ln = list->next;
-> > +			struct resource_list *ln;
-> >  
-> > +			if (!list)
-> > +				return;
-> > +			ln = list->next;
-> 
-> Argh. I believe that crash could happen only if some broken device has
-> empty I/O or memory range and IORESOURCE_[IO,MEM] bit set.
-> 
-> Andrea, could you try this?
-> 
-> Ivan.
-> 
-> --- linux/drivers/pci/setup-res.c~	Thu Nov 30 12:14:31 2000
-> +++ linux/drivers/pci/setup-res.c	Fri Dec  1 13:49:34 2000
-> @@ -136,6 +136,7 @@ pdev_sort_resources(struct pci_dev *dev,
->  	for (i = 0; i < PCI_NUM_RESOURCES; i++) {
->  		struct resource *r;
->  		struct resource_list *list, *tmp;
-> +		unsigned long r_size;
->  
->  		/* PCI-PCI bridges may have I/O ports or
->  		   memory on the primary bus */
-> @@ -144,7 +145,9 @@ pdev_sort_resources(struct pci_dev *dev,
->  			continue;
->  
->  		r = &dev->resource[i];
-> -		if (!(r->flags & type_mask) || r->parent)
-> +		r_size = r->end - r->start;
-> +		
-> +		if (!(r->flags & type_mask) || !r_size || r->parent)
->  			continue;
->  		for (list = head; ; list = list->next) {
->  			unsigned long size = 0;
-> @@ -152,7 +155,7 @@ pdev_sort_resources(struct pci_dev *dev,
->  
->  			if (ln)
->  				size = ln->res->end - ln->res->start;
-> -			if (r->end - r->start > size) {
-> +			if (r_size > size) {
->  				tmp = kmalloc(sizeof(*tmp), GFP_KERNEL);
->  				tmp->next = ln;
->  				tmp->res = r;
-> 
-> 
+JP Navarro
+-- 
+John-Paul Navarro                                      (630) 252-1233
+Mathematics & Computer Science Division
+Argonne National Laboratory                       navarro@mcs.anl.gov
+Argonne, IL 60439                     http://www.mcs.anl.gov/~navarro
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

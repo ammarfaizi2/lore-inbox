@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130774AbRCEXbw>; Mon, 5 Mar 2001 18:31:52 -0500
+	id <S130773AbRCEXbc>; Mon, 5 Mar 2001 18:31:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130775AbRCEXbm>; Mon, 5 Mar 2001 18:31:42 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:16862 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S130774AbRCEXbg>;
-	Mon, 5 Mar 2001 18:31:36 -0500
-Message-ID: <3AA421D6.B159CF4D@mandrakesoft.com>
-Date: Mon, 05 Mar 2001 18:31:34 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S130774AbRCEXbW>; Mon, 5 Mar 2001 18:31:22 -0500
+Received: from jalon.able.es ([212.97.163.2]:32408 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S130773AbRCEXbJ>;
+	Mon, 5 Mar 2001 18:31:09 -0500
+Date: Tue, 6 Mar 2001 00:30:56 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
 To: Sergey Kubushin <ksi@cyberbills.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Cc: "J . A . Magallon" <jamagallon@able.es>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.4.2ac12
-In-Reply-To: <Pine.LNX.4.31ksi3.0103051514050.12620-100000@nomad.cyberbills.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <20010306003056.C1136@werewolf.able.es>
+In-Reply-To: <20010305235629.A1136@werewolf.able.es> <Pine.LNX.4.31ksi3.0103051507140.12620-100000@nomad.cyberbills.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.31ksi3.0103051507140.12620-100000@nomad.cyberbills.com>; from ksi@cyberbills.com on Tue, Mar 06, 2001 at 00:13:24 +0100
+X-Mailer: Balsa 1.1.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sergey Kubushin wrote:
-> I _DO_ know what db1 stands for. And we do _NOT_ have db1 in our
-> distribution, KSI Linux. And we are _NOT_ going to build the obsolete
-> library with all the accompanied development stuff just to be able to make
-> some tool required to build exactly ONE kernel driver. It was a nightmare to
-> get rid of TREE incompatible libdbs so it doesn't make any sence to get that
-> mess back in. It's just plain braindead to do something like this. Occam was
-> right and this is plain stupid.
 
-Well, it sounds like you're not going to be using that driver, then :)
+On 03.06 Sergey Kubushin wrote:
+> On Mon, 5 Mar 2001, J . A . Magallon wrote:
+> 
+> > What that line does is to build a tool (aicasm) to generate the ucode
+> > that
+> > is built into the kernel (afaik, it is a kind of assembler from a
+> > language
+> > to AIC sequencer code). That is, the tool uses db1 (as mkdep.c uses
+> > glibc)
+> > but once you have generated the sequencer instructions, that is what is
+> > built
+> > into the kernel, not the tool (aicasm).
+> 
+> It's very nice... Now one should have not only special kgcc to build the
+> kernel, but also the obsolete library with all the development stuff
+> installed... Is it sane?
+> 
 
-You do what ya gotta do...
+What I dunno is why the h... is needed to rebuild the code everytime you build
+a kernel. Just ship the ucode and remove the aicasm subtree from kernel.
+Perhaps mrproper makes things too clean, and just should leave there the
+sequencer code.
 
 -- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+J.A. Magallon                                                      $> cd pub
+mailto:jamagallon@able.es                                          $> more beer
+
+Linux werewolf 2.4.2-ac11 #1 SMP Sat Mar 3 22:18:57 CET 2001 i686
+

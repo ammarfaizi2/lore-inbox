@@ -1,46 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266246AbSKLGpX>; Tue, 12 Nov 2002 01:45:23 -0500
+	id <S266250AbSKLHGB>; Tue, 12 Nov 2002 02:06:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266250AbSKLGpX>; Tue, 12 Nov 2002 01:45:23 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:13819 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id <S266246AbSKLGpW>; Tue, 12 Nov 2002 01:45:22 -0500
-Date: Tue, 12 Nov 2002 06:53:04 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: "David S. Miller" <davem@redhat.com>
-cc: akpm@digeo.com, <dmccr@us.ibm.com>, <riel@conectiva.com.br>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] flush_cache_page while pte valid 
-In-Reply-To: <20021111.151929.31543489.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0211120648170.1427-100000@localhost.localdomain>
+	id <S266251AbSKLHGB>; Tue, 12 Nov 2002 02:06:01 -0500
+Received: from [61.171.250.108] ([61.171.250.108]:41412 "HELO
+	tsunami.cn.solution-soft.com") by vger.kernel.org with SMTP
+	id <S266250AbSKLHGA> convert rfc822-to-8bit; Tue, 12 Nov 2002 02:06:00 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Zhonghua Dai <zdai@solution-soft.com>
+Reply-To: zdai@solution-soft.com
+Organization: Solution-soft
+To: Der Herr Hofrat <der.herr@mail.hofr.at>, linux-kernel@vger.kernel.org
+Subject: Re: mmap question
+Date: Tue, 24 Sep 2002 17:37:53 +0800
+User-Agent: KMail/1.4.1
+References: <200209240726.g8O7QNA06595@hofr.at>
+In-Reply-To: <200209240726.g8O7QNA06595@hofr.at>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209241737.53490.zdai@solution-soft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Nov 2002, David S. Miller wrote:
->    From: Hugh Dickins <hugh@veritas.com>
->    Date: Mon, 11 Nov 2002 18:25:25 +0000 (GMT)
-> 
->    On some architectures (cachetlb.txt gives HyperSparc as an example)
->    it is essential to flush_cache_page while pte is still valid: the
->    rmap VM diverged from the base 2.4 VM before that fix was made,
->    so this error has crept back into 2.5.
-> ...   
->    (I wonder, what happens if userspace now modifies the page
->    after the flush_cache_page, before the pte is invalidated?)
-> 
-> Thanks for catching this.
-> 
-> On architectures that are affected (such as the mentioned HyperSPARC
-> chips), the cpu will take a trap and OOPS the kernel if the PTE is
-> invalidated before the cache flush is made.
+On Tuesday 24 September 2002 15:26, Der Herr Hofrat wrote:
+> Hi !
+>
+>  trying to write up a simple mmap for a pseudo device that accesses a
+>  kmalloc'ed area.
+>
+>  The driver is a character driver that only has mmap implemented - the
+> kmalloc is done in init module and the pointer to the buffer is in global
+> context. I expected to be able to write to the mmap'ed area from user-space
+> but it never shows up in kernel space (the printk in driver_mmap always
+> shows the init_msg passed in init_module).
+>
+>  the basic framework I'm using is below - can anybody point me to an
+> obvious error or to some docs that would explain how to share an kmalloc'ed
+> area with user-space via mmap ?
+>
+> thx !
+> hofrat
+>
+> ---driver---
+> char *kmalloc_area;
+> ...
+> static int
+> driver_mmap(struct file *file,
+> 	struct vm_area_struct *vma)
+> {
+> 	vma->vm_flags |= VM_LOCKED|VM_SHARED;
+>
+> 	printk("message buffer: %s\",kmalloc_area);
+> 	remap_page_range(vma->vm_start,
+> 		virt_to_phys(kmalloc_area),
+> 		LEN,
+> 		PAGE_SHARED);
 
-Thanks for shedding light on that; but I'm still wondering if there
-might be data loss if userspace modifies the page in the tiny window
-between correctly positioned flush_cache_page and pte invalidation?
+Before memory can be exported into userspace, the reserved bit must be set. 
+Call mem_map_reserve()  prior to remap_page_range().
 
-Hugh
+good luck.
+
+
+> 	return 0;
+> }
+>
+> static struct file_operations simple_fops={
+>     mmap:	driver_mmap,
+> };
+>
+> int
+> init_module(void){
+> 	...
+> 	kmalloc_area=kmalloc(LEN,GFP_USER);
+> 	strncpy(kmalloc_area,init_msg,sizeof(init_msg));
+> 	...
+> }
+>
+> ---user-app---
+>
+> int main(void)
+> {
+> 	int fd;
+> 	char msg[]="some message - should appear in kernel space";
+> 	unsigned int *addr;
+>
+> 	if((fd=open("/dev/simple-device", O_RDWR))<0)
+> 	addr = mmap(0, LEN, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+> 	memset(addr,0,LEN);
+> 	strncpy(addr,msg,sizeof(msg));
+> 	return 0;
+> }
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

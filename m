@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316746AbSF0A5n>; Wed, 26 Jun 2002 20:57:43 -0400
+	id <S316712AbSF0Azu>; Wed, 26 Jun 2002 20:55:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316755AbSF0A5m>; Wed, 26 Jun 2002 20:57:42 -0400
-Received: from holomorphy.com ([66.224.33.161]:52692 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S316746AbSF0A5m>;
-	Wed, 26 Jun 2002 20:57:42 -0400
-Date: Wed, 26 Jun 2002 17:56:50 -0700
+	id <S316746AbSF0Azt>; Wed, 26 Jun 2002 20:55:49 -0400
+Received: from holomorphy.com ([66.224.33.161]:51668 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S316712AbSF0Azt>;
+	Wed, 26 Jun 2002 20:55:49 -0400
+Date: Wed, 26 Jun 2002 17:54:31 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
-To: Amos Waterland <apw@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Tom Gall <tom_gall@vnet.ibm.com>,
-       bcrl@redhat.com
-Subject: Re: O_ASYNC question
-Message-ID: <20020627005650.GN22961@holomorphy.com>
+To: Robert Love <rml@tech9.net>
+Cc: Bongani <bonganilinux@mweb.co.za>,
+       Alexandre Pereira Nunes <alex@PolesApart.dhs.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: 2.4.19-pre10-ac2 bug in page_alloc.c:131
+Message-ID: <20020627005431.GM22961@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Amos Waterland <apw@us.ibm.com>, linux-kernel@vger.kernel.org,
-	Tom Gall <tom_gall@vnet.ibm.com>, bcrl@redhat.com
-References: <20020625113052.A7510@kvasir.austin.ibm.com> <20020626211122.GL22961@holomorphy.com> <20020626163755.A10713@kvasir.austin.ibm.com>
+	Robert Love <rml@tech9.net>, Bongani <bonganilinux@mweb.co.za>,
+	Alexandre Pereira Nunes <alex@PolesApart.dhs.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0206222202400.7601-100000@PolesApart.dhs.org> <20020626204721.GK22961@holomorphy.com> <1025125214.1911.40.camel@localhost.localdomain> <1025128477.1144.3.camel@icbm>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
 Content-Disposition: inline
-In-Reply-To: <20020626163755.A10713@kvasir.austin.ibm.com>
+In-Reply-To: <1025128477.1144.3.camel@icbm>
 User-Agent: Mutt/1.3.25i
 Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 26, 2002 at 04:37:55PM -0500, Amos Waterland wrote:
-> The reason that I was interested is that this behavior, if implemented
-> for all fd types, would be useful for a scalable user-space
-> implementation of POSIX aio.
+On Wed, 2002-06-26 at 17:00, Bongani wrote:
+> The preemptive kernel is not part of 2.4-ac.
 
-Linux implements SIGIO for tty's and sockets only.
+On Wed, Jun 26, 2002 at 05:54:13PM -0400, Robert Love wrote:
+> Btw, fwiw, I do not think this problem has anything to do with
+> preemption.  The "exited with preempt_count" message just means the task
+> exited with preemption disabled.  It is not a problem if the task died
+> abnormally.
 
-On Wed, Jun 26, 2002 at 04:37:55PM -0500, Amos Waterland wrote:
-> When you say that it is 'not done for files', does that mean that it is
-> not done by design, and no plans exist to implement it for files
-> (perhaps because completion notification is fundamentally different than
-> readiness notification?), or that the work just has yet to be done?
-> Thanks.
-
-It is not done by design. Future plans for async I/O implementations do
-not appear to involve the SIGIO mechanism.
+Well, my concern here is for the pte_chain_lock() / pte_chain_unlock()
+bits. Teaching them about preemption should be all that's needed there.
 
 
 Cheers,

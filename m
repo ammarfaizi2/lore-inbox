@@ -1,66 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263342AbSKCXjI>; Sun, 3 Nov 2002 18:39:08 -0500
+	id <S263979AbSKCXd1>; Sun, 3 Nov 2002 18:33:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263899AbSKCXjI>; Sun, 3 Nov 2002 18:39:08 -0500
-Received: from smtp09.iddeo.es ([62.81.186.19]:37768 "EHLO smtp09.retemail.es")
-	by vger.kernel.org with ESMTP id <S263342AbSKCXjH>;
-	Sun, 3 Nov 2002 18:39:07 -0500
-Date: Mon, 4 Nov 2002 00:45:39 +0100
-From: =?iso-8859-1?Q?J=2EA=2E_Magall=F3n?= <jamagallon@able.es>
-To: Margit Schubert-While <margit@margit.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: U160 on Adaptec 39160
-Message-ID: <20021103234539.GC1839@werewolf.able.es>
-References: <4.3.2.7.2.20021103124403.00b4c860@mail.dns-host.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <4.3.2.7.2.20021103124403.00b4c860@mail.dns-host.com>; from margit@margit.com on Sun, Nov 03, 2002 at 12:59:44 +0100
-X-Mailer: Balsa 2.0.3
+	id <S263986AbSKCXd1>; Sun, 3 Nov 2002 18:33:27 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:8210 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S263979AbSKCXd0>; Sun, 3 Nov 2002 18:33:26 -0500
+From: Han-Wen Nienhuys <hanwen@cs.uu.nl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15813.46294.554277.652708@blauw.xs4all.nl>
+Date: Mon, 4 Nov 2002 00:44:22 +0100
+To: "David McIlwraith" <quack@bigpond.net.au>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [Help!] 2.4.20 IDE-SCSI / CD-writing crash
+In-Reply-To: <051b01c28391$47168530$41368490@archaic>
+References: <3DC59E5B.2040007@yahoo.com>
+	<200211032253.gA3Mrw1B008818@smtpzilla1.xs4all.nl>
+	<1036365120.1540.11.camel@god.stev.org>
+	<15813.44941.592105.853906@blauw.xs4all.nl>
+	<051b01c28391$47168530$41368490@archaic>
+X-Mailer: VM 7.05 under Emacs 21.2.1
+Reply-To: hanwen@cs.uu.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+quack@bigpond.net.au writes:
+> You mean hdc not hdd, I hope?
 
-On 2002.11.03 Margit Schubert-While wrote:
-[...]
-> 	2 x U160 disks on channel B with special U160 cable and actively
-> 	terminated.
-> 	DVD + DAT on SE channel A. Nothing on U160 channel A.
-[...]
-> <4>Attached scsi tape st0 at scsi0, channel 0, id 5, lun 0
-> <4>Attached scsi disk sda at scsi1, channel 0, id 0, lun 0
-> <4>Attached scsi disk sdb at scsi1, channel 0, id 1, lun 0
+Ah, brilliant thinking! I'll see what happens if I make it master.
 
-Where is DVD ?
-
-[...]
-> Channel A Target 0 Negotiation Settings
-
-What you request:
->          User: 160.000MB/s transfers (80.000MHz DT, offset 255, 16bit)
-
-What the hardware detects it can do:
->          Goal: 80.000MB/s transfers (40.000MHz, offset 127, 16bit)
-
-What both agreed to do finally...:
->          Curr: 80.000MB/s transfers (40.000MHz, offset 127, 16bit)
-
-So you hardware thiks it can not do U160. Possibilities:
-- Check jumpers on the drive
-- Active but SE termination, so no double data rate. Check your terminator
-  is LVD.
-- SE device at end of chain, so no LVD also (you say your DVD/DAT are on the
-  other channel...)
-
-I would vote for SE instead of LVD active terminator ar the cause. At least
-'cause I also suffered from it (dam***d hardware dealers...)
-
-Hope this helps.
 
 -- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.1 (Cooker) for i586
-Linux 2.4.20-rc1-jam1 (gcc 3.2 (Mandrake Linux 9.0 3.2-2mdk))
+
+Han-Wen Nienhuys   |   hanwen@cs.uu.nl   |   http://www.cs.uu.nl/~hanwen 

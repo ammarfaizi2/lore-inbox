@@ -1,34 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264880AbTFEVxi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 17:53:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265203AbTFEVxh
+	id S265215AbTFEWAz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 18:00:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265216AbTFEWAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 17:53:37 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:38208 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S264880AbTFEVxg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 17:53:36 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200306052207.h55M74Q26865@devserv.devel.redhat.com>
-Subject: Re: SiI3112 (Adaptec 1210SA): no devices
-To: hugo-lkml@carfax.org.uk (Hugo Mills)
-Date: Thu, 5 Jun 2003 18:07:04 -0400 (EDT)
-Cc: sflory@rackable.com (Samuel Flory), hugo-lkml@carfax.org.uk (Hugo Mills),
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       andre@linux-ide.org, alan@redhat.com
-In-Reply-To: <20030605211526.GE1542@carfax.org.uk> from "Hugo Mills" at Meh 05, 2003 10:15:26 
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	Thu, 5 Jun 2003 18:00:55 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:8378 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265215AbTFEWAx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 18:00:53 -0400
+Date: Thu, 5 Jun 2003 15:16:33 -0700
+From: Greg KH <greg@kroah.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org,
+       mochel@osdl.org
+Subject: Re: [RFT/C 2.5.70] Input class hook up to driver model/sysfs
+Message-ID: <20030605221633.GA7282@kroah.com>
+References: <175110000.1054083891@w-hlinder> <20030605211258.GA705@elf.ucw.cz> <20030605211713.GB7029@kroah.com> <20030605220716.GF608@elf.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20030605220716.GF608@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> just couldn't find _any_ other SiI3112 SATA card on the market in this
-> country. I don't run Red Hat or SuSE, and particularly not their
-> kernels -- (I normally run Alan's kernels). Does this mean that I've
-> bought a pig in a poke?
+On Fri, Jun 06, 2003 at 12:07:16AM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > > > I did this once before but due to some infrastructure changes 
+> > > > it had to be written again. Here it is, pretty simple. Now
+> > > > you can see your input devices (except keyboard) listed under
+> > > > /sys/class/input like this (yes, I do have two mice attached).
+> > > > At the moment the dev file is created and it contains the
+> > > > hex value of the major and minor number.
+> > > 
+> > > *very* nice, and urgently needed for suspend/resume support.
+> > 
+> > No, classes have nothing to do with suspend/resume, that's devices.
+> 
+> > > But should not structure be /bus/sys/keyboard_controller/mouse0? Mouse
+> > > needs to be suspended before keyboard controller...
+> > 
+> > Yes, but this patch is putting stuff in /sys/class/input, not /sys/bus
+> > :)
+> 
+> Okay, that means that another patch is needed to create hierarchy for
+> power managment... This sysfs stuff is getting hairy.
 
-If its a standard SI3112 series device with a different device ID then it
-ought to work just by adding the ids to the driver.
+No, the current /sys/bus tree should be fine for showing the heirachy
+for power management.  What in there do you feel is lacking?
+
+greg k-h

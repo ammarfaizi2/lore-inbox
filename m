@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291214AbSBLWNV>; Tue, 12 Feb 2002 17:13:21 -0500
+	id <S291210AbSBLWLB>; Tue, 12 Feb 2002 17:11:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291216AbSBLWNL>; Tue, 12 Feb 2002 17:13:11 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59409 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S291214AbSBLWM6>; Tue, 12 Feb 2002 17:12:58 -0500
-Subject: Re: File BlockSize
-To: riel@conectiva.com.br (Rik van Riel)
-Date: Tue, 12 Feb 2002 22:25:48 +0000 (GMT)
-Cc: wli@holomorphy.com (William Lee Irwin III),
-        alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L.0202121959260.12554-100000@imladris.surriel.com> from "Rik van Riel" at Feb 12, 2002 08:00:41 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S291213AbSBLWKx>; Tue, 12 Feb 2002 17:10:53 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:14333 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S291210AbSBLWKr>; Tue, 12 Feb 2002 17:10:47 -0500
+Date: Wed, 13 Feb 2002 00:10:26 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Bill Davidsen <davidsen@tmr.com>, Padraig Brady <padraig@antefacto.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: How to check the kernel compile options ?
+Message-ID: <20020212221025.GH1105@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	Bill Davidsen <davidsen@tmr.com>,
+	Padraig Brady <padraig@antefacto.com>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3C695035.6040902@antefacto.com> <Pine.LNX.3.96.1020212132711.6082B-100000@gatekeeper.tmr.com> <20020212140624.R9826@lynx.turbolabs.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16alMy-0003GH-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <20020212140624.R9826@lynx.turbolabs.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > This sounds like fairly severe memory fragmentation, which seems more
-> > worrisome to me than blocksize constraints. Should I look into that?
+On Tue, Feb 12, 2002 at 02:06:24PM -0700, you [Andreas Dilger] wrote:
 > 
-> Sorry for being dense, but I don't see why an 8 kB block would
-> need to occupy 2 contiguous pages in ram.
+> You can also extract it from an uncompressed kernel (vmlinux) or the
+> module with "strings <file> | grep '[A-Z]*=[ym]$'".  It is simple
+> enough to search for the gzip magic (1f 8b 08 00 at about 16-18kB)
+> in a zImage or bzImage, and then pipe it to gunzip and strings as above.
 
-Because all the kernel code knows that you can add a constant to the
-base of a buffer to get anywhere in that block. Also the one buffer
-per two page case isnt handled either
+Such script could live in /usr/src/linux/scripts. The same script could
+perhaps extract the version string as well. Anybody got a clue how to find
+it reliably? Is this reliable 
+
+strings /boot/bzImage |
+ egrep '^[0-9]+\.[0-9]\.+.*\(.*@.*\).*[0-9]+:[0-9]+:[0-9]+' | 
+ head -1
 
 
-Alan
+-- v --
+
+v@iki.fi

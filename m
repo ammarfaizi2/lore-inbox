@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270596AbTGNMdp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 08:33:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270612AbTGNMbt
+	id S268527AbTGNN1M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 09:27:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270129AbTGNNUn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 08:31:49 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:44420
-	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S270573AbTGNMLR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 08:11:17 -0400
-Date: Mon, 14 Jul 2003 13:25:14 +0100
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200307141225.h6ECPERr030911@hraefn.swansea.linux.org.uk>
-To: linux-kernel@vger.kernel.org, marcelo@conectiva.com
-Subject: PATCH: fix a race in the plugin api for ac97
+	Mon, 14 Jul 2003 09:20:43 -0400
+Received: from [203.94.130.164] ([203.94.130.164]:44712 "EHLO bad-sports.com")
+	by vger.kernel.org with ESMTP id S268527AbTGNNTy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 09:19:54 -0400
+Date: Mon, 14 Jul 2003 23:02:39 +1000 (EST)
+From: Brett <generica@email.com>
+X-X-Sender: brett@bad-sports.com
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] [TRIVIAL] cryptoloop in 2.6.0-test1
+Message-ID: <Pine.LNX.4.44.0307142258570.7337-100000@bad-sports.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.22-pre5/drivers/sound/ac97_codec.c linux.22-pre5-ac1/drivers/sound/ac97_codec.c
---- linux.22-pre5/drivers/sound/ac97_codec.c	2003-07-14 12:27:39.000000000 +0100
-+++ linux.22-pre5-ac1/drivers/sound/ac97_codec.c	2003-07-07 16:20:20.000000000 +0100
-@@ -740,7 +740,6 @@
- 	memset(codec, 0, sizeof(*codec));
- 	spin_lock_init(&codec->lock);
- 	INIT_LIST_HEAD(&codec->list);
--	list_add(&codec->list, &codecs);
- 	return codec;
- }
+
+Hey,
+
+Compiling cryptoloop as a module showed up the need for this patch
+
+thanks,
+
+	/ Brett
+
+--- drivers/block/Kconfig.old	2003-07-14 18:41:20.000000000 +1000
++++ drivers/block/Kconfig	2003-07-14 18:41:48.000000000 +1000
+@@ -264,6 +264,7 @@
  
-@@ -869,6 +868,7 @@
- 	 */
- 	 
- 	down(&codec_sem);
-+	list_add(&codec->list, &codecs);
- 
- 	list_for_each(l, &codec_drivers) {
- 		d = list_entry(l, struct ac97_driver, list);
+ config BLK_DEV_CRYPTOLOOP
+ 	tristate "Cryptoloop Support"
++	select CRYPTO
+ 	depends on BLK_DEV_LOOP
+ 	---help---
+ 	  Say Y here if you want to be able to use the ciphers that are 
+
+

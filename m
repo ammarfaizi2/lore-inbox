@@ -1,78 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261529AbVAOFXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbVAOFYs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261529AbVAOFXg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 00:23:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262215AbVAOFXe
+	id S262208AbVAOFYs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 00:24:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262215AbVAOFYs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 00:23:34 -0500
-Received: from mail-ex.suse.de ([195.135.220.2]:61573 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262208AbVAOFXO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 00:23:14 -0500
-Date: Sat, 15 Jan 2005 06:23:11 +0100
-From: Andi Kleen <ak@suse.de>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       manpreet@fabric7.com,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       discuss@x86-64.org
-Subject: Re: [PATCH] i386/x86-64: Fix timer SMP bootup race
-Message-ID: <20050115052311.GC22863@wotan.suse.de>
-References: <20050115040951.GC13525@wotan.suse.de> <1105765760.12263.12.camel@localhost.localdomain>
+	Sat, 15 Jan 2005 00:24:48 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:34321 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262208AbVAOFXv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 00:23:51 -0500
+Date: Sat, 15 Jan 2005 06:23:49 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: David Dyck <david.dyck@fluke.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Steffen Moser <lists@steffen-moser.de>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.29-rc2
+Message-ID: <20050115052349.GG4274@stusta.de>
+References: <20050112151334.GC32024@logos.cnet> <20050114225555.GA17714@steffen-moser.de> <20050114231712.GH3336@logos.cnet> <Pine.LNX.4.51.0501141853270.222@dd.tc.fluke.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1105765760.12263.12.camel@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.51.0501141853270.222@dd.tc.fluke.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 15, 2005 at 04:09:19PM +1100, Rusty Russell wrote:
-> On Sat, 2005-01-15 at 05:09 +0100, Andi Kleen wrote:
-> > Fix boot up SMP race in timer setup on i386/x86-64.
-> > 
-> > This fixes a long standing race in 2.6 i386/x86-64 SMP boot.
-> > The per CPU timers would only get initialized after an secondary
-> > CPU was running. But during initialization the secondary CPU would
-> > already enable interrupts to compute the jiffies. When a per 
-> > CPU timer fired in this window it would run into a BUG in timer.c
-> > because the timer heap for that CPU wasn't fully initialized.
-> > 
-> > The race only happens when a CPU takes a long time to boot
-> > (e.g. very slow console output with debugging enabled).
-> > 
-> > To fix I added a new cpu notifier notifier command CPU_UP_PREPARE_EARLY
-> > that is called before the secondary CPU is started. timer.c
-> > uses that now to initialize the per CPU timers early before
-> > the other CPU runs any Linux code.
+On Fri, Jan 14, 2005 at 06:58:11PM -0800, David Dyck wrote:
+> On Fri, 14 Jan 2005 at 21:17 -0200, Marcelo Tosatti <marcelo.tosatti@cyclad...:
 > 
-> Andi, that's horrible.  I suspect you know it's horrible and were hoping
-> someone would fix it properly.  The semantics of CPU_UP_PREPARE are
-> supposed to do this already.
-
-I shortly considered redoing the boot process, but then it looked 
-too risky to me. 
-
-e.g. I guess on x86-64 it wouldn't be that difficult, just a bit of work,
-but on i386 with all the weird hardware it could be quite destabilizing.
-But doing it on x86-64 only is not a good solution.
-
-
+> > David, this also fix your problem.
 > 
-> The cause of this bug is that (1) i386 and x86_64 actually bring the
-> secondary CPUs up at boot before the core code officially brings them up
-> using cpu_up(), after the appropriate callbacks, and (2) they call into
-> core code tp process timer interrupts before they've been officially
-> brought up.
 > 
-> The former is because I just added a shim rather than rewriting the x86
-> boot process, because it would have broken too much.  The fix is do the
-> boot process properly, or to suppress the call to do_timer before the
-> CPU is actually "up".
+> Sorry, no
+> 
+> I tried your patch to drivers/char/tty_io.c
+> (using EXPORT_SYMBOL instead of EXPORT_SYMBOL_GPL)
+> 
+> My first test (apply the patch, make bzImage and modules again
+> results in the same errors as before
+> 
+> # insmod $PWD/cyclades.o
+> /lib/modules/2.4.29-rc2/kernel/drivers/char/cyclades.o: unresolved symbol tty_ldisc_flush
+> /lib/modules/2.4.29-rc2/kernel/drivers/char/cyclades.o: unresolved symbol tty_wakeup
+> 
+> $ grep tty_ldisc_flush /proc/ksyms
+> c01db0dc tty_ldisc_flush_R__ver_tty_ldisc_flush
 
-I don't see a better short term solution.
+Please send:
+- your .config
+- the output of
+    bash scripts/ver_linux
 
-If you had done it properly in 2.5 it would be working and tested
-by now ;-) , but doing it in the middle of 2.6 would seem a bit misplaced
-to me.
+>  heading back to 2.4.29-pre2...
+>      David
 
--Andi
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

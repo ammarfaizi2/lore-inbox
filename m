@@ -1,163 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261737AbULBT0x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261734AbULBT3A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261737AbULBT0x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 14:26:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbULBT0x
+	id S261734AbULBT3A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 14:29:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbULBT3A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 14:26:53 -0500
-Received: from linux.us.dell.com ([143.166.224.162]:60781 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S261737AbULBT0J
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 14:26:09 -0500
-Date: Thu, 2 Dec 2004 13:25:13 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org,
-       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
-       jgarzik@pobox.com, alan@redhat.com, david.balazic@hermes.si,
-       hpa@zytor.com, ak@suse.de
-Subject: [PATCH 2.6] EDD: add edd=off and edd=skipmbr options
-Message-ID: <20041202192513.GA27020@lists.us.dell.com>
-References: <20041123230001.GE30452@lists.us.dell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041123230001.GE30452@lists.us.dell.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 2 Dec 2004 14:29:00 -0500
+Received: from mail.aknet.ru ([217.67.122.194]:57355 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S261734AbULBT2d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 14:28:33 -0500
+Message-ID: <41AF6CE0.4090500@aknet.ru>
+Date: Thu, 02 Dec 2004 22:28:32 +0300
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: ru, en-us, en
+MIME-Version: 1.0
+To: prasanna@in.ibm.com
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] kprobes: dont steal interrupts from vm86
+References: <20041109130407.6d7faf10.akpm@osdl.org> <20041110104914.GA3825@in.ibm.com> <4192638C.6040007@aknet.ru> <20041117131552.GA11053@in.ibm.com>
+In-Reply-To: <20041117131552.GA11053@in.ibm.com>
+Content-Type: multipart/mixed;
+ boundary="------------010607050709080402030808"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-EDD: add edd=off and edd=skipmbr command line options
-    
-New command line options
-edd=off     (or edd=of)
-edd=skipmbr (or edd=sk)
+This is a multi-part message in MIME format.
+--------------010607050709080402030808
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Hello.
+
+Prasanna S Panchamukhi wrote:
+> Yes, there is a small bug in kprobes. Kprobes int3 handler
+> was returning wrong value. Please check out if the patch
+> attached with this mail fixes your problem.
+> Please let me know if you have any issues.
+Yes. After several days of debugging,
+I am pointing to this problem again.
+Unfortunately your patch appeared not
+to work. It only masks the problem.
+I was surprised that you check VM_MASK
+after you already used "addr" a couple
+of times - this "addr" is completely
+bogus and should not be used. Now this
+turned out more important. The problem
+is that the "addr" calculated only from
+the value of EIP, is bogus not only when
+VM flag is set. It is also bogus if the
+program uses segmentation and the
+CS_base!=0. I have many of the like
+programs here and they all are broken
+because kprobes still steal the int3 from
+them. They do not use V86, but they use
+segments instead of the flat layout, so
+the address cannot be calculated by the
+EIP value.
+I would suggest something like the attached
+patch. I know nothing about kprobes (sorry)
+so I don't know what CS you need. If you
+need not only __KERNEL_CS, you probably
+want the (regs->xcs & 4) check to see if
+the CS is not from LDT at least. Does this
+make sense?
+Anyway, would be nice to get this fixed.
+This can cause Oopses because you deref
+the completely bogus pointer later in the
+code.
+Writing a test-case for this problem is
+not a several-minutes work, but if you
+really need one, I may try to hack it out.
+
+Thanks.
+
+
+--------------010607050709080402030808
+Content-Type: text/x-patch;
+ name="kprb.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="kprb.diff"
+
+--- linux/arch/i386/kernel/kprobes.c.old	2004-11-18 16:22:46.000000000 +0300
++++ linux/arch/i386/kernel/kprobes.c	2004-12-02 22:01:05.000000000 +0300
+@@ -92,6 +92,11 @@
+ 	int ret = 0;
+ 	u8 *addr = (u8 *) (regs->eip - 1);
  
-runtime options for disabling all EDD int13 calls completely, or for
-skipping the int13 READ SECTOR calls, respectively.
-
-These are provided to allow Linux distributions to include CONFIG_EDD=m, yet
-allow end-users to disable parts of EDD which may not work well with their
-system's BIOS.
-
-I incorporated comments from Randy Dunlap, and got an ack from Andi Kleen.
-
-Signed-off-by: Matt Domsch <Matt_Domsch@dell.com>
-  
- Documentation/kernel-parameters.txt |    5 ++++
- arch/i386/boot/edd.S                |   42 ++++++++++++++++++++++++++++++++++--
- include/linux/edd.h                 |    4 +++
- 3 files changed, 49 insertions, 2 deletions
-
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
-
---- ../linux-2.6/arch/i386/boot/edd.S	Sat Nov 13 20:22:44 2004
-+++ linux-2.6-edd-options/arch/i386/boot/edd.S	Tue Nov 23 15:26:28 2004
-@@ -1,5 +1,6 @@
- /*
-  * BIOS Enhanced Disk Drive support
-+ * Copyright (C) 2002, 2003, 2004 Dell, Inc.
-  * by Matt Domsch <Matt_Domsch@dell.com> October 2002
-  * conformant to T13 Committee www.t13.org
-  *   projects 1572D, 1484D, 1386D, 1226DT
-@@ -7,14 +8,52 @@
-  *	and Andrew Wilks <Andrew_Wilks@dell.com> September 2003, June 2004
-  * legacy CHS retreival by Patrick J. LoPresti <patl@users.sourceforge.net>
-  *      March 2004
-+ * Command line option parsing, Matt Domsch, November 2004
-  */
- 
- #include <linux/edd.h>
-+#include <asm/setup.h>
- 
- #if defined(CONFIG_EDD) || defined(CONFIG_EDD_MODULE)
-+	movb	$0, (EDD_MBR_SIG_NR_BUF)
-+	movb	$0, (EDDNR)
++	/* If we are in v86 mode or CS is not ours, get out */
++	if ((regs->eflags & VM_MASK) || regs->xcs != __KERNEL_CS) {
++		return 0;
++	}
 +
-+# Check the command line for two options:
-+# edd=of  disables EDD completely  (edd=off)
-+# edd=sk  skips the MBR test    (edd=skipmbr)
-+	pushl	%esi
-+    	cmpl	$0, %cs:cmd_line_ptr
-+	jz	done_cl
-+	movl	%cs:(cmd_line_ptr), %esi
-+# ds:esi has the pointer to the command line now
-+	movl	$(COMMAND_LINE_SIZE-7), %ecx
-+# loop through kernel command line one byte at a time
-+cl_loop:
-+	cmpl	$EDD_CL_EQUALS, (%si)
-+	jz	found_edd_equals
-+	incl	%esi
-+	loop	cl_loop
-+	jmp	done_cl
-+found_edd_equals:
-+# only looking at first two characters after equals
-+    	addl	$4, %esi
-+	cmpw	$EDD_CL_OFF, (%si)	# edd=of
-+	jz	do_edd_off
-+	cmpw	$EDD_CL_SKIP, (%si)	# edd=sk
-+	jz	do_edd_skipmbr
-+	jmp	done_cl
-+do_edd_skipmbr:
-+    	popl	%esi
-+	jmp	edd_start
-+do_edd_off:
-+	popl	%esi
-+	jmp	edd_done
-+done_cl:
-+	popl	%esi
-+
-+    
- # Read the first sector of each BIOS disk device and store the 4-byte signature
- edd_mbr_sig_start:
--	movb	$0, (EDD_MBR_SIG_NR_BUF)	# zero value at EDD_MBR_SIG_NR_BUF
- 	movb	$0x80, %dl			# from device 80
- 	movw	$EDD_MBR_SIG_BUF, %bx		# store buffer ptr in bx
- edd_mbr_sig_read:
-@@ -76,7 +115,6 @@ edd_start:
-        						# result buffer for fn48
- 	movw	$EDDBUF+EDDEXTSIZE, %si		# in ds:si, fn41 results
- 						# kept just before that
--	movb	$0, (EDDNR)			# zero value at EDDNR
- 	movb	$0x80, %dl			# BIOS device 0x80
+ 	/* We're in an interrupt, but this is clear and BUG()-safe. */
+ 	preempt_disable();
  
- edd_check_ext:
---- ../linux-2.6/include/linux/edd.h	Sat Nov 13 20:22:46 2004
-+++ linux-2.6-edd-options/include/linux/edd.h	Tue Nov 23 15:03:51 2004
-@@ -49,6 +49,10 @@
- #define EDD_MBR_SIG_MAX 16        /* max number of signatures to store */
- #define EDD_MBR_SIG_NR_BUF 0x1ea  /* addr of number of MBR signtaures at EDD_MBR_SIG_BUF
- 				     in boot_params - treat this as 1 byte  */
-+#define EDD_CL_EQUALS   0x3d646465     /* "edd=" */
-+#define EDD_CL_OFF      0x666f         /* "of" for off  */
-+#define EDD_CL_SKIP     0x6b73         /* "sk" for skipmbr */
-+
- #ifndef __ASSEMBLY__
+@@ -117,10 +122,6 @@
+ 	p = get_kprobe(addr);
+ 	if (!p) {
+ 		unlock_kprobes();
+-		if (regs->eflags & VM_MASK) {
+-			/* We are in virtual-8086 mode. Return 0 */
+-			goto no_kprobe;
+-		}
  
- #define EDD_EXT_FIXED_DISK_ACCESS           (1 << 0)
---- ../linux-2.6/Documentation/kernel-parameters.txt	Tue Nov 23 10:56:18 2004
-+++ linux-2.6-edd-options/Documentation/kernel-parameters.txt	Tue Nov 23 16:28:53 2004
-@@ -29,6 +29,7 @@ restrictions referred to are that the re
- 	CD	Appropriate CD support is enabled.
- 	DEVFS	devfs support is enabled. 
- 	DRM	Direct Rendering Management support is enabled. 
-+	EDD	BIOS Enhanced Disk Drive Services (EDD) is enabled
- 	EFI	EFI Partitioning (GPT) is enabled
- 	EIDE	EIDE/ATAPI support is enabled.
- 	FB	The frame buffer device is enabled.
-@@ -407,6 +408,10 @@ running once the system is up.
- 	eda=		[HW,PS2]
- 
- 	edb=		[HW,PS2]
-+
-+	edd=		[EDD]
-+			Format: {"of[f]" | "sk[ipmbr]"}
-+			See comment in arch/i386/boot/edd.S
- 
- 	eicon=		[HW,ISDN] 
- 			Format: <id>,<membase>,<irq>
+ 		if (*addr != BREAKPOINT_INSTRUCTION) {
+ 			/*
+
+--------------010607050709080402030808--

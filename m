@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288047AbSAQB00>; Wed, 16 Jan 2002 20:26:26 -0500
+	id <S288051AbSAQBf4>; Wed, 16 Jan 2002 20:35:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288051AbSAQB0W>; Wed, 16 Jan 2002 20:26:22 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:44782 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S288047AbSAQB0L>; Wed, 16 Jan 2002 20:26:11 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20020116164758.F12306@thyrsus.com> 
-In-Reply-To: <20020116164758.F12306@thyrsus.com>  <esr@thyrsus.com> <200201162156.g0GLukCj017833@tigger.cs.uni-dortmund.de> 
+	id <S288057AbSAQBfq>; Wed, 16 Jan 2002 20:35:46 -0500
+Received: from mercury.mv.net ([199.125.85.40]:45817 "EHLO mercury.mv.net")
+	by vger.kernel.org with ESMTP id <S288051AbSAQBfd>;
+	Wed, 16 Jan 2002 20:35:33 -0500
+Message-Id: <200201170135.UAA02298@mercury.mv.net>
+Content-Type: text/plain; charset=US-ASCII
+From: jeff millar <jeff@wa1hco.mv.com>
+Organization: me? organized?
 To: esr@thyrsus.com
-Cc: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2-2.1.3 is available 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 17 Jan 2002 01:26:02 +0000
-Message-ID: <26592.1011230762@redhat.com>
+Subject: Fwd: cml2-2.1.4 lockup confirmation
+Date: Wed, 16 Jan 2002 20:35:40 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I get similar hangs.  Here's from make menuconfig, down to
+"Architecture-independent feature selections" and try to turn modules to N.
 
-esr@thyrsus.com said:
-> If you stick to the CML1-equivalent facilities, you'll get almost
-> CML1-equivalent behavior.  It's "almost" partly because the hardware
-> symbols have more platform- and bus-type guards than they used to --
-> but mostly because I have not emulated the numerous CML1 bugs. 
+As soon as I hit N...it hang for 60 sec and then bombs with...
 
-I'm concerned by the 'platform- and bus-type guards' to which you refer. 
-Could you give some examples where the behaviour has changed? Lots of 
-embedded non-x86, non-ISA boxen have ISA network chips glued in somehow, 
-for example. I hope you haven't helpfully stopped that from working.
+Traceback (most recent call last):
+  File "cml2/cmlconfigure.py", line 3283, in ?
+    main(options, arguments)
+  File "cml2/cmlconfigure.Architecture-independent feature selectionspy",
+line 3193, in main
+    curses.wrapper(curses_style_menu, config, banner)
+  File "/tmp/32444-i386/install/usr/lib/python2.1/curses/wrapper.py", line
+44, in wrapper
+  File "cml2/cmlconfigure.py", line 1133, in __init__
+    self.interact(config)
+  File "cml2/cmlconfigure.py", line 1757, in interact
+    recompute = self.symbol_menu_command(cmd, sel_symbol)
+  File "cml2/cmlconfigure.py", line 1464, in symbol_menu_command
+    self.set_symbol(operand, cml.n)
+  File "cml2/cmlconfigure.py", line 1255, in set_symbol
+    effects + [lang["BADREQUIRE"]] + map(lambda x: x.message, violations),
+beep=1)
+  File "cml2/cmlconfigure.py", line 1255, in <lambda>
+    effects + [lang["BADREQUIRE"]] + map(lambda x: x.message, violations),
+beep=1)
+AttributeError: message
+make: *** [menuconfig] Error 1
 
---
-dwmw2
+When I tried it from make oldconfig.  It didn't hang it just took a long time
+to configure hundreds of modules to Y...just what I didn't want, but we've
+talked about that.
 
-
+-------------------------------------------------------

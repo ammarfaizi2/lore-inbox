@@ -1,55 +1,164 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288149AbSAXOll>; Thu, 24 Jan 2002 09:41:41 -0500
+	id <S288071AbSAXOkB>; Thu, 24 Jan 2002 09:40:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288130AbSAXOlV>; Thu, 24 Jan 2002 09:41:21 -0500
-Received: from nydalah028.sn.umu.se ([130.239.118.227]:14979 "EHLO
-	x-files.giron.wox.org") by vger.kernel.org with ESMTP
-	id <S288127AbSAXOlT>; Thu, 24 Jan 2002 09:41:19 -0500
-Message-ID: <009601c1a4e5$55cf9ca0$0201a8c0@HOMER>
-From: "Martin Eriksson" <nitrax@giron.wox.org>
-To: "Andy Carlson" <naclos@swbell.net>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0201240700450.1684-101000@bigandy.naclos.org>
-Subject: Re: via-rhine timeouts
-Date: Thu, 24 Jan 2002 15:42:23 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S288117AbSAXOjv>; Thu, 24 Jan 2002 09:39:51 -0500
+Received: from aboukir-101-2-1-easter.adsl.nerim.net ([62.4.19.191]:23174 "HELO
+	verveine") by vger.kernel.org with SMTP id <S288071AbSAXOjh>;
+	Thu, 24 Jan 2002 09:39:37 -0500
+Date: Thu, 24 Jan 2002 15:39:19 +0100
+From: Brugier Pascal <pbrugier@easter-eggs.com>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.14 cpqarray eepro100 ext3
+Message-ID: <20020124153919.A8842@easter-eggs.com>
+In-Reply-To: <20020122145844.A622@easter-eggs.com> <Pine.LNX.4.33.0201221211100.20907-100000@coffee.psychology.mcmaster.ca> <20020124122823.B8063@easter-eggs.com> <20020124151935.A8721@easter-eggs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020124151935.A8721@easter-eggs.com>; from pbrugier@easter-eggs.com on Thu, Jan 24, 2002 at 03:19:35PM +0100
+X-Operating-System: Debian Gnu/Linux 2.4.14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 24, 2002 at 03:19:35PM +0100, Brugier Pascal wrote:
+> On Thu, Jan 24, 2002 at 12:28:23PM +0100, Brugier Pascal wrote:
+> > On Tue, Jan 22, 2002 at 12:11:52PM -0500, Mark Hahn wrote:
+> > > > The server hangs when (it seems) we want to read or cp big 
+> > > > file (140 Mo).
+> > > 
+> > > that's not a large file.
+> > > 
+> > > > Invalid operand 00000 (i'm not sur about thenumber of 0 because
+> > > > someone else read for me and doesn't remember)
+> > > 
+> > > that's a bug or oops, and you must capture the whole thing,
+> > > and run it through ksymoops for it to be meaningful.
+> > > 
+> > Hi 
+> > 
+> > Remember i'm not on the mailing list, pleased CC'ed answer to my 
+> > message, thank you.
+> > 
+> > I've best informations:
+> > 
+> > I've 4 partitions on the server
+> > /dev/ida/c0d0 swap
+> 
+> I make a mistake: it is: /dev/ida/c0d0p1
+> 
+> > /dev/ida/c0d1 /
+> 
+> It is /dev/ida/c0d0p2
+> 
+> > /dev/ida/c0d2 /tmp
+> 
+> It is /dev/ida/c0d0p3
+> 
+> > /dev/ida/c0d3 /var
+> 
+> It is /dev/ida/c0d0p4
+> 
+> > 
+> > When  i want to edit a file: /var/log/mylogdir/mylogfile (140 Mb)
+> > the server hangs whith this messages:
+> > 
+> > invalid operand
+> > CPU:	0L
+> > EIP:	0010:[<c0123154>] Not tainted
+> > EFLAGS: 00010046
+> > eax: 00000000	ebx: d99a9f60	ecx: 00000002	edx: c1665740
+> > esi: 00000002	edi: c1665740	ebp: 00000001	esp: c01fbf18
+> > ds: 0018	es: 0018	ss: 0018
+> > Process swapper (pid: 0, stackpage=c01fb000)
+> > Stack: d99a9f60 c012f92b 00000000 dfa01f48 c1821800 e082a885 d99a9f60
+> > 00000001
+> >        dfffa680 24000001 00000003 c01fbf94 00000002 c0107f8d 00000003
+> >        c1821800
+> >        c01fbf94 00000060 c0230960 00000003 c01fbf8c c01080f6 00000003
+> >        c01fbf94
+> > Call Trace: [<c012f92b>] [<e082a885>] [<c0107f8d>] [<c01080f6>]
+> > [<c01053e9>] [<c0105360>] [<c0109ed8>] [<c0105360>] [<c0105360>]
+> > [<c0105383>] [<c01053e9<] [<c0105000>] [<c0105027>]
+> > 
+> > Code: 0f 0b 8d 5a 24 8d 42 28 39 42 28 74 11 b9 01 00 00 00 ba 03
+> > <0>Kernel panic: Aiee, killing interrupt handler!
+> > In interrupt handler - not syncing
+> > 
+> > ###############
+> > 
+> > If i want to copy /var/log/mylogdir/mylogfile
+> > 
+> > Kernel saya:
+> > 
+> > invalid request on ida/c0d0 = (cmd=30 sect=837624 cnt=248 sg=1 ret=10)
+> > 
+> > ###############
+> > 
+> > After writing this message i will downgrad to a 2.4.13 which is patched
+> > for ext3 and runnig whithout any problem on an other server whith the 
+> > same hardware. The difference between the 2 servers is that the
+> > 2.4.14's one is running on Raid 1 and the 2.4.13 on Raid 5.
 
------ Original Message -----
-From: "Andy Carlson" <naclos@swbell.net>
-To: "Martin Eriksson" <nitrax@giron.wox.org>
-Cc: "Justin A" <justin@bouncybouncy.net>; "Andrew Morton" <akpm@zip.com.au>;
-"Urban Widmark" <urban@teststation.com>; <linux-kernel@vger.kernel.org>;
-"Stephan von Krawczynski" <skraw@ithnet.com>
-Sent: Thursday, January 24, 2002 2:01 PM
-Subject: Re: via-rhine timeouts
+I did it, it works fine, i made the same tests and there was no
+problems.I read the changelog on kernel.org, and i saw that a
+modification was made on cpqarray module, i think there will be a
+problem with this module (it's an idea, i'm a newby ;-) )
 
+Thanks a lot
 
-I tried this patch, and it made not change, unless it was maybe a little
-worse :).
+Pascal
 
+> > 
+> > I hope i give you enought informations .
+> > 
+> > Thanks a lot
+> > 
+> > Best regards
+> > 
+> > -- 
+> > Pascal Brugier
+> > ---------------------------------------------------------------
+> > Easter-eggs                               Spécialiste GNU/Linux
+> > 44-46 rue de l'Ouest  -  75014 Paris  -  France  -  Métro Gaité
+> > Phone: +33 (0) 1 43 35 00 37    -    Fax: +33 (0) 1 43 35 00 76
+> > mailto:pbrugier@easter-eggs.com  -   http://www.easter-eggs.com
+> > ---------------------------------------------------------------
+> > 709D77A2 -   ED24 4E29 E5B4 FDE7 56A4  352D F24E 7E68 709D 77A2
+> > _______________________________________________________________
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> 
+> -- 
+> Pascal Brugier
+> ---------------------------------------------------------------
+> Easter-eggs                               Spécialiste GNU/Linux
+> 44-46 rue de l'Ouest  -  75014 Paris  -  France  -  Métro Gaité
+> Phone: +33 (0) 1 43 35 00 37    -    Fax: +33 (0) 1 43 35 00 76
+> mailto:pbrugier@easter-eggs.com  -   http://www.easter-eggs.com
+> ---------------------------------------------------------------
+> 709D77A2 -   ED24 4E29 E5B4 FDE7 56A4  352D F24E 7E68 709D 77A2
+> _______________________________________________________________
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-
-Well I guess someone better than me has to research this more thoroughly
-then =) I don't really have the time... (gonna make some nice persian food
-for my wife).
-
- _____________________________________________________
-|  Martin Eriksson <nitrax@giron.wox.org>
-|  MSc CSE student, department of Computing Science
-|  Umeå University, Sweden
-
-- ABIT BP6(RU) - 2xCeleron 400 - 128MB/PC100/C2 Acer
-- Maxtor 10/5400/U33 HPT P/M - Seagate 6/5400/DMA2 HPT S/M
-- 2xDE-530TX - 1xTulip - Linux 2.4.17+ide+preempt
-
+-- 
+Pascal Brugier
+---------------------------------------------------------------
+Easter-eggs                               Spécialiste GNU/Linux
+44-46 rue de l'Ouest  -  75014 Paris  -  France  -  Métro Gaité
+Phone: +33 (0) 1 43 35 00 37    -    Fax: +33 (0) 1 43 35 00 76
+mailto:pbrugier@easter-eggs.com  -   http://www.easter-eggs.com
+---------------------------------------------------------------
+709D77A2 -   ED24 4E29 E5B4 FDE7 56A4  352D F24E 7E68 709D 77A2
+_______________________________________________________________

@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285850AbRLaAnO>; Sun, 30 Dec 2001 19:43:14 -0500
+	id <S285915AbRLaAoY>; Sun, 30 Dec 2001 19:44:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285878AbRLaAnF>; Sun, 30 Dec 2001 19:43:05 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:32204 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S285850AbRLaAm4>; Sun, 30 Dec 2001 19:42:56 -0500
-Date: Sun, 30 Dec 2001 17:42:40 -0700
-Message-Id: <200112310042.fBV0ge432183@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Dave Jones <davej@suse.de>, hpa@zytor.com, torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
+	id <S285907AbRLaAoP>; Sun, 30 Dec 2001 19:44:15 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50448 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S285879AbRLaAoH>; Sun, 30 Dec 2001 19:44:07 -0500
+Message-ID: <3C2FB4D0.7040509@zytor.com>
+Date: Sun, 30 Dec 2001 16:44:00 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
+MIME-Version: 1.0
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: Dave Jones <davej@suse.de>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
 Subject: Re: RFC: Linux Bug Tracking & Feature Tracking DB
-In-Reply-To: <Pine.LNX.4.33.0112301306070.6995-100000@Appserv.suse.de>
-In-Reply-To: <734B32E2-FCE5-11D5-880A-00039350C45A@softhome.net>
-	<Pine.LNX.4.33.0112301306070.6995-100000@Appserv.suse.de>
+In-Reply-To: <734B32E2-FCE5-11D5-880A-00039350C45A@softhome.net>	<Pine.LNX.4.33.0112301306070.6995-100000@Appserv.suse.de> <200112310042.fBV0ge432183@vindaloo.ras.ucalgary.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones writes:
-> Why search archives when you can be the 900th person to ask the
-> same question.  Even Richard Gooch's page for showing whats wrong
-> with the current kernel and how to fix it to get it to compile
-> seems to be completly overlooked. Maybe if it were moved to
-> www.kernel.org people would see it ? *shrug*
+Richard Gooch wrote:
 
-This was suggested some months ago, but nothing happened. Firstly, the
-www.kernel.org page talks about the mailing list and some archives,
-but makes no reference to the list FAQ. That's the first thing that
-should be fixed. Talk to HPA to change this.
+> 
+> This was suggested some months ago, but nothing happened. Firstly, the
+> www.kernel.org page talks about the mailing list and some archives,
+> but makes no reference to the list FAQ. That's the first thing that
+> should be fixed. Talk to HPA to change this.
+> 
 
-Secondly, either a copy of the FAQ, or a reference to it under
-kernel.org:pub/linux/kernel/ would also be a good idea. Talk to Linus
-to change this.
 
-				Regards,
+What's the URL?
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+	-hpa
+
+

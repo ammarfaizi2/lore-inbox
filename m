@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263842AbUD0Guu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263858AbUD0Gtf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263842AbUD0Guu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 02:50:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263835AbUD0Guu
+	id S263858AbUD0Gtf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 02:49:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263845AbUD0Gtf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 02:50:50 -0400
-Received: from FE-mail04.albacom.net ([213.217.149.84]:16612 "EHLO
-	FE-mail04.sfg.albacom.net") by vger.kernel.org with ESMTP
-	id S263868AbUD0Guj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 02:50:39 -0400
-Message-ID: <003501c42c24$06e87940$0200a8c0@arrakis>
-Reply-To: "Marco Cavallini" <arm.linux@koansoftware.com>
-From: "Marco Cavallini" <arm.linux@koansoftware.com>
-To: "Greg KH" <greg@kroah.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <005c01c42b82$60d82f60$0200a8c0@arrakis> <20040426185612.GB28530@kroah.com>
-Subject: Re: Problem with CONFIG_USB_SL811HS
-Date: Tue, 27 Apr 2004 08:51:09 +0200
-Organization: Koan s.a.s.
+	Tue, 27 Apr 2004 02:49:35 -0400
+Received: from smtp1.Stanford.EDU ([171.67.16.120]:26091 "EHLO
+	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S263858AbUD0GtH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 02:49:07 -0400
+Date: Mon, 26 Apr 2004 23:49:05 -0700 (PDT)
+From: Junfeng Yang <yjf@stanford.edu>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <ext2-devel@lists.sourceforge.net>, <mc@cs.Stanford.EDU>,
+       Madanlal S Musuvathi <madan@stanford.edu>,
+       "David L. Dill" <dill@cs.Stanford.EDU>
+Subject: [CHECKER] no mark_buffer_dirty in journal_set_features in JBD
+Message-ID: <Pine.GSO.4.44.0404262347420.7345-100000@elaine24.Stanford.EDU>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1409
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I am facing to a problem using linux-2.4.25-vrs2 and/or 2.4.26-vrs1 (ARM
-> > porting).
-> > I think this problem come from the linux kernel and not from ARM patch.
-> > Seems that there is a problem building SL811 USB hosts because if I
-enable
-> > CONFIG_USB_SL811HS option
-> > the driver seems to be not build and is not running.
->
-> What is the build errors you get when trying to build this driver?
->
 
-There is no file.o in drivers/usb/host
-and there is no SL811 host in the kernel,
-the hc_sl811 is not build although I enable CONFIG_USB_SL811HS option.
-TIA
+The function journal_set_features in fs/jbd/journal.c modifies the journal
+super block, but doesn't not mark it dirty.  Seems an error, but could be
+that these features don't need to be updated on disk.
 
-Marco Cavallini
+file fs/jbd/journal.c
+-------------------------------------------------------------------
+[BUG] sb is modified but not marked dirty
+
+/* Published API: Mark a given journal feature as present on the
+ * superblock.  Returns true if the requested features could be set. */
+
+int journal_set_features (journal_t *journal, unsigned long compat,
+			  unsigned long ro, unsigned long incompat)
+{
+	journal_superblock_t *sb;
+
+	if (journal_check_used_features(journal, compat, ro, incompat))
+		return 1;
+
+	if (!journal_check_available_features(journal, compat, ro, incompat))
+		return 0;
+
+	jbd_debug(1, "Setting new features 0x%lx/0x%lx/0x%lx\n",
+		  compat, ro, incompat);
+
+	sb = journal->j_superblock;
+
+	sb->s_feature_compat    |= cpu_to_be32(compat);
+	sb->s_feature_ro_compat |= cpu_to_be32(ro);
+	sb->s_feature_incompat  |= cpu_to_be32(incompat);
+	return 1;
+}
+

@@ -1,575 +1,872 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265201AbSJaHMC>; Thu, 31 Oct 2002 02:12:02 -0500
+	id <S265202AbSJaHTE>; Thu, 31 Oct 2002 02:19:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265202AbSJaHLT>; Thu, 31 Oct 2002 02:11:19 -0500
-Received: from dp.samba.org ([66.70.73.150]:42149 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S265201AbSJaHKs>;
-	Thu, 31 Oct 2002 02:10:48 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, faith@redhat.com, dwmw2@redhat.com,
-       davem@redhat.com
-Subject: [PATCH] Module rewrite series 5/5: DRM and MTD
-In-reply-to: Your message of "Thu, 31 Oct 2002 17:39:57 +1100."
-             <20021031064316.D9F5D2C0E1@lists.samba.org> 
-Date: Thu, 31 Oct 2002 18:16:45 +1100
-Message-Id: <20021031071714.687F32C064@lists.samba.org>
+	id <S265206AbSJaHTE>; Thu, 31 Oct 2002 02:19:04 -0500
+Received: from netcore.fi ([193.94.160.1]:8206 "EHLO netcore.fi")
+	by vger.kernel.org with ESMTP id <S265202AbSJaHSr>;
+	Thu, 31 Oct 2002 02:18:47 -0500
+Date: Thu, 31 Oct 2002 09:25:01 +0200 (EET)
+From: Pekka Savola <pekkas@netcore.fi>
+To: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+cc: linux-kernel@vger.kernel.org, <netdev@oss.sgi.com>, <davem@redhat.com>,
+       <kuznet@ms2.inr.ac.ru>, <usagi@linux-ipv6.org>
+Subject: Re: [PATCH] IPv6: Privacy Extensions for Stateless Address
+ Autoconfiguration in IPv6
+In-Reply-To: <20021031.124459.66300488.yoshfuji@linux-ipv6.org>
+Message-ID: <Pine.LNX.4.44.0210310908090.19356-100000@netcore.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fixes the three inter_module* users (compile, but untested):
+I belive privacy extensions can be harmful for especially long-lived
+applications and lead to a false sense of security: they should not be
+enabled (by any definition of enabled) by default.
 
-1) MTD really wants symbol_get, and now they have it.  The solution
-   uses weak symbols: you can return to #ifdef CONFIG_xxx if you want
-   this to work on Sparc64.
+http://www.ietf.org/internet-drafts/draft-dupont-ipv6-rfc3041harmful-01.txt
 
-2) DRM really wants symbol_get and symbol_put for AGP detection
-   (although that still leaves you high and dry if you insmod it
-   later).  They also use it for piggybacking for multiple DRM
-   modules: I've simply dumped this in drivers/char/misc.c because
-   it seems inherently broken.
+give some reasoning not to depend on them for privacy.
 
-For the record, the DRM code should be rewritten using standard kernel
-idioms so that it is readable by the rest of us.
+On Thu, 31 Oct 2002, YOSHIFUJI Hideaki / [iso-2022-jp] 吉藤英明 wrote:
 
-Name: Removed inter_module functions
-Author: Rusty Russell
-Status: Untested
-Depends: Module/module-i386.patch.gz
-Depends: Module/module-ppc.patch.gz
+> Hello!
+> 
+> Nodes use IPv6 stateless address autoconfiguration to generate addresses.
+> They are formed by combining network prefixes with an interface identifier.
+> On interfaces such as ethernet, interface identifier is derived from
+> static embedded IEEE Identifies. and eavesdroppers and other information
+> collectors may identify the address is actually correspond to the same
+> node.
+> Privacy Extensions (RFC3041) is designed to make it difficult for
+> eavesdroppers and other information collectors to identify actually
+> correspond to the same node by changing the interface identifier
+> periodically.
+> 
+> This patch is against linux-2.5.44+bk2 snapshot.
+> 
+> Thanks in advance.
+> 
+> -------------------------------------------------------------------
+> Patch-Name: Privacy Extensions for Stateless Address Autoconfiguration in IPv6
+> Patch-Id: FIX_2_5_44+bk2_ADDRCONF_PRIVACY-20021031
+> Patch-Author: YOSHIFUJI Hideaki / USAGI Project <yoshfuji@linux-ipv6.org>
+> Credit: YOSHIFUJI Hideaki / USAGI Project <yoshfuji@linux-ipv6.org>
+> -------------------------------------------------------------------
+> Index: Documentation/networking/ip-sysctl.txt
+> ===================================================================
+> RCS file: /cvsroot/usagi/usagi-backport/linux25/Documentation/networking/ip-sysctl.txt,v
+> retrieving revision 1.1.1.3
+> retrieving revision 1.1.1.3.6.1
+> diff -u -r1.1.1.3 -r1.1.1.3.6.1
+> --- Documentation/networking/ip-sysctl.txt	30 Oct 2002 09:43:01 -0000	1.1.1.3
+> +++ Documentation/networking/ip-sysctl.txt	30 Oct 2002 18:15:04 -0000	1.1.1.3.6.1
+> @@ -611,6 +611,37 @@
+>  	0 to disable any limiting, otherwise the maximal rate in jiffies(1)
+>  	Default: 100
+>  
+> +use_tempaddr - INTEGER
+> +	Preference for Privacy Extensions (RFC3041).
+> +	  <= 0 : disable Privacy Extensions
+> +	  == 1 : enable Privacy Extensions, but prefer public
+> +	         addresses over temporary addresses.
+> +	  >  1 : enable Privacy Extensions and prefer temporary
+> +	         addresses over public addresses.
+> +	Default: 1 (for most devices)
+> +		 0 (for point-to-point devices and loopback devices)
+> +
+> +temp_valid_lft - INTEGER
+> +	valid lifetime (in seconds) for temporary addresses.
+> +	Default: 604800 (7 days)
+> +
+> +temp_prefered_lft - INTEGER
+> +	Preferred lifetime (in seconds) for temorary addresses.
+> +	Default: 86400 (1 day)
+> +
+> +max_desync_factor - INTEGER
+> +	Maximum value for DESYNC_FACTOR, which is a random value
+> +	that ensures that clients don't synchronize with each 
+> +	other and generage new addresses at exactly the same time.
+> +	value is in seconds.
+> +	Default: 600
+> +	
+> +regen_max_retry - INTEGER
+> +	Number of attempts before give up attempting to generate
+> +	valid temporary addresses.
+> +	Default: 5
+> +
+> +
+>  IPv6 Update by:
+>  Pekka Savola <pekkas@netcore.fi>
+>  YOSHIFUJI Hideaki / USAGI Project <yoshfuji@linux-ipv6.org>
+> Index: include/linux/rtnetlink.h
+> ===================================================================
+> RCS file: /cvsroot/usagi/usagi-backport/linux25/include/linux/rtnetlink.h,v
+> retrieving revision 1.1.1.2
+> retrieving revision 1.1.1.2.6.1
+> diff -u -r1.1.1.2 -r1.1.1.2.6.1
+> --- include/linux/rtnetlink.h	30 Oct 2002 09:43:04 -0000	1.1.1.2
+> +++ include/linux/rtnetlink.h	30 Oct 2002 18:15:04 -0000	1.1.1.2.6.1
+> @@ -335,6 +335,7 @@
+>  /* ifa_flags */
+>  
+>  #define IFA_F_SECONDARY		0x01
+> +#define IFA_F_TEMPORARY		IFA_F_SECONDARY
+>  
+>  #define IFA_F_DEPRECATED	0x20
+>  #define IFA_F_TENTATIVE		0x40
+> Index: include/linux/sysctl.h
+> ===================================================================
+> RCS file: /cvsroot/usagi/usagi-backport/linux25/include/linux/sysctl.h,v
+> retrieving revision 1.1.1.3
+> retrieving revision 1.1.1.3.6.1
+> diff -u -r1.1.1.3 -r1.1.1.3.6.1
+> --- include/linux/sysctl.h	30 Oct 2002 09:43:03 -0000	1.1.1.3
+> +++ include/linux/sysctl.h	30 Oct 2002 18:15:04 -0000	1.1.1.3.6.1
+> @@ -384,7 +384,12 @@
+>  	NET_IPV6_DAD_TRANSMITS=7,
+>  	NET_IPV6_RTR_SOLICITS=8,
+>  	NET_IPV6_RTR_SOLICIT_INTERVAL=9,
+> -	NET_IPV6_RTR_SOLICIT_DELAY=10
+> +	NET_IPV6_RTR_SOLICIT_DELAY=10,
+> +	NET_IPV6_USE_TEMPADDR=11,
+> +	NET_IPV6_TEMP_VALID_LFT=12,
+> +	NET_IPV6_TEMP_PREFERED_LFT=13,
+> +	NET_IPV6_REGEN_MAX_RETRY=14,
+> +	NET_IPV6_MAX_DESYNC_FACTOR=15
+>  };
+>  
+>  /* /proc/sys/net/ipv6/icmp */
+> Index: include/net/addrconf.h
+> ===================================================================
+> RCS file: /cvsroot/usagi/usagi-backport/linux25/include/net/addrconf.h,v
+> retrieving revision 1.1.1.2
+> retrieving revision 1.1.1.2.8.1
+> diff -u -r1.1.1.2 -r1.1.1.2.8.1
+> --- include/net/addrconf.h	19 Oct 2002 05:51:09 -0000	1.1.1.2
+> +++ include/net/addrconf.h	30 Oct 2002 18:15:04 -0000	1.1.1.2.8.1
+> @@ -6,6 +6,11 @@
+>  #define MAX_RTR_SOLICITATIONS		3
+>  #define RTR_SOLICITATION_INTERVAL	(4*HZ)
+>  
+> +#define TEMP_VALID_LIFETIME		(7*86400)
+> +#define TEMP_PREFERRED_LIFETIME		(86400)
+> +#define REGEN_MAX_RETRY			(5)
+> +#define MAX_DESYNC_FACTOR		(600)
+> +
+>  #define ADDR_CHECK_FREQUENCY		(120*HZ)
+>  
+>  struct prefix_info {
+> Index: include/net/if_inet6.h
+> ===================================================================
+> RCS file: /cvsroot/usagi/usagi-backport/linux25/include/net/if_inet6.h,v
+> retrieving revision 1.1.1.1
+> retrieving revision 1.1.1.1.16.1
+> diff -u -r1.1.1.1 -r1.1.1.1.16.1
+> --- include/net/if_inet6.h	7 Oct 2002 10:22:46 -0000	1.1.1.1
+> +++ include/net/if_inet6.h	30 Oct 2002 18:15:04 -0000	1.1.1.1.16.1
+> @@ -43,6 +43,12 @@
+>  	struct inet6_ifaddr	*lst_next;      /* next addr in addr_lst */
+>  	struct inet6_ifaddr	*if_next;       /* next addr in inet6_dev */
+>  
+> +#ifdef CONFIG_IPV6_PRIVACY
+> +	struct inet6_ifaddr	*tmp_next;	/* next addr in tempaddr_lst */
+> +	struct inet6_ifaddr	*ifpub;
+> +	int			regen_count;
+> +#endif
+> +
+>  	int			dead;
+>  };
+>  
+> @@ -86,7 +92,13 @@
+>  	int		rtr_solicits;
+>  	int		rtr_solicit_interval;
+>  	int		rtr_solicit_delay;
+> -
+> +#ifdef CONFIG_IPV6_PRIVACY
+> +	int		use_tempaddr;
+> +	int		temp_valid_lft;
+> +	int		temp_prefered_lft;
+> +	int		regen_max_retry;
+> +	int		max_desync_factor;
+> +#endif
+>  	void		*sysctl;
+>  };
+>  
+> @@ -100,6 +112,13 @@
+>  	atomic_t		refcnt;
+>  	__u32			if_flags;
+>  	int			dead;
+> +
+> +#ifdef CONFIG_IPV6_PRIVACY
+> +	u8			rndid[8];
+> +	u8			entropy[8];
+> +	struct timer_list	regen_timer;
+> +	struct inet6_ifaddr	*tempaddr_list;
+> +#endif
+>  
+>  	struct neigh_parms	*nd_parms;
+>  	struct inet6_dev	*next;
+> Index: net/ipv6/Config.help
+> ===================================================================
+> RCS file: net/ipv6/Config.help
+> diff -N net/ipv6/Config.help
+> --- /dev/null	1 Jan 1970 00:00:00 -0000
+> +++ net/ipv6/Config.help	30 Oct 2002 18:15:04 -0000	1.1.12.1
+> @@ -0,0 +1,12 @@
+> +IPv6: Privacy Extensions (RFC 3041) support
+> +CONFIG_IPV6_PRIVACY
+> +  Privacy Extensions for Stateless Address Autoconfiguration in IPv6
+> +  support.  With this option, additional periodically-alter 
+> +  pseudo-random global-scope unicast address(es) will assigned to
+> +  your interface(s).
+> +
+> +  By default, kernel generates temporary addresses but it won't use 
+> +  them unless application explicitly bind them.  To prefer temporary 
+> +  address, do
+> +
+> +	echo 2 >/proc/sys/net/ipv6/conf/all/use_tempaddr 
+> Index: net/ipv6/Config.in
+> ===================================================================
+> RCS file: /cvsroot/usagi/usagi-backport/linux25/net/ipv6/Config.in,v
+> retrieving revision 1.1.1.2
+> retrieving revision 1.1.1.2.10.1
+> diff -u -r1.1.1.2 -r1.1.1.2.10.1
+> --- net/ipv6/Config.in	16 Oct 2002 04:23:08 -0000	1.1.1.2
+> +++ net/ipv6/Config.in	30 Oct 2002 18:15:04 -0000	1.1.1.2.10.1
+> @@ -2,6 +2,8 @@
+>  # IPv6 configuration
+>  # 
+>  
+> +bool '    IPv6: Privacy Extentions (RFC 3041) support' CONFIG_IPV6_PRIVACY
+> +
+>  if [ "$CONFIG_NETFILTER" != "n" ]; then
+>     source net/ipv6/netfilter/Config.in
+>  fi
+> Index: net/ipv6/addrconf.c
+> ===================================================================
+> RCS file: /cvsroot/usagi/usagi-backport/linux25/net/ipv6/addrconf.c,v
+> retrieving revision 1.1.1.4
+> retrieving revision 1.1.1.4.6.1
+> diff -u -r1.1.1.4 -r1.1.1.4.6.1
+> --- net/ipv6/addrconf.c	30 Oct 2002 09:43:18 -0000	1.1.1.4
+> +++ net/ipv6/addrconf.c	30 Oct 2002 18:15:04 -0000	1.1.1.4.6.1
+> @@ -62,6 +62,12 @@
+>  #include <linux/if_tunnel.h>
+>  #include <linux/rtnetlink.h>
+>  
+> +#ifdef CONFIG_IPV6_PRIVACY
+> +#include <linux/random.h>
+> +#include <linux/crypto.h>
+> +#include <asm/scatterlist.h>
+> +#endif
+> +
+>  #include <asm/uaccess.h>
+>  
+>  #define IPV6_MAX_ADDRESSES 16
+> @@ -83,6 +89,16 @@
+>  int inet6_dev_count;
+>  int inet6_ifa_count;
+>  
+> +#ifdef CONFIG_IPV6_PRIVACY
+> +static int __ipv6_regen_rndid(struct inet6_dev *idev);
+> +static int __ipv6_try_regen_rndid(struct inet6_dev *idev, struct in6_addr *tmpaddr); 
+> +static void ipv6_regen_rndid(unsigned long data);
+> +
+> +static int desync_factor = MAX_DESYNC_FACTOR * HZ;
+> +#endif
+> +
+> +int ipv6_count_addresses(struct inet6_dev *idev);
+> +
+>  /*
+>   *	Configured unicast address hash table
+>   */
+> @@ -119,6 +135,13 @@
+>  	MAX_RTR_SOLICITATIONS,		/* router solicits	*/
+>  	RTR_SOLICITATION_INTERVAL,	/* rtr solicit interval	*/
+>  	MAX_RTR_SOLICITATION_DELAY,	/* rtr solicit delay	*/
+> +#ifdef CONFIG_IPV6_PRIVACY
+> +	.use_tempaddr 			= 1,
+> +	.temp_valid_lft			= TEMP_VALID_LIFETIME,
+> +	.temp_prefered_lft		= TEMP_PREFERRED_LIFETIME,
+> +	.regen_max_retry		= REGEN_MAX_RETRY,
+> +	.max_desync_factor		= MAX_DESYNC_FACTOR,
+> +#endif
+>  };
+>  
+>  static struct ipv6_devconf ipv6_devconf_dflt =
+> @@ -133,6 +156,13 @@
+>  	MAX_RTR_SOLICITATIONS,		/* router solicits	*/
+>  	RTR_SOLICITATION_INTERVAL,	/* rtr solicit interval	*/
+>  	MAX_RTR_SOLICITATION_DELAY,	/* rtr solicit delay	*/
+> +#ifdef CONFIG_IPV6_PRIVACY
+> +	.use_tempaddr			= 1,
+> +	.temp_valid_lft			= TEMP_VALID_LIFETIME,
+> +	.temp_prefered_lft		= TEMP_PREFERRED_LIFETIME,
+> +	.regen_max_retry		= REGEN_MAX_RETRY,
+> +	.max_desync_factor		= MAX_DESYNC_FACTOR,
+> +#endif
+>  };
+>  
+>  int ipv6_addr_type(struct in6_addr *addr)
+> @@ -272,6 +302,24 @@
+>  		/* We refer to the device */
+>  		dev_hold(dev);
+>  
+> +#ifdef CONFIG_IPV6_PRIVACY
+> +		get_random_bytes(ndev->rndid, sizeof(ndev->rndid));
+> +		get_random_bytes(ndev->entropy, sizeof(ndev->entropy));
+> +		init_timer(&ndev->regen_timer);
+> +		ndev->regen_timer.function = ipv6_regen_rndid;
+> +		ndev->regen_timer.data = (unsigned long) ndev;
+> +		if ((dev->flags&IFF_LOOPBACK) ||
+> +		    dev->type == ARPHRD_TUNNEL ||
+> +		    dev->type == ARPHRD_SIT) {
+> +			printk(KERN_INFO
+> +				"Disabled Privacy Extensions on device %p(%s)\n",
+> +				dev, dev->name);
+> +			ndev->cnf.use_tempaddr = -1;
+> +		} else {
+> +			__ipv6_regen_rndid(ndev);
+> +		}
+> +#endif
+> +
+>  		write_lock_bh(&addrconf_lock);
+>  		dev->ip6_ptr = ndev;
+>  		/* One reference from device */
+> @@ -396,6 +444,18 @@
+>  	/* Add to inet6_dev unicast addr list. */
+>  	ifa->if_next = idev->addr_list;
+>  	idev->addr_list = ifa;
+> +
+> +#ifdef CONFIG_IPV6_PRIVACY
+> +	ifa->regen_count = 0;
+> +	if (ifa->flags&IFA_F_TEMPORARY) {
+> +		ifa->tmp_next = idev->tempaddr_list;
+> +		idev->tempaddr_list = ifa;
+> +		in6_ifa_hold(ifa);
+> +	} else {
+> +		ifa->tmp_next = NULL;
+> +	}
+> +#endif
+> +
+>  	in6_ifa_hold(ifa);
+>  	write_unlock_bh(&idev->lock);
+>  	read_unlock(&addrconf_lock);
+> @@ -417,6 +477,15 @@
+>  
+>  	ifp->dead = 1;
+>  
+> +#ifdef CONFIG_IPV6_PRIVACY
+> +	spin_lock_bh(&ifp->lock);
+> +	if (ifp->ifpub) {
+> +		__in6_ifa_put(ifp->ifpub);
+> +		ifp->ifpub = NULL;
+> +	}
+> +	spin_unlock_bh(&ifp->lock);
+> +#endif
+> +
+>  	write_lock_bh(&addrconf_hash_lock);
+>  	for (ifap = &inet6_addr_lst[hash]; (ifa=*ifap) != NULL;
+>  	     ifap = &ifa->lst_next) {
+> @@ -430,6 +499,24 @@
+>  	write_unlock_bh(&addrconf_hash_lock);
+>  
+>  	write_lock_bh(&idev->lock);
+> +#ifdef CONFIG_IPV6_PRIVACY
+> +	if (ifp->flags&IFA_F_TEMPORARY) {
+> +		for (ifap = &idev->tempaddr_list; (ifa=*ifap) != NULL;
+> +		     ifap = &ifa->tmp_next) {
+> +			if (ifa == ifp) {
+> +				*ifap = ifa->tmp_next;
+> +				if (ifp->ifpub) {
+> +					__in6_ifa_put(ifp->ifpub);
+> +					ifp->ifpub = NULL;
+> +				}
+> +				__in6_ifa_put(ifp);
+> +				ifa->tmp_next = NULL;
+> +				break;
+> +			}
+> +		}
+> +	}
+> +#endif
+> +
+>  	for (ifap = &idev->addr_list; (ifa=*ifap) != NULL;
+>  	     ifap = &ifa->if_next) {
+>  		if (ifa == ifp) {
+> @@ -450,6 +537,96 @@
+>  	in6_ifa_put(ifp);
+>  }
+>  
+> +#ifdef CONFIG_IPV6_PRIVACY
+> +static int ipv6_create_tempaddr(struct inet6_ifaddr *ifp, struct inet6_ifaddr *ift)
+> +{
+> +	struct inet6_dev *idev;
+> +	struct in6_addr addr, *tmpaddr;
+> +	unsigned long tmp_prefered_lft, tmp_valid_lft;
+> +	int tmp_plen;
+> +	int ret = 0;
+> +
+> +	if (ift) {
+> +		spin_lock_bh(&ift->lock);
+> +		memcpy(&addr.s6_addr[8], &ift->addr.s6_addr[8], 8);
+> +		spin_unlock_bh(&ift->lock);
+> +		tmpaddr = &addr;
+> +	} else {
+> +		tmpaddr = NULL;
+> +	}
+> +retry:
+> +	spin_lock_bh(&ifp->lock);
+> +	in6_ifa_hold(ifp);
+> +	idev = ifp->idev;
+> +	in6_dev_hold(idev);
+> +	memcpy(addr.s6_addr, ifp->addr.s6_addr, 8);
+> +	write_lock(&idev->lock);
+> +	if (idev->cnf.use_tempaddr <= 0) {
+> +		write_unlock(&idev->lock);
+> +		spin_unlock_bh(&ifp->lock);
+> +		printk(KERN_INFO
+> +			"ipv6_create_tempaddr(): use_tempaddr is disabled.\n");
+> +		in6_dev_put(idev);
+> +		in6_ifa_put(ifp);
+> +		ret = -1;
+> +		goto out;
+> +	}
+> +	if (ifp->regen_count++ >= idev->cnf.regen_max_retry) {
+> +		idev->cnf.use_tempaddr = -1;	/*XXX*/
+> +		write_unlock(&idev->lock);
+> +		spin_unlock_bh(&ifp->lock);
+> +		printk(KERN_WARNING
+> +			"ipv6_create_tempaddr(): regeneration time exceeded. disabled temporary address support.\n");
+> +		in6_dev_put(idev);
+> +		in6_ifa_put(ifp);
+> +		ret = -1;
+> +		goto out;
+> +	}
+> +	if (__ipv6_try_regen_rndid(idev, tmpaddr) < 0) {
+> +		write_unlock(&idev->lock);
+> +		spin_unlock_bh(&ifp->lock);
+> +		printk(KERN_WARNING
+> +			"ipv6_create_tempaddr(): regeneration of randomized interface id failed.\n");
+> +		in6_dev_put(idev);
+> +		in6_ifa_put(ifp);
+> +		ret = -1;
+> +		goto out;
+> +	}
+> +	memcpy(&addr.s6_addr[8], idev->rndid, 8);
+> +	tmp_valid_lft = min_t(__u32,
+> +			      ifp->valid_lft,
+> +			      idev->cnf.temp_valid_lft);
+> +	tmp_prefered_lft = min_t(__u32, 
+> +				 ifp->prefered_lft, 
+> +				 idev->cnf.temp_prefered_lft - desync_factor / HZ);
+> +	tmp_plen = ifp->prefix_len;
+> +	write_unlock(&idev->lock);
+> +	spin_unlock_bh(&ifp->lock);
+> +	ift = ipv6_count_addresses(idev) < IPV6_MAX_ADDRESSES ?
+> +		ipv6_add_addr(idev, &addr, tmp_plen,
+> +			      ipv6_addr_type(&addr)&IPV6_ADDR_SCOPE_MASK, IFA_F_TEMPORARY) : 0;
+> +	if (!ift) {
+> +		in6_dev_put(idev);
+> +		in6_ifa_put(ifp);
+> +		printk(KERN_INFO
+> +			"ipv6_create_tempaddr(): retry temporary address regeneration.\n");
+> +		tmpaddr = &addr;
+> +		goto retry;
+> +	}
+> +	spin_lock_bh(&ift->lock);
+> +	ift->ifpub = ifp;
+> +	ift->valid_lft = tmp_valid_lft;
+> +	ift->prefered_lft = tmp_prefered_lft;
+> +	ift->tstamp = ifp->tstamp;
+> +	spin_unlock_bh(&ift->lock);
+> +	addrconf_dad_start(ift);
+> +	in6_ifa_put(ift);
+> +	in6_dev_put(idev);
+> +out:
+> +	return ret;
+> +}
+> +#endif
+> +
+>  /*
+>   *	Choose an apropriate source address
+>   *	should do:
+> @@ -458,6 +635,22 @@
+>   *		an address of the attached interface 
+>   *	iii)	don't use deprecated addresses
+>   */
+> +static int inline ipv6_saddr_pref(const struct inet6_ifaddr *ifp, u8 invpref)
+> +{
+> +	int pref;
+> +	pref = ifp->flags&IFA_F_DEPRECATED ? 0 : 2;
+> +#ifdef CONFIG_IPV6_PRIVACY
+> +	pref |= (ifp->flags^invpref)&IFA_F_TEMPORARY ? 0 : 1;
+> +#endif
+> +	return pref;
+> +}
+> +
+> +#ifdef CONFIG_IPV6_PRIVACY
+> +#define IPV6_GET_SADDR_MAXSCORE(score)	((score) == 3)
+> +#else
+> +#define IPV6_GET_SADDR_MAXSCORE(score)	(score)
+> +#endif
+> +
+>  int ipv6_get_saddr(struct dst_entry *dst,
+>  		   struct in6_addr *daddr, struct in6_addr *saddr)
+>  {
+> @@ -468,6 +661,7 @@
+>  	struct inet6_dev *idev;
+>  	struct rt6_info *rt;
+>  	int err;
+> +	int hiscore = -1, score;
+>  
+>  	rt = (struct rt6_info *) dst;
+>  	if (rt)
+> @@ -497,17 +691,27 @@
+>  			read_lock_bh(&idev->lock);
+>  			for (ifp=idev->addr_list; ifp; ifp=ifp->if_next) {
+>  				if (ifp->scope == scope) {
+> -					if (!(ifp->flags & (IFA_F_DEPRECATED|IFA_F_TENTATIVE))) {
+> -						in6_ifa_hold(ifp);
+> +					if (ifp->flags&IFA_F_TENTATIVE)
+> +						continue;
+> +#ifdef CONFIG_IPV6_PRIVACY
+> +					score = ipv6_saddr_pref(ifp, idev->cnf.use_tempaddr > 1 ? IFA_F_TEMPORARY : 0);
+> +#else
+> +					score = ipv6_saddr_pref(ifp, 0);
+> +#endif
+> +					if (score <= hiscore)
+> +						continue;
+> +
+> +					if (match)
+> +						in6_ifa_put(match);
+> +					match = ifp;
+> +					hiscore = score;
+> +					in6_ifa_hold(ifp);
+> +
+> +					if (IPV6_GET_SADDR_MAXSCORE(score)) {
+>  						read_unlock_bh(&idev->lock);
+>  						read_unlock(&addrconf_lock);
+>  						goto out;
+>  					}
+> -
+> -					if (!match && !(ifp->flags & IFA_F_TENTATIVE)) {
+> -						match = ifp;
+> -						in6_ifa_hold(ifp);
+> -					}
+>  				}
+>  			}
+>  			read_unlock_bh(&idev->lock);
+> @@ -530,16 +734,26 @@
+>  			read_lock_bh(&idev->lock);
+>  			for (ifp=idev->addr_list; ifp; ifp=ifp->if_next) {
+>  				if (ifp->scope == scope) {
+> -					if (!(ifp->flags&(IFA_F_DEPRECATED|IFA_F_TENTATIVE))) {
+> -						in6_ifa_hold(ifp);
+> +					if (ifp->flags&IFA_F_TENTATIVE)
+> +						continue;
+> +#ifdef CONFIG_IPV6_PRIVACY
+> +					score = ipv6_saddr_pref(ifp, idev->cnf.use_tempaddr > 1 ? IFA_F_TEMPORARY : 0);
+> +#else
+> +					score = ipv6_saddr_pref(ifp, 0);
+> +#endif
+> +					if (score <= hiscore)
+> +						continue;
+> +
+> +					if (match)
+> +						in6_ifa_put(match);
+> +					match = ifp;
+> +					hiscore = score;
+> +					in6_ifa_hold(ifp);
+> +
+> +					if (IPV6_GET_SADDR_MAXSCORE(score)) {
+>  						read_unlock_bh(&idev->lock);
+>  						goto out_unlock_base;
+>  					}
+> -
+> -					if (!match && !(ifp->flags&IFA_F_TENTATIVE)) {
+> -						match = ifp;
+> -						in6_ifa_hold(ifp);
+> -					}
+>  				}
+>  			}
+>  			read_unlock_bh(&idev->lock);
+> @@ -551,19 +765,12 @@
+>  	read_unlock(&dev_base_lock);
+>  
+>  out:
+> -	if (ifp == NULL) {
+> -		ifp = match;
+> -		match = NULL;
+> -	}
+> -
+>  	err = -EADDRNOTAVAIL;
+> -	if (ifp) {
+> -		ipv6_addr_copy(saddr, &ifp->addr);
+> +	if (match) {
+> +		ipv6_addr_copy(saddr, &match->addr);
+>  		err = 0;
+> -		in6_ifa_put(ifp);
+> -	}
+> -	if (match)
+>  		in6_ifa_put(match);
+> +	}
+>  
+>  	return err;
+>  }
+> @@ -653,6 +860,21 @@
+>  		ifp->flags |= IFA_F_TENTATIVE;
+>  		spin_unlock_bh(&ifp->lock);
+>  		in6_ifa_put(ifp);
+> +#ifdef CONFIG_IPV6_PRIVACY
+> +	} else if (ifp->flags&IFA_F_TEMPORARY) {
+> +		struct inet6_ifaddr *ifpub;
+> +		spin_lock_bh(&ifp->lock);
+> +		ifpub = ifp->ifpub;
+> +		if (ifpub) {
+> +			in6_ifa_hold(ifpub);
+> +			spin_unlock_bh(&ifp->lock);
+> +			ipv6_create_tempaddr(ifpub, ifp);
+> +			in6_ifa_put(ifpub);
+> +		} else {
+> +			spin_unlock_bh(&ifp->lock);
+> +		}
+> +		ipv6_del_addr(ifp);
+> +#endif
+>  	} else
+>  		ipv6_del_addr(ifp);
+>  }
+> @@ -718,6 +940,108 @@
+>  	return err;
+>  }
+>  
+> +#ifdef CONFIG_IPV6_PRIVACY
+> +/* (re)generation of randomized interface identifier (RFC 3041 3.2, 3.5) */
+> +static int __ipv6_regen_rndid(struct inet6_dev *idev)
+> +{
+> +	struct net_device *dev;
+> +	u8 eui64[8];
+> +	u8 digest[16];
+> +	struct crypto_tfm *tfm;
+> +	struct scatterlist sg[2];
+> +
+> +	sg[0].page = virt_to_page(idev->entropy);
+> +	sg[0].offset = ((long) idev->entropy & ~PAGE_MASK);
+> +	sg[0].length = 8;
+> +	sg[1].page = virt_to_page(eui64);
+> +	sg[1].offset = ((long) eui64 & ~PAGE_MASK);
+> +	sg[1].length = 8;
+> +
+> +	if (!del_timer(&idev->regen_timer))
+> +		in6_dev_hold(idev);
+> +
+> +	dev = idev->dev;
+> +
+> +	if (ipv6_generate_eui64(eui64, dev)) {
+> +		printk(KERN_INFO
+> +			"__ipv6_regen_rndid(idev=%p): cannot get EUI64 identifier; use random bytes.\n",
+> +			idev);
+> +		get_random_bytes(eui64, sizeof(eui64));
+> +	}
+> +regen:
+> +	tfm = crypto_alloc_tfm("md5", 0);
+> +	if (tfm == NULL) {
+> +		if (net_ratelimit())
+> +			printk(KERN_WARNING
+> +				"failed to load transform for md5\n");
+> +		in6_dev_put(idev);
+> +		return -1;
+> +	}
+> +	crypto_digest_init(tfm);
+> +	crypto_digest_update(tfm, sg, 2);
+> +	crypto_digest_final(tfm, digest);
+> +	crypto_free_tfm(tfm);
+> +
+> +	memcpy(idev->rndid, &digest[0], 8);
+> +	idev->rndid[0] &= ~0x02;
+> +	memcpy(idev->entropy, &digest[8], 8);
+> +
+> +	/*
+> +	 * <draft-ietf-ipngwg-temp-addresses-v2-00.txt>:
+> +	 * check if generated address is not inappropriate
+> +	 *
+> +	 *  - Reserved subnet anycast (RFC 2526)
+> +	 *	11111101 11....11 1xxxxxxx
+> +	 *  - ISATAP (draft-ietf-ngtrans-isatap-01.txt) 4.3
+> +	 *	00-00-5E-FE-xx-xx-xx-xx
+> +	 *  - value 0
+> +	 *  - XXX: already assigned to an address on the device
+> +	 */
+> +	if (idev->rndid[0] == 0xfd && 
+> +	    (idev->rndid[1]&idev->rndid[2]&idev->rndid[3]&idev->rndid[4]&idev->rndid[5]&idev->rndid[6]) &&
+> +	    (idev->rndid[7]&0x80))
+> +		goto regen;
+> +	if ((idev->rndid[0]|idev->rndid[1]) == 0) {
+> +		if (idev->rndid[2] == 0x5e && idev->rndid[3] == 0xfe)
+> +			goto regen;
+> +		if ((idev->rndid[2]|idev->rndid[3]|idev->rndid[4]|idev->rndid[5]|idev->rndid[6]|idev->rndid[7]) == 0x00)
+> +			goto regen;
+> +	}
+> +	
+> +	if (time_before(idev->regen_timer.expires, jiffies)) {
+> +		idev->regen_timer.expires = 0;
+> +		printk(KERN_WARNING
+> +			"__ipv6_regen_rndid(): too short regeneration interval; timer diabled for %s.\n",
+> +			idev->dev->name);
+> +		in6_dev_put(idev);
+> +		return -1;
+> +	}
+> +
+> +	add_timer(&idev->regen_timer);
+> +	return 0;
+> +}
+> +
+> +static void ipv6_regen_rndid(unsigned long data)
+> +{
+> +	struct inet6_dev *idev = (struct inet6_dev *) data;
+> +
+> +	read_lock_bh(&addrconf_lock);
+> +	write_lock_bh(&idev->lock);
+> +	if (!idev->dead)
+> +		__ipv6_regen_rndid(idev);
+> +	write_unlock_bh(&idev->lock);
+> +	read_unlock_bh(&addrconf_lock);
+> +}
+> +
+> +static int __ipv6_try_regen_rndid(struct inet6_dev *idev, struct in6_addr *tmpaddr) {
+> +	int ret = 0;
+> +
+> +	if (tmpaddr && memcmp(idev->rndid, &tmpaddr->s6_addr[8], 8) == 0)
+> +		ret = __ipv6_regen_rndid(idev);
+> +	return ret;
+> +}
+> +#endif
+> +
+>  /*
+>   *	Add prefix route.
+>   */
+> @@ -889,6 +1213,7 @@
+>  		struct inet6_ifaddr * ifp;
+>  		struct in6_addr addr;
+>  		int plen;
+> +		int create = 0;
+>  
+>  		plen = pinfo->prefix_len >> 3;
+>  
+> @@ -924,6 +1249,7 @@
+>  				return;
+>  			}
+>  
+> +			create = 1;
+>  			addrconf_dad_start(ifp);
+>  		}
+>  
+> @@ -934,6 +1260,9 @@
+>  
+>  		if (ifp) {
+>  			int flags;
+> +#ifdef CONFIG_IPV6_PRIVACY
+> +			struct inet6_ifaddr *ift;
+> +#endif
+>  
+>  			spin_lock(&ifp->lock);
+>  			ifp->valid_lft = valid_lft;
+> @@ -946,6 +1275,42 @@
+>  			if (!(flags&IFA_F_TENTATIVE))
+>  				ipv6_ifa_notify((flags&IFA_F_DEPRECATED) ?
+>  						0 : RTM_NEWADDR, ifp);
+> +
+> +#ifdef CONFIG_IPV6_PRIVACY
+> +			read_lock_bh(&in6_dev->lock);
+> +			/* update all temporary addresses in the list */
+> +			for (ift=in6_dev->tempaddr_list; ift; ift=ift->tmp_next) {
+> +				/*
+> +				 * When adjusting the lifetimes of an existing
+> +				 * temporary address, only lower the lifetimes.
+> +				 * Implementations must not increase the
+> +				 * lifetimes of an existing temporary address
+> +				 * when processing a Prefix Information Option.
+> +				 */
+> +				spin_lock(&ift->lock);
+> +				flags = ift->flags;
+> +				if (ift->valid_lft > valid_lft &&
+> +				    ift->valid_lft - valid_lft > (jiffies - ift->tstamp) / HZ)
+> +					ift->valid_lft = valid_lft + (jiffies - ift->tstamp) / HZ;
+> +				if (ift->prefered_lft > prefered_lft &&
+> +				    ift->prefered_lft - prefered_lft > (jiffies - ift->tstamp) / HZ)
+> +					ift->prefered_lft = prefered_lft + (jiffies - ift->tstamp) / HZ;
+> +				spin_unlock(&ift->lock);
+> +				if (!(flags&IFA_F_TENTATIVE))
+> +					ipv6_ifa_notify(0, ift);
+> +			}
+> +
+> +			if (create && in6_dev->cnf.use_tempaddr > 0) {
+> +				/*
+> +				 * When a new public address is created as described in [ADDRCONF],
+> +				 * also create a new temporary address.
+> +				 */
+> +				read_unlock_bh(&in6_dev->lock); 
+> +				ipv6_create_tempaddr(ifp, NULL);
+> +			} else {
+> +				read_unlock_bh(&in6_dev->lock);
+> +			}
+> +#endif
+>  			in6_ifa_put(ifp);
+>  			addrconf_verify(0);
+>  		}
+> @@ -1910,7 +2275,7 @@
+>  static struct addrconf_sysctl_table
+>  {
+>  	struct ctl_table_header *sysctl_header;
+> -	ctl_table addrconf_vars[11];
+> +	ctl_table addrconf_vars[16];
+>  	ctl_table addrconf_dev[2];
+>  	ctl_table addrconf_conf_dir[2];
+>  	ctl_table addrconf_proto_dir[2];
+> @@ -1957,6 +2322,28 @@
+>           &ipv6_devconf.rtr_solicit_delay, sizeof(int), 0644, NULL,
+>           &proc_dointvec_jiffies},
+>  
+> +#ifdef CONFIG_IPV6_PRIVACY
+> +	{NET_IPV6_USE_TEMPADDR, "use_tempaddr",
+> +	 &ipv6_devconf.use_tempaddr, sizeof(int), 0644, NULL,
+> +	 &proc_dointvec},
+> +
+> +	{NET_IPV6_TEMP_VALID_LFT, "temp_valid_lft",
+> +	 &ipv6_devconf.temp_valid_lft, sizeof(int), 0644, NULL,
+> +	 &proc_dointvec},
+> +
+> +	{NET_IPV6_TEMP_PREFERED_LFT, "temp_prefered_lft",
+> +	 &ipv6_devconf.temp_prefered_lft, sizeof(int), 0644, NULL,
+> +	 &proc_dointvec},
+> +
+> +	{NET_IPV6_REGEN_MAX_RETRY, "regen_max_retry",
+> +	 &ipv6_devconf.regen_max_retry, sizeof(int), 0644, NULL,
+> +	 &proc_dointvec},
+> +
+> +	{NET_IPV6_MAX_DESYNC_FACTOR, "max_desync_factor",
+> +	 &ipv6_devconf.max_desync_factor, sizeof(int), 0644, NULL,
+> +	 &proc_dointvec},
+> +#endif
+> +
+>  	{0}},
+>  
+>  	{{NET_PROTO_CONF_ALL, "all", NULL, 0, 0555, addrconf_sysctl.addrconf_vars},{0}},
+> @@ -1975,7 +2362,7 @@
+>  	if (t == NULL)
+>  		return;
+>  	memcpy(t, &addrconf_sysctl, sizeof(*t));
+> -	for (i=0; i<sizeof(t->addrconf_vars)/sizeof(t->addrconf_vars[0])-1; i++) {
+> +	for (i=0; t->addrconf_vars[i].data; i++) {
+>  		t->addrconf_vars[i].data += (char*)p - (char*)&ipv6_devconf;
+>  		t->addrconf_vars[i].de = NULL;
+>  	}
+> 
+> 
 
-D: Gets rid of inter_module* and fixes up DRM and mtd drivers.
+-- 
+Pekka Savola                 "Tell me of difficulties surmounted,
+Netcore Oy                   not those you stumble over and fall"
+Systems. Networks. Security.  -- Robert Jordan: A Crown of Swords
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .13357-linux-2.5.45/drivers/char/agp/agp.c .13357-linux-2.5.45.updated/drivers/char/agp/agp.c
---- .13357-linux-2.5.45/drivers/char/agp/agp.c	2002-10-15 15:30:55.000000000 +1000
-+++ .13357-linux-2.5.45.updated/drivers/char/agp/agp.c	2002-10-31 15:34:52.000000000 +1100
-@@ -46,6 +46,7 @@ EXPORT_SYMBOL(agp_unbind_memory);
- EXPORT_SYMBOL(agp_enable);
- EXPORT_SYMBOL(agp_backend_acquire);
- EXPORT_SYMBOL(agp_backend_release);
-+EXPORT_SYMBOL(agp_drm);
- 
- struct agp_bridge_data agp_bridge = { type: NOT_SUPPORTED };
- static int agp_try_unsupported __initdata = 0;
-@@ -1600,7 +1601,7 @@ static int agp_power(struct pm_dev *dev,
- extern int agp_frontend_initialize(void);
- extern void agp_frontend_cleanup(void);
- 
--static const drm_agp_t drm_agp = {
-+const drm_agp_t agp_drm = {
- 	&agp_free_memory,
- 	&agp_allocate_memory,
- 	&agp_bind_memory,
-@@ -1632,8 +1633,6 @@ static int agp_probe (struct pci_dev *de
- 		return ret_val;
- 	}
- 
--	inter_module_register("drm_agp", THIS_MODULE, &drm_agp);
--	
- 	pm_register(PM_PCI_DEV, PM_PCI_ID(agp_bridge.dev), agp_power);
- 	return 0;
- }
-@@ -1680,7 +1679,6 @@ static void __exit agp_cleanup(void)
- 		pm_unregister_all(agp_power);
- 		agp_frontend_cleanup();
- 		agp_backend_cleanup();
--		inter_module_unregister("drm_agp");
- 	}
- }
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .13357-linux-2.5.45/drivers/char/drm/Makefile .13357-linux-2.5.45.updated/drivers/char/drm/Makefile
---- .13357-linux-2.5.45/drivers/char/drm/Makefile	2002-10-15 15:19:40.000000000 +1000
-+++ .13357-linux-2.5.45.updated/drivers/char/drm/Makefile	2002-10-31 15:34:53.000000000 +1100
-@@ -2,6 +2,8 @@
- # Makefile for the drm device driver.  This driver provides support for the
- # Direct Rendering Infrastructure (DRI) in XFree86 4.1.0 and higher.
- 
-+export-objs := gamma.o tdfx.o r128.o radeon.o mga.o i810.i i830.o ffb.o
-+
- gamma-objs  := gamma_drv.o gamma_dma.o
- tdfx-objs   := tdfx_drv.o
- r128-objs   := r128_drv.o r128_cce.o r128_state.o
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .13357-linux-2.5.45/drivers/char/drm/drm_agpsupport.h .13357-linux-2.5.45.updated/drivers/char/drm/drm_agpsupport.h
---- .13357-linux-2.5.45/drivers/char/drm/drm_agpsupport.h	2002-09-01 12:23:00.000000000 +1000
-+++ .13357-linux-2.5.45.updated/drivers/char/drm/drm_agpsupport.h	2002-10-31 15:34:53.000000000 +1100
-@@ -35,8 +35,8 @@
- 
- #if __REALLY_HAVE_AGP
- 
--#define DRM_AGP_GET (drm_agp_t *)inter_module_get("drm_agp")
--#define DRM_AGP_PUT inter_module_put("drm_agp")
-+#define DRM_AGP_GET symbol_get(agp_drm)
-+#define DRM_AGP_PUT symbol_put(agp_drm)
- 
- static const drm_agp_t *drm_agp = NULL;
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .13357-linux-2.5.45/drivers/char/drm/drm_stub.h .13357-linux-2.5.45.updated/drivers/char/drm/drm_stub.h
---- .13357-linux-2.5.45/drivers/char/drm/drm_stub.h	2002-09-01 12:23:00.000000000 +1000
-+++ .13357-linux-2.5.45.updated/drivers/char/drm/drm_stub.h	2002-10-31 15:34:53.000000000 +1100
-@@ -97,6 +97,12 @@ static int DRM(stub_getminor)(const char
- 	return -1;
- }
- 
-+/* Hacked into char/misc.c */
-+extern void drm_stub_set(struct drm_stub_info *, struct module *owner);
-+extern void drm_stub_unset(void);
-+extern struct drm_stub_info *drm_stub_get(void);
-+extern void drm_stub_put(void);
-+
- static int DRM(stub_putminor)(int minor)
- {
- 	if (minor < 0 || minor >= DRM_STUB_MAXCARDS) return -1;
-@@ -105,9 +111,9 @@ static int DRM(stub_putminor)(int minor)
- 	DRM(proc_cleanup)(minor, DRM(stub_root),
- 			  DRM(stub_list)[minor].dev_root);
- 	if (minor) {
--		inter_module_put("drm");
-+		drm_stub_put();
- 	} else {
--		inter_module_unregister("drm");
-+		drm_stub_unset();
- 		DRM(free)(DRM(stub_list),
- 			  sizeof(*DRM(stub_list)) * DRM_STUB_MAXCARDS,
- 			  DRM_MEM_STUB);
-@@ -124,7 +130,7 @@ int DRM(stub_register)(const char *name,
- 
- 	DRM_DEBUG("\n");
- 	if (register_chrdev(DRM_MAJOR, "drm", &DRM(stub_fops)))
--		i = (struct drm_stub_info *)inter_module_get("drm");
-+		i = drm_stub_get();
- 
- 	if (i) {
- 				/* Already registered */
-@@ -134,8 +140,8 @@ int DRM(stub_register)(const char *name,
- 	} else if (DRM(stub_info).info_register != DRM(stub_getminor)) {
- 		DRM(stub_info).info_register   = DRM(stub_getminor);
- 		DRM(stub_info).info_unregister = DRM(stub_putminor);
--		DRM_DEBUG("calling inter_module_register\n");
--		inter_module_register("drm", THIS_MODULE, &DRM(stub_info));
-+		DRM_DEBUG("calling drm_stub_set\n");
-+		drm_stub_set(&DRM(stub_info), THIS_MODULE);
- 	}
- 	if (DRM(stub_info).info_register)
- 		return DRM(stub_info).info_register(name, fops, dev);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .13357-linux-2.5.45/drivers/char/misc.c .13357-linux-2.5.45.updated/drivers/char/misc.c
---- .13357-linux-2.5.45/drivers/char/misc.c	2002-09-18 16:04:38.000000000 +1000
-+++ .13357-linux-2.5.45.updated/drivers/char/misc.c	2002-10-31 15:34:53.000000000 +1100
-@@ -287,3 +287,42 @@ int __init misc_init(void)
- 	}
- 	return 0;
- }
-+
-+/* This (racy) hack is here because the DRM coders are taking
-+   Linux-incompatible drugs */
-+#if defined(CONFIG_DRM) || defined(CONFIG_DRM_MODULE)
-+struct drm_stub_info;
-+
-+static struct drm_stub_info *drm_stub;
-+static struct module *drm_stub_owner;
-+
-+/* Registers a new stub. */
-+void drm_stub_set(struct drm_stub_info *stub_info, struct module *owner)
-+{
-+	drm_stub = stub_info;
-+	drm_stub_owner = owner;
-+}
-+void drm_stub_unset(void)
-+{
-+	drm_stub = NULL;
-+	drm_stub_owner = NULL;
-+}
-+
-+/* Get and put. */
-+struct drm_stub_info *drm_stub_get(void)
-+{
-+	if (drm_stub) {
-+		__MOD_INC_USE_COUNT(drm_stub_owner);
-+		return drm_stub;
-+	}
-+	return NULL;
-+}
-+void drm_stub_put(void)
-+{
-+	module_put(drm_stub_owner);
-+}
-+EXPORT_SYMBOL(drm_stub_set);
-+EXPORT_SYMBOL(drm_stub_unset);
-+EXPORT_SYMBOL(drm_stub_get);
-+EXPORT_SYMBOL(drm_stub_put);
-+#endif
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .13357-linux-2.5.45/drivers/mtd/Makefile .13357-linux-2.5.45.updated/drivers/mtd/Makefile
---- .13357-linux-2.5.45/drivers/mtd/Makefile	2002-10-16 15:01:17.000000000 +1000
-+++ .13357-linux-2.5.45.updated/drivers/mtd/Makefile	2002-10-31 15:38:35.000000000 +1100
-@@ -8,22 +8,6 @@ export-objs	:= mtdcore.o mtdpart.o redbo
- 
- obj-y           += chips/ maps/ devices/ nand/
- 
--#                       *** BIG UGLY NOTE ***
--#
--# The shiny new inter_module_xxx has introduced yet another ugly link
--# order dependency, which I'd previously taken great care to avoid.
--# We now have to ensure that the chip drivers are initialised before the
--# map drivers, and that the doc200[01] drivers are initialised before
--# docprobe.
--#
--# We'll hopefully merge the doc200[01] drivers and docprobe back into
--# a single driver some time soon, but the CFI drivers are going to have
--# to stay like that.
--#
--# Urgh.
--# 
--# dwmw2 21/11/0
--
- # Core functionality.
- obj-$(CONFIG_MTD)		+= mtdcore.o
- obj-$(CONFIG_MTD_CONCAT)	+= mtdconcat.o
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .13357-linux-2.5.45/drivers/mtd/chips/Makefile .13357-linux-2.5.45.updated/drivers/mtd/chips/Makefile
---- .13357-linux-2.5.45/drivers/mtd/chips/Makefile	2002-05-30 14:56:57.000000000 +1000
-+++ .13357-linux-2.5.45.updated/drivers/mtd/chips/Makefile	2002-10-31 15:34:54.000000000 +1100
-@@ -3,14 +3,7 @@
- #
- # $Id: Makefile,v 1.7 2001/10/05 06:53:51 dwmw2 Exp $
- 
--export-objs	:= chipreg.o gen_probe.o
--
--#                       *** BIG UGLY NOTE ***
--#
--# The removal of get_module_symbol() and replacement with
--# inter_module_register() et al has introduced a link order dependency
--# here where previously there was none.  We now have to ensure that
--# the CFI command set drivers are linked before cfi_probe.o
-+export-objs	:= chipreg.o gen_probe.o cfi_cmdset_0001.o cfi_cmdset_0002.o
- 
- obj-$(CONFIG_MTD)		+= chipreg.o
- obj-$(CONFIG_MTD_AMDSTD)	+= amd_flash.o 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .13357-linux-2.5.45/drivers/mtd/chips/cfi_cmdset_0001.c .13357-linux-2.5.45.updated/drivers/mtd/chips/cfi_cmdset_0001.c
---- .13357-linux-2.5.45/drivers/mtd/chips/cfi_cmdset_0001.c	2001-10-06 00:40:30.000000000 +1000
-+++ .13357-linux-2.5.45.updated/drivers/mtd/chips/cfi_cmdset_0001.c	2002-10-31 15:34:54.000000000 +1100
-@@ -97,13 +97,6 @@ static void cfi_tell_features(struct cfi
- }
- #endif
- 
--/* This routine is made available to other mtd code via
-- * inter_module_register.  It must only be accessed through
-- * inter_module_get which will bump the use count of this module.  The
-- * addresses passed back in cfi are valid as long as the use count of
-- * this module is non-zero, i.e. between inter_module_get and
-- * inter_module_put.  Keith Owens <kaos@ocs.com.au> 29 Oct 2000.
-- */
- struct mtd_info *cfi_cmdset_0001(struct map_info *map, int primary)
- {
- 	struct cfi_private *cfi = map->fldrv_priv;
-@@ -1601,22 +1594,19 @@ static void cfi_intelext_destroy(struct 
- 	kfree(cfi);
- }
- 
--static char im_name_1[]="cfi_cmdset_0001";
--static char im_name_3[]="cfi_cmdset_0003";
--
- int __init cfi_intelext_init(void)
- {
--	inter_module_register(im_name_1, THIS_MODULE, &cfi_cmdset_0001);
--	inter_module_register(im_name_3, THIS_MODULE, &cfi_cmdset_0001);
- 	return 0;
- }
- 
- static void __exit cfi_intelext_exit(void)
- {
--	inter_module_unregister(im_name_1);
--	inter_module_unregister(im_name_3);
- }
- 
-+struct mtd_info *cfi_cmdset_0003(struct map_info *map, int primary) __attribute__((alias("cfi_cmdset_0001")));
-+EXPORT_SYMBOL(cfi_cmdset_0001);
-+EXPORT_SYMBOL(cfi_cmdset_0003);
-+
- module_init(cfi_intelext_init);
- module_exit(cfi_intelext_exit);
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .13357-linux-2.5.45/drivers/mtd/chips/cfi_cmdset_0002.c .13357-linux-2.5.45.updated/drivers/mtd/chips/cfi_cmdset_0002.c
---- .13357-linux-2.5.45/drivers/mtd/chips/cfi_cmdset_0002.c	2001-10-30 13:38:02.000000000 +1100
-+++ .13357-linux-2.5.45.updated/drivers/mtd/chips/cfi_cmdset_0002.c	2002-10-31 15:34:54.000000000 +1100
-@@ -934,19 +934,17 @@ static void cfi_amdstd_destroy(struct mt
- 	kfree(cfi);
- }
- 
--static char im_name[]="cfi_cmdset_0002";
--
- int __init cfi_amdstd_init(void)
- {
--	inter_module_register(im_name, THIS_MODULE, &cfi_cmdset_0002);
- 	return 0;
- }
- 
- static void __exit cfi_amdstd_exit(void)
- {
--	inter_module_unregister(im_name);
- }
- 
-+EXPORT_SYMBOL(cfi_cmdset_0002);
-+
- module_init(cfi_amdstd_init);
- module_exit(cfi_amdstd_exit);
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .13357-linux-2.5.45/drivers/mtd/chips/gen_probe.c .13357-linux-2.5.45.updated/drivers/mtd/chips/gen_probe.c
---- .13357-linux-2.5.45/drivers/mtd/chips/gen_probe.c	2001-10-06 00:40:30.000000000 +1000
-+++ .13357-linux-2.5.45.updated/drivers/mtd/chips/gen_probe.c	2002-10-31 15:34:54.000000000 +1100
-@@ -234,35 +234,48 @@ static int genprobe_new_chip(struct map_
- 
- typedef struct mtd_info *cfi_cmdset_fn_t(struct map_info *, int);
- 
--extern cfi_cmdset_fn_t cfi_cmdset_0001;
--extern cfi_cmdset_fn_t cfi_cmdset_0002;
-+static struct mtd_info *unknown_cmdset(struct map_info *map, int primary)
-+{
-+	struct cfi_private *cfi = map->fldrv_priv;
-+	__u16 type = primary?cfi->cfiq->P_ID:cfi->cfiq->A_ID;
-+
-+	printk(KERN_NOTICE "Support for command set %04X not present\n",
-+	       type);
-+	return NULL;
-+}
-+
-+/* when we are built without module support, so we still link */
-+cfi_cmdset_fn_t cfi_cmdset_0001 __attribute__((weak, alias("unknown_cmdset")));
-+cfi_cmdset_fn_t cfi_cmdset_0002 __attribute__((weak, alias("unknown_cmdset")));
-+cfi_cmdset_fn_t cfi_cmdset_0003 __attribute__((weak, alias("unknown_cmdset")));
- 
- static inline struct mtd_info *cfi_cmdset_unknown(struct map_info *map, 
- 						  int primary)
- {
- 	struct cfi_private *cfi = map->fldrv_priv;
- 	__u16 type = primary?cfi->cfiq->P_ID:cfi->cfiq->A_ID;
--#if defined(CONFIG_MODULES) && defined(HAVE_INTER_MODULE)
--	char probename[32];
--	cfi_cmdset_fn_t *probe_function;
--
--	sprintf(probename, "cfi_cmdset_%4.4X", type);
--		
--	probe_function = inter_module_get_request(probename, probename);
-+	cfi_cmdset_fn_t *probe_function = NULL;
- 
-+	switch (type) {
-+	case 1:
-+		probe_function = symbol_get(cfi_cmdset_0001);
-+		break;
-+	case 2:
-+		probe_function = symbol_get(cfi_cmdset_0002);
-+		break;
-+	case 3:
-+		probe_function = symbol_get(cfi_cmdset_0003);
-+		break;
-+	}
- 	if (probe_function) {
- 		struct mtd_info *mtd;
- 
- 		mtd = (*probe_function)(map, primary);
- 		/* If it was happy, it'll have increased its own use count */
--		inter_module_put(probename);
-+		symbol_put_addr(probe_function);
- 		return mtd;
- 	}
--#endif
--	printk(KERN_NOTICE "Support for command set %04X not present\n",
--	       type);
--
--	return NULL;
-+	return unknown_cmdset(map, primary);
- }
- 
- static struct mtd_info *check_cmd_set(struct map_info *map, int primary)
-@@ -273,24 +286,6 @@ static struct mtd_info *check_cmd_set(st
- 	if (type == P_ID_NONE || type == P_ID_RESERVED)
- 		return NULL;
- 
--	switch(type){
--		/* Urgh. Ifdefs. The version with weak symbols was
--		 * _much_ nicer. Shame it didn't seem to work on
--		 * anything but x86, really.
--		 * But we can't rely in inter_module_get() because
--		 * that'd mean we depend on link order.
--		 */
--#ifdef CONFIG_MTD_CFI_INTELEXT
--	case 0x0001:
--	case 0x0003:
--		return cfi_cmdset_0001(map, primary);
--#endif
--#ifdef CONFIG_MTD_CFI_AMDSTD
--	case 0x0002:
--		return cfi_cmdset_0002(map, primary);
--#endif
--	}
--
- 	return cfi_cmdset_unknown(map, primary);
- }
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .13357-linux-2.5.45/drivers/mtd/devices/Makefile .13357-linux-2.5.45.updated/drivers/mtd/devices/Makefile
---- .13357-linux-2.5.45/drivers/mtd/devices/Makefile	2002-05-30 14:56:57.000000000 +1000
-+++ .13357-linux-2.5.45.updated/drivers/mtd/devices/Makefile	2002-10-31 15:34:54.000000000 +1100
-@@ -3,12 +3,7 @@
- #
- # $Id: Makefile,v 1.4 2001/06/26 21:10:05 spse Exp $
- 
--#                       *** BIG UGLY NOTE ***
--#
--# The removal of get_module_symbol() and replacement with
--# inter_module_register() et al has introduced a link order dependency
--# here where previously there was none.  We now have to ensure that
--# doc200[01].o are linked before docprobe.o
-+export-objs := doc1000.o doc2000.o doc2001.o
- 
- obj-$(CONFIG_MTD_DOC1000)	+= doc1000.o
- obj-$(CONFIG_MTD_DOC2000)	+= doc2000.o
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .13357-linux-2.5.45/drivers/mtd/devices/doc2000.c .13357-linux-2.5.45.updated/drivers/mtd/devices/doc2000.c
---- .13357-linux-2.5.45/drivers/mtd/devices/doc2000.c	2002-05-24 15:20:20.000000000 +1000
-+++ .13357-linux-2.5.45.updated/drivers/mtd/devices/doc2000.c	2002-10-31 15:34:54.000000000 +1100
-@@ -503,16 +503,7 @@ static int DoC2k_is_alias(struct DiskOnC
- 	return retval;
- }
- 
--static const char im_name[] = "DoC2k_init";
--
--/* This routine is made available to other mtd code via
-- * inter_module_register.  It must only be accessed through
-- * inter_module_get which will bump the use count of this module.  The
-- * addresses passed back in mtd are valid as long as the use count of
-- * this module is non-zero, i.e. between inter_module_get and
-- * inter_module_put.  Keith Owens <kaos@ocs.com.au> 29 Oct 2000.
-- */
--static void DoC2k_init(struct mtd_info *mtd)
-+void DoC2k_init(struct mtd_info *mtd)
- {
- 	struct DiskOnChip *this = (struct DiskOnChip *) mtd->priv;
- 	struct DiskOnChip *old = NULL;
-@@ -1143,7 +1134,6 @@ static int doc_erase(struct mtd_info *mt
- 
- int __init init_doc2000(void)
- {
--       inter_module_register(im_name, THIS_MODULE, &DoC2k_init);
-        return 0;
- }
- 
-@@ -1162,9 +1152,10 @@ static void __exit cleanup_doc2000(void)
- 		kfree(this->chips);
- 		kfree(mtd);
- 	}
--	inter_module_unregister(im_name);
- }
- 
-+EXPORT_SYMBOL(DoC2k_init);
-+
- module_exit(cleanup_doc2000);
- module_init(init_doc2000);
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .13357-linux-2.5.45/drivers/mtd/devices/doc2001.c .13357-linux-2.5.45.updated/drivers/mtd/devices/doc2001.c
---- .13357-linux-2.5.45/drivers/mtd/devices/doc2001.c	2001-10-06 00:40:30.000000000 +1000
-+++ .13357-linux-2.5.45.updated/drivers/mtd/devices/doc2001.c	2002-10-31 15:34:54.000000000 +1100
-@@ -318,16 +318,7 @@ static int DoCMil_is_alias(struct DiskOn
- 	return retval;
- }
- 
--static const char im_name[] = "DoCMil_init";
--
--/* This routine is made available to other mtd code via
-- * inter_module_register.  It must only be accessed through
-- * inter_module_get which will bump the use count of this module.  The
-- * addresses passed back in mtd are valid as long as the use count of
-- * this module is non-zero, i.e. between inter_module_get and
-- * inter_module_put.  Keith Owens <kaos@ocs.com.au> 29 Oct 2000.
-- */
--static void DoCMil_init(struct mtd_info *mtd)
-+void DoCMil_init(struct mtd_info *mtd)
- {
- 	struct DiskOnChip *this = (struct DiskOnChip *)mtd->priv;
- 	struct DiskOnChip *old = NULL;
-@@ -850,7 +841,6 @@ int doc_erase (struct mtd_info *mtd, str
- 
- int __init init_doc2001(void)
- {
--	inter_module_register(im_name, THIS_MODULE, &DoCMil_init);
- 	return 0;
- }
- 
-@@ -869,12 +859,13 @@ static void __exit cleanup_doc2001(void)
- 		kfree(this->chips);
- 		kfree(mtd);
- 	}
--	inter_module_unregister(im_name);
- }
- 
- module_exit(cleanup_doc2001);
- module_init(init_doc2001);
- 
-+EXPORT_SYMBOL(DoCMil_init);
-+
- MODULE_LICENSE("GPL");
- MODULE_AUTHOR("David Woodhouse <dwmw2@infradead.org> et al.");
- MODULE_DESCRIPTION("Alternative driver for DiskOnChip Millennium");
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .13357-linux-2.5.45/drivers/mtd/devices/docprobe.c .13357-linux-2.5.45.updated/drivers/mtd/devices/docprobe.c
---- .13357-linux-2.5.45/drivers/mtd/devices/docprobe.c	2001-10-06 00:40:30.000000000 +1000
-+++ .13357-linux-2.5.45.updated/drivers/mtd/devices/docprobe.c	2002-10-31 15:34:54.000000000 +1100
-@@ -219,28 +219,22 @@ static void __init DoC_Probe(unsigned lo
- 		switch(ChipID) {
- 		case DOC_ChipID_Doc2k:
- 			name="2000";
--			im_funcname = "DoC2k_init";
--			im_modname = "doc2000";
-+			initroutine = symbol_request(DoC2k_init);
- 			break;
- 			
- 		case DOC_ChipID_DocMil:
- 			name="Millennium";
- #ifdef DOC_SINGLE_DRIVER
--			im_funcname = "DoC2k_init";
--			im_modname = "doc2000";
-+			initroutine = symbol_request(DoC2k_init);
- #else
--			im_funcname = "DoCMil_init";
--			im_modname = "doc2001";
-+			initroutine = symbol_request(DoCMil_init);
- #endif /* DOC_SINGLE_DRIVER */
- 			break;
- 		}
- 
--		if (im_funcname)
--			initroutine = inter_module_get_request(im_funcname, im_modname);
--
- 		if (initroutine) {
- 			(*initroutine)(mtd);
--			inter_module_put(im_funcname);
-+			symbol_put_addr(initroutine);
- 			return;
- 		}
- 		printk(KERN_NOTICE "Cannot find driver for DiskOnChip %s at 0x%lX\n", name, physadr);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .13357-linux-2.5.45/include/linux/agp_backend.h .13357-linux-2.5.45.updated/include/linux/agp_backend.h
---- .13357-linux-2.5.45/include/linux/agp_backend.h	2002-10-15 15:31:04.000000000 +1000
-+++ .13357-linux-2.5.45.updated/include/linux/agp_backend.h	2002-10-31 15:34:54.000000000 +1100
-@@ -262,12 +262,7 @@ typedef struct {
- 	int        (*copy_info)(agp_kern_info *);
- } drm_agp_t;
- 
--extern const drm_agp_t *drm_agp_p;
--
--/*
-- * Interface between drm and agp code.  When agp initializes, it makes
-- * the above structure available via inter_module_register(), drm might
-- * use it.  Keith Owens <kaos@ocs.com.au> 28 Oct 2000.
-- */
-+/* Used by drm. */
-+extern const drm_agp_t agp_drm;
- 
- #endif				/* _AGP_BACKEND_H */
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .13357-linux-2.5.45/include/linux/mtd/cfi.h .13357-linux-2.5.45.updated/include/linux/mtd/cfi.h
---- .13357-linux-2.5.45/include/linux/mtd/cfi.h	2002-05-24 15:20:34.000000000 +1000
-+++ .13357-linux-2.5.45.updated/include/linux/mtd/cfi.h	2002-10-31 15:36:21.000000000 +1100
-@@ -247,7 +247,6 @@ struct cfi_private {
- 	int mfr, id;
- 	int numchips;
- 	unsigned long chipshift; /* Because they're of the same type */
--	const char *im_name;	 /* inter_module name for cmdset_setup */
- 	struct flchip chips[0];  /* per-chip data structure for each chip */
- };
- 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132291AbRA1L0X>; Sun, 28 Jan 2001 06:26:23 -0500
+	id <S136067AbRA1Lg3>; Sun, 28 Jan 2001 06:36:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136067AbRA1L0N>; Sun, 28 Jan 2001 06:26:13 -0500
-Received: from [194.73.73.138] ([194.73.73.138]:17917 "EHLO ruthenium")
-	by vger.kernel.org with ESMTP id <S136006AbRA1L0C>;
-	Sun, 28 Jan 2001 06:26:02 -0500
-Date: Sun, 28 Jan 2001 11:25:51 +0000 (GMT)
-From: <davej@suse.de>
-X-X-Sender: <davej@athlon.local>
-To: Alan Cox <alan@redhat.com>, Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        <tsbogend@alpha.franken.de>
-Subject: [PATCH] PCNet32.c missing pci_free_consistent
-Message-ID: <Pine.LNX.4.31.0101281123510.5726-100000@athlon.local>
+	id <S136188AbRA1LgT>; Sun, 28 Jan 2001 06:36:19 -0500
+Received: from Huntington-Beach.Blue-Labs.org ([208.179.0.198]:4648 "EHLO
+	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
+	id <S136067AbRA1LgD>; Sun, 28 Jan 2001 06:36:03 -0500
+Message-ID: <3A740416.55E93274@linux.com>
+Date: Sun, 28 Jan 2001 11:35:50 +0000
+From: David Ford <david@linux.com>
+Organization: Blue Labs Software
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Jeremy M. Dolan" <jmd@foozle.turbogeek.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] doc update/fixes for sysrq.txt
+In-Reply-To: <20010128051118.A7975@foozle.turbogeek.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Jeremy M. Dolan" wrote:
 
-This driver fails to release allocations from pci_alloc_consistent
-in its failure paths. Patch below is against 2.4.0-ac12, but should
-also apply to Linus' tree cleanly.
+> +Note that previous versions disabled sysrq by default, and you were required
+> +to specifically enable it at run-time. That is not the case any longer.
 
-regards,
+AFAIK, this hasn't ever been true.  I have never had to specifically enable it at
+run time.  There are certain distributions which disabled it by default but this is
+distribution specific, not by way of the kernel.
 
-Davej.
+-d
 
--- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
+--
+  There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
+  The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
 
-diff -urN --exclude-from=/home/davej/.exclude linux/drivers/net/pcnet32.c linux-dj/drivers/net/pcnet32.c
---- linux/drivers/net/pcnet32.c	Sun Jan 28 10:06:06 2001
-+++ linux-dj/drivers/net/pcnet32.c	Sun Jan 28 11:12:37 2001
-@@ -685,6 +685,7 @@
-
-     if (a == NULL) {
-       printk(KERN_ERR "pcnet32: No access methods\n");
-+      pci_free_consistent(lp->pci_dev, sizeof(*lp), lp, lp->dma_addr);
-       return -ENODEV;
-     }
-     lp->a = *a;
-@@ -731,6 +732,7 @@
- 	    printk(", probed IRQ %d.\n", dev->irq);
- 	else {
- 	    printk(", failed to detect IRQ line.\n");
-+	    pci_free_consistent(lp->pci_dev, sizeof(*lp), lp, lp->dma_addr);
- 	    return -ENODEV;
- 	}
-     }
 
 
 -

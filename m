@@ -1,58 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262045AbUKPRL1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262049AbUKPRSK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262045AbUKPRL1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 12:11:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262058AbUKPRL1
+	id S262049AbUKPRSK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 12:18:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbUKPRSK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 12:11:27 -0500
-Received: from fw.osdl.org ([65.172.181.6]:1929 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262045AbUKPRLR (ORCPT
+	Tue, 16 Nov 2004 12:18:10 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:43190 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S262049AbUKPRRN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 12:11:17 -0500
-Date: Tue, 16 Nov 2004 09:11:03 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Howells <dhowells@redhat.com>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: fork pagesize patch
-In-Reply-To: <26707.1100624330@redhat.com>
-Message-ID: <Pine.LNX.4.58.0411160909370.2222@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0411160834220.2222@ppc970.osdl.org> 
- <Pine.LNX.4.58.0411160800060.2222@ppc970.osdl.org> <20968.1100619491@redhat.com>
- <23880.1100621506@redhat.com> <26707.1100624330@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 16 Nov 2004 12:17:13 -0500
+Date: Tue, 16 Nov 2004 18:17:08 +0100 (MET)
+From: <Andries.Brouwer@cwi.nl>
+Message-Id: <200411161717.iAGHH8A26623@apps.cwi.nl>
+To: akpm@osdl.org, linux-net@vger.kernel.org, torvalds@osdl.org
+Subject: [PATCH] police fix
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 16 Nov 2004, David Howells wrote:
-> >
-> > I think it _is_ unreasonable. It's like doing
-> >
-> > 	if (a)
-> > 		x /= a;
-> 
-> Doing it with variables is not exactly the same. The compiler has been told to
-> optimise arithmetic on constants, and as such it has to represent a div-by-0
-> result, which obviously it can't.
-
-But you snipped the part where the above source code _does_ end up being 
-done on constants - in macro expansion and in inline functions. So the 
-compiler really _can_ have a constant zero in the divide, and it really 
-_can_ come from perfectly normal code. 
-
-In fact, maybe code like the kernel had.
-
-> > Anyway, to make it not warn, why not change it to
-> >
-> > 	max_threads = mempages / (8*THREAD_SIZE/PAGE_SIZE);
-> >
-> > instead, and be done with it?
-> 
-> And drop the conditional entirely? I can go along with that.
-
-Right. It looks like the obvious thing to do, and is really what the code 
-_tried_ to do in the first place.
-
-		Linus
+diff -uprN -X /linux/dontdiff a/net/sched/police.c b/net/sched/police.c
+--- a/net/sched/police.c	2004-11-15 20:02:25.000000000 +0100
++++ b/net/sched/police.c	2004-11-16 18:14:25.000000000 +0100
+@@ -576,6 +576,7 @@ int tcf_police_dump_stats(struct sk_buff
+ 	
+ 	if (gnet_stats_start_copy_compat(skb, TCA_STATS2, TCA_STATS,
+ 			TCA_XSTATS, p->stats_lock, &d) < 0)
++		goto errout;
+ 	
+ 	if (gnet_stats_copy_basic(&d, &p->bstats) < 0 ||
+ #ifdef CONFIG_NET_ESTIMATOR

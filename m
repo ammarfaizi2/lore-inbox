@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266514AbTGEV6V (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 17:58:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266513AbTGEV6V
+	id S266516AbTGEWHu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 18:07:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266519AbTGEWHu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 17:58:21 -0400
-Received: from smtp.terra.es ([213.4.129.129]:62302 "EHLO tsmtp10.mail.isp")
-	by vger.kernel.org with ESMTP id S266519AbTGEV6Q convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 17:58:16 -0400
-Date: Sun, 6 Jul 2003 00:11:36 +0200
-From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.74-mm1
-Message-Id: <20030706001136.3a423b29.diegocg@teleline.es>
-In-Reply-To: <200307052309.12680.phillips@arcor.de>
-References: <20030703023714.55d13934.akpm@osdl.org>
-	<200307051728.12891.phillips@arcor.de>
-	<20030705121416.62afd279.akpm@osdl.org>
-	<200307052309.12680.phillips@arcor.de>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Sat, 5 Jul 2003 18:07:50 -0400
+Received: from smtprelay02.ispgateway.de ([62.67.200.157]:59345 "EHLO
+	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
+	id S266516AbTGEWHt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 18:07:49 -0400
+Message-ID: <3F074F74.2090308@hipac.org>
+Date: Sun, 06 Jul 2003 00:21:40 +0200
+From: Thomas Heinz <creatix@hipac.org>
+Reply-To: Thomas Heinz <creatix@hipac.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: tc stack overflow
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Sat, 5 Jul 2003 23:09:12 +0200 Daniel Phillips <phillips@arcor.de>
-escribió:
+Hi
 
-> The "better" mechanism for sound scheduling is SCHED_RR, which requires
-> root privilege for some reason that isn't clear to me.  Or maybe there
-> once was a good reason, back in the days of the dinosaurs.
+Have you already crashed your kernel today? No? Well, try this one:
 
-I don't think mp3 playing needs nothing special.
+# tc qdisc add dev eth0 root handle 1: prio \
+   for i in `seq 500` ; do tc qdisc add dev eth0 \
+       parent $i:1 handle `expr $i + 1`: prio ; done ; \
+   ping 1.2.3.4
 
-Mp3 decoding on today's computers taks insignificant amounts of cpu time.
-Having mp3 skips even in light loads in a 2x800 box seems just
-unacceptable. 
-If you allow users using SCHED_RR, every app will end using it.
-But you can renice all other apps at +5. 
+[replace eth0 by a device of your choice]
 
-Scheduler's behaviour has been much better in the past, i don't
-think it requires anything special, just fixing the bug.
 
-But if you want to hear mp3 under crazy loads; perhaps you'd want to use
-the SCHED_RR part. 
-Personally I'd like to be able to hear mp3 always, no matter if there's a
-heavy load in the machine. Mp3 playing is _important_ for me, i don't care
-about the rest :) (xmms supports realtime, but you need root)
+I think some of you are aware of the problem but strangely I didn't
+find any mention on linux-kernel or linux-netdev or lartc.
+
+The problem is that the depth of the classification tree is not limited
+in any way and since for every qdisc the corresponding enqueue function
+is called we have a stack overflow here.
+
+IMO the problem could be fixed by adding a depth parameter to the
+enqueue function. This way the function can decide whether it is save
+to go deeper down the tree (maybe subject to a global policy).
+
+So, what do you think about the issue? Do you care?
+
+
+Regards,
+
+Thomas
+

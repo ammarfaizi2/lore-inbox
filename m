@@ -1,73 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275725AbRI0BAn>; Wed, 26 Sep 2001 21:00:43 -0400
+	id <S275718AbRI0BeK>; Wed, 26 Sep 2001 21:34:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275727AbRI0BAe>; Wed, 26 Sep 2001 21:00:34 -0400
-Received: from fmfdns02.fm.intel.com ([132.233.247.11]:4839 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S275725AbRI0BAQ>; Wed, 26 Sep 2001 21:00:16 -0400
-Message-ID: <13FCCC1F3509D411B1C700A0C969DEBB05E20911@fmsmsx91.fm.intel.com>
-From: "Gonzalez, Inaky" <inaky.gonzalez@intel.com>
-To: linux-kernel@vger.kernel.org
-Subject: POSSIBLE BUG: 2.4.10 drivers/char/raw.c: Need help of maintainer/
-	guru
-Date: Wed, 26 Sep 2001 18:00:39 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S275729AbRI0BeB>; Wed, 26 Sep 2001 21:34:01 -0400
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:26379 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S275718AbRI0Bd6>; Wed, 26 Sep 2001 21:33:58 -0400
+Date: Thu, 27 Sep 2001 03:34:22 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Trond Eivind Glomsr?d <teg@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Locking comment on shrink_caches()
+Message-ID: <20010927033422.A2894@suse.cz>
+In-Reply-To: <fa.cbgmt3v.192gc8r@ifi.uio.no> <fa.cd0mtbv.1aigc0v@ifi.uio.no> <i1m66a5o1zc.fsf@verden.pvv.ntnu.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <i1m66a5o1zc.fsf@verden.pvv.ntnu.no>; from teg@redhat.com on Thu, Sep 27, 2001 at 03:29:27AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Sep 27, 2001 at 03:29:27AM +0200, Trond Eivind Glomsr?d wrote:
 
-	Hi
+> Vojtech Pavlik <vojtech@suse.cz> writes:
+> 
+> > On Wed, Sep 26, 2001 at 10:20:21PM +0200, Vojtech Pavlik wrote:
+> > 
+> > > > generic Athlon is
+> > > > 
+> > > > nothing: 11 cycles
+> > > > locked add: 11 cycles
+> > > > cpuid: 64 cycles
+> > > 
+> > > Interestingly enough, my TBird 1.1G insist on cpuid being somewhat
+> > > slower:
+> > > 
+> > > nothing: 11 cycles
+> > > locked add: 11 cycles
+> > > cpuid: 87 cycles
+> > 
+> > Oops, this is indeed just a difference in compiler options.
+> 
+> No, it's not:
+> 
+> [teg@xyzzy teg]$ ./t
+> nothing: 11 cycles
+> locked add: 11 cycles
+> cpuid: 64 cycles
+> [teg@xyzzy teg]$ ./t
+> nothing: 11 cycles
+> locked add: 11 cycles
+> cpuid: 64 cycles
+> [teg@xyzzy teg]$ 
+> [teg@xyzzy teg]$ ./t
+> nothing: 11 cycles
+> locked add: 11 cycles
+> cpuid: 87 cycles
+> [teg@xyzzy teg]$ ./t
+> nothing: 11 cycles
+> locked add: 11 cycles
+> cpuid: 87 cycles
+> [teg@xyzzy teg]$ ./t
+> nothing: 11 cycles
+> locked add: 11 cycles
+> cpuid: 64 cycles
 
-	I was going trough some usage patterns of brw_kiovec()
-when I came across the main loop in dev.c:rw_raw_dev(). In 
-this loop, brw_kiovec() is called and the error code used 
-as bytes read or error detector [see at bottom].
+Interesting: Try while true; do t; done and watch it change between 64
+and 87 every 2.5 seconds ... :)
 
-	However, if there is an error, err != iosize and the loop
-will break. But it could happpen that the transferred variable
-has been already set to something !0 (ie: in the second or 
-subsequent loop cycles), so the check in 371 is going to reset
-err to a non-error value and return, thus the error is not
-going to proagate up.
-
-	I just want to make sure, I don't know if this is a bug
-or a feature ...
-
-	TIA
-
-354                 err = brw_kiovec(rw, 1, &iobuf, dev, iobuf->blocks,
-sector_size);
-355 
-356                 if (rw == READ && err > 0)
-357                         mark_dirty_kiobuf(iobuf, err);
-358                 
-359                 if (err >= 0) {
-360                         transferred += err;
-361                         size -= err;
-362                         buf += err;
-363                 }
-364 
-365                 unmap_kiobuf(iobuf);
-366 
-367                 if (err != iosize)
-368                         break;
-369         }
-370         
-371         if (transferred) {
-372                 *offp += transferred;
-373                 err = transferred;
-374         }
-375 
-376  out_free:
-377         if (!new_iobuf)
-378                 clear_bit(0, &filp->f_iobuf_lock);
-379         else
-380                 free_kiovec(1, &iobuf);
-381  out:   
-382         return err;
-383 }
-384 
+-- 
+Vojtech Pavlik
+SuSE Labs

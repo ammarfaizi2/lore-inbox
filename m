@@ -1,57 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266529AbUGKJaV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266531AbUGKJbV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266529AbUGKJaV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 05:30:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266531AbUGKJaV
+	id S266531AbUGKJbV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 05:31:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266533AbUGKJbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 05:30:21 -0400
-Received: from mail010.syd.optusnet.com.au ([211.29.132.56]:23686 "EHLO
-	mail010.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S266529AbUGKJaR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 05:30:17 -0400
-References: <20040709182638.GA11310@elte.hu> <20040709195105.GA4807@infradead.org> <20040710124814.GA27345@elte.hu> <40F0075C.2070607@kolivas.org> <20040710151455.GA29140@devserv.devel.redhat.com> <40F008B0.8020702@kolivas.org> <20040711091807.GA16087@elte.hu>
-Message-ID: <cone.1089538195.567633.20820.502@pc.kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Voluntary Kernel Preemption Patch
-Date: Sun, 11 Jul 2004 19:29:55 +1000
+	Sun, 11 Jul 2004 05:31:21 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:3768 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S266531AbUGKJbD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 05:31:03 -0400
+Date: Sun, 11 Jul 2004 11:32:09 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, arjanv@redhat.com,
+       linux-audio-dev@music.columbia.edu
+Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
+Message-ID: <20040711093209.GA17095@elte.hu>
+References: <20040709182638.GA11310@elte.hu> <20040710222510.0593f4a4.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20040710222510.0593f4a4.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=0, required 5.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar writes:
 
+* Andrew Morton <akpm@osdl.org> wrote:
+
+> Minor point:  this:
 > 
-> * Con Kolivas <kernel@kolivas.org> wrote:
+> 	cond_resched();
+> 	function_which_might_sleep();
 > 
->> >>I've conducted some of the old fashioned Benno's latency test on this 
->> >
->> >
->> >is that the test which skews with irq's disabled ? (eg uses normal
->> >interrupts and not nmi's for it's initial time inrq)
->> 
->> It probably is; in which case all these results would be useless, no?
->> 
->> http://www.gardena.net/benno/linux/latencytest-0.42.tar.gz
+> is less efficient than
 > 
-> did you run latencytest as root?
+> 	function_which_might_sleep();
+> 	cond_resched();
+> 
+> because if function_which_might_sleep() _does_ sleep, need_resched()
+> will likely be false when we hit cond_resched(), thus saving a context
+> switch.  Unfortunately, might_sleep() calls tend to go at the entry to
+> functions, whereas cond_resched() calls should be neat the exit point,
+> or inside loop bodies.
 
-I wish it were that simple to fix it. Here's what I said later in this 
-thread:
+agreed, but the argument goes both ways. Whether entry or exit
+scheduling is better very much depends on the function.
 
----
-If you're interested the command I used was:
-./do_tests none 3 256 0 1500000000
-as root
+E.g. for user copy type of stuff we often want to do the reschedule
+_first_, to not pollute the cache with hot (dirty) cachelines that
+likely get thrown away - and which have to be brought back again later
+on.
 
-Which uses a 1.5Gb file during the disk i/o tests since my machine has 1Gb 
-ram.
----
+For IO type of functions that will sleep we most likely want to preempt
+at the exit of the function.
 
-Con
+but we'd like to profile the typical preemption points (hence the
+profile=sched profiling change) to determine which are the hottest
+functions. For those handful of functions we can do __might_sleep() at
+the front of the function and a cond_resched() at the back. For all the
+other 200 might_sleep() points it doesnt matter much.
 
+i've also added the nr_preempt counter so that we can see the proportion
+of forced preemption vs. intentional reschedules for various workloads.
+
+	Ingo

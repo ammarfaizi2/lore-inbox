@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285570AbRLTAhi>; Wed, 19 Dec 2001 19:37:38 -0500
+	id <S285709AbRLTAiI>; Wed, 19 Dec 2001 19:38:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285704AbRLTAhT>; Wed, 19 Dec 2001 19:37:19 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:52997 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S285570AbRLTAhF>; Wed, 19 Dec 2001 19:37:05 -0500
-Message-ID: <3C213270.966DABFE@zip.com.au>
-Date: Wed, 19 Dec 2001 16:36:00 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
+	id <S285707AbRLTAh7>; Wed, 19 Dec 2001 19:37:59 -0500
+Received: from cm61-15-169-117.hkcable.com.hk ([61.15.169.117]:15488 "EHLO
+	cm61-15-169-117.hkcable.com.hk") by vger.kernel.org with ESMTP
+	id <S285704AbRLTAhn>; Wed, 19 Dec 2001 19:37:43 -0500
+Message-ID: <3C2131FC.6040209@rcn.com.hk>
+Date: Thu, 20 Dec 2001 08:34:04 +0800
+From: David Chow <davidchow@rcn.com.hk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Benjamin LaHaise <bcrl@redhat.com>
-CC: "David S. Miller" <davem@redhat.com>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, linux-aio@kvack.org
-Subject: Re: aio
-In-Reply-To: <E16Gjuw-0000UT-00@starship.berlin> <Pine.LNX.4.33.0112190859050.1872-100000@penguin.transmeta.com> <20011219135708.A12608@devserv.devel.redhat.com> <20011219.161359.71089731.davem@redhat.com>,
-		<20011219.161359.71089731.davem@redhat.com>; from davem@redhat.com on Wed, Dec 19, 2001 at 04:13:59PM -0800 <20011219192136.F2034@redhat.com>
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: nfsroot dead slow with redhat 7.2
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise wrote:
-> 
-> All I need is a set of syscall numbers that aren't going to change
-> should this implementation stand up to the test of time.
+Dear all,
 
-The aio_* functions are part of POSIX and SUS, so merely reserving
-system call numbers for them does not seems a completely dumb
-thing to do, IMO.
+When I use 2.4.7-10 i686 kernel from stock Redhat 7.2 as the NFS server. 
+My NFS client use the 2.4.13 kernel, when I mount the nfsroot to the 
+server, I found it is dead slow on the client. This only happens in i686 
+kernel on the server, if we use a K6-2 uses an i386 server its fine. 
+What's going on? By the way, how to configure the client to default use 
+a NFSv3 mount? Thanks.
 
--
+regards,
+
+David
+

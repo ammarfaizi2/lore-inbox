@@ -1,65 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272139AbTHKGGn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 02:06:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272141AbTHKGGm
+	id S272159AbTHKGG5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 02:06:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272281AbTHKGG5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 02:06:42 -0400
-Received: from adsl-216-102-91-59.dsl.snfc21.pacbell.net ([216.102.91.59]:33028
-	"EHLO nasledov.com") by vger.kernel.org with ESMTP id S272139AbTHKGGk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 02:06:40 -0400
-Date: Sun, 10 Aug 2003 23:06:34 -0700
-To: Daniela Engert <dani@ngrt.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VIA Serial ATA chipset
-Message-ID: <20030811060634.GA10852@nasledov.com>
-References: <20030811021750.GA5077@nasledov.com> <20030811055522.31F6427A21@mail.medav.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030811055522.31F6427A21@mail.medav.de>
-User-Agent: Mutt/1.5.4i
-From: Misha Nasledov <misha@nasledov.com>
+	Mon, 11 Aug 2003 02:06:57 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:11023 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S272159AbTHKGGw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 02:06:52 -0400
+Date: Mon, 11 Aug 2003 01:55:02 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Robert Love <rml@tech9.net>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, cmrivera@ufl.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: /proc/stat's intr field looks odd, although /proc/interrupts
+ seems correct
+In-Reply-To: <Pine.LNX.4.53.0308110121090.19193@montezuma.mastecende.com>
+Message-ID: <Pine.LNX.4.53.0308110148080.19193@montezuma.mastecende.com>
+References: <1060572792.1113.10.camel@boobies.awol.org> 
+ <34161.4.4.25.4.1060573727.squirrel@www.osdl.org>  <1060574873.684.41.camel@localhost>
+  <34253.4.4.25.4.1060576385.squirrel@www.osdl.org>  <1060576517.684.47.camel@localhost>
+  <34268.4.4.25.4.1060576870.squirrel@www.osdl.org> <1060577118.684.52.camel@localhost>
+ <Pine.LNX.4.53.0308110121090.19193@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 11, 2003 at 07:55:49AM +0200, Daniela Engert wrote:
-> It's looking very similar to the standard ATA host register model, so
-> it's probably nearly identical to existing VIA PATA controllers. To
-> check this we need to know the actual PCI config space. What does lspci
-> -s 0:f.0 -vvxx show?
+On Mon, 11 Aug 2003, Zwane Mwaikambo wrote:
 
-Here is the output:
-00:0f.0 RAID bus controller: VIA Technologies, Inc.: Unknown device
-3149 (rev 80)
-        Subsystem: VIA Technologies, Inc.: Unknown device 3149
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium
->TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32
-        Interrupt: pin A routed to IRQ 11
-        Region 0: I/O ports at 8800 [size=8]
-        Region 1: I/O ports at 8400 [size=4]
-        Region 2: I/O ports at 8000 [size=8]
-        Region 3: I/O ports at 7800 [size=4]
-        Region 4: I/O ports at 7400 [size=16]
-        Region 5: I/O ports at 7000 [size=256]
-        Capabilities: [c0] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-00: 06 11 49 31 07 00 90 02 80 00 04 01 00 20 80 00
-10: 01 88 00 00 01 84 00 00 01 80 00 00 01 78 00 00
-20: 01 74 00 00 01 70 00 00 00 00 00 00 06 11 49 31
-30: 00 00 00 00 c0 00 00 00 00 00 00 00 0b 01 00 00
+> On i386 you can find out the last irq line number during MP table parsing 
+> (ACPI bits are also in mpparse.c), for the hotplug case i suppose the 
+> hotplug code could bump this up as devices get attached. But unless we do 
+> dynamic NR_IRQs its all just too much effort.
 
-Also, if SATA were to work, would there be any problem with accessing
-the hard disk? Currently, I have two onboard IDE channels, a PCI IDE
-card, and this SATA chip. I notice that the IDE hard disk devices only
-go up to hdh in /dev. Would I be able to use all 6 of my IDE channels?
--- 
-Misha Nasledov
-misha@nasledov.com
-http://nasledov.com/misha/
+Boring weekend...
+
+Index: linux-2.6.0-test3-huge_kpage/fs/proc/proc_misc.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.6.0-test3/fs/proc/proc_misc.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 proc_misc.c
+--- linux-2.6.0-test3-huge_kpage/fs/proc/proc_misc.c	10 Aug 2003 08:42:45 -0000	1.1.1.1
++++ linux-2.6.0-test3-huge_kpage/fs/proc/proc_misc.c	11 Aug 2003 05:49:54 -0000
+@@ -411,8 +411,19 @@ static int kstat_read_proc(char *page, c
+ 	len += sprintf(page + len, "intr %u", sum);
+ 
+ #if !defined(CONFIG_PPC64) && !defined(CONFIG_ALPHA)
+-	for (i = 0 ; i < NR_IRQS ; i++)
++{
++	static int last_irq = 0;
++	
++	for (i = last_irq; i < NR_IRQS; i++) {
++		if (irq_desc[i].action) {
++			if (i > last_irq)
++				last_irq = i;
++		}
++	}
++
++	for (i = 0 ; i <= last_irq ; i++)
+ 		len += sprintf(page + len, " %u", kstat_irqs(i));
++}
+ #endif
+ 
+ 	len += sprintf(page + len,

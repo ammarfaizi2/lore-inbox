@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289813AbSBFJSo>; Wed, 6 Feb 2002 04:18:44 -0500
+	id <S287770AbSBFJXf>; Wed, 6 Feb 2002 04:23:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290062AbSBFJSe>; Wed, 6 Feb 2002 04:18:34 -0500
-Received: from [61.206.143.83] ([61.206.143.83]:1041 "EHLO web1.LIBERTEC.COM")
-	by vger.kernel.org with ESMTP id <S289813AbSBFJSP>;
-	Wed, 6 Feb 2002 04:18:15 -0500
-Message-ID: <C352318DDADB4F4EBF7472A462E4436802491A@nlt3.LIBERTEC.COM>
-From: Blomberg David <dblomber@Libertec.com>
-To: "'szonyi calin'" <caszonyi@yahoo.com>, Stevie O <stevie@qrpff.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: [OT] windows is more secure than linux!!
-Date: Wed, 6 Feb 2002 18:17:14 +0900 
+	id <S288967AbSBFJX0>; Wed, 6 Feb 2002 04:23:26 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:51978 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S287770AbSBFJXQ>; Wed, 6 Feb 2002 04:23:16 -0500
+Message-ID: <3C60F5D3.4737E54@aitel.hist.no>
+Date: Wed, 06 Feb 2002 10:22:27 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.3-dj2 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jens Axboe <axboe@kernel.org>,
+        linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: one-line-patch against SCSI-Read-Error-BUG()
+In-Reply-To: <E16YCdv-0002ru-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	> Face it guys, statistics don't lie:
-
-	http://securityfocus.com/vulns/stats.shtml
-Read the real article
-
-	> 
-	> Linux is so way worse!
-	> 
-
-	Counting 3+ Sql Servers, a few mail servers, a dozen web browsers, a
-couple office suites
-	compared to MS OS (yeah that's a fair comparison and Linux still
-comes out even) :>
-
-Since when did fresh meat become the sole Linux authority?
-
-David Blomberg
-System Engineer
-Nihon Libertec Co. LTD
-1-34-14 Hatagaya
-Shibuya-ku
-Tokyo
-Ph:  (03)3481-8321
-Fax:(03)3481-8371
-
-
->  
+Alan Cox wrote:
 > 
+> > Since at least kernel 2.4.16 there is a BUG() in pci.h,
+> > that crashes the kernel on any attempt to read a SCSI-Sector
+> > from an erased MO-Medium and on any attempt to read
+> > a sector from a SCSI-disk, which returns "Read-Error".
+> 
+> Adaptec aic7xxx card ?
+
+You don't need an adaptec to BUG on scsi read errors.
+
+I have a tekram adapter using the new SYM53C8XX version 2 driver.
+One of my quantum atlas IV have a few bad sectors.  Reading
+the file (ext2 fs on top of raid0) tends to merely cause error messages.
+badblocks also runs fine.  But fsck -c triggers the BUG.
+
+Helge Hafting

@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264486AbTIDCRi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 22:17:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264493AbTIDCRi
+	id S264493AbTIDCRy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 22:17:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264498AbTIDCRy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 22:17:38 -0400
-Received: from mail-in-01.arcor-online.net ([151.189.21.41]:15831 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S264486AbTIDCRh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 22:17:37 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Larry McVoy <lm@bitmover.com>, "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: Scaling noise
-Date: Thu, 4 Sep 2003 04:21:16 +0200
-User-Agent: KMail/1.5.3
-Cc: Larry McVoy <lm@bitmover.com>, Nick Piggin <piggin@cyberone.com.au>,
+	Wed, 3 Sep 2003 22:17:54 -0400
+Received: from holomorphy.com ([66.224.33.161]:14476 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264493AbTIDCRw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 22:17:52 -0400
+Date: Wed, 3 Sep 2003 19:18:19 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Steven Cole <elenstev@mesatop.com>, Antonio Vargas <wind@cocodriloo.com>,
+       Larry McVoy <lm@bitmover.com>, CaT <cat@zip.com.au>,
        Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
-References: <20030903040327.GA10257@work.bitmover.com> <31190000.1062604245@[10.10.2.4]> <20030904004943.GB5227@work.bitmover.com>
-In-Reply-To: <20030904004943.GB5227@work.bitmover.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Re: Scaling noise
+Message-ID: <20030904021819.GD4306@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Daniel Phillips <phillips@arcor.de>,
+	Steven Cole <elenstev@mesatop.com>,
+	Antonio Vargas <wind@cocodriloo.com>, Larry McVoy <lm@bitmover.com>,
+	CaT <cat@zip.com.au>, Anton Blanchard <anton@samba.org>,
+	linux-kernel@vger.kernel.org
+References: <20030903040327.GA10257@work.bitmover.com> <20030903124716.GE2359@wind.cocodriloo.com> <1062603063.1723.91.camel@spc9.esa.lanl.gov> <200309040350.31949.phillips@arcor.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309040421.16939.phillips@arcor.de>
+In-Reply-To: <200309040350.31949.phillips@arcor.de>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 September 2003 02:49, Larry McVoy wrote:
-> It's much better to have a bunch of OS's and pull
-> them together than have one and try and pry it apart.
+On Thu, Sep 04, 2003 at 03:50:31AM +0200, Daniel Phillips wrote:
+> Bill Irwin how his 32 node Numa cluster is running these days).  This blows 
 
-This is bogus.  The numbers clearly don't work if the ccCluster is made of 
-uniprocessors, so obviously the SMP locking has to be implemented anyway, to 
-get each node up to the size just below the supposed knee in the scaling 
-curve.  This eliminates the argument about saving complexity and/or work.
+Sorry for any misunderstanding, the model only goes to 16 nodes/64x,
+the box mentioned was 32 cpus. It's also SMP (SSI, shared memory,
+mach-numaq), not a cluster. I also only have half of it full-time.
 
-The way Linux scales now, the locking stays out of the range where SSI could 
-compete up to, what?  128 processors?  More?  Maybe we'd better ask SGI about 
-that, but we already know what the answer is for 32: boring old SMP wins 
-hands down.  Where is the machine that has the knee in the wrong part of the 
-curve?  Oh, maybe we should all just stop whatever work we're doing and wait 
-ten years for one to show up.
 
-But far be it from me to suggest that reality should intefere with your fun.
-
-Regards,
-
-Daniel
-
+-- wli

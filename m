@@ -1,71 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265208AbUFAUWc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264918AbUFAUox@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265208AbUFAUWc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 16:22:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265214AbUFAUWb
+	id S264918AbUFAUox (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 16:44:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264932AbUFAUox
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 16:22:31 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:34962 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S265213AbUFAUWR (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 16:22:17 -0400
-Message-Id: <200406012022.i51KMFEB002660@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: FabF <fabian.frederick@skynet.be>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: why swap at all? 
-In-Reply-To: Your message of "Tue, 01 Jun 2004 22:14:26 +0200."
-             <1086120865.2278.27.camel@localhost.localdomain> 
-From: Valdis.Kletnieks@vt.edu
-References: <E1BUwEH-00030X-00@calista.eckenfels.6bone.ka-ip.net> <1086114982.2278.5.camel@localhost.localdomain> <200406011902.i51J2mZ3016721@turing-police.cc.vt.edu> <1086119611.2278.16.camel@localhost.localdomain> <200406012000.i51K0vor019011@turing-police.cc.vt.edu>
-            <1086120865.2278.27.camel@localhost.localdomain>
+	Tue, 1 Jun 2004 16:44:53 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:4783 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S264918AbUFAUov (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 16:44:51 -0400
+Date: Tue, 1 Jun 2004 22:46:03 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] active_load_balance() deadlock
+Message-ID: <20040601204603.GA20535@elte.hu>
+References: <200406011409.54478.bjorn.helgaas@hp.com> <Pine.LNX.4.58.0406011316190.14095@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_665926786P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 01 Jun 2004 16:22:15 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0406011316190.14095@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_665926786P
-Content-Type: text/plain; charset=us-ascii
 
-On Tue, 01 Jun 2004 22:14:26 +0200, FabF said:
+* Linus Torvalds <torvalds@osdl.org> wrote:
 
-> Boring....You can't have X root layer swapped to disk as it's often used
-> ! Some quick lsof | grep "libX" gives all frontal applications 'swapping
-> sensible' .fuser can do 'user resource reverse'.Kernel _can_ 'appl.
-> resource reverse' as well.
+> On Tue, 1 Jun 2004, Bjorn Helgaas wrote:
+> >
+> > active_load_balance() looks susceptible to deadlock when busiest==rq.
+> > Without the following patch, my 128-way box deadlocks consistently
+> > during boot-time driver init.
+> 
+> Makes sense. The regular "load_balance()" already has that test,
+> although it also makes it a WARN_ON() for some unexplained reason (I
+> assume find_busiest_group() isn't supposed to find the local group,
+> although it doesn't seem to be documented anywhere).
+> 
+> Ingo, Andrew?
 
-The point you're missing is that if you use a rule such as "everything using
-libX* isn't swappable", then the X *server* is suddenly the prime candidate for
-swapping out (as it's quite likely the biggest user of memory not using libX*).
-(Anybody who ever had the OOM killer whomp their X server to free up space
-fast when the *real* problem was a cluster of 6 or 8 "large but still smaller
-than the X server" processes knows exactly what I mean... ;)
+looks good to me. The condition is 'impossible', but the whole balancing
+code is (intentionally) a bit racy:
 
-> PS: I'm not talking about inactive desktop box.Such box has to be rl 3
-> and is not meant to be user (geek) relevant :)
+                cpus_and(tmp, group->cpumask, cpu_online_map);
+                if (!cpus_weight(tmp))
+                        goto next_group;
 
-So you're saying that I should have kicked my laptop down to runlevel 3 just
-because I went across the hall to the machine room to help get a few servers
-into racks?  Or every time I go into a meeting, or get stuck on a longish phone
-call?
+                for_each_cpu_mask(i, tmp) {
+                        if (!idle_cpu(i))
+                                goto next_group;
+                        push_cpu = i;
+                }
 
-Also, be *very* careful equating "user" with "geek" - at least some of us are
-trying to produce systems that suit the needs of non-geek users....
+                rq = cpu_rq(push_cpu);
+                double_lock_balance(busiest, rq);
+                move_tasks(rq, push_cpu, busiest, 1, sd, IDLE);
 
+in the for_each_cpu_mask() loop we specifically check for each CPU in
+the target group to be idle - so push_cpu's runqueue == busiest [==
+current runqueue] cannot be true because the current CPU is not idle, we
+are running in the migration thread ... But this is not a real problem,
+load-balancing we do in a racy way to reduce overhead [and it's all
+statistics anyway so absolute accuracy is impossible], and active
+balancing itself is somewhat racy due to the migration-thread wakeup
+(and the active_balance flag) going outside the runqueue locks [for
+similar reasons].
 
---==_Exmh_665926786P
-Content-Type: application/pgp-signature
+so it all looks quite plausible - the normal SMP boxes dont trigger it,
+but Bjorn's 128-CPU setup with a non-trivial domain hiearachy triggers
+it.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-iD8DBQFAvOV2cC3lWbTT17ARAsvpAJ0eZGS52FYHFfPMtS8iEaC9jVxgMACeMiUb
-4FlkgAiiB6YQcTHidOxi1TU=
-=4mf0
------END PGP SIGNATURE-----
-
---==_Exmh_665926786P--
+	Ingo

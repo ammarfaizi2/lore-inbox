@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263002AbTKYUS2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 15:18:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbTKYUS2
+	id S263130AbTKYUYw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 15:24:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263142AbTKYUYw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 15:18:28 -0500
-Received: from gw.uk.sistina.com ([62.172.100.98]:54022 "EHLO
-	gw.uk.sistina.com") by vger.kernel.org with ESMTP id S263002AbTKYUS0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 15:18:26 -0500
-Date: Tue, 25 Nov 2003 20:18:25 +0000
-From: Alasdair G Kergon <agk@uk.sistina.com>
-To: Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch 3/5] dm: make v4 of the ioctl interface the default
-Message-ID: <20031125201825.B27307@uk.sistina.com>
-Mail-Followup-To: Linux Mailing List <linux-kernel@vger.kernel.org>
-References: <20031125162451.GA524@reti> <20031125163313.GD524@reti> <3FC387A0.8010600@backtobasicsmgmt.com> <20031125170503.GG524@reti> <20031125172949.GE17907@wiggy.net>
+	Tue, 25 Nov 2003 15:24:52 -0500
+Received: from fw.osdl.org ([65.172.181.6]:21161 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263130AbTKYUYu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 15:24:50 -0500
+Date: Tue, 25 Nov 2003 12:25:04 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: gwingerde@home.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: EXT-3 bug with 2.6.0-test9
+Message-Id: <20031125122504.47de1ea5.akpm@osdl.org>
+In-Reply-To: <200311252051.15501.gwingerde@home.nl>
+References: <200311252051.15501.gwingerde@home.nl>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20031125172949.GE17907@wiggy.net>; from wichert@wiggy.net on Tue, Nov 25, 2003 at 06:29:49PM +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 25, 2003 at 06:29:49PM +0100, Wichert Akkerman wrote:
-> 'last few months' is extremely short for a migration path. Can't we
-> ditch the v1 interface in 2.7 and allow people to migrate slowly?
+Gertjan van Wingerde <gwingerde@home.nl> wrote:
+>
+> Hi,
+> 
+> (Please CC me in any replies, as I'm not subscribed to the list)
+> 
+> I've just experienced the strange behaviour that my /usr mount auto-magically 
+> got mounted read-only, where it was mounted read-write (obviously). 
+> Investigating the cause of this I've found the following EXT-3 related BUG in 
+> my log-files:
+> 
+> 	kernel BUG at fs/jbd/journal.c:1733!
 
-People still using LVM2/device-mapper userspace components that 
-don't support v4 really should upgrade them to fix some significant
-(unrelated) issues with those old versions.
+Yes.  This newly-added BUG check was too easy to trigger and in test10 it
+was changed to a printk-and-fix-it-up.
 
-The v1 interface was broken.
-(Not architecture independent.  And used __kernel_dev_t.)
+> Nov 25 20:24:20 localhost vmunix: EXT3-fs warning (device md1): ext3_unlink: 
+> Deleting nonexistent file (230991), 0
+> Nov 25 20:24:21 localhost vmunix: EXT3-fs warning (device md1): ext3_unlink: 
+> Deleting nonexistent file (230990), 0
+> Nov 25 20:24:21 localhost vmunix: EXT3-fs warning (device md1): ext3_unlink: 
+> Deleting nonexistent file (346096), 0
 
-The v4 interface fixed things, and is the only version anyone 
-compiling a new kernel should be using.
+And it is this stuff which triggered the bogus BUG.  I do not know why this
+happened, but it is probably some form of data loss problem at the md
+layer.
 
-The v4 interface has been supported officially since mid-July in
-device-mapper 1.0 (with LVM 2.0).
+It could have happened at any time after the most recent fsck, so if you
+have been running earlier kernels on that machine it could even be that the
+bug which caused this has already been fixed.
 
-Since then, the userspace component that communicates with device-mapper
-(libdevmapper.so) has supported *both* versions simultaneously - so you
-don't need to change anything in userspace when switching between
-kernels running v1 and v4.  (The LVM2 tools talk to libdevmapper.so
-which detects and handles the interface version transparently.)
+You should run a fsck across all filesystems, and maybe upgrade to test10
+plus ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots/patch-2.6.0-test10-bk1.gz
 
-In the current device-mapper tarball that I put on the Sistina FTP site
-last Friday v1 support is no longer available by default - it has to be
-specifically requested as a configuration option.
 
-Alasdair
--- 
-agk@uk.sistina.com

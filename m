@@ -1,76 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265753AbUAPWoy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 17:44:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265779AbUAPWoy
+	id S265884AbUAPWls (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 17:41:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265903AbUAPWlr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 17:44:54 -0500
-Received: from legolas.restena.lu ([158.64.1.34]:44221 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S265753AbUAPWos (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 17:44:48 -0500
-Subject: Re: Unknown CPU
-From: Craig Bradney <cbradney@zip.com.au>
-To: David Ford <david+hb@blue-labs.org>
-Cc: Joel Jaeggli <joelja@darkwing.uoregon.edu>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <40085092.5070706@blue-labs.org>
-References: <Pine.LNX.4.44.0401161158180.32303-100000@twin.uoregon.edu>
-	 <40085092.5070706@blue-labs.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-rAOFCH5sycZ66srf57ns"
-Message-Id: <1074293089.4298.10.camel@athlonxp.bradney.info>
+	Fri, 16 Jan 2004 17:41:47 -0500
+Received: from pengo.systems.pipex.net ([62.241.160.193]:42632 "EHLO
+	pengo.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S265884AbUAPWln (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 17:41:43 -0500
+Date: Fri, 16 Jan 2004 22:44:46 +0000
+From: James Stone <stone1@btinternet.com>
+To: linux-kernel@vger.kernel.org
+Subject: sound usb related kernel panic on reboot
+Message-ID: <20040116224446.GA758@moon.base>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 16 Jan 2004 23:44:49 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Please cc me with any replies.
 
---=-rAOFCH5sycZ66srf57ns
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I have been getting the already reported kernel panic on shutdown/reboot
+which seems to be related in some way to the modem_run userspace driver
+for the alcatel speedtouch modem. I have now noticed another one which
+is also related to USB in some way.. 
 
-I know on my ASUS A7N8X, the CPU type when the CPU is detected is shown
-as Unknown unless the correct clock rates etc are used. As soon as they
-are set correctly.. it says Athlon 2600+. Before I got them correct, it
-had some unknown string (sorry Icant tell you what it was...) and I dont
-know what Linux reported then because I at that time all was new in this
-PC and hard drive was blank.
+I have a midi keyboard (evolution MK-249C) attached via USB and when it
+is switched on, I get the kernel panic on shutdown. I can supply the
+full trace if required although it will require me writing it by hand as
+it does not seem to be recorded in any logs.
 
-Are you over or underclocking?
+The output from /var/log/kernel is as follows:
 
-Craig
+Jan 16 19:17:18 moon kernel: agpgart: Putting AGP V2 device at 
+0000:00:00.0 into 4x mode
+Jan 16 19:17:18 moon kernel: agpgart: Putting AGP V2 device at
+0000:01:00.0 into 4x mode
+Jan 16 19:17:18 moon kernel: atkbd.c: Unknown key released (translated
+set 2, code 0x7a on isa0060/serio0).
+Jan 16 19:17:18 moon kernel: atkbd.c: Unknown key released (translated
+set 2, code 0x7a on isa0060/serio0).
+Jan 16 19:17:27 moon kernel: drivers/usb/core/usb.c: deregistering
+driver usb-storage
+Jan 16 19:17:27 moon kernel: drivers/usb/core/usb.c: deregistering
+driver visor
+Jan 16 19:17:27 moon kernel: drivers/usb/serial/usb-serial.c: USB
+Serial deregistering driver Handspring Visor / Palm OS
+Jan 16 19:17:27 moon kernel: drivers/usb/serial/usb-serial.c: USB
+Serial deregistering driver Sony Clie 3.5
+Jan 16 19:17:27 moon kernel: drivers/usb/core/usb.c: deregistering
+driver usbserial
+Jan 16 19:17:27 moon kernel: drivers/usb/core/usb.c: deregistering
+driver usblp
+Jan 16 19:17:27 moon kernel: uhci_hcd 0000:00:10.0: remove, state 1
+Jan 16 19:17:27 moon kernel: usb usb1: USB disconnect, address 1
+Jan 16 19:17:27 moon kernel: usb 1-2: USB disconnect, address 2
+Jan 16 19:17:27 moon kernel: uhci_hcd 0000:00:10.0: USB bus 1
+deregistered
+Jan 16 19:17:27 moon kernel: uhci_hcd 0000:00:10.1: remove, state 1
+Jan 16 19:17:27 moon kernel: usb usb2: USB disconnect, address 1
+Jan 16 19:17:27 moon kernel: usb 2-1: USB disconnect, address 2
+Jan 16 19:17:27 moon kernel: pci_pool_destroy 0000:00:10.1/uhci_td,
+ddb60000 busy
+Jan 16 19:17:27 moon kernel: pci_pool_destroy 0000:00:10.1/uhci_td,
+ddb5a000 busy
+Jan 16 19:17:27 moon kernel: uhci_hcd 0000:00:10.1: USB bus 2
+deregistered
+Jan 16 19:17:27 moon kernel: uhci_hcd 0000:00:10.2: remove, state 1
+Jan 16 19:17:27 moon kernel: usb usb3: USB disconnect, address 1
+Jan 16 19:17:27 moon kernel: uhci_hcd 0000:00:10.2: USB bus 3
+deregistered
+Jan 16 19:17:27 moon kernel: slab error in kmem_cache_destroy(): cache
+`uhci_urb_priv': Can't free all objects
+Jan 16 19:17:27 moon kernel: Call Trace:
+Jan 16 19:17:27 moon kernel:  [kmem_cache_destroy+152/288]
+kmem_cache_destroy+0x98/0x120
+Jan 16 19:17:27 moon kernel:  [_end+542256840/1069502828]
+uhci_hcd_cleanup+0x1c/0x5
+9 [uhci_hcd]
+Jan 16 19:17:27 moon kernel:  [sys_delete_module+284/320]
+sys_delete_module+0x11c/0
+x140
+Jan 16 19:17:27 moon kernel:  [sys_munmap+68/112] sys_munmap+0x44/0x70
+Jan 16 19:17:27 moon kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+Jan 16 19:17:27 moon kernel: 
+Jan 16 19:17:27 moon kernel: uhci: not all urb_priv's were freed
+Jan 16 19:17:27 moon kernel: drivers/usb/core/usb.c: deregistering
+driver snd-usb-audio
+Jan 16 19:17:32 moon kernel: drivers/usb/core/usb.c: registered new
+driver snd-usb-audio
+Jan 16 19:17:33 moon kernel: drivers/usb/core/usb.c: deregistering
+driver snd-usb-audio
+Jan 16 19:17:35 moon kernel: Kernel logging (proc) stopped.
+Jan 16 19:17:35 moon kernel: Kernel log daemon terminating.
 
-On Fri, 2004-01-16 at 21:58, David Ford wrote:
-> Since the mid 2.5 kernels, I'm now on 2.6.1
->=20
-> Joel Jaeggli wrote:
->=20
-> >It's clearly a barton, what kernel are you running?
-> >
-> >joelja
-> > =20
-> >
-> >
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" i=
-n
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->=20
+Regards,
 
---=-rAOFCH5sycZ66srf57ns
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBACGlhi+pIEYrr7mQRAkQMAKCqebn8CNVrK0jjtumh4oM7utivQwCfRGo0
-CHZfTZfv6bohfOItsgYR1j0=
-=H43p
------END PGP SIGNATURE-----
-
---=-rAOFCH5sycZ66srf57ns--
-
+James Stone

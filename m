@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269800AbUJNCWP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269823AbUJNCpr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269800AbUJNCWP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 22:22:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269812AbUJNCWO
+	id S269823AbUJNCpr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 22:45:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269873AbUJNCpq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 22:22:14 -0400
-Received: from brown.brainfood.com ([146.82.138.61]:9856 "EHLO
-	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
-	id S269800AbUJNCWN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 22:22:13 -0400
-Date: Wed, 13 Oct 2004 21:22:10 -0500 (CDT)
-From: Adam Heath <doogie@debian.org>
-X-X-Sender: adam@gradall.private.brainfood.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U0
-In-Reply-To: <20041014013147.GA32581@elte.hu>
-Message-ID: <Pine.LNX.4.58.0410132119580.1244@gradall.private.brainfood.com>
-References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com>
- <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu>
- <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu>
- <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>
- <Pine.LNX.4.58.0410132015530.1244@gradall.private.brainfood.com>
- <20041014013147.GA32581@elte.hu>
+	Wed, 13 Oct 2004 22:45:46 -0400
+Received: from relay.pair.com ([209.68.1.20]:18439 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S269823AbUJNCpp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 22:45:45 -0400
+X-pair-Authenticated: 66.190.53.4
+Message-ID: <416DE857.4010907@cybsft.com>
+Date: Wed, 13 Oct 2004 21:45:43 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       Daniel Walker <dwalker@mvista.com>, Bill Huey <bhuey@lnxw.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U0
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>
+In-Reply-To: <20041014002433.GA19399@elte.hu>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Oct 2004, Ingo Molnar wrote:
+Ingo Molnar wrote:
+> i'm pleased to announce a significantly improved version of the
+> Real-Time Preemption (PREEMPT_REALTIME) feature that i have been working
+> towards in the past couple of weeks.
+> 
+> the patch (against 2.6.9-rc4-mm1) can be downloaded from:
+> 
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U0
+> 
 
->
-> * Adam Heath <doogie@debian.org> wrote:
->
-> > The bug that caused it to crash was in mm/highmem.c.
->
-> could you disable HIGHMEM (or at least HIGHPTE) and try again? Some
-> last-minute bug slipped into that code.
+I have this built and running on my SMP system now and thus far it looks 
+very promising. Numbers to follow.
 
-Well, it's a little better, but it still died.  Just took longer.
-
-However, this time, my kern.log got corrupted.  I saw 2 scheduling while
-atomic errors in dmesg(before it locked up), but only one in kern.log, and a
-bunch of random data(using ext3 data=writeback).  Symptoms this time around
-were laggy keyboard handling, zombie processes(this may have been caused by
-the scheduling while atomic problem), and ctrl-c not working.
-
-I'll try again tomorrow, and hopefully get more data.
+kr

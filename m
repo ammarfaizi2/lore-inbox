@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312391AbSCYKuw>; Mon, 25 Mar 2002 05:50:52 -0500
+	id <S312392AbSCYLM5>; Mon, 25 Mar 2002 06:12:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312393AbSCYKun>; Mon, 25 Mar 2002 05:50:43 -0500
-Received: from mail-gw.sonicblue.com ([209.10.223.218]:33173 "EHLO
-	mail-gw.sonicblue.com") by vger.kernel.org with ESMTP
-	id <S312391AbSCYKub>; Mon, 25 Mar 2002 05:50:31 -0500
-Message-ID: <37D1208A1C9BD511855B00D0B772242C011C7F13@corpmail1.sc.sonicblue.com>
-From: Peter Hartley <PDHartley@sonicblue.com>
-To: "'H . J . Lu'" <hjl@lucon.org>, Andrew Morton <akpm@zip.com.au>
-Cc: tytso@thunk.org, linux-mips@oss.sgi.com,
-        linux kernel <linux-kernel@vger.kernel.org>,
-        GNU C Library <libc-alpha@sources.redhat.com>
-Subject: RE: Does e2fsprogs-1.26 work on mips?
-Date: Mon, 25 Mar 2002 02:52:24 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S312398AbSCYLMs>; Mon, 25 Mar 2002 06:12:48 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:7185 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S312392AbSCYLMf>; Mon, 25 Mar 2002 06:12:35 -0500
+Date: Mon, 25 Mar 2002 12:12:04 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Stevie O <stevie@qrpff.net>, Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: fadvise syscall?
+Message-ID: <20020325111203.GC3144@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <5.1.0.14.2.20020324013457.022907d0@whisper.qrpff.net> <3C959716.6040308@mandrakesoft.com> <3C945635.4050101@mandrakesoft.com> <3C945A5A.9673053F@zip.com.au> <5.1.0.14.2.20020317131910.0522b490@pop.cus.cam.ac.uk> <3C959716.6040308@mandrakesoft.com> <5.1.0.14.2.20020324013457.022907d0@whisper.qrpff.net> <5.1.0.14.2.20020324124410.02927620@pop.cus.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H J Lu wrote:
-> I look at the glibc code. It uses a constant RLIM_INFINITY for a given
-> arch. The user always passes (~0UL) to glibc on x86. glibc will check
-> if the kernel supports the new getrlimit at the run time. If it
-> doesn't, glibc will adjust the RLIM_INFINITY for setrlimit. I 
-> don't see
-> how glibc 2.2.5 compiled under kernel 2.2 will fail under 2.4 due to
-> this unless glibc is misconfigureed or miscompiled.
+Hi!
 
-It's not a question of which kernel glibc is compiled under, it's a question
-of which version of the kernel headers (/usr/include/{linux,asm}) glibc is
-compiled against.
+> >> >> I disagree, and here's the main reasons:
+> >> >>
+> >> >> * fadvise(2) usefulness extends past open(2).  It may be useful to 
+> >call
+> >> >> it at various points during runtime.
+> >> >
+> >> >open(/proc/self/fd/0, O_NEW_FLAGS)?
+> >>
+> >> So to use fadvise(), the system must have /proc mounted?
+> >
+> >I think it is way more feasible than adding new syscall.
+> 
+> Sorry but it is silly. (-; What's wrong with open("filename", O_FLAGS); 
+> followed by fcntl(); if you want to modify them after opening. That is a 
+> lot cleaner than going via proc in such a way...
+> 
+> posix_fadvise() can then be implemented in userspace and that can go via 
+> fcntl(). That way we have the best of both worlds.
 
-A glibc, even the newest glibc, *compiled against 2.2 headers* cannot know
-about the new getrlimit, so the run-time test cannot be compiled and is not
-used. Such a glibc subsequently breaks fsck if run under a 2.4 kernel.
-
-Recompile your glibc against 2.4 headers and you should get a glibc and fsck
-that work if run under either a 2.2 or 2.4 kernel.
-
-The necessary kernel patch to fix this mess is in the latest -pre-ac (thanks
-Alan).
-
-	Peter
+Agreed, this is better than my proposal.
+								Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,79 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262619AbVAUXxV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262621AbVAUXvm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262619AbVAUXxV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 18:53:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262614AbVAUXwH
+	id S262621AbVAUXvm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 18:51:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbVAUXtd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 18:52:07 -0500
-Received: from mail04.syd.optusnet.com.au ([211.29.132.185]:15233 "EHLO
-	mail04.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262610AbVAUXta (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 18:49:30 -0500
-Message-ID: <41F194DC.40603@kolivas.org>
-Date: Sat, 22 Jan 2005 10:48:44 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Fri, 21 Jan 2005 18:49:33 -0500
+Received: from fmr19.intel.com ([134.134.136.18]:61399 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262618AbVAUXsS convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 18:48:18 -0500
+From: Jason Gaston <jason.d.gaston@intel.com>
+Organization: Intel Corp.
+To: jgarzik@redhat.com
+Subject: [PATCH] SATA AHCI support for Intel ICH7R - 2.6.11-rc1
+Date: Fri, 21 Jan 2005 08:53:49 -0800
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, jason.d.gaston@intel.com
 MIME-Version: 1.0
-To: utz lehmann <lkml@s2y4n2c.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       rlrevell@joe-job.com, paul@linuxaudiosystems.com, joq@io.com,
-       CK Kernel <ck@vds.kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       alexn@dsv.su.se
-Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt	scheduling
-References: <41EEE1B1.9080909@kolivas.org> <1106350245.4442.5.camel@segv.aura.of.mankind>
-In-Reply-To: <1106350245.4442.5.camel@segv.aura.of.mankind>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig7C154CC08E28BD249F40E7CF"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200501210853.49746.jason.d.gaston@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig7C154CC08E28BD249F40E7CF
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+This patch adds the Intel ICH7R DID's to the ahci.c SATA AHCI driver for ICH7R SATA support.
+If acceptable, please apply.
 
-utz lehmann wrote:
-> Hi
-> 
-> I dislike the behavior of the SCHED_ISO patch that iso tasks are
-> degraded to SCHED_NORMAL if they exceed the limit.
-> IMHO it's better to throttle them at the iso_cpu limit.
-> 
-> I have modified Con's iso2 patch to do this. If iso_cpu > 50 iso tasks
-> only get stalled for 1 tick (1ms on x86).
+Thanks,
 
-Some tasks are so cache intensive they would make almost no forward 
-progress running for only 1ms.
+Jason Gaston
 
-> Fortunately there is a currently unused task prio (MAX_RT_PRIO-1) [1]. I
+Signed-off-by:  Jason Gaston <Jason.d.gaston@intel.com>
 
-Your implementation is not correct. The "prio" field of real time tasks 
-is determined by MAX_RT_PRIO-1-rt_priority. Therefore you're limiting 
-the best real time priority, not the other way around.
-
-Throttling them for only 1ms will make it very easy to starve the system 
-  with 1 or more short running (<1ms) SCHED_NORMAL tasks running. Lower 
-priority tasks will never run.
-
-Cheers,
-Con
-
---------------enig7C154CC08E28BD249F40E7CF
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB8ZTcZUg7+tp6mRURAqpnAJ4u/FCN9JnNKJx8hAIhkMy5AxNFNQCfc6lL
-a0h+KMjsCv4IdCWjC3usfFA=
-=Mvz8
------END PGP SIGNATURE-----
-
---------------enig7C154CC08E28BD249F40E7CF--
+--- linux-2.6.11-rc1/drivers/scsi/ahci.c.orig	2005-01-21 07:46:58.202269784 -0800
++++ linux-2.6.11-rc1/drivers/scsi/ahci.c	2005-01-21 07:48:58.732946336 -0800
+@@ -246,6 +246,10 @@ static struct pci_device_id ahci_pci_tbl
+ 	  board_ahci }, /* ICH7 */
+ 	{ PCI_VENDOR_ID_INTEL, 0x27c5, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 	  board_ahci }, /* ICH7M */
++	{ PCI_VENDOR_ID_INTEL, 0x27c2, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* ICH7R */
++	{ PCI_VENDOR_ID_INTEL, 0x27c3, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* ICH7R */
+ 	{ }	/* terminate list */
+ };
+ 

@@ -1,52 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264756AbTAJMmu>; Fri, 10 Jan 2003 07:42:50 -0500
+	id <S264954AbTAJMoJ>; Fri, 10 Jan 2003 07:44:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264954AbTAJMmu>; Fri, 10 Jan 2003 07:42:50 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:54538 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S264756AbTAJMmt>;
-	Fri, 10 Jan 2003 07:42:49 -0500
-Message-ID: <3E1EC1D1.1030000@domdv.de>
-Date: Fri, 10 Jan 2003 13:51:29 +0100
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
-X-Accept-Language: en-us, en, de-de, de
-MIME-Version: 1.0
-To: Robert Szentmihalyi <robert.szentmihalyi@entracom.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Severe reiserfs problems
-References: <200301101332.50873.robert.szentmihalyi@entracom.de>
-In-Reply-To: <200301101332.50873.robert.szentmihalyi@entracom.de>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264956AbTAJMoJ>; Fri, 10 Jan 2003 07:44:09 -0500
+Received: from f155.law7.hotmail.com ([216.33.237.155]:55314 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S264954AbTAJMnr>;
+	Fri, 10 Jan 2003 07:43:47 -0500
+X-Originating-IP: [216.251.50.73]
+From: "sakib mondal" <sakib@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Problem of undefined reference
+Date: Fri, 10 Jan 2003 12:52:27 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F1550VnkB4ltFlmmlQ00000384c@hotmail.com>
+X-OriginalArrivalTime: 10 Jan 2003 12:52:27.0520 (UTC) FILETIME=[21295000:01C2B8A7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Szentmihalyi wrote:
-> Hi,
->  
-> I have severe file system problems on a reiserfs partition.
-> When I try copy files to another filesystem, the kernel panics at certain 
-> files.
-> 
-> reiserfsck --fix-fixable says that I need to run 
-> reiserfsck --rebuild-tree to fix the errors, but when I do this,
-> reiserfsck hangs after a few secounds.
-> Is there a way to rescue at least some of the data on the partition?
-> 
-> Any help is highly appreciated.
-> 
-> TIA,
->  Robert
-> 
-> 
-I had a behaviour somewhat like this once which turned out to be defunct 
-memory. Though I can't help you with data recovery I would advise you to 
-run memtest86.
+Hi,
 
--- 
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH
+Wish you all a happy new year.
+
+I appologize in case you are getting multiple copies of this message.
+
+I am facing the problem of "undefined reference" for my task of using 
+extended functionality of linux kernel (2.4.18) as detailed below. I shall 
+appreciate any suggestion to solve the problem.
+
+
+I would like to incorporate new functions into linux kernel. Therefore I 
+created a file f.c with function "void foo()". Source f.c uses header file 
+f.h. The header file "f.h" has declaration "extern void foo(void);". I 
+included f.o in the obj-y in the Makefile in the corresponding directory. I 
+could build the new kernel without any error or warning.
+
+Now, I intended to use the extended functionality of the kernel from my 
+program. I wrote g.c which calls foo(); I have included header f.h in g.c. 
+However when I build g, I get the error:
+
+"g.o(.text+ox35): undefined reference to `foo`".
+
+I am unable to understand why "foo" is not resolved as the resident kernel 
+ius built with object f.o. To diagonose the problem further I did the 
+follwing things which could neither solve my problem.
+
+i) Used "EXPORT_SYMBOL(foo);" in f.c and had f.o included in export-objs in 
+the Makefile.  ==> I still get the problem of undefined reference
+
+ii) Defined library libf.a based on f.o and included the library for 
+building g. ==> The kernel is agin built ok. I could see (using nm) that the 
+symbol foo in defined with type T. However, when building g, I am getting 
+lot of undefined references to kernel variables and routines that are used 
+in foo.
+
+I shall appreciate any suggestion or alternative for solving the problem.
+
+TIA.
+
+Sakib
+
+
+
+
+
+
+_________________________________________________________________
+MSN 8 with e-mail virus protection service: 2 months FREE* 
+http://join.msn.com/?page=features/virus
 

@@ -1,155 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266608AbUAOLg0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 06:36:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266599AbUAOLgM
+	id S264943AbUAOLds (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 06:33:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264966AbUAOLds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 06:36:12 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:47026 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S266564AbUAOLfH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 06:35:07 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Thu, 15 Jan 2004 12:48:44 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Andrew Morton <akpm@osdl.org>, Kernel List <linux-kernel@vger.kernel.org>
-Subject: [patch] v4l-01 videodev update
-Message-ID: <20040115114844.GA16020@bytesex.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+	Thu, 15 Jan 2004 06:33:48 -0500
+Received: from relay-4.cs.interbusiness.it ([151.99.250.83]:25267 "EHLO
+	antilope.cs.interbusiness.it") by vger.kernel.org with ESMTP
+	id S264943AbUAOLdp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 06:33:45 -0500
+From: "Andrea Pusceddu" <a.pusceddu@remosa-valves.com>
+Organization: Remosa SpA | www.remosa-valves.com
+To: linux-kernel@vger.kernel.org
+Date: Thu, 15 Jan 2004 12:30:47 +0100
+MIME-Version: 1.0
+Subject: Re: [USB-STORAGE] Repeatable lost files problem
+Reply-to: callmeishmael@tiscali.it
+Message-ID: <400687F7.20318.60C885D@localhost>
+In-reply-to: <20040114195507.GA1533@one-eyed-alien.net>
+References: <40051640.20530.684C08@localhost>
+X-mailer: Pegasus Mail for Windows (v4.12a)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
+[....]  
+> I'm guessing that the player is attempting to perform 
+> some sort of special test on the data.  If the file doesn't conform, or if 
+> the filesystem is 'different' in some way, it obliterates the offending 
+> material. 
+[....] 
 
-This patch fixes some v4l2 ioctl #defines which have wrong
-_IO* macros.  It also adds a function which maps the old
-numbers to to new ones to maintain binary backward
-compatibility.
+Dear Matthew,  
 
-please apply,
+thank you for your reply. One thing I really can't understand is HOW can a file copied  
+from linux be different from the same file copied from Windows,  once it has been  
+"wrote" into same the usb drive; it's really odd, isn't it? It seems kind of FUD to  
+discourage Linux users :) 
 
-  Gerd
+If we were able to find out that difference it could be possible to "emulate" the way  
+windows flags the copied files (just guessing, I'm not a kernel hacker..) 
+If you believe that this odd behavior is worth a further investigation, I'm available for  
+your tests, I could run diagnostic tools,  try out new drivers, and so on. 
 
-diff -u linux-2.6.1/drivers/media/video/videodev.c linux/drivers/media/video/videodev.c
---- linux-2.6.1/drivers/media/video/videodev.c	2004-01-14 15:05:01.000000000 +0100
-+++ linux/drivers/media/video/videodev.c	2004-01-14 15:09:35.000000000 +0100
-@@ -140,6 +140,30 @@
- /*
-  * helper function -- handles userspace copying for ioctl arguments
-  */
-+
-+static unsigned int
-+video_fix_command(unsigned int cmd)
-+{
-+	switch (cmd) {
-+	case VIDIOC_OVERLAY_OLD:
-+		cmd = VIDIOC_OVERLAY;
-+		break;
-+	case VIDIOC_S_PARM_OLD:
-+		cmd = VIDIOC_S_PARM;
-+		break;
-+	case VIDIOC_S_CTRL_OLD:
-+		cmd = VIDIOC_S_CTRL;
-+		break;
-+	case VIDIOC_G_AUDIO_OLD:
-+		cmd = VIDIOC_G_AUDIO;
-+		break;
-+	case VIDIOC_G_AUDOUT_OLD:
-+		cmd = VIDIOC_G_AUDOUT;
-+		break;
-+	}
-+	return cmd;
-+}
-+
- int
- video_usercopy(struct inode *inode, struct file *file,
- 	       unsigned int cmd, unsigned long arg,
-@@ -151,12 +175,14 @@
- 	void	*parg = NULL;
- 	int	err  = -EINVAL;
- 
-+	cmd = video_fix_command(cmd);
-+
- 	/*  Copy arguments into temp kernel buffer  */
- 	switch (_IOC_DIR(cmd)) {
- 	case _IOC_NONE:
- 		parg = (void *)arg;
- 		break;
--	case _IOC_READ: /* some v4l ioctls are marked wrong ... */
-+	case _IOC_READ:
- 	case _IOC_WRITE:
- 	case (_IOC_WRITE | _IOC_READ):
- 		if (_IOC_SIZE(cmd) <= sizeof(sbuf)) {
-@@ -170,8 +196,9 @@
- 		}
- 		
- 		err = -EFAULT;
--		if (copy_from_user(parg, (void *)arg, _IOC_SIZE(cmd)))
--			goto out;
-+		if (_IOC_DIR(cmd) & _IOC_WRITE)
-+			if (copy_from_user(parg, (void *)arg, _IOC_SIZE(cmd)))
-+				goto out;
- 		break;
- 	}
- 
-diff -u linux-2.6.1/include/linux/videodev2.h linux/include/linux/videodev2.h
---- linux-2.6.1/include/linux/videodev2.h	2004-01-14 15:06:09.000000000 +0100
-+++ linux/include/linux/videodev2.h	2004-01-14 15:09:35.000000000 +0100
-@@ -783,22 +783,22 @@
- #define VIDIOC_QUERYBUF		_IOWR ('V',  9, struct v4l2_buffer)
- #define VIDIOC_G_FBUF		_IOR  ('V', 10, struct v4l2_framebuffer)
- #define VIDIOC_S_FBUF		_IOW  ('V', 11, struct v4l2_framebuffer)
--#define VIDIOC_OVERLAY		_IOWR ('V', 14, int)
-+#define VIDIOC_OVERLAY		_IOW  ('V', 14, int)
- #define VIDIOC_QBUF		_IOWR ('V', 15, struct v4l2_buffer)
- #define VIDIOC_DQBUF		_IOWR ('V', 17, struct v4l2_buffer)
- #define VIDIOC_STREAMON		_IOW  ('V', 18, int)
- #define VIDIOC_STREAMOFF	_IOW  ('V', 19, int)
- #define VIDIOC_G_PARM		_IOWR ('V', 21, struct v4l2_streamparm)
--#define VIDIOC_S_PARM		_IOW  ('V', 22, struct v4l2_streamparm)
-+#define VIDIOC_S_PARM		_IOWR ('V', 22, struct v4l2_streamparm)
- #define VIDIOC_G_STD		_IOR  ('V', 23, v4l2_std_id)
- #define VIDIOC_S_STD		_IOW  ('V', 24, v4l2_std_id)
- #define VIDIOC_ENUMSTD		_IOWR ('V', 25, struct v4l2_standard)
- #define VIDIOC_ENUMINPUT	_IOWR ('V', 26, struct v4l2_input)
- #define VIDIOC_G_CTRL		_IOWR ('V', 27, struct v4l2_control)
--#define VIDIOC_S_CTRL		_IOW  ('V', 28, struct v4l2_control)
-+#define VIDIOC_S_CTRL		_IOWR ('V', 28, struct v4l2_control)
- #define VIDIOC_G_TUNER		_IOWR ('V', 29, struct v4l2_tuner)
- #define VIDIOC_S_TUNER		_IOW  ('V', 30, struct v4l2_tuner)
--#define VIDIOC_G_AUDIO		_IOWR ('V', 33, struct v4l2_audio)
-+#define VIDIOC_G_AUDIO		_IOR  ('V', 33, struct v4l2_audio)
- #define VIDIOC_S_AUDIO		_IOW  ('V', 34, struct v4l2_audio)
- #define VIDIOC_QUERYCTRL	_IOWR ('V', 36, struct v4l2_queryctrl)
- #define VIDIOC_QUERYMENU	_IOWR ('V', 37, struct v4l2_querymenu)
-@@ -807,7 +807,7 @@
- #define VIDIOC_G_OUTPUT		_IOR  ('V', 46, int)
- #define VIDIOC_S_OUTPUT		_IOWR ('V', 47, int)
- #define VIDIOC_ENUMOUTPUT	_IOWR ('V', 48, struct v4l2_output)
--#define VIDIOC_G_AUDOUT		_IOWR ('V', 49, struct v4l2_audioout)
-+#define VIDIOC_G_AUDOUT		_IOR  ('V', 49, struct v4l2_audioout)
- #define VIDIOC_S_AUDOUT		_IOW  ('V', 50, struct v4l2_audioout)
- #define VIDIOC_G_MODULATOR	_IOWR ('V', 54, struct v4l2_modulator)
- #define VIDIOC_S_MODULATOR	_IOW  ('V', 55, struct v4l2_modulator)
-@@ -820,6 +820,15 @@
- #define VIDIOC_S_JPEGCOMP	_IOW  ('V', 62, struct v4l2_jpegcompression)
- #define VIDIOC_QUERYSTD      	_IOR  ('V', 63, v4l2_std_id)
- #define VIDIOC_TRY_FMT      	_IOWR ('V', 64, struct v4l2_format)
-+#define VIDIOC_ENUMAUDIO	_IOWR ('V', 65, struct v4l2_audio)
-+#define VIDIOC_ENUMAUDOUT	_IOWR ('V', 66, struct v4l2_audioout)
-+
-+/* for compatibility, will go away some day */
-+#define VIDIOC_OVERLAY_OLD     	_IOWR ('V', 14, int)
-+#define VIDIOC_S_PARM_OLD      	_IOW  ('V', 22, struct v4l2_streamparm)
-+#define VIDIOC_S_CTRL_OLD      	_IOW  ('V', 28, struct v4l2_control)
-+#define VIDIOC_G_AUDIO_OLD     	_IOWR ('V', 33, struct v4l2_audio)
-+#define VIDIOC_G_AUDOUT_OLD    	_IOWR ('V', 49, struct v4l2_audioout)
- 
- #define BASE_VIDIOC_PRIVATE	192		/* 192-255 are private */
- 
+The MP3 player supports the firmware upgrading, but in the producer web site that  
+particular device is not listed. 
+It's annoying, honestly only Windows support was mentioned in the player handbook so  
+I knew  I could meet problems with my Debian box, but once I saw the chipset was  
+supported, and I mounted in on /dev/sda, and I downloaded my data from it...  :) 
 
--- 
-You have a new virus in /var/mail/kraxel
+Do you think that it's worth  to try out with the 2.6 Kernel, or there aren't any important  
+changes related to usb-storage that may help?  
+
+Thank you again for the great work you are doing with usb-storage, and for the time you  
+spent reading my messages. 
+
+Best Regards,  
+Andrea 

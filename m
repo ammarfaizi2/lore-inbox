@@ -1,46 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265590AbUEULwJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265571AbUEULzu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265590AbUEULwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 07:52:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265828AbUEULwJ
+	id S265571AbUEULzu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 07:55:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265611AbUEULzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 07:52:09 -0400
-Received: from gprs214-11.eurotel.cz ([160.218.214.11]:52096 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S265590AbUEULwD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 07:52:03 -0400
-Date: Fri, 21 May 2004 13:51:41 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: swsusp: fix swsusp with intel-agp
-Message-ID: <20040521115141.GD10052@elf.ucw.cz>
-References: <20040521100734.GA31550@elf.ucw.cz> <E1BR7pl-0000Br-00@gondolin.me.apana.org.au> <20040521111612.GA976@elf.ucw.cz> <20040521111828.GA870@gondor.apana.org.au> <20040521112209.GA951@gondor.apana.org.au> <20040521114125.GA10052@elf.ucw.cz> <20040521114813.GA1204@gondor.apana.org.au>
+	Fri, 21 May 2004 07:55:50 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:522 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S265571AbUEULzj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 07:55:39 -0400
+Date: Fri, 21 May 2004 21:55:29 +1000
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PCMCIA] Check return status of register calls in i82365
+Message-ID: <20040521115529.GA1408@gondor.apana.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="9jxsPFA5p3P2qPhR"
 Content-Disposition: inline
-In-Reply-To: <20040521114813.GA1204@gondor.apana.org.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > I guess that open-coding #if defined() || defined() is right thing to
-> > do for now.
-> > 
-> > Suspend2 when/if merged might not need this... This one is not really
-> > specific to suspend-to-disk. It is specific to swsusp way of doing
-> > things, which happens to be same as pmdisk way of doing it...
-> 
-> Well that symbol would not apply to just this case.  We can also use
-> it for arch/i386/power/cpu.c itself.  It appears to be used solely for
-> the purpose of suspending to disk.
+--9jxsPFA5p3P2qPhR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Well, all those symbols might get pretty confusing, but I guess we can
-live with that.
-								Pavel
+Hi:
 
+i82365 calls driver_register and platform_device_register without
+checking their return values.  This patch fixes that.
+
+Cheers,
 -- 
-934a471f20d6580d5aad759bf0d97ddc
+Visit Openswan at http://www.openswan.org/
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+--9jxsPFA5p3P2qPhR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1808  -> 1.1809 
+#	drivers/pcmcia/i82365.c	1.51    -> 1.52   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 04/05/21	herbert@gondor.apana.org.au	1.1809
+# [PCMCIA] Check return status of register calls in i82365.
+# --------------------------------------------
+#
+diff -Nru a/drivers/pcmcia/i82365.c b/drivers/pcmcia/i82365.c
+--- a/drivers/pcmcia/i82365.c	Fri May 21 21:53:42 2004
++++ b/drivers/pcmcia/i82365.c	Fri May 21 21:53:42 2004
+@@ -1372,8 +1372,15 @@
+ {
+     int i, ret;
+ 
+-    if (driver_register(&i82365_driver))
+-	return -1;
++    ret = driver_register(&i82365_driver);
++    if (ret)
++	return ret;
++
++    ret = platform_device_register(&i82365_device);
++    if (ret) {
++	driver_unregister(&i82365_driver);
++	return ret;
++    }
+ 
+     printk(KERN_INFO "Intel ISA PCIC probe: ");
+     sockets = 0;
+@@ -1382,11 +1389,10 @@
+ 
+     if (sockets == 0) {
+ 	printk("not found.\n");
++	platform_device_unregister(&i82365_device);
+ 	driver_unregister(&i82365_driver);
+ 	return -ENODEV;
+     }
+-
+-    platform_device_register(&i82365_device);
+ 
+     /* Set up interrupt handler(s) */
+     if (grab_irq != 0)
+
+--9jxsPFA5p3P2qPhR--

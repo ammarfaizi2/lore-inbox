@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131480AbRD2U2X>; Sun, 29 Apr 2001 16:28:23 -0400
+	id <S131481AbRD2UaX>; Sun, 29 Apr 2001 16:30:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136330AbRD2U2O>; Sun, 29 Apr 2001 16:28:14 -0400
-Received: from 13dyn119.delft.casema.net ([212.64.76.119]:59653 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S131481AbRD2U1L>; Sun, 29 Apr 2001 16:27:11 -0400
-Message-Id: <200104292027.WAA25283@cave.bitwizard.nl>
-Subject: Re: Sony Memory stick format funnies...
-In-Reply-To: <3AEC76E1.EF589359@transmeta.com> from "H. Peter Anvin" at "Apr
- 29, 2001 01:17:37 pm"
-To: "H. Peter Anvin" <hpa@transmeta.com>
-Date: Sun, 29 Apr 2001 22:27:08 +0200 (MEST)
-CC: Gregory Maxwell <greg@linuxpower.cx>,
-        Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
+	id <S136330AbRD2UaO>; Sun, 29 Apr 2001 16:30:14 -0400
+Received: from pcow029o.blueyonder.co.uk ([195.188.53.123]:28423 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S131481AbRD2UaA>;
+	Sun, 29 Apr 2001 16:30:00 -0400
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Duncan Gauld <duncan@gauldd.freeserve.co.uk>
+To: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+Subject: Re: question regarding cpu selection
+Date: Sun, 29 Apr 2001 21:28:48 -0400
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <01042919075101.01335@pc-62-31-91-135-dn.blueyonder.co.uk> <20010429145608.A703@better.net> <20010429223641.K3529@niksula.cs.hut.fi>
+In-Reply-To: <20010429223641.K3529@niksula.cs.hut.fi>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Message-Id: <01042921284803.01335@pc-62-31-91-135-dn.blueyonder.co.uk>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> Gregory Maxwell wrote:
-> > >
-> > > I doubt the kernel is seeing it without it being there (it doesn't have
-> > > much imagination.)  However, it may very well be there in a funny
-> > > manner.  You do realize, of course, that it's pretty much impossible for
-> > > us to help you answer that question without a complete dump of the
-> > > filesystem on hand, I hope?
-> > 
-> > He gave what he thought was a complete dump of the non-null bytes. The
-> > obvious answer is that he's looking wrong. :)
-> > 
-> 
-> Hence the "complete" part...
+On Sunday 29 April 2001  3:36 pm, Ville Herva wrote:
+> On Sun, Apr 29, 2001 at 02:56:08PM -0400, you [William Park] claimed:
+> > On Sun, Apr 29, 2001 at 07:07:51PM -0400, Duncan Gauld wrote:
+> > > Hi,
+> > > This seems a silly question but - I have an intel celeron 800mhz CPU
+> > > and thus it is of the Coppermine breed. But under cpu selection when
+> > > configuring the kernel, should I select PIII or PII/Celeron? Just
+> > > wondering, since Coppermine is basically a newish PIII with 128K less
+> > > cache...
+> >
+> > Try both, and see if your machine throws up.
+>
+> 800Mhz Celeron is actually a CeleronII, and it does SSE just like PIII (the
+> only difference being cache). Therefore PIII option should work.
+>
+> Perhaps this should be fixed in the config menu (or is it already? Which
+> kernel are you compiling?)
 
-OK. 
+compiling kernel 2.4.4 on mandrake 8.
+Just checked - no mention of Celeron II in there-
+   Pentium Pro/Pentium II/Celeron
+is the only line mentioning the celeron; maybe the PIII line could be changed 
+to something like "Pentium III/Celeron II"?
+I would supply a patch, but I don't know how to write such a thing :)
 
-The image of the disk (including partition table) is at:
-
-	ftp://ftp.bitwizard.nl/misc_junk/formatted.img.gz
-
-It's 63kb and uncompresses to the 64Mb (almost) that it's sold as.
-
-			Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+---
+Duncan Gauld
+dunkers@blueyonder.co.uk
+http://www.freelin.org (linux on cd, free)

@@ -1,102 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316322AbSFPQYD>; Sun, 16 Jun 2002 12:24:03 -0400
+	id <S316342AbSFPQfj>; Sun, 16 Jun 2002 12:35:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316309AbSFPQYC>; Sun, 16 Jun 2002 12:24:02 -0400
-Received: from web14201.mail.yahoo.com ([216.136.172.143]:14704 "HELO
-	web14201.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S316322AbSFPQYB>; Sun, 16 Jun 2002 12:24:01 -0400
-Message-ID: <20020616162402.32079.qmail@web14201.mail.yahoo.com>
-Date: Sun, 16 Jun 2002 09:24:02 -0700 (PDT)
-From: Erik McKee <camhanaich99@yahoo.com>
-Subject: Re: [ERROR][PATCH] smbfs compilation in 2.5.21
-To: Urban Widmark <urban@teststation.com>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-       kernel-newbies@vger.kernel.org, davej@suse.de,
-       Adrian Bunk <bunk@fs.tum.de>
-In-Reply-To: <Pine.LNX.4.44.0206161257390.5774-100000@cola.enlightnet.local>
+	id <S316355AbSFPQfj>; Sun, 16 Jun 2002 12:35:39 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:11655 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S316339AbSFPQfh>; Sun, 16 Jun 2002 12:35:37 -0400
+Date: Sun, 16 Jun 2002 17:35:24 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Kevin Easton <s3159795@student.anu.edu.au>
+cc: linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
+Subject: Re: 2.4.18 no timestamp update on modified mmapped files
+In-Reply-To: <20020616143507.A30647@beernut.flames.org.au>
+Message-ID: <Pine.LNX.4.21.0206161534430.1150-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-THis is from the bk tree.  It's gcc 2.95.3.  That solution might be a bettr one
-after all ;)  However, would the stringifying done here to get the function
-name in there mess that up?
+On Sun, 16 Jun 2002, Kevin Easton wrote:
+> 
+> So... the difference on i386 is just the definitions of the protection_map
+> entries that are used.. specifically that PAGE_SHARED in asm-i386/pgtable.h
+> includes _PAGE_RW? Changing this definition to be the same as the PAGE_COPY
+> definition would be one fix?
 
-Erik McKee
+It _could_ be _part_ of a fix (to the "problem" of dirty unbacked
+pages arriving unheralded at the filesystem, too late to find
+space for them; but our reluctance to have read faults allocate).
 
+I say "could" because it would tend to cause double (read then write)
+faulting more widely than necessary; I say "part" because at present
+do_wp_page expects to be handling private Copy-On-Write faults rather
+than shared mappings (please correct me if I'm wrong, Russell); and
+we would still need to implement a callout down to the filesystem
+(e.g. "wppage" method I suggested) to allocate the space (though,
+doing it on the cheap, that method could be "nopage" revisited).
 
---- Urban Widmark <urban@teststation.com> wrote:
-> On Sat, 15 Jun 2002, Erik McKee wrote:
-> 
-> > diff -Nru a/fs/smbfs/smb_debug.h b/fs/smbfs/smb_debug.h
-> > --- a/fs/smbfs/smb_debug.h	Sat Jun 15 23:12:04 2002
-> > +++ b/fs/smbfs/smb_debug.h	Sat Jun 15 23:12:04 2002
-> > @@ -12,8 +12,10 @@
-> >   */
-> >  #ifdef SMBFS_PARANOIA
-> >  # define PARANOIA(f, a...) printk(KERN_NOTICE "%s: " f, __FUNCTION__, ##
-> a)
-> > +# define PARANOIA2(f) printk(KERN_NOTICE "%s: "f, __FUNCTION__)
-> 
-> Are you looking at BK, the 2.5.21 tree I'm looking at still has:
-> #define PARANOIA(x...) printk(KERN_NOTICE __FUNCTION__ ": " x)
-> 
-> I assume you are using gcc 3.x? (which one?)
-> I don't get any warnings/errors on 2.96.
-> 
-> 
-> I think having two macros for exactly the same thing is ugly. A better
-> solution might be to borrow some code from arch/ia64/kernel/unaligned.c
-> 
-> #define PARANOIA(f...) \
-> 	do { printk(KERN_NOTICE "%s: ", __FUNCTION__); printk(f); } while(0)
-> 
-> (untested, and I think this will print an extra "<4>" ?)
-> Unless someone has a better idea. In any case, the other printk macros in
-> smb_debug.h needs treatment too and not just the PARANOIA macro.
-> 
-> 
-> If you are cleaning things up I think that the following also sometimes
-> use debug macros with a single string, but with a 'macro(a, b...)' syntax:
-> 
-> drivers/net/pci-skeleton.c
-> drivers/char/i810_rng.c
-> sound/oss/via82cxxx_audio.c
-> 	DPRINTK
-> 
-> drivers/hotplug/pci_hotplug_{core,util}.c
-> 	dbg/err/info/warn
-> 
-> drivers/char/machzwd.c
-> 	dprnintk
-> 
-> drivers/ieee1394/sbp2.c
-> 	SBP2_ORB_DEBUG
-> 
-> net/ipv4/netfilter/ipt_ULOG.c
-> net/ipv4/netfilter/ip_conntrack_irc.c
-> 	DEBUGP
-> 
-> sound/oss/vwsnd.c
-> 	DBGP
-> 
-> fs/ntfs/debug.h
-> 	ntfs_warning/ntfs_error
-> 
-> 
-> Many of them are not enabled by default, and maybe they have already been
-> taken care of.
-> 
-> And maybe run suggested changes by the respective maintainers first.
-> Thanks.
-> 
-> /Urban
-> 
+And I put quotes around "problem" because I'm uncertain how seriously
+to take it, and we've had no chorus of anxious developers and users.
 
+Hugh
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! - Official partner of 2002 FIFA World Cup
-http://fifaworldcup.yahoo.com

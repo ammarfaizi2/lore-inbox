@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262497AbVBXVmc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262504AbVBXVoB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262497AbVBXVmc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 16:42:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbVBXVmb
+	id S262504AbVBXVoB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 16:44:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262506AbVBXVoA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 16:42:31 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:35846 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262497AbVBXVm1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 16:42:27 -0500
-Date: Thu, 24 Feb 2005 22:42:24 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: netdev@oss.sgi.com, jgarzik@pobox.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] net/ieee80211/Kconfig: don't describe what gets selected
-Message-ID: <20050224214223.GJ8651@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 24 Feb 2005 16:44:00 -0500
+Received: from alog0087.analogic.com ([208.224.220.102]:20352 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262503AbVBXVng
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 16:43:36 -0500
+Date: Thu, 24 Feb 2005 16:42:43 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Linux 2.6.10 sleep mode
+Message-ID: <Pine.LNX.4.61.0502241641460.23574@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The information what gets selected doesn't belong into the helh text 
-(and at least "make menuconfig" already displays this information).
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+I put Linux-2.6.10 on a COMPAQ presario 1800 (bad choice).
+After a few minutes without any keyboard activity, it enters
+"sleep mode" and dies. I need to remove the battery and
+external power to be able to re-boot. Even after that,
+it needs to be rebooted twice because it will get to
+"Uncompressing Linux" and hang. An added data-point:
+If I boot Linux, then properly shut down, it will
+not boot Linux again unless I hit Ctrl-Alt-Del when
+it hangs. The second time, it will boot okay.
 
---- linux-2.6.11-rc4-mm1-full/net/ieee80211/Kconfig.old	2005-02-24 22:31:07.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/net/ieee80211/Kconfig	2005-02-24 22:32:02.000000000 +0100
-@@ -5,3 +5,3 @@
- 	This option enables the hardware independent IEEE 802.11 
--	networking stack.  This option will also select NET_RADIO.
-+	networking stack.
- 
-@@ -38,5 +38,3 @@
- 	Include software based cipher suites in support of IEEE 
--	802.11's WEP.  This is needed for WEP as well as 802.1x.  This 
--	selects ARC4 under kernel crypto libraries, and CRC32 under 
--	kernel libraries. 
-+	802.11's WEP.  This is needed for WEP as well as 802.1x.
- 
-@@ -52,4 +50,3 @@
- 	(aka TGi, WPA, WPA2, WPA-PSK, etc.) for use with CCMP enabled 
--	networks.  This selects AES support under kernel crypto 
--	libraries.
-+	networks.
- 
-@@ -65,4 +62,3 @@
- 	(aka TGi, WPA, WPA2, WPA-PSK, etc.) for use with TKIP enabled 
--	networks.  This selects Michael Mic support under kernel crypto 
--	libraries. 
-+	networks.
- 
+The last kernel version that worked properly on
+this machine was Linux-2.2.17 SuSE Linux-6.4
+It had no such problems.
 
+How do I turn this "feature" OFF?
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

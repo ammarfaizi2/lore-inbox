@@ -1,52 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261742AbULUMAS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261743AbULUMFz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261742AbULUMAS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 07:00:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbULUMAS
+	id S261743AbULUMFz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 07:05:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbULUMFz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 07:00:18 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:40465 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261742AbULUMAN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 07:00:13 -0500
-Date: Tue, 21 Dec 2004 13:00:12 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Arne Caspari <arnem@informatik.uni-bremen.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ben Collins <bcollins@debian.org>,
-       linux1394-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] ieee1394_core.c: remove unneeded EXPORT_SYMBOL's
-Message-ID: <20041221120012.GC5217@stusta.de>
-References: <20041220015320.GO21288@stusta.de> <41C694E0.8010609@informatik.uni-bremen.de> <20041220143901.GD457@phunnypharm.org> <1103555716.29968.27.camel@localhost.localdomain> <20041220154638.GE457@phunnypharm.org> <1103573716.31512.10.camel@localhost.localdomain> <41C7DFE9.5070604@informatik.uni-bremen.de>
+	Tue, 21 Dec 2004 07:05:55 -0500
+Received: from coderock.org ([193.77.147.115]:4806 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261743AbULUMFo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 07:05:44 -0500
+Date: Tue, 21 Dec 2004 13:06:07 +0100
+From: Domen Puncer <domen@coderock.org>
+To: James Nelson <james4765@verizon.net>
+Cc: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: lcd: fix memory leak, code cleanup
+Message-ID: <20041221120607.GA30293@nd47.coderock.org>
+Mail-Followup-To: James Nelson <james4765@verizon.net>,
+	kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org,
+	akpm@osdl.org
+References: <20041221015120.29110.98832.48706@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41C7DFE9.5070604@informatik.uni-bremen.de>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20041221015120.29110.98832.48706@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 21, 2004 at 09:33:45AM +0100, Arne Caspari wrote:
->...
-> I would take it like in a library: The API should not change between 
-> minor versions - likewise it should be stable in the kernel among all 
-> 2.6.x versions. If it changes to version 2.7.x or 2.8.x it would be OK 
-> since we could release a driver for a 2.8.x tree then.
+On 20/12/04 19:50 -0600, James Nelson wrote:
+> This patch addresses the following issues:
+> 
+> Fix log-spamming and cryptic error messages, and add KERN_ constants.
+> Convert some ints to unsigned ints.
+> Add checks for CAP_SYS_ADMIN for FLASH_Burn and FLASH_Erase ioctls.
+> Identify use of global variable.
+> Fix memory leak in FLASH_Burn ioctl.
+> Fix error return codes in lcd_ioctl().
+> Move variable "index" in lcd_ioctl() to smaller scope to reduce memory usage.
+> Convert cli()/sti() to spin_lock_irqsave()/spin_unlock_irqrestore().
+> Fix legibility issues in FLASH_Burn ioctl.
+>
 
-The current development model published by Linus Torvalds and
-Andrew Morton is that there will be no 2.7.x in the forseeable future, 
-but instead the changes that would go into a 2.7 series go into the 2.6 
-series...
 
->  /Arne
+> -				cli();
+> +				spin_lock_irqsave(&lcd_lock, flags);
+>  				for (index = 0; index < (128); index++) {
+>  
+>  					WRITE_FLASH(kFlash_Addr1,
+> @@ -480,32 +485,30 @@
+>  						    kFlash_Data2);
+>  					WRITE_FLASH(kFlash_Addr1,
+>  						    kFlash_Prog);
+> -					*((volatile unsigned char *)
+> -					  burn_addr) =
+> -		 (volatile unsigned char) rom[index];
+> -
+> -					while ((!dqpoll
+> -						(burn_addr,
+> -						 (volatile unsigned char)
+> -						 rom[index]))
+> -					       && (!timeout(burn_addr))) {
+> -					}
+> +					*((volatile unsigned char *)burn_addr) =
+> +					  (volatile unsigned char) rom[index];
+> +
+> +					while ((!dqpoll (burn_addr,
+> +						(volatile unsigned char)
+> +						rom[index])) &&
+> +						(!timeout(burn_addr))) { }
+>  					burn_addr++;
+>  				}
+> -				restore_flags(flags);
+> -				if (*
+> -				    ((volatile unsigned char *) (burn_addr
+> -								 - 1)) ==
+> -				    (volatile unsigned char) rom[index -
+> -								 1]) {
+> +				spin_unlock_irqrestore(&lcd_lock, flags);
 
-cu
-Adrian
 
--- 
+Although this will work, i think local_irq_{disable,enable} is the right
+solution (we don't protect any data, just make sure timings are right).
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+For making it SMP safe, easiest/sane solution seems semaphore in
+lcd_dev, which is down_interruptible(), at beginning of read, write
+and ioctl.
 
+Comments?
+
+
+	Domen

@@ -1,66 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317887AbSIJSPY>; Tue, 10 Sep 2002 14:15:24 -0400
+	id <S317872AbSIJSQS>; Tue, 10 Sep 2002 14:16:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317862AbSIJSPA>; Tue, 10 Sep 2002 14:15:00 -0400
-Received: from darkface.pp.se ([212.105.77.200]:32902 "EHLO
-	akilles.darkface.pp.se") by vger.kernel.org with ESMTP
-	id <S317887AbSIJSNt>; Tue, 10 Sep 2002 14:13:49 -0400
-Message-Id: <200209101818.g8AIIBme012996@akilles.darkface.pp.se>
-Content-Type: text/plain; charset=US-ASCII
-From: Thomas Habets <thomas@habets.pp.se>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 82801DB ide patch worked
-Date: Tue, 10 Sep 2002 18:59:15 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
+	id <S317898AbSIJSP2>; Tue, 10 Sep 2002 14:15:28 -0400
+Received: from nameservices.net ([208.234.25.16]:54208 "EHLO opersys.com")
+	by vger.kernel.org with ESMTP id <S317872AbSIJSOv>;
+	Tue, 10 Sep 2002 14:14:51 -0400
+Message-ID: <3D7E3876.446D27FF@opersys.com>
+Date: Tue, 10 Sep 2002 14:22:46 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: LTT-Dev <ltt-dev@shafik.org>
+Subject: Re: [PATCH] 1/8 LTT for 2.5.34: Core infrastructure
+References: <3D7E36E2.625141D6@opersys.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
+Karim Yaghmour wrote:
+> Thanks to Francois Romieux for his constructive criticism of my previous
+                           ^ Oops, typo; there's no "X".
 
-I didn't see this patch in 2.4.20-pre5. It did the job for my box, so I guess
-that's a confirm.
+Karim
 
-http://lists.insecure.org/linux-kernel/2002/Jul/0401.html
-
-The patch (prolly garbled by mailer, see link above for ungarbled):
-- --- linux/arch/i386/kernel/pci-pc.c.orig 2002-07-03 15:48:46.000000000 -0400
-+++ linux/arch/i386/kernel/pci-pc.c 2002-07-03 15:50:19.000000000 -0400
-@@ -1250,6 +1250,7 @@
-         { PCI_FIXUP_HEADER, PCI_VENDOR_ID_INTEL,
-PCI_DEVICE_ID_INTEL_82454GX, pci_fixup_i450gx },
-         { PCI_FIXUP_HEADER, PCI_VENDOR_ID_UMC, PCI_DEVICE_ID_UMC_UM8886BF,
-pci_fixup_umc_ide },
-         { PCI_FIXUP_HEADER, PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_5513,
-pci_fixup_ide_trash },
-+ { PCI_FIXUP_HEADER, PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801DB_11,
-pci_fixup_ide_trash },
-         { PCI_FIXUP_HEADER, PCI_ANY_ID, PCI_ANY_ID, pci_fixup_ide_bases },
-         { PCI_FIXUP_HEADER, PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_5597,
-pci_fixup_latency },
-         { PCI_FIXUP_HEADER, PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_5598,
-pci_fixup_latency },
-
-- ---------
-typedef struct me_s {
-  char name[]      = { "Thomas Habets" };
-  char email[]     = { "thomas@habets.pp.se" };
-  char kernel[]    = { "Linux 2.4" };
-  char *pgpKey[]   = { "http://darkface.pp.se/~thompa/pubkey.txt" };
-  char pgp[] = { "A8A3 D1DD 4AE0 8467 7FDE  0945 286A E90A AD48 E854" };
-  char coolcmd[]   = { "echo '. ./_&. ./_'>_;. ./_" };
-} me_t;
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9fiTqKGrpCq1I6FQRAgCUAKCXO1x+bDpOWRrS7Q9yAnUZYRkL1gCgshrq
-IBQOCGvCcOc3B8CALKwtrR8=
-=S/Hl
------END PGP SIGNATURE-----
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

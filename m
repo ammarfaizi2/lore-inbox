@@ -1,66 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268125AbTBMWhF>; Thu, 13 Feb 2003 17:37:05 -0500
+	id <S268124AbTBMWgd>; Thu, 13 Feb 2003 17:36:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268126AbTBMWgk>; Thu, 13 Feb 2003 17:36:40 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:2532 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S268125AbTBMWgU>;
-	Thu, 13 Feb 2003 17:36:20 -0500
-Date: Thu, 13 Feb 2003 14:43:18 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: plars@linuxtestproject.org, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com, edesio@task.com.br
-Subject: Re: 2.5.60 cheerleading...
-Message-Id: <20030213144318.3ddcf2a6.rddunlap@osdl.org>
-In-Reply-To: <200302132220.h1DMKtFT011682@turing-police.cc.vt.edu>
-References: <200302132154.h1DLs3ar012874@darkstar.example.net>
-	<1045173477.28494.66.camel@plars>
-	<200302132220.h1DMKtFT011682@turing-police.cc.vt.edu>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S268126AbTBMWgc>; Thu, 13 Feb 2003 17:36:32 -0500
+Received: from quechua.inka.de ([193.197.184.2]:50304 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S268124AbTBMWgC>;
+	Thu, 13 Feb 2003 17:36:02 -0500
+From: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Accessing the same disk via multiple channels
+In-Reply-To: <20030213194917.GA8479@quadpro.stupendous.org>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.14-20020917 ("Chop Suey!") (UNIX) (Linux/2.4.18-xfs (i686))
+Message-Id: <E18jS75-0007na-00@calista.inka.de>
+Date: Thu, 13 Feb 2003 23:45:51 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Feb 2003 17:20:55 -0500
-Valdis.Kletnieks@vt.edu wrote:
+In article <20030213194917.GA8479@quadpro.stupendous.org> you wrote:
+> Each server is equipped with 2 FibreChannel cards. The SAN is
+> configured to present the same disk (which is in fact a virtual
+> Symmetrix device) over two channels. This means the host sees
+> two physical devices (as far as that host's concerned) which is
+> in fact really only one device. In linux terms: /dev/sda and /dev/sdc
+> are exactly the same disks, but the (standard) OS doesn't know this.
+...
+> How does linux as it is now handle the situation of one physical device
+> presented via multiple paths (without extra software)?
 
-| On Thu, 13 Feb 2003 15:57:56 CST, Paul Larson said:
-| 
-| > Since Linus hasn't chimed in yet, I'm guessing that's exactly what
-| > happened.  I'm not trying to improve his workflow, but rather the
-| > workflow of anyone who might be interested in getting more involved in
-| > 2.5 testing.
-| 
-| What would help a lot of people (certainly me, at least), would be if
-| somebody kept a well-publicized "already known errata" list along with
-| (possibly unofficial) work-around patches.  Something along the line of:
-| 
-| compile fails in drivers/widget/fooby.c with error:
-| undefined structure member 'blat' in line 1149.
-| To fix:   apply <this patch>
+You can use the multipath option to md which can do that.
 
-Yes, I agree, that would be helpful.
+Basically there are two options, a failover and a load balancing option. The
+problem with failover is, to detect the actual failure reliable, toe problem
+with load balancing is, that not all san configurations allow this.
 
-I try to keep current lkml/etc patches for fixes/cleanups to the
-latest kernel, and I've thought about a way to post them, but it's
-too time-consuming a task, especially when it's not one's job
-to do that.
+http://www-124.ibm.com/storageio/multipath/md-multipath/index.php
 
+this is at least in 2.4.20-xfs
 
-| On Thu, 13 Feb 2003 22:11:17 +0000 (GMT), John Bradford said:
-| 
-| > You can always use 2.5.X-BK1 to get the fixes that we would probably
-| > have been in 2.5.X if Linus had done more extensive testing on it
-| > before releasing it.
-| 
-| Almost but not quite what I meant - unless -BK1 is reserved for after-release
-| whoops and doesn't contain "new stuff for release N+1".   If -BK1 is only
-| bugfixes, that would be good.  
-
-
---
-~Randy
+Greetings
+Bernd
+-- 
+eckes privat - http://www.eckes.org/
+Project Freefire - http://www.freefire.org/

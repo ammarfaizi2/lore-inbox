@@ -1,83 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132405AbRAXFNb>; Wed, 24 Jan 2001 00:13:31 -0500
+	id <S132482AbRAXFZ6>; Wed, 24 Jan 2001 00:25:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132540AbRAXFNW>; Wed, 24 Jan 2001 00:13:22 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:44807
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S132405AbRAXFNC>; Wed, 24 Jan 2001 00:13:02 -0500
-Date: Tue, 23 Jan 2001 21:12:46 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Linda Walsh <law@sgi.com>
-cc: Florin Andrei <florin@sgi.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4 disk speed 66% slowdown...
-In-Reply-To: <3A6E573D.5210644C@sgi.com>
-Message-ID: <Pine.LNX.4.10.10101232047180.11572-100000@master.linux-ide.org>
+	id <S132508AbRAXFZt>; Wed, 24 Jan 2001 00:25:49 -0500
+Received: from casablanca.magic.fr ([195.154.101.81]:64724 "EHLO
+	casablanca.magic.fr") by vger.kernel.org with ESMTP
+	id <S132482AbRAXFZa>; Wed, 24 Jan 2001 00:25:30 -0500
+Message-ID: <3A6E6803.943E7033@magic.fr>
+Date: Wed, 24 Jan 2001 06:28:35 +0100
+From: "Jo l'Indien" <l_indien@magic.fr>
+Reply-To: l_indien@magic.fr, jma@netgem.com
+Organization: Les grandes plaines
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1-pre10 i586)
+X-Accept-Language: fr-FR, fr, en, en-GB, en-US, ro
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: tigran@sco.com
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: A little patch for i386/kernel/microcode.c
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from base64 to 8bit by leeloo.zip.com.au id QAA26336
 
-On Tue, 23 Jan 2001, Linda Walsh wrote:
+With a 2.4.1-pre10 kernel, I noticed that /dev/cpu/microcode
+was created as a file, and note as a node in the devfs.
+So, I made this very little patch to correct this:
 
-> Mine was actually out of a stock 2.2.17 -- I tried your patch in an attempt
-> to fix a disk problem - but the disk was just going bad and the slow speeds were
-> coming from the automatic sector remapping.  
-> 
-> pardon my ignorance, but where do you get UDMA-100-66?
+--- microcode.c Thu Dec 28 06:28:29 2000
++++ microcode.c Wed Jan 24 04:47:08 2001
+@@ -120,7 +120,7 @@
+    MICROCODE_MINOR);
 
-Well:
-> > >       It's an Intel i815 motherboard, and the HDD is Ultra-ATA.
+  devfs_handle = devfs_register(NULL, "cpu/microcode",
+-   DEVFS_FL_DEFAULT, 0, 0, S_IFREG | S_IRUSR | S_IWUSR,
++   DEVFS_FL_DEFAULT, MISC_MAJOR, MICROCODE_MINOR, S_IFCHR | S_IRUSR |
+S_IWUSR,
+    &microcode_fops, NULL);
+  if (devfs_handle == NULL && error) {
+   printk(KERN_ERR "microcode: failed to devfs_register()\n");
 
-i815 is an Ultra DMA 100 SouthBridge core.
+This should be OK...
+I cannot test this feature as I don't have a PIII,
+but a K6-II... I'll try... Just to know...
 
-> Here is the hdparm -i output on 2.4:
-> 
-> /dev/hda:
->  
->  Model=IBM-DARA-225000, FwRev=SHAOA54A, SerialNo=SQASQ202564
->  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
->  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
->  BuffType=3(DualPortCache), BuffSize=418kB, MaxMultSect=16, MultSect=off
->  DblWordIO=no, OldPIO=2, DMA=yes, OldDMA=2
->  CurCHS=17475/15/63, CurSects=16513875, LBA=yes, LBAsects=49577472
->  tDMA={min:120,rec:120}, DMA modes: mword0 mword1 mword2
->  IORDY=on/off, tPIO={min:240,w/IORDY:120}, PIO modes: mode3 mode4
->  UDMA modes: mode0 mode1 *mode2 mode3 mode4
->  Drive Supports : ATA/ATAPI-4 T13 1153D revision 17 : ATA-1 ATA-2 ATA-3 ATA-4 
-> 
-> UDMA mode (2) seems to be identical to before.
+I was wondering why /dev/cpu/mtrr was created as a file, not a node,
+when I found this... For mtrr, it seems to be normal, as I didn't find
+any informations relative of Major/Minor for this device...
 
-Also, if your drive is caught in the question state of where the standard
-changes, the validity bits for determining the host/drive detection pair
-for the presense willl be fuzzy as is my explaination.
+Regards.
 
-> 
-> 
-> Andre Hedrick wrote:
-> > 
-> > On Tue, 23 Jan 2001, Florin Andrei wrote:
-> > 
-> > > Linda Walsh wrote:
-> > > >
-> > > > The REAL problem was in disk performance.  The apm made no difference:
-> > >
-> > >       Same problem here. I had a huge HDD performance drop when upgrading
-> > > from 2.2.18 to 2.4.0
-> > >       It's an Intel i815 motherboard, and the HDD is Ultra-ATA.
-> > 
-> > ER, were you getting UDMA-100-66 out of 2.2.18 stock?
-> > Now what are you getting in 2.4.0?
-> 
-> -- 
-> Linda A Walsh                    | Trust Technology, Core Linux, SGI
-> law@sgi.com                      | Voice: (650) 933-5338
-> 
-
-Andre Hedrick
-Linux ATA Development
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-Please read the FAQ at http://www.tux.org/lkml/
+Jocelyn Mayer
+ı:.Ë›±Êâmçë¢kaŠÉb²ßìzwm…ébïîË›±Êâmébìÿ‘êçz_âØ^n‡r¡ö¦zËëh™¨è­Ú&£ûàz¿äz¹Ş—ú+€ù^jÇ«y§m…á@A«a¶Úÿÿü0ÃûnÇú+ƒùd

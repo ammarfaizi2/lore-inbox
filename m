@@ -1,154 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262272AbTCRJQq>; Tue, 18 Mar 2003 04:16:46 -0500
+	id <S262334AbTCRJ2Q>; Tue, 18 Mar 2003 04:28:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262295AbTCRJQp>; Tue, 18 Mar 2003 04:16:45 -0500
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:16516 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id <S262272AbTCRJQl> convert rfc822-to-8bit;
-	Tue, 18 Mar 2003 04:16:41 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [BENCHMARK] 2.5.65 with contest
-Date: Tue, 18 Mar 2003 20:27:25 +1100
-User-Agent: KMail/1.5
+	id <S262335AbTCRJ2Q>; Tue, 18 Mar 2003 04:28:16 -0500
+Received: from portal.beam.ltd.uk ([62.49.82.227]:41600 "EHLO beam.beamnet")
+	by vger.kernel.org with ESMTP id <S262334AbTCRJ2O>;
+	Tue, 18 Mar 2003 04:28:14 -0500
+Message-ID: <3E76E8E6.5000502@beam.ltd.uk>
+Date: Tue, 18 Mar 2003 09:37:42 +0000
+From: Terry Barnaby <terry@beam.ltd.uk>
+Organization: Beam Ltd
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200303182027.34652.kernel@kolivas.org>
+To: "Cress, Andrew R" <andrew.r.cress@intel.com>
+CC: "'Ingo Oeser'" <ingo.oeser@informatik.tu-chemnitz.de>,
+       Michael Madore <mmadore@aslab.com>,
+       "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org
+Subject: Re: Reproducible SCSI Error with Adaptec 7902
+References: <A5974D8E5F98D511BB910002A50A66470580D6D1@hdsmsx103.hd.intel.com>
+In-Reply-To: <A5974D8E5F98D511BB910002A50A66470580D6D1@hdsmsx103.hd.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi Andy,
 
-Here are contest (http://contest.kolivas.org) benchmarks using the osdl 
-hardware (http://www.osdl.org) up to and including 2.5.65.
+We have just updated to the latest driver 1.3.4. This has stopped the
+drive locking up, but we are now getting nasty SCSI error reports
+in /var/log/messages. Will continue to delve into this.
 
-no_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.59              3   79      93.7    0.0     0.0     1.00
-2.5.60              2   79      94.9    0.0     0.0     1.00
-2.5.61              1   79      94.9    0.0     0.0     1.00
-2.5.62              3   79      94.9    0.0     0.0     1.00
-2.5.63              4   79      94.9    0.0     0.0     1.00
-2.5.64              3   79      94.9    0.0     0.0     1.00
-2.5.65              3   80      95.0    0.0     0.0     1.00
-cacherun:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.59              3   76      97.4    0.0     0.0     0.96
-2.5.60              2   75      98.7    0.0     0.0     0.95
-2.5.61              1   76      97.4    0.0     0.0     0.96
-2.5.62              3   76      97.4    0.0     0.0     0.96
-2.5.63              4   76      97.4    0.0     0.0     0.96
-2.5.64              3   75      98.7    0.0     0.0     0.95
-2.5.65              3   76      98.7    0.0     0.0     0.95
-process_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.59              3   92      81.5    29.7    17.4    1.16
-2.5.60              2   93      80.6    30.5    17.2    1.18
-2.5.61              1   93      80.6    29.0    16.1    1.18
-2.5.62              3   92      81.5    30.0    16.3    1.16
-2.5.63              4   92      81.5    28.2    15.2    1.16
-2.5.64              3   92      81.5    30.0    16.3    1.16
-2.5.65              3   243     30.5    317.0   68.3    3.04
-This is fair enough given process load is four processes and the kernel 
-compile is up to four (-j4)
+However, what ever the fault that triggers our drive to lock-up, the
+drive certainly locks up. It locks up with LED on and will not respond
+to a SCSI bus reset. We need to power cycle the system to get the drive
+working again. We have tried two Seagate ST336607LW drives both exibit
+the same behaviour. It appears to only happen when Linux is running in
+SMP mode and when the drive is running in packetized mode.
 
-ctar_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.59              3   98      80.6    2.0     5.1     1.24
-2.5.60              2   99      78.8    1.0     4.0     1.25
-2.5.61              2   100     79.0    1.0     4.0     1.27
-2.5.62              3   99      79.8    1.0     4.0     1.25
-2.5.63              3   99      79.8    1.0     4.0     1.25
-2.5.64              3   100     79.0    0.0     0.0     1.27
-2.5.65              3   108     72.2    0.0     0.0     1.35
-xtar_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.4.20              1   130     59.2    2.0     4.6     1.67
-2.5.59              3   102     74.5    1.0     3.9     1.29
-2.5.60              2   101     76.2    1.0     5.0     1.28
-2.5.61              2   102     75.5    1.0     4.9     1.29
-2.5.62              3   103     73.8    1.0     3.9     1.30
-2.5.63              3   102     74.5    1.0     3.9     1.29
-2.5.64              3   103     73.8    1.0     3.9     1.30
-2.5.65              3   106     71.7    1.0     3.8     1.32
-io_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.59              3   152     50.0    34.1    13.1    1.92
-2.5.60              2   139     54.7    29.0    12.1    1.76
-2.5.61              2   143     52.4    32.9    13.3    1.81
-2.5.62              2   205     36.6    51.7    15.0    2.59
-2.5.63              5   217     35.0    56.7    15.1    2.75
-2.5.64              3   229     33.2    58.8    14.8    2.90
-2.5.65              3   411     19.0    137.5   20.4    5.14
-More unused cpu time for the first time in a lot of kernels. Lots of work done 
-by io load in that time though.
+So there is certainly the possibility of the Seagate ST336607LW not 
+responding to resets. This may be a firmware fault so we have talked
+to Seagate about the issue. The statement is the result of our direct 
+question:
 
-io_other:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.59              3   89      84.3    11.2    5.6     1.13
-2.5.60              2   90      83.3    10.8    5.5     1.14
-2.5.61              2   91      82.4    11.1    5.5     1.15
-2.5.62              2   96      78.1    15.7    8.2     1.22
-2.5.63              4   95      78.9    15.3    8.3     1.20
-2.5.64              3   100     75.0    18.4    9.0     1.27
-2.5.65              3   164     47.6    71.7    26.2    2.05
-Similar here but with not as great a rise in unused cpu time.
+> I realise that the problem could be due to the Linux SCSI driver, the Motherboard SCSI controller, the SCSI lead or the drive. We are used to
+> tracking down such nasty problems. However, I have one firm pointer:
+> 
+> 1. Once the drive is locked up, with its LED on, a SCSI bus reset will
+>     not clear the drive. A full poweroff/poweron cycle is needed.
+> 
+> So I ask again, is there a case where the drive will not respond to a
+> SCSI bus reset ? 
 
-read_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.59              3   101     77.2    6.5     5.0     1.28
-2.5.60              2   103     74.8    6.2     6.8     1.30
-2.5.61              2   102     77.5    6.3     4.9     1.29
-2.5.62              2   103     75.7    6.2     4.9     1.30
-2.5.63              3   106     74.5    5.7     4.7     1.34
-2.5.64              3   103     76.7    6.2     4.9     1.30
-2.5.65              3   107     72.9    6.3     4.7     1.34
-list_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.59              3   95      80.0    0.0     6.3     1.20
-2.5.60              2   95      80.0    0.0     6.3     1.20
-2.5.61              2   95      81.1    0.0     6.3     1.20
-2.5.62              2   95      80.0    0.0     6.3     1.20
-2.5.63              3   96      79.2    0.0     6.2     1.22
-2.5.64              3   96      79.2    0.0     6.2     1.22
-2.5.65              3   98      78.6    0.0     7.1     1.23
-mem_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.59              3   95      82.1    52.7    2.1     1.20
-2.5.60              2   98      79.6    53.0    2.0     1.24
-2.5.61              1   96      81.2    54.0    2.1     1.22
-2.5.62              2   101     78.2    59.0    2.0     1.28
-2.5.63              3   104     75.0    57.7    1.9     1.32
-2.5.64              3   105     74.3    58.3    1.9     1.33
-2.5.65              3   112     70.5    67.3    2.7     1.40
-dbench_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.59              3   214     36.4    2.3     40.7    2.71
-2.5.61              2   237     32.5    3.0     47.3    3.00
-2.5.62              2   226     34.1    2.5     42.0    2.86
-2.5.63              4   194     39.2    2.0     38.7    2.46
-2.5.64              3   222     34.2    2.3     38.7    2.81
-2.5.65              3   542     14.2    9.0     62.5    6.78
-This one is interesting. More work done, more balance given to dbench, but no 
-more wasted cpu time. A pure balance change without wasted cycles. Since 
-dbench load is 16 processes this seems appropriate.
+Is there any way of getting this information to higher level Seagate 
+support ?
 
-Massive changes all over the map. The scheduler tweaks have changed most of 
-the balance. I don't think contest is capable of showing the advantage of the 
-new tweaks designed to minimise things like audio stuttering. Perhaps Bill 
-Davidsen's trivial response benchmark is more suited. 
+Terry
 
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
 
-iD8DBQE+duZ/F6dfvkL3i1gRArkvAKCPq5x/1FlLBGUfdhNLLM8OIlfPXACeIxMK
-SHrwEQMuOR92zcelAd5TvYU=
-=zyrd
------END PGP SIGNATURE-----
+Cress, Andrew R wrote:
+> Ingo,
+> 
+> Our testing with that drive (same firmware, using same aic7902 chipset) has
+> not shown any problems like this.  However, we were using a later aic79xx
+> driver versions (1.3.x).  That upgrade should be the first step.
+> 
+> I wouldn't get too excited about the statement by a level-1 Seagate support
+> guy, probably just a blanket statement when they want to disclaim
+> responsibility.  
+> 
+> Andy
+> 
+> -----Original Message-----
+> From: Ingo Oeser [mailto:ingo.oeser@informatik.tu-chemnitz.de] 
+> Sent: Saturday, March 15, 2003 8:12 AM
+> To: Terry Barnaby
+> Cc: Michael Madore; Justin T. Gibbs; linux-kernel@vger.kernel.org
+> Subject: Re: Reproducible SCSI Error with Adaptec 7902
+> 
+> 
+> On Fri, Mar 14, 2003 at 04:17:59PM +0000, Terry Barnaby wrote:
+> 
+>>The Seagate ST336607LW has firmware: 0004.
+>>Seagate have stated to me that this is the latest.
+>>They have also stated to me:
+>>
+>>  Issuing an unrecognized or illegal command to the drive can cause the
+>>  drive to go into a hardware fault mode where it will no longer respond,
+>>  and may or may not respond to a SCSI BUS reset. It seems, in this case,
+>>  the drive will no longer respond to any commands issued by the
+>>  controller.
+>>
+>>Is this "feature" now common on SCSI drives ????
+> 
+> 
+> Could we add a KERN_WARNING printk in sd.c quoting/referencing
+> this message on inquiry detecting this device? 
+> 
+> So sysadmins who are used to SCSI being robust could return the
+> drive to their vendors in exchange to a drive working along the
+> SCSI specs after reading this message.
+> 
+> Thanks in the name of the sysadmins.
+> 
+> Regards
+> 
+> Ingo Oeser
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+-- 
+Dr Terry Barnaby                     BEAM Ltd
+Phone: +44 1454 324512               Northavon Business Center, Dean Rd
+Fax:   +44 1454 313172               Yate, Bristol, BS37 5NH, UK
+Email: terry@beam.ltd.uk             Web: www.beam.ltd.uk
+BEAM for: Visually Impaired X-Terminals, Parallel Processing, Software
+                       "Tandems are twice the fun !"
 

@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265342AbUEZHzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265349AbUEZH6e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265342AbUEZHzW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 03:55:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265346AbUEZHzV
+	id S265349AbUEZH6e (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 03:58:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265348AbUEZH6e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 03:55:21 -0400
-Received: from holomorphy.com ([207.189.100.168]:31125 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265342AbUEZHzS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 03:55:18 -0400
-Date: Wed, 26 May 2004 00:55:06 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Buddy Lumpkin <b.lumpkin@comcast.net>
-Cc: orders@nodivisions.com, linux-kernel@vger.kernel.org
-Subject: Re: why swap at all?
-Message-ID: <20040526075506.GV1833@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Buddy Lumpkin <b.lumpkin@comcast.net>, orders@nodivisions.com,
-	linux-kernel@vger.kernel.org
-References: <40B43B5F.8070208@nodivisions.com> <S265327AbUEZH12/20040526072728Z+1185@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 26 May 2004 03:58:34 -0400
+Received: from postfix4-1.free.fr ([213.228.0.62]:60140 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S265346AbUEZH6Y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 03:58:24 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: Keith Owens <kaos@sgi.com>, Zwane Mwaikambo <zwane@fsmlabs.com>
+Subject: Re: [PATCH][2.6-mm] i386: enable interrupts on contention in spin_lock_irq
+Date: Wed, 26 May 2004 09:58:21 +0200
+User-Agent: KMail/1.5.4
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+References: <14280.1085556586@kao2.melbourne.sgi.com>
+In-Reply-To: <14280.1085556586@kao2.melbourne.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <S265327AbUEZH12/20040526072728Z+1185@vger.kernel.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Message-Id: <200405260958.21252.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 26, 2004 at 12:31:16AM -0700, Buddy Lumpkin wrote:
-> This is a really good point. I think the bar should be set at max
-> performance for systems that never need to use the swap device. 
-> If someone wants to tune swap performance to their hearts content, so be it.
-> But given cheap prices for memory, and the horrible best case performance
-> for swap, an increase in swap performance should never, ever come at the
-> expense of performance for a system that has been sized such that executable
-> address spaces, libraries and anonymous memory will fit easily within
-> physical ram.
-> This of course doesn't address the VM paging storms that happen due to large
-> amounts of file system writes. Once the pagecache fills up, dirty pages must
-> be evicted from the pagecache so that new pages can be added to the
-> pagecache.
+> However I have seen buggy code where spin_lock_irq() was issued with
+> interrupts disabled. [...]
 
-If you've got a real performance issue, please describe it properly
-instead of asserting without evidence the existence of one.
+Some time ago I sent a patch to lkml that tests for this [1].
+And guess what - it happens all over the place [2].  Also, the
+scheduler often gets called with interrupts disabled (schedule()
+does spin_lock_irq), but the cases I checked all turned out to be
+OK [3].  Perhaps it is more problematic now?
 
+Ciao,
 
--- wli
+Duncan.
+
+[1] http://seclists.org/lists/linux-kernel/2003/May/5585.html
+[2] http://seclists.org/lists/linux-kernel/2003/May/5842.html
+[3] http://seclists.org/lists/linux-kernel/2003/May/5581.html

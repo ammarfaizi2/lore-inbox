@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292595AbSB0SSB>; Wed, 27 Feb 2002 13:18:01 -0500
+	id <S292634AbSB0SRS>; Wed, 27 Feb 2002 13:17:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292860AbSB0SRb>; Wed, 27 Feb 2002 13:17:31 -0500
-Received: from ns.caldera.de ([212.34.180.1]:45494 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S292864AbSB0SRP>;
-	Wed, 27 Feb 2002 13:17:15 -0500
-Date: Wed, 27 Feb 2002 19:17:09 +0100
-From: Christoph Hellwig <hch@caldera.de>
-To: linux-kernel@vger.kernel.org
-Subject: Suspicious shifting of sempid in try_atomic_semop()
-Message-ID: <20020227191709.A8247@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S292863AbSB0SQ5>; Wed, 27 Feb 2002 13:16:57 -0500
+Received: from mail.gmx.net ([213.165.64.20]:28629 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S292860AbSB0SQm>;
+	Wed, 27 Feb 2002 13:16:42 -0500
+Message-ID: <043401c1bfba$fdbc8fa0$8b4b2e3e@angband>
+Reply-To: "Andreas Happe" <eternalwayfarer@subdimension.com>
+From: "Andreas Happe" <andreashappe@gmx.net>
+To: "Vojtech Pavlik" <vojtech@suse.cz>
+Cc: "lkml" <linux-kernel@vger.kernel.org>
+Subject: problems with new input api
+Date: Wed, 27 Feb 2002 19:17:15 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In ipc/sem.c:try_atomic_semop() there is the following code:
+hi,
+i'm currently using linux-2.5.5-dj2 and have a problem with the new input
+api. After booting my system the keyboard is f*cked up, some keys don't
+react on key press, others do (some with false characters...).  After
+changing and leaving the alternate input mode of the keyboard (fn - key, the
+computer is a laptop (with 830 chipset)) the keyboard acts normal.
 
-	for (sop = sops; sop < sops + nsops; sop++) {
-		...
-		curr->sempid = (curr->sempid << 16) | pid;
-		....
-	}
+As so far the situation isn't a problem, just two more key presses at boot
+time ;-). But recently the keyboard doesn't react to anything, i'm not able
+to perform any kind of input (this happens around every tenth boot
+procedure). (I don't know for sure that this is related to the previous
+problem.
 
-it's undone in the error case:
+is there any (easy) workaround?
 
-	while (sop >= sops) {
-		...
-		curr->sempid >>= 16;
-		...
-	}
+tia,
+Andreas
 
-the problem is that in some cases we seem to end up with a sempid
-of zero which leads to wrong returns of semctl(..., GETPID, ...)
-like in
-
-	http://www.freestandards.org/lsb/test/results/index.php?testcaseid=732
-
-Is there a specific reason we use this shift method I have missed?
-
-	Christoph
-
--- 
-Of course it doesn't work. We've performed a software upgrade.

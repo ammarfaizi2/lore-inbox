@@ -1,39 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267452AbRHAQYX>; Wed, 1 Aug 2001 12:24:23 -0400
+	id <S267512AbRHAQq1>; Wed, 1 Aug 2001 12:46:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267497AbRHAQYN>; Wed, 1 Aug 2001 12:24:13 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:63223 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S267452AbRHAQYB>; Wed, 1 Aug 2001 12:24:01 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200108011623.f71GNpH4006704@webber.adilger.int>
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-In-Reply-To: <3B672C6B.9AC418B0@pp.htv.fi> "from Jussi Laako at Aug 1, 2001 01:08:43
- am"
-To: Jussi Laako <jlaako@pp.htv.fi>
-Date: Wed, 1 Aug 2001 10:23:50 -0600 (MDT)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+	id <S267514AbRHAQqH>; Wed, 1 Aug 2001 12:46:07 -0400
+Received: from home.paris.trader.com ([195.68.19.162]:26793 "EHLO
+	smtp-gw.netclub.com") by vger.kernel.org with ESMTP
+	id <S267512AbRHAQqD>; Wed, 1 Aug 2001 12:46:03 -0400
+Message-ID: <3B683237.641478BE@trader.com>
+Date: Wed, 01 Aug 2001 18:45:43 +0200
+From: joseph.bueno@trader.com
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-5mdk i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Ben Greear <greearb@candelatech.com>
+CC: Chris Friesen <cfriesen@nortelnetworks.com>,
+        Thomas Zehetbauer <thomasz@hostmaster.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: tulip driver still broken
+In-Reply-To: <20010731001907.A21982@hostmaster.org> <3B66B13B.28BD0324@nortelnetworks.com> <3B682593.AB3D143C@candelatech.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jussi Laako writes:
-> Just a side note to this discussion.
+Ben Greear wrote:
 > 
-> I'd be very happy with full data journalling even with 50% performance
-> penalty... There are applications that require extreme data integrity all
-> times no matter what happens.
+> Chris Friesen wrote:
+> >
+> > Thomas Zehetbauer wrote:
+> > >
+> > > My genuine digital network interface card ceased to work with the tulip
+> > > driver contained in kernel revisions >= 2.4.4 and the development driver from
+> > > sourceforge.net.
+> >
+> > How is the sourceforge driver different than the one at www.scyld.com?
+> >
+> 
+> Becker (Scyld) has only recently gotten his drivers to even compile
+> on 2.4 kernel, and they are still beta quality for 2.4, evidently.
+> 
+> There seem to be attempts to keep the drivers in sync, functionally,
+> but the architectures have diverged quite a lot...
+> 
+> Ben
+> 
+> --
+> Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
+> President of Candela Technologies Inc      http://www.candelatech.com
+> ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
 
-Use ext3 then.  It allows full data journaling.  It will even support data
-journaling on some files and metadata-only journaling on the rest of the
-filesystem (this is currently broken on SMP machines, because not many
-people have had a need to use it yet, but it will get fixed).
+Hi,
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+I am currently using a Xircom Ethernet adapter (tulip_cb module) with a
+2.4.5 kernel.
 
+The only way I have found to make it work is to turn on promiscuous mode
+(with 'tcpdump -i eth0 -n > /dev/null') after bootup. I can turn it off
+after a few minutes without problem. 
+
+I don't know if tulip driver I am using has been patched since I haven't
+compiled this 2.4.5 kernel myself. Here is driver bootup information:
+
+tulip.c:v0.91g-ppc 7/16/99 becker@cesdis.gsfc.nasa.gov (modified by danilo@cs.uni-magdeburg.de for XIRCOM CBE, fixed by Doug Ledford)
+eth0: Xircom Cardbus Adapter (DEC 21143 compatible mode) rev 3 at 0x200, 00:10:A4:C0:2A:30, IRQ 9.
+eth0:  MII transceiver #0 config 3100 status 7809 advertising 01e1.
+
+Hope this helps
+Regards
+--
+Joseph Bueno

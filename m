@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264212AbUEMOHT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264223AbUEMOJO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264212AbUEMOHT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 10:07:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264213AbUEMOHS
+	id S264223AbUEMOJO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 10:09:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264218AbUEMOI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 10:07:18 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:7179 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S264212AbUEMOFz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 10:05:55 -0400
-Subject: Re: [PATCH] AES i586 optimized
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Fruhwirth Clemens <clemens-dated-1085312570.422b@endorphin.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040513114250.GB22233@ghanima.endorphin.org>
-References: <20040513110110.GA8491@ghanima.endorphin.org>
-	 <20040513040732.75c5999c.akpm@osdl.org>
-	 <20040513114250.GB22233@ghanima.endorphin.org>
-Content-Type: text/plain
-Message-Id: <1084457158.1737.2.camel@teapot.felipe-alfaro.com>
+	Thu, 13 May 2004 10:08:29 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:10463 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S264223AbUEMOGv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 10:06:51 -0400
+Date: Thu, 13 May 2004 15:05:01 +0100
+From: Dave Jones <davej@redhat.com>
+To: Tony Lindgren <tony@atomide.com>
+Cc: linux-kernel@vger.kernel.org, pavel@ucw.cz
+Subject: Re: [tony@atomide.com: [PATCH] Powernow-k8 buggy BIOS override for 2.6.6]
+Message-ID: <20040513140501.GG16687@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Tony Lindgren <tony@atomide.com>, linux-kernel@vger.kernel.org,
+	pavel@ucw.cz
+References: <20040513001628.GA9388@atomide.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
-Date: Thu, 13 May 2004 16:05:59 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040513001628.GA9388@atomide.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-05-13 at 13:42, Fruhwirth Clemens wrote:
-> > 
-> > Some benchmark figures would be useful.  Cache-cold and cache-hot.
-> 
-> I posted this patch for the first time about 3/4 year ago. The first
-> response has been the same. Please have a look at
+On Wed, May 12, 2004 at 05:16:28PM -0700, Tony Lindgren wrote:
 
-I'll give this a spin, since I'm very interested in AES. Currently, I'm
-using IPSec with AES ESP all over my 100Mbps LAN. I'll apply this one to
-2.6.6-mm2 and will compare with vanillas 2.6.6 and 2.6.6-mm2.
+ > Following is the updated patch to make the powernow-k8 driver work on 
+ > machines with buggy BIOS, such as emachines m6805.
+ > 
+ > The patch overrides the PST table only if check_pst_table() fails.
+ > 
+ > The minimum value for the override is 800MHz, which is the lowest value 
+ > on all x86_64 systems AFAIK. The max value is the current running value.
+ > 
+ > This patch should be safe to apply, even if Pavel's ACPI table check is
+ > added to the driver. Or does anybody see a problem with it?
+
+Does the ACPI fallback not do the right thing ?
+I don't really see the point of limping along with a 2-state PST
+if we can derive the proper info from the ACPI table.
+
+		Dave
 

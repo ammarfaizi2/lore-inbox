@@ -1,51 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270486AbTHLQGA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 12:06:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270519AbTHLQGA
+	id S270648AbTHLQRD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 12:17:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270764AbTHLQRD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 12:06:00 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:59142 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S270486AbTHLQF5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 12:05:57 -0400
-Subject: Re: Linux 2.6 doesn't like Rhythmbox
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: in7y118@public.uni-hamburg.de
-Cc: LKML <linux-kernel@vger.kernel.org>, rhythmbox-devel@gnome.org,
-       gstreamer-devel@lists.sourceforge.net
-In-Reply-To: <1060699703.3f38fe37b8a1f@rzaixsrv6.rrz.uni-hamburg.de>
-References: <1060699703.3f38fe37b8a1f@rzaixsrv6.rrz.uni-hamburg.de>
-Content-Type: text/plain
-Message-Id: <1060704354.856.1.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 12 Aug 2003 18:05:54 +0200
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Aug 2003 12:17:03 -0400
+Received: from fw1.masirv.com ([65.205.206.2]:56908 "EHLO NEWMAN.masirv.com")
+	by vger.kernel.org with ESMTP id S270648AbTHLQQ7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 12:16:59 -0400
+Message-ID: <1060651689.10867.23.camel@huykhoi>
+From: Anthony Truong <Anthony.Truong@mascorp.com>
+To: William Gallafent <william.gallafent@virgin.net>
+Cc: Valdis.Kletnieks@vt.edu, Yoshinori Sato <ysato@users.sourceforge.jp>,
+       linux kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: generic strncpy - off-by-one error
+Date: Mon, 11 Aug 2003 18:28:09 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-08-12 at 16:48, in7y118@public.uni-hamburg.de wrote:
+On Tue, 2003-08-12 at 23:54, William Gallafent wrote:
 
-> Let me explain how threads in Rhythmbox work: The main thread is used for the 
-> GUI, other threads (mostly idle) take care of the library - reading out 
-> artist/title/... tags and monitoring file changes so the playlists gets updated 
-> automagically - and then there is a playback thread. This thread is spawned 
-> when playback of a file starts (a new one for each file). It starts by 
-> inspecting the file and constructing a pipeline depending on the file type (ogg 
-> decoder vs mp3 decoder vs ...). This takes half a second, maybe less. After 
-> that it proceeds to do read - decode - output to soundcard looping until the 
-> song is done playing.
-> The priority according to top starts becoming worse from the beginning of 
-> playback and gets worse during playback.
-> 
-> 
-> My question now is simple: Who shall I blame for this?
+On Tue, 12 Aug 2003 Valdis.Kletnieks@vt.edu wrote:
 
-Don't blame anyone still... There's still ongoing kernel scheduler work.
-Please, try the latest -mm patches on top of 2.6.0-test3. You will find
-them at ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches.
+> On Tue, 12 Aug 2003 23:50:06 +0900, Yoshinori Sato
+> <ysato@users.sourceforge.jp> said:
+> > -   while (count) {
+> > +   while (count > 1) {
+>
+> Given that count is a size_t, which seems to be derived from 'unsigned
+int'
+> or 'unsigned long' on every platform, how are these any different?
 
-Experiment with 2.6.0-test3-mm1 to see if it still shows the behaviour
-you described.
+Er, consider the case of count == 1. Fenceposts can be dangerous things.
+
+-- 
+Bill Gallafent.
+-
+
+
+Hello,
+This is the code I got from 2.4.20:
+char * strncpy(char * dest,const char *src,size_t count)
+{
+	char *tmp = dest;
+
+	while (count-- && (*dest++ = *src++) != '\0')
+		/* nothing */;
+
+	return tmp;
+}
+
+I don't see any problem with this code, and if we don't need to NULL-pad
+the dest string, we do not have to.  It is not in the definition of
+strncpy().  So we don't need the second while {};
+I'm hoping we're looking at the same thing.
+
+Regards,
+Anthony Dominic Truong.
+
+
+
+
+Disclaimer: The information contained in this transmission, including any
+attachments, may contain confidential information of Matsushita Avionics
+Systems Corporation.  This transmission is intended only for the use of the
+addressee(s) listed above.  Unauthorized review, dissemination or other use
+of the information contained in this transmission is strictly prohibited.
+If you have received this transmission in error or have reason to believe
+you are not authorized to receive it, please notify the sender by return
+email and promptly delete the transmission.
+
 

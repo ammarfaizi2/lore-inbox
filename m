@@ -1,87 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265395AbUFSKTm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265455AbUFSKXW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265395AbUFSKTm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 06:19:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265455AbUFSKTm
+	id S265455AbUFSKXW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 06:23:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265474AbUFSKXW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 06:19:42 -0400
-Received: from photon.flashtux.org ([81.56.201.45]:55680 "EHLO photon")
-	by vger.kernel.org with ESMTP id S265395AbUFSKTj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 06:19:39 -0400
-Date: Sat, 19 Jun 2004 12:19:35 +0200
-From: FlashCode <flashcode@flashtux.org>
+	Sat, 19 Jun 2004 06:23:22 -0400
+Received: from disk.smurf.noris.de ([192.109.102.53]:58799 "EHLO
+	server.smurf.noris.de") by vger.kernel.org with ESMTP
+	id S265455AbUFSKXU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 06:23:20 -0400
 To: linux-kernel@vger.kernel.org
-Subject: USB problems with 2.6.7 kernel / EciAdsl driver
-Message-ID: <20040619101934.GA1938@photon>
+Path: not-for-mail
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Newsgroups: smurf.list.linux.kernel
+Subject: Re: [PATCH] Stop printk printing non-printable chars
+Date: Sat, 19 Jun 2004 12:20:44 +0200
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2004.06.19.10.20.44.592230@smurf.noris.de>
+References: <20040618205355.GA5286@newtoncomputing.co.uk> <Pine.LNX.4.58.0406181407330.6178@ppc970.osdl.org> <Pine.LNX.4.56.0406190032290.17899@jjulnx.backbone.dif.dk> <pan.2004.06.19.01.23.34.471323@smurf.noris.de> <Pine.LNX.4.56.0406190337110.17899@jjulnx.backbone.dif.dk>
+NNTP-Posting-Host: kiste.smurf.noris.de
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="opJtzjQTFsWo+cga"
-Content-Disposition: inline
-Organization: FlashTux.org
-X-Operating-System: GNU/Linux Debian
-X-GPG-Key_fingerprint: 3122 55CC 88BA 5B8A 21FA 3C15 BEC8 E534 520B 673F
-X-GPG-Public_key: http://www.flashtux.org/pubkey.txt
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Trace: server.smurf.noris.de 1087640444 23382 192.109.102.35 (19 Jun 2004 10:20:44 GMT)
+X-Complaints-To: smurf@noris.de
+NNTP-Posting-Date: Sat, 19 Jun 2004 10:20:44 +0000 (UTC)
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, Jesper Juhl wrote:
 
---opJtzjQTFsWo+cga
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> But I did not intend them to be
+> printed as '"meaningful" C escapes', I meant "why filter out \v or \f,
+> someone might find a clever use for them and they do no real harm
+> otherwhise"...
 
-Hi,
+On the console, from the kernel? No such use exists today.
 
-I'm part of EciAdsl USB ADSL modem driver developers
-(http://eciadsl.flashtux.org)
-I installed 2.6.7 kernel and I have some problems:
-since I upload anything at max speed (15 kb/sec for me), I'm
-disconnected after 2-5 sec with this USB error in /var/log/messages:
-Jun 19 11:13:18 photon kernel: usb 1-2: bulk timeout on ep2out
-Jun 19 11:13:18 photon kernel: usb 1-2: usbfs: USBDEVFS_BULK failed ep
-0x2 len 1984 ret -110
-No problem when I download sth.
+IMHO: Filter them out. If (big IF, methinks) somebody thinks of something
+that actually makes sense, they can add an exception.
 
-I've tested with 2 machines (same problem), with these USB chipsets:
-machine 1:
-0000:00:07.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB
-1.1 Controller (rev 10)
-machine 2:
-0000:00:1d.0 USB Controller: Intel Corp. 82801DB (ICH4) USB UHCI #1 (rev
-03)
-
-I tested with noapic option, same usb crash.
-Many other people have same problem, maybe not for each upload, but lot
-of disconnections with same error in logs..
-
-Finally, I have no problem with 2.6.6 kernel or any older kernel (2.6 or
-2.4): connection is very stable.
-
-Feel free to ask me more for testing.
-Thanks for any help.
-
-I've not subscribed to LKML, so please CC me for any answer.
-
---=20
-Cordialement / Best regards
-Sebastien.
-
-Web: http://www.flashtux.org - email: flashcode@flashtux.org
-IRC: FlashCode@irc.freenode.net - Jabber: flashcode@jabber.org
-
---opJtzjQTFsWo+cga
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFA1BM2vsjlNFILZz8RAls3AJ4wmqPkMr8WCMP/htZ+5O0kwpuVfACg+JGC
-lb3Y+Bgqms4XadU71XZeGzU=
-=Ry2x
------END PGP SIGNATURE-----
-
---opJtzjQTFsWo+cga--
+-- 
+Matthias Urlichs

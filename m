@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286712AbSAIOEi>; Wed, 9 Jan 2002 09:04:38 -0500
+	id <S286756AbSAIOEi>; Wed, 9 Jan 2002 09:04:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286756AbSAIOEa>; Wed, 9 Jan 2002 09:04:30 -0500
-Received: from mustard.heime.net ([194.234.65.222]:41420 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S286692AbSAIOEG>; Wed, 9 Jan 2002 09:04:06 -0500
-Date: Wed, 9 Jan 2002 15:03:56 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: Jens Axboe <axboe@suse.de>
-cc: Mark Hahn <hahn@physics.mcmaster.ca>, <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] Error reading multiple large files
-In-Reply-To: <20020109145952.D19814@suse.de>
-Message-ID: <Pine.LNX.4.30.0201091502120.7021-100000@mustard.heime.net>
+	id <S286692AbSAIOEd>; Wed, 9 Jan 2002 09:04:33 -0500
+Received: from dsl-213-023-043-044.arcor-ip.net ([213.23.43.44]:53252 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S286712AbSAIOEO>;
+	Wed, 9 Jan 2002 09:04:14 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andrea Arcangeli <andrea@suse.de>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Date: Wed, 9 Jan 2002 15:07:40 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Robert Love <rml@tech9.net>, Anton Blanchard <anton@samba.org>,
+        Luigi Genoni <kernel@Expansa.sns.it>,
+        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@zip.com.au>
+In-Reply-To: <20020108030420Z287595-13997+1799@vger.kernel.org> <E16OHLf-0000Dn-00@starship.berlin> <20020109145509.G1543@inspiron.school.suse.de>
+In-Reply-To: <20020109145509.G1543@inspiron.school.suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16OJOJ-0000Q6-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > It seemed like it helped first, but after a while, some 99 processes went
-> > Defunct, and locked. After this, the total 'bi' as reported from vmstat
-> > went down to ~ 900kB per sec
->
-> Bad news for Andrew's patch, however I really don't think it would have
-> helped you much in the first place. The problem seems to be down to
-> loosing read-ahead when cache ends up eating all of available memory,
-> I've seen this effect myself too. Maybe the vm needs to be more
-> aggressive about tossing out pages when this happens, I'm quite sure
-> that would help tremendously for this workload.
+On January 9, 2002 02:55 pm, Andrea Arcangeli wrote:
+> On Wed, Jan 09, 2002 at 12:56:50PM +0100, Daniel Phillips wrote:
+> > BTW, I find your main argument confusing.  First you don't want -preempt with
+> > CONFIG_EXERIMENTAL because it might not get wide enough testing, so you want 
+> > to enable it by default in the mainline kernel, then you argue it's too risky 
+> > because everybody will use it and it might break some obscure driver.  Sorry, 
+> > you lost me back there.
+> 
+> the point I am making is very simple: _if_ we include it, it should _not_
+> be a config option.
 
-Thanks for answering. I'm really close to giving up and have already
-started testing on *BSD unices.
-
-It seems reasonable if that (tossing old pages) could be the problem.
-
-Thanks, guys
+That doesn't make any sense to me.  Why should _SMP be a config option and not
+_PREEMPT?
 
 --
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-
-Computers are like air conditioners.
-They stop working when you open Windows.
-
+Daniel

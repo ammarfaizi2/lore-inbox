@@ -1,32 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266320AbSKZPCf>; Tue, 26 Nov 2002 10:02:35 -0500
+	id <S266354AbSKZPWu>; Tue, 26 Nov 2002 10:22:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266335AbSKZPCf>; Tue, 26 Nov 2002 10:02:35 -0500
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:30349 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S266320AbSKZPCe> convert rfc822-to-8bit; Tue, 26 Nov 2002 10:02:34 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Re: APM IOC REJECT ?
-Date: Tue, 26 Nov 2002 16:09:33 +0100
-User-Agent: KMail/1.4.3
-Organization: WOLK - Working Overloaded Linux Kernel
-Cc: David Balazic <david.balazic@uni-mb.si>
+	id <S266367AbSKZPWu>; Tue, 26 Nov 2002 10:22:50 -0500
+Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:49625
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S266363AbSKZPWu>; Tue, 26 Nov 2002 10:22:50 -0500
+Date: Tue, 26 Nov 2002 10:33:24 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Jaroslav Kysela <perex@perex.cz>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5] bitops for ALSA core/init.c
+In-Reply-To: <Pine.LNX.4.50.0211252356290.1462-100000@montezuma.mastecende.com>
+Message-ID: <Pine.LNX.4.50.0211261032160.1462-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.50.0211252356290.1462-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200211261608.30869.m.c.p@wolk-project.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
+Hmm utter garbage, please delegate to /dev/null if not already done.
 
-> What is keeping hte APM REJECT ioctl from getting into the kernel ?
-> The patch was first released eons ago.
-where can we find that one?
-
-ciao, Marc
-
-
+Cheers,
+	Zwane
+-- 
+function.linuxpower.ca

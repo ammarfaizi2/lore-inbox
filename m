@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261225AbVAWEsT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVAWEuR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261225AbVAWEsT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 23:48:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261224AbVAWEsT
+	id S261222AbVAWEuR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 23:50:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVAWEuR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 23:48:19 -0500
-Received: from colin2.muc.de ([193.149.48.15]:18439 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S261221AbVAWEqk (ORCPT
+	Sat, 22 Jan 2005 23:50:17 -0500
+Received: from mail.joq.us ([67.65.12.105]:62426 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S261222AbVAWEtZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 23:46:40 -0500
-Date: 23 Jan 2005 05:46:37 +0100
-Date: Sun, 23 Jan 2005 05:46:37 +0100
-From: Andi Kleen <ak@muc.de>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: Felipe Alfaro Solana <lkml@mac.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       linux-kernel@vger.kernel.org, Buck Huppmann <buchk@pobox.com>,
-       Neil Brown <neilb@cse.unsw.edu.au>,
-       Andreas Gruenbacher <agruen@suse.de>,
-       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
-       Andrew Morton <akpm@osdl.org>, Olaf Kirch <okir@suse.de>
-Subject: Re: [patch 1/13] Qsort
-Message-ID: <20050123044637.GA54433@muc.de>
-References: <20050122203326.402087000@blunzn.suse.de> <20050122203618.962749000@blunzn.suse.de> <Pine.LNX.4.58.0501221257440.1982@shell3.speakeasy.net> <FB9BAC88-6CE2-11D9-86B4-000D9352858E@mac.com> <m1r7kc27ix.fsf@muc.de> <Pine.LNX.4.61.0501230357580.2748@dragon.hygekrogen.localhost>
-Mime-Version: 1.0
+	Sat, 22 Jan 2005 23:49:25 -0500
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Paul Davis <paul@linuxaudiosystems.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       linux <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se
+Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt
+ scheduling
+References: <200501230141.j0N1fOAB022422@localhost.localdomain>
+	<41F3046A.1050808@kolivas.org>
+From: "Jack O'Quin" <joq@io.com>
+Date: Sat, 22 Jan 2005 22:50:55 -0600
+In-Reply-To: <41F3046A.1050808@kolivas.org> (Con Kolivas's message of "Sun,
+ 23 Jan 2005 12:56:58 +1100")
+Message-ID: <87wtu421g0.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0501230357580.2748@dragon.hygekrogen.localhost>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> How about a shell sort?  if the data is mostly sorted shell sort beats 
-> qsort lots of times, and since the data sets are often small in-kernel, 
-> shell sorts O(n^2) behaviour won't harm it too much, shell sort is also 
-> faster if the data is already completely sorted. Shell sort is certainly 
-> not the simplest algorithm around, but I think (without having done any 
-> tests) that it would probably do pretty well for in-kernel use... Then 
-> again, I've known to be wrong :)
+Con Kolivas <kernel@kolivas.org> writes:
 
-I like shell sort for small data sets too. And I agree it would be 
-appropiate for the kernel.
+> Meanwhile, I have the priority support working (but not bug free), and
+> the preliminary results suggest that the results are better. Do I
+> recall someone mentioning jackd uses threads at different priority?
 
--Andi
+Yes, it does.  
+
+I'm not sure whether that matters in this test (it might).  
+
+But, I'm certain it matters for some JACK applications.
+-- 
+  joq

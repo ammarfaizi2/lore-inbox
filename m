@@ -1,80 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268330AbUHLCD5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268342AbUHLCFc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268330AbUHLCD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 22:03:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268332AbUHLCD5
+	id S268342AbUHLCFc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 22:05:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268349AbUHLCFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 22:03:57 -0400
-Received: from cantor.suse.de ([195.135.220.2]:26065 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268330AbUHLCDz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 22:03:55 -0400
-Date: Thu, 12 Aug 2004 04:03:52 +0200
-From: Kurt Garloff <kurt@garloff.de>
-To: James Morris <jmorris@redhat.com>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [LSM] Rework LSM hooks
-Message-ID: <20040812020352.GI14744@tpkurt.garloff.de>
-Mail-Followup-To: Kurt Garloff <kurt@garloff.de>,
-	James Morris <jmorris@redhat.com>,
-	Linux kernel list <linux-kernel@vger.kernel.org>
-References: <20040811221903.GA14744@tpkurt.garloff.de> <Xine.LNX.4.44.0408112110030.15343-100000@dhcp83-76.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="16qp2B0xu0fRvRD7"
-Content-Disposition: inline
-In-Reply-To: <Xine.LNX.4.44.0408112110030.15343-100000@dhcp83-76.boston.redhat.com>
-X-Operating-System: Linux 2.6.7-0-KG i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: SUSE/Novell
-User-Agent: Mutt/1.5.6i
+	Wed, 11 Aug 2004 22:05:31 -0400
+Received: from web13903.mail.yahoo.com ([216.136.175.29]:2331 "HELO
+	web13903.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S268342AbUHLCFJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 22:05:09 -0400
+Message-ID: <20040812020459.8528.qmail@web13903.mail.yahoo.com>
+Date: Wed, 11 Aug 2004 19:04:59 -0700 (PDT)
+From: <spaminos-ker@yahoo.com>
+Reply-To: spaminos-ker@yahoo.com
+Subject: Re: Scheduler fairness problem on 2.6 series (Attn: Nick Piggin and others)
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org, William Lee Irwin III <wli@holomorphy.com>
+In-Reply-To: <cone.1092193795.772385.25569.502@pc.kolivas.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--- Con Kolivas <kernel@kolivas.org> wrote:
+> Hi
+> 
+> I tried this on the latest staircase patch (7.I) and am not getting any 
+> output from your script when tested up to 60 threads on my hardware. Can you 
+> try this version of staircase please?
+> 
+> There are 7.I patches against 2.6.8-rc4 and 2.6.8-rc4-mm1
+> 
+> http://ck.kolivas.org/patches/2.6/2.6.8/
+> 
+> Cheers,
+> Con
+> 
 
---16qp2B0xu0fRvRD7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Just tried on my machine:
+2.6.8-rc4 fails all tests (did the test just to be sure)
 
-Hi James,
+2.6.8-rc4 with the "from_2.6.8-rc4_to_staircase7.I" patch and things look
+pretty good:
+on my hardware, I could put 60 threads too, and my shells are still very
+responsive etc, and I get no slow downs with my watchdog script.
 
-On Wed, Aug 11, 2004 at 09:20:22PM -0400, James Morris wrote:
-> Also, we still have the option of making COND_SECURITY ia64-specific.
+A few  strange things happened though (with 60 threads):
+* after a few minutes, I got one message
+Wed Aug 11 18:06:11 PDT 2004
+>>>>>>> delta = 57
+57 seconds !?! very surprising
+* shortly after that, I tried to run top, or ps, and they all got stuck, I
+waited a couple minutes and they were still stuck. I opened a few shells, I
+could do anything but commands that enumerate the process list. After a while,
+I killed the cputest program (ctrld c it), and the stucked ps/top continued
+their execution.
 
-We could do that. The patch sets security_ops to
-capabilities_security_ops if no LSM is loaded, so it would be OK to
-call into it unconditionally on archs that have a higher penalty for
-a branch than for an indirect call.
+I could not reproduce those problems ; I even rebooted the machine, but only
+got one message delta of 3 every 30 minutes or so.
 
-You could just redefine the macro, depending on the arch, indeed.
+Nicolas
 
-We could also drop the unlikely. For the hot paths, the branch
-prediction of the CPU can do its job. So, I'm not religious about
-it; in practice it should make little difference either way.=20
-
-My patch was aiming for a zerocost possibility to turn CONFIG_SECURITY
-on. With the unlikely(), I should have gotten as close as one ~1 or 2=20
-CPU cycles (compare plus correctly predicted branch). That's why I
-put the unlikely.
-
-Regards,
---=20
-Kurt Garloff                   <kurt@garloff.de>             [Koeln, DE]
-Physics:Plasma modeling <garloff@plasimo.phys.tue.nl> [TU Eindhoven, NL]
-Linux: SUSE Labs (Head)        <garloff@suse.de>    [SUSE Nuernberg, DE]
-
---16qp2B0xu0fRvRD7
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBGtAIxmLh6hyYd04RAmzQAJ9/EIeSO0xRxJv05Ue8xuCSiMIQwQCfSXyr
-74pH3eoe2jYWVUHRLBtdCXQ=
-=tpkx
------END PGP SIGNATURE-----
-
---16qp2B0xu0fRvRD7--

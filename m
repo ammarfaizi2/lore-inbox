@@ -1,28 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281306AbRKZBLY>; Sun, 25 Nov 2001 20:11:24 -0500
+	id <S281311AbRKZBRE>; Sun, 25 Nov 2001 20:17:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281308AbRKZBLO>; Sun, 25 Nov 2001 20:11:14 -0500
-Received: from quechua.inka.de ([212.227.14.2]:17212 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S281306AbRKZBLC>;
-	Sun, 25 Nov 2001 20:11:02 -0500
-From: Bernd Eckenfels <ecki@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Disk hardware caching, performance, and journalling
-In-Reply-To: <00e001c175fa$90d02b40$6caaa8c0@kevin>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.11-xfs (i686))
-Message-Id: <E168AI1-0006i7-00@calista.inka.de>
-Date: Mon, 26 Nov 2001 02:10:29 +0100
+	id <S281324AbRKZBQy>; Sun, 25 Nov 2001 20:16:54 -0500
+Received: from viper.haque.net ([66.88.179.82]:46476 "EHLO mail.haque.net")
+	by vger.kernel.org with ESMTP id <S281311AbRKZBQj>;
+	Sun, 25 Nov 2001 20:16:39 -0500
+Date: Sun, 25 Nov 2001 20:16:22 -0500
+Subject: Re: Linux 2.4.16-pre1
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v475)
+Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+To: Patrick McFarland <unknown@panax.com>
+From: "Mohammad A. Haque" <mhaque@haque.net>
+In-Reply-To: <20011125171818.I238@localhost>
+Message-Id: <3462119E-E20B-11D5-AEE4-00306569F1C6@haque.net>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.475)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <00e001c175fa$90d02b40$6caaa8c0@kevin> you wrote:
-> disk drives... my servers have never (in my memory) experienced a
-> catastrophic power failure, because they're too easy to avoid.
+On Sunday, November 25, 2001, at 05:18 , Patrick McFarland wrote:
 
-Well, even UPS can fail. But battery protected RAID Controllers are a MUST,
-anyway.
+> To clarify, I was talking about the 2.5 tree. Linus is technically 
+> still (a) maintainer for it.
 
-Greetings
-Bernd
+ok, now i think you're just being a dick. he's developing 2.5 .. not 
+maintaining.
+--
+
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/
+                                                mhaque@haque.net
+
+   "Alcohol and calculus don't mix.             Developer/Project Lead
+    Don't drink and derive." --Unknown          http://www.themes.org/
+                                                batmanppc@themes.org
+=====================================================================
+

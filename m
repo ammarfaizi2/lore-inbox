@@ -1,58 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262209AbTIMVaA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 17:30:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbTIMVaA
+	id S262207AbTIMVha (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 17:37:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbTIMVha
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 17:30:00 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:16395
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S262209AbTIMV3z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 17:29:55 -0400
-Date: Sat, 13 Sep 2003 14:12:14 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: David Schwartz <davids@webmaster.com>
-cc: Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org
-Subject: RE: People, not GPL  [was: Re: Driver Model]
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKEEGEGIAA.davids@webmaster.com>
-Message-ID: <Pine.LNX.4.10.10309131410320.16744-100000@master.linux-ide.org>
+	Sat, 13 Sep 2003 17:37:30 -0400
+Received: from spoetnik.kulnet.kuleuven.ac.be ([134.58.240.46]:8168 "EHLO
+	spoetnik.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id S262207AbTIMVh2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 17:37:28 -0400
+Message-ID: <3F638E18.9080406@abcpages.com>
+Date: Sat, 13 Sep 2003 23:37:28 +0200
+From: Nicolae Mihalache <mache@abcpages.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Cc: Patrick Mochel <mochel@osdl.org>
+Subject: Re: 2.6-test4 problems: suspend and touchpad
+References: <Pine.LNX.4.33.0309121519420.984-100000@localhost.localdomain> <3F637245.9070009@abcpages.com>
+In-Reply-To: <3F637245.9070009@abcpages.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nicolae Mihalache wrote:
 
-David,
+ > Patrick Mochel wrote:
+ >
+ >>> 2. suspend/resume. With version 2.6test2+acpi patch both swsusp and
+ >>> "echo 3 >/proc/acpi/sleep" worked, being able to somehow
+ >>> successfully resume. In version 2.6test4 there is no
+ >>> /proc/acpi/sleep and swsusp hangs somwhere during an IDE call (I can
+ >>> hand-copy the trace if needed).
+ >>>
+ >>
+ >>
+ >> Would you please try the latest -mm patch (2.6.0-test5-mm1, I
+ >> believe) and report your findings?
+ >>
+ >
+ > Well, the 2.6.0-test5-mm1 does not compile on my system (SuSE 8.2, gcc
+ > version 3.3 20030226 (prerelease) ):
 
-Agreed the total intent by the author is to impose a restriction.
-Thus the author by default lost his/her right to use, period.
-Ironic, how imposing a usage restriction will terminate ones own write to
-use.
+Ok, I solved the compilation problems and with this kernel swsusp does 
+not hang anymore.
+The resume works however the network adapter (Broadcom 4400) does not 
+even when restarting the network.
+ifconfig eth0 shows very big counters:
+eth0      Link encap:Ethernet  HWaddr 00:C0:9F:26:C7:15
+          UP BROADCAST NOTRAILERS RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:819 errors:4294966560 dropped:0 overruns:0 
+frame:4294966836
+          TX packets:865 errors:4294966836 dropped:0 overruns:0 
+carrier:4294967118
+          collisions:4294967204 txqueuelen:100
+          RX bytes:956732 (934.3 Kb)  TX bytes:89228 (87.1 Kb)
+          Interrupt:5
 
-Cheers,
 
-Andre Hedrick
-LAD Storage Consulting Group
+Any ideas? Maybe the driver for this network card does not (correctly) 
+implement suspend/resume ?
+mache
 
-On Sat, 13 Sep 2003, David Schwartz wrote:
 
-> 
->  
-> > If people put GPL_ONLY symbol exports in their code, that's their call
-> > to make, is it not? It's their code and they're free to say "well, this
-> > is my code, and if you use this symbol, I consider your stuff to be a
-> > derived work". Once again it's up to the lawyers to decide whether
-> > this has legal value or not.
-> 
-> 	If it has legal value, then it's an additional restriction.
-> 
-> 	DS
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 

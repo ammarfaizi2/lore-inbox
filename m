@@ -1,94 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262796AbUCKAZU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 19:25:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262901AbUCKAZU
+	id S262914AbUCKAan (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 19:30:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262915AbUCKAan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 19:25:20 -0500
-Received: from mail-09.iinet.net.au ([203.59.3.41]:61128 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S262796AbUCKAZJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 19:25:09 -0500
-Message-ID: <404FB1DF.3070605@cyberone.com.au>
-Date: Thu, 11 Mar 2004 11:25:03 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mike Fedyk <mfedyk@matchmail.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: VM patches in 2.6.4-rc1-mm2
-References: <20040302201536.52c4e467.akpm@osdl.org>	<40469E50.6090401@matchmail.com> <20040303193025.68a16dc4.akpm@osdl.org> <404ECFE5.7040005@matchmail.com> <404ED388.5050905@cyberone.com.au> <404F651B.1030202@matchmail.com> <404FAA04.1020300@cyberone.com.au> <404FAFFE.9010403@matchmail.com>
-In-Reply-To: <404FAFFE.9010403@matchmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Mar 2004 19:30:43 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:54201 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S262914AbUCKAaj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 19:30:39 -0500
+Date: Thu, 11 Mar 2004 09:34:06 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Subject: RE: [PATCH] fix PCI interrupt setting for ia64
+In-reply-to: <16463.30226.948230.439549@napali.hpl.hp.com>
+To: davidm@hpl.hp.com, Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Message-id: <MDEEKOKJPMPMKGHIFAMAEELHDGAA.kaneshige.kenji@jp.fujitsu.com>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Content-type: text/plain;	charset="us-ascii"
+Content-transfer-encoding: 7bit
+Importance: Normal
+X-Priority: 3 (Normal)
+X-MSMail-priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+I'm sorry that the report falls behind. I wanted to check out by using
+real device driver which uses a probe_irq_on(), but I don't have appropriate
+environment now.
 
-Mike Fedyk wrote:
+Though I didn't check out on a real machine yet, I believe my patch doesn't
+have any influence on probe_irq_on() because current probe_irq_on() calls
+startup callback to unmask the RTEs as you said before.
 
-> Nick Piggin wrote:
->
->>
->>
->> Mike Fedyk wrote:
->>
->>> Nick Piggin wrote:
->>>
->>>> Mainline doesn't put enough pressure on slab with highmem systems. 
->>>> This
->>>> creates a lot more ZONE_NORMAL pressure and that causes swapping.
->>>>
->>>
->>> Yep, saw that.  Especially with 128MB Highmem (eg, 1G RAM)
->>>
->>>> Now with the 2.6 VM, you don't do any mapped memory scaning at all
->>>
->>>
->>>
->>>
->>> You mean 2.6-mm?
->>>
->>
->> Yes, either mm or linus.
->>
->
-> Have there been any VM patches merged into mainline?  Or are you 
-> saying that the imbalance in mainline would be enough to overcome to 
-> lack of scanning of mapped pages?
->
+Regards,
+Kenji Kaneshige
 
-There have been no VM patches merged into mainline. I just mean that
-neither mm or mainline does any mapped memory scanning when memory
-pressure is low.
-
->>
->> If you get a lot of pressure at one time it should push out your
->> inactive mapped pages. Will get most of the really inactive ones,
->> but it won't help pages becoming inactive in future.
->>
->
-> Ok, I see.  This might be happening, since it is steadily getting more 
-> into swap.
->
-
-
-For the one that is swapping, yes this would be happening.
-
-
->>
->> Hasn't looked at it much. Probably not until some of the more basic
->> VM patches can get merged into -linus.
+> -----Original Message-----
+> From: linux-ia64-owner@vger.kernel.org
+> [mailto:linux-ia64-owner@vger.kernel.org]On Behalf Of David Mosberger
+> Sent: Thursday, March 11, 2004 5:10 AM
+> To: Kenji Kaneshige
+> Cc: linux-ia64@vger.kernel.org; linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH] fix PCI interrupt setting for ia64
 >
 >
-> Yes, I wonder if the VM patches helped -mm in the reaim tests...
+> Kenji,
 >
-> Let's get the fsfaz (free slab for all zones) into mainline asap! :-D
+> Sorry, I lost track of the status of this patch.  Has it been checked
+> out OK with respect to interrupt probing?
 >
-
-
-Well all the ones in -mm now are probably right to go to 2.6.5
-I hope.
+> 	--david
+>
+> >>>>> On Mon, 08 Mar 2004 11:49:10 +0900, Kenji Kaneshige
+> <kaneshige.kenji@jp.fujitsu.com> said:
+>
+>   Kenji> Hi, In ia64 kernel, IOSAPIC's RTEs for PCI interrupts are
+>   Kenji> unmasked at the boot time before installing device drivers. I
+>   Kenji> think it is very dangerous.  If some PCI devices without
+>   Kenji> device driver generate interrupts, interrupts are generated
+>   Kenji> repeatedly because these interrupt requests are never
+>   Kenji> cleared. I think RTEs for PCI interrupts should be unmasked
+>   Kenji> by device driver.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-ia64" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 

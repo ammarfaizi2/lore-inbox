@@ -1,137 +1,179 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261690AbTCGSG0>; Fri, 7 Mar 2003 13:06:26 -0500
+	id <S261708AbTCGSOz>; Fri, 7 Mar 2003 13:14:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261691AbTCGSG0>; Fri, 7 Mar 2003 13:06:26 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:11762 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S261690AbTCGSGX>;
-	Fri, 7 Mar 2003 13:06:23 -0500
-Message-ID: <3E68E1EB.6030304@mvista.com>
-Date: Fri, 07 Mar 2003 10:16:11 -0800
-From: george anzinger <george@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	id <S261710AbTCGSOz>; Fri, 7 Mar 2003 13:14:55 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:25996 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261708AbTCGSOw>; Fri, 7 Mar 2003 13:14:52 -0500
+Date: Fri, 07 Mar 2003 10:34:29 -0800
+From: Hanna Linder <hannal@us.ibm.com>
+Reply-To: Hanna Linder <hannal@us.ibm.com>
+To: lse-tech@lists.sourceforge.net
+cc: linux-kernel@vger.kernel.org
+Subject: Minutes from LSE Call March 7
+Message-ID: <17720000.1047062069@w-hlinder>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: Eric Piel <Eric.Piel@Bull.Net>
-CC: davidm@hpl.hp.com, linux-kernel@vger.kernel.org, jim.houston@ccur.com
-Subject: Re: POSIX timer syscalls
-References: <200303062306.h26N6hrd008442@napali.hpl.hp.com>	<3E67DF8E.9080005@mvista.com>	<15975.62823.5398.712934@napali.hpl.hp.com>	<3E67F844.2090902@mvista.com> <15975.63734.837748.29150@napali.hpl.hp.com> <3E68573A.4020206@mvista.com> <3E688D29.F2E48939@Bull.Net>
-In-Reply-To: <3E688D29.F2E48939@Bull.Net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Piel wrote:
-> george anzinger wrote:
-> 
->>By the way, I am seeing some reports from the clock_nanosleep test
->>about sleeping too long or too short.  The too long appears to be just
->>not being able to preempt what ever else is running.  The too short
->>(on the x86) is, I believe, due to the fact that more that 1/HZ is
->>clocked on the wall clock each jiffie.
->>
->>Try this:
->>
->>time sleep 60
->>
->>On the x86 it reports less than 60, NOT good.
->>
-> 
-> I've run the test programs and they pass everything well (with my
-> patchs) excepted the nanosleeps which seems to be finished a bit too
-> early. My system test is a 2.5.64 patched on a 4xItaniumII.
-> 
-> My main question is to know if it's a problem even if the difference
-> between the wakeup time and the requested time is smaller than the
-> resolution of the clock, 976562ns ? I mean, at the resolution of the
-> clock we could consider we woke up right at the good time, couldn't we?
-> 
-> In addition time sleep 60 always gave me time over 1 minute, I guess
-> it's a good point. 
 
-This test is rather crude because any latencies in the exec and wait 
-calls are also included in the "time".  Larger sleep times cause the 
-impact of these latencies to be less important.
+	LSE Con Call Minutes March 7th
 
-The problem is caused by the update wall clock routine adding less 
-than 1/HZ for each jiffie.  In the x86 case this was done to more 
-closely follow the actual time that the PIT gives with the count that 
-results from 1/HZ.  IMHO, the result is NOT standard conforming and 
-another way of doing things should be found.  What actually results 
-here is that CLOCK_MONOTONIC and CLOCK_REALTIME do not pass time at 
-the same rate.
+Minutes compiled by Hanna Linder. All mistakes are my own.
+Please send corrections/comments to the list. And if you start
+a huge thread with hundreds of responses, please change
+the subject ;)
 
-The clock update value is computed by TICK_NSEC() located in 
-include/linux/timex.h and gives other than 1/HZ based on the LATCH and 
-  CLOCK_TICK_RATE not yielding an exact integer value.
+-------
 
-All this said, I don't have a good solution.  The best thing would be 
-if we could actually generate the 1/HZ tick with 1 to 2 ppm accuracy. 
-  If this is not possible, short of going to a new way of time keeping 
-(which is what the high-res-timers do) I don't see a solution.  By 
-"good" I mean one that keeps CLOCK_MONOTONIC and CLOCK_REALTIME in 
-lock step (excepting clock setting which only CLOCK_REALTIME does). 
-Note that I am NOT excepting NTP adjustments.  In other words, a good 
-solution would keep CLOCK_MONOTONIC as the standard clock and just 
-have a offset to get to CLOCK_REALTIME.  This offset is what clock 
-setting would change.
 
-This would, I am afraid, also introduce another problem, i.e. that the 
-run_timer_list() must occur very shortly after jiffies is advanced. 
-This requires the generation of tick interrupts to by synced to the 
-clock.  What I am saying is that it is not enough to calculate jiffies 
-in a way that takes care of a higher resolution (i.e. a sub_jiffie 
-part) but one must also conspire to make the run_timer_list() occur 
-when the sub_jiffie is "small".
-> 
-> Here is a part of the log of 'do_test':
-> 
-> Testing behavor with clock seting...
-> Retarding the clock
-> Clock did not seem to move
->  was:           1046969027s 703359000ns
->  requested:     1046969023s 703359000ns
->  now:           1046969022s 467072000ns
->  diff is -1.236286998sec
-> Cool clock_nanosleeptest.c,379:clock_nanosleep(clock, TIMER_ABSTIME,
-> &ts, NULL)
+I. Martin Bligh - hlist has patch from andi kleen
+Andi Kleen change the hlist hash to be a singly linked list
+from a doubly linked list. The code is smaller but the
+performance is the same. It has been accepted by Linus
+and is in 2.5.64.
 
-This is BAD!  The code only retards the clock by 1 sec so it appears 
-that nothing happened here.  Oh, I know, it is saying that clock_set 
-failed.  You must run as root to make this work.  Otherwise, well I 
-don't know what could be happening.
-> 
-> Testing signal behavor...
-> handler1 entered: signal 31
-> expected clock_nanosleeptest.c,227:clock_nanosleep(clock, 0, &ts, &rs):
-> Interrupted system call
-> Time remaining is 0s 989257306ns
-> clock_nanosleeptest.c,245:slept too short!
->  requested:     275s 207032000ns
->  now:           275s 207030632ns
->  diff is -0.000001368sec
+II. Hanna Linder - hiding projects on lse 
+Going to hide the scheduler and the apic routing projects 
+in the lse.sf.net site. Also planning on moving the 2.5 
+lse work to an osdl site since the existing sourceforge
+site is filled up with a lot of 2.4 stuff.
 
-This is likely caused by what I discussed above.
-> 
-> Testing undelivered signal behavor...
-> Cool clock_nanosleeptest.c,267:clock_nanosleep(clock, 0, &ts, &rs)
-> clock_nanosleeptest.c,283:slept too short!
->  requested:     275s 223633000ns
->  now:           275s 223632698ns
->  diff is -0.000000302sec
-> 
-> 
->  --Eric
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+III. Hanna Linder - lockmeter port beta ready
+Hanna got the lockmeter port to 2.5.64 booted and
+working. But she only ported the i386 architecture
+and needs to finish the basic port for the other
+archs. She is going to do more testing today and
+will send out the code later. John Hawkes (the
+author) said he is about half way done with
+kernprof and will look at the lockmeter port when
+Hanna is done.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+IV. Paul Larson - gcov patch
+http://sourceforge.net/project/showfiles.php?group_id=3382&release_id=108054
+
+ resync of gcov patch that hubertus franke did.
+neet little profiling program that provides better
+granularity than some ofther profilers. it give you
+per file and per line code coverage info. this is good
+for the ltp project so we can see how much of the code
+our tests hit. martin- are there big performance
+impacts with this code? paul, not sure really.
+
+Problem with config mod versions so make sure to
+turn it off. also profiling of loaded modules isnt
+working correctly so if you want to profile it
+compile it into the kernel. other than that it is
+working pretty well.
+
+lcov - another tool on the ltp site that goes out and
+looks at all the gcov data and pulls it into a web
+page to let you browse the source tree. both
+user and kernel level info. This is where it will
+be when it is packaged up:
+http://sourceforge.net/project/showfiles.php?group_id=3382&release_id=108054
+
+Bill asked what the scheme is for accounting? sampling
+or incrementing/decrementing counters? Are the counters
+per cpu? no. be default that is not handled well. 
+You wont run into an issue where it says you didnt
+run something because it was on another procesor but
+there are some locking issues. Nigel Hines is workig
+on this problem. the preferred solution is a hack 
+using an awk script to look at the assembly and add
+locks where needed.
+
+Martin - why dont you just use per cpu locks? paul-
+need to look into it. But the problem is with the compiler
+not the kernel so it might not help.
+
+Martin is going to include it in his -mjb tree since it
+is a config option you can turn on and off.
+
+V. Bill Irwin - Page Clustering
+
+ftp://ftp.kernel.org/pub/linux/kernel/people/wli/vm/pgcl/
+
+If we have a 16 byte struct page for every 512 bytes we
+are wasting a lot of memory. so try to keep track of
+every 1 kb or larger region. To make sure we have our
+accounting straight. The end result is when we are
+walking page tables you walk them in hardware page
+size and everything else ignores it and keeps track
+of sw page size. end up with an interesting relationship
+where every struct page is pointed to by a factor
+of ptes.
+
+Bill has made a lot of recent progress. things like
+swap have been restored to functionality. It boots
+on most the machines he has tried it on. Also working
+on performance aspects of it right now. The real
+danger of all this is that you get internal (not
+external) fragmentation. Basically allocate a whole
+sw page of pte page size and dont get to use all of
+it because you are missing some logging somewhere
+to take advantage of it. Bill has been keeping some
+strategies in the back of his mind to interoperate
+with some things that are being kicked around.
+
+Bill is using some simplified heuristics to search
+for pages to fault in. Turns out those heuristics 
+suck so he needs to go in and do a different set.
+The ones originally done in Hugh's patch did something
+in the order of scanning acros an entire vma looking
+for pte's pointing to a particular page. It didnt
+have any alignment restrictions. Bill does have
+alignment restrictions and Hugh's solution would
+break down pretty quickly (kernel compiles swapping).
+
+The one that hurts is the one that crosses page table
+pages. shared pages doesnt really like that. the way
+it works with rmap is it is on a per page basis. Still
+crossing the page table page is bad.
+
+That is the main gist of it. Currently Bill is workig
+on tweaking the heuristics.
+
+hanna- how much memory do you need to get the benefit
+of this?
+
+bill - two benefits- larger page table size. and
+the arrays of all the struct pages in the system is
+smaller.
+
+hanna asked if akpm put it in his tree and bill said
+it is not the kind of thing akpm is going to hang on
+to right now. Bill wants to get it allworking first.
+he is going to break it off in chunks and send it in
+piecewise.
+
+The ols talk is going to be mainly about this work.
+there are some pretty hairy bugs in there to wrestle
+with. Should make for an interesting talk.
+
+The people testing it right now are mainly Muli Ben-Yehuda,
+Zwane, Badari, Paul Larson. Bill is interested in having 
+more people look at it or run it.
+
+Bill thinks he is at critical mass now for main changes.
+
+Muli - is going to work with Bill on a bug he found.
+
+Bill - Testing it as far as it being effective. He has
+shown it reduces the core map on a 48 gig machine.
+by a factor of 16. well I picked the factor, you
+do it at compile time. The dmesg are in his ftp 
+dir on kernel.org so you can look at the difference
+between zone normal and high mem.
+
+
+
+
+
+
 

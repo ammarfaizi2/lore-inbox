@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315388AbSGVApV>; Sun, 21 Jul 2002 20:45:21 -0400
+	id <S316803AbSGVLPX>; Mon, 22 Jul 2002 07:15:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315431AbSGVApU>; Sun, 21 Jul 2002 20:45:20 -0400
-Received: from moutvdomng0.kundenserver.de ([195.20.224.130]:31457 "EHLO
-	moutvdomng0.schlund.de") by vger.kernel.org with ESMTP
-	id <S315388AbSGVApU>; Sun, 21 Jul 2002 20:45:20 -0400
-Date: Sun, 21 Jul 2002 18:43:09 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Jos Hulzink <josh@stack.nl>
-cc: Adrian Bunk <bunk@fs.tum.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Szakacsits Szabolcs <szaka@sienet.hu>, Robert Love <rml@tech9.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] strict VM overcommit
-In-Reply-To: <20020721162011.I69041-100000@turtle.stack.nl>
-Message-ID: <Pine.LNX.4.44.0207211842230.3309-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
+	id <S316820AbSGVLPX>; Mon, 22 Jul 2002 07:15:23 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:63953 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S316803AbSGVLPV>;
+	Mon, 22 Jul 2002 07:15:21 -0400
+Date: Mon, 22 Jul 2002 13:17:38 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Andrew Morton <akpm@zip.com.au>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.5.27 writeback scalability improvements
+Message-ID: <Pine.GSO.4.21.0207221315180.19526-100000@vervain.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Sun, 21 Jul 2002, Jos Hulzink wrote:
-> Maybe it is an option to add the --I_know_Im_stupid option to the swapoff
-> command line ? (Also known as the --force flag). This way we can both
-> return an error when the OS lacks memory and force a swapoff.
+Kill warning by adding a missing prototype.
 
-What's wrong with the current behavior? If the system can't live without 
-swap, why forcing it dead?
+--- linux-2.5.27/include/linux/writeback.h.orig	Mon Jul  8 10:19:15 2002
++++ linux-2.5.27/include/linux/writeback.h	Mon Jul 22 13:09:14 2002
+@@ -34,6 +34,10 @@
+ void writeback_unlocked_inodes(int *nr_to_write,
+ 			       enum writeback_sync_modes sync_mode,
+ 			       unsigned long *older_than_this);
++extern void writeback_backing_dev(struct backing_dev_info *bdi,
++				  int *nr_to_write,
++				  enum writeback_sync_modes sync_mode,
++				  unsigned long *older_than_this);
+ void wake_up_inode(struct inode *inode);
+ void __wait_on_inode(struct inode * inode);
+ void sync_inodes_sb(struct super_block *, int wait);
 
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

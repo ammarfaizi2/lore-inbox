@@ -1,79 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbVANAIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261821AbVANALl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261744AbVANAIf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 19:08:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVAMWBQ
+	id S261821AbVANALl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 19:11:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVANAJG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 17:01:16 -0500
-Received: from www.ssc.unict.it ([151.97.230.9]:50949 "HELO ssc.unict.it")
-	by vger.kernel.org with SMTP id S261768AbVAMV6e (ORCPT
+	Thu, 13 Jan 2005 19:09:06 -0500
+Received: from fw.osdl.org ([65.172.181.6]:27308 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261746AbVAMWCG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 16:58:34 -0500
-Subject: [patch 05/11] uml: for ubd cmdline param use colon as delimiter
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, jdike@addtoit.com,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it
-From: blaisorblade_spam@yahoo.it
-Date: Thu, 13 Jan 2005 22:00:58 +0100
-Message-Id: <20050113210058.94CDC1FB6D@zion>
+	Thu, 13 Jan 2005 17:02:06 -0500
+Date: Thu, 13 Jan 2005 14:02:05 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Chris Wright <chrisw@osdl.org>, akpm@osdl.org, torvalds@osdl.org,
+       marcelo.tosatti@cyclades.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: security contact draft
+Message-ID: <20050113140205.C24171@build.pdx.osdl.net>
+References: <20050113125503.C469@build.pdx.osdl.net> <1105647058.4624.134.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1105647058.4624.134.camel@localhost.localdomain>; from alan@lxorguk.ukuu.org.uk on Thu, Jan 13, 2005 at 08:10:58PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Alan Cox (alan@lxorguk.ukuu.org.uk) wrote:
+> On Iau, 2005-01-13 at 20:55, Chris Wright wrote:
+> > To keep the conversation concrete, here's a pretty rough stab at
+> > documenting the policy.
+> 
+> It's not documenting the stuff Linus seems to be talking about which is
+> a public list ? Or does Linus want both ?
 
-Currently we can use this syntax ubd<n>[<flags>]=file1,file2. However, writing
-things as
-	ubd0=~/Uml/file1,~/Uml/file2
-does not work; in fact, the shell won't expand the second '~', since it's not
-at a path beginning; possibly even other shell expansions don't work here. So
-simply allow using, instead of the ',' separator, the ':' separator.
+I got the impression that Linus was in favor of the private one,
+despite his own leanings to absolute openness.  I think a public one
+(lkml notwithstanding) would be great for advisory announcements.
 
-The ',' separator can still be used to preserve backward compatibility.
+> >  It is preferred that mail sent to the security contact is encrypted
+> >  with $PUBKEY.
+> 
+> https:// and bugs.kernel.org ? You can make bugzilla autoprivate
+> security bugs and alert people.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
----
+Yeah, I had thought about that too.  Not a real bugzilla fan, but I'm
+not tied to any particular method here.
 
- linux-2.6.11-paolo/arch/um/drivers/ubd_kern.c |   20 +++++++++++++++++---
- 1 files changed, 17 insertions(+), 3 deletions(-)
+> >  well-tested or for vendor coordination.  However, we expect these delays
+> >  to be short, measurable in days, not weeks or months.  As a basic default
+> >  policy, we expect report to disclosure to be on the order of $NUMDAYS.
+> 
+> Sounds good. $NUMDAYS is going to require some debate. My gut feeling is
+> 14 days is probably the right kind of target for hard stuff remembering
+> how long it takes to run QA on an enterprise grade kernel. If it gets
+> too short then vendors are going to disclose elsewhere for their own
+> findings and only to this list when they are all ready anyway which
+> takes us back to square one.
+> 
+> And many are probably a lot less - those nobody is going to rush out and
+> build new vendor kernels for, or those that prove to be non serious can
+> probably get bumped to the public list by the security officer within a
+> day or two.
 
-diff -puN arch/um/drivers/ubd_kern.c~uml-ubd-use-colon-as-delimiter arch/um/drivers/ubd_kern.c
---- linux-2.6.11/arch/um/drivers/ubd_kern.c~uml-ubd-use-colon-as-delimiter	2005-01-13 03:11:19.623337096 +0100
-+++ linux-2.6.11-paolo/arch/um/drivers/ubd_kern.c	2005-01-13 03:11:19.640334512 +0100
-@@ -337,6 +337,11 @@ static int ubd_setup_common(char *str, i
- 
- 	err = 0;
- 	backing_file = strchr(str, ',');
-+
-+	if (!backing_file) {
-+		backing_file = strchr(str, ':');
-+	}
-+
- 	if(backing_file){
- 		if(dev->no_cow)
- 			printk(KERN_ERR "Can't specify both 'd' and a "
-@@ -362,13 +367,22 @@ static int ubd_setup(char *str)
- 
- __setup("ubd", ubd_setup);
- __uml_help(ubd_setup,
--"ubd<n>=<filename>\n"
-+"ubd<n><flags>=<filename>[(:|,)<filename2>]\n"
- "    This is used to associate a device with a file in the underlying\n"
--"    filesystem. Usually, there is a filesystem in the file, but \n"
-+"    filesystem. When specifying two filenames, the first one is the\n"
-+"    COW name and the second is the backing file name. As separator you can\n"
-+"    use either a ':' or a ',': the first one allows writing things like;\n"
-+"	ubd0=~/Uml/root_cow:~/Uml/root_backing_file\n"
-+"    while with a ',' the shell would not expand the 2nd '~'.\n"
-+"    When using only one filename, UML will detect whether to thread it like\n"
-+"    a COW file or a backing file. To override this detection, add the 'd'\n"
-+"    flag:\n"
-+"	ubd0d=BackingFile\n"
-+"    Usually, there is a filesystem in the file, but \n"
- "    that's not required. Swap devices containing swap files can be\n"
- "    specified like this. Also, a file which doesn't contain a\n"
- "    filesystem can have its contents read in the virtual \n"
--"    machine by running dd on the device. n must be in the range\n"
-+"    machine by running 'dd' on the device. <n> must be in the range\n"
- "    0 to 7. Appending an 'r' to the number will cause that device\n"
- "    to be mounted read-only. For example ubd1r=./ext_fs. Appending\n"
- "    an 's' (has to be _after_ 'r', if there is one) will cause data\n"
-_
+Yup, I think the severity and ease of exploit are part of the discussion
+around disclosure timeframe.
+
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbUCSCCN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 21:02:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262206AbUCSCCN
+	id S261708AbUCSCE5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 21:04:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbUCSCE5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 21:02:13 -0500
-Received: from smtp.terra.es ([213.4.129.129]:17246 "EHLO tsmtp15.mail.isp")
-	by vger.kernel.org with ESMTP id S261326AbUCSCCK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 21:02:10 -0500
-Date: Fri, 19 Mar 2004 02:51:50 +0100
-From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: riel@redhat.com, andrea@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc1-aa1
-Message-Id: <20040319025150.7a45f8a9.diegocg@teleline.es>
-In-Reply-To: <405A4015.40108@tmr.com>
-References: <Pine.LNX.4.44.0403181144290.16728-100000@chimarrao.boston.redhat.com>
-	<20040318211532.293bb63c.diegocg@teleline.es>
-	<405A4015.40108@tmr.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Thu, 18 Mar 2004 21:04:57 -0500
+Received: from zero.aec.at ([193.170.194.10]:37639 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S261708AbUCSCE4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 21:04:56 -0500
+To: colpatch@us.ibm.com
+cc: linux-kernel@vger.kernel.org, pj@sgi.com
+Subject: Re: [PATCH] Introduce nodemask_t ADT [0/7]
+References: <1BeOx-7ax-55@gated-at.bofh.it> <1BgGq-DU-5@gated-at.bofh.it>
+	<1BgZN-Vk-1@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Fri, 19 Mar 2004 03:04:41 +0100
+In-Reply-To: <1BgZN-Vk-1@gated-at.bofh.it> (Matthew Dobson's message of
+ "Fri, 19 Mar 2004 02:30:07 +0100")
+Message-ID: <m37jxhvbgm.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Thu, 18 Mar 2004 19:34:29 -0500 Bill Davidsen <davidsen@tmr.com> escribió:
+Matthew Dobson <colpatch@us.ibm.com> writes:
 
-> Have a bit of caution there, cdrecord sets itself realtime priority, 
-> locks pages in memory, and ensures that the process is likely to work 
-> even under load. I don't think addressing just a part of the problem 
-> will result in reliability under load. You would have to look at 
-> capabilities to allow these things to be done, under load they may not 
-> keep up depending on what's going on. Good to get a start, don't assume 
-> all the issues are addressed.
+>> Chris Hellwig responded to it at the time asking why I didn't provide a
+>> single generic mask ADT, and make cpumask and nodemask instances of
+>> that.
+>
+> That is a better idea, if it can be made to work.  My goal is to stop
 
+It already exists in linux/bitmap.h. I use that in NUMA API for the node masks.
 
-Yes, the following message is:
-cdrecord: Operation not permitted. WARNING: Cannot set RR-scheduler
-cdrecord: Permission denied. WARNING: Cannot set priority using setpriority().
-cdrecord: WARNING: This causes a high risk for buffer underruns.
+It's just a bit ugly to write because you have to always pass MAX_NUMNODES.
+Some wrappers would be prettier.
 
-But since 2.6 uses DMA for recording the CPU usage is really low...I guess
-people will still use suid for that :)
+-Andi
+

@@ -1,131 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266193AbUBDEyX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 23:54:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266213AbUBDEyX
+	id S266213AbUBDE4Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 23:56:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266232AbUBDE4P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 23:54:23 -0500
-Received: from hermes.py.intel.com ([146.152.216.3]:19933 "EHLO
-	hermes.py.intel.com") by vger.kernel.org with ESMTP id S266193AbUBDEyT convert rfc822-to-8bit
+	Tue, 3 Feb 2004 23:56:15 -0500
+Received: from mail-08.iinet.net.au ([203.59.3.40]:7143 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S266213AbUBDE4M
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 23:54:19 -0500
-content-class: urn:content-classes:message
+	Tue, 3 Feb 2004 23:56:12 -0500
+Message-ID: <40207B67.7040407@cyberone.com.au>
+Date: Wed, 04 Feb 2004 15:56:07 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [Infiniband-general] Getting an Infiniband access layer in the linux kernel
-Date: Tue, 3 Feb 2004 20:53:28 -0800
-Message-ID: <F595A0622682C44DBBE0BBA91E56A5ED1C3677@orsmsx410.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Infiniband-general] Getting an Infiniband access layer in the linux kernel
-Thread-Index: AcPq1Js0PbQK5SG3Tg2+TrGDe0Ua+QABLk2g
-From: "Woodruff, Robert J" <woody@co.intel.com>
-To: "Troy Benjegerdes" <hozer@hozed.org>,
-       "Woodruff, Robert J" <woody@jf.intel.com>,
-       "Magro, Bill" <bill.magro@intel.com>
-Cc: "Greg KH" <greg@kroah.com>, "Woodruff, Robert J" <woody@jf.intel.com>,
-       <infiniband-general@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 04 Feb 2004 04:53:28.0953 (UTC) FILETIME=[D4BE7E90:01C3EADA]
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-mm@kvack.org, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: More VM benchmarks
+References: <40205908.4080600@cyberone.com.au>
+In-Reply-To: <40205908.4080600@cyberone.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I agree we would not need to wait for a vendor driver to put something
-together
-that the community could start to review. I see what I can do to get
-something
-put together. 
-
------Original Message-----
-From: Troy Benjegerdes [mailto:hozer@hozed.org] 
-Sent: Tuesday, February 03, 2004 8:09 PM
-To: Woodruff, Robert J; Magro, Bill
-Cc: Greg KH; Woodruff, Robert J;
-infiniband-general@lists.sourceforge.net; linux-kernel@vger.kernel.org
-Subject: Re: [Infiniband-general] Getting an Infiniband access layer in
-the linux kernel
 
 
-I don't think we need to wait for a vendor driver to put together a 2.6
-IB access layer patch for review. I for one would like to see what
-*just* the access layer, without anything else looks like.
+Nick Piggin wrote:
 
-Those of us with hardware know it works on 2.4 with a mellanox VPD.. the
-real question is what the code looks like.
+> http://www.kerneltrap.org/~npiggin/vm/5/
+>
+> OK I'm not too unhappy with kbuild now. I've flattened the
+> curve a bit more since you last saw it. Would be nice if we
+> could get j8 and j10 faster but you can't win them all.
+>
+> I'm not sure what happens further on - Roger indicates that
+> perhaps 2.4 overtakes 2.6 again at j24 although the patchset
+> he used (http://www.kerneltrap.org/~npiggin/vm/3/) performs
+> far worse than this one at j16. This is really not a big
+> deal IMO, but I might run it and see what happens.
+>
 
-There are outstanding issues I've seen in performance testing related to
-integration with the memory management subsystem.. if we integrate
-directly into 2.6, we'll have the opportunity (but not the requirement) 
-for more intelligent ways to deal locking and unlocking of memory. I
-suspect that someone with more MMU-foo than myself will see some
-intelligent way of useing the rmap changes.
+They're about even here at an hour apiece. Thats good,
+not that I would ever try to optimise for this case...
 
-In particular, I want someone paranoid about security to examine the
-security model for allowing what processes get access to what IB card
-resources.
+2.6.2-rc3-mm1-np3
+kbuild: make -j24 bzImage
+144.45user 31.58system 1:00:08elapsed 4%CPU (0avgtext+0avgdata 
+0maxresident)k
+0inputs+0outputs (380524major+919600minor)pagefaults 0swaps
+npiggin@ropeable:~/vm$ cat bkb-24.out
 
-On Tue, Feb 03, 2004 at 06:01:20PM -0800, Woodruff, Robert J wrote:
-> Good I think the InfiniBand community would like to get some of the
-> code into 2.6. 
-> 
-> The access layer is all loadable modules and does not require any 
-> kernel changes. But we will need to look into integrating it into the 
-> build environment (and provide a patch for that).
-> 
-> We will work with the InfiniBand HCA vendors, such as Mellanox and 
-> Fujitsu, to get the 2.6 code tested on the hardware and put together a
+2.4.23
+kbuild: make -j24 bzImage
+148.41user 43.11system 1:02:41elapsed 5%CPU (0avgtext+0avgdata 
+0maxresident)k
+0inputs+0outputs (612476major+633988minor)pagefaults 0swaps
 
-> patch that can be submitted for review by the larger linux community. 
-> If you would like to see the code before we
-> run it on 2.6, we could possibly do that as well. 
-> 
-> 
-> woody
-> 
-> 
-> -----Original Message-----
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Tuesday, February 03, 2004 5:03 PM
-> To: Woodruff, Robert J
-> Cc: Troy Benjegerdes; Woodruff, Robert J;
-> infiniband-general@lists.sourceforge.net; linux-kernel@vger.kernel.org
-> Subject: Re: [Infiniband-general] Getting an Infiniband access layer
-in
-> the linux kernel
-> 
-> 
-> On Tue, Feb 03, 2004 at 04:17:36PM -0800, Woodruff, Robert J wrote:
-> > 
-> > I heard from a friend of mine that 2.6 was closed to new features. 
-> > What sayith the community on allowing additional experimental 
-> > drivers (like the infiniband access layer) into 2.6 ? Can we still 
-> > submit something or do we have to wait till 2.7 ?
-> 
-> If it's a subsystem that does not touch any of the existing kernel 
-> (with the exception of adding it to the build and Kconfig), then it 
-> probably will not be a problem to add.
-> 
-> But then again, that all depends on what the code looks like, and none
-
-> of us have seen that yet :)
-> 
-> thanks,
-> 
-> greg k-h
-
--- 
-------------------------------------------------------------------------
---
-Troy Benjegerdes                'da hozer'
-hozer@hozed.org  
-
-Somone asked my why I work on this free (http://www.fsf.org/philosophy/)
-software stuff and not get a real job. Charles Shultz had the best
-answer:
-
-"Why do musicians compose symphonies and poets write poems? They do it
-because life wouldn't have any meaning for them if they didn't. That's
-why I draw cartoons. It's my life." -- Charles Shultz

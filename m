@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129134AbRCPLe6>; Fri, 16 Mar 2001 06:34:58 -0500
+	id <S129051AbRCPMPP>; Fri, 16 Mar 2001 07:15:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130497AbRCPLej>; Fri, 16 Mar 2001 06:34:39 -0500
-Received: from diver.doc.ic.ac.uk ([146.169.1.47]:39949 "EHLO
-	diver.doc.ic.ac.uk") by vger.kernel.org with ESMTP
-	id <S130470AbRCPLee>; Fri, 16 Mar 2001 06:34:34 -0500
-To: linux-kernel@vger.kernel.org
-Subject: cannot mount later cdrom sessions with 2.4.x
-From: David Wragg <dpw@doc.ic.ac.uk>
-Date: 16 Mar 2001 11:33:40 +0000
-Message-ID: <y7rhf0uosmj.fsf@sytry.doc.ic.ac.uk>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
-MIME-Version: 1.0
+	id <S129164AbRCPMPF>; Fri, 16 Mar 2001 07:15:05 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:4581 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129051AbRCPMO6>;
+	Fri, 16 Mar 2001 07:14:58 -0500
+Date: Fri, 16 Mar 2001 12:11:47 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Tom Vier <thomassr@erols.com>
+Cc: Denis Perchine <dyp@perchine.com>, linux-kernel@vger.kernel.org,
+        Stephen Tweedie <sct@redhat.com>
+Subject: Re: O_DSYNC flag for open
+Message-ID: <20010316121147.B1771@redhat.com>
+In-Reply-To: <01031013035702.00608@dyp.perchine.com> <20010314222642.A19634@zero>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010314222642.A19634@zero>; from thomassr@erols.com on Wed, Mar 14, 2001 at 10:26:42PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is multisession CDROM support broken in 2.4.x?
+Hi,
 
-I have an "Enhanced CD" which has a bunch of audio tracks followed by
-a data track (is this the same as CD-XA? I can't remember).  Under
-2.2, I can mount the iso9660 filesystem on the data track without
-trouble, using the session option:
+On Wed, Mar 14, 2001 at 10:26:42PM -0500, Tom Vier wrote:
+> fdatasync() is the same as fsync(), in linux.
 
-# mount -o session=19 /mnt/cdrom
+No, in 2.4 fdatasync does the right thing and skips the inode flush if
+only the timestamps have changed.
 
-But under 2.4.2, the mount fails with this in the kernel log:
+> until fdatasync() is
+> implimented (ie, syncs the data only)
 
-Session 20 start 230045 type 4
-attempt to access beyond end of device
-16:00: rw=0, want=460123, limit=61884
-isofs_read_super: bread failed, dev=16:00, iso_blknum=230061, block=460122
+fdatasync is required to sync more than just the data: it has to sync
+the inode too if any fields other than the timestamps have changed.
+So, for appending to files or writing new files from scratch, fsync ==
+fdatasync (because each write also changes the inode size).  Only for
+updating existing files in place does fdatasync behave differently.
 
-It looks like the blk_size entry doesn't get updated to reflect the
-fact that isofs has issued an ioctl to switch to a later session on
-the disc.
+> #ifndef O_DSYNC
+> # define O_DSYNC O_SYNC
+> #endif
 
-The drive I'm using is:
-hdc: MATSHITADVD-ROM SR-8174, ATAPI CD/DVD-ROM drive
+2.4's O_SYNC actually does a fdatasync internally.  This is also the
+default behaviour of HPUX, which requires you to set a sysctl variable
+if you want O_SYNC to flush timestamp changes to disk.
 
-Dave Wragg
-(hoping that the QuickTime movies on the data track use an xanim
-supported codec, but not optimistic)
+Cheers,
+ Stephen

@@ -1,85 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315451AbSFJPNF>; Mon, 10 Jun 2002 11:13:05 -0400
+	id <S315459AbSFJPQm>; Mon, 10 Jun 2002 11:16:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315454AbSFJPNE>; Mon, 10 Jun 2002 11:13:04 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:18950 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S315451AbSFJPND>; Mon, 10 Jun 2002 11:13:03 -0400
-Date: Mon, 10 Jun 2002 16:12:47 +0100
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: External compilation
-Message-ID: <20020610151246.GA13626@compsoc.man.ac.uk>
-In-Reply-To: <20020609142602.GA77496@compsoc.man.ac.uk> <Pine.LNX.4.44.0206100926110.20438-100000@chaos.physics.uiowa.edu>
+	id <S315461AbSFJPQl>; Mon, 10 Jun 2002 11:16:41 -0400
+Received: from pop.gmx.de ([213.165.64.20]:9011 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S315459AbSFJPQk>;
+	Mon, 10 Jun 2002 11:16:40 -0400
+Date: Mon, 10 Jun 2002 18:14:50 +0300
+From: Dan Aloni <da-x@gmx.net>
+To: Lightweight patch manager <patch@luckynet.dynu.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH][2.5] introduce list_move macros (revisited)
+Message-ID: <20020610151450.GB9581@callisto.yi.org>
+In-Reply-To: <Pine.LNX.4.44.0206090508330.22407-100000@hawkeye.luckynet.adm> <Pine.LNX.4.44.0206090641330.24893-100000@hawkeye.luckynet.adm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Bendik Singers - Afrotid
-X-Toppers: N/A
-X-Scanner: exiscan *17HQqg-0003h1-00*zprFEpd5H8A* (Manchester Computing, University of Manchester)
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 10, 2002 at 09:31:42AM -0500, Kai Germaschewski wrote:
+On Sun, Jun 09, 2002 at 06:42:17AM -0600, Lightweight patch manager wrote:
+>
+[snip]
+> + */
+> +#define list_move(list,head) \
+> +        do { __list_del(list->prev, list->next); \
+> +             list_add(list,head); } \
+> +        while(0)
+> +
+[snip]
+>
 
-> Well, you need the source for the kernel you're building the module for,
-> it needs to be configured and "make dep" must have been run (for module 
-> versions).
+I have a few comments about this, that were not already been said on this thread:
 
-Obviously :)
+ * How about making it safer by assigning 'list' to something first,
+   instead of letting the preprocessor evaluate it 3 times, which 
+   can cause problems like, when 'list' evaluates to a function call?
+ * At least surround 'list' with (), as in (list)->prev, so operator
+   priorities would not give you trouble.
+ * Why are you adding the definitions in the end of list.h? It would
+   have been more originized if it was just after list_del_init, i.e,
+   along with the other list mutators.
+ * The comments for the macros are not clear at all. They don't tell
+   what's the purpose of these macros, which is to delete an entry from
+   a list and add it to another - which is what an average user will seek
+   when reading list.h.
 
-I already have stuff working fine w/o the Rules.make include, I'm just
-trying to do the "right thing"
+And about macros, I quote from Documentation/SubmittingPatches:
 
-> 	obj-m := my_module.o
-> 
-> 	include $(TOPDIR)/Rules.make
-> 
-> cd into the kernel source and run
-> 
-> 	make SUBDIRS=/path/to/your/module modules
+	3) 'static inline' is better than a macro
 
-Doesn't work for 2.2. Hopefully I will be able to specify M_OBJS in
-addition.
+	Static inline functions are greatly preferred over macros.
+	They provide type safety, have no length limitations, no formatting
+	limitations, and under gcc they are as cheap as macros.
 
-Also, you don't specify O_TARGET ?
+	Macros should only be used for cases where a static inline is clearly
+	suboptimal [there a few, isolated cases of this in fast paths],
+	or where it is impossible to use a static inline function [such as
+	string-izing].
 
-Given :
+	'static inline' is preferred over 'static __inline__', 'extern inline',
+	and 'extern __inline__'.
 
-TOPDIR=/usr/src/linux
-THISDIR=/tmp/mod
- 
-O_TARGET=lartmod.o
-obj-m := lart.o blah.o
- 
-include $(TOPDIR)/Rules.make
- 
-all:
-        (cd $(TOPDIR) && $(MAKE) SUBDIRS=/tmp/mod modules)
-
-
-a) default target for Rules.make doesn't do anything useful
-b) lartmod.o is never made (how could I convince it to ?)
-c) is this going to work OK for modversions...
-d) the above seems to disallow a lart.c forming only part of a final lart.o target
-e) there seems something is going horribly wrong :
-
-moz mod 317 make all
-make: execvp: /usr/src/linux/scripts/pathdown.sh: Permission denied
-ˆ¶@ˆ¶@re/locale/en_US/LC_MESSAGES/make.mo(cd /usr/src/linux && make SUBDIRS=/tmp/mod modules)
-make[1]: Entering directory `/usr/src/linux-2.4.0'
-
-The above problems is why I asked for working examples :)
-
-regards
-john
-
--- 
-"I continue to be amazed at what Andrei can make templates do. Some of it
- still makes my head hurt."
-	- Herb Sutter
+--
+Dan Aloni
+da-x@gmx.net

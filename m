@@ -1,72 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268098AbTGOOYh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 10:24:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268160AbTGOOYh
+	id S268222AbTGOO1X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 10:27:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268228AbTGOO1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 10:24:37 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:2574 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S268098AbTGOOYe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 10:24:34 -0400
-Date: Tue, 15 Jul 2003 15:39:16 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Michael Frank <mflt1@micrologica.com.hk>, David Jones <davej@suse.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@suse.cz>,
-       John Belmonte <jvb@prairienet.org>
-Subject: Re: 2.5.75-mm1 yenta-socket lsPCI IRQ reads incorrect
-Message-ID: <20030715153916.B14491@flint.arm.linux.org.uk>
-Mail-Followup-To: Michael Frank <mflt1@micrologica.com.hk>,
-	David Jones <davej@suse.de>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Pavel Machek <pavel@suse.cz>, John Belmonte <jvb@prairienet.org>
-References: <200307141333.03911.mflt1@micrologica.com.hk> <20030715085622.A32119@flint.arm.linux.org.uk> <200307151734.46616.mflt1@micrologica.com.hk> <200307151842.19851.mflt1@micrologica.com.hk>
+	Tue, 15 Jul 2003 10:27:23 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:2233
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S268222AbTGOO1W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 10:27:22 -0400
+Date: Tue, 15 Jul 2003 10:42:12 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Marcelo Penna Guerra <eu@marcelopenna.org>
+Cc: Lars Duesing <ld@stud.fh-muenchen.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test1: include/linux/pci.h inconsistency?
+Message-ID: <20030715144212.GB13207@gtf.org>
+References: <1058195165.4131.6.camel@ws1.intern.stud.fh-muenchen.de> <200307151027.06474.eu@marcelopenna.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200307151842.19851.mflt1@micrologica.com.hk>; from mflt1@micrologica.com.hk on Tue, Jul 15, 2003 at 06:42:17PM +0800
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <200307151027.06474.eu@marcelopenna.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 15, 2003 at 06:42:17PM +0800, Michael Frank wrote:
-> On Tuesday 15 July 2003 17:34, Michael Frank wrote:
-> > Jul 15 17:05:00 mhfl2 kernel: Suspending devices
-> > Jul 15 17:05:00 mhfl2 kernel: Yenta: dev suspend
-> > Jul 15 17:05:00 mhfl2 kernel: Yenta: suspend saved state ff
-> > Jul 15 17:05:00 mhfl2 kernel: /critical section: Counting pages to
-> > copy[nosave c03e2000] (pages needed: 3426+512=3938 free: 57849) Jul 15
-> > 17:05:00 mhfl2 kernel: Alloc pagedir
-> > Jul 15 17:05:00 mhfl2 kernel: ....[nosave c03e2000]Enabling SEP on CPU 0
-> > Jul 15 17:05:00 mhfl2 kernel: Freeing prev allocated pagedir
-> >
-> > power down - resume
-> >
-> > Jul 15 17:05:00 mhfl2 kernel: Yenta: dev resume
+On Tue, Jul 15, 2003 at 10:27:06AM -0300, Marcelo Penna Guerra wrote:
+> Hi Lars,
 > 
-> Dev resume ahead of socket resume?
-
-Yes, the dev resume triggers the per-socket resume.
-
-> > Jul 15 17:05:00 mhfl2 kernel: Yenta: init restored state ff
-> > Jul 15 17:05:00 mhfl2 kernel: Trying to free nonexistent resource
-> > <000003f8-000003ff> Jul 15 17:05:00 mhfl2 kernel: Yenta: init restored
-> > state ff
-> > Jul 15 17:05:00 mhfl2 kernel: hda: Wakeup request inited, waiting for
-> > !BSY... Jul 15 17:05:00 mhfl2 kernel: hda: start_power_step(step: 1000)
-> > Jul 15 17:05:00 mhfl2 kernel: hda: completing PM request, resume
-> > Jul 15 17:05:01 mhfl2 kernel: Devices Resumed
-> > Jul 15 17:05:01 mhfl2 kernel: Devices Resumed
-> > Jul 15 17:05:01 mhfl2 kernel: Yenta: dev resume
+> On Monday 14 July 2003 12:06, Lars Duesing wrote:
+> > btw: this driver_data is used by the networking part of the
+> > nforce2-driver. If anybody knows a hint, tell me.
+> > Else I will try to wake up someone at nvidia.
 > 
-> One more dev resume
+> There are patches for nvnet to work with 2.5.x. I'm using it right now with 
+> 2.6.0-test1.
+> 
+> Step by in www.nforcershq.com and join us in the linux forum.
 
-The extra resume is caused by not having all the PM information available
-to PCI device drivers.  This is probably another bit of the PM interface
-which needs to be fixed for 2.6.0.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+I really would love some person with an nForce NIC to try and use
+amd8111e.c or pcnet32.c with their nForce2 NIC, and see what happens.
+
+(you would need to add PCI ids, obviously, and perhaps turn on debugging
+to see what happens)
+
+	Jeff
+
+
 

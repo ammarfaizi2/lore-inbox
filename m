@@ -1,40 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288960AbSBOMyw>; Fri, 15 Feb 2002 07:54:52 -0500
+	id <S288987AbSBOMzw>; Fri, 15 Feb 2002 07:55:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288987AbSBOMyd>; Fri, 15 Feb 2002 07:54:33 -0500
-Received: from angband.namesys.com ([212.16.7.85]:17030 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S288960AbSBOMyU>; Fri, 15 Feb 2002 07:54:20 -0500
-Date: Fri, 15 Feb 2002 15:54:13 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Sebastian =?koi8-r?Q?Dr=F6ge?= <sebastian.droege@gmx.de>
-Cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: Reiserfs Corruption with 2.5.5-pre1
-Message-ID: <20020215155413.A7974@namesys.com>
-In-Reply-To: <20020214155716.3b810a91.sebastian.droege@gmx.de> <20020214180501.A1755@namesys.com> <20020214162232.5e59193b.sebastian.droege@gmx.de> <20020214172421.5d8ae63c.sebastian.droege@gmx.de> <20020214192633.A2311@namesys.com> <20020215135223.46af1b28.sebastian.droege@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
+	id <S289013AbSBOMzo>; Fri, 15 Feb 2002 07:55:44 -0500
+Received: from [66.150.46.254] ([66.150.46.254]:47928 "EHLO mail.tvol.net")
+	by vger.kernel.org with ESMTP id <S288987AbSBOMzi>;
+	Fri, 15 Feb 2002 07:55:38 -0500
+Message-ID: <3C6D0544.FE775840@wgate.com>
+Date: Fri, 15 Feb 2002 07:55:32 -0500
+From: Michael Sinz <msinz@wgate.com>
+Organization: WorldGate Communications Inc.
+X-Mailer: Mozilla 4.76 [en] (X11; U; FreeBSD 4.5-STABLE i386)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Martin Dalecki <dalecki@evision-ventures.com>
+CC: Jakob =?iso-8859-1?Q?=D8stergaard?= <jakob@unthought.net>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Core dump file control
+In-Reply-To: <3C6BE18F.7B849129@wgate.com> <20020215124036.C23673@unthought.net> <3C6CF4AA.8040808@evision-ventures.com> <20020215131320.E23673@unthought.net> <3C6CFD7A.30503@evision-ventures.com>
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20020215135223.46af1b28.sebastian.droege@gmx.de>
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-On Fri, Feb 15, 2002 at 01:52:23PM +0100, Sebastian Dröge wrote:
+Martin Dalecki wrote:
+> 
+> Jakob Østergaard wrote:
+> 
+> >On Fri, Feb 15, 2002 at 12:44:42PM +0100, Martin Dalecki wrote:
+> >
+> >>Jakob Østergaard wrote:
+> >>
+> >...
+> >
+> >>>What I want is "core.[process name]" eventually with a ".[pid]" appended.  A
+> >>>flexible scheme like your patch implements is very nice.   Actually having
+> >>>the core files in CWD is fine for me - I mainly care about the file name.
+> >>>
+> >>Please execute the size command on the core fiel:
+> >>
+> >>size core
+> >>
+> >>to see why this isn't needed.
+> >>
+> >
+> >Huh ?
+> >
+> >I suppose you mean, that I can get the name of the executable that caused the
+> >core dump, when running size - right ?
+> >
+> >Well, you can do that easier with the file command.
+> >
+> >But that doesn't prevent my 7 other processes from overwriting the core file
+> >of the 8'th process which was the first one to crash.   Multi-process systems
+> >can, on occation, produce such "domino dumps".   Separate names is a *must have*.
+> >
+> This point I fully agree with. And in fact 2.4.17 already does it the
+> core.{pid} way.
 
-> > Do these files disa[[ear after you quit GNOME?
-> They don't disappear but I can't reproduce the behaviour anymore...
-> I've run reiserfsck --fix-fixable, it detects one error, fixes that and after reboot the files were gone in 2.4.17 AND 2.5.5-pre1
-What was the error?
+This is still not a very good way to control the names.
 
-> I had this behaviour before the reiserfscks but I thought it has something to do with the files
-> 2.4.17, again, runs without any problems
-> Maybe somebody can test if he can start gnome-terminal with 2.5.5-pre1
-Where do these gnome-terminal hangs? (check ps axl output,
-also sysrq-t may be of some help)
+What I have is a cluster of nearly 100 machines - all but one of them have
+no disk.  When something goes down on one of the machines, I would like to
+know (a) what it was that went down and (b) which machine it was on.
+I would also like to have the core files someplace that is writable (all
+but the /coredumps directory is read-only - oh, and the local tmpfs mounts
+for /var and /etc)
 
-Bye,
-    Oleg
+> >And having process names is nicer than having PIDs - I don't mind if my core
+> >files are over-written on subsequent runs, actually it's nice (keeps the disks
+> >from filling up).
+>
+> They can get long and annoying... They are not suitable for short name
+> filesystems... They provide a good
+> hint for deliberate overwrites.... and so on. Basically I think this
+> would be too much of the good.
+
+I was very carefull to keep that behavior consistant with 2.4.17.  That
+is, if you do nothing different with the kernel.core_name_format then it
+will work just as before.  And only root can change that sysctl.
+
+As to "overwrites" and the like, I have much less overwrites with most
+any pattern form than with just plain "core"  And I can support features
+that many people have wanted (%N.core being a very popular construct).
+
+-- 
+Michael Sinz ---- Worldgate Communications ---- msinz@wgate.com
+A master's secrets are only as good as
+	the master's ability to explain them to others.

@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267798AbUJVUqp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267565AbUJVUvJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267798AbUJVUqp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 16:46:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267743AbUJVUqP
+	id S267565AbUJVUvJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 16:51:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267737AbUJVUvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 16:46:15 -0400
-Received: from holomorphy.com ([207.189.100.168]:57797 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267737AbUJVUpN (ORCPT
+	Fri, 22 Oct 2004 16:51:03 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:27377 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S267565AbUJVUst (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 16:45:13 -0400
-Date: Fri, 22 Oct 2004 13:45:06 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, raybry@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Hugepages demand paging V1 [2/4]: set_huge_pte() arch updates
-Message-ID: <20041022204506.GD17038@holomorphy.com>
-References: <B05667366EE6204181EABE9C1B1C0EB501F2ADFB@scsmsx401.amr.corp.intel.com> <Pine.LNX.4.58.0410212151310.3524@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0410212156300.3524@schroedinger.engr.sgi.com> <20041022103708.GK17038@holomorphy.com> <Pine.LNX.4.58.0410220829200.7868@schroedinger.engr.sgi.com> <20041022154219.GY17038@holomorphy.com> <Pine.LNX.4.58.0410221318370.9833@schroedinger.engr.sgi.com>
+	Fri, 22 Oct 2004 16:48:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=Yynx0a9G1ajBG35xYhkFQe5d6bqDk4ACA5ByGLMPe2F0P206Rl46ZM4TD9WdLjJV7gmXIIYdbn7RcY/2NzTRgVLjH13iSl2hBXX1jhKF70y74escfhv0IaBn2KXDBoKNRADGG9jY3BUkoOrCWpMK/oI7Iyk+gx6OVlFhH7LMw+U=
+Message-ID: <9e47339104102213472193a6df@mail.gmail.com>
+Date: Fri, 22 Oct 2004 16:47:44 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Resolving missing external symbols at module load time.
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0410221318370.9833@schroedinger.engr.sgi.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Oct 2004, William Lee Irwin III wrote:
->> What is in fact far more pressing is flush_dcache_page(), without a
->> correct implementation of which for hugetlb, user-visible data
->> corruption follows.
+I'm looking at how to get rid of the inter_module_get calls in DRM to
+AGP. What is the proper procedure to reference an external symbol that
+may be any of the following:
 
-On Fri, Oct 22, 2004 at 01:29:24PM -0700, Christoph Lameter wrote:
-> When is flush_dcache_page used on a huge page?
-> It seems that the i386 simply does nothing for flush_dcache_page. IA64
-> defers to update_mmu_cache by setting PG_arch_1. So these two are ok as
-> is.
-> The other archs are likely much more involved than this. I tried to find
-> an simple way to identify a page as a huge page via struct page but
-> that is not that easy and its likely not good to follow
-> pointers to pointers in such a critical function. Maybe we need to add a
-> new page flag?
+1) compiled in
+2) module that is loaded
+3) non-existent since the system doesn't have the hardware
 
-It's not done at all for hugepages now, and needs to be. Fault handling
-on hugetlb vmas will likely expose the cahing of stale data more readily.
+With inter_module_get() #1 and #2 would succeed and return a pointer
+to the module. #3 would fail. The DRM code then handled each of these
+cases. I've been looking at the new module calls and and I can't see
+how to make this work.
 
+The symbol resolution also needs to work if DRM is compiled in and the
+system has no AGP support.
 
--- wli
+-- 
+Jon Smirl
+jonsmirl@gmail.com

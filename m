@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267210AbSLKQSd>; Wed, 11 Dec 2002 11:18:33 -0500
+	id <S267199AbSLKQN3>; Wed, 11 Dec 2002 11:13:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267213AbSLKQSc>; Wed, 11 Dec 2002 11:18:32 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:45573 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S267210AbSLKQSa>;
-	Wed, 11 Dec 2002 11:18:30 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200212111633.gBBGXlki008160@darkstar.example.net>
-Subject: Re: Reliable hardware
-To: orion@cora.nwra.com (Orion Poplawski)
-Date: Wed, 11 Dec 2002 16:33:47 +0000 (GMT)
-Cc: scott@thomasons.org, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <3DF76302.7040503@cora.nwra.com> from "Orion Poplawski" at Dec 11, 2002 09:08:34 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S267201AbSLKQN3>; Wed, 11 Dec 2002 11:13:29 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:34231 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S267199AbSLKQN2>;
+	Wed, 11 Dec 2002 11:13:28 -0500
+Date: Wed, 11 Dec 2002 17:21:14 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200212111621.RAA16124@harpo.it.uu.se>
+To: perfctr-devel@lists.sourceforge.net
+Subject: perfctr-2.4.3 released
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >>Random lockups on dual athlons are a notorious problem under all
-> >>OS's. Start by checking it passes memtest86, that will verify the
-> >>RAM is ok - and the AMD is -very- picky about RAM.
-> >>
-> >>If thats ok then let me know which board you have, what is plugged
-> >>into it and what PSU you are using.
-> >>    
-> >>
-> >
-> >I have two AMD MP 2000+ cpus in an ASUS A7M266-D. Even after returning 
-> >my memory for new chips the store owner memtest86'd, my combo of cpus 
-> >and mobo was finding the occasional error. I finally ended up 
-> >resolving it by simply underclocking the bus about 6Mhz :( 
-> >
-> >Next time, I'm buying ECC memory.
+perfctr-2.4.3 is now available at the usual place:
+http://www.csd.uu.se/~mikpe/linux/perfctr/
 
-Why?  ECC memory guards against a single bit error in the RAM, nothing
-else, (except that it also reports double bit errors).
+Users of hyper-threaded Pentium 4s (Xeons) are strongly
+recommended to upgrade to this release. Older releases
+may silently malfunction due to the resource conflicts
+mentioned in the CHANGES extract below.
 
-John.
+Version 2.4.3, 2002-12-11
+- Support for hyper-threaded Pentium 4s added. In a HT P4, the
+  two logical processors share the performance counter state.
+  HT P4s are therefore _asymmetric_ multi-processors, and the
+  driver enforces CPU affinity masks on users of per-process
+  performance counters to avoid resource conflicts. (Users are
+  restricted to logical processor #0 in each physical CPU.)
+  Limitations:
+  * The kernel mechanism for updating a process' CPU affinity
+    mask uses no or very weak locking, which makes certain race
+    conditions possible that can break the driver's CPU affinity
+    mask restrictions. For now, users should NOT use the
+    sched_setaffinity() system call on processes using per-process
+    performance counters.
+  * Global-mode performance counters don't work on HT P4s due to
+    limitations in the API. This will be fixed in perfctr-2.5.
+  * 2.2 kernels don't have CPU affinity masks, and therefore can't
+    support HT P4s.
+
+/ Mikael Pettersson

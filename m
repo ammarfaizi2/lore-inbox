@@ -1,72 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266030AbUBEUSB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 15:18:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266381AbUBEUSB
+	id S266522AbUBEUQg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 15:16:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266408AbUBEUQg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 15:18:01 -0500
-Received: from fw.osdl.org ([65.172.181.6]:11737 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266030AbUBEURz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 15:17:55 -0500
-Date: Thu, 5 Feb 2004 12:11:36 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "Maciej Soltysiak" <solt@dns.toxicfilms.tv>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2-mm1 [are these mine?]
-Message-Id: <20040205121136.1538887f.rddunlap@osdl.org>
-In-Reply-To: <000501c3ec22$46444bb0$0e25fe96@pysiak>
-References: <20040205014405.5a2cf529.akpm@osdl.org>
-	<200402051357.04005.s0348365@sms.ed.ac.uk>
-	<4022505B.1020900@vision.ee>
-	<000501c3ec22$46444bb0$0e25fe96@pysiak>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Feb 2004 15:16:36 -0500
+Received: from fmr09.intel.com ([192.52.57.35]:30659 "EHLO hermes.hd.intel.com")
+	by vger.kernel.org with ESMTP id S266522AbUBEUQ3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 15:16:29 -0500
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [Infiniband-general] Getting an Infiniband access layer in the linux kernel
+Date: Thu, 5 Feb 2004 12:16:17 -0800
+Message-ID: <F595A0622682C44DBBE0BBA91E56A5ED1C3682@orsmsx410.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Infiniband-general] Getting an Infiniband access layer in the linux kernel
+Thread-Index: AcPsGZjROImzXgQCRJWTJFQhgl26twABc3+gAAEPX2A=
+From: "Woodruff, Robert J" <woody@co.intel.com>
+To: "King, Steven R" <steven.r.king@intel.com>, "Greg KH" <greg@kroah.com>,
+       <linux-kernel@vger.kernel.org>
+Cc: <infiniband-general@lists.sourceforge.net>
+X-OriginalArrivalTime: 05 Feb 2004 20:16:18.0139 (UTC) FILETIME=[E9C38AB0:01C3EC24]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Feb 2004 20:57:17 +0100 "Maciej Soltysiak" <solt@dns.toxicfilms.tv> wrote:
+I think that we tried to isolate a lot of these kernel calls into
+one library, the component library, so that when the kernel APIs change,
+which seems to happen every release, we only have to change the code 
+in one spot. 
 
-| Hi,
-| 
-| 2.6.2-mm1 contains:
-|  sound/oss/dmasound/tas3001c.c                                       1 +
-| 1 -       0 !
-|  sound/oss/dmasound/tas3001c_tables.c                              166 +
-| 166 -       0 !
-|  sound/oss/dmasound/tas3004_tables.c                               120 +
-| 120 -       0 !
-|  sound/oss/dmasound/trans_16.c                                      22 +
-| 22 -       0 !
-|  sound/oss/sb_card.h                                                50 +
-| 50 -       0 !
-| 
-| I would like to ask if these are from the batch I proposed a while ago
-| during 2.6.0 available at:
-| http://soltysiak.com/patches/2.6/2.6.0/c99/patch-2.6.0-c99.diff
-| split:
-| http://soltysiak.com/patches/2.6/2.6.0/c99/split/
-| 
-| It would add to my other C99 contributed patches list :-)
+This actually helps porting to new kernels. For example, I think that
+it only took a week to get the IBAL code to compile on 2.6 since all or
+most 
+of the kernel dependencies were isolated to one module. 
 
-Yes, they are yours.  I rediffed them and pushed them to Andrew
-and the comment for them says:
+It also then allows most of the code to remain very readable, since we
+don't have to put #ifdefs all over the place when an API or kernel data
+structure changes. 
 
-
-[PATCH] janitor: sound/oss: use C99 inits.
-
-From: "Randy.Dunlap" <rddunlap@osdl.org>,
-      "Maciej Soltysiak" <solt@dns.toxicfilms.tv>
-
-C99 initializers for linux/sound.
+Are there any other examples of drivers that isolate kernel specific
+calls
+to one module or file of their code to ease portability between
+different revisions
+of the kernel ? If not, maybe they should look at what we have done,
+it might save them some headaches in the future. 
 
 
 
---
-~Randy
-kernel-janitors project:  http://janitor.kernelnewbies.org/
+-----Original Message-----
+From: infiniband-general-admin@lists.sourceforge.net
+[mailto:infiniband-general-admin@lists.sourceforge.net] On Behalf Of
+King, Steven R
+Sent: Thursday, February 05, 2004 11:39 AM
+To: Greg KH; linux-kernel@vger.kernel.org
+Cc: infiniband-general@lists.sourceforge.net
+Subject: RE: [Infiniband-general] Getting an Infiniband access layer in
+the linux kernel
+
+
+We just use the kernel's spin_lock_irqsave(), so I don't know what
+you're talking about.
+
+-----Original Message-----
+From: Greg KH [mailto:greg@kroah.com] 
+Sent: Thursday, February 05, 2004 10:55 AM
+To: King, Steven R; linux-kernel@vger.kernel.org
+Cc: infiniband-general@lists.sourceforge.net
+Subject: Re: [Infiniband-general] Getting an Infiniband access layer in
+the linux kernel
+
+
+On Thu, Feb 05, 2004 at 10:27:54AM -0800, King, Steven R wrote:
+> Hi Greg,
+> What exactly is wrong with spinlock?  Far as I know, it's been working
+
+> bug-free on a variety of platforms for quite some time now.  The other
+
+> abstractions such as atomic_t are for platform portability.
+
+Again, compare them to the current kernel spinlocks and try to realize
+why your implementation of spinlock_irqsave() will not work on all
+platforms.
+
+Come on, just use the kernel versions, there is no need to reinvent the
+wheel all of the time, it just wastes everyones time (including mine...)
+
+thanks,
+
+greg k-h
+
+
+-------------------------------------------------------
+The SF.Net email is sponsored by EclipseCon 2004
+Premiere Conference on Open Tools Development and Integration See the
+breadth of Eclipse activity. February 3-5 in Anaheim, CA.
+http://www.eclipsecon.org/osdn
+_______________________________________________
+Infiniband-general mailing list Infiniband-general@lists.sourceforge.net
+https://lists.sourceforge.net/lists/listinfo/infiniband-general

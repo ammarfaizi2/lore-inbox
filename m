@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbTKIEa3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Nov 2003 23:30:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbTKIEa3
+	id S262188AbTKIGWI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 01:22:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbTKIGWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Nov 2003 23:30:29 -0500
-Received: from mail.kroah.org ([65.200.24.183]:54145 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262176AbTKIEa1 (ORCPT
+	Sun, 9 Nov 2003 01:22:07 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:32708 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262188AbTKIGWB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Nov 2003 23:30:27 -0500
-Date: Sat, 8 Nov 2003 20:29:37 -0800
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Bug (?) in subsystem kset refcounts
-Message-ID: <20031109042936.GA8583@kroah.com>
-References: <Pine.LNX.4.44L0.0311082209330.7127-100000@netrider.rowland.org>
+	Sun, 9 Nov 2003 01:22:01 -0500
+Date: Mon, 3 Nov 2003 07:44:54 +0800
+From: Geoffrey Lee <glee@gnupilgrims.org>
+To: Kronos <kronos@kronoz.cjb.net>
+Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@redhat.com>
+Subject: Re: [patch] reproducible athlon mce fix
+Message-ID: <20031102234454.GA8409@anakin.wychk.org>
+References: <20031102055748.GA1218@anakin.wychk.org> <20031102182556.GA4974@dreamland.darkstar.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=big5
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0311082209330.7127-100000@netrider.rowland.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20031102182556.GA4974@dreamland.darkstar.lan>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 08, 2003 at 10:20:03PM -0500, Alan Stern wrote:
-> I hesitate to say this is definitely a bug, since it might be intended 
-> behavior.  But it is rather strange.
+On Sun, Nov 02, 2003 at 07:25:56PM +0100, Kronos wrote:
+
+> In  this way  you don't  read  from bank  0. The strange  thing is  that
+
+
+
+In any case:
+
+(1) only does it for k7 (which seems to do the right thing)
+(2) k7.c mcheck doesn't read from bank 0 as well
+
+> amd_mcheck_init doesn't enable reporting on  this bank... it should stay
+> clean. What's going on here?
 > 
-> Subsystems included an embedded kset, which itself includes an embedded 
-> kobject and so is subject to reference counting.  Whenever a kobject 
-> belonging to the kset is destroyed, the kset's reference count is 
-> decremented.  However, kobjects can be added to a kset via the three 
-> macros
-> 
-> 	kobj_set_kset_s, kset_set_kset_s, and subsys_set_kset
-> 
-> and these do _not_ increment the kset's reference count.  As a result, the 
-> reference count only goes down, not up, quickly becoming negative.
 
-See the patch that went into Linus's tree yesterday to fix where this
-would happen.
 
-But yes, usages of these macros is touchy, and we need to get it
-correct.  Your proposed patch will never allow the reference counts to
-go back to zero.
+Notice how k7.c doesn't read from bank 0 either, and this was the fix 
+submitted by Dave earlier on for k7.c but was not done for non-fatal.c.
 
-Also, notice that when the kobject is initialized, the kset set by these
-macros is then incremented.
 
-thanks,
-
-greg k-h
+	 - g.
+-- 
+\x42\x20\x70\x65\x6f\x70\x6c\x65\x20\x61\x72\x65\x20\x77\x61\x6e\x6b\x65\x72\x73

@@ -1,49 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264476AbTFEDXK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 23:23:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264477AbTFEDXJ
+	id S264434AbTFEEFe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 00:05:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264447AbTFEEFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 23:23:09 -0400
-Received: from holomorphy.com ([66.224.33.161]:11701 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264476AbTFEDXG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 23:23:06 -0400
-Date: Wed, 4 Jun 2003 20:35:32 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Albert Cahalan <albert@users.sf.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, davem@redhat.com,
-       torvalds@transmeta.com, bcollins@debian.org, tom_gall@vnet.ibm.com,
-       anton@samba.org
-Subject: Re: /proc/bus/pci
-Message-ID: <20030605033532.GY8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Albert Cahalan <albert@users.sf.net>,
-	linux-kernel <linux-kernel@vger.kernel.org>, davem@redhat.com,
-	torvalds@transmeta.com, bcollins@debian.org, tom_gall@vnet.ibm.com,
-	anton@samba.org
-References: <1054783303.22104.5569.camel@cube>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1054783303.22104.5569.camel@cube>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Thu, 5 Jun 2003 00:05:33 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48093 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264434AbTFEEFc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 00:05:32 -0400
+Message-ID: <3EDEC4AA.3050008@pobox.com>
+Date: Thu, 05 Jun 2003 00:18:50 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: greg@kroah.com
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] PCI: remove usage of pci_for_each_dev() in sound/oss/via82cxxx_audio.c
+References: <200306050328.h553SlEL011941@hera.kernel.org>
+In-Reply-To: <200306050328.h553SlEL011941@hera.kernel.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 04, 2003 at 11:21:43PM -0400, Albert Cahalan wrote:
-> I notice that /proc/bus/pci doesn't offer a sane
-> interface for multiple PCI domains and choice of BAR.
-> What do people think of this?
-> bus/pci/00/00.0 -> ../hose0/bus0/dev0/fn0/config-space
-> bus/pci/hose0/bus0/dev0/fn0/config-space
-> bus/pci/hose0/bus0/dev0/fn0/bar0
-> bus/pci/hose0/bus0/dev0/fn0/bar1
-> bus/pci/hose0/bus0/dev0/fn0/bar2
-> bus/pci/hose0/bus0/dev0/fn0/status
+Linux Kernel Mailing List wrote:
+> ChangeSet 1.1254.4.15, 2003/06/04 12:30:25-07:00, greg@kroah.com
+> 
+> 	[PATCH] PCI: remove usage of pci_for_each_dev() in sound/oss/via82cxxx_audio.c
+> 
+> 
+> # This patch includes the following deltas:
+> #	           ChangeSet	1.1254.4.14 -> 1.1254.4.15
+> #	sound/oss/via82cxxx_audio.c	1.27    -> 1.28   
+> #
+> 
+>  via82cxxx_audio.c |   11 +++++------
+>  1 files changed, 5 insertions(+), 6 deletions(-)
+> 
+> 
+> diff -Nru a/sound/oss/via82cxxx_audio.c b/sound/oss/via82cxxx_audio.c
+> --- a/sound/oss/via82cxxx_audio.c	Wed Jun  4 20:28:51 2003
+> +++ b/sound/oss/via82cxxx_audio.c	Wed Jun  4 20:28:51 2003
+> @@ -1357,12 +1357,12 @@
+>  {
+>  	int minor = minor(inode->i_rdev);
+>  	struct via_info *card;
+> -	struct pci_dev *pdev;
+> +	struct pci_dev *pdev = NULL;
+>  	struct pci_driver *drvr;
+>  
+>  	DPRINTK ("ENTER\n");
+>  
+> -	pci_for_each_dev(pdev) {
+> +	while ((pdev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, pdev)) != NULL) {
+>  		drvr = pci_dev_driver (pdev);
+>  		if (drvr == &via_driver) {
+>  			assert (pci_get_drvdata (pdev) != NULL);
 
-I would be happy with such an interface.
+
+Looking at your various commits in this vein, it really looks like there 
+needs to be a function that returns the PCI device, given the struct 
+pci_driver pointer.  pci_find_driver() perhaps?
+
+	Jeff
 
 
--- wli
+

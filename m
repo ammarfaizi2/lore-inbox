@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264305AbTDXBEO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 21:04:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264359AbTDXBEO
+	id S264346AbTDXBKX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 21:10:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264359AbTDXBKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 21:04:14 -0400
-Received: from mail.ccur.com ([208.248.32.212]:22793 "EHLO exchange.ccur.com")
-	by vger.kernel.org with ESMTP id S264305AbTDXBEO (ORCPT
+	Wed, 23 Apr 2003 21:10:23 -0400
+Received: from dci.doncaster.on.ca ([66.11.168.194]:57216 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S264346AbTDXBKW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 21:04:14 -0400
-Date: Wed, 23 Apr 2003 21:16:17 -0400
-From: Joe Korty <joe.korty@ccur.com>
-To: Nils Holland <nils@ravishing.de>
-Cc: David van Hoose <davidvh@cox.net>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.21-rc1] USB Trackball broken
-Message-ID: <20030424011616.GA11649@tsunami.ccur.com>
-Reply-To: joe.korty@ccur.com
-References: <3EA6C558.5040004@cox.net> <20030423201619.GB12889@kroah.com> <3EA707D2.1000507@cox.net> <200304240034.20872.nils@ravishing.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200304240034.20872.nils@ravishing.de>
-User-Agent: Mutt/1.4i
+	Wed, 23 Apr 2003 21:10:22 -0400
+Message-ID: <3EA73C54.3020201@suwalski.net>
+Date: Wed, 23 Apr 2003 21:22:28 -0400
+From: Pat Suwalski <pat@suwalski.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030331
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Werner Almesberger <wa@almesberger.net>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Matthias Schniedermeyer <ms@citd.de>, Marc Giger <gigerstyle@gmx.ch>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 623] New: Volume not remembered.
+References: <21660000.1051114998@[10.10.2.4]> <20030423164558.GA12202@citd.de> <1508310000.1051116963@flay> <20030423183413.C1425@almesberger.net> <1560860000.1051133781@flay> <20030423191427.D3557@almesberger.net> <1570840000.1051136330@flay> <20030424001134.GD26806@mail.jlokier.co.uk> <20030423214332.H3557@almesberger.net> <20030424011137.GA27195@mail.jlokier.co.uk>
+In-Reply-To: <20030424011137.GA27195@mail.jlokier.co.uk>
+X-Enigmail-Version: 0.73.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David, Nils,
+Jamie Lokier wrote:
+> In fact, forget about "volume".  Just have a "silent" parameter that
+> defaults to 0, and determines whether the device starts silent or
+> loads preset defaults.  Make it a core audio thing rather than a
+> per-driver thing, too.  "silent=1" in /etc/modules.conf self-evidently
+> answers the FAQ, too :)
 
-Nils, you have
+That is veryt true. Self-answering FAQs are nice.
 
-	CONFIG_USB_HIDINPUT=y
+This thread... what a monstrosity I started...
 
-which is correct.  David, you have
+--Pat
 
-	CONFIG_USB_HIDINPUT=m
 
-which is an illegal setting.  You must have hand-edited your config file
-to get this.  My guess is, the '=m' is being treated as 'not set'.
-
-You also need to have CONFIG_INPUT (Input core support section) set.
-If this is not set you will not see the CONFIG_USB_HIDINPUT question
-come up in the USB section.
-
-Regards,
-Joe

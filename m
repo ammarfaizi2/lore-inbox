@@ -1,38 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267670AbUH1TV2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267625AbUH1TYJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267670AbUH1TV2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 15:21:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267662AbUH1TV2
+	id S267625AbUH1TYJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 15:24:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267632AbUH1TYJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 15:21:28 -0400
-Received: from prime.hereintown.net ([141.157.132.3]:10400 "EHLO
-	prime.hereintown.net") by vger.kernel.org with ESMTP
-	id S267659AbUH1TVD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 15:21:03 -0400
-Message-ID: <4130DB18.2020208@hereintown.net>
-Date: Sat, 28 Aug 2004 19:20:56 +0000
-From: Chris Meadors <clubneon@hereintown.net>
-User-Agent: Mozilla Thunderbird 0.7.3 (Windows/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: Lee Revell <rlrevell@joe-job.com>, Craig Milo Rogers <rogers@isi.edu>,
-       QuantumG <qg@biodome.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: reverse engineering pwcx
-References: <412FD751.9070604@biodome.org> <20040828012055.GL24018@isi.edu> <20040828014931.GM24018@isi.edu> <412FF888.8090307@biodome.org> <20040828033552.GN24018@isi.edu> <1093664940.8611.8.camel@krustophenia.net> <20040828122333.GC1841@ucw.cz>
-In-Reply-To: <20040828122333.GC1841@ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Aug 2004 15:24:09 -0400
+Received: from alias.nmd.msu.ru ([193.232.127.67]:60687 "EHLO alias.nmd.msu.ru")
+	by vger.kernel.org with ESMTP id S267615AbUH1TXx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 15:23:53 -0400
+Date: Sat, 28 Aug 2004 23:23:50 +0400
+From: Alexander Lyamin <flx@msu.ru>
+To: Christoph Hellwig <hch@lst.de>, flx@msu.ru,
+       Christophe Saout <christophe@saout.de>, Andrew Morton <akpm@osdl.org>,
+       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com, torvalds@osdl.org,
+       reiserfs-list@namesys.com
+Subject: Re:  reiser4 plugins (was: silent semantic changes with reiser4)
+Message-ID: <20040828192350.GI6746@alias>
+Reply-To: flx@msu.ru
+Mail-Followup-To: flx@msu.ru, Christoph Hellwig <hch@lst.de>,
+	Christophe Saout <christophe@saout.de>,
+	Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+	flx@namesys.com, torvalds@osdl.org, reiserfs-list@namesys.com
+References: <1093522729.9004.40.camel@leto.cs.pocnet.net> <20040826124929.GA542@lst.de> <1093525234.9004.55.camel@leto.cs.pocnet.net> <20040826130718.GB820@lst.de> <1093526273.11694.8.camel@leto.cs.pocnet.net> <20040826132439.GA1188@lst.de> <20040828105929.GB6746@alias> <20040828111233.GA11339@lst.de> <20040828120502.GE6746@alias> <20040828135655.GA13380@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040828135655.GA13380@lst.de>
+X-Operating-System: Linux 2.6.5-7.104-smp
+X-Fnord: +++ath
+X-WebTV-Stationery: Standard; BGColor=black; TextColor=black
+X-Message-Flag: Message text blocked: ADULT LANGUAGE/SITUATIONS
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
+Sat, Aug 28, 2004 at 03:56:55PM +0200, Christoph Hellwig wrote:
+> On Sat, Aug 28, 2004 at 04:05:02PM +0400, Alexander Lyamin wrote:
+> > > But one could even say VFS is integral part of a linux filesystem as
+> > > it does most of the work a filesystem driver does in other operating
+> > > systems.
+> > 
+> > theres no "linux filesystem". there are "linux filesystems".
+> > thanks god.
+> 
+> a linux filesystem, not the linux filesystem, please read again.
+> 
+> > But I it would be really grate if you'll elaborate your sentence with
+> > example of VFS functionality (lack of it) on said "other operating systems"
+> > and if you'll define "most of work".
+> 
+> most trivial example is namespace locking, in *BSD, Windows, SVR4 and
+> derivates it's done in the lowlevel filesystem.  In plan9, Linux and
+> soon DragonlyBSD it's done in the VFS. 
 
-> But 160x120 sounds pretty ridiculous. It still would be possible to
-> scale that to 640x480 smoothly, but the image would be obviously blurry
-> and just awful even with avanced Bayer-based scaling techniques.
+ok. good examples.
 
-That sounds about right.  At 640x480 the QuickCam 3000 is an awful 
-blurry mess.  Though I think the actual pixel count would be a multiple 
-(divisor) of CIF, because in the nCIF resolutions it seems to expose 
-more pixels.
+> 
+> > > > P.S. I imagine, how much flamed it would be if reiser4 made any intensive
+> > > > changes in linux VFS code...
+> > > 
+> > > It really depends on how you sent them.  If you had a big patch without
+> > > explanations - sure.
+> > It would work with small tweaks, but you just can take a look at reiser4
+> > code and you'll understand that it just could not be chopped in
+> > "set of small patches" altough it could be documented better ofcourse,
+> > but its really well commented already.
+> > 
+> > some times, some approaches to  some problems  just would not work.
+> 
+> You still haven't even bother explaining what you want to do.  It's hard
+> to argue against vague uncertainity.
+
+ o files as directories -  no oppinion on that.
+                            
+ o metafiles -   AFAIK it was product of Nikita Danilov just playing and fooling.
+
+Probably solution that will satisfy you is to have "legacy (dumb?) mode" which
+is leaving all this fancy stuff out of sight.
+
+-- 
+"the liberation loophole will make it clear.."
+lex lyamin

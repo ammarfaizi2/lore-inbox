@@ -1,80 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269182AbUINHRc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269183AbUINHUX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269182AbUINHRc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 03:17:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269183AbUINHRc
+	id S269183AbUINHUX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 03:20:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269184AbUINHUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 03:17:32 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:12744 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S269182AbUINHR3 (ORCPT
+	Tue, 14 Sep 2004 03:20:23 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:19074 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S269183AbUINHUS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 03:17:29 -0400
-Date: Tue, 14 Sep 2004 09:15:56 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "C.Y.M." <syphir@syphir.sytes.net>
-Cc: linux-kernel@vger.kernel.org, "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Changes to ide-probe.c in 2.6.9-rc2 causing improper detection
-Message-ID: <20040914071555.GJ2336@suse.de>
-References: <20040914060628.GC2336@suse.de> <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA9mKu6AlYok2efOpJ3sb3O+KAAAAQAAAA6P8AlyGHikORXOqFZ6fdPAEAAAAA@syphir.sytes.net> <20040914070649.GI2336@suse.de>
+	Tue, 14 Sep 2004 03:20:18 -0400
+Date: Tue, 14 Sep 2004 18:14:40 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Marcin Garski <mgarski@post.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Copying huge amount of data on ReiserFS, XFS and Silicon Image 3112 cause oops.
+Message-ID: <20040914081440.GC5083@frodo>
+References: <414622C9.1030701@post.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040914070649.GI2336@suse.de>
+In-Reply-To: <414622C9.1030701@post.pl>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 14 2004, Jens Axboe wrote:
-> They do support it, they just don't flag the support in the capability
-> flags. And of course some don't support it at all, you can try this on
-> your drives if you want to know for sure.
+On Tue, Sep 14, 2004 at 12:44:25AM +0200, Marcin Garski wrote:
+> [Please CC me on replies, I am not subscribed to the list, thanks]
+> 
+> Hello,
+> 
+> I bought a new HDD Maxtor 6Y160M0 and connected it as hdg to Sil 3112 
+> (CONFIG_BLK_DEV_SIIMAGE) on Abit NF7-S V2.0. I also have ST380013AS 
+> (with Fedora Core 2 on hde2 and 2.6.5 kernel) as hde.
 
-Forgot to attach the code, here it is...
+Possible hardware problems?  Have you run memtest there?
 
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <string.h>
-#include <sys/ioctl.h>
-#include <linux/hdreg.h>
+Was 4KSTACKS enabled in those kernels (I think so)? - XFS
+has one known problem with that option when running low on
+space (patch fixing that is being tested atm) and I think
+the reiserfs folks had some 4k stack issues as well at one
+point, so that might be another explanation.
 
-int main(int argc, char *argv[])
-{
-	char args[7];
-	int fd;
-
-	if (argc < 2) {
-		printf("%s: <dev>\n", argv[0]);
-		return 1;
-	}
-
-	fd = open(argv[1], O_RDONLY | O_NONBLOCK);
-	if (fd == -1) {
-		perror("open");
-		return 2;
-	}
-
-	memset(args, 0, 7);
-	args[0] = 0xE7;
-
-	printf("issuing FLUSH_CACHE: ");
-	if (ioctl(fd, HDIO_DRIVE_TASK, args) == -1)
-		printf("failed 0x%x/0x%x!\n", args[0], args[1]);
-	else
-		printf("worked\n");
-
-	memset(args, 0, 7);
-	args[0] = 0xEA;
-
-	printf("issuing FLUSH_CACHE_EXT: ");
-	if (ioctl(fd, HDIO_DRIVE_TASK, args) == -1)
-		printf("failed 0x%x/0x%x!\n", args[0], args[1]);
-	else
-		printf("worked\n");
-
-	close(fd);
-	return 0;
-}
+cheers.
 
 -- 
-Jens Axboe
-
+Nathan

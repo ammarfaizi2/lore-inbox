@@ -1,110 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261960AbVCHA0i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261994AbVCHA1X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261960AbVCHA0i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 19:26:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbVCHAX5
+	id S261994AbVCHA1X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 19:27:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbVCHA06
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 19:23:57 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:12182 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261301AbVCHAWY
+	Mon, 7 Mar 2005 19:26:58 -0500
+Received: from smtp2.Stanford.EDU ([171.67.16.125]:25038 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S261994AbVCHAZf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 19:22:24 -0500
-Subject: Re: [RFC][PATCH] PCI bridge driver rewrite (rev 02)
-From: Adam Belay <abelay@novell.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, len.brown@intel.com
-In-Reply-To: <9e47339105030715034a8f8ff9@mail.gmail.com>
-References: <1110234742.2456.37.camel@localhost.localdomain>
-	 <9e47339105030715034a8f8ff9@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 07 Mar 2005 19:20:05 -0500
-Message-Id: <1110241206.12485.27.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Mar 2005 19:25:35 -0500
+Date: Mon, 7 Mar 2005 16:25:27 -0800 (PST)
+From: Junfeng Yang <yjf@stanford.edu>
+To: Andreas Dilger <adilger@clusterfs.com>
+cc: Jens Axboe <axboe@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <ext2-devel@lists.sourceforge.net>, <mc@cs.Stanford.EDU>
+Subject: Re: [Ext2-devel] Re: [CHECKER] crash after fsync causing serious FS
+ corruptions (ext2, 2.6.11)
+In-Reply-To: <20050307232221.GJ27352@schnapps.adilger.int>
+Message-ID: <Pine.GSO.4.44.0503071614170.8295-100000@elaine24.Stanford.EDU>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-03-07 at 18:03 -0500, Jon Smirl wrote:
-> What about a bridge driver for ISA LPC bridges? That would also
-> provide a logical place to hang serial ports, floppy, parallel port,
-> ps2 port, etc. Things in /sys/bus/platform are really attached to the
-> LPC bridge.
-> 
 
-I agree that /sys/bus/platform isn't really the right place.  It doesn't
-show the correct parent device, among other issues.  I've done some work
-on this issue in the past, and it turns out to be a very complicated
-problem.
+Thanks a lot Andreas.  Your message clarifies everything.
 
-Basically there are many protocols that feed into the pool of devices
-known as *legacy hardware*.  The include the following:
+> In ext3 this case is handled because the filesystem won't reallocate the
+> metadata blocks freed from file A before they have been committed to disk.
+> Also, the operations on file A are guaranteed to complete before or with
+> operations on file B so fsync(B) will also cause the changes from A to
+> be flushed to disk at the same time (this is guaranteed to complete before
+> fsync(B) returns).
 
-1.) ACPI
-      * provides resource information
-      * provides identification information
-      * the only protocol that accurately describes topology
-      * often provides power management features
-      * sometimes a few device specific methods (e.g. floppy drives)
-2.) PnPBIOS
-      * outdated by ACPI, generally useful for x86 boxes before 2000
-      * provides resource information
-      * provides identification information, and a class code not found
-        in ACPI
-      * all devices reported are considered root devices, no sense of
-        true topology
-      * In theory could handle some hotplugging of these devices (e.g.
-        docking stations)
-3.) ISAPnP
-      * Even more outdated.
-      * Provides resource information.
-      * provides identification, including a card id not found in
-        PnPBIOS or ACPI (obviously).
-      * Only used for ISA expansion cards
-4.) SuperIO drivers
-      * In theory it is possible to determine configuration information
-        from the SuperIO directly.
-      * Some, but very limited, work has been done in this area.
-      * ACPI generally handles this because there is little
-        standardization at this level.
-5.) Legacy Probing
-      * Driver attempts to find the hardware directly by reading various
-        ports.
-      * Can be dangerous.
-      * Drivers of this type encourage vendors to include legacy
-        compatibility (which in the long run holds us back).
-      * Very difficult to integrate with the driver model.
-6.) Open Firmware
-      * I don't know much about it, but I believe it does do similar
-        things to ACPI.
-      * Hopefully it uses EISA ids, but not really sure.  If not, it
-        wouldn't be included.
+In order words, each fsync essentailly triggers a jbd commit, right?
 
-So basically we have to handle all (or most) of these.  The question
-becomes should driver developers have to write code for all 6 of these
-interfaces (which seems a little overwhelming), or should they share a
-common layer.  If so, the driver model would need a way to represent
-this.  One idea I had was to make "buses" a special type of "class".
-And then allow classes to be layered.  So it would look something like
-ISA/LPC	->ACPI
-	->PnPBIOS
-	->ISAPnP
-	->SuperIO
-	->legacy
-	->Open Firmware
-
-Where each of the 6 classes inherit characteristics from "ISA/LPC".
-
-A driver could then choose to bind to the more general "ISA/LPC"
-interfaces, or if necessary a more specific interface like "ACPI".
-"ISA/LPC" would be sort of a least common denominator.
-
-Of course this would require big changes to the driver model, so it
-would have to be really worth it.  I look forward to any comments or
-suggestions for alternative approaches.
-
-Thanks,
-Adam
-
+-Junfeng
 

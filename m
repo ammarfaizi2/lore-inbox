@@ -1,32 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbVAPQHS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262529AbVAPQJr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261267AbVAPQHS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 11:07:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbVAPQHS
+	id S262529AbVAPQJr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 11:09:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbVAPQJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 11:07:18 -0500
-Received: from mgr2.xmission.com ([198.60.22.202]:44256 "EHLO
-	mgr2.xmission.com") by vger.kernel.org with ESMTP id S261267AbVAPQHP
+	Sun, 16 Jan 2005 11:09:47 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:33347 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262529AbVAPQJe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 11:07:15 -0500
-Message-ID: <41EA9140.7050008@xmission.com>
-Date: Sun, 16 Jan 2005 09:07:28 -0700
-From: maxer <maxer@xmission.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Syskonnect sk98lin
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 166.70.55.125
-X-SA-Exim-Mail-From: maxer@xmission.com
-X-SA-Exim-Version: 4.0 (built Sat, 24 Apr 2004 12:31:30 +0200)
-X-SA-Exim-Scanned: Yes (on mgr1.xmission.com)
+	Sun, 16 Jan 2005 11:09:34 -0500
+Date: Sun, 16 Jan 2005 17:09:48 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Cross-compilation broken (was: Re: Linux 2.6.11-rc1)
+Message-ID: <20050116160948.GA3090@mars.ravnborg.org>
+Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
+	Linus Torvalds <torvalds@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0501112100250.2373@ppc970.osdl.org> <Pine.GSO.4.61.0501161016240.25137@waterleaf.sonytel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.61.0501161016240.25137@waterleaf.sonytel.be>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anyone seen any movement by Sysconnect to re-write their driver sk98lin 
-for use with 2.6.10?
+On Sun, Jan 16, 2005 at 10:22:43AM +0100, Geert Uytterhoeven wrote:
+> Changing
+> 
+> | NOSTDINC_FLAGS := -nostdinc -isystem $(shell $(CC) -print-file-name=include)
+> 
+> to
+> 
+> | NOSTDINC_FLAGS = -nostdinc -isystem $(shell $(CC) -print-file-name=include)
+> 
+> fixed it. I guess it picked up the definition for $(CC) before it became
+> $(CROSS_COMPILE)gcc.
 
-RaXeT
+Main culprint here is m68k fiddelign with definition of CROSS_COMPILE in
+arch/m68k/Makefile.
+If I find no better fix I will take your version.
+
+	Sam

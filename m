@@ -1,89 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262584AbTENQWj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 12:22:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262593AbTENQWj
+	id S262161AbTENQXX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 12:23:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbTENQXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 12:22:39 -0400
-Received: from mbi-00.mbi.ufl.edu ([159.178.51.20]:60319 "EHLO mbi.ufl.edu")
-	by vger.kernel.org with ESMTP id S262584AbTENQWh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 12:22:37 -0400
-content-class: urn:content-classes:message
+	Wed, 14 May 2003 12:23:23 -0400
+Received: from web40611.mail.yahoo.com ([66.218.78.148]:14898 "HELO
+	web40611.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262161AbTENQXQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 12:23:16 -0400
+Message-ID: <20030514163558.56819.qmail@web40611.mail.yahoo.com>
+Date: Wed, 14 May 2003 09:35:58 -0700 (PDT)
+From: Muthian Sivathanu <muthian_s@yahoo.com>
+Subject: isolated memory pools ?
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-Subject: RE: 2.5.69-mm5
-Date: Wed, 14 May 2003 12:35:26 -0400
-Message-ID: <CDD2FA891602624BB024E1662BC678ED843F9B@mbi-00.mbi.ufl.edu>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.5.69-mm5
-Thread-Index: AcMaNgDzIVYJaD/qQ0Gmz6K7hltc3gAAIMQA
-From: "Jon K. Akers" <jka@mbi.ufl.edu>
-To: "Greg KH" <greg@kroah.com>
-Cc: "Andrew Morton" <akpm@digeo.com>, <linux-kernel@vger.kernel.org>,
-       <linux-mm@kvack.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently I do not use the -bk patches from Linus's tree, although I
-suppose I could give it a shot. 
+Hi,
 
-My .config for that section follows:
+Does anyone know if there is a simple way to manage
+isolated memory pools in linux ?  I am writing a
+device driver that does a lot of memory allocation to
+keep track of some internal data structures. However,
+when the system is subjected to an I/O intensive
+workload for instance, the file system cache takes
+away a lot of memory, leading to unpredictable delays
+in memory allocation within my driver, which creates a
+lot of performance problems.
 
-#
-# USB support
-#
-# CONFIG_USB is not set
-CONFIG_USB_GADGET=y
+Ideally, I would like to be able to allocate my own
+memory pool, say, with 10% of the host memory, and
+then have total control over it, i.e. the rest of the
+kernel should not allocate from this space, and my
+local free_pages should return memory back to my local
+pool.  One obvious way to do this would be to pin
+those pages to memory and then write my own memory
+management routines to handle allocations within the
+pool, but that seems time consuming and hard.  Is
+there a way the existing kernel memory management
+routines can be harnessed to manage
+such an isolated free pool ?
 
-#
-# USB Peripheral Controller Support
-#
-CONFIG_USB_NET2280=y
+Thanks,
+Muthian.
 
-#
-# USB Gadget Drivers
-#
-CONFIG_USB_ZERO=m
-CONFIG_USB_ZERO_NET2280=y
-CONFIG_USB_ETH=y
-CONFIG_USB_ETH_NET2280=y
+P.S: Please CC my personal address in your replies
+since I am not a member of
+the mailing list.
 
 
-I also had the USB_ETH series set for modules and got the same result.
-
-> -----Original Message-----
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Wednesday, May 14, 2003 12:31 PM
-> To: Jon K. Akers
-> Cc: Andrew Morton; linux-kernel@vger.kernel.org; linux-mm@kvack.org
-> 
-> On Wed, May 14, 2003 at 10:33:43AM -0400, Jon K. Akers wrote:
-> > I like to at least build the new stuff that comes out with Andrew's
-> > patches, and building the new gadget code that came out in -mm4 I
-got
-> > this when building as a module:
-> >
-> > make -f scripts/Makefile.build obj=drivers/serial
-> > make -f scripts/Makefile.build obj=drivers/usb/gadget
-> >   gcc -Wp,-MD,drivers/usb/gadget/.net2280.o.d -D__KERNEL__ -Iinclude
-> > -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
-> > -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686
-> > -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc
-> > -iwithprefix include -DMODULE   -DKBUILD_BASENAME=net2280
-> > -DKBUILD_MODNAME=net2280 -c -o drivers/usb/gadget/net2280.o
-> > drivers/usb/gadget/net2280.c
-> > drivers/usb/gadget/net2280.c:2623: pci_ids causes a section type
-> > conflict
-> 
-> Do you get the same error on the latest -bk patch from Linus's tree?
-> 
-> And what CONFIG_USB_GADGET_* .config options do you have enabled?
-> 
-> thanks,
-> 
-> greg k-h
+__________________________________
+Do you Yahoo!?
+The New Yahoo! Search - Faster. Easier. Bingo.
+http://search.yahoo.com

@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbVC1JcP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261408AbVC1Jnk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbVC1JcP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 04:32:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbVC1JcP
+	id S261408AbVC1Jnk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 04:43:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbVC1Jnj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 04:32:15 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:54473 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261405AbVC1JcH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 04:32:07 -0500
-Date: Mon, 28 Mar 2005 11:31:53 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Adrian Bunk <bunk@stusta.de>
-cc: Steven Rostedt <rostedt@goodmis.org>, Greg KH <greg@kroah.com>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Mark Fortescue <mark@mtfhpc.demon.co.uk>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
-In-Reply-To: <20050328013902.GK4285@stusta.de>
-Message-ID: <Pine.LNX.4.61.0503281128150.18443@yvahk01.tjqt.qr>
-References: <20050326182828.GA8540@kroah.com> <1111869274.32641.0.camel@mindpipe>
- <20050327004801.GA610@kroah.com> <1111885480.1312.9.camel@mindpipe>
- <20050327032059.GA31389@kroah.com> <1111894220.1312.29.camel@mindpipe>
- <20050327181056.GA14502@kroah.com> <1111948631.27594.14.camel@localhost.localdomain>
- <20050327220139.GI4285@stusta.de> <1111967692.27381.8.camel@localhost.localdomain>
- <20050328013902.GK4285@stusta.de>
+	Mon, 28 Mar 2005 04:43:39 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:24997 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261408AbVC1Jni (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 04:43:38 -0500
+To: Andrew Morton <akpm@osdl.org>
+CC: fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] /x86_64-machine_shutdown.patch breaks sysrq-b
+References: <20050324212027.602fd885.akpm@osdl.org>
+	<m1ll88nqo7.fsf@ebiederm.dsl.xmission.com>
+	<20050328003621.658ab127.akpm@osdl.org>
+	<m18y48nnbi.fsf@ebiederm.dsl.xmission.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 28 Mar 2005 02:40:26 -0700
+In-Reply-To: <m18y48nnbi.fsf@ebiederm.dsl.xmission.com>
+Message-ID: <m1zmwom7lh.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->> > How do you define "proven in court"?
->> > 
->> > Decided by an US judge based on US laws?
->> > Decided by a German judge based on German laws?
->> > Decided by a Chinese judge based on Chinese laws?
->> > ...
->> 
->> OK, I was talking about US courts since that case was done in the US.
+Looking a little more closely at the users there
+is a clear demand in the kernel for some kind of forced
+reboot.  Coming from software watchdog timers and the like,
+and it makes sense for sysrq-b to call the same thing.
 
->And a court decision in e.g. the USA might not have any influence on a 
->court decision in e.g. Germany.
+However I'm not at all certain that we want the software is
+hosed reboot dammit, to be the same as the graceful reboot
+path.
 
-I got a different impression. The US has "the biggest houses, the biggest 
-cars, ..." (Supersize me), so if something happens in the US, other countries 
-watch it more closely as if it was the other way round.
+There are a lot of things we can do on the graceful reboot
+path like switch to the bootstrap cpu, attempt to make BIOS
+calls to perform the reboot etc, that I'm not at all certain
+we want to perform on the under more dire circumstances.
 
+If it weren't simply overkill I'd say in the freaked out kernel
+reboot case we want to kexec to a sane kernel and then reboot from
+there.
 
-Jan Engelhardt
--- 
-No TOFU for me, please.
+Eric

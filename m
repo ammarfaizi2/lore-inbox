@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275767AbRI1Hde>; Fri, 28 Sep 2001 03:33:34 -0400
+	id <S275863AbRI1Hjo>; Fri, 28 Sep 2001 03:39:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275861AbRI1HdZ>; Fri, 28 Sep 2001 03:33:25 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:25334 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S275767AbRI1HdO>; Fri, 28 Sep 2001 03:33:14 -0400
-From: Andreas Dilger <adilger@turbolabs.com>
-Date: Fri, 28 Sep 2001 01:33:03 -0600
-To: Bobby Hitt <bobhitt@bscnet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2GB File limitation
-Message-ID: <20010928013303.A597@turbolinux.com>
-Mail-Followup-To: Bobby Hitt <bobhitt@bscnet.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <013801c147e5$3330bec0$092cdb3f@bobathome>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <013801c147e5$3330bec0$092cdb3f@bobathome>
-User-Agent: Mutt/1.3.22i
+	id <S275964AbRI1Hje>; Fri, 28 Sep 2001 03:39:34 -0400
+Received: from fe010.worldonline.dk ([212.54.64.195]:59657 "HELO
+	fe010.worldonline.dk") by vger.kernel.org with SMTP
+	id <S275863AbRI1HjX>; Fri, 28 Sep 2001 03:39:23 -0400
+Message-ID: <3BB427F1.5070403@eisenstein.dk>
+Date: Fri, 28 Sep 2001 09:34:09 +0200
+From: Jesper Juhl <juhl@eisenstein.dk>
+Organization: Eisenstein
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16 i586; en-US; m18) Gecko/20010131 Netscape6/6.01
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        Thomas Hood <jdthood@yahoo.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: OOM killer
+In-Reply-To: <E15mkLX-0005S3-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 28, 2001  02:17 -0400, Bobby Hitt wrote:
-> Is someone working on a way to overcome the 2GB file limitation in Linux? I
-> currently backup several servers using a dedicated hard drive for the
-> backups. Recently I saw one backup die saying the the file size had been
-> exceeded.
+Alan Cox wrote:
 
-This is your lucky day.  The 2GB limit has been fixed a year or two ago.
-You need an "LFS" patch for 2.2 kernels (any vendor kernel will have this),
-or any 2.4 kernel.
+>>> shed:~# echo 0 >/proc/sys/vm/overcommit_memory
+>>> shed:~# cat /proc/sys/vm/overcommit_memory
+>>> 0
+>> 
+>> ahh, I see. Well, you live and learn ;)
+>> 
+>> I think I've got to do my research better before writing mails to lkml.
+> 
+> 
+> In part.
+> 
+> The option you want is '2' which isnt implemented 8)
+> 
+> 0	-	I don't care
+> 1	-	Use heuristics to guesstimate avoiding overcommit
 
-You ALSO need to ensure your libc supports large files (glibc-2.2
-definitely will), and also that your tools can handle it (needs to be
-compiled with special LARGEFILE defines, and open files with O_LARGEFILE).
 
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Thank you for that info :)
+
+I wrote a small test program that allocated memory in increasingly 
+larger chunks, and I saw no major difference with a setting of "0" or 
+"1", it seemed both settings allowed my program to allocate exactely the 
+same amount of mem before ENOMEM was returned (I can send the test 
+program on request).
+
+I'll be looking forward to a setting of "2" becomming available :)
+
+
+Best regards
+Jesper Juhl
 

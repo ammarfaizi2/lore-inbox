@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262138AbUCIT3n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 14:29:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262145AbUCIT0P
+	id S262155AbUCITdM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 14:33:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbUCITa3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 14:26:15 -0500
-Received: from mikonos.cyclades.com.br ([200.230.227.67]:56077 "EHLO
-	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
-	id S262138AbUCITYU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 14:24:20 -0500
-Date: Tue, 9 Mar 2004 16:22:25 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@dmt.cyclades
-To: Stian Jordet <liste@jordet.nu>
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Oopses with both recent 2.4.x kernels and 2.6.x kernels
-In-Reply-To: <1078230684.934.0.camel@buick.jordet>
-Message-ID: <Pine.LNX.4.44.0403091622000.1630-100000@dmt.cyclades>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 9 Mar 2004 14:30:29 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:12693 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262134AbUCIT1v
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 14:27:51 -0500
+Date: Tue, 9 Mar 2004 20:28:54 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Lukasz Trabinski <lukasz@trabinski.net>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.4-rc2
+Message-ID: <20040309192854.GB2182@mars.ravnborg.org>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Lukasz Trabinski <lukasz@trabinski.net>, linux-kernel@vger.kernel.org
+References: <200403080043.i280hlYj005348@lt.wsisiz.edu.pl> <404BCA97.2070502@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <404BCA97.2070502@pobox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Mar 07, 2004 at 08:21:27PM -0500, Jeff Garzik wrote:
+> Looks like you need to do a 'make oldconfig' ?
 
+If this cured it I would like to know.
+Because kbuild should run "make silentoldconfig" if needed.
+Timestamps of all KConfig files are checked etc.
 
-On Tue, 2 Mar 2004, Stian Jordet wrote:
-
-> Btw, here is one of the 2.6.x oopses as well (as you requested).
-
-Stian, 
-
-This sounds like bad hardware. Did I already ask you to try memtest86 ? 
-
+	Sam

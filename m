@@ -1,68 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282918AbRLWDWh>; Sat, 22 Dec 2001 22:22:37 -0500
+	id <S283561AbRLWDW1>; Sat, 22 Dec 2001 22:22:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283438AbRLWDW1>; Sat, 22 Dec 2001 22:22:27 -0500
-Received: from CPE0002b3140673.cpe.net.cable.rogers.com ([24.156.0.228]:16588
-	"EHLO pyre.virge.net") by vger.kernel.org with ESMTP
-	id <S283288AbRLWDWU>; Sat, 22 Dec 2001 22:22:20 -0500
-Date: Sat, 22 Dec 2001 22:22:13 -0500
+	id <S283438AbRLWDWR>; Sat, 22 Dec 2001 22:22:17 -0500
+Received: from hermes.toad.net ([162.33.130.251]:40324 "EHLO hermes.toad.net")
+	by vger.kernel.org with ESMTP id <S283288AbRLWDWJ>;
+	Sat, 22 Dec 2001 22:22:09 -0500
+Subject: Re: APM driver patch summary
+From: Thomas Hood <jdthood@mail.com>
 To: linux-kernel@vger.kernel.org
-Subject: [2.4.17] net/network.o(.text.lock+0x1a88): undefined reference to `local symbols...
-Message-ID: <20011223032213.GA20031@pyre.virge.net>
+Cc: Borsenkow Andreas Steinmetz <ast@domdv.de>,
+        Andrej <Andrej.Borsenkow@mow.siemens.ru>,
+        Russell King <rmk@arm.linux.org.uk>,
+        Stephen Rothwell <sfr@canb.auug.org.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 22 Dec 2001 22:22:13 -0500
+Message-Id: <1009077742.1677.0.camel@thanatos>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qDbXVdCdHGoSgWSk"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.24i
-From: nveber@pyre.virge.net (Norbert Veber)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2001-12-22 at 09:44, Andreas Steinmetz wrote:
+> 1. There is now a module parameter apm-idle-threshold which
+> allows to override the compiled in idle percentage threshold
+> above which BIOS idle calls are done.
 
---qDbXVdCdHGoSgWSk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Andrej, your patch doesn't work when compiled as a module
+because of a name mismatch.
 
-Hi,
+I went in and cleaned the patch up a bit.  Now there is only
+one extra parameter, called "idle_threshold", which you can
+set to 100 if you want to disable use of APM BIOS idling.
 
-I read though the archives, and saw another problem with network.o and
-gcc 3.x, however I didnt see anything about this yet.
+I have combined this tweaked idle patch with the
+notification patch and made it available here:
+   http://panopticon.csustan.edu/thood/apm.html
+Patch is against 2.4.17.
 
-I'm using gcc 2.95.4 and binutils 2.11.92.0.12.3, both from
-debian/unstable.
+I hope lots of people will test it.  It's working fine for me.
 
-Let me know if you need any more information.
+--
+Thomas Hood
 
-make[1]: Leaving directory `/usr/src/linux/arch/i386/lib'
-ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
-         drivers/acpi/acpi.o drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/char/agp/agp.o drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/cdrom/driver.o drivers/pci/driver.o drivers/pnp/pnp.o drivers/video/video.o \
-        net/network.o \
-        /usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a /usr/src/linux/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-net/network.o(.text.lock+0x1a88): undefined reference to `local symbols in discarded section .text.exit'
-make: *** [vmlinux] Error 1
 
-PS. Please CC me any replies.
-
-Thanks,
-
-Norbert
-
---qDbXVdCdHGoSgWSk
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8JU3kohfEw14utbQRAnuFAKC5OXYTM9Ab/xusVP/W7r2uL4KRlACfSfd1
-No11sDzn8OtyCvKoNCyuhko=
-=FZPx
------END PGP SIGNATURE-----
-
---qDbXVdCdHGoSgWSk--

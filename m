@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271901AbTG2RJu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 13:09:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271895AbTG2RJt
+	id S271937AbTG2R3J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 13:29:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271941AbTG2R3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 13:09:49 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:30469 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S271938AbTG2RJP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 13:09:15 -0400
-Date: Tue, 29 Jul 2003 18:09:04 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: neofb problems with 2.6.0-test1-ac3 etc. -- kernel-2.6.x ignoramus
-In-Reply-To: <20030726124907.GB22804@charite.de>
-Message-ID: <Pine.LNX.4.44.0307291807490.5874-100000@phoenix.infradead.org>
+	Tue, 29 Jul 2003 13:29:09 -0400
+Received: from 206-158-102-129.prx.blacksburg.ntc-com.net ([206.158.102.129]:15267
+	"EHLO wombat.ghz.cc") by vger.kernel.org with ESMTP id S271937AbTG2R3H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 13:29:07 -0400
+Message-ID: <35162.216.12.38.216.1059499746.squirrel@www.ghz.cc>
+In-Reply-To: <1059496775.1660.3.camel@beowulf.cryptocomm.com>
+References: <1059496775.1660.3.camel@beowulf.cryptocomm.com>
+Date: Tue, 29 Jul 2003 13:29:06 -0400 (EDT)
+Subject: Re: kernel-2.6.0-test2 speedy gonzalez mouse
+From: "Charles Lepple" <clepple@ghz.cc>
+To: adam@cryptocomm.com
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Adam Voigt said:
+> 2.6.0-test2 works great for me, with the exception of the
+> mouse, which seems to have been hyper-accelerated by the kernel
+> upgrade.
 
-> This is my framebuffer. It works, but switching back and forth between
-> X11 and the fbconsole totally trashes the framebuffer. 
-> 
-> fbset -depth 16
-> 
-> fixes things again. To see what I see, look at:
-> http://sbserv.stahl.bau.tu-bs.de/~hildeb/fbfubar/
+You have the /dev/psaux device enabled in the kernel, and chances are your
+X server is reading from /dev/input/mice as well. Try disabling the psaux
+device in the kernel, or removing one of the mouse lines from XF86Config.
 
-This is because the X server is not fbdev aware. Try adding the UseFBDev 
-option in your XF86Config. That shoudl fix your problems.
-
-
+-- 
+Charles Lepple <clepple@ghz.cc>
+http://www.ghz.cc/charles/

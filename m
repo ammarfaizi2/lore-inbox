@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275103AbTHRVYq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 17:24:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275105AbTHRVYq
+	id S275125AbTHRVcH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 17:32:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275126AbTHRVcH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 17:24:46 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37307 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S275103AbTHRVYo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 17:24:44 -0400
-Message-ID: <3F41440D.9020000@pobox.com>
-Date: Mon, 18 Aug 2003 17:24:29 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Fix up riscom8 driver to use work queues instead of task queueing.
-References: <20030818192529.GC19067@gtf.org>	<Pine.LNX.4.44.0308181234500.5929-100000@home.osdl.org> <20030818133226.66986354.akpm@osdl.org>
-In-Reply-To: <20030818133226.66986354.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Aug 2003 17:32:07 -0400
+Received: from covert.black-ring.iadfw.net ([209.196.123.142]:65284 "EHLO
+	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
+	id S275125AbTHRVcC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 17:32:02 -0400
+Date: Mon, 18 Aug 2003 16:31:56 -0500
+From: Art Haas <ahaas@airmail.net>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] Trivial C99 patch for watchdog/sc1200wdt.c
+Message-ID: <20030818213156.GC27281@artsapartment.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> pdflush could kinda-sorta be converted to use workqueues, but it doesn't
-> want a thread per cpu.
+Hi.
 
+A trivial C99 fixup for this file. Against current BK.
 
-That was another item in the recent thread about workqueues:  other 
-kernel code is very suited to the workqueue API, but only needs one 
-thread, not a thread per cpu.  Would be nice to have a JUST_ONE_THREAD 
-flag to pass to create_workqueue().
+Art Haas
 
-I bet adding such a flag would help alleviate some of the "I have 1001 
-kthreads on my 16-way" complaints ;-)
+===== drivers/char/watchdog/sc1200wdt.c 1.7 vs edited =====
+--- 1.7/drivers/char/watchdog/sc1200wdt.c	Thu Feb 13 05:20:50 2003
++++ edited/drivers/char/watchdog/sc1200wdt.c	Wed Apr  2 06:54:50 2003
+@@ -292,7 +292,7 @@
+ 
+ static struct notifier_block sc1200wdt_notifier =
+ {
+-	notifier_call:	sc1200wdt_notify_sys
++	.notifier_call	= sc1200wdt_notify_sys
+ };
+ 
+ static struct file_operations sc1200wdt_fops =
+-- 
+Man once surrendering his reason, has no remaining guard against absurdities
+the most monstrous, and like a ship without rudder, is the sport of every wind.
 
-	Jeff
-
-
-
+-Thomas Jefferson to James Smith, 1822

@@ -1,74 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbVAXTQU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbVAXTT1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261578AbVAXTQU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 14:16:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261574AbVAXTPE
+	id S261570AbVAXTT1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 14:19:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261579AbVAXTTI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 14:15:04 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:58263 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261578AbVAXTOd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 14:14:33 -0500
-Subject: Re: kernel oops!
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Sergey Vlasov <vsu@altlinux.ru>, ierdnah <ierdnah@go.ro>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0501240935470.4191@ppc970.osdl.org>
-References: <1106437010.32072.0.camel@ierdnac>
-	 <Pine.LNX.4.58.0501222223090.4191@ppc970.osdl.org>
-	 <20050123161512.149cc9de.vsu@altlinux.ru>
-	 <Pine.LNX.4.58.0501230956100.4191@ppc970.osdl.org>
-	 <1106509705.6154.12.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0501240935470.4191@ppc970.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1106590169.9611.75.camel@localhost.localdomain>
+	Mon, 24 Jan 2005 14:19:08 -0500
+Received: from rproxy.gmail.com ([64.233.170.196]:19205 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261570AbVAXTRQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 14:17:16 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=pdMksaVmiJXf7XbnJTWadK38dSaqKESwi7+OdpaRpqDTEBmA8zxFM29FuY5DqX+9rsJycX66pysJeLFvSnJBcCwlYTCXH/a5gGMg1oEAmPhBFUFqrbL0Uh5Wud0lzFxLzWCe/k/l5KEw752vrRiX6UvshUNV9dtUznSl03Z4H34=
+Message-ID: <9e473391050124111767a9c6b7@mail.gmail.com>
+Date: Mon, 24 Jan 2005 14:17:15 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Matthew Wilcox <matthew@wil.cx>
+Subject: Re: Fwd: Patch to control VGA bus routing and active VGA device.
+Cc: Jesse Barnes <jbarnes@sgi.com>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050124175131.GM31455@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 24 Jan 2005 18:09:42 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <9e47339105011719436a9e5038@mail.gmail.com>
+	 <41ED3BD2.1090105@pobox.com>
+	 <9e473391050122083822a7f81c@mail.gmail.com>
+	 <200501240847.51208.jbarnes@sgi.com>
+	 <20050124175131.GM31455@parcelfarce.linux.theplanet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-01-24 at 17:58, Linus Torvalds wrote:
-> On Mon, 24 Jan 2005, Alan Cox wrote:
-> While doing that, I did notice that all the other tty ops do take the 
-> kernel lock still - both read() and write() do. I wonder if we should just 
-> make poll() consistent, regardless of other issues (obviously, the nicest 
-> way to make it consistent would be to remove the kernel lock from the 
-> read/write paths, but I assume nobody wants to go through the locking).
+On Mon, 24 Jan 2005 17:51:31 +0000, Matthew Wilcox <matthew@wil.cx> wrote:
+> Yes -- *very* platform specific.  Some are even configurable as to how
+> much they support.  See http://ftp.parisc-linux.org/docs/chips/zx1-mio.pdf
 
-The lock is needed for the console at least and for some driver level
-bits.
+Is this a justification for doing device drivers for bridge chips? It
+has been mentioned before but no one has done it.
 
-> And I don't think it can be vhangup - that wouldn't clear the
-> chars_in_buffer function pointer (it might change it to the 
-> n_tty_chars_in_buffer or something by resetting to N_TTY).
+Any ideas why the code I sent won't work on the x86? I can shut
+routing off but I can't get it back on again.
 
-True - that would need an ldisc.close and the vhangup no longer does
-that.
+The motivation behind the code is to get X to quit doing this from user space.
 
-> So another potential fix is to just make all tty line disciplines always 
-> have a valid "chars_in_buffer" pointer. We could even do automatically in 
-> "tty_set_operations()", ie just do a
-
-Not really. I'm in n_tty ->chars_in_buffer and the race occurs -> I'm
-dead
-as I'm already running the wrong chars_in_buffer function on CPU #0 when
-CPU #1
-comes along and flips ldisc. Holding the right locks matters here. We
-also
-need both locks holding really for tty/pty pairs because pty_write wants
-to
-output to the ldisc of the other side. Treating no ldisc as no
-characters
-seems very sane however and is easy to code up - if the ldisc_get fails
-we
-can sleep on the ldisc level wait queue then retry. Ugly enough to want
-to
-hide the contents in tty_io.c but doable. (When I get time - likely to
-be 
-a couple of weeks if nobody does it first)
-
-Alan
-
+-- 
+Jon Smirl
+jonsmirl@gmail.com

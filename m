@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129881AbQLMAgM>; Tue, 12 Dec 2000 19:36:12 -0500
+	id <S129450AbQLMAs0>; Tue, 12 Dec 2000 19:48:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129931AbQLMAgC>; Tue, 12 Dec 2000 19:36:02 -0500
-Received: from mail-out.chello.nl ([213.46.240.7]:37463 "EHLO
-	amsmta04-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S129881AbQLMAfw>; Tue, 12 Dec 2000 19:35:52 -0500
-Date: Wed, 13 Dec 2000 02:12:49 +0100 (CET)
+	id <S129518AbQLMAsQ>; Tue, 12 Dec 2000 19:48:16 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:56912 "EHLO
+	amsmta01-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S129450AbQLMAsK>; Tue, 12 Dec 2000 19:48:10 -0500
+Date: Wed, 13 Dec 2000 02:24:58 +0100 (CET)
 From: Igmar Palsenberg <maillist@chello.nl>
-To: Mark Orr <markorr@intersurf.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Dropping chars on 16550
-In-Reply-To: <XFMail.20001210233147.markorr@intersurf.com>
-Message-ID: <Pine.LNX.4.21.0012130211450.31563-100000@server.serve.me.nl>
+To: Peter Samuelson <peter@cadcamlab.org>
+cc: Android <android@abac.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.18 release notes
+In-Reply-To: <20001211233956.F3199@cadcamlab.org>
+Message-ID: <Pine.LNX.4.21.0012130223560.31563-100000@server.serve.me.nl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > Use handshaking
-> 
-> Heh...do what I did.  Go on eBay and pick up a Hayes ESP card.
+> - metrics -- L1 cacheline size is the important one: you align array
+>   elements to this size when you want a per-cpu array, so that multiple
+>   CPUs do not share a cacheline for accessing their "own" structure.
+>   Proper alignment avoids "cacheline ping-pong", as it's called,
+>   whenever two CPUs need to access "their" element of the same array at
+>   the same time.
 
-Hmm.. High speed comm is fine here, as long is I use handshaking. If I
-don't, I'll loose chars.
+Anyone can give me some pointers on how this is done runtime ? (name of
+the .c file is fine).
 
-> I have a fairly weak system by todays standards, and I found that
-> even with a 16550 serial port, I'd get tcp/ip errors in my logs
-> (and lots of 'em).
+I'm still looking at the basic stuff, but haven't bumped into this one
+yet...
 
-Mine used to be a 200MMX until last week :)
 
-> --
-> Mark Orr
-> markorr@intersurf.com
 
 
 	Igmar

@@ -1,47 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262966AbTDFNAB (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 09:00:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262967AbTDFNAB (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 09:00:01 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45492 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262966AbTDFNAA (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 09:00:00 -0400
-Date: Sun, 6 Apr 2003 14:11:32 +0100
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-To: Michael Buesch <freesoftwaredeveloper@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Serial port over TCP/IP
-Message-ID: <20030406131132.GJ639@gallifrey>
-References: <200304061447.46393.freesoftwaredeveloper@web.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200304061447.46393.freesoftwaredeveloper@web.de>
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.5.66 (i686)
-X-Uptime: 14:08:43 up 1 day,  1:32,  1 user,  load average: 0.06, 0.11, 0.17
-User-Agent: Mutt/1.5.4i
+	id S262955AbTDFM4O (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 08:56:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262958AbTDFM4O (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 08:56:14 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:14096 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id S262955AbTDFM4K (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 08:56:10 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: kdb@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
+Subject: Announce: kdb v4.1 is available for kernels 2.4.19, 2.4.20, i386 and ia64
+Date: Sun, 06 Apr 2003 23:07:26 +1000
+Message-ID: <14958.1049634446@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Michael Buesch (freesoftwaredeveloper@web.de) wrote:
-> Hi.
-> 
-> Is it possible to make a char-dev (a serial device ttyS0)
-> available via TCP/IP on a network like it is possible
-> for block-devices like a harddisk via nbd?
-> Is kernel-support for this present?
-> If not, is it technically possible to develop such a driver?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I keep thinking that it would be nice to have a mechanism for user space
-char devices; it would have to have a mechanism to pass all the ioctls
-to the process that dealt with it.
+Content-Type: text/plain; charset=us-ascii
 
-(The particular cases which sparked this idea for me were to do user
-space SCSI tape drivers to do raid tape and the like, and for emulation
-of touch screens or mice on systems that only had the other.).
+ftp://oss.sgi.com/projects/kdb/download/v4.1/
 
-Dave
- ---------------- Have a happy GNU millennium! ----------------------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+  kdb-v4.1-2.4.19-common-1.bz2
+  kdb-v4.1-2.4.19-i386-1.bz2
+  kdb-v4.1-2.4.19-ia64-020821-1.bz2
+  kdb-v4.1-2.4.20-common-1.bz2
+  kdb-v4.1-2.4.20-i386-1.bz2
+  kdb-v4.1-2.4.20-ia64-021210-1.bz2
+
+Changelog extracts since v4.0.
+
+2.4.{19,20}-common-1
+
+2003-04-04 Keith Owens  <kaos@sgi.com>
+
+	* Remove one kallsyms pass.
+	* Automatic detection of O(1) scheduler.
+	* Rename cpu_online to cpu_is_online.
+	* Workarounds for scheduler bugs.
+	* Tweak algorithm for detecting if cpu process data is available.
+	* Add 'kill' command.  Sonic Zhang, Keith Owens.
+
+2.4.{19,20}-i386-1
+
+2003-04-04 Keith Owens  <kaos@sgi.com>
+
+	* Workarounds for scheduler bugs.
+
+2.4.{19,20}-ia64-*-1
+
+2003-04-04 Keith Owens  <kaos@sgi.com>
+
+	* Add support for INIT slave interrupts.
+	* Tell SAL to always rendezvous on MCA.
+	* No lock on SAL rendezvous call.
+	* Include unwind.c from 2.4.21-pre5.
+	* Rename cpu_online to cpu_is_online.
+	* Workarounds for scheduler bugs.
+
+
+v4.1/README
+
+Starting with kdb v2.0 there is a common patch against each kernel which
+contains all the architecture independent code plus separate architecture
+dependent patches.  Apply the common patch for your kernel plus at least
+one architecture dependent patch, the architecture patches activate kdb.
+
+The naming convention for kdb patches is :-
+
+ vx.y    The version of kdb.  x.y is updated as new features are added to kdb.
+ -v.p.s  The kernel version that the patch applies to.  's' may include -pre,
+	 -rc or whatever numbering system the kernel keepers have thought up this
+	 week.
+ -common The common kdb code.  Everybody needs this.
+ -i386   Architecture dependent code for i386.
+ -ia64   Architecture dependent code for ia64, etc.
+ -n      If there are multiple kdb patches against the same kernel version then
+	 the last number is incremented.
+
+To build kdb for your kernel, apply the common kdb patch which is less
+than or equal to the kernel v.p.s, taking the highest value of '-n'
+if there is more than one.  Apply the relevant arch dependent patch
+with the same value of 'vx.y-v.p.s-', taking the highest value of '-n'
+if there is more than one.
+
+For example, to use kdb for i386 on kernel 2.4.20, apply
+  kdb-v4.1-2.4.20-common-<n>            (use highest value of <n>)
+  kdb-v4.1-2.4.20-i386-<n>              (use highest value of <n>)
+in that order.  To use kdb for ia64-021210 on kernel 2.4.20, apply
+  kdb-v4.1-2.4.20-common-<n>            (use highest value of <n>)
+  kdb-v4.1-2.4.20-ia64-021210-<n>       (use highest value of <n>)
+in that order.
+
+Use patch -p1 for all patches.
+
+I do not have any time to work on 2.5, so there are no patches available
+for 2.5 kernels.  If somebody wants to port the latest kdb patches to
+2.5 kernels and send patches to kaos@sgi.com then I will put them up in
+this directory.
+
+The kdb-smphdr* patches in the v4.0 directory are Sonic Zhang's changes
+to improve hardware breakpoint handling on i386 and ia64.  They are
+not official kdb patches yet, they are available for review.  They will
+probably fit v4.1.
+
+The next step is to integrate Sonic Zhang's breakpoint changes into kdb
+and to change the kdb entry logic to cope with multiple cpus doing
+concurrent entry into kdb.  At the moment kdb tries to serialize so it
+only processes one event at a time.  The bad news is that this does not
+work well with IA64 SAL interrupts so kdb has to change.  The good news
+is that the change will remove the deadlock when two cpus hit a
+breakpoint at the same time.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE+kCaJi4UHNye0ZOoRAvSZAKC/aXyVRPjaho5/RY+JbhUF8xNGlwCeKtUv
+BBrDAhSon5J4woF3+65q+sY=
+=VZPB
+-----END PGP SIGNATURE-----
+

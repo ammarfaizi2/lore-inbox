@@ -1,49 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262338AbSI1WFI>; Sat, 28 Sep 2002 18:05:08 -0400
+	id <S262337AbSI1WZZ>; Sat, 28 Sep 2002 18:25:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262337AbSI1WFH>; Sat, 28 Sep 2002 18:05:07 -0400
-Received: from meel.hobby.nl ([212.72.224.15]:10504 "EHLO meel.hobby.nl")
-	by vger.kernel.org with ESMTP id <S262338AbSI1WFH>;
-	Sat, 28 Sep 2002 18:05:07 -0400
-Date: Sun, 29 Sep 2002 00:03:32 +0200
-From: Toon van der Pas <toon@vanvergehaald.nl>
-To: Dominik Brodowski <linux@brodo.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: [2.5.39] (3/5) CPUfreq i386 drivers
-Message-ID: <20020929000332.A16506@vdpas.hobby.nl>
-References: <20020928112503.E1217@brodo.de> <20020928134457.A14784@brodo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262339AbSI1WZY>; Sat, 28 Sep 2002 18:25:24 -0400
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:13199 "EHLO
+	completely") by vger.kernel.org with ESMTP id <S262337AbSI1WZY>;
+	Sat, 28 Sep 2002 18:25:24 -0400
+From: Ryan Cumming <ryan@completely.kicks-ass.org>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
+Date: Sat, 28 Sep 2002 15:30:35 -0700
+User-Agent: KMail/1.4.7-cool
+Cc: Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+References: <E17uINs-0003bG-00@think.thunk.org> <200209271820.41906.ryan@completely.kicks-ass.org> <20020928141330.GA653@think.thunk.org>
+In-Reply-To: <20020928141330.GA653@think.thunk.org>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="big5"
+Content-Transfer-Encoding: 8bit
+Content-Description: clearsigned data
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020928134457.A14784@brodo.de>; from linux@brodo.de on Sat, Sep 28, 2002 at 01:44:57PM +0200
+Message-Id: <200209281530.40944.ryan@completely.kicks-ass.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 28, 2002 at 01:44:57PM +0200, Dominik Brodowski wrote:
-> 
-> This add-on patch is needed to abort on Dell Inspiron 8000 / 8100
-> which would lock up during speedstep.c and to resolve an oops
-> (thanks to Hu Gang for reporting this)
-> 
-> 	Dominik
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Wait a minute...
-Do I understand you and your patch right?
-Dell sells a machine with a Pentium III Mobile CPU with Speedstep
-technology, and now you tell us that it won't work?  Ever?
-Does this mean that a lot of people (including me) bought a very
-advanced and expensive piece of trash?  Then it's about time that
-I contact Dell, because they screwed me.
+On September 28, 2002 07:13, Theodore Ts'o wrote:
+> I've been able to replicate it now fairly reliably, with the attached
+> shell script and 2.4.19 with the 2.4.19-2 dxdir patch.
+Yes, that was what I'm using
 
-Does Speedstep work on this machine with Windows/XP?
-(I never checked, removed it first thing after unpacking the machine.)
+> It appears to
+> be somewhat timing dependent, as where the directory corruption occurs
+> is not consistent, but I believe it is in the split code.  Since
+> e2fsck -fD packs all of the directories completely, it means that any
+> attempt to add a file to directory will guarantee at least one split,
+> and possibly two levels of tree splits.  Since the -D option to e2fsck
+> has only been relatively recently been available, I believe this is
+> why it hasn't been noticed up until now in the testing; directories
+> which are indexed "naturally" as they grow don't appear to trigger the
+> problem, or are very, very unlikely to trigger the problem.  (One
+> potential avenue for exploration is that -D option perfectly sorts all
+> of the directory entries in hash order, which doesn't normally occur
+> for naturally grown directories, and this may be triggering a
+> fencepost error in the split code.)
+Yes, running fsck -D seemed to make my loopback filesystem more brittle. I 
+have triggered corruption without fsck, but it's much more difficult. That 
+seems to match your description of the problem.
 
-Regards,
-Toon.
--- 
- /"\                             |
- \ /     ASCII RIBBON CAMPAIGN   |  "Who is this General Failure, and
-  X        AGAINST HTML MAIL     |   what is he doing on my harddisk?"
- / \
+- -Ryan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE9li2QLGMzRzbJfbQRAlSfAJ93gPP65tXjzsyGiOjvoDlGwk5WrACeIILY
+QKk+DpMb9kpq7rsiaSSuJHs=
+=LoWq
+-----END PGP SIGNATURE-----

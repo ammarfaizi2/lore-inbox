@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272287AbTHII64 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 04:58:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272288AbTHII64
+	id S272290AbTHIJFk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 05:05:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272291AbTHIJFk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 04:58:56 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:39139
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S272287AbTHII6z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 04:58:55 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]O14int
-Date: Sat, 9 Aug 2003 19:04:19 +1000
+	Sat, 9 Aug 2003 05:05:40 -0400
+Received: from fep04.swip.net ([130.244.199.132]:5860 "EHLO fep04-svc.swip.net")
+	by vger.kernel.org with ESMTP id S272290AbTHIJFj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 05:05:39 -0400
+From: Michal Semler <cijoml@volny.cz>
+Reply-To: cijoml@volny.cz
+To: linux-kernel@vger.kernel.org
+Subject: APM working on SMP machines?
+Date: Sat, 9 Aug 2003 11:05:27 +0200
 User-Agent: KMail/1.5.3
-Cc: Cliff White <cliffw@osdl.org>
-References: <200308090149.25688.kernel@kolivas.org>
-In-Reply-To: <200308090149.25688.kernel@kolivas.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200308091904.19222.kernel@kolivas.org>
+Message-Id: <200308091105.27619.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Aug 2003 01:49, Con Kolivas wrote:
-> More duck tape interactivity tweaks
+Hello,
 
-s/duck/duct
+I would like to know when will work APM on SMP machines?
+I use Dell  workstation 400 with 2 P2 CPUs.
+When I remove one CPU APM works, when I have 2 in case APM
+doesn't work
 
-> Wli pointed out an error in the nanosecond to jiffy conversion which may
-> have been causing too easy to migrate tasks on smp (? performance change).
+I can't use ACPI, because this machine doesn't support it.
 
-Looks like I broke SMP build with this. Will fix soon; don't bother trying 
-this on SMP yet.
+apm: BIOS version 1.2 Flags 0x03 (Driver version 1.16)
+apm: disabled - APM is not SMP safe.
 
-Con
+Thanks for fixing and reply - it's very uncomfortable
+switch off computer manually :(
+
+Michal
 

@@ -1,145 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270063AbTGSNRM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 09:17:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270130AbTGSNRL
+	id S270096AbTGSNXL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 09:23:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270130AbTGSNXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 09:17:11 -0400
-Received: from dsl-082-082-136-038.arcor-ip.net ([82.82.136.38]:14596 "HELO
-	obi.mine.nu") by vger.kernel.org with SMTP id S270063AbTGSNRF (ORCPT
+	Sat, 19 Jul 2003 09:23:11 -0400
+Received: from dsl-082-082-136-038.arcor-ip.net ([82.82.136.38]:15364 "HELO
+	obi.mine.nu") by vger.kernel.org with SMTP id S270096AbTGSNXJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 09:17:05 -0400
-Subject: [PATCH] 2/3 Support mpc8xx watchdog of dbox2 (2.4.22-pre6)
+	Sat, 19 Jul 2003 09:23:09 -0400
+Subject: [PATCH] 3/3 handle level triggered irqs on dbox2 (2.4.22-pre6)
 From: Andreas Oberritter <obi@saftware.de>
 To: linux-kernel@vger.kernel.org
 In-Reply-To: <1058620870.585.15.camel@localhost>
 References: <1058620870.585.15.camel@localhost>
-Content-Type: multipart/mixed; boundary="=-cP2hNhtG5QO6Nb4Rh2Ya"
-Message-Id: <1058621424.585.22.camel@localhost>
+Content-Type: multipart/mixed; boundary="=-5qUtXoc2iPYWoas443PW"
+Message-Id: <1058621788.585.29.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.0 
-Date: 19 Jul 2003 15:30:24 +0200
+Date: 19 Jul 2003 15:36:28 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-cP2hNhtG5QO6Nb4Rh2Ya
+--=-5qUtXoc2iPYWoas443PW
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-This one adds support for the watchdog timer which is unfortunately
-active before the kernel starts and can not be disabled without patching
-the binary bootloader.
+This one is for components of the dbox2 which cannot be set up to do
+edge triggered irqs because no documentation is available. #ifdef
+CONFIG_DBOX2 is put around it because other boards don't seem to need
+it. Is there a better way to handle level based interrupts?
 
---=-cP2hNhtG5QO6Nb4Rh2Ya
-Content-Disposition: attachment; filename=linux-2.4.22-pre6-dbox2-watchdog.diff
-Content-Type: text/x-patch; name=linux-2.4.22-pre6-dbox2-watchdog.diff; charset=ISO-8859-15
+--=-5qUtXoc2iPYWoas443PW
+Content-Disposition: attachment; filename=linux-2.4.22-pre6-dbox2-irq.diff
+Content-Type: text/x-patch; name=linux-2.4.22-pre6-dbox2-irq.diff; charset=iso-8859-15
 Content-Transfer-Encoding: 7bit
 
-diff -Naur linux-2.4.22-pre6/arch/ppc/kernel/m8xx_setup.c linux-2.4.22-pre6-dbox2/arch/ppc/kernel/m8xx_setup.c
---- linux-2.4.22-pre6/arch/ppc/kernel/m8xx_setup.c	2003-06-13 16:51:31.000000000 +0200
-+++ linux-2.4.22-pre6-dbox2/arch/ppc/kernel/m8xx_setup.c	2003-07-15 09:16:34.000000000 +0200
-@@ -117,6 +117,22 @@
- 	printk ("timebase_interrupt()\n");
- }
- 
+diff -Naur linux-2.4.22-pre6/arch/ppc/kernel/irq.c linux-2.4.22-pre6-dbox2/arch/ppc/kernel/irq.c
+--- linux-2.4.22-pre6/arch/ppc/kernel/irq.c	2003-06-13 16:51:31.000000000 +0200
++++ linux-2.4.22-pre6-dbox2/arch/ppc/kernel/irq.c	2003-07-15 09:16:34.000000000 +0200
+@@ -507,6 +507,14 @@
+ 		else if (irq_desc[irq].handler->enable)
+ 			irq_desc[irq].handler->enable(irq);
+ 	}
++	
 +#ifdef CONFIG_DBOX2
-+void m8xx_reset_watchdog(void)
-+{
-+	((volatile immap_t *)IMAP_ADDR)->im_siu_conf.sc_swsr = 0x556c; /* write magic1 */
-+	((volatile immap_t *)IMAP_ADDR)->im_siu_conf.sc_swsr = 0xaa39; /* write magic2 */
-+}
-+
-+void pit_interrupt(int irq, void * dev, struct pt_regs * regs)
-+{
-+	m8xx_reset_watchdog();
-+
-+	/* clear irq */
-+	((volatile immap_t *)IMAP_ADDR)->im_sit.sit_piscr |= PISCR_PS;
-+}
-+#endif
-+
- /* The decrementer counts at the system (internal) clock frequency divided by
-  * sixteen, or external oscillator divided by four.  We force the processor
-  * to use system clock divided by sixteen.
-@@ -125,6 +141,10 @@
- {
- 	bd_t	*binfo = (bd_t *)__res;
- 	int freq, fp, divisor;
-+#ifdef CONFIG_DBOX2
-+	unsigned long sypcr;
-+	unsigned short pitc, swtc, swp;
-+#endif	
- 
- 	/* Unlock the SCCR. */
- 	((volatile immap_t *)IMAP_ADDR)->im_clkrstk.cark_sccrk = ~KAPWR_KEY;
-@@ -184,6 +204,42 @@
- 	if (request_irq(DEC_INTERRUPT, timebase_interrupt, 0, "tbint",
- 				NULL) != 0)
- 		panic("Could not allocate timer IRQ!");
-+
-+#ifdef CONFIG_DBOX2
-+	sypcr = ((volatile immap_t *)IMAP_ADDR)->im_siu_conf.sc_sypcr;
-+
-+	if ((sypcr >> 2) & 0x1) {
-+	    m8xx_reset_watchdog();
-+
-+	    if (sypcr >> 16)
-+		swtc = sypcr >> 16;
-+	    else
-+		swtc = 0xFFFF;
-+
-+	    if (sypcr & 0x1)
-+		swp = 2048;
-+	    else
-+		swp = 1;
-+
-+#define PITRTCLK 8192
-+
-+	    /* Fire trigger if half of the wdt ticked down */
-+	    if ((swp * swtc) > (UINT_MAX / PITRTCLK))
-+		pitc = swtc * swp / binfo->bi_intfreq * PITRTCLK / 2;
-+	    else
-+		pitc = PITRTCLK * swtc * swp / binfo->bi_intfreq / 2;
-+
-+	    ((volatile immap_t *)IMAP_ADDR)->im_sit.sit_pitc = pitc << 16;
-+	    ((volatile immap_t *)IMAP_ADDR)->im_sit.sit_piscr = (mk_int_int_mask(PIT_INTERRUPT) << 8) | PISCR_PIE | PISCR_PTE;
-+
-+	    if (request_8xxirq(PIT_INTERRUPT, pit_interrupt, 0, "pit", NULL) != 0)
-+		    panic("mpc8xx-wdt: could not allocate pit irq!");
-+
-+	    printk(KERN_INFO "mpc8xx-wdt: active wdt found (SWTC: 0x%04X, SWP: 0x%01X)\n", sypcr >> 16, sypcr & 0x1);
-+	    printk(KERN_INFO "mpc8xx-wdt: keep-alive trigger activated (PITC: 0x%04X)\n", pitc);
++	if (action) {
++	    if (action->flags & SA_ONESHOT)
++		disable_irq_nosync(irq);
 +	}
 +#endif
 +
+ 	spin_unlock(&desc->lock);
  }
  
- /* The RTC on the MPC8xx is an internal register.
-diff -Naur linux-2.4.22-pre6/arch/ppc/kernel/time.c linux-2.4.22-pre6-dbox2/arch/ppc/kernel/time.c
---- linux-2.4.22-pre6/arch/ppc/kernel/time.c	2003-06-13 16:51:31.000000000 +0200
-+++ linux-2.4.22-pre6-dbox2/arch/ppc/kernel/time.c	2003-07-15 09:16:34.000000000 +0200
-@@ -71,6 +71,10 @@
- 
- extern int do_sys_settimeofday(struct timeval *tv, struct timezone *tz);
- 
-+#ifdef CONFIG_DBOX2
-+extern void m8xx_reset_watchdog(void);
-+#endif
-+
- /* keep track of when we need to update the rtc */
- time_t last_rtc_update;
- extern rwlock_t xtime_lock;
-@@ -320,6 +324,9 @@
- 		sec = ppc_md.get_rtc_time();
- 		elapsed = 0;
- 		do {
-+#ifdef CONFIG_DBOX2
-+			m8xx_reset_watchdog();
-+#endif
- 			old_stamp = stamp; 
- 			old_sec = sec;
- 			stamp = get_native_tbl();
 
---=-cP2hNhtG5QO6Nb4Rh2Ya--
+--=-5qUtXoc2iPYWoas443PW--
 

@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUFNQBG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbUFNQJR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbUFNQBG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 12:01:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbUFNQBG
+	id S262208AbUFNQJR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 12:09:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263304AbUFNQJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 12:01:06 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:47888 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S261252AbUFNQBD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 12:01:03 -0400
-Message-ID: <40CDCFA5.6000908@techsource.com>
-Date: Mon, 14 Jun 2004 12:17:41 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: buy Win2k/xp/unix/linux---exploit
-References: <S262882AbUFNPY3/20040614152429Z+1241@vger.kernel.org> <200406150129.34080.kernel@kolivas.org>
-In-Reply-To: <200406150129.34080.kernel@kolivas.org>
+	Mon, 14 Jun 2004 12:09:17 -0400
+Received: from mail.kroah.org ([65.200.24.183]:52890 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262208AbUFNQJP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 12:09:15 -0400
+Date: Mon, 14 Jun 2004 08:54:58 -0700
+From: Greg KH <greg@kroah.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IDE update for 2.6.7-rc3 [1/12]
+Message-ID: <20040614155458.GA25461@kroah.com>
+References: <200406111750.30312.bzolnier@elka.pw.edu.pl> <200406131936.08338.bzolnier@elka.pw.edu.pl> <20040614095835.GA11585@infradead.org> <200406141636.01353.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200406141636.01353.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Con Kolivas wrote:
-> On Tue, 15 Jun 2004 01:22, ddd@email.com wrote:
+On Mon, Jun 14, 2004 at 04:36:01PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > And even if for this special hardware it's usually not doable there
+> > are things like greg's fake hotplug pci driver.  So a non-__devinit pci
+> > probe method is a bug, please fix them in PCI.
 > 
->>Mr. who esteems
->>Hello , I needs the not ovet Exploit of WIN2K/XP/UNIX/LINUX along with
->>software respect to buy not to there is in a lot of Webs Site the rightful
->>queen of ovet Exploit price now I shall spend money either the goods come
->>to interchange and you , in case  also possess Exploit in our hands you
->>sense well , I also may interchange Exploit with you . Please in case you
->>sense appropriate , transmiting the mail touch : Spirits@email.com
->>icq:326524530 -
-> 
-> 
-> No thanks.
-> 
-> We get ours for free.
+> Greg, should I add "fake" PCI hotplug support to some IDE
+> drivers just to make fake hotplug PCI driver happy?
 
+No, not at all.  The fake hotplug pci driver is for developers.  Do not
+go changing your IDE drivers just to prevent oopses from happening when
+someone uses the fake hotplug pci driver.
 
-Get WHAT for free?  You were able to understand ANY of what this guy
-said?  If so, you're a lot smarter than I am.  (Well, we knew that
-already given that you wrote process schedulers and I haven't.  :) )\
+thanks,
 
-
+greg k-h

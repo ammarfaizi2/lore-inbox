@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264363AbTKUQZI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 11:25:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264369AbTKUQZH
+	id S264365AbTKUQX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 11:23:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264368AbTKUQX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 11:25:07 -0500
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:13298 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S264363AbTKUQZD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 11:25:03 -0500
-Content-Type: text/plain;
-  charset="CP 1252"
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: Justin Cormack <justin@street-vision.com>
-Subject: Re: OT: why no file copy() libc/syscall ??
-Date: Fri, 21 Nov 2003 10:24:31 -0600
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <1068512710.722.161.camel@cube> <03112013081700.27566@tabby> <1069357453.26642.93.camel@lotte.street-vision.com>
-In-Reply-To: <1069357453.26642.93.camel@lotte.street-vision.com>
+	Fri, 21 Nov 2003 11:23:57 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:7182 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S264365AbTKUQX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Nov 2003 11:23:56 -0500
+Message-ID: <3FBE3B0D.8030501@techsource.com>
+Date: Fri, 21 Nov 2003 11:19:25 -0500
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Message-Id: <03112110243200.29137@tabby>
+To: =?ISO-8859-15?Q?Markus_H=E4stbacka?= <midian@ihme.org>
+CC: =?ISO-8859-15?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
+       Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: Nick's scheduler v19a
+References: <3FB62608.4010708@cyberone.com.au>	 <1069361130.13479.12.camel@midux> <3FBD4F6E.3030906@cyberone.com.au>	 <1069395102.16807.11.camel@midux> <3FBDAE99.9050902@cyberone.com.au>	 <1069405566.18362.5.camel@midux> <3FBDD790.5060401@cyberone.com.au>	 <1069407179.18505.11.camel@midux>  <yw1xy8uaujv0.fsf@kth.se> <1069410094.18790.2.camel@midux>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 20 November 2003 13:44, Justin Cormack wrote:
-> On Thu, 2003-11-20 at 19:08, Jesse Pollard wrote:
-[snip]
->
-> If you really want a filesystem that supports efficient copying you
-> probably want it to have the equivalent of COW blocks, so that a copy
-> just sets up a few pointers, and the copy only happens when the original
-> or copied files are changed.
 
-Ummmm... I REALLY don't like COW on a disk. Much too big a chance that the
-filesystem will deadlock, and with no recovery method. (oversubscribed, then
-crash, corrupting the homeblock, repair (committing journal?) requires
-space... no space... therefore mostly dead. You'd have to be able to mount
-without the journal or the homeblock, then delete something, then commit the
-journal, dismount, recover the rest-- though this might be overboard, the
-homebock might not even be damaged).
 
-> But basically you wont get a syscall until you have a filesystem with
-> semantics that only maps onto this sort of operation.
+Markus Hästbacka wrote:
+> That may be true, but why should I complain anymore? Nick made a really
+> great patch that makes things working for me.
+> 
 
-I belive NFSv3/4 has a file copy request included. And I understand that
-the SAMBA server does too.
+
+Are you interested only in the performance of your own computer, or do 
+you have any interest in the performance of other people's computers as 
+well?
+
+If there's a bug, there's a bug, and you've identified it.  Contrary to 
+the attitude of our friends in Redmond, the open source community tends 
+to see bugs as being really evil.  If you've found a bug, we want to 
+investigate it and fix it.
+

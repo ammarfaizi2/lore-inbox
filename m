@@ -1,22 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265446AbUFSKHs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265462AbUFSKKA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265446AbUFSKHs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 06:07:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUFSKHs
+	id S265462AbUFSKKA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 06:10:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265478AbUFSKJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 06:07:48 -0400
-Received: from fw.osdl.org ([65.172.181.6]:12217 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265446AbUFSKHf (ORCPT
+	Sat, 19 Jun 2004 06:09:59 -0400
+Received: from fw.osdl.org ([65.172.181.6]:22201 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265462AbUFSKJe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 06:07:35 -0400
-Date: Sat, 19 Jun 2004 03:06:37 -0700
+	Sat, 19 Jun 2004 06:09:34 -0400
+Date: Sat, 19 Jun 2004 03:08:34 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Albert Cahalan <albert@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org, ak@suse.de, bcasavan@sgi.com
-Subject: Re: [PATCH] Add kallsyms_lookup() result cache
-Message-Id: <20040619030637.5580b25e.akpm@osdl.org>
-In-Reply-To: <1087605785.8188.834.camel@cube>
-References: <1087605785.8188.834.camel@cube>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: kaos@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.6.7] bug_smp_call_function
+Message-Id: <20040619030834.3582d2bd.akpm@osdl.org>
+In-Reply-To: <20040619095910.GQ1863@holomorphy.com>
+References: <5328.1087637808@kao2.melbourne.sgi.com>
+	<20040619024416.065f4026.akpm@osdl.org>
+	<20040619095910.GQ1863@holomorphy.com>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,33 +26,23 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Cahalan <albert@users.sourceforge.net> wrote:
+William Lee Irwin III <wli@holomorphy.com> wrote:
 >
-> > Doing the cache in the kernel is the wrong place. This should be fixed
->  > in user space.
+> Keith Owens <kaos@sgi.com> wrote:
+> >>  sg.c has been fixed to no longer call vfree() with interrupts disabled.
+> >>  Change smp_call_function() from WARN_ON to BUG_ON when interrupts are
+> >>  disabled.  It was only set to WARN_ON because of sg.c.
 > 
->  No way, because:
+> On Sat, Jun 19, 2004 at 02:44:16AM -0700, Andrew Morton wrote:
+> > I prefer the WARN_ON.  It is exceedingly unlikely that the bug will cause
+> > lockups or memory/data corruption or anything else, so why nuke the user's
+> > box when we can trivially continue?
+> > We'll be sent the bug report either way.
 > 
->  1. kernel modules may be loaded or unloaded at any time
+> Calls to smp_call_function() with interrupts off or spinlocks held
+> typically causes deadlocks on SMP systems.
 
-Poll /proc/modules?
-
->  2. the /proc/*/wchan files don't provide both name and address
-
-/proc/stat has the address, /proc/kallsyms gives the symbol?
-
->  I'd be happy to make top (and the rest of procps) use a cache
->  if those problems were addressed. I need a signal sent on
->  module load/unload, or a real /proc/kallsyms st_mtime that I
->  can poll. I also need to have the numeric wchan address in
->  the /proc/*/wchan file, such that it is reliably the same
->  thing as the function name already found there.
-
-Updating mtime on /proc/modules may be more logical, or even both.
-
-Or put a modprobe sequence number somewhere in /proc and look for changes
-in that.
-
-It definitely needs to be fixed, but it doesn't seem that adding code to
-the kernel is needed.
+No, this doesn't "typically" deadlock.  It will deadlock on every ten
+millionth call.  The preceding 9,999,999 warnings should have imparted
+sufficient clue?
 

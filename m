@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132220AbRDJVZC>; Tue, 10 Apr 2001 17:25:02 -0400
+	id <S132301AbRDJVhg>; Tue, 10 Apr 2001 17:37:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132224AbRDJVYm>; Tue, 10 Apr 2001 17:24:42 -0400
-Received: from [204.163.170.2] ([204.163.170.2]:20460 "EHLO umail.unify.com")
-	by vger.kernel.org with ESMTP id <S132220AbRDJVYg>;
-	Tue, 10 Apr 2001 17:24:36 -0400
-Message-ID: <419E5D46960FD211A2D5006008CAC79902E5C1A7@pcmailsrv1.sac.unify.com>
-From: "Manuel A. McLure" <mmt@unify.com>
-To: "'Jeff Garzik'" <jgarzik@mandrakesoft.com>
+	id <S132318AbRDJVh0>; Tue, 10 Apr 2001 17:37:26 -0400
+Received: from cogent.ecohler.net ([216.135.202.106]:44222 "EHLO
+	cogent.ecohler.net") by vger.kernel.org with ESMTP
+	id <S132301AbRDJVhO>; Tue, 10 Apr 2001 17:37:14 -0400
+Date: Tue, 10 Apr 2001 17:37:01 -0400
+From: lists@sapience.com
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: RE: Still IRQ routing problems with VIA
-Date: Tue, 10 Apr 2001 14:24:27 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Subject: Re: aic7xxx and newer kernels
+Message-ID: <20010410173701.A26497@sapience.com>
+In-Reply-To: <20010410083340.A16601@sapience.com> <200104101400.f3AE0Js30408@aslan.scsiguy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <200104101400.f3AE0Js30408@aslan.scsiguy.com>; from gibbs@scsiguy.com on Tue, Apr 10, 2001 at 08:00:19AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 10, 2001 at 08:00:19AM -0600, Justin T. Gibbs wrote:
+> >
+> I'm pretty sure you need to be up to at leaset 0005 of 
+> the firmware to stabilize this drive.
+  
+  FYI, I contacted seagate and they say the firmware is the latest.
+  
+  Regards,
 
-> > I do have an IRQ for my VGA since the instructions for my 
-> card (a Voodoo 5
-> > 5500) specifically say an IRQ is needed.
-> 
-> I wonder though... In my mind this is a driver not hardware issue.  If
-> the XFree86 and/or Linux console driver do not use the IRQ, 
-> you need not
-> have BIOS assign one.  If you are feeling dangerous, try 
-> turning the VGA
-> IRQ assignment off in BIOS and see if things melt/explode/kick ass.
 
-I'd do that if this wasn't also my Windows 98 gaming machine - I'm supposing
-that the Windows drivers do use the IRQ even if XFree86/Linux doesn't. I
-dunno if Windows is smart enough to assign an IRQ even if the BIOS doesn't.
-Anyway, things are working now (specially since the last tulip patches) and
-I like it that way :-)
+  Gene/
+  
+  
 
---
-Manuel A. McLure - Unify Corp. Technical Support <mmt@unify.com>
-Space Ghost: "Hey, what happened to the-?" Moltar: "It's out." SG: "What
-about-?" M: "It's fixed." SG: "Eh, good. Good."

@@ -1,63 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264343AbTLPEO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 23:14:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264356AbTLPEO0
+	id S264329AbTLPEdU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 23:33:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264332AbTLPEdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 23:14:26 -0500
-Received: from smtp-relay.dca.net ([216.158.48.66]:2495 "EHLO
-	smtp-relay.dca.net") by vger.kernel.org with ESMTP id S264343AbTLPEOX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 23:14:23 -0500
-Date: Mon, 15 Dec 2003 23:03:33 -0500
-From: "Mark M. Hoffman" <mhoffman@lightlink.com>
-To: Greg KH <greg@kroah.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Sensors <sensors@Stimpy.netroedge.com>
-Subject: Re: [PATCH 2.6] sensors chip updates (3 of 4)
-Message-ID: <20031216040333.GD1658@earth.solarsys.private>
-References: <20031216035219.GA1658@earth.solarsys.private>
-Mime-Version: 1.0
+	Mon, 15 Dec 2003 23:33:20 -0500
+Received: from web9506.mail.yahoo.com ([216.136.129.20]:21430 "HELO
+	web9506.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264329AbTLPEdR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 23:33:17 -0500
+Message-ID: <20031216043316.9402.qmail@web9506.mail.yahoo.com>
+Date: Mon, 15 Dec 2003 23:33:16 -0500 (EST)
+From: Dave Muhlert <va7dav@yahoo.ca>
+Subject: [PATCH] vesafb, kernel 2.4.23
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031216035219.GA1658@earth.solarsys.private>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The 2.4.23 vesafb driver wasn't using all of my video
+memory, so bootsplash images wouldn't load because
+they didn't fit in the framebuffer.  I apologize in
+advance for whatever Yahoo mail does to my formatting.
 
-This patch is from the lm_sensors project CVS, from this revision:
+Relevant vesafb output before the patch:
+Dec 14 00:14:31 blue vesafb: framebuffer at
+0xe2000000, mapped to 0xd0813000, size 1536k
+Dec 14 00:14:31 blue Looking for splash picture....
+silenjpeg size 21768 bytes, does not fit into
+framebuffer.
 
-	1.44 (mds) remove initialization of limits by driver
+With the patched driver:
+Dec 15 12:29:12 blue vesafb: framebuffer at
+0xe2000000, mapped to 0xd0806000, size 32768k
+Dec 15 12:29:12 blue Looking for splash picture....
+silenjpeg size 21768 bytes, found (1024x768, 20089
+bytes, v3).
 
-It is better to set these limits by a combination of /etc/sensors.conf
-and 'sensors -s'; "mechanism not policy." 
+I'm using the ck-sources-2.4.23-ck1 Gentoo ebuild (The
+one with Con Kolivas's patchset), but the included
+vesafb.c is identical to
+http://mirror.trouble-free.net/kernel/v2.4/linux-2.4.23/drivers/video/vesafb.c.
+(MD5sum: f3bbf3931f5301432a2ea20c6c67b52f)
 
---- linux-2.6.0-test11-gkh/drivers/i2c/chips/lm75.c	2003-12-14 13:53:50.000000000 -0500
-+++ linux-2.6.0-test11-mmh/drivers/i2c/chips/lm75.c	2003-12-14 17:52:49.000000000 -0500
-@@ -51,10 +51,6 @@
- #define TEMP_FROM_REG(val)	((((val & 0x7fff) >> 7) * 5) | ((val & 0x8000)?-256:0))
- #define TEMP_TO_REG(val)	(SENSORS_LIMIT((val<0?(0x200+((val)/5))<<7:(((val) + 2) / 5) << 7),0,0xffff))
- 
--/* Initial values */
--#define LM75_INIT_TEMP_OS	600
--#define LM75_INIT_TEMP_HYST	500
+Here's the patch I applied to fix the problem
+(originally suggested by someone on the Gentoo forums
+in response to someone else who had the same problem I
+did.  I'll dig up the source if anyone asks).  It's
+worked perfectly thus far.
+-------------------------------------------------------------
+dave@blue video $ diff -u vesafb-original.c
+vesafb-modified.c
+--- vesafb-original.c   2003-12-14 20:51:32.000000000
+-0800
++++ vesafb-modified.c   2003-12-15 20:56:02.000000000
+-0800
+@@ -529,20 +529,7 @@
+        video_width         = screen_info.lfb_width;
+        video_height        = screen_info.lfb_height;
+        video_linelength    =
+screen_info.lfb_linelength;
 -
- /* Each client has this additional data */
- struct lm75_data {
- 	struct semaphore	update_lock;
-@@ -258,10 +254,6 @@
- static void lm75_init_client(struct i2c_client *client)
- {
- 	/* Initialize the LM75 chip */
--	lm75_write_value(client, LM75_REG_TEMP_OS,
--			 TEMP_TO_REG(LM75_INIT_TEMP_OS));
--	lm75_write_value(client, LM75_REG_TEMP_HYST,
--			 TEMP_TO_REG(LM75_INIT_TEMP_HYST));
- 	lm75_write_value(client, LM75_REG_CONF, 0);
- }
- 
--- 
-Mark M. Hoffman
-mhoffman@lightlink.com
+-       /* remap memory according to videomode,
+multiply by 2 to get space for doublebuffering */
+-       video_size          = screen_info.lfb_width * 
+ screen_info.lfb_height * video_bpp / 8 * 2;
+-
+-       /* check that we don't remap more memory than
+old cards have */
+-       if (video_size > screen_info.lfb_size * 65536)
+-               video_size = screen_info.lfb_size *
+65536;
+-
+-       /* FIXME: Should we clip against declared size
+for banked devices ? */
+-
+-       /* sets video_size according to vram boot
+option */
+-       if (vram && vram * 1024 * 1024 != video_size)
+-               video_size = vram * 1024 * 1024;
+-
++       video_size          = screen_info.lfb_size *
+65536;
+        video_visual = (video_bpp == 8) ?
+                FB_VISUAL_PSEUDOCOLOR :
+FB_VISUAL_TRUECOLOR;
+------------------------------------------------------------
+System info:
 
+Gentoo Linux 1.4, ck-sources 2.4.23 compiled with
+genkernel
+P3-Celeron(Coppermine) 800Mhz
+Nvidia TNT2 M64 video card (32MB RAM)
+
+Boot options from lilo.conf: append="root=/dev/hda8
+init=/linuxrc hda=autotune video=vesa:ywrap,mtrr
+splash=silent"
+
+Relevant excerpts from .config:
+CONFIG_FB=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FB_VESA=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FBCON_SPLASHSCREEN=y
+
+______________________________________________________________________ 
+Post your free ad now! http://personals.yahoo.ca

@@ -1,63 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131763AbRCUUbc>; Wed, 21 Mar 2001 15:31:32 -0500
+	id <S131771AbRCUUxG>; Wed, 21 Mar 2001 15:53:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131775AbRCUUbW>; Wed, 21 Mar 2001 15:31:22 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:21508 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131763AbRCUUbS>; Wed, 21 Mar 2001 15:31:18 -0500
-Date: Wed, 21 Mar 2001 12:29:55 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Mike Galbraith <mikeg@wen-online.de>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-        Rik van Riel <riel@conectiva.com.br>
-Subject: Re: kswapd deadlock 2.4.3-pre6
-In-Reply-To: <Pine.LNX.4.33.0103211853420.2398-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.31.0103211223480.9358-100000@penguin.transmeta.com>
+	id <S131775AbRCUUw4>; Wed, 21 Mar 2001 15:52:56 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:35200 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S131764AbRCUUwk>; Wed, 21 Mar 2001 15:52:40 -0500
+Importance: Normal
+Subject: Announcing Journaled  File System (JFS)  release 0.2.1 available
+To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+From: "Steve Best" <sbest@us.ibm.com>
+Date: Wed, 21 Mar 2001 15:51:48 -0500
+Message-ID: <OF3D0039DF.2862FC19-ON85256A16.00723877@raleigh.ibm.com>
+X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 03/21/2001 03:51:49 PM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The latest drop of JFS was made available today.
+
+The file system has fixes included. Also, file system has
+been cleaned up to use standard types.
+
+Joe Nuspl patches have been included in this drop. Joe thanks
+for your changes.
+
+For more details about the problems fixed, please see the README.
 
 
-On Wed, 21 Mar 2001, Mike Galbraith wrote:
->
-> I have a repeatable deadlock when SMP is enabled on my UP box.
->
-> >>EIP; c021e29a <stext_lock+1556/677b>   <=====
-
-When you see something like this, please do
-
-	gdb vmlinux
-
-	(gdb) x/10i 0xc021e29a
-
-and it will basically show you where the code jumps back to.
-
-It's almost certainly the beginning of swap_out_mm() where we get the
-page_table_lock, but it would still be good to verify.
-
-The deadlock implies that somebody scheduled with page_table_lock held.
-Which would be really bad. You should be able to do something like
-
-	if (current->mm && spin_is_locked(&current->mm->page_table_lock))
-		BUG():
-
-in the scheduler to see if it triggers (this only works on UP hardware
-with a SMP kernel - on a real SMP machine it's entirely legal to have the
-lock during a schedule, as the lock may be held by any of the _other_
-CPU's, of course, and the above assert would be the wrong thing to do in
-general)
-
-Of course, it might not be somebody scheduling with a spinlock, it might
-just be a recursive lock bug, but that sounds really unlikely.
-
-> ac20+2.4.2-ac20-rwmmap_sem3 does not deadlock doing the same
-> churn/burn via make -j30 bzImage.
-
-it won't do the page table locking for page table allocations, so it will
-have other bugs, though.
-
-			Linus
+Steve
+JFS for Linux http://oss.software.ibm.com/developerworks/opensource/jfs
 

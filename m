@@ -1,57 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268881AbRG0QTs>; Fri, 27 Jul 2001 12:19:48 -0400
+	id <S268882AbRG0Q0K>; Fri, 27 Jul 2001 12:26:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268883AbRG0QTj>; Fri, 27 Jul 2001 12:19:39 -0400
-Received: from [213.97.184.209] ([213.97.184.209]:22144 "HELO piraos.com")
-	by vger.kernel.org with SMTP id <S268884AbRG0QTX>;
-	Fri, 27 Jul 2001 12:19:23 -0400
-Date: Fri, 27 Jul 2001 18:19:17 +0200
-From: German Gomez Garcia <german@piraos.com>
-To: Mailing List Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Problems with post 2.4.6-pre3aa2
-Message-ID: <20010727181917.A550@hal9000.piraos.com>
-Mime-Version: 1.0
+	id <S268879AbRG0QZt>; Fri, 27 Jul 2001 12:25:49 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:7941 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S268883AbRG0QZl>; Fri, 27 Jul 2001 12:25:41 -0400
 Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Hans Reiser <reiser@namesys.com>
+Subject: Re: ReiserFS / 2.4.6 / Data Corruption
+Date: Fri, 27 Jul 2001 18:30:22 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Joshua Schmidlkofer <menion@srci.iwpsd.org>,
+        kernel <linux-kernel@vger.kernel.org>, Chris Mason <mason@suse.com>
+In-Reply-To: <Pine.LNX.4.33.0107271515200.10139-100000@devel.blackstar.nl> <0107271706460G.00285@starship> <3B6189E2.77F072DD@namesys.com>
+In-Reply-To: <3B6189E2.77F072DD@namesys.com>
+MIME-Version: 1.0
+Message-Id: <0107271830220J.00285@starship>
 Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-	Hello,
+On Friday 27 July 2001 17:33, Hans Reiser wrote:
+> Daniel Phillips wrote:
+> > On Friday 27 July 2001 16:18, Joshua Schmidlkofer wrote:
+> > > I've almost quit using reiser, because everytime I have a power
+> > > outage, the last 2 or three files that I've editted, even ones
+> > > that I haven't touched in a while, will usually be hopelessly
+> > > corrupted.
+> >
+> > My early flush patch will fix this, or at least it will if I get
+> > together with the ReiserFS guys and figure out how to integrate
+> > their flushing mechanism with the standard bdflush.  Or they could
+> > incorporate the ideas from my early flush in their own flush
+> > daemon, though generalizing the standard flush would have more
+> > value in the long run.
+>
+> Can you describe early flush?
 
-	I've running 2.4.6-pre3 patched with Andrea Arcangelli 2.4.6pre3aa2 
-for more than two weeks with no problems. But newer kernels give me strange
-problems. 
+The idea is to do what amounts to a sync within a tenth of a second of 
+disk bandwidth usage falling below a certain threshhold.
 
-	I've tested with 2.4.6-pre6, 2.4.6, 2.4.7, 2.4.7-ac1 and all of them
-give the same result. They run stable for about a day but suddenly with no
-log
-output the system hangs up, no screen output, nothing, just completely
-hanged.
-I have got exactly the same problem some time ago, and I found it was
-related
-to APM/ACPI, if I enabled APM in the BIOS and don't compile the APM support
-into
-the kernel (although it was not loaded as I'm using SMP) the system would go
-deep sleep and wouldn't be able to wake up. After adding support for APM
-into
-the kernel the system worked again. But now I've tried every combination,
-disabling
-APM in the BIOS, enabling in the kernel, etc, with no success.
+The original posts/patches are here:
 
-	It may be also related to the changes in the VM as I think it was
-changed
-during the 2.4.6-pre series.
-	
-	Any ideas?
+    [RFC] Early flush (was: spindown)
+    [RFC] Early flush: new, improved (updated)
 
-	Regards,
+and there are long threads attached to each of them.  The clearest 
+explanation is probably Jonathan Corbet's writeup on lwn:
 
-	- german
+   http://lwn.net/2001/0628/kernel.php3
 
-PS: Please CC to me as I'm not subscribed to the kernel mailing list.
--------------------------------------------------------------------------
-German Gomez Garcia          | Send email with "SEND GPG KEY" as subject 
-<german@piraos.com>          | to receive my GnuPG public key.
+(Thanks, Jonathan, I often get the feeling I understand what I actually 
+did only *after* reading your writeups:-)
+
+The second of the two patches needs more work - I think I goofed on 
+some needed "volatile" handling, see the current flam^H^H^H^H thread 
+about that.
+
+--
+Daniel

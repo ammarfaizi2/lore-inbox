@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284682AbRLEUk1>; Wed, 5 Dec 2001 15:40:27 -0500
+	id <S284688AbRLEUmq>; Wed, 5 Dec 2001 15:42:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284676AbRLEUkQ>; Wed, 5 Dec 2001 15:40:16 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:23567 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S284682AbRLEUkD>;
-	Wed, 5 Dec 2001 15:40:03 -0500
-Date: Wed, 5 Dec 2001 12:36:09 -0800 (PST)
-From: <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: "David S. Miller" <davem@redhat.com>
-cc: <caulfield@sistina.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: ioctl32 patch for LVM
-In-Reply-To: <20011205.010548.08321570.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33L2.0112051235250.22241-100000@dragon.pdx.osdl.net>
+	id <S284676AbRLEUmg>; Wed, 5 Dec 2001 15:42:36 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:8459 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S284689AbRLEUm2>; Wed, 5 Dec 2001 15:42:28 -0500
+Date: Wed, 5 Dec 2001 17:25:47 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Alex Buell <alex.buell@tahallah.demon.co.uk>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.17-pre3
+In-Reply-To: <Pine.LNX.4.33.0112051955290.19053-100000@tahallah.demon.co.uk>
+Message-ID: <Pine.LNX.4.21.0112051725410.20575-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Dec 2001, David S. Miller wrote:
 
-|    From: Patrick Caulfield <caulfield@sistina.com>
-|    Date: Wed, 5 Dec 2001 08:44:07 +0000
-|
-|    Here is a patch for ioctl32.c that fixes problems compiling LVM in recent
-|    kernels - it seems a structure member name has been changed!
-|
-|    I would guess that this (or a similar) fix will be needed for the other 32/64
-|    bit platforms.
-|
-| This and much more correctness fixes are in Marcelo's queue
-| already.  It has been fixed in my tree for a long time, so
-| if you're impatiant go check it out:
-|
-|    http://vger.kernel.org/
+Can you please send me them ?
 
-How does one do this, Dave?
+On Wed, 5 Dec 2001, Alex Buell wrote:
 
-That web page doesn't list anything about CVS...
-
-Thanks,
--- 
-~Randy
+> On Wed, 5 Dec 2001, Marcelo Tosatti wrote:
+> 
+> > pre3:
+> 
+> Where are the sparc fixes? There are some fixes that's been queued since
+> 2.4.16 that really needs to go in!
+> 
+> -- 
+> The best things in life are free.
+> 
+> http://www.tahallah.demon.co.uk
+> 
 

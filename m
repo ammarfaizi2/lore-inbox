@@ -1,42 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263304AbUDAWjO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 17:39:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263308AbUDAWjO
+	id S263124AbUDAWnY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 17:43:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263137AbUDAWnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 17:39:14 -0500
-Received: from us01smtp1.synopsys.com ([198.182.44.79]:35779 "EHLO
-	boden.synopsys.com") by vger.kernel.org with ESMTP id S263304AbUDAWjL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 17:39:11 -0500
-Date: Thu, 1 Apr 2004 14:39:08 -0800
-From: Joe Buck <Joe.Buck@synopsys.COM>
-To: Andi Kleen <ak@suse.de>,
-       Ulrich Weigand <weigand@i1.informatik.uni-erlangen.de>, gcc@gcc.gnu.org,
-       linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
-Subject: Re: Linux 2.6 nanosecond time stamp weirdness breaks GCC build
-Message-ID: <20040401143908.B4619@synopsys.com>
-References: <200404011928.VAA23657@faui1d.informatik.uni-erlangen.de> <20040401220957.5f4f9ad2.ak@suse.de> <20040401203923.GA32177@nevyn.them.org>
+	Thu, 1 Apr 2004 17:43:24 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:7626 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S263124AbUDAWnV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 17:43:21 -0500
+Date: Thu, 1 Apr 2004 14:42:34 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: wli@holomorphy.com, linux-kernel@vger.kernel.org
+Subject: Re: remove bitmap_shift_*() bitmap length limits
+Message-Id: <20040401144234.2ef3c205.pj@sgi.com>
+In-Reply-To: <20040401133033.435a3857.pj@sgi.com>
+References: <20040330065152.GJ791@holomorphy.com>
+	<20040330073604.GK791@holomorphy.com>
+	<20040330081142.GL791@holomorphy.com>
+	<20040401133033.435a3857.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040401203923.GA32177@nevyn.them.org>; from dan@debian.org on Thu, Apr 01, 2004 at 03:39:23PM -0500
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ Linux 2.6 losing the nanoseconds from a file timestamp ]
+Bill,
 
-There are two different failure modes, but in most cases only one
-results in a real problem.
+Here's roughly what I mean by slow and stupid (code untested, just a way
+of presenting an alternative idea).  Perhaps my head is in a weird
+place, but I find the following easier to understand.
 
-Case 1: make falsely thinks that the .o is younger than the .c.  It
-decides not to rebuild the .o, resulting in a bad build.
+lib/bitmap.c:
+=============
 
-Case 2: make falsely thinks that the .c is younger than the .o.  It
-recompiles the .c file, even though it didn't have to.  Harmless.
+    static void _setbitval(unsigned long *dst,
+			    unsigned int n, int val, unsigned int nbits)
+    {
+	    if (n >= nbits)
+		    return;
+	    if (val)
+		    set_bit(n, dst);
+	    else
+		    clear_bit(n, dst);
+    }
 
-So if we can make the bad situation look like a tie, and always rebuild
-in the case of a tie, we will obtain valid builds, sometimes with
-an extra compilation or two.
+    static int _getbitval(unsigned long *src, unsigned int n, unsigned int nbits)
+    {
+	    if (n >= nbits)
+		    return 0;
+	    return test_bit(n, src) ? 1 : 0;
+    }
 
+    void bitmap_shift_right(unsigned long *dst,
+			    const unsigned long *src, int shift, int bits)
+    {
+	    int k;
+	    for (k = 0; k < bits; k++)
+		    _setbitval(dst, k, _getbitval(src, k+shift, bits), bits);
+    }
+    EXPORT_SYMBOL(bitmap_shift_right);
+
+    void bitmap_shift_left(unsigned long *dst,
+			    const unsigned long *src, int shift, int bits)
+    {
+	    int k;
+	    for (k = 0; k < bits; k++)
+		    _setbitval(dst, k, _getbitval(src, k-shift, bits), bits);
+    }
+    EXPORT_SYMBOL(bitmap_shift_left);
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

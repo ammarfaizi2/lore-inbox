@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272054AbTG2T6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 15:58:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272055AbTG2T6Y
+	id S272001AbTG2TyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 15:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272038AbTG2TyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 15:58:24 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:34202 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S272054AbTG2T6T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 15:58:19 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Tue, 29 Jul 2003 21:58:14 +0200 (MEST)
-Message-Id: <UTC200307291958.h6TJwEL16979.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, akpm@osdl.org
-Subject: Re: [PATCH] select fix
-Cc: linux-kernel@vger.kernel.org, manfred@colorfullife.com, torvalds@osdl.org
+	Tue, 29 Jul 2003 15:54:16 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:1152 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S272001AbTG2TyP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 15:54:15 -0400
+Date: Tue, 29 Jul 2003 20:15:06 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200307291915.h6TJF6YB000421@81-2-122-30.bradfords.org.uk>
+To: linux-kernel@vger.kernel.org, pgw99@doc.ic.ac.uk
+Subject: Re: PATCH : LEDs - possibly the most pointless kernel subsystem ever
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-current:
+> This patch adds an abstraction layer for programmable LED devices,
+> hardware drivers for the Status LEDs found on some Intel PIIX4E based
+> server hardware (notably the ISP1100 1U rackmount server) and LEDs wired
+> to the parallel port data lines.
 
-        if (tty->driver->chars_in_buffer(tty) < WAKEUP_CHARS)
-                mask |= POLLOUT | POLLWRNORM;
+I haven't had chance to test this yet, but I really like the idea - by
+an amasing co-incidence, I was actually thinking about the possibility
+of doing a parallel port connected front panel earlier today!
 
-Andries:
+Does anybody have any suggestions for recommended standard uses for
+parallel port connected LEDs?
 
->> if (!tty->stopped &&
+Disk spinning up/disk ready
+Root login active
 
-Manfred:
+Any other suggestions?
 
->> if (.. && tty->driver->write_room(tty) > 0)
-
-Andrew:
-
-> Any preferences?
-
-I prefer Manfred's version.
-
-
-Andries
+John.

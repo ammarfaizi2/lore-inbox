@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262985AbTIVFkz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 01:40:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262986AbTIVFkz
+	id S262743AbTIVFba (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 01:31:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262985AbTIVFba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 01:40:55 -0400
-Received: from dyn-ctb-203-221-73-213.webone.com.au ([203.221.73.213]:13838
-	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
-	id S262985AbTIVFky (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 01:40:54 -0400
-Message-ID: <3F6E8B64.2000905@cyberone.com.au>
-Date: Mon, 22 Sep 2003 15:40:52 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Nick's scheduler policy v15a
-References: <3F608807.9090705@cyberone.com.au>
-In-Reply-To: <3F608807.9090705@cyberone.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Sep 2003 01:31:30 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:40373 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S262743AbTIVFb3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 01:31:29 -0400
+Date: Mon, 22 Sep 2003 07:31:03 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Peter Osterlund <petero2@telia.com>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Broken synaptics mouse..
+Message-ID: <20030922053103.GA27045@ucw.cz>
+References: <Pine.LNX.4.44.0309110744030.28410-100000@home.osdl.org> <m2fziqukhi.fsf@p4.localdomain> <20030921172758.GA21014@ucw.cz> <200309211816.36783.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200309211816.36783.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://www.kerneltrap.org/~npiggin/v15a/
+On Sun, Sep 21, 2003 at 06:16:36PM -0500, Dmitry Torokhov wrote:
 
-No changes apart from a sync with Linus' tree now that it includes Con's
-stuff. It basically just reverts the patches that have gone in. I'm not
-sure what the right way to do this would be, but it seems cleaner than to
-wade through the remains of my patches after a brute force merge.
+> > You can use EVIOCGRAB for the time being in the XFree86 synaptics
+> > driver, this way you'll prevent its events coming into mousedev the
+> > moment it's opened by XFree86, which is probably exactly what one wants.
+> 
+> Will that allow 2 processes to have access to the same event device 
+> simultaneously? I am thinking about XFree and GPM. We just got away from
+> that mess caused by psaux providing only exclusive access to step into
+> the same problem again.
 
-This still has known SMP regressions that I haven't got around to looking
-at yet because there has been a bit of trouble with a big box I'm supposed
-to get time on.
+No, it won't. Yes, it's a problem. The only solution I can propose here
+is when you want GPM and XFree support simultaneously you have to
+configure both to use either /dev/input/mice, or both /dev/input/event,
+and not mix the two together.
 
-I am still not aware of any desktop / interactivity problems so tell me if
-you find any.
+The EVIOCGRAB thing could be optional in X. 
 
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

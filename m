@@ -1,69 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264122AbTEWST2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 14:19:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264123AbTEWST2
+	id S264125AbTEWSV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 14:21:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264127AbTEWSV5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 14:19:28 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:45485 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S264122AbTEWST1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 14:19:27 -0400
-Date: Fri, 23 May 2003 15:30:33 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: willy@w.ods.org, gibbs@scsiguy.com, linux-kernel@vger.kernel.org
-Subject: Re: Undo aic7xxx changes
-In-Reply-To: <20030523123837.6521738f.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.55L.0305231530090.15956@freak.distro.conectiva>
-References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
- <2804790000.1052441142@aslan.scsiguy.com> <20030509120648.1e0af0c8.skraw@ithnet.com>
- <20030509120659.GA15754@alpha.home.local> <20030509150207.3ff9cd64.skraw@ithnet.com>
- <20030509145738.GB17581@alpha.home.local> <20030512110218.4bbc1afe.skraw@ithnet.com>
- <20030523123837.6521738f.skraw@ithnet.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 23 May 2003 14:21:57 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3077 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264125AbTEWSVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 14:21:55 -0400
+Date: Fri, 23 May 2003 19:34:58 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Hugh Dickins <hugh@veritas.com>, LW@KARO-electronics.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] cache flush bug in mm/filemap.c (all kernels >= 2.5.30(at least))
+Message-ID: <20030523193458.B4584@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@digeo.com>,
+	Hugh Dickins <hugh@veritas.com>, LW@KARO-electronics.de,
+	linux-kernel@vger.kernel.org
+References: <20030523175413.A4584@flint.arm.linux.org.uk> <Pine.LNX.4.44.0305231821460.1690-100000@localhost.localdomain> <20030523112926.7c864263.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030523112926.7c864263.akpm@digeo.com>; from akpm@digeo.com on Fri, May 23, 2003 at 11:29:26AM -0700
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, May 23, 2003 at 11:29:26AM -0700, Andrew Morton wrote:
+> Vague statement of principle: The device driver layer takes care of these
+> issues for DMA transfers, and hence should also take care of them for PIO. 
+> Is this sensible and/or possible?
 
+I'd err on the side of caution about extending this principle.  The
+device driver layer's issue for DMA transfers seems to cover the device <->
+kernel cache consistency, not the device <-> user space or kernel <->
+user space cache consistency.
 
-On Fri, 23 May 2003, Stephan von Krawczynski wrote:
+The kernel <-> user space consistency issue seems to be one for the MM
+layer to deal with.  There are other situations where this view can go
+out of sync - for instance, when you have a page of a file mmap'd, and
+you use sys_write() to that page of file.  This is the issue which
+flush_dcache_page() seems to be addressing, and it's the same issue
+with PIO from IDE.
 
-> On Mon, 12 May 2003 11:02:18 +0200
-> Stephan von Krawczynski <skraw@ithnet.com> wrote:
->
-> > On Fri, 9 May 2003 16:57:38 +0200
-> > Willy Tarreau <willy@w.ods.org> wrote:
-> >
-> > > On Fri, May 09, 2003 at 04:11:06PM +0200, Stephan von Krawczynski wrote:
-> > > > On Fri, 9 May 2003 15:27:57 +0200
-> > > > Willy Tarreau <willy@w.ods.org> wrote:
-> > > >
-> > > > > Well, would you at least agree to retest current version from the above
-> > > > > URL ? I find it a bit of a shame that the driver goes back in -rc
-> > > > > stage.
-> > > >
-> > > > Ok, I can tell you at least this: it boots. Just did it. I can tell
-> > > > tomorrow how it behaves with my specific problem.
-> > >
-> > > Thanks for having tried ;-)
-> >
-> > Hello all,
-> >
-> > I have tried 2.4.21-rc2 with aic79xx-linux-2.4-20030502-tar.gz for three days
-> > now and have to say it performs well. I had no freezes any more and nothing
-> > weird happening. Everything is smooth and ok. This is the best performance I
-> > have seen comparing all 2.4.21-X versions tested.
-> >
-> > Thanks a lot.
-> >
-> > I will proceed with further stress tests...
->
-> Ok. I managed to crash the tested machine after 14 days now. The crash itself
-> is exactly like former 2.4.21-X. It just freezes, no oops no nothing. It looks
-> like things got better, but not solved.
->
+So no, I don't think it is a device driver issue at all.
 
-What about rc3?
+DaveM?
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

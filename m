@@ -1,49 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264614AbSKZLEk>; Tue, 26 Nov 2002 06:04:40 -0500
+	id <S264639AbSKZLia>; Tue, 26 Nov 2002 06:38:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264630AbSKZLEk>; Tue, 26 Nov 2002 06:04:40 -0500
-Received: from A17-250-248-85.apple.com ([17.250.248.85]:9688 "EHLO
-	smtpout.mac.com") by vger.kernel.org with ESMTP id <S264614AbSKZLEj>;
-	Tue, 26 Nov 2002 06:04:39 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Peter Waechtler <pwaechtler@mac.com>
-To: Michal Wronski <wrona@mat.uni.torun.pl>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] unified SysV and POSIX mqueues - complete rewrite
-Date: Tue, 26 Nov 2002 12:16:52 +0100
-User-Agent: KMail/1.4.3
-References: <Pine.GSO.4.40.0211261010020.24735-100000@Juliusz>
-In-Reply-To: <Pine.GSO.4.40.0211261010020.24735-100000@Juliusz>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211261216.52359.pwaechtler@mac.com>
+	id <S264643AbSKZLia>; Tue, 26 Nov 2002 06:38:30 -0500
+Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:25996 "EHLO
+	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S264639AbSKZLi3>; Tue, 26 Nov 2002 06:38:29 -0500
+Date: Tue, 26 Nov 2002 08:57:22 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, vandrove@vc.cvut.cz,
+       zippel@linux-m68k.org, linux-kernel@vger.kernel.org
+Subject: Re: Modules with list
+Message-ID: <20021126085722.S628@nightmaster.csn.tu-chemnitz.de>
+References: <200211252211.OAA02085@baldur.yggdrasil.com> <20021126003800.6BC312C2C0@lists.samba.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20021126003800.6BC312C2C0@lists.samba.org>; from rusty@rustcorp.com.au on Tue, Nov 26, 2002 at 11:35:09AM +1100
+X-Spam-Score: -3.2 (---)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18Ge9v-0006jc-00*P5nG9AwiiJg*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 26. November 2002 10:12 schrieb Michal Wronski:
-> I have a few remarks/questions:
->
-> 1. I can't find unregister_filesystem in your patch
+On Tue, Nov 26, 2002 at 11:35:09AM +1100, Rusty Russell wrote:
+> In message <200211252211.OAA02085@baldur.yggdrasil.com> you write:
+> > 	2. Eventually have the same build command for modules and
+> > 	   compiled in objects so that distribution makes can ship an
+> > 	   "all modules" build and link script to allow much more
+> > 	   customization by users who do not want to recompile kernel code.
+> 
+> Hmm, I've never really aimed for this, and as you've noticed, there
+> are a few issues.
+ 
+Maybe that could be done already by having a list of modules for
+initramfs? That's Alans plan anyway, so we might as well solve it
+here.
 
-I removed the unused code. I can't have a module
-with it's own syscalls - posixmsg can't be a module for that reason.
+> > 		2c. Eliminate "#ifdef MODULE" init.h, module.h, and,
+> > 		    eventually, almost everywhere.
+> > 
+> > 		2d. In the core kernel, THIS_MODULE would point to
+> > 		    a struct module rather than being NULL (eliminating
+> > 		    many little banches).
+> 
+> I thought about doing this, but the branch cost IRL is trivial on
+> modern processors with decent branch prediction (since it will almost
+> always be the same way).
+ 
+It's not about branch prediction, it's about the branch
+instruction and readable code. Most code dependend on MODULE can
+be made dependend on CONFIG_MODULE_UNLOAD, because the rest is
+common or should be rewritten that way.
 
-> 2. You have different MQ_PRIO_MAX in library and patch.
+> > 	5. At modprobe time, being able to decide to load a module
+> > 	   as non-removable to avoid loading .exit{,data} for a smaller
+> > 	   kernel footprint.  This might only require insmod changes
+> > 	   for the user level insmod.
+> Hmm, I already discard these if !CONFIG_MODULE_UNLOAD, but it'd be a
+> cute hack to let the user do this.
+ 
+No. That means dangling pointers everywhere. Remember dev_exit_p() 
+and why it was introduced.
 
-Umh, the value is really arbitrary. Could be something like MAX_INT -1
+> > 	10. Move tracking of dependencies among loaded modules to
+> > 	    user land (and be able to reconstruct in some cases
+> > 	    from modules.dep).
+> 
+> Personally, I think the userspace module loaders are clearly inferior,
+> especially as you're gonna break userspace with almost every one of
+> these changes.  Sure, you can use a kernel-specific library to give
+> you back the interface flexibility, but why?  You gain complexity and
+> your kernel doesn't get any smaller anyway.
+> 
+> Anyway, I think supporting both doesn't make sense.  Either the
+> in-kernel module loader is better, in which case it should be kept, or
+> it isn't in which case it should be junked.
 
-> 3. Does mq_unlink work in a proper way?
+At least resolving module name aliases to modules and options
+hould be done in user space, because that's critical to auto
+configuration and readable configuration of the system.
 
-I do think so. Did you test it and found a bug?
-The vfs keeps track of a reference count. Only when the usage count
-of the inode drops to zero, the mqueue_release is called. 
-I tested it and it worked.
-Even when there is a process in mq_receive() waiting, only the name
-is removed as you expect it with unix filesystem semantics. SuSv3
-explicitly allows that:
+module_name_deamon anyone?
 
-"Calls to mq_open() to recreate the message queue may fail until the message 
-queue is actually removed. However, the mq_unlink() call need not block until 
-all references have been closed; it may return immediately."
+This resolving is clearly seperateable and might not even require
+root privileges and can be done as a special user (passed as
+kernel parameter and defaulting to UID 0), because we just need
+to read a kind of database.
 
+That reduces buffer overflow attacks and the like.
 
+That resolving I'm really missing from the new scheme.
+
+Regards
+
+Ingo Oeser
+-- 
+Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

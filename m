@@ -1,242 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264046AbTE0SKj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 14:10:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264067AbTE0SJn
+	id S264012AbTE0SJM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 14:09:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264060AbTE0SIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 14:09:43 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:29917 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263996AbTE0SIL (ORCPT
+	Tue, 27 May 2003 14:08:21 -0400
+Received: from 214.156-136-217.adsl.skynet.be ([217.136.156.214]:43533 "EHLO
+	gw.ici") by vger.kernel.org with ESMTP id S264037AbTE0SHf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 14:08:11 -0400
-Date: Tue, 27 May 2003 20:21:26 +0200
-From: Jens Axboe <axboe@suse.de>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: torvalds@transmeta.com, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCHES] add ata scsi driver
-Message-ID: <20030527182126.GO845@suse.de>
-References: <1053972773.2298.177.camel@mulgrave> <20030526181852.GL845@suse.de> <1053974830.1768.190.camel@mulgrave> <20030526190707.GM845@suse.de> <1053976644.2298.194.camel@mulgrave> <20030526193327.GN845@suse.de> <20030527123901.GJ845@suse.de> <1054045594.1769.24.camel@mulgrave> <20030527171605.GL845@suse.de> <1054058946.1769.223.camel@mulgrave>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1054058946.1769.223.camel@mulgrave>
+	Tue, 27 May 2003 14:07:35 -0400
+Message-ID: <3ED3AC36.5050503@trollprod.org>
+Date: Tue, 27 May 2003 20:19:34 +0200
+From: Olivier NICOLAS <olivn@trollprod.org>
+Organization: TrollPod
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021204
+X-Accept-Language: fr, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: ALSA problems: sound lockup, modules, 2.5.70
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 27 2003, James Bottomley wrote:
-> On Tue, 2003-05-27 at 13:16, Jens Axboe wrote:
-> > If you increase it again, the maps are resized. Is that a problem? Seems
-> > ok to me.
-> 
-> What I mean is that you allocate memory whenever the depth increases. 
-> Even if you have an array large enough to accommodate the increase
-> (because you don't release when you decrease the tag depth).
+Kernel: 2.5.70
 
-Yes I know what you mean, but my question is if it's worth it to keep
-track of? No memory is really lost, but we are doing a copy of tag map
-and bitmap of course in addition to the extra allocation. Given that
-you're not going to change depths 100 times per seconds, I don't think
-it's worth it to actually do anything about it. Especially since you'll
-quickly settle at the desired depth and stay there. But hey, I'm an
-accomodating guy (pfft), so here's the change just for you :)
+Soundcard uses  snd-intel8x0
 
-> On further examination, there's also an invalid tag race:  If a device
-> is throttling, it might want to do a big decrease followed fairly
-> quickly by a small increase.  When it does the increase, you potentially
-> still have outstanding tags above the new depth, which will now run off
-> the end of your newly allocated tag array.
 
-Oh yes you are right. How does the attached look? With real_max_depth,
-that should work as well since we'll only ever alloc a bigger area.
+On module load
 
-===== drivers/block/ll_rw_blk.c 1.170 vs edited =====
---- 1.170/drivers/block/ll_rw_blk.c	Thu May  8 11:30:11 2003
-+++ edited/drivers/block/ll_rw_blk.c	Tue May 27 20:21:00 2003
-@@ -413,11 +413,12 @@
- {
- 	struct blk_queue_tag *bqt = q->queue_tags;
- 
--	if (unlikely(bqt == NULL || bqt->max_depth < tag))
-+	if (unlikely(bqt == NULL || tag >= bqt->real_max_depth))
- 		return NULL;
- 
- 	return bqt->tag_index[tag];
- }
-+
- /**
-  * blk_queue_free_tags - release tag maintenance info
-  * @q:  the request queue for the device
-@@ -448,39 +449,28 @@
- 	q->queue_flags &= ~(1 << QUEUE_FLAG_QUEUED);
- }
- 
--/**
-- * blk_queue_init_tags - initialize the queue tag info
-- * @q:  the request queue for the device
-- * @depth:  the maximum queue depth supported
-- **/
--int blk_queue_init_tags(request_queue_t *q, int depth)
-+static int init_tag_map(struct blk_queue_tag *tags, int depth)
- {
--	struct blk_queue_tag *tags;
- 	int bits, i;
- 
- 	if (depth > (queue_nr_requests*2)) {
- 		depth = (queue_nr_requests*2);
--		printk("blk_queue_init_tags: adjusted depth to %d\n", depth);
-+		printk(KERN_ERR "%s: adjusted depth to %d\n", __FUNCTION__, depth);
- 	}
- 
--	tags = kmalloc(sizeof(struct blk_queue_tag),GFP_ATOMIC);
--	if (!tags)
--		goto fail;
--
- 	tags->tag_index = kmalloc(depth * sizeof(struct request *), GFP_ATOMIC);
- 	if (!tags->tag_index)
--		goto fail_index;
-+		goto fail;
- 
- 	bits = (depth / BLK_TAGS_PER_LONG) + 1;
- 	tags->tag_map = kmalloc(bits * sizeof(unsigned long), GFP_ATOMIC);
- 	if (!tags->tag_map)
--		goto fail_map;
-+		goto fail;
- 
- 	memset(tags->tag_index, 0, depth * sizeof(struct request *));
- 	memset(tags->tag_map, 0, bits * sizeof(unsigned long));
--	INIT_LIST_HEAD(&tags->busy_list);
--	tags->busy = 0;
- 	tags->max_depth = depth;
-+	tags->real_max_depth = bits * BITS_PER_LONG;
- 
- 	/*
- 	 * set the upper bits if the depth isn't a multiple of the word size
-@@ -488,22 +478,89 @@
- 	for (i = depth; i < bits * BLK_TAGS_PER_LONG; i++)
- 		__set_bit(i, tags->tag_map);
- 
-+	return 0;
-+fail:
-+	kfree(tags->tag_index);
-+	return -ENOMEM;
-+}
-+
-+
-+/**
-+ * blk_queue_init_tags - initialize the queue tag info
-+ * @q:  the request queue for the device
-+ * @depth:  the maximum queue depth supported
-+ **/
-+int blk_queue_init_tags(request_queue_t *q, int depth)
-+{
-+	struct blk_queue_tag *tags;
-+
-+	tags = kmalloc(sizeof(struct blk_queue_tag),GFP_ATOMIC);
-+	if (!tags)
-+		goto fail;
-+
-+	if (init_tag_map(tags, depth))
-+		goto fail;
-+
-+	INIT_LIST_HEAD(&tags->busy_list);
-+	tags->busy = 0;
-+
- 	/*
- 	 * assign it, all done
- 	 */
- 	q->queue_tags = tags;
- 	q->queue_flags |= (1 << QUEUE_FLAG_QUEUED);
- 	return 0;
--
--fail_map:
--	kfree(tags->tag_index);
--fail_index:
--	kfree(tags);
- fail:
-+	kfree(tags);
- 	return -ENOMEM;
- }
- 
- /**
-+ * blk_queue_resize_tags - change the queueing depth
-+ * @q:  the request queue for the device
-+ * @new_depth: the new max command queueing depth
-+ *
-+ *  Notes:
-+ *    Must be called with the queue lock held.
-+ **/
-+int blk_queue_resize_tags(request_queue_t *q, int new_depth)
-+{
-+	struct blk_queue_tag *bqt = q->queue_tags;
-+	struct request **tag_index;
-+	unsigned long *tag_map;
-+	int bits, max_depth;
-+
-+	if (!bqt)
-+		return -ENXIO;
-+
-+	/*
-+	 * don't bother sizing down
-+	 */
-+	if (new_depth <= bqt->real_max_depth) {
-+		bqt->max_depth = new_depth;
-+		return 0;
-+	}
-+
-+	/*
-+	 * save the old state info, so we can copy it back
-+	 */
-+	tag_index = bqt->tag_index;
-+	tag_map = bqt->tag_map;
-+	max_depth = bqt->real_max_depth;
-+
-+	if (init_tag_map(bqt, new_depth))
-+		return -ENOMEM;
-+
-+	memcpy(bqt->tag_index, tag_index, max_depth * sizeof(struct request *));
-+	bits = max_depth / BLK_TAGS_PER_LONG;
-+	memcpy(bqt->tag_map, bqt->tag_map, bits * sizeof(unsigned long));
-+
-+	kfree(tag_index);
-+	kfree(tag_map);
-+	return 0;
-+}
-+
-+/**
-  * blk_queue_end_tag - end tag operations for a request
-  * @q:  the request queue for the device
-  * @tag:  the tag that has completed
-@@ -524,7 +581,7 @@
- 
- 	BUG_ON(tag == -1);
- 
--	if (unlikely(tag >= bqt->max_depth))
-+	if (unlikely(tag >= bqt->real_max_depth))
- 		return;
- 
- 	if (unlikely(!__test_and_clear_bit(tag, bqt->tag_map))) {
-===== include/linux/blkdev.h 1.105 vs edited =====
---- 1.105/include/linux/blkdev.h	Thu May  8 11:30:11 2003
-+++ edited/include/linux/blkdev.h	Tue May 27 20:15:31 2003
-@@ -179,7 +179,8 @@
- 	unsigned long *tag_map;		/* bit map of free/busy tags */
- 	struct list_head busy_list;	/* fifo list of busy tags */
- 	int busy;			/* current depth */
--	int max_depth;
-+	int max_depth;			/* what we will send to device */
-+	int real_max_depth;		/* what the array can hold */
- };
- 
- struct request_queue
-@@ -452,6 +453,7 @@
- extern void blk_queue_end_tag(request_queue_t *, struct request *);
- extern int blk_queue_init_tags(request_queue_t *, int);
- extern void blk_queue_free_tags(request_queue_t *);
-+extern int blk_queue_resize_tags(request_queue_t *, int);
- extern void blk_queue_invalidate_tags(request_queue_t *);
- extern void blk_congestion_wait(int rw, long timeout);
- 
+intel8x0: clocking to 48000
+Slab corruption: start=deda495c, expend=deda4ad3, problemat=deda4a9c
+Last user: [<c018e47d>](proc_destroy_inode+0x1d/0x20)
+Data:
+********************************************************************************************************************************************************************************************************************************************************************************************************************************AC 
 
--- 
-Jens Axboe
+36 96 DE ***************************************************A5
+Next: 71 F0 2C .7D E4 18 C0 A5 C2 0F 17 B0 E6 AD DF 0C 00 00 00 A0 34
+19
+C0 00 00 00 00 00 00 00 00
+slab error in check_poison_obj(): cache `proc_inode_cache': object was
+modified after freeing
+Call Trace:
+   [<c0142237>] check_poison_obj+0x147/0x1b0
+   [<c0143f2c>] kmem_cache_alloc+0x14c/0x180
+   [<c018e40c>] proc_alloc_inode+0x1c/0x70
+   [<c018e40c>] proc_alloc_inode+0x1c/0x70
+   [<c0178cbe>] alloc_inode+0x1e/0x160
+   [<c0178cbe>] alloc_inode+0x1e/0x160
+   [<c01798bb>] new_inode+0x1b/0xd0
+   [<c019054c>] proc_pid_make_inode+0x9c/0xe0
+   [<c01904d0>] proc_pid_make_inode+0x20/0xe0
+   [<c0143f2c>] kmem_cache_alloc+0x14c/0x180
+   [<c0190a17>] proc_lookupfd+0x57/0x270
+   [<c016bc5c>] real_lookup+0xdc/0x110
+   [<c016c10b>] do_lookup+0x8b/0xa0
+   [<c016c589>] link_path_walk+0x469/0x6a0
+   [<c016ccde>] __user_walk+0x3e/0x60
+   [<c01678fa>] sys_readlink+0x2a/0x90
+   [<c015b1f6>] sys_open+0x76/0x90
+   [<c01097f3>] syscall_call+0x7/0xb
+
+
+
+
+On module unload
+
+Unable to handle kernel paging request at virtual address 6b6b6b6b
+   printing eip:
+c0166e55
+*pde = 00000000
+Oops: 0002 [#1]
+CPU:    0
+EIP:    0060:[<c0166e55>]    Not tainted
+EFLAGS: 00210202
+EIP is at cdev_purge+0x35/0xb0
+eax: 6b6b6b6b   ebx: c17cdc84   ecx: cb1f2ad8   edx: 6b6b6b6b
+esi: c17cdc4c   edi: 00000000   ebp: d65c3f14   esp: d65c3efc
+ds: 007b   es: 007b   ss: 0068
+Process rmmod (pid: 1828, threadinfo=d65c2000 task=d71572d0)
+Stack: c0349060 00200286 c17cdc4c 00000000 c17cdc4c c0341298 d65c3f24
+c0167162
+         c17cdc4c c0342fe0 d65c3f34 c01f3425 c17cdc4c def25bd4 d65c3f4c
+c0166a4f
+         c17cdc4c 00000000 00000100 e0a10880 d65c3f5c e0a0ba99 00000074
+e0a0be6a
+Call Trace:
+   [<c0167162>] cdev_dynamic_release+0x12/0x20
+   [<c01f3425>] kobject_cleanup+0x45/0x50
+   [<c0166a4f>] unregister_chrdev+0x5f/0x70
+   [<e0a10880>] +0x0/0x180 [snd]
+   [<e0a0ba99>] alsa_sound_exit+0x39/0x60 [snd]
+   [<e0a0be6a>] +0x8b/0x41d [snd]
+   [<c01388bf>] sys_delete_module+0x14f/0x180
+   [<e0a10880>] +0x0/0x180 [snd]
+   [<c014eb44>] sys_munmap+0x54/0x70
+
+
 

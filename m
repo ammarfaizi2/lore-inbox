@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313087AbSFGUuv>; Fri, 7 Jun 2002 16:50:51 -0400
+	id <S317345AbSFGVE3>; Fri, 7 Jun 2002 17:04:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317344AbSFGUuu>; Fri, 7 Jun 2002 16:50:50 -0400
-Received: from mg03.austin.ibm.com ([192.35.232.20]:55684 "EHLO
-	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S313087AbSFGUut>; Fri, 7 Jun 2002 16:50:49 -0400
-Message-ID: <3D011C64.45AC84E5@us.ibm.com>
-Date: Fri, 07 Jun 2002 15:49:40 -0500
-From: Steve Best <sfbest@us.ibm.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
+	id <S317347AbSFGVE2>; Fri, 7 Jun 2002 17:04:28 -0400
+Received: from p50886B5E.dip.t-dialin.net ([80.136.107.94]:171 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317345AbSFGVE1>; Fri, 7 Jun 2002 17:04:27 -0400
+Date: Fri, 7 Jun 2002 15:04:21 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Lightweight patch manager <patch@luckynet.dynu.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH][2.5] tulip: devicenames patch (updated)
+In-Reply-To: <3D011297.9000508@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.44.0206071503200.15675-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] Journaled File System (JFS) release 1.0.19
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Release 1.0.19 of JFS was made available today.
+Hi,
 
-Drop 57 on June 7, 2002 (jfs-2.4-1.0.19.tar.gz
-and jfsutils-1.0.19.tar.gz) includes fixes to the file
-system and utilities.
+On Fri, 7 Jun 2002, Jeff Garzik wrote:
+> Patch looks good... applied with slight modification.
 
+I'd *love* to know which modifications you actually did.
 
-Utilities changes
+> You neglected to include a ChangeLog entry. I'll let that slip... this 
+> time. :)
 
-- Fix jfsutils packaging/build error from 1.0.18
+I don't want to be in ChangeLogs.
 
-File System changes
+What the heck should I have written?
 
-- Fix powerpc64 compiler warnings
-- Fix structure alignment
-   xdlistlock_t must be the same size as maplock_t, whether pointers are
-   32 bits or 64 bits.
-   fix for bugzilla #583, assert(blkno + nblocks <= bmp->db_mapsize) jfs_dmap.
-   c:464!
-- Add Christoph's copyright to files he has significantly contributed to.
-- sanitize->clear_inode, remove ->put_inode (Christoph Hellwig)
-   Rename the JFS->clear_inode from diClearExtension to the more descriptive
-   jfs_clear_inode, move it ti inode.c and clean it up a bit.
-   Remove jfs_put_inode as in 2.5
+Regards,
+Thunder
+-- 
+ship is leaving right on time	|	Thunder from the hill at ngforever
+empty harbour, wave goodbye	|
+evacuation of the isle		|	free inhabitant not directly
+caveman's paintings drowning	|	belonging anywhere
 
-For more details about JFS, please see the patch instructions or changelog.
-jfs files.
-
-
-Steve Best
-Linux Technology Center
-JFS for Linux http://oss.software.ibm.com/jfs

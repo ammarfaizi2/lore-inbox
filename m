@@ -1,43 +1,167 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262600AbVBBP6b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262403AbVBBQAP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262600AbVBBP6b (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 10:58:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262366AbVBBP6a
+	id S262403AbVBBQAP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 11:00:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbVBBQAO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 10:58:30 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:46306 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S262600AbVBBP5e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 10:57:34 -0500
-Date: Wed, 2 Feb 2005 16:57:43 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: dtor_core@ameritech.net
-Cc: Pete Zaitcev <zaitcev@redhat.com>, Peter Osterlund <petero2@telia.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Touchpad problems with 2.6.11-rc2
-Message-ID: <20050202155743.GA3351@ucw.cz>
-References: <20050123190109.3d082021@localhost.localdomain> <m3acqr895h.fsf@telia.com> <20050201234148.4d5eac55@localhost.localdomain> <20050202102033.GA2420@ucw.cz> <d120d5000502020751db00e48@mail.gmail.com>
+	Wed, 2 Feb 2005 11:00:14 -0500
+Received: from ppsw-6.csi.cam.ac.uk ([131.111.8.136]:38337 "EHLO
+	ppsw-6.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S262403AbVBBP4m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 10:56:42 -0500
+Subject: Re: RFC: [PATCH-2.6] Add helper function to lock multiple page
+	cache pages.
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Andrew Morton <akpm@osdl.org>, Nathan Scott <nathans@sgi.com>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       lkml <linux-kernel@vger.kernel.org>,
+       fsdevel <linux-fsdevel@vger.kernel.org>
+In-Reply-To: <20050202154307.GG10088@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.60.0502021354540.16084@hermes-1.csi.cam.ac.uk>
+	 <20050202154307.GG10088@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Organization: University of Cambridge Computing Service, UK
+Date: Wed, 02 Feb 2005 15:56:38 +0000
+Message-Id: <1107359798.18444.42.camel@imp.csi.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d5000502020751db00e48@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 02, 2005 at 10:51:38AM -0500, Dmitry Torokhov wrote:
+Hi Matthew,
 
-> I wonder if we should just add speed factor (along with tap distance)
-> options to mousedev. Vojtech, will you take such patch? I know you
-> want to drop mousedev and have everyone use evdev but, although people
-> started switching, it will not happen until distributions (or
-> XOrg/XFree themselves) have these drivers available straight out of
-> the box.
- 
-I would be OK with that if we take the default from the touchpad
-resolution, so that the driver uses a reasonable value without having to
-use the speed parameter.
+On Wed, 2005-02-02 at 15:43 +0000, Matthew Wilcox wrote:
+> On Wed, Feb 02, 2005 at 03:12:50PM +0000, Anton Altaparmakov wrote:
+> 
+> I think the below loop would be clearer as a for loop ...
+> 
+> 	err = 0;
+> 	for (nr = 0; nr < nr_pages; nr++, start++) {
+> 		if (start == lp_idx) {
+> 			pages[nr] = locked_page;
+> 			if (!nr)
+> 				continue;
+> 			lock_page(locked_page);
+> 			if (!wbc)
+> 				continue;
+> 			if (wbc->for_reclaim) {
+> 				up(&inode->i_sem);
+> 				up_read(&inode->i_sb->s_umount);
+> 			}
+> 			/* Was the page truncated under us? */
+> 			if (page_mapping(locked_page) != mapping) {
+> 				err = -ESTALE;
+> 				goto err_out_locked;
+> 			}
+> 		} else {
+> 			pages[nr] = find_lock_page(mapping, start);
+> 			if (pages[nr])
+> 				continue;
+> 			if (!cached_page) {
+> 				cached_page = alloc_page(gfp_mask);
+> 				if (unlikely(!cached_page))
+> 					goto err_out;
+> 			}
+> 			err = add_to_page_cache_lru(cached_page,
+> 					mapping, start, gfp_mask);
+> 			if (unlikely(err)) {
+> 				if (err == -EEXIST)
+> 					continue;
+> 				goto err_out;
+> 			}
+> 			pages[nr] = cached_page;
+> 			cached_page = NULL;
+> 		}
+> 	}
+> 
+> The above fixes two bugs in the below:
+>  - if (!unlikely(cached_page)) should be if (unlikely(!cached_page))
 
+Ah, oops.  Thanks!  Well spotted!  I did say it was only compile
+tested...  (-;
+
+>  - The -EEXIST case after add_to_page_cache_lru() would result in
+>    an infinite loop in the original as nr wasn't being incremented.
+
+That was exactly what was meant to happen.  It is not a bug.  It is a
+feature.  This is why it is a while loop instead of a for loop.  I need
+to have @nr and @start incremented only if the code reaches the end of
+the loop.
+
+The -EEXIST case needs to repeat for the same @nr and @start.  It
+basically means that someone else allocated the page with index @start
+and added it to the page cache in between us running find_lock_page()
+and add_to_page_cache_lru().  So what we want to do is to run
+find_lock_page() again which should then find and lock the page that the
+other process created.
+
+Of course what could happen is that between us getting the -EEXIST and
+us repeating the find_lock_page() the page is freed again so the
+find_lock_page() fails again.  Perhaps this time we will succeed with
+add_to_page_cache_lru() and if not we repeat again.  Eventually either
+find_lock_page() or add_to_page_cache_lru() will succeed so in practise
+it will never be an endless loop.
+
+If the while loop is changed to a for loop, the "continue;" on -EEXIST
+would need to be changed to "goto repeat;" and a label "repeat:" would
+need to be placed at the beginning of the loop.  I considered this but
+decided the while loop looks nicer.  (-:
+
+Thanks for the review!
+
+> > +	err = nr = 0;
+> > +	while (nr < nr_pages) {
+> > +		if (start == lp_idx) {
+> > +			pages[nr] = locked_page;
+> > +			if (nr) {
+> > +				lock_page(locked_page);
+> > +				if (wbc) {
+> > +					if (wbc->for_reclaim) {
+> > +						up(&inode->i_sem);
+> > +						up_read(&inode->i_sb->s_umount);
+> > +					}
+> > +					/* Was the page truncated under us? */
+> > +					if (page_mapping(locked_page) !=
+> > +							mapping) {
+> > +						err = -ESTALE;
+> > +						goto err_out_locked;
+> > +					}
+> > +				}
+> > +			}
+> > +		} else {
+> > +			pages[nr] = find_lock_page(mapping, start);
+> > +			if (!pages[nr]) {
+> > +				if (!cached_page) {
+> > +					cached_page = alloc_page(gfp_mask);
+> > +					if (!unlikely(cached_page))
+> > +						goto err_out;
+> > +				}
+> > +				err = add_to_page_cache_lru(cached_page,
+> > +						mapping, start, gfp_mask);
+> > +				if (unlikely(err)) {
+> > +					if (err == -EEXIST)
+> > +						continue;
+> > +					goto err_out;
+> > +				}
+> > +				pages[nr] = cached_page;
+> > +				cached_page = NULL;
+> > +			}
+> > +		}
+> > +		nr++;
+> > +		start++;
+> > +	}
+
+Best regards,
+
+        Anton
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+

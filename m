@@ -1,36 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266493AbRGGPiA>; Sat, 7 Jul 2001 11:38:00 -0400
+	id <S266490AbRGGPfJ>; Sat, 7 Jul 2001 11:35:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266496AbRGGPhu>; Sat, 7 Jul 2001 11:37:50 -0400
-Received: from adsl-64-109-89-110.chicago.il.ameritech.net ([64.109.89.110]:13390
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S266493AbRGGPhp>; Sat, 7 Jul 2001 11:37:45 -0400
-Message-Id: <200107071537.f67FbcG01719@localhost.localdomain>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: "Paulo" <pmateiro@hotpop.com>
-cc: linux-kernel@vger.kernel.org, james.bottomley@hansenpartnership.com
-Subject: Re: NCR 35XXXX MCA bus and SMP
-Mime-Version: 1.0
+	id <S266493AbRGGPeu>; Sat, 7 Jul 2001 11:34:50 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:38600 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S266490AbRGGPed>;
+	Sat, 7 Jul 2001 11:34:33 -0400
+Message-ID: <3B472C06.78A9530C@mandrakesoft.com>
+Date: Sat, 07 Jul 2001 11:34:30 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: viro@math.psu.edu
+Subject: RFC: Remove swap file support
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 07 Jul 2001 10:37:37 -0500
-From: James Bottomley <James.Bottomley@hansenpartnership.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And i have a NCR 3525 with MCA bus and 8 processors and 512MB RAM , i
-> tried Suse 6.4 and Red Hat 7.1 , but nome detected my MCA bus , the 8
-> processors and more than 64MB ... i tried kernel parameter mem=512m ,
-> but no results... only 64MB .... i recompiled the kernel (2.4.2) with
-> MCA=y and SMP =y ... and no results... somebody can help me ?
+Since you can make any file into a block device using loop,
+is there any value to supporting swap files in 2.5?
 
-Machines like this require a special SMP HAL to get them to work.  You could 
-try the experimental kernels from http://www.hansenpartnership.com/voyager  
-which contain the SMP HAL for the voyager systems (which is what a 3525 is).
+swap files seem like a special case that is no longer necessary...
 
-James Bottomley
-
-
-
-
-
+-- 
+Jeff Garzik      | A recent study has shown that too much soup
+Building 1024    | can cause malaise in laboratory mice.
+MandrakeSoft     |

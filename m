@@ -1,46 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262283AbTKRJqy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 04:46:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbTKRJqy
+	id S262315AbTKRJxk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 04:53:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbTKRJxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 04:46:54 -0500
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:32775 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262283AbTKRJqx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 04:46:53 -0500
-Date: Tue, 18 Nov 2003 09:46:52 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DMA_NONE data_direction in scsi
-Message-ID: <20031118094651.A14904@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0311172013230.2258-100000@poirot.grange>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0311172013230.2258-100000@poirot.grange>; from g.liakhovetski@gmx.de on Mon, Nov 17, 2003 at 08:25:19PM +0100
+	Tue, 18 Nov 2003 04:53:40 -0500
+Received: from natsmtp01.rzone.de ([81.169.145.166]:12265 "EHLO
+	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S262315AbTKRJxh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Nov 2003 04:53:37 -0500
+Message-ID: <3FB9EC19.80107@softhome.net>
+Date: Tue, 18 Nov 2003 10:53:29 +0100
+From: "Ihar 'Philips' Filipau" <filia@softhome.net>
+Organization: Home Sweet Home
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Q] jiffies overflow & timers.
+References: <3FB91527.50007@softhome.net> <Pine.LNX.4.53.0311171347540.24608@chaos> <3FB9373D.6010300@softhome.net> <Pine.LNX.4.53.0311171624100.27657@chaos>
+In-Reply-To: <Pine.LNX.4.53.0311171624100.27657@chaos>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 17, 2003 at 08:25:19PM +0100, Guennadi Liakhovetski wrote:
-> While trying to fix tmscsim for 2.6, I've arrived at the Oops below, which
-> is caused by the BUG_ON() in dma_map_page(). In the backtrace below,
-> data_direction is set to DMA_BIDIRECTIONAL in sd_revalidate_disk(),
-> 
->                 sreq->sr_data_direction = DMA_BIDIRECTIONAL;
-> 
-> , but already in sd_spinup_disk() it is reset to DMA_NONE:
-> 
->                         SRpnt->sr_data_direction = DMA_NONE;
-> 
-> So, the question is: is this the correct behaviour, and, if so - how is
-> the driver supposed to map this request - which direction to pass to
-> dma_map_*?
+Richard B. Johnson wrote:
+>>Richard B. Johnson wrote:
+>>
+>>>Use jiffies as other modules use it:
+>>>
+>>>        tim = jiffies + TIMEOUT_IN_HZ;
+>>>        while(time_before(jiffies, tim))
+>>>        {
+>>>            if(what_im_waiting_for())
+>>>                break;
+>>>            current->policy |= SCHED_YIELD;
+>>>            schedule();
+>>>        }
+>>>//
+>>>// Note that somebody could have taken the CPU for many seconds
+>>>// causing a 'timeout', therefore, you need to add one more check
+>>>// after loop-termination:
+>>>//
+>>>            if(what_im_waiting_for())
+>>>                good();
+>>>            else
+>>>                timed_out();
+>>>
+>>>Overflow is handled up to one complete wrap of jiffies + TIMEOUT. It's
+>>>only the second wrap that will fail and if you are waiting several
+>>>months for something to happen in your code, the code is broken.
+>>>
 
-DMA_NONE means there's nothing to map.
+
+   time_before(a,b) == (((long)a - (long)b) < 0)
+
+   Can you explain me this games with signs there?
+   Or this code expected to work reliably for timeouts < (ULONG_MAX/2)?
+   time_before/time_after - do implicit conversion to signed types, 
+while jiffies/friends are all unsigned. If one day gcc will be fixed - 
+and it will truncate data here as I expect it to do - this will not work 
+at all. Or this is a feature of 2-complement archs?
+   (ldd2 again is silent on this topic - and I'm totally confused...)
+
+
+> 
+> schedule() is the kernel procedure that gives the CPU to somebody
+> while your code is waiting for something to happen. You cannot
+> call that in an interrupt or when a lock is held.
+> 
+
+   It is state machine, it is event driven - there is nothing that can 
+yield CPU to someone else, because in first place it does not take CPU ;-)))
+   Right now it is run from tasklet - so ksoftirqd context.
+
+   Ok.
+   Thinking about this gave me hints to understand userspace 
+implementation of timers, which was used with my network layers before I 
+have started kernel port.
+   Idea is simple: all times absolute (think struct timeval). all given 
+timer events are put into let us say binary heap, with timeval used as 
+key. Check for expiration == O(1) - and this check is called in 
+"while(1) { schedule(); }" loop. If we have NO expired timer - we are 
+fast to yield CPU to someone else. Slow case of dequeueing from heap 
+(what is O(log(n))) is really slow by definition - we are dequeueing 
+event from heap and it needs to be processed.
+
+   Looks Ok to me.
+   Clearer/cleaner/safer than games with sign & ./kernel/timer.c 
+implementation (internal_add_timer/cascade_timers/run_timer_list - what 
+all those mess is about?).
+
+-- 
+Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
+--                                                           _ _ _
+  "... and for $64000 question, could you get yourself       |_|*|_|
+    vaguely familiar with the notion of on-topic posting?"   |_|_|*|
+                                 -- Al Viro @ LKML           |*|*|*|
 

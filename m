@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262659AbVDAHnS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262658AbVDAHpX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262659AbVDAHnS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 02:43:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbVDAHnQ
+	id S262658AbVDAHpX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 02:45:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262660AbVDAHpV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 02:43:16 -0500
-Received: from fire.osdl.org ([65.172.181.4]:50099 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262659AbVDAHme (ORCPT
+	Fri, 1 Apr 2005 02:45:21 -0500
+Received: from fire.osdl.org ([65.172.181.4]:65203 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262658AbVDAHom (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 02:42:34 -0500
-Date: Thu, 31 Mar 2005 23:42:13 -0800
+	Fri, 1 Apr 2005 02:44:42 -0500
+Date: Thu, 31 Mar 2005 23:44:21 -0800
 From: Andrew Morton <akpm@osdl.org>
 To: johnpol@2ka.mipt.ru
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: connector.c
-Message-Id: <20050331234213.0c06ba71.akpm@osdl.org>
-In-Reply-To: <1112339238.9334.66.camel@uganda>
-References: <20050331173026.3de81a05.akpm@osdl.org>
-	<1112339238.9334.66.camel@uganda>
+Subject: Re: connector.h
+Message-Id: <20050331234421.0bf0f8ea.akpm@osdl.org>
+In-Reply-To: <1112339394.9334.70.camel@uganda>
+References: <20050331173101.769f5c67.akpm@osdl.org>
+	<1112339394.9334.70.camel@uganda>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,62 +27,45 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
 >
-> > What happens if we expect a reply to our message but userspace never sends
-> > one?  Does the kernel leak memory?  Do other processes hang?
-> 
-> It is only advice, one may easily skip seq/ack initialization.
-> I could remove it totally from the header, but decided to 
-> place it to force people to use more reliable protocols over netlink
-> by introducing such overhead.
-
-hm.  I don't know what that means.
-
-> > > 	nlh = NLMSG_PUT(skb, 0, msg->seq, NLMSG_DONE, size - sizeof(*nlh));
+> On Thu, 2005-03-31 at 17:31 -0800, Andrew Morton wrote:
 > > > 
-> > > 	data = (struct cn_msg *)NLMSG_DATA(nlh);
+> > > struct cb_id
+> > > {
+> > > 	__u32			idx;
+> > > 	__u32			val;
+> > > };
 > > 
-> > Unneeded typecast.
+> > It is vital that all data structures be skilfully commented - they are the
+> > key to understanding the code.  Why the struct exists, which actor passes
+> > it to which other actor(s), whether the data structure is communicated with
+> > userspace, what other data structures it is aggregated with or linked to,
+> > locking rules, etc.
 > 
-> Is it really an issue?
+> It is described in Documentation/connector/connector.txt.
+> Should it also be placed here?
 
-Well it adds clutter, but more significantly the cast defeats typechecking.
-If someone was to change NLMSG_DATA() to return something other than
-void*, the compiler wouldn't complain.
+I think it's better to document these things in the code.  Those structs
+which are communicated to userspace should be described in connector.txt
+because they are part of the API.  But a lot of the structs you have there
+are purely knerel-internal.
 
+> > > struct cn_msg
+> > > {
 > > 
-> > Why is spin_lock_bh() being used here?
+> > Please do
+> >
+> > 	struct cn_msg {
 > 
-> skb may be delivered in soft irq context, and may race with sending.
-> And actually it can be sent from irq context, like it is done in test
-> module.
+> Neither structure declaration should have opening brace on the new
+> string?
 
-But spin_lock_bh() in irq context will deadlock if interruptible context is
-also doing spin_lock_bh().
+I don't understand your question.
 
-> > What's all the above code doing?  What do `a' and `b' mean?  Needs
-> > commentary and better-chosen identifiers.
-> 
-> It searches for idx and val to match requested notification, 
-> if "a" is true - idx is found, if b - val is found.
+We lay out struct definitions thusly:
 
-Let me rephrase: please comment the code and choose identifiers in a manner
-which makes it clearer what's going on.
-
-> > Please document all functions with comments.  Functions which constitute
-> > part of the external API should be commented using the kernel-doc format.
-> 
-> There is Documentation/connector/connector.txt which describes all
-> exported functions and structures.
-> Should it be ported to docbook?
-
-connector.txt is pitched at about the right level: an in-kernel and
-userspace API description.  It's rather unclear with respect to mesage
-directions though - whether the callback is invoked after kernel->user
-messages, or for user->kernel or what, for example.  Some clarification
-there would help.  
-
-But an API description is a different thing from code commentary which
-explains the internal design - the latter should be coupled to the code
-itself. 
+struct foo {
+	int a;
+	int b;
+};
 
 

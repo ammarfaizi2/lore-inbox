@@ -1,54 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267921AbTB1SFK>; Fri, 28 Feb 2003 13:05:10 -0500
+	id <S267951AbTB1SMS>; Fri, 28 Feb 2003 13:12:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267951AbTB1SFK>; Fri, 28 Feb 2003 13:05:10 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:22416 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S267921AbTB1SFG>;
-	Fri, 28 Feb 2003 13:05:06 -0500
-Message-Id: <200302281814.h1SIEB42005202@eeyore.valparaiso.cl>
-To: Kevin Corry <corryk@us.ibm.com>
-cc: Joe Perches <joe@perches.com>, "LKML" <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Joe Thornber <joe@fib011235813.fsnet.co.uk>
-Subject: Re: [PATCH 3/8] dm: prevent possible buffer overflow in ioctl interface 
-In-Reply-To: Your message of "Fri, 28 Feb 2003 08:59:25 MDT."
-             <03022808592509.05199@boiler> 
-Date: Fri, 28 Feb 2003 15:14:11 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S267968AbTB1SMS>; Fri, 28 Feb 2003 13:12:18 -0500
+Received: from 12-237-214-24.client.attbi.com ([12.237.214.24]:25902 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S267951AbTB1SMR>;
+	Fri, 28 Feb 2003 13:12:17 -0500
+Message-ID: <3E5FA8EC.7030607@acm.org>
+Date: Fri, 28 Feb 2003 12:22:36 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021204
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ACPI request/release generic address
+References: <3E5F8DA5.9050804@acm.org> <20030228163253.GB6351@gtf.org>
+In-Reply-To: <20030228163253.GB6351@gtf.org>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kevin Corry <corryk@us.ibm.com> said:
-> On Friday 28 February 2003 08:32, you wrote:
-> > On Thu, 2003-02-27 at 14:05, Kevin Corry wrote:
-> > > Unfortunately, Linus seems to have committed that patch already. So here
-> > > is a patch to fix just that line.
-> > >
-> > > Thanks for catching that.
-> >
-> > Third time, strlen isn't necessary, it can be done at compile time.
-> >
-> > --- a/drivers/md/dm-ioctl.c     2003/02/27 16:29:58
-> > +++ b/drivers/md/dm-ioctl.c     2003/02/27 17:21:54
-> > @@ -174,7 +174,7 @@
-> >  static int register_with_devfs(struct hash_cell *hc)
-> >  {
-> >         struct gendisk *disk = dm_disk(hc->md);
-> > -       char *name = kmalloc(DM_NAME_LEN + strlen(DM_DIR) + 1);
-> > +       char *name = kmalloc(DM_NAME_LEN + sizeof(DM_DIR));
-> >         if (!name) {
-> >                 return -ENOMEM;
-> >         }
-> 
-> Sorry, I sent the last patch before I got your email.
-> 
-> Also, the "+1" is still necessary, even if we switch to sizeof. The sprintf 
-> call that follows copies DM_DIR, followed by a slash, followed by the name 
-> from the hash table into the allocated string. The "+1" is for the slash in 
-> the middle. The terminating NULL character is accounted for in
-> DM_NAME_LEN.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Then it was broken before.
+It an acpi_generic_address structure defined in include/acpi/actbl2.h.
+It's an address that can be in memory, I/O, or PCI configuration space.
 
-sizeof("1234") == strlen("1234") + 1 == 5
+The definition is at http://www.microsoft.com/hwdev/tech/onnow/LF-ACPI.asp
+
+- -Corey
+
+Jeff Garzik wrote:
+
+|On Fri, Feb 28, 2003 at 10:26:13AM -0600, Corey Minyard wrote:
+|
+|>-----BEGIN PGP SIGNED MESSAGE-----
+|>Hash: SHA1
+|>
+|>Is there a way in the ACPI code to do a request/release of I/O or memory
+|>with an acpi_generic_address?  Does it even make sense to do this?
+|>There are generic I/O routines for using a generic address, and I'm
+|>working with an ACPI table that has a generic address, so it would seem
+|>to make sense to have memory reservation routines through this, too.
+|
+|
+|Can you define a generic address?
+|
+|IIRC, ACPI needs some work in this area.
+|
+|If the "generic address" is host RAM, that's easy.
+|If the generic address is PIO address, that's mostly easy.
+|If the generic address is MMIO address, that takes a bit of care with
+|mapping, and I'm not sure ACPI gets it right in these cases.
+|
+|    Jeff
+|
+|
+|
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE+X6jqIXnXXONXERcRAtghAKCpyo6enCR91Affkq9lwDRIRQleTwCeIC1t
+TlYA0vFQIvYWCKf7IknAG90=
+=BG4s
+-----END PGP SIGNATURE-----
+
+

@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131276AbRDWUYJ>; Mon, 23 Apr 2001 16:24:09 -0400
+	id <S131631AbRDWUZt>; Mon, 23 Apr 2001 16:25:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131590AbRDWUX7>; Mon, 23 Apr 2001 16:23:59 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:5327 "HELO havoc.gtf.org")
-	by vger.kernel.org with SMTP id <S131276AbRDWUXs>;
-	Mon, 23 Apr 2001 16:23:48 -0400
-Message-ID: <3AE48F57.2A859328@mandrakesoft.com>
-Date: Mon, 23 Apr 2001 16:23:51 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre6 i686)
-X-Accept-Language: en
+	id <S131376AbRDWUZh>; Mon, 23 Apr 2001 16:25:37 -0400
+Received: from colorfullife.com ([216.156.138.34]:6667 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S131588AbRDWUZX>;
+	Mon, 23 Apr 2001 16:25:23 -0400
+Message-ID: <001d01c0cc33$7e62daa0$5517fea9@local>
+From: "Manfred Spraul" <manfred@colorfullife.com>
+To: <jmerkey@vger.timpanogas.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: filp_open() in 2.2.19 causes memory corruption
+Date: Mon, 23 Apr 2001 22:24:55 +0200
 MIME-Version: 1.0
-To: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] some network __init code
-In-Reply-To: <200104232015.WAA07001@green.mif.pg.gda.pl>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 1. What are the char* -> char array conversions of "version" strings for ?
+Are you sure the trace is decoded correctly?
 
-char*="blah" generates a char pointer variable, pointing to the constant
-string "blah".  char[]="blah" eliminates the char pointer variable, so
-the resulting code is [slightly] smaller.
+> CPU:    0 
+> EIP:    0010:[sys_mremap+31/884] 
+> EFLAGS: 00010206
+
+> Code: ac ae 75 08 84 c0 75 f8 31 c0 eb 04 19 c0 0c 01 85 c0 75 d9
+ac ae is
+lodsb
+scasb
+
+Could you run
+#objdump --disassemble-all --reloc linux/mm/mremap.o | less
+
+and check that the code is really at offset 31 of sys_mremap?
+
+And is it correct that only 64 MB memory is installed/enabled?
+
+--
+    Manfred
 
 
-> 3. The following patch
->    - marks most of the version strings __initdata/__devinitdata (necessary
->      removing of "const" from their declaration), removes unnecessary format
->      strings from their printk()s, moves to __init/adds log level markers to
->      them (KERN_*)
->    - adds/fixes some other __init code,
->    - removes some unnecessary zero initializers
->    from most of the network drivers.
-
-looks ok at a glance, I will probably apply it after reviewing further.
-
-note a further cleanup is to look at each driver, and make sure (a) it
--always- printk's version if -DMODULE, and (b) if only printk's version
-if hardware is found, if not -DMODULE.  You can look at pci net drivers
-in 2.4.4-pre6 for an example of how I did this.
-
--- 
-Jeff Garzik      | The difference between America and England is that
-Building 1024    | the English think 100 miles is a long distance and
-MandrakeSoft     | the Americans think 100 years is a long time.
-                 |      (random fortune)

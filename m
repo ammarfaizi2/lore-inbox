@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264770AbTFLHRU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 03:17:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264776AbTFLHRU
+	id S264774AbTFLHmy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 03:42:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264777AbTFLHmx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 03:17:20 -0400
-Received: from pat.uio.no ([129.240.130.16]:63913 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S264770AbTFLHRU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 03:17:20 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16104.11307.369303.408983@charged.uio.no>
-Date: Thu, 12 Jun 2003 00:30:51 -0700
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] First casuality of hlist poisoning in 2.5.70
-In-Reply-To: <Pine.LNX.4.44.0306112206430.29133-100000@home.transmeta.com>
-References: <16103.48257.400430.785367@charged.uio.no>
-	<Pine.LNX.4.44.0306112206430.29133-100000@home.transmeta.com>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+	Thu, 12 Jun 2003 03:42:53 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:24997 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S264774AbTFLHmx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 03:42:53 -0400
+Date: Thu, 12 Jun 2003 09:56:18 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Michael Knigge <Michael.Knigge@set-software.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Frank Cusack <fcusack@fcusack.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-rc8
+Message-ID: <20030612075618.GA31097@wohnheim.fh-wedel.de>
+References: <Pine.LNX.4.55L.0306101845460.30401@freak.distro.conectiva> <20030610165622.A17342@google.com> <Pine.LNX.4.55L.0306102109340.30401@freak.distro.conectiva> <Pine.LNX.4.55L.0306111815100.31893@freak.distro.conectiva> <20030612.6274686@knigge.local.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030612.6274686@knigge.local.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 12 June 2003 06:27:46 +0000, Michael Knigge wrote:
+> 
+> imho the patch have to be included in 2.4.21 and (imho) it is a bad 
+> practice to release a piece of software with a known bug (especially 
+> if a fix is available).
 
-Note: As far as NFS is concerned, d_move() should always assume that
-the dentry is unhashed. Even if we ensure that we rehash, someone else
-could in theory trigger a call to d_revalidate() that causes the
-dentry to be dropped before we get to d_move().
+Is it good practice not to release, when the last version has even
+more known bugs?  It's a trade-off and those are hard to get
+objectively correct.
 
-Cheers,
-  Trond
+Personally, I still like the idea of a bugfix-only patch against
+2.4.current [1], but in it's current state it just isn't taken serious
+by 90% of kernel.org kernel users.
+
+[1] http://www.hardrock.org/kernel/current-updates/
+
+Jörn
+
+-- 
+Eighty percent of success is showing up.
+-- Woody Allen

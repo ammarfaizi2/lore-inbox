@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280660AbRKYPHP>; Sun, 25 Nov 2001 10:07:15 -0500
+	id <S280810AbRKYPLP>; Sun, 25 Nov 2001 10:11:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280569AbRKYPHF>; Sun, 25 Nov 2001 10:07:05 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:36055 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S280813AbRKYPGs>;
-	Sun, 25 Nov 2001 10:06:48 -0500
-Date: Sun, 25 Nov 2001 10:06:45 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
-cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.16-pre1
-In-Reply-To: <tg4rnigano.fsf@mercury.rus.uni-stuttgart.de>
-Message-ID: <Pine.GSO.4.21.0111251006250.9685-100000@weyl.math.psu.edu>
+	id <S277152AbRKYPLF>; Sun, 25 Nov 2001 10:11:05 -0500
+Received: from blackbird.intercode.com.au ([203.32.101.10]:62987 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id <S280569AbRKYPKw>; Sun, 25 Nov 2001 10:10:52 -0500
+Date: Mon, 26 Nov 2001 02:10:44 +1100 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Chris Chabot <chabotc@reviewboard.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Severe Linux 2.4 kernel memory leakage
+In-Reply-To: <1006699767.1178.0.camel@gandalf.chabotc.com>
+Message-ID: <Pine.LNX.4.31.0111260210050.24725-100000@blackbird.intercode.com.au>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 25 Nov 2001, Chris Chabot wrote:
+
+> Also it has a (custom) iptables firewall script
+
+Are you using ipchains emulation?
 
 
-On 25 Nov 2001, Florian Weimer wrote:
-
-> Russell King <rmk@arm.linux.org.uk> writes:
-> 
-> > |	* umount everything non-buys
->                             ^^^^^^^^
-> 
-> What does that mean?  It's a typo, isn't it?
-
-Sigh... s/ys/sy/
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
 
 

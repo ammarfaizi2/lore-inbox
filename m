@@ -1,96 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263062AbUFSDe1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265768AbUFSDtY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263062AbUFSDe1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 23:34:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265761AbUFSDe0
+	id S265768AbUFSDtY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 23:49:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265785AbUFSDtY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 23:34:26 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:62605 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263062AbUFSDeY (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 23:34:24 -0400
-Message-Id: <200406190334.i5J3Y6D1015854@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Ashwin Rao <ashwin_s_rao@yahoo.com>
-Cc: haveblue@us.ibm.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>
-Subject: Re: Atomic operation for physically moving a page (for memory defragmentation) 
-In-Reply-To: Your message of "Fri, 18 Jun 2004 20:15:36 PDT."
-             <20040619031536.61508.qmail@web10902.mail.yahoo.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20040619031536.61508.qmail@web10902.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1974871443P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Fri, 18 Jun 2004 23:49:24 -0400
+Received: from mail022.syd.optusnet.com.au ([211.29.132.100]:19886 "EHLO
+	mail022.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S265768AbUFSDtX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 23:49:23 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: 2.6.7-ck1
+Date: Sat, 19 Jun 2004 13:48:57 +1000
+User-Agent: KMail/1.6.1
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+References: <200406162122.51430.kernel@kolivas.org> <1087576093.2057.1.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1087576093.2057.1.camel@teapot.felipe-alfaro.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Fri, 18 Jun 2004 23:34:06 -0400
+Message-Id: <200406191348.57383.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1974871443P
-Content-Type: text/plain; charset=us-ascii
+On Sat, 19 Jun 2004 02:28, Felipe Alfaro Solana wrote:
+> On Wed, 2004-06-16 at 21:22 +1000, Con Kolivas wrote:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> >
+> > Patchset update. The focus of this patchset is on system responsiveness
+> > with emphasis on desktops, but the scope of scheduler changes now makes
+> > this patch suitable to servers as well.
+>
+> I've found some interaction problems between, what I think it's, the
+> staircase scheduler and swsusp. With vanilla 2.6.7, swsusp is able to
+> save ~9000 pages to disk in less than 5 seconds, where as 2.6.7-ck1
+> takes more than 1 minute to save the same amount of pages when
+> suspending to disk.
 
-On Fri, 18 Jun 2004 20:15:36 PDT, Ashwin Rao said:
+If you're using -ck1 it may even be the autoswappiness. Try disabling that and 
+setting a static value for swappiness. If it still exhibits the problem then 
+it's probably a bug somewhere in staircase. While the overall design is 
+finished (it doesn't really lend itself to tuning), surely there are bugs I 
+haven't sorted out even though there are no serious bugs or stability issues 
+that have come up. I'm auditing the code as we speak.
 
-> The problem is the memory fragmentation. The code i am
-> writing is for the memory defragmentation as proposed
-> by Daniel Phillips, my project partner Alok mooley has
-> given mailed a simple prototype in the mid of feb.
-
-OK.. Now we're getting somewhere. ;)  (Feel free to ignore
-the rest - I'm *not* a memory management expert, but
-a few thoughts come to mind - things that might help the
-real experts answer the question..)
-
-> > (*) Yes, I know the BKL isn't something you want to
-> > grab if you can help it.
-> 
-> Isnt it a bad idea to take the BKL, the performance of
-> SMP systems will drastically be hampered.
-
-As I noted - not something you *want* to grab.  But sometimes,
-especially when it's in error recovery, code may want to be able
-to tell *everything* else to stay put for a moment while it figures
-out what it needs to do next...
-
-> The way we work is as follows
-> Initially a block is selected which can be moved i.e
-> pages on lru or free and the pages are moved to a
-
-Out of curiosity, have you done any modeling to see how often
-you need to move a page to coalesce holes and keep fragmentation
-down?  The "best" solution will quite likely be vastly different if it's
-something that needs to be done only as a "last resort" (i.e. order-N
-allocations are failing for non-large N), or if it's something that
-works best if it's being done several times a second during normal
-system operation, etc....
-
-> suitable free pages. The main problem arises during
-> the copying and updation process. All the ptes are to
-> updates. a method similar to try_to_unmap_one  is used
-> to identify the ptes and the physical address is
-> updated.
-
-> The problem we are facing is to maintain the atomicity
-> of this operation on SMP boxes.
-
-Ahh..  Is there one thing in particular that causes the issues?
-It may make sense to grab whatever lock usually controls that,
-at least as a first-cut (what lock(s) are used by try_to_unmap_one,
-for instance).  There's probably already a suitable lock, already
-grabbed by whatever code is interfering with what your code is doing..
-
-
---==_Exmh_-1974871443P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFA07QtcC3lWbTT17ARAtDbAJ4oZxQq7W8ohAkwoq3PLtwASUMgLACgttUu
-w7zwFSrr6jgPcXtv/58Qojc=
-=yOwq
------END PGP SIGNATURE-----
-
---==_Exmh_-1974871443P--
+Thanks.
+Con

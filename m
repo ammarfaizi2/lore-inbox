@@ -1,62 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbVCRS3U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262018AbVCRSdI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262008AbVCRS3U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 13:29:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262018AbVCRS3U
+	id S262018AbVCRSdI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 13:33:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbVCRSdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 13:29:20 -0500
-Received: from pop-6.dnv.wideopenwest.com ([64.233.207.24]:6039 "EHLO
-	pop-6.dnv.wideopenwest.com") by vger.kernel.org with ESMTP
-	id S262008AbVCRS15 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 13:27:57 -0500
-Date: Fri, 18 Mar 2005 13:27:54 -0500
-From: Paul <set@pobox.com>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Repeatable IDE Oops for 2.6.11 (ide-scsi vs ide-cdrom)
-Message-ID: <20050318182754.GC7974@squish.home.loc>
-Mail-Followup-To: Paul <set@pobox.com>,
-	Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-	Linux kernel <linux-kernel@vger.kernel.org>
-References: <20050314065508.GA7974@squish.home.loc> <58cb370e05031808341bbe5622@mail.gmail.com>
+	Fri, 18 Mar 2005 13:33:08 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:62433
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262018AbVCRSc5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 13:32:57 -0500
+Date: Fri, 18 Mar 2005 10:32:49 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Sven Henkel <shenkel@gmail.com>
+Cc: mpm@selenic.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Align udp-packet in netpoll_send_udp
+Message-Id: <20050318103249.7d1ec399.davem@davemloft.net>
+In-Reply-To: <16955.5772.749812.983639@gargle.gargle.HOWL>
+References: <16955.5772.749812.983639@gargle.gargle.HOWL>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <58cb370e05031808341bbe5622@mail.gmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, on Fri Mar 18, 2005 [05:34:06 PM] said:
-> On Mon, 14 Mar 2005 01:55:08 -0500, Paul <set@pobox.com> wrote:
-> >         Hi;
-> > 
-> >         Here is what I did:
-> > 
-> > # modprobe ide-scsi
-> > # cd /proc/ide/hdd      (this is a dvdrw drive)
-> > # cat driver
-> > > ide-cdrom version 4.61
-> > # echo ide-scsi > driver
-> > # cat driver
-> > > ide-scsi (something--- didnt note exactly, except it was ide-scsi)
-> > # echo ide-cdrom > driver
-> > 
-> > The shell is killed and Oops.
-> > 
-> > Machine flakey and half alive at this point. Reboot with Alt-sysrq.
-> > The same thing works with 2.6.10, without Oops.
-> 
-> Please see http://lkml.org/lkml/2005/2/11/132
+On Fri, 18 Mar 2005 18:57:32 +0100
+Sven Henkel <shenkel@gmail.com> wrote:
 
-	Hi;
+> The udp-packet constructed in netpoll_send_udp should be aligned
+> to avoid alignment-traps on some platforms. The patch applies to
+> vanilla 2.6.11.2.
 
-	What is the nature of the 'ide-dev-2.6 tree'? Are there broken
-out patches available I can test vs. 2.6.11 or -mm? How do the 'ide fixes'
-in -ac intersect with ide-dev? I am also curious if these patches could
-have any effect on the pktcdvd problems I have reported.[*]
-	Thanks for the feedback.
+Patch applied, thanks Sven.
 
-Paul
-set@pobox.com
+Please post networking patches in the future to netdev@oss.sgi.com,
+as that is where the networking developers are.
 
-* http://lists.suse.com/archive/packet-writing/2005-Mar/0001.html
+Thanks.

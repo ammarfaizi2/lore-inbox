@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265408AbTLRXyp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 18:54:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265409AbTLRXyp
+	id S265364AbTLRX53 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 18:57:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265389AbTLRX53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 18:54:45 -0500
-Received: from mail-09.iinet.net.au ([203.59.3.41]:43406 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S265408AbTLRXyn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 18:54:43 -0500
-Message-ID: <3FE23E3F.2000801@cyberone.com.au>
-Date: Fri, 19 Dec 2003 10:54:39 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Thu, 18 Dec 2003 18:57:29 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:28133 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265364AbTLRX51 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 18:57:27 -0500
+From: Andrew Theurer <habanero@us.ibm.com>
+Reply-To: habanero@us.ibm.com
+To: Andrea Arcangeli <andrea@suse.de>
+Subject: Re: Wonderful World of Linux 2.6 - Final
+Date: Thu, 18 Dec 2003 17:58:55 -0600
+User-Agent: KMail/1.5
+Cc: Joe Pranevich <jpranevich@kniggit.net>, linux-kernel@vger.kernel.org
+References: <1071724386.2820.12.camel@localhost.localdomain> <200312180929.46723.habanero@us.ibm.com> <20031218235211.GD10250@dualathlon.random>
+In-Reply-To: <20031218235211.GD10250@dualathlon.random>
 MIME-Version: 1.0
-To: karim@opersys.com
-CC: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Updating real-time and nanokernel maintainers
-References: <3FE234E4.8020500@opersys.com> <Pine.LNX.4.58.0312181821270.19491@montezuma.fsmlabs.com> <3FE23966.7060001@opersys.com> <Pine.LNX.4.58.0312181836360.19491@montezuma.fsmlabs.com> <3FE23CD1.4080802@opersys.com>
-In-Reply-To: <3FE23CD1.4080802@opersys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312181758.55059.habanero@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Karim Yaghmour wrote:
-
+On Thursday 18 December 2003 17:52, Andrea Arcangeli wrote:
+> On Thu, Dec 18, 2003 at 09:29:46AM -0600, Andrew Theurer wrote:
+> > be scheduled optimally, for example, a kernel compile with -j4 on a 4-way
+> > P4, with and without HT:
+> >
+> > average of 10 kernel compiles with -j4 on 2.6.0-test9:
+> >
+> > HT disabled: Elapsed: 145.086s User: 513.808s System: 44.724s CPU: 384.5%
+> > HT enabled: Elapsed: 172.463s User: 633.856s System: 48.003s CPU: 394.8%
 >
-> Zwane Mwaikambo wrote:
->
->> But you're forgetting what the MAINTAINERS file is for. I can't but help
->> thinking that this is linked with the email you sent earlier, but that's
->> just me. Frankly i reckon this particular case could be settled by
->> removing both from MAINTAINERS as neither has code in the 2.6 linux
->> kernel. Anybody looking for realtime Linux kernel capabilities can 
->> just do
->> a Google.
->
->
-> Yes, yes, and guess what shows up top on that google results list :)
->
-> Seriously though, the final decision isn't mine. I've submitted the
-> patch and I personally think that it's more than justfied. I'll
-> leave it to the wisdom of the people in charge to make the appropriate
-> decision.
+> is that 4-way a 4-logical-way or 4-physical-way? If it's a 4-logical
+> way, this workload is much closer to the best case than the worst case.
+> I'm guessing a simple -j2 or -j3 should do much worse than that.
 
-
-I agree with Zwane. People have enough trouble using MAINTAINERS
-as it is. Using it to pat each others backs makes it less useful.
-
-As Zwane said, neither have code in the kernel, so I don't see how
-you think it is justified...?
-
+This is 4-way physical/4-way logical (no HT) vs 4-way physical/8-way logical 
+(with HT)
 

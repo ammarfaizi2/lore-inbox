@@ -1,50 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266191AbUGJI2s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266193AbUGJIam@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266191AbUGJI2s (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 04:28:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266192AbUGJI2s
+	id S266193AbUGJIam (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 04:30:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266195AbUGJIal
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 04:28:48 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:31649 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S266191AbUGJI2q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 04:28:46 -0400
-Date: Sat, 10 Jul 2004 10:28:46 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: ismail =?iso-8859-1?Q?d=F6nmez?= <ismail.donmez@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
-Message-ID: <20040710082846.GA29275@elte.hu>
-References: <20040709182638.GA11310@elte.hu> <20040709195105.GA4807@infradead.org> <20040709235017.GP20947@dualathlon.random> <20040710075747.GA25052@elte.hu> <2a4f155d040710011041a95210@mail.gmail.com>
+	Sat, 10 Jul 2004 04:30:41 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:61967 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S266193AbUGJIa3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 04:30:29 -0400
+Date: Sat, 10 Jul 2004 10:30:27 +0200
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: suspend/resume success and failure report and questions
+Message-ID: <20040710083027.GB27827@gamma.logic.tuwien.ac.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <2a4f155d040710011041a95210@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi friends!
 
-* ismail dönmez <ismail.donmez@gmail.com> wrote:
+I want to report on success and failure of suspend2disk and suspend2ram.
 
-> A patch against 2.6.7 would be more appreciated as Linus looks like
-> won't release 2.6.8 soon.
+First, here the specs of my laptop/software:
+- kernel 2.6.7-mm5
+- debian/sid
+- acer travelmate 654LCi
+- graphic: radeon mobility m7 (7500)
 
-i've uploaded the -H3 patch against 2.6.7-vanilla to:
+What is working:
 
-  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.7-vanilla-H3
+- Suspend2Disk via pmdisk (echo -n disk > /sys/power/state)
+	Nice thing is that it even works with uhci and ehci compiled
+	into the kernel AND X running with agp and dri AND radeon
+	framebuffer. So this is really nice and suprising for me.
 
-(NOTE: this patch upgrades to Jens' latest version of cfq-iosched.c,
-because one of the might_sleep() additions uncovered a bug there.)
+	Interestingly, I have to stop mysql server, otherwise it wouldn't
+	suspend (cannot stop tasks)
 
-i've done a quick testboot on x86, seems to work fine.
+	But generally, big thanks to the pmdisk developer(s), it is
+	working great! Even multiple suspend/resume cycles etc.
+	Only thing I am missing is some way of post-resume script.
 
-	Ingo
+- partial Suspend2Ram via mem > /sys/power/state
+	Here all the usb stuff has to be compile modular and has to be
+	unloaded, no radeon framebuffer and no X is allowed.
+	Then suspend to ram works, resume too, but the video card is 
+	not initialized again. Black screen. But I can shut down.
+
+What is not working:
+- S2R
+	framebuffer
+	X
+	usb
+	restoring of video output
+- general
+	clock is completely wrong - where is a post-resume script (see below)
+
+What I don't know/haven't tested till now:
+- wlan drivers (orinoco)
+- network drivers (b44)
+- acerhk working
+
+So now here are my questions:
+- Is it possible to get S2R to the level of S2D without problems?
+- is there a way to get things done BEFORE the suspend (this I managed via 
+  the acpi script), but also AFTER the resume.
+  I need this for fixing the clock and starting mysql and some more stuff
+  probably
+
+Best wishes
+
+Norbert
+
+-------------------------------------------------------------------------------
+Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+TUMBY (n.)
+The involuntary abdominal gurgling which fills the silence following
+someone else's intimate personal revelation.
+			--- Douglas Adams, The Meaning of Liff

@@ -1,78 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261868AbVDERuP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261867AbVDERxu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261868AbVDERuP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 13:50:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbVDERto
+	id S261867AbVDERxu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 13:53:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbVDERuu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 13:49:44 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:6274 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261858AbVDERcO (ORCPT
+	Tue, 5 Apr 2005 13:50:50 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:26334 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261861AbVDERm3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 13:32:14 -0400
-Message-Id: <200504051730.j35HUsSf007552@laptop11.inf.utfsm.cl>
-To: Sven Luther <sven.luther@wanadoo.fr>
-cc: Jeff Garzik <jgarzik@pobox.com>,
-       Humberto Massa <humberto.massa@almg.gov.br>,
-       debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice. 
-In-Reply-To: Message from Sven Luther <sven.luther@wanadoo.fr> 
-   of "Tue, 05 Apr 2005 16:02:21 +0200." <20050405140221.GB24361@pegasos> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Tue, 05 Apr 2005 13:30:54 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Tue, 05 Apr 2005 13:30:55 -0400 (CLT)
+	Tue, 5 Apr 2005 13:42:29 -0400
+Date: Tue, 5 Apr 2005 10:42:25 -0700 (PDT)
+From: Sridhar Samudrala <sri@us.ibm.com>
+X-X-Sender: sridhar@localhost.localdomain
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: "Randy.Dunlap" <rddunlap@osdl.org>, ioe-lkml@axxeo.de, matthew@wil.cx,
+       lkml <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com,
+       hadi@cyberus.ca, cfriesen@nortel.com, tgraf@suug.ch
+Subject: Re: [PATCH] network configs: disconnect network options from drivers
+In-Reply-To: <20050404195051.GA12364@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.61.0504051033310.5053@localhost.localdomain>
+References: <20050330234709.1868eee5.randy.dunlap@verizon.net>
+ <20050331185226.GA8146@mars.ravnborg.org> <424C5745.7020501@osdl.org>
+ <20050331203010.GA8034@mars.ravnborg.org> <4250B4C5.2000200@osdl.org>
+ <20050404195051.GA12364@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sven Luther <sven.luther@wanadoo.fr> said:
-> On Tue, Apr 05, 2005 at 08:16:48AM -0400, Jeff Garzik wrote:
-> > Humberto Massa wrote:
-> > >But, the question made here was a subtler one and you are all biting 
-> > >around the bush: there *are* some misrepresentations of licenses to the 
-> > >firmware blobs in the kernel (-- ok, *if* you consider that hex dumps 
-> > >are not source code). What Sven asked was: "Hey, can I state explicitly 
-> > >the distribution state in the source files, by means of adding some 
-> > >comments?".
-> > 
-> > >I think even a clarification "this firmware hexdump is considered to be 
-> > >the source code, and it's GPL'd" would do, but I must put my asbestos 
-> > >suit everytime I say it. :-)
-> > 
-> > We do not add comments to the kernel source code which simply state the 
-> > obvious.
-> 
-> The only thing here is that it has to be obvious not only to you, but to the
-> judge too :)
-> 
-> In this case, it is not comments, but proper copyright attribution, which was
-> added in the tg3.c case since the first checkin :
-> 
-> /*
->  * tg3.c: Broadcom Tigon3 ethernet driver.
->  *
->  * Copyright (C) 2001, 2002, 2003, 2004 David S. Miller (davem@redhat.com)
->  * Copyright (C) 2001, 2002, 2003 Jeff Garzik (jgarzik@pobox.com)
->  * Copyright (C) 2004 Sun Microsystems Inc.
->  *
->  * Firmware is:
->  *      Copyright (C) 2000-2003 Broadcom Corporation.
->  */
-> 
-> The firmware part was not present in the original checkin you did in 2002.
-> Adding something about the licencing status of it would be enough.
-> 
-> Or even adding some comment in the toplevel COPYING file saying that firmware
-> blobs come under their own licence or something such, and then listing all the
-> firmware blobs and their licencing condition in a separate toplevel file would
-> be enough.
-> 
-> Friendly,
-> 
-> Sven Luther
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+On Mon, 4 Apr 2005, Sam Ravnborg wrote:
+
+>
+> Only bit that I am worried about is the statement in SCTP:
+> 	depends on IPV6 || IPV6=n
+>
+> That looked like a noop to me. It had the sideeffect that SCTP
+> menu entries where idented an extra level which was not desireable
+> with currect layout.
+>
+
+No. This is not a noop. This is required to restrict SCTP configured as
+static when IPV6 is configured as module.
+
+Thanks
+Sridhar

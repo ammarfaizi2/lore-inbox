@@ -1,62 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275916AbSIURIn>; Sat, 21 Sep 2002 13:08:43 -0400
+	id <S275896AbSIURGZ>; Sat, 21 Sep 2002 13:06:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275917AbSIURIm>; Sat, 21 Sep 2002 13:08:42 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:56228 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S275916AbSIURIl>; Sat, 21 Sep 2002 13:08:41 -0400
-Date: Sat, 21 Sep 2002 10:11:30 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Erich Focht <efocht@ess.nec.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-cc: LSE <lse-tech@lists.sourceforge.net>, Ingo Molnar <mingo@elte.hu>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>
-Subject: Re: [Lse-tech] [PATCH 1/2] node affine NUMA scheduler
-Message-ID: <600156739.1032603089@[10.10.2.3]>
-In-Reply-To: <598631797.1032601564@[10.10.2.3]>
-References: <598631797.1032601564@[10.10.2.3]>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S275898AbSIURGY>; Sat, 21 Sep 2002 13:06:24 -0400
+Received: from mailgate5.cinetic.de ([217.72.192.165]:53163 "EHLO
+	mailgate5.cinetic.de") by vger.kernel.org with ESMTP
+	id <S275896AbSIURGY> convert rfc822-to-8bit; Sat, 21 Sep 2002 13:06:24 -0400
+Date: Sat, 21 Sep 2002 19:11:26 +0200
+Message-Id: <200209211711.g8LHBQX26908@mailgate5.cinetic.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Organization: http://freemail.web.de/
+From: Todor Todorov <ttodorov@web.de>
+To: linux-kernel@vger.kernel.org
+Subject: eepro100/e100 drivers fragment heavily
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From the below, I'd suggest you're getting pages off the wrong 
-> nodes: do_anonymous_page is page zeroing, and rmqueue the buddy
-> allocator. Are you sure the current->node thing is getting set
-> correctly? I'll try backing out your alloc_pages tweaking, and
-> see what happens.
+Hello everyone,
 
-OK, well removing that part of the patch gets us back from 28s to 
-about 21s (compared to 20s virgin), total user time compared to 
-virgin is up from 59s to 62s, user from 191 to 195. So it's still 
-a net loss, but not by nearly as much. Are you determining target 
-node on fork or exec ? I forget ...
+I have a bit of a problem with my Intel based 10/100 pci NIC and kernel 2.4.19, 2.4.20-pre6 and 2.4.20-pre7. I noticed heavy tcp fragmentation when sending data to the network from my linux box. The transfers always stall. The computer is a Dell Inspiron 8000 laptop with an internal Actiontec modem/nic combo pci card based on the Intel Pro chip, running Debian. I observed this behaviour with the eepro100 drivers in 2.4.19, 2.4.20-pre6 and 2.4.20-pre7 and e100 drivers in 2.4.20-pre6 and -pre7. Pulling data from the network is fine and fast though, only sending is a problem.
+The only hint I have of what migh be causing the problem is something I read in the specs of my NWAY SOHO switch - it would allow full-duplex 100 MBit/sec only based on auto negotiation, if a nic is in forced mode (say 100 MBit full-duplex), the swith will allow only 100 MBit half-duplex. I tried other high quality switches too, but the result was the same. The other thing worth mentioning is that I have two other servers on the network with pci NICs based on the Realtek RTL 8139 B/D chips and when booting them I always see the message "Setting 100 MBit/sec full-duplex based on auto-negotiation ability". They never have this problem with fragmentation, both pulling and sending data from them is always fast and without any problems. (except when the Dell laptop is involved ;)
 
-Profile is more comparible. Nothing sticks out any more, but maybe
-it just needs some tuning for balance intervals or something. 
+So do the eepro100 and e100 drivers have any problem with auto-negotiation? Or does anyone have any other ideas? I'd be glad to run any test you want me to and provide any other information you need, in order to solve this problem.
 
-153385 total                                      0.1544
- 91219 default_idle                            
-  7475 do_anonymous_page                       
-  4564 page_remove_rmap                        
-  4167 handle_mm_fault                         
-  3467 .text.lock.namei                        
-  2520 page_add_rmap                           
-  2112 rmqueue                                 
-  1905 .text.lock.dec_and_lock                 
-  1849 zap_pte_range                           
-  1668 vm_enough_memory                        
-  1612 __free_pages_ok                         
-  1504 file_read_actor                         
-  1484 find_get_page                           
-  1381 __generic_copy_from_user                
-  1207 do_no_page                              
-  1066 schedule                                
-  1050 get_empty_filp                          
-  1034 link_path_walk                          
+Thanks in advance.
+T.Todorov
+
+______________________________________________________________________________
+Jetzt testen für 1 Euro! Ihr All-in-one-Paket! 
+https://digitaledienste.web.de/Club/?mc=021106
 

@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263210AbTIVPxC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 11:53:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263209AbTIVPxC
+	id S263221AbTIVP5p (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 11:57:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263211AbTIVP43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 11:53:02 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:41965 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263210AbTIVPwu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 11:52:50 -0400
-From: Kevin Corry <kevcorry@us.ibm.com>
-To: torvalds@osdl.org, akpm@zip.com.au, thornber@sistina.com
-Subject: [PATCH] DM 4/6: Return table status for dev_wait
-Date: Mon, 22 Sep 2003 10:52:32 -0500
-User-Agent: KMail/1.5
-Cc: LKML <linux-kernel@vger.kernel.org>
-References: <200309221044.21694.kevcorry@us.ibm.com>
-In-Reply-To: <200309221044.21694.kevcorry@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Sep 2003 11:56:29 -0400
+Received: from pop.gmx.net ([213.165.64.20]:23502 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263221AbTIVPz1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 11:55:27 -0400
+X-Authenticated: #536991
+Date: Mon, 22 Sep 2003 17:55:24 +0200
+From: Robert Vollmert <rvollmert-lists@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Local APIC with ACPI freezes ASUS M2400N
+Message-ID: <20030922155524.GA8167@krikkit>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309221052.32601.kevcorry@us.ibm.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dev_wait was meant to return table status not dev status.  [Alasdair Kergon]
+Hello,
 
---- diff/drivers/md/dm-ioctl-v4.c	2003-09-17 13:09:04.000000000 +0100
-+++ source/drivers/md/dm-ioctl-v4.c	2003-09-17 13:09:26.000000000 +0100
-@@ -769,6 +769,7 @@
- {
- 	int r;
- 	struct mapped_device *md;
-+	struct dm_table *table;
- 	DECLARE_WAITQUEUE(wq, current);
- 
- 	md = find_device(param);
-@@ -791,7 +792,16 @@
- 	 * him and save an ioctl.
- 	 */
- 	r = __dev_status(md, param);
-+	if (r)
-+		goto out;
-+
-+	table = dm_get_table(md);
-+	if (table) {
-+		retrieve_status(table, param, param_size);
-+		dm_table_put(table);
-+	}
- 
-+ out:
- 	dm_put(md);
- 	return r;
- }
+when Local APIC is enabled, my ASUS M2400N notebook (Centrino / ICH4-M
+chipset) freezes when ACPI initialises or tries to switch the display
+device. When Local APIC is not enabled, this does not occur. This
+happens both with 2.4.22 with ACPI patch from 20030916 and with
+unpatched (apart from a patch to load the DSDT via initrd)
+2.6.0-test5.
 
+On 2.4.22, it is possible to avoid the freeze during boot-up by
+disabling the vga console. I haven't tested this on 2.6.0-test5.
+
+The freeze occurs when the DSDT writes to SystemIO address 0xb2. It
+does this both to query information about the active display device
+and to change the device.
+
+I haven't been able to determine which of these writes exactly causes
+the freeze. When booting successfully by modifying the DSDT to bypass
+initialisation of the VGA device, it was possible to read the display
+status successfully a few times before a read caused the system to
+freeze.
+
+If there's some more information you need, please let me know.
+
+Cheers
+Robert

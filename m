@@ -1,47 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262989AbUKSAz5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262862AbUKRSxf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262989AbUKSAz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 19:55:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262883AbUKSAxr
+	id S262862AbUKRSxf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 13:53:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262880AbUKRSvw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 19:53:47 -0500
-Received: from fw.osdl.org ([65.172.181.6]:5029 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261217AbUKSAwb (ORCPT
+	Thu, 18 Nov 2004 13:51:52 -0500
+Received: from colino.net ([213.41.131.56]:57334 "EHLO paperstreet.colino.net")
+	by vger.kernel.org with ESMTP id S262862AbUKRSuc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 19:52:31 -0500
-Date: Thu, 18 Nov 2004 16:52:26 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Potential security problem in patch: Fix reading /proc/<pid>/mem
- when parent dies.
-In-Reply-To: <1100820455.6019.31.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0411181648040.2222@ppc970.osdl.org>
-References: <200411181704.iAIH4SSb023079@hera.kernel.org>
- <1100820455.6019.31.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 18 Nov 2004 13:50:32 -0500
+Date: Thu, 18 Nov 2004 19:49:59 +0100
+From: Colin Leroy <colin@colino.net>
+To: linux-kernel@vger.kernel.org
+Cc: hirofumi@mail.parknet.co.jp
+Subject: [PATCH] let fat handle MS_SYNCHRONOUS flag
+Message-ID: <20041118194959.3f1a3c8e.colin@colino.net>
+X-Mailer: Sylpheed-Claws 0.9.12cvs142.2 (GTK+ 2.4.9; powerpc-unknown-linux-gnu)
+X-Face: Fy:*XpRna1/tz}cJ@O'0^:qYs:8b[Rg`*8,+o^[fI?<%5LeB,Xz8ZJK[r7V0hBs8G)*&C+XA0qHoR=LoTohe@7X5K$A-@cN6n~~J/]+{[)E4h'lK$13WQf$.R+Pi;E09tk&{t|;~dakRD%CLHrk6m!?gA,5|Sb=fJ=>[9#n1Bu8?VngkVM4{'^'V_qgdA.8yn3)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+this patch is an RFC patch not to be applied.
+It adds MS_SYNCHRONOUS support to FAT filesystem, so that less
+filesystem breakage happen when disconnecting an USB key, for 
+example. I'd like to have comments about it, because as it 
+seems to work fine here, I'm not used to fs drivers and could
+have made mistakes.
+Thanks,
 
-On Thu, 18 Nov 2004, Alan Cox wrote:
-> 
-> The original point of this was that if our parent changed then our new
-> parent is not aware of our special status. As a result we can send
-> random signals to init and since it does not see SIGCLD we can get
-> zombies or worse when we exit.
-
-How could we send random signals? That's what the "exit_signal" thing is 
-for, and the code does
-
-	if (p->exit_signal != -1)
-		p->exit_signal = SIGCHLD;
-
-for that.
-
-Is there any other way to set exit_signal afterwards? If so, I think we 
-should have a security check at _that_ point.
-
-		Linus
+Signed-off-by: Colin Leroy <colin@colino.net>
+--- a/fs/fat/dir.c	2004-11-18 19:42:41.704777744 +0100
++++ b/fs/fat/dir.c	2004-11-18 14:36:44.000000000 +0100
+@@ -736,6 +736,7 @@
+ {
+ 	struct buffer_head *bh;
+ 	struct msdos_dir_entry *de;
++	struct super_block *sb;
+ 	__le16 date, time;
+ 
+ 	bh = fat_extend_dir(dir);
+@@ -764,6 +765,11 @@
+ 	dir->i_atime = dir->i_ctime = dir->i_mtime = CURRENT_TIME;
+ 	mark_inode_dirty(dir);
+ 
++	sb = dir->i_sb;
++
++	if (sb->s_flags & MS_SYNCHRONOUS)
++		sync_dirty_buffer(bh);
++
+ 	return 0;
+ }
+ 
+--- a/fs/fat/file.c	2004-10-18 23:53:44.000000000 +0200
++++ b/fs/fat/file.c	2004-11-18 14:57:03.000000000 +0100
+@@ -74,21 +74,34 @@
+ {
+ 	struct inode *inode = filp->f_dentry->d_inode;
+ 	int retval;
++	struct super_block *sb = inode->i_sb;
++	struct buffer_head *bh = NULL;
+ 
+ 	retval = generic_file_write(filp, buf, count, ppos);
+ 	if (retval > 0) {
+ 		inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+ 		MSDOS_I(inode)->i_attrs |= ATTR_ARCH;
+ 		mark_inode_dirty(inode);
++		if (sb->s_flags & MS_SYNCHRONOUS) {
++			bh = sb_bread(sb, MSDOS_SB(sb)->fsinfo_sector);
++			if (bh != NULL) {
++				sync_dirty_buffer(bh);
++				brelse(bh);
++			} else {
++				BUG_ON(1);
++			}
++		}
+ 	}
+ 	return retval;
+ }
+ 
+ void fat_truncate(struct inode *inode)
+ {
++	struct super_block *sb = inode->i_sb;
+ 	struct msdos_sb_info *sbi = MSDOS_SB(inode->i_sb);
+ 	const unsigned int cluster_size = sbi->cluster_size;
+ 	int nr_clusters;
++	struct buffer_head *bh = NULL;
+ 
+ 	/* 
+ 	 * This protects against truncating a file bigger than it was then
+@@ -105,4 +118,8 @@
+ 	unlock_kernel();
+ 	inode->i_ctime = inode->i_mtime = CURRENT_TIME;
+ 	mark_inode_dirty(inode);
++	if (sb->s_flags & MS_SYNCHRONOUS) {
++		bh = sb_bread(sb, sbi->fsinfo_sector);
++		sync_dirty_buffer(bh);
++	}
+ }
+--- a/fs/fat/inode.c	2004-11-18 19:42:41.710776832 +0100
++++ b/fs/fat/inode.c	2004-11-18 15:00:55.000000000 +0100
+@@ -1273,8 +1273,12 @@
+ 	}
+ 	spin_unlock(&sbi->inode_hash_lock);
+ 	mark_buffer_dirty(bh);
+-	brelse(bh);
+ 	unlock_kernel();
++
++	if (sb->s_flags & MS_SYNCHRONOUS)
++		sync_dirty_buffer(bh);
++	brelse(bh);
++
+ 	return 0;
+ }
+ 

@@ -1,68 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267901AbUIJV1j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267903AbUIJVag@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267901AbUIJV1j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 17:27:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267904AbUIJV1j
+	id S267903AbUIJVag (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 17:30:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267920AbUIJVaV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 17:27:39 -0400
-Received: from smtp-out.hotpop.com ([38.113.3.71]:14527 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S267901AbUIJV1R
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 17:27:17 -0400
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: linux-fbdev-devel@lists.sourceforge.net, David Eger <eger@havoc.gtf.org>,
-       adaplas@pol.net
-Subject: Re: [Linux-fbdev-devel] fbdev broken in current bk for PPC
-Date: Sat, 11 Sep 2004 05:27:05 +0800
-User-Agent: KMail/1.5.4
-Cc: linux-fbdev-devel@lists.sourceforge.net,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <1094783022.2667.106.camel@gaston> <200409101328.57431.adaplas@hotpop.com> <20040910175202.GA11054@havoc.gtf.org>
-In-Reply-To: <20040910175202.GA11054@havoc.gtf.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Sep 2004 17:30:21 -0400
+Received: from fw.osdl.org ([65.172.181.6]:45513 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267903AbUIJV2j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 17:28:39 -0400
+Date: Fri, 10 Sep 2004 14:28:29 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
+       Axelle Apvrille <axelle.apvrille@trusted-logic.fr>,
+       david.gordon@ericsson.com, gaspoucho@yahoo.com
+Subject: Re: [ANNOUNCE] Release Digsig 1.3.1: kernel module for run-time authentication of binaries
+Message-ID: <20040910142829.Q1924@build.pdx.osdl.net>
+References: <41407CF6.2020808@ericsson.com> <20040909092457.L1973@build.pdx.osdl.net> <41409378.5060908@ericsson.com> <20040909105520.U1924@build.pdx.osdl.net> <20040909190511.GB28807@escher.cs.wm.edu> <4140BFCE.8010701@ericsson.com> <20040909140349.C1924@build.pdx.osdl.net> <20040909214507.GA29412@escher.cs.wm.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200409110527.05516.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040909214507.GA29412@escher.cs.wm.edu>; from serue@us.ibm.com on Thu, Sep 09, 2004 at 05:45:07PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 11 September 2004 01:52, David Eger wrote:
-> On Fri, Sep 10, 2004 at 01:28:57PM +0800, Antonino A. Daplas wrote:
-> > On Friday 10 September 2004 10:23, Benjamin Herrenschmidt wrote:
-> > > Recent changes upstream are breaking fbdev on pmacs.
-> > >
-> > > I haven't had time to go deep into that (but I suspect Linus sees it
-> > > too on his own g5 unless he removed offb from his .config).
-> > >
-> > > From what I see, it seems that offb is kicking in by default, reserves
-> > > the mmio regions, and then whatever chip driver loads can't access
-> > > them.
-> > >
-> > > offb is supposed to be a "fallback" driver in case no fbdev is taking
-> > > over, it should also be "forced" in with video=ofonly kernel command
-> > > line. This logic has been broken.
->
-> I dearly *hope* this is what I'm seeing with recent kernels, though I
-> have my doubts....  What I *do* know is that with recent bk snapshots
-> (post bk-1.2115) I have the following:  radeonfb seems to load, but when I
-> try to load X, my y-resolution seems to be half of what it ought to be...
+* Serge E. Hallyn (serue@us.ibm.com) wrote:
+> > Thing is, x86 makes no distinction btween r/x so, have you tried mmaping
+> > with read, then executing (I haven't)?
+> 
+> Yup, clearly that will work on x86.  And so obviously DigSig is not
+> a solution to format and buffer overflows  :)  Nor, unfortunately, a
 
-X-fbdev, or X + native radeon driver?  Do still get a framebuffer console?
-Any other fb apps you have that's also broken?
+heh
 
-Not sure why that happens. Note that the fbdev changes in the latest bk are
-mostly driver specific changes and the initialization code cleanup which I'm
-addressing at the moment.
+> solution to code which for whatever reason exploited this behavior.
 
-Tony
+That's what I was getting at.  Beats me what's out there that does this,
+but I expect some stuff does, and it wouldn't get the same assurance.
 
+> > This has nothing to do with file permissions aside of read.  All you need
+> > is read permission, then you can mmap(PROT_EXEC) which will kick off the
+> > check, and do deny_write_access.  It's a freeform way to lock writers
+> > out of any readable file in the system.
+> 
+> No, not "any readable file," because DigSig will not lock non-ELF files.
 
+Ahh, this is the part I had missed.
+
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

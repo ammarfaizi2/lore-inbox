@@ -1,101 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131233AbRDSQLD>; Thu, 19 Apr 2001 12:11:03 -0400
+	id <S131205AbRDSQNN>; Thu, 19 Apr 2001 12:13:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131219AbRDSQJV>; Thu, 19 Apr 2001 12:09:21 -0400
-Received: from user-vc8ftn3.biz.mindspring.com ([216.135.246.227]:64268 "EHLO
-	mail.ivivity.com") by vger.kernel.org with ESMTP id <S131205AbRDSQJM>;
-	Thu, 19 Apr 2001 12:09:12 -0400
-Message-ID: <25369470B6F0D41194820002B328BDD27C92@ATLOPS>
-From: Marc Karasek <marc_karasek@ivivity.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: FW: Bug in serial.c
-Date: Thu, 19 Apr 2001 12:09:04 -0400
+	id <S131246AbRDSQM4>; Thu, 19 Apr 2001 12:12:56 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:54537 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131205AbRDSQMh>; Thu, 19 Apr 2001 12:12:37 -0400
+Date: Thu, 19 Apr 2001 09:11:56 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Abramo Bagnara <abramo@alsa-project.org>
+cc: Alon Ziv <alonz@nolaviz.org>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Mike Kravetz <mkravetz@sequent.com>,
+        Ulrich Drepper <drepper@cygnus.com>
+Subject: Re: light weight user level semaphores
+In-Reply-To: <3ADEA746.D3A44511@alsa-project.org>
+Message-ID: <Pine.LNX.4.31.0104190903560.3842-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2448.0)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-
------Original Message-----
-From: Marc Karasek
-To: 'Disconnect '
-Sent: 4/19/01 11:49 AM
-Subject: RE: Bug in serial.c
-
- I have changed everything to point to /dev/ttyS0.  The settings in
-lilo.conf (I am booting from a floppy to emulate the embedded space) are
-all for ttyS0.  Lilo pritns to the terminal (minicom on another Linux
-box) and the kernel prints as well.  When I get to inittab (running
-busybox) it asks for some input thru a script to setup the embedded
-emulation.  At this point it just sits there.  If I turn on the debug in
-serial.c I can see the characters (hex values) as I type.  Kernel 2.4.2
-works fine, with the only problem being the smp compile issue.  As I
-need module support and cannot have a kernel of 600k+ size I am in a bit
-of a pickle.....
 
 
+On Thu, 19 Apr 2001, Abramo Bagnara wrote:
+>
+> > [ Using file descriptors ]
+>
+> This would also permit:
+> - to have poll()
+> - to use mmap() to obtain the userspace area
+>
+> It would become something very near to sacred Unix dogmas ;-)
 
------Original Message-----
-From: Disconnect
-To: Marc Karasek
-Cc: 'linux-kernel@vger.kernel.org'
-Sent: 4/19/01 11:38 AM
-Subject: Re: Bug in serial.c
+No, this is NOT what the UNIX dogmas are all about.
 
-On Thu, 19 Apr 2001, Marc Karasek did have cause to say:
+When UNIX says "everything is a file", it really means that "everything is
+a stream of bytes". Things like magic operations on file desciptors are
+_anathema_ to UNIX. ioctl() is the worst wart of UNIX. Having magic
+semantics of file descriptors is NOT Unix dogma at all, it is a horrible
+corruption of the original UNIX cleanlyness.
 
-> 2) In 2.4.3 the console port using ttySX is broken.  It dumps fine to
-the
-> terminal but when you get to a point of entering data (login,
-configuration
-> scripts, etc) the terminal does not accept any input.  
+Please don't excuse "semaphore file descriptors" with the "everything is a
+file" mantra. It is not at ALL applicable.
 
-Most gettys and such take a /dev/tty* argument, which has to be changed
-to
-point to the serial port for a serial console. Config scripts (and
-anything else) specifically using /dev/tty or /dev/console should work
-fine, however. (I wouldn't recommend pointing a getty at /dev/console -
-we
-had some issues on a headless server trying that. Easiest to point it at
-/dev/ttyS0 or whatnot.)
+The "everything is a file" mantra is to make pipe etc meaningful -
+processes don't have to worry about whether the fd they have is from a
+file open, a pipe() system call, opening a special block device, or a
+socket()+connect() thing. They can just read and write. THAT is what UNIX
+is all about.
 
-> 
-> So far I have been able to debug to the point where I see that the
-kernel is
-> receiving the characters from the serial.c driver.  But it never echos
-them
-> or does anything else with them.  I will continue to look into this at
-this
-> end.  
-> 
-> I was also wondering if anyone else has seen this or if a patch is
-avail for
-> this bug??
-> 
-> Marc Karasek
-> Sr. Firmware Engineer
-> iVivity Inc
-> marc_karasek@ivivity.com  
-> -
-> To unsubscribe from this list: send the line "unsubscribe
-linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
----
-   _.-=<Disconnect>=-._
-|     dis@sigkill.net    | And Remember...
-\  shawn@healthcite.com  / He who controls Purple controls the
-Universe..
- PGP Key given on Request  Or at least the Purple parts!
+And this is obviously NOT true of a "magic file descriptors for
+semaphores". You can't pass it off as stdin to another process and expect
+anything useful from it unless the other process _knows_ it is a special
+semaphore thing and does mmap magic or something.
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.1 [www.ebb.org/ungeek]
-GIT/CC/CM/AT d--(-)@ s+:-- a-->? C++++$ ULBS*++++$ P+>+++ L++++>+++++ 
-E--- W+++ N+@ o+>$ K? w--->+++++ O- M V-- PS+() PE Y+@ PGP++() t 5--- 
-X-- R tv+@ b++++>$ DI++++ D++(+++) G++ e* h(-)* r++ y++
-------END GEEK CODE BLOCK------
+The greatness of UNIX comes from "everything is a stream of bytes". That's
+something that almost nobody got right before UNIX. Remember VMS
+structured files? Did anybody ever realize what an absolutely _idiotic_
+crock the NT "CopyFile()" thing is for the same reason?
+
+Don't confuse that with "everything should be a file descriptor". The two
+have nothing to do with each other.
+
+		Linus
+

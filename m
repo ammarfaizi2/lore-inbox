@@ -1,29 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269451AbTHBP0Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 11:26:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269461AbTHBP0Z
+	id S269400AbTHBPWA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 11:22:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269423AbTHBPWA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 11:26:25 -0400
-Received: from ore.jhcloos.com ([64.240.156.239]:9733 "EHLO ore.jhcloos.com")
-	by vger.kernel.org with ESMTP id S269451AbTHBP0Y (ORCPT
+	Sat, 2 Aug 2003 11:22:00 -0400
+Received: from quechua.inka.de ([193.197.184.2]:25984 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S269400AbTHBPV7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 11:26:24 -0400
+	Sat, 2 Aug 2003 11:21:59 -0400
+From: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
 To: linux-kernel@vger.kernel.org
-Subject: bk://linux.bkbits.net/linux-2.5
-From: "James H. Cloos Jr." <cloos@jhcloos.com>
-Date: 02 Aug 2003 11:26:09 -0400
-Message-ID: <m3ispg3wtq.fsf@lugabout.jhcloos.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: nodev, noexec, nosuid, ro for --bind mounts?
+In-Reply-To: <20030802143957.GA30396@www.13thfloor.at>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.19-20030610 ("Darts") (UNIX) (Linux/2.4.20-xfs (i686))
+Message-Id: <E19iyCi-0000Ny-00@calista.inka.de>
+Date: Sat, 02 Aug 2003 17:21:56 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-$SUB is not getting updated.  There are over 200 csets in
-bk://linus.bkbits.net/linux-2.5 that have not made it over.
-         ^
-I've not checked whether they show up in the cvs or svn repos.
+In article <20030802143957.GA30396@www.13thfloor.at> you wrote:
+> is there any interest in having working 
+> nodev, noexec, nosuid, and ro mount options 
+> for --bind mounts?
 
--JimC
+it would be good for changeroots, yes.
 
+Greetings
+Bernd
+-- 
+eckes privat - http://www.eckes.org/
+Project Freefire - http://www.freefire.org/

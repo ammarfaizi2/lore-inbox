@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314702AbSGAKnT>; Mon, 1 Jul 2002 06:43:19 -0400
+	id <S314811AbSGAK7k>; Mon, 1 Jul 2002 06:59:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314811AbSGAKnS>; Mon, 1 Jul 2002 06:43:18 -0400
-Received: from [193.14.93.89] ([193.14.93.89]:34052 "HELO acolyte.hack.org")
-	by vger.kernel.org with SMTP id <S314702AbSGAKnR>;
-	Mon, 1 Jul 2002 06:43:17 -0400
-From: Christer Weinigel <wingel@nano-system.com>
-To: marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SCx200 patches, updated for 2.4.19-rc1
-References: <m3sn347ugu.fsf@acolyte.hack.org>
-Date: 01 Jul 2002 12:45:41 +0200
-In-Reply-To: Christer Weinigel's message of "30 Jun 2002 15:43:29 +0200"
-Message-ID: <m3adpb7mlm.fsf@acolyte.hack.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) Emacs/20.5
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S315277AbSGAK7j>; Mon, 1 Jul 2002 06:59:39 -0400
+Received: from cmailg3.svr.pol.co.uk ([195.92.195.173]:36883 "EHLO
+	cmailg3.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S314811AbSGAK7i>; Mon, 1 Jul 2002 06:59:38 -0400
+Message-Id: <200207011102.g61B22305958@blake.inputplus.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Happy Hacking Keyboard Lite Mk 2 USB Problems with 2.4.18.
+Date: Mon, 01 Jul 2002 12:02:02 +0100
+From: Ralph Corderoy <ralph@inputplus.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
 Hi,
 
-of course I managed to miss that you had released a 2.4.19-rc1 patch.
-I have updated the patches to match and they are available as:
+Does anyone here have a USB Happy Hacking Keyboard Lite Mk 2 keyboard?
 
-http://basselope.nano-system.com/~wingel/scx200/p1-watchdog-2.4.19-rc1.diff
-http://basselope.nano-system.com/~wingel/scx200/p2-docflash-2.4.19-rc1.diff
-http://basselope.nano-system.com/~wingel/scx200/p3-i2c-2.4.19-rc1.diff
+On connecting to my 2.4.18 Linux system I find that it works great,
+except that certain triples of keys produce four characters instead of
+three when typed in rapid succession.  This happens under XFree86 and
+also at a tty.  For example, typing `swa' rapidly produces `swaw'.
 
-It might be better to wait with these patches until the final 2.4.19
-is released, I'll do a new set of patches then.  
+Further investigation revealed that only certain combination of keys
+exhibit the problem.  More examples are
 
-   /Christer
+    keys produces
+    rty    rtty
+    yui    yuui
+    tyu    tyuy
+    swa    swaw
+    jhg    jhgh
 
--- 
-"Just how much can I get away with and still go to heaven?"
+But other won't show the problem, e.g. `zxc', `asd', and `qwe'.
+
+My theory is that usbkbd.o doesn't cope with ErrorRollover which is
+being generated, unlike hid.o which didn't used to but does now.
+
+    http://www.uwsg.iu.edu/hypermail/linux/kernel/0104.2/1022.html
+
+Diffing 2.4.18's usbkbd.c against 2.5.7 suggests the problem still
+exists in 2.5.7.
+
+I'd like to know that others can re-produce the problem.
+
+Cheers,
+
+
+Ralph.
+

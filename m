@@ -1,60 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272865AbTG3MmN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 08:42:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272876AbTG3MmM
+	id S272852AbTG3MpU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 08:45:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272857AbTG3MpU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 08:42:12 -0400
-Received: from magic-mail.adaptec.com ([208.236.45.100]:52143 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP id S272865AbTG3MmJ
+	Wed, 30 Jul 2003 08:45:20 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:21441 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S272852AbTG3MpS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 08:42:09 -0400
-Date: Wed, 30 Jul 2003 18:46:53 +0530 (IST)
-From: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
-X-X-Sender: tomar@localhost.localdomain
-Reply-To: nagendra_tomar@adaptec.com
-To: =?iso-8859-1?Q?Frank_Sch=E4fer?= <Frank.Schafer@setuza.cz>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Simple module question
-In-Reply-To: <1059472604.1109.6.camel@ADMIN.setuza.cz>
-Message-ID: <Pine.LNX.4.44.0307301845430.12027-100000@localhost.localdomain>
-Organization: Adaptec
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 30 Jul 2003 08:45:18 -0400
+Date: Wed, 30 Jul 2003 05:45:15 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: linux-kernel@vger.kernel.org
+Subject: BK2CVS up to date
+Message-ID: <20030730124515.GA19748@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add this to modules.conf 
-# man modules.conf
-
-tomar
-
-On Tue, 29 Jul 2003, Frank Schäfer wrote:
-
-> Hi list,
-> 
-> We have a monolithic kernel 2.4.18 using ip-tables. The ftp contrack
-> module takes a optional parameter port=xxxxx.
-> 
-> This parameter should be puttable by the kernel parameters. So I put it
-> on the addons line in lilo.conf.
-> 
-> The parameter doesn't show up in the boot dmesg, I can see it in
-> /proc/cmdline, but it doesn't seem to work. No ftp connection can be
-> made on this port.
-> 
-> Could anzbody put me a hint?
-> 
-> Thanks in advance
-> Frank
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+There was a pause in the updating of the 2.5 CVS tree exported from the
+2.5 BK tree; it was related to the move to the new colo.  The trees are
+up to date now and I suspect that Ben's BK2SVN mirror will be updated
+soon as well.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

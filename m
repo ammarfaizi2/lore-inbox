@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269680AbUHZV3P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269679AbUHZV3R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269680AbUHZV3P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 17:29:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269643AbUHZV2L
+	id S269679AbUHZV3R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 17:29:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269690AbUHZV1Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 17:28:11 -0400
-Received: from mail.shareable.org ([81.29.64.88]:19655 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S269677AbUHZVZ4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 17:25:56 -0400
-Date: Thu, 26 Aug 2004 22:24:11 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Rik van Riel <riel@redhat.com>,
-       Diego Calleja <diegocg@teleline.es>, christophe@saout.de,
-       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
-       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
-       reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, flx@namesys.com,
-       reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826212411.GG5733@mail.shareable.org>
-References: <45010000.1093553046@flay> <Pine.LNX.4.58.0408261348500.2304@ppc970.osdl.org> <57730000.1093554054@flay> <Pine.LNX.4.58.0408261402400.2304@ppc970.osdl.org>
+	Thu, 26 Aug 2004 17:27:16 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:50393 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S269697AbUHZVXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 17:23:08 -0400
+Message-Id: <200408262122.i7QLMwH4000966@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 07/26/2004 with nmh-1.1-RC3
+To: Kees Cook <kees@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Patch] TIOCCONS security 
+In-Reply-To: Your message of "Wed, 25 Aug 2004 14:03:41 PDT."
+             <pan.2004.08.25.21.03.41.684647@osdl.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040825151106.GA21687@suse.de> <20040825161504.A8896@infradead.org> <20040825161630.B8896@infradead.org> <20040825161837.GB21687@suse.de>
+            <pan.2004.08.25.21.03.41.684647@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408261402400.2304@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; boundary="==_Exmh_-1637107237P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 26 Aug 2004 17:22:58 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> In other words, the "directory" part is just a _view_ into the file. A
-> view that potentially exposes a lot _more_ of the file, but we're still
-> talking about the same file.
-> 
-> In contrast, a S_IFDIR-like _directory_ is something else entirely. When 
-> you view the things in that, you aren't looking at data "inside" the 
-> directory. You're looking at somethign totally independent.
+--==_Exmh_-1637107237P
+Content-Type: text/plain; charset=us-ascii
 
-One of the constraints is that you can create any name in an
-S_IFDIR-like directory, but you probably can't create any name "in" an
-S_IFREG-like file, because the names have meaning -- except in
-designated subtrees of the view intended for holding arbitrary names.
+On Wed, 25 Aug 2004 14:03:41 PDT, Kees Cook said:
 
--- Jamie
+> Confirmed.  If you run the following code as a regular user, you can see
+> messages.  (BTW: don't do a "tail -f /dev/console".  For reasons I don't
+> understand, it writes endless CRs to which ever tty you happen to have
+> open):
+
+It's probably a bananana problem.  The tail -f writes something, which ends in
+a \n.  Then the tail -f reads the last thing written, which was a \n, and
+writes it out, and..... 
+
+
+--==_Exmh_-1637107237P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBLlSxcC3lWbTT17ARAuqhAJ43sVdhJ+yaDOSqamcuaw1KF5BkYACeOsje
+QP5/ls+FZzkSsBT6tipPecU=
+=xxWh
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1637107237P--

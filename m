@@ -1,49 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263704AbTEJJiv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 05:38:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263715AbTEJJiv
+	id S263715AbTEJJlN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 05:41:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263717AbTEJJlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 05:38:51 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:38550 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S263704AbTEJJiu (ORCPT
+	Sat, 10 May 2003 05:41:13 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:50114 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S263715AbTEJJlL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 05:38:50 -0400
-Date: Sat, 10 May 2003 02:51:28 -0700
+	Sat, 10 May 2003 05:41:11 -0400
+Date: Sat, 10 May 2003 02:53:49 -0700
 From: David Mosberger <davidm@napali.hpl.hp.com>
-Message-Id: <200305100951.h4A9pSAD012127@napali.hpl.hp.com>
-To: torvalds@transmeta.com
+Message-Id: <200305100953.h4A9rnV8012151@napali.hpl.hp.com>
+To: davej@suse.de
 Cc: linux-kernel@vger.kernel.org
-Subject: qla1280 mem-mapped I/O fix
+Subject: TRIVIAL: turn of AGP drivers which are not supported on ia64
 X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Reply-To: davidm@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With the fix in the second hunk, I don't see any reason not to turn on
-MEMORY_MAPPED_IO in qla1280.  It seems to work fine on my machine
-with this controller (ia64 Big Sur).
+Hi Dave,
 
-	--david
+Subject says it all.  Please apply.
 
-diff -Nru a/drivers/scsi/qla1280.c b/drivers/scsi/qla1280.c
---- a/drivers/scsi/qla1280.c	Sat May 10 01:47:43 2003
-+++ b/drivers/scsi/qla1280.c	Sat May 10 01:47:43 2003
-@@ -284,7 +284,7 @@
- #define  QL1280_TARGET_MODE_SUPPORT    0	/* Target mode support */
- #define  QL1280_LUN_SUPPORT            0
- #define  WATCHDOGTIMER                 0
--#define  MEMORY_MAPPED_IO              0
-+#define  MEMORY_MAPPED_IO              1
- #define  DEBUG_QLA1280_INTR            0
- #define  USE_NVRAM_DEFAULTS	       0
- #define  DEBUG_PRINT_NVRAM             0
-@@ -2634,7 +2634,7 @@
- 	/*
- 	 * Get memory mapped I/O address.
- 	 */
--	pci_read_config_word (ha->pdev, PCI_BASE_ADDRESS_1, &mmapbase);
-+	pci_read_config_dword (ha->pdev, PCI_BASE_ADDRESS_1, &mmapbase);
- 	mmapbase &= PCI_BASE_ADDRESS_MEM_MASK;
+Thanks,
+
+	--daivd
+
+diff -Nru a/drivers/char/agp/Kconfig b/drivers/char/agp/Kconfig
+--- a/drivers/char/agp/Kconfig	Sat May 10 01:47:43 2003
++++ b/drivers/char/agp/Kconfig	Sat May 10 01:47:43 2003
+@@ -31,7 +31,7 @@
  
- 	/*
+ config AGP_INTEL
+ 	tristate "Intel 440LX/BX/GX, I8xx and E7x05 support"
+-	depends on AGP && !X86_64
++	depends on AGP && !X86_64 && !IA64
+ 	help
+ 	  This option gives you AGP support for the GLX component of the
+ 	  XFree86 4.x on Intel 440LX/BX/GX, 815, 820, 830, 840, 845, 850, 860
+@@ -44,7 +44,7 @@
+ 
+ #config AGP_I810
+ #	tristate "Intel I810/I815/I830M (on-board) support"
+-#	depends on AGP && !X86_64
++#	depends on AGP && !X86_64 && !IA64
+ #	help
+ #	  This option gives you AGP support for the Xserver on the Intel 810
+ #	  815 and 830m chipset boards for their on-board integrated graphics. This
+@@ -52,7 +52,7 @@
+ 
+ config AGP_VIA
+ 	tristate "VIA chipset support"
+-	depends on AGP && !X86_64
++	depends on AGP && !X86_64 && !IA64
+ 	help
+ 	  This option gives you AGP support for the GLX component of the
+ 	  XFree86 4.x on VIA MPV3/Apollo Pro chipsets.
+@@ -62,7 +62,7 @@
+ 
+ config AGP_AMD
+ 	tristate "AMD Irongate, 761, and 762 support"
+-	depends on AGP && !X86_64
++	depends on AGP && !X86_64 && !IA64
+ 	help
+ 	  This option gives you AGP support for the GLX component of the
+ 	  XFree86 4.x on AMD Irongate, 761, and 762 chipsets.
+@@ -72,7 +72,7 @@
+ 
+ config AGP_SIS
+ 	tristate "Generic SiS support"
+-	depends on AGP && !X86_64
++	depends on AGP && !X86_64 && !IA64
+ 	help
+ 	  This option gives you AGP support for the GLX component of the "soon
+ 	  to be released" XFree86 4.x on Silicon Integrated Systems [SiS]
+@@ -85,7 +85,7 @@
+ 
+ config AGP_ALI
+ 	tristate "ALI chipset support"
+-	depends on AGP && !X86_64
++	depends on AGP && !X86_64 && !IA64
+ 	---help---
+ 	  This option gives you AGP support for the GLX component of the
+ 	  XFree86 4.x on the following ALi chipsets.  The supported chipsets
+@@ -103,14 +103,14 @@
+ 
+ config AGP_SWORKS
+ 	tristate "Serverworks LE/HE support"
+-	depends on AGP && !X86_64
++	depends on AGP && !X86_64 && !IA64
+ 	help
+ 	  Say Y here to support the Serverworks AGP card.  See 
+ 	  <http://www.serverworks.com/> for product descriptions and images.
+ 
+ config AGP_AMD_8151
+ 	tristate "AMD 8151 support"
+-	depends on AGP
++	depends on AGP && !IA64
+ 	default GART_IOMMU
+ 	help
+ 	  Say Y here to support the AMD 8151 AGP bridge and the builtin

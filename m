@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264463AbTDXW4a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 18:56:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264466AbTDXW4a
+	id S262196AbTDXXDb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 19:03:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262763AbTDXXDb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 18:56:30 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:54442 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264463AbTDXW43 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 18:56:29 -0400
-Date: Thu, 24 Apr 2003 16:10:28 -0700
-From: Greg KH <greg@kroah.com>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: linux-kernel@vger.kernel.org, Soos Peter <sp@osb.hu>
-Subject: Re: [PATCH 2.4] dmi_ident made public
-Message-ID: <20030424231028.GA29393@kroah.com>
-References: <20030424184759.5f7b3323.khali@linux-fr.org>
+	Thu, 24 Apr 2003 19:03:31 -0400
+Received: from almesberger.net ([63.105.73.239]:59146 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S262196AbTDXXDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 19:03:30 -0400
+Date: Thu, 24 Apr 2003 20:15:22 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Flame Linus to a crisp!
+Message-ID: <20030424201522.G1425@almesberger.net>
+References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com> <20030424182945.7065812EFF1@mx12.arcor-online.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030424184759.5f7b3323.khali@linux-fr.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030424182945.7065812EFF1@mx12.arcor-online.net>; from phillips@arcor.de on Thu, Apr 24, 2003 at 08:31:06PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 24, 2003 at 06:47:59PM +0200, Jean Delvare wrote:
-> 
-> If this patch is accepted and applied, I'll work together with Peter to
-> get the three above-mentioned modules simplified, as well as any other I
-> may have missed. Also, I'll take care of porting this patch to the 2.5
-> series, since it also belongs there.
+Daniel Phillips wrote:
+> Open source + Linux + DRM could be used to solve the Quake client-side 
+> cheating problem:
 
-i2c-piix4 in the 2.5 kernel tree does not need this patch, as everything
-it needs to detect IBM laptops is already made public.  See the current
-2.5 releases to verify this.
+Yes, but in return you'd be excluded from playing Quake unless
+you're running one of those signed kernels or modules.
 
-thanks,
+So, if I, say, want to test some TCP fix, new VM feature, file
+system improvement, etc., none of the applications that rely on
+DRM would work. This doesn't only affect developers, but also
+their potential testers.
 
-greg k-h
+Given that most users will just run a distribution's kernel, with
+all the right signatures, companies will not perceive the few
+cases in which their use of DRM causes problems as very important,
+so they will use DRM.
+
+Oh, maybe some developers could be granted the privilege of being
+able to sign their own kernels or modules. So if you're part of
+this circle, you'd be fine, right ? No, even this doesn't work,
+because if you'd leak such a key, you'd certainly get sued for
+damages. And I don't think many people would feel overly pleased
+with the idea of being responsible for the safekeeping of the key
+to a multi-million lawsuit. (And besides, this may turn them into
+targets for key theft/robbery/extortion.)
+
+(There are of course uses of such signatures that would not have
+those problems. E.g. signatures that prove trustworthiness to the
+local user, instead of a remote party.)
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

@@ -1,71 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267538AbUHJSDe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267555AbUHJSA1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267538AbUHJSDe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 14:03:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267603AbUHJSBA
+	id S267555AbUHJSA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 14:00:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267588AbUHJR5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 14:01:00 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:62352 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267470AbUHJR6b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 13:58:31 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O4
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Florian Schmidt <mista.tapas@gmx.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-In-Reply-To: <20040810075130.GA25238@elte.hu>
-References: <20040726083537.GA24948@elte.hu>
-	 <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu>
-	 <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu>
-	 <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu>
-	 <20040809130558.GA17725@elte.hu> <20040809190201.64dab6ea@mango.fruits.de>
-	 <1092071169.13668.23.camel@mindpipe>  <20040810075130.GA25238@elte.hu>
+	Tue, 10 Aug 2004 13:57:42 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:36086 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S267507AbUHJRm6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 13:42:58 -0400
+Subject: Re: bkl cleanup in do_sysctl
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Josh Aas <josha@sgi.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, steiner@sgi.com
+In-Reply-To: <4118FE9D.2050304@sgi.com>
+References: <4118FE9D.2050304@sgi.com>
 Content-Type: text/plain
-Message-Id: <1092160730.782.16.camel@mindpipe>
+Message-Id: <1092158905.11212.18.camel@nighthawk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 10 Aug 2004 13:58:51 -0400
+Date: Tue, 10 Aug 2004 10:28:26 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-10 at 03:51, Ingo Molnar wrote:
-> * Lee Revell <rlrevell@joe-job.com> wrote:
-> 
-> > Ingo, do you plan to maintain the voluntary preempt patch against the
-> > -mm series?  From looking at Andrew's announcement yesterday it looks
-> > like many latency issues fixed in the voluntary preemption patches are
-> > also fixed in -mm, so it seems like the patch would be much smaller. 
-> 
-> yeah, and in addition we've already pushed 99% of our might_sleep()
-> additions to -mm too so that reduces the patch size too, quite
-> significantly.
-> 
-> time is the only limiting factor. Due to these partial merges (we are
-> trying to get all uncontroversial bits into -mm, hence into upstream)
-> the merge to -mm is hard. Especially for lock-breaks that i've done
-> differently than Andrew. I sent a consolidation patch yesterday but this
-> is still work in progress. So i'll do an -mm merge very time i get to do
-> it, but the primary testing still remains on the vanilla kernel (which
-> most people use).
-> 
+On Tue, 2004-08-10 at 09:58, Josh Aas wrote:
+> I'd like to hear people's thoughts on replacing the bkl in do_sysctl 
+> with a localized spin lock that protects the sysctl structures. Instead 
+> of grabbing the bkl, anyone that needs to mess with those values could 
+> grab the localized lock (1 to protect all structures). Such a localized 
+> lock would allow us to get rid of bkl usage in at least one other place 
+> as well (do_coredump). In order to do this though, we would have to make 
+> sure all code that grabs the bkl instead of the localized lock while 
+> using sysctl values switches to the new lock. Might be a big job, but 
+> perhaps it would be a good one to start after 2.6.8 is out the door.
 
-Rather than having to maintain the voluntary preempt patch for the -mm
-series, after the next -mm merge, maybe you could just post or send me
-an incremental diff against the last voluntary preempt patch for the
-vanilla kernel when you update it, and I or someone else from the Linux
-audio community could maintain the patch against the -mm series.  It
-seems that lately the changes from one version of the patch to the next
-are small and easy enough to comprehend.  We could also filter the bug
-reports a bit.  Maybe a voluntary preemption mailing list is in order,
-if this gets to be a constant source of huge log postings to LKML.
+Remember that the BKL isn't a plain-old spinlock.  You're allowed to
+sleep while holding it and it can be recursively held, which isn't true
+for other spinlocks.
 
-This would also improve the ability of the Linux audio community to
-influence the direction of the kernel, by separately analyzing the
-impact of different changes, especially if the -mm series is going to
-function as 2.7 for the time being.
+So, if you want to replace it with a spinlock, you'll need to do audits
+looking for sysctl users that might_sleep() or get called recursively
+somehow.  The might_sleep() debugging checks should help immensely for
+the first part, but all you'll get are deadlocks at runtime for any
+recursive holders.  But, those cases are increasingly rare, so you might
+luck out and not have any.  
 
-Lee
+Or, you could just make it a semaphore and forget about the no sleeping
+requirement.  
+
+-- Dave
 

@@ -1,53 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261415AbVBRRAe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261419AbVBRREU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261415AbVBRRAe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 12:00:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVBRRAe
+	id S261419AbVBRREU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 12:04:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVBRREU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 12:00:34 -0500
-Received: from scl-ims.phoenix.com ([216.148.212.222]:9914 "EHLO
-	scl-ims.phoenix.com") by vger.kernel.org with ESMTP id S261404AbVBRRA2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 12:00:28 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Kernel modules query
-Date: Fri, 18 Feb 2005 09:00:25 -0800
-Message-ID: <5F106036E3D97448B673ED7AA8B2B6B301BA9E4C@scl-exch2k.phoenix.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Kernel modules query
-Thread-Index: AcUVnbUiK/IxWvaxTUiXvVupCWbt3gAPWn/Q
-From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
-To: "linux lover" <linux.lover2004@gmail.com>, <kernelnewbies@nl.linux.org>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 18 Feb 2005 17:00:27.0735 (UTC) FILETIME=[58896E70:01C515DB]
+	Fri, 18 Feb 2005 12:04:20 -0500
+Received: from az33egw02.freescale.net ([192.88.158.103]:59834 "EHLO
+	az33egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S261404AbVBRRET (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 12:04:19 -0500
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <f78a4b55513a35eed5eaa1173ff0d4e9@freescale.com>
+Content-Transfer-Encoding: 7bit
+Cc: Becky Gill <bgill@freescale.com>
+From: Kumar Gala <kumar.gala@freescale.com>
+Subject: use of TASK_SIZE to determine user/kernel
+Date: Fri, 18 Feb 2005 11:04:20 -0600
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi 
+We are looking at a 32-bit architecture implementation were we can have 
+distinct address spaces for user and kernel, thus allowing 4G's for 
+each.  In doing this we have come across the use of TASK_SIZE to 
+determine if an address is user vs kernel (example mm/memory.c).  I'm 
+wondering is it just sufficient to set TASK_SIZE to 0xffffffff?  This 
+feels wrong to me, since it would imply that all the places that are 
+testing will never need access to the kernel memory space.
 
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org 
->[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of linux lover
->Sent: Friday, February 18, 2005 1:36 AM
->To: kernelnewbies@nl.linux.org; linux-kernel@vger.kernel.org
->Subject: Kernel modules query
->
->Hello,
->        I want to know can a variable be exported by a linux kernel
->modules? How can i make a variable getting assigned in kernel module
->available to other kernel modules?
->regards,
->linux.lover.
+thanks
 
-EXPORT_SYMBOL(var_name);
-
-For example see arch/i386/kernel/time.c & jiffies_64 (2.6.10 source).
-
-Aleks.
+- kumar
 

@@ -1,72 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289471AbSAOKBJ>; Tue, 15 Jan 2002 05:01:09 -0500
+	id <S289467AbSAOKEt>; Tue, 15 Jan 2002 05:04:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289467AbSAOKBC>; Tue, 15 Jan 2002 05:01:02 -0500
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:19217 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S289461AbSAOKAt>; Tue, 15 Jan 2002 05:00:49 -0500
-Date: Tue, 15 Jan 2002 10:00:41 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Defining new section for bus driver init
-Message-ID: <20020115100041.A994@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.33.0201141746000.827-100000@segfault.osdlab.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0201141746000.827-100000@segfault.osdlab.org>; from mochel@osdl.org on Mon, Jan 14, 2002 at 05:47:15PM -0800
+	id <S289481AbSAOKEk>; Tue, 15 Jan 2002 05:04:40 -0500
+Received: from mgw-x1.nokia.com ([131.228.20.21]:59881 "EHLO mgw-x1.nokia.com")
+	by vger.kernel.org with ESMTP id <S289467AbSAOKE2>;
+	Tue, 15 Jan 2002 05:04:28 -0500
+Message-ID: <3C43FD9D.8050706@nokia.com>
+Date: Tue, 15 Jan 2002 11:59:57 +0200
+From: Dmitri Kassatkine <dmitri.kassatkine@nokia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011023
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org,
+        Dmitri Kassatkine <dmitri.kassatkine@nokia.com>
+Subject: usb.c patch -> successfuly read usb descriptors on some USB device
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 14, 2002 at 05:47:15PM -0800, Patrick Mochel wrote:
-> Attached is a patch that creates a new section for device subsystem init
-> calls. With it, the root bus init calls are handled just like init calls
-> - the section consists of a table of function pointers.
-> device_driver_init() iterates over that table and calls each one.
-> (device_driver_init() currently happens just before that pci_init() call
-> above).
+Hi,
 
-I've been thinking about this, and would like to suggest something that'd
-reduce the code size, but is dependent on the ordering of stuff in
-do_basic_setup.  So first some questions.  Currently, we do:
+Sometimes USB subsystem cannot get USB descriptor.
 
-	device_driver_init()
-	random bus driver init...
-	sock_init()
-	start_context_thread()
-	do_initcalls()
+Jan 15 10:44:21 selma kernel: hub.c: USB new device connect on bus1/1, 
+assign
+ed device number 25
+Jan 15 10:44:21 selma kernel: usb.c: couldn't get all of config descriptors
+Jan 15 10:44:21 selma kernel: usb.c: unable to get device 25 
+configuration (e
+rror=-110)
 
-Is there any ordering dependency between sock_init(), start_context_thread()
-and the bus driver init calls?  From a brief look at the code, it would
-appear that start_context_thread() is rather safe, but sock_init() is
-questionable.  If they are both safe, then we could move these two calls
-before, or even just after device_driver_init():
 
-	device_driver_init()
-	sock_init()
-	start_context_thread()
-	random bus driver init...
-	do_initcalls()
+Here is patch how to fix it for 2.4.17. It works for 2.4.16 as well.
+ It necassary to read descriptor at once, not first 8 byte first.
 
-Now we have the bus driver initialisation and the initcall initialisation
-next to each other.  We can then pull this trick with the linker file:
+It works well now for NSM USB Bluetooth dongle.
 
-	__initcall_start = .;
-	.initcall : {
-		*(.devsubsys.init)
-		*(.initcall.init)
-	}
-	__initcall_end = .;
+br, Dmitri
 
-All the magic then happens within do_initcalls() without any extra code
-needing to be added.  The really funky thing about this approach is
-that you can add other sections to handle network protocol modules
-and such like with virtually zero code.
+
+----------------------------- CUT HERE ---------------------------------------------------------
+--- usb.c.orig	Wed Nov 21 19:59:11 2001
++++ usb.c	Tue Jan 15 11:38:35 2002
+@@ -2041,7 +2041,7 @@
+ 		return -ENOMEM;
+ 	}
+ 
+-	buffer = kmalloc(8, GFP_KERNEL);
++	buffer = kmalloc(255, GFP_KERNEL);
+ 	if (!buffer) {
+ 		err("unable to allocate memory for configuration descriptors");
+ 		return -ENOMEM;
+@@ -2049,9 +2049,9 @@
+ 	desc = (struct usb_config_descriptor *)buffer;
+ 
+ 	for (cfgno = 0; cfgno < dev->descriptor.bNumConfigurations; cfgno++) {
+-		/* We grab the first 8 bytes so we know how long the whole */
++		/* We grab the first 255 bytes so we know how long the whole */
+ 		/*  configuration is */
+-		result = usb_get_descriptor(dev, USB_DT_CONFIG, cfgno, buffer, 8);
++		result = usb_get_descriptor(dev, USB_DT_CONFIG, cfgno, buffer, 255);
+ 		if (result < 8) {
+ 			if (result < 0)
+ 				err("unable to get descriptor");
+@@ -2072,19 +2072,24 @@
+ 			goto err;
+ 		}
+ 
+-		/* Now that we know the length, get the whole thing */
+-		result = usb_get_descriptor(dev, USB_DT_CONFIG, cfgno, bigbuffer, length);
+-		if (result < 0) {
+-			err("couldn't get all of config descriptors");
+-			kfree(bigbuffer);
+-			goto err;
+-		}	
++		if (length > 255) {
++			/* Now that we know the length, get the whole thing */
++			result = usb_get_descriptor(dev, USB_DT_CONFIG, cfgno, bigbuffer, length);
++			if (result < 0) {
++				err("couldn't get all of config descriptors");
++				kfree(bigbuffer);
++				goto err;
++			}	
+ 	
+-		if (result < length) {
+-			err("config descriptor too short (expected %i, got %i)", length, result);
+-			result = -EINVAL;
+-			kfree(bigbuffer);
+-			goto err;
++			if (result < length) {
++				err("config descriptor too short (expected %i, got %i)", length, result);
++				result = -EINVAL;
++				kfree(bigbuffer);
++				goto err;
++			}
++		}
++		else {
++			memcpy(bigbuffer, buffer, length);
+ 		}
+ 
+ 		dev->rawdescriptors[cfgno] = bigbuffer;
+-------------- CUT HERE ----------------------------------------------------------------------------
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+ Dmitri Kassatkine
+ Nokia Research Center / Helsinki
+ Mobile: +358 50 4836365
+ E-Mail: dmitri.kassatkine@nokia.com
+
+
 

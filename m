@@ -1,74 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266643AbUAWTCN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 14:02:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266644AbUAWTCN
+	id S266642AbUAWS7f (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 13:59:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266606AbUAWS7f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 14:02:13 -0500
-Received: from h00a0cca1a6cf.ne.client2.attbi.com ([65.96.182.167]:13184 "EHLO
-	h00a0cca1a6cf.ne.client2.attbi.com") by vger.kernel.org with ESMTP
-	id S266643AbUAWTCH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 14:02:07 -0500
-Date: Fri, 23 Jan 2004 14:02:05 -0500
-From: timothy parkinson <t@timothyparkinson.com>
-To: john stultz <johnstul@us.ibm.com>
-Cc: hauan@cmu.edu, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.1 "clock preempt"?
-Message-ID: <20040123190205.GA477@h00a0cca1a6cf.ne.client2.attbi.com>
-Mail-Followup-To: john stultz <johnstul@us.ibm.com>, hauan@cmu.edu,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <1074630968.19174.49.camel@steinar.cheme.cmu.edu> <1074633977.16374.67.camel@cog.beaverton.ibm.com> <1074697593.5650.26.camel@steinar.cheme.cmu.edu> <1074709166.16374.73.camel@cog.beaverton.ibm.com> <20040122193704.GA552@h00a0cca1a6cf.ne.client2.attbi.com> <1074800554.21658.68.camel@cog.beaverton.ibm.com> <20040122195026.GA579@h00a0cca1a6cf.ne.client2.attbi.com> <1074801242.21658.71.camel@cog.beaverton.ibm.com> <20040122200044.GA593@h00a0cca1a6cf.ne.client2.attbi.com> <1074806504.21658.76.camel@cog.beaverton.ibm.com>
+	Fri, 23 Jan 2004 13:59:35 -0500
+Received: from gprs214-223.eurotel.cz ([160.218.214.223]:45440 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S266642AbUAWS7c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 13:59:32 -0500
+Date: Fri, 23 Jan 2004 19:59:15 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Rik van Riel <riel@redhat.com>
+Cc: Valdis.Kletnieks@vt.edu, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: sched-idle and disk-priorities for 2.6.X
+Message-ID: <20040123185914.GA870@elf.ucw.cz>
+References: <20040122010438.GD223@elf.ucw.cz> <Pine.LNX.4.44.0401212010520.15146-100000@chimarrao.boston.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1074806504.21658.76.camel@cog.beaverton.ibm.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.44.0401212010520.15146-100000@chimarrao.boston.redhat.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On Thu, Jan 22, 2004 at 01:21:45PM -0800, john stultz wrote:
-> On Thu, 2004-01-22 at 12:00, timothy parkinson wrote:
-> > su -c "/usr/sbin/hdparm /dev/hda"
-> > Password:
+> > ulimit -m 1
+> > <some task>
 > > 
-> > /dev/hda:
-> >  multcount    = 16 (on)
-> >  IO_support   =  1 (32-bit)
-> >  unmaskirq    =  0 (off)
-> >  using_dma    =  0 (off)
-> >  keepsettings =  0 (off)
-> >  readonly     =  0 (off)
-> >  readahead    = 256 (on)
-> >  geometry     = 65535/16/63, sectors = 156301488, start = 0
-> > 
-> > but...
-> > 
-> > su -c "/usr/sbin/hdparm -d1 /dev/hda"
-> > Password:
-> > 
-> > /dev/hda:
-> >  setting using_dma to 1 (on)
-> >  HDIO_SET_DMA failed: Operation not permitted
-> >  using_dma    =  0 (off)
-> > 
-> > it's an 80gig western digital from about 2-3 years ago.
+> > should make that task run with extremely low priority, right?
 > 
-> Its likely you need to enable support in the kernel for your IDE
-> controller, or your DMA on your controller isn't supported. 
+> Yeah, when the box is under memory pressure, pages from that
+> task should never hit the active list.  Instead, they should
+> always stay on the inactive list and the non-referenced pages
+> from that app should get reclaimed.
 > 
-> thanks
-> -john
-> 
-> 
+> OTOH, if the app keeps referencing all pages, maybe I need
+> to tune up the aggressiveness a bit and also reclaim the
+> referenced pages ... if the current patch doesn't work right
+> I'll make a more aggressive one.
 
-so, apparently the problem was that i just needed to enable dma...  which meant
-that i needed to set "CONFIG_BLK_DEV_VIA82CXXX=y" in my .config.
+I'm afraid it needs to be more aggressive.
 
-been running all night/morning with load - no "losing ticks" message or slowing
-clock yet.  thanks for pointing me in the right direction.
+I made two programs, each walking over 150MB of memory, and ran them
+at same time on 250MB machine. One of them with ulimit -m 1... Both
+got about the same ammount of RAM and progressed at similar speed.
 
-think we could improve that error message?  i'd never have guessed that it was
-hard disk related if you hadn't told me...
-
-timothy
+							Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

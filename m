@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292940AbSB0U6Z>; Wed, 27 Feb 2002 15:58:25 -0500
+	id <S292944AbSB0VDm>; Wed, 27 Feb 2002 16:03:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292945AbSB0U6E>; Wed, 27 Feb 2002 15:58:04 -0500
-Received: from a.smtp-out.sonic.net ([208.201.224.38]:43465 "HELO
-	a.smtp-out.sonic.net") by vger.kernel.org with SMTP
-	id <S292943AbSB0U5h>; Wed, 27 Feb 2002 15:57:37 -0500
-X-envelope-info: <dhinds@sonic.net>
-Date: Wed, 27 Feb 2002 12:57:36 -0800
-From: dhinds <dhinds@sonic.net>
-To: Andreas Roedl <flood@flood-net.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pcmcia problems with IDE & cardbus
-Message-ID: <20020227125736.A1502@sonic.net>
-In-Reply-To: <20020227111008.A13182@sonic.net> <20020227204649.92C08AA40@flood-net.de>
-Mime-Version: 1.0
+	id <S292945AbSB0VDK>; Wed, 27 Feb 2002 16:03:10 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38160 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292948AbSB0VCe>; Wed, 27 Feb 2002 16:02:34 -0500
+Subject: Re: A7M266-D, dual athlon 1800+ kernel-smp APIC boot problem workaround
+To: dettrick@uci.edu (Sean DETTRICK)
+Date: Wed, 27 Feb 2002 21:17:15 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, dettrick@uci.edu, support@asus.com,
+        euro.cpu@amd.com
+In-Reply-To: <Pine.GSO.4.44.0202271124590.22391-100000@e4e.oac.uci.edu> from "Sean DETTRICK" at Feb 27, 2002 12:12:37 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020227204649.92C08AA40@flood-net.de>
-User-Agent: Mutt/1.3.22.1i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16gBRr-0005sg-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 27, 2002 at 09:49:51PM +0100, Andreas Roedl wrote:
-> 
-> /lib/modules/2.4.18/pcmcia/orinoco_cs.o: unresolved symbol dldwd_proc_dev_init
-> /lib/modules/2.4.18/pcmcia/orinoco_cs.o: unresolved symbol dldwd_setup
-> /lib/modules/2.4.18/pcmcia/orinoco_cs.o: unresolved symbol dldwd_shutdown
-> /lib/modules/2.4.18/pcmcia/orinoco_cs.o: unresolved symbol 
-> dldwd_proc_dev_cleanup
-> /lib/modules/2.4.18/pcmcia/orinoco_cs.o: unresolved symbol dldwd_reset
-> /lib/modules/2.4.18/pcmcia/orinoco_cs.o: unresolved symbol dldwd_interrupt
-> /lib/modules/2.4.18/pcmcia/orinoco_cs.o: insmod 
-> /lib/modules/2.4.18/pcmcia/orinoco_cs.o failed
-> /lib/modules/2.4.18/pcmcia/orinoco_cs.o: insmod orinoco_cs failed
-> 
-> ?
+> We have an Asus A7M266-D motherboard with dual Athlon MP 1800+.
+> We found the linux kernel-smp would seize shortly after or during booting
+> the second CPU, at around the time it was testing APIC.
 
-Did you read my explanation?
+Yes - the MP 1.4 table seems to have funnies with the second IDE controller
 
-You've somehow ended up loading the hermes module from the 2.4.18
-kernel tree, and the orinoco_cs module from the pcmcia-cs package.
-"modprobe" is probably getting confused by having several modules with
-the same names, in different directories.
+> We found that booting with the "noapic" option in grub or lilo was
+> sufficient to solve the problem.
 
-If you use just the pcmcia-cs modules, (or just the kernel modules),
-then everything should work fine on 2.4.18.
+Better yet set MP 1.1 in the BIOS - the MP1.1 table seems to work
 
--- Dave
+> AMD and ASUS tech support had never heard of this problem.
+> ASUS suggested it "might" be the BIOS.
+
+AMD have heard of the problem. I've got it filed with them along with
+	Won't boot with a broadcom card in
+	Seems to misconfigure PCI compliance sometimes
+
+and some other oddments. Support I suspect are not too used to it.
+
+> BTW the Athlons, clearly marked in the boxes as MP, identified
+> themselves as Athlon XP 1800+'s.   We thought this might be the
+> problem at first but now we guess not.
+
+The BIOS forgets to load the MP name string, like a load of other
+problems it has. 
+
+Alan

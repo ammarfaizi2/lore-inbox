@@ -1,39 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314661AbSDTRUU>; Sat, 20 Apr 2002 13:20:20 -0400
+	id <S314670AbSDTRUz>; Sat, 20 Apr 2002 13:20:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314672AbSDTRUQ>; Sat, 20 Apr 2002 13:20:16 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:52495 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S314664AbSDTRT3>; Sat, 20 Apr 2002 13:19:29 -0400
-Message-ID: <3CC1A31B.AC03136D@linux-m68k.org>
-Date: Sat, 20 Apr 2002 19:19:23 +0200
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jeff Garzik <garzik@havoc.gtf.org>
-CC: Daniel Phillips <phillips@bonn-fries.net>,
+	id <S314664AbSDTRUW>; Sat, 20 Apr 2002 13:20:22 -0400
+Received: from ns.suse.de ([213.95.15.193]:14858 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S314667AbSDTRTn>;
+	Sat, 20 Apr 2002 13:19:43 -0400
+Date: Sat, 20 Apr 2002 19:19:40 +0200
+From: Dave Jones <davej@suse.de>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Anton Altaparmakov <aia21@cantab.net>,
         Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-In-Reply-To: <E16ya3u-0000RG-00@starship> <20020420115233.A617@havoc.gtf.org> <3CC19470.ACE2EFA1@linux-m68k.org> <20020420122541.B2093@havoc.gtf.org>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+Message-ID: <20020420191940.D856@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Anton Altaparmakov <aia21@cantab.net>,
+	Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.2.20020420170907.06e87550@pop.cus.cam.ac.uk> <5.1.0.14.2.20020420174422.00ad1390@pop.cus.cam.ac.uk> <E16ybpZ-0000V4-00@starship>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Apr 19, 2002 at 07:05:52PM +0200, Daniel Phillips wrote:
+ > > The fact that some developers use bitkeeper has no effect on other 
+ > > developers.
+ > On the contrary, I think it has divided the kernel developers firmly into
+ > two classes: the "ins" and the "outs".
 
-Jeff Garzik wrote:
+Care to back that up with numbers ? Take another look at the statistics
+Larry posted after the 2.5.8 merge. ISTR pretty much a 50/50 split of
+bk merges and regular GNU patches.  Whilst a large proportion of the gnu
+patches were from the largish sync I did, this ratio seems to be holding
+up over every release.
 
-> Daniel disagrees with the content of the speech in
-> Documentation/BK-usage, based on his ideology.  And he attempted to
-> restrict the dissemination of that speech.  What is the definition
-> of censorship again?
+ > Oh I don't disagree at all.  Bitkeeper is a big improvement over what
+ > existed before.  But it is proprietary.  Which other tool in the tool chain
+ > is proprietary?
 
-Maybe I was to subtle, but your censorship argument is simply bullshit.
-A link to the information is completely sufficient. The only question
-is, whether the information is relevant for kernel development and most
-of it is only bk documentation.
+Film at 11: proprietory tool used in Linux.
+Maybe we should back out all those fixes the Stanford people found with
+their checker ? Maybe we should back out the x86-64 port seeing as it
+was (partly) done with a commercial simulator?
 
-bye, Roman
+ > > I don't see why there should be any kind of split or anything like that. 
+ > > Everything continues as before. It's just that some developers now have a 
+ > > much easier life...
+ > And some have a more difficult one.  So it goes.
+
+You've not pointed out where this difficulty is yet. Apart from
+developers having to wade through this same discussion every third week.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

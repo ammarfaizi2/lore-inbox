@@ -1,76 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262029AbVADAdO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262043AbVADAdH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262029AbVADAdO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 19:33:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbVADAaF
+	id S262043AbVADAdH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 19:33:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262017AbVADAab
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 19:30:05 -0500
-Received: from jubilee.implode.net ([64.40.108.188]:21378 "EHLO
-	jubilee.implode.net") by vger.kernel.org with ESMTP id S262044AbVADA1y
+	Mon, 3 Jan 2005 19:30:31 -0500
+Received: from terminus.zytor.com ([209.128.68.124]:10147 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S262012AbVADAZs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 19:27:54 -0500
-Date: Mon, 3 Jan 2005 16:27:49 -0800
-From: John Wong <kernel@implode.net>
-To: Joel Cant <lkml@linuxmod.co.uk>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: Promise IDE DMA issue
-Message-ID: <20050104002749.GA10025@gambit.implode.net>
-References: <20050102173704.GA14056@gambit.implode.net> <41D9885B.9090304@pobox.com> <20050103215250.GA9409@gambit.implode.net> <41D9C5C2.5010606@linuxmod.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41D9C5C2.5010606@linuxmod.co.uk>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 3 Jan 2005 19:25:48 -0500
+Message-ID: <41D9E23A.4010608@zytor.com>
+Date: Mon, 03 Jan 2005 16:24:26 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: tridge@samba.org
+CC: Michael B Allen <mba2000@ioplex.com>, sfrench@samba.org,
+       linux-ntfs-dev@lists.sourceforge.net, samba-technical@lists.samba.org,
+       aia21@cantab.net, hirofumi@mail.parknet.co.jp,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: FAT, NTFS, CIFS and DOS attributes
+References: <41D9C635.1090703@zytor.com>	<54479.199.43.32.68.1104794772.squirrel@li4-142.members.linode.com>	<41D9D65D.7050001@zytor.com> <16857.57572.25294.431752@samba.org>
+In-Reply-To: <16857.57572.25294.431752@samba.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 03, 2005 at 10:22:58PM +0000, Joel Cant wrote:
-> John Wong wrote:
+tridge@samba.org wrote:
 > 
-> >Latest 1.009 BIOS flashed last night.  I'll try out some BIOS settings, 
-> >but the settings work fine with Windows XP.  That's why I think it could 
-> >be something with the driver.  This is with the PDC202XX_NEW on kernel 
-> >2.6.10  The DMA timeout happens sporadically, but as of yet, has yet to
-> >reoccur.  The change from 1.008 to 1.009 mentions nothing about the
-> >Promide IDE.  
-> >
-> >John
-> >
-> >On Mon, Jan 03, 2005 at 01:00:59PM -0500, Jeff Garzik wrote:
-> > 
-> >
-> >>John Wong wrote:
-> >>   
-> >>
-> >>>I recently upgraded fron a nVidia nForce2 MCP-T based A7NX-DX
-> >>>motherboard to an A8V DX, Via K8T800 Pro.  Now occassionally, I get 
-> >>>DMA issues on a drive attached to a Promise 133 TX2 controller (20269).
-> >>>     
-> >>>
-> >>I would try fiddling with BIOS settings, and make sure you have the 
-> >>latest BIOS.
-> >>
-> >>	Jeff
-> >>
-> >>
-> >>
-> >>
-> >>   
-> >>
-> Sounds simlar to the problems i'm having with the channels resetting 
-> under heavy load, and then fudging DMA, and i'm not the only one havign 
-> these issues, seems its a common problem with these cards, not sure if 
-> theres been some slight changes in the chip itself or wether there is a 
-> fault with the kernel driver, as you say, it seems that the problem does 
-> not occour under windows.
+> We use the following xattrs in Samba4:
 > 
-> Joel
+>  user.DosAttrib     : structure holding basic non-privileged attribute information
+>  user.DosEAs        : all the DOS (OS/2) style EAs
+>  user.DosStreams    : list of alternate data steams, flagged as internal or external
+>  user.DosStream.name: the stream data itself for internal streams
+>  security.NTACL     : the NT ACL
+> 
+> the rationale for making most of them in the user namespace is that it
+> is 'mostly harmless' to allow the owner of the file to change those
+> ones.
+ >
 
-Before my motherboard upgrade, the Promise 133TX2 used to be a 100TX2.  
-I didn't have this problem then, but then, I also had more PCI buses 
-then according to the outputs of lspci.
+Right, it's the "design is broken so everything ends up in user.*". 
+Now, I clearly dislike the StudlyCaps used here, but if it's already 
+deployed it's probably too late to fix this :(
 
-The DMA problem does only appear to happen with me under load as well,
-torrenting to one drive, and probably updatedb on another.
+Does Samba have any way do deal with VFAT short names?
 
-John
+	-hpa
+
+

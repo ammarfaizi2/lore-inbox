@@ -1,110 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262620AbUKQW7m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262594AbUKQW7m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262620AbUKQW7m (ORCPT <rfc822;willy@w.ods.org>);
+	id S262594AbUKQW7m (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 17 Nov 2004 17:59:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262632AbUKQW7C
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262669AbUKQW5C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 17:59:02 -0500
-Received: from wproxy.gmail.com ([64.233.184.201]:7371 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262620AbUKQWyV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 17:54:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=gosUIWTOw5vIKGT7h7uCUPNSwIZa/hjcDsVWUPCGex282EB2xqCC2io2c8t/3ZKJM3+BNwEDiPD+vs1uFbl7Uve9OsaU4eo7HwBR5u2zyXRqei4Yp9UnbJOqMwHuWeuyUD7d7aJ8AmQw7JK7SPKTlFEs4y7R0Bek57HOvNRNyWk=
-Message-ID: <58cb370e04111714541a0aebc@mail.gmail.com>
-Date: Wed, 17 Nov 2004 23:54:20 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: Nasty log spamming problem in ide proc changes
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org
-In-Reply-To: <20041111161021.GB9129@suse.de>
+	Wed, 17 Nov 2004 17:57:02 -0500
+Received: from almesberger.net ([63.105.73.238]:8465 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S262643AbUKQW4E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 17:56:04 -0500
+Date: Wed, 17 Nov 2004 19:54:17 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andrea Arcangeli <andrea@novell.com>, Jesse Barnes <jbarnes@sgi.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Andrew Morton <akpm@osdl.org>, Nick Piggin <piggin@cyberone.com.au>,
+       LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+       Chris Ross <chris@tebibyte.org>
+Subject: Re: [PATCH] Remove OOM killer from try_to_free_pages / all_unreclaimable braindamage
+Message-ID: <20041117195417.A3289@almesberger.net>
+References: <20041105200118.GA20321@logos.cnet> <200411051532.51150.jbarnes@sgi.com> <20041106012018.GT8229@dualathlon.random> <1099706150.2810.147.camel@thomas>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <200411012006.iA1K6HR7010518@hera.kernel.org>
-	 <1100184927.22254.22.camel@localhost.localdomain>
-	 <20041111161021.GB9129@suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1099706150.2810.147.camel@thomas>; from tglx@linutronix.de on Sat, Nov 06, 2004 at 02:55:50AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Nov 2004 17:10:21 +0100, Jens Axboe <axboe@suse.de> wrote:
-> On Thu, Nov 11 2004, Alan Cox wrote:
-> > > +   printk(KERN_WARNING "Warning: /proc/ide/hd?/settings interface is "
-> > > +                       "obsolete, and will be removed soon!\n");
-> > > +
-> >
-> > The above should be rate limited or on the write case moved to after
-> > the capable() check. A program polling these settings now makes a nasty
-> > noise and wipes the logs. A user can also do it intentionally.
-> 
-> Or just print it once...
+Entering an old discussion ...
 
-I'm about to add this to ide-2.6...
+Thomas Gleixner wrote:
+> context in which oom-killer is called. My concern is that the decision
+> critrion which process should be killed is not sufficient. In my case it
+> kills sshd instead of a process which forks a bunch of child processes.
 
-[ide] fix /proc/ide/hd?/settings to not spam logs
+It recently occurred to me that we could have relatively light-weight
+voluntary victimization for known trouble-makers. E.g. in a desktop
+environment, the cause for trouble seems to be almost always the Web
+browser, or something closely related to it.
 
-On Thu, 11 Nov 2004 17:10:21 +0100, Jens Axboe <axboe@suse.de> wrote:
-> On Thu, Nov 11 2004, Alan Cox wrote:
-> > > +   printk(KERN_WARNING "Warning: /proc/ide/hd?/settings interface is "
-> > > +                       "obsolete, and will be removed soon!\n");
-> > > +
-> >
-> > The above should be rate limited or on the write case moved to after
-> > the capable() check. A program polling these settings now makes a nasty
-> > noise and wipes the logs. A user can also do it intentionally.
-> 
-> Or just print it once...
+A process could declare itself as usual suspect. This would then be
+recorded as a per-task flag, to be inherited by children. Now, one
+could write a launcher like this:
 
-Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+int main(int argc,char **argv)
+{
+    if (argc < 2) {
+	fprintf(stderr,"usage: %s command [arguments...]\n",*argv);
+	return 1;
+    }
+    sys_suspect_me();
+    execvp(argv[1],argv+1);
+    perror(argv[1]);
+    return 1;
+}
 
-diff -Nru a/drivers/ide/ide-proc.c b/drivers/ide/ide-proc.c
---- a/drivers/ide/ide-proc.c	2004-11-17 23:56:13 +01:00
-+++ b/drivers/ide/ide-proc.c	2004-11-17 23:56:13 +01:00
-@@ -124,6 +124,18 @@
- 	PROC_IDE_READ_RETURN(page,start,off,count,eof,len);
- }
- 
-+static void proc_ide_settings_warn(void)
-+{
-+	static int warned = 0;
-+
-+	if (warned)
-+		return;
-+
-+	printk(KERN_WARNING "Warning: /proc/ide/hd?/settings interface is "
-+			    "obsolete, and will be removed soon!\n");
-+	warned = 1;
-+}
-+
- static int proc_ide_read_settings
- 	(char *page, char **start, off_t off, int count, int *eof, void *data)
- {
-@@ -132,8 +144,7 @@
- 	char		*out = page;
- 	int		len, rc, mul_factor, div_factor;
- 
--	printk(KERN_WARNING "Warning: /proc/ide/hd?/settings interface is "
--			    "obsolete, and will be removed soon!\n");
-+	proc_ide_settings_warn();
- 
- 	down(&ide_setting_sem);
- 	out += sprintf(out, "name\t\t\tvalue\t\tmin\t\tmax\t\tmode\n");
-@@ -171,11 +182,10 @@
- 	ide_settings_t	*setting;
- 	char *buf, *s;
- 
--	printk(KERN_WARNING "Warning: /proc/ide/hd?/settings interface is "
--			    "obsolete, and will be removed soon!\n");
--
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EACCES;
-+
-+	proc_ide_settings_warn();
- 
- 	if (count >= PAGE_SIZE)
- 		return -EINVAL;
+And then something like
+
+# mv /usr/bin/browser /usr/bin/browser.bin
+# echo '#!/bin/sh' >/usr/bin/browser
+# echo 'suspect_me /usr/bin/browser.bin "$@"' >>/usr/bin/browser
+# chmod 555 /usr/bin/browser
+
+or use an alias if you like your packet manager.
+
+Not sure if this would actually be useful in real life, but it looks
+at least like a relatively simple and flexible solution to a part of
+the selection problem.
+
+One could even consider getting rid of the suspects a while before
+hitting OOM, so that the system doesn't have to slow down before the
+inevitable killing.
+
+Not that'm getting many OOMs these days - my VNC setup is quite good
+at dying well before anything serious turns up :-(
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

@@ -1,52 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269007AbUI2Ukt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269032AbUI2UnH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269007AbUI2Ukt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 16:40:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269048AbUI2Ui4
+	id S269032AbUI2UnH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 16:43:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269026AbUI2UnF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 16:38:56 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:56450 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269007AbUI2UeH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 16:34:07 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm4-S7
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, "K.R. Foley" <kr@cybsft.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-In-Reply-To: <20040929203056.GA7707@elte.hu>
-References: <20040919122618.GA24982@elte.hu> <414F8CFB.3030901@cybsft.com>
-	 <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu>
-	 <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu>
-	 <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu>
-	 <20040928000516.GA3096@elte.hu> <1096483257.1600.44.camel@krustophenia.net>
-	 <20040929203056.GA7707@elte.hu>
-Content-Type: text/plain
-Message-Id: <1096490043.15983.2.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 29 Sep 2004 16:34:04 -0400
+	Wed, 29 Sep 2004 16:43:05 -0400
+Received: from c7ns3.center7.com ([216.250.142.14]:39917 "EHLO
+	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
+	id S269032AbUI2Uim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 16:38:42 -0400
+Message-ID: <415B152A.2010008@drdos.com>
+Date: Wed, 29 Sep 2004 14:03:54 -0600
+From: "Jeff V. Merkey" <jmerkey@drdos.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: jonathan@jonmasters.org
+Cc: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Robert Love <rml@novell.com>, Ankit Jain <ankitjain1580@yahoo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: processor affinity
+References: <20040928122517.9741.qmail@web52907.mail.yahoo.com>	 <41596F7F.1000905@drdos.com>	 <1096387088.4911.4.camel@betsy.boston.ximian.com>	 <41598B23.50702@drdos.com>	 <1096408318.13983.47.camel@localhost.localdomain>	 <415AE953.3070105@drdos.com> <20040929184510.A15692@infradead.org>	 <415B0BFA.6050203@drdos.com>	 <35fb2e5904092913081a802944@mail.gmail.com>	 <415B1064.1080302@drdos.com> <35fb2e590409291328458ebebd@mail.gmail.com>
+In-Reply-To: <35fb2e590409291328458ebebd@mail.gmail.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-29 at 16:30, Ingo Molnar wrote:
->  > 
-> > >   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm4-S7
-> > 
-> > Disabling latency tracing does not seem to work.  To demonstrate:
+Jon Masters wrote:
 
-> is it the full modprobe latency trace, or just the header?  Putting zero
-> into trace_enabled wont disable the critical-section-timing code - it
-> only disables the function tracer. Since /proc/latency_trace takes the
-> header portion from the latency-timing code that might change. To
-> disable both do something like:
-> 
->   echo 100000000 > /proc/sys/kernel/preempt_max_latency
->   echo 0 > /proc/sys/kernel/trace_enabled
+>On Wed, 29 Sep 2004 13:43:32 -0600, Jeff V. Merkey <jmerkey@drdos.com> wrote:
+>
+>  
+>
+>>Since they are hiring as many top Linux folks as possible, and they have
+>>invested their entire future in Linux, I think their actions speak so loud,
+>>    
+>>
+>
+>I only asked because I'd not heard of an official patent position from
+>them (but I've not looked) and I wondered if someone happened to know
+>- words are completely meaningless.
+>
+><snip>
+>
+>Wow, tha'ts one bitter mail you sent. Sorry to hear about it but I'd
+>rather not start a general discussion about big business practices and
+>Novell - just interested in the patent situation.
+>
+>Jon.
+>
+>  
+>
+Just letting you have a little insight into what their position might 
+be. It's not bitter, it's
+factual, and I got over Novell a long time ago. They will probably 
+ignore you for now, but
+in the future, if Linux contains IP from sources they consider theirs, 
+it would be possible
+for them to shut out competitors without a license from them. Not only 
+on this topic, but
+any other area their employees have contributed for which they hold 
+patents. This case may
+be a special one, but anytime you use patented materials are even areas 
+where there is a doubt
+there is exposure. I have a release from them and I can use any IP I 
+retained in a non-tangible
+form that would have been theirs. So I can use this patent without 
+concern of infringement
+claims. But since I did not instrument the affinity code in Linux, it's 
+not protected this way.
+NWFS is protected this way and people can use it without fear of claims 
+from Novell.
 
-OK, thanks for clarifying.
-
-Lee
-
-
+Jeff

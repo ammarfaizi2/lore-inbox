@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262392AbSKCVE4>; Sun, 3 Nov 2002 16:04:56 -0500
+	id <S262482AbSKCVFj>; Sun, 3 Nov 2002 16:05:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262415AbSKCVE4>; Sun, 3 Nov 2002 16:04:56 -0500
-Received: from vsmtp2.tin.it ([212.216.176.222]:40937 "EHLO smtp2.cp.tin.it")
-	by vger.kernel.org with ESMTP id <S262392AbSKCVEz>;
-	Sun, 3 Nov 2002 16:04:55 -0500
-Message-ID: <3DB5E7CA00439C7E@smtp2.cp.tin.it> (added by postmaster@virgilio.it)
-Content-Type: text/plain; charset=US-ASCII
-From: Flavio Stanchina <flavio.stanchina@tin.it>
-Organization: not at all
-To: nwourms@netscape.net, linux-kernel@vger.kernel.org
-Subject: Re: Petition against kernel configuration options madness...
-Date: Sun, 3 Nov 2002 22:11:21 +0100
-X-Mailer: KMail [version 1.3.2]
-References: <200211031809.45079.josh@stack.nl> <aq41b9$dt9$1@main.gmane.org>
-In-Reply-To: <aq41b9$dt9$1@main.gmane.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S262491AbSKCVFj>; Sun, 3 Nov 2002 16:05:39 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:54926 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262482AbSKCVFh>; Sun, 3 Nov 2002 16:05:37 -0500
+Subject: Re: swsusp: don't eat ide disks
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: benh@kernel.crashing.org, Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021103201251.GE27271@elf.ucw.cz>
+References: <200211022006.gA2K6XW08545@devserv.devel.redhat.com>
+	<20021103145735.14872@smtp.wanadoo.fr>
+	<1036340733.29642.41.camel@irongate.swansea.linux.org.uk> 
+	<20021103201251.GE27271@elf.ucw.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Nov 2002 21:33:27 +0000
+Message-Id: <1036359207.30629.31.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 03 November 2002 21:38, Nicholas Wourms wrote:
+On Sun, 2002-11-03 at 20:12, Pavel Machek wrote:
+> > 		Throw out the pages we can evict
+> 
+> ...DMA from disk may be still running here...
 
-> Stop whining, 2.5 kernels are development kernels -> not *expected* to
-> work %100!
+Only if a request is still active and therfore the queue is not quiesced
 
-Correct me if I'm wrong, but we're here to work out the problems. That's 
-one of the major meanings of "development", in my experience.
+> ...and at resume you find out that your memory is not consistent
+> because DMA was still running when you were doing copy.
 
-I was bitten too: I loaded my 2.4.19 configuration and looked through most 
-options, but I overlooked this keyboard/mouse thing. I think it's not 
-turned on by default if you load an existing configuration, which is 
-probably not what we want.
+I can see how that can be a problem for some other things but not block
+devices.
 
--- 
-Ciao,
-    Flavio Stanchina
-    Trento - Italy
-
-Information is not knowledge. Knowledge is not wisdom.
-Wisdom is not truth. Truth is not beauty. Beauty is not love.
-Love is not music. Music is the best.
--- Frank Zappa

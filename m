@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262384AbSLJPt4>; Tue, 10 Dec 2002 10:49:56 -0500
+	id <S262380AbSLJPsz>; Tue, 10 Dec 2002 10:48:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262415AbSLJPt4>; Tue, 10 Dec 2002 10:49:56 -0500
-Received: from blackbird.intercode.com.au ([203.32.101.10]:7949 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id <S262384AbSLJPtz>; Tue, 10 Dec 2002 10:49:55 -0500
-Date: Wed, 11 Dec 2002 02:57:32 +1100 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Stelian Pop <stelian.pop@fr.alcove.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S262384AbSLJPsz>; Tue, 10 Dec 2002 10:48:55 -0500
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:35793 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S262380AbSLJPsy>; Tue, 10 Dec 2002 10:48:54 -0500
+Date: Tue, 10 Dec 2002 16:56:32 +0100
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: James Morris <jmorris@intercode.com.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: 2.2 networking, NET_BH latency
-In-Reply-To: <20021210155632.GC23479@laguna.alcove-fr>
-Message-ID: <Mutt.LNX.4.44.0212110257180.1749-100000@blackbird.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20021210155632.GC23479@laguna.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	James Morris <jmorris@intercode.com.au>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20021210153134.GB23479@laguna.alcove-fr> <Mutt.LNX.4.44.0212110245180.1678-100000@blackbird.intercode.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Mutt.LNX.4.44.0212110245180.1678-100000@blackbird.intercode.com.au>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Dec 2002, Stelian Pop wrote:
+On Wed, Dec 11, 2002 at 02:46:11AM +1100, James Morris wrote:
 
-> > Can you reproduce the problem with a vanilla 2.2.23 kernel?
+> On Tue, 10 Dec 2002, Stelian Pop wrote:
 > 
-> I didn't try yet, but it is on my list.
+> > I experience some odd behaviour when routing some network packets
+> > on a 2.2(.18) kernel (with Ingo's low latency patch in case it 
+> > matters).
+> > 
+> > Although there are probably bugs in the modifications we made
+> > (a network card driver, some tweaks in the network core to deal
+> > with several packet priorities etc), I'm not sure the behaviour
+> > is directly due to a bug in our modifications or some synchronisation
+> > issue we overlooked.
 > 
-> Should I interpret your message as some changes between 2.2.18 and 2.2.23
-> could be responsible for that behaviour or you are just shooting in the
-> dark ? :-)
-> 
+> Can you reproduce the problem with a vanilla 2.2.23 kernel?
 
-No.
+I didn't try yet, but it is on my list.
 
+Should I interpret your message as some changes between 2.2.18 and 2.2.23
+could be responsible for that behaviour or you are just shooting in the
+dark ? :-)
 
-- James
+Stelian.
 -- 
-James Morris
-<jmorris@intercode.com.au>
-
-
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270895AbTGPOxw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 10:53:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270897AbTGPOxw
+	id S270901AbTGPPA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 11:00:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270900AbTGPPA1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 10:53:52 -0400
-Received: from holomorphy.com ([66.224.33.161]:44770 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S270895AbTGPOxs (ORCPT
+	Wed, 16 Jul 2003 11:00:27 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:522 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S270898AbTGPPAW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 10:53:48 -0400
-Date: Wed, 16 Jul 2003 08:09:53 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.6.0-test1-mm1
-Message-ID: <20030716150953.GL15452@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Barry K. Nathan" <barryn@pobox.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20030715225608.0d3bff77.akpm@osdl.org> <20030716104448.GC25869@ip68-4-255-84.oc.oc.cox.net> <20030716035848.560674ac.akpm@osdl.org> <20030716122454.GJ15452@holomorphy.com> <20030716143221.GD25829@ip68-4-255-84.oc.oc.cox.net> <20030716144155.GK15452@holomorphy.com> <20030716150207.GE25829@ip68-4-255-84.oc.oc.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030716150207.GE25829@ip68-4-255-84.oc.oc.cox.net>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Wed, 16 Jul 2003 11:00:22 -0400
+Date: Wed, 16 Jul 2003 17:15:10 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Michael Dransfield <mike@blueroot.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: make xconfig segfaults, menuconfig fails
+In-Reply-To: <5.1.0.14.0.20030716141023.02753380@212.67.194.181>
+Message-ID: <Pine.LNX.4.44.0307161709230.717-100000@serv>
+References: <5.1.0.14.0.20030716141023.02753380@212.67.194.181>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 07:41:55AM -0700, William Lee Irwin III wrote:
->> Oh, well that won't fly; it effectively isn't a constant initializer.
->> I'll see what can be rammed past gcc. We're shooting for something
->> with array element 0 equal to 0x1UL and all others 0.
+Hi,
 
-On Wed, Jul 16, 2003 at 08:02:07AM -0700, Barry K. Nathan wrote:
-> BTW, following my e-mail signature in this message is my .config. I
-> guess the most notable setting is that CONFIG_SMP is disabled (i.e.,
-> it's a UP compile).
+On Wed, 16 Jul 2003, Michael Dransfield wrote:
 
-Hmm. Well, ditching the strong typechecking would "fix" it, though
-that's really only papering over it.
+> Typing 'make xconfig' segfaults - core dump can be sent if you need
 
-Okay, enough jabbering for me...
+Your xconfig output doesn't make any sense, it shouldn't start compiling, 
+did you really only 'make xconfig'?
+Anyway, a backtrace might be enough. ('gdb scripts/kconfig/qconf',
+'r arch/i386/Kconfig', 'bt')
 
+> 'make menuconfig' produces errors and fails (output attached)
 
--- wli
+You need to install the ncurses devel package.
+
+bye, Roman
+

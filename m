@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315708AbSETC2v>; Sun, 19 May 2002 22:28:51 -0400
+	id <S315717AbSETCj2>; Sun, 19 May 2002 22:39:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315711AbSETC2u>; Sun, 19 May 2002 22:28:50 -0400
-Received: from panda.sul.com.br ([200.219.150.4]:61201 "EHLO ns.sul.com.br")
-	by vger.kernel.org with ESMTP id <S315708AbSETC2u>;
-	Sun, 19 May 2002 22:28:50 -0400
-Date: Sun, 19 May 2002 14:28:18 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-        kernel-janitor-discuss@lists.sourceforge.net
-Subject: Re: AUDIT of 2.5.15 copy_to/from_user
-Message-ID: <20020519172818.GF6129@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-	kernel-janitor-discuss@lists.sourceforge.net
-In-Reply-To: <E179IA6-0002eQ-00@wagner.rustcorp.com.au> <20020519124818.GA5481@conectiva.com.br>
-Mime-Version: 1.0
+	id <S315721AbSETCj1>; Sun, 19 May 2002 22:39:27 -0400
+Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:57749 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S315717AbSETCj1>; Sun, 19 May 2002 22:39:27 -0400
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel
+In-Reply-To: <14957.1021688031@ocs3.intra.ocs.com.au>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 20 May 2002 11:38:44 +0900
+Message-ID: <buovg9j1r2j.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sun, May 19, 2002 at 09:48:18AM -0300, Arnaldo C. Melo escreveu:
-> Em Sun, May 19, 2002 at 02:18:53PM +1000, Rusty Russell escreveu:
-> > Some cases are endemic: whole subsystems or drivers where the author
-> > obviously thought copy_from_user follows the kernel conventions:
+Keith Owens <kaos@ocs.com.au> writes:
+> Since release 2.0 [1], kbuild 2.5 has been faster as well as more
+> accurate than the old build system.  A couple of people have complained
+> that some restricted operations are slower in kbuild 2.5 [2] but
+> overall it is faster
 
-Heads up: I'm fixing now the drivers/char ones...
+Yeah, but from your descriptions, it appears that the `restricted
+operations' where KB 2.5 is slower are perhaps the _most common_ case
+when debugging -- where you've change one or two source files and want
+to rebuild the kernel to reflect that.
 
-- Arnaldo
+-Miles
+-- 
+"I distrust a research person who is always obviously busy on a task."
+   --Robert Frosch, VP, GM Research

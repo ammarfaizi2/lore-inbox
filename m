@@ -1,65 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318247AbSGQJFW>; Wed, 17 Jul 2002 05:05:22 -0400
+	id <S318249AbSGQJJS>; Wed, 17 Jul 2002 05:09:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318248AbSGQJFV>; Wed, 17 Jul 2002 05:05:21 -0400
-Received: from mail4.ucc.ie ([143.239.1.34]:1804 "EHLO mail4.ucc.ie")
-	by vger.kernel.org with ESMTP id <S318247AbSGQJFU>;
-	Wed, 17 Jul 2002 05:05:20 -0400
-Message-ID: <9FBB394A25826C46B2C6F0EBDAD42755018E6E45@xch2.ucc.ie>
-From: "O'Riordan, Kevin" <K.ORiordan@ucc.ie>
-To: "'Joseph Wenninger'" <kernel@jowenn.at>, linux-kernel@vger.kernel.org
-Subject: RE: Problem with Via Rhine- Kernel 2.4.18
-Date: Wed, 17 Jul 2002 10:08:08 +0100
+	id <S318251AbSGQJJR>; Wed, 17 Jul 2002 05:09:17 -0400
+Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:11430 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S318249AbSGQJJQ>; Wed, 17 Jul 2002 05:09:16 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Arnd Bergmann <arnd@bergmann-dalldorf.de>
+To: Jesse Barnes <jbarnes@sgi.com>, Daniel Phillips <phillips@arcor.de>
+Subject: Re: spinlock assertion macros
+Date: Wed, 17 Jul 2002 13:09:08 +0200
+User-Agent: KMail/1.4.2
+Cc: linux-kernel@vger.kernel.org, kernel-janitor-discuss@lists.sourceforge.net
+References: <200207102128.g6ALS2416185@eng4.beaverton.ibm.com> <E17T4Qj-0002fN-00@starship> <20020717022213.GA734386@sgi.com>
+In-Reply-To: <20020717022213.GA734386@sgi.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207171309.08455.arnd@bergmann-dalldorf.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That's the exact same problem I'm having with my VT6102 chip, and apparently
-people are having with the VT86C100A. Roger Luethi posted a few patches back
-in May which fixed the problem and a new patch just a few days ago against
-2.4.19-rc1(and against 2.4.19-rc2 as well I'd say as the via-rhine driver
-hasn't changed between them). I'll forward that mail on to you.
+On Wednesday 17 July 2002 04:22, Jesse Barnes wrote:
+> files?  Anyway, I've got spinlock and rwlock versions of them below,
+> maybe they're useful enough to go in as a start?  I only coded the
+> ia64 version of rwlock_is_*_locked since it was easy--the i386
+> versions were a little intimidating...
+>
+> I thought Oliver's suggestion for tracking the order of spinlock
+> acquisition was good, hopefully someone will take a stab at it along
+> with Dave's FUNCTION_SLEEPS() implementation.
 
------Original Message-----
-From: Joseph Wenninger [mailto:kernel@jowenn.at] 
-Sent: 17 July 2002 09:35
-To: linux-kernel@vger.kernel.org
-Subject: Problem with Via Rhine- Kernel 2.4.18
+I suppose you can simplify your interface when the code tracking the lock 
+holder (i.e. the address of the lock call) is there: 
 
-Hi 
- 
-I'm new to the linux kernel, so please be patient. 
- 
-I have a P4 notebook with a via chipset and a mobile P4. In Windows XP my 
-built in network device works without problems. In linux the device hangs a 
-after some time of >90kB/s datatransfers. I have to completely reset my 
-notebook to get it working again 
- 
-I'm not sure if it is a hardware or a kernel problem. How can I debug this 
-to find out if it is a kernel bug and where it is ? 
- 
-I have to use pci=biosirq, otherwise the kernel warns me, that it can't 
-change the interupts for my devcies. 
- 
- 
-At bootup the device identifies itself as  
-via-rhine.c:v1.10-LK1.1.13  Nov-17-2001  Written by Donald Becker 
-  http://www.scyld.com/network/via-rhine.html 
-eth0: VIA VT6102 Rhine-II at 0xd000, 00:40:45:07:ba:06, IRQ 11. 
-eth0: MII PHY found at address 1, status 0x786d advertising 05e1 Link 0021. 
- 
-When it stops working I get a lot of messages like: 
-kernel eth0: Transmit timed out, status 0000, PHY status 786d, resetting... 
-kernel eth0: Reset did not  complete in 10ms. 
- 
-Another message I quite often get is: 
-mtrr: no more MTRRs available 
- 
- 
-I'm thankfull for any help 
- 
-Kind regards 
-Joseph Wenninger 
+#define MUST_HOLD(lock)		BUG_ON(!(lock)->holder)
+
+is independent of whether lock is a spinlock or an rw_lock, so you
+don't need MUST_HOLD_READ anymore. I'd even go as far as dropping 
+MUST_HOLD_WRITE as well, since it helps only in the corner case
+where the lock is held but only for reading.
+
+	Arnd <><

@@ -1,73 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261533AbTDKWLx (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 18:11:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261822AbTDKWLx (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 18:11:53 -0400
-Received: from siaag2ab.compuserve.com ([149.174.40.132]:61839 "EHLO
-	siaag2ab.compuserve.com") by vger.kernel.org with ESMTP
-	id S261533AbTDKWLw (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 18:11:52 -0400
-Date: Fri, 11 Apr 2003 18:21:36 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: kernel support for non-English user messages
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200304111823_MC3-1-3412-C273@compuserve.com>
+	id S261832AbTDKWPi (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 18:15:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbTDKWPi (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 18:15:38 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:33476 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261832AbTDKWPh convert rfc822-to-8bit 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 18:15:37 -0400
+Message-ID: <A46BBDB345A7D5118EC90002A5072C780BEBAAAD@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'Greg KH'" <greg@kroah.com>, "'oliver@neukum.name'" <oliver@neukum.name>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-hotplug-devel@lists.sourceforge.net'" 
+	<linux-hotplug-devel@lists.sourceforge.net>,
+       "'message-bus-list@redhat.com'" <message-bus-list@redhat.com>,
+       "'Daniel Stekloff'" <dsteklof@us.ibm.com>
+Subject: RE: [ANNOUNCE] udev 0.1 release
+Date: Fri, 11 Apr 2003 15:27:19 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> I thought you might be seriously in need of some mental evaluation
-> when you claimed that users "liked looking up error numbers in
-> manuals".
 
+> From: Greg KH [mailto:greg@kroah.com]
+>
+> But I can do a lot to prevent losses.  A lot of people around here point
+> to the old way PTX used to regenerate the device naming database on the
+> fly.  We could do that by periodically scanning sysfs to make sure we
+> are keeping /dev in sync with what the system has physically present.
+> That's one way, I'm sure there are others.
 
- Not the looking up part, but that fact that the explanation
-for every single message the software could emit was available.
+This might be a tad over-simplification, but sysfs knows by heart when
+anything
+is modified, because it goes through it's interface. If we only care about,
+for example, devices, we could hook up into device_create() [was this the
+name?];
+line up in a queue all the devices for which an plug/unplug event hasn't
+been
+delivered to user space and create symlinks in /sysfs/hotplug-events/. 
 
- Today it's all HTML documents or PDFs or something, but it's still
-a staggering amount of information.  I have ~300MB of Oracle
-documentation on one desktop, 6 of it server error messages alone.
-Every possible message is explained to some extent, except this one:
+Each entry in there is a symlink to the new device directory, named with an 
+increasing integer for easy serialization. When the event is fully
+processed, 
+remove the entry from user space.
 
+To avoid having to scan huge directories, it could be moved to have a single
+file, event. When present, it means there are events available. It
+represents
+the head of the in-kernel event queue. Read it [or read the symlink] for
+getting
+the event information. If you remove it, that means the event is delivered.
+If there is an event in the queue, the file is created again for that event.
 
------------------------------------------------------------------------
-ORA-00600 internal error code, arguments: [string], [string], [string],
-                   [string], [string], [string], [string], [string]
+Enhance it by creating another file for out-of-band events if needed ...
 
-Cause: This is the generic internal error number for Oracle program
-exceptions. It indicates that a process has encountered a low-level,
-unexpected condition.
-<SNIP>
-The first argument is the internal message number. Other arguments
-are various numbers, names, and character strings. The numbers may
-change meanings between different versions of Oracle. 
-
-Action: Report this error to Oracle Customer Support after gathering
-the following information:
-<SNIP>
-Note: The cause of this message may manifest itself as different errors
-at different times. Be aware of the history of errors that occurred
-before this internal error. 
------------------------------------------------------------------------
-
-
-which is currently pretty much the only explanation available for
-a whole lot of Linux error messages. I can go read the source when e.g.
-the md driver splats its internal status dumps all over the console
-during array rebuild, but that doesn't help much.
-
-
-> Whee. April first is long gone, but the jokers stay around.
-
-
- Our kind knows no season.
-
-
---
- "Let's fight till six, and then have dinner," said Tweedledum.
-  --Lewis Carroll, _Through the Looking Glass_
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+(and my fault)

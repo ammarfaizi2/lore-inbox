@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262249AbSJKAsC>; Thu, 10 Oct 2002 20:48:02 -0400
+	id <S262256AbSJKAsU>; Thu, 10 Oct 2002 20:48:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262250AbSJKAsC>; Thu, 10 Oct 2002 20:48:02 -0400
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:33776 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S262249AbSJKAsB>;
-	Thu, 10 Oct 2002 20:48:01 -0400
-Date: Thu, 10 Oct 2002 20:53:38 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Looking for testers with these NICs
-Message-ID: <20021011005338.GA1067@www.kroptech.com>
-References: <200210091637.g99Gbmp30784@Port.imtp.ilyichevsk.odessa.ua> <20021009171452.GA9682@www.kroptech.com> <200210091744.g99HiKp31184@Port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210091744.g99HiKp31184@Port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.3.28i
+	id <S262261AbSJKAsU>; Thu, 10 Oct 2002 20:48:20 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:4338 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262256AbSJKAsS>;
+	Thu, 10 Oct 2002 20:48:18 -0400
+Message-ID: <3DA62120.9070609@us.ibm.com>
+Date: Thu, 10 Oct 2002 17:53:52 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Doug Ledford <dledford@redhat.com>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       Patrick Mansfield <patmans@us.ibm.com>, Andrew Morton <akpm@digeo.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Degraded I/O performance, since 2.5.41
+References: <Pine.LNX.4.44.0210092015170.9790-100000@home.transmeta.com> <3DA61041.9080808@us.ibm.com> <20021011004227.GA27073@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 09, 2002 at 08:37:48PM -0200, Denis Vlasenko wrote:
-> On 9 October 2002 15:14, Adam Kropelin wrote:
-> > On Wed, Oct 09, 2002 at 07:31:17PM -0200, Denis Vlasenko wrote:
-> > > ewrk3.c
-> >
-> > I've got a few of these laying around. Send whatever patches you want
-> > tested and I'll give it a shot.
-> 
-> Please do your best in trying to break it, especially since you say you have
-> more than one. Can you plug them all in one box?
-> 
-> I'd suggest SMP/preempt heavy IO. Is there stress test software for NICs?
+Doug Ledford wrote:
+> I  try to keep the drivers working
+> at a basic level, but until I'm done, benchmarking is pretty much a waste
+> of time I think)
 
-I've finished beating the heck out of this driver. Over 12 hours of pounding
-simultaneously on three NICs in a 2x SMP box running with preempt enabled and
-not a single oops, BUG(), or deadlock. I'd say the driver is pretty solid at
-this point; vda's locking patches seem to be safe. 
+Benchmarking is integral in what we're doing right now.  We need to 
+make quick decisions about what is good or bad before the freeze. 
+This patch makes my machine unusable for anything that isn't in the 
+pagecache.  A simple "make oldconfig" on a cold tree takes minutes to 
+complete.  My grep test got an order of magnitude worse.  If we have 
+to keep this code, can we just make the default queue HUGE for now? 
+Will that work around it?
 
-As a sidenote, the max throughput I was able to achieve across three cards was
-about 1.4 MBytes/sec. A single card could do about 800 KBytes sec; 2 together
-got to 1.2 MBytes/sec. Heavy CPU utilization the whole way, of course, since
-these cards do not use DMA. 
+A bunch of the AIO people use QLogic cards, which I'm sure are broken 
+by this as well.  I'm going to back this patch out for all the testing 
+trees I do, and I suggest anyone who cares about I/O on SCSI 
+(excluding aic7xxx) after 2.5.41 do the same.
 
---Adam
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 

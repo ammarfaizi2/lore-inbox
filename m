@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262329AbUHBTZg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262730AbUHBT0z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262329AbUHBTZg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 15:25:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262391AbUHBTZg
+	id S262730AbUHBT0z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 15:26:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262391AbUHBT0y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 15:25:36 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:55476 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262329AbUHBTZe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 15:25:34 -0400
-Subject: Re: finding out the boot cpu number from userspace
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: jmoyer@redhat.com, Arjan van de Ven <arjanv@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <35890000.1091472541@[10.10.2.4]>
-References: <20040802121635.GE14477@devserv.devel.redhat.com>
-	 <12690000.1091461852@[10.10.2.4]>
-	 <16654.29342.977105.723775@segfault.boston.redhat.com>
-	 <30660000.1091467382@[10.10.2.4]>
-	 <1091468548.810.3.camel@localhost.localdomain>
-	 <35890000.1091472541@[10.10.2.4]>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1091470979.857.7.camel@localhost.localdomain>
+	Mon, 2 Aug 2004 15:26:54 -0400
+Received: from mail.tmr.com ([216.238.38.203]:56327 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S262574AbUHBT0o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 15:26:44 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: [ANNOUNCE] OpenSSI 1.0.0 released!!
+Date: Mon, 02 Aug 2004 15:29:55 -0400
+Organization: TMR Associates, Inc
+Message-ID: <cem46u$hdp$1@gatekeeper.tmr.com>
+References: <410B80BC.4060100@hp.com><410B80BC.4060100@hp.com> <410BAF70.7010205@backtobasicsmgmt.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 02 Aug 2004 19:23:00 +0100
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1091474462 17849 192.168.12.100 (2 Aug 2004 19:21:02 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040608
+X-Accept-Language: en-us, en
+In-Reply-To: <410BAF70.7010205@backtobasicsmgmt.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-08-02 at 19:49, Martin J. Bligh wrote:
-> Ah, OK didn't know that ... however, I'm not convinced that panicing is 
-> really that useful ... what happens if you proceed? IIRC, this is before 
-> console_init as well, so people won't even see the error. At least it 
-> should only do that on machines that are borked in such a fashion - 99% of 
-> machines will work fine, AFAICS.
+Kevin P. Fleming wrote:
+> Aneesh Kumar K.V wrote:
+> 
+>> 5. Devices
+>>   * there is a clusterwide device model via the devfs code
+> 
+> 
+> Yeah, that's we want, take buggy, unreliable, 
+> soon-to-be-removed-from-mainline code and put an entire clustering layer 
+> on top of it. Too bad someone is going to need to completely reimplement 
+> this "clusterwide device model".
 
-The APM power off one is actually very common. Another one the ACPI guys
-are now fighting that we also hit with SMM is E750x systems, where both
-SMM traps and ACPI appear only to work on the boot CPU.
+Has someone said that devfs was going to be removed from 2.4? Or are you 
+confusing 2.4 and 2.6 in addition to being nasty and argumentative about 
+one nit in a very large project.
 
-The panic at least made sure that we didnt end up with random mysterious
-later problems that would be "fun" to debug.
+I assume it will be changed in 2.6, if you want to criticise you left 
+off the name of the existing feature in 2.4 which should have been used 
+instead.
 
-(Note btw we sometimes care that kexec runs the new boot code on the
-right processor because the 16bit entry points for some things also use
-SMM traps on certain bioses in order to get a clean entry/stack/etc)
-
-
-Alan
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

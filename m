@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270929AbTGVRey (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 13:34:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270932AbTGVRey
+	id S270967AbTGVRqV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 13:46:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270968AbTGVRqV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 13:34:54 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:20352 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S270929AbTGVRex
+	Tue, 22 Jul 2003 13:46:21 -0400
+Received: from nouse194035.ris.at ([212.52.194.36]:54744 "EHLO
+	mail.gibraltar.at") by vger.kernel.org with ESMTP id S270967AbTGVRqT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 13:34:53 -0400
-Date: Tue, 22 Jul 2003 13:50:20 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: Jamie Lokier <jamie@shareable.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: asm (lidt) question
-In-Reply-To: <Pine.LNX.4.55.0307221021130.1372@bigblue.dev.mcafeelabs.com>
-Message-ID: <Pine.LNX.4.53.0307221347400.2199@chaos>
-References: <20030717152819.66cfdbaf.rddunlap@osdl.org>
- <Pine.LNX.4.55.0307171535020.4845@bigblue.dev.mcafeelabs.com>
- <Pine.LNX.4.55.0307171615580.4845@bigblue.dev.mcafeelabs.com>
- <20030722172722.GC3267@mail.jlokier.co.uk> <Pine.LNX.4.55.0307221021130.1372@bigblue.dev.mcafeelabs.com>
+	Tue, 22 Jul 2003 13:46:19 -0400
+Message-ID: <3F1D7C80.6020605@gibraltar.at>
+Date: Tue, 22 Jul 2003 20:03:44 +0200
+From: Rene Mayrhofer <rene.mayrhofer@gibraltar.at>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.3.1-3 StumbleUpon/1.73
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jason Baron <jbaron@redhat.com>, vda@port.imtp.ilyichevsk.odessa.ua,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: pivot_root seems to be broken in 2.4.21-ac4
+References: <Pine.LNX.4.44.0307221331090.2754-100000@dhcp64-178.boston.redhat.com> <1058895650.4161.23.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1058895650.4161.23.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Jul 2003, Davide Libenzi wrote:
+Hi Alan,
 
-> On Tue, 22 Jul 2003, Jamie Lokier wrote:
->
-> > Davide Libenzi wrote:
-> > > IMHO, since "var" is really an output parameter.
-> >
-> > "var" is read, not written.
-> > I think you are confusing "lidt" with "sidt".
->
-> Actually I don't even know what I was confusing, since L and S are not
-> there for nothing ;) And yes, the form with =m as input parameter should
-> be corrected, even if it generates the same code.
->
->
->
-> - Davide
+Alan Cox wrote:
+> Shouldnt really have changed anything except for security exploits and
+> threaded apps doing weird stuff. In normal situations the files count is
+> one so we should actually be executing nothing more exciting that an
+> atomic_inc/atomic_dec.
+> 
+> I wonder what is going on here.
+If it is not expected behaviour that the kernel processes no longer 
+close their fds open an pivot_root, then I'd like to debug this (is my 
+use of pivot_root correct or am I doing something wrong here ?). I will 
+try with vanilla 2.4.21 now and see how that goes (or should I rather 
+try 2.4.22-pre7 ?).
+However, I'd like to use your tree on that machine because of the 
+support for VIA chipsets (it's a VIA EPIA M-6000).
 
-LIDT is "load interrupt descriptor table". SIDT is "store interrupt
-descriptor table". Only SIDT modifies memory. LIDT reads from memory
-and puts the result into a special CPU register, therefore doesn't
-modify memory.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+Thanks for the notice that it should not have changed,
+Rene
 

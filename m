@@ -1,114 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262983AbUDEB0f (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 21:26:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262995AbUDEB0f
+	id S263004AbUDEBe2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 21:34:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263006AbUDEBe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 21:26:35 -0400
-Received: from pool-162-83-168-144.ny5030.east.verizon.net ([162.83.168.144]:16349
-	"EHLO mail.blazebox.homeip.net") by vger.kernel.org with ESMTP
-	id S262983AbUDEB0b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 21:26:31 -0400
-Message-ID: <32837.192.168.0.250.1081128344.squirrel@192.168.0.250>
-In-Reply-To: <1081121682.2585.30.camel@lade.trondhjem.org>
-References: <32948.192.168.0.250.1081041322.squirrel@192.168.0.250>
-    <1081121682.2585.30.camel@lade.trondhjem.org>
-Date: Sun, 4 Apr 2004 21:25:44 -0400 (EDT)
-Subject: Re: 2.6.5-rc3-mm4
-From: "Paul Blazejowski" <paulb@blazebox.homeip.net>
-To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
-Cc: "Andrew Morton" <akpm@osdl.org>, "LKML" <linux-kernel@vger.kernel.org>
-User-Agent: SquirrelMail/1.5.1 [CVS]
+	Sun, 4 Apr 2004 21:34:28 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26295 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263004AbUDEBeZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Apr 2004 21:34:25 -0400
+Message-ID: <4070B794.2070907@pobox.com>
+Date: Sun, 04 Apr 2004 21:34:12 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/mixed;boundary="----=_20040404212544_54943"
-X-Priority: 3 (Normal)
-Importance: Normal
+To: Dieter Stueken <stueken@conterra.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] libata transport attributes
+References: <40702492.8050603@conterra.de>
+In-Reply-To: <40702492.8050603@conterra.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_20040404212544_54943
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Dieter Stueken wrote:
+> Jeff Garzik wrote:
+> 
+>> Since libata is leaving SCSI in 2.7, I would rather not add 
+>> superfluous stuff like this at all.
+>> Further, you can already retrieve the information you export with 
+>> _zero_ new code.
+> 
+> 
+> does this include informations about the drives SMART status, too?
 
-<quote who="Trond Myklebust">
->
-> If it hadn't been for Andrew sending me a copy this mail would have gone
-> straight to /dev/null. Please ensure that you label NFS-related mails
-> with a clear "NFS" in the subject header if you want me to notice them.
-> Nobody has enough free time on their hands to spend reading all 1000
-> LKML emails each day.
->
-> Mind sending me a binary tcpdump of that readdir? Please use something
-> like
->   tcpdump -s 9000 -w dump.out port 2049 and host insert_name_of_server
->
-> Cheers,
->   Trond
->
+No.  SMART would not be appropriate for a transport attribute either.
 
-Hi Trond,
 
-I am very sorry for not properly labeling the subject...i understand akpm
-is very busy working on the kernel.
+> The smartmotools (http://smartmontools.sourceforge.net/) won't work
+> with libata until some "passthrough" command gets implemented :-(
+> Will this be available soon (or even working now), or do I have to
+> wait until 2.7?
 
-Sure, attached you will find the bin dump from the NFS host.
+Soon.
 
-Thanks for your help.
+	Jeff
 
-Regards,
 
-Paul
-
--- 
-FreeBSD -- The Power To Serve!
-
-------=_20040404212544_54943
-Content-Type: application/octet-stream; name="dump.out"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="dump.out"
-
-1MOyoQIABAAAAAAAAAAAACgjAAABAAAA979wQEXOBwCaAAAAmgAAAACQJ7pywgAg7YfphQgARQAA
-jAAEQABAEbgRwKgA+sCoAAEDIAgBAHiC1dseNNgAAAAAAAAAAgABhqMAAAADAAAAAQAAAAEAAAAo
-AEGJJwAAAAVibGF6ZQAAAAAAEVwAABFcAAAAAwAAABQAAAAsAAARXAAAAAAAAAAAAAAAHJDiJT3i
-IixFDAAAAAEKAgAFdQRiAAAAAAAAAAD3v3BAD9AHAJoAAACaAAAAACDth+mFAJAnunLCCABFAACM
-W9YAAEARnD/AqAABwKgA+ggBAyAAeL5I2x402AAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA
-AAHtAAAABgAAA+gAAAPoAAAAAAAAAgAAAAAAAAAIAAAAAF0ACACJAAAAAAAABBgAAAAAAAIKAUBw
-gD4AAAAAQG+fegAAAABAb596AAAAAPe/cEDOWQ4AngAAAJ4AAAAAkCe6csIAIO2H6YUIAEUAAJAA
-BUAAQBG4DMCoAPrAqAABAyAIAQB8gtncHjTYAAAAAAAAAAIAAYajAAAAAwAAAAQAAAABAAAAKABB
-iScAAAAFYmxhemUAAAAAABFcAAARXAAAAAMAAAAUAAAALAAAEVwAAAAAAAAAAAAAAByQ4iU94iIs
-RQwAAAABCgIABXUEYgAAAAAAAAAAAAAAAfe/cEBDeA4AogAAAKIAAAAAIO2H6YUAkCe6csIIAEUA
-AJRb1wAAQBGcNsCoAAHAqAD6CAEDIACAvTbcHjTYAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AQAAAAIAAAHtAAAABgAAA+gAAAPoAAAAAAAAAgAAAAAAAAAIAAAAAF0ACACJAAAAAAAABBgAAAAA
-AAIKAUBwgD4AAAAAQG+fegAAAABAb596AAAAAAAAAAH3v3BAe3gOALIAAACyAAAAAJAnunLCACDt
-h+mFCABFAACkAAZAAEARt/fAqAD6wKgAAQMgCAEAkILt3R402AAAAAAAAAACAAGGowAAAAMAAAAR
-AAAAAQAAACgAQYknAAAABWJsYXplAAAAAAARXAAAEVwAAAADAAAAFAAAACwAABFcAAAAAAAAAAAA
-AAAckOIlPeIiLEUMAAAAAQoCAAV1BGIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAQAPe/
-cEAvew4A6gUAAOoFAAAAIO2H6YUAkCe6csIIAEUABdxb2CAAQBF27cCoAAHAqAD6CAEDIAfcljTd
-HjTYAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAIAAAHtAAAABgAAA+gAAAPoAAAAAAAA
-AgAAAAAAAAAIAAAAAF0ACACJAAAAAAAABBgAAAAAAAIKAUBwsbwAAAAAQG+fegAAAABAb596AAAA
-AAAAAAqFpnjdAAAAAQAAAAAAAgoBAAAAAS4AAAAAAAAAAAAADAAAAAEAAAACAAAB7QAAAAYAAAPo
-AAAD6AAAAAAAAAIAAAAAAAAACAAAAABdAAgAiQAAAAAAAAQYAAAAAAACCgFAcLG8AAAAAEBvn3oA
-AAAAQG+fegAAAAAAAAABAAAAHJDiJT3iIixFDAAAAAEKAgAFdQRiAAAAAAAAAAAAAAABAAAAAAAC
-CgAAAAACLi4AAAAAAAAAAAAYAAAAAQAAAAIAAAHtAAAABwAAAAAAAAAAAAAAAAAAAgAAAAAAAAAI
-AAAAAF0ACACIAAAAAAAABBgAAAAAAAIKAEBvst8AAAAAPSh3IgAAAAA9KHdSAAAAAAAAAAEAAAAc
-kOIlPeIiLEUMAAAAAAoCAKmzczYAAAAAAAAAAAAAAAEAAAAAAAIKAwAAAAYubG9naW4AAAAAAAAA
-AAAoAAAAAQAAAAEAAAGkAAAAAQAAA+gAAAPoAAAAAAAAAP8AAAAAAAAIAAAAAF0ACACLAAAAAAAA
-BBgAAAAAAAIKA0Bfc/gAAAAAPSYdwgAAAAA9Jh3CAAAAAAAAAAEAAAAckOIlPeIiLEUMAAAAAwoC
-AHQVNFsAAAAAAAAAAAAAAAEAAAAAAAIKBAAAAAsubG9naW5fY29uZgAAAAAAAAAAPAAAAAEAAAAB
-AAABpAAAAAEAAAPoAAAD6AAAAAAAAAClAAAAAAAACAAAAABdAAgAjAAAAAAAAAQYAAAAAAACCgRA
-X3P4AAAAAD0mHcIAAAAAPSYdwgAAAAAAAAABAAAAHJDiJT3iIixFDAAAAAQKAgB0mIZmAAAAAAAA
-AAAAAAABAAAAAAACCgUAAAAHLm1haWxyYwAAAAAAAAAATAAAAAEAAAABAAABpAAAAAEAAAPoAAAD
-6AAAAAAAAAFLAAAAAAAACAAAAABdAAgAjQAAAAAAAAQYAAAAAAACCgVAX3P4AAAAAD0mHcIAAAAA
-PSYdwgAAAAAAAAABAAAAHJDiJT3iIixFDAAAAAUKAgDETk5WAAAAAAAAAAAAAAABAAAAAAACCgYA
-AAAILnByb2ZpbGUAAAAAAAAAYAAAAAEAAAABAAABpAAAAAEAAAPoAAAD6AAAAAAAAAMVAAAAAAAA
-CAAAAABdAAgAjgAAAAAAAAQYAAAAAAACCgZAX3P4AAAAAD0mHcIAAAAAPSYdwgAAAAAAAAABAAAA
-HJDiJT3iIixFDAAAAAYKAgD0dPY2AAAAAAAAAAAAAAABAAAAAAACCgcAAAAFLnNocmMAAAAAAAAA
-AAAAcAAAAAEAAAABAAABpAAAAAEAAAPoAAAD6AAAAAAAAANUAAAAAAAACAAAAABdAAgAjwAAAAAA
-AAQYAAAAAAACCgdAX3P4AAAAAD0mHcIAAAAAPSYdwgAAAAAAAAABAAAAHJDiJT3iIixFDAAAAAcK
-AgBJ8psyAAAAAAAAAAAAAAABAAAAAAACCggAAAANLm1haWxfYWxpYXNlcwAAAAAAAAAAAACIAAAA
-AQAAAAEAAAGAAAAAAQAAA+gAAAPoAAAAAAAAAXMAAAAAAAAIAAAAAF0ACACQAAAAAAAABBgAAAAA
-AAIKCEAZQqsAAAAAPSYdwgAAAAA9Jh3CAAAAAAAAAAEAAAAckOIlPeIiLEUMAAAACAoCAEv0vSoA
-AAAAAAAAAAAAAAEAAAAAAAIKCQAAAAYuY3NocmMAAAAAAAAAAACYAAAAAQAAAAEAAAGkAAAAAQAA
-A+gAAAPoAAAAAAAAAwMAAAAAAAAIAAAAAF0ACACRAAAAAAAABBgAAAAAAAIKCQ==
-------=_20040404212544_54943--
 

@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270349AbRHWVBX>; Thu, 23 Aug 2001 17:01:23 -0400
+	id <S270401AbRHWVNU>; Thu, 23 Aug 2001 17:13:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270264AbRHWVBN>; Thu, 23 Aug 2001 17:01:13 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:30347
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S270373AbRHWVBC>; Thu, 23 Aug 2001 17:01:02 -0400
-Date: Thu, 23 Aug 2001 14:01:11 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Rick Hohensee <humbubba@smarty.smart.net>
-Cc: linux-kernel@vger.kernel.org
+	id <S270382AbRHWVMa>; Thu, 23 Aug 2001 17:12:30 -0400
+Received: from mx6.port.ru ([194.67.57.16]:59403 "EHLO mx6.port.ru")
+	by vger.kernel.org with ESMTP id <S270359AbRHWVMS>;
+	Thu, 23 Aug 2001 17:12:18 -0400
+From: "Samium Gromoff" <_deepfire@mail.ru>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
-Message-ID: <20010823140111.A14302@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <200108232108.RAA21070@smarty.smart.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200108232108.RAA21070@smarty.smart.net>
-User-Agent: Mutt/1.3.20i
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [195.34.27.173]
+Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E15a1mD-000M4n-00@f10.mail.ru>
+Date: Fri, 24 Aug 2001 01:12:33 +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 23, 2001 at 05:08:14PM -0400, Rick Hohensee wrote:
+> The main reason to include it, is that that's what it was done in.
+> If you go back and read the archives, ESR goes over why all sorts of
+> other languages wouldn't work as easily.
+in such cases the solution is to elaborate, and not to
+leave things to decay.
 
->  In other words, a kernel build has a close correlation with actual system
-> bootstrap processes, where the niceties of the interpreter-du-jour are
-> irrelvant, as are the percentages or absolute numbers of people that don't
-> do hard bootstrapping of anything. This is the aspect of low-level code
-> that utilities used in a kernel build should adhere to, no gratuitous
-> dependancies. Linux is and always has been hard enough to bring up,
-> needing as it does a C compiler that needs a C compiler. Somehow the
-> cuteness of this class of recursion is lost on me. 
+> That wasn't my point at all.  My point was that if you're somehow
+> transfering the 21mb source .tar.bz2'ed, you can also stand to transport
+> the 4mb of python 2.0.1 source, tar.gz'ed over as well.  In other words,
+> having to bring python over any of the methods that Jes mentioned isn't
+> any more painful than the kernel source.  It's roughly the size of a couple
+> of vmlinux'es.
+  i was sarcastic here. actually the fact is that
+  4MB of tarred sources is more than 10 .c files
+  doing the same thing 1.5x times faster.
 
-Yes, Linux does have a nice chicken-and-egg process.  But unless you're
-building a brand new arch, which means you have to fix glibc and gcc and
-binutils to know about you, throwing in python isn't going to hurt you.
-And if you're trying to do this on the machine you're trying to make
-supported, you're going to have lots of fun.  In other words, I don't
-see this as an issue.  If you're talking about bringing up a new board
-for supported platform X, the only issue is getting Python2 onto the
-system.  Which isn't nearly as painful as getting the kernel source, glibc
-or gcc will be.  It'll only be maybe twice as painful as getting the bash
-sources over (2.05) even. :)
+> Have you tried cml2 on your p166?  ESR went and did much speed tweaking of
+> the code about 6 months ago it seems like and managed to please some of the
+> people using a low-end pentium.  Building a kernel on a 386 isn't approcaching
+> tolerable right now anyhow.  Someone pointed out today or yesterday it takes
+> ~10 days.
+  it is not an excuse to make things even worser.
+ 
+> Python is no harder to maintain then C.
+  actually i meant that "i hardly can believe that
+  c in such task is harder to maintain than python".
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+---
+
+
+cheers,
+
+
+   Samium Gromoff

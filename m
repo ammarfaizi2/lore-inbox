@@ -1,140 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268317AbUIPRBh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268251AbUIPRBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268317AbUIPRBh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 13:01:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268263AbUIPRAt
+	id S268251AbUIPRBg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 13:01:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268383AbUIPRA6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 13:00:49 -0400
-Received: from dmz.tecosim.com ([195.135.152.162]:8369 "EHLO dmz.tecosim.de")
-	by vger.kernel.org with ESMTP id S268592AbUIPQ4V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 12:56:21 -0400
-Date: Thu, 16 Sep 2004 18:56:13 +0200
-From: Utz Lehmann <lkml@de.tecosim.com>
-To: linux-kernel@vger.kernel.org, arjanv@redhat.com
-Subject: [PATCH] flexmmap: optimise mmap_base gap for hard limited stack
-Message-ID: <20040916165613.GA10825@de.tecosim.com>
+	Thu, 16 Sep 2004 13:00:58 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:51654 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268253AbUIPQz2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 12:55:28 -0400
+Subject: Re: device driver for the SGI system clock, mmtimer
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, Christoph Lameter <clameter@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Bob Picco <Robert.Picco@hp.com>, venkatesh.pallipadi@intel.com
+In-Reply-To: <200409160909.12840.jbarnes@engr.sgi.com>
+References: <200409161003.39258.bjorn.helgaas@hp.com>
+	 <200409160909.12840.jbarnes@engr.sgi.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1095349940.22739.34.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 16 Sep 2004 16:52:21 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Iau, 2004-09-16 at 17:09, Jesse Barnes wrote:
+> I think Christoph already looked at that.  And HPET doesn't provide mmap 
+> functionality, does it?  I.e. allow a userspace program to dereference the 
+> counter register directly?
 
-With the flexmmap memory layout there is at least a 128 MB gap between
-mmap_base and TASK_SIZE. I think this is for the case that a running process
-can expand it's stack soft rlimit.
+It can do but that assumes nothing else is mapped into the same page
+that would be harmful or reveal information that should not be revealed
+etc..
 
-If there is a hard limit for the stack this minium gap is just a waste of
-space. This patch reduce the gap to the hard limit + 1 MB hole. If a process
-has a 8192 KB hard limit it have additional 119 MB space available over the
-current behavior.
-
-And the current implemention has a problem. If the stack soft limit is
-128+ MB there is no hole between the stack and mmap_base. If there is a
-mapping at mmap_base stack overflows are not detected. The patch made a
-1MB hole between them.
-
-Tested only on x86.
-
-
-Signed-off-by: Utz Lehmann <lkml@de.tecosim.com>
-
-diff -Nrup linux-2.6.9-rc2/arch/i386/mm/mmap.c linux-2.6.9-rc2-gap/arch/i386/mm/mmap.c
---- linux-2.6.9-rc2/arch/i386/mm/mmap.c	2004-09-16 11:18:15.363366420 +0200
-+++ linux-2.6.9-rc2-gap/arch/i386/mm/mmap.c	2004-09-16 16:01:13.197508592 +0200
-@@ -30,10 +30,13 @@
- /*
-  * Top of mmap area (just below the process stack).
-  *
-- * Leave an at least ~128 MB hole.
-+ * Leave an at least 1 MB hole between stack and mmap_base.
-+ * Leave an at least 128 MB gap between TASK_SIZE and mmap_base with a
-+ * soft rlimit stack.
-  */
--#define MIN_GAP (128*1024*1024)
--#define MAX_GAP (TASK_SIZE/6*5)
-+#define MIN_HOLE (1*1024*1024)
-+#define MIN_GAP (128*1024*1024 - MIN_HOLE)
-+#define MAX_GAP (TASK_SIZE/6*5 - MIN_HOLE)
- 
- static inline unsigned long mmap_base(struct mm_struct *mm)
- {
-@@ -43,8 +46,10 @@ static inline unsigned long mmap_base(st
- 		gap = MIN_GAP;
- 	else if (gap > MAX_GAP)
- 		gap = MAX_GAP;
-+	if (gap > current->rlim[RLIMIT_STACK].rlim_max)
-+		gap = current->rlim[RLIMIT_STACK].rlim_max;
- 
--	return TASK_SIZE - (gap & PAGE_MASK);
-+	return TASK_SIZE - ((gap + MIN_HOLE) & PAGE_MASK);
- }
- 
- /*
-diff -Nrup linux-2.6.9-rc2/arch/ppc64/mm/mmap.c linux-2.6.9-rc2-gap/arch/ppc64/mm/mmap.c
---- linux-2.6.9-rc2/arch/ppc64/mm/mmap.c	2004-09-16 11:18:19.760799910 +0200
-+++ linux-2.6.9-rc2-gap/arch/ppc64/mm/mmap.c	2004-09-16 16:37:44.995858703 +0200
-@@ -30,10 +30,13 @@
- /*
-  * Top of mmap area (just below the process stack).
-  *
-- * Leave an at least ~128 MB hole.
-+ * Leave an at least 1 MB hole between stack and mmap_base.
-+ * Leave an at least 128 MB gap between TASK_SIZE and mmap_base with a
-+ * soft rlimit stack.
-  */
--#define MIN_GAP (128*1024*1024)
--#define MAX_GAP (TASK_SIZE/6*5)
-+#define MIN_HOLE (1*1024*1024)
-+#define MIN_GAP (128*1024*1024 - MIN_HOLE)
-+#define MAX_GAP (TASK_SIZE/6*5 - MIN_HOLE)
- 
- static inline unsigned long mmap_base(void)
- {
-@@ -43,8 +46,10 @@ static inline unsigned long mmap_base(vo
- 		gap = MIN_GAP;
- 	else if (gap > MAX_GAP)
- 		gap = MAX_GAP;
-+	if (gap > current->rlim[RLIMIT_STACK].rlim_max)
-+		gap = current->rlim[RLIMIT_STACK].rlim_max;
- 
--	return TASK_SIZE - (gap & PAGE_MASK);
-+	return TASK_SIZE - ((gap + MIN_HOLE) & PAGE_MASK);
- }
- 
- static inline int mmap_is_legacy(void)
-diff -Nrup linux-2.6.9-rc2/arch/s390/mm/mmap.c linux-2.6.9-rc2-gap/arch/s390/mm/mmap.c
---- linux-2.6.9-rc2/arch/s390/mm/mmap.c	2004-09-16 11:18:19.855787673 +0200
-+++ linux-2.6.9-rc2-gap/arch/s390/mm/mmap.c	2004-09-16 16:37:59.459999725 +0200
-@@ -30,10 +30,13 @@
- /*
-  * Top of mmap area (just below the process stack).
-  *
-- * Leave an at least ~128 MB hole.
-+ * Leave an at least 1 MB hole between stack and mmap_base.
-+ * Leave an at least 128 MB gap between TASK_SIZE and mmap_base with a
-+ * soft rlimit stack.
-  */
--#define MIN_GAP (128*1024*1024)
--#define MAX_GAP (TASK_SIZE/6*5)
-+#define MIN_HOLE (1*1024*1024)
-+#define MIN_GAP (128*1024*1024 - MIN_HOLE)
-+#define MAX_GAP (TASK_SIZE/6*5 - MIN_HOLE)
- 
- static inline unsigned long mmap_base(void)
- {
-@@ -43,8 +46,10 @@ static inline unsigned long mmap_base(vo
- 		gap = MIN_GAP;
- 	else if (gap > MAX_GAP)
- 		gap = MAX_GAP;
-+	if (gap > current->rlim[RLIMIT_STACK].rlim_max)
-+		gap = current->rlim[RLIMIT_STACK].rlim_max;
- 
--	return TASK_SIZE - (gap & PAGE_MASK);
-+	return TASK_SIZE - ((gap + MIN_HOLE) & PAGE_MASK);
- }
- 
- static inline int mmap_is_legacy(void)

@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318034AbSGRGYn>; Thu, 18 Jul 2002 02:24:43 -0400
+	id <S318017AbSGRGbl>; Thu, 18 Jul 2002 02:31:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318035AbSGRGYn>; Thu, 18 Jul 2002 02:24:43 -0400
-Received: from jive.SoftHome.net ([66.54.152.27]:13725 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id <S318034AbSGRGYk>;
-	Thu, 18 Jul 2002 02:24:40 -0400
-From: irfan_hamid@softhome.net
-To: linux-kernel@vger.kernel.org
-Reply-To: irfan_hamid@softhome.net
-Subject: cli()/sti() clarification
-Date: Thu, 18 Jul 2002 00:27:40 -0600
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+	id <S318018AbSGRGbl>; Thu, 18 Jul 2002 02:31:41 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49170 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318017AbSGRGbk>; Thu, 18 Jul 2002 02:31:40 -0400
+Message-ID: <3D366103.8010403@zytor.com>
+Date: Wed, 17 Jul 2002 23:32:35 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020524
+X-Accept-Language: en-us, en, sv
+MIME-Version: 1.0
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: linux-kernel@vger.kernel.org, viro@math.psu.edu,
+       trond.myklebust@fys.uio.no, Matija Nalis <mnalis-umsdos@voyager.hr>,
+       aia21@cantab.net, al@alarsen.net, asun@cobaltnet.com,
+       bfennema@falcon.csc.calpoly.edu, dave@trylinux.com, braam@clusterfs.com,
+       chaffee@cs.berkeley.edu, dwmw2@infradead.org, eric@andante.org,
+       hch@infradead.org, jaharkes@cs.cmu.edu, jakub@redhat.com,
+       jffs-dev@axis.com, mikulas@artax.karlin.mff.cuni.cz,
+       quinlan@transmeta.com, reiserfs-dev@namesys.com,
+       Chris Mason <mason@suse.com>, rgooch@atnf.csiro.au,
+       rmk@arm.linux.org.uk, shaggy@austin.ibm.com, tigran@veritas.com,
+       urban@teststation.com, vandrove@vc.cvut.cz, vl@kki.org,
+       zippel@linux-m68k.org, Art Haas <ahaas@neosoft.com>
+Subject: Re: Remain Calm: Designated initializer patches for 2.5
+References: <20020718032331.5A36644A8@lists.samba.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [202.52.197.1]
-Message-ID: <courier.3D365FDC.0000712F@softhome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+Rusty Russell wrote:
+> Hi all,
+> 
+> 	I just sent about 40 reasonable-size patches through the
+> Trivial Patch Monkey to Linus: these patches replace the (deprecated)
+> "foo: " designated initializers with the ISO-C ".foo =" initializers.
+> GCC has understood both since forever, but the kernel took a wrong
+> bet, and we're better off setting a good example for 2.6 before we
+> start getting about 10,000 warnings.
+> 
+> 	So far, Art Haas has done all the fs code, and will presumably
+> be working through the other code on dir at a time.
+> 
 
-I added two system calls, blockintr() and unblockintr() to give cli()/sti() 
-control to userland programs (yes I know its not advisable) but I only want 
-to do it as a test. My test program looks like this: 
+As far as I could tell, *ALL* of these changes broke text alignment in 
+columns.  It would have been a lot better if they had maintained 
+spacing; I find the new code much more cluttered and hard to read.
 
-	blockintr();
-	/* Some long calculations */
-	unblockintr(); 
+	-hpa
 
-The problem is that if I press Ctrl+C during the calculation, the program
-terminates. So I checked the _syscallN() and __syscall_return() macros to 
-see if they explicitly call sti() before returning to userspace, but they 
-dont. 
 
-Reading the lkml archives, I found that cli() disables only the interrupts, 
-exceptions are allowed, so it makes sense that the SIGINT was delivered, but 
-if thats the case, then how come the SIGINT was delivered from the Ctrl+C? 
-Doesnt this mean that the SIGINT signal was generated as a result of the 
-keyboard interrupt? 
-
-I know I am missing something here, would appreciate if someone could point 
-me in the right direction. 
-
-Regards,
-Irfan Hamid.

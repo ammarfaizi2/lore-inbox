@@ -1,65 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315760AbSHIUhV>; Fri, 9 Aug 2002 16:37:21 -0400
+	id <S315762AbSHIUkm>; Fri, 9 Aug 2002 16:40:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315762AbSHIUhV>; Fri, 9 Aug 2002 16:37:21 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:57861 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S315760AbSHIUhT>; Fri, 9 Aug 2002 16:37:19 -0400
-Message-ID: <3D54279B.2050500@evision.ag>
-Date: Fri, 09 Aug 2002 22:35:39 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.1) Gecko/20020724
-X-Accept-Language: en-us, en, pl, ru
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: martin@dalecki.de, Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] 2.5.30 IDE 115
-References: <3D53AE13.7060907@evision.ag> <20020809134839.GO2243@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S315779AbSHIUkm>; Fri, 9 Aug 2002 16:40:42 -0400
+Received: from mail023.syd.optusnet.com.au ([210.49.20.162]:36254 "EHLO
+	mail023.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id <S315762AbSHIUkl>; Fri, 9 Aug 2002 16:40:41 -0400
+Date: Sat, 10 Aug 2002 06:44:21 +1000
+From: Pete de Zwart <dezwart@froob.net>
+To: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Subject: Re: 2.4.19: drivers/usb/printer.c usblpX on fire
+Message-ID: <20020809204421.GA27819@niflheim>
+References: <20020809060344.GC6340@niflheim> <15699.31589.634056.607809@kim.it.uu.se> <1028913064.1380.493.camel@flory.corp.rackablelabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1028913064.1380.493.camel@flory.corp.rackablelabs.com>
+User-Agent: Mutt/1.3.28i
+X-environment: Linux niflheim 2.4.19 i686 /dev/pts/2
+X-Url: http://froob.net/~dezwart/
+X-Organisation: Froob Networks
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Fri, Aug 09 2002, Marcin Dalecki wrote:
-> 
->>- Fix small typo introduced in 113, which prevented CD-ROMs from
->>  working altogether.
-> 
-> 
-> Have you fixed the sense reporting issue I told you about months ago?
+Around about 1010h 09/08/2002, Samuel Flory emitted the following wisdom:
+>   The printer on fire message is the traditional Un*x error message for
+> unknown error on a printer.
 
-Well at least ide-116 will start to unify the corresponding code.
-But please don't expecty anything "revolutionary" yet... Just for
-example using GPCMD_ constants throughout the code and a unified error
-dissection function. One of the issues involved is rq->buffer in
-ide-floppy versus rq->special in ide-cd.c
+	What I don't understand is why the misleading message is sent
+instead of the printer driver stating that it has received an unknown printer
+error code and printing the code number.
 
+	Out of curiosity, does there exist an error code that a printer can
+assert that specifies that it is "on fire"?
 
->>- Eliminate block_ioctl(). This code can't be shared in the way
->>  proposed by this file. We will port it to the proper
->>  blk_insert_request() soon. This will eliminate the _elv_add_request()
->>  "layering violation".
-> 
-> 
-> What are you talking about?
+	Pete de Zwart.
 
-Hmm, so apparently you where not the one who "inventid" it?
-
-Anyway I talk about the block_ioctl.c file, which was supposed
-to contain the two eject ioctl functions for "generic" packet code.
-But since we don't have any kind of "generic" packet commands this
-didn't make much sense.
-
-It was inventing a function called blk_do_rq(), which was using
-elv_add_request(). You called this not a long time ago a "layering
-violation" yourself. And I simply intend to replace it in one of the
-forthcomming patches  with the recently inventid blk_insert_request() 
-function.
-
-Oh, I realize I didn't express myself properly. I certinaly don't intend
-to eliminate elv_add_request() itself any time soon ;-).
-
+-- 
+The real reason your computer crashed, thanx to the BOFH:
+"Repeated reboots of the system failed to solve problem"

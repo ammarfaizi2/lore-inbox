@@ -1,328 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263577AbTJCH3s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 03:29:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263579AbTJCH3s
+	id S263593AbTJCHhe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 03:37:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263594AbTJCHhe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 03:29:48 -0400
-Received: from dp.samba.org ([66.70.73.150]:23787 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263577AbTJCH3k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 03:29:40 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: linux-kernel@vger.kernel.org
-Cc: Hugh Dickins <hugh@veritas.com>, Ulrich Drepper <drepper@redhat.com>,
-       Klaus Dittrich <kladit@t-online.de>, Andrew Morton <akpm@zip.com.au>,
-       Boris Hu <boris.hu@intel.com>
-Subject: Re: [PATCH] For testing/scrutiny: futex locking fix against 2.6.0-test6 
-In-reply-to: Your message of "Wed, 01 Oct 2003 06:31:08 +0100."
-             <20031001053108.GA1131@mail.shareable.org> 
-Date: Fri, 03 Oct 2003 17:28:06 +1000
-Message-Id: <20031003072939.C32A92C0F9@lists.samba.org>
+	Fri, 3 Oct 2003 03:37:34 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:55726
+	"EHLO velociraptor.random") by vger.kernel.org with ESMTP
+	id S263593AbTJCHh3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 03:37:29 -0400
+Date: Fri, 3 Oct 2003 09:37:47 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23pre6aa1
+Message-ID: <20031003073747.GI13360@velociraptor.random>
+References: <20031002152648.GB1240@velociraptor.random> <20031003005116.GD13051@matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031003005116.GD13051@matchmail.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20031001053108.GA1131@mail.shareable.org> you write:
-> Patch: futex_refs_and_lock_fix-2.6.0-test6-jl1
+On Thu, Oct 02, 2003 at 05:51:16PM -0700, Mike Fedyk wrote:
+> On Thu, Oct 02, 2003 at 05:26:48PM +0200, Andrea Arcangeli wrote:
+> > Only in 2.4.23pre6aa1: 05_vm_27-pte-dirty-bit-in-hardware-1
+> > 
+> > 	This fixes a longstanding bug for a number of archs that haven't the
+> > 	dirty bit updated in hardware. For those archs we can't mark the pte
+> > 	writeable when it's still in swap cache, unless we don't mark it dirty
+> > 	too at the same time. Otherwise the cpu will go ahead writing to the
+> > 	page, no fault will happen and the swapcache will be still clean, and
+> > 	the data will be lost at the next zeroIO swapout leading to userspace
+> > 	data corruption and segfaults during swap. Affected archs are
+> > 	alpha/s390/s390x for example.
+> > 
+> > 	This bug was specific to the -aa VM, it couldn't happen
+> > 	in mainline. In my tree I optimized the code to exploited
+> > 	properties of archs that updates the bit in hardware for the
+> > 	first time. Hence the first need of a #define to differentiate the
+> > 	two code paths. The logic in the software-dirty-bit case will
+> > 	be less efficient of course (that's why there's a difference
+> > 	in the first place).
+> 
+> What does rmap do in this case then?
 
-Hi Jamie,
+no idea, but likely it wasn't affected. This was an ultra optimization I
+did, it was very aggressive and it broke the archs with the pte-dirty
+bit handled in software.
 
-	I've been working through your patches separating them (also a
-good way of understanding them), and it strikes me that there's a
-fundamental problem with the requeue code and the reference counting
-fixes.
+this is also the proof that the pte_* abstraction is not trasparent at
+all, and we definitely need a compile time #define to differentiate the
+two cases (I added it in the above patch for x86 and x86-64 and as said
+above this patch is infact an obvious noop for those two archs).
 
-	The futex_requeue code has to drop all locks to call
-drop_key_ref, but that exposes it to races against wake_up.  Not just
-the key, but the local "moved" list could be corrupted.  I simply
-can't think of a neat way of solving this: it's an independent problem
-from whether locks are hashed or not.
+This is the code that broke it. the 'page' pointed by the pte is an
+exclusive page at that point, it means it's not shared by any other
+"mm" and it's of course an anonymous page. It can be in the swapcache or
+not, it doesn't make any difference (if it's not in the swapcache it's
+guaranteed to be marked PG_dirty at the phyiscal level).
 
-BTW, I tried to take the cleanups out of your patches while separating
-them, and fixed a requeue bug where you requeue in backwards order (I
-don't think it's really important, but...).
+		if (write_access)
+			pte = pte_mkdirty(pte);
+		if (vma->vm_flags & VM_WRITE)
+			pte = pte_mkwrite(pte);
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+This code is perfectly correct and it's more efficient than the
+software-dirty-bitflag because it avoids a copy-on-write page fault if
+this was a read access. If it was a read access we want to mark the pte
+writeable but not dirty, so if the page is still in the swapcache and
+nobody writes to it, we can swap out it zerocost. And at the same time
+we avoid any copy-on-write pagefault if somebody writes later to the
+page after we instantiated the mapping.
 
-Name: Minor Futex Tweaks
-Author: Jamie Lokier <jamie@shareable.org>
-Status: Trivial
+This is instead the version needed by archs with the dirty bit in
+software like ppc/s390/s390x/ppc64/alpha (there maybe more).
 
-D: 1) Use list_for_each_entry_safe
-D: 2) Overzealous set_task_state() usage in futex_wait: we're under a
-D:    spinlock so order doesn't matter.
+		if (write_access)
+			pte = pte_mkdirty(pte_mkwrite(pte));
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7537-linux-2.6.0-test6-bk4/kernel/futex.c .7537-linux-2.6.0-test6-bk4.updated/kernel/futex.c
---- .7537-linux-2.6.0-test6-bk4/kernel/futex.c	2003-09-29 10:26:06.000000000 +1000
-+++ .7537-linux-2.6.0-test6-bk4.updated/kernel/futex.c	2003-10-03 16:09:08.000000000 +1000
-@@ -221,7 +221,7 @@ static int get_futex_key(unsigned long u
-  */
- static int futex_wake(unsigned long uaddr, int num)
- {
--	struct list_head *i, *next, *head;
-+	struct futex_q *this, *next;
- 	struct futex_hash_bucket *bh;
- 	union futex_key key;
- 	int ret;
-@@ -234,13 +234,10 @@ static int futex_wake(unsigned long uadd
- 
- 	bh = hash_futex(&key);
- 	spin_lock(&bh->lock);
--	head = &bh->chain;
--
--	list_for_each_safe(i, next, head) {
--		struct futex_q *this = list_entry(i, struct futex_q, list);
- 
-+	list_for_each_entry_safe(this, next, &bh->chain, list) {
- 		if (match_futex (&this->key, &key)) {
--			list_del_init(i);
-+			list_del_init(&this->list);
- 			wake_up_all(&this->waiters);
- 			if (this->filp)
- 				send_sigio(&this->filp->f_owner, this->fd, POLL_IN);
-@@ -403,20 +400,16 @@ static int futex_wait(unsigned long uadd
- 	add_wait_queue(&q.waiters, &wait);
- 	bh = hash_futex(&key);
- 	spin_lock(&bh->lock);
--	set_current_state(TASK_INTERRUPTIBLE);
- 
- 	if (unlikely(list_empty(&q.list))) {
--		/*
--		 * We were woken already.
--		 */
-+		/* We were woken already. */
- 		spin_unlock(&bh->lock);
--		set_current_state(TASK_RUNNING);
- 		return 0;
- 	}
- 
-+	__set_current_state(TASK_INTERRUPTIBLE);
- 	spin_unlock(&bh->lock);
- 	time = schedule_timeout(time);
--	set_current_state(TASK_RUNNING);
- 
- 	/*
- 	 * NOTE: we don't remove ourselves from the waitqueue because
+On these archs we simply can't mark the pte writeable if we don't mark
+it dirty too, or somebody can write to the swappage and we would never
+notice, and the kernel would think it can swapout zerocost (swapcache
+still clean), while it really should do the I/O in that case.
 
-Name: FUTEX_REQUEUE simplification
-Author: Jamie Lokier <jamie@shareable.org>, Rusty Russell
-Status: Booted on 2.6.0-test4-bk9
-Depends: Misc/futex-jamie-cleanups1.patch.gz
+The bug wasn't too bad, just a segfault or data corruption in userspace
+during heavy swapping. The kernel was stable, there's no way to crash
+the kernel forgetting a dirty bit. So it was also hardly noticeable. And
+if you had zero swap it simply couldn't trigger because no swapcache
+could be allocated. So the workaround swapoff -a is 100% reliable.
 
-D: Simplify the logic of FUTEX_REQUEUE.
-
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .32659-linux-2.6.0-test6-bk4/kernel/futex.c .32659-linux-2.6.0-test6-bk4.updated/kernel/futex.c
---- .32659-linux-2.6.0-test6-bk4/kernel/futex.c	2003-10-03 15:47:51.000000000 +1000
-+++ .32659-linux-2.6.0-test6-bk4.updated/kernel/futex.c	2003-10-03 16:06:07.000000000 +1000
-@@ -261,9 +260,10 @@ out:
- static int futex_requeue(unsigned long uaddr1, unsigned long uaddr2,
- 				int nr_wake, int nr_requeue)
- {
--	struct list_head *i, *next, *head1, *head2;
--	struct futex_hash_bucket *bh1, *bh2;
-+	struct futex_hash_bucket *bh;
- 	union futex_key key1, key2;
-+	struct futex_q *this, *next;
-+ 	LIST_HEAD(moved);
- 	int ret;
- 
- 	down_read(&current->mm->mmap_sem);
-@@ -275,48 +275,33 @@ static int futex_requeue(unsigned long u
- 	if (unlikely(ret != 0))
- 		goto out;
- 
--	bh1 = hash_futex(&key1);
--	bh2 = hash_futex(&key2);
--	if (bh1 < bh2) {
--		spin_lock(&bh1->lock);
--		spin_lock(&bh2->lock);
--	} else {
--		spin_lock(&bh2->lock);
--		if (bh1 > bh2)
--			spin_lock(&bh1->lock);
--	}
--	head1 = &bh1->chain;
--	head2 = &bh2->chain;
--
--	list_for_each_safe(i, next, head1) {
--		struct futex_q *this = list_entry(i, struct futex_q, list);
-+	bh = hash_futex(&key1);
-+	spin_lock(&bh->lock);
- 
-+	list_for_each_entry_safe(this, next, &bh->chain, list) {
- 		if (match_futex (&this->key, &key1)) {
--			list_del_init(i);
-+			list_del_init(&this->list);
- 			if (++ret <= nr_wake) {
- 				wake_up_all(&this->waiters);
- 				if (this->filp)
- 					send_sigio(&this->filp->f_owner,
- 							this->fd, POLL_IN);
- 			} else {
--				list_add_tail(i, head2);
-+				list_add_tail(&this->list, &moved);
- 				this->key = key2;
- 				if (ret - nr_wake >= nr_requeue)
- 					break;
--				/* Make sure to stop if key1 == key2 */
--				if (head1 == head2 && head1 != next)
--					head1 = i;
- 			}
- 		}
- 	}
--	if (bh1 < bh2) {
--		spin_unlock(&bh2->lock);
--		spin_unlock(&bh1->lock);
--	} else {
--		if (bh1 > bh2)
--			spin_unlock(&bh1->lock);
--		spin_unlock(&bh2->lock);
--	}
-+	spin_unlock(&bh->lock);
-+
-+	/* Requeue at the end of the new list. */
-+	bh = hash_futex(&key2);
-+	spin_lock(&bh->lock);
-+	list_splice(&moved, bh->chain.prev);
-+	spin_unlock(&bh->lock);
-+
- out:
- 	up_read(&current->mm->mmap_sem);
- 	return ret;
-
-Name: Futexes Hold Reference Counts on Page or MM
-Author: Jamie Lokier <jamie@shareable.org>, Rusty Russell
-Status: Experimental
-Depends: Misc/futex-hugh-requeue.patch.gz
-
-D: Variant on Jamie's original patch, where futexes hold a reference count
-D: on the page or mm they are in.  This prevents those from being recycled
-D: and taking later wakups.
-
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12688-linux-2.6.0-test6-bk4/kernel/futex.c .12688-linux-2.6.0-test6-bk4.updated/kernel/futex.c
---- .12688-linux-2.6.0-test6-bk4/kernel/futex.c	2003-10-03 16:21:47.000000000 +1000
-+++ .12688-linux-2.6.0-test6-bk4.updated/kernel/futex.c	2003-10-03 17:07:39.000000000 +1000
-@@ -45,6 +45,9 @@
-  * Futexes are matched on equal values of this key.
-  * The key type depends on whether it's a shared or private mapping.
-  * Don't rearrange members without looking at hash_futex().
-+ *
-+ * offset is aligned to a multiple of sizeof(u32) (== 4) by definition.
-+ * We set bit 0 to indicate if it's an inode-based key.
-  */
- union futex_key {
- 	struct {
-@@ -172,9 +175,10 @@ static int get_futex_key(unsigned long u
- 	}
- 
- 	/*
--	 * Linear mappings are also simple.
-+	 * Linear file mappings are also simple.
- 	 */
- 	key->shared.inode = vma->vm_file->f_dentry->d_inode;
-+	key->both.offset++; /* Bit 0 of offset indicates inode-based key. */
- 	if (likely(!(vma->vm_flags & VM_NONLINEAR))) {
- 		key->shared.pgoff = (((uaddr - vma->vm_start) >> PAGE_SHIFT)
- 				     + vma->vm_pgoff);
-@@ -214,6 +218,35 @@ static int get_futex_key(unsigned long u
- 	return err;
- }
- 
-+/*
-+ * Take a reference to the resource addressed by a key.
-+ *
-+ * NOTE: mmap_sem MUST be held between get_futex_key() and calling this
-+ * function, if it is called at all.  mmap_sem keeps key->shared.inode valid.
-+ */
-+static inline void get_key_ref(union futex_key *key)
-+{
-+	if (key->both.ptr) {
-+		if (key->both.offset & 1)
-+			atomic_inc(&key->shared.inode->i_count);
-+		else
-+			atomic_inc(&key->private.mm->mm_count);
-+	}
-+}
-+
-+/*
-+ * Drop a reference to the resource addressed by a key.
-+ * The hash bucket lock must not be held.
-+ */
-+static inline void drop_key_ref(union futex_key *key)
-+{
-+	if (key->both.ptr) {
-+		if (key->both.offset & 1)
-+			iput(key->shared.inode);
-+		else
-+			mmdrop(key->private.mm);
-+	}
-+}
- 
- /*
-  * Wake up all waiters hashed on the physical page that is mapped
-@@ -288,7 +321,6 @@ static int futex_requeue(unsigned long u
- 							this->fd, POLL_IN);
- 			} else {
- 				list_add_tail(&this->list, &moved);
--				this->key = key2;
- 				if (ret - nr_wake >= nr_requeue)
- 					break;
- 			}
-@@ -296,6 +328,13 @@ static int futex_requeue(unsigned long u
- 	}
- 	spin_unlock(&bh->lock);
- 
-+	/* Adjust keys and references. */
-+	list_for_each_entry(this, &moved, list) {
-+		drop_key_ref(&this->key);
-+		this->key = key2;
-+		get_key_ref(&this->key);
-+	}
-+
- 	/* Requeue at the end of the new list. */
- 	bh = hash_futex(&key2);
- 	spin_lock(&bh->lock);
-@@ -307,6 +346,7 @@ out:
- 	return ret;
- }
- 
-+/* get_key_ref must have been called on the key. */
- static inline void queue_me(struct futex_q *q, union futex_key *key,
- 			    int fd, struct file *filp)
- {
-@@ -334,6 +374,7 @@ static inline int unqueue_me(struct fute
- 		ret = 1;
- 	}
- 	spin_unlock(&bh->lock);
-+	drop_key_ref(&q->key);
- 	return ret;
- }
- 
-@@ -353,6 +394,7 @@ static int futex_wait(unsigned long uadd
- 	if (unlikely(ret != 0))
- 		goto out_release_sem;
- 
-+	get_key_ref(&key);
- 	queue_me(&q, &key, -1, NULL);
- 
- 	/*
-@@ -390,6 +432,7 @@ static int futex_wait(unsigned long uadd
- 	if (unlikely(list_empty(&q.list))) {
- 		/* We were woken already. */
- 		spin_unlock(&bh->lock);
-+		drop_key_ref(&q.key);
- 		return 0;
- 	}
- 
-@@ -499,6 +542,8 @@ static int futex_fd(unsigned long uaddr,
- 
- 	down_read(&current->mm->mmap_sem);
- 	err = get_futex_key(uaddr, &key);
-+	if (!err)
-+		get_key_ref(&key);
- 	up_read(&current->mm->mmap_sem);
- 
- 	if (unlikely(err != 0)) {
+Andrea - If you prefer relying on open source software, check these links:
+	    rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.[45]/
+	    http://www.cobite.com/cvsps/

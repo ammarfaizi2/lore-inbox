@@ -1,40 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292304AbSBBPkF>; Sat, 2 Feb 2002 10:40:05 -0500
+	id <S292308AbSBBPmr>; Sat, 2 Feb 2002 10:42:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292306AbSBBPj4>; Sat, 2 Feb 2002 10:39:56 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:12041 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S292304AbSBBPjw>;
-	Sat, 2 Feb 2002 10:39:52 -0500
-Date: Sat, 2 Feb 2002 13:39:34 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Jeff Garzik <garzik@havoc.gtf.org>
-Cc: <arjan@fenrus.demon.nl>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Radix-tree pagecache for 2.5
-In-Reply-To: <20020201144751.A32553@havoc.gtf.org>
-Message-ID: <Pine.LNX.4.33L.0202021339090.17850-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S292307AbSBBPmf>; Sat, 2 Feb 2002 10:42:35 -0500
+Received: from nycsmtp1out.rdc-nyc.rr.com ([24.29.99.226]:23972 "EHLO
+	nycsmtp1out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id <S292306AbSBBPmV>; Sat, 2 Feb 2002 10:42:21 -0500
+Message-ID: <3C5C08D3.3030207@nyc.rr.com>
+Date: Sat, 02 Feb 2002 10:42:11 -0500
+From: John Weber <weber@nyc.rr.com>
+Organization: WorldWideWeber
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Ditro Kernel Descriptions
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Feb 2002, Jeff Garzik wrote:
+Folks:
 
-> > the biggest reason for this is that we *suck* at readahead for mmap....
->
-> Is there not also fault overhead and similar issues related to mmap(2)
-> in general, that are not present with read(2)/write(2)?
-
-If a fault is more expensive than a system call, we're doing
-something wrong in the page fault path ;)
-
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
+Is there a place where I can find the configs for and a list of the 
+patches applied to the linux kernels supplied by the distributions
+(I know how to find redhat's configs, but not their list of patches AND
+I don't know where to find this information for the other distros).
 

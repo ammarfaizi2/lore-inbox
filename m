@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284794AbSAULhW>; Mon, 21 Jan 2002 06:37:22 -0500
+	id <S285229AbSAULkw>; Mon, 21 Jan 2002 06:40:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284890AbSAULhN>; Mon, 21 Jan 2002 06:37:13 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:11450 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S284794AbSAULhJ>; Mon, 21 Jan 2002 06:37:09 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Fabio Fracassi <turiya@linuxfromscratch.org>
-Organization: Linux from Scratch
-To: linux-kernel@vger.kernel.org
-Subject: Complete lockup when using g++ on reiserfs
-Date: Mon, 21 Jan 2002 12:41:02 +0100
-X-Mailer: KMail [version 1.3.1]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <16Sckv-03IJKyC@fmrl01.sul.t-online.com>
+	id <S284902AbSAULkm>; Mon, 21 Jan 2002 06:40:42 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:42767 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S284890AbSAULki>; Mon, 21 Jan 2002 06:40:38 -0500
+Date: Mon, 21 Jan 2002 12:38:28 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Jens Axboe <axboe@suse.de>
+Cc: Andre Hedrick <andre@linuxdiskcert.org>,
+        Davide Libenzi <davidel@xmailserver.org>,
+        Anton Altaparmakov <aia21@cam.ac.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.3-pre1-aia1
+Message-ID: <20020121123828.C24754@suse.cz>
+In-Reply-To: <Pine.LNX.4.40.0201201054011.7238-100000@blue1.dev.mcafeelabs.com> <Pine.LNX.4.10.10201201555040.12376-100000@master.linux-ide.org> <20020121114311.A24604@suse.cz> <20020121114830.W27835@suse.de> <20020121121456.A24656@suse.cz> <20020121122954.Z27835@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020121122954.Z27835@suse.de>; from axboe@suse.de on Mon, Jan 21, 2002 at 12:29:54PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Mon, Jan 21, 2002 at 12:29:54PM +0100, Jens Axboe wrote:
+> On Mon, Jan 21 2002, Vojtech Pavlik wrote:
+> > I always thought it is like this (and this is what I still believe after
+> > having read the sprcification):
+> > 
+> > ---
+> > SET_MUTIPLE 16 sectors
+> > ---
+> > READ_MULTIPLE 24 sectors
+> > IRQ
+> > PIO transfer 16 sectors
+> > IRQ
+> > PIO transfer 8 sectors
+> > ---
+> > 
+> > Where am I wrong?
+> 
+> I agree completely, see previous mail.
+> 
+> > By the way, the device *isn't* required to support any lower multiple
+> > count than the maximum one it advertizes. Ugly.
+> 
+> Oh? That basically narrows down the multi count value from hdparm to a
+> boolean on-or-off. I'd be surprised to see any drives break with lower
+> multi count in real life, though..
 
-Please CC answers to me since I'm not subscribed here.
+The spec seems to mandate to check the Identify data again after setting
+new Multmode to see whether the drive supported the value we wanted to
+program it to.
 
-Since a while now I sometimes get  strange lockups when trying to compile
-c++ programms. 
-I cannot reproduce it exactly, but on larger c++ apps like Kde or Mozilla, 
-the build hangs sooner or later.
-I get this behavior with all kernels from  2.4.3  to 2.4.16 (haven't checked 
-the newer ones yet)
-
-The problem is that I cannot truely locate, where the error occurs, the logs 
-are quite, and the system is truely dead (only HW reset works)
-
-I first suspected my graphics HW (NVIDIA) to be causing the problems, but
-the problems remain under Plain console, with no Drivers loaded.
-
-The recent AMD/AGP Bug is also not causing it, I've checked that.
-
-I suppose the Problem is somewhere in the ReiserFs part, since when this hang
-happens the last processed c++ file sometimes gets corrupted.
-
-If you need more Info on this please contact me, I'll try to give it then
-
-I Hope someone can help me.
-
-TIA 
-Fabio Fracassi
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs

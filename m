@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264382AbUFGJ5o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264386AbUFGKEK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264382AbUFGJ5o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 05:57:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264385AbUFGJ5n
+	id S264386AbUFGKEK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 06:04:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264388AbUFGKEK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 05:57:43 -0400
-Received: from main.gmane.org ([80.91.224.249]:2468 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264382AbUFGJ5b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 05:57:31 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ian Abbott <abbotti@mev.co.uk>
-Subject: Re: [PATCH] Memory leak in visor.c and ftdi_sio.c
-Date: Mon, 07 Jun 2004 10:58:29 +0100
-Message-ID: <ca1e68$5p1$1@sea.gmane.org>
-References: <40C08E6D.8080606@infosciences.com> <c9q8a6$hga$1@sea.gmane.org> <20040605001832.GA28502@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 7 Jun 2004 06:04:10 -0400
+Received: from pD9FFA21B.dip.t-dialin.net ([217.255.162.27]:30610 "EHLO
+	router.zodiac.dnsalias.org") by vger.kernel.org with ESMTP
+	id S264386AbUFGKEI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 06:04:08 -0400
+From: Alexander Gran <alex@zodiac.dnsalias.org>
+To: "David S. Miller" <davem@redhat.com>
+Subject: Re: 2.6.7-rc2-mm1
+Date: Wed, 2 Jun 2004 00:21:12 +0200
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+References: <20040601021539.413a7ad7.akpm@osdl.org> <20040601143622.0717e85b.akpm@osdl.org> <20040601143623.3ef8c164.davem@redhat.com>
+In-Reply-To: <20040601143623.3ef8c164.davem@redhat.com>
+X-Ignorant-User: yes
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: mail.mev.co.uk
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
-In-Reply-To: <20040605001832.GA28502@kroah.com>
-Cc: linux-usb-devel@lists.sourceforge.net
+Message-Id: <200406020021.12636@zodiac.zodiac.dnsalias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 05/06/2004 01:18, Greg KH wrote:
-> On Fri, Jun 04, 2004 at 05:34:41PM +0100, Ian Abbott wrote:
->>A related problem with the current implementation is that is easy to 
->>run out of memory by running something similar to this:
->>
->> # cat /dev/zero > /dev/ttyUSB0
->>
->>That affects both the ftdi_sio and visor drivers.
-> 
-> 
-> Care to try out the following (build test only) patch to the visor
-> driver to see if it prevents this from happening?  I don't have a
-> working visor right now to test it out myself :(
+Am Dienstag, 1. Juni 2004 23:36 schrieb David S. Miller:
+> On Tue, 1 Jun 2004 14:36:22 -0700
+>
+> Andrew Morton <akpm@osdl.org> wrote:
+> > Alexander Gran <alex@zodiac.dnsalias.org> wrote:
+> > > I can neither enter nor activate the gigabit ethernet driver section in
+> > > menuconfig
+> >
+> > I can, and nothing seems to have changed which would affect this.
+>
+> It seems you have to enable the 10/100 section in order to get to
+> the gigabit section.  This is the case in the standard tree too,
+> nothing in -mm changed this.
 
-I could try something similar on ftdi_sio, but am a bit pushed for 
-time right now.
+Ahh, all right. Than the bug was introduced with 2.6.7-rc2. 
 
-One comment about the test patch in case it turns into a real patch: 
-I think it would be better to check the number of outstanding write 
-urbs in visor_write_room instead of visor_write, otherwise some 
-stuff written by the TTY line discipline will go missing.
+regards
+Alex
 
 -- 
--=( Ian Abbott @ MEV Ltd.    E-mail: <abbotti@mev.co.uk>        )=-
--=( Tel: +44 (0)161 477 1898   FAX: +44 (0)161 718 3587         )=-
+Encrypted Mails welcome.
+PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
 

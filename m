@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264117AbTDKAF4 (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 20:05:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264129AbTDKAF4 (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 20:05:56 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:30739 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id S264117AbTDKAFz (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 20:05:55 -0400
-Date: Fri, 11 Apr 2003 02:17:27 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: David Lang <david.lang@digitalinsight.com>
-cc: James Bottomley <James.Bottomley@steeleye.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 64-bit kdev_t - just for playing
-In-Reply-To: <Pine.LNX.4.44.0304101658030.7560-100000@dlang.diginsite.com>
-Message-ID: <Pine.LNX.4.44.0304110214180.5042-100000@serv>
-References: <Pine.LNX.4.44.0304101658030.7560-100000@dlang.diginsite.com>
+	id S264275AbTDKAPk (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 20:15:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264276AbTDKAPk (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 20:15:40 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:14753 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S264275AbTDKAPk (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 20:15:40 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16022.3049.182240.580692@napali.hpl.hp.com>
+Date: Thu, 10 Apr 2003 17:27:21 -0700
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: davidm@hpl.hp.com, akpm@zip.com.au,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: proc_misc.c bug
+In-Reply-To: <1050011057.12930.134.camel@dhcp22.swansea.linux.org.uk>
+References: <200304102202.h3AM2YH3021747@napali.hpl.hp.com>
+	<1050011057.12930.134.camel@dhcp22.swansea.linux.org.uk>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>>>>> On 10 Apr 2003 22:44:17 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> said:
 
-On Thu, 10 Apr 2003, David Lang wrote:
+  Alan> On Thu, 2003-04-10 at 23:02, David Mosberger wrote:
+  >> The workaround below is to allocate 4KB per 8 CPUs.  Not really a
+  >> solution, but the fundamental problem is that /proc/interrupts
+  >> shouldn't use a fixed buffer size in the first place.  I suppose
+  >> another solution would be to use vmalloc() instead.  It all feels like
+  >> bandaids though.
 
-> nobody has claimed that MAKEDEV and similar wouldn't need to be changed,
-> just that changing them is not a major deal, and is far less work then
-> implementing dynamic numbering.
+  Alan> How about switching to Al's seqfile interface ?
 
-Dynamic numbering is simple (scsi does it already), the big problem is to 
-manage a large number of devices in a scalable way and keeping as much as 
-possible dynamic actually helps here.
+That's obviously the non-bandaid solution I was hinting at.  Any volunteers?
 
-bye, Roman
-
+	--david

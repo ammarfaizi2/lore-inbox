@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266581AbUAWPNV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 10:13:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266582AbUAWPNU
+	id S266588AbUAWPVs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 10:21:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266584AbUAWPVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 10:13:20 -0500
-Received: from mail.aei.ca ([206.123.6.14]:42445 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S266581AbUAWPNO (ORCPT
+	Fri, 23 Jan 2004 10:21:47 -0500
+Received: from cimice4.lam.cz ([212.71.168.94]:24704 "EHLO beton.cybernet.src")
+	by vger.kernel.org with ESMTP id S266588AbUAWPUq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 10:13:14 -0500
-From: Ed Tomlinson <edt@aei.ca>
-Organization: me
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.2-rc1-mm2
-Date: Fri, 23 Jan 2004 10:12:56 -0500
-User-Agent: KMail/1.5.93
-Cc: Andrew Morton <akpm@osdl.org>
-References: <20040123013740.58a6c1f9.akpm@osdl.org>
-In-Reply-To: <20040123013740.58a6c1f9.akpm@osdl.org>
-MIME-Version: 1.0
+	Fri, 23 Jan 2004 10:20:46 -0500
+Date: Fri, 23 Jan 2004 15:20:45 +0000
+From: =?iso-8859-2?Q?Karel_Kulhav=FD?= <clock@twibright.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: make in 2.6.x
+Message-ID: <20040123152045.C1130@beton.cybernet.src>
+References: <20040123145048.B1082@beton.cybernet.src> <20040123100035.73bee41f.jeremy@kerneltrap.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200401231012.56686.edt@aei.ca>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040123100035.73bee41f.jeremy@kerneltrap.org>; from jeremy@kerneltrap.org on Fri, Jan 23, 2004 at 10:00:35AM -0500
+X-Orientation: Gay
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Jan 23, 2004 at 10:00:35AM -0500, Jeremy Andrews wrote:
+> > Is it correct to issue "make bzImage modules modules_install"
+> > or do I have to do make bzImage; make modules modules_install?
+> > 
+> > Is there any documentation where I can read answer to this question?
+> 
+> make help
+> 
+> Cheers,
+>  -Jeremy
 
-This fails to boot here.  Config is 2-rc1 updated with oldconfig.  It seems that it cannot 
-find root.  I did enable generic ide.  If required,  I'll enable a serial console and get a log 
-tonight.
+I have read make help and skimmed through README however what I learned is
+that the sequence "make bzImage ; make modules ; make modules_install" is
+correct, but found no approval or disapproval for
+"make bzImage modules modules_install"
 
-Ed
+Cl<

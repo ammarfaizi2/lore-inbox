@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbUF3To4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbUF3Tvo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbUF3To4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 15:44:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbUF3Tng
+	id S261610AbUF3Tvo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 15:51:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbUF3Tvo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 15:43:36 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:44030 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261610AbUF3TnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 15:43:17 -0400
-Date: Wed, 30 Jun 2004 21:43:08 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: "Klaus A. Kreil" <klaus.kreil@univie.ac.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel compile error on SuSE 9.1
-Message-ID: <20040630194307.GM24147@fs.tum.de>
-References: <Pine.A41.4.56.0406251237060.33444@login.univie.ac.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 30 Jun 2004 15:51:44 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:34203 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261610AbUF3Tvc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 15:51:32 -0400
+From: Kevin Corry <kevcorry@us.ibm.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] 0/4: Device-Mapper: Minor cleanups and fixes
+Date: Wed, 30 Jun 2004 14:52:16 -0500
+User-Agent: KMail/1.6.2
+Cc: LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.A41.4.56.0406251237060.33444@login.univie.ac.at>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406301452.16886.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 25, 2004 at 12:40:50PM +0200, Klaus A. Kreil wrote:
+Patches against 2.6.7-bk13.
 
-> Hi,
+Revision 1:
+  kcopyd.c: Remove unused #include.
 
-Hi Klaus,
+Revision 2:
+  kcopyd.c: client_add() can return void instead of an int, which will
+  eliminate an unnecessary error path in kcopyd_client_create().
 
->...
-> If this is the wrong way of submitting this information, please do me a
-> favour and point me towards the right channel to route this through.
->...
+Revision 3:
+  dm-raid1.c: Since kcopyd can currently only handle 1 source and up to 8
+  destinations, enforce a max of 9 mirrors when creating a dm-mirror device.
 
-Most likely this is a bug in some patch SuSE applied.
-
-You should ask SuSE if you encounter bugs in kernels SuSE provides.
-
-> Klaus
-
-cu
-Adrian
+Revision 4:
+  dm-raid1.c: Declare fixed-sized (instead of variable-sized) arrays on the
+  stack in recover() and do_write().
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Kevin Corry
+kevcorry@us.ibm.com
+http://evms.sourceforge.net/

@@ -1,69 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265317AbUGDCRz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265349AbUGDCU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265317AbUGDCRz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 22:17:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265331AbUGDCRz
+	id S265349AbUGDCU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 22:20:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265348AbUGDCU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 22:17:55 -0400
-Received: from ozlabs.org ([203.10.76.45]:2179 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S265317AbUGDCRv (ORCPT
+	Sat, 3 Jul 2004 22:20:57 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:56296 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S265331AbUGDCUe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 22:17:51 -0400
-Date: Sun, 4 Jul 2004 12:13:04 +1000
-From: David Gibson <hermes@gibson.dropbear.id.au>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: jt@hpl.hp.com, Jeff Garzik <jgarzik@pobox.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Dan Williams <dcbw@redhat.com>, Pavel Roskin <proski@gnu.org>
-Subject: Re: [PATCH] Update in-kernel orinoco drivers to upstream current CVS
-Message-ID: <20040704021304.GD25992@zax>
-Mail-Followup-To: David Gibson <hermes@gibson.dropbear.id.au>,
-	Francois Romieu <romieu@fr.zoreil.com>, jt@hpl.hp.com,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-	Dan Williams <dcbw@redhat.com>, Pavel Roskin <proski@gnu.org>
-References: <20040702222655.GA10333@bougret.hpl.hp.com> <20040703010709.A22334@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040703010709.A22334@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.5.6+20040523i
+	Sat, 3 Jul 2004 22:20:34 -0400
+Date: Sat, 3 Jul 2004 19:19:06 -0700 (PDT)
+From: Paul Jackson <pj@sgi.com>
+To: akpm@osdl.org, David Mosberger <davidm@hpl.hp.com>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       bjorn.helgaas@hp.com
+Cc: Matt Tolentino <matthew.e.tolentino@intel.com>,
+       Russell King <rmk@arm.linux.org.uk>, Paul Jackson <pj@sgi.com>
+Message-Id: <20040704021907.32029.98969.47514@sam.engr.sgi.com>
+Subject: [patch] Fix ia64 UPF_RESOURCES pcdp.c 2.6.7-mm5 build
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 03, 2004 at 01:07:09AM +0200, Francois Romieu wrote:
-> Jean Tourrilhes <jt@bougret.hpl.hp.com> :
-> [...]
-> > 	The difference between 0.13e and 0.15rc1+ is not small. I
-> > believe Pavel did a good job in splitting the various patches in small
-> > pieces when adding them to the CVS, and David has tracked the kernel,
-> > but reconciliating the two branches is no trivial matter.
-> 
-> I have extracted a few things from the bz2 ball that Dan sent (against
-> 2.6.7-mm5 which already contains some orinoco bits):
-> 
-> -rw-r--r--    1 romieu   users        4564 jui  3 00:47 orinoco-10.patch
-> -rw-r--r--    1 romieu   users       15999 jui  3 00:47 orinoco-20.patch
-> -rw-r--r--    1 romieu   users       33135 jui  3 00:47 orinoco-30.patch
-> -rw-r--r--    1 romieu   users       11463 jui  3 00:47 orinoco-40.patch
-> 
-> Available at http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.7-mm5/
-> 
-> So far the patches lack comments but they are quite simple.
+It looks like someone removed UPF_RESOURCES in remove-upf_resources.patch
+in parallel with someone adding drivers/firmware/pcdp.c that references
+UPF_RESOURCES.
 
-Aha, that's a good start.  During the week I'll try to look at these,
-put my rubber stamp on them, and send them on to Jeff.
+In any event, trying to build a defconfig ia64 2.6.7-mm5 (which includes
+CONFIG_SERIAL_8250=y in the .config) fails with:
 
-One thing I notice though (from your later ones, actually) is that you
-seem to be moving from current 2.6 to the CVS HEAD branch.  That
-includes the orinoco_usb stuff, which I still don't think is done
-right and would rather not push.  I know this is asking a bir of a
-favour, given how useless I've been at doing the update myself, but
-your patches would be much more useful if they aimed at the CVS
-"for_linus" branch.
+=================================
+  CC      drivers/firmware/pcdp.o
+drivers/firmware/pcdp.c: In function `setup_serial_console':
+drivers/firmware/pcdp.c:100: error: `UPF_RESOURCES' undeclared (first use in this function)
+=================================
+
+The following patch fixes this build error.
+
+Someone with a certified clue needs to sign off on this.
+I'm just typing blindly.
+
+Signed-off-by: Paul Jackson <pj@sgi.com>
+
+Index: 267mm5cpusetv4ia64/drivers/firmware/pcdp.c
+===================================================================
+--- 267mm5cpusetv4ia64.orig/drivers/firmware/pcdp.c	2004-07-03 16:52:20.000000000 -0700
++++ 267mm5cpusetv4ia64/drivers/firmware/pcdp.c	2004-07-03 16:52:34.000000000 -0700
+@@ -97,7 +97,7 @@ setup_serial_console(int rev, struct pcd
+ 		default:  port.type = PORT_UNKNOWN; break;
+ 	}
+ 
+-	port.flags = UPF_SKIP_TEST | UPF_BOOT_AUTOCONF | UPF_RESOURCES;
++	port.flags = UPF_SKIP_TEST | UPF_BOOT_AUTOCONF;
+ 
+ 	if (uart_irq_supported(rev, uart)) {
+ 		port.irq = acpi_register_gsi(uart->gsi,
 
 -- 
-David Gibson			| For every complex problem there is a
-david AT gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

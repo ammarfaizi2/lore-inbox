@@ -1,69 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318107AbSGWPSX>; Tue, 23 Jul 2002 11:18:23 -0400
+	id <S318204AbSGWPZm>; Tue, 23 Jul 2002 11:25:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318152AbSGWPSX>; Tue, 23 Jul 2002 11:18:23 -0400
-Received: from mail.uklinux.net ([80.84.72.21]:14090 "EHLO s1.uklinux.net")
-	by vger.kernel.org with ESMTP id <S318107AbSGWPSW>;
-	Tue, 23 Jul 2002 11:18:22 -0400
-Envelope-To: <linux-kernel@vger.kernel.org>
-Message-ID: <000901c2325d$089190a0$21228013@local>
-From: "Marconi" <mail@marconi.uklinux.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Linux Kernel 2.4.19rc3 PROBLEM
-Date: Tue, 23 Jul 2002 16:24:25 +0100
+	id <S318205AbSGWPZm>; Tue, 23 Jul 2002 11:25:42 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:2035 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318204AbSGWPZl>;
+	Tue, 23 Jul 2002 11:25:41 -0400
+Date: Tue, 23 Jul 2002 11:27:12 -0400 (EDT)
+From: Richard A Nelson <cowboy@vnet.ibm.com>
+X-X-Sender: cowboy@badlands.lexington.ibm.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: John Covici <covici@ccs.covici.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: is flock broken in 2.4 or 2.5 kernels or what does this mean?
+In-Reply-To: <1027441872.31787.139.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0207231125210.4219-100000@badlands.lexington.ibm.com>
+X-No-Markup: yes
+x-No-ProductLinks: yes
+x-No-Archive: yes
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The total memory values reported in /proc/meminfo are different in the
-latest 2.4.19 kernel (RC3), does anyone know why?
+On 23 Jul 2002, Alan Cox wrote:
 
-Differences of 2.4.18 /proc/meminfo and 2.4.19rc3 /proc/meminfo (see *)
+> Date: 23 Jul 2002 17:31:12 +0100
+> From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> To: John Covici <covici@ccs.covici.com>
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: is flock broken in 2.4 or 2.5 kernels or what does this mean?
+>
+> On Tue, 2002-07-23 at 15:41, John Covici wrote:
+> > In the latest release notes of sendmail I have read the following:
+> >
+> > 		NOTE: Linux appears to have broken flock() again.  Unless
+> > 			the bug is fixed before sendmail 8.13 is shipped,
+> > 			8.13 will change the default locking method to
+> > 			fcntl() for Linux kernel 2.4 and later.  You may
+> > 			want to do this in 8.12 by compiling with
+> > 			-DHASFLOCK=0.  Be sure to update other sendmail
+> > 			related programs to match locking techniques.
+> >
+> > Can anyone tell me what this is all about -- is there any basis in
+> > reality for what they are saying?
+>
+> First I've heard of it, so it would be useful if someone has access to
+> the sendmail problem report/test in question that shows it and I'll go
+> find out.
 
-          total:            used:          free:             shared:
-buffers:      cached:                        total:           used:
-free:             shared:    buffers:   cached:
-Mem:  525393920   520925184  4468736        0            23011328   36332339
-Mem:  527450112  99909632 427540480     0            4526080  54579200
-Swap: 1257181184  8806400     1248374784
-Swap: 1257181184             0 1257181184
-MemTotal:       513080 kB
-*   MemTotal:       515088 kB
-MemFree:          4364 kB
-MemFree:        417520 kB
-MemShared:           0 kB
-MemShared:           0 kB
-Buffers:         22472 kB
-Buffers:          4420 kB
-Cached:         352676 kB
-Cached:          53300 kB
-SwapCached:       2132 kB
-SwapCached:          0 kB
-Active:         180604 kB
-Active:          19224 kB
-Inactive:       262696 kB
-Inactive:        56860 kB
-HighTotal:           0 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-   HighFree:            0 kB
-LowTotal:       513080 kB
-*   LowTotal:       515088 kB
-LowFree:          4364 kB
-LowFree:        417520 kB
-SwapTotal:     1227716 kB
-SwapTotal:     1227716 kB
-SwapFree:      1219116 kB
-SwapFree:      1227716 kB
+Indeed it is, this message explains it fairly well:
+	Message-ID: <20020702160118.C4711@redhat.com>
+	Date: Tue, 2 Jul 2002 16:01:18 +0100
+	From: Stephen C. Tweedie <sct@redhat.com>
 
-Regards,
-Andy
+I haven't heard of any plans to incorporate the removal of accounting
+info in either 2.4 or 2.5 ;(
+
+-- 
+Rick Nelson
+Your job is being a professor and researcher: That's one hell of a good excuse
+for some of the brain-damages of minix.
+(Linus Torvalds to Andrew Tanenbaum)
+
 

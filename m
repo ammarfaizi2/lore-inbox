@@ -1,39 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129078AbRC2VZw>; Thu, 29 Mar 2001 16:25:52 -0500
+	id <S129166AbRC2WKP>; Thu, 29 Mar 2001 17:10:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129134AbRC2VZm>; Thu, 29 Mar 2001 16:25:42 -0500
-Received: from runyon.cygnus.com ([205.180.230.5]:43208 "EHLO cygnus.com")
-	by vger.kernel.org with ESMTP id <S129078AbRC2VZf>;
-	Thu, 29 Mar 2001 16:25:35 -0500
-To: dank@trellisinc.com
-Cc: linux-kernel@vger.kernel.org, Eli Carter <eli.carter@inet.com>
-Subject: Re: [PATCH] pcnet32 compilation fix for 2.4.3pre6
-In-Reply-To: <20010329210925.3161C6E099@fancypants.trellisinc.com>
-Reply-To: drepper@cygnus.com (Ulrich Drepper)
-X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
-X-fingerprint: e6:49:07:36:9a:0d:b7:ba:b5:e9:06:f3:e7:e7:08:4a
-From: Ulrich Drepper <drepper@redhat.com>
-Date: 29 Mar 2001 13:25:01 -0800
-In-Reply-To: dank@trellisinc.com's message of "Thu, 29 Mar 2001 16:09:25 -0500 (EST)"
-Message-ID: <m3hf0cs1xu.fsf@otr.mynet.cygnus.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Thelxepeia)
+	id <S129242AbRC2WKG>; Thu, 29 Mar 2001 17:10:06 -0500
+Received: from chromium11.wia.com ([207.66.214.139]:36624 "EHLO
+	neptune.kirkland.local") by vger.kernel.org with ESMTP
+	id <S129166AbRC2WJq>; Thu, 29 Mar 2001 17:09:46 -0500
+Message-ID: <3AC3B35D.FC010700@chromium.com>
+Date: Thu, 29 Mar 2001 14:12:45 -0800
+From: Fabio Riccardi <fabio@chromium.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "J . A . Magallon" <jamagallon@able.es>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: linux scheduler limitations?
+In-Reply-To: <3AC3A6C9.991472C0@chromium.com> <20010329233521.C6053@werewolf.able.es>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dank@trellisinc.com writes:
+Apache uses a pre-fork "threading" mechanism, it spawns (fork()s) new instances
+of itself whenever it finds out that the number of idle "threads" is below a
+certain (configurable) threshold.
 
-> with the new ansi standard, this use of __inline__ is no longer
-> necessary,
+Despite of all apparences this method performs beautifully on Linux, pthreads are
+actually slower in many cases, since you will incur some additional overhead due
+to thread synchronization and scheduling.
 
-This is not correct.  Since the semantics of inline in C99 and gcc
-differ all code which depends on the gcc semantics should continue to
-use __inline__ since this keyword will hopefully forever signal the
-gcc semantics.
+The problem is that beyond a certain number of processes the scheduler just goes
+bananas, or so it seems to me.
 
--- 
----------------.                          ,-.   1325 Chesapeake Terrace
-Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
-Red Hat          `--' drepper at redhat.com   `------------------------
+Since Linux threads are mapped on processes, I don't think that (p)threads woud
+help in any way, unless it is the VM context switch overhead that is playing a
+role here, which I wouldn't think is the case.
+
+ - Fabio
+
+"J . A . Magallon" wrote:
+
+> On 03.29 Fabio Riccardi wrote:
+> >
+> > I've found a (to me) unexplicable system behaviour when the number of
+> > Apache forked instances goes somewhere beyond 1050, the machine
+> > suddently slows down almost top a halt and becomes totally unresponsive,
+> > until I stop the test (SpecWeb).
+> >
+>
+> Have you though about pthreads (when you talk about fork, I suppose you
+> say literally 'fork()') ?
+>
+> I give a course on Parallel Programming at the university and the practical
+> work was done with POSIX threads. One of my students caught the idea and
+> used it to modify his assignment from one other matter on Networks, and
+> changed the traditional 'fork()' in a simple ftp server he had to implement
+> by 'pthread_create' and got a 10-30 speedup (conns per second).
+>
+> And you will get rid of some process-per-user limit. But you will fall into
+> an threads-per-user limit, if there is any.
+>
+> And you cal also control its scheduling, to make each thread fight against
+> the whole system or only its siblings.
+>
+> --
+> J.A. Magallon                                          #  Let the source
+> mailto:jamagallon@able.es                              #  be with you, Luke...
+>
+> Linux werewolf 2.4.2-ac28 #1 SMP Thu Mar 29 16:41:17 CEST 2001 i686
+

@@ -1,182 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263369AbTETAji (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 20:39:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263381AbTETAji
+	id S263380AbTETAjo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 20:39:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263381AbTETAjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 20:39:38 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:919 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263369AbTETAjV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 20:39:21 -0400
-Subject: [PATCH] dentry/inode accounting for vm_enough_mem()
-From: Dave Hansen <haveblue@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-EuF7cnwUzJ+waiHirYe5"
-Organization: 
-Message-Id: <1053391863.12309.2.camel@nighthawk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 19 May 2003 17:51:03 -0700
+	Mon, 19 May 2003 20:39:44 -0400
+Received: from mail134.mail.bellsouth.net ([205.152.58.94]:56051 "EHLO
+	imf46bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id S263380AbTETAj0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 20:39:26 -0400
+From: "J.C. Wren" <jcwren@jcwren.com>
+Reply-To: jcwren@jcwren.com
+To: linux-kernel@vger.kernel.org
+Subject: Problems with IDE CF in 2.5.69, 2.5.69-bk13
+Date: Mon, 19 May 2003 20:51:20 -0400
+User-Agent: KMail/1.5.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305192051.20194.jcwren@jcwren.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Today I ported 2.5.69 to my embedded 386EX system, and am encountering 
+problems with the IDE handling of compact flash cards (Sandisk, Kingston, and 
+a suspected Toshiba controller based card).  kobject_register is failing with 
+a -17 (EEXISTS) when registering the hda device:
 
---=-EuF7cnwUzJ+waiHirYe5
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+ide: Assuming 50MHz system bus speed for PIO modes; override with idebus=xx
+hda: SunDisk SDCFB-48, CFA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 9
+hda: max request size: 128KiB
+hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
+hda: task_no_data_intr: error=0x04 { DriveStatusError }
+hda: 93952 sectors (48 MB) w/1KiB Cache, CHS=734/4/32
+ hda: hda1
+ hda: hda1
+kobject_register failed for hda1 (-17)
+Call Trace: [<c01631bf>]  [<c0155308>]  [<c017007b>]  [<c0163a37>]  
+[<c0170060>]  [<c0177eb6>]  [<c0177e64>]  [<c0177e6c>]  [<c018afd4>]  
+[<c0187602>]  [<c01883ea>]  [<c018aff2>]  [<c0200611>]  [<c0105024>]  
+[<c0105040>]  [<c0105024>]  [<c0106dbd>]
 
-One of the things on the current must-fix list is:
-> - Overcommit accounting gets wrong answers
-> 
->   - underestimates reclaimable slab, gives bogus failures when
->     dcache&icache are large.
+The .config looks like:
 
-More comments from Andrew:
-> If the cache slab fragmentation is bad it can be hugely wrong.
-> A factor of ten has been observed (rarely).  Factors of two happen
-> often.
-...
-> > But, if prune_[di]cache() will only touch those which are being
-> >  counted by nr_unused, how can we be more aggressive?
-> 
-> Well, just by assuming all slab is reclaimable is one way.
-> 
-> The problem with that is that to read slab accounting we need to do
-> get_page_state(), which is too expensive to be called for every mmap()
-> on big SMP.
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+# CONFIG_BLK_DEV_HD_IDE is not set
+# CONFIG_BLK_DEV_HD is not set
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+# CONFIG_IDEDISK_STROKE is not set
+# CONFIG_BLK_DEV_IDECD is not set
+# CONFIG_BLK_DEV_IDEFLOPPY is not set
+# CONFIG_IDE_TASK_IOCTL is not set
+# CONFIG_BLK_DEV_CMD640 is not set
 
-Instead of going through get_page_state(), the following code keeps 
-track of entries as their space is allocated in the slab via 
-{con,de}structors. It _will_ overestimate the amount of reclaimable 
-slab but, previously, using the .nr_unused stat, this number was 
-underestimated and caused too many good allocations to fail.  This 
-assumes that every dentry/inode allocated in the slab is reclaimable,
-which they probably will be if we get deperate enough anyway.
+The CF card is connected directly to the bus through a couple of latches 
+(i.e., not using a CMD640 or PCI chipset or anything).  There is no DMA.  The 
+hardware is fully functional, as I've been using the 2.2.12 kernel driver for 
+a couple of years (although I've always gotten the status=0x51 that 
+IDEDISK_MULTI_MODE is suggested for).
 
-and, as for the counter type being an atomic_t:
-> Andrew Morton wrote:
-> > Dave Hansen wrote:
-> > An atomic_t might be a good idea, but I'm a bit worried that 24 bits
-> > might not be enough.  At 160 bytes/dentry, that's 2.5GB of dentries
-> > before the counter overflows.  I would imagine that we'll run out of
-> > plenty of other things before we get to _that_ many dentries.
-> 
-> The 24-bit thing is only on sparc32.  I don't think 2G of dentries
-> is possible on sparc32 anyway.
+The Sandisk and Kingston come up pretty quickly.  The third card, which 
+apparently has no embedded ID, hangs the system about 60 seconds, before 
+continuing with the same error.  I've tried hda=slow, and all the permutation 
+I can think of that would make any sense.
 
-The attached patch is against 2.5.69-mm7.
--- 
-Dave Hansen
-haveblue@us.ibm.com
+I saw a few reports but no resolution against the 2.4.60-ac kernels.  I've 
+also applied the bk13 patches against 2.5.69 in hopes that there might be 
+some resolution there.
 
---=-EuF7cnwUzJ+waiHirYe5
-Content-Disposition: attachment; filename="(d,i)cache-vm_enough_fix-2.5.69-0.patch"
-Content-Type: text/x-patch; NAME="(d,i)cache-vm_enough_fix-2.5.69-0.patch"; CHARSET=ANSI_X3.4-1968
-Content-Transfer-Encoding: 7bit
+I'm prefectly willing to give anything anyone suggests a try.  Are there any 
+additional debugging options I can/should turn on that would help anyone 
+debug this issue?
 
-diff -rup linux-2.5.69-mm8-clean/fs/dcache.c linux-2.5.69-mm8-dcache-count/fs/dcache.c
---- linux-2.5.69-mm8-clean/fs/dcache.c	Mon May 19 13:25:53 2003
-+++ linux-2.5.69-mm8-dcache-count/fs/dcache.c	Mon May 19 13:45:05 2003
-@@ -1529,6 +1529,16 @@ out:
- 	return ino;
- }
- 
-+void d_ctor(void * objp, struct kmem_cache_s *cachep, unsigned long dflags)
-+{
-+	atomic_inc(&dentry_stat.nr_alloced);
-+}
-+
-+void d_dtor(void * objp, struct kmem_cache_s *cachep, unsigned long dflags)
-+{
-+	atomic_dec(&dentry_stat.nr_alloced);
-+}
-+
- static void __init dcache_init(unsigned long mempages)
- {
- 	struct hlist_head *d;
-@@ -1548,7 +1558,7 @@ static void __init dcache_init(unsigned 
- 					 sizeof(struct dentry),
- 					 0,
- 					 SLAB_HWCACHE_ALIGN,
--					 NULL, NULL);
-+					 d_ctor, d_dtor);
- 	if (!dentry_cache)
- 		panic("Cannot create dentry cache");
- 	
-diff -rup linux-2.5.69-mm8-clean/fs/inode.c linux-2.5.69-mm8-dcache-count/fs/inode.c
---- linux-2.5.69-mm8-clean/fs/inode.c	Mon May 19 13:25:54 2003
-+++ linux-2.5.69-mm8-dcache-count/fs/inode.c	Mon May 19 16:23:14 2003
-@@ -197,6 +197,13 @@ static void init_once(void * foo, kmem_c
- 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
- 	    SLAB_CTOR_CONSTRUCTOR)
- 		inode_init_once(inode);
-+
-+	atomic_inc(&inodes_stat.nr_alloced);
-+}
-+
-+void inode_dtor(void * objp, struct kmem_cache_s *cachep, unsigned long dflags)
-+{
-+	atomic_dec(&inodes_stat.nr_alloced);
- }
- 
- /*
-diff -rup linux-2.5.69-mm8-clean/include/linux/dcache.h linux-2.5.69-mm8-dcache-count/include/linux/dcache.h
---- linux-2.5.69-mm8-clean/include/linux/dcache.h	Mon May 19 13:21:34 2003
-+++ linux-2.5.69-mm8-dcache-count/include/linux/dcache.h	Mon May 19 14:03:23 2003
-@@ -37,6 +37,7 @@ struct qstr {
- struct dentry_stat_t {
- 	int nr_dentry;
- 	int nr_unused;
-+	atomic_t nr_alloced;
- 	int age_limit;          /* age in seconds */
- 	int want_pages;         /* pages requested by system */
- 	int dummy[2];
-diff -rup linux-2.5.69-mm8-clean/include/linux/fs.h linux-2.5.69-mm8-dcache-count/include/linux/fs.h
---- linux-2.5.69-mm8-clean/include/linux/fs.h	Mon May 19 13:25:54 2003
-+++ linux-2.5.69-mm8-dcache-count/include/linux/fs.h	Mon May 19 13:50:33 2003
-@@ -58,6 +58,7 @@ extern struct files_stat_struct files_st
- struct inodes_stat_t {
- 	int nr_inodes;
- 	int nr_unused;
-+	atomic_t nr_alloced;
- 	int dummy[5];
- };
- extern struct inodes_stat_t inodes_stat;
-diff -rup linux-2.5.69-mm8-clean/mm/mmap.c linux-2.5.69-mm8-dcache-count/mm/mmap.c
---- linux-2.5.69-mm8-clean/mm/mmap.c	Mon May 19 13:25:55 2003
-+++ linux-2.5.69-mm8-dcache-count/mm/mmap.c	Mon May 19 16:24:33 2003
-@@ -82,16 +82,21 @@ int vm_enough_memory(long pages)
- 		free += nr_swap_pages;
- 
- 		/*
--		 * The code below doesn't account for free space in the
--		 * inode and dentry slab cache, slab cache fragmentation,
--		 * inodes and dentries which will become freeable under
--		 * VM load, etc. Lets just hope all these (complex)
--		 * factors balance out...
-+		 * The code below will overestimate the amount of 
-+		 * reclaimable slab.  Previously, using the .nr_unused
-+		 * stat, this number was too low and caused too many
-+		 * good allocations to fail.  This assumes that every 
-+		 * dentry/inode allocated in the slab is reclaimable,
-+		 * which they probably will be if we get deperate
-+		 * enough.
-+		 * - Dave Hansen <haveblue@us.ibm.com>
- 		 */
--		free += (dentry_stat.nr_unused * sizeof(struct dentry)) >>
--			PAGE_SHIFT;
--		free += (inodes_stat.nr_unused * sizeof(struct inode)) >>
--			PAGE_SHIFT;
-+		free += (atomic_read(&dentry_stat.nr_alloced) * 
-+			 sizeof(struct dentry)) >>
-+			 PAGE_SHIFT;
-+		free += (atomic_read(&inodes_stat.nr_alloced) * 
-+			 sizeof(struct inode)) >>
-+			 PAGE_SHIFT;
- 
- 		/*
- 		 * Leave the last 3% for root
+--John
 
---=-EuF7cnwUzJ+waiHirYe5--
 

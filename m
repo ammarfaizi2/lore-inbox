@@ -1,94 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312138AbSCQXzY>; Sun, 17 Mar 2002 18:55:24 -0500
+	id <S312144AbSCRAGZ>; Sun, 17 Mar 2002 19:06:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312140AbSCQXzG>; Sun, 17 Mar 2002 18:55:06 -0500
-Received: from proj2501.aiss.uic.edu ([131.193.164.90]:56844 "EHLO
-	proj2501.aiss.uic.edu") by vger.kernel.org with ESMTP
-	id <S312138AbSCQXyy>; Sun, 17 Mar 2002 18:54:54 -0500
-Date: Sun, 17 Mar 2002 18:02:18 -0600 (CST)
-From: "Barton, Christopher" <cpbarton@uiuc.edu>
-X-X-Sender: cpbarton@proj2501.aiss.uic.edu
-To: Miles Lane <miles@megapathdsl.net>
-cc: LKML <linux-kernel@vger.kernel.org>, <davem@ninka.net>,
-        <laforge@gnumonks.org>
-Subject: Re: 2.5.7-pre2 -- ip_conntrack_standalone.c:41: In function
- `kill_proto': structure has no member named `dst'
-In-Reply-To: <1016262729.6501.305.camel@turbulence.megapathdsl.net>
-Message-ID: <Pine.LNX.4.44.0203171733170.31233-100000@proj2501.aiss.uic.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312149AbSCRAGH>; Sun, 17 Mar 2002 19:06:07 -0500
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:62506 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S312144AbSCRAFp>; Sun, 17 Mar 2002 19:05:45 -0500
+Date: Mon, 18 Mar 2002 01:05:38 +0100
+From: Kurt Garloff <garloff@suse.de>
+To: linux-kernel@vger.kernel.org
+Cc: Linux SCSI list <linux-scsi@vger.kernel.org>,
+        Marion Steiner <msteiner@rbg.informatik.tu-darmstadt.de>
+Subject: Re: SCSI-Problem with AM53C974
+Message-ID: <20020318010538.B14900@gum01m.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	linux-kernel@vger.kernel.org,
+	Linux SCSI list <linux-scsi@vger.kernel.org>,
+	Marion Steiner <msteiner@rbg.informatik.tu-darmstadt.de>
+In-Reply-To: <200203171439.g2HEdwX00738@orion.steiner.local> <20020317225838.GA11721@merlin.emma.line.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="QTprm0S8XgL7H0Dt"
+Content-Disposition: inline
+In-Reply-To: <20020317225838.GA11721@merlin.emma.line.org>
+User-Agent: Mutt/1.3.22.1i
+X-Operating-System: Linux 2.4.16-schedJ2 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This seems to have been broken here:
 
-http://linux.bkbits.net:8080/linux-2.5/diffs/net/ipv4/netfilter/ip_conntrack_standalone.c@1.6?nav=index.html|src/|src/net|src/net/ipv4|src/net/ipv4/netfilter|related/net/ipv4/netfilter/ip_conntrack_standalone.c|cset@1.384.4.14
+--QTprm0S8XgL7H0Dt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-You might try this patch:
+On Sun, Mar 17, 2002 at 11:58:38PM +0100, Matthias Andree wrote:
+> On Sun, 17 Mar 2002, Marion Steiner wrote:
+>=20
+> > There is a problem with the AM53C974 Scsi-driver (Revision 0.5,=20
+> > kernel 2.4.x) and the DawiControl DC-2974.
+> >=20
+> > Mar 17 14:13:01 orion kernel: scsi : aborting command due to timeout : =
+pid
+> > 123, scsi1, channel 0, id 0, lun 0 Inquiry 00 0
+> > Mar 17 14:13:03 orion kernel: SCSI host 1 abort (pid 123) timed out -
+> > resetting
+> > Mar 17 14:13:03 orion kernel: SCSI bus is being reset for host 1 channe=
+l 0.
+>=20
+> Command timeouts rather look like bus termination problem, plug loose or
+> something like that. Does the problem still occur with all cables
+> unplugged from the DC-2974? Does the problem occur with the DC-2974 in
+> a different computer?
 
-diff -ur linux/net/ipv4/netfilter/ip_conntrack_standalone.c linux-2.5.7-pre2/net/ipv4/netfilter/ip_conntrack_standalone.c
---- linux/net/ipv4/netfilter/ip_conntrack_standalone.c	Sun Mar 17 17:30:09 2002
-+++ linux-2.5.7-pre2/net/ipv4/netfilter/ip_conntrack_standalone.c	Sun Mar 17 17:24:03 2002
-@@ -38,7 +38,7 @@
- 
- static int kill_proto(const struct ip_conntrack *i, void *data)
- {
--	return (i->tuplehash[IP_CT_DIR_ORIGINAL].dst.protonum == 
-+	return (i->tuplehash[IP_CT_DIR_ORIGINAL].tuple.dst.protonum == 
- 			*((u_int8_t *) data));
- }
- 
+As far as I could see there were TWO driver loaded trying to drive the same
+piece of hardware at the same time. You can really expect trouble if this
+happens and you can't take any conclusions about hardware problems.
 
-On 15 Mar 2002, Miles Lane wrote:
+The problem is of course with the drivers: They should not allow to be
+loaded both for the same device.
+IMHO, The AM53C974 driver should register the ioports and fail
+initialization if it can't grab them, so the conflict would be solved. I'll
+investigate what the most proper solution to avoid such things is and come
+up with a patch.
 
-> ip_conntrack_standalone.c: In function `kill_proto':
-> ip_conntrack_standalone.c:41: structure has no member named `dst'
-> ip_conntrack_standalone.c:43: warning: control reaches end of non-void
-> function
-> make[3]: *** [ip_conntrack_standalone.o] Error 1
-> make[3]: Leaving directory `/usr/src/linux/net/ipv4/netfilter'
-> 
-> CONFIG_PACKET=y
-> CONFIG_NETLINK_DEV=y
-> CONFIG_NETFILTER=y
-> CONFIG_NETFILTER_DEBUG=y
-> CONFIG_FILTER=y
-> CONFIG_UNIX=y
-> CONFIG_INET=y
-> CONFIG_IP_MULTICAST=y
-> CONFIG_IP_ADVANCED_ROUTER=y
-> CONFIG_IP_ROUTE_VERBOSE=y
-> CONFIG_NET_IPIP=y
-> CONFIG_NET_IPGRE=y
-> CONFIG_NET_IPGRE_BROADCAST=y
-> CONFIG_IP_MROUTE=y
-> CONFIG_IP_PIMSM_V1=y
-> CONFIG_IP_PIMSM_V2=y
-> CONFIG_SYN_COOKIES=y
-> 
-> #
-> #   IP: Netfilter Configuration
-> #
-> CONFIG_IP_NF_CONNTRACK=y
-> CONFIG_IP_NF_FTP=y
-> CONFIG_IP_NF_IRC=y
-> CONFIG_IP_NF_QUEUE=y
-> CONFIG_IP_NF_IPTABLES=y
-> CONFIG_IP_NF_MATCH_LIMIT=y
-> CONFIG_IP_NF_FILTER=y
-> CONFIG_IP_NF_TARGET_REJECT=y
-> CONFIG_IP_NF_TARGET_MIRROR=y
-> CONFIG_IP_NF_ARPTABLES=y
-> CONFIG_IP_NF_ARPFILTER=y
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE Linux AG, Nuernberg, DE                            SCSI, Security
 
+--QTprm0S8XgL7H0Dt
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQE8lS9QxmLh6hyYd04RAueZAJ9JuQVpvPhyrAJOnYD25JwMY5KEQQCeK1hy
+2D2K7lqFFxpMgH+Sduv99D0=
+=8gKD
+-----END PGP SIGNATURE-----
 
+--QTprm0S8XgL7H0Dt--

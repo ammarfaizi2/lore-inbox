@@ -1,82 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266367AbSKGIqY>; Thu, 7 Nov 2002 03:46:24 -0500
+	id <S266418AbSKGJOG>; Thu, 7 Nov 2002 04:14:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266410AbSKGIqY>; Thu, 7 Nov 2002 03:46:24 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:50244 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S266367AbSKGIqX>; Thu, 7 Nov 2002 03:46:23 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Werner Almesberger <wa@almesberger.net>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Andy Pfiffer <andyp@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <lkcd-general@lists.sourceforge.net>,
-       <lkcd-devel@lists.sourceforge.net>
-Subject: Re: [lkcd-devel] Re: What's left over.
-References: <Pine.LNX.4.44.0211052203150.1416-100000@home.transmeta.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 07 Nov 2002 01:50:28 -0700
-In-Reply-To: <Pine.LNX.4.44.0211052203150.1416-100000@home.transmeta.com>
-Message-ID: <m14ratepbf.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S266420AbSKGJOF>; Thu, 7 Nov 2002 04:14:05 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:10898 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S266418AbSKGJOB>; Thu, 7 Nov 2002 04:14:01 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Thu, 7 Nov 2002 11:15:22 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel List <linux-kernel@vger.kernel.org>,
+       Trivial Patch Monkey <trivial@rustcorp.com.au>
+Subject: [patch] dsb usb radio fix
+Message-ID: <20021107101522.GA1896@bytesex.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  Hi,
 
-I am now officially grumpy.  From a code perspective splitting kexec
-into two phases load, and execute is a simple change to make.  From a
-semantics standpoint things get ugly, and messy.  And that means I
-can't just dash off another patch.
+This patch fixes stupid cut+paste bug in dsbr100.
 
-There are currently 2 cases that it would be nice to have work.
-1) Load a new kernel and immediately execute it.
-2) Load a new kernel and execute it on panic.
+please apply,
 
-At first glance splitting the code into a load and execute phases allows
-us to use one mechanism to accomplish both goals.  In practice
-that does not work.  There are 2 problems.
+  Gerd
 
-panic does not call sys_reboot it rolls that functionality by hand.
-And to a certain extent it makes sense for panic to take a different
-path because we know something is badly wrong so we need to be extra
-careful.
+--- linux-2.5.46/drivers/usb/media/dsbr100.c	2002-11-07 09:19:26.000000000 +0100
++++ linux/drivers/usb/media/dsbr100.c	2002-11-07 09:22:16.000000000 +0100
+@@ -265,7 +265,8 @@
+ 		case VIDIOCSFREQ:
+ 		{
+ 			int *freq = arg;
+-			*freq = radio->curfreq;
++
++			radio->curfreq = *freq;
+ 			if (dsbr100_setfreq(radio, radio->curfreq)==-1)
+ 				warn("set frequency failed");
+ 			return 0;
 
-In staging the image we allocate a whole pile of pages, and keep them
-locked in place.  Waiting for years potentially until the machine
-reboots or panics.   This memory is not accounted for anywhere so no
-one can see that we have it allocated, which makes debugging hard.
-Additionally in locking up megabytes for a long period of time we
-create unsolvable fragmentation issues for the mm layer to deal with.
-
-In a unified design I can buffer the image in the anonymous pages of a
-user space process just as well as I can in locked down kernel memory.
-So factoring sys_kexec in to load and execute pieces only helps for
-executing the new image on a kernel panic, and that case does not
-actually work.
-
-So currently factoring kexec looks like a pointless exercise, that
-will just lead to more pain.
-
-I am left with the following questions.
-- How should the pages allocated to an early loaded image be accounted
-  for?
-- How do we avoid making life hard for the mm system with an early
-  loaded image?
-- Is it safe to call sys_reboot from panic?
-- Can we simply factor out the sequence:
-		notifier_call_chain(&reboot_notifier_list, SYS_RESTART, NULL);
-		system_running = 0;
-		device_shutdown();
-  And place it into it's own subroutine?
-- What does the current mcore implementation do?  And is that a good
-  model to follow to resolve some of these issues?
-
-
-Eric
-
+-- 
+You can't please everybody.  And usually if you _try_ to please
+everybody, the end result is one big mess.
+				-- Linus Torvalds, 2002-04-20

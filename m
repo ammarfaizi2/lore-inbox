@@ -1,41 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbULBWGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261780AbULBWMV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261343AbULBWGk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 17:06:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbULBWGk
+	id S261780AbULBWMV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 17:12:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbULBWMV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 17:06:40 -0500
-Received: from h24-70-124-235.sbm.shawcable.net ([24.70.124.235]:15535 "EHLO
-	mustang.dctchambers.com") by vger.kernel.org with ESMTP
-	id S261343AbULBWGj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 17:06:39 -0500
-Message-ID: <1926.192.168.99.70.1102025258.squirrel@192.168.99.70>
-Date: Thu, 2 Dec 2004 14:07:38 -0800 (PST)
-Subject: Perl modulo
-From: "Scott Taylor" <scott@dctchambers.com>
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Thu, 2 Dec 2004 17:12:21 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:64202 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261780AbULBWMR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 17:12:17 -0500
+Subject: Re: Suspend 2 merge: 50/51: Device mapper support.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Alasdair G Kergon <agk@redhat.com>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041202214932.GE24233@agk.surrey.redhat.com>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+	 <1101300802.5805.398.camel@desktop.cunninghams>
+	 <20041125235829.GJ2909@elf.ucw.cz>
+	 <1101427667.27250.175.camel@desktop.cunninghams>
+	 <20041202204042.GD24233@agk.surrey.redhat.com>
+	 <1102021461.13302.40.camel@desktop.cunninghams>
+	 <20041202214932.GE24233@agk.surrey.redhat.com>
+Content-Type: text/plain
+Message-Id: <1102025297.13302.51.camel@desktop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 03 Dec 2004 09:08:18 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+You're right.
 
-Hello all,
+My mistake. The code has been improved and I haven't reverted some of
+the changes in drivers/md to match. I'll do that and make the two
+exports that are needed (dm_io_get and dm_io_put) into an
+include/linux/dm.h.
 
-I know this isn't a Perl list, but I'm an admin too. :)
+Regards,
 
-I've come accross this before and cant find it again, does anyone know how
-to find the modulus of a divisor in Perl?
+Nigel
 
-most programmig languages just have something like $a = modulo(20/3) or
-simmilar.  Anyone know the trick in Perl?
+On Fri, 2004-12-03 at 08:49, Alasdair G Kergon wrote:
+> On Fri, Dec 03, 2004 at 08:04:21AM +1100, Nigel Cunningham wrote:
+> > It's not internals that need to be exposed.
+>  
+> Then why move an internal dm-io structure into a header file and 
+>   #include "../../drivers/md/dm-io.h"
+> from another part of the tree?
+> 
+> Alasdair
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
-Cheers.
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
 
---
-Scott

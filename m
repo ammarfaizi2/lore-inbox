@@ -1,52 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263711AbTDYKSd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 06:18:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263814AbTDYKSd
+	id S263834AbTDYKWB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 06:22:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263854AbTDYKWB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 06:18:33 -0400
-Received: from almesberger.net ([63.105.73.239]:30732 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S263711AbTDYKSc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 06:18:32 -0400
-Date: Fri, 25 Apr 2003 07:30:27 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Jaroslav Kysela <perex@suse.cz>
-Cc: Matthias Schniedermeyer <ms@citd.de>, Pat Suwalski <pat@suwalski.net>,
-       Jamie Lokier <jamie@shareable.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Marc Giger <gigerstyle@gmx.ch>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 623] New: Volume not remembered.
-Message-ID: <20030425073027.U3557@almesberger.net>
-References: <20030424182227.P3557@almesberger.net> <Pine.LNX.4.44.0304251202290.1347-100000@pnote.perex-int.cz>
+	Fri, 25 Apr 2003 06:22:01 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:43168 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263834AbTDYKWA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 06:22:00 -0400
+Date: Fri, 25 Apr 2003 12:33:42 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Alexander Atanasov <alex@ssi.bg>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC/PATCH] IDE Power Management try 1
+Message-ID: <20030425103342.GJ1012@suse.de>
+References: <1051189194.13267.23.camel@gaston> <3EA90176.2080304@ssi.bg>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0304251202290.1347-100000@pnote.perex-int.cz>; from perex@suse.cz on Fri, Apr 25, 2003 at 12:03:30PM +0200
+In-Reply-To: <3EA90176.2080304@ssi.bg>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jaroslav Kysela wrote:
-> I would change this to 'OSS mixers' because all ALSA mixers handle the 
-> mute feature.
+On Fri, Apr 25 2003, Alexander Atanasov wrote:
+> 		Hello,
+> 
+> Benjamin Herrenschmidt wrote:
+> 
+> 
+> >The point is to pipe the power management requests through the request
+> >queue for proper locking. Since those requests involve several
+> >operations that have to be tied together with the queue beeing locked
+> >for further 'user' requests, they are implemented as a state machine
+> >with specific callbacks in the subdrivers
+> >
+> [cut]
+> >
+> >One thing that should probably be cleaned up is the difference between
+> >the suspend and the resume request. I didn't want to implement 2
+> >different request bits to avoid using too much of that bit-space, and
+> >because most of the core handling is the same. So right now, I carry in
+> >the special structure attached to the request, 2 fields. An int
+> >indicating if we are doing a suspend or a resume op, and an int that is
+> >the actual state machine step.
+> 
+> > ===== include/linux/blkdev.h 1.100 vs edited =====
+> > --- 1.100/include/linux/blkdev.h	Sun Apr 20 18:20:10 2003
+> > +++ edited/include/linux/blkdev.h	Thu Apr 24 14:30:50 2003
+> > @@ -116,6 +116,7 @@
+> >  	__REQ_DRIVE_CMD,
+> >  	__REQ_DRIVE_TASK,
+> >  	__REQ_DRIVE_TASKFILE,
+> > +	__REQ_POWER_MANAGEMENT,
+> >  	__REQ_NR_BITS,	/* stops here */
+> >  };
+> 
+> 
+> 		What about this - add __REQ_DRIVE_INTERNAL, and carry args 
+> 		in rq->cmd[16] [0] = PM, [1] = SUSPEND/RESUME, [2]= STATE ? IDE can use it 
+> for power managment, error handling (do not do it from interrupt 
+> context, but queue it), may be more. This way it would really makes 
+> things a bit better with the complicated IDE locking. SCSI and probably 
+> other block devices can benefit from this internal requests too, so the 
+> bit is not wasted.
 
-I didn't qualify this for two reasons:
-
- - also an ALSA mixer may choose not to show a "mute" button (or
-   equivalent) to the user
- - how am I to tell if my mixer is an ALSA or an OSS mixer ?
-
-That's why I think a "if there's a mute button, set it to unmute,
-if there's none, don't worry" rule is easier to understand.
-
-I'd also expect that "mute" will sometimes be confused with input
-selection (at least that happened to me, because I'm used to
-XMixer and didn't realize there was another set of controls, e.g.
-in KMix), but the rule will still work.
-
-- Werner
+There are already lots of "INTERNAL" - basically take your pick from all
+the ones you quote above (DRIVE_TASK, DRIVE_CMD, DRIVE_TASKFILE - it's a
+MESS). A power management special request makes sense to me.
 
 -- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+Jens Axboe
+

@@ -1,73 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273562AbRIQKpI>; Mon, 17 Sep 2001 06:45:08 -0400
+	id <S273565AbRIQKsi>; Mon, 17 Sep 2001 06:48:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273565AbRIQKpB>; Mon, 17 Sep 2001 06:45:01 -0400
-Received: from warande3094.warande.uu.nl ([131.211.123.94]:50035 "EHLO
-	xar.sliepen.oi") by vger.kernel.org with ESMTP id <S273562AbRIQKoz>;
-	Mon, 17 Sep 2001 06:44:55 -0400
-Date: Mon, 17 Sep 2001 12:45:00 +0200
-From: Guus Sliepen <guus@warande3094.warande.uu.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Disk errors and Reiserfs
-Message-ID: <20010917124500.A30176@sliepen.warande.net>
-Mail-Followup-To: Guus Sliepen <guus@sliepen.warande.net>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <200109162329.f8GNTY918084@demai05.mw.mediaone.net> <E15imSi-00068f-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZGiS0Q5IWpPtfppv"
-Content-Disposition: inline
-In-Reply-To: <E15imSi-00068f-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.20i
-X-oi: oi
+	id <S273566AbRIQKs2>; Mon, 17 Sep 2001 06:48:28 -0400
+Received: from abel.math.tsukuba.ac.jp ([130.158.120.16]:21434 "HELO
+	abel.math.tsukuba.ac.jp") by vger.kernel.org with SMTP
+	id <S273565AbRIQKsZ>; Mon, 17 Sep 2001 06:48:25 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Michael Dreher <michael.dreher@gmx.net>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.4.9 deadlock
+Date: Mon, 17 Sep 2001 19:49:33 +0900
+X-Mailer: KMail [version 1.3]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010917104847.A8CABFC91@abel.math.tsukuba.ac.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
---ZGiS0Q5IWpPtfppv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+yesterday my box locked up. It happened when I opened a link in a new
+window of konqueror of kde2.2.
+No ping, no sysrq, no keyboard LEDs. Obviously nothing in the logs.
+I had to press reset.
 
-On Mon, Sep 17, 2001 at 01:40:36AM +0100, Alan Cox wrote:
+It is a PIII 450 Mhz with 128 MB Ram (usually 10-20 MB free), 160 MB
+swap (usually 50 MB used). I have no IDE, Adaptec AIC-7881U,
+DECchip 21140 ethernet card, and never had eny problems with these.
 
-> > Is it possible for the kernel to handle this with enough grace that you=
-=20
-> > can kill the processes and unmount the partition?  (Thus allowing the b=
-ox=20
-> > to continue in a hobbled, but function manner.)  Failing that, is it=20
-> > possible for the kernel to handle it well enough for 'shutdown' to clea=
-nly=20
-> > shutdown the box?
->=20
-> Killing the process isnt neccessary, its been halted in its tracks. As to
-> a clean shutdown - no chance. You've just hit a disk failure, the on disk
-> state is not precisely known, writes have been lost. Nothing is going to
-> make a clean shutdown possible under such circumstances.
+This is a 2.4.9 Kernel, patched with ext3-0.9.6.
+Otherwise, this box is very solid and has never locked up before. 
+2.4.5 (with ext3 patch) had an uptime of more than 70 days.
+I use it as a desktop box only, and the load is light.
 
-Of course. But I did notice that (for ext2) the filesystem dirty flag is not
-set if there are errors from the underlying block device, only when it actu=
-ally
-detects some corruption. So these errors will not trigger an appropiate
-response like remounting read-only or fscking on reboot.
+Sorry for this imprecise and vague description. Just ask if you need
+more infos.
 
---=20
-Met vriendelijke groet / with kind regards,
-  Guus Sliepen <guus@sliepen.warande.net>
+best regards,
+Michael
 
---ZGiS0Q5IWpPtfppv
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+ 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
 
-iD8DBQE7pdQrAxLow12M2nsRAqqvAJ9JsLntuCcPqUZFIc9681bz0Ej8EACgpFrX
-Jo6DNKuclU/6HdPbFl2GdSY=
-=wBx1
------END PGP SIGNATURE-----
 
---ZGiS0Q5IWpPtfppv--
+

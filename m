@@ -1,77 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267645AbUBTA6O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 19:58:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267641AbUBTAzj
+	id S267623AbUBTBHK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 20:07:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267650AbUBTAzE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 19:55:39 -0500
-Received: from inova102.correio.tnext.com.br ([200.222.67.102]:30154 "HELO
-	leia-auth.correio.tnext.com.br") by vger.kernel.org with SMTP
-	id S267626AbUBTAvz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 19:51:55 -0500
-X-Analyze: Velop Mail Shield v0.0.3
-Date: Thu, 19 Feb 2004 21:51:52 -0300 (BRT)
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
-To: Greg KH <greg@kroah.com>
-cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
+	Thu, 19 Feb 2004 19:55:04 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:51461 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S267642AbUBTAwm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 19:52:42 -0500
+Date: Fri, 20 Feb 2004 01:52:37 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Greg KH <greg@kroah.com>, linux-hotplug-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
 Subject: Re: HOWTO use udev to manage /dev
-In-Reply-To: <20040219235602.GI15848@kroah.com>
-Message-ID: <Pine.LNX.4.58.0402192057590.694@pervalidus.dyndns.org>
-References: <20040219185932.GA10527@kroah.com> <20040219191636.GC10527@kroah.com>
- <Pine.LNX.4.58.0402191918440.688@pervalidus.dyndns.org> <20040219230749.GA15848@kroah.com>
- <Pine.LNX.4.58.0402192033490.694@pervalidus.dyndns.org> <20040219235602.GI15848@kroah.com>
-X-Archive: encrypt
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20040220005237.GA7079@pclin040.win.tue.nl>
+References: <20040219194610.GB13934@kroah.com> <Pine.LNX.4.44.0402192020100.26894-100000@phoenix.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0402192020100.26894-100000@phoenix.infradead.org>
+User-Agent: Mutt/1.4.1i
+X-Spam-DCC: Servercave: kweetal.tue.nl 1183; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Feb 2004, Greg KH wrote:
+On Thu, Feb 19, 2004 at 08:21:25PM +0000, James Simmons wrote:
 
-> So if you take out the line about starting udevd, does it
-> work for you?
+> Okay. If I change the major number of serial ttys inside the kernel 
+> of course udev would properly handle this. Now the question is would this 
+> break userland applications using the serial port?
 
-No.
+Yes, a few of them.
+Ordinarily, userland software uses pathnames in /dev.
+But some software knows too much.
 
-> How about changing the #!/bin/bash to #!/bin/sash in the
-> first line for the start_udev script?
+In dietlibc-0.20 one can read:
 
-I didn't have it, but compiled and changed. Yes, it works.
+char *ttyname(int fd) {
+...
+  if (S_ISCHR(s.st_mode)) {
+    n=minor(s.st_rdev);
+    switch (major(s.st_rdev)) {
+    case 4:
+...
+    case 2:
+...
+    case 136:
+    case 137:
+    case 138:
+    case 139:
+...
+}
 
-> What distro is this?
+This code knows about the actual values of majors.
+There are lots of examples like this.
 
-Slackware, with a cute rc.S. /bin/bash was also recompiled, shared:
+For stable use of Linux one must preserve the 16-bit legacy area.
 
-$ ldd /bin/bash
-        libreadline.so.4 => /usr/lib/libreadline.so.4 (0x4001c000)
-        libhistory.so.4 => /usr/lib/libhistory.so.4 (0x40049000)
-        libncurses.so.5 => /lib/libncurses.so.5 (0x40050000)
-        libdl.so.2 => /lib/libdl.so.2 (0x4008f000)
-        libc.so.6 => /lib/libc.so.6 (0x40092000)
-        /lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0x40000000)
+On the other hand, if the goal is to find and eradicate all such
+ugly uses of explicit device numbers, Linus' idea to make it all
+random will certainly help.
+(But a big grep for st_rdev might be more efficient.)
 
-Maybe the problem ? Does yours differ ?
-
-bash from Slackware:
-
-        libtermcap.so.2 => /lib/libtermcap.so.2 (0x4001c000)
-        libdl.so.2 => /lib/libdl.so.2 (0x4005c000)
-        libc.so.6 => /lib/libc.so.6 (0x4005f000)
-        /lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0x40000000)
-
-OK, I'll later boot with it and see if it works. If it does,
-I'll run strace with the other.
-
-> Can you run strace on the start_udev script after boot to see who is
-> needing access to /dev/null?
-
-I forgot to run it, but noticed there was a /dev/null, but a
-text file (0644). And I didn't create it anywhere.
-
-> Oh, and if you create the /dev/null node as the first thing in the
-> start_udev script does that work?
-
-No.
-
--- 
-http://www.pervalidus.net/contact.html
+Andries

@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271685AbRHUOJg>; Tue, 21 Aug 2001 10:09:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271681AbRHUOJR>; Tue, 21 Aug 2001 10:09:17 -0400
-Received: from e24.nc.us.ibm.com ([32.97.136.230]:40860 "EHLO
-	e24.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S271677AbRHUOJL>; Tue, 21 Aug 2001 10:09:11 -0400
-Subject: Announcing Journaled File System (JFS)  release 1.0.3 available
-To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF24A34168.0F477E02-ON85256B29.0052E00A@raleigh.ibm.com>
-From: "Steve Best" <sbest@us.ibm.com>
-Date: Fri, 21 Dec 2001 09:08:54 -0600
-X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.6 |December 14, 2000) at
- 08/21/2001 10:08:58 AM
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S269281AbRHCCsm>; Thu, 2 Aug 2001 22:48:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S269285AbRHCCsd>; Thu, 2 Aug 2001 22:48:33 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:12301 "EHLO vasquez.zip.com.au") by vger.kernel.org with ESMTP id <S269281AbRHCCsT>; Thu, 2 Aug 2001 22:48:19 -0400
+Message-ID: <3B6A11F9.9C5FCDE7@zip.com.au>
+Date: Fri, 03 Aug 2001 12:52:41 +1000
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+To: Hugh Dickins <hugh@veritas.com>
+CC: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>, Linus Torvalds <torvalds@transmeta.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] show_trace() module_end = 0?
+References: <Pine.LNX.4.33.0108021553500.7060-100000@chaos.tp1.ruhr-uni-bochum.de> <Pine.LNX.4.21.0108021822340.959-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Release 1.0.3 of JFS was made available on August 20, 2001.
+Hugh Dickins wrote:
+> 
+> > The other, minor problem is that we should walk the module_list under
+> > lock_kernel() only, but I wasn't brave enough to add this to the
+> > show_trace() code path.
+> 
+> I think it's just modlist_lock you'd need.  Not sure whether better
+> to try for it or ignore it.  CC'ed Andrew "spinlock-buster" Morton
+> for his opinion.
 
-Drop 41 on August 20, 2001 (jfs-2.2-1.0.3-patch.tar.gz
-or jfs-2.4-1.0.3-patch.tar.gz) includes fixes to the
-file system and utilities.
+Debugging things like show_trace() may be called from any context
+at all, and hence really cannot take locks.  We just live with the
+race possibilities.
 
-Function and Fixes in release 1.0.3
+One could possibly play games with spin_trylock, but I don't expect
+it'd help much - if you failed to get the lock what can you do?
 
-- Fixed compiler warnings in the utilities on 64 bit systems
-- Created jfsutils package
-- Patch to move from previous release to latest release needs to
-  update the version number in super.c
-- Jitterbug problems (134,140,152) removing files have been fixed
-- Set rc=ENOSPC if ialloc fails in jfs_create and jfs_mkdir
-- Fixed jfs_txnmgr.c 775! assert
-- Fixed jfs_txnmgr.c 884! assert(mp->nohomeok==0)
-- Fix hang - prevent tblocks from being exhausted
-- Fix oops trying to mount reiserfs
-- Fail more gracefully in jfs_imap.c
-- Print more information when char2uni fails
-- Fix timing problem between Block map and metapage cache - jitterbug 139
-- Code Cleanup (removed many ifdef's, obsolete code, ran code
-  through indent) Mostly 2.4 tree
-- Split source tree (Now have a separate source tree for 2.2, 2.4,
-  and jfsutils)
-
-
-For more details about JFS, please see the README or changelog.jfs.
-
-Steve
-JFS for Linux http://oss.software.ibm.com/jfs
-
+-

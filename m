@@ -1,49 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264468AbTLGRuY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 12:50:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264469AbTLGRuY
+	id S264464AbTLGR6p (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 12:58:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264467AbTLGR6p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 12:50:24 -0500
-Received: from holomorphy.com ([199.26.172.102]:22745 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264468AbTLGRuT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 12:50:19 -0500
-Date: Sun, 7 Dec 2003 09:50:13 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: linux-kernel@vger.kernel.org, suparna@in.ibm.com, linux-aio@kvack.org
-Subject: Re: aio on ramfs
-Message-ID: <20031207175013.GF14258@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-	linux-kernel@vger.kernel.org, suparna@in.ibm.com,
-	linux-aio@kvack.org
-References: <20031207083432.GP19856@holomorphy.com> <87ptf0h6h8.fsf@devron.myhome.or.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87ptf0h6h8.fsf@devron.myhome.or.jp>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Sun, 7 Dec 2003 12:58:45 -0500
+Received: from cafe.hardrock.org ([142.179.182.80]:14209 "EHLO
+	cafe.hardrock.org") by vger.kernel.org with ESMTP id S264464AbTLGR6l
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 12:58:41 -0500
+Date: Sun, 7 Dec 2003 10:58:38 -0700 (MST)
+From: James Bourne <jbourne@hardrock.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.22-uv3 patch set released
+Message-ID: <Pine.LNX.4.51.0312071056350.2796@cafe.hardrock.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> writes:
->> +static int ramfs_writepage(struct page *page, struct writeback_control *wbc)
->> +{
->> +	return 0;
->> +}
+Hi all,
+The Update Version patchset is a set of patches which include only fatal
+compile/runtime bug fixes and security updates for the current kernel
+version.  This patch set can be used in production environments for those
+who wish to run 2.4.22, but do not use vendor kernels and at the same time
+require patches which add to the stability of the current release kernel
+version.  This is a patch set only, it does not include kernel source.
 
-On Mon, Dec 08, 2003 at 02:40:03AM +0900, OGAWA Hirofumi wrote:
-> Doesn't this break the magic of shrink_list()? I think it need the
-> "return WRITEPAGE_ACTIVATE;" at least.
+Current version is 2.4.22-uv3 and adds the do_brk() security patch.
 
-In truth these things shouldn't be on the LRU at all, though they're
-probably blindly plopped down there. My handwavy argument was that it
-makes no sense to do anything with it on the LRU and that I'd nopped
-out ->set_page_dirty() anyhow (i.e. PG_dirty should never get set). Does
-that hold enough water or should I still hand back WRITEPAGE_ACTIVATE?
+The complete URL to the patch set is
+http://www.hardrock.org/kernel/current-updates/linux-2.4.22-updates.patch
+
+Individual patches can be viewed and downloaded from
+http://www.hardrock.org/kernel/current-updates/
+
+This patch set only contains and will only contain security updates and
+fixes for the latest kernel version.  Each individual patch contains text
+WRT the patch itself and the creator of the patch, I will try to keep doing
+that as standard reference for the complete collection.
+
+Please send bug reports to jbourne@hardrock.org and CC
+linux-kernel@vger.kernel.org.
+
+Patch specifics are:
+linux-2.4.22-extraversion.patch: Updated the extraversion in the Makefile
+
+linux-2.4.22-amd64-compile.patch: Fixes broken x86-64 compilation
+
+linux-2.4.22-amd76x_pm.c-crash.patch: Fix amd67x_pm.c crash with no chipsets
+        / CONFIG_HOTPLUG
+
+linux-2.4.22-atm-pca-200epc.patch: when clip isnt a module, the common code
+        try to manipulate the module count while fails.
+
+linux-2.4.22-hardirq-race.patch: Fix possible IRQ handling SMP race
+
+linux-2.4.22-initrd-netboot.patch: Handle -EBUSY in mount_block_root for
+        netboot
+
+linux-2.4.22-pcwd-unload-oops.patch: This patch is from Alan Cox and fixes
+        problems when pcwd driver is loaded while there is no pcwd hardware
+        installed.
+
+linux-2.4.22-usb-serial.patch: This patch from Greg K-H stops an oops
+        condition within the USB Serial driver.
+
+linux-2.4.22-acpi_po_tramp.patch: When using ACPI, sysrq-o will oops the
+        kernel.  This patch from Andi Kleen fixes the condition.
+
+linux-2.4.22-aic7xxx_osm-compile.patch: Compile fix for aic7xxx_osm when
+        compiling using CONFIG_EISA and CONFIG_PCI is unset.
+
+linux-2.4.22-do_brk.patch: Andrew Morton found an issue where there is an
+        integer overflow condition in the do_brk function call of mm/mmap.c
+        this patch (pulled from 2.4.23) corrects that condition.
+
+Regards
+James Bourne
+
+-- 
+James Bourne                  | Email:            jbourne@hardrock.org          
+Unix Systems Administrator    | WWW:           http://www.hardrock.org
+Custom Unix Programming       | Linux:  The choice of a GNU generation
+----------------------------------------------------------------------
+ "All you need's an occasional kick in the philosophy." Frank Herbert  
 
 
--- wli
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+-- 
+James Bourne                  | Email:            jbourne@hardrock.org          
+Unix Systems Administrator    | WWW:           http://www.hardrock.org
+Custom Unix Programming       | Linux:  The choice of a GNU generation
+----------------------------------------------------------------------
+ "All you need's an occasional kick in the philosophy." Frank Herbert  

@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263676AbRFCQmg>; Sun, 3 Jun 2001 12:42:36 -0400
+	id <S264218AbRFDMkp>; Mon, 4 Jun 2001 08:40:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263677AbRFCQm0>; Sun, 3 Jun 2001 12:42:26 -0400
-Received: from 23dyn60.com21.casema.net ([213.17.93.60]:37896 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S263676AbRFCQmP>; Sun, 3 Jun 2001 12:42:15 -0400
-Message-Id: <200106031641.SAA23743@cave.bitwizard.nl>
-Subject: Re: rtl8139too in 2.4.5
-In-Reply-To: <UTC200106021230.OAA182199.aeb@vlet.cwi.nl> from "Andries.Brouwer@cwi.nl"
- at "Jun 2, 2001 02:30:59 pm"
-To: Andries.Brouwer@cwi.nl
-Date: Sun, 3 Jun 2001 18:41:52 +0200 (MEST)
-CC: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S264220AbRFDMUu>; Mon, 4 Jun 2001 08:20:50 -0400
+Received: from docs3.abcrs.com ([63.238.77.222]:61701 "EHLO
+	mailer.progressive-comp.com") by vger.kernel.org with ESMTP
+	id <S264219AbRFDMUg>; Mon, 4 Jun 2001 08:20:36 -0400
+Date: Mon, 4 Jun 2001 08:20:01 -0400
+Message-Id: <200106041220.IAA07493@mailer.progressive-comp.com>
+From: Hank Leininger <linux-kernel@progressive-comp.com>
+Reply-To: Hank Leininger <hlein@progressive-comp.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] security rules?  (and 2.4.5-ac4 security bug)
+X-Shameless-Plug: Check out http://marc.theaimsgroup.com/
+X-Warning: This mail posted via a web gateway at marc.theaimsgroup.com
+X-Warning: Report any violation of list policy to abuse@progressive-comp.com
+X-Posted-By: Hank Leininger <hlein@progressive-comp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
-> My RTL8139 (Identified 8139 chip type 'RTL-8139A')
-> was fine in 2.4.3 and doesnt work in 2.4.5.
-> Copying the 2.4.3 version of 8139too.c makes things work again.
-> 
-> Since lots of people complained about this, I have not tried to
-> debug - maybe a fixed version already exists?
+On 2001-06-03, Dawson Engler <engler@csl.Stanford.EDU> wrote:
 
-We upgraded to 2.4.5-ac2 for some test, noted that the ethernet card
-was agian in 6-packets-per-second mode (i.e. very slow) and then
-continued to 2.4.5-ac4 where the driver was reverted to the one in
-2.4.3. That worked.
+> Additionally, do people have suggestions for good security rules?
+> We're looking to expand our security checkers.  Right now we just have
+> checkers that warn when:
 
-				Roger. 
+Do you already have checks for signed/unsigned issues?  Those often result
+in security problems, although you may already be checking for them simply
+for reliable-code purposes.  ...Hm, looking at the archives, I see Chris
+Evans responded about signedness issues when you asked last month :-P
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+You may want to check out and/or subscribe to the security-audit list; most
+of the discussion is about userland security issues but kernel problems (or
+potential  ones) are discussed as well.  We have archives of the list at:
+http://marc.theaimsgroup.com/?l=linux-security-audit&r=1&w=2
+And see http://www.linuxhelp.org/lsap.shtml for more info, subscribing,
+etc.
+
+--
+Hank Leininger <hlein@progressive-comp.com> 
+  

@@ -1,50 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130381AbRCPHhf>; Fri, 16 Mar 2001 02:37:35 -0500
+	id <S130399AbRCPHrp>; Fri, 16 Mar 2001 02:47:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130388AbRCPHhZ>; Fri, 16 Mar 2001 02:37:25 -0500
-Received: from csl.Stanford.EDU ([171.64.66.149]:31416 "EHLO csl.Stanford.EDU")
-	by vger.kernel.org with ESMTP id <S130384AbRCPHhQ>;
-	Fri, 16 Mar 2001 02:37:16 -0500
-From: Dawson Engler <engler@csl.Stanford.EDU>
-Message-Id: <200103160736.XAA04682@csl.Stanford.EDU>
-Subject: Re: [CHECKER] 9 potential copy_*_user bugs in 2.4.1
-To: viro@math.psu.edu (Alexander Viro)
-Date: Thu, 15 Mar 2001 23:36:23 -0800 (PST)
-Cc: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
-In-Reply-To: <Pine.GSO.4.21.0103152146550.10709-100000@weyl.math.psu.edu> from "Alexander Viro" at Mar 15, 2001 10:11:46 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130406AbRCPHrg>; Fri, 16 Mar 2001 02:47:36 -0500
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:60943 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S130399AbRCPHrX>; Fri, 16 Mar 2001 02:47:23 -0500
+Message-ID: <3AB1D312.E6965E0A@t-online.de>
+Date: Fri, 16 Mar 2001 09:47:14 +0100
+From: Gunther.Mayer@t-online.de (Gunther Mayer)
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: alan@lxorguk.ukuu.org.uk
+CC: linux-kernel@vger.kernel.org
+Subject: Patch(2.4.2): serial.c timedia oneliner (Resend)
+Content-Type: multipart/mixed;
+ boundary="------------E09AC4F5EA08EEA37F420F22"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Looks like you've missed at least one place. Have you marked pointer
-> arguments of syscalls as tainted? Path in question looks so:
+This is a multi-part message in MIME format.
+--------------E09AC4F5EA08EEA37F420F22
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-In the exokernel param checker we do, but not for the one in linux ---
-most of the pointers seemed to be devices, so I never added it.  Afer
-your for bug example, I'll go hack the checker ;-)
+Hi,
+please apply this oneliner to fix the Timedia/Sunix series PCI cards.
 
-> 	* if method's argument is ever tainted - all instances of that
-> method have that argument tainted.
-> 
-> Is it possible to implement? The last rule may be tricky - we need to
-> remember that field foo of structure bar has tainted nth argument and
-> keep track of all functions assigned to foo, either by initialization
-> or by direct assignment. Could that be done?
+Regards, Gunther
 
-It should be.  We're using a trick similar to this one to build up
-equivalence classes of interrupt handlers tracking which functions are
-assigned to struct fields, or passed as the same parameter to a
-function (request_irq being the prime example).  You'd expect that if 
-any function passed/assigned to a given function/field is an 
-interrupt handler then the rest are too.
 
-The big win will be when checkers can get at global data structure
-initializers.  From an outsiders view, it seems like most device
-methods are registered that way.
+P.S.
+I'm sending this since 3 months to the maintainer (tytso@mit.edu)
+and even submitted to serial.sourceforge.net but never got a reaction.
+Anybody knows if Ted is still active?
 
-Dawson
-Dawson
+
+--- linux/drivers/char/serial.c-242-orig        Fri Mar 16 09:32:22 2001
++++ linux/drivers/char/serial.c Fri Mar 16 09:34:32 2001
+@@ -4175,7 +4175,7 @@
+        for (i=0; timedia_data[i].num; i++) {
+                ids = timedia_data[i].ids;
+                for (j=0; ids[j]; j++) {
+-                       if (pci_get_subvendor(dev) == ids[j]) {
++                       if (pci_get_subdevice(dev) == ids[j]) {
+                                board->num_ports = timedia_data[i].num;
+                                return 0;
+                        }
+--------------E09AC4F5EA08EEA37F420F22
+Content-Type: application/octet-stream;
+ name="gmdiff-lx242-serialc-timedia-oneliner"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="gmdiff-lx242-serialc-timedia-oneliner"
+
+LS0tIGxpbnV4L2RyaXZlcnMvY2hhci9zZXJpYWwuYy0yNDItb3JpZwlGcmkgTWFyIDE2IDA5
+OjMyOjIyIDIwMDEKKysrIGxpbnV4L2RyaXZlcnMvY2hhci9zZXJpYWwuYwlGcmkgTWFyIDE2
+IDA5OjM0OjMyIDIwMDEKQEAgLTQxNzUsNyArNDE3NSw3IEBACiAJZm9yIChpPTA7IHRpbWVk
+aWFfZGF0YVtpXS5udW07IGkrKykgewogCQlpZHMgPSB0aW1lZGlhX2RhdGFbaV0uaWRzOwog
+CQlmb3IgKGo9MDsgaWRzW2pdOyBqKyspIHsKLQkJCWlmIChwY2lfZ2V0X3N1YnZlbmRvcihk
+ZXYpID09IGlkc1tqXSkgeworCQkJaWYgKHBjaV9nZXRfc3ViZGV2aWNlKGRldikgPT0gaWRz
+W2pdKSB7CiAJCQkJYm9hcmQtPm51bV9wb3J0cyA9IHRpbWVkaWFfZGF0YVtpXS5udW07CiAJ
+CQkJcmV0dXJuIDA7CiAJCQl9Cg==
+--------------E09AC4F5EA08EEA37F420F22--
+

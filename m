@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130311AbRA0Ste>; Sat, 27 Jan 2001 13:49:34 -0500
+	id <S130460AbRA0SzO>; Sat, 27 Jan 2001 13:55:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130460AbRA0StZ>; Sat, 27 Jan 2001 13:49:25 -0500
-Received: from mail.diligo.fr ([194.153.78.251]:34061 "EHLO mail.diligo.fr")
-	by vger.kernel.org with ESMTP id <S130311AbRA0StU>;
-	Sat, 27 Jan 2001 13:49:20 -0500
-Date: Sat, 27 Jan 2001 19:46:59 +0100
+	id <S132794AbRA0Syy>; Sat, 27 Jan 2001 13:54:54 -0500
+Received: from mail.diligo.fr ([194.153.78.251]:44557 "EHLO mail.diligo.fr")
+	by vger.kernel.org with ESMTP id <S130460AbRA0Syw>;
+	Sat, 27 Jan 2001 13:54:52 -0500
+Date: Sat, 27 Jan 2001 19:52:32 +0100
 From: patrick.mourlhon@wanadoo.fr
-To: Paul Jakma <paulj@itg.ie>
+To: Gregory Maxwell <greg@linuxpower.cx>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: routing between different subnets on same if.
-Message-ID: <20010127194659.A1326@MourOnLine.dnsalias.org>
+Subject: Re: SBF queueing?
+Message-ID: <20010127195232.B1326@MourOnLine.dnsalias.org>
 Reply-To: patrick.mourlhon@wanadoo.fr
-In-Reply-To: <20010127193234.A1166@MourOnLine.dnsalias.org> <Pine.LNX.4.32.0101271839130.15191-100000@rossi.itg.ie>
+In-Reply-To: <20010127134448.B6821@xi.linuxpower.cx>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.32.0101271839130.15191-100000@rossi.itg.ie>
+In-Reply-To: <20010127134448.B6821@xi.linuxpower.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-did you install routed on the linux machine ?
+Hi Gregory!
 
-On Sat, 27 Jan 2001, Paul Jakma wrote:
+You might have a look on linux/Documentation/networking/policy-routing.txt
 
-> On Sat, 27 Jan 2001 patrick.mourlhon@wanadoo.fr wrote:
+I think this was down by Alexey Kuznetov
+
+You might have a look to iproute + tc and HOWTO on advanced networking
+
+patrick mourlhon
+
+On Sat, 27 Jan 2001, Gregory Maxwell wrote:
+
+> Has anyone decided to code a SFB (Stochastic Fair Blue) queue implementation
+> for Linux? It's been implemented for FreeBSD/ALTQ 
+> (http://www.eecs.umich.edu/~wuchang/blue/). The paper for it shows it
+> performing very well in comparison to RED.
 > 
-> > Hi Paul,
-> >
-> > I just think you might look for aliasing on your linux box.
-> >
+> It might be useful in a Linux implementation to be able to adjust what
+> fields are hashed (I don't believe the initial implementation does this,
+> though it has been a few months since I read the paper). 
 > 
-> i have the aliasing, the aliased machine can ping IP's on both
-> subnets. The machine is supposed to be a router though and clients on
-> both subnets are setup to use it as their default router.. but it
-> doesn't route... it notices that both IP's are on the same link and so
-> just sends ICMP redirects. which doesn't help. :(
+> For instance, on edge networks you hash src,dest,proto,sport,dport to
+> allocate fairly by flow. On larger networks, hashing on each flow will
+> require a fairly big filter to prevent collisions from punishing good flows
+> because of a collision with an unresponsive flow. It might be useful to only
+> hash on src on core networks, and potentially masked src on backbone transit
+> networks (which would have nice social implications as well, produce an
+> unresponsive flow and watch your entire subnet be slowed during networking
+> congestion, thus edge networks would implement technology to detect and
+> police unresponsive flows, something better done towards the edge). 
 > 
-> i need linux to completely route between 2 IP's even though they are
-> on the same link.
-> 
-> regards,
-> 
-> --paulj
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

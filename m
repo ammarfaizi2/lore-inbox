@@ -1,67 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265116AbSJaCmf>; Wed, 30 Oct 2002 21:42:35 -0500
+	id <S265123AbSJaCfn>; Wed, 30 Oct 2002 21:35:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265117AbSJaCmf>; Wed, 30 Oct 2002 21:42:35 -0500
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:36108 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id <S265116AbSJaCmd>; Wed, 30 Oct 2002 21:42:33 -0500
-Date: Thu, 31 Oct 2002 11:48:32 +0900 (JST)
-Message-Id: <20021031.114832.59687399.yoshfuji@linux-ipv6.org>
-To: davem@redhat.com
-Cc: boissiere@adiglobal.com, kuznet@ms2.inr.ac.ru,
-       linux-kernel@vger.kernel.org
-Subject: Re: [STATUS 2.5] October 30, 2002
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20021030.143615.10738219.davem@redhat.com>
-References: <3DBFB0D2.21734.21E3A6B@localhost>
-	<20021031.005535.67557509.yoshfuji@linux-ipv6.org>
-	<20021030.143615.10738219.davem@redhat.com>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: ,!^C1nUj;HDn\o}#MDnZW<|oj*]iIB/>/Rj|xZ=D=hBIY#)lQ,$n#kJvDg7at|p;w0^8&4_
- OS17ezZP7m/LlFJYPF}FdcGx!,qBM:w{Ub2#M8_@n^nYT%?u+bwTsqni(z5
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	id <S265124AbSJaCfn>; Wed, 30 Oct 2002 21:35:43 -0500
+Received: from ip008.siteplanet.com.br ([200.245.54.8]:3588 "EHLO
+	plutao.siteplanet.com.br") by vger.kernel.org with ESMTP
+	id <S265123AbSJaCfl>; Wed, 30 Oct 2002 21:35:41 -0500
+Subject: [PATCH 2.5] Linux v2.5.45 fix QT problems !
+From: Fernando Alencar =?ISO-8859-1?Q?Mar=F3stica?= <famarost@unimep.br>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-gYXMYxmV8+/tIpe9gflI"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 30 Oct 2002 23:46:44 -0200
+Message-Id: <1036028805.1676.5.camel@nitrogenium>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20021030.143615.10738219.davem@redhat.com> (at Wed, 30 Oct 2002 14:36:15 -0800 (PST)), "David S. Miller" <davem@redhat.com> says:
 
->      - IPv6 source address selection; which will be mandated by the
->        node requirement.
-> 
-> We told you several times how this USAGI patch is not currently in an
-> acceptable form and needs to be reimplemented via the routing code.
+--=-gYXMYxmV8+/tIpe9gflI
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Yes, but I think
-  - integrate our code to your tree
-then
-  - reimplement (re-design)
-is better way to go forward.
+Hi
 
-This is because the code, which works well in O(n) as current one 
-does, will tell you our needs and intentions better than our
-babble when you re-design it;  I belive we will achieve better 
-design in this way.
+This patch fixed small problems with QT requires.
 
 
->      - several enhancements on specification conformity
->        (neighbour discovery etc.)
-> 
-> Where are these patches?  I've applied everything you've submitted.
+diff -urN linux-2.5.45-vanilla/Makefile linux-2.5.45/Makefile
+--- linux-2.5.45-vanilla/Makefile       Wed Oct 30 23:36:53 2002
++++ linux-2.5.45/Makefile       Wed Oct 30 23:13:02 2002
+@@ -635,7 +635,7 @@
+ .PHONY: oldconfig xconfig menuconfig config \
+        make_with_config
 
-Yes, thanks.
+-scripts/kconfig/conf scripts/kconfig/mconf scripts/kconfig/qconf:
+scripts/fixdep FORCE
++scripts/kconfig/conf scripts/kconfig/mconf: scripts/fixdep FORCE
+        +@$(call descend,scripts/kconfig,$@)
 
-I need to check the result of current code and 
-to look at diff by byte-to-byte before preparing
-patches for current tree.
+ xconfig: scripts/kconfig/qconf
+diff -urN linux-2.5.45-vanilla/scripts/kconfig/Makefile
+linux-2.5.45/scripts/kconfig/Makefile
+--- linux-2.5.45-vanilla/scripts/kconfig/Makefile       Wed Oct 30
+23:37:02 2002
++++ linux-2.5.45/scripts/kconfig/Makefile       Wed Oct 30 23:27:04 2002
+@@ -34,7 +34,7 @@
 
--- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+ $(obj)/qconf.o: $(obj)/.tmp_qtcheck
+
+--include $(obj)/.tmp_qtcheck
++#-include $(obj)/.tmp_qtcheck
+
+ # QT needs some extra effort...
+ $(obj)/.tmp_qtcheck:
+
+
+Because oldconfig/config/menuconfig don't depend on having
+QT installed anymore.
+
+
+Best Regards,
+
+--=20
+Fernando Alencar Mar=F3stica
+Graduate Student, Computer Science
+Linux Register User Id #281457
+
+University Methodist of Piracicaba
+Departament of Computer Science
+home: http://www.unimep.br/~famarost
+
+--=-gYXMYxmV8+/tIpe9gflI
+Content-Disposition: attachment; filename=patch-2.5.45
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/x-patch; name=patch-2.5.45; charset=ISO-8859-1
+
+diff -urN linux-2.5.45-vanilla/Makefile linux-2.5.45/Makefile
+--- linux-2.5.45-vanilla/Makefile	Wed Oct 30 23:36:53 2002
++++ linux-2.5.45/Makefile	Wed Oct 30 23:13:02 2002
+@@ -635,7 +635,7 @@
+ .PHONY: oldconfig xconfig menuconfig config \
+ 	make_with_config
+=20
+-scripts/kconfig/conf scripts/kconfig/mconf scripts/kconfig/qconf: scripts/=
+fixdep FORCE
++scripts/kconfig/conf scripts/kconfig/mconf: scripts/fixdep FORCE
+ 	+@$(call descend,scripts/kconfig,$@)
+=20
+ xconfig: scripts/kconfig/qconf
+diff -urN linux-2.5.45-vanilla/scripts/kconfig/Makefile linux-2.5.45/script=
+s/kconfig/Makefile
+--- linux-2.5.45-vanilla/scripts/kconfig/Makefile	Wed Oct 30 23:37:02 2002
++++ linux-2.5.45/scripts/kconfig/Makefile	Wed Oct 30 23:27:04 2002
+@@ -34,7 +34,7 @@
+=20
+ $(obj)/qconf.o: $(obj)/.tmp_qtcheck
+=20
+--include $(obj)/.tmp_qtcheck
++#-include $(obj)/.tmp_qtcheck
+=20
+ # QT needs some extra effort...
+ $(obj)/.tmp_qtcheck:
+
+--=-gYXMYxmV8+/tIpe9gflI--
+

@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264948AbSJWMkp>; Wed, 23 Oct 2002 08:40:45 -0400
+	id <S264946AbSJWMiC>; Wed, 23 Oct 2002 08:38:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264951AbSJWMkp>; Wed, 23 Oct 2002 08:40:45 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:30996 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S264948AbSJWMko>; Wed, 23 Oct 2002 08:40:44 -0400
-Date: Wed, 23 Oct 2002 14:46:59 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Srihari Vijayaraghavan <harisri@bigpond.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20pre11aa1
-Message-ID: <20021023124659.GF30182@dualathlon.random>
-References: <20021018145204.GG23930@dualathlon.random> <200210222048.05592.harisri@bigpond.com> <20021022145528.GW19337@dualathlon.random> <200210232227.47721.harisri@bigpond.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210232227.47721.harisri@bigpond.com>
-User-Agent: Mutt/1.3.27i
+	id <S264948AbSJWMiC>; Wed, 23 Oct 2002 08:38:02 -0400
+Received: from mgr5.xmission.com ([198.60.22.205]:11856 "EHLO
+	mgr5.xmission.com") by vger.kernel.org with ESMTP
+	id <S264946AbSJWMiB>; Wed, 23 Oct 2002 08:38:01 -0400
+Message-ID: <3DB5E294.8000202@xmission.com>
+Date: Wed, 23 Oct 2002 06:43:16 +0700
+From: Frank Jacobberger <f1j@xmission.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: RE: SiS 646 support in 2.4.2x
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 23, 2002 at 10:27:47PM +1000, Srihari Vijayaraghavan wrote:
-> module.c:7:28: linux/rcupdate.h: No such file or directory
-> module.c: In function `free_module':
-> module.c:1082: warning: implicit declaration of function `synchronize_kernel'
-> make[2]: *** [module.o] Error 1
-> make[1]: *** [first_rule] Error 2
-> make: *** [_dir_kernel] Error 2
+I saw this as added support in pre7-ac1:
 
-Ok, please try to backout 2.4.20pre11aa1/00_reduce-module-races-1.
-I just moved it into the 20 serie. that should fix this bit.
+Add SIS646 (645DX) PCI idents for AGP        (Murray Root)
 
-Andrea
+I have tried in vain to get agpgart to load with 2.4.20-pre10-ac1 after 
+enabling
+SiS support in character devices.
+
+Any more news on this SiS AGP 5591/5592 support I would be sincerely 
+interested in.
+
+Thanks,
+
+Frank
+

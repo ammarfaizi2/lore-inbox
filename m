@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270523AbRH1JLk>; Tue, 28 Aug 2001 05:11:40 -0400
+	id <S270585AbRH1JWy>; Tue, 28 Aug 2001 05:22:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270569AbRH1JLV>; Tue, 28 Aug 2001 05:11:21 -0400
-Received: from softwa4.lnk.telstra.net ([139.130.12.214]:47854 "EHLO localhost")
-	by vger.kernel.org with ESMTP id <S270557AbRH1JLG>;
-	Tue, 28 Aug 2001 05:11:06 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: fabbione@fabbione.net
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Possibly OT] ipt_unclean.c on kernel-2.4.7-9 
-In-Reply-To: Your message of "Mon, 27 Aug 2001 12:51:24 +0200."
-             <3B8A262C.82ED7793@ted.ericsson.dk> 
-Date: Tue, 28 Aug 2001 09:43:10 +1000
-Message-Id: <E15bW2B-0001Ur-00@localhost>
+	id <S270577AbRH1JWo>; Tue, 28 Aug 2001 05:22:44 -0400
+Received: from [194.213.32.137] ([194.213.32.137]:260 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S270569AbRH1JW0>;
+	Tue, 28 Aug 2001 05:22:26 -0400
+Message-ID: <20010828004628.B1357@bug.ucw.cz>
+Date: Tue, 28 Aug 2001 00:46:28 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Jan Niehusmann <jan@gondor.com>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: VCool - cool your Athlon/Duron during idle
+In-Reply-To: <20010826181315Z271401-760+6195@vger.kernel.org> <20010827010053.A9149@gondor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <20010827010053.A9149@gondor.com>; from Jan Niehusmann on Mon, Aug 27, 2001 at 01:00:53AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3B8A262C.82ED7793@ted.ericsson.dk> you write:
-> Hi gurus,
-> 	I've possibly found a bug in the iptables unclean match support
-> but I was not able to find the email of the mantainer so I'm posting
-> here....
-> 
-> the module is incorrectly matching ftp session. Ex:
-> 
-> iptables -j DROP -A INPUT --match unclean
-> iptables -j ACCEPT -A INPUT -p tcp --dport 21
-> 
-> in this case all my packets directed to the ftp server where dropped by
-> the
-> "unclean" match and this make impossible to open ftp session.
+Hi!
 
-Please do not do this.  "unclean" should be renamed "interesting": you
-should log these packets, but probably not drop them, otherwise some
-things may break.
+> +static void stpclk_idle(void)
+> +{
+> +	if (current_cpu_data.hlt_works_ok && !hlt_counter) {
+> +		__cli();
+> +		if (!current->need_resched) 
+> +			inb(Reg_PL2);
+> +		else
+> +			__sti();
+> +	}
+> +}
 
-Like ECN...
-
-Cheers,
-Rusty.
---
-Premature optmztion is rt of all evl. --DK
+You are not using hlt instruction -> you don't need to care about
+hlt_works_ok.
+							Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

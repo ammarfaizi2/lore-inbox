@@ -1,35 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292292AbSBUN3P>; Thu, 21 Feb 2002 08:29:15 -0500
+	id <S292379AbSBUNcE>; Thu, 21 Feb 2002 08:32:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292372AbSBUN24>; Thu, 21 Feb 2002 08:28:56 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32004 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292292AbSBUN1X>; Thu, 21 Feb 2002 08:27:23 -0500
-Subject: Re: more detailed information about the AMD 1.6+ GHz MP smp-problem
-To: rob.myers@gtri.gatech.edu (Rob Myers)
-Date: Thu, 21 Feb 2002 13:41:02 +0000 (GMT)
-Cc: mw@suk.net, linux-kernel@vger.kernel.org
-In-Reply-To: <1014291072.1243.81.camel@ransom> from "Rob Myers" at Feb 21, 2002 06:31:12 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S292372AbSBUNb5>; Thu, 21 Feb 2002 08:31:57 -0500
+Received: from xsmtp.ethz.ch ([129.132.97.6]:23221 "EHLO xfe3.d.ethz.ch")
+	by vger.kernel.org with ESMTP id <S292386AbSBUNbl>;
+	Thu, 21 Feb 2002 08:31:41 -0500
+Message-ID: <3C74F5F8.3000201@debian.org>
+Date: Thu, 21 Feb 2002 14:28:24 +0100
+From: Giacomo Catenazzi <cate@debian.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: linux kernel config converter
+In-Reply-To: <fa.gq2s5iv.1s4in@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16dtT5-0006wD-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-OriginalArrivalTime: 21 Feb 2002 13:31:38.0969 (UTC) FILETIME=[174EB490:01C1BADC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> redhat's latest 2.4.9 version would only boot with noapic passed to the
-> kernel and the bios had mps 1.4 spec on and mp table disabled. but
-> sometimes that paniced and would not boot.
+
+
+Roman Zippel wrote:
+
+> Hi,
 > 
-> if anyone knows what bios settings and kernel bits make this board
-> stable please pass that info along...
+> config: ULTRIX_PARTITION
+>   define_bool
+>     default: y
+>     dep: ((!PARTITION_ADVANCED?) && DECSTATION=y)
+>   bool
+>     prompt:   Ultrix partition table support
+>     dep: PARTITION_ADVANCED?
+>   help:
+>   Say Y here if you would like to be able to read the hard disk
+>   partition table format used by DEC (now Compaq) Ultrix machines.
+>   Otherwise, say N.
+> 
 
-MP table on 
-MP table version 1.1
 
-You want 2.4.18-rc2 in order to get the fixups for what appears to be a BIOS
-PCI compliance config problem. You also may need to remove any 3com gige
-cards using broadcom chipsets.
+ From old discussion in kbuild list:
+1) default: Eric proposed to include defaults in configuration,
+    but it seems that is a bad things, and defaults should be arch
+    specific. (I don't remember the discussion, but you can
+    parse the kbuild list, torque.net time)
+2) One of the problem in actual configure are the dependencies.
+    FOO depend on BAR and BEER.
+    Wat are the possible value of FOO if BAR=m, BEER=y.
+    In kernel we have some drivers thet need foo to be n or y,
+    in other cases: n or m.
+    The logical operators hide the true dependency table.
+    (don't expect developers read the docs: the logical operators
+    seems like C operators, so they use like C, but they forget
+    the third case (=m) ).
+
+Do you use the python identation mode?
+
+	giacomo
+

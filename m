@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262319AbTEFD5x (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 23:57:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262320AbTEFD5x
+	id S262340AbTEFEFD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 00:05:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbTEFEFD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 23:57:53 -0400
-Received: from h80ad263c.async.vt.edu ([128.173.38.60]:52608 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262319AbTEFD4j (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 23:56:39 -0400
-Message-Id: <200305060409.h46493MF002471@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: sumit_uconn@lycos.com
+	Tue, 6 May 2003 00:05:03 -0400
+Received: from granite.he.net ([216.218.226.66]:17928 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S262340AbTEFEFC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 00:05:02 -0400
+Date: Mon, 5 May 2003 21:19:29 -0700
+From: Greg KH <greg@kroah.com>
+To: jt@hpl.hp.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: inode number 
-In-Reply-To: Your message of "Mon, 05 May 2003 23:27:32 EDT."
-             <BNBCKBPAKNHPBDAA@mailcity.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <BNBCKBPAKNHPBDAA@mailcity.com>
+Subject: Wireless drivers in 2.5.69
+Message-ID: <20030506041929.GA5564@kroah.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1184821524P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 06 May 2003 00:09:02 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1184821524P
-Content-Type: text/plain; charset=us-ascii
+Hi,
 
-On Mon, 05 May 2003 23:27:32 EDT, Sumit Narayan <sumit_uconn@lycos.com>  said:
-> How do I know which file has what Inode number? and its under which super blo
-ck?
+You mentioned in your changes to the wireless core for 2.5.68 that you
+had sent updates for the various drivers to the different driver
+maintainers.  As it looks like your changes made it into 2.5.69, but the
+driver updates didn't, do you have a pointer to these updates so that
+those of us with now non-working wireless cards can test them out?
 
-There's no single answer - multiple files can have the same inode number
-(they're called hard links).  Finding which filesystem they are on
-involves walking through the mount table..
+Specifically, in my case I'm looking for the updates for the orinoco_pci
+driver, as that has stopped working in 2.5.69, but was working just fine
+in 2.5.68.
 
---==_Exmh_-1184821524P
-Content-Type: application/pgp-signature
+thanks,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+tzVecC3lWbTT17ARAlXkAJ9PXOthjdIwU8tRqhqsnywvvKtTrgCdEfwy
-+XoYwXs7MjPE6u/kh23a0Uc=
-=wUHu
------END PGP SIGNATURE-----
-
---==_Exmh_-1184821524P--
+greg k-h

@@ -1,170 +1,121 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <154292-8100>; Fri, 15 Jan 1999 02:42:07 -0500
-Received: by vger.rutgers.edu id <153682-8100>; Fri, 15 Jan 1999 02:41:55 -0500
-Received: from apollo.is.co.za ([196.4.160.2]:50886 "EHLO apollo.is.co.za" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <154250-8100>; Fri, 15 Jan 1999 02:41:18 -0500
-Date: Fri, 15 Jan 1999 09:40:45 +0200 (SAST)
-From: Craig Schlenter <craig@is.co.za>
+Received: by vger.rutgers.edu via listexpand id <161080-8100>; Mon, 18 Jan 1999 12:32:43 -0500
+Received: by vger.rutgers.edu id <160608-8093>; Mon, 18 Jan 1999 12:32:28 -0500
+Received: from gate.guardian.no ([195.1.254.2]:61393 "HELO lucifer.guardian.no" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with SMTP id <161074-8093>; Mon, 18 Jan 1999 12:30:16 -0500
+Message-ID: <19990118183227.B24626@lucifer.guardian.no>
+Date: Mon, 18 Jan 1999 18:32:27 +0100
+From: Alexander Kjeldaas <astor@guardian.no>
 To: linux-kernel@vger.rutgers.edu
-Subject: Review and report of linux kernel VM (fwd)
-Message-ID: <Pine.LNX.4.04.9901150936240.464-100000@flashy.is.co.za>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: International kernel patch v2.2.0-pre7.4
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2i
 Sender: owner-linux-kernel@vger.rutgers.edu
 
+International kernel patch 2.2.0-pre7.4 is available.  The idea of the
+patch is to collect all crypto patches so that using crypto in the
+kernel will be easier than today.
+  
+The patch is available from:
 
-I don't know if anyone has forwarded this to the list yet but I haven't
-seen it ... some commentry from the linux MM guru's would be valuable.
+ftp://ftp.kerneli.org/pub/linux/kerneli/v2.1/patch-int-2.2.0-pre7.4.gz
 
-Thank you,
+SUMMARY: Relative to the previously announced version (pre4.1), this
+release contains faster/updated MARS/RC6/Serpent ciphers, better
+module support, a lot of testvectors for some ciphers, a general
+test-program for the crypto-library, and an updated ENskip patch.
 
---Craig
+NOTE: Please treat this patch as alpha software. 
 
-Date: Wed, 13 Jan 1999 23:20:22 -0800 (PST)
-From: Matthew Dillon <dillon@apollo.backplane.com>
-Message-Id: <199901140720.XAA22609@apollo.backplane.com>
-To: "John S. Dyson" <root@dyson.iquest.net>, dg@root.com, jkh@FreeBSD.ORG
-Cc: hackers@FreeBSD.ORG
-Subject: Review and report of linux kernel VM
-Sender: owner-freebsd-hackers@FreeBSD.ORG
-Precedence: bulk
-X-Loop: FreeBSD.ORG
+TODO:
+ 	* Endian-issues haven't been sorted out.  If some big-endian
+          people would try crypto/testing/testcip and the different
+          crypto/testing/test.<cipher> scripts I'd be happy.  There
+          still are endian issues on i386.
 
-				General Overview
+	* I have a report on kmod and the des cipher not working with
+          this patch.
 
-    I've been looking at the linux kernel VM - mainly just to see what they've
-    changed since I last looked at it.  It's quite interesting... not bad at
-    all though it is definitely a bit more memory-resource-intensive then
-    FreeBSD's.  However, it needs a *lot* of work when it comes to freeing 
-    up pages. 
+	* /proc support
 
-    I apologize in advance for any mistakes I've made!
+	* Compound transforms - Wassenaar-compatibility(tm).  My
+          thoughts on this issue which amounts to putting a
+          specification language for transforms and a parser in the
+          kernel.  The BNF-grammar for this language is ~6 lines.
 
-    Basically, the linux kernel uses persistent hardware-level page tables
-    in a mostly platform-independant fashion.  The function of the persistent
-    page tables is roughly equivalent to the function of FreeBSD's vm_object's.
-    That is, the page tables are used to manage sharing and copy-on-write
-    functions for VM objects.
+	* Create the necessary infrastructure for assembly-language
+          ciphers.
 
-    For example, when a process fork()'s, pages are duplicated literally by
-    copying pte's.  Writeable MAP_PRIVATE pages are write-protected and marked
-    for copy-on-write.  A global resident-page array is used to keep track
-    of shared reference counts.  
+	* Write 4-way IDEA cipher for MMX.  IDEA is ideal for MMX and
+          a 4-way IDEA cipher using MMX would blow away the other
+          ciphers we have and at the same time be a well-known and
+          well-tested algorithm.
 
-    Swapped-out pages are also represented by pte's and also marked for 
-    copy-on-write as appropriate.  The swap block is stored in the PFN 
-    area of the pte (as far as I can tell).  The swap system keeps a separate
-    shared reference count to manage swap usage.  The overhead is around 
-    3 bytes per swap page (whether it is in use or not), and another pte-sized
-    (int usually) field when storing the swap block in the pagetable.
+	* Get CIPE to use the crypto library.
 
-    Linux cannot swap out its page tables, mainly due to the direct use of
-    the page tables in handling VM object sharing.
+CHANGELOG since pre4.1:
 
-    In general terms, linux's VM system is much cleaner then FreeBSD's... and
-    I mean a *whole lot* cleaner, but at the cost of eating some extra memory.
-    It isn't a whole lot of extra memory - maybe a meg or two for a typical
-    system managing a lot of processes, and much less for typical 'small'
-    systems.  They are able to completely avoid the vm_object stacking
-    (and related complexity) that we do, and they are able to completely
-    avoid most of the pmap complexity in FreeBSD as well.
+1999-01-18  Alexander Kjeldaas  <astor@guardian.no>
 
-    Linux appears to implement a unified buffer cache.  It's pretty 
-    straight forward except the object relationship is stored in
-    the memory-map management structures in each process rather then
-    in a vm_object type of structure.
+        * International kernel patch 2.2.0-pre7.4 released.
 
-    Linux appears to map all of physical memory into KVM.  This avoids
-    FreeBSD's (struct buf) complexity at the cost of not being able to 
-    deal with huge-memory configurations.  I'm not 100% sure of this, but
-    its my read of the code until someone corrects me.
+        * Added cbc-mode to cast256 cipher.
 
-				Problems
+        * Removed spam on unload from crypto modules.
 
-    Swap allocation is terrible.  Linux uses a linear array which it scans
-    looking for a free swap block.  It does a relatively simple swap
-    cluster cache, but eats the full linear scan if that fails which can be
-    terribly nasty.  The swap clustering algorithm is a piece of crap, 
-    too -- once swap becomes fragmented, the linux swapper falls on its face.
-    It does read-ahead based on the swapblk which wouldn't be bad if it
-    clustered writes by object or didn't have a fragmentation problem.
-    As it stands, their read clustering is useless.  Swap deallocation is 
-    fast since they are using a simple reference count array. 
+        * Added updated ENskip patches from Frank Bernard's web site:
+        http://www.linux-firewall.de/enskip/
 
-    File read-ahead is half-hazard at best.
+        * International kernel patch 2.2.0-pre7.3 released.
 
-    The paging queues ( determing the age of the page and whether to 
-    free or clean it) need to be written... the algorithms being used
-    are terrible.
+        * Added missing cleanup_module to DES, Blowfish and IDEA ciphers.
 
-     * For the nominal page scan, it is using a one-hand clock algorithm.  
-       All I can say is:  Oh my god!  Are they nuts?  That was abandoned
-       a decade ago.  The priority mechanism they've implemented is nearly
-       useless.
+        * International kernel patch 2.2.0-pre7.2 released.
 
-     * To locate pages to swap out, it takes a pass through the task list. 
-       Ostensibly it locates the task with the largest RSS to then try to
-       swap pages out from rather then select pages that are not in use.
-       From my read of the code, it also botches this badly.
+        * Cleanup in drivers/block/Config.in.  It was possible to create
+        an invalid .config file. 
 
-    Linux does not appear to do any page coloring whatsoever, but it would
-    not be hard to add it in.
+        * Minor crypto/api.c cleanup.
 
-    Linux cannot swap-out its page tables or page directories.  Thus, idle
-    tasks can eat a significant amount of memory.  This isn't a big deal for
-    most systems ( small systems: no problem.  Big systems: probably have lots
-    of memory anyway ).  But, mmap()'d files can create a significant burden
-    if you have a lot of forked processes ( news, sendmail, web server, 
-    etc...).  Not only does Linux have to scan the page tables for all the
-    processes mapping the file, whether or not they are actively using the
-    page being checked for, but Linux's swapout algorithm scans page tables
-    and, effectively, makes redundant scans of shared objects.
+1999-01-17  Alexander Kjeldaas  <astor@guardian.no>
 
-			     What FreeBSD can learn
+        * International kernel patch 2.2.0-pre7.1 released.
 
-    Well, the main thing is that the Linux VM system is very, very clean
-    compared to the FreeBSD implementation.  Cleaning up FreeBSD's VM system
-    complexity is what I've been concentrating on and will continue to 
-    concentrate on.   However, part of the reason that FreeBSD's VM system 
-    is more complex is because it does not use the page tables to store 
-    reference information.  Instead, it uses the vm_object and pmap modules.
-    I actually like this feature of FreeBSD.  A lot. 
+        * Added testcip.c - a general purpose cipher test program.  Added
+        test-vector scripts for Blowfish, DES, Mars, and Serpent. 
 
-    The biggest thing we need to do to clean up our VM system is, basically,
-    to completely rewrite the struct buf filesystem buffering mechanism to
-    make it much, much less complex - basically it should only be used as
-    placeholders for read and write ops and not used to cache block number
-    mappings between the files and the VM system, nor should it be used to
-    map pages into KVM.  Separating out these three mechanisms into three
-    different subsystems would simplify the code enormously, I think.  For
-    example, we could implement a simple vm_object KVM mapping mechanism
-    using FreeBSD's existing vm_object stacking model to map portions of a
-    vm_object (aka filesystem partition) into KVM.
+        * Naming error left users unable to compile loop_gen unless it was
+        compiled as a module.
 
-    Linux demarks interrupts from supervisor code much better then we do.
-    If we move some of the more sophisticated operational capabilities
-    out of our interrupt subsystem, we could get rid of most of the spl*()
-    junk we currently have to do.  This is a real sore spot in current
-    FreeBSD code.  Interrupts are just too complex.  I'd also get rid of
-    FreeBSD's intermediate 'software interrupt' layer, which is able to
-    do even more complex things then hard interrupt code.  The latency
-    considerations just don't make any sense verses running pending software
-    interrupts synchronously in tsleep(), prior to actually sleeping.  We 
-    need to do this anyway ( or move softints to kernel threads ) to be able
-    to take advantage of SMP mechanisms.  The *only* thing our interrupts
-    should be allowed to do is finish I/O on a page or use zalloc().  
+        * Updated Serpent implementation.  Sam Simpson has been running a
+        background task on a cluster of high performance servers.  After a
+        search involving around 1000 machine hours improved sboxes were
+        found.
 
-						-Matt
+        * Updated RC6 implementation.  Supposedly faster.
 
-					Matthew Dillon 
-					<dillon@backplane.com>
+        * Updated MARS implementation.  Fixes a bug in mars_set_key.
+
+1999-01-07  Alexander Kjeldaas  <astor@guardian.no>
+
+        * International kernel patch 2.2.0-pre5.1 released.
+        * Merged with vanilla 2.2.0-pre5
+
+1999-01-05  Herbert Valerio Riedel <hvr@hvrlab.ml.org>
+
+        * APX fixes.
 
 
-To Unsubscribe: send mail to majordomo@FreeBSD.org
-with "unsubscribe freebsd-hackers" in the body of the message
+On the ftp-site, the directory /pub/linux/kernel is a normal
+kernel-mirror while /pub/linux/kerneli is a kernel-mirror plus the
+international kernel patch.  You should find all utilities needed for
+using crypto in the kernel in /pub/linux/kerneli/net-source/.
 
------ End of forwarded message from Matthew Dillon -----
+astor
 
-
+-- 
+ Alexander Kjeldaas, Guardian Networks AS, Trondheim, Norway
+ http://www.guardian.no/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

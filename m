@@ -1,64 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267432AbTBITam>; Sun, 9 Feb 2003 14:30:42 -0500
+	id <S267433AbTBITkR>; Sun, 9 Feb 2003 14:40:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267433AbTBITam>; Sun, 9 Feb 2003 14:30:42 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:128 "EHLO
-	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
-	id <S267432AbTBITal>; Sun, 9 Feb 2003 14:30:41 -0500
-From: "Folkert van Heusden" <folkert@vanheusden.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [2.4.20] segfault when unloading soundmodem-driver
-Date: Sun, 9 Feb 2003 20:40:22 +0100
-Message-ID: <005a01c2d073$163a2140$3640a8c0@boemboem>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+	id <S267434AbTBITkR>; Sun, 9 Feb 2003 14:40:17 -0500
+Received: from smtp1.clear.net.nz ([203.97.33.27]:47054 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP
+	id <S267433AbTBITkQ>; Sun, 9 Feb 2003 14:40:16 -0500
+Date: Mon, 10 Feb 2003 08:42:13 +1300
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: [ACPI] Re: [PATCH] s4bios for 2.5.59 + apci-20030123
+In-reply-to: <20030207160055.GA485@elf.ucw.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Ducrot Bruno <ducrot@poupinou.org>,
+       "Grover, Andrew" <andrew.grover@intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ACPI List <acpi-devel@lists.sourceforge.net>,
+       Swsusp <swsusp@lister.fornax.hu>
+Message-id: <1044819732.1815.25.camel@laptop-linux.cunninghams>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <F760B14C9561B941B89469F59BA3A847137FFE@orsmsx401.jf.intel.com>
+ <20030204221003.GA250@elf.ucw.cz>
+ <1044477704.1648.19.camel@laptop-linux.cunninghams>
+ <20030206101645.GO1205@poup.poupinou.org>
+ <1044560486.1700.13.camel@laptop-linux.cunninghams>
+ <20030206210542.GW1205@poup.poupinou.org>
+ <1044590241.1649.41.camel@laptop-linux.cunninghams>
+ <20030207160055.GA485@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi
 
-I tried to unload the soundmodem-driver (for hamradio) and got a segfault.
-lsmod tells me:
-soundmodem                 0   0  (deleted)
+On Sat, 2003-02-08 at 05:00, Pavel Machek wrote: 
+> > 1  2  3           4     5
+> > --
+> > 1  1  25655/30592  1562 0:07
+> > 1  2  26246/30592  4302 0:05
+> 
+> You can suspend and resume your notebook within 5 seconds? Wow!
 
-and dmesg tells me:
-soundmodem: (C) 1996-2000 Thomas Sailer, HB9JNX/AE4WA
-soundmodem: version 0.12 compiled 02:55:25 Feb  9 2003
-sm: cleanup_module called
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
- printing eip:
-d032b642
-*pde = 0496c067
-*pte = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<d032b642>]    Not tainted
-EFLAGS: 00010202
-eax: 00000000   ebx: c66a6000   ecx: 00000000   edx: cac34d60
-esi: d0330c60   edi: ffffffed   ebp: bfffea08   esp: c2565f58
-ds: 0018   es: 0018   ss: 0018
-Process rmmod (pid: 12304, stackpage=c2565000)
-Stack: 00000000 00000000 000000ff c66a6000 d0330c60 d0331074 d011e43f
-d0330c60
-       d0330c60 d0330cc8 d032c1a6 d0330c60 d032b000 fffffff0 d032b000
-c0115343
-       d032b000 fffffff0 c294d000 bfffea08 c01146e7 d032b000 00000000
-c2564000
-Call Trace:    [<d0330c60>] [<d0331074>] [<d011e43f>] [<d0330c60>]
-[<d0330c60>]
-  [<d0330cc8>] [<d032c1a6>] [<d0330c60>] [<c0115343>] [<c01146e7>]
-[<c0106b63>]
+As requested, these were just the times for suspending.
 
-Code: 8b 00 50 68 92 fc 32 d0 68 a0 ff 32 d0 e8 c4 81 de ef 89 f8
- <6>
+> Well, if all the memory is in disk-backed clean pages, it should be
+> faster to discard then write out...
 
-Kernel version 2.4.20
+Yes, I would think so too. Perhaps the differences would probably
+disappear if I made the algorithm more like your original (ie simplifed
+eat_memory back to the original), but I do remember lots of disk
+activity when using the original code as well - perhaps the cause might
+be worth further investigation? (Not that I'm volunteering)
+
+> Anyway... So your method is faster. Good. Now, how much more
+> complicated is it?
+
+As I've said above, I'm not sure it is right to say it is faster - I
+didn't compare your current method with the new one, but rather mine
+with parameters making the algorithm as close to yours as possible. My
+point was more that if the new method is slower, its not significantly
+slower.
+
+Nevertheless, you do have a good point - it is more complicated. But I
+think it's worth it and its not a lot more complicated. People who are
+using the new method at the moment appreciate the changes. Don't think
+for a moment that I don't value your work, Pavel. I couldn't have done
+any of my additions without it and consider mine tweaking. This has
+simply been a quest to get a more responsive system on resume.
+
+Regards,
+
+Nigel
 

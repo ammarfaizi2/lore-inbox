@@ -1,81 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270835AbTGPOBn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 10:01:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270837AbTGPOBn
+	id S270860AbTGPOKa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 10:10:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270859AbTGPOKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 10:01:43 -0400
-Received: from vdp001.ath11.cas.hol.gr ([195.97.127.2]:61854 "EHLO pfn1.pefnos")
-	by vger.kernel.org with ESMTP id S270835AbTGPOBm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 10:01:42 -0400
-From: "P. Christeas" <p_christ@hol.gr>
-To: Takashi Iwai <tiwai@suse.de>
-Subject: Re: [Alsa-devel] Reproducible deadlock w. alsa/maestro3 when sleeping (ACPI,) 2.6.0-test1
-Date: Wed, 16 Jul 2003 17:18:50 +0300
-User-Agent: KMail/1.5
-Cc: lkml <linux-kernel@vger.kernel.org>, alsa-devel@lists.sourceforge.net
-References: <200307141917.22813.p_christ@hol.gr> <s5h7k6i1yoa.wl@alsa2.suse.de>
-In-Reply-To: <s5h7k6i1yoa.wl@alsa2.suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Jul 2003 10:10:30 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:63897
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S270854AbTGPOKR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 10:10:17 -0400
+Date: Wed, 16 Jul 2003 16:24:46 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Chris Mason <mason@suse.com>, lkml <linux-kernel@vger.kernel.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@digeo.com>, Alexander Viro <viro@math.psu.edu>
+Subject: Re: RFC on io-stalls patch
+Message-ID: <20030716142446.GN4978@dualathlon.random>
+References: <1058268126.3857.25.camel@dhcp22.swansea.linux.org.uk> <20030715112737.GQ833@suse.de> <20030716124355.GE4978@dualathlon.random> <20030716124656.GY833@suse.de> <20030716125933.GF4978@dualathlon.random> <20030716130442.GZ833@suse.de> <20030716131128.GG4978@dualathlon.random> <20030716132139.GC833@suse.de> <20030716134443.GJ4978@dualathlon.random> <20030716140002.GD833@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307161718.50464.p_christ@hol.gr>
+In-Reply-To: <20030716140002.GD833@suse.de>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takashi Iwai wrote:
-> At Mon, 14 Jul 2003 19:17:22 +0300,
->
-> P. Christeas <p_christ@hol.gr> wrote:
-> > I have been experiencing some fully reproducible deadlock when waking
-> > from sleep, using artsd over ALSA.
-> > The scenario is:
-> > I use ALSA, with the maestro3 device and everything else compiled as
-> > modules. From userspace, I launch artsd, which uses its native ALSA
-> > support to connect to /dev/pcmXXXXX .
-> > I only have a custom script, which sleeps the machine by a 'echo 1>
-> > /proc/acpi/sleep' . It does NOT stop alsa .
->
-> could you check whether m3_suspend() and m3_resume() in
-> sound/pci/maestro3.c are really called?
->
->
-> Takashi
+On Wed, Jul 16, 2003 at 04:00:02PM +0200, Jens Axboe wrote:
+> On Wed, Jul 16 2003, Andrea Arcangeli wrote:
+> > On Wed, Jul 16, 2003 at 03:21:39PM +0200, Jens Axboe wrote:
+> > > On Wed, Jul 16 2003, Andrea Arcangeli wrote:
+> > > > On Wed, Jul 16, 2003 at 03:04:42PM +0200, Jens Axboe wrote:
+> > > > > On Wed, Jul 16 2003, Andrea Arcangeli wrote:
+> > > > > > On Wed, Jul 16, 2003 at 02:46:56PM +0200, Jens Axboe wrote:
+> > > > > > > Well it's a combined problem. Threshold too high on dirty memory,
+> > > > > > > someone doing a read well get stuck flushing out as well.
+> > > > > > 
+> > > > > > a pure read not. the write throttling should be per-process, then there
+> > > > > > will be little risk.
+> > > > > 
+> > > > > A read from user space, dirtying data along the way.
+> > > > 
+> > > > it doesn't necessairly block on dirty memory. We even _free_ ram clean
+> > > > if needed, exactly because of that. You can raise the amount of _free_
+> > > > ram up to 99% of the whole ram in your box to be almost guaranteed to
+> > > > never wait on dirty memory freeing. Of course the default tries to
+> > > > optimize for writeback cache and there's a reasonable margin to avoid
+> > > > writing dirty stuff. the sysctl is there for special usages where you
+> > > > want to never block in a read from userspace regardless whatever the
+> > > > state of the system.
+> > > 
+> > > That may be so, but no user will ever touch that sysctl. He just
+> > > experiences what Alan outlined, system grinds to a complete halt. Only
+> > > much later does it get going again.
+> > 
+> > and on the small boxes that will happen much less now since on the small
+> > boxes the biggest vm overhead could been generated by the uncontrolled
+> > size of the I/O queue that previously could grow as big as 32M.
+> 
+> That is true, however noone runs 32MB boxes anymore :). So I doubt that
+> would be the case.
 
-OK, I did that.  I put two messages in both functions of the maestro3 driver. 
-I suspended/resumed the machine. Both functions had been called.
+I don't think it's an issue on 32M only, my point was that it's still a
+relevant amount of ram on 64M and 128M boxes too and it may be more than
+what the VM allows to be dirty in those ram setups (even with the
+default sysctl), especially during vm congestion that is when you most
+need to dominate the amount of that locked ram.
 
-This time, I did NOT have 'artsd' (i.e. the client) loaded. What happened was 
-that the module was properly restored and I could load (and use) artsd even 
-after the resume.
-That brings me to the first assumption/question I have made: is there 
-something wrong if we suspend two parts (one module and a userspace process), 
-while they inter-communicate through the /dev/* interface?
-
-
-
-static void m3_suspend(m3_t *chip)
-{
-	snd_card_t *card = chip->card;
-	int i, index;
-
-	snd_printk("m3 suspend");
-	if (chip->suspend_mem == NULL)
-		return;
-	if (card->power_state == SNDRV_CTL_POWER_D3hot)
-		return;
-	...
-
-static void m3_resume(m3_t *chip)
-{
-	snd_card_t *card = chip->card;
-	int i, index;
-
-	snd_printk("m3 resume");
-
-	if (chip->suspend_mem == NULL)
-		return;
-	...
+Andrea

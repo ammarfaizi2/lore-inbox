@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbUAOTGL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 14:06:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbUAOTGL
+	id S263015AbUAOTLG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 14:11:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263053AbUAOTLG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 14:06:11 -0500
-Received: from sandershosting.com ([69.26.136.138]:46274 "HELO
-	sandershosting.com") by vger.kernel.org with SMTP id S262033AbUAOTGG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 14:06:06 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: David Sanders <linux@sandersweb.net>
-Reply-To: David Sanders <linux@sandersweb.net>
-Organization: SandersWeb.net
-Message-Id: <200401151401.1764@sandersweb.net>
-To: Haakon Riiser <haakon.riiser@fys.uio.no>
-Subject: Re: NTFS disk usage on Linux 2.6
-Date: Thu, 15 Jan 2004 14:05:41 -0500
-X-Mailer: KMail [version 1.3.2]
-References: <20040115010210.GA570@s.chello.no>
-In-Reply-To: <20040115010210.GA570@s.chello.no>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	Thu, 15 Jan 2004 14:11:06 -0500
+Received: from a-64-101-biz2.mts.net ([205.200.64.101]:9608 "EHLO opensky.ca")
+	by vger.kernel.org with ESMTP id S263015AbUAOTLE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 14:11:04 -0500
+Subject: addition to via82xx dxs_support whitelist
+From: Jason Hildebrand <jason@peaceworks.ca>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1074193671.3255.101.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 15 Jan 2004 13:07:52 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 14 January 2004 08:02 pm, Haakon Riiser wrote:
-> Has anyone else noticed that the reported disk space usage on
-> NTFS is completely unreliable on Linux 2.6?  Just issued the
+I wanted to report that my via82xx chip requires dxs_support=1 (VIA_DXS_ENABLE) to work without hissing or clicking, so that this info can be added to the 
+whitelist.
 
-I'm having the same symptom.  The following is on a 4G partition.  The 
-WINNT directory is reported as 66G in size.  Kernel 2.6.1.
+The audio device is:
 
-david@debian:/mnt/hda5$ du * -sh
-124M    file
-56M     GNUwin32
-6.3M    Inetpub
-1.3M    lynx
-0       Multimedia Files
-267M    pagefile.sys
-134M    perl
-922M    Program Files
-0       RECYCLER
-42M     TEMP
-2.7M    util
-13M     vim
-2.5k    _viminfo
-66G     WINNT
+00:11.5 Class 0401: 1106:3059 (rev 50)
+        Subsystem: 1297:a232
 
+00:11.5 Multimedia audio controller: VIA Technologies, Inc. AC97 Audio Controller (rev 50)
+        Subsystem: Holco Enterprise Co, Ltd/Shuttle Computer: Unknown device a23
 
--- 
-David Sanders
-linux@sandersweb.net
+Please cc me if more info is required as I'm not subscribed to this list.
+
+--
+Jason D. Hildebrand
+jason@peaceworks.ca
+

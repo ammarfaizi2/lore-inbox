@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261714AbSJ2DZm>; Mon, 28 Oct 2002 22:25:42 -0500
+	id <S261663AbSJ2DW0>; Mon, 28 Oct 2002 22:22:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261717AbSJ2DZm>; Mon, 28 Oct 2002 22:25:42 -0500
-Received: from alpha9.cc.monash.edu.au ([130.194.1.9]:58889 "EHLO
-	ALPHA9.CC.MONASH.EDU.AU") by vger.kernel.org with ESMTP
-	id <S261714AbSJ2DZk>; Mon, 28 Oct 2002 22:25:40 -0500
-Date: Tue, 29 Oct 2002 14:30:22 +1100 (EST)
-From: netdev-bounce@oss.sgi.com
-To: undisclosed-recipients:;
-Message-id: <20021029033022.1B454130071@splat.its.monash.edu.au>
-Content-transfer-encoding: 7BIT
+	id <S261665AbSJ2DW0>; Mon, 28 Oct 2002 22:22:26 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:18590 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S261663AbSJ2DWZ>; Mon, 28 Oct 2002 22:22:25 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 28 Oct 2002 19:38:11 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: John Gardiner Myers <jgmyers@netscape.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <lse-tech@lists.sourceforge.net>
+Subject: Re: Security critical race condition in epoll code
+In-Reply-To: <3DBDE8AF.6090102@netscape.com>
+Message-ID: <Pine.LNX.4.44.0210281935040.1002-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 October 2002 16:59, Nivedita Singhvi wrote:
-> bert hubert wrote:
-> > > ...adding the whole profile output - sorted by the first column this
-> > > time...
-> > >
-> > > 905182 total                                      0.4741
-> > > 121426 csum_partial_copy_generic                474.3203
-> > >  93633 default_idle                             1800.6346
-> > >  74665 do_wp_page                               111.1086
-> >
-> > Perhaps the 'copy' also entails grabbing the page from disk, leading to
-> > inflated csum_partial_copy_generic stats?
->
-> I think this is strictly a copy from user space->kernel and vice versa.
-> This shouldnt include the disk access etc.
+On Mon, 28 Oct 2002, John Gardiner Myers wrote:
 
-hm
+> Thread A then runs some more and stores the value of events into the now
+> freed block of memory pointed to by dpi.
 
-I'm doing O_DIRECT read (from disk), so it needs to be user -> kernel, then.
+Thank you very much for your input John, I really appreciate :
 
-any chance of using O_DIRECT to the socket?
+http://www.xmailserver.org/linux-patches/sys_epoll-2.5.44-last.diff
 
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-ProntoTV AS - http://www.pronto.tv/
-Tel: +47 9801 3356
+If you have any other complain, pls let me know ...
 
-Computers are like air conditioners.
-They stop working when you open Windows.
 
+
+- Davide
 
 

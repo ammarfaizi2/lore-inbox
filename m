@@ -1,77 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262063AbUKWJq0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbUKWJrb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbUKWJq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 04:46:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbUKWJq0
+	id S261286AbUKWJrb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 04:47:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261483AbUKWJra
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 04:46:26 -0500
-Received: from mail.dif.dk ([193.138.115.101]:188 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261286AbUKWJqU (ORCPT
+	Tue, 23 Nov 2004 04:47:30 -0500
+Received: from rproxy.gmail.com ([64.233.170.198]:36473 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261286AbUKWJqw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 04:46:20 -0500
-Message-ID: <41A30612.2040700@dif.dk>
-Date: Tue, 23 Nov 2004 10:42:42 +0100
-From: Jesper Juhl <juhl-lkml@dif.dk>
-Organization: DIF
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>
-Cc: linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove pointless <0 comparison for unsigned variable
- in fs/fcntl.c
-References: <Pine.LNX.4.61.0411212351210.3423@dragon.hygekrogen.localhost> <20041122010253.GE25636@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20041122010253.GE25636@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 23 Nov 2004 04:46:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=R594qk5vL8QpEHLsNrhASGQpPFncER4HqYka0zIjXBoDh0hlYJi4VnqGGcyEwcoowczjvfoJUAasaZEhPIFG97Oq04iFCZOux7tei/kcqse7Ny5ZBh9zr5vF7wxfv+aa9WM9Pa9SXDq1J0x40PSVo3MLhRzhcKvFtT08rn0hwo4=
+Message-ID: <2c59f00304112301467b411a46@mail.gmail.com>
+Date: Tue, 23 Nov 2004 15:16:51 +0530
+From: Amit Gud <amitgud1@gmail.com>
+Reply-To: Amit Gud <amitgud1@gmail.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: file as a directory
+Cc: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.53.0411222002380.21595@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <2c59f00304112205546349e88e@mail.gmail.com>
+	 <200411221759.iAMHx7QJ005491@turing-police.cc.vt.edu>
+	 <41A23566.6080903@namesys.com>
+	 <Pine.LNX.4.53.0411222002380.21595@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox wrote:
-> On Sun, Nov 21, 2004 at 11:55:23PM +0100, Jesper Juhl wrote:
+On Mon, 22 Nov 2004 20:05:25 +0100 (MET), Jan Engelhardt
+<jengelh@linux01.gwdg.de> wrote:
+> >>(Hint - "file as directory" broke a number of programs that didn't
+> >>expect that a file *could* be a directory, when run on a reiser4
+> >>filesystem...)
+> >
+> >It broke extraordinarily few.
 > 
->>This patch removes a pointless comparison. "arg" is an unsigned long, thus 
->>it can never be <0, so testing that is pointless.
->>
->>Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
->>
->> 	case F_SETSIG:
->> 		/* arg == 0 restores default behaviour. */
->>-		if (arg < 0 || arg > _NSIG) {
->>+		if (arg > _NSIG) {
->> 			break;
+> (The fewer the better.)
 > 
+> That's good news, and frankly, I did not expect anything else. That's because
+> either programs definitely know that "it" is a file/directory because they just
+> mkdir'ed or so, or they implement correct error checks, e.g. the user just
+> created a directory and we check back (i.e. race protection).
 > 
-> I've seen patches like this before.  I'm generally in favour of removing
-> the unnecessary test, but Linus rejected it on the grounds the compiler
-> shouldn't be warning about it and it's better to be more explicit about
-> the range test.  Maybe he's changed his mind between then and now ;-)
+
+Correct me if I'm wrong, but the best way I know whether a file should
+be treated as directory or as a file (atleast how I've implemented it)
+depends upon the context (how the file is accessed) in the user-space
+and this context is reflected in the kernel space in the flags of the
+struct nameidata. So ...
+
+----
+        /* check if the archive is a path component or if last
+component with slash */
+	flags = (nd->flags & LOOKUP_CONTINUE) || (nd->flags & LOOKUP_DIRECTORY);
+        if(flags)
+               /* directory */
+        else
+               /* file */
+
+----
+
+> What I am worried about is the opendir() libc call, which AFAIK does this:
+>   fd = open("directory", myflags | O_DIRECTORY)
 > 
-Let's find out.
-Linus, would you accept patches like this?
 
-I've been building recent kernels with -W and there are tons of places 
-with similar comparisons like the one above, as well as places where 
-signed and unsigned values are compared, places where values are 
-potentially truncated in signed/unsigned assignments and similar.
-At the very least a review of these code locations to make sure they are 
-all safe would make sense, and I think it would also make sense to get 
-rid of the comparisons that always evaluate true or false due to the 
-signedness or range of datatypes.
-I probably won't be able to properly evaluate/review *all* the instances 
-of this in the kernel, but I don't mind spending some time reviewing 
-what I can and submit patches, but I don't want to waste my time with it 
-if you already know up-front that you'll just be dropping all such 
-patches. Or is this up to the individual maintainers to accept/reject? 
-If so, then I'll go ahead and submit patches, then the individual 
-maintainers can ack/nack as they please.
+No more worries! Am I missing something?
 
-Comments?
-
-
+AG
 --
-Jesper Juhl
-
-
-
+May the source be with you.

@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132601AbRDXASf>; Mon, 23 Apr 2001 20:18:35 -0400
+	id <S132605AbRDXAUf>; Mon, 23 Apr 2001 20:20:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132605AbRDXASZ>; Mon, 23 Apr 2001 20:18:25 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:14089 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S132601AbRDXASM>;
-	Mon, 23 Apr 2001 20:18:12 -0400
-Date: Tue, 24 Apr 2001 02:17:56 +0200
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: John Fremlin <chief@bandits.org>
-Cc: Pavel Machek <pavel@suse.cz>,
-        "Acpi-PM (E-mail)" <linux-power@phobos.fachschaften.tu-muenchen.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Let init know user wants to shutdown
-Message-ID: <20010424021756.A931@pcep-jamie.cern.ch>
-In-Reply-To: <E14pgBe-0003gg-00@the-village.bc.nu> <m2k84jkm1j.fsf@boreas.yi.org.> <20010420190128.A905@bug.ucw.cz> <m2snj3xhod.fsf@bandits.org>
+	id <S132606AbRDXAUZ>; Mon, 23 Apr 2001 20:20:25 -0400
+Received: from mail.valinux.com ([198.186.202.175]:41736 "EHLO
+	mail.valinux.com") by vger.kernel.org with ESMTP id <S132605AbRDXAUO>;
+	Mon, 23 Apr 2001 20:20:14 -0400
+Date: Mon, 23 Apr 2001 18:34:01 -0600
+From: Don Dugger <n0ano@valinux.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Manuel McLure <manuel@mclure.org>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel hang on multi-threaded X process crash
+Message-ID: <20010423183401.C13382@tlaloc.n0ano.com>
+In-Reply-To: <20010423082405.C979@ulthar.internal.mclure.org> <E14riRj-0008HH-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <m2snj3xhod.fsf@bandits.org>; from chief@bandits.org on Sat, Apr 21, 2001 at 12:41:54AM +0100
+X-Mailer: Mutt 1.0i
+In-Reply-To: <E14riRj-0008HH-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Apr 23, 2001 at 04:40:12PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Fremlin wrote:
-> > > I'm wondering if that veto business is really needed. Why not reject
-> > > *all* APM rejectable events, and then let the userspace event handler
-> > > send the system to sleep or turn it off? Anybody au fait with the APM
-> > > spec?
-> > 
-> > My thinkpad actually started blinking with some LED when you pressed
-> > the button. LED went off when you rejected or when sleep was
-> > completed.
+Alan-
+
+I certainly care to fix it (since I wrote the patch).  Since `aviplay' seems
+to be the easy way to trigger it I'll look into it.
+
+On Mon, Apr 23, 2001 at 04:40:12PM +0100, Alan Cox wrote:
+> > Both mozilla and aviplay (which are both multithreaded) trigger this - I
+> > haven't tried with xmms. Simpler programs like xclock or cat don't trigger
+> > it.
 > 
-> Does the led start blinking when the system sends an apm suspend? In
-> that case I don't think you'd notice the brief period between the
-> REJECT and the following suspend from userspace ;-)
+> Thanks. I'll revert the core dump stuff for 2.4.4-ac unless anyone cares to
+> fix the fix
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Are you sure?  A suspend takes about 5-10 seconds on my laptop.
-
-(It was noticably faster with 2.3 kernels, btw.  Now it spends a second
-or two apparently not noticing the APM event (though the BIOS is making
-the speaker beep), then syncing the disk, then maybe another pause, then
-maybe some more disk activity, then finally shutting down.  2.3 started
-the disk activity immediately and didn't pause.  Perhaps 2.4.3 mm
-problems?)
-
--- Jamie
-
+-- 
+Don Dugger
+"Censeo Toto nos in Kansa esse decisse." - D. Gale
+n0ano@valinux.com
+Ph: 303/938-9838

@@ -1,66 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317643AbSGJWUb>; Wed, 10 Jul 2002 18:20:31 -0400
+	id <S317329AbSGJW2v>; Wed, 10 Jul 2002 18:28:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317648AbSGJWUa>; Wed, 10 Jul 2002 18:20:30 -0400
-Received: from dsl-213-023-043-112.arcor-ip.net ([213.23.43.112]:9960 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317643AbSGJWU3>;
-	Wed, 10 Jul 2002 18:20:29 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Rick Lindsley <ricklind@us.ibm.com>, Larry McVoy <lm@bitmover.com>
-Subject: Re: BKL removal
-Date: Thu, 11 Jul 2002 00:24:06 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Greg KH <greg@kroah.com>, Dave Hansen <haveblue@us.ibm.com>,
-       Thunder from the hill <thunder@ngforever.de>,
-       kernel-janitor-discuss 
-	<kernel-janitor-discuss@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-References: <200207102128.g6ALS2416185@eng4.beaverton.ibm.com>
-In-Reply-To: <200207102128.g6ALS2416185@eng4.beaverton.ibm.com>
+	id <S317648AbSGJW2u>; Wed, 10 Jul 2002 18:28:50 -0400
+Received: from node-209-133-23-217.caravan.ru ([217.23.133.209]:21518 "EHLO
+	mail.tv-sign.ru") by vger.kernel.org with ESMTP id <S317329AbSGJW2t>;
+	Wed, 10 Jul 2002 18:28:49 -0400
+Message-ID: <3D2CB668.8CC739B6@tv-sign.ru>
+Date: Thu, 11 Jul 2002 02:34:16 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17SPsV-00028p-00@starship>
+To: linux-kernel@vger.kernel.org
+CC: mingo@elte.hu
+Subject: Re: [patch] sched-2.5.24-D3, batch/idle priority scheduling, SCHED_BATCH
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 July 2002 23:28, Rick Lindsley wrote:
-> So threading is difficult to manage or even impossible without a global
-> lock for everyone to use? True -- I suppose that would force people to
-> think about what they are locking and which lock is appropriate to avoid
-> unnecessary contention.  It would require that the new locks' scopes and
-> assumptions be documented instead of handed down verbally from 
-> teacher to student.
+Hello.
 
-Hear hear!  Well, Al at least has made a pretty good attempt to do that
-for VFS locks.  The rest of the kernel is pretty much a disaster.  If
-we're lucky, we find the odd comment here and there: 'must be called
-holding such-and-such lock', and on a good day the comment is even
-correct.  Which reminds me of a janitorial idea I discussed briefly with
-Acme, which is to replace all those above-the-function lock coverage
-comments with assert-like thingies:
+> > > > And users of __KERNEL_SYSCALLS__ and kernel_thread() should not
+> > > > have policy == SCHED_BATCH.
+> >
+> > well, there's one security consequence here - module loading
+> > (request_module()), which spawns a kernel thread must not run as
+> > SCHED_BATCH. I think the right solution for that path is to set the
+> > policy to SCHED_OTHER upon entry, and restore it to the previous one
+> > afterwards - this way the helper thread has SCHED_OTHER priority.
+>
+> i've solved this problem by making kernel_thread() spawned threads drop
+> back to SCHED_NORMAL:
 
-   spin_assert(&pagemap_lru_lock);
+Note that request_module() also does waitpid(). So it's better to change
+policy upon entry, as You suggested.
 
-And everbody knows what that does: when compiled with no spinlock
-debugging it does nothing, but with spinlock debugging enabled, it oopses
-unless pagemap_lru_lock is held at that point in the code.  The practical
-effect of this is that lots of 3 line comments get replaced with a
-one line assert that actually does something useful.  That is, besides
-documenting the lock coverage, this thing will actually check to see if
-you're telling the truth, if you ask it to.
+> I believe this is the secure way of doing it - independently of
+> SCHED_BATCH - a RT task should not spawn a RT kernel thread 'unwillingly'.
 
-Oh, and they will stay up to date much better than the comments do,
-because nobody needs to to be an ueber-hacker to turn on the option and
-post any resulting oopses to lkml.
+Yes, but this semantic change should be ported to all archs
+independently of
+low level microoptimizations, for consistency. Rename all definitions to
+arch_kernel_thread() ?
 
-> It would have the side effect of making it easier
-> for a newcomer to come up to speed on a particular section of code, thus
-> allowing a greater number of people to understand the code and offer fixes
-> or enhancements.
+Btw, how about this tiny bit of cleanup:
 
-Yup, and double-yup.
+asmlinkage void schedule_userspace(void)
+{
+    /*
+     * Only handle batch tasks that are runnable.
+     */
+    if (current->policy == SCHED_BATCH &&
+        current->state == TASK_RUNNING) {
+        runqueue_t *rq = this_rq_lock();
+        deactivate_batch_task(current, rq);
 
--- 
-Daniel
+        // we can keep irqs disabled:
+        spin_unlock(&rq->lock);
+    }
+
+    schedule();
+}
+
+Oleg.

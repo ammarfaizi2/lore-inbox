@@ -1,41 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264839AbSK0VSb>; Wed, 27 Nov 2002 16:18:31 -0500
+	id <S264844AbSK0Vcx>; Wed, 27 Nov 2002 16:32:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264844AbSK0VSb>; Wed, 27 Nov 2002 16:18:31 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:7388 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S264839AbSK0VSa>; Wed, 27 Nov 2002 16:18:30 -0500
-Message-ID: <3DE53857.9000301@nortelnetworks.com>
-Date: Wed, 27 Nov 2002 16:25:43 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: epoll patches queue status and glibc submission ...
-References: <Pine.LNX.4.50.0211271201010.1827-600000@blue1.dev.mcafeelabs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264854AbSK0Vcx>; Wed, 27 Nov 2002 16:32:53 -0500
+Received: from newmail.somanetworks.com ([216.126.67.42]:1456 "EHLO
+	mail.somanetworks.com") by vger.kernel.org with ESMTP
+	id <S264844AbSK0Vcw>; Wed, 27 Nov 2002 16:32:52 -0500
+Message-Id: <200211272140.gARLe5wF007020@localhost.localdomain>
+Date: Wed, 27 Nov 2002 16:40:05 -0500
+From: Georg Nikodym <georgn@somanetworks.com>
+To: Linux/ARM Kernel List <linux-arm-kernel@lists.arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: v2.4.19-rmk4 slab.c: /proc/slabinfo uses broken instead of slab labels
+In-Reply-To: <200211272015.gARKFHwF006320@localhost.localdomain>
+References: <200211272015.gARKFHwF006320@localhost.localdomain>
+Organization: SOMA Networks
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i386-redhat-linux)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.8+11GnEG0'YTB4"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
-> This is the latest status of the epoll system include file and man pages
-> that I'll submit to Ulrich after having received comments from lkml. If
-> you have some feedback to report pls speak now or forever hold your piece :)
+--=.8+11GnEG0'YTB4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-I'm canadian.  I don't carry a piece....
+On Wed, 27 Nov 2002 15:15:17 -0500
+Georg Nikodym <georgn@somanetworks.com> wrote:
 
+> 1. Is the ARM __get_user() broken?
+> 2. Could I be doing something else broken that is confusing __get_user()?
+> 3. What was/is the intent of the test?  Or stated differently, why on earth
+>    would cachep->name be a user address?
 
-Chris
+In answer to my own question, reading the 2.5 source was illuminating. 
+The intent of the test is obvious:
 
+akpm     1.50         | 	/*
+akpm     1.50         | 	 * Check to see if `name' resides inside a module which has been
+akpm     1.50         | 	 * unloaded (someone forgot to destroy their cache)
+akpm     1.50         | 	 */
 
+Thanks to Mr. Morton for that comment.  Now I get to wrestle with questions 1 and 2.
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+-g
 
+--=.8+11GnEG0'YTB4
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE95Tu1oJNnikTddkMRAqltAJ9JBhAGQgYEp2X5+l4K3iyV31evfACfbF93
+dul0LxG4AUsKNInIWsIvZEU=
+=7y9w
+-----END PGP SIGNATURE-----
+
+--=.8+11GnEG0'YTB4--

@@ -1,60 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265521AbUEZMJd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265530AbUEZMMA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265521AbUEZMJd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 08:09:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265528AbUEZMJc
+	id S265530AbUEZMMA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 08:12:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265529AbUEZML7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 08:09:32 -0400
-Received: from grunt22.ihug.com.au ([203.109.249.142]:52864 "EHLO
-	grunt22.ihug.com.au") by vger.kernel.org with ESMTP id S265521AbUEZMIt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 08:08:49 -0400
-Subject: Re: drivers DB and id/ info registration
-From: Zenaan Harkness <zen@freedbms.net>
-To: debian-devel@lists.debian.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1085571316.906.3.camel@localhost>
-References: <1085542706.2908.25.camel@zen8100a.freedbms.net>
-	 <20040526065447.GA32304@dat.etsit.upm.es>  <200405260918.51589@fortytwo.ch>
-	 <1085566079.2522.54.camel@zen8100a.freedbms.net>
-	 <1085571316.906.3.camel@localhost>
+	Wed, 26 May 2004 08:11:59 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:55489 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S265530AbUEZMLC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 08:11:02 -0400
+Subject: RE: why swap at all?
+From: Paulo Marques <pmarques@grupopie.com>
+Reply-To: pmarques@grupopie.com
+To: Buddy Lumpkin <b.lumpkin@comcast.net>
+Cc: "'William Lee Irwin III'" <wli@holomorphy.com>, orders@nodivisions.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <S265489AbUEZLfK/20040526113510Z+1673@vger.kernel.org>
+References: <S265489AbUEZLfK/20040526113510Z+1673@vger.kernel.org>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1085573236.2213.77.camel@zen8100a.freedbms.net>
+Organization: Grupo PIE
+Message-Id: <1085573570.6413.29.camel@pmarqueslinux>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 26 May 2004 22:07:17 +1000
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Wed, 26 May 2004 13:12:50 +0100
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.25.0.59; VDF: 6.25.0.76; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-05-26 at 21:35, Wouter Verhelst wrote:
-> Op wo 26-05-2004, om 12:07 schreef Zenaan Harkness:
-> > I develop widget X.
-> > 
-> > I contact microsoft and have X incorporated into windows.
-> 
-> Rotfl.
 
-OK, bad assumption.
+I really should not feed the trolls, but...
 
-The only reason I say that is that so many devices work
-"seamlessly" with MSW*
+William Lee Irwin wrote:
 
- - recently I read a review on the X-Arcade retro joystick
-controllers (those heavy "for cabinets and MAME" things).
-The reviewer just plugged it in and Windows literally popped
-up with a dialog telling the "end user recognizable" name of
-the device.
+> If you've got a real performance issue, please describe it properly
+> instead of asserting without evidence the existence of one.
 
- - a year or so back, my brother bought a "blue eye" USB
-external 2.5" HDD (really nice looking thing) and on his
-XP box it auto added a new drive (E: or whatever). Seamless.
+> On Wed, May 26, 2004 at 01:30:09AM -0700, Buddy Lumpkin wrote:
 
-So how come devices tend to just plug and play when
-used with Windows (USB HDDs, audi cards, logitec gear)?
+> > insinuations and translate your message the way I read it: 
+> > -------------------------------------------------------------------------
+> > I don't recognize your name, therefore you can't possibly have a valuable
+> > opinion on the direction VM system development should go. I doubt you have
+> > an actual performance problem to share, but if you do, please share it and
+> > go away so that we can work on solving the problem.
+> > --------------------------------------------------------------------------
 
-Will a "visible"/ centralized location where manufacturers
-can submit info on their devices (for free software kernels)
-help to get us closer to the "front line" of device support?
+Conclusion:
 
-thanks
-zen
+You really should learn how to read :)
+
+
+This is a *technical* discussion list. So far you been able to post 7
+mails about vague ramblings about what you think the VM should do and
+what swapping is (not to mention unjustified personal attacks).
+
+If you really think there is a problem with the VM post benchmarks
+demonstrating the problem. 
+
+If you don't think there is a problem, don't waste our time.
+
+If you want to continue this discussion, please do so off-list.
+
+Best regards,
+
+-- 
+Paulo Marques - www.grupopie.com
+"In a world without walls and fences who needs windows and gates?"
+

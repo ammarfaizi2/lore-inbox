@@ -1,89 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136118AbRDVNvQ>; Sun, 22 Apr 2001 09:51:16 -0400
+	id <S136129AbRDVNy4>; Sun, 22 Apr 2001 09:54:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136119AbRDVNvD>; Sun, 22 Apr 2001 09:51:03 -0400
-Received: from baltazar.tecnoera.com ([200.29.128.1]:2826 "EHLO
+	id <S136128AbRDVNyr>; Sun, 22 Apr 2001 09:54:47 -0400
+Received: from baltazar.tecnoera.com ([200.29.128.1]:5130 "EHLO
 	baltazar.tecnoera.com") by vger.kernel.org with ESMTP
-	id <S136118AbRDVNui>; Sun, 22 Apr 2001 09:50:38 -0400
-Date: Sun, 22 Apr 2001 09:49:52 -0400 (CLT)
+	id <S136129AbRDVNyd>; Sun, 22 Apr 2001 09:54:33 -0400
+Date: Sun, 22 Apr 2001 09:54:11 -0400 (CLT)
 From: Juan Pablo Abuyeres <jpabuyer@tecnoera.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Andreas Hartmann <andihartmann@freenet.de>, <linux-kernel@vger.kernel.org>
+To: Andreas Hartmann <andihartmann@freenet.de>
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: [2.4.3ac11] clock timer configuration lost - probably a VIA686a
  motherboard
-In-Reply-To: <E14rJGD-0005lO-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0104220946520.4950-100000@baltazar.tecnoera.com>
+In-Reply-To: <01042214101400.15273@athlon>
+Message-ID: <Pine.LNX.4.33.0104220952521.4950-100000@baltazar.tecnoera.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well... I remember this message showing on my console, although I was
-doing nothing special...
+This should have gone on my last email:
 
-Apr 18 14:37:01 blackbird kernel: probable hardware bug: clock timer
-configuration lost - probably a VIA686a.
-Apr 18 14:37:01 blackbird kernel: probable hardware bug: restoring chip
-configuration.
---
-Apr 18 14:41:18 blackbird kernel: probable hardware bug: clock timer
-configuration lost - probably a VIA686a.
-Apr 18 14:41:18 blackbird kernel: probable hardware bug: restoring chip
-configuration.
---
-Apr 18 14:47:10 blackbird kernel: probable hardware bug: clock timer
-configuration lost - probably a VIA686a.
-Apr 18 14:47:10 blackbird kernel: probable hardware bug: restoring chip
-configuration.
---
-Apr 18 14:48:28 blackbird kernel: probable hardware bug: clock timer
-configuration lost - probably a VIA686a.
-Apr 18 14:48:28 blackbird kernel: probable hardware bug: restoring chip
-configuration.
---
-Apr 18 14:49:02 blackbird kernel: probable hardware bug: clock timer
-configuration lost - probably a VIA686a.
-Apr 18 14:49:02 blackbird kernel: probable hardware bug: restoring chip
-configuration.
---
-Apr 18 14:51:06 blackbird kernel: probable hardware bug: clock timer
-configuration lost - probably a VIA686a.
-Apr 18 14:51:06 blackbird kernel: probable hardware bug: restoring chip
-configuration.
---
-Apr 18 14:51:48 blackbird kernel: probable hardware bug: clock timer
-configuration lost - probably a VIA686a.
-Apr 18 14:51:48 blackbird kernel: probable hardware bug: restoring chip
-configuration.
---
-Apr 18 14:52:01 blackbird kernel: probable hardware bug: clock timer
-configuration lost - probably a VIA686a.
-Apr 18 14:52:01 blackbird kernel: probable hardware bug: restoring chip
-configuration.
---
-
-[root@blackbird log]# uname -a
-Linux blackbird.tecnoera.com 2.2.19 #2 Wed Apr 11 12:23:14 CLT 2001 i686
-unknown
+[root@blackbird log]# cat /proc/pci
+PCI devices found:
+  Bus  0, device   0, function  0:
+    Host bridge: VIA Technologies Unknown device (rev 68).
+      Vendor id=1106. Device id=691.
+      Medium devsel.  Master Capable.  No bursts.
+      Prefetchable 32 bit memory at 0xd0000000 [0xd0000008].
+  Bus  0, device   1, function  0:
+    PCI bridge: VIA Technologies VT 82C598 Apollo MVP3 AGP (rev 0).
+      Medium devsel.  Master Capable.  No bursts.  Min Gnt=12.
+  Bus  0, device   7, function  0:
+    ISA bridge: VIA Technologies Unknown device (rev 34).
+      Vendor id=1106. Device id=686.
+      Medium devsel.  Master Capable.  No bursts.
+  Bus  0, device   7, function  1:
+    IDE interface: VIA Technologies VT 82C586 Apollo IDE (rev 16).
+      Medium devsel.  Fast back-to-back capable.  Master Capable.
+Latency=32.
+      I/O at 0xe000 [0xe001].
+  Bus  0, device   7, function  2:
+    USB Controller: VIA Technologies VT 82C586 Apollo USB (rev 16).
+      Medium devsel.  IRQ 10.  Master Capable.  Latency=32.
+      I/O at 0xe400 [0xe401].
+  Bus  0, device   7, function  3:
+    USB Controller: VIA Technologies VT 82C586 Apollo USB (rev 16).
+      Medium devsel.  IRQ 10.  Master Capable.  Latency=32.
+      I/O at 0xe800 [0xe801].
+  Bus  0, device   7, function  4:
+    Bridge: VIA Technologies Unknown device (rev 48).
+      Vendor id=1106. Device id=3057.
+      Medium devsel.  Fast back-to-back capable.
+  Bus  0, device  11, function  0:
+    Ethernet controller: Intel 82557 (rev 8).
+      Medium devsel.  Fast back-to-back capable.  IRQ 10.  Master Capable.
+Latency=32.  Min Gnt=8.Max Lat=56.
+      Non-prefetchable 32 bit memory at 0xdb100000 [0xdb100000].
+      I/O at 0xec00 [0xec01].
+      Non-prefetchable 32 bit memory at 0xdb000000 [0xdb000000].
+  Bus  1, device   0, function  0:
+    VGA compatible controller: 3Dfx Unknown device (rev 1).
+      Vendor id=121a. Device id=5.
+      Fast devsel.  Fast back-to-back capable.  IRQ 11.
+      Non-prefetchable 32 bit memory at 0xd4000000 [0xd4000000].
+      Prefetchable 32 bit memory at 0xd8000000 [0xd8000008].
+      I/O at 0xd000 [0xd001].
 [root@blackbird log]#
-
-
-
-On Sun, 22 Apr 2001, Alan Cox wrote:
-
-> > I got a lot of messages while continuous writing / reading datas from one a
-> > harddisk to another harddisk (both at 1. ide-channel) during backup with
-> > rsync. Both harddisks use udma4. The data-stream was between 0,5 MB/s and
-> > 20MB/s.
-> > I never got these messages before and after the backup finished I couldn't
-> > see them anymore.
->
-> Thy do trigger to easily. Im still investigating that
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
 

@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbVATPzG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262167AbVATPz7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbVATPzG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 10:55:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbVATPzF
+	id S262167AbVATPz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 10:55:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbVATPzc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 10:55:05 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:45586 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262160AbVATPvA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 10:51:00 -0500
-Date: Thu, 20 Jan 2005 16:50:54 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 19/29] x86_64-kexec
-Message-ID: <20050120155054.GD3170@stusta.de>
-References: <x86-64-vmlinux-fix-physical-addrs-11061198972723@ebiederm.dsl.xmission.com> <x86-64-entry64-1106119897218@ebiederm.dsl.xmission.com> <x86-config-kernel-start-1106119897152@ebiederm.dsl.xmission.com> <x86-64-config-kernel-start-11061198972987@ebiederm.dsl.xmission.com> <kexec-kexec-generic-11061198974111@ebiederm.dsl.xmission.com> <x86-machine-shutdown-1106119897775@ebiederm.dsl.xmission.com> <x86-kexec-11061198971773@ebiederm.dsl.xmission.com> <x86-crashkernel-1106119897532@ebiederm.dsl.xmission.com> <x86-64-machine-shutdown-11061198972282@ebiederm.dsl.xmission.com> <x86-64-kexec-11061198973999@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <x86-64-kexec-11061198973999@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 20 Jan 2005 10:55:32 -0500
+Received: from fw.osdl.org ([65.172.181.6]:45493 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262175AbVATPvb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 10:51:31 -0500
+Date: Thu, 20 Jan 2005 07:51:08 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Peter Chubb <peterc@gelato.unsw.edu.au>
+cc: Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
+       paulus@samba.org, linux-kernel@vger.kernel.org, mingo@elte.hu,
+       tony.luck@intel.com, dsw@gelato.unsw.edu.au, benh@kernel.crashing.org,
+       linux-ia64@vger.kernel.org, hch@infradead.org, wli@holomorphy.com,
+       jbarnes@sgi.com
+Subject: Re: [PATCH RFC] 'spinlock/rwlock fixes' V3 [1/1]
+In-Reply-To: <16879.29449.734172.893834@wombat.chubb.wattle.id.au>
+Message-ID: <Pine.LNX.4.58.0501200747230.8178@ppc970.osdl.org>
+References: <20050116230922.7274f9a2.akpm@osdl.org> <20050117143301.GA10341@elte.hu>
+ <20050118014752.GA14709@cse.unsw.EDU.AU> <16877.42598.336096.561224@wombat.chubb.wattle.id.au>
+ <20050119080403.GB29037@elte.hu> <16878.9678.73202.771962@wombat.chubb.wattle.id.au>
+ <20050119092013.GA2045@elte.hu> <16878.54402.344079.528038@cargo.ozlabs.ibm.com>
+ <20050120023445.GA3475@taniwha.stupidest.org> <20050119190104.71f0a76f.akpm@osdl.org>
+ <20050120031854.GA8538@taniwha.stupidest.org> <16879.29449.734172.893834@wombat.chubb.wattle.id.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 19, 2005 at 12:31:37AM -0700, Eric W. Biederman wrote:
->...
-> --- linux-2.6.11-rc1-mm1-nokexec-x86_64-machine_shutdown/arch/x86_64/kernel/crash.c	Wed Dec 31 17:00:00 1969
-> +++ linux-2.6.11-rc1-mm1-nokexec-x86_64-kexec/arch/x86_64/kernel/crash.c	Tue Jan 18 23:14:06 2005
->...
-> +note_buf_t crash_notes[NR_CPUS];
->...
 
-After your patches, this global variable stays completely unused
-on x86_64 (for the i386 version, you added a usage).
 
-cu
-Adrian
+On Thu, 20 Jan 2005, Peter Chubb wrote:
+> 
+> I suggest reversing the sense of the macros, and having read_can_lock()
+> and write_can_lock()
+> 
+> Meaning:
+> 	read_can_lock() --- a read_lock() would have succeeded
+> 	write_can_lock() --- a write_lock() would have succeeded.
 
-BTW: Is external usage for crash_notes planned, or can it become static 
-     on both architectures?
+Yes. This has the advantage of being readable, and the "sense" of the test 
+always being obvious.
 
--- 
+We have a sense problem with the "trylock()" cases - some return "it was
+locked" (semaphores), and some return "I succeeded" (spinlocks), so not
+only is the sense not immediately obvious from the usage, it's actually
+_different_ for semaphores and for spinlocks.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+So I like "read_can_lock()", since it's also obvious what it returns.
 
+(And yes, we should fix the semaphore trylock return code, dammit.)
+
+		Linus

@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281383AbRKEWJ1>; Mon, 5 Nov 2001 17:09:27 -0500
+	id <S281381AbRKEWJ5>; Mon, 5 Nov 2001 17:09:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281382AbRKEWJR>; Mon, 5 Nov 2001 17:09:17 -0500
-Received: from ns.suse.de ([213.95.15.193]:44305 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S281381AbRKEWJH> convert rfc822-to-8bit;
-	Mon, 5 Nov 2001 17:09:07 -0500
-To: Tim Walberg <twalberg@mindspring.com>
-Cc: Ville Herva <vherva@niksula.hut.fi>, John Adams <johna@onevista.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Need blocking /dev/null
-In-Reply-To: <Pine.LNX.4.21.0111012322310.14742-100000@Consulate.UFP.CX>
-	<01110215041301.01066@flash> <20011102223209.D26218@niksula.cs.hut.fi>
-	<20011102144604.E8312@mindspring.com>
-X-Yow: If Robert Di Niro assassinates Walter Slezak, will
- Jodie Foster marry Bonzo??
-From: Andreas Schwab <schwab@suse.de>
-Date: 05 Nov 2001 23:08:57 +0100
-In-Reply-To: <20011102144604.E8312@mindspring.com> (Tim Walberg's message of "Fri, 2 Nov 2001 14:46:04 -0600")
-Message-ID: <jek7x4swee.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.1
+	id <S281382AbRKEWJs>; Mon, 5 Nov 2001 17:09:48 -0500
+Received: from milsum.Biomed.McGill.CA ([132.206.111.48]:11792 "EHLO
+	milsum.biomed.mcgill.ca") by vger.kernel.org with ESMTP
+	id <S281381AbRKEWJh>; Mon, 5 Nov 2001 17:09:37 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Christian Lavoie <clavoie@bmed.mcgill.ca>
+To: linux-kernel@vger.kernel.org
+Subject: File resource leak in 2.2.19?
+Date: Mon, 5 Nov 2001 17:09:36 -0500
+X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011105220945Z281381-17409+8838@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Walberg <twalberg@mindspring.com> writes:
+I came to my work cluster only to find node4 dead. On the console, 
 
-|> I think that
-|> 
-|> find / -name foo 2>&-
-|> 
-|> should do the trick (under ksh, anyway, and
-|> probably zsh or bash as well).
+"VFS: file-max limit 4096 reached"
 
-This is different since the process now gets an error when trying to write
-to fd 2, and a good implementation with check for errors.
+Trying to login gave an error message about loading the shared libraries 
+required (since it couldn't get a file descriptor to load it, I guess)
 
-Andreas.
+The exact situation is an NFS share, hosted on a computer called 'node4'; 
+files are accessed a couple of thousand times daily, read/write from a single 
+other machine thru user-space NFS daemon from Progeny 1.0, which then relays 
+X and/or VNC to a given Windows workstation. That's about the only access 
+pattern to the files.
 
--- 
-Andreas Schwab                                  "And now for something
-Andreas.Schwab@suse.de				completely different."
-SuSE Labs, SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+It's possible that the said files will open from the node itself (Without 
+going thru NFS, but thru a strategically placed symlink), but I sincerely 
+doubt it happened.
+
+Is there any known resource leak in 2.2.19 and up ('only' patched with MOSIX 
+0.98.0) that will exaust the available 'open file' resources?
+
+Yours Truly,
+Christian Lavoie
+clavoie@bmed.mcgill.ca

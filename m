@@ -1,65 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261482AbTCGKkp>; Fri, 7 Mar 2003 05:40:45 -0500
+	id <S261503AbTCGK61>; Fri, 7 Mar 2003 05:58:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261490AbTCGKkp>; Fri, 7 Mar 2003 05:40:45 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:18152 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S261482AbTCGKko>;
-	Fri, 7 Mar 2003 05:40:44 -0500
-Date: Fri, 7 Mar 2003 11:50:44 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] update PCI quirks
-In-Reply-To: <200303070214.h272EH121792@hera.kernel.org>
-Message-ID: <Pine.GSO.4.21.0303071150040.13981-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261512AbTCGK61>; Fri, 7 Mar 2003 05:58:27 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:4356 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261503AbTCGK5R>;
+	Fri, 7 Mar 2003 05:57:17 -0500
+Date: Wed, 5 Mar 2003 19:10:32 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: joern@wohnheim.fh-wedel.de
+Cc: shaheed <srhaque@iee.org>, ms@citd.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kernel source spellchecker
+Message-ID: <20030305181031.GC2781@zaurus.ucw.cz>
+References: <200303011557.13691.srhaque@iee.org> <20030301163555.GA1379@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030301163555.GA1379@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Mar 2003, Linux Kernel Mailing List wrote:
-> ChangeSet 1.1068.10.31, 2003/03/06 17:42:55-08:00, alan@lxorguk.ukuu.org.uk
+Hi!
+
+> > Here is a list of corrections...I have omitted those that seem OK to me, 
+> > apostrophes, proper names, some that seem to be hypenation-related, American 
+> > vs. British differences and a few others.
+> > 
+> > In the case of broken American spelling, I have provided American fixes 
+> > (against my better judgement :-)). Enjoy...
+> > 
+> > brain-damaged=dain-bramaged,dain bramaged
 > 
-> 	[PATCH] update PCI quirks
-> 	
-> 	ALi Magik requires workarounds for TV chips
-> 	IDE controllers require proper handling in legacy mode
-> 	PXB must be disabled on C0 450NX or the IDE will corrupt memory
-> 	VIA northbridge devices require the interrupt line is written
-> 	NEC_CBUS_2/3 require ISA DMA workarounds
-> 
-> 
-> # This patch includes the following deltas:
-> #	           ChangeSet	1.1068.10.30 -> 1.1068.10.31
-> #	drivers/pci/quirks.c	1.23    -> 1.24   
-> #
-> 
->  quirks.c |  111 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
->  1 files changed, 110 insertions(+), 1 deletion(-)
-> 
-> 
-> diff -Nru a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-> --- a/drivers/pci/quirks.c	Thu Mar  6 18:14:19 2003
-> +++ b/drivers/pci/quirks.c	Thu Mar  6 18:14:19 2003
+> What's wrong with those? Yes, they don't exist in a dictionary, but
+> neither do a 
 
-[...]
+Please leave those in. Don't kill jokes
+just for "spell checking".
 
-> + * Q: should we load the 0x1f0,0x3f4 into the registers or zap them as
-> + * we do now ? We don't want is pci_enable_device to come along
-                  ^^^^^^^^^^^^^^^^
-		  What we don't want is?
+These obviously are NOT typos; author
+wanted it that way.
 
-> + * and assign new resources. Both approaches work for that.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+				Pavel
+-- 
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
 

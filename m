@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262731AbTLBSQv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 13:16:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbTLBSQv
+	id S263082AbTLBSTF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 13:19:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262817AbTLBSTF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 13:16:51 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:25472 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S262731AbTLBSQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 13:16:22 -0500
-Date: Tue, 2 Dec 2003 18:20:04 GMT
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200312021820.hB2IK4Wv000220@81-2-122-30.bradfords.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20031202160853.GB22608@gtf.org>
-References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet>
- <200312011226.04750.nbensa@gmx.net>
- <20031202115436.GA10288@physik.tu-cottbus.de>
- <20031202120315.GK13388@conectiva.com.br>
- <20031202131311.GA10915@physik.tu-cottbus.de>
- <3FCC95BB.60205@wmich.edu>
- <20031202160136.GB10915@physik.tu-cottbus.de>
- <20031202160853.GB22608@gtf.org>
-Subject: Re: Linux 2.4 future
+	Tue, 2 Dec 2003 13:19:05 -0500
+Received: from pop.gmx.net ([213.165.64.20]:21959 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263082AbTLBSTD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 13:19:03 -0500
+Date: Tue, 2 Dec 2003 19:19:02 +0100 (MET)
+From: "Robert Freund" <robert.freund@gmx.de>
+To: Christophe Saout <christophe@saout.de>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+References: <1070384429.21490.4.camel@leto.cs.pocnet.net>
+Subject: Re: PROBLEM: 2.6.0-test11 missing acpi-performance interface on	centrino
+X-Priority: 3 (Normal)
+X-Authenticated: #3960793
+Message-ID: <5332.1070389142@www60.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quote from Jeff Garzik <jgarzik@pobox.com>:
-> On Tue, Dec 02, 2003 at 05:01:36PM +0100, Ionut Georgescu wrote:
-> > I can understand that, but I don't take 2.6 for an answer.  2.4 is not
-> > yet dead and it won't be for a long time, just as 2.2 has gotten to
-> > 2.2.25, although 2.4.0 was out when, 3 years ago ?
+> > [1.] One line summary of the problem:
+> > In 2.6.0-test11 the acpi/performance interface is missing on centrino.
 > 
-> 2.4 has continued life, yes.
-> 
-> But the real question is, should 2.4 continue to be developed?
-> 
-> I agree with Marcelo, increasingly the answer should be "No".  New
-> features and core changes should be intended for 2.6.  Bug fixes,
-> security errata, and the like will always be OK for 2.4.  Just like Alan
-> continues to release new 2.2.x releases, when major bugs are found.
+> I would say this is simply because ACPI is not used within the centrino
+> cpufreq interface driver. You should use the sysfs interface anyway.
 
-Even doing that becomes increasingly difficult when you have fewer and
-fewer systems actually running the code.
+The latter is certainly right... but since there is a kernel config option
+that lets you add the /proc/acpi/.../performance interface explicitly and it
+doesn't work, I consider it a bug. 
 
-Backporting a security fix to 2.0.x, and touching some core code,
-could easily result in something breaking and it going unnoticed for
-months, especially if it is something that's hard to trigger.
+Robert
 
-John.

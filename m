@@ -1,83 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273256AbRINCNF>; Thu, 13 Sep 2001 22:13:05 -0400
+	id <S273257AbRINCWq>; Thu, 13 Sep 2001 22:22:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273257AbRINCMz>; Thu, 13 Sep 2001 22:12:55 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:54004
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S273256AbRINCMj>; Thu, 13 Sep 2001 22:12:39 -0400
-Date: Thu, 13 Sep 2001 19:12:56 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Comparing release times between 2.2 and 2.4
-Message-ID: <20010913191256.A2535@mikef-linux.matchmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
+	id <S273258AbRINCWg>; Thu, 13 Sep 2001 22:22:36 -0400
+Received: from cpe-24-221-114-147.az.sprintbbd.net ([24.221.114.147]:3968 "EHLO
+	localhost.digitalaudioresources.org") by vger.kernel.org with ESMTP
+	id <S273257AbRINCWW>; Thu, 13 Sep 2001 22:22:22 -0400
+Message-ID: <3BA169DF.3060306@digitalaudioresources.org>
+Date: Thu, 13 Sep 2001 19:22:23 -0700
+From: David Hollister <david@digitalaudioresources.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010808
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Conquering the Athlon optimization troubles
+In-Reply-To: <Pine.SOL.3.96.1010914012401.21012A-100000@virgo.cus.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A while back I read a message about the overall development of linux
-kernels, and there was one question that interested me.
+Anton Altaparmakov wrote:
+> On Thu, 13 Sep 2001, David Hollister wrote:
+> 
+>>My motherboard is the Epox 8KTA3+, and I'm running an Athlon 1.4GHz.
+>>
+>>Epox was kind enough to mail me a new BIOS chip to replace my locked
+>>chip.  This chip contained a version of the BIOS that I believe was
+>>dated 8/6/2001 (I don't feel like rebooting again to find out).  Suffice
+>>it to say, that version is not listed on their website, but there is an
+>>even newer one.  For anybody with the 8KTA3 or 8KTA3+, the BIOS page is
+>>located at http://www.epox.com/html/english/support/motherboard/bios/8kt3.htm
+>>
+> 
+> Maybe you meant 9/6/2001. That is the latest available version. From only
+> 5 days ago.
 
-The poster thought that it seemed that the 2.4 kernels were being released
-faster than their 2.2 cousins at the same time period.
+No.  I just rebooted to check.  It's dated 8/16/2001.  Strange.
 
-Well, I took a look, based on timestamps on kernel.org:
-2.2:
-Jan 26  1999 linux-2.2.0.tar.bz2.sign
-Jan 28  1999 linux-2.2.1.tar.bz2.sign
-Feb 23  1999 linux-2.2.2.tar.bz2.sign
-Mar  9  1999 linux-2.2.3.tar.bz2.sign
-Mar 23  1999 linux-2.2.4.tar.bz2.sign
-Mar 29  1999 linux-2.2.5.tar.bz2.sign
-Apr 16  1999 linux-2.2.6.tar.bz2.sign
-Apr 28  1999 linux-2.2.7.tar.bz2.sign
-May 11  1999 linux-2.2.8.tar.bz2.sign
-May 13  1999 linux-2.2.9.tar.bz2.sign
-Jun 14  1999 linux-2.2.10.tar.bz2.sign
-Aug  9  1999 linux-2.2.11.tar.bz2.sign
-Aug 26  1999 linux-2.2.12.tar.bz2.sign
-Oct 20  1999 linux-2.2.13.tar.bz2.sign
-Jan  4  2000 linux-2.2.14.tar.bz2.sign
-May  4  2000 linux-2.2.15.tar.bz2.sign
-Jun  7  2000 linux-2.2.16.tar.bz2.sign
-Sep  4  2000 linux-2.2.17.tar.bz2.sign
-Dec 11  2000 linux-2.2.18.tar.bz2.sign
-Mar 25 19:26 linux-2.2.19.tar.bz2.sign
+>>Anyway, I was running the BIOS dated 3/5/2001 up until now.
+>>
+> 
+> That was ancient! There were quite a few releases between then and now.
 
-There were 5 months with multiple kernel releases, and 11 kernels released in
-those months which were all before 2.2.13 was released. Four of those months
-were before 2.2.9, counting May, with a corresponding 8 kernels released.
+But I couldn't update because my BIOS chip was locked.
 
-2.4:
-Jan  4  2001 linux-2.4.0.tar.bz2.sign
-Jan 30  2001 linux-2.4.1.tar.bz2.sign
-Feb 22  2001 linux-2.4.2.tar.bz2.sign
-Mar 30 05:03 linux-2.4.3.tar.bz2.sign
-Apr 28 01:43 linux-2.4.4.tar.bz2.sign
-May 26 01:26 linux-2.4.5.tar.bz2.sign
-Jul  4 00:07 linux-2.4.6.tar.bz2.sign
-Jul 20 21:25 linux-2.4.7.tar.bz2.sign
-Aug 11 04:13 linux-2.4.8.tar.bz2.sign
-Aug 16 18:32 linux-2.4.9.tar.bz2.sign
+>>The point to all this is that with the newer BIOS, my machine is now up and 
+>>running absolutely fine with Athlon optimization turned on.
+>>
+> 
+> Congratulations! (-: I would recommend you to run a long memtest86 as well
+> in particular tests 5 and 8. - They are the ones that used to fail for me
+> with the inappropriate memmory settings...
 
-There have been 3 months with multiple kernel releases, and 6 kernels
-released in those months.
+Thanks for the suggestion.
 
-Also, 2.2.9 was released in May, while 2.4.9 was released in August.
 
-Another interesting note, 2.3.0 was released in May when 2.2.8 was current,
-but 2.2 releases didn't slow until 2.2.{12,13} was released.
 
-These numbers in no way try to determine how much actual development was done
-on each series in a time period.  I also didn't factor in lkml email traffic
-in those time periods, but that doesn't really tell how much work was done
-either.
+-- 
+David Hollister
+Driversoft Engineering:  http://devicedrivers.com
+Digital Audio Resources: http://digitalaudioresources.org
 
-Some interesting numbers may come from listing the number of patches
-submitted during each time period.  Anyone interested?
-
-Mike

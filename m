@@ -1,69 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265622AbUABRZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 12:25:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265623AbUABRZZ
+	id S265617AbUABR3a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 12:29:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265618AbUABR3a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 12:25:25 -0500
-Received: from fep04-mail.bloor.is.net.cable.rogers.com ([66.185.86.74]:29105
-	"EHLO fep04-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id S265622AbUABRZX (ORCPT
+	Fri, 2 Jan 2004 12:29:30 -0500
+Received: from mail.contactel.cz ([212.65.193.3]:20121 "EHLO mail.contactel.cz")
+	by vger.kernel.org with ESMTP id S265617AbUABR32 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 12:25:23 -0500
-Date: Fri, 2 Jan 2004 12:25:19 -0500
-From: Omkhar Arasaratnam <omkhar@rogers.com>
-To: emoenke@gwdg.de
-Cc: linux-kernel@vger.kernel.org, mbligh@aracnet.com, trivial@rustcorp.com.au,
-       randy@kerneljanitors.org
-Subject: [PATCH] drivers/cdrom/cm206.c trivial check_region() fix
-Message-ID: <20040102172519.GA7343@omkhar.ibm.com>
+	Fri, 2 Jan 2004 12:29:28 -0500
+Date: Fri, 2 Jan 2004 18:28:47 +0100
+To: zydas@tiscali.co.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.6.0 making modules problems
+Message-ID: <20040102172847.GA3032@penguin.localdomain>
+Mail-Followup-To: zydas@tiscali.co.uk, linux-kernel@vger.kernel.org
+References: <3FB8EA9C000A0983@mk-cpfrontend-2.mail.uk.tiscali.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <3FB8EA9C000A0983@mk-cpfrontend-2.mail.uk.tiscali.com>
 User-Agent: Mutt/1.5.4i
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep04-mail.bloor.is.net.cable.rogers.com from [24.192.237.88] using ID <omkhar@rogers.com> at Fri, 2 Jan 2004 12:22:58 -0500
+From: sebek64@post.cz (Marcel Sebek)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-check_region() fix
+On Thu, Jan 01, 2004 at 04:38:39PM +0000, zydas@tiscali.co.uk wrote:
+>   CC [M]  drivers/net/ne2k-pci.o
+> drivers/net/ne2k-pci.c:72:1: warning: "insl" redefined
+> In file included from include/asm/dma.h:12,
+>                  from include/asm/scatterlist.h:5,
+>                  from include/asm/pci.h:9,
+>                  from include/linux/pci.h:702,
+>                  from drivers/net/ne2k-pci.c:50:
+> include/asm/io.h:79:1: warning: this is the location of the previous definition
+> drivers/net/ne2k-pci.c:73:1: warning: "outsl" redefined
+> include/asm/io.h:80:1: warning: this is the location of the previous definition
 
-
---- linux-clean/drivers/cdrom/cm206.c.org	2004-01-02 12:09:49.000000000 -0500
-+++ linux-clean/drivers/cdrom/cm206.c	2004-01-02 12:22:23.000000000 -0500
-@@ -1389,7 +1389,7 @@
+diff -urN linux-2.6/drivers/net/ne2k-pci.c linux-2.6-new/drivers/net/ne2k-pci.c
+--- linux-2.6/drivers/net/ne2k-pci.c	2003-09-28 10:43:38.000000000 +0200
++++ linux-2.6-new/drivers/net/ne2k-pci.c	2004-01-01 18:33:37.000000000 +0100
+@@ -69,8 +69,6 @@
+ #if defined(__powerpc__)
+ #define inl_le(addr)  le32_to_cpu(inl(addr))
+ #define inw_le(addr)  le16_to_cpu(inw(addr))
+-#define insl insl_ns
+-#define outsl outsl_ns
+ #endif
  
-    Linus says it is too dangerous to use writes for probing, so we
-    stick with pure reads for a while. Hope that 8 possible ranges,
--   check_region, 15 bits of one port and 6 of another make things
-+   request_region, 15 bits of one port and 6 of another make things
-    likely enough to accept the region on the first hit...
-  */
- int __init probe_base_port(int base)
-@@ -1400,13 +1400,15 @@
- 	if (base)
- 		b = e = base;
- 	for (base = b; base <= e; base += 0x10) {
--		if (check_region(base, 0x10))
-+		if (!request_region(base, 0x10,"cm206"))
- 			continue;
- 		for (i = 0; i < 3; i++)
- 			fool = inw(base + 2);	/* empty possibly uart_receive_buffer */
- 		if ((inw(base + 6) & 0xffef) != 0x0001 ||	/* line_status */
--		    (inw(base) & 0xad00) != 0)	/* data status */
-+		    (inw(base) & 0xad00) != 0)	{ /* data status */
-+		    	release_region(base,0x10);
- 			continue;
-+		}
- 		return (base);
- 	}
- 	return 0;
-@@ -1444,7 +1446,6 @@
- 		return -EIO;
- 	}
- 	printk(" adapter at 0x%x", cm206_base);
--	request_region(cm206_base, 16, "cm206");
- 	cd = (struct cm206_struct *) kmalloc(size, GFP_KERNEL);
- 	if (!cd)
-                goto out_base;
+ #define PFX DRV_NAME ": "
 
-O
+
+>   CC [M]  drivers/usb/serial/whiteheat.o
+> drivers/usb/serial/whiteheat.c: In function `firm_setup_port':
+> drivers/usb/serial/whiteheat.c:1209: `CMSPAR' undeclared (first use in this
+> function)
+> drivers/usb/serial/whiteheat.c:1209: (Each undeclared identifier is reported
+> only once
+> drivers/usb/serial/whiteheat.c:1209: for each function it appears in.)
+
+diff -urN linux-2.6/drivers/usb/serial/whiteheat.c linux-2.6-new/drivers/usb/serial/whiteheat.c
+--- linux-2.6/drivers/usb/serial/whiteheat.c	2003-09-10 16:09:42.000000000 +0200
++++ linux-2.6-new/drivers/usb/serial/whiteheat.c	2004-01-01 18:29:38.000000000 +0100
+@@ -76,6 +76,7 @@
+ #include <linux/module.h>
+ #include <linux/spinlock.h>
+ #include <asm/uaccess.h>
++#include <asm/termbits.h>
+ #include <linux/usb.h>
+ #include <linux/serial_reg.h>
+ #include <linux/serial.h>
+
+
+-- 
+Marcel Sebek
+jabber: sebek@jabber.cz                     ICQ: 279852819
+linux user number: 307850                 GPG ID: 5F88735E
+GPG FP: 0F01 BAB8 3148 94DB B95D  1FCA 8B63 CA06 5F88 735E
+

@@ -1,39 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262158AbVAJJAj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262162AbVAJJK2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262158AbVAJJAj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 04:00:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbVAJJAj
+	id S262162AbVAJJK2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 04:10:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbVAJJK1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 04:00:39 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:57752 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262158AbVAJJAf
+	Mon, 10 Jan 2005 04:10:27 -0500
+Received: from out014pub.verizon.net ([206.46.170.46]:35830 "EHLO
+	out014.verizon.net") by vger.kernel.org with ESMTP id S262162AbVAJJKY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 04:00:35 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Mon, 10 Jan 2005 09:50:18 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, video4linux-list@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] bttv-cards.c: #if 0 function bttv_reset_audio (fwd)
-Message-ID: <20050110085018.GA19858@bytesex>
-References: <20050108012900.GM14108@stusta.de>
+	Mon, 10 Jan 2005 04:10:24 -0500
+Date: Mon, 10 Jan 2005 04:10:22 -0500
+From: Hikaru1@verizon.net
+To: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk
+Subject: Re: PROBLEM: ide-cd in 2.6.8-2.6.10 and 2.4.26-2.4.28 high cpu use with dma
+Message-ID: <20050110091022.GA20178@roll>
+References: <20050109105201.GB12497@roll> <20050109105418.GD12497@roll> <20050109123028.GA12753@roll> <20050109153212.GA28417@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050108012900.GM14108@stusta.de>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050109153212.GA28417@suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [70.19.162.94] at Mon, 10 Jan 2005 03:10:23 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 08, 2005 at 02:29:00AM +0100, Adrian Bunk wrote:
-> The patch forwarded below still applies and compiles against 2.6.10-mm2.
+On Sun, Jan 09, 2005 at 04:32:16PM +0100, Jens Axboe wrote:
+> The change isn't safe, it was made for a reason since some drives
+> timeout if the alignment/length isn't correct. It probably is a little
+> pessimistic right now, can you see if this just works for you?
 
-And it's still wrong, bttv_reset_audio() is not superfluous.
+Owner of the system tested the patch, works perfectly on his system.
 
-> Please apply.
+Thanks :)
 
-No.
-
-  Gerd
-
+Timothy C. McGrath

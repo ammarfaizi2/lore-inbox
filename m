@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268367AbUJSMgt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268525AbUJSMj6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268367AbUJSMgt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 08:36:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268329AbUJSMgs
+	id S268525AbUJSMj6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 08:39:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268576AbUJSMj5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 08:36:48 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:53497 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S268525AbUJSMeP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 08:34:15 -0400
-Message-ID: <41750A8B.9060003@comcast.net>
-Date: Tue, 19 Oct 2004 05:37:31 -0700
-From: Walt <wnelsonjr@comcast.net>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040916)
+	Tue, 19 Oct 2004 08:39:57 -0400
+Received: from 202-47-55-78.adsl.gil.com.au ([202.47.55.78]:39790 "EHLO
+	longlandclan.hopto.org") by vger.kernel.org with ESMTP
+	id S268525AbUJSMiK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 08:38:10 -0400
+Message-ID: <41750A2A.60306@longlandclan.hopto.org>
+Date: Tue, 19 Oct 2004 22:35:54 +1000
+From: Stuart Longland <stuartl@longlandclan.hopto.org>
+User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: =?ISO-8859-1?Q?Tero_Grundstr=F6m?= <tero@vuosaari.hai.fi>,
-       CK Kernel <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [ck] Re: 2.6.9-ck1
-References: <4174F6DB.3000304@kolivas.org>	<Pine.LNX.4.58.0410191522331.8316@vuosaari.hai.fi> <cone.1098189023.810424.7523.502@pc.kolivas.org>
-In-Reply-To: <cone.1098189023.810424.7523.502@pc.kolivas.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: =?ISO-8859-1?Q?Tero_Grundstr=F6m?= <tero@vuosaari.hai.fi>
+CC: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       CK Kernel <ck@vds.kolivas.org>
+Subject: Re: [ck] 2.6.9-ck1
+References: <4174F6DB.3000304@kolivas.org> <Pine.LNX.4.58.0410191522331.8316@vuosaari.hai.fi>
+In-Reply-To: <Pine.LNX.4.58.0410191522331.8316@vuosaari.hai.fi>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Tero Grundström writes:
+Tero Grundström wrote:
+> Hi,
 >
->> Hi,
->>
->> I just wonder, shouldn't this release be named 2.6.9-rc4-ck3? I don't 
->> see
->> 2.6.9 final released yet.
+> I just wonder, shouldn't this release be named 2.6.9-rc4-ck3? I don't see
+> 2.6.9 final released yet.
 >
->
-> It is released. The front page at kernel.org is not up to date.
->
-> Cheers,
-> Con
->
-> _______________________________________________
-> ck@vds.kolivas.org
-> ck mailing list - unmoderated. Please reply-to-all when posting.
-> If replying to an email please reply below the original message.
-> http://bhhdoa.org.au/mailman/listinfo/ck
->
-Con, take and look at patch-2.6.9-bk1 it has alot of schedule/cpu fixes. 
-I also have noticed since I am currently running it my memory recover 
-after exiting apps( firefox/thunderbird) is behaving better? I will know 
-more about this at the end of the day.
 
-walt
+2.6.9 has been released -- at least it's available on mirror.aarnet.edu.au.
+
+- --
++-------------------------------------------------------------+
+| Stuart Longland -oOo- http://stuartl.longlandclan.hopto.org |
+| Atomic Linux Project     -oOo-    http://atomicl.berlios.de |
+| - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+| I haven't lost my mind - it's backed up on a tape somewhere |
++-------------------------------------------------------------+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBdQoquarJ1mMmSrkRAl9eAJ0XSYOZcYPcbONU1MxozsLiGyMHuACeNjFZ
+PjTcab/mo+Cn0oIssO63a4k=
+=3nav
+-----END PGP SIGNATURE-----

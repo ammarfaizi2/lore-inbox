@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262173AbTIMTZx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 15:25:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbTIMTZw
+	id S262162AbTIMTak (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 15:30:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbTIMTak
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 15:25:52 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:55186 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262173AbTIMTZv
+	Sat, 13 Sep 2003 15:30:40 -0400
+Received: from home.nightdaughter.de ([194.95.224.141]:22538 "EHLO
+	a141.shuttle.de") by vger.kernel.org with ESMTP id S262162AbTIMTai
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 15:25:51 -0400
-Date: Sat, 13 Sep 2003 20:25:39 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Ricardo Bugalho <ricardo.b@zmail.pt>, insecure@mail.od.ua,
-       linux-kernel@vger.kernel.org
-Subject: Re: nasm over gas?
-Message-ID: <20030913192539.GE7404@mail.jlokier.co.uk>
-References: <20030904104245.GA1823@leto2.endorphin.org> <200309100034.58742.insecure@mail.od.ua> <pan.2003.09.11.11.06.59.523742@zmail.pt> <200309121826.22936.insecure@mail.od.ua> <1063387648.15891.26.camel@ezquiel.nara.homeip.net> <20030912221717.GB11952@wohnheim.fh-wedel.de>
+	Sat, 13 Sep 2003 15:30:38 -0400
+Date: Sat, 13 Sep 2003 21:30:36 +0200
+From: Joerg Hoh <joerg@devone.org>
+To: linux-kernel@vger.kernel.org
+Subject: [SEGFAULT] waking up from S3 fails (ACPI)
+Message-ID: <20030913193036.GB3616@hydra.joerghoh.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030912221717.GB11952@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel wrote:
-> - Why has Alan measured faster kernels with -Os than with -O2?
-> 
-> Code size *does* matter.
+Hi
 
-That's not just i-cache pressure.  It is partly a GCC problem, and
-it's possible -Os would run faster than -O2 even with no i-cache.
+The kernel crashes when I want to wake up the systems from Suspend to RAM
+(S3). Kernel is 2.6.0-test5 on a IBM R32 Notebook.
 
-I've observed -Os emitting exactly the same code as -O2 for some
-trivial functions, except that -O2 has a few extra redundant
-instructions.
+When I do the
 
-Obvious the _intent_ of -O2 is to compile for speed, but it's clear
-that GCC often emits trivially redundant instructions (like stack
-adjustments) that don't serve to speed up the program at all.
+echo -n "mem" >> /sys/power/state
 
--- Jamie
+the notebook goes immediately off (no led is on. When I do suspend to RAM 
+via APM, there is still a led on - the halfmoon one). Pressing the power button 
+turns the notebook on (the display is on) and there are some messages on
+the console (don't know, which are from going to suspend and which are from 
+trying to wake up):
+
+hdc: start_power_step(step:0)
+hdc: completing PM request, suspend
+hda: start_power_step(step: 0)
+hda: start_power_step(step: 1)
+hda: complete_power_request(step:1, stat:50, err: 0)
+hda: completing PM request suspend
+ hwsleep-0257 [29] acpi_enter_sleep_state: Entering sleep state [S1]
+double fault, gdt at c0449a80 [255 bytes]
+double fault, tss at c04d5800
+eip = 00000000, esp = 00000000
+eax = 00000000, ebx = 00000000, ecx = 00000000, edx = 00000000
+esi = 00000000, edi = 00000000
+
+
+Joerg
+
+-- 
+...Wenn man sich bei NetBSD auf eines verlassen kann, dann: Egal, WAS[...]
+man updated, mplayer hat mit Sicherheit dependencies drauf.
+  Rene Schickbauer, news:2591532.ZKZXAUW3eG@gandalf.grumpfzotz.org

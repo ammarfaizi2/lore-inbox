@@ -1,53 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267929AbTBRTPP>; Tue, 18 Feb 2003 14:15:15 -0500
+	id <S267915AbTBRTNm>; Tue, 18 Feb 2003 14:13:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267935AbTBRTPP>; Tue, 18 Feb 2003 14:15:15 -0500
-Received: from dsl-hkigw4i29.dial.inet.fi ([80.222.56.41]:6139 "EHLO
-	dsl-hkigw4e42.dial.inet.fi") by vger.kernel.org with ESMTP
-	id <S267929AbTBRTPJ>; Tue, 18 Feb 2003 14:15:09 -0500
-Date: Tue, 18 Feb 2003 21:25:09 +0200 (EET)
-From: Petri Koistinen <petri.koistinen@iki.fi>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] [TRIVIAL] README: patch -p1, remove make dep
-Message-ID: <Pine.LNX.4.44.0302182044550.943-100000@dsl-hkigw4e42.dial.inet.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267929AbTBRTNm>; Tue, 18 Feb 2003 14:13:42 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:3211 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267915AbTBRTNm>;
+	Tue, 18 Feb 2003 14:13:42 -0500
+Subject: CIFS (2.5.62) build problems
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Open Source Devlopment Lab
+Message-Id: <1045596223.17584.139.camel@dell_ss3.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 18 Feb 2003 11:23:43 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+CIFS can not be built as a module because it cifs_readpages calls:
+ __pagevec_lru_add
+ add_to_page_cache
 
-Either I am doing all wrong, but I think you need to use -p1 to apply 
-patches. Make dep is unnecessary now.
+The patch to mm/filemap.c and mm/swap.c is trivial, the question is
+should those internal functions be exported in the first place.
 
-Best regards,
-Petri Koistinen
-
---- linux-2.5.62/README.orig	2003-02-18 20:27:00.000000000 +0200
-+++ linux-2.5.62/README	2003-02-18 20:27:20.000000000 +0200
-@@ -69,10 +69,10 @@
-    install by patching, get all the newer patch files, enter the
-    directory in which you unpacked the kernel source and execute:
- 
--		gzip -cd patchXX.gz | patch -p0
-+		gzip -cd patchXX.gz | patch -p1
- 
-    or
--		bzip2 -dc patchXX.bz2 | patch -p0
-+		bzip2 -dc patchXX.bz2 | patch -p1
- 
-    (repeat xx for all versions bigger than the version of your current
-    source tree, _in_order_) and you should be ok.  You may want to remove
-@@ -149,8 +149,6 @@
-  - Check the top Makefile for further site-dependent configuration
-    (default SVGA mode etc). 
- 
-- - Finally, do a "make dep" to set up all the dependencies correctly. 
--
- COMPILING the kernel:
- 
-  - Make sure you have gcc 2.95.3 available.
-
+-- 
+Stephen Hemminger <shemminger@osdl.org>
+Open Source Devlopment Lab
 

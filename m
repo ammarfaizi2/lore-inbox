@@ -1,65 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbVACAos@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbVACApI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261354AbVACAos (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 19:44:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbVACAos
+	id S261358AbVACApI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 19:45:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbVACApI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 19:44:48 -0500
-Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:61033 "HELO
-	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261354AbVACAop (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 19:44:45 -0500
-Message-ID: <41D89579.1080801@yahoo.com.au>
-Date: Mon, 03 Jan 2005 11:44:41 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>
-Subject: Re: 2.5isms
-References: <20041231230624.GA29411@andromeda> <41D60C35.9000503@yahoo.com.au>	<m1acrt7bqy.fsf@muc.de> <41D743BE.3060207@yahoo.com.au> <m1brc882aw.fsf@muc.de>
-In-Reply-To: <m1brc882aw.fsf@muc.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 2 Jan 2005 19:45:08 -0500
+Received: from bay14-f8.bay14.hotmail.com ([64.4.49.8]:63131 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id S261358AbVACApC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jan 2005 19:45:02 -0500
+Message-ID: <BAY14-F83B94FD7D13C5D19883F795900@phx.gbl>
+X-Originating-IP: [80.15.132.11]
+X-Originating-Email: [tonyosborne_a@hotmail.com]
+From: "tony osborne" <tonyosborne_a@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Main CPU- I/O CPU interaction
+Date: Mon, 03 Jan 2005 00:44:36 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 03 Jan 2005 00:45:00.0963 (UTC) FILETIME=[74DC3F30:01C4F12D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> Nick Piggin <nickpiggin@yahoo.com.au> writes:
+Hello,
 
->>even non HT CPUs possibly slightly more efficient WRT caching the stacks of
->>multiple processes?
-> 
-> 
-> Not on x86 no because they normally have physically indexed caches
-> (except for L1, but that is not really preserved over a context switch)
-> HT is just a special case because two threads essentially share cache.
-> 
-> In theory it could help on non x86 CPUs with virtually indexed caches,
-> but it is doubtful if they don't need more advanced forms of cache 
-> colouring.
-> 
+I wish to be personally CC'ed the answers/comments posted to the list in 
+response to this post .
 
-That makes sense. I wonder if those architectures may just want to
-implement it anyway. If this is such a win here, then it may be low
-hanging fruit for those architectures.
 
-But I guess there is something fundamentally a bit different when you
-have two processes competing for L1 cache *at the same time*.
+The I/O devices are equipped with dedicated processor to free the  main CPU 
+from doing the low level I/O operations. However, if i am editing and 
+updating a big size file and i want to save
+it afterwards, i  notice my PC getting blocked while saving the file which 
+theoritically should NOT happen as it is up to the I/O device processor and 
+not the main CPU to save the data into the disk; the main CPU could switch 
+to another process after giving the high level command -save-to the device 
+processor; so why the main CPU is blocked while saving such big size files
 
-> 
->>Second, on what workloads does performance suffer, can you remember? I wonder
->>if natural variations in the stack pointer as the program runs would mitigate
->>the effect of this on all but micro benchmarks?
-> 
-> 
-> iirc on lots of different workloas that run code on both virtual
-> CPUs at the same time. Without it you would get L1 cache thrashing,
-> which can slow things down quite a lot.
-> 
-> And yes it made a real difference. The P4 cache have some pecularities
-> ("64K aliasing") that made the problem worse.
-> 
+thanks
 
-Interesting, thanks.
+_________________________________________________________________
+It's fast, it's easy and it's free. Get MSN Messenger today! 
+http://www.msn.co.uk/messenger
+

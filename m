@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271630AbTGQX3X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 19:29:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271634AbTGQX3X
+	id S271626AbTGQX2g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 19:28:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271629AbTGQX2g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 19:29:23 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:22466 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S271630AbTGQX3G
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 19:29:06 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Thu, 17 Jul 2003 16:36:42 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: asm (lidt) question
-In-Reply-To: <20030717163103.40d4c96e.rddunlap@osdl.org>
-Message-ID: <Pine.LNX.4.55.0307171634380.4845@bigblue.dev.mcafeelabs.com>
-References: <20030717152819.66cfdbaf.rddunlap@osdl.org>
- <Pine.LNX.4.55.0307171535020.4845@bigblue.dev.mcafeelabs.com>
- <Pine.LNX.4.55.0307171615580.4845@bigblue.dev.mcafeelabs.com>
- <20030717163103.40d4c96e.rddunlap@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 17 Jul 2003 19:28:36 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:28859 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S271626AbTGQX2e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 19:28:34 -0400
+Subject: info leak -- padded struct copied to user
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: akpm@digeo.com, Linus Torvalds <torvalds@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1058484872.733.25.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 17 Jul 2003 19:34:32 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jul 2003, Randy.Dunlap wrote:
+It's not OK to leak bits of the kernel stack.
+(timy security flaw) I found this with -Wpadded.
 
-> | Randy, I'd say that this :
-> |
-> | __asm__ __volatile__("lidt %0": "=m" (var));
-> |
-> | is better then :
-> |
-> | __asm__ __volatile__("lidt %0": :"m" (var));
-> |
-> | IMHO, since "var" is really an output parameter.
->
-> Yes, I agree, var is output and should be listed after the first ':'
-> IMHO also.
+diff -Naurd old/fs/stat.c new/fs/stat.c
+--- old/fs/stat.c	2003-07-17 18:25:20.000000000 -0400
++++ new/fs/stat.c	2003-07-17 18:27:47.000000000 -0400
+@@ -123,6 +123,7 @@
+ 	SET_OLDSTAT_UID(tmp, stat->uid);
+ 	SET_OLDSTAT_GID(tmp, stat->gid);
+ 	tmp.st_rdev = stat->rdev;
++	tmp.__pad_16bit = 0;  /* don't leak kernel stack data! */
+ #if BITS_PER_LONG == 32
+ 	if (stat->size > MAX_NON_LFS)
+ 		return -EOVERFLOW;
+diff -Naurd old/include/asm-i386/stat.h new/include/asm-i386/stat.h
+--- old/include/asm-i386/stat.h	2003-06-26 17:50:47.000000000 -0400
++++ new/include/asm-i386/stat.h	2003-07-17 18:23:01.000000000 -0400
+@@ -9,6 +9,7 @@
+ 	unsigned short st_uid;
+ 	unsigned short st_gid;
+ 	unsigned short st_rdev;
++	unsigned short __pad_16bit;
+ 	unsigned long  st_size;
+ 	unsigned long  st_atime;
+ 	unsigned long  st_mtime;
 
-BF (Brain Farting) is contagious ;) I need a vacation, a long one (and you
-too so maybe OSDL will hire someone else meanwhile :)
 
-
-
-- Davide
 

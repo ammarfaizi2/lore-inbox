@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131119AbRAHQvJ>; Mon, 8 Jan 2001 11:51:09 -0500
+	id <S130007AbRAHQ7v>; Mon, 8 Jan 2001 11:59:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130007AbRAHQu7>; Mon, 8 Jan 2001 11:50:59 -0500
-Received: from web119.mail.yahoo.com ([205.180.60.120]:24581 "HELO
-	web119.yahoomail.com") by vger.kernel.org with SMTP
-	id <S131341AbRAHQuv>; Mon, 8 Jan 2001 11:50:51 -0500
-Message-ID: <20010108165050.13240.qmail@web119.yahoomail.com>
-Date: Mon, 8 Jan 2001 08:50:50 -0800 (PST)
-From: Paul Powell <moloch16@yahoo.com>
-Subject: 'console=' kernel parameter questions
-To: linux-kernel@vger.kernel.org
+	id <S131009AbRAHQ7m>; Mon, 8 Jan 2001 11:59:42 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:13818 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S130007AbRAHQ7c>; Mon, 8 Jan 2001 11:59:32 -0500
+Date: Mon, 8 Jan 2001 14:59:22 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: "John O'Donnell" <johnod@voicefx.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: .br blacklisted ?
+In-Reply-To: <3A58F35C.6070905@voicefx.com>
+Message-ID: <Pine.LNX.4.21.0101081458560.21675-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sun, 7 Jan 2001, John O'Donnell wrote:
 
-I am running an unmodified RedHat 6.2 kernel 
-(kernel version 2.2.14-5.0)
+> Only on my company's e-mail server.  My company typically gets "zero"
+> emails from outside the US.  If I get a piece of spam (sorry they are
+> typically from outside the US), I just block the entire .com.br domain.
+> I get far less SPAM now!
 
-I am trying to redirect the linux startup messages to
-the serial port.  I've added the 'console=' parameter
-to my lilo.conf file.  I've tried several iterations
-such as
-'console=ttys0','console=cua0','console=ttys0,9600n8',
-etc....
+Remind me to never help you with kernel problems again.
 
-They all fail to produce any output to the serial port
-although they do remove the text from my screen.  When
-I have booted RedHat I can type 'echo blah >
-/dev/cua0' and I see text output from the serial port.
- Interestingly when I try to echo to /dev/ttys0 I get
-an IO error message. I'm using a null modem cable
-connect to a windows machine to watch the serial port.
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-My question: why can I see output when booted into
-RedHat but not when booting the OS?  I've read that
-you have to compile this feature into the kernel. 
-Does anyone know if RedHat's kernel come with this
-feature built in?
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
-Your help appreciated,
-Paul
-
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Photos - Share your holiday photos online!
-http://photos.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

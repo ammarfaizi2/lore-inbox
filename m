@@ -1,56 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264495AbTFIQJF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 12:09:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264494AbTFIQJF
+	id S264500AbTFIQKu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 12:10:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbTFIQKt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 12:09:05 -0400
-Received: from chenas.mae.cornell.edu ([128.253.249.162]:7336 "EHLO
-	chenas.mae.cornell.edu") by vger.kernel.org with ESMTP
-	id S264495AbTFIQJB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 12:09:01 -0400
-Date: Mon, 9 Jun 2003 12:20:05 -0400
-From: Andrey Klochko <andrey@chenas.mae.cornell.edu>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]  Add module_kernel_thread for threads that live in modules.
-Message-ID: <20030609151021.GA22230@chenas.mae.cornell.edu>
-References: <E19NkWO-0005i0-00@notabene.cse.unsw.edu.au> <20030605105016.A9587@morgon.mae.cornell.edu> <16097.31014.94516.422433@gargle.gargle.HOWL>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16097.31014.94516.422433@gargle.gargle.HOWL>
-User-Agent: Mutt/1.4.1i
+	Mon, 9 Jun 2003 12:10:49 -0400
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:405 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S264500AbTFIQKo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 12:10:44 -0400
+Message-ID: <3EE4B543.3020104@pacbell.net>
+Date: Mon, 09 Jun 2003 09:26:43 -0700
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+X-Accept-Language: en-us, en, fr
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, david+cert@blue-labs.org
+Subject: Re: USB burps with irq XX: nobody cared. (2.5.70)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for expalining that.
+Looks like a stream of IRQs getting delivered before
+the chip was initialized ... interrupts that shouldn't
+have been arriving.  Do you have funky BIOS settings?
 
-Andrey
+Does this happen if you don't use ACPI?  I've had
+reports of folk using NForce2 boards that needed
+to use "acpi=off", since ACPI didn't initialize
+the interrupts correctly.  Yours seems to be at
+least partially correct.
 
-On Sat, Jun 07, 2003 at 03:33:26PM +1000, Neil Brown wrote:
-> On Thursday June 5, andrey@morgon.mae.cornell.edu wrote:
-> > >  
-> > > -	/* Release module */
-> > > -	unlock_kernel();
-> > 
-> > You've locked the kernel and didn't unlock it.
-> >  
-> 
-> This was just before the thread exited.  When a thread exits it
-> automatically drops the kernel lock anyway.  It seemed un-necessary to
-> explicitly unlock it aswell.
-> 
-> NeilBrown
+- Dave
 
--- 
--------------------------------------------------------------
-Andrey Klochko
-System Administrator
-Sibley School of Mechanical and Aerospace Engineering
-288 Grumman Hall
-Cornell University
-Ithaca, NY 14853
-
-e-mail: andrey@mae.cornell.edu
-phone: 607-255-0360

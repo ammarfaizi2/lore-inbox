@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261965AbVADCUt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbVADCU4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261965AbVADCUt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 21:20:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261966AbVADCUt
+	id S261964AbVADCU4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 21:20:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261966AbVADCU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 21:20:49 -0500
-Received: from holomorphy.com ([207.189.100.168]:42881 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261965AbVADCUp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 21:20:45 -0500
-Date: Mon, 3 Jan 2005 18:20:34 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andi Kleen <ak@muc.de>
-Cc: colin@coesta.com, linux-kernel@vger.kernel.org
-Subject: Re: Max CPUs on x86_64 under 2.6.x
-Message-ID: <20050104022034.GB2708@holomorphy.com>
-References: <44438.202.154.120.74.1104760841.squirrel@www.coesta.com> <m14qhyxc9h.fsf@muc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 3 Jan 2005 21:20:56 -0500
+Received: from dialin-212-144-120-172.arcor-ip.net ([212.144.120.172]:40712
+	"EHLO spit.home") by vger.kernel.org with ESMTP id S261964AbVADCUq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 21:20:46 -0500
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Diego Calleja <diegocg@teleline.es>
+Subject: Re: starting with 2.7
+Date: Tue, 4 Jan 2005 03:06:25 +0100
+User-Agent: KMail/1.7.1
+Cc: Willy Tarreau <willy@w.ods.org>, wli@holomorphy.com, bunk@stusta.de,
+       davidsen@tmr.com, aebr@win.tue.nl, solt2@dns.toxicfilms.tv,
+       linux-kernel@vger.kernel.org
+References: <20050102221534.GG4183@stusta.de> <20050103053304.GA7048@alpha.home.local> <20050103142412.490239b8.diegocg@teleline.es>
+In-Reply-To: <20050103142412.490239b8.diegocg@teleline.es>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <m14qhyxc9h.fsf@muc.de>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Message-Id: <200501040306.28221.zippel@linux-m68k.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Colin Coe" <colin@coesta.com> writes:
->> Why is the number of CPUs on the x86_64 architecture only 8 but under i386
->> it is 255?
->> I've searched the list archives and Google but can't find an answer.
+Hi,
 
-On Tue, Jan 04, 2005 at 01:34:50AM +0100, Andi Kleen wrote:
-> Post 2.6.10 x86-64 will support more CPUs. 2.6.10 actually does too,
-> but the Kconfig hadn't been changed then. Previously there was an
-> 8 CPU APIC driver limit, however it turned out later that it doesn't
-> apply to some Opteron machines.
+On Monday 03 January 2005 14:24, Diego Calleja wrote:
 
-Barring cpus with a different onboard interrupt controller from the
-xAPIC or the use of external interrupt controllers to assist with cpu
-addressing, 255 serves as an architectural limit for Opteron as well.
+> I fully agree with WLI that the 2.4 development model and the
+> backporting-mania created more problems than it solved, because in the real
+> world almost everybody uses what distros ship, and what distros ship isn't
+> kernel.org but heavily modified kernels, which means that the kernel.org
+> was not really "well-tested" or it took much longer to become "well-tested"
+> because it wasn't really being used.
 
+Backporting isn't the primary problem. The real problem were the huge time 
+intervals between stable releases. A new stable release brings a huge amount 
+of changes which got different levels of testing, which makes upgrading quite 
+an experience.
+What we need are regular releases of stable kernels with a manageable amount 
+of changes and a development tree to pull these changes from. It's a bit 
+comparable to Debian testing/unstable. Changes go only from one tree to the 
+other if they fulfil certain criteria. The job of the stable tree maintainer 
+wouldn't be anymore to apply random patches sent to him, but to select 
+instead which patches to pull from the development tree.
+This doesn't of course guarantees perfectly stable kernels, but it would 
+encourage more people to run recent stable kernels and avoids the huge steps 
+in kernel upgrades. The only problem is that I don't know of any source code 
+management system which supports this kind of development reasonably easy...
 
--- wli
+bye, Roman

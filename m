@@ -1,93 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278300AbRJMOS4>; Sat, 13 Oct 2001 10:18:56 -0400
+	id <S278302AbRJMOXg>; Sat, 13 Oct 2001 10:23:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278302AbRJMOSr>; Sat, 13 Oct 2001 10:18:47 -0400
-Received: from tahallah.demon.co.uk ([158.152.175.193]:51954 "EHLO
-	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S278300AbRJMOSn>; Sat, 13 Oct 2001 10:18:43 -0400
-Date: Sat, 13 Oct 2001 15:19:13 +0100 (BST)
-From: Alex Buell <alex.buell@tahallah.demon.co.uk>
-X-X-Sender: <alex@tahallah.demon.co.uk>
-Reply-To: <alex.buell@tahallah.demon.co.uk>
-To: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.12 boots on sparc! :o) 
-Message-ID: <Pine.LNX.4.33.0110131518440.1249-100000@tahallah.demon.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278303AbRJMOX0>; Sat, 13 Oct 2001 10:23:26 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:39026 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S278302AbRJMOXO>; Sat, 13 Oct 2001 10:23:14 -0400
+Date: Sat, 13 Oct 2001 16:23:30 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: duncan.sands@math.u-psud.fr, linux-kernel@vger.kernel.org,
+        Al Viro <viro@redhat.com>
+Subject: Re: xine pauses with recent (not -ac) kernels
+Message-ID: <20011013162330.I714@athlon.random>
+In-Reply-To: <01101208552800.00838@baldrick> <20011012161052.R714@athlon.random> <01101300085600.00832@baldrick> <200110130351.f9D3pRp08271@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200110130351.f9D3pRp08271@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Oct 12, 2001 at 08:51:27PM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just figured out that if you enable SMP when building kernels, it boots.
-Non-SMP kernels will not boot at all, it hangs on this SS20.
+On Fri, Oct 12, 2001 at 08:51:27PM -0700, Linus Torvalds wrote:
+> Let me guess: xine opens the raw device, and does all the DVD parsing
+> from there. 
+> 
+> Furthermore, maybe it closes and re-opens the device for each VOB file. 
 
-Modules don't appear to be compiled properly - here's some output. Does
-anyone knows why this is so and what needs to be fixed to get them to
-work? I'd happily fix them if I knew why.
+I was assuming it was a vm problem so I wasn't even thinking at the
+other changes, but now thinking twice yes, the fact we block dropping
+all the cache at the blkdev close could be the culprit. OTOH we were
+just invalidating all the buffers cache also previously at the last
+blkdev close, so it's not so obvious that it is the problem yet (but the
+vmstat trace from Duncan also shows an immediate drop in pagecache
+converted in free memory, so it could really be the close of the blkdev
+given that xine isn't going to delete any dozen mbyte large file and
+that probably doesn't allocate and deallocate some dozen mbyte of memory
+in less than one second).
 
-I prefer to use modules for some of the least often used parts to save on
-memory.
+> If it does, then I suspect we should really look into making the raw
+> device close just leave the device descriptor around at least for a
+> while. Al?
 
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.12; fi
-depmod: *** Unresolved symbols in /lib/modules/2.4.12/kernel/drivers/block/loop.o
-depmod:         .div
-depmod:         .urem
-depmod:         .umul
-depmod:         .udiv
-depmod:         .rem
-depmod: *** Unresolved symbols in /lib/modules/2.4.12/kernel/drivers/char/lp.o
-depmod:         .div
-depmod: *** Unresolved symbols in /lib/modules/2.4.12/kernel/drivers/net/bsd_comp.o
-depmod:         .udiv
-depmod: *** Unresolved symbols in /lib/modules/2.4.12/kernel/drivers/net/ppp_deflate.o
-depmod:         .urem
-depmod:         .umul
-depmod:         .udiv
-depmod: *** Unresolved symbols in /lib/modules/2.4.12/kernel/drivers/net/ppp_generic.o
-depmod:         .udiv
-depmod: *** Unresolved symbols in /lib/modules/2.4.12/kernel/drivers/parport/parport.o
-depmod:         .div
-depmod: *** Unresolved symbols in /lib/modules/2.4.12/kernel/drivers/sbus/audio/audio.o
-depmod:         .div
-depmod:         .umul
-depmod:         .rem
-depmod: *** Unresolved symbols in /lib/modules/2.4.12/kernel/drivers/sbus/audio/dbri.o
-depmod:         .div
-depmod:         .umul
-depmod: *** Unresolved symbols in /lib/modules/2.4.12/kernel/drivers/scsi/sg.o
-depmod:         .div
-depmod:         .udiv
-depmod: *** Unresolved symbols in /lib/modules/2.4.12/kernel/drivers/scsi/st.o
-depmod:         .div
-depmod:         .urem
-depmod:         .umul
-depmod: *** Unresolved symbols in /lib/modules/2.4.12/kernel/fs/efs/efs.o
-depmod:         .div
-depmod:         .umul
-depmod:         .rem
-depmod: *** Unresolved symbols in /lib/modules/2.4.12/kernel/fs/fat/fat.o
-depmod:         .div
-depmod:         .urem
-depmod:         .umul
-depmod:         .udiv
-depmod:         .rem
-depmod: *** Unresolved symbols in /lib/modules/2.4.12/kernel/fs/openpromfs/openpromfs.o
-depmod:         .div
-depmod:         .urem
-depmod:         .udiv
-depmod:         .rem
-depmod: *** Unresolved symbols in /lib/modules/2.4.12/kernel/fs/vfat/vfat.o
-depmod:         .div
-depmod:         .rem
+In this case it sounds more like xine shouldn't close the device while
+changing file (also with 2.4.9 the buffercache was dropped anyways), but
+also allowing the cache to be persistent would make sense. I liked
+trusting in the check-media-change logic for devices that are reliable
+(for the others we must of course keep to invalidate the cache). I think
+we should only make the bdev and bd_inode persistent, and have
+check-media-change that tells us at open(2) time if the cache have to be
+dropped or if we can trust the "media change" detection of the device
+and avoid to drop it. Of course the cache will be reclaimed by the vm
+over the time, I'm unsure if it worth to allow the garbage collection of
+the bdev and of the bd_inode.
 
+Anyways those changes aren't required for having a functional system so
+maybe we can postpone this to 2.5 and instead fix xine not to close the
+device (or to keep a dummy additional reference on the device for its
+runtime).
 
--- 
-Top posters will be automatically killfiled.
-
-http://www.tahallah.demon.co.uk
-
--
-To unsubscribe from this list: send the line "unsubscribe sparclinux" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
+Andrea

@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262347AbVDFXTb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262351AbVDFXVX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262347AbVDFXTb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 19:19:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262348AbVDFXTb
+	id S262351AbVDFXVX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 19:21:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262348AbVDFXVW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 19:19:31 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:17305 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262347AbVDFXT2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 19:19:28 -0400
-Date: Thu, 7 Apr 2005 09:19:06 +1000
-From: Greg Banks <gnb@sgi.com>
-To: Jakob Oestergaard <jakob@unthought.net>, linux-kernel@vger.kernel.org
-Subject: Re: bdflush/rpciod high CPU utilization, profile does not make sense
-Message-ID: <20050406231906.GA4473@sgi.com>
-References: <20050406160123.GH347@unthought.net>
+	Wed, 6 Apr 2005 19:21:22 -0400
+Received: from outbound04.telus.net ([199.185.220.223]:30102 "EHLO
+	priv-edtnes51.telusplanet.net") by vger.kernel.org with ESMTP
+	id S262351AbVDFXVP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 19:21:15 -0400
+Subject: Re: Linux 2.6.12-rc2
+From: Bob Gill <gillb4@telusplanet.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Wed, 06 Apr 2005 17:20:52 -0600
+Message-Id: <1112829652.8941.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050406160123.GH347@unthought.net>
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 06, 2005 at 06:01:23PM +0200, Jakob Oestergaard wrote:
-> 
-> Problem; during simple tests such as a 'cp largefile0 largefile1' on the
-> client (under the mountpoint from the NFS server), the client becomes
-> extremely laggy, NFS writes are slow, and I see very high CPU
-> utilization by bdflush and rpciod.
-> 
-> For example, writing a single 8G file with dd will give me about
-> 20MB/sec (I get 60+ MB/sec locally on the server), and the client rarely
-> drops below 40% system CPU utilization.
-
-How large is the client's RAM?  What does the following command report
-before and during the write?
-
-egrep 'nfs_page|nfs_write_data' /proc/slabinfo
-
-Greg.
+OK.  So far so good.  I can get 2.6.12-rc2 to run fine if:
+1. I do not in any way attempt to *ahem* overclock the box.
+--if I do, I get really ugly race errors flying around from just about
+everywhere (pick a device at random, have it trip, and the scheduler
+tripping right behind it).
+2. I do not attempt in any way to run any sort of Nvidia (non-GPL)
+driver.  It fights with SBP2 (in a lot of different ways, first the
+drivers want to kill off Firewire drives (one detected, the other not,
+then on next boot, the reverse...), and also, when using GLX apps (and
+trying to write to an SBP2 connected device, they clash (and fight and
+the kernel doesn't die but gets bogged in errors...)
+....and with the notes above, as I say, so far, so good.  I am
+attempting to hammer away at every device I have on the box (scanner,
+printer, video (only GPL Nvidia), audio, cd, dvd, tv tuner etc.) so far,
+so good.
+Bob
 -- 
-Greg Banks, R&D Software Engineer, SGI Australian Software Group.
-I don't speak for SGI.
+Bob Gill <gillb4@telusplanet.net>
+

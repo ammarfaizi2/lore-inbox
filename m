@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262011AbTJSSQo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 14:16:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbTJSSQo
+	id S262033AbTJSScc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 14:32:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbTJSScc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 14:16:44 -0400
-Received: from mout2.freenet.de ([194.97.50.155]:56510 "EHLO mout2.freenet.de")
-	by vger.kernel.org with ESMTP id S262011AbTJSSQl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 14:16:41 -0400
-From: Michael Buesch <mbuesch@freenet.de>
-To: Harold Martin <cocoadev@earthlink.net>
-Subject: Re: Mounting /dev/md0 as root in 2.6.0-test7
-Date: Sun, 19 Oct 2003 20:16:30 +0200
-User-Agent: KMail/1.5.4
-References: <1066582732.1108.5.camel@localhost>
-In-Reply-To: <1066582732.1108.5.camel@localhost>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200310192016.38818.mbuesch@freenet.de>
+	Sun, 19 Oct 2003 14:32:32 -0400
+Received: from fw.osdl.org ([65.172.181.6]:12525 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262033AbTJSScb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 14:32:31 -0400
+Date: Sun, 19 Oct 2003 11:32:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: bunk@fs.tum.de, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] add a config option for -Os compilation
+Message-Id: <20031019113248.17eb0a5c.akpm@osdl.org>
+In-Reply-To: <668910000.1066578207@[10.10.2.4]>
+References: <20031015225055.GS17986@fs.tum.de>
+	<20031015161251.7de440ab.akpm@osdl.org>
+	<20031015232440.GU17986@fs.tum.de>
+	<20031015165205.0cc40606.akpm@osdl.org>
+	<20031018102127.GE12423@fs.tum.de>
+	<649730000.1066491920@[10.10.2.4]>
+	<20031018102402.3576af6c.akpm@osdl.org>
+	<20031018174434.GJ12423@fs.tum.de>
+	<20031018105733.380ea8d2.akpm@osdl.org>
+	<668910000.1066578207@[10.10.2.4]>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+"Martin J. Bligh" <mbligh@aracnet.com> wrote:
+>
+>  > It would take a quite a lot of work to measure this properly.  A simple A/B
+>  > comparison doesn't cut it.
+> 
+>  So why are we changing it then? ;-)
 
-On Sunday 19 October 2003 18:58, Harold Martin wrote:
-> First, is it possible to mount an md device as root (superblock is
-> present)?
-
-Yes, it is. I've had such a configuration on this
-machine some weeks ago.
-
-> If so, I can't get it to work :(
-> I pass root=/dev/md0 to the kernl, but I get the "Kernel panic: VFS:
-> Unable to mount root fs on md0" error.
-
-Did you correctly set up the md? Did you make
-proper use of the raidtools? How does your raidtab, that you
-used to create the array, look like?
-
-Are you able to mount the md from a running system (not as / root)?
-
-> Thanks for your help,
-> Harold
-
-- -- 
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/ktUGoxoigfggmSgRAsymAJ9g4bPy+8S+Mq5zkOC+N2BLSQJmUACfcr5l
-hSHv/lWFF5UEA2NrSbFX5OA=
-=V//M
------END PGP SIGNATURE-----
+It is very easy to demonstrate that it saves 300 kilobytes of memory.
 

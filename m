@@ -1,84 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262158AbTJFTFH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 15:05:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbTJFTFH
+	id S262187AbTJFTIe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 15:08:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbTJFTId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 15:05:07 -0400
-Received: from moutng.kundenserver.de ([212.227.126.185]:51148 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262127AbTJFTEw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 15:04:52 -0400
-Message-ID: <3F81BCE9.2010808@onlinehome.de>
-Date: Mon, 06 Oct 2003 21:05:13 +0200
-From: Hans-Georg Thien <1682-600@onlinehome.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5a) Gecko/20030718
-X-Accept-Language: en-us, en
+	Mon, 6 Oct 2003 15:08:33 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:11147 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262187AbTJFTH4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 15:07:56 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: "Daniel B." <dsb@smart.net>
+Subject: Re: IDE DMA errors, massive disk corruption:  Why?  Fixed Yet?  Why not  re-do failed op?
+Date: Mon, 6 Oct 2003 21:11:17 +0200
+User-Agent: KMail/1.5.4
+References: <3F81B790.B8AF7136@smart.net>
+In-Reply-To: <3F81B790.B8AF7136@smart.net>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: getting timestamp of last interrupt?
-References: <fa.fj0euih.s2sbop@ifi.uio.no> <fa.fvjdidn.13ni70f@ifi.uio.no> <3F7E46AB.3030709@onlinehome.de> <Pine.LNX.4.53.0310060843500.8593@chaos> <3F81B2A3.4040001@onlinehome.de> <Pine.LNX.4.53.0310061426080.11197@chaos>
-In-Reply-To: <Pine.LNX.4.53.0310061426080.11197@chaos>
-X-Enigmail-Version: 0.76.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310062111.17006.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
 
-> On Mon, 6 Oct 2003, Hans-Georg Thien wrote:
-> 
->>
->>[...]
->>I'm writing a kernel mode device driver (mouse).
->>
->>In that device driver I need the timestamp of the last event for another
->>kernel mode device (keyboard).
->>
->>I do not care if that timestamp is in jiffies or in gettimeofday()
->>format or whatever format does exist in the world. I am absolutely sure
->>I can convert it somehow to fit my needs.
->>
->>But since it is a kernel mode driver it can not -AFAIK- use the signal()
->>syscall.
->>
->>-Hans
-> 
-> 
-> Then it gets real simple. Just use jiffies, if you can stand the [...]
-I fear that there is still some miss-understanding. Jiffies are totally 
-OK for me. I can use them without any conversion.
+There are different IDE DMA errors.
+Please post error, dmesg and .config.
 
-I'll try to formulate the problem with some other words:
+On Monday 06 of October 2003 20:42, Daniel B. wrote:
+> I just got bitten _again_ by IDE DMA timeout errors and massive
+> filesystem corruption in kernel 2.4.22 (on an Asus A7M266-D dual-Athlon
+> XP motherboard (AMD 768 chip / amd7441 IDE controller)).
+>
+> (I had turned DMA off in my init scripts, but apparently Debian
+> unstable's k7-smp configuration enables DMA by default before my init
+> scripts get control.  Ext3 journal "recovery" trashed my system
+> partition.)
+>
+> What's going on with the IDE DMA bugs?  They have existed since 2.2
+> (right?), and even at .22 in the 2.4 series they still exist.  Why
+> have they been around so long?  Is it that few kernel developers use
+> the combinations of hardware or configuration options that expose
+> the bugs (like my dual-CPU box with IDE, not SCSI, disks)?
 
-I hope that there is is something like a "jiffie-counter" for the 
-keyboard driver, that stores the actual jiffies value whenever a 
-keyboard interrupt occurs.
+Well, yes, I have no problems for example :-).
 
-I hope too, that there is a way to query that "jiffie-counter" from 
-another kernel driver, so that I can write something like
+> Are the DMA bugs believed to be fixed (for real) yet?  IF so, in which
+> version?
+>
+> Is there any consolidated documentation of the combinations of factors
+> that cause corruption, or of how to reliably avoid corruption (like
+> all the things to check to make sure your kernel never even tries to
+> enable DMA)?
+>
+>
+> Also, why does a DMA timeout cause such corruption?  Doesn't the kernel
+> keep track of uncompleted operations, retain the information needed to
+> try again, and try again if there's a failure?  If not, why not?
+>
+> If it can't try again, shouldn't the kernel at least abort after one
+> disk-write failure instead of performing additional writes, which
+> frequently depend on the previous writes?  (E.g., if I try to read
+> block 1's data and write it to block 2, and then write something new
+> to block 1, if the first write fails but continue and do the second
+> write, data gets destroyed.  If the first write fails and I stop right
+> away, less is destroyed.)
 
+Are you sure you don't have faulty drive?
 
-mymouse_module.c
-
-...
-void mouse_event(){
-
-    // get the current time in jiffies
-    int now=jiffies;
-
-    // get the jiffie value of the last kbd event
-    int last_kbd_event= ????;  // ... but how to do that ...
-
-    if ((now - last_kbd_event) > delay) {
-	do_some_very_smart_things();
-    }
-   }
-...
-
--Hans
-
+--bartlomiej
 

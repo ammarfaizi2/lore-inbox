@@ -1,293 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292848AbSBVMaF>; Fri, 22 Feb 2002 07:30:05 -0500
+	id <S292851AbSBVMeF>; Fri, 22 Feb 2002 07:34:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292850AbSBVM3r>; Fri, 22 Feb 2002 07:29:47 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:11013 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S292848AbSBVM3Y>; Fri, 22 Feb 2002 07:29:24 -0500
-Date: Fri, 22 Feb 2002 09:19:59 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Linux 2.4.18-rc4
-Message-ID: <Pine.LNX.4.21.0202220915430.28932-100000@freak.distro.conectiva>
+	id <S292852AbSBVMd4>; Fri, 22 Feb 2002 07:33:56 -0500
+Received: from E0-IBE.r.miee.ru ([194.226.0.89]:22034 "EHLO ibe.miee.ru")
+	by vger.kernel.org with ESMTP id <S292851AbSBVMdr>;
+	Fri, 22 Feb 2002 07:33:47 -0500
+From: Samium Gromoff <root@ibe.miee.ru>
+Message-Id: <200202221524.g1MFOMk08048@ibe.miee.ru>
+Subject: OOPS in 2.4.17-12f
+To: riel@surriel.com
+Date: Fri, 22 Feb 2002 18:24:22 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ksymoops 2.4.1 on i586 2.4.17-rmap12e.  Options used                            
+     -V (default)                                                               
+     -k /proc/ksyms (default)                                                   
+     -l /proc/modules (default)                                                 
+     -o /lib/modules/2.4.17-rmap12e/ (default)                                  
+     -m /boot/System.map (default)                                              
+                                                                                
+Warning: You did not tell me where to find symbol information.  I will          
+assume that the log matches the kernel and modules that are running             
+right now and I'll use the default options above for symbol resolution.         
+If the current kernel and/or modules do not match the log, you can get          
+more accurate output by telling me the kernel version and where to find         
+map, modules, ksyms etc.  ksymoops -h explains the options.                     
 
-Hi, 
+<snip random modules failures>
 
-Unfortunately something really bad (for some non-x86 archs) appeared up,
-so here goes rc4.
+Oops: 0002                                                                      
+CPU:    0                                                                       
+EIP:    0010:[<c0139484>]    Not tainted                                        
+Using defaults from ksymoops -t elf32-i386 -a i386                              
+EFLAGS: 00010246                                                                
+eax: 00000000   ebx: c0fad740   ecx: c0fad740   edx: 00000800                   
+esi: c0fad740   edi: c0fad740   ebp: 00000000   esp: c1731e20                   
+ds: 0018   es: 0018   ss: 0018                                                  
+Process cc1 (pid: 444, stackpage=c1731000)                                      
+Stack: c013a1f8 c0fad740 c013bdc6 c0d515a0 c046d000 c0d515a0 00000000 c1076bac  
+       00000000 c0c5e6c0 c0fad740 00001000 c013a2af c0fad740 c10141cc c046d000  
+       0034cc00 00000001 c0132ced c10141cc 00000000 00000001 c10141cc 002a3000  
+Call Trace: [<c013a1f8>] [<c013bdc6>] [<c013a2af>] [<c0132ced>] [<c013272a>]    
+   [<c0125387>] [<c0138c69>] [<c0127f8c>] [<c011734d>] [<c011b449>] [<c31a319a>]
+   [<c010841a>] [<c01085a8>] [<c011b5ef>] [<c0106fd3>]                          
+Code: 89 02 c7 41 30 00 00 00 00 89 4c 24 04 e9 5a ff ff ff 8d 76               
+                                                                                
+>>EIP; c0139484 <__remove_from_queues+14/30>   <=====                           
+Trace; c013a1f8 <discard_buffer+78/90>                                          
+Trace; c013bdc6 <try_to_free_buffers+c6/f0>                                     
+Trace; c013a2af <discard_bh_page+3f/90>                                         
+Trace; c0132ced <remove_exclusive_swap_page+6d/e0>                              
+Trace; c013272a <free_page_and_swap_cache+2a/40>                                
+Trace; c0125387 <zap_page_range+267/2c0>                                        
+Trace; c0138c69 <fput+b9/e0>                                                    
+Trace; c0127f8c <exit_mmap+bc/130>                                              
+Trace; c011734d <mmput+2d/50>                                                   
+Trace; c011b449 <do_exit+89/200>                                                
+Trace; c31a319a <[sb_lib]sb_intr+aa/100>                                        
+Trace; c010841a <handle_IRQ_event+3a/80>                                        
+Trace; c01085a8 <do_IRQ+68/c0>                                                  
+Trace; c011b5ef <sys_exit+f/10>                                                 
+Trace; c0106fd3 <system_call+33/40>                                             
+Code;  c0139484 <__remove_from_queues+14/30>                                    
+00000000 <_EIP>:                                                                
+Code;  c0139484 <__remove_from_queues+14/30>   <=====                           
+   0:   89 02                     mov    %eax,(%edx)   <=====                   
+Code;  c0139486 <__remove_from_queues+16/30>                                    
+   2:   c7 41 30 00 00 00 00      movl   $0x0,0x30(%ecx)                        
+Code;  c013948d <__remove_from_queues+1d/30>                                    
+   9:   89 4c 24 04               mov    %ecx,0x4(%esp,1)                       
+Code;  c0139491 <__remove_from_queues+21/30>                                    
+   d:   e9 5a ff ff ff            jmp    ffffff6c <_EIP+0xffffff6c> c01393f0 <__
+remove_from_lru_list+0/80>                                                      
+Code;  c0139496 <__remove_from_queues+26/30>                                    
+  12:   8d 76 00                  lea    0x0(%esi),%esi                         
+                                                                                
+                                                                                
+11 warnings issued.  Results may not be reliable.                               
 
-rc4:
+details: heavy VM load - two parallel builds on 40M ram
 
-- Load code did not set personality for
-  binaries without an interpreter: This was 
-  breaking static apps on several archs		(Tom Gall)
-
-rc3: 
-
-- Fix reiserfs endianess problems		(Chris Mason) 
-- Fix PowerMac compilation problem 		(Pmac team)
-- Fix some eepro100 ID's which had problems 
-  in -ac merge					(Jeff Garzik)
-- Rename some internal pcnet32 definitions to
-  not clash with ethtool.h - the clash caused 
-  the driver not work correctly			(William Lee Irwin)
-- Add missing netif_carrier_{on,off} to
-  eepro100					(Andrew Morton)
-- Fix netfilter race				(Rusty Russell)
-- Correct error handling on tcp_recvmsg		(Alexey Kuznetsov)
-- Revert tulip changes which were apparently
-  causing slowdowns				(Jeff Garzik) 
-- Fix ptrace behaviour				(Linus Benedict Torvalds)
-
-rc2: 
-
-- Make get_user_pages handle VM_IO areas
-  gracefully					(Manfred Spraul)
-- Fix SMP race on PID allocation		(Erik A. Hendriks)
-- Fix SMP race on dnotify scheme		(Alexander Viro)
-- Add missing checks to shmem_file_write	(Alan Cox)
-
-rc1: 
-- PPC MPC8260 update				(Tom Rini)
-- eepro100 fixes				(Jeff Garzik)
-- Make natsemi hardware workaround a config 
-  option					(Jeff Garzik)
-- Add serial board PCI ID			(Jeff Garzik)
-- Add support for another tulip clone		(Jeff Garzik)
-- Fix typo in winbond driver			(Jeff Garzik)
-- Move initialization of tridentfb before 
-  the generic drivers				(Geert Uytterhoeven)
-- Reiserfs bugfixes				(Oleg Drokin)
-- More __devexit_p assorted fixes		(Andrew Morton)
-- Merge some -ac bugfixes			(Alan Cox)
-
-pre9:
-
-- Cris update					(Bjorn Wesen)
-- SPARC update					(David S. Miller)
-- Remove duplicate CONFIG_SUNLANCE entry in 
-  Config.in					(David S. Miller)
-- Change Netfilter maintainer 			(David S. Miller)
-- More SunGEM bugfixes				(David S. Miller)
-- Update md5sums in ISDN's md5sums.asc		(Kai Germaschewski)
-- 3ware driver update				(Adam Radford)
-- Fix cosa compile problem			(Adrian Bunk)
-- Change VIA "disabling write queue" message	(Oliver Feiler)
-- Remove buggy Elan-specific handling code	(Robert Schwebel)
-- Reiserfs bugfixes				(Oleg Drokin)
-- Fix ppp memory leak				(Andrew Morton)
-- Really add devfs fix for removable devices: 
-  its on pre8 changelog but not on pre8 patch	(me)
-- Add framebuffer support for trident graphics
-  card						(James Simmons)
-- SCSI tape driver bugfixes			(Kai Makisara)
-- Add support to Ovislink card on 8139too
-  driver					(Jeff Garzik)
-- Add SIOCxMIIxxxx ioctls for better binary 
-  compatibility on au1000_eth driver		(Jeff Garzik)
-- Fix initialization of phy on epic100 driver	(Jeff Garzik)
-- Add MODULE_* info to mii.c 			(Jeff Garzik)
-- Add new PCI ID to sundance driver		(Jeff Garzik)
-- Merge some -ac3 patches			(Alan Cox)
-- Unify simple_strtol symbol export		(Russell King)
-- Add amount of cached memory to sysreq-m 
-  output					(Martin Knoblauch)
-- Do not use SCSI device type to change
-  IO clustering					(Jens Axboe)
-- IRC conntrack update				(Harald Welte)
-- sonypi driver update				(Stelian Pop)
-- Fix one of the PPP deadlocks			(Manfred Spraul)
-
-pre8: 
-
-- Add missing netfilter files in pre7 		(David S. Miller)
-- SunGEM driver update				(David S. Miller)
-- Kill get_fast_time				(David S. Miller)
-- Update APIC LVTERR fix to work correctly on 
-  old 486/586 APICs				(Mikael Pettersson)
-- Check the return code of copy_{from,to}_user
-  on serial code				(Rasmus Andersen)
-- Mark 2.5 extended attributes system calls as 
-  reserved to avoid potential conflicts		(Nathan Scott)
-- Change Christoph Hellwig's email address	(Christoph Hellwig)
-- Make BLKGETSIZE64 return size in bytes not 
-  sectors					(Eric Sandeen)
-- Coda dentry revalidation fix			(Jan Harkes)
-- hisax_fcpcipnp driver update			(Kai Germaschewski)
-- i810 sound driver update			(Doug Ledford)
-- Early personality setting in binfmt_elf	(Christoph Hellwig)
-- Fix rename bug in reiserfs			(Oleg Drokin)
-- SCSI documentation update			(Douglas Gilbert)
-- Fix silly typo in megaraid driver 		(Arjan Van de Ven)
-- PPC update					(Benjamin Herrenschmidt)
-- USB bug fixes					(Greg KH)
-- Fix devfs problems with removable devices	(Richard Gooch)
-- Merge -ac1 fixes				(Alan Cox)
-- VXFS update					(Christoph Hellwig)
-- Add Compaq FC array to the LUN whitelist	(Arjan Van de Ven) 
-
-pre7:
-
-- Make ext2/minix/sysvfs actually operate
-  synchronously on directories when using
-  the sync mount option				(Andrew Morton)
-- AFFS update					(Roman Zippel)
-- Fix 3dfx fb crash with high pixelclock 	(Jurriaan on Alpha)
-- PATH_MAX POSIX compliance			(Rusty Russell)
-- Really apply AMD Elan patch			(me)
-- Don't drop IP packets with less than 8 bytes 
-  of payload 					(David S. Miller)
-- Netfilter update 				(Netfilter team)
-- Backport 2.5 sb_bread() changes		(Alexander Viro)
-- Fix AF_UNIX fd leak				(David S. Miller)
-- Add Audigy Gameport PCI ID	 		(Daniel Bertrand)
-- Sync with ia64 arch independant parts		(Keith Owens)
-- APM fixes					(Stephen Rothwell)
-- fs/super.c cleanups				(Alexander Viro)
-
-pre6:
-
-- Removed patch in icmp code: its
-  not needed and causes problems                (me)
-
-pre5:
-
-- Include missing radeonfb defines		(Erik Andersen)
-- Fix fs/buffer.c thinko introduced in pre4	(Andrew Morton)
-- USB bugfixes					(Greg KH)
-- Make fat work correctly with gcc-3.0.x 	(Tom Rini)
-- Avoid overusage of the vmalloc area by 
-  NTFS						(Anton Altaparmakov)
-- atyfb: Decrease clock rate for 3d RAGE XL 	(David S. Miller)
-- Sungem driver bugfixes			(David S. Miller)
-- More networking updates			(David S. Miller)
-- More SPARC updates				(David S. Miller)
-- devfs update 					(Richard Gooch)
-- Reiserfs expanding truncate fix		(Chris Mason)
-- ext3 update					(Andrew Morton/Stephen Tweedie)
-- Add support to WDIOC_SETTIMEOUT on several
-  watchdog drivers				(Joel Becker)
-- dl2k driver update				(Jeff Garzik)
-- Orinoco driver update				(David Gibson)
-- Radeonfb driver update			(Ani Joshi)
-- Avoid free_swap_and_cache() from leaving 
-  freeable pages on the cache			(Hugh Dickins)
-- Add workarounds for AMD Elan processors	(Robert Schwebel)
-- Random pmac driver bugfixing			(Benjamin Herrenschmidt)
-- emu10k1 driver update				(Rui Sousa)
-
-pre4:
-
-- Networking updates				(David S. Miller)
-- clgenfb update				(Jeff Garzik)
-- 8139cp: make it faster			(Jeff Garzik)
-- 8139too: fix bugs, add experimental RX reset	(Jeff Garzik)
-- Add MII ethtool interface and change 
-  several drivers to support that		(Jeff Garzik)
-- Fix ramdisk corruption problems		(Andrea Arcangeli) 	
-- Correct in-kernel MS_ASYNC behaviour 
-  on msync/fsync()				(Andrew Morton)
-- Fix PLIP problems 				(Niels Jensen)
-- Fix problems triggered by the "fsx test" 
-  on smbfs					(Urban Widmark)
-- Turn on OOSTORE for IDT winchip		(from -ac tree)
-- Fix iphase crash				(from -ac tree)
-- Fix crash with two mxser cards		(from -ac tree)
-- Fix tty write block bug			(from -ac tree)
-- Add mono/stereo detect to gemtek pci radio	(from -ac tree)
-- Fix sf16fmi crash on load			(from -ac tree)
-- add CP1250 (windows eastern european) 
-  translation table				(from -ac tree)
-- cs46xx driver update				(from -ac tree)
-- Fix rare data loss case with RAID-1		(Ingo Molnar)
-- Add 2.5.x compatibility for the kdev_t
-  changes					(me)
-- SPARC updates					(David S. Miller)
-
-pre3:
-
-- Cris arch merge				(Bjorn Wesen)
-- Finish PPC merge				(Benjamin Herrenschmidt)
-- Add Dell PowerEdge 2400 to 
-  "use BIOS to reboot" blacklist		(Arjan van de Ven)
-- Avoid potential oops at module unload with 
-  cyclades driver				(Andrew Morton)
-- Gracefully handle SCSI initialization 
-  failures					(Pete Zaitcev)
-- USB update					(Greg KH)
-- Fix potential oops while ejecting ide cds 	(Zwane Mwaikambo)
-- Unify page freeing codepaths 			(Benjamin LaHaise)
-- Miata dma corruption workaround 		(Richard Henderson)
-- Fix vmalloc corruption problem on machines 
-  with virtual dcaches				(Ralf Baechle)
-- Reiserfs fixes				(Oleg Drokin)
-- DiskOnChip driver update			(David Woodhouse)
-- Do not inherit page locking rules across 
-  fork/exec					(Dave Anderson)
-- Add DRM 4.0 for XFree 4.0 users convenience	(Christoph Hellwig)
-- Replace .text.lock with .subsection 		(Keith Owens)
-- IrDA bugfixes					(Jean Tourrilhes)
-
-pre2: 
-
-- APIC LVTERR fixes				(Mikael Pettersson)
-- Fix ppdev ioctl oops and deadlock		(Tim Waugh)
-- parport fixes					(Tim Waugh)
-- orinoco wireless driver update		(David Gibson)
-- Fix oopsable race in binfmt_elf.c 		(Alexander Viro)
-- Small sx16 driver bugfix			(Heinz-Ado Arnolds)
-- sbp2 deadlock fix 				(Andrew Morton)
-- Fix JFFS2 write error handling		(David Woodhouse)
-- Intermezzo update				(Peter J. Braam)
-- Proper AGP support for Intel 830MP chipsets	(Nicolas Aspert)
-- Alpha fixes					(Jay Estabrook)
-- 53c700 SCSI driver update			(James Bottomley)
-- Fix coredump mmap_sem deadlock on IA64	(David Mosberger)
-- 3ware driver update				(Adam Radford)
-- Fix elevator insertion point on failed 
-  request merge					(Jens Axboe)
-- Remove bogus rpciod_tcp_dispatcher definition (David Woodhouse)
-- Reiserfs fixes				(Oleg Drokin)
-- de4x5 endianess fixes				(Kip Walker)
-- ISDN CAPI cleanup				(Kai Germaschewski)
-- Make refill_inactive() correctly account 
-  progress					(me)
-
-pre1:
-
-- S390 merge					(IBM)
-- SuperH merge					(SuperH team)
-- PPC merge					(Benjamin Herrenschmidt)
-- PCI DMA update				(David S. Miller)
-- radeonfb update 				(Ani Joshi)
-- aty128fb update				(Ani Joshi)
-- Add nVidia GeForce3 support to rivafb		(Ani Joshi)
-- Add PM support to opl3sa2			(Zwane Mwaikambo)
-- Basic ethtool support for 3com, starfire
-  and pcmcia net drivers			(Jeff Garzik)
-- Add MII ethtool interface			(Jeff Garzik)
-- starfire,sundance,dl2k,sis900,8139{too,cp},
-  natsemi driver updates			(Jeff Garzik)
-- ufs/minix: mark inodes as bad in case of read
-  failure					(Christoph Hellwig)
-- ReiserFS fixes				(Oleg Drokin)
-- sonypi update					(Stelian Pop)
-- n_hdlc update					(Paul Fulghum)
-- Fix compile error on aty_base.c		(Tobias Ringstrom)
-- Document cpu_to_xxxx() on kernel-hacking doc  (Rusty Russell)
-- USB update					(Greg KH)
-- Fix sysctl console loglevel bug on 
-  IA64 (and possibly other archs)		(Jesper Juhl) 
-- Update Athlon/VIA PCI quirks			(Calin A. Culianu)
-- blkmtd update					(Simon Evans)
-- boot protocol update (makes the highest 
-  possible initrd address available to the 
-  bootloader)					(H. Peter Anvin)
-- NFS fixes					(Trond Myklebust)
-
+regards, Samium Gromoff

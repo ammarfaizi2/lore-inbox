@@ -1,88 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262003AbREQQVl>; Thu, 17 May 2001 12:21:41 -0400
+	id <S262019AbREQQeX>; Thu, 17 May 2001 12:34:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262000AbREQQVb>; Thu, 17 May 2001 12:21:31 -0400
-Received: from [164.77.245.130] ([164.77.245.130]:2053 "HELO
-	dec1.hc1.vtrnet.cl") by vger.kernel.org with SMTP
-	id <S262003AbREQQVR>; Thu, 17 May 2001 12:21:17 -0400
-Date: Thu, 17 May 2001 12:20:19 -0400 (CLT)
-From: Fabian Arias <dewback@vtr.net>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-Cc: Rik van Riel <riel@conectiva.com.br>, virii <virii@gcecisp.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: cmpci sound chip lockup
-In-Reply-To: <20010517135808.G754@nightmaster.csn.tu-chemnitz.de>
-Message-ID: <Pine.LNX.4.21.0105171210310.1166-100000@localhost.localdomain>
+	id <S262030AbREQQeN>; Thu, 17 May 2001 12:34:13 -0400
+Received: from mailproxy.de.uu.net ([192.76.144.34]:38785 "EHLO
+	mailproxy.de.uu.net") by vger.kernel.org with ESMTP
+	id <S262019AbREQQdy>; Thu, 17 May 2001 12:33:54 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Tim Jansen <tim@tjansen.de>
+To: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
+Subject: Re: LANANA: To Pending Device Number Registrants
+Date: Thu, 17 May 2001 18:34:18 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <047801c0dd95$231331e0$6800000a@brownell.org> <990079966.25105.1.camel@agate> <01051714073800.01598@idun>
+In-Reply-To: <01051714073800.01598@idun>
+Cc: David Brownell <david-b@pacbell.net>, lkml <linux-kernel@vger.kernel.org>,
+        Miles Lane <miles@megapathdsl.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01051718341800.00784@cookie>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 17 May 2001 14:07, you wrote:
+> For identifying this is probably the right approach. However identifying is
+> not enough, as the ioctl discussion has shown. Capabilities are needed. How
+> can the device registry provide that information ? 
 
-I can also report that I'm having the same problem running kernel
-2.4.[3-4{ac1-9}] with a C-Media using ESD. So the problem appears when I
-tried to run XMMS with ESD, the sound have an annoying "ss ss ss
-..." while I play mp3's. The frecuency of the "ss ss ss ..." is symetrical
-(1/4 of a second I say).
-The problem appears to have a direct asociation with esound cause it only
-happens with the use of XMMS over ESD. No problems reported during
-execution of mpg123 wich not use esound.
+The device registry provides you with device's capabilities and has different 
+meachanisms for different needs:
 
-ronto:~# lspci
-00:00.0 Host bridge: Silicon Integrated Systems [SiS] 630 Host (rev 21)
-00:00.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev
-d0)
-00:01.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513
-00:01.1 Ethernet controller: Silicon Integrated Systems [SiS] SiS900
-10/100 Ethernet (rev 83)
-00:01.2 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07)
-00:01.3 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07)
-00:02.0 PCI bridge: Silicon Integrated Systems [SiS] 5591/5592 AGP
-00:05.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev
-10)
-01:00.0 VGA compatible controller: Silicon Integrated Systems
-[SiS]: Unknown device 6300 (rev 21)
+- each device node has a type that describes the API (read/write format, 
+ioctls) of the node. The type is set when you call devfs_register2 (a new 
+version of devfs_register, set sets the node type and a connection to the 
+physical device). So when you want to play pcm sound and your app supports 
+OSS you search for the type "sound/oss/dsp"
+- each physical device gets a type that is intended to be shown to the user 
+and may be simplified. It can be used for things like selecting a appropriate 
+icon for a device. It is not guaranteed to be correctly and some devices may 
+not have a type.
+- each bus subsystem and driver is free to add its own information. For 
+example the PCI subsystem adds things like the interrupt, memory space and so 
+on. User-space apps that dont know about it are required to ignore it. 
 
 
-On Thu, 17 May 2001, Ingo Oeser wrote:
+> If we register it together with the device, we might spend a lot of 
+> resources needlessly and can't deal with devices whose capabilities 
+> change dynamically.
 
-> Date: Thu, 17 May 2001 13:58:08 +0200
-> From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-> To: Rik van Riel <riel@conectiva.com.br>
-> Cc: virii <virii@gcecisp.com>, linux-kernel@vger.kernel.org
-> Subject: Re: cmpci sound chip lockup
-> 
-> On Wed, May 16, 2001 at 08:02:06PM -0300, Rik van Riel wrote:
-> > I'm seeing a similar thing on 2.4.4-pre[23], but in a far less
-> > serious way. Using xmms the music stops after anything between
-> > a few seconds and a minute, I suspect a race condition somewhere.
-> > 
-> > Using mpg123 everything works fine...
-> 
-> Your xmms uses esd[1]?
-> 
-> Friends of mine report problems with esd and 2.4.x. Tested on
-> SB-Live! and es1371.
-> 
-> Regards
-> 
-> Ingo Oeser
-> 
-> [1] E Sound Deamon - A sound mixing framework
-> -- 
-> To the systems programmer,
-> users and applications serve only to provide a test load.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+No, the device and bus-subsystem information is generated on-demand, the type 
+isnt guaranteed to be correct (and can be changed at any time) and the API of 
+your device nodes hopefully doesnt change or otherwise you will really 
+confuse the apps.
 
- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- Fabian Arias Mu~oz                     |        Debian GNU/Linux 2.2r3 Potato
- Facultad de Cs. Economicas y           |            Corriendo en Kernel 2.4.4
- Administrativas.                       |                           dewback en
- Universidad de Concepcion   -  Chile   |                 #linuxhelp IRC.CHILE
+
+> In addition how do we export the information ? Proc ? Device nodes (bad for
+> network devices) ?
+
+The last version used a large XML file, but the next will expose the 
+information in a (very) large number of proc files, each containing a single 
+value. This required some changes in the proc API, but unfortunately I did 
+not get a single comment on my patch 
+(http://www.uwsg.indiana.edu/hypermail/linux/kernel/0105.1/1041.html)..
+
+bye...
 

@@ -1,78 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269495AbUIZFZq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269497AbUIZFbP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269495AbUIZFZq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 01:25:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269497AbUIZFZq
+	id S269497AbUIZFbP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 01:31:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269498AbUIZFbP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 01:25:46 -0400
-Received: from [69.25.196.29] ([69.25.196.29]:51128 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S269495AbUIZFZL (ORCPT
+	Sun, 26 Sep 2004 01:31:15 -0400
+Received: from gate.crashing.org ([63.228.1.57]:25476 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S269497AbUIZFbL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 01:25:11 -0400
-Date: Sun, 26 Sep 2004 01:23:08 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Jean-Luc Cooke <jlcooke@certainkey.com>
-Cc: linux@horizon.com, jmorris@redhat.com, cryptoapi@lists.logix.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PROPOSAL/PATCH] Fortuna PRNG in /dev/random
-Message-ID: <20040926052308.GB8314@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Jean-Luc Cooke <jlcooke@certainkey.com>, linux@horizon.com,
-	jmorris@redhat.com, cryptoapi@lists.logix.cz,
-	linux-kernel@vger.kernel.org
-References: <20040924023413.GH28317@certainkey.com> <20040924214230.3926.qmail@science.horizon.com> <20040925145444.GW28317@certainkey.com> <20040925184352.GB7278@thunk.org> <20040926014218.GZ28317@certainkey.com>
+	Sun, 26 Sep 2004 01:31:11 -0400
+Subject: Re: ptep_establish/establish_pte needs set_pte_atomic and all
+	set_pte must be written in asm
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrea Arcangeli <andrea@novell.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040926013200.GT3309@dualathlon.random>
+References: <20040925155404.GL3309@dualathlon.random>
+	 <1096155207.475.40.camel@gaston> <20040926002037.GP3309@dualathlon.random>
+	 <1096159487.18234.64.camel@gaston>
+	 <20040926013200.GT3309@dualathlon.random>
+Content-Type: text/plain
+Message-Id: <1096176535.18235.293.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040926014218.GZ28317@certainkey.com>
-User-Agent: Mutt/1.5.6+20040818i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 26 Sep 2004 15:29:48 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 25, 2004 at 09:42:18PM -0400, Jean-Luc Cooke wrote:
-> On Sat, Sep 25, 2004 at 02:43:52PM -0400, Theodore Ts'o wrote:
-> > You still haven't shown the flaw in the logic.  My point is that an
-> > over-reliance on crypto primitives is dangerous, especially given
-> > recent developments.  Fortuna relies on the crypto primitives much
-> > more than /dev/random does.  Ergo, if you consider weaknesses in
-> > crypto primitives to be a potential problem, then it might be
-> > reasonable to take a somewhat more jaundiced view towards Fortuna
-> > compared with other alternatives.
+On Sun, 2004-09-26 at 11:32, Andrea Arcangeli wrote:
+
+> maybe I'm biased because I'm reading x86-64 code, but where? the
+> software mkdirty and mkyoung seem to all be inside the page_table_lock.
+
+ppc and ppc64 who treat their hash table as a kind of big tlb cache, and
+embedded ppc's with software loaded TLBs all have the TLB or hash refill
+mecanism "mimmic" a HW TLB load, that is it is assembly code that will
+set the DIRTY or ACCESSED bits without taking the page table lock
+
+> Not sure how could I get you were talking about those floating around
+> patches. I still don't get any connetion with those patches and the
+> above discussion.
+
+Oh, I side-tracked a bit on the need to make the PTE update & hash flush
+atomic on ppc64 using the per-PTE lock _PAGE_BUSY bit we have there if
+we ever implement that lockless do_page_fault(), but that was a side
+discussion, sorry for confusion.
+ 
+> > Again, find me a single case where the compiler will generate anything 
+> > but an "std" instruction for the above on ppc64 and you'll get a free
+> > case of champagne :)
 > 
-> Correct me if I'm wrong here.
+> If something I can check x86-64 which has the same issue, not ppc64.
 > 
-> You claimed that the collision techniques found for the UFN design hashs
-> (sha0, md5, md5, haval, ripemd) demonstrated the need to not rely on hash
-> algorithms for a RNG.  Right?
+> If you prefer to ignore those theoretical smp races, then I will save
+> this email and I'll forward it to you when it triggers in production
+> because gcc did something strange, and then you will send me the free
+> case of champagne :)
 
-For Fortuna, correct.  This is why I believe /dev/random's current
-design to be superior.
+We have a deal :)
 
-> And I showed that the SHA-1 in random.c now can produce collisions.  So, if
-> your argument against the fallen UFN hashs above (SHA-1 is a UFN hash also
-> btw.  We can probably expect more annoucments from the crypto community in
-> early 2005) should it not apply to SHA-1 in random.c?
+> I'm also waiting the other bug for the lack of volatile variables where
+> we access memory that can change under us to
+> trigger anywhere in the kernel, only after it does I will have a good
+> argument to convince people not to depend on subtle behaviour of gcc,
+> and to write C language instead and to leave the atomic guarantees to
+> asm statements that the C compiler isn't allowed to mess up.
+> 
+> Oh maybe it already triggers on Martin's machine... ;), this is another
+> reason why I would like to see this can of warms closed, so I don't have
+> to worry every time that gcc doesn't something silly that could never be
+> catched by the gcc regression test suite, since gcc would be still C
+> complaint despite the apparently silly thing (silly from the point of
+> view of a kernel developer at least, not necessairly silly from the
+> point of view of a gcc developer).
 
-(1) Your method of "producing collisions" assumed that /dev/random was
-of the form HASH("a\0\0\0...") == HASH("a) --- i.e., you were
-kvetching about the lack of padding.  But we've already agreed that
-the padding argument isn't applicable for /dev/random, since it only
-hashes block-sizes at the same time.  (2) Even if there were real
-collisions demonstrated in SHA-1's cryptographic core at some point in
-the future, it wouldn't harm the security of the algorithm, since
-/dev/random doesn't depend on SHA-1 being resistant against
-collisions.  (Similarly, HMAC-MD5 is still safe for now since it also
-is designed such that the ability to find collisions do not harm its
-security.  It's a matter of how you use the cryptographic primitives.)
+Oh, I agree the lack of volatile on a switch/case may be an issue, I've
+seen really esoteric ways of generating switch/case...
 
-> Or did I misunderstand you?  Were you just mentioning the weakened algorithms
-> as a "what if they were more serious discoveries?  Wouldn't be be nice if we
-> didn't rely on them?" ?
+> there is a perf issue, cmpxchg8b is a lot more costly than two movl and
+> a smp_wmb in between. We only need atomic writes (not locked writes) in
+> all set_pte, except ptep_establish which is the only overwriting a pte
+> that is already present.
 
-That's correct.  It is my contention that Fortuna is brittle in this
-regard, especially in comparison to /dev/random current design.
+Right, in your hypotetical scenario, I'd just have to make sure an std
+instruction is generated on ppc64 
 
-And you still haven't pointed out the logic flaw in any argument but
-your own.
+Ben.
 
-						- Ted
+

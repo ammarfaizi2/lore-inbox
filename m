@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265485AbSIRGpX>; Wed, 18 Sep 2002 02:45:23 -0400
+	id <S265510AbSIRGpE>; Wed, 18 Sep 2002 02:45:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265671AbSIRGpX>; Wed, 18 Sep 2002 02:45:23 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:16141 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S265485AbSIRGpV>; Wed, 18 Sep 2002 02:45:21 -0400
-Message-Id: <200209180643.g8I6hBp29508@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Dan Kegel <dank@kegel.com>, linux-kernel@vger.kernel.org
-Subject: Re: Hardware limits on numbers of threads?
-Date: Wed, 18 Sep 2002 09:37:58 -0200
-X-Mailer: KMail [version 1.3.2]
-References: <3D88208E.8545AAA2@kegel.com>
-In-Reply-To: <3D88208E.8545AAA2@kegel.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S265671AbSIRGpE>; Wed, 18 Sep 2002 02:45:04 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:35846 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S265510AbSIRGpD>;
+	Wed, 18 Sep 2002 02:45:03 -0400
+Date: Tue, 17 Sep 2002 23:50:12 -0700
+From: Greg KH <greg@kroah.com>
+To: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux hot swap support
+Message-ID: <20020918065012.GA6840@kroah.com>
+References: <180577A42806D61189D30008C7E632E8793A60@boca213a.boca.ssc.siemens.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <180577A42806D61189D30008C7E632E8793A60@boca213a.boca.ssc.siemens.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 September 2002 04:43, Dan Kegel wrote:
-> http://people.redhat.com/drepper/glibcthreads.html says:
-> > Hardware restrictions put hard limits on the number of
-> > threads the kernel can support for each process.
-> > Specifically this applies to IA-32 (and AMD x86_64) where the thread
-> > register is a segment register. The processor architecture
-> > puts an upper limit on the number of segment register values
-> > which can be used (8192 in this case).
->
-> Is this true?  Where does the limit come from?
+On Tue, Sep 17, 2002 at 03:28:17PM -0400, Bloch, Jack wrote:
+> I have a cPCI system running a Red Hat 2.4.18-3 Kernel. am running on a
+> Pentium III 700Mhz machine, but we have some of our own cPCI HW. I wrote the
+> drivers according to the Linux Device Driver 2nd edition (i.e. hot swap
+> compliant). But what I am missing is :
 
-It is true that on x86 you have only 8192 different segment selectors
-at a time. Nobody says you can't modify segment descriptors on demand.
+Do your drivers tie into the existing pci_hotplug core?  If so, great,
+then your userspace interaction is done.
 
-If I'm not mistaken, Linux kernel does precisely this. It has per-CPU
-allocated GDT entries, not per-task. So there is no limitation
-unless you happen to have more than 1024 CPUs ;-).
---
-vda
+Do you have a pointer to your driver?
+
+> What SW will call my device insert/device remove routines?
+
+If you use the pci_hotplug core, any userspace program can call them
+through pcihpfs.
+
+> Please CC me directly on anty response. By the way I read the PDF file  Hot
+> Pluggable Devices And The Linux Kernel, but I am still not clear on the
+> answerrs to the above questions.
+
+Do you mean this document:
+	http://www.kroah.com/linux/talks/ols_2001_hotplug_paper/hotplug.ps
+?  That just details how individual drivers can specify the proper
+information so that /sbin/hotplug will load them when hardware that they
+support is recognized.  It has nothing to do with the pci hotplug core,
+for that you might want to take a look at:
+	http://linuxjournal.com/article.php?sid=5633
+but to be honest, that article deals more with how to create a
+filesystem for a driver.  Hopefully, you can glean some insight into how
+the userspace interaction works from it.  If you still have questions,
+please let me know..
+
+I also have a very dumb program at:
+	http://www.kroah.com/linux/hotplug/
+that can power up and down slots in a pci hotplug system.  I have an
+even simpler bash script that does the same thing around here somewhere,
+if people are interested.
+
+Hope this helps,
+
+greg k-h

@@ -1,105 +1,176 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131615AbRAKHXa>; Thu, 11 Jan 2001 02:23:30 -0500
+	id <S132078AbRAKH3K>; Thu, 11 Jan 2001 02:29:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132490AbRAKHXV>; Thu, 11 Jan 2001 02:23:21 -0500
-Received: from ns1.megapath.net ([216.200.176.4]:59922 "EHLO megapathdsl.net")
-	by vger.kernel.org with ESMTP id <S131615AbRAKHXH>;
-	Thu, 11 Jan 2001 02:23:07 -0500
-Message-ID: <3A5D5F16.1030707@megapathdsl.net>
-Date: Wed, 10 Jan 2001 23:21:58 -0800
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-ac1 i686; en-US; m18) Gecko/20010107
-X-Accept-Language: en
+	id <S132448AbRAKH3A>; Thu, 11 Jan 2001 02:29:00 -0500
+Received: from d83b5259.dsl.flashcom.net ([216.59.82.89]:1415 "EHLO
+	home.lameter.com") by vger.kernel.org with ESMTP id <S132078AbRAKH2x>;
+	Thu, 11 Jan 2001 02:28:53 -0500
+Date: Wed, 10 Jan 2001 23:22:55 -0800 (PST)
+From: Christoph Lameter <christoph@lameter.com>
+To: linux-kernel@vger.rutgers.edu, khttpd-users@zgp.org
+Subject: Kernel HTTP server: Patch for name based virtual domains
+In-Reply-To: <Pine.LNX.4.21.0101071655090.1110-100000@home.lameter.com>
+Message-ID: <Pine.LNX.4.21.0101102317200.11936-100000@home.lameter.com>
 MIME-Version: 1.0
-To: David Hinds <dhinds@sonic.net>
-CC: Aaron Eppert <eppertan@rose-hulman.edu>, dhinds@zen.stanford.edu,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0 Patch for 3c575
-In-Reply-To: <20010110204420.A7699@rose-hulman.edu> <3A5D20D6.6090906@megapathdsl.net> <20010110201537.F12593@sonic.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Hinds wrote:
+This is a patch against 2.4.0 which enables the use of virtual domains. I
+ma running multiple domains on my server and was not able to use the
+kernel webserver. The machine is only a Cyrix 166 and since it also serves
+lots of files using the kernel server is a tremendous boost.
 
-> On Wed, Jan 10, 2001 at 06:56:22PM -0800, Miles Lane wrote:
-> 
->> There's one other annoyance:
->> 
->> The config files for pcmcia-cs expect the 3c575_cb driver,
->> so I either have to hack the configuration files or load
->> the 3c59x driver by hand.
-> 
-> 
-> Yes, I'm not sure how to best communicate the fact that 3c59x should
-> be used to cardmgr.
+Settings for khttpd:
 
-There are at least two things that need to happen.
+echo 80 >/proc/sys/net/khttpd/serverport
+echo 8080 >/proc/sys/net/khttpd/clientport
+echo "(lameter,com,www.lameter.com)/home/clameter/lameter:(vdm.org)/home/clameter/vdm:/var/www" >/proc/sys/net/khttpd/documentroot
+echo 1 >/proc/sys/net/khttpd/start
 
-	1. The pcmcia-cs installation needs to install
-	   different default configuration files when
-	   the target machine is running kernel drivers
-	   instead of pcmcia-cs drivers.  Specifically,
-	   there are numerous devices that aren't supported
-	   yet by drivers in the kernel tree (e.g. D-Link
-	   DFE-650 Fast Ethernet PC-Card).  So, those
-	   device configuration entries should probably be
-	   removed until the needed drivers exist.
-	   Then there is the need to map support for some
-	   devices (like the 3c575) to new drivers (the
-	   3c59x).  I am not sure whether there are other
-	   devices for which this is true.
+The docs are included in the source below.
 
-	   For the case where drivers don't exist yet,
-	   the /etc/pcmcia/config* files could be migrated
-	   into the kernel tree, so that when a kernel is
-	   installed that is configured to use the kernel
-	   drivers instead of pcmcia-cs drivers, then
-	   install the modified /etc/pcmcia/config* files.
+diff -urN linux-orig/net/khttpd/rfc.c linux/net/khttpd/rfc.c
+--- linux-orig/net/khttpd/rfc.c	Mon Aug 23 10:41:25 1999
++++ linux/net/khttpd/rfc.c	Wed Jan 10 19:48:04 2001
+@@ -23,6 +23,34 @@
+  *
+  ****************************************************************/
+ 
++/*
++  Virtual Host parser by Christoph Lameter <christoph@lameter.com>, January 10, 2001
++  
++  The proc file in /proc/sys/net/khttpd/document can either be set to a single webroot or
++  can contain a specification of a pathlist of webroots. Each path is prefixed by the virtual
++  hostnames in parentheses. For example.
++  
++  echo "(home.lameter.com,localhost)/a/christoph/new:(virtual3.cc.com)/home/richard:/var/www" >documentroot
++  
++  would redirect requests for http://lameter.com and http://localhost to /a/christoph/new.
++  Requests for http://virtual3.cc.com will be served from /home/richard.
++  Requests for other domains will be served from /var/www.
++
++  The syntax for specifying virtual host mappings is:
++  
++  <virtual-hostmap< { , <virtual_hostmap> } : <defaultpath>
++  
++  where
++  
++  <defaultmap>		=	Unix path
++  <virtual-hostmap>	=	( <hostname> { , <hostname> } ) : <path>
++  <hostname>		=	legal DNS name of a host
++  <path>		=	Unix path
++  
++  An additional enhancement of khttpd is that no attempt is made to open directories.
++  Instead index.html is appended to a directory to simulate classic webserver behavior.
++  
++*/
+ 
+ #include <linux/kernel.h>
+ 
+@@ -280,6 +308,8 @@
+ void ParseHeader(char *Buffer,const int length, struct http_request *Head)
+ {
+ 	char *Endval,*EOL,*tmp;
++	char *filename=NULL;
++	int filenamelen;
+ 	
+ 	EnterFunction("ParseHeader");
+ 	Endval = Buffer + length;
+@@ -311,7 +341,6 @@
+ 		
+ 		if (strncmp("GET ",Buffer,4)==0)
+ 		{
+-			int PrefixLen;
+ 			Buffer+=4;
+ 			
+ 			tmp=strchr(Buffer,' ');
+@@ -323,12 +352,9 @@
+ 				Head->HTTPVER = 10;
+ 			
+ 			if (tmp>Endval) continue;
+-			
+-			strncpy(Head->FileName,sysctl_khttpd_docroot,sizeof(Head->FileName));
+-			PrefixLen = strlen(sysctl_khttpd_docroot);
+-			Head->FileNameLength = min(255,tmp-Buffer+PrefixLen);		
+-			
+-			strncat(Head->FileName,Buffer,min(255-PrefixLen,tmp-Buffer));
++
++			filename=Buffer;
++			filenamelen=tmp-Buffer;
+ 					
+ 			Buffer=EOL+1;	
+ #ifdef BENCHMARK
+@@ -369,6 +395,67 @@
+ 		}
+ #endif		
+ 		Buffer = EOL+1;  /* Skip line */
++	}
++	if (filename) {
++
++	    char PrefixLen;
++
++	    if (sysctl_khttpd_docroot[0]=='(') {
++
++		char *p=sysctl_khttpd_docroot;
++		char *q;
++
++		while (*p=='(') {
++			do {
++				p++;
++				q=p;	/* Mark position of virtual hostname */
++
++				while (*p && *p!=')' && *p!=',') p++;		/* Find the end of the hostname */
++
++				if (*p==0) { printk(KERN_ERR ") missing in virtual host string.\n");return; }
++
++				if (strnicmp(Head->Host,q,p-q)==0) {
++					/* virtual hostname match */
++					while (*p && *p!=')') p++;	/* Skip to the end of the vhostname list */
++					if (*p == 0) printk(KERN_ERR "path missing for virtual host");
++
++					p++;
++					goto rootfound;
++				}
++			} while (*p==',');
++
++			if (*p==')') { /* at end of virtual host names need to skip the webroot since nothing matched */
++
++				while (*p && *p!=':') p++;
++				if (*p==0) { printk(KERN_ERR "closing : of virtual host specification missing.\n");return; }
++				p++;
++			}
++
++		}
++	rootfound:
++		if (*p==0) { printk(KERN_ERR "Error in virtual host specification.\n");return; }
++
++		/* p is pointing to matching webroot for this virtual host or the default root */
++		q=p;while (*p && *p!=':') p++;		/* Find the end of the pathname */
++		PrefixLen=p-q;
++		strncpy(Head->FileName,q,PrefixLen);
++
++	    } else {
++
++	       strncpy(Head->FileName,sysctl_khttpd_docroot,sizeof(Head->FileName));
++	       PrefixLen = strlen(sysctl_khttpd_docroot);
++
++	    }
++
++	    Head->FileNameLength = min(255,filenamelen+PrefixLen);		
++	    strncat(Head->FileName,filename,min(255-PrefixLen,filenamelen));
++	    
++	    if (Head->FileName[Head->FileNameLength-1]=='/' && Head->FileNameLength<255-10) {
++	    
++	    	/* A directory! khttpd will not be able to successfully open it. But it might be able to access index.html */
++	    	memcpy(Head->FileName+Head->FileNameLength,"index.html",10);
++	    	Head->FileNameLength+=10;
++	    }
+ 	}
+ 	LeaveFunction("ParseHeader");
+ }
 
-	   Now, this is a mess.  Because, people will likely
-	   want to test the kernel drivers before making a
-	   permanent commitment to the transition.  Therefore,
-	   it's important that the current /etc/pcmcia/config*
-	   files get backed up.  Then you have to keep backing
-	   them up as you install additional kernels.  Like
-	   this:
-		/etc/pcmcia/backup/config*
-		/etc/pcmcia/backup.1/config*
-		/etc/pcmcia/backup.2/config*
-
-	   This seems kind of heinous.  But, these
-	   configuration files sometimes get tweaked for
-	   a particular machine's hardware configuration,
-	   so it's important not to lose them.
-
-	2. A concerted development effort needs to be made
-	   to get the PCMCIA/Cardbus device support for
-	   kernel drivers to be on a par with the device
-	   support in pcmcia-cs.
-
-	   It would be really helpful to at least get the
-	   pcnet_cs driver ported to the kernel tree, because
-	   that pcmcia-cs driver support a wide array of
-	   ethernet PCMCIA cards.  On the other hand, it's
-	   my impression that Linus wants to make sure that
-	   the Cardbus support in the 2.4.0 tree is really
-	   solid before developing PCMCIA support in the
-	   kernel tree.  Is that correct?
-
-David, do you know whether there is a tulip driver in the
-kernel tree that will support PC-Card tulip PC-Cards?
-Your tulip_cb seems to support a huge number of cards.
-
-I should note that I once before I modified my /etc/pcmcia/config
-file so that cardmgr loaded 3c59x for my 3c575 card.  I got some
-errors during the card detection phase and I never got "ifup eth0"
-to run automatically when I inserted the card.
-
-Cheers,
-	Miles
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbVCHQTi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261349AbVCHQ07@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261331AbVCHQTi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 11:19:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbVCHQTi
+	id S261349AbVCHQ07 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 11:26:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbVCHQ07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 11:19:38 -0500
-Received: from web51405.mail.yahoo.com ([206.190.38.184]:45173 "HELO
-	web51405.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261331AbVCHQTg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 11:19:36 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=qLN/caN4+2h3JVTPZzUylQOAwghIL/hRQDgoIHilFyn69ckXMNLlWgbU6rw59Gg6yzy0tvqgBaWCLzRg4gnF7c6l4PbSgnGzpRpQ3/O8LrRenZ0GtdUNPfKXkGwfgwVZ48lCRg/KKE8bzrFhhrmroK+CFsCMWRQurR0O2Yrudmc=  ;
-Message-ID: <20050308161935.84907.qmail@web51405.mail.yahoo.com>
-Date: Tue, 8 Mar 2005 17:19:35 +0100 (CET)
-From: Joerg Pommnitz <pommnitz@yahoo.com>
-Subject: select(2), usbserial, tty's and disconnect
-To: linux-kernel@vger.kernel.org
+	Tue, 8 Mar 2005 11:26:59 -0500
+Received: from alog0371.analogic.com ([208.224.222.147]:26496 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261349AbVCHQ06
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 11:26:58 -0500
+Date: Tue, 8 Mar 2005 11:25:13 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Joerg Pommnitz <pommnitz@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: select(2), usbserial, tty's and disconnect
+In-Reply-To: <20050308161935.84907.qmail@web51405.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.61.0503081121410.11635@chaos.analogic.com>
+References: <20050308161935.84907.qmail@web51405.mail.yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-currently it seems that select keeps blocking when the USB device behind
-ttyUSBx gets unplugged. My understanding is, that select should return
-when the next call to one of the operations (read/write) will not block.
-This is certainly true for failing with ENODEV. So, is this an issue
-that will be fixed or should I poll (not the syscall) the device? Or is 
-there another way to monitor for a vanishing tty (it should not be USB 
-specific).
+On Tue, 8 Mar 2005, Joerg Pommnitz wrote:
 
-Thanks in advance
-  Joerg
+> Hello all,
+> currently it seems that select keeps blocking when the USB device behind
+> ttyUSBx gets unplugged. My understanding is, that select should return
+> when the next call to one of the operations (read/write) will not block.
+> This is certainly true for failing with ENODEV. So, is this an issue
+> that will be fixed or should I poll (not the syscall) the device? Or is
+> there another way to monitor for a vanishing tty (it should not be USB
+> specific).
+>
+> Thanks in advance
+>  Joerg
 
+In principle, you need to set your device handle (socket or fd)
+to non-blocking before you use select() or poll(). It was never
+resolved if the current behavior is a BUG. Nevertheless, it
+is unlikely that it will be fixed because there is the belief
+that it is NOT a BUG and even if it is a BUG, programs depend
+upon this BUG to work.
 
-	
-
-	
-		
-___________________________________________________________ 
-Gesendet von Yahoo! Mail - Jetzt mit 250MB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

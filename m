@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273235AbRIWVtl>; Sun, 23 Sep 2001 17:49:41 -0400
+	id <S273350AbRIWVt2>; Sun, 23 Sep 2001 17:49:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273326AbRIWVt2>; Sun, 23 Sep 2001 17:49:28 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47364 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S273235AbRIWVtY>; Sun, 23 Sep 2001 17:49:24 -0400
-Subject: Re: Linux-2.4.10
-To: landley@trommello.org
-Date: Sun, 23 Sep 2001 22:54:24 +0100 (BST)
-Cc: torvalds@transmeta.com (Linus Torvalds),
-        linux-kernel@vger.kernel.org (Kernel Mailing List)
-In-Reply-To: <01092312415107.01503@localhost.localdomain> from "Rob Landley" at Sep 23, 2001 12:41:51 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S273326AbRIWVtS>; Sun, 23 Sep 2001 17:49:18 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:16894 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S273235AbRIWVtO>;
+	Sun, 23 Sep 2001 17:49:14 -0400
+Date: Sun, 23 Sep 2001 23:49:55 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: arjan@fenrus.demon.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10aa1 (00_vm-tweaks-1)
+Message-ID: <20010923234955.F1782@athlon.random>
+In-Reply-To: <20010923232511.B1466@athlon.random> <m15lGv2-000OVWC@amadeus.home.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15lHCi-0000XO-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <m15lGv2-000OVWC@amadeus.home.nl>; from arjan@fenrus.demon.nl on Sun, Sep 23, 2001 at 10:36:08PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Anybody care to venture an opinion why a menu for "Fusion MPT Device Support" 
-> shows up between SCSI and Firewire in the main menu of make menuconfig, but I 
-> can't get into it?  I press enter and the main menu just redraws.  My .config 
-> is attached.  (Never hand-hacked, but carried forward from...  2.4.7, I 
-> think.)
+On Sun, Sep 23, 2001 at 10:36:08PM +0100, arjan@fenrus.demon.nl wrote:
+> In article <20010923232511.B1466@athlon.random> you wrote:
+> 
+> > Only in 2.4.10aa1: 00_enable-apic-1
+> 
+> >        Enable UP ioapic on demand via boot param.
+> 
+> If you took my patch for it, PLEASE don't send it for inclusion; it's an
+> evil hack and no longer needed when Intel fixes the bug in their 440GX bios.
 
-Because menuconfig doesnt do the right thing when the menu only contains
-items you cant select for other reasons
+we're having troubles with the ioapic compiled in in UP on some machine,
+on 2.4.10pre I assume. Waiting bios updates is more problematic then
+enabling on demand rather than disabling on demand, so yes I will be
+obviously glad to drop this one as soon as the problem goes away.
+thanks for the info.
 
-> the new serverworks he/le agpgart support, or PNPBios support under plug and 
-> pray...  I'll go bug Eric.
-
-PnPBIOS is only in -ac. There is help for it there. In fact there is a lot
-of help text only in -ac but merging them all is non trivial and I figured
-code first was better
+Andrea

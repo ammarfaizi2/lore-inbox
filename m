@@ -1,95 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264398AbUAOBMR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 20:12:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266369AbUAOBMR
+	id S266396AbUAOBO3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 20:14:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266390AbUAOBO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 20:12:17 -0500
-Received: from fw.osdl.org ([65.172.181.6]:23533 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264398AbUAOBMI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 20:12:08 -0500
-Date: Wed, 14 Jan 2004 17:12:52 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jun Sun <jsun@mvista.com>
-Cc: linux-mips@linux-mips.org, linux-kernel@vger.kernel.org, jsun@mvista.com,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: Re: [BUG] 2.6.1/MIPS - missing cache flushing when user program
- returns pages to kernel
-Message-Id: <20040114171252.4d873c51.akpm@osdl.org>
-In-Reply-To: <20040114163920.E13471@mvista.com>
-References: <20040114163920.E13471@mvista.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Wed, 14 Jan 2004 20:14:28 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:24327 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S266389AbUAOBOT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 20:14:19 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: [PATCH] mm/slab.c remove impossible <0 check - size_t is not
+   signed - patch is against 2.6.1-rc1-mm2
+Date: Wed, 14 Jan 2004 20:13:16 -0500
+Organization: TMR Associates, Inc
+Message-ID: <bu4oqc$2dl$2@gatekeeper.tmr.com>
+References: <20040108021658.0a8aaccc.pj@sgi.com> <1073576236.2340.34.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1074128524 2485 192.168.12.10 (15 Jan 2004 01:02:04 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+In-Reply-To: <1073576236.2340.34.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jun Sun <jsun@mvista.com> wrote:
->
-> I have been chasing a nasty memory corruption bug on my MIPS box with
-> 2.6.1 kernel.  In the end it appears the following sequence has
-> happened:
+Joe Perches wrote:
+> On Thu, 2004-01-08 at 02:16, Paul Jackson wrote:
 > 
-> 1. userland gets a page and writes some stuff to it, which dirties
->    data cache.  In my case, it is actually doing a sys_read() into
->    that page.  See my kgdb trace attached in the end.
+>>Jason asked:
+>>
+>>>Well, anything wrong in cleaning them [unsigned compare warnings] up?
 > 
-> 2. userland returns this page to kernel *without* any cache flushing,
->    i.e., the dcache is still dirty.
 > 
-> 3. kernel calls kmalloc() to get a block from this page.
+> In this case the warning is not unsigned compare but
+> "comparison of .* is always [true|false]".
 > 
-> 4. the dirty dcache is written back to physical memory some time later,
->    corrupting the kernel data.
-> 
-> It seems to me the problem is that we should do a cache flush 
-> for all the pages returned to kernel during step 2.
-> 
-> I attached a hack which solves my problem but I am not sure if it is
-> most appropriate.  It looks like the affected user region (start, end)
-> can span over multiple vma areas.  If so, the fix will only flush the first
-> area.
-> 
-> Also, it is hard to find an appropriate place to do the flushing
-> The new 2.6 mm is a confusing maze to me.  I hope someone more
-> knowledgable can come up with a more decent fix for this problem.
-> 
-> BTW, it appears in 2.4 we are doing this flushing in do_zap_page_range()
-> where we call a flush_cache_range(mm, start, end).
+> This sort of code generally makes me think someone did something wrong,
+> not just that the person added additional unnecessary checking.
 
-That flush_cache_range was removed between 2.5.67 and 2.5.68.  If you put
-it back, does it fix the problem?
-
-It seems from Russell's words here, MIPS should be flushing in
-tlb_start_vma().
-
-I think that's wrong, really.  We've discussed this before and decided that
-these flushing operations should be open-coded in the main .c file rather
-than embedded in arch functions which happen to undocumentedly do other
-stuff.
+Agreed, often muddy thinking.
 
 
-# --------------------------------------------
-# 03/04/14	rmk@arm.linux.org.uk	1.1017
-# [PATCH] flush_cache_mm in zap_page_range
-# 
-# unmap_vmas() eventually calls tlb_start_vma(), where most architectures
-# flush caches as necessary.  The flush here seems to make the
-# flush_cache_range() in zap_page_range() redundant, and therefore can be
-# removed.
-# --------------------------------------------
-#
-diff -Nru a/mm/memory.c b/mm/memory.c
---- a/mm/memory.c	Wed Jan 14 17:09:07 2004
-+++ b/mm/memory.c	Wed Jan 14 17:09:07 2004
-@@ -601,7 +601,6 @@
- 
- 	lru_add_drain();
- 	spin_lock(&mm->page_table_lock);
--	flush_cache_range(vma, address, end);
- 	tlb = tlb_gather_mmu(mm, 0);
- 	unmap_vmas(&tlb, mm, vma, address, end, &nr_accounted);
- 	tlb_finish_mmu(tlb, address, end);
-
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

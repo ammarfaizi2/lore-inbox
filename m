@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317025AbSGXNDC>; Wed, 24 Jul 2002 09:03:02 -0400
+	id <S317102AbSGXNMt>; Wed, 24 Jul 2002 09:12:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317035AbSGXNDB>; Wed, 24 Jul 2002 09:03:01 -0400
-Received: from mons.uio.no ([129.240.130.14]:48060 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S317025AbSGXNDB>;
-	Wed, 24 Jul 2002 09:03:01 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "David S. Miller" <davem@redhat.com>, trond.myklebust@fys.uio.no,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.27 fix potential spinlocking race.
-References: <Pine.LNX.4.44.0207231922020.6943-100000@home.transmeta.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 24 Jul 2002 15:05:59 +0200
-In-Reply-To: <Pine.LNX.4.44.0207231922020.6943-100000@home.transmeta.com>
-Message-ID: <shsbs8xtgw8.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+	id <S317110AbSGXNMt>; Wed, 24 Jul 2002 09:12:49 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:56333 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S317102AbSGXNMs>; Wed, 24 Jul 2002 09:12:48 -0400
+Message-ID: <3D3EA74F.4090706@evision.ag>
+Date: Wed, 24 Jul 2002 15:10:39 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: martin@dalecki.de, axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: please DON'T run 2.5.27 with IDE!
+References: <Pine.SOL.4.30.0207241440500.15605-100000@mion.elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Linus Torvalds <torvalds@transmeta.com> writes:
+Bartlomiej Zolnierkiewicz wrote:
+> On Wed, 24 Jul 2002, Marcin Dalecki wrote:
+> 
+> 
+>>[root@localhost block]# grep \>special *.c
+>>elevator.c:         !rq->waiting && !rq->special)
+>>^^^^^^ This one is supposed to have the required barrier effect.
+> 
+> 
+> Go reread, no barrier effect, requests can slip in before your
+> REQ_SPECIAL. They cannon only be merged with REQ_SPECIAL.
 
-     > Trond noticed that kfree_skb() can be called from a _non_ bh
-     > context, ie process context. So it needs to protect itself
-     > against other bh's on this CPU (which it wouldn't need to do if
-     > it was only called from a bh context).
+Erm. Please note that I don't see any problem here. It's just
+a matter of completeness.
 
-     > So it's exactly your "better context" that is at stake here.
 
-Precisely. Not coming from a computer science background, the jargon
-sometimes gets the better of me ;-)
-
-I was playing around with ip_build_xmit_slow() looking at alternatives
-for fixing the MSG_DONTWAIT fragmentation bug mentioned on this list a
-couple of weeks ago, when I noticed that it can call kfree_skb() from
-a process context. This again means that write_space() can get called
-without being wrapped in a local_bh_disable()/local_bh_enable() -
-style protection against softirqs.
-
-Cheers,
-  Trond

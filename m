@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280433AbRKJEYI>; Fri, 9 Nov 2001 23:24:08 -0500
+	id <S279907AbRKJEXj>; Fri, 9 Nov 2001 23:23:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280434AbRKJEYA>; Fri, 9 Nov 2001 23:24:00 -0500
-Received: from [213.97.184.209] ([213.97.184.209]:4501 "HELO piraos.com")
-	by vger.kernel.org with SMTP id <S280433AbRKJEXm>;
-	Fri, 9 Nov 2001 23:23:42 -0500
-Date: Sat, 10 Nov 2001 05:23:29 +0100
-From: German Gomez Garcia <german@piraos.com>
-To: Mailing List Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Anyway to disable disk buffers/cache in a particular device?
-Message-ID: <20011110052329.A32651@hal9000.piraos.com>
+	id <S280433AbRKJEX2>; Fri, 9 Nov 2001 23:23:28 -0500
+Received: from f133.law10.hotmail.com ([64.4.15.133]:26126 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S279907AbRKJEXM>;
+	Fri, 9 Nov 2001 23:23:12 -0500
+X-Originating-IP: [129.186.3.166]
+From: "Femitha Majeed" <m_femitha@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: m_femitha@hotmail.com
+Subject: Unable to handle kernel paging request at virtual address....
+Date: Sat, 10 Nov 2001 04:23:03 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.2.1
+Content-Type: text/plain; format=flowed
+Message-ID: <F1336POYFSrAuWiqJmd000226c0@hotmail.com>
+X-OriginalArrivalTime: 10 Nov 2001 04:23:06.0811 (UTC) FILETIME=[6595B0B0:01C1699F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello,
+Hi,
 
-	I would like to know if there is anyway to disable buffering/caching in
-a particular device, for example, I have a big 40Mb IDE drive that I use
-for video recording and processing, this kind of process just read data and
-write it again, buffering is quite useless as the entire file doesn't fit
-into memory and it's only read once. I usually run the processing in the
- background as it takes several hours, the problem is that the kernel paged out
-almost everything in order to cache most of the file.
-	
-	Regards,
+I am trying to write a kernel module which reads the files in the /proc 
+directory.
 
-	- german
+When I do an insmod filename.o, I get the following error:
+Unable to handle kernel paging request at virtual address....
 
-PS: Please CC'd to me as I'm not subscribed the the kernel mailing list.
--------------------------------------------------------------------------
-German Gomez Garcia          | Send email with "SEND GPG KEY" as subject 
-<german@piraos.com>          | to receive my GnuPG public key.
+In the module, I use kmalloc to allocate memory. Is that the reason I am 
+getting this error?
+
+I am very new to writing kernel modules, I would really appreciate a reply.
+
+Thanks,
+Femitha Majeed
+
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
+

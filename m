@@ -1,48 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282481AbRLAXc7>; Sat, 1 Dec 2001 18:32:59 -0500
+	id <S282491AbRLAXdj>; Sat, 1 Dec 2001 18:33:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282487AbRLAXct>; Sat, 1 Dec 2001 18:32:49 -0500
-Received: from web10002.mail.yahoo.com ([216.136.130.38]:63868 "HELO
-	web10002.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S282481AbRLAXcf>; Sat, 1 Dec 2001 18:32:35 -0500
-Message-ID: <20011201233234.38472.qmail@web10002.mail.yahoo.com>
-Date: Sat, 1 Dec 2001 15:32:34 -0800 (PST)
-From: saher es <sushey@yahoo.com>
-Subject: Page/Buffer Caches Question
-To: linux-kernel@vger.kernel.org
-Cc: sushey@yahoo.com
+	id <S281732AbRLAXda>; Sat, 1 Dec 2001 18:33:30 -0500
+Received: from sj-msg-core-1.cisco.com ([171.71.163.11]:38910 "EHLO
+	sj-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
+	id <S282487AbRLAXdP>; Sat, 1 Dec 2001 18:33:15 -0500
+Date: Sat, 1 Dec 2001 15:32:28 -0800 (PST)
+From: Gideon Glass <gid@cisco.com>
+To: Richard Russon <ldm@flatcap.org>
+cc: "Eric S. Raymond" <esr@snark.thyrsus.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: esr cut off my genitives
+In-Reply-To: <1007229787.2134.10.camel@addlestones>
+Message-ID: <Pine.GSO.4.33.0112011515550.23029-100000@andorra.cisco.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-plz CC the reply to sushey@yahoo.com since i'm not
-subscried.
+On 1 Dec 2001, Richard Russon wrote:
 
-My questions:
-1. Are the buffer cache and the page cache connected
-somehow? Does every write to the disk pass through the
-buffer cache and if no what uses does the bufer cache
-have now ... (kernel >= 2.4)
+> Hi esr,
+>
+> There are a couple of lines of the patch I'm not quite happy with.
+>
+> > -Windows' Logical Disk Manager (Dynamic Disk) support (EXPERIMENTAL)
+> > +Windows Logical Disk Manager (Dynamic Disk) support (EXPERIMENTAL)
+>
+> > -Windows' LDM extra logging
+> > +Windows LDM extra logging
+>
+> Not wishing to sound too pedantic, but I did put the apostropes in on
+> purpose.  "Windows" is a plural noun and the genitive of it is "Windows'".
 
-2. As i saw in the source code reading a page (if not
-in the page cache) is done from the disk directly ...
-have i missed something ?
+If you really want to get pedantic..
 
-3. Few articles i've read claimed that Buffer Cache
-and Page cashe are 2 cache levels ... is that right
-for kernel >= 2.4 ?
+"windows" is a plural noun, but "Windows" is a singular proper noun, and
+in "Windows LDM" it functions as an adjective.  Using possessive here is
+confusing because it suggests that this feature belongs to Windows, or
+that it's part of Windows itself, but obviously it isn't (the feature
+being referred to is part of Linux).  It is only *related* to Windows, so
+the adjectival "Windows" is the best thing to use.
 
-Thanks alot in advance,
-Its very important for me to understand these things
-:)
+>
+> Of course if it's a limitation of the new config tool I'll understand :-)
+> (and you'll need to apply the following, too).
+>
+> -IBM's S/390 architecture
+> +IBMs S/390 architecture
 
-sushey
+The "IBMs" plural construction is wrong since there is only one IBM.
+"IBMs" can't be possessive because there is no reason not to use an
+apostrophe to indicate possessive in this case.  Note that "IBM S/390
+architecture" could be used, with "IBM" (a noun) functioning as an
+adjective in the same manner as "Windows" above.  However, expressing the
+notion of ownership/control ("IBM's") conveys more information then mere
+association ("IBM"), so "IBM's" seems preferable here.
 
-__________________________________________________
-Do You Yahoo!?
-Buy the perfect holiday gifts at Yahoo! Shopping.
-http://shopping.yahoo.com
+gid
+
+
+>
+> Cheers,
+>   FlatCap (Rich)
+>   ldm@flatcap.org
+>
+>
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269463AbRGaVEn>; Tue, 31 Jul 2001 17:04:43 -0400
+	id <S269466AbRGaVID>; Tue, 31 Jul 2001 17:08:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269466AbRGaVEe>; Tue, 31 Jul 2001 17:04:34 -0400
-Received: from armitage.toyota.com ([63.87.74.3]:12560 "EHLO
-	armitage.toyota.com") by vger.kernel.org with ESMTP
-	id <S269463AbRGaVE1>; Tue, 31 Jul 2001 17:04:27 -0400
-Message-ID: <3B671D57.2907823E@lexus.com>
-Date: Tue, 31 Jul 2001 14:04:23 -0700
-From: J Sloan <jjs@toyota.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S269467AbRGaVHx>; Tue, 31 Jul 2001 17:07:53 -0400
+Received: from mx1.afara.com ([63.113.218.20]:61158 "EHLO afara-gw.afara.com")
+	by vger.kernel.org with ESMTP id <S269466AbRGaVHj>;
+	Tue, 31 Jul 2001 17:07:39 -0400
+Subject: Re: OT: M$Exchange stuff for Linux/UNIX? [was: Re: Test mail]
+From: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
 To: "Paul G. Allen" <pgallen@randomlogic.com>
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: [OT] Re: OT: M$Exchange stuff for Linux/UNIX? [was: Re: Test mail]
-In-Reply-To: <3B4B4FC10065D2C3@mta1n.bluewin.ch> <OE54msfGdMNFmWAFsTm00002ea9@hotmail.com> <20010731103413.E28761@pc8.lineo.fr> <OE34vSVMum03yMJiQTy000031e1@hotmail.com> <20010731140927.A31267@pc8.lineo.fr> <3B671CCD.FB1E2FEF@randomlogic.com>
-Content-Type: text/plain; charset=us-ascii
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B671CCD.FB1E2FEF@randomlogic.com>
+In-Reply-To: <3B4B4FC10065D2C3@mta1n.bluewin.ch>
+	<OE54msfGdMNFmWAFsTm00002ea9@hotmail.com>
+	<20010731103413.E28761@pc8.lineo.fr>
+	<OE34vSVMum03yMJiQTy000031e1@hotmail.com>
+	<20010731140927.A31267@pc8.lineo.fr>  <3B671CCD.FB1E2FEF@randomlogic.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.11.99 (Preview Release)
+Date: 31 Jul 2001 14:07:30 -0700
+Message-Id: <996613650.26883.10.camel@tduffy-lnx.afara.com>
+Mime-Version: 1.0
+X-OriginalArrivalTime: 31 Jul 2001 21:04:35.0725 (UTC) FILETIME=[673BD3D0:01C11A04]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-"Paul G. Allen" wrote:
-
-> Sorry for the OT post folks, but...
+On 31 Jul 2001 14:02:05 -0700, Paul G. Allen wrote:
 
 > From what you say above, and maybe I'm misreading it, there are applications out there that will allow me to do Exchange stuff on Linux? Someone please tell me
 > more.
 
-HP Openmail was essentially a drop-in replacement
-for MS exchange, but ran on Unix, including Linux.
+well, evolution 11.99 will "theoretically" import exchange calendar
+appointments
+and stick them into your calendar.  this works almost every other time
+:)
 
-Incredibly, as the HP engineers I know have related,
-HP accepted a deal from microsoft that required them
-to dump Openmail and go to ms exchange, so the HP
-management "knifed the baby" and killed off a really
-nice product.
+and I use a perl based script that queries the global address book
+called pabber.
 
-Last I heard, Openmail is still available, but deprecated.
-There was talk that microsoft would kill any attempt to sell
-Openmail to a 3rd party, since the idea is to eliminate
-alternatives to exchange.
+I have not found something that will interact smoothly with the server
+based
+personal address book or calendar.  so, if anyone knows of such a
+program, please, please,
+please let the world know (or at least me :)
 
-Sadly,
-
-jjs
+-tduffy
 

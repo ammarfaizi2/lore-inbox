@@ -1,50 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273626AbRIURSq>; Fri, 21 Sep 2001 13:18:46 -0400
+	id <S273995AbRIURV0>; Fri, 21 Sep 2001 13:21:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273668AbRIURSg>; Fri, 21 Sep 2001 13:18:36 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:21214 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S273626AbRIURSR>; Fri, 21 Sep 2001 13:18:17 -0400
-Date: Fri, 21 Sep 2001 13:18:41 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.10pre13aa1
-Message-ID: <20010921131841.A15773@redhat.com>
-In-Reply-To: <20010921095721.A725@athlon.random>
-Mime-Version: 1.0
+	id <S273990AbRIURVQ>; Fri, 21 Sep 2001 13:21:16 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59397 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S273668AbRIURVK>; Fri, 21 Sep 2001 13:21:10 -0400
+Subject: Re: [BUG] 2.4.10-pre13: ATM drivers cause panic
+To: tip@prs.de
+Date: Fri, 21 Sep 2001 18:25:59 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
+In-Reply-To: <3BAB76A4.74B43FBD@internetwork-ag.de> from "Till Immanuel Patzschke" at Sep 21, 2001 07:19:32 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010921095721.A725@athlon.random>; from andrea@suse.de on Fri, Sep 21, 2001 at 09:57:21AM +0200
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15kU3r-0000bv-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 21, 2001 at 09:57:21AM +0200, Andrea Arcangeli wrote:
-> Only in 2.4.10pre13aa1: 00_unmap-dirty-pte-1
-> 
-> 	I grepped over the whole 600 pages of the latest x86 system developer
-> 	manual and I couldn't find the proof that I'm wrong.
-> 
-> 	We can have pagecache pages with pte writeable and non dirty at some
-> 	point.
-> 
-> 	Now what happens if the userspace task in the other cpu touches the
-> 	writeable page between our "ptep_get_and_clear" and the
-> 	"flush_tlb_page"? Is the resulting pte still zero and the task get into
-> 	a page fault? Or as I am worried it could also just end with the pte
-> 	with only the dirty bit set?  Does somebody know for sure? I can
-> 	imagine the cpu finding the tlb state writeable, and issuing just a
-> 	locked bit test and set in the pte without caring to check if the pte
-> 	is zero or not.
-> 
-> 	If the cpu just set the bit this patch will avoid to lose a shared
-> 	mapping update. Otherwise it's a safe noop so I keep it applied
-> 	until this issue is sorted out.
+> Sep 21 18:03:41 ipat01 kernel: invalid operand: 0000
+> Sep 21 18:03:41 ipat01 kernel: CPU:    0
+> Sep 21 18:03:41 ipat01 kernel: EIP:    0010:[atm_dev_register+289/308]
+> Sep 21 18:03:41 ipat01 kernel: EFLAGS: 00010202
 
-I've tested this on all the machines I could get my hands on, and every 
-single CPU will take a page fault if the pte is not present on dirtying 
-the page.  If people are truely paranoid, then make it a boot time assertion.
+Thats confusing since I don't immediately see where the BUG() it hits is.
+Can you rebuild with verbose kernel debugging enabled
+	Kernel debugging = Y
+	Verbose BUG() reporting = Y
 
-		-ben
+Alan

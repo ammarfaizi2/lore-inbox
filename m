@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280856AbRKBW3V>; Fri, 2 Nov 2001 17:29:21 -0500
+	id <S280857AbRKBWeM>; Fri, 2 Nov 2001 17:34:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280860AbRKBW3N>; Fri, 2 Nov 2001 17:29:13 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:42036 "EHLO
+	id <S280858AbRKBWeB>; Fri, 2 Nov 2001 17:34:01 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:20574 "EHLO
 	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S280856AbRKBW27>; Fri, 2 Nov 2001 17:28:59 -0500
-Date: Fri, 2 Nov 2001 22:29:58 +0000 (GMT)
+	id <S280857AbRKBWdp>; Fri, 2 Nov 2001 17:33:45 -0500
+Date: Fri, 2 Nov 2001 22:35:29 +0000 (GMT)
 From: Hugh Dickins <hugh@veritas.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andrea Arcangeli <andrea@suse.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+        Andreas Franck <Andreas.Franck@akustik.rwth-aachen.de>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH] vm_swap_full bogus
-Message-ID: <Pine.LNX.4.21.0111022224220.2575-100000@localhost.localdomain>
+Subject: Re: Weird /proc/meminfo output on 2.4.13-ac5
+In-Reply-To: <20011102132006.A5955@mikef-linux.matchmail.com>
+Message-ID: <Pine.LNX.4.21.0111022231220.2582-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just noticed bogus vm_swap_full() macro since 2.4.10:
-swapper_space.nrpages counts _cached_ swap, not used swap.
-Either I'm confused again, or... please apply!
+On Fri, 2 Nov 2001, Mike Fedyk wrote:
+> On Fri, Nov 02, 2001 at 07:34:49PM +0000, Petr Vandrovec wrote:
+> > On  2 Nov 01 at 14:10, Andreas Franck wrote:
+> > > $ cat /proc/meminfo
+> > > Cached:       4294741680 kB     <------ This is impossible, i think? :-)
+> > 
+> > I'll upgrade to -ac6 and I'll see.
+> 
+> It won't help.  You'll need a patch that rik has posted a few days ago.
+> 
+> This problem is for 2.4.13, 2.4.13-acX, and 2.4.14pre*.
+
+I believe that problem only applied to 2.4.13-acX, and arose because
+an inappropriate part of 2.4.13 (relating to blockdev in pagecache) crept
+into 2.4.13-acX.  2.4.13 and 2.4.14-preX should not need Rik's patch.
 
 Hugh
-
---- 2.4.14-pre7/mm/memory.c	Fri Nov  2 06:22:15 2001
-+++ linux/mm/memory.c	Fri Nov  2 22:13:19 2001
-@@ -1068,7 +1068,7 @@
- 
- /* Swap 80% full? Release the pages as they are paged in.. */
- #define vm_swap_full() \
--	(swapper_space.nrpages*5 > total_swap_pages*4)
-+	(nr_swap_pages*5 < total_swap_pages)
- 
- /*
-  * We hold the mm semaphore and the page_table_lock on entry and
 

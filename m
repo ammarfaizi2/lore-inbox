@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264030AbTE0SAi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 14:00:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263996AbTE0R7Z
+	id S264008AbTE0R7S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 13:59:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263996AbTE0R5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 13:59:25 -0400
-Received: from sweetums.bluetronic.net ([24.199.150.42]:63465 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id S264012AbTE0R6d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 13:58:33 -0400
-Date: Tue, 27 May 2003 14:09:43 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.70
-In-Reply-To: <Pine.LNX.4.44.0305271024060.6597-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.33.0305271402420.4448-100000@sweetums.bluetronic.net>
+	Tue, 27 May 2003 13:57:46 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:28934 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S264050AbTE0R4m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 13:56:42 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: manish <manish@storadinc.com>, Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
+Date: Tue, 27 May 2003 20:01:22 +0200
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org,
+       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
+       Christian Klose <christian.klose@freenet.de>,
+       William Lee Irwin III <wli@holomorphy.com>
+References: <3ED2DE86.2070406@storadinc.com> <Pine.LNX.4.55L.0305271447100.756@freak.distro.conectiva> <3ED3A60E.8040405@storadinc.com>
+In-Reply-To: <3ED3A60E.8040405@storadinc.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Message-Id: <200305271958.51924.m.c.p@wolk-project.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 May 2003, Linus Torvalds wrote:
->On Tue, 27 May 2003, Ricky Beam wrote:
->>
->> Count up the number of drivers that haven't been updated to the current
->> PCI, hotplug, and modules interfaces.
->
->Tough. If people don't use them, they don't get supported. It's that easy.
-...
+On Tuesday 27 May 2003 19:53, manish wrote:
 
-Allow me to clarify... I don't mind drivers not working.  I *do* mind
-drivers emitting hundreds of warnings and errors because dozens of things
-were changed and no one cared to update everything they broke.  In some
-cases, fixing things may be simple (eg. someone removed or renamed a field
-in a struct somewhere) and in others years of work my be required (eg.
-the new module interface.)
+Hi Manish,
 
-In my opinion (as it was in the long long ago), everything in a "stable"
-release should at least compile cleanly -- "working" comes later after
-users have been conned into using it.
+> With respect to the hangs that you noticed, did the processes complete
+> after a "pause" or did they stay hung (deadlocked)?
+yes, no processes get ever deadlocked nor anything else in this area. The 
+whole system just does _nothing_ for an amount of time (1-15 seconds, 
+depends). _Sometimes_ (not always) even a ping is stoped for the amount of 
+time the machine does nothing but pausing.
 
---Ricky
+Also not a hardware problem. I made this clear before reporting this bug. 
+Tested tons of different hardware, different drivers for the network card 
+etc.
+
+I repeat this now for the $high_number'th time ;):
+- 2.4.18 worked perfect
+- 2.4.19-pre not
+
+ciao, Marc
 
 

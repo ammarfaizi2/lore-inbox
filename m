@@ -1,50 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270928AbTGPPx3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 11:53:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270929AbTGPPx3
+	id S270929AbTGPPyO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 11:54:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270930AbTGPPyO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 11:53:29 -0400
-Received: from 115.114.254.64.virtela.com ([64.254.114.115]:5138 "EHLO
-	megisto-sql1.megisto.com") by vger.kernel.org with ESMTP
-	id S270928AbTGPPx2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 11:53:28 -0400
-Message-ID: <C3F7A1AD0781F84784B5528466CA09DD01345643@megisto-sql1>
-From: Pankaj Garg <PGarg@MEGISTO.com>
+	Wed, 16 Jul 2003 11:54:14 -0400
+Received: from pgramoul.net2.nerim.net ([80.65.227.234]:18512 "EHLO
+	philou.aspic.com") by vger.kernel.org with ESMTP id S270929AbTGPPyG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 11:54:06 -0400
+Date: Wed, 16 Jul 2003 18:08:55 +0200
+From: Philippe =?ISO-8859-15?Q?Gramoull=E9?= 
+	<philippe.gramoulle@mmania.com>
 To: linux-kernel@vger.kernel.org
-Subject: ioremap'ing RAM
-Date: Wed, 16 Jul 2003 11:59:07 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Cc: Linux IEEE 1394 Devel Mailing List 
+	<linux1394-devel@lists.sourceforge.net>
+Subject: 2.6.0-test1-mm1: bad: scheduling while atomic! after removing
+ ohci1394 module
+Message-Id: <20030716180855.22d4a4f4.philippe.gramoulle@mmania.com>
+Organization: Lycos Europe
+X-Mailer: Sylpheed version 0.8.11claws141 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello,
 
-This is the first time I am posting to this group. If this question does not
-belong to this mailing list please ignore it. I would really appreciate if
-any one could point me to the correct list.
+With 2.6.0-test1-mm1, i have the following in my logs after i rmmod'ed the
+ohci1394 module:
 
-I am trying to allocate a huge chunk of memory for my module. The memory is
-needed to be contiguous in physical address space and is much more than what
-kmalloc returns. I reserved some high memory at the bootup time of the
-kernel (using the command line option mem), and at the time of module
-initialization used ioremap to grab that chunk of memory. All this is
-working fine.
+bad: scheduling while atomic!
+Call Trace:
+ [<c011c958>] schedule+0x578/0x580
+ [<c0108ff2>] copy_thread+0x32/0x250
+ [<c011cd0c>] wait_for_completion+0x8c/0xf0
+ [<c011c9b0>] default_wake_function+0x0/0x30
+ [<c011c9b0>] default_wake_function+0x0/0x30
+ [<c012b9e1>] kill_proc_info+0x51/0x80
+ [<e0b87665>] nodemgr_remove_host+0x55/0xa0 [ieee1394]
+ [<e0b82fba>] highlevel_remove_host+0x8a/0xa0 [ieee1394]
+ [<e0b4163d>] ohci1394_pci_remove+0x3d/0x160 [ohci1394]
+ [<c018c93e>] sysfs_hash_and_remove+0x4e/0x7c
+ [<c022c75b>] pci_device_remove+0x3b/0x40
+ [<c0256916>] device_release_driver+0x66/0x70
+ [<c025694b>] driver_detach+0x2b/0x40
+ [<c0256bae>] bus_remove_driver+0x3e/0x80
+ [<c0256fc3>] driver_unregister+0x13/0x2a
+ [<c022ca56>] pci_unregister_driver+0x16/0x30
+ [<e0b41adf>] ohci1394_cleanup+0xf/0x11 [ohci1394]
+ [<c0137d89>] sys_delete_module+0x139/0x170
+ [<c014c1e5>] sys_munmap+0x45/0x70
+ [<c010b0ab>] syscall_call+0x7/0xb
 
-My module creates a table in this allocated address space. The table is not
-going out of bound.
 
-The module sniff's the packet coming in through the network card and does a
-find on the table.
+Should i worry ?
 
-The problem is, if I load the module just after startup (within a second or
-two), the kernel crashes. If I do it a little later, say 2-3 mins later, it
-crashes after 1-2 days. 
+Besides that, IEE1394 works fine with my DV camcorder.
 
-Is there anything wrong in the way I am doing memory allocation?
+Thanks,
 
-Regards,
-Pankaj
-
+Philippe

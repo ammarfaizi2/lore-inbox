@@ -1,82 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261518AbSI1OGi>; Sat, 28 Sep 2002 10:06:38 -0400
+	id <S261498AbSI1ODD>; Sat, 28 Sep 2002 10:03:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261540AbSI1OGh>; Sat, 28 Sep 2002 10:06:37 -0400
-Received: from ws-002.ray.fi ([193.64.14.2]:40884 "EHLO behemoth.ts.ray.fi")
-	by vger.kernel.org with ESMTP id <S261518AbSI1OGe>;
-	Sat, 28 Sep 2002 10:06:34 -0400
-Date: Sat, 28 Sep 2002 17:11:46 +0300 (EEST)
-From: Tommi Kyntola <kynde@ts.ray.fi>
-X-X-Sender: kynde@behemoth.ts.ray.fi
-To: Greg KH <greg@kroah.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: USB Mass Storage Hangs
-In-Reply-To: <20020927055158.GB8971@kroah.com>
-Message-ID: <Pine.LNX.4.44.0209281703030.8153-100000@behemoth.ts.ray.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261502AbSI1ODC>; Sat, 28 Sep 2002 10:03:02 -0400
+Received: from node-d-1ef6.a2000.nl ([62.195.30.246]:26094 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S261498AbSI1ODC>; Sat, 28 Sep 2002 10:03:02 -0400
+Subject: Re: detect udma66 cable (vt82c686a)
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Daniel Egger <degger@fhm.edu>
+Cc: Dennis =?ISO-8859-1?Q?Bj=F6rklund?= <db@zigo.dhs.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1033221318.26190.20.camel@sonja.de.interearth.com>
+References: <Pine.LNX.4.44.0209281253240.1342-100000@zigo.dhs.org> 
+	<1033221318.26190.20.camel@sonja.de.interearth.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-lfgwTzIJsQa9WzRkqBwW"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 28 Sep 2002 16:10:42 +0200
+Message-Id: <1033222243.2556.5.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> On Fri, Sep 27, 2002 at 12:38:16AM -0500, Stephen Marz wrote:
-> > This message regards the USB mass storage driver for kernel version
-> > 2.4.18-10:
-> > 
-> > On my Dell Inspiron 7500 I have an adaptec USB 2.0 cardbus
-> > adapter.  I plugged in a 120GB hard drive and the mass
-> > storage driver in linux detects it and runs it fine.  The
-> > problem comes in when I try to also plug in my CD-RW into
-> > the cardbus adapter (it has two USB 2.0 ports).  The mass
-> > storage driver will detect and gather information about
-> > the drive, however it doesn't take more than two or
-> > three minutes before the entire system hangs.  The kernel
-> > immediately drops all knowledge of any USB device on
-> > my system.
-> > 
-> > Anybody else notice this problem?
-> 
-> Is there a kernel oops anywhere?
-> And are both of these devices USB 2.0 devices?  If so, you might want to
-> try the 2.4.20-pre kernels, it has much better USB 2.0 support than the
-> kernel you are using.
+--=-lfgwTzIJsQa9WzRkqBwW
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-I can still panic even the 2.4.20-pre8, by plugging in 
-a usb mass storage key, mount, umount, unplug, plug back in,
-mount, umount
-The second umount hangs at doing something like "waiting CSW" and
-after few seconds (30ish, I'd say) the kernel panics.
+On Sat, 2002-09-28 at 15:55, Daniel Egger wrote:
+> Am Sam, 2002-09-28 um 13.07 schrieb Dennis Bj=F6rklund:
+>=20
+> > I can't get my Gigabyte 7ZX-1 to detect my udma66 cable. It is a brand =
+new=20
+> > ata66/100 cable so I believe that the cable is not the problem.
+> =20
+> > As seen from /proc/ide/via below it thinks my cable is a 40w (on id0 I =
+do=20
+> > have a 40w so that is correct, but in ide1 there is a 80w).
+> > The computer is a redhat 7.3 with kernel 2.4.18-4
+>=20
+> Same southbridgem, same kernel, same problem. I sent all sorts of
+> messages for this one to Alan but so far there're no news on this
+> matter.
 
-Reason why I havent been moaning about this since last fall, when I first 
-discovered this and reported, is my lack of time to get into this and
-a work-around I found that avoids it.
-If I rmmod the usb-storage after I've unmounted the key and insmod back in 
-before mounting it again, it works like a charm.
+ide1=3Data66 on the kernel commandline should fix it..
 
-If someone is now interested in this topic (Matthew hasn't responded)
-I can easily send the panic reports or whatever information needed.
-I've tested this on atleast dozen very different boxes and the results 
-were identical.
 
-With previous kernels (say, from 2.4.17-preX to 2.4.19-preX it oopsed 
-rather than paniced), I think I still have those oopses somewhere if 
-anyone wants them.
 
-Feel free to contact directly or via lkml,
-Tommi Kynde Kyntola		kynde@ts.ray.fi
-      "A man alone in the forest talking to himself and
-       no women around to hear him. Is he still wrong?"
+--=-lfgwTzIJsQa9WzRkqBwW
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-> 
-> thanks,
-> 
-> greg k-h
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
+iD8DBQA9lbhixULwo51rQBIRAi+pAJ4rG1sMLiaeO+Km48epn4fcW0HAOQCfYQcj
+hxKopMDFfBGATmmTpxoZm7g=
+=mzIa
+-----END PGP SIGNATURE-----
+
+--=-lfgwTzIJsQa9WzRkqBwW--
 

@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279617AbRKIHYK>; Fri, 9 Nov 2001 02:24:10 -0500
+	id <S279596AbRKIHZa>; Fri, 9 Nov 2001 02:25:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279627AbRKIHYA>; Fri, 9 Nov 2001 02:24:00 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:29450 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S279617AbRKIHXs>; Fri, 9 Nov 2001 02:23:48 -0500
-Message-ID: <3BEB8341.2671AEDD@zip.com.au>
-Date: Thu, 08 Nov 2001 23:18:25 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: Andreas Dilger <adilger@turbolabs.com>, ext2-devel@lists.sourceforge.net,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Ext2-devel] ext2/ialloc.c cleanup
-In-Reply-To: <20011108235632.D907@lynx.no> <Pine.GSO.4.21.0111090210060.9938-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii
+	id <S279674AbRKIHZX>; Fri, 9 Nov 2001 02:25:23 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:21890 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S279596AbRKIHYe>;
+	Fri, 9 Nov 2001 02:24:34 -0500
+Date: Thu, 08 Nov 2001 23:24:25 -0800 (PST)
+Message-Id: <20011108.232425.21928928.davem@redhat.com>
+To: akpm@zip.com.au
+Cc: ak@suse.de, anton@samba.org, mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: speed difference between using hard-linked and modular drives?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3BEB82B8.541558CA@zip.com.au>
+In-Reply-To: <3BEB7DA6.BC8793B1@zip.com.au>
+	<20011108.231717.85686073.davem@redhat.com>
+	<3BEB82B8.541558CA@zip.com.au>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> 
-> On Thu, 8 Nov 2001, Andreas Dilger wrote:
-> 
-> > It may be possible to hack the test data into ext2 by creating a filesystem
-> > with the same number of block groups as the test FFS filesystem with the
-> > Smith workload.  It may also not be valid for our needs, as we are playing
-> > with the actual group selection algorithm, so real pathnames may give us
-> > a different layout.
-> 
-> Umm...  What was the block and fragment sizes in their tests?
+   From: Andrew Morton <akpm@zip.com.au>
+   Date: Thu, 08 Nov 2001 23:16:08 -0800
+   
+   Well on my setup, there are more hash buckets than there are
+   pages in the system.  So - basically empty.  If memory serves
+   me, never more than two pages in a bucket.
 
-Size: 			502M
-Fragment size:		1k
-Block size:		8k
-Max cluster size:	56k
+Ok, this is what I expected.  The function is tuned for
+having N_HASH_CHAINS being roughly equal to N_PAGES.
 
-I haven't been trying to recreate the Smith tests, BTW.  Just using
-it as a representative workload and something which is worth
-optimising for.
+If you want to experiment with smaller hash tables, there
+are some hacks in the FreeBSD sources that choose a different "salt"
+per inode.  You xor the salt into the hash for each page on that
+inode.  Something like this...
+
+Franks a lot,
+David S. Miller
+davem@redhat.com

@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265178AbTLRO1I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 09:27:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265196AbTLRO1I
+	id S265203AbTLROhy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 09:37:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265204AbTLROhy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 09:27:08 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22410 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265178AbTLRO07
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 09:26:59 -0500
-Date: Thu, 18 Dec 2003 14:26:55 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: Roman Zippel <zippel@linux-m68k.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: [PATCH] Kconfig help text inaccessible
-Message-ID: <20031218142655.GH15674@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
+	Thu, 18 Dec 2003 09:37:54 -0500
+Received: from web13908.mail.yahoo.com ([216.136.175.71]:36357 "HELO
+	web13908.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265203AbTLROhn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 09:37:43 -0500
+Message-ID: <20031218143741.25747.qmail@web13908.mail.yahoo.com>
+X-RocketYMMF: knobi.rm
+Date: Thu, 18 Dec 2003 06:37:41 -0800 (PST)
+From: Martin Knoblauch <knobi@knobisoft.de>
+Reply-To: knobi@knobisoft.de
+Subject: Re: RAID-0 read perf. decrease after 2.4.20
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0312181140540.4547-100000@logos.cnet>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch enables Kconfig help texts for string options to be printed
-by the command line configuration program
+--- Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+> 
+> 
+> On Tue, 16 Dec 2003, Martin Knoblauch wrote:
+> 
+> > On Monday 08 December 2003 13:47, Marcelo Tosatti wrote:
+> > 
+> > Hi Marcelo,
+> > 
+> > > 2.4.20-aa included rmap and some VM modifications most notably
+> > > "drop_behind()" logic which I believe should be the reason for
+> the
+> > huge
+> > > read speedups. Can you please try it? Against 2.4.23.
+> > 
+> >  Just some feedback:
+> > 
+> > echo 511 > /proc/sys/vm/max-readahead
+> > 
+> >  brings back the read performance of my 30 disks on 4 controller
+> > LVM/RAID0.
+> 
+> Great.
+> 
 
---- linus-2.6/scripts/kconfig/conf.c	Thu Dec 18 06:10:12 2003
-+++ parisc-2.6/scripts/kconfig/conf.c	Thu Dec 18 05:49:01 2003
-@@ -175,7 +175,7 @@ int conf_string(struct menu *menu)
- 			break;
- 		case '?':
- 			/* print help */
--			if (line[1] == 0) {
-+			if (line[1] == '\n') {
- 				help = nohelp_text;
- 				if (menu->sym->help)
- 					help = menu->sym->help;
+ Indeed :-) Just to clarify - the modification of max-readahead was
+sufficient to "fix" the observed read performance degradation. I did
+not apply (or reverse) anything on top of 2.4.22.
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+ Actually 255 would have been sufficient, 511 proved to be a small bit
+better :-))
+
+Martin
+
+=====
+------------------------------------------------------
+Martin Knoblauch
+email: k n o b i AT knobisoft DOT de
+www:   http://www.knobisoft.de

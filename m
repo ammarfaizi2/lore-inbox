@@ -1,46 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262079AbUF3UDK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262109AbUF3UDK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262079AbUF3UDK (ORCPT <rfc822;willy@w.ods.org>);
+	id S262109AbUF3UDK (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 30 Jun 2004 16:03:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbUF3UCU
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbUF3UCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 16:02:20 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:44205 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262079AbUF3UAI (ORCPT
+	Wed, 30 Jun 2004 16:02:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2990 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262109AbUF3UAz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 16:00:08 -0400
-Date: Wed, 30 Jun 2004 12:59:27 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: inconsistency between SIOCGIFCONF and SIOCGIFNAME
-Message-Id: <20040630125927.20395598.davem@redhat.com>
-In-Reply-To: <40E27103.8040304@redhat.com>
-References: <40E0EAC1.50101@redhat.com>
-	<20040629012604.20c3ad8b.davem@redhat.com>
-	<40E1BE7D.7070806@redhat.com>
-	<20040629141915.0268b741.davem@redhat.com>
-	<40E24573.5030403@redhat.com>
-	<20040629221341.52824096.davem@redhat.com>
-	<40E27103.8040304@redhat.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Jun 2004 16:00:55 -0400
+Date: Wed, 30 Jun 2004 15:56:06 -0400
+From: John Linville <linville@redhat.com>
+Message-Id: <200406301956.i5UJu6mp007649@savage.devel.redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: i810_audio MMIO patch
+Cc: jgarzik@pobox.com, herbert@gondor.apana.org.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jun 2004 00:51:31 -0700
-Ulrich Drepper <drepper@redhat.com> wrote:
+Attached is a second patch to account for (most of) Herbert Xu's
+comments.
 
-> David S. Miller wrote:
-> 
-> > This is especially unnecessary since rtnetlink does exactly what you
-> > want already, so we don't need to add a new interface nor change the
-> > semantics of an old one.
-> 
-> I do have code using netlink in cvs now.  We'll see whether people complain.
+I have left-out the part about changing state->card to a
+local variable where it is used a lot.  Unfortunately, that usage is
+somewhat pervasive and I would prefer to make those changes in a separate
+patch -- after I have had a chance to do some testing.
 
-Let me know, if you can't make it work I'm more than willing to
-reconsider the SIOCGIFCONF change.
+If you'd prefer one patch to account for the original plus these
+changes, let me know and I'll be happy to provide it.
+
+John
+
+diff -urNp linux-2.4.21.orig/drivers/sound/i810_audio.c linux-2.4.21/drivers/sound/i810_audio.c
+--- linux-2.4.21.orig/drivers/sound/i810_audio.c	2004-06-30 15:35:09.034185181 -0400
++++ linux-2.4.21/drivers/sound/i810_audio.c	2004-06-30 13:06:28.000000000 -0400
+@@ -455,8 +455,10 @@ struct i810_card {
+ #define I810_IOREAD(size, type, card, off)				\
+ ({									\
+ 	type val;							\
+-	if (card->use_mmio) val=read##size(card->iobase_mmio+off);	\
+-	else val=in##size(card->iobase+off);				\
++	if (card->use_mmio)						\
++		val=read##size(card->iobase_mmio+off);			\
++	else								\
++		val=in##size(card->iobase+off);				\
+ 	val;								\
+ })
+ 
+@@ -466,8 +468,10 @@ struct i810_card {
+ 
+ #define I810_IOWRITE(size, val, card, off)				\
+ ({									\
+-	if (card->use_mmio) write##size(val, card->iobase_mmio+off);	\
+-	else out##size(val, card->iobase+off);				\
++	if (card->use_mmio)						\
++		write##size(val, card->iobase_mmio+off);		\
++	else								\
++		out##size(val, card->iobase+off);			\
+ })
+ 
+ #define I810_IOWRITEL(val, card, off)	I810_IOWRITE(l, val, card, off)
+@@ -2818,9 +2822,11 @@ static int i810_ac97_power_up_bus(struct
+ 	 *	See if the primary codec comes ready. This must happen
+ 	 *	before we start doing DMA stuff
+ 	 */	
+-	/* see i810_ac97_init for the next 7 lines (jsaw) */
+-	if (card->use_mmio) readw(card->ac97base_mmio);
+-	else inw(card->ac97base);
++	/* see i810_ac97_init for the next 10 lines (jsaw) */
++	if (card->use_mmio)
++		readw(card->ac97base_mmio);
++	else
++		inw(card->ac97base);
+ 	if (ich_use_mmio(card)) {
+ 		primary_codec_id = (int) readl(card->iobase_mmio + SDM) & 0x3;
+ 		printk(KERN_INFO "i810_audio: Primary codec has ID %d\n",
+@@ -2838,8 +2844,10 @@ static int i810_ac97_power_up_bus(struct
+ 		else 
+ 			printk("no response.\n");
+ 	}
+-	if (card->use_mmio) readw(card->ac97base_mmio);
+-	else inw(card->ac97base);
++	if (card->use_mmio)
++		readw(card->ac97base_mmio);
++	else
++		inw(card->ac97base);
+ 	return 1;
+ }
+ 
+@@ -2883,8 +2891,10 @@ static int __devinit i810_ac97_init(stru
+ 	for (num_ac97 = 0; num_ac97 < nr_ac97_max; num_ac97++) {
+ 		/* codec reset */
+ 		printk(KERN_INFO "i810_audio: Resetting connection %d\n", num_ac97);
+-		if (card->use_mmio) readw(card->ac97base_mmio + 0x80*num_ac97);
+-		else inw(card->ac97base + 0x80*num_ac97);
++		if (card->use_mmio)
++			readw(card->ac97base_mmio + 0x80*num_ac97);
++		else
++			inw(card->ac97base + 0x80*num_ac97);
+ 
+ 		/* If we have the SDATA_IN Map Register, as on ICH4, we
+ 		   do not loop thru all possible codec IDs but thru all 
+@@ -3162,7 +3172,7 @@ static int __devinit i810_probe(struct p
+ 		}
+ 	}
+ 
+-	if (!(card->use_mmio) && !(card->iobase)) {
++	if (!(card->use_mmio) && (!(card->iobase) || !(card->ac97base))) {
+ 		printk(KERN_ERR "i810_audio: No I/O resources available.\n");
+ 		goto out_mem;
+ 	}

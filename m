@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130250AbQKNSzv>; Tue, 14 Nov 2000 13:55:51 -0500
+	id <S130471AbQKNTDG>; Tue, 14 Nov 2000 14:03:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130767AbQKNSzm>; Tue, 14 Nov 2000 13:55:42 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:60169 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S130250AbQKNSzX>; Tue, 14 Nov 2000 13:55:23 -0500
-Date: Tue, 14 Nov 2000 19:25:22 +0100
-From: Jan Kara <jack@atrey.karlin.mff.cuni.cz>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: Used space in bytes
-Message-ID: <20001114192522.A18870@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <CD940355CE7@vcnet.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <CD940355CE7@vcnet.vc.cvut.cz>; from VANDROVE@vc.cvut.cz on Tue, Nov 14, 2000 at 06:55:13PM +0000
+	id <S130548AbQKNTCz>; Tue, 14 Nov 2000 14:02:55 -0500
+Received: from cx425802-a.blvue1.ne.home.com ([24.0.54.216]:516 "EHLO
+	wr5z.localdomain") by vger.kernel.org with ESMTP id <S130471AbQKNTCr>;
+	Tue, 14 Nov 2000 14:02:47 -0500
+Date: Tue, 14 Nov 2000 12:32:43 -0600 (CST)
+From: Thomas Molina <tmolina@home.com>
+To: linux-kernel@vger.kernel.org
+Subject: opl3.o initialization problems in 2.4
+Message-ID: <Pine.LNX.4.21.0011140825020.1788-100000@wr5z.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On 14 Nov 00 at 18:39, Jan Kara wrote:
-> >   Hello.
-> > 
-> > > On  9 Nov 00 at 19:18, Jan Kara wrote:
-> > > > used (I tried to contact Ulrich Drepper <drepper@redhat.com> who should
-> > > > be right person to ask about such things (at least I was said so) but go
-> > > > no answer...). Does anybody have any better solution?
-> > > >   I know about two others - really ugly ones:
-> > > >    1) fs specific ioctl()
-> > > >    2) compute needed number of bytes from st_size and st_blocks, which is
-> > > >       currently possible but won't be in future
-> > > 
-> > > If I may, please do not add it into stat/stat64 structure. On Netware, 
-> > > computing really used space can take eons because of it has to read 
-> > > allocation tables to memory to find size. It is usually about 500% 
-> > > slower than retrieving all other file informations.
-> >   And how do you fill in st_blocks field?
-> 
-> Currently as st_size / st_blksize. If I'll want to report real used size,
-> so that quotas could be built on the top of Netware space restrictions,
-> Netware is willing to return size in its allocation blocks after holes 
-> and compression takes place, but while computation time is afforable for 
-> open(), it is not for stat()ing thousands of entries in directories.
-  Hmm.. But that's problem as 'quotacheck' uses stat to get space used by
-file... So it won't work on Netware anyway.
+I continue to see apparent interaction problems between sb.o and opl3.o
+during system initialization.  Several people have reported problems
+with the opl3.o module not loading or not working properly.  A
+workaround was developed which results in a functional system; if sb.o
+is compiled as built-in and opl3.o is compiled modular things work.  
 
-							Honza
+My working theory is that the soundcard must be initialized and the
+driver functioning before the opl3 module can initialize its function on
+the card.  Currently, the opl3 code is executed before the soundcard
+code and is unable to initialize the fm synthesizer.  
+
+I hate to reignite the link order war, but I would appreciate a
+clarification of the situation.
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262892AbTDAW3q>; Tue, 1 Apr 2003 17:29:46 -0500
+	id <S262889AbTDAWhf>; Tue, 1 Apr 2003 17:37:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262895AbTDAW3q>; Tue, 1 Apr 2003 17:29:46 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:14505 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S262892AbTDAW3p>; Tue, 1 Apr 2003 17:29:45 -0500
-Message-ID: <3E8A135B.3030106@us.ibm.com>
-Date: Tue, 01 Apr 2003 14:31:55 -0800
+	id <S262895AbTDAWhf>; Tue, 1 Apr 2003 17:37:35 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:23007 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262889AbTDAWh0>; Tue, 1 Apr 2003 17:37:26 -0500
+Message-ID: <3E8A151A.1040800@us.ibm.com>
+Date: Tue, 01 Apr 2003 14:39:22 -0800
 From: Matthew Dobson <colpatch@us.ibm.com>
 Reply-To: colpatch@us.ibm.com
 Organization: IBM LTC
@@ -15,71 +15,433 @@ User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: Andrew Morton <akpm@digeo.com>, "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: [patch][rfc] Memory Binding (0/1)
+CC: Andrew Morton <akpm@digeo.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: [patch][rfc] Memory Binding (1/1)
+References: <3E8A135B.3030106@us.ibm.com>
 Content-Type: multipart/mixed;
- boundary="------------090004010308090801050407"
+ boundary="------------010806010000030808080306"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------090004010308090801050407
+--------------010806010000030808080306
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-So I've made a couple attempts at adding a Memory Binding facility to 
-the kernel.  Obviously, I've had no success as yet, so I'm stubbornly 
-trying another approach! ;)
+Okee dokee...  Here's the real core of the patch.  This adds a struct 
+binding (basically, just a zonelist).  It adds a pointer to a binding 
+into the struct address_space.  Then it adds sys_membind() syscall to 
+allow user-processes to bind memory.  For now, the membind call only 
+works if the region specified (start_addr, len) is a shared memory 
+segment.  It is an easy first case, and I think it's one of the more 
+useful types of memory to try to bind.
 
-This patch is just a small pre-patch to the real memory binding.  It 
-just adds get_zonelist() and get_node_zonelist() calls, to make some 
-code a little more readable.  This patch is super straight-forward.  The 
-real fun is in the next patch...
+A binding call takes a cpumask in, translates it to a nodemask, and then 
+ensures that all memory faulted into the region comes from memory on the 
+nodes in the nodemask.  Policy argument is ignored for now.  Simple 
+bindings only.
 
-[mcd@arrakis membind]$ diffstat 00-pre_membind.patch
-  gfp.h    |    2 +-
-  mmzone.h |    8 ++++++++
-  2 files changed, 9 insertions(+), 1 deletion(-)
+Pretty much all the code is hidden behind #ifdef CONFIG_NUMA.  This has 
+virtually no effect on non-NUMA kernels.  The patch also is not 100% 
+done.  It does some quirky things if you exhaust a node's memory.  I 
+need to look more into the interactions of this patch and OOM code.  I 
+would like comments from anyone interested in this patch.
+
+[mcd@arrakis membind]$ diffstat 01-membind.patch
+  arch/i386/kernel/entry.S  |    1
+  fs/inode.c                |    1
+  include/asm-i386/unistd.h |    3
+  include/linux/binding.h   |   37 ++++++++
+  include/linux/fs.h        |    2
+  include/linux/pagemap.h   |   26 ++++++
+  mm/Makefile               |    2
+  mm/binding.c              |  199 
+++++++++++++++++++++++++++++++++++++++++++++++ mm/swap_state.c 
+  |    1
+  9 files changed, 270 insertions(+), 2 deletions(-)
 
 -Matt
 
---------------090004010308090801050407
+--------------010806010000030808080306
 Content-Type: text/plain;
- name="00-pre_membind.patch"
+ name="01-membind.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="00-pre_membind.patch"
+ filename="01-membind.patch"
 
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.66-vanilla/include/linux/gfp.h linux-2.5.66-pre_membind/include/linux/gfp.h
---- linux-2.5.66-vanilla/include/linux/gfp.h	Mon Mar 24 14:00:10 2003
-+++ linux-2.5.66-pre_membind/include/linux/gfp.h	Mon Mar 31 17:38:47 2003
-@@ -52,7 +52,7 @@
- 	if (unlikely(order >= MAX_ORDER))
- 		return NULL;
+diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.66-pre_membind/arch/i386/kernel/entry.S linux-2.5.66-membind/arch/i386/kernel/entry.S
+--- linux-2.5.66-pre_membind/arch/i386/kernel/entry.S	Mon Mar 24 14:00:11 2003
++++ linux-2.5.66-membind/arch/i386/kernel/entry.S	Mon Mar 31 17:45:20 2003
+@@ -852,6 +852,7 @@
+  	.long sys_clock_gettime		/* 265 */
+  	.long sys_clock_getres
+  	.long sys_clock_nanosleep
++ 	.long sys_membind
+  
+  
+ nr_syscalls=(.-sys_call_table)/4
+diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.66-pre_membind/fs/inode.c linux-2.5.66-membind/fs/inode.c
+--- linux-2.5.66-pre_membind/fs/inode.c	Mon Mar 24 14:01:48 2003
++++ linux-2.5.66-membind/fs/inode.c	Mon Mar 31 17:45:20 2003
+@@ -141,6 +141,7 @@
+ 		mapping->a_ops = &empty_aops;
+  		mapping->host = inode;
+ 		mapping->gfp_mask = GFP_HIGHUSER;
++		mapping->binding = NULL;
+ 		mapping->dirtied_when = 0;
+ 		mapping->assoc_mapping = NULL;
+ 		mapping->backing_dev_info = &default_backing_dev_info;
+diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.66-pre_membind/include/asm-i386/unistd.h linux-2.5.66-membind/include/asm-i386/unistd.h
+--- linux-2.5.66-pre_membind/include/asm-i386/unistd.h	Mon Mar 24 14:00:54 2003
++++ linux-2.5.66-membind/include/asm-i386/unistd.h	Mon Mar 31 17:45:20 2003
+@@ -273,8 +273,9 @@
+ #define __NR_clock_gettime	(__NR_timer_create+6)
+ #define __NR_clock_getres	(__NR_timer_create+7)
+ #define __NR_clock_nanosleep	(__NR_timer_create+8)
++#define __NR_membind		268
  
--	return __alloc_pages(gfp_mask, order, NODE_DATA(nid)->node_zonelists + (gfp_mask & GFP_ZONEMASK));
-+	return __alloc_pages(gfp_mask, order, get_node_zonelist(nid, gfp_mask));
+-#define NR_syscalls 268
++#define NR_syscalls 269
+ 
+ /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */
+ 
+diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.66-pre_membind/include/linux/binding.h linux-2.5.66-membind/include/linux/binding.h
+--- linux-2.5.66-pre_membind/include/linux/binding.h	Wed Dec 31 16:00:00 1969
++++ linux-2.5.66-membind/include/linux/binding.h	Mon Mar 31 18:02:00 2003
+@@ -0,0 +1,37 @@
++/*
++ * include/linux/binding.h
++ *
++ * Written by: Matthew Dobson, IBM Corporation
++ *
++ * Copyright (C) 2003, IBM Corp.
++ *
++ * All rights reserved.          
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
++ * NON INFRINGEMENT.  See the GNU General Public License for more
++ * details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ * Send feedback to <colpatch@us.ibm.com>
++ */
++#ifndef _LINUX_BINDING_H
++#define _LINUX_BINDING_H
++
++#include <linux/mmzone.h>
++
++/* Structure to keep track of shared memory segment bindings */
++struct binding {
++	struct zonelist	zonelist;
++};
++
++#endif /* _LINUX_BINDING_H */
+diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.66-pre_membind/include/linux/fs.h linux-2.5.66-membind/include/linux/fs.h
+--- linux-2.5.66-pre_membind/include/linux/fs.h	Mon Mar 24 14:00:10 2003
++++ linux-2.5.66-membind/include/linux/fs.h	Mon Mar 31 17:45:20 2003
+@@ -19,6 +19,7 @@
+ #include <linux/cache.h>
+ #include <linux/radix-tree.h>
+ #include <linux/kobject.h>
++#include <linux/binding.h>
+ #include <asm/atomic.h>
+ 
+ struct iovec;
+@@ -325,6 +326,7 @@
+ 	struct semaphore	i_shared_sem;	/* and sem protecting it */
+ 	unsigned long		dirtied_when;	/* jiffies of first page dirtying */
+ 	int			gfp_mask;	/* how to allocate the pages */
++	struct binding		*binding;	/* for memory bindings */
+ 	struct backing_dev_info *backing_dev_info; /* device readahead, etc */
+ 	spinlock_t		private_lock;	/* for use by the address_space */
+ 	struct list_head	private_list;	/* ditto */
+diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.66-pre_membind/include/linux/pagemap.h linux-2.5.66-membind/include/linux/pagemap.h
+--- linux-2.5.66-pre_membind/include/linux/pagemap.h	Mon Mar 24 13:59:54 2003
++++ linux-2.5.66-membind/include/linux/pagemap.h	Mon Mar 31 17:53:53 2003
+@@ -8,6 +8,7 @@
+ #include <linux/fs.h>
+ #include <linux/list.h>
+ #include <linux/highmem.h>
++#include <linux/binding.h>
+ #include <asm/uaccess.h>
+ 
+ /*
+@@ -27,6 +28,8 @@
+ #define page_cache_release(page)	put_page(page)
+ void release_pages(struct page **pages, int nr, int cold);
+ 
++#ifndef CONFIG_NUMA
++
+ static inline struct page *page_cache_alloc(struct address_space *x)
+ {
+ 	return alloc_pages(x->gfp_mask, 0);
+@@ -37,6 +40,29 @@
+ 	return alloc_pages(x->gfp_mask|__GFP_COLD, 0);
  }
  
- #define alloc_pages(gfp_mask, order) \
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.66-vanilla/include/linux/mmzone.h linux-2.5.66-pre_membind/include/linux/mmzone.h
---- linux-2.5.66-vanilla/include/linux/mmzone.h	Mon Mar 24 14:00:45 2003
-+++ linux-2.5.66-pre_membind/include/linux/mmzone.h	Mon Mar 31 17:38:47 2003
-@@ -326,6 +326,14 @@
- #define num_online_memblks()		1
- 
- #endif /* CONFIG_DISCONTIGMEM || CONFIG_NUMA */
++#else /* CONFIG_NUMA */
 +
-+static inline struct zonelist *get_node_zonelist(int nid, int gfp_mask)
++static inline struct page *__page_cache_alloc(struct address_space *x, int cold)
 +{
-+	return NODE_DATA(nid)->node_zonelists + (gfp_mask & GFP_ZONEMASK);
++	int gfp_mask;
++	struct zonelist *zonelist;
++
++	gfp_mask = x->gfp_mask;
++	if (cold)
++		gfp_mask |= __GFP_COLD;
++	if (!x->binding)
++		zonelist = get_zonelist(gfp_mask);
++	else
++		zonelist = &x->binding->zonelist;
++
++	return __alloc_pages(gfp_mask, 0, zonelist);
 +}
 +
-+#define get_zonelist(gfp_mask) get_node_zonelist(numa_node_id(), gfp_mask)
++#define page_cache_alloc(x)	 __page_cache_alloc((x), 0)
++#define page_cache_alloc_cold(x) __page_cache_alloc((x), 1)
 +
- #endif /* !__ASSEMBLY__ */
- #endif /* __KERNEL__ */
- #endif /* _LINUX_MMZONE_H */
++#endif /* !CONFIG_NUMA */
++
+ typedef int filler_t(void *, struct page *);
+ 
+ extern struct page * find_get_page(struct address_space *mapping,
+diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.66-pre_membind/mm/Makefile linux-2.5.66-membind/mm/Makefile
+--- linux-2.5.66-pre_membind/mm/Makefile	Mon Mar 24 14:00:51 2003
++++ linux-2.5.66-membind/mm/Makefile	Mon Mar 31 17:45:20 2003
+@@ -7,7 +7,7 @@
+ 			   mlock.o mmap.o mprotect.o mremap.o msync.o rmap.o \
+ 			   shmem.o vmalloc.o
+ 
+-obj-y			:= bootmem.o filemap.o mempool.o oom_kill.o fadvise.o \
++obj-y			:= binding.o bootmem.o fadvise.o filemap.o mempool.o oom_kill.o \
+ 			   page_alloc.o page-writeback.o pdflush.o readahead.o \
+ 			   slab.o swap.o truncate.o vcache.o vmscan.o $(mmu-y)
+ 
+diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.66-pre_membind/mm/binding.c linux-2.5.66-membind/mm/binding.c
+--- linux-2.5.66-pre_membind/mm/binding.c	Wed Dec 31 16:00:00 1969
++++ linux-2.5.66-membind/mm/binding.c	Mon Mar 31 18:27:36 2003
+@@ -0,0 +1,199 @@
++/*
++ * mm/binding.c
++ *
++ * Written by: Matthew Dobson, IBM Corporation
++ *
++ * Copyright (C) 2003, IBM Corp.
++ *
++ * All rights reserved.          
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
++ * NON INFRINGEMENT.  See the GNU General Public License for more
++ * details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ * Send feedback to <colpatch@us.ibm.com>
++ */
++#include <linux/errno.h>
++#include <linux/mm.h>
++
++#ifndef CONFIG_NUMA
++
++asmlinkage unsigned long sys_membind(unsigned long start, unsigned long len, 
++		unsigned long *mask_ptr, unsigned int mask_len, unsigned long policy)
++{
++	return -ENOSYS;
++}
++
++#else /* CONFIG_NUMA */
++
++#include <linux/binding.h>
++#include <asm/string.h>
++#include <asm/topology.h>
++#include <asm/uaccess.h>
++
++/* Translate a cpumask to a nodemask */
++static inline void cpumask_to_nodemask(DECLARE_BITMAP(cpumask, NR_CPUS), 
++		DECLARE_BITMAP(nodemask, MAX_NUMNODES))
++{
++	int i;
++
++	for (i = 0; i < NR_CPUS; i++)
++		if (test_bit(i, (cpumask)))
++			set_bit(cpu_to_node(i), (nodemask));
++}
++
++/*
++ * Takes a BITMAP of nodes as an argument, and ensures that at least one of 
++ * the nodes in the bitmap are actually online.
++ * Returns 0 if at least one specified node is online, -EINVAL otherwise.
++ */
++static inline int check_binding_nodemask(DECLARE_BITMAP(nodemask, MAX_NUMNODES))
++{
++	int i;
++
++	/* Make sure at least one specified node is online */
++	for (i = 0; i < MAX_NUMNODES; i++)
++		if (test_bit(i, nodemask) && node_online(i))
++			return 0;
++	return -EINVAL;
++}
++
++/*
++ * Adds the zones belonging to @pgdat to @zonelist.  Returns the next 
++ * index in @zonelist.
++ */
++static inline int add_zones(pg_data_t *pgdat, struct zonelist *zonelist, 
++			int zone_num, int zone_type)
++{
++	switch (zone_type) {
++		struct zone *zone;
++	default:
++		BUG();
++	case ZONE_HIGHMEM:
++		zone = pgdat->node_zones + ZONE_HIGHMEM;
++		if (zone->present_pages)
++			zonelist->zones[zone_num++] = zone;
++	case ZONE_NORMAL:
++		zone = pgdat->node_zones + ZONE_NORMAL;
++		if (zone->present_pages)
++			zonelist->zones[zone_num++] = zone;
++	case ZONE_DMA:
++		zone = pgdat->node_zones + ZONE_DMA;
++		if (zone->present_pages)
++			zonelist->zones[zone_num++] = zone;
++	}
++	return zone_num;
++}
++
++/* Determine the appropriate ZONE_* flag based on the given GFP_* flags */
++static inline int get_zonetype(int gfp_flag)
++{
++	int zone_type;
++
++	gfp_flag &= GFP_ZONEMASK;
++	if (gfp_flag & __GFP_HIGHMEM)
++		zone_type = ZONE_HIGHMEM;
++	else if (gfp_flag & __GFP_DMA)
++		zone_type = ZONE_DMA;
++	else
++		zone_type = ZONE_NORMAL;
++
++	return zone_type;
++}
++
++/* Top-level function for allocating a binding for a region of memory */
++static struct binding *alloc_binding(DECLARE_BITMAP(nodemask, MAX_NUMNODES), 
++		int gfp_flag, unsigned long policy)
++{
++	struct binding *binding;
++	int node, zone_num, zone_type;
++
++	if (check_binding_nodemask(nodemask))
++		return NULL;
++
++	binding = (struct binding *)kmalloc(sizeof(struct binding), GFP_KERNEL);
++	if (!binding)
++		return NULL;
++	memset(binding, 0, sizeof(struct binding));
++
++	/* Build binding zonelist */
++	zone_type = get_zonetype(gfp_flag);
++	zone_num = 0;
++	for (node = 0; node < MAX_NUMNODES; node++) {
++		if (test_bit(node, nodemask) && node_online(node))
++			zone_num = add_zones(NODE_DATA(node), &binding->zonelist, zone_num, zone_type);
++	}
++	binding->zonelist.zones[zone_num] = NULL;
++
++	if (!zone_num) {
++		/* No zones were added to the zonelist.  Let the caller know. */
++		kfree(binding);
++		binding = NULL;
++	}
++	return binding;
++} 
++
++
++/*
++ * membind -  Bind a range of a process' VM space to a set of memory blocks according to
++ *            a predefined policy.
++ * @start:    beginning address of memory region to bind
++ * @len:      length of memory region to bind
++ * @mask_ptr: pointer to bitmask of cpus
++ * @mask_len: length of the bitmask
++ * @policy:   flag specifying the policy to use for the segment
++ */
++asmlinkage unsigned long sys_membind(unsigned long start, unsigned long len, 
++		unsigned long *mask_ptr, unsigned int mask_len, unsigned long policy)
++{
++	DECLARE_BITMAP(cpu_mask, NR_CPUS);
++	DECLARE_BITMAP(node_mask, MAX_NUMNODES);
++	struct vm_area_struct *vma = NULL;
++	struct address_space *mapping;
++	int error = 0;
++
++	/* Deal with getting cpu_mask from userspace & translating to node_mask */
++	if (mask_len > NR_CPUS) {
++		error = -EINVAL;
++		goto out;
++	}
++	CLEAR_BITMAP(cpu_mask, NR_CPUS);
++	CLEAR_BITMAP(node_mask, MAX_NUMNODES);
++	if (copy_from_user(cpu_mask, mask_ptr, (mask_len+7)/8)) {
++		error = -EFAULT;
++		goto out;
++	}
++	cpumask_to_nodemask(cpu_mask, node_mask);
++
++	vma = find_vma(current->mm, start);
++	if (!(vma && vma->vm_file && vma->vm_ops && 
++		vma->vm_ops->nopage == shmem_nopage)) {
++		/* This isn't a shm segment.  For now, we bail. */
++		printk("%s: Can only bind shm(em) segments for now!\n", __FUNCTION__);
++		error = -EINVAL;
++		goto out;
++	}
++
++	mapping = vma->vm_file->f_dentry->d_inode->i_mapping;
++	mapping->binding = alloc_binding(node_mask, mapping->gfp_mask, policy);
++	if (!mapping->binding) {
++		printk("%s: Error while building memory binding!\n", __FUNCTION__);
++		error = -EFAULT;
++	}
++
++out:
++	return error;
++}
++
++#endif /* !CONFIG_NUMA */
+diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.66-pre_membind/mm/swap_state.c linux-2.5.66-membind/mm/swap_state.c
+--- linux-2.5.66-pre_membind/mm/swap_state.c	Mon Mar 24 14:00:21 2003
++++ linux-2.5.66-membind/mm/swap_state.c	Mon Mar 31 17:45:20 2003
+@@ -42,6 +42,7 @@
+ 	.host		= &swapper_inode,
+ 	.a_ops		= &swap_aops,
+ 	.backing_dev_info = &swap_backing_dev_info,
++	.binding	= NULL,
+ 	.i_mmap		= LIST_HEAD_INIT(swapper_space.i_mmap),
+ 	.i_mmap_shared	= LIST_HEAD_INIT(swapper_space.i_mmap_shared),
+ 	.i_shared_sem	= __MUTEX_INITIALIZER(swapper_space.i_shared_sem),
 
---------------090004010308090801050407--
+--------------010806010000030808080306--
 

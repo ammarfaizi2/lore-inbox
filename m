@@ -1,77 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265725AbTBTVJi>; Thu, 20 Feb 2003 16:09:38 -0500
+	id <S266274AbTBTVOO>; Thu, 20 Feb 2003 16:14:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265894AbTBTVJi>; Thu, 20 Feb 2003 16:09:38 -0500
-Received: from unthought.net ([212.97.129.24]:14226 "EHLO mail.unthought.net")
-	by vger.kernel.org with ESMTP id <S265725AbTBTVJh>;
-	Thu, 20 Feb 2003 16:09:37 -0500
-Date: Thu, 20 Feb 2003 22:19:42 +0100
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Rusty Lynch <rusty@linux.co.intel.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@ucw.cz>,
-       lkml <linux-kernel@vger.kernel.org>, Patrick Mochel <mochel@osdl.org>,
-       Dave Jones <davej@codemonkey.org.uk>,
-       Daniel Pittman <daniel@rimspace.net>
-Subject: Re: [PATCH][RFC] Proposal for a new watchdog interface using sysfs
-Message-ID: <20030220211941.GD13216@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Rusty Lynch <rusty@linux.co.intel.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@ucw.cz>,
-	lkml <linux-kernel@vger.kernel.org>,
-	Patrick Mochel <mochel@osdl.org>,
-	Dave Jones <davej@codemonkey.org.uk>,
-	Daniel Pittman <daniel@rimspace.net>
-References: <1045106216.1089.16.camel@vmhack> <1045160506.1721.22.camel@vmhack> <20030213230408.GA121@elf.ucw.cz> <1045260726.1854.7.camel@irongate.swansea.linux.org.uk> <20030214213542.GH23589@atrey.karlin.mff.cuni.cz> <1045264651.13488.40.camel@vmhack> <1045274042.2961.4.camel@irongate.swansea.linux.org.uk> <1045632256.2974.76.camel@vmhack>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1045632256.2974.76.camel@vmhack>
-User-Agent: Mutt/1.3.28i
+	id <S266952AbTBTVOO>; Thu, 20 Feb 2003 16:14:14 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:12207 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S266274AbTBTVON>; Thu, 20 Feb 2003 16:14:13 -0500
+Importance: Normal
+Sensitivity: 
+Subject: Re: cifs leaks memory like crazy in 2.5.61
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Martin Josefsson <gandalf@wlug.westbo.se>, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
+Message-ID: <OF1FF77D10.CC70C61D-ON87256CD3.006C555B@us.ibm.com>
+From: Steven French <sfrench@us.ibm.com>
+Date: Thu, 20 Feb 2003 15:21:10 -0600
+X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 6.0 [IBM]|December 16, 2002) at
+ 02/20/2003 14:22:31
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 18, 2003 at 09:24:15PM -0800, Rusty Lynch wrote:
-> My original proposal raised a couple of issues with sysfs that make it
-> difficult to move completely from the current watchdog model documented in 
-> watchdog-api to a completely sysfs based implementation.
-> 
-> Specifically, sysfs needs:
-> * persistent file permissions
-> * a way to forward ioctl's or in some way represent a device node in sysfs
 
-Something as simple as a watchdog should not need ioctls, IMO.  (Nothing
-should need them, but let's take one battle at a time...)
 
-How about using sysfs and specifically - now that we have a collection
-of drivers which are simple enough to not need the mistake that ioctls
-are - making sure that they work as before, using only device files and
-no magic ioctls ?
 
-I shall happily volunteer to delete the 10 lines of code from
-sbc60xxwdt.c to make it compliant to the "no ioctls - equivalent
-functionality" idea  ;)
 
-I know that there is ioctl support in the existing drivers - but I have
-not yet seen a driver which needed it.   "needed" in the sense that
-equivalent functionality could not have been created using dev files
-alone.
+Fixed now.
 
-Also, the amount of userspace which will break because of missing ioctl
-functionality will be absolutely *minimal*.  There's not a lot of
-watchdog software out there, and porting whatever software uses ioctls
-to use sane interfaces instead, should be doable.  I don't think anyone
-would get terribly upset if this change was made as a 2.4->2.6
-transition thing.
+The obvious warning message that Martin noted (on kmem_cache_free of
+the request buffers when the cifs module was unloaded) turned out
+to be a sideffect of the global kernel change for masking signals for
+users of daemonize that went in about 10 days ago.   With signals now
+masked by default, the cifsd captive thread was not exiting fully at
+unmount time leaving an unused buffer at rmmod time.   With Andrew Morton's
+recent exports, the cifs vfs can be built as a module again so the fix will
+be timely (since others would be likely to notice it).    The fix is
+changeset
+1.1004 at http://cifs.bkbits.net/linux-2.5cifs
 
-If ioctls are kept in watchdog drivers for 2.6, they can't go away until
-2.8/3.0/whatever.
+The unrelated 64 byte object allocation growth in the slab cache turns out
+to
+have been around for quite a long time and was caused by a path in
+which file->private_data was reallocated when search rewinding
+occured (which "ls -R" does).   The file->private_data field is freed on
+release in cifs_closedir but in this path it could be allocated more than
+once
+when (specifically when rewind of file->f_pos occurred to the second search
+entry when readdir was reinvoked).   I found this while rechecking all the
+kmalloc
+invocations in the cifs vfs today.    This particular case (readdir
+handles)  was
+not instrumented with a counter  as many of the other memory alloctions
+are.
+I will post this fix later today.   In retrospect this reminds me of bugs
+in various
+filesystems and network servers generated by that other OS's "tree" utility
+which also did search rewind.
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+Steve French
+Senior Software Engineer
+Linux Technology Center - IBM Austin
+phone: 512-838-2294
+email: sfrench@us.ibm.com
+

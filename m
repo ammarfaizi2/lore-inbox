@@ -1,49 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130082AbQKFRlq>; Mon, 6 Nov 2000 12:41:46 -0500
+	id <S130120AbQKFRng>; Mon, 6 Nov 2000 12:43:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130080AbQKFRlk>; Mon, 6 Nov 2000 12:41:40 -0500
-Received: from mauve.csi.cam.ac.uk ([131.111.8.38]:42390 "EHLO
-	mauve.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S129923AbQKFRlZ>; Mon, 6 Nov 2000 12:41:25 -0500
-From: "James A. Sutherland" <jas88@cam.ac.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, jas88@cam.ac.uk (James A. Sutherland)
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-Date: Mon, 6 Nov 2000 17:38:44 +0000
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-Cc: dwmw2@infradead.org (David Woodhouse),
-        jgarzik@mandrakesoft.com (Jeff Garzik), goemon@anime.net (Dan Hollis),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        oxymoron@waste.org (Oliver Xymoron), kaos@ocs.com.au (Keith Owens),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <E13spou-0006P0-00@the-village.bc.nu>
-In-Reply-To: <E13spou-0006P0-00@the-village.bc.nu>
-MIME-Version: 1.0
-Message-Id: <00110617405001.24534@dax.joh.cam.ac.uk>
-Content-Transfer-Encoding: 7BIT
+	id <S130116AbQKFRn0>; Mon, 6 Nov 2000 12:43:26 -0500
+Received: from TRAMPOLINE.THUNK.ORG ([216.175.175.172]:4868 "EHLO
+	trampoline.thunk.org") by vger.kernel.org with ESMTP
+	id <S130113AbQKFRnU>; Mon, 6 Nov 2000 12:43:20 -0500
+Date: Mon, 6 Nov 2000 13:42:52 -0500
+Message-Id: <200011061842.eA6Igqs16111@trampoline.thunk.org>
+To: davem@redhat.com
+CC: bsuparna@in.ibm.com, linux-kernel@vger.kernel.org, ak@suse.de,
+        kanoj@google.engr.sgi.com
+In-Reply-To: <200011060314.TAA22656@pizda.ninka.net> (davem@redhat.com)
+Subject: Re: Oddness in i_shared_lock and page_table_lock nesting hierarchies ?
+From: tytso@mit.edu
+Phone: (781) 391-3464
+In-Reply-To: <CA25698E.002082E9.00@d73mta05.au.ibm.com> <200011060314.TAA22656@pizda.ninka.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 06 Nov 2000, Alan Cox wrote:
-> > So autoload the module with a "dont_screw_with_mixer" option. When the kernel
-> > first boots, initialise the mixer to suitable settings (load the module with 
-> > "do_screw_with_mixer" or whatever); thereafter, the driver shouldn't change
-> > the mixer settings on load.
-> 
-> Which is part of what persistent module data lets you do. And without having
-> to mess with dont_screw_with_mixer (which if you get it wrong btw can be 
-> fatal and hang the hardware)
+   Date: 	Sun, 5 Nov 2000 19:14:29 -0800
+   From: "David S. Miller" <davem@redhat.com>
 
-Eh? You just load the driver once, probably on boot, to configure sane values.
-This time round, you use an argument (or an ioctl or whatever) to specify the
-values you want. (cat /etc/sysconfig/sound/defaultvolume > /dev/sound/mixer or
-whatever). After that, the module can be unloaded and loaded as needed, without
-any need to touch the mixer settings except in response to *explicit* "set
-volume" commands from userspace.
+   It is a well known bug amongst gurus :-) I sent a linux24 bug addition
+   to Ted Ty'tso a week or so ago but he dropped it aparently.
 
+I got it, but I thought it was fixed before I had a chance to add it to
+the bug list.  I got confused by one of Linus's descriptions of fixes to
+the test10-pre* series.
 
-James.
+Sorry; my bad.  I'll get it added to the list.
+
+						- Ted
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262551AbUJ0Sof@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262629AbUJ0Ssz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262551AbUJ0Sof (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 14:44:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbUJ0So0
+	id S262629AbUJ0Ssz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 14:48:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262580AbUJ0Ssw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 14:44:26 -0400
-Received: from smtp.istop.com ([66.11.167.126]:31454 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S262633AbUJ0Sg2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 14:36:28 -0400
-From: Daniel Phillips <phillips@istop.com>
-To: Timothy Miller <miller@techsource.com>
-Subject: Re: Some discussion points open source friendly graphics [was: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?]
-Date: Wed, 27 Oct 2004 14:38:30 -0400
-User-Agent: KMail/1.7
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <417D21C8.30709@techsource.com>
-In-Reply-To: <417D21C8.30709@techsource.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 27 Oct 2004 14:48:52 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:15858 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262521AbUJ0SmS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 14:42:18 -0400
+Subject: [resend patch] HVSI early boot console
+From: Hollis Blanchard <hollisb@us.ibm.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
+Content-Type: text/plain
+Message-Id: <1098884287.3486.5.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 27 Oct 2004 13:38:08 +0000
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410271438.30899.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 25 October 2004 11:54, Timothy Miller wrote:
-> The reprogramability of the FPGA has many advantages, but
-> reprogramability is not its primary purpose.
+Hi Linus, I've retested this with the current BK tree as you requested.
 
-But it might turn out to be a reason for it turning into a geek trophy, if the 
-price is not enormously higher than closed-spec cards.  You could for 
-example, program real-time sound effects processing into the FPGA and output 
-the samples through a standard sound card.
+This patch adds support for the udbg early console interfaces
+when using an HVSI console. Please apply.
 
-The enthusiast market is a big market these days.
+Signed-off-by: Hollis Blanchard <hollisb@us.ibm.com>
 
-> The picture I have in my head at this time expands on the idea of the
-> setup engine seen in most GPU's.  What I'm thinking is that the setup
-> engine will be general-purpose-ish CPU with special vector and matrix
-> instructions.  This way, the transformation stage will occur in
-> "software" executed by a specialized processor.  Additionally, the
-> lighting phase might be done here as well.
->
-> The setup engine would produce triangle parameters which are fed to a
-> rasterizer which does Gouraud shading and texture-mapping.  That feeds
-> pixels into something that handles antialiasing and alpha blending, etc.
+-- 
+Hollis Blanchard
+IBM Linux Technology Center
 
-I hope you're planning to have a divider available to the rasterizer for 
-perspective interpolation, particularly of textures.
+--- arch/ppc64/kernel/pSeries_lpar.c.orig	Tue Sep 21 23:40:30 2004
++++ arch/ppc64/kernel/pSeries_lpar.c	Thu Oct  7 10:52:23 2004
+@@ -59,6 +59,74 @@
+ 
+ int vtermno;	/* virtual terminal# for udbg  */
+ 
++#define __ALIGNED__ __attribute__((__aligned__(sizeof(long))))
++static void udbg_hvsi_putc(unsigned char c)
++{
++	/* packet's seqno isn't used anyways */
++	uint8_t packet[] __ALIGNED__ = { 0xff, 5, 0, 0, c };
++	int rc;
++
++	if (c == '\n')
++		udbg_hvsi_putc('\r');
++
++	do {
++		rc = plpar_put_term_char(vtermno, sizeof(packet), packet);
++	} while (rc == H_Busy);
++}
++
++static long hvsi_udbg_buf_len;
++static uint8_t hvsi_udbg_buf[256];
++
++static int udbg_hvsi_getc_poll(void)
++{
++	unsigned char ch;
++	int rc, i;
++
++	if (hvsi_udbg_buf_len == 0) {
++		rc = plpar_get_term_char(vtermno, &hvsi_udbg_buf_len, hvsi_udbg_buf);
++		if (rc != H_Success || hvsi_udbg_buf[0] != 0xff) {
++			/* bad read or non-data packet */
++			hvsi_udbg_buf_len = 0;
++		} else {
++			/* remove the packet header */
++			for (i = 4; i < hvsi_udbg_buf_len; i++)
++				hvsi_udbg_buf[i-4] = hvsi_udbg_buf[i];
++			hvsi_udbg_buf_len -= 4;
++		}
++	}
++
++	if (hvsi_udbg_buf_len <= 0 || hvsi_udbg_buf_len > 256) {
++		/* no data ready */
++		hvsi_udbg_buf_len = 0;
++		return -1;
++	}
++
++	ch = hvsi_udbg_buf[0];
++	/* shift remaining data down */
++	for (i = 1; i < hvsi_udbg_buf_len; i++) {
++		hvsi_udbg_buf[i-1] = hvsi_udbg_buf[i];
++	}
++	hvsi_udbg_buf_len--;
++
++	return ch;
++}
++
++static unsigned char udbg_hvsi_getc(void)
++{
++	int ch;
++	for (;;) {
++		ch = udbg_hvsi_getc_poll();
++		if (ch == -1) {
++			/* This shouldn't be needed...but... */
++			volatile unsigned long delay;
++			for (delay=0; delay < 2000000; delay++)
++				;
++		} else {
++			return ch;
++		}
++	}
++}
++
+ static void udbg_putcLP(unsigned char c)
+ {
+ 	char buf[16];
+@@ -167,11 +235,15 @@
+ 				ppc_md.udbg_getc_poll = udbg_getc_pollLP;
+ 				found = 1;
+ 			}
+-		} else {
+-			/* XXX implement udbg_putcLP_vtty for hvterm-protocol1 case */
+-			printk(KERN_WARNING "%s doesn't speak hvterm1; "
+-					"can't print udbg messages\n",
+-			       stdout_node->full_name);
++		} else if (device_is_compatible(stdout_node, "hvterm-protocol")) {
++			termno = (u32 *)get_property(stdout_node, "reg", NULL);
++			if (termno) {
++				vtermno = termno[0];
++				ppc_md.udbg_putc = udbg_hvsi_putc;
++				ppc_md.udbg_getc = udbg_hvsi_getc;
++				ppc_md.udbg_getc_poll = udbg_hvsi_getc_poll;
++				found = 1;
++			}
+ 		}
+ 	} else if (strncmp(name, "serial", 6)) {
+ 		/* XXX fix ISA serial console */
 
-Regards,
 
-Daniel

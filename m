@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318085AbSIJTqd>; Tue, 10 Sep 2002 15:46:33 -0400
+	id <S318097AbSIJTvN>; Tue, 10 Sep 2002 15:51:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318086AbSIJTqd>; Tue, 10 Sep 2002 15:46:33 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:47862 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S318085AbSIJTqc>; Tue, 10 Sep 2002 15:46:32 -0400
-Date: Tue, 10 Sep 2002 21:51:12 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Miles Lane <miles.lane@attbi.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.33 -- pnpbios_core.c: 167: In function `call_pnp_bios':
- Invalid lvalue in unary `&'
-In-Reply-To: <1031593997.11629.0.camel@turbulence.megapathdsl.net>
-Message-ID: <Pine.NEB.4.44.0209102150520.18902-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S318101AbSIJTvN>; Tue, 10 Sep 2002 15:51:13 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:48399 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S318097AbSIJTvM>; Tue, 10 Sep 2002 15:51:12 -0400
+Message-ID: <3D7E4E4A.4000404@namesys.com>
+Date: Tue, 10 Sep 2002 23:55:54 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dave Jones <davej@suse.de>
+CC: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org, green@namesys.com
+Subject: Re: [BK] ReiserFS changesets for 2.4 (performs writes more than 4k
+ at a time)
+References: <3D7DF05E.7030903@namesys.com> <20020910160659.A15158@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 Sep 2002, Miles Lane wrote:
+Dave Jones wrote:
 
->   gcc -Wp,-MD,./.pnpbios_core.o.d -D__KERNEL__
-> -I/usr/src/linux-2.5.33/include -Wall -Wstrict-prototypes -Wno-trigraphs
-> -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe
-> -mpreferred-stack-boundary=2 -march=athlon  -nostdinc -iwithprefix
-> include    -DKBUILD_BASENAME=pnpbios_core -DEXPORT_SYMTAB  -c -o
-> pnpbios_core.o pnpbios_core.c
-> pnpbios_core.c: In function `call_pnp_bios':
-> pnpbios_core.c:167: invalid lvalue in unary `&'
-> ...
-> make[2]: *** [pnpbios_core.o] Error 1
-> make[2]: Leaving directory `/usr/src/linux-2.5.33/drivers/pnp'
+>On Tue, Sep 10, 2002 at 05:15:10PM +0400, Hans Reiser wrote:
 >
-> CONFIG_MK7=y
-> CONFIG_PNP=y
-> CONFIG_PNPBIOS=y
+> > It passes all of our testing, but it is the kind of code that is more 
+> > likely than most to have elusive lurking bugs.  It cannot be tested in 
+> > 2.5 first because 2.5 is too broken at this particular moment.
+>
+>What in particular holds you back from testing this in 2.5 ?
+>
+Oleg answered this.
 
-This is a known issue and the fix is already in 2.5.34.
+>This seems quite dubious for inclusion first in what it supposed
+>to be the stable series.
+>
+>        Dave
+>
+>  
+>
+It is a performance tweak, not a new feature.  2.5 is for things like 
+reiser4.  Also, remember that we do perform internal testing, and we 
+also tested this on our mailing list, which makes our tweaks much more 
+stable than most of the tweaks that go into 2.5 first. It is strange, 
+but Namesys seems to have much more of a release management 
+infrastructure than most code submitters (I think that means merely that 
+we have one;-), since there are two persons that test every patch, and 
+that makes us oddly unusual).   However, waiting for 2.4.21pre1 is also 
+quite reasonable since the number of lines of new code is significant, 
+and reiserfs is used on mission critical servers.   A lot depends on 
+just how soon 2.4.20 is planned to come out, and only Marcelo knows that.
 
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
+Hans
 

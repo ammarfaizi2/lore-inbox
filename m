@@ -1,73 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313742AbSDIGCn>; Tue, 9 Apr 2002 02:02:43 -0400
+	id <S313596AbSDIGHg>; Tue, 9 Apr 2002 02:07:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313749AbSDIGCm>; Tue, 9 Apr 2002 02:02:42 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:62217
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S313742AbSDIGCl>; Tue, 9 Apr 2002 02:02:41 -0400
-Date: Mon, 8 Apr 2002 23:01:17 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Thomas Zimmerman <thomas@zimres.net>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Reworked CONFIG_IDE_TASKFILE_IO help text
-In-Reply-To: <20020409024232.GA23839@darklands.zimres.net>
-Message-ID: <Pine.LNX.4.10.10204082257440.23456-100000@master.linux-ide.org>
+	id <S313755AbSDIGHf>; Tue, 9 Apr 2002 02:07:35 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:48906 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S313596AbSDIGHe>; Tue, 9 Apr 2002 02:07:34 -0400
+Message-Id: <200204090604.g3964rX01196@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: rmiller@duskglow.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18 data corruption issues
+Date: Tue, 9 Apr 2002 09:08:06 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: barry@Know-Where.com (Barry Bakalor)
+In-Reply-To: <200204090252.g392qNb24499@66-133-183-62.fod.frontiernet.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Apr 2002, Thomas Zimmerman wrote:
+On 9 April 2002 00:52, Russell Miller wrote:
+> I'm not subscribed to the list, so please CC me on any responses.
+>
+> I am running the stock 2.4.18 kernel, downloaded a few days ago from the
+> kernel mailing list.  The kernel was custom-built to my specifications,
+> using the default RH7.2 gcc (config available upon request).  The machine
+> is a dual pentium-III 1000 MHz, one scsi drive (sym53cxxx criver) and two
+> ide drives. All filesystems are ext3 journaling.
 
-> On 04-Apr 09:50, Adrian Bunk wrote:
-> > Hi Marcelo,
-> > 
-> > Configure.help contains the help text below that sounds more like a
-> > comment to a patch than a helpful help message for a user of a stable
-> > kernel:
-> > 
-> > +CONFIG_IDE_TASKFILE_IO
-> > +  This is the "Jewel" of the patch.  It will go away and become the new
-> > +  driver core.  Since all the chipsets/host side hardware deal w/ their
-> > +  exceptions in "their local code" currently, adoption of a
-> > +  standardized data-transport is the only logical solution.
-> > +  Additionally we packetize the requests and gain rapid performance and
-> > +  a reduction in system latency.  Additionally by using a memory struct
-> > +  for the commands we can redirect to a MMIO host hardware in the next
-> > +  generation of controllers, specifically second generation Ultra133
-> > +  and Serial ATA.
-> > +
-> > +  Since this is a major transition, it was deemed necessary to make the
-> > +  driver paths buildable in separtate models.  Therefore if using this
-> > +  option fails for your arch then we need to address the needs for that
-> > +  arch.
-> > +
-> > +  If you want to test this functionality, say Y here.
-> > 
-> > Could anyone provide a more useful help text?
-> 
-> Maybe this is better? 
-> 
-> CONFIG_IDE_TASKFILE_IO
->   This option enables a new standardized data-transport driver. It replaces
->   code currently in each chipset/host driver. This should help reduce
->   bugs and allow better data protection. This new code also packetizes
->   requests to enable rapid performance and reduce system latency. It also uses
->   structures so MMIO hardware can be used in second generation Ultra133 and
->   Serial ATA chipsets.
-> 
->   Since this a a major reworking of current code, this will live along side
->   current drivers for now. If this doesn't work on your arch yell. 
-> 
->   If you want to test this new driver (and have backups), say Y here. 
+What is your GCC version?
 
-Actually, truth be known ... when I finish the transport layer you will
-have a clean error recovery path in the driver.  More details soon, but do
-not enable until you have ide-taskfile v0.31 or higher.
+> We copied several very large partitions from one machine to another in an
+> attempt to put a new machine in service.  Just for kicks, we attempted to
+> verify the copy.  It turns out that a small amount of files, about 60 to
+> 100 on a 17 gig partition, are corrupted.  Mod times are exactly the same,
+> owners, even file size.  It turns out that pretty consistently four null
+> characters (and occasionally other characters and a different number) are
+> appended to the beginning of the file, and the last four characters are
+> rolled off the end.  We ran the copy (and rsync and stuff) multiple times.
+> Each time different files were modified, in a seemingly random fashion, but
+> with a fairly consistent pattern of corruption.
+>
+> I have turned off DMA on the disk drives to no effect.  I have replaced the
+> ide cables with higher quality cables.  The problem seems to be occuring on
+> both the scsi and ide drives, which to me eliminates the ide or scsi
+> controllers, drivers, or anything on the back end of them as the source of
+> the problem.This same machine was in service previously, minus one disk
+> drive, and this problem never manifested itself, leading me to believe it
+> is either something to do with the ext3 jfs, or with the 2.4.18 kernel.
 
-Cheers,
+It was Linux? What kernel version? Did you try copying with that kernel?
 
-Andre Hedrick
-LAD Storage Consulting Group
+> Does anyone have any tips on how to debug this?  I have administrative
+> access to the machine, and although it is running production, I am very
+> keen on getting this resolved and will provide any information you need. 
+> If this is a kernel or ext3 problem as I suspect I imagine you want to get
+> this resolved as much as I do.
 
+You may try to repeat your test with:
+* newer / older kernel (maybe this is a kernel bug?)
+* newer GCC (miscompiled kernel?)
+* different fs (ext3 bug?)
+* different hardware (last resort to rule out hw problems)
+--
+vda

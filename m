@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267615AbRHCJ6e>; Fri, 3 Aug 2001 05:58:34 -0400
+	id <S268129AbRHCKCz>; Fri, 3 Aug 2001 06:02:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268079AbRHCJ6P>; Fri, 3 Aug 2001 05:58:15 -0400
-Received: from ns.caldera.de ([212.34.180.1]:28893 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S267615AbRHCJ6D>;
-	Fri, 3 Aug 2001 05:58:03 -0400
-Date: Fri, 3 Aug 2001 11:57:59 +0200
-Message-Id: <200108030957.f739vx322738@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: matthias.andree@stud.uni-dortmund.de (Matthias Andree)
-Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        Paul Jakma <paul@clubi.ie>, linux-kernel@vger.kernel.org,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: intermediate summary of ext3-2.4-0.9.4 thread
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <20010803103954.A11584@emma1.emma.line.org>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+	id <S268079AbRHCKCo>; Fri, 3 Aug 2001 06:02:44 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:18593 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S268129AbRHCKC0>; Fri, 3 Aug 2001 06:02:26 -0400
+Message-ID: <3B6A77CA.13159ED6@veritas.com>
+Date: Fri, 03 Aug 2001 15:37:06 +0530
+From: "Amit S. Kale" <akale@veritas.com>
+Organization: Veritas Software (India)
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Brent Baccala <baccala@freesoft.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kernel gdb for intel
+In-Reply-To: <E15SJZk-0000hw-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010803103954.A11584@emma1.emma.line.org> you wrote:
-> They'd just drop Linux from the list of supported OS's, Linux will
-> disappoint people who trusted it, nothing is gained. Deliberate breakage
-> will not happen, because it would not help anyone except people with
-> twisted minds.
+Alan Cox wrote:
+> 
+> > - doesn't support SMP, since I don't have an Intel SMP box.  I'd guess
+> > what you'd want it to do is an smp_call_function that would halt all the
+> > processors and put them into some tight little loop while gdb fiddles
+> > things.  ideas?
+> 
+> With the old old stuff (pre 2.0) gdb stubs I ended up with two copies, one
+> per cpu on two serial ports. I found that most useful since I could force
+> events to happen.
 
-Who cares?  There are more than enough sane mailer around..
+I can't get this. How can two gdb stubs work correctly
+on two serial ports? In absence of any globals, there won't be
+any data corruption, though there are inherent assumptions in 
+the kernel about progress on all cpus. If GKL, page cache lock etc
+are held by one cpu, the other cpu will not be able to make
+any/much progress.
 
-> NO-ONE, including you, has come up with SERIOUS objections against a
-> dirsync option, except "is it really so much slower than chattr +S? show
-> figures" -- ext3 is being tuned to be fast in spite of chattr +S.
-
-Talk is cheap.  Code up a non-invasive dirsync option and submit it to
-Linus.  I don't see any reason why it won't be accepted..
-
-	Christoph
-
+Are two gdb stubs useful for debugging some particular kind
+of problem? If they are I can think about how I can
+add them to current x86 kgdb (kgdb.sourceforge.net).
 -- 
-Of course it doesn't work. We've performed a software upgrade.
+Amit Kale
+Veritas Software ( http://www.veritas.com )

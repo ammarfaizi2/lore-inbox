@@ -1,132 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268805AbUJEFd0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268799AbUJEFzz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268805AbUJEFd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 01:33:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268802AbUJEFd0
+	id S268799AbUJEFzz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 01:55:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268816AbUJEFzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 01:33:26 -0400
-Received: from gizmo11bw.bigpond.com ([144.140.70.21]:58519 "HELO
-	gizmo11bw.bigpond.com") by vger.kernel.org with SMTP
-	id S268805AbUJEFct (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 01:32:49 -0400
-Message-ID: <416231FA.9080406@bigpond.net.au>
-Date: Tue, 05 Oct 2004 15:32:42 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Tue, 5 Oct 2004 01:55:55 -0400
+Received: from mail.joq.us ([67.65.12.105]:61060 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S268799AbUJEFzv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 01:55:51 -0400
+To: Chris Wright <chrisw@osdl.org>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       Jody McIntyre <realtime-lsm@modernduck.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de
+Subject: Re: [PATCH] Realtime LSM
+References: <1094967978.1306.401.camel@krustophenia.net>
+	<20040920202349.GI4273@conscoop.ottawa.on.ca>
+	<20040930211408.GE4273@conscoop.ottawa.on.ca>
+	<1096581213.24868.19.camel@krustophenia.net>
+	<87pt43clzh.fsf@sulphur.joq.us>
+	<20040930182053.B1973@build.pdx.osdl.net>
+	<87k6ubcccl.fsf@sulphur.joq.us>
+	<1096663225.27818.12.camel@krustophenia.net>
+	<20041001142259.I1924@build.pdx.osdl.net>
+	<1096669179.27818.29.camel@krustophenia.net>
+	<20041001152746.L1924@build.pdx.osdl.net>
+From: "Jack O'Quin" <joq@io.com>
+Date: 05 Oct 2004 00:55:43 -0500
+In-Reply-To: <20041001152746.L1924@build.pdx.osdl.net>
+Message-ID: <877jq5vhcw.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 MIME-Version: 1.0
-To: Rui Nuno Capela <rncbc@rncbc.org>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, "K.R. Foley" <kr@cybsft.com>,
-       thewade <pdman@aproximation.org>, Florian Schmidt <mista.tapas@gmx.net>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm1-S9
-References: <20040919122618.GA24982@elte.hu> <414F8CFB.3030901@cybsft.com> <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu> <20041004215315.GA17707@elte.hu> <32786.192.168.1.5.1096939184.squirrel@192.168.1.5>
-In-Reply-To: <32786.192.168.1.5.1096939184.squirrel@192.168.1.5>
-Content-Type: multipart/mixed;
- boundary="------------060501070501010508040205"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060501070501010508040205
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Chris Wright <chrisw@osdl.org> writes:
 
-Rui Nuno Capela wrote:
-> Ingo wrote:
+> * Lee Revell (rlrevell@joe-job.com) wrote:
+> > OK, poor choice of words.  Correctness of course comes before ease of
+> > use.  I believe the realtime-lsm module satisfies both requirements.
 > 
->>i've released the -S9 VP patch:
->>http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm2-S9
->>
-> 
-> 
-> Me again, we bad humor :(
-> 
-> My SMP/HT box is (again) terribly in that uglyness of being quite
-> unfriendly to -mm1, -mm2, and indirectly to -S8 and -S9 labeled kernels.
-> 
-> It works quite well with vanilla 2.6.9-rc3, though.
-> 
-> But very, very bad with those -mm1 or -mm2 patches. To get it straight,
-> almost all the time it hangs, randomly, but not as completely as to a
-> dramatic cold-reboot. It stalls on the the most administrative tasks. Name
-> one, and it stalls! I can hardly feel lucky if it sometimes reaches the
-> login prompt, while boot/initing.
-> 
-> I know you remember this story. Yeah. This seems quite similar to some of
-> earlier problems, but (un/fortunately) it doesn't seem related to VP at
-> all. Just having -mm1 or -mm2 is enough to make this machine go astray.
-> 
-> However, as usual, this seems to be ix86 SMP/HT specific. On my laptop, I
-> get to run full 2.6.9-rc3-mm2-S9 UP very happily.
-> 
-> Sorry if I can't get any real or useful debug data for now. The bad
-> behavior I'm referring to, is terribly non-deterministic, so I couldn't
-> get a pattern yet.
-> 
-> I just wanted to let you know ;)
+> I agree with that.  That's not my objection.  It's about pushing code
+> (albeit it's small and non-invasive) into the kernel that can be done in
+> userspace, that's all.
 
-This may be my fault.  I made changes in the SMH code as part of the 
-ZAPHOD patch but was unable to test them on a hyperthreaded machine due 
-to a lack thereof (I have one on order).  I've attached a patch that 
-reverts the changes that I made.  Can you give them a try please and let 
-me know if they fix your problem?
+> > > Hrm, I guess we'll have to agree to disagree.  The whole point of the
+> > > mlock rlimits code is to enable this policy to be pushed to userspace.
+> > > A generic method of enabling capabilities is the best way to go, long
+> > > term.  Any interest in pursuing that?
 
-Thanks
-Peter
+None here.  I prefer to spend my time on audio development than kernel
+code.  There are plenty of good kernel developers already.
+
+I agree that a generic capabilities module would be nice to have,
+mainly because of current difficulties with stacking multiple LSM's.
+However, if there were a good stacking facility, then multiple,
+simple, application-oriented modules like the realtime-lsm might be
+even better in some respects.
+
+> > I did not mean to imply that I disagree with the realtime-lsm approach. 
+> > Obviously some kernel support is required, and realtime-lsm seems to
+> > solve the problem with the minimum possible change to the kernel.  And
+> > above all it is a proven working solution that has been field tested for
+> > months by many, many users.
+> 
+> Clearly it's useful for the audio folks.  Whether it's the right thing
+> to go into the kernel is all that's in question here.  Do we agree it's
+> a stopgap measure making up for lack of a better general solution?
+
+Sure, I agree.  But, I suspect that gap looks much larger from my
+perspective than yours.  :-)
+
+We would never have developed this LSM had there not been a serious
+need.  Audio developers have been struggling for years with the need
+to apply specialized kernel patches to get acceptable realtime
+operation.  Audio is very intolerant of realtime glitches.  They cause
+nasty pops in the output.  And, large audio applications should not
+run as `root'.  The 2.4 "capabilities patch" was never a satisfactory
+solution.
+
+Thanks to the good work being done on 2.6, we are now close to being
+able to do serious realtime work with standard kernels available
+everwhere.  The LSM framework is an important element of that
+solution, with the realtime LSM a small but essential component,
+because it makes these features available without excessive
+administrative burden.  Many musicians have a Mac or Windows
+background.  They are not willing to perform complex system
+administration tasks to get good audio performance.  PAM is great for
+sophisticated sysadmins on shared systems.  But, I seriously doubt
+many musicians will be able to configure it correctly.  For a
+single-user Digital Audio Workstation it is overkill.
+
+So, even if you do provide a more general solution, I will probably
+have to continue supporting the realtime-lsm interface throughout the
+2.6 kernel life-cycle, as there will be enough users for it to be a
+defacto standard.  If it is no longer needed in the 2.8 timeframe, I
+can drop support then.
+
+It's hard to say how many people use realtime-lsm right now.
+SourceForge lists about 1500 source downloads over the last six
+months.  Binary copies are included in the most popular audio-oriented
+distributions, including Planet CCRMA and DeMuDi.  I guess there are
+probably no more than a few thousand active users.
+
+These are already enough that I feel committed to providing whatever
+module updates are required for all official 2.6 kernel versions.
+Including the LSM in the kernel would distribute it to more users.  It
+would also simplify maintenance slightly.  I currently maintain a
+single source that works for all 2.6 versions.  As a practical matter,
+I may ignore some of the pre-2.6.6 issues in the next release.
+
+Is that what you meant by stop-gap?  :-)
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
-
---------------060501070501010508040205
-Content-Type: text/x-patch;
- name="smh.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="smh.patch"
-
---- linux-2.6.9-rc3-mm2/kernel/sched.c	2004-10-05 15:17:09.157119322 +1000
-+++ linux-2.6.9-rc3-mm2-mod/kernel/sched.c	2004-10-05 15:27:05.355561830 +1000
-@@ -3240,18 +3240,21 @@ need_resched:
- 		put_task_in_sinbin(prev);
- 
- 	cpu = smp_processor_id();
--	if (unlikely(needs_idle_balance(rq))) {
-+	if (unlikely(!rq->nr_running)) {
- go_idle:
- 		idle_balance(cpu, rq);
--		/* This code should get optimised away when CONFIG_SCHED_SMT
--		 * is not defined
--		 */
--		if (dependent_idle(rq))
-+		if (!rq->nr_running) {
-+			next = rq->idle;
- 			wake_sleeping_dependent(cpu, rq);
-+			/*
-+			 * wake_sleeping_dependent() might have released
-+			 * the runqueue, so break out if we got new
-+			 * tasks meanwhile:
-+			 */
-+			if (!rq->nr_running)
-+				goto switch_tasks;
-+		}
- 	} else {
--		/* This code should all get optimised away when CONFIG_SCHED_SMT
--		 * is not defined
--		 */
- 		if (dependent_sleeper(cpu, rq)) {
- 			schedstat_inc(rq, sched_goidle);
- 			next = rq->idle;
-@@ -3262,7 +3265,7 @@ go_idle:
- 		 * lock, hence go into the idle loop if the rq went
- 		 * empty meanwhile:
- 		 */
--		if (unlikely(recheck_needs_idle_balance(rq)))
-+		if (unlikely(!rq->nr_running))
- 			goto go_idle;
- 	}
- 
-
---------------060501070501010508040205--
+  joq

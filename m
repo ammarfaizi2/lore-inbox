@@ -1,65 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293058AbSCEMmc>; Tue, 5 Mar 2002 07:42:32 -0500
+	id <S293069AbSCEMoM>; Tue, 5 Mar 2002 07:44:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293061AbSCEMmX>; Tue, 5 Mar 2002 07:42:23 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:51205 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S293058AbSCEMmN>; Tue, 5 Mar 2002 07:42:13 -0500
-Date: Tue, 5 Mar 2002 09:41:56 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: arjan@fenrus.demon.nl
-Cc: Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19pre1aa1
-In-Reply-To: <200203050835.g258ZpW25134@fenrus.demon.nl>
-Message-ID: <Pine.LNX.4.44L.0203050934340.1413-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293064AbSCEMoE>; Tue, 5 Mar 2002 07:44:04 -0500
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:1445 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S293069AbSCEMnz>; Tue, 5 Mar 2002 07:43:55 -0500
+Message-Id: <5.1.0.14.2.20020305124520.026b8a40@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 05 Mar 2002 12:47:26 +0000
+To: Martin Dalecki <dalecki@evision-ventures.com>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: [PATCH] 2.5.6-pre2 IDE cleanup 16
+Cc: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C84BBE1.3020906@evision-ventures.com>
+In-Reply-To: <Pine.LNX.4.44.0203051307080.12437-100000@netfinity.realnet.co.sz>
+ <5.1.0.14.2.20020305122312.026b9180@pop.cus.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Mar 2002 arjan@fenrus.demon.nl wrote:
-> In article <20020305005215.U20606@dualathlon.random> you wrote:
+At 12:36 05/03/02, Martin Dalecki wrote:
+>Anton Altaparmakov wrote:
+>>At 11:48 05/03/02, Martin Dalecki wrote:
+>>
+>>>5. No body is using it as of now and therefore nobody should miss it.
+>>
+>>That is a very bold statement which is incorrect. I remember reading at 
+>>least one post to lkml from a company who is using the Taskfile ioctls 
+>>and having a lot of praise for them. Sorry I delete older lkml stuff so I 
+>>can't quote you the post but I am sure you could find it in the archives 
+>>if you tried to look.
 >
-> > I don't see how per-zone lru lists are related to the kswapd deadlock.
-> > as soon as the ZONE_DMA will be filled with filedescriptors or with
-> > pagetables (or whatever non pageable/shrinkable kernel datastructure you
-> > prefer) kswapd will go mad without classzone, period.
->
-> So does it with class zone on a scsi system....
+>It can't be older then 2.5.4 becouse before it just wasn't there.
 
-Furthermore, there is another problem which is present in
-both 2.4 vanilla, -aa and -rmap.
+Old is a few days-a week on my time scale but the post i am referring to is 
+going at least a month or so back. And of course it can be older, you seem 
+to be forgetting that Andre's IDE patches have been around for a _long_ 
+time now for 2.4.x...
 
-Suppose that (1) we are low on memory in ZONE_NORMAL and
-(2) we have enough free memory in ZONE_HIGHMEM and (3) the
-memory in ZONE_NORMAL is for a large part taken by buffer
-heads belonging to pages in ZONE_HIGHMEM.
-
-In that case, none of the VMs will bother freeing the buffer
-heads associated with the highmem pages and kswapd will have
-to work hard trying to free something else in ZONE_NORMAL.
-
-Now before you say this is a strange theoretical situation,
-I've seen it here when using highmem emulation. Low memory
-was limited to 30 MB (16 MB ZONE_DMA, 14 MB ZONE_NORMAL)
-and the rest of the machine was HIGHMEM.  Buffer heads were
-taking up 8 MB of low memory, dcache and inode cache were a
-good second with 2 MB and 5 MB respectively.
+Anton
 
 
-How to efficiently fix this case ?   I wouldn't know right now...
-However, I guess we might want to come up with a fix because it's
-a quite embarassing scenario ;)
-
-regards,
-
-Rik
 -- 
-Will hack the VM for food.
-
-http://www.surriel.com/		http://distro.conectiva.com/
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

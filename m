@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264043AbRFERCo>; Tue, 5 Jun 2001 13:02:44 -0400
+	id <S264044AbRFERKr>; Tue, 5 Jun 2001 13:10:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264044AbRFERCZ>; Tue, 5 Jun 2001 13:02:25 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:39697 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S264043AbRFERCN>;
-	Tue, 5 Jun 2001 13:02:13 -0400
-Date: Tue, 5 Jun 2001 19:01:28 +0200
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: David Woodhouse <dwmw2@infradead.org>, Chris Wedgwood <cw@f00f.org>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, bjornw@axis.com,
-        linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
-Subject: Re: Missing cache flush.
-Message-ID: <20010605190128.A12204@pcep-jamie.cern.ch>
-In-Reply-To: <15132.22933.859130.119059@pizda.ninka.net> <13942.991696607@redhat.com> <3B1C1872.8D8F1529@mandrakesoft.com> <15132.15829.322534.88410@pizda.ninka.net> <20010605155550.C22741@metastasis.f00f.org> <25587.991730769@redhat.com> <15132.40298.80954.434805@pizda.ninka.net>
-Mime-Version: 1.0
+	id <S264046AbRFERKh>; Tue, 5 Jun 2001 13:10:37 -0400
+Received: from eagle.verisign.com ([208.206.241.105]:9449 "EHLO
+	eagle.verisign.com") by vger.kernel.org with ESMTP
+	id <S264044AbRFERKV>; Tue, 5 Jun 2001 13:10:21 -0400
+From: slurn@verisign.com
+Message-Id: <200106051710.KAA03726@slurndal-lnx.verisign.com>
+Subject: Re: strange network hangs using kdb
+To: kaos@ocs.com.au (Keith Owens)
+Date: Tue, 5 Jun 2001 10:10:14 -0700 (PDT)
+Cc: jjasen1@umbc.edu (John Jasen), linux-kernel@vger.kernel.org,
+        kdb@oss.sgi.com
+In-Reply-To: <19199.991759088@ocs3.ocs-net> from "Keith Owens" at Jun 06, 2001 02:38:08 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15132.40298.80954.434805@pizda.ninka.net>; from davem@redhat.com on Tue, Jun 05, 2001 at 01:50:50AM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> Basically if you know the L2 cache size and the assosciativity you can
-> do this as long as you can get a "2 * L2 cache size * assosciativity"
-> piece of contiguous physical memory.  When you need this "simon says"
-> flush, you basically read this physical memory span and this will
-> guarentee that all dirty data has exited the L2 cache.
+> 
+> On Tue, 5 Jun 2001 12:20:25 -0400, 
+> John Jasen <jjasen1@umbc.edu> wrote:
+> >On Wed, 6 Jun 2001, Keith Owens wrote:
+> >> On Tue, 5 Jun 2001 11:20:26 -0400,
+> >> John Jasen <jjasen1@umbc.edu> wrote:
+> >> >When we use kdb on one of the systems, the other system stops receiving
+> >> >packets.
+> >>
+> >> man linux/Documentation/kdb/kdb.mm, section Interrupts and KDB.
+> >
+> >I would expect one system to fall off the network, when it is put into
+> >kdb. However, why does it have any effect on the other system, which may
+> >or may not be in kdb?
+> 
+> It does not.  kdb is intrusive when it trips but even it cannot reach
+> across a network and stop another machine.  Look for a networking
+> problem on the other system.
+> 
 
-Whether this works depends on the cache line replacement policy.  It
-will always work with LRU, for example, and probably everything else
-that exists.  But it is not guaranteed, is it?
+Might the machine running kdb also be acting as a gateway or router
+for the other boxen?  This would account for the lack of connectivity.
 
--- Jamie
+scott

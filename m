@@ -1,54 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263501AbUCTSWn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 13:22:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263504AbUCTSWn
+	id S263503AbUCTSmk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 13:42:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263504AbUCTSmk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 13:22:43 -0500
-Received: from holomorphy.com ([207.189.100.168]:1417 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263501AbUCTSWl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 13:22:41 -0500
-Date: Sat, 20 Mar 2004 10:22:34 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: can device drivers return non-ram via vm_ops->nopage?
-Message-ID: <20040320182234.GI2045@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>
-References: <20040320133025.GH9009@dualathlon.random> <Pine.LNX.4.58.0403200937500.1106@ppc970.osdl.org>
+	Sat, 20 Mar 2004 13:42:40 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:48138 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263503AbUCTSmi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 13:42:38 -0500
+Date: Sat, 20 Mar 2004 19:42:52 +0100
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>, RANDAZZO@ddc-web.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2 nics in the same machine...
+Message-ID: <20040320184252.GA2016@hh.idb.hist.no>
+References: <89760D3F308BD41183B000508BAFAC4104B17010@DDCNYNTD> <405ABA74.5030409@aitel.hist.no> <20040319223656.GF14537@alpha.home.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0403200937500.1106@ppc970.osdl.org>
+In-Reply-To: <20040319223656.GF14537@alpha.home.local>
 User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Mar 2004, Andrea Arcangeli wrote:
->> The only bugreport I've got so far for the latest anon_vma code is from
->> Jens, and it's a device driver bug in my opinion, but I'd like to have a
->> definitive confirmation from you about the ->nopage API.
+On Fri, Mar 19, 2004 at 11:36:56PM +0100, Willy Tarreau wrote:
+> Hi,
+> 
+> On Fri, Mar 19, 2004 at 10:16:36AM +0100, Helge Hafting wrote:
+>  
+> > If you want to test NICs (or cables & hubs) do this:
+> > 
+> > 1. Run a packet sniffer on the "listening" NIC.  Run it in
+> >   promiscuous mode so it'll even sniff packets not meant for it.
+> > 
+> > 2. Set a default route to the "sending" NIC.  Or at least a route
+> >   to some network that isn't on your machine.
+> > 
+> > 3. Ping the remote network.  You will not get an answer, but:
+> >   The packet will be sent through the "sending" NIC, 
+> >   and sniffed by the "listening" NIC.  So you'll verify that
+> >   NICs and cable works.  Optionally make a script that reverses
+> >   the roles of the two NICs if you want to test both ways.
+> 
+> Nearly right. He will need to enter static ARP entries for this to
+> work because his host will try to resolve the gateway's address first,
+> so nothing except ARP will go out.
+> 
+I didn't think of that.  Of course, capturing an ARP broadcast is probably
+good enough for testing cables.  One might want better than that
+for testing the NIC driver though.
 
-On Sat, Mar 20, 2004 at 09:39:51AM -0800, Linus Torvalds wrote:
-> I'd say that this is definitely a driver bug.
-> If a driver wants to map non-RAM pages, that's perfectly ok, but it MUST 
-> NOT happen through "nopage()". The driver should map them with 
-> "remap_page_range()", and thus never take a page fault for such pages at 
-> all.
-> There is no reason to ever lazily map non-RAM pages - clearly they aren't 
-> using any "real memory", so there is no reason to not fill the page tables 
-> at mmap() time.
-> In other words, the driver is horribly broken.
+> DNAT out + SNAT in may be OK. I've used this setup in the past, but didn't
+> not go on because of performance problems. Now, Julian Anastasov has written
+> a wonderful patch named "send-to-self" which does the trick automagically.
+> You can get it on his site ( http://www.ssi.bg/~ja/ IIRC ).
+> 
+> > If, on the other hand, you're testing apps/protocols, don't worry that 
+> > the traffic don't hit the wire.  A test utilizing internal loopback
+> > is just as good.
+> 
+> Right. Except that in some very weird cases, the higher MTU on loopback may
+> affect the app's behaviour (less packets, or bigger reads at once, etc...).
 
-If our official story is prefaulting, there should be very little to do.
-I'll grep around for drivers doing the wrong thing and see if any rmk's
-not handling are in need of conversion from fault handling to
-remap_page_range().
+ifconfig lo mtu 1500  :-)
 
-
--- wli
+Helge Hafting 

@@ -1,46 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262276AbTJNJ7X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 05:59:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262241AbTJNJ7X
+	id S262118AbTJNKFW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 06:05:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbTJNKFW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 05:59:23 -0400
-Received: from mail.convergence.de ([212.84.236.4]:14012 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S262276AbTJNJ7W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 05:59:22 -0400
-Message-ID: <3F8BC8F8.6000909@convergence.de>
-Date: Tue, 14 Oct 2003 11:59:20 +0200
-From: Michael Hunold <hunold@convergence.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.5b) Gecko/20030903 Thunderbird/0.2
-X-Accept-Language: de-de, de-at, de, en-us, en
-MIME-Version: 1.0
-To: Stephen Hemminger <shemminger@osdl.org>
-CC: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/14] LinuxTV.org DVB driver update
-References: <20031011105320.1c9d46db.davem@redhat.com>	<Pine.GSO.4.21.0310121115260.27309-100000@starflower.sonytel.be>	<20031012110846.GA1677@mars.ravnborg.org> <20031013090108.3aa8c464.shemminger@osdl.org>
-In-Reply-To: <20031013090108.3aa8c464.shemminger@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Oct 2003 06:05:22 -0400
+Received: from users.linvision.com ([62.58.92.114]:22937 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S262118AbTJNKFK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 06:05:10 -0400
+Date: Tue, 14 Oct 2003 12:05:05 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Wes Janzen <superchkn@sbcglobal.net>
+Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, John Bradford <john@grabjohn.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Why are bad disk sectors numbered strangely, and what happens to them?
+Message-ID: <20031014100505.GD16683@bitwizard.nl>
+References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60> <200310131014.h9DAEwY3000241@81-2-122-30.bradfords.org.uk> <33a201c39174$2b936660$5cee4ca5@DIAMONDLX60> <20031014064925.GA12342@bitwizard.nl> <3F8BA037.9000705@sbcglobal.net> <200310140721.h9E7LmNE000682@81-2-122-30.bradfords.org.uk> <20031014074020.GC13117@bitwizard.nl> <200310140800.h9E80BT9000815@81-2-122-30.bradfords.org.uk> <20031014081110.GA14418@bitwizard.nl> <3F8BB9ED.5010504@sbcglobal.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F8BB9ED.5010504@sbcglobal.net>
+User-Agent: Mutt/1.3.28i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Stephen,
+On Tue, Oct 14, 2003 at 03:55:09AM -0500, Wes Janzen wrote:
+> >And the real-time performance of the drive becomes unreliable. 
+> >Worst case, in a 1Mbyte block 1 million sectors are remapped,
+> >requiring a seek of 10ms. While normally reading that block of
+> >data would consume 1/40th of a second, you are now looking at
+> >about 3 hours. 
 
-> I think root cause of the problem is that dvb was only just been added
-> to the MAINTAINERS file so the patch got lost when I sent to closet
-> match was the video lists. It was kind of orphan thing since it crossed
-> both networking and DVB.
+> Well, aren't we talking about hardware sectors?  The hardware sectors 
+> are probably at least 1 MB in size to start with.  My old 16GB Maxtor 
+> that had remapped its way out of sectors only had 16 to remap (the last 
+> unit I had fail due to this problem).  I doubt the hardware sectors were 
+> anywhere near 1 byte in size.  The bad sectors also seemed to occur at 
 
-I just browsed thorugh the changelogs at
-http://linus.bkbits.net:8080/linux-2.5/src/drivers/media/dvb?nav=index.html|src/.|src/drivers|src/drivers/media
-and back-feeded the changes that did not make it into our local CVS yet.
+OOops. Sorry. Too quick with the numbers. The remapping granularity is
+1 sector (0.5kbytes), and there are 2000 of those in a megabyte.
 
-> Do you need any help in reinserting it?
+So if the odd numbered ones end up remapped, you have 2000 seeks to
+perform to read that 1Mb of data. That would come to 2000 * 10ms = 20
+seconds. Not quite as bad as several hours, but still.... 
 
-Thanks for your offer. But I have just cut out your patch, "reversed 
-it", compile tested it and sent it to lkml.
+> an exponential rate, which is supported by the 5 drives I've seen go bad 
+> in this manner.  Supposedly that has to do with debries spreading across 
+> the platter and taking out adjacent sectors.  The one drive I didn't 
+> send back or replace immediately after the first error (i.e. no more 
+> sectors can be remapped) had lost nearly 50MB of space to bad sectors in 
+> a week, and 200MB by the time the replacement arrived 4 days later.  I 
+> imagine that this only gets worse as more data is packed into a smaller 
+> space.
 
-CU
-Michael.
+This supports my statement that if you notice sectors getting bad,
+replace the disk as fast as you can, and hope that the sector
+remapping bails you out until you get that chance.
 
+
+> Is there even a way to disable sector remapping on an ATA drive anyway?  
+> To avoid these "disadvantages of hardware remapping" you'd need some way 
+> to ensure that the drive didn't remap any sectors.  As someone noted, 
+> their drive remapped a sector without anything showing up in the log. 
+
+Some drives claim "AV compatibility" or something like that. I think
+that this means that they will have their spare sectors on the same
+cylinder. i.e. no seeking. (just on average 8ms delay).
+
+> I start more closely watching any drive that remaps more than half its 
+> available sectors, if it gets close to the limit I replace it (if it's 
+> out of warranty, otherwise I help it along with some badblock runs).  
+> It's just not worth the hassle of losing data.  At least if the drive 
+> detects the error, chances are it recovers the data and copies it to a 
+> good sector (at least I've never lost any data from a drive remapping).  
+> I can't say the same for the filesystem trying to recover the data, 
+> which usually seems to result in a corrupted file.  IMHO, the data 
+> integrity of hardware remapping outweighs any performance disadvantage 
+> as compared to a filesystem-only based solution.
+> 
+> Now if only the drive would catch the problem without requiring a write 
+> to the offending sector first. ;-)  Maybe that's already fixed on the 
+> newer drives, none of my newer ones have remapped sectors yet.
+
+The problem is that it would be nice if the disk could report: I just
+read the data from block XXX for you, but I had a hard time getting it
+for you. Recommend reassignment. The OS should then log this, and put
+the file that this belongs to elsewhere. This gives the OS the
+authority, and the sysop the ability to take appropriate action.
+
+I don't mind a couple of remaps on my mp3 collection. But I rather
+hate them on my root drive. 
+
+			Roger. 
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****

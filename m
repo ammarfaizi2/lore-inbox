@@ -1,84 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135667AbRBET3J>; Mon, 5 Feb 2001 14:29:09 -0500
+	id <S129028AbRBEThA>; Mon, 5 Feb 2001 14:37:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135668AbRBET27>; Mon, 5 Feb 2001 14:28:59 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:54801 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S135667AbRBET2r>; Mon, 5 Feb 2001 14:28:47 -0500
-Date: Mon, 5 Feb 2001 11:28:17 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        Christoph Hellwig <hch@caldera.de>, Steve Lord <lord@sgi.com>,
-        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-In-Reply-To: <E14Pr8G-0003zV-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10102051118210.31206-100000@penguin.transmeta.com>
+	id <S129065AbRBETgv>; Mon, 5 Feb 2001 14:36:51 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:40209 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S129028AbRBETgg>; Mon, 5 Feb 2001 14:36:36 -0500
+Message-ID: <3A7F00B8.9BDE5BBB@Hell.WH8.TU-Dresden.De>
+Date: Mon, 05 Feb 2001 20:36:24 +0100
+From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+Organization: Dept. Of Computer Science, Dresden University Of Technology
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac2 i686)
+X-Accept-Language: en, de-DE
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Peter Horton <pdh@colonel-panic.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: VIA silent disk corruption - likely fix
+In-Reply-To: <20010205150802.A1568@colonel-panic.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 5 Feb 2001, Alan Cox wrote:
-
-> > Stop this idiocy, Stephen. You're _this_ close to be the first person I
-> > ever blacklist from my mailbox. 
+Peter Horton wrote:
 > 
-> I think I've just figured out what the miscommunication is around here
+> I've found the cause of silent disk corruption on my A7V motherboard,
+> and it might affect all boards with the same North bridge (KT133 etc).
 > 
-> kiovecs can describe arbitary scatter gather
+> For some reason the IDE controller(s) was sometimes picking up stale
+> data during bus master DMA to the drive. Assuming that there was no bug
+> in the CPU it had to be the North bridge that was caching the stuff when
+> it shouldn't have been. I assume the problem would also apply to other
+> bus masters (SCSI, NIC etc).
 
-I know. But they are entirely useless for anything that requires low
-latency handling. They are big, bloated, and slow. 
+Do you have a small test program to illustrate that bug? I have an A7V
+with PCI Master Read Caching enabled and haven't seen any corruption so
+far (which doesn't necessarily mean much). Or if you don't have a test
+program, how did you identify it's caching too much?
+Also, are you using a Thunderbird or a Duron?
 
-It is also an example of layering gone horribly horribly wrong.
+I'm using the 1003 Bios, which has proven to be the most stable so far.
+Which one do you use?
 
-The _vectors_ are needed at the very lowest levels: the levels that do not
-necessarily have to worry at all about completion notification etc. You
-want the arbitrary scatter-gather vectors passed down to the stuff that
-sets up the SG arrays etc, the stuff that doesn't care AT ALL about the
-high-level semantics.
+-Udo.
 
-This all proves that the lowest level of layering should be pretty much
-noting but the vectors. No callbacks, no crap like that. That's already a
-level of abstraction away, and should not get tacked on. Your lowest level
-of abstraction should be just the "area". Something like
-
-	struct buffer {
-		struct page *page;
-		u16 offset, length;
-	};
-
-	int nr_buffers:
-	struct buffer *array;
-
-should be the low-level abstraction. 
-
-And on top of _that_ you build a more complex entity (so a "kiobuf" would
-be defined not just by the memory area, but by the operation you want to
-do on it, adn the callback on completion etc).
-
-Currently kiobufs do it the other way around: you can build up an array,
-but only by having the overhead of passing kiovec's around - ie you have
-to pass the _highest_ level of abstraction around just to get the lowest
-level of details. That's wrong.
-
-And that wrongness comes _exactly_ from Stephens opinion that the
-fundamental IO entity is an array of contiguous pages. 
-
-And, btw, this is why the networking layer will never be able to use
-kiobufs.
-
-Which makes kiobufs as they stand now basically useless for anything but
-some direct disk stuff. And I'd rather work on making the low-level disk
-drivers use something saner.
-
-		Linus
-
+P.S. I seem to recall that later Bios Versions (>=1004) disable Master
+     Read Caching by default, so maybe Asus has also noticed something
+     wrong with it.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

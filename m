@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313904AbSEDPCl>; Sat, 4 May 2002 11:02:41 -0400
+	id <S313988AbSEDPah>; Sat, 4 May 2002 11:30:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313988AbSEDPCk>; Sat, 4 May 2002 11:02:40 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:14343 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S313904AbSEDPCk>; Sat, 4 May 2002 11:02:40 -0400
-Date: Sat, 4 May 2002 16:02:35 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org, Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Subject: Re: 2.4.19pre8aa2
-Message-ID: <20020504160235.A14926@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-	Eyal Lebedinsky <eyal@eyal.emu.id.au>
-In-Reply-To: <20020504165440.C1260@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S314124AbSEDPag>; Sat, 4 May 2002 11:30:36 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:10939 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S313988AbSEDPag>; Sat, 4 May 2002 11:30:36 -0400
+Date: Sat, 4 May 2002 09:30:33 -0600
+Message-Id: <200205041530.g44FUXo18390@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: paulus@samba.org
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel 
+In-Reply-To: <15571.47377.913702.639488@argo.ozlabs.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 04, 2002 at 04:54:40PM +0200, Andrea Arcangeli wrote:
-> Only in 2.4.19pre8aa2: 00_comx-driver-compile-1
-> 
-> 	Export proc_get_inode for kernel/drivers/net/wan/comx.o so
-> 	it can link as a module, noticed by Eyal Lebedinsky.
+Paul Mackerras writes:
+> But when have you known a kernel hacker to be satisfied with just
+> "faster than the previous system", as distinct from "as fast as I can
+> reasonably make it go"? ;-)
+[...]
+> Don't get me wrong, I think it's great to have all the advantages
+> that kbuild-2.5 brings.  However, I also think that those seconds
+> spent in the startup code will tend to have a disproportionate
+> effect on people's perceptions of the new system.  I know you have
+> already spent a lot of effort on this, but I want to get in and have
+> a look myself to see if I can spot anything that could be improved
+> there.
 
-Don't do this - proc_get_inode is static for a reason and doing this
-export in the SuSE tree for ages doesn't make it any better.
+As Keith says, the new code is faster and more robust than the old
+code. Given that tracking kernel drift is a significant load on him,
+it makes sense to incorporate the new code now. Once it's in, let
+people get used to it and then we can look at optimising it, if need
+be. Delaying introduction into the kernel tree because it's not 100%
+optimised is wasteful.
 
-The driver needs serious fixing instead.
+				Regards,
 
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

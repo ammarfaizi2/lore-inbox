@@ -1,65 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261869AbTIMDbx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 23:31:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbTIMDbx
+	id S261811AbTIMDtk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 23:49:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbTIMDtk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 23:31:53 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:59884 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S261869AbTIMDbv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 23:31:51 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Iker" <iker@computer.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: [lkml] RE: self piping and context switching
-Date: Fri, 12 Sep 2003 20:31:48 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKMECLGIAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <03f501c379a2$b14b49b0$3203a8c0@duke>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+	Fri, 12 Sep 2003 23:49:40 -0400
+Received: from sullivan.realtime.net ([205.238.132.76]:37384 "EHLO
+	sullivan.realtime.net") by vger.kernel.org with ESMTP
+	id S261811AbTIMDti (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 23:49:38 -0400
+Date: Fri, 12 Sep 2003 22:49:29 -0500 (CDT)
+Message-Id: <200309130349.h8D3nTvG035109@sullivan.realtime.net>
+Subject: Re: [linux-2.4.0-test5] swsusp w/o swap fail...
+To: Patrick Mochel <mochel@osdl.org>, Andi Kleen <ak@suse.de>,
+       Daniel Blueman <daniel.blueman@gmx.net>
+From: Milton Miller <miltonm@bga.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0309121509120.984-100000@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+To fix bugzilla 1131, Andi added select SOFTWARE_SUSPEND when ACPI_SLEEP
+is selected.  However, as discussed elsewhere [1], select superceedes
+depends.  Rather than say ACPI_SLEEP also enables SWAP, how about having
+X86_64 pick up a change made to x86, and compile suspend.c on CONFIG_PM.
 
-> More specifically, I was wondering if the write to the pipe or
-> the call back
-> into poll involved anything that might prompt the scheduler to replace the
-> thread in this scenario.
-
-	Sure, it could, but there's no particular reason to expect it to. The one
-exception would be if another thread was already blocked waiting for that
-particular pipe. In this case, your sending data on the pipe would unblock
-that thread, which could trigger a pre-emption.
-
-> > It's reasonable to expect that this will be the most common case and the
-> > one to optimize. It is unreasonable to fail if this doesn't
-> > happen, since
-> > it's not guaranteed to happen. Note that if by "without a
-> > context switch"
-> > you really mean without another thread getting a chance to run,
-> > then it is
-> > totally unreasonable.
-
-> Are you referring to transitions to/from kernel space? If so, wouldn't the
-> write
-> on the pipe and the call to poll both result in transitions?
-
-	Yes, but there's no reason that transition should cause the kernel to want
-to change processes. The kernel generally tries to let processes complete
-their timeslice. An exception could certainly be if the write to the pipe
-causes a new thread to unblock and that that thread has a higher dynamic
-priority (which it well might, since it was waiting).
-
-	Personally, I don't think the kernel should ever pre-empt threads/processes
-with equivalent static priorities, but that's another whole argument. ;)
-
-	DS
+Andi, can you test this?
 
 
+milton
+
+
+[1] Re: [patch] 2.6.0-test5: serio config broken? 
+http://www.ussg.iu.edu/hypermail/linux/kernel/0309.1/1572.html
+
+
+===== drivers/acpi/Kconfig 1.20 vs edited =====
+--- 1.20/drivers/acpi/Kconfig	Sat Aug 23 06:07:34 2003
++++ edited/drivers/acpi/Kconfig	Fri Sep 12 22:28:08 2003
+@@ -69,7 +69,6 @@
+ 	bool "Sleep States (EXPERIMENTAL)"
+ 	depends on X86 && ACPI
+ 	depends on EXPERIMENTAL && PM
+-	select SOFTWARE_SUSPEND
+ 	default y
+ 	---help---
+ 	  This option adds support for ACPI suspend states. 
+===== arch/x86_64/kernel/Makefile 1.23 vs edited =====
+--- 1.23/arch/x86_64/kernel/Makefile	Mon Aug 18 13:16:59 2003
++++ edited/arch/x86_64/kernel/Makefile	Fri Sep 12 22:28:56 2003
+@@ -16,7 +16,8 @@
+ obj-$(CONFIG_SMP)	+= smp.o smpboot.o trampoline.o
+ obj-$(CONFIG_X86_LOCAL_APIC)	+= apic.o  nmi.o
+ obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o mpparse.o
+-obj-$(CONFIG_SOFTWARE_SUSPEND)	+= suspend.o suspend_asm.o
++obj-$(CONFIG_PM)	+= suspend.o
++obj-$(CONFIG_SOFTWARE_SUSPEND)	+= suspend_asm.o
+ obj-$(CONFIG_EARLY_PRINTK)    += early_printk.o
+ obj-$(CONFIG_GART_IOMMU) += pci-gart.o aperture.o
+ obj-$(CONFIG_DUMMY_IOMMU) += pci-nommu.o pci-dma.o

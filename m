@@ -1,161 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261877AbVCAL2p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261878AbVCALgo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261877AbVCAL2p (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 06:28:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbVCAL2p
+	id S261878AbVCALgo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 06:36:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbVCALgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 06:28:45 -0500
-Received: from ns2.protei.ru ([195.239.28.26]:17865 "EHLO mail.protei.ru")
-	by vger.kernel.org with ESMTP id S261877AbVCAL2i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 06:28:38 -0500
-Message-ID: <422451DA.3040802@protei.ru>
-Date: Tue, 01 Mar 2005 14:28:26 +0300
-From: Nickolay <nickolay@protei.ru>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
+	Tue, 1 Mar 2005 06:36:44 -0500
+Received: from nijmegen.renzel.net ([195.243.213.130]:47788 "EHLO
+	mx1.renzel.net") by vger.kernel.org with ESMTP id S261878AbVCALgk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 06:36:40 -0500
+From: Mws <mws@twisted-brains.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: 2.6.11-rc5
+Date: Tue, 1 Mar 2005 12:36:53 +0100
+User-Agent: KMail/1.8
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0502232014190.18997@ppc970.osdl.org> <200502251430.16860.mws@twisted-brains.org> <1109379043.14993.93.camel@gaston>
+In-Reply-To: <1109379043.14993.93.camel@gaston>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: coywolf@gmail.com
-Subject: Kernel Oopses, can anyone fix it?
-Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart8227543.9dJfelea1f";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-X-Bogosity: No, tests=bogofilter, spamicity=0.610842, version=0.92.0
+Message-Id: <200503011236.58222.mws@twisted-brains.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Guys!
+--nextPart8227543.9dJfelea1f
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I has some shit happens after 2-3 days system working.
-After 2-3 days in kernel.debug i has many oopses.
-Stock 2.4.27 kernel.
-At time oopses started, system can't fork no one process.
-Below first two:
+hi benjamin
 
+now i had some spare time to do some investigation
 
-OOPS No 1
------------
-Jan  2 16:43:00 localhost kernel: Unable to handle kernel paging request 
-at virtual address b0bdd054
-Jan  2 16:43:00 localhost kernel:  printing eip:
-Jan  2 16:43:00 localhost kernel: c0128e3c
-Jan  2 16:43:00 localhost kernel: *pde = 00000000
-Jan  2 16:43:00 localhost kernel: Oops: 0000
-Jan  2 16:43:00 localhost kernel: CPU:    0
-Jan  2 16:43:00 localhost kernel: EIP:    0010:[<c0128e3c>]    Not tainted
-Jan  2 16:43:00 localhost kernel: EFLAGS: 00010883
-Jan  2 16:43:00 localhost kernel: eax: 34ffffff   ebx: 9ffffae0   ecx: 
-dcbdd040   edx: dc99b640
-Jan  2 16:43:00 localhost kernel: esi: c15dfc00   edi: 00000246   ebp: 
-000001f0   esp: db78bf64
-Jan  2 16:43:00 localhost kernel: ds: 0018   es: 0018   ss: 0018
-Jan  2 16:43:00 localhost kernel: Process crond (pid: 445, 
-stackpage=db78b000)
-Jan  2 16:43:00 localhost kernel: Stack: d1724000 ded07280 d17245a0 
-00000011 c0113917 c15dfc00 000001f0 db78a000
-Jan  2 16:43:00 localhost kernel:        0804ea20 00000001 db78bfbc 
-00000000 fffffff4 00000296 db78a000 00000000
-Jan  2 16:43:00 localhost kernel:        c01177f4 c0107398 00000011 
-bffffccc db78bfc4 00000000 bffffcd8 c01086d3
-Jan  2 16:43:00 localhost kernel: Call Trace:    [<c0113917>] 
-[<c01177f4>] [<c0107398>] [<c01086d3>]
-Jan  2 16:43:00 localhost kernel:
-Jan  2 16:43:00 localhost kernel: Code: 8b 44 81 18 89 41 14 03 59 0c 83 
-f8 ff 75 25 8b 41 04 8b 11
+booting the 2.6.11-rc5 with radeonfb.default_dynclk=3D0 or with -1
+brings up a framebuffer console. everything is fine.
+starting xorg-x11 with Ati binary only drivers just brings up a black screen
+without a mouse cursor and freezes the hole machine. even network ect.=20
+is no more reachable from outside the machine. worst thing out of that
+a tail on the log files (on another machine) does immediately stop - also n=
+o=20
+output is written to syslog :/
 
-KSYMOOPS Output for OOPS No 1
-----------------------------------
- >>EIP; c0128e3c <kmem_cache_alloc+84/dc>   <=====
+next scenario - test 2.6.11-rc5 with radeonfb.default_dynclock=3D0 and -1
+starting xorg-x11 with Xorg Radeon driver.=20
+a grey screen comes up - mouse cursor is visible and also able to move for
+5 - 8 seconds after screen display - then freezes the whole machine again.
 
- >>ecx; dcbdd040 <_end+1c8bba6c/1f4e0a8c>
- >>edx; dc99b640 <_end+1c67a06c/1f4e0a8c>
- >>esi; c15dfc00 <_end+12be62c/1f4e0a8c>
- >>esp; db78bf64 <_end+1b46a990/1f4e0a8c>
-
-Trace; c0113917 <do_fork+3ff/740>
-Trace; c01177f4 <sys_time+14/54>
-Trace; c0107398 <sys_fork+14/1c>
-Trace; c01086d3 <system_call+33/40>
-
-Code;  c0128e3c <kmem_cache_alloc+84/dc>
-00000000 <_EIP>:
-Code;  c0128e3c <kmem_cache_alloc+84/dc>   <=====
-   0:   8b 44 81 18               mov    0x18(%ecx,%eax,4),%eax   <=====
-Code;  c0128e40 <kmem_cache_alloc+88/dc>
-   4:   89 41 14                  mov    %eax,0x14(%ecx)
-Code;  c0128e43 <kmem_cache_alloc+8b/dc>
-   7:   03 59 0c                  add    0xc(%ecx),%ebx
-Code;  c0128e46 <kmem_cache_alloc+8e/dc>
-   a:   83 f8 ff                  cmp    $0xffffffff,%eax
-Code;  c0128e49 <kmem_cache_alloc+91/dc>
-   d:   75 25                     jne    34 <_EIP+0x34>
-Code;  c0128e4b <kmem_cache_alloc+93/dc>
-   f:   8b 41 04                  mov    0x4(%ecx),%eax
-Code;  c0128e4e <kmem_cache_alloc+96/dc>
-  12:   8b 11                     mov    (%ecx),%edx
+regards
+marcel
 
 
-
-OOPS No 2
------------
-Jan  2 16:43:01 localhost kernel:  <1>Unable to handle kernel paging 
-request at virtual address b0bdd054
-Jan  2 16:43:01 localhost kernel:  printing eip:
-Jan  2 16:43:01 localhost kernel: c0128e3c
-Jan  2 16:43:01 localhost kernel: *pde = 00000000
-Jan  2 16:43:01 localhost kernel: Oops: 0000
-Jan  2 16:43:01 localhost kernel: CPU:    0
-Jan  2 16:43:01 localhost kernel: EIP:    0010:[<c0128e3c>]    Not tainted
-Jan  2 16:43:01 localhost kernel: EFLAGS: 00010883
-Jan  2 16:43:01 localhost kernel: eax: 34ffffff   ebx: 9ffffae0   ecx: 
-dcbdd040   edx: db69a3a0
-Jan  2 16:43:01 localhost kernel: esi: c15dfc00   edi: 00000246   ebp: 
-000001f0   esp: db78bf64
-Jan  2 16:43:01 localhost kernel: ds: 0018   es: 0018   ss: 0018
-Jan  2 16:43:01 localhost kernel: Process log_script.sh (pid: 9286, 
-stackpage=db78b000)
-Jan  2 16:43:01 localhost kernel: Stack: dc56e000 ded07280 dc56e5a0 
-00000011 c0113917 c15dfc00 000001f0 db78a000
-Jan  2 16:43:01 localhost kernel:        bffff7d0 00000000 db78bfbc 
-00000000 fffffff4 bffff708 dc9845c0 c01304e3
-Jan  2 16:43:01 localhost kernel:        db78a000 c0107398 00000011 
-bffff74c db78bfc4 00000000 bffff868 c01086d3
-Jan  2 16:43:01 localhost kernel: Call Trace:    [<c0113917>] 
-[<c01304e3>] [<c0107398>] [<c01086d3>]
-Jan  2 16:43:01 localhost kernel:
-Jan  2 16:43:01 localhost kernel: Code: 8b 44 81 18 89 41 14 03 59 0c 83 
-f8 ff 75 25 8b 41 04 8b 11
+On Saturday 26 February 2005 01:50, Benjamin Herrenschmidt wrote:
+> On Fri, 2005-02-25 at 14:30 +0100, Mws wrote:
+> > hi,
+> >=20
+> > i also have problems with 2.6.11-rc5 and radeon:
+> >=20
+> > i am using a ATI Radeon X600 PciExpress.
+> >=20
+> > a) now the console framebuffer seems to bee working, thx benjamin :)
+> > b) when bootup seq ist completed and i want to start X (xorg-x11) with =
+ati-drivers
+> >     x is freezing - not your problem, but the console is not correctly =
+restored :/ the only way
+> >     out is to reset the machine :/
+> >     2.6.11-rc3 was running fine in this case
+>=20
+> Hrm, the binary drivers ? oh well... some users had them freezing vs.
+> radeonfb before and not now. I don't know what they do and don't have
+> access to a machine with them (there are no ppc versions) so it will be
+> difficult to track. I suspect they completely reconfigure the chip and
+> don't restore it properly tho.
 
 
-KSYMOOPS Output for OOPS No 2
-----------------------------------
- >>EIP; c0128e3c <kmem_cache_alloc+84/dc>   <=====
+=20
+> What exactly is happening. Does X launches at all ? When does it
+> freeze ? On X launch or when exiting it ? Have you tried disabling
+> dynamic clock tweaking ? (radeonfb.default_dynclk=3D-1 or 0 on the
+> cmdline, first one means "don't touch the registers", secoond one means
+> "disable dynamic clocks").
+=20
 
- >>ecx; dcbdd040 <_end+1c8bba6c/1f4e0a8c>
- >>edx; db69a3a0 <_end+1b378dcc/1f4e0a8c>
- >>esi; c15dfc00 <_end+12be62c/1f4e0a8c>
- >>esp; db78bf64 <_end+1b46a990/1f4e0a8c>
+--nextPart8227543.9dJfelea1f
+Content-Type: application/pgp-signature
 
-Trace; c0113917 <do_fork+3ff/740>
-Trace; c01304e3 <sys_llseek+cf/dc>
-Trace; c0107398 <sys_fork+14/1c>
-Trace; c01086d3 <system_call+33/40>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
-Code;  c0128e3c <kmem_cache_alloc+84/dc>
-00000000 <_EIP>:
-Code;  c0128e3c <kmem_cache_alloc+84/dc>   <=====
-   0:   8b 44 81 18               mov    0x18(%ecx,%eax,4),%eax   <=====
-Code;  c0128e40 <kmem_cache_alloc+88/dc>
-   4:   89 41 14                  mov    %eax,0x14(%ecx)
-Code;  c0128e43 <kmem_cache_alloc+8b/dc>
-   7:   03 59 0c                  add    0xc(%ecx),%ebx
-Code;  c0128e46 <kmem_cache_alloc+8e/dc>
-   a:   83 f8 ff                  cmp    $0xffffffff,%eax
-Code;  c0128e49 <kmem_cache_alloc+91/dc>
-   d:   75 25                     jne    34 <_EIP+0x34>
-Code;  c0128e4b <kmem_cache_alloc+93/dc>
-   f:   8b 41 04                  mov    0x4(%ecx),%eax
-Code;  c0128e4e <kmem_cache_alloc+96/dc>
-  12:   8b 11                     mov    (%ecx),%edx
+iD8DBQBCJFPaPpA+SyJsko8RAhMbAKC8s4CKN9oupJ1TFIvKsSJLbuosuwCgtKUv
+fSl8PdRsNuN1f/n8uBo8poI=
+=8BE1
+-----END PGP SIGNATURE-----
 
-
+--nextPart8227543.9dJfelea1f--

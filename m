@@ -1,67 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263792AbUBDJYY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 04:24:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263805AbUBDJYY
+	id S263805AbUBDJ2m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 04:28:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266101AbUBDJ2m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 04:24:24 -0500
-Received: from gw-nl6.philips.com ([161.85.127.52]:4833 "EHLO
-	gw-nl6.philips.com") by vger.kernel.org with ESMTP id S263792AbUBDJYW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 04:24:22 -0500
-Message-ID: <4020BA67.9020604@basmevissen.nl>
-Date: Wed, 04 Feb 2004 10:24:55 +0100
-From: Bas Mevissen <ml@basmevissen.nl>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Wed, 4 Feb 2004 04:28:42 -0500
+Received: from moutng.kundenserver.de ([212.227.126.184]:54527 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S263805AbUBDJ2i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 04:28:38 -0500
+Date: Wed, 4 Feb 2004 10:27:39 +0100 (CET)
+From: =?ISO-8859-1?Q?Gunter_K=F6nigsmann?= <gunter@peterpall.de>
+Reply-To: =?ISO-8859-1?Q?Gunter_K=F6nigsmann?= <gunter.koenigsmann@gmx.de>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+cc: Gunter =?iso-8859-1?q?K=F6nigsmann?= <gunter@peterpall.de>,
+       linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
+       Peter Berg Larsen <pebl@math.ku.dk>
+Subject: Re: Synaptics Touchpad workaround for strange behavior after Sync
+ loss (With Patch). (fwd)
+In-Reply-To: <200401111138.49858.dtor_core@ameritech.net>
+Message-ID: <Pine.LNX.4.53.0402041017410.857@calcula.uni-erlangen.de>
+References: <Pine.LNX.4.53.0401111652510.1271@calcula.uni-erlangen.de>
+ <200401111138.49858.dtor_core@ameritech.net>
 MIME-Version: 1.0
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Jan Dittmer <j.dittmer@portrix.net>, linux-kernel@vger.kernel.org
-Subject: Re: ext3 on raid5 failure
-References: <400A5FAA.5030504@portrix.net> <20040118180232.GD1748@srv-lnx2600.matchmail.com> <20040119153005.GA9261@thunk.org> <4010D9C1.50508@portrix.net> <20040127190813.GC22933@thunk.org> <401794F4.80701@portrix.net> <20040129114400.GA27702@thunk.org>
-In-Reply-To: <20040129114400.GA27702@thunk.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:6f0b4d165b4faec4675b8267e0f72da4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Ts'o wrote:
+Hello there!
+
+I am the guy with the Siemens Amilo-M Notebook and the Synaptics Touchpad
+loosing sync.
+
+I have upgraded to linux-2.6.2, and IT WORKS out of the box! Even without
+the 8042.nomux kernel parameter.
+
+In the Changelog there are some of the kernel patches You gave me for 2.6.1,
+and loads of ACPI changes. Perhaps You were right, and the power management
+interferred with the Multiplexer.
+
+
+Thanks a lot another time,
+
+
+	Gunter Königsmann.
+
+On Jan 11, Dmitry Torokhov wrote:
+
+>From: Dmitry Torokhov <dtor_core@ameritech.net>
+>Date: Sun, 11 Jan 2004 11:38:49 -0500
+>To: Gunter Königsmann <gunter.koenigsmann@gmx.de>,
+>     Gunter Königsmann <gunter@peterpall.de>
+>Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
+>     Peter Berg Larsen <pebl@math.ku.dk>
+>Subject: Re: Synaptics Touchpad workaround for strange behavior after Sync
+>    loss (With Patch). (fwd)
+>
+>On Sunday 11 January 2004 11:27 am, Gunter Königsmann wrote:
+>> Strike! Helps.
+>>
+>> No more warnings, no more bad clicks, and a *real* smooth movement.
+>>
+>
+>Great!
+>
+>Could you tell us what kind of laptop you have (manufacturer/model)
+>so other people would not have such pain as you had with it?
+>
+>> Never thought, a touchpad can work *this* well... ;-)
+>>
+>> Anyway, I still get those 4 lines  on leaving X, but don't know, if it
+>> is an error of the kernel, anyway, and doesn't do anything bad exept of
+>> warning me:
+>>
+>> atkbd.c: Unknown key released (translated set 2, code 0x7a on
+>> isa0060/serio0). atkbd.c: Unknown key released (translated set 2, code
+>> 0x7a on isa0060/serio0). atkbd.c: Unknown key released (translated set
+>> 2, code 0x7a on isa0060/serio0). atkbd.c: Unknown key released
+>> (translated set 2, code 0x7a on isa0060/serio0).
+>
+>I believe Vojtech said that it's because X on startup tries to talk to the
+>keyboard controller directly, nothing to worry about... But I might be
+>mistaken.
 >
 >>
->>sfhq:/mnt/data/1/lost+found# ls -l
->>total 76
->>d-wSr-----    2 1212680233 136929556    49152 Jun  7  2008 #16370
->>-rwx-wx---    1 1628702729 135220664    45056 May  4  1974 #16380
-> 
-> 
-> Ok, this looks like random garbage has gotten written into inode table.
-> 
-> If you can make this happen consistently with 2.6 and not with 2.4,
-> then that would be useful to know.  There may be some kind of race
-> condition or problem with either the raid5 code, or the combination of
-> raid5 plus ext3.  It's unlikely this kind of error would be caused by
-> a flaw in the ext3 code alone, since this is indicative of complete
-> garbage written to the inode table, or a block intended for another
-> location on disk getting written to the inode table.  The natural
-> suspect is at the block device layer and below.
-> 
+>>
+>> Yours,
+>>
+>> 	Gunter.
+>
+>Dmitry
+>
 
-I've seen this kind of problems on my notebook too. Among others, over 
-600MB of a huge cache directory (from a news reader) was having "funny" 
-permissions. Maybe more files were affected. I used fsck.ext3 and 
-changed the attributes with chmod.
-
-It may be caused by crashes of the notebook (power failure and 
-suspend/resume failure), but I would expect that the administration of 
-the fs would survive that, as it did for years. Actually, the last time 
-I had filesystem corruption was in kernel 1.2.xx days...
-
-As my notebook is not using raid, I suspect something in the ext3 code. 
-Kernel is 2.6.1 with ACPI, acpi-dsdt and swsusp2 patches.
-
-Regards,
-
-Bas.
-
-
-
+-- 
+This Czech walks into police station in 1968 during the Fraternal Assistance.
+Czech:  Hey, out there in the street, a Swiss soldier knocked me down and
+        took my Russian watch.
+Desk Sergeant:  Come again?
+Czech:  Right out there in the street, a Swiss soldier knocked me down and
+        took my Russian watch.
+DS:     You're confused.   Why would there be a Swiss soldier here?  And who
+        would want to own a Russian watch?  It was a Russian soldier who
+        knocked you down and took your Swiss watch, right?
+Czech:  Well, maybe, but you said it, not me.
+		-- fortune(6)

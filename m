@@ -1,65 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262274AbUDZMlZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263129AbUDZMpL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262274AbUDZMlZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 08:41:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263626AbUDZMlZ
+	id S263129AbUDZMpL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 08:45:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263789AbUDZMpL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 08:41:25 -0400
-Received: from dsl081-101-153.den1.dsl.speakeasy.net ([64.81.101.153]:35755
-	"EHLO mail.chen-becker.org") by vger.kernel.org with ESMTP
-	id S263836AbUDZMlW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 08:41:22 -0400
-Message-ID: <408D036D.1010701@chen-becker.org>
-Date: Mon, 26 Apr 2004 06:41:17 -0600
-From: Derek Chen-Becker <derek@chen-becker.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040119
-X-Accept-Language: en-us, en
+	Mon, 26 Apr 2004 08:45:11 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:59860 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S263129AbUDZMpF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 08:45:05 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
-To: Mirko Caserta <mirko@mcaserta.com>
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: 8139too not working in 2.6
-References: <opr62ahdvlpsnffn@mail.mcaserta.com>
-In-Reply-To: <opr62ahdvlpsnffn@mail.mcaserta.com>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16525.1100.432660.844335@laputa.namesys.com>
+Date: Mon, 26 Apr 2004 16:45:00 +0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk,
+       trondmy@trondhjem.org, neilb@cse.unsw.edu.au
+Subject: Re: d_splice_alias() problem.
+In-Reply-To: <20040423164936.390462fb.akpm@osdl.org>
+References: <16521.5104.489490.617269@laputa.namesys.com>
+	<20040423164936.390462fb.akpm@osdl.org>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mirko Caserta wrote:
-> 
-> Yes, I know, it's a damn cheap eth card and I should get it replaced :)
-> 
-> Besides that, this card works just fine with 2.4.25 while it refuses to  
-> work on a recent 2.6 kernel. I tried 2.6.5 and even  
-> 2.6.5-rc2-mm2-broken-out with no luck.
-> 
+Andrew Morton writes:
+ > Nikita Danilov <Nikita@Namesys.COM> wrote:
+ > >
+ > > for some time I am observing that during stress tests over NFS
+ > > 
+ > >     shrink_slab->...->prune_dcache()->prune_one_dentry()->...->iput()
+ > > 
+ > >  is called on inode with ->i_nlink == 0 which results in truncate and
+ > >  file deletion. This is wrong in general (file system is re-entered), and
+ > >  deadlock prone on some file systems.
+ > 
+ > The filesystem is only reentered if the caller of __alloc_pages() passed in
+ > __GFP_FS, in which case the bug is in the caller, not in shrink_slab().
 
-Mine works fine in 2.6.5:
+Well, I always thought that the only file system IO that GFP_FS is
+expected to do is one issued by ->writepage. Doing truncate from within
+VM scanner looks... wrong. But that's not the point, actually. Current
+d_splice_alias leads to the following problems with NFS (and may be
+other remote file systems also):
 
-eth0: RealTek RTL8139 at 0xca844000, xx:xx:xx:xx:xx:xx, IRQ 5
-eth0:  Identified 8139 chip type 'RTL-8139C'
-eth1: RealTek RTL8139 at 0xca895000, xx:xx:xx:xx:xx:xx, IRQ 3
-eth1:  Identified 8139 chip type 'RTL-8139C'
-eth0: link up, 10Mbps, half-duplex, lpa 0x0000
-eth1: link up, 100Mbps, full-duplex, lpa 0x45E1
+ * there are more dentries than nlinks for a given file, as a result
 
-lspci:
+ * file (not opened by user) is not truncated when its last name is
+   removed. inode is pinned in the memory indefinitely by remaining
+   disconnected dentries.
 
-00:03.0 Ethernet controller: D-Link System Inc RTL8139 Ethernet (rev 10)
-00:04.0 Ethernet controller: D-Link System Inc RTL8139 Ethernet (rev 10)
+ * sequence "touch x; rm x" always creates _two_ dentries for "x": one
+   disconnected (by ->decode_fh) and one connected (by lookup_one_len
+   from nfs unlink request).
 
-Derek
+I think that d_splice_alias() should be changed to scan inode->i_dentry
+list and d_move() any disconnected dentry found into new one.
 
+ > 
 
--- 
-+---------------------------------------------------------------+
-| Derek Chen-Becker                                             |
-| derek@chen-becker.org                                         |
-| http://chen-becker.org                                        |
-|                                                               |
-| PGP key available on request or from public key servers       |
-| ID: 21A7FB53                                                  |
-| Fngrprnt: 209A 77CA A4F9 E716 E20C  6348 B657 77EC 21A7 FB53  |
-+---------------------------------------------------------------+
+Nikita.

@@ -1,111 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267449AbTA1RZa>; Tue, 28 Jan 2003 12:25:30 -0500
+	id <S267435AbTA1RYm>; Tue, 28 Jan 2003 12:24:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267454AbTA1RZa>; Tue, 28 Jan 2003 12:25:30 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:7692 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S267449AbTA1RYt>; Tue, 28 Jan 2003 12:24:49 -0500
-Date: Tue, 28 Jan 2003 09:28:50 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Ross Biro <rossb@google.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG: [2.4.18+] IDE Race Condition
-In-Reply-To: <3E36B476.8080509@google.com>
-Message-ID: <Pine.LNX.4.10.10301280918420.9272-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S267438AbTA1RYm>; Tue, 28 Jan 2003 12:24:42 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:8452 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S267435AbTA1RYk>; Tue, 28 Jan 2003 12:24:40 -0500
+Date: Tue, 28 Jan 2003 20:33:09 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Martin Mares <mj@ucw.cz>,
+       Richard Henderson <rth@twiddle.net>,
+       "Wiedemeier, Jeff" <Jeff.Wiedemeier@hp.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2.5] VGA IO on systems with multiple PCI IO domains
+Message-ID: <20030128203309.A939@jurassic.park.msu.ru>
+References: <20030128132406.A9195@jurassic.park.msu.ru> <Pine.GSO.4.21.0301281126390.9269-100000@vervain.sonytel.be> <20030128201057.A690@jurassic.park.msu.ru> <1043774595.536.4.camel@zion.wanadoo.fr>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1043774595.536.4.camel@zion.wanadoo.fr>; from benh@kernel.crashing.org on Tue, Jan 28, 2003 at 06:23:15PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 28, 2003 at 06:23:15PM +0100, Benjamin Herrenschmidt wrote:
+> Ok, if I understand properly, all we have to do on PPC is to implement a
+> pci_request_legacy_resource() that will do the right thing for legacy
+> VGA memory as well ?
 
-Ross,
+Exactly.
 
-How did you create the sub-microsecond timers to profile the device/driver
-behavior?  I had been working on this for a while but little success.
-This is one of the key methods to predict device failure.
+> Then, please, check the return value of pci_request_legacy_resource()
+> for getting to the VGA memory. Some machines (typically PowerMacs)
+> simply don't give you a way to generate PCI cycles to those low memory
+> addresses (you can't do VGA on those).
 
-One of the goals of the prebuilder it find slam prebuild commands down the
-pipes to force breakages and races to show up.
+I agree, it certainly needs to be fixed.
 
-So you have a possible solution?
+The reason why I didn't it is that i386 has 0xa0000-0xbfffff region already
+claimed (somewhere in arch code?), I haven't looked into this yet.
 
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-
-On Tue, 28 Jan 2003, Ross Biro wrote:
-
-> 
-> Easy, it happens all the time, there are just no tests in place to see it.
-> 
-> We are keeping a histogram of how long every IDE DMA transfer takes 
-> place.  In ide_intr we record the time and set the start time in 
-> ide_drive_t to 0.  In ide_dma_proc, ide_dma_begin right AFTER activating 
-> the dma, we store the current value of jiffies in start time in ide_drive_t.
-> 
-> In both those places we check to make sure that the value of start_time 
-> is sensible.  In ide_dma_begin, we make sure it's 0 and in ide_dma_intr, 
-> we make sure its non-zero.  Because of this race condition, we often saw 
-> DMAs finish before they began.
-> 
-> In the normal kernel, the only thing I can see that could go wrong would 
-> be that the printk
-> 
-> printk("%s: ide_intr: huh? expected NULL handler on exit\n", drive->name);
-> 
-> in ide_intr  could be triggered.  I've never seen it happen, but I 
-> believe with enough effort, it could be made to occur.
-> 
->     Ross
-> 
-> 
-> Andre Hedrick wrote:
-> 
-> >Okay, how do you reproduce it to see the effects?
-> >
-> >On Mon, 27 Jan 2003, Ross Biro wrote:
-> >
-> >  
-> >
-> >>The net effect of this race condition and the other one I spotted is 
-> >>that you may see some interesting messages in your log file and you can 
-> >>detect the race condition if you look for it hard enough.  I don't 
-> >>currently see any bad effects.
-> >>
-> >>    Ross
-> >>
-> >>Ross Biro wrote:
-> >>
-> >>    
-> >>
-> >>>There is at least one more IDE race condition in 2.4.18 and 
-> >>>2.4.21-pre3. Basically the interrupt for the controller being serviced 
-> >>>is left on while setting up the next command.  I'm not sure how much 
-> >>>trouble it can cause but it does lead to some interesting stack traces.
-> >>>
-> >>>The condition
-> >>>if (masked_irq && hwif->irq != masked_irq)
-> >>>in ide_do_request should be replaced with
-> >>>if (!masked_irq || hwif->irq != masked_irq)
-> >>>in two places.
-> >>>
-> >>>      
-> >>>
-> >>-
-> >>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> >>the body of a message to majordomo@vger.kernel.org
-> >>More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >>Please read the FAQ at  http://www.tux.org/lkml/
-> >>
-> >>    
-> >>
-> >
-> >Andre Hedrick
-> >LAD Storage Consulting Group
-> >
-> >  
-> >
-
+Ivan.

@@ -1,70 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267190AbUG1PCP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267195AbUG1PDb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267190AbUG1PCP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 11:02:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267195AbUG1PCP
+	id S267195AbUG1PDb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 11:03:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267197AbUG1PDb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 11:02:15 -0400
-Received: from fed1rmmtao02.cox.net ([68.230.241.37]:16837 "EHLO
-	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
-	id S267190AbUG1PBw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 11:01:52 -0400
-Date: Wed, 28 Jul 2004 08:01:45 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Olaf Hering <olh@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-Subject: Re: [PATCH] fix zlib debug in ppc boot header
-Message-ID: <20040728150145.GK10891@smtp.west.cox.net>
-References: <20040728112222.GA7670@suse.de> <1091014495.2795.25.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cNdxnHkX5QqsyA0e"
+	Wed, 28 Jul 2004 11:03:31 -0400
+Received: from jade.spiritone.com ([216.99.193.136]:50391 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S267195AbUG1PD1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 11:03:27 -0400
+Date: Wed, 28 Jul 2004 08:01:20 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: colpatch@us.ibm.com, Jesse Barnes <jbarnes@engr.sgi.com>
+cc: Christoph Hellwig <hch@infradead.org>, Jesse Barnes <jbarnes@sgi.com>,
+       Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>,
+       LSE Tech <lse-tech@lists.sourceforge.net>
+Subject: Re: [Lse-tech] [RFC][PATCH] Change pcibus_to_cpumask() to	pcibus_to_node()
+Message-ID: <82510000.1091026879@[10.10.2.4]>
+In-Reply-To: <1090953179.18747.19.camel@arrakis>
+References: <1090887007.16676.18.camel@arrakis> <20040727105145.A18533@infradead.org> <200407270822.43870.jbarnes@engr.sgi.com> <1090953179.18747.19.camel@arrakis>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1091014495.2795.25.camel@laptop.fenrus.com>
-User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> I wonder though if we shouldn't add
+>> 
+>>   ...
+>> # ifdef CONFIG_NUMA
+>>   int node; /* or nodemask_t if necessary */
+>> # endif
+>>   ...
+>> 
+>> to struct pci_bus instead?  That would make the existing code paths a little 
+>> faster and avoid the need for a global array, which tends to lead to TLB 
+>> misses.
+> 
+> I like that idea!  Stick a nodemask_t in struct pci_bus, initialize it
+> to NODE_MASK_ALL.  If a particular arch wants to put something more
+> accurate in there, then great, if not, we're just in the same boat we're
+> in now.
+> 
+> Anyone else have opinions one way or the other on Jesse's idea?
 
---cNdxnHkX5QqsyA0e
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sounds great - if it's possible to add it to something more generic than
+PCI, that'd be even better, but pci would still be very useful.
 
-On Wed, Jul 28, 2004 at 01:34:55PM +0200, Arjan van de Ven wrote:
+M.
 
-> On Wed, 2004-07-28 at 13:22, Olaf Hering wrote:
-> > The ppc bootloader code will not compile with zlib debug enabled.
-> > printf was not defined. Tested with vmlinux.coff
-> > This patch was sent out earlier. Appearently it is not possible
-> > to use the generic zlib copy in linux/lib
->=20
-> actually it should be possible. Ok so it needs to be compiled as 32 bit,
-> but surely just #include-ing the /linux/lib version, or even better, a
-> few Makefile tricks should allow that, right ?
-
-Arjan is correct, it should be very possible to use the copy in
-lib/zlib_deflate as mpm had patches at one point to do just this.
-
-Further, I'd rather leave the zlib debug stuff as is in arch/ppc/boot.
-Olaf, has having this code work for you ever been useful?  Thanks.
-
---=20
-Tom Rini
-http://gate.crashing.org/~trini/
-
---cNdxnHkX5QqsyA0e
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBB7/ZdZngf2G4WwMRAqwuAJ0eSJhBgGmoVK9OSUN8NYS/OzJjcQCfbAT6
-rJfnw4iVhhd/Pc3b66RW6Io=
-=b5Ff
------END PGP SIGNATURE-----
-
---cNdxnHkX5QqsyA0e--

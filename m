@@ -1,39 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265876AbTL3RWX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 12:22:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265877AbTL3RWX
+	id S265871AbTL3RUv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 12:20:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265872AbTL3RUv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 12:22:23 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35761 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265876AbTL3RWW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 12:22:22 -0500
-Message-ID: <3FF1B43A.9090707@pobox.com>
-Date: Tue, 30 Dec 2003 12:22:02 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Karel Kulhavy <clock@atrey.karlin.mff.cuni.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ICH5 docs
-References: <20031230164953.GB4868@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20031230164953.GB4868@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 30 Dec 2003 12:20:51 -0500
+Received: from pool-64-223-239-211.port.east.verizon.net ([64.223.239.211]:28627
+	"EHLO evilbint.mylan") by vger.kernel.org with ESMTP
+	id S265871AbTL3RUu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 12:20:50 -0500
+Date: Tue, 30 Dec 2003 12:20:47 -0500
+From: Greg Fitzgerald <gregf@bigtimegeeks.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
+Subject: Re: psmouse_proto=exps
+Message-ID: <20031230172046.GA7127@evilbint>
+References: <20031230042834.GA32087@evilbint> <200312292337.59371.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200312292337.59371.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karel Kulhavy wrote:
-> Where can I learn about ICH5 SATA RAID driver in Linux kernel 2.6.0?  I
 
+Hey,
 
-Intel "RAID" is software RAID.  There isn't any hardware RAID assist...
+	Changed my line in grub.conf and now it works perfect. Thanks a lot i been screwing with this for
+	a while now. I guess i overlooked that when i was reading the source for psmouse-base.c. Thanks again!
 
-So ICH5 looks pretty much just like any other PATA host controller.
-
-	Jeff
-
-
-
+	--Greg

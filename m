@@ -1,110 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261957AbVCBBSL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261963AbVCBBYL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261957AbVCBBSL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 20:18:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261963AbVCBBSL
+	id S261963AbVCBBYL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 20:24:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbVCBBYL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 20:18:11 -0500
-Received: from newmail.linux4media.de ([193.201.54.81]:5805 "EHLO l4m.mine.nu")
-	by vger.kernel.org with ESMTP id S261957AbVCBBRd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 20:17:33 -0500
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-Organization: Ark Linux team
+	Tue, 1 Mar 2005 20:24:11 -0500
+Received: from bay14-f39.bay14.hotmail.com ([64.4.49.39]:8763 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261963AbVCBBYC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 20:24:02 -0500
+Message-ID: <BAY14-F39A87ACAF59B6DF53A9CBE955A0@phx.gbl>
+X-Originating-IP: [80.15.132.11]
+X-Originating-Email: [tonyosborne_a@hotmail.com]
+From: "tony osborne" <tonyosborne_a@hotmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.11-rc5-mm1: (seemingly non-fatal) NULL pointer dereference on startup
-Date: Wed, 2 Mar 2005 02:13:00 +0100
-User-Agent: KMail/1.7.2
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503020213.00174.bero@arklinux.org>
+Subject: Trap number: how a system software recognise it?
+Date: Wed, 02 Mar 2005 01:23:03 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 02 Mar 2005 01:24:00.0603 (UTC) FILETIME=[835A7AB0:01C51EC6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got this right after the initramfs script was finished and the root 
-filesystem was mounted:
+Hi,
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
-printing eip:
-c02f52fa
-*pde = 00000000
-Oops: 0002 [#1]
-PREEMPT
-Modules linked in:
-CPU:    0
-EIP:    0060:[<c02f52fa>]    Not tainted VLI
-EFLAGS: 00010246   (2.6.11-0.rc5.1ark)
-EIP is at __down+0x10a/0x130
-eax: 00000000   ebx: cf63652c   ecx: cfd6d020   edx: ffffffff
-esi: 00000286   edi: cfbcd000   ebp: cfbb3020   esp: cfbcddc0
-ds: 007b   es: 007b   ss: 0068
-Process hotplug (pid: 286, threadinfo=cfbcd000 task=cfbb3020)
-Stack: cf636534 00000001 cfbb3020 c0116cb0 00100100 00200200 cfbcde04 9bbf6ac4
-       d70e78df cf727d14 cfbcdf54 cfbcde6c cffe4140 c02f51c7 00000010 cf6364bc
-       c01711ad cf727d14 cfbcde6c c016c7b6 cf6364bc 00000001 cf6349fa cfbcde6c
-Call Trace:
-[<c0116cb0>] default_wake_function+0x0/0x20
-[<c02f51c7>] __down_failed+0x7/0xc
-[<c01711ad>] .text.lock.namei+0x8/0x1db
-[<c016c7b6>] permission+0xe6/0xf0
-[<c016d762>] link_path_walk+0x882/0xf80
-[<c010218c>] __up+0x1c/0x20
-[<c01711c7>] .text.lock.namei+0x22/0x1db
-[<c016d8a1>] link_path_walk+0x9c1/0xf80
-[<c014e2ea>] handle_mm_fault+0x1ea/0x540
-[<c016dee3>] path_lookup+0x83/0x150
-[<c016e7ef>] open_namei+0x8f/0x620
-[<c015d49b>] filp_open+0x3b/0x70
-[<c015d4fc>] get_unused_fd+0x2c/0xd0
-[<c015d677>] sys_open+0x57/0xf0
-[<c01030d1>] syscall_call+0x7/0xb
-Code: ff 21 e0 ff 48 14 8b 40 08 a8 08 75 19 c7 45 00 00 00 00 00 83 c4 24 
-5b5e 5f 5d c3 e8 00 07 00 00 e9 73 ff ff ff e8 f6 06 00 00 <00> 00 00 00 00 
-00 eb da 0f 0b a4 00 7b 48 30 c0 eb 8e 0f 0b a5
+I wish to be personally CC'ed the answers/comments posted to the list in 
+response to this post
+
+I have done some reading about system calls and memory management but some 
+issues are not yet that clear for me, so I hope some of you will assist 
+me...
 
 
-Same box, same kernel, with hotplug disabled boots up fine and produces a 
-similar oops later:
+PART1
+----------
+Assume within a C user program there is a read (fid, buf, nbytes) procedure 
+call. According to Tanenbaum book, this will call a C-system read function 
+or what is known as C-stub function read_stb.
+read_stb includes some initial instructions and in particularly a trap 
+number to make a system call to the Kernel. This number will be used to 
+index the trap vector or table stored in the kernel in order to retrieve the 
+address of the trap handler routine which performs the read operation.
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
-printing eip:
-c02f52fa
-*pde = 00000000
-Oops: 0002 [#1]
-PREEMPT
-Modules linked in: usbkbd usbhid snd_cmipci gameport snd_pcm snd_page_alloc 
-snd_opl3_lib snd_timer snd_hwdep snd_mpu401_uart snd_rawmidi snd_seq_device 
-snd soundcore psmouse binfmt_misc lp parport md5 ipv6 8139too mii af_packet 
-8250 serial_core ide_cd cdrom ohci_hcd usbcore video thermal sony_acpi 
-processor pcc_acpi fan container button battery ac genrtc
-CPU:    0
-EIP:    0060:[<c02f52fa>]    Not tainted VLI
-EFLAGS: 00210246   (2.6.11-0.rc5.1ark)
-EIP is at __down+0x10a/0x130
-eax: 00000000   ebx: c0346644   ecx: cda20540   edx: ffffffff
-esi: 00200286   edi: c6b6f000   ebp: c4c68020   esp: c6b6fed4
-ds: 007b   es: 007b   ss: 0068
-Process iwconfig (pid: 3080, threadinfo=c6b6f000 task=c4c68020)
-Stack: c034664c 00000001 c4c68020 c0116cb0 00100100 00200200 30746973 00000000
-       00000001 cfe71ee0 cfe71ee0 c55006e0 c55006e0 c02f51c7 00000000 c4c68020
-       c02f6c94 c019279f 00000000 00000000 00000000 c019288f 00000000 c55006e0
-Call Trace:
-[<c0116cb0>] default_wake_function+0x0/0x20
-[<c02f51c7>] __down_failed+0x7/0xc
-[<c02f6c94>] .text.lock.kernel_lock+0x28/0x37
-[<c019279f>] de_put+0xf/0xa0
-[<c019288f>] proc_delete_inode+0x5f/0xc0
-[<c0192830>] proc_delete_inode+0x0/0xc0
-[<c017b225>] generic_delete_inode+0xb5/0x190
-[<c017a27c>] iput+0x3c/0x90
-[<c01774bb>] dput+0x6b/0x2b0
-[<c015f39e>] __fput+0x11e/0x1c0
-[<c015d792>] filp_close+0x52/0xa0
-[<c015d838>] sys_close+0x58/0xa0
-[<c010307b>] sysenter_past_esp+0x54/0x75
-Code: ff 21 e0 ff 48 14 8b 40 08 a8 08 75 19 c7 45 00 00 00 00 00 83 c4 24 
-5b5e 5f 5d c3 e8 00 07 00 00 e9 73 ff ff ff e8 f6 06 00 00 <00> 00 00 00 00 
-00 eb da 0f 0b a4 00 7b 48 30 c0 eb 8e 0f 0b a5
+My question is how the read_stb knew about the trap number used by the 
+kernel to perform read operation from the device?
+Although my question refers to c library, my question holds for other system 
+softwares that might perform the same operation.
+
+Does the reading operation from a disk have a fix trap number? What about 
+other I/O peripherals (scanner, webcam, digital camera, printer)
+
+For the above peripherals, we need generally to install a device driver. If 
+we take the scanner as an example and say the user wants to zoom out a 
+scanned section. This operation is associated with some initial instructions 
+and a system call through a trap number call. This trap number will be used 
+to point to the relevant device driver routine as explained above.
+
+Will this variable get assigned a value during the installation of 
+peripheral device drivers?
+
+We know that each device has its interface commands that the kernel can 
+call. Each procedure will be stored at a particular location in the kernel 
+memory. Once saved, I presume that the OS updates its trap table and 
+allocate a trap number to each device procedure. Is that right?
+
+What about the devices which are recognised without installing device 
+drivers, have they a fixed location and trap numbers? Is this documented for 
+  whoever want to write a device driver?
+
+
+PART 2
+----------
+The main CPU initiates the I/O operation by instructing the device 
+controller with a high level commands (writing to the device registers and 
+so on). Such high level commands are then translated to lower instruction by 
+the device controller. Then it is up to the device processor to take these 
+commands and branch to the relevant device driver code at the kernel space 
+to perform the low level instructions. Upon completion an interrupt will be 
+sent to the CPU to flag (hopefully) the completion of the task.
+
+So could we deduce that the device processor have *full* access to the 
+kernel memory (fill privileges)?
+
+If we take as an example: reading a block of data from a stored file. Each 
+file is associated with a File Control Block that contains the file’s 
+metatdata, i.e. among others the description of file organisation.
+
+Will the command sent by the CPU to the disk controller (after inspecting 
+the file FCB) be similar to RETRIEVE BLOCK X. and this will be translated by 
+the device controller to cylinder C, PLATTER P, SECTOR S?
+
+What about if the OS wants to retrieve more block. Will just be written into 
+the device controller memory?
+
+
+Many thanks
+
+_________________________________________________________________
+It's fast, it's easy and it's free. Get MSN Messenger today! 
+http://www.msn.co.uk/messenger
+

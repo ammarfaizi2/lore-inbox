@@ -1,55 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136169AbRDVPFI>; Sun, 22 Apr 2001 11:05:08 -0400
+	id <S136168AbRDVPFS>; Sun, 22 Apr 2001 11:05:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136167AbRDVPE6>; Sun, 22 Apr 2001 11:04:58 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:47626 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S136168AbRDVPEx>;
-	Sun, 22 Apr 2001 11:04:53 -0400
-Date: Sun, 22 Apr 2001 11:59:11 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
+	id <S136167AbRDVPFI>; Sun, 22 Apr 2001 11:05:08 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21258 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S136168AbRDVPFA>;
+	Sun, 22 Apr 2001 11:05:00 -0400
+Date: Sun, 22 Apr 2001 16:04:55 +0100
+From: Russell King <rmk@arm.linux.org.uk>
 To: Francis Litterio <franl@world.std.com>
-Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Does the scheduler run every time jiffies is incremented?
+Message-ID: <20010422160455.F20807@flint.arm.linux.org.uk>
 In-Reply-To: <m31yql2di8.fsf@chantale.std.com>
-Message-ID: <Pine.LNX.4.21.0104221156280.1685-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m31yql2di8.fsf@chantale.std.com>; from franl@world.std.com on Sun, Apr 22, 2001 at 10:52:15AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[please remove linux-kernel from the CC and move it to the
- more appropriate kernelnewbies list]
-
-On 22 Apr 2001, Francis Litterio wrote:
-
-> I'm reading Rubini's "Linux Device Drivers" and it isn't clear to me
-> whether the scheduler runs every time the timer interrupt increments
-> jiffies or less frequently.
-> 
+On Sun, Apr 22, 2001 at 10:52:15AM -0400, Francis Litterio wrote:
 > Does the scheduler run every time jiffies is incremented?
 
-No.  Every timer interrupt a bunch of functions in
-kernel/timer.c is run, amongst them the following lines
-of code (from update_process_times):
+No, it runs when something needs to be rescheduled (ie, when
+the current tasks need_resched element (current->need_resched) is set).
+This typically happens when someone wakes up, or the task reaches the
+end of its allotted quantum.
 
-                if (--p->counter <= 0) {
-                        p->counter = 0;
-                        p->need_resched = 1;
-                }
-
-As you can see, we will only reschedule when the time slice
-of the currently running process is over.
-
-regards,
-
-Rik
 --
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

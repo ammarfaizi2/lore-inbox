@@ -1,66 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266003AbUIVRpt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265996AbUIVRtY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266003AbUIVRpt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 13:45:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266137AbUIVRpt
+	id S265996AbUIVRtY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 13:49:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266137AbUIVRtY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 13:45:49 -0400
-Received: from a26.t1.student.liu.se ([130.236.221.26]:41390 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S266003AbUIVRpq
+	Wed, 22 Sep 2004 13:49:24 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:26249 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S265996AbUIVRtU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 13:45:46 -0400
-Message-ID: <4151BA3F.8040406@drzeus.cx>
-Date: Wed, 22 Sep 2004 19:45:35 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040704)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] MMC compatibility fix - GO_IDLE
-References: <414C065A.7000602@drzeus.cx> <20040922151735.D2347@flint.arm.linux.org.uk>
-In-Reply-To: <20040922151735.D2347@flint.arm.linux.org.uk>
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Sep 2004 13:49:20 -0400
+Subject: [patch] inotify: don't opencode the size of filename
+From: Robert Love <rml@novell.com>
+To: ttb@tentacle.dhs.org
+Cc: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-dE1SfwC7bfnTn0H3Zxpm"
+Date: Wed, 22 Sep 2004 13:48:07 -0400
+Message-Id: <1095875287.5090.35.camel@betsy.boston.ximian.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.0 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
 
->On Sat, Sep 18, 2004 at 11:56:42AM +0200, Pierre Ossman wrote:
->  
->
->>This patch adds a GO_IDLE before sending a new SEND_OP_COND (as required 
->>by MMC standard).
->>    
->>
->
->Thanks; I haven't completely vanished off the face of the planet.
->  
->
-Good to know. You've seemed a bit busy :)
+--=-dE1SfwC7bfnTn0H3Zxpm
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
->We already have a function using MMC_GO_IDLE_STATE, so I suggest we
->separate this out.  If you need a 1ms delay after sending this, maybe
->the other case also needs this delay as well?
->
->  
->
-The delay was added just in case. The cards I have here work fine 
-without it. I just thought adding a small delay might avoid problematic 
-cards later on. Seems to be a few of those.
+The size of "filename" in "struct inotify_event" is currently open coded
+at 256.
 
->How about this patch?
->
->  
->
-Looks ok. You sure we don't need to put all cards into an idle state 
-before issuing a new SEND_OP_COND? I haven't studied how the MMC layer 
-is called in detail. Can a rescan be done while a card is in a selected 
-state?
+Change that to INOTIFY_FILENAME_MAX and replace uses of the size with
+this define.
 
-Rgds
-Pierre
+Best,
+
+	Robert Love
+
+
+--=-dE1SfwC7bfnTn0H3Zxpm
+Content-Disposition: attachment; filename=inotify-filename-define-1.patch
+Content-Type: text/x-patch; name=inotify-filename-define-1.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+Don't opencode the size of filename. Make it a define
+
+Signed-Off-By: Robert Love <rml@novell.com>
+
+ drivers/char/inotify.c  |   11 +++++++----
+ include/linux/inotify.h |    5 ++++-
+ 2 files changed, 11 insertions(+), 5 deletions(-)
+
+diff -urN linux-inotify/drivers/char/inotify.c linux/drivers/char/inotify.c
+--- linux-inotify/drivers/char/inotify.c	2004-09-22 13:45:26.697470176 -0400
++++ linux/drivers/char/inotify.c	2004-09-22 13:44:41.236381312 -0400
+@@ -143,10 +143,13 @@
+ 	INIT_LIST_HEAD(&kevent->list);
+ 
+ 	if (filename) {
+-		iprintk(INOTIFY_DEBUG_FILEN, "filename for event was %p %s\n", filename, filename);
+-		strncpy (kevent->event.filename, filename, 256);
+-		kevent->event.filename[255] = '\0';
+-		iprintk(INOTIFY_DEBUG_FILEN, "filename after copying %s\n", kevent->event.filename);
++		iprintk(INOTIFY_DEBUG_FILEN,
++			"filename for event was %p %s\n", filename, filename);
++		strncpy (kevent->event.filename, filename,
++			 INOTIFY_FILENAME_MAX);
++		kevent->event.filename[INOTIFY_FILENAME_MAX-1] = '\0';
++		iprintk(INOTIFY_DEBUG_FILEN,
++			"filename after copying %s\n", kevent->event.filename);
+ 	} else {
+ 		iprintk(INOTIFY_DEBUG_FILEN, "no filename for event\n");
+ 		kevent->event.filename[0] = '\0';
+diff -urN linux-inotify/include/linux/inotify.h linux/include/linux/inotify.h
+--- linux-inotify/include/linux/inotify.h	2004-09-22 13:30:09.763865272 -0400
++++ linux/include/linux/inotify.h	2004-09-22 13:42:48.853466112 -0400
+@@ -11,6 +11,9 @@
+ 
+ #include <linux/limits.h>
+ 
++/* this size could limit things, since technically we could need PATH_MAX */
++#define INOTIFY_FILENAME_MAX	256
++
+ /*
+  * struct inotify_event - structure read from the inotify device for each event
+  *
+@@ -23,7 +26,7 @@
+ struct inotify_event {
+ 	int wd;
+ 	int mask;
+-	char filename[256];	/* XXX: This size may be a problem */
++	char filename[INOTIFY_FILENAME_MAX];
+ };
+ 
+ /* the following are legal, implemented events */
+
+--=-dE1SfwC7bfnTn0H3Zxpm--
 

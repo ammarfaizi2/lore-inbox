@@ -1,59 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131018AbRCTTAd>; Tue, 20 Mar 2001 14:00:33 -0500
+	id <S130824AbRCTSzx>; Tue, 20 Mar 2001 13:55:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131020AbRCTTAX>; Tue, 20 Mar 2001 14:00:23 -0500
-Received: from unthought.net ([212.97.129.24]:58568 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S131018AbRCTTAT>;
-	Tue, 20 Mar 2001 14:00:19 -0500
-Date: Tue, 20 Mar 2001 19:59:37 +0100
-From: Jakob Østergaard <jakob@unthought.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Serge Orlov <sorlov@con.mcst.ru>, linux-kernel@vger.kernel.org,
-        sorlov@mcst.ru
-Subject: Re: Linux 2.4.2 fails to merge mmap areas, 700% slowdown.
-Message-ID: <20010320195937.A1759@unthought.net>
-Mail-Followup-To: Jakob Østergaard <jakob@unthought.net>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Serge Orlov <sorlov@con.mcst.ru>, linux-kernel@vger.kernel.org,
-	sorlov@mcst.ru
-In-Reply-To: <3AB7A169.53F4E4BB@con.mcst.ru> <Pine.LNX.4.31.0103201042360.1990-100000@penguin.transmeta.com>
+	id <S130831AbRCTSzn>; Tue, 20 Mar 2001 13:55:43 -0500
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:37067 "EHLO
+	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S130824AbRCTSze>; Tue, 20 Mar 2001 13:55:34 -0500
+Date: Tue, 20 Mar 2001 13:54:49 -0500
+To: Josh Grebe <squash@primary.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Question about memory usage in 2.4 vs 2.2
+Message-ID: <20010320135449.A24252@cs.cmu.edu>
+Mail-Followup-To: Josh Grebe <squash@primary.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200103190207.UAA13397@senechalle.net> <Pine.LNX.4.21.0103201038140.2405-100000@scarface.primary.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.31.0103201042360.1990-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Mar 20, 2001 at 10:43:33AM -0800
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <Pine.LNX.4.21.0103201038140.2405-100000@scarface.primary.net>; from squash@primary.net on Tue, Mar 20, 2001 at 11:01:52AM -0600
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 20, 2001 at 10:43:33AM -0800, Linus Torvalds wrote:
+On Tue, Mar 20, 2001 at 11:01:52AM -0600, Josh Grebe wrote:
+> Greetings,
+> 
+> I have a server farm made of identical hardware running pop3 and imap mail
+> functions. recently, we upgraded all the machines to kernel 2.4.2, but we
+> noticed that according to free, our memory utilization went way up. Here
+> is the output of free on the 2.4.2 machine:
+>              total       used       free     shared    buffers     cached
+> Mem:        513192     492772      20420          0       1684     263188
+> -/+ buffers/cache:     227900     285292
+> Swap:       819304        540     818764
 > 
 > 
-> On Tue, 20 Mar 2001, Serge Orlov wrote:
-> >
-> > I upgraded one of our computer happily running 2.2.13 kernel
-> > to 2.4.2. Everything was OK, but compilation time of our C++
-> > project greatly increased (1.4 times slower). I investigated the
-> > issue and found that g++ spends 7 times more time in kernel.
-> > The reason for this is big vm map:
+> On the 2.2..18 machine:
+>              total       used       free     shared    buffers     cached
+> Mem:        517256     351280     165976      19920      82820     186836
+> -/+ buffers/cache:      81624     435632
+> Swap:       819304          0     819304
 > 
-> Cool. Somebody actually found a real case.
 > 
-> I'll fix the mmap case asap. Its' not hard, I just waited to see if it
-> ever actually triggers. Something like g++ certainly counts as major.
+> Doing the math, the 2.4 machine is using 44% of available memory, while
+> the 2.2 is using only about 14%.
 
-Uber-cool !  :)
+What does /proc/slabinfo report for the number of pages locked down in
+the inode and dentry caches? My machine has pretty much every inode in
+memory and is using close to 50% of my memory for these (214MB/512MB).
 
-> 
-> Are you willing to test out patches?
+These caches do not seem to be counted towards 'reclaimable' memory by
+the new VM and are only pruned when _all_ other attempts to free up
+memory have failed.
 
-Definitely.
+This becomes very noticeable on a not very fast, small memory machine
+(i.e. 48MB sparc-IPC), where 2.2 stays relatively snappy, but 2.4
+becomes unusable after an updatedb run.
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+Jan
+

@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263057AbTLXBKn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 20:10:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263053AbTLXBKn
+	id S262795AbTLXBIL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 20:08:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262817AbTLXBIL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 20:10:43 -0500
-Received: from hostmaster.org ([80.110.173.103]:44175 "HELO hostmaster.org")
-	by vger.kernel.org with SMTP id S263057AbTLXBKm (ORCPT
+	Tue, 23 Dec 2003 20:08:11 -0500
+Received: from mail.kroah.org ([65.200.24.183]:17059 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262795AbTLXBIK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 20:10:42 -0500
-Subject: Re: linux-2.6.0 kernel distribution non-world-readable files
-From: Thomas Zehetbauer <thomasz@hostmaster.org>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <37133.219.88.110.193.1072226080.squirrel@mail.med.co.nz>
-References: <37133.219.88.110.193.1072226080.squirrel@mail.med.co.nz>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-QVFetHgR0vVIvWyX4KvO"
-Message-Id: <1072228229.1440.56.camel@hostmaster.org>
+	Tue, 23 Dec 2003 20:08:10 -0500
+Date: Tue, 23 Dec 2003 17:07:28 -0800
+From: Greg KH <greg@kroah.com>
+To: Martin Schlemmer <azarah@gentoo.org>
+Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+       Mark Mielke <mark@mark.mielke.cc>, Ian Kent <raven@themaw.net>,
+       release@gentoo.org
+Subject: Re: DevFS vs. udev
+Message-ID: <20031224010728.GA20956@kroah.com>
+Reply-To: linux-kernel@vger.kernel.org
+References: <E1AYl4w-0007A5-R3@O.Q.NET> <Pine.LNX.4.44.0312240005180.4342-100000@raven.themaw.net> <20031223173429.GA9032@mark.mielke.cc> <20031223220209.GB15946@kroah.com> <1072226715.6917.50.camel@nosferatu.lan>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Wed, 24 Dec 2003 02:10:35 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1072226715.6917.50.camel@nosferatu.lan>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 24, 2003 at 02:45:15AM +0200, Martin Schlemmer wrote:
+> Lastly, a small nit with udev currently - how long will it be for in
+> kernel changes to be in place so that we do not need the 1sec delay?
+> It really sucks when you use a script/whatever to populate /dev, and
+> reboot quite frequent for new kernel/rc-script testing :)
 
---=-QVFetHgR0vVIvWyX4KvO
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+It's not a kernel change needed, it's a udev/libsysfs change needed.  If
+I didn't have to deal with devfs emails I would get a chance to work on
+the issue some more :)
 
-When you unpack the tar as an unprivileged user you get ownership of the
-files and can compile. root on the other hand should have a restrictive
-umask setting so you would need to chmod anyways. However I find myself
-typing "chown -R 0.0 .; chmod -R u=3DrwX,go=3DrX ." quite often so I would
-appreciate some kind of a (set|fix)perms target.
+And yes, I have gotten tired of the boot issue too, just add a '&' after
+the udev call in your init scripts and then everything seems to work
+just fine (as far as speed of boot goes.)
 
-Tom
+And sorry for the Gentoo comment, it wasn't aimed at the developers at
+all.  You have helped out a bunch with udev development, and I
+appreciate it.  I also appreciate the chore you are undertaking in
+moving away from devfs, that's a great step.
 
---=20
-  T h o m a s   Z e h e t b a u e r   ( TZ251 )
-  PGP encrypted mail preferred - KeyID 96FFCB89
-       mail pgp-key-request@hostmaster.org
+But you do have to admit, Gentoo seems to have some pretty rabid users :)
 
-Success is, when there is only one opponent left: yourself
+thanks,
 
---=-QVFetHgR0vVIvWyX4KvO
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iQEVAwUAP+jngGD1OYqW/8uJAQLmTgf9H7iq0ZcsyKHHFnOYSj1rbyl3uE0EcNt0
-fA8IMnGBFqlAn77Rklh5/qzein9I6dpxe99PS/rGahTD7GOjrCM7VmuCWyiJXfBE
-enM152jOYcADKs/Kalb1RY6Ca9Wc/K76f6VeJlDrFDVbj6cgHycodXsDcORAgB9x
-vBjlQkhFXg80NoBNhgpbaTqSLzpmHZsxRwjrbhn9DxDDbdNAIRF2IuyicpebLfNR
-rDK1eshGhvt9VFtop947epYknaTnRf/d3uhuA9o5x2wrYqPxxcTc9YW6DKr7RiGu
-+E13brKZJfZALEV7U0DQCMXATH9isSN3glBBAJST7Z/PJVbDTMJdlw==
-=UxoD
------END PGP SIGNATURE-----
-
---=-QVFetHgR0vVIvWyX4KvO--
-
+greg k-h

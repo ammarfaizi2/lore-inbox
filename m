@@ -1,69 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261157AbTIXJ55 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 05:57:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261164AbTIXJ55
+	id S261156AbTIXK0b (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 06:26:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbTIXK0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 05:57:57 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42894 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261157AbTIXJ5z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 05:57:55 -0400
-Date: Wed, 24 Sep 2003 10:57:54 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.6.0-test5-mm4 boot crash
-Message-ID: <20030924095754.GW7665@parcelfarce.linux.theplanet.co.uk>
-References: <20030922013548.6e5a5dcf.akpm@osdl.org> <3F716177.6060607@aitel.hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 24 Sep 2003 06:26:31 -0400
+Received: from bilbo.math.uni-mannheim.de ([134.155.88.153]:47036 "EHLO
+	bilbo.math.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id S261156AbTIXK0a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 06:26:30 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] shut up gcc 3.3 for scripts/pnmtologo.c
+Date: Wed, 24 Sep 2003 12:29:06 +0200
+User-Agent: KMail/1.5.3
+Cc: Linus Torvalds <torvalds@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3F716177.6060607@aitel.hist.no>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200309241229.06708@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 24, 2003 at 11:18:47AM +0200, Helge Hafting wrote:
-> Unable to handle null pointer deref at virtual address 00000000
-> eip c02b7d1e  eip at md_probe
+Hi,
 
-Oh, boy...  OK, I see what happens and it's _ugly_.  md_probe() is misused
-there big way.  The minimal fix is to revert the cleanup in md_probe() -
-replace
-	int unit = *part;
-with
-	int unit = MINOR(dev);
+this patch makes some ints to unsigned ints. They are only used as loop
+counters and compared to unsigned ints. GCC 3.3 doesn't like this. They will
+never be negative anyway, so we could easily shut him up.
 
+Eike
 
-However, that is crap solution.  The problem is that md_probe() is called
-directly with bogus arguments - not only part is NULL (which triggers the
-oops), but dev (which is supposed to be dev_t value) is actually mdidx(mddev).
-
-Cleaner fix follows, but we really need to get the situation with gendisk
-allocations into the sane shape there.  Sigh...
-
-diff -urN B5-tty_devnum-fix/drivers/md/md.c B5-current/drivers/md/md.c
---- B5-tty_devnum-fix/drivers/md/md.c	Tue Sep 23 04:16:30 2003
-+++ B5-current/drivers/md/md.c	Wed Sep 24 05:44:27 2003
-@@ -1500,6 +1500,7 @@
- 	mdk_rdev_t *rdev;
- 	struct gendisk *disk;
- 	char b[BDEVNAME_SIZE];
-+	int unit;
+--- linux-2.6.0-test5-bk6/scripts/pnmtologo.c	2003-09-11 10:18:23.000000000 +0200
++++ linux-2.6.0-test5-bk6-caliban/scripts/pnmtologo.c	2003-09-21 09:32:38.000000000 +0200
+@@ -119,7 +119,8 @@
+ static void read_image(void)
+ {
+     FILE *fp;
+-    int i, j, magic;
++    unsigned int i, j;
++    int magic;
+     unsigned int maxval;
  
- 	if (list_empty(&mddev->disks)) {
- 		MD_BUG();
-@@ -1591,8 +1592,9 @@
- 		invalidate_bdev(rdev->bdev, 0);
- 	}
+     /* open image file */
+@@ -274,7 +275,7 @@
  
--	md_probe(mdidx(mddev), NULL, NULL);
--	disk = disks[mdidx(mddev)];
-+	unit = mdidx(mddev);
-+	md_probe(0, &unit, NULL);
-+	disk = disks[unit];
- 	if (!disk)
- 		return -ENOMEM;
+ static void write_logo_mono(void)
+ {
+-    int i, j;
++    unsigned int i, j;
+     unsigned char val, bit;
  
+     /* validate image */
+@@ -302,7 +303,7 @@
+ 
+ static void write_logo_vga16(void)
+ {
+-    int i, j, k;
++    unsigned int i, j, k;
+     unsigned char val;
+ 
+     /* validate image */
+@@ -342,7 +343,7 @@
+ 
+ static void write_logo_clut224(void)
+ {
+-    int i, j, k;
++    unsigned int i, j, k;
+ 
+     /* validate image */
+     for (i = 0; i < logo_height; i++)
+@@ -388,7 +389,7 @@
+ 
+ static void write_logo_gray256(void)
+ {
+-    int i, j;
++    unsigned int i, j;
+ 
+     /* validate image */
+     for (i = 0; i < logo_height; i++)

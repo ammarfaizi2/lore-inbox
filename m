@@ -1,100 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319607AbSIMLpm>; Fri, 13 Sep 2002 07:45:42 -0400
+	id <S319611AbSIMLvL>; Fri, 13 Sep 2002 07:51:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319608AbSIMLpm>; Fri, 13 Sep 2002 07:45:42 -0400
-Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:47292 "EHLO
-	smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S319607AbSIMLpj>; Fri, 13 Sep 2002 07:45:39 -0400
-Message-ID: <005a01c25b1b$ac7fb390$3083accf@tabasco>
-From: "Bill Davenport" <dragonpt@rcn.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Can prune_icache safely discard inodes which have only clean pages? (2.4.18)
-Date: Fri, 13 Sep 2002 07:49:53 -0400
+	id <S319614AbSIMLvL>; Fri, 13 Sep 2002 07:51:11 -0400
+Received: from pD952AD04.dip.t-dialin.net ([217.82.173.4]:7660 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S319611AbSIMLvK>; Fri, 13 Sep 2002 07:51:10 -0400
+Date: Fri, 13 Sep 2002 05:56:05 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Robert Love <rml@tech9.net>
+cc: Ingo Molnar <mingo@elte.hu>, Steven Cole <elenstev@mesatop.com>,
+       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>, Steven Cole <scole@lanl.gov>
+Subject: Re: [PATCH] kernel BUG at sched.c:944! only with CONFIG_PREEMPT=y]
+In-Reply-To: <1031902825.4429.130.camel@phantasy>
+Message-ID: <Pine.LNX.4.44.0209130554350.10048-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got a system which has a fairly large amount of physical memory (2GB)
-that experiences
-performance problems after a large number of files have been accessed.
+Hi,
 
-Looking into the slab_info I discovered that a very large number of inodes
-are currently
-present in the system (along with many buffer headers). Digging deeper I was
-able to determine
-that most of the inodes were on the inode_unused chain, but were being
-skipped over during
-the prunce_icache processing because they have a non-zero number of pages
-(i_data.nrpages).
-Looking a bit deeper I discovered that most of the inodes had only pages
-that are on the
-clean_pages list, with these pages also accounting for many of the buffer
-heads.
+On 13 Sep 2002, Robert Love wrote:
+> On Fri, 2002-09-13 at 03:36, Robert Love wrote:
+> Actually, looking at this again, we probably want to still BUG() if
+> in_interrupt() but _not_ if in_atomic().
 
-The system wasn't attempting to free these pages (presumably since it still
-had a fair
-amount of physical memory available, so it didn't need to do this).
+-	if (unlikely(in_atomic()))
+-		BUG();
++	if (unlikely((in_interrupt() || (!in_atomic())) && preempt_count() != PREEMPT_ACTIVE)) {
++		printk(KERN_ERROR "schedule() called while non-atomic, or in interrupt!\n");
++		show_stack(NULL);
++	}
 
-Is there any danger in changing prune_icache to also pick an inode for
-pruning if it has
-a non-zero page count where the dirty_list and locked_list are empty?
+?
 
-In particular, the existing code in fs/inode.c looks somewhat like:
-
- #define CAN_UNUSE(inode) \
-  ((((inode)->i_state | (inode)->i_data.nrpages) == 0)  && \
-   !inode_has_buffers(inode))
- void prune_icache(int goal)
- {
-  ...
-  while (entry != &inode_unused)
-  {
-   ...
-   if (inode->i_state & (I_FREEING|I_CLEAR|I_LOCK))
-    continue;
-   if (!CAN_UNUSE(inode))
-    continue;
-
-   Remove inode from i_hash and add to freeable
-  }
-  ...
-  dispose_list(freeable);
-  ...
- }
-
-and I'd like to change it to:
-
- void prune_icache(int goal)
- {
-  ...
-  while (entry != &inode_unused)
-  {
-   ...
-   if (inode->i_state & (I_FREEING|I_CLEAR|I_LOCK))
-    continue;
-   if ((inode->i_state != 0) || inode_has_buffers(inode))
-    continue;
-   if (inode->i_data.nrpages != 0) {
-    if ((!list_empty(&inode->i_data.dirty_pages)) ||
-        (!list_empty(&inode->i_data.locked_pages))) {
-     /* skip if any dirty or locked pages */
-     continue;
-    }
-   }
-
-   Remove inode from i_hash and add to freeable
-  }
-  ...
-  dispose_list(freeable);
-  ...
- }
-
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

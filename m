@@ -1,71 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264723AbTHWRcb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 13:32:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264307AbTHWRbR
+	id S263220AbTHWRAL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 13:00:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263056AbTHWQ6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 13:31:17 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:29331 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S264271AbTHWRaR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 13:30:17 -0400
-Date: Sat, 23 Aug 2003 14:26:07 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: "Brown, Len" <len.brown@intel.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       "Grover, Andrew" <andrew.grover@intel.com>,
-       "J.A. Magallon" <jamagallon@able.es>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, acpi-devel@sourceforge.net
-Subject: RE: [patch] 2.4.x ACPI updates
-In-Reply-To: <Pine.LNX.4.44.0308230015440.14227-100000@logos.cnet>
-Message-ID: <Pine.LNX.4.55L.0308231426010.19711@freak.distro.conectiva>
-References: <Pine.LNX.4.44.0308230015440.14227-100000@logos.cnet>
+	Sat, 23 Aug 2003 12:58:20 -0400
+Received: from fed1mtao02.cox.net ([68.6.19.243]:46753 "EHLO
+	fed1mtao02.cox.net") by vger.kernel.org with ESMTP id S262979AbTHWPUX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 11:20:23 -0400
+Message-ID: <3F478636.3060002@cox.net>
+Date: Sat, 23 Aug 2003 08:20:22 -0700
+From: "Kevin P. Fleming" <kpfleming@cox.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test4: ACPI breaks IDE/USB
+References: <1061613751.897.12.camel@kahlua>
+In-Reply-To: <1061613751.897.12.camel@kahlua>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Peter Lieverdink wrote:
+
+> When I enable ACPI on 2.6.0-test4 (also on 2.6.0-test3-*), the kernel no
+> longer recognises my IDE controller and drops down to PIO mode for
+> harddisk access. Additionally, USB devices don't get detected.
+
+I'm running -test4 here with ACPI and have no trouble with USB devices.
+
+> The system is an Athlon 2400+ on a Gibabyte GA-7VAXP mainboard. (KT400)
+
+My system is an Athlon 1000 on an MSI KT266-based board.
 
 
-On Sat, 23 Aug 2003, Marcelo Tosatti wrote:
-
->
->
-> On Fri, 22 Aug 2003, Brown, Len wrote:
->
-> > Hi Marcelo,
-> > A small update to what you pulled this morning --
-> > fixes config options CONFIG_ACPI_HT_ONLY and CONFIG_HOTPLUG_PCI_ACPI.
-> >
-> > I'm looking forward to deleting these #ifdef CONFIG_ACPI_HT_ONLY
-> > When we can (again) delete acpitable.[ch] in 2.4.23.
-> >
-> > Please
-> >
-> > 	bk pull http://linux-acpi.bkbits.net/linux-acpi-2.4.22
-> >
-> > This
-> >
-> > This will update the following files:
-> >
-> >  drivers/hotplug/Config.in |    5 +++--
-> >  include/asm-i386/acpi.h   |    7 +++++++
-> >  include/linux/acpi.h      |    6 ++++++
-> >  3 files changed, 16 insertions(+), 2 deletions(-)
-> >
-> > through these ChangeSets:
-> >
-> > <len.brown@intel.com> (03/08/22 1.1107)
-> >    linux-acpi-2.4.22.patch
->
-> Len,
->
-> Patch applied, thanks.
->
-> Do you have any further information on the ACPI oops reports I sent you?
->
-> Thanks
->
->

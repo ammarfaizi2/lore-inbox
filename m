@@ -1,70 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbVCCT4E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262181AbVCCT4F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261384AbVCCT4E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 14:56:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVCCTxx
+	id S262181AbVCCT4F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 14:56:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbVCCTxW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 14:53:53 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12709 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261961AbVCCTss (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 14:48:48 -0500
-Message-ID: <42276A0C.9080505@pobox.com>
-Date: Thu, 03 Mar 2005 14:48:28 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Rene Rebe <rene@exactcode.de>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] trivial fix for 2.6.11 raid6 compilation on ppc w/ Altivec
-References: <422751D9.2060603@exactcode.de> <422756DC.6000405@pobox.com> <20050303191840.GA12916@kroah.com>
-In-Reply-To: <20050303191840.GA12916@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 3 Mar 2005 14:53:22 -0500
+Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:24591 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S261389AbVCCTtC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 14:49:02 -0500
+Date: Thu, 3 Mar 2005 20:49:34 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: James Chapman <jchapman@katalix.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <sensors@stimpy.netroedge.com>, Greg KH <greg@kroah.com>
+Subject: Re: [PATCH: 2.6.11-rc5] i2c chips: ds1337 RTC driver
+Message-Id: <20050303204934.69620667.khali@linux-fr.org>
+In-Reply-To: <422747FB.9020004@katalix.com>
+References: <cIyC5ZN2.1109756623.5808030.khali@localhost>
+	<422747FB.9020004@katalix.com>
+Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+X-Mailer: Sylpheed version 1.0.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+Hi James,
 
-Two procedural suggestions...
+> A revised ds1337 patch addressing all of Jean's comments is attached.
 
+Fine with me except for:
 
-> Ok, I've fixed up the patch and applied it to a local tree that I've set
-> up to catch these things (it will live at
-> bk://kernel.bkbits.net:gregkh/linux-2.6.11.y until Chris Wright and I
-> set up how we are going to handle all of this.)
+> +	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA |
+> +				     I2C_FUNC_SMBUS_I2C_BLOCK))
 
-My suggestion would be one of two alternatives:
+I don't this it is correct. You are using master_xfer, not
+i2c_smbus_{read,write}_i2c_block_data. Adapter which declare themselves
+I2C_FUNC_SMBUS_I2C_BLOCK-capable may not implement master_xfer. You
+really need to check for I2C_FUNC_I2C.
 
-1) At each release, Linus clones
-	linux.bkbits.net/linux-2.6
-		to
-	linux.bkbits.net/linux-2.6.11
+Now I agree that the transfers you do ARE i2c block transfers, and I
+find it highly questionable that our implementation of
+i2c_smbus_read_i2c_block_data will always read 32 bytes of data from the
+chip. It would be much more convenient to allow I2C block reads of
+arbitrary length, (just like we do with I2C block writes) so that
+clients can use this function instead of master_xfer.
 
-and gives the "release team" access to push to linux-2.6.11 repo.
+It should be a quite simple fix if I correctly remember the i2c-core
+code, with the only drawback that it alters the API. That being said,
+the only kernel user (in kernel) of this function that I could find is
+the eeprom driver (this can be easily explained by the fact that this
+function, as it is now, is essentially useless), so I wouldn't mind the
+risk. The net benefit would be that i2c chip drivers could start using
+this function instead of master_xfer, so they would possibly work with
+more than just the fully I2C-capable adapters (not that many of them,
+see list right below).
 
+i2c-dev might be a problem if we go that way, because we will silently
+change the way I2C block reads requested from userspace are handled. Not
+sure it is a big issue though, because as underlined before, the
+function as it is now is rather useless. I doubt that anything but
+i2cdump uses it in userspace.
 
-2) Create linux-release.bkbits.net, and some non-Linus person clones 
-linux-2.6 at release time to linux-2.6.11.
+Then we would need to fix bus drivers that implement the call by
+themselves (as opposed to emulation), but in fact only a few of them do
+(i2c-amd8111 and i2c-nforce2) so that should be quickly done.
+[Reading the two bus drivers code...]
 
+And it turns out that both bus drivers ALREADY honor the length
+requested by the caller, which is not consistent with the emulated
+variant of the call. Something definitely must be done.
 
-This accomplishes two [minor] goals:
-a) the tree lives at bkbits.net, as has a name associated with the goal 
-of the project
+Any thoughts anyone?
 
-b) The repo has the _exact_ name of the kernel release.  None of this 
-"linux-2.6.11.y" stuff.  Just "linux-2.6.11".  Anything else violates 
-the Principle of Least Surprise.
-
-
-> Feel free to start pointing stuff like this at me and chris (we'll also
-> be setting up an alias for it.)
-
-I was wondering if it would be possible to setup a list on vger that is 
-public, but read-only to everyone but the $sucker team.
-
-	Jeff
-
-
+Thanks,
+-- 
+Jean Delvare

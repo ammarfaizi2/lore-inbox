@@ -1,95 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318079AbSHDDfm>; Sat, 3 Aug 2002 23:35:42 -0400
+	id <S318085AbSHDEIm>; Sun, 4 Aug 2002 00:08:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318085AbSHDDfm>; Sat, 3 Aug 2002 23:35:42 -0400
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:56670 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S318079AbSHDDfl>;
-	Sat, 3 Aug 2002 23:35:41 -0400
-From: <Hell.Surfers@cwctv.net>
-To: kaos@ocs.com.au, linux-kernel@vger.kernel.org
-Date: Sun, 4 Aug 2002 04:38:24 +0100
-Subject: RE:2.4.19 warnings with allnoconfig
+	id <S318088AbSHDEIm>; Sun, 4 Aug 2002 00:08:42 -0400
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:36747 "EHLO
+	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
+	id <S318085AbSHDEIl>; Sun, 4 Aug 2002 00:08:41 -0400
+Message-ID: <3D4CA95C.6070102@u.washington.edu>
+Date: Sat, 03 Aug 2002 21:11:08 -0700
+From: Kolbe Kegel <kolbe@u.washington.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: es, es-es, en-us, en
 MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1028432304582"
-Message-ID: <0ab2d4837030482DTVMAIL12@smtp.cwctv.net>
+To: Gary White <gary@netpathway.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19 IDE Partition Check issue
+References: <20020803163708.GHUY23840.mta03-svc.ntlworld.com@[10.137.100.63]> <1028397650.1760.8.camel@irongate.swansea.linux.org.uk> <3D4C5209.67385E8C@netpathway.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I had a similar issue when I was trying to install a new hard drive. 
+this was using 2.4.18, but the boot process would freeze during the 
+partition check. the problem on my end was solved by putting the drive 
+on a different channel... maybe you should see if that allows you to at 
+least boot, not that it helps to actually solve the problem.
 
---1028432304582
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Gary White wrote:
 
-most of those arent really problems, justwasting space, functions defined but not called are not damaging, they might be there for later functionality, but doing that is annoying, and dirtys code, which gives me stress, ;) dm.
-
-
-
-On 	Sun, 04 Aug 2002 13:23:52 +1000 	Keith Owens <kaos@ocs.com.au> wrote:
-
---1028432304582
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Sun, 4 Aug 2002 04:25:08 +0100
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318077AbSHDDUd>; Sat, 3 Aug 2002 23:20:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318079AbSHDDUd>; Sat, 3 Aug 2002 23:20:33 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:50183 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S318077AbSHDDUd>;
-	Sat, 3 Aug 2002 23:20:33 -0400
-Received: (qmail 11302 invoked from network); 4 Aug 2002 03:24:02 -0000
-Received: from ocs3.intra.ocs.com.au (192.168.255.3)
-  by mail.ocs.com.au with SMTP; 4 Aug 2002 03:24:02 -0000
-Received: by ocs3.intra.ocs.com.au (Postfix, from userid 16331)
-	id BF7D13000B8; Sun,  4 Aug 2002 13:23:57 +1000 (EST)
-Received: from ocs3.intra.ocs.com.au (localhost [127.0.0.1])
-	by ocs3.intra.ocs.com.au (Postfix) with ESMTP id 780F494
-	for <linux-kernel@vger.kernel.org>; Sun,  4 Aug 2002 13:23:57 +1000 (EST)
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.19 warnings with allnoconfig
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 04 Aug 2002 13:23:52 +1000
-Message-ID: <23899.1028431432@ocs3.intra.ocs.com.au>
-Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
-
-2.4.19 with make allnoconfig produces these warnings.  How about
-getting a clean kernel before starting on 2.4.20?
-
-init/do_mounts.c:980: warning: `crd_load' defined but not used
-
-arch/i386/kernel/setup.c: In function `amd_adv_spec_cache_feature': 
-arch/i386/kernel/setup.c:751: warning: implicit declaration of function `have_cpuid_p'
-arch/i386/kernel/setup.c: At top level:
-arch/i386/kernel/setup.c:2629: warning: `have_cpuid_p' was declared implicitly `extern' and later `static'
-arch/i386/kernel/setup.c:751: warning: previous declaration of `have_cpuid_p' 
-
-arch/i386/kernel/dmi_scan.c:196: warning: `disable_ide_dma' defined but not used
-
-fs/dnotify.c: In function `__inode_dir_notify':
-fs/dnotify.c:139: warning: label `out' defined but not used
-
-fs/namespace.c: In function `mnt_init':
-fs/namespace.c:1093: warning: implicit declaration of function `init_rootfs'
-
-drivers/char/random.c:540: warning: `free_entropy_store' defined but not used
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---1028432304582--
+>Alan I have the same problem Just complied 2.4.10-ac1 and I it did
+>not help. I only have a problem if I compile in the ALI M15x3 chipset
+>support so I can use DMA. Without DMA the partition check zooms right
+>past the 2 Maxtor 120GB drives I am having a problem with.
+>
+>Note: I do have an AWARD Bios and have tried the with and without
+>Auto-Geometry Resizing support compiled in the kernel.
+>
+>Oly boots if I don't use DMA and generic controller support.
+>
+>  
+>
+>>On Sat, 2002-08-03 at 17:37, alien.ant@ntlworld.com wrote:
+>>    
+>>
+>>>Hi,
+>>>
+>>>I attempted to upgrade from 2.4.18 to 2.4.19 today but one of machines repeatedly hangs at the "Partition check" on the IDE drives.
+>>>
+>>>The machine is a Compaq Proliant 800 Pentium III SMP box with a Highpoint 370 IDE controller. I attempted several reboots with the check continually failing. Rebooting back to 2.4.18 removed the problem.
+>>>
+>>>Searching the archive I note several other people have had this problem with 2.4.19-pre kernels but, as yet, there seems to be no resolution?
+>>>
+>>>      
+>>>
+>>Can you try 2.4.19-ac1 once I upload it. That has slightly further
+>>updated IDE code and it would useful to know if the same problem occurs
+>>
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml/
+>>    
+>>
+>
+>  
+>
 
 

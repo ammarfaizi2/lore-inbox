@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263114AbTDFVrb (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 17:47:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263115AbTDFVrb (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 17:47:31 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:9616
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263114AbTDFVr3 (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 17:47:29 -0400
-Subject: Re: PATCH: Fixes for ide-disk.c
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Nigel Cunningham <ncunningham@clear.net.nz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1049663520.8403.26.camel@laptop-linux.cunninghams>
-References: <1049527877.1865.17.camel@laptop-linux.cunninghams>
-	 <1049561200.25700.7.camel@dhcp22.swansea.linux.org.uk>
-	 <1049570711.3320.2.camel@laptop-linux.cunninghams>
-	 <1049641400.963.18.camel@dhcp22.swansea.linux.org.uk>
-	 <1049663520.8403.26.camel@laptop-linux.cunninghams>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1049662835.1600.31.camel@dhcp22.swansea.linux.org.uk>
+	id S263111AbTDFVoi (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 17:44:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263114AbTDFVoi (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 17:44:38 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:45953 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263111AbTDFVog (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 17:44:36 -0400
+Date: Sun, 6 Apr 2003 22:55:30 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Rik van Riel <riel@surriel.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@digeo.com>,
+       andrea@suse.de, mingo@elte.hu, hugh@veritas.com, dmccr@us.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org, Bill Irwin <wli@holomorphy.com>
+Subject: Re: subobj-rmap
+Message-ID: <20030406215530.GC24710@mail.jlokier.co.uk>
+References: <1070000.1049664851@[10.10.2.4]> <Pine.LNX.4.44.0304061737510.2296-100000@chimarrao.boston.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 06 Apr 2003 22:00:36 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0304061737510.2296-100000@chimarrao.boston.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-04-06 at 22:12, Nigel Cunningham wrote:
-> Hi again.
+Rik van Riel wrote:
+> I don't see how the data structure you describe
+> would allow us to efficiently select the subset
+> of VMAs for which:
 > 
-> I've just reread your message. Isn't it used as a lock at the moment?
-> IIRC, you get a BUG if you try to use the driver while its blocked.
-> Perhaps that's where I'm getting confused.
+> 1) the start address is smaller than the address we want
+> and
+> 2) the end address is larger than the address we want
 
-There are multiple "blocked" fields to deal with. drive->blocked
-indicates we can't feed it commands because it is blocked due to
-power management.
+Think about the data structures some text editors use to describe
+special regions of the text.  A common operation is to search for all
+the special regions covering a particular cursor position.
 
-idedisk_suspend sets the drive->blocked field so that we panic if
-anything is sent to the disk after we turned it off (since it
-would be a corrupter).
+Several data structures are available.  I'm not aware of any that have
+perfect behaviour in all corner cases.
 
-idedisk_resume is called on the resume path and marks the drive
-as safe to use.
+It might be worth noting that these data structures are good at
+determining the set of regions covering position X+1 having recently
+calculated the set for position X.  Perhaps that has relevance for
+speeding up page scanning?
 
-So if you hit that bug, you did I/O after shutting the drive down,
-which is not allowed.
-
+-- Jamie

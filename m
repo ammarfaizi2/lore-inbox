@@ -1,36 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262052AbUECVoQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264040AbUECVwP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262052AbUECVoQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 17:44:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264039AbUECVoQ
+	id S264040AbUECVwP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 17:52:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264076AbUECVwP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 17:44:16 -0400
-Received: from topper.inf.ed.ac.uk ([129.215.32.40]:37575 "EHLO
-	topper.inf.ed.ac.uk") by vger.kernel.org with ESMTP id S262052AbUECVoI
+	Mon, 3 May 2004 17:52:15 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:17595 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264040AbUECVwM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 17:44:08 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 3 May 2004 17:52:12 -0400
+Subject: Re: Random file I/O regressions in 2.6
+From: Ram Pai <linuxram@us.ibm.com>
+To: Peter Zaitsev <peter@mysql.com>
+Cc: Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au, alexeyk@mysql.com,
+       linux-kernel@vger.kernel.org, axboe@suse.de
+In-Reply-To: <1083620245.23042.107.camel@abyss.local>
+References: <200405022357.59415.alexeyk@mysql.com>
+	 <409629A5.8070201@yahoo.com.au> <20040503110854.5abcdc7e.akpm@osdl.org>
+	 <1083615727.7949.40.camel@localhost.localdomain>
+	 <20040503135719.423ded06.akpm@osdl.org>
+	 <1083620245.23042.107.camel@abyss.local>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1083621052.7949.53.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 03 May 2004 14:50:53 -0700
 Content-Transfer-Encoding: 7bit
-Message-ID: <16534.48421.296794.467014@toolo.inf.ed.ac.uk>
-Date: Mon, 3 May 2004 22:44:05 +0100
-From: Julian Bradfield <jcb@inf.ed.ac.uk>
-To: linux-kernel@vger.kernel.org
-Subject: hang with 2.4.26 copying to loopback device
-X-Mailer: VM 7.18 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm running a vanilla 2.4.26 kernel (on a rather old distro, Mandrake
-9.0).
-I have large (6GB) file on a remote NFS server (running 2.4.18), on
-which
-there is a file system that I'm mounting via loopback.
-When I copy to this looped back filesystem, I get a hang after a few
-megabytes. After the copy hangs, I move the cursor around and soon X
-freezes as well. I can, however, reboot via sysrq.
+On Mon, 2004-05-03 at 14:37, Peter Zaitsev wrote:
+> On Mon, 2004-05-03 at 13:57, Andrew Morton wrote:
+> > Ram Pai <linuxram@us.ibm.com> wrote:
+> > >
+> > > > The place which needs attention is handle_ra_miss().  But first I'd like to
+> > > > reacquaint myself with the intent behind the lazy-readahead patch.  Was
+> > > > never happy with the complexity and special-cases which that introduced.
+> > > 
+> > > lazy-readahead has no role to play here.
+> > 
+> 
+> Andrew,
+> 
+> Could you please clarify how this things become to be dependent on
+> read-ahead at all.
+> 
+> At my understanding read-ahead it to catch sequential (or other) access
+> pattern and do some advance reading, so instead of 16K request we do
+> 128K request, or something similar.
+> 
+> But how could read-ahead disabled end up in 16K request converted to
+> several sequential synchronous 4K requests ? 
 
-I've seen several reports a couple of years ago of deadlocks in
-loopback, but nothing recently that I can find via searching.
-Is there anything currently known to be an issue, or should I start
-preparing a proper report?
+When the readahead window gets closed,the code goes into slow-read mode.
+In this mode, all requests are broken to page-size. Hence a 16k request
+gets broken into 4  4K-requests. This continues to the point where
+enough number of sequential i/os are requested(i.e around ra->ra_pages
+number of pages), at which point the readahead window gets
+re-activated.  
+
+Looking at it the other way, without readahead code, all requests
+satisfied through 4k i/os.  Readahead helps in generating larger size
+i/os.
+
+RP
+
+

@@ -1,86 +1,212 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261448AbSJYPZX>; Fri, 25 Oct 2002 11:25:23 -0400
+	id <S261449AbSJYPcs>; Fri, 25 Oct 2002 11:32:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261449AbSJYPZX>; Fri, 25 Oct 2002 11:25:23 -0400
-Received: from wilma1.suth.com ([207.127.128.4]:43276 "EHLO wilma1.suth.com")
-	by vger.kernel.org with ESMTP id <S261448AbSJYPZW>;
-	Fri, 25 Oct 2002 11:25:22 -0400
-Subject: Re: Linux 2.5.44-ac3
-From: Jason Williams <jason_williams@suth.com>
-To: Alan Cox <alan@redhat.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200210251019.g9PAJ8V14406@devserv.devel.redhat.com>
-References: <200210251019.g9PAJ8V14406@devserv.devel.redhat.com>
-Content-Type: multipart/mixed; boundary="=-JybGCiHp8quJNTkX4Fha"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 25 Oct 2002 11:34:59 -0400
-Message-Id: <1035560104.12219.37.camel@cermanius.suth.com>
+	id <S261450AbSJYPcs>; Fri, 25 Oct 2002 11:32:48 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:9224 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S261449AbSJYPcq>; Fri, 25 Oct 2002 11:32:46 -0400
+Date: Fri, 25 Oct 2002 19:37:25 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Scott Murray <scottm@somanetworks.com>
+Cc: Greg KH <greg@kroah.com>, Jeff Garzik <jgarzik@pobox.com>,
+       KOCHI Takayoshi <t-kouchi@mvf.biglobe.ne.jp>, jung-ik.lee@intel.com,
+       tony.luck@intel.com,
+       pcihpd-discuss <pcihpd-discuss@lists.sourceforge.net>,
+       linux-ia64@linuxia64.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Pcihpd-discuss] Re: PCI Hotplug Drivers for 2.5
+Message-ID: <20021025193725.A3300@jurassic.park.msu.ru>
+References: <20021024214952.GK25159@kroah.com> <Pine.LNX.4.33.0210241803420.10937-100000@rancor.yyz.somanetworks.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0210241803420.10937-100000@rancor.yyz.somanetworks.com>; from scottm@somanetworks.com on Thu, Oct 24, 2002 at 06:22:44PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 24, 2002 at 06:22:44PM -0400, Scott Murray wrote:
+> I hopefully will have something working against 2.5.44 tomorrow.  I think
+> the only potentially contentious piece that I'd like to get reviewed and
+> maybe integrated before the feature freeze is the resource reservation
+> stuff.  There seemed to be no serious objections to the 2.4.x version I
+> posted a while back, so maybe this won't be a big deal.  Everything else
+> is either __devinit/export tweaks or driver code.
 
---=-JybGCiHp8quJNTkX4Fha
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+The setup-bus code already does resource reservation, but only for
+cardbus. It can be easily extended for any type of hotplug
+controller though. Other enhancements (like configurable amount
+of reserved IO/memory) also shouldn't be a problem.
 
-On Fri, 2002-10-25 at 06:19, Alan Cox wrote:
-> ** I strongly recommend saying N to IDE TCQ options otherwise this
->    should hopefully build and run happily.
-> 
+Also I have a patch (appended) that allows to use pbus_size_bridges()
+for cardbus bridges (which have different resource layout vs. PCI-to-PCI
+ones).
 
-Ok, so I did some "head-banging-against-the-wall" digging into the IDE
-code(my wall is dented now...) and I found where hwif->mate gets
-populated.  Checking out this code and the code of the calling function,
-I found that since the Primary interface is disabled, the first call to
-the ide_hwif_configure is for the secondary channel. Being the first
-call to the function the mate argument to the ide_hwif_configure
-function is null.    Since the mate argument is null this makes the
-secondary interface have no mate, and it needs one(don't we all). I
-figured it might be alright to populate it's hwif->mate var with a copy
-of itself.  I thought about this and if that var gets called elsewhere
-in the code, worst it would do is attempt to double initialize something
-on that interface, I think.  So it seems like a few lines right by the
-assignment of hwif->mate might take care of this.  I basically check
-mate for null, AND port for not zero.  If those 2 conditions are met, I
-set hwif->mate to a copy of hwif itself and let it go.  It looks like
-this runs ok on  my boxen. I am just wondering everyone's opinion on
-this proposed fix.
+BTW, 2.5 setup-* stuff went into 2.4 recently. :-)
 
+Ivan.
 
-Jason Williams
- 
-
---=-JybGCiHp8quJNTkX4Fha
-Content-Description: 
-Content-Disposition: inline; filename=ide-sec-channel-fix.patch
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/x-patch; charset=ISO-8859-1
-
-diff -u -r linux-2.5.44-ac3/drivers/ide/setup-pci.c linux-2.5.44-ac3-idefix=
-/drivers/ide/setup-pci.c
---- linux-2.5.44-ac3/drivers/ide/setup-pci.c	2002-10-18 23:01:49.000000000 =
--0500
-+++ linux-2.5.44-ac3-idefix/drivers/ide/setup-pci.c	2002-10-25 10:54:30.000=
-000000 -0500
-@@ -472,6 +472,16 @@
- 		hwif->mate =3D mate;
- 		mate->mate =3D hwif;
- 	}
-+        else if(port){
-+               // if mate is NULL and port is 1
-+               // then we have a secondary without a primary
-+               // which can happen on some bioses
-+               // to avoid a null exception later in the code
-+               // we populate mate with itself.
-+               // Worst case is it says the controller is already=20
-+               // initialized later.
-+               hwif->mate =3D hwif;
-+        }
- 	return hwif;
+--- 2.5.36/drivers/pci/setup-res.c	Wed Sep 18 04:59:13 2002
++++ linux/drivers/pci/setup-res.c	Thu Sep 19 19:31:45 2002
+@@ -137,7 +137,7 @@ pci_assign_resource(struct pci_dev *dev,
  }
-=20
-
---=-JybGCiHp8quJNTkX4Fha--
-
+ 
+ /* Sort resources by alignment */
+-void __init
++void __devinit
+ pdev_sort_resources(struct pci_dev *dev, struct resource_list *head)
+ {
+ 	int i;
+--- 2.5.36/drivers/pci/setup-bus.c	Wed Sep 18 04:58:56 2002
++++ linux/drivers/pci/setup-bus.c	Thu Sep 19 19:29:04 2002
+@@ -35,7 +35,7 @@
+ 
+ #define ROUND_UP(x, a)		(((x) + (a) - 1) & ~((a) - 1))
+ 
+-static int __init
++static int __devinit
+ pbus_assign_resources_sorted(struct pci_bus *bus)
+ {
+ 	struct list_head *ln;
+@@ -85,7 +85,7 @@ pbus_assign_resources_sorted(struct pci_
+    requires that if there is no I/O ports or memory behind the
+    bridge, corresponding range must be turned off by writing base
+    value greater than limit to the bridge's base/limit registers.  */
+-static void __init
++static void __devinit
+ pci_setup_bridge(struct pci_bus *bus)
+ {
+ 	struct pbus_set_ranges_data ranges;
+@@ -168,7 +168,7 @@ pci_setup_bridge(struct pci_bus *bus)
+ /* Check whether the bridge supports optional I/O and
+    prefetchable memory ranges. If not, the respective
+    base/limit registers must be read-only and read as 0. */
+-static void __init
++static void __devinit
+ pci_bridge_check_ranges(struct pci_bus *bus)
+ {
+ 	u16 io;
+@@ -206,20 +206,38 @@ pci_bridge_check_ranges(struct pci_bus *
+ 		b_res[2].flags |= IORESOURCE_MEM | IORESOURCE_PREFETCH;
+ }
+ 
++/* Find first free bus resource of a given type */
++static struct resource * __devinit
++pbus_find_resource(struct pci_bus *bus, unsigned long type)
++{
++	int i;
++	struct resource *r;
++
++	for (i = 0; i < PCI_BUS_NUM_RESOURCES; i++) {
++		r = bus->resource[i];
++		if (r && !((r->flags ^ type) & type) && !r->parent)
++			return r;
++	}
++	return NULL;
++}
++
+ /* Sizing the IO windows of the PCI-PCI bridge is trivial,
+    since these windows have 4K granularity and the IO ranges
+    of non-bridge PCI devices are limited to 256 bytes.
+    We must be careful with the ISA aliasing though. */
+-static void __init
++static void __devinit
+ pbus_size_io(struct pci_bus *bus)
+ {
+ 	struct list_head *ln;
+-	struct resource *b_res = bus->resource[0];
++	struct resource *b_res = pbus_find_resource(bus, IORESOURCE_IO);
+ 	unsigned long size = 0, size1 = 0;
+ 
+-	if (!(b_res->flags & IORESOURCE_IO))
++	if (!b_res)
+ 		return;
+ 
++	DBGC((KERN_INFO "PCI: found %s resource %ld for IO\n",
++			bus->name, b_res - bus->resource[0]));
++
+ 	for (ln=bus->devices.next; ln != &bus->devices; ln=ln->next) {
+ 		struct pci_dev *dev = pci_dev_b(ln);
+ 		int i;
+@@ -259,15 +277,21 @@ pbus_size_io(struct pci_bus *bus)
+ 
+ /* Calculate the size of the bus and minimal alignment which
+    guarantees that all child resources fit in this size. */
+-static void __init
++static int __devinit
+ pbus_size_mem(struct pci_bus *bus, unsigned long mask, unsigned long type)
+ {
+ 	struct list_head *ln;
+ 	unsigned long min_align, align, size;
+ 	unsigned long aligns[12];	/* Alignments from 1Mb to 2Gb */
+ 	int order, max_order;
+-	struct resource *b_res = (type & IORESOURCE_PREFETCH) ?
+-				 bus->resource[2] : bus->resource[1];
++	struct resource *b_res = pbus_find_resource(bus, type);
++
++	if (!b_res)
++		return 0;
++
++	DBGC((KERN_INFO "PCI: found %s resource %ld for %s\n",
++			bus->name, b_res - bus->resource[0],
++			type & IORESOURCE_PREFETCH ? "PREF" : "MEM"));
+ 
+ 	memset(aligns, 0, sizeof(aligns));
+ 	max_order = 0;
+@@ -325,17 +349,18 @@ pbus_size_mem(struct pci_bus *bus, unsig
+ 	size = ROUND_UP(size, min_align);
+ 	if (!size) {
+ 		b_res->flags = 0;
+-		return;
++		return 1;
+ 	}
+ 	b_res->start = min_align;
+ 	b_res->end = size + min_align - 1;
++	return 1;
+ }
+ 
+-void __init
++void __devinit
+ pbus_size_bridges(struct pci_bus *bus)
+ {
+ 	struct list_head *ln;
+-	unsigned long mask, type;
++	unsigned long mask, prefetch;
+ 
+ 	for (ln=bus->children.next; ln != &bus->children; ln=ln->next)
+ 		pbus_size_bridges(pci_bus_b(ln));
+@@ -348,17 +373,15 @@ pbus_size_bridges(struct pci_bus *bus)
+ 
+ 	pbus_size_io(bus);
+ 
+-	mask = type = IORESOURCE_MEM;
++	mask = IORESOURCE_MEM;
++	prefetch = IORESOURCE_MEM | IORESOURCE_PREFETCH;
+ 	/* If the bridge supports prefetchable range, size it separately. */
+-	if (bus->resource[2] &&
+-	    bus->resource[2]->flags & IORESOURCE_PREFETCH) {
+-		pbus_size_mem(bus, IORESOURCE_PREFETCH, IORESOURCE_PREFETCH);
+-		mask |= IORESOURCE_PREFETCH;	/* Size non-prefetch only. */
+-	}
+-	pbus_size_mem(bus, mask, type);
++	if (pbus_size_mem(bus, prefetch, prefetch))
++		mask = prefetch;		/* Size non-prefetch only. */
++	pbus_size_mem(bus, mask, IORESOURCE_MEM);
+ }
+ 
+-void __init
++void __devinit
+ pbus_assign_resources(struct pci_bus *bus)
+ {
+ 	struct list_head *ln;
+@@ -367,7 +390,8 @@ pbus_assign_resources(struct pci_bus *bu
+ 	if (found_vga) {
+ 		struct pci_bus *b;
+ 
+-		/* Propagate presence of the VGA to upstream bridges */
++		/* Propagate presence of the VGA to upstream bridges.
++		   This hack eventually will go away. */
+ 		for (b = bus; b->parent; b = b->parent) {
+ 			b->resource[0]->flags |= IORESOURCE_BUS_HAS_VGA;
+ 		}

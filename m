@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263459AbTIHS2A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 14:28:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263465AbTIHS2A
+	id S263442AbTIHSUs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 14:20:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263453AbTIHSUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 14:28:00 -0400
-Received: from cs180094.pp.htv.fi ([213.243.180.94]:17024 "EHLO
-	hades.pp.htv.fi") by vger.kernel.org with ESMTP id S263459AbTIHS16
+	Mon, 8 Sep 2003 14:20:48 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:45455 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263442AbTIHSUp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 14:27:58 -0400
-Subject: Re: New ATI FireGL driver supports 2.6 kernel
-From: Mika Liljeberg <mika.liljeberg@welho.com>
-To: Stian Jordet <liste@jordet.nu>
-Cc: linux-kernel@vger.kernel.org, dri-users@lists.sourceforge.net
-In-Reply-To: <1063045080.21991.13.camel@chevrolet.hybel>
-References: <1063044345.1895.10.camel@hades>
-	 <1063045080.21991.13.camel@chevrolet.hybel>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1063045671.2637.3.camel@hades>
+	Mon, 8 Sep 2003 14:20:45 -0400
+Date: Mon, 8 Sep 2003 19:20:21 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Hugh Dickins <hugh@veritas.com>,
+       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Make futex waiters take an mm or inode reference
+Message-ID: <20030908182021.GD27097@mail.jlokier.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 08 Sep 2003 21:27:51 +0300
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-09-08 at 21:18, Stian Jordet wrote:
-> > Just in case anyone is interested, ATI has released version 3.2.5 of
-> > their FireGL driver for XFree86. The driver supports all their high end
-> > graphics cards. This is the first version that has DRM support for the
-> > 2.6 series of kernels.
-> 
-> Well.. Not really :)
-> 
-> chevrolet:/lib/modules/fglrx/build_mod/2.6.x# make
-...
-> make: *** [kmod_build] Error 2
-> chevrolet:/lib/modules/fglrx/build_mod/2.6.x#
+Rusty Russell wrote:
+> But why not solve the problem by just holding an mm reference, too?
 
-Hmm. I did manage to build it, although I got my version from here
-instead of ATI's site:
+Rusty also wrote:
+> Why not make the code a *whole* lot more readable (and only marginally
+> slower, if at all) by doing it in two passes: pull them off onto a
+> (on-stack) list in one pass, then requeue them all in another.
 
-http://www.schneider-digital.de/html/download_ati.html
+This patch makes each futex waiter hold a reference to the mm or inode
+that a futex is keyed on.
 
-Maybe there's a difference. Using the new glue code, I also managed to
-build a kernel module for the older 2.9.13 driver as 3.2.5 seems a bit
-flakey with my radeon 9700 pro.
+This is very important, because otherwise a malicious or erroneous
+program can use FUTEX_FD to create futexes on mms or inodes which are
+recycled, and steal wakeups from other, unrelated programs.
 
-Cheers,
+It isn't entirely trivial, because we can't call mmdrop() or iput()
+while holding the spinlock, I think.  (Does someone know to the
+contrary?)  Rusty, you will be glad to see that I have reimplemented
+futex_requeue() exactly as you suggest: in two passes.
 
-	MikaL
+Ulrich will be glad to hear tst-cond2 runs just fine :)
 
+Linus, please apply unless there are objections.
+
+Thanks,
+-- Jamie

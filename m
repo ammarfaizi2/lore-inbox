@@ -1,73 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbVBDMNo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbVBDMQA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbVBDMNo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 07:13:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbVBDMNo
+	id S261171AbVBDMQA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 07:16:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbVBDMQA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 07:13:44 -0500
-Received: from smtp.uk.colt.net ([195.110.64.125]:38288 "EHLO smtp.uk.colt.net")
-	by vger.kernel.org with ESMTP id S261169AbVBDMNe (ORCPT
+	Fri, 4 Feb 2005 07:16:00 -0500
+Received: from ozlabs.org ([203.10.76.45]:655 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261171AbVBDMPu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 07:13:34 -0500
-From: David Goodenough <david.goodenough@btconnect.com>
-Organization: D.G.A. ltd
-To: acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] Re: [RFC] Reliable video POSTing on resume
-Date: Fri, 4 Feb 2005 12:11:49 +0000
-User-Agent: KMail/1.7.1
-Cc: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       Oliver Neukum <oliver@neukum.org>, Pavel Machek <pavel@ucw.cz>,
-       ncunningham@linuxmail.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20050122134205.GA9354@wsc-gmbh.de> <200502041126.14386.oliver@neukum.org> <42035D5A.2030703@gmx.net>
-In-Reply-To: <42035D5A.2030703@gmx.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 4 Feb 2005 07:15:50 -0500
+Subject: 2.6: USB disk unusable level of data corruption
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Greg KH <greg@kroah.com>
+Content-Type: text/plain
+Date: Fri, 04 Feb 2005 23:16:22 +1100
+Message-Id: <1107519382.1703.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502041211.49789.david.goodenough@btconnect.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 February 2005 11:32, Carl-Daniel Hailfinger wrote:
-> Oliver Neukum schrieb:
-> > Am Freitag, 4. Februar 2005 08:48 schrieb Pavel Machek:
-> >>What about simply blocking all video accesses before disk (etc) is
-> >>resumed, so that "normal" (not locked in memory) application can be
-> >>used?
-> >
-> > Very bad for debugging. Genuine serial ports are becoming rarer.
->
-> As a bonus, even genuine serial ports may be in undefined state after
-> resume. I'm unfortunate enough to have a brand new notebook with
-> serial port, but the serial console code will print garbage after
-> resume until I do a
-> echo foo >/dev/ttyS0
->
-> I've already sent mail to linux-serial for that problem, but the
-> list appears to be dead. Any pointers to the right contact would
-> be appreciated.
->
-> Regards,
-> Carl-Daniel
+OK, I recently made the mistake of buying a USB case with a drive in it
+and putting my home directory on it.  I have since then had multiple
+ext3 and ext2 errors: 2.6.8, 2.6.9, 2.6.10 and 2.6.11-rc3 all exhibit
+the problem within an hour of stress (untarring a fresh kernel tree, cp
+-al'ing to apply patches repeatedly, my normal workload).  I haven't had
+any similar problems on my internal IDE drive.  2.4 succeeded once, and
+once had data corruption (although nowhere near as as bad as the 2.6
+corruption, and it got much further).
 
-I wonder if this is related to a problem I have noted on some embedded
-systems which only have a serial console (no video, and nothing to do with
-ACPI).
+I realize "ub" exists, but it doesn't seem to want to deal with a disk
+device.
 
-If I set up the video console (through LILO), and talk to it using minicom
-when the machine starts I am first talking to BIOS, that works fine, then to
-LILO which also works, then the kernel starts and that works up to the point
-where the proper serial console is loaded, when it picks some bizaar baud rate
-and only corrects it when setserial is run.
+Is USB/SCSI just terminally broken under 2.6?  I'll be getting a power
+supply to test the drive using firewire, which it also supports, to
+ensure this isn't a disk issue (although the 2.4 goodness undermines
+this theory).
 
-I have recently noticed this on an SC1100 board, but it is not SC1100 specific
-as another manufacturers SC1100 based board does not exhibit this behaviour.
+hub 4-0:1.0: USB hub found
+hub 4-0:1.0: 6 ports detected
+usb 2-1: USB disconnect, address 2
+usb 4-3: new high speed USB device using address 2
+scsi1 : SCSI emulation for USB Mass Storage devices
+  Vendor: HTS72606  Model: 0M9AT00           Rev: MH4O
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+SCSI device sda: 117210240 512-byte hdwr sectors (60012 MB)
+sda: assuming drive cache: write through
+ /dev/scsi/host1/bus0/target0/lun0: p1 p2 < p5 p6 p7 p8 p9 >
+Attached scsi disk sda at scsi1, channel 0, id 0, lun 0
+USB Mass Storage device found at 2
 
-Just a thought and probably no help in getting it solved.  Sorry I do not have
-any good contacts, although once when I had a problem with serial ports being
-misdetected on an IBM MCA machine Alan Cox fixed it for me so he obviously
-knows his way around the code and might be able to fix it for us.
+-- 
+A bad analogy is like a leaky screwdriver -- Richard Braakman
 
-David

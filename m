@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263622AbTLXOYN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 09:24:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263625AbTLXOYN
+	id S262796AbTLXOWZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 09:22:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263622AbTLXOWZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 09:24:13 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:63949 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S263622AbTLXOYL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 09:24:11 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16361.41348.444243.919179@laputa.namesys.com>
-Date: Wed, 24 Dec 2003 17:24:04 +0300
-To: Hugang <hugang@soulinfo.com>
-Cc: Bart Samwel <bart@samwel.tk>, linux-kernel@vger.kernel.org,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH] laptop-mode for 2.6, version 2
-In-Reply-To: <20031224215120.66b74f66.hugang@soulinfo.com>
-References: <3FE92517.1000306@samwel.tk>
-	<20031224215120.66b74f66.hugang@soulinfo.com>
-X-Mailer: VM 7.17 under 21.5  (beta16) "celeriac" XEmacs Lucid
+	Wed, 24 Dec 2003 09:22:25 -0500
+Received: from AGrenoble-101-1-4-151.w217-128.abo.wanadoo.fr ([217.128.202.151]:53156
+	"EHLO awak.dyndns.org") by vger.kernel.org with ESMTP
+	id S262796AbTLXOWY convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Dec 2003 09:22:24 -0500
+Subject: Re: DevFS vs. udev
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Ian Soboroff <ian.soboroff@nist.gov>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <9cf8yl2e3ej.fsf@rogue.ncsl.nist.gov>
+References: <E1AYl4w-0007A5-R3@O.Q.NET>
+	 <20031224151314.700680fe.rusty@rustcorp.com.au>
+	 <1072240684.2947.184.camel@duergar> <1072264524.3555.4.camel@nomade>
+	 <9cf8yl2e3ej.fsf@rogue.ncsl.nist.gov>
+Content-Type: text/plain; charset=iso-8859-15
+Message-Id: <1072275476.3555.12.camel@nomade>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 24 Dec 2003 15:17:57 +0100
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugang writes:
- > On Wed, 24 Dec 2003 06:33:11 +0100
- > Bart Samwel <bart@samwel.tk> wrote:
- > 
- > > Here's a new version of the laptop-mode patch (and control script). I've
- > > made a couple of improvements because of your comments. The block_dump
- > > functionality (including block dirtying) is back, and my alternative
- > > functionality has gone. There's just one bit of the block dumping patch 
- > > that I couldn't place, the bit in filemap.c. The 2.6 code is so 
- > > different here that I really couldn't figure out what I should do with 
- > > it. Do you have any idea where this has gone (and if it is still needed)?
- > 
- > Here is hacker patch do laptop mode on reiserfs file system. Any comments are welcome.
+Le mer 24/12/2003 à 14:44, Ian Soboroff a écrit :
+> Xavier Bestel <xavier.bestel@free.fr> writes:
+> 
+> > I have to admit that devfs is the best, hands down, at a crucial lkml
+> > exercise: the flamefest. It seems even after it'll die, it will continue
+> > to attract devotees and flames.
+> 
+> Perhaps the devfs devotees will maintain their code in BK, and we can
+> merge two perennial lkml flamewars into one.
 
->From patch:
-
-+int reiserfs_default_max_commit_age = -1;
-+
-
-I am not sure that global variable is a good idea here. What if several
-file systems are mounted? You should either pass value as an argument to
-the journal initialization code, or just initialize
-SB_JOURNAL_MAX_COMMIT_AGE(sb) when parsing options.
-
- > 
- > -- 
- > Hu Gang / Steve
-
-Nikita.
+BK flames seem so passé to me. Throw in a new durable API to enable
+binary-only device drivers, and you just built the perfect flamethrower.
 

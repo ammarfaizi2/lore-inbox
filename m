@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261667AbVB1QHJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261670AbVB1QMn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261667AbVB1QHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 11:07:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbVB1QHI
+	id S261670AbVB1QMn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 11:12:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbVB1QMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 11:07:08 -0500
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:16594 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S261667AbVB1QGo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 11:06:44 -0500
-X-ORBL: [68.250.202.199]
-Date: Mon, 28 Feb 2005 11:06:12 -0500 (EST)
-From: Vladimir Dergachev <volodya@mindspring.com>
-X-X-Sender: volodya@node2.an-vo.com
-Reply-To: Vladimir Dergachev <volodya@mindspring.com>
-To: Pavel Machek <pavel@ucw.cz>
-cc: Jon Smirl <jonsmirl@gmail.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alex Deucher <alexdeucher@gmail.com>, Dave Airlie <airlied@linux.ie>,
-       dri-devel@lists.sourceforge.net,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       xorg@lists.freedesktop.org
-Subject: Re: POSTing of video cards (WAS: Solo Xgl..)
-In-Reply-To: <20050228143626.GB1429@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.62.0502281051350.28870@node2.an-vo.com>
-References: <21d7e997050220150030ea5a68@mail.gmail.com>
- <9e4733910502201542afb35f7@mail.gmail.com> <1108973275.5326.8.camel@gaston>
- <9e47339105022111082b2023c2@mail.gmail.com> <1109019855.5327.28.camel@gaston>
- <9e4733910502211717116a4df3@mail.gmail.com> <1109041968.5412.63.camel@gaston>
- <a728f9f9050221205634a3acf0@mail.gmail.com> <1109049217.5412.79.camel@gaston>
- <9e4733910502212203671eec73@mail.gmail.com> <20050228143626.GB1429@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 28 Feb 2005 11:12:42 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:24472 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261670AbVB1QMe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 11:12:34 -0500
+Subject: Re: [PATCH] 0/2 Buddy allocator with placement policy + prezeroing
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Mel Gorman <mel@csn.ul.ie>
+Cc: linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050227134219.B4346ECE4@skynet.csn.ul.ie>
+References: <20050227134219.B4346ECE4@skynet.csn.ul.ie>
+Content-Type: text/plain
+Date: Mon, 28 Feb 2005 08:12:07 -0800
+Message-Id: <1109607127.6921.14.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2005-02-27 at 13:42 +0000, Mel Gorman wrote:
+> In the two following emails are the latest version of the placement policy
+> for the binary buddy allocator to reduce fragmentation and the prezeroing
+> patch. The changelogs are with the patches although the most significant change
+> to the placement policy is a fix for a bug in the usemap size calculation
+> (pointed out by Mike Kravetz). 
+> 
+> The placement policy is Even Better than previous versions and can allocate
+> over 100 2**10 blocks of pages under loads in excess of 30 so I still
+> consider it ready for inclusion to the mainline.
+...
 
+This patch does some important things for memory hotplug: it explicitly
+marks the different types of kernel allocations, and it separates those
+different types in the allocator.  When it comes to memory hot-remove
+this is certainly something we were going to have to do anyway.  Plus, I
+believe there are already at least two prototype patches that do this.  
 
-On Mon, 28 Feb 2005, Pavel Machek wrote:
+Anything that makes future memory hotplug work easier is good in my
+book. :)
 
-> Hi!
->
->>> I think that the driver is the "chief" here and the one to know what to
->>> do with the cards it drives. It can detect a non-POSTed card and deal
->>> with it.
->>
->> What about the x86 case of VGA devices that run without a driver being
->> loaded? Do we force people to load an fbdev driver to get the reset?
->> The BIOS deficiency strategy works for these devices.
->
-> Yes, I think we do force people to load fbdev...
->
-> ...because different BIOSes will be broken in slightly different ways,
-> and you'll probably need to know which BIOS you are trying to load...
+-- Dave
 
-I agree. For example, on my Dell notebook the graphics card is not 
-reinitialized properly on return from resume. At some point I'll get 
-bothered enough to write code that does it.
-
-                         best
-
-                           Vladimir Dergachev

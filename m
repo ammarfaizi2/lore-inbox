@@ -1,47 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264508AbRFTRda>; Wed, 20 Jun 2001 13:33:30 -0400
+	id <S264511AbRFTRhU>; Wed, 20 Jun 2001 13:37:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264509AbRFTRdU>; Wed, 20 Jun 2001 13:33:20 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:6662 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S264508AbRFTRdK>; Wed, 20 Jun 2001 13:33:10 -0400
-Date: Wed, 20 Jun 2001 14:32:55 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Pavel Machek <pavel@suse.cz>, Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: spindown
-In-Reply-To: <01062018523007.00439@starship>
-Message-ID: <Pine.LNX.4.33.0106201407450.1376-100000@duckman.distro.conectiva>
+	id <S264512AbRFTRhK>; Wed, 20 Jun 2001 13:37:10 -0400
+Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:25478 "HELO
+	tsunami.webofficenow.com") by vger.kernel.org with SMTP
+	id <S264511AbRFTRhI>; Wed, 20 Jun 2001 13:37:08 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@webofficenow.com>
+Reply-To: landley@webofficenow.com
+To: Larry McVoy <lm@bitmover.com>, Ben Greear <greearb@candelatech.com>
+Subject: Re: [OT] Threads, inelegance, and Java
+Date: Wed, 20 Jun 2001 08:36:07 -0400
+X-Mailer: KMail [version 1.2]
+Cc: Aaron Lehmann <aaronl@vitelus.com>, hps@intermeta.de,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20010620042544.E24183@vitelus.com> <3B30BD5D.153A5FE9@candelatech.com> <20010620095329.M3089@work.bitmover.com>
+In-Reply-To: <20010620095329.M3089@work.bitmover.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01062008360706.00776@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Jun 2001, Daniel Phillips wrote:
+On Wednesday 20 June 2001 12:53, Larry McVoy wrote:
 
-> BTW, with nominal 100,000 erases you have to write 10 terabytes
-> to your 100 meg flash disk before you'll see it start to
-> degrade.
+> We couldn't believe that Java was really that bad so our GUI guy, Aaron
+> Kushner, sat down and rewrote the revision history browser in Java.
+> On a 500 node graph, the Java tool was up to 85MB.  The tk tool doing
+> the same thing was 5MB.  Note that we routinely run the tool on files
+> with 4000 nodes, we can't even run the Java tool on files that big,
+> it crashes.
 
-That assumes you write out full blocks.  If you flush after
-every byte written you'll hit the limit a lot sooner ;)
+I can second that.
 
-Btw, this is also a problem with your patch, when you write
-out buffers all the time your disk will spend more time seeking
-all over the place (moving the disk head away from where we are
-currently reading!) and you'll end up writing the same block
-multiple times ...
+I recently mentioned an OS/2 abonination called Feature Install.  Around 1996 
+I tried to port Feature Install to java 1.0.  I got as far as the response 
+file reading code, and reading in a 100k file exhausted available memory on 
+the 32 megabyte machine I was working on.
 
-regards,
+Remember, every single java object includes a BUNCH of data, including two 
+semaphores (one event, one mutex) and who knows what else.  On OS/2 the 
+overhead of a java 1.0 object (new Object();) was 2 kilobytes!  In later 
+versions they got that down to around 200k, but it's still just rediculous.  
+Every single String, every pointless Integer() wrapper, every temporarily 
+created Stringbuffer() discarded by a + operation left there littering the 
+stack.
 
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
+Plus I have yet to see a JVM that actually reclaims heap space after a 
+garbage collect and gives it back to the OS.  (You have to be able to 
+relocate objects to do this at all reliably...)
 
+So if you create a large number of small objects, EVER, (tree, etc,) it's 
+going to explode the heap and it'll never come down until the program exits.
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+> So, yeah, we have done what you think we haven't done, and we've tried
+> the Java way, we aren't making this stuff up.  We run into Java fanatics
+> all the time and when we start asking "so what toolkits do you use" we
+> get back "well, actually, err, umm, none of them are any good so we write
+> our own".  That's pathetic.
 
+Also true.
+
+The Graphics class isn't too bad, and lightweight containers are actually 
+quite nice.  But swing is just insanely bad (I have to understand 
+model/view/controller and select a look-and-feel just to pop up a dialog with 
+an "ok" button?), and the only serious third party challenger to it was from 
+MIcrosoft...
+
+Rob

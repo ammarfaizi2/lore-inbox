@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264494AbTFQA5o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 20:57:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264495AbTFQA5o
+	id S264495AbTFQBKR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 21:10:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264496AbTFQBKQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 20:57:44 -0400
-Received: from dp.samba.org ([66.70.73.150]:41864 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264494AbTFQA5n (ORCPT
+	Mon, 16 Jun 2003 21:10:16 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:19410 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264495AbTFQBKP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 20:57:43 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Martin Diehl <lists@mdiehl.de>
-Cc: NeilBrown <neilb@cse.unsw.edu.au>, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org, akpm@zip.com.au
-Subject: Re: [PATCH] Add module_kernel_thread for threads that live in modules. 
-In-reply-to: Your message of "Mon, 16 Jun 2003 12:27:42 +0200."
-             <Pine.LNX.4.44.0306161145570.2079-100000@notebook.home.mdiehl.de> 
-Date: Tue, 17 Jun 2003 11:11:14 +1000
-Message-Id: <20030617011137.AF4562C074@lists.samba.org>
+	Mon, 16 Jun 2003 21:10:15 -0400
+Date: Mon, 16 Jun 2003 18:19:46 -0700 (PDT)
+Message-Id: <20030616.181946.22044667.davem@redhat.com>
+To: girouard@us.ibm.com
+Cc: stekloff@us.ibm.com, janiceg@us.ibm.com, jgarzik@pobox.com,
+       lkessler@us.ibm.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       niv@us.ibm.com
+Subject: Re: patch for common networking error messages
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <OFDD16F58E.35149C65-ON85256D47.0081D564@us.ibm.com>
+References: <OFDD16F58E.35149C65-ON85256D47.0081D564@us.ibm.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0306161145570.2079-100000@notebook.home.mdiehl.de> you write:
-> IMHO cleanup_thread would be something one MUST NOT call with any lock 
-> hold, not even a semaphore if it might get acquired anywhere else in 
-> keventd-context.
+   From: Janice Girouard <girouard@us.ibm.com>
+   Date: Mon, 16 Jun 2003 19:44:22 -0500
+   
+   It sounds like you are proposing a new family for the netlink
+   subsystem.
 
-Err, yes.  I thought this was fairly clear.  cf. del_timer_sync and a
-timer function.
-
-Cheers,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Exactly, you have to create this.

@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318049AbSGLWjB>; Fri, 12 Jul 2002 18:39:01 -0400
+	id <S318045AbSGLWjo>; Fri, 12 Jul 2002 18:39:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318050AbSGLWi7>; Fri, 12 Jul 2002 18:38:59 -0400
-Received: from ns.suse.de ([213.95.15.193]:34831 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S318049AbSGLWih>;
-	Fri, 12 Jul 2002 18:38:37 -0400
-Date: Sat, 13 Jul 2002 00:41:26 +0200
-From: Dave Jones <davej@suse.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Thunder from the hill <thunder@ngforever.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [CHECKER] 56 potential lock/unlock bugs in 2.5.8
-Message-ID: <20020713004126.I18503@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Thunder from the hill <thunder@ngforever.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20020713001456.H18503@suse.de> <Pine.LNX.4.44.0207130033240.8911-100000@serv>
+	id <S318055AbSGLWjL>; Fri, 12 Jul 2002 18:39:11 -0400
+Received: from holomorphy.com ([66.224.33.161]:36511 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S318045AbSGLWiI>;
+	Fri, 12 Jul 2002 18:38:08 -0400
+Date: Fri, 12 Jul 2002 15:39:56 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Cc: mochel@osdl.org, hpa@zytor.com
+Subject: NUMA-Q breakage 4/7 cpu_init() heisenbug
+Message-ID: <20020712223956.GB25360@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, mochel@osdl.org, hpa@zytor.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0207130033240.8911-100000@serv>; from zippel@linux-m68k.org on Sat, Jul 13, 2002 at 12:34:40AM +0200
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 13, 2002 at 12:34:40AM +0200, Roman Zippel wrote:
- > > How old exactly out of curiosity ?
- > Since 2.5.15 (about two months ago).
+cpu_init() (or something nearby) is broken and there is no clear way to
+tell why. Adding printk's seems to make it go away. hpa seemed to have
+a notion of what was going on around here.
 
-Ha, the testbox rebooted at some point back to 2.4.18 without
-me noticing.. Don't I feel a dork..
+Workaround below.
 
-2.5.25 with fsx -W -R seems to survive. Apologies for the
-the false alarm.
 
-        Dave.
+Cheers,
+Bill
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+
+
+===== arch/i386/kernel/cpu/common.c 1.1 vs edited =====
+--- 1.1/arch/i386/kernel/cpu/common.c	Fri May 10 09:06:30 2002
++++ edited/arch/i386/kernel/cpu/common.c	Thu Jul 11 22:09:41 2002
+@@ -446,6 +446,8 @@
+ 	__asm__ __volatile__("lgdt %0": "=m" (gdt_descr));
+ 	__asm__ __volatile__("lidt %0": "=m" (idt_descr));
+ 
++	printk(KERN_INFO "Loading GDT/IDT for CPU#%d\n", nr);
++
+ 	/*
+ 	 * Delete NT
+ 	 */
+@@ -466,6 +468,8 @@
+ 	load_TR(nr);
+ 	load_LDT(&init_mm.context);
+ 
++	printk(KERN_INFO "Loaded per-cpu LDT/TSS for CPU#%d\n", nr);
++
+ 	/* Clear %fs and %gs. */
+ 	asm volatile ("xorl %eax, %eax; movl %eax, %fs; movl %eax, %gs");
+ 
+@@ -483,4 +487,6 @@
+ 	clear_thread_flag(TIF_USEDFPU);
+ 	current->used_math = 0;
+ 	stts();
++
++	printk(KERN_INFO "Cleaned up FPU and debug regs for CPU#%d\n", nr);
+ }

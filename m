@@ -1,85 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262928AbTJTWbI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 18:31:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262929AbTJTWbI
+	id S262659AbTJTWrp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 18:47:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262692AbTJTWrp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 18:31:08 -0400
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:25591 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S262928AbTJTWbD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 18:31:03 -0400
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.0-test8-mm1
-Date: Tue, 21 Oct 2003 00:30:39 +0200
-User-Agent: KMail/1.5.9
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20031020020558.16d2a776.akpm@osdl.org> <200310210001.08761.schlicht@uni-mannheim.de> <20031020151713.149bba88.akpm@osdl.org>
-In-Reply-To: <20031020151713.149bba88.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_RIGl/utH4OLdsoz";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200310210030.41121.schlicht@uni-mannheim.de>
+	Mon, 20 Oct 2003 18:47:45 -0400
+Received: from crisium.vnl.com ([194.46.8.33]:40197 "EHLO crisium.vnl.com")
+	by vger.kernel.org with ESMTP id S262659AbTJTWro (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 18:47:44 -0400
+Date: Mon, 20 Oct 2003 23:47:40 +0100
+From: Dale Amon <amon@vnl.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Dale Amon <amon@vnl.com>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: CMD640 problem in 2.6.0-test8
+Message-ID: <20031020224740.GA24438@vnl.com>
+Mail-Followup-To: Dale Amon <amon@vnl.com>,
+	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <20031020172733.GA17379@vnl.com> <200310202056.42759.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200310202056.42759.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux, the choice of a GNU generation
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 20, 2003 at 08:56:42PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> this patch should fix it,
+> --bartlomiej
 
---Boundary-02=_RIGl/utH4OLdsoz
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+I had a bit of trouble with it caused by the cut and paste and ended up
+just doing the edit manually. But it does the trick. Kernel compiles fine
+now. Thanks.
 
-On Tuesday 21 October 2003 00:17, Andrew Mortonwrote:
-> Thomas Schlichter <schlicht@uni-mannheim.de> wrote:
-> > On Monday 20 October 2003 23:48, Andrew Morton wrote:
-> > > A colleague here has discovered that this crash is repeatable, but go=
-es
-> > > away when the radeon driver is disabled.
-> > >
-> > > Are you using that driver?
-> >
-> > No, I'm not... I use the vesafb driver. Do you think disabling this cou=
-ld
-> > cure the Oops?
->
-> It might.  Could you test it please?
-
-I will, but currently I compile 2.6.0-test8. I want to try if this works...
-I also want to try test8-mm1 without the -Os patch, you never know... ;-)
-
-> There's nothing in -mm which touches the inode list management code, so a
-> random scribble or misbehaving driver is likely.
-
-Yes, or some part of the kernel compiled false...
-(After some problems with erlier gcc's I don't trust my curent 3.3.1 that=20
-much...)
-
-> > Btw. a similar Oops at the same place occours when the uhci-hcd module =
-is
-> > unloaded...
->
-> How similar?
-
-Very similar (I think it came from deactivate_super(), too), but it seems n=
-ot=20
-to be logged...
-
---Boundary-02=_RIGl/utH4OLdsoz
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA/lGIRYAiN+WRIZzQRAuNHAJsE5cCQZP03GEzn7djR9jodM+wZYwCgmNr0
-wfjLbmi9ob4mKqmr3gy1Now=
-=CyUI
------END PGP SIGNATURE-----
-
---Boundary-02=_RIGl/utH4OLdsoz--
+> [IDE] fix drivers/ide/pci/cmd640.c for CONFIG_PCI=n
+> 
+> CMD640 driver also supports VLB version of the chipset, therefore fix
+> drivers/ide/Makefile to include pci/ subdir even if CONFIG_BLK_DEV_IDEPCI=n.
+> 
+>  drivers/ide/Makefile |    2 +-
+>  1 files changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff -puN drivers/ide/Makefile~ide-cmd640-no_pci-fix drivers/ide/Makefile
+> --- linux-2.6.0-test8/drivers/ide/Makefile~ide-cmd640-no_pci-fix	2003-10-20 20:47:03.701132024 +0200
+> +++ linux-2.6.0-test8-root/drivers/ide/Makefile	2003-10-20 20:47:17.280067712 +0200
+> @@ -8,7 +8,7 @@
+>  # In the future, some of these should be built conditionally.
+>  #
+>  # First come modules that register themselves with the core
+> -obj-$(CONFIG_BLK_DEV_IDEPCI)		+= pci/
+> +obj-$(CONFIG_BLK_DEV_IDE)		+= pci/
+>  
+>  # Core IDE code - must come before legacy

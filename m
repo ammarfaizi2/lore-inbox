@@ -1,60 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131205AbREHHOR>; Tue, 8 May 2001 03:14:17 -0400
+	id <S131246AbREHHQR>; Tue, 8 May 2001 03:16:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131246AbREHHOH>; Tue, 8 May 2001 03:14:07 -0400
-Received: from hood.tvd.be ([195.162.196.21]:41760 "EHLO hood.tvd.be")
-	by vger.kernel.org with ESMTP id <S131205AbREHHOA>;
-	Tue, 8 May 2001 03:14:00 -0400
-Date: Tue, 8 May 2001 09:12:32 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Lorenzo Marcantonio <lomarcan@tin.it>
-cc: Rob Turk <r.turk@chello.nl>, linux-kernel@vger.kernel.org
-Subject: Re: SCSI Tape corruption - update
-In-Reply-To: <Pine.LNX.4.31.0105072112590.1388-100000@eris.discordia.loc>
-Message-ID: <Pine.LNX.4.05.10105080904010.24912-100000@callisto.of.borg>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131446AbREHHQH>; Tue, 8 May 2001 03:16:07 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:52748 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S131246AbREHHQD>;
+	Tue, 8 May 2001 03:16:03 -0400
+Date: Tue, 8 May 2001 03:15:11 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: Tom Rini <trini@kernel.crashing.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2 design philosophy heads-up
+Message-ID: <20010508031511.A15782@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Jamie Lokier <lk@tantalophile.demon.co.uk>,
+	Tom Rini <trini@kernel.crashing.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010505192731.A2374@thyrsus.com> <E14wO7g-000240-00@the-village.bc.nu> <20010507105950.A771@opus.bloom.county> <20010507213140.I16535@thyrsus.com> <20010507184315.A2378@opus.bloom.county> <20010507215618.B21552@thyrsus.com> <20010508085941.B17720@pcep-jamie.cern.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010508085941.B17720@pcep-jamie.cern.ch>; from lk@tantalophile.demon.co.uk on Tue, May 08, 2001 at 08:59:41AM +0200
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 May 2001, Lorenzo Marcantonio wrote:
-> On Mon, 7 May 2001, Rob Turk wrote:
-> > Have you ruled out hardware failures? There's been a few isolated reports
-> 
-> That tape drive (Sony SDT-9000, less than 2 years of service) works
-> perfectly on Windows NT (were it was before) and even on Linux 2.2
-> 
-> Also the cartridge was brand new.
+Jamie Lokier <lk@tantalophile.demon.co.uk>:
+> Which is unfortunately wrong if you want the parport subsystem on x86
+> but won't be using the parport_pc driver with it.  I.e. you'll be using
+> some other driver which isn't part of the kernel tree.  Perhaps a
+> modified version of parport_pc, perhaps something else.
 
-In the mean time I down/upgraded to 2.2.17 on my PPC box (CHRP LongTrail,
-Sym53c875, HP C5136A  DDS1) and I can confirm that the problem does not happen
-under 2.2.17 neither.
+If you're integrating drivers that aren't in the kernel tree, you can and
+should patch the CML2 rulebase to compensate.  So your patch for
+the modified driver should comment out the PARPORT_PC==PARPORT 
+requirement.  Problem solved.
 
-My experiences:
-  - reading works fine, writing doesn't
-  - 2.2.x works fine, 2.4.x doesn't (at least since 2.4.0-test1-ac10)
-  - hardware compression doesn't matter
-  - I have a sym53c875, Lorenzo has an Adaptec, so most likely it's not a
-    SCSI hardware driver bug
-  - I have a PPC, Lorenzo doesn't, so it's not CPU-specific
-  - corruption is always a block of 32 bytes being replaced by 32 bytes from
-    the previous tape block (depending on block size!) (approx. 6 errors per
-    256 MB)
+More generally, arguments of the form "Non-mainline custom hack X
+could invalidate constraint Y, therefore we can't have Y in the
+rulebase" are dangerous -- I suspect you could reduce your set of
+constraints to nil very quickly that way, and thus badly screw over
+the 99% of people who just want to build a more or less stock kernel.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-Lorenzo, can you please investigate the exact nature of the corruption on your
-system?
-  - How many successive bytes are corrupted?
-  - Where do the corrupted data come from?
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+The abortion rights and gun control debates are twin aspects of a deeper
+question --- does an individual ever have the right to make decisions
+that are literally life-or-death?  And if not the individual, who does?

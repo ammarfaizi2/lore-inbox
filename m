@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133044AbRDRHXy>; Wed, 18 Apr 2001 03:23:54 -0400
+	id <S133043AbRDRHSD>; Wed, 18 Apr 2001 03:18:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133046AbRDRHXo>; Wed, 18 Apr 2001 03:23:44 -0400
-Received: from frege-d-math-north-g-west.math.ethz.ch ([129.132.145.3]:53648
-	"EHLO frege.math.ethz.ch") by vger.kernel.org with ESMTP
-	id <S133044AbRDRHXa>; Wed, 18 Apr 2001 03:23:30 -0400
-Message-ID: <3ADD40FA.2A5967E@math.ethz.ch>
-Date: Wed, 18 Apr 2001 09:23:38 +0200
-From: Giacomo Catenazzi <cate@math.ethz.ch>
-Reply-To: cate@dplanet.ch
-X-Mailer: Mozilla 4.75C-SGI [en] (X11; I; IRIX 6.5 IP22)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mailing List Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: /proc/pci is still obsolete in 2.2.x
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S133044AbRDRHRw>; Wed, 18 Apr 2001 03:17:52 -0400
+Received: from tinylinux.tip.CSIRO.AU ([130.155.192.102]:3847 "EHLO
+	mobilix.atnf.CSIRO.AU") by vger.kernel.org with ESMTP
+	id <S133043AbRDRHRj>; Wed, 18 Apr 2001 03:17:39 -0400
+Date: Wed, 18 Apr 2001 17:17:16 +1000
+Message-Id: <200104180717.f3I7HGR02019@mobilix.atnf.CSIRO.AU>
+From: Richard Gooch <rgooch@atnf.csiro.au>
+To: Russell Coker <russell@coker.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Mylex DAC vs RAM disk in 2.4.2 devfs
+In-Reply-To: <01041713220107.28478@lyta>
+In-Reply-To: <01041713220107.28478@lyta>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Russell Coker writes:
+> I have just upgraded a machine with a Mylex DAC hardware RAID controller to 
+> kernel 2.4.2 with devfs.
+> 
+> It seems that /dev/rd is used by both the RAM disk in the kernel and the 
+> Mylex controller!
+> 
+> This is wrong of course, there are two problems, one is the situation of what 
+> happens if you need both Mylex RAID and a RAM disk.  The other is the problem 
+> that Mylex devices get treated as ram disks by devfsd which cause an upgrade 
+> to break (the compatibility sym-links are not created correctly).
+> I believe that the RAM disk should be changed as /dev/rd has been used by 
+> Mylex controllers for a long time.  I am willing to submit patches to the 
+> kernel and to devfsd if this suggestion is accepted and someone can suggest a 
+> good directory name for ram-disks (I don't want to have the same problem 
+> again).
 
-After an user of us (debian) complained about the "xxx uses
-obsolete /proc/pci interface",
-I noticed that in 2.2.19, drivers/pci/oldproc.c, line 1042
-kernel still writes:
->  printk(KERN_INFO "%s uses obsolete /proc/pci interface\n",
+Leonard and I are discussing the issue. We started at the kernel
+summit, but didn't have time to continue. I've sent him an email.
 
-Now 2.3/2.4 this interface is still available and no more 
-considered as obsolete, thus this warning should be removed
-(and maybe also the file should be remerged to the proc.c
-as in 2.4).
+				Regards,
 
-	giacomo
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

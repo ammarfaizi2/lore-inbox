@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129935AbRBSQIX>; Mon, 19 Feb 2001 11:08:23 -0500
+	id <S129947AbRBSQPY>; Mon, 19 Feb 2001 11:15:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129886AbRBSQIN>; Mon, 19 Feb 2001 11:08:13 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27409 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129935AbRBSQHy>; Mon, 19 Feb 2001 11:07:54 -0500
-Subject: Re: [LONG RANT] Re: Linux stifles innovation...
-To: hps@intermeta.de
-Date: Mon, 19 Feb 2001 16:07:41 +0000 (GMT)
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
-        Werner.Almesberger@epfl.ch (Werner Almesberger),
-        hps@tanstaafl.de (Henning P. Schmiedehausen),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20010219131542.D16663@forge.intermeta.de> from "Henning P . Schmiedehausen" at Feb 19, 2001 01:15:42 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129913AbRBSQPO>; Mon, 19 Feb 2001 11:15:14 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:16409 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S129947AbRBSQPF>; Mon, 19 Feb 2001 11:15:05 -0500
+Date: Mon, 19 Feb 2001 10:14:31 -0600 (CST)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [LONG RANT] Re: Linux stifles innovation... 
+In-Reply-To: <Pine.LNX.3.95.1010219101720.30581A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.3.96.1010219100655.17842N-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Usql-0003ll-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So, is it legal to put changes to a twin licensed driver in the Linux
-> kernel tree back into the same driver in the BSD tree?
+On Mon, 19 Feb 2001, Richard B. Johnson wrote:
+> One of the latest module killers was the opaque type, "THIS_MODULE",
+> put at the beginning of struct file_operations. This happened between
+> 2.4.0 and 2.4.x.  So it's not "imagination".
 
-Just make it plain that patches and contributions to that driver must be
-dual licensed. We have several shared drivers with BSD and most people seem
-happy that small fixes to a dual or BSD licensed drivers should go back under
-the original license. In fact I'd say I'm not the only one who would find it
-impolite otherwise.
+Richard,
+
+Time to join the rest of us on planet Earth.
+
+That was added in 2.4.0-test2, and was most definitely in 2.4.0 release.
+
+	Jeff
+
+
+
 

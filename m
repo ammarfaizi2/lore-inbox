@@ -1,68 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262051AbTIMFi5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 01:38:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbTIMFi5
+	id S262052AbTIMGK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 02:10:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbTIMGK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 01:38:57 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:51215 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S262051AbTIMFiz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 01:38:55 -0400
-Date: Fri, 12 Sep 2003 22:38:51 -0700
-From: jw schultz <jw@pegasys.ws>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: People, not GPL  [was: Re: Driver Model]
-Message-ID: <20030913053851.GE19721@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1063405883.5783.19.camel@dhcp23.swansea.linux.org.uk> <MDEHLPKNGKAHNMBLJOLKIEBNGIAA.davids@webmaster.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 13 Sep 2003 02:10:29 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:35070 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262052AbTIMGK2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 02:10:28 -0400
+From: Fedor Karpelevitch <fedor@karpelevitch.net>
+To: Jeff Garzik <jgarzik@pobox.com>,
+       Marcelo Tosatti <marcelo@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: [PATCH] fix ifdown/ifup bug
+Date: Fri, 12 Sep 2003 16:30:43 -0700
+User-Agent: KMail/1.5.3
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       "David S. Miller" <davem@redhat.com>,
+       LKML <linux-kernel@vger.kernel.org>
+References: <3F623696.1080703@pobox.com>
+In-Reply-To: <3F623696.1080703@pobox.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIEBNGIAA.davids@webmaster.com>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: The contents of this message may cause drowsiness.  Do not operate heavy machinery.
+Message-Id: <200309121630.44588.fedor@karpelevitch.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 12, 2003 at 04:26:19PM -0700, David Schwartz wrote:
-> 
-> > On Gwe, 2003-09-12 at 22:47, Matt D. Robinson wrote:
-> 
-> > > So include GPL_ONLY(), don't include GPL_ONLY(), whatever.  If you
-> > > don't like it, Mr. Customer, find a Linux distributor that will
-> > > fix the problem for you.
-> 
-> > Linux vendors have already recieved, and decided to act on cease and
-> > desist letters involving adding hooks (ie EXPORT_SYMBOL stuff) for non
-> > free modules that were not in the base distro. I think that speaks for
-> > part of the legal view.
-> 
-> 	Who is sending these letters? Who has no respect for the GPL and seeks to
-> add additional restrictions? IMO, these letters are almost as bad as the SCO
-> letters. Nobody has any business putting additional licensing restrictions
-> on code was placed under the GPL.
+Jeff Garzik wrote:
+> Marcelo,
+>
+> If you haven't gotten this patch from somebody else, please make
+> sure this is applied.  It fixes a bug I introduced in -pre3 when
+> moving some helpers from tg3 to netdevice.h.
+>
 
-I don't know who but i can say that Linus or anyone he
-assigns can do so based not on GPL but on trademark.  That is
-to say that while it wouldn't be a violation of the
-copyright license to distribute such modified code but it
-would be within the rights of the trademark holder (Linus)
-to refuse them the _privilege_ of calling the modified code
-Linux.  Not only would it be within his rights but it is
-necessary for him to define and enforce restrictions on what
-may be called Linux or he would lose that authority.
+FYI it does not seem to fix this issue for me.
 
-Just like you can make a copy of Red Hat's distribution but
-without Red Hat Inc's explicit permission you cannot call it Red
-Hat or Maroon Chapeau, etc.  For that matter the Open group
-could, in theory, deny SCO the privilege of of calling their
-own products UNIX.
-
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
-
-		Remember Cernan and Schmitt
+Fedor

@@ -1,47 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261967AbTDABPl>; Mon, 31 Mar 2003 20:15:41 -0500
+	id <S261964AbTDABOe>; Mon, 31 Mar 2003 20:14:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261968AbTDABPl>; Mon, 31 Mar 2003 20:15:41 -0500
-Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:23070
-	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
-	id <S261967AbTDABPk>; Mon, 31 Mar 2003 20:15:40 -0500
-Message-ID: <3E88EA79.2060301@rackable.com>
-Date: Mon, 31 Mar 2003 17:25:13 -0800
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: gibbs@scsiguy.com
-Subject: File system corruption under 2.4.21-pre5-ac1
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 01 Apr 2003 01:26:57.0186 (UTC) FILETIME=[C9082820:01C2F7ED]
+	id <S261966AbTDABOe>; Mon, 31 Mar 2003 20:14:34 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:20611
+	"EHLO x30.random") by vger.kernel.org with ESMTP id <S261964AbTDABOd>;
+	Mon, 31 Mar 2003 20:14:33 -0500
+Date: Tue, 1 Apr 2003 03:25:53 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 64GB NUMA-Q after pgcl
+Message-ID: <20030401012553.GK12718@x30.random>
+References: <20030328040038.GO1350@holomorphy.com> <20030330231945.GH2318@x30.local> <20030331042729.GQ30140@holomorphy.com> <20030331052214.GV13178@holomorphy.com> <20030331230251.F626@nightmaster.csn.tu-chemnitz.de> <20030331222733.GT30140@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030331222733.GT30140@holomorphy.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   I'm seeing filesystem corruption on a number of intel SE7501wv2's 
-under 2.4.21-pre5-ac1.  The systems are running Cerberus (ctcs).  They 
-fail the kcompile, and memtst tests.  
+On Mon, Mar 31, 2003 at 02:27:33PM -0800, William Lee Irwin III wrote:
+> On Sun, Mar 30, 2003 at 09:22:14PM -0800, William Lee Irwin III wrote:
+> >> Miscellaneous side effects happen, like follow_page() and
+> >> get_user_pages() need to return pfn's instead of struct pages.
+> 
+> On Mon, Mar 31, 2003 at 11:02:51PM +0200, Ingo Oeser wrote:
+> > Hmm, but you know, that users of get_user_pages() play games with
+> > pages? They need to lock them into memory, mark them eventually
+> > dirty, map them to a struct scatterlist and much more.
+> > I worked on an API (I called it the page-walk-api), to make this
+> > more and more transparent. 
+> 
+> There are no changes of semantics, it finds the struct page, does
+> page_cache_get() and fiddles with the struct page just like before, but
+> it needs to use the pfn as the handle to the thing when returning it to
+> the caller, not the struct page pointer.
+> 
+> The caller invariably needs the page structures to do anything, but
+> it also often needs the subpfn (which pfn inside the area tracked by
+> the struct page). The pfn is just the most compact way to pass that
+> information. Things end up doing pfn_to_page() to get at the page
+> structures that are returned in current mainline, and just use the
+> low bits of the pfn to reconstruct the offset into the page for copying
+> and bitblitting and so on.
 
+This complicates things but to get the file offset right it's probably
+unavoidable to leave hard page size knowledge in the common code in
+terms of hard-pfn.
 
-   At 1st I thought it was memory, but the systems are fine under 
-memtest86, and the Cerberus memtst failures disappear if I turn off my 
-swap devices.  The kcompile failures seem to point to  random file 
-corruption from copying the kernel tree.  (Cerberus copies a new copy of 
-the kernel for each compile.)
+> On Mon, Mar 31, 2003 at 11:02:51PM +0200, Ingo Oeser wrote:
+> > So if this work will go into 2.6.x, then the page-walk-API will
+> > be needed, or else the driver writers playing tricks with
+> > virtual<->physical<->bus address conversions will go nuts.
+> > So which kernel is the target of this development?
+> 
+> My target for this has always been 2.7; earlier kernels can take
+> things on at the maintainer's discretion. I expect it to live out
+> of tree for a substantial amount of time. =(
 
-  I suspect the aic79xx driver as:
-
-1)I've running ctcs with the same kernel on 100+ SE7501wv2 with ide drives.
-2)This occurs under reiserfs, and ext3.
-3)I've been using 2.4.21-pre5-ac1 to burnin systems for quite some time.
-
--- 
-There is no such thing as obsolete hardware.
-Merely hardware that other people don't want.
-(The Second Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
-
-
+Andrea

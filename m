@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131794AbQLVPha>; Fri, 22 Dec 2000 10:37:30 -0500
+	id <S131618AbQLVPlB>; Fri, 22 Dec 2000 10:41:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131991AbQLVPhU>; Fri, 22 Dec 2000 10:37:20 -0500
-Received: from alcove.wittsend.com ([130.205.0.20]:62477 "EHLO
-	alcove.wittsend.com") by vger.kernel.org with ESMTP
-	id <S131830AbQLVPhM>; Fri, 22 Dec 2000 10:37:12 -0500
-Date: Fri, 22 Dec 2000 10:06:11 -0500
-From: "Michael H. Warfield" <mhw@wittsend.com>
-To: Alex Buell <alex.buell@tahallah.clara.co.uk>
-Cc: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>,
-        "Mike A. Harris" <mharris@opensourceadvocate.org>
-Subject: Re: The NSA's Security-Enhanced Linux (fwd)
-Message-ID: <20001222100611.D18964@alcove.wittsend.com>
-Mail-Followup-To: Alex Buell <alex.buell@tahallah.clara.co.uk>,
-	Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>,
-	"Mike A. Harris" <mharris@opensourceadvocate.org>
-In-Reply-To: <Pine.LNX.4.31.0012220159400.666-100000@asdf.capslock.lan> <Pine.LNX.4.31.0012221038300.22562-100000@chaos2.bluetone.net>
-Mime-Version: 1.0
+	id <S131994AbQLVPkw>; Fri, 22 Dec 2000 10:40:52 -0500
+Received: from d185fcbd7.rochester.rr.com ([24.95.203.215]:17168 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S131618AbQLVPke>; Fri, 22 Dec 2000 10:40:34 -0500
+Date: Fri, 22 Dec 2000 10:07:46 -0500
+From: Chris Mason <mason@suse.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Andreas Dilger <adilger@turbolinux.com>
+cc: "Stephen C. Tweedie" <sct@redhat.com>, Alexander Viro <viro@math.psu.edu>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Russell Cattelan <cattelan@thebarn.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] changes to buffer.c (was Test12 ll_rw_block error)
+Message-ID: <26240000.977497666@coffee>
+In-Reply-To: <Pine.LNX.4.21.0012212229190.2603-100000@freak.distro.conectiva>
+X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.3.2i
-In-Reply-To: <Pine.LNX.4.31.0012221038300.22562-100000@chaos2.bluetone.net>; from alex.buell@tahallah.clara.co.uk on Fri, Dec 22, 2000 at 10:39:03AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 22, 2000 at 10:39:03AM +0000, Alex Buell wrote:
-> On Fri, 22 Dec 2000, Mike A. Harris wrote:
-
-> > The result is available for download at the above URL as well. Has
-> > anyone here toyed with it already ?
-
-> <paranaoia>
-> I'd eyeball the sources for backdoors, if I were you.
-> </paranaoia>
-
-	Hey, this is open source here.  We'll "many eyeball the source".
-That's a given...  :-)
-
-> Cheers,
-> Alex
-> -- 
-> Here, have some homemade chocolate biscuits.
-
-> http://www.tahallah.clara.co.uk
 
 
-	Mike
--- 
- Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
-  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
-  NIC whois:  MHW9      |  An optimist believes we live in the best of all
- PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
+On Thursday, December 21, 2000 22:38:04 -0200 Marcelo Tosatti
+<marcelo@conectiva.com.br> wrote:
 
+>> Marcelo Tosatti writes:
+>> > It seems your code has a problem with bh flush time.
+>> > 
+>> > In flush_dirty_buffers(), a buffer may (if being called from kupdate)
+>> > only be written in case its old enough. (bh->b_flushtime)
+>> > 
+>> > If the flush happens for an anonymous buffer, you'll end up writing all
+>> > buffers which are sitting on the same page (with
+>> > block_write_anon_page), but these other buffers are not necessarily
+>> > old enough to be flushed.
+>> 
+
+A quick benchmark shows there's room for improvement here.  I'll play
+around with a version of block_write_anon_page that tries to be more
+selective when flushing things out.
+
+-chris
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262031AbULVU2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262034AbULVUdc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262031AbULVU2t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 15:28:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbULVU2t
+	id S262034AbULVUdc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 15:33:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbULVUdc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 15:28:49 -0500
-Received: from gprs214-153.eurotel.cz ([160.218.214.153]:34178 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262031AbULVU2q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 15:28:46 -0500
-Date: Wed, 22 Dec 2004 21:28:31 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: hugang@soulinfo.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp bigdiff [was Re: [PATCH] Software Suspend split to two stage V2.]
-Message-ID: <20041222202831.GB7051@elf.ucw.cz>
-References: <20041119194007.GA1650@hugang.soulinfo.com> <20041120003010.GG1594@elf.ucw.cz> <1103585300.26640.47.camel@desktop.cunninghams>
+	Wed, 22 Dec 2004 15:33:32 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24506 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262034AbULVUda
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Dec 2004 15:33:30 -0500
+Date: Wed, 22 Dec 2004 20:33:29 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: Patrick Gefre <pfg@sgi.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       matthew@wil.cx
+Subject: Re: [PATCH] 2.6.10 Altix : ioc4 serial driver support
+Message-ID: <20041222203329.GO31261@parcelfarce.linux.theplanet.co.uk>
+References: <200412220028.iBM0SB3d299993@fsgi900.americas.sgi.com> <20041222134423.GA11750@infradead.org> <41C9D0B8.9000208@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1103585300.26640.47.camel@desktop.cunninghams>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <41C9D0B8.9000208@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> On Sat, 2004-11-20 at 11:30, Pavel Machek wrote:
-> > --- clean/Documentation/power/devices.txt	2004-11-03 01:23:03.000000000 +0100
-> > +++ linux/Documentation/power/devices.txt	2004-11-03 02:16:40.000000000 +0100
-> > @@ -141,3 +141,82 @@
-> >  The driver core will not call any extra functions when binding the
-> >  device to the driver. 
-> >  
-> > +pm_message_t meaning
-> > +
-> > +pm_message_t has two fields. event ("major"), and flags.  If driver
-> > +does not know event code, it aborts the request, returning error. Some
-> > +drivers may need to deal with special cases based on the actual type
-> > +of suspend operation being done at the system level. This is why
-> > +there are flags.
-> > +
+On Wed, Dec 22, 2004 at 01:53:28PM -0600, Patrick Gefre wrote:
+> Christoph Hellwig wrote:
+> >So both claim the same PCI ID?  In this case you need to creat a small
+> >shim driver that exports a pseudo-bus to the serial and ide driver using
+> >the driver model.  You must never return an error from ->probe if you
+> >actually use that particular device.
 > 
-> I don't know how I managed to miss this before, but I think it's
-> definitely a step in the right direction. I do wonder, though, if we're
-> going about this whole thing in a peacemeal approach. I feel like the
-> whole issue of power state management on the system wide and driver
-> level are being treated as two separate issues. Is it just me?
+> Has this been done before ? Any example I can use ??
 
-Well, we are starting with small steps... And since nobody knows how
-to do one-device-suspend properly, we started with fixing system
-suspend first.
+drivers/parisc/superio.c does something similar.  I'm not sure I'd hold
+it up as a shining example of how to write a driver ... constructive
+criticism welcomed, thought there's some outstanding changes still in
+the parisc tree that need to go upstream.
 
-Passing structure instead of u32 should make one-device-suspend easier
-in future... Hopefully.
-								Pavel
+> Why is that ? Seems if kmalloc returns a void * and the left side is not, a 
+> casting is appropriate ?
+
+void * is special and different.  This is exactly why it was invented, btw.
+
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

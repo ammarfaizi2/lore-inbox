@@ -1,98 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261882AbSJIRUo>; Wed, 9 Oct 2002 13:20:44 -0400
+	id <S261921AbSJIRaV>; Wed, 9 Oct 2002 13:30:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261895AbSJIRUo>; Wed, 9 Oct 2002 13:20:44 -0400
-Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:55245 "HELO
-	mailphish.drugphish.ch") by vger.kernel.org with SMTP
-	id <S261882AbSJIRUk>; Wed, 9 Oct 2002 13:20:40 -0400
-Message-ID: <3DA4668A.5070501@drugphish.ch>
-Date: Wed, 09 Oct 2002 19:25:30 +0200
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S261923AbSJIRaV>; Wed, 9 Oct 2002 13:30:21 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:50130 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S261921AbSJIRaT>; Wed, 9 Oct 2002 13:30:19 -0400
+Date: Wed, 09 Oct 2002 10:33:19 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Erich Focht <efocht@ess.nec.de>, Michael Hohnbaum <hohnbaum@us.ibm.com>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pooling NUMA scheduler with initial load balancing
+Message-ID: <1548227964.1034159598@[10.10.2.3]>
+In-Reply-To: <200210091826.20759.efocht@ess.nec.de>
+References: <200210091826.20759.efocht@ess.nec.de>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-To: Gianni Tedesco <gianni@ecsc.co.uk>
-Cc: Martin Renold <martinxyz@gmx.ch>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] tcp connection tracking 2.4.19
-References: <20021008205053.GA2621@old.homeip.net>	 <3DA348EF.7060709@drugphish.ch> <1034166655.30384.13.camel@lemsip>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> This is strange. It works for me really reliably. I added a check
+> for non-online CPUs in calc_pool_load and changed the pool_lock to
+> be a spinlock. The patches are attached again.
 
-> "When syncookies are enabled the packets are still answered  and  this
-> value [tcp_max_syn_backlog] is effectively ignored." -- From tcp(7)
-> manpage.
+I'm testing on 2.5.41-mm1 ... your patches still apply clean. That
+has a whole bunch of nice NUMA mods, you might want to try that 
+instead? All the changes in there will end up in mainline real soon
+anyway ;-)
 
-Fair enough. I thought that last time I checked with the code the SYN 
-cookie functionality would only kick in _after_ the backlog queue is full.
+One minor warning:
 
-> The whole point of syncookies is to negate the need for a backlog queue.
+arch/i386/kernel/smpboot.c: In function `smp_cpus_done':
+arch/i386/kernel/smpboot.c:1199: warning: implicit declaration of function `bld_pools'
 
-Well, after a successful match of the MSS encoded part or the cookie, 
-you add it back to the SYN queue. But yes, the backlog queue is indeed 
-omited.
+And the same panic:
 
-> Or did I miss your point?
+Starting migration thread for cpu 3
+Bringing up 4
+CPU>dividNOWrro!
+                 0St0
+igrU:    4
+ead :or  0060:[<c011422d>]    Not tainted
+EFLAGS: 00010046
+EIP is at calc_pool_load+0x115/0x12c
+eax: 00000000   ebx: 00000001   ecx: c028f948   edx: 00000000
+esi: c034f380   edi: 00000020   ebp: c3a37efc   esp: c3a37ed4
+ds: 0068   es: 0068   ss: 0068
+Process swapper (pid: 0, threadinfo=c3a36000 task=f01bf060)
+Stack: c028f948 c028efa0 f01bf060 00002928 00002944 00002944 ffffffff ffffffff 
+       c028efa0 ffffffff c3a37f78 c01142d1 c028f948 00000004 00000001 00000001 
+       c3a36000 c028efa0 f01bf060 00000010 00000008 00000000 00000001 00002a13 
+Call Trace:
+ [<c01142d1>] load_balance+0x8d/0x5c8
+ [<c0118a9d>] call_console_drivers+0xdd/0xe4
+ [<c0118cd2>] release_console_sem+0x42/0xa4
+ [<c0114c21>] schedule+0xd5/0x3ac
+ [<c0105300>] default_idle+0x0/0x34
+ [<c01053bf>] cpu_idle+0x43/0x48
+ [<c0118cd2>] release_console_sem+0x42/0xa4
+ [<c0118c2d>] printk+0x125/0x140
 
-Well, my point should have been stated more clearly. It is simply that 
-SYN cookies do not prevent you from being SYN flooded. They provide you, 
-from a user perspective view, a mean to still be able to log in onto 
-your server under a SYN flood because you will send legitimate ACKs and 
-because your connection will not be dropped.
-
-It doesn't prevent SYN flooding, although I just checked back with 
-../Documentation/networking/ip-sysctrl.txt:
-
-tcp_syncookies - BOOLEAN
-         Only valid when the kernel was compiled with CONFIG_SYNCOOKIES
-         Send out syncookies when the syn backlog queue of a socket
-         overflows. This is to prevent against the common 'syn flood attack'
-         Default: FALSE
-
-         Note, that syncookies is fallback facility.
-         It MUST NOT be used to help highly loaded servers to stand
-         against legal connection rate. If you see synflood warnings
-         in your logs, but investigation shows that they occur
-         because of overload with legal connections, you should tune
-         another parameters until this warning disappear.
-         See: tcp_max_syn_backlog, tcp_synack_retries, 
-tcp_abort_on_overflow.
-
-         syncookies seriously violate TCP protocol, do not allow
-         to use TCP extensions, can result in serious degradation
-         of some services (f.e. SMTP relaying), visible not by you,
-         but your clients and relays, contacting you. While you see
-         synflood warnings in logs not being really flooded, your server
-         is seriously misconfigured.
-
-The best thing is to go back and check with the actual implementation. 
-I'm just checking on ../net/ipv4/tcp_ipv4.c:tcp_v4_conn_request():
-
-[...]
-         if (tcp_synq_is_full(sk) && !isn) {
-#ifdef CONFIG_SYN_COOKIES
-                 if (sysctl_tcp_syncookies) {
-                         want_cookie = 1;
-                 } else
-#endif
-                 goto drop;
-         }
-
-         /* Accept backlog is full. If we have already queued enough
-          * of warm entries in syn queue, drop request. It is better than
-          * clogging syn queue with openreqs with exponentially increasing
-          * timeout.
-          */
-         if (tcp_acceptq_is_full(sk) && tcp_synq_young(sk) > 1)
-                 goto drop;
-[...]
-
-Best regards and sorry for the confusion,
-Roberto Nibali, ratz
--- 
-echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq'|dc
+Code: f7 3c 9e 89 84 99 80 00 00 00 8b 45 f4 5b 5e 5f 89 ec 5d c3 
 

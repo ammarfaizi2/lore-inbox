@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266188AbUHaSVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265768AbUHaS1Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266188AbUHaSVu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 14:21:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266257AbUHaSVt
+	id S265768AbUHaS1Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 14:27:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265847AbUHaS1Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 14:21:49 -0400
-Received: from web52505.mail.yahoo.com ([206.190.39.126]:25211 "HELO
-	web52505.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S266188AbUHaSVg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 14:21:36 -0400
-Message-ID: <20040831162539.74586.qmail@web52505.mail.yahoo.com>
-Date: Tue, 31 Aug 2004 09:25:39 -0700 (PDT)
-From: Servie Platon <servie_tech@yahoo.com>
-Subject: ANY GOOD KERNEL BOOK???
-To: Linux Kernel Group <linux-kernel@vger.kernel.org>
+	Tue, 31 Aug 2004 14:27:16 -0400
+Received: from fw.osdl.org ([65.172.181.6]:483 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265768AbUHaS1P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 14:27:15 -0400
+Date: Tue, 31 Aug 2004 11:26:59 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jakub Jelinek <jakub@redhat.com>
+cc: Roland McGrath <roland@redhat.com>, Michael Kerrisk <mtk-lkml@gmx.net>,
+       akpm@osdl.org, drepper@redhat.com, linux-kernel@vger.kernel.org,
+       michael.kerrisk@gmx.net, Tonnerre <tonnerre@thundrix.ch>
+Subject: Re: [PATCH] waitid system call
+In-Reply-To: <20040831062656.GU11465@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.58.0408311122430.2295@ppc970.osdl.org>
+References: <12606.1093348262@www48.gmx.net> <200408310604.i7V64k7o010652@magilla.sf.frob.com>
+ <20040831062656.GU11465@devserv.devel.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi guys,
 
-Is there a good book available out there on how to
-compile a linux kernel successfully especially with
-the 2.6.x versions?
+On Tue, 31 Aug 2004, Jakub Jelinek wrote:
+> 
+> Is it really necessary to check the exit code after each put_user?
 
-We have compiled 2.4.x before in school which is fine.
-But apparently, I am having a hard time with the newer
-2.6.x versions with kernel panic error messages which
-could not boot the newly compiled kernel. I have no
-idea and experience on how to debug and analyze the
-error messages created by the kernel.
+More importantly, is there really any reason to care at all?
 
-I am afraid that this is due incorrect hardware
-selections or other not needed features for the kernel
-when I used menuconfig.
+There's no real reason to generate extra code to check an error value that 
+is pointless. It should probably just use
 
-I have also tried the howto's and followed the
-instructions carefully but still to no avail. Any
-ideas and suggestions would be highly appreciated.
+	(void) clear_user(infop, sizeof(*infop))
 
-Thanks.
+and be done with it.
 
-Sincerely,
-Servie
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+		Linus

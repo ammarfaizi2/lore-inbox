@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292354AbSBUM2M>; Thu, 21 Feb 2002 07:28:12 -0500
+	id <S292356AbSBUMcx>; Thu, 21 Feb 2002 07:32:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292356AbSBUM2C>; Thu, 21 Feb 2002 07:28:02 -0500
-Received: from dns.logatique.fr ([213.41.101.1]:8956 "HELO
-	persephone.dmz.logatique.fr") by vger.kernel.org with SMTP
-	id <S292354AbSBUM1z>; Thu, 21 Feb 2002 07:27:55 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Thomas Capricelli <tcaprice@logatique.fr>
-To: Thomas Winischhofer <tw@webit.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux on iBook (1)?
-Date: Thu, 21 Feb 2002 13:26:33 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <3C74325B.27A252B9@webit.com>
-In-Reply-To: <3C74325B.27A252B9@webit.com>
+	id <S292357AbSBUMcd>; Thu, 21 Feb 2002 07:32:33 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61447 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292356AbSBUMcT>;
+	Thu, 21 Feb 2002 07:32:19 -0500
+Message-ID: <3C74E8D1.D74BAD5@mandrakesoft.com>
+Date: Thu, 21 Feb 2002 07:32:17 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020221122514.46D3023CBB@persephone.dmz.logatique.fr>
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: linux kernel config converter
+In-Reply-To: <Pine.LNX.4.21.0202211312510.2318-100000@serv>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Roman Zippel wrote:
+> On Thu, 21 Feb 2002, Jeff Garzik wrote:
+> > FWIW a much better transition path is very close to what your tool does,
+> > and is a suggestion made by mec (kbuild maintainer) near the end of the
+> > recent flamewar:  convert config.in files one at a time, like we did the
+> > old makefiles.
+> 
+> That's possible, as soon as the menu information is added, both formats
+> contain the same information, so a program with two parsers can handle
+> both simultaneously.
+
+yep
+
+> > That would imply a rewrite of make [old]config, and an updating of make
+> > menu|xconfig, to handle the new format...
+> 
+> I think we should just dump the old tools and implement a single config
+> library, which exports an interface to access the config information.
+
+I do not think we can -avoid- dumping scripts/Configure[1], replacing
+the existing tools.  In that respect I agree with Eric and the others. 
+So your proposition makes sense.  But the configuration language can and
+should be migrated, IMO.
+
+	Jeff
 
 
 
-have a look at
-	http://www.ibooklinux.net
-	http://penguinppc.org
-	http://linuxppc.org
+[1] Sure you could code a replacement parser in bash shell script.  But
+that's just wanking, like a Georgia Tech professor of mine:  he
+implemented a visual Towers of Hanoi solver in vi macros.  We all
+thought it was cool but ultimately CS wanking of no real value :)
 
-you'll see status of macintosh for ibook(1) and all others..
-
-Thomas
-
-On Thursday 21 February 2002 00:33, Thomas Winischhofer wrote:
-> iBook (first series, not iBook II), I'd like to know what works and what
-> doesn't.
->
-> What's the current status of
->
+-- 
+Jeff Garzik      | "Why is it that attractive girls like you
+Building 1024    |  always seem to have a boyfriend?"
+MandrakeSoft     | "Because I'm a nympho that owns a brewery?"
+                 |             - BBC TV show "Coupling"

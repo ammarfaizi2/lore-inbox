@@ -1,87 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267894AbUGWS5r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267895AbUGWTBJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267894AbUGWS5r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 14:57:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267921AbUGWS5r
+	id S267895AbUGWTBJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 15:01:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267897AbUGWTBJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 14:57:47 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:30368 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S267894AbUGWS5G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 14:57:06 -0400
-From: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Organization: SiSK
-To: linux-kernel@vger.kernel.org
-Subject: [RFC]: CONFIG_UNSUPPORTED (was: Re: [PATCH] delete devfs)
-Date: Fri, 23 Jul 2004 21:06:40 +0200
-User-Agent: KMail/1.5
-References: <20040721141524.GA12564@kroah.com> <20040722064952.GC20561@kroah.com> <20040722091335.A17187@home.com>
-In-Reply-To: <20040722091335.A17187@home.com>
+	Fri, 23 Jul 2004 15:01:09 -0400
+Received: from web50609.mail.yahoo.com ([206.190.38.248]:30576 "HELO
+	web50609.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267895AbUGWTBF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 15:01:05 -0400
+Message-ID: <20040723190104.48863.qmail@web50609.mail.yahoo.com>
+Date: Fri, 23 Jul 2004 12:01:04 -0700 (PDT)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: Re: Ext3 problems in dual booting machine with SE Linux
+To: James Morris <jmorris@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@epoch.ncsc.mil>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <Pine.LNX.4.58.0407231333000.4446@devserv.devel.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200407232106.41065.rjwysocki@sisk.pl>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi listmembers,
+>You may have hit either the 2.4/2.6 xattr compatibility bug, or some other
+>xattr bug since fixed in the kernel.  I'd suggest using a 2.4.25 or
+>greater kernel if you want to access ext2/ext3 xattrs which were created
+>under 2.6.  2.4 kernels below this do not have 2.6 compatible xattrs for
+>ext2 and ext3.
 
-I'm not a kernel developer, but recently I've been testing many development 
-(ie. -mm and -rc) kernels and I run a network containing quite a lot of Linux 
-boxes, so I'm involved (a little) in the kernel development or at least I'm 
-affected by it to some extent.  Anyway, I have an idea that I think you may 
-find interesting.
+If Ext3 is now no longer compatible with itself, should it have been called Ext4?
 
-1. Background
 
-There apparently is some code in the kernel tree that is buggy and not 
-maintained by anyone.  The recent attempts to remove some parts of it (devfs, 
-cryptoloop) have been opposed, as it turns out that they are still in use.
+Is there any version number embedded in the filesystem so newer versions of Ext3
+can act in a way compatible with older systems? 
 
-OTOH, because this code is present in the mainline kernel, the users of the 
-kernel can expect that the code will be supported by kernel developers, which 
-is not correct.  Therefore the code should be removed from the kernel, so 
-that it's not used by any new users who may expect it to be supported (there 
-are many other reasons for removing it, but this one alone is sufficient, 
-IMHO).
+This seems like an open door to mischief. Any removable media can now be used to
+oops a kernel. There are systems that are under configuration control and moving
+to 2.4.25 is not really an option. They should be able to read/write any ext3
+media inserted into them.
 
-Having said that, it is not very nice to pull rugs from under people in 
-general, so before the unmaintained code is removed from the kernel, its 
-current users should be given some time to accommodate to the upcoming 
-changes.  Therefore the unsupported code should be made clearly 
-distinguishable from the rest of the kernel code and documented as such, in 
-order to indicate to the users that it may be removed at any time.
+Also look at the 2nd question in section 1.3 of the Fedora Core 2 SE Linux FAQ
+page. It does not say using SE Linux will massively corrupt your system when you
+reboot into non-selinux systems.
 
-2. Proposal
+-Steve Grubb
 
-I propose to introduce a new configuration option CONFIG_UNSUPPORTED, such 
-that if it is not set, the unmaintained/unsupported code will not be compiled 
-into the kernel.  Moreover,
-* IMO the option should not be set by default, which would require a user 
-action to include the unsupported code into the kernel,
-* IMO the option should be documented as to indicate that the code marked with 
-the help of it is not supported by kernel developers and may be removed from 
-the kernel at any time without notification.
 
-I think that this would be fair enough wrt. users, who would be able to learn 
-that the code is not maintained and may be removed at any time without 
-notification, and they should not expect to get any support ftom the kernel 
-developers wrt. this code, and it's generally not a good idea to file any bug 
-reports regarding this code, because the bugs in it will not be fixed anyway.
-
-OTOH, it would give the kernel developers a means to mark 
-unsupported/unmaintained code as such in advance, without harming any users 
-in the short run.
-
-Yours,
-rjw
-
--- 
-Rafael J. Wysocki
-[tel. (+48) 605 053 693]
-----------------------------
-For a successful technology, reality must take precedence over public 
-relations, for nature cannot be fooled.
-					-- Richard P. Feynman
+		
+__________________________________
+Do you Yahoo!?
+New and Improved Yahoo! Mail - Send 10MB messages!
+http://promotions.yahoo.com/new_mail 

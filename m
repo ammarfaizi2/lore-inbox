@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLPBTq>; Fri, 15 Dec 2000 20:19:46 -0500
+	id <S129289AbQLPB1I>; Fri, 15 Dec 2000 20:27:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129289AbQLPBTh>; Fri, 15 Dec 2000 20:19:37 -0500
-Received: from mail-04-real.cdsnet.net ([63.163.68.109]:54801 "HELO
-	mail-04-real.cdsnet.net") by vger.kernel.org with SMTP
-	id <S129183AbQLPBTY>; Fri, 15 Dec 2000 20:19:24 -0500
-Message-ID: <3A3ABBED.6D727B0@mvista.com>
-Date: Fri, 15 Dec 2000 16:48:45 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+	id <S130109AbQLPB0s>; Fri, 15 Dec 2000 20:26:48 -0500
+Received: from ubr-33.77.219.titusville.cfl.rr.com ([65.33.77.219]:24339 "EHLO
+	gumby.chiodini.net") by vger.kernel.org with ESMTP
+	id <S129289AbQLPB0o>; Fri, 15 Dec 2000 20:26:44 -0500
+Message-ID: <3A3ABC0B.49D0FE78@cfl.rr.com>
+Date: Fri, 15 Dec 2000 19:49:15 -0500
+From: Bob Chiodini <rchiodini@cfl.rr.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Jason Wohlgemuth <jwohlgem@mindspring.com>, linux-kernel@vger.kernel.org
-Subject: Re: lock_kernel() / unlock_kernel inconsistency Don't do this!
-In-Reply-To: <E1475MO-00026g-00@the-village.bc.nu>
-Content-Type: text/plain; charset=iso-8859-15
+To: Harley Anderson <q9202867@quoin.cqu.edu.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: IRQ problem? (oops in test12)
+In-Reply-To: <00121521194500.17367@satan>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > Both of these methods have problems, especially with the proposed
-> > preemptions changes.  The first case causes the thread to run with the
-> > BKL for the whole time.  This means that any other task that wants the
-> > BKL will be blocked.  Surly the needed protections don't require this.
-> 
-> The BKL is dropped on rescheduling of that task. Its an enforcement of the
-> old unix guarantees against other code making the same assumptions. Its also
-> the standard 2.4 locking for several things still
-> 
-Yes, I am aware of the drop on schedule, but a preemptive schedule call
-should (can not) do this.  Result, no preemption, i.e. the thread does
-not let anyone else in.  Some how I don't think a long term hold, such
-as this is needed.  Of course, if the code blocks (i.e. calls
-schedule()) often... but then we find folks using such code a pattern
-and learning tool.  Remember this thread was started by just such a
-study.
+Harley Anderson wrote:
 
-George
+> Howdy again folks, I have another oops for ya's to look over...
+>
+> Yesterday when I was about to patch and build the new (test12) kernel I found
+> the ominous message:
+> Kernel panic: attempted to kill init!
+> Something like that anyway. No other info, just locked up solid.
+> No real clues on that one sorry.
+
+I had this problem too, at boot up.  I too have a REALTEK 8139 controller and it shares the interrupt with the USB, which I am not
+using.  The oops was consistent everytime I tried to boot, so I couldn't really capture it.  I configured USB support as a module, voila
+the system boots fine and has up for 48 hours.  I have no USB devices, just built the modules since there seems to be changes in that
+area.  I have not tried backing out the USB support, and testing again.
+
+I built test12 from source, no patches.  I had no problems with any of the pre releases for test12.
+
+--
+
+rchiodini@cfl.rr.com
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

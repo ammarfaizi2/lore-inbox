@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135521AbRDZPUw>; Thu, 26 Apr 2001 11:20:52 -0400
+	id <S135513AbRDZPVn>; Thu, 26 Apr 2001 11:21:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135516AbRDZPUl>; Thu, 26 Apr 2001 11:20:41 -0400
-Received: from www.teaparty.net ([216.235.253.180]:34314 "EHLO
-	www.teaparty.net") by vger.kernel.org with ESMTP id <S135513AbRDZPUd>;
-	Thu, 26 Apr 2001 11:20:33 -0400
-Date: Thu, 26 Apr 2001 16:20:25 +0100 (BST)
-From: Vivek Dasmohapatra <vivek@etla.org>
-To: Yiping Chen <YipingChen@via.com.tw>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: About rebuild 2.4.x kernel to support SMP.
-In-Reply-To: <611C3E2A972ED41196EF0050DA92E0760265D56A@EXCHANGE2>
-Message-ID: <Pine.LNX.4.10.10104261613220.3902-100000@www.teaparty.net>
+	id <S135516AbRDZPVe>; Thu, 26 Apr 2001 11:21:34 -0400
+Received: from tomts6.bellnexxia.net ([209.226.175.26]:40910 "EHLO
+	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S135513AbRDZPV3>; Thu, 26 Apr 2001 11:21:29 -0400
+Message-ID: <3AE83CF0.9DBF702A@coplanar.net>
+Date: Thu, 26 Apr 2001 11:21:21 -0400
+From: Jeremy Jackson <jerj@coplanar.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Malcolm Beattie <mbeattie@sable.ox.ac.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Block device strategy and requests
+In-Reply-To: <20010426153815.B2101@sable.ox.ac.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Apr 2001, Yiping Chen wrote:
+Malcolm Beattie wrote:
 
-> My question is why the result of 'uname -r' is not "2.4.2-2smp" , but
-> "2.4.2-2"
+> I'm designing a block device driver for a high performance disk
+> subsystem with unusual characteristics. To what extent is the
+> limited number of "struct request"s (128 by default) necessary for
+> back-pressure? With this I/O subsystem it would be possible for the
+> strategy function to rip the requests from the request list straight
+> away, arrange for the I/Os to be done to/from the buffer_heads (with
+> no additional state required) with no memory "leak". This would
+> effectively mean that the only limit on the number of I/Os queued
+> would be the number of buffer_heads allocated; not a fixed number of
+> "struct request"s in flight. Is this reasonable or does any memory or
+> resource balancing depend on the number of I/Os outstanding being
+> bounded?
+>
+> Also, there is a lot of flexibility in how often interrupts are sent
+> to mark the buffer_heads up-to-date. (With the requests pulled
+> straight off the queue, the job of end_that_request_first() in doing
+> the linked list updates and bh->b_end_io() callbacks would be done by
+> the interrupt routine directly.) At one extreme, I could take an
+> interrupt for each 4K block issued and mark it up-to-date very
+> quickly making for very low-latency I/O but a very large interrupt
+> rate when I/O throughput is high. The alternative would be to arrange
+> for an interrupt every n buffer_heads (or based on some other
+> criterion) and only take an interrupt and mark buffers up-to-date on
 
-This is just the label as defined by the entries in the top-level
-Makefile, eg:
+I believe it is common practice for this type of problem is to mix both
+approaches:
+Wait for a certain number of requests *OR* a timeout, whichever comes first.
+Then, if there's not much IO, things are still guaranteed to be updated
+reasonably
+quickly.  If io is heavy,
+then things will be updated in large chunks, becoming more efficient (fewer
+interrupts) when it is needed most.
 
-VERSION = 2
-PATCHLEVEL = 4
-SUBLEVEL = 3
-EXTRAVERSION = -ac5
-
-> Whether I forgot to do something?
-
-You can edit the extraversion value if you want to label your smp kernels
-differently, but you don't have to.
-
-You'll probably find you _have_ compiled an SMP kernel - see what
-/proc/cpuinfo says, for example.
-
--- 
-I am worthless. I struggle with the simple things. It seems so easy for 
-everyone else. One armed blind people climb mountains and teenagers get
-Ph.D's. I have trouble getting out of bed.
-                                          -TMCM
+>
+> each of those). Are there any rules of thumb on which is best or
+> doesn't it matter too much?
+>
 

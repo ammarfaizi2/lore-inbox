@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261342AbVARP6J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbVARP75@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261342AbVARP6J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 10:58:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVARP4Q
+	id S261335AbVARP75 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 10:59:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbVARP62
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 10:56:16 -0500
-Received: from speedy.student.utwente.nl ([130.89.163.131]:20960 "EHLO
-	speedy.student.utwente.nl") by vger.kernel.org with ESMTP
-	id S261334AbVARPzl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 10:55:41 -0500
-Date: Tue, 18 Jan 2005 16:55:34 +0100
-From: Sytse Wielinga <s.b.wielinga@student.utwente.nl>
-To: Mario Holbe <Mario.Holbe@TU-Ilmenau.DE>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4: "access beyond end of device" after ext2 mount
-Message-ID: <20050118155534.GA12050@speedy.student.utwente.nl>
-Mail-Followup-To: Mario Holbe <Mario.Holbe@TU-Ilmenau.DE>,
-	linux-kernel@vger.kernel.org
-References: <2E314DE03538984BA5634F12115B3A4E01BC42AE@email1.mitretek.org> <20050118140203.GH2839@darkside.22.kls.lan> <20050118141707.GA11385@speedy.student.utwente.nl> <20050118152006.GJ2839@darkside.22.kls.lan>
+	Tue, 18 Jan 2005 10:58:28 -0500
+Received: from rproxy.gmail.com ([64.233.170.194]:27121 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261335AbVARP4m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 10:56:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=F516zMD5p1uYhEHNRfSGgW+m3TunQ3JvUMPQ+9UWE41Cva1Nkfvu/MGx8jl2xgg4RzH7WdBzJZksBxi6XiOAs4h2U9srQjOjV1iQuVj7gc2im38jA/0iF0oPFSv7qDSPCD9iVou/Yutwr66chyBL2JVY0J4E0sB/TPClIeu8ung=
+Message-ID: <d120d50005011807566ee35b2b@mail.gmail.com>
+Date: Tue, 18 Jan 2005 10:56:40 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Hannes Reinecke <hare@suse.de>
+Subject: Re: [PATCH 2/2] Remove input_call_hotplug
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Vojtech Pavlik <vojtech@suse.cz>
+In-Reply-To: <41ED2457.1030109@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050118152006.GJ2839@darkside.22.kls.lan>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <41ED2457.1030109@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 18, 2005 at 04:20:06PM +0100, Mario Holbe wrote:
-> On Tue, Jan 18, 2005 at 03:17:07PM +0100, Sytse Wielinga wrote:
-> > Why not just use dd if=/dev/xxx `blockdev --getbsz /dev/xxx` ...?
+Hi,
+
+On Tue, 18 Jan 2005 15:59:35 +0100, Hannes Reinecke <hare@suse.de> wrote:
+> Implement proper class names for input drivers.
 > 
-> because it doesn't work, as I've demonstrated in
-> Message-ID: <20050118082022.GA2839@darkside.22.kls.lan>
-> 
-> > root@darkside:~# dd if=/dev/hdg7 of=/dev/null bs=512
-> > attempt to access beyond end of device
-> > 22:07: rw=0, want=4996184, limit=4996183
-> > dd: reading `/dev/hdg7': Input/output error
-> > 9992360+0 records in
-> > 9992360+0 records out
-> > 5116088320 bytes transferred in 92,603241 seconds (55247400 bytes/sec)
-> > root@darkside:~#
-> > 
-> > Fixing dd's blocksize to 512 doesn't help either.
 
-That's not what I said; the block size of /dev/hdg7 there is 4096, not 512.
-Besides, the blocksize of dd is 512 by default and independent of the blocksize
-of the device.
+This patch probably should probably use atomic_inc in case we ever
+have non-serialized probe functions.
 
-Anyhow, the block size set for dd doesn't matter as even if the block size is
-huge dd copies over the last partial block. The problem was that with the 2.4
-kernel only whole blocks are usable, but it rounds off the device size to
-multiples of the sector size (i.e., not; the device size is given in multiples
-of the sector size, which, by default, is 512) instead of rounding off to
-multiples of the block size. The 2.6 kernel does not have this problem; it
-appears to accept partial blocks, and doesn't even appear to calculate the
-device size (blockdev --getsz and --getsize return 0 on my machine.)
+But the real question is whether we really need class devices have
+unique names or we could do with inputX thus leaving individual
+drivers intact and only modifying the input core. As far as I
+understand userspace should be concerned only with device
+capabilities, not particular name, besides, it gets PRODUCT string
+which has all needed data encoded.
 
-I think the fix could be as simple as rounding off the device size in one
-location, but, as I haven't had a look at the source, I'm not sure, maybe every
-driver needs a fix.
+What do you think?
 
-	Sytse
+-- 
+Dmitry

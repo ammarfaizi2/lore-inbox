@@ -1,49 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129279AbQJZWRH>; Thu, 26 Oct 2000 18:17:07 -0400
+	id <S129147AbQJZWXR>; Thu, 26 Oct 2000 18:23:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129419AbQJZWQ5>; Thu, 26 Oct 2000 18:16:57 -0400
-Received: from vger.timpanogas.org ([207.109.151.240]:49679 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129279AbQJZWQl>; Thu, 26 Oct 2000 18:16:41 -0400
-Message-ID: <39F8AC71.DF5B7C9B@timpanogas.org>
-Date: Thu, 26 Oct 2000 16:13:05 -0600
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
+	id <S129187AbQJZWXH>; Thu, 26 Oct 2000 18:23:07 -0400
+Received: from devserv.devel.redhat.com ([207.175.42.156]:33540 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S129147AbQJZWWz>; Thu, 26 Oct 2000 18:22:55 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200010262221.e9QMLfC32276@devserv.devel.redhat.com>
+Subject: Re: [PATCH] Make agpsupport work with modversions
+To: vojtech@suse.cz (Vojtech Pavlik)
+Date: Thu, 26 Oct 2000 18:21:41 -0400 (EDT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), moz@compsoc.man.ac.uk (John Levon),
+        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org,
+        alan@redhat.com, faith@valinux.com, jhartmann@precisioninsight.com
+In-Reply-To: <20001019102722.B9057@suse.cz> from "Vojtech Pavlik" at Oct 19, 2000 10:27:22 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@transmeta.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux Kernel Mirrors <mirrors@kernel.org>
-Subject: Re: kernel.org back up (film at 11)
-In-Reply-To: <39F89C73.29CE0E6A@transmeta.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Well, this is usually handled by a third module that takes care of
+> registering/unregistering the existence of the two modules that need to
+> be possible to load/unload separately.
 
-Good job -- A++.  I hardly even noticed it was down.  
+But that module then depends on both of the others unless you keep recompiling
+it
 
-:-)
 
-Jeff
-
-"H. Peter Anvin" wrote:
-> 
-> kernel.org is back up.
-> 
->         -hpa
-> 
-> --
-> <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-> "Unix gives you enough rope to shoot yourself in the foot."
-> http://www.zytor.com/~hpa/puzzle.txt
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

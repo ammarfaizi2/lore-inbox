@@ -1,37 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVDBUTO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261255AbVDBU0D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261253AbVDBUTO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Apr 2005 15:19:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261264AbVDBUTN
+	id S261255AbVDBU0D (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Apr 2005 15:26:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261264AbVDBU0D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Apr 2005 15:19:13 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:58818 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261253AbVDBUTK (ORCPT
+	Sat, 2 Apr 2005 15:26:03 -0500
+Received: from HELIOUS.MIT.EDU ([18.248.3.87]:37773 "EHLO neo.rr.com")
+	by vger.kernel.org with ESMTP id S261255AbVDBUZw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Apr 2005 15:19:10 -0500
-Message-ID: <424EFE37.8050903@colorfullife.com>
-Date: Sat, 02 Apr 2005 22:19:03 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Liontooth <liontooth@cogweb.net>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ICS1883 LAN PHY not detected
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 2 Apr 2005 15:25:52 -0500
+Date: Sat, 2 Apr 2005 15:20:00 -0500
+From: Adam Belay <ambx1@neo.rr.com>
+To: Marty Leisner <leisner@rochester.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PCI bridge devices questions
+Message-ID: <20050402202000.GA27522@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Marty Leisner <leisner@rochester.rr.com>,
+	linux-kernel@vger.kernel.org
+References: <200504021804.j32I4XGd002721@dell.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200504021804.j32I4XGd002721@dell.home>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->
->Gigabyte's K8NS Ultra-939 mobo has a 100/10 LAN PHY chip, ICS1883, which
->isn't detected by the 2.6.12-rc1 kernel (and likely not previous kernels).
->
->  
->
-The board is a nVidia nForce board, correct? Then please try the 
-forcedeth network driver ("Reverse Engineered nForce Ethernet support").
+On Sat, Apr 02, 2005 at 01:04:33PM -0500, Marty Leisner wrote:
+> I have to write some code to insert a non-standard bridge
+> (it identifies itself as bridge-other, but it functions
+> as a pci-pci bridge).
+> 
+> I'm going to be using 2.4.2x and eventually 2.6.x for intel
+> and ppc...
 
---
-    Manfred
+I'm currently working on a new pci bridge class framework for 2.6.  The most
+significant change is that you will be able to bind to the bridge using a
+"struct pci_driver".
+
+> 
+> In the pci_dev structure (for 2.4.29)
+> there's
+> (in include/linux/pci.h)
+> 
+> 00355 #define DEVICE_COUNT_RESOURCE   12
+> 00410         struct resource resource[DEVICE_COUNT_RESOURCE]; /* I/O and memory regions + expansion ROMs */
+> 
+> We also have:
+> 00431 /*
+> 00432  *  For PCI devices, the region numbers are assigned this way:
+> 00433  *
+> 00434  *      0-5     standard PCI regions
+> 00435  *      6       expansion ROM
+> 00436  *      7-10    bridges: address space assigned to buses behind the bridge
+> 00437  */
+> 00438 
+> 00439 #define PCI_ROM_RESOURCE 6
+> 00440 #define PCI_BRIDGE_RESOURCES 7
+> 00441 #define PCI_NUM_RESOURCES 11
+> 
+> Now where my confusion sets in:
+> 	1) PCI_NUM_RESOURCES + 1 == DEVICE_COUNT_RESOURCE 
+> Why?
+
+At a glance it looks like it's because the array starts at 0.
+
+> 	2) I understand the first 6 regions (standard) and the expansion rom) --
+> 	   why 5 more?  
+
+I'm currently redesigning this to use a resource array in "struct device".
+
+> 	3) I've only seen instances of 3 bus regions used -- IO, MEM prefetch,
+> 		MEM nonprefetch -- are they order dependent?
+
+There are 4 on cardbus bridges.  In my implementation, they will probably not
+be very order dependent.
+
+> 
+> Thanks...
+> 
+> Marty Leisner
+> leisner@rochester.rr.com
+
+Could you provide any additional details about this bridge?
+
+Thanks,
+Adam

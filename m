@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315928AbSHFWSg>; Tue, 6 Aug 2002 18:18:36 -0400
+	id <S315942AbSHFWUF>; Tue, 6 Aug 2002 18:20:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315942AbSHFWSg>; Tue, 6 Aug 2002 18:18:36 -0400
-Received: from daimi.au.dk ([130.225.16.1]:31411 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S315928AbSHFWSf>;
-	Tue, 6 Aug 2002 18:18:35 -0400
-Message-ID: <3D504C10.7975CCD8@daimi.au.dk>
-Date: Wed, 07 Aug 2002 00:22:08 +0200
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-ac1
-References: <200208031859.g73IxiA09952@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S315946AbSHFWUF>; Tue, 6 Aug 2002 18:20:05 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:6134 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S315942AbSHFWUE>; Tue, 6 Aug 2002 18:20:04 -0400
+Date: Tue, 6 Aug 2002 15:21:53 -0700
+From: Chris Wright <chris@wirex.com>
+To: linux-security-module@wirex.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] 2.5.30-lsm1
+Message-ID: <20020806152153.A29152@figure1.int.wirex.com>
+Mail-Followup-To: linux-security-module@wirex.com,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using 2.4.19-ac1 with patch-int-2.4.18.2. The system
-was running and heavily used for 2 days and 22 hours
-without a single glitch, but at shutdown I got an Oops
-from S01halt. I had no way to save the output, so I just
-wrote down the IP and calltrace, here is the output from
-ksymoops with that input:
+The Linux Security Modules project provides a lightweight, general
+purpose framework for access control.  The LSM interface enables
+security policies to be developed as loadable kernel modules.
+See http://lsm.immunix.org for more information.
 
-Trace; c012c077 <kmem_cache_free+37/a0>
-Trace; c011df6c <free_uid+2c/30>
-Trace; c01188cc <release_task+2c/120>
-Trace; c0119746 <sys_wait4+2f6/380>
-Trace; c01089f3 <system_call+33/40>
+2.5.30-lsm1 patch released.  This is a rebase to 2.5.30 as well as the
+continuation of merging LSM with mainline.
 
-I don't think it is related to the patch, which have
-been working flawlessly since 2.4.18. I don't know yet
-if the problem can be reproduced.
+Full lsm-2.5 patch (LSM + all modules) is available at:
+	http://lsm.immunix.org/patches/2.5/2.5.30/patch-2.5.30-lsm1.gz
 
+The whole ChangeLog for this release is at:
+	http://lsm.immunix.org/patches/2.5/2.5.30/ChangeLog-2.5.30-lsm1
+
+The LSM 2.5 BK tree can be pulled from:
+        bk://lsm.bkbits.net/lsm-2.5
+
+2.5.30-lsm1
+ - merge with 2.5.27					(Greg KH)
+ - merge with 2.5.28-30					(me)
+ - bk file merging to handle changes from mainline	(Greg KH)
+ - removed BUS_ISA declaration				(Greg KH)
+ - add settime hook					(Robb Romans)
+ - SELinux: Bug fixes for the PSID mapping code.	(Stephen Smalley)
+ - update initlialized to C99 sytle for cap and dummy	(Adam)
+   modules.
+ - Fix memory leaks in IPC LSM hooking.			(Stephen Smalley)
+ - Fix file_lock hooks.					(Matthew Wilcox)
+ - update modules according to file_lock hook change	(me)
+ - DTE: logic cleanups					(Serge Hallyn)
+ - SELinux: cleanup sysctl table			(Chris Vance)
+ - __FUNCTION__ cleanup					(Anton Blanchard)
+ - remove __exit attribute from selinux_nf_ip_exit	(me)
+
+thanks,
+-chris
 -- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:razrep@daimi.au.dk
-or mailto:mcxumhvenwblvtl@skrammel.yaboo.dk
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

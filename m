@@ -1,82 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271928AbTHRWAV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 18:00:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275118AbTHRWAV
+	id S275218AbTHRWPp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 18:15:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275211AbTHRWPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 18:00:21 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:6364 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S271928AbTHRWAS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 18:00:18 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com, alan@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH] RFC: kills consistent_dma_mask
-References: <m3oeynykuu.fsf@defiant.pm.waw.pl>
-	<20030817233705.0bea9736.davem@redhat.com>
-	<m3r83jyw2k.fsf@defiant.pm.waw.pl>
-	<20030818054341.2ef07799.davem@redhat.com>
-	<m365kvufjx.fsf@defiant.pm.waw.pl>
-	<20030818094955.3aa5c1c2.davem@redhat.com>
-	<m3d6f2kern.fsf@defiant.pm.waw.pl>
-	<20030818115052.41e62a90.davem@redhat.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 18 Aug 2003 23:58:47 +0200
-In-Reply-To: <20030818115052.41e62a90.davem@redhat.com>
-Message-ID: <m3n0e6mxuw.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 18 Aug 2003 18:15:45 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:28802 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S275126AbTHRWPm (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 18:15:42 -0400
+Message-Id: <200308182215.h7IMFecc013449@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Phil Oester <kernel@theoesters.com>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: [PATCH] Ratelimit SO_BSDCOMPAT warnings 
+In-Reply-To: Your message of "Mon, 18 Aug 2003 15:06:05 PDT."
+             <20030818150605.A23957@ns1.theoesters.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20030818150605.A23957@ns1.theoesters.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-940381732P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 18 Aug 2003 18:15:40 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> writes:
+--==_Exmh_-940381732P
+Content-Type: text/plain; charset=us-ascii
 
-> drivers/net/tg3.c
+On Mon, 18 Aug 2003 15:06:05 PDT, Phil Oester said:
+> Back in March, there was some discussion about ratelimiting the
+> BSDCOMPAT errors, and James Morris provided a patch to achieve
+> this.
 
-No... I know of tg3.c:
+> Unfortunately, it seems to have fallen through the cracks.  Below
+> is the patch again, updated for 2.6.0-test3 - please apply.
 
-        /* Configure DMA attributes. */
-        if (!pci_set_dma_mask(pdev, 0xffffffffffffffffULL)) {
-                pci_using_dac = 1;
-                if (pci_set_consistent_dma_mask(pdev, 0xffffffffffffffffULL)) {
-                        printk(KERN_ERR PFX "Unable to obtain 64 bit DMA "
-                               "for consistent allocations\n");
-                        goto err_out_free_res;
-                }
-        } else {
-                err = pci_set_dma_mask(pdev, (u64) 0xffffffff);
-                if (err) {
-                        printk(KERN_ERR PFX "No usable DMA configuration, "
-                               "aborting.\n");
-                        goto err_out_free_res;
-                }
-                pci_using_dac = 0;
-        }
-
-As you can see it tg3 uses consistent_dma_mask = dma_mask so this one
-doesn't need two masks.
+>  static void sock_warn_obsolete_bsdism(const char *name)
+>  {
+> -       printk(KERN_WARNING "process `%s' is using obsolete "
+> -              "%s SO_BSDCOMPAT\n", current->comm, name);
+> +       static int warned;
+> +
+> +       if (!warned) {
+> +               warned = 1;
 
 
-Ok, I assume there is a real need for two masks. Still, having different
-archs rely on different variables for the same task is a bug which needs
-fixing.
+Umm.. am I dense, or does this only warn once for *the first program*
+to do it after the system boots?  And you don't get another warning about
+any OTHER programs until you reboot in a few weeks (possibly)?
 
-Example:
+If so, why are we bothering at all?  Once *per process* I could see, but
+once per boot?
 
-$ grep DMA_MASK sound/oss/emu10k1/main.c
-#define EMU10K1_DMA_MASK                0x1fffffff      /* DMA buffer mask for pci_alloc_consist */
-        if (pci_set_dma_mask(pci_dev, EMU10K1_DMA_MASK)) {
+--==_Exmh_-940381732P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Do you see a problem here? It will work if and only if pci_alloc_consistent
-uses dma_mask rather than consistent_dma_mask.
+iD8DBQE/QVAMcC3lWbTT17ARAmo2AJ9guU/ZsW+cgp37wWergCPMyfDFVACgn0kh
+U5By6PDQ5AU/vaDrN0Ni3wc=
+=I6Y7
+-----END PGP SIGNATURE-----
 
-Ok, I will make a patch which uses consistent_dma_mask for consistent allocs
-on all archs. This will break drivers but they are already broken on
-x86-64 and ia64, and it's easier to fix drivers than to write them when
-the core is faulty.
-
-Hope that it is ok?
--- 
-Krzysztof Halasa
-Network Administrator
+--==_Exmh_-940381732P--

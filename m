@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262902AbUBZRsh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 12:48:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262905AbUBZRsh
+	id S262829AbUBZRyG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 12:54:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262903AbUBZRyG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 12:48:37 -0500
-Received: from fw.osdl.org ([65.172.181.6]:8899 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262902AbUBZRsc (ORCPT
+	Thu, 26 Feb 2004 12:54:06 -0500
+Received: from fw.osdl.org ([65.172.181.6]:27078 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262829AbUBZRyD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 12:48:32 -0500
-Message-Id: <200402261748.i1QHmJE12429@mail.osdl.org>
-Date: Thu, 26 Feb 2004 09:48:10 -0800 (PST)
-From: markw@osdl.org
-Subject: AS performance with reiser4 on 2.6.3
-To: piggin@cyberone.com.au
-cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+	Thu, 26 Feb 2004 12:54:03 -0500
+Date: Thu, 26 Feb 2004 09:53:58 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: "Nick Warne" <nick@ukfsn.org>
+Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
+       "=?ISO-8859-1?B?RnLpZOlyaWM=?= L. W. Meunier" <1@pervalidus.net>
+Subject: Re: 2.6.3 RT8139too NIC problems [NOT resolved]
+Message-Id: <20040226095358.2bb53915@dell_ss3.pdx.osdl.net>
+In-Reply-To: <403A6011.5674.103225D9@localhost>
+References: <403A6011.5674.103225D9@localhost>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.9claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nick,
+The current 2.6.3 driver uses NAPI, and maybe that is related to your troubles.
 
-I started getting some results with dbt-2 on 2.6.3 and saw that reiser4
-is doing a bit worse with the AS elevator.  Although reiser4 wasn't
-doing well to begin with, compared to the other filesystems.  I have
-links to the STP results on our 4-ways and 8-ways here:
-	http://developer.osdl.org/markw/fs/dbt2_stp_results.html
+What exactly is the hardware config (lspci output)?
 
-I noticed that __preempt_spin_lock was near the top of the profile and
-about 2 times higher the with AS, compared to deadline.
+There are debug messages produced, something like:
+	eth0: Tx queue start entry 0  dirty entry 13
+do you see these in dmesg output? or change your syslog.conf to capture
+debug kernel messages to a different file.
 
-I'm going to run through the other filesystems to see how the elevators
-affect them.
+Also, rebuild with RTL8139_DEBUG defined to pick up more info.
 
--- 
-Mark Wong - - markw@osdl.org
-Open Source Development Lab Inc - A non-profit corporation
-12725 SW Millikan Way - Suite 400 - Beaverton, OR 97005
-(503) 626-2455 x 32 (office)
-(503) 626-2436      (fax)
-http://developer.osdl.org/markw/
+Seems like interrupts are getting disabled somehow.

@@ -1,48 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268249AbUJJLeU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268253AbUJJLgl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268249AbUJJLeU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 07:34:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268258AbUJJLeT
+	id S268253AbUJJLgl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 07:36:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268258AbUJJLgl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 07:34:19 -0400
-Received: from baythorne.infradead.org ([81.187.226.107]:20740 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S268249AbUJJLeM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 07:34:12 -0400
-Date: Sun, 10 Oct 2004 12:34:04 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "Serge E. Hallyn" <hallyn@CS.WM.EDU>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       chrisw@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/3] lsm: add bsdjail module
-Message-ID: <20041010113404.GA28868@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Serge E. Hallyn" <hallyn@CS.WM.EDU>,
-	"Serge E. Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-	chrisw@osdl.org, linux-kernel@vger.kernel.org
-References: <1097094103.6939.5.camel@serge.austin.ibm.com> <1097094270.6939.9.camel@serge.austin.ibm.com> <20041006162620.4c378320.akpm@osdl.org> <20041007190157.GA3892@IBM-BWN8ZTBWA01.austin.ibm.com> <20041010104113.GC28456@infradead.org> <20041010113152.GA9064@escher.cs.wm.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041010113152.GA9064@escher.cs.wm.edu>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 10 Oct 2004 07:36:41 -0400
+Received: from out014pub.verizon.net ([206.46.170.46]:16778 "EHLO
+	out014.verizon.net") by vger.kernel.org with ESMTP id S268253AbUJJLgU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Oct 2004 07:36:20 -0400
+Message-ID: <41691EB1.9040102@verizon.net>
+Date: Sun, 10 Oct 2004 07:36:17 -0400
+From: Jim Nelson <james4765@verizon.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Paul Mundt <lethal@linux-sh.org>
+CC: Matt <matt@lpbproductions.com>, Jan Dittmer <jdittmer@ppp0.net>,
+       Ed Schouten <ed@il.fontys.nl>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [Patch 1/5] xbox: add 'CONFIG_X86_XBOX' to kernel configuration
+References: <64778.217.121.83.210.1097351837.squirrel@217.121.83.210> <200410091315.10988.lkml@lpbproductions.com> <41684BC1.5000500@ppp0.net> <200410091347.57256.matt@lpbproductions.com> <20041010073732.GA18628@linux-sh.org>
+In-Reply-To: <20041010073732.GA18628@linux-sh.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [209.158.211.53] at Sun, 10 Oct 2004 06:36:17 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 10, 2004 at 07:31:52AM -0400, Serge E. Hallyn wrote:
-> > Your filesystem handling code is completely superflous (and buggy).  Please
-> > remove all the code dealing with chroot-lookalikes.  In your userland script
-> > you simpl have to clone(.., CLONE_NEWNS) to detach your namespace from your
-> > parent, then you can lazly unmount all filesystems and setup your new namespace
-> > before starting the jail.  The added advantage is that you don't need any
-> > cludges to keep the user from exiting the chroot.
-> 
-> I definately would prefer to use namespaces.  I had originally wanted to
-> do a copy_namespace() in the module.  That function is not exported,
-> though.  Is doing that in user-space really the right way to do it?
+Paul Mundt wrote:
 
-If something can be done in userspace nicely that's preferable over doing it in
-kernelspace, yes.
+>On Sat, Oct 09, 2004 at 01:47:56PM -0700, Matt wrote:
+>  
+>
+>>If it does go into mainline. What's to stop the inclusion of other gaming 
+>>platforms into the kernel . Say for instance Playstation or Gamecube or some 
+>>other variant. 
+>>
+>>    
+>>
+>PlayStation 1 won't make it due to the current state of mipsnommu.
+>
+>  
+>
 
+Plus, the PS1 has 2 MB RAM - dunno too much about ultra-small embedded 
+systems, but that seems like too little memory even for an 
+ultra-stripped kernel and a shell.
+
+>On the other hand, Dreamcast support in the kernel as is is quite good.
+>It's actually one of the best supported platforms of the sh arch.
+>
+>I'm not sure I get your point about keeping gaming platforms out of the
+>kernel, they're just another embedded platform, what's the issue?
+>
+>  
+>
+PC gaming is one of the driving forces for the development of faster 3D 
+graphics systems - should we refuse to make ATI and Nvidia graphics 
+cards work since those are primarily used for games?
+
+OTOH, Sony has a very evil reputation for sending lawyers after anyone 
+who publishes programming information for their consoles - try to 
+reverse-engineer the (proprietary) runtime environment that came with 
+their Linux kit, and watch the nastygrams come.  Since Sony didn't do 
+any silliness with digitally signed executables ala XBox, the only way 
+they can keep unauthorized software from being published is to attack 
+anyone who tries to release the hardware information needed to make a 
+bootable CD/DVD.

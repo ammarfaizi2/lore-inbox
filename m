@@ -1,49 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263915AbTIBUSW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 16:18:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263916AbTIBUSW
+	id S261335AbTIBSzH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 14:55:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbTIBSzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 16:18:22 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:26825 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263915AbTIBUSU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 16:18:20 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Ed Sweetman <ed.sweetman@wmich.edu>
-Subject: Re: devfs to be obsloted by udev?
-Date: Tue, 2 Sep 2003 22:19:02 +0200
-User-Agent: KMail/1.5
-Cc: greg@kroah.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3F54A4AC.1020709@wmich.edu>
-In-Reply-To: <3F54A4AC.1020709@wmich.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Sep 2003 14:55:07 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:4780
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261335AbTIBSzB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 14:55:01 -0400
+Date: Tue, 2 Sep 2003 20:54:53 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: linux-kernel@vger.kernel.org, Kurt Garloff <garloff@suse.de>
+Subject: Re: 2.4.22aa1
+Message-ID: <20030902185453.GL1599@dualathlon.random>
+References: <20030902020218.GB1599@dualathlon.random> <200309022037.39364.m.c.p@wolk-project.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309022219.02549.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200309022037.39364.m.c.p@wolk-project.de>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 02, 2003 at 08:38:39PM +0200, Marc-Christian Petersen wrote:
+> On Tuesday 02 September 2003 04:02, Andrea Arcangeli wrote:
+> 
+> Hi Andrea,
+> 
+> > Only in 2.4.22aa1: 20_sched-o1-fixes-10
+> > Only in 2.4.22pre7aa1: 20_sched-o1-fixes-9
+> > 	Changed the CHILD_PENALTY logic to be centered around
+> > 	50%. From Kurt Garloff.
+> 
+> the changes 's/CHILD_PENALTY/CHILD_INHERITANCE' and "s/PARENT_PENALTIY//' are 
+> really awfull for desktops. If I change child_inheritance from 60 to 95 and 
+> reintroduce the logic with parent_penaltiy, it's alot smooter under load.
+> 
+> I think these logics should be #ifdef'ed with CONFIG_DESKTOP, no?
 
-initramfs
+s/PARENT_PENALTIY// is a noop. The CHILD_INHERITANCE moves it from 50%
+to 60% and center it in the middle. If something it will increase the
+sleep_avg of the child that will lead to making the childs more
+responsive. It sounds quite strange that backing out this, makes the
+system more responsive. btw, Kurt developed this stuff with the object
+of making it more responsive, not less. What could go wrong is that the
+child will get more responsiveness than the parent and maybe for your
+load the interactive app is the parent and not the child, dunno.
 
-On Tuesday 02 of September 2003 16:09, Ed Sweetman wrote:
-> It appears that devfs is to be replaced by the use of udev in the not so
-> distant future.  I'm not sure how it's supposed to replace a static /dev
-> situaton seeing as how it is a userspace daemon.  Is it not supposed to
-> replace /dev even when it's completed?  I dont see the real benefit in
-> having two directories that basically give the same info.  Right now we
-> have something like that with proc and sysfs although not everything in
-> proc makes sense to be in sysfs and both are virtual fs's where as /dev
-> is a static fs on the disk that takes up space and inodes and includes
-> way too many files that a system may not use.  If udev is to take over
-> the job of devfs, how will modules and drivers work that require device
-> files to be present in order to work since undoubtedly the udev daemon
-> will have to wait until the kernel is done booting before being run.
->
-> I'm just not following how it is going to replace devfs and thus why
-> devfs is being abandoned as mentioned in akpm's patchset. Or as it
-> seems, already has been abandoned.
+Andrea
 
+/*
+ * If you refuse to depend on closed software for a critical
+ * part of your business, these links may be useful:
+ *
+ * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.5/
+ * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.4/
+ * http://www.cobite.com/cvsps/
+ *
+ * svn://svn.kernel.org/linux-2.6/trunk
+ * svn://svn.kernel.org/linux-2.4/trunk
+ */

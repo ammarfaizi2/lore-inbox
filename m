@@ -1,93 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271068AbRHOGyG>; Wed, 15 Aug 2001 02:54:06 -0400
+	id <S271070AbRHOG74>; Wed, 15 Aug 2001 02:59:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271067AbRHOGxr>; Wed, 15 Aug 2001 02:53:47 -0400
-Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:42421 "EHLO
-	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S271068AbRHOGxp> convert rfc822-to-8bit; Wed, 15 Aug 2001 02:53:45 -0400
-Importance: Normal
-Subject: bug in raidtools: not 64 bit ready
-To: mingo@redhat.com, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF5A856959.0F52DD55-ONC1256AA9.00259579@de.ibm.com>
-From: "Christian Borntraeger" <CBORNTRA@de.ibm.com>
-Date: Wed, 15 Aug 2001 08:54:43 +0200
-X-MIMETrack: Serialize by Router on D12ML020/12/M/IBM(Release 5.0.6 |December 14, 2000) at
- 15/08/2001 08:53:51
+	id <S271071AbRHOG7q>; Wed, 15 Aug 2001 02:59:46 -0400
+Received: from demai05.mw.mediaone.net ([24.131.1.56]:18073 "EHLO
+	demai05.mw.mediaone.net") by vger.kernel.org with ESMTP
+	id <S271070AbRHOG7d>; Wed, 15 Aug 2001 02:59:33 -0400
+Message-Id: <200108150659.f7F6xeh16394@demai05.mw.mediaone.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Brian <hiryuu@envisiongames.net>
+To: J Sloan <jjs@pobox.com>, dmaynor@iceland.oit.gatech.edu
+Subject: Re: 2.4.8 Resource leaks + limits
+Date: Wed, 15 Aug 2001 02:59:40 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3ce801c12548$b7971750$020a0a0a@totalmef> <20010815014328.A15395@iceland.oit.gatech.edu> <3B7A0F01.DC4CAE4@pobox.com>
+In-Reply-To: <3B7A0F01.DC4CAE4@pobox.com>
 MIME-Version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8BIT
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Probably both -- he's thinking more about the userspace side of it, though.
 
-Hello ,
+Since you want these settings to vary by user and persist across reboots, 
+the default levels will need to be stored in some table/database and /etc 
+seems like the appropriate place.  Of course, that's more PAM's domain 
+than a kernel issue, but the userspace connection is still important.
 
+Will there be a utility for viewing/changing per-user limits?  If so, what 
+should it be called?  Will we just pile more values into ulimit?  We're 
+running a little short on intuitive flags.
 
-I think I encountered a problem in the raidtools. At least the mkraid
-program seems to be not 64 bit ready.
-I use raidtools-19990824-0.90. with Kernel 2.4.7 on an IBM zSeries (s390x).
-It is a big endian 64 bit machine.
-Patch is below.
+/proc entries are okay for tweaking kernel parameters, but it seems a 
+little weak as a primary interface.  You might as well have ps say 'Go 
+grep it yourself!'
 
-How did I faced the problem?
-I tried running mkraid and got the following message:
+	-- Brian
 
-#mkraid /dev/md/0
-handling MD device /dev/md/0
-analyzing super-block
-/dev/dasd/6353/part1: device too small (0kB)
-mkraid: aborted, see the syslog and /proc/mdstat for potential clues.
-
-
-How can I solve the problem?
-
-I looked into the code of the raid-tools and found the following problem:
-
-in md_int.h LINE 22 md_u32 is defined as unsigned int:
-typedef unsigned int md_u32;
-
-then in  raid_io.c  LINE 367 nr_bocks s defined ad unsigned int:
-
-md_u32 nr_blocks;
-
-but in raid_io.c LINE 451 and 492 a long pointer is passed. Unfortunately
-long is 64 bit wide so nr_blocks will be zero and the 4 Bytes after
-nr_blocks have the content nr_blocks should have:
-if (ioctl(fd, BLKGETSIZE, (unsigned long)&nr_blocks) == -1) {
-
-Therefore mkraid does not work.
-
-
-Here is a simple (still ugly) patch that solves this problem on 64 bit.
-Better approaches are welcome.
-Meanwhile,  as int and long are both 32bit  on 32 bit machines this should
-cause no harm.
-
-
---- raid_io.c   Tue Aug 24 18:24:56 1999
-+++ raid_io.c   Tue Aug 14 16:16:53 2001
-@@ -364,7 +364,7 @@
-        md_raid_info_t *array;
-        md_disk_info_t *disk;
-        struct stat stat_buf;
--       md_u32 nr_blocks;
-+       unsigned long nr_blocks;
-
-        if (!cfg)
-                return 1;
-
-
-Please CC me as I am not subscribed to the list.
-
---
-Mit freundlichen Grüßen / Best Regards
-
-Christian Bornträger
-IBM Deutschland Entwicklung GmbH
-eServer SW  System Evaluation + Test
-email: CBORNTRA@de.ibm.com
-Tel +49 7031-16-3507
-
-
+On Wednesday 15 August 2001 01:56 am, J Sloan wrote:
+> dmaynor@iceland.oit.gatech.edu wrote:
+> > > This is why you mainly find per-process stuff in all the limits.
+> > >
+> > > Linux has had (for a while now) a "struct user" that is actually
+> > > quickly accessible through a direct pointer off every process that
+> > > is associated with that user, and we could (and _will_) start adding
+> > > these kinds of limits. However, part of the problem is that because
+> > > the limits haven't historically existed, there is also no accepted
+> > > and nice way of setting the limits.
+> >
+> > So when you do impose this, where will it be setable, will there be a
+> > flat file in /etc like solaris, or compile time for the kernel?
+>
+> Eh?
+>
+> Why wouldn't it be like most parameters in Linux,
+> e.g. dynamically adjustable via a sysctl or /proc?
+>
+> IMHO, of course...
+>
+> cu
+>
+> jjs
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

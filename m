@@ -1,44 +1,70 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317323AbSFLDJC>; Tue, 11 Jun 2002 23:09:02 -0400
+	id <S317327AbSFLDLw>; Tue, 11 Jun 2002 23:11:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317324AbSFLDJB>; Tue, 11 Jun 2002 23:09:01 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:29604 "EHLO
+	id <S317329AbSFLDLv>; Tue, 11 Jun 2002 23:11:51 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:45489 "EHLO
 	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S317323AbSFLDJB>; Tue, 11 Jun 2002 23:09:01 -0400
-Date: Wed, 12 Jun 2002 04:08:46 +0100 (BST)
+	id <S317327AbSFLDLu>; Tue, 11 Jun 2002 23:11:50 -0400
+Date: Wed, 12 Jun 2002 04:11:37 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Todd R. Eigenshink" <todd@tekinteractive.com>,
-        William Lee Irwin III <wli@holomorphy.com>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] swap 3/4 unsafe Dirty check
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: [PATCH] swap 4/4 redundant SwapCache checks
 In-Reply-To: <Pine.LNX.4.21.0206120359270.1036-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.21.0206120405480.1036-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.21.0206120409060.1036-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Todd reported swapoff kernel BUG at filemap.c:122 to LKML 24 May.
-Other problems on that system may have contributed, but yes, despite
-__delete_from_swap_cache doing ClearPageDirty before __remove_inode_page
-to avoid the BUG(), a concurrent __free_pte might race to SetPageDirty.
-So skip that oops in PageSwapCache case (please, if someone wants to use
-unlikely or BUG_ON there, do so in your later patch).  Remove the prior
-ClearPageDirty? maybe but not without deeper thought: let stay for now.
+PageSwapCache tests whether mapping is &swapper_space, so it's just
+a waste of time for __free_pages_ok, balance_classzone, rw_swap_page
+and rw_swap_page_nolock to check both mapping and PageSwapCache.  And
+__free_pages_ok just did lru_cache_del if PageLRU, so don't recheck it.
 
---- 2.4.19-pre10/mm/filemap.c	Tue Jun  4 13:54:19 2002
-+++ linux/mm/filemap.c	Tue Jun 11 19:02:30 2002
-@@ -119,7 +119,8 @@
-  */
- void __remove_inode_page(struct page *page)
- {
--	if (PageDirty(page)) BUG();
-+	if (PageDirty(page) && !PageSwapCache(page))
-+		BUG();
- 	remove_page_from_inode_queue(page);
- 	remove_page_from_hash_queue(page);
+--- 2.4.19-pre10/mm/page_alloc.c	Tue Jun  4 13:54:19 2002
++++ linux/mm/page_alloc.c	Tue Jun 11 19:02:30 2002
+@@ -88,12 +88,8 @@
+ 		BUG();
+ 	if (!VALID_PAGE(page))
+ 		BUG();
+-	if (PageSwapCache(page))
+-		BUG();
+ 	if (PageLocked(page))
+ 		BUG();
+-	if (PageLRU(page))
+-		BUG();
+ 	if (PageActive(page))
+ 		BUG();
+ 	page->flags &= ~((1<<PG_referenced) | (1<<PG_dirty));
+@@ -280,8 +276,6 @@
+ 					if (page->mapping)
+ 						BUG();
+ 					if (!VALID_PAGE(page))
+-						BUG();
+-					if (PageSwapCache(page))
+ 						BUG();
+ 					if (PageLocked(page))
+ 						BUG();
+--- 2.4.19-pre10/mm/page_io.c	Tue Jun 11 19:02:30 2002
++++ linux/mm/page_io.c	Tue Jun 11 19:02:30 2002
+@@ -97,8 +97,6 @@
+ 		PAGE_BUG(page);
+ 	if (!PageSwapCache(page))
+ 		PAGE_BUG(page);
+-	if (page->mapping != &swapper_space)
+-		PAGE_BUG(page);
+ 	if (!rw_swap_page_base(rw, entry, page))
+ 		UnlockPage(page);
  }
+@@ -113,8 +111,6 @@
+ 	struct page *page = virt_to_page(buf);
+ 	
+ 	if (!PageLocked(page))
+-		PAGE_BUG(page);
+-	if (PageSwapCache(page))
+ 		PAGE_BUG(page);
+ 	if (page->mapping)
+ 		PAGE_BUG(page);
 

@@ -1,61 +1,67 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317301AbSFLBgX>; Tue, 11 Jun 2002 21:36:23 -0400
+	id <S317302AbSFLBkn>; Tue, 11 Jun 2002 21:40:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317302AbSFLBgW>; Tue, 11 Jun 2002 21:36:22 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:6662 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S317301AbSFLBgV>; Tue, 11 Jun 2002 21:36:21 -0400
-Date: Tue, 11 Jun 2002 18:36:16 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] CONFIG_NR_CPUS, redux
-Message-ID: <20020611183616.H856@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0206111917310.3521-100000@sharra.ivimey.org> <1023820116.22156.271.camel@sinai>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
+	id <S317303AbSFLBkm>; Tue, 11 Jun 2002 21:40:42 -0400
+Received: from th00.opsion.fr ([195.219.20.10]:12806 "HELO th00.opsion.fr")
+	by vger.kernel.org with SMTP id <S317302AbSFLBkl> convert rfc822-to-8bit;
+	Tue, 11 Jun 2002 21:40:41 -0400
+Send-By: 202.181.219.129 with Mozilla/4.78 [en] (Win95; U)
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: mke2fs Aborts With "File size limit exceeded"
+From: <cnliou@eurosport.com>
+X-Priority: 3 (normal)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: Wed, 12 Jun 2002 01:40:24 GMT
+Message-id: <200206120140.1870@th00.opsion.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 11, 2002 at 11:28:36AM -0700, Robert Love wrote:
-> On Tue, 2002-06-11 at 11:21, Ruth Ivimey-Cook wrote:
-> 
-> > Perhaps it's just because I'm coming in late, but I cannot understand why
-> > NR_CPUS cannot be as low as 4 by default, for all archs, and then in the
-> > kernel boot messages, should more be found than is configured for a message is
-> > emitted to say "reconfigure your kernel", and continue with the number it was
-> > configured for. I personally only rarely see 2-way boxes, 4-way is pretty
-> > rare, and anything more must surely count as very specialized.
-> 
-> Ugh let's stop this thread now.  Two points:
-> 
-> 	(a) imo, the kernel should support out-of-the-box the maximum
-> 	    number of CPUs it can handle.  Be lucky we now have a
-> 	    configure option to change that.  But that does not matter..
-> 
-> 	(b) Right now it is 32.  Now you can change it... if you want
-> 	    to change the current behavior by _default_ why don't we
-> 	    suggest that _after_ this is accepted into 2.5?  I.e., one
-> 	    battle at a time.
+Greetings!
 
-By that logic CONFIG_SMP should be "y" by default.
+As my problem remains unresolved, I am reposting this
+message seeking helps.
 
-Now i find the name NR_CPUS a bit misleading it seems that
-this should be MAX_CPUS but "legacy is as legacy does".
+I am exeperiencing the similar problem in kernel
+2.4.18, glibc 2.2.5, and patched gcc 2.95.3
+(http://ricardo.ecn.wfu.edu/glib-linux-archive/0110/0
+007.html). I mounted /dev/hda1 to /.
 
-Using the names i prefer i would suggest in *config we
-replace CONFIG_SMP with CONFIG_MAX_CPUS and give it a
-default of 1.  Then make CONFIG_SMP dependant on
-CONFIG_MAX_CPUS > 1.  That way we avoid adding yet another
-option. KISS for the users.
+mke2fs /dev/hdc1
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+aborts with message:
 
-		Remember Cernan and Schmitt
+File size limit exceeded
+
+In exactly the same environment I also booted to
+kernel 2.2.13 installed from Slackware and then
+mke2fs /dev/hdc1 without problem.
+
+The major changes I have made to linux 2.4.18 are:
+(1) I patched linux-2.4.18 with win4lin's patch
+files.
+(2) I enabled software raid1 for linux 2.4.18 while
+the 2.2.13 Slackware distribution enables software
+raid0.
+
+I can not mke2fs /dev/hdc1 as what I really want to
+do is
+
+mke2fs /dev/md0
+
+which also failed in 2.4.18.
+
+Please help and thank you in advance!
+
+CN
+
+--------------------------------------------------------
+You too can have your own email address from Eurosport.
+http://www.eurosport.com
+
+
+
+
+

@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263942AbUACTRa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 14:17:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264095AbUACTRa
+	id S263898AbUACTJG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 14:09:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263903AbUACTJG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 14:17:30 -0500
-Received: from gprs214-81.eurotel.cz ([160.218.214.81]:13185 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263942AbUACTR2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 14:17:28 -0500
-Date: Sat, 3 Jan 2004 20:18:17 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Karel =?iso-8859-1?Q?Kulhav=FD?= <clock@twibright.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Does Adaptec behave in compliance with GPL?
-Message-ID: <20040103191817.GF1080@elf.ucw.cz>
-References: <20040102110902.A456@beton.cybernet.src>
+	Sat, 3 Jan 2004 14:09:06 -0500
+Received: from mail.mediaways.net ([193.189.224.113]:18498 "HELO
+	mail.mediaways.net") by vger.kernel.org with SMTP id S263898AbUACTJD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 14:09:03 -0500
+Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
+From: Soeren Sonnenburg <kernel@nn7.de>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0401031402210.24942-100000@coffee.psychology.mcmaster.ca>
+References: <Pine.LNX.4.44.0401031402210.24942-100000@coffee.psychology.mcmaster.ca>
+Content-Type: text/plain
+Message-Id: <1073156858.9851.177.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040102110902.A456@beton.cybernet.src>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Date: Sat, 03 Jan 2004 20:07:38 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sat, 2004-01-03 at 20:03, Mark Hahn wrote:
+> > Anyone else with that problem - ideas of the cause ?
+> 
+> the 2.6 scheduler tries to be much more adaptive.  doesn't it look like
+> it's decided to make some wrong decisions wrt scheduling in your first run?
 
-> I have got Adaptec Serial ATA RAID 1210SA. They bundle a CD with it. The CD
-> contains Linux - the cover says: "The CD will boot into Linux and provide the
-> following menu selections:..."
-> 
-> I suspect them not to be compliant with GPL because I didn't find neither Linux
-> kernel sources on the CD nor any "written offer, valid for at least three
-> years, to give any third party [...] source code", nor "Information
-> they received as to the offer to distribute corresponding source code".
-> 
-> Also studied the brochure that comes with the adapter. It also doesn't
-> contain anything from the above.
-> 
-> I have put the content of the CD on http://oberon.troja.mff.cuni.cz/mnt for
-> the sole purpose of evaluating GPL conformance. Put list of the files
-> into not-on-cd-list-of-files to assist searching in the tree.
-> 
-> Could you please determine if this is a GPL-infringing behaviour or not?
+yeah, I think so... but as generating output in a shell is a very common
+thing to do there should either be an option to turn that unwanted
+behaviour off or to fix this issue...
 
-It probably is. But polite thing to do would be to ask Adaptec about
-the notice... [Do they have something "interesting" there?]
-								Pavel
+Soeren
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265320AbTAWPc4>; Thu, 23 Jan 2003 10:32:56 -0500
+	id <S265355AbTAWPeA>; Thu, 23 Jan 2003 10:34:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265339AbTAWPc4>; Thu, 23 Jan 2003 10:32:56 -0500
-Received: from probity.mcc.ac.uk ([130.88.200.94]:56332 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S265320AbTAWPcv>; Thu, 23 Jan 2003 10:32:51 -0500
-Date: Thu, 23 Jan 2003 15:42:43 +0000 (GMT)
-From: John@man.ac.uk
-Subject: Re: [ACPI] ACPI patches updated (20030109)
-To: andrew.grover@intel.com
-cc: acpi-devel@sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <F760B14C9561B941B89469F59BA3A84725A119@orsmsx401.jf.intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
-Message-Id: <E18bjUN-000FXY-00@probity.mcc.ac.uk>
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18bjUN-000FXY-00*ETwaOr9xAyc*
+	id <S265361AbTAWPd7>; Thu, 23 Jan 2003 10:33:59 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:41176 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S265355AbTAWPd5>;
+	Thu, 23 Jan 2003 10:33:57 -0500
+Date: Thu, 23 Jan 2003 15:43:04 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Lennert Buytenhek <buytenh@math.leidenuniv.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: {sys_,/dev/}epoll waiting timeout
+Message-ID: <20030123154304.GA7665@bjl1.asuk.net>
+References: <20030122065502.GA23790@math.leidenuniv.nl> <20030122080322.GB3466@bjl1.asuk.net> <Pine.LNX.4.50.0301230544320.820-100000@blue1.dev.mcafeelabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50.0301230544320.820-100000@blue1.dev.mcafeelabs.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10 Jan, Grover, Andrew wrote:
-..
-> ACPI patches based upon the 20030109 label have been released.
+Davide Libenzi wrote:
+> >From a mathematical point of view this is a ceil(v)+1, so this is wrong.
+> It should be :
+> 
+> t = (t * HZ + 999) / 1000;
+> 
+> The +999 already gives you the round up.  Different is if we want to be
+> sure to sleep at least that amount of jiffies ( the rounded up ), in that
+> case since the timer tick might arrive immediately after we go to sleep by
+> making us to lose immediately a jiffie, we need another +1. Anyway I'll do
+> the round up. Same for the overflow check.
 
-I have a Toshiba 3000-400 laptop, which previously needed a ACPI table
-bypass for it to detect the battery power levels, which I have been
-doing up to 2.4.17..  
+I wonder if it's appropriate to copy sys_poll(), which has the +1, or
+sys_select(), which doesn't!
 
-I compiled up the standard 2.4.20 and my bypass hack didn't work
-anymore..
+> > And that the prototypes for ep_poll() and sys_epoll_wait() be changed
+> > to take a "long timeout" instead of an "int", just like sys_poll().
+> 
+> I don't see why. The poll(2) timeout is an int.
 
-I downloaded the 20030109 patch and tried it out with 2.4.20, but the
-compilation failed  in 
+poll(2) takes an int, but sys_poll() takes a long.
+I think everyone is confused :)
 
-	arch/i386/kernel/mpparse.c
+The reason I suggested "long timeout" for ep_poll is because the
+multiply in the expression:
 
-I replaced the offending function by the one from the previous 20021212
-patch and the 2.4.20 kernel compiled OK.
+	jtimeout = (unsigned long)(timeout*HZ+999)/1000;
 
-The patched 2.4.20 kernel now detects the laptop battery correctly along
-with lots of other goodies that I'd not seen before..
+can overflow if you don't.  If you stick with the int, you'll need to
+write:
 
-Bye for now, and keep up the good work..
+	jtimeout = (((unsigned long)timeout)*HZ+999)/1000;
 
-John
-
-
+-- Jamie

@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262777AbSI1KuL>; Sat, 28 Sep 2002 06:50:11 -0400
+	id <S262778AbSI1KyS>; Sat, 28 Sep 2002 06:54:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262778AbSI1KuL>; Sat, 28 Sep 2002 06:50:11 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:48282 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262777AbSI1KuK>;
-	Sat, 28 Sep 2002 06:50:10 -0400
-Date: Sat, 28 Sep 2002 03:48:58 -0700 (PDT)
-Message-Id: <20020928.034858.50238837.davem@redhat.com>
-To: stilgar2k@wanadoo.fr
-Cc: felix.seeger@gmx.de, linux-kernel@vger.kernel.org
-Subject: Re: System very unstable
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3D958C32.7080506@wanadoo.fr>
-References: <200209281233.21897.felix.seeger@gmx.de>
-	<20020928.033510.40857147.davem@redhat.com>
-	<3D958C32.7080506@wanadoo.fr>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S262779AbSI1KyR>; Sat, 28 Sep 2002 06:54:17 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:23312 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S262778AbSI1KyQ>; Sat, 28 Sep 2002 06:54:16 -0400
+Date: Sat, 28 Sep 2002 12:59:11 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Oliver Xymoron <oxymoron@waste.org>, Daniel Jacobowitz <dan@debian.org>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Does kernel use system stdarg.h?
+Message-ID: <20020928105911.GU27082@louise.pinerecords.com>
+References: <20020927140543.GA5613@nevyn.them.org> <20020927214721.GK21969@waste.org> <20020928091530.B32639@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020928091530.B32639@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4i
+X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: FD Cami <stilgar2k@wanadoo.fr>
-   Date: Sat, 28 Sep 2002 13:02:10 +0200
+> > > > -I/usr/src/linux-2.5.36/include
+> > > > -iprefix /usr/sbin/../../lib/gcc-lib/i686-pc-linux-gnu/3.0.3/
+> > > 
+> > > That's the problem.  Where's the -iprefix coming from?   Your configure
+> > > doesn't specify /usr/sbin anywhere.
+> > > 
+> > > Verdict: bad GCC install or a 3.0.3 bug.  Might have to do with your
+> > > libdir-outside-of-prefix.
+> > 
+> > I've got the same problem with -nostdinc with my Debian gcc-3.0 that
+> > I've been patching around. I assumed it was a problem with the
+> > kernel's Makefile, now you're saying it's the Debian package?
+> 
+> It certainly looks like it.  gcc 3.0.3 appears to ignore
+> "-iwithprefix include", where as gcc 2.95.x, 2.96, 3.1 and 3.2 all
+> work as expected.
 
-   Could you recommend a specific chipset that works well,
-   2D and 3D-wise ?
-   
-   I use a G450, it has excellent driver support but the 3D is
-   a bit... lacking.
+No.  Try building/installing gcc-3.2 with '--prefix=/usr/gcc-3.2'
+and '--prefix=/usr'.  The former won't work with '-iwithprefix include',
+the latter will.  GCC build bug?
 
-All of the Radeon's blow the G450 out of the water.
-I clear 140+ fps easily on quake3 with my Radeon R100 QD
-(Radeon 64 DDR)
+T.

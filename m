@@ -1,83 +1,135 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129168AbQKAAF7>; Tue, 31 Oct 2000 19:05:59 -0500
+	id <S129455AbQKAAGA>; Tue, 31 Oct 2000 19:06:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129455AbQKAAFu>; Tue, 31 Oct 2000 19:05:50 -0500
+	id <S130049AbQKAAFv>; Tue, 31 Oct 2000 19:05:51 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:55568 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S130049AbQKAAFe>;
-	Tue, 31 Oct 2000 19:05:34 -0500
-Message-ID: <39FF60D2.8FE0E42E@intel.com>
-Date: Tue, 31 Oct 2000 16:16:18 -0800
-From: Randy Dunlap <randy.dunlap@intel.com>
-X-Mailer: Mozilla 4.51 [en] (X11; I; Linux 2.4.0-test10 i686)
-X-Accept-Language: en
+	by vger.kernel.org with ESMTP id <S130056AbQKAAFf>;
+	Tue, 31 Oct 2000 19:05:35 -0500
+Date: Tue, 31 Oct 2000 18:05:33 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+cc: Andi Kleen <ak@suse.de>, mingo@elte.hu, Pavel Machek <pavel@suse.cz>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18Pre Lan Performance Rocks!
+In-Reply-To: <39FF465F.4EEB811A@timpanogas.org>
+Message-ID: <Pine.LNX.3.95.1001031174047.165A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Keith Owens <kaos@ocs.com.au>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test10-pre7 (LINK ordering)
-In-Reply-To: <Pine.LNX.4.10.10010311257510.22165-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Tue, 31 Oct 2000, Jeff V. Merkey wrote:
+
 > 
-[snip]
+> A "context" is usually assued to be a "stack".  The simplest of all
+> context switches 
+> is:
 > 
-> That was going to be my next question if somebody actually said "sure".
+>    mov    x, esp
+>    mov    esp, y
 > 
-> The question was rhetorical, since the way LINK_FIRST is implemented
-> means
-> that it has all the same problems that $(obj-y) has, and is hard to get
-> right in the generic case (but you can get it trivially right for the
-> subset case, like for USB).
+> A context switch can be as short as two instructions, or as big as a TSS
+> with CR3 hardware switching,
+> 
+> i.e.  
+> 
+>    ltr    ax
+>    jmp    task_gate
+> 
+> (500 clocks later)
+> 
+>    ts->eip gets exec'd
+> 
+> you can also have a context switch that does an int X where X is a gate
+> or TSS.
+> 
+> you can also have a context switch (like linux) that does
+> 
+>     mov    x, esp
+>     mov    esp, y
+>     mov    z, CR3
+>     mov    CR3, w
+> 
+> etc.
+> 
+> In NetWare, a context switch is an in-line assembly language macro that
+> is 2 instructions long for a stack switch and 4 instructions for a CR3
+> reload -- this is a lot shorter than Linux.
+> Only EBX, EBP, ESI, and EDI are saved and this is never done in the
+> kernel, but is a natural
+> affect of the Watcom C compiler.  There's also strict rules about
+> register assignments that re enforced between assembler modules in
+> NetWare to reduce the overhead of a context switch.  The code path is
+> very complex in NetWare, and priorities and all this stuff exists, but
+> these code paths are segragated so these types of checks only happen
+> once in a while and check a pre-calc'd "scoreboard" that is read only
+> across processors and updated and recal'd by a timer every 18 ticks.
+> 
+> Jeff
+> 
+>    
+
+I have this feeling that this is an April Fools joke. Unfortunately
+it's Halloween.
+
+One could create a 'kernel' that does:
+	for(;;)
+        {
+          proc0();
+          proc1();
+          proc2();
+          proc3();
+          etc();
+        }
+
+... and loop forever. All 'tasks' would just be procedures and no
+context-switching would even be necessary. This is how some network
+file-servers worked in the past (Vines comes to mind). Since all
+possible 'tasks' are known at compile-time, there isn't even any
+need for memory protection because every task cooperates and doesn't
+destroy anything that it doesn't own.
+
+The only time you need to save anything is for interrupt handlers.
+This was some simple push/pops of only the registers actually
+used in the ISR.
+
+Now, the above example may seem absurd, however it's not. Inside
+each of the proc()'s is a global state-variable that allows the
+code to start executing at the place it left off the last time
+through. If the code was written in 'C' it would be a 'switch'
+statement. The state-variable for each of the procedures is global
+and can be changed in an interrupt-service-routine. This allows
+interrupts to change the state of the state-machines.
+
+This kind of 'kernel' is very fast and very effective for things
+like file-servers and routers, things that do the same stuff over
+and over again.
+
+However, there techniques are not useful with a kernel that
+has an unknown number of tasks that execute 'programs' that are
+not known to the kernel at compile-time, such as a desk-top
+operating system.
+
+These operating systems require context-switching. This requires
+that every register that a user could possibly alter, be saved
+and restored. It also requires that the state of any hardware
+that a user could be using, also be save and restored. This
+cannot be done in 2 instructions as stated. Further, this saving
+and restoring cannot be a side-effect of a particular compiler, as
+stated.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.2.17 on an i686 machine (801.18 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
 
-So now we have something in 2.4.0-test10, but there's
-still a problem.  Help is appreciated^W wanted. !!!
-
-With CONFIG_USB=y and all other USB modules built as
-modules (=m), linking usbdrv.o into the kernel image
-gives this:
-
-ld -m elf_i386 -T /work/linsrc/240-test10/arch/i386/vmlinux.lds -e stext
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
-init/version.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o
-mm/mm.o fs/fs.o ipc/ipc.o \
-        drivers/block/block.o drivers/char/char.o drivers/misc/misc.o
-drivers/net/net.o drivers/media/media.o drivers/parport/parport.a 
-drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/cdrom/cdrom.a
-drivers/sound/sounddrivers.o drivers/pci/pci.a drivers/video/video.o
-drivers/usb/usbdrv.o drivers/input/inputdrv.o drivers/i2c/i2c.o \
-        net/network.o \
-        /work/linsrc/240-test10/arch/i386/lib/lib.a
-/work/linsrc/240-test10/lib/lib.a
-/work/linsrc/240-test10/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-drivers/usb/usbdrv.o(.data+0x2f4): undefined reference to
-`__this_module'
-make: *** [vmlinux] Error 1
-[rdunlap@dragon linux]$ 
-
-
-I believe that this is caused by drivers/usb/inode.c:
-
-static DECLARE_FSTYPE(usbdevice_fs_type, "usbdevfs",
-usbdevfs_read_super, 0);
-
-in which this macro uses "THIS_MODULE".  inode.c already #includes
-module.h.  What else does it need to do?
-(inode.c is part of the usbcore in this case, so it shouldn't be
-compiled with -DMODULE.)
-
-Help ?!?
-
-~Randy
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

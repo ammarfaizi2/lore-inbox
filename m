@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284013AbRLAI76>; Sat, 1 Dec 2001 03:59:58 -0500
+	id <S284014AbRLAJCi>; Sat, 1 Dec 2001 04:02:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284014AbRLAI7s>; Sat, 1 Dec 2001 03:59:48 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49669 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S284013AbRLAI7g>; Sat, 1 Dec 2001 03:59:36 -0500
-Message-ID: <3C089BDB.4020801@zytor.com>
-Date: Sat, 01 Dec 2001 00:59:07 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Incremental prepatches
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S284015AbRLAJC2>; Sat, 1 Dec 2001 04:02:28 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:49397
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S284014AbRLAJCS>; Sat, 1 Dec 2001 04:02:18 -0500
+Date: Sat, 1 Dec 2001 01:02:12 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Andrew Morton <akpm@zip.com.au>, war <war@starband.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Is it normal for freezing while...
+Message-ID: <20011201010212.G489@mikef-linux.matchmail.com>
+Mail-Followup-To: Andrew Morton <akpm@zip.com.au>, war <war@starband.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3C085B04.50ABE0B5@starband.net> <3C0867A3.5119D2BC@zip.com.au> <3C087023.9683B8AF@starband.net> <3C0875DA.A54BC89E@zip.com.au> <20011201002631.F489@mikef-linux.matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011201002631.F489@mikef-linux.matchmail.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
+On Sat, Dec 01, 2001 at 12:26:31AM -0800, Mike Fedyk wrote:
+> On Fri, Nov 30, 2001 at 10:16:58PM -0800, Andrew Morton wrote:
+> > Being a cautious chap, I think I'll submit that patch, with
+> > the default setting to "off", so there is no change to default
+> > kernel behaviour.   Then people can run `elvtune -b' to enable it.
+> > 
+> 
+> Hmm...
+> 
+> mikef-linux:/home/mfedyk# elvtune /dev/hda
+> 
+> /dev/hda elevator ID            0
+>         read_latency:           8192
+>         write_latency:          16384
+>         max_bomb_segments:      0
+> 
+....
 
-I have created a robot on kernel.org which makes incremental prepatches 
-available.  It looks for standard-named prepatches in the 
-/pub/linux/kernel/v*.*/testing directories, and creates incrementals in 
-the corresponding /pub/linux/kernel/v*.*/testing/incr directory.
+As pointed out on irc, and in email, Andrew's elevator patch wasn't in
+2.4.17-pre2...
 
-For example:
-
-hera 86 % cd /pub/linux/kernel/v2.5/testing/incr/
-hera 87 % ls -l *.gz
--rw-rw-r--    1 kdist    kernel     177158 Nov 27 10:17 
-patch-2.5.1-pre1-pre2.gz
--rw-rw-r--    1 kdist    kernel     102202 Nov 28 15:35 
-patch-2.5.1-pre2-pre3.gz
--rw-rw-r--    1 kdist    kernel      52955 Nov 29 15:29 
-patch-2.5.1-pre3-pre4.gz
--rw-rw-r--    1 kdist    kernel      53616 Nov 30 17:04 
-patch-2.5.1-pre4-pre5.gz
-
-The naming and function of the patches should be obvious.
-
-.bz2 and .sign files are available too, of course.
-
-	-hpa
-
+False alarm. :)

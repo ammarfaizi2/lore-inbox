@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263224AbSJIAuu>; Tue, 8 Oct 2002 20:50:50 -0400
+	id <S261429AbSJIAzL>; Tue, 8 Oct 2002 20:55:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263223AbSJIAt6>; Tue, 8 Oct 2002 20:49:58 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:40876 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S263224AbSJIAtm>;
-	Tue, 8 Oct 2002 20:49:42 -0400
-Date: Tue, 8 Oct 2002 17:57:44 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [bk/patch] driver model update: device_unregister()
-In-Reply-To: <Pine.LNX.4.44.0210081747180.16276-100000@cherise.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.44.0210081757340.16276-100000@cherise.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263215AbSJIAyK>; Tue, 8 Oct 2002 20:54:10 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:22796 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S263228AbSJIAyA>; Tue, 8 Oct 2002 20:54:00 -0400
+Date: Wed, 9 Oct 2002 01:59:31 +0100
+From: John Levon <levon@movementarian.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: tidy for the max_thread stuff from the kernel list
+Message-ID: <20021009005931.GA86803@compsoc.man.ac.uk>
+References: <E17yzhk-0004vR-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E17yzhk-0004vR-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan *17z5CG-000Lq2-00*wotdX9mBcaw* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Oct 08, 2002 at 08:07:40PM +0100, Alan Cox wrote:
 
-ChangeSet@1.600, 2002-10-08 17:32:17-07:00, mochel@osdl.org
-  IDE: call device_unregister() instead of put_device() in ide-disk->cleanup().
+>  	/*
+> -	 * we need to allow at least 10 threads to boot a system
+> +	 * we need to allow at least 20 threads to boot a system
+>  	 */
+> -	init_task.rlim[RLIMIT_NPROC].rlim_cur = max(10, max_threads/2);
+> -	init_task.rlim[RLIMIT_NPROC].rlim_max = max(10, max_threads/2);
+> +	if(max_threads < 20)
+> +		max_threads = 20;
+> +
+> +	init_task.rlim[RLIMIT_NPROC].rlim_cur = max_threads/2;
+> +	init_task.rlim[RLIMIT_NPROC].rlim_max = max_threads/2;
 
-diff -Nru a/drivers/ide/ide-disk.c b/drivers/ide/ide-disk.c
---- a/drivers/ide/ide-disk.c	Tue Oct  8 17:55:17 2002
-+++ b/drivers/ide/ide-disk.c	Tue Oct  8 17:55:17 2002
-@@ -1692,7 +1692,7 @@
- {
- 	struct gendisk *g = drive->disk;
- 
--	put_device(&drive->disk->disk_dev);
-+	device_unregister(&drive->disk->disk_dev);
- 	if ((drive->id->cfs_enable_2 & 0x3000) && drive->wcache)
- 		if (do_idedisk_flushcache(drive))
- 			printk (KERN_INFO "%s: Write Cache FAILED Flushing!\n",
+Colour me dense, but the comment says 20, and you set rlim_max to 20/2.
 
+Can this possibly be right ?
+
+john
+-- 
+"I will eat a rubber tire to the music of The Flight of the Bumblebee"

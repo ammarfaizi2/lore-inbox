@@ -1,58 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269961AbTGPG0R (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 02:26:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270009AbTGPG0Q
+	id S270140AbTGPGak (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 02:30:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270158AbTGPGak
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 02:26:16 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:20697 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S269961AbTGPG0L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 02:26:11 -0400
-Date: Tue, 15 Jul 2003 23:30:34 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: davidm@hpl.hp.com
-Cc: davidm@napali.hpl.hp.com, scott.feldman@intel.com,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [patch] e1000 TSO parameter
-Message-Id: <20030715233034.31bf0709.davem@redhat.com>
-In-Reply-To: <16148.61840.663255.863176@napali.hpl.hp.com>
-References: <C6F5CF431189FA4CBAEC9E7DD5441E0102229169@orsmsx402.jf.intel.com>
-	<20030714214510.17e02a9f.davem@redhat.com>
-	<16147.37268.946613.965075@napali.hpl.hp.com>
-	<20030714223822.23b78f9b.davem@redhat.com>
-	<16148.34787.633496.949441@napali.hpl.hp.com>
-	<20030715183911.1c18cc15.davem@redhat.com>
-	<16148.61840.663255.863176@napali.hpl.hp.com>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Jul 2003 02:30:40 -0400
+Received: from web20006.mail.yahoo.com ([216.136.225.69]:53259 "HELO
+	web20006.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S270140AbTGPGai (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 02:30:38 -0400
+Message-ID: <20030716064528.59509.qmail@web20006.mail.yahoo.com>
+Date: Tue, 15 Jul 2003 23:45:28 -0700 (PDT)
+From: navneet panda <navneet_panda@yahoo.com>
+Subject: kernel 2.6.0-test-acl   make modules errors
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Jul 2003 23:32:48 -0700
-David Mosberger <davidm@napali.hpl.hp.com> wrote:
+hi
 
->   DaveM> No, I mean "bypass L2 cache on miss" for stores.  Don't tell
->   DaveM> me IA64 doesn't have that? 8) I certainly didn't mean "always
->   DaveM> bypass L2 cache" for stores :-)
-> 
-> What I'm saying is that I almost always want copy_user() to put the
-> destination data in the cache, even if it isn't cached yet.
+I wished to bring to ur attention the following
+problems I experienced while trying to install the new
+kernel.
 
-No you don't :-)
+I downloaded the entire source for 2.6 and then
+applied the patch 2.6.0-test1-ac1
 
-If you miss, you do a bypass to main memory.  Then when the
-app asks for the data (if it even does at all, consider that)
-it get's a clean copy in it's L2 cache.
+Initially I just tried with my old config file from
+kernel 2.4.20 and accepting all the defaults. The
+problem faced was in the file riscom8.c and the output
+was
+***********************************
 
-Overall it's more efficient this way.
+  CC [M]  drivers/char/riscom8.o
+In file included from drivers/char/riscom8.c:51:
+drivers/char/riscom8.h:84: field `tqueue' has
+incomplete type
+drivers/char/riscom8.h:85: field `tqueue_hangup' has
+incomplete type
+drivers/char/riscom8.c:84: warning: type defaults to
+`int' in declaration of `DECLARE_TASK_QUEUE'
+drivers/char/riscom8.c:84: warning: parameter names
+(without types) in function
+declaration
+drivers/char/riscom8.c:135: confused by earlier
+errors, bailing out
+make[2]: *** [drivers/char/riscom8.o] Error 1
+make[1]: *** [drivers/char] Error 2
+make: *** [drivers] Error 2
 
-> Many copy_user() calls are for for data structures that
-> easily fit in the cache and the data is usually used quickly afterwards.
+***************************************
 
-Absolutely correct.  We can't use the cache bypass-on-miss stores on
-sparc64 unless the copy is at least a couple of cachelines in size.
+After changing the config file the following was
+encountered. In the file drivers/net/defxx.c in line
+202 the line 
 
-It all works out, don't worry :-)
+#error Please convert me to
+Documentation/DMA-mapping.tx
+
+needed to be commented out
+
+The last error encountered was in the file 
+drivers/net/fc/iph5226.c
+
+ CC [M]  drivers/net/fc/iph5526.o
+In file included from drivers/net/fc/iph5526.c:66:
+drivers/net/fc/iph5526_scsi.h:28: parse error before
+'*' token
+drivers/net/fc/iph5526_scsi.h:28: warning: function
+declaration isn't a prototype
+drivers/net/fc/iph5526.c: In function `iph5526_open':
+drivers/net/fc/iph5526.c:2900: warning:
+`MOD_INC_USE_COUNT' is deprecated (declared at
+include/linux/module.h:481)
+drivers/net/fc/iph5526.c: In function `iph5526_close':
+drivers/net/fc/iph5526.c:2907: warning:
+`MOD_DEC_USE_COUNT' is deprecated (declared at
+include/linux/module.h:493)
+drivers/net/fc/iph5526.c: In function `add_to_sest':
+drivers/net/fc/iph5526.c:4230: structure has no member
+named `address'
+drivers/net/fc/iph5526.c:4330: structure has no member
+named `address'
+drivers/net/fc/iph5526.c:4339: structure has no member
+named `address'
+drivers/net/fc/iph5526.c:4345: structure has no member
+named `address'
+drivers/net/fc/iph5526.c: In function `iph5526_init':
+drivers/net/fc/iph5526.c:4485: warning: implicit
+declaration of function `scsi_register_host'
+drivers/net/fc/iph5526.c:4491: warning: implicit
+declaration of function `scsi_unregister_host'
+drivers/net/fc/iph5526.c: At top level:
+drivers/net/fc/iph5526.c:4474: warning: `io' defined
+but not used
+drivers/net/fc/iph5526.c:4475: warning: `irq' defined
+but not used
+drivers/net/fc/iph5526.c:4476: warning: `bad' defined
+but not used
+make[3]: *** [drivers/net/fc/iph5526.o] Error 1
+make[2]: *** [drivers/net/fc] Error 2
+make[1]: *** [drivers/net] Error 2
+make: *** [drivers] Error 2
+
+I couldn't get over this error. This is my first post
+to the list and I am sorry if I have made any
+mistakes. I just wanted to help.
+
+Thanks
+Panda
+
+
+
+
+
+
+
+__________________________________
+Do you Yahoo!?
+SBC Yahoo! DSL - Now only $29.95 per month!
+http://sbc.yahoo.com

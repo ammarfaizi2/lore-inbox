@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266879AbUFZWtz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266505AbUFZWyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266879AbUFZWtz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 18:49:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267216AbUFZWtz
+	id S266505AbUFZWyl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 18:54:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266880AbUFZWyl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 18:49:55 -0400
-Received: from mail-relay-4.tiscali.it ([212.123.84.94]:35206 "EHLO
-	sparkfist.tiscali.it") by vger.kernel.org with ESMTP
-	id S266879AbUFZWto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 18:49:44 -0400
-Date: Sun, 27 Jun 2004 00:49:42 +0200
-From: Kronos <kronos@kronoz.cjb.net>
-To: linux-kernel@vger.kernel.org, mmokrejs@natur.cuni.cz
-Subject: Re: radeonfb: cannot map FB
-Message-ID: <20040626224942.GA13345@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
+	Sat, 26 Jun 2004 18:54:41 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:38160 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S266505AbUFZWyj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jun 2004 18:54:39 -0400
+Date: Sun, 27 Jun 2004 00:54:35 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, greg@kroah.com, arjanv@redhat.com,
+       jgarzik@redhat.com, tburke@redhat.com, linux-kernel@vger.kernel.org,
+       stern@rowland.harvard.edu, mdharm-usb@one-eyed-alien.net,
+       david-b@pacbell.net
+Subject: Re: drivers/block/ub.c
+Message-ID: <20040626225435.GE5526@pclin040.win.tue.nl>
+References: <20040626130645.55be13ce@lembas.zaitcev.lan> <200406262235.15688.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.OSF.4.51.0406262358120.7750@tao.natur.cuni.cz>
-User-Agent: Mutt/1.4i
+In-Reply-To: <200406262235.15688.oliver@neukum.org>
+User-Agent: Mutt/1.4.1i
+X-Spam-DCC: : mailhost.tue.nl 1182; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin MOKREJ¦ <mmokrejs@natur.cuni.cz> ha scritto:
-> Hi,
->  could someone help with radeonfb not detected under 2.4.27-rc2?
-> I filed this bug under the 2.6 bugzilla ... :(
-> http://bugzilla.kernel.org/show_bug.cgi?id=2917
-> Thanks
-> Please Cc: me in replies.
+On Sat, Jun 26, 2004 at 10:35:15PM +0200, Oliver Neukum wrote:
 
-ioremap is failing. You likely have 1GB (or more) of RAM and kernel is
-unable to find some space in lowmem to map the video RAM (128MB).
+> > +	cmd->cdb[2] = block >> 24;
+> > +	cmd->cdb[3] = block >> 16;
+> > +	cmd->cdb[4] = block >> 8;
+> > +	cmd->cdb[5] = block;
+> 
+> we have macros for that.
+> 
+> > +	cmd->cdb[7] = nblks >> 8;
+> > +	cmd->cdb[8] = nblks;
+> 
+> dito
 
-In 2.6 this is fixed by mapping only a small amount of video RAM (at
-most 16MB).
+Yes, we have macros. Using those macros would not at all be an improvement here.
 
-Backport should be easy, I'll cook a patch ASAP.
-
-Luca
--- 
-Home: http://kronoz.cjb.net
-Let me make your mind, leave yourself behind
-Be not afraid
+Andries

@@ -1,103 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266431AbTBKWXD>; Tue, 11 Feb 2003 17:23:03 -0500
+	id <S266527AbTBKWdk>; Tue, 11 Feb 2003 17:33:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266435AbTBKWXD>; Tue, 11 Feb 2003 17:23:03 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:29631 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S266431AbTBKWW7>; Tue, 11 Feb 2003 17:22:59 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: David Ford <david+cert@blue-labs.org>
-Date: Wed, 12 Feb 2003 09:32:07 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266552AbTBKWdk>; Tue, 11 Feb 2003 17:33:40 -0500
+Received: from mailrelay1.lanl.gov ([128.165.4.101]:58511 "EHLO
+	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP
+	id <S266527AbTBKWdj>; Tue, 11 Feb 2003 17:33:39 -0500
+Subject: 2.5.60 problems with dbench and unkillable processes.
+From: Steven Cole <elenstev@mesatop.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <15945.31207.919161.654770@notabene.cse.unsw.edu.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: Current NFS issues (2.5.59)
-In-Reply-To: message from David Ford on Tuesday February 11
-References: <3E46E1D6.20709@blue-labs.org>
-	<15944.30340.955911.798377@notabene.cse.unsw.edu.au>
-	<3E492B0D.4020004@blue-labs.org>
-X-Mailer: VM 7.07 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 11 Feb 2003 15:40:22 -0700
+Message-Id: <1045003222.2570.497.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday February 11, david+cert@blue-labs.org wrote:
-> 
-> No, no automount of any sort.  Server 1 and server 2 share /home and 
-> apache virtuals back and forth, shell and web server.  So they are 
-> mounted at boot.
-> 
-> Server 1 is the shell server, 2 is the web server.  When the shell 
-> server is restarted, all the clients that fetch other mounts off the web 
-> server get '1's for the df information in short order.  There is some 
-> delay, not sure what the delay is for.  During that delay, 
-> /nfsmountpoint access stalls on the clients.  Unfortunately my own home 
-> directory comes off that mountpoint and the wonder coding of Raster 
-> causes multiple large explosions and instantaneous destruction of your 
-> graphical session.  So I've lost a fair amount of NFS debug notes 
-> unexpectedly :S
-> 
-> If I'm fast on the draw and run exportfs on server 2 quick enough, I 
-> manage to save my desktop before that timeout hits.
+With 2.5.60, dbench starts, prints "1 clients started", but never prints
+any "..." and doesn't finish.  
 
-I think I would need a precise description of everything that is
-mounted and exactly where.  I don't know what use this would actually
-be, but it is very hard to reason about this sort of thing in the
-abstract.  Maybe there will be something in the details that will ring
-a bell.
+With 2.5.59-mm10, dbench runs normally.
 
-> >>
-> >
-> >Can you capture the panic and send it to me please?
-> >
-> 
-> I plan to setup a notebook w/ serial console capture.
+I ran this:
+ps -ewo user,pid,priority,%cpu,stat,command,wchan
+with the 2.5.60 System.map copied to /boot, and got this:
 
-Thanks.
+root      1103  15  0.1 S    /usr/sbin/sshd   schedule_timeout
+steven    1104  15  0.0 S    -bash            wait4
+steven    1142  15  0.0 S    ./dbench 1       wait4
+steven    1143  16  0.0 S    ./dbench 1       pause
+steven    1153  16  0.0 S    /bin/sh /home/st wait4
+steven    1154  16  0.0 R    ps -ewo user,pid -
 
-> >I think this might be a reiserfs problem.  Someone else mentioned that
-> >this started happening when they upgrade from an earlier 2.5 kernel.
-> >If you can capture the NFS traffic 
-> >	tcpdump -s 1500 -w /tmp/afile host $server and host $client
-> >we could have a look at the directory cookies and see what is
-> >happening.
-> >
-> 
-> Is this important to start the tcpdump before the mount is established?  
-> If I start the tcpdump after I've detected the looping, is that useful?  
-> There's a lot of NFS traffic :)
 
-Starting the tcpdump once the looping has started would be fine.
-However your description of repeated rings makes it sould very much
-like a directory cookie problem.
+I control-c'ed the dbench 1, and started ./dbench 4, and got this:
 
-Could you run this program on the server:
---------------------------
-#include <sys/types.h>
-#include <dirent.h>
+root      1103  15  0.0 S    /usr/sbin/sshd   schedule_timeout
+steven    1104  15  0.0 S    -bash            wait4
+steven    1143  16  0.0 S    ./dbench 1       pause
+steven    1160  15  0.0 S    ./dbench 4       wait4
+steven    1161  16  0.0 S    ./dbench 4       pause
+steven    1162  16  0.0 S    ./dbench 4       pause
+steven    1163  16  0.0 S    ./dbench 4       pause
+steven    1164  16  0.0 S    ./dbench 4       pause
+steven    1166  16  0.0 S    /bin/sh /home/st wait4
+steven    1167  17  0.0 R    ps -ewo user,pid -
 
-main()
-{
-	DIR *dir;
-	struct dirent *de;
-	dir = opendir(".");
-	
-	while ((de = readdir(dir)))
-		printf("%10lu %10lu %s\n",
-		       de->d_off,
-		       de->d_ino,
-		       de->d_name);
-}
-----------------------------
-In the directory that is causing problems.  The first column printed
-is the cookie.  If it ever repeats, you have simple proof that
-reiserfs is doing the wrong thing, and you should report it to the 
-reiserfs team.
+That process 1143 is now unkillable with kill -9.
 
-NeilBrown
+After control-c-ing the ./dbench 4, I now have 4
+dbench 4 processes which are unkillable with kill -9.
+
+The system is 2-way PIII, kernel is SMP, PREEMPT.
+
+Steven
+
+

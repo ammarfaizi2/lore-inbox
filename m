@@ -1,64 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313113AbSFXMp0>; Mon, 24 Jun 2002 08:45:26 -0400
+	id <S313125AbSFXMqW>; Mon, 24 Jun 2002 08:46:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313125AbSFXMpZ>; Mon, 24 Jun 2002 08:45:25 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:10717 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S313113AbSFXMpY>;
-	Mon, 24 Jun 2002 08:45:24 -0400
-Date: Mon, 24 Jun 2002 05:39:15 -0700 (PDT)
-Message-Id: <20020624.053915.132743979.davem@redhat.com>
-To: adam@yggdrasil.com
-Cc: akpm@zip.com.au, axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: RFC: turn scatterlist into a linked list, eliminate bio_vec
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200206241142.EAA04136@adam.yggdrasil.com>
-References: <200206241142.EAA04136@adam.yggdrasil.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S313181AbSFXMqV>; Mon, 24 Jun 2002 08:46:21 -0400
+Received: from mail.zmailer.org ([62.240.94.4]:48305 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S313125AbSFXMqT>;
+	Mon, 24 Jun 2002 08:46:19 -0400
+Date: Mon, 24 Jun 2002 15:46:20 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: "Salvatore D'Angelo" <dangelo.sasaman@tiscalinet.it>
+Cc: Chris McDonald <chris@cs.uwa.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: gettimeofday problem
+Message-ID: <20020624154620.P19520@mea-ext.zmailer.org>
+References: <3D16DE83.3060409@tiscalinet.it> <200206240934.g5O9YL524660@budgie.cs.uwa.edu.au> <3D16F252.90309@tiscalinet.it>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D16F252.90309@tiscalinet.it>; from dangelo.sasaman@tiscalinet.it on Mon, Jun 24, 2002 at 12:20:02PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Adam J. Richter" <adam@yggdrasil.com>
-   Date: Mon, 24 Jun 2002 04:42:45 -0700
+On Mon, Jun 24, 2002 at 12:20:02PM +0200, Salvatore D'Angelo wrote:
+> In this piece of code I convert seconds and microseconds in 
+> milliseconds. I think the problem is not in my code, in fact I wrote the 
+> following piece of code in Java, and it does not work too. In the for 
+> loop the 90% of times b > a while for 10% of times not.
+> 
+...
+>                     long a = System.currentTimeMillis();
+>                     long b = System.currentTimeMillis();
+>                     if (a > b) {
+>                          System.out.println("Wrong!!!!!!!!!!!!!");
+>                     }
 
-   	Sorry if I was not clear enough about the purpose of of
-   the new scatterlist->driver_priv field.  It is a "streaming" data
-   structure to use the terminology of DMA-maping.txt (i.e., one that
-   would typically only be allocated for a few microseconds as an IO is
-   built up and sent).  Its purpose is to hold the hardware-specific
-   gather-scatter segment descriptor, which typically look something like this:
-   
-   		struct foo_corporation_scsi_controller_sg_element {
-   			u64	data_addr;
-   			u64	next_addr;
-   			u16	data_len;
-   			u16	reserved;
-   			u32	various_flags;
-   		}
-   		
-This is small, about one cacheline, and thus is not to be used
-with non-consistent memory.  Also, if you use streaming memory, where
-is the structure written to and where is the pci_dma_sync_single
-(which is a costly cache flush on many systems btw, another reason to
-use consistent memory) between the CPU writes and giving the
-descriptor to the device?
 
-Again, reread DMA-mapping.txt a few more times before composing
-your response to me.  I really meant that you don't understand
-the purpose of consistent vs. streaming memory.
+   So in 10% of the cases, two successive calls yield time
+   rolling BACK ?
 
-   	Come to think of it, my use of pci_map_single is incorrect
-   after all, because the driver has not yet filled in that data structure
-   at that point.  Since the data structures are being allocated from a
-   single contiguous block that spans a couple of pages that is being used
-   only for this purpose, perhaps I would be fastest to pci_alloc_consistent
-   the whole memory pool for those little descriptors at initialization time
-   and then change that loop to do the following.
-   
-Please use PCI pools, this is what they were designed for.  Pools of
-like-sized objects allocated out of consistent DMA memory.
+   I used  gettimeofday()  call, and compared the original data
+   from the code.
 
-So as it stands I still think your proposal is buggy.
+   At a modern uniprocessor machine I never get anything except
+   monotonously increasing time (TSC is used in betwen timer ticks
+   to supply time increase.)   At a dual processor machine, on
+   occasion I do get SAME value twice.   I have never seen time
+   rolling backwards.
+
+   Uh..  correction:  216199245  0:-1  -- it did step backwards,
+   but only once within about 216 million gettimeofday() calls.
+   (I am running 2.4.19-pre8smp at the test box.)
+
+/Matti Aarnio

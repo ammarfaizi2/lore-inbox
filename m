@@ -1,54 +1,233 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbTDPWig (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 18:38:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbTDPWig
+	id S261851AbTDPWwN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 18:52:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbTDPWwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 18:38:36 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:27294 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261823AbTDPWie
+	Wed, 16 Apr 2003 18:52:12 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:27897 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261851AbTDPWwI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 18:38:34 -0400
-Date: Wed, 16 Apr 2003 15:50:24 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: linux-kernel@vger.kernel.org
-Cc: sparsell@penguincomputing.com, sockman@penguincomputing.com
-Subject: kernel.bkbits.net outage
-Message-ID: <20030416225024.GA32731@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	linux-kernel@vger.kernel.org, sparsell@penguincomputing.com,
-	sockman@penguincomputing.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
-	DATE_IN_PAST_06_12)
+	Wed, 16 Apr 2003 18:52:08 -0400
+Message-ID: <3E9DE126.7040001@mvista.com>
+Date: Wed, 16 Apr 2003 16:03:02 -0700
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: john stultz <johnstul@us.ibm.com>
+CC: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
+       James.Bottomley@SteelEye.com, shemminger@osdl.org, alex@ssi.bg
+Subject: Re: [PATCH] linux-2.5.67_lost-tick-fix_A2
+References: <1050530545.1077.120.camel@w-jstultz2.beaverton.ibm.com>
+In-Reply-To: <1050530545.1077.120.camel@w-jstultz2.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some of you use kernel.bkbits.net (*) and have noticed that it is off
-the air.  It's looking like it may have a blown power supply and Penguin
-is on it; ETA for a fix is tomorrow some time (it's colocated and they
-are going down there to grab the box and swap out parts).
+john stultz wrote:
+> Andrew, All,
+> 
+> 	This patch fixes a race in the timer_interrupt code caused by
+> detect_lost_tick(). Since we're doing lost-tick compensation outside
+> timer->mark_offset, time can pass between time-source reads which can
+> cause gettimeofday inconsistencies. 
+> 
+> Additionally detect_lost_tick() was broken for the PIT case, since the
+> whole point of detect_lost_tick() is to interpolate between two time
+> sources to find inconsistencies. Additionally this could cause
+> xtime_lock seq_lock reader starvation which has been causing machine
+> hangs for SMP boxes that use the PIT as a time source.
+> 
+> This patch fixes the described race by removing detect_lost_tick() and
+> instead implementing the lost tick detection code inside mark_offset().
+> 
+> Some of the divs and mods being added here might concern folks, but by
+> not calling timer->get_offset() in detect_lost_tick() we eliminate much
+> of the same math. I did some simple cycle counting and the new code
+> comes out on average equivalent or faster. 
 
-(*) This is a fast machine which was provided by Penguin Computing
-and BitMover as a place for people who do not have access to a high
-end machine and could use one.  It's used for various BitKeeper tasks
-(translation: it can run a bk -r check -ac in about 15 seconds on the
-2.5 tree). It is also the host for the BK->CVS repositories, so those
-are off the air as well (we have a mirror here so if you are dieing for
-your bits in CVS let me know).
+I think that if you look at the generated code you may find that there 
+are NO div in the asm code.  The C folks know about scaling to avoid 
+div especially when the divisor is a constant :)
 
-If you use BK and you need a login on fast x86 box, contact me or
-davem@redhat.com and we'll set you up an account when it comes back
-up.  If you appreciate this box, buying some hardware from Penguin
-Computing (or getting someone else to do so) is a good way to show
-that appreciation.  Penguin deserves a lot of thanks, it's a nice box
-and they provide the power, bandwidth, and support which are all hidden
-costs and thankless tasks.
+-g
+> 
+> Please consider for inclusion.
+> 
+> thanks
+> -john
+> 
+> 
+> diff -Nru a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
+> --- a/arch/i386/kernel/time.c	Wed Apr 16 14:53:59 2003
+> +++ b/arch/i386/kernel/time.c	Wed Apr 16 14:53:59 2003
+> @@ -279,41 +279,6 @@
+>  }
+>  
+>  /*
+> - * Lost tick detection and compensation
+> - */
+> -static inline void detect_lost_tick(void)
+> -{
+> -	/* read time since last interrupt */
+> -	unsigned long delta = timer->get_offset();
+> -	static unsigned long dbg_print;
+> -	
+> -	/* check if delta is greater then two ticks */
+> -	if(delta >= 2*(1000000/HZ)){
+> -
+> -		/*
+> -		 * only print debug info first 5 times
+> -		 */
+> -		/*
+> -		 * AKPM: disable this for now; it's nice, but irritating.
+> -		 */
+> -		if (0 && dbg_print < 5) {
+> -			printk(KERN_WARNING "\nWarning! Detected %lu "
+> -				"micro-second gap between interrupts.\n",
+> -				delta);
+> -			printk(KERN_WARNING "  Compensating for %lu lost "
+> -				"ticks.\n",
+> -				delta/(1000000/HZ)-1);
+> -			dump_stack();
+> -			dbg_print++;
+> -		}
+> -		/* calculate number of missed ticks */
+> -		delta = delta/(1000000/HZ)-1;
+> -		jiffies += delta;
+> -	}
+> -		
+> -}
+> -
+> -/*
+>   * This is the same as the above, except we _also_ save the current
+>   * Time Stamp Counter value at the time of the timer interrupt, so that
+>   * we later on can estimate the time of day more exactly.
+> @@ -329,7 +294,6 @@
+>  	 */
+>  	write_seqlock(&xtime_lock);
+>  
+> -	detect_lost_tick();
+>  	timer->mark_offset();
+>   
+>  	do_timer_interrupt(irq, NULL, regs);
+> diff -Nru a/arch/i386/kernel/timers/timer_cyclone.c b/arch/i386/kernel/timers/timer_cyclone.c
+> --- a/arch/i386/kernel/timers/timer_cyclone.c	Wed Apr 16 14:53:59 2003
+> +++ b/arch/i386/kernel/timers/timer_cyclone.c	Wed Apr 16 14:53:59 2003
+> @@ -18,6 +18,7 @@
+>  #include <asm/fixmap.h>
+>  
+>  extern spinlock_t i8253_lock;
+> +extern unsigned long jiffies;
+>  extern unsigned long calibrate_tsc(void);
+>  
+>  /* Number of usecs that the last interrupt was delayed */
+> @@ -46,6 +47,8 @@
+>  
+>  static void mark_offset_cyclone(void)
+>  {
+> +	unsigned long lost, delay;
+> +	unsigned long delta = last_cyclone_low;
+>  	int count;
+>  	unsigned long long this_offset, last_offset;
+>  
+> @@ -62,6 +65,15 @@
+>  	count |= inb(0x40) << 8;
+>  	spin_unlock(&i8253_lock);
+>  
+> +	/* lost tick compensation */
+> +	delta = last_cyclone_low - delta;	
+> +	delta /=(CYCLONE_TIMER_FREQ/1000000);
+> +	delta += delay_at_last_interrupt;
+> +	lost = delta/(1000000/HZ);
+> +	delay = delta%(1000000/HZ);
+> +	if(lost >= 2)
+> +		jiffies += lost-1;
+> +	
+>  	/* update the monotonic base value */
+>  	this_offset = ((unsigned long long)last_cyclone_high<<32)|last_cyclone_low;
+>  	monotonic_base += (this_offset - last_offset) & CYCLONE_TIMER_MASK;
+> @@ -70,6 +82,12 @@
+>  	/* calculate delay_at_last_interrupt */
+>  	count = ((LATCH-1) - count) * TICK_SIZE;
+>  	delay_at_last_interrupt = (count + LATCH/2) / LATCH;
+> +
+> +	/* catch corner case where tick rollover 
+> +	 * occured between cyclone and pit reads
+> +	 */
+> +	if(abs(delay - delay_at_last_interrupt) > 900)
+> +		jiffies++;
+>  }
+>  
+>  static unsigned long get_offset_cyclone(void)
+> diff -Nru a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_tsc.c
+> --- a/arch/i386/kernel/timers/timer_tsc.c	Wed Apr 16 14:53:59 2003
+> +++ b/arch/i386/kernel/timers/timer_tsc.c	Wed Apr 16 14:53:59 2003
+> @@ -18,6 +18,7 @@
+>  int tsc_disable __initdata = 0;
+>  
+>  extern spinlock_t i8253_lock;
+> +extern unsigned long jiffies;
+>  
+>  static int use_tsc;
+>  /* Number of usecs that the last interrupt was delayed */
+> @@ -112,6 +113,8 @@
+>  
+>  static void mark_offset_tsc(void)
+>  {
+> +	unsigned long lost,delay;
+> +	unsigned long delta = last_tsc_low;
+>  	int count;
+>  	int countmp;
+>  	static int count1=0, count2=LATCH;
+> @@ -156,6 +159,23 @@
+>  		}
+>  	}
+>  
+> +	/* lost tick compensation */
+> +	delta = last_tsc_low - delta;
+> +	{
+> +		register unsigned long eax, edx;
+> +		eax = delta;
+> +		__asm__("mull %2"
+> +		:"=a" (eax), "=d" (edx)
+> +		:"rm" (fast_gettimeoffset_quotient),
+> +		 "0" (eax));
+> +		delta = edx;
+> +	}
+> +	delta += delay_at_last_interrupt;
+> +	lost = delta/(1000000/HZ);
+> +	delay = delta%(1000000/HZ);
+> +	if(lost >= 2)
+> +		jiffies += lost-1;
+> +
+>  	/* update the monotonic base value */
+>  	this_offset = ((unsigned long long)last_tsc_high<<32)|last_tsc_low;
+>  	monotonic_base += cycles_2_ns(this_offset - last_offset);
+> @@ -164,6 +184,12 @@
+>  	/* calculate delay_at_last_interrupt */
+>  	count = ((LATCH-1) - count) * TICK_SIZE;
+>  	delay_at_last_interrupt = (count + LATCH/2) / LATCH;
+> +
+> +	/* catch corner case where tick rollover 
+> +	 * occured between tsc and pit reads
+> +	 */
+> +	if(abs(delay - delay_at_last_interrupt) > 900)
+> +		jiffies++;
+>  }
+>  
+>  static void delay_tsc(unsigned long loops)
+> 
+> 
+> 
+> 
+> 
+> 
+
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+

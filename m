@@ -1,111 +1,133 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130952AbRCGK3J>; Wed, 7 Mar 2001 05:29:09 -0500
+	id <S130900AbRCGK15>; Wed, 7 Mar 2001 05:27:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130921AbRCGK3A>; Wed, 7 Mar 2001 05:29:00 -0500
-Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:15889 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S130824AbRCGK2R>; Wed, 7 Mar 2001 05:28:17 -0500
-From: mshiju@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: Jeremy Jackson <jerj@coplanar.net>
-cc: linux-kernel@vger.kernel.org, linux-mca@vger.kernel.org
-Message-ID: <CA256A08.0039498E.00@d73mta05.au.ibm.com>
-Date: Wed, 7 Mar 2001 15:44:07 +0530
-Subject: Re: Linux installation problem
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S130824AbRCGK1r>; Wed, 7 Mar 2001 05:27:47 -0500
+Received: from [62.90.5.51] ([62.90.5.51]:46605 "EHLO salvador.shunra.co.il")
+	by vger.kernel.org with ESMTP id <S130874AbRCGK1f>;
+	Wed, 7 Mar 2001 05:27:35 -0500
+Message-ID: <F1629832DE36D411858F00C04F24847A11DEF6@SALVADOR>
+From: Ofer Fryman <ofer@shunra.co.il>
+To: "'Hen, Shmulik'" <shmulik.hen@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: spinlock help
+Date: Wed, 7 Mar 2001 12:31:07 +0200 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2448.0)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Did you try looking at Becker eepro100 driver it seems to be simple, no
+unnecessary spin_lock_irqsave?.
 
- CDROM is detected. On booting it gives the following messages
-######################
-
-Detected scsi CD-ROM sr0 at scsi0, channel 0, id 12, lun 0
-sr0: scsi-1 drive
-Uniform CD-ROM driver Revision: 3.12
-
-#############################
-
-The kernel message from the  virtual consol is as follows:
-
-########################
-trying to mount device scd0
-loopfd is -1
-LOP_SET_FD failed : Bad file descriptor
-
-####################
-
-Where am I gone wrong?
-
-Thanks & Regards
-Shiju
+-----Original Message-----
+From: Hen, Shmulik [mailto:shmulik.hen@intel.com]
+Sent: Wednesday, March 07, 2001 11:21 AM
+To: 'nigel@nrg.org'; Manoj Sontakke
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: spinlock help
 
 
+How about if the same sequence occurred, but from two different drivers ?
 
-mshiju@in.ibm.com wrote:
+We've had some bad experience with this stuff. Our driver, which acts as an
+intermediate net driver, would call the hard_start_xmit in the base driver.
+The base driver, wanting to block receive interrupts would issue a
+'spin_lock_irqsave(a,b)' and process the packet. If the TX queue is full, it
+could call an indication entry point in our intermediate driver to signal it
+to stop sending more packets. Since our indication function handles many
+types of indications but can process them only one at a time, we wanted to
+block other indications while queuing the request.
 
-> Hi all,
->            I am trying to install Linux (redhat-7) on a ps/2 server-9595
-> machine (mca ). I am booting from a floppy disk and using a custom build
-> 2.4.1 kernel image since there are problems  booting  the machine using
-the
-> installation image on  redhat CD and also it is not CD bootable. The
-> problem is that after booting it asks for redhat CDROM and when I insert
-> the redhat CDROM it gives a message "I could not find a redhat linux
-CDROM
-> in any of your CDROM drives ". The CD drive is a SCSI device and I have
-> enabled SCSI cdrom in kernel compilation . Can any one help me .
->
-> Thanks & Regards
-> Shiju
+The whole sequence would look like that:
 
-Hi,
+[our driver]
+	ans_send() {
+		.
+		.
+		e100_hard_start_xmit(dev, skb);
+		.
+		.
+	}
 
-I have a type 8560 PS/2... not the same as yours but I did install
-slackware
-on
-it once.
+[e100.o]
+	e100_hard_start_xmit() {
+		.
+		.
+		spin_lock_irqsave(a,b);
+		.
+		.
+		if(tx_queue_full)
+			ans_notify(TX_QUEUE_FULL);	<--
+		.
+		.
+		spin_unlock_irqrestore(a,b);
+	}
+	
+[our driver]
+	ans_notify() {
+		.
+		.
+		spin_lock_irqsave(c,d);
+		queue_request(req_type);
+		spin_unlock_irqrestore(c,d);	<--
+		.
+		.
+	}
 
-I would suggest installing from a standard PC.  Boot disks are very
-inflexible,
-since you don't have any utilities to poke around and figure out what's
-going
-on.
+At that point, for some reason, interrupts were back and the e100.o would
+hang in an infinite loop (we verified it on kernel 2.4.0-test10 +kdb that
+the processor was enabling interrupts and that the e100_isr was called for
+processing an Rx int.).
 
-Once you have a complete root filesystem, once you've got a kernel to
-recognise your scsi adapter, (and disk), you're off to the races, and can
-use all kinds of tools to look into the CDROM problem...BUT
-
-it's probably not going to recognise the disk either...
-
-check different virtual consoles with alt-f1, f2, etc: under
-a normal redhat boot disk, the different vc's will have diagnostic
-messages, ie kernel messages, list of modules being loaded, etc.
-
-maybe the best way is to be sure to compile kernel with support
-for scsi subsystem *in kernel* - not module, along with
-scsi-disk, scsi-cdrom, and your scsi host adapter.  the last
-one may be the tricky one.  you will have to figure out if it is supported.
-(the one in my PS/2 is at least for 2.0 kernel)
-
-if you can make the kernel on the boot disk use a smaller font,
-you will be able to see more of the messages at once.
-
-also, shift-PgUp should let you scroll back some of the messages.
-look for the kernel messages from your scsi host adapter driver...
-if you don't see any there's a problem!
-
-take a look inside your box and see what kind of scsi adapter it has.
-or use your reference disk to see what it is.  post that here
-so someone (maybe me) can check for kernel support.
-
-Cheers,
-
-Jeremy
+How is that possible that a 'spin_unlock_irqrestore(c,d)' would also restore
+what should have been restored only with a 'spin_unlock_irqrestore(a,b)' ?
 
 
+	Thanks in advance,
+	Shmulik Hen      
+      Software Engineer
+	Linux Advanced Networking Services
+	Intel Network Communications Group
+	Jerusalem, Israel.
+
+-----Original Message-----
+From: Nigel Gamble [mailto:nigel@nrg.org]
+Sent: Wednesday, March 07, 2001 1:54 AM
+To: Manoj Sontakke
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: spinlock help
 
 
+On Tue, 6 Mar 2001, Manoj Sontakke wrote:
+> 1. when spin_lock_irqsave() function is called the subsequent code is
+> executed untill spin_unloc_irqrestore()is called. is this right?
+
+Yes.  The protected code will not be interrupted, or simultaneously
+executed by another CPU.
+
+> 2. is this sequence valid?
+> 	spin_lock_irqsave(a,b);
+> 	spin_lock_irqsave(c,d);
+
+Yes, as long as it is followed by:
+
+	spin_unlock_irqrestore(c, d);
+	spin_unlock_irqrestore(a, b);
+
+Nigel Gamble                                    nigel@nrg.org
+Mountain View, CA, USA.                         http://www.nrg.org/
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

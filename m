@@ -1,62 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275200AbTHRWDa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 18:03:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275126AbTHRWDa
+	id S271934AbTHRWFP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 18:05:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275202AbTHRWFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 18:03:30 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:52494 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S275124AbTHRWD1
+	Mon, 18 Aug 2003 18:05:14 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11196 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S271934AbTHRWFG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 18:03:27 -0400
-Date: Mon, 18 Aug 2003 17:54:37 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: Stephan von Krawczynski <skraw@ithnet.com>, willy@w.ods.org,
-       alan@lxorguk.ukuu.org.uk, carlosev@newipnet.com,
-       lamont@scriptkiddie.org, bloemsaa@xs4all.nl, marcelo@conectiva.com.br,
-       netdev@oss.sgi.com, linux-net@vger.kernel.org, layes@loran.com,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-In-Reply-To: <20030818053007.7852ca77.davem@redhat.com>
-Message-ID: <Pine.LNX.3.96.1030818173940.2101F-100000@gatekeeper.tmr.com>
+	Mon, 18 Aug 2003 18:05:06 -0400
+Message-ID: <3F414D82.1030004@pobox.com>
+Date: Mon, 18 Aug 2003 18:04:50 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+CC: Andries.Brouwer@cwi.nl, Dominik.Strasser@t-online.de, hch@infradead.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: headers
+References: <UTC200308181907.h7IJ7im12407.aeb@smtp.cwi.nl> <20030818145709.0b5e162a.rddunlap@osdl.org>
+In-Reply-To: <20030818145709.0b5e162a.rddunlap@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Aug 2003, David S. Miller wrote:
-
-> On Mon, 18 Aug 2003 14:34:01 +0200
-> Stephan von Krawczynski <skraw@ithnet.com> wrote:
+Randy.Dunlap wrote:
+> Hm, interesting.
 > 
-> > what is the _positive_ outcome of this
-> > implementation compared to others?
+> Since there are 20+ <arch>/signal.h files and they don't always agree
+> on signal bit numbers e.g., do we have 20+ abi/arch/signal.h files?
+> Or 1 abi/signal.h file with many #ifdefs?  ugh.
 > 
-> If you're not willing to think I can't help you resolve
-> the questions you have.
+> The ABI is still per-arch, right?  Not _one ABI_ for any/all arches.
 
-Trying to think of something you have never seen is like trying to think
-of a new color. I can not think of a case where the current default
-behaviour is better (you can define that as your will, in terms of either
-functionality or convenience).
 
-> 
-> If you don't understand source address selection, than it's
-> not possible for me to have an intellegent conversation about
-> this topic.
-> 
-> So you need to make this crucial first step.
-> 
+Correct.  So there would be an include/abi/i386 or include/abi/arch/i386 
+or whatever, in addition to regular 'ole include/abi.  Or maybe 
+include/asm-$arch/abi.  Take your pick :)  Arch separation is definitely 
+a requirement, as you guessed.
 
-Good buzz words, your mailer dropped the URL of the document with the
-examples... Complaining that people don't understand without providing a
-pointer to some help for that lack is not helping them (or reducing the
-call for changes). If you want people to stop asking for patches help them
-do what they need to do.
+	Jeff
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+
 

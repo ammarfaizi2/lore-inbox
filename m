@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264932AbUEQINN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264931AbUEQIPt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264932AbUEQINN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 04:13:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264933AbUEQINM
+	id S264931AbUEQIPt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 04:15:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264930AbUEQIPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 04:13:12 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:10906 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S264932AbUEQINL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 04:13:11 -0400
-From: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Organization: SiSK
-To: Steven Cole <elenstev@mesatop.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s && s->tree' failed: The saga continues.)
-Date: Mon, 17 May 2004 10:21:05 +0200
-User-Agent: KMail/1.5
-Cc: andrea@suse.de, torvalds@osdl.org, adi@bitmover.com, scole@lanl.gov,
-       support@bitmover.com, linux-kernel@vger.kernel.org
-References: <200405132232.01484.elenstev@mesatop.com> <20040516142916.7d07c9f3.akpm@osdl.org> <200405161611.17688.elenstev@mesatop.com>
-In-Reply-To: <200405161611.17688.elenstev@mesatop.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200405171021.05314.rjwysocki@sisk.pl>
+	Mon, 17 May 2004 04:15:49 -0400
+Received: from disk.smurf.noris.de ([192.109.102.53]:54732 "EHLO
+	server.smurf.noris.de") by vger.kernel.org with ESMTP
+	id S264933AbUEQIOu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 04:14:50 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Newsgroups: smurf.list.linux.kernel
+Subject: Re: RE :[BUG 2.6.6mm2] bk-input is broken on AMD
+Date: Mon, 17 May 2004 10:12:32 +0200
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2004.05.17.08.12.32.815021@smurf.noris.de>
+References: <1084527815.6644.2.camel@bluerhyme.real3>
+NNTP-Posting-Host: kiste.smurf.noris.de
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Trace: server.smurf.noris.de 1084781551 31891 192.109.102.35 (17 May 2004 08:12:31 GMT)
+X-Complaints-To: smurf@noris.de
+NNTP-Posting-Date: Mon, 17 May 2004 08:12:31 +0000 (UTC)
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 17 of May 2004 00:11, Steven Cole wrote:
-> On Sunday 16 May 2004 03:29 pm, Andrew Morton wrote:
-> > Steven Cole <elenstev@mesatop.com> wrote:
-> > > Anyway, although the regression for my particular machine for this
-> > >  particular load may be interesting, the good news is that I've seen
-> > >  none of the failures which started this whole thread, which are
-> > > relatively easily reproduceable with PREEMPT set.
-> >
-> > So...  would it be correct to say that with CONFIG_PREEMPT, ppp or its
-> > underlying driver stack
-> >
-> > a) screws up the connection and hangs and
-> >
-> > b) scribbles on pagecache?
-> >
-> > Because if so, the same will probably happen on SMP.
->
-> Perhaps someone has the hardware to test this.
+Hi, FabF wrote:
+> 	No response for that thread...Whose the right person to ctx for problem
+> in bk-input ? No one noticed the same problem (keyboard non-functionning
+> with bk-input in mm2) ?
+> 
+Happened to me yesterday a few times, including once after the cat walked
+over the keyboard.  :-/
 
-Well, this may be OT (I'm sorry, if so), but I ran pppd yesterday on 2.6.6-mm2 
-with no major problems on an SMP box (AMD64).  The only problem I had with it 
-is that the pppd died unexpectedly 6-7 minutes after the connection had been 
-established, but this might happen for many reasons.  My kernel had been 
-built without CONFIG_PREEMPT, though.
+Unplugging the keyboard for a second made the problem go away.
 
+2.6.6-mm2; no PS/2 mouse.
+
+-- 
+Matthias Urlichs

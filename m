@@ -1,70 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130297AbRCBCtW>; Thu, 1 Mar 2001 21:49:22 -0500
+	id <S130290AbRCBC6e>; Thu, 1 Mar 2001 21:58:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130292AbRCBCtD>; Thu, 1 Mar 2001 21:49:03 -0500
-Received: from [209.102.105.34] ([209.102.105.34]:47625 "EHLO monza.monza.org")
-	by vger.kernel.org with ESMTP id <S130290AbRCBCs4>;
-	Thu, 1 Mar 2001 21:48:56 -0500
-Date: Thu, 1 Mar 2001 18:48:43 -0800
-From: Tim Wright <timw@splhi.com>
-To: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-Cc: "Matilainen Panu (NRC/Helsinki)" <panu.matilainen@nokia.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.x very unstable on 8-way IBM 8500R
-Message-ID: <20010301184843.B5065@kochanski.internal.splhi.com>
-Reply-To: timw@splhi.com
-Mail-Followup-To: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>,
-	"Matilainen Panu (NRC/Helsinki)" <panu.matilainen@nokia.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0103011229500.23756-100000@godzilla.research.nokia.com> <Pine.LNX.4.21.0103011701360.8542-100000@sol.compendium-tech.com>
+	id <S130292AbRCBC6Z>; Thu, 1 Mar 2001 21:58:25 -0500
+Received: from [61.153.1.177] ([61.153.1.177]:7947 "EHLO mail.viasoft.com.cn")
+	by vger.kernel.org with ESMTP id <S130290AbRCBC6P>;
+	Thu, 1 Mar 2001 21:58:15 -0500
+Date: Fri, 2 Mar 2001 11:05:50 +0800
+From: linuxjob <linuxjob@163.net>
+X-Mailer: The Bat! (v1.48f) Personal
+Reply-To: linuxjob <linuxjob@163.net>
+X-Priority: 3 (Normal)
+Message-ID: <1978548522.20010302110550@163.net>
+To: Hans Reiser <reiser@namesys.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: What is 2.4 Linux networking performance like compared to BSD?
+In-Reply-To: <3A9D891C.434E3AA7@namesys.com>
+In-Reply-To: <3A9D891C.434E3AA7@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0103011701360.8542-100000@sol.compendium-tech.com>; from kernel@blackhole.compendium-tech.com on Thu, Mar 01, 2001 at 05:04:09PM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 01, 2001 at 05:04:09PM -0800, Dr. Kelsey Hudson wrote:
-> On Thu, 1 Mar 2001, Matilainen Panu (NRC/Helsinki) wrote:
-> 
-> > I've been playing around with 8-way IBM8500R (8x700MHz Xeon) with 4.5GB
-> > memory & AIC7xxx SCSI-controller. It's perfectly stable with 2.2-kernel
-> > (from Red Hat 7) but very erratic on all 2.4-kernels I've tried it with
-> > (2.4.[012], compiled both with egcs and RH7's gcc-2.96, both share the
-> 
-> Under redhat 7 you should use kgcc to compile the kernel, since gcc2.96 is
-> inherently broken(*). 
-> 
+Hello Hans,
 
-For the umpteenth time, no it isn't. There are serious bugs in the shipped
-version of gcc in RedHat 7.0, but they are fixed by applying the update.
-The reason for supplying kgcc is to allow building a 2.2 kernel, because of
-bugs in the kernel, NOT the compiler.
+Thursday, March 01, 2001, 7:26:20 AM, you wrote:
 
-> > same symptoms). It did have a ServeRAID controller too but IBM suggested
-> > we take it out since 4500R also had problems with it on 2.4 but it didn't
-> > make any difference at all. Also tried to turn off highmem support but
-> > didn't make difference either.
-> 
-> (*)  redhat chose to ship an experimental compiler with this release of
->      the distribution that has a great many bugs. to ensure proper kernel
->      compillation another proven version of gcc was included, but called
->      kgcc instead. You should always use this to compile your kernels
->      under redhat 7 until the newer version of gcc is released.
-> 
+HR> I have a client that wants to implement a webcache, but is very leery of
+HR> implementing it on Linux rather than BSD.
 
-No. Provided you grab the update, you can build the 2.4 kernel perfectly
-happily using the RedHat gcc snapshot. I'm running it successfully on a number
-of machines. The issue with 2.4 on certain Netfinities is a bad interaction
-between the NMI watchdog code and the systems management card. Changing
-compilers makes no difference.
+HR> They know that iMimic's polymix performance on Linux 2.2.* is half what it is on
+HR> BSD.  Has the Linux 2.4 networking code caught up to BSD?
 
-Tim
+HR> Can I tell them not to worry about the Linux networking code strangling their
+HR> webcache product's performance, or not?
+
+HR> Hans
+HR> -
+HR> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+HR> the body of a message to majordomo@vger.kernel.org
+HR> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+HR> Please read the FAQ at  http://www.tux.org/lkml/
+
+It is not only related to TCP/IP performance. it is related to whole
+OS performance. especially performance of file system and stablity,
+network driver performance etc.
+FreeBSD with softupdates turned on seems horrible fast and stable.
+but Linux 2.4 is horrible fast in TCP/IP too. diffcult to compare between
+in Linux and FreeBSD. don't do such stupid thing. you'll never get a
+correct result.
 
 -- 
-Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
-IBM Linux Technology Center, Beaverton, Oregon
-Interested in Linux scalability ? Look at http://lse.sourceforge.net/
-"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI
+Best regards,
+David Xu
+
+

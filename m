@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311211AbSCLOcW>; Tue, 12 Mar 2002 09:32:22 -0500
+	id <S311205AbSCLOic>; Tue, 12 Mar 2002 09:38:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311223AbSCLOcN>; Tue, 12 Mar 2002 09:32:13 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:11137 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S311211AbSCLOcB>; Tue, 12 Mar 2002 09:32:01 -0500
-Date: Tue, 12 Mar 2002 09:30:34 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: wli@holomorphy.com
-cc: Andrea Arcangeli <andrea@suse.de>, wli@parcelfarce.linux.theplanet.co.uk,
-        linux-kernel@vger.kernel.org, riel@surriel.com, hch@infradead.org,
-        phillips@bonn-fries.net
+	id <S311221AbSCLOiX>; Tue, 12 Mar 2002 09:38:23 -0500
+Received: from dsl-213-023-043-170.arcor-ip.net ([213.23.43.170]:63640 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S311205AbSCLOiH>;
+	Tue, 12 Mar 2002 09:38:07 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andrea Arcangeli <andrea@suse.de>,
+        Daniel Phillips <phillips@bonn-fries.net>
 Subject: Re: 2.4.19pre2aa1
-In-Reply-To: <20020312141738.D14628@holomorphy.com>
-Message-ID: <Pine.LNX.3.95.1020312093019.14651A-100000@chaos.analogic.com>
+Date: Tue, 12 Mar 2002 15:32:44 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        wli@parcelfarce.linux.theplanet.co.uk,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        linux-kernel@vger.kernel.org, hch@infradead.org
+In-Reply-To: <20020312070645.X10413@dualathlon.random> <E16klHb-0001up-00@starship> <20020312152534.U25226@dualathlon.random>
+In-Reply-To: <20020312152534.U25226@dualathlon.random>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16knKW-0001vO-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Mar 2002 wli@holomorphy.com wrote:
-
-> On Tue, Mar 12, 2002 at 08:33:23AM -0500, Richard B. Johnson wrote:
-> > This is a simple random number generator. It takes a pointer to your
-> > own private long, somewhere in your code, and returns a long random
-> > number with a period of 0xfffd4011. I ran a program for about a
-> > year, trying to find a magic number that will produce a longer
-> > period.
+On March 12, 2002 03:25 pm, Andrea Arcangeli wrote:
+> On Tue, Mar 12, 2002 at 01:21:35PM +0100, Daniel Phillips wrote:
+> > On March 12, 2002 12:47 pm, Andrea Arcangeli wrote:
+> > > If it's pure random mul will make no difference to
+> > > the distribution. And the closer we're to pure random like in the
+> > > wait_table hash, the less mul will help and the more important will be
+> > > to just get right the two contigous pages in the same cacheline and
+> > > nothing else.
 > > 
-> > You could add a ldiv and return the modulus to set hash-table limits.
-> > ANDs are not good because, in principle, you could get many numbers
-> > in which all the low bits are zero.
-> > 
-> > 
-> > The advantage of this simple code is it works quickly. The disadvantages
-> > are, of course, its not portable and a rotation of a binary number
-> > is not a mathematical function, lending itself to rigorous analysis.
+> > You're ignoring the possibility (probability) of corner cases.  I'm not
 > 
-> Would you mind explaining what the point of this is? AFAICT this is
-> meaningless noise inspired by the words "/dev/random".
-> 
-> 
-> Bill
-> 
-Really?
+> The corner cases cannot go away with a mul.
 
+Oh but they do[1].  If there's a major point you're missing it has to be that.
 
-Cheers,
-Dick Johnson
+[1] Not entirely of course, which Bill already pointed out clearly enough.
+'Go away' always means 'get less common' with respect to hash functions,
+that's the best you can do.
 
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
-
+-- 
+Daniel

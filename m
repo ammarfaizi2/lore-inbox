@@ -1,86 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262186AbVBQBRt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262188AbVBQBUX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262186AbVBQBRt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 20:17:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbVBQBRt
+	id S262188AbVBQBUX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 20:20:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbVBQBUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 20:17:49 -0500
-Received: from wombat.indigo.net.au ([202.0.185.19]:34317 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S262186AbVBQBRq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 20:17:46 -0500
-Date: Thu, 17 Feb 2005 09:19:43 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-X-X-Sender: raven@wombat.indigo.net.au
-To: Jeff Moyer <jmoyer@redhat.com>
-cc: Jan Blunck <j.blunck@tu-harburg.de>,
-       viro@parcelfarce.linux.theplanet.co.uk,
-       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH] dcache d_drop() bug fix / __d_drop() use fix
-In-Reply-To: <16915.27837.309170.73909@segfault.boston.redhat.com>
-Message-ID: <Pine.LNX.4.58.0502170918040.19755@wombat.indigo.net.au>
-References: <421355A4.6000305@tu-harburg.de> <Pine.LNX.4.61.0502162318240.8161@donald.themaw.net>
- <16915.27837.309170.73909@segfault.boston.redhat.com>
+	Wed, 16 Feb 2005 20:20:23 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:59090 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262188AbVBQBTo convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 20:19:44 -0500
+From: Parag Warudkar <kernel-stuff@comcast.net>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: -rc3 leaking NOT BIO [Was: Memory leak in 2.6.11-rc1?]
+Date: Wed, 16 Feb 2005 20:19:09 -0500
+User-Agent: KMail/1.7.92
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+References: <20050121161959.GO3922@fi.muni.cz> <200502161831.24357.kernel-stuff@comcast.net> <20050216155142.6840497f.akpm@osdl.org>
+In-Reply-To: <20050216155142.6840497f.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-102.5, required 8,
-	EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT, REFERENCES,
-	REPLY_WITH_QUOTES, USER_AGENT_PINE, USER_IN_WHITELIST)
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200502162019.10102.kernel-stuff@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Feb 2005, Jeff Moyer wrote:
+On Wednesday 16 February 2005 06:51 pm, Andrew Morton wrote:
+> ffff81002fe80000 is the address of the slab object.  00000000000008a8 is
+> supposed to be the caller's text address.  It appears that
+> __builtin_return_address(0) is returning junk.  Perhaps due to
+> -fomit-frame-pointer.
+I tried manually removing -fomit-frame-pointer from Makefile and adding 
+-fno-omit-frame-pointer but with same results - junk return addresses. 
+Probably a X86_64 issue.
 
-> ==> Regarding Re: [PATCH] dcache d_drop() bug fix / __d_drop() use fix; raven@themaw.net adds:
-> 
-> raven> On Wed, 16 Feb 2005, Jan Blunck wrote:
-> >> This is a re-submission of the patch I sent about a month ago.
-> >> 
-> >> While working on my code I realized that d_drop() might race against 
-> >> __d_lookup(). __d_drop() (which is called by d_drop() after acquiring the 
-> >> dcache_lock) is accessing dentry->d_flags to set the DCACHE_UNHASHED flag. 
-> >> This shouldn't be done without holding dentry->d_lock, like stated in 
-> >> dcache.h:
-> >> 
-> >> struct dentry {
-> >> ...
-> >> unsigned int d_flags;		/* protected by d_lock */
-> >> ...
-> >> };
-> >> 
-> >> Therefore d_drop() must acquire the dentry->d_lock. Likewise every use of 
-> >> __d_drop() must acquire that lock.
-> >> 
-> >> This patch fixes d_drop() and every grep'able __d_drop() use. This patch is 
-> >> against today's http://linux.bkbits.net/linux-2.5.
-> >> 
-> 
-> raven> For my part, in autofs4, I would prefer:
-> 
-> > --- linux-2.6.9/fs/autofs4/root.c.d_lock	2005-02-16 23:15:18.000000000 +0800
-> > +++ linux-2.6.9/fs/autofs4/root.c	2005-02-16 23:15:35.000000000 +0800
-> > @@ -621,7 +621,7 @@
-> >   		spin_unlock(&dcache_lock);
-> >   		return -ENOTEMPTY;
-> >   	}
-> > -	__d_drop(dentry);
-> > +	d_drop(dentry);
-> >   	spin_unlock(&dcache_lock);
-> 
-> >   	dput(ino->dentry);
-> 
-> Ian, this would deadlock.  You already hold the dcache lock here, and
-> d_drop takes it:
+>So it's probably an ndiswrapper bug? 
+I looked at ndiswrapper mailing lists and found this explanation for the same 
+issue of growing size-64 with ndiswrapper  -
+----------------------------------
+"It looks like the problem is kernel-version related, not ndiswrapper. 
+ ndiswrapper just uses some API that starts the memory leak but the 
+ problem is indeed in the kernel itself. versions from 2.6.10 up to 
+ .11-rc3 have this problem afaik. haven"t tested rc4 but maybe this one 
+ doesn"t have the problem anymore, we will see"
+----------------------------------
 
-Ha!
+I tested -rc4 and it has the problem too.  More over, with plain old 8139too 
+driver, the slab still continues to grow albeit slowly. So there is a reason 
+to suspect kernel leak as well. I will try binary searching...
 
-Yes. There is a difference between d_lock and dcache_lock.
-I need glasses!
-
-Please ignore what I said.
-
-Ian
-
+Parag

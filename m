@@ -1,77 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262181AbVATQjE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262341AbVATQfX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262181AbVATQjE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 11:39:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVATQgL
+	id S262341AbVATQfX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 11:35:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262200AbVATQfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 11:36:11 -0500
-Received: from zone4.gcu-squad.org ([213.91.10.50]:42978 "EHLO
-	zone4.gcu-squad.org") by vger.kernel.org with ESMTP id S262290AbVATQeL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 11:34:11 -0500
-Date: Thu, 20 Jan 2005 17:28:14 +0100 (CET)
-To: nico@cam.org
-Subject: Re: 2.6.10-mm2: it87 sensor driver stops CPU fan
-X-IlohaMail-Blah: khali@localhost
-X-IlohaMail-Method: mail() [mem]
-X-IlohaMail-Dummy: moo
-X-Mailer: IlohaMail/0.8.13 (On: webmail.gcu.info)
-Message-ID: <s62KuN6T.1106238493.8706410.khali@localhost>
-In-Reply-To: <Pine.LNX.4.61.0501201042300.5315@localhost.localdomain>
-From: "Jean Delvare" <khali@linux-fr.org>
-Bounce-To: "Jean Delvare" <khali@linux-fr.org>
-CC: "LM Sensors" <sensors@Stimpy.netroedge.com>,
-       "lkml" <linux-kernel@vger.kernel.org>, "Jonas Munsin" <jmunsin@iki.fi>,
-       "Simone Piunno" <pioppo@ferrara.linux.it>, "Greg KH" <greg@kroah.com>
+	Thu, 20 Jan 2005 11:35:12 -0500
+Received: from fw.osdl.org ([65.172.181.6]:30674 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262270AbVATQbU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 11:31:20 -0500
+Date: Thu, 20 Jan 2005 08:31:11 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Peter Chubb <peterc@gelato.unsw.edu.au>, Chris Wedgwood <cw@f00f.org>,
+       Andrew Morton <akpm@osdl.org>, paulus@samba.org,
+       linux-kernel@vger.kernel.org, tony.luck@intel.com,
+       dsw@gelato.unsw.edu.au, benh@kernel.crashing.org,
+       linux-ia64@vger.kernel.org, hch@infradead.org, wli@holomorphy.com,
+       jbarnes@sgi.com
+Subject: Re: [patch 1/3] spinlock fix #1, *_can_lock() primitives
+In-Reply-To: <20050120160839.GA13067@elte.hu>
+Message-ID: <Pine.LNX.4.58.0501200823010.8178@ppc970.osdl.org>
+References: <16877.42598.336096.561224@wombat.chubb.wattle.id.au>
+ <20050119080403.GB29037@elte.hu> <16878.9678.73202.771962@wombat.chubb.wattle.id.au>
+ <20050119092013.GA2045@elte.hu> <16878.54402.344079.528038@cargo.ozlabs.ibm.com>
+ <20050120023445.GA3475@taniwha.stupidest.org> <20050119190104.71f0a76f.akpm@osdl.org>
+ <20050120031854.GA8538@taniwha.stupidest.org> <16879.29449.734172.893834@wombat.chubb.wattle.id.au>
+ <Pine.LNX.4.58.0501200747230.8178@ppc970.osdl.org> <20050120160839.GA13067@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Nicolas,
 
-> It looks like only temp3 is used for the CPU temperature, fan1 is the
-> CPU fan and fan2 the case fan.
+On Thu, 20 Jan 2005, Ingo Molnar wrote:
+> 
+> anyway, here's my first patch again, with s/trylock_test/can_lock/.
 
-This is coherent with your chip configuration.
+I don't want to break all the other architectures. Or at least not most of 
+them. Especially since I was hoping to do a -pre2 soon (well, like today, 
+but I guess that's out..) and make the 2.6.11 cycle shorter than 2.6.10.
 
-> I experimented with isaset tweaking individual bits in register 0x14
-> (blindly I confess, haven't read the datasheet) and flipping bit 3 from
-> 0 to 1 (writing 0xdf) apparently reverses the behavior, i.e. the CPU fan
-> speed now increases with the CPU temperature.
+So I'd like to now _first_ get
 
-That's odd. This bit isn't supposed to significantly change the
-behavior. When cleared (default), possible duty cycles range from 0 to
-100%. When set, the possible duty cycles range from 20% to 100% (except
-for PWM=0 which still results in a 0% duty cycle). I hardly understand
-how setting this bit can result in the change you describe.
+>   spin_can_lock(lock)
+>   read_can_lock(lock)
+>   write_can_lock(lock)
 
-> In the mean time I'm willing to try out things
-> with isaset if you can suggest basic tests (easier than upgrading kernel
-> for the time being).
+for at least most architectures (ie for me at a minimum that is x86,
+x86-64, ia64 and ppc64 - and obviously the "always true" cases for the 
+UP version).
 
-OK. Remember you better keep an eye on the CPU fan in case your tests
-stop it. I would also suggest that you take a look at the datasheet so
-that you better understand what you are doing:
-http://www.iteusa.com/product_info/file/pc/IT8712F_V0.81.pdf
-(page 79 of the document, which is 97 of the PDF file - don't ask)
+Ok?
 
-The best test I can think of is to switch your CPU fan to manual PWM
-mode. To do that, write 0x40 to register 0x15. CPU fan should go to half
-speed. Write 0x7F and if should go to full speed, except if the polarity
-is not correct in which case 0x00 will do (and 0x7F will stop the fan
-completely so you don't want to keep it that way).
+Also, I've already made sure that I can't apply any half-measures by 
+mistake by undoing the mess that it was before, and making sure that any 
+patches I get have to be "clean slate".
 
-I suggest that you use the -y flag of isaset so that you can overwrite
-register values quickly if things turn bad.
+That said, I like how just the _renaming_ of the thing (and making them 
+all consistent) made your BUILD_LOCK_OPS() helper macro much simpler. So 
+I'm convinced that this is the right solution - I just want to not screw 
+up other architectures.
 
-Once you know if the polarity is correct, you can try different values of
-PWM between 0x00 and 0x7F and see how exactly your fan reacts to them.
-You can also study more precisely how bit 3 of register 0x14 (the one
-you played with already) affects the PWM vs speed curve.
+I can do ppc64 myself, can others fix the other architectures (Ingo, 
+shouldn't the UP case have the read/write_can_lock() cases too? And 
+wouldn't you agree that it makes more sense to have the rwlock test 
+variants in asm/rwlock.h?):
 
-Thanks,
---
-Jean Delvare
+		Linus
+
+> --- linux/include/linux/spinlock.h.orig
+> +++ linux/include/linux/spinlock.h
+> @@ -584,4 +584,10 @@ static inline int bit_spin_is_locked(int
+>  #define DEFINE_SPINLOCK(x) spinlock_t x = SPIN_LOCK_UNLOCKED
+>  #define DEFINE_RWLOCK(x) rwlock_t x = RW_LOCK_UNLOCKED
+>  
+> +/**
+> + * spin_can_lock - would spin_trylock() succeed?
+> + * @lock: the spinlock in question.
+> + */
+> +#define spin_can_lock(lock)		(!spin_is_locked(lock))
+> +
+>  #endif /* __LINUX_SPINLOCK_H */
+> --- linux/include/asm-i386/spinlock.h.orig
+> +++ linux/include/asm-i386/spinlock.h
+> @@ -188,6 +188,18 @@ typedef struct {
+>  
+>  #define rwlock_is_locked(x) ((x)->lock != RW_LOCK_BIAS)
+>  
+> +/**
+> + * read_can_lock - would read_trylock() succeed?
+> + * @lock: the rwlock in question.
+> + */
+> +#define read_can_lock(x) (atomic_read((atomic_t *)&(x)->lock) > 0)
+> +
+> +/**
+> + * write_can_lock - would write_trylock() succeed?
+> + * @lock: the rwlock in question.
+> + */
+> +#define write_can_lock(x) ((x)->lock == RW_LOCK_BIAS)
+> +
+>  /*
+>   * On x86, we implement read-write locks as a 32-bit counter
+>   * with the high bit (sign) being the "contended" bit.
+> 

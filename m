@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264206AbUEDCyj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264213AbUEDDWO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264206AbUEDCyj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 22:54:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264210AbUEDCyj
+	id S264213AbUEDDWO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 23:22:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264214AbUEDDWO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 22:54:39 -0400
-Received: from gate.crashing.org ([63.228.1.57]:34726 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S264206AbUEDCyh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 22:54:37 -0400
-Subject: Re: workqueue and pending
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Mikkel Christiansen <mixxel@cs.auc.dk>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040503162719.54fb7020.akpm@osdl.org>
-References: <40962F75.8000200@cs.auc.dk>
-	 <20040503162719.54fb7020.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1083639081.20092.294.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 04 May 2004 12:51:21 +1000
-Content-Transfer-Encoding: 7bit
+	Mon, 3 May 2004 23:22:14 -0400
+Received: from [195.166.237.40] ([195.166.237.40]:2230 "HELO emztd1986.com")
+	by vger.kernel.org with SMTP id S264213AbUEDDWM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 May 2004 23:22:12 -0400
+From: "Harold Malik Saddiqi" <haroldmaliks@voila.fr>
+Reply-To: haroldmaliks@voila.fr
+To: linux-kernel@vger.kernel.org
+Date: Tue, 4 May 2004 04:21:31 -0700
+Subject: INVESTMENT CAPITAL.
+X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <S264213AbUEDDWM/20040504032212Z+251@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear  sir,
 
->  
-> @@ -75,8 +76,11 @@ extern void init_workqueues(void);
->   */
->  static inline int cancel_delayed_work(struct work_struct *work)
->  {
-> -	return del_timer_sync(&work->timer);
-> +	int ret;
-> +
-> +	ret = del_timer_sync(&work->timer);
-> +	clear_bit(0, &work->pending);
-> +	return ret;
->  }
->  
+Re: Investment Capital.
 
-Looks wrong to me. The time may have fired already and queued the
-work. Clearing pending is an error in this case since the work is
-indeed pending for execution.... 
+Your contact has been gotten from after a search for a person whom we
+can jointly invest Trust in and also solicit a honourable partnership 
+with.
 
-Ben.
+I represent a client and my client has interest to do business relative
+to investments in your country in areas related to your Business line 
+or any business of your choice, to initiate a
+proper and structured relationship:
+
+Please let me know what your response will be to an offer to receive
+investment funds in cash if:
+
+1. The said fund amounts to Twenty Five Million Dollars (US).
+
+2. The said fund is in cash and will be transferred to you in same
+state.
+
+3.The fund is intended to be invested through your agency in the
+purchase and of facility and assets, for the said purposes within your 
+country.
+
+4. This transaction will result in your being paid a commission of 10%
+off the investment capital.
+
+5.The fund owners desire absolute confidentiality and professionalism
+in the handling of this matter.
+
+Please respond urgently.
+
+Sincerely.
+
+Harold Malik Saddiqi.
+TEL:00882162248968
+National Real Estate Co.
+Chittagong Bangladesh.
+
 
 

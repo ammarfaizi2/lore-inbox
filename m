@@ -1,62 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281512AbRLLRhe>; Wed, 12 Dec 2001 12:37:34 -0500
+	id <S281663AbRLLRxq>; Wed, 12 Dec 2001 12:53:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281557AbRLLRhZ>; Wed, 12 Dec 2001 12:37:25 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:7 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S281512AbRLLRhK>; Wed, 12 Dec 2001 12:37:10 -0500
-Date: Wed, 12 Dec 2001 14:20:55 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: GOTO Masanori <gotom@debian.org>
-Cc: tachino@open.nm.fujitsu.co.jp, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, andrea@suse.de
-Subject: Re: [PATCH] direct IO breaks root filesystem
-In-Reply-To: <w53lmg9glwn.wl@megaela.fe.dis.titech.ac.jp>
-Message-ID: <Pine.LNX.4.21.0112121420420.27221-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281668AbRLLRx0>; Wed, 12 Dec 2001 12:53:26 -0500
+Received: from quattro-eth.sventech.com ([205.252.89.20]:22794 "EHLO
+	quattro.sventech.com") by vger.kernel.org with ESMTP
+	id <S281663AbRLLRxY>; Wed, 12 Dec 2001 12:53:24 -0500
+Date: Wed, 12 Dec 2001 12:53:23 -0500
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: Jan Kasprzak <kas@informatics.muni.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB mouse disconnect/reconnect
+Message-ID: <20011212125323.N8227@sventech.com>
+In-Reply-To: <20011211222014.A13443@informatics.muni.cz> <20011211164059.C8227@sventech.com> <20011212103748.C14688@informatics.muni.cz> <20011212112548.E29229@sventech.com> <20011212172940.O14688@informatics.muni.cz> <20011212114820.F29229@sventech.com> <20011212180333.V14688@informatics.muni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011212180333.V14688@informatics.muni.cz>; from kas@informatics.muni.cz on Wed, Dec 12, 2001 at 06:03:33PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 12 Dec 2001, GOTO Masanori wrote:
-
-> At Wed, 12 Dec 2001 11:46:29 +0900,
-> Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp> wrote:
-> > At Tue, 11 Dec 2001 17:46:01 -0800 (PST),
-> > Linus Torvalds wrote:
-> > > 
-> > > 
-> > > On Wed, 12 Dec 2001, Tachino Nobuhiro wrote:
-> > > >
-> > > > But my patch fixes another bug. Current /dev/ram* does not return -ENOSPC
-> > > > at the end of device size because generic_file_write() also checks whether
-> > > > mapping->host is a block device. So I think the patch is required.
-> > > 
-> > > I'll agree with your one-liner: it's good practice anyway to initialize
-> > > any fields that could ever be looked at. I actually already applied it to
-> > > my tree, I just want to make sure that people don't apply the other
-> > > patch..
-> > > 
-> > > 		Linus
-> > 
-> > Thank you.
-> > 
-> > I think the patch should be applied to 2.4 because "dd if=/dev/zero of=/dev/ram1"
-> > can cause system hang easily.
+On Wed, Dec 12, 2001, Jan Kasprzak <kas@informatics.muni.cz> wrote:
+> [l-k removed from Cc:]
 > 
-> Linus, Tachino, your patch are both right.
-> I was not aware mapping inode used block file inode... Umm.
-> 
-> In my test, it works fine for both block device and file, and resolves
-> "inode->i_dev" and block size problems.
-> Thank you for your (simple and complete) patch! I'm now happy :)
-> 
-> > Marcelo, please consider applying the patch.
-> 
-> Yes. Would you remove my previous patches and apply these patches ?
+> Johannes Erdfelt wrote:
+> : 
+> : There's your problem with disconnects. Those are illegal per the specs.
+> : 
+> 	What is the maximum length?
 
-Yes, I will do that for -rc1.
+I haven't looked at the spec lately, but I think 5 meters is the
+maximum. You can go longer if you use an active cable which is
+essentially a one port hub. It essentially acts as a repeater.
+
+JE
 

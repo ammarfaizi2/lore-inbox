@@ -1,51 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263005AbTJPQEE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 12:04:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263009AbTJPQEE
+	id S263098AbTJPQ3K (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 12:29:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbTJPQ3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 12:04:04 -0400
-Received: from [203.199.54.175] ([203.199.54.175]:32268 "EHLO
-	MailRelay.lntinfotech.com") by vger.kernel.org with ESMTP
-	id S263005AbTJPQEC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 12:04:02 -0400
-From: "Suresh Subramanian" <Suresh.Subramanian@lntinfotech.com>
-Subject: asynchronous notification
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.9  November 16, 2001
-Message-ID: <OF9B35F107.723858B5-ON65256DC1.0056E5A9@lntinfotech.com>
-Date: Thu, 16 Oct 2003 21:32:45 +0530
-MIME-Version: 1.0
-X-MIMETrack: Serialize by Router on BANGALORE/LNTINFOTECH(Release 5.0.9 |November 16, 2001) at
- 10/16/2003 09:32:45 PM,
-	Itemize by SMTP Server on MailRelay/LNTINFOTECH(Release 5.0.12  |February
- 13, 2003) at 10/16/2003 09:47:37 PM,
-	Serialize by Router on MailRelay/LNTINFOTECH(Release 5.0.12  |February 13, 2003) at
- 10/16/2003 09:47:48 PM,
-	Serialize complete at 10/16/2003 09:47:48 PM
-Content-type: text/plain; charset=us-ascii
+	Thu, 16 Oct 2003 12:29:10 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:8585
+	"EHLO velociraptor.random") by vger.kernel.org with ESMTP
+	id S263098AbTJPQ3H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 12:29:07 -0400
+Date: Thu, 16 Oct 2003 18:29:26 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Erik Mouw <erik@harddisk-recovery.com>, Josh Litherland <josh@temp123.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Transparent compression in the FS
+Message-ID: <20031016162926.GF1663@velociraptor.random>
+References: <1066163449.4286.4.camel@Borogove> <20031015133305.GF24799@bitwizard.nl> <3F8D6417.8050409@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F8D6417.8050409@pobox.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Hi Jeff,
 
-i have a problem sending signals from kernel thread using kill_fasync( ) to
-an user space process which has registered to the device driver through
-fcntl( ) for asynchronous notification. I assume this is due to the
-difference in the context from kernel process (to which the user process
-has registered) to the kernel thread .
+On Wed, Oct 15, 2003 at 11:13:27AM -0400, Jeff Garzik wrote:
+> Josh and others should take a look at Plan9's venti file storage method 
+> -- archival storage is a series of unordered blocks, all of which are 
+> indexed by the sha1 hash of their contents.  This magically coalesces 
+> all duplicate blocks by its very nature, including the loooooong runs of 
+> zeroes that you'll find in many filesystems.  I bet savings on "all 
+> bytes in this block are zero" are worth a bunch right there.
 
-So i decided to use kill_proc( ) to send a signal from the kernel thread.
-Since i m using kill_proc( ) i m not registering any process for
-asynchronous notification and i m doing this registration manually  by
-geting the necessary information like 'pid', 'fd' etc...and maintaining
-this info.This method works perfectly fine.
+I had a few ideas on the above.
 
-Please let me know if there is any drawback in this non-conventional
-method.
-Please give me details in either case.
+if the zero blocks are the problem, there's a tool called zum that nukes
+them and replaces them with holes. I use it sometime, example:
 
-Thank you.
+andrea@velociraptor:~> dd if=/dev/zero of=zero bs=1M count=100
+100+0 records in
+100+0 records out
+andrea@velociraptor:~> ls -ls zero
+102504 -rw-r--r--    1 andrea   andrea   104857600 2003-10-16 18:24 zero
+andrea@velociraptor:~> ~/bin/i686/zum zero
+zero [820032K]  [1 link]
+andrea@velociraptor:~> ls -ls zero
+   0 -rw-r--r--    1 andrea   andrea   104857600 2003-10-16 18:24 zero
+andrea@velociraptor:~> 
 
-Suresh S
+if you can't find it ask and I'll send it by email (it's GPL btw).
 
+the hash to the data is interesting, but 1) you lose the zerocopy
+behaviour for the I/O, it's like doing a checksum for all the data going to
+disk that you normally would never do (except for the tiny files in reiserfs
+with tail packing enabled, but that's not bulk I/O), 2) I wonder how much data
+is really duplicate besides the "zero" holes trivially fixable in userspace
+(modulo bzImage or similar where I'm unsure if the fs code in the bootloader
+can handle holes ;).

@@ -1,71 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264008AbTCWX6I>; Sun, 23 Mar 2003 18:58:08 -0500
+	id <S264013AbTCWX6f>; Sun, 23 Mar 2003 18:58:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264009AbTCWX6H>; Sun, 23 Mar 2003 18:58:07 -0500
-Received: from maild.telia.com ([194.22.190.101]:46571 "EHLO maild.telia.com")
-	by vger.kernel.org with ESMTP id <S264008AbTCWX6G>;
-	Sun, 23 Mar 2003 18:58:06 -0500
-X-Original-Recipient: <linux-kernel@vger.kernel.org>
-Date: Mon, 24 Mar 2003 01:09:00 +0100
-From: Christian Axelsson <smiler@lanil.mine.nu>
-To: linux-kernel@vger.kernel.org
+	id <S264009AbTCWX6f>; Sun, 23 Mar 2003 18:58:35 -0500
+Received: from pop.gmx.de ([213.165.64.20]:16350 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S264013AbTCWX6d>;
+	Sun, 23 Mar 2003 18:58:33 -0500
+Message-ID: <3E7E4C63.908@gmx.de>
+Date: Mon, 24 Mar 2003 01:08:03 +0100
+From: Sven Schuster <schuster.sven@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: de-de, en, en-us
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
 Subject: Re: Ptrace hole / Linux 2.2.25
-Message-Id: <20030324010900.599faca3.smiler@lanil.mine.nu>
-In-Reply-To: <6850000.1048463137@[10.10.2.4]>
-References: <20030323193457.GA14750@atrey.karlin.mff.cuni.cz>
-	<200303231938.h2NJcAq14927@devserv.devel.redhat.com>
-	<20030323194423.GC14750@atrey.karlin.mff.cuni.cz>
-	<1048448838.1486.12.camel@phantasy.awol.org>
-	<20030323195606.GA15904@atrey.karlin.mff.cuni.cz>
-	<1048450211.1486.19.camel@phantasy.awol.org>
-	<402760000.1048451441@[10.10.2.4]>
-	<20030323203628.GA16025@atrey.karlin.mff.cuni.cz>
-	<Pine.LNX.4.51.0303231410250.17155@skuld.mtroyal.ab.ca>
-	<920000.1048456387@[10.10.2.4]>
-	<3E7E335C.2050509@pobox.com>
-	<1240000.1048460079@[10.10.2.4]>
-	<3E7E4486.8080302@pobox.com>
-	<6850000.1048463137@[10.10.2.4]>
-Organization: LANIL
-X-Mailer: Sylpheed version 0.8.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary=",RT'Qu1S+Un5yx=."
+References: <20030323193457.GA14750@atrey.karlin.mff.cuni.cz> <200303231938.h2NJcAq14927@devserv.devel.redhat.com> <20030323195334.GA11127@wohnheim.fh-wedel.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---,RT'Qu1S+Un5yx=.
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Jörn Engel wrote:
 
-On Sun, 23 Mar 2003 15:45:38 -0800
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
+>On Sun, 23 March 2003 14:38:10 -0500, Alan Cox wrote:
+>  
+>
+>>-	Anyone can go and release their own 2.4.20.1 or 2.4.20-sec or
+>>	whatever if they feel strongly about it
+>>
+>>Just go do it. If someone wants to be a contact point for build existing
+>>base kernels + published security fix trees I'm pretty sure kernel.org
+>>would host them too.
+>>    
+>>
+>
+>Sounds like a good idea. Ideal would be a person with a lottle
+>knowledge about security or at least, about this particular patch.
+>
+>I would volunteer, if noone else does. But just about anyone would be
+>closer to that ideal person, so consider me to be the last resort.
+>
+>Jörn
+>  
+>
 
-<snip>
-> Common vendor _features_ is maybe better done in a separate tree, I'd
-> accept ... I'm just frustrated with the current lack of commonality between
-> distros, I guess.
-</snip>
+I think a solution like this would be best, having a "-fix" tree or 
+similar for
+the latest stable kernel maintained by a volunteer and hosted by kernel.org.
 
-Excuse me for breaking in, but after reading this thread for a while I have a
-suggestion to make: if you feel that a 2.4.xx-extrafeatures is needed try to get
-a couple of guys together and start up your own branch of patches :)
-I would be one that's willing to try it out.
+Optionally or alternatively there could/should be a mailinglist (yes, 
+one more
+:-) where all critical fixes like sec + fs fixes, etc. are posted to, for
+people building their own kernels (and interested in staying up-to-date) 
+but
+not willing/having the time/able to dig through the tons of emails 
+brought by
+lkml.
+Cause I think if you're not an active kernel developer or having some 
+issues
+with running a kernel, or like me, just interested and still learning to
+understand linux kernel programming in the far future ;-) you shouldn't have
+to read lkml just for building and maintaining your own, none-vendor 
+kernel.
+Btw, if you had to, I think there might even be the danger of loosing some
+critical fixes in the loads of emails.
 
--- 
-Christan Axelsson
-smiler@lanil.mine.nu
+Sven
+   
 
---,RT'Qu1S+Un5yx=.
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+fkyjyqbmAWw8VdkRAqn6AJ0Xhe/6/vXO1sbUYK/NS1uw9H1s+QCgvZp7
-q3lg96XIPIYdQehAKcJkIeE=
-=/r3s
------END PGP SIGNATURE-----
-
---,RT'Qu1S+Un5yx=.--

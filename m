@@ -1,67 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267749AbUHRVEM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267765AbUHRVIj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267749AbUHRVEM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 17:04:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267746AbUHRVDe
+	id S267765AbUHRVIj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 17:08:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267746AbUHRVI1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 17:03:34 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:43564 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S267748AbUHRVCl
+	Wed, 18 Aug 2004 17:08:27 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:50478 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S267760AbUHRVFX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 17:02:41 -0400
-Date: Thu, 19 Aug 2004 01:02:52 +0200
+	Wed, 18 Aug 2004 17:05:23 -0400
+Date: Thu, 19 Aug 2004 01:05:38 +0200
 From: Sam Ravnborg <sam@ravnborg.org>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Sam Ravnborg <sam@ravnborg.org>
-Subject: Kbuild updates
-Message-ID: <20040818230252.GA23495@mars.ravnborg.org>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Subject: kbuild: make C=2 forces sparse run
+Message-ID: <20040818230538.GC23495@mars.ravnborg.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040818230252.GA23495@mars.ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20040818230252.GA23495@mars.ravnborg.org>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Another bunch of smallish kbuild updates.
-
-o Fix parrallel build
-o Add make C=2 to force check of C code with sparse
-o Fiw warnings in binoffset
-o Removed dreadful check for undefined symbols in vmlinux
-o Delete last occurence of HEAD in kbuild
-o Add comments to Makefile.clean
-o Introduce CHECKFLAGS enabling make CHECK=mysparse
-
-Patches follows (most have been sent to lkml before).
-
-
-Significant outstanding items in kbuild land is mainly package
-handling.
-Several issues needs to be adressed:
-- Rename debian directory to deb/debian
-- Utilise parallel build with make rpm
-- Add one more prm package variant
-- Add tar-pkg, targz.pkg
-- Find a better way to identify relevant binaries to include in rpm, deb
-	- Current KBUILD_IMAGE proves not to be good enough
-
-
-And a patch relate to control alignment in gcc produced code.
-Needs to land some consolidation stuff first. Planning to rename
-check_gcc to gcc_option, and include a new one named gcc_option_ok.
-
-
-For ppc we have a problem with as trashing /dev/null.
-This is apperantly due to this code:
-BAD_AGCC_AS :=  $(shell echo mftb 5 | $(AS) -mppc -many -o /dev/null >/dev/null 2>&1 && echo 0 || echo 1)
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/08/17 23:02:08+02:00 sam@mars.ravnborg.org 
+#   kbuild: make C=2 now force sparse to be run for all .c files
+#   
+#   With make C=2 sparse ($(CHECK)) will be run on all .c files also if they
+#   do not need to be compiled.
+#   Usefull to run sparse on a fully compiled kernel tree.
+#   Implemented on request from Al Viro (although he liked to be able to
+#   run sparse without building any source).
+#   
+#   Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+# 
+# scripts/Makefile.build
+#   2004/08/17 23:01:51+02:00 sam@mars.ravnborg.org +9 -2
+#   Allow sparse to be forced to be used - for all .c files.
+# 
+# Makefile
+#   2004/08/17 23:01:51+02:00 sam@mars.ravnborg.org +2 -1
+#   Document how to force use of sparse, even when no source needs to be compiled.
+# 
+diff -Nru a/Makefile b/Makefile
+--- a/Makefile	2004-08-19 01:05:30 +02:00
++++ b/Makefile	2004-08-19 01:05:30 +02:00
+@@ -958,7 +958,8 @@
  
-It seem like as deletes /dev/null and recreate it.
-Not good if run as root - which is needed for modules_install for example.
-
-Would it be considered acceptable to start using mktemp to generate temporary
-filenames as part of a normal kernel build?
-I do not fully understand the eventual security issues around this!
-
-	Sam
+ 	@echo  '  make V=0|1 [targets] 0 => quiet build (default), 1 => verbose build'
+ 	@echo  '  make O=dir [targets] Locate all output files in "dir", including .config'
+-	@echo  '  make C=1   [targets] Check all c source with checker tool'
++	@echo  '  make C=1   [targets] Check all c source with $$CHECK (sparse)'
++	@echo  '  make C=2   [targets] Force check of all c source with $$CHECK (sparse)'
+ 	@echo  ''
+ 	@echo  'Execute "make" or "make all" to build all targets marked with [*] '
+ 	@echo  'For further info see the ./README file'
+diff -Nru a/scripts/Makefile.build b/scripts/Makefile.build
+--- a/scripts/Makefile.build	2004-08-19 01:05:30 +02:00
++++ b/scripts/Makefile.build	2004-08-19 01:05:30 +02:00
+@@ -83,8 +83,13 @@
+ 
+ # Linus' kernel sanity checking tool
+ ifneq ($(KBUILD_CHECKSRC),0)
+-quiet_cmd_checksrc = CHECK   $<
+-      cmd_checksrc = $(CHECK) $(c_flags) $< ;
++  ifeq ($(KBUILD_CHECKSRC),2)
++    quiet_cmd_force_checksrc = CHECK   $<
++          cmd_force_checksrc = $(CHECK) $(c_flags) $< ;
++  else
++      quiet_cmd_checksrc     = CHECK   $<
++            cmd_checksrc     = $(CHECK) $(c_flags) $< ;
++  endif
+ endif
+ 
+ 
+@@ -182,11 +187,13 @@
+ # Built-in and composite module parts
+ 
+ %.o: %.c FORCE
++	$(call cmd,force_checksrc)
+ 	$(call if_changed_rule,cc_o_c)
+ 
+ # Single-part modules are special since we need to mark them in $(MODVERDIR)
+ 
+ $(single-used-m): %.o: %.c FORCE
++	$(call cmd,force_checksrc)
+ 	$(call if_changed_rule,cc_o_c)
+ 	@{ echo $(@:.o=.ko); echo $@; } > $(MODVERDIR)/$(@F:.o=.mod)
+ 

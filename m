@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261624AbTBSVWz>; Wed, 19 Feb 2003 16:22:55 -0500
+	id <S261868AbTBSViT>; Wed, 19 Feb 2003 16:38:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261724AbTBSVWz>; Wed, 19 Feb 2003 16:22:55 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:65218 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261624AbTBSVWx>;
-	Wed, 19 Feb 2003 16:22:53 -0500
-Date: Wed, 19 Feb 2003 13:17:16 -0800 (PST)
-Message-Id: <20030219.131716.26356504.davem@redhat.com>
-To: sim@netnation.com
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: Longstanding networking / SMP issue? (duplextest)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030219174757.GA5373@netnation.com>
-References: <20030219174757.GA5373@netnation.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S261874AbTBSViT>; Wed, 19 Feb 2003 16:38:19 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:9095 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S261868AbTBSViS>;
+	Wed, 19 Feb 2003 16:38:18 -0500
+Date: Wed, 19 Feb 2003 16:48:17 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Ion Badulescu <ionut@badula.org>,
+       torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add new DMA_ADDR_T_SIZE define
+Message-ID: <20030219214817.GD4977@gtf.org>
+References: <Pine.LNX.4.44.0302191050290.29393-100000@guppy.limebrokerage.com> <20030219092046.458c2876.rddunlap@osdl.org> <1045692372.14268.9.camel@rth.ninka.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1045692372.14268.9.camel@rth.ninka.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Simon Kirby <sim@netnation.com>
-   Date: Wed, 19 Feb 2003 09:47:57 -0800
+On Wed, Feb 19, 2003 at 02:06:12PM -0800, David S. Miller wrote:
+> On Wed, 2003-02-19 at 09:20, Randy.Dunlap wrote:
+> > Does this help with being able to printk() a <dma_addr_t>?  How?
+> > Always use a cast to (u64) or something else?
+> 
+> One should always cast to long long and use %llx.  There is no
+> printf format appropriate for a 'u64'.
 
-   eepro100 driver and the e100 driver.
+/me wishes gcc would let the user application define printf formats
+for arbitrary [non-struct] user data types...
 
-Do you see it with other cards?  That would be the interesting
-clue :-)
+	Jeff
+
+
+

@@ -1,41 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266013AbUGZTOC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266005AbUGZTWO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266013AbUGZTOC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 15:14:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266049AbUGZTOC
+	id S266005AbUGZTWO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 15:22:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265789AbUGZTWO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 15:14:02 -0400
-Received: from main.gmane.org ([80.91.224.249]:31199 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S266013AbUGZRVA (ORCPT
+	Mon, 26 Jul 2004 15:22:14 -0400
+Received: from nacho.alt.net ([207.14.113.18]:4004 "HELO nacho.alt.net")
+	by vger.kernel.org with SMTP id S266128AbUGZRl3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 13:21:00 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Marc Ballarin <Ballarin.Marc@gmx.de>
-Subject: Re: Interesting race condition...
-Date: Mon, 26 Jul 2004 17:20:54 +0000 (UTC)
-Message-ID: <loom.20040726T190852-691@post.gmane.org>
-References: <200407222204.46799.rob@landley.net> <20040723073300.GA4502@ip68-4-98-123.oc.oc.cox.net> <200407240313.19053.rob@landley.net> <loom.20040724T152713-574@post.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 84.128.251.122 (Mozilla/5.0 (compatible; Konqueror/3.2; Linux) (KHTML, like Gecko))
+	Mon, 26 Jul 2004 13:41:29 -0400
+Date: Mon, 26 Jul 2004 10:41:24 -0700 (PDT)
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Arjan van de Ven <arjanv@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: inode_unused list corruption in 2.4.26 - spin_lock problem?
+In-Reply-To: <20040703051534.GA4998@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.44.0407261028470.21394-100000@nacho.alt.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Delivery-Agent: TMDA/1.0.2 (Bold Forbes)
+From: Chris Caputo <ccaputo@alt.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Ballarin <Ballarin.Marc <at> gmx.de> writes: 
- 
-Ok, I could repruduce this issue in bash and tcsh, using both, procps 
-3.1.5/3.2.2 from procps.sourceforge.net and procps 2.0.16 from 
-tech9.net/rml/procps. 
- 
-So, the bug is not in the shell (which is obvious, on second thought), but in 
-the kernel, glibc or procps - or the combination thereof. 
- 
-I'm using kernel 2.6.7, gcc-3.3.3, and glibc-2.3.3 with NPTL on Gentoo. 
- 
-Regards 
+On Sat, 3 Jul 2004, Arjan van de Ven wrote:
+> On Fri, Jul 02, 2004 at 01:00:19PM -0700, Chris Caputo wrote:
+> > On Fri, 25 Jun 2004, Marcelo Tosatti wrote:
+> > > On Wed, Jun 23, 2004 at 06:50:48PM -0700, Chris Caputo wrote:
+> > > > Is it safe to assume that the x86 version of atomic_dec_and_lock(), which
+> > > > iput() uses, is well trusted?  I figure it's got to be, but doesn't hurt
+> > > > to ask.
+> > > 
+> > > Pretty sure it is, used all over. You can try to use non-optimize version 
+> > > at lib/dec_and_lock.c for a test.
+> > 
+> > My current theory is that occasionally when irqbalance changes CPU
+> > affinities that the resulting set_ioapic_affinity() calls somehow cause
+> > either inter-CPU locking or cache coherency or ??? to fail.
+> 
+> or.... some spinlock is just incorrect and having the irqbalance irqlayout
+> unhides that.. irqbalance only balances very very rarely so I doubt it's the
+> cause of anything...
+
+It has been a while since I have been able to follow up on this but I want
+to let you know that I _have been able_ to reproduce the problem (believed
+to be IRQ twiddling resulting in failed spinlock protection) with a stock
+kernel.
+
+I would like to come up with a more reliable way to reproduce the problem
+with a stock kernel (2.4.26), since it is presently very rare (less than
+once per week) in the way I presently get it to happen, but as yet have
+not done so.
+
+My plan of attack is to remove irqbalance from the equation and repeatedly
+change with random intervals /proc/irq entries directly from one user mode
+program while another user mode program does things which inspire a lot of
+fs/inode.c spinlock activity (since that is where I continue to see list
+corruption).
+
+A few questions which could help me with this:
+
+  - Which IRQ (if any) is used by CPU's to coordinate inter-CPU locking?
+
+  - What does it mean if a stack trace is incomplete?  For example, one I 
+    have gotten is simply the tail end of the code snippet:
+
+         0b 9a 00 5d c8
+
+    And so I have wondered if the failure to make a full stack trace 
+    indicates something in of itself.
+
+Thanks for any assistance.  I hope to find more time to work on this in
+the coming weeks.
+
+Chris
 

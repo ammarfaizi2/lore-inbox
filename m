@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267934AbTBLXll>; Wed, 12 Feb 2003 18:41:41 -0500
+	id <S267932AbTBMAJI>; Wed, 12 Feb 2003 19:09:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267938AbTBLXll>; Wed, 12 Feb 2003 18:41:41 -0500
-Received: from tapu.f00f.org ([202.49.232.129]:61376 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S267934AbTBLXlk>;
-	Wed, 12 Feb 2003 18:41:40 -0500
-Date: Wed, 12 Feb 2003 15:51:30 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Bruno Diniz de Paula <diniz@cs.rutgers.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: O_DIRECT foolish question
-Message-ID: <20030212235130.GA13629@f00f.org>
-References: <1045084764.4767.76.camel@urca.rutgers.edu> <20030212140338.6027fd94.akpm@digeo.com> <1045088991.4767.85.camel@urca.rutgers.edu> <20030212224226.GA13129@f00f.org> <1045090977.21195.87.camel@urca.rutgers.edu> <20030212232443.GA13339@f00f.org> <1045092802.4766.96.camel@urca.rutgers.edu> <20030212233846.GA13540@f00f.org> <1045093775.21195.99.camel@urca.rutgers.edu>
+	id <S267933AbTBMAJI>; Wed, 12 Feb 2003 19:09:08 -0500
+Received: from cpe-24-221-186-48.ca.sprintbbd.net ([24.221.186.48]:34308 "HELO
+	jose.vato.org") by vger.kernel.org with SMTP id <S267932AbTBMAJH>;
+	Wed, 12 Feb 2003 19:09:07 -0500
+From: "Tim Pepper" <tpepper@vato.org>
+Date: Wed, 12 Feb 2003 16:18:50 -0800
+To: Marc Giger <gigerstyle@gmx.ch>
+Cc: linux-kernel@vger.kernel.org, jt@hpl.hp.com
+Subject: Re: Cisco Aironet 340 oops with 2.4.20
+Message-ID: <20030212161850.A2088@jose.vato.org>
+Mail-Followup-To: Tim Pepper <tpepper>, Marc Giger <gigerstyle@gmx.ch>,
+	linux-kernel@vger.kernel.org, jt@hpl.hp.com
+References: <20030210125342.4462c25b.gigerstyle@gmx.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1045093775.21195.99.camel@urca.rutgers.edu>
-User-Agent: Mutt/1.3.28i
-X-No-Archive: Yes
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030210125342.4462c25b.gigerstyle@gmx.ch>; from gigerstyle@gmx.ch on Mon, Feb 10, 2003 at 12:53:42PM +0100
+X-PGP-Key: http://vato.org/~tpepper/pubkey.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 12, 2003 at 06:49:35PM -0500, Bruno Diniz de Paula wrote:
+I've had oopses in 2.4.19 if I leave Cisco's acu utility running while
+I have much net activity.  Haven't looked to see if it still happens
+in 2.4.20 or expended the effort to get better debug info.  I'm using
+a cisco 352lmc card fwiw.
 
-> What is your partition type? ext2?
+Tim
 
-XFS.
-
-I can't test e2fs right now as my test machine is running 2.5.60 where
-it fails just as it does for you.  I think both use generic_direct_IO
-or whatever it's called so maybe I'll have a poke in there as to why
-2.5.x is failing.
-
-
-
-  --cw
+-- 
+*********************************************************
+*  tpepper@vato dot org             * Venimus, Vidimus, *
+*  http://www.vato.org/~tpepper     * Dolavimus         *
+*********************************************************

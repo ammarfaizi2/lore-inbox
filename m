@@ -1,74 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270168AbRHWTc1>; Thu, 23 Aug 2001 15:32:27 -0400
+	id <S270174AbRHWTd1>; Thu, 23 Aug 2001 15:33:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270174AbRHWTcT>; Thu, 23 Aug 2001 15:32:19 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:51396 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S270037AbRHWTcH>;
-	Thu, 23 Aug 2001 15:32:07 -0400
-Date: Thu, 23 Aug 2001 21:32:15 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: Jes Sorensen <jes@sunsite.dk>
-Cc: Tom Rini <trini@kernel.crashing.org>, Bob Glamm <glamm@mail.ece.umn.edu>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
-Message-ID: <20010823213215.F1434@khan.acc.umu.se>
-In-Reply-To: <20010822030807.N120@pervalidus> <20010823140555.A1077@newton.bauerschmidt.eu.org> <20010823103620.A6965@kittpeak.ece.umn.edu> <20010823085900.F14302@cpe-24-221-152-185.az.sprintbbd.net> <d3k7zutw5y.fsf@lxplus051.cern.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <d3k7zutw5y.fsf@lxplus051.cern.ch>; from jes@sunsite.dk on Thu, Aug 23, 2001 at 09:26:33PM +0200
+	id <S270194AbRHWTdT>; Thu, 23 Aug 2001 15:33:19 -0400
+Received: from mailc.telia.com ([194.22.190.4]:21714 "EHLO mailc.telia.com")
+	by vger.kernel.org with ESMTP id <S270174AbRHWTdO>;
+	Thu, 23 Aug 2001 15:33:14 -0400
+Message-Id: <200108231933.f7NJX8j21551@mailc.telia.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Roger Larsson <roger.larsson@norran.net>
+To: Rik van Riel <riel@conectiva.com.br>,
+        torvalds@transmeta.com (Linus Torvalds), alan.cox@redhat.com
+Subject: Upd: [PATCH NG] alloc_pages_limit & pages_min
+Date: Thu, 23 Aug 2001 21:28:44 +0200
+X-Mailer: KMail [version 1.3]
+Cc: <linux-mm@kvack.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0108231600020.31410-100000@duckman.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.33L.0108231600020.31410-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 23, 2001 at 09:26:33PM +0200, Jes Sorensen wrote:
-> >>>>> "Tom" == Tom Rini <trini@kernel.crashing.org> writes:
-> 
-> Tom> On Thu, Aug 23, 2001 at 10:36:20AM -0500, Bob Glamm wrote:
-> Tom> And the same set of replies.  Doing it in !python would be much
-> Tom> harder than it sounds.  But people have stepped up and said
-> Tom> they'd do it in C.  So python is only needed for xconfig.  And
-> Tom> that's just trading tcl for python.  The other thing is, the
-> Tom> python cml2 tools are supposed to eliminate a bunch of other
-> Tom> tools and remove some of the dependancies.
-> 
-> Most of these tools were written in bash or C ... going the python way
-> is a major loss.
-> 
-> >> Why isn't ncurses a pain?  For the same reason ncurses wasn't a
-> >> pain when 'make menuconfig' (lxdialog) was introduced (yes, I did
-> >> many a 'make config'): curses/ncurses was already on just about
-> >> every system running Linux - it was built into the text editor.
-> 
-> Tom> And many a new system has python.
-> 
-> It still doesn't solve the situation of people building embedded
-> systems who do only have a bare minimum on their systems. Or people
-> who are bringing up systems who do not have network/floppy available
-> and do not want to move their disks between systems constantly in
-> order to configure their kernels. I have brought this point up
-> several times to the CML2 developer and every time I received the
-> utterly useless answer saying I should move my source to another box,
-> configure it there and move it back to the devel box.
-> 
-> >> It does surprise me that Linus would actually allow this to happen.
-> >> It's been my impression that he favors a clean, elegant solution.
-> >> Maybe it's just me, but adding a dependency solely for the sake of
-> >> building the kernel doesn't strike me as very clean or elegant.
-> 
-> Tom> Because the python solution happened to fix all of the problems.
-> 
-> And introduces new problems that so far haven't been addressed.
-> 
-> The solution seems to be that someone implements CML2 in C, once that
-> happens we are talking something completely different.
+Riel convinced be to back off a part of the patch.
+Here comes an updated one.
 
-Sounds like we have another volunteer here?!
+-- 
+Roger Larsson
+Skellefteå
+Sweden
 
+*******************************************
+Patch prepared by: roger.larsson@norran.net
+Name of file: linux-2.4.8-pre3-pages_min-R3
 
-/David
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+--- linux/mm/page_alloc.c.orig  Thu Aug 23 19:58:55 2001
++++ linux/mm/page_alloc.c       Thu Aug 23 21:19:20 2001
+@@ -253,11 +253,26 @@
+
+                if (z->free_pages + z->inactive_clean_pages >= water_mark) {
+                        struct page *page = NULL;
+-                       /* If possible, reclaim a page directly. */
+-                       if (direct_reclaim)
++
++                       /*
++                        * Reclaim a page from the inactive_clean list.
++                        * If needed, refill the free list up to the
++                        * low water mark.
++                        */
++                       if (direct_reclaim) {
+                                page = reclaim_page(z);
+-                       /* If that fails, fall back to rmqueue. */
+-                       if (!page)
++
++                               while (page && z->free_pages < z->pages_min) {
++                                       __free_page(page);
++                                       page = reclaim_page(z);
++                               }
++
++                               /* let kreclaimd handle up to pages_high */
++                       }
++                       /* If that fails, fall back to rmqueue, but never let
++                       *  free_pages go below pages_min...
++                       */
++                       if (!page && z->free_pages >= z->pages_min)
+                                page = rmqueue(z, order);
+                        if (page)
+                                return page;

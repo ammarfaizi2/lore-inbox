@@ -1,43 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263083AbTI3CxL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 22:53:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbTI3CxL
+	id S263088AbTI3DNY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 23:13:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263096AbTI3DNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 22:53:11 -0400
-Received: from mail010.syd.optusnet.com.au ([211.29.132.56]:18626 "EHLO
-	mail010.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S263083AbTI3CxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 22:53:10 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16248.59825.930284.259695@wombat.chubb.wattle.id.au>
-Date: Tue, 30 Sep 2003 12:25:53 +1000
-To: Peter Osterlund <petero2@telia.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.6.0-test6: synaptics upside down? 
-In-Reply-To: <Pine.LNX.4.44.0309290731120.25735-100000@telia.com>
-References: <16247.49897.60412.898864@wombat.chubb.wattle.id.au>
-	<Pine.LNX.4.44.0309290731120.25735-100000@telia.com>
-X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+	Mon, 29 Sep 2003 23:13:24 -0400
+Received: from uucp.cistron.nl ([62.216.30.38]:63754 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S263088AbTI3DNW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 23:13:22 -0400
+From: dth@ncc1701.cistron.net (Danny ter Haar)
+Subject: 2.6.0-test[56] pcnet32 problems
+Date: Tue, 30 Sep 2003 03:13:11 +0000 (UTC)
+Organization: Cistron
+Message-ID: <blasc7$jfi$1@news.cistron.nl>
+X-Trace: ncc1701.cistron.net 1064891591 19954 62.216.30.38 (30 Sep 2003 03:13:11 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: dth@ncc1701.cistron.net (Danny ter Haar)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Peter" == Peter Osterlund <petero2@telia.com> writes:
+Got an cyrix box with built in ethernet & 2 extra ethernet cards
+as a firewall at home with a dsl line (connected to eth0)
 
-Peter> On Mon, 29 Sep 2003, Peter Chubb wrote:
->> Hi folks, On the latest 2.6.0-test6 kernel, the synaptics touchpad
->> on my Clevo is upside down -- moving my finger up moves the pointer
->> down, et vice versa.
+pcnet32.c:v1.27b 01.10.2002 tsbogend@alpha.franken.de
+PCI: Found IRQ 11 for device 0000:00:0f.0
+IRQ routing conflict for 0000:00:0f.0, have irq 9, want irq 11
+pcnet32: PCnet/FAST III 79C973 at 0xfca0, warning: CSR address invalid,
+    using instead PROM address of 00 00 e2 24 41 1d assigned IRQ 9.
+eth0: registered as PCnet/FAST III 79C973
+pcnet32: 1 cards_found.
 
-Peter> Try upgrading to version 0.11.7 of the XFree86 driver.
+Sometimes (even during low traffic) eth0 simply locks up:
+In dmesg i see:
+kernel: eth0: Bus master arbitration failure, status 88f3.
 
-Thanks, that fixed it.
+rmmod pcnet32 results in kernel-panic.
+Only reboot works.
+tried:
+acpi == disabled
+pci=noacpi
 
-Peter C
+Another weird thing is output of ifconfig eth0:
+
+eth0      Link encap:Ethernet  HWaddr 00:00:E2:24:41:1D  
+          inet addr:195.64.94.48  Bcast:195.64.94.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:30345 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:16042 dropped:0 overruns:0 carrier:16042
+          collisions:0 txqueuelen:1000 
+          RX bytes:38404293 (36.6 MiB)  TX bytes:1298028 (1.2 MiB)
+          Interrupt:9 Base address:0xfca0 
+
+0 packets transmitted , all errors ans carrier faults ?
+Still it works! (this could be counters that are wrong)
+
+kernel config, lspci -v and dmesg output available at:
+
+http://dth.net/kernel/
+
+Any help/suggestions/hints appreciated.
+
+Danny
+-- 
+ /"\                        | Dying is to be avoided because
+ \ /  ASCII RIBBON CAMPAIGN | it can ruin your whole career 
+  X   against HTML MAIL     | 
+ / \  and POSTINGS          | - Bob Hope
+

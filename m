@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbULTRi0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbULTRtT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261588AbULTRi0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 12:38:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbULTRi0
+	id S261590AbULTRtT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 12:49:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261591AbULTRtS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 12:38:26 -0500
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:52140 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261589AbULTRiF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 12:38:05 -0500
-Message-ID: <41C70DF2.80101@nortelnetworks.com>
-Date: Mon, 20 Dec 2004 11:37:54 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Mon, 20 Dec 2004 12:49:18 -0500
+Received: from mail6.hitachi.co.jp ([133.145.228.41]:45040 "EHLO
+	mail6.hitachi.co.jp") by vger.kernel.org with ESMTP id S261590AbULTRtO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 12:49:14 -0500
+Message-ID: <41C710BB.9000705@sdl.hitachi.co.jp>
+Date: Tue, 21 Dec 2004 02:49:47 +0900
+From: Hideo AOKI <aoki@sdl.hitachi.co.jp>
+Organization: Systems Development Lab., Hitachi, Ltd.
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; ja-JP; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: ja
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Al Hooton <al@hootons.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ioctl assignment strategy?
-References: <1103067067.2826.92.camel@chatsworth.hootons.org> <20041215004620.GA15850@kroah.com> <41C04FFA.6010407@nortelnetworks.com> <20041217234854.GA24506@kroah.com>
-In-Reply-To: <20041217234854.GA24506@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Andrew Morton <akpm@osdl.org>, lista4@comhem.se,
+       linux-kernel@vger.kernel.org, mr@ramendik.ru, kernel@kolivas.org,
+       riel@redhat.com
+Subject: Re: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
+References: <1329986.1103525472726.JavaMail.tomcat@pne-ps1-sn1> <20041219231250.457deb12.akpm@osdl.org> <41C682F1.20200@yahoo.com.au>
+In-Reply-To: <41C682F1.20200@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+Nick Piggin wrote:
 
-> Rethink the way you want to control your device.  Seriously, a lot of
-> ioctls can be broken down into single device files, single sysfs files,
-> or other such things (a whole new fs as a last resort too.)
+> Andrew Morton wrote:
+[snip]
+>> Did anyone come up with a simple step-by-step procedure for 
+>> reproducing the
+>> problem?  It would be good if someone could do this, because I don't 
+>> think
+>> we understand the root cause yet?
+> 
+> I admit to generally being in the same boat as you with respect to
+> running complex userspace apps.
+> 
+> However, based on this and other scattered reports, I'd say it seems
+> quite likely that token based thrashing control is the culprit. Based
+> on the cost/benefit, I wonder if we should disable TBTC by default for
+> 2.6.10, rather than trying to fix it, and try again for 2.6.11?
 
-Actually, my particular case is likely not a good example.  We've got a misc 
-char driver giving access to a lot of miscellaneous features we've added to the 
-kernel,.  We originally (a few years back) used new syscalls, but then we 
-started supporting a bunch more arches, and having to patch all of them just to 
-add syscall numbers sucked.
+Hello,
 
-Some of it could easily be moved to /proc or /sys, but if you do it that way, 
-how do you handle returning unusual error values?  Other stuff involves multiple 
-stages of registration, then getting handles returned, and doing new calls with 
-those handles.  I don't see how this would tie nicely into the read/write paradigm.
+I imagine that the issue might occur when only one process holds 
+almost all memory and has swap token too long time.
 
-What's the big problem with ioctls anyways?  I mean, in a closed environment 
-where I'm writing both the userspace and the kernelspace side of things.
+However, TBTC has a good effect in my workload.  
+So, I think that it is better to keep VM tunable using TBTC.
+ 
+It may be a good idea to set 0 to default swap_token_timeout 
+until we find the root cause.
 
-Chris
+Best regards,
+Hideo AOKI
+

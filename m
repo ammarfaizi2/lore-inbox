@@ -1,27 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264077AbTIIMHm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 08:07:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264083AbTIIMHm
+	id S264074AbTIIMGg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 08:06:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264080AbTIIMGf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 08:07:42 -0400
-Received: from dns.toxicfilms.tv ([150.254.37.24]:32648 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S264077AbTIIMHZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 08:07:25 -0400
-Date: Tue, 9 Sep 2003 14:07:23 +0200 (CEST)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: Bernhard Rosenkraenzer <bero@arklinux.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH 2.6.0-test5-mm1] Fix build with debug disabled
-In-Reply-To: <Pine.LNX.4.51.0309091358350.14559@dns.toxicfilms.tv>
-Message-ID: <Pine.LNX.4.51.0309091406550.14654@dns.toxicfilms.tv>
-References: <Pine.LNX.4.56.0309091317320.9188@dot.kde.org>
- <Pine.LNX.4.51.0309091358350.14559@dns.toxicfilms.tv>
+	Tue, 9 Sep 2003 08:06:35 -0400
+Received: from CPE-203-51-31-218.nsw.bigpond.net.au ([203.51.31.218]:25328
+	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id S264074AbTIIMGe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 08:06:34 -0400
+Message-ID: <3F5DC247.794DD843@eyal.emu.id.au>
+Date: Tue, 09 Sep 2003 22:06:31 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.22-aa1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.0-test5: CONFIG_COSA build fails
+References: <Pine.LNX.4.44.0309081319380.1666-100000@home.osdl.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi Alan,
-Oops, I meant Hi Andrew!
+makeallmods, i386:
+
+  CC [M]  drivers/net/wan/cosa.o
+drivers/net/wan/cosa.c: In function `cosa_ioctl_common':
+drivers/net/wan/cosa.c:1167: parse error before `['
+drivers/net/wan/cosa.c:1167: case label does not reduce to an integer
+constant
+drivers/net/wan/cosa.c:1171: parse error before `['
+drivers/net/wan/cosa.c:1171: case label does not reduce to an integer
+constant
+drivers/net/wan/cosa.c:1175: parse error before `['
+drivers/net/wan/cosa.c:1175: case label does not reduce to an integer
+constant
+drivers/net/wan/cosa.c:1179: parse error before `['
+drivers/net/wan/cosa.c:1179: case label does not reduce to an integer
+constant
+drivers/net/wan/cosa.c:1181: parse error before `['
+drivers/net/wan/cosa.c:1181: case label does not reduce to an integer
+constant
+drivers/net/wan/cosa.c:1187: parse error before `['
+drivers/net/wan/cosa.c:1187: case label does not reduce to an integer
+constant
+make[3]: *** [drivers/net/wan/cosa.o] Error 1
+make[2]: *** [drivers/net/wan] Error 2
+make[1]: *** [drivers/net] Error 2
+make: *** [drivers] Error 2
+
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

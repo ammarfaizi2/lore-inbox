@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266005AbUFIWEX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265974AbUFIWPj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266005AbUFIWEX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 18:04:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266011AbUFIWEX
+	id S265974AbUFIWPj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 18:15:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265981AbUFIWPj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 18:04:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:63910 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266005AbUFIWEV (ORCPT
+	Wed, 9 Jun 2004 18:15:39 -0400
+Received: from mail6.bluewin.ch ([195.186.4.229]:38881 "EHLO mail6.bluewin.ch")
+	by vger.kernel.org with ESMTP id S265974AbUFIWPf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 18:04:21 -0400
-Date: Wed, 9 Jun 2004 15:06:58 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: axboe@suse.de, edt@aei.ca, linux-kernel@vger.kernel.org
-Subject: Re: ide errors in 7-rc1-mm1 and later
-Message-Id: <20040609150658.5e5e6653.akpm@osdl.org>
-In-Reply-To: <200406092352.18470.bzolnier@elka.pw.edu.pl>
-References: <1085689455.7831.8.camel@localhost>
-	<200406041814.35003.bzolnier@elka.pw.edu.pl>
-	<20040605091853.GA13641@suse.de>
-	<200406092352.18470.bzolnier@elka.pw.edu.pl>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Wed, 9 Jun 2004 18:15:35 -0400
+Date: Wed, 9 Jun 2004 23:38:50 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: "David S. Miller" <davem@redhat.com>, jgarzik@pobox.com,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] ethtool semantics
+Message-ID: <20040609213850.GA17243@k3.hellgate.ch>
+Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
+	"David S. Miller" <davem@redhat.com>, jgarzik@pobox.com,
+	netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+References: <20040607212804.GA17012@k3.hellgate.ch> <20040607145723.41da5783.davem@redhat.com> <20040608210809.GA10542@k3.hellgate.ch> <40C77C70.5070409@tmr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40C77C70.5070409@tmr.com>
+X-Operating-System: Linux 2.6.7-rc3-bk1 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
->
-> Sure, you don't need my ACK, that's obvious - you need it from Linus/Andrew.
-
-But your nack would almost certainly prevent a merge, pending resolution of
-whatever the issues are.
-
+On Wed, 09 Jun 2004 17:09:04 -0400, Bill Davidsen wrote:
+> cases forcing on both ends or just the NIC end results in a fully 
+> functional connection.
 > 
-> ...
->
-> BTW are you aware of two (minor?) corner cases of the current implementation?
+> We usually do this with module parameters, but do use ethtool (or 
+> mii-tool) on occasion.
+
+<sigh> I just killed the module parameters in my via-rhine development
+tree. I suppose you don't use via-rhine!? :-) Nobody complained when
+the code was broken for the longest time, and the current design has
+all kinds of issues, not the least of which is a distinct lack of sane
+semantics for stuff like hotplug, interface renaming, etc.
+
+I'd prefer not to spend my time writing a clean implementation (or fixing
+up the current one) of a mechanism that is conceptually obsolete.
+
+> >However, "silently ignoring" strikes me as a very poor choice, in
+> >stark contrast to Unix/Linux tradition. A user issues a command which
+> >cannot be executed and gets the same response that is used to indicate
+> >success!? What school of user interface design is that? How is that
+> >not confusing users? </rant>
 > 
-> - you can't have journal on a separate device
->   (pre and post flushes will only flush device storing journal not data)
+> Yah.
+> 
+> Seeing this happen while autonegotiation is in progress is a small and 
+> unlikely window of course!
 
-External journals in ext3 aren't really supported - they just happen to
-work as a plaything.  I haven't tested it in several years, but I believe
-people do use it.
+Hmm? It's not about autoneg being in progress, and it's not a race
+of any kind. If your NIC comes up with nway autoneg enabled, you must
+use ethtool to explicitly turn autoneg off before you can use ethtool
+duplex/speed options to force a media mode. However, if you try to force
+media with autoneg still enabled, your command will be silently ignored.
+It's up to the user to find out that the command failed and why.
 
-That being said, the bug you identify is an ext3 bug.  The easiest way for
-me to fix it up within ext3 would be to issue some flush command to the
-filesystem's disk, wait for that to complete, then write the buffer_ordered
-commit block to the journal's disk.  That's blkdev_issue_flush(), yes?
-
-> - if you more than > 1 filesystem on the disk (quite likely scenario) it
->   can happen that barrier (flush) will fail for sector for file from the
->   other fs and later barrier for this other fs will succeed
-
-I don't understand this one.
-
+Roger

@@ -1,77 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264931AbTANVp6>; Tue, 14 Jan 2003 16:45:58 -0500
+	id <S264936AbTANVps>; Tue, 14 Jan 2003 16:45:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264938AbTANVp6>; Tue, 14 Jan 2003 16:45:58 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:13717 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S264939AbTANVpz>; Tue, 14 Jan 2003 16:45:55 -0500
-Subject: Re: [Lse-tech] Re: [PATCH 2.5.58] new NUMA scheduler: fix
-From: Michael Hohnbaum <hohnbaum@us.ibm.com>
-To: Michael Hohnbaum <hohnbaum@us.ibm.com>
-Cc: Erich Focht <efocht@ess.nec.de>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Andrew Theurer <habanero@us.ibm.com>,
-       Christoph Hellwig <hch@infradead.org>, Robert Love <rml@tech9.net>,
-       Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-In-Reply-To: <1042570956.27149.178.camel@dyn9-47-17-164.beaverton.ibm.com>
-References: <52570000.1042156448@flay>
-	<200301141655.06660.efocht@ess.nec.de>
-	<200301141723.29613.efocht@ess.nec.de> 
-	<200301141743.25513.efocht@ess.nec.de> 
-	<1042570956.27149.178.camel@dyn9-47-17-164.beaverton.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 14 Jan 2003 13:56:33 -0800
-Message-Id: <1042581395.24747.200.camel@dyn9-47-17-164.beaverton.ibm.com>
-Mime-Version: 1.0
+	id <S264939AbTANVps>; Tue, 14 Jan 2003 16:45:48 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:12807
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S264936AbTANVpr>; Tue, 14 Jan 2003 16:45:47 -0500
+Date: Tue, 14 Jan 2003 13:51:41 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Abramo Bagnara <abramo.bagnara@libero.it>
+cc: Larry McVoy <lm@bitmover.com>, Dax Kelson <dax@gurulabs.com>,
+       Richard Stallman <rms@gnu.org>, root@chaos.analogic.com,
+       pollard@admin.navo.hpc.mil, R.E.Wolff@BitWizard.nl, jalvo@mbay.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [OFFTOPIC] RMS and reactions to him
+In-Reply-To: <3E2472BE.12D0BDC5@libero.it>
+Message-ID: <Pine.LNX.4.10.10301141347010.23438-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-01-14 at 11:02, Michael Hohnbaum wrote:
-> On Tue, 2003-01-14 at 08:43, Erich Focht wrote:
-> > Aargh, I should have gone home earlier...
-> > For those who really care about patch 05, it's attached. It's all
-> > untested as I don't have a ia32 NUMA machine running 2.5.58...
-> 
-> One more minor problem - the first two patches are missing the
-> following defines, and result in compile issues:
-> 
-> #define MAX_INTERNODE_LB 40
-> #define MIN_INTERNODE_LB 4
-> #define NODE_BALANCE_RATIO 10
-> 
-> Looking through previous patches, and the 05 patch, I found
-> these defines and put them under the #if CONFIG_NUMA in sched.c
-> that defines node_nr_running and friends.
-> 
-> With these three lines added, I have a kernel built and booted
-> using the first numa-sched and numa-sched-add patches.
-> 
-> Test results will follow later in the day.
+On Tue, 14 Jan 2003, Abramo Bagnara wrote:
 
-Trying to apply the 05 patch, I discovered that it was already
-in there.  Something is messed up with the combined patches, so
-I went back to the tgz file you provided and started over.  I'm
-not sure what the kernel is that I built and tested earlier today,
-but I suspect it was, for the most part, the complete patchset
-(i.e., patches 1-5).  Building a kernel with patches 1-4 from
-the tgz file does not need the additional defines mentioned in
-my previous email.
-
-Testing is starting from scratch with a known patch base.  The
-plan is to test with patches 1-4, then add in 05.  I should have
-some numbers for you before the end of my day.  btw, the numbers
-looked real good for the runs on whatever kernel it was that I
-built this morning.
+> Larry McVoy wrote:
+> > 
+> > On Tue, Jan 14, 2003 at 12:56:39PM -0700, Dax Kelson wrote:
+> > > For nearly 10 years I've read many posts by RMS and the replies that
+> > > follow. RMS's posts seem calm, rational and clearly presented. For the
+> > > most part, the replies are emotional, high strung, and mean spirited
+> > > personal attacks.
+> > 
+> > If I calmly, rationally, and clearly state things which are not true,
+> > are self serving, and are not relevant to a forum, what should I expect
+> > in response?
 > 
->              Michael
+> Are you serious about that?
 > 
-> > Erich
--- 
+> Do you known *any* absolute, objective, irrefutable truth?
+> 
+> Would you like to perjury that *every* one of your posting is not self
+> serving and fully relevant?
+> 
+> Please stop that: I think you know as well as me that Dax is right.
 
-Michael Hohnbaum                      503-578-5486
-hohnbaum@us.ibm.com                   T/L 775-5486
+Yeah,
+
+<FIREBALL BAIT>
+
+Just like the Pope does not believe in screwing little children, but
+refuses to punish and pay for the actions of his advocates.
+
+</FIREBALL BAIT>
+
+The goal is to piss you off, and was selected because you live in Italy.
+
+Regardless there is a little truth in the above, but must of it is twisted
+to make a point which is not relivant (sp).
+
+
 

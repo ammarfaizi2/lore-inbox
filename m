@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131230AbRACQnf>; Wed, 3 Jan 2001 11:43:35 -0500
+	id <S132048AbRACQsG>; Wed, 3 Jan 2001 11:48:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132294AbRACQn0>; Wed, 3 Jan 2001 11:43:26 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:3970 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S131230AbRACQnT>;
-	Wed, 3 Jan 2001 11:43:19 -0500
-Date: Wed, 3 Jan 2001 11:12:48 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: Andreas Dilger <adilger@enel.ucalgary.ca>,
-        Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org,
-        "Theodore Y. Ts'o" <tytso@mit.edu>,
-        Ext2 development mailing list 
-	<ext2-devel@lists.sourceforge.net>
-Subject: Re: [Ext2-devel] Re: [RFC] ext2_new_block() behaviour
-In-Reply-To: <20010103121609.C1290@redhat.com>
-Message-ID: <Pine.GSO.4.21.0101031051080.15658-100000@weyl.math.psu.edu>
+	id <S132109AbRACQrz>; Wed, 3 Jan 2001 11:47:55 -0500
+Received: from copernicus.mpcnet.com.br ([200.246.29.18]:777 "EHLO
+	copernicus.mpcnet.com.br") by vger.kernel.org with ESMTP
+	id <S132048AbRACQrf>; Wed, 3 Jan 2001 11:47:35 -0500
+To: linux-kernel@vger.kernel.org
+Subject: VIA system timer (problem still in test13-pre7 and prerelease)
+Reply-To: Jeronimo Pellegrini <jeronimo@ic.unicamp.br>
+From: Jeronimo Pellegrini <jeronimo@ic.unicamp.br>
+Date: 03 Jan 2001 14:14:09 -0200
+In-Reply-To: Vojtech Pavlik's message of "Thu, 26 Oct 2000 15:33:26 +0200"
+Message-ID: <86vgrwvcj2.fsf@mpcnet.com.br>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hello.
 
-On Wed, 3 Jan 2001, Stephen C. Tweedie wrote:
+Some time ago, Vojtech Pavlik sent a message stating that he had found
+a critical bug in some VIA chipsets, and suggested a patch.
 
-> Having preallocated blocks allocated immediately is deliberate:
-> directories grow slowly and remain closed most of the time, so the
-> normal preallocation regime of only preallocating open files and
-> discarding preallocation on close just doesn't work.
+The bug would "cause X to blank the screen when it should not, squid
+to terminate connections with a 'timeout' randomly and other nice
+effects."
 
-Erm. For directories we would not have the call of discard_prealloc()
-on close(2) - they have NULL ->release() anyway and for them it would
-happen only on ext2_put_inode(), i.e. upon the final dput(). Which would
-not happen while some descendent would stay in dcache.
+The problem is still present in test13-pre7 and in prerelease; X
+blanks like crazy sometimes here, and applying the patch solves the
+problem nicely here. This is a VIA Apollo Pro 133 system
+(VIA 693/596B)
 
-IOW, if directory is really going to grow (which normally mean that we
-are busily writing into files in it or its subdirectories) we will not
-get discard_prealloc() until it's all over. open()/close() has nothing
-to it - even if we used the same ->release() as for files, it would be
-a no-op since all opens are read-only. Even for normal files close() after
-read-only open() doesn't do anything to preallocation.
+Not sure why it didn't go into the main tree, and since there's
+prerelease out there, I thought I'd send this message. (Were there
+problems with that patch?)
 
-Comments? I'm not saying that it's necessary a good idea, but the argument
-about file-like preallocation regime really doesn't apply - regime will
-be different anyway...
+J.
+
+-- 
+Jeronimo Pellegrini
+Institute of Computing - Unicamp - Brazil
+http://www.ic.unicamp.br/~jeronimo
+mailto:jeronimo@ic.unicamp.br    mailto:pellegrini@iname.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

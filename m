@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264625AbRFPR4e>; Sat, 16 Jun 2001 13:56:34 -0400
+	id <S264634AbRFPR7w>; Sat, 16 Jun 2001 13:59:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264634AbRFPR4W>; Sat, 16 Jun 2001 13:56:22 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:728 "HELO havoc.gtf.org")
-	by vger.kernel.org with SMTP id <S264625AbRFPR4S>;
-	Sat, 16 Jun 2001 13:56:18 -0400
-Message-ID: <3B2B9DA3.3E310BF7@mandrakesoft.com>
-Date: Sat, 16 Jun 2001 13:55:47 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
-X-Accept-Language: en
+	id <S264637AbRFPR7m>; Sat, 16 Jun 2001 13:59:42 -0400
+Received: from po.sakura.ne.jp ([210.155.3.194]:32015 "EHLO po.sakura.ne.jp")
+	by vger.kernel.org with ESMTP id <S264634AbRFPR7c>;
+	Sat, 16 Jun 2001 13:59:32 -0400
+Date: Sun, 17 Jun 2001 02:58:41 +0900
+From: Susumu Takuwa <susumu-t@po.sakura.ne.jp>
+To: linux-kernel@vger.kernel.org
+Subject: max size of initrd image files
+Message-Id: <20010617023346.3E4A.SUSUMU-T@po.sakura.ne.jp>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Eric Smith <eric@brouhaha.com>, linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@transmeta.com>, arjanv@redhat.com, mj@ucw.cz
-Subject: Re: 2.4.2 yenta_socket problems on ThinkPad 240
-In-Reply-To: <E15BG4h-000842-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.00.07
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > I would love to just define it unconditionally for x86, but I believe
-> > Martin said that causes problems with some hardware, and the way the
-> > BIOS has set up that hardware.  (details anyone?)
-> 
-> Im not sure unconditionally is wise. However turning it into a routine that
-> walks the PCI bus tree and returns 1 if  a duplicate is found seems to be
-> a little bit less likely to cause suprises
+Hi, I have problem about booting Linux by using initrd which
+I made originally.I have made original two initrd images,
+that have *same* contents, but they have different size. ie,
 
-That would work, but is really a bandaid because we don't know what the
-real problem is...  this still smells vaguely like yenta and pci bus
-core should be more than just the kissing cousins they are now.  OTOH I
-still don't like how much we trust firmware PCI bus setup on x86..
+first, creating image file.
+$ dd if=/dev/zero of=/tmp/ramdisk1 bs=1024k count=48
+$ dd if=/dev/zero of=/tmp/ramdisk2 bs=1024k count=64
 
-I am pretty lucky on Alpha, we already trust the kernel PCI code
-implicitly by unconditionally defining pcibios_assign_all_busses to one.
-:)
+second, copying files of initrd.img which is contained some
+distro.
+$ gzip -dc /boot/initrd.img > /tmp/initrd
+$ losetup /dev/loop1 initrd
+$ losetup /dev/loop0 ramdisk(1|2)
+$ mount /dev/loop0 /loop0
+$ mount /dev/loop1 /loop1
+$ cp -a /loop1/* /loop0/
 
-	Jeff
+$ losetup -d ...
+$ umount ...
+
+$ gzip -c9 ramdisk(1|2) > /boot/ramdisk(1|2).img
+
+third, booting kernel with initrd image under setting kernel
+parameter ``ramdisk=131072''. My Linux Box have 384MB RAM
+and 2.2.17 kernel.
+
+Well, when I used ramdisk1.img, I could boot kernel with no
+problem. But when I used ramdsisk2.img , I could not boot
+kernel with following error message.
+
+	RAMDISK: could not determine device size
+
+Is the 64MB initrd image compressed by gzip too big? Can I
+solve the problem?
 
 
--- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |
+	Susumu Takuwa
+
+
+

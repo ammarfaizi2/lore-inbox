@@ -1,37 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262030AbSJJFEB>; Thu, 10 Oct 2002 01:04:01 -0400
+	id <S263250AbSJJFEv>; Thu, 10 Oct 2002 01:04:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262031AbSJJFEB>; Thu, 10 Oct 2002 01:04:01 -0400
-Received: from SNAP.THUNK.ORG ([216.175.175.173]:52627 "EHLO snap.thunk.org")
-	by vger.kernel.org with ESMTP id <S262030AbSJJFEB>;
-	Thu, 10 Oct 2002 01:04:01 -0400
+	id <S263241AbSJJFEf>; Thu, 10 Oct 2002 01:04:35 -0400
+Received: from SNAP.THUNK.ORG ([216.175.175.173]:56467 "EHLO snap.thunk.org")
+	by vger.kernel.org with ESMTP id <S262035AbSJJFEW>;
+	Thu, 10 Oct 2002 01:04:22 -0400
 To: linux-kernel@vger.kernel.org
 cc: ext2-devel@sourceforge.net
-Subject: [RFC] [PATCH 0/5] ACL support for ext2/3
+Subject: [RFC] [PATCH 2/5] ACL support for ext2/3
 From: tytso@mit.edu
-Message-Id: <E17zVZw-00069U-00@snap.thunk.org>
-Date: Thu, 10 Oct 2002 01:09:44 -0400
+Message-Id: <E17zVaI-00069c-00@snap.thunk.org>
+Date: Thu, 10 Oct 2002 01:10:06 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The following patch set adds ACL support to the ext2/3 filesystem.  It
-is a port of the 0.8.50 patches from Andreas Gruenbacher.  It requires
-the Extended Attribute patches which I had sent earlier as a
-pre-requisite, and represents the 2nd of 3 sets of patches from the
-acl.bestbits.at code.  (The first set was the EA patches; this is the
-second set of patches; and the third set of patches adds ACL support to
-NFS, so that the NFS server respects the ACL set on the filesystem.)
+This patch (as well as the previous one) implements core ACL support
+which is needed for XFS as well as ext2/3 ACL support.  This were patch
+was posted by Nathan Scott 2 or 3 days ago, since it is needed for XFS
+support as well.  It allows the umask handling to be handled by the
+filesystem instead of by the high-level VFS layer.
 
-Some of these patches in this set are shared in common with the XFS
-filesystem, and are needed for ACL support in XFS as well.  These
-patches are versus 2.5.40, and still reflect the original design
-decision of allowing ext2 and ext3 ACL support to be available as
-separate standalone modules.  (See the discussion of the EA patches
-about whether or not this makes sense.)
 
-Please comment/bleed on these patches.
-
-						- Ted
-
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+#
+# fs/namei.c         |   13 ++++++++-----
+# include/linux/fs.h |    2 ++
+# 2 files changed, 10 insertions(+), 5 deletions(-)
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/10/09	tytso@snap.thunk.org	1.670
+# Ported 0.8.50 acl_ms_posixacl to Linux 2.5
+# --------------------------------------------
+#
+diff -Nru a/fs/namei.c b/fs/namei.c
+--- a/fs/namei.c	Wed Oct  9 23:53:59 2002
++++ b/fs/namei.c	Wed Oct  9 23:53:59 2002
+@@ -1279,8 +1279,9 @@
+ 
+ 	/* Negative dentry, just create the file */
+ 	if (!dentry->d_inode) {
+-		error = vfs_create(dir->d_inode, dentry,
+-				   mode & ~current->fs->umask);
++		if (!IS_POSIXACL(dir->d_inode))
++			mode &= ~current->fs->umask;
++		error = vfs_create(dir->d_inode, dentry, mode);
+ 		up(&dir->d_inode->i_sem);
+ 		dput(nd->dentry);
+ 		nd->dentry = dentry;
+@@ -1442,7 +1443,8 @@
+ 	dentry = lookup_create(&nd, 0);
+ 	error = PTR_ERR(dentry);
+ 
+-	mode &= ~current->fs->umask;
++	if (!IS_POSIXACL(nd.dentry->d_inode))
++		mode &= ~current->fs->umask;
+ 	if (!IS_ERR(dentry)) {
+ 		switch (mode & S_IFMT) {
+ 		case 0: case S_IFREG:
+@@ -1508,8 +1510,9 @@
+ 		dentry = lookup_create(&nd, 1);
+ 		error = PTR_ERR(dentry);
+ 		if (!IS_ERR(dentry)) {
+-			error = vfs_mkdir(nd.dentry->d_inode, dentry,
+-					  mode & ~current->fs->umask);
++			if (!IS_POSIXACL(nd.dentry->d_inode))
++				mode &= ~current->fs->umask;
++			error = vfs_mkdir(nd.dentry->d_inode, dentry, mode);
+ 			dput(dentry);
+ 		}
+ 		up(&nd.dentry->d_inode->i_sem);
+diff -Nru a/include/linux/fs.h b/include/linux/fs.h
+--- a/include/linux/fs.h	Wed Oct  9 23:53:59 2002
++++ b/include/linux/fs.h	Wed Oct  9 23:53:59 2002
+@@ -110,6 +110,7 @@
+ #define MS_MOVE		8192
+ #define MS_REC		16384
+ #define MS_VERBOSE	32768
++#define MS_POSIXACL	(1<<16)	/* VFS does not apply the umask */
+ #define MS_ACTIVE	(1<<30)
+ #define MS_NOUSER	(1<<31)
+ 
+@@ -164,6 +165,7 @@
+ #define IS_IMMUTABLE(inode)	((inode)->i_flags & S_IMMUTABLE)
+ #define IS_NOATIME(inode)	(__IS_FLG(inode, MS_NOATIME) || ((inode)->i_flags & S_NOATIME))
+ #define IS_NODIRATIME(inode)	__IS_FLG(inode, MS_NODIRATIME)
++#define IS_POSIXACL(inode)	__IS_FLG(inode, MS_POSIXACL)
+ 
+ #define IS_DEADDIR(inode)	((inode)->i_flags & S_DEAD)
+ 

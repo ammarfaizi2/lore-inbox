@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263038AbTDRNNQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 09:13:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263040AbTDRNNQ
+	id S263033AbTDRNKg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 09:10:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263036AbTDRNKg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 09:13:16 -0400
-Received: from mailbox.surfeu.fi ([213.173.154.4]:58898 "EHLO surfeu.fi")
-	by vger.kernel.org with ESMTP id S263038AbTDRNNP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 09:13:15 -0400
-Message-ID: <3E9FFC92.DE4EBFB0@pp.inet.fi>
-Date: Fri, 18 Apr 2003 16:24:34 +0300
-From: Jari Ruusu <jari.ruusu@pp.inet.fi>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.2.20aa1 i686)
-X-Accept-Language: en
+	Fri, 18 Apr 2003 09:10:36 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:1408 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263033AbTDRNKf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 09:10:35 -0400
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200304181325.h3IDPN2G000129@81-2-122-30.bradfords.org.uk>
+Subject: Re: Benefits from computing physical IDE disk geometry?
+To: helgehaf@aitel.hist.no (Helge Hafting)
+Date: Fri, 18 Apr 2003 14:25:23 +0100 (BST)
+Cc: john@grabjohn.com (John Bradford),
+       linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <20030418130144.GA14042@hh.idb.hist.no> from "Helge Hafting" at Apr 18, 2003 03:01:44 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Andries.Brouwer@cwi.nl
-CC: akpm@digeo.com, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] struct loop_info
-References: <UTC200304172334.h3HNYgI06614.aeb@smtp.cwi.nl>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
-> The second part of this patch adds a new struct loop_info2
-> in <linux/loop.h> identical to the old struct but with
-> unsigned long long instead of dev_t.
-> Now kernel and userspace use the same struct, simplifying life.
+> > Is the basic assumption that lower block numbers are generally located
+> > in zones nearer the outside of the disk still true, though?  I.E. do
+> > you know of any disks that 'start from the middle'?  I usually
+> > recommend that people place their swap and /var partitions near the
+> > beginning of the disk, (for a _slight_ improvement), but maybe there
+> > is a good reason not to do this for some disks?
 > 
-> Unfortunately for compatibility some translation between
-> loop_info and loop_info2 is required.
+> I generally put swap in the middle of the disk, not on the
+> "fastest" end.  The "fast" end is faster for large transfers,
+> but that isn't what swap is about.
 
-Andries, if you are going to define new struct loop_info2, please change
-lo_offset to 64 bits, and add new 64 bit lo_size element. Specifying offset
-without size is little bit silly.
+Well, I was thinking of machines that are really starved of physical
+RAM, 32 MB or less, even down to 4 MB.  I generally run swapless on
+'real' machines :-).
 
-Regards,
-Jari Ruusu <jari.ruusu@pp.inet.fi>
+Also, the higher capcity tracks mean less seeks, so the chance of not
+having to seek at all increases slightly.
+
+> Swap tends to have lots of small transfers now and then, in between
+> other io.  So you want a short seek from wherever the
+> access arm is to keep latency down, and the middle of the
+> disk has short way both from inner and outer tracks.
+
+Yeah, that would probably be a better idea for machines which are only
+really hitting swap on occasions, instead of all the time :-).
+
+John.

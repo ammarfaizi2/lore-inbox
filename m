@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261894AbRFRV4E>; Mon, 18 Jun 2001 17:56:04 -0400
+	id <S261561AbRFRV5e>; Mon, 18 Jun 2001 17:57:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261628AbRFRVzy>; Mon, 18 Jun 2001 17:55:54 -0400
-Received: from sith.mimuw.edu.pl ([193.0.97.1]:51206 "EHLO sith.mimuw.edu.pl")
-	by vger.kernel.org with ESMTP id <S261561AbRFRVzp>;
-	Mon, 18 Jun 2001 17:55:45 -0400
-Date: Mon, 18 Jun 2001 23:55:37 +0200
-From: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
-To: Kelledin Tane <runesong@earthlink.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why can't I flush /dev/ram0?
-Message-ID: <20010618235537.B17458@sith.mimuw.edu.pl>
-Mail-Followup-To: Jan Rekorajski <baggins@sith.mimuw.edu.pl>,
-	Kelledin Tane <runesong@earthlink.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3B2E6EA3.3DED7D95@earthlink.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <3B2E6EA3.3DED7D95@earthlink.net>; from runesong@earthlink.net on Mon, Jun 18, 2001 at 04:12:03PM -0500
-X-Operating-System: Linux 2.4.5-pre3-xfs i686
+	id <S261628AbRFRV5Y>; Mon, 18 Jun 2001 17:57:24 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:2066 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S261561AbRFRV5K>; Mon, 18 Jun 2001 17:57:10 -0400
+Date: Mon, 18 Jun 2001 14:56:47 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Modular Forms Boy <eger@cc.gatech.edu>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        FrameBuffer List <linux-fbdev@vuser.vu.union.edu>
+Subject: Re: New Linux Drivers - Configure question
+In-Reply-To: <Pine.SOL.4.21.0106180852480.16027-100000@oscar.cc.gatech.edu>
+Message-ID: <Pine.LNX.4.10.10106181451060.3113-100000@transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Jun 2001, Kelledin Tane wrote:
 
-> At this point, I'm trying to get an initrd working properly.  So far, it
-> works, the system boots, etc. etc., but whenever I try to do a "blockdev
-> --flushbufs /dev/ram0", I get "device or resource busy"
-> 
-> When I mount the filesystem to check it out, nothing appears to have
-> anything open on the filesystem.  So why am I not able to flush it
-> clean?
+> I am working on a new framebuffer driver for an LCD controller that's
+> custom to the PowerPC embedded world.  As such, it's architecture
+> dependent.  Where should I place the driver in the tree, and how should I
+> set up the proper Configure options?  Where do I put checks for #ifdef
+> CONFIGURE_blah_blah_blah?
 
-Because of a bug present in Linus tree. Try this patch:
+Hi!
 
---- linux.orig/drivers/block/rd.c	Mon Nov 20 02:07:47 2000
-+++ linux/drivers/block/rd.c	Mon Nov 20 04:03:42 2000
-@@ -690,6 +690,7 @@
- done:
- 	if (infile.f_op->release)
- 		infile.f_op->release(inode, &infile);
-+	blkdev_put(out_inode->i_bdev, BDEV_FILE);
- 	set_fs(fs);
- 	return;
- free_inodes: /* free inodes on error */ 
+   You would place it in drivers/video. If you look at the Config.in
+file in the linux/drivers/video directory you will see 
 
-BTW, it's fixed in -ac patches.
+if [ "$CONFIG_PPC" = "y" ]; then
+ bool '  Open Firmware frame buffer device support' CONFIG_FB_OF
+ ...
+fi
 
-Jan
--- 
-Jan Rêkorajski            |  ALL SUSPECTS ARE GUILTY. PERIOD!
-baggins<at>mimuw.edu.pl   |  OTHERWISE THEY WOULDN'T BE SUSPECTS, WOULD THEY?
-BOFH, MANIAC              |                   -- TROOPS by Kevin Rubio
+Just add you driver in that section. Also you have to alter fbmem.c. You
+need to add something like 
+
+extern int xxxmydriverfb_init(void);
+extern int xxxmydriverfb_setup(char*);
+
+and further down in the file. 
+
+#ifdef CONFIG_FB_MYDRIVER
+        { "myfbdriver", xxxmydriverfb_init, xxxmydriverfb_setup },
+#endif
+
+When you look at this file you will see what I mean. If you have any
+further questions just go to http://www.linux-fbdev.org. In this email you
+will see the address for our mailing list. On our web site it gives you
+info about joining the mailing list.
+
+

@@ -1,75 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316621AbSFQAIk>; Sun, 16 Jun 2002 20:08:40 -0400
+	id <S316636AbSFQAOA>; Sun, 16 Jun 2002 20:14:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316636AbSFQAIk>; Sun, 16 Jun 2002 20:08:40 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:22032 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S316621AbSFQAIj>;
-	Sun, 16 Jun 2002 20:08:39 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200206170008.g5H08a0495705@saturn.cs.uml.edu>
-Subject: Re: another new version of pageattr caching conflict fix for 2.4
-To: ak@suse.de (Andi Kleen)
-Date: Sun, 16 Jun 2002 20:08:36 -0400 (EDT)
-Cc: ebiederm@xmission.com (Eric W. Biederman), ak@suse.de (Andi Kleen),
-       andrea@suse.de (Andrea Arcangeli), bcrl@redhat.com (Benjamin LaHaise),
-       linux-kernel@vger.kernel.org, richard.brunner@amd.com (Richard Brunner),
-       mark.langsdorf@amd.com
-In-Reply-To: <20020617013732.A14867@wotan.suse.de> from "Andi Kleen" at Jun 17, 2002 01:37:32 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S316637AbSFQAN7>; Sun, 16 Jun 2002 20:13:59 -0400
+Received: from jalon.able.es ([212.97.163.2]:22207 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S316636AbSFQAN6>;
+	Sun, 16 Jun 2002 20:13:58 -0400
+Date: Mon, 17 Jun 2002 02:13:53 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Robert Love <rml@mvista.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.19-pre10-ac2: O(1) scheduler merge, -A3.
+Message-ID: <20020617001353.GA8450@werewolf.able.es>
+References: <Pine.LNX.4.44.0206161809480.9633-200000@e2> <1024271844.1476.26.camel@sinai>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <1024271844.1476.26.camel@sinai>; from rml@mvista.com on Mon, Jun 17, 2002 at 01:57:24 +0200
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen writes:
 
->> the same problems if the agp aperture was marked write-back, and the
+On 2002.06.17 Robert Love wrote:
+>On Sun, 2002-06-16 at 10:00, Ingo Molnar wrote:
 >
-> AGP aperture is uncacheable, not write-back.
+>> +int idle_cpu(int cpu)
+>> +{
+>> +	return cpu_curr(cpu) == cpu_rq(cpu)->idle;
+>> +}
+>> +
 >
->> memory was marked uncacheable.  My gut impression is to just make the
->> agp aperture write-back cacheable, and then we don't have to change
->> the kernel page table at all.  Unfortunately I don't expect the host
+>I did not include this in my original O(1) backport update because
+>nothing in 2.4-ac seems to use it... so why include it?
 >
-> That would violate the AGP specification.
->
->> bridge with the memory and agp controllers to like that mode,
->> especially as there are physical aliasing issues.
->
-> exactly.
 
-You can do whatever you want, as long as...
+Well, you asked...
 
-1. you have cache control instructions and use them
-2. the bridge ignores the coherency protocol (no machine check)
+- the irqbalance patch for p4 needs idle_cpu (and not sure about idle_task).
+  BTW, they were macros before...
+- the bproc patch needs task_nice (you can be less interested in this, but
+  it does not hurt...)
 
-Most likely you should make the AGP memory write-back
-cacheable. This requires some care regarding cache lines,
-but ought to be faster.
+So could I ask you, please
+- to make public idle_[cpu,task], as macros or exported functions, here it
+  does not matter, irqbalance is not a module. Perhaps some other piece of code
+  could need them.
+- to export all the set/get prio/nice interfaces
 
->>> Fixing the MTRRs is fine, but it is really outside the scope of my patch.
->>> Just changing the kernel map wouldn't be enough to fix wrong MTRRs,
->>> because it wouldn't cover highmem.
->>
->> My preferred fix is to use PAT, to override the buggy mtrrs.  Which
->> brings up the same aliasing issues.  Which makes it related but
->> outside the scope of the problem.
->
-> I don't follow you here. IMHO it is much easier to fix the MTRRs in the
-> MTRR driver for those rare buggy BIOS (if they exist - I've never seen one)
-> than to hack up all of memory management just to get the right bits set.
-> I see no disadvantage of using the MTRRs and it is lot simpler than
-> PAT and pte bits.
+???
 
-For non-x86 one must "hack up all of memory management" anyway.
+Thanks.
 
-Example: There aren't any MTRRs on the PowerPC, but every page
-has 4 memory type bits. It's not OK to map something more than
-one way at the same time. Large "pages" (256 MB each) are used
-to cover all of non-highmem physical memory.
-
-
-
-
+-- 
+J.A. Magallon             \   Software is like sex: It's better when it's free
+mailto:jamagallon@able.es  \                    -- Linus Torvalds, FSF T-shirt
+Linux werewolf 2.4.19-pre10-jam3, Mandrake Linux 8.3 (Cooker) for i586
+gcc (GCC) 3.1.1 (Mandrake Linux 8.3 3.1.1-0.4mdk)

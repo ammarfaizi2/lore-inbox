@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262714AbTGFRRL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 13:17:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262874AbTGFRRL
+	id S262874AbTGFRW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 13:22:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263025AbTGFRW4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 13:17:11 -0400
-Received: from smtp03.web.de ([217.72.192.158]:17699 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S262714AbTGFRRJ (ORCPT
+	Sun, 6 Jul 2003 13:22:56 -0400
+Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:41621 "HELO
+	develer.com") by vger.kernel.org with SMTP id S262874AbTGFRWz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 13:17:09 -0400
-Subject: [OOPS] Linux 2.5.74-bk4 & XFS == oops
-From: Ali Akcaagac <aliakc@web.de>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1057512700.827.9.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.1 
-Date: Sun, 06 Jul 2003 19:31:40 +0200
+	Sun, 6 Jul 2003 13:22:55 -0400
+From: Bernardo Innocenti <bernie@develer.com>
+Organization: Develer
+To: Philippe Elie <phil.el@wanadoo.fr>
+Subject: Re: SPAM[RBL] Re: C99 types VS Linus types
+Date: Sun, 6 Jul 2003 19:37:26 +0200
+User-Agent: KMail/1.5.9
+Cc: linux-kernel@vger.kernel.org, Richard Henderson <rth@twiddle.net>
+References: <200307060703.58533.bernie@develer.com> <3F0814B1.1000401@wanadoo.fr>
+In-Reply-To: <3F0814B1.1000401@wanadoo.fr>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200307061937.26519.bernie@develer.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sunday 06 July 2003 14:23, Philippe Elie wrote:
 
-This problem is following me since I first played with 2.5 (around
-2.5.52). Every now and then the XFS driver causes a Kernel oops. First I
-thought this may be a normal issue because it's a development Kernel and
-I ignored it because I hoped that this was a known issue and tracked
-down one day. But yesterday I had 3-4 of these oops'es in a row and now
-I gonna report this in hope to see it fixed really soon.
+ > alpha user space .h define uint64_t as unsigned long,
+ > include/asm-alpha/types.h defines it as unsigned long long.
 
-I compiled kmsgdump-2565.diff into the Kernel (with some minor tweaks)
-and tried to force this issue for half a day and guess, as soon as it
-comes to demonstration it doesn't happen but I bet my pants that this
-problem will show up pretty soon anyways.
+ Why is that? Isn't uint64_t supposed to be _always_ a 64bit
+unsigned integer? Either the kernel or the user space might
+be doing the wrong thing...
 
-Ok I can't show you a full output but I wrote the last one down on
-paper.
+ I've Cc'd the Alpha mantainer to make him aware of this
+problem.
 
-;-------------------------------
-fs/xfs/pagebuf/page_buf.c:1288
-Unknown command: 00000000
-;-------------------------------
+ > Using a different definition (if it's possible) will be
+ > confusing. Using the same definition as user space means
+ > than code like:
+ >
+ > uint64 t u;
+ > printk("%lu", u);
+ >
+ > will not compile on alpha. This problem is solved in C99
+ > by using PRI_xxx format specifier macro, I'm not a great
+ > fan of this idea.
 
-I am not sure for the second line if it should say 'unknown command' but
-something like this. Sorry, I can't offer you more right now but better
-this than nothing.
+ This is ugly, but there is no way around it. No matter what
+typedefs you're using, C99 or not, printf size specifiers are
+always bound to plain C types, whose size varies from
+platform to platform.
+
+ > surely vim allow to define your own set of type ?
+
+ Yeah, but not if you're lazy ;-)
+
+-- 
+  // Bernardo Innocenti - Develer S.r.l., R&D dept.
+\X/  http://www.develer.com/
+
+Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
+
 

@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318514AbSIBVkZ>; Mon, 2 Sep 2002 17:40:25 -0400
+	id <S318501AbSIBVo1>; Mon, 2 Sep 2002 17:44:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318503AbSIBVkY>; Mon, 2 Sep 2002 17:40:24 -0400
-Received: from h181n1fls11o1004.telia.com ([195.67.254.181]:49552 "EHLO
-	ringstrom.mine.nu") by vger.kernel.org with ESMTP
-	id <S318487AbSIBVkV>; Mon, 2 Sep 2002 17:40:21 -0400
-Date: Mon, 2 Sep 2002 23:44:46 +0200 (CEST)
-From: Tobias Ringstrom <tori@ringstrom.mine.nu>
-X-X-Sender: tori@boris.prodako.se
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Ingo Molnar <mingo@elte.hu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with the O(1) scheduler in 2.4.19
-In-Reply-To: <Pine.LNX.4.44.0209021538070.7718-100000@boris.prodako.se>
-Message-ID: <Pine.LNX.4.44.0209022322230.11866-100000@boris.prodako.se>
+	id <S318503AbSIBVo1>; Mon, 2 Sep 2002 17:44:27 -0400
+Received: from pD952A8C0.dip.t-dialin.net ([217.82.168.192]:3969 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318501AbSIBVoZ>; Mon, 2 Sep 2002 17:44:25 -0400
+Date: Mon, 2 Sep 2002 15:48:54 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Andries.Brouwer@cwi.nl, <aebr@win.tue.nl>, <linux-kernel@vger.kernel.org>,
+       <linux-raid@vger.kernel.org>, <neilb@cse.unsw.edu.au>
+Subject: Re: PATCH - change to blkdev->queue calling triggers BUG in md.c
+In-Reply-To: <Pine.LNX.4.44.0209021437310.1374-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0209021544460.3270-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Sep 2002, Tobias Ringstrom wrote:
+Hi,
 
-> On 2 Sep 2002, Alan Cox wrote:
+On Mon, 2 Sep 2002, Linus Torvalds wrote:
+> The point about backwards compatibility is that things WORK.
 > 
-> > It isnt a regression, its a bug fix. The nice value is now being
-> > honoured properly.
+> There's no point in comparing things to how you _want_ them to work. The
+> only thing that matters for bckwards compatibility is how they work
+> _today_.
 > 
-> The problem is that the kernel decided to nice the process (by changing
-> the priority, not the nice value) as if it was a background task, but it's
-> not a background task.  On the contrary, it's highly interactive.
+> And your suggestion would break every single installation out there. Not 
+> "maybe a few".  Every single one.
+> 
+> (yeah, you could find some NFS-only setup that doesn't break. Big deal).
+> 
+> And backwards compatibility is extremely important. 
 
-I think I will have to take this back.  It looks like even the old kernel
-treats the game server as a background process, but as you said, it does
-not make such a big difference.  Another change is that the prio value 
-varies very quickly over time (as seen in top).  I do not recall seeing 
-that using the O(1)-scheduler.
+dep_bool '  New mountalike partitioning code' CONFIG_PARTMOUNTING CONFIG_EXPERIMENTAL CONFIG_WHATEVER
 
-But I still do not understand why the process is classified as
-non-interactive...  Around 20 times per second it does a nanosleep for
-1 ms which takes around 40 ms in reality.  (Seeing this makes me believe 
-that I should try to increase HZ, but that is a separate issue.)
+Or, since we're talking about the future:
 
-/Tobias
+<bool name="PARTMOUNTING">
+ <title>
+  New mount-alike partitioning code
+ </title>
+ <dep name="EXPERIMENTAL" sense="include" />
+ <dep name="WHATEVER" sense="exclude" />
+</bool>
 
+See? New Deal is for the ones that were annoyed by the old one.
+
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

@@ -1,44 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266120AbSKTNzX>; Wed, 20 Nov 2002 08:55:23 -0500
+	id <S266144AbSKTOAr>; Wed, 20 Nov 2002 09:00:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266128AbSKTNzX>; Wed, 20 Nov 2002 08:55:23 -0500
-Received: from ivoti.terra.com.br ([200.176.3.20]:50363 "EHLO
-	ivoti.terra.com.br") by vger.kernel.org with ESMTP
-	id <S266120AbSKTNzW>; Wed, 20 Nov 2002 08:55:22 -0500
-Date: Wed, 20 Nov 2002 12:02:23 -0200
-From: Christian Reis <kiko@async.com.br>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: NFS@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19+trond and diskless locking problems
-Message-ID: <20021120120223.A15034@blackjesus.async.com.br>
-References: <20021003184418.K3869@blackjesus.async.com.br> <shsy99f16np.fsf@charged.uio.no> <20021003202602.M3869@blackjesus.async.com.br> <15772.60202.510717.850059@charged.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <15772.60202.510717.850059@charged.uio.no>; from trond.myklebust@fys.uio.no on Fri, Oct 04, 2002 at 03:13:14AM +0200
+	id <S266153AbSKTOAr>; Wed, 20 Nov 2002 09:00:47 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:12421 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S266144AbSKTOAq>; Wed, 20 Nov 2002 09:00:46 -0500
+Date: Wed, 20 Nov 2002 09:09:32 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Xavier Bestel <xavier.bestel@free.fr>, Mark Mielke <mark@mark.mielke.cc>,
+       Rik van Riel <riel@conectiva.com.br>,
+       David McIlwraith <quack@bigpond.net.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: spinlocks, the GPL, and binary-only modules
+In-Reply-To: <1037801955.3241.21.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.3.95.1021120085905.9083A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 04, 2002 at 03:13:14AM +0200, Trond Myklebust wrote:
-> That's more or less right, except that the communication is bidirectional.
-> 
->     >> lies with rpc.statd.  Can you see any reason in your setup why
->     >> it should be failing?
-> 
->      > Not really. The clients run rpc.statd 1.0 and the server,
->      > 1.0.1. Should I start gdbing it to see what is going wrong?
-> 
-> Start by using tcpdump to find out who, in the above chain, is taking
-> such a long time to respond.
+On 20 Nov 2002, Alan Cox wrote:
 
-I haven't forgotten this. It's just that I've been unable to test: the
-problem just stopped showing up when I upgraded to 2.4.20-pre11 with
-your NFS-ALL patches applied to it. Could something have changed, or are
-we just lucky?
+> On Wed, 2002-11-20 at 10:17, Xavier Bestel wrote:
+> > Yeah, that's precisely the problem here: the binary-only module is
+> > distributed with included spinlock code, which *is* GPL.
+> 
+> That doesnt neccessarily make it a derived work. Suppose I publish a
+> book including a lawyer who says "Your honour I ...". That doesn't make
+> it a derivative of some previous work I read that used the same phrase.
+> 
+> Equally if I paraphase the entire court scene but use no identical words
+> it may be a derived work. 
+> 
+> Stop thinking about this as a mathematical question. It isnt about the
+> union of sets of instructions.
+> 
+> Alan
+> 
 
-Take care,
---
-Christian Reis, Senior Engineer, Async Open Source, Brazil.
-http://async.com.br/~kiko/ | [+55 16] 261 2331 | NMFL
+Well stated. Further "spin-locks" are generic things that have nothing
+to do with Linux, much less GPL. It has been pretty much established
+that there are some kernel internals that writers have insisted cannot
+be accessed except by GPL code. These are typically complex things
+that can be easily broken by incorrect access. Therefore, the writer
+insists that if you access that procedure, or tamper with the elements
+of some structure, then your code must be GPL so that it may be
+publicly scrutinized. There is other kernel code that is so obvious
+that, even though an incorrect access can break things, the writer
+figured that if you break it, you just keep the pieces. So, it
+boils down to what lawyers call "intent". And as Alan stated, it
+isn't mathematics.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+   Bush : The Fourth Reich of America
+
+

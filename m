@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266286AbTBVQ37>; Sat, 22 Feb 2003 11:29:59 -0500
+	id <S266771AbTBVQha>; Sat, 22 Feb 2003 11:37:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266292AbTBVQ36>; Sat, 22 Feb 2003 11:29:58 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:51898 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S266286AbTBVQ36>; Sat, 22 Feb 2003 11:29:58 -0500
-Date: Sat, 22 Feb 2003 08:39:27 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Larry McVoy <lm@bitmover.com>
-cc: "David S. Miller" <davem@redhat.com>, lse-tech@lists.sf.et,
-       linux-kernel@vger.kernel.org
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <28900000.1045931966@[10.10.2.4]>
-In-Reply-To: <20030222163318.GB11953@work.bitmover.com>
-References: <20030222001618.GA19700@work.bitmover.com> <306820000.1045874653@flay> <20030222024721.GA1489@work.bitmover.com> <14450000.1045888349@[10.10.2.4]> <20030222050514.GA3148@work.bitmover.com> <1045903113.26056.6.camel@rth.ninka.net> <20030222143440.GA10546@work.bitmover.com> <26210000.1045928873@[10.10.2.4]> <20030222161356.GA11953@work.bitmover.com> <27920000.1045931373@[10.10.2.4]> <20030222163318.GB11953@work.bitmover.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S266777AbTBVQha>; Sat, 22 Feb 2003 11:37:30 -0500
+Received: from horkos.telenet-ops.be ([195.130.132.45]:5524 "EHLO
+	horkos.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S266771AbTBVQh3> convert rfc822-to-8bit; Sat, 22 Feb 2003 11:37:29 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Bart De Schuymer <bdschuym@pandora.be>
+To: Bill Davidsen <davidsen@tmr.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Module loading on demand
+Date: Sat, 22 Feb 2003 17:48:02 +0100
+X-Mailer: KMail [version 1.4]
+References: <Pine.LNX.4.44.0302220835590.13234-100000@bilbo.tmr.com>
+In-Reply-To: <Pine.LNX.4.44.0302220835590.13234-100000@bilbo.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302221748.02363.bdschuym@pandora.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> But we're talking about linux ... and we're talking about profit, not
->> revenue. I'd guess that 99% of their desktop sales are for Windows. 
->> And I'd guess they make 100 times as much profit on a big server as they 
->> do on a desktop PC. 
-> 
-> You are thinking in today's terms.  Find the asymptote and project out.
+On Saturday 22 February 2003 14:43, Bill Davidsen wrote:
+> I note that with "new modules" modules no longer seem to load as needed
+> but must be loaded by hand or explicitly in modprobe.conf.
+> I have just been bitten by this trying to build a kernel (loop needed to
+> be loaded by hand) and using a VFAT format ZIP drive partition, where
+> mount didn't load the vfat module.
+>
+> Is there some trick to making modules useful again?
 
-OK, I predict that Linux will take over the whole of the high end server
-market ... if people stop complaining about us fixing scalability. That
-should give some nicer numbers ....
+I don't know if this is your solution, but for some reason I have to do
+echo "/sbin/modprobe" > /proc/sys/kernel/modprobe
+to get automatic loading to work.
+IIRC, this proc entry points to /bin/true by default for some reason,  for 2.5 
+kernels.
 
-M.
+-- 
+cheers,
+Bart
+

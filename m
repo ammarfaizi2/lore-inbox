@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313075AbSDCGJN>; Wed, 3 Apr 2002 01:09:13 -0500
+	id <S313070AbSDCGaS>; Wed, 3 Apr 2002 01:30:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313070AbSDCGJD>; Wed, 3 Apr 2002 01:09:03 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:23682 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S313068AbSDCGIu>; Wed, 3 Apr 2002 01:08:50 -0500
-Date: Tue, 2 Apr 2002 23:08:47 -0700
-Message-Id: <200204030608.g3368l903461@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bitops cleanup 3/4
-In-Reply-To: <E16sbI0-0005ug-00@wagner.rustcorp.com.au>
+	id <S313074AbSDCGaI>; Wed, 3 Apr 2002 01:30:08 -0500
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:59384 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S313070AbSDCG3v>; Wed, 3 Apr 2002 01:29:51 -0500
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Tue, 2 Apr 2002 23:28:24 -0700
+To: Aryojan - <aryojan@linuxfreemail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at slab.c <- Thanks for your support
+Message-ID: <20020403062824.GP4735@turbolinux.com>
+Mail-Followup-To: Aryojan - <aryojan@linuxfreemail.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200204030541.g335f3a21868@superglide.netfx-2000.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell writes:
-> Linus, please apply (no object code changes).
-> 
-> This changes everything arch specific PPC and i386 which should have
-> been unsigned long (it doesn't *matter*, but bad habits get copied).
-> 
-> I left the devfs ones for Richard to submit separately, since they
-> actually change the resulting code.
+On Apr 02, 2002  21:41 -0800, Aryojan - wrote:
+> Mar  1 01:57:43 gnet kernel: kernel BUG at slab.c:1248!
+> Mar  1 01:57:43 gnet kernel: invalid operand: 0000
+> Mar  1 01:57:43 gnet kernel: CPU:    0
+> Mar  1 01:57:43 gnet kernel: EIP:    0010:[<c0129133>]    Tainted: P 
+> Mar  1 01:57:43 gnet kernel: EFLAGS: 00210082
+> Mar  1 01:57:43 gnet kernel: eax: 0000001b   ebx: c0c03658   ecx: c02ac880   edx: 0000169b
+> Mar  1 01:57:43 gnet kernel: esi: c12031d0   edi: c0c0369b   ebp: c0c0369b   esp: c16ade1c
+> Mar  1 01:57:43 gnet kernel: ds: 0018   es: 0018   ss: 0018
+> Mar  1 01:57:43 gnet kernel: Process kdeinit (pid: 396, stackpage=c16ad000)
+> Mar  1 01:57:43 gnet kernel: Stack: c025beca 000004e0 00000000 c1203500 000001f0 000001f0 00000040 00200246
+> Mar  1 01:57:43 gnet kernel:        c0128d07 c12031d0 000001f0 c1203500 c1203508 000001f0 00000000 c0208816
+> Mar  1 01:57:43 gnet kernel:        00000200 c1a59e00 c1203510 00000008 00000001 c1a58000 c012935c c1203500 
+> Mar  1 01:57:43 gnet kernel: Call Trace: [<c0128d07>] [<c0208816>] [<c012935c>] [<c0208c0a>] [<c0208160>]
+> Mar  1 01:57:43 gnet kernel:    [<c02082cc>] [<c02416d0>] [<c0205cd9>] [<c0205f1e>] [<c012ffc6>] [<c0106c6b>] 
+> Mar  1 01:57:43 gnet kernel:
+> Mar  1 01:57:43 gnet kernel: Code: 0f 0b 83 c4 08 ba a5 c2 0f 17 89 d8 03 46 18 87 50 fc 81 fa
+> Mar  1 01:58:06 gnet kernel:  <6>NVRM: AGPGART: freed 16 pages
+> Mar  1 01:58:06 gnet kernel: NVRM: AGPGART: backend released
 
-??? But you didn't leave the devfs ones alone: your patch changes a
-devfs file:
+You need to run this through ksymoops to be at all useful.
 
-> diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.7-pre1/include/linux/devfs_fs_kernel.h working-2.5.7-pre1-bitops/include/linux/devfs_fs_kernel.h
-> --- linux-2.5.7-pre1/include/linux/devfs_fs_kernel.h	Fri Mar 15 15:37:39 2002
-> +++ working-2.5.7-pre1-bitops/include/linux/devfs_fs_kernel.h	Sat Mar 16 13:54:53 2002
-> @@ -54,7 +54,7 @@
->      unsigned char sem_initialised;
->      unsigned int num_free;          /*  Num free in bits       */
->      unsigned int length;            /*  Array length in bytes  */
-> -    __u32 *bits;
-> +    unsigned long *bits;
->      struct semaphore semaphore;
->  };
->  
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 
-Anyway, I hope to have a devfs patch for 2.5.x ready before next
-week. I've got some other changes in the works, as well as the bitops
-changes, which I've already submitted for 2.4.x.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

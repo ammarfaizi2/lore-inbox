@@ -1,82 +1,137 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315690AbSHaBgc>; Fri, 30 Aug 2002 21:36:32 -0400
+	id <S315717AbSHaBl6>; Fri, 30 Aug 2002 21:41:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315717AbSHaBgc>; Fri, 30 Aug 2002 21:36:32 -0400
-Received: from [210.78.155.203] ([210.78.155.203]:260 "EHLO discovery")
-	by vger.kernel.org with ESMTP id <S315690AbSHaBgb>;
-	Fri, 30 Aug 2002 21:36:31 -0400
-Date: Sat, 31 Aug 2002 03:07:48 +0800
-From: Hu Gang <hugang@soulinfo.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-Subject: software suspend in 2.5.32 test reporter.
-Message-Id: <20020831030748.43ab8094.hugang@soulinfo.com>
-Organization: Beijing Soul
-X-Mailer: Sylpheed version 0.7.8claws9 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S315746AbSHaBl5>; Fri, 30 Aug 2002 21:41:57 -0400
+Received: from ns1.baby-dragons.com ([199.33.245.254]:52355 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S315717AbSHaBl4>; Fri, 30 Aug 2002 21:41:56 -0400
+Date: Fri, 30 Aug 2002 21:46:21 -0400 (EDT)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+Subject: Run Away scsi_eh_1 ,  Load was still climbing .
+Message-ID: <Pine.LNX.4.44.0208302118460.6840-100000@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Pavel Machek:
 
-2.5.32 without CONFIG_PM , it work fine in my machine.
-2.5.32 with CONFIG_PM, Oops in add_timer.
-       
-Here is Oops , it is hardcopy from CRT.
-c0119cd5
-*pde = 00000000
-Oops: 0002
-CPU:    0
-EIP:    0060:[<c0119cd5>]  Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010086
-eax: cf902ec4 ebx: cf902ec4 ecx: 00000012 edx: 00000000
-esi: cf902ec4 edi: cf902d60 ebp: 00003000 esp: cd647e64
-Stack: 0000300c d1864121 cf902ec4 cff79c00
-Call Trace: [<d1864121>] [<d18630c0>] [<c016eda3>] [<c106ee69>] [<c016ee86>]
-Code: 89 5a 04 89 13 89 43 04 89 18 51 9d eb 14 51 9d 8b 44 24 04
+	Hello All ,  Loaded a cdrom into a HP-2100 cd-rw for reading
+	or I had hoped to .  did a mount .  & the little critter did the
+	obvious thing & just kept on flashing its light at me .  So I hit
+	the unload button which it did for about 500ms and reinserted
+	itself .  Then the flashing light quit after about two iterations
+	of flashing & stop & restart flashing .  Then the load began to
+	climb ~ .15 Load avr. every 5 sec. ,  at about 2.0 I punched &
+	help down the unload button & removed the cdrom .  At that time
+	the load began to drop & scsi_erh_1 went back to sleep .
+	Some specifics below .  Hth ,  JimL
 
 
->>EIP; c0119cd5 <add_timer+a5/cc>   <=====
+  9:18pm  up 1 day, 23:41,  5 users,  load average: 1.85, 0.99, 0.48
+55 processes: 54 sleeping, 1 running, 0 zombie, 0 stopped
+CPU0 states:  0.0% user,  0.1% system,  0.0% nice, 99.4% idle
+CPU1 states:  0.0% user,  0.1% system,  0.0% nice, 99.4% idle
+Mem:  2068200K av,  144980K used, 1923220K free,       0K shrd,    5048K buff
+Swap:  656532K av,       0K used,  656532K free                   94576K cached
 
->>eax; cf902ec4 <_end+f66ca38/11574bd4>
->>ebx; cf902ec4 <_end+f66ca38/11574bd4>
->>esi; cf902ec4 <_end+f66ca38/11574bd4>
->>edi; cf902d60 <_end+f66c8d4/11574bd4>
->>esp; cd647e64 <_end+d3b19d8/11574bd4>
-
-Trace; d1864121 <END_OF_CODE+213de/????>
-Trace; d18630c0 <END_OF_CODE+2037d/????>
-Trace; c016eda3 <pci_pm_resume_device+1b/20>
-Trace; c106ee69 <_end+dd89dd/11574bd4>
-Trace; c016ee86 <pci_pm_resume_bus+3a/4c>
-
-Code;  c0119cd5 <add_timer+a5/cc>
-00000000 <_EIP>:
-Code;  c0119cd5 <add_timer+a5/cc>   <=====
-   0:   89 5a 04                  mov    %ebx,0x4(%edx)   <=====
-Code;  c0119cd8 <add_timer+a8/cc>
-   3:   89 13                     mov    %edx,(%ebx)
-Code;  c0119cda <add_timer+aa/cc>
-   5:   89 43 04                  mov    %eax,0x4(%ebx)
-Code;  c0119cdd <add_timer+ad/cc>
-   8:   89 18                     mov    %ebx,(%eax)
-Code;  c0119cdf <add_timer+af/cc>
-   a:   51                        push   %ecx
-Code;  c0119ce0 <add_timer+b0/cc>
-   b:   9d                        popf   
-Code;  c0119ce1 <add_timer+b1/cc>
-   c:   eb 14                     jmp    22 <_EIP+0x22> c0119cf7 <add_timer+c7/cc>
-Code;  c0119ce3 <add_timer+b3/cc>
-   e:   51                        push   %ecx
-Code;  c0119ce4 <add_timer+b4/cc>
-   f:   9d                        popf   
-Code;  c0119ce5 <add_timer+b5/cc>
-  10:   8b 44 24 04               mov    0x4(%esp,1),%eax
+  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+    9 root      11   0     0    0     0 DW    0.1  0.0   0:00 scsi_eh_1
+ 7199 root      15   0   968  968   772 R     0.1  0.0   0:00 top
+ ...
 
 
+# tail -17 /var/log/syslog
 
--- 
-		--- Hu Gang
+kernel: sr0: CDROM not ready yet.
+last message repeated 5 times
+kernel: sym1:6:0: ABORT operation started.
+kernel: sym1:6:control msgout: 80 6.
+kernel: sym1:6:0: ABORT operation complete.
+kernel: sr0: CDROM not ready.  Make sure there is a disc in the drive.
+kernel: cdrom: open failed.
+kernel: sym1:6:0: ABORT operation started.
+kernel: sym1:6:0: ABORT operation timed-out.
+kernel: sym1:6:0: DEVICE RESET operation started.
+kernel: sym1:6:0: DEVICE RESET operation timed-out.
+kernel: sym1:6:0: BUS RESET operation started.
+kernel: sym1: SCSI BUS reset detected.
+kernel: sym1: SCSI BUS has been reset.
+kernel: sym1:6:0: BUS RESET operation complete.
+kernel: sym1:4: FAST-10 SCSI 10.0 MB/s ST (100.0 ns, offset 15)
+
+
+# sh /usr/src/linux/scripts/ver_linux
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+
+Linux filesrv1 2.4.19 #1 SMP Sat Aug 3 16:01:37 EDT 2002 i686 unknown
+
+Gnu C                  2.95.3
+Gnu make               3.79.1
+binutils               2.11.90.0.19
+util-linux             2.11f
+mount                  2.11b
+modutils               2.4.6
+e2fsprogs              1.27
+reiserfsprogs          3.x.0j
+pcmcia-cs              3.1.26
+PPP                    2.4.1
+Linux C Library        2.2.3
+Dynamic linker (ldd)   2.2.3
+Procps                 2.0.7
+Net-tools              1.60
+Kbd                    1.06
+Sh-utils               2.0
+
+
+# lspci -v | grep -A2 -e'^[[:alnum:]]' | grep -ve'^--'
+
+00:00.0 Host bridge: Relience Computer CNB20HE (rev 23)
+     Flags: fast devsel
+     Memory at f4000000 (32-bit, prefetchable) [disabled] [size=32M]
+00:00.1 PCI bridge: Relience Computer CNB20HE (rev 01) (prog-if 00 [Normal decode])
+     Flags: bus master, 66Mhz, medium devsel, latency 64
+     Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
+00:00.2 Host bridge: Relience Computer: Unknown device 0006 (rev 01)
+     Flags: medium devsel
+00:00.3 Host bridge: Relience Computer: Unknown device 0006 (rev 01)
+     Flags: medium devsel
+00:01.0 SCSI storage controller: Symbios Logic Inc. (formerly NCR): Unknown device 0021 (rev 01)
+     Subsystem: Symbios Logic Inc. (formerly NCR): Unknown device 1000
+     Flags: bus master, medium devsel, latency 72, IRQ 29
+00:01.1 SCSI storage controller: Symbios Logic Inc. (formerly NCR): Unknown device 0021 (rev 01)
+     Subsystem: Symbios Logic Inc. (formerly NCR): Unknown device 1000
+     Flags: bus master, medium devsel, latency 72, IRQ 28
+00:02.0 Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 09)
+     Subsystem: Ensoniq Creative Sound Blaster AudioPCI64V, AudioPCI128
+     Flags: bus master, slow devsel, latency 64, IRQ 30
+00:04.0 PCI bridge: Intel Corporation 80960RP [i960 RP Microprocessor/Bridge] (rev 05) (prog-if 00 [Normal decode])
+     Flags: bus master, medium devsel, latency 64
+     Bus: primary=00, secondary=02, subordinate=02, sec-latency=64
+00:04.1 RAID bus controller: Mylex Corporation DAC960PX (rev 05)
+     Subsystem: Mylex Corporation DAC960PX
+     Flags: bus master, medium devsel, latency 64, IRQ 18
+00:07.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev 08)
+     Subsystem: Intel Corporation EtherExpress PRO/100+ Server Adapter (PILA8470B)
+     Flags: bus master, medium devsel, latency 64, IRQ 23
+00:0f.0 ISA bridge: Relience Computer: Unknown device 0200 (rev 51)
+     Subsystem: Relience Computer: Unknown device 0200
+     Flags: bus master, medium devsel, latency 0
+00:0f.1 IDE interface: Relience Computer: Unknown device 0211 (prog-if 8a [Master SecP PriP])
+     Flags: bus master, medium devsel, latency 64
+     I/O ports at ffa0 [size=16]
+00:0f.2 USB Controller: Relience Computer: Unknown device 0220 (rev 04) (prog-if 10 [OHCI])
+     Subsystem: Relience Computer: Unknown device 0220
+     Flags: medium devsel
+01:00.0 VGA compatible controller: ATI Technologies Inc Rage 128 PF (prog-if 00 [VGA])
+     Subsystem: ATI Technologies Inc: Unknown device 0008
+     Flags: bus master, stepping, 66Mhz, medium devsel, latency 64, IRQ 17
+
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
+

@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129068AbRBKAXM>; Sat, 10 Feb 2001 19:23:12 -0500
+	id <S130513AbRBKAYW>; Sat, 10 Feb 2001 19:24:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130513AbRBKAXC>; Sat, 10 Feb 2001 19:23:02 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:15603 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129068AbRBKAWx>; Sat, 10 Feb 2001 19:22:53 -0500
-Date: Sat, 10 Feb 2001 22:22:25 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-cc: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>,
-        Alan Chandler <alan@chandlerfamily.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: spelling of disc (disk) in /devfs
-In-Reply-To: <200102102351.f1ANpTw457945@saturn.cs.uml.edu>
-Message-ID: <Pine.LNX.4.21.0102102221470.2378-100000@duckman.distro.conectiva>
+	id <S131487AbRBKAYM>; Sat, 10 Feb 2001 19:24:12 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:12292 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S130513AbRBKAXv>; Sat, 10 Feb 2001 19:23:51 -0500
+Date: Sat, 10 Feb 2001 20:33:29 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Rik van Riel <riel@conectiva.com.br>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-mm@kvack.org, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.0-ac8/9  page_launder() fix
+In-Reply-To: <Pine.LNX.4.21.0102102051450.2378-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0102102027250.27734-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 Feb 2001, Albert D. Cahalan wrote:
 
-> Using "disc" just sucks. I think the devfs author likes to
-> make the rest of the world suffer for some nationalistic
-> revenge. I and many others will forever curse the damn thing.
+I just tested it here and it seems to behave pretty well. 
 
-I and many others will never use the thing.
+On Sat, 10 Feb 2001, Rik van Riel wrote:
 
-I know I'll NEVER get used to a /dev/disc and I don't have
-any use for devfs, so why should I even bother ?
-
-regards,
-
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+> Hi,
+> 
+> the patch below should make page_launder() more well-behaved
+> than it is in -ac8 and -ac9 ... note, however, that this thing
+> is still completely untested and only in theory makes page_launder
+> behave better ;)
+> 
+> Since there seems to be a lot of VM testing going on at the
+> moment I thought I might as well send it out now so I can get
+> some feedback before I get into the airplane towards sweden
+> tomorrow...
+> 
+> cheers,
+> 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

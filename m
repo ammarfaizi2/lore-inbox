@@ -1,29 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262067AbSI3Prn>; Mon, 30 Sep 2002 11:47:43 -0400
+	id <S262190AbSI3QPT>; Mon, 30 Sep 2002 12:15:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262111AbSI3Prn>; Mon, 30 Sep 2002 11:47:43 -0400
-Received: from mnh-1-16.mv.com ([207.22.10.48]:46340 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S262067AbSI3Prn>;
-	Mon, 30 Sep 2002 11:47:43 -0400
-Message-Id: <200209301656.LAA02681@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Oleg Drokin <green@namesys.com>
-cc: user-mode-linux-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: make UML to compile in 2.5 bk-curr 
-In-Reply-To: Your message of "Mon, 30 Sep 2002 12:26:48 +0400."
-             <20020930122648.A14360@namesys.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 30 Sep 2002 11:56:16 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S262323AbSI3QPT>; Mon, 30 Sep 2002 12:15:19 -0400
+Received: from gate.perex.cz ([194.212.165.105]:43026 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S262190AbSI3QPS>;
+	Mon, 30 Sep 2002 12:15:18 -0400
+Date: Mon, 30 Sep 2002 18:20:24 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: <perex@pnote.perex-int.cz>
+To: "David S. Miller" <davem@redhat.com>
+cc: "torvalds@transmeta.com" <torvalds@transmeta.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ALSA update [10/10] - 2002/08/05
+In-Reply-To: <20020929.175617.67342138.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33.0209301818400.503-100000@pnote.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-green@namesys.com said:
-> And here is forgotten patch.
+On Sun, 29 Sep 2002, David S. Miller wrote:
 
-Great, thanks.
+> And where are my SBUS DMA support and sparc build fixes? :-(
 
-		Jeff
+It's not lost. I've sent ALSA patches up to date CVS 2002/08/05. Your 
+code will be in second set of ALSA update patches. Sorry for delay.
+
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project  http://www.alsa-project.org
+SuSE Linux    http://www.suse.com
 

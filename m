@@ -1,69 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261889AbUKPX3g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262132AbUKPXd6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261889AbUKPX3g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 18:29:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbUKPX1s
+	id S262132AbUKPXd6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 18:33:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbUKPXc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 18:27:48 -0500
-Received: from kweetal.tue.nl ([131.155.3.6]:33299 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S261886AbUKPX0E (ORCPT
+	Tue, 16 Nov 2004 18:32:27 -0500
+Received: from fire.osdl.org ([65.172.181.4]:55680 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S261897AbUKPX3o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 18:26:04 -0500
-Date: Wed, 17 Nov 2004 00:26:00 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: akpm <akpm@osdl.org>, ak@suse.de, lkml <linux-kernel@vger.kernel.org>,
-       greg@kroah.com
-Subject: Re: [PATCH] PCI: fix build errors with CONFIG_PCI=n
-Message-ID: <20041116232600.GB2868@pclin040.win.tue.nl>
-References: <419A8088.3010205@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <419A8088.3010205@osdl.org>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: : kweetal.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
+	Tue, 16 Nov 2004 18:29:44 -0500
+Message-ID: <419A89A3.90903@osdl.org>
+Date: Tue, 16 Nov 2004 15:13:39 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: kraxel@bytesex.org, jelle@foks.8m.com, lkml <linux-kernel@vger.kernel.org>,
+       akpm <akpm@osdl.org>
+Subject: [PATCH] cx88: fix printk arg. type
+Content-Type: multipart/mixed;
+ boundary="------------080503030009050902080503"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 16, 2004 at 02:34:48PM -0800, Randy.Dunlap wrote:
+This is a multi-part message in MIME format.
+--------------080503030009050902080503
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Fix (most of) kernel build for CONFIG_PCI=n.  Fixes these 3 errors:
-> 
-> 1. drivers/parport/parport_pc.c:3162: error: `parport_init_mode'
-> undeclared (first use in this function)
 
-Life is easier if you do not use attachments.
-(Then I can more easily comment the code.)
+drivers/media/video/cx88/cx88-blackbird.c:366: warning: long int
+format, size_t arg (arg 3)
 
-You write
+diffstat:=
+   drivers/media/video/cx88/cx88-blackbird.c |    2 +-
+   1 files changed, 1 insertion(+), 1 deletion(-)
 
-  -static int __init parport_init_mode_setup(const char *str) {
-  -
-  +#ifdef CONFIG_PCI
-  +static int __init parport_init_mode_setup(const char *str)
+Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
 
-In my tree I have
 
-  static int __init parport_init_mode_setup(char *str) {
+--------------080503030009050902080503
+Content-Type: text/x-patch;
+ name="cx88_types.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="cx88_types.patch"
 
-in order to avoid the warning for
+diff -Naurp ./drivers/media/video/cx88/cx88-blackbird.c~cx88_types ./drivers/media/video/cx88/cx88-blackbird.c
+--- ./drivers/media/video/cx88/cx88-blackbird.c~cx88_types	2004-11-16 13:33:31.446369688 -0800
++++ ./drivers/media/video/cx88/cx88-blackbird.c	2004-11-16 14:34:56.221198768 -0800
+@@ -363,7 +363,7 @@ static int blackbird_load_firmware(struc
+ 	}
+ 
+ 	if (firmware->size != BLACKBIRD_FIRM_IMAGE_SIZE) {
+-		dprintk(0, "ERROR: Firmware size mismatch (have %ld, expected %d)\n",
++		dprintk(0, "ERROR: Firmware size mismatch (have %Zd, expected %d)\n",
+ 			firmware->size, BLACKBIRD_FIRM_IMAGE_SIZE);
+ 		return -1;
+ 	}
 
-  __setup("parport_init_mode=",parport_init_mode_setup);
 
-since the parameter is a int (*setup_func)(char *); - see
-
-  struct obs_kernel_param {
-        const char *str;
-        int (*setup_func)(char *);
-        int early;
-  };
-
-Apart from this prototype change I only moved the single line
-
-  static int __initdata parport_init_mode = 0;
-
-outside the #ifdef's. Is that not good enough, and better
-than introducing more #ifdef's? Keeps the source smaller.
-
-Andries
+--------------080503030009050902080503--

@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262883AbTCKJXr>; Tue, 11 Mar 2003 04:23:47 -0500
+	id <S262876AbTCKJas>; Tue, 11 Mar 2003 04:30:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262884AbTCKJXr>; Tue, 11 Mar 2003 04:23:47 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:59843 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S262883AbTCKJXq>;
-	Tue, 11 Mar 2003 04:23:46 -0500
-Date: Tue, 11 Mar 2003 10:34:27 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hanna Linder <hannal@us.ibm.com>, Janet Morgan <janetmor@us.ibm.com>,
-       Marius Aamodt Eriksen <marius@citi.umich.edu>,
-       Shailabh Nagar <nagar@watson.ibm.com>,
-       Niels Provos <provos@citi.umich.edu>
-Subject: Re: [patch, rfc] lt-epoll ( level triggered epoll ) ...
-Message-ID: <20030311093427.GA19658@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Davide Libenzi <davidel@xmailserver.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Hanna Linder <hannal@us.ibm.com>, Janet Morgan <janetmor@us.ibm.com>,
-	Marius Aamodt Eriksen <marius@citi.umich.edu>,
-	Shailabh Nagar <nagar@watson.ibm.com>,
-	Niels Provos <provos@citi.umich.edu>
-References: <Pine.LNX.4.50.0303101139520.1922-100000@blue1.dev.mcafeelabs.com>
+	id <S262877AbTCKJar>; Tue, 11 Mar 2003 04:30:47 -0500
+Received: from pop.gmx.net ([213.165.65.60]:48180 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S262876AbTCKJar>;
+	Tue, 11 Mar 2003 04:30:47 -0500
+Message-Id: <5.2.0.9.2.20030311095954.01f9a008@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Tue, 11 Mar 2003 10:46:05 +0100
+To: jim.houston@attbi.com
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [PATCH] self tuning scheduler
+Cc: linux-kernel@vger.kernel.org, jim.houston@ccur.com
+In-Reply-To: <200303110030.h2B0UsR00844@linux.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0303101139520.1922-100000@blue1.dev.mcafeelabs.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 10, 2003 at 12:15:25PM -0800, Davide Libenzi wrote:
+Greetings,
 
-> 2) Existing apps using poll/select can easily be ported usinf LT epoll
+I took your patch out for a test-drive, and it appears to have starvation 
+problems with irman's process load (dang thing seems to be HELL on schedulers).
 
-This is a big thing. I created a webserver based on MTasker
-(ds9a.nl/mtasker) that used select, poll or epoll and it was very hard to
-abstract this properly as level and edge semantics differ so wildly.
+Irman starts a load (defaults to 9 tasks passing data in a pipe ring), and 
+forks a child which pingpongs one character back and forth to the parent 
+for 1000000 iterations, measuring response time for each iteration and 
+computing statistics.  With an iteration % 1000 printf() in the evaluation 
+routine, I see it start off nice and fast, then begins to get starved for 
+up to 30 seconds.  It jerks around for a bit, then slows down to a ~stable 
+1 sec/iteration after approximately 300000 iterations.  The whole test 
+takes ~2minutes with 2.5.64-virgin.  (I'm not patient enough to wait for 
+the rest of the .5million iterations left on this burn before reporting:)
 
-Most programs will not abandon 'legacy' interfaces like poll and select and
-will only want to offer epoll in addition. Right now that is hard to do.
+It also shows a serious throughput loss with make -j30 bzImage on this box 
+(I think you expect that though from what I read).  With stock, it takes 
+~8m30s... this scheduler adds a full minute.
 
-I implemented this by 'relevelling' the edgeness of epoll, which is double
-work.
+The window wave test with a make -j5 bzImage running (fits easily in ram) 
+is pretty ragged.
 
-> 1) We leave epoll as is ( ET )
-> 2) We apply the patch that will make epoll LT
-> 3) We add a parameter to epoll_create() to fix the interface behaviour at
-> 	creation time ( small change on the current patch )
-> 
-> With 2) and 3) there are also man pages to be reviewed to be posted to
-> Andries. Comments ?
+Ending on a more positive note, vmstat output from the parallel build looks 
+quite nice.
 
-I'd vote for 2.
+	-Mike
 
-Regards,
-
-bert
-
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
-http://netherlabs.nl                         Consulting

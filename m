@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261767AbRESLsc>; Sat, 19 May 2001 07:48:32 -0400
+	id <S261773AbRESL6Y>; Sat, 19 May 2001 07:58:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261773AbRESLsX>; Sat, 19 May 2001 07:48:23 -0400
-Received: from isis.its.uow.edu.au ([130.130.68.21]:17297 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S261767AbRESLsH>; Sat, 19 May 2001 07:48:07 -0400
-Message-ID: <3B065C78.C20BBCA@uow.edu.au>
-Date: Sat, 19 May 2001 21:43:52 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-ac9 i686)
+	id <S261775AbRESL6P>; Sat, 19 May 2001 07:58:15 -0400
+Received: from pop.gmx.net ([194.221.183.20]:21298 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S261773AbRESL6H>;
+	Sat, 19 May 2001 07:58:07 -0400
+Message-ID: <3B066184.5A6FA728@gmx.at>
+Date: Sat, 19 May 2001 14:05:24 +0200
+From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Andries.Brouwer@cwi.nl
-CC: bcrl@redhat.com, torvalds@transmeta.com, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org, viro@math.psu.edu
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code in 
- userspace
-In-Reply-To: <UTC200105191109.NAA53719.aeb@vlet.cwi.nl>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: VIA/PDC/Athlon - IDE error theory
+In-Reply-To: <E150VHJ-0006Ak-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
+Alan Cox wrote:
+> > hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> > hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
 > 
-> Hmm. You know that I wrote this long ago?
+> CRC errors are cable errors so that bit is reasonable in itself
 
-Well, let's not get too hung up on the disk thing (yeah,
-I started it...).
+Could this be caused by the RAID configuration? The first sector of the
+first disk holds the partition table. The other disks in the raid have
+no valid partition table:
 
-Ben's intent here is to *demonstrate* how argv-style
-info can be passed into device nodes.  It seems neat,
-and nice.
+dmesg message from Jussi Laako:
+ hdf: unknown partition table
+ hdg: unknown partition table
+ hdh: unknown partition table
+[snip]
 
-We can also make use of a strong argument parsing library
-in the kernel - there are a great number of open-coded
-string bashing functions which could be rationalised
-and regularised.
+If there is a raid (1+)0 configured you got a volume that is bigger than
+the first hd. So if you have extended partitions or freebsd slices which
+are located beyond the capacity of the hd, then the partition table
+check would have to read datastructures which have an offset which is to
+high. => read error during partition check => nasty error messages
 
+I have the error message problem on my box. DMA is disabled because of
+the error on /dev/hda. But a hdparm -d 1 /dev/hda fixes this, and I do
+not get more errors regarding that. Everything works fine. (I did not
+compile with Athlon optimization.)
 
-So.  When am I going to be able to:
-
-	open("/bin/ls,-l,/etc/passwd", O_RDONLY);
-
-?
+regards,
+Wilfried

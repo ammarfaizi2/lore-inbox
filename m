@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267256AbTGLCQX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 22:16:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267261AbTGLCQX
+	id S267296AbTGLCQ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 22:16:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267317AbTGLCQ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 22:16:23 -0400
-Received: from home.wiggy.net ([213.84.101.140]:21136 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S267256AbTGLCQW (ORCPT
+	Fri, 11 Jul 2003 22:16:58 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:48263 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267296AbTGLCQq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 22:16:22 -0400
-Date: Sat, 12 Jul 2003 04:31:05 +0200
-From: Wichert Akkerman <wichert@wiggy.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 'what to expect'
-Message-ID: <20030712023105.GC3116@wiggy.net>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030711140219.GB16433@suse.de> <1057933578.20636.17.camel@dhcp22.swansea.linux.org.uk>
+	Fri, 11 Jul 2003 22:16:46 -0400
+Date: Fri, 11 Jul 2003 19:31:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Milton Miller <miltonm@bga.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Allow LBD on architectures that support it
+Message-Id: <20030711193135.4edd7557.akpm@osdl.org>
+In-Reply-To: <200307120224.h6C2ONNR016854@sullivan.realtime.net>
+References: <200307120224.h6C2ONNR016854@sullivan.realtime.net>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1057933578.20636.17.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Alan Cox wrote:
-> On Gwe, 2003-07-11 at 15:02, Dave Jones wrote:
-> > - Older Direct Rendering Manager (DRM) support (For XFree86 4.0)
-> >   has been removed. Upgrade to XFree86 4.1.0 or higher.
-> 
-> The current 2.5 DRM doesnt seem to work with 4.1, but does with  4.3 at
-> least on my testing of i810. I need to double check the results unless
-> others see the same
+Milton Miller <miltonm@bga.com> wrote:
+>
+>  config LBD
+>   	bool "Support for Large Block Devices"
+>  -	depends on X86
+>  +	depends on X86 || MIPS32 || PPC32 || ARCH_S390_31 || SUPERH
 
-If memory servers me correctly at least the XFree86 4.3.0 radeon driver
-want a newer version of the kernel DRM modules than is present in
-current 2.5. Unfortunately the code from the last DRI snapshot does not
-seem to compile with 2.5.74 (haven't tried 2.5.75 yet).
+yup, the idea was that architecture maintainers could come in and turn this
+on once they had verified that it actually works OK.
 
-Wichert.
-
--- 
-Wichert Akkerman <wichert@wiggy.net>      It is simple to make things.
-http://www.wiggy.net/                     It is hard to make things simple.
-
+However I don't have a problem with just doing the above and then listening
+for distant bangs.

@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263388AbTJ0Deb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 22:34:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbTJ0Deb
+	id S263745AbTJ0DmS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 22:42:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263747AbTJ0DmS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 22:34:31 -0500
-Received: from fw.osdl.org ([65.172.181.6]:63977 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263388AbTJ0Dea (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 22:34:30 -0500
-Date: Sun, 26 Oct 2003 19:32:40 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: dveatch@woh.rr.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Menuconfig encountered an error (follow up)
-Message-Id: <20031026193240.52ef4249.rddunlap@osdl.org>
-In-Reply-To: <200310262215.34921.dveatch@woh.rr.com>
-References: <200310262215.34921.dveatch@woh.rr.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 26 Oct 2003 22:42:18 -0500
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:49353 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S263745AbTJ0DmR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Oct 2003 22:42:17 -0500
+Date: Mon, 27 Oct 2003 04:42:14 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: CONFIG_IP_NF_IPTABLES=m breaks 2.6 BK compile
+Message-ID: <20031027034214.GA26161@merlin.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Oct 2003 22:15:34 -0500 Dennis Veatch <dveatch@woh.rr.com> wrote:
+Hi,
 
-| Mandrake 9.2, kernel source 2.4.22-18mdk
-| 
-| The error;
-| 
-| Menuconfig has encountered a possible error in one of the kernel's 
-| configuration files and is unable to continue. Here is the error report;
-| 
-| Q> scripts/Menuconfig: line832: MCmenu78: command not found
-| 
-| 
-| I do not remember what part of the menu I was in when this happened.
-| 
-| It happens when I try to enter Alsa Sound.
+there is a configuration problem in the current BK kernel. With
+CONFIG_IP_NF_IPTABLES=m, I'm getting these errors:
 
-Based on very similar previous emails on the same subject
-(which should be findable via a mail archive search),
-this is a Mandrake-induced problem.  This problem does not
-happen in a kernel from www.xz.kernel.org.
-Please contact Mandrake for a fix.
+net/built-in.o(.init.text+0x248e): In function `init':
+: undefined reference to `ipt_register_match'
+net/built-in.o(.exit.text+0x1ae): In function `fini':
+: undefined reference to `ipt_unregister_match'
 
---
-~Randy
+These go away with CONFIG_IP_NF_IPTABLES=y.
+
+.config file at
+http://mandree.home.pages.de/linux-2.6-BK-config
+(MD5 hash is 5e32c5b9305943587f977711cf8a8c66)
+
+BK checked out a moment ago, 1.1359 is the rightmost entry in bk
+histtool. Parent repository is bk://linux.bkbits.net/linux-2.5/
+
+-- 
+Matthias Andree
+
+Encrypt your mail: my GnuPG key ID is 0x052E7D95

@@ -1,50 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262391AbUCHFcT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 00:32:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbUCHFcT
+	id S262392AbUCHFhs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 00:37:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262395AbUCHFhs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 00:32:19 -0500
-Received: from [164.164.56.19] ([164.164.56.19]:35738 "EHLO mail1.sasken.com")
-	by vger.kernel.org with ESMTP id S262391AbUCHFcS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 00:32:18 -0500
-From: Swapnil <swapnil@sasken.com>
-Subject: fs scheduling access optimization
-Date: Mon, 8 Mar 2004 11:02:04 +0530
-Message-ID: <Pine.GSO.4.30.0403081100100.17318-100000@sunsv2.sasken.com>
-Mime-Version: 1.0
-To: linux-kernel@vger.kernel.org
-X-News-Gateway: ncc-z.sasken.com
-Content-type: multipart/mixed; boundary="=_IS_MIME_Boundary"
+	Mon, 8 Mar 2004 00:37:48 -0500
+Received: from mikonos.cyclades.com.br ([200.230.227.67]:44808 "EHLO
+	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
+	id S262392AbUCHFhL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 00:37:11 -0500
+Date: Mon, 8 Mar 2004 02:22:36 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@dmt.cyclades
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: Daniel Egger <degger@fhm.edu>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       <jgarzik@pobox.com>, <linux-net@vger.kernel.org>
+Subject: Re: [2.4 patch] MAINTAINERS: remove LAN media entry
+In-Reply-To: <20040307155008.GM22479@fs.tum.de>
+Message-ID: <Pine.LNX.4.44.0403080221520.2604-100000@dmt.cyclades>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=_IS_MIME_Boundary
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-what are various methods to optimize data access from the secondary
-memory?
-what are the steps taken in designing an efficient and robust fs in terms
-of data mgt(not disk space mgt).
 
-Please enlighten
+On Sun, 7 Mar 2004, Adrian Bunk wrote:
 
-Swapnil S. Garge
+> On Sat, Feb 28, 2004 at 11:57:11AM +0100, Daniel Egger wrote:
+> > On Feb 27, 2004, at 9:54 pm, Adrian Bunk wrote:
+> > 
+> > >IOW:
+> > >The entry from MAINTAINER can be removed?
+> > 
+> > This one for sure. The same is probably sensible for the
+> > drivers, too. It's just too confusing to not several
+> > versions of the driver floating around which need different
+> > tools. And since the manufacturer propagates their own
+> > version, the linux one should go...
+> >...
+> 
+> 
+> It's a question whether removing drivers from a stable kernel series is 
+> a good idea, but the following is definitely correct:
+> 
+> 
+> --- linux-2.4.26-pre2-full/MAINTAINERS.old	2004-03-07 16:48:59.000000000 +0100
+> +++ linux-2.4.26-pre2-full/MAINTAINERS	2004-03-07 16:49:09.000000000 +0100
+> @@ -1077,12 +1077,6 @@
+>  W:	http://www.cse.unsw.edu.au/~neilb/oss/knfsd/
+>  S:	Maintained
+>  
+> -LANMEDIA WAN CARD DRIVER
+> -P:      Andrew Stanley-Jones
+> -M:      asj@lanmedia.com
+> -W:      http://www.lanmedia.com/
+> -S:      Supported
+> - 
+>  LAPB module
+>  P:	Henner Eisen
+>  M:	eis@baty.hanse.de
+> 
 
---=_IS_MIME_Boundary
-Content-Type: text/plain;charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I think it might be better to change to
 
-***********************************************************************
 
-********************************************************************
+LANMEDIA WAN CARD DRIVER
+S: UNMAINTAINED
 
-SASKEN BUSINESS DISCLAIMER
+Thoughts? 
 
-This message may contain confidential, proprietary or legally Privileged information. In case you are not the original intended Recipient of the message, you must not, directly or indirectly, use, Disclose, distribute, print, or copy any part of this message and you are requested to delete it and inform the sender. Any views expressed in this message are those of the individual sender unless otherwise stated. Nothing contained in this message shall be construed as an offer or acceptance of any offer by Sasken Communication Technologies Limited ("Sasken") unless sent with that express intent and with due authority of Sasken. Sasken has taken enough precautions to prevent the spread of viruses. However the company accepts no liability for any damage caused by any virus transmitted by this email.
 
-***********************************************************************
 
---=_IS_MIME_Boundary--

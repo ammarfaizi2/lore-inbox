@@ -1,74 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264309AbUEDUzm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264282AbUEDUzL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264309AbUEDUzm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 16:55:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264295AbUEDUzl
+	id S264282AbUEDUzL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 16:55:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264295AbUEDUzL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 16:55:41 -0400
-Received: from lindsey.linux-systeme.com ([62.241.33.80]:26374 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S264321AbUEDUzh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 16:55:37 -0400
-From: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
-Organization: Linux-Systeme GmbH
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.27-pre2: tg3: there's no WARN_ON in 2.4
-Date: Tue, 4 May 2004 22:53:11 +0200
-User-Agent: KMail/1.6.2
-Cc: Adrian Bunk <bunk@fs.tum.de>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>, jgarzik@pobox.com,
-       davem@redhat.com
-References: <20040503230911.GE7068@logos.cnet> <20040504204633.GB8643@fs.tum.de>
-In-Reply-To: <20040504204633.GB8643@fs.tum.de>
-X-Operating-System: Linux 2.6.5-wolk3.0 i686 GNU/Linux
+	Tue, 4 May 2004 16:55:11 -0400
+Received: from av3-1-sn1.fre.skanova.net ([81.228.11.109]:13793 "EHLO
+	av3-1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S264282AbUEDUzE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 16:55:04 -0400
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>,
+       Hamie <hamish@travellingkiwi.com>, linux-kernel@vger.kernel.org
+Subject: Re: uspend to Disk - Kernel 2.6.4 vs. r50p
+References: <20040429064115.9A8E814D@damned.travellingkiwi.com>
+	<20040503123150.GA1188@openzaurus.ucw.cz>
+	<40965DAA.4040504@pointblue.com.pl> <20040503192940.GA3531@elf.ucw.cz>
+From: Peter Osterlund <petero2@telia.com>
+Date: 04 May 2004 22:55:00 +0200
+In-Reply-To: <20040503192940.GA3531@elf.ucw.cz>
+Message-ID: <m2pt9j29qz.fsf@p4.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_3KAmASsqFNyW7qO"
-Message-Id: <200405042253.11133@WOLK>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pavel Machek <pavel@ucw.cz> writes:
 
---Boundary-00=_3KAmASsqFNyW7qO
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> Hi!
+> 
+> > >Use echo 4 > /proc/acpi/sleep, and vanilla kernels.
+> > >
+> > >			
+> > >
+> > What If it happends that I have T22 Thinkpad, and it doesn't work with 
+> > ACPI in 2.6 (causes problems with network cards for some reason, long 
+> > and not yet fixed bug in ACPI), and I don't have /proc/acpi. How can I 
+> > use swsusp than ?
+> 
+> I added entry to FAQ:
+> 
+> Q: My machine doesn't work with ACPI. How can I use swsusp than ?
+> 
+> A: Do reboot() syscall with right parameters. Warning: glibc gets in
+> its way, so check with strace:
+> 
+> reboot(LINUX_REBOOT_MAGIC1, LINUX_REBOOT_MAGIC2, 0xd000fce2)
+> 
+> Ouch, and when you code that trivial program, send me source, I lost
+> mine.
 
-On Tuesday 04 May 2004 22:46, Adrian Bunk wrote:
+#include <unistd.h>
+#include <syscall.h>
 
-Hi Adrian,
+#define	LINUX_REBOOT_MAGIC1	0xfee1dead
+#define	LINUX_REBOOT_MAGIC2	672274793
+#define	LINUX_REBOOT_CMD_SW_SUSPEND	0xD000FCE2
 
-> drivers/net/net.o(.text+0x60293): In function `tg3_get_strings':
-> : undefined reference to `WARN_ON'
-> make: *** [vmlinux] Error 1
-> There's no WARN_ON in 2.4.
+int main()
+{
+    syscall(SYS_reboot, LINUX_REBOOT_MAGIC1, LINUX_REBOOT_MAGIC2,
+	    LINUX_REBOOT_CMD_SW_SUSPEND, 0);
+    return 0;
+}
 
-yep. Either we backport WARN_ON ;) or simply do the attached.
-
-ciao, Marc
-
---Boundary-00=_3KAmASsqFNyW7qO
-Content-Type: text/x-diff;
-  charset="iso-8859-15";
-  name="564_tg3-2.4.27-pre2-1.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="564_tg3-2.4.27-pre2-1.patch"
-
---- old/drivers/net/tg3.c	2004-05-04 14:30:22.000000000 +0200
-+++ new/drivers/net/tg3.c	2004-05-04 14:49:58.000000000 +0200
-@@ -51,6 +51,10 @@
- #define TG3_TSO_SUPPORT	0
- #endif
- 
-+#ifndef WARN_ON
-+#define	WARN_ON(x)	do { } while (0)
-+#endif
-+
- #include "tg3.h"
- 
- #define DRV_MODULE_NAME		"tg3"
-
---Boundary-00=_3KAmASsqFNyW7qO--
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

@@ -1,182 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261353AbSJ1Qvf>; Mon, 28 Oct 2002 11:51:35 -0500
+	id <S261367AbSJ1Qxw>; Mon, 28 Oct 2002 11:53:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261366AbSJ1Qvf>; Mon, 28 Oct 2002 11:51:35 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:60371 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id <S261353AbSJ1Qva>; Mon, 28 Oct 2002 11:51:30 -0500
-Date: Mon, 28 Oct 2002 16:58:45 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@digeo.com>
-cc: William Lee Irwin III <wli@holomorphy.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] mm show_free_areas layout
-Message-ID: <Pine.LNX.4.44.0210281628550.10378-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S261368AbSJ1Qxw>; Mon, 28 Oct 2002 11:53:52 -0500
+Received: from c-24-99-36-145.atl.client2.attbi.com ([24.99.36.145]:38664 "HELO
+	babylon.d2dc.net") by vger.kernel.org with SMTP id <S261367AbSJ1Qxr>;
+	Mon, 28 Oct 2002 11:53:47 -0500
+Date: Mon, 28 Oct 2002 12:00:04 -0500
+From: "Zephaniah E\. Hull" <warp@babylon.d2dc.net>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Problem with mousedev.c
+Message-ID: <20021028170004.GB20446@babylon.d2dc.net>
+Mail-Followup-To: Petr Vandrovec <vandrove@vc.cvut.cz>, vojtech@suse.cz,
+	linux-kernel@vger.kernel.org
+References: <20021027010538.GA1690@babylon.d2dc.net> <20021028132752.GB1253@ppc.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="yEPQxsgoJgBvi8ip"
+Content-Disposition: inline
+In-Reply-To: <20021028132752.GB1253@ppc.vc.cvut.cz>
+User-Agent: Mutt/1.4i
+X-Notice-1: Unsolicited Commercial Email (Aka SPAM) to ANY systems under
+X-Notice-2: our control constitutes a $US500 Administrative Fee, payable
+X-Notice-3: immediately.  By sending us mail, you hereby acknowledge that
+X-Notice-4: policy and agree to the fee.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, this will come high on nobody's must-push-to-Linus list.
 
-But the -mm tree's AltSysRqM display has got dominated by special
-interests recently, so a lot of the familiar stuff gets pushed off
-a 25-line screen.
+--yEPQxsgoJgBvi8ip
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Could we rearrange it? with the hot and cold taps and batchwater
-levels first: those who are interested can swim back to them?
-Omit the word "Zone " (I'd love non-NUMAs to omit "Node 0 " but
-didn't find the right #define).  Less of those leading spaces
-(free min low high active inactive lines have long been hard
-to read); at last destroy that stray unmatched ")".
+On Mon, Oct 28, 2002 at 02:27:52PM +0100, Petr Vandrovec wrote:
+> On Sat, Oct 26, 2002 at 09:05:38PM -0400, Zephaniah E. Hull wrote:
+> > To make a long story short, mousedev.c does not properly implement the
+> > EXPS/2 protocol, specificly dealing with the wheel.
+> >=20
+> > The lower 8 bits of the 4th byte are supposed to be 0x1 or 0xf to
+> > indicate movement of the first wheel, and 0x2 or 0xe for the second
+> > wheel.
+>=20
+> Hi,
+>   I was talking about this problem with Vojtech some months ago,
+> and unfortunately we were not able to find correct way to implement it:
+> there are mouses (probably majority) which have only one wheel, and
+> which reports fast wheel movement as 2,3,4... or 0xe,0xd,.... Protocol
+> is documented this way on Microsoft web pages.
 
-Of course, the search for perfection in the AltSysRqM display
-will never cease: I've no idea whether this patch will unleash
-a flamefest, a trickle of adjustments, or a warm cloud of apathy.
-The patch makes the display look something like:
+Crap, I have interestingly enough never had reports of a mouse which
+generates fast wheel movement in that manner, this makes things a bit
+more, er, interesting.
 
-SysRq : Show Memory
-Mem-info:
-Node 0 DMA per-cpu:
-cpu 0 hot: low 2, high 6, batch 1, reserved 0
-cpu 0 cold: low 0, high 2, batch 1, reserved 0
-cpu 1 hot: low 2, high 6, batch 1, reserved 0
-cpu 1 cold: low 0, high 2, batch 1, reserved 0
-Node 0 Normal per-cpu:
-cpu 0 hot: low 32, high 96, batch 16, reserved 0
-cpu 0 cold: low 0, high 32, batch 16, reserved 0
-cpu 1 hot: low 32, high 96, batch 16, reserved 0
-cpu 1 cold: low 0, high 32, batch 16, reserved 0
-Node 0 HighMem per-cpu: empty
+Is this for exps2 or imps2?
+(Trying to find the page from microsoft now.)
+>=20
+>   Then there is another group of mices (mine A4Tech with two wheels
+> being one of them) which reports vertical wheel always as 1/0xF, and
+> horizontal as 2/0xE (and if you move both, they reports once horizontal
+> and once vertical wheel).
+>=20
+>   Unfortunately we were not able to find how to detect these mouses in
+> advance, and when I asked A4Tech, I got back answer that I should use
+> their mouse driver, and not one delivered by Microsoft (although Linux
+> was every third word in question). From this answer I conclude that
+> there is no way to autodetect it, and it has to be specified by some
+> options passed to mouse driver.
 
-Free pages:      421284kB (0kB HighMem)
-Active:3464 inactive:2007 dirty:82 writeback:0 free:105321
-Node 0 DMA free:13084kB min:128kB low:256kB high:384kB active:0kB inactive:0kB
-Node 0 Normal free:408200kB min:1020kB low:2040kB high:3060kB active:13856kB inactive:8028kB
-Node 0 HighMem free:0kB min:0kB low:0kB high:0kB active:0kB inactive:0kB
-Node 0 DMA: 5*4kB 1*8kB 2*16kB 5*32kB 3*64kB 1*128kB 1*256kB 0*512kB 0*1024kB 0*2048kB 3*4096kB = 13084kB
-Node 0 Normal: 16*4kB 1*8kB 0*16kB 0*32kB 1*64kB 0*128kB 0*256kB 1*512kB 0*1024kB 1*2048kB 99*4096kB = 408200kB
-Node 0 HighMem: empty
-Swap cache: add 0, delete 0, find 0/0, race 0+0
-Free swap:       2097136kB
-115296 pages of RAM
-0 pages of HIGHMEM
-1958 reserved pages
-3186 pages shared
-0 pages swap cached
+We can deal with one half of this, by acting like the a4tech mice when
+emulating the exps2 protocol, as far as when reading from them in PS/2
+mode....
 
---- 2.5.44-mm6/mm/page_alloc.c	Mon Oct 28 16:02:01 2002
-+++ linux/mm/page_alloc.c	Mon Oct 28 16:14:26 2002
-@@ -879,21 +879,50 @@
- 	unsigned long inactive;
- 	struct zone *zone;
- 
-+	for_each_zone(zone) {
-+		printk("Node %d %s per-cpu:", zone->zone_pgdat->node_id, zone->name);
-+
-+		if (!zone->present_pages) {
-+			printk(" empty\n");
-+			continue;
-+		} else
-+			printk("\n");
-+
-+		for (cpu = 0; cpu < NR_CPUS; ++cpu) {
-+			struct per_cpu_pageset *pageset = zone->pageset + cpu;
-+			for (temperature = 0; temperature < 2; temperature++)
-+				printk("cpu %d %s: low %d, high %d, batch %d, reserved %d\n",
-+					cpu,
-+					temperature ? "cold" : "hot",
-+					pageset->pcp[temperature].low,
-+					pageset->pcp[temperature].high,
-+					pageset->pcp[temperature].batch,
-+					pageset->pcp[temperature].reserved);
-+		}
-+	}
-+
- 	get_page_state(&ps);
- 	get_zone_counts(&active, &inactive);
- 
--	printk("Free pages:      %6dkB (%6dkB HighMem)\n",
-+	printk("\nFree pages: %11ukB (%ukB HighMem)\n",
- 		K(nr_free_pages()),
- 		K(nr_free_highpages()));
- 
-+	printk("Active:%lu inactive:%lu dirty:%lu writeback:%lu free:%u\n",
-+		active,
-+		inactive,
-+		ps.nr_dirty,
-+		ps.nr_writeback,
-+		nr_free_pages());
-+
- 	for_each_zone(zone)
--		printk("Node %d, Zone:%s"
--			" freepages:%6lukB"
--			" min:%6lukB"
--			" low:%6lukB"
--			" high:%6lukB"
--			" active:%6lukB"
--			" inactive:%6lukB"
-+		printk("Node %d %s"
-+			" free:%lukB"
-+			" min:%lukB"
-+			" low:%lukB"
-+			" high:%lukB"
-+			" active:%lukB"
-+			" inactive:%lukB"
- 			"\n",
- 			zone->zone_pgdat->node_id,
- 			zone->name,
-@@ -905,18 +934,11 @@
- 			K(zone->nr_inactive)
- 			);
- 
--	printk("( Active:%lu inactive:%lu dirty:%lu writeback:%lu free:%u )\n",
--		active,
--		inactive,
--		ps.nr_dirty,
--		ps.nr_writeback,
--		nr_free_pages());
--
- 	for_each_zone(zone) {
- 		struct list_head *elem;
-  		unsigned long nr, flags, order, total = 0;
- 
--		printk("Node %d, Zone %s: ", zone->zone_pgdat->node_id, zone->name);
-+		printk("Node %d %s: ", zone->zone_pgdat->node_id, zone->name);
- 		if (!zone->present_pages) {
- 			printk("empty\n");
- 			continue;
-@@ -931,29 +953,7 @@
- 			printk("%lu*%lukB ", nr, K(1UL) << order);
- 		}
- 		spin_unlock_irqrestore(&zone->lock, flags);
--		printk("= %lukB)\n", K(total));
--	}
--
--	for_each_zone(zone) {
--		printk("Node %d, Zone %s: per-cpu:", zone->zone_pgdat->node_id, zone->name);
--
--		if (!zone->present_pages) {
--			printk(" empty\n");
--			continue;
--		} else
--			printk("\n");
--
--		for (cpu = 0; cpu < NR_CPUS; ++cpu) {
--			struct per_cpu_pageset *pageset = zone->pageset + cpu;
--			for (temperature = 0; temperature < 2; temperature++)
--				printk("cpu %d %s: low %d, high %d, batch %d, reserved %d\n",
--					cpu,
--					temperature ? "cold" : "hot",
--					pageset->pcp[temperature].low,
--					pageset->pcp[temperature].high,
--					pageset->pcp[temperature].batch,
--					pageset->pcp[temperature].reserved);
--		}
-+		printk("= %lukB\n", K(total));
- 	}
- 
- 	show_swap_cache_info();
+On the bright side, USB mice are fucked up in new and interesting ways!
 
+(Have a patch for dealing with this A4Tech mouse's second wheel when it
+is attached as a USB device, but until mousedev.c knows what to do with
+information about the second wheel...)
+
+Zephaniah E. Hull.
+(Debian gpm maintainer.)
+
+--=20
+	1024D/E65A7801 Zephaniah E. Hull <warp@babylon.d2dc.net>
+	   92ED 94E4 B1E6 3624 226D  5727 4453 008B E65A 7801
+	    CCs of replies from mailing lists are requested.
+
+[1] Yes, we ARE rather dull people.  We appreciate being dull people.
+Exciting is only good when it happens to someone else ... as in "an
+exciting wreck", "an exciting plane crash", "an exciting install of
+Windows XP", et al.
+  -- Ralph Wade Phillips in the Scary Devil Monastery.
+
+--yEPQxsgoJgBvi8ip
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE9vW0URFMAi+ZaeAERAuUHAJ44Og+s5gDSXVYGrXK1YLnHL3oxeACgpLOw
+f0Vv8Ae6Bk1Q4SFI3/8bnyc=
+=7id2
+-----END PGP SIGNATURE-----
+
+--yEPQxsgoJgBvi8ip--

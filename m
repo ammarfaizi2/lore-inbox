@@ -1,31 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272295AbRIEWHr>; Wed, 5 Sep 2001 18:07:47 -0400
+	id <S272314AbRIEWK5>; Wed, 5 Sep 2001 18:10:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272314AbRIEWHg>; Wed, 5 Sep 2001 18:07:36 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32009 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272295AbRIEWH0>; Wed, 5 Sep 2001 18:07:26 -0400
-Subject: Re: lilo vs other OS bootloaders was: FreeBSD makes progress
-To: andrew.grover@intel.com (Grover, Andrew)
-Date: Wed, 5 Sep 2001 23:11:35 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDE0ED@orsmsx35.jf.intel.com> from "Grover, Andrew" at Sep 05, 2001 02:18:51 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S272320AbRIEWKr>; Wed, 5 Sep 2001 18:10:47 -0400
+Received: from shell.cyberus.ca ([209.195.95.7]:10635 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S272314AbRIEWKa>;
+	Wed, 5 Sep 2001 18:10:30 -0400
+Date: Wed, 5 Sep 2001 18:08:18 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: <linux-kernel@vger.kernel.org>
+cc: <netdev@oss.sgi.com>, Andi Kleen <ak@muc.de>, <kuznet@ms2.inr.ac.ru>
+Subject: Re: ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19
+Message-ID: <Pine.GSO.4.30.0109051803500.11700-100000@shell.cyberus.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15ektU-0006qw-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> However, I'm not sure whether this would really hurt overall kernel
-> performance, for two reasons: First, I would think that the requirement to
-> use the lock instruction would overshadow any function call overhead.
 
-AMD lock overhead for an L1 cached exclusive line is basically on the 
-synchronization point, it doesn't go to memory. I believe later Pentium I*
-do the same. 
+Andi, Alexey,
 
-Alan
+Whats wrong with this patch (just a thought, not tested or even compiled)?
+
+---------------------------------------
+--- devinet.c   2001/09/04 19:18:51     1.1
++++ devinet.c   2001/09/04 19:31:13
+@@ -530,7 +530,7 @@
+
+        if ((in_dev=__in_dev_get(dev)) != NULL) {
+                for (ifap=&in_dev->ifa_list; (ifa=*ifap) != NULL;
+ifap=&ifa->ifa_next)
+-                       if (strcmp(ifr.ifr_name, ifa->ifa_label) == 0)
++                       if ((strcmp(ifr.ifr_name, ifa->ifa_label) == 0) ||
+(sin->sin_addr.s_addr == ifa->ifa_address))
+                                break;
+        }
+--------------------------------
+
+cheers,
+jamal
+
+

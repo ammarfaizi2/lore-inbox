@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263208AbUKUJXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbUKUJkV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263208AbUKUJXM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 04:23:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbUKUJXM
+	id S261941AbUKUJkV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 04:40:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbUKUJkV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 04:23:12 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:47076 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262940AbUKUJXG (ORCPT
+	Sun, 21 Nov 2004 04:40:21 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:15851 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261941AbUKUJkR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 04:23:06 -0500
-Date: Sun, 21 Nov 2004 10:22:33 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Alan Cox <alan@redhat.com>, Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       "Tomita, Haruo" <haruo.tomita@toshiba.co.jp>,
-       Marcelo Tosatti <marcelo@hera.kernel.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-Subject: Re: linux-2.4.28 released
-In-Reply-To: <419E0644.909@pobox.com>
-Message-ID: <Pine.GSO.4.61.0411211021550.19680@waterleaf.sonytel.be>
-References: <BF571719A4041A478005EF3F08EA6DF05EB481@pcsmail03.pcs.pc.ome.toshiba.co.jp>
- <20041118111235.GA26216@logos.cnet> <20041119134832.GA9552@havoc.gtf.org>
- <20041119135452.GA10422@devserv.devel.redhat.com> <419E0644.909@pobox.com>
+	Sun, 21 Nov 2004 04:40:17 -0500
+Date: Sun, 21 Nov 2004 10:40:12 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: wait_event_interruptible() seems non-atomic
+In-Reply-To: <419F8D7A.1020305@colorfullife.com>
+Message-ID: <Pine.LNX.4.53.0411211039240.242@yvahk01.tjqt.qr>
+References: <419F6DEB.6030606@colorfullife.com> <Pine.LNX.4.53.0411201718040.925@yvahk01.tjqt.qr>
+ <419F8D7A.1020305@colorfullife.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Nov 2004, Jeff Garzik wrote:
-> Alan Cox wrote:
-> > On Fri, Nov 19, 2004 at 08:48:32AM -0500, Jeff Garzik wrote:
-> > > PATA and SATA (DMA doesn't work for PATA, in split-driver configuration),
-> > > and there is no split-driver to worry about.
-> > > 
-> > > I think there may need to be some code to prevent the IDE driver from
-> > > claiming the legacy ISA ports.
-> > 
-> > Its called "request_resource". If you want the resource claim it. IDE will
-> > be a good citizen.
-> 
-> That's what the quirk does.  libata still needs to find out who obtained the
-> resource, not blindly grab it (and fail).
+>>>For example the use of down_interruptible() looks wrong to me, I'd use
+>>>plain down().
+>>
+>>I'd like to be able to hit Ctrl+C (in the userspace application) whenever
+>>possible. If that's not a reason, blame the book
+>>http://www.xml.com/ldd/chapter/book/ch03.html#t8 ("the read method" a further
+>>down below)
+>
+>You have already written the code, so I'd leave it as it is and I'll
+>blame the book. They probably started from an older version of
+>fs/pipe.c, which contained _interruptible calls. There are gone now,
+>this allowed some cleanup.
 
-If libata would be initialized before IDE, it could grab the resource during
-probing.
+Well, it's just one line so I would not care, and I'm also open for
+suggestions. Does down_interruptible() cost so much more in CPU cycles than
+down()?
 
-Gr{oetje,eeting}s,
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Jan Engelhardt
+-- 
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

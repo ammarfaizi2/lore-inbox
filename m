@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271777AbRIYSy6>; Tue, 25 Sep 2001 14:54:58 -0400
+	id <S271697AbRIYS52>; Tue, 25 Sep 2001 14:57:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271769AbRIYSys>; Tue, 25 Sep 2001 14:54:48 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:48110 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S271714AbRIYSyc>;
-	Tue, 25 Sep 2001 14:54:32 -0400
-Date: Tue, 25 Sep 2001 20:55:12 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Bob McElrath <mcelrath@draal.physics.wisc.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: O_DIRECT as a mount option?
-Message-ID: <20010925205512.D8350@athlon.random>
-In-Reply-To: <20010925125144.D14612@draal.physics.wisc.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010925125144.D14612@draal.physics.wisc.edu>; from mcelrath@draal.physics.wisc.edu on Tue, Sep 25, 2001 at 12:51:44PM -0500
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S272265AbRIYS5S>; Tue, 25 Sep 2001 14:57:18 -0400
+Received: from magic.adaptec.com ([208.236.45.80]:62120 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP
+	id <S271697AbRIYS5H>; Tue, 25 Sep 2001 14:57:07 -0400
+Message-ID: <50DB155AD0CED411988E009027D61DB324D507@otcexc01.otc.adaptec.com>
+From: "Bonds, Deanna" <Deanna_Bonds@adaptec.com>
+To: "'Brian Strand'" <bstrand@switchmanagement.com>,
+        linux-kernel@vger.kernel.org
+Subject: RE: 3c59x + dpti2o problem with interrupt sharing?
+Date: Tue, 25 Sep 2001 14:57:24 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 25, 2001 at 12:51:44PM -0500, Bob McElrath wrote:
-> With O_DIRECT (buffer cache bypass open() flag) now in the mainstream
-> kernel, I wonder if people would be opposed to making a "direct" mount
-> option, which would open all files on the filesystem with the O_DIRECT
-> flag, just as there exists a "sync" mount option to perform filesystem
-> transactions synchronously.
-> 
-> This would allow you to 
->     mount -o direct,sync /dev/hdb1 /mnt/video
-> And would be useful for things like streaming video applications,
-> allowing the advantages of O_DIRECT without rewriting every application
-> you want to use.
+> Looking in /proc/interrupts, I noticed that eth0 and dpti 
+> were sharing 
+> an IRQ.  Is this the likely cause of the network failure, and if so, 
+> does anyone know of a way to get the PCI BIOS to assign 
+> separate IRQs to 
 
-you've to audit the app anyways since O_DIRECT enforces alignments on
-buffer alignment and file offset.
+> A related question is:  should these drivers be able to share 
+> IRQs, i.e. 
+> is it a worthwhile goal to have them operate reliably while sharing 
+> IRQs, or is IRQ-sharing a performance loss and something to 
+> be avoided?
 
-Andrea
+The Adaptec card can share interrupts, but it is not wise to do that with
+another card that is going to be a high priority interrupt.  You most likely
+need to change the motherboard bios settings.  If you are not using your
+onboard IDE you can disable that freeing up another high priority interrupt.
+Otherwise you can manually assign the interrupts through the bios.
+
+Deanna
+

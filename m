@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273132AbRIRSXZ>; Tue, 18 Sep 2001 14:23:25 -0400
+	id <S273163AbRIRS2q>; Tue, 18 Sep 2001 14:28:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273136AbRIRSXF>; Tue, 18 Sep 2001 14:23:05 -0400
-Received: from mailg.telia.com ([194.22.194.26]:10456 "EHLO mailg.telia.com")
-	by vger.kernel.org with ESMTP id <S273132AbRIRSWz>;
-	Tue, 18 Sep 2001 14:22:55 -0400
-Message-Id: <200109181822.f8IIMv618968@mailg.telia.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Roger Larsson <roger.larsson@norran.net>
-To: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Feedback on preemptible kernel patch
-Date: Tue, 18 Sep 2001 20:18:10 +0200
-X-Mailer: KMail [version 1.3]
-In-Reply-To: <200109140302.f8E32LG13400@zero.tech9.net> <1000530869.32365.21.camel@phantasy> <20010918040550Z273827-761+10122@vger.kernel.org>
-In-Reply-To: <20010918040550Z273827-761+10122@vger.kernel.org>
+	id <S273170AbRIRS20>; Tue, 18 Sep 2001 14:28:26 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:57872 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S273163AbRIRS2Z>; Tue, 18 Sep 2001 14:28:25 -0400
+Date: Tue, 18 Sep 2001 11:27:27 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.10-pre11
+In-Reply-To: <Pine.GSO.4.21.0109181354470.27125-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0109181122550.9711-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday den 18 September 2001 06:06, Dieter Nützel wrote:
-> Yes, but no crash or oops for me.
-> "Only" some "stalls" during MPEG/Ogg-Vorbis playback (2-5 sec) :-(
 
-> > > But I get some hiccup during noatun (mp3, ogg, etc. player for KDE-2.2)
-> > > or plaympeg together with dbench (16, 32). ReiserFS needs some
-> > > preemption fixes, too?
-> >
-> > You may still get some small hiccups ( < 1 second?) even with the
-> > preemption patch, as kernel locks prevent preemption (the patch can't
-> > guarentee low latency, just preemption outside of the locks).
+On Tue, 18 Sep 2001, Alexander Viro wrote:
 >
-> Sadly 2-5 seconds at the beginning of dbench and during bonnie++ block
-> operations (huge IO pressure, ~20% system, 3-5% user, 116308 kilobytes
-> paged out).
->
-> > However, how bad was the hiccups with preemption disabled?  I have heard
-> > reports where it is 3-5sec at times.
->
-> Yes, nearly the same.
->
+> It can be modified so that combination with lazy-bdev and pipefs-like tree
+> would work.  And yes, most of the ugliness would just go away.
 
-Do you run with the playback process reniced -N?
-It should really run with a low SCHED_FIFO or SCHED_RT policy.
-But renicing it with a negative value gives some of the benefits...
-(but you need to run as root)
-In addition to this the program might need to lock its pages down - the
-only thing I can think of that could cause several seconds delay would
-be if it has been swapped out...
+That's the part I like about the page-cache bdev patch. It has a lot of
+fairly ugly warts, but all of them seem to be really fixable with _other_
+cleanups, at which point only the good parts remain.
 
-/RogerL
+I agree that the timing may leave something to be desired. But we had the
+discussion about fixing pagecache-bdev consistency wrt the regular buffer
+cache filesystem accesses a week or so ago, and the fact is that nobody
+really seems to have started working on it - because everybody felt that
+you have to get everything done at once.
 
--- 
-Roger Larsson
-Skellefteå
-Sweden
+I don't have that feeling. I'm happy with having partial merge with ugly
+warts, if it means that you can get to the final stage _without_ having to
+have all the problems fixed at one time.
+
+So now we have two _smaller_ merges that will fix two other issues, and
+remove all the horridness from the original merge.
+
+		Linus
+

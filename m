@@ -1,77 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263638AbTFPKNZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 06:13:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263643AbTFPKNZ
+	id S263665AbTFPKdT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 06:33:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263676AbTFPKdT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 06:13:25 -0400
-Received: from bart.one-2-one.net ([217.115.142.76]:43533 "EHLO
-	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S263638AbTFPKNY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 06:13:24 -0400
-Date: Mon, 16 Jun 2003 12:27:42 +0200 (CEST)
-From: Martin Diehl <lists@mdiehl.de>
-X-X-Sender: martin@notebook.home.mdiehl.de
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: NeilBrown <neilb@cse.unsw.edu.au>, Linus Torvalds <torvalds@transmeta.com>,
-       <linux-kernel@vger.kernel.org>, <akpm@zip.com.au>
-Subject: Re: [PATCH] Add module_kernel_thread for threads that live in modules.
-In-Reply-To: <20030616092316.3E31B2C013@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0306161145570.2079-100000@notebook.home.mdiehl.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 Jun 2003 06:33:19 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:37644 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S263665AbTFPKdS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 06:33:18 -0400
+Date: Mon, 16 Jun 2003 12:47:10 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: CaT <cat@zip.com.au>
+Cc: swsusp@lister.fornax.hu, linux-kernel@vger.kernel.org
+Subject: Re: [FIX, please test] Re: 2.5.70-bk16 - nfs interferes with s4bios suspend
+Message-ID: <20030616104710.GA12173@atrey.karlin.mff.cuni.cz>
+References: <20030613033703.GA526@zip.com.au> <20030615183111.GD315@elf.ucw.cz> <20030616001141.GA364@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030616001141.GA364@zip.com.au>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Jun 2003, Rusty Russell wrote:
+Ahoj!
 
-> > You mean your cleanup_thread would block for completion of the keventd 
-> > stuff? Ok, this would work. But then, when calling cleanup_thread, f.e. we 
-> > must not hold any semaphore which might be acquired by _any_ other work 
-> > scheduled for keventd or we might end in deadlock (like the rtnl+hotplug 
-> > issue we had seen recently).
+> > >  stopping tasks failed (2 tasks remaining)
+> > > Suspend failed: Not all processes stopped!
+> > > Restarting tasks...<6> Strange, rpciod not stopped
+> > 
+> > This should fix it... Someone please test it.
 > 
-> I think we're talking across each other: take a look at the existing
-> kernel/kmod.c __call_usermodehelper to see how we wait at the moment.
+> I didn't have any actual nfs mounts at the time but I tried it
+> with an otherwise similar system. It went through, got to freeing
+> memory, showed me a bunch of fullstops being drawn and then went
+> into an endless BUG loop. All I could pick out (after many a moment
+> of staring) was 'schedule in atmoic'.
+> 
+> I'll do a proper test with a console cable present in a few days. I
+> can't atm cos I'm not on the same network and don't have a 2nd 
+> computer to hook up the null-modem cable to.
+> 
+> Pre-empt is on btw.
 
-Maybe talking across each other... what I meant is some deadlock like 
-this (IMHO possible both on UP and SMP):
+Turn it off. You don't want to debug preempt and nfs at the same time.
 
-rmmod (f.e.)			keventd			somewhere else
-
-down(&some_sem)
-cleanup_thread()
-	.
-	.						schedule_work(w1)
-	.
-	.		w1 (queued, or maybe running):
-	.			down(&some_sem);
-	.			...
-	.			up(&some_sem);
-	.
-schedule_work(w2)
-	.
-	.		w2 (queued behind w1)
-	.			should_die = 1
-	.			sys_wait4()
-	.			complete(thread_exit)
-	.
-/* some_sem still hold */
-wait_for_completion(thread_exit)
-
-
-Next time we schedule keventd w1 will be executed first which wants to 
-acquire some_sem which is still hold by the rmmod-thread - which in turn 
-blocks for completion of w2 which is queued behind w1 -> deadlock.
-
-The point is the queueing in keventd combined with stuff waiting for 
-keventd-completion could create some possibilities for lock order 
-violation which are at least not very obvious.
-
-IMHO cleanup_thread would be something one MUST NOT call with any lock 
-hold, not even a semaphore if it might get acquired anywhere else in 
-keventd-context.
-
-Thanks.
-Martin
-
+								Pavel
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283585AbRLRBrd>; Mon, 17 Dec 2001 20:47:33 -0500
+	id <S283618AbRLRBxx>; Mon, 17 Dec 2001 20:53:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283586AbRLRBrZ>; Mon, 17 Dec 2001 20:47:25 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:5638 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S283585AbRLRBrM>; Mon, 17 Dec 2001 20:47:12 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Scheduler ( was: Just a second ) ...
-Date: 17 Dec 2001 17:46:59 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9vm76j$emp$1@cesium.transmeta.com>
-In-Reply-To: <20011217185244.D9581@redhat.com> <Pine.LNX.4.33.0112171710160.2035-100000@penguin.transmeta.com>
+	id <S283594AbRLRBxn>; Mon, 17 Dec 2001 20:53:43 -0500
+Received: from ns.suse.de ([213.95.15.193]:16 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S283621AbRLRBxb>;
+	Mon, 17 Dec 2001 20:53:31 -0500
+Date: Tue, 18 Dec 2001 02:53:30 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Erik Andersen <andersen@codepoet.org>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux 2.4.17-rc1
+In-Reply-To: <20011217184637.A17505@codepoet.org>
+Message-ID: <Pine.LNX.4.33.0112180252320.23388-100000@Appserv.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.33.0112171710160.2035-100000@penguin.transmeta.com>
-By author:    Linus Torvalds <torvalds@transmeta.com>
-In newsgroup: linux.dev.kernel
-> 
-> I've told you a number of times that I'd like to see the preliminary
-> implementation publicly discussed and some uses outside of private
-> companies that I have no insight into..
-> 
+On Mon, 17 Dec 2001, Erik Andersen wrote:
 
-There was a group at IBM who presented on an alternate SMP scheduler
-at this year's OLS; it generated quite a bit of good discussion.
+> > This doesn't look right..
+> Sure it does, look closer.  :-)
 
-	-hpa
+Ah yes, missed the context there (and was too lazy to crossref
+with the source).. apologies.
+
+Dave.
 
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

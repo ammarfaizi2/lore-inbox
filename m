@@ -1,69 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130552AbRDFCBH>; Thu, 5 Apr 2001 22:01:07 -0400
+	id <S130820AbRDFCES>; Thu, 5 Apr 2001 22:04:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130791AbRDFCA5>; Thu, 5 Apr 2001 22:00:57 -0400
-Received: from sm10.texas.rr.com ([24.93.35.222]:10150 "EHLO sm10.texas.rr.com")
-	by vger.kernel.org with ESMTP id <S130552AbRDFCAs>;
-	Thu, 5 Apr 2001 22:00:48 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Marvin Justice <mjustice@austin.rr.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.2-ac18 Severworks AGP
-Date: Thu, 5 Apr 2001 20:02:29 -0500
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <01040520022900.00762@bozo>
-Content-Transfer-Encoding: 7BIT
+	id <S130793AbRDFCEF>; Thu, 5 Apr 2001 22:04:05 -0400
+Received: from phoenix.nanospace.com ([209.213.199.121]:19718 "HELO
+	phoenix.nanospace.com") by vger.kernel.org with SMTP
+	id <S130791AbRDFCBe>; Thu, 5 Apr 2001 22:01:34 -0400
+Date: Thu, 5 Apr 2001 19:00:52 -0700
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: gcc-2.95.3
+Message-ID: <20010405190052.A25099@thune.yy.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0104060847200.965-100000@boston.corp.fedex.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.6i
+In-Reply-To: <Pine.LNX.4.33.0104060847200.965-100000@boston.corp.fedex.com>; from jeffchua@silk.corp.fedex.com on Fri, Apr 06, 2001 at 08:49:51AM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a Tyan S1867 (Server Set III HE) for which I'd like to have AGP 
-support.  Here's the relevant output of lspci -v :
+On Fri, Apr 06, 2001 at 08:49:51AM +0800, Jeff Chua wrote:
+> 
+> Does anybody have bad experience with gcc-2.95.3?
+> 
+> I'm using gcc-2.95.2 with linux 2.4.3 and have no problem with it.
 
-00:00.0 Host bridge: ServerWorks CNB20HE (rev 22)
-	Flags: fast devsel
-	Memory at fa000000 (32-bit, prefetchable) [disabled] [size=32M]
-	Memory at feafb000 (32-bit, non-prefetchable) [disabled] [size=4K]
+I've built and using 2.4.2 with 2.95.3 with no issues.  [I should say, with
+no more issues than I have normally with this cheesey motherboard :-].
 
-00:00.1 PCI bridge: ServerWorks CNB20HE (rev 01) (prog-if 00 [Normal decode])
-	Flags: bus master, 66Mhz, medium devsel, latency 64
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
-	Memory behind bridge: fd000000-fdffffff
-	Prefetchable memory behind bridge: f0000000-f7ffffff
-	Capabilities: [80] AGP version 2.0
-    ...
-    ...
-    ...
-01:00.0 VGA compatible controller: nVidia Corporation NV15 Bladerunner 
-(Geforce2 GTS) (rev a4) (prog-if 00 [VGA])
-	Subsystem: Elsa AG: Unknown device 0c56
-	Flags: bus master, 66Mhz, medium devsel, latency 248, IRQ 17
-	Memory at fd000000 (32-bit, non-prefetchable) [size=16M]
-	Memory at f0000000 (32-bit, prefetchable) [size=128M]
-	Expansion ROM at <unassigned> [disabled] [size=64K]
-	Capabilities: [60] Power Management version 1
-	Capabilities: [44] AGP version 2.0
+At least the long long computation bug on non i686 compilations is fixed
+with 2.95.3.
 
-The first thing to be noted is that the Capabilities Pointer for this chipset 
-is on the AGP bridge not on the Host bridge like it is for currently 
-supported chips. If I change the line
-
-	if ((dev = pci_find_class(PCI_CLASS_BRIDGE_HOST << 8, NULL)) == NULL)
-
-to
-	if ((dev = pci_find_class(PCI_CLASS_BRIDGE_PCI << 8, NULL)) == NULL)
-
-in the agp_find_supported_device routine then I am able to load the patched 
-agpgart module. But, unfortunately, it is clear that the intel_generic setup 
-routines won't work.  Eg, intel_fetch_size returns 256 MB no matter what I 
-have the aperture set to in the BIOS.
-
-Just poking around I notice that the byte at 0x8c changes from 
-1,3,5,7,9,11,13 as I change the aperture to 32,64,128,.256,512,1G,2G.
-
-Does anyone have the relevant documentation for the ServerWorks AGP 
-configuration registers?
-
-Thanks,
-Marvin
+mrc
+-- 
+       Mike Castle       Life is like a clock:  You can work constantly
+  dalgoda@ix.netcom.com  and be right all the time, or not work at all
+www.netcom.com/~dalgoda/ and be right at least twice a day.  -- mrc
+    We are all of us living in the shadow of Manhattan.  -- Watchmen

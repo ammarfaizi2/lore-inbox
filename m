@@ -1,73 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262373AbVBBQMk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262405AbVBBQQA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262373AbVBBQMk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 11:12:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbVBBQMj
+	id S262405AbVBBQQA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 11:16:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262404AbVBBQP6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 11:12:39 -0500
-Received: from mail.joq.us ([67.65.12.105]:44264 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S262561AbVBBP7V (ORCPT
+	Wed, 2 Feb 2005 11:15:58 -0500
+Received: from rproxy.gmail.com ([64.233.170.199]:38349 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262388AbVBBQPT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 10:59:21 -0500
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux <linux-kernel@vger.kernel.org>
-Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
-References: <20050125135613.GA18650@elte.hu> <87sm4opxto.fsf@sulphur.joq.us>
-	<20050126070404.GA27280@elte.hu> <87fz0neshg.fsf@sulphur.joq.us>
-	<1106782165.5158.15.camel@npiggin-nld.site>
-	<874qh3bo1u.fsf@sulphur.joq.us>
-	<1106796360.5158.39.camel@npiggin-nld.site>
-	<87pszr1mi1.fsf@sulphur.joq.us> <20050127113530.GA30422@elte.hu>
-	<873bwfo8br.fsf@sulphur.joq.us> <20050202113705.GA25012@elte.hu>
-From: "Jack O'Quin" <joq@io.com>
-Date: Wed, 02 Feb 2005 10:01:20 -0600
-In-Reply-To: <20050202113705.GA25012@elte.hu> (Ingo Molnar's message of
- "Wed, 2 Feb 2005 12:37:05 +0100")
-Message-ID: <874qgvj6i7.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 2 Feb 2005 11:15:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=UwysS1sb8Xe02ExzJWPtz+LvyzKI9Lq9SBqheaF0a6KnY4awzHosReHk8D3Lw98iaF98jS/TtTiZDEqaM33MagyxW8k9DnVB5TMsNJx8zOZJWNJq680RJRS1GR6STiXpMe/bcdjIHqfaX90DquITnfkYuB/6k8K8IJH0cauNlbI=
+Message-ID: <c79c69b3050202081573f6335a@mail.gmail.com>
+Date: Wed, 2 Feb 2005 17:15:16 +0100
+From: Lethalman <lethalman88@gmail.com>
+Reply-To: Lethalman <lethalman88@gmail.com>
+To: Stelian Pop <stelian@popies.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Linux Kernel Subversion Howto
+In-Reply-To: <20050202155403.GE3117@crusoe.alcove-fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050202155403.GE3117@crusoe.alcove-fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+(first sorry for my poor English)
+Very nice howto. It's useful for generic use of svn too.
+The notations about converting bk to svn is really interesting... nice job!
 
-[trimming the Cc: list]
+Just a little error:
+How to I ignore temporary build files ? <- to should be do
 
-> * Jack O'Quin <joq@io.com> wrote:
->> Remember when I asked how you handle changes to sizeof(struct rusage)?
->> That was a serious question.  I hope there's a solution. [...]
+I would add this rule as a personal cross-development tecnique:
+Before any kind of changes and commits, it would be good to update the
+repository to prevent incompatibilities in the code if previous
+changes was made by other developers.
 
-Ingo Molnar <mingo@elte.hu> writes:
-> what does any of what we've talking about have to do with struct rusage? 
-
-Your previous message implied that "userspace" programmers don't
-understand binary compatibility...
-
-> you might ask yourself, 'why is this so, and why cannot the Linux guys
-> apply pretty much any hack as e.g. userspace code might'
-
-I was just demonstating that I do.
-
-> " > Does getrusage() return anything for this?  How can a field be added
->   > to the rusage struct without breaking binary compatibility?  Can we
->   > assume that no programs ever use sizeof(struct rusage)?
+On Wed, 2 Feb 2005 16:54:04 +0100, Stelian Pop <stelian@popies.net> wrote:
+> Hi,
+> 
+> I've played lately a bit with Subversion and used it for managing
+> the kernel sources, using Larry McVoy's bk2cvs bridge and Ben Collins'
+> bkcvs2svn conversion script.
+> 
+> Since there is little information on the web on how to properly
+> set up a SVN repository and use it for tracking the latest kernel
+> tree, I wrote a small howto (modeled after the bk kernel howto)
+> in case it can be useful for other people too.
+> 
+> Feel free to comment on it (but let's not start a new BK flamewar
+> or SVN bashing session please). If there is enough interest I'll
+> submit a patch to include this in the kernel Documentation/
+> directory.
+> 
+> I've put it also on my web page along with the necessary scripts:
+>         http://popies.net/svn-kernel/
+> 
+> And now a question to Larry and whoever else is involved in the
+> bkcvs mirror on kernel.org: what is the periodicity of the CVS
+> repository update ?
+> 
+> Stelian.
 >
->   rlimits are easily extended and there are no binary compatibility
->   worries. The kernel doesnt export the maximum towards userspace.
->   getrusage() will return the value on new kernels and will return 
->   -EINVAL on old kernels, so new userspace can deal with this 
->   accordingly. "
->
-> (and here i meant getrlimit(), not getrusage() - getrusage() is not
-> affected by the patch at all.)
-
-Well, that was source of my question.
-
-I had asked about rusage.  You said it did return a new value, but
-that this was not a problem.  That made no sense to me.  Thank you for
-clearing it up.
-
-Certainly getrlimit() works OK.  I understood that already.
--- 
-  joq

@@ -1,71 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271307AbRHTPk3>; Mon, 20 Aug 2001 11:40:29 -0400
+	id <S271297AbRHTPlJ>; Mon, 20 Aug 2001 11:41:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271297AbRHTPkU>; Mon, 20 Aug 2001 11:40:20 -0400
-Received: from www.wen-online.de ([212.223.88.39]:54276 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S271283AbRHTPkI>;
-	Mon, 20 Aug 2001 11:40:08 -0400
-Date: Mon, 20 Aug 2001 17:40:04 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: Frank Dekervel <Frank.dekervel@student.kuleuven.ac.Be>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.8/2.4.9 VM problems
-In-Reply-To: <20010819205452Z16128-32383+429@humbolt.nl.linux.org>
-Message-ID: <Pine.LNX.4.33.0108201726330.580-100000@mikeg.weiden.de>
+	id <S271311AbRHTPku>; Mon, 20 Aug 2001 11:40:50 -0400
+Received: from h131s117a129n47.user.nortelnetworks.com ([47.129.117.131]:13727
+	"HELO pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
+	id <S271283AbRHTPkk>; Mon, 20 Aug 2001 11:40:40 -0400
+Message-ID: <3B812FD2.836572F5@nortelnetworks.com>
+Date: Mon, 20 Aug 2001 11:42:10 -0400
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Doug McNaught <doug@wireboard.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: /dev/random in 2.4.6
+In-Reply-To: <Pine.LNX.4.30.0108200903580.4612-100000@waste.org> <2251207905.998322034@[10.132.112.53]> <3B8124C4.7A4275B9@nortelnetworks.com> <m3k7zylpna.fsf@belphigor.mcnaught.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Aug 2001, Daniel Phillips wrote:
+Doug McNaught wrote:
+> 
+> Chris Friesen <cfriesen@nortelnetworks.com> writes:
+> 
+> > Why don't we also switch to a cryptographically secure algorithm for
+> > /dev/urandom?
+> 
+> It IS cryptographically secure.  Have you ever read the manpage?
 
-> On August 17, 2001 03:10 pm, Frank Dekervel wrote:
-> > Hello,
-> >
-> > since i upgraded to kernel 2.4.8/2.4.9, i noticed everything became noticably
-> > slower, and the number of swapins/swapouts increased significantly. When i
-> > run 'vmstat 1' i see there is a lot of swap activity constantly when i am
-> > reading my mail in kmail. After a fresh bootup in the evening, i can get
-> > everything I normally need swapped out by running updatedb or ht://dig. When
-> > i do that, my music stops playing for several seconds, and it takes about 3
-> > seconds before my applications repaint when i switch back to X after an
-> > updatedb run.
-> > the last time that happent (and the last time i had problems with VM at all)
-> > was in 2.4.0-testXX so i think something is wrong ...
-> > is it possible new used_once does not work for me (and drop_behind used to
-> > work fine) ?
-> >
-> > My system configuration : athlon 750, 384 meg ram, 128 meg swap, XFree4.1 and
-> > kde2.2.
->
-> Could you please try this patch against 2.4.9 (patch -p0):
+Oops, my bad.  I got errors doing man on urandom, but neglected to try a man on
+random.
 
-Hi Daniel,
+The main reason for my comment was the suggestion by Steve Hill that
+/dev/urandom was NOT cryptographically secure.  Re-reading it, his comment was
+in the context of generating cryptographic keys, so perhaps I misunderstood what
+he meant.
 
-I've been having some troubles which also seem to be use_once related.
-(bonnie rewrite test induces large inactive shortage, and some nasty
-IO seizures during write intelligently test. [grab window/wave it and
-watch it not move for couple seconds])
-
-I'll give your patch a shot.  In the meantime, below is what I did
-to it here.  I might have busted use_once all to pieces ;-) but it
-cured my problem, so I'll show it anyway.
-
-	-Mike
+Chris
 
 
---- mm/filemap.c.org	Mon Aug 20 17:25:20 2001
-+++ mm/filemap.c	Mon Aug 20 17:25:50 2001
-@@ -980,7 +980,7 @@
- static inline void check_used_once (struct page *page)
- {
- 	if (!PageActive(page)) {
--		if (page->age)
-+		if (page->age > PAGE_AGE_START)
- 			activate_page(page);
- 		else {
- 			page->age = PAGE_AGE_START;
-
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

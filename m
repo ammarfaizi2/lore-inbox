@@ -1,93 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131343AbRBLVjO>; Mon, 12 Feb 2001 16:39:14 -0500
+	id <S130067AbRBLVpz>; Mon, 12 Feb 2001 16:45:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131337AbRBLVi4>; Mon, 12 Feb 2001 16:38:56 -0500
-Received: from innerfire.net ([208.181.73.33]:28426 "HELO innerfire.net")
-	by vger.kernel.org with SMTP id <S131231AbRBLVim>;
-	Mon, 12 Feb 2001 16:38:42 -0500
-Date: Mon, 12 Feb 2001 13:40:17 -0800 (PST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: "Matthew D. Pitts" <mpitts@suite224.net>
-cc: "Mohammad A. Haque" <mhaque@haque.net>, Mike Harrold <mharrold@cas.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: lkml subject line
-In-Reply-To: <003e01c09526$c958a6a0$0100a8c0@pcs586>
-Message-ID: <Pine.LNX.4.10.10102121339240.13086-100000@innerfire.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130415AbRBLVpo>; Mon, 12 Feb 2001 16:45:44 -0500
+Received: from ganymede.isdn.uiuc.edu ([192.17.19.210]:35589 "EHLO
+	ganymede.isdn.uiuc.edu") by vger.kernel.org with ESMTP
+	id <S130067AbRBLVpg>; Mon, 12 Feb 2001 16:45:36 -0500
+Date: Mon, 12 Feb 2001 15:45:26 -0600
+From: Bill Wendling <wendling@ganymede.isdn.uiuc.edu>
+To: linux-kernel@vger.kernel.org
+Subject: OOPs in 2.4.1 SMP
+Message-ID: <20010212154526.A29709@ganymede.isdn.uiuc.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Feb 2001, Matthew D. Pitts wrote:
+I noticed this oops on my HP Kayak XU dual Pentium II 300MHz. I added the
+stuff right before it, though it may have nothing to do with the actual
+Oops. My box is stull running, BTW :).
 
-> Pine, Mutt, there might be a few more.
+Feb 12 16:00:00 dangermouse CROND[11154]: (root) CMD (   /sbin/rmmod -as) 
+Feb 12 16:00:00 dangermouse CROND[11155]: (wendling) CMD (cd
+/home/wendling/setiathome ; if [ -z `/sbin/pidof setiathome` ]; then
+/home/wendling/setiathome/setiathome -nice 19 -graphics ; fi) 
+Feb 12 16:01:00 dangermouse CROND[11159]: (root) CMD (run-parts
+/etc/cron.hourly) 
+Feb 12 16:03:16 dangermouse kernel: Unable to handle kernel NULL pointer
+dereference at virtual address 00000008
+Feb 12 16:03:16 dangermouse kernel:  printing eip:
+Feb 12 16:03:16 dangermouse kernel: c885eac3
+Feb 12 16:03:16 dangermouse kernel: *pde = 00000000
+Feb 12 16:03:16 dangermouse kernel: Oops: 0000
+Feb 12 16:03:16 dangermouse kernel: CPU:    1
+Feb 12 16:03:17 dangermouse kernel: EIP:    0010:[<c885eac3>]
+Feb 12 16:03:17 dangermouse kernel: EFLAGS: 00210292
+Feb 12 16:03:17 dangermouse kernel: eax: 00000000   ebx: c05baa60   ecx:
+c2b01060   edx: 00000000
+Feb 12 16:03:17 dangermouse kernel: esi: c2b01060   edi: c5816c60   ebp:
+0000004d   esp: c2e1ff44
+Feb 12 16:03:17 dangermouse kernel: ds: 0018   es: 0018   ss: 0018
+Feb 12 16:03:17 dangermouse kernel: Process cvs (pid: 11161,
+stackpage=c2e1f000)
+Feb 12 16:03:17 dangermouse kernel: Stack: 0000004d c2b01060 c885ecfd
+c2b01060 08105875 00000000 c5816c80 000001b6 
+Feb 12 16:03:17 dangermouse kernel:        081057c0 c724b000 c5816c60
+ffffffea 00000000 0000004d c0134d06 c5816c60 
+Feb 12 16:03:17 dangermouse kernel:        08105828 0000004d c5816c80
+c0134930 00000002 c2e1e000 0027cd82 00000000 
+Feb 12 16:03:17 dangermouse kernel: Call Trace: [<c885ecfd>]
+[sys_write+150/208] [default_llseek+0/128] [sys_lseek+196/208]
+[system_call+51/56] 
+Feb 12 16:03:17 dangermouse kernel: 
+Feb 12 16:03:17 dangermouse kernel: Code: 8b 70 08 8b 46 3c 8b 56 40 89
+41 3c 0f ac d0 09 89 41 54 8b 
 
-That's a load of crap ... why should pine filter when you have procmail
-just sitting there?
 
-
-> 
-> Just my $0.02.
-> Matthew.
-> ----- Original Message -----
-> From: Mohammad A. Haque <mhaque@haque.net>
-> To: Mike Harrold <mharrold@cas.org>
-> Cc: David Woodhouse <dwmw2@infradead.org>; Guest section DW
-> <dwguest@win.tue.nl>; Matti Aarnio <matti.aarnio@zmailer.org>; Guennadi
-> Liakhovetski <g.liakhovetski@ragingbull.com>; <linux-kernel@vger.kernel.org>
-> Sent: Monday, February 12, 2001 1:45 PM
-> Subject: Re: lkml subject line
-> 
-> 
-> > Is there a mail reader nowadays that doesn't let you do some sort of
-> > filtering?
-> >
-> > On Mon, 12 Feb 2001, Mike Harrold wrote:
-> >
-> > > Assuming your mail reader can do that (and no, I can't change my mail
-> > > reader).
-> > >
-> > > /Mike
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://vger.kernel.org/lkml/
-> > >
-> >
-> > --
-> >
-> > =====================================================================
-> > Mohammad A. Haque                              http://www.haque.net/
-> >                                                mhaque@haque.net
-> >
-> >   "Alcohol and calculus don't mix.             Project Lead
-> >    Don't drink and derive." --Unknown          http://wm.themes.org/
-> >                                                batmanppc@themes.org
-> > =====================================================================
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://vger.kernel.org/lkml/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://vger.kernel.org/lkml/
-> 
-
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
-
+-- 
+|| Bill Wendling			wendling@ganymede.isdn.uiuc.edu
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,64 +1,148 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262147AbUCJLdu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 06:33:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262579AbUCJLdu
+	id S262027AbUCJLcw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 06:32:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262147AbUCJLcw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 06:33:50 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:17285 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262147AbUCJLdr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 06:33:47 -0500
-Date: Wed, 10 Mar 2004 12:35:01 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: objrmap-core-1 (rmap removal for file mappings to avoid 4:4 in <=16G machines)
-Message-ID: <20040310113501.GA1112@elte.hu>
-References: <20040308202433.GA12612@dualathlon.random> <1078781318.4678.9.camel@laptop.fenrus.com> <20040308230845.GD12612@dualathlon.random> <20040309074747.GA8021@elte.hu> <20040309152121.GD8193@dualathlon.random> <20040309153620.GA9012@elte.hu> <20040309163345.GK8193@dualathlon.random> <20040309195752.GA16519@elte.hu> <20040309202744.GS8193@dualathlon.random>
+	Wed, 10 Mar 2004 06:32:52 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:59789 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262027AbUCJLcr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 06:32:47 -0500
+Date: Wed, 10 Mar 2004 12:32:46 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Bruno Ducrot <ducrot@poupinou.org>
+Cc: patches@x86-64.org, kernel list <linux-kernel@vger.kernel.org>,
+       Cpufreq mailing list <cpufreq@www.linux.org.uk>, davej@redhat.com
+Subject: Re: powernow-k8 updates
+Message-ID: <20040310113246.GA4775@atrey.karlin.mff.cuni.cz>
+References: <20040309214830.GA1240@elf.ucw.cz> <20040310110941.GC28592@poupinou.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040309202744.GS8193@dualathlon.random>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner-4.26.8-itk2 SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20040310110941.GC28592@poupinou.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-* Andrea Arcangeli <andrea@suse.de> wrote:
+> > --- clean/arch/i386/kernel/cpu/cpufreq/Kconfig	2004-02-05 01:53:54.000000000 +0100
+> > +++ linux/arch/i386/kernel/cpu/cpufreq/Kconfig	2004-03-03 23:07:26.000000000 +0100
+> > @@ -93,6 +93,19 @@
+> >  	depends on CPU_FREQ && EXPERIMENTAL
+> >  	help
+> >  	  This adds the CPUFreq driver for mobile AMD Opteron/Athlon64 processors.
+> > +	  It relies on old "PST" tables. Unfortunately, many BIOSes get this table
+> > +	  wrong. 
+> > +
+> > +	  For details, take a look at linux/Documentation/cpu-freq. 
+> > +
+> > +	  If in doubt, say N.
+> > +
+> > +config X86_POWERNOW_K8_ACPI
+> > +	tristate "AMD Opteron/Athlon64 PowerNow! using ACPI"
+> > +	depends on CPU_FREQ && EXPERIMENTAL
+> 
+> Why there is no dependency with ACPI here?
 
-> the quality of such objrmap patch is still better than rmap. The DoS
-> thing is doable with vmtruncate too in any kernel out there.
+I'll fix that.
 
-objrmap for now has a serious problem: test-mmap3.c locked up my box (i
-couldnt switch text consoles for 30 minutes when i turned the box off).
+> > +/*
+> > + * Each processor may have
+> > + * a different number of entries in its array. I.e., processor 0 may have
+> > + * 3 pstates, processor 1 may have 5 pstates.
+> > + */
+> 
+> No.  That will break current ACPI v2.0c specification.  All processors
+> shall have the same number of states.  More, they have to support the
+> same set of pairs of frequency/power consuption.
+> 
+> If that is not acceptable by AMD, then you have to contact ACPI SIG
+> at <http://www.acpi.info/> in order to change specs.
 
-I'm sure you'll fix it and i'm looking forward seeing it.  However, i'd
-like to see the full fix instead of a promise to have this fixed
-sometime the future.  There are valid application workloads that trigger
-_worse_ vma patterns than test-mmap3.c does (UML being one such thing,
-Oracle with indirect buffer-cache another - i'm sure there are other
-apps too.).  Calling these applications 'exploits' doesnt help in
-getting this thing fixed.  There's no problem with keeping this patchset
-separate until it's regression-free.
+Notice that amd's powernow is done through acpi, but does not comply
+to the acpi specs. That should be okay; in such case its up to AMD to
+define how it behaves.
 
-> merging objrmap is the first step. Any other effort happens on top of
-> it.
 
-i'd like to see that effort combined with this code, and the full
-picture.  Since this 'DoS property' is created by the current concept of
-the patch, it's not a 'bug' that is easily fixed so we must not (and
-cannot) sign up for it blindly, without seeing the full impact.  But
-yes, it might be fixable.  Anyway - the 2.6 kernel is a stable tree and
-i'm sure you know that avoiding regression is more important than
-anything else.
+> For the last time, why on earth you still do not consider the ACPI
+> perflib.  Links to the cpufreq-developper mailing list with even a kind
+> of public access have been posted.  That will eliminate the following
+> functions amongst other things.  Look at drivers/acpi/processor.c
 
-	Ingo
+I see that file. It seems to be full of northbridge bugs workarounds,
+and seems to be handling processor C states. It handles powernow
+states on machines that do it through acpi. I do not see how I could
+use it, and I do not see how query_ac could disappear. It might be
+nice to use same processor/.../performance interface, but it is
+deprecated anyway. 
+
+What do I miss?
+
+
+> > +static u32 query_ac(void)
+> > +{
+> > +	acpi_status rc;
+> > +	unsigned long state;
+> > +
+> > +	if (psrh) {
+> > +		rc = acpi_evaluate_integer(psrh, NULL, NULL, &state);
+> > +		if (ACPI_SUCCESS(rc)) {
+> > +			if (state == 1)
+> > +				return POW_AC;
+> > +			else if (state == 0)
+> > +				return POW_BAT;
+> > +			else
+> > +				printk(EFX "psr state %lx\n", state);
+> > +		}
+> > +		else {
+> > +			printk(EFX "error %x evaluating psr\n", rc );
+> > +		}
+> > +	}
+> > +	return POW_UNK;
+> > +}
+> > +
+> > +/* gives us the (optional) battery/thermal restrictions */
+> > +static int process_ppc(acpi_handle objh)
+> > +{
+> > +	acpi_status rc;
+> > +	unsigned long state;
+> > +
+> > +	if (objh) {
+> > +		ppch = objh;
+> > +	} else {
+> > +		if (ppch) {
+> > +			objh = ppch;
+> > +		} else {
+> > +			rstps = 0;
+> > +			return 0;   
+> > +		}
+> > +	}
+> > +
+> > +	if (num_online_cpus() > 1) {
+> > +		/* For future thermal support (next release?), rstps needs   */
+> > +		/* to be per processor, and handled for the SMP case. Later. */
+> > +		dprintk(EFX "ignoring attempt to restrict pstates for SMP\n");
+> > +	}
+> > +	else {
+> > +		rc = acpi_evaluate_integer(objh, NULL, NULL, &state);
+> > +		if (ACPI_SUCCESS(rc)) {
+> > +			rstps = state & 0x0f;
+> > +			//dprintk(DFX "pstate restrictions %x\n", rstps);
+> > +			if (!seenrst)
+> > +				seenrst = rstps;
+> > +		}
+> > +		else {
+> > +			rstps = 0;
+> > +			printk(EFX "error %x processing ppc\n", rc);
+> > +			return -ENODEV;
+> > +		}
+> > +	}
+> > +	return 0;
+> > +}
+> 
+
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

@@ -1,58 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264860AbTF0WDR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 18:03:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264873AbTF0WCu
+	id S264862AbTF0WCi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 18:02:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264880AbTF0WCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 18:02:50 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:3524 "EHLO smtp.bitmover.com")
-	by vger.kernel.org with ESMTP id S264860AbTF0WBM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 18:01:12 -0400
-Date: Fri, 27 Jun 2003 15:15:12 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, CaT <cat@zip.com.au>,
-       nick@snowman.net, Larry McVoy <lm@bitmover.com>,
-       Vojtech Pavlik <vojtech@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bkbits.net is down
-Message-ID: <20030627221512.GB11252@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, CaT <cat@zip.com.au>,
-	nick@snowman.net, Larry McVoy <lm@bitmover.com>,
-	Vojtech Pavlik <vojtech@suse.cz>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030627145727.GB18676@work.bitmover.com> <Pine.LNX.4.21.0306271228200.17138-100000@ns.snowman.net> <20030627163720.GF357@zip.com.au> <1056732854.3172.56.camel@dhcp22.swansea.linux.org.uk> <20030627221214.GA11252@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030627221214.GA11252@work.bitmover.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+	Fri, 27 Jun 2003 18:02:37 -0400
+Received: from dhcp93-dsl-usw3.w-link.net ([206.129.84.93]:16065 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id S264862AbTF0WBS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 18:01:18 -0400
+Message-ID: <3EFCC1EB.2070904@candelatech.com>
+Date: Fri, 27 Jun 2003 15:15:07 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: davidel@xmailserver.org, mbligh@aracnet.com, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: networking bugs and bugme.osdl.org
+References: <Pine.LNX.4.55.0306270749020.4137@bigblue.dev.mcafeelabs.com>	<20030627.143738.41641928.davem@redhat.com>	<3EFCBD12.3070101@candelatech.com> <20030627.145456.115915594.davem@redhat.com>
+In-Reply-To: <20030627.145456.115915594.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 27, 2003 at 03:12:14PM -0700, Larry McVoy wrote:
-> Well, I almost had everything backed up to the new rackspace server
-> and we crashed.  We're in fsck now.  I think the machine room overheated.
+David S. Miller wrote:
+>    From: Ben Greear <greearb@candelatech.com>
+>    Date: Fri, 27 Jun 2003 14:54:26 -0700
+>    
+>    I think you are putting too much work on the bug reporter(s).
+> 
+> Don't even talk to me about too much work.
+> 
+> Someone wants me to spend hours groveling through some pieces of code
+> to track down some tricky bug, for free, and all I ask is that they
+> retransmit the bug every once in a while if they don't see any
+> response?
 
-Oh, yeah, in the meantime for the repos which made it to the backup machine,
-you can get them like so:
+I don't care if you completely ignore the bugzilla, just let the
+rest of us lesser mortals use it.  There's always the chance we
+will find something we can fix and actually lessen your load.
 
-	OLD:	bk://project.bkbits.net/repo
-	NEW:	bk://rack2.bitmover.com/$C/project/repo
+> If they're not willing to do this, they DON'T care about the bug.
+> Just like if people aren't willing to retransmit patches they want
+> installed, they DON'T care about the patch.  And just like I don't
+> want to apply patches people don't care about, I don't want any of my
+> contributors looking at bugs that the bug reporter doesn't care about.
 
-where
-	$C	first letter of your project name
+Forcing people to continue to retransmit the same report just pisses
+people off, and in the end will get you less useful reports than if
+you had flagged the report as 'please-gimme-more-info'.  And, most people,
+especially the savvy ones, will find some sort of work-around and keep going.
+That didn't fix the problem, it just made it invisible again untill the
+next person hits it.
 
-Not all of them are there, we were part way through the "l"s which is the
-biggest directory (you guys need to be more imaginative in your naming).
-All the other letters should be there though, so I want to hear about it
-if you are a [a-km-z] project and you can't pull your data.  Pushes don't
-work.
+> Ben, you absolutely don't understand how all of this development works
+> and what it relies upon to function properly.
+
+Perhaps, but it's also possible that you are being a stubborn SOB
+because you fear change :)
+
+Ben
+
+
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

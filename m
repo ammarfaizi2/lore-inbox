@@ -1,89 +1,235 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262400AbTFTF40 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 01:56:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262403AbTFTF40
+	id S262403AbTFTGLP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 02:11:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262409AbTFTGLO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 01:56:26 -0400
-Received: from p164.ats40.donpac.ru ([217.107.128.164]:36294 "EHLO donpac.ru")
-	by vger.kernel.org with ESMTP id S262400AbTFTF4Y (ORCPT
+	Fri, 20 Jun 2003 02:11:14 -0400
+Received: from [203.145.184.221] ([203.145.184.221]:57353 "EHLO naturesoft.net")
+	by vger.kernel.org with ESMTP id S262403AbTFTGLG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 01:56:24 -0400
-Date: Fri, 20 Jun 2003 10:10:20 +0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PnP Changes for 2.5.72
-Message-ID: <20030620061020.GC786@pazke>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030618234418.GC333@neo.rr.com> <20030619093632.A29602@flint.arm.linux.org.uk> <20030619234249.GA31392@neo.rr.com> <20030620065547.B7431@flint.arm.linux.org.uk>
+	Fri, 20 Jun 2003 02:11:06 -0400
+Subject: [PATCH 2.4.21][FIX] use mod_timer
+From: Vinay K Nallamothu <vinay-rc@naturesoft.net>
+To: Marcelo Tosatti <marcelo@hera.kernel.org>
+Cc: netdev@oss.sgi.com, Jesse Barnes <jbarnes@sgi.com>,
+       Alan Cox <alan@redhat.com>, LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 20 Jun 2003 12:06:40 +0530
+Message-Id: <1056091000.1200.23.camel@lima.royalchallenge.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jousvV0MzM2p6OtC"
-Content-Disposition: inline
-In-Reply-To: <20030620065547.B7431@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.4i
-From: Andrey Panin <pazke@donpac.ru>
-X-Spam-Score: -11.7 (-----------)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---jousvV0MzM2p6OtC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This patch makes use of mod_timer instead of {del,add}_timer.
 
-On 171, 06 20, 2003 at 06:55:47AM +0100, Russell King wrote:
-> On Thu, Jun 19, 2003 at 11:42:49PM +0000, Adam Belay wrote:
-> > I removed avoid_irq_share because the current pnp code, like the previo=
-us, does=20
-> > not allow irq sharing.  Also it corrupts the device rule structure by r=
-eplacing=20
-> > it with modified values that may not apply after devices are disabled e=
-tc.
-> > Is there a set of conditions I could follow to determine if a serial pn=
-p device=20
-> > is capable of irq sharing, and also with which other devices can a capa=
-ble=20
-> > device share an irq?  If so, I could have the resource manager handle t=
-his type=20
-> > of situation when few irqs are available.
->=20
-> The problem is one of a lack of historical information on why it was
-> added.  The driver itself allows serial ports to share interrupts between
-> themselves.  Maybe tytso knows why the "Rockwell 56K ACF II Fax+Data+Voice
-> Modem" is unable to share IRQs?
+Most of the patches already in -ac series since 2.4.21-rc2 and few of
+the networking fixes in 2.5.69
 
-It was me who added this crappy quirk.
+The following files are affected:
 
-My ELine modem which identified itself "Rockwell 56K ACF II Fax+Data+Voice =
-Modem"
-was going mad when its IRQ was shared with any device. So I decided to add =
-this
-quirk.
+arch/ia64/sn/kernel/irq.c
+arch/ia64/sn/kernel/mca.c
+drivers/block/floppy.c
+drivers/net/wan/sdla_chdlc.c
+drivers/net/wan/sdla_fr.c
+drivers/net/wan/sdla_x25.c
+net/core/dst.c
+net/sched/sch_cbq.c
+net/sched/sch_csz.c
+net/sched/sch_htb.c
 
-Personally I think that ISA IRQ sharing should be absolutely last resort te=
-chnic,
-because ISA bus was never designed to support IRQ sharing sanely. If you ha=
-ve to
-enable ISA PnP device and do not have enough IRQ, you must print BIG FAT WA=
-RNING
-before doing this. May be kernel config options must be added for brave guys
-wanting to use ISA IRQ sharing.
 
---=20
-Andrey Panin		| Linux and UNIX system administrator
-pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
+diff -urN linux-2.4.21/arch/ia64/sn/kernel/irq.c linux-2.4.21-nvk/arch/ia64/sn/kernel/irq.c
+--- linux-2.4.21/arch/ia64/sn/kernel/irq.c	2003-06-14 10:09:52.000000000 +0530
++++ linux-2.4.21-nvk/arch/ia64/sn/kernel/irq.c	2003-06-20 10:38:47.000000000 +0530
+@@ -303,9 +303,7 @@
+ 			bridge->b_force_always[intr_test_registered[i].slot].intr = 1;
+ 		}
+ 	}
+-	del_timer(&intr_test_timer);
+-	intr_test_timer.expires = jiffies + HZ/100;
+-	add_timer(&intr_test_timer);
++	mod_timer(&intr_test_timer, jiffies + HZ/100);
+ }
+ 
+ void
+diff -urN linux-2.4.21/arch/ia64/sn/kernel/mca.c linux-2.4.21-nvk/arch/ia64/sn/kernel/mca.c
+--- linux-2.4.21/arch/ia64/sn/kernel/mca.c	2003-06-14 10:09:52.000000000 +0530
++++ linux-2.4.21-nvk/arch/ia64/sn/kernel/mca.c	2003-06-20 11:00:11.000000000 +0530
+@@ -123,9 +123,7 @@
+ static void
+ sn_cpei_timer_handler(unsigned long dummy) {
+ 	sn_cpei_handler(-1, NULL, NULL);
+-	del_timer(&sn_cpei_timer);
+-	sn_cpei_timer.expires = jiffies + CPEI_INTERVAL;
+-        add_timer(&sn_cpei_timer);
++	mod_timer(&sn_cpei_timer, jiffies + CPEI_INTERVAL);
+ }
+ 
+ void
+@@ -147,9 +145,7 @@
+ 	unsigned long *pi_ce_error_inject_reg = 0xc00000092fffff00;
+ 
+ 	*pi_ce_error_inject_reg = 0x0000000000000100;
+-	del_timer(&sn_ce_timer);
+-	sn_ce_timer.expires = jiffies + CPEI_INTERVAL;
+-        add_timer(&sn_ce_timer);
++	mod_timer(&sn_ce_timer, jiffies + CPEI_INTERVAL);
+ }
+ 
+ sn_init_ce_timer() {
+diff -urN linux-2.4.21/drivers/net/wan/sdla_chdlc.c linux-2.4.21-nvk/drivers/net/wan/sdla_chdlc.c
+--- linux-2.4.21/drivers/net/wan/sdla_chdlc.c	2003-06-14 10:03:17.000000000 +0530
++++ linux-2.4.21-nvk/drivers/net/wan/sdla_chdlc.c	2003-06-20 10:38:40.000000000 +0530
+@@ -1089,13 +1089,11 @@
+ 	
+ 	set_bit(0,&chdlc_priv_area->config_chdlc);
+ 	chdlc_priv_area->config_chdlc_timeout=jiffies;
+-	del_timer(&chdlc_priv_area->poll_delay_timer);
+ 
+ 	/* Start the CHDLC configuration after 1sec delay.
+ 	 * This will give the interface initilization time
+ 	 * to finish its configuration */
+-	chdlc_priv_area->poll_delay_timer.expires=jiffies+HZ;
+-	add_timer(&chdlc_priv_area->poll_delay_timer);
++	mod_timer(&chdlc_priv_area->poll_delay_timer, jiffies + HZ);
+ 	return err;
+ }
+ 
+diff -urN linux-2.4.21/drivers/net/wan/sdla_fr.c linux-2.4.21-nvk/drivers/net/wan/sdla_fr.c
+--- linux-2.4.21/drivers/net/wan/sdla_fr.c	2003-06-14 10:03:17.000000000 +0530
++++ linux-2.4.21-nvk/drivers/net/wan/sdla_fr.c	2003-06-20 10:38:31.000000000 +0530
+@@ -4541,9 +4541,7 @@
+ {
+ 	fr_channel_t* chan = dev->priv;
+ 
+-	del_timer(&chan->fr_arp_timer);
+-	chan->fr_arp_timer.expires = jiffies + (chan->inarp_interval * HZ);
+-	add_timer(&chan->fr_arp_timer);
++	mod_timer(&chan->fr_arp_timer, jiffies + chan->inarp_interval * HZ);
+ 	return;
+ }
+ 
+diff -urN linux-2.4.21/drivers/net/wan/sdla_ppp.c linux-2.4.21-nvk/drivers/net/wan/sdla_ppp.c
+--- linux-2.4.21/drivers/net/wan/sdla_ppp.c	2003-06-14 10:03:17.000000000 +0530
++++ linux-2.4.21-nvk/drivers/net/wan/sdla_ppp.c	2003-06-20 10:34:06.000000000 +0530
+@@ -841,9 +841,7 @@
+ 	/* Start the PPP configuration after 1sec delay.
+ 	 * This will give the interface initilization time
+ 	 * to finish its configuration */
+-	del_timer(&ppp_priv_area->poll_delay_timer);
+-	ppp_priv_area->poll_delay_timer.expires = jiffies+HZ;
+-	add_timer(&ppp_priv_area->poll_delay_timer);
++	mod_timer(&ppp_priv_area->poll_delay_timer, jiffies + HZ);
+ 	return 0;
+ }
+ 
+diff -urN linux-2.4.21/drivers/net/wan/sdla_x25.c linux-2.4.21-nvk/drivers/net/wan/sdla_x25.c
+--- linux-2.4.21/drivers/net/wan/sdla_x25.c	2003-06-14 10:10:14.000000000 +0530
++++ linux-2.4.21-nvk/drivers/net/wan/sdla_x25.c	2003-06-20 10:33:30.000000000 +0530
+@@ -1267,9 +1267,7 @@
+ 			connect(card);
+ 			S508_S514_unlock(card, &smp_flags);
+ 
+-			del_timer(&card->u.x.x25_timer);
+-			card->u.x.x25_timer.expires=jiffies+HZ;
+-			add_timer(&card->u.x.x25_timer);
++			mod_timer(&card->u.x.x25_timer, jiffies + HZ);
+ 		}
+ 	}
+ 	/* Device is not up until the we are in connected state */
+diff -urN linux-2.4.21/net/core/dst.c linux-2.4.21-nvk/net/core/dst.c
+--- linux-2.4.21/net/core/dst.c	2003-06-14 10:03:10.000000000 +0530
++++ linux-2.4.21-nvk/net/core/dst.c	2003-06-20 10:33:16.000000000 +0530
+@@ -131,11 +131,9 @@
+ 	dst->next = dst_garbage_list;
+ 	dst_garbage_list = dst;
+ 	if (dst_gc_timer_inc > DST_GC_INC) {
+-		del_timer(&dst_gc_timer);
+ 		dst_gc_timer_inc = DST_GC_INC;
+ 		dst_gc_timer_expires = DST_GC_MIN;
+-		dst_gc_timer.expires = jiffies + dst_gc_timer_expires;
+-		add_timer(&dst_gc_timer);
++		mod_timer(&dst_gc_timer, jiffies + dst_gc_timer_expires);
+ 	}
+ 
+ 	spin_unlock_bh(&dst_lock);
+diff -urN linux-2.4.21/net/sched/sch_cbq.c linux-2.4.21-nvk/net/sched/sch_cbq.c
+--- linux-2.4.21/net/sched/sch_cbq.c	2003-06-14 10:03:13.000000000 +0530
++++ linux-2.4.21-nvk/net/sched/sch_cbq.c	2003-06-20 10:38:53.000000000 +0530
+@@ -1056,11 +1056,9 @@
+ 		sch->stats.overlimits++;
+ 		if (q->wd_expires && !netif_queue_stopped(sch->dev)) {
+ 			long delay = PSCHED_US2JIFFIE(q->wd_expires);
+-			del_timer(&q->wd_timer);
+ 			if (delay <= 0)
+ 				delay = 1;
+-			q->wd_timer.expires = jiffies + delay;
+-			add_timer(&q->wd_timer);
++			mod_timer(&q->wd_timer, jiffies + delay);
+ 			sch->flags |= TCQ_F_THROTTLED;
+ 		}
+ 	}
+diff -urN linux-2.4.21/net/sched/sch_csz.c linux-2.4.21-nvk/net/sched/sch_csz.c
+--- linux-2.4.21/net/sched/sch_csz.c	2003-06-14 10:10:35.000000000 +0530
++++ linux-2.4.21-nvk/net/sched/sch_csz.c	2003-06-20 10:38:59.000000000 +0530
+@@ -708,11 +708,9 @@
+ 	 */
+ 	if (q->wd_expires) {
+ 		unsigned long delay = PSCHED_US2JIFFIE(q->wd_expires);
+-		del_timer(&q->wd_timer);
+ 		if (delay == 0)
+ 			delay = 1;
+-		q->wd_timer.expires = jiffies + delay;
+-		add_timer(&q->wd_timer);
++		mod_timer(&q->wd_timer, jiffies + delay);
+ 		sch->stats.overlimits++;
+ 	}
+ #endif
+diff -urN linux-2.4.21/net/sched/sch_htb.c linux-2.4.21-nvk/net/sched/sch_htb.c
+--- linux-2.4.21/net/sched/sch_htb.c	2003-06-14 10:10:35.000000000 +0530
++++ linux-2.4.21-nvk/net/sched/sch_htb.c	2003-06-20 10:39:05.000000000 +0530
+@@ -986,9 +986,7 @@
+ 			printk(KERN_INFO "HTB delay %ld > 5sec\n", delay);
+ 		delay = 5*HZ;
+ 	}
+-	del_timer(&q->timer);
+-	q->timer.expires = jiffies + delay;
+-	add_timer(&q->timer);
++	mod_timer(&q->timer, jiffies + delay);
+ 	sch->flags |= TCQ_F_THROTTLED;
+ 	sch->stats.overlimits++;
+ 	HTB_DBG(3,1,"htb_deq t_delay=%ld\n",delay);
+diff -urN linux-2.4.21/drivers/block/floppy.c linux-2.4.21-nvk/drivers/block/floppy.c
+--- linux-2.4.21/drivers/block/floppy.c	2003-06-14 10:03:23.000000000 +0530
++++ linux-2.4.21-nvk/drivers/block/floppy.c	2003-06-20 10:44:28.000000000 +0530
+@@ -652,15 +652,16 @@
+ 
+ static void reschedule_timeout(int drive, const char *message, int marg)
+ {
++	unsigned long delay;
++	
+ 	if (drive == CURRENTD)
+ 		drive = current_drive;
+-	del_timer(&fd_timeout);
+ 	if (drive < 0 || drive > N_DRIVE) {
+-		fd_timeout.expires = jiffies + 20UL*HZ;
++		delay = 20UL*HZ;
+ 		drive=0;
+ 	} else
+-		fd_timeout.expires = jiffies + UDP->timeout;
+-	add_timer(&fd_timeout);
++		delay =  UDP->timeout;
++	mod_timer(&fd_timeout, delay + jiffies);
+ 	if (UDP->flags & FD_DEBUG){
+ 		DPRINT("reschedule timeout ");
+ 		printk(message, marg);
 
---jousvV0MzM2p6OtC
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQE+8qVMby9O0+A2ZecRAjOuAJ926pSMLYzKylHPYcKJmu9Dgg0eKgCgzqc/
-RmB9Oj9W9Vj9M+G5nTJ8Fhc=
-=mHO7
------END PGP SIGNATURE-----
 
---jousvV0MzM2p6OtC--

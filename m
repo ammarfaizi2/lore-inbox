@@ -1,68 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136098AbRASAkB>; Thu, 18 Jan 2001 19:40:01 -0500
+	id <S136115AbRASAnb>; Thu, 18 Jan 2001 19:43:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136438AbRASAjv>; Thu, 18 Jan 2001 19:39:51 -0500
-Received: from baldur.fh-brandenburg.de ([195.37.0.5]:38135 "HELO
-	baldur.fh-brandenburg.de") by vger.kernel.org with SMTP
-	id <S136098AbRASAjp>; Thu, 18 Jan 2001 19:39:45 -0500
-Date: Fri, 19 Jan 2001 01:18:01 +0100 (MET)
-From: Roman Zippel <zippel@fh-brandenburg.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andreas Dilger <adilger@turbolinux.com>,
-        Rogier Wolff <R.E.Wolff@bitwizard.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Is sendfile all that sexy?
-In-Reply-To: <Pine.LNX.4.10.10101181120070.18387-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.10.10101182335320.3304-100000@zeus.fh-brandenburg.de>
+	id <S135463AbRASAnV>; Thu, 18 Jan 2001 19:43:21 -0500
+Received: from innerfire.net ([208.181.73.33]:19981 "HELO innerfire.net")
+	by vger.kernel.org with SMTP id <S136126AbRASAnM>;
+	Thu, 18 Jan 2001 19:43:12 -0500
+Date: Thu, 18 Jan 2001 16:43:15 -0800 (PST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Mike Kravetz <mkravetz@sequent.com>
+cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: multi-queue scheduler update
+In-Reply-To: <20010118155311.B8637@w-mikek.des.sequent.com>
+Message-ID: <Pine.LNX.4.10.10101181642200.16244-100000@innerfire.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+What affect does this scheduler have on 1 - 5 tasks??
 
-On Thu, 18 Jan 2001, Linus Torvalds wrote:
+	Gerhard
 
-> It's too damn device-dependent, and it's not worth it. There's no way to
-> make it general with any current hardware, and there probably isn't going
-> to be for at least another decade or so. And because it's expensive and
-> slow to do even on a hardware level, it probably won't be done even then.
+
+On Thu, 18 Jan 2001, Mike Kravetz wrote:
+
+> I just posted an updated version of the multi-queue scheduler
+> for the 2.4.0 kernel.  This version also contains support for
+> realtime tasks.  The patch can be found at:
 > 
-> [...]
+> http://lse.sourceforge.net/scheduling/
 > 
-> An important point in interface design is to know when you don't know
-> enough. We do not have the internal interfaces for doing anything like
-> this, and I seriously doubt they'll be around soon.
+> Here are some very preliminary numbers from sched_test_yield
+> (which was previously posted to this (lse-tech) list by Bill
+> Hartner).  Tests were run on a system with 8 700 MHz Pentium
+> III processors.
+> 
+>                            microseconds/yield
+> # threads      2.2.16-22           2.4        2.4-multi-queue
+> ------------   ---------         --------     ---------------
+> 16               18.740            4.603         1.455
+> 32               17.702            5.134         1.456
+> 64               23.300            5.586         1.466
+> 128              47.273           18.812         1.480
+> 256             105.701           71.147         1.517
+> 512               FRC            143.500         1.661
+> 1024              FRC            196.425         6.166
+> 2048              FRC              FRC          23.291
+> 4096              FRC              FRC          47.117
+> 
+> *FRC = failed to reach confidence level
+> 
+> -- 
+> Mike Kravetz                                 mkravetz@sequent.com
+> IBM Linux Technology Center
+> 15450 SW Koll Parkway
+> Beaverton, OR 97006-6063                     (503)578-3494
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
 
-I agree, it's device dependent, but such hardware exists. It needs of
-course its own memory, but then you can see it as a NUMA architecture and
-we already have the support for this. Create a new memory zone for the
-device memory and keep the pages reserved. Now you can use it almost like
-other memory, e.g. reading from/writing to it using address_space_ops.
+--
+Gerhard Mack
 
-An application, where I'd like to use it, is audio recording/playback
-(24bit, 96kHz on 144 channels). Although it's possible to copy that amount
-of data around, but then you can't do much beside this. All the data is
-most of the time only needed on the soundcard, so why should I copy it
-first to the main memory?
+gmack@innerfire.net
 
-Right now I'm stuck to accessing a scsi device directly, but I would love
-to use the generic file/address_space interface for that, so you can
-directly stream to/from any filesystem. The only problem is that the fs
-interface is still to slow.
-
-That's btw the reason I suggested to split the get_block function. If you
-record into a file, you first just want to allocate any block from the fs
-for that file. A bit later when you start the write, you need a real
-block. And again a bit later you can still update the inode. These three
-stages have completely different locking requirements (except the page
-lock) and you can use the same mechanism for delayed writes.
-
-Anyway, now with the zerocopy network patches, there are basically already
-all the needed interfaces and you don't have to wait for 10 years, so I
-think you need to polish your crystal ball. :-)
-
-bye, Roman
+<>< As a computer I find your faith in technology amusing.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

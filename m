@@ -1,102 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262493AbTFGBxf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 21:53:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbTFGBxe
+	id S262497AbTFGCGv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 22:06:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbTFGCGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 21:53:34 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:46090
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S262493AbTFGBxd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 21:53:33 -0400
-Date: Fri, 6 Jun 2003 18:55:09 -0700 (PDT)
-From: Andre Hedrick <andre@pyxtechnologies.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, axboe@suse.de,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] IDE Power Management, try 2
-In-Reply-To: <Pine.SOL.4.30.0306051604320.18218-100000@mion.elka.pw.edu.pl>
-Message-ID: <Pine.LNX.4.10.10306061828020.21521-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 6 Jun 2003 22:06:50 -0400
+Received: from u212-239-160-174.adsl.pi.be ([212.239.160.174]:18701 "EHLO
+	italy.lashout.net") by vger.kernel.org with ESMTP id S262497AbTFGCGs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 22:06:48 -0400
+Subject: Re: siI3112 crash on enabling dma
+From: Adriaan Peeters <apeeters@lashout.net>
+Reply-To: apeeters@lashout.net
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1054948154.17185.45.camel@dhcp22.swansea.linux.org.uk>
+References: <1054929160.1793.121.camel@localhost>
+	 <1054948154.17185.45.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1054952415.1793.153.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 07 Jun 2003 04:20:15 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2003-06-07 at 03:09, Alan Cox wrote:
+> On Gwe, 2003-06-06 at 20:52, Adriaan Peeters wrote:
+> > I tried 2.4.21-rc7-ac1 too, but the dma isn't enabled by default either.
+> 
+> That suprises me somewhat. 7-ac1 should force DMA on
+> 
+> > hda: Maxtor 6Y080M0, ATA DISK drive
+> > hda: DMA disabled
+> > hdc: Maxtor 6Y080M0, ATA DISK drive
+> > hdc: DMA disabled
+> 
+> These are Maxtor drives with SATA convertors ? If so make sure the
+> convertor is set for UDMA100 not UDMA133 mode. (See www.siimage.com
+> support pages)
 
+No, these are native SATA drives. The only jumper settings are the usual
+master/slave jumpers, and slave mode is enabled (no jumpers). But that
+shouldn't matter.
 
-You mean more like a "task management call".
+> 
+> Can you send me a dmesg from 7ac1 please
 
-On Thu, 5 Jun 2003, Bartlomiej Zolnierkiewicz wrote:
+Here you go:
 
-> 
-> 
-> On 5 Jun 2003, Benjamin Herrenschmidt wrote:
-> 
-> > Ok, Here's the new one.
-> >
-> > However, I'm not completely happy with it yet. Bart, as you suggested, I
-> 
-> Yeah, I am not happy too.
-> 
-> > moved the state value to drive in order to keep a normal taskfile struct
-> > in rq->special. But that has a drawback: The request beeing re-fetched
-> > from the queue on each step, it goes through start_request for each of
-> > them. So I needed a way to know when is the "first pass" so I could
-> > initialize drive->pm_step properly. I don't want to initialize it
-> > prior to queuing the request as it would be racy. In fact, that pm_step
-> > is really a property of the request itself.
-> >
-> > I had to add yet another rq->flags bit for that, and I think that sucks
-> 
-> You don't have if you use additional, default pm_state (on == 0).
-> This sucks too, but a bit less.
-> 
-> > Also, currently, I'm not passing the "state" argument of the PM callback
-> > to the PM request. That argument would be needed if we ever wanted to
-> > distinguish between S1,S2,S3,S4.... For example, that could be used to
-> > skip the STANDBY pass on suspend-to-disk to avoid the disk spinning down
-> > and back up (suspend-to-disk is slow enough already ;)
-> >
-> > So I'm considering going back to putting some custom pm state structure
-> > in rq->special, but having this structure hold a taskfile structure as
-> > it's first entry so it is transparent to the taskfile interrupt
-> > handlers. It's not the prettiest thing, but unless we add more fields
-> > to struct request (which would be an option too since those PM requests
-> > could be used by _any_ block driver to implement proper power
-> > management).
-> >
-> > Jens, Bart, what do you think ? Should I add pm_step & pm_state to
-> > struct request ? Do the "extended taskfile structure" thing ? Or just
-> > keep things like they are in this new patch and forget about carrying
-> > the PM state value ?
-> 
-> I think extending struct request is the way to go,
-> pm_step & pm_state or even pointer to rq_pm_struct.
-> 
-> > I also added another rq->flags bit for requests forced at the head of
-> > the queue with ide_preempt. This is typically for sense requests done
-> > by ide-cd (though I also spotted a user in the tcq stuff). I need that
-> > to make sure that if such a request ever happens to be pushed in front
-> > of the current PM request (with the drive->blocked flag already set),
-> > we don't enter an endless loop, fetching that new request and dropping
-> > it right away because we only accept PM requests from the queue once
-> > the drive is suspended.
-> 
-> Jens, I think generic version of ide_do_drive_cmd() would be useful for
-> other block devices, what do you think?
-> 
-> Regards,
-> --
-> Bartlomiej
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Uniform Multi-Platform E-IDE driver Revision: 7.00beta4-2.4
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+SiI3112 Serial ATA: IDE controller at PCI slot 00:0c.0
+PCI: Found IRQ 5 for device 00:0c.0
+SiI3112 Serial ATA: chipset revision 2
+SiI3112 Serial ATA: not 100% native mode: will probe irqs later
+    ide0: MMIO-DMA , BIOS settings: hda:pio, hdb:pio
+    ide1: MMIO-DMA , BIOS settings: hdc:pio, hdd:pio
+VP_IDE: IDE controller at PCI slot 00:11.1
+VP_IDE: chipset revision 6
+VP_IDE: not 100% native mode: will probe irqs later
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci00:11.1
+    ide2: BM-DMA at 0x8400-0x8407, BIOS settings: hde:DMA, hdf:pio
+    ide3: BM-DMA at 0x8408-0x840f, BIOS settings: hdg:DMA, hdh:pio
+hda: Maxtor 6Y080M0, ATA DISK drive
+hdc: Maxtor 6Y080M0, ATA DISK drive
+hde: CD-ROM 40X/AKU, ATAPI CD/DVD-ROM drive
+hdg: QUANTUM BIGFOOT2550A, ATA DISK drive
+blk: queue c0475ef4, I/O limit 4095Mb (mask 0xffffffff)
+ide0 at 0xe081c080-0xe081c087,0xe081c08a on irq 5
+ide1 at 0xe081c0c0-0xe081c0c7,0xe081c0ca on irq 5
+ide2 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide3 at 0x170-0x177,0x376 on irq 15
+hda: attached ide-disk driver.
+hda: host protected area => 1
+hda: 160086528 sectors (81964 MB) w/7936KiB Cache, CHS=158816/16/63
+hdc: attached ide-disk driver.
+hdc: host protected area => 1
+hdc: 160086528 sectors (81964 MB) w/7936KiB Cache, CHS=158816/16/63
+hdg: attached ide-disk driver.
+hdg: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: task_no_data_intr: error=0x04 { DriveStatusError }
+hdg: 5033952 sectors (2577 MB) w/87KiB Cache, CHS=4994/16/63, DMA
+hde: attached ide-cdrom driver.
+hde: ATAPI 40X CD-ROM drive, 128kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.12
+ide-floppy driver 0.99.newide
+Partition check:
+ hda: [PTBL] [9964/255/63] hda1 hda2 hda3
+ hdc: [PTBL] [9964/255/63] hdc1 hdc2 hdc3
+ hdg: [PTBL] [624/128/63] hdg1 hdg2
+ide-floppy driver 0.99.newide
+ ataraid/d0: ataraid/d0p1 ataraid/d0p2 ataraid/d0p3
+Drive 0 is 78167 Mb (22 / 0) 
+Drive 1 is 78167 Mb (3 / 0) 
+Raid1 array consists of 2 drives. 
 
-Andre Hedrick
-LAD Storage Consulting Group
+bari:~# hdparm -d /dev/hda
+
+/dev/hda:
+ using_dma    =  0 (off)
+bari:~# hdparm -d /dev/hdc
+
+/dev/hdc:
+ using_dma    =  0 (off)
+bari:~#
+
+Thanks,
+
+-- 
+Adriaan Peeters <apeeters@lashout.net>
 

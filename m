@@ -1,172 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313243AbSC1UF5>; Thu, 28 Mar 2002 15:05:57 -0500
+	id <S313245AbSC1UH1>; Thu, 28 Mar 2002 15:07:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313244AbSC1UFt>; Thu, 28 Mar 2002 15:05:49 -0500
-Received: from [199.26.153.10] ([199.26.153.10]:40586 "HELO fourelle.com")
-	by vger.kernel.org with SMTP id <S313243AbSC1UFf>;
-	Thu, 28 Mar 2002 15:05:35 -0500
-Message-ID: <3CA37778.9090009@fourelle.com>
-Date: Thu, 28 Mar 2002 12:05:12 -0800
-From: Adam D Scislowicz <adams@fourelle.com>
-Organization: Fourelle Systems, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, en
+	id <S313244AbSC1UHR>; Thu, 28 Mar 2002 15:07:17 -0500
+Received: from sproxy.gmx.de ([213.165.64.20]:24101 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S313245AbSC1UHG>;
+	Thu, 28 Mar 2002 15:07:06 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Sebastian Roth <xsebbi@gmx.de>
+Reply-To: xsebbi@gmx.de
+Message-Id: <200203282052.15527@xsebbi.de>
+To: Andrey Klochko <andrey@eccentric.mae.cornell.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [2.5.7-dj2] Compile Error
+Date: Thu, 28 Mar 2002 21:07:47 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <3CA36885.2080800@mae.cornell.edu>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: adams@fourelle.com
-Subject: CPU Model IDs(string) inconsistant on SMP AMD System (2.4.18-rc4)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am working with several SMP Athlon machines, and they are all 
-reporting the first CPUs
-model ID(*** called 'model name' in /proc/cpuinfo) as 'AMD Athlon(tm) MP 
-1800+' and the
-second CPUs model ID as 'AMD Athlon(tm) Processor'.
+On Thursday, 28. March 2002 20:01, Andrey Klochko wrote:
+> Try attached patch
 
- From looking at the code it seems that the model IDs are obtained using 
-cpuid calls. Does
-anyone have insight into this?
+Ok, 2.5.7-dj2 compiles cleanly with your patch, but only if 
+CONFIG_BSD_PROCESS_ACCT is not set at .config .
 
-Some Info:
-    Motherboard: Tyan S2462NG
-    CPUs: 2 Athlon MP 1800+
-    Kernel Version: 2.4.18-rc4
+Thank you!
 
-Adam Scislowicz
-Soft. Engineer
-Fourelle Systems, Inc.
-P.S: Please CC me in response.
+> Andrey
 
-*** Extra Info ***
----------------------------------------------
-- bash-2.04# cat /proc/cpuinfo -
---------------------------------
-processor    : 0
-vendor_id    : AuthenticAMD
-cpu family    : 6
-model        : 6
-model name    : AMD Athlon(tm) MP 1800+
-stepping    : 2
-cpu MHz        : 1526.541
-cache size    : 256 KB
-fdiv_bug    : no
-hlt_bug        : no
-f00f_bug    : no
-coma_bug    : no
-fpu        : yes
-fpu_exception    : yes
-cpuid level    : 1
-wp        : yes
-flags        : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
-cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
-bogomips    : 3047.42
+		Sebastian
 
-processor    : 1
-vendor_id    : AuthenticAMD
-cpu family    : 6
-model        : 6
-model name    : AMD Athlon(tm) Processor
-stepping    : 2
-cpu MHz        : 1526.541
-cache size    : 256 KB
-fdiv_bug    : no
-hlt_bug        : no
-f00f_bug    : no
-coma_bug    : no
-fpu        : yes
-fpu_exception    : yes
-cpuid level    : 1
-wp        : yes
-flags        : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
-cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
-bogomips    : 3047.42
-
------------------------
-- bash-2.04# dmesg -
---------------------
-Linux version 2.4.18-rc4 (root@r2bm.fourelle.com) (gcc version 2.96 
-20000731 (Red Hat Linux 7.1 2.96-85)) #6 SMP Mon Mar 18 12:04:07 PST 2002
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009f800 (usable)
- BIOS-e820: 000000000009f800 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000e4800 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 0000000040000000 (usable)
- BIOS-e820: 00000000fec00000 - 00000000fec10000 (reserved)
- BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
- BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
-128MB HIGHMEM available.
-found SMP MP-table at 000f74d0
-hm, page 000f7000 reserved twice.
-hm, page 000f8000 reserved twice.
-hm, page 0009f000 reserved twice.
-hm, page 000a0000 reserved twice.
-On node 0 totalpages: 262144
-zone(0): 4096 pages.
-zone(1): 225280 pages.
-zone(2): 32768 pages.
-Intel MultiProcessor Specification v1.4
-    Virtual Wire compatibility mode.
-OEM ID: TYAN     Product ID: GUINNESS     APIC at: 0xFEE00000
-Processor #1 Pentium(tm) Pro APIC version 16
-Processor #0 Pentium(tm) Pro APIC version 16
-I/O APIC #2 Version 17 at 0xFEC00000.
-Processors: 2
-Kernel command line: root=/dev/rd/0 rd_size=98304  mem=1048576K
-Initializing CPU#0
-Detected 1526.541 MHz processor.
-Console: colour VGA+ 80x25
-Calibrating delay loop... 3047.42 BogoMIPS
-Memory: 1005116k/1048576k available (1236k kernel code, 43072k reserved, 
-340k data, 228k init, 131072k highmem)
-Dentry-cache hash table entries: 131072 (order: 8, 1048576 bytes)
-Inode-cache hash table entries: 65536 (order: 7, 524288 bytes)
-Mount-cache hash table entries: 16384 (order: 5, 131072 bytes)
-Buffer-cache hash table entries: 65536 (order: 6, 262144 bytes)
-Page-cache hash table entries: 262144 (order: 8, 1048576 bytes)
-CPU: Before vendor init, caps: 0383fbff c1cbfbff 00000000, vendor = 2
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 256K (64 bytes/line)
-CPU: After vendor init, caps: 0383fbff c1cbfbff 00000000 00000000
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-CPU:     After generic, caps: 0383fbff c1cbfbff 00000000 00000000
-CPU:             Common caps: 0383fbff c1cbfbff 00000000 00000000
-Enabling fast FPU save and restore... done.
-Enabling unmasked SIMD FPU exception support... done.
-Checking 'hlt' instruction... OK.
-POSIX conformance testing by UNIFIX
-mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
-mtrr: detected mtrr type: Intel
-CPU: Before vendor init, caps: 0383fbff c1cbfbff 00000000, vendor = 2
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 256K (64 bytes/line)
-CPU: After vendor init, caps: 0383fbff c1cbfbff 00000000 00000000
-Intel machine check reporting enabled on CPU#0.
-CPU:     After generic, caps: 0383fbff c1cbfbff 00000000 00000000
-CPU:             Common caps: 0383fbff c1cbfbff 00000000 00000000
-CPU0: AMD Athlon(tm) MP 1800+ stepping 02
-per-CPU timeslice cutoff: 731.31 usecs.
-enabled ExtINT on CPU#0
-ESR value before enabling vector: 00000000
-ESR value after enabling vector: 00000000
-Booting processor 1/0 eip 2000
-Initializing CPU#1
-masked ExtINT on CPU#1
-ESR value before enabling vector: 00000000
-ESR value after enabling vector: 00000000
-Calibrating delay loop... 3047.42 BogoMIPS
-CPU: Before vendor init, caps: 0383fbff c1cbfbff 00000000, vendor = 2
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 256K (64 bytes/line)
-CPU: After vendor init, caps: 0383fbff c1cbfbff 00000000 00000000
-Intel machine check reporting enabled on CPU#1.
-CPU:     After generic, caps: 0383fbff c1cbfbff 00000000 00000000
-CPU:             Common caps: 0383fbff c1cbfbff 00000000 00000000
-CPU1: AMD Athlon(tm) Processor stepping 02
-Total of 2 processors activated (6094.84 BogoMIPS).
-...
+BTW:
+Lilo says that 2.5.7-dj2 is too big!
+How that?
+Boot sector 512 bytes.
+Setup is 4772 bytes.
+System is 1011 kB
 

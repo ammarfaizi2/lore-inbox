@@ -1,47 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262026AbRENBEb>; Sun, 13 May 2001 21:04:31 -0400
+	id <S262039AbRENBHl>; Sun, 13 May 2001 21:07:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262035AbRENBEV>; Sun, 13 May 2001 21:04:21 -0400
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:64261 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S262026AbRENBEB>;
-	Sun, 13 May 2001 21:04:01 -0400
-Message-Id: <200105140103.f4E13U3r010249@sleipnir.valparaiso.cl>
-To: "Mike A. Harris" <mharris@opensourceadvocate.org>
-cc: Wayne.Brown@altec.com, Hacksaw <hacksaw@hacksaw.org>,
-        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Not a typewriter 
-In-Reply-To: Message from "Mike A. Harris" <mharris@opensourceadvocate.org> 
-   of "Sun, 13 May 2001 19:35:06 -0400." <Pine.LNX.4.33.0105131928570.1590-100000@asdf.capslock.lan> 
-Date: Sun, 13 May 2001 21:03:30 -0400
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+	id <S262035AbRENBHb>; Sun, 13 May 2001 21:07:31 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18953 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262041AbRENBHS>; Sun, 13 May 2001 21:07:18 -0400
+Subject: Re: Adaptec RAID SCSI 2100S
+To: jpabuyer@tecnoera.com (Juan Pablo Abuyeres)
+Date: Mon, 14 May 2001 02:03:48 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0105132017430.27901-100000@baltazar.tecnoera.com> from "Juan Pablo Abuyeres" at May 13, 2001 08:41:54 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14z6m5-00079E-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Mike A. Harris" <mharris@opensourceadvocate.org> said:
-> On Fri, 11 May 2001 Wayne.Brown@altec.com wrote:
+> I'm trying to make this card work under 2.4.4, but I couldn't find a patch
+> anywhere to get it working under 2.4.x nor on 2.2.x. I tried with the I2O
+> kernel support, but it didn't work, it only reported errors after a pretty
+> long waiting :)
 
-[...]
+You need to 2.4.4ac8 or higher for dpt i2o_scsi and 2.4.4ac5 or so or higher
+for dpt i2o_block
 
-> >why creat doesn't end in an "e;" and so forth.  I tell the
-
-The old C compiler/old Unix linker guaranteed 6 chars in an external symbol
-name only, and C functions got an underscore prepended: _creat. I guess
-this is the reason for this wart. As to why 6 chars only, I'd guess some
-data structure in the linker was laid out that way. Machines had a few
-dozen Kbs of RAM then, space was precious.
-
-> What is the reason for that?  Also wondered why it is resolv.conf
-> and not resolve.conf or resolver.conf...
-
-Old FS handled only 14 chars in names, but that clearly isn't the reason
-here (11 chars). Some other operating system perhaps?
-
-> Were they afraid that "e" being the most widely used letter in
-> the English language was going to war out thir xpnsiv kyboards if
-> thy usd it all th tim?
-
-Funny conspiracy suscpicion, that... ;-)
--- 
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616

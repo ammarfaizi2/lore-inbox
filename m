@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264271AbTFHCNe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 22:13:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264312AbTFHCNe
+	id S264374AbTFHCOu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 22:14:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264398AbTFHCOt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 22:13:34 -0400
-Received: from [211.167.76.68] ([211.167.76.68]:42970 "HELO soulinfo")
-	by vger.kernel.org with SMTP id S264271AbTFHCNc (ORCPT
+	Sat, 7 Jun 2003 22:14:49 -0400
+Received: from [211.167.76.68] ([211.167.76.68]:45530 "HELO soulinfo")
+	by vger.kernel.org with SMTP id S264374AbTFHCOo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 22:13:32 -0400
-Date: Sun, 8 Jun 2003 10:26:26 +0800
+	Sat, 7 Jun 2003 22:14:44 -0400
+Date: Sun, 8 Jun 2003 10:27:08 +0800
 From: hugang <hugang@soulinfo.com>
 To: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
        Alan Cox <alan@lxorguk.ukuu.org.uk>
 Subject: Re: software suspend in 2.5.70-mm3.
-Message-Id: <20030608102626.638dd3ed.hugang@soulinfo.com>
+Message-Id: <20030608102708.129e1ea9.hugang@soulinfo.com>
 In-Reply-To: <20030603185551.GA3274@zaurus.ucw.cz>
 References: <20030603211156.726366e7.hugang@soulinfo.com>
 	<1054646566.9234.20.camel@dhcp22.swansea.linux.org.uk>
@@ -40,7 +40,7 @@ I was tried  Ben's patch, It's cool, Very stable in my laptop.
 
 Here is two patch.
   * suspend.c can swap more pages into swap space.
-  * vmscan.c  can make swap faster.
+  * vmscan.c  can make swap out faster.
 
 --- linux-2.5.70/kernel/suspend.c.old	Sun Jun  8 11:09:41 2003
 +++ linux-2.5.70/kernel/suspend.c	Sun Jun  8 10:54:55 2003

@@ -1,48 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262441AbSJKNg1>; Fri, 11 Oct 2002 09:36:27 -0400
+	id <S262439AbSJKNnS>; Fri, 11 Oct 2002 09:43:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262444AbSJKNg1>; Fri, 11 Oct 2002 09:36:27 -0400
-Received: from holomorphy.com ([66.224.33.161]:62080 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262441AbSJKNg0>;
-	Fri, 11 Oct 2002 09:36:26 -0400
-Date: Fri, 11 Oct 2002 06:38:42 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.41-mm3
-Message-ID: <20021011133842.GX10722@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>
-References: <3DA699AA.BBA05716@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DA699AA.BBA05716@digeo.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S262444AbSJKNnS>; Fri, 11 Oct 2002 09:43:18 -0400
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:56838 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S262439AbSJKNnR>; Fri, 11 Oct 2002 09:43:17 -0400
+Date: Fri, 11 Oct 2002 15:48:17 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+cc: Alexander Viro <viro@math.psu.edu>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Patrick Mochel <mochel@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [bk/patch] driver model update: device_unregister()
+In-Reply-To: <Pine.LNX.4.44.0210101315240.10911-100000@chaos.physics.uiowa.edu>
+Message-ID: <Pine.LNX.4.44.0210102140390.338-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 11, 2002 at 02:28:10AM -0700, Andrew Morton wrote:
-> url: http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.41/2.5.41-mm3/
+Hi,
 
-This paride driver seems to have been missed with all the sector_t
-and sector_div() business.
+On Thu, 10 Oct 2002, Kai Germaschewski wrote:
 
---- akpm-2.5.41-3/drivers/block/paride/pf.c	2002-10-11 06:09:31.000000000 -0700
-+++ wli-2.5.41-3/drivers/block/paride/pf.c	2002-10-11 06:38:16.000000000 -0700
-@@ -369,11 +369,11 @@
- 		return -EINVAL;
- 	capacity = get_capacity(pf->disk);
- 	if (capacity < PF_FD_MAX) {
--		g.cylinders = capacity / (PF_FD_HDS * PF_FD_SPT);
-+		g.cylinders = sector_div(capacity, PF_FD_HDS * PF_FD_SPT);
- 		g.heads = PF_FD_HDS;
- 		g.sectors = PF_FD_SPT;
- 	} else {
--		g.cylinders = capacity / (PF_HD_HDS * PF_HD_SPT);
-+		g.cylinders = sector_div(capacity, PF_HD_HDS * PF_HD_SPT);
- 		g.heads = PF_HD_HDS;
- 		g.sectors = PF_HD_SPT;
- 	}
+> Well, a rmmod could potentially leave the module in "deleted" but not
+> "freed" state for a long time. Basically the same thing which happens for
+> your solution, where you call the state "cleanup". But I agree, this is
+> not desirable at all (nor do I think your cleanup state is).
+
+If exit() can fail, it avoids at least an unkillable rmmod, what makes a
+module in the cleanup state IMO acceptable. It might look strange, but
+it's still possible to remove the remaining users. The race is small
+enough to be not really relevant and even if it does happen, it's not
+exploitable, the cleanup will simply continue at a later point.
+start()/stop() would give you better control over this. If a module still
+has users after stopping it, you can still decide to start it again.
+
+> However, the try_inc_mod_count() is only ever used in the slow
+> registration paths (in the example e.g. for mounting, but not for accesses
+> to a mounted file system), so performance is not an issue. And getting
+> APIs exported to drivers right needs thinking, yes, but the module
+> locking isn't even the hard part there, I would claim.
+
+The problem is that we have conflicting methods for object management.
+Driver objects have to use the module count, device object cannot use it
+and have to use something else. Some objects (like proc entries) even have
+to provide both.
+Concentrating on a single mechanism will give us more flexibility and
+simplicity.
+
+> What you are doing is basically removing the infrastructure to get the use
+> count right in a race-free way, and cope with the race by leaving modules
+> in 'cleanup' but not 'freed' state until the users you raced with have
+> gone away.
+
+That "race" is nothing negativ here. You can also remove a file, while
+it's still open and this will delay the release of the resources, until
+then the file stays usable. A filesystem would behave the same, you
+couldn't mount it anymore, but you can still see it used in /proc/mounts.
+I don't think this is necessarly bad, it's just new and unfamiliar.
+
+> BTW, the patch below also needs changes to each filesystem driver to
+> return &fs->refcnt as ->use_count(), I think.
+
+That's the other part of my proposal. A new style module would be defined
+like this:
+
+DEFINE_MODULE
+	.init = ...
+	...
+DEFINE_MODULE_END
+
+The new module layout allows to stack initialiations:
+
+DEFINE_FS_MODULE
+	.name = ...
+	.init = ...
+	...
+DEFINE_FS_MODULE_END
+
+This would already take care of most of the generic management of an fs
+module.
+
+bye, Roman
+

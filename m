@@ -1,92 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317742AbSGaEhS>; Wed, 31 Jul 2002 00:37:18 -0400
+	id <S317743AbSGaEif>; Wed, 31 Jul 2002 00:38:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317743AbSGaEhS>; Wed, 31 Jul 2002 00:37:18 -0400
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:5821 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S317742AbSGaEhR>; Wed, 31 Jul 2002 00:37:17 -0400
-Message-ID: <3D4768F4.5080708@quark.didntduck.org>
-Date: Wed, 31 Jul 2002 00:35:00 -0400
-From: Brian Gerst <bgerst@quark.didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dan Aloni <da-x@gmx.net>
-CC: Brian Gerst <bgerst@didntduck.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix x86 page table init
-References: <3D47412D.1060407@quark.didntduck.org> <20020731030519.GA27694@callisto.yi.org>
-Content-Type: multipart/mixed;
- boundary="------------090304010106080804090406"
+	id <S317748AbSGaEif>; Wed, 31 Jul 2002 00:38:35 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:52928 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S317743AbSGaEie>;
+	Wed, 31 Jul 2002 00:38:34 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] automatic module_init ordering 
+In-reply-to: Your message of "Tue, 30 Jul 2002 21:33:32 EST."
+             <Pine.LNX.4.44.0207302110570.19799-100000@chaos.physics.uiowa.edu> 
+Date: Wed, 31 Jul 2002 13:26:09 +1000
+Message-Id: <20020731044324.2B39A451D@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090304010106080804090406
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In message <Pine.LNX.4.44.0207302110570.19799-100000@chaos.physics.uiowa.edu> y
+ou write:
+> - It looks like with your current approach you can't have a ',' or '-' in
+>   KBUILD_MODNAME - however, that means that KBUILD_MODNAME is not quite
+>   right for passing module parameters for built-in modules on the command
+>   line, it would be confusing to pass parameters for ide-cd as 
+>   ide_cd.foo=whatever. So that part could use a little more thought.
 
-Dan Aloni wrote:
-> On Tue, Jul 30, 2002 at 09:45:17PM -0400, Brian Gerst wrote:
-> 
->>The recent changes to the x86 page table init reintroduced a bug with 
->>the 4k pagetables.  The page table must be filled with entries before it 
->>is inserted into the pmd or else you risk a tlb miss on a kernel code 
->>page causing an oops.  This patch takes a different approach than before 
->>- it allows for reuse of the boot pagetable pages instead of allocating 
->>new ones.
-> 
-> 
-> In the patch below, isn't there a bootmem page leak in case !pmd_none(*pmd)?
+My PARAM code actually maps - to _ in parameter parsing, for exactly
+this reason.  And only a complete idiot would put , in a module name,
+so I don't care 8)
 
-Whoops.  That's what happens when one needs to recreate a patch from 
-memory.  Revised patch attached.
+> - It's possible that objects are linked into more than one module - I 
+>   suppose this shouldn't be a problem, since these objects hopefully
+>   don't have a module_init() nor do they export symbols. Not sure if your
+>   patch did handle this.
 
+There's one piece of code I know which is linked in three places, and
+has a module parameter (net/ipv4/netfilter/ip_conntrack_core.c, linked
+into ipfwadm.o ipchains.o and ip_conntrack.o.
+
+As it happens, the configuration doesn't allow more than one to be
+built in (they can all be modules though), so it's not actually a
+problem even after parameter unification.
+
+Thanks,
+Rusty.
 --
-				Brian Gerst
-
---------------090304010106080804090406
-Content-Type: text/plain;
- name="pte_init-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="pte_init-2"
-
-diff -urN linux-bk/arch/i386/mm/init.c linux/arch/i386/mm/init.c
---- linux-bk/arch/i386/mm/init.c	Tue Jul 30 20:59:27 2002
-+++ linux/arch/i386/mm/init.c	Wed Jul 31 00:32:37 2002
-@@ -70,10 +70,14 @@
-  */
- static pte_t * __init one_page_table_init(pmd_t *pmd)
- {
--	pte_t *page_table = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
--	set_pmd(pmd, __pmd(__pa(page_table) | _KERNPG_TABLE));
--	if (page_table != pte_offset_kernel(pmd, 0))
--		BUG();	
-+	pte_t *page_table;
-+	if (pmd_none(*pmd)) {
-+		page_table = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
-+		set_pmd(pmd, __pmd(__pa(page_table) | _KERNPG_TABLE));
-+		if (page_table != pte_offset_kernel(pmd, 0))
-+			BUG();	
-+	} else
-+		page_table = pte_offset_kernel(pmd, 0);
- 
- 	return page_table;
- }
-@@ -107,9 +111,7 @@
- 
- 		pmd = pmd_offset(pgd, vaddr);
- 		for (; (pmd_ofs < PTRS_PER_PMD) && (vaddr != end); pmd++, pmd_ofs++) {
--			if (pmd_none(*pmd)) 
--				one_page_table_init(pmd);
--
-+			one_page_table_init(pmd);
- 			vaddr += PMD_SIZE;
- 		}
- 		pmd_ofs = 0;
-
---------------090304010106080804090406--
-
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

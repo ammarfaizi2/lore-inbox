@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272287AbRIETcP>; Wed, 5 Sep 2001 15:32:15 -0400
+	id <S272288AbRIEThP>; Wed, 5 Sep 2001 15:37:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272288AbRIETcF>; Wed, 5 Sep 2001 15:32:05 -0400
-Received: from colorfullife.com ([216.156.138.34]:49935 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S272287AbRIETbz>;
-	Wed, 5 Sep 2001 15:31:55 -0400
-Message-ID: <003001c13637$f6ec5870$010411ac@local>
-From: "Manfred Spraul" <manfred@colorfullife.com>
-To: <oscarcvt@galileo.edu>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: kernel panic, a cry for help
-Date: Wed, 5 Sep 2001 20:24:04 +0200
+	id <S272289AbRIEThH>; Wed, 5 Sep 2001 15:37:07 -0400
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:21257 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S272288AbRIETgq>; Wed, 5 Sep 2001 15:36:46 -0400
+Message-ID: <3B967EDD.5A81F2DD@delusion.de>
+Date: Wed, 05 Sep 2001 21:37:01 +0200
+From: "Udo A. Steinberg" <reality@delusion.de>
+Organization: Disorganized
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-ac7 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Pete Zaitcev <zaitcev@redhat.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: USB device not accepting new address
+In-Reply-To: <mailman.999666181.21742.linux-kernel2news@redhat.com> <200109051619.f85GJEo07592@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ive started with a rescue disk, /sbin/init is present, lilo.conf seems
-fine,
-> where might i go next?
+Pete Zaitcev wrote:
+> 
+> > I have just come across another USB address problem, which happens
+> > sporadically and is not easy to reproduce.
+> 
+> >   1: [cfefa240] link (00000001) e0 IOC Stalled CRC/Timeo Length=7ff MaxLen=7ff
+> >   DT1 EndPt=0 Dev=0, PID=69(IN) (buf=00000000)
+> 
+> If usb_set_address() ends in timeouts, something is bad with the
+> hadrware, most likely. Microcode crash in the device, perhaps.
+> Someone, I think it was Oliver, posted a patch that retries
+> usb_set_address(). It may help you, look in linux-usb-devel
+> archives.
 
-run fsck.
-then mount the root device.
-Try to chroot into the root device (could fail)
-Then verify the core packages with the package manager from your distro.
-(rpm -Va or rpm --root /tmp/rootmount -Va)
-Then check all libraries match the installed cpu - If you upgrade to an
-i686 glibc with a K6 cpu you'd run into a similar error message.
+Maybe it's a hardware problem, but this problem has never occured before Alan
+started merging bits of 2.4.9 into his tree.
 
-Good luck,
-    Manfred
-
-
-
+-Udo.

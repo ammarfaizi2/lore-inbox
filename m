@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291057AbSAaNBH>; Thu, 31 Jan 2002 08:01:07 -0500
+	id <S291058AbSAaNDh>; Thu, 31 Jan 2002 08:03:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291058AbSAaNA5>; Thu, 31 Jan 2002 08:00:57 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:58386 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S291057AbSAaNAm>;
-	Thu, 31 Jan 2002 08:00:42 -0500
-Date: Thu, 31 Jan 2002 11:00:24 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Larry McVoy <lm@bitmover.com>, Eli Carter <eli.carter@inet.com>,
-        Georg Nikodym <georgn@somanetworks.com>, Ingo Molnar <mingo@elte.hu>,
-        Tom Rini <trini@kernel.crashing.org>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Alexander Viro <viro@math.psu.edu>,
-        Rob Landley <landley@trommello.org>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <Pine.LNX.4.33.0201301513040.14950-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33L.0201311058290.32634-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291059AbSAaND1>; Thu, 31 Jan 2002 08:03:27 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:47367 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S291058AbSAaNDY>; Thu, 31 Jan 2002 08:03:24 -0500
+Date: Thu, 31 Jan 2002 16:03:20 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Martin Bahlinger <ry42@rz.uni-karlsruhe.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Current Reiserfs Update / 2.5.2-dj7 Oops
+Message-ID: <20020131160320.A3697@namesys.com>
+In-Reply-To: <Pine.LNX.4.31.0201311109510.660-100000@hek411.hek.uni-karlsruhe.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.31.0201311109510.660-100000@hek411.hek.uni-karlsruhe.de>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jan 2002, Linus Torvalds wrote:
-> On Wed, 30 Jan 2002, Larry McVoy wrote:
-> >
-> > And you just lost some useful information.
->
-> No. If the useless crap ends up hiding the real points in the revision
-> history, getting rid of crud is _good_.
+Hello!
 
-Actually, allowing the deep merges to go past tags could
-be useful for dragging bugfixes between the 2.4 and 2.5
-kernels ...
+On Thu, Jan 31, 2002 at 11:10:28AM +0100, Martin Bahlinger wrote:
 
-... but I think the 'dragging' analogy is something we'll
-want to keep here, not back merging across tags by default
-but _trying_ to do the backmerge on demand only, when the
-user wants to drag a changeset from 2.4 to 2.5.
+> I have exactly the same problems you mentioned earlier in this thread. I
+> get the Ooops at various steps in the boot process. Sometimes the system
+> hangs directly after depmod, sometimes it can calculate the dependencies
+> and freezes when loading the first module (here: vfat.o)
+> This happens with 2.5.3 on a system with an IDE harddisk and root fs on
+> reiserfs.
+Hm, weird.
+I will try to reproduce further.
+your oops is prepended with PAP-5760 message, right?
 
-We could just have a revtool-like interface for that.
-
-regards,
-
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Bye,
+    Oleg

@@ -1,52 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262428AbTCRJ5a>; Tue, 18 Mar 2003 04:57:30 -0500
+	id <S262276AbTCRKBM>; Tue, 18 Mar 2003 05:01:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262432AbTCRJ5a>; Tue, 18 Mar 2003 04:57:30 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:22788 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S262428AbTCRJ53>; Tue, 18 Mar 2003 04:57:29 -0500
-Date: Tue, 18 Mar 2003 11:08:08 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: CaT <cat@zip.com.au>
-cc: Linus Torvalds <torvalds@transmeta.com>, <hch@lst.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.65
-In-Reply-To: <20030318052257.GB635@zip.com.au>
-Message-ID: <Pine.LNX.4.44.0303181040150.12110-100000@serv>
-References: <Pine.LNX.4.44.0303171429040.2827-100000@penguin.transmeta.com>
- <20030318052257.GB635@zip.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262289AbTCRKBM>; Tue, 18 Mar 2003 05:01:12 -0500
+Received: from smtp2.clear.net.nz ([203.97.37.27]:63127 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP
+	id <S262276AbTCRKBK>; Tue, 18 Mar 2003 05:01:10 -0500
+Date: Tue, 18 Mar 2003 22:09:48 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: [PATCH] Faster SWSUSP free page counting
+In-reply-to: <20030318082008.GC10472@atrey.karlin.mff.cuni.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1047982188.2204.8.camel@laptop-linux.cunninghams>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <1047944582.1713.5.camel@laptop-linux.cunninghams>
+ <20030318082008.GC10472@atrey.karlin.mff.cuni.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi.
 
-On Tue, 18 Mar 2003, CaT wrote:
+The speed difference depends of course upon the number of pages free and
+the degree of fragmentation. I guess the easy answer is that it was
+written and kept because it helped. Having talked to Andrew about the
+use of page flags, I'll do some more changes before we put it to Linus -
+I'll use a dynamically allocated bitmap instead of pageflags.
 
-> One question. Should PCMCIA_AHA152X only be compilable as a module? I
-> found this in Kconfig:
+Regards,
+
+Nigel
+
+On Tue, 2003-03-18 at 20:20, Pavel Machek wrote:
+> Hi!
 > 
-> config PCMCIA_AHA152X
->         tristate "Adaptec AHA152X PCMCIA support"
->         depends on m
->         help
->           Say Y here if you intend to attach this type of PCMCIA SCSI host
->           adapter to your computer.
-> 	  ...
+> > This patch improves the speed of SWSUSP's count_and_copy_data_pages
+> > function by generating a map of the free pages before iterating through
+> > the list of pages. The net result is to go from O(n^2) to O(n), if I
+> > remember my computer science correctly.
 > 
-> The help and the tristate seems to indicate that I should be able to
-> compile it into the kernel, but menuconfig wont let me. This is
-> presumably due to the dependancy but is it right?
+> Is the speed difference noticable?
+> 
+> If yes than okay, but generate_free_page_map() should still be moved
+> into kernel/suspend.c.
+> 								Pavel
+-- 
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
 
-Yes, this was the behaviour of the old config tools, which was restored 
-with 2.5.65. This means 'm' is a marker that this thing works only as a 
-module.
-If you want the other behaviour, that it can only be built as a module in 
-a modular kernel, but compile it into a nonmodular kernel, you can use "m 
-|| !MODULES" instead.
-
-bye, Roman
+Be diligent to present yourself approved to God as a workman who does
+not need to be ashamed, handling accurately the word of truth.
+	-- 2 Timothy 2:14, NASB.
 

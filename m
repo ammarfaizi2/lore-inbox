@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283719AbRLOVcb>; Sat, 15 Dec 2001 16:32:31 -0500
+	id <S283770AbRLOVhw>; Sat, 15 Dec 2001 16:37:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283770AbRLOVcM>; Sat, 15 Dec 2001 16:32:12 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:5455 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S283719AbRLOVb4>; Sat, 15 Dec 2001 16:31:56 -0500
-Date: Sat, 15 Dec 2001 23:31:34 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Urban Widmark <urban@teststation.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 4GB file size limit on SMBFS
-Message-ID: <20011215233133.I12063@niksula.cs.hut.fi>
-In-Reply-To: <3C19A3CC.7020501@century.cz> <Pine.LNX.4.33.0112151705010.12939-100000@cola.teststation.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0112151705010.12939-100000@cola.teststation.com>; from urban@teststation.com on Sat, Dec 15, 2001 at 10:02:00PM +0100
+	id <S283924AbRLOVhm>; Sat, 15 Dec 2001 16:37:42 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:6056 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S283770AbRLOVh2>; Sat, 15 Dec 2001 16:37:28 -0500
+Date: Sat, 15 Dec 2001 14:37:36 -0700
+Message-Id: <200112152137.fBFLbaU17467@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
+Subject: [PATCH] devfs v199.4 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 15, 2001 at 10:02:00PM +0100, you [Urban Widmark] claimed:
-> On Fri, 14 Dec 2001, Petr Titera wrote:
-> 
-> The first patch was incomplete. It contained a calculation bug on the
-> smbfs side limiting the possible offset to 32bits unsigned.
-> 
-> New patch vs 2.4.16 (and others) available here:
->     http://www.hojdpunkten.ac.se/054/samba/lfs.html
+  Hi, all. Version 199.4 of my devfs patch is now available from:
+http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
+The devfs FAQ is also available here.
 
-BTW: the fsx test Dave Jones just pointed out pretty quickly fails on smbfs
-on 2.4.8ac2 (mounting a share from NT4SP6a). I don't have anything never to
-play with just now (1), but if you can't immediately reproduce it, I can
-compile a newer kernel for the left over box and give it a longer whirl.
+Patch directly available from:
+ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
 
+AND:
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
 
--- v --
+This is against 2.4.17-rc1. Highlights of this release:
 
-v@iki.fi
+- Removed long obsolete rc.devfs
 
-(1) I have a 2.4.16/ia64 on the corner, but fsx fails on IA64 with any fs
-    ("mmap: Invalid argument"). Smbfs seems to work on ia64 otherwise...
+- Return old entry in <devfs_mk_dir> for 2.4.x kernels
+
+- Updated README from master HTML file
+
+- Increment refcount on module in <check_disc_changed>
+
+- Created <devfs_get_handle> and exported <devfs_put>
+
+- Increment refcount on module in <devfs_get_ops>
+
+- Created <devfs_put_ops> and used where needed to fix races
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266623AbSLCXaN>; Tue, 3 Dec 2002 18:30:13 -0500
+	id <S266633AbSLCXhS>; Tue, 3 Dec 2002 18:37:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266626AbSLCXaN>; Tue, 3 Dec 2002 18:30:13 -0500
-Received: from dp.samba.org ([66.70.73.150]:16343 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S266623AbSLCXaM>;
-	Tue, 3 Dec 2002 18:30:12 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Erlend Aasland <erlend-a@ux.his.no>
-Cc: bfennema@falcon.csc.calpoly.edu, dave@trylinux.com,
-       linux_udf@hpesjro.fc.hp.com, linux-kernel@vger.kernel.org
-Subject: Re: [TRIVIAL PATCH 2.5] get rid of CONFIG_UDF_RW (i386) 
-In-reply-to: Your message of "Tue, 03 Dec 2002 13:51:20 BST."
-             <20021203125120.GA2417@johanna5.ux.his.no> 
-Date: Wed, 04 Dec 2002 10:37:04 +1100
-Message-Id: <20021203233744.AA03F2C29E@lists.samba.org>
+	id <S266637AbSLCXhR>; Tue, 3 Dec 2002 18:37:17 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:49369 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S266633AbSLCXhR>;
+	Tue, 3 Dec 2002 18:37:17 -0500
+Message-ID: <EDC461A30AC4D511ADE10002A5072CAD04C7A56D@orsmsx119.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Arjan van de Ven'" <arjanv@redhat.com>, marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: [BK PATCH] ACPI updates
+Date: Tue, 3 Dec 2002 15:29:56 -0800 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20021203125120.GA2417@johanna5.ux.his.no> you write:
-> I noticed that CONFIG_UDF_RW is not used anywhere, so I removed it from all
-> the defconfigs.
-
-But it's used in 2.4.20.  It *looks* like it's on by default in 2.5,
-but I just want the authors to confirm that the option isn't coming
-back.
-
-Ben, Dave?
-
-Rusty.
-
-> diff -urN linux-2.5.50/arch/i386/defconfig linux-2.5.50-eaa/arch/i386/defconfig
-> --- linux-2.5.50/arch/i386/defconfig	Tue Oct 22 00:13:57 2002
-> +++ linux-2.5.50-eaa/arch/i386/defconfig	Tue Dec  3 00:48:05 2002
-> @@ -804,7 +804,6 @@
->  CONFIG_EXT2_FS=y
->  # CONFIG_SYSV_FS is not set
->  CONFIG_UDF_FS=y
-> -# CONFIG_UDF_RW is not set
->  # CONFIG_UFS_FS is not set
->  # CONFIG_UFS_FS_WRITE is not set
->  # CONFIG_XFS_FS is not set
+> From: Arjan van de Ven [mailto:arjanv@redhat.com] 
+> > Is your concern with the code, or the cmdline option? We 
+> could certainly
 > 
+> the code, not so much the commandline option (that one is not used
+> in practice), but actually my biggest concern is that you 
+> break existing
+> setups, or at least change it more than needed. There is ZERO need to
+> remove the existing working (and lean) code, even though your 
+> code might
+> also be able to do the same. It means people suddenly need to 
+> change all
+> kinds of config options, it's different code so will work slightly
+> different... unifying 2.5 is nice and all but there's no need for that
+> here since both implementations can coexist trivially (as the 
+> United Linux
+> kernel shows)
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Well maybe that's what we should do - use the UnitedLinux ACPI patch (which
+iirc is based on fairly recent ACPI code, and presumably minimizes
+ACPI-related breakage) and then proceed incrementally from there?
+
+Sound OK? Marcelo? UL folks?
+
+Regards -- Andy
+
+PS probably involve some work breaking out the ACPI stuff from the UL patch
+as a whole, or maybe (???) the UL people already have it broken out?

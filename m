@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269485AbUJFU6k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269557AbUJFVCW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269485AbUJFU6k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 16:58:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269394AbUJFU6d
+	id S269557AbUJFVCW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 17:02:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269570AbUJFU7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 16:58:33 -0400
-Received: from [213.196.40.106] ([213.196.40.106]:60828 "EHLO
-	eljakim.netsystem.nl") by vger.kernel.org with ESMTP
-	id S269485AbUJFU6M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 16:58:12 -0400
-Date: Wed, 6 Oct 2004 22:58:07 +0200 (CEST)
-From: Joris van Rantwijk <joris@eljakim.nl>
-X-X-Sender: joris@eljakim.netsystem.nl
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-In-Reply-To: <20041006203818.GD4523@pclin040.win.tue.nl>
-Message-ID: <Pine.LNX.4.58.0410062243090.11846@eljakim.netsystem.nl>
-References: <003301c4abdc$c043f350$b83147ab@amer.cisco.com>
- <41644D86.4010500@nortelnetworks.com> <20041006130615.4f65a920.davem@davemloft.net>
- <4164530F.7020605@nortelnetworks.com> <20041006203818.GD4523@pclin040.win.tue.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 6 Oct 2004 16:59:41 -0400
+Received: from mail.kroah.org ([69.55.234.183]:20900 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269557AbUJFUzq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 16:55:46 -0400
+Date: Wed, 6 Oct 2004 13:54:18 -0700
+From: Greg KH <greg@kroah.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       J?rn Engel <joern@wohnheim.fh-wedel.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Console: fall back to /dev/null when no console is availlable
+Message-ID: <20041006205417.GA25437@kroah.com>
+References: <20041005185214.GA3691@wohnheim.fh-wedel.de> <20041005212712.I6910@flint.arm.linux.org.uk> <20041005210659.GA5276@kroah.com> <20041005221333.L6910@flint.arm.linux.org.uk> <1097074822.29251.51.camel@localhost.localdomain> <20041006174108.GA26797@kroah.com> <1097090333.29706.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1097090333.29706.4.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 06, 2004 at 08:18:54PM +0100, Alan Cox wrote:
+> On Mer, 2004-10-06 at 18:41, Greg KH wrote:
+> > Good point.  So, should we do it in the kernel, in call_usermodehelper,
+> > so that all users of this function get it correct, or should I do it in
+> > userspace, in the /sbin/hotplug program?
+> > 
+> > Any opinions?
+> 
+> Userspace is more flexible. What does the kernel do if it can't figure
+> out what to open as fd 0, 1, 2. Either it explodes or asks user space.
+> While /sbin/hotplug can mknod itself a private /dev/null and
+> /dev/console in an emergency.
 
-On Wed, 6 Oct 2004, Andries Brouwer wrote:
-> Does this really happen?
+Ok, then anyone with some serious bash-foo care to send me a patch for
+the existing /sbin/hotplug file that causes it to handle this properly?
 
-Yes. Finally got my raw-udp-with-wrong-checksum sending program to work
-over localhost and it hangs recvfrom pretty good.
+thanks,
 
-> All kernel versions?
-
-Quick guess: probably since late 2.4. Source of 2.4.27 udp.c is similar to
-2.6.9, but 2.4.17 returns EAGAIN even for blocking sockets, apparently
-this was "fixed" later on.
-
-> Is this the explanation for the reported behaviour?)
-
-Very hard to say since I can't predict when it will occur again.
-
-Joris.
+greg k-h

@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267532AbSLLXKB>; Thu, 12 Dec 2002 18:10:01 -0500
+	id <S267566AbSLLXH5>; Thu, 12 Dec 2002 18:07:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267540AbSLLXKB>; Thu, 12 Dec 2002 18:10:01 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:31889 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S267532AbSLLXKA>; Thu, 12 Dec 2002 18:10:00 -0500
-Date: Thu, 12 Dec 2002 18:17:47 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Roberto Nibali <ratz@drugphish.ch>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390 (8/8): export sys_wait4.
-Message-ID: <20021212181747.B28477@devserv.devel.redhat.com>
-References: <20021212142645.A2998@devserv.devel.redhat.com> <3DF8FD59.9030100@drugphish.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DF8FD59.9030100@drugphish.ch>; from ratz@drugphish.ch on Thu, Dec 12, 2002 at 10:19:21PM +0100
+	id <S267575AbSLLXH5>; Thu, 12 Dec 2002 18:07:57 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:8576 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S267566AbSLLXH4>;
+	Thu, 12 Dec 2002 18:07:56 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Fri, 13 Dec 2002 00:15:39 +0100 (MET)
+Message-Id: <UTC200212122315.gBCNFdp22965.aeb@smtp.cwi.nl>
+To: anders.henke@sysiphus.de, linux-kernel@vger.kernel.org
+Subject: Re: using 2 TB  in real life
+Cc: marcelo@conectiva.com.br
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: Thu, 12 Dec 2002 22:19:21 +0100
-> From: Roberto Nibali <ratz@drugphish.ch>
+> SCSI device sdb: -320126976 512-byte hdwr sectors (-163904 MB)
 
-> >>+EXPORT_SYMBOL(sys_wait4);
-> > 
-> > Martin, hold on just a second. Last I checked, sys_wait4 was
-> > used ONLY by a moronic code in ipvs, _and_ there was a comment
-> > by the author above it "we are too lazy to do it properly".
-> > Do you have a better reason to export it?
-> 
-> Guess I'm the malefactor this time since I've sent this patch to Martin 
-> after some email exchanges with a guy that wanted LVS to work on a s390. 
-> I reckon I will fix the said moronic code to use a syscall wrapper for 
-> sys_wait4() so we don't step on anyone's toes.
+Yes, the code in 2.4.20 works up to 30 bits.
+A slight modification works up to 31 bits.
+[This is cosmetic only.]
 
-I should not have called it moronic. Everyone has schedule
-constraints. I am wondering though, if the LVS and ipvs
-module are maintained actively. Perhaps I owe them a patch.
+Andries
 
--- Pete
+--- /linux/2.4/linux-2.4.20/linux/drivers/scsi/sd.c	Sat Aug  3 02:39:44 2002
++++ ./sd.c	Fri Dec 13 00:12:00 2002
+@@ -1001,7 +1001,7 @@
+ 			 */
+ 			int m;
+ 			int hard_sector = sector_size;
+-			int sz = rscsi_disks[i].capacity * (hard_sector/256);
++			unsigned int sz = (rscsi_disks[i].capacity/2) * (hard_sector/256);
+ 
+ 			/* There are 16 minors allocated for each major device */
+ 			for (m = i << 4; m < ((i + 1) << 4); m++) {
+@@ -1009,9 +1009,9 @@
+ 			}
+ 
+ 			printk("SCSI device %s: "
+-			       "%d %d-byte hdwr sectors (%d MB)\n",
++			       "%u %d-byte hdwr sectors (%d MB)\n",
+ 			       nbuff, rscsi_disks[i].capacity,
+-			       hard_sector, (sz/2 - sz/1250 + 974)/1950);
++			       hard_sector, (sz - sz/625 + 974)/1950);
+ 		}
+ 
+ 		/* Rescale capacity to 512-byte units */

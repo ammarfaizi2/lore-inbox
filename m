@@ -1,50 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319345AbSIKV0M>; Wed, 11 Sep 2002 17:26:12 -0400
+	id <S319346AbSIKV0i>; Wed, 11 Sep 2002 17:26:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319346AbSIKV0M>; Wed, 11 Sep 2002 17:26:12 -0400
-Received: from e.kth.se ([130.237.48.5]:26635 "EHLO elixir.e.kth.se")
-	by vger.kernel.org with ESMTP id <S319345AbSIKV0L>;
-	Wed, 11 Sep 2002 17:26:11 -0400
-To: Phil Stracchino <alaric@babcom.com>
+	id <S319347AbSIKV0i>; Wed, 11 Sep 2002 17:26:38 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:13565
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319346AbSIKV0h>; Wed, 11 Sep 2002 17:26:37 -0400
+Subject: Re: Can't compil i2o_block.c and i2o... in 2.5.34
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Gregoire Favre <greg@ulima.unil.ch>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: CDROM driver does not support Linux partition tables
-References: <20020904181952.GA1158@babylon5.babcom.com>
-	<1031182512.3017.139.camel@irongate.swansea.linux.org.uk>
-	<20020911211959.GA31724@babylon5.babcom.com>
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: 11 Sep 2002 23:30:49 +0200
-In-Reply-To: Phil Stracchino's message of "Wed, 11 Sep 2002 17:19:59 -0400"
-Message-ID: <yw1xr8g0kyd2.fsf@gladiusit.e.kth.se>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20020911200456.GB22435@ulima.unil.ch>
+References: <20020911200456.GB22435@ulima.unil.ch>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-7) 
+Date: 11 Sep 2002 22:31:23 +0100
+Message-Id: <1031779883.2902.6.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phil Stracchino <alaric@babcom.com> writes:
-
->  
-> A deficiency in the Linux CDROM driver was just brought to my attention.
-> Even on a kernel configured with support for UFS and Sun partition
-> tables, it doesn't appear to be possible to mount any but the first
-> slice of a Sun CDROM containing multiple slices.  Essentially, it seems
-> that Solaris partition table support doesn't trickle down to the CDROM
-> driver.
+On Wed, 2002-09-11 at 21:04, Gregoire Favre wrote:
+> Hello,
 > 
-> Is this something that's supposed to happen, and is there a reason why
-> it's not supported, or is it simply that no-one has asked for it to be
-> supported and/or no-one has gotten around to implementing it because of 
-> lack of demand?
-> 
-> (The particular case in which this came up is someone who has a Sun box
-> without a CDROM drive in it, and wants to use a Linux box as a jumpstart
-> server, but can't because the Linux box can't read beyond the first
-> slice on the CD.)
+> I haden't noticed this problem being reported to this ml, but maybe I am
+> wrong, in that case, I am sorry ;-)
 
-Can the disk be copied to a file or hard disk and mounted there?
+i2o hasnt been updated for 2.5 yet. I plan to do that once the core 2.5
+code is stabilized
 
--- 
-Måns Rullgård
-mru@users.sf.net

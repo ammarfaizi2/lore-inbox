@@ -1,40 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265808AbVBFAUk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264705AbVBFAXr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265808AbVBFAUk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 19:20:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265880AbVBFAUg
+	id S264705AbVBFAXr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 19:23:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266091AbVBFAXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 19:20:36 -0500
-Received: from wproxy.gmail.com ([64.233.184.205]:26332 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S265841AbVBFAUQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 19:20:16 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=RcG+GY6HPZLAMoukgwTfcaFv72Lc2fMp56Kmv4Beb69PvSrfwVOaNNruotciu2CaeGenkBlfi1+1M8cS1Wn9YHdCVgLgOXYn2Ek8PxpmcxkEmYbQShqe/JKdMvCZOhkfIaVAJkjGdWNf0EmJVaxluubH1rOSd12R9UPFKuylFw0=
-Message-ID: <58cb370e0502051620774e81bf@mail.gmail.com>
-Date: Sun, 6 Feb 2005 01:20:10 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Tejun Heo <tj@home-tj.org>
-Subject: Re: [PATCH 2.6.11-rc2 03/14] ide_pci: Merges cmd64x.h into cmd64x.c
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20050204071317.E373913264E@htj.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <42032014.1020606@home-tj.org>
-	 <20050204071317.E373913264E@htj.dyndns.org>
+	Sat, 5 Feb 2005 19:23:46 -0500
+Received: from chello062179026180.chello.pl ([62.179.26.180]:45980 "EHLO
+	pioneer.space.nemesis.pl") by vger.kernel.org with ESMTP
+	id S266405AbVBFAW7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 19:22:59 -0500
+Date: Sun, 6 Feb 2005 01:23:34 +0100 (CET)
+From: Tomasz Rola <rtomek@ceti.pl>
+To: Marko Macek <Marko.Macek@gmx.net>
+cc: Otto Wyss <otto.wyss@orpatec.ch>, linux-kernel@vger.kernel.org,
+       Tomasz Rola <rtomek@ceti.pl>
+Subject: Re: Why is debugging under Linux such a pain
+In-Reply-To: <42050C49.9050300@gmx.net>
+Message-ID: <Pine.LNX.3.96.1050206010842.16513A-100000@pioneer.space.nemesis.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri,  4 Feb 2005 16:13:17 +0900 (KST), Tejun Heo <tj@home-tj.org> wrote:
-> 
-> 03_ide_pci_cmd64x_merge.patch
-> 
->         Merges ide/pci/cmd64x.h into cmd64x.c.
-> 
-> Signed-off-by: Tejun Heo <tj@home-tj.org>
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-applied
+On Sat, 5 Feb 2005, Marko Macek wrote:
+
+[...]
+> It would be nice if display lock programs used a separate X display 
+> (some kind of "virtual" display support might be nice to have, mainly 
+> for performance).
+
+I would try VNC for this, at least for debugging. But I don't really know
+if it would have worked. My distro (Debian) has VNC packed nicely
+(vncserver and xvncviewer packages), others should have it too. So the
+trial should be rather quick if you use such Linux flavor.
+
+I mean, open debugged app on a VNC display and have gdb on real one. You
+can also view your VNC display with a viewer in a window and it should not
+mess your real X session. But I may be wrong, never tried VNC for such
+kind of work even though I use it very often.
+
+One can also do similar thing with simply having two X sessions on two
+consoles, I suppose. However, frequent switching between them may not be
+very healthy for hardware.
+
+Well, I'm just thinking loudly.
+
+Regards,
+Tomasz Rola
+
+- --
+** A C programmer asked whether computer had Buddha's nature.      **
+** As the answer, master did "rm -rif" on the programmer's home    **
+** directory. And then the C programmer became enlightened...      **
+**                                                                 **
+** Tomasz Rola          mailto:tomasz_rola@bigfoot.com             **
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGPfreeware 5.0i for non-commercial use
+Charset: noconv
+
+iQA/AwUBQgVjjBETUsyL9vbiEQLKIQCfb0g29u44eOiRWSC2t8/I27KvJuwAoLun
+pWXajzIauR1ebxYX17Xyinos
+=Fkjv
+-----END PGP SIGNATURE-----
+
+

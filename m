@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268911AbRG0Rbt>; Fri, 27 Jul 2001 13:31:49 -0400
+	id <S268904AbRG0RgT>; Fri, 27 Jul 2001 13:36:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268904AbRG0Rbj>; Fri, 27 Jul 2001 13:31:39 -0400
-Received: from jaws.cisco.com ([198.135.0.150]:16298 "EHLO cisco.com")
-	by vger.kernel.org with ESMTP id <S268905AbRG0Rb1>;
-	Fri, 27 Jul 2001 13:31:27 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Nick Brown <nicbrown@cisco.com>
-Reply-To: nicbrown@cisco.com
-Organization: Cisco Systems Ltd.
-To: linux-kernel@vger.kernel.org
-Subject: Re: problem configuring for a mips platform
-Date: Fri, 27 Jul 2001 18:28:07 +0000
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <01072715235305.12313@edin-ios-26.cisco.com> <20010727163107.E14483@lug-owl.de>
-In-Reply-To: <20010727163107.E14483@lug-owl.de>
+	id <S268905AbRG0RgL>; Fri, 27 Jul 2001 13:36:11 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60723 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S268904AbRG0Rfx>; Fri, 27 Jul 2001 13:35:53 -0400
+To: Hans Reiser <reiser@namesys.com>
+Cc: bvermeul@devel.blackstar.nl, kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ReiserFS / 2.4.6 / Data Corruption
+In-Reply-To: <Pine.LNX.4.33.0107271653210.12396-100000@devel.blackstar.nl>
+	<3B618AE4.983439DC@namesys.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 27 Jul 2001 11:29:45 -0600
+In-Reply-To: <3B618AE4.983439DC@namesys.com>
+Message-ID: <m1d76me0vq.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
-Message-Id: <01072718280707.12313@edin-ios-26.cisco.com>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Friday 27 July 2001  2:31 pm, Jan-Benedict Glaw wrote:
-> The mips (and mipsel) platforms are not yet fully up to date in the plain
-> Linus kernel. Please check out the current CVS version. For explanation
-> see http://oss.sgi.com/mips/mips-howto.html
+Hans Reiser <reiser@namesys.com> writes:
 
-Cheers,
-that seems to work, but when I quite xconfig (saving config) I get the 
-following error;
+> This "feature" of not guaranteeing that a write that is in progress when the
+> machine crashes will
+> 
+> not write garbage, has been present in most Unix filesystems for about 25 years
+> of Unix history.  
 
-ERROR - Attempting to write value for unconfigured variable (CONFIG_VT).
-ERROR - Attempting to write value for unconfigured variable (CONFIG_SERIAL).
-ERROR - Attempting to write value for unconfigured variable 
-(CONFIG_UNIX98_PTYS).
-ERROR - Attempting to write value for unconfigured variable (CONFIG_RTC).
+A write in progress causing garabage when the power is lost is a
+driver, and drive thing.
 
-These check boxes behave strangly in xconfig.
+stock unix behavior is that it delays writes for up to 30 seconds,
+which in case of a crash could mean you have old data on disk.   Not
+wrong data.  This is helped because in stock unix filesystems blocks
+are rarely reallocated or moved.  In reiserfs with the btree at least
+some kinds of data are moved all over the disk.
 
-Nick
+I want to suspect a btree problem on the block jumping around (it's
+a good canidate).  But unless you have messed up metadata journalling
+btree writes are journaled.  The reason I am suspecting the btree is
+that most source code files are small so probably don't have complete
+filesystem blocks of their own.
 
--- 
-Mountains have a way of dealing with overconfidence.
-	-- Hermann Buhl
+> It
+> 
+> is not that we are deviant on this, it is that a tradeoff is made, and for most
+> but not all users it
+> 
+> is a good one to make.
+
+If you can give me an explanation of what would cause the described
+behavior of small files swapping their contents I would believe I
+would feel more secure than just a reflex ``we don't garantee all of the
+data written before power failure''.
+
+Eric
+
+ 

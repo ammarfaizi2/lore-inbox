@@ -1,66 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267518AbUIFKs5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267549AbUIFKug@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267518AbUIFKs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 06:48:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267526AbUIFKs5
+	id S267549AbUIFKug (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 06:50:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267536AbUIFKug
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 06:48:57 -0400
-Received: from pop.gmx.de ([213.165.64.20]:50624 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S267518AbUIFKsz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 06:48:55 -0400
-X-Authenticated: #7318305
-Date: Mon, 6 Sep 2004 12:51:15 +0200
-From: Felix =?ISO-8859-1?Q?K=FChling?= <fxkuehl@gmx.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: diablod3@gmail.com, dri-devel@lists.sf.net, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] r200 dri driver deadlocks
-Message-Id: <20040906125115.0d49db62.felix@trabant>
-In-Reply-To: <1094429682.29921.6.camel@krustophenia.net>
-References: <d577e569040904021631344d2e@mail.gmail.com>
-	<1094321696.31459.103.camel@admin.tel.thor.asgaard.local>
-	<d577e56904090413365f5e223d@mail.gmail.com>
-	<1094366099.31457.112.camel@admin.tel.thor.asgaard.local>
-	<d577e56904090501224f252dbc@mail.gmail.com>
-	<1094406055.31464.118.camel@admin.tel.thor.asgaard.local>
-	<d577e569040905131870fa14a3@mail.gmail.com>
-	<1094429682.29921.6.camel@krustophenia.net>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Mon, 6 Sep 2004 06:50:36 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:31162 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S267526AbUIFKuV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 06:50:21 -0400
+Date: Mon, 6 Sep 2004 12:50:18 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Spam <spam@tnonline.net>
+Cc: Tonnerre <tonnerre@thundrix.ch>, Christer Weinigel <christer@weinigel.se>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
+       Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040906105018.GB28111@atrey.karlin.mff.cuni.cz>
+References: <200408311931.i7VJV8kt028102@laptop11.inf.utfsm.cl> <Pine.LNX.4.58.0408311252150.2295@ppc970.osdl.org> <m3eklm9ain.fsf@zoo.weinigel.se> <20040905111743.GC26560@thundrix.ch> <1215700165.20040905135749@tnonline.net> <20040905115854.GH26560@thundrix.ch> <1819110960.20040905143012@tnonline.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1819110960.20040905143012@tnonline.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 05 Sep 2004 20:14:43 -0400
-Lee Revell <rlrevell@joe-job.com> wrote:
+Hi!
 
-> On Sun, 2004-09-05 at 16:18, Patrick McFarland wrote:
-[snip]
-> > 
-> > That shouldn't matter, should it? The userland stuff should never lock
-> > the machine up.
-> > I'll test it anyhow, though.
+> >>   What if I do not use emacs, but vim, mcedit, gedit, or some other
+> >>   editor? It doesn't seem logical to have to patch every application
+> >>   that uses files.
 > 
-> No, it shouldn't.  Anything that directly accesses hardware belongs in
-> the kernel.  How to fix this is a pretty hot topic now.
-
-That's not the whole truth. There are just too many ways to lock up
-those 3D chips. For instance I fixed a lockup in the r100 driver where
-the order in which state changing commands were sent to the hardware
-would cause a lockup. Each individual state changing command is
-perfectly valid. Finding all permutations that trigger a lockup would
-have been too much of a hassle and may not even have been true for all
-supported hardware out there. So we made the user-space driver emit
-state changing commands in a fixed order, which seems to work
-everywhere.
-
-Regars,
-  Felix
-
+> > We would have to do that in  either case, so let's patch them to do it
+> > in a nonintrusive way. And as to reading and writing inside tar files,
+> > write and/or  use a really nice  userspace library to do  it. (As does
+> > MacOS/X, as does KDE, etc.)
 > 
-> Lee
-> 
+>   The problem with the userspace library is standardization. What
+>   would be needed is a userspace library that has a extensible plugin
+>   interface that is standardized. Otherwise we would need lots of
+>   different libraries, and I seriously doubt that 1) this will happen
+>   and 2) we get all Linux programs to be patched to use it.
 
-| Felix Kühling <fxkuehl@gmx.de>                     http://fxk.de.vu |
-| PGP Fingerprint: 6A3C 9566 5B30 DDED 73C3  B152 151C 5CC1 D888 E595 |
+libvfs from midnight commander (and anything build on the top of it)
+already is very extensible.
+								Pavel

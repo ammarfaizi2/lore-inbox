@@ -1,58 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262666AbUCOTIz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 14:08:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262702AbUCOTIx
+	id S262695AbUCOTMu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 14:12:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262692AbUCOTMu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 14:08:53 -0500
-Received: from alesia-4-82-66-59-64.fbx.proxad.net ([82.66.59.64]:9633 "HELO
-	rooter.tripnotik.fr") by vger.kernel.org with SMTP id S262666AbUCOTIp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 14:08:45 -0500
-X-Qmail-Scanner-Mail-From: jdidron@tripnotik.dyndns.org via rooter
-X-Qmail-Scanner: 1.20 (Clear:RC:1(192.168.0.249):. Processed in 0.038041 secs)
-Message-ID: <40560C0E.7060500@tripnotik.dyndns.org>
-Date: Mon, 15 Mar 2004 21:03:26 +0100
-From: Julien Didron <jdidron@tripnotik.dyndns.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040313
-X-Accept-Language: en-us, en
+	Mon, 15 Mar 2004 14:12:50 -0500
+Received: from 68-235-9-113.lndnnh.adelphia.net ([68.235.9.113]:46296 "HELO
+	68-235-9-113.lndnnh.adelphia.net") by vger.kernel.org with SMTP
+	id S262714AbUCOTMd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 14:12:33 -0500
+Message-ID: <GQSKTOKMFCXBVARYBFSSHMK@msn.com>
+From: "Hunter Madrid" <pelaithus@horny.co.uk>
+Reply-To: "Hunter Madrid" <pelaithus@horny.co.uk>
+To: linux-kernel-owner@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-msdos@vger.kernel.org,
+       linux-net@vger.kernel.org
+Subject: 
+Date: Mon, 15 Mar 2004 16:06:13 -0600
 MIME-Version: 1.0
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-Subject: Re: [PATCH try3] a better Silicon Image SATA mod15 write fix?
-References: <4055D032.1090708@pobox.com> <4055EF4F.8060803@pobox.com> <4055F045.40102@pobox.com>
-In-Reply-To: <4055F045.40102@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: multipart/alternative;
+	boundary="--6624180860146124"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello list,
+----6624180860146124
+Content-Type: text/plain;
+Content-Transfer-Encoding: 7Bit
 
-    This driver works :o)
-    running hdparm gives those results :
-    Timing buffered disk reads:  170 MB in  3.00 seconds =  56.60 MB/sec 
-(with 2.6.4-bk4 and sata_sil.c try 3)
-    Timing buffered disk reads:  170 MB in  3.01 seconds =  56.56 MB/sec 
-(with 2.6.4-mm2)
+Hello, 
 
-    running boonie on the 2.6.4-mm2 version hangs the computer, with no 
-possibilities of doing anything (can't even use the magic SysRq keys), 
-while on the 2.6.4-bk4 version using the patched version of sata_sil.c 
-it doesn't exactly hang : it is still possible to switch from one 
-console to another, but it's impossible to log into any of them (after 
-typing in the password, you never get the prompt).
-    here is the command I used :
-    bonnie++ -u jdidron -d /tmp -x 10 -s 2g -n 32:30000:5:500 -m 
-kisskool > output
+This is Clarke Robbins President & CEO of
+LoanSafe4AllNow1. Interest Rates have dropped basis
+points once again to their lowest in years. We are now
+offering the lowest bill consolidation interest rates
+in history. Even if you just consolidated, we can save
+you more $ now, faster! We can:
 
-Mobo : A7N8X Deluxe
-HD : 6Y120L0
+* Eliminate All Bills Effectively & Efficiently
+* Give Loan Advice on the Best courses of Action
+* Allow for one New rock bottom payment (saving you
+even more)
+* 99.9% of all Loans qualify & we do NO HISTORY, All
+are approved in our program!
 
-Jeff Garzik wrote:
+We hope to hear from you soon to earn your business &
+trust. Click Below.
 
-> Sigh... it would help to disable the old errata fix.
->
-> Try 3.
->
+*Today's Low Rate is 2.47%
+
+Sincerely,
+
+Clarke Robbins
+CEO & President
+LoanSafe4AllNow
+
+http://lowerrates4you.com/?partid=n278 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+The above gift or special offer was sent to you as a 
+subscriber of Direct Media. We will continue to bring you 
+valuable offers on products and services that interest you 
+most. To modify your future preference with us: 
+http://lowerrates4you.com/st.html 
+
+
+puerile
+3
+%RND _TEXT
+
+
+----6624180860146124--
 

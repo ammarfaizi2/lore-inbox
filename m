@@ -1,264 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261623AbSJINyl>; Wed, 9 Oct 2002 09:54:41 -0400
+	id <S261723AbSJIOBn>; Wed, 9 Oct 2002 10:01:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261711AbSJINyl>; Wed, 9 Oct 2002 09:54:41 -0400
-Received: from 213-187-164-2.dd.nextgentel.com ([213.187.164.2]:24199 "EHLO
-	mail.pronto.tv") by vger.kernel.org with ESMTP id <S261623AbSJINyi> convert rfc822-to-8bit;
-	Wed, 9 Oct 2002 09:54:38 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Hang in 2.4.20-pre10 with
-Date: Wed, 9 Oct 2002 16:01:37 +0200
-User-Agent: KMail/1.4.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210091601.37036.roy@karlsbakk.net>
+	id <S261737AbSJIOBn>; Wed, 9 Oct 2002 10:01:43 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:49031 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261723AbSJIOBl>; Wed, 9 Oct 2002 10:01:41 -0400
+Subject: [BUG] NULL pointer dereference
+From: Paul Larson <plars@linuxtestproject.org>
+To: lkml <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 09 Oct 2002 09:01:47 -0500
+Message-Id: <1034172108.29084.96.camel@plars>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+During some testing I was doing on linux-2.5.41-mm1 I came across the
+NULL pointer dereference below.  I suspect it is also in 2.5.41 vanilla,
+but I have not been able to reproduce it so far.  It was on an 8-way
+PIII-700, 16 GB ram.  I had been running ltp at the time and it had
+completed.  I was hitting tab at the time it happened to get a command
+line completion in bash.
 
-When downloading/streaming high amounts of data (over HTTP), Linux 
-2.4.20-pre10 hangs. And it really hangs. alt+sysrq (from usb keyboard) 
-doesn't work... The problem is easily reproducable by just doing a wget 
-http://something/largefile (interface used is PCI ID 01:02.0)
+Unable to handle kernel NULL pointer dereference at virtual address
+0000002c
+ printing eip:
+c01525b5
+*pde = 00104001
+Oops: 0000
 
-the problem does not occur when streaming over the Intel gigE interface.
+CPU:    0
+EIP:    0060:[<c01525b5>]    Not tainted
+EFLAGS: 00010046
+EIP is at fasync_helper+0x75/0xf0
+eax: c0359198   ebx: 00000000   ecx: 0000002c   edx: 0000007e
+esi: 0000002c   edi: 00000000   ebp: cc2682c0   esp: f637bec4
+ds: 0068   es: 0068   ss: 0068
+Process python (pid: 1253, threadinfo=f637a000 task=f6c8f1a0)
+Stack: 00000000 f7c0c9bc f7c0c960 ffffffff 00000000 c014dc45 ffffffff
+cc2682c0
+       00000000 0000002c f7c0c960 f7ff5620 f7c0c960 f63b8ca0 c014dd83
+ffffffff
+       cc2682c0 00000000 cc2682c0 c014453b f7c0c960 cc2682c0 f7ff5760
+00000286
+Call Trace:
+ [<c014dc45>] pipe_read_fasync+0x45/0x70
+ [<c014dd83>] pipe_read_release+0x13/0x30
+ [<c014453b>] __fput+0x2b/0xd0
+ [<c0142cd9>] filp_close+0x99/0xb0
+ [<c011c3eb>] put_files_struct+0x4b/0xd0
+ [<c011cd69>] do_exit+0x109/0x2e0
+ [<c011e16b>] do_softirq+0x5b/0xc0
+ [<c01111df>] smp_apic_timer_interrupt+0x10f/0x120
+ [<c01071d3>] syscall_call+0x7/0xb
 
-roy
+Code: 8b 16 85 d2 74 36 90 8d 74 26 00 39 6a 0c 75 22 85 ff 75 ba
 
-
-bash-2.05# lspci -vvvvvvvvvvv
-00:00.0 Host bridge: Intel Corp.: Unknown device 2560 (rev 01)
-        Subsystem: Intel Corp.: Unknown device 2560
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR+ FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
-<TAbort- <MAbort+ >SERR- <PERR-
-        Latency: 0
-        Region 0: Memory at f8000000 (32-bit, prefetchable) [size=64M]
-        Capabilities: [e4] #09 [1105]
-
-00:02.0 VGA compatible controller: Intel Corp.: Unknown device 2562 (rev 01) 
-(prog-if 00 [VGA])
-        Subsystem: Intel Corp.: Unknown device 4c59
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Interrupt: pin A routed to IRQ 11
-        Region 0: Memory at f0000000 (32-bit, prefetchable) [size=128M]
-        Region 1: Memory at ffa80000 (32-bit, non-prefetchable) [size=512K]
-        Capabilities: [d0] Power Management version 1
-                Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:1d.0 USB Controller: Intel Corp.: Unknown device 24c2 (rev 01) (prog-if 00 
-[UHCI])
-        Subsystem: Intel Corp.: Unknown device 4c59
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Interrupt: pin A routed to IRQ 11
-        Region 4: I/O ports at e800 [size=32]
-
-00:1d.1 USB Controller: Intel Corp.: Unknown device 24c4 (rev 01) (prog-if 00 
-[UHCI])
-        Subsystem: Intel Corp.: Unknown device 4c59
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Interrupt: pin B routed to IRQ 11
-        Region 4: I/O ports at e880 [size=32]
-
-00:1d.2 USB Controller: Intel Corp.: Unknown device 24c7 (rev 01) (prog-if 00 
-[UHCI])
-        Subsystem: Intel Corp.: Unknown device 4c59
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Interrupt: pin C routed to IRQ 5
-        Region 4: I/O ports at ec00 [size=32]
-
-00:1d.7 USB Controller: Intel Corp.: Unknown device 24cd (rev 01) (prog-if 20 
-[EHCI])
-        Subsystem: Intel Corp.: Unknown device 4c59
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR+ FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Interrupt: pin D routed to IRQ 9
-        Region 0: Memory at ffa7fc00 (32-bit, non-prefetchable) [size=1K]
-        Capabilities: [50] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA 
-PME(D0+,D1-,D2-,D3hot+,D3cold+)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-        Capabilities: [58] #0a [2080]
-
-00:1e.0 PCI bridge: Intel Corp. 82801BA/CA PCI Bridge (rev 81) (prog-if 00 
-[Normal decode])
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR+ FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR+
-        Latency: 0
-        Bus: primary=00, secondary=01, subordinate=01, sec-latency=32
-        I/O behind bridge: 0000d000-0000dfff
-        Memory behind bridge: ff800000-ff8fffff
-        Prefetchable memory behind bridge: e6a00000-e6afffff
-        BridgeCtl: Parity- SERR+ NoISA+ VGA- MAbort- >Reset- FastB2B-
-
-00:1f.0 ISA bridge: Intel Corp.: Unknown device 24c0 (rev 01)
-        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- 
-Stepping- SERR+ FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-
-00:1f.1 IDE interface: Intel Corp.: Unknown device 24cb (rev 01) (prog-if 8a 
-[Master SecP PriP])
-        Subsystem: Intel Corp.: Unknown device 4c59
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Interrupt: pin A routed to IRQ 5
-        Region 0: I/O ports at <unassigned> [size=8]
-        Region 1: I/O ports at <unassigned> [size=4]
-        Region 2: I/O ports at <unassigned> [size=8]
-        Region 3: I/O ports at <unassigned> [size=4]
-        Region 4: I/O ports at ffa0 [size=16]
-        Region 5: Memory at 1ff00000 (32-bit, non-prefetchable) [disabled] 
-[size=1K]
-
-00:1f.3 SMBus: Intel Corp.: Unknown device 24c3 (rev 01)
-        Subsystem: Intel Corp.: Unknown device 4c59
-        Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Interrupt: pin B routed to IRQ 11
-        Region 4: I/O ports at e000 [size=32]
-
-00:1f.5 Multimedia audio controller: Intel Corp.: Unknown device 24c5 (rev 01)
-        Subsystem: Intel Corp.: Unknown device 0302
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Interrupt: pin B routed to IRQ 11
-        Region 0: I/O ports at e400 [size=256]
-        Region 1: I/O ports at e080 [size=64]
-        Region 2: Memory at ffa7f800 (32-bit, non-prefetchable) [size=512]
-        Region 3: Memory at ffa7f400 (32-bit, non-prefetchable) [size=256]
-        Capabilities: [50] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA 
-PME(D0+,D1-,D2-,D3hot+,D3cold+)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-01:00.0 Unknown mass storage controller: Promise Technology, Inc. 20268 (rev 
-02) (prog-if 85)
-        Subsystem: Promise Technology, Inc. Ultra100TX2
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32 (1000ns min, 4500ns max), cache line size 08
-        Interrupt: pin A routed to IRQ 10
-        Region 0: I/O ports at dc00 [size=8]
-        Region 1: I/O ports at d880 [size=4]
-        Region 2: I/O ports at d800 [size=8]
-        Region 3: I/O ports at d480 [size=4]
-        Region 4: I/O ports at d400 [size=16]
-        Region 5: Memory at ff8fc000 (32-bit, non-prefetchable) [size=16K]
-        Expansion ROM at ff8f8000 [disabled] [size=16K]
-        Capabilities: [60] Power Management version 1
-                Flags: PMEClk- DSI+ D1+ D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-01:01.0 Unknown mass storage controller: Promise Technology, Inc. 20268 (rev 
-02) (prog-if 85)
-        Subsystem: Promise Technology, Inc. Ultra100TX2
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32 (1000ns min, 4500ns max), cache line size 08
-        Interrupt: pin A routed to IRQ 11
-        Region 0: I/O ports at d080 [size=8]
-        Region 1: I/O ports at d000 [size=4]
-        Region 2: I/O ports at df00 [size=8]
-        Region 3: I/O ports at de80 [size=4]
-        Region 4: I/O ports at de00 [size=16]
-        Region 5: Memory at ff8f4000 (32-bit, non-prefetchable) [size=16K]
-        Expansion ROM at ff8f0000 [disabled] [size=16K]
-        Capabilities: [60] Power Management version 1
-                Flags: PMEClk- DSI+ D1+ D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-01:02.0 Ethernet controller: Intel Corp.: Unknown device 100e (rev 02)
-        Subsystem: Intel Corp.: Unknown device 002e
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- 
-Stepping- SERR+ FastB2B-
-        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32 (63750ns min), cache line size 08
-        Interrupt: pin A routed to IRQ 5
-        Region 0: Memory at ff8c0000 (32-bit, non-prefetchable) [size=128K]
-        Region 1: Memory at ff8a0000 (32-bit, non-prefetchable) [size=128K]
-        Region 2: I/O ports at dd80 [size=64]
-        Expansion ROM at ff880000 [disabled] [size=128K]
-        Capabilities: [dc] Power Management version 2
-                Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA 
-PME(D0+,D1-,D2-,D3hot+,D3cold+)
-                Status: D0 PME-Enable- DSel=0 DScale=1 PME-
-        Capabilities: [e4] PCI-X non-bridge device.
-                Command: DPERE- ERO+ RBC=0 OST=0
-                Status: Bus=0 Dev=0 Func=0 64bit- 133MHz- SCD- USC-, 
-DC=simple, DMMRBC=0, DMOST=0, DMCRS=0, RSCEM-
-        Capabilities: [f0] Message Signalled Interrupts: 64bit+ Queue=0/0 
-Enable-
-                Address: 0000000000000000  Data: 0000
-
-01:08.0 Ethernet controller: Intel Corp.: Unknown device 1039 (rev 81)
-        Subsystem: Intel Corp.: Unknown device 3013
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- 
-Stepping- SERR+ FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32 (2000ns min, 14000ns max), cache line size 08
-        Interrupt: pin A routed to IRQ 11
-        Region 0: Memory at ff8ef000 (32-bit, non-prefetchable) [size=4K]
-        Region 1: I/O ports at dd00 [size=64]
-        Capabilities: [dc] Power Management version 2
-                Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA 
-PME(D0+,D1+,D2+,D3hot+,D3cold+)
-                Status: D0 PME-Enable- DSel=0 DScale=2 PME-
-
-
-
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-ProntoTV AS - http://www.pronto.tv/
-Tel: +47 9801 3356
-
-Computers are like air conditioners.
-They stop working when you open Windows.
+Thanks,
+Paul Larson
 

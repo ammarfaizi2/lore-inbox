@@ -1,62 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261676AbTI3TAn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 15:00:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbTI3TAn
+	id S261649AbTI3StS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 14:49:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbTI3StE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 15:00:43 -0400
-Received: from codepoet.org ([166.70.99.138]:32901 "EHLO mail.codepoet.org")
-	by vger.kernel.org with ESMTP id S261676AbTI3TAk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 15:00:40 -0400
-Date: Tue, 30 Sep 2003 13:00:40 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: Jens Axboe <axboe@suse.de>,
-       Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Kernel includefile bug not fixed after a year :-(
-Message-ID: <20030930190039.GA5407@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Andreas Steinmetz <ast@domdv.de>, Jens Axboe <axboe@suse.de>,
-	Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	linux-kernel@vger.kernel.org
-References: <200309301144.h8UBiUUF004315@burner.fokus.fraunhofer.de> <20030930115411.GL2908@suse.de> <3F797316.2010401@domdv.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F797316.2010401@domdv.de>
-X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-User-Agent: Mutt/1.5.4i
+	Tue, 30 Sep 2003 14:49:04 -0400
+Received: from hibernia.jakma.org ([213.79.33.168]:20119 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S261649AbTI3Ssw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 14:48:52 -0400
+Date: Tue, 30 Sep 2003 19:48:22 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: kartikey bhatt <kartik_me@hotmail.com>
+cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Can't X be elemenated?
+In-Reply-To: <LAW11-F18b4SaFMwr9y00007564@hotmail.com>
+Message-ID: <Pine.LNX.4.56.0309301648110.22571@fogarty.jakma.org>
+References: <LAW11-F18b4SaFMwr9y00007564@hotmail.com>
+X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue Sep 30, 2003 at 02:12:06PM +0200, Andreas Steinmetz wrote:
-> Jens Axboe wrote:
-> >
-> >I think I do.
-> >
-> >
-> >>In order to use kernel interfaces you _need_ to include kernel include
-> >>files.
-> >
-> >
-> >False. You need to include the glibc kernel headers.
-> >
-> Then please tell me why PPPIOCNEWUNIT is only defined in linux/if_ppp.h 
-> and not net/if_ppp.h which is still true for glibc-2.3.2. And please 
-> don't tell me to ask the glibc folks. There are inconsistencies between 
-> kernel headers and userland headers which force the inclusion of kernel 
-> headers in userland applications.
+On Mon, 29 Sep 2003, kartikey bhatt wrote:
 
-Wrong.  Userland applications should make private copies of all
-needed kernel defines and structures, and then change any kernel
-types to use standard C99 types from stdint.h.
+> 1st. X is bloat.
 
- -Erik
+This isnt true.
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+[paul@fogarty paul]$ cat /proc/`pidof X`/status | grep ^Vm
+VmSize:    47700 kB
+VmLck:         0 kB
+VmRSS:     22580 kB
+VmData:    25540 kB
+VmStk:        72 kB
+VmExe:      1488 kB
+VmLib:      1580 kB
+
+X is actually quite tiny, ~3MB of exe+lib. The data size is due,
+vastly, to the X /clients/ using the server (in the above case RH9
+GNOME + windowmaker + xchat2 + galeon + few xterms).
+
+Here's Xipaq (tinyX handheld X server):
+
+~ $  cat /proc/`pidof Xipaq`/status | grep ^Vm
+VmSize:     5072 kB
+VmLck:         0 kB
+VmRSS:      3164 kB
+VmData:     1788 kB
+VmStk:        16 kB
+VmExe:       848 kB
+VmLib:      2028 kB
+
+That's Xipaq, exe is smaller, but libs are bigger, balances out to 
+~3MB again. However, the data segment is much smaller, < 2MB compared 
+to > 25MB for the desktop case. The handheld runs the GPE 
+(http://gpe.handhelds.org) environment.
+
+So perhaps you could come to the conclusion that 'X' (in the X server
+sense) is not bloat, but that the /clients/ on modern desktops are?
+
+> Though it's good for server environments. For desktop pcs it's too
+> heavy. 
+
+You are misinformed. See above.
+
+> 2nd. It's process based client/server architecture is a bottleneck.
+
+Why do you think so? For large amounts of data, X clients can use 
+shared memory. Further, even if they must transfer data (ie 
+pixmaps/pics) across the socket connection, the X server can cache 
+it, and the client can use it by reference. (ie a once off cost).
+
+Also, local X clients use unix sockets - blazingly fast.
+
+> It's not as interactive as is supposed to be.
+
+Have you tried 2.6.0-test6? The interactivity problems were the 
+kernel's fault more than that of 'X'.
+
+> 3rd. Most important. I can't impress or convince my
+> window(crash)(TM) user friends, relatives (who saw X running on my
+> pc) to use Linux.
+
+You wont impress /anyone/ with "just X" (ie just the X server) -
+cause all you'll get is a tiled background of tiny X logos and an X
+mouse pointer.
+ 
+> 4th. I want to see desktop being ruled by Linux.
+
+"X" isnt the obstacle.
+
+To be able to constructively criticise something you first need to 
+/understand/ it. You dont.
+
+Most of you what you complain about, bloat and heavyness, is due to
+the desktop environment - not X itself. Try running GPE
+(http://gpe.handhelds.org) or (easier/actually practical too for a
+desktop) Xfce (http://www.xfce.org)
+
+Finally, this isnt a kernel problem.
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+	warning: do not ever send email to spam@dishone.st
+Fortune:
+Real wealth can only increase.
+		-- R. Buckminster Fuller

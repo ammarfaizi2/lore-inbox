@@ -1,189 +1,248 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293071AbSB0XqQ>; Wed, 27 Feb 2002 18:46:16 -0500
+	id <S292843AbSB0XiK>; Wed, 27 Feb 2002 18:38:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293072AbSB0Xpt>; Wed, 27 Feb 2002 18:45:49 -0500
-Received: from zero.tech9.net ([209.61.188.187]:46342 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S293071AbSB0XpU>;
-	Wed, 27 Feb 2002 18:45:20 -0500
-Subject: [PATCH] 2.5: (better) syscalls for setting task affinity
+	id <S293050AbSB0Xfp>; Wed, 27 Feb 2002 18:35:45 -0500
+Received: from zero.tech9.net ([209.61.188.187]:42246 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S292464AbSB0Xeg>;
+	Wed, 27 Feb 2002 18:34:36 -0500
+Subject: [PATCH] 2.5: proc interface for setting task affinity
 From: Robert Love <rml@tech9.net>
-To: torvalds@transmeta.com, mingo@elte.hu
-Cc: linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Evolution/1.0.2 
-Date: 27 Feb 2002 18:45:21 -0500
-Message-Id: <1014853522.1109.234.camel@phantasy>
+Date: 27 Feb 2002 18:34:41 -0500
+Message-Id: <1014852882.1109.218.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ This post adds length and pointer checks to the syscalls such that we
-can portably change the size of cpus_allowed. ]
+The attached patch implements a proc-based user interface for setting
+and retrieving a task's CPU affinity (task->cpus_allowed).
 
-The attached patch implements a syscall interface for setting and
-retrieving a task's CPU affinity (task->cpus_allowed):
+To retrieve <pid>'s affinity:
 
-	int sched_set_affinity(pid_t pid, unsigned int len,
-			       unsigned long *new_mask_ptr);
+	cat /proc/<pid>/affinity
 
-	int sched_get_affinity(pid_t pid, unsigned int *user_len_ptr,
-			       unsigned long *user_mask_ptr)
+and to set it:
 
-sched_set_affinity uses the set_cpus_allowed function in Ingo's new
-scheduler to do all the hard work.  Additionally, this patch is based
-off Ingo's previous syscall affinity patch and my proc-based affinity
-patch.  Much credit to Ingo for this past work and his current
-scheduler.
+	echo n > /proc/<pid>/affinity
 
-Security is enforced: calling user must match task's uid or euid or
-possess CAP_SYS_NICE.
+Essentially the debate is over, I have been fairly well convinced a
+syscall solution is superior.  I do note, however, the beauty in the
+above solution.  I have posted a syscall implementation as well, in
+another thread, but post this for completeness.
 
-We can safely change the size of cpus_allowed.  One can use:
+This patch uses set_cpus_allowed in Ingo's new scheduler to do the heavy
+work.  It is based off my previous patch which borrowed heavily from
+Ingo's previous affinity patch.
 
-	sched_get_affinity(0, &len, NULL);
-
-to get the size of cpus_allowed.  The use of this interface, thus,
-should be portable as we scale cpus_allowed over sizeof(long).
-
-I think exporting cpus_allowed as a bit mask is the proper user
-interface for CPU affinity.  Certainly more complicated solutions exist,
-but this should get the job done.  I have also updated my proc-based
-solution although Ingo and others have flamed^Wconvinced me a
-syscall-based interface is ideal.  I agree, mostly on the basis that
-/proc may not be mounted but I have posted an updated proc-based
-solution anyhow for proper discussion.
+Security is enforced: user must possess CAP_SYS_NICE or be the same uid
+or euid of the pid in question.  This patch also implements a proc_write
+method for the proc_pid code - it adds to the patches size, but the
+method is reusable.
 
 Patch is against 2.5.6-pre1.  Enjoy,
 
 	Robert Love
 
-diff -urN linus/arch/i386/kernel/entry.S linux/arch/i386/kernel/entry.S
---- linus/arch/i386/kernel/entry.S	Tue Feb 26 20:17:01 2002
-+++ linux/arch/i386/kernel/entry.S	Tue Feb 26 20:44:06 2002
-@@ -716,6 +716,8 @@
- 	.long SYMBOL_NAME(sys_lremovexattr)
- 	.long SYMBOL_NAME(sys_fremovexattr)
- 	.long SYMBOL_NAME(sys_tkill)
-+	.long SYMBOL_NAME(sys_sched_set_affinity)
-+	.long SYMBOL_NAME(sys_sched_get_affinity)	/* 240 */
+diff -urN linus/Documentation/filesystems/proc.txt linux/Documentation/filesystems/proc.txt
+--- linus/Documentation/filesystems/proc.txt	Wed Feb 27 00:33:04 2002
++++ linux/Documentation/filesystems/proc.txt	Tue Feb 26 19:28:00 2002
+@@ -118,6 +118,7 @@
+ Table 1-1: Process specific entries in /proc 
+ ..............................................................................
+  File    Content                                        
++ affinity Writable bitmask of allowed CPUs			(2.5)(smp)
+  cmdline Command line arguments                         
+  cpu	 Current and last cpu in wich it was executed		(2.4)(smp)
+  cwd	 Link to the current working directory
+@@ -159,12 +160,17 @@
+   CapPrm: 0000000000000000 
+   CapEff: 0000000000000000 
  
- 	.rept NR_syscalls-(.-sys_call_table)/4
- 		.long SYMBOL_NAME(sys_ni_syscall)
-diff -urN linus/include/asm-i386/unistd.h linux/include/asm-i386/unistd.h
---- linus/include/asm-i386/unistd.h	Tue Feb 26 20:17:14 2002
-+++ linux/include/asm-i386/unistd.h	Tue Feb 26 23:54:21 2002
-@@ -243,6 +243,8 @@
- #define __NR_lremovexattr	236
- #define __NR_fremovexattr	237
- #define __NR_tkill		238
-+#define __NR_sched_set_affinity 239
-+#define __NR_sched_get_affinity 240
+-
+ This shows you nearly the same information you would get if you viewed it with
+ the ps  command.  In  fact,  ps  uses  the  proc  file  system  to  obtain its
+ information. The  statm  file  contains  more  detailed  information about the
+ process memory usage. Its seven fields are explained in Table 1-2.
  
- /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */
++For writable entries, such as affinity:
++
++ >echo 1 > /proc/PID/affinity
++
++To set the affinity of PID to 0x00000001 (=> only CPU0).
++
  
-diff -urN linus/kernel/sched.c linux/kernel/sched.c
---- linus/kernel/sched.c	Tue Feb 26 20:17:37 2002
-+++ linux/kernel/sched.c	Tue Feb 26 23:52:38 2002
-@@ -1215,6 +1215,99 @@
- 	return retval;
+ Table 1-2: Contents of the statm files 
+ ..............................................................................
+diff -urN linus/fs/proc/array.c linux/fs/proc/array.c
+--- linus/fs/proc/array.c	Wed Feb 27 00:33:04 2002
++++ linux/fs/proc/array.c	Wed Feb 27 17:24:53 2002
+@@ -47,9 +47,11 @@
+  * Gerhard Wichert   :  added BIGMEM support
+  * Siemens AG           <Gerhard.Wichert@pdb.siemens.de>
+  *
+- * Al Viro & Jeff Garzik :  moved most of the thing into base.c and
+- *			 :  proc_misc.c. The rest may eventually go into
+- *			 :  base.c too.
++ * Al Viro &         :  moved most of the thing into base.c and
++ * Jeff Garzik          proc_misc.c. The rest may eventually go into
++ *                      base.c too.
++ *
++ * Robert Love       :  added affinity (get/set task->cpus_allowed)
+  */
+ 
+ #include <linux/config.h>
+@@ -695,4 +697,37 @@
+ 
+ 	return len;
  }
- 
-+/**
-+ * sys_sched_set_affinity - set the cpu affinity of a process
-+ * @pid: pid of the process
-+ * @len: length of new_mask
-+ * @new_mask: user-space pointer to the new cpu mask
-+ */
-+asmlinkage int sys_sched_set_affinity(pid_t pid, unsigned int len,
-+				      unsigned long *new_mask_ptr)
+-#endif
++
++int proc_pid_affinity_read(struct task_struct *task, char * buffer)
 +{
-+	unsigned long new_mask;
-+	task_t *p;
++	return sprintf(buffer, "%08lx\n", task->cpus_allowed & cpu_online_map);
++}
++
++int proc_pid_affinity_write(struct task_struct *task, char *buffer,
++			    size_t bytes)
++{
 +	int retval;
++	unsigned long new_mask;
++	char *end;
 +
-+	if (len < sizeof(new_mask))
-+		return -EINVAL;
-+
-+	if (!new_mask_ptr)
-+		return -EINVAL;
-+
-+	if (copy_from_user(&new_mask, new_mask_ptr, sizeof(new_mask)))
-+		return -EFAULT;
-+
++	new_mask = simple_strtoul(buffer, &end, 16);
 +	new_mask &= cpu_online_map;
 +	if (!new_mask)
 +		return -EINVAL;
 +
 +	read_lock(&tasklist_lock);
 +
-+	retval = -ESRCH;
-+	p = find_process_by_pid(pid);
-+	if (!p)
++	if ((current->euid != task->euid) && (current->euid != task->uid)
++			&& !capable(CAP_SYS_NICE)) {
++		retval = -EPERM;
 +		goto out_unlock;
++	}
 +
-+	retval = -EPERM;
-+	if ((current->euid != p->euid) && (current->euid != p->uid) &&
-+			!capable(CAP_SYS_NICE))
-+		goto out_unlock;
-+
-+	retval = 0;
-+#ifdef CONFIG_SMP
-+	set_cpus_allowed(p, new_mask);
-+#endif
++	retval = end - buffer;
++	set_cpus_allowed(task, new_mask);
 +
 +out_unlock:
 +	read_unlock(&tasklist_lock);
-+out:
 +	return retval;
 +}
-+
-+/**
-+ * sys_sched_get_affinity - get the cpu affinity of a process
-+ * @pid: pid of the process
-+ * @user_len_ptr: userspace pointer to the length of the mask
-+ * @user_mask_ptr: userspace pointer to the mask
-+ */
-+asmlinkage int sys_sched_get_affinity(pid_t pid, unsigned int *user_len_ptr,
-+				      unsigned long *user_mask_ptr)
++#endif /* CONFIG_SMP */
+diff -urN linus/fs/proc/base.c linux/fs/proc/base.c
+--- linus/fs/proc/base.c	Wed Feb 27 00:33:04 2002
++++ linux/fs/proc/base.c	Wed Feb 27 17:18:25 2002
+@@ -47,6 +47,8 @@
+ int proc_pid_status(struct task_struct*,char*);
+ int proc_pid_statm(struct task_struct*,char*);
+ int proc_pid_cpu(struct task_struct*,char*);
++int proc_pid_affinity_read(struct task_struct*,char*);
++int proc_pid_affinity_write(struct task_struct*,char*,size_t);
+ 
+ static int proc_fd_link(struct inode *inode, struct dentry **dentry, struct vfsmount **mnt)
+ {
+@@ -331,8 +333,44 @@
+ 	return count;
+ }
+ 
++static ssize_t proc_info_write(struct file * file, const char * buf,
++			       size_t count, loff_t *ppos)
 +{
-+	unsigned long mask;
-+	unsigned int len, user_len;
-+	task_t *p;
-+	int retval;
-+
-+	len = sizeof(mask);
-+
-+	if (copy_from_user(&user_len, user_len_ptr, sizeof(user_len)))
-+		return -EFAULT;
-+
-+	if (copy_to_user(user_len_ptr, &len, sizeof(len)))
-+		return -EFAULT;
-+
-+	if (user_len < len)
++	struct inode * inode = file->f_dentry->d_inode;
++	unsigned long page;
++	struct task_struct *task = proc_task(inode);
++	struct proc_inode *ei = PROC_I(inode);
++	ssize_t ret;
++	if (ei->op.proc_write == NULL)
 +		return -EINVAL;
 +
-+	read_lock(&tasklist_lock);
++	if (count > PAGE_SIZE - 1)
++		return -EINVAL;
 +
-+	retval = -ESRCH;
-+	p = find_process_by_pid(pid);
-+	if (!p)
-+		goto out_unlock;
++	if (!(page = __get_free_page(GFP_KERNEL)))
++		return -ENOMEM;
 +
-+	retval = 0;
-+	mask = p->cpus_allowed & cpu_online_map;
++	if (copy_from_user((char *) page, buf, count)) {
++		ret = -EFAULT;
++		goto out;
++	}
 +
-+out_unlock:
-+	read_unlock(&tasklist_lock);
-+	if (retval)
-+		return retval;
-+	if (copy_to_user(user_mask_ptr, &mask, sizeof(mask)))
-+		return -EFAULT;
-+	return 0;
++	((char *) page)[count] = '\0';
++
++	ret = ei->op.proc_write(task, (char*) page, count);
++	if (ret < 0)
++		goto out;
++
++	*ppos += ret;
++
++out:
++	free_page(page);
++	return ret;
 +}
 +
- asmlinkage long sys_sched_yield(void)
- {
- 	runqueue_t *rq;
+ static struct file_operations proc_info_file_operations = {
+ 	read:		proc_info_read,
++	write:		proc_info_write
+ };
+ 
+ #define MAY_PTRACE(p) \
+@@ -546,6 +584,7 @@
+ 	PROC_PID_STATM,
+ 	PROC_PID_MAPS,
+ 	PROC_PID_CPU,
++	PROC_PID_AFFINITY,
+ 	PROC_PID_MOUNTS,
+ 	PROC_PID_FD_DIR = 0x8000,	/* 0x8000-0xffff */
+ };
+@@ -560,6 +599,7 @@
+   E(PROC_PID_STATM,	"statm",	S_IFREG|S_IRUGO),
+ #ifdef CONFIG_SMP
+   E(PROC_PID_CPU,	"cpu",		S_IFREG|S_IRUGO),
++  E(PROC_PID_AFFINITY,	"affinity",	S_IFREG|S_IRUGO|S_IWUSR),
+ #endif
+   E(PROC_PID_MAPS,	"maps",		S_IFREG|S_IRUGO),
+   E(PROC_PID_MEM,	"mem",		S_IFREG|S_IRUSR|S_IWUSR),
+@@ -936,6 +976,11 @@
+ 			inode->i_fop = &proc_info_file_operations;
+ 			ei->op.proc_read = proc_pid_cpu;
+ 			break;
++		case PROC_PID_AFFINITY:
++			inode->i_fop = &proc_info_file_operations;
++			ei->op.proc_read = proc_pid_affinity_read;
++			ei->op.proc_write = proc_pid_affinity_write;
++ 			break;
+ #endif
+ 		case PROC_PID_MEM:
+ 			inode->i_op = &proc_mem_inode_operations;
+diff -urN linus/include/linux/capability.h linux/include/linux/capability.h
+--- linus/include/linux/capability.h	Wed Feb 27 00:33:04 2002
++++ linux/include/linux/capability.h	Wed Feb 27 16:37:33 2002
+@@ -242,6 +242,7 @@
+ /* Allow use of FIFO and round-robin (realtime) scheduling on own
+    processes and setting the scheduling algorithm used by another
+    process. */
++/* Allow setting CPU affinity */
+ 
+ #define CAP_SYS_NICE         23
+ 
+diff -urN linus/include/linux/proc_fs.h linux/include/linux/proc_fs.h
+--- linus/include/linux/proc_fs.h	Wed Feb 27 00:33:04 2002
++++ linux/include/linux/proc_fs.h	Wed Feb 27 16:37:41 2002
+@@ -208,9 +208,10 @@
+ struct proc_inode {
+ 	struct task_struct *task;
+ 	int type;
+-	union {
++	struct {
+ 		int (*proc_get_link)(struct inode *, struct dentry **, struct vfsmount **);
+ 		int (*proc_read)(struct task_struct *task, char *page);
++		int (*proc_write)(struct task_struct *task, char *page, size_t bytes);
+ 	} op;
+ 	struct file *file;
+ 	struct proc_dir_entry *pde;
 

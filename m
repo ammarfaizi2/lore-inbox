@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265191AbUBOU22 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 15:28:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265193AbUBOU22
+	id S261735AbUBOUjO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 15:39:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264364AbUBOUjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 15:28:28 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63966 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265191AbUBOU21
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 15:28:27 -0500
-Message-ID: <402FD643.4040307@pobox.com>
-Date: Sun, 15 Feb 2004 15:27:47 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mihai RUSU <dizzy@roedu.net>
-CC: Jon Smirl <jonsmirl@yahoo.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: libata patch
-References: <20040214160254.19491.qmail@web14902.mail.yahoo.com> <Pine.LNX.4.58L0.0402151138140.7324@ahriman.bucharest.roedu.net>
-In-Reply-To: <Pine.LNX.4.58L0.0402151138140.7324@ahriman.bucharest.roedu.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 15 Feb 2004 15:39:14 -0500
+Received: from mail.alu.ua.es ([193.145.233.9]:32426 "EHLO mail.alu.ua.es")
+	by vger.kernel.org with ESMTP id S261735AbUBOUjN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 15:39:13 -0500
+Subject: [PATCH] cs_types.h
+From: Daniel Micol Ponce <dmp18@alu.ua.es>
+Reply-To: daniel.micol@unix.net
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1076877551.32074.22.camel@DMICOL.MICOLPONCE>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 15 Feb 2004 21:39:11 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mihai RUSU wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Hi
-> 
-> Hmm, I hit the same problem (only once so far) on 2.6.2 vanilla. While I 
-> was installing one of my first SATA systems, on ICH5, I hit the same thing 
-> (some error in kernel log regardning DMA and the SATA hdd seemed frozen, 
-> the only commands working were those cached in RAM already). Hope this 
-> helps :) (sorry I couldnt do more, it only happened once so far).
+Hi, this patch changes ioaddr_t type to u_int because it caused a
+comparsion in drivers/pcmcia/i82092.c to be always false.
 
-Can you try 2.6.3-rc3?  The questionable patch is not in 2.6.2 vanilla, 
-FWIW.
+--- linux-2.6.3-rc3/include/pcmcia/cs_types.h	2004-02-06
+13:29:21.000000000 +0100
++++ linux-2.6.3-rc4/include/pcmcia/cs_types.h	2004-02-15
+20:41:21.264547152 +0100
+@@ -39,7 +39,7 @@
+ #ifdef __arm__
+ typedef u_int   ioaddr_t;
+ #else
+-typedef u_short	ioaddr_t;
++typedef u_int	ioaddr_t;
+ #endif
+ 
+ typedef u_short	socket_t;
 
-If you could fill out a bug report at http://bugzilla.kernel.org/ and 
-include "lspci -vvv" and "dmesg" output, that would be useful.
 
-	Jeff
+Hope this helps.
 
+	Daniel Micol
 

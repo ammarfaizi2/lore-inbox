@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267241AbRGPIto>; Mon, 16 Jul 2001 04:49:44 -0400
+	id <S267244AbRGPIve>; Mon, 16 Jul 2001 04:51:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267242AbRGPItf>; Mon, 16 Jul 2001 04:49:35 -0400
-Received: from weta.f00f.org ([203.167.249.89]:16004 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S267241AbRGPIt1>;
-	Mon, 16 Jul 2001 04:49:27 -0400
-Date: Mon, 16 Jul 2001 20:49:32 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 64 bit scsi read/write
-Message-ID: <20010716204932.E11938@weta.f00f.org>
-In-Reply-To: <200107160108.f6G18fJ299454@saturn.cs.uml.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200107160108.f6G18fJ299454@saturn.cs.uml.edu>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: Yes
+	id <S267255AbRGPIvY>; Mon, 16 Jul 2001 04:51:24 -0400
+Received: from rcum.uni-mb.si ([164.8.2.10]:5892 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S267253AbRGPIvQ>;
+	Mon, 16 Jul 2001 04:51:16 -0400
+Date: Mon, 16 Jul 2001 10:50:28 +0200
+From: David Balazic <david.balazic@uni-mb.si>
+Subject: Re: Again: Linux 2.4.x and AMD Athlon
+To: puckwork@madz.net
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Message-id: <3B52AAD4.C66CCF13@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 15, 2001 at 09:08:41PM -0400, Albert D. Cahalan wrote:
+Thomas Foerster (puckwork@madz.net) wrote :
+> Hi, 
+> 
+> > Kenneth Vestergaard Schmidt wrote: 
+> >> 
+> >> Thomas Foerster wrote: 
+> >> > Seems to be the problem with the AMD optimazion in the kernel. 
+> >> 
+> >> Funny, I have only had one minor problem with my setup. It's the same 
+> >> processor, only with one 512 meg PC133 block, and the ASUS A7V133 
+> >> motherboard (which is equipped with the same chipset). My videocard is also 
+> >> the same (ASUS V-7700), but my PSU is only 300Mhz. 
+> >> 
+> 
+> > I am wondering if you are using the NVidia binary driver for X. They 
+> > seem to cause some "funny" things like SIGSEGVs and random hangs. Even 
+> > without K7 optimizations. 
+> 
+> I do. I use the version coming with redhat 7.1 
 
-    In a tree-structured filesystem, checksums on everything would
-    only cost you space similar to the number of pointers you
-    have. Whenever a non-leaf node points to a child, it can hold a
-    checksum for that child as well.
+Just to clarify : The nVidia drivers shipped with redhat 7.1 ( and any
+other version ) are the free ones from xfree86.org and not the proprietary
+ones from nVidia.
 
-    This gives a very reliable way to spot filesystem errors,
-    including corrupt data blocks.
+To avoid confusion maybe people should say 'proprietary' or 'closed source'
+instead of 'binary' as free software is 'binary' too.
 
-Actually, this is a really nice concept... have additional checksums
-and such floating about. When filesystems get to several terabytes, it
-would allws background consistency checking (as checking on boot would
-be far to slow).
+> Do they behave different when being non root? 
+> 
+> Thomas 
 
-It would also allow the fs layer to fsck the filesystem _as_ data was
-accessed if need be, which would be the case more often.
-
-
-
-  --cw
-
+-- 
+David Balazic
+--------------
+"Be excellent to each other." - Bill & Ted
+- - - - - - - - - - - - - - - - - - - - - -

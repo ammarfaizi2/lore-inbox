@@ -1,44 +1,27 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316013AbSEJOlL>; Fri, 10 May 2002 10:41:11 -0400
+	id <S316009AbSEJOvU>; Fri, 10 May 2002 10:51:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316011AbSEJOlK>; Fri, 10 May 2002 10:41:10 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:52998 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S316010AbSEJOlJ>; Fri, 10 May 2002 10:41:09 -0400
-Message-Id: <200205101438.g4AEc9X29850@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: DervishD <raul@viadomus.com>
-Subject: Re: mmap() doesn't like certain value...
-Date: Fri, 10 May 2002 17:41:12 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3CD983C5.mail1K71EX1NG@viadomus.com> <200205100810.g4A8AaX28554@Port.imtp.ilyichevsk.odessa.ua> <3CDB8740.mailBO1BW5NO@viadomus.com>
+	id <S316010AbSEJOvT>; Fri, 10 May 2002 10:51:19 -0400
+Received: from mercury.lss.emc.com ([168.159.40.77]:15632 "EHLO
+	mercury.lss.emc.com") by vger.kernel.org with ESMTP
+	id <S316009AbSEJOvT>; Fri, 10 May 2002 10:51:19 -0400
+Message-ID: <FA2F59D0E55B4B4892EA076FF8704F553D1A42@srgraham.eng.emc.com>
+From: "chen, xiangping" <chen_xiangping@emc.com>
+To: linux-kernel@vger.kernel.org
+Subject: Tcp/ip offload card driver
+Date: Fri, 10 May 2002 10:48:23 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10 May 2002 06:39, DervishD wrote:
-> >        if ((len = PAGE_ALIGN(len)) == 0)
-> >                return addr;
->
->     This is the problem.
->
-> >        if (len > TASK_SIZE)
-> >                return -EINVAL;
->
->     And is corrected just by inverting the two quoted code snips :)
+Hi,
 
-You are right
+Is there any TCP offload (TOE) card driver available on Linux?
 
->     I'll give a try to the inversion, that should work. I have
-> written a small stress program for mmap, so in a few hours the patch
-> will be ready. Must I post it here or send it directly to Marcello?
+Thanks for the info!
 
-Post here and to Marcelo. BTW, is 2.5 affected?
---
-vda
+Xiangping Chen

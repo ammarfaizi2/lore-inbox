@@ -1,43 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286895AbSBRVEc>; Mon, 18 Feb 2002 16:04:32 -0500
+	id <S286161AbSBRVDm>; Mon, 18 Feb 2002 16:03:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286263AbSBRVEX>; Mon, 18 Feb 2002 16:04:23 -0500
-Received: from dinadan.u-strasbg.fr ([130.79.74.10]:18080 "EHLO
-	dinadan.u-strasbg.fr") by vger.kernel.org with ESMTP
-	id <S286895AbSBRVEO>; Mon, 18 Feb 2002 16:04:14 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: [bug+patch] negative inode number in /proc/net/udp
-In-Reply-To: <87g03yq0ph.fsf@dinadan.u-strasbg.fr>
-From: Arnaud Giersch <giersch@icps.u-strasbg.fr>
-Organization: ICPS
-X-Face: &yL?ZRfSIk3zaRm*dlb3R4f.8RM"~b/h|\wI]>pL)}]l$H>.Q3Qd3[<h!`K6mI=+cWpg-El
- B(FEm\EEdLdS{2l7,8\!RQ5aL0ZXlzzPKLxV/OQfrg/<t!FG>i.K[5isyT&2oBNdnvk`~y}vwPYL;R
- y)NYo"]T8NlX{nmIUEi\a$hozWm#0GCT'e'{5f@Rl"[g|I8<{By=R8R>bDe>W7)S0-8:b;ZKo~9K?'
- wq!G,MQ\eSt8g`)jeITEuig89NGmN^%1j>!*F8~kW(yfF7W[:bl>RT[`w3x-C
-Date: 18 Feb 2002 22:04:12 +0100
-In-Reply-To: <87g03yq0ph.fsf@dinadan.u-strasbg.fr>
-Message-ID: <87664upkmr.fsf@dinadan.u-strasbg.fr>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
+	id <S286263AbSBRVD0>; Mon, 18 Feb 2002 16:03:26 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:30637 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S286161AbSBRVDI>; Mon, 18 Feb 2002 16:03:08 -0500
+Subject: [PATCH] Encountered a Null Pointer Problem on the SCSI Layer
+To: Jens Axboe <axboe@suse.de>, marcelo@conectiva.com.br
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OFC7A42817.7DD2C3FB-ON85256B64.00725D00@raleigh.ibm.com>
+From: "Peter Wong" <wpeter@us.ibm.com>
+Date: Mon, 18 Feb 2002 15:03:05 -0600
+X-MIMETrack: Serialize by Router on D04NM203/04/M/IBM(Release 5.0.9 |November 16, 2001) at
+ 02/18/2002 04:03:06 PM
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+A while ago, I reported that I encountered a null pointer problem
+on the SCSI layer when I was testing Mingming Cao's diskio patch
+"diskio-stat-rq-2414" on 2.4.14.
 
-There is the same problem with unix sockets.
+Mingming's patch is at http://sourceforge.net/projects/lse/.
 
---- linux.orig/net/unix/af_unix.c       Fri Dec 21 18:42:06 2001
-+++ linux/net/unix/af_unix.c    Mon Feb 18 22:01:29 2002
-@@ -1742,7 +1742,7 @@
-        {
-                unix_state_rlock(s);
- 
--               len+=sprintf(buffer+len,"%p: %08X %08X %08X %04X %02X %5ld",
-+               len+=sprintf(buffer+len,"%p: %08X %08X %08X %04X %02X %5lu",
-                        s,
-                        atomic_read(&s->refcnt),
-                        0,
+The code in sd_find_queue() that protects against accessing a
+non-existent device is not correct. After my patch was sent out,
+Pete Zaitcev of Red Hat identified a similar problem in
+sd_init_command of the same file.
 
--- 
-Arnaud
+     Let's consider sd_find_queue().
+
+     If the array pointed by rscsi_disk has been allocated,
+dpnt cannot be null.
+
+     If rscsi_disk has NOT been allocated, dpnt = &rscsi_disks[target]
+may NOT be null, and it depends on the value of target. Thus,
+"if (!dpnt)" is not sufficient anyway.
+
+     You can also look at sd_attach(), in which "if (!dpnt->device)" is
+tested, not "if (!dpnt)".
+
+     Please check.
+
+The following patch is based on the 2.4.18-pre7 code:
+---------------------------------------------------------------------------
+--- linux/drivers/scsi/sd.c   Mon Feb 18 13:36:42 2002
++++ linux-2.4.17-diskio/drivers/scsi/sd.c Mon Feb 18 13:29:34 2002
+@@ -279,7 +279,7 @@
+      target = DEVICE_NR(dev);
+
+      dpnt = &rscsi_disks[target];
+-     if (!dpnt)
++     if (!dpnt->device)
+            return NULL;      /* No such device */
+      return &dpnt->device->request_queue;
+ }
+@@ -302,7 +302,7 @@
+
+      dpnt = &rscsi_disks[dev];
+      if (devm >= (sd_template.dev_max << 4) ||
+-         !dpnt ||
++         !dpnt->device ||
+          !dpnt->device->online ||
+          block + SCpnt->request.nr_sectors > sd[devm].nr_sects) {
+            SCSI_LOG_HLQUEUE(2, printk("Finishing %ld sectors\n", SCpnt->request.nr_sectors));
+---------------------------------------------------------------------------
+
+Regards,
+Peter
+
+Wai Yee Peter Wong
+IBM Linux Technology Center, Performance Analysis
+email: wpeter@us.ibm.com
+

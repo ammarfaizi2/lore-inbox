@@ -1,75 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264179AbTIIOxS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 10:53:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264178AbTIIOxS
+	id S264191AbTIIO4x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 10:56:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264186AbTIIO4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 10:53:18 -0400
-Received: from M1008P012.adsl.highway.telekom.at ([62.47.157.236]:44673 "EHLO
-	stallburg.dyndns.org") by vger.kernel.org with ESMTP
-	id S264170AbTIIOxM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 10:53:12 -0400
-Date: Tue, 9 Sep 2003 16:53:09 +0200
-From: maximilian attems <janitor@sternwelten.at>
-To: linux-kernel@vger.kernel.org
-Cc: kj@mail.sternwelten.at, emoenke@gwdg.de
-Subject: [2.6 patch] fix aztcd.c compile warning
-Message-ID: <20030909145309.GA24405@mail.sternwelten.at>
+	Tue, 9 Sep 2003 10:56:49 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:48517 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264181AbTIIO4h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 10:56:37 -0400
+Subject: Re: [ANNOUNCE] New hardware - SGA155D dual STM-1/OC3 PCI ad
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Horvath Gyorgy <HORVAATH@tmit.bme.hu>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200309091428.h89ES0Oe015172@alpha.ttt.bme.hu>
+References: <200309091428.h89ES0Oe015172@alpha.ttt.bme.hu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1063119321.30379.19.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
+Date: Tue, 09 Sep 2003 15:55:21 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this patch tries to fix the following compile warning:
--- snipp
-drivers/cdrom/aztcd.c:379: warning: `pa_ok' defined but not used
---
+On Maw, 2003-09-09 at 15:27, Horvath Gyorgy wrote:
+>    As I see - SGA155D is a multifunction adapter in this context.
+>    Are there any driver model or technique for this situation?
+>    My guess is that I write a core driver for the hardware itself
+>    that can be compiled in the kernel (or can be modularized).
+>    This driver allows manipulating the IP-Core for the FPGA.
+>    Functional drivers are then modularized on demand.
 
-with belows patch drivers/cdrom/aztcd.c compiles without warning
-the patch also removes a comment section where pa_ok _was_ used
-the warning shows off on each single compile statistics by cherry.
-i hope this helps :)
+That is probably the right model. We do something similar with dual
+function parallel/serial cards and of course on a huge scale with USB
+where a USB hub means loading many other drivers to use the devices 
+attached to it.
 
+>    BTW Can I insmod other drivers from a kernel driver?
 
-a++ maks
+Yes. request_module() and the hotplug interface let you do that in
+various kernels. Right now for example the USB layer goes back to the
+userspace /sbin/hotplug and says "I need a driver for one of these" and
+the hotplug layer figures out what to do.
 
+> 2. Packet over SONET...
+>    Is syncppp conforming RFC1619, RFC1662, RFC2615?
+>    I can't find notes on this in syncppp.c...
 
+Syncppp is pretty basic and obsoleted by the hdlc driver stuff.
 
---- linux-2.6.0-test5/drivers/cdrom/aztcd.c	Mon Sep  8 21:50:28 2003
-+++ linux/drivers/cdrom/aztcd.c	Tue Sep  9 15:53:09 2003
-@@ -373,21 +373,6 @@
- 	} while (aztIndatum != AFL_OP_OK);
- }
- 
--/* Wait for PA_OK = drive answers with AFL_PA_OK after receiving parameters*/
--# define PA_OK pa_ok()
--static void pa_ok(void)
--{
--	aztTimeOutCount = 0;
--	do {
--		aztIndatum = inb(DATA_PORT);
--		aztTimeOutCount++;
--		if (aztTimeOutCount >= AZT_TIMEOUT) {
--			printk("aztcd: Error Wait PA_OK\n");
--			break;
--		}
--	} while (aztIndatum != AFL_PA_OK);
--}
--
- /* Wait for STEN=Low = handshake signal 'AFL_.._OK available or command executed*/
- # define STEN_LOW  sten_low()
- static void sten_low(void)
-@@ -2077,11 +2062,6 @@
- 				return;
- 			}
- 
--/*	  if (aztSendCmd(ACMD_SET_MODE)) RETURN("azt_poll 3");
--	  outb(0x01, DATA_PORT);
--	  PA_OK;
--	  STEN_LOW;
--*/
- 			if (aztSendCmd(ACMD_GET_STATUS))
- 				RETURN("azt_poll 4");
- 			STEN_LOW;
+> 3. The telephony part is not yet clear for me.
+>    For the new application in question - there is not much to do
+>    in Linux, since the mass will be driven/sunk by the
+>    hard-disks.  But it might be useful elsewhere...
+>    Anyway - I will dig-up the Linux telephony project for advice
+>    before bothering this list.
+
+Take a look at the Zaptel stuff, thats basically the T1 version of a
+winmodem but might have some interesting ideas in it.
+
+> 4. Optionally - and if I have enough time - I'd like
+>    to develop a twin-linear filesystem driver for
+>    time-stamped capture/playback for multiple channels
+>    of data - like a multi-band magnetic tape.
+>    BTW do you know an existing one?
+
+I've seen people do this in user space (just interleaving the disk in
+big chunks in the app and driving it with O_DIRECT raw access) but not
+in kernel file system space.
+
+Alan
+

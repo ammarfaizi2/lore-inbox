@@ -1,50 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129467AbQJ3WHd>; Mon, 30 Oct 2000 17:07:33 -0500
+	id <S129100AbQJ3WPE>; Mon, 30 Oct 2000 17:15:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129513AbQJ3WHX>; Mon, 30 Oct 2000 17:07:23 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:3833 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129467AbQJ3WHI>; Mon, 30 Oct 2000 17:07:08 -0500
-Date: Mon, 30 Oct 2000 20:06:55 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Re: test10-pre7
-In-Reply-To: <Pine.GSO.4.21.0010301505590.1177-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.21.0010302005100.16609-100000@duckman.distro.conectiva>
+	id <S129157AbQJ3WOz>; Mon, 30 Oct 2000 17:14:55 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:37131 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129100AbQJ3WOj>;
+	Mon, 30 Oct 2000 17:14:39 -0500
+Message-ID: <39FDF2A6.AFA0B513@mandrakesoft.com>
+Date: Mon, 30 Oct 2000 17:13:58 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Keith Owens <kaos@ocs.com.au>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: test10-pre7
+In-Reply-To: <10523.972943580@ocs3.ocs-net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Oct 2000, Alexander Viro wrote:
+Keith Owens wrote:
+> 
+> On Mon, 30 Oct 2000 17:01:20 -0500,
+> Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
+> >Keith Owens wrote:
+> >> USB still gets unresolved symbols when part is in kernel, part is in
+> >> modules and modversions are set.  Patch against 2.4.0-test10-pre7, only
+> >> affects drivers/usb/Makefile.
+> >
+> >Or instead of all that, you could simply call the core init function
+> >from init/main.c...
+> 
+> Does that work when all of usb is a module?  The point of __initcall is
+> to avoid all the conditional code that used to be in main.c.
 
-> The last one is in deactivate_page_nolock() - there we check the
-> ->mapping without pagecache_lock and without page lock. Hell
-> knows whether it's a bug or not. Rik?
+When all of usb is a module, there are no initcalls.
 
-Shouldn't be a problem, since we'll have the lock at a time
-we actually /do/ something with those pointers.
+If you need static initialization for in-kernel init, here is the
+shortest solution I can come up with:
 
-In deactivate_page_nolock(), all we can modify is the list
-in which the page resides, the flags indicating on which
-list the page is and the referenced bit + page age. No other
-stuff is touched.
+/********************* usb.c **********************/
 
-Furthermore, the locking order (first pagecache lock, then
-the page_list_lock) would make it difficult to do this right...
+int usbcore_init() {...}
 
-regards,
+#ifdef MODULE
+module_init(usbcore_init);
+#endif
+module_exit(usbcore_exit);
 
-Rik
---
-"What you're running that piece of shit Gnome?!?!"
-       -- Miguel de Icaza, UKUUG 2000
+/******************** main.c ******************/
 
-http://www.conectiva.com/		http://www.surriel.com/
+extern int usbcore_init (void);
+	/* ... */
+#ifdef CONFIG_USB
+	usbcore_init();
+#endif
 
+-- 
+Jeff Garzik             | "Mind if I drive?"  -Sam
+Building 1024           | "Not if you don't mind me clawing at the
+MandrakeSoft            |  dash and shrieking like a cheerleader."
+                        |                     -Max
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

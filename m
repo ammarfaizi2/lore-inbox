@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262146AbUKDJXO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262147AbUKDJkR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262146AbUKDJXO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 04:23:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262147AbUKDJXO
+	id S262147AbUKDJkR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 04:40:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262149AbUKDJkR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 04:23:14 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:60310 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262146AbUKDJW2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 04:22:28 -0500
-Date: Thu, 4 Nov 2004 10:21:59 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Daniel Drake <dsd@gentoo.org>
+	Thu, 4 Nov 2004 04:40:17 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:22201 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262147AbUKDJkN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 04:40:13 -0500
+X-Envelope-From: kraxel@bytesex.org
+To: John McCutchan <ttb@tentacle.dhs.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Permit READ_BUFFER_CAPACITY in SG_IO command table
-Message-ID: <20041104092158.GF14993@suse.de>
-References: <200411040535.42286.dsd@gentoo.org>
-Mime-Version: 1.0
+Subject: Re: [PATCH] bttv winfast 2000 tuner type
+References: <1099545507.24027.1.camel@vertex>
+From: Gerd Knorr <kraxel@bytesex.org>
+Organization: SUSE Labs, Berlin
+Date: 04 Nov 2004 10:27:50 +0100
+In-Reply-To: <1099545507.24027.1.camel@vertex>
+Message-ID: <87r7na9d61.fsf@bytesex.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411040535.42286.dsd@gentoo.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 04 2004, Daniel Drake wrote:
-> Hi,
-> 
-> While burning CD's on 2.6.9 with cdrdao, I noticed it complaining repeatedly:
->  ERROR: Read buffer capacity failed.
-> 
-> It tries to read the buffer capacity (MMC command 0x5c) in order to produce a 
-> percentage reading of how full the buffer is.
-> 
-> This patch permits the READ_BUFFER_CAPACITY command again. Please apply.
-> 
-> Signed-off-by: Daniel Drake <dsd@gentoo.org>
+John McCutchan <ttb@tentacle.dhs.org> writes:
 
-Looks fine, thanks!
+> Trivial patch that lets you configure the tuner type of your winfast
+> 2000 tuner card. The default value is the previous hard coded value.
+
+No.  Compile time options are evil.
+
+There is a insmod option for that (tuner=<nr>) since ages because that
+is a common issue with tv cards that they are shipped with different
+tuners in different regions of the world and it isn't allways known
+how to figure which one actually is used.
+
+Just put "option bttv tuner=whatever" into your modprobe.conf and be
+done with it.
+
+  Gerd
 
 -- 
-Jens Axboe
-
+#define printk(args...) fprintf(stderr, ## args)

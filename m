@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313571AbSFEH52>; Wed, 5 Jun 2002 03:57:28 -0400
+	id <S313314AbSFEIMY>; Wed, 5 Jun 2002 04:12:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313563AbSFEH51>; Wed, 5 Jun 2002 03:57:27 -0400
-Received: from natwar.webmailer.de ([192.67.198.70]:19935 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S313558AbSFEH50>; Wed, 5 Jun 2002 03:57:26 -0400
-Date: Wed, 5 Jun 2002 09:52:56 +0200
-From: Kristian Peters <kristian.peters@korseby.net>
-To: kladit@t-online.de (Klaus Dittrich)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: xosview
-Message-Id: <20020605095256.0a12ed29.kristian.peters@korseby.net>
-In-Reply-To: <200206050607.g556721s005527@df1tlpc.local.here>
-X-Mailer: Sylpheed version 0.7.1claws7 (GTK+ 1.2.10; i386-redhat-linux)
-X-Operating-System: i686-redhat-linux 2.4.19-pre10
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S313416AbSFEIMX>; Wed, 5 Jun 2002 04:12:23 -0400
+Received: from albatross-ext.wise.edt.ericsson.se ([193.180.251.49]:46253 "EHLO
+	albatross.wise.edt.ericsson.se") by vger.kernel.org with ESMTP
+	id <S313314AbSFEIMV>; Wed, 5 Jun 2002 04:12:21 -0400
+Message-ID: <3CFDC7B1.450B625B@eed.ericsson.se>
+Date: Wed, 05 Jun 2002 10:11:29 +0200
+From: "Ronny T. Lampert (EED)" <Ronny.Lampert@eed.ericsson.se>
+Organization: Ericsson EuroLab
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: =?iso-8859-1?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>
+CC: Andrew Morton <akpm@zip.com.au>, john slee <indigoid@higherplane.net>,
+        Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
+        Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: 3c59x driver: card not responding after a while
+In-Reply-To: <3CFB21C5.27BBFB66@aitel.hist.no> <Pine.LNX.4.44.0206031050170.10836-100000@netfinity.realnet.co.sz> <20020603125752.GE12322@higherplane.net> <3CFBCDBD.DF675D57@zip.com.au> <3CFBFD41.2020505@wanadoo.fr>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kladit@t-online.de (Klaus Dittrich) wrote:
-> Since 2.4.18p8 xosview does not work anymore.
+Hi,
 
-That's a known problem. xosview tries to access /proc/stat that has a wierd format and a buffer goes beyond 1024 in xosview. I was also effected on this problem. It's been fixed in the next version of 2.4.19 (probably -rc1). In the meantime you can apply this patch:
-
-diff -ur linux-2.4.19-pre9.org/fs/proc/proc_misc.c linux-2.4.19-pre9/fs/proc/proc_misc.c
---- linux-2.4.19-pre9.org/fs/proc/proc_misc.c	Wed May 29 01:26:17 2002
-+++ linux-2.4.19-pre9/fs/proc/proc_misc.c	Thu May 30 03:09:07 2002
-@@ -322,7 +322,7 @@
- #if !defined(CONFIG_ARCH_S390)
- 	for (i = 0 ; i < NR_IRQS ; i++)
- 		proc_sprintf(page, &off, &len,
--			     " %u", kstat_irqs(i) + 1000000000);
-+			     " %u", kstat_irqs(i));
- #endif
+> > That driver is solid for SMP.  It's possible that the BP6
+> > is losing its IRQ routing assignments, or the APIC is
+> > getting stuck.  We had extensive problems with that last
+...
+> > It seems to affect network cards most because they typically
+> > generate the most interrupts.
+> > Try booting the machine with the `noapic' option.
+Even on an UP and no-MP-capable K6? IMHO this won't help (at least
+myself).
  
- 	proc_sprintf(page, &off, &len, "\ndisk_io: ");
+> and myself) talked about my 3C905C-TX not willing to share an
+> interrupt with my SBLive!...
+> I've spotted the same problem, this time sharing an interrupt
+> between my 3C905C-TX and an Intel i82559 10/100 ethernet
+> controller (kernel is 2.4.19pre7).
+I forgot to mention that there is only the 3c905 and a gfxcard (AGP) in
+the box, no interrupts shared - I THOUGHT!
+Then a quick lspci -v revealed both sharing IRQ 11. Will try to reassign
+IRQs.
 
-
-*Kristian
-
-  :... [snd.science] ...:
- ::                             _o)
- :: http://www.korseby.net      /\\
- :: http://gsmp.sf.net         _\_V
-  :.........................:
+Thank you! :-)
+Hope this is solved.
+-- 
+Ronny T. Lampert		email: Ronny.Lampert@eed.ericsson.se
+System Administrator		voice: +49 911 255 1214
+Ericsson Eurolab Deutschland	fax:   +49 911 255 1960
+Nuernberg, Germany

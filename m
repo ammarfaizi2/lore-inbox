@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282035AbRKVEJs>; Wed, 21 Nov 2001 23:09:48 -0500
+	id <S282039AbRKVE2S>; Wed, 21 Nov 2001 23:28:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282036AbRKVEJj>; Wed, 21 Nov 2001 23:09:39 -0500
-Received: from 24-240-35-67.hsacorp.net ([24.240.35.67]:14720 "HELO
-	majere.epithna.com") by vger.kernel.org with SMTP
-	id <S282031AbRKVEJY>; Wed, 21 Nov 2001 23:09:24 -0500
-Date: Wed, 21 Nov 2001 23:09:20 -0500 (EST)
-From: <listmail@majere.epithna.com>
-To: war <war@starband.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Swap vs No Swap.
-In-Reply-To: <3BFC5A9B.915B77DF@starband.net>
-Message-ID: <Pine.LNX.4.33.0111212308110.15188-100000@majere.epithna.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282040AbRKVE2J>; Wed, 21 Nov 2001 23:28:09 -0500
+Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:39942
+	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
+	id <S282039AbRKVE2D>; Wed, 21 Nov 2001 23:28:03 -0500
+Message-Id: <5.1.0.14.2.20011121232051.01dab468@whisper.qrpff.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 21 Nov 2001 23:24:02 -0500
+To: Vincent Sweeney <v.sweeney@dexterus.com>,
+        vda <vda@port.imtp.ilyichevsk.odessa.ua>
+From: Stevie O <stevie@qrpff.net>
+Subject: Re: [BUG] Bad #define, nonportable C, missing {}
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3BFB9FAE.DB9B6003@dexterus.com>
+In-Reply-To: <01112112401703.01961@nemo>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Its not so much that Swap speeds anything up, its that it allows the
-machine process things more efficently because it can do more at once.
+At 12:35 PM 11/21/2001 +0000, Vincent Sweeney wrote:
+> > Bad code style. Bad name (sounds like 'module inc').
+> > I can't even tell from this define what the hell it is trying to do:
+> > x++ will return unchanged x, then we obtain (x mod y),
+> > then we store it into x... and why x++ then??!
+> > Alan, seems like you can help here...
+>
+>Go read up on C operator precedence. Unary ++ comes before %, so if we
+>rewrite the #define to make it more "readable" it would be #define
+>MODINC(x,y) (x = (x+1) % y)
+
+But x++ is postincrement though. That means the value of 'x' is inserted, 
+and after the expression is evaluated, x is incremented. Right?
+
+If we were going to be semiobscure, wouldn't the correct code be
+
+#define MODINC(x,y) (x = ++x % y)
+
+Btw, to the original guy: this loops 'x' around between 0 and (y-1) -- 
+i.e., if y=5, and x=0, successive "calls" to this #define would do
+
+MODINC(x,y);  // x=1
+MODINC(x,y);  // x=2
+MODINC(x,y);  // x=3
+MODINC(x,y);  // x=4
+MODINC(x,y);  // x=0
+MODINC(x,y);  // x=1
+MODINC(x,y);  // x=2
+MODINC(x,y);  // x=3
+...
 
 
-On Wed, 21 Nov 2001, war wrote:
 
-> I do not understand something.
->
-> How can having swap speed ANYTHING up?
->
-> RAM = 1000MB/s.
-> DISK = 10MB/s
->
-> Ram is generally 1000x faster than a hard disk.
->
-> No swap = fastest possible solution.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+
+--
+Stevie-O
+
+Real programmers use COPY CON PROGRAM.EXE
 

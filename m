@@ -1,38 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261315AbTEQI5G (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 May 2003 04:57:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbTEQI5G
+	id S261308AbTEQIyK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 May 2003 04:54:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbTEQIyK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 May 2003 04:57:06 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:29511 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S261315AbTEQI5F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 May 2003 04:57:05 -0400
-Date: Sat, 17 May 2003 09:09:51 +0000
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Andi Kleen <ak@muc.de>, Arjan van de Ven <arjanv@redhat.com>,
-       john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org,
-       David Mosberger <davidm@napali.hpl.hp.com>
-Subject: Re: time interpolation hooks
-Message-ID: <20030517090951.D31765@devserv.devel.redhat.com>
-References: <20030516142311.3844ee97.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 17 May 2003 04:54:10 -0400
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:57844 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S261308AbTEQIyJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 May 2003 04:54:09 -0400
+From: Eugene Weiss <eweiss@sbcglobal.net>
+Reply-To: eweiss@sbcglobal.net
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] submount: another removeable media handler
+Date: Sat, 17 May 2003 02:05:00 -0400
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030516142311.3844ee97.akpm@digeo.com>; from akpm@digeo.com on Fri, May 16, 2003 at 02:23:11PM -0700
+Message-Id: <200305170205.00407.eweiss@sbcglobal.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 16, 2003 at 02:23:11PM -0700, Andrew Morton wrote:
+> > how is it different from what automounter does?
+> 
+>>Autofs works by creating a special filesystem above the vfs layer, and 
+passing 
+>> requests and data back and forth.   Submount actually does much less than 
+>> this- it puts a special filesystem underneath the real one, and the only 
+>> things it returns to the VFS layer are error messages.  It handles no IO 
+>>operations whatsoever.
+>> 
+>>Peter Anvin has called using the automounter for removeable media "abuse."
+>> Submount is designed for it.
+>> 
 
-I rather would have a "timer source" object that
-provides those 2 functions as methods, so that one can write "timer" drivers
-as more or less stand alone units that register themselves
-with the generic timekeeping unit (probably with an accuracy score so that
-the generic code can pick one in the event of multiple timer sources). 
-For x86 I wrote an acpitimer "driver" last week (for 2.4) and it
-gets messy if you have those 2 functions as just independent
-function pointers ....
+>Sure, but it's not clear to me that you have listened to me saying
+>*why* it is abuse.
+
+>Basically, in my opinion removable media should be handled by insert
+>and removal detection, not by access detection.  Obviously, there are
+>some sticky issues with that in the case where media can be removed
+>without notice (like PC floppies or other manual-eject devices), but
+>overall I think that is the correct approach.
+>
+>	-hpa
+
+I managed to read several of your warnings about using autofs for media 
+without coming across an explanation of why.  I just assumed that as 
+maintainer, you had good reasons to do so.  I more-or-less agree with you 
+about the desirability of insert and removal detection.  I'm not sure if it 
+could ever be made to work for floppies, but there is no reason why one 
+solution should fit all cases.  If there were common ioctls which could check 
+the insertion and removal status of the various drives, I might have taken 
+that approach.  
+
+I wanted to get the same functionality as supermount without the instability, 
+and as far as I can tell, I have succeeded.  It's not ideal, but it works for 
+me, and hopefully will work for others as well until something better is 
+produced.
+
+Eugene

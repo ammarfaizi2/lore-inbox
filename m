@@ -1,67 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315783AbSHFUr3>; Tue, 6 Aug 2002 16:47:29 -0400
+	id <S316187AbSHFUwR>; Tue, 6 Aug 2002 16:52:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315805AbSHFUr2>; Tue, 6 Aug 2002 16:47:28 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:61990 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id <S315783AbSHFUrZ>; Tue, 6 Aug 2002 16:47:25 -0400
-Date: Tue, 6 Aug 2002 21:51:32 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andrew Morton <akpm@zip.com.au>, "Seth, Rohit" <rohit.seth@intel.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: large page patch
-In-Reply-To: <Pine.LNX.4.33.0208012133111.1857-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0208062043310.1921-100000@localhost.localdomain>
+	id <S316161AbSHFUvJ>; Tue, 6 Aug 2002 16:51:09 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:30945 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S316187AbSHFUup>;
+	Tue, 6 Aug 2002 16:50:45 -0400
+Message-ID: <3D50367E.85EF0968@us.ibm.com>
+Date: Tue, 06 Aug 2002 13:50:06 -0700
+From: mingming cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: Hugh Dickins <hugh@veritas.com>
+CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Breaking down the global IPC locks
+References: <Pine.LNX.4.44.0208061556160.1545-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some comments on Rohit's large page patch (looking at Andrew's version).
+Hugh Dickins wrote:
+> 
+> 1. To reduce dirty cacheline bouncing, shouldn't the per-id spinlock
+>    be in the kern_ipc_perm structure pointed to by entries[lid], not
+>    mixed in with the pointers of the entries array?  I expect a few
+>    areas would need to be reworked if that change were made, easy to
+>    imagine wanting the lock/unlock before/after the structure is there.
+> 
+You are right at the cacheline bouncing issue.  I will make that change.
 
-I agree with keeping the actual large page handling separate, per arch.
+> 2. I worry more about the msg_ids.sem, sem_ids.sem, shm_ids.sem which
+>    guard these areas too.  Yes, there are some paths where the ipc_lock
+>    is taken without the down(&ipc_ids.sem) (perhaps those are even the
+>    significant paths, I haven't determined); but I suspect there's more
+>    to be gained by avoiding those (kernel)semaphores than by splitting
+>    the spinlocks.
+>
+I don't worry the ipc_ids.sem very much.  They are used to protect the
+IPC info, which is not updated quiet often (by operation such as
+semctl()). Significant IPC operations, like semop(), msgsnd() and
+msgrcv(), need the access to the IPC ID, where only the ipc_lock() is
+needed.
+ 
+> 3. You've added yet another level of locking, the read/write-locking
+>    on ary_lock.  That may be the right way to go, but I think there's
+>    now huge redundancy between that and the ipc_ids.sem - should be
+>    possible to get rid of one or the other.
+>
+They look similar at the first glance. But they serve for different
+purposes.  The ipc_ids.sem is used to protect the IPC infos, while the
+ary_lock is used to protect the IPC ID array.  This way we could do
+semctl() and semop() in parallel.
+ 
+> 4. You've retained the ids->ary field when you should have removed it;
+>    presumably retained so ipc_lockall,ipc_unlockall compile, but note
+>    that now ipc_lockall only locks against another ipc_lockall, which
+>    is certainly not its intent.  If it's essential (it's only used for
+>    SHM_INFO), then I think you need to convert it to a lock on ary_lock.
+> 
+Thanks for point this out to me. I need to get ipc_lockall/ipc_unlockall
+fixed.
 
-I agree that it's sensible to focus upon _large_ pages (e.g. 4MB) here;
-grouping several pages together as superpages (e.g. 64KB), for non-x86
-TLB or other reasons, better handled automatically in another project.
-
-I agree that large pages be kept right away from swap (VM_RESERVE).
-
-But I disagree with new interfaces distinct from known mmap/shm/tmpfs
-usage, I think they will cause rather than save trouble.  It's using
-do_mmap_pgoff anyway, why not mmap itself?  Much prefer MAP_LARGEPAGE,
-SHM_LARGEPAGE - or might /dev/ZERO and TMPFS help, each on large pages?
-
-munmap, mprotect, mremap patches are deficient: they just check whether
-the first vma is VM_LARGEPAGE, but munmap and mprotect (and mremap's
-do_munmap in MREMAP_MAYMOVE|MREMAP_FIXED case) may span several vmas.
-
-So, must decide what to do when a VM_LARGEPAGE falls within do_munmap
-span: pre-scan would waste time, we rely on unmap_region to unmap
-at least length specified by user, we're not interested in splitting
-VM_LARGEPAGE areas, so I suggest when a VM_LARGEPAGE area falls partly
-or wholly within do_munmap span, it be wholly unmapped.  In which case,
-no need for sys_free_large_pages and sys_unshare_large_pages.
-
-sys_get_large_pages, if retained as a separate syscall,
-would be easier to understand if named sys_mmap_large_pages?
-
-sys_share_large_pages: I'm having a lot of difficulty with this one,
-and its set_lp_shm_seg.  Share? but it says MAP_PRIVATE (whereas
-sys_get_large_pages forces MAP_SHARED).  Key?  we got that from a
-prior shmget? so already there's a tmpfs inode for this, and now
-we allocate some other inode?  No, I think it would be better off
-integrated a little more within tmpfs (perhaps no SHM_LARGEPAGE
-at all, just ordinary files in a TMPFS?  Rohit mentioned wanting
-ability to execute, straightforward from TMPFS file).
-
-change_large_page_mem_size: wouldn't it be better as
-set_large_page_mem_size, instead of by increments/decrements?
-
-Whitespace offences, would benefit from a pass through Lindent.
-
-Hugh
-
+Mingming

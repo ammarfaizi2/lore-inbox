@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263041AbUEOCbI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264623AbUEOCht@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263041AbUEOCbI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 22:31:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264391AbUEOCbI
+	id S264623AbUEOCht (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 22:37:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264641AbUEOCht
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 22:31:08 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:7404 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263041AbUEOCbF (ORCPT
+	Fri, 14 May 2004 22:37:49 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:34547 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S264623AbUEOChp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 22:31:05 -0400
-To: Adam Litke <agl@us.ibm.com>
-Cc: akpm <akpm@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       fastboot@lists.osdl.org, drepper@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] Re: [announce] kexec for linux 2.6.6
-References: <20040511212625.28ac33ef.rddunlap@osdl.org>
-	<40A1AF53.3010407@redhat.com>
-	<m13c66qicb.fsf@ebiederm.dsl.xmission.com> <40A243C8.401@redhat.com>
-	<m1brktod3f.fsf@ebiederm.dsl.xmission.com>
-	<40A2517C.4040903@redhat.com>
-	<m17jvhoa6g.fsf@ebiederm.dsl.xmission.com>
-	<20040512143233.0ee0405a.rddunlap@osdl.org>
-	<m1wu3fy46w.fsf@ebiederm.dsl.xmission.com>
-	<1084558463.9305.33.camel@agtpad>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 14 May 2004 20:25:49 -0600
-In-Reply-To: <1084558463.9305.33.camel@agtpad>
-Message-ID: <m11xlmxw7m.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 14 May 2004 22:37:45 -0400
+Date: Fri, 14 May 2004 20:55:32 -0500 (EST)
+Message-Id: <20040514.205532.07641094.wscott@bitmover.com>
+To: elenstev@mesatop.com
+Cc: adi@bitmover.com, scole@lanl.gov, support@bitmover.com, akpm@osdl.org,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 1352 NUL bytes at the end of a page?
+From: Wayne Scott <wscott@bitmover.com>
+In-Reply-To: <200405141854.33613.elenstev@mesatop.com>
+References: <200405131723.15752.elenstev@mesatop.com>
+	<20040514165311.GC6908@bitmover.com>
+	<200405141854.33613.elenstev@mesatop.com>
+X-Mailer: Mew version 4.0.64 on Emacs 21.3 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Litke <agl@us.ibm.com> writes:
+From: Steven Cole <elenstev@mesatop.com>
+> [steven@spc BK]$ ls -ls foo/RESYNC/SCCS/*
+> 40048 -r--r--r--  1 steven steven 41007273 May 14 18:08 foo/RESYNC/SCCS/s.ChangeSet
+>    68 -r--r--r--  1 steven steven    67791 May 14 18:11 foo/RESYNC/SCCS/s.CREDITS
+>    76 -r--r--r--  1 steven steven    75264 May 14 18:11 foo/RESYNC/SCCS/s.MAINTAINERS
+>   124 -r--r--r--  1 steven steven   124747 May 14 18:11 foo/RESYNC/SCCS/s.Makefile
+>   
+> Let me know if you want any of these files.  I can compress them and send them
+> the usual way.
 
-> On Thu, 2004-05-13 at 22:21, Eric W. Biederman wrote:
-> > Also been work on x86-64 and ppc32.   So if we are going to reserve
-> > syscall numbers  it would also be nice to have those reserved as well.
-> 
-> Don't forget about ppc64.
+scan the ChangeSet file for nulls.
 
-Randy already mentioned it.  :)
-Making the list of at least attempted ports:
-
-x86, ppc64, ia64, x86-64, ppc32
-
-But x86 and ppc64 seem to have the most developer interest.
-
-Eric
+-Wayne

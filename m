@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319009AbSHUTaw>; Wed, 21 Aug 2002 15:30:52 -0400
+	id <S319205AbSHUTeK>; Wed, 21 Aug 2002 15:34:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319073AbSHUTav>; Wed, 21 Aug 2002 15:30:51 -0400
-Received: from brynhild.mtroyal.ab.ca ([142.109.10.24]:30943 "EHLO
-	brynhild.mtroyal.ab.ca") by vger.kernel.org with ESMTP
-	id <S319009AbSHUTat>; Wed, 21 Aug 2002 15:30:49 -0400
-Date: Wed, 21 Aug 2002 13:34:53 -0600 (MDT)
-From: James Bourne <jbourne@mtroyal.ab.ca>
-To: Hugh Dickins <hugh@veritas.com>
-cc: "Reed, Timothy A" <timothy.a.reed@lmco.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Hyperthreading
-In-Reply-To: <Pine.LNX.4.44.0208211826180.10811-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0208211242440.10117-100000@skuld.mtroyal.ab.ca>
+	id <S319117AbSHUTeK>; Wed, 21 Aug 2002 15:34:10 -0400
+Received: from tufnell.london1.poggs.net ([193.109.194.18]:23786 "EHLO
+	tufnell.london1.poggs.net") by vger.kernel.org with ESMTP
+	id <S319205AbSHUTeK>; Wed, 21 Aug 2002 15:34:10 -0400
+Date: Wed, 21 Aug 2002 20:38:01 +0100 (BST)
+From: Peter Hicks <pwh@poggs.co.uk>
+X-X-Sender: pwh@tufnell.london1.poggs.net
+Reply-To: peter.hicks@poggs.co.uk
+To: alan@lxorguk.ukuu.org.uk
+cc: cc@poggs.co.uk, <linux-kernel@vger.kernel.org>
+Subject: More on EFS bug
+Message-ID: <Pine.LNX.4.44.0208212031530.21363-100000@tufnell.london1.poggs.net>
 MIME-Version: 1.0
-X-scanner: scanned by Inflex 1.0.12.2 - (http://pldaniels.com/inflex/)
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Aug 2002, Hugh Dickins wrote:
+Hi Alan
 
-> You do need CONFIG_SMP and a processor capable of HyperThreading,
-> i.e. Pentium 4 XEON; but CONFIG_MPENTIUM4 is not necessary for HT,
-> just appropriate to that processor in other ways.
+Here's a little more on the problem.
 
-I was under the impression that the only CPU capable of hyperthreading was
-the P4 Xeon.  Is this not correct?  I don't know of any other CPUs that
-have the ht feature.
+I've restarted my system, and I could mount the CD fine - modprobe efs, and
+the kernel recognises the filesystem without a helping hand.  I noticed I was
+using ide-scsi.o for writing last night, so I modprobe'd in scsi_mod,
+sr_mod, cdrom and ide-scsi, mounted the CD, and instant problem.
 
-Also, looking at setup.c it's hard to determine if CONFIG_SMP is
-actually required, but it doesn't look like it...
+The problem isn't the freshly burnt CD, as I tried with the original SGI CD,
+which shows the same problem using ide-scsi, but is fine when I access things
+natively over IDE.
 
-Regards
-James Bourne
+Hope the extra detail is of use.
 
-> 
-> Hugh
-> 
-
--- 
-James Bourne, Supervisor Data Centre Operations
-Mount Royal College, Calgary, AB, CA
-www.mtroyal.ab.ca
-
-******************************************************************************
-This communication is intended for the use of the recipient to which it is
-addressed, and may contain confidential, personal, and or privileged
-information. Please contact the sender immediately if you are not the
-intended recipient of this communication, and do not copy, distribute, or
-take action relying on it. Any communication received in error, or
-subsequent reply, should be deleted or destroyed.
-******************************************************************************
+Best wishes,
 
 
-"There are only 10 types of people in this world: those who
-understand binary and those who don't."
-
+Peter.
 

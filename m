@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270234AbTHHKIv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 06:08:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270375AbTHHKIu
+	id S270498AbTHHKXS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 06:23:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270630AbTHHKXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 06:08:50 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:61712 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S270234AbTHHKIt (ORCPT
+	Fri, 8 Aug 2003 06:23:18 -0400
+Received: from gate.corvil.net ([213.94.219.177]:42503 "EHLO corvil.com")
+	by vger.kernel.org with ESMTP id S270498AbTHHKXR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 06:08:49 -0400
-Date: Fri, 8 Aug 2003 12:03:45 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6: Problem multiple bool/tristate prompts
-In-Reply-To: <20030807235905.GO16091@fs.tum.de>
-Message-ID: <Pine.LNX.4.44.0308081135520.714-100000@serv>
-References: <20030807235905.GO16091@fs.tum.de>
+	Fri, 8 Aug 2003 06:23:17 -0400
+Message-ID: <3F337A1D.8020707@draigBrady.com>
+Date: Fri, 08 Aug 2003 11:23:25 +0100
+From: P@draigBrady.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: csg <chr@abelard.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Readonly mounted ext2 filesystem partition changeable: Bug or
+ Feature?
+References: <oprtmunmkc06yy9w@smtp.1und1.com>
+In-Reply-To: <oprtmunmkc06yy9w@smtp.1und1.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Fri, 8 Aug 2003, Adrian Bunk wrote:
-
-> config BLK_DEV_PS2
->         tristate "PS/2 ESDI hard disk support" if BROKEN_MODULAR
->         bool "PS/2 ESDI hard disk support" if !BROKEN_MODULAR
+csg wrote:
+> [PLEASE copy any answer to this posting to
+>    chr@abelard.de
+> Thanks.]
 > 
+> Hello,
 > 
-> Every "make *config" gives the warning
+> Short: I have seen changes made to a readonly mounted ext2 filesystem by
+> communicating with /sbin/init via /dev/initctl. This strange behaviour
+> goes away while moving /dev into RAM by using DEVFS.
 > 
->   drivers/block/Kconfig:45: prompt redefined
->   drivers/block/Kconfig:45:warning: type of 'BLK_DEV_PS2' redefined from 
->   'tristate' to 'boolean'
-> 
-> and the symbol is handled as tristate although BROKEN_MODULAR isn't
-> defined.
+> In my opinion this is a bug. Or is it a feature?
 
-A symbol can have only a single type and the warning is a bit misleading, 
-the new type definition is simply ignored.
-I'm not sure what you're trying makes really sense, but you have to use a 
-separate symbol:
+A bug that is already fixed:
+http://marc.theaimsgroup.com/?t=105414508000003&r=1&w=2
 
-config BLK_DEV_PS2_B
-	bool "PS/2 ESDI hard disk support" if !BROKEN_MODULAR
-
-config BLK_DEV_PS2
-	tristate "PS/2 ESDI hard disk support" if BROKEN_MODULAR
-	default BLK_DEV_PS2_B
-
-bye, Roman
+Pádraig.
 

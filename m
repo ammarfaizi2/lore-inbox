@@ -1,91 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267931AbRGRVTP>; Wed, 18 Jul 2001 17:19:15 -0400
+	id <S267932AbRGRVWP>; Wed, 18 Jul 2001 17:22:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267930AbRGRVTF>; Wed, 18 Jul 2001 17:19:05 -0400
-Received: from smarty.smart.net ([207.176.80.102]:22802 "EHLO smarty.smart.net")
-	by vger.kernel.org with ESMTP id <S267931AbRGRVSz>;
-	Wed, 18 Jul 2001 17:18:55 -0400
-From: Rick Hohensee <humbubba@smarty.smart.net>
-Message-Id: <200107182133.RAA00850@smarty.smart.net>
-Subject: elevator with layers
-To: linux-kernel@vger.kernel.org
-Date: Wed, 18 Jul 2001 17:33:58 -0400 (EDT)
-X-Mailer: ELM [version 2.5 PL3]
+	id <S267930AbRGRVWF>; Wed, 18 Jul 2001 17:22:05 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:41992 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S267933AbRGRVVs>; Wed, 18 Jul 2001 17:21:48 -0400
+Date: Wed, 18 Jul 2001 16:50:37 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Inclusion of zoned inactive/free shortage patch 
+In-Reply-To: <Pine.LNX.4.33L.0107181016500.27454-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.LNX.4.21.0107181648240.8651-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A guy posted some test results based on some code like this...
-
-#include <stdio.h>
-#include <assert.h>
-
-#define TEST_SZ 25000000
-#define RD_BUFF_SZ 5000
-int main(int argc, const char **argv, const char **env)
-{
-    FILE* fp;
-
-    if(argc > 1) fp = fopen(argv[1], "r+");
-    else fp =tmpfile();
-    if(NULL != fp) {
-        int j = -1;
-        int o;
-        while(1) {
-            if(++j != TEST_SZ) {
-                if (j == (TEST_SZ - RD_BUFF_SZ) ) o = ftello(fp);
-                fwrite(&j, sizeof(int), 1, fp);
-            } else {
-                int i, buffer[RD_BUFF_SZ];
-                fflush(fp);
-                fseek(fp, o, SEEK_SET);
-                fread(buffer, sizeof(int), sizeof(buffer), fp);
-                printf("Validating end of file writes\n");
-                for(i = (RD_BUFF_SZ - 1); i >= 0; i--) {
-                    assert(buffer[i] == --j) ;
-                }
-                rewind(fp);
-                j = -1;
-            }
-        }
-        return 1;
-    }
-    return 0;
-}
-
-That's not it exactly. o wasn't an int. Probably a long long by some other
-name. I don't know what he's trying to do with the above, but I believe
-the following has the same basic action...
-
-#include <stdio.h>
-#include <assert.h>
-
-int main () {
-
-int i, j, buffer[5000], isize, bufsize;
-
-isize = sizeof(int);
-bufsize = sizeof(buffer);
-
-FILE * stream = tmpfile();
-
-top:    j = -1;
-        fflush(stream);
-        fseek(stream, 0, SEEK_SET);
-        fread(buffer, isize, bufsize, stream);
-        printf("x            ");
-        for(i = 4999; i >=0 ; i --) { assert(buffer[i] == --j) ; }
-        rewind(stream);
-goto top ;
-}
 
 
-which should be a bit easier to assess if I'm right about what it's doing.
-There's probably still some stuff there that can go away, but I'm not
-familiar with rewind() and friends.
+On Wed, 18 Jul 2001, Rik van Riel wrote:
 
-Rick Hohensee
-						www.clienux.com
+> On Tue, 17 Jul 2001, Marcelo Tosatti wrote:
+> 
+> > The following patch (against 2.4.6-ac2, already merged in 2.4.6-ac3) adds
+> > specific perzone inactive/free shortage handling code.
+> 
+> Marcelo, now that you have the nice VM statistics
+> patch, do you have some numbers on how this patch
+> affects the system, 
+
+Yes. 
+
+With the old code, I've seen zone specific shortages which caused the
+kernel to free/deactivate pages from all zones.
+
+> or is this patch based on guesswork ?  ;)
+
+Even if I did not had the stats, its senseless to free/deactivate pages
+from zones which do not need to.
+ 
+The old behaviour was fundamentally broken.
+

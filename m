@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129199AbRBYN6A>; Sun, 25 Feb 2001 08:58:00 -0500
+	id <S129216AbRBYOAk>; Sun, 25 Feb 2001 09:00:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129216AbRBYN5v>; Sun, 25 Feb 2001 08:57:51 -0500
-Received: from f00f.stub.clear.net.nz ([203.167.224.51]:64269 "HELO
-	metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S129199AbRBYN5l>; Sun, 25 Feb 2001 08:57:41 -0500
-Date: Mon, 26 Feb 2001 02:57:36 +1300
-From: Chris Wedgwood <cw@f00f.org>
-To: Werner Almesberger <Werner.Almesberger@epfl.ch>
-Cc: netdev@oss.sgi.com,
-        Linux Knernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: New net features for added performance
-Message-ID: <20010226025736.A13227@metastasis.f00f.org>
-In-Reply-To: <3A9842DC.B42ECD7A@mandrakesoft.com> <3A986EDB.363639E7@coplanar.net> <20010225162357.A12123@metastasis.f00f.org> <20010225134156.K18271@almesberger.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010225134156.K18271@almesberger.net>; from Werner.Almesberger@epfl.ch on Sun, Feb 25, 2001 at 01:41:56PM +0100
-X-No-Archive: Yes
+	id <S129225AbRBYOAa>; Sun, 25 Feb 2001 09:00:30 -0500
+Received: from mons.uio.no ([129.240.130.14]:4326 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S129216AbRBYOAT>;
+	Sun, 25 Feb 2001 09:00:19 -0500
+To: David Fries <dfries@umr.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Stale NFS handles on 2.4.2
+In-Reply-To: <20010214002750.B11906@unthought.net>
+	<20010224141855.B12988@d-131-151-189-65.dynamic.umr.edu>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Type: text/plain; charset=US-ASCII
+Date: 25 Feb 2001 15:00:11 +0100
+In-Reply-To: David Fries's message of "Sat, 24 Feb 2001 14:18:55 -0600"
+Message-ID: <shsvgpyual0.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 25, 2001 at 01:41:56PM +0100, Werner Almesberger wrote:
+>>>>> " " == David Fries <dfries@umr.edu> writes:
 
-    Well, you'd have to re-design the networking code to support NUMA
-    architectures, with a fairly fine granularity. I'm not sure you'd
-    gain anything except possibly for the forwarding fast path.
+     > I'ved tried `mount /home -o remount`, and reading lots of other
+     > directories to flush out that entry if it was in cache without
+     > any results.
 
-I'm not convince for a general purpose OS you would gain anything at
-all; but an an intellectual exercise it's a fascinating idea.
+     > I was hopping to avoid unmounting, as I would have to shut
+     > about everything down to do that.
 
-I'd make a good PhD thesis.
+It looks as if you'll have to do that. 'mount -oremount' does not
+really cause the root filehandle to get updated. The only thing it
+does at the moment is allow you to change from a read-only to a
+read-write filesystem.
 
+What kind of filesystem is this BTW: is it an ext2 partition you are
+exporting?
 
-
-  --cw
+Cheers,
+  Trond

@@ -1,70 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263103AbVCMFAp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263099AbVCME67@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263103AbVCMFAp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 00:00:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263106AbVCMFAo
+	id S263099AbVCME67 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 23:58:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbVCME5o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 00:00:44 -0500
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:1156 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S263103AbVCMFAc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 00:00:32 -0500
-Message-ID: <4233C912.80706@comcast.net>
-Date: Sun, 13 Mar 2005 00:01:06 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050111)
+	Sat, 12 Mar 2005 23:57:44 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:8605 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S263077AbVCME5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 23:57:25 -0500
+Message-ID: <4233C834.40903@acm.org>
+Date: Sat, 12 Mar 2005 22:57:24 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040804
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Felipe Alfaro Solana <felipe.alfaro@gmail.com>
-CC: Peter Chubb <peter@chubb.wattle.id.au>, linux-kernel@vger.kernel.org
-Subject: Re: binary drivers and development
-References: <423075B7.5080004@comcast.net> <423082BF.6060007@comcast.net>	 <16944.49977.715895.8761@wombat.chubb.wattle.id.au>	 <4230CB07.3020904@comcast.net> <6f6293f105031207535938c687@mail.gmail.com>
-In-Reply-To: <6f6293f105031207535938c687@mail.gmail.com>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+To: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Add sysfs support to the IPMI driver
+Content-Type: multipart/mixed;
+ boundary="------------050707000903080502020903"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This is a multi-part message in MIME format.
+--------------050707000903080502020903
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-You wanna give me a quick run-down on x86 of CPL and Ring levels?  It's
-been bugging me.  I know they're there and have a basic idea that they
-control what a context can do, don't know what CPL stands for, and
-there's a visible gap in my knowledge.  I like to understand everything,
-it makes things easier.
+The IPMI driver has long needed to tie into the device model (and I've 
+long been hoping someone else would do it).  I finally gave up and spent 
+the time to learn how to do it.  I think this is right, it seems to work 
+on on my system.
 
-Felipe Alfaro Solana wrote:
-> On Thu, 10 Mar 2005 17:32:39 -0500, John Richard Moser
-> <nigelenki@comcast.net> wrote:
-> 
->>CPL=3 scares me; context switches are expensive.  can they have direct
->>hardware access?  I'm sure a security model to isolate user mode drivers
->>could be in place. . .
->>
->>. . . huh.  Xen seems to run Linux at CPL=3 and give direct hardware
->>access, so I guess user mode drivers are possible *shrug*.  Linux isn't
->>a microkernel though.
-> 
-> 
-> Xen hypervisor runs at Ring0, while the guest OSs it supports run at Ring1.
-> 
+-Corey
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+--------------050707000903080502020903
+Content-Type: text/x-patch;
+ name="ipmi-sysfs.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ipmi-sysfs.diff"
 
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Add support for sysfs to the IPMI device interface.
 
-iD8DBQFCM8kShDd4aOud5P8RAon1AKCLNWEbY3Vq32k61m9jN2CbSoD98QCeJT8m
-mhgyXtmGNFL+RPzJw8md9hE=
-=B/i5
------END PGP SIGNATURE-----
+Signed-off-by: Corey Minyard <minyard@acm.org>
+
+Index: linux-2.6.11-mm1/drivers/char/ipmi/ipmi_devintf.c
+===================================================================
+--- linux-2.6.11-mm1.orig/drivers/char/ipmi/ipmi_devintf.c
++++ linux-2.6.11-mm1/drivers/char/ipmi/ipmi_devintf.c
+@@ -44,6 +44,7 @@
+ #include <linux/ipmi.h>
+ #include <asm/semaphore.h>
+ #include <linux/init.h>
++#include <linux/device.h>
+ 
+ #define IPMI_DEVINTF_VERSION "v33"
+ 
+@@ -519,15 +520,24 @@
+ 		 " interface.  Other values will set the major device number"
+ 		 " to that value.");
+ 
++static struct class_simple *ipmi_class;
++
+ static void ipmi_new_smi(int if_num)
+ {
++	char                  name[10];
++	dev_t                 dev = MKDEV(ipmi_major, if_num);
++
+ 	devfs_mk_cdev(MKDEV(ipmi_major, if_num),
+ 		      S_IFCHR | S_IRUSR | S_IWUSR,
+ 		      "ipmidev/%d", if_num);
++
++	snprintf(name, sizeof(name), "ipmi%d", if_num);
++	class_simple_device_add(ipmi_class, dev, NULL, name);
+ }
+ 
+ static void ipmi_smi_gone(int if_num)
+ {
++	class_simple_device_remove(MKDEV(ipmi_major, if_num));
+ 	devfs_remove("ipmidev/%d", if_num);
+ }
+ 
+@@ -548,8 +558,15 @@
+ 	printk(KERN_INFO "ipmi device interface version "
+ 	       IPMI_DEVINTF_VERSION "\n");
+ 
++	ipmi_class = class_simple_create(THIS_MODULE, "ipmi");
++	if (IS_ERR(ipmi_class)) {
++		printk(KERN_ERR "ipmi: can't register device class\n");
++		return PTR_ERR(ipmi_class);
++	}
++
+ 	rv = register_chrdev(ipmi_major, DEVICE_NAME, &ipmi_fops);
+ 	if (rv < 0) {
++		class_simple_destroy(ipmi_class);
+ 		printk(KERN_ERR "ipmi: can't get major %d\n", ipmi_major);
+ 		return rv;
+ 	}
+@@ -563,6 +580,7 @@
+ 	rv = ipmi_smi_watcher_register(&smi_watcher);
+ 	if (rv) {
+ 		unregister_chrdev(ipmi_major, DEVICE_NAME);
++		class_simple_destroy(ipmi_class);
+ 		printk(KERN_WARNING "ipmi: can't register smi watcher\n");
+ 		return rv;
+ 	}
+@@ -573,6 +591,7 @@
+ 
+ static __exit void cleanup_ipmi(void)
+ {
++	class_simple_destroy(ipmi_class);
+ 	ipmi_smi_watcher_unregister(&smi_watcher);
+ 	devfs_remove(DEVICE_NAME);
+ 	unregister_chrdev(ipmi_major, DEVICE_NAME);
+
+--------------050707000903080502020903--

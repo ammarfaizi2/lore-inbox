@@ -1,56 +1,332 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262648AbUDUWl4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262625AbUDUWpe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262648AbUDUWl4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 18:41:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262744AbUDUWl4
+	id S262625AbUDUWpe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 18:45:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262579AbUDUWpe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 18:41:56 -0400
-Received: from fw.osdl.org ([65.172.181.6]:34989 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262648AbUDUWly (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 18:41:54 -0400
-Date: Wed, 21 Apr 2004 15:41:53 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, arjanv@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: updated-fbmem-patch.patch
-Message-ID: <20040421154153.O22989@build.pdx.osdl.net>
-References: <20040421021008.GM29954@dualathlon.random>
+	Wed, 21 Apr 2004 18:45:34 -0400
+Received: from fmr10.intel.com ([192.55.52.30]:65160 "EHLO
+	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
+	id S262625AbUDUWpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 18:45:22 -0400
+Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH]
+	for idle=C1halt, 2.6.5
+From: Len Brown <len.brown@intel.com>
+To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+Cc: Craig Bradney <cbradney@zip.com.au>, ross@datscreative.com.au,
+       christian.kroener@tu-harburg.de, linux-kernel@vger.kernel.org,
+       "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+       Jamie Lokier <jamie@shareable.org>, Daniel Drake <dan@reactivated.net>,
+       Ian Kumlien <pomac@vapor.com>, Jesse Allen <the3dfxdude@hotmail.com>,
+       a.verweij@student.tudelft.nl, Allen Martin <AMartin@nvidia.com>
+In-Reply-To: <4086E76E.3010608@gmx.de>
+References: <200404131117.31306.ross@datscreative.com.au>
+	 <200404131703.09572.ross@datscreative.com.au>
+	 <1081893978.2251.653.camel@dhcppc4>
+	 <200404160110.37573.ross@datscreative.com.au>
+	 <1082060255.24425.180.camel@dhcppc4>
+	 <1082063090.4814.20.camel@amilo.bradney.info>
+	 <1082578957.16334.13.camel@dhcppc4>  <4086E76E.3010608@gmx.de>
+Content-Type: multipart/mixed; boundary="=-0P3IBX890IbIGJmGEV6U"
+Organization: 
+Message-Id: <1082587298.16336.138.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040421021008.GM29954@dualathlon.random>; from andrea@suse.de on Wed, Apr 21, 2004 at 04:10:08AM +0200
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 21 Apr 2004 18:41:38 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrea Arcangeli (andrea@suse.de) wrote:
-> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5/2.6.5-mm4/broken-out/updated-fbmem-patch.patch
-> 
-> this uses get_user for the set_cmap operation too.
-> 
-> --- 2.6.5-aa3/drivers/video/fbmem.c.~1~	2004-04-04 08:09:23.000000000 +0200
-> +++ 2.6.5-aa3/drivers/video/fbmem.c	2004-04-21 03:11:05.878951424 +0200
-> @@ -1034,11 +1034,11 @@ fb_ioctl(struct inode *inode, struct fil
->  	case FBIOPUTCMAP:
->  		if (copy_from_user(&cmap, (void *) arg, sizeof(cmap)))
->  			return -EFAULT;
-> -		return (fb_set_cmap(&cmap, 0, info));
-> +		return (fb_set_cmap(&cmap, 1, info));
 
-0 is userspace, 1 is kernel space.  this change looks wrong.
+--=-0P3IBX890IbIGJmGEV6U
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Perhaps the change below so comment is in sync with code.
+> Please send me the output from dmidecode, available in /usr/sbin/, or
+> > here:
+> > http://www.nongnu.org/dmidecode/
+> > or
+> > http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/utils/
 
---- a/drivers/video/fbcmap.c	Fri Feb  6 00:30:15 2004
-+++ b/drivers/video/fbcmap.c	Wed Apr 21 15:40:56 2004
-@@ -207,7 +207,7 @@
- /**
-  *	fb_set_cmap - set the colormap
-  *	@cmap: frame buffer colormap structure
-- *	@kspc: boolean, 0 copy local, 1 get_user() function
-+ *	@kspc: boolean, 0 get_user() function , 1 copy local
-  *	@info: frame buffer info structure
-  *
-  *	Sets the colormap @cmap for a screen of device @info.
+On Wed, 2004-04-21 at 17:28, Prakash K. Cheemplavam wrote:
+
+> this is the output for Abit NF7-S Rev20 using bios d23. I have NOT 
+> activated APIC for this. Is it needed?
+
+Yes, you need to enable ACPI and IOAPIC.  The goal of this patch
+is to address the XT-PIC timer issue in IOAPIC mode.
+
+Here's the latest (vs 2.6.5).
+
+I've got 1 Abit, 2 Asus, and 1 Shuttle DMI entry.  Let me know if the
+product names (1st line of dmidecode entry) are correct,
+these are not from DMI, but are supposed to be human-readable titles.
+
+I'm interested only in the latest BIOS -- if it is still broken.
+The assumption is that if a fixed BIOS is available, the users
+should upgrade.
+
+thanks,
+-Len
+
+ps. latest BIOS on my shuttle has a C1 disconnect enable setting,
+(curiously, it is disabled by default) so I'll try to reproduce the hang
+on it...
+
+===== Documentation/kernel-parameters.txt 1.44 vs edited =====
+--- 1.44/Documentation/kernel-parameters.txt	Mon Mar 22 16:03:22 2004
++++ edited/Documentation/kernel-parameters.txt	Wed Apr 21 15:28:12 2004
+@@ -122,6 +122,10 @@
+ 
+ 	acpi_serialize	[HW,ACPI] force serialization of AML methods
+ 
++	acpi_skip_timer_override [HW,ACPI]
++			Recognize and ignore IRQ0/pin2 Interrupt Override.
++			For broken nForce2 BIOS resulting in XT-PIC timer.
++
+ 	ad1816=		[HW,OSS]
+ 			Format: <io>,<irq>,<dma>,<dma2>
+ 			See also Documentation/sound/oss/AD1816.
+===== arch/i386/kernel/dmi_scan.c 1.57 vs edited =====
+--- 1.57/arch/i386/kernel/dmi_scan.c	Fri Apr 16 22:03:06 2004
++++ edited/arch/i386/kernel/dmi_scan.c	Wed Apr 21 18:29:35 2004
+@@ -540,6 +540,19 @@
+ #endif
+ 
+ /*
++ * early nForce2 reference BIOS shipped with a
++ * bogus ACPI IRQ0 -> pin2 interrupt override -- ignore it
++ */
++static __init int ignore_timer_override(struct dmi_blacklist *d)
++{
++	extern int acpi_skip_timer_override;
++	printk(KERN_NOTICE "%s detected: BIOS IRQ0 pin2 override"
++		" will be ignored\n", d->ident); 	
++
++	acpi_skip_timer_override = 1;
++	return 0;
++}
++/*
+  *	Process the DMI blacklists
+  */
+  
+@@ -944,6 +957,37 @@
+ 			MATCH(DMI_BOARD_VENDOR, "IBM"),
+ 			MATCH(DMI_PRODUCT_NAME, "eserver xSeries 440"),
+ 			NO_MATCH, NO_MATCH }},
++
++/*
++ * Systems with nForce2 BIOS timer override bug
++ * add Albatron KM18G Pro
++ * add DFI NFII 400-AL
++ * add Epox 8RGA+
++ * add Shuttle AN35N
++ */
++	{ ignore_timer_override, "Abit NF7-S v2", {
++			MATCH(DMI_BOARD_VENDOR, "http://www.abit.com.tw/"),
++			MATCH(DMI_BOARD_NAME, "NF7-S/NF7,NF7-V (nVidia-nForce2)"),
++			MATCH(DMI_BIOS_VERSION, "6.00 PG"),
++			MATCH(DMI_BIOS_DATE, "03/24/2004") }},
++
++	{ ignore_timer_override, "Asus A7N8X v2", {
++			MATCH(DMI_BOARD_VENDOR, "ASUSTeK Computer INC."),
++			MATCH(DMI_BOARD_NAME, "A7N8X2.0"),
++			MATCH(DMI_BIOS_VERSION, "ASUS A7N8X2.0 Deluxe ACPI BIOS Rev 1007"),
++			MATCH(DMI_BIOS_DATE, "10/06/2003") }},
++
++	{ ignore_timer_override, "Asus A7N8X-X", {
++			MATCH(DMI_BOARD_VENDOR, "ASUSTeK Computer INC."),
++			MATCH(DMI_BOARD_NAME, "A7N8X-X"),
++			MATCH(DMI_BIOS_VERSION, "ASUS A7N8X-X ACPI BIOS Rev 1007"),
++			MATCH(DMI_BIOS_DATE, "10/07/2003") }},
++
++	{ ignore_timer_override, "Shuttle SN41G2", {
++			MATCH(DMI_BOARD_VENDOR, "Shuttle Inc"),
++			MATCH(DMI_BOARD_NAME, "FN41"),
++			MATCH(DMI_BIOS_VERSION, "6.00 PG"),
++			MATCH(DMI_BIOS_DATE, "01/14/2004") }},
+ #endif	// CONFIG_ACPI_BOOT
+ 
+ #ifdef	CONFIG_ACPI_PCI
+===== arch/i386/kernel/setup.c 1.115 vs edited =====
+--- 1.115/arch/i386/kernel/setup.c	Fri Apr  2 07:21:43 2004
++++ edited/arch/i386/kernel/setup.c	Wed Apr 21 15:28:12 2004
+@@ -614,6 +614,9 @@
+ 		else if (!memcmp(from, "acpi_sci=low", 12))
+ 			acpi_sci_flags.polarity = 3;
+ 
++		else if (!memcmp(from, "acpi_skip_timer_override", 24))
++			acpi_skip_timer_override = 1;
++
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 		/* disable IO-APIC */
+ 		else if (!memcmp(from, "noapic", 6))
+===== arch/i386/kernel/acpi/boot.c 1.58 vs edited =====
+--- 1.58/arch/i386/kernel/acpi/boot.c	Tue Apr 20 20:54:03 2004
++++ edited/arch/i386/kernel/acpi/boot.c	Wed Apr 21 15:28:13 2004
+@@ -62,6 +62,7 @@
+ 
+ acpi_interrupt_flags acpi_sci_flags __initdata;
+ int acpi_sci_override_gsi __initdata;
++int acpi_skip_timer_override __initdata;
+ 
+ #ifdef CONFIG_X86_LOCAL_APIC
+ static u64 acpi_lapic_addr __initdata = APIC_DEFAULT_PHYS_BASE;
+@@ -327,6 +328,12 @@
+ 		acpi_sci_ioapic_setup(intsrc->global_irq,
+ 			intsrc->flags.polarity, intsrc->flags.trigger);
+ 		return 0;
++	}
++
++	if (acpi_skip_timer_override &&
++		intsrc->bus_irq == 0 && intsrc->global_irq == 2) {
++			printk(PREFIX "BIOS IRQ0 pin2 override ignored.\n");
++			return 0;
+ 	}
+ 
+ 	mp_override_legacy_irq (
+===== include/asm-i386/acpi.h 1.18 vs edited =====
+--- 1.18/include/asm-i386/acpi.h	Tue Mar 30 17:05:19 2004
++++ edited/include/asm-i386/acpi.h	Wed Apr 21 15:28:14 2004
+@@ -118,6 +118,7 @@
+ #ifdef CONFIG_X86_IO_APIC
+ extern int skip_ioapic_setup;
+ extern int acpi_irq_to_vector(u32 irq);	/* deprecated in favor of
+acpi_gsi_to_irq */
++extern int acpi_skip_timer_override;
+ 
+ static inline void disable_ioapic_setup(void)
+ {
+
+
+
+--=-0P3IBX890IbIGJmGEV6U
+Content-Disposition: attachment; filename=wip.patch
+Content-Type: text/plain; name=wip.patch; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+===== Documentation/kernel-parameters.txt 1.44 vs edited =====
+--- 1.44/Documentation/kernel-parameters.txt	Mon Mar 22 16:03:22 2004
++++ edited/Documentation/kernel-parameters.txt	Wed Apr 21 15:28:12 2004
+@@ -122,6 +122,10 @@
+ 
+ 	acpi_serialize	[HW,ACPI] force serialization of AML methods
+ 
++	acpi_skip_timer_override [HW,ACPI]
++			Recognize and ignore IRQ0/pin2 Interrupt Override.
++			For broken nForce2 BIOS resulting in XT-PIC timer.
++
+ 	ad1816=		[HW,OSS]
+ 			Format: <io>,<irq>,<dma>,<dma2>
+ 			See also Documentation/sound/oss/AD1816.
+===== arch/i386/kernel/dmi_scan.c 1.57 vs edited =====
+--- 1.57/arch/i386/kernel/dmi_scan.c	Fri Apr 16 22:03:06 2004
++++ edited/arch/i386/kernel/dmi_scan.c	Wed Apr 21 18:29:35 2004
+@@ -540,6 +540,19 @@
+ #endif
+ 
+ /*
++ * early nForce2 reference BIOS shipped with a
++ * bogus ACPI IRQ0 -> pin2 interrupt override -- ignore it
++ */
++static __init int ignore_timer_override(struct dmi_blacklist *d)
++{
++	extern int acpi_skip_timer_override;
++	printk(KERN_NOTICE "%s detected: BIOS IRQ0 pin2 override"
++		" will be ignored\n", d->ident); 	
++
++	acpi_skip_timer_override = 1;
++	return 0;
++}
++/*
+  *	Process the DMI blacklists
+  */
+  
+@@ -944,6 +957,37 @@
+ 			MATCH(DMI_BOARD_VENDOR, "IBM"),
+ 			MATCH(DMI_PRODUCT_NAME, "eserver xSeries 440"),
+ 			NO_MATCH, NO_MATCH }},
++
++/*
++ * Systems with nForce2 BIOS timer override bug
++ * add Albatron KM18G Pro
++ * add DFI NFII 400-AL
++ * add Epox 8RGA+
++ * add Shuttle AN35N
++ */
++	{ ignore_timer_override, "Abit NF7-S v2", {
++			MATCH(DMI_BOARD_VENDOR, "http://www.abit.com.tw/"),
++			MATCH(DMI_BOARD_NAME, "NF7-S/NF7,NF7-V (nVidia-nForce2)"),
++			MATCH(DMI_BIOS_VERSION, "6.00 PG"),
++			MATCH(DMI_BIOS_DATE, "03/24/2004") }},
++
++	{ ignore_timer_override, "Asus A7N8X v2", {
++			MATCH(DMI_BOARD_VENDOR, "ASUSTeK Computer INC."),
++			MATCH(DMI_BOARD_NAME, "A7N8X2.0"),
++			MATCH(DMI_BIOS_VERSION, "ASUS A7N8X2.0 Deluxe ACPI BIOS Rev 1007"),
++			MATCH(DMI_BIOS_DATE, "10/06/2003") }},
++
++	{ ignore_timer_override, "Asus A7N8X-X", {
++			MATCH(DMI_BOARD_VENDOR, "ASUSTeK Computer INC."),
++			MATCH(DMI_BOARD_NAME, "A7N8X-X"),
++			MATCH(DMI_BIOS_VERSION, "ASUS A7N8X-X ACPI BIOS Rev 1007"),
++			MATCH(DMI_BIOS_DATE, "10/07/2003") }},
++
++	{ ignore_timer_override, "Shuttle SN41G2", {
++			MATCH(DMI_BOARD_VENDOR, "Shuttle Inc"),
++			MATCH(DMI_BOARD_NAME, "FN41"),
++			MATCH(DMI_BIOS_VERSION, "6.00 PG"),
++			MATCH(DMI_BIOS_DATE, "01/14/2004") }},
+ #endif	// CONFIG_ACPI_BOOT
+ 
+ #ifdef	CONFIG_ACPI_PCI
+===== arch/i386/kernel/setup.c 1.115 vs edited =====
+--- 1.115/arch/i386/kernel/setup.c	Fri Apr  2 07:21:43 2004
++++ edited/arch/i386/kernel/setup.c	Wed Apr 21 15:28:12 2004
+@@ -614,6 +614,9 @@
+ 		else if (!memcmp(from, "acpi_sci=low", 12))
+ 			acpi_sci_flags.polarity = 3;
+ 
++		else if (!memcmp(from, "acpi_skip_timer_override", 24))
++			acpi_skip_timer_override = 1;
++
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 		/* disable IO-APIC */
+ 		else if (!memcmp(from, "noapic", 6))
+===== arch/i386/kernel/acpi/boot.c 1.58 vs edited =====
+--- 1.58/arch/i386/kernel/acpi/boot.c	Tue Apr 20 20:54:03 2004
++++ edited/arch/i386/kernel/acpi/boot.c	Wed Apr 21 15:28:13 2004
+@@ -62,6 +62,7 @@
+ 
+ acpi_interrupt_flags acpi_sci_flags __initdata;
+ int acpi_sci_override_gsi __initdata;
++int acpi_skip_timer_override __initdata;
+ 
+ #ifdef CONFIG_X86_LOCAL_APIC
+ static u64 acpi_lapic_addr __initdata = APIC_DEFAULT_PHYS_BASE;
+@@ -327,6 +328,12 @@
+ 		acpi_sci_ioapic_setup(intsrc->global_irq,
+ 			intsrc->flags.polarity, intsrc->flags.trigger);
+ 		return 0;
++	}
++
++	if (acpi_skip_timer_override &&
++		intsrc->bus_irq == 0 && intsrc->global_irq == 2) {
++			printk(PREFIX "BIOS IRQ0 pin2 override ignored.\n");
++			return 0;
+ 	}
+ 
+ 	mp_override_legacy_irq (
+===== include/asm-i386/acpi.h 1.18 vs edited =====
+--- 1.18/include/asm-i386/acpi.h	Tue Mar 30 17:05:19 2004
++++ edited/include/asm-i386/acpi.h	Wed Apr 21 15:28:14 2004
+@@ -118,6 +118,7 @@
+ #ifdef CONFIG_X86_IO_APIC
+ extern int skip_ioapic_setup;
+ extern int acpi_irq_to_vector(u32 irq);	/* deprecated in favor of acpi_gsi_to_irq */
++extern int acpi_skip_timer_override;
+ 
+ static inline void disable_ioapic_setup(void)
+ {
+
+--=-0P3IBX890IbIGJmGEV6U--
+

@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271995AbRJEUXI>; Fri, 5 Oct 2001 16:23:08 -0400
+	id <S271978AbRJEUWS>; Fri, 5 Oct 2001 16:22:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271906AbRJEUWt>; Fri, 5 Oct 2001 16:22:49 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:56334 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S271987AbRJEUWk>; Fri, 5 Oct 2001 16:22:40 -0400
-Date: Fri, 5 Oct 2001 17:22:40 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Seth Mos <knuffie@xs4all.nl>
-Cc: Krzysztof Rusocki <kszysiu@main.braxis.co.uk>, <linux-xfs@oss.sgi.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: %u-order allocation failed
-In-Reply-To: <Pine.BSI.4.10.10110052208390.303-100000@xs3.xs4all.nl>
-Message-ID: <Pine.LNX.4.33L.0110051721550.26495-100000@duckman.distro.conectiva>
-X-supervisor: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271906AbRJEUWI>; Fri, 5 Oct 2001 16:22:08 -0400
+Received: from quechua.inka.de ([212.227.14.2]:10504 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S271987AbRJEUV7>;
+	Fri, 5 Oct 2001 16:21:59 -0400
+From: Bernd Eckenfels <ecki@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Finegrained a/c/mtime was Re: Directory notification problem
+In-Reply-To: <20011005163807.A13524@gruyere.muc.suse.de>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.10-xfs (i686))
+Message-Id: <E15pbUG-0007dI-00@calista.inka.de>
+Date: Fri, 05 Oct 2001 22:22:24 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Oct 2001, Seth Mos wrote:
+In article <20011005163807.A13524@gruyere.muc.suse.de> you wrote:
+>> if (file->mtime != mtime || file->gen_count != gen_count)
+>>      file_changed=1;
 
-> This happens using either 2.4.10-xfs or 2.4.11-pre3-xfs.
+> And how would you implement "newer than" and "older than" with a generation
+> count that doesn't reset in a always fixed time interval (=requiring
+> additional timestamps in kernel)?  
 
-Ohh duh, IIRC there are a bunch of highmem bugs in
--linus which are fixed in -ac.
+newer:
 
-Can you reproduce the bug with an -ac kernel ?
+if ((file->mtime < mtime) || ((file->mtime == mtime) && (file->gen_count < gen_count))
 
-regards,
+The Advantage here is, that even can contain some usefull info like "x
+modifications".
 
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Greetings
+Bernd

@@ -1,71 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265973AbUHSGhV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265996AbUHSGim@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265973AbUHSGhV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 02:37:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265996AbUHSGhV
+	id S265996AbUHSGim (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 02:38:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265999AbUHSGil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 02:37:21 -0400
-Received: from [69.196.211.153] ([69.196.211.153]:62942 "EHLO
-	mail.janderson.ca") by vger.kernel.org with ESMTP id S265973AbUHSGhS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 02:37:18 -0400
-Message-ID: <41244A9F.70109@rogers.com>
-Date: Thu, 19 Aug 2004 02:37:19 -0400
-From: Jon Anderson <jon-anderson@rogers.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040812)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: vmlinuz no symtab? while cross compiling...
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 19 Aug 2004 02:38:41 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:5274 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S265996AbUHSGii (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 02:38:38 -0400
+Subject: Re: 2.6.8.1-mm1 broke USB driver with ACPI pci irq routing... info
+	follows
+From: Len Brown <len.brown@intel.com>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: Shawn Starr <shawn.starr@rogers.com>, linux-kernel@vger.kernel.org,
+       Cyrille Ch?p?lov <cyrille@chepelov.org>
+In-Reply-To: <566B962EB122634D86E6EE29E83DD808182C37A2@hdsmsx403.hd.intel.com>
+References: <566B962EB122634D86E6EE29E83DD808182C37A2@hdsmsx403.hd.intel.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1092897504.25902.220.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 19 Aug 2004 02:38:25 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm attempting to cross compile linux-2.6.8.1, along with a few external 
-modules (madwifi, hostap-driver, aodv-uu). The kernel and (built-in) 
-modules compile fine, but compiling every one of those external modules 
-fails around MODPOST. For example, aodv-uu:
+On Wed, 2004-08-18 at 19:40, Bjorn Helgaas wrote:
 
-<snip userspace stuff>
-make -C /home/janderson/var/autobuild/i386/root/usr/src/linux 
-SUBDIRS=/home/janderson/var/tmp/autobuild/aodv-uu-0.8.1 modules
-i486-linux-uclibc-gcc -Wall -O2 -DCONFIG_GATEWAY  -o aodvd main.o list.o 
-debug.o timer_queue.o aodv_socket.o aodv_hello.o aodv_neighbor.o 
-aodv_timeout.o routing_table.o seek_list.o k_route.o aodv_rreq.o 
-aodv_rrep.o aodv_rerr.o packet_input.o packet_queue.o libipq.o icmp.o 
-min_ipenc.o locality.o
-make[1]: Entering directory 
-`/home/janderson/var/autobuild/i386/root/usr/src/linux-2.6.8.1'
-  CC [M]  /home/janderson/var/tmp/autobuild/aodv-uu-0.8.1/kaodv.o
-  Building modules, stage 2.
-  MODPOST
-modpost: vmlinux no symtab?
-/bin/sh: line 1:   798 Aborted                 scripts/mod/modpost -i 
-/home/janderson/var/autobuild/i386/root/usr/src/linux-2.6.8.1/Module.symvers 
-vmlinux /home/janderson/var/tmp/autobuild/aodv-uu-0.8.1/kaodv.o
-make[2]: *** [__modpost] Error 134
+> Make acpi_irq_penalty non-initdata, since it's used by the
+> non_init acpi_pci_link_allocate().
 
-madwifi and hostap-driver do the same thing: "vmlinux no symtab?".
+hmmm, now that we need to keep this around, we might consider squeezing
+it down to, say 64 bytes.  This stuff will probably never run for IRQs >
+64 and probably a byte/level is enough.
 
-I've messed around with cleaning out the scripts/mod directory, then 
-running a make prepare (which seems to rebuild modpost), but that makes 
-no difference.
+>   And make acpi_irq_penalty_init()
+> __init, since it is used only by the __init pci_acpi_init().
+> 
+> Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
-For the moment, I can work around this (because I'm "cross compiling" 
-for i486 on an i686 system) by just running make again in the kernel 
-directory, but I would assume that wouldn't work when I have to do it 
-for ppc. :-)
+I'll apply this Bjorn.
 
-I guess I'm just looking for any information that might help me get rid 
-of this error. Any pointers would be most welcome.
+I have to complement you on your paranoia to
+1. keep acpi_pci_irq_enable(dev) for all devices in 2.6.8
+2. add pci=routeirq to diagnose the breakage when you took it out
 
-(Hopefully this is the right place to be posting such questions - if 
-it's not, then I appologize.)
+thanks,
+-Len
 
-Cheers,
-
-jon
 

@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLEQUJ>; Tue, 5 Dec 2000 11:20:09 -0500
+	id <S129210AbQLEQXj>; Tue, 5 Dec 2000 11:23:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129210AbQLEQUB>; Tue, 5 Dec 2000 11:20:01 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:33806 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S129183AbQLEQTm>;
-	Tue, 5 Dec 2000 11:19:42 -0500
-From: Daniel Phillips <news-innominate.list.linux.kernel@innominate.de>
-Reply-To: Daniel Phillips <phillips@innominate.de>
-X-Newsgroups: innominate.list.linux.kernel
-Subject: Re: test12-pre5
-Date: Tue, 05 Dec 2000 16:48:10 +0100
-Organization: innominate
-Distribution: local
-Message-ID: <news2mail-3A2D0E3A.99312EA3@innominate.de>
-In-Reply-To: <Pine.LNX.4.10.10012041906510.2047-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Trace: mate.bln.innominate.de 976031354 20403 10.0.0.90 (5 Dec 2000 15:49:14 GMT)
-X-Complaints-To: news@innominate.de
-To: Linus Torvalds <torvalds@transmeta.com>
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: en
-To: linux-kernel@vger.kernel.org
+	id <S129324AbQLEQX3>; Tue, 5 Dec 2000 11:23:29 -0500
+Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:51985 "HELO
+	ztxmail04.ztx.compaq.com") by vger.kernel.org with SMTP
+	id <S129210AbQLEQXT>; Tue, 5 Dec 2000 11:23:19 -0500
+Date: Tue, 5 Dec 2000 10:52:46 -0500 (EST)
+From: Phillip Ezolt <ezolt@perf.zko.dec.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, rth@twiddle.net,
+        Jay.Estabrook@compaq.com, linux-kernel@vger.kernel.org,
+        wcarr@perf.zko.dec.com
+Subject: Re: Alpha SCSI error on 2.4.0-test11
+In-Reply-To: <20001201212628.A9247@inspiron.random>
+Message-ID: <Pine.OSF.3.96.1001205104717.11166A-100000@perf.zko.dec.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> NOTE! There's another change to "writepage()" semantics than just dropping
-> the "struct file": the new writepage() is supposed to mirror the logic of
-> readpage(), and unlock the page when it is done with it. This allows the
-> VM system more visibility into what IO is pending (which the VM doesn't
-> take advantage of yet, but now it can _truly_ use the same logic for both
-> swapout and for dirty file writeback).
+Andrea,
 
-Or maybe readpage should *not* unlock the page.  What if we wanted to
-follow the writepage immediately by traversing the page's buffers?  We'd
-have to lock the page again, and we wouldn't know what happened in the
-interim.
+> Does the qlogic driver works well on an ES40 with more than 1G of ram? If
+> yes then qlogic driver should be ok.
 
-Thanks for fixing the (struct file *)'s!  (major wart gone)
+Yes. I have tried it on an ES40 with 16 Gig of ram, and it boots just fine.
 
---
-Daniel
+	From what you say, this appears to be a Miata problem and NOT
+a qlogic problem.  What next? 
+
+--Phil
+
+Compaq:  High Performance Server Division/Benchmark Performance Engineering 
+---------------- Alpha, The Fastest Processor on Earth --------------------
+Phillip.Ezolt@compaq.com        |C|O|M|P|A|Q|        ezolt@perf.zko.dec.com
+------------------- See the results at www.spec.org -----------------------
+
+On Fri, 1 Dec 2000, Andrea Arcangeli wrote:
+
+> On Fri, Dec 01, 2000 at 02:56:43PM -0500, Phillip Ezolt wrote:
+> > What data structure's would I look at?  What should I investigate to
+> > verify this?
+> 
+> The relevant code is in arch/alpha/kernel/core_cia.c
+> 
+> > 	What would I have to do to test this?  I have an ES40 & 3 miata's 
+> 
+> Does the qlogic driver works well on an ES40 with more than 1G of ram? If
+> yes then qlogic driver should be ok.
+> 
+> Andrea
+> 
+> 
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

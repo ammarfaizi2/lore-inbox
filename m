@@ -1,67 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbUBVHU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 02:20:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbUBVHU3
+	id S261194AbUBVIUG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 03:20:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbUBVIUG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 02:20:29 -0500
-Received: from adsl-63-194-240-129.dsl.lsan03.pacbell.net ([63.194.240.129]:64261
-	"EHLO mikef-fw.mikef-fw.matchmail.com") by vger.kernel.org with ESMTP
-	id S261187AbUBVHU0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 02:20:26 -0500
-Message-ID: <40385838.3030500@matchmail.com>
-Date: Sat, 21 Feb 2004 23:20:24 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.5) Gecko/20030925
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Piggin <piggin@cyberone.com.au>
-CC: Chris Wedgwood <cw@f00f.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: Large slab cache in 2.6.1
-References: <4037FCDA.4060501@matchmail.com> <20040222023638.GA13840@dingdong.cryptoapps.com> <Pine.LNX.4.58.0402211901520.3301@ppc970.osdl.org> <20040222031113.GB13840@dingdong.cryptoapps.com> <Pine.LNX.4.58.0402211919360.3301@ppc970.osdl.org> <20040222033111.GA14197@dingdong.cryptoapps.com> <4038299E.9030907@cyberone.com.au> <40382BAA.1000802@cyberone.com.au> <4038307B.2090405@cyberone.com.au> <40383300.5010203@matchmail.com> <4038402A.4030708@cyberone.com.au> <40384325.1010802@matchmail.com> <403845CB.8040805@cyberone.com.au> <4038501F.7090405@matchmail.com> <40385306.6090301@cyberone.com.au>
-In-Reply-To: <40385306.6090301@cyberone.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 22 Feb 2004 03:20:06 -0500
+Received: from multivac.one-eyed-alien.net ([64.169.228.101]:59268 "EHLO
+	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S261194AbUBVIUB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 03:20:01 -0500
+Date: Sun, 22 Feb 2004 00:19:59 -0800
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Kernel Developer List <linux-kernel@vger.kernel.org>
+Subject: 2.6 build oddity...
+Message-ID: <20040222081959.GA21170@one-eyed-alien.net>
+Mail-Followup-To: Kernel Developer List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="9amGYk9869ThD9tj"
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2004 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
 
-> 
-> 
-> Mike Fedyk wrote:
->> I'll have to test the kernel on two other machines for a few days 
->> before I put it on this particular machine.  Unfortunately, both of 
->> them have < 1.5GB ram.
->>
-> 
-> That is quite alright. I didn't intend to sound pushy in that
-> message, and I fully understand if you refuse to test patches on
-> your production machine.
+--9amGYk9869ThD9tj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-No problem.  It is really sad when a problem could be fixed if only the 
-origional reporter put more effort into testing the proposed fixes.
+I'm not sure where to report this....
 
-Heh, so let me keep from being one of those reporters...
+In some sort of freak accident, I had a .s file in my source tree.
+Whenever I did a build (make bzImage modules), the build process would:
+(1) check out the corresponding .c file
+(2) build the .s into the .o
+(3) delete the .c file
 
-> 
->> So let me know which patches are most likely to fix this problem.
->>
->> PS, if I can apply them to my 2.6.1 kernel, then I wouldn't have to 
->> run the base kernel to compare changes of 2.6.1 -> 2.6.3 -> 2.6.3-mm 
->> -> your patch.
->>
->> Each step would require a week-day to get a fair compairison.
->>
-> 
-> The last patch I posted would be a good one to test if you possibly
-> can. You should hear someone shout within a few days if it does
-> anything nasty, so the 2.6.3-mm+patch path is probably safer ;)
-> 
+Which I find odd, because:
+(1) It never used the .c file, but checked it out anyway
+(2) It _did_ delete the .c file, without using it
 
-Ok, I'll get started compiling tonight.  Be sure to CC me if you have 
-any updates to this patch.
+Matt
 
-Mike
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
 
+G:  Let me guess, you started on the 'net with AOL, right?
+C:  WOW! d00d! U r leet!
+					-- Greg and Customer=20
+User Friendly, 2/12/1999
+
+--9amGYk9869ThD9tj
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFAOGYvIjReC7bSPZARAtpwAJ9Dkr2XemNJAX1jnWgwPOXYNyCkmQCdErPA
+t1uSnL1uSgwT5a/HqMF+DvE=
+=3jGc
+-----END PGP SIGNATURE-----
+
+--9amGYk9869ThD9tj--

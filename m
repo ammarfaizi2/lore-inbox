@@ -1,80 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267769AbUI1OTj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267536AbUI1OXO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267769AbUI1OTj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 10:19:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267536AbUI1OTj
+	id S267536AbUI1OXO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 10:23:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267856AbUI1OXO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 10:19:39 -0400
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:35248 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S267851AbUI1OTS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 10:19:18 -0400
-Date: Tue, 28 Sep 2004 16:19:14 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Hui Huang <Hui.Huang@Sun.COM>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: heap-stack-gap for 2.6
-Message-ID: <20040928141914.GE2412@dualathlon.random>
-References: <20040925162252.GN3309@dualathlon.random> <415903E4.1030808@sun.com>
+	Tue, 28 Sep 2004 10:23:14 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15585 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267823AbUI1OWy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 10:22:54 -0400
+Date: Tue, 28 Sep 2004 09:32:56 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: jonathan@jonmasters.org, Lars Marowsky-Bree <lmb@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Thomas Habets <thomas@habets.pp.se>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] oom_pardon, aka don't kill my xlock
+Message-ID: <20040928123256.GC11779@logos.cnet>
+References: <1096031971.9791.26.camel@localhost.localdomain> <200409242158.40054.thomas@habets.pp.se> <1096060549.10797.10.camel@localhost.localdomain> <20040927104120.GA30364@logos.cnet> <20040927125441.GG3934@marowsky-bree.de> <35fb2e590409270612524c5fb9@mail.gmail.com> <20040927133554.GD30956@logos.cnet> <20040927171253.GA9728@MAIL.13thfloor.at> <20040927164219.GA31645@logos.cnet> <20040928133352.GA24621@MAIL.13thfloor.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <415903E4.1030808@sun.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040928133352.GA24621@MAIL.13thfloor.at>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 27, 2004 at 11:25:40PM -0700, Hui Huang wrote:
-> Andrea Arcangeli wrote:
-> >This patch enforces a gap between heap and stack, both on the mmap side
-> >(for heap) and on the growsdown page faults for stack. the gap is in
-> >page units and it's sysctl configurable. Against CVS head.
-> >
-> >This is needed for some critical app, that wants an higher degree of
-> >protection against potential stack overflows from the kernel. This is
-> >mostly a 32bit matter of course, since on 32bit those apps are using
-> >a few gigs of heap and they get as near as they can to the stack (but if
-> >something goes wrong a page fault must happen).
-> >
-> >
-> >the default value of 1 avoids userspace apps like java to break,
+On Tue, Sep 28, 2004 at 03:33:52PM +0200, Herbert Poetzl wrote:
+> On Mon, Sep 27, 2004 at 01:42:19PM -0300, Marcelo Tosatti wrote:
+> > On Mon, Sep 27, 2004 at 07:12:53PM +0200, Herbert Poetzl wrote:
+> > > On Mon, Sep 27, 2004 at 10:35:54AM -0300, Marcelo Tosatti wrote:
+> > > > On Mon, Sep 27, 2004 at 02:12:26PM +0100, Jon Masters wrote:
+> > > > > Hi all,
+> > > > > 
+> > > > > Just out of interest then...suppose we've got a loopback swap device
+> > > > > and that we can extend this by creating a new file or extending
+> > > > > somehow the existing one.
+> > > > > 
+> > > > > What would be wrong with having the page reclaim algorithms use one of
+> > > > > the low memory watermarks as a trigger to call in to userspace to
+> > > > > extend the swap available if possible? This is probably what Microsoft
+> > > > > et al do with their "Windows is extending your virtual memory, yada
+> > > > > yada blah blah". Comments? Already done?
+> > > > 
+> > > > You dont to change kernel code for that - make a script to monitor 
+> > > > swap usage, as soon as it gets below a given watermark, you swapon 
+> > > > whatever swapfile you want.
+> > > 
+> > > hmm, sounds good, but what if next 'burst' of
+> > > swapped out data is larger than the watermark?
+> > 
+> > Give the watermark a large enough value.
 > 
-> Ok, I'm a JVM guy and I worked on heap-stack-gap issue many moons ago.
-> The reason that heap-stack-gap on SuSE Linux used to crash Java is
-> because we are explicitly setting up a guard page to prevent heap-stack
-> collision (a stack guard is also required in order to throw stack
-> overflow exception). So in a java program, prev_vma in your patch does
-> not point to regular heap memory but the guard page. The hidden gap
-> would cause SIGSEGV to occur before the thread actually hits the guard,
+> right, probably setting it to the currently 
+> available swapspace solves that issue ;)
+> 
+> anyway as I said, I'm fine with 'does not
+> work' but not very happy with half-assed
+> userspace solutions ...
 
-this however doesn't offer the protection on the mmap side, but maybe
-you limit the amount of mmaps with another logic.
+Herbert,
 
-> that confused JVM. We had to work around it by reading the gap size from
-> /proc.
+Honestly, I dont see much difference makes if the swapon procedure
+is called from within the kernel instead from userspace.
 
-cool, so you're already using this heap-stack-gap API. Then maybe we
-could increase the size to more than 1 page. 1 page is the minimum,
-infact those apps asking for the feature have to increase it by hand in
-/proc.
+Have you actually tried such a "on demand swapon" entirely
+from userspace to call it "half-assed" solution ? :)
 
-> I'd recommend adding an extra check to see if prev_vma is read/write,
-> and ignoring heap-stack-gap if prev_vma is guard page. Having a hidden
-> gap does not offer any extra protection, it only confuses an application
-> if it manages stack guard.
+The act of killing tasks is controversial and always generates
+debates here. I bet we will continue seeing them over
+the years.
 
-you recommendation is valid, and this should work, the stack cannot be
-read before it's written to. In theory userspace could track the size of
-the stack and know it is supposed to be 0 and avoid a potential
-memset(0) on local variables the first run, but I don't think gcc is
-capable of doing that.
+If one dont want the OOM killing to happen, he should correctly setup the 
+swap size for his workload (or have a "on demand swapon" solution which 
+can be implemented in userspace), or unset overcommit mode. 
 
+There's not much to argue about that.
 
-My only worry is that this mess up things with mprotect, I mean I can't
-just check only for read-only vmas, I've also to trap when this
-read-only vma infact becomes read-write again. So for simplicity of the
-implementation I would prefer not to track readonly pages. If you've a
-strong reason for tracking readonly pages let me know of course. I think
-java already does fine by checking the heap-stack-gap.
+One controversial issue is the OOM killer policy, which is
+hardcoded into the kernel - through the last years there have
+been several attempts to make it selectable (which this "oom_pardon" 
+patch is about). 
+
+None of these attempts have made into the mainline kernel, because there
+hasn't been an agreement on what is the best implementation 
+of such feature - each implementation is specific to one user 
+group need (for example "dont kill tasks named bla" or "dont kill
+tasks from UID bla" or, or).
+
+But other than the OOM killer policy selection or tuning there's not much
+to be argued really.
+

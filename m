@@ -1,50 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277729AbRJROue>; Thu, 18 Oct 2001 10:50:34 -0400
+	id <S277731AbRJROxY>; Thu, 18 Oct 2001 10:53:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277730AbRJROuY>; Thu, 18 Oct 2001 10:50:24 -0400
-Received: from t2.redhat.com ([199.183.24.243]:16116 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S277729AbRJROuQ>; Thu, 18 Oct 2001 10:50:16 -0400
-Message-ID: <3BCEEC49.90A402A0@redhat.com>
-Date: Thu, 18 Oct 2001 15:50:49 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-4smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Martin Donnelly <md@uklinux.net>, linux-kernel@vger.kernel.org
+	id <S277732AbRJROxO>; Thu, 18 Oct 2001 10:53:14 -0400
+Received: from smtp02.uc3m.es ([163.117.136.122]:33030 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S277731AbRJROw4>;
+	Thu, 18 Oct 2001 10:52:56 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200110181453.f9IErMI18783@oboe.it.uc3m.es>
 Subject: Re: Non-GPL modules
-In-Reply-To: <Pine.LNX.3.95.1011018091343.32746A-100000@chaos.analogic.com> 
-		<20011018090412.I22296@0xd6.org> <1003415874.4004.45.camel@inchgower>
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <Pine.LNX.3.95.1011018101831.603A-100000@chaos.analogic.com> from
+ "Richard B. Johnson" at "Oct 18, 2001 10:46:20 am"
+To: "linux kernel" <linux-kernel@vger.kernel.org>
+Date: Thu, 18 Oct 2001 16:53:22 +0200 (MET DST)
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Richard B. Johnson wrote:"
+> We have a data interface that feeds high-speed data from 4,000 +
+> X-Ray detectors directly to memory at RAM/Bus memory speeds. There
+> is no way in hell that we are going to let the world know how this
 
-> Perhaps a less blunt tool could be used to encourage people to release
-> GPL compatibly licensed code for their previously binary modules? I
-> think you risk manufacturers withdrawing the support they have given by
-> saying if they don't release their code we won't support anything to do
-> with it.
+Oh my gosh. You aren't working on a project for CERN too, are you?
 
-This has been the case for a long time already (so long that I can't
-remember
-if/when it started:), so how did this change recently ? It didn't...
-And vendors who supply binary only modules know already that they get to
-do 
-all the support as rules of the game. That didn't change either.
-
-It's just that it's now easier for the people who get to handle
-bugreports
-to ask "which modules do you use" as first question if the tainted flag
-is set,
-instead of spending hours investigating a weird oops. 
-
-Greetings,
-   Arjan van de Ven
-   (and yes, I do get a fair share of bugreports and really like to know
-which 
-    reports I should be suspicious of and ask for module lists etc)
+Peter

@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266528AbUF0AmO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266532AbUF0Ay5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266528AbUF0AmO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 20:42:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266307AbUF0AmO
+	id S266532AbUF0Ay5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 20:54:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266533AbUF0Ay5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 20:42:14 -0400
-Received: from mxfep02.bredband.com ([195.54.107.73]:58060 "EHLO
-	mxfep02.bredband.com") by vger.kernel.org with ESMTP
-	id S266528AbUF0AmE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 20:42:04 -0400
-Subject: [help] Netdev watchdog code?
-From: Ian Kumlien <pomac@vapor.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-tloQjPdvfSwyLVJUYEGG"
-Message-Id: <1088296922.23713.45.camel@big>
+	Sat, 26 Jun 2004 20:54:57 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3498 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266532AbUF0Ay4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jun 2004 20:54:56 -0400
+Date: Sun, 27 Jun 2004 01:54:55 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Roland Dreier <roland@topspin.com>
+Cc: Matthew Wilcox <willy@debian.org>, mj@ucw.cz,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pciutils: Support for MSI-X capability
+Message-ID: <20040627005455.GA30334@parcelfarce.linux.theplanet.co.uk>
+References: <52y8mayzdy.fsf@topspin.com> <20040626215421.GA26262@parcelfarce.linux.theplanet.co.uk> <52r7s1zyn1.fsf@topspin.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 27 Jun 2004 02:42:02 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <52r7s1zyn1.fsf@topspin.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jun 26, 2004 at 04:29:38PM -0700, Roland Dreier wrote:
+>     Matthew> Martin, how can we make this easiest for you?  Do you
+>     Matthew> want to merge Roland's fully-fledged MSI-X patch and put
+>     Matthew> out a new -test release that I can send half-baked PCI-E
+>     Matthew> patches against until everybody's happy with the outcome?
+> 
+> Ahh... I'll hold off on writing my PCI-e capability parser then :)
 
---=-tloQjPdvfSwyLVJUYEGG
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Did you not see the one I posted to linux-pci yesterday?  As I say,
+it's only half-done.  I wanted to get a feel for whether people like
+the direction I'm taking.
 
-Hi,=20
+Unfortunately, I can't see a web archive of linux-pci anywhere -- even
+on MArc.  I can forward the patches though.
 
-Do i understand this right?
-
-Netdev watchdog can only be called when netif_stop_queue(...) has been
-called. From what i gather in b44.c it's only called when the send queue
-is full, yet it can trigger on a common dhcp request.
-(where netif_queue_stopped(...) should return false, and thus the
-watchdog shouldn't run at all)
-
-As it is now, i can't understand how i can get watchdog timeouts since
-the queue would have to be filled. On a 100mbit fdup link it shouldn't
-delay that long not even if you use UDP packets (like nfs, I've even
-seen it trigger with ftp now).
-
-Anyways, Doing bio-timing based on the text output, it should work.
-And, the current vanila kernel.org kernel doesn't work for me, as i have
-stated numerous times and received no feedback.
-
-PS, CC, not in list.
-DS.
---=20
-Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
-
---=-tloQjPdvfSwyLVJUYEGG
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBA3hfZ7F3Euyc51N8RAvqsAJ9eLIzHA/756UySS+ca9mrOPCdYUQCfQm79
-wibUK75mTHiNAx5NNW3KzOw=
-=9DKZ
------END PGP SIGNATURE-----
-
---=-tloQjPdvfSwyLVJUYEGG--
-
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

@@ -1,80 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289711AbSBJSJI>; Sun, 10 Feb 2002 13:09:08 -0500
+	id <S289725AbSBJSlJ>; Sun, 10 Feb 2002 13:41:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289718AbSBJSI6>; Sun, 10 Feb 2002 13:08:58 -0500
-Received: from mail.headlight.de ([195.254.117.141]:2053 "EHLO
-	mail.headlight.de") by vger.kernel.org with ESMTP
-	id <S289711AbSBJSIt>; Sun, 10 Feb 2002 13:08:49 -0500
-Date: Sun, 10 Feb 2002 19:10:15 +0100
-From: Daniel Mack <daniel@yoobay.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: bug in handling bad inodes in 2.4 series
-Message-ID: <20020210191015.A9537@chaos.intra>
+	id <S289726AbSBJSlA>; Sun, 10 Feb 2002 13:41:00 -0500
+Received: from [195.163.186.27] ([195.163.186.27]:49890 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S289725AbSBJSkx>;
+	Sun, 10 Feb 2002 13:40:53 -0500
+Date: Sun, 10 Feb 2002 20:40:35 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Laurence <laudney@21cn.com>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Transaction TCP patch for Linux
+Message-ID: <20020210204035.M20396@mea-ext.zmailer.org>
+In-Reply-To: <20020210164754Z289694-13996+20348@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020210164754Z289694-13996+20348@vger.kernel.org>; from laudney@21cn.com on Mon, Feb 11, 2002 at 12:50:02AM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all,
+On Mon, Feb 11, 2002 at 12:50:02AM +0800, Laurence wrote:
+> I'd like to be emailed comments or replies personally.
+> 
+> Transaction TCP is an extension for TCP. Its performance advantage is
+> indisputably better than standard TCP. But only FreeBSD integrates
+> TTCP into its kernel. So, I've started T/TCP for Linux at
+> http://ttcplinux.sourceforge.net or
+> http://sourceforge.net/projects/ttcplinux. I'm writing the kernel
+> patch for Linux kernel 2.4.2. Is anyone interested in it or have
+> anything to say about T/TCP's pros and cons??
 
-i figured out a bug in at least the 2.4.16, .17 and .18-pre9 kernel releases
-regarding the handling of bad inodes which causes the names_cache to get 
-confused. i informed al viro about this but found it better to also post
-my perception to the lkml for getting more response and feedback.
-you can easily reproduce the effect by making an inode bad using debugfs
-(or using a bad one if you have, of course) and open() it with the flag 
-O_CREAT set. watching /proc/slabinfo will show you the weirdness. 
-consider /tmp/bad is a bad inode:
+  http://theory.lcs.mit.edu/~mass/comm.html
+  http://theory.lcs.mit.edu/~mass/forte96.html
 
-# cd /tmp
-# ls | grep bad
-bad
-# cat bad
-cat: bad: Input/output error
-# cat /proc/slabinfo | grep names
-names_cache            0      2   4096    0    2    1 :      2     333     2    0    0
-# echo foo >bad
-sh: bad: Input/output error
-# cat /proc/slabinfo | grep names
-names_cache       4294967295      2   4096    1    2    1
+  There Mark Smith shows that T/TCP does not (in all error cases)
+  act the _same_ as TCP, although that does not necessarily mean
+  it would be wrong.
 
-boom! 4294967295 == (unsigned long) -1, the cache length is growing backwards.
-this "echo foo >bad" opens the file with O_CREAT set which forces the effect.
-
-what confuses me is that the system remains stable after that happened, the
-only effect i got was that i wasn't able to rename() a file on any filesystem 
-anymore. what the rename() syscall does on kernel side is getting memory from 
-the names_cache twice by calling __getname() which gives out the same pointer
-twice when the kernel is poisoned this way. 
-anyway, it's an ugly bug that needs to be fixed.
-
-the bug is most likely in fs/namei.c, open_namei() - at least i fixed my
-machine here with this:
-
---- linux-2.4.17-orig/fs/namei.c        Wed Oct 17 23:46:29 2001
-+++ linux-2.4.17-uml/fs/namei.c Fri Feb  8 02:53:36 2002
-@@ -1052,6 +1052,11 @@
-        error = -ENOENT;
-        if (!dentry->d_inode)
-                goto exit_dput;
-+
-+       error = -EIO;
-+       if (is_bad_inode(dentry->d_inode))
-+               goto exit_dput;
-+
-        if (dentry->d_inode->i_op && dentry->d_inode->i_op->follow_link)
-                goto do_link;
-
-an open() does not make any sense on a bad inode so i see no reason for
-not breaking the branch at this point.
-
-any comments? please let me know if you're able to trigger this effect
-on older 2.4 kernels. btw, version 2.2.19 is not tainted.
+  Reading  W.R.Stevens' book "TCP/IP Illustriated, Volume 3"
+  gives a glimpse of how BSD did things in NET/3 code back
+  in early 1994-1996, and there I see many odd bits like
+  per-host route entires containing support data..
 
 
-greets,
-daniel
--- 
+> Besides, I've finished some basic codes involving:
+> 1. new structures
+> 2. newly created or modified funtions mainly related to receiving
+> 
+> If anyone is interested, tell me and I'll send the codes. I don't want 
+> to upload the codes in CVS at this moment. At least, I want to have a 
+> basic but compile-able one.
+
+/Matti Aarnio

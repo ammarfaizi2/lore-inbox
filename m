@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262465AbUBYDeb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 22:34:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUBYDea
+	id S262425AbUBYDjy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 22:39:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262463AbUBYDjy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 22:34:30 -0500
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:48011 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S262465AbUBYDe1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 22:34:27 -0500
-Message-ID: <403C17BC.60603@matchmail.com>
-Date: Tue, 24 Feb 2004 19:34:20 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
-X-Accept-Language: en-us, en
+	Tue, 24 Feb 2004 22:39:54 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:21164 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S262425AbUBYDjw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 22:39:52 -0500
+Date: Tue, 24 Feb 2004 22:39:26 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+cc: Greg KH <greg@kroah.com>, Christoph Hellwig <hch@infradead.org>,
+       "Woodruff, Robert J" <woody@co.intel.com>,
+       <linux-kernel@vger.kernel.org>, "Hefty, Sean" <sean.hefty@intel.com>,
+       "Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
+       "Davis, Arlin R" <arlin.r.davis@intel.com>,
+       <marcelo.tosatti@cyclades.com>, <torvalds@osdl.org>
+Subject: Re: PATCH - InfiniBand Access Layer (IBAL)
+In-Reply-To: <20040225002819.GP1751@mea-ext.zmailer.org>
+Message-ID: <Pine.LNX.4.44.0402242238020.15091-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.3-mm3
-References: <20040222172200.1d6bdfae.akpm@osdl.org>	<403C0DBF.7040608@matchmail.com> <20040224190903.586bec30.akpm@osdl.org>
-In-Reply-To: <20040224190903.586bec30.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Mike Fedyk <mfedyk@matchmail.com> wrote:
-> 
->> I have a dual CPU server that won't boot 2.6.3-mm3.  It will however 
->> boot vanilla 2.6.3.
->>
->> Right after is says "uncompressing kernel" and "booting" it hangs.
-> 
-> 
-> Please triple-check the .config, then boot with
-> 
-> 	earlyprintk=vga
-> 
-> or set up a serial console and boot with
-> 
-> 	earlyprintk=serial[,ttySn[,baudrate]]
+On Wed, 25 Feb 2004, Matti Aarnio wrote:
 
-Brown paper bag time.
+> People building "cheap supercomputers" will be going that way
+> most definitely.  Slowest version is 2.5 Gbit/s, and most
+> common one appears to be running 4x that.
 
-I tried booting an Athlon compiled kernel on a PIII. :-/
+I'm sure infinibad will be inetresting once htere are
+actual hardware driver.s  However, I'm not aware of any
+open source drivers in existnace now, so what good is
+a stack ?
 
-Mike
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

@@ -1,31 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131012AbRCFQql>; Tue, 6 Mar 2001 11:46:41 -0500
+	id <S131009AbRCFQxM>; Tue, 6 Mar 2001 11:53:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131009AbRCFQqW>; Tue, 6 Mar 2001 11:46:22 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16650 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131002AbRCFQqS>; Tue, 6 Mar 2001 11:46:18 -0500
+	id <S131014AbRCFQxB>; Tue, 6 Mar 2001 11:53:01 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:30292 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S131009AbRCFQwu>; Tue, 6 Mar 2001 11:52:50 -0500
+Date: Tue, 6 Mar 2001 17:52:21 +0100 (CET)
+From: Francis Galiegue <fg@mandrakesoft.com>
+To: LA Walsh <law@sgi.com>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: Annoying CD-rom driver error messages
-To: law@sgi.com (LA Walsh)
-Date: Tue, 6 Mar 2001 16:49:07 +0000 (GMT)
-Cc: atm@pinky.penguinpowered.com (God), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3AA510C6.7A2190D8@sgi.com> from "LA Walsh" at Mar 06, 2001 08:31:02 AM
-X-Mailer: ELM [version 2.5 PL1]
+In-Reply-To: <3AA510C6.7A2190D8@sgi.com>
+Message-ID: <Pine.LNX.4.21.0103061750450.26329-100000@toy.mandrakesoft.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14aKe6-00010k-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 6 Mar 2001, LA Walsh wrote:
+
+> 	So I'm still wondering what the "approved and recommended" way for a program
+> to be "automatically" informed of a CD or floppy change/insertion and be able to
+> informed of media 'type' w/o kernel warnings/error messages.  It sounds like
+> there is no kernel support for this so far?
+> 
 > 	Then it seems the less ideal question is what is the "approved and recommended
 > way for a program to "poll" such devices to check for 'changes' and 'media type'
 > without the kernel generating spurious WARNINGS/ERRORS?
+> 
 
-The answer to that could probably fill a book unfortunately. You need to use
-the various mtfuji and other ata or scsi query commands intended to notify you
-politely of media and other status changes
+The main problem is, in fact: none of floppy drives/IDE
+floppies/CDROMs/whatever can do asynchronous medium change notifications (at
+least not that I know of), so you'll need to poll anyway... And of course, the
+commands to send depend on the device...
+
+-- 
+Francis Galiegue, fg@mandrakesoft.com - Normand et fier de l'être
+"Programming is a race between programmers, who try and make more and more
+idiot-proof software, and universe, which produces more and more remarkable
+idiots. Until now, universe leads the race"  -- R. Cook
 

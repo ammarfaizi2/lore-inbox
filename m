@@ -1,51 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbULKCGS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbULKCGq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261907AbULKCGS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 21:06:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbULKCGS
+	id S261913AbULKCGq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 21:06:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbULKCGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 21:06:18 -0500
-Received: from mail.kroah.org ([69.55.234.183]:16026 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261907AbULKCGM (ORCPT
+	Fri, 10 Dec 2004 21:06:46 -0500
+Received: from av2.karneval.cz ([81.27.192.108]:33076 "EHLO av2.karneval.cz")
+	by vger.kernel.org with ESMTP id S261910AbULKCGf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 21:06:12 -0500
-Date: Fri, 10 Dec 2004 18:05:42 -0800
-From: Greg KH <greg@kroah.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] [RFC PATCH] debugfs - yet another in-kernel file system
-Message-ID: <20041211020542.GA18315@kroah.com>
-References: <20041210005055.GA17822@kroah.com> <200412101729.01155.david-b@pacbell.net> <20041211013930.GB12846@kroah.com> <200412101802.00197.david-b@pacbell.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 10 Dec 2004 21:06:35 -0500
+From: Pavel Pisa <pisa@cmp.felk.cvut.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: VM86 interrupt emulation breakage and FIXes for 2.6.x kernel series
+Date: Sat, 11 Dec 2004 03:07:45 +0100
+User-Agent: KMail/1.7.1
+Cc: Ingo Molnar <mingo@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200412091459.51583.pisa@cmp.felk.cvut.cz> <1102712732.3264.73.camel@localhost.localdomain> <Pine.LNX.4.58.0412101454510.31040@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0412101454510.31040@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200412101802.00197.david-b@pacbell.net>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200412110307.45547.pisa@cmp.felk.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 10, 2004 at 06:02:00PM -0800, David Brownell wrote:
-> On Friday 10 December 2004 5:39 pm, Greg KH wrote:
-> > > What I'd really want out of a debug file API is to resolve
-> > > the naming issues, work with seq_file, and "softly and
-> > > silently vanish away".  I think this patch has the last
-> > > two, but not the first one!
-> > 
-> > I considered adding a kobject as a paramater to the debugfs interface.
-> > The file created would be equal to the path that the kobject has.  Would
-> > that work for you?
+On Friday 10 December 2004 23:55, Linus Torvalds wrote:
 > 
-> If I could pass device->kobj or driver->kobj, that'd be good.
+> On Fri, 10 Dec 2004, Alan Cox wrote:
+> > 
+> > You can't disable_irq and return to user space - the IRQ may be shared
+> > by a device needed to make user space progress. 
+> 
+> The vm86 interrupt does not allow sharing. And it really _has_ to be 
+> disabled until user mode has cleared the irq source, or you'll have a very 
+> dead machine.
 
-Ok, I'll work on adding that.
+I have thought about all these problems before change proposal.
+There is no other way to do interrupt propagation to user-space
+for user-space only serviced level activated interrupt.
+I would like very much ability to propagate some interrupts
+serviced by real driver into userspace as well.
+This is well doable, if real driver clears source and VM86
+shared handler would return IRQ_NONE and not disable IRQ in this case.
+There is no clean way, how to solve level activated IRQ sharing between
+two devices, one serviced by real driver and the second by userspace.
+Probably IRQ disable would partially work, if real driver would
+not be at core path (swapping) device or device blocking userspace
+"driver" thread.
 
-> Will there be a /debug/devices tree parallel to /sys/devices?
+There are some more IRQ related issues ad questions.
 
-If the kobject name is devices/foo/whatever, then  yes, it would then
-match up the same, if you create a debugfs file with the kobject.  If
-you don't do that, then no, I'm not going to maintain a mirror directory
-image of sysfs in debugfs just for the fun of it :)
+1) Actual VM86 IRQ solution works well for us, but I have
+   found even before patch sending one scenario asking for check.
+   IRQ appears in HW, disable_irq() is called by the handler.
+   Userspace task is deleted before get_and_reset_irq()
+   reenables IRQ. free_vm86_irq() is called.
+   Now some real kernel module asks for same IRQ
+   by request_irq() call. It succeeds, because IRQ is no longer
+   reserved for VM86. But what does happen with IRQ disable counter
+   in such case? 
+   ... OK, I have recheck that now, "if (!shared) {" in  setup_irq()
+   should correctly solve that case. It enables IRQ again and cleans counter.
 
-thanks,
+2) I think, that the VM86 IRQ handling is x86 specific only by its name.
+   It is shame, that it is allowed only for interrupts 3 to 15
+   and implemented only for x86 architecture. This is feature, which
+   in combination with some libraries, could be used for drivers
+   debugging in userspace even for ARM or other targets.
+   I have used this feature years ago for debugging of uLan driver
+   and pre-LinCAN incarnations of my CAN experiments.
+   Are there more people who think that this could be of some value?
 
-greg k-h
+3) What is your opinion about sharing edge triggered interrupts
+   on x86 architecture?
+   It was unserviceable for all kernels before irqreturn_t introduction.
+   This seems to be broken up to 2.6.9 still.
+   Let there are two shared edge triggered sources A and B.
+   Device B asks for IRQ, ISR for A is called and returns,
+   request from device A arrives, but there is no edge, line is
+   held by B. B request proceeds, but no edge appears, line is held by A.
+   Handlers are not called any more => stuck IRQ condition.
+   It is necessary cycle calls to all handlers until one full round
+   of IRQ_NONE is received. Have I overlooked something, which solves
+   this situation in the current kernel? Is there willing to do something
+   with that. I can prepare and test some solution if there is interrest.
+   I know, that ISA is out of scope for desktop PCs now, but low count of
+   available IRQs is common problem on embedded PC-104 targets.
+   They would benefit from this enhancement.
+   
+Best wishes
+
+                Pavel Pisa

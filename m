@@ -1,55 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262789AbTLWW3H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 17:29:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262790AbTLWW3H
+	id S263130AbTLWWYS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 17:24:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263172AbTLWWYS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 17:29:07 -0500
-Received: from [62.42.230.12] ([62.42.230.12]:13987 "EHLO mta02.onolab.com")
-	by vger.kernel.org with ESMTP id S262789AbTLWW3E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 17:29:04 -0500
-From: <xan2@ono.com>
-To: andersen@codepoet.org
-Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
-Message-ID: <1b93041b9c9f.1b9c9f1b9304@ono.com>
-Date: Tue, 23 Dec 2003 23:27:01 +0100
-X-Mailer: Netscape Webmail
-MIME-Version: 1.0
-Content-Language: es
-Subject: Re: Re: [License of kernel components]
- linux-2.x.y/Documentation/logo.GIF should be logo.PNG?
-X-Accept-Language: es
-X-Priority: 1 (Highest)
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Tue, 23 Dec 2003 17:24:18 -0500
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:31236 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S263130AbTLWWYP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 17:24:15 -0500
+Subject: Re: DEVFS is very good compared to UDEV
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Jari Soderholm <Jari.Soderholm@edu.stadia.fi>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <sfe8cdc2.027@mail2.edu.stadia.fi>
+References: <sfe8cdc2.027@mail2.edu.stadia.fi>
+Content-Type: text/plain
+Message-Id: <1072218249.5813.2.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
+Date: Tue, 23 Dec 2003 23:24:09 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Andersen <andersen@codepoet.org>
->>23th, 2003 8:38 pm
->>Re: [License of kernel components] linux-2.x.y/Documentation/logo.GIF
-should be logo.PNG?
-> [...]
-> The U.S. LZW patent expired June 20, 2003.  The Canadian LZW
-> patent expiref July 7, 2004.  The LZW patents in the United
-> Kingdom, France, Germany and Italy however are still active, and
-> will expire June 18, 2004.  The Japanese LZW patent will expire
-> on June 20, 2004. 
-> 
+On Tue, 2003-12-23 at 22:20, Jari Soderholm wrote:
+> Why could you develop it so that UDEV could create those
+> actual device files there also, then most linux
+> users would not need those horrible scipts anymore.
+> All that is then needed link from /sysfs to /dev dir.
 
-For this reason, because in many countries the patent is not expired and
-that kernel is not _only_ for people of U.S., I think that we have to
-change to PNG format rather than gif.
+Well, udev way of doing things is very similar to Solaris. While booting
+with -r, or by creating /.reconfigure, Solaris kernel scans the hardware
+and creates entries in /devices tree. The /dev entries are just symlinks
+to /devices entries.
 
-I vote for pass to PNG format as fast as we can.
-
-> I vote for keeping the status quo for another 4 months....
-
-Why not consider to make a public votation (with public point of views
-of the kernel hackers about it; obviously, vote is secret) about this?
-
-Regards,
-Xan.
 

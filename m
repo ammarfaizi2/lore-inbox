@@ -1,101 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288334AbSANACQ>; Sun, 13 Jan 2002 19:02:16 -0500
+	id <S288344AbSANAB4>; Sun, 13 Jan 2002 19:01:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288338AbSANACH>; Sun, 13 Jan 2002 19:02:07 -0500
-Received: from paloma14.e0k.nbg-hannover.de ([62.181.130.14]:42149 "HELO
-	paloma14.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S288334AbSANABw>; Sun, 13 Jan 2002 19:01:52 -0500
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: J Sloan <jjs@pobox.com>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Date: Mon, 14 Jan 2002 01:00:38 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Robert Love <rml@tech9.net>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020113201352Z288089-13997+4417@vger.kernel.org> <3C421946.6020607@pobox.com>
-In-Reply-To: <3C421946.6020607@pobox.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20020114000201Z288334-13997+4486@vger.kernel.org>
+	id <S288338AbSANABr>; Sun, 13 Jan 2002 19:01:47 -0500
+Received: from smtp.kolej.mff.cuni.cz ([195.113.25.225]:37646 "EHLO
+	smtp.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S288334AbSANABg> convert rfc822-to-8bit; Sun, 13 Jan 2002 19:01:36 -0500
+X-Envelope-From: martin.macok@underground.cz
+Date: Mon, 14 Jan 2002 01:01:34 +0100
+From: =?iso-8859-2?Q?Martin_Ma=E8ok?= <martin.macok@underground.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: low latency versus sched O(1) - and versus preempt
+Message-ID: <20020114010134.D1399@sarah.kolej.mff.cuni.cz>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020111131252.A1366@sarah.kolej.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020111131252.A1366@sarah.kolej.mff.cuni.cz>; from martin.macok@underground.cz on Fri, Jan 11, 2002 at 01:12:52PM +0100
+X-Echelon: GRU NSA GCHQ CIA Pentagon nuclear conspiration war teror anthrax
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 14. January 2002 00:33, J Sloan wrote:
-> Dieter Nützel wrote:
+On Fri, Jan 11, 2002 at 01:12:52PM +0100, Martin Maèok wrote:
+> I have tested Andrew Morton's low latency patch versus Ingo's sched
+> O(1) patch a bit:
+> 
+> "O1" is 2.4.18-pre2 + sched-O1-2.4.17-G1
+> 
+> "LL" is 2.4.18-pre3 + 2.4.17-low-latency + riel's 2.4.3ac4-largenice
 
-> >I am, too. But more for 3D visualization/simulation (with audio).
->
-> Certainly not conflicting goals!
+"PS" is 2.4.18-pre3 + sched H6 + preempt
 
-Yes.
+With PS I got somewhere in between O1 and LL, which means that desktop
+performance under load with "nice -n +19 make bzimage" (audiovisual
+xmms plugins, tuxracer, Q3A, mozilla) were best smooth with LL, and a
+little worse with PS.
 
-> >>Kernel
-> >>compilation time is the farthest thing from my
-> >>mind when e.g. playing Q3A!
-> >
-> >Q3A is _NOT_ changed in any case. Even some smoother system "feeling" with
-> > Q3A and UT 436 running in parallel on an UP 1 GHz Athlon II, 640 MB.
->
-> That's odd - for me the low latency kernels give
-> not only a smoother feel, but also markedly higher
-> standing on average at the end of the game.
+With "nice -n 0 make bzimage" desktop interactivity was best with PS,
+a little worse with O1 and worst with LL.
 
-What did you see?
-During timedemo or avg fps?
+If I get enough free time, I will test O1+preempt versus O1+mini-ll.
+Something tells me that best results will be with O1+LL, because in LL
+versus preempt, LL wins for me (interactivity, smoothness).
 
-> Perhaps your setup has something that is
-> mitigating the beneficial effects of the low
-> latency modifications?
->
-> Are you running a non-ext2 filesystem?
-
-Of course. All ReiserFS.
-I have normally posted that together with my preempt numbers.
-lock-brake has some code for ReiserFS in it. I did the testing for Robert.
-
-> Do you have a video card that grabs the
-> bus for long periods?
-
-Don't know.
-Any tools available for measuring?
-Latest development stuff for a Voodoo5 5500 AGP (XFree86 DRI CVS, 
-mesa-4-branch). I am somewhat in the DRI development involved.
-Glide3/3DNow!
-
-> And you set /proc/sys/kernel/lowlatency=1...
-
-I think I hadn't forgetten that.
-
-> >Have you seen something on any Win box?
->
-> I have seen the games played on windoze and
-> have played at lan parties with win32 opponents
-> but I do not personally play games on windoze.
-> Lack of interest, I guess...
-
-I meant both running together at the same time.
-Never seen that on a Windows box...
-
-> On a kernel with both tux and preempt, upon
-> access to the tux webserver the kernel oopses
-> and tux dies. Not good when I depend on tux.
->
-> OTOH the low latency patch plays quite well
-> with tux. As said, I have no anti-preempt agenda,
-> I just need for whatever solution I use to work,
-> and not crash programs and services we use.
-
-Sure. I only want to know your problem.
-
-> >Some latency numbers coming soon.
->
-> Great!
-
-With some luck tonight.
-It is 1 o'clock local time, here...
-
--Dieter
+-- 
+         Martin Maèok                 http://underground.cz/
+   martin.macok@underground.cz        http://Xtrmntr.org/ORBman/

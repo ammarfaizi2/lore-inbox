@@ -1,85 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbUJaVpc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbUJaVtU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261657AbUJaVpc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 16:45:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbUJaVov
+	id S261662AbUJaVtU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 16:49:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbUJaVpo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 16:44:51 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:10551 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261666AbUJaVjx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 16:39:53 -0500
-Date: Sun, 31 Oct 2004 23:39:50 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Roland Dreier <roland@topspin.com>, sam@ravnborg.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/take 2] ppc: fix build with O=$(output_dir)
-Message-ID: <20041031223949.GB21471@mars.ravnborg.org>
-Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
-	Roland Dreier <roland@topspin.com>, sam@ravnborg.org, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <52is979pah.fsf@topspin.com> <20041019164449.GF6298@smtp.west.cox.net> <521xfua835.fsf_-_@topspin.com> <20041019182928.GA12544@smtp.west.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041019182928.GA12544@smtp.west.cox.net>
-User-Agent: Mutt/1.5.6i
+	Sun, 31 Oct 2004 16:45:44 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:56034 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261574AbUJaVnl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 16:43:41 -0500
+Message-ID: <41855DB4.4010209@comcast.net>
+Date: Sun, 31 Oct 2004 13:48:36 -0800
+From: Z Smith <plinius@comcast.net>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: code bloat [was Re: Semaphore assembly-code bug]
+References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel> <200410310000.38019.vda@port.imtp.ilyichevsk.odessa.ua> <1099170891.1424.1.camel@krustophenia.net> <200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua> <20041030222720.GA22753@hockin.org> <Pine.LNX.4.53.0410310744210.3581@yvahk01.tjqt.qr> <41855483.2090906@comcast.net> <Pine.LNX.4.53.0410312213080.18107@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.53.0410312213080.18107@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 19, 2004 at 11:29:28AM -0700, Tom Rini wrote:
- 
-> This misses the bit to invoke the checker as well (when I first thought
-> this up I poked Al Viro about the general question of checker on boot
-> code, and he wanted it, so...).  And having 2 'magic' rules not just 1
-> is why I don't like this too much and was hoping Sam would have some
-> idea of a good fix.
+Jan Engelhardt wrote:
 
-Hi Tom.
+>>Also, might not software 3d open the kernel up to
+>>patent issues?
+> 
+> Whatever you do, 3D at the software level is slow, even with a fast comp.
+> See MESA.
 
-Finally took a look.
-The best approach is to grab a copy of the .c file and compile
-that in this dir.
-In this way we avoid unessesary recompile etc. but waste a bit disk space.
-I do not like symlinks in general and made a copy. (note: uses cat to give
-appropriate permission)
+Well it might be nice to add support for hardware 3-D, once 2-D
+is mature. In fact I imagine it could be very convenient for
+some people.
 
-If you are OK with this let me know if you want me to push it to linus
-or you go via the ppc tree.
-
-PS: Had troubles with kbd so commented out.
-
-	Sam
-
-===== Makefile 1.11 vs edited =====
---- 1.11/arch/ppc/boot/lib/Makefile	2004-10-25 21:47:48 +02:00
-+++ edited/Makefile	2004-10-31 23:37:23 +01:00
-@@ -2,9 +2,22 @@
- # Makefile for some libs needed by zImage.
- #
- 
--CFLAGS_kbd.o	+= -Idrivers/char
-+CFLAGS_kbd.o	:= -Idrivers/char
-+CFLAGS_vreset.o := -I$(srctree)/arch/ppc/boot/include
- 
--lib-y := $(addprefix ../../../../lib/zlib_inflate/, \
--           infblock.o infcodes.o inffast.o inflate.o inftrees.o infutil.o)
--lib-y += div64.o
--lib-$(CONFIG_VGA_CONSOLE) += vreset.o kbd.o
-+zlib  := infblock.c infcodes.c inffast.c inflate.c inftrees.c infutil.c
-+	 
-+lib-y += $(zlib:.c=.o) div64.o
-+lib-$(CONFIG_VGA_CONSOLE) += vreset.o #kbd.o
-+
-+
-+# zlib files needs header from their original place
-+EXTRA_CFLAGS += -Ilib/zlib_inflate
-+
-+quiet_cmd_copy_zlib = COPY    $@
-+      cmd_copy_zlib = cat $< > $@
-+
-+$(addprefix $(obj)/,$(zlib)): $(obj)/%: $(srctree)/lib/zlib_inflate/%
-+	$(call cmd,copy_zlib)
-+
-+clean-files := $(zlib)
+ZS

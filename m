@@ -1,50 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261867AbSJQUV4>; Thu, 17 Oct 2002 16:21:56 -0400
+	id <S262129AbSJQUUH>; Thu, 17 Oct 2002 16:20:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262022AbSJQUV4>; Thu, 17 Oct 2002 16:21:56 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:43527 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261867AbSJQUVy>; Thu, 17 Oct 2002 16:21:54 -0400
-Date: Thu, 17 Oct 2002 21:27:49 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Russell Coker <russell@coker.com.au>
-Cc: Greg KH <greg@kroah.com>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+	id <S262130AbSJQUUH>; Thu, 17 Oct 2002 16:20:07 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:28862 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262129AbSJQUUG>;
+	Thu, 17 Oct 2002 16:20:06 -0400
+Date: Thu, 17 Oct 2002 13:18:30 -0700 (PDT)
+Message-Id: <20021017.131830.27803403.davem@redhat.com>
+To: greg@kroah.com
+Cc: hch@infradead.org, torvalds@transmeta.com, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] remove sys_security
-Message-ID: <20021017212749.A8506@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Russell Coker <russell@coker.com.au>, Greg KH <greg@kroah.com>,
-	torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-	linux-security-module@wirex.com
-References: <20021017195015.A4747@infradead.org> <20021017195838.A5325@infradead.org> <20021017190723.GB32537@kroah.com> <200210172220.21458.russell@coker.com.au>
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021017185352.GA32537@kroah.com>
+References: <20021017195015.A4747@infradead.org>
+	<20021017185352.GA32537@kroah.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200210172220.21458.russell@coker.com.au>; from russell@coker.com.au on Thu, Oct 17, 2002 at 10:20:21PM +0200
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 17, 2002 at 10:20:21PM +0200, Russell Coker wrote:
-> Now if every SE system call was to be a full Linux system call then LANANA 
-> would be involved in the discussions every time that a new SE call was added, 
-> which would not be desired by the SE Linux people or the LANANA people.  So 
-> this means having a switch statement for the different SE calls.
+   From: Greg KH <greg@kroah.com>
+   Date: Thu, 17 Oct 2002 11:53:52 -0700
+   
+   No, don't remove this!
+   Yes, it's a big switch, but what do you propose otherwise?  SELinux
+   would need a _lot_ of different security calls, which would be fine, but
+   we don't want to force every security module to try to go through the
+   process of getting their own syscalls.
+   
+   And other subsystems in the kernel do the same thing with their syscall,
+   like networking, so there is a past history of this usage.
 
-Then stabilize your interface before going into production use.  Why
-should selinux (or lsm) get special treatment?
+Well, here is another issue about opaque interfaces, how are we
+supposed to audit whether 32-bit/64-bit execution environments
+will be able to work correctly?
 
-> Do we expect that SE Linux or other security system calls will be such a 
-> performance bottleneck that an extra switch or two will hurt?
+If there is no description available of what the types are going
+through these system calls, it cannot be handled properly.
 
-It's not the performance issues, it's about getting a proper syscall table
-instead of deep nesting without knowing what it actually does.
-Look at e.g. the horrors of doing a proper 32->64bit translation
-of those syscalls.
+It is one thing if some existing legacy user interface we can't make
+go away creates this kind of problem, but when we add new system calls
+we ought to be much much more careful.
 
-> Also it would mean that developmental projects would be more difficult.
+I brought this up months ago, and I believe someone (perhaps you :),
+said "oh I'll bring that up with the folks, thanks" and I've seen
+no action taken since.
 
-Yes.  In general you should avoid adding syscalls anyway. If we
-wanted to make it easy we'd have created loadable syscalls from the very
-beginning.
+Are the LSM modules that exist now using portable types in the objects
+passed into sys_security?  Note that pointers and things like "long"
+are not allowed as types, for example, those would need to be translated.
+
+The more I look at LSM the more and more I dislike it, it sticks it's
+fingers everywhere.  Who is going to use this stuff?  %99.999 of users
+will never load a security module, and the distribution makers are
+going to enable this NOP overhead for _everyone_ just so a few telcos
+or government installations can get their LSM bits?
+
+This doesn't make any sense to me, including LSM appears to be quite
+against one of the basic maxims of Linux kernel ideology if you ask me
+:-)  (said maxim is: If %99 of users won't use it, they better not
+even notice it is there or be affected by it in any way)

@@ -1,66 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264831AbTFBS37 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 14:29:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264832AbTFBS37
+	id S264833AbTFBSeR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 14:34:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264835AbTFBSeQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 14:29:59 -0400
-Received: from tag.witbe.net ([81.88.96.48]:21517 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S264831AbTFBS36 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 14:29:58 -0400
-From: "Paul Rolland" <rol@as2917.net>
-To: "'Russell King'" <rmk@arm.linux.org.uk>
-Cc: "'Ruud Linders'" <rkmp@xs4all.nl>, <linux-kernel@vger.kernel.org>
-Subject: Re: Serial port numbering (ttyS..) wrong for 2.5.61+
-Date: Mon, 2 Jun 2003 20:43:24 +0200
-Message-ID: <011501c32936$d8fc44d0$3f00a8c0@witbe>
+	Mon, 2 Jun 2003 14:34:16 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:14728 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S264833AbTFBSeM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 14:34:12 -0400
+Message-ID: <3EDB9BC9.8010703@namesys.com>
+Date: Mon, 02 Jun 2003 22:47:37 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030425
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Andi Kleen <ak@suse.de>
+CC: rwhron@earthlink.net, linux-kernel@vger.kernel.org
+Subject: Re: [BENCHMARKS] 2.5.70 for 4 filesystems
+References: <20030531163339.GA9426@rushmore.suse.lists.linux.kernel> <p73add36p8n.fsf@oldwotan.suse.de>
+In-Reply-To: <p73add36p8n.fsf@oldwotan.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-In-Reply-To: <20030602185118.B776@flint.arm.linux.org.uk>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+You should expect V3 to be slow at quad CPU smp benchmarks because 
+balancing is giant locked.   V4 fixes this with fine grained locking, we 
+hope to release at Linux Tag in July.  Fortunately quad CPU boxes will 
+not be economical compared to dual CPU boxes until V4 has been out for a 
+while....;-)  V4 CPU  usage and general performance has gotten a lot 
+better, we need to put a new snapshot on our website.....
+
+Andi Kleen wrote:
+
+>rwhron@earthlink.net writes: 
+>  
+>
+>>                  --------------- Sequential ----------
+>>                  ----- Create -----   ---- Delete ----
+>>                   /sec  %CPU    Eff   /sec  %CPU   Eff
+>>2.5.70-reiserfs    7584  86.7   8751   2628  37.3  7038
+>>2.5.70-xfs         1710  39.3   4347   2053  28.3  7247
+>>2.5.70-ext2         150  99.0    151  60883 100.0  6088
+>>2.5.70-ext3         119  95.0    126  26319  87.7  3002
+>>    
+>>
+>
+>It's quite surprising that reiserfs is so slow at deletion. In my
+>normal experience reiserfs rm -rf is much faster than anything else
+>(e.g. with a big rm -rf on an ext2 you have a chance to ctrl-c still,
+>on reiserfs no such chance; XFS is really slow at this). Perhaps this
+>is some 2.5 regression? Do you have 2.4 comparison numbers?
+>
+>-Andi 
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>  
+>
 
 
-> When we add a port to the system, we try to find in order:
-> 
-> - a port which matches the base address
-> - a port which is unallocated
-> 
-> Probably the easiest way to stop the "ttyS14" occuring would 
-> be to clear the port information at boot when we don't find a port.
-> 
->From 8250_pci.c, you have :
-
-/*              
- * Probe one serial board.  Unfortunately, there is no rhyme nor reason
- * to the arrangement of serial ports on a PCI card.
- */             
-
-It seems that your board is reporting the parameters in such an order
-that when looking for a port based on the IRQ, I/O port, ... the matching
-one has id 14...
-
-You could see this more clearly by setting SERIAL_DEBUG_PCI
-at line 1549 to activate the code :
-#ifdef SERIAL_DEBUG_PCI
-                printk("Setup PCI port: port %x, irq %d, type %d\n",
-                       serial_req.port, serial_req.irq, serial_req.io_type);
-#endif
-
-that would report to you the order in which ports are found on
-your system.
-
-Regards,
-Paul
+-- 
+Hans
 
 

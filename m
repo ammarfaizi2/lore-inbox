@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136595AbRECKCs>; Thu, 3 May 2001 06:02:48 -0400
+	id <S136669AbRECKYL>; Thu, 3 May 2001 06:24:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136605AbRECKC2>; Thu, 3 May 2001 06:02:28 -0400
-Received: from t2.redhat.com ([199.183.24.243]:49136 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S136595AbRECKCZ>; Thu, 3 May 2001 06:02:25 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <3AF12B94.60083603@alsa-project.org> 
-In-Reply-To: <3AF12B94.60083603@alsa-project.org>  <3AF10E80.63727970@alsa-project.org> <Pine.LNX.4.05.10105030852330.9438-100000@callisto.of.borg> <15089.979.650927.634060@pizda.ninka.net> <11718.988883128@redhat.com> 
-To: Abramo Bagnara <abramo@alsa-project.org>
-Cc: "David S. Miller" <davem@redhat.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: unsigned long ioremap()? 
+	id <S136677AbRECKYA>; Thu, 3 May 2001 06:24:00 -0400
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:29968 "HELO
+	metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S136669AbRECKXu>; Thu, 3 May 2001 06:23:50 -0400
+Date: Thu, 3 May 2001 22:23:47 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Jonathan Lundell <jlundell@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] adding PCI bus information to SCSI layer
+Message-ID: <20010503222347.A26495@metastasis.f00f.org>
+In-Reply-To: <20010503205754.A26313@metastasis.f00f.org> <E14vFjM-0005Gx-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 03 May 2001 11:02:15 +0100
-Message-ID: <14097.988884135@redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14vFjM-0005Gx-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, May 03, 2001 at 10:49:02AM +0100
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, May 03, 2001 at 10:49:02AM +0100, Alan Cox wrote:
 
-abramo@alsa-project.org said:
->  You understand that in this way you change a compile time warning in
-> a runtime error (conditioned to path reaching, not easy to interpret,
-> etc.)
+    No collisions. There are other good reasons you dont want to do
+    forks on files that way (you need to enumerate them but if you
+    make them directories all hell breaks loose).
 
-> IMO this is a far less effective debugging strategy. 
-
-True. Perhaps we should make sure the Stanford checker can find these bugs?
-
---
-dwmw2
+Hmm... so how else do you support n-forks cleanly preserving existing
+semantics? I'm not sure I like Linus' suggestion, but I can't think
+of anything better.
 
 
+
+ --cw
+
+(On the whole, I think forks are horrible enough that we shouldn't
+ encourage them further than we do already with .AppleDouble, and
+ similar solutions... but, opinions vary greatly here)

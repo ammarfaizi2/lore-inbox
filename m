@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265546AbSKABLa>; Thu, 31 Oct 2002 20:11:30 -0500
+	id <S265555AbSKABYS>; Thu, 31 Oct 2002 20:24:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265547AbSKABLa>; Thu, 31 Oct 2002 20:11:30 -0500
-Received: from packet.digeo.com ([12.110.80.53]:13564 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265546AbSKABL2>;
-	Thu, 31 Oct 2002 20:11:28 -0500
-Message-ID: <3DC1D63A.CCAD78EF@digeo.com>
-Date: Thu, 31 Oct 2002 17:17:46 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.45 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, Reiserfs-List@namesys.com,
-       Oleg Drokin <green@namesys.com>, zam@namesys.com,
-       umka <umka@thebsh.namesys.com>
-Subject: Re: [BK][PATCH] Reiser4, will double Linux FS performance, pleaseapply
-References: <3DC19F61.5040007@namesys.com> <200210312334.18146.Dieter.Nuetzel@hamburg.de> <3DC1B2FA.8010809@namesys.com>
+	id <S265261AbSKABXy>; Thu, 31 Oct 2002 20:23:54 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:25011 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S265551AbSKABWC>;
+	Thu, 31 Oct 2002 20:22:02 -0500
+Date: Fri, 1 Nov 2002 01:23:24 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Linux-Kernel ML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] Clear TLS on execve
+Message-ID: <20021101012324.GB30865@bjl1.asuk.net>
+References: <20021031143439.GA1697@home.ldb.ods.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 01 Nov 2002 01:17:46.0782 (UTC) FILETIME=[7C96EBE0:01C28144]
+Content-Disposition: inline
+In-Reply-To: <20021031143439.GA1697@home.ldb.ods.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
-> 
-> Green and Zam and Umka, on Monday please start work on seriously
-> analyzing how the block allocation differs between the new and the old
-> kernel, now that you can finally reproduce the benchmark on the old kernel.
+Luca Barbieri wrote:
+> This trivial patch causes the TLS to be cleared on execve (code is
+> in flush_thread).  This is necessary to avoid ESRCH errors when
+> set_thread_area is asked to choose a free TLS entry after several
+> nested execve's.
 
-I just sent the Orlov allocator patch to Linus.  It will double or
-triple ext2 performance in that test, so please make sure you compare
-against the latest.  There's a copy at
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.45/shpte-stuff/broken-out/orlov-allocator.patch
+Ouch!
 
-We can expect similar gains for ext3, when that's done.
+> The LDT also has a similar problem, but it is less serious because the
+> LDT code doesn't scan for free entries. I'll probably send a patch to
+> fix this too, unless there is something important relying on this behavior.
 
-(The 2x-3x is on an 8meg filesystem.  Larger filesystems should
-gain more)
+Ouch again!  Does the LDT really not get released on execve?  I am
+using threading code which _does_ scan for free entries in the LDT -
+using the lar instruction.  I'd never stumbled across this, though.
+I'll be glad of your patch.
+
+-- Jamie

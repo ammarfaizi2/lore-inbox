@@ -1,50 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316712AbSGNOPw>; Sun, 14 Jul 2002 10:15:52 -0400
+	id <S316797AbSGNORX>; Sun, 14 Jul 2002 10:17:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316797AbSGNOPv>; Sun, 14 Jul 2002 10:15:51 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:1523 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316712AbSGNOPu>; Sun, 14 Jul 2002 10:15:50 -0400
-Subject: Re: IDE/ATAPI in 2.5
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Joerg Schilling <schilling@fokus.gmd.de>
+	id <S316836AbSGNORW>; Sun, 14 Jul 2002 10:17:22 -0400
+Received: from mailhub.fokus.gmd.de ([193.174.154.14]:30870 "EHLO
+	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
+	id <S316797AbSGNORU>; Sun, 14 Jul 2002 10:17:20 -0400
+Date: Sun, 14 Jul 2002 16:18:37 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.gmd.de>
+Message-Id: <200207141418.g6EEIbJp019125@burner.fokus.gmd.de>
+To: andersen@codepoet.org, schilling@fokus.gmd.de
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200207141407.g6EE7fcL019119@burner.fokus.gmd.de>
-References: <200207141407.g6EE7fcL019119@burner.fokus.gmd.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 14 Jul 2002 16:28:02 +0100
-Message-Id: <1026660482.13886.51.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+Subject: Re: IDE/ATAPI in 2.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-07-14 at 15:07, Joerg Schilling wrote:
-> >From alan@lxorguk.ukuu.org.uk Fri Jul 12 22:22:45 2002
+>From andersen@codepoet.org Sat Jul 13 07:40:59 2002
 
-> >There are lots that fudge around and pretend scsi is the block layer
-> >when it is not. That sort of misses the point and slows down high end
-> >raid cards.
-> 
-> It seems that you miss to understand the needed underlying driver structures.
-> SCSI is not a block layer, it is a generic transport.
+>> If you force cdrecord to rely on CD-ROM only interfaces, you make Linux
+>> unusable in general. Do you really like to create an unusable Linux just
+>> to avoid creating a usable generic SCSI transport interface?
 
-It is not generic - its handling of sophisticated I/O stuff is non
-existant. SCSI gave rise to a convenient command set for low end devices
-thats since been applied (with endless problems due to its use) to
-things like fibrechannel.
+>Lets step back a moment here.  The cdrecord package is not
+>responsible for making "Linux usable in general".  It is
+>responsible for writing data to CD-ROMs.  It is _not_ responsible
+>for driving scanners, hard drives, or enforcing policy on the
+>Linux kernel.
 
-Of course if you'd actually bothered to read the code (as I told you to
-go do a while back) you might understand the 2.5 direction with the
-block I/O layers. Using scsi command sets as a driver abstraction is a
-nonsense, its incomplete, inefficient and too full of messy rules that
-its not reasonable to inflict on hardware that doesn't care (eg recovery
-from tagged command sequences on an error from the drive). 2.5 has a
-much much saner abstraction thank you.
+It looks like you miss important issues. 
 
+-	More and more people like to use CD writers in their PC.
 
+-	There are no new "SCSI"  (which rather means SCSI with 
+	1984 transport layer) drives on the market. However,
+	once you have a devent SCSI transport abstraction layer
+	as I have in libscg, there is no difference in the high
+	level code.
 
-Alan
+-	While it has been quite simple to add a SCSI CD writer
+	to a PC and it is still simple on platforms that treat
+	ATAPI ad SCSI over IDE, it is a big problem for novices
+	to make a ATAPI CD writer work on Linux.
 
+-	The people who have these sort of problems are those people
+	who are new to Linux and who believe that Linux is unusable
+	after they get those problems.
+
+>If you would throw away crdrecord's desire to do its own private
+>SCSI bus scanning, and throw away your attachment to addressing
+>devices only by host, channel, id, and lun a number of things
+
+It looks that you miss to understand what cdrecord does!
+Cdrecord in special and libscg in general definitely does not
+scan the bus. This is done by the kernel.
+
+Cdrecord only tries to find all devices that already have been
+found by the kernel.
+
+>happen.  For starters, Linux devices don't have to be forced to
+>all be sitting on the SCSI bus.  You could use standard Linux
+>device names (i.e. /dev/hdc or /dev/scd0).  And you could still
+>send all the SCSI/ATAPI packet commands you want to the device
+>that was selected  using the CDROM_SEND_PACKET ioctl.
+
+For a starter, it is easier to understand the SCSI concept of
+addressing than to understand the Linux concept. In addition,
+the SCSI addressing concept can be used on different platforms
+in a unique way. This helps people (and GUI writers) to use 
+cdrecord on more than Linux only.
+
+>Ever look at the CDROM_SEND_PACKET ioctl?
+
+I did, but you obviously did not :-(
+
+Jörg
+
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
+ URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix

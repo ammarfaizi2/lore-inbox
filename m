@@ -1,71 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277371AbRJZCzj>; Thu, 25 Oct 2001 22:55:39 -0400
+	id <S277366AbRJZCz3>; Thu, 25 Oct 2001 22:55:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277380AbRJZCz3>; Thu, 25 Oct 2001 22:55:29 -0400
-Received: from mail.direcpc.com ([198.77.116.30]:10958 "EHLO
-	postoffice2.direcpc.com") by vger.kernel.org with ESMTP
-	id <S277371AbRJZCzO>; Thu, 25 Oct 2001 22:55:14 -0400
-Subject: Re: Other computers HIGHLY degrading network performance (DoS?)
-From: "Jeffrey H. Ingber" <jhingber@ix.netcom.com>
-To: Anuradha Ratnaweera <anuradha@gnu.org>
+	id <S277380AbRJZCzT>; Thu, 25 Oct 2001 22:55:19 -0400
+Received: from mx3.port.ru ([194.67.57.13]:64265 "EHLO smtp3.port.ru")
+	by vger.kernel.org with ESMTP id <S277366AbRJZCzE>;
+	Thu, 25 Oct 2001 22:55:04 -0400
+From: Samium Gromoff <_deepfire@mail.ru>
+Message-Id: <200110260257.f9Q2vhg09527@vegae.deep.net>
+Subject: Re: 2.4.12-ac4 10Mbit NE2k interrupt load kills p166
+To: urban@teststation.com (Urban Widmark)
+Date: Fri, 26 Oct 2001 06:57:42 +0400 (MSD)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011026084328.A14814@bee.lk>
-In-Reply-To: <20011026084328.A14814@bee.lk>
-Content-Type: text/plain
+In-Reply-To: <Pine.LNX.4.30.0110252253270.7785-100000@cola.teststation.com> from "Urban Widmark" at Oct 25, 2001 11:19:51 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16 (Preview Release)
-Date: 25 Oct 2001 22:55:16 -0400
-Message-Id: <1004064922.21997.7.camel@Eleusis>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think this is what QoS and the like are for.
+"  Urban Widmark wrote:"
+> >        Hello folks...
+> > 
+> > 	Host A: p166, ISA NE2K, linux-2.4.12-ac4
+> > 	Host B: p2-400, rtl-8129, WinXP (heh, not my box though ;)
+> > 
+> > 	Load: smbmount connection from host A to the host B, and getting
+> >      large files.
+> 
+> You don't say if any of the tests you did are related to smbfs. I suspect
+> this reasoning is completely irrelevant (not, that it has stopped me
+> before ... :)
+> 
+> smbfs is not the fastest thing around. I think the slowness on some
+> operations is related to how it waits after sending each request.
+> 
+>      process A				  process B
+>    get semaphore
+>    request 4096 bytes			wait on semaphore
+>    ... wait for network ...
+>    read packet
+>    read packet
+>    read packet
+>    release semaphore
+> 					get semaphore
+> 					request 4096 bytes
+> 
+> It could send the second request without waiting for the first to complete
+> (if it knew how to separate the responses). Doing that should speed things
+> up.
+> 
+> If you play mp3's over smbfs while also doing something else I suppose the
+> delay could become noticable. I can't explain the other effects, so
+> possibly this is unrelated to smbfs.
+> 
+> You could make me happy by repeating the tests, but generating the network
+> load with something else (http?).
+> 
+> /Urban
+> 
+> 
+> 
+        1. /dev/hda is -u1d1 `ed, and the disc load is near to not existent
+	2. mp3 is placed locally
 
-Jeffrey H. Ingber (jhingber _at_ ix.netcom.com)
-
-On Thu, 2001-10-25 at 22:43, Anuradha Ratnaweera wrote:
-> 
-> This is not a direct kernel issse.  However, it is a serious threat for the
-> network performance of our Linux boxes, therefore I thought of posting it here.
-> 
-> There is a popular software that runs on MS platform called "download
-> accelerator".  This opens several threads for a download job (each one
-> downloading a portion of the file), sometimes even using mirror sites.
-> However, it not only grabs whole bandwidth, but makes it hard for other
-> machines to even ping each other the return time being around 5-10 seconds on a
-> 100 Mbps network!  The download process is getting only 64 kbps from the
-> Internet.  Internet access is virtually impossible for the other machines.
-> 
-> This program can run with a `normal download' mode and this doesn't cause a
-> big problem.
-> 
-> I monitored network traffic with tcpdump, and noticed that those packets don't
-> have tcp timestamps and tcp sack.  I turned them off on my Linux box using
-> sysctl, and also tried turning on ECN without success.
-> 
-> This is of course a DoS in disguise, and is there a way to stop it?
-> 
-> I am thinking of setting up a firewall with netfilter and transparent proxy as
-> a workaround.
-> 
-> Thanks in advance.
-> 
-> Regards,
-> 
-> Anuradha
-> 
-> -- 
-> 
-> Debian GNU/Linux (kernel 2.4.13)
-> 
-> History books which contain no lies are extremely dull.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+cheers, Samium Gromoff
 

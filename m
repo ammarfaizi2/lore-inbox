@@ -1,72 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267974AbUGaRWC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266137AbUGaRYA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267974AbUGaRWC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 13:22:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267976AbUGaRWB
+	id S266137AbUGaRYA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 13:24:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267976AbUGaRYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 13:22:01 -0400
-Received: from ns1.lanforge.com ([66.165.47.210]:10723 "EHLO www.lanforge.com")
-	by vger.kernel.org with ESMTP id S266137AbUGaRV6 (ORCPT
+	Sat, 31 Jul 2004 13:24:00 -0400
+Received: from fw.osdl.org ([65.172.181.6]:31150 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266137AbUGaRXb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 13:21:58 -0400
-Message-ID: <410BD525.3010102@candelatech.com>
-Date: Sat, 31 Jul 2004 10:21:41 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Sat, 31 Jul 2004 13:23:31 -0400
+Date: Sat, 31 Jul 2004 10:23:10 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, kladit@t-online.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: dentry cache leak? Re: rsync out of memory 2.6.8-rc2
+In-Reply-To: <20040730124744.0eb11f63.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0407311003210.16847@ppc970.osdl.org>
+References: <20040726150615.GA1119@xeon2.local.here> <20040729140743.170acb3e.akpm@osdl.org>
+ <20040730163007.GA2931@logos.cnet> <20040730124744.0eb11f63.akpm@osdl.org>
 MIME-Version: 1.0
-To: Willy Tarreau <willy@w.ods.org>
-CC: Matti Aarnio <matti.aarnio@zmailer.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Herbert Xu <herbert@gondor.apana.org.au>, akpm@osdl.org,
-       alan@redhat.com, jgarzik@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: VLAN support for 3c59x/3c90x
-References: <20040730121004.GA21305@alpha.home.local> <E1BqkzY-0003mK-00@gondolin.me.apana.org.au> <20040731083308.GA24496@alpha.home.local> <410B67B1.4080906@pobox.com> <20040731101152.GG1545@alpha.home.local> <20040731141222.GJ2429@mea-ext.zmailer.org> <410BD0E3.2090302@candelatech.com> <20040731170551.GA27559@alpha.home.local>
-In-Reply-To: <20040731170551.GA27559@alpha.home.local>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
-> Hi Ben,
+
+
+On Fri, 30 Jul 2004, Andrew Morton wrote:
 > 
-> On Sat, Jul 31, 2004 at 10:03:31AM -0700, Ben Greear wrote:
->  
-> 
->>VLAN allows you to continue using the ethX interface as a regular
->>ethernet interface, so you do not generally want it's MTU to be set
->>to 1504 because then the other peer ethernet interfaces would also
->>have to be set to 1504.  I believe it is much better to silently let
->>the extra 4 bytes pass but NOT advertise this extra 4 bytes to
->>anything that actually cares about MTU.
-> 
-> 
-> I 100% agree with you on this one, but I don't see how playing with
-> change_mtu() would change anything. Ideally, we would need to export
-> the level 2 limit (imposed by hardware and intermediate switches) to
-> other drivers such as 802_1q, and let only the IP stack rely on dev->mtu.
+> Seems that we reach a state where lowmem pagecache get reclaimed faster
+> than dcache/icache.  This causes the number of pages scanned for lowmem
+> allocations to fall.  This causes less scanning of the slab and the whole
+> thing repeats.  I expect changing nr_used_zone_pages() to ignore highmem
+> will fix it, and might be the long-term fix, too.
 
-Ok, I agree that it would be good to have a hard limit exported.
-I am less certain that VLAN should modify any MTU based on this
-information, but at the very least, it could warn the user that
-some action needs to be taken and let the user make an informed
-decision.
+Ouch. Indeed, looking at the usage of nr_used_zone_pages(), it looks 
+totally broken. However, I don't think the right thing to do is to ignore 
+the HIGHMEM zone altogether, I think it should take the list of zones 
+being shrunk into account.
 
-Also, it seems that most (all?) ethernet chips can handle the extra
-4 bytes, but the patches are varying degrees of ugliness and so
-many have not made it into the kernel proper.
+Look at usage: one caller of shrink_slab() is try_to_free_pages(), and if 
+try_to_free_pages() is called for a HIGHMEM zone, then it is _fine_ to 
+count the HIGHMEM zone as pages, and shrink the slab memory much less 
+aggressively. The _problem_ is when slab competes against itself (lowmem) 
+or some other thing (inodes) that want lowmem-only memory, and then the 
+slab shrinking really should ignore the fact that there are tons of 
+highmem pages left.
 
+Something like this (totally untested, may not compile, you get the idea) 
+might work. Or not. Since the _rest_ of "shrink_slab()" doesn't know about 
+zonelists, just making the "how many pages does this zone have free" take 
+the zonelist into account might cause other problems.
 
-> I've seen several drivers which silently add 4 bytes to the hardware
-> config when CONFIG_VLAN is set. I find it better than fooling the IP
-> stack into using 1504 bytes, which is a disaster on UDP !
-
-It would be a disaster with any IP protocol, not just UDP.
-
-Ben
-
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
-
+		Linus
+-----
+===== include/linux/mm.h 1.179 vs edited =====
+--- 1.179/include/linux/mm.h	2004-06-27 00:19:35 -07:00
++++ edited/include/linux/mm.h	2004-07-31 10:19:25 -07:00
+@@ -706,7 +706,7 @@
+ 
+ extern struct vm_area_struct *find_extend_vma(struct mm_struct *mm, unsigned long addr);
+ 
+-extern unsigned int nr_used_zone_pages(void);
++extern unsigned int nr_used_zone_pages(struct zone **);
+ 
+ extern struct page * vmalloc_to_page(void *addr);
+ extern struct page * follow_page(struct mm_struct *mm, unsigned long address,
+===== mm/page_alloc.c 1.221 vs edited =====
+--- 1.221/mm/page_alloc.c	2004-07-19 08:44:36 -07:00
++++ edited/mm/page_alloc.c	2004-07-31 10:18:37 -07:00
+@@ -825,13 +825,15 @@
+ 
+ EXPORT_SYMBOL(nr_free_pages);
+ 
+-unsigned int nr_used_zone_pages(void)
++unsigned int nr_used_zone_pages(struct zone **zones)
+ {
+ 	unsigned int pages = 0;
+-	struct zone *zone;
+ 
+-	for_each_zone(zone)
++	while (*zones) {
++		struct zone * zone = *zones;
++		zones++;
+ 		pages += zone->nr_active + zone->nr_inactive;
++	}
+ 
+ 	return pages;
+ }
+===== mm/vmscan.c 1.224 vs edited =====
+--- 1.224/mm/vmscan.c	2004-06-24 01:56:14 -07:00
++++ edited/mm/vmscan.c	2004-07-31 10:20:17 -07:00
+@@ -170,7 +170,7 @@
+  *
+  * We do weird things to avoid (scanned*seeks*entries) overflowing 32 bits.
+  */
+-static int shrink_slab(unsigned long scanned, unsigned int gfp_mask)
++static int shrink_slab(unsigned long scanned, unsigned int gfp_mask, struct zone **zones)
+ {
+ 	struct shrinker *shrinker;
+ 	long pages;
+@@ -178,7 +178,7 @@
+ 	if (down_trylock(&shrinker_sem))
+ 		return 0;
+ 
+-	pages = nr_used_zone_pages();
++	pages = nr_used_zone_pages(zones);
+ 	list_for_each_entry(shrinker, &shrinker_list, list) {
+ 		unsigned long long delta;
+ 
+@@ -912,7 +912,7 @@
+ 		sc.nr_reclaimed = 0;
+ 		sc.priority = priority;
+ 		shrink_caches(zones, &sc);
+-		shrink_slab(sc.nr_scanned, gfp_mask);
++		shrink_slab(sc.nr_scanned, gfp_mask, zones);
+ 		if (reclaim_state) {
+ 			sc.nr_reclaimed += reclaim_state->reclaimed_slab;
+ 			reclaim_state->reclaimed_slab = 0;
+@@ -1032,6 +1032,7 @@
+ 		 */
+ 		for (i = 0; i <= end_zone; i++) {
+ 			struct zone *zone = pgdat->node_zones + i;
++			struct zone * zones[2] = { zone, NULL };
+ 
+ 			if (zone->all_unreclaimable && priority != DEF_PRIORITY)
+ 				continue;
+@@ -1048,7 +1049,7 @@
+ 			sc.priority = priority;
+ 			shrink_zone(zone, &sc);
+ 			reclaim_state->reclaimed_slab = 0;
+-			shrink_slab(sc.nr_scanned, GFP_KERNEL);
++			shrink_slab(sc.nr_scanned, GFP_KERNEL, zones);
+ 			sc.nr_reclaimed += reclaim_state->reclaimed_slab;
+ 			total_reclaimed += sc.nr_reclaimed;
+ 			if (zone->all_unreclaimable)

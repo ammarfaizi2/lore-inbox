@@ -1,104 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264806AbSLLSnE>; Thu, 12 Dec 2002 13:43:04 -0500
+	id <S264954AbSLLSzb>; Thu, 12 Dec 2002 13:55:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264954AbSLLSnE>; Thu, 12 Dec 2002 13:43:04 -0500
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:28910 "EHLO
-	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S264806AbSLLSnD>; Thu, 12 Dec 2002 13:43:03 -0500
-Date: Thu, 12 Dec 2002 10:53:17 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [patch 2.5.51] add wait_event() to <linux/completion.h>
-To: "Milton D. Miller II" <miltonm@realtime.net>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <3DF8DB1D.4000208@pacbell.net>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary="Boundary_(ID_u5O2VD96tUutsE5nbyU8RQ)"
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-References: <200212120746.gBC7kR482233@sullivan.realtime.net>
+	id <S264984AbSLLSzb>; Thu, 12 Dec 2002 13:55:31 -0500
+Received: from server.s8.com ([66.77.12.139]:2566 "EHLO server.s8.com")
+	by vger.kernel.org with ESMTP id <S264954AbSLLSz3>;
+	Thu, 12 Dec 2002 13:55:29 -0500
+Subject: Re: using 2 TB  in real life
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: Anders Henke <anders.henke@sysiphus.de>
+Cc: linux-kernel@vger.kernel.org, peter@chubb.wattle.id.au
+In-Reply-To: <20021212174814.GA18993@schlund.de>
+References: <20021212111237.GA12143@schlund.de>
+	 <029301c2a1d6$85cbe280$f6de11cc@black>
+	 <1039713776.16887.4.camel@camp4.serpentine.com>
+	 <20021212174814.GA18993@schlund.de>
+Content-Type: multipart/mixed; boundary="=-MugFC05+w/3k90BOpPbC"
+Organization: 
+Message-Id: <1039719790.11897.9.camel@plokta.s8.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 12 Dec 2002 11:03:10 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
---Boundary_(ID_u5O2VD96tUutsE5nbyU8RQ)
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
+--=-MugFC05+w/3k90BOpPbC
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Milton D. Miller II wrote:
->  __remove_wait_queue(&x->wait, &wait); 
-> 
-> should be under 
-> spin_lock_irq(&x->wait.lock); 
+On Thu, 2002-12-12 at 09:48, Anders Henke wrote:
 
-Duh!  Updated patch is attached.
+> Peter's patch is not necessary for a 1.9TB device, but (from a quick
+> glance at the source) should fix the display problem I mentioned.
 
-- Dave
+No, my point was precisely that Peter's patch changes the display
+problem into a different display problem.  It will report a 1.9TB
+filesystem as a 300MB filesystem, because some of the bit-shuffling is
+wrong.
+
+I've attached a patch which illustrates a fix to the SCSI device size
+reporting problem in Peter's 2TB patch (the fix was found by HJ Lu).  It
+probably won't apply cleanly due to version drift (and of course it
+definitely won't apply to a stock kernel), but it indicates what's
+wrong.
+
+	<b
 
 
---Boundary_(ID_u5O2VD96tUutsE5nbyU8RQ)
-Content-type: text/plain; name=sched2.patch
-Content-transfer-encoding: 7BIT
-Content-disposition: inline; filename=sched2.patch
 
---- ./include/linux-dist/completion.h	Mon Dec  9 23:49:44 2002
-+++ ./include/linux/completion.h	Tue Dec 10 09:35:57 2002
-@@ -28,6 +28,7 @@
- }
+--=-MugFC05+w/3k90BOpPbC
+Content-Description: 
+Content-Disposition: attachment; filename=2tb-scsi.patch
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+
+--- linux-pchubb/drivers/scsi/sd.c	Thu Dec 12 10:58:29 2002
++++ linux/drivers/scsi/sd.c	Thu Dec 12 10:58:29 2002
+@@ -1002,8 +1002,8 @@
+ 			 */
+ 			int m;
+ 			unsigned hard_sector = sector_size;
+-			sector_t sz = rscsi_disks[i].capacity * (hard_sector/256);
+-			sector_t mb = sz >>= 1;
++			sector_t sz = ((sector_t) rscsi_disks[i].capacity) * ((sector_t) (hard_sector/256));
++			sector_t mb = sz >> 1;
+ 			sector_div(sz, 1250);
+ 			mb -= sz - 974;
+ 			
+@@ -1015,9 +1015,9 @@
+ 			}
  
- extern void FASTCALL(wait_for_completion(struct completion *));
-+extern int FASTCALL(wait_timeout(struct completion *, signed long jiffies));
- extern void FASTCALL(complete(struct completion *));
- extern void FASTCALL(complete_all(struct completion *));
+ 			printk("SCSI device %s: "
+-			       "%u %u-byte hdwr sectors (%u MB)\n",
++			       "%u %u-byte hdwr sectors (%llu MB)\n",
+ 			       nbuff, rscsi_disks[i].capacity,
+-			       hard_sector, sz);
++			       hard_sector, mb);
+ 		}
  
---- ./kernel-dist/ksyms.c	Thu Dec 12 10:24:44 2002
-+++ ./kernel/ksyms.c	Tue Dec 10 09:35:57 2002
-@@ -404,7 +404,9 @@ EXPORT_SYMBOL(autoremove_wake_function);
- 
- /* completion handling */
- EXPORT_SYMBOL(wait_for_completion);
-+EXPORT_SYMBOL(wait_timeout);
- EXPORT_SYMBOL(complete);
-+EXPORT_SYMBOL(complete_all);
- 
- /* The notion of irq probe/assignment is foreign to S/390 */
- 
---- ./kernel-dist/sched.c	Thu Dec 12 10:24:44 2002
-+++ ./kernel/sched.c	Thu Dec 12 10:15:56 2002
-@@ -1204,6 +1204,11 @@ void complete_all(struct completion *x)
- 
- void wait_for_completion(struct completion *x)
- {
-+	(void) wait_timeout (x, MAX_SCHEDULE_TIMEOUT);
-+}
-+
-+int wait_timeout(struct completion *x, signed long timeout)
-+{
- 	might_sleep();
- 	spin_lock_irq(&x->wait.lock);
- 	if (!x->done) {
-@@ -1214,13 +1219,18 @@ void wait_for_completion(struct completi
- 		do {
- 			__set_current_state(TASK_UNINTERRUPTIBLE);
- 			spin_unlock_irq(&x->wait.lock);
--			schedule();
-+			timeout = schedule_timeout(timeout);
- 			spin_lock_irq(&x->wait.lock);
--		} while (!x->done);
-+		} while (!x->done && timeout != 0);
- 		__remove_wait_queue(&x->wait, &wait);
- 	}
--	x->done--;
-+	if (x->done) {
-+		timeout = 1;
-+		x->done--;
-+	}
- 	spin_unlock_irq(&x->wait.lock);
-+	/* nonzero return means we timed out */
-+	return timeout == 0;
- }
- 
- #define	SLEEP_ON_VAR				\
+ 		/* Rescale capacity to 512-byte units */
 
---Boundary_(ID_u5O2VD96tUutsE5nbyU8RQ)--
+--=-MugFC05+w/3k90BOpPbC--
+

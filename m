@@ -1,118 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263322AbTDCIZo>; Thu, 3 Apr 2003 03:25:44 -0500
+	id <S263323AbTDCIok>; Thu, 3 Apr 2003 03:44:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263323AbTDCIZo>; Thu, 3 Apr 2003 03:25:44 -0500
-Received: from [202.109.126.231] ([202.109.126.231]:30822 "HELO
-	www.support-smartpc.com.cn") by vger.kernel.org with SMTP
-	id <S263322AbTDCIZm>; Thu, 3 Apr 2003 03:25:42 -0500
-Message-ID: <3E8BF293.2CC30C1F@mic.com.tw>
-Date: Thu, 03 Apr 2003 16:36:35 +0800
-From: "rain.wang" <rain.wang@mic.com.tw>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andre Hedrick <andre@linux-ide.org>
-Subject: PATCH RFC :ide_do_reset() fix for 2.5.66
-References: <Pine.LNX.4.21.0303241129420.855-100000@mars.zaxl.net> <1048514373.25136.4.camel@irongate.swansea.linux.org.uk> <20030324180125.2606b046.alex@ssi.bg> <1048527607.25655.18.camel@irongate.swansea.linux.org.uk> <3E8BDC10.D0195D71@mic.com.tw> <20030403071620.GJ2072@suse.de>
-Content-Type: multipart/mixed;
- boundary="------------71983BEDD2F9CD3F3D50627B"
-X-OriginalArrivalTime: 03 Apr 2003 08:33:02.0796 (UTC) FILETIME=[A42628C0:01C2F9BB]
+	id <S263301AbTDCIok>; Thu, 3 Apr 2003 03:44:40 -0500
+Received: from holomorphy.com ([66.224.33.161]:29834 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S263261AbTDCIoj>;
+	Thu, 3 Apr 2003 03:44:39 -0500
+Date: Thu, 3 Apr 2003 00:55:45 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Patrick Mansfield <patmans@us.ibm.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
+Subject: Re: isp1020 memory trample in 2.5.66
+Message-ID: <20030403085545.GB19627@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Zwane Mwaikambo <zwane@linuxpower.ca>,
+	Patrick Mansfield <patmans@us.ibm.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	linux-scsi@vger.kernel.org
+References: <Pine.LNX.4.50.0304020101460.8773-100000@montezuma.mastecende.com> <20030402080226.A25288@beaverton.ibm.com> <Pine.LNX.4.50.0304030317230.30262-100000@montezuma.mastecende.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50.0304030317230.30262-100000@montezuma.mastecende.com>
+User-Agent: Mutt/1.3.28i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------71983BEDD2F9CD3F3D50627B
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Wed, 2 Apr 2003, Patrick Mansfield wrote:
+>> Martin hit it when the queue depth was not properly checked.
+>> wli has hit it with parallel mkfs (or something).
 
-Jens Axboe wrote:
+On Thu, Apr 03, 2003 at 03:27:38AM -0500, Zwane Mwaikambo wrote:
+> Ok this thing sounds _very_ fragile ;)
 
-> On Thu, Apr 03 2003, rain.wang wrote:
-> > Hi Alan,
-> >     I found just changing ide_do_reset() to wait till completion can
-> > handle the handler race. can this be enough?
->
-> This is buggy for a number of reasons. Firstly, how do you make sure
-> that someone else doesn't race with your hwif_data manipulation? This
-> looks very suspect. By far the worst problem is that you are assuming
-> that ide_do_reset() can sleep, when in fact it cannot (just follow the
-> various paths into ide_do_request()). You even grab the ide_lock _and_
-> disable interrupts yourself prior calling wait_for_completion(), this is
-> incredibly broken.
->
-> --
-> Jens Axboe
+Debugging ode this obfuscated and crappy is as hopeless as trying to
+debug the nvidia binary-only oops-o-rama.
 
-Hi,
-    Thank you, I'm too young. I should have put this in RFC.
-please help me to replace using 'hwif-data', I mainly mean
-to let drive reset wait for its clean up complete.
+What are the odds of just throwing away the isp1020 and replacing it
+with anything else? It won't fix it, but it can't be fixed due to
+utter lack of information about the things and/or lack of maintainers
+with information hidden by NDA's anyway.
 
-regards
-rain.w
 
---------------71983BEDD2F9CD3F3D50627B
-Content-Type: text/plain; charset=us-ascii;
- name="ide-iops.c.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ide-iops.c.diff"
-
---- /usr/src/linux/drivers/ide/ide-iops.c	Thu Apr  3 14:13:51 2003
-+++ ide-iops.c	Thu Apr  3 16:24:31 2003
-@@ -1107,6 +1107,10 @@
- 	}
- 	/* done polling */
- 	hwgroup->poll_timeout = 0;
-+	
-+	/* tell ide_do_reset it complete */
-+	complete((struct completion *)hwif->hwif_data);
-+
- 	return ide_stopped;
- }
- 
-@@ -1171,6 +1175,10 @@
- 		}
- 	}
- 	hwgroup->poll_timeout = 0;	/* done polling */
-+
-+	/* tell ide_do_reset it complete */
-+	complete((struct completion *)hwif->hwif_data);
-+
- 	return ide_stopped;
- }
- 
-@@ -1307,7 +1315,25 @@
- 
- ide_startstop_t ide_do_reset (ide_drive_t *drive)
- {
--	return do_reset1(drive, 0);
-+	/* 
-+	 * Waiting for completion needed.
-+	 */
-+	ide_hwif_t *hwif;
-+	void *old_data;
-+	DECLARE_COMPLETION(wait);
-+	
-+	hwif = HWIF(drive);
-+	
-+	old_data = hwif->hwif_data;
-+	hwif->hwif_data = &wait;
-+
-+	(void) do_reset1(drive, 0);
-+	
-+	wait_for_completion(&wait);
-+
-+	hwif->hwif_data = old_data;
-+	
-+	return ide_stopped;
- }
- 
- EXPORT_SYMBOL(ide_do_reset);
-
---------------71983BEDD2F9CD3F3D50627B--
-
+-- wli

@@ -1,45 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263083AbTJFRM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 13:12:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264031AbTJFRM1
+	id S262464AbTJFR3K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 13:29:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262490AbTJFR3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 13:12:27 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:28809 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S263083AbTJFRM0
+	Mon, 6 Oct 2003 13:29:10 -0400
+Received: from mtagate7.uk.ibm.com ([195.212.29.140]:11918 "EHLO
+	mtagate7.uk.ibm.com") by vger.kernel.org with ESMTP id S262464AbTJFR3G
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 13:12:26 -0400
-Date: Mon, 6 Oct 2003 18:12:23 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: bert hubert <ahu@ds9a.nl>,
-       "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>,
-       "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Re: Futex
-Message-ID: <20031006171223.GB559@mail.shareable.org>
-References: <D9B4591FDBACD411B01E00508BB33C1B01EC852D@mesadm.epl.prov-liege.be> <20031006075039.GA12376@outpost.ds9a.nl>
+	Mon, 6 Oct 2003 13:29:06 -0400
+Date: Mon, 6 Oct 2003 23:01:11 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: Maneesh Soni <maneesh@in.ibm.com>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Patrick Mochel <mochel@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC 0/6] Backing Store for sysfs
+Message-ID: <20031006173111.GA1788@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20031006085915.GE4220@in.ibm.com> <20031006160846.GA4125@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031006075039.GA12376@outpost.ds9a.nl>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20031006160846.GA4125@us.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bert hubert wrote:
-> On Mon, Oct 06, 2003 at 09:22:19AM +0200, Frederick, Fabian wrote:
-> > Hi,
+On Mon, Oct 06, 2003 at 09:08:46AM -0700, Greg KH wrote:
+> On Mon, Oct 06, 2003 at 02:29:15PM +0530, Maneesh Soni wrote:
 > > 
-> > 	Why don't we have any futex doc included ?
-> > Nothing about futexfs nor userspace futex usage ....
+> > 				2.6.0-test6		With patches.
+> > -----------------
+> > dentry_cache (active)		2520			2544
+> > inode_cache (active)		1058			1050
+> > LowFree			875032 KB		874748 KB
 > 
-> http://ds9a.nl/futex-manpages/
+> So with these patches we actually eat up more LowFree if all sysfs
+> entries are searched, and make the dentry_cache bigger?  That's not good :(
 
-Those docs are a little out of date and incomplete, though.
+My guess is that those 24 dentries are just noise. What we should
+do is verify with a large number of devices if the numbers are all
+that different after a walk of the sysfs tree.
 
-There's no mention of FUTEX_REQUEUE, and no mention of the important
-token-passing property: that the value returned from FUTEX_WAKE is
-equal to the number of calls which return 0 from FUTEX_WAIT.
-(Only when FUTEX_FD is not used; FUTEX_FD is broken with respect to
-token passing at the moment).
+> 
+> Remember, every kobject that's created will cause a call to
+> /sbin/hotplug which will cause udev to walk the sysfs tree to get the
+> information for that kobject.  So I don't see any savings in these
+> patches, do you?
 
--- Jamie
+Assuming that unused files/dirs are aged out of dentry and inode cache,
+it should benefit. The numbers you should look at are -
+
+--------------------------------------------------------
+After mounting sysfs
+-------------------
+dentry_cache (active)           2350                    1321
+inode_cache (active)            1058                    31
+LowFree                         875096 KB               875836 KB
+--------------------------------------------------------
+
+That saves ~800KB. If you just mount sysfs and use a few files, you
+aren't eating up dentries and inodes for every file in sysfs. How often 
+do you expect hotplug events to happen in a system ? Some time after a 
+hotplug event, dentries/inodes will get aged out and then you should see 
+savings. It should greatly benefit in a normal system.
+
+Now if the additional kobjects cause problems with userland hotplug, then 
+that needs to be resolved. However that seems to be a different problem 
+altogether. Could you please elaborate on that ?
+
+Thanks
+Dipankar

@@ -1,183 +1,248 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVCKSts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbVCKUZN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbVCKSts (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 13:49:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbVCKSjb
+	id S261502AbVCKUZN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 15:25:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbVCKUXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 13:39:31 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:23569 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261277AbVCKSQt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 13:16:49 -0500
-Date: Fri, 11 Mar 2005 19:16:41 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: jgarzik@pobox.com
-Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/net/arcnet/: possible cleanups
-Message-ID: <20050311181641.GK3723@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 11 Mar 2005 15:23:10 -0500
+Received: from az33egw01.freescale.net ([192.88.158.102]:7375 "EHLO
+	az33egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S261789AbVCKUMP convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 15:12:15 -0500
+In-Reply-To: <4231F9F9.5080506@246tNt.com>
+References: <4231F9F9.5080506@246tNt.com>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Message-Id: <be4da82f8d12e20b54050e15fd27df36@freescale.com>
+Content-Transfer-Encoding: 8BIT
+Cc: "LKML" <linux-kernel@vger.kernel.org>,
+       "Tom Rini" <trini@kernel.crashing.org>,
+       "Embedded PPC Linux list" <linuxppc-embedded@ozlabs.org>
+From: Kumar Gala <kumar.gala@freescale.com>
+Subject: Re: [PATCH 1/2] MPC52xx updates : sparse clean-ups
+Date: Fri, 11 Mar 2005 14:12:02 -0600
+To: "Sylvain Munaut" <tnt@246tNt.com>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- make needlessly global code static
-- arcnet.c: kill the outdated VERSION
-- arcnet.c: remove the unneeded EXPORT_SYMBOL(arc_proto_null)
-- arcnet.c: remove the unneeded EXPORT_SYMBOL(arcnet_dump_packet)
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+On Mar 11, 2005, at 2:05 PM, Sylvain Munaut wrote:
 
----
+> Hi Tom & all
+>
+> Here's some updates related to the Freescale MPC52xx. First some
+>  clean-ups for sparse warnings and then PCI support. I'd like to get
+>  theses approved & merged before I submit conversion to platform bus
+>  model.
+>
+> As usual, the patches can also be pulled of a bk repository :
+>  bk://tnt.bkbits.net/linux-2.5-mpc52xx-pending
+>
+> (note it's _NOT_ the same url as before even if it's close ;)
+>
+>
+>
+>
+>     Sylvain
+>
+> ---
+>
+> diff -Nru a/arch/ppc/syslib/mpc52xx_pic.c 
+> b/arch/ppc/syslib/mpc52xx_pic.c
+> --- a/arch/ppc/syslib/mpc52xx_pic.c     2005-03-11 20:41:36 +01:00
+>  +++ b/arch/ppc/syslib/mpc52xx_pic.c     2005-03-11 20:41:36 +01:00
+>  @@ -33,8 +33,8 @@
+>   #include <asm/mpc52xx.h>
+>
+>
+>
+> -static struct mpc52xx_intr *intr;
+>  -static struct mpc52xx_sdma *sdma;
+>  +static struct mpc52xx_intr __iomem *intr;
+>  +static struct mpc52xx_sdma __iomem *sdma;
+>
+>  static void
+>   mpc52xx_ic_disable(unsigned int irq)
+>  @@ -173,7 +173,7 @@
+>          mpc52xx_ic_disable,             /* disable(irq) */
+>         mpc52xx_ic_disable_and_ack,     /* disable_and_ack(irq) */
+>          mpc52xx_ic_end,                 /* end(irq) */
+>  -       0                               /* set_affinity(irq, cpumask)
+> SMP. */
+>  +       NULL                            /* set_affinity(irq, cpumask)
+> SMP. */
+>   };
 
-This patch was already sent on:
-- 17 Feb 2005
+It looks like others have moved to a C99 initialization style for 
+hw_interrupt_type, see syslib/ipic.c for an example.
 
- drivers/net/arcnet/arc-rawmode.c |    2 +-
- drivers/net/arcnet/arcnet.c      |   19 +++++++++----------
- drivers/net/arcnet/rfc1051.c     |    2 +-
- drivers/net/arcnet/rfc1201.c     |    2 +-
- include/linux/arcdevice.h        |    9 ---------
- 5 files changed, 12 insertions(+), 22 deletions(-)
-
---- linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/arc-rawmode.c.old	2005-02-16 15:16:38.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/arc-rawmode.c	2005-02-16 15:16:51.000000000 +0100
-@@ -42,7 +42,7 @@
- static int prepare_tx(struct net_device *dev, struct archdr *pkt, int length,
- 		      int bufnum);
- 
--struct ArcProto rawmode_proto =
-+static struct ArcProto rawmode_proto =
- {
- 	.suffix		= 'r',
- 	.mtu		= XMTU,
---- linux-2.6.11-rc3-mm2-full/include/linux/arcdevice.h.old	2005-02-16 15:17:26.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/include/linux/arcdevice.h	2005-02-16 15:20:57.000000000 +0100
-@@ -206,7 +206,6 @@
- 
- extern struct ArcProto *arc_proto_map[256], *arc_proto_default,
- 	*arc_bcast_proto, *arc_raw_proto;
--extern struct ArcProto arc_proto_null;
- 
- 
- /*
-@@ -334,17 +333,9 @@
- #define arcnet_dump_skb(dev,skb,desc) ;
- #endif
- 
--#if (ARCNET_DEBUG_MAX & D_RX) || (ARCNET_DEBUG_MAX & D_TX)
--void arcnet_dump_packet(struct net_device *dev, int bufnum, char *desc,
--			int take_arcnet_lock);
--#else
--#define arcnet_dump_packet(dev, bufnum, desc,take_arcnet_lock) ;
--#endif
--
- void arcnet_unregister_proto(struct ArcProto *proto);
- irqreturn_t arcnet_interrupt(int irq, void *dev_id, struct pt_regs *regs);
- struct net_device *alloc_arcdev(char *name);
--void arcnet_rx(struct net_device *dev, int bufnum);
- 
- #endif				/* __KERNEL__ */
- #endif				/* _LINUX_ARCDEVICE_H */
---- linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/arcnet.c.old	2005-02-16 15:17:47.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/arcnet.c	2005-02-16 15:21:20.000000000 +0100
-@@ -41,8 +41,6 @@
-  *     <jojo@repas.de>
-  */
- 
--#define VERSION "arcnet: v3.93 BETA 2000/04/29 - by Avery Pennarun et al.\n"
--
- #include <linux/module.h>
- #include <linux/config.h>
- #include <linux/types.h>
-@@ -61,6 +59,7 @@
- static int null_prepare_tx(struct net_device *dev, struct archdr *pkt,
- 			   int length, int bufnum);
- 
-+static void arcnet_rx(struct net_device *dev, int bufnum);
- 
- /*
-  * one ArcProto per possible proto ID.  None of the elements of
-@@ -71,7 +70,7 @@
-  struct ArcProto *arc_proto_map[256], *arc_proto_default,
-    *arc_bcast_proto, *arc_raw_proto;
- 
--struct ArcProto arc_proto_null =
-+static struct ArcProto arc_proto_null =
- {
- 	.suffix		= '?',
- 	.mtu		= XMTU,
-@@ -90,7 +89,6 @@
- EXPORT_SYMBOL(arc_proto_default);
- EXPORT_SYMBOL(arc_bcast_proto);
- EXPORT_SYMBOL(arc_raw_proto);
--EXPORT_SYMBOL(arc_proto_null);
- EXPORT_SYMBOL(arcnet_unregister_proto);
- EXPORT_SYMBOL(arcnet_debug);
- EXPORT_SYMBOL(alloc_arcdev);
-@@ -118,8 +116,6 @@
- 
- 	arcnet_debug = debug;
- 
--	printk(VERSION);
--
- #ifdef ALPHA_WARNING
- 	BUGLVL(D_EXTRA) {
- 		printk("arcnet: ***\n"
-@@ -178,8 +174,8 @@
-  * Dump the contents of an ARCnet buffer
-  */
- #if (ARCNET_DEBUG_MAX & (D_RX | D_TX))
--void arcnet_dump_packet(struct net_device *dev, int bufnum, char *desc,
--			int take_arcnet_lock)
-+static void arcnet_dump_packet(struct net_device *dev, int bufnum,
-+			       char *desc, int take_arcnet_lock)
- {
- 	struct arcnet_local *lp = dev->priv;
- 	int i, length;
-@@ -208,7 +204,10 @@
- 
- }
- 
--EXPORT_SYMBOL(arcnet_dump_packet);
-+#else
-+
-+#define arcnet_dump_packet(dev, bufnum, desc,take_arcnet_lock) do { } while (0)
-+
- #endif
- 
- 
-@@ -987,7 +986,7 @@
-  * This is a generic packet receiver that calls arcnet??_rx depending on the
-  * protocol ID found.
-  */
--void arcnet_rx(struct net_device *dev, int bufnum)
-+static void arcnet_rx(struct net_device *dev, int bufnum)
- {
- 	struct arcnet_local *lp = dev->priv;
- 	struct archdr pkt;
---- linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/rfc1051.c.old	2005-02-16 15:22:16.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/rfc1051.c	2005-02-16 15:22:23.000000000 +0100
-@@ -43,7 +43,7 @@
- 		      int bufnum);
- 
- 
--struct ArcProto rfc1051_proto =
-+static struct ArcProto rfc1051_proto =
- {
- 	.suffix		= 's',
- 	.mtu		= XMTU - RFC1051_HDR_SIZE,
---- linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/rfc1201.c.old	2005-02-16 15:22:35.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/rfc1201.c	2005-02-16 15:22:46.000000000 +0100
-@@ -43,7 +43,7 @@
- 		      int bufnum);
- static int continue_tx(struct net_device *dev, int bufnum);
- 
--struct ArcProto rfc1201_proto =
-+static struct ArcProto rfc1201_proto =
- {
- 	.suffix		= 'a',
- 	.mtu		= 1500,	/* could be more, but some receivers can't handle it... */
+>  void __init
+>  @@ -183,10 +183,8 @@
+>          u32 intr_ctrl;
+>
+>         /* Remap the necessary zones */
+>  -       intr = (struct mpc52xx_intr *)
+>  -               ioremap(MPC52xx_INTR, sizeof(struct mpc52xx_intr));
+> -       sdma = (struct mpc52xx_sdma *)
+>  -               ioremap(MPC52xx_SDMA, sizeof(struct mpc52xx_sdma));
+> +       intr = ioremap(MPC52xx_INTR, sizeof(struct mpc52xx_intr));
+> +       sdma = ioremap(MPC52xx_SDMA, sizeof(struct mpc52xx_sdma));
+>
+>         if ((intr==NULL) || (sdma==NULL))
+>                 panic("Can't ioremap PIC/SDMA register for init_irq 
+> !");
+>  diff -Nru a/arch/ppc/syslib/mpc52xx_setup.c
+>  b/arch/ppc/syslib/mpc52xx_setup.c
+> --- a/arch/ppc/syslib/mpc52xx_setup.c   2005-03-11 20:41:36 +01:00
+>  +++ b/arch/ppc/syslib/mpc52xx_setup.c   2005-03-11 20:41:36 +01:00
+>  @@ -39,7 +39,8 @@
+>   void
+>   mpc52xx_restart(char *cmd)
+>   {
+>  -       struct mpc52xx_gpt* gpt0 = (struct mpc52xx_gpt*) 
+> MPC52xx_GPTx(0);
+> +       struct mpc52xx_gpt __iomem *gpt0 =
+>  +               (struct mpc52xx_gpt __iomem *) MPC52xx_GPTx(0);
+>
+>         local_irq_disable();
+>
+> @@ -102,7 +103,7 @@
+>   #endif
+>
+>  static void
+>  -mpc52xx_psc_putc(struct mpc52xx_psc * psc, unsigned char c)
+>  +mpc52xx_psc_putc(struct mpc52xx_psc __iomem *psc, unsigned char c)
+>   {
+>          while (!(in_be16(&psc->mpc52xx_psc_status) &
+>                   MPC52xx_PSC_SR_TXRDY));
+> @@ -112,8 +113,9 @@
+>   void
+>   mpc52xx_progress(char *s, unsigned short hex)
+>   {
+>  -       struct mpc52xx_psc *psc = (struct mpc52xx_psc 
+> *)MPC52xx_CONSOLE;
+>         char c;
+>  +       struct mpc52xx_psc __iomem *psc =
+>  +               (struct mpc52xx_psc __iomem *)MPC52xx_CONSOLE;
+>
+>         while ((c = *s++) != 0) {
+>                  if (c == '\n')
+>  @@ -138,11 +140,11 @@
+>           * else get size from sdram config registers
+>           */
+>          if (ramsize == 0) {
+>  -               struct mpc52xx_mmap_ctl *mmap_ctl;
+>  +               struct mpc52xx_mmap_ctl __iomem *mmap_ctl;
+>                  u32 sdram_config_0, sdram_config_1;
+>
+>                 /* Temp BAT2 mapping active when this is called ! */
+>  -               mmap_ctl = (struct mpc52xx_mmap_ctl*) 
+> MPC52xx_MMAP_CTL;
+> +               mmap_ctl = (struct mpc52xx_mmap_ctl __iomem *)
+> MPC52xx_MMAP_CTL;
+>
+>                 sdram_config_0 = in_be32(&mmap_ctl->sdram0);
+>                  sdram_config_1 = in_be32(&mmap_ctl->sdram1);
+>  @@ -169,13 +171,11 @@
+>          /* if bootloader didn't pass bus frequencies, calculate them 
+> */
+>          if (xlbfreq == 0) {
+>                  /* Get RTC & Clock manager modules */
+>  -               struct mpc52xx_rtc *rtc;
+>  -               struct mpc52xx_cdm *cdm;
+>  +               struct mpc52xx_rtc __iomem *rtc;
+>  +               struct mpc52xx_cdm __iomem *cdm;
+>
+> -               rtc = (struct mpc52xx_rtc*)
+>  -                       ioremap(MPC52xx_RTC, sizeof(struct 
+> mpc52xx_rtc));
+> -               cdm = (struct mpc52xx_cdm*)
+> -                       ioremap(MPC52xx_CDM, sizeof(struct 
+> mpc52xx_cdm));
+> +               rtc = ioremap(MPC52xx_RTC, sizeof(struct mpc52xx_rtc));
+> +               cdm = ioremap(MPC52xx_CDM, sizeof(struct mpc52xx_cdm));
+>
+>                 if ((rtc==NULL) || (cdm==NULL))
+>                          panic("Can't ioremap RTC/CDM while computing 
+> bus
+>  freq");
+>  @@ -212,8 +212,8 @@
+>                  __res.bi_pcifreq = pcifreq;
+>
+>                 /* Release mapping */
+>  -               iounmap((void*)rtc);
+> -               iounmap((void*)cdm);
+> +               iounmap(rtc);
+>  +               iounmap(cdm);
+>         }
+>
+>         divisor = 4;
+>  diff -Nru a/drivers/serial/mpc52xx_uart.c 
+> b/drivers/serial/mpc52xx_uart.c
+> --- a/drivers/serial/mpc52xx_uart.c     2005-03-11 20:41:36 +01:00
+>  +++ b/drivers/serial/mpc52xx_uart.c     2005-03-11 20:41:36 +01:00
+>  @@ -86,7 +86,7 @@
+>           *        the console_init
+>           */
+>
+> -#define PSC(port) ((struct mpc52xx_psc *)((port)->membase))
+>  +#define PSC(port) ((struct mpc52xx_psc __iomem *)((port)->membase))
+>
+>
+>
+>  /* Forward declaration of the interruption handling routine */
+>  @@ -190,7 +190,7 @@
+>   static int
+>   mpc52xx_uart_startup(struct uart_port *port)
+>  {
+>  -       struct mpc52xx_psc *psc = PSC(port);
+>  +       struct mpc52xx_psc __iomem *psc = PSC(port);
+>
+>         /* Reset/activate the port, clear and enable interrupts */
+>          out_8(&psc->command,MPC52xx_PSC_RST_RX);
+> @@ -217,7 +217,7 @@
+>   static void
+>   mpc52xx_uart_shutdown(struct uart_port *port)
+>  {
+>  -       struct mpc52xx_psc *psc = PSC(port);
+>  +       struct mpc52xx_psc __iomem *psc = PSC(port);
+>
+>         /* Shut down the port, interrupt and all */
+>          out_8(&psc->command,MPC52xx_PSC_RST_RX);
+> @@ -231,7 +231,7 @@
+>   mpc52xx_uart_set_termios(struct uart_port *port, struct termios *new,
+>                            struct termios *old)
+>   {
+>  -       struct mpc52xx_psc *psc = PSC(port);
+>  +       struct mpc52xx_psc __iomem *psc = PSC(port);
+>          unsigned long flags;
+>          unsigned char mr1, mr2;
+>          unsigned short ctr;
+>  @@ -562,7 +562,7 @@
+>   mpc52xx_console_get_options(struct uart_port *port,
+>                              int *baud, int *parity, int *bits, int 
+> *flow)
+>   {
+>  -       struct mpc52xx_psc *psc = PSC(port);
+>  +       struct mpc52xx_psc __iomem *psc = PSC(port);
+>          unsigned char mr1;
+>
+>         /* Read the mode registers */
+>  @@ -592,7 +592,7 @@
+>   mpc52xx_console_write(struct console *co, const char *s, unsigned int
+> count)
+>   {
+>          struct uart_port *port = &mpc52xx_uart_ports[co->index];
+>  -       struct mpc52xx_psc *psc = PSC(port);
+>  +       struct mpc52xx_psc __iomem *psc = PSC(port);
+>          unsigned int i, j;
+>
+>         /* Disable interrupts */
+>
+> _______________________________________________
+> Linuxppc-embedded mailing list
+>  Linuxppc-embedded@ozlabs.org
+> https://ozlabs.org/mailman/listinfo/linuxppc-embedded
 

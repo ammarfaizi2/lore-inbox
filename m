@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264313AbTLOXSP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 18:18:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264314AbTLOXSP
+	id S263325AbTLOXHI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 18:07:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264145AbTLOXHH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 18:18:15 -0500
-Received: from www.stereoconnection.CA ([216.16.235.58]:18617 "EHLO
-	nic.NetDirect.CA") by vger.kernel.org with ESMTP id S264313AbTLOXSM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 18:18:12 -0500
-Date: Mon, 15 Dec 2003 18:18:02 -0500
-From: Chris Frey <cdfrey@netdirect.ca>
-To: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org,
-       bitkeeper-users@bitmover.com
-Subject: Re: RFC - tarball/patch server in BitKeeper
-Message-ID: <20031215181802.A24273@netdirect.ca>
-References: <20031214172156.GA16554@work.bitmover.com>
+	Mon, 15 Dec 2003 18:07:07 -0500
+Received: from zero.aec.at ([193.170.194.10]:40458 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S263325AbTLOXHC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 18:07:02 -0500
+Date: Tue, 16 Dec 2003 00:06:30 +0100
+From: Andi Kleen <ak@muc.de>
+To: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
+Subject: Re: PCI Express support for 2.4 kernel
+Message-ID: <20031215230630.GA5872@averell>
+References: <12InT-wQ-5@gated-at.bofh.it> <135Nw-5gv-3@gated-at.bofh.it> <137wc-q1-23@gated-at.bofh.it> <m3fzflpwxs.fsf@averell.firstfloor.org> <3FDE3A51.7060802@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031214172156.GA16554@work.bitmover.com>; from lm@bitmover.com on Sun, Dec 14, 2003 at 09:21:56AM -0800
+In-Reply-To: <3FDE3A51.7060802@intel.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 14, 2003 at 09:21:56AM -0800, Larry McVoy wrote:
-> /*
->  * tarball.c copyright (c) 2003 BitMover, Inc.
->  *
->  * Licensed under the NWL - No Whining License.
->  *
->  * You may use this, modify this, redistribute this provided you agree:
->  * - not to whine about this product or any other products from BitMover, Inc.
->  * - that there is no warranty of any kind.
->  * - retain this copyright in full.
->  */
+On Tue, Dec 16, 2003 at 12:48:49AM +0200, Vladimir Kondratiev wrote:
 
-If this is a serious license (and I assume it is), it is akin to provisions
-in other software licenses that prohibit unfavourable reporting on its
-feature set.
+> My fist intention was exactly same as yours, but if all access were done 
+> through pci_dev...
+> Unfortunately, you can't store ioremap()'ed address for 4k within 
+> pci_dev and then simply use it.
+> In all places around, config accessed through (bus,dev,fn) indexes.
 
-- Chris
-
+Just use a small binary tree or hash table to look up the pci_dev
+given (bus,dev,fn). That will be much faster than playing with
+mappings and flushing TLBs. 
+ 
+-Andi

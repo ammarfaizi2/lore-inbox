@@ -1,86 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262433AbVC3UqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbVC3UvQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262433AbVC3UqE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 15:46:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262199AbVC3UoB
+	id S261863AbVC3UvQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 15:51:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbVC3UvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 15:44:01 -0500
-Received: from 76.80-203-227.nextgentel.com ([80.203.227.76]:25591 "EHLO
-	mail.inprovide.com") by vger.kernel.org with ESMTP id S261688AbVC3UnX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 15:43:23 -0500
-To: Wiktor <victorjan@poczta.onet.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFD] 'nice' attribute for executable files
-References: <fa.ed33rit.1e148rh@ifi.uio.no>
-	<E1DGNaV-0005LG-9m@be1.7eggert.dyndns.org>
-	<424ACEA9.6070401@poczta.onet.pl>
-	<yw1xpsxhvzsz.fsf@ford.inprovide.com>
-	<424AE18B.1080009@poczta.onet.pl>
-	<yw1xll85vtva.fsf@ford.inprovide.com>
-	<424B090F.3090508@poczta.onet.pl>
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Date: Wed, 30 Mar 2005 22:43:22 +0200
-In-Reply-To: <424B090F.3090508@poczta.onet.pl> (Wiktor's message of "Wed, 30
- Mar 2005 22:16:15 +0200")
-Message-ID: <yw1xhdisx3th.fsf@ford.inprovide.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Wed, 30 Mar 2005 15:51:15 -0500
+Received: from smtp.uninet.ee ([194.204.0.4]:53008 "EHLO smtp.uninet.ee")
+	by vger.kernel.org with ESMTP id S261863AbVC3Us3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 15:48:29 -0500
+Message-ID: <424B109A.90908@tuleriit.ee>
+Date: Wed, 30 Mar 2005 23:48:26 +0300
+From: Indrek Kruusa <indrek.kruusa@tuleriit.ee>
+Reply-To: indrek.kruusa@tuleriit.ee
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050215)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andi Kleen <ak@muc.de>, Asfand Yar Qazi <ay1204@qazi.f2s.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: How's the nforce4 support in Linux?
+References: <4242865D.90800@qazi.f2s.com>	<20050324093032.GA14022@havoc.gtf.org>	<20050324162706.GJ17865@csclub.uwaterloo.ca>	<42432A9F.3090507@pobox.com> <m1ekdz3hz0.fsf@muc.de> <424B013B.3010109@pobox.com> <424B0946.8060909@tuleriit.ee> <424B0B38.9060809@pobox.com>
+In-Reply-To: <424B0B38.9060809@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wiktor <victorjan@poczta.onet.pl> writes:
+Jeff Garzik wrote:
 
-> Måns Rullgård wrote:
+> Indrek Kruusa wrote:
+>
+>> Jeff Garzik wrote:
 >>
->> You could wrap /lib/ld-linux.so, and get all dynamically linked
->> programs done in one sweep.
+>>> Andi Kleen wrote:
+>>>
+>>>> Jeff Garzik <jgarzik@pobox.com> writes:
+>>>>
+>>>>> I won't disagree with your experiences.  For me, outside of one brief
+>>>>> moment when the r8169 driver didn't work on Athlon64, it has worked
+>>>>> flawlessly for me.
+>>>>>
+>>>>> RealTek 8169 is currently my favorite gigabit chip.
+>>>>
+>>>>
+>>>>
+>>>>
+>>>>
+>>>> It does not seem to support DAC (or rather it breaks with DAC 
+>>>> enabled), which makes it not very useful on any machine with >3GB 
+>>>> of memory.
+>>>
+>>>
+>>>
+>>>
+>>> Driver bug.  I can futz with it and get it to do 64-bit on my Athlon64.
 >>
-> That's mad idea -
-
-Sure, but it's possible.
-
-> keep similar things in one place! starting programs is done in
-> kernel and nice-value-support is also done in kernel!!
-
-Just because it can be done in the kernel, doesn't mean it should be.
-In fact, the more that can be kept outside the kernel, the better.
-
->> Using a shell to run external programs is quite common.  The system()
->> and popen() functions both invoke the shell.
 >>
-> Yes, but compexity of 'sh -c /some/command' is uncomparable to one of
-> shell-level-program-renicing system. such system should keep database
-> of reniced processes, parse it (using awk or sed, i'm afraid...) and
-
-It wouldn't need to be more complicated than a POSIX extended
-attribute.
-
-> then renice process (what also takes two files[!, they are in fact
-> one-liners, but it is needed to gain root privileges to renice
-> process]). sorry, but linux works smoothly on 386, and such mess would
-> surely change it.
-
-The Linux kernel is pretty stable, but tampering with internals in
-such a way would surely change it.
-
->> I'm not so sure it belongs at all.  The can of worms it opens up is a
->> bit too big, IMHO.
 >>
-> What can?
+>>
+>> Continuing with off-topic questions: is this "checksum off-load" 
+>> usable with r8169? Is there any other reason (performance?) to use 
+>> hardware TCP/IP checksumming than just "cool, a little chunk of 
+>> software is hardwired again"?
+>
+>
+> It's usable, and enables "zero copy" feature.
+>
+>
+>> I have seen you mentioned that this causes mainly troubles if you try 
+>> to set it with ethtool. Is it still true?
+>
+>
+> Not sure what you are referring to.
 
-Pandora's.
 
-> the only account that have access to renicing field is root. if
 
-So you are proposing the addition of a per-file attribute, with
-restricted access, and potentially dangerous effects if set
-incorrectly.  This, combined with the fact that is unlikely to receive
-much testing, all speaks against it.
 
--- 
-Måns Rullgård
-mru@inprovide.com
+Sorry  - my brains interpretation was classic rumor case: discussion I 
+remembered was about broken NIC not about enabling hw checksum. I 
+referred to this one:
+
+http://www.ussg.iu.edu/hypermail/linux/kernel/0503.3/0369.html
+
+
+Jeff Garzik wrote:
+
+> Evgeniy Polyakov wrote:
+>
+>> Noone will complain on Linux if NIC is broken and produces wrong
+>> checksum
+>> and HW checksum offloading is enabled using ethtools.
+>
+>
+>
+> Actually, that is a problem and people have definitely complained 
+> about it in the past.
+
+
+

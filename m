@@ -1,45 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268714AbRIJJKQ>; Mon, 10 Sep 2001 05:10:16 -0400
+	id <S269437AbRIJJaU>; Mon, 10 Sep 2001 05:30:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268837AbRIJJKH>; Mon, 10 Sep 2001 05:10:07 -0400
-Received: from wet.kiss.uni-lj.si ([193.2.98.10]:62217 "EHLO
-	wet.kiss.uni-lj.si") by vger.kernel.org with ESMTP
-	id <S268714AbRIJJKC>; Mon, 10 Sep 2001 05:10:02 -0400
-Content-Type: text/plain;
-  charset="iso-8859-2"
-From: Rok =?iso-8859-2?q?Pape=BE?= <rok.papez@kiss.uni-lj.si>
-Reply-To: rok.papez@kiss.uni-lj.si
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.9: PDC20267 not working
-Date: Mon, 10 Sep 2001 10:32:18 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <3B9C16AF.8F1599E6@tconl.com>
-In-Reply-To: <3B9C16AF.8F1599E6@tconl.com>
-Cc: Joe Fago <cfago@tconl.com>
-MIME-Version: 1.0
-Message-Id: <01091010321800.01030@strader.home>
-Content-Transfer-Encoding: 8bit
+	id <S269779AbRIJJaK>; Mon, 10 Sep 2001 05:30:10 -0400
+Received: from [195.66.192.167] ([195.66.192.167]:43019 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S269437AbRIJJ37>; Mon, 10 Sep 2001 05:29:59 -0400
+Date: Mon, 10 Sep 2001 12:28:51 +0300
+From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: The Bat! (v1.44)
+Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Organization: IMTP
+X-Priority: 3 (Normal)
+Message-ID: <8015001541.20010910122851@port.imtp.ilyichevsk.odessa.ua>
+To: John Ripley <jripley@riohome.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: COW fs (Re: Editing-in-place of a large file)
+In-Reply-To: <3B9B80E2.C9D5B947@riohome.com>
+In-Reply-To: <20010902152137.L23180@draal.physics.wisc.edu>
+ <318476047.20010903002818@port.imtp.ilyichevsk.odessa.ua>
+ <3B9B80E2.C9D5B947@riohome.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+JR> I've tried this idea. I did an MD5 of every block (4KB) in a partition
+JR> and counted the number of blocks with the same hash. Only about 5-10% of
+JR> blocks on several filesystem were actually duplicates. This might be
+JR> better if you reduced the block size to 512 bytes, but there's a
+JR> question of how much extra space filesystem structures would then take
+JR> up.
 
-On Monday 10 September 2001 03:26, Joe Fago wrote:
+JR> Basically, it didn't look like compressing duplicate blocks would
+JR> actually be worth the extra structures or CPU.
 
-> PDC20267: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode
->   ide0: BM-DMA at 0xe800-0xe807, BIOS settings: hda: pio, hdb: pio
->   ide1: BM-DMA at 0xe808-0xe80f, BIOS settings: hdc: pio, hdd: DMA
-> hda: Maxtor 2B020H1, ATA DISK drive
->
->
-> This is the only device attached to the controller. Any suggestions?
+JR> On the other hand, a COW fs would be excellent for making file copying
+JR> much quicker. You can do things like copying the linux kernel tree using
+JR> 'cp -lR', but the files do not act as if they are unique copies - and
+JR> I've been bitten many times when I forgot this. If you had COW, you
+JR> could just copy the entire tree and forget about the fact they're
+JR> linked.
 
-ASUS A7V with on-board PDC20265, kernel 2.4.9 with ACPI support - it hangs on 
-detection of the last drive (hde). I've disabled APM and ACPI altogether in 
-the kernel and now it works.
-I didn't play with edge/level setting of interrupts.
+Yeah, I'm mostly thinking about this kind of COW fs usage. You may copy
+gigabytes in the instant and don't bother about tracking duplicate
+files ("zero blocks left??? where's the hell I copied that .mpg's???").
 
+Now, sometimes we use hardlinks as "poor man's COW fs", but
+I bet it's error prone. Every now and then you forget it's a
+hardlinked kernel tree and start happily hacking in it... :-(
+
+A "compressor" which hunts and merges duplicate blocks is a bonus,
+not a primary tool.
 -- 
-best regards,
-Rok Pape¾.
+Best regards,
+VDA
+mailto:VDA@port.imtp.ilyichevsk.odessa.ua
+http://port.imtp.ilyichevsk.odessa.ua/vda/
+
+

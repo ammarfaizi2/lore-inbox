@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262924AbSLKFa6>; Wed, 11 Dec 2002 00:30:58 -0500
+	id <S264969AbSLKFnN>; Wed, 11 Dec 2002 00:43:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263256AbSLKFa6>; Wed, 11 Dec 2002 00:30:58 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:41999
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S262924AbSLKFa6>; Wed, 11 Dec 2002 00:30:58 -0500
-Subject: Re:  Problem with mm1 patch for 2.5.51
-From: Robert Love <rml@tech9.net>
-To: Con Kolivas <conman@kolivas.net>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-In-Reply-To: <1039583335.3df6c8677cff4@kolivas.net>
-References: <1039583335.3df6c8677cff4@kolivas.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1039585128.4382.0.camel@phantasy>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 11 Dec 2002 00:38:48 -0500
-Content-Transfer-Encoding: 7bit
+	id <S265587AbSLKFnM>; Wed, 11 Dec 2002 00:43:12 -0500
+Received: from mx11.dmz.fedex.com ([199.81.193.118]:1547 "EHLO
+	mx11.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S264969AbSLKFnL>; Wed, 11 Dec 2002 00:43:11 -0500
+Date: Wed, 11 Dec 2002 13:49:00 +0800 (SGT)
+From: Jeff Chua <jchua@fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.5.51 ide module problem
+Message-ID: <Pine.LNX.4.50.0212111337270.29848-100000@boston.corp.fedex.com>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 12/11/2002
+ 01:50:53 PM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 12/11/2002
+ 01:50:55 PM,
+	Serialize complete at 12/11/2002 01:50:55 PM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-12-11 at 00:08, Con Kolivas wrote:
 
-> I suspect I suffered a similar fate with the osdl test box. While I was away
-> letting it run a benchmark in smp mode the filesystem had remounted read only. I
-> tried rebooting to make some sense of what had happened but was unable to start
-> the machine with any kernel. I've asked the osdl people to have a look at the
-> box for me.
-> 
-> Previously a run in uniprocessor mode ran flawlessly.
+My linux/.config ...
+CONFIG_IDE=m
+CONFIG_BLK_DEV_IDE=m
+CONFIG_BLK_DEV_IDEDISK=m
+CONFIG_BLK_DEV_IDECS=m
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_IDEFLOPPY=m
+CONFIG_BLK_DEV_IDESCSI=m
+CONFIG_BLK_DEV_IDE_MODES=y
 
-This looks like a fix to the ext3 bug I posted last week, which was on
-UP.
+System version ...
+	module-init-tools-0.9.3
+	linux-2.5.51
 
-It comes and goes... I am in 2.5-mm with no problems now, but it was
-killing me last week.  *shrug*
+depmod will ecounter "Segmentation fault" if the ide.ko and ide-io.ps
+modules are in /lib/modules/2.5.51/kernel
 
-Here's to hoping this fixes it...
+After "rm ide.ko ide-io.ps", depmod runs fine, but that means ide won't
+load.
 
-	Robert Love
-
+Thanks,
+Jeff
+[ jchua@fedex.com ]

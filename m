@@ -1,37 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132042AbRDEB0d>; Wed, 4 Apr 2001 21:26:33 -0400
+	id <S132482AbRDEB0d>; Wed, 4 Apr 2001 21:26:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132482AbRDEB0W>; Wed, 4 Apr 2001 21:26:22 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:25361 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132042AbRDEB0A>; Wed, 4 Apr 2001 21:26:00 -0400
-Subject: Re: ReiserFS? How reliable is it? Is this the future?
-To: xuan--reiserfs@baldauf.org (Xuan Baldauf)
-Date: Thu, 5 Apr 2001 02:13:55 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        nicholas@petreley.com (Nicholas Petreley),
-        harri@synopsys.COM (Harald Dunkel), linux-kernel@vger.kernel.org
-In-Reply-To: <3ACBC4F4.C177E40A@baldauf.org> from "Xuan Baldauf" at Apr 05, 2001 03:05:56 AM
+	id <S132508AbRDEB0R>; Wed, 4 Apr 2001 21:26:17 -0400
+Received: from csl.Stanford.EDU ([171.64.66.149]:20453 "EHLO csl.Stanford.EDU")
+	by vger.kernel.org with ESMTP id <S132482AbRDEB0B>;
+	Wed, 4 Apr 2001 21:26:01 -0400
+From: Dawson Engler <engler@csl.Stanford.EDU>
+Message-Id: <200104050125.SAA21252@csl.Stanford.EDU>
+Subject: [QUESTION] MOD_INC/MOD_DEC: useful to check for correct usage?
+To: linux-kernel@vger.kernel.org
+Date: Wed, 4 Apr 2001 18:25:08 -0700 (PDT)
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14kyLV-0003AB-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This is a reiserfs security issue, but only of theoretical nature (Even i=
-> f
-> triggered, it won't harm you). But the reason for this bug is in NFS (v2,=
+Hi,
 
-If the blocks contained my old /etc/shadow I'd be a bit upset.
-
-> displacement instead of vertical displacement) is planned.
-> 
-> I can tell you more if you want.
-
-I trust Chris to keep it in order. I've not yet had a broken patch from them
-for -ac
-
+in the old days you couldn't call a sleeping function in a module
+before doing a MOD_INC or after doing a MOD_DEC.  Then some safety nets
+were added that made these obsolete (in some number of places).  I was
+told that people had decided to potentially get rid of all safety
+nets.  Is this true?  Is it worthwhile to have a checker for these two
+rules?

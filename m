@@ -1,71 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135549AbRDXRb2>; Tue, 24 Apr 2001 13:31:28 -0400
+	id <S135656AbRDXRoX>; Tue, 24 Apr 2001 13:44:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135576AbRDXRbI>; Tue, 24 Apr 2001 13:31:08 -0400
-Received: from sirius-giga.rz.uni-ulm.de ([134.60.246.36]:11721 "EHLO
-	mail.rz.uni-ulm.de") by vger.kernel.org with ESMTP
-	id <S135549AbRDXRaz> convert rfc822-to-8bit; Tue, 24 Apr 2001 13:30:55 -0400
-Date: Tue, 24 Apr 2001 19:30:40 +0200 (MEST)
-From: Markus Schaber <markus.schaber@student.uni-ulm.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: CaT <cat@zip.com.au>, Alexander Viro <viro@math.psu.edu>,
-        "Mohammad A. Haque" <mhaque@haque.net>,
-        <ttel5535@artax.karlin.mff.cuni.cz>,
-        "Mike A. Harris" <mharris@opensourceadvocate.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [OFFTOPIC] Re: [PATCH] Single user linux
-In-Reply-To: <E14s57p-0002LM-00@the-village.bc.nu>
-Message-ID: <Pine.SOL.4.33.0104241916420.8272-100000@lyra.rz.uni-ulm.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S135647AbRDXRoO>; Tue, 24 Apr 2001 13:44:14 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60676 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S135595AbRDXRoC>;
+	Tue, 24 Apr 2001 13:44:02 -0400
+Date: Tue, 24 Apr 2001 18:43:47 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: imel96@trustix.co.id
+Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Single user linux
+Message-ID: <20010424184347.A3416@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.GSO.4.21.0104240752320.6992-100000@weyl.math.psu.edu> <Pine.LNX.4.33.0104241917540.16169-100000@tessy.trustix.co.id>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0104241917540.16169-100000@tessy.trustix.co.id>; from imel96@trustix.co.id on Tue, Apr 24, 2001 at 07:44:17PM +0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, Apr 24, 2001 at 07:44:17PM +0700, imel96@trustix.co.id wrote:
+> come on, it's hard for me as it's hard for you. not everybody
+> expect a computer to be like people here thinks how a computer
+> should be.
 
-On Tue, 24 Apr 2001, Alan Cox wrote:
+I'm sorry, you're looking at the problem the wrong way around.
+Its not a kernel problem, but a user space problem.
 
-> > Now, in order for step 4 to be done safely, procmail should be running
-> > as the user it's meant to deliver the mail for. for this to happen
-> > sendmail needs to start it as that user in step 3 and to do that it
-> > needs extra privs, above and beyond that of a normal user.
->
-> 	email -> sendmail
-> 	sendmail 'its local' -> spool
->
-> user:
-> 	get_mail | procmail
-> 	mutt
->
-> The mail server doesnt need to run procmail. If you wanted to run mail batches
-> through on a regular basis you can use cron for it, or leave a daemon running
+> think about personal devices. something like the nokia communicator.
+> a system security passwd is acceptable, but that's it. no those-
+> device-user would like to know about user account, file ownership,
+> etc. they just want to use it.
 
-Oh, well, cron is just another suid program.
+If you do everything as one user, then you are effectively in a
+single-user mode.  Just make sure that the user owns all the files
+that they might need.
 
-This example would just be the ideal scenario for posix- or novell-style
-ACLs in the filesystem.
+Your change still doesn't get rid of the /bin/login program - you still
+have to do that, so why not do it anyway?
 
-You run the MDA/MTA under some mailerdaemon uid. And then a user can
-explicitly give this daemon read access to .procmail etc. You can also
-give the MTA (and nobody else) write access to /var/spool/mail. The MDA
-then gives the specifical user full access to the spoolfile when creating
-it, or adding mail to it. And the user can fetch his mail and truncate or
-delete the file just as he and his software is used to.
+Also, I know of no personal device that gives you access to system
+software (which is effectively what giving a user 'root' access
+gives you).  How many users do you know who can copy the firmware
+in their phone or organiser?
 
-There are much more things with ACLs, especially in workgroup environments
-(That's why I loved the old Novel server in our university), but they
-never got into the kernel.  And as far as I (as a non-hacker) understand,
-the fields reserved for this feature were dropped for the large file
-support, so we may never see ACLs.
+> that also explain why win95 user doesn't want to use NT. not
+> because they can't afford it (belive me, here NT costs only
+> us$2), but additional headache isn't acceptable.
 
-Gruß,
-Markus
--- 
-| Gluecklich ist, wer vergisst, was nicht aus ihm geworden ist.
-+---------------------------------------.     ,---------------->
-http://www.uni-ulm.de/~s_mschab/         \   /
-mailto:markus.schaber@student.uni-ulm.de  \_/
+I'm sorry, that's a different problem, and _even_ Windows 95 and 98
+has a "User Logon".  Only if you use the system in a single user mode
+does it not have a logon.  You can do the same with Linux again
+without making kernel modifications.
 
+I'd like to point out that RedHat have thought about this, and they
+have some of the infrastructure in there to automatically log you
+on at boot time in (within X).
+
+As I say, this is a user space issue, and distributions are addressing
+it adequately.
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

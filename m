@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262964AbSJGKMz>; Mon, 7 Oct 2002 06:12:55 -0400
+	id <S262969AbSJGKee>; Mon, 7 Oct 2002 06:34:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262965AbSJGKMz>; Mon, 7 Oct 2002 06:12:55 -0400
-Received: from smtp01.uc3m.es ([163.117.136.121]:57098 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S262964AbSJGKMy>;
-	Mon, 7 Oct 2002 06:12:54 -0400
-Date: Mon, 7 Oct 2002 10:17:50 +0000
-From: Eduardo =?iso-8859-1?Q?P=E9rez?= <100018135@alumnos.uc3m.es>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] namespace clean
-Message-ID: <a6cf5427338512cb0ae6b015e16b896a@alumnos.uc3m.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S262970AbSJGKee>; Mon, 7 Oct 2002 06:34:34 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:13715 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S262969AbSJGKed>;
+	Mon, 7 Oct 2002 06:34:33 -0400
+Date: Mon, 7 Oct 2002 12:40:05 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200210071040.MAA18108@harpo.it.uu.se>
+To: jgarzik@pobox.com, zwane@linuxpower.ca
+Subject: Re: [PATCH][2.5][RFT] 3c509.c extra ethtool features
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently the Linux kernel has a cryptic api namespace that confuses
-many people when trying to code for the Linux kernel. People can't know
-by direct examination of a symbol to what package belongs. Also symbols
-can't be easily sorted by package.
+On Sun, 6 Oct 2002 17:00:14 -0400 (EDT), Zwane Mwaikambo wrote:
+>	If anyone has a 3c509 could they try;
+>
+>ethtool eth0
+>ethtool -s eth0 port tp, bnc etc..
+>ethtool eth0
+>
+>and see if all the returned stuff looks sane.
 
-I'm suggesting to use a cleaner namespace like
-package_object_method and package_function
-If this is accepted, symbols from new code should follow this
-naming, and current symbols should start the transition to this cleaner
-namespace.
+3c509-TPO, ca 1994 vintage, ethtool eth0 output:
 
-If anybody like me think that this would help people to code for the
-Linux kernel it would be a good idea to start this transition to a
-cleaner namespace.
+Settings for eth0:
+	Supported ports: [ TP AUI ]
+	Supported link modes:   10baseT/Half 10baseT/Full 
+	Supports auto-negotiation: No
+	Advertised link modes:  Not reported
+	Advertised auto-negotiation: No
+	Speed: 10Mb/s
+	Duplex: Half
+	Port: Twisted Pair
+	PHYAD: 0
+	Transceiver: internal
+	Auto-negotiation: off
+	Current message level: 0x00000002 (2)
+	Link detected: yes
 
-Most drivers and new core kernel api have a very clean namespace but
-some old api don't.
+So far so good (except it reports AUI although it has none).
+Unfortunately, this simple query killed the link, and I had to
+down/up eth0 to get it back.
+Next I tried ethtool -s to change some settings (port, speed,
+full duplex) and all returned errors. I kind of expected that.
+Next I tried to rlogin to this box from another: complete kernel hang :-(
 
-What are your thoughts about this ?
+I may be able to test some more later this week, on a slightly newer
+3c509(B?) TP/AUI combo NIC.
+
+/Mikael

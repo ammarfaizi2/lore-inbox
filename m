@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263062AbTKCUG0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 15:06:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263101AbTKCUG0
+	id S263101AbTKCUGp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 15:06:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263122AbTKCUGp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 15:06:26 -0500
-Received: from fw.osdl.org ([65.172.181.6]:39327 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263062AbTKCUGY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 15:06:24 -0500
-Date: Mon, 3 Nov 2003 12:06:47 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Daniele Venzano <webvenza@libero.it>
-Cc: mochel@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add PM support to sis900 network driver
-Message-Id: <20031103120647.549f0c81.akpm@osdl.org>
-In-Reply-To: <20031103181721.GC852@picchio.gall.it>
-References: <20031102182852.GC18017@picchio.gall.it>
-	<20031102111254.481bcbfd.akpm@osdl.org>
-	<20031103181721.GC852@picchio.gall.it>
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Nov 2003 15:06:45 -0500
+Received: from mout1.freenet.de ([194.97.50.132]:8396 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S263101AbTKCUGl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 15:06:41 -0500
+From: Michael Buesch <mbuesch@freenet.de>
+To: Takashi Iwai <tiwai@suse.de>
+Subject: Re: [Alsa-devel] [2.6.0-test9 ALSA] ALSA-OSS-emulation unable to register
+Date: Mon, 3 Nov 2003 21:06:06 +0100
+User-Agent: KMail/1.5.4
+References: <200311021458.59759.mbuesch@freenet.de> <s5hu15ltgb5.wl@alsa2.suse.de>
+In-Reply-To: <s5hu15ltgb5.wl@alsa2.suse.de>
+Cc: alsa-devel@alsa-project.org,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200311032106.28125.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniele Venzano <webvenza@libero.it> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On Monday 03 November 2003 20:14, you wrote:
+> > CONFIG_SOUND_BT878=y
 >
-> On Sun, Nov 02, 2003 at 11:12:54AM -0800, Andrew Morton wrote:
-> > pci_set_power_state() can sleep, so we shouldn't be calling it
-> > under spin_lock_irqsave().  Is it necessary to hold the lock
-> > here?
-> 
-> New patch with locking completely removed, since in a similar
-> function none was used.
+>   ^^^^^^^^^^^^^^^^^^^^
+> this conflicts with ALSA.  try to pass the index parameter via boot
+> option of snd-ens1371.
 
-OK.  I think.  Net driver suspend handlers in general seem a bit racy wrt
-interrupt activity as well as SMP.  Maybe I'm missing something.
+Thanks for your suggestion, but it doesn't work.
+Still displays
+ALSA sound/core/oss/pcm_oss.c:2353: unable to register OSS PCM device 0:0
+Is there some other way to make bttv-audio and
+ALSA-ens1371 working both? Would be cool if I
+could use both at the same time. :)
 
-> I think also the 8139too driver has the same locking problem in
-> rtl8139_suspend, do you want a patch ?
+> it's already fixed on the ALSA cvs version.
 
-Wouldn't hurt, thanks.  It's one way to wake Jeff up ;)
+ok.
 
-8139too just does netif_device_detach(), whereas your sis900 patch does
-netif_stop_queue() and then netif_device_detach().
+> ciao,
+>
+> --
+> Takashi Iwai <tiwai@suse.de>		ALSA Developer - www.alsa-project.org
 
-I don't know which is right, really.  8139too will end up with a
-non-stopped queue if __LINK_STATE_PRESENT is clear.  The sis900 approach is
-certainly safe enough, but it'd be nice to know what netif_device_detach()
-is trying to do there.
+- -- 
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/prVDoxoigfggmSgRAm/zAJ9nwkcRvzM2/w2EgYpbSZL0sZxoegCfYDBu
+Oq5ZWs+LPXRF0iw3MfyKySI=
+=Fg8x
+-----END PGP SIGNATURE-----
+

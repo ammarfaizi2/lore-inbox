@@ -1,31 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318003AbSGWJQF>; Tue, 23 Jul 2002 05:16:05 -0400
+	id <S318004AbSGWJf6>; Tue, 23 Jul 2002 05:35:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318006AbSGWJQF>; Tue, 23 Jul 2002 05:16:05 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:38859 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S318003AbSGWJQE>;
-	Tue, 23 Jul 2002 05:16:04 -0400
-Date: Tue, 23 Jul 2002 11:18:11 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: linux-kernel@vger.kernel.org, george anzinger <george@mvista.com>
-Subject: Re: [patch] big IRQ lock removal, 2.5.27-D9
-In-Reply-To: <3D3C76F0.307C6C3@tv-sign.ru>
-Message-ID: <Pine.LNX.4.44.0207231117250.5058-100000@localhost.localdomain>
+	id <S318005AbSGWJf6>; Tue, 23 Jul 2002 05:35:58 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:21768
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S318004AbSGWJf6>; Tue, 23 Jul 2002 05:35:58 -0400
+Date: Tue, 23 Jul 2002 02:34:16 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Thunder from the hill <thunder@ngforever.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Uncleanness in 2.4 IDE
+In-Reply-To: <Pine.LNX.4.44.0207230302580.3384-100000@hawkeye.luckynet.adm>
+Message-ID: <Pine.LNX.4.10.10207230233540.29975-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 23 Jul 2002, Oleg Nesterov wrote:
+Fixed but not accepted yet.
 
-> Not sure it is right time to such minor cleanups, but...
+On Tue, 23 Jul 2002, Thunder from the hill wrote:
 
-i've applied your patch to my tree - all of the irqlock patches are
-cleanups to begin with.
+> Hi,
+> 
+> IDE in late 2.4 kernels always gives me things like this:
+> 
+> hdd: timeout waiting for DMA
+> hdd: ide_dma_timeout: Lets do it again!stat = 0xd0, dma_stat = 0x60
+> hdd: DMA disabled
+> hdd: ide_set_handler: handler not null; old=c021f610, new=c022db60
+> bug: kernel timer added twice at c021f552.
+> 
+> >From that moment the IDE cdrom becomes unuseable.
+> 
+> 							Regards,
+> 							Thunder
+> -- 
+> (Use http://www.ebb.org/ungeek if you can't decode)
+> ------BEGIN GEEK CODE BLOCK------
+> Version: 3.12
+> GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+> N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+> e++++ h* r--- y- 
+> ------END GEEK CODE BLOCK------
+> 
 
-	Ingo
+Andre Hedrick
+LAD Storage Consulting Group
 

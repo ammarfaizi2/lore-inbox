@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266907AbRGHW32>; Sun, 8 Jul 2001 18:29:28 -0400
+	id <S265467AbRGHWwB>; Sun, 8 Jul 2001 18:52:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266031AbRGHW3S>; Sun, 8 Jul 2001 18:29:18 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:13573 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S265975AbRGHW3E>; Sun, 8 Jul 2001 18:29:04 -0400
-Subject: Re: Why Plan 9 C compilers don't have asm("")
-To: yodaiken@fsmlabs.com (Victor Yodaiken)
-Date: Sun, 8 Jul 2001 23:28:59 +0100 (BST)
-Cc: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-In-Reply-To: <20010708155518.A23324@hq2> from "Victor Yodaiken" at Jul 08, 2001 03:55:18 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S266031AbRGHWvv>; Sun, 8 Jul 2001 18:51:51 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:9482 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S265467AbRGHWvl>;
+	Sun, 8 Jul 2001 18:51:41 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "Jahn Veach - Veachian64" <V64@Galaxy42.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Unresolved symbols in 2.4.6 
+In-Reply-To: Your message of "Sun, 08 Jul 2001 09:20:46 EST."
+             <008001c107b9$3011c660$66b93604@molybdenum> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15JN2x-0000kq-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Mon, 09 Jul 2001 08:51:36 +1000
+Message-ID: <24743.994632696@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That seems amazingly dumb. You'd think a new processor design would
-> optimize parallel computation over calls, but what do I know?
+On Sun, 8 Jul 2001 09:20:46 -0500, 
+"Jahn Veach - Veachian64" <V64@Galaxy42.com> wrote:
+>On Sun, 8 Jul 2001 03:23:17 -0600,
+>"Keith Owens" <kaos@ocs.com.au> wrote:
+>>What does 'grep printk /proc/ksyms' report on the 2.4.6 kernel?  Also
+>>'nm vmlinux | grep printk' against the vmlinux for your 2.4.6 kernel?
+>
+>My 2.4.6 kernel can't boot because it panics when it goes to mount the root
+>filesystem. An nm on the kernel returns 'File format not recognized'. It
+>also returns this error when done on my 2.2.17 kernel, which runs just fine.
 
-They try to. Take a look at the trace cache on the Pentium IV. They certainly
-seem to have badly screwed the chip design up elsewhere but the trace cache
-has some very clever ideas in it
-
-> were so damn obstinate about "every instruction fits in 32 bits"
-> and refused to have "call 32 bit immediate given in next word" not
-> to mention a "load 32bit immediate given in next word".
-> Note, the superior x86 instruction set has a 5 byte call immediate.
-
-Some do. After all there is nothing unrisc about
-
-	call [ip]++
-
-Maybe the idea died with the PDP-11 designers 8)
-
-Alan
+You do nm on vmlinux, not vmlinuz.  vmlinux is in the top level
+directory of the kernel source tree after the build.
 

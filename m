@@ -1,43 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261193AbREORpD>; Tue, 15 May 2001 13:45:03 -0400
+	id <S261165AbREORoW>; Tue, 15 May 2001 13:44:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261192AbREORom>; Tue, 15 May 2001 13:44:42 -0400
-Received: from [206.14.214.140] ([206.14.214.140]:61444 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S261191AbREORof>; Tue, 15 May 2001 13:44:35 -0400
-Date: Tue, 15 May 2001 10:44:23 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Linus Torvalds <torvalds@transmeta.com>,
+	id <S261179AbREORoM>; Tue, 15 May 2001 13:44:12 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:15120 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261165AbREORn6>; Tue, 15 May 2001 13:43:58 -0400
+Date: Tue, 15 May 2001 10:43:18 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: James Simmons <jsimmons@transvirtual.com>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
         "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        viro@math.psu.edu
 Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <Pine.GSO.4.21.0105151330480.21081-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.10.10105151036490.22038-100000@www.transvirtual.com>
+In-Reply-To: <Pine.LNX.4.10.10105151023290.22038-100000@www.transvirtual.com>
+Message-ID: <Pine.LNX.4.21.0105151031320.2112-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > I would use write except we use write to draw into the framebuffer. If I
-> > write to the framebuffer with that data the only thing that will happen is
-> > I will get pretty colors on my screen. 
+On Tue, 15 May 2001, James Simmons wrote:
+> > 
+> > Static devices like /dev/fbN are no different. They were just plugged in
+> > before the OS booted.
 > 
-> Yes. And we also use write to send data to printer. So what? Nobody makes
-> you use the same file.
+> Actually their are hotplug video cards. High end servers have hot swapable 
+> graphcis cards. Would you want to take down a very important server
+> because the graphics card went dead. You pull it out and you plug a new
+> one in. Also their are PCMCIA video cards. I have seen them for the hand
+> held ipaqs. It is only a matter of time before all devices are hot
+> swappable. 
 
-Well creating a new device wouldn't make linus happen right now. I do
-agree ioctl calls are evil!!!! You only have X amount of them. With write
-you can have infinte amounts of different functions to perform on a
-device. I didn't design fbdev :-( If I did it would have been far
-different. I do plan on some day merging drm and fbdev into one interface. So
-I plan to change this behavior. I like to see this interface ioctl-less
-(is their such a word ???). You mmap to alter buffers. Mmap is much more
-flexiable than write for graphics buffers anyways. You use write to pass
-"data" to the driver.
+True, but not really necessarily important.
+
+The thing is, even if the device happens to be soldered down, inside a
+computer that is locked in a safe, the question boils down to a fairly
+simple one: "how do we approach devices?".
+
+Do we approach devices as something static, or do we approach them as more
+dynamic entities? Do we consider soldered-down devices to be fundamentally
+different from the ones that can be hot-plugged?
+
+And my opinion is that the "hot-plugged" approach works for devices even
+if they are soldered down - the "plugging" event just always happens
+before the OS is booted, and people just don't unplug it. So we might as
+well consider devices to always be hot-pluggable, whether that is actually
+physically true or not. Because that will always work, and that way we
+don't create any artificial distinctions (and they often really _are_
+artifical: historically soldered-down devices tend to eventually move in a
+more hot-pluggable direction, as you point out).
+
+Now, if we just fundamentally try to think about any device as being
+hot-pluggable, you realize that things like "which PCI slot is this device
+in" are completely _worthless_ as device identification, because they
+fundamentally take the wrong approach, and they don't fit the generic
+approach at all.
+
+But this is also why I don't think static device numbers make any
+sense. It's silly to have the same disk show up as different devices just
+because it is connected to a different kind of controller. And it is
+_really_ silly to statically pre-allocate device numbers based on the
+"location" of a device. 
+
+We should strive for a setup where device plugin causes that device to
+show up in /dev, and everywhere else it is needed. And the logical
+extension of such a setup is to consider built-in devices to be plugged in
+at bootup.
+
+This is true to the point that I would not actually think that it is a bad
+idea to call /sbin/hotplug when we enumerate the motherboard devices. In
+fact, if you look at the current network drivers, this is exactly what
+will happen: when we auto-detect the motherboard devices, we _will_
+actually call /sbin/hotplug to tell that we've "inserted" a network
+device.
+
+It's just that we haven't really mounted the root filesystem yet, so
+user-land never actually "sees" this fact. But I think it's the right
+approach to take, and realizing that even static devices are just a
+sub-case of the problem of dynamic allocation means that you tend to
+automatically also see that static device number allocation is just
+broken.
+
+[ The biggest silliness is this "let's try to make the disks appear in the
+  same order that the BIOS probes them". Now THAT is really stupid, and it
+  goes on a lot more than I'd ever like to see. ]
+
+		Linus
 

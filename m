@@ -1,74 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266295AbUAGSAP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 13:00:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266287AbUAGR7T
+	id S265538AbUAGR7C (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 12:59:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266289AbUAGR7A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 12:59:19 -0500
-Received: from obsidian.spiritone.com ([216.99.193.137]:7093 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S266288AbUAGR65 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 12:58:57 -0500
-Date: Wed, 07 Jan 2004 09:58:54 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: nuno.grilo@netcabo.pt
-Subject: [Bug 1803] New: Unable to handle kernel paging request	at schedule_timeout+0x7f/0xc0
-Message-ID: <3670000.1073498334@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Wed, 7 Jan 2004 12:59:00 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:10219 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S265538AbUAGR6N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 12:58:13 -0500
+Date: Wed, 7 Jan 2004 09:58:02 -0800
+To: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Cc: jeremy@sgi.com
+Subject: [RFC] Relaxed PIO read vs. DMA write ordering
+Message-ID: <20040107175801.GA4642@sgi.com>
+Mail-Followup-To: linux-pci@atrey.karlin.mff.cuni.cz,
+	linux-kernel@vger.kernel.org, jeremy@sgi.com
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: jbarnes@sgi.com (Jesse Barnes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=1803
+I've already talked with Grant a little about this, but I'm having
+second thoughts about the approach we discussed.  PCI-X allows PIO read
+responses to 'pass' DMA writes to system memory when the relaxed
+ordering bit is set in the PCI-X command word _and_ the transaction has
+the relaxed ordering bit set (so called "Relaxed Read Ordering" in
+section 11.2 of the PCI-X addendum).  This effectively 'unserializes'
+PIO vs. DMA transactions so that PIO reads doesn't get stuck behind an
+unrelated DMA writes from the same device; something which can
+potentially take awhile since cacheline ownership has to be acquired,
+etc.
 
-           Summary: Unable to handle kernel paging request  at
-                    schedule_timeout+0x7f/0xc0
-    Kernel Version: 2.6.1-rc1
-            Status: NEW
-          Severity: high
-             Owner: rml@tech9.net
-         Submitter: nuno.grilo@netcabo.pt
+I'd like Linux to support relaxed read ordering in some way since on
+large systems having PIO reads stuck behind DMA writes can end up eating
+into CPU time and limit IOPS (do I have this right, Jeremy?).
 
+The proposal I gave to Grant added a new readX() variant,
+readX_relaxed(), that drivers could use when they don't need strict
+ordering semantics (this may actually be the majority of cases, but it's
+safer to be strict by default than create a read_ordered and open a
+window for data corruption).  It might be confusing, however, to add yet
+another readX() routine, and there are other ways we might go about it.
+One suggestion was to overload the pci_sync_* calls so that they'd
+explicitly flush DMA writes to system memory, implying that all reads on
+some platforms would use relaxed semantics, but that we'd have to modify
+drivers to add in pci_sync_* calls where needed.
 
-Distribution: Gentoo R1.4
-Hardware Environment: 
-Epia MINI-ITX 1000MHz MB
-512MB RAM
-Hauppauge PVR350 TV capture device
-Software Environment:
-XFree 4.3.99.902
-Problem Description:
-Got a kernel oops and X died.
-Here is a copy of the Oops:
-Unable to handle kernel paging request at virtual address fbeaa9de
- printing eip:
-c012802f
-*pde = 00000000
-Oops: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c012802f>]    Not tainted
-EFLAGS: 00013206
-EIP is at schedule_timeout+0x7f/0xc0
-eax: 00019130   ebx: 00000000   ecx: ca248000   edx: ca249ec0
-esi: 00019130   edi: 0000001a   ebp: 0000001a   esp: ca249eb4
-ds: 007b   es: 007b   ss: 0068
-Process X (pid: 5035, threadinfo=ca248000 task=ca2ad2c0)
-Stack: ca249ec0 01c57f6e c9f7f000 00100100 00200200 01c57f6e 4b87ad6e c0127fa0
-       ca2ad2c0 00000000 cbd9d200 00000000 00000000 c0168633 d613c5a0 00000000
-       00000000 00000000 00000000 00000304 03fffe1a 00000000 00000000 03fffe1a
-Call Trace:
- [<c0127fa0>] process_timeout+0x0/0x10
- [<c0168633>] do_select+0x193/0x2e0
- [<c01682e0>] __pollwait+0x0/0xd0
- [<c0168ab2>] sys_select+0x302/0x540
- [<c0154ece>] vfs_read+0xfe/0x130
- [<c010b477>] syscall_call+0x7/0xb
+Thoughts?
 
-Code: 8b 74 24 30 83 c4 34 c3 89 74 24 04 8b 44 24 34 c7 04 24 c0
-Steps to reproduce:
-
-
+Thanks,
+Jesse

@@ -1,34 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263503AbSIQCli>; Mon, 16 Sep 2002 22:41:38 -0400
+	id <S263511AbSIQCsc>; Mon, 16 Sep 2002 22:48:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263509AbSIQCli>; Mon, 16 Sep 2002 22:41:38 -0400
-Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:7825 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S263503AbSIQCli>; Mon, 16 Sep 2002 22:41:38 -0400
-Date: Tue, 17 Sep 2002 03:46:25 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Question about CLONE_CLEARTID and thread group leader
-Message-ID: <20020917034625.A22892@kushida.apsleyroad.org>
+	id <S263512AbSIQCsc>; Mon, 16 Sep 2002 22:48:32 -0400
+Received: from holomorphy.com ([66.224.33.161]:21218 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S263511AbSIQCsb>;
+	Mon, 16 Sep 2002 22:48:31 -0400
+Date: Mon, 16 Sep 2002 19:50:35 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au
+Subject: false NUMA OOM
+Message-ID: <20020917025035.GY2179@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org, akpm@zip.com.au
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Ingo,
+Well, there's an obvious problem. shrink_caches() hammers out_of_memory()
+when it has only looked at a single node. Something like this might help.
 
-CLONE_CLEARTID was created so that a thread can notify its partner
-threads that its stack may by freed or reused.  It is needed because the
-stack isn't free until the exit() system call begins.
+Totally untested. Problem discovered during 2 simultaneous dbench 512's
+on separate 12GB tmpfs fs's on a 32x NUMA-Q with 32GB of RAM.
 
-One question has been bothering me for a while: what about the thread
-group leader's stack?  These days, isn't it the case that the group
-leader is supposed to be equivalent to the other threads?  If so, how
-does it exit and release its own stack -- or do we understand that the
-group leader, as a one-off exception, has to block signals before exiting?
+Against 2.5.35.
 
-Thanks,
--- Jamie
+
+Bill
+
+
+--- mm/vmscan.c.orig	2002-09-16 19:02:11.000000000 -0700
++++ mm/vmscan.c	2002-09-16 19:07:50.000000000 -0700
+@@ -519,18 +519,24 @@
+ shrink_caches(struct zone *classzone, int priority,
+ 		int gfp_mask, int nr_pages)
+ {
++	pg_data_t *pgdat;
+ 	struct zone *first_classzone;
+ 	struct zone *zone;
++	int type;
+ 
+ 	first_classzone = classzone->zone_pgdat->node_zones;
+-	zone = classzone;
+-	while (zone >= first_classzone && nr_pages > 0) {
+-		if (zone->free_pages <= zone->pages_high) {
+-			nr_pages = shrink_zone(zone, priority,
+-					gfp_mask, nr_pages);
++	for (type = classzone - first_classzone; type >= 0; --type)
++		for_each_pgdat(pgdat) {
++			zone = pgdat->node_zones + type;
++			if (!zone->size)
++				continue;
++			if (zone->free_pages <= zone->pages_high)
++				nr_pages = shrink_zone(zone, priority,
++							gfp_mask, nr_pages);
++			if (nr_pages <= 0)
++				return nr_pages;
+ 		}
+-		zone--;
+-	}
++
+ 	return nr_pages;
+ }
+ 

@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283268AbRLIJsX>; Sun, 9 Dec 2001 04:48:23 -0500
+	id <S283267AbRLIJqy>; Sun, 9 Dec 2001 04:46:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283272AbRLIJsN>; Sun, 9 Dec 2001 04:48:13 -0500
-Received: from pc1-camc5-0-cust78.cam.cable.ntl.com ([80.4.0.78]:17025 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S283268AbRLIJrx>;
-	Sun, 9 Dec 2001 04:47:53 -0500
-Message-Id: <m16D0Yk-000OXEC@amadeus.home.nl>
-Date: Sun, 9 Dec 2001 09:47:46 +0000 (GMT)
-From: arjan@fenrus.demon.nl
-To: rusty@rustcorp.com.au (Rusty Russell)
-Subject: Re: Linux 2.4.17-pre5
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011208214631.75573e9a.rusty@rustcorp.com.au>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
+	id <S283270AbRLIJqn>; Sun, 9 Dec 2001 04:46:43 -0500
+Received: from [151.200.199.53] ([151.200.199.53]:28422 "EHLO fc.Capaccess.org")
+	by vger.kernel.org with ESMTP id <S283267AbRLIJq0>;
+	Sun, 9 Dec 2001 04:46:26 -0500
+Message-id: <fc.00858412002211290085841200221129.22112c@Capaccess.org>
+Date: Sun, 09 Dec 2001 04:44:37 -0500
+Subject: hacking your own genitives
+To: linux-kernel@vger.kernel.org
+From: "Rick A. Hohensee" <rickh@Capaccess.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011208214631.75573e9a.rusty@rustcorp.com.au> you wrote:
-> On Fri, 7 Dec 2001 00:09:12 +0000 (GMT)
-> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+Gideon Glass <[11]gid@cisco.com>:
+   > confusing because it suggests that this feature belongs to Windows,
+   or
+   > that it's part of Windows itself, but obviously it isn't (the
+   feature
+   > being referred to is part of Linux). It is only *related* to
+   Windows, so
+   > the adjectival "Windows" is the best thing to use.
+esr...
+   That's correct. Furthermore, those genitives were malformed. :-)
 
->> > > Actually that one is  various Intel people not me 8)
->> > 
->> > Wouldn't it be better to see such things proven right in 2.5 first ?
->> 
->> o     2.5 isnt going to be usable for that kind of thing in the near future
->> o     There is no code that is "new" for normal paths (in fact Marcelo
->>       wanted a change for the only "definitely harmless" one there was)
+moi...
 
-> The sched.c change is also useless (ie. only harmful).
+Oh well. Unix don't need no steenkin genitives. Maybe IBM or somebody
+will take them. I hear they do save bundles.
 
-The intention seems to be to avoid the situation where one "pair" is
-executing 2 processes while other "pair"s are fully idle. It makes a
-difference for the "system is < 50% busy" case, NOT for the "system is very
-busy" case....
+Rick Hohensee
+cLIeNUX User O0
+
+BTW, I'm on
+free-as-in-foodstamps-free-this-is-what-freedom-looks-like-Richard
+Internet access, my old DC Freenetoid account, and the Maryland library
+system's free Lynx service, Sailor. It's on Debian Linux. Log in to the
+State of Maryland, login guest, set terminal type to Linux, fancy colors!
+Hit d on an ftp link and cLIeNUX's C-kermit and Debian's just find each
+other. Unfortunately, it doesn't let you set you editor in Lynx to tcsh
+like the freenet account used too :o) So I have to actually visit the
+library to update cLIeNUX. Version control, so to speak.
+
 

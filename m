@@ -1,105 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265119AbUENJuQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265201AbUENJwP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265119AbUENJuQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 05:50:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265138AbUENJuQ
+	id S265201AbUENJwP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 05:52:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265172AbUENJwP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 05:50:16 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:62336 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265119AbUENJuF (ORCPT
+	Fri, 14 May 2004 05:52:15 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:53633 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265138AbUENJwD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 05:50:05 -0400
-Date: Fri, 14 May 2004 11:49:23 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, kronos@kronoz.cjb.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [4KSTACK][2.6.6] Stack overflow in radeonfb
-Message-ID: <20040514094923.GB29106@devserv.devel.redhat.com>
-References: <20040513145640.GA3430@dreamland.darkstar.lan> <1084488901.3021.116.camel@gaston> <20040513182153.1feb488b.akpm@osdl.org>
+	Fri, 14 May 2004 05:52:03 -0400
+Date: Fri, 14 May 2004 05:51:45 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Martijn Sipkema <m.j.w.sipkema@student.tudelft.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: POSIX message queues should not allocate memory on send
+Message-ID: <20040514095145.GC30909@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <000701c4399e$88a3aae0$161b14ac@boromir>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040513182153.1feb488b.akpm@osdl.org>
+In-Reply-To: <000701c4399e$88a3aae0$161b14ac@boromir>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 14, 2004 at 11:47:39AM +0200, Andrew Morton wrote:
-> There's a `make buildcheck' target in -mm (from Arjan) into which we could
-> integrate such a tool.  Although probably it should be a different make
-> target.
+On Fri, May 14, 2004 at 11:30:53AM +0100, Martijn Sipkema wrote:
+> The default mq_msgsize also seems a little large to me, but
+> I don't see why defaults are needed; if I understand the standard
+> correctly then creating a new message queue without mq_attr
+> should create an empty queue, which thus cannot be used to
+> pass messages.
 
-I added it to buildcheck for now, based on Keith Owens' check-stack.sh
-script. I added a tiny bit of perl (shudder) to it to 
-1) Make it print in decimal not hex
-2) Filter the stack users to users of 400 bytes and higher
+No idea where you found this.
 
-I arbitrarily used 400; that surely is debatable.
+"If attr is NULL, the message queue shall be created with
+implementation-defined default message queue attributes."
 
-Greetings,
-    Arjan van de Ven
+Empty queue means a message queue which has no messages in it, not
+that mq_msgsize and/or mq_maxmsg is 0.
+And mq_open with mq_msgsize 0 and/or mq_maxmsg 0 must fail (with EINVAL),
+so the implementation-defined defaults IMHO must be > 0 for both
+limits.
 
-diff -purN linux-2.6.6/Makefile linux/Makefile
---- linux-2.6.6/Makefile	2004-05-14 09:22:43.735077088 +0200
-+++ linux/Makefile	2004-05-14 11:44:40.277365864 +0200
-@@ -1061,6 +1061,8 @@ versioncheck:
- 
- buildcheck:
- 	$(PERL) scripts/reference_discarded.pl
-+	sh scripts/check-stack.sh vmlinux
-+	find -name "*.ko" | xargs sh scripts/check-stack.sh
- 
- endif #ifeq ($(config-targets),1)
- endif #ifeq ($(mixed-targets),1)
-diff -purN linux-2.6.6/scripts/check-stack.sh linux/scripts/check-stack.sh
---- linux-2.6.6/scripts/check-stack.sh	1970-01-01 01:00:00.000000000 +0100
-+++ linux/scripts/check-stack.sh	2004-05-14 11:43:12.484712376 +0200
-@@ -0,0 +1,47 @@
-+#!/bin/bash
-+#
-+# Written by Keith Owens, modified by Arjan van de Ven to output in deciman
-+#
-+# Usage :  check-stack.sh vmlinux $(/sbin/modprobe -l)
-+#
-+#	Run a compiled ix86 kernel and print large local stack usage.
-+#
-+#	/>:/{s/[<>:]*//g; h; }   On lines that contain '>:' (headings like
-+#	c0100000 <_stext>:), remove <, > and : and hold the line.  Identifies
-+#	the procedure and its start address.
-+#
-+#	/subl\?.*\$0x[^,][^,][^,].*,%esp/{    Select lines containing
-+#	subl\?...0x...,%esp but only if there are at least 3 digits between 0x and
-+#	,%esp.  These are local stacks of at least 0x100 bytes.
-+#
-+#	s/.*$0x\([^,]*\).*/\1/;   Extract just the stack adjustment
-+#	/^[89a-f].......$/d;   Ignore line with 8 digit offsets that are
-+#	negative.  Some compilers adjust the stack on exit, seems to be related
-+#	to goto statements
-+#	G;   Append the held line (procedure and start address).
-+#	s/\(.*\)\n.* \(.*\)/\1 \2/;  Remove the newline and procedure start
-+#	address.  Leaves just stack size and procedure name.
-+#	p; };   Print stack size and procedure name.
-+#
-+#	/subl\?.*%.*,%esp/{   Selects adjustment of %esp by register, dynamic
-+#	arrays on stack.
-+#	G;   Append the held line (procedure and start address).
-+#	s/\(.*\)\n\(.*\)/Dynamic \2 \1/;   Reformat to "Dynamic", procedure
-+#	start address, procedure name and the instruction that adjusts the
-+#	stack, including its offset within the proc.
-+#	p; };   Print the dynamic line.
-+#
-+#
-+#	Leading spaces in the sed string are required.
-+#
-+# first check if it's x86, since only that arch works for now
-+file vmlinux  | grep 80386 > /dev/null || exit
-+#
-+objdump --disassemble "$@" | \
-+sed -ne '/>:/{s/[<>:]*//g; h; }
-+ /subl\?.*\$0x[^,][^,][^,].*,%esp/{
-+ s/.*\$0x\([^,]*\).*/\1/; /^[89a-f].......$/d; G; s/\(.*\)\n.* \(.*\)/\1 \2/; p; };
-+ /subl\?.*%.*,%esp/{ G; s/\(.*\)\n\(.*\)/Dynamic \2 \1/; p; }; ' | \
-+ sort | \
-+perl -e 'while (<>) { if (/^([0-9a-f]+)(.*)/) { $decn = hex("0x" . $1); if ($decn > 400) { print "$decn $2\n";} } }'
-+
+"     The mq_open() function shall fail if:"
+...
+"     [EINVAL]
+             O_CREAT was specified in oflag, the value of attr is not NULL,
+	     and either mq_maxmsg or mq_msgsize was less than or equal to zero."
+
+	Jakub

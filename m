@@ -1,80 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263513AbTL2PCi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 10:02:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263518AbTL2PCi
+	id S263545AbTL2PQc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 10:16:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263537AbTL2PQc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 10:02:38 -0500
-Received: from mail.aei.ca ([206.123.6.14]:1008 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S263513AbTL2PCf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 10:02:35 -0500
-From: Ed Tomlinson <edt@aei.ca>
-Organization: me
-To: Gabor MICSKO <gmicsko@szintezis.hu>
+	Mon, 29 Dec 2003 10:16:32 -0500
+Received: from [193.138.115.2] ([193.138.115.2]:13832 "HELO
+	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
+	id S263545AbTL2PQa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 10:16:30 -0500
+Date: Mon, 29 Dec 2003 16:13:50 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Paul Misner <paul@misner.org>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: Blank Screen in 2.6.0
-Date: Mon, 29 Dec 2003 10:02:21 -0500
-User-Agent: KMail/1.5.93
-Cc: dan@eglifamily.dnsalias.net, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0312282303340.15994-100000@eglifamily.dnsalias.net>
-In-Reply-To: <Pine.LNX.4.44.0312282303340.15994-100000@eglifamily.dnsalias.net>
+In-Reply-To: <200312290022.14411.paul@misner.org>
+Message-ID: <Pine.LNX.4.56.0312291610060.1041@jju_lnx.backbone.dif.dk>
+References: <Pine.LNX.4.44.0312281806070.3217-200000@eglifamily.dnsalias.net>
+ <200312290022.14411.paul@misner.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200312291002.22262.edt@aei.ca>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 28, 2003 06:08 pm, dan@eglifamily.dnsalias.net wrote:
-> On 28 Dec 2003, Gabor MICSKO wrote:
-> > http://www.linux.org.uk/~davej/docs/post-halloween-2.6.txt
->
-> I tried that.
->
->
-> Known gotchas.
-> ~~~~~~~~~~~~~~
-> Certain known bugs are being reported over and over. Here are the
-> workarounds.
-> - Blank screen after decompressing kernel?
->   Make sure your .config has
->    CONFIG_INPUT=y
->    CONFIG_VT=y
->    CONFIG_VGA_CONSOLE=y
->    CONFIG_VT_CONSOLE=y
->   A lot of people have discovered that taking their .config from 2.4 and
->   running make oldconfig to pick up new options leads to problems, notably
->   with CONFIG_VT not being set.
->
-> ok, so I grep'ed the .config
->
-> [root@eglifamily kernel]# grep -wi config_input .config
-> CONFIG_INPUT=y
-> [root@eglifamily kernel]# grep -wi config_vt .config
-> CONFIG_VT=y
-> [root@eglifamily kernel]# grep -wi config_vga_console .config
-> CONFIG_VGA_CONSOLE=y
-> [root@eglifamily kernel]# grep -wi config_vt_console .config
-> CONFIG_VT_CONSOLE=y
-> [root@eglifamily kernel]#
->
-> you can see that in the .config I attched:
-> > > CONFIG_INPUT=y
-> > > CONFIG_VT=y
-> > > CONFIG_VT_CONSOLE=y
-> > > CONFIG_VGA_CONSOLE=y
->
-> Any other ideas?
 
-I had problems getting 2.6.0 to work on a second box too.  What seemed to solve
-it here was defining the fonts:
 
-CONFIG_PCI_CONSOLE=y
-CONFIG_FONTS=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
+On Mon, 29 Dec 2003, Paul Misner wrote:
 
-Luck,
-Ed Tomlinson
+> On Sunday 28 December 2003 12:14 pm, dan@eglifamily.dnsalias.net wrote:
+> > Ok. After being without power for the past few days due to record
+> > snowfall, I'm alive again. So I made the changes people had recomended on
+> > the list. Upgraded to the lastest module-init-tools, and disabled the
+> > frame buffer support in the kernel. So the only graphic option enabled is
+> > text mode selection. But when I boot I still get a blank screen!
+> >
+> > My lilo.conf contains a line: vga=773, which works beautifully under
+> > RedHat's stock 2.4.20-8. I get a nice screen with approximately 132x48
+> > display. Under 2.4.20 I am not loading any frame buffer that I'm aware of.
+> > It's not listed in my moduiles:
+> >
+>
+> Just a suggestion, but why not use vga=normal, which is text mode, instead of
+> graphics.  You don't get the boot logo, but it does give you all the boot
+> messages on 80x24.  I have been having the same issues, with an Nvidia card,
+> and I decided it wasn't worth spending any time on it, since I really just
+> wanted to see the messages, not any pictures.
+
+I've found that using "rivafb" does not work with my Geforce3, and from
+talking to various people on IRC about it I get the impression that rivafb
+is broken for any card newer than Geforce2. "vesafb" though works quite
+well with never NVidia cards.
+
+If I build my kernels with "rivafb" enabled I get a blank screen as well,
+but using "vesafb" all is fine (so is just plain vga=normal or
+vga=extended, but I prefer the fb console :)
+
+
+Just my 0.02 euro
+
+
+/ Jesper Juhl
+

@@ -1,50 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315611AbSEIEml>; Thu, 9 May 2002 00:42:41 -0400
+	id <S315612AbSEIEuk>; Thu, 9 May 2002 00:50:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315612AbSEIEmk>; Thu, 9 May 2002 00:42:40 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:16573 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S315611AbSEIEmk>;
-	Thu, 9 May 2002 00:42:40 -0400
-Date: Thu, 9 May 2002 00:42:39 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Pavel Machek <pavel@ucw.cz>
-cc: Andrew Morton <akpm@zip.com.au>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Reading page from given block device
-In-Reply-To: <20020508225603.GA11842@atrey.karlin.mff.cuni.cz>
-Message-ID: <Pine.GSO.4.21.0205090039060.12789-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315613AbSEIEuj>; Thu, 9 May 2002 00:50:39 -0400
+Received: from [203.199.93.15] ([203.199.93.15]:64271 "EHLO
+	WS0005.indiatimes.com") by vger.kernel.org with ESMTP
+	id <S315612AbSEIEuj>; Thu, 9 May 2002 00:50:39 -0400
+From: "P a v a n" <pavankvk@indiatimes.com>
+Message-Id: <200205090428.JAA05676@WS0005.indiatimes.com>
+To: <linux-kernel@vger.kernel.org>
+Reply-To: "P a v a n" <pavankvk@indiatimes.com>
+Subject: cdp Strange behavior?
+Date: Thu, 09 May 2002 09:55:28 +0530
+X-URL: http://indiatimes.com
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi all
+
+yesterday i got my redhat 7.2 up and running.it had a package for palying audiocd's.its called cdp and had a text interface for a dumb terminal.inoticed a strange behavior.i was listening to the song and i gave the shutdown command..even when the system i completely halted(power down too) the cdp is still running.(i think it should as iam listening  the songs still).i have a creative cdrom.i have a doubt.are there any cdroms which are programmed to behave this way.i mean which depend on BIOS may be..i didnt make anything how its running.
+
+i dont know whether its related to kernel or not but please try to clarify me.
+
+thanks
+pavan
 
 
-On Thu, 9 May 2002, Pavel Machek wrote:
+Get Your Private, Free E-mail from Indiatimes at http://email.indiatimes.com
 
-> Well, I'm doing it during boot, and this is swap partition; it should
-> not have been accessed previously.
-> 
-> > >         bdev = bdget(kdev_t_to_nr(dev));
-> > >         if (!bdev) {
-> > >                 printk("No block device for %s\n", __bdevname(dev));
-> > >                 BUG();
-> > >         }
-> > >         printk("C");
-
-blkdev_open(bdev, FMODE_READ, O_RDONLY, BDEV_RAW)
-
-> > >         bh = __bread(bdev, pos/PAGE_SIZE, PAGE_SIZE);
-> > >         printk("D");
-> > >         bdput(bdev);
-
-nope - blkdev_put(bdev), and do it _after_ you are done with buffers.
-Oh, and you need to do brelse().
-
-> > >         if (!bh || (!bh->b_data)) {
-> > >                 return -1;
-
-However, I would really suggest to open the bugger once, do all IO and
-then close it.  See how raw.c and friends deal with these problems.
+ Buy Music, Video, CD-ROM, Audio-Books and Music Accessories from http://www.planetm.co.in
 

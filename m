@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270144AbRHOU7r>; Wed, 15 Aug 2001 16:59:47 -0400
+	id <S271451AbRHOVJh>; Wed, 15 Aug 2001 17:09:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271448AbRHOU7h>; Wed, 15 Aug 2001 16:59:37 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:53006 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270144AbRHOU71>; Wed, 15 Aug 2001 16:59:27 -0400
-Subject: Re: 2.4.9-pre[34] changes in drivers/char/vt.c broke Sparc64
-To: maxk@qualcomm.com (Maksim Krasnyanskiy)
-Date: Wed, 15 Aug 2001 22:02:10 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <no.id> from "Maksim Krasnyanskiy" at Aug 15, 2001 01:37:17 PM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
+	id <S271448AbRHOVJ1>; Wed, 15 Aug 2001 17:09:27 -0400
+Received: from t2.redhat.com ([199.183.24.243]:31728 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S271446AbRHOVJM>; Wed, 15 Aug 2001 17:09:12 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <997905442.2135.6.camel@keller> 
+In-Reply-To: <997905442.2135.6.camel@keller>  <997901702.2129.16.camel@keller> 
+To: Georg Nikodym <georgn@somanetworks.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Dell I8000, 2.4.8-ac5 and APM 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15X7nm-00042d-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Wed, 15 Aug 2001 22:09:17 +0100
+Message-ID: <29219.997909757@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Have you guys noticed that new vt.c in 2.4.9-pre[34] doesn't compile on
-> Sparc64 (and Sparc32) ?
 
-I dont have sparcs to check, so I reply on the sparc maintains
+georgn@somanetworks.com said:
+> On my Dell I8000, when running 2.48-ac5 pulling the AC plug out (or
+> plugging it back) causes the box to hang for a while prior to shutting
+> itself off.
 
-> sparc64-linux-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -m64 -pipe -mno-fpu -mcpu=ultrasparc -mcmodel=medlow -ffixed-g4 -fcall-used-g5 -fcall-used-g7 -Wno-sign-compare -Wa,--undeclared-regs    -c -o vt.o vt.c
-> In file included from vt.c:27:
-> /usr/src/linux/include/linux/irq.h:57: asm/hw_irq.h: No such file or directory
+> Disabling APIC solves my immediate problem, so personally I'm happy. 
 
-Russell posted a fix for this, and he' sright that removing it can be done
+I've been chasing down APM problems on an I8000 today too - the Red Hat 7.2
+beta kernel (which is based on some 2.4-ac) dies on resume, while a clean
+2.4.9-pre4 survives. I'd noticed that the Red Hat kernel was using the local
+APIC just before giving up on it for the day - turning that off will be the
+first thing I try in the morning.
 
-> vt.c: In function `vt_ioctl':
-> vt.c:507: `kbd_rate' undeclared (first use in this function)
-> vt.c:507: (Each undeclared identifier is reported only once
-> vt.c:507: for each function it appears in.)
-> vt.c:514: `kbd_rate' used prior to declaration
-> vt.c:514: warning: implicit declaration of function `kbd_rate'
-> 
-> Simple commenting out #include <linux/irq.h> and ioctl code that uses kbd_rate works.
-> Whoever changed vt.c please post correct fix.
+Apart from the hang on applying or removing power, were you also having 
+this problem with APM suspend?
 
-You need a sparc hacker to do this. If there are sparcs implementing the PC
-keyboard controller (eg the pci ones) then kbd_rate needs implementing and
-XFree86 needs recompiling to fix cases where the keyboard can be hung solid
+Strangely, APM suspend was working after a suspend-to-disk. It only failed 
+after a clean boot.
 
-Alan
+--
+dwmw2
+
+

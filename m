@@ -1,53 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266196AbUJLQu6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266218AbUJLQwc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266196AbUJLQu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 12:50:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266216AbUJLQu6
+	id S266218AbUJLQwc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 12:52:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266249AbUJLQwc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 12:50:58 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:4248 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S266196AbUJLQuw (ORCPT
+	Tue, 12 Oct 2004 12:52:32 -0400
+Received: from ns2.gabswave.net ([193.219.214.10]:10973 "EHLO gabswave.net")
+	by vger.kernel.org with ESMTP id S266218AbUJLQwB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 12:50:52 -0400
-Message-ID: <416C0B5E.3090907@colorfullife.com>
-Date: Tue, 12 Oct 2004 18:50:38 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Tue, 12 Oct 2004 12:52:01 -0400
+Message-ID: <000c01c4b07b$c10060f0$0200060a@STEPHANFCN56VN>
+From: "Stephan" <support@bbi.co.bw>
+To: <root@chaos.analogic.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <006901c4b05a$3dddd570$0200060a@STEPHANFCN56VN> <20041012141123.GA18579@stusta.de> <001401c4b068$7cb74750$0200060a@STEPHANFCN56VN> <Pine.LNX.4.61.0410121048110.3470@chaos.analogic.com>
+Subject: Re: Problem compiling linux-2.6.8.1......
+Date: Tue, 12 Oct 2004 18:51:13 +0200
 MIME-Version: 1.0
-To: Vitez Gabor <vitezg@niif.hu>
-CC: Vincent Hanquez <tab@snarc.org>, linux-kernel@vger.kernel.org
-Subject: Re: forcedeth: "received irq with unknown events 0x1"
-References: <20041011145104.GA9494@swszl.szkp.uni-miskolc.hu> <20041011154950.GA22553@snarc.org> <416AB99E.1020407@colorfullife.com> <20041012082047.GA17313@swszl.szkp.uni-miskolc.hu>
-In-Reply-To: <20041012082047.GA17313@swszl.szkp.uni-miskolc.hu>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=response
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-gabswave.net-MailScanner-Information: Please contact the ISP for more information
+X-gabswave.net-MailScanner: Found to be clean
+X-MailScanner-From: support@bbi.co.bw
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vitez Gabor wrote:
+I've created the typescript as suggested but the only thing I found that 
+seemed out off place is the following line, altough I don't think it's got 
+anything todo with the error I'm getting.
 
->On Mon, Oct 11, 2004 at 06:49:34PM +0200, Manfred Spraul wrote:
->  
+ CC [M]  fs/binfmt_misc.o
+include/asm/string.h:32: warning: `strcpy' defined but not used
+
+
+Everyhting else seems normal.
+
+Kind regards
+steph
+
+----- Original Message ----- 
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+To: "Stephan" <support@bbi.co.bw>
+Cc: "Adrian Bunk" <bunk@stusta.de>; <linux-kernel@vger.kernel.org>
+Sent: Tuesday, October 12, 2004 4:49 PM
+Subject: Re: Problem compiling linux-2.6.8.1......
+
+
+> On Tue, 12 Oct 2004, Stephan wrote:
 >
->>Vincent, could you try the attached patch? The critical change is the 
->>media detection: Test that the nic handles booting without a network 
->>cable and then attaching the network cable when the interface is already 
->>up correctly.
->>    
+>> I've tried to recompile the kernel and watched very carefully for 
+>> anything out off the ordinary but could not find anything that might 
+>> relate to an error message.
 >>
+>> Is there anything specific I should keep any eye out for?
+>>
+>> Kind Regards
+>> Steph
 >
->I patched my kernel, and I'm still baffled: when I connect the E1000 and the
->nvidia card, both of them say the link is down. The E1000 and the 3Com card
->works well. The E1000 is supposed to do polarity detection, so it should
->work with the nvidia card, too. ??
+> Do:
 >
->Not really a problem, but I find it pretty strange.
+> script
 >
->  
+> make clean
+> make
 >
-Sorry, I don't understand your mail: Does the nic work or not? Which 
-tool did you use to check the link status? ethtool or something else?
+> exit
+>
+> Whatever happened is now in file typescript.
+>
+>
+>
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.6.8 on an i686 machine (5537.79 BogoMips).
+>             Note 96.31% of all statistics are fiction.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
---
-    Manfred
+

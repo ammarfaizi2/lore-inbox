@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281214AbSBBX1n>; Sat, 2 Feb 2002 18:27:43 -0500
+	id <S276424AbSBBX3c>; Sat, 2 Feb 2002 18:29:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276424AbSBBX1c>; Sat, 2 Feb 2002 18:27:32 -0500
-Received: from user-24-214-12-221.knology.net ([24.214.12.221]:16782 "HELO
-	localhost.localdomain") by vger.kernel.org with SMTP
-	id <S281214AbSBBX1P>; Sat, 2 Feb 2002 18:27:15 -0500
-Message-ID: <002901c1ac41$361daa10$ed00000a@citrix.bjstuff.com>
-From: "Ro0tSiEgE" <ro0tsiege@bjstuff.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Booting Issue
-Date: Sat, 2 Feb 2002 17:27:42 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S282967AbSBBX3W>; Sat, 2 Feb 2002 18:29:22 -0500
+Received: from brick.kernel.dk ([195.249.94.204]:16025 "EHLO
+	burns.home.kernel.dk") by vger.kernel.org with ESMTP
+	id <S276424AbSBBX3G>; Sat, 2 Feb 2002 18:29:06 -0500
+Date: Sun, 3 Feb 2002 00:28:21 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andre Hedrick <andre@linuxdiskcert.org>
+Cc: "Axel H. Siebenwirth" <axel@hh59.org>,
+        Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.3 - (IDE) hda: drive not ready for command errors
+Message-ID: <20020203002821.A29553@suse.de>
+In-Reply-To: <20020202102659.L12156@suse.de> <Pine.LNX.4.10.10202021158010.26613-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10202021158010.26613-100000@master.linux-ide.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a big booting issue. Apparently, it's something in my config file,
-that makes my kernel panic saying no init found. Now even though I have some
-external patches applied, I know that can't be the issue because I've tried
-the same config without the patches. If somebody could PLEASE look at my
-config and tell me what I'm doing wrong, I've been fighting with this
-problem for over a month, every kernel I've tried to make, no matter what
-version, with or without any patches, says I have no init found. But kernels
-I've made in the past work fine, so I'm thinking it's gotta be something
-with my config. Please look at my config (this is 2.4.18-pre7-ac2), its
-posted at: http://www.bjstuff.com/config
+On Sat, Feb 02 2002, Andre Hedrick wrote:
+> 
+> Jens,
+> 
+> You and I know Linus will go ballistic over the reintroduction of a
+> working copy model using rq scratch pad.  We can go with this return to
 
-Thanks very much,
+No I don't think so, I'd be surprised if Linus cared about that at all.
 
-Brad Parker
+> what we are trying to get away from but we really need a way to stream the
+> pointers to the data register cleanly.  Otherwise the benefits of the zero
+> copy in block go away.
 
+?? Your point is not clear. zero copy what, request struct?! That would
+be way below measurable.
 
-
-
+-- 
+Jens Axboe
 

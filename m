@@ -1,35 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268530AbTANCrc>; Mon, 13 Jan 2003 21:47:32 -0500
+	id <S268540AbTANCuF>; Mon, 13 Jan 2003 21:50:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268531AbTANCqd>; Mon, 13 Jan 2003 21:46:33 -0500
-Received: from dp.samba.org ([66.70.73.150]:30348 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S268532AbTANCqA>;
-	Mon, 13 Jan 2003 21:46:00 -0500
-From: Rusty Trivial Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [TRIVIAL] duplicate extern char _stext
-Date: Tue, 14 Jan 2003 13:35:50 +1100
-Message-Id: <20030114025452.8F1792C3DE@lists.samba.org>
+	id <S268543AbTANCtv>; Mon, 13 Jan 2003 21:49:51 -0500
+Received: from pD9E10F96.dip.t-dialin.net ([217.225.15.150]:3968 "EHLO fefe.de")
+	by vger.kernel.org with ESMTP id <S268540AbTANCsY>;
+	Mon, 13 Jan 2003 21:48:24 -0500
+Date: Tue, 14 Jan 2003 03:52:46 +0100
+From: Felix von Leitner <felix-linuxkernel@fefe.de>
+To: linux-kernel@vger.kernel.org
+Subject: "PCI BIOS passed nonexistant PCI bus 0"
+Message-ID: <20030114025245.GA1175@fefe.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From:  Geert Uytterhoeven <geert@linux-m68k.org>
+I also get
 
-  
-  Kill duplicate extern char _stext (already declared globally 14 lines before)
-  
+  PCI BIOS passed nonexistant PCI bus 1
 
---- trivial-2.5.57/include/asm-i386/hw_irq.h.orig	2003-01-14 12:12:10.000000000 +1100
-+++ trivial-2.5.57/include/asm-i386/hw_irq.h	2003-01-14 12:12:10.000000000 +1100
-@@ -76,7 +76,6 @@
- {
- 	unsigned long eip;
- 	extern unsigned long prof_cpu_mask;
--	extern char _stext;
- #ifdef CONFIG_PROFILING
- 	extern void x86_profile_hook(struct pt_regs *);
-  
--- 
-  Don't blame me: the Monkey is driving
-  File: Geert Uytterhoeven <geert@linux-m68k.org>: [PATCH] duplicate extern char _stext
+How can this be?  I configured the kernel with:
+
+  # CONFIG_PCI_GOBIOS is not set
+  CONFIG_PCI_GODIRECT=y
+
+What is this option good for if Linux still listens to what the BIOS says?
+
+Felix

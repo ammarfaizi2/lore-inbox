@@ -1,37 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317971AbSIJShy>; Tue, 10 Sep 2002 14:37:54 -0400
+	id <S317945AbSIJSfl>; Tue, 10 Sep 2002 14:35:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317977AbSIJShy>; Tue, 10 Sep 2002 14:37:54 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:7155 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317971AbSIJShv>; Tue, 10 Sep 2002 14:37:51 -0400
+	id <S317946AbSIJSfk>; Tue, 10 Sep 2002 14:35:40 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:9737 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317945AbSIJSfj>; Tue, 10 Sep 2002 14:35:39 -0400
+Date: Tue, 10 Sep 2002 11:40:27 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: jgarzik@mandrakesoft.com, <david-b@pacbell.net>,
+       <mdharm-kernel@one-eyed-alien.net>, <greg@kroah.com>,
+       <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
 Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: David Brownell <david-b@pacbell.net>,
-       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0209100947481.2842-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0209100947481.2842-100000@home.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 10 Sep 2002 19:44:40 +0100
-Message-Id: <1031683480.31787.107.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+In-Reply-To: <20020910.111627.00809211.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0209101132320.3280-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-09-10 at 17:51, Linus Torvalds wrote:
-> (In fact, on UP a BUG() tends to be quite usable just about anywhere 
-> except in an interrupt handler: there may be some local locks like 
-> directory semaphores etc that are held and not released, but _most_ of the 
-> time the machine is quite usable. SMP really does make things harder to 
-> debug even quite apart from the races it introduces. Sad.)
 
-It drops you politely into the kernel debugger, you fix up the values
-and step over it. If you want to debug with zen mind power and printk
-feel free. For the rest of us BUG() is fine on SMP
+On Tue, 10 Sep 2002, David S. Miller wrote:
+>    
+>    IMO we should have ASSERT() and OHSHIT(),
+> 
+> I fully support the addition of an OHSHIT() macro.
+
+Oh, please no. We'd end up with endless asserts in the networking layer, 
+just because David would find it amusing. 
+
+I can just see it now - code bloat hell.
+
+And no, I still don't like ASSERT().
+
+I think the approach should clearly spell what the trouble level is:
+
+	DEBUG(x != y, "x=%d, y=%d\n", x, y);
+
+	WARN(x != y, "crap happens: x=%d y=%d\n", x, y);
+
+	FATAL(x != y, "Aiee: x=%d y=%d\n", x, y);
+
+where the DEBUG one gets compiled out normally (or has some nice per-file
+way of being enabled/disabled - a perfect world would expose the on/off in
+devicefs as a per-file entity when kernel debugging is on), WARN continues
+but writes a message (and normally does _not_ get compiled out), and FATAL
+is like our current BUG_ON().
+
+All would print out the filename and line number, the message, and the 
+backtrace.
+
+		Linus
 

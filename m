@@ -1,80 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbVCJEOt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVCJERa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261749AbVCJEOt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 23:14:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbVCJEMp
+	id S261193AbVCJERa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 23:17:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbVCJEPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 23:12:45 -0500
-Received: from fire.osdl.org ([65.172.181.4]:40840 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261172AbVCJEKK (ORCPT
+	Wed, 9 Mar 2005 23:15:20 -0500
+Received: from rproxy.gmail.com ([64.233.170.201]:59404 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261688AbVCJEM5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 23:10:10 -0500
-Date: Wed, 9 Mar 2005 20:09:36 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: Direct io on block device has performance regression on 2.6.x
- kernel
-Message-Id: <20050309200936.0b1bea9e.akpm@osdl.org>
-In-Reply-To: <200503100347.j2A3lRg28975@unix-os.sc.intel.com>
-References: <20050309182550.0291c6fd.akpm@osdl.org>
-	<200503100347.j2A3lRg28975@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 9 Mar 2005 23:12:57 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=j5g4Zz4jwoFZknC4dtkvKoTkecSczugc1GbI8YMsHhTdHLuGX/nx0PpciVQA4f+zHecQS1zYVROSJ3DCvKbs/pbCSj3HgS/m3y6yhJcLYWoPj0fSIyjvBlU01A2KH+eHa19fNOAh3X9SKOj62eEaKNgUh1V5vnMt04KtXgdg19Q=
+Message-ID: <21d7e9970503092012475049db@mail.gmail.com>
+Date: Thu, 10 Mar 2005 15:12:57 +1100
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: sched_setscheduler and pids/threads
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
->
-> Andrew Morton wrote Wednesday, March 09, 2005 6:26 PM
-> > What does "1/3 of the total benchmark performance regression" mean?  One
-> > third of 0.1% isn't very impressive.  You haven't told us anything at all
-> > about the magnitude of this regression.
-> 
-> 2.6.9 kernel is 6% slower compare to distributor's 2.4 kernel (RHEL3).  Roughly
-> 2% came from storage driver (I'm not allowed to say anything beyond that, there
-> is a fix though).
+Hi all,
 
-The codepaths are indeed longer in 2.6.
+I'm a bit confused over 2.6 threading with respects to real time
+scheduling settings...
 
-> 2% came from DIO.
+In 2.6 all my threads appear as a single PID, if I use chrt -p <pid>
+will it set the scheduling priority for my main thread or for all
+threads in the application?
 
-hm, that's not a lot.
+Can I used the thread IDs from /proc/<pid>/task/ to chrt the other
+threads in my app to different priorities?
 
-Once you redo that patch to use aops and to work with O_DIRECT, the paths
-will get a little deeper, but not much.  We really should do this so that
-O_DIRECT works, and in case someone has gone and mmapped the blockdev.
-
-Fine-grained alignment is probably too hard, and it should fall back to
-__blockdev_direct_IO().
-
-Does it do the right thing with a request which is non-page-aligned, but
-512-byte aligned?
-
-readv and writev?
-
-2% is pretty thin :(
-
-> The rest of 2% is still unaccounted for.  We don't know where.
-
-General cache replacement, perhaps.  9MB is a big cache though.
-
-> ...
-> Around 2.6.5, we found global plug list is causing huge lock contention on
-> 32-way numa box.  That got fixed in 2.6.7.  Then comes 2.6.8 which took a big
-> dip at close to 20% regression.  Then we fixed 17% regression in the scheduler
-> (fixed with cache_decay_tick).  2.6.9 is the last one we measured and it is 6%
-> slower.  It's a constant moving target, a wild goose to chase.
-> 
-
-OK.  Seems that the 2.4 O(1) scheduler got it right for that machine.
-
-> haven't got a chance to run transaction processing db workload on 2.6 kernel.
-> Perhaps they have not compared, perhaps they are working on the same problem.
-> I just don't know.
-
-Maybe there are other factors which drown these little things out:
-architecture improvements, choice of architecture, driver changes, etc.
-
+Thanks,
+Dave.

@@ -1,45 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312339AbSC3Bbv>; Fri, 29 Mar 2002 20:31:51 -0500
+	id <S312345AbSC3Bhc>; Fri, 29 Mar 2002 20:37:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312345AbSC3Bbb>; Fri, 29 Mar 2002 20:31:31 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:19962
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S312339AbSC3Bb0>; Fri, 29 Mar 2002 20:31:26 -0500
-Date: Fri, 29 Mar 2002 17:32:49 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Rasmus =?unknown-8bit?B?Qvhn?= Hansen <moffe@amagerkollegiet.dk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Changelog for 2.2.20?
-Message-ID: <20020330013249.GA439@matchmail.com>
-Mail-Followup-To: Rasmus =?unknown-8bit?B?Qvhn?= Hansen <moffe@amagerkollegiet.dk>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <E16r2Xz-0001tC-00@the-village.bc.nu> <Pine.LNX.4.44.0203300214590.2430-100000@grignard.amagerkollegiet.dk>
-Mime-Version: 1.0
+	id <S312350AbSC3BhX>; Fri, 29 Mar 2002 20:37:23 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:63247 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S312345AbSC3BhG>; Fri, 29 Mar 2002 20:37:06 -0500
+Subject: Re: Kernel hosed or Nvidia modules?
+To: matthias.andree@stud.uni-dortmund.de (Matthias Andree)
+Date: Sat, 30 Mar 2002 01:53:54 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Linux-Kernel mailing list)
+In-Reply-To: <20020330012703.GA16583@merlin.emma.line.org> from "Matthias Andree" at Mar 30, 2002 02:27:03 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16r842-0002Nb-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 30, 2002 at 02:20:21AM +0100, Rasmus B?g Hansen wrote:
-> On Fri, 29 Mar 2002, Alan Cox wrote:
-> 
-> > > Where can I find a Changelog for 2.2.20?  I can't seem to find it anywhere
-> > > on kernel.org.
-> > 
-> > For non US citizens its available on www.thefreeworld.net
-> 
-> I am so really sorry to ask, but I simply do not understand...
-> 
-> How can it be that the patch is US-compatible, but the Changelog is not?
-> 
-> After all the Changelog is a summary of the changes in the patch...
-> 
+> Is that a genuine kernel bug (2.4.19-pre2-ac3 here) or Yet Another
+> Nvidia Driver Bug (would not be the first bug to bite me in their
 
-Basically, the politicians can't read the patch, but they might be able to
-understand the summary...
-
-Also, in many cases the change that fixes the security hole doesn't make
-exploit ideas obvious.  While many times the security report includes the
-expliot itself.
+Only Nvidia can tell you that. Please don't bother this list with oopses
+when binary modules are loaded. Nobody can help you

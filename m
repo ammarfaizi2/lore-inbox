@@ -1,65 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269789AbUJGKt7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269791AbUJGKwW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269789AbUJGKt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 06:49:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269790AbUJGKt7
+	id S269791AbUJGKwW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 06:52:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269790AbUJGKwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 06:49:59 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:31975 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269789AbUJGKtp (ORCPT
+	Thu, 7 Oct 2004 06:52:21 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:28101 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S269791AbUJGKvF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 06:49:45 -0400
-Date: Thu, 7 Oct 2004 16:33:23 +0530
-From: Dinakar Guniguntala <dino@in.ibm.com>
+	Thu, 7 Oct 2004 06:51:05 -0400
+Date: Thu, 7 Oct 2004 12:52:30 +0200
+From: Ingo Molnar <mingo@elte.hu>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] ps shows wrong ppid
-Message-ID: <20041007110323.GA4503@in.ibm.com>
-Reply-To: dino@in.ibm.com
+Cc: Lee Revell <rlrevell@joe-job.com>, "K.R. Foley" <kr@cybsft.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>,
+       Florian Schmidt <mista.tapas@gmx.net>, Mark_H_Johnson@raytheon.com,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Subject: [patch] voluntary-preempt-2.6.9-rc3-mm3-T3
+Message-ID: <20041007105230.GA17411@elte.hu>
+References: <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu> <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="ZGiS0Q5IWpPtfppv"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <20041005134707.GA32033@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---ZGiS0Q5IWpPtfppv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+i've released the -T3 VP patch:
 
-Hi,
+  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm3-T3
 
-/proc shows the wrong PID as parent in the following case
+Changes since -T1 (-T2 was not announced):
 
-Process A creates Threads 1 & 2 (using pthread_create)
-Thread 2 then forks and execs process B
-getppid() for Process B shows Process A (rightly) as parent,
-however /proc/B/status shows Thread 3 as PPid (incorrect)
+ - rebased to -rc3-mm3. This should fix the build problems and further 
+   shrinks the -VP patch. Also, people who had USB problems please
+   re-test -T3 as -mm3 is supposed to have much of those problems fixed.
+   Also, the dvb-bt8xx.c build problem should be fixed in -mm3 too, plus
+   a number of smp_processor_id() warnings were debugged and fixed as
+   well.
 
-Following patch has been tested and it works ok
+ - fixed SWSUSPEND compilation. Could someone who uses swsuspend check
+   whether sw-suspension works fine?
 
-Regards,
+ - improved CONFIG_DEBUG_PREEMPT - this could help debug any potentially
+   remaining unbalanced preemption counts that were reported. (but
+   the fixes in -mm3 could fix them as well.)
 
-Dinakar
+to build a -T3 tree from scratch the patching order is:
 
-Signed-off-by: Dinakar Guniguntala <dino@in.ibm.com>
+   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.tar.bz2
+ + http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.9-rc3.bz2
+ + http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6.9-rc3-mm3/2.6.9-rc3-mm3.bz2
+ + http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm3-T3
 
-
---ZGiS0Q5IWpPtfppv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ps.patch"
-
-diff -Naurp linux-2.6.9-rc1-orig/fs/proc/array.c linux-2.6.9-rc1/fs/proc/array.c
---- linux-2.6.9-rc1-orig/fs/proc/array.c	2004-08-24 12:32:58.000000000 +0530
-+++ linux-2.6.9-rc1/fs/proc/array.c	2004-10-07 15:33:05.465755672 +0530
-@@ -169,7 +169,7 @@ static inline char * task_state(struct t
- 		get_task_state(p),
- 		(p->sleep_avg/1024)*100/(1020000000/1024),
- 	       	p->tgid,
--		p->pid, p->pid ? p->real_parent->pid : 0,
-+		p->pid, p->pid ? p->group_leader->real_parent->tgid : 0,
- 		p->pid && p->ptrace ? p->parent->pid : 0,
- 		p->uid, p->euid, p->suid, p->fsuid,
- 		p->gid, p->egid, p->sgid, p->fsgid);
-
---ZGiS0Q5IWpPtfppv--
+	Ingo

@@ -1,52 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270291AbTHGPZD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 11:25:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269981AbTHGPZD
+	id S270228AbTHGPNl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 11:13:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270256AbTHGPMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 11:25:03 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:57343 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S270489AbTHGPY0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 11:24:26 -0400
-Date: Thu, 7 Aug 2003 11:26:54 -0400 (EDT)
-From: Jason Baron <jbaron@redhat.com>
-X-X-Sender: jbaron@dhcp64-178.boston.redhat.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Rene Mayrhofer <rene.mayrhofer@gibraltar.at>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: pivot_root solved by patch to 2.4.22-pre7
-In-Reply-To: <1060257509.3168.26.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0308071120210.894-100000@dhcp64-178.boston.redhat.com>
+	Thu, 7 Aug 2003 11:12:51 -0400
+Received: from windsormachine.com ([206.48.122.28]:38062 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id S270383AbTHGPLG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 11:11:06 -0400
+Date: Thu, 7 Aug 2003 11:10:59 -0400 (EDT)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: Kathy Frazier <kfrazier@mdc-dayton.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [APM]  CPU idle calls causing problem with ASUS P4PE MoBo
+In-Reply-To: <PMEMILJKPKGMMELCJCIGIEPOCDAA.kfrazier@mdc-dayton.com>
+Message-ID: <Pine.LNX.4.56.0308071108110.18325@router.windsormachine.com>
+References: <PMEMILJKPKGMMELCJCIGIEPOCDAA.kfrazier@mdc-dayton.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.12.3 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+<snip>
 
-On 7 Aug 2003, Alan Cox wrote:
+I'm curious why you are using the APM method.
 
-> On Mer, 2003-08-06 at 07:27, Rene Mayrhofer wrote:
-> > Hi all,
-> > 
-> > The problem with pivot_root that appeared in 2.4.21-ac4 and the 
-> > 2.4.22-pre kernels is now solved (at least for my case) by applying the 
-> > trvial patch sent by Jason Baron.
-> 
-> The patch shouldnt be needed or make any difference. I have to
-> understand why its fixing the problem and fix it properly yet (or
-> someone does)
-> 
-> 
- 
-it clearly makes a difference.
+Have you tried ACPI(which replaced APM a long time ago)
 
-the unshare_files change causes init to no longer share the same fd table
-with the other kernel threads. thus, when init closes or opens fds it does
-not affect the other kernel threads. this patch allows init to continue to
-share the same fd table with the other kernel threads as before the
-unshare_files change. it does not compromise the intention of the
-unshare_files change afaik. 
+And also out of curiosity, have you played with the config_apm_allow_ints?
 
--Jason
-
+Mike

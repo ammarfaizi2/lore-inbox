@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263402AbTKQJDq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 04:03:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263408AbTKQJDq
+	id S263420AbTKQJ01 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 04:26:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263423AbTKQJ01
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 04:03:46 -0500
-Received: from holomorphy.com ([199.26.172.102]:19107 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263402AbTKQJDp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 04:03:45 -0500
-Date: Mon, 17 Nov 2003 01:03:39 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
-       viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: seq_file and exporting dynamically allocated data
-Message-ID: <20031117090339.GC22764@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
-	viro@parcelfarce.linux.theplanet.co.uk,
-	linux-kernel@vger.kernel.org
-References: <20031117083007.GA22764@holomorphy.com> <Pine.LNX.4.44.0311170832030.1089-100000@einstein.homenet> <20031117084804.GB22764@holomorphy.com>
+	Mon, 17 Nov 2003 04:26:27 -0500
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:22029 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263420AbTKQJ0R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Nov 2003 04:26:17 -0500
+Date: Mon, 17 Nov 2003 09:26:05 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] disallow modular BINFMT_ELF
+Message-ID: <20031117092605.B2035@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jeff Garzik <jgarzik@pobox.com>, Adrian Bunk <bunk@fs.tum.de>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20031115232600.GF7919@fs.tum.de> <3FB6BB35.8090001@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031117084804.GB22764@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3FB6BB35.8090001@pobox.com>; from jgarzik@pobox.com on Sat, Nov 15, 2003 at 06:48:05PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 17, 2003 at 12:48:04AM -0800, William Lee Irwin III wrote:
-> There's a retry loop where the buffer size is doubled each iteration
-> that looks to me like automagic sizing in the code for seq_read(). I
-> can't say I've actually tried to rely on getting more than a page
-> at a time through seq_read(), though.
+On Sat, Nov 15, 2003 at 06:48:05PM -0500, Jeff Garzik wrote:
+> Adrian Bunk wrote:
+> > modular BINFMT_ELF gives unresolved symbols in 2.4 .
+> > 
+> > modular BINFMT_ELF gives the following unresolved symbols in 2.6:
+> 
+> 
+> Interesting.   this causes me to wonder if we should bother making 
+> BINFMT_ELF an option at all...
 
-Woops. This looks like it only makes sure there's enough to get the
-first ->show() into the buffer; I see that it later gives up when
-m->count == m->size once the first ->show() has enough bufferspace to
-complete later on. So if all ->show() operations to do are less than
-PAGE_SIZE, it'll never hand back more than a page at a time, and may
-hand back short reads prior to EOF, which doesn't bode well for my
-short read == EOF idea (maybe not a great assumption in general).
+And in addition to my previous post there's probably peopel who want only
+32bit elf support on 64bit arches like paris64 and sparc64.
 
-
--- wli

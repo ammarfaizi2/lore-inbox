@@ -1,175 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261392AbVCOQRC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVCOQSk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261392AbVCOQRC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 11:17:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVCOQPr
+	id S261380AbVCOQSk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 11:18:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVCOQRa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 11:15:47 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:23209 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261402AbVCOQOh (ORCPT
+	Tue, 15 Mar 2005 11:17:30 -0500
+Received: from s2.ukfsn.org ([217.158.120.143]:29103 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S261378AbVCOQP6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 11:14:37 -0500
-Message-ID: <42371941.CCBAB134@tv-sign.ru>
-Date: Tue, 15 Mar 2005 20:20:01 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Tue, 15 Mar 2005 11:15:58 -0500
+Message-ID: <42370A3A.6020206@dgreaves.com>
+Date: Tue, 15 Mar 2005 16:15:54 +0000
+From: David Greaves <david@dgreaves.com>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Christoph Lameter <christoph@lameter.com>
-Cc: linux-kernel@vger.kernel.org, Shai Fultheim <Shai@Scalex86.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Subject: [PATCH 2/2] del_timer_sync: proof of concept
-References: <4231E959.141F7D85@tv-sign.ru> <Pine.LNX.4.58.0503111254270.25992@server.graphe.net>
-Content-Type: text/plain; charset=koi8-r
+To: Sam Ravnborg <sam@ravnborg.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       greg@kroah.com
+Cc: Greg Norris <haphazard@kc.rr.com>, linux-kernel@vger.kernel.org,
+       akpm <akpm@osdl.org>
+Subject: [BUG] Re: [PATCH] scripts/patch-kernel: use EXTRAVERSION
+References: <Pine.LNX.4.58.0408132303090.5277@ppc970.osdl.org> <20040814101039.GA27163@alpha.home.local> <Pine.LNX.4.58.0408140336170.1839@ppc970.osdl.org> <Pine.LNX.4.58.0408140344110.1839@ppc970.osdl.org> <20040814115548.A19527@infradead.org> <Pine.LNX.4.58.0408140404050.1839@ppc970.osdl.org> <411E0A37.5040507@anomalistic.org> <20040814205707.GA11936@yggdrasil.localdomain> <20040818135751.197ce3c9.rddunlap@osdl.org> <20040822204002.GB8639@mars.ravnborg.org>
+In-Reply-To: <20040822204002.GB8639@mars.ravnborg.org>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-New rules:
-	->_base &  1	: is timer pending
-	->_base & ~1	: timer's base
+Old thread (!) but this is the last time I could find patch-kernel updated.
 
-If ->_base == NULL, this timer is not running on any cpu.
-Cleared only in del_timer_sync().
+Sam Ravnborg wrote:
 
-Note that now we don't need del_singleshot_timer_sync().
+>On Wed, Aug 18, 2004 at 01:57:51PM -0700, Randy.Dunlap wrote:
+>  
+>
+>>Update 'scripts/patch-kernel' to support EXTRAVERSION.
+>>    
+>>
+>
+>I saw no complains, so applied.
+>  
+>
+FYI
 
-Here is the code of del_timer_sync:
+$ ./scripts/patch-kernel . /everything/Downloads/Linux/SOURCES/kernel/
+Current kernel version is 2.6.10 (Woozy Numbat)
+Applying patch-2.6.11 (gzip)... done.
+Applying patch-2.6.11.1 (gzip)... done.
+Applying patch-2.6.11.2 (gzip)... done.
+Applying patch-2.6.11.3 (gzip)... 1 out of 1 hunk FAILED -- saving 
+rejects to file Makefile.rej
+Reversed (or previously applied) patch detected! Skipping patch.
+3 out of 3 hunks ignored -- saving rejects to file 
+drivers/input/serio/i8042-x86ia64io.h.rej
+Reversed (or previously applied) patch detected! Skipping patch.
+1 out of 1 hunk ignored -- saving rejects to file 
+drivers/md/raid6altivec.uc.rej
+Reversed (or previously applied) patch detected! Skipping patch.
+2 out of 2 hunks ignored -- saving rejects to file fs/eventpoll.c.rej
+failed. Clean up yourself.
 
-int del_timer_sync(struct timer_list *timer)
-{
-	int ret = 0;
 
-	for (;;) {
-		unsigned long flags;
-		tvec_base_t *_base, *base;
-
-		_base = timer->_base;
-		if (!_base)
-			return ret;
-
-		base = __timer_base(_base);
-		spin_lock_irqsave(&base->lock, flags);
-
-		if (timer->_base != _base)
-			goto unlock;
-
-		if (base->running_timer == timer)
-			goto unlock;
-
-		if (__timer_pending(_base)) {
-			list_del(&timer->entry);
-			ret = 1;
-		}
-		smp_wmb();
-		timer->_base = NULL;
-unlock:
-		spin_unlock_irqrestore(&base->lock, flags);
-	}
-}
-
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-
---- 2.6.11/include/linux/timer.h~2_PEND	2005-03-15 17:49:19.000000000 +0300
-+++ 2.6.11/include/linux/timer.h	2005-03-15 18:09:06.000000000 +0300
-@@ -21,9 +21,11 @@ struct timer_list {
- 	struct tvec_t_base_s *_base;
- };
- 
-+#define	__TIMER_PENDING	1
-+
- static inline int __timer_pending(struct tvec_t_base_s *base)
- {
--	return base != NULL;
-+	return ((unsigned long)base & __TIMER_PENDING) != 0;
- }
- 
- #define TIMER_MAGIC	0x4b87ad6e
---- 2.6.11/kernel/timer.c~2_PEND	2005-03-15 17:55:00.000000000 +0300
-+++ 2.6.11/kernel/timer.c	2005-03-15 19:52:48.000000000 +0300
-@@ -86,16 +86,26 @@ static inline void set_running_timer(tve
- 
- static inline tvec_base_t *__get_base(struct timer_list *timer)
- {
--	return timer->_base;
-+	tvec_base_t *base = timer->_base;
-+
-+	if (__timer_pending(base))
-+		return (void*)base - __TIMER_PENDING;
-+	else
-+		return NULL;
- }
- 
- static inline void __set_base(struct timer_list *timer,
- 				tvec_base_t *base, int pending)
- {
- 	if (pending)
--		timer->_base = base;
-+		timer->_base = (void*)base + __TIMER_PENDING;
- 	else
--		timer->_base = NULL;
-+		timer->_base = base;
-+}
-+
-+static inline tvec_base_t *__timer_base(tvec_base_t *base)
-+{
-+	return (tvec_base_t*)((unsigned long)base & ~__TIMER_PENDING);
- }
- 
- /* Fake initialization */
-@@ -356,29 +366,39 @@ EXPORT_SYMBOL(del_timer);
-  */
- int del_timer_sync(struct timer_list *timer)
- {
--	tvec_base_t *base;
--	int i, ret = 0;
-+	int ret;
- 
- 	check_timer(timer);
- 
--del_again:
--	ret += del_timer(timer);
-+	ret = 0;
-+	for (;;) {
-+		unsigned long flags;
-+		tvec_base_t *_base, *base;
-+
-+		_base = timer->_base;
-+		if (!_base)
-+			return ret;
- 
--	for_each_online_cpu(i) {
--		base = &per_cpu(tvec_bases, i);
--		if (base->running_timer == timer) {
--			while (base->running_timer == timer) {
--				cpu_relax();
--				preempt_check_resched();
--			}
--			break;
-+		base = __timer_base(_base);
-+		spin_lock_irqsave(&base->lock, flags);
-+
-+		if (timer->_base != _base)
-+			goto unlock;
-+
-+		if (base->running_timer == timer)
-+			goto unlock;
-+
-+		if (__timer_pending(_base)) {
-+			list_del(&timer->entry);
-+			ret = 1;
- 		}
-+		/* Need to make sure that anybody who sees a NULL base
-+		 * also sees the list ops */
-+		smp_wmb();
-+		timer->_base = NULL;
-+unlock:
-+		spin_unlock_irqrestore(&base->lock, flags);
- 	}
--	smp_rmb();
--	if (timer_pending(timer))
--		goto del_again;
--
--	return ret;
- }
- EXPORT_SYMBOL(del_timer_sync);
+David

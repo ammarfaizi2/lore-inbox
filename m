@@ -1,71 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130314AbRBTTJI>; Tue, 20 Feb 2001 14:09:08 -0500
+	id <S130337AbRBTTQJ>; Tue, 20 Feb 2001 14:16:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130413AbRBTTI6>; Tue, 20 Feb 2001 14:08:58 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:53326 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S130314AbRBTTIm>; Tue, 20 Feb 2001 14:08:42 -0500
-Date: Tue, 20 Feb 2001 19:08:37 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Andre Hedrick <andre@linux-ide.org>, Pozsar Balazs <pozsy@sch.bme.hu>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [IDE] meaningless #ifndef?
-In-Reply-To: <20010220192056.A6846@suse.cz>
-Message-ID: <Pine.LNX.4.21.0102201849140.1138-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130413AbRBTTQA>; Tue, 20 Feb 2001 14:16:00 -0500
+Received: from [199.239.160.155] ([199.239.160.155]:8197 "EHLO
+	tenchi.datarithm.net") by vger.kernel.org with ESMTP
+	id <S130337AbRBTTPr>; Tue, 20 Feb 2001 14:15:47 -0500
+Date: Tue, 20 Feb 2001 11:15:42 -0800
+From: Robert Read <rread@datarithm.net>
+To: Ishikawa <ishikawa@yk.rim.or.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel/printk.c: increasing the buffer size to capture devfsd debug messages.
+Message-ID: <20010220111542.A4106@tenchi.datarithm.net>
+Mail-Followup-To: Ishikawa <ishikawa@yk.rim.or.jp>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3A92A99E.2F255CB3@yk.rim.or.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A92A99E.2F255CB3@yk.rim.or.jp>; from ishikawa@yk.rim.or.jp on Wed, Feb 21, 2001 at 02:30:08AM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Feb 2001, Vojtech Pavlik wrote:
-> On Tue, Feb 20, 2001 at 05:45:52PM +0000, Hugh Dickins wrote:
-> > > > byte eighty_ninty_three (ide_drive_t *drive)
-> > > > {
-> > > >         return ((byte) ((HWIF(drive)->udma_four) &&
-> > > > #ifndef CONFIG_IDEDMA_IVB
-> > > >                         (drive->id->hw_config & 0x4000) &&
-> > > > #endif /* CONFIG_IDEDMA_IVB */
-> > > >                         (drive->id->hw_config & 0x6000)) ? 1 : 0);
-> > > > }
+On Wed, Feb 21, 2001 at 02:30:08AM +0900, Ishikawa wrote:
 > 
-> Well, the code looks weird. However, it doesn't behave the same when
-> CONFIG_IDEDMA_IVB is enabled or not. If it is not, normal case, it's
-> just:
-> 
-> (drive->id->hw_config & 0x6000)
-> 
-> If CONFIG_IDEDMA_IVB is enabled, it boils down to:
-> 
-> (drive->id->hw_config & 0x4000)
-> 
-> because the second bit test includes the earlier test already only
-> loosening it. Because of that, it's superfluous. And the code relies on
-> the compiler to optimize it out.
+> Has anyone tried 128K buffer size in kernel/printk.c
+> and still have the kernel boot (without
+> hard to notice memory corruption problems  and other subtle bugs)?
+> Any hints and tips will be appreciated.
 
-Thank you for re-explaining this to me.
-Yes, you are right, I was wrong, I now
-admit my &s and &&s behave like yours,
-and I apologize to Andre!
+I have used 128k and larger buffer sizes, and I just noticed this
+fragment in the RedHat Tux Webserver patch.  It creates a 2MB buffer:
 
-> If written like:
-> 
-> #ifndef CONFIG_IDEDMA_IVB
-> #define IDE_UDMA_MASK 0x4000
-> #else
-> #define IDE_UDMA_MASK 0x6000
-> #endif /* CONFIG_IDEDMA_IVB */
-> 
-> byte eighty_ninty_three (ide_drive_t *drive)
-> {       
->         return HWIF(drive)->udma_four &&
-> 		(drive->id->hw_config & IDE_UDMA_MASK);
-> }
-> 
-> it'd be probably somewhat clearer.
-
-That would certainly have helped us!
-
-Hugh
+--- linux/kernel/printk.c.orig  Sun Jan 28 20:24:13 2001
++++ linux/kernel/printk.c       Wed Jan 31 23:21:25 2001
+@@ -22,7 +22,11 @@
+ 
+ #include <asm/uaccess.h>
+ 
+-#define LOG_BUF_LEN    (16384)
++#if CONFIG_TUX_DEBUG
++# define LOG_BUF_LEN   (16384*128)
++#else
++# define LOG_BUF_LEN   (16384)
++#endif
+ #define LOG_BUF_MASK   (LOG_BUF_LEN-1)
+ 
+ static char buf[1024];                                                                            
 

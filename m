@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbUK1Qjq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261512AbUK1Qoh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261517AbUK1Qjq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 11:39:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbUK1Qjp
+	id S261512AbUK1Qoh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 11:44:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbUK1Qoh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 11:39:45 -0500
-Received: from [220.248.27.114] ([220.248.27.114]:736 "HELO soulinfo.com")
-	by vger.kernel.org with SMTP id S261519AbUK1Q0n (ORCPT
+	Sun, 28 Nov 2004 11:44:37 -0500
+Received: from [220.248.27.114] ([220.248.27.114]:2016 "HELO soulinfo.com")
+	by vger.kernel.org with SMTP id S261512AbUK1Q1h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 11:26:43 -0500
-Date: Mon, 29 Nov 2004 00:24:48 +0800
+	Sun, 28 Nov 2004 11:27:37 -0500
+Date: Mon, 29 Nov 2004 00:25:39 +0800
 From: hugang@soulinfo.com
 To: Pavel Machek <pavel@ucw.cz>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: software suspend patch [3/6]
-Message-ID: <20041128162448.GC28881@hugang.soulinfo.com>
+Subject: Re: software suspend patch [5/6]
+Message-ID: <20041128162539.GE28881@hugang.soulinfo.com>
 References: <20041127220752.16491.qmail@science.horizon.com> <20041128082912.GC22793@wiggy.net> <20041128113708.GQ1417@openzaurus.ucw.cz> <20041128162320.GA28881@hugang.soulinfo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -59,70 +59,56 @@ On Mon, Nov 29, 2004 at 12:23:20AM +0800, hugang@soulinfo.com wrote:
 > that's really hack for making pagecache saving safe.
 > 
 
---- 2.6.9-lzf//arch/i386/kernel/signal.c	2004-11-28 23:17:23.000000000 +0800
-+++ 2.6.9/arch/i386/kernel/signal.c	2004-11-28 23:16:59.000000000 +0800
-@@ -587,6 +587,7 @@ int fastcall do_signal(struct pt_regs *r
+--- 2.6.9-lzf/kernel/sched.c	2004-11-28 23:17:11.000000000 +0800
++++ 2.6.9/kernel/sched.c	2004-11-28 23:16:54.000000000 +0800
+@@ -2656,6 +2656,12 @@ asmlinkage void __sched schedule(void)
+ 	 * Otherwise, whine if we are scheduling when we should not be.
+ 	 */
+ 	if (likely(!(current->state & (TASK_DEAD | TASK_ZOMBIE)))) {
++#ifdef CONFIG_PM
++		extern int swsusp_pagecache;
++		if (unlikely(swsusp_pagecache == 2)) /* slient warning message when 
++												writing pagecache */
++#endif
++
+ 		if (unlikely(in_atomic())) {
+ 			printk(KERN_ERR "bad: scheduling while atomic!\n");
+ 			dump_stack();
+--- 2.6.9-lzf/mm/page-writeback.c	2004-11-25 14:06:02.000000000 +0800
++++ 2.6.9/mm/page-writeback.c	2004-11-29 00:07:13.000000000 +0800
+@@ -359,6 +359,9 @@ static void wb_kupdate(unsigned long arg
+ 	unsigned long start_jif;
+ 	unsigned long next_jif;
+ 	long nr_to_write;
++#ifdef CONFIG_PM
++	extern int swsusp_pagecache;
++#endif
+ 	struct writeback_state wbs;
+ 	struct writeback_control wbc = {
+ 		.bdi		= NULL,
+@@ -369,6 +372,14 @@ static void wb_kupdate(unsigned long arg
+ 		.for_kupdate	= 1,
+ 	};
  
- 	if (current->flags & PF_FREEZE) {
- 		refrigerator(0);
-+		recalc_sigpending();
- 		if (!signal_pending(current))
- 			goto no_signal;
++#ifdef CONFIG_PM
++	if (unlikely(swsusp_pagecache == 2)) {
++		start_jif = jiffies;
++		next_jif = start_jif + (dirty_writeback_centisecs * HZ) / 100;
++		goto out;
++	}
++#endif
++
+ 	sync_supers();
+ 
+ 	get_writeback_state(&wbs);
+@@ -389,6 +400,7 @@ static void wb_kupdate(unsigned long arg
+ 		}
+ 		nr_to_write -= MAX_WRITEBACK_PAGES - wbc.nr_to_write;
  	}
---- 2.6.9-lzf//arch/i386/power/swsusp.S	2004-11-26 12:32:45.000000000 +0800
-+++ 2.6.9/arch/i386/power/swsusp.S	2004-11-28 23:16:59.000000000 +0800
-@@ -31,24 +31,33 @@ ENTRY(swsusp_arch_resume)
- 	movl $swsusp_pg_dir-__PAGE_OFFSET,%ecx
- 	movl %ecx,%cr3
- 
--	movl	pagedir_nosave, %ebx
--	xorl	%eax, %eax
--	xorl	%edx, %edx
--	.p2align 4,,7
--
--copy_loop:
--	movl	4(%ebx,%edx),%edi
--	movl	(%ebx,%edx),%esi
--
--	movl	$1024, %ecx
--	rep
--	movsl
--
--	incl	%eax
--	addl	$16, %edx
--	cmpl	nr_copy_pages,%eax
--	jb copy_loop
--	.p2align 4,,7
-+	movl  pagedir_nosave, %eax
-+	test %eax, %eax
-+	je   copy_loop_end
-+	movl  $1024, %edx
-+
-+copy_loop_start:
-+	movl  0xc(%eax), %ebp
-+	xorl  %ebx, %ebx
-+	leal  0x0(%esi),%esi
-+
-+copy_one_pgdir:
-+	movl  0x4(%eax),%edi
-+	test %edi, %edi
-+	je   copy_loop_end
-+
-+	movl  (%eax), %esi
-+	movl  %edx, %ecx
-+	repz movsl %ds:(%esi),%es:(%edi)
-+
-+	incl  %ebx
-+	addl  $0x10, %eax
-+	cmpl  $0xff, %ebx
-+	jbe  copy_one_pgdir
-+	test %ebp, %ebp
-+	movl  %ebp, %eax
-+	jne  copy_loop_start
-+copy_loop_end:
- 
- 	movl saved_context_esp, %esp
- 	movl saved_context_ebp, %ebp
++out:
+ 	if (time_before(next_jif, jiffies + HZ))
+ 		next_jif = jiffies + HZ;
+ 	if (dirty_writeback_centisecs)
 -- 
 --
 Hu Gang / Steve

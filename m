@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280257AbRKIWrc>; Fri, 9 Nov 2001 17:47:32 -0500
+	id <S280258AbRKIWxd>; Fri, 9 Nov 2001 17:53:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280258AbRKIWrW>; Fri, 9 Nov 2001 17:47:22 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:63756 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S280257AbRKIWrN>; Fri, 9 Nov 2001 17:47:13 -0500
-Subject: Re: RedHat 2.4.7 & 2.4.9-13 Poweroff failure
-To: mdiwan@wagweb.com (Madhav Diwan)
-Date: Fri, 9 Nov 2001 22:51:30 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, mdiwan@wagweb.com (Madhav Diwan)
-In-Reply-To: <3BEC5B59.7D29E401@wagweb.com> from "Madhav Diwan" at Nov 09, 2001 05:40:25 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S280262AbRKIWxX>; Fri, 9 Nov 2001 17:53:23 -0500
+Received: from codepoet.org ([166.70.14.212]:19247 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S280258AbRKIWxJ>;
+	Fri, 9 Nov 2001 17:53:09 -0500
+Date: Fri, 9 Nov 2001 15:53:10 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Ben Israel <ben@genesis-one.com>, linux-kernel@vger.kernel.org
+Subject: Re: Disk Performance
+Message-ID: <20011109155309.A14308@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Rik van Riel <riel@conectiva.com.br>,
+	Ben Israel <ben@genesis-one.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <000201c16963$365e19e0$5101a8c0@pbc.adelphia.net> <Pine.LNX.4.33L.0111092030470.2963-100000@imladris.surriel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E162KUk-0004X7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L.0111092030470.2963-100000@imladris.surriel.com>
+User-Agent: Mutt/1.3.22i
+X-Operating-System: 2.4.12-ac3-rmk2, Rebel NetWinder (Intel StrongARM-110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> RedHats newest kernels  2.4.7, and 2.4.9-13 seem to have the same
-> problem that RedHat had in 2.4.2 .. they will do everything  including
-> shutting down the backlight and .. it sound like they release the drive
-> as well.. but they do not let go of the battery.. on a laptop that is a
-> BAD thing.
+On Fri Nov 09, 2001 at 08:31:32PM -0200, Rik van Riel wrote:
+> On Fri, 9 Nov 2001, Ben Israel wrote:
 > 
->  any hints?
+> > Why does my 40 Megabyte per second IDE drive, transfer files at best
+> > at 1-2 Megabytes per second?
+> 
+> Sounds like you're not using IDE DMA:
+> 
+> # hdparm -d1 /dev/hda
+> 
+> (not enabled by default because it corrupts data with some
+> old chipsets and/or disks)
 
-I'd take a guess that Red Hat and Mandrake base kernels use different APM
-options.  If so then its another box to add to the magic dmi list 8)
+But wouldn't it make more sense to enable DMA by default, except 
+for a set of blacklisted chipsets, rather then disabling it for 
+everybody just because some older chipsets are crap?
 
-Jeff - does Mandrake default to APM interrupts enabled ?
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

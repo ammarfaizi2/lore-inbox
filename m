@@ -1,103 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269033AbTGTXVp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 19:21:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269084AbTGTXVp
+	id S269077AbTGTX2I (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 19:28:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269085AbTGTX2H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 19:21:45 -0400
-Received: from mailb.telia.com ([194.22.194.6]:46587 "EHLO mailb.telia.com")
-	by vger.kernel.org with ESMTP id S269033AbTGTXUz (ORCPT
+	Sun, 20 Jul 2003 19:28:07 -0400
+Received: from maila.telia.com ([194.22.194.231]:53453 "EHLO maila.telia.com")
+	by vger.kernel.org with ESMTP id S269077AbTGTX2C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 19:20:55 -0400
+	Sun, 20 Jul 2003 19:28:02 -0400
 X-Original-Recipient: linux-kernel@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Software suspend and RTL 8139too in 2.6.0-test1
-References: <m2wuelqo6c.fsf@telia.com> <20030720201050.GB292@elf.ucw.cz>
-From: Peter Osterlund <petero2@telia.com>
-Date: 21 Jul 2003 00:03:36 +0200
-In-Reply-To: <20030720201050.GB292@elf.ucw.cz>
-Message-ID: <m27k6c6ekn.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: Error Compiling mm2
+From: Christian Axelsson <smiler@lanil.mine.nu>
+To: Pedro Ribeiro <deadheart@netcabo.pt>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F1B8447.1090401@netcabo.pt>
+References: <3F1B8447.1090401@netcabo.pt>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-RqgeFAl7aZchPQqPBE4w"
+Message-Id: <1058744574.32319.4.camel@sm-wks1.lan.irkk.nu>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 21 Jul 2003 01:42:54 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> writes:
 
-> Hi!
-> 
-> > This patch is needed to make software suspend work with the 8139too
-> > driver loaded.
-> 
-> There's more complicated patch at
-> http://mrohne.home.cern.ch/mrohne/P2120/P2120_Linux_S3.html. Could you
-> test it, perhaps?
+--=-RqgeFAl7aZchPQqPBE4w
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-It works even better than my patch. With my patch the NIC would not
-work for a few seconds after resume, until the driver realized
-something was wrong and reinitialized the card. With this patch I
-don't see that problem.
+On Mon, 2003-07-21 at 08:12, Pedro Ribeiro wrote:
+> I get this error when I try to compile mm2:
+>=20
+> drivers/video/riva/fbdev.c: In function `rivafb_cursor':
+> drivers/video/riva/fbdev.c:1525: warning: passing arg 2 of=20
+> `move_buf_aligned' from incompatible pointer type
+> drivers/video/riva/fbdev.c:1525: warning: passing arg 4 of=20
+> `move_buf_aligned' makes pointer from integer without a cast
+> drivers/video/riva/fbdev.c:1525: too few arguments to function=20
+> `move_buf_aligned'
+> drivers/video/riva/fbdev.c:1527: warning: passing arg 2 of=20
+> `move_buf_aligned' from incompatible pointer type
+> drivers/video/riva/fbdev.c:1527: warning: passing arg 4 of=20
+> `move_buf_aligned' makes pointer from integer without a cast
+> drivers/video/riva/fbdev.c:1527: too few arguments to function=20
+> `move_buf_aligned'
+> make[3]: *** [drivers/video/riva/fbdev.o] Error 1
+> make[2]: *** [drivers/video/riva] Error 2
+> make[1]: *** [drivers/video] Error 2
+> make: *** [drivers] Error 2
 
-Here is the patch for 2.6.0-test1 with only the 8139too changes.
+RivaFB is currently broken and needs a rewrite.
+James Simmons is currently working on this I think.
 
---- linux/drivers/net/8139too.c.old	Sun Jul 20 23:56:19 2003
-+++ linux/drivers/net/8139too.c	Sun Jul 20 22:54:37 2003
-@@ -109,6 +109,7 @@
- #include <linux/ethtool.h>
- #include <linux/mii.h>
- #include <linux/completion.h>
-+#include <linux/suspend.h>
- #include <linux/crc32.h>
- #include <asm/io.h>
- #include <asm/uaccess.h>
-@@ -565,6 +566,7 @@
- 	void *mmio_addr;
- 	int drv_flags;
- 	struct pci_dev *pci_dev;
-+	u32 pci_state[16];
- 	struct net_device_stats stats;
- 	unsigned char *rx_ring;
- 	unsigned int cur_rx;	/* Index into the Rx buffer of next Rx pkt. */
-@@ -1597,6 +1599,8 @@
- 		timeout = next_tick;
- 		do {
- 			timeout = interruptible_sleep_on_timeout (&tp->thr_wait, timeout);
-+			if (current->flags & PF_FREEZE)
-+				refrigerator(PF_IOTHREAD);
- 		} while (!signal_pending (current) && (timeout > 0));
- 
- 		if (signal_pending (current)) {
-@@ -2566,6 +2570,9 @@
- 	tp->stats.rx_missed_errors += RTL_R32 (RxMissed);
- 	RTL_W32 (RxMissed, 0);
- 
-+	pci_save_state (pdev, tp->pci_state);
-+	pci_set_power_state (pdev, 3);
-+
- 	spin_unlock_irqrestore (&tp->lock, flags);
- 	return 0;
- }
-@@ -2574,11 +2581,15 @@
- static int rtl8139_resume (struct pci_dev *pdev)
- {
- 	struct net_device *dev = pci_get_drvdata (pdev);
-+	struct rtl8139_private *tp = dev->priv;
- 
- 	if (!netif_running (dev))
- 		return 0;
--	netif_device_attach (dev);
-+	pci_set_power_state (pdev, 0);
-+	pci_restore_state (pdev, tp->pci_state);
-+	rtl8139_init_ring (dev);
- 	rtl8139_hw_start (dev);
-+	netif_device_attach (dev);
- 	return 0;
- }
- 
+--=20
+Christian Axelsson
+  smiler@lanil.mine.nu
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+GPG ID:
+  6C3C55D9 @ ldap://keyserver.pgp.com
+
+--=-RqgeFAl7aZchPQqPBE4w
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/Gyj9yqbmAWw8VdkRAtTHAJ9CSPecl7y/HCACLNnIeYe7asY6iQCg5sIP
+aElfh5vt7Q5mhnNbmn9AODU=
+=ufoa
+-----END PGP SIGNATURE-----
+
+--=-RqgeFAl7aZchPQqPBE4w--
+

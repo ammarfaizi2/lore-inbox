@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272272AbRIETLe>; Wed, 5 Sep 2001 15:11:34 -0400
+	id <S272265AbRIETLX>; Wed, 5 Sep 2001 15:11:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272268AbRIETLY>; Wed, 5 Sep 2001 15:11:24 -0400
-Received: from ns1.uklinux.net ([212.1.130.11]:1033 "EHLO s1.uklinux.net")
-	by vger.kernel.org with ESMTP id <S272270AbRIETLH>;
-	Wed, 5 Sep 2001 15:11:07 -0400
+	id <S272274AbRIETLN>; Wed, 5 Sep 2001 15:11:13 -0400
+Received: from ns1.uklinux.net ([212.1.130.11]:64520 "EHLO s1.uklinux.net")
+	by vger.kernel.org with ESMTP id <S272265AbRIETLC>;
+	Wed, 5 Sep 2001 15:11:02 -0400
 Envelope-To: linux-kernel@vger.kernel.org
-Date: Wed, 5 Sep 2001 19:44:29 +0100 (BST)
+Date: Wed, 5 Sep 2001 19:50:53 +0100 (BST)
 From: Ken Moffat <ken@kenmoffat.uklinux.net>
-To: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
+To: Ollie Lho <ollie@sis.com.tw>
 cc: linux-kernel@vger.kernel.org
-Subject: Patch: fix error in building procfs-guide
-Message-ID: <Pine.LNX.4.21.0109051939150.20371-100000@pppg_penguin.linux.bogus>
+Subject: PATCH : remove documentation warnings in sis900
+Message-ID: <Pine.LNX.4.21.0109051947560.20371-100000@pppg_penguin.linux.bogus>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Following patch fixes errors which cause building kernel docs to fail
-(e.g. tulip user guide doesn't get built). Created on 2.4.7 while I was on
-holiday, applies cleanly to 2.4.9-ac6 and 2.4.10-pre4.
+Following patch removes two warnings when making kernel docs. Applies
+cleanly to 2.4.10-pre4 and 2.4.9-ac6.
 
-diff -urN linux-2.4.7/Documentation/DocBook/procfs-guide.tmpl altered-2.4.7/Documentation/DocBook/procfs-guide.tmpl
---- linux-2.4.7/Documentation/DocBook/procfs-guide.tmpl	Sat Jul 21 22:47:23 2001
-+++ altered-2.4.7/Documentation/DocBook/procfs-guide.tmpl	Wed Aug 22 20:39:44 2001
-@@ -207,7 +207,7 @@
-         will return <constant>NULL</constant>. <xref
-         linkend="userland"> describes how to do something useful with
-         regular files.
--      <para>
-+      </para>
+diff -urN linux-2.4.7/drivers/net/sis900.c altered-2.4.7/drivers/net/sis900.c
+--- linux-2.4.7/drivers/net/sis900.c	Sat Jul 21 22:48:09 2001
++++ altered-2.4.7/drivers/net/sis900.c	Fri Aug 24 21:11:43 2001
+@@ -600,7 +600,7 @@
+ /**
+  * 	sis900_set_capability: - set the media capability of network adapter.
+  *	@net_dev : the net device to probe for
+- *	@mii_phy : default PHY
++ *	@phy : default PHY
+  *
+  *	Set the media capability of network adapter according to
+  *	mii status register. It's necessary before auto-negotiate.
+@@ -1190,6 +1190,7 @@
  
-       <para>
-         Note that it is specifically supported that you can pass a
-@@ -577,7 +577,7 @@
-         the <structfield>owner</structfield> field in the
-         <structname>struct proc_dir_entry</structname> to
-         <constant>THIS_MODULE</constant>.
--      <para>
-+      </para>
- 
-       <programlisting>
- struct proc_dir_entry* entry;
+ /**
+  *	sis900_set_mode: - Set the media mode of mac register.
++ *	@ioaddr: the address of the device
+  *	@speed : the transmit speed to be determined
+  *	@duplex: the duplex mode to be determined
+  *
 
 Ken
 -- 

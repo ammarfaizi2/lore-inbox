@@ -1,65 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262883AbSJGGCU>; Mon, 7 Oct 2002 02:02:20 -0400
+	id <S262887AbSJGGQC>; Mon, 7 Oct 2002 02:16:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262887AbSJGGCU>; Mon, 7 Oct 2002 02:02:20 -0400
-Received: from bitmover.com ([192.132.92.2]:10392 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S262883AbSJGGCT>;
-	Mon, 7 Oct 2002 02:02:19 -0400
-Date: Sun, 6 Oct 2002 23:07:54 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Russell King <rmk@arm.linux.org.uk>,
-       "David S. Miller" <davem@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Ulrich Drepper <drepper@redhat.com>, bcollins@debian.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: BK MetaData License Problem?
-Message-ID: <20021006230754.A9976@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Ingo Molnar <mingo@elte.hu>, Larry McVoy <lm@bitmover.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Russell King <rmk@arm.linux.org.uk>,
-	"David S. Miller" <davem@redhat.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Ulrich Drepper <drepper@redhat.com>, bcollins@debian.org,
-	linux-kernel@vger.kernel.org
-References: <20021006155217.Y29486@work.bitmover.com> <Pine.LNX.4.44.0210070758490.2557-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0210070758490.2557-100000@localhost.localdomain>; from mingo@elte.hu on Mon, Oct 07, 2002 at 08:08:40AM +0200
-X-MailScanner: Found to be clean
+	id <S262890AbSJGGQC>; Mon, 7 Oct 2002 02:16:02 -0400
+Received: from pimout4-ext.prodigy.net ([207.115.63.103]:40877 "EHLO
+	pimout4-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id <S262887AbSJGGQB>; Mon, 7 Oct 2002 02:16:01 -0400
+Message-Id: <200210070621.g976LV1H428754@pimout4-ext.prodigy.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Larry McVoy <lm@bitmover.com>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: New BK License Problem?
+Date: Sun, 6 Oct 2002 21:21:19 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: Larry McVoy <lm@bitmover.com>, "David S. Miller" <davem@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+References: <20021006075627.I9032@work.bitmover.com> <Pine.LNX.4.44.0210061718370.9062-100000@localhost.localdomain> <20021006081514.J9032@work.bitmover.com>
+In-Reply-To: <20021006081514.J9032@work.bitmover.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> so in theory it's perfectly possible to 'link' the data's and metadata's
-> license via BKL.txt - after all you already added licensing rules for the
-> metadata into the BK license, for the purposes of OpenLogging.
+It's Interesting what question Larry is going out of his way NOT to answer.
 
-It is our position and we believe that it is supported by the BKL license
-that it is the right and authority of the original creator of the project
-to enforce any license they so wish.  If Linus wants to make it clear
-that if you make changesets using BK that the checkin comments are also
-GPLed, that's his right.  That's our intent and that's what we believe
-the license says.  See clause 3(b).
+Ingo asked:
 
-> > By the way, the way this code works in bk-3.0 is that it saves a md5sum
-> > or some sort of strong hash of the license in question and it will ask
-> > you only once, assuming you are using the same home directory.  It will
-> > ask you again if the license changes, that's what the hash is for.
-> 
-> this sounds really nice and unintrusive, how does one enable it? Is this
-> BK_FORCE, or something else? I cannot find any reference to this in 'bk
-> helptool'.
+> what happens if Linux merges some sort of kernel based versioned
+> filesystem, eg. something similar to what ClearCase does today?
 
-That's because we haven't shipped bk-3.0 yet, we expect to do so this
-week.  The license clause has been there for a long time, these rules are
-part of the BKL.  However, we only recently added the "click to accept"
-stuff for the extra license and the lawyers tell us that is required to
-be enforceable.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Larry responded, unhelpefully:
+
+> I think the license is clear on that point.
+
+So why did Ingo ask the question?  Oh well.
+
+Ingo again:
+
+> so BK cannot be used to access the kernel tree in that case, correct? I'm
+> just wondering where the boundary line is. Eg. if i started working on a
+> versioned filesystem today, i'd not be allowed to use BK. I just have to
+> keep stuff like that in mind when using BK.
+
+Larry responded again, but again ducked the question, choosing insead to talk 
+about ClearCase.
+
+It seems pretty clear that the people who object to BitKeeper have an easy 
+way to force it out out of Kernel developent: You don't have to reproduce 
+bitkeeper, just write a version controlled filesystem (or version control 
+extension to an existing filesystem) that Linus likes enough to include in 
+the tree.  (EVMS probably doesn't qualify as such, but I'm sure Larry could 
+make a case it does if he really wanted to.  So nobody really has a license 
+to use no-charge bitkeeper, they really just have permission as long as 
+Larry's in a good mood.  But this is nothing new, is it?)
+
+It's possible that a version controlled filesystem will never be accepted 
+into the Linux tree just because Linus wouldn't want to give up bitkeeper.  
+Oh well.  Can't say I've ever personally had a need for one, and you could 
+always do it via Coda, assuming the existince of such a tool wouldn't taint 
+the Coda parts of the kernel... :)
+
+Rob

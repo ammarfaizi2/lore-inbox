@@ -1,48 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265853AbUATVjv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 16:39:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265854AbUATVjv
+	id S265855AbUATVqS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 16:46:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265856AbUATVqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 16:39:51 -0500
-Received: from fw.osdl.org ([65.172.181.6]:46212 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265853AbUATVjt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 16:39:49 -0500
-Date: Tue, 20 Jan 2004 13:39:08 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Andrew Beresford <a.j.beresford@sheffield.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops with multicast/mrouted
-Message-ID: <20040120133908.A11081@osdlab.pdx.osdl.net>
-References: <1074587506.3375.5.camel@turtle>
+	Tue, 20 Jan 2004 16:46:18 -0500
+Received: from 82-68-84-57.dsl.in-addr.zen.co.uk ([82.68.84.57]:38574 "EHLO
+	lenin.trudheim.com") by vger.kernel.org with ESMTP id S265855AbUATVqN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 16:46:13 -0500
+Subject: Re: BK 2.6.1 Kernel
+From: Anders Karlsson <anders@trudheim.com>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040120181251.GC23765@srv-lnx2600.matchmail.com>
+References: <1074526887.5748.8.camel@tor.trudheim.com>
+	 <20040119155847.GL1748@srv-lnx2600.matchmail.com>
+	 <1074609976.10034.4.camel@tor.trudheim.com>
+	 <20040120181251.GC23765@srv-lnx2600.matchmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-v9yYAWdMpMDufqa2DZCd"
+Organization: Trudheim Technology Limited
+Message-Id: <1074635202.9075.5.camel@tor.trudheim.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1074587506.3375.5.camel@turtle>; from a.j.beresford@sheffield.ac.uk on Tue, Jan 20, 2004 at 08:31:47AM +0000
+X-Mailer: Ximian Evolution 1.4.5 Rubber Turnip www.usr-local-bin.org 
+Date: Tue, 20 Jan 2004 21:46:42 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrew Beresford (a.j.beresford@sheffield.ac.uk) wrote:
-> I'm seeing a problem with multicast using mrouted 3.9-beta3 on a 2.6.0
-> kernel.
 
-Using 2.6.1, I have no problems.  Have you tried a newer kernel?  If you
-can still reproduce on a newer kernel, send me your mrouted.conf and
-kernel .config, I'll look at reproducing it here.
+--=-v9yYAWdMpMDufqa2DZCd
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> When I set mrouted going, it segfaults after a few moments and the
-> following gets output to messages. If I restart mrouted the machine hard
-> locks and I have to reset.
-> 
-> The kernel is being tainted by the tsdev touchscreen driver which seems
-> to load each time I turn my machine on. Nothing else is tainting it, I
-> promise!
+On Tue, 2004-01-20 at 18:12, Mike Fedyk wrote:
 
-BTW, updating to current 2.6 kernel will eliminate that tainting.
+> Is that the taged 2.6.1 release, or does it have patches integrated after
+> that tag?
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+That is the tagged 2.6.1 release. I looked at what change set
+(1.1474.2.29) the Makefile was in when the change from 2.6.1-rc3 to
+2.6.1 took place, and exported that. I could take a kernel.org tarball,
+but the result will probably be exactly the same.
+
+2.6.1 works.
+
+2.6.1 + bk changes from
+http://linux-acpi.bkbits.net:8080/linux-acpi-test-2.6.1 and
+http://linux.bkbits.net:8080/linux-2.5 up until Monday 19th at about
+12:00 GMT does not.
+
+Boot params, configuration, everything as similar as can be.
+
+> Try with a tarbal from kernel.org instead.
+
+Will do that in the morning. Almost bed-time here. :)
+
+Regards,
+
+--=20
+Anders Karlsson <anders@trudheim.com>
+Trudheim Technology Limited
+
+--=-v9yYAWdMpMDufqa2DZCd
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQBADaHBLYywqksgYBoRAvCEAKCf9v0ca+E+D4tJDuDNplxMYgNWXQCghhgR
+4p3TQyToBBqc/aoFaedROBs=
+=/roO
+-----END PGP SIGNATURE-----
+
+--=-v9yYAWdMpMDufqa2DZCd--

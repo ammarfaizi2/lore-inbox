@@ -1,77 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267663AbSLFXtZ>; Fri, 6 Dec 2002 18:49:25 -0500
+	id <S267666AbSLFXzx>; Fri, 6 Dec 2002 18:55:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267664AbSLFXtZ>; Fri, 6 Dec 2002 18:49:25 -0500
-Received: from [195.223.140.107] ([195.223.140.107]:24194 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S267663AbSLFXtY>;
-	Fri, 6 Dec 2002 18:49:24 -0500
-Date: Sat, 7 Dec 2002 00:57:07 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
-       Norman Gaywood <norm@turing.une.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: Maybe a VM bug in 2.4.18-18 from RH 8.0?
-Message-ID: <20021206235707.GS4335@dualathlon.random>
-References: <20021206021559.GK9882@holomorphy.com> <20021206022853.GJ1567@dualathlon.random> <20021206024140.GL9882@holomorphy.com> <3DF034BB.D5F863B5@digeo.com> <20021206054804.GK1567@dualathlon.random> <3DF049F9.6F83D13@digeo.com> <20021206145718.GL1567@dualathlon.random> <20021206151220.GD11023@holomorphy.com> <20021206233243.GP4335@dualathlon.random> <20021206234524.GS9882@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021206234524.GS9882@holomorphy.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+	id <S267668AbSLFXzx>; Fri, 6 Dec 2002 18:55:53 -0500
+Received: from imrelay-2.zambeel.com ([209.240.48.8]:8721 "EHLO
+	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
+	id <S267666AbSLFXzw>; Fri, 6 Dec 2002 18:55:52 -0500
+Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB1AD2@xch-a.win.zambeel.com>
+From: Manish Lachwani <manish@Zambeel.com>
+To: linux-kernel@vger.kernel.org
+Cc: Manish Lachwani <manish@Zambeel.com>
+Subject: CSB5 support for UDMA 6 ...
+Date: Fri, 6 Dec 2002 16:03:18 -0800 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 06, 2002 at 03:45:24PM -0800, William Lee Irwin III wrote:
-> On Sat, Dec 07, 2002 at 12:32:43AM +0100, Andrea Arcangeli wrote:
-> > but note that even with rmap you don't know the pmd that points to the
-> > pte that you want to relocate and for the anon pages you miss
-> > information about mm and virtual address where those pages are
-> > allocated, so basically rmap is useless for doing it, you need to do the
-> > pagetable walking ala swap_out, in turn it's not easier at all in 2.5
-> > than it could been in 2.4 (but of course this is a 2.5 thing only, I
-> > just want to say that if it's not difficult in 2.5 it wasn't difficult
-> > in 2.4 either).
-> 
-> Actually, we do. From include/asm-generic/rmap.h:
-> 
-> static inline void pgtable_add_rmap(struct page * page, struct mm_struct * mm, unsigned long address)
-> {
-> #ifdef BROKEN_PPC_PTE_ALLOC_ONE
-> 	/* OK, so PPC calls pte_alloc() before mem_map[] is setup ... ;( */
-> 	extern int mem_init_done;
-> 
-> 	if (!mem_init_done)
-> 		return;
-> #endif
-> 	page->mapping = (void *)mm;
-> 	page->index = address & ~((PTRS_PER_PTE * PAGE_SIZE) - 1);
-> 	inc_page_state(nr_page_table_pages);
-> }
-> 
-> So pagetable pages are tagged with the right information, and in
-> principle could even be tagged here with the pmd in page->private.
+I have made changes to serverworks.c to support UDMA 6 and tested on CSB5.
+It works fine and the Maxtor 160 GB drives are detected in the UDMA 6 mode
+both in the kernel log messages on bootup and in the IDENTIFY information
+from the drive.
 
-sorry I didn't noticed the overlap of page->mapping to store the mm. But
-yes, I should have realized that you had do because otherwise you
-wouldn't know how to flush the tlb ;) so without the mm and address rmap
-would be useless. So via the address and mapping you can walk the
-pagetables and reach it with lower complexity than w/o rmap. Still doing
-the pagetable walk wouldn't be an huge increase in complexity but it
-would increase the "computational" complexity of the algorithm.
+Following changes in in config_chipset_for_dma(..)
 
-> These fields are actually required for use by try_to_unmap_one(),
-> and something similar could be done for a try_to_move_one(). This
-> information remains intact with shared pagetables, and is generalized
-> so that the PTE page is tagged with a list of mm's (the mm_chain),
-> and in that case no unique pmd could be directly stored in the page,
-> but it could just as easily be derived from the mm's in the mm_chain.
-> 
-> But there's no denying it would involve a substantial amount of work.
-> 
-> 
-> Bill
+        if ( (id->dma_ultra & 0x0040) || (ultra100)) {
+                speed = XFER_UDMA_6;
+        }
+
+and 
+
+        return ((int)   ((id->dma_ultra >> 14) & 3) ? ide_dma_on :
+                        ((id->dma_ultra >> 11) & 7) ? ide_dma_on :
+                        ((id->dma_ultra >> 8) & 7) ? ide_dma_on :
+                        ((id->dma_mword >> 8) & 7) ? ide_dma_on :
+                        ((id->dma_1word >> 8) & 7) ? ide_dma_on :
+                                                     ide_dma_off_quietly);
 
 
-Andrea
+We can also set the UDMA speed successfully from hdparm and the changes show
+UDMA 6. I have add long runs with these changes and the controller/drive
+seem to work fine. 
+
+hdparm -x70 /dev/hdX
+
+
+Thanks
+Manish
+
+

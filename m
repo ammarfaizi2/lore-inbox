@@ -1,88 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273541AbRI3Og7>; Sun, 30 Sep 2001 10:36:59 -0400
+	id <S273577AbRI3PMy>; Sun, 30 Sep 2001 11:12:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273542AbRI3Ogt>; Sun, 30 Sep 2001 10:36:49 -0400
-Received: from quechua.inka.de ([212.227.14.2]:14688 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S273541AbRI3Ogk>;
-	Sun, 30 Sep 2001 10:36:40 -0400
+	id <S273578AbRI3PMe>; Sun, 30 Sep 2001 11:12:34 -0400
+Received: from [209.38.98.99] ([209.38.98.99]:19386 "EHLO srvr201.castmark.com")
+	by vger.kernel.org with ESMTP id <S273577AbRI3PMb>;
+	Sun, 30 Sep 2001 11:12:31 -0400
+Message-Id: <200109301514.f8UFEvC09449@srvr201.castmark.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Fred Jackson <fred@arkansaswebs.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Makefile gcc -o /dev/null: the dissapearing of /dev/null
-In-Reply-To: <20010929114304.A21440@lug-owl.de> <Pine.LNX.4.33.0109290535390.25966-100000@cerberus.stardot-tech.com>
-Organization: private Linux site, southern Germany
-Date: Sun, 30 Sep 2001 16:24:00 +0200
-From: Olaf Titz <olaf@bigred.inka.de>
-Message-Id: <E15nhVx-00017F-00@bigred.inka.de>
+Subject: ac97 audiu on ECS K7S5A ?
+Date: Sun, 30 Sep 2001 10:11:56 -0500
+X-Mailer: KMail [version 1.3]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So then you can no longer 'make modules && make modules_install', or you
-> have to cp or chown /usr/src/linux on a fresh install to compile your
-> kernel?   Doesn't sound pleasant to me.
 
-I just do "MakeDist -a" as user and untar the result as root. Script appended.
 
-Olaf
+Is there support fort the ac97 audio on a ECS K7S5A main board?
+please cc me as I'm no longer subscribed..
 
-#!/bin/sh
-# MakeDist - build Linux kernel installation tarballs
-# written by Olaf Titz, 1999-2000. Public domain.
-#
-# Call this as MakeDist [-a] [kernel-source-dir]
-#
-# This will create two tarballs in the kernel source dir:
-# boot-x.y.z.v contains /boot and /lib/modules stuff
-# inc-x.y.z.v  contains /usr/src/linux-x.y.z/include
-# The "v" name component is the build number from .version.
-#
-# The "-a" argument does a "make dep bzImage modules" cycle
-# before building tarballs.
-#
+thanks
+Fred
 
-set -e
-#J=-j2
-J=""
-buildall=false
-if [ "$1" = "-a" ]; then
-    buildall=true
-    shift
-fi
 
-[ "$1" -a -d "$1" ] && cd "$1"
-[ -e kernel/panic.c -a -d include/linux ] || { echo "usage: $0 srcdir"; exit 1; }
+[root@bits /root]# lspci -v
+00:00.0 Host bridge: Silicon Integrated Systems [SiS]: Unknown device 0735 
+(rev 01)
+        Flags: bus master, medium devsel, latency 32
+        Memory at d0000000 (32-bit, non-prefetchable) [size=64M]
+        Capabilities: [c0] AGP version 2.0
 
-if $buildall ; then
-    make dep
-    rm -f make.log.0
-    [ -f make.log ] && mv make.log make.log.0
-    time make $J bzImage modules 2>&1 | tee make.log
-fi
+00:01.0 PCI bridge: Silicon Integrated Systems [SiS] 5591/5592 AGP (prog-if 
+00 [Normal decode])        Flags: bus master, fast devsel, latency 64
+        Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
+        Memory behind bridge: cde00000-cfefffff
+        Prefetchable memory behind bridge: c9c00000-cdcfffff
 
-mkdir tmp 2>/dev/null || true
-rm -rf tmp/boot tmp/lib tmp/usr 2>/dev/null
+00:02.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513
+        Flags: bus master, medium devsel, latency 0
 
-va=`sed -n 's/^#define UTS_RELEASE "\(.*\)".*$/\1/p' include/linux/version.h`
-vb=`cat .version`
-vc="$va.$vb"
+00:02.2 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07) 
+(prog-if 10 [OHCI])
+        Subsystem: Elitegroup Computer Systems: Unknown device 0a14
+        Flags: bus master, medium devsel, latency 64, IRQ 11
+        Memory at cfffe000 (32-bit, non-prefetchable) [size=4K]
 
-mkdir tmp/boot
-cp -p arch/i386/boot/bzImage tmp/boot/vmlinuz-$va
-cp -p System.map tmp/boot/System.map-$va
-cp -p .config tmp/boot/config-$va
-make modules_install INSTALL_MOD_PATH=`pwd`/tmp
-rm -f tmp/lib/modules/$va/build || true
+00:02.3 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07) 
+(prog-if 10 [OHCI])
+        Subsystem: Elitegroup Computer Systems: Unknown device 0a14
+        Flags: bus master, medium devsel, latency 64, IRQ 12
+        Memory at cffff000 (32-bit, non-prefetchable) [size=4K]
 
-echo "Creating boot-$vc.tar.gz"
-( cd tmp; tar chzf ../boot-$vc.tar.gz boot lib )
+00:02.5 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev d0) 
+(prog-if 80 [Master])
+        Subsystem: Silicon Integrated Systems [SiS] SiS5513 EIDE Controller 
+(A,B step)
+        Flags: bus master, fast devsel, latency 128
+        I/O ports at ff00 [size=16]
 
-mkdir -p tmp/usr/src/linux-$va/include
-ARCH=`uname -m | sed 's/i.86/i386/;s/sun4u/sparc64/;s/arm.*/arm/;s/sa110/arm/'`
-GENINC=`find include -mindepth 1 -maxdepth 1 \! -name 'asm*'`
-
-cp -pR $GENINC include/asm-$ARCH tmp/usr/src/linux-$va/include
-( cd tmp/usr/src/linux-$va/include; ln -s asm-$ARCH asm )
-echo "Creating inc-$vc.tar.gz"
-( cd tmp; tar czf ../inc-$vc.tar.gz usr )
-
-rm -rf tmp/boot tmp/lib tmp/usr
-
+00:02.7 Multimedia audio controller: Silicon Integrated Systems [SiS]: 
+Unknown device 7012 (rev a0)
+        Subsystem: Elitegroup Computer Systems: Unknown device 0a14
+        Flags: bus master, medium devsel, latency 64, IRQ 11
+        I/O ports at dc00 [size=256]
+        I/O ports at d800 [size=64]
+        Capabilities: [48] Power Management version 2
+ 
+00:03.0 Ethernet controller: Silicon Integrated Systems [SiS] SiS900 10/100 
+Ethernet (rev 90)
+        Subsystem: Elitegroup Computer Systems: Unknown device 0a14
+        Flags: bus master, medium devsel, latency 64, IRQ 12
+        I/O ports at d400 [size=256]
+        Memory at cffdd000 (32-bit, non-prefetchable) [size=4K]
+        Expansion ROM at cffa0000 [disabled] [size=128K]
+        Capabilities: [40] Power Management version 2
+ 
+00:0f.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
+        Subsystem: Acer Incorporated [ALI]: Unknown device 0201
+        Flags: medium devsel, IRQ 11
+        I/O ports at d000 [size=32]
+ 
+01:00.0 VGA compatible controller: nVidia Corporation Vanta [NV6] (rev 15) 
+(prog-if 00 [VGA])
+        Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 5
+        Memory at ce000000 (32-bit, non-prefetchable) [size=16M]
+        Memory at ca000000 (32-bit, prefetchable) [size=32M]
+        Expansion ROM at cfef0000 [disabled] [size=64K]
+        Capabilities: [60] Power Management version 1
+        Capabilities: [44] AGP version 2.0
+ 
+[root@bits /root]#

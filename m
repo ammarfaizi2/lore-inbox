@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265705AbRF2PGE>; Fri, 29 Jun 2001 11:06:04 -0400
+	id <S265723AbRF2PKO>; Fri, 29 Jun 2001 11:10:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265723AbRF2PFy>; Fri, 29 Jun 2001 11:05:54 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:54788 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S265705AbRF2PFq>; Fri, 29 Jun 2001 11:05:46 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Holger Lubitz <h.lubitz@internet-factory.de>, linux-kernel@vger.kernel.org
-Subject: Re: Cosmetic JFFS patch.
-Date: Fri, 29 Jun 2001 17:09:05 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <Pine.LNX.4.33.0106281040000.10308-100000@localhost.localdomain> <9hfter$9e7$1@ncc1701.cistron.net> <3B3C85FD.B018746D@internet-factory.de>
-In-Reply-To: <3B3C85FD.B018746D@internet-factory.de>
+	id <S265845AbRF2PKE>; Fri, 29 Jun 2001 11:10:04 -0400
+Received: from s1.relay.oleane.net ([195.25.12.48]:5790 "HELO
+	s1.relay.oleane.net") by vger.kernel.org with SMTP
+	id <S265723AbRF2PJz>; Fri, 29 Jun 2001 11:09:55 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: VFS locking & HFS problems (2.4.6pre6)
+Date: Fri, 29 Jun 2001 17:09:42 +0200
+Message-Id: <20010629150942.1359@smtp.adsl.oleane.com>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
 MIME-Version: 1.0
-Message-Id: <0106291709050D.00419@starship>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 29 June 2001 15:43, Holger Lubitz wrote:
-> A boot parameter for the verbosity would be ok, though. But I'd still
-> vote for the default to be pretty verbose. Leave it to the distributors
-> to disable it, if they want.
->
-> After all - how often does the average linux machine boot? Once a day at
-> most. Mine usually run until the next kernel upgrade. But then again,
-> I'm not a kernel hacker, so this is to be taken more as a users point of
-> view.
+I've had a deadlock twice with 2.4.6pre6 today. It's an SMP kernel
+running on an UP box (a PowerBook Pismo).
 
-Many new Linux users go through an extended period of dual-booting.
+The deadlock happen in the HFS filesystem in hfs_cat_put(), apparently
+(quickly looking at addresses) in spin_lock().
 
---
-Daniel
+I don't have the complete backtrace at hand right now, but it basically
+went up to kswapd without anything evidently getting that spinlock,
+I'll try to gather more details.
+
+So my question: Is there any document explaining the various locking
+requirements & re-entrency possibilities in a filesystem.
+
+What I think might happen after a quick look is that HFS may be causing
+schedule() to be called while holding the spinlock, and gets then
+re-entered from another process context. I have to look at it in more
+detail (is there an HFS maintainer ?) but some background informations
+on VFS locking & reentrancy issues would be helpful.
+
+Ben.
+
+
+
+

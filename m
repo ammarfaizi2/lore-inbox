@@ -1,52 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261471AbRETHlv>; Sun, 20 May 2001 03:41:51 -0400
+	id <S261478AbRETH74>; Sun, 20 May 2001 03:59:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261478AbRETHll>; Sun, 20 May 2001 03:41:41 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:32680 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261471AbRETHl1>;
-	Sun, 20 May 2001 03:41:27 -0400
-Date: Sun, 20 May 2001 03:41:24 -0400 (EDT)
+	id <S261480AbRETH7r>; Sun, 20 May 2001 03:59:47 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:16577 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261478AbRETH7i>;
+	Sun, 20 May 2001 03:59:38 -0400
+Date: Sun, 20 May 2001 03:59:37 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
-To: Abramo Bagnara <abramo@alsa-project.org>
-cc: Linus Torvalds <torvalds@transmeta.com>, Pavel Machek <pavel@suse.cz>,
-        James Simmons <jsimmons@transvirtual.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: no ioctls for serial ports? [was Re: LANANA: To Pending DeviceNumber
-  Registrants]
-In-Reply-To: <3B076FE2.A8B49526@alsa-project.org>
-Message-ID: <Pine.GSO.4.21.0105200329310.7162-100000@weyl.math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] is_mounted() - getting remnants of get_super() out of drivers.
+Message-ID: <Pine.GSO.4.21.0105200356020.7162-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Linus, patch below adds an obvious helper function and converts
+several places to using it. For one thing, it's cleaner, for another -
+we won't have to change these places when we add refcounting on struct
+superblock. Actually, it used be a part of invalidate_device() patch.
+Please, apply it.
 
 
-On Sun, 20 May 2001, Abramo Bagnara wrote:
-
-> I've just had a "so simple to risk to be stupid" idea.
-> 
-> To have /proc/self/fd/N/ioctl would not have the potential to suppress
-> ioctl needs for *all* current uses?
-
-No, it wouldn't. For one thing, it messes the only half-decent part of
-procfs. For another, the real issue is how to eliminate the bogus
-ioctls from userland programs and what to replace them with.
-
-Crappy API won't become better if you simply change the calling conventions.
-And problem with ioctls is that most of them are crappy APIs. Coming from
-authors' laziness and/or debility.
-
-So there is no easy way to solve that stuff - we'll need to rethink tons
-of badly designed interfaces. Finding a way to represent them in fs is
-the least of the problems.
-
-And we really need to rethink them. Repackaged shit remains shit and the
-whole point of exrecise is to get rid of it, not to shove it into a new
-pile.
+diff -urN S5-pre4/drivers/block/blkpg.c S5-pre4-is_mounted/drivers/block/blkpg.c
+--- S5-pre4/drivers/block/blkpg.c	Fri Feb 16 09:58:32 2001
++++ S5-pre4-is_mounted/drivers/block/blkpg.c	Sun May 20 03:15:57 2001
+@@ -157,8 +157,7 @@
+ 
+ 	/* partition in use? Incomplete check for now. */
+ 	devp = MKDEV(MAJOR(dev), minor);
+-	if (get_super(devp) ||		/* mounted? */
+-	    is_swap_partition(devp))
++	if (is_mounted(devp) || is_swap_partition(devp))
+ 		return -EBUSY;
+ 
+ 	/* all seems OK */
+diff -urN S5-pre4/drivers/char/raw.c S5-pre4-is_mounted/drivers/char/raw.c
+--- S5-pre4/drivers/char/raw.c	Sat Apr 28 02:12:50 2001
++++ S5-pre4-is_mounted/drivers/char/raw.c	Sun May 20 03:16:12 2001
+@@ -131,7 +131,7 @@
+ 	 */
+ 	
+ 	sector_size = 512;
+-	if (get_super(rdev) != NULL) {
++	if (is_mounted(rdev)) {
+ 		if (blksize_size[MAJOR(rdev)])
+ 			sector_size = blksize_size[MAJOR(rdev)][MINOR(rdev)];
+ 	} else {
+diff -urN S5-pre4/drivers/md/md.c S5-pre4-is_mounted/drivers/md/md.c
+--- S5-pre4/drivers/md/md.c	Sat May 19 22:46:31 2001
++++ S5-pre4-is_mounted/drivers/md/md.c	Sun May 20 03:16:38 2001
+@@ -1097,7 +1097,7 @@
+ 	}
+ 	memset(rdev, 0, sizeof(*rdev));
+ 
+-	if (get_super(newdev)) {
++	if (is_mounted(newdev)) {
+ 		printk("md: can not import %s, has active inodes!\n",
+ 			partition_name(newdev));
+ 		err = -EBUSY;
+@@ -1735,7 +1735,7 @@
+  	}
+  
+  	/* this shouldn't be needed as above would have fired */
+-	if (!ro && get_super(dev)) {
++	if (!ro && is_mounted(dev)) {
+ 		printk (STILL_MOUNTED, mdidx(mddev));
+ 		OUT(-EBUSY);
+ 	}
+diff -urN S5-pre4/include/linux/fs.h S5-pre4-is_mounted/include/linux/fs.h
+--- S5-pre4/include/linux/fs.h	Sat May 19 22:46:36 2001
++++ S5-pre4-is_mounted/include/linux/fs.h	Sun May 20 03:18:47 2001
+@@ -1301,6 +1301,15 @@
+ extern struct file_system_type *get_fs_type(const char *name);
+ extern struct super_block *get_super(kdev_t);
+ extern void put_super(kdev_t);
++static inline int is_mounted(kdev_t dev)
++{
++	struct super_block *sb = get_super(dev);
++	if (sb) {
++		/* drop_super(sb); will go here */
++		return 1;
++	}
++	return 0;
++}
+ unsigned long generate_cluster(kdev_t, int b[], int);
+ unsigned long generate_cluster_swab32(kdev_t, int b[], int);
+ extern kdev_t ROOT_DEV;
 

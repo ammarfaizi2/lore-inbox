@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263980AbRFRN4K>; Mon, 18 Jun 2001 09:56:10 -0400
+	id <S263973AbRFRNzU>; Mon, 18 Jun 2001 09:55:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263978AbRFRN4C>; Mon, 18 Jun 2001 09:56:02 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:25107 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S263970AbRFRNz4>; Mon, 18 Jun 2001 09:55:56 -0400
-Date: Mon, 18 Jun 2001 15:55:31 +0200
-From: Jan Hudec <bulb@ucw.cz>
-To: Colonel <klink@clouddancer.com>
+	id <S263970AbRFRNzL>; Mon, 18 Jun 2001 09:55:11 -0400
+Received: from ns.suse.de ([213.95.15.193]:48139 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S263980AbRFRNyx>;
+	Mon, 18 Jun 2001 09:54:53 -0400
+To: Ralph Jones <ralph.jones@altavista.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: your mail
-Message-ID: <20010618155531.A21070@artax.karlin.mff.cuni.cz>
-In-Reply-To: <20010613015519.151BF78599@mail.clouddancer.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010613015519.151BF78599@mail.clouddancer.com>; from klink@clouddancer.com on Tue, Jun 12, 2001 at 06:55:19PM -0700
+Subject: Re: pivot_root from non-interactive script
+In-Reply-To: <20010618130302.15892.cpmta@c012.sfo.cp.net>
+X-Yow: I just put lots of the EGG SALAD in the SILK SOCKS --
+From: Andreas Schwab <schwab@suse.de>
+Date: 18 Jun 2001 15:54:51 +0200
+In-Reply-To: <20010618130302.15892.cpmta@c012.sfo.cp.net> (Ralph Jones's message of "18 Jun 2001 06:03:02 -0700")
+Message-ID: <jepuc199lg.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.103
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So it seems that PnP finds the card, but the connections (or even the
-> forced values) to the sb module fail.  Back when this was a single
-> processor machine, but still running 2.4 kernel, a windoze
-> installation found the SB at the listed interface parameters.
-> 
-> 
-> Anyone have a solution?
-> 
-> Same problem without modules.conf settings, valid version of mod
-> utilities, a web search did not help,...
+Ralph Jones <ralph.jones@altavista.com> writes:
 
-I had a similar problem with different card (Gravi Usltrasound PnP).
-The solution turned out to be to avoid dma 1 channel. May be some BIOSes
-or ISA chipsets got the 8-bit dma channels handling wrong, but I really
-don't know. Btw: for me 2.2.x autodetected right, 2.4.x need explicit setting.
+|> I have followed the instructions given in Documentation/initrd.txt with regard to pivot_root, but am unable to unmount the filesystem, when everything is called from a non-interactive script. 
+|> 
+|> ie. When I set a link from linuxrc to /bin/ash and then manually go through the commands in the shell script, I am able to unmount the old initrd filesystem.  However, when linuxrc is a shell script containing the same commands, I am unable to umount the old initrd fs.  I get instead: "Device or resource busy".
 
---------------------------------------------------------------------------------
-                  				- Jan Hudec `Bulb' <bulb@ucw.cz>
+Perhaps the shell didn't close the filedescriptor on the script.
+
+Andreas.
+
+-- 
+Andreas Schwab                                  "And now for something
+SuSE Labs                                        completely different."
+Andreas.Schwab@suse.de
+SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5

@@ -1,31 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130755AbQKINxS>; Thu, 9 Nov 2000 08:53:18 -0500
+	id <S130756AbQKINxS>; Thu, 9 Nov 2000 08:53:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130758AbQKINxI>; Thu, 9 Nov 2000 08:53:08 -0500
-Received: from dialup038.wien.atnet.at ([194.152.171.38]:13184 "EHLO
-	ghanima.xxx") by vger.kernel.org with ESMTP id <S130755AbQKINxD>;
-	Thu, 9 Nov 2000 08:53:03 -0500
-Date: Thu, 9 Nov 2000 14:56:05 +0100
-From: therapy <therapy@endorphin.org>
-To: linux-kernel@vger.kernel.org
-Subject: arch/i386/lib/mmx.c no symbols
-Message-ID: <20001109145605.A507@ghanima.xxx>
-Mime-Version: 1.0
+	id <S130755AbQKINxI>; Thu, 9 Nov 2000 08:53:08 -0500
+Received: from natmail2.webmailer.de ([192.67.198.65]:27267 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S130756AbQKINxD>; Thu, 9 Nov 2000 08:53:03 -0500
+Message-ID: <3A0AAC26.3BE421F9@mgnet.de>
+Date: Thu, 09 Nov 2000 14:52:38 +0100
+From: Klaus Naumann <kernel@mgnet.de>
+Organization: Mad Guys Network
+X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.4.0-test8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4 on Cobalt MiPS servers
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arch/i386/lib/mmx.c does not export modversioned symbols.
+Jason Fayre wrote:
 
-any module using include/asm-i386/[string.h/string-486.h/page.h]
-with 3DNOW enabled will fail to load.
+> Hello,
+> Does the 2.4 series compile on Cobalt Networks MIPS-based servers?  There
+> is a cobalt directory under the arch/mips directory.
 
--therp
-(not-subscribed to the list, send a cc to me,
-if you reply)
+Hi, I don't think so since the last things I have heard from
+this are a while back. You may want to join the linux-mips@oss.sgi.com
+mailinglist for further questions.
+Also you can take a look at irc.openprojects.net / #mipslinux at
+late UTC times :)
+
+                HTH, Klaus
+
+--
+Klaus Naumann (mailto:kernel@mgnet.de)
+http://www.mgnet.de/
+Phone: ++49/8761727852
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

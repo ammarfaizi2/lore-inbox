@@ -1,74 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262182AbUBXK2Y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 05:28:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbUBXK2Y
+	id S262220AbUBXKq6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 05:46:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbUBXKq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 05:28:24 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:9967 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262182AbUBXK2W (ORCPT
+	Tue, 24 Feb 2004 05:46:58 -0500
+Received: from [213.78.161.131] ([213.78.161.131]:28544 "HELO stockwith.co.uk")
+	by vger.kernel.org with SMTP id S262220AbUBXKqM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 05:28:22 -0500
-Date: Tue, 24 Feb 2004 21:33:41 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: akpm@osdl.org, linux-aio@kvack.org
+	Tue, 24 Feb 2004 05:46:12 -0500
+From: Chris Lingard <chris@ukpost.com>
+To: MALET JL <malet.jean-luc@laposte.net>
+Subject: Re: [linux 2.6.3] [gcc 3.3.3] compile errors. Now OT
+Date: Tue, 24 Feb 2004 10:46:07 +0000
+User-Agent: KMail/1.5.2
 Cc: linux-kernel@vger.kernel.org
-Subject: Latest AIO patchset
-Message-ID: <20040224160341.GA11739@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <403911B3.10601@laposte.net> <200402231658.53516.chris@ukpost.com> <403B0E92.60903@laposte.net>
+In-Reply-To: <403B0E92.60903@laposte.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Message-Id: <200402241046.07323.chris@ukpost.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 24 February 2004 8:42 am, MALET JL wrote:
 
-The latest set of AIO patches are being maintained at:
-http://www.kernel.org/pub/linux/kernel/people/suparna/aio/
+> O_O! question what is the purpose of having two set of headers? do you
+> think this is good work to provide a unsable set of headers with a
+> software? why not include the RedHat's one then......
 
-The patches have been reduced to a minimal set that addresses
-the most relevant blocking points. Please let me know if you
-think there is a case for bringing in any of the additional 
-patches.
-(The patches need to be applied in the order mention in the 
-'series' file)
+I think that this is off topic for this list; so I will email you direct, 
+quite soon, with some reasons and links.
 
-A new addition to the patchset is Chris Mason's nice and simple
-implementation of AIO support for pipes using the retry 
-infrastructure. He also fixed some problems in the AIO cancel
-logic to make it play well with retries.
+Nothing wrong with using RedHat, nice distro; but your question was about
+building with 2.6.x headers.  The functionality of 2.6.x is needed by glibc; 
+but not in user space.  How that is achieved is quite difficult.
 
-Besides this and some re-organization and cleaning up, there
-are a couple of changes since the last set of patches in -mm, that
-are worth a mention:
-
-- Upfront readahead is now clipped to the readahead limit for
-  the device (ra_pages) and happens only for AIO. This helps
-  address the sendfile regression seen by Felix von Leitner.
-  If your AIO read requests are likely to exceed the default 
-  readahead size, then use hdparm -a <new size> to tune it.
-  The patchset also currently includes Ram Pai's adaptive
-  lazy readahead code which is required for good streaming AIO
-  read performance.
-- David Brownell's suggestion of enabling the fops to set up
-  their own retry methods. This should make his USB gadgetfs
-  AIO patch co-exist smoothly with fsaio.
-
-Some basic results are up comparing streaming non-cached random 
-AIO read/write throughputs for a single ext3 file using aio-stress 
-for various io sizes with and without these patches, and also 
-comparsions with O_DIRECT AIO throughputs. The short summary has
-been a doubling of throughput using the fsaio patches, which is
-also close to the results seen with O_DIRECT AIO.
-
-As usual feedback, bug fixes, test results etc are welcome.
-
-Regards
-Suparna
-
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
-
+Chris

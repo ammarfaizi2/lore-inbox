@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbVBVXTQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVBVXXa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261331AbVBVXTQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 18:19:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261330AbVBVXTP
+	id S261361AbVBVXXa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 18:23:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbVBVXXa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 18:19:15 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:11909 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261331AbVBVXRW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 18:17:22 -0500
-Message-ID: <421BBD75.6040504@nortel.com>
-Date: Tue, 22 Feb 2005 17:17:09 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-os@analogic.com
-CC: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Anthony DiSante <theant@nodivisions.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: uninterruptible sleep lockups
-References: <421A3414.2020508@nodivisions.com> <200502211945.j1LJjgbZ029643@turing-police.cc.vt.edu> <421A4375.9040108@nodivisions.com> <421B12DB.70603@aitel.hist.no> <421B14A8.3000501@nodivisions.com> <Pine.LNX.4.61.0502220824440.25089@chaos.analogic.com> <421B9018.7020007@nodivisions.com> <200502222024.j1MKOtlZ007512@laptop11.inf.utfsm.cl> <421B9C86.8090800@nortel.com> <Pine.LNX.4.61.0502221619330.5460@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0502221619330.5460@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Feb 2005 18:23:30 -0500
+Received: from lyle.provo.novell.com ([137.65.81.174]:10557 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S261354AbVBVXWB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 18:22:01 -0500
+Date: Tue, 22 Feb 2005 15:21:42 -0800
+From: Greg KH <gregkh@suse.de>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Malcolm Rowe <malcolm-linux@farside.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Symlink /sys/class/block to /sys/block
+Message-ID: <20050222232142.GA10372@suse.de>
+References: <courier.4217CBC9.000027C1@mail.farside.org.uk> <20050222230634.GB16383@taniwha.stupidest.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050222230634.GB16383@taniwha.stupidest.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os wrote:
+On Tue, Feb 22, 2005 at 03:06:34PM -0800, Chris Wedgwood wrote:
+> On Sat, Feb 19, 2005 at 11:29:13PM +0000, Malcolm Rowe wrote:
+> 
+> > Following the discussion in [1], the attached patch creates
+> > /sys/class/block as a symlink to /sys/block. The patch applies to
+> > 2.6.11-rc4-bk7.
+> 
+> Shouldn't we really move /sys/block to /sys/class/block and put the
+> symlink from there to /sys/block with the hope of removing it one day?
 
-> Now, somebody needs a resource. It executes down(&semaphore);
-> once it gets control again, it has that resource. It attempts
-> to use that resource through a driver. The driver waits forever.
-> The resource is now permanently dorked --forever because its
-> driver is waiting forever. The user code never returns from
-> the driver so it can never execute up(&semaphore).
+When struct class_device can support children, we can do just that.  But
+that support has not been added, yet...
 
-What about something like a "robust mutex" (in OSDL terminology)?  The 
-guy holding it too long gets killed, and the mutex gets marked as dirty. 
-  The next guy to aquire the mutex is responsable for re-initializing 
-the resource (resetting the device to a known state, for instance).
+thanks,
 
-Chris
-
+greg k-h

@@ -1,90 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274279AbRISXs7>; Wed, 19 Sep 2001 19:48:59 -0400
+	id <S274339AbRISXvT>; Wed, 19 Sep 2001 19:51:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274277AbRISXsu>; Wed, 19 Sep 2001 19:48:50 -0400
-Received: from [208.129.208.52] ([208.129.208.52]:13068 "EHLO xmailserver.org")
-	by vger.kernel.org with ESMTP id <S274297AbRISXsl>;
-	Wed, 19 Sep 2001 19:48:41 -0400
-Message-ID: <XFMail.20010919165225.davidel@xmailserver.org>
-X-Mailer: XFMail 1.5.0 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S274323AbRISXvQ>; Wed, 19 Sep 2001 19:51:16 -0400
+Received: from mx2.utanet.at ([195.70.253.46]:18863 "EHLO smtp1.utaiop.at")
+	by vger.kernel.org with ESMTP id <S274281AbRISXuD>;
+	Wed, 19 Sep 2001 19:50:03 -0400
+Message-ID: <3BA94B2E.99FABD43@grips.com>
+Date: Thu, 20 Sep 2001 03:49:34 +0200
+From: Gerold Jury <geroldj@grips.com>
+Organization: Grips
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-pre10-xfs i686)
+X-Accept-Language: de-AT, en
 MIME-Version: 1.0
-In-Reply-To: <3BA92939.60AEE7DA@distributopia.com>
-Date: Wed, 19 Sep 2001 16:52:25 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: "Christopher K. St. John" <cks@distributopia.com>
-Subject: Re: [PATCH] /dev/epoll update ...
-Cc: Dan Kegel <dank@kegel.com>, linux-kernel@vger.kernel.org
+To: Robert Love <rml@tech9.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Feedback on preemptible kernel patch xfs
+In-Reply-To: <1000581501.32705.46.camel@phantasy> 
+		<3BA72A80.6020706@grips.com> <1000853560.19365.13.camel@phantasy>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Robert
 
-On 19-Sep-2001 Christopher K. St. John wrote:
-> Davide Libenzi wrote:
->> 
->> 1)      select()/poll();
->> 2)      recv()/send();
->> 
->> vs :
->> 
->> 1)      if (recv()/send() == FAIL)
->> 2)              ioctl(EP_POLL);
->> 
->> When there's no data/tx buffer full these will result in 2 syscalls while
->> if data is available/tx buffer ok the first method will result in 2 syscalls
->> while the second will never call the ioctl().
->> It looks very linear to me, with select()/poll() you're asking for a state while
->> with /dev/epoll you're asking for a state change.
->> 
-> 
->  Ok, if we're just disagreeing about the best api,
-> then I can live with that. But it appears we're
-> talking at cross-purposes, so I want to try this one
-> more time. I'll lay my though processes out in detail,
-> and you can tell me at which step I'm going wrong:
-> 
-> 
->  Normally, you'd spend most of your time sitting in
-> ioctl(EP_POLL) waiting for something to happen. So
-> that's one syscall.
-> 
->  If you get an event that indicates you can accept()
-> a new connection, then you do an accept(). Assume it
-> succeeds. That's two syscalls. Then you register
-> interest in the fd with a write to /dev/poll, that's
-> three.
-> 
->  With the current /dev/epoll, you must try to read()
-> the new socket before you go back to ioctl(EP_POLL),
-> just in case there is data available. You expect
-> there isn't, but you have to try. This is the step
-> I'm talking about. That's four.
-> 
->  Assume data was not available, so you loop back
-> to ioctl(EP_POLL) and wait for an event. That's five
-> syscalls. The event comes in, you do another read()
-> on the socket, and probably get some data. That's
-> six syscalls to finally get your data.
-> 
->  ioctl(kpfd, EP_POLL) 1     wait for events
->  s = accept()           2     accept a new socket
->  write(kpfd, s)         3     register interest
->  n = read(s)            4 <-- annoying test-read
->  ioctl(kpfd, EP_POLL)   5     wait for events
->  n = read(s)            6     get some data
+First the good news.
+Even my most ugly ideas where not able to crash your preemtible 2.4.10-pre10-xfs
 
-You continue to put the state check ( ioctl() ) before the system call,
-that require you to use select()/poll()//dev/poll interfaces that are
-state inquiry interfaces.
-The /dev/epoll is, like i said before, a state change notification interface.
-That's how have been designed and that how it completely avoid fds scan.
-If you're looking for a state inquiry interface it's better for you to seek /dev/poll.
+But, to be sure i repeated everything, neither latencytest-0.42 nor my own tests could
+find a difference with or without the preemptible patch.
+I do not know if i can expect a lower latency at this stage of development.
 
+A maximum of 15 msec latency with all the stress, i managed to put on the machine
+is not that bad anyway.
 
+The CPU is a 1.1GHz Athlon. I forgot to mention this.
 
+I will continue to test the preempt patches.
 
-- Davide
+Do you want me to test anything special ?
 
+Best Regards
+Gerold

@@ -1,52 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317512AbSGXUMQ>; Wed, 24 Jul 2002 16:12:16 -0400
+	id <S317567AbSGXUOp>; Wed, 24 Jul 2002 16:14:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317521AbSGXUMQ>; Wed, 24 Jul 2002 16:12:16 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:46725 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S317512AbSGXUKu>; Wed, 24 Jul 2002 16:10:50 -0400
-Date: Wed, 24 Jul 2002 16:14:02 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200207242014.g6OKE2K21460@devserv.devel.redhat.com>
-To: "Christoph Baumann" <cb@sorcus.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Resolving physical addresses (change in 2.4.x?)
-In-Reply-To: <mailman.1027491420.32334.linux-kernel2news@redhat.com>
-References: <mailman.1027491420.32334.linux-kernel2news@redhat.com>
+	id <S317560AbSGXUOo>; Wed, 24 Jul 2002 16:14:44 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:19708 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S317542AbSGXUMt>;
+	Wed, 24 Jul 2002 16:12:49 -0400
+Message-ID: <3D3F0AE0.1AE76E29@mvista.com>
+Date: Wed, 24 Jul 2002 13:15:28 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Burton Windle <bwindle@fint.org>
+CC: linux-kernel@vger.kernel.org, rml@tech9.net
+Subject: Re: 2.5.27: PREEMPT + DEBUG_SLAB = 100% reproducable oops
+References: <Pine.LNX.4.43.0207241554360.1846-100000@morpheus>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Even recognizing these as unmapped and resolving anew, produced a frozen
-> machine once the DMA used these addresses. Was there a change in 2.4.x so
-> that my resolving routine now works incorrect?
+Burton Windle wrote:
 > 
-> /*resolve virt. addresses to phys.*/
-> unsigned long ch_get_physpage(unsigned long virtaddr)
-> {
->   /*Stuff for browsing through the memory page tables*/
->   pgd_t *pgd_t_dir;
->   pmd_t *pmd_t_dir;
->   pte_t *pte_t_dir;
+> With kernel 2.5.26/27, if I compile in PREEMPT=y and CONFIG_DEBUG_SLAB=y,
+> I can oops the machine at will by running a small shell script as a normal
+> user. If I undef either of those, the machine is fine. It always oops in
+> the same place.
+
+Try running Ingo's latest "irqlock patch".  Should fix this.
+
+-g
 > 
->   /*Get physical address*/
->   pgd_t_dir=pgd_offset(current->mm,virtaddr);
->   pmd_t_dir=pmd_offset(pgd_t_dir,virtaddr);
->   pte_t_dir=pte_offset(pmd_t_dir,virtaddr);
->   return virt_to_bus((void *)pte_page(*pte_t_dir));
-> }
+> (gdb) list *0xc010e88f
+> 0xc010e88f is in schedule
+> (/biggie/kernel/linux-2.5.27/include/asm/bitops.h:39).
+> 34       * Note that @nr may be almost arbitrarily large; this function is not
+> 35       * restricted to acting on a single-word quantity.
+> 36       */
+> 37      static __inline__ void set_bit(int nr, volatile unsigned long * addr)
+> 38      {
+> 39              __asm__ __volatile__( LOCK_PREFIX
+> 40                      "btsl %1,%0"
+> 41                      :"=m" (ADDR)
+> 42                      :"Ir" (nr));
+> 43      }
+> 
+> Unable to handle kernel paging request at virtual address 5a5a5ace
+> c010e88f
+> *pde = 00000000
+> Oops: 0002
+> CPU:    0
+> EIP:    0010:[<c010e88f>]    Not tainted
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00010813
+> eax: c11ce000   ebx: c4b55580   ecx: c11d0040   edx: 5a5a5a5a
+> esi: c4e51084   edi: c11d0040   ebp: c11cfed8   esp: c11cfec8
+> ds: 0018   es: 0018   ss: 0018
+> Stack: 7fffffff c4e560a4 c11cff60 c11d0040 c4e55000 c0119100 00000008 c4e560a4
+>        00000000 00000246 c4e55980 c4e560a4 c01aefe4 c01af034 c4e55000 c4e560a4
+>        c4e845e0 c4e560c4 c4e55bfc c4e55980 080df014 c4e55974 7fffffff 00000000
+> Call Trace: [<c0119100>] [<c01aefe4>] [<c01af034>] [<c010e9c4>] [<c010e9c4>]
+>    [<c01aada4>] [<c0132d40>] [<c0132ef6>] [<c0106c9f>]
+> Code: 0f ba 6a 74 00 8b 42 0c 05 00 00 00 40 0f 22 d8 8b 8a 80 00
+> 
+> >>EIP; c010e88f <schedule+1b7/2b4>   <=====
+> 
+> >>eax; c11ce000 <END_OF_CODE+e8d604/????>
+> >>ebx; c4b55580 <END_OF_CODE+4814b84/????>
+> >>ecx; c11d0040 <END_OF_CODE+e8f644/????>
+> >>edx; 5a5a5a5a Before first symbol
+> >>esi; c4e51084 <END_OF_CODE+4b10688/????>
+> >>edi; c11d0040 <END_OF_CODE+e8f644/????>
+> >>ebp; c11cfed8 <END_OF_CODE+e8f4dc/????>
+> >>esp; c11cfec8 <END_OF_CODE+e8f4cc/????>
+> 
+> Trace; c0119100 <schedule_timeout+14/a4>
+> Trace; c01aefe4 <change_termios+90/180>
+> Trace; c01af034 <change_termios+e0/180>
+> Trace; c010e9c4 <default_wake_function+0/34>
+> Trace; c010e9c4 <default_wake_function+0/34>
+> Trace; c01aada4 <release_dev+16c/50c>
+> Trace; c0132d40 <register_chrdev+54/dc>
+> Trace; c0132ef6 <chrdev_open+7e/94>
+> Trace; c0106c9f <syscall_call+7/b>
+> 
+> Code;  c010e88f <schedule+1b7/2b4>
+> 00000000 <_EIP>:
+> Code;  c010e88f <schedule+1b7/2b4>   <=====
+>    0:   0f ba 6a 74 00            btsl   $0x0,0x74(%edx)   <=====
+> Code;  c010e894 <schedule+1bc/2b4>
+>    5:   8b 42 0c                  mov    0xc(%edx),%eax
+> Code;  c010e897 <schedule+1bf/2b4>
+>    8:   05 00 00 00 40            add    $0x40000000,%eax
+> Code;  c010e89c <schedule+1c4/2b4>
+>    d:   0f 22 d8                  mov    %eax,%cr3
+> Code;  c010e89f <schedule+1c7/2b4>
+>   10:   8b 8a 80 00 00 00         mov    0x80(%edx),%ecx
+> 
+> Oddily enough, running this on the command prompt won't cause problems,
+> but running it at a shell script will causes an oops every single time.
+> 
+> #!/bin/sh
+> start-stop-daemon --start --quiet --pidfile /tmp/xfs.pid --exec /home/bwindle/xfs-bin -- -daemon
+> 
+> Gnu C                  2.95.4
+> Gnu make               3.79.1
+> util-linux             2.11n
+> mount                  2.11n
+> modutils               2.4.15
+> e2fsprogs              1.27
+> Linux C Library        2.2.5
+> Dynamic linker (ldd)   2.2.5
+> Procps                 2.0.7
+> Net-tools              1.60
+> Console-tools          0.2.3
+> Sh-utils               2.0.12
+> 
+> --
+> Burton Windle                           burton@fint.org
+> Linux: the "grim reaper of innocent orphaned children."
+>           from /usr/src/linux-2.4.18/init/main.c:461
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Are you crazy? This routing could NEVER work; pge_page returns
-a pointer to a struct page. I always was suspicious of this
-technique; even if you find out how to use page_address,
-what do you do about the bus address? On some architectures,
-the bus address is only known to the part that manages a
-north bridge; it may even be stored in hardware registers.
-No matter how popular this trick is, it is highly illegal.
-
-To work properly, your driver has to remember virtual and bus
-addresses that were mapped with pci_alloc_sg. They are returned to
-you for this very purpose. In most cases you have to to track I/Os 
-anyway, so just add a field to whatever management structure you use.
-
--- Pete
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

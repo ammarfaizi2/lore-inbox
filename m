@@ -1,47 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264225AbUFKQxS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264231AbUFKQxS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264225AbUFKQxS (ORCPT <rfc822;willy@w.ods.org>);
+	id S264231AbUFKQxS (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 11 Jun 2004 12:53:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbUFKQwu
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264175AbUFKQwi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 12:52:50 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:32148 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S264225AbUFKQuf (ORCPT
+	Fri, 11 Jun 2004 12:52:38 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:37866 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264231AbUFKQvf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 12:50:35 -0400
-Date: Fri, 11 Jun 2004 18:50:20 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Dave Jones <davej@redhat.com>, Chris Mason <mason@suse.com>,
-       reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: [STACK] >3k call path in reiserfs
-Message-ID: <20040611165020.GC11755@wohnheim.fh-wedel.de>
-References: <1086800028.10973.258.camel@watt.suse.com> <40C74388.20301@namesys.com> <1086801345.10973.263.camel@watt.suse.com> <40C75141.7070408@namesys.com> <20040609182037.GA12771@redhat.com> <40C79FE2.4040802@namesys.com> <20040610223532.GB3340@wohnheim.fh-wedel.de> <40C91DA0.6060705@namesys.com> <20040611134621.GA3633@wohnheim.fh-wedel.de> <40C9DE9F.90901@namesys.com>
+	Fri, 11 Jun 2004 12:51:35 -0400
+Date: Fri, 11 Jun 2004 18:50:39 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Ed Tomlinson <edt@aei.ca>, Andrew Morton <akpm@osdl.org>
+Subject: Re: flush cache range proposal (was Re: ide errors in 7-rc1-mm1 and later)
+Message-ID: <20040611165039.GB4309@suse.de>
+References: <1085689455.7831.8.camel@localhost> <20040605092447.GB13641@suse.de> <20040606161827.GC28576@bounceswoosh.org> <200406100238.11857.bzolnier@elka.pw.edu.pl> <20040610061141.GD13836@suse.de> <20040610164135.GA2230@bounceswoosh.org> <40C89F4D.4070500@pobox.com> <40C8A241.50608@pobox.com> <20040611075515.GR13836@suse.de> <20040611161701.GB11095@bounceswoosh.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <40C9DE9F.90901@namesys.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040611161701.GB11095@bounceswoosh.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 June 2004 09:32:31 -0700, Hans Reiser wrote:
-> >
-> Reiser4 is going to obsolete V3 in a few weeks.  V3 will be retained for 
-> compatibility reasons only, as V4 blows it away in performance.
+On Fri, Jun 11 2004, Eric D. Mudama wrote:
+> On Fri, Jun 11 at  9:55, Jens Axboe wrote:
+> >Proposal looks fine, but please lets not forget that flush cache range
+> >is really a band-aid because we don't have a proper ordered write in the
+> >first place. Personally, I'd much rather see that implemented than flush
+> >cache range. It would be way more effective.
+> 
+> So something like:
+> 
+> WRITE FIRST PARTY DMA QUEUED BARRIER EXT
+> READ FIRST PARTY DMA QUEUED BARRIER EXT
+> READ DMA QUEUED BARRIER EXT
+> READ DMA QUEUED BARRIER
+> WRITE DMA QUEUED BARRIER
+> WRITE DMA QUEUED BARRIER EXT
+> 
+> 
+> ...
+> 
+> If the drive receives a queued barrier write (NCQ or Legacy), it will
+> finish processing all previously-received queued commands and post
+> good status for them, then it will process the barrier operation, post
+> status for that barrier operation, then it will continue processing
+> queued commands in the order received.
+> 
+> Multiple barrier operations can be in the queue at the same time.  A
+> barrier operation has an implied FUA associated with it, such that the
+> command (and all previous-in-time commands) must be pushed to the
+> media before command completetion can be indicated.
+> 
+> 
+> Is that what would be most useful?
 
-About three years ago, I switched from reiserfs to ext3.  And still, I
-have some old reiserfs partitions around that I use.  Either I'm quite
-unusual or reiser3 will stay around for a while. :)
+That is _spot on_ the best implementation for writes and what I have
+asked for all along :-). I have nothing to add to the above.
 
-> You are right though that OpenBSD does some things better.
-
-For sure.  And still, I use and develop for Linux.
-
-Jörn
+I don't have an immediate use for the read-barrier requests (btw, I
+think we should call it WRITE_DMA_QUEUED_ORDERED and so forth, clearer
+naming), though.
 
 -- 
-When people work hard for you for a pat on the back, you've got
-to give them that pat.
--- Robert Heinlein
+Jens Axboe
+

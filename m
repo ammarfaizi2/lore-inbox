@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267005AbSL3QOG>; Mon, 30 Dec 2002 11:14:06 -0500
+	id <S266993AbSL3QLE>; Mon, 30 Dec 2002 11:11:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267007AbSL3QOF>; Mon, 30 Dec 2002 11:14:05 -0500
-Received: from dialin-145-254-152-225.arcor-ip.net ([145.254.152.225]:5248
-	"HELO schottelius.net") by vger.kernel.org with SMTP
-	id <S267005AbSL3QOE>; Mon, 30 Dec 2002 11:14:04 -0500
-Date: Mon, 30 Dec 2002 17:16:40 +0100
-From: Nico Schottelius <schottelius@wdt.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [BUG] 2.4.20pre2 [trident]
-Message-ID: <20021230161640.GB1885@schottelius.org>
+	id <S266994AbSL3QLE>; Mon, 30 Dec 2002 11:11:04 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:27777
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266993AbSL3QLD>; Mon, 30 Dec 2002 11:11:03 -0500
+Subject: Re: 2-4-18 crash trying to blank a CD
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Luca z <luca22@mail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021230155739.76748.qmail@mail.com>
+References: <20021230155739.76748.qmail@mail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 30 Dec 2002 17:01:03 +0000
+Message-Id: <1041267663.13615.22.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="A6N2fC+uXW/VQSAv"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux flapp 2.5.53
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2002-12-30 at 15:57, Luca z wrote:
+> I do cdrecord -blank=<foo> dev=x,y,z
+> and i got this in the log, it repeats every second:
+> 
+> Dec 30 16:19:46 koala kernel: scsi : aborting command due to timeout : pid 5233
+> 8, scsi0, channel 0, id 1, lun 0 Read (10) 00 00 13 80 dd 00 00 01 00 
+> Dec 30 16:19:46 koala kernel: SCSI host 0 abort (pid 52338) timed out - resetti
+> ng
 
---A6N2fC+uXW/VQSAv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+How long after you start the command ? Basically the kernel has
+discovered that the command in question took longer than the timeout
+cdrecord told it to allow. It is then trying to get the system back.
 
-trident stops working in 2.4.21pre2.
-it times out and hangs the system for about 5 seconds.
 
-In 2.5.53 I am using alsa drivers which work fine.
+> and after some time it hard freezes, nothing responds, i can't switch numlock
+> off and i can't change to console (i am in XWindow).
 
-Nico
+Can you see what occurs if you are not in X windows as that might
+display an oops or other information of use.
 
---=20
-Please send your messages pgp-signed and/or pgp-encrypted (don't encrypt ma=
-ils
-to mailing list!). If you don't know what pgp is visit www.gnupg.org.
-(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
 
---A6N2fC+uXW/VQSAv
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE+EHFotnlUggLJsX0RAoh8AKCMI74bcNXKBGLAUYJ1/0trj/XKJACfSo1N
-ssrWvUcIW9KFghNYM+ms4vo=
-=ngQ5
------END PGP SIGNATURE-----
-
---A6N2fC+uXW/VQSAv--

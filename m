@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262680AbTIKCUr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 22:20:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262832AbTIKCUr
+	id S264156AbTIKChs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 22:37:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbTIKChs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 22:20:47 -0400
-Received: from holomorphy.com ([66.224.33.161]:19894 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262680AbTIKCUq (ORCPT
+	Wed, 10 Sep 2003 22:37:48 -0400
+Received: from pat.uio.no ([129.240.130.16]:51898 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S264156AbTIKChq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 22:20:46 -0400
-Date: Wed, 10 Sep 2003 19:21:54 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Maciej <maciej@apathy.killer-robot.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.6] i386 /proc/irq/.../smp_affinity
-Message-ID: <20030911022154.GR4306@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Zwane Mwaikambo <zwane@linuxpower.ca>,
-	Maciej <maciej@apathy.killer-robot.net>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20030910191459.GA12099@apathy.black-flower> <Pine.LNX.4.53.0309101535050.9323@montezuma.fsmlabs.com> <20030911020218.GQ4306@holomorphy.com> <Pine.LNX.4.53.0309102206300.5403@montezuma.fsmlabs.com>
-Mime-Version: 1.0
+	Wed, 10 Sep 2003 22:37:46 -0400
+To: Marco Bertoncin - Sun Microsystems UK - Platform OS
+	 Development Engineer <Marco.Bertoncin@Sun.COM>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS/MOUNT/sunrpc problem?
+References: <200309101437.h8AEbV108262@brk-mail1.uk.sun.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 10 Sep 2003 22:37:43 -0400
+In-Reply-To: <200309101437.h8AEbV108262@brk-mail1.uk.sun.com>
+Message-ID: <shs65k0rqx4.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0309102206300.5403@montezuma.fsmlabs.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Sep 2003, William Lee Irwin III wrote:
->> This backs out the variable-length cpu bitmask handling.
->> I appear to be printing out 16-bit chunks of all this in what appears
->> to be the reverse of the order expected. Why not just reverse the order
->> of the 16-bit chunks?
-
-On Wed, Sep 10, 2003 at 10:07:58PM -0400, Zwane Mwaikambo wrote:
-> Indeed it does, i was thinking about supported systems and the lack of 
-> NR_CPUS > BITS_PER_LONG ia32 boxen.
-
-I'm sitting on one, I just don't have the power to configure it that way
-on any kind of regular basis. I'm going to bet the input version has
-this issue also.
+>>>>> " " == Marco Bertoncin <- Sun Microsystems UK - Platform OS Development Engineer <Marco.Bertoncin@Sun.COM>> writes:
 
 
--- wli
+     > switch.  How to reproduce
+     > - During install a MOUNT (V2) request is sent to the install
+     >   server
+     > - the ACK is dropped
+     > Symptom
+     > - the blade, after 3 seconds, starts a storm of retransmit
+     >   (MOUNT reqs) that
+     > won't stop, unless an ACK (one of the several ACKS sent for
+     > each retransmitted requests) has the chance to get
+     > through. This is sometimes after a few hundreds packets,
+     > sometimes after a lot more, causing an apparent hang of the
+     > installation process, and what's even worse, bringing to a
+     > grinding halt the server (bombarded by near 1Gbit/sec packets).
+
+Have you tried a more recent kernel? 2.4.18 was released more than one
+and a half years ago...
+
+Cheers,
+  Trond

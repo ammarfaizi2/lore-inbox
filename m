@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264912AbUGQGkN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266621AbUGQGk0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264912AbUGQGkN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jul 2004 02:40:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266621AbUGQGkN
+	id S266621AbUGQGk0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jul 2004 02:40:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266639AbUGQGk0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jul 2004 02:40:13 -0400
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:54470 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S264912AbUGQGkK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jul 2004 02:40:10 -0400
-Message-Id: <5.1.0.14.2.20040717083633.00aefb88@pop.t-online.de>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sat, 17 Jul 2004 08:40:05 +0200
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-From: margitsw@t-online.de (Margit Schubert-While)
-Subject: Re: Prism54 Oops
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1090011615.1899.1.camel@gaston>
-References: <5.1.0.14.2.20040715090455.00b06398@pop.t-online.de>
- <5.1.0.14.2.20040715090455.00b06398@pop.t-online.de>
+	Sat, 17 Jul 2004 02:40:26 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:62155 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S266621AbUGQGkT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jul 2004 02:40:19 -0400
+Subject: Re: 2.6.7-mm[3-4] doesn't boot (alsa or pnp related) (fixed - Acpi)
+From: Len Brown <len.brown@intel.com>
+To: szonyi calin <caszonyi@yahoo.com>
+Cc: Calin Szonyi <caszonyi@rdslink.ro>, linux-kernel@vger.kernel.org
+In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615FFFA6@hdsmsx403.hd.intel.com>
+References: <A6974D8E5F98D511BB910002A50A6647615FFFA6@hdsmsx403.hd.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Organization: 
+Message-Id: <1090046355.2792.12.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-ID: Xju4XUZXwe87d9wMxgZoHLCl587eUsKWQZcRLqi16E-MLLT1S1kfwn
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 17 Jul 2004 02:39:15 -0400
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 17:00 16.07.2004 -0400, Benjamin scribeth:
->On Thu, 2004-07-15 at 03:09, Margit Schubert-While wrote:
-> > Benjamin scribeth:
-> >  > Got that today... (2.6.7 on ppc)
-> >
-> > Should be fixed in 2.6.8-rc1.
->
->got it today again:
 
-Can you apply this patch waiting for inclusion over at netdev :
-http://marc.theaimsgroup.com/?l=linux-netdev&m=108990012105465&w=2
+On Mon, 2004-07-12 at 16:35, szonyi calin wrote:
+> --- szonyi calin <caszonyi@yahoo.com> a écrit : > ---
+> caszonyi@rdslink.ro a écrit : > Hi all
+> > > I just tried today 2.6.7-mm3 and 2.6.7-mm4.
+> > > They both stop booting at:
+> > > Advanced Linux Sound Architecture Driver Version 1.0.5 (Sun
+> > > May 30
+> > > 10:49:40 2004 UTC)
+> > > pnp: Device 01:01.00 activated
+> > > pnp: Device 01:01.02 activated
+> > > pnp: Device 01:01.03 activated
+> > > 
+> > 
+> > The same happens on 2.6.7-mm5 ;-(
+> 
+> ... and with 2.6.7-mm6 and 2.6.8-rc1
+> Booting with acpi=off fixes the problem. ;-)
 
-Margit
+Did a previous kernel work w/o acpi=off?
+If yes, please send me the dmesg and /proc/interrupts
+for both the working and failing kernels.
+
+thanks,
+-Len
 
 

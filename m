@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129614AbRB1KbR>; Wed, 28 Feb 2001 05:31:17 -0500
+	id <S129577AbRB1KtV>; Wed, 28 Feb 2001 05:49:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129727AbRB1KbH>; Wed, 28 Feb 2001 05:31:07 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:24837 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S129614AbRB1Kay>; Wed, 28 Feb 2001 05:30:54 -0500
-Message-ID: <3A9CD2F3.E26A2884@idb.hist.no>
-Date: Wed, 28 Feb 2001 11:29:07 +0100
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: no, da, en
+	id <S129774AbRB1KtL>; Wed, 28 Feb 2001 05:49:11 -0500
+Received: from [202.158.36.82] ([202.158.36.82]:10224 "EHLO
+	asmuni.trustix.co.id") by vger.kernel.org with ESMTP
+	id <S129577AbRB1KtC>; Wed, 28 Feb 2001 05:49:02 -0500
+Date: Wed, 28 Feb 2001 17:47:55 +0700 (JAVT)
+From: <imel96@trustix.co.id>
+To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] linux class diagrams
+In-Reply-To: <20010227161727.M25658@arthur.ubicom.tudelft.nl>
+Message-ID: <Pine.LNX.4.30.0102281611080.12427-100000@asmuni.trustix.co.id>
 MIME-Version: 1.0
-To: Glenn McGrath <bug1@optushome.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: devfs and /proc/ide/hda
-In-Reply-To: <3A9CCA76.3E6AB93A@optushome.com.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Glenn McGrath wrote:
-> 
-> Im running kernel 2.4.1, I have entries like /proc/ide/hda,
-> /proc/ide/ide0/hda etc irrespective of wether im using devfs or
-> traditional device names.
-> 
-> Is always using traditional device names for /proc/ide intentional, or
-> is it something nobody has gotten around to fixing yet?
 
-Using devfs changes the names in /dev.  I don't think it
-is supposed to affect /proc in any way.  And there are programs out
-that use the existing /proc - changing it won't be popular.
 
-Helge Hafting
+hah, i forgot the url.
+it's at http://www.trustix.co.id/~imel96/linux/
+
+#kernelnewbies have not much help, or they all live in
+different time zone.
+i just wanna know how people look at the kernel at design
+level. is it describeable in uml, etc.
+
+
+		imel
+
+On Tue, 27 Feb 2001, Erik Mouw wrote:
+
+> On Tue, Feb 27, 2001 at 09:54:54PM +0700, imel96@trustix.co.id wrote:
+> > i put some gifs describing linux. they're in uml.
+> > linux doesn't have class, so i tried to capture every
+> > struct (struct is kinda class in c++) related to task_struct.
+> >
+> > why? it's a school project. but it turned out to be a help to
+> > understand the kernel. maybe the kernel could use more object
+> > oriented design, like the inode?
+> >
+> > anyway, i need some pointers and comments.
+>
+> Well, http://www.kernelnewbies.org/ is a good starting point for
+> information, but we are always open for better/more information. Just
+> drop by on the #kernelnewbies IRC channel.
+
+
+

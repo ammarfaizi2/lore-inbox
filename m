@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266914AbUG2IKm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264858AbUG2IWK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266914AbUG2IKm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 04:10:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267191AbUG2IKl
+	id S264858AbUG2IWK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 04:22:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266635AbUG2IWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 04:10:41 -0400
-Received: from mail.tpgi.com.au ([203.12.160.103]:19881 "EHLO mail.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S266914AbUG2IKi (ORCPT
+	Thu, 29 Jul 2004 04:22:10 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:9450 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264858AbUG2IWH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 04:10:38 -0400
-Subject: Re: -mm swsusp: do not default to platform/firmware
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Li, Shaohua" <shaohua.li@intel.com>,
-       Patrick Mochel <mochel@digitalimplant.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040729073821.GA828@elf.ucw.cz>
-References: <B44D37711ED29844BEA67908EAF36F03712639@pdsmsx401.ccr.corp.intel.com>
-	 <20040729073821.GA828@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1091088227.8873.147.camel@laptop.cunninghams>
+	Thu, 29 Jul 2004 04:22:07 -0400
+Subject: Re: Preliminary Linux Key Infrastructure 0.01-alpha1
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: James Morris <jmorris@redhat.com>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>,
+       lkml List <linux-kernel@vger.kernel.org>, dhowells@redhat.com
+In-Reply-To: <Xine.LNX.4.44.0407290116340.13892-100000@dhcp83-76.boston.redhat.com>
+References: <Xine.LNX.4.44.0407290116340.13892-100000@dhcp83-76.boston.redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Xttx3y6+qdXVs1Wx88Y9"
+Organization: Red Hat UK
+Message-Id: <1091089319.2792.4.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 29 Jul 2004 18:03:48 +1000
-Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 29 Jul 2004 10:21:59 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-On Thu, 2004-07-29 at 17:38, Pavel Machek wrote:
-> Threads that are "NOFREEZE" should be carefull not to do anything bad
-> to drivers, and if it works as NOFREEZE for swsusp, it will work in
-> S3, too. No need to do additional work of freezing based on new state.
+--=-Xttx3y6+qdXVs1Wx88Y9
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Yes. It helps to remember that even if they're NOFREEZE, they'll still
-be affected by the driver suspending and resuming that's done in both S3
-(I assume) and S4 support.
 
-Regards,
+> I think I heard that Greg-KH had some keyring code already, so there may
+> be some existing code floating around.
 
-Nigel
+actually it's David Howells; he has been working on an implementation
+for quite some time and posted it to lkml a bunch of times and
+incorporated the reviews.... it would be interesting to see why and how
+your approaches are different...
+
+--=-Xttx3y6+qdXVs1Wx88Y9
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBCLOlxULwo51rQBIRAvQyAJ9qi2xMJmWgqBFY7j4gimN/a7X34gCfSmhi
+Lv/dgGtLzM80TOJ2725Zfpo=
+=Hrg3
+-----END PGP SIGNATURE-----
+
+--=-Xttx3y6+qdXVs1Wx88Y9--
 

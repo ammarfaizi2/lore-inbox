@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269158AbRH0VfD>; Mon, 27 Aug 2001 17:35:03 -0400
+	id <S269119AbRH0VfE>; Mon, 27 Aug 2001 17:35:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269119AbRH0Vey>; Mon, 27 Aug 2001 17:34:54 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2578 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S269174AbRH0Vef>; Mon, 27 Aug 2001 17:34:35 -0400
-Date: Mon, 27 Aug 2001 14:31:57 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: patch-2.4.10-pre1
-In-Reply-To: <Pine.LNX.4.21.0108271633140.7059-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0108271421500.7562-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269174AbRH0Vey>; Mon, 27 Aug 2001 17:34:54 -0400
+Received: from granger.mail.mindspring.net ([207.69.200.148]:5126 "EHLO
+	granger.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S269158AbRH0Vef>; Mon, 27 Aug 2001 17:34:35 -0400
+Subject: Re: Updated Linux kernel preemption patches
+From: Robert Love <rml@tech9.net>
+To: Andrey Nekrasov <andy@spylog.ru>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010828011251.A32227@spylog.ru>
+In-Reply-To: <998877465.801.19.camel@phantasy>
+	<20010827093835.A15153@oisec.net> <3B8AA02D.6F7561AB@lexus.com>
+	<998941465.1993.9.camel@phantasy>  <20010828011251.A32227@spylog.ru>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99+cvs.2001.08.21.23.41 (Preview Release)
+Date: 27 Aug 2001 17:35:22 -0400
+Message-Id: <998948123.12268.2.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2001-08-27 at 17:12, Andrey Nekrasov wrote:
+> I am doing:
+> 
+> make clean
+> make menuconfig (load my config; enable/disable option if need)
+> make dep
+> make bzImage
+> (break with error)
+> 
+> 
+> Where should be "make oldconfig" ?
 
-On Mon, 27 Aug 2001, Marcelo Tosatti wrote:
->
-> There have been some reports of x-order allocation failures when you where
-> in Finland. They can be triggered by high IO stress on highmem machines.
->
-> The following patch avoids that by allowing tasks allocating bounce memory
-> (lowmem) to block on low mem IO, thus applying more "IO pressure" to the
-> lowmem zone. (the lowmem zone is our "IOable memory" anyway, so...)
+You probably don't need to be doing oldconfig if you are doing
+menuconfig and correctly filling everything out, although the correct
+place to do it would be before menuconfig (let oldconfig prompt you on
+new config options). thus,
 
-I'd much rather set this up by splitting up __GFP_IO into two parts (ie
-__GFP_IO and __GFP_IO_BOUNCE), and avoiding have "negative" bits in the
-gfp_mask. That way the bits in gfp_mask always end up increasing things we
-can do, not ever decreasing them.
+`make oldconfig menuconfig dep clean bzImage'
 
-Also, your test is really wrong:
+is what you should do. if you are running `make dep', my theory is
+wrong, and admittedly I don't know why it is not working for you.
 
-	page->zone != &pgdat_list->node_zones[ZONE_HIGHMEM]
-
-is bogus and assumes MUCH too intimate knowledge of there being only one
-particular zone that is "highmem" (think NUMA machines where each node may
-have its own highmem setup). So it SHOULD be something along the lines of
-
-	#ifdef CONFIG_HIGHMEM
-		if (!(gfp_mask & __GFP_HIGHIO) && PageHighMem(page))
-			return;
-	#endif
-
-inside the write case of sync_page_buffers() (we can, and probably should,
-still _wait_ for highmem buffers - but whether we do it inside
-sync_page_buffers() or inside try_to_free_buffers() is probably mostly a
-matter of taste - I won't argue too much with your choice there).
-
-Other than that, the basic approach looks sane, I would just prefer for
-the testing and bits to be done more regularly.
-
-		Linus
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 

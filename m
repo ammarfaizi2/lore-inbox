@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266118AbTFWT5H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 15:57:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266121AbTFWT5H
+	id S266132AbTFWUDz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 16:03:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266133AbTFWUDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 15:57:07 -0400
-Received: from cmsrelay01.mx.net ([165.212.11.110]:23226 "HELO
-	cmsrelay01.mx.net") by vger.kernel.org with SMTP id S266118AbTFWT5E convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 15:57:04 -0400
-X-USANET-Auth: 165.212.8.8     AUTO bradtilley@usa.net uwdvg008.cms.usa.net
-Date: Mon, 23 Jun 2003 16:11:06 -0400
-From: Brad Tilley <bradtilley@usa.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: OS Fails to Load
-X-Mailer: USANET web-mailer (CM.0402.5.6)
-Mime-Version: 1.0
-Message-ID: <981HFwuLg3008S08.1056399066@uwdvg008.cms.usa.net>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 23 Jun 2003 16:03:54 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:44989 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S266132AbTFWUDy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 16:03:54 -0400
+Date: Mon, 23 Jun 2003 22:16:49 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] vgastate warning
+Message-ID: <Pine.GSO.4.21.0306232215511.28300-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-50% of the time when I boot RH Linux 9 (2.4.20-18.9) the OS fails to load. The
-failure usually occurs during a period of intense disk activity such as
-'finding module dependencies' or 'mounting local filesystems'. I can reproduce
-this error with the most recent RH kernel and the kernel that the distro
-originally shipped with and 2.4.21 from Kernel.org built using RH's config
-files. Usually after 4-5 power cycles, the OS loads OK and the machine runs
-fine once it gets going.
+vgastate: add missing include for v{malloc,free}() prototypes
 
-It's a HP xw4100 with these specs:
+--- linux-2.5.72/drivers/video/vgastate.c.orig	Wed Jun 18 12:16:26 2003
++++ linux-2.5.72/drivers/video/vgastate.c	Mon Jun 23 21:45:31 2003
+@@ -17,6 +17,7 @@
+ #include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/fb.h>
++#include <linux/vmalloc.h>
+ #include <video/vga.h>
+ 
+ struct regstate {
 
-P4 Processor 3.00GHz/800 FSB
-1.5GB DDR/400 ECC (2x512, 2x256)
-NVIDIA Quadro4 200NVS 64MB AGP
-Ultra320 SCSI Controller
-18GB Ultra 320 SCSI 15,000rpm Hard Drive (sda)
-146GB Ultra 320 SCSI 10,000rpm Hard Drive (sdb)
-48X DVD/CDRW Combo Drive
-48X CD-RW Drive
-Broadcom Gbit 10/100/1000
+Gr{oetje,eeting}s,
 
-Can someone help me troubleshoot this? I'm at the end of my rope. I have the
-most recent BIOS from HP.
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Thanks,
-Brad
-
-
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

@@ -1,80 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271247AbRIDDSx>; Mon, 3 Sep 2001 23:18:53 -0400
+	id <S271880AbRIDDfI>; Mon, 3 Sep 2001 23:35:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271880AbRIDDSn>; Mon, 3 Sep 2001 23:18:43 -0400
-Received: from sephiroth.nwc.alaska.net ([209.112.130.27]:2672 "EHLO
-	alaska.net") by vger.kernel.org with ESMTP id <S271247AbRIDDSf>;
-	Mon, 3 Sep 2001 23:18:35 -0400
-Date: Mon, 3 Sep 2001 19:18:49 -0800
-From: Ethan Benson <erbenson@alaska.net>
-To: linux-kernel@vger.kernel.org
-Subject: nfs client serious problems under 2.2.20pre8/9
-Message-ID: <20010903191849.D14519@plato.local.lan>
-Mail-Followup-To: Ethan Benson <erbenson@alaska.net>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gE7i1rD7pdK0Ng3j"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-OS: Debian GNU
+	id <S271885AbRIDDe6>; Mon, 3 Sep 2001 23:34:58 -0400
+Received: from femail46.sdc1.sfba.home.com ([24.254.60.40]:55260 "EHLO
+	femail46.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S271880AbRIDDes>; Mon, 3 Sep 2001 23:34:48 -0400
+Date: Mon, 3 Sep 2001 23:38:14 -0400 (EDT)
+From: Garett Spencley <gspen@home.com>
+X-X-Sender: <gspen@localhost.localdomain>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Sound Blaster Live - OSS or Not?
+In-Reply-To: <999557473.7696.1.camel@phantasy>
+Message-ID: <Pine.LNX.4.33L2.0109032334580.28591-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 3 Sep 2001, Robert Love wrote:
 
---gE7i1rD7pdK0Ng3j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Mon, 2001-09-03 at 18:26, Thiago Vinhas de Moraes wrote:
+> > > Use the alsa driver from www.alsa-project.org
+> > Why isn't it on the kernel tree?
+>
+> Because ALSA is not in the kernel tree. ALSA is a completely different
+> sound system from OSS, and ALSA is not in the tree. Many find ALSA
+> superior, and suggest it replace OSS. ALSA may find its way into the
+> tree during 2.5.
+>
+> Of note, I don't know why SBLive does not work w/o these drivers. SBLive
+> in the kernel tree is very functional, and the OSS version should work
+> fine (assuming the game works with OSS).
+>
+>
 
+I'm also experiencing problems with Q3A and SB Live! It worked fine for
+me before 2.4.9, but now with the "new" emu10k1 drivers it segfaults.
 
-I have encountered a serious problem with nfs under 2.2.20pre8 and
-pre9.
+I already reported this earlier when 2.4.8-ac tree included the new
+emu10k1 drivers but nothing came of it. Then Alan Cox reverted the drivers
+and it worked fine. Now with 2.4.9 it segaults again.
 
-after some ammount of time (2 weeks under pre8, only a few hours under
-pre9) most/all processes accessing an nfs filesystem go into
-unkillable disk sleep, and the kernel starts spewing:
+I'll have to give the alsa drivers a try I guess.
 
-kernel: nfs: task 22509 can't get a request slot
+-- 
+Garett Spencley
 
-over and over again endlessly.  since processes using the filesystem
-are unkillable i am unable to even forcabily umount the problematic
-filesystem, seemingly the only way restore order is shutdown -r now :(
+I encourage you to encrypt e-mail sent to me using PGP
+Public key at http://www.geocities.com/gspencley/public_key.txt
+Key fingerprint: 8062 1A46 9719 C929 578C BB4E 7799 EC1A AB12 D3B9
 
-the server is an x86 running 2.2.19, knfs, with userland utils
-version 0.3.1.  the client is a powerpc running 2.2.20pre8 or pre9,
-both exhibit this behavior.  2.2.19 on the client does NOT exhibit
-this problem.
-
-note that this seems to mostly get triggered on my daily cronjobs,
-which simply tar up /etc to a tarball on the nfs filesystem, its
-really not that intensive (/etc is only about 2.6MB or so). i have
-other machines doing the same thing without incident (they are
-currently running 2.4.9).
-
-the server displays no unusal symtoms or any log entries that would
-indicate trouble.
-
-both client and server are using NFSv3.
-
-please CC me any replies as i am not subscribed to l-k.  thanks.
-
---=20
-Ethan Benson
-http://www.alaska.net/~erbenson/
-
---gE7i1rD7pdK0Ng3j
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjuUSBkACgkQJKx7GixEevz9igCeIXXFNkNxZB1ieLXCRvMPfHi0
-zBEAnjYi9Y+JpF2iC3B1REEpi/ImWwiX
-=yWJu
------END PGP SIGNATURE-----
-
---gE7i1rD7pdK0Ng3j--

@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265655AbUFOO3U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265660AbUFOOdl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265655AbUFOO3U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 10:29:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265660AbUFOO3U
+	id S265660AbUFOOdl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 10:33:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265661AbUFOOdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 10:29:20 -0400
-Received: from fiberbit.xs4all.nl ([213.84.224.214]:38377 "EHLO
-	fiberbit.xs4all.nl") by vger.kernel.org with ESMTP id S265655AbUFOO3S
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 10:29:18 -0400
-Date: Tue, 15 Jun 2004 16:29:12 +0200
-From: Marco Roeland <marco.roeland@xs4all.nl>
-To: Matthew Denner <matt@denner.demon.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 45 minute boot time with 2.6.4/2.6.6-mm5 kernel on 1.7GHz laptop
-Message-ID: <20040615142912.GA30380@localhost>
-References: <40CEFC9E.2030508@denner.demon.co.uk>
+	Tue, 15 Jun 2004 10:33:41 -0400
+Received: from cimice4.lam.cz ([212.71.168.94]:47488 "EHLO beton.cybernet.src")
+	by vger.kernel.org with ESMTP id S265660AbUFOOdj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 10:33:39 -0400
+Date: Tue, 15 Jun 2004 14:33:39 +0000
+From: =?iso-8859-2?Q?Karel_Kulhav=FD?= <clock@twibright.com>
+To: linux-kernel@vger.kernel.org
+Cc: Lubomir Prech <Lubomir.Prech@mff.cuni.cz>
+Subject: omnibook xe4500 keyboard works where shouldn't
+Message-ID: <20040615143339.A6328@beton.cybernet.src>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40CEFC9E.2030508@denner.demon.co.uk>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5.1i
+X-Orientation: Gay
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday June 15th 2004 Matthew Denner wrote:
+Hello
 
-> [extremely slowly functioning laptop]
-> 
-> Output from 'cat /proc/interrupts':
->            CPU0
->   ...
->  20:     270154   IO-APIC-level  eth0
+Somehow I managed to determine a linux kernel configuration where at least the
+keyboard works upon startup:
 
-This seems perhaps quite high? On occasion I have to use a configuration
-where the network interface is configured by DHCP. When I take the
-interface down (ifdown eth0) but forget to assign it its usual network
-address (when changing location to another network) some interaction
-with the still running DHCP client (pump) makes my laptop crawl just like
-you describe. So if all other suggested options fail, you might want to
-check if you maybe have such a runaway DHCP client causing havoc.
--- 
-Marco Roeland
+USB HID is off at all
+Input core kbd is off
+Input core mouse is on.
+USB is on.
+
+The question is: How is it possible the keyboard works when it is
+switched off on two (=all possible) places at the same time?
+
+So, if it's a PS/2 keyboard, it's swiched off by input core.
+If it's a USB keyboard it's switched off by USB HID.
+
+Cl<

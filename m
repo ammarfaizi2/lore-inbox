@@ -1,34 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285191AbRLMV2P>; Thu, 13 Dec 2001 16:28:15 -0500
+	id <S285192AbRLMVaz>; Thu, 13 Dec 2001 16:30:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285193AbRLMV1z>; Thu, 13 Dec 2001 16:27:55 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:8581 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S285192AbRLMV1x>;
-	Thu, 13 Dec 2001 16:27:53 -0500
-Date: Thu, 13 Dec 2001 13:27:34 -0800 (PST)
-Message-Id: <20011213.132734.38711065.davem@redhat.com>
-To: lord@sgi.com
-Cc: gibbs@scsiguy.com, axboe@suse.de, LB33JM16@yahoo.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: highmem, aic7xxx, and vfat: too few segs for dma mapping
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1008278244.22208.12.camel@jen.americas.sgi.com>
-In-Reply-To: <200112132048.fBDKmog10485@aslan.scsiguy.com>
-	<1008277112.22093.7.camel@jen.americas.sgi.com>
-	<1008278244.22208.12.camel@jen.americas.sgi.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S285193AbRLMVap>; Thu, 13 Dec 2001 16:30:45 -0500
+Received: from rcpt-expgw.biglobe.ne.jp ([210.147.6.230]:40911 "EHLO
+	rcpt-expgw.biglobe.ne.jp") by vger.kernel.org with ESMTP
+	id <S285192AbRLMVa3>; Thu, 13 Dec 2001 16:30:29 -0500
+X-Biglobe-Sender: <k-suganuma@mvj.biglobe.ne.jp>
+Date: Thu, 13 Dec 2001 13:29:42 -0800
+From: Kimio Suganuma <k-suganuma@mvj.biglobe.ne.jp>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] HotPlug CPU patch against 2.5.0
+Cc: k-suganuma@mvj.biglobe.ne.jp, large-discuss@lists.sourceforge.net,
+        "Heiko Carstens" <Heiko.Carstens@de.ibm.com>,
+        Jason McMullan <jmcmullan@linuxcare.com>,
+        "Anton Blanchard" <antonb@au1.ibm.com>,
+        "Greg Kroah-Hartman" <ghartman@us.ibm.com>, rusty@rustcorp.com.au
+Message-Id: <20011213132557.5B3E.K-SUGANUMA@mvj.biglobe.ne.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.00.05
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Steve Lord <lord@sgi.com>
-   Date: 13 Dec 2001 15:17:24 -0600
-   
-   OK, I can confirm this fixes it for me. A side not for Jens, this still
-   pushes the scsi layer into those DMA shortage messages:
+Hi all,
 
-Yes we know, once Jens finishes up his work on using a mempool for the
-scatterlist allocations this problem will dissapate.
+The Hotplug CPU patch for 2.5.0 is uploaded.
+
+  http://sourceforge.net/projects/lhcs/
+
+This patch works on s390, s390x, x86 and ia64 architectures.
+It can also be applied against 2.4.16 with a little modification.
+
+Down CPU
+echo 0 > /proc/sys/kernel/cpu/<id>/online
+
+Up CPU
+echo 1 > /proc/sys/kernel/cpu/<id>/online
+
+For ia64, number of CPUs to be initialized can be
+specified with "initcpus=<num>" option for elilo.
+With using the option, you can test real hot-add CPU
+function without a HW ready for hotplug.
+
+Thanks,
+Kimi
+
+-- 
+Kimio Suganuma <k-suganuma@mvj.biglobe.ne.jp>
+

@@ -1,100 +1,131 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275808AbRJBFJJ>; Tue, 2 Oct 2001 01:09:09 -0400
+	id <S275806AbRJBFOU>; Tue, 2 Oct 2001 01:14:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275806AbRJBFJA>; Tue, 2 Oct 2001 01:09:00 -0400
-Received: from unthought.net ([212.97.129.24]:58011 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S275823AbRJBFIp>;
-	Tue, 2 Oct 2001 01:08:45 -0400
-Date: Tue, 2 Oct 2001 07:09:13 +0200
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: Chris Andrews <chrisa@inweb.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RAID5: mkraid --force /dev/md0 doesn't work properly
-Message-ID: <20011002070913.A5302@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	Chris Andrews <chrisa@inweb.co.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <00c401c14a71$f8c478f0$1e1cd2d5@chris>
+	id <S275809AbRJBFOJ>; Tue, 2 Oct 2001 01:14:09 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:38573 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S275806AbRJBFNw>; Tue, 2 Oct 2001 01:13:52 -0400
+Date: Tue, 2 Oct 2001 01:13:51 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: jamal <hadi@cyberus.ca>
+Cc: linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru,
+        Robert Olsson <Robert.Olsson@data.slu.se>, Ingo Molnar <mingo@elte.hu>,
+        netdev@oss.sgi.com
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+Message-ID: <20011002011351.A20025@redhat.com>
+In-Reply-To: <20011001210445.D15341@redhat.com> <Pine.GSO.4.30.0110012127410.28105-100000@shell.cyberus.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <00c401c14a71$f8c478f0$1e1cd2d5@chris>; from chrisa@inweb.co.uk on Mon, Oct 01, 2001 at 01:09:50PM +0100
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.30.0110012127410.28105-100000@shell.cyberus.ca>; from hadi@cyberus.ca on Mon, Oct 01, 2001 at 09:54:49PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 01, 2001 at 01:09:50PM +0100, Chris Andrews wrote:
-> Evan Harris (eharris@puremagic.com) said:
-> 
-> > I have a 6 disk RAID5 scsi array that had one disk go offline through a
-> > dying power supply, taking the array into degraded mode, and then another
-> > went offline a couple of hours later from what I think was a loose cable.
-> 
-> I had much the same happen, except that I lost 6 disks out of 12 (power
-> failure to one external rack of two), so I had no chance of starting in
-> degraded mode. In this situation, where there are not enough disks for a
-> viable raid, what is the recommended solution? In my case, there was nothing
-> wrong with the six disks, but their superblock event counters were out of
-> step.
+On Mon, Oct 01, 2001 at 09:54:49PM -0400, jamal wrote:
+> i am not sure what you are getting at. CPU load is of course a function of
+> the CPU capacity. assuming that interupts are the only source of system
+> load is just bad engineering.
 
-The solution is exactly the same as before:  re-create the array with N-1
-disks, so that parity reconstruction will not begin.
+Indeed.  I didn't mean to exclude anything by omission.
 
-Find the "oldest" disk and mark that one as failed - in case you lose an
-entire rack of disks, any one of those should do.
+> And how does /proc/irq/NR/max_rate solve this?
+> I have a feeling you are trying to say that varying /proc/irq/NR/max_rate
+> gives opportunity for user processes to execute;
+> note, although that is bad logic, you could also modify the high and low
+> watermarks for when we have congestion in the backlog queue
+> (This is already doable via /proc)
 
-Re-create the RAID, fsck (and don't worry about quite some inconsistency), and
-most of your data should be back.
+The high and low watermarks are only sufficient if the task the machine is 
+performing is limited to bh mode operations.  What I mean is that user space 
+can be starved by the cyclic nature of the network queues: they will 
+eventually be emptied, at which time more interrupts will be permitted.
 
-If you screw up (eg. re-order disks), your data will never know what hit them.
+> It is unfair to add any latency to a device that didnt cause or
+> contributre to the havoc.
 
-> 
-> Is the best idea to modify /etc/raidtab as discussed, and run mkraid with
-> the real force option? What I actually did was to hand-edit the superblocks
-> on the disks, and got the array going. That experience would lead me to
-> suggest that there's room for some more options to allow the use of disks
-> where there's actually nothing wrong, but right now the raid code won't use
-> them. I'm thinking of a set of '--ignore' options to raidstart:
-> --ignore-eventcounter, --ignore-failedflag, etc, which an admin could use as
-> an alternative to trying mkraid.
+I disagree.  When a machine is overloaded, everything gets slower.  But a 
+side effect of delaying interrupts is that more work gets done for each 
+irq handler that is run and efficiency goes up.  The hard part is balancing 
+the two in an attempt to achieve a steady rate of progress.
 
-re-creating the RAID does exactly that: "hand-modifies" the superblocks to
-let the array run again.
+> I think you missed my point. i am saying there is more than one source of
+> interupt for that same IRQ number that you are indiscrimately shutting
+> down in a network device.
 
-Your idea is pretty good:  if you did not have to re-write the superblocks from
-the raidtab, you would not risk screwing up drive-ordering because of
-inconsistent raidtabs.
+You're missing the effect that irq throttling has: it results in a system 
+that is effectively running in "polled" mode.  Information does get 
+processed, and thruput remains high, it is just that some additional 
+latency is found in operations.  Which is acceptable by definition as 
+the system is under extreme load.
 
-I'd do a patch if I wasn't busy re-constructing/creating/moving/reconfiguring
-RAID arrays right now  ;)
+> So, assuming that tx complete interupts do actually shut you down
+> (although i doubt that very much given the classical Donald Becker tx
+> descriptor prunning) pick another interupt source; lets say MII link
+> status; why do you want to kill that when it is not causing any noise but
+> is a source of good asynchronous information (that could be used for
+> example in HA systems)?
 
-> 
-> Right now it seems that software-raid works well, until it doesn't, at which
-> point you're stuck - there's very little in the way of tools or overrides to
-> sort problems out. Something other than 'try mkraid force as a last resort'
-> would be useful.
+That information will eventually be picked up.  I doubt the extra latency 
+will be of significant note.  If it is, you've got realtime concerns, 
+which is not our goal to address at this time.
 
-You're not stuck.  You have plenty of options, just as you stated in your post.
 
-With a hardware solution you'd be *stuck* - not as in "there's no pretty tool",
-but as in "game over, sucker!"   ;)
+> and what is this "known safe limit"? ;->
 
-But I agree with you that the process could be improved, and I really like your
-suggestion with --ignore-eventcounter (or --try-recover maybe ?).
+It's system dependant.  It's load dependant.  For a short list of the number 
+of factors that you have to include to compute this:
 
-> 
-> (If anyone thinks this is a good idea, yes, I am volunteering to provide
-> patches...)
+	- number of cycles userspace needs to run
+	- number of cache misses that userspace is forced to 
+	  incur due to irq handlers running
+	- amount of time to dedicate to the irq handler
+	- variance due to error path handling
+	- increased system cpu usage due to higher memory load
+	- front side bus speed of cpu
+	- speed of cpu
+	- length of cpu pipelines
+	- time spent waiting on io cycles
+	.....
 
-Aha !
+It is non-trivial to determine a limit.  And trying to tune a system 
+automatically is just as hard: which factor do you choose for the system 
+to attempt to tune itself with?  How does that choice affect users who 
+want to tune for other loads?  What if latency is more important than 
+dropping data?
 
-I think it's a great idea !
+There are a lot of choices as to how we handle these situations.  They 
+all involve tradeoffs of one kind or another.  Personally, I have a 
+preference towards irq rate limiting as I have measured the tradeoff 
+between latency and thruput, and by putting that control in the hands of 
+the admin, the choice that is best for the real load of the system is 
+not made at compile time.
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+If you look at what other operating systems do to schedule interrupts 
+as tasks and then looks at the actual cost, is it really something we 
+want to do?  Linux has made a point of keeping things as simple as 
+possible, and it has brought us great wins because we do not have the 
+overhead that other, more complicated systems have chosen.  It might 
+be a loss in a specific case to rate limit interrupts, but if that is 
+so, just change the rate.  What can you say about the dynamic self 
+tuning techniques that didn't take into account that particular type 
+of load?  Recompiling is not always an option.
+
+> What we are providing is actually a scheme to exactly measure that "known
+> safe limit" you are refering to without depending on someone having to
+> tell you "here's a good number for that 8 way xeon"
+> If there is system capacity available  why the fsck is it not being used?
+
+That's a choice for the admin to make.  Sometimes having reserves that aren't 
+used is a safety net that people are willing to pay for.  ext2 has by 
+default a reserve that isn't normally used.  Do people complain?  No.  It 
+buys several useful features (resistance against fragmentation, space for 
+daemon temporary files on disk full, ...) that pay dividends of the cost.
+
+Is irq throttling the be all and end all?  No.  Can other techniques work
+better?  Yes.  Always?  No.  And nothing prevents us from using this and 
+other techniques together.  Please don't dismiss it solely because you 
+see cases that it doesn't handle.
+
+		-ben

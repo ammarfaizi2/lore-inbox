@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262046AbTCLVXT>; Wed, 12 Mar 2003 16:23:19 -0500
+	id <S261964AbTCLVfC>; Wed, 12 Mar 2003 16:35:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262048AbTCLVXT>; Wed, 12 Mar 2003 16:23:19 -0500
-Received: from bitmover.com ([192.132.92.2]:60848 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S262046AbTCLVXS>;
-	Wed, 12 Mar 2003 16:23:18 -0500
-Date: Wed, 12 Mar 2003 13:33:57 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+	id <S262065AbTCLVfC>; Wed, 12 Mar 2003 16:35:02 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:46762 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S261964AbTCLVe4>; Wed, 12 Mar 2003 16:34:56 -0500
+Date: Wed, 12 Mar 2003 15:45:39 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Larry McVoy <lm@bitmover.com>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-Message-ID: <20030312213357.GC30788@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-References: <20030312174244.GC13792@work.bitmover.com> <Pine.LNX.4.44.0303121324510.14172-100000@xanadu.home> <20030312195120.GB7275@work.bitmover.com> <20030312210513.GA6948@nevyn.them.org> <20030312211832.GA6587@work.bitmover.com> <20030312213108.GA7700@nevyn.them.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030312213108.GA7700@nevyn.them.org>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+In-Reply-To: <20030312211832.GA6587@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0303121541190.19251-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 12, 2003 at 04:31:08PM -0500, Daniel Jacobowitz wrote:
-> On Wed, Mar 12, 2003 at 01:18:32PM -0800, Larry McVoy wrote:
-> > > Larry, this brings up something I was meaning to ask you before this
-> > > thread exploded.  What happens to those "logical change" numbers over
-> > > time?
-> > 
-> > They are stable in the CVS tree because the CVS tree isn't distributed.
-> > So "Logical change 1.900" in the context of the exported CVS tree is 
-> > always the same thing.  That's one advantage centralized has, things
-> > don't shift around on you.
+On Wed, 12 Mar 2003, Larry McVoy wrote:
+
+> > Larry, this brings up something I was meaning to ask you before this
+> > thread exploded.  What happens to those "logical change" numbers over
+> > time?
 > 
-> OK, so the logical change numbers there are only related to the CVS
-> tree, not related to revision numbers in the BK tree being converted? 
+> They are stable in the CVS tree because the CVS tree isn't distributed.
+> So "Logical change 1.900" in the context of the exported CVS tree is 
+> always the same thing.  That's one advantage centralized has, things
+> don't shift around on you.
 
-Correct.  The BK revs are in there though, that's what
+Isn't there a more general problem, though? (I hope I'm wrong)
 
-BKrev: <long string of bits>
+You want to update the CVS tree near-realtime. However, the longest-path
+through your graph may change with new merges, but CVS of course cannot
+cope with already committed data changing (already committed csets may 
+all of a sudden not be in the longest path anymore)? This is a CVS 
+limitation, of course, but still a problem AFAICS.
 
-is in the change log.
+--Kai
 
-> That makes more sense, thank you.
 
-Hey cool, you're welcome!
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

@@ -1,80 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261282AbTDQIgz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 04:36:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbTDQIgz
+	id S261276AbTDQIfC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 04:35:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbTDQIfC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 04:36:55 -0400
-Received: from dsl-170-219.dsl.cambrium.nl ([213.239.170.219]:48297 "EHLO
-	fratser") by vger.kernel.org with ESMTP id S261282AbTDQIgw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 04:36:52 -0400
-Date: Thu, 17 Apr 2003 10:48:51 +0200 (CEST)
-From: John v/d Kamp <john@connectux.com>
-X-X-Sender: john@fratser
-To: Dave Olien <dmo@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] DAC960_Release bug (2.4.x)
-In-Reply-To: <20030416224013.GA11514@osdl.org>
-Message-ID: <Pine.LNX.4.53.0304171004160.10181@fratser>
-References: <Pine.LNX.4.53.0304161136270.18523@fratser> <20030416224013.GA11514@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 17 Apr 2003 04:35:02 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:40174 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S261276AbTDQIe7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 04:34:59 -0400
+Subject: Re: [BK+PATCH] remove __constant_memcpy
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0304161904170.1534-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0304161904170.1534-100000@home.transmeta.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-0LcoXh2vGjUH+1yaiPKX"
+Organization: Red Hat, Inc.
+Message-Id: <1050569207.1412.1.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
+Date: 17 Apr 2003 10:46:47 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have an application that detects hardware using the libhd from SuSE.
-This lib loads the driver with the NONBLOCK flag, because it doesn't want
-to use the drive, but only detect it. When it releases, the File parameter
-is NULL, so the counters get decremented, but were never incremented.
 
-When we try to partition the drive, the BLKRRPART ioctl fails because the
-counter is 4294967295. (-1)
-I don't think any program relies on this counter being < "0".
+--=-0LcoXh2vGjUH+1yaiPKX
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The whole point on the file descriptor is beyond me, but I think it's a
-good thing to address.
+On Thu, 2003-04-17 at 04:06, Linus Torvalds wrote:
+> On Wed, 16 Apr 2003, Jeff Garzik wrote:
+> >=20
+> > gcc's __builtin_memcpy performs the same function (and more) as the=20
+> > kernel's __constant_memcpy.  So, let's remove __constant_memcpy, and le=
+t=20
+> > the compiler do it.
+>=20
+> Please don't.
+>=20
+> There's no way gcc will EVER get the SSE2 cases right. It just cannot do=20
+> it. In fact, I live in fear that we will have to turn off the compiler=20
+> intrisics entirely some day just because there is always the worry that=20
+> gcc will start using FP.
 
---
-John van der Kamp, ConnecTUX
+it can do that ANYWAY for all kinds of things.
+We really should ask the gcc folks to add a
+-fdontyoudareusefloatingpoint flag (well different name probably) to
+make sure it never ever will generate FP code. (would also help catch
+abusers of FP code in the kernel as a bonus ;)
 
-On Wed, 16 Apr 2003, Dave Olien wrote:
+--=-0LcoXh2vGjUH+1yaiPKX
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
->
-> As you observed, ControllerUsageCount doesn't seem to serve
-> any purpose.  It should just be removed, I think.
->
-> I'm curious, what application you have that calls DAC960_Open() with NONBLOCK.
->
-> Here's my interpretation of what the drivers' trying to do here.
-> If you can validate these assumptions, I'd appreciate it.
->
-> For the DAC960, it looks like the NONBLOCK flag is just a trick
-> to allow a user-level DAC960 RAID manager utility to open the driver
-> without actually interacting with any disk devices on the controller.
-> The file descriptor you get back is not really associated with a specific
-> device or controller.
->
-> The DAC960_IOCTL function calls DAC960_UserIOCTL only when the
-> NONBLOCK flag is set.  DAC960_UserIOCTL is designed to operate on
-> the controller specified by a controller number argument, rather than
-> a controller associated with its file descriptor argument.
->
-> This lets the RAID manager utility operate on any controller at a time
-> when perhaps there are NO logical devices ONLINE (i.e. you would
-> be normally UNABLE to get ANY file descriptor for that controller).
->
-> The ModuleOnly label in DAC960_open() apparently is meant to indicate
-> we're opening "the DAC960 module" rather than a specific device.
->
-> The problem is, the test for opening this file descriptor is iffy:
-> 	"If the file descriptor is for controller 0, logical device
-> 	0, and NONBLOCK is set, then return this `special` file descriptor."
->
-> It's perfectly reasonable for an application to actually want to open
-> REAL devices this way.  Instead, it gets this peculiar file descriptor.
->
-> The problem is there are DAC960 utilities out there that I'm sure rely
-> on this behavior.  So, it'll be hard to fix "the right way".
->
->
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+nmn3xULwo51rQBIRAmPgAJ4nz7N0lG2S83NCBFREN0+afhg5tACfe1tv
+nFz5TLGFmBrGA77WkLbEWiM=
+=BJJ2
+-----END PGP SIGNATURE-----
+
+--=-0LcoXh2vGjUH+1yaiPKX--

@@ -1,16 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262074AbTCVJZw>; Sat, 22 Mar 2003 04:25:52 -0500
+	id <S262078AbTCVJjV>; Sat, 22 Mar 2003 04:39:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262078AbTCVJZw>; Sat, 22 Mar 2003 04:25:52 -0500
-Received: from csl.Stanford.EDU ([171.64.73.43]:25536 "EHLO csl.stanford.edu")
-	by vger.kernel.org with ESMTP id <S262074AbTCVJZv>;
-	Sat, 22 Mar 2003 04:25:51 -0500
+	id <S262079AbTCVJjV>; Sat, 22 Mar 2003 04:39:21 -0500
+Received: from csl.Stanford.EDU ([171.64.73.43]:28096 "EHLO csl.stanford.edu")
+	by vger.kernel.org with ESMTP id <S262078AbTCVJjT>;
+	Sat, 22 Mar 2003 04:39:19 -0500
 From: Dawson Engler <engler@csl.stanford.edu>
-Message-Id: <200303220936.h2M9aqG05305@csl.stanford.edu>
-Subject: [CHECKER] deadlock in 2.5.62 drivers/usb/host/uhci-hcd.c?
+Message-Id: <200303220950.h2M9oLB05748@csl.stanford.edu>
+Subject: [CHECKER] deadlock in 2.5.62/net/sctp/input.c?
 To: linux-kernel@vger.kernel.org
-Date: Sat, 22 Mar 2003 01:36:52 -0800 (PST)
+Date: Sat, 22 Mar 2003 01:50:21 -0800 (PST)
+Cc: engler@csl.stanford.edu (Dawson Engler)
 X-Mailer: ELM [version 2.5 PL0pre8]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -18,45 +19,58 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
 Hi All,
 
-there appears to be a potential locking cycle in 2.5.62's
-	drivers/usb/host/uhci-hcd.c
-Though it looks like its in debugging code.
+here's a potential locking cycle in 
+	2.5.62/net/sctp/input.c.  
+Confirmation/correction appreciated.
 
-Confirmation/destruction appreciated.
+Thanks,
+Dawson
 
-   <struct urb.lock (<local>:0)>-><struct uhci_hcd.complete_list_lock (<local>:0)> occurred 1 times
-   <struct uhci_hcd.complete_list_lock (<local>:0)>-><struct urb.lock (<local>:0)> occurred 1 times
-   Lock <struct urb.lock> is involved in <1> errors and <struct uhci_hcd.complete_list_lock> in 1
-
-Callchain for
-  <struct urb.lock (<local>:0)>-><struct uhci_hcd.complete_list_lock (<local>:0)> =
+ERROR: 1 thread local-local deadlock.
+   <sctp_hashbucket_t.lock>-><sctp_endpoint_common_t.addr_lock> occurred 2 times
+   <sctp_endpoint_common_t.addr_lock>-><sctp_hashbucket_t.lock> occurred 2 times
 
     depth = 2:
-        drivers/usb/host/uhci-hcd.c:uhci_transfer_result:1507
-        	spin_lock_irqsave(&urb->lock, flags);
+        net/sctp/input.c:__sctp_lookup_association:634
+           ->net/sctp/input.c:__sctp_lookup_association:634
 
-           ->drivers/usb/host/uhci-hcd.c:uhci_transfer_result:1507
-           	->uhci_transfer_result:1568
-           	->end=uhci_add_complete:138:spin_lock_irq
-                
-                     spin_lock_irqsave(&uhci->complete_list_lock, flags);
+        hash = sctp_assoc_hashfn(laddr->v4.sin_port, paddr->v4.sin_port);
+        head = &sctp_proto.assoc_hashbucket[hash];
+        read_lock(&head->lock);
+        for (epb = head->chain; epb; epb = epb->next) {
+                asoc = sctp_assoc(epb);
+                transport = sctp_assoc_is_match(asoc, laddr, paddr);
 
-   
-Callchain for
-  <struct uhci_hcd.complete_list_lock (<local>:0)>-><struct urb.lock (<local>:0)> =
+           ->__sctp_lookup_association:637
+           ->end=net/sctp/associola.c:sctp_assoc_is_match:754:read_lock
+           ->net/sctp/associola.c:sctp_assoc_is_match:754
+
+        sctp_read_lock(&asoc->base.addr_lock);
+
+
     depth = 2:
-        drivers/usb/host/uhci-debug.c:uhci_show_lists:395
-           ->drivers/usb/host/uhci-debug.c:uhci_show_lists:395
-           ->uhci_show_lists:407
+        net/sctp/input.c:__sctp_rcv_lookup_endpoint:536
+           ->net/sctp/input.c:__sctp_rcv_lookup_endpoint:536
+           ->__sctp_rcv_lookup_endpoint:539
+           ->end=net/sctp/endpointola.c:sctp_endpoint_is_match:241:read_lock
 
-        spin_lock_irqsave(&uhci->complete_list_lock, flags);
+While the readlocks are recursive, can be called in a place without
+*->base.addr_lock held (e.g., sctp_v4_err).
 
-           ->end=uhci_show_urbp:328:spin_lock
-           ->drivers/usb/host/uhci-debug.c:uhci_show_urbp:328
+  <sctp_endpoint_common_t.addr_lock>-><sctp_hashbucket_t.lock> =
+    depth = 4:
+        net/sctp/endpointola.c:sctp_endpoint_is_peeled_off:313
+           ->net/sctp/endpointola.c:sctp_endpoint_is_peeled_off:313
+           ->sctp_endpoint_is_peeled_off:317
 
-        		spin_lock(&urbp->urb->lock);
+        sctp_read_lock(&ep->base.addr_lock);
+        bp = &ep->base.bind_addr;
+        list_for_each(pos, &bp->address_list) {
+                addr = list_entry(pos, struct sockaddr_storage_list, list);
+                if (sctp_has_association(&addr->a, paddr)) {
 
-
+           ->net/sctp/input.c:sctp_has_association:675
+           ->sctp_lookup_association:662
+           ->end=__sctp_lookup_association:634:read_lock

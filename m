@@ -1,71 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314653AbSDTQaP>; Sat, 20 Apr 2002 12:30:15 -0400
+	id <S314651AbSDTQdX>; Sat, 20 Apr 2002 12:33:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314654AbSDTQaO>; Sat, 20 Apr 2002 12:30:14 -0400
-Received: from rhlx01.fht-esslingen.de ([134.108.34.10]:53652 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id <S314653AbSDTQaB>; Sat, 20 Apr 2002 12:30:01 -0400
+	id <S314652AbSDTQdW>; Sat, 20 Apr 2002 12:33:22 -0400
+Received: from dsl-213-023-039-128.arcor-ip.net ([213.23.39.128]:53129 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S314651AbSDTQdU>;
+	Sat, 20 Apr 2002 12:33:20 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Jeff Garzik <garzik@havoc.gtf.org>, Roman Zippel <zippel@linux-m68k.org>
 Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-From: Nils Philippsen <nils@wombat.dialup.fht-esslingen.de>
-To: Jeff Garzik <garzik@havoc.gtf.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020420115416.B617@havoc.gtf.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-M/QZA71B0/6lCksLIKWN"
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-4) 
-Date: 20 Apr 2002 18:29:11 +0200
-Message-Id: <1019320151.25439.11.camel@wombat>
-Mime-Version: 1.0
+Date: Fri, 19 Apr 2002 18:33:41 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <E16ya3u-0000RG-00@starship> <3CC19470.ACE2EFA1@linux-m68k.org> <20020420122541.B2093@havoc.gtf.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16ybKQ-0000U9-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 20 April 2002 18:25, Jeff Garzik wrote:
+> On Sat, Apr 20, 2002 at 06:16:48PM +0200, Roman Zippel wrote:
+> > Hi,
+> > 
+> > Jeff Garzik wrote:
+> > 
+> > > Guess what else?  You are taking away freedoms by restricting speech,
+> > > making documents less available than they previously were.
+> > 
+> > So we soon include cvs/rcs/sccs/arch/subversion/aegis/prcs usage
+> > information as well?
+> > You certainly don't want to restrict the freedoms of other users?
+> 
+> Two issues here:
+> 1) Daniel was attempting a 'remove' operation, you are describing an
+> 'add'.  The operations do the exact opposite in terms of information
+> dissemination.
 
---=-M/QZA71B0/6lCksLIKWN
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+No I do not.  Read the post.  I suggested placing the documentation on
+kernel.org, on your site, or on bitmover.com where it belongs.  This
+documentation for a proprietary software product does not belong in the
+Linux kernel tree itself.  It is nothing less than an advertisement.
+Was it paid for?
 
-On Sat, 2002-04-20 at 17:54, Jeff Garzik wrote:
-> On Fri, Apr 19, 2002 at 05:12:33PM +0200, Daniel Phillips wrote:
-> > Please do not misinterpret my position: I count Larry as something more=
- than=20
-> > a personal acquaintance.  I strongly support his efforts to build a bus=
-iness=20
-> > for himself out of his Bitkeeper creation.  I even like Jeff Garzik's
-> > documentation, the subject of this patch.  I do not support the infusio=
-n of=20
->=20
-> It's also really, really, low class to not even CC me in your attempt
-> to remove the documentation I wrote from the kernel tree, and placed
-> into the kernel tree at Linus's request.
->=20
-> Rot in hell, closed mind.
+(And there you may have an argument that would satisfy me.  However, it
+is not me I'm worried about.  It is the other kernel developers who are
+silently seething at this situation.  Yes they are, use your ears.)
 
-You seriously have to improve your manners. Dubbing someone low class
-while using such phrases is pretty double standards. Is it really so
-difficult to calm down before replying? But I guess I'm just restricting
-your freedom of speech.
-
-Nils
---=20
- Nils Philippsen / Berliner Stra=DFe 39 / D-71229 Leonberg //
-+49.7152.209647
-nils@wombat.dialup.fht-esslingen.de / nils@redhat.de /
-nils@fht-esslingen.de
-        Ever noticed that common sense isn't really all that common?
-
---=-M/QZA71B0/6lCksLIKWN
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA8wZdXR9ibZWlRMBERAmg4AKDlGYhHfczg0F6uCyoY07AG4CnG2ACgwoy3
-vmqFuXn1nHrzQfE6s/Wf6kY=
-=mdjU
------END PGP SIGNATURE-----
-
---=-M/QZA71B0/6lCksLIKWN--
-
+-- 
+Daniel

@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129045AbQKPCXk>; Wed, 15 Nov 2000 21:23:40 -0500
+	id <S129130AbQKPDCW>; Wed, 15 Nov 2000 22:02:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129060AbQKPCX3>; Wed, 15 Nov 2000 21:23:29 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:2760 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S129045AbQKPCXQ>;
-	Wed, 15 Nov 2000 21:23:16 -0500
-Date: Thu, 16 Nov 2000 02:53:10 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200011160153.CAA107740.aeb@aak.cwi.nl>
-To: aeb@veritas.com, torvalds@transmeta.com
+	id <S129132AbQKPDCM>; Wed, 15 Nov 2000 22:02:12 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:13066 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129130AbQKPDB4>; Wed, 15 Nov 2000 22:01:56 -0500
+Date: Wed, 15 Nov 2000 18:31:29 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andries.Brouwer@cwi.nl
+cc: aeb@veritas.com, emoenke@gwdg.de, eric@andante.org,
+        koenig@tat.physik.uni-tuebingen.de, linux-kernel@vger.kernel.org
 Subject: Re: BUG: isofs broken (2.2 and 2.4)
-Cc: emoenke@gwdg.de, eric@andante.org, koenig@tat.physik.uni-tuebingen.de,
-        linux-kernel@vger.kernel.org
+In-Reply-To: <UTC200011160153.CAA107740.aeb@aak.cwi.nl>
+Message-ID: <Pine.LNX.4.10.10011151829000.983-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Anybody else willing to finish this one off?
-
-If noone else does, I suppose I can.
-
-(> .. gets ENOENT ..
-and that is not because it only is a partial image?)
-
-Andries
 
 
-PS - Yesterday I complained that 2.4.0test9 was fine
-but 2.4.0test11pre5 dies as soon as it has to forward a ping.
-The effect is reproducible, and 2.4.0test10 is also fine.
-I see no changes in the netfilter code.
-Will look some more into this tomorrow.
+On Thu, 16 Nov 2000 Andries.Brouwer@cwi.nl wrote:
+> 
+> If noone else does, I suppose I can.
+
+Thanks.
+
+> 
+> (> .. gets ENOENT ..
+> and that is not because it only is a partial image?)
+
+I don't think so, but I obviously have no way of actually confirming my
+suspicion.
+
+If the stat information was wrong due to the partial image, the lookup
+should still have succeeded (the directory entries certainly were there -
+otherwise they'd not have shown up in readdir), and we would just have
+gotten garbage inode information etc. I think.
+
+			Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

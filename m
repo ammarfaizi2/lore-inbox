@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267904AbUJOOlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267936AbUJOOmX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267904AbUJOOlm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 10:41:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267936AbUJOOlm
+	id S267936AbUJOOmX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 10:42:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267943AbUJOOmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 10:41:42 -0400
-Received: from promon2.netbox.cz ([83.240.31.171]:38664 "EHLO brno.promon.cz")
-	by vger.kernel.org with ESMTP id S267904AbUJOOlk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 10:41:40 -0400
-To: linux-kernel@vger.kernel.org
-Subject: promise (105a:3319) unattended boot
+	Fri, 15 Oct 2004 10:42:23 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:26898 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S267936AbUJOOmS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 10:42:18 -0400
+Message-ID: <416FE42A.3010305@techsource.com>
+Date: Fri, 15 Oct 2004 10:52:26 -0400
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-X-Mailer: Lotus Notes Release 6.0.3 September 26, 2003
-Message-ID: <OF77D5B4E1.A38CC6EC-ONC1256F2E.004E78A5-C1256F2E.0050B72C@promon.cz>
-From: a.ledvinka@promon.cz
-Date: Fri, 15 Oct 2004 16:41:37 +0200
-X-MIMETrack: Serialize by Router on Brno/Micronic(Release 6.5.2|June 01, 2004) at
- 15.10.2004 16:41:41,
-	Serialize complete at 15.10.2004 16:41:41
-Content-Type: text/plain; charset="US-ASCII"
+To: Mark_H_Johnson@raytheon.com
+CC: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Bill Huey <bhuey@lnxw.com>, Dipankar Sarma <dipankar@in.ibm.com>,
+       Adam Heath <doogie@debian.org>, Daniel Walker <dwalker@mvista.com>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Lorenzo Allegrucci <l_allegrucci@yahoo.it>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U1
+References: <OFF6785669.51B69427-ON86256F2D.0066DF1F@raytheon.com>
+In-Reply-To: <OFF6785669.51B69427-ON86256F2D.0066DF1F@raytheon.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
 
-Got here http://pciids.sourceforge.net/iii/?i=105a3319
-As http://linux.yyz.us/sata/faq-sata-raid.html#tx4 calls it 
-soft/accelerator raid version
-Going to use latest kernel from /pub/linux/kernel/v2.4/
 
-But bios even with keyboard unplugged requires me to press one of 2 keys 
-to either define array OR continue booting in case no array is defined.
+Mark_H_Johnson@raytheon.com wrote:
 
-What would you recommend me to do?
-- stay with ft3xx module from promise  and 10 level RAID array and not use 
-sata_promise?
-- define some array in bios and completely ignore that fact and use 
-sata_promise, bypass bios and define custom linux soft raid arrays?
-- anything else (no bios flashing and no hw hacking)?
+> 
+> In the systems I have to deal with, I do not have a clear criteria
+> to set priorities of interrupts relative to each other. For example, I
+> have a real time simulation system using the following devices:
+>  - occasional disk access to simulate disk I/O
+>  - real time network traffic
+>  - real time delivery of interrupts from a PCI timer card and APIC timers
+>  - real time interrupts from a shared memory interface
+> The priorities of real time tasks are basically assigned based on the
+> rate of execution. 80 Hz tasks run at a higher priority than 60 Hz, 60 Hz >
+> 40 Hz, and so on. A number of tasks can access each device.
+> 
 
-AlL.
 
-please CC me... but anyway if you forget i will have a look into archive.
+What if drivers could indicate how much "jitter" (essentially, latency) 
+its interrupts can tolerate?  Higher jitter would SORTOF translate into 
+lower priority, although the scheduler would make sure the IRQ was 
+started before its tolerance ran out (ie. the priority approaches 
+infinity as its tolerance period approaches the end).  The jitter 
+tolerance would be measured in microseconds, I guess.
 

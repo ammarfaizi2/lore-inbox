@@ -1,86 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272382AbTHNOLA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 10:11:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272385AbTHNOLA
+	id S272366AbTHNOV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 10:21:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272372AbTHNOV6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 10:11:00 -0400
-Received: from pub237.cambridge.redhat.com ([213.86.99.237]:53474 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id S272382AbTHNOK7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 10:10:59 -0400
-Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Yury Umanets <umka@namesys.com>
-Cc: Bill Davidsen <davidsen@tmr.com>, Daniel Egger <degger@fhm.edu>,
-       Hans Reiser <reiser@namesys.com>, Nikita Danilov <Nikita@namesys.com>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       reiserfs mailing list <reiserfs-list@namesys.com>
-In-Reply-To: <1060837469.17622.6.camel@haron.namesys.com>
-References: <Pine.LNX.3.96.1030813160910.12417A-100000@gatekeeper.tmr.com>
-	 <1060837469.17622.6.camel@haron.namesys.com>
-Content-Type: text/plain
-Message-Id: <1060870255.4803.49.camel@passion.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (dwmw2) 
-Date: Thu, 14 Aug 2003 15:10:55 +0100
+	Thu, 14 Aug 2003 10:21:58 -0400
+Received: from zeke.inet.com ([199.171.211.198]:11501 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id S272366AbTHNOV5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 10:21:57 -0400
+Message-ID: <3F3B9AF8.4060904@inet.com>
+Date: Thu, 14 Aug 2003 09:21:44 -0500
+From: Eli Carter <eli.carter@inet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030708
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Larry McVoy <lm@bitmover.com>
+CC: Jeff Garzik <jgarzik@pobox.com>, davej@redhat.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
+Subject: Re: [PATCH] CodingStyle fixes for drm_agpsupport
+References: <E19mF4Y-0005Eg-00@tetrachloride> <20030811164012.GB858@work.bitmover.com> <3F37CB44.5000307@pobox.com> <20030811170425.GA4418@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-08-14 at 06:04, Yury Umanets wrote:
-> Yes, you are right. Device driver cannot take care about leveling.
+Larry McVoy wrote:
+> On Mon, Aug 11, 2003 at 12:58:44PM -0400, Jeff Garzik wrote:
+> 
+>>Larry McVoy wrote:
+>>
+>>>A few comments on why I don't like this patch:
+>>>   1) It's a formatting only patch.  That screws over people who are using
+>>>      BK for debugging, now when I double click on these changes I'll get
+>>>      to your cleanup patch, not the patch that was the last substantive
+>>>      change.
+>>
+>>This is true, but at the same time, in Linux CodingStyle patches 
+>>culturally acceptable.  I think the general logic is just "don't go 
+>>overboard; reformat a tiny fragment at a time."
+> 
+> 
+> That ought to be balanced with "don't screw up the revision history, people
+> use it".  It's one thing to reformat code that is unreadable, for the most
+> part this code didn't come close to unreadable.
 
-The hardware device driver doesn't. The 'translation layer' does, in the
-case where you are using a traditional block-based file system. 
+Devil's advocate:
+Then perhaps the (revision control) tool is getting in the way of doing 
+the job and should be fixed?  :)
+Perhaps being able to flag a changeset as a 'formatting change', and 
+have the option to hide it or make it 'transparent' in some fashion? 
+Hmm... "Annotate only the changes that relate to feature X."...
+Oh, and a complete AI with that if you don't mind. ;)
 
-If you consider the translation layer and the underlying raw hardware
-driver together to form the 'device driver' from the filesystem's
-perspective and in the context of the above sentence, then you're
-incorrect -- it can, and in general it _does_ take care of wear
-levelling.
+But you've probably already thought about all this...
 
-> It is able only to take care about simple caching (one erase block) in 
-> order to make wear out smaller and do not read/write whole block if one 
-> sector should be written.
-
-Whatever meaning of 'device driver' you meant to use -- no.
-
-The raw hardware driver provides only raw read/write/erase
-functionality; no caching is appropriate. 
-
-The optional translation layer which simulates a block device provides
-far more than simple caching -- it provides wear levelling, bad block
-management, etc. All using a standard layout on the flash hardware for
-portability.
-
-(Except in the special case of the 'mtdblock' translation layer, which
-is not suitable for anything but read-only operation on devices without
-any bad blocks to be worked around.)
-
-> Part of a filesystem called "block allocator" should take care about 
-> leveling.
-
-That's insufficient. In a traditional file system, blocks get
-overwritten without being freed and reallocated -- the allocator isn't
-always involved. 
-
-If you want to teach a file system about flash and wear levelling, you
-end up ditching the pretence that it's a block device entirely and
-working directly with the flash hardware driver. 
-
-Either that or use a translation layer which does it _all_ for the file
-system and then just use a standard file system on that simulated block
-device.
-
-Between those two extremes, very little actually makes sense.
-
-If you introduce the gratuitous extra 'block device' abstraction layer
-which doesn't really fit the reality of flash hardware very well at all,
-you end up wanting to violate the layering in so many ways that you
-realise you really shouldn't have been pretending to be a block device
-in the first place.
-
--- 
-dwmw2
+Eli
+--------------------. "If it ain't broke now,
+Eli Carter           \                  it will be soon." -- crypto-gram
+eli.carter(a)inet.com `-------------------------------------------------
 

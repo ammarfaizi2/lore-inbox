@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262757AbVCPTBE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262746AbVCPTBc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262757AbVCPTBE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 14:01:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbVCPS7r
+	id S262746AbVCPTBc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 14:01:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbVCPTBa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 13:59:47 -0500
-Received: from rproxy.gmail.com ([64.233.170.201]:61877 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262746AbVCPS5V convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 13:57:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=BW5M9Rmtihs5pLMW42jiTKq2rPIvfqQpIWEofOxeiP9C08vzhw08Xk11zFejwDUuujSjk0U4h3TgOlTJg4aD1wF3xSfqaeqov+b6C/XAH2uYZkFQdXmMNecSsCC3gwZ90XaPgW6UMPHcbowDIS7vl3cFPtKyKapFCSy1HvgRSyM=
-Message-ID: <79a6fb1e050316105720a8dc85@mail.gmail.com>
-Date: Wed, 16 Mar 2005 18:57:19 +0000
-From: Ruben Fonseca <fonseka@gmail.com>
-Reply-To: Ruben Fonseca <fonseka@gmail.com>
-To: Brice Goglin <Brice.Goglin@ens-lyon.org>
-Subject: Re: 2.6.11-mm3 - DRM/i915 broken
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <423616CF.6060204@ens-lyon.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-References: <20050312034222.12a264c4.akpm@osdl.org> <42360820.702@ens-lyon.org>
-	 <200503142330.42556.bero@arklinux.org> <423616CF.6060204@ens-lyon.org>
+	Wed, 16 Mar 2005 14:01:30 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14798 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262746AbVCPTAt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 14:00:49 -0500
+Message-ID: <42388247.8050706@pobox.com>
+Date: Wed, 16 Mar 2005 14:00:23 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Guido Villa <piribillo@yahoo.it>
+CC: Manuel Lauss <mano@roarinelk.homelinux.net>, linux-kernel@vger.kernel.org
+Subject: Re: Error with Sil3112A SATA controller and Maxtor 300GB HDD
+References: <20050312160704.22527.qmail@gg.mine.nu>            <4233254F.3000509@roarinelk.homelinux.net> <20050316184523.30672.qmail@gg.mine.nu>
+In-Reply-To: <20050316184523.30672.qmail@gg.mine.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just to report that I've got the same problem with 2.6.11-mm3, with
-and without 4K stacks :( no DRI for now...
-
-Rúben
-
-
-On Mon, 14 Mar 2005 23:57:19 +0100, Brice Goglin
-<Brice.Goglin@ens-lyon.org> wrote:
-> Bernhard Rosenkraenzer a écrit :
-> > On Monday 14 March 2005 22:54, Brice Goglin wrote:
-> >
-> >>DRM/i915 does not work on my Dell Dimension 3000 (i865 chipset).
-> >>It's the first -mm kernel I try on this box. I don't whether previous -mm
-> >>worked or not. Anyway, 2.6.11 works great.
-> >
-> >
-> > You may want to try compiling without CONFIG_4KSTACKS. I've run into (not 100%
-> > reproducable) problems with i855 [and i865 is using a lot of the same code]
-> > and 4K stacks before...
+Guido Villa wrote:
+> Manuel Lauss writes:
 > 
-> Thanks, but I still see my problem without 4K stacks.
+>> I happen to have a SiI 3112A controller and a Maxtor 6B300S0 attached to
+>> it, formatted with ext2. Never had any problems. I just copied
+>> 200GB of data to it, worked flawlessly. (Vanilla 2.6.11)
+>> Maybe its the Motherboard?
+> 
+> 
+> Hi Manuel,
+> I was checking my kernel configuration, and some doubts arised in my 
+> mind. Would you please check if my parameters are the same as yours?
+> set:
+> CONFIG_IDE_GENERIC
+
+Unless you are loading an IDE driver at 0x1f0, 0x170 (legacy IDE), don't 
+use the IDE generic driver.
+
+
+> CONFIG_BLK_DEV_IDEPCI
+> CONFIG_SCSI
+> CONFIG_BLK_DEV_SD
+> CONFIG_SCSI_SATA
+> CONFIG_SCSI_SATA_SIL
+> unset:
+> CONFIG_BLK_DEV_GENERIC
+> CONFIG_BLK_DEV_SIIMAGE (I'm unsure on this)
+
+Otherwise, looks OK to me.
+
+	Jeff
+
+

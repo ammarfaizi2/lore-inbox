@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288731AbSADTZb>; Fri, 4 Jan 2002 14:25:31 -0500
+	id <S288734AbSADT3v>; Fri, 4 Jan 2002 14:29:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288730AbSADTZX>; Fri, 4 Jan 2002 14:25:23 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:11905 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S288728AbSADTZE>;
-	Fri, 4 Jan 2002 14:25:04 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Fri, 4 Jan 2002 19:24:24 GMT
-Message-Id: <UTC200201041924.TAA230416.aeb@cwi.nl>
-To: torvalds@transmeta.com, viro@math.psu.edu
-Subject: Re: 2.5.2-pre7 still missing bits of kdev_t
-Cc: Nikita@Namesys.COM, alessandro.suardi@oracle.com, andries.brouwer@cwi.nl,
-        jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
+	id <S288732AbSADT3l>; Fri, 4 Jan 2002 14:29:41 -0500
+Received: from [198.17.35.35] ([198.17.35.35]:1192 "HELO mx1.peregrine.com")
+	by vger.kernel.org with SMTP id <S288729AbSADT3f>;
+	Fri, 4 Jan 2002 14:29:35 -0500
+Message-ID: <B51F07F0080AD511AC4A0002A52CAB445B2A5A@ottonexc1.ottawa.loran.com>
+From: Dana Lacoste <dana.lacoste@peregrine.com>
+To: "'Bernd Eckenfels'" <usenet2001-12@lina.inka.de>,
+        linux-kernel@vger.kernel.org
+Subject: RE: Two hdds on one channel - why so slow?
+Date: Fri, 4 Jan 2002 11:29:17 -0800 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From viro@math.psu.edu Fri Jan  4 19:11:10 2002
+> Because Firewire is Consumer electronics and nearly dead. Dont now of
+> Enterpise Solutions with Firewire. Besides there is no 
+> switching support for it.
 
-    On Fri, 4 Jan 2002, Linus Torvalds wrote:
+Also the bandwidth differences :
 
-    > On Fri, 4 Jan 2002, Jeff Garzik wrote:
-    > >
-    > > As mentioned to viro on IRC, I think init_special_inode should take
-    > > major and minor arguments, to nudge the filesystem implementors into
-    > > thinking that major and minor should be treated separately, and be
-    > > given additional thought as to how they are encoded on-disk.
-    > 
-    > Yes. If somebody sends me a patch, I'll apply it in a jiffy.
+Firewire (Generation 1, what you can get now) is 400Mbit/s
+FC Gen 1 is 100MByte/s
+Gen 2 is 200MByte/s
+(OK, I know those last two numbers are right, but I don't
+know what the NAMES of the standards are :)
 
-    Guys, wait a minute with that.  There is a related issue (->i_rdev
-    becoming dev_t) and I'd rather see it handled first.
+Firewire isn't even supposed to be in the same league! :)
 
-Those are independent issues.
-
-If init_special_inode() has major,minor arguments instead of
-the present rdev, then the line
-
-	inode->i_rdev = to_kdev_t(rdev);
-
-just becomes
-
-	inode->i_rdev = mk_kdev(major,minor);
-
-I consider every occurrence of mk_kdev() and of to_kdev_t()
-a flaw in the kernel, so this change does not make things
-better or worse inside init_special_inode().
-
-Andries
+Dana Lacoste
+Ottawa, Canada

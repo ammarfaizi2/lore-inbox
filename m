@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313867AbSEMPaL>; Mon, 13 May 2002 11:30:11 -0400
+	id <S313898AbSEMPhE>; Mon, 13 May 2002 11:37:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314061AbSEMPaK>; Mon, 13 May 2002 11:30:10 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:37894 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S313867AbSEMPaH>; Mon, 13 May 2002 11:30:07 -0400
-Date: Mon, 13 May 2002 17:29:23 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Larry McVoy <lm@work.bitmover.com>, Russell King <rmk@arm.linux.org.uk>,
-        "Dave Gilbert (Home)" <gilbertd@treblig.org>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: Changelogs on kernel.org
-Message-ID: <20020513152923.GB5811@louise.pinerecords.com>
-In-Reply-To: <20020512145802Z313578-22651+30503@vger.kernel.org> <Pine.LNX.4.44L.0205122146310.32261-100000@imladris.surriel.com> <20020513115800.GC4258@louise.pinerecords.com> <3CDFB41A.6070701@treblig.org> <20020513140158.B6024@flint.arm.linux.org.uk> <20020513132734.GA5134@louise.pinerecords.com> <20020513081256.B20864@work.bitmover.com>
+	id <S314061AbSEMPhE>; Mon, 13 May 2002 11:37:04 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:58244
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S313898AbSEMPhD>; Mon, 13 May 2002 11:37:03 -0400
+Date: Mon, 13 May 2002 08:36:22 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.15 IDE 62
+Message-ID: <20020513153622.GE721@opus.bloom.county>
+In-Reply-To: <Pine.LNX.4.44.0205052046590.1405-100000@home.transmeta.com> <3CDFAEC0.6050403@evision-ventures.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.99i
-X-OS: Linux/sparc 2.2.21-rc3-ext3-0.0.7a SMP (up 20:52)
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> BK reporting is keyed off of somehing called "dspecs" (for data
-> specification).  They are a lot like a primitive printf format.
-> The default dspec for changes is
-> 
-> 	":DPN:@:I:, :Dy:-:Dm:-:Dd: :T::TZ:, :P:$if(:HT:){@:HT:}\n$each(:C:){  (:C:)\n}$each(:TAG:){  TAG: (:TAG:)\n}\n"
+On Mon, May 13, 2002 at 02:17:04PM +0200, Martin Dalecki wrote:
 
-Nice!
+> Mon May 13 12:38:11 CEST 2002 ide-clean-62
 
-The idea with the perl script was, I reckon, to merely provide a tool
-thru which people could pipe the standard linux 2.5 ChangeLog and get
-an output that suits their own eye. Something like
+Hello.  Since include/linux/ide.h has a 'u8', a 'u16', and a 'u64' can
+you apply the following so that it doesn't rely in <asm/types.h> being
+included indirectly?
 
-$ wget -q ftp://ftp.kernel.org/pub/linux/kernel/v2.5/ChangeLog-2.5.16
-$ cat ChangeLog-2.5.16| CMODE=1 /usr/src/linux/scripts/cl.pl| less
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/
 
-T.
+===== include/linux/ide.h 1.60 vs edited =====
+--- 1.60/include/linux/ide.h	Thu May  9 11:43:58 2002
++++ edited/include/linux/ide.h	Mon May 13 08:34:32 2002
+@@ -17,6 +17,7 @@
+ #include <linux/bitops.h>
+ #include <asm/byteorder.h>
+ #include <asm/hdreg.h>
++#include <asm/types.h>
+ 
+ /*
+  * This is the multiple IDE interface driver, as evolved from hd.c.

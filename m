@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263829AbTDNT6K (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 15:58:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263839AbTDNT6K (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 15:58:10 -0400
-Received: from Mail1.KONTENT.De ([81.88.34.36]:56722 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S263829AbTDNT6J (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 15:58:09 -0400
-From: Oliver Neukum <oliver@neukum.org>
-Reply-To: oliver@neukum.name
-To: Greg KH <greg@kroah.com>
-Subject: Re: [RFC] /sbin/hotplug multiplexor
-Date: Mon, 14 Apr 2003 22:09:56 +0200
-User-Agent: KMail/1.5
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20030414190032.GA4459@kroah.com> <200304142116.45303.oliver@neukum.org> <20030414195438.GA4952@kroah.com>
-In-Reply-To: <20030414195438.GA4952@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id S263932AbTDNUP0 (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 16:15:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263933AbTDNUP0 (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 16:15:26 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:29168 "EHLO
+	iapetus.localdomain") by vger.kernel.org with ESMTP id S263932AbTDNUPY (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 16:15:24 -0400
+Date: Mon, 14 Apr 2003 22:27:41 +0200
+From: Frank van Maarseveen <frankvm@xs4all.nl>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Memory mapped files question
+Message-ID: <20030414202741.GA26414@iapetus.localdomain>
+Mail-Followup-To: Frank van Maarseveen <frankvm@xs4all.nl>,
+	"Richard B. Johnson" <root@chaos.analogic.com>,
+	linux-kernel@vger.kernel.org
+References: <A46BBDB345A7D5118EC90002A5072C780BEBAD8D@orsmsx116.jf.intel.com> <004301c302bd$ed548680$fe64a8c0@webserver> <Pine.LNX.4.53.0304141559140.28851@chaos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200304142209.56506.oliver@neukum.org>
+In-Reply-To: <Pine.LNX.4.53.0304141559140.28851@chaos>
+User-Agent: Mutt/1.4i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 14. April 2003 21:54 schrieb Greg KH:
-> On Mon, Apr 14, 2003 at 09:16:45PM +0200, Oliver Neukum wrote:
-> > > Any objections or comments?  If not, I'll make the changes in the
-> > > linux-hotplug project and release a new version based on this.
-> >
-> > Yes, consider what this does if you connect to a FibreChannel
-> > grid. You are pushing system load by at least an order of magnitude.
->
-> When you add a FibreChannel grid, the devices are discovered in
-> sequential order, with SCSI IO happening between each device discovered.
-> In talking to the SCSI people, that should be about 30ms per device
-> found at the quickest.  So there's no /sbin/hotplug process storm :)
->
-> And even if there is, we have to be able to handle such a load under
-> normal situations anyway :)
+On Mon, Apr 14, 2003 at 04:13:52PM -0400, Richard B. Johnson wrote:
+> 
+> Memory mapped files are supposed to be accessed through memory!
+> Any program that needs to know what's on the physical disk is
+> broken. If you need to write to files and know when they are
+> written to the physical media, you use a journaled file-system.
 
-Well, plugging them in is one case. But what is plugged in, will
-eventually be unplugged as well. That will not require probing.
+It is not that simple.
+Shared mmaped files are _never_ flushed, at least in 2.4.x. So,
+without an explicit msync() a process (innd comes to mind) may loose
+years of updates upon a system crash or power outage.
 
-Now let's be conservative and assume 16KB unswappable memory
-per task. Now we take the famous 4000 disk case. 64MB. A lot
-but probably not deadly. But multiply this by 15 and the machine is
-absolutely dead.
+I have learned to live with it but I still find this a bit awkward.
 
-	Regards
-		Oliver
-
-
+-- 
+Frank

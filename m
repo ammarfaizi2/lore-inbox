@@ -1,41 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280845AbRKOO3Y>; Thu, 15 Nov 2001 09:29:24 -0500
+	id <S280848AbRKOOpF>; Thu, 15 Nov 2001 09:45:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280848AbRKOO3E>; Thu, 15 Nov 2001 09:29:04 -0500
-Received: from elin.scali.no ([62.70.89.10]:5389 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S280845AbRKOO3A>;
-	Thu, 15 Nov 2001 09:29:00 -0500
-Subject: Watchdogs dynamically setting NOWAYOUT
-From: Terje Eggestad <terje.eggestad@scali.no>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.0 (Preview Release)
-Date: 15 Nov 2001 15:28:59 +0100
-Message-Id: <1005834539.1301.20.camel@pc-16.office.scali.no>
-Mime-Version: 1.0
+	id <S280863AbRKOOoz>; Thu, 15 Nov 2001 09:44:55 -0500
+Received: from jdi.jdimedia.nl ([212.204.192.51]:38312 "EHLO jdi.jdimedia.nl")
+	by vger.kernel.org with ESMTP id <S280848AbRKOOop>;
+	Thu, 15 Nov 2001 09:44:45 -0500
+Date: Thu, 15 Nov 2001 15:43:28 +0100 (CET)
+From: Igmar Palsenberg <i.palsenberg@jdimedia.nl>
+X-X-Sender: <igmar@jdi.jdimedia.nl>
+To: <linux-kernel@vger.kernel.org>
+Subject: ISDN chargehup
+Message-ID: <Pine.LNX.4.33.0111151531300.22458-200000@jdi.jdimedia.nl>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-858508352-1178905614-1005835408=:22458"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Do anyone have a patch that allows setting the compile time flag 
-CONFIG_WATCHDOG_NOWAYOUT dynamically, like thru /proc ??
+---858508352-1178905614-1005835408=:22458
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-It would be nice during maintance to disable automatic reboot.
 
-TJ
+Hi,
+
+ISDN chargehup control is broken :
+
+[root@fw /root]# isdnctrl chargehup ippp0
+Charge-Hangup for ippp0 is on
+[root@fw /root]# isdnctrl chargehup ippp0 off
+Charge-Hangup for ippp0 is off
+[root@fw /root]# isdnctrl chargehup ippp0
+Charge-Hangup for ippp0 is on
+
+With fix applied :
+
+[root@fw /root]# isdnctrl chargehup ippp0
+Charge-Hangup for ippp0 is on
+[root@fw /root]# isdnctrl chargehup ippp0 off
+Charge-Hangup for ippp0 is off
+[root@fw /root]# isdnctrl chargehup ippp0
+Charge-Hangup for ippp0 is off
+
+
+Fix is attached.
+
+
+
+	Regards,
+
+
+		Igmar
+
+
+
 
 -- 
-_________________________________________________________________________
 
-Terje Eggestad                  terje.eggestad@scali.no
-Scali Scalable Linux Systems    http://www.scali.com
+Igmar Palsenberg
+JDI Media Solutions
 
-Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
-P.O.Box 70 Bogerud                      +47 975 31 574  (MOBILE)
-N-0621 Oslo                     fax:    +47 22 62 89 51
-NORWAY            
-_________________________________________________________________________
+Boulevard Heuvelink 102
+6828 KT Arnhem
+The Netherlands
 
+mailto: i.palsenberg@jdimedia.nl
+PGP/GPG key : http://www.jdimedia.nl/formulier/pgp/igmar
+
+---858508352-1178905614-1005835408=:22458
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="linux-2.4.14-chargehup.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0111151543280.22458@jdi.jdimedia.nl>
+Content-Description: 
+Content-Disposition: attachment; filename="linux-2.4.14-chargehup.patch"
+
+LS0tIGxpbnV4LTIuNC4xNC9kcml2ZXJzL2lzZG4vaXNkbl9uZXQuYy5vcmln
+CVRodSBOb3YgMTUgMTU6MjE6NDkgMjAwMQ0KKysrIGxpbnV4LTIuNC4xNC9k
+cml2ZXJzL2lzZG4vaXNkbl9uZXQuYwlUaHUgTm92IDE1IDE1OjIyOjEzIDIw
+MDENCkBAIC0yODcyLDcgKzI4NzIsNyBAQA0KIAkJZWxzZQ0KIAkJCWxwLT5o
+dXBmbGFncyAmPSB+SVNETl9JTkhVUDsNCiAJCWlmIChjZmctPmNoYXJnZWlu
+dCA+IDEwKSB7DQotCQkJbHAtPmh1cGZsYWdzIHw9IElTRE5fQ0hBUkdFSFVQ
+IHwgSVNETl9IQVZFQ0hBUkdFIHwgSVNETl9NQU5DSEFSR0U7DQorCQkJbHAt
+Pmh1cGZsYWdzIHw9IElTRE5fSEFWRUNIQVJHRSB8IElTRE5fTUFOQ0hBUkdF
+Ow0KIAkJCWxwLT5jaGFyZ2VpbnQgPSBjZmctPmNoYXJnZWludCAqIEhaOw0K
+IAkJfQ0KIAkJaWYgKGNmZy0+cF9lbmNhcCAhPSBscC0+cF9lbmNhcCkgew0K
+
+---858508352-1178905614-1005835408=:22458--

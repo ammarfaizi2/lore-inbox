@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263437AbTHWOOf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 10:14:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263581AbTHWOOf
+	id S263739AbTHWORh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 10:17:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263554AbTHWORg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 10:14:35 -0400
-Received: from AMarseille-201-1-3-186.w193-253.abo.wanadoo.fr ([193.253.250.186]:24615
-	"EHLO gaston") by vger.kernel.org with ESMTP id S263537AbTHWOOb
+	Sat, 23 Aug 2003 10:17:36 -0400
+Received: from AMarseille-201-1-3-186.w193-253.abo.wanadoo.fr ([193.253.250.186]:25383
+	"EHLO gaston") by vger.kernel.org with ESMTP id S263429AbTHWOPB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 10:14:31 -0400
-Subject: Re: [PATCH] 2.6.0-test4 PowerMac IDE breakage
+	Sat, 23 Aug 2003 10:15:01 -0400
+Subject: Re: [PATCH] 2.6.0-test4 PowerMac floppy driver fixes
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 To: Mikael Pettersson <mikpe@csd.uu.se>
 Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       linuxppc-devel@lists.linuxppc.org
-In-Reply-To: <200308231221.h7NCLp0m017908@harpo.it.uu.se>
-References: <200308231221.h7NCLp0m017908@harpo.it.uu.se>
+       linuxppc-devel@lists.linuxppc.org, Paul Mackerras <paulus@samba.org>
+In-Reply-To: <200308231223.h7NCNQ5p017957@harpo.it.uu.se>
+References: <200308231223.h7NCNQ5p017957@harpo.it.uu.se>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1061648059.805.0.camel@gaston>
+Message-Id: <1061648087.805.2.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.4 
-Date: Sat, 23 Aug 2003 16:14:20 +0200
+Date: Sat, 23 Aug 2003 16:14:48 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-08-23 at 14:21, Mikael Pettersson wrote:
-> PowerMac's IDE driver got broken in 2.6.0-test4:
+On Sat, 2003-08-23 at 14:23, Mikael Pettersson wrote:
+> The PowerMac floppy driver (swim3) is seriously broken in 2.6:
+> it doesn't compile, it isn't initialized, and it lacks Paul Mackerras'
+> 2.4 kernel swim3 fixes from March 29 this year.
 > 
->   ppc-unknown-linux-gcc -Wp,-MD,drivers/ide/ppc/.pmac.o.d -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -Iarch/ppc -msoft-float -pipe -ffixed-r2 -Wno-uninitialized -mmultiple -mstring -D__KERNEL__ -Iinclude -Iarch/ppc -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -Iarch/ppc -msoft-float -pipe -ffixed-r2 -Wno-uninitialized -mmultiple -mstring -fomit-frame-pointer -nostdinc -iwithprefix include  -Idrivers/ide  -DKBUILD_BASENAME=pmac -DKBUILD_MODNAME=pmac -c -o drivers/ide/ppc/pmac.o drivers/ide/ppc/pmac.c
-> drivers/ide/ppc/pmac.c: In function `pmac_ide_build_sglist':
-> drivers/ide/ppc/pmac.c:945: warning: passing arg 1 of `blk_rq_map_sg' from incompatible pointer type
-> 
-> Fixed by the patch below.
+> Below is an update to 2.6.0-test4's swim3.c which fixes these issues.
+> I've been using this since early 2.5.7x with no problems.
 
-Patch for this (and others) inluding other updates to the driver
-on it's way to Linus... 
+Thanks, that will be in my next round of patches.
 
 Ben.
 

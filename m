@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266560AbTABV6K>; Thu, 2 Jan 2003 16:58:10 -0500
+	id <S266640AbTABWFt>; Thu, 2 Jan 2003 17:05:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267166AbTABV5Y>; Thu, 2 Jan 2003 16:57:24 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:8901 "EHLO
+	id <S266638AbTABV21>; Thu, 2 Jan 2003 16:28:27 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:50372 "EHLO
 	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S266652AbTABVaF>; Thu, 2 Jan 2003 16:30:05 -0500
+	id <S266576AbTABV0c>; Thu, 2 Jan 2003 16:26:32 -0500
 From: Tomas Szepe <kala@pinerecords.com>
-Date: Thu, 02 Jan 2003 22:38:29 +0100
+Date: Thu, 02 Jan 2003 22:34:59 +0100
 To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [unify netdev config 18/22] net.0
-Message-ID: <3E14B155.mailLYF11W8JM@louise.pinerecords.com>
+Subject: [unify netdev config  4/22] arch-ia64
+Message-ID: <3E14B083.mailLQP1OL9OV@louise.pinerecords.com>
 User-Agent: nail 10.3 11/29/02
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -19,16 +19,51 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -urN a/drivers/atm/Kconfig b/drivers/atm/Kconfig
---- a/drivers/atm/Kconfig	2002-10-31 02:33:41.000000000 +0100
-+++ b/drivers/atm/Kconfig	2003-01-02 21:52:42.000000000 +0100
-@@ -3,7 +3,8 @@
- #
+diff -urN a/arch/ia64/Kconfig b/arch/ia64/Kconfig
+--- a/arch/ia64/Kconfig	2002-12-24 10:45:35.000000000 +0100
++++ b/arch/ia64/Kconfig	2003-01-01 19:47:04.000000000 +0100
+@@ -655,44 +655,6 @@
  
- menu "ATM drivers"
--	depends on NETDEVICES && ATM
-+# FIXME: should also include M68KNOMMU and CRIS!
-+	depends on NETDEVICES && ATM && (SUPERH || PPC || X86 || MIPS || V850 || ALPHA || PPC64 || SPARC32 || SPARC64 || SGI_IP22 || SGI_IP27 || PARISC)
+ if !IA64_HP_SIM
  
- config ATM_TCP
- 	tristate "ATM over TCP"
+-menu "Network device support"
+-	depends on NET
+-
+-config NETDEVICES
+-	bool "Network device support"
+-	---help---
+-	  You can say N here if you don't intend to connect your Linux box to
+-	  any other computer at all or if all your connections will be over a
+-	  telephone line with a modem either via UUCP (UUCP is a protocol to
+-	  forward mail and news between unix hosts over telephone lines; read
+-	  the UUCP-HOWTO, available from
+-	  <http://www.linuxdoc.org/docs.html#howto>) or dialing up a shell
+-	  account or a BBS, even using term (term is a program which gives you
+-	  almost full Internet connectivity if you have a regular dial up
+-	  shell account on some Internet connected Unix computer. Read
+-	  <http://www.bart.nl/~patrickr/term-howto/Term-HOWTO.html>).
+-
+-	  You'll have to say Y if your computer contains a network card that
+-	  you want to use under Linux (make sure you know its name because you
+-	  will be asked for it and read the Ethernet-HOWTO (especially if you
+-	  plan to use more than one network card under Linux)) or if you want
+-	  to use SLIP (Serial Line Internet Protocol is the protocol used to
+-	  send Internet traffic over telephone lines or null modem cables) or
+-	  CSLIP (compressed SLIP) or PPP (Point to Point Protocol, a better
+-	  and newer replacement for SLIP) or PLIP (Parallel Line Internet
+-	  Protocol is mainly used to create a mini network by connecting the
+-	  parallel ports of two local systems) or AX.25/KISS (protocol for
+-	  sending Internet traffic over amateur radio links).
+-
+-	  Make sure to read the NET-3-HOWTO. Eventually, you will have to read
+-	  Olaf Kirch's excellent and free book "Network Administrator's
+-	  Guide", to be found in <http://www.linuxdoc.org/docs.html#guide>. If
+-	  unsure, say Y.
+-
+-source "drivers/net/Kconfig"
+-
+-endmenu
+-
+ source "net/ax25/Kconfig"
+ 
+ source "drivers/isdn/Kconfig"

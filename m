@@ -1,93 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265153AbUADJZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 04:25:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265155AbUADJZ0
+	id S265155AbUADJZ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 04:25:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265159AbUADJZ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 04:25:26 -0500
-Received: from ausmtp02.au.ibm.com ([202.81.18.187]:49074 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S265153AbUADJZX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 04:25:23 -0500
-Date: Sat, 3 Jan 2004 16:02:28 +1100
-From: Rusty Russell <rusty@au1.ibm.com>
-To: vatsa@in.ibm.com
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: Module Observations
-Message-Id: <20040103160228.4692b373.rusty@rustcorp.com.au>
-In-Reply-To: <20040102185509.A18154@in.ibm.com>
-References: <20040102185509.A18154@in.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Sun, 4 Jan 2004 04:25:56 -0500
+Received: from codepoet.org ([166.70.99.138]:56515 "EHLO codepoet.org")
+	by vger.kernel.org with ESMTP id S265155AbUADJZx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 04:25:53 -0500
+Date: Sun, 4 Jan 2004 02:25:53 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: [PATCH] FAT: Support the large partition (> 128GB) for 2.4
+Message-ID: <20040104092553.GA13986@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+	linux-kernel@vger.kernel.org,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+References: <87k74or58m.fsf@devron.myhome.or.jp> <20031231091359.GA13996@codepoet.org> <87d6a0rsiw.fsf@devron.myhome.or.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87d6a0rsiw.fsf@devron.myhome.or.jp>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Jan 2004 18:55:09 +0530
-Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
-
-> Hi,
-> 	I was going thr' module code and made some observations:
+On Sun Jan 04, 2004 at 06:07:35PM +0900, OGAWA Hirofumi wrote:
+> Erik Andersen <andersen@codepoet.org> writes:
 > 
-> 1. sys_init_module drops the module_mutex semaphore
->    before calling mod->init() function and later
->    reacquires it. After reacquiring, it marks
->    the module state as MODULE_STATE_LIVE.
+> > > This is used for updates (not create) of the directory entry, and
+> > > overflowed by large partition (> 128GB).
+> > 
+> > I think this additional fat32 patch would be a good idea for
+> > 2.4.x.  Could you review these changes and perhaps fold them into
+> > your patch for inclusion into 2.4.x.  This patch fixes support
+> > for the full 4GB (-1 bytes) allowable fat32 file size, and should
+> > be added onto of your previous patch for large fat32 filesystems.
 > 
->    In the window when mod->init() function is running,
->    isn't it possible that sys_delete_module (running
->    on some other CPU and trying to remove the _same_ module)
->    acquires the module_mutex sem and marks the module
->    state as MODULE_STATE_GOING?
-> 
->    Shouldn't sys_init_module check for
->    that possibility when it reacquires the semaphore after
->    calling mod->init function?
+> Basically looks good. But it was forgetting to fix the mmu_private of
+> some filesystems.
 
-Good catch.  The module removal should refuse to remove it without --force.
+Yes, I suppose all filesystems should be fixed.
 
-I opened this hole when I dropped the sem around mod->init() (because
-some modules load other modules in their init routine).
+> If previous patch was applied and someone didn't submit this stuff,
+> I'll try it.
 
-Andrew, please apply patch below.
+That would be great.
 
-> 2. try_module_get() and module_put()
-> 
-> 	try_module_get increments the local cpu's ref count for the module 
->    and module_put decrements it.
-> 
->    Is it required that the caller call both these functions from the same CPU?
->    Otherwise, the total refcount for the module will be non-zero!
+ -Erik
 
-No, it's OK.  We only care about the *total* being zero.
-
-Thanks,
-Rusty.
--- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
-
-Name: Prevent Removal of Module During Init
-Author: Rusty Russell
-Status: Trivial
-
-D: Vatsa spotted this: you can remove a module while it's being
-D: initialized, and that will be bad.  Hole was opened when I dropped
-D: the sem around the init routine (which can probe for other
-D: modules).
-
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22325-linux-2.6.1-rc1/kernel/module.c .22325-linux-2.6.1-rc1.updated/kernel/module.c
---- .22325-linux-2.6.1-rc1/kernel/module.c	2003-11-24 15:42:33.000000000 +1100
-+++ .22325-linux-2.6.1-rc1.updated/kernel/module.c	2004-01-03 15:59:54.000000000 +1100
-@@ -687,8 +687,8 @@ sys_delete_module(const char __user *nam
- 		goto out;
- 	}
- 
--	/* Already dying? */
--	if (mod->state == MODULE_STATE_GOING) {
-+	/* Doing init or already dying? */
-+	if (mod->state != MODULE_STATE_LIVE) {
- 		/* FIXME: if (force), slam module count and wake up
-                    waiter --RR */
- 		DEBUGP("%s already dying\n", mod->name);
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

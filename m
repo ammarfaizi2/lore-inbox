@@ -1,75 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277365AbRJVA2W>; Sun, 21 Oct 2001 20:28:22 -0400
+	id <S277371AbRJVAew>; Sun, 21 Oct 2001 20:34:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277366AbRJVA2N>; Sun, 21 Oct 2001 20:28:13 -0400
-Received: from unthought.net ([212.97.129.24]:35208 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S277365AbRJVA2F>;
-	Sun, 21 Oct 2001 20:28:05 -0400
-Date: Mon, 22 Oct 2001 02:28:39 +0200
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: Tim Jansen <tim@tjansen.de>
-Cc: lgb@lgb.hu, linux-kernel@vger.kernel.org
-Subject: Re: LPP (was: The new X-Kernel !)
-Message-ID: <20011022022839.A8452@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	Tim Jansen <tim@tjansen.de>, lgb@lgb.hu,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011021220346.D19390@vega.digitel2002.hu> <000801c15a78$b79a4280$150a10ac@gearboxsoftware.com> <20011021235311.C21640@vega.digitel2002.hu> <15vQtM-22TOdsC@fmrl02.sul.t-online.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <15vQtM-22TOdsC@fmrl02.sul.t-online.com>; from tim@tjansen.de on Mon, Oct 22, 2001 at 12:19:07AM +0200
+	id <S277366AbRJVAen>; Sun, 21 Oct 2001 20:34:43 -0400
+Received: from mailout00.sul.t-online.com ([194.25.134.16]:41411 "EHLO
+	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S277373AbRJVAe2>; Sun, 21 Oct 2001 20:34:28 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Tim Jansen <tim@tjansen.de>
+To: jesse@cats-chateau.net
+Subject: Re: The new X-Kernel !
+Date: Mon, 22 Oct 2001 02:37:38 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <Pine.LNX.4.10.10110211025130.13079-100000@transvirtual.com> <15vO3W-0DSqTwC@fmrl00.sul.t-online.com> <01102119103200.19723@tabby>
+In-Reply-To: <01102119103200.19723@tabby>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <15vT3P-28eRloC@fmrl04.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 22, 2001 at 12:19:07AM +0200, Tim Jansen wrote:
-> On Sunday 21 October 2001 23:53, Gábor Lénárt wrote:
-> > But for being serious ... For example you can build SECURITY into an OS.
-> > You can install "firewalls" to Windows. And that sw component may ask
-> > user that it detects something which MAY cause problems, and it asks
-> > user if this task is allowed or not. And most of "stupid-users" don't
-> > even read what message said! And if so, it's not helpful at all, since
-> > the security on answering a question is to KNOW what does it covers.
-> 
-> But part of this problem is that users get too much information that they 
-> don't understand, so they are getting used to ignore it. What you have to do 
-> to make the system easier to use is reduce the amount of information and make 
-> it easier to understand. The boot messages of the kernel are certainly much 
-> more than a regular user needs (and I am speaking those people who are 
-> currently using Windows or Macs, not Linux) and not very helpful for them.
-> 
+On Monday 22 October 2001 02:10, you wrote:
+> Neither - It is a resource allocation problem, which all UNIX style systems
+> seem to lack. And second, it doesn't happen at the present time with
+> mice/keyboard/display unless somebody (root) did not configure the system
+> properly (as in leave the device inodes accessable to world) OR change the
+> protection to permit access.
+> Once a resource is allocated to a user session (not process) it should not
+> be accessable to other users.
 
-How would hiding that information make the system "easier to use" ?   They
-can't interact with the boot process anyway - but they can call their sysadmin
-and say "it said 'kernel panic'" and he can make them read up the last few
-lines on the screen.
+But what's the point of doing it in the kernel instead of the user space? 
+Basically X11 is nothing but a library for accessing mice/keyboard/display 
+plus some daemon that manages these resource and introduces some policies 
+(for example each process gets one or more windows it can draw in). And 
+especially the display clearly needs some policy enforced to be useful for 
+several processes.
 
-I've done that successfully with the mail-relay/proxy/router/fileserver at my
-parent's house, with my mother at the keyboard ! She writes books about gardens
-for a living.  If all she could tell me was "well there's a penguin with a line
-under it that doesn't move", I'd be pretty stuck.
 
-Really, treating people like idiots will get you idiots.  I don't believe there
-are that many idiots around - but some computer litterates seem to have the
-idea that computer illiterates are best treated as drooling morons. Those poor
-people will never know, because they never get a chance.   This is *not* doing
-them a favour.
+> It is NOT sufficient for things like tape drives. The only way to prevent
+> conflict at the present time is to change the ownership of the inode, and
+> ensure that the protection mask only permits user access. It is ALSO
+> necessary to ensure that no other processes have that device open at the
+> same time.
 
- "User friendliness is often confused
-  with designing software for idiots"
-    - me  ;)
+Why should several process be allowed to access a tape drive? Raw access, 
+like the kernel driver will provide, that allows things like fast-forward 
+must be coordinated, at least. You need a higher level interface that 
+coordinates things among processes. 
 
-Now don't think that I'm against nice user interfaces.  Not at all.  I'm just
-against over-protecting people from the real world.   Don't hide generally
-useful information, that's all.
+I do agree that the neccessary IPC for the communication between such a 
+higher-level driver and the processes that use it is a problem though. That's 
+why I like FUSD (http://www.circlemud.org/~jelson/software/fusd/), it gives 
+you the ability to create higher-level drivers in user-space that behave like 
+kernel drivers. (And, BTW, makes fun stuff possible like accessing 
+device files on other computers over the network, without rewriting 
+applications)
 
---
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+bye...

@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVAQVqS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261364AbVAQVpm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261455AbVAQVqS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 16:46:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVAQVqR
+	id S261364AbVAQVpm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 16:45:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbVAQVpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 16:46:17 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:3466 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261455AbVAQVqA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 16:46:00 -0500
-Subject: Re: smbfs in 2.6.8 SMP kernel
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Brian Henning <brian@strutmasters.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <41EC003B.7040606@strutmasters.com>
-References: <41EBD4E8.70905@strutmasters.com>
-	 <Pine.LNX.4.61.0501171633140.20155@jjulnx.backbone.dif.dk>
-	 <41EC003B.7040606@strutmasters.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1105984827.16096.10.camel@localhost.localdomain>
+	Mon, 17 Jan 2005 16:45:42 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:24846 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S261364AbVAQVpf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 16:45:35 -0500
+Date: Mon, 17 Jan 2005 16:44:22 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [rfc] i810_audio: offset LVI from CIV to avoid stalled start
+Message-ID: <20050117214420.GH4348@tuxdriver.com>
+Mail-Followup-To: Herbert Xu <herbert@gondor.apana.org.au>,
+	linux-kernel@vger.kernel.org, jgarzik@pobox.com
+References: <20050117183708.GD4348@tuxdriver.com> <20050117203930.GA9605@gondor.apana.org.au>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 17 Jan 2005 20:41:28 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050117203930.GA9605@gondor.apana.org.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-01-17 at 18:13, Brian Henning wrote:
-> Jesper Juhl wrote:
-> > If I remember correctly there was some smbfs breakage a few releases back 
-> > - 2.6.8 sounds about right. I'd suggest you try a newer kernel like 2.6.10 
-> > or 2.6.11-rc1 and see if that works better.
+On Tue, Jan 18, 2005 at 07:39:30AM +1100, Herbert Xu wrote:
+> On Mon, Jan 17, 2005 at 01:37:08PM -0500, John W. Linville wrote:
+> > "Some" OSS applications have trouble with later versions of the
+> > i810_audio driver.  Wolfenstein Enemy Territory from idSoftware is
+> > one such application.
 > 
-> No luck with smbfs in 2.6.10 with SMP either; however, I discovered the 
-> existence of CIFS (which I previously did not know about), and it 
-> appears to work smoothly in place of smbfs.
+> Would it be possible to create a minimal program (something that triggers
+> a start through __i810_update_lvi) that reproduces this problem?
 
-2.6.10-ac fixes several problems with the later smbfs code but cifs is
-probably the better choice
+Possible is, of course, somewhat relative... :-)  I'm not immediately
+equipped to produce such a program.
 
+Enemy Territory is available for free (as in beer) download from
+www.enemy-territory.com.  Sound plays almost immediately once the
+game is started.
+
+Is this sufficient?
+
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

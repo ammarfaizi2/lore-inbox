@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276814AbRJCAqg>; Tue, 2 Oct 2001 20:46:36 -0400
+	id <S276813AbRJCApQ>; Tue, 2 Oct 2001 20:45:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276815AbRJCAqQ>; Tue, 2 Oct 2001 20:46:16 -0400
-Received: from noodles.codemonkey.org.uk ([62.49.180.5]:22703 "EHLO
-	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id <S276814AbRJCAqN>; Tue, 2 Oct 2001 20:46:13 -0400
-Date: Wed, 3 Oct 2001 01:45:05 +0100
-From: Dave Jones <davej@suse.de>
-To: powertweak-linux@lists.sourceforge.net
-Cc: linuxperf@nl.linux.org, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] Powertweak v0.99.4
-Message-ID: <20011003014505.A7063@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>, powertweak-linux@lists.sf.net,
-	linuxperf@nl.linux.org, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S276814AbRJCApG>; Tue, 2 Oct 2001 20:45:06 -0400
+Received: from nrg.org ([216.101.165.106]:20490 "EHLO nrg.org")
+	by vger.kernel.org with ESMTP id <S276813AbRJCAot>;
+	Tue, 2 Oct 2001 20:44:49 -0400
+Date: Tue, 2 Oct 2001 17:43:49 -0700 (PDT)
+From: Nigel Gamble <nigel@nrg.org>
+Reply-To: nigel@nrg.org
+To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+cc: Robert Love <rml@ufl.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Re[2]: Latency measurements
+In-Reply-To: <9121494397.20011002150120@port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.05.10110021735300.15078-100000@cosmic.nrg.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just uploaded v0.99.4 (a bugfix only release) of Powertweak,
-the hardware configuration/tuning tool to
-http://sourceforge.net/project/showfiles.php?group_id=253
+On Tue, 2 Oct 2001, VDA wrote:
+> >> These are the longest held locks on my system
+> >> (PII 233 UP, 32MB RAM, SVGA 16bit color fb console, X)
+> >> Kernel: 2.4.10 + ext3 + preemption
+> >> I am very willing to test any patches to reduce latency.
+> >> 
+> >> 418253       BKL        1   712/tty_io.c        c01b41c5   714/tty_io.c
+> >> 222609       BKL        1   712/tty_io.c        c01b41c5   697/sched.c   
+> >> 152903 spin_lock        5   547/sched.c         c0114fd5   714/tty_io.c  
+> >> 132422       BKL        5   712/tty_io.c        c01b41c5   714/tty_io.c  
+> >> 104548       BKL        1   712/tty_io.c        c01b41c5  1380/sched.c
 
-v0.99.3 announced a few days ago had quite a few problems,
-which this release fixes. As well as those documented below
-there have been various fixes to get the code building on
-various strange glibc/gcc/autoconf's
 
-This stands a much greater chance of working than the
-previous release, which I'll now pretend never happened.
+> >> 222609       BKL 1 712/tty_io.c  697/sched.c
+> I don't quite understand how locked region can start in
+> 712/tty_io.c and end in 697/sched.c?
 
+The BKL is dropped whenever the task voluntarily blocks in the kernel.
+This is what you are seeing reported here.  It will be reacquired when
+the task is rescheduled:
 
-v0.99.4 [Release 22. -- The 'Bug Barbecue' release ]
+> This is strange too:
+> >> 152903 spin_lock 5 547/sched.c   714/tty_io.c
+> spinlock? Unlocked by unlock_kernel()???
 
-- Bugfixes:
-  - 'Disk' Submenu works again.
-  - CPU backend cleanups.
-    - Was using memory after free()
-    - 'BrandName' field removed, and CPUName field improved.
-    - CPU Name can now be any length. 
-    - Now cleans identity structure prior to use. 
-  - hdparm backend got an overdue cleanup.
-    - tweaks no longer carry excess ioctl info.
-    - allocation routines made simpler.
-  - Only 'Tree' elements of the tree are now sorted. 
-  - When backends failed, we were dereferencing freed memory. 
-  - Sonypi backend now unloads if no Sonypi hardware present.
-  - PCI backend tried to read past byte 255 of config space.
-														  
+The latency measuring code isn't always accurate in reporting the cause
+in this case: if it's unlocked by unlock_kernel and locked in sched.c,
+then it's the reacqusition of the BKL by a task that was blocked while
+holding the lock.
 
--- 
-| Dave Jones.                    http://www.codemonkey.org.uk
-| SuSE Labs .
+Nigel Gamble                                    nigel@nrg.org
+Mountain View, CA, USA.                         http://www.nrg.org/
+

@@ -1,85 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261582AbSLTL7P>; Fri, 20 Dec 2002 06:59:15 -0500
+	id <S261669AbSLTMJX>; Fri, 20 Dec 2002 07:09:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261669AbSLTL7O>; Fri, 20 Dec 2002 06:59:14 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:33002 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S261582AbSLTL7N>;
-	Fri, 20 Dec 2002 06:59:13 -0500
-Date: Fri, 20 Dec 2002 12:06:56 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Ulrich Drepper <drepper@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>
-Cc: bart@etpmod.phys.tue.nl, davej@codemonkey.org.uk, hpa@transmeta.com,
-       terje.eggestad@scali.com, matti.aarnio@zmailer.org, hugh@veritas.com,
-       mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: Intel P6 vs P7 system call performance
-Message-ID: <20021220120656.GA20674@bjl1.asuk.net>
-References: <Pine.LNX.4.44.0212191134180.2731-100000@penguin.transmeta.com> <3E02EC30.8030407@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E02EC30.8030407@redhat.com>
-User-Agent: Mutt/1.4i
+	id <S261686AbSLTMJX>; Fri, 20 Dec 2002 07:09:23 -0500
+Received: from ns.suse.de ([213.95.15.193]:29715 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261669AbSLTMJW>;
+	Fri, 20 Dec 2002 07:09:22 -0500
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, bjorn_helgaas@hp.com
+Subject: Re: [PATCH] Fix CPU bitmask truncation
+References: <200212161213.29230.bjorn_helgaas@hp.com>
+	<20021220103028.GB9704@holomorphy.com>
+X-Yow: How's it going in those MODULAR LOVE UNITS??
+From: Andreas Schwab <schwab@suse.de>
+Date: Fri, 20 Dec 2002 13:17:24 +0100
+In-Reply-To: <20021220103028.GB9704@holomorphy.com> (William Lee Irwin III's
+ message of "Fri, 20 Dec 2002 02:30:28 -0800")
+Message-ID: <je7ke4yje3.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.3.50 (ia64-suse-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a suggestion on a small performance improvement.
+William Lee Irwin III <wli@holomorphy.com> writes:
 
-Ulrich Drepper wrote:
->   int $0x80  ->  call *%gs:0x18
+|> ===== include/linux/init_task.h 1.19 vs edited =====
+|> --- 1.19/include/linux/init_task.h	Sun Sep 29 07:02:55 2002
+|> +++ edited/include/linux/init_task.h	Fri Dec 20 02:22:04 2002
+|> @@ -63,7 +63,7 @@
+|>  	.prio		= MAX_PRIO-20,					\
+|>  	.static_prio	= MAX_PRIO-20,					\
+|>  	.policy		= SCHED_NORMAL,					\
+|> -	.cpus_allowed	= -1,						\
+|> +	.cpus_allowed	= ~0UL,						\
 
-The calling convention has been (slightly) changed - i.e. 6 argument
-calls don't work, so why not go a bit further: allow the vsyscall entry
-point to clobber more GPRs?
+This is useless.  Assigning -1 to any unsigned type is garanteed to give
+you all bits one, and with two's complement this also holds for any signed
+type.
 
-I see 3 pushes and pops in the vsyscall page (if I've looked at the
-correct patch from Linus), to preserve %ecx, %edx and %ebp:
+Andreas.
 
-	vsyscall:
-		pushl	%ebp
-		pushl	%ecx
-		pushl	%edx
-	0:
-		movl	%esp,%ebp
-		sysenter
-		jmp	0b
-		popl	%edx
-		popl	%ecx
-		popl	%ebp
-		ret
-
-The benefit is that this allows Glibc to do a wholesale replacement of
-"int $0x80" -> "single call instruction".  Otherwise, those pushes are
-completely unnecessary.  It could be this short instead:
-
-	vsyscall:
-		movl	%esp,%ebp
-		sysenter
-		jmp	vsyscall
-		ret
-
-It is nice to be able to use the _exact_ same convention in glibc, for
-getting a patch out of the door quickly.  But it is just as easy to do
-that putting the pushes and pops into the library itself:
-
-Instead of
-
-	int $0x80 ->	call	*%gs:0x18
-
-Write
-
-	int $0x80 ->	pushl	%ebp
-			pushl	%ecx
-			pushl	%edx
-			call	*%gs:0x18
-			popl	%edx
-			popl	%ecx
-			popl	%ebp
-
-It has exactly the same cost as the current patches, but provides
-userspace with more optimisation flexibility, using an asm clobber
-list instead of explicit instructions for inline syscalls, etc.
-
-Cheers,
--- Jamie
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

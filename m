@@ -1,64 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263879AbTLTTc4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Dec 2003 14:32:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264961AbTLTTc4
+	id S261152AbTLTUJT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Dec 2003 15:09:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbTLTUJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Dec 2003 14:32:56 -0500
-Received: from p15108950.pureserver.info ([217.160.128.7]:31639 "EHLO
-	pluto.schiffbauer.net") by vger.kernel.org with ESMTP
-	id S263879AbTLTTcz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Dec 2003 14:32:55 -0500
-Date: Sat, 20 Dec 2003 20:34:02 +0100
-From: Marc Schiffbauer <marc@schiffbauer.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 vs 2.4 regression when running gnomemeeting
-Message-ID: <20031220193402.GA32297@lisa>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <1071864709.1044.172.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1071864709.1044.172.camel@localhost>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.20-hpt i686
-X-Editor: vim 6.1.018-1
-X-Homepage: http://www.links2linux.de
+	Sat, 20 Dec 2003 15:09:19 -0500
+Received: from fw.osdl.org ([65.172.181.6]:38368 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261152AbTLTUJR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Dec 2003 15:09:17 -0500
+Date: Sat, 20 Dec 2003 12:07:17 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/5] 2.6.0 fix preempt ctx switch accounting
+In-Reply-To: <20031220192238.GA30970@elte.hu>
+Message-ID: <Pine.LNX.4.58.0312201140320.29271@home.osdl.org>
+References: <3FE46885.2030905@cyberone.com.au> <20031220192238.GA30970@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Christian Meder schrieb am 19.12.03 um 21:11 Uhr:
-> Hi,
-> 
-> I've got a longstanding regression in gnomemeeting usage when switching
-> between 2.4 and 2.6 kernels.
-> 
-> Phenomenon: 
-> Without load gnomemeeting VOIP connections are fine. As soon as some
-> load like a kernel compile is put on the laptop the gnomemeeting audio
-> stream is cut to pieces and gets unintelligible . On 2.4.2x I don't get
-> even the slightest distortion in the audio stream under load. I played
-> around with different nice levels with no success. The problem persisted
-> during the whole 2.6.0-test series no matter whether I used -mm kernels
-> or pristine Linus kernels. Even when nicing the kernel compile to +19
-> the distortions start right away. I tried Nick Piggin's scheduler which
-> fared slightly better after changing the nice level of gnomemeeting to
-> -10 but it's still a far cry from the 2.4.2x feeling without any
-> fiddling with nice values.
-> 
-> Any hints where to start looking are greatly appreciated.
-> 
 
-Hi Christian,
 
-is it true, that your X-Server runs with a higher priority? Perhaps
-you are a Debian user?
+On Sat, 20 Dec 2003, Ingo Molnar wrote:
+> 
+> i'd prefer the much simpler patch below. This also keeps the kernel
+> preemption logic isolated instead of mixing it into the normal path.
 
-If thats the case try to make your X-Server run with normal
-priority. That fixed sound problems here too. I had the problem that
-I could not play an mp3 file without distortion while compiling a
-kernel.
+That patch still gets several cases wrong: we don't update any counters at
+all for the case where we were TASK_INTERRUPTIBLE and we got made
+TASK_RUNNING because of having a signal pending.
 
--Marc
--- 
-8AAC 5F46 83B4 DB70 8317  3723 296C 6CCA 35A6 4134
+Also, we shouldn't update the context switch counter just because we 
+entered the scheduler. If we don't actually end up switching to anything 
+else, it shouldn't count as a context switch.
+
+So how about something like this?
+
+Totally untested. Comments?
+
+		Linus
+
+---
+===== kernel/sched.c 1.225 vs edited =====
+--- 1.225/kernel/sched.c	Mon Dec  1 16:00:00 2003
++++ edited/kernel/sched.c	Sat Dec 20 12:05:56 2003
+@@ -1470,6 +1470,7 @@
+  */
+ asmlinkage void schedule(void)
+ {
++	long *switch_count;
+ 	task_t *prev, *next;
+ 	runqueue_t *rq;
+ 	prio_array_t *array;
+@@ -1516,22 +1517,16 @@
+ 	 * if entering off of a kernel preemption go straight
+ 	 * to picking the next task.
+ 	 */
+-	if (unlikely(preempt_count() & PREEMPT_ACTIVE))
+-		goto pick_next_task;
+-
+-	switch (prev->state) {
+-	case TASK_INTERRUPTIBLE:
+-		if (unlikely(signal_pending(prev))) {
++	switch_count = &prev->nivcsw;
++	if (prev->state && !(preempt_count() & PREEMPT_ACTIVE)) {
++		switch_count = &prev->nvcsw;
++		if ((prev->state & TASK_INTERRUPTIBLE) && unlikely(signal_pending(prev))) {
+ 			prev->state = TASK_RUNNING;
+-			break;
++		} else {
++			deactivate_task(prev, rq);
+ 		}
+-	default:
+-		deactivate_task(prev, rq);
+-		prev->nvcsw++;
+-		break;
+-	case TASK_RUNNING:
+-		prev->nivcsw++;
+ 	}
++
+ pick_next_task:
+ 	if (unlikely(!rq->nr_running)) {
+ #ifdef CONFIG_SMP
+@@ -1588,6 +1583,7 @@
+ 		next->timestamp = now;
+ 		rq->nr_switches++;
+ 		rq->curr = next;
++		++*switch_count;
+ 
+ 		prepare_arch_switch(rq, next);
+ 		prev = context_switch(rq, prev, next);

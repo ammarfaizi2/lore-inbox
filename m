@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284662AbRLIXyb>; Sun, 9 Dec 2001 18:54:31 -0500
+	id <S284717AbRLJACV>; Sun, 9 Dec 2001 19:02:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284675AbRLIXyV>; Sun, 9 Dec 2001 18:54:21 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:5254 "EHLO e21.nc.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S284662AbRLIXyN>;
-	Sun, 9 Dec 2001 18:54:13 -0500
-Date: Sun, 9 Dec 2001 14:53:52 -0800
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+	id <S286100AbRLJACM>; Sun, 9 Dec 2001 19:02:12 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55570 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S284717AbRLJAB7>; Sun, 9 Dec 2001 19:01:59 -0500
 Subject: Re: [RFC][PATCH] 2.5.0 Multi-Queue Scheduler
-Message-ID: <20011209145352.C1087@w-mikek2.sequent.com>
-In-Reply-To: <20011209143152.A1087@w-mikek2.sequent.com> <E16DDj6-0008H8-00@the-village.bc.nu>
-Mime-Version: 1.0
+To: kravetz@us.ibm.com (Mike Kravetz)
+Date: Mon, 10 Dec 2001 00:10:53 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+In-Reply-To: <20011209145352.C1087@w-mikek2.sequent.com> from "Mike Kravetz" at Dec 09, 2001 02:53:52 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16DDj6-0008H8-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Dec 09, 2001 at 11:51:20PM +0000
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16DE21-0008Md-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 09, 2001 at 11:51:20PM +0000, Alan Cox wrote:
-> Tasks with roughly the same priority will not neccessarily run in strict
-> priority order but they will get appropriate extra time and run before
-> anything measurably different in priority.
+> That makes it much easier.  When we tried this, we were going for
+> strict priority.  Therefore, you either had a really large number
+> of queues, or you had to scan all tasks on individual queues.  Again,
+> we were trying to maintain existing behavior.  In hind sight, this
+> doesn't look like a smart design constraint. :)
 
-That makes it much easier.  When we tried this, we were going for
-strict priority.  Therefore, you either had a really large number
-of queues, or you had to scan all tasks on individual queues.  Again,
-we were trying to maintain existing behavior.  In hind sight, this
-doesn't look like a smart design constraint. :)
+I'm actually trying to behave roughly like Linus old scheduler does at
+least in the general cases. Hence the queues are priority based, the tasks
+are run priority first and drop priority rather than the standard multi
+level queue where you run each queue for certain slots.
 
--- 
-Mike
+Alan
+

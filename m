@@ -1,63 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261411AbSKNDTL>; Wed, 13 Nov 2002 22:19:11 -0500
+	id <S261409AbSKNDSF>; Wed, 13 Nov 2002 22:18:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261416AbSKNDSN>; Wed, 13 Nov 2002 22:18:13 -0500
-Received: from dp.samba.org ([66.70.73.150]:3001 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261418AbSKNDSD>;
+	id <S261427AbSKNDSF>; Wed, 13 Nov 2002 22:18:05 -0500
+Received: from dp.samba.org ([66.70.73.150]:1977 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261409AbSKNDSD>;
 	Wed, 13 Nov 2002 22:18:03 -0500
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: rusty@rustcorp.com.au, kaos@ocs.com.au,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Modules in 2.5.47-bk... 
-In-reply-to: Your message of "Wed, 13 Nov 2002 16:06:03 CDT."
-             <3DD2BEBB.8040003@pobox.com> 
-Date: Thu, 14 Nov 2002 14:53:50 +1100
-Message-Id: <20021114032456.381C42C06E@lists.samba.org>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Module parameters reimplementation 0/4
+Date: Thu, 14 Nov 2002 15:23:00 +1100
+Message-Id: <20021114032456.3337E2C057@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3DD2BEBB.8040003@pobox.com> you write:
-> Petr Vandrovec wrote:
-> 
-> > Hi Rusty,
-> >   I'm probably missing something important, but do you have any plans
-> > to integrate module-init-tools into modutils, or extend module-init-tools
-> > functionality to make them usable? I tried module-init-tools 0.6
-> > and I must say that I'm really surprised that it is possible to make
-> > such change after feature freeze, without maintaining at least minimal
-> > usability.
-> >
-> >   If there are modutils which can live with new module system, please
-> > point me to them. But I did not found such.
-> 
-> 
-> I'm hoping that Rusty will work with Keith to integrate support for 
-> 2.5.x into the existing modutils package...  it's rather annoying to 
-> have two totally different modutils when switching between 2.[024].x and 
-> 2.5.x kernels.
+I was going to feed this more slowly, to get feedback at every stage,
+but I'm being mailbombed by angry developers 8(
 
-The current method is that on "make install" the module-init-tools
-move the old ones to xxx.old (if they exist), and do a backwards
-compat check every time they start (and execvp xxx.old on every older
-kernel).  If it doesn't work for you, please report.
+Explanation: (Not that anyone read my previous ones, it seems)
 
-To package them, the distros will probably hack modutils into
-module-init-tools/old or something and make them install themselves as
-xxx.old automatically.  Code apprediated.
+1) MODULE_PARM() is not typesafe: it doesn't even check that the
+   variable exists.  There are dozens of completely bogus uses in
+   drivers.
+2) Everyone who wants to implement module parameters *and* boot
+   parameters had to implement MODULE_PARM() and __setup() and roll
+   their own parsing.
+3) MODULE_PARM() is not extensible.
 
-> /me is building drivers into the kernel for now, which slows down 
-> debugging, because modules are broken on ia32 and module support isn't 
-> present on alpha at all anymore [AFAICS]...
+This patch series introduces "PARAM(var, type, perm)".  This does
+several things:
+1) Checks the type of "var" matches "type".
+2) If built-in, adds a boot parameter called <modulename>.var.
+3) If modular, adds a module parameter called var.
+4) The third arg is for exposure through sysfs once it stabilizes, 000
+   means don't expose.
 
-Yes, I've been distracted, sorry.  I only implemented i386, ia64,
-sparc, sparc64, ppc and ppc64 (some untested in-kernel, but linking
-logic works).  I have access to an Alpha, but work has stopped while I
-try to keep up with everything else.  RTH can probably complete it in
-a fraction of the time I could anyway.
+PARAM() is implemented in terms of PARAM_CALL(), similar to __setup()
+except it (depending on the perm field) might be readable too.
 
-Hope that clarifies,
+Types "short", "ushort", "int", "ulong", "bool", "invbool" etc are
+implemented pre-canned.  You can define your own, see linux/params.h
+for how.
+
+Finally, if you do not use your own types, PARAM() can be #defined
+into a MODULE_PARM statement for 2.4 kernels (ie. backwards
+compatible).  Patch 4/4 also translates old-style MODULE_PARM() into
+PARAMs at load time, for existing modules.
+
+Why now?
+--------
+This kind of change shows why you need an in-kernel linker: this kind
+of change would break userspace with the current modutils.
+
+Sorry for any inconvenience,
 Rusty.
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

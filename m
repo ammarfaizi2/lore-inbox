@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261968AbTDYO0M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 10:26:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263075AbTDYO0M
+	id S263275AbTDYOZC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 10:25:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263277AbTDYOZC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 10:26:12 -0400
-Received: from smtp.invisible.uk.net ([195.224.32.67]:7041 "EHLO
-	invisible.uk.net") by vger.kernel.org with ESMTP id S261968AbTDYO0L convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 10:26:11 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: statvfs()
-Content-Class: urn:content-classes:message
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-Date: Fri, 25 Apr 2003 15:38:02 +0100
-Message-ID: <541025071C7AC24C84E9F82296BB9B951C32D6@OPTEX1.optex.local>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: statvfs()
-Thread-Index: AcMLJofCXkhz+YAjQv6HECU1gu8PLgAEYy2g
-From: "John Hall" <john.hall@optionexist.co.uk>
-To: "John Meyers" <meyers@sdf-eu.org>
-Cc: <linux-kernel@vger.kernel.org>
+	Fri, 25 Apr 2003 10:25:02 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:30219 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263275AbTDYOZB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 10:25:01 -0400
+Date: Fri, 25 Apr 2003 15:37:06 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: David Gibson <hermes@gibson.dropbear.id.au>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org, Jean Tourrilhes <jt@hpl.hp.com>,
+       David Hinds <dhinds@sonic.net>
+Subject: Re: Update to orinoco driver (2.4)
+Message-ID: <20030425153706.A2024@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	David Gibson <hermes@gibson.dropbear.id.au>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	linux-kernel@vger.kernel.org, Jean Tourrilhes <jt@hpl.hp.com>,
+	David Hinds <dhinds@sonic.net>
+References: <20030423054636.GG25455@zax> <20030423060520.GI25455@zax>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030423060520.GI25455@zax>; from hermes@gibson.dropbear.id.au on Wed, Apr 23, 2003 at 04:05:20PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 25 April 2003 13:12, John Meyers <meyers@sdf-eu.org> wrote:
+> +static void __exit exit_hermes(void)
+> +{
+> +}
+> +
+>  module_init(init_hermes);
+> +module_exit(exit_hermes);
 
-> Wheere can i find documentation for statvfs ? 
-> Any explanation or links would be helpful.
+Please don't add exmpty functions without a reak good reason.
 
-Google throws up:
-	http://www.mcsr.olemiss.edu/cgi-bin/man-cgi?statvfs+2
-
-which seems to be a generic 'Unix' man page, but has worked for me in
-the past.
-
-Regards,
-John

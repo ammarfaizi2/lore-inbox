@@ -1,34 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318160AbSGPVZH>; Tue, 16 Jul 2002 17:25:07 -0400
+	id <S317993AbSGPVgP>; Tue, 16 Jul 2002 17:36:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318165AbSGPVZG>; Tue, 16 Jul 2002 17:25:06 -0400
-Received: from 12-237-135-160.client.attbi.com ([12.237.135.160]:48658 "EHLO
-	Midgard.attbi.com") by vger.kernel.org with ESMTP
-	id <S318160AbSGPVZG> convert rfc822-to-8bit; Tue, 16 Jul 2002 17:25:06 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Kelledin <kelledin+LKML@skarpsey.dyndns.org>
-Subject: Re: Tyan s2466 stability
-Date: Tue, 16 Jul 2002 16:28:05 -0500
-User-Agent: KMail/1.4.2
-To: linux-kernel@vger.kernel.org
+	id <S318026AbSGPVgO>; Tue, 16 Jul 2002 17:36:14 -0400
+Received: from p508875D5.dip.t-dialin.net ([80.136.117.213]:58259 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317993AbSGPVgK>; Tue, 16 Jul 2002 17:36:10 -0400
+Date: Tue, 16 Jul 2002 15:38:50 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Andreas Dilger <adilger@clusterfs.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+In-Reply-To: <20020716212322.GT442@clusterfs.com>
+Message-ID: <Pine.LNX.4.44.0207161534280.3452-100000@hawkeye.luckynet.adm>
+X-Location: Calgary; CA
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207161628.05006.kelledin+LKML@skarpsey.dyndns.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 16 July 2002 12:36 pm, Stephen Lee wrote:
-> I have the A7M266-D with an AOPEN 24x10x32 IDE CDRW and
-> haven't had a single failure yet while burning CD-R(W)'s.  By
-> the way, are you still using this same motherboard?
+Hi,
 
-Interesting.  Is the problem perhaps specific to Tyan 760MPX
-motherboards?
+On Tue, 16 Jul 2002, Andreas Dilger wrote:
+> This is all done already for both LVM and EVMS snapshots.  The filesystem
+> (ext3, reiserfs, XFS, JFS) flushes the outstanding operations and is
+> frozen, the snapshot is created, and the filesystem becomes active again.
+> It takes a second or less.
 
-Does the Tyan 760MP suffer from the same problem?
+Anyway, we could do that in parallel if we did it like that:
 
---
-Kelledin
-"If a server crashes in a server farm and no one pings it, does
-it still cost four figures to fix?"
+sync	-> significant data is being written
+lock	-> data writes stay cached, but aren't written
+snapshot
+unlock	-> data is getting written
+now unmount the snapshout (clean it)
+write the modified snapshot to disk...
+
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
+

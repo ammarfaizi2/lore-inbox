@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266961AbTB0VNq>; Thu, 27 Feb 2003 16:13:46 -0500
+	id <S266805AbTB0VUG>; Thu, 27 Feb 2003 16:20:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266968AbTB0VNq>; Thu, 27 Feb 2003 16:13:46 -0500
-Received: from mx01.nexgo.de ([151.189.8.96]:48836 "EHLO mx01.nexgo.de")
-	by vger.kernel.org with ESMTP id <S266961AbTB0VNp>;
-	Thu, 27 Feb 2003 16:13:45 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andreas Dilger <adilger@clusterfs.com>
-Subject: Re: [Bug 417] New: htree much slower than regular ext3
-Date: Fri, 28 Feb 2003 05:12:56 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net, "Theodore Ts'o" <tytso@mit.edu>,
-       chrisl@vmware.com
-References: <11490000.1046367063@[10.10.2.4]> <20030227200425.253F03FE26@mx01.nexgo.de> <20030227140019.G1373@schatzie.adilger.int>
-In-Reply-To: <20030227140019.G1373@schatzie.adilger.int>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20030227212403.D28DA3C7CB@mx01.nexgo.de>
+	id <S266810AbTB0VUG>; Thu, 27 Feb 2003 16:20:06 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:28801 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S266805AbTB0VUF>; Thu, 27 Feb 2003 16:20:05 -0500
+Date: Thu, 27 Feb 2003 15:29:19 -0600
+From: latten@austin.ibm.com
+Message-Id: <200302272129.h1RLTJW28434@faith.austin.ibm.com>
+To: davem@redhat.com, kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: PATCH: IPSec not using padding when Null Encryption
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 27 February 2003 22:00, Andreas Dilger wrote:
-> > 11 ms sounds like two seeks for each returned dirent, which sounds like a
-> > bug.
->
-> I think you are pretty dead on there.  The difference is that with
-> unindexed entries, the directory entry and the inode are in the same order,
-> while with indexed directories they are essentially in random order to each
-> other.  That means that each directory lookup causes a seek to get the
-> directory inode data instead of doing allocation order (which is sequential
-> reads on disk).
->
-> In the past both would have been slow equally, but the orlov allocator in
-> 2.5 causes a number of directories to be created in the same group before
-> moving on to the next group, so you have nice batches of sequential reads.
+Hi,
 
-I think you're close to the truth there, but out-of-order inode table access 
-would only introduce one seek per inode table block, and the cache should 
-take care of the rest.  Martin's numbers suggest the cache isn't caching at 
-all.
+When using the Null Encryption algorithm, the ESP packet is
+not on a 4-byte boundary. That is, the ciphertext, pad-length and
+next-header fields are not right aligned on a 4-byte boundary and
+no padding is used to ensure it.
 
-Martin, does iostat show enormously more reads for the Htree case?
+RFC 2406, section 2.4 states irrespective of encryption algorithm
+requirements,  padding may be required to ensure that
+resulting ciphertext terminates on a 4-byte boundary. Specifically,
+the Pad Length and Next Header fields must be right aligned within
+a 4-byte word to ensure that the Authentication Data field (if present)
+is aligned on a 4-byte boundary.
 
-Regards,
+Ok, anyway, this fix just pretty much makes sure that
+when Null Encryption or any algorithm with a blocksize less
+than 4 is used, that the ciphertext, any padding, and next-header
+and pad-length fields terminate on a 4-byte boundary.
+I have tested it. Please let me know if all is well. 
 
-Daniel
+Thanks,
+Joy
+ 
+--- esp.c.orig	2003-02-20 16:07:59.000000000 -0600
++++ esp.c	2003-02-27 10:30:25.000000000 -0600
+@@ -360,7 +360,7 @@
+ 	esp = x->data;
+ 	alen = esp->auth.icv_trunc_len;
+ 	tfm = esp->conf.tfm;
+-	blksize = crypto_tfm_alg_blocksize(tfm);
++	blksize = (crypto_tfm_alg_blocksize(tfm) + 3) & ~3;
+ 	clen = (clen + 2 + blksize-1)&~(blksize-1);
+ 	if (esp->conf.padlen)
+ 		clen = (clen + esp->conf.padlen-1)&~(esp->conf.padlen-1);

@@ -1,63 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315690AbSFCWjB>; Mon, 3 Jun 2002 18:39:01 -0400
+	id <S315708AbSFCWqk>; Mon, 3 Jun 2002 18:46:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315708AbSFCWjA>; Mon, 3 Jun 2002 18:39:00 -0400
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:12535 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S315690AbSFCWi6>; Mon, 3 Jun 2002 18:38:58 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Brad Hards <bhards@bigpond.net.au>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] i386 "General Options" - begone [take 2] 
-In-Reply-To: Your message of "Mon, 03 Jun 2002 13:18:09 +1000."
-             <200206031318.09634.bhards@bigpond.net.au> 
-Date: Tue, 04 Jun 2002 08:42:47 +1000
-Message-Id: <E17F0XH-0002ic-00@wagner.rustcorp.com.au>
+	id <S315709AbSFCWqj>; Mon, 3 Jun 2002 18:46:39 -0400
+Received: from bgp401130bgs.jersyc01.nj.comcast.net ([68.36.96.125]:41998 "EHLO
+	buggy.badula.org") by vger.kernel.org with ESMTP id <S315708AbSFCWqi>;
+	Mon, 3 Jun 2002 18:46:38 -0400
+Date: Mon, 3 Jun 2002 18:45:44 -0400
+Message-Id: <200206032245.g53Mji123739@buggy.badula.org>
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Urban Widmark <urban@teststation.com>
+Cc: linux-kernel@vger.kernel.org,
+        Jean-Eric Cuendet <jean-eric.cuendet@linkvest.com>
+Subject: Re: SMB filesystem
+In-Reply-To: <Pine.LNX.4.44.0206022319290.27283-100000@cola.enlightnet.local>
+User-Agent: tin/1.5.11-20020130 ("Toxicity") (UNIX) (Linux/2.4.18 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <200206031318.09634.bhards@bigpond.net.au> you write:
-> While moving software suspend, I also took the chance to tweak the Config.help 
-> entry.
+On Sun, 2 Jun 2002 23:34:59 +0200 (CEST), Urban Widmark <urban@teststation.com> wrote:
 
-For trivial at least, please split the patches.  It makes it easy for
-me and/or Linus to accept only one.
+> Currently autofs has a problem where it won't show the mountpoints of
+> non-mounted directories, but I think you would run into that problem too.
+> (short version of the problem: how do you prevent 'ls -l' from mounting
+> all filesystems in a directory?)
 
-Also, please mention clearly if you obsolete a previous trivial patch...
+You add the concept of a "light" lookup, and you make path_walk() call this
+"light" lookup (be that a separate fs method, or a flag passed down to real
+lookup()) iff the path component being looked up is the last component in 
+the path. A "light" lookup sets a flag in the inode signalling that the inode
+is incomplete, so cached_lookup() can check this flag and call a "full"
+lookup() (or perhaps a "full" revalidate()) if necessary.
 
-> diff -Naur -X dontdiff linux-2.5.20-clean/arch/i386/Config.help linux-2.5.20-
-config-munging/arch/i386/Config.help
-> --- linux-2.5.20-clean/arch/i386/Config.help	Thu May 30 04:42:46 2002
-> +++ linux-2.5.20-config-munging/arch/i386/Config.help	Mon Jun  3 12:39:48 200
-2
-> @@ -641,7 +641,8 @@
->    off or put into a power conserving "sleep" mode if they are not
->    being used.  There are two competing standards for doing this: APM
->    and ACPI.  If you want to use either one, say Y here and then also
-> -  to the requisite support below.
-> +  to the requisite support below. This option is also required for
-> +  "software suspend", see below.
->  
->    Power Management is most important for battery powered laptop
->    computers; if you have a laptop, check out the Linux Laptop home
+The actual details need to be thought out a bit more, this is only a general
+outline. In particular, we need a bullet-proof way to determine when to
+"upgrade" the inode from "light" to "full".
 
-Like code, descriptions develop scar tissue when you do the "minimally
-invasive" change.  Consider this classic trap-for-skimmers from the
-glibc "snprintf" man page, and learn:
+You then also need to add a "getdents" kind of message to the autofs 
+protocol, and a "light lookup" message (which confirms the existence of the
+entry, and maybe returns the type of the entry: symlink or directory).
 
-Return value
-       These  functions  return  the number of characters printed
-       (not including the trailing `\0' used  to  end  output  to
-       strings).   snprintf  and vsnprintf do not write more than
-       size bytes (including the trailing '\0'), and return -1 if
-       the  output  was truncated due to this limit.  (Thus until
-       glibc 2.0.6. Since glibc 2.1 these  functions  follow  the
-       C99  standard and return the number of characters (exclud­
-       ing the trailing '\0') which would have  been  written  to
-       the final string if enough space had been available.)
+Once all this is done, I'll add support for it in am-utils in a jiffy...
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Ion (am-utils co-maintainer)
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.

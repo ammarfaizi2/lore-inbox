@@ -1,30 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278085AbRJVIDd>; Mon, 22 Oct 2001 04:03:33 -0400
+	id <S278082AbRJVIDd>; Mon, 22 Oct 2001 04:03:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278080AbRJVIDZ>; Mon, 22 Oct 2001 04:03:25 -0400
-Received: from h24-78-175-24.nv.shawcable.net ([24.78.175.24]:14208 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id <S278082AbRJVIDM>;
-	Mon, 22 Oct 2001 04:03:12 -0400
-Date: Mon, 22 Oct 2001 01:03:46 -0700
-From: Simon Kirby <sim@netnation.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.13pres swapping out all over the place (again)...
-Message-ID: <20011022010346.A908@netnation.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+	id <S278085AbRJVIDY>; Mon, 22 Oct 2001 04:03:24 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:17855 "EHLO
+	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S278080AbRJVIDL>; Mon, 22 Oct 2001 04:03:11 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Tim Jansen <tim@tjansen.de>
+To: Jakob =?iso-8859-1?q?=D8stergaard=20?= <jakob@unthought.net>
+Subject: Re: LPP (was: The new X-Kernel !)
+Date: Mon, 22 Oct 2001 02:57:53 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <20011021220346.D19390@vega.digitel2002.hu> <15vQtM-22TOdsC@fmrl02.sul.t-online.com> <20011022022839.A8452@unthought.net>
+In-Reply-To: <20011022022839.A8452@unthought.net>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <15va3i-0cRXvcC@fmrl00.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.13pre6 and 2.4.13pre3 both seem to swap out a lot while doing simple
-tasks such as creating a CDR iso image.  2.4.12 may have done this as
-well...I can't remember.  Anyway, swapping out unnecessarily still seems
-to be a problem.
+On Monday 22 October 2001 02:28, you wrote:
+> How would hiding that information make the system "easier to use" ?   
 
-Simon-
+Because the majority of people (and especially those who haven't been reached 
+by Linux yet) don't care for the messages. They are as interested in boot 
+messages as you may be in reading debug information from your DVD player or 
+car. 
 
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]
+Assuming you have a car with a display for the embedded computer, and you 
+don't know anything about its software or hardware, you just want to drive. 
+Would you prefer to see lots of cryptic messages when you turn the key, or 
+just some simple picture with a progress bar showing you when the system is 
+ready?
+IMHO the bar is all you need. Everything else just distracts you from the 
+only important thing. 
+
+Showing unimportant information is like turning on debug messages that you 
+don't need.
+
+bye...
+

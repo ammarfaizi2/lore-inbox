@@ -1,75 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265268AbUFRWKo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265290AbUFRWRW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265268AbUFRWKo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 18:10:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264641AbUFRWH7
+	id S265290AbUFRWRW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 18:17:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265287AbUFRWLB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 18:07:59 -0400
-Received: from fw.osdl.org ([65.172.181.6]:51942 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264906AbUFRVxS (ORCPT
+	Fri, 18 Jun 2004 18:11:01 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:52443 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S265241AbUFRWKZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 17:53:18 -0400
-Date: Fri, 18 Jun 2004 14:55:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, Robert.Picco@hp.com
-Subject: Re: [PATCH] HPET driver
-Message-Id: <20040618145531.015fbc12.akpm@osdl.org>
-In-Reply-To: <40D35740.8070206@pobox.com>
-References: <200406181616.i5IGGECd003812@hera.kernel.org>
-	<40D35740.8070206@pobox.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Fri, 18 Jun 2004 18:10:25 -0400
+Date: Sat, 19 Jun 2004 00:10:20 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: jsimmons@pentafluge.infradead.org, Rik van Riel <riel@redhat.com>,
+       Tim Bird <tim.bird@am.sony.com>, linux-kernel@vger.kernel.org,
+       William Lee Irwin III <wli@holomorphy.com>, Jens Axboe <axboe@suse.de>,
+       Andrew Morton <akpm@osdl.org>, 4Front Technologies <dev@opensound.com>
+Subject: Re: Stop the Linux kernel madness
+Message-ID: <20040618221020.GU20632@lug-owl.de>
+Mail-Followup-To: viro@parcelfarce.linux.theplanet.co.uk,
+	jsimmons@pentafluge.infradead.org, Rik van Riel <riel@redhat.com>,
+	Tim Bird <tim.bird@am.sony.com>, linux-kernel@vger.kernel.org,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
+	4Front Technologies <dev@opensound.com>
+References: <40D33C58.1030905@am.sony.com> <Pine.LNX.4.44.0406181604270.8065-100000@chimarrao.boston.redhat.com> <20040618200848.GL20632@lug-owl.de> <Pine.LNX.4.56.0406182150500.26434@pentafluge.infradead.org> <20040618220501.GL12308@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7WVq5Zg08SAD/Y+V"
+Content-Disposition: inline
+In-Reply-To: <20040618220501.GL12308@parcelfarce.linux.theplanet.co.uk>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> wrote:
->
-> > 	[PATCH] HPET driver
-> > 	
->
-> Was this posted on lkml, or simply snuck in?
 
-Was posted on lkml, was fairly widely reviewed, had comments from hch and
-others, had several fixes from myself and from Robert and a long discussion
-wrt the readq() implementation.
+--7WVq5Zg08SAD/Y+V
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I'm not very happy with the driver, if only because its size and its prior
-defect rate indicates that it probably has more problems.  But it provides
-support for new hardware which is being shipped in real products and we
-need it.  So ultimately one has to jam it into the tree in the hope that
-doing so will get it a bit more attention.
+On Fri, 2004-06-18 23:05:01 +0100, viro@parcelfarce.linux.theplanet.co.uk <=
+viro@parcelfarce.linux.theplanet.co.uk>
+wrote in message <20040618220501.GL12308@parcelfarce.linux.theplanet.co.uk>:
+> On Fri, Jun 18, 2004 at 10:03:51PM +0100, jsimmons@pentafluge.infradead.o=
+rg wrote:
 
-> This should NOT have been merged without changes.  Please fix ASAP, or 
-> revert and keep in -mm for a while.
+> You know, that would sound much more impressive if drivers *already* *in*
+> *the* *tree* would get fixed.
 
-Translation: Andrew has to personally understand and review every line
-which goes into the kernel, unaided.  Sorry, that doesn't work.
+Reminds me that there were some 20 drivers for differently attached
+lance network chips in the kernel source tree:)
 
-The patch was reviewed on lkml and has been in -mm for test and review for
-five weeks.  The initial reviews were not complete and sufficient attention
-was not paid to it while it was in -mm.
+MfG, JBG
 
-To improve this process I need to find a way of provoking more attention
-toward patches which I am not particularly confident about (and this one
-certainly fell in that category).  Thus far I've done that by merging them
-into the main tree, which does work quite nicely.  Perhaps I should send
-these patches to lkml beforehand with big warning labels on them.
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
 
-wrt the readq() implementation: I reverted the generic implementation based
-on concerns raised on lkml by Eric Biederman.  As a generic readq/writeq
-implementation seems to be a new R&D project I decided to leave the
-implementation private to the HPET driver until someone takes all of this
-on.
+--7WVq5Zg08SAD/Y+V
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-wrt the hpets list locking: yeah, I noticed that, mentioned it to Robert
-then forgot all about it.  Mea Culpa.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-wrt the request_irq() bug: yipes.  Robert, please fix.
+iD8DBQFA02hLHb1edYOZ4bsRAsBbAJ9wLL7Zloi8v3Q6EmKn+d1oX/s2xgCgjmqQ
+1k+fHEamJKuwNZszaBysYBs=
+=iLrb
+-----END PGP SIGNATURE-----
 
-wrt the new miscdev minor: yes, devices.txt should be updated.  When the
-patch was first posted it was using a new major, but Robert changed that
-based on review comments.
-
+--7WVq5Zg08SAD/Y+V--

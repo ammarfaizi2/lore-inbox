@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263057AbTI3ANf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 20:13:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263077AbTI3ANf
+	id S263077AbTI3AVi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 20:21:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263081AbTI3AVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 20:13:35 -0400
-Received: from mail3.efi.com ([192.68.228.90]:19217 "EHLO
-	fcexgw03.efi.internal") by vger.kernel.org with ESMTP
-	id S263057AbTI3ANe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 20:13:34 -0400
-Subject: get into sleep and release the lock in an atomic operation
-From: Kallol Biswas <kallol@efi.com>
-Reply-To: kallol@efi.com
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: EFI
-Message-Id: <1064881043.8221.21.camel@wskallol>
+	Mon, 29 Sep 2003 20:21:38 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:27013 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263077AbTI3AVg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 20:21:36 -0400
+Date: Tue, 30 Sep 2003 01:19:30 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Andi Kleen <ak@colin2.muc.de>
+Cc: Andi Kleen <ak@muc.de>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, richard.brunner@amd.com
+Subject: Re: [PATCH] Athlon Prefetch workaround for 2.6.0test6
+Message-ID: <20030930001930.GB25485@mail.jlokier.co.uk>
+References: <20030929125629.GA1746@averell> <20030929170323.GC21798@mail.jlokier.co.uk> <20030929174910.GA90905@colin2.muc.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 29 Sep 2003 17:17:23 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030929174910.GA90905@colin2.muc.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Consider the few lines of code:
+Andi Kleen wrote:
+> +	/* 
+> +	 * Avoid recursive faults. This catches the kernel jumping to nirvana.
+> +	 * More complicated races with unmapped EIP are handled elsewhere for 
+> +	 * user space.
+> +	 */
+> +	if (regs->eip == addr)
+> +		return 0; 
 
-spinlock()
+I'm curious - how does this help?
 
-if (num == 0) {
-  sleep and release the spinlock in an atomic operation.
-}
+If the kernel jumps into nirvana, it will page fault.  is_prefetch()
+will do a __get_user which will fault - recursion, ok.  The inner
+fault handler will reach fixup_exception(), fixup the __get_user, and
+return without recursing further.  is_prefetch() will simply return.
 
-In the OS like HP-UX there was a sleep lock concept, the
-code would look like:
+So how does the above test help?
 
-get_sleeplock()
+> +	if (seg & (1<<2))
+> +		desc = current->mm->context.ldt;
+> +	else
+> +		desc = (u32 *)&cpu_gdt_table[smp_processor_id()];
+> +	desc = (void *)desc + (seg & ~7); 	
+> +	return  (desc[0] >> 16) | 
+> +	       ((desc[1] & 0xFF) << 16) | 
+> +	        (desc[1] & 0xFF000000);
 
-if (num== 0) {
-   sleep and release the lock
-}
+In addition to needing get_cpu() to protect the GDT access, this code
+needs to take down(&current->mm->context.sem) for the LDT access.
 
-Is there any primitive that implements this kind of spinlock and
-sleep in linux?  I could not find it.
-I know it can be implemented.
+Otherwise, context.ldt may have been vfree()'d by the time you use it,
+and the desc[0..1] accesses will panic.
 
-
-Kallol
+Thanks,
+-- Jamie
 

@@ -1,70 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270065AbTGMBhM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 21:37:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270066AbTGMBhM
+	id S270066AbTGMCB5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 22:01:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270069AbTGMCB5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 21:37:12 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:22418 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S270065AbTGMBhL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 21:37:11 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Sat, 12 Jul 2003 18:44:28 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Jamie Lokier <jamie@shareable.org>
-cc: Miguel Freitas <miguel@cetuc.puc-rio.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] SCHED_SOFTRR linux scheduler policy ...
-In-Reply-To: <20030712185157.GC10450@mail.jlokier.co.uk>
-Message-ID: <Pine.LNX.4.55.0307121806560.4720@bigblue.dev.mcafeelabs.com>
-References: <1058017391.1197.24.camel@mf> <Pine.LNX.4.55.0307120735540.4351@bigblue.dev.mcafeelabs.com>
- <20030712154942.GB9547@mail.jlokier.co.uk> <Pine.LNX.4.55.0307120845470.4351@bigblue.dev.mcafeelabs.com>
- <20030712162029.GE9547@mail.jlokier.co.uk> <1058028064.1196.111.camel@mf>
- <20030712185157.GC10450@mail.jlokier.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 12 Jul 2003 22:01:57 -0400
+Received: from main.gmane.org ([80.91.224.249]:9912 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S270066AbTGMCB4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 22:01:56 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jan Rychter <jan@rychter.com>
+Subject: Re: [Swsusp-devel] Re: Thoughts wanted on merging Software Suspend
+ enhancements
+Date: Sat, 12 Jul 2003 19:17:24 -0700
+Message-ID: <m2vfu7cgqz.fsf@tnuctip.rychter.com>
+References: <1057963547.3207.22.camel@laptop-linux> <20030712140057.GC284@elf.ucw.cz>
+ <1058021722.1687.16.camel@laptop-linux> <20030712153719.GA206@elf.ucw.cz>
+ <1058038701.2482.25.camel@laptop-linux> <20030712201525.GB446@elf.ucw.cz>
+ <1058041325.2007.4.camel@laptop-linux> <20030712225258.GB1508@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Complaints-To: usenet@main.gmane.org
+X-Spammers-Please: blackholeme@rychter.com
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:8V1zV/20jWmA5N2TedVWhndFGdQ=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 Jul 2003, Jamie Lokier wrote:
+--=-=-=
+Content-Transfer-Encoding: quoted-printable
 
-> Miguel Freitas wrote:
-> > > I'm wondering what happens if the tasks are both good, early to bed
-> > > without a fuss.  Neither runs their entire timeslice.
-> > >
-> > > Or to illustrate: say xine uses 10% of my CPU.  What happens when I
-> > > open 11 xine windows?
-> >
-> > well of course 110% is more than what you have of resources and xine
-> > would have to drop frames to keep it up... :)
->
-> That's fine.  The problem is, does this completely starve the other
-> tasks such as kswapd, ksoftirqd, bash etc.?
->
-> The real problem is can a user accidentally or malicious lock up a box
-> using SCHED_SOFTRR (when xmms, xine, GNU software radio and modem are
-> all using it :), and also what about multi-user boxes, can two users
-> accidentally break it.
->
-> Perhaps there should be a _global_ maximum amount of CPU used in
-> SCHED_SOFTRR beyond which SCHED_SOFTRR tasks get downgraded.
+>>>>> "Pavel" =3D=3D Pavel Machek <pavel@suse.cz> writes:
+ Pavel> Hi!
+ > No, you don't understand.
+ >
+ > Magic SysRq is well known mechanism for torturing running
+ > kernel. Kernel hackers have it enabled, security-consious people have
+ > it disabled, and it is /proc-tweakable. It also works in cases like
+ > "the only keyboard on serial terminal", etc.
+ >>
+ >> Ah okay. So the security by obscurity bit was wrong, but the general
+ >> idea of SysRq-Esc was right?
 
-You need per-user policies to achieve fairness, the global allocation
-won't work. You need global fairness towards tasks != SOFTRR *and* local
-fairness towards tasks == SOFTRR. If you limit globally the maximum time
-that SOFTRR tasks can suck, you'll achieve global fairness. But you do not
-prevent a single user to suck most of this slice by creating many SOFTRR
-tasks (or exploits). I can easily fix this if someone will show real
-interest in the thing. Since it has been a while that I was not
-looking at the scheduler, yesterday I googled a little bit and I saw
-that there are a few issues where you do not need SOFTRR to completely
-starve other tasks though (the irman thingy for example). IMHO these
-should be discussed before going in 2.6, to either fix them or publicly
-recognize them as "Not A Bug".
+ Pavel> I guess so. Advantage is that people already know about Magic
+ Pavel> Sysrq and know how to disable it. (It would be something like
+ Pavel> Sysrq-E, you can't really use esc).  Pavel
 
+This discussion is strange. Nigel is right, if one starts suspending by
+mistake, one wants to be able to abort it easily. 'Esc' is just the
+perfect key for that. What's the point of hiding or obscuring it? I
+mean, why would you want to do that? You don't routinely 'hide' Ctrl-C
+for security reasons, do you?
 
+=2D-J.
 
-- Davide
+--=-=-=
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/EME5Lth4/7/QhDoRAgy+AJ4mNKdyjZk4VvDObQJYO/+YIXFxSQCfZlWf
+7C48wvu9Z1BmpGXk0G6ClU0=
+=dGVf
+-----END PGP SIGNATURE-----
+--=-=-=--
 

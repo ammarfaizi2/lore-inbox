@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262323AbTLBQ6M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 11:58:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbTLBQ6L
+	id S262327AbTLBRAb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 12:00:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbTLBRAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 11:58:11 -0500
-Received: from cibs9.sns.it ([192.167.206.29]:16141 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id S262323AbTLBQ6I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 11:58:08 -0500
-Date: Tue, 2 Dec 2003 17:57:29 +0100 (CET)
-From: venom@sns.it
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Darrell Michaud <dmichaud@wsi.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Russell Cattelan <cattelan@xfs.org>, Nathan Scott <nathans@sgi.com>,
-       <linux-kernel@vger.kernel.org>, <linux-xfs@oss.sgi.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: XFS for 2.4
-In-Reply-To: <20031202162808.GC22608@gtf.org>
-Message-ID: <Pine.LNX.4.43.0312021753380.2317-100000@cibs9.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 2 Dec 2003 12:00:31 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:30611 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S262327AbTLBRA1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 12:00:27 -0500
+Subject: Re: PROBLEM: 2.6.0-test11 missing acpi-performance interface on
+	centrino
+From: Christophe Saout <christophe@saout.de>
+To: Robert Freund <bytewise@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <24681.1070381460@www43.gmx.net>
+References: <24681.1070381460@www43.gmx.net>
+Content-Type: text/plain
+Message-Id: <1070384429.21490.4.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 02 Dec 2003 18:00:30 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Dec 2003, Jeff Garzik wrote:
+Am Di, den 02.12.2003 schrieb Robert Freund um 17:11:
 
->
-> This can also be done in patch form, as it is done now :)
->
+> [1.] One line summary of the problem:
+> In 2.6.0-test11 the acpi/performance interface is missing on centrino.
 
-of course.
-2.4 systems that are already using XFS as a patch probably would have a benefit
-to see it integrated into 2.4 kernel, but they would is it anyway as a patch.
+I would say this is simply because ACPI is not used within the centrino
+cpufreq interface driver. You should use the sysfs interface anyway.
 
-I do not think the merge would be usefull thinking to a from2.4/to2.6 upgrade.
-In fact, if a system is not using XFS already, it is difficoult
-that a filesystem is changed if it is an upgrade and not a reinstallation.
-
-So, at the end, to have XFS just as a patch for 2.4 is not so bad.
-
-Luigi
+--
+Christophe Saout <christophe@saout.de>
+Please avoid sending me Word or PowerPoint attachments.
+See http://www.fsf.org/philosophy/no-word-attachments.html
 

@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265746AbRFXM3i>; Sun, 24 Jun 2001 08:29:38 -0400
+	id <S265754AbRFXMnk>; Sun, 24 Jun 2001 08:43:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265749AbRFXM32>; Sun, 24 Jun 2001 08:29:28 -0400
-Received: from nic.lth.se ([130.235.20.3]:54947 "EHLO nic.lth.se")
-	by vger.kernel.org with ESMTP id <S265746AbRFXM3M>;
-	Sun, 24 Jun 2001 08:29:12 -0400
-Date: Sun, 24 Jun 2001 14:29:10 +0200
-From: Jakob Borg <jakob@borg.pp.se>
-To: linux-kernel@vger.kernel.org
-Subject: SMP+USB still crashes in 2.4.6-pre5
-Message-ID: <20010624142910.A434@borg.pp.se>
-Mime-Version: 1.0
+	id <S265755AbRFXMnV>; Sun, 24 Jun 2001 08:43:21 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:22533 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S265754AbRFXMnP>; Sun, 24 Jun 2001 08:43:15 -0400
+Subject: Re: replay on read-only filesystem
+To: jeffchua@silk.corp.fedex.com (Jeff Chua)
+Date: Sun, 24 Jun 2001 13:42:53 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <Pine.LNX.4.33.0106241313470.982-100000@boston.corp.fedex.com> from "Jeff Chua" at Jun 24, 2001 01:16:46 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.18i
-X-Operating-System: Linux narayan 2.4.3 i686
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15E9E5-0008CX-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey,
+> what's the impact of mounting reiserfs as Read-Only (specified in fstab)?
+> >From syslog ...
+> 
+> Jun 24 01:10:30 boston kernel: Warning, log replay starting on readonly
+> filesystem
+> 
+> Is this a problem?
 
-Just wanted people to know that the same problem I reported about 2.4.4 a
-while back is still present in 2.4.6-pre6 (hard crash when doing "cat
-whatever > /dev/dsp1" where /dev/dsp1 is an external USB audio device, where
-"hard crash" means a freeze followed by "wait on irq" message as reported
-earlier).
+In normal configurations it shouldnt be. Both ext3 and reiserfs currently
+have the problem that they need to replay the log to get a stable file 
+system. Obviously you cant replay the log to disk if its read only, so they
+replay the log to disk read/write then mount the fixed fs read only.
 
-I have tracked down the problem to having appeared between 2.4.3 and 2.4.4
-and occuring only on kernels compiled SMP (actual number of processors
-doesn't matter), but the only response I have got is "no major changes
-occured between those kernel versions" and I am not competent to find it
-myself. :(
-
-Any help appreciated...
-
-//jb
+It breaks if your hardware has given up writing (certain disk fails) or if
+you are running the swsuspend patch (serious disk corruption) but really
+the swsusp patch interaction is the only problem one

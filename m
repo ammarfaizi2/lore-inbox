@@ -1,49 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270404AbTGRXt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 19:49:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270418AbTGRXt7
+	id S270418AbTGSACt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 20:02:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270432AbTGSACt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 19:49:59 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:58563
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S270404AbTGRXt6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 19:49:58 -0400
-Date: Sat, 19 Jul 2003 02:04:53 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22pre6aa1
-Message-ID: <20030719000453.GD19045@dualathlon.random>
-References: <20030717102857.GA1855@dualathlon.random> <20030718191853.A11052@infradead.org> <20030718222750.GL3928@dualathlon.random> <20030718224824.GP15452@holomorphy.com> <20030718225328.GQ3928@dualathlon.random> <20030718230431.GQ15452@holomorphy.com> <20030718231230.GA19045@dualathlon.random> <20030718235309.GR15452@holomorphy.com>
+	Fri, 18 Jul 2003 20:02:49 -0400
+Received: from cpt-dial-196-30-178-11.mweb.co.za ([196.30.178.11]:52608 "EHLO
+	nosferatu.lan") by vger.kernel.org with ESMTP id S270418AbTGSACs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 20:02:48 -0400
+Subject: Re: 2.6.0 BK snapshots
+From: Martin Schlemmer <azarah@gentoo.org>
+Reply-To: azarah@gentoo.org
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: KML <linux-kernel@vger.kernel.org>, torvalds@osdl.org
+In-Reply-To: <20030718160551.GC27152@gtf.org>
+References: <1058542891.1164.1602.camel@workshop.saharacpt.lan>
+	 <20030718160551.GC27152@gtf.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-C2c1Hoc0eflGAECkpE/G"
+Message-Id: <1058573885.1834.3.camel@nosferatu.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030718235309.GR15452@holomorphy.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 19 Jul 2003 02:18:05 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 18, 2003 at 04:53:09PM -0700, William Lee Irwin III wrote:
-> On Sat, Jul 19, 2003 at 01:12:30AM +0200, Andrea Arcangeli wrote:
-> > so the apps will need changes and a kernel API way to know the hardware
-> > page size provided by hugetlbfs (though they could probe for it with
-> > many tries).
-> 
-> The hugepage size is exported in /proc/meminfo for the time being.
 
-ok.
+--=-C2c1Hoc0eflGAECkpE/G
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> I think 2.7 will see something we both like better.
+On Fri, 2003-07-18 at 18:05, Jeff Garzik wrote:
+> On Fri, Jul 18, 2003 at 05:41:32PM +0200, Martin Schlemmer wrote:
+> > Any chance that we will see BK snapshots of 2.6 soon ?
+> > Missing the second day kernel recompile =3D)
+>=20
+> I know, I know...  ;-)
+>=20
+> Suffixes ("-testN") break my snapshot process.  Should be fixed
+> sometime today...
 
-the transparency feature in the shm-largepage patch is quite nice since
-you could trivially put an app on the fs w/o any breakage that way (not
-everything has to be strictly mapped with bigpages, so it would make the
-code more relaxed by just changing the mountpoint). Of course a way
-to know for sure if a mapping is marked VM_LARGEPAGE would be needed
-then to be sure the app has the right pieces of vm backed with the right
-page size.
+Thanks =3D)
 
-Andrea
+--=20
+
+Martin Schlemmer
+
+
+
+
+--=-C2c1Hoc0eflGAECkpE/G
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/GI48qburzKaJYLYRAs/GAJ9bw/sGzBGYeVS/prlOK1n9OeAvMQCeM7gF
+sOWRmkZSGwQJ1kcebPt7y90=
+=fqBt
+-----END PGP SIGNATURE-----
+
+--=-C2c1Hoc0eflGAECkpE/G--
+

@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261564AbUBYX2R (ORCPT <rfc822;willy@w.ods.org>);
+	id S261572AbUBYX2R (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 25 Feb 2004 18:28:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbUBYXZL
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbUBYXYz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 18:25:11 -0500
-Received: from [209.124.89.92] ([209.124.89.92]:7588 "EHLO removed")
-	by vger.kernel.org with ESMTP id S261624AbUBYXXJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 18:23:09 -0500
-From: Anton Petrusevich <casus@att-ltd.biz>
-To: linux-kernel@vger.kernel.org
-Subject: ftruncate64
-Date: Thu, 26 Feb 2004 05:23:10 +0600
-User-Agent: KMail/1.5.4
+	Wed, 25 Feb 2004 18:24:55 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:34810 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261767AbUBYXYD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 18:24:03 -0500
+Message-ID: <403D2E88.2030108@mvista.com>
+Date: Wed, 25 Feb 2004 15:23:52 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Tom Rini <trini@kernel.crashing.org>
+CC: kernel list <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@suse.cz>,
+       "Amit S. Kale" <amitkale@emsyssoft.com>,
+       kgdb-bugreport@lists.sourceforge.net
+Subject: Re: [Kgdb-bugreport] [PATCH][2/3] Update CVS KGDB's have kgdb_{schedule,process}_breakpoint
+References: <20040225213626.GF1052@smtp.west.cox.net> <20040225214343.GG1052@smtp.west.cox.net> <403D28E5.1060701@mvista.com> <20040225230402.GM1052@smtp.west.cox.net>
+In-Reply-To: <20040225230402.GM1052@smtp.west.cox.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402260523.10394.casus@att-ltd.biz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi guys,
-
-That looks funny:
-casus@jabbervorx:~$ dd if=/dev/zero of=hole bs=1k count=1 seek=2047M
-1+0 records in
-1+0 records out
-1024 bytes transferred in 0,000133 seconds (7696845 bytes/sec)
-casus@jabbervorx:~$ dd if=/dev/zero of=hole bs=1k count=1 seek=2048M
-dd: advancing past 2199023255552 bytes in output file `hole': File too large
-
-strace shows the errorneous call:
-ftruncate64(1, 2199023255552)           = -1 EFBIG (File too large)
-
-This behavour is observed with 2.4.23 and 2.6.3-rc1 kernels. And with 
-2.4.20-28.9smp redhat kernel too. But not with RHEL3 kernels. Looks like 
-RedHat silently fixed that bug.
+Tom Rini wrote:
+> On Wed, Feb 25, 2004 at 02:59:49PM -0800, George Anzinger wrote:
+> 
+> 
+>>If you are always inserting after irq_exit(), why not modify irq_exit()?  
+>>Makes a cleaner patch.
+> 
+> 
+> irq_exit() is in <asm/hardirq.h>, so it doesn't buy us anything in terms
+> of files modified.
+> 
+Ok.
 
 -- 
-Anton Petrusevich
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

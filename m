@@ -1,54 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268684AbUH3RmJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268650AbUH3Roe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268684AbUH3RmJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 13:42:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268582AbUH3Rkb
+	id S268650AbUH3Roe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 13:44:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268660AbUH3Rod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 13:40:31 -0400
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:1952 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S268657AbUH3Rjx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 13:39:53 -0400
-Date: Mon, 30 Aug 2004 10:41:37 -0700
-To: Paul Jakma <paul@clubi.ie>
-Cc: Kenneth Lavrsen <kenneth@lavrsen.dk>, Linus Torvalds <torvalds@osdl.org>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       pmarques@grupopie.com, greg@kroah.com, nemosoft@smcc.demon.nl,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: pwc+pwcx is not illegal
-Message-ID: <20040830174137.GB24392@top.worldcontrol.com>
-Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
-	Paul Jakma <paul@clubi.ie>, Kenneth Lavrsen <kenneth@lavrsen.dk>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Albert Cahalan <albert@users.sourceforge.net>,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-	pmarques@grupopie.com, greg@kroah.com, nemosoft@smcc.demon.nl,
-	linux-usb-devel@lists.sourceforge.net
-References: <1093634283.431.6370.camel@cube> <Pine.LNX.4.58.0408271226400.14196@ppc970.osdl.org> <6.1.2.0.2.20040827215143.01d7b038@inet.uni2.dk> <Pine.LNX.4.61.0408272124300.2441@fogarty.jakma.org>
+	Mon, 30 Aug 2004 13:44:33 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:10206 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268650AbUH3Rmo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 13:42:44 -0400
+Date: Mon, 30 Aug 2004 23:08:53 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Jim Houston <jim.houston@comcast.net>
+Cc: paulmck@us.ibm.com, linux-kernel@vger.kernel.org,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Andrew Morton <akpm@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Jack Steiner <steiner@sgi.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       rusty@rustcorp.com.au
+Subject: Re: [RFC&PATCH] Alternative RCU implementation
+Message-ID: <20040830173853.GB4639@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <m3brgwgi30.fsf@new.localdomain> <20040830004322.GA2060@us.ibm.com> <1093886020.984.238.camel@new.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0408272124300.2441@fogarty.jakma.org>
-X-No-Archive: yes
-X-Noarchive: yes
-User-Agent: Mutt/1.5.6i
-From: Brian Litzinger <brian@worldcontrol.com>
+In-Reply-To: <1093886020.984.238.camel@new.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 27, 2004 at 09:26:26PM +0100, Paul Jakma wrote:
-> On Fri, 27 Aug 2004, Kenneth Lavrsen wrote:
+On Mon, Aug 30, 2004 at 01:13:41PM -0400, Jim Houston wrote:
+> On Sun, 2004-08-29 at 20:43, Paul E. McKenney wrote:
+> > Are these critical realtime processes user-mode only, or do they
+> > also execute kernel code?  If they are user-mode only, a much more
+> > straightforward approach might be to have RCU pretend that they do
+> > not exist.
+> > 
+> > This approach would have the added benefit of keeping rcu_read_unlock()
+> > atomic-instruction free.  In some cases, the overhead of the atomic
+> > exchange would overwhelm that of the read-side RCU critical section.
+> > 
+> > Taking this further, if the realtime CPUs are not allowed to execute in
+> > the kernel at all, you can avoid overhead from smp_call_function() and
+> > the like -- and avoid confusing those parts of the kernel that expect to
+> > be able to send IPIs and the like to the realtime CPU (or do you leave
+> > IPIs enabled on the realtime CPU?).
 > 
-> >magazines and news papers. I just cannot accept that people can 
-> >care so little for other people.
+> Our customers applications vary but, in general, the realtime processes
+> will do the usual system calls to synchronize with other processes and
+> do I/O.
 > 
-> These people do care, they created, wrote and/or maintain the Linux 
-> kernel in the first place! They also are wise enough to care more the 
-> long-term interests of Linux than just the short-term.
+> I considered tracking the user<->kernel mode transitions extending the
+> idea of the nohz_cpu_mask.  I gave up on this idea mostly because it
+> required hooking into assembly code.  Just extending the idea of this
+> bitmap has its own scaling issues.  We may have several cpus running
+> realtime processes. The obvious answer is to keep the information in
+> a per-cpu variable and pay the price of polling this from another cpu.
 
-So we have to step on a few people on the way to build our great
-an glorious utopia!  Well at leat it is for their own good.
+Tracking user<->kernel transitions and putting smarts in scheduler
+about RCU is the right way to go IMO.
 
--- 
-Brian Litzinger
+Anything that poll other cpus and has read-side overheads will likely
+not be scalable. I think that is not the right way to go about solving
+the issue of dependency on local timer interrupt. It is a worthy goal
+and we need to do this anyway, but we need to do it right without
+hurting the current advantages as much as possible.
+
+
+> I know that I'm questioning one of your design goals for RCU by adding
+> overhead to the read-side.  I have read everything I could find on RCU.
+> My belief is that the cost of the xchg() instruction is small 
+> compared to the cache benifit of freeing memory more quickly.
+> I think it's more interesting to look at the impact of the xchg() at the
+> level of an entire system call.  Adding 30 nanoseconds to a open/close
+> path that tasks 3 microseconds seems reasonable.  It is hard to measure
+> the benefit of reusing the a dcache entry more quickly.
+> 
+> I would be interested in suggestions for testing.  I would be very
+> interested to hear how my patch does on a large machine.
+
+I will get you some numbers on a large machine. But I remain opposed
+to this approach. I believe it can be done without the read-side
+overheads. 
+
+
+> I'm also trying to figure out if I need the call_rcu_bh() changes.
+> Since my patch will recognize a grace periods as soon as any 
+> pending read-side critical sections complete, I suspect that I
+> don't need this change.
+
+Except that under a softirq flood, a reader in a different read-side
+critical section may get delayed a lot holding up RCU. Let me know
+if I am missing something here.
+
+Thanks
+Dipankar

@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268848AbUIHERB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268807AbUIHETl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268848AbUIHERB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 00:17:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268849AbUIHEQm
+	id S268807AbUIHETl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 00:19:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268861AbUIHETk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 00:16:42 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:49543 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S268848AbUIHEQV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 00:16:21 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Jon Smirl <jonsmirl@gmail.com>
+	Wed, 8 Sep 2004 00:19:40 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:38596
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S268807AbUIHET3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 00:19:29 -0400
+Date: Tue, 7 Sep 2004 21:16:37 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: jonsmirl@gmail.com, willy@debian.org, linux-kernel@vger.kernel.org
 Subject: Re: multi-domain PCI and sysfs
-Date: Tue, 7 Sep 2004 21:16:15 -0700
-User-Agent: KMail/1.7
-Cc: "David S. Miller" <davem@davemloft.net>, willy@debian.org,
-       linux-kernel@vger.kernel.org
-References: <9e4733910409041300139dabe0@mail.gmail.com> <20040907161140.29fbfccc.davem@davemloft.net> <9e473391040907203941e4af81@mail.gmail.com>
-In-Reply-To: <9e473391040907203941e4af81@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Message-Id: <20040907211637.20de06f4.davem@davemloft.net>
+In-Reply-To: <200409072115.09856.jbarnes@engr.sgi.com>
+References: <9e4733910409041300139dabe0@mail.gmail.com>
+	<9e47339104090715585fa4f8af@mail.gmail.com>
+	<20040907161140.29fbfccc.davem@davemloft.net>
+	<200409072115.09856.jbarnes@engr.sgi.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409072116.16050.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, September 7, 2004 8:39 pm, Jon Smirl wrote:
-> On Tue, 7 Sep 2004 16:11:40 -0700, David S. Miller <davem@davemloft.net> 
-wrote:
-> > On Tue, 7 Sep 2004 18:58:53 -0400
-> >
-> > Jon Smirl <jonsmirl@gmail.com> wrote:
-> > > How many active VGA devices can I have in this system 1 or 4? If the
-> > > answer is 4, how do I independently address each VGA card? If the
-> > > answer is one, you can see why I want a pci0000 node to hold the
-> > > attribute for turning it off and on.
-> >
-> > I don't know about the above but for a multi-domain system the
-> > way it works is that the I/O ports are accessed using a different
-> > base address for each domain.
->
-> How does this work for IO ports in port space instead of memory mapped IO?
+On Tue, 7 Sep 2004 21:15:09 -0700
+Jesse Barnes <jbarnes@engr.sgi.com> wrote:
 
-On sn2 at least, it's the same thing.  Each PCI segment has a 'base address' 
-that can be used for legacy I/O.  Just add the port you want to access to the 
-base and hope that a card responds before a master abort occurs.
+> On Tuesday, September 7, 2004 4:11 pm, David S. Miller wrote:
+> > This is a real touchy area btw, because if there is no
+> > VGA card, such I/O port accesses are going to trap and
+> > we need to have a common way to handle that somehow.
+> 
+> So I take it your platform won't soft fail the accesses and return all 1s?
 
-Jesse
+Nope, you get a machine check trap.  We have to catch these when doing
+PCI config space accesses in the kernel too.  Grep for pci_poke_* in
+arch/sparc64/kernel/*.c
+
+> A potentially cleaner option which Ben and I would prefer is to use
+> the vga device Jon is creating to do legacy I/O with explicit
+> read/write or ioctl calls.
+
+Definitely.  Note that xfree86 already has a signal handler for this
+stuff, ppc generates traps like sparc64 too.

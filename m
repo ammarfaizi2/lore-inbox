@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264387AbTL3Xuv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 18:50:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264392AbTL3Xuv
+	id S264401AbTL3XwR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 18:52:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265860AbTL3XwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 18:50:51 -0500
-Received: from mtaw4.prodigy.net ([64.164.98.52]:26286 "EHLO mtaw4.prodigy.net")
-	by vger.kernel.org with ESMTP id S264387AbTL3Xuu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 18:50:50 -0500
-Date: Tue, 30 Dec 2003 15:50:29 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: john moser <bluefoxicy@linux.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Slab allocator . . . cache?  WTF is it?
-Message-ID: <20031230235029.GY1882@matchmail.com>
-Mail-Followup-To: john moser <bluefoxicy@linux.net>,
-	linux-kernel@vger.kernel.org
-References: <20031230221859.15F503956@sitemail.everyone.net>
-Mime-Version: 1.0
+	Tue, 30 Dec 2003 18:52:17 -0500
+Received: from magic-mail.adaptec.com ([216.52.22.10]:39042 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP id S264401AbTL3XwM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 18:52:12 -0500
+Date: Tue, 30 Dec 2003 16:57:49 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Jeff Garzik <jgarzik@pobox.com>, Mickael Marchand <marchand@kde.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] adaptec 1210sa
+Message-ID: <641152704.1072828669@aslan.btc.adaptec.com>
+In-Reply-To: <3FF20B7A.1090108@pobox.com>
+References: <200312220305.29955.marchand@kde.org> <3FF20B7A.1090108@pobox.com>
+X-Mailer: Mulberry/3.1.0 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031230221859.15F503956@sitemail.everyone.net>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 30, 2003 at 02:18:58PM -0800, john moser wrote:
-> I'm wondering, what IS cache?  It seems to increase even when swap is not used,
-> and sometimes when there's no swap partition enabled.  It also seems to cause
-> me to run into swap when I have ample ram available, assuming that cache is just
-> some sort of cache that is copied from and mirrors another portion of ram for
-> some sort of speed increase.  
+>> the idea suggested by Justin was to clear bits 6 and 7 at 0x8a of pci 
+>> configuration space. (which I hope did fine :)
+>> 
+>> Thanks Justin :)
+> 
+> 
+> Does the aar1210 have a different PCI id?  That would make it easy to
+> distinguish, and thus easy to selectively apply your patch only to Adaptec
+> chipsets that need it.
 
-First of all, does it swap out and stay swapped out, or does it swap in and
-out constantly?
+The change is harmless for controllers using non-adaptec BIOSes.  You'll
+find that on these other controllers, the interrupt masks are already
+clear.  If this wasn't the case, the current Linux driver wouldn't work
+even on stock boards.
 
-What kernel version are you running?
-
-The cache, or pagecache is at the core of Linux' memory management.  When
-you start an application (or process) it first maps the file into the cache,
-and then executes it.  So the cached value also counts the parts of the
-files used recently.  It gets much more complicated, but you're invited to
-learn more about it.  I'm sure someone else can give you a few URLs with
-more details.
+--
+Justin
 

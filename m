@@ -1,73 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271676AbRICK5Q>; Mon, 3 Sep 2001 06:57:16 -0400
+	id <S271677AbRICLEF>; Mon, 3 Sep 2001 07:04:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271677AbRICK5F>; Mon, 3 Sep 2001 06:57:05 -0400
-Received: from smtp8.xs4all.nl ([194.109.127.134]:14784 "EHLO smtp8.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S271676AbRICK4y>;
-	Mon, 3 Sep 2001 06:56:54 -0400
-From: thunder7@xs4all.nl
-Date: Mon, 3 Sep 2001 12:52:18 +0200
-To: Matthew Wilcox <willy@debian.org>
-Cc: parisc-linux@lists.parisc-linux.org, linux-kernel@vger.kernel.org
-Subject: Re: documented Oops running big-endian reiserfs on parisc architecture
-Message-ID: <20010903125218.A3192@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-In-Reply-To: <20010902105538.A15344@middle.of.nowhere> <20010902150023.U5126@parcelfarce.linux.theplanet.co.uk> <20010902.160441.92583890.davem@redhat.com> <20010903002514.X5126@parcelfarce.linux.theplanet.co.uk>
+	id <S271679AbRICLDz>; Mon, 3 Sep 2001 07:03:55 -0400
+Received: from lxmayr6.informatik.tu-muenchen.de ([131.159.44.50]:24960 "EHLO
+	lxmayr6.informatik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id <S271677AbRICLDr>; Mon, 3 Sep 2001 07:03:47 -0400
+Date: Mon, 3 Sep 2001 13:04:04 +0200
+From: Ingo Rohloff <rohloff@in.tum.de>
+To: epic@scyld.com, linux-kernel@vger.kernel.org
+Subject: epic100.c, SMC EtherPower II, SMC83c170/175 "EPIC"
+Message-ID: <20010903130404.B1064@lxmayr6.informatik.tu-muenchen.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010903002514.X5126@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.3.22.1i
+User-Agent: Mutt/1.3.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 03, 2001 at 12:25:14AM +0100, Matthew Wilcox wrote:
-> On Sun, Sep 02, 2001 at 04:04:41PM -0700, David S. Miller wrote:
-> >    From: Matthew Wilcox <willy@debian.org>
-> >    Date: Sun, 2 Sep 2001 15:00:23 +0100
-> > 
-> >    On Sun, Sep 02, 2001 at 10:55:38AM +0200, thunder7@xs4all.nl wrote:
-> >    > ReiserFS version 3.6.25
-> >    > bonnie[163]: Unaligned data reference 28
-> >    
-> >    As it says, an unaligned data reference.
-> >    
-> > BTW, you should not be OOPSing on this as unaligned references are
-> > defined as completely normal, especially in the networking.
-> > 
-> > Is it impossible to handle unaligned access traps properly on
-> > parisc?  If so, well you have some problems...
-> 
-> No, we just haven't bothered to implement it yet.  Not many people
-> use IPX these days.
-> 
-OK, well this seems to have opened quite a can of worms. Programming the
-handling of unaligned access traps on parisc is quite above my
-possibilities.
+Hello,
 
-I did notice that mark_de_without_sd() in reiserfs_fs.h just calls the
-ext2_{set|clear|test}_bit routines. If the host architecture should
-handle that with unaligned addresses, obviously the exception for s390
-should also go. The current source would make reiserfs slow on sparc as
-well, if I understand correctly.
+I have got a "[SMC] 83C170QF" adaptor in my computer and I wasn't
+able to use the driver which is in linux-2.4.9.
 
-To solve this for parisc, I see two possibilities:
+The sympotms are lot's of messages of this in /var/log/messages:
+"kernel: eth0: Too much work at interrupt, IntrStatus=0x008d0004"
 
-- rewrite asm/parisc/bitops.h to have the ext2_* routines handle
-  unaligned addresses. This would possibly be slowing down all aligned
-  access. Not so nice.
+This seems to be a known problem; at least I found other people
+complaining about the same message in their kernel logs.
+The problem has different severity for different people. 
+I wasn't able to get the card working at all (basically the
+computer hung, while trying to mount several NFS directories).
 
-- rewrite reiserfs_fs.h to use it's own test/set/clear bit routines.
-  This would lose all the optimizations all specific architectures have
-  in their asm/*/bitops.h. Also not nice.
+After searching the web for further information I was able
+to obtain a patched version, which was modified Heiko Boch. 
+It seems this version is an older linux-2.4.x driver with 
+some additional patches.
 
-Keeping in mind that I don't know any parisc assembly, is there any way
-I can help resolve this in an elegant manner?
+This version works without glitches on my system with a 
+vanilla linux-2.4.9 kernel. 
 
-Greetings,
-Jurriaan
--- 
-If all else fails, immortality can always be assured by spectacular error.
-        John Kenneth Galbraith
-GNU/Linux 2.4.9-ac5 SMP/ReiserFS 2x1402 bogomips load av: 0.45 0.12 0.04
+The homepage of Heiko Boch doesn't seem to exist anymore, so
+for all people who use this card and have the above problem,
+I put his modified version of epic100.c on my home page at
+www.in.tum.de/~rohloff (look for epic100.c). 
+
+I hope that after some testing someone can have a look over
+this version, who really can tell what the essential differences
+compared to the version in linux-2.4.9 are.
+
+Perhaps this will lead to a working linux-2.4.xx version in the future.
+
+so long
+  Ingo

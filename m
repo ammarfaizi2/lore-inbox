@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288657AbSANCOY>; Sun, 13 Jan 2002 21:14:24 -0500
+	id <S288639AbSANCOe>; Sun, 13 Jan 2002 21:14:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288660AbSANCOP>; Sun, 13 Jan 2002 21:14:15 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:14008 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S288643AbSANCN6>; Sun, 13 Jan 2002 21:13:58 -0500
-Date: Sun, 13 Jan 2002 19:14:58 -0700
-Message-Id: <200201140214.g0E2Ewx12117@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: [PATCH] devfs v199.7 available
+	id <S288660AbSANCOZ>; Sun, 13 Jan 2002 21:14:25 -0500
+Received: from paloma15.e0k.nbg-hannover.de ([62.181.130.15]:58832 "HELO
+	paloma15.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S288639AbSANCOL>; Sun, 13 Jan 2002 21:14:11 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Date: Mon, 14 Jan 2002 03:12:57 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@zip.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020114021417Z288639-13997+4537@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. Version 199.7 of my devfs patch is now available from:
-http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
-The devfs FAQ is also available here.
+> Or just doing a large write while doing lots of reads... my personal
+> nemesis is "mkisofs" for backups, which reads lots of small files and
+> builds a CD image, which suddenly gets discovered by the kernel and
+> written, seemingly in a monolythic chunk. I MAY be able to improve this
+> with tuning the bdflush parameters, and I tried some tentative patches
+> which didn't make a huge gain.
+>
+> I don't know if the solution lies in forcing write to start when a certain
+> size of buffers are queued regardless of percentages, or in better
+> scheduling of reads ahead of writes, or whatever.
 
-Patch directly available from:
-ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
+Have you observed it with -rmap or -aa, too?
+I bet, you have.
 
-AND:
-ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
+Try Andrew's read-latency.patch then.
+I use it on top of O(1) and preempt all the time.
+It should be one of the next 2.4.18-preX/2.4.19-preX patches.
 
-This is against 2.4.18-pre3. Highlights of this release:
+Regards,
+	Dieter
 
-- Unregister /dev/root symlink prior to creating second one (for
-  initrd)
+-- 
+Dieter Nützel
+Graduate Student, Computer Science
 
-- Added support for multiple Compaq cpqarray controllers
-
-- Fixed (rare, old) race in <devfs_lookup>
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+University of Hamburg
+Department of Computer Science
+@home: Dieter.Nuetzel@hamburg.de

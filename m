@@ -1,34 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319308AbSHGTsX>; Wed, 7 Aug 2002 15:48:23 -0400
+	id <S317056AbSHGUGc>; Wed, 7 Aug 2002 16:06:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319309AbSHGTsX>; Wed, 7 Aug 2002 15:48:23 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:33276 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319308AbSHGTsV>; Wed, 7 Aug 2002 15:48:21 -0400
-Subject: Re: [PATCH] pdc20265 problem.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org,
-       thunger@ngforever.de, vandrove@vc.cvut.cz
-In-Reply-To: <Pine.LNX.4.44.0208071331410.10270-100000@hawkeye.luckynet.adm>
-References: <Pine.LNX.4.44.0208071331410.10270-100000@hawkeye.luckynet.adm>
-Content-Type: text/plain
+	id <S317091AbSHGUGc>; Wed, 7 Aug 2002 16:06:32 -0400
+Received: from freeside.toyota.com ([63.87.74.7]:3852 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP
+	id <S317056AbSHGUGb>; Wed, 7 Aug 2002 16:06:31 -0400
+Message-ID: <3D517E9C.9080707@lexus.com>
+Date: Wed, 07 Aug 2002 13:10:04 -0700
+From: J Sloan <jjs@lexus.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020802
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bob_Tracy <rct@gherkin.frus.com>
+CC: linux-kernel@vger.kernel.org
+Subject: [OT] Re: PROBLEM: kernel BUG at page_alloc.c:117!
+References: <m17cWSy-0005khC@gherkin.frus.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 07 Aug 2002 22:11:02 +0100
-Message-Id: <1028754662.18156.336.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-08-07 at 20:33, Thunder from the hill wrote:
->
-> Not exactly. Somebody who releases Linux distributions should be able to 
-> release it with a kernel that can have a boot parameter or such about it 
-> which is configured via mouse click...
-> 
-> That still doesn't make it any harder to achieve.
+My experience with NVidia drivers has
+been all good -
 
-You know where to send the patches
+However ATI is hopeful, we need some
+competition. I found that a radeon worked
+well, in terms of 3D screensavers, and
+quake 3 arena - however starting RtCW
+resulted in immediate hard lockup, every
+time - no ping, no sysrq.
+
+People are working on ATI drivers, who
+knows, maybe there will be something
+usable soon.
+
+Joe
+
+Bob_Tracy wrote:
+
+>Consider this an invitation for any NVidia employee "in the know" (who
+>also reads this list) to comment.  Even a hearty "f*ck off" would beat
+>the world-class lettin' alone the linux community is currently getting.
+>
+>Linux zealots who insist I should vote with my dollars are cordially
+>invited to suggest alternative video cards that (1) are fully
+>supported under Linux, and (2) perform as well as the NVidia cards do
+>(when the NVidia driver doesn't crash my system, that is).  I have two
+>informal benchmarks I care about: the OpenGL "lament" screensaver, and
+>Unreal Tournament.
+>
+>  
+>
 

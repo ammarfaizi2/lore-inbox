@@ -1,76 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262602AbVCJNtj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbVCJNz3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262602AbVCJNtj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 08:49:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262606AbVCJNtj
+	id S261244AbVCJNz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 08:55:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262616AbVCJNz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 08:49:39 -0500
-Received: from [192.139.46.150] ([192.139.46.150]:3789 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S262602AbVCJNtd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 08:49:33 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: hch@infradead.org, linux-ia64@vger.kernel.org,
+	Thu, 10 Mar 2005 08:55:29 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:21677 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261244AbVCJNzX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 08:55:23 -0500
+Date: Sun, 6 Mar 2005 13:57:49 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Rene Herman <rene.herman@keyaccess.nl>, Andrew Morton <akpm@osdl.org>,
+       Jens Axboe <axboe@suse.de>, tglx@linutronix.de,
        linux-kernel@vger.kernel.org
-Subject: Re: [patch -mm series] ia64 specific /dev/mem handlers
-References: <16923.193.128608.607599@jaguar.mkp.net>
-	<20050222020309.4289504c.akpm@osdl.org>
-	<yq0ekf8lksf.fsf@jaguar.mkp.net>
-	<20050222175225.GK28741@parcelfarce.linux.theplanet.co.uk>
-	<20050222112513.4162860d.akpm@osdl.org>
-	<yq0zmxwgqxr.fsf@jaguar.mkp.net>
-	<20050222153456.502c3907.akpm@osdl.org>
-	<yq0sm3negtb.fsf@jaguar.mkp.net>
-	<20050223223404.GA21383@infradead.org>
-	<yq0k6oydjjv.fsf@jaguar.mkp.net>
-	<20050309225516.55195ddc.akpm@osdl.org>
-From: Jes Sorensen <jes@wildopensource.com>
-Date: 10 Mar 2005 08:49:22 -0500
-In-Reply-To: <20050309225516.55195ddc.akpm@osdl.org>
-Message-ID: <yq0y8cvzk4d.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+Subject: Re: RFD: Kernel release numbering
+Message-ID: <20050306125749.GO3485@openzaurus.ucw.cz>
+References: <20050303160330.5db86db7.akpm@osdl.org> <20050304025746.GD26085@tolot.miese-zwerge.org> <20050303213005.59a30ae6.akpm@osdl.org> <1109924470.4032.105.camel@tglx.tec.linutronix.de> <20050304005450.05a2bd0c.akpm@osdl.org> <20050304091612.GG14764@suse.de> <20050304012154.619948d7.akpm@osdl.org> <Pine.LNX.4.58.0503040956420.25732@ppc970.osdl.org> <4228B514.4020704@keyaccess.nl> <Pine.LNX.4.58.0503041230020.11349@ppc970.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0503041230020.11349@ppc970.osdl.org>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Andrew" == Andrew Morton <akpm@osdl.org> writes:
+Hi!
 
-Andrew> Jes Sorensen <jes@wildopensource.com> wrote:
->>  Convert /dev/mem read/write calls to use arch_translate_mem_ptr if
->> available. Needed on ia64 for pages converted fo uncached mappings
->> to avoid it being accessed in cached mode after the conversion
->> which can lead to memory corruption. Introduces PG_uncached page
->> flag for marking pages uncached.
+> > The fact that not a script, but Linus Torvalds, decides that the tree is 
+> > in a state he likes to share with others. You have been doing -pre's all 
+> > this time, it's just that you are calling them -rc's.
+> 
+> No.
+> 
+> I used to do "-pre", a long time ago. Exactly because they were 
+> synchronization points for developers.
+> 
+> These days, that's pointless. We keep the tree in pretty good working
+> order (certainly as good as my -pre's ever were) constantly, and
+> developers who need to can synchronize with either the BK tree or the
+> nightly snapshots. The fact is, 99% of the developers don't even need to 
 
-Andrew> For some reason this patch still gives me the creeps.  Maybe
-Andrew> it's because we lose a page flag for something so obscure.
+Actually, sync to -pre is easier than sync to -bk snapshot:
+* you get incremental patches from kernel.org
+* there's reasonable number of pre-s so that you can be up-to-date without
+syncing each day
 
-Andrew> Nothing ever clears PG_uncached.  We'll end up with every page
-Andrew> in the machine marked as being uncached.
+				Pavel
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 
-Actually there's restrictions to how many pages are getting converted
-as converting pages over from cached to uncached isn't trivial on ia64.
-
-Andrew> But then, nothing ever sets PG_uncached, either.  Is there
-Andrew> some patch which you're hiding from me?
-
-Actually I posted that earlier, but it must have gotten lost in the
-noise. It's part of the genalloc/mspec patchset. I'll send it to you
-directly.
-
-Andrew> If a page is marked uncached then it'll remain marked as
-Andrew> uncached even after it's unmapped.  Or will it?  Would like to
-Andrew> see the other patch, please.
-
-Coming your way in a jiffy.
-
-Andrew> We should add PG_uncached checks to the page allocator.  Is
-Andrew> this OK?
-
-I don't see any problems with that. The way it's meant to be used is
-that once pages are converted over, they don't go back into the
-allocator.
-
-Cheers,
-Jes

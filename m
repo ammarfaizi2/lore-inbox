@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUJAQRT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264530AbUJAQRw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264704AbUJAQRT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 12:17:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbUJAQRK
+	id S264530AbUJAQRw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 12:17:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUJAQRd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 12:17:10 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:56242 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264530AbUJAQQC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 12:16:02 -0400
-Subject: 2.6.9-rc2-mm4 ps hang ?
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1096646925.12861.50.camel@dyn318077bld.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 01 Oct 2004 09:08:46 -0700
+	Fri, 1 Oct 2004 12:17:33 -0400
+Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:56331 "EHLO
+	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
+	id S264377AbUJAQOW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 12:14:22 -0400
+Message-ID: <415D825A.7080008@superbug.co.uk>
+Date: Fri, 01 Oct 2004 17:14:18 +0100
+From: James Courtier-Dutton <James@superbug.co.uk>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040916)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Ralph Corderoy <ralph@inputplus.co.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone.
+References: <200409291344.i8TDiMv11397@blake.inputplus.co.uk>	 <200410011752.04994.vda@port.imtp.ilyichevsk.odessa.ua> <1096640407.21940.33.camel@localhost.localdomain>
+In-Reply-To: <1096640407.21940.33.camel@localhost.localdomain>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alan Cox wrote:
+> On Gwe, 2004-10-01 at 15:52, Denis Vlasenko wrote:
+> 
+>>You did an awesome work. I will save this message as an example
+>>just in case I will need to do something similar.
+>>
+>>Unfortunately I have no E3. Hope someone who has will contact you.
+> 
+> 
+> Actually by the time this made the kernel list an answer turned up from
+> Amstrad - the URL for the GPL source, and an offer valid for three years
+> to supply it at cost is in the welcome email their units start up with.
+> 
+> Alan
+> 
 
-I randomly see "ps" hangs on my AMD64 system running 2.6.9-rc2-mm4.
-I don't remember seeing this on earlier kernels. Is this something
-known/fixed ?
-
-Thanks,
-Badari
-
-Here are sysrq-t stacks:
-
-ps            D ffffffff80132e3a     0 21006  11554               26798
-(NOTLB)
-0000010117609dc8 0000000000000006 0000000000000000 00000101d99cc530
-       0000000200000089 000001019f49c8e0 000001019f49cc18
-00000101b97351b0
-       0000010199649250 ffffffff801b5ba3
-Call Trace:<ffffffff801b5ba3>{pid_revalidate+131}
-<ffffffff80445612>{__down_read+130}
-       <ffffffff80142dda>{access_process_vm+74}
-<ffffffff801b71fb>{proc_pid_cmdline+123}
-       <ffffffff801b67ab>{proc_info_read+107}
-<ffffffff80181284>{vfs_read+228}
-       <ffffffff801813c3>{sys_read+83}
-<ffffffff8011075e>{system_call+126}
-
-ps            D 00000101770b1680     0 30632  30631         30633      
-(NOTLB)
-00000101dda8ddc8 0000000000000002 000000000000000c 00000101c1360030
-       000000020000009f 00000101dda9d690 00000101dda9d9c8
-0000000000000000
-       00000101a0002ec0 00000101b97351b0
-Call Trace:<ffffffff80445612>{__down_read+130}
-<ffffffff80142dda>{access_process_vm+74}
-       <ffffffff801b71fb>{proc_pid_cmdline+123}
-<ffffffff801b67ab>{proc_info_read+107}
-       <ffffffff80181284>{vfs_read+228} <ffffffff801813c3>{sys_read+83}
-       <ffffffff8011075e>{system_call+126}
-
- 
-
+And the URL is?

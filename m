@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269605AbUJSSVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270043AbUJSSZ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269605AbUJSSVw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 14:21:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269916AbUJSSUp
+	id S270043AbUJSSZ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 14:25:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270041AbUJSSYR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 14:20:45 -0400
-Received: from yue.linux-ipv6.org ([203.178.140.15]:26121 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S269886AbUJSRZo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 13:25:44 -0400
-Date: Wed, 20 Oct 2004 02:26:22 +0900 (JST)
-Message-Id: <20041020.022622.27982693.yoshfuji@linux-ipv6.org>
-To: lukasz@trabinski.net
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: unregister_netdevice 2.6.9
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <Pine.LNX.4.58LT.0410191738420.2725@lt.wsisiz.edu.pl>
-References: <Pine.LNX.4.58LT.0410191738420.2725@lt.wsisiz.edu.pl>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	Tue, 19 Oct 2004 14:24:17 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:61843 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S270131AbUJSSFX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 14:05:23 -0400
+Date: Tue, 19 Oct 2004 19:04:58 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2/2: device-mapper trivial: duplicate kfree in error path
+Message-ID: <20041019180458.GG6420@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.58LT.0410191738420.2725@lt.wsisiz.edu.pl> (at Tue, 19 Oct 2004 17:58:58 +0200 (CEST)), Lukasz Trabinski <lukasz@trabinski.net> says:
+Remove duplicate kfree in dm_register_target error path.
 
-> After shutdown/reboot :
-> 
-> unregister_netdevice: waiting for xxxx to become free. Usage count = 1
-:
-> whreis xxxx is name of sit device, created via script
-
-Is your box acting as router, or host?
-% sysctl -a |grep ipv6|grep forwarding
-
-What is happend if you let the interface down and delete it before
-becore rebooting?
-
-Thanks.
-
--- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
+--- diff/drivers/md/dm-target.c	2004-06-30 14:25:46.000000000 +0100
++++ source/drivers/md/dm-target.c	2004-10-19 16:53:56.000000000 +0100
+@@ -120,10 +120,9 @@
+ 		return -ENOMEM;
+ 
+ 	down_write(&_lock);
+-	if (__find_target_type(t->name)) {
+-		kfree(ti);
++	if (__find_target_type(t->name))
+ 		rv = -EEXIST;
+-	} else
++	else
+ 		list_add(&ti->list, &_targets);
+ 
+ 	up_write(&_lock);

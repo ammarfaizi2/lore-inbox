@@ -1,42 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262296AbSKVUcS>; Fri, 22 Nov 2002 15:32:18 -0500
+	id <S263342AbSKVUeC>; Fri, 22 Nov 2002 15:34:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263228AbSKVUcS>; Fri, 22 Nov 2002 15:32:18 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49413 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262296AbSKVUcS>; Fri, 22 Nov 2002 15:32:18 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] Beginnings of conpat 32 code cleanups
-Date: 22 Nov 2002 12:38:55 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <arm4kv$bsl$1@cesium.transmeta.com>
-References: <20021122162312.32ff4bd3.sfr@canb.auug.org.au> <Pine.LNX.4.44.0211221141070.1440-100000@penguin.transmeta.com> <20021122115454.A481@work.bitmover.com> <20021122131351.C30808@duath.fsmlabs.com>
+	id <S263794AbSKVUeC>; Fri, 22 Nov 2002 15:34:02 -0500
+Received: from mg02.austin.ibm.com ([192.35.232.12]:51855 "EHLO
+	mg02.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S263342AbSKVUeA>; Fri, 22 Nov 2002 15:34:00 -0500
+Date: Fri, 22 Nov 2002 14:46:33 -0600 (CST)
+From: Kent Yoder <key@austin.ibm.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Lanstreamer hang fix + netif_carrier_on/off (try #2)
+Message-ID: <Pine.LNX.4.44.0211221445390.19085-100000@ennui.austin.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20021122131351.C30808@duath.fsmlabs.com>
-By author:    Cort Dougan <cort@fsmlabs.com>
-In newsgroup: linux.dev.kernel
-> 
-> Plan9 takes it a step further and tackles the char/8-byte issue.  A
-> printable character is a 16-byte entity - a rune - while char is an 8-byte
-> quantity.  Doing everything in UNICODE forced the issue, I think.
-> 
 
-... at which point it promptly fell apart as 16-bit Unicode was very
-quickly found to be insufficient (not really surprising since the
-16-bit decision was based on technical convenience rather than actual
-requirements.)
+Hi,
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Name: Lanstreamer update 0.5.3
+Author: Kent Yoder
+Status: Tested on 2.4.20-pre11
+
+D: This patch takes 2 calls to free_irq out of the interrupt
+D: function's code path, which if hit would cause the machine
+D: to hang. It also adds netif_carrier_{on|off} calls where
+D: necessary.
+
+Thanks,
+Kent
+
+--- a/drivers/net/tokenring/lanstreamer.c	2002-11-12 16:20:40.000000000 -0600
++++ b/drivers/net/tokenring/lanstreamer.c	2002-11-13 09:07:53.000000000 -0600
+@@ -66,6 +66,8 @@
+  *             the number of TX descriptors to 1, which together can prevent 
+  *             the card from locking up the box - <yoder1@us.ibm.com>
+  *  09/27/02 - New PCI interface + bug fix. - <yoder1@us.ibm.com>
++ *  11/13/02 - Removed free_irq calls which could cause a hang, added
++ *	       netif_carrier_{on|off} - <yoder1@us.ibm.com>
+  *  
+  *  To Do:
+  *
+@@ -137,7 +139,7 @@
+  */
+ 
+ static char version[] = "LanStreamer.c v0.4.0 03/08/01 - Mike Sullivan\n"
+-                        "              v0.5.2 09/30/02 - Kent Yoder";
++                        "              v0.5.3 11/13/02 - Kent Yoder";
+ 
+ static struct pci_device_id streamer_pci_tbl[] __initdata = {
+ 	{ PCI_VENDOR_ID_IBM, PCI_DEVICE_ID_IBM_TR, PCI_ANY_ID, PCI_ANY_ID,},
+@@ -879,6 +881,7 @@
+ #endif
+ 
+ 	netif_start_queue(dev);
++	netif_carrier_on(dev);
+ 	return 0;
+ }
+ 
+@@ -1102,7 +1105,9 @@
+ 			       ntohs(readw(streamer_mmio + LAPDINC)),
+ 			       ntohs(readw(streamer_mmio + LAPDINC)),
+ 			       ntohs(readw(streamer_mmio + LAPDINC)));
+-			free_irq(dev->irq, dev);
++			netif_stop_queue(dev);
++			netif_carrier_off(dev);
++			printk(KERN_WARNING "%s: Adapter must be manually reset.\n", dev->name);
+ 		}
+ 
+ 		/* SISR_ADAPTER_CHECK */
+@@ -1200,6 +1205,7 @@
+ 	int i;
+ 
+ 	netif_stop_queue(dev);
++	netif_carrier_off(dev);
+ 	writew(streamer_priv->srb, streamer_mmio + LAPA);
+ 	writew(htons(SRB_CLOSE_ADAPTER << 8),streamer_mmio+LAPDINC);
+ 	writew(htons(STREAMER_CLEAR_RET_CODE << 8), streamer_mmio+LAPDINC);
+@@ -1670,11 +1676,10 @@
+ 			/* @TBD. no llc reset on autostreamer writel(readl(streamer_mmio+BCTL)|(3<<13),streamer_mmio+BCTL);
+ 			   udelay(1);
+ 			   writel(readl(streamer_mmio+BCTL)&~(3<<13),streamer_mmio+BCTL); */
+-			netif_stop_queue(dev);
+-			free_irq(dev->irq, dev);
+-
+-			printk(KERN_WARNING "%s: Adapter has been closed \n", dev->name);
+ 
++			netif_stop_queue(dev);
++			netif_carrier_off(dev);
++			printk(KERN_WARNING "%s: Adapter must be manually reset.\n", dev->name);
+ 		}
+ 		/* If serious error */
+ 		if (streamer_priv->streamer_message_level) {
+
+
+

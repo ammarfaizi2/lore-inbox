@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312676AbSDAOsn>; Mon, 1 Apr 2002 09:48:43 -0500
+	id <S311856AbSDAOxn>; Mon, 1 Apr 2002 09:53:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312643AbSDAOse>; Mon, 1 Apr 2002 09:48:34 -0500
-Received: from isis.telemach.net ([213.143.65.10]:9225 "HELO isis.telemach.net")
-	by vger.kernel.org with SMTP id <S312361AbSDAOsQ>;
-	Mon, 1 Apr 2002 09:48:16 -0500
-Date: Mon, 1 Apr 2002 16:48:13 +0200
-From: Jure Pecar <pegasus@telemach.net>
-To: andrea@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre5aa1 oops via kt266a
-Message-Id: <20020401164813.138ad1ae.pegasus@telemach.net>
-In-Reply-To: <20020401142557.171cb72e.pegasus@telemach.net>
-Organization: Select Technology 
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-redhat-linux)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S311866AbSDAOxY>; Mon, 1 Apr 2002 09:53:24 -0500
+Received: from chamber.cco.caltech.edu ([131.215.48.55]:6318 "EHLO
+	chamber.cco.caltech.edu") by vger.kernel.org with ESMTP
+	id <S311856AbSDAOxL>; Mon, 1 Apr 2002 09:53:11 -0500
+Message-ID: <3CA87424.7020104@bryanr.org>
+Date: Mon, 01 Apr 2002 06:52:20 -0800
+From: Bryan Rittmeyer <bryanr@bryanr.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: april fools @ google
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+just in case there's somebody on this list who *doesn't* use google
+every day,
 
-Looks like i panicked too early; it looks like the dimm in my board is
-misbehaving. I got another strange oops and sudnely bios deceided to
-recognize only half of it. gotta replace it asap ...
+http://www.google.com/technology/pigeonrank.html
 
+"Brin and Page were the first to recognize that this adaptability could
+be harnessed through massively parallel pecking to solve complex
+problems, such as ordering large datasets or ordering pizza for large
+groups of engineers. Page and Brin experimented with numerous avian
+motivators before settling on a combination of linseed and flax (lin/ax)
+that not only offered superior performance, but could be gathered at no
+cost from nearby open space preserves. This open space lin/ax powers
+Google's operations to this day, and a visit to the data coop reveals
+pigeons happily pecking away at lin/ax kernels and seeds."
 
-On Mon, 1 Apr 2002 14:25:57 +0200
-Jure Pecar <pegasus@telemach.net> wrote:
+-Bryan [using lin/ax as happily as a google pigeon]
 
-> 
-> This morning i found my box with frozen X; i sshed in from another and
-> found:
-> 
-
--- 
-
-Jure Pecar

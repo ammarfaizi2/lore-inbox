@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315631AbSGSQho>; Fri, 19 Jul 2002 12:37:44 -0400
+	id <S318528AbSGSQpb>; Fri, 19 Jul 2002 12:45:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316499AbSGSQho>; Fri, 19 Jul 2002 12:37:44 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:25340 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S315631AbSGSQhn>; Fri, 19 Jul 2002 12:37:43 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Fri, 19 Jul 2002 10:39:07 -0600
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
-Message-ID: <20020719163907.GD10315@clusterfs.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20020716124956.GK7955@tahoe.alcove-fr> <Pine.LNX.4.44.0207161107550.17919-100000@innerfire.net> <20020716153926.GR7955@tahoe.alcove-fr> <20020716194542.GD22053@merlin.emma.line.org> <20020716150422.A6254@q.mn.rr.com> <20020716161158.A461@shookay.newview.com> <20020716152231.B6254@q.mn.rr.com> <20020717114501.GB28284@merlin.emma.line.org> <20020717190259.GA31503@clusterfs.com> <20020719102906.A5131@krusty.dt.e-technik.uni-dortmund.de>
-Mime-Version: 1.0
+	id <S318530AbSGSQpb>; Fri, 19 Jul 2002 12:45:31 -0400
+Received: from relay1.pair.com ([209.68.1.20]:24334 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id <S318528AbSGSQpb>;
+	Fri, 19 Jul 2002 12:45:31 -0400
+X-pair-Authenticated: 24.126.73.164
+Message-ID: <3D38442B.FC307ADE@kegel.com>
+Date: Fri, 19 Jul 2002 09:54:03 -0700
+From: dank@kegel.com
+Reply-To: dank@kegel.com
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       george@mvista.com,
+       "high-res-timers-discourse@lists.sourceforge.net" 
+	<high-res-timers-discourse@lists.sourceforge.net>
+Subject: high resolution timers in 2.5? (was: [2.6] The List, pass #2)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020719102906.A5131@krusty.dt.e-technik.uni-dortmund.de>
-User-Agent: Mutt/1.3.28i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul 19, 2002  10:29 +0200, Matthias Andree wrote:
-> What kernel version is necessary to achieve this on production kernels
-> (i. e. 2.4)?
+Mark Salisbury wrote:
+> On Friday 19 July 2002 00:47, Guillaume Boissiere wrote:
+> > Would be nice to have before feature freeze, but most likely 2.7:
+> >   o High resolution timers
 > 
-> Does "consistent" mean "fsck proof"?
-> 
-> Here's what I tried, on Linux-2.4.19-pre10-ac3 (IIRC) (ext3fs):
-> 
-> (from memory, history not available, different machine):
-> lvcreate --snapshot snap /dev/vg0/home
-> e2fsck -f /dev/vg0/snap
-> dump -0 ...
-> 
-> It reported zero dtime for one file and two bitmap differences.
+> this has been done for almost a year now, what is holding it up?
 
-That is because one critical piece is missing from 2.4, the VFS lock
-patch.  It is part of the LVM sources at sistina.com.  Chris Mason has
-been trying to get it in, but it is delayed until 2.4.19 is out.
+I don't know, but it's about time.  George Anziger should know.
 
-> dump did not complain however, and given what e2fsck had to complain,
-> I'd happily force mount such a file system when just a deletion has not
-> completed.
-
-You cannot mount a dirty ext3 filesystem from read-only media.
-
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
-
+George, 
+Have you submitted a high-resolution-timers patch to Linux for 2.5?
+I seem to recall he didn't like the patch when he first saw
+it, but that was so long ago presumably it's much cleaner now?
+- Dan

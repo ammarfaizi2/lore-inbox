@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262607AbUKLSko@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbUKLSnd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262607AbUKLSko (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 13:40:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbUKLSko
+	id S262605AbUKLSnd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 13:43:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262606AbUKLSnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 13:40:44 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:3847 "HELO
+	Fri, 12 Nov 2004 13:43:33 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:13575 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262608AbUKLSkh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 13:40:37 -0500
-Date: Fri, 12 Nov 2004 19:40:05 +0100
+	id S262605AbUKLSnM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 13:43:12 -0500
+Date: Fri, 12 Nov 2004 19:42:41 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Dave Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org
-Subject: Re: kconfig/build question..
-Message-ID: <20041112184005.GH2249@stusta.de>
-References: <Pine.LNX.4.58.0411100110170.1637@skynet> <Pine.LNX.4.61.0411101253460.17266@scrub.home>
+To: Jurriaan <thunder7@xs4all.nl>
+Cc: Libor Vanek <libor@conet.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Highmem fails to compile with 2.6.10-rc1-mm5
+Message-ID: <20041112184241.GI2249@stusta.de>
+References: <4194C9A3.6080106@conet.cz> <20041112165810.GA28664@middle.of.nowhere>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0411101253460.17266@scrub.home>
+In-Reply-To: <20041112165810.GA28664@middle.of.nowhere>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 10, 2004 at 12:55:32PM +0100, Roman Zippel wrote:
-> Hi,
-> 
-> On Wed, 10 Nov 2004, Dave Airlie wrote:
-> 
-> > So what I want to do and what I think Kbuild can't do is:
-> > 
-> > if CONFIG_AGP=n then CONFIG_DRM can be n,m,y
-> > if CONFIG_AGP=m then CONFIG_DRM can be m but not y
-> > if CONFIG_AGP=y then CONFIG_DRM can be m,y
-> 
-> Do you really want to say that DRM can't be disabled if AGP is enabled?
-> Otherwise this should do it:
-> 
-> 	depends on AGP || AGP=n
+On Fri, Nov 12, 2004 at 05:58:10PM +0100, Jurriaan wrote:
+>...
+> Also, to prevent needlessly large messages, could you filter out all the
+> 'is not set' lines when posting your .config? They are not necessary for
+> anybody. Just grep "=" /usr/src/linux-x.x.xx/.config and you'll save
+> lots of bandwidth.
 
-I dislike this solution.
+Please don't do this.
 
-consider:
-AGP=n
-DRM=y
+People who care about bandwith sholdn't subscribe to linux-kernel, and 
+in my experience it is much easier to reproduce a compile error if you 
+have a complete .config (yes it's still possible otherwise, but it's 
+more work during "make oldconfig").
 
-If the user then adds modular AGP to his kernel this will cause DRM=m 
-which might cause problems if he tries to use these modules.
-
-I'm still of the opinion that adding a module shoudn't change the 
-static kernel.
-
-> bye, Roman
+> Kind regards,
+> Jurriaan
 
 cu
 Adrian

@@ -1,76 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311885AbSC2VDr>; Fri, 29 Mar 2002 16:03:47 -0500
+	id <S311925AbSC2VPx>; Fri, 29 Mar 2002 16:15:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311907AbSC2VDh>; Fri, 29 Mar 2002 16:03:37 -0500
-Received: from charger.oldcity.dca.net ([207.245.82.76]:32741 "EHLO
-	charger.oldcity.dca.net") by vger.kernel.org with ESMTP
-	id <S311885AbSC2VD3>; Fri, 29 Mar 2002 16:03:29 -0500
-Date: Fri, 29 Mar 2002 16:03:23 -0500
-From: christophe =?iso-8859-15?Q?barb=E9?= 
-	<christophe.barbe.ml@online.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Re: natsemi chipset documentations ?
-Message-ID: <20020329210323.GF25727@localhost>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3CA4CED8.F5AB600D@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FoLtEtfbNGMjfgrs"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: debian SID Gnu/Linux 2.4.19-pre4 on i586
+	id <S311930AbSC2VPo>; Fri, 29 Mar 2002 16:15:44 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:64263
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S311925AbSC2VPj>; Fri, 29 Mar 2002 16:15:39 -0500
+Date: Fri, 29 Mar 2002 13:14:48 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19-pre4-ac[23] do not boot
+In-Reply-To: <E16r2Z0-0001tR-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10203291313430.10681-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 29 Mar 2002, Alan Cox wrote:
 
---FoLtEtfbNGMjfgrs
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > This is possible, however one of the problems encountered is the
+> > following under several chipsets.  If there is no pio timing set at all,
+> > then we can run into host lock issues if the driver drops out of dma.
+> > Thus, if it is going to lockup here it would/could lock up in other
+> > places when one trys to program the host for PIO.
+> 
+> Well right at the moment the ALi locks up on boot reliably. That means a
+> fix has to be found, or the ALi changes reverted 
 
-On Fri, Mar 29, 2002 at 09:30:17PM +0100, Manfred Spraul wrote:
-> >=20
-> > I would like to better understand the driver and a documentation could
-> > be helpful.
-> >=20
->=20
-> http://www.national.com/pf/DP/DP83815.html
+Pull out the GOOF-UP of mine :-/
 
-Thanks.
+autotune is enabled and does the same thing, Gurrr....
 
-> Donald Becker's site contains links to most public datasheets
-> (www.scyld.com)
+Cheers,
 
-I have search on this site without success, but I certainly missed the
-revelant page.
-Btw there's a type in the natsemi driver in the scyld url.
+Andre Hedrick
+LAD Storage Consulting Group
 
-Christophe
-
->=20
-> I hope that helps,
-> --
-> 	Manfred
-
---=20
-Christophe Barb=E9 <christophe.barbe@ufies.org>
-GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
-
-There's no sense in being precise when you don't even know what you're
-talking about. -- John von Neumann
-
---FoLtEtfbNGMjfgrs
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Pour information voir http://www.gnupg.org
-
-iD8DBQE8pNabj0UvHtcstB4RAvU8AJ0a9fzNO1bah7Qqi9abqjZssKogsQCgkENI
-OapCqDB442QjbYoZe7Hqz+k=
-=Gfgm
------END PGP SIGNATURE-----
-
---FoLtEtfbNGMjfgrs--

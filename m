@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265773AbUINP4Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269452AbUINP72@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265773AbUINP4Y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 11:56:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269448AbUINP4P
+	id S269452AbUINP72 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 11:59:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269438AbUINPxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 11:56:15 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:60634 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269291AbUINPzw (ORCPT
+	Tue, 14 Sep 2004 11:53:40 -0400
+Received: from colin2.muc.de ([193.149.48.15]:39952 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S269452AbUINPuA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 11:55:52 -0400
-Date: Tue, 14 Sep 2004 08:52:10 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Hanna Linder <hannal@us.ibm.com>, rth@twiddle.net,
-       ink@jurassic.park.msu.ru, linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: [RFT 2.6.9-rc1 alpha sys_alcor.c] [1/2] convert pci_find_device to pci_get_device
-Message-ID: <925340000.1095177130@w-hlinder.beaverton.ibm.com>
-In-Reply-To: <20040914031705.GX9106@holomorphy.com>
-References: <806400000.1095118633@w-hlinder.beaverton.ibm.com> <20040914020257.GF9106@holomorphy.com> <20040914031705.GX9106@holomorphy.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Tue, 14 Sep 2004 11:50:00 -0400
+Date: 14 Sep 2004 17:49:59 +0200
+Date: Tue, 14 Sep 2004 17:49:59 +0200
+From: Andi Kleen <ak@muc.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Move domain setup and add dual core support.
+Message-ID: <20040914154959.GB47507@muc.de>
+References: <m3vfeigs5b.fsf@averell.firstfloor.org> <4146EB80.9090801@yahoo.com.au> <20040914132055.GA79737@muc.de> <4146F46A.6070800@yahoo.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <4146F46A.6070800@yahoo.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Monday, September 13, 2004 08:17:05 PM -0700 William Lee Irwin III <wli@holomorphy.com> wrote:
-
-> On Mon, Sep 13, 2004 at 07:02:57PM -0700, William Lee Irwin III wrote:
->> I can run it through a compiler, but I won't be able to do meaningful
->> runtime testing on it as I only have tincup and alphapc systems. They
->> look safe at first glance.
+> include/linux/sched.h
 > 
-> More specifically, if these were merely alpha-specific drivers, I could
-> do meaningful testing as they would attempt to be detected this way.
-> But this is system-specific initialization executed conditionally on
-> the system type, so as the systems I have are not the ones affected by
-> these patches, if I were to attempt a runtime test I would merely
-> discover that the code was not executed.
+> I know we've been trying to move stuff *out* of there, but this is
+> something that actually fits. On the other hand, it is not really
+> going to be used by more than a few files outside sched.c, so maybe
+> it could go to its own file if anyone felt strongly about it.
 
-Bill,
+I don't feel strongly about it. My main requirement is to just turn
+off the SD_SHAREPOWER for dual core. I would like to do that
+for 2.6.9. The more explicit tuning for dual core is not that urgent and 
+work in progress.
 
-That is fine if you could just compile it that would satisfy me.
-
-Thanks.
-
-Hanna
+-Andi
 

@@ -1,37 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265877AbUFISGA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265886AbUFISKK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265877AbUFISGA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 14:06:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265883AbUFISF7
+	id S265886AbUFISKK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 14:10:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265887AbUFISJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 14:05:59 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35237 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265877AbUFISEi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 14:04:38 -0400
-Date: Wed, 9 Jun 2004 15:05:14 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Chris Johns <cbjohns@mn.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kswapd excessive CPU time
-Message-ID: <20040609180514.GA5859@logos.cnet>
-References: <510EDE3E-B962-11D8-B170-000A958E2366@mn.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <510EDE3E-B962-11D8-B170-000A958E2366@mn.rr.com>
-User-Agent: Mutt/1.5.5.1i
+	Wed, 9 Jun 2004 14:09:59 -0400
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:33699 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S265886AbUFISJu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 14:09:50 -0400
+Date: Wed, 9 Jun 2004 11:09:42 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: linux-kernel@vger.kernel.org
+cc: linux-ia64@vger.kernel.org
+Subject: Unaligned accesses in net/ipv4/netfilter/arp_tables.c:184
+Message-ID: <Pine.LNX.4.58.0406091106210.21291@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 08, 2004 at 10:41:32AM -0500, Chris Johns wrote:
-> On a 2.4.21 kernel (kernel.org + KDB patch + MITRE security patches),
-> I've seen bizarre (I think) behavior from kswapd.
-> 
-> My question boils down to this: given the (simple) scenario below,
-> am I missing critical VM/kswapd patches, or is this behavior
-> expected and OK, or is it wrong and possibly fixed in the 2.6 kernel?
-> Or is the kswapd behavior somehow tunable to avoid the apparent
-> thrashing that I saw? 
+The following code casts pointers to char to long in order to do a fast
+comparison. This causes alignment errors on IA64 and likely also on
+other platforms:
 
-Recent 2.4 VM should fix this, but you better of use 2.6.
+        /* Look for ifname matches; this should unroll nicely. */
+        for (i = 0, ret = 0; i < IFNAMSIZ/sizeof(unsigned long); i++) {
+                ret |= (((const unsigned long *)indev)[i]
+                        ^ ((const unsigned long *)arpinfo->iniface)[i])
+                        & ((const unsigned long *)arpinfo->iniface_mask)[i];
+        }
+
+iniface is a pointer to char.

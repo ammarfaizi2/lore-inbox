@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278381AbRKMTLC>; Tue, 13 Nov 2001 14:11:02 -0500
+	id <S278364AbRKMTLC>; Tue, 13 Nov 2001 14:11:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278364AbRKMTKw>; Tue, 13 Nov 2001 14:10:52 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:2553 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S278313AbRKMTKl>;
-	Tue, 13 Nov 2001 14:10:41 -0500
-Date: Tue, 13 Nov 2001 12:10:22 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] reformat mtrr.c to conform to CodingStyle
-Message-ID: <20011113121022.L1778@lynx.no>
-Mail-Followup-To: Benjamin LaHaise <bcrl@redhat.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011112232539.A14409@redhat.com>
-Mime-Version: 1.0
+	id <S278313AbRKMTKx>; Tue, 13 Nov 2001 14:10:53 -0500
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:16322 "EHLO
+	mailout04.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S278297AbRKMTKj>; Tue, 13 Nov 2001 14:10:39 -0500
+Date: 13 Nov 2001 19:05:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8Cn1lUxXw-B@khms.westfalen.de>
+In-Reply-To: <20011113171836.A14967@emma1.emma.line.org>
+Subject: Re: 2.4.x has finally made it!
+X-Mailer: CrossPoint v3.12d.kh7 R/C435
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20011112232539.A14409@redhat.com>; from bcrl@redhat.com on Mon, Nov 12, 2001 at 11:25:39PM -0500
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <20011113171836.A14967@emma1.emma.line.org>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 12, 2001  23:25 -0500, Benjamin LaHaise wrote:
-> Please incorporate this patch to make mtrr.c conform to the standards set 
-> forth in Documentation/CodingStyle which make it much more appealing to 
-> the eyes.
+matthias.andree@stud.uni-dortmund.de (Matthias Andree)  wrote on 13.11.01 in <20011113171836.A14967@emma1.emma.line.org>:
+
+> On Tue, 13 Nov 2001, Alastair Stevens wrote:
 >
->  /*  Put the processor into a state where MTRRs can be safely set  */
-> -static void set_mtrr_prepare (struct set_mtrr_context *ctxt)
-> +static void
-> +set_mtrr_prepare(struct set_mtrr_context *ctxt)
->  {
+> > For those who haven't seen it yet, Moshe Bar at BYTE.com has revisited his
+> > Linux 2.4 vs FreeBSD benchmarks, using 2.4.12 in this case:
+> >
+> >  http://www.byte.com/documents/s=1794/byt20011107s0001/1112_moshe.html
+>
+> Wow. That person is knowledgeable... NOT. Turning off fsync() for mail
+> is just as good as piping it to /dev/null. See RFC-1123.
 
-Is that actually CodingStyle?  Don't see it much in the kernel code...
-The much more common (AFAICS) style to split long function definitions is
+I rather think a non-fsync() system has a very much higher rate of  
+successful mail deliveries than a /dev/null one, and only slightly (if at  
+all) lower than a fsync() one.
 
-static void foo_long_function(struct long_struct name *foo, struct bar *bar,
-                              int val, long *err)
+Now, that slight difference *can* be rather important if you're a major  
+mail hub - or it can be below the noise level in an end user system. In  
+either case, however, *nobody* will accept /dev/null as an equivalent  
+substitute.
 
-The only reason (AFAICS) for putting the return type on a separate line
-is the (ancient) ansi2knr script, which just throws the return types away
-for pre-ANSI compilers.  Given that the kernel code doesn't even conform
-to ANSI-C, there is no hope in hell of it compiling with a pre-ANSI compiler.
+Well, nobody but you.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+MfG Kai

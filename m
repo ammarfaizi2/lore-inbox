@@ -1,79 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263088AbVCDXn3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263230AbVCDXnc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263088AbVCDXn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 18:43:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263235AbVCDXjM
+	id S263230AbVCDXnc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 18:43:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263240AbVCDXji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 18:39:12 -0500
-Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:2208 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S263196AbVCDVmZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 16:42:25 -0500
-Subject: [PATCH] NFS can be selected without exportfs
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Andrew Morton <akpm@digeo.com>,
+	Fri, 4 Mar 2005 18:39:38 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:33425 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263213AbVCDVnt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 16:43:49 -0500
+Date: Fri, 4 Mar 2005 22:43:29 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: Andrew Morton <akpm@osdl.org>, mjg59@scrf.ucam.org, hare@suse.de,
+       "Barry K. Nathan" <barryn@pobox.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Message-Id: <1109972635.3772.287.camel@desktop.cunningham.myip.net.au>
+Subject: Re: swsusp: allow resume from initramfs
+Message-ID: <20050304214329.GD2385@elf.ucw.cz>
+References: <20050304101631.GA1824@elf.ucw.cz> <20050304030410.3bc5d4dc.akpm@osdl.org> <20050304175038.GE9796@ip68-4-98-123.oc.oc.cox.net> <1109971327.3772.280.camel@desktop.cunningham.myip.net.au>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Sat, 05 Mar 2005 08:43:55 +1100
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1109971327.3772.280.camel@desktop.cunningham.myip.net.au>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hi!
 
-NFS depends on ExportFS, and could do with a SELECT in the Kconfig.
-Without it compilation fails. Quote from Peter:
+> > > I don't understand how this can be affected by the modularness of the
+> > > kernel.  Can you explain a little more?
+> > > 
+> > > Would it not be simpler to just add "resume=03:02" to the boot command line?
+> > 
+> > In addition to what others have mentioned, there's also the situation
+> > where swap is on a logical volume. In that case, the initramfs needs to
+> > get LVM up and running before you can even think about resuming.
+> > 
+> > Swap on a logical volume is the default Fedora Core 3 partition layout,
+> > and I imagine it's the default for Red Hat Enterprise Linux 4 as well.
+> 
+> You guys are reinventing the wheel a lot at the moment and I'm in the
+> middle of doing it for x86_64 lowlevel code :> Can we see if we can work
+> a little more closely - perhaps we can get some shared code going that
+> will allow us to handle these issues without stepping on each others'
+> feet? In particular, shared code for
+> 
+> - initramfs and initrd support
 
-"I get an error while compiling, the same config worked for earlier 
-releases for 2.6.11-rc2.
-applied patches:
-2.6.11-rc3
-swsusp2 2.1.6 for 2.6.11-rc3
-OS: debian unstable
-gcc version: gcc (GCC) 3.3.5 (Debian 1:3.3.5-8)
+Its actually done, and it was few strategically placed lines of code
+(like 20 lines). I do not think it can be meaningfully shared.
 
-   LD      init/built-in.o
-   LD      .tmp_vmlinux1
-fs/built-in.o(.text+0x7329f): In function `fh_verify':
-: undefined reference to `export_op_default'
-fs/built-in.o(.text+0x738b7): In function `fh_compose':
-: undefined reference to `export_op_default'
-fs/built-in.o(.text+0x73bb7): In function `fh_update':
-: undefined reference to `export_op_default'
-fs/built-in.o(.text+0x73e80): In function `_fh_update':
-: undefined reference to `export_op_default'
-fs/built-in.o(.text+0x78150): In function `check_export':
-: undefined reference to `find_exported_dentry'
-make[1]: *** [.tmp_vmlinux1] Error 1
+> - lowlevel suspend & resume
 
-thx
-Peter"
-
-Submitted-By: Peter Frühberger <Peter.Fruehberger@t-online.de>
-Signed-Off-By: Nigel Cunningham <ncunningham@linuxmail.org>
-
-diff -ruNp 990-select-exportfs-on-nfs-server-old/fs/Kconfig 990-select-exportfs-on-nfs-server-new/fs/Kconfig
---- 990-select-exportfs-on-nfs-server-old/fs/Kconfig	2005-02-03 22:33:40.000000000 +1100
-+++ 990-select-exportfs-on-nfs-server-new/fs/Kconfig	2005-02-06 08:22:25.000000000 +1100
-@@ -1400,6 +1400,7 @@ config NFSD
- 	tristate "NFS server support"
- 	depends on INET
- 	select LOCKD
-+	select EXPORTFS
- 	select SUNRPC
- 	help
- 	  If you want your Linux box to act as an NFS *server*, so that other
-
+This makes very good sense to share. We have i386, x86-64 and ppc
+versions. They simply walk list of pbe's; that should be simple enough
+to be usable for suspend2, too....
+								Pavel
 -- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
-Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
-
-Maintainer of Suspend2 Kernel Patches http://softwaresuspend.berlios.de
-
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

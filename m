@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261460AbUCNRKY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 12:10:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbUCNRKY
+	id S261453AbUCNRZW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 12:25:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261457AbUCNRZW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 12:10:24 -0500
-Received: from smtp8.wanadoo.fr ([193.252.22.23]:33637 "EHLO
-	mwinf0804.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S261460AbUCNRKU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 12:10:20 -0500
-Date: Sun, 14 Mar 2004 18:11:00 +0000
-From: Philippe Elie <phil.el@wanadoo.fr>
-To: Joerg Sommrey <jo@sommrey.de>, linux-kernel@vger.kernel.org
-Subject: Re: NMI watchdog in 2.6.3-mm4/2.6.4-mm1
-Message-ID: <20040314181100.GA385@zaniah>
-References: <200403141212.i2ECC5vo008463@harpo.it.uu.se> <20040314161233.GA2955@sommrey.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 14 Mar 2004 12:25:22 -0500
+Received: from dns.communicationvalley.it ([212.239.58.133]:60105 "HELO
+	rose.communicationvalley.it") by vger.kernel.org with SMTP
+	id S261453AbUCNRZV convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 12:25:21 -0500
+From: Silla Rizzoli <silla@netvalley.it>
+Organization: Communication Valley spa
+To: Marcel Holtmann <marcel@holtmann.org>
+Subject: Re: [OOPS] Removing USB Bluetooth dongle Oopses 2.6.4
+Date: Sun, 14 Mar 2004 18:23:41 +0100
+User-Agent: KMail/1.6
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200403131351.44682.silla@netvalley.it> <1079200805.2142.4.camel@pegasus>
+In-Reply-To: <1079200805.2142.4.camel@pegasus>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040314161233.GA2955@sommrey.de>
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200403141823.44223.silla@netvalley.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Mar 2004 at 17:12 +0000, Joerg Sommrey wrote:
+> this looks like another unlink-during-submit bug in the uhci-hcd host
+> driver. With the latest 2.6.4-bk2 the ohci-hcd is now free from it and
+> an unplug works again without any oops or freezes. Post your oops to the
+> USB developer mailing list.
+>
+> Regards
+>
+> Marcel
 
-> nmi_watchdog=2 has never worked for me. Is this really supposed to work
-> on a SMP machine? In that case there isn't even a message
-> about activating the watchdog, but I get a nmi-count in /proc/interrupts. 
+I've just tried 2.6.4-bk3 but the oops is still there; I'll forward it to the 
+usb mailing list.
 
-nmi_watchdog=2 is not tested on SMP so it works w/o any notice.
-
-regards,
-Phil
-
+Regards, Silla

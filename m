@@ -1,50 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273483AbRIUM33>; Fri, 21 Sep 2001 08:29:29 -0400
+	id <S273484AbRIUMdT>; Fri, 21 Sep 2001 08:33:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273484AbRIUM3T>; Fri, 21 Sep 2001 08:29:19 -0400
-Received: from hal.grips.com ([62.144.214.40]:2458 "EHLO hal.grips.com")
-	by vger.kernel.org with ESMTP id <S273483AbRIUM3D>;
-	Fri, 21 Sep 2001 08:29:03 -0400
-Message-Id: <200109211229.f8LCT9J19687@hal.grips.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Gerold Jury <geroldj@grips.com>
-To: Robert Love <rml@tech9.net>
-Subject: Re: Feedback on preemptible kernel patch xfs
-Date: Fri, 21 Sep 2001 14:29:08 +0200
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <1000581501.32705.46.camel@phantasy> <3BA94B2E.99FABD43@grips.com> <1000947409.4348.58.camel@phantasy>
-In-Reply-To: <1000947409.4348.58.camel@phantasy>
-Cc: linux-kernel@vger.kernel.org
+	id <S273487AbRIUMdJ>; Fri, 21 Sep 2001 08:33:09 -0400
+Received: from thebsh.namesys.com ([212.16.0.238]:40971 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S273484AbRIUMcv>; Fri, 21 Sep 2001 08:32:51 -0400
+From: Nikita Danilov <Nikita@namesys.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15275.13092.713804.491153@gargle.gargle.HOWL>
+Date: Fri, 21 Sep 2001 16:31:32 +0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: akpm@zip.com.au (Andrew Morton), george@mvista.com (george anzinger),
+        andrea@suse.de (Andrea Arcangeli), rml@tech9.net (Robert Love),
+        Dieter.Nuetzel@hamburg.de (Dieter =?iso-8859-1?Q?N=FCtzel?=),
+        mason@suse.com (Chris Mason), kuib-kl@ljbc.wa.edu.au (Beau Kuiper),
+        linux-kernel@vger.kernel.org (Linux Kernel List),
+        reiserfs-list@namesys.com (ReiserFS List)
+Subject: Re: [reiserfs-list] Re: [PATCH] Significant performace improvements on reiserfs systems
+In-Reply-To: <E15kPGJ-0008EU-00@the-village.bc.nu>
+In-Reply-To: <15275.2374.92496.536594@gargle.gargle.HOWL>
+	<E15kPGJ-0008EU-00@the-village.bc.nu>
+X-Mailer: VM 6.89 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 20 September 2001 02:56, Robert Love wrote:
-> I am surprised, you should see a difference, especially with the
-> latencytest.  Silly question, but you both applied the patch and enabled
-> the config statement, right?
->
-Really, i have checked twice.
-The patch could, by the way, write a line to the syslog when enabled.
+Alan Cox writes:
+ > > In Solaris, before spinning on a busy spin-lock, thread checks whether
+ > > spin-lock holder runs on the same processor. If so, thread goes to sleep
+ > > and holder wakes it up on spin-lock release. The same, I guess is going
+ > 
+ > 
+ > > for interrupts that are served as separate threads. This way, one can
+ > > re-schedule with spin-locks held.
+ > 
+ > This is one of the things interrupt handling by threads gives you, but the
+ > performance cost is not nice. When you consider that ksoftirqd when it
+ > kicks in (currently far too often) takes up to 10% off gigabit ethernet
+ > performance, you can appreciate why we don't want to go that path.
 
-All the filesystem operations happend on the xfs partitions.
-I noticed more equally distributed read/write operations with smaller slices 
-during big copy jobs on xfs.
-This effect may well come from the preemption patch. I used a spare partition
-for the test, so the filesystem was in the same state with both kernels 
-during the tests.
-Xfs usually delays the write operations and does them in bigger blocks.
-The behavior of XFS has changed with the kernel versions towards this 
-direction anyway but is clearly different with the preemption patch.
+I guess, reasoning behind Solaris design was that you have to disable
+interrupts during critical sections more frequently than they would
+actually block in them. So, you lose on interrupt thread creation and
+when interrupts really block on a lock, but you gain because there is no
+more need to disable interrupts when accessing data shared between
+interrupt handler and the rest of the kernel. This can ultimately amount
+to some net advantage especially when coupled with some sort of lazy
+interrupt thread creation.
 
-I will redo the latency tests with the standard Xfree86 nvidia driver.
-It may give a different picture.
-The graphics test and the /proc test have shown the highest latency's.
-Both involve the xserver (proc for the xterm).
-The other tests have been around 5-6 msec in both cases.
+ > 
+ > Our spinlock paths are supposed to be very small and predictable. Where 
+ > there is sleeping involved we have semaphores.
+ > 
+ > As lockmeter shows we still have a few io_request_lock cases at least where
+ > we lock for far too long
 
-And i will do the dbench test of course.
+Reiserfs also likes to keep BKL while doing binary searches within nodes
+of a tree.
 
-Gerold
+ > 
+ > Alan
+
+Nikita.
+
+ > -
+ > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+ > the body of a message to majordomo@vger.kernel.org
+ > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ > Please read the FAQ at  http://www.tux.org/lkml/

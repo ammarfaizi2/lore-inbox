@@ -1,97 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272459AbTHJH3Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 03:29:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272469AbTHJH3Z
+	id S272469AbTHJHae (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 03:30:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272480AbTHJHae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 03:29:25 -0400
-Received: from [203.145.184.221] ([203.145.184.221]:32781 "EHLO naturesoft.net")
-	by vger.kernel.org with ESMTP id S272459AbTHJH3X (ORCPT
+	Sun, 10 Aug 2003 03:30:34 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:1803 "EHLO www.home.local")
+	by vger.kernel.org with ESMTP id S272469AbTHJHa1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 03:29:23 -0400
-Subject: Re: PROBLEM: drivers/block/paride/pd.c fails to compile at line 896
-	on	i686
-From: Vinay K Nallamothu <vinay-rc@naturesoft.net>
-To: pmjcovello@shaw.ca
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1060450071.11078.6.camel@localhost.localdomain>
-References: <1060450071.11078.6.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
-Date: 10 Aug 2003 13:19:20 +0530
-Message-Id: <1060501761.1354.2.camel@lima.royalchallenge.com>
+	Sun, 10 Aug 2003 03:30:27 -0400
+Date: Sun, 10 Aug 2003 09:29:45 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>, davem@redhat.com,
+       jamie@shareable.org, chip@pobox.com
+Subject: Re: [PATCH] 2.4.22pre10: {,un}likely_p() macros for pointers
+Message-ID: <20030810072945.GA14038@alpha.home.local>
+References: <1060488233.780.65.camel@cube>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1060488233.780.65.camel@cube>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Albert,
 
-On Sat, 2003-08-09 at 22:57, Thomas Covello wrote:
-> drivers/block/paride/pd.c fails to compile at line 896 on an i686.
+On Sun, Aug 10, 2003 at 12:03:54AM -0400, Albert Cahalan wrote:
+> I looked at the assembly (ppc, gcc 3.2.3) and didn't
+> see any overhead.
 
-Can you try this patch and let us know if it works for you.
+same here on x86, gcc-2.95.3 and gcc-3.3.1. The compiler is smart enough not
+to add several intermediate tests for !!(x).
+ 
+> The !!x gives you a 0 or 1 while converting the type.
+> So a (char*)0xfda9c80300000000ull will become a 1 of
+> an acceptable type, allowing the macro to work as desired.
 
+I agree (I didn't think about pointers, BTW). But what I meant is that we
+don't need the result to be precisely 1, but we need it to be something the
+compiler interpretes as different from zero, to match the condition. So it
+should be cleaner to always check against 0 which is also OK for pointers,
+whatever their type (according to Chip's link) :
 
-diff -urN linux-2.6.0-test3/drivers/block/paride/pd.c linux-2.6.0-test3-nvk/drivers/block/paride/pd.c
---- linux-2.6.0-test3/drivers/block/paride/pd.c	2003-07-28 10:43:52.000000000 +0530
-+++ linux-2.6.0-test3-nvk/drivers/block/paride/pd.c	2003-08-09 15:58:56.000000000 +0530
-@@ -654,7 +654,7 @@
- 	return pd_identify(disk);
- }
- 
--static struct request_queue pd_queue;
-+static struct request_queue* pd_queue;
- 
- static int pd_detect(void)
- {
-@@ -704,7 +704,7 @@
- 			set_capacity(p, disk->capacity);
- 			disk->gd = p;
- 			p->private_data = disk;
--			p->queue = &pd_queue;
-+			p->queue = pd_queue;
- 			add_disk(p);
- 		}
- 	}
-@@ -782,7 +782,7 @@
- 	spin_lock_irqsave(&pd_lock, saved_flags);
- 	end_request(pd_req, success);
- 	pd_busy = 0;
--	do_pd_request(&pd_queue);
-+	do_pd_request(pd_queue);
- 	spin_unlock_irqrestore(&pd_lock, saved_flags);
- }
- 
-@@ -893,13 +893,18 @@
- 	if (register_blkdev(major, name))
- 		return -1;
- 
--	blk_init_queue(&pd_queue, do_pd_request, &pd_lock);
--	blk_queue_max_sectors(&pd_queue, cluster);
-+	pd_queue = blk_init_queue(do_pd_request, &pd_lock);
-+	if (!pd_queue)
-+		goto error;
-+
-+	blk_queue_max_sectors(pd_queue, cluster);
- 
- 	printk("%s: %s version %s, major %d, cluster %d, nice %d\n",
- 	       name, name, PD_VERSION, major, cluster, nice);
- 	pd_init_units();
- 	if (!pd_detect()) {
-+		blk_put_queue(pd_queue);
-+error:
- 		unregister_blkdev(major, name);
- 		return -1;
- 	}
-@@ -920,7 +925,7 @@
- 			pi_release(disk->pi);
- 		}
- 	}
--	blk_cleanup_queue(&pd_queue);
-+	blk_put_queue(pd_queue);
- }
- 
- MODULE_LICENSE("GPL");
+  likely => __builtin_expect(!(x), 0)
+unlikely => __builtin_expect((x), 0)
 
+Cheers,
+Willy
 

@@ -1,72 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267563AbUI1GX2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267565AbUI1GX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267563AbUI1GX2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 02:23:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267565AbUI1GX2
+	id S267565AbUI1GX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 02:23:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267566AbUI1GX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 02:23:28 -0400
-Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:38874 "EHLO
-	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
-	id S267563AbUI1GXZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 02:23:25 -0400
-Date: Mon, 27 Sep 2004 23:25:40 -0700
-From: Hui Huang <Hui.Huang@Sun.COM>
-Subject: Re: heap-stack-gap for 2.6
-In-reply-to: <20040925162252.GN3309@dualathlon.random>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Message-id: <415903E4.1030808@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-References: <20040925162252.GN3309@dualathlon.random>
+	Tue, 28 Sep 2004 02:23:57 -0400
+Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:10575 "HELO
+	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S267565AbUI1GXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 02:23:53 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2-mm4 + alps locks input in X (alps not identifying correctly)
+Date: Tue, 28 Sep 2004 01:23:50 -0500
+User-Agent: KMail/1.6.2
+Cc: Micha Feigin <michf@post.tau.ac.il>
+References: <20040927192744.GA8947@luna.mooo.com> <m3wtyf792x.fsf@telia.com> <20040928034622.GA3158@luna.mooo.com>
+In-Reply-To: <20040928034622.GA3158@luna.mooo.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409280123.50804.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> This patch enforces a gap between heap and stack, both on the mmap side
-> (for heap) and on the growsdown page faults for stack. the gap is in
-> page units and it's sysctl configurable. Against CVS head.
+On Monday 27 September 2004 10:46 pm, Micha Feigin wrote:
+> > Or better yet, use the auto-dev feature, which should work if you have
+> > a new enough X driver and kernel patch.
+> > 
 > 
-> This is needed for some critical app, that wants an higher degree of
-> protection against potential stack overflows from the kernel. This is
-> mostly a 32bit matter of course, since on 32bit those apps are using
-> a few gigs of heap and they get as near as they can to the stack (but if
-> something goes wrong a page fault must happen).
-> 
-> 
-> the default value of 1 avoids userspace apps like java to break,
+> auto-dev doesn't work for me and I don't have time to check it
+> out.
 
-Ok, I'm a JVM guy and I worked on heap-stack-gap issue many moons ago.
-The reason that heap-stack-gap on SuSE Linux used to crash Java is
-because we are explicitly setting up a guard page to prevent heap-stack
-collision (a stack guard is also required in order to throw stack
-overflow exception). So in a java program, prev_vma in your patch does
-not point to regular heap memory but the guard page. The hidden gap
-would cause SIGSEGV to occur before the thread actually hits the guard,
-that confused JVM. We had to work around it by reading the gap size from
-/proc.
+Addition of Kensington ThinkingMouse / ExpertMouse support caused Synaptics
+and ALPS protocol numbers to move to 8 and 9 respectively which broke Peter's
+auto-dev detection. 
 
-I'd recommend adding an extra check to see if prev_vma is read/write,
-and ignoring heap-stack-gap if prev_vma is guard page. Having a hidden
-gap does not offer any extra protection, it only confuses an application
-if it manages stack guard.
+Vojtech, we need to keep protcol numbers stable, I propose something like this:
 
-regards,
--hui
-                                                                    but
-> those apps will of course set by hand in the rc.d scripts a much higher
-> value. 1 is a sane default, if you want to tweak the default with
-> mainline inclusion that's fine with me. the sysctl can always be
-> disabled by setting it to 0 and then nobody will notice.
-> 
-> feature is fully enabled on x86* and ppc*. No idea about the ia64 and
-> s390x layouts but they've presumably a lot more address space not to
-> care about this (this is primarly needed on 32bit apps). 
-> 
-> I didn't check the topdown model, in theory it should be extended to
-> cover that too, this is only working for the legacy model right now
-> because those apps aren't going to use topdown anyways.
-> 
+enum psmouse_type {
+        PSMOUSE_PS2		= 0,
+        PSMOUSE_PS2PP,
+        PSMOUSE_THINKPS,
+        PSMOUSE_GENPS		= 64,	/* 4 byte protocol start */
+        PSMOUSE_IMPS,
+        PSMOUSE_IMEX,
+        PSMOUSE_SYNAPTICS	= 128,	/* 5+ byte protocols start */
+        PSMOUSE_ALPS,
+};
+
+
+Peter, if we adopt the scheme above you will have to check both for old and
+new protocol numbers; in addition you need to BTN_TOOL_FINGER device bit to
+make sure you are dealing with a touchpad.
+
+Any holes here?
+  
+-- 
+Dmitry

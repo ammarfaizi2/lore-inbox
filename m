@@ -1,32 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263655AbUDQFfj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 01:35:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263674AbUDQFfj
+	id S263661AbUDQFhP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 01:37:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263678AbUDQFhP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 01:35:39 -0400
-Received: from holomorphy.com ([207.189.100.168]:29833 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263655AbUDQFfj (ORCPT
+	Sat, 17 Apr 2004 01:37:15 -0400
+Received: from holomorphy.com ([207.189.100.168]:30089 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263661AbUDQFhN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 01:35:39 -0400
-Date: Fri, 16 Apr 2004 22:35:38 -0700
+	Sat, 17 Apr 2004 01:37:13 -0400
+Date: Fri, 16 Apr 2004 22:37:12 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
 To: linux-kernel@vger.kernel.org
-Subject: [0/5] stack bounds checking
-Message-ID: <20040417053538.GA20534@holomorphy.com>
+Subject: [1/5] h8300 stack bounds checking
+Message-ID: <20040417053712.GW743@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
 	linux-kernel@vger.kernel.org
+References: <20040417053538.GA20534@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Organization: The Domain of Holomorphy
+In-Reply-To: <20040417053538.GA20534@holomorphy.com>
 User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The stack is now shared with struct thread_info on most arches, not
-task_t. This patch series attempts to sweep up the remaining arches in
-need of updates. This mostly affects get_wchan() and stack usage debug.
-
-
--- wli
+Index: wli-2.6.5-mm6/arch/h8300/kernel/process.c
+===================================================================
+--- wli-2.6.5-mm6.orig/arch/h8300/kernel/process.c	2004-04-14 23:21:01.000000000 -0700
++++ wli-2.6.5-mm6/arch/h8300/kernel/process.c	2004-04-16 10:41:39.000000000 -0700
+@@ -277,7 +277,7 @@
+ 	stack_page = (unsigned long)p;
+ 	fp = ((struct pt_regs *)p->thread.ksp)->er6;
+ 	do {
+-		if (fp < stack_page+sizeof(struct task_struct) ||
++		if (fp < stack_page+sizeof(struct thread_info) ||
+ 		    fp >= 8184+stack_page)
+ 			return 0;
+ 		pc = ((unsigned long *)fp)[1];

@@ -1,33 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130000AbRAEDg6>; Thu, 4 Jan 2001 22:36:58 -0500
+	id <S130077AbRAEDnB>; Thu, 4 Jan 2001 22:43:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130614AbRAEDgs>; Thu, 4 Jan 2001 22:36:48 -0500
-Received: from mnh-1-04.mv.com ([207.22.10.36]:7186 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S130000AbRAEDgn>;
-	Thu, 4 Jan 2001 22:36:43 -0500
-Message-Id: <200101050416.XAA07339@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: user-mode-linux-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: user-mode port 0.37-2.4.0
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 04 Jan 2001 23:16:03 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S130614AbRAEDmu>; Thu, 4 Jan 2001 22:42:50 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:43022
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S130077AbRAEDmr> convert rfc822-to-8bit; Thu, 4 Jan 2001 22:42:47 -0500
+Date: Thu, 4 Jan 2001 19:42:21 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Hakan Lennestal <hakanl@cdt.luth.se>
+cc: David Woodhouse <dwmw2@infradead.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Chipsets, DVD-RAM, and timeouts.... 
+In-Reply-To: <20010105014228.A7A5C4185@tuttifrutti.cdt.luth.se>
+Message-ID: <Pine.LNX.4.10.10101041941380.3042-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The user-mode port of 2.4.0 is available.
 
-It was updated to 2.4.0 and that's it.
+Because I was not prepared for the sudden release!
+Nor is the TIME Solution that is in final testing.
 
-The project's home page is http://user-mode-linux.sourceforge.net
+On Fri, 5 Jan 2001, Hakan Lennestal wrote:
 
-The project's download page is http://sourceforge.net/project/filelist.php?grou
-p_id=429
+> 
+> 2.4.0 and still no IBM DTLA drives in the hpt366 bad_ata66_4 list
+> (or udma 66 disabled by default in any other way).
+> 
+> /Håkan
+> 
+> In message <12542.978456659@redhat.com>, David Woodhouse writes:
+> > 
+> > The IBM DTLA drives aren't in the hpt366 bad_ata66_4 list still.
+> 
+> 
+> 
+> ---------------------------------------
+> e-mail: Hakan.Lennestal@lu.erisoft.se |
+>      or Hakan.Lennestal@cdt.luth.se   |
+> ---------------------------------------
+> 
 
-				Jeff
-
+Andre Hedrick
+CTO Timpanogas Research Group
+EVP Linux Development, TRG
+Linux ATA Development
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268015AbUIBI6q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268021AbUIBJE5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268015AbUIBI6q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 04:58:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267979AbUIBI6q
+	id S268021AbUIBJE5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 05:04:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268030AbUIBJE5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 04:58:46 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:51355 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S267916AbUIBI6l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 04:58:41 -0400
-Message-ID: <4136E0B6.4000705@namesys.com>
-Date: Thu, 02 Sep 2004 01:58:30 -0700
+	Thu, 2 Sep 2004 05:04:57 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:22733 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S268021AbUIBJEz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 05:04:55 -0400
+Message-ID: <4136E23A.30902@namesys.com>
+Date: Thu, 02 Sep 2004 02:04:58 -0700
 From: Hans Reiser <reiser@namesys.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
 X-Accept-Language: en-us, en
@@ -27,49 +27,20 @@ References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003
 In-Reply-To: <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org>
 X-Enigmail-Version: 0.85.0.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Linus Torvalds wrote:
 
-> But _my_ point is, no user program is going to take _advantage_ of
 >
+>But _my_ point is, no user program is going to take _advantage_ of
 >anything that only one filesystem on one system offers.
->  
 >
-Apple does not have this problem....
-
-and yes, the apps will take advantage of it, which is different from 
-depending on it.  If you use the wrong fs you will lose some of the 
-features of the app.
-
-For 30 years nothing much has happened in Unix filesystem semantics 
-because of sheer cowardice (excepting Clearcase, which priced itself 
-into a niche market).   It is 25 years past time for someone to change 
-things.  That someone will have first mover advantage, and the more 
-little semantic features possessed the more lure there will be to use it 
-which will increase market share which will lure more apps into 
-depending on it and in a few years the other filesystems will 
-(deservedly) have only a small market share because the apps won't all 
-work on them.
-
-Besides, there are enhancements which are simply compelling.  You can 
-write a dramatically better performance version control system with a 
-much simpler design if the FS is atomic.    Our transaction manager 
-first draft was written by a version control guy, and he would probably 
-be happy to tell you how  lack of atomicity other than rename makes 
-version control software design hideous.
-
-We have the performance lead.  By next year we will be stable enough for 
-mission critical servers, and then we start the serious semantic 
-enhancements.
-
-If you don't embrace progress, then you doom Linux to following behind, 
-because the guys at Apple are pretty aggressive now that Jobs is back, 
-and they WILL change the semantics, and they will do so in compelling 
-ways, and Linux will be reduced to aping them when it should be leading 
-them.
-
-Hans
+>So there's no point.
+>
+>I
+>
+Filesystem diversity will only be crippling for Linux if you choose for 
+it to be so.

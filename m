@@ -1,130 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264337AbTDKLka (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 07:40:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264335AbTDKLka (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 07:40:30 -0400
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:56457 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S264337AbTDKLk2 (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 07:40:28 -0400
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: Andrew Morton <akpm@digeo.com>
-Subject: Re: [RFC] first try for swap prefetch
-Date: Fri, 11 Apr 2003 13:51:55 +0200
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200304101948.12423.schlicht@uni-mannheim.de> <20030410161826.04332890.akpm@digeo.com>
-In-Reply-To: <20030410161826.04332890.akpm@digeo.com>
+	id S264335AbTDKLo3 (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 07:44:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264339AbTDKLo3 (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 07:44:29 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:65287 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S264335AbTDKLo1 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 07:44:27 -0400
+Message-ID: <3E96ADB0.2080206@aitel.hist.no>
+Date: Fri, 11 Apr 2003 13:57:36 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: no, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_lxql+uCWAVoDSCv";
-  charset="iso-8859-1"
+To: root@chaos.analogic.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kernel support for non-english user messages
+References: <3E93A958.80107@si.rr.com> <20030409080803.GC29167@mea-ext.zmailer.org> <20030409080803.GC29167@mea-ext.zmailer.org> <20030409190700.H19288@almesberger.net> <3E94A1B4.6020602@si.rr.com> <Pine.LNX.4.53.0304092126130.992@chaos> <1050001030.12494.1.camel@dhcp22.swansea.linux.org.uk> <shsvfxm157p.fsf@charged.uio.no> <Pine.LNX.4.53.0304101638010.4978@chaos>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200304111352.05774.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Richard B. Johnson wrote:
 
---Boundary-02=_lxql+uCWAVoDSCv
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: signed data
-Content-Disposition: inline
+> But sometimes, just for kicks, I boot Ultrix (Unix) on the second
+> drive. It takes only 4 minutes and doesn't waste time with all
+> those "progress" messages. Now, Linux has already gotten to
+> be like VMS with all those "progress" messages displayed while
+> it's booting. It's really quite annoying,
+There are several ways to get rid of them - I lost all
+once when using a unsupported framebuffer.  No messages
+at all until X came up.
 
-On April 11, Andrew Morton wrote:
-> Thomas Schlichter <schlicht@uni-mannheim.de> wrote:
-> > Hi,
-> >
-> > as mentioned a few days ago I was going to try to implement a swap
-> > prefetch to better utilize the free memory. Now here is my first try.
->
-> That's surprisingly cute.  Does it actually do anything noticeable?
+> and it scares the
+> hell out of users that are graduating from Windows.
 
-Well, it fills free pagecache memory with swapped pages... ;-)
+Couldn't care less about the scaring part.  Linux is different,
+otherwise why try it?  So they better expect some differences
+and get used to them.  Scared - bah!
 
-But at the moment I can not 'feel' any real improvement... :-(
-I think the problem is that R/O pages are not written to swap space and so =
-not=20
-prefetched with my patch. But I will look after it...
+Much user interface work can be done on easing the transition, but
+this is not one of those cases.  Because people just don't
+need to deal with those messages unless there's a crash.  And then
+they get time enough to read the frozen display, and
+the details _will_ be useful.
 
-> +	swapped_entry =3D kmalloc(sizeof(*swapped_entry), GFP_ATOMIC);
->
-> These guys will need a slab cache (not SLAB_HW_CACHE_ALIGNED) to save
-> space.
+> Anything
+> that further legitimizes those progress messages (like translation)
+> should never be implemented.
+> 
+> When somebody is writing a driver, if they have any experience,
+> they write debugging messages in their native language. But, once
+> the driver is written, these debugging messages should be removed
+> or #defined out. A properly functioning driver should never complain
+> about anything. 
 
-OK, I'll do it.
+It shouldn't complain, but I see no problem with the driver
+saying "ok, found 3 scsi adapers and 8 disks"  This is
+particularly useful if I expected it to find all 4 adapters.
+The driver saw no problem but I still did.
 
-> +	swapped_entry =3D radix_tree_lookup(&swapped_root.tree, entry.val);
-> +	if(swapped_entry) {
-> +		list_del(&swapped_entry->list);
-> +		radix_tree_delete(&swapped_root.tree, entry.val);
->
-> you can just do
->
-> 	if (radix_tree_delete(...) !=3D -ENOENT)
-> 		list_del(...)
->
-> +		read_swap_cache_async(entry);
+> It shouldn't do anything like you see when you
+> execute `dmesg`.
 
-Sorry, but I think I can not. The list_del() needs the value returned by=20
-radix_tree_lookup(), so I can not kick it... By the way, the only reason fo=
-r=20
-the radix tree is to make this list_del() not O(n) for searching the list..=
-=2E=20
-Do you know how expensive the radix_tree_lookup() is? O(1) or O(log(n))?? F=
-or=20
-my shame I do not really know that data structure... :-(
+Get used to it.  Linux scroll some pages of text at bootup - so what?
+Of course you _can_ configure it away if you want to, or get your
+linux from a distributor that do.  It is more interesting than
+watching a blank screen and wondering "what takes so much time?"
+With linux I see that - it lets me optimize, for example by
+dropping support for nonexisting hardware that have long
+probe timeouts.  This sort of thing isn't for "everybody",
+but even windows people enjoy optimizing their machines a bit now and then.
 
-> What you want here is a way of telling if the disk(s) which back the swap
-> are idle.  We used to have that, but Hugh deleted it.  It can be put back,
-> but it's probably better to put a `last_read_request_time' and
-> `last_write_request_time' into struct backing_dev_info.  If nobody has us=
-ed
-> the disk in the past N milliseconds, then start the speculative swapin.
-
-That's good. I was looking for anything like that but didn't find anything=
-=20
-fitting in the current sources...
-
-> It might make sense to poke the speculative swapin code in the page-freei=
-ng
-> path too.
-
-I wanted to do this but don't know which function is the correct one for th=
-is.=20
-But I will search harder... or can you give me a hint?
-
-> And to put the speculatively-swapped-in pages at the tail of the inactive
-> list (perhaps).
-
-This may be a good idea...
-
-> But first-up, some demonstrated goodness is needed...
-
-Yup, but currently it improves nothing very much, as stated above, I think=
-=20
-first I should implement the R/O pages thing and investigete which part of=
-=20
-the kernel works against my code and frees some pages after I just filled=20
-them...
-
-Thank you for helping me with your comments!
-
-Best regards
-   Thomas
---Boundary-02=_lxql+uCWAVoDSCv
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+lqxlYAiN+WRIZzQRAkfvAKDa2Z7BLnLTbldH2mvtoa29LSmsmwCgqlV+
-ZzmMx+E6ykJVVCgdYOvVNxI=
-=4RLG
------END PGP SIGNATURE-----
-
---Boundary-02=_lxql+uCWAVoDSCv--
+Helge Hafting
 

@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264327AbRFYLpJ>; Mon, 25 Jun 2001 07:45:09 -0400
+	id <S264336AbRFYLxv>; Mon, 25 Jun 2001 07:53:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264288AbRFYLo7>; Mon, 25 Jun 2001 07:44:59 -0400
-Received: from mail-smtp.socket.net ([216.106.1.32]:8710 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S264272AbRFYLoq>; Mon, 25 Jun 2001 07:44:46 -0400
-Date: Mon, 25 Jun 2001 06:43:36 -0500
-From: "Gregory T. Norris" <haphazard@socket.net>
-To: rio500-devel <rio500-devel@lists.sourceforge.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] rio500 devfs support
-Message-ID: <20010625064336.A9650@glitch.snoozer.net>
-Mail-Followup-To: rio500-devel <rio500-devel@lists.sourceforge.net>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010619175224.A1137@glitch.snoozer.net> <20010624173711.A1764@glitch.snoozer.net> <200106250616.f5P6Gp710044@vindaloo.ras.ucalgary.ca>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
-Content-Disposition: inline
-In-Reply-To: <200106250616.f5P6Gp710044@vindaloo.ras.ucalgary.ca>
-User-Agent: Mutt/1.3.18i
-X-Operating-System: Linux glitch 2.4.5 #1 Sun Jun 24 16:53:30 CDT 2001 i686 unknown
+	id <S264356AbRFYLxk>; Mon, 25 Jun 2001 07:53:40 -0400
+Received: from 7ka-campus-gw.mipt.ru ([194.85.83.97]:6667 "EHLO
+	7ka-campus-gw.mipt.ru") by vger.kernel.org with ESMTP
+	id <S264336AbRFYLxb>; Mon, 25 Jun 2001 07:53:31 -0400
+Message-ID: <00e001c0fd6d$6bf42980$d55355c2@microsoft>
+From: "Alexander V. Bilichenko" <dmor@7ka.mipt.ru>
+To: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.21.0106251339370.13095-100000@rudy.mif.pg.gda.pl>
+Subject: Re: GCC3.0 Produce REALLY slower code!
+Date: Mon, 25 Jun 2001 15:53:17 +0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="ISO-8859-2"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2488.0001
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2488.0001
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Here is link to Intel C compiler, that provide really faster code.
 
---Dxnq1zWXvFF0Q93v
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+http://developer.intel.com/software/products/compilers/linuxbeta.htm
 
-Ok, back to the original version then.  Thanx!
 
-On Mon, Jun 25, 2001 at 12:16:51AM -0600, Richard Gooch wrote:
-> No, it's a bad idea to test the error from devfs_register() unless you
-> *really* have a good reason. Most people who think they have a good
-> reason actually don't, they're just confused :-)
->=20
-> The reason you don't want to test the return value is that way the
-> driver works fine with CONFIG_DEVFS=3Dn. Otherwise, you have a driver
-> that doesn't work with devfs, or you have to put ugly #ifdef's in the
-> code.
->=20
-> 				Regards,
->=20
-> 					Richard....
-> Permanent: rgooch@atnf.csiro.au
-> Current:   rgooch@ras.ucalgary.ca
+----- Original Message -----
+From: "Tomasz K³oczko" <kloczek@rudy.mif.pg.gda.pl>
+To: "Alexander V. Bilichenko" <dmor@7ka.mipt.ru>
+Sent: Monday, June 25, 2001 3:40 PM
+Subject: Re: GCC3.0 Produce REALLY slower code!
 
---Dxnq1zWXvFF0Q93v
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+> On Mon, 25 Jun 2001, Alexander V. Bilichenko wrote:
+>
+> > Although I just wanna say that there is no reason trying compile kernel
+with
+> > new shiny GCC 3.0 ;-). The result will be in kernel slowdown.
+> >
+> > Maybe, we can try to use Intel C compiler for some important ;-) (beta
+> > version work with linux).
+>
+> Is there avalaible any free/evaluation version this compiler ?
+>
+> kloczek
+> --
+> -----------------------------------------------------------
+> *Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
+> -----------------------------------------------------------
+> Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail:
+kloczek@rudy.mif.pg.gda.pl*
+>
 
-iD8DBQE7NyPogrEMyr8Cx2YRAnVZAJ0SsUzcUuLWGWwPen64DAGIjWkqnwCePOiZ
-D+JOamyko4YdGXLOT2XWGok=
-=SLtr
------END PGP SIGNATURE-----
-
---Dxnq1zWXvFF0Q93v--

@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270981AbTGPR3r (ORCPT <rfc822;willy@w.ods.org>);
+	id S270989AbTGPR3r (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 16 Jul 2003 13:29:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270994AbTGPR22
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270966AbTGPR2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 13:28:28 -0400
-Received: from Mail1.kontent.de ([81.88.34.36]:39058 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S270989AbTGPRPK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 13:15:10 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Greg KH <greg@kroah.com>, Fredrik Tolf <fredrik@dolda2000.cjb.net>
-Subject: Re: Input layer demand loading
-Date: Wed, 16 Jul 2003 19:28:35 +0200
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <200307131839.49112.fredrik@dolda2000.cjb.net> <200307161457.42862.fredrik@dolda2000.cjb.net> <20030716162639.GB7513@kroah.com>
-In-Reply-To: <20030716162639.GB7513@kroah.com>
+	Wed, 16 Jul 2003 13:28:21 -0400
+Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:33452 "EHLO
+	mx.rackable.com") by vger.kernel.org with ESMTP id S270994AbTGPRXU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 13:23:20 -0400
+Message-ID: <3F158C52.2060300@rackable.com>
+Date: Wed, 16 Jul 2003 10:33:06 -0700
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Stephane Wirtel <stephane.wirtel@belgacom.net>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: How to test the new kernel 2.6.0-test1 ?
+References: <20030716082731.GA6202@stargate.brutele.be>
+In-Reply-To: <20030716082731.GA6202@stargate.brutele.be>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307161928.35476.oliver@neukum.org>
+X-OriginalArrivalTime: 16 Jul 2003 17:38:11.0445 (UTC) FILETIME=[06FBEA50:01C34BC1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Stephane Wirtel wrote:
 
-> True, but then if you try to open the port, you will only get the base
-> joydev.o module loaded, not the gameport driver, which is what you
-> _really_ want to have loaded, right?
-> 
-> So there really isn't much benifit to doing this, sorry.
+>Hi all,
+>
+>
+>I am using the kernel 2.6.0-test1 on my computer, and it works perfectly.
+>
+>Which are the weaknesses of the new kernel, an idea ?
+>
+>
+>  
+>
 
-Why? It could work the way PCMCIA SCSI works.
-Cardmgr loads the LLDD, but sd, sg, etc. are loaded
-on demand.
+   You might try the various stress testers like cerberus.
 
-	Regards
-		Oliver
+http://sourceforge.net/projects/va-ctcs/
+
+-- 
+Once you have their hardware. Never give it back.
+(The First Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
+
 

@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262340AbTEFEFD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 00:05:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbTEFEFD
+	id S262320AbTEFD6e (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 23:58:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262342AbTEFD6e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 00:05:03 -0400
-Received: from granite.he.net ([216.218.226.66]:17928 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S262340AbTEFEFC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 00:05:02 -0400
-Date: Mon, 5 May 2003 21:19:29 -0700
-From: Greg KH <greg@kroah.com>
-To: jt@hpl.hp.com
+	Mon, 5 May 2003 23:58:34 -0400
+Received: from h80ad263c.async.vt.edu ([128.173.38.60]:53888 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262320AbTEFD6D (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 23:58:03 -0400
+Message-Id: <200305060410.h464AMMF002501@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: sumit_uconn@lycos.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Wireless drivers in 2.5.69
-Message-ID: <20030506041929.GA5564@kroah.com>
+Subject: Re: Write file in EXT2 
+In-Reply-To: Your message of "Mon, 05 May 2003 23:14:46 EDT."
+             <FCLJBBJOHCHPBDAA@mailcity.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <FCLJBBJOHCHPBDAA@mailcity.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; boundary="==_Exmh_-1184673444P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 06 May 2003 00:10:22 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--==_Exmh_-1184673444P
+Content-Type: text/plain; charset=us-ascii
 
-You mentioned in your changes to the wireless core for 2.5.68 that you
-had sent updates for the various drivers to the different driver
-maintainers.  As it looks like your changes made it into 2.5.69, but the
-driver updates didn't, do you have a pointer to these updates so that
-those of us with now non-working wireless cards can test them out?
+On Mon, 05 May 2003 23:14:46 EDT, Sumit Narayan <sumit_uconn@lycos.com>  said:
+> I would like to create a log file containing the reads and writes made on a
+> disk, by adding a function in the kernel. And once this log table reaches a
 
-Specifically, in my case I'm looking for the updates for the orinoco_pci
-driver, as that has stopped working in 2.5.69, but was working just fine
-in 2.5.68.
+Have you considered looking at the ext3 file system, which is basically ext2
+with a journal?
 
-thanks,
+--==_Exmh_-1184673444P
+Content-Type: application/pgp-signature
 
-greg k-h
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+tzWucC3lWbTT17ARAlE6AJ0QLQZ5WHo1fsV7Sa8EG3doBdNQAACgi9OS
+KJo3lfMeqsVS52/OlX+6I3o=
+=7YFh
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1184673444P--

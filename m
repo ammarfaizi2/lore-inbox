@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268153AbTGIKWv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 06:22:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268163AbTGIKWv
+	id S265911AbTGIKRk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 06:17:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268137AbTGIKRj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 06:22:51 -0400
-Received: from office.mandrakesoft.com ([195.68.114.34]:46329 "EHLO
-	vador.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id S268153AbTGIKV2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 06:21:28 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: arvidjaar@mail.ru, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.5.74] devfs lookup deadlock/stack corruption combined
- patch
-X-URL: <http://www.linux-mandrake.com/
-References: <E198K0q-000Am8-00.arvidjaar-mail-ru@f23.mail.ru>
-	<200307072306.15995.arvidjaar@mail.ru>
-	<20030707140010.4268159f.akpm@osdl.org>
-	<200307082149.17918.arvidjaar@mail.ru>
-	<20030709012014.GA19777@www.13thfloor.at>
-	<20030708182620.590edd06.akpm@osdl.org>
-	<20030709020943.GA25422@www.13thfloor.at>
-From: Thierry Vignaud <tvignaud@mandrakesoft.com>
-Organization: MandrakeSoft
-Date: Wed, 09 Jul 2003 12:34:55 +0200
-In-Reply-To: <20030709020943.GA25422@www.13thfloor.at> (Herbert Poetzl's
- message of "Wed, 9 Jul 2003 04:09:43 +0200")
-Message-ID: <m2vfucng34.fsf@vador.mandrakesoft.com>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
+	Wed, 9 Jul 2003 06:17:39 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:30892 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S265911AbTGIKQR
+	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 06:16:17 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16139.61149.764358.333360@laputa.namesys.com>
+Date: Wed, 9 Jul 2003 14:30:53 +0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux-Kernel@vger.kernel.org
+Subject: Re: [PATCH] 1/5 VM changes: zone-pressure.patch
+In-Reply-To: <20030709032227.23ee4159.akpm@osdl.org>
+References: <16139.54887.932511.717315@laputa.namesys.com>
+	<20030709032227.23ee4159.akpm@osdl.org>
+X-Mailer: ed | telnet under Fuzzball OS, emulated on Emacs 21.5  (beta14) "cassava" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Poetzl <herbert@13thfloor.at> writes:
+Andrew Morton writes:
+ > Nikita Danilov <Nikita@Namesys.COM> wrote:
+ > >
+ > >  +	if (priority < 0) {
+ > >  +		for (i = 0; i < pgdat->nr_zones; i++) {
+ > >  +			struct zone *zone = pgdat->node_zones + i;
+ > >  +
+ > >  +			if (zone->free_pages < zone->pages_high)
+ > >  +				zone_adj_pressure(zone, -1);
+ > >  +		}
+ > >  +	}
+ > 
+ > What is this bit doing?
 
-> the group using devfs, usually doesn't care about
-> the 'compatibility' issue,
+kswapd failed to balance some zone after going up to the maximal
+priority (0), increase ->pressure on this zone.
 
-i disagree: distro vendors wants that compatibility.
-we want both the features of devfsd+hotplug+dynamic and the
-compatibility devices.
+In other words: zone->pressure is average of the scanning priority
+required to free enough pages in this zone. As no scanning priority was
+enough to free pages, zone->pressure should be extra high.
 
-> > I'm hoping that smalldevfs comes back.  
-> > The current thing is a running sore.
-> 
-> I'm hoping too, and I would like to see it on 2.6 as well as 2.4 ...
-
-there's been quite some cleanups on the 2.5.x side.
-maybe can we complete this work before thinking about a new system ?
-(remember the kbuild2 destiny ...)
-
-if we do not want to create a compatibility layer such as devfsd for
-smalldevfs, we can still alter drivers to create /dev/hda3 instead of
-/dev/ide/host0/bus0/target0/lun0/part3 and the like
-
-withouth any compatibility, smalldevfs will be a pain in th *ss for
-distro vendors.
+Nikita.
 

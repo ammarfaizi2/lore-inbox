@@ -1,93 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264113AbUHAAov@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264183AbUHAAqw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264113AbUHAAov (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 20:44:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264183AbUHAAov
+	id S264183AbUHAAqw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 20:46:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264256AbUHAAqv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 20:44:51 -0400
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:44496 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S264113AbUHAAos
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 20:44:48 -0400
-From: David Brownell <david-b@pacbell.net>
-To: Oliver Neukum <oliver@neukum.org>
-Subject: Re: Solving suspend-level confusion
-Date: Sat, 31 Jul 2004 17:41:12 -0700
-User-Agent: KMail/1.6.2
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Pavel Machek <pavel@suse.cz>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-References: <20040730164413.GB4672@elf.ucw.cz> <200407310723.12137.david-b@pacbell.net> <200407311901.17390.oliver@neukum.org>
-In-Reply-To: <200407311901.17390.oliver@neukum.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Sat, 31 Jul 2004 20:46:51 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:48309 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S264183AbUHAAq0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 20:46:26 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-L2 PS2 keyboard gone south
+From: Lee Revell <rlrevell@joe-job.com>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: Shane Shrybman <shrybman@aei.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1091320571.2445.6.camel@teapot.felipe-alfaro.com>
+References: <1091196403.2401.10.camel@mars> <20040730152040.GA13030@elte.hu>
+	 <1091209106.2356.3.camel@mars>
+	 <1091229695.2410.1.camel@teapot.felipe-alfaro.com>
+	 <1091232345.1677.20.camel@mindpipe>  <1091246064.2389.9.camel@mars>
+	 <1091246621.1677.71.camel@mindpipe>
+	 <1091267282.1768.8.camel@teapot.felipe-alfaro.com>
+	 <1091296615.1677.283.camel@mindpipe>
+	 <1091320571.2445.6.camel@teapot.felipe-alfaro.com>
+Content-Type: text/plain
+Message-Id: <1091321213.20819.85.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 31 Jul 2004 20:46:53 -0400
 Content-Transfer-Encoding: 7bit
-Message-Id: <200407311741.12406.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 31 July 2004 10:01, Oliver Neukum wrote:
+On Sat, 2004-07-31 at 20:36, Felipe Alfaro Solana wrote:
+> On Sat, 2004-07-31 at 13:56 -0400, Lee Revell wrote:
+> > On Sat, 2004-07-31 at 05:48, Felipe Alfaro Solana wrote:
+> > > On Sat, 2004-07-31 at 00:03 -0400, Lee Revell wrote:
+> > > > Shane & Felipe,
+> > > > 
+> > > > I am removing LKML and Ingo from the cc: list so we can compare
+> > > > hardware, as I definitely am not seeing this problem.  Maybe we can
+> > > > track it down to a difference there.  What hardware are you guys using?
+> > 
+> > > I'm running 2.6.8-rc2-bk9 plus a bunch of other patches, like Con's
+> > > Staircase Scheduler and Ingo's voluntary-preempt (of course). Kernel is
+> > > compiled with ACPI + APIC.
+> > 
+> > Hmm.  Maybe it's an ACPI/APIC problem?  I do not have these enabled.  It
+> > could also be an interaction between some other patch you have.
+> > 
+> > Have you tried with 2.6.8-rc2-M5, without the other patches?  Booting
+> > with acpi=off?
 > 
-> Maybe a better approach would be to describe the required features to
-> the drivers rather than encoding them in a single integer. Rather
-> like passing a request that states "lowest power level with device state
-> retained, must not do DMA, enable remote wake up"
+> OK, OK :-) I've been running 2.6.8-rc2-mm1-M5 with ACPI but without APIC
+> for more than ten minutes), compiling kernels, sending mails with
+> Evolution and it hasn't locked up yet. Crossfingers. Should we report
+> this to Ingo and Andrew?
+> 
+> Anyways, I'll keep on running this puppy to see if this behavior is
+> consistent.
+> 
+> # grep . /proc/irq/*/*/threaded
+> /proc/irq/11/eth0/threaded:1
+> /proc/irq/12/Intel 82801BA-ICH2/threaded:1
+> /proc/irq/14/ide0/threaded:1
+> /proc/irq/15/ide1/threaded:1
+> /proc/irq/1/i8042/threaded:1
+> /proc/irq/5/uhci_hcd/threaded:1
+> /proc/irq/8/rtc/threaded:1
+> /proc/irq/9/acpi/threaded:1
+> /proc/irq/9/uhci_hcd/threaded:!
+> 
+> # grep . /proc/sys/kernel/*_preemption
+> /proc/sys/kernel/voluntary_preemption:3
+> /proc/sys/kernel/preemption:1
 
-A pointer to some sort of struct could be generic and typesafe;
-better than an integer or enum.
+The next thing I was going to suggest was the software RAID.  You appear
+to have a RAID 0 or 1 with one disk on irq14 and one on irq15.  I am not
+sure how interrupts are handled by Linux IDE RAID, but it seems like
+this would be tricky.  I bet the threading is screwing up the
+synchronization between the devices, and you end up with one waiting
+forever for the other - the possibilities for lockup are endless.
 
-	// <linux/device.h>
-	struct device {
-		... unchanged; but fix or remove this:
-		struct dev_pm_state *power_state;
-		...
-	}; 
+However, I have no idea what you would do about this.  You could try
+making those irqs non-threaded, but you'd have to do it one at a time,
+and I would *definitely* expect weird stuff with one threaded and one
+not.
 
-	// <linux/pm.>
-	struct dev_pm_state {
-		char *name;
-		unsigned number;
-		// maybe more
-	};
-	struct dev_pm_info {
-		struct dev_pm_state	*power_state;
-		struct dev_pm_state	**supported;
-		unsigned could_wakeup:1;
-		unsigned should_wakeup:1;
-		... plus the rest
-	};
+I will have to defer to someone with more kernel expertise.
 
-There would be bus-specific rules about how those get used,
-for example what device power states exist. 
+Lee
 
-	// <linux/pci.h>
-	extern const struct dev_pm_state PCI_D0, PCI_D1, PCI_D2,
-				PCI_D3cold, PCI_D3hot;
-
-	... eventually signatures change:
-	struct pci_driver {
-		int  (*suspend) (struct pci_dev *dev, struct dev_pm_state *state);
-		int  (*enable_wake) (struct pci_dev *dev, struct dev_pm *state,
-					int enable);
-	};
-	int pci_set_power_state(struct pci_dev *dev, struct dev_pm *state);
-	int pci_enable_wake(struct pci_dev *dev, struct dev_pm *state, int enable);
-
-	// <asm/arch/bus.h>
-	... support for whatever non-PCI device states work here
-	... maybe even special states for the platform's busses:
-	struct mybus_dev_pm_state {
-		struct dev_pm_state public;
-		// private state:  clock hooks, power switches,
-		// linkage to devices sharing clock or power, etc
-	};
-
-So for example maybe dev->power.power_state == PCI_D0, and
-dev->power->supported == { PCI_D0, PCI_D3hot, PCI_D3cold, NULL }
-on some controller, and sysfs would say "D3hot" not "3" (or "2" or
-whatever).  Other busses would report different states..
-
-- Dave

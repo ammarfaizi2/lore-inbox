@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261740AbSJQRjl>; Thu, 17 Oct 2002 13:39:41 -0400
+	id <S261914AbSJQRaa>; Thu, 17 Oct 2002 13:30:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261751AbSJQRjl>; Thu, 17 Oct 2002 13:39:41 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:27778 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261740AbSJQRjj>;
-	Thu, 17 Oct 2002 13:39:39 -0400
-Date: Thu, 17 Oct 2002 13:45:35 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: David Mansfield <lkml@dm.cobite.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: raid subsystem broken in 2.5.43... blockdev changes?
-In-Reply-To: <Pine.LNX.4.44.0210161153420.2876-100000@admin>
-Message-ID: <Pine.GSO.4.21.0210171344030.17992-100000@weyl.math.psu.edu>
+	id <S261919AbSJQRaa>; Thu, 17 Oct 2002 13:30:30 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:6406 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S261914AbSJQRa3>; Thu, 17 Oct 2002 13:30:29 -0400
+Date: Thu, 17 Oct 2002 19:36:14 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org,
+       kbuild-devel <kbuild-devel@lists.sourceforge.net>
+Subject: linux kernel conf 1.0
+Message-ID: <Pine.LNX.4.44.0210171224020.338-100000@serv>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+Here is now the final release (it's as usual at http://www.xs4all.nl/~zippel/lc/ ).
+Changes in this release:
+- help texts are a bit more indented (by two spaces) and long texts (more
+than 10 lines), start with "---help---".
+- in preparation of the library API I renamed a few structures/symbols.
 
-On Wed, 16 Oct 2002, David Mansfield wrote:
+Linus, nobody complained about it, so I put it now into your hands. :)
+The easiest way is probably to use the converter with 'make install
+KERNELSRC=...', which will convert your current tree.
+The generated name is still Kconfig, if you prefer something different,
+it's easily changable. The name is generated in cml1.y:gen_filename() and
+only a search&replace in fixup-all.diff is needed.
 
-> 
-> Hi Al, list,
-> 
-> I think the latest blockdev (maybe the do_open) changes broke the raid
-> subsystem.  In order to 'activate' a raid device, the userland tools open
-> the device node (e.g. /dev/md0) to perform ioctls against it, even though
-> that device isn't up and running yet.  In 2.5.43 it returns ENXIO.
-
-	I know, patches that handle that are coming to Linus in an hour.
-
-... going net.dead for two days didn't help any ;-/
+bye, Roman
 

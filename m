@@ -1,37 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279024AbRJaBga>; Tue, 30 Oct 2001 20:36:30 -0500
+	id <S279054AbRJaBhA>; Tue, 30 Oct 2001 20:37:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279081AbRJaBgV>; Tue, 30 Oct 2001 20:36:21 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:54007
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S279024AbRJaBgG>; Tue, 30 Oct 2001 20:36:06 -0500
-Date: Tue, 30 Oct 2001 17:36:37 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
+	id <S279105AbRJaBgu>; Tue, 30 Oct 2001 20:36:50 -0500
+Received: from CompactServ-SUrNet.ll.surnet.ru ([195.54.9.58]:3057 "EHLO
+	zzz.zzz") by vger.kernel.org with ESMTP id <S279054AbRJaBgf>;
+	Tue, 30 Oct 2001 20:36:35 -0500
+Date: Wed, 31 Oct 2001 06:36:10 +0500
+From: Denis Zaitsev <zzz@cd-club.ru>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Thomas Hood <jdthood@mail.com>, linux-kernel@vger.kernel.org
-Subject: Re: What is standing in the way of opening the 2.5 tree?
-Message-ID: <20011030173637.H490@mikef-linux.matchmail.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Thomas Hood <jdthood@mail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1004476317.4367.24.camel@thanatos> <E15yhcL-0001UC-00@the-village.bc.nu>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] init/main.c/root_dev_names - another one #ifdef
+Message-ID: <20011031063610.B22507@zzz.zzz.zzz>
+In-Reply-To: <20011031045353.A22507@zzz.zzz.zzz> <E15yj2E-0001o7-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E15yhcL-0001UC-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.23i
+In-Reply-To: <E15yj2E-0001o7-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Oct 31, 2001 at 12:15:10AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 30, 2001 at 10:44:21PM +0000, Alan Cox wrote:
-> > Having suggested, this, I'll remind everyone that Linus
-> > and Alan can do whatever the hell the like.  Which is
-> > what I like about Linux.
-> 
-> Which is good because nobody has actually bothered to ask me if I'd take
-> on 2.4 yet and in fact I'd much rather see Marcelo do it (if he wanted to)
-> 
-> Alan
+On Wed, Oct 31, 2001 at 12:15:10AM +0000, Alan Cox wrote:
+> Secondly if you have an initrd containing the scsi driver layers then you
+> can specify root=sda quite legitimately.
 
-You say "yet".  What would need to change before you would want to take over
-2.4?
+This sounds strange, as I don't mean the SCSI compiled-into-bzImage,
+but the SCSI support at all.

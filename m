@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264449AbTFIPGl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 11:06:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264450AbTFIPGl
+	id S264450AbTFIPMT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 11:12:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264453AbTFIPMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 11:06:41 -0400
-Received: from ip68-107-142-198.tc.ph.cox.net ([68.107.142.198]:32427 "EHLO
-	opus.bloom.county") by vger.kernel.org with ESMTP id S264449AbTFIPGk
+	Mon, 9 Jun 2003 11:12:19 -0400
+Received: from a4.veijo.ton.tut.fi ([193.166.236.20]:9451 "EHLO
+	butthead.ton.tut.fi") by vger.kernel.org with ESMTP id S264450AbTFIPMS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 11:06:40 -0400
-Date: Mon, 9 Jun 2003 08:20:18 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 791] New: motorola sandpoint code does not compile
-Message-ID: <20030609152018.GE28745@ip68-0-152-218.tc.ph.cox.net>
-References: <39560000.1055169517@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 9 Jun 2003 11:12:18 -0400
+From: Sami Nieminen <sami.nieminen@iki.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] 2.5.69-mm6
+Date: Mon, 9 Jun 2003 18:25:57 +0300
+User-Agent: KMail/1.5.9
+References: <200306091819.48459.sami.nieminen@iki.fi>
+In-Reply-To: <200306091819.48459.sami.nieminen@iki.fi>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <39560000.1055169517@[10.10.2.4]>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200306091825.57588.sami.nieminen@iki.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 09, 2003 at 07:38:37AM -0700, Martin J. Bligh wrote:
+Hello,
 
->            Summary: motorola sandpoint code does not compile
->     Kernel Version: 2.5.70
->             Status: NEW
->           Severity: normal
->              Owner: bugme-janitors@lists.osdl.org
->          Submitter: thomas@koeller.dyndns.org
-> 
-> 
-> Distribution: none 
-> Hardware Environment: Motorola Sandpoint X3 /w Unity/8240 MPPMC 
-> Software Environment: Cross build on Linux/x86 host using gcc-3.3 
-> Problem Description: arch/ppc/platforms/sandpoint_setup.c does not compile because 
-> the call to openpic_init() in line #309 does not match the punction prototype as defined 
-> in include/asm-ppc/open_pic.h 
->  
-> Steps to reproduce: Configure for Sandpoint X3 target and build.
+Has anyone figured out the radeon_cp_init problem? I am still suffering of 
+this with 2.5.70-bk14. This is with Gentoo 1.4 and gcc 3.2.3 (on a notebook 
+with Radeon 9000 Mobility and SiS AGP chipset).
 
-The Motorola Sandpoint code (along with many other MPC107 based
-platforms) is out of date in 2.5.  Is there a way to close this bug and
-have it reflect that?
+Regards, Sami
+
+P.S. Please CC me any reply as I am not subscribed to the list.
+
+> On Mon, 19 May 2003, Alexander Hoogerhuis wrote:
+> > --[PinePGP]--------------------------------------------------[begin]--
+> > The oops is gone, and I'm now left with this one:
+>
+> Ultra Cool
+>
+> > Linux agpgart interface v0.100 (c) Dave Jones
+> > [drm] Initialized radeon 1.8.0 20020828 on minor 0
+> > [drm:radeon_cp_init] *ERROR* radeon_cp_init called without lock held
+> > [drm:radeon_unlock] *ERROR* Process 4421 using kernel context 0
+> >
+> > This one only seems to appear when I'm compiling it modular.
+>
+> Wading through that code isn't something to undertake at this hour, i'll
+> have a look a bit later.
+>
+>         Zwane
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Linux 2.5.70-bk14

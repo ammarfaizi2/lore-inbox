@@ -1,77 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266398AbUAVTnd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 14:43:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266405AbUAVTnd
+	id S266207AbUAVKi3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 05:38:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266227AbUAVKi2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 14:43:33 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:14060 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266398AbUAVTnb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 14:43:31 -0500
-Date: Thu, 22 Jan 2004 20:43:22 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Alex <alex@meerkatsoft.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Cannot Set DMA via hdparm
-Message-ID: <20040122194322.GN6441@fs.tum.de>
-References: <4000230D.109@meerkatsoft.com>
+	Thu, 22 Jan 2004 05:38:28 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:24507 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S266207AbUAVKgh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 05:36:37 -0500
+Date: Thu, 22 Jan 2004 11:36:33 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix Careless bio->_bio change in rq_for_each_bio().
+Message-ID: <20040122103633.GA6669@suse.de>
+References: <20040122071637.735A32C100@lists.samba.org> <20040122103007.GO2734@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4000230D.109@meerkatsoft.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040122103007.GO2734@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 11, 2004 at 01:06:37AM +0900, Alex wrote:
-
-> Hi,
-
-Hi Alex,
-
-> I am having problems settng the DMA ( hdparm -d1 /dev/hda ) on a RH9 
-> 2.4.28 Linux machine.
-
-I assume you are talking about 2.4.18?
-
-> I always get the following error messages:
+On Thu, Jan 22 2004, Jens Axboe wrote:
+> On Thu, Jan 22 2004, Rusty Russell wrote:
+> > Looks like an obvious typo.  Works fine if "bio" is the name of the
+> > iterator.
 > 
-> HDIO_SET_DMA failed: Operatopm mpt @er,otted
-> using_dma = 0 (off)
+> Rusty,
 > 
-> The Disk ST3120026A is properly recognized. It appears that the 
-> motherboard is not supported. ( I am running linux on a Shuttle XPC with 
-> the ATI Radeon 9100IGP / IXP150 Chipset.
-> 
-> Has anyone an idea how to get this dma setting work ?
-> Will that chipset be supported in the future ?
+> This was already posted a week or two ago, and has been in Linus' tree
+> since yesterday (or the day before).
 
-It seems some experimental support for your chipset was added in later 
-2.4 kernels.
-
-Could you try whether kernel 2.4.24 with the alim15x3 driver available 
-in the kernel configuration at
-
-  ATA/IDE/MFM/RLL support
-    ATA/IDE/MFM/RLL support
-    IDE, ATA and ATAPI Block devices
-      PCI IDE chipset support
-      Generic PCI bus-master DMA support
-      ALI M15x3 chipset support
-
-works for you?
-
-> Thanks
-> Alex
-
-cu
-Adrian
+Sorry misread that, there was an error in the fixup :)
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Jens Axboe
 

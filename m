@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129855AbQLWHlA>; Sat, 23 Dec 2000 02:41:00 -0500
+	id <S129998AbQLWHmb>; Sat, 23 Dec 2000 02:42:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129998AbQLWHkv>; Sat, 23 Dec 2000 02:40:51 -0500
-Received: from www.wen-online.de ([212.223.88.39]:42258 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S129855AbQLWHkf>;
-	Sat, 23 Dec 2000 02:40:35 -0500
-Date: Sat, 23 Dec 2000 08:09:57 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [patchlet] move kstat.pgpgin/out into submit_bh()
-Message-ID: <Pine.Linu.4.10.10012230757470.1434-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130374AbQLWHmV>; Sat, 23 Dec 2000 02:42:21 -0500
+Received: from c1075343-a.spngfld1.il.home.com ([24.14.189.192]:3591 "EHLO
+	bastion.yi.org") by vger.kernel.org with ESMTP id <S129998AbQLWHmJ>;
+	Sat, 23 Dec 2000 02:42:09 -0500
+Message-ID: <20001223021615.A8201@bastion.sprileet.net>
+Date: Sat, 23 Dec 2000 02:16:15 -0600
+From: Damacus Porteng <kernel@bastion.yi.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Arg.  File > 2GB removal
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Merry Xmas All,
+For grins, I did `dd if=/dev/zero of=testfile bs=1024 count=4000000` 
 
-read/write-page() I/O isn't visible in kstat.
+Obviously, with the limits of ext2, this isn't allowed, however, dd continued
+marrily on its way, tho it spouted an error...
 
---- linux-2.4.0-test13-pre4/drivers/block/ll_rw_blk.c.org	Sat Dec 23 07:08:28 2000
-+++ linux-2.4.0-test13-pre4/drivers/block/ll_rw_blk.c	Sat Dec 23 07:28:38 2000
-@@ -964,6 +964,14 @@
- 	bh->b_rsector = bh->b_blocknr * (bh->b_size>>9);
- 
- 	generic_make_request(rw, bh);
-+
-+	switch (rw) {
-+		case WRITE:
-+			kstat.pgpgout++;
-+			break;
-+		default:
-+			kstat.pgpgin++;
-+	}
- }
- 
- /*
-@@ -1057,7 +1065,6 @@
- 				/* Hmmph! Nothing to write */
- 				goto end_io;
- 			__mark_buffer_clean(bh);
--			kstat.pgpgout++;
- 			break;
- 
- 		case READA:
-@@ -1065,7 +1072,6 @@
- 			if (buffer_uptodate(bh))
- 				/* Hmmph! Already have it */
- 				goto end_io;
--			kstat.pgpgin++;
- 			break;
- 		default:
- 			BUG();
+I cancelled the dd and went to remove the file, though the following occured:
+root@obfuscated:/home/ftp# rm testfile
+rm: cannot remove `testfile': Value too large for defined data type     
 
+'ls' complains about the same.  I ran e2fsck -f /dev/hde6 (the partition of
+/home) and it didn't 'find' the problem.
+
+How do I remove this file and reclaim the HDD space?
+
+Thanks,
+
+D.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

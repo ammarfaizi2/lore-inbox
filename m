@@ -1,81 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267716AbTBMDTD>; Wed, 12 Feb 2003 22:19:03 -0500
+	id <S267762AbTBMDVC>; Wed, 12 Feb 2003 22:21:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267726AbTBMDTD>; Wed, 12 Feb 2003 22:19:03 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:13546 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S267716AbTBMDTC>;
-	Wed, 12 Feb 2003 22:19:02 -0500
-Date: Thu, 13 Feb 2003 14:28:34 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Linus <torvalds@transmeta.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@muc.de>,
-       Troels Walsted Hansen <troels@thule.no>
-Subject: Re: [PATCH][COMPAT] compat_sys_futex 7/7 x86_64
-Message-Id: <20030213142834.46c4fbb5.sfr@canb.auug.org.au>
-In-Reply-To: <20030212160905.7514b848.sfr@canb.auug.org.au>
-References: <20030212154716.7c101942.sfr@canb.auug.org.au>
-	<20030212160905.7514b848.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S267758AbTBMDVC>; Wed, 12 Feb 2003 22:21:02 -0500
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:47336 "EHLO
+	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id <S267762AbTBMDVA>; Wed, 12 Feb 2003 22:21:00 -0500
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15947.4435.829168.530565@wombat.chubb.wattle.id.au>
+Date: Thu, 13 Feb 2003 14:30:27 +1100
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Stephan van Hienen <raid@a2000.nu>, Andreas Dilger <adilger@clusterfs.com>,
+       linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, "Theodore Ts'o" <tytso@mit.edu>,
+       peter@chubb.wattle.id.au, tbm@a2000.nu
+Subject: Re: [Ext2-devel] Re: fsck out of memory
+In-Reply-To: <5250726@toto.iv>
+X-Mailer: VM 7.07 under 21.4 (patch 10) "Military Intelligence" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+>>>>> "Stephen" == Stephen C Tweedie <sct@redhat.com> writes:
 
-On Wed, 12 Feb 2003 16:09:05 +1100 Stephen Rothwell <sfr@canb.auug.org.au> wrote:
->
-> As per Andi's wishes, here is the x86_64 part of the patch.  This one will
-> only apply after applying my previous patch "[PATCH][COMPAT] outstanding
-> compatibility changes 4/4 x86_64".
+Stephen> Hi, On Tue, 2003-02-11 at 13:11, Stephan van Hienen wrote:
 
-Resent due to typo pointd out by Troels Walsted Hansen.
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+Stephen> I've no idea.  Ben has some lb patches up at
 
-diff -ruN 2.5.60-2003021217-32bit.1/arch/x86_64/ia32/ia32entry.S 2.5.60-2003021217-32bit.2/arch/x86_64/ia32/ia32entry.S
---- 2.5.60-2003021217-32bit.1/arch/x86_64/ia32/ia32entry.S	2003-02-12 17:31:53.000000000 +1100
-+++ 2.5.60-2003021217-32bit.2/arch/x86_64/ia32/ia32entry.S	2003-02-13 14:23:02.000000000 +1100
-@@ -440,7 +440,7 @@
- 	.quad sys_fremovexattr
- 	.quad sys_tkill		/* 238 */ 
- 	.quad sys_sendfile64 
--	.quad sys32_futex		/* 240 */
-+	.quad compat_sys_futex		/* 240 */
-         .quad sys32_sched_setaffinity
-         .quad sys32_sched_getaffinity
- 	.quad sys_set_thread_area
-diff -ruN 2.5.60-2003021217-32bit.1/arch/x86_64/ia32/sys_ia32.c 2.5.60-2003021217-32bit.2/arch/x86_64/ia32/sys_ia32.c
---- 2.5.60-2003021217-32bit.1/arch/x86_64/ia32/sys_ia32.c	2003-02-12 17:31:53.000000000 +1100
-+++ 2.5.60-2003021217-32bit.2/arch/x86_64/ia32/sys_ia32.c	2003-02-12 17:42:31.000000000 +1100
-@@ -2199,26 +2199,6 @@
- 	return err;
- }
- 
--extern int sys_futex(unsigned long uaddr, int op, int val, struct timespec *t); 
--
--asmlinkage long
--sys32_futex(unsigned long uaddr, int op, int val, struct compat_timespec *utime32)
--{
--	struct timespec t;
--	mm_segment_t oldfs = get_fs(); 
--	int err;
--
--	if (utime32 && get_compat_timespec(&t, utime32))
--		return -EFAULT;
--
--	/* the set_fs is safe because futex doesn't use the seg limit 
--	   for valid page checking of uaddr. */ 
--	set_fs(KERNEL_DS); 
--	err = sys_futex(uaddr, op, val, utime32 ? &t : NULL);
--	set_fs(oldfs); 
--	return err; 
--}
--
- extern long sys_io_setup(unsigned nr_reqs, aio_context_t *ctx);
- 
- long sys32_io_setup(unsigned nr_reqs, u32 *ctx32p)
+Stephen>   http://people.redhat.com/bcrl/lb/
+
+Stephen> but there's nothing broken out against the latest lbd diffs.
+
+
+Ben's patches are against a very old version of the kernel (2.4.6-pre8)
+and require linking against libgcc to get 64-bit division.
+
+
+The main issue is 64-bit division.  In the limited time I had I
+couldn't convince myself that I could rely on all divisors being less
+than 2^31 in the raid4/5 code.  If you can convince yourself of that,
+then t's a straightforward but tedious task to make raid1, raid4 and
+raid5 LBD-safe.
+
+--
+Dr Peter Chubb				    peterc@gelato.unsw.edu.au
+You are lost in a maze of BitKeeper repositories, all almost the same.

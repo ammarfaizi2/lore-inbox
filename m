@@ -1,63 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261775AbVC3GzN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbVC3HDQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261775AbVC3GzN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 01:55:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbVC3GzN
+	id S261777AbVC3HDQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 02:03:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbVC3HDQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 01:55:13 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:3518 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261775AbVC3GzH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 01:55:07 -0500
-Date: Wed, 30 Mar 2005 08:54:26 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-10
-Message-ID: <20050330065426.GB18417@elte.hu>
-References: <20050325145908.GA7146@elte.hu> <1111790009.23430.19.camel@mindpipe> <20050325223959.GA24800@elte.hu> <1111814065.24049.21.camel@mindpipe> <20050327085814.GA23082@elte.hu> <1112159812.5598.17.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1112159812.5598.17.camel@mindpipe>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 30 Mar 2005 02:03:16 -0500
+Received: from redpine-92-161-hyd.redpinesignals.com ([203.196.161.92]:31698
+	"EHLO redpinesignals.com") by vger.kernel.org with ESMTP
+	id S261777AbVC3HDG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 02:03:06 -0500
+Message-ID: <424A51F5.1050501@redpinesignals.com>
+Date: Wed, 30 Mar 2005 12:45:01 +0530
+From: P Lavin <lavin.p@redpinesignals.com>
+Reply-To: lavin.p@redpinesignals.com
+Organization: www.redpinesignals.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: no need to check for NULL before calling kfree() -fs/ext2/
+References: <Pine.LNX.4.62.0503252307010.2498@dragon.hyggekrogen.localhost>            <1111825958.6293.28.camel@laptopd505.fenrus.org>            <Pine.LNX.4.61.0503261811001.9945@chaos.analogic.com>            <Pine.LNX.4.62.0503270044350.3719@dragon.hyggekrogen.localhost>            <1111881955.957.11.camel@mindpipe>            <Pine.LNX.4.62.0503271246420.2443@dragon.hyggekrogen.localhost>            <20050327065655.6474d5d6.pj@engr.sgi.com>            <Pine.LNX.4.61.0503271708350.20909@yvahk01.tjqt.qr>            <20050327174026.GA708@redhat.com>            <1112064777.19014.17.camel@mindpipe>            <84144f02050328223017b17746@mail.gmail.com>            <Pine.LNX.4.61.0503290903530.13383@yvahk01.tjqt.qr>            <courier.42490293.000032B0@courier.cs.helsinki.fi>            <20050329184411.1faa71eb.pj@engr.sgi.com> <courier.424A43A5.00002305@courier.cs.helsinki.fi>
+In-Reply-To: <courier.424A43A5.00002305@courier.cs.helsinki.fi>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+In my wlan driver module, i allocated some memory using kmalloc in 
+interrupt context, this one failed but its not returning NULL , so i was 
+proceeding further everything was going wrong... & finally the kernel 
+crahed. Can any one of you tell me why this is happening ? i cannot use 
+GFP_KERNEL because i'm calling this function from interrupt context & it 
+may block. Any other solution for this ?? I'm concerned abt why kmalloc 
+is not returning null if its not a success ??
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+Is it not necessary to check for NULL before calling kfree() ??
+Regards,
+Lavin
 
-> > could you run a bit with tracing disabled (in the .config) on the C3?  
-> > (but wakeup timing still enabled) It may very well be tracing overhead 
-> > that makes those latencies that high.  Also, we'd thus have some hard 
-> > data on how much overhead tracing is in such a situation, on that CPU.
-> 
-> I have not left it to run overnight yet with the swappiness set to 
-> 100, which triggers the biggest latencies as my entire desktop is 
-> swapped out, but so far it looks like the problem was tracing 
-> overhead.  With timing enabled but tracing disabled the longest 
-> latency on the C3 so far is 270 usecs.
-> 
-> An important giveaway is that with tracing enabled the same code path 
-> only triggers ~200 usec latencies on the K7 but ~2ms on the C3.  Since 
-> the longest latency with PREEMPT_DESKTOP is normally more a function 
-> of memory bandwidth than processor speed, and the machines differ much 
-> more in the latter, this agrees with the theory that the overhead is 
-> the problem.
+Pekka J Enberg wrote:
 
-besides cycle overhead, function tracing increases cache footprint - and 
-with a CPU that has smaller caches (such as the C3) it can tip a loop 
-over the edge, and can make it cache-trashing, while it would fit into 
-the cache before. In such a situation the difference can be dramatic.
+> Hi,
+> Paul Jackson writes:
+>
+>> Even such obvious changes as removing redundant checks doesn't
+>> seem to ensure a performance improvement.  Jesper Juhl posted
+>> performance data for such changes in his microbenchmark a couple
+>> of days ago.
+>
+>
+> It is not a performance issue, it's an API issue. Please note that 
+> kfree() is analogous libc free() in terms of NULL checking. People are 
+> checking NULL twice now because they're confused whether kfree() deals 
+> it or not.
+> Paul Jackson writes:
+>
+>> Maybe we should be following your good advice:
+>> > You don't know that until you profile! 
+>> instead of continuing to make these code changes.
+>
+>
+> I am all for profiling but it should not stop us from merging the 
+> patches because we can restore the generated code with the included 
+> (totally untested) patch.
+>            Pekka
+> Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+> ---
+> Index: 2.6/include/linux/slab.h
+> ===================================================================
+> --- 2.6.orig/include/linux/slab.h       2005-03-22 14:31:30.000000000 
+> +0200
+> +++ 2.6/include/linux/slab.h    2005-03-30 09:08:13.000000000 +0300
+> @@ -105,8 +105,14 @@
+>       return __kmalloc(size, flags);
+> }
+> +static inline void kfree(const void * p)
+> +{
+> +       if (!p)
+> +               return;
+> +       __kfree(p);
+> +}
+> +
+> extern void *kcalloc(size_t, size_t, int);
+> -extern void kfree(const void *);
+> extern unsigned int ksize(const void *);
+> extern int FASTCALL(kmem_cache_reap(int));
+> Index: 2.6/mm/slab.c
+> ===================================================================
+> --- 2.6.orig/mm/slab.c  2005-03-22 14:31:31.000000000 +0200
+> +++ 2.6/mm/slab.c       2005-03-30 09:08:45.000000000 +0300
+> @@ -2567,13 +2567,11 @@
+> * Don't free memory not originally allocated by kmalloc()
+> * or you will run into trouble.
+> */
+> -void kfree (const void *objp)
+> +void __kfree (const void *objp)
+> {
+>       kmem_cache_t *c;
+>       unsigned long flags;
+> -       if (!objp)
+> -               return;
+>       local_irq_save(flags);
+>       kfree_debugcheck(objp);
+>       c = GET_PAGE_CACHE(virt_to_page(objp));
+> @@ -2581,7 +2579,7 @@
+>       local_irq_restore(flags);
+> }
+> -EXPORT_SYMBOL(kfree);
+> +EXPORT_SYMBOL(__kfree);
+> #ifdef CONFIG_SMP
+> /**
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-(on CPUs with larger caches similar artifacts can happen too, but it 
-needs a 'fatter' loop, which are apparently rarer.)
 
-	Ingo

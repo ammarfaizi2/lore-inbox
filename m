@@ -1,84 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262524AbVBXW2v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262518AbVBXWab@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262524AbVBXW2v (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 17:28:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262519AbVBXW1t
+	id S262518AbVBXWab (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 17:30:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262519AbVBXWab
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 17:27:49 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:23476 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262518AbVBXW12 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 17:27:28 -0500
-Message-ID: <421E54D3.8060903@sgi.com>
-Date: Thu, 24 Feb 2005 14:27:31 -0800
-From: Jay Lan <jlan@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: zh-tw, en-us, en, zh-cn, zh-hk
+	Thu, 24 Feb 2005 17:30:31 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:43231 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262518AbVBXWaG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 17:30:06 -0500
+Message-ID: <421E55E5.3010404@austin.ibm.com>
+Date: Thu, 24 Feb 2005 16:32:05 -0600
+From: Steven Pratt <slpratt@austin.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-CC: Andrew Morton <akpm@osdl.org>, Kaigai Kohei <kaigai@ak.jp.nec.com>,
-       lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       guillaume.thouvenin@bull.net, erikj@subway.americas.sgi.com,
-       jbarnes@sgi.com
-Subject: Re: [Lse-tech] Re: A common layer for Accounting packages
-References: <42168D9E.1010900@sgi.com> <20050218171610.757ba9c9.akpm@osdl.org> <421993A2.4020308@ak.jp.nec.com> <421B955A.9060000@sgi.com> <421C2B99.2040600@ak.jp.nec.com> <20050222232002.4d934465.akpm@osdl.org> <Pine.LNX.4.53.0502231041450.19035@gockel.physik3.uni-rostock.de>
-In-Reply-To: <Pine.LNX.4.53.0502231041450.19035@gockel.physik3.uni-rostock.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Ram <linuxram@us.ibm.com>
+CC: Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 4/4][RESEND] readahead: cleanup	blockable_page_cache_readahead()
+References: <421E2CE9.8B5E4DE7@tv-sign.ru> <1109271683.6140.120.camel@localhost>
+In-Reply-To: <1109271683.6140.120.camel@localhost>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Schmielau wrote:
-> On Tue, 22 Feb 2005, Andrew Morton wrote:
-> 
-> 
->>We really want to avoid doing such stuff in-kernel if at all possible, of
->>course.
+Ram wrote:
+
+>Andrew, 
+>	I have verified the patches against my standard benchmarks
+>	and did not see any bad effects.
+>
+>	Also I have reviewd the patch and it looked clean and correct.
+>
+>RP
+>  
+>
+
+I have not had a chance to benchmark, but visual inspection looks good.
+
+Steve
+
+>On Thu, 2005-02-24 at 11:37, Oleg Nesterov wrote:
+>  
+>
+>>I think that do_page_cache_readahead() can be inlined
+>>in blockable_page_cache_readahead(), this makes the
+>>code a bit more readable in my opinion.
 >>
->>Is it not possible to implement the fork/exec/exit notifications to
->>userspace so that a daemon can track the process relationships and perform
->>aggregation based upon individual tasks' accounting?  That's what one of
->>the accounting systems is proposing doing, I believe.
+>>Also makes check_ra_success() static inline.
 >>
->>(In fact, why do we even need the notifications?  /bin/ps can work this
->>stuff out).
-> 
-> 
-> 
-> I had started a proof of concept implementation that could reconstruct the 
-> whole process tree from userspace just from the BSD accounting currently 
-> in the kernel (+ the conceptual bug-fix that I misnamed "[RFC] "biological 
-> parent" pid"). This could do the whole job ID thing from userspace.
-> Unfortunately, I haven't had time to work on it recently.
-> 
-> Also, doing per-job accounting might actually be more lightweight than 
-> per-process accounting, so I'm not at all opposed to unifying CSA and BSD 
-> accounting into one mechanism that just writes different file formats.
-
-Thanks, Tim!
-
-After spending some time studying how ELSA works, it appeared to me
-that CSA still needs a hook for do_exit. Since people agreed that
-a complete framework was an overkill, i would be glad to submit
-another patch later just to provide a CSA exit-handling inside the
-acct_process().
-
-Thanks,
-  - jay
-
-> 
-> A complete framework seems like overkill to me, too.
-> 
-> Tim
-> 
-> 
-> -------------------------------------------------------
-> SF email is sponsored by - The IT Product Guide
-> Read honest & candid reviews on hundreds of IT Products from real users.
-> Discover which products truly live up to the hype. Start reading now.
-> http://ads.osdn.com/?ad_id=6595&alloc_id=14396&op=click
-> _______________________________________________
-> Lse-tech mailing list
-> Lse-tech@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/lse-tech
+>>Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+>>
+>>--- 2.6.11-rc5/mm/readahead.c~	2005-01-29 15:51:04.000000000 +0300
+>>+++ 2.6.11-rc5/mm/readahead.c	2005-01-29 16:37:05.000000000 +0300
+>>@@ -348,8 +348,8 @@ int force_page_cache_readahead(struct ad
+>>  * readahead isn't helping.
+>>  *
+>>  */
+>>-int check_ra_success(struct file_ra_state *ra, unsigned long nr_to_read,
+>>-				 unsigned long actual)
+>>+static inline int check_ra_success(struct file_ra_state *ra,
+>>+			unsigned long nr_to_read, unsigned long actual)
+>> {
+>> 	if (actual == 0) {
+>> 		ra->cache_hit += nr_to_read;
+>>@@ -394,15 +394,11 @@ blockable_page_cache_readahead(struct ad
+>> {
+>> 	int actual;
+>> 
+>>-	if (block) {
+>>-		actual = __do_page_cache_readahead(mapping, filp,
+>>-						offset, nr_to_read);
+>>-	} else {
+>>-		actual = do_page_cache_readahead(mapping, filp,
+>>-						offset, nr_to_read);
+>>-		if (actual == -1)
+>>-			return 0;
+>>-	}
+>>+	if (!block && bdi_read_congested(mapping->backing_dev_info))
+>>+		return 0;
+>>+
+>>+	actual = __do_page_cache_readahead(mapping, filp, offset, nr_to_read);
+>>+
+>> 	return check_ra_success(ra, nr_to_read, actual);
+>> }
+>>    
+>>
 

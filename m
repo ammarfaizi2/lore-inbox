@@ -1,48 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261432AbVAaXb7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVAaXcA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261432AbVAaXb7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 18:31:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbVAaX2I
+	id S261443AbVAaXcA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 18:32:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbVAaXZa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 18:28:08 -0500
-Received: from science.horizon.com ([192.35.100.1]:61242 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S261444AbVAaX1j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 18:27:39 -0500
-Date: 31 Jan 2005 23:27:35 -0000
-Message-ID: <20050131232735.11236.qmail@science.horizon.com>
-From: linux@horizon.com
-To: lorenzo@gnu.org, mingo@elte.hu
-Subject: Re: [PATCH] OpenBSD Networking-related randomization port
-Cc: arjan@infradead.org, bunk@stusta.de, chrisw@osdl.org, davem@redhat.com,
-       hlein@progressive-comp.com, linux-kernel@vger.kernel.org,
-       linux@horizon.com, netdev@oss.sgi.com, shemminger@osdl.org,
-       Valdis.Kletnieks@vt.edu
-In-Reply-To: <20050131201141.GA4879@elte.hu>
+	Mon, 31 Jan 2005 18:25:30 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:30155 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261432AbVAaXT1 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 18:19:27 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] swsusp: do not use higher order memory allocations [update]
+Date: Tue, 1 Feb 2005 00:19:49 +0100
+User-Agent: KMail/1.7.1
+Cc: Pavel Machek <pavel@suse.cz>, Hu Gang <hugang@soulinfo.com>,
+       Nigel Cunningham <ncunningham@linuxmail.org>
+References: <200501310019.39526.rjw@sisk.pl>
+In-Reply-To: <200501310019.39526.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200502010019.49964.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> could you please also react to this feedback:
->
->   http://marc.theaimsgroup.com/?l=linux-kernel&m=110698371131630&w=2
+Hi,
+
+On Monday, 31 of January 2005 00:19, Rafael J. Wysocki wrote:
+> Hi,
 > 
-> to quote a couple of key points from that very detailed security
-> analysis:
+> The following patch is (yet) an(other) attempt to eliminate the need for using higher
+> order memory allocations on resume.  It accomplishes this by replacing the array
+> of page backup entries with a list, so it is only necessary to allocate individual
+> memory pages.  This approach makes it possible to avoid relocating many memory
+> pages on resume (as a result, much less memory is used) and to simplify
+> the assembly code that restores the image.
 > 
-> " I'm not sure how the OpenBSD code is better in any way.  (Notice that
->   it uses the same "half_md4_transform" as Linux; you just added another
->   copy.) Is there a design note on how the design was chosen? "
+> The patch is a complement to the patch that I sent some time ago as "swsusp: do not
+> use higher order memory allocations on suspend".  It is against 2.6.11-rc2 - on top
+> of the previous patch and on top of the "x86_64: Speed up suspend" patch which are
+> availble at:
+> http://www.sisk.pl/kernel/patches/2.6.11-rc2/swsusp-use-list-suspend-v2.patch
+> and at:
+> http://www.sisk.pl/kernel/patches/2.6.11-rc2/x86_64-Speed-up-suspend.patch
+> respectively.  The patch itself is available at:
+> http://www.sisk.pl/kernel/patches/2.6.11-rc2/swsusp-use-list-resume-v1.patch
+> and there is a consolidated patch against 2.6.11-rc2 at:
+> http://www.sisk.pl/kernel/patches/2.6.11-rc2/2.6.11-rc2-swsusp-use-list.patch
 
-Just note that, in addition to the security aspects, there are also a
-whole set of multiprocessor issues.  OpenBSD added SMP support in June
-2004, and it looks like this code dates back to before that.  It might
-be worth looking at what OpenBSD does now.
+I have updated the patches to include a bugfix from Pavel Machek (thanks, Pavel!).
+Affected are the "suspend" patch and the "consolidated" patch.  The updated patches
+are available at:
+http://www.sisk.pl/kernel/patches/2.6.11-rc2/swsusp-use-list-suspend-v3.patch
+http://www.sisk.pl/kernel/patches/2.6.11-rc2/2.6.11-rc2-swsusp-use-list-v2.patch
+respectively.  The other patches remain unchanged.
 
-Note that I have NOT looked at the patch other than the TCP ISN
-generation.  However, given the condition of the ISN code, I am inclined
-to take a "guilty until proven innocent" view of the rest of it.
-Don't merge it until someone has really grokked it, not just kibitzed
-about code style issues.
+Greets,
+Rafael
 
-(The homebrew 15-bit block cipher in this code does show how much the
-world needs a small block cipher for some of these applications.)
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

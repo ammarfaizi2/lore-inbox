@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268822AbTGZTkw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 15:40:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268736AbTGZTkw
+	id S269242AbTGZTr6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 15:47:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269291AbTGZTr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 15:40:52 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:969 "EHLO
+	Sat, 26 Jul 2003 15:47:57 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:4809 "EHLO
 	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S269226AbTGZTkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 15:40:40 -0400
-Date: Sat, 26 Jul 2003 21:55:44 +0200
+	id S269242AbTGZTrD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 15:47:03 -0400
+Date: Sat, 26 Jul 2003 22:02:13 +0200
 From: Tomas Szepe <szepe@pinerecords.com>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [TRIVIAL] kill annoying submenus in fs/Kconfig
-Message-ID: <20030726195544.GA16160@louise.pinerecords.com>
+Subject: [TRIVIAL] sanitize power management config menus
+Message-ID: <20030726200213.GD16160@louise.pinerecords.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,99 +22,70 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch against -bk3.
+$subj
+
+patch against -bk3.
 
 -- 
 Tomas Szepe <szepe@pinerecords.com>
 
 
-diff -urN a/fs/Kconfig b/fs/Kconfig
---- a/fs/Kconfig	2003-06-14 23:07:12.000000000 +0200
-+++ b/fs/Kconfig	2003-07-26 20:48:56.000000000 +0200
-@@ -481,7 +481,11 @@
- 	  local network, you probably do not need an automounter, and can say
- 	  N here.
+diff -urN a/arch/i386/kernel/cpu/cpufreq/Kconfig b/arch/i386/kernel/cpu/cpufreq/Kconfig
+--- a/arch/i386/kernel/cpu/cpufreq/Kconfig	2003-07-10 23:30:33.000000000 +0200
++++ b/arch/i386/kernel/cpu/cpufreq/Kconfig	2003-07-26 21:37:13.000000000 +0200
+@@ -2,10 +2,9 @@
+ # CPU Frequency scaling
+ #
  
--menu "CD-ROM/DVD Filesystems"
-+config CD_FS
-+	bool "CD-ROM/DVD Filesystems"
-+	default y
+-menu "CPU Frequency scaling"
+-
+ config CPU_FREQ
+ 	bool "CPU Frequency scaling"
++	depends on PM
+ 	help
+ 	  Clock scaling allows you to change the clock speed of CPUs on the
+ 	  fly. This is a nice method to save battery power on notebooks,
+@@ -16,6 +15,8 @@
+ 
+ 	  If in doubt, say N.
+ 
++if CPU_FREQ
 +
-+if CD_FS
+ source "drivers/cpufreq/Kconfig"
  
- config ISO9660_FS
- 	tristate "ISO 9660 CDROM file system support"
-@@ -545,9 +549,13 @@
+ config CPU_FREQ_TABLE
+@@ -162,4 +163,4 @@
  
- 	  If unsure, say N.
+ 	  If in doubt, say N.
  
 -endmenu
 +endif
+diff -urN a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
+--- a/drivers/acpi/Kconfig	2003-06-22 22:27:39.000000000 +0200
++++ b/drivers/acpi/Kconfig	2003-07-26 21:34:05.000000000 +0200
+@@ -2,7 +2,7 @@
+ # ACPI Configuration
+ #
+ 
+-menu "ACPI Support"
++if PM
+ 
+ config ACPI
+ 	bool "ACPI Support" if X86
+@@ -36,6 +36,8 @@
+ 	  available at:
+ 	  <http://www.acpi.info>
+ 
++if ACPI
 +
-+config MS_FS
-+	bool "DOS/FAT/NT Filesystems"
-+	default y
- 
--menu "DOS/FAT/NT Filesystems"
-+if MS_FS
- 
- config FAT_FS
- 	tristate "DOS FAT fs support"
-@@ -728,9 +736,13 @@
- 
- 	  It is strongly recommended and perfectly safe to say N here.
- 
--endmenu
-+endif
-+
-+config PSEUDO_FS
-+	bool "Pseudo filesystems"
-+	default y
- 
--menu "Pseudo filesystems"
-+if PSEUDO_FS
- 
- config PROC_FS
- 	bool "/proc file system support"
-@@ -881,9 +893,13 @@
- 	  say M here and read <file:Documentation/modules.txt>.  The module
- 	  will be called ramfs.
- 
--endmenu
-+endif
-+
-+config MISC_FS
-+	bool "Miscellaneous filesystems"
-+	default y
- 
--menu "Miscellaneous filesystems"
-+if MISC_FS
- 
- config ADFS_FS
- 	tristate "ADFS file system support (EXPERIMENTAL)"
-@@ -1261,10 +1277,14 @@
- 	  Say Y here if you want to try writing to UFS partitions. This is
- 	  experimental, so you should back up your UFS partitions beforehand.
+ config ACPI_HT_ONLY
+ 	bool "CPU Enumeration Only"
+ 	depends on X86 && ACPI && X86_LOCAL_APIC
+@@ -236,5 +238,6 @@
+ 	depends on IA64 && (!IA64_HP_SIM || IA64_SGI_SN)
+ 	default y
  
 -endmenu
 +endif
  
--menu "Network File Systems"
-+config NET_FS
-+	bool "Network File Systems"
- 	depends on NET
-+	default y
-+
-+if NET_FS
- 
- config NFS_FS
- 	tristate "NFS file system support"
-@@ -1591,7 +1611,7 @@
- 	default m if AFS_FS=m
- 	default y if AFS_FS=y
- 
--endmenu
 +endif
- 
- menu "Partition Types"
- 

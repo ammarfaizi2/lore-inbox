@@ -1,104 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268986AbRG3Ph3>; Mon, 30 Jul 2001 11:37:29 -0400
+	id <S268977AbRG3Pft>; Mon, 30 Jul 2001 11:35:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268983AbRG3PhT>; Mon, 30 Jul 2001 11:37:19 -0400
-Received: from mailhost.lineo.fr ([194.250.46.226]:11793 "EHLO
-	mailhost.lineo.fr") by vger.kernel.org with ESMTP
-	id <S268982AbRG3PhD>; Mon, 30 Jul 2001 11:37:03 -0400
-Date: Mon, 30 Jul 2001 17:37:02 +0200
-From: christophe =?iso-8859-1?Q?barb=E9?= <christophe.barbe@lineo.fr>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: christophe =?iso-8859-1?Q?barb=E9?= <christophe.barbe@lineo.fr>,
-        linux-kernel@vger.kernel.org
-Subject: Re: serial console and kernel 2.4
-Message-ID: <20010730173702.C19605@pc8.lineo.fr>
-In-Reply-To: <200107301520.f6UFKtT06867@localhost.localdomain>
+	id <S268972AbRG3Pfj>; Mon, 30 Jul 2001 11:35:39 -0400
+Received: from tartarus.telenet-ops.be ([195.130.132.34]:64397 "EHLO
+	tartarus.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S268977AbRG3Pf3>; Mon, 30 Jul 2001 11:35:29 -0400
+Date: Mon, 30 Jul 2001 17:26:28 +0200
+From: Sven Vermeulen <sven.vermeulen@rug.ac.be>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Subject: Re: GPL issuefor run time kernel function overwrite
+Message-ID: <20010730172628.A1078@Zenith.starcenter>
+In-Reply-To: <F56FOSPUPeKljq65Rn800008a48@hotmail.com> <Pine.LNX.3.95.1010730104556.1947A-100000@chaos.analogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200107301520.f6UFKtT06867@localhost.localdomain>; from James.Bottomley@SteelEye.com on lun, jui 30, 2001 at 17:20:55 +0200
-X-Mailer: Balsa 1.1.7-cvs20010726
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.3.95.1010730104556.1947A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Mon, Jul 30, 2001 at 10:48:58AM -0400
+X-Operating-System: Linux 2.4.7-ac1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-"it works for me" is better that no answer for me. So Thank you for your
-answer.
-Reto give me a solution : because of a flag all incomming char are ignored.
-So now I need to find why this flag is ok for you and not for me.
 
-Christophe
+--/04w6evG8XlLl3ft
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Jul 30, 2001 at 10:48:58AM -0400, Richard B. Johnson wrote:
+[snip]
+> We already have so-called "proprietary" code being included into
+> the kernel. This started with "harmless" bits of binary which is
+> uploaded into the hardware when some drivers are installed.
+> Including such binary is also contrary to GPL, but without this
+> secret goo, the hardware won't run.
+>=20
+> This exception to GPL, in my opinion, opened the door to future
+> corruption and exploitation. Time will tell.
+
+Doesn't the copyright-holder of the work have the final decision wether or
+not a non-GPL-modification may be inserted? I think the only change that
+should be done then is a notice that this and that is non-GPL but permitted
+by the copyright-holder...
+
+Ofcourse, If you aren't the copyright-holder of the work (in his totality),
+you need to contact the copyright-holder in order to receive (written)
+permission...
+
+Just a thought.
+
+--=20
+ Sven Vermeulen            -    Key-ID CDBA2FDB=20
+ LUG: http://www.lugwv.be  -    http://www.keyserver.net
 
 
-Le lun, 30 jui 2001 17:20:55, James Bottomley a écrit :
-> > I recently upgraded a linux box to the kernel 2.4.4 (from 2.2.18).
-> > This box has no display and use the serial console. Since the upgrade
-> > I can see the boot output on the remote console but I can't use the
-> > keyboard. Each time I press a key, an interrupt is seen by the
-> > no-display machine but no char appears in the console.  Today I've
-> > upgraded an another box to 2.4.7 with a similar setup and I've the
-> > same problem.
-> 
-> > Is there something that I'm missing ? (something new with the kernel
-> > 2.4 that is required for a serial console that was not required with
-> > the 2.2 ?)
-> 
-> I hate to send an email which says "it works for me", but it does (all
-> the way 
-> up to 2.4.7).
-> 
-> However, one of the things to remember about the serial console is that
-> it is 
-> primarily designed for *output*.  If you see the boot messages, then it's
-> 
-> doing its job correctly.  Things like kdb and sysrq can accept input from
-> the 
-> serial console, but usually only if something else (like getty) has
-> opened it 
-> first.
-> 
-> My setup (on RedHat 7.1) looks like this
-> 
-> In /etc/lilo.conf
-> 
-> # make lilo output to serial console
-> serial=0,9600n8
-> 
-> # for each kernel add this line
->         append="console=ttyS0,9600n8 console=tty0"
-> 
-> Note, the above append causes /dev/console to be /dev/tty0 (the virtual 
-> console).  If you want to see all the boot messages you need /dev/ttyS0
-> to be 
-> /dev/console and you should reverse the two console statements in this
-> line.
-> 
-> In /etc/inittab:
-> 
-> S:0123456:respawn:/sbin/mingetty --noclear ttyS0
-> 
-> With this setup I can activate sysrq and kdb from the serial console.
-> 
-> Note also that different distributions have different ways of handling
-> the 
-> system console; you might also have to disable the special distribution 
-> handling on a non-RedHat system.
-> 
-> James Bottomley
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
--- 
-Christophe Barbé
-Software Engineer - christophe.barbe@lineo.fr
-Lineo France - Lineo High Availability Group
-42-46, rue Médéric - 92110 Clichy - France
-phone (33).1.41.40.02.12 - fax (33).1.41.40.02.01
-http://www.lineo.com
+--/04w6evG8XlLl3ft
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7ZXykXfqz7M26L9sRAlfLAJ988+WWcWoLwlKpOohloLdDMtvy9ACfR/KE
+I58646BDQJzDppGtVqfTsH8=
+=6K4t
+-----END PGP SIGNATURE-----
+
+--/04w6evG8XlLl3ft--

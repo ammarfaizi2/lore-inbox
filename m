@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262576AbUCEMeu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 07:34:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262579AbUCEMeu
+	id S262575AbUCEMpv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 07:45:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262579AbUCEMpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 07:34:50 -0500
-Received: from [202.125.86.130] ([202.125.86.130]:53733 "EHLO
+	Fri, 5 Mar 2004 07:45:51 -0500
+Received: from [202.125.86.130] ([202.125.86.130]:61157 "EHLO
 	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
-	id S262576AbUCEMes convert rfc822-to-8bit (ORCPT
+	id S262575AbUCEMpt convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 07:34:48 -0500
+	Fri, 5 Mar 2004 07:45:49 -0500
 Content-class: urn:content-classes:message
 Subject: RE: INIT_REQUEST & CURRENT undeclared!
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Date: Fri, 5 Mar 2004 18:02:02 +0530
+Date: Fri, 5 Mar 2004 18:13:07 +0530
 X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Message-ID: <1118873EE1755348B4812EA29C55A9721286EF@esnmail.esntechnologies.co.in>
+Message-ID: <1118873EE1755348B4812EA29C55A9721286F8@esnmail.esntechnologies.co.in>
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
 Thread-Topic: INIT_REQUEST & CURRENT undeclared!
-Thread-Index: AcQCrXte9HuCpCsxSZG2gEv8N1GCgAAAEbtQ
+Thread-Index: AcQCrXte9HuCpCsxSZG2gEv8N1GCgAAAeNDQ
 From: "Jinu M." <jinum@esntechnologies.co.in>
 To: "Jens Axboe" <axboe@suse.de>
 Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using linux kernel 2.4.18.
+Alright I get it ;)
 
--Jinu
+MAJOR_NR should be defined before including the header files.
+
+What was that Kernel 7.9.13 hmm... :p (thanks anyways ch.12 did help!)
+
+Cheers!
+-Joy
+
 
 -----Original Message-----
 From: Jens Axboe [mailto:axboe@suse.de] 

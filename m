@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313698AbSERSkv>; Sat, 18 May 2002 14:40:51 -0400
+	id <S313767AbSERSmW>; Sat, 18 May 2002 14:42:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313743AbSERSku>; Sat, 18 May 2002 14:40:50 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:55575 "EHLO
+	id <S313773AbSERSmV>; Sat, 18 May 2002 14:42:21 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:58391 "EHLO
 	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S313698AbSERSku>; Sat, 18 May 2002 14:40:50 -0400
-Message-Id: <5.1.0.14.2.20020518192409.0402a7b0@pop.cus.cam.ac.uk>
+	id <S313767AbSERSmU>; Sat, 18 May 2002 14:42:20 -0400
+Message-Id: <5.1.0.14.2.20020518194031.04025d10@pop.cus.cam.ac.uk>
 X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sat, 18 May 2002 19:39:48 +0100
-To: mikeH <mikeH@notnowlewis.co.uk>
+Date: Sat, 18 May 2002 19:42:29 +0100
+To: Adrian Bunk <bunk@fs.tum.de>
 From: Anton Altaparmakov <aia21@cantab.net>
 Subject: Re: linux 2.5.16 and VIA Chipset
-Cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <3CE697B1.7040904@notnowlewis.co.uk>
+Cc: mikeH <mikeH@notnowlewis.co.uk>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.NEB.4.44.0205181706400.21287-100000@mimas.fachschafte
+ n.tu-muenchen.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 19:04 18/05/02, mikeH wrote:
->Anton Altaparmakov wrote:
->>>I havent done anything like copying the old .config from my 2.4 series 
->>>kernel, this was a clean
->>>tar jxvf linux-2.5.16.tar.bz2 && cd linux-2.5.16 && make menuconfig
->>
->>hm. try a make mrproper
->>
->>and then a make menuconfig
+At 16:10 18/05/02, Adrian Bunk wrote:
+>On Sat, 18 May 2002, Anton Altaparmakov wrote:
+> > At 13:47 18/05/02, mikeH wrote:
+> > >Apologies, on closer examination of the 2.4 and 2.5 dmesg, it hangs just
+> > >before the
+> > >ACPI is going to come up. However, there is no option for it in make
+> > >menuconfig, and enabling it in .config breaks the compile.
+> >
+> > What do you mean there is no config option in menuconfig?!? I just checked
+> > and there is "General options" ---> "ACPI Support" ---> "[ ] ACPI Support".
 >
->Tried that, still nothing. I'll try downloading the patch and patching it 
->against 2.4.18.
+>There are two options that are required and it might be that one of them
+>is missing:
+>
+>1. "Code maturity level options" -> "Prompt for development and/or
+>                                      incomplete code/drivers"
 
-Huh? There are no patches to go from 2.4.18 to 2.5.anything AFAIK.
+Not true in 2.5.x. ACPI is not dependent on config experimental. Just checked.
 
-I just downloaded linux-2.5.16.tar.bz2 from kernel.org, did tar xvjf, cd, 
-make mrproper, make menuconfig, enabled config experimental, and I get the 
-ACPI option so something is wrong on your end... This is on ia32 arch.
+>2. "General setup" -> "Power Management support"
 
-Which architecture are you using?
+Not true in 2.5.x. Power management is not a prerequisite for ACPI in 
+2.5.x. You notice this already by the fact that ACPI is not under the power 
+management menu any more...
 
 Anton
 

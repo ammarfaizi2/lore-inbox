@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264312AbUEaNXb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263019AbUEaNdu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264312AbUEaNXb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 09:23:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbUEaNXb
+	id S263019AbUEaNdu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 09:33:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbUEaNdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 09:23:31 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:65526 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264312AbUEaNX3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 09:23:29 -0400
-Date: Mon, 31 May 2004 15:23:23 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Art <art@artstower.com>
-Cc: linux-kernel@vger.kernel.org, dg1kjd@afthd.tu-darmstadt.de
-Subject: Re: PROBLEM: kernel module "via-ircc" problem in 2.4.26 but not in 2.6.5
-Message-ID: <20040531132323.GP13111@fs.tum.de>
-References: <200405240137.58055.art@artstower.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 31 May 2004 09:33:50 -0400
+Received: from mail005.syd.optusnet.com.au ([211.29.132.54]:5060 "EHLO
+	mail005.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S263019AbUEaNds convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 09:33:48 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: "Tvrtko A. =?utf-8?q?Ur=C5=A1ulin?=" <tvrtko.ursulin@zg.htnet.hr>
+Subject: Re: MM patches (was Re: why swap at all?)
+Date: Mon, 31 May 2004 23:33:43 +1000
+User-Agent: KMail/1.6.1
+Cc: linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
+References: <E1BTpqM-0005LZ-00@calista.eckenfels.6bone.ka-ip.net> <40B84C85.8010207@yahoo.com.au> <200405311513.32930.tvrtko.ursulin@zg.htnet.hr>
+In-Reply-To: <200405311513.32930.tvrtko.ursulin@zg.htnet.hr>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200405240137.58055.art@artstower.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200405312333.43188.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 24, 2004 at 01:37:58AM +0200, Art wrote:
-> 
-> [1.] One line summary of the problem:
-> The module via-ircc prints error message on 2.4.25 and 2.4.26 kernels but not on 2.6.6-mm4 and vanilla 2.6.5.
-> 
-> [2.] Full description of the problem/report:
-> When I do "insmod via-ircc" I get:
-> --start--
-> Using /lib/modules/2.4.25-gentoo-r2/kernel/drivers/net/irda/via-ircc.o
-> /lib/modules/2.4.25-gentoo-r2/kernel/drivers/net/irda/via-ircc.o: /lib/modules/2.4.25-gentoo-r2/kernel/drivers/net/irda/via-ircc.o: unresolved symbol irlap_open_R1698cb30
->...
-> [4.] Kernel version (from /proc/version):
-> Linux version 2.4.25-gentoo-r2 (root@xmobile) (gcc version 3.3.3 20040412 (Gentoo Linux 3.3.3-r5, ssp-3.3-7, pie-8.7.5.3)) #1 Sun May 23 21:37:29 CEST 2004
->...
+On Mon, 31 May 2004 23:13, Tvrtko A. Uršulin wrote:
+> On Saturday 29 May 2004 10:40, Nick Piggin wrote:
+> > It is a cocktail of cleanups, simplification, and enhancements. The
+> > main ones that applie here is my split active lists patch (search
+> > archives for details), and explicit use-once logic.
+>
+> I didn't have time to personally test it but just want to share some
+> thoughts. This kind of improvement is absolutely necessary for 2.6 to be
+> usefull on the desktop. It continues to escape me how come that this kind
+> of, almost, bugfix arrives so late during stable period.
+>
+> Unfortunately it doesn't apply on top of Con's autoregulate swappines (AM
+> from now on) which I am currently testing. AM also does an excellent job in
+> preventing swap trashing while doing a lot of filesystem reading.
+>
+> I am curious on how does your patch technically relates to Con's AM, and is
+> it possible to merge the two? I know that they do their job on completely
+> different ways, so the real question would be: Is there a need for
+> something like AM if using your patch, or it completely obsoletes it?
 
-Does it work in a ftp.kernel.org 2.4.26 kernel?
+I had a quick look at Nick's patches to see for you and it appears that Nick's 
+work completely removes the swappiness dial and introduces a different metric 
+called vm_mapped_page_cost which is not interchangeable with the swappiness 
+value. ie they cannot work together, sorry.
 
-If yes, please send your .config .
-
-If no, please report it to your distribution (Gentoo) instead.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Con

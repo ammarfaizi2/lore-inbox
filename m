@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261756AbTHTH44 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 03:56:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbTHTH44
+	id S261754AbTHTHv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 03:51:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbTHTHv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 03:56:56 -0400
-Received: from pop.gmx.net ([213.165.64.20]:32661 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261756AbTHTH44 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 03:56:56 -0400
-Message-Id: <5.2.1.1.2.20030820095103.019969f8@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Wed, 20 Aug 2003 10:00:56 +0200
-To: Voluspa <lista1@comhem.se>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: [PATCH] O17int
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030820065515.059654d6.lista1@comhem.se>
+	Wed, 20 Aug 2003 03:51:57 -0400
+Received: from nessie.weebeastie.net ([61.8.7.205]:40140 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id S261754AbTHTHv4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 03:51:56 -0400
+Date: Wed, 20 Aug 2003 17:52:59 +1000
+From: CaT <cat@zip.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH 0/16] C99: 2.6.0-t3-bk7
+Message-ID: <20030820075259.GC459@zip.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 06:55 AM 8/20/2003 +0200, Voluspa wrote:
+Ok. To follow are 16 patches, broken down by directory that fix up
+struct definitions to follow the C99 style. I believe I got all of
+them. 
 
->Blender 2.28 can not starve xmms one iota. Within blender itself, I can
->cause 1 to 5 second freezes while doing a slow "world rotate", but that
->is something the application programmers have to fix.
+The emails will just contain the patch in the body with nothing else.
+I don't think I need to say the same thing over and over at the
+beginning of each patch. :)
 
-I'm not so sure that it's an application bug.  With Nick's patch, I cannot 
-trigger any delay what so ever, whereas with stock, or with Ingo's changes 
-[as well as my own, damn the bad luck] I can.  I'm not saying it's _not_ a 
-bug mind you, but color me suspicious ;-)
+Also, the patches are against 2.6.0-test3-bk7. They will not apply
+cleanly to any earlier version so don't bother unless you plan to
+edit. You'll also miss out on some of the C99 cleanups that happened
+in bk1-7 that are no longer in my patches.
 
-         -Mike 
+Finally, I hope the subject meets approval by one and all. ;)
 
+Here we go...
+
+-- 
+"How can I not love the Americans? They helped me with a flat tire the
+other day," he said.
+	- http://tinyurl.com/h6fo

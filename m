@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290125AbSBKThj>; Mon, 11 Feb 2002 14:37:39 -0500
+	id <S290237AbSBKTlU>; Mon, 11 Feb 2002 14:41:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290229AbSBKTh3>; Mon, 11 Feb 2002 14:37:29 -0500
-Received: from 1Cust97.tnt15.sfo3.da.uu.net ([67.218.75.97]:55304 "EHLO
-	morrowfield.home") by vger.kernel.org with ESMTP id <S290125AbSBKThR>;
-	Mon, 11 Feb 2002 14:37:17 -0500
-Date: Mon, 11 Feb 2002 14:45:28 -0800 (PST)
-Message-Id: <200202112245.OAA20127@morrowfield.home>
-From: Tom Lord <lord@regexps.com>
-To: pavel@suse.cz
-CC: linux-kernel@vger.kernel.org
-In-Reply-To: <20020211125507.B37@toy.ucw.cz> (message from Pavel Machek on
-	Mon, 11 Feb 2002 12:55:08 +0000)
-Subject: Re: a new arch feature "for Linus"
-In-Reply-To: <200202100913.BAA29987@morrowfield.home> <20020211125507.B37@toy.ucw.cz>
+	id <S290284AbSBKTlK>; Mon, 11 Feb 2002 14:41:10 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:52102 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S290237AbSBKTk6>;
+	Mon, 11 Feb 2002 14:40:58 -0500
+Subject: Re: [BUG] Panic in 2.5.4 during bootup after POSIX conformance
+	testing by UNIFIX
+From: Paul Larson <plars@austin.ibm.com>
+To: Robert Love <rml@tech9.net>
+Cc: Alessandro Suardi <alessandro.suardi@oracle.com>,
+        linux-kernel@vger.kernel.org, Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+In-Reply-To: <1013454372.6781.418.camel@phantasy>
+In-Reply-To: <Pine.LNX.4.30.0202111453330.28560-200000@mustard.heime.net> 
+	<3C67D9CB.2030806@oracle.com>  <1013454372.6781.418.camel@phantasy>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 11 Feb 2002 13:32:15 -0600
+Message-Id: <1013455936.25815.41.camel@plars.austin.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2002-02-11 at 13:06, Robert Love wrote:
+> Can both of you try the attached patch (thanks to Mikael Pettersson),
+> and tell me if it solves your problem?
+> 
+> 	Robert Love
 
+I was having the same problem, but this patch seems to fix it.
 
-It's true, to the best of my knowledge.
-
--t
-
-
-
-   Date: Mon, 11 Feb 2002 12:55:08 +0000
-   From: Pavel Machek <pavel@suse.cz>
-   Cc: linux-kernel@vger.kernel.org
-   Content-Type: text/plain; charset=us-ascii
-   X-UIDL: dda5f09a906d84e75abb5b2582204cb3
-
-   Hi!
-
-   > [1] "Lines of Development" is a trademark of BitMover, Inc.
-
-   Is this joke or serious?
-								   Pavel
-   -- 
-   Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-   details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-
-
+Thanks!
+-Paul Larson
 

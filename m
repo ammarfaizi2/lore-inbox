@@ -1,77 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262738AbTJUC4P (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 22:56:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbTJUC4O
+	id S262888AbTJUDAk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 23:00:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262884AbTJUC7h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 22:56:14 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:18590 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262738AbTJUC4L convert rfc822-to-8bit (ORCPT
+	Mon, 20 Oct 2003 22:59:37 -0400
+Received: from mail.kroah.org ([65.200.24.183]:62879 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262859AbTJUC5k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 22:56:11 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: [PATCHSET] 0/3 Dynamic cpufreq governor and updates to ACPI P-state driver
-Date: Mon, 20 Oct 2003 19:56:07 -0700
-Message-ID: <88056F38E9E48644A0F562A38C64FB60077911@scsmsx403.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCHSET] 0/3 Dynamic cpufreq governor and updates to ACPI P-state driver
-Thread-Index: AcOXftwpVZbZ+ThsSW6GvfPmwMoJyw==
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: <cpufreq@www.linux.org.uk>, <linux-kernel@vger.kernel.org>,
-       "linux-acpi" <linux-acpi@intel.com>
-Cc: "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Dominik Brodowski" <linux@brodo.de>
-X-OriginalArrivalTime: 21 Oct 2003 02:56:07.0918 (UTC) FILETIME=[E02C50E0:01C3977E]
+	Mon, 20 Oct 2003 22:57:40 -0400
+Date: Mon, 20 Oct 2003 19:43:22 -0700
+From: Greg KH <greg@kroah.com>
+To: Martin Schlemmer <azarah@gentoo.org>
+Cc: clemens@dwf.com, linux-hotplug-devel@lists.sourceforge.net,
+       KML <linux-kernel@vger.kernel.org>, reg@orion.dwf.com
+Subject: Re: [ANNOUNCE] udev 003 release
+Message-ID: <20031021024322.GA29643@kroah.com>
+References: <20031017055652.GA7712@kroah.com> <200310171757.h9HHvGiY006997@orion.dwf.com> <20031017181923.GA10649@kroah.com> <20031017182754.GA10714@kroah.com> <1066696767.10221.164.camel@nosferatu.lan> <20031021005025.GA28269@kroah.com> <1066698679.10221.178.camel@nosferatu.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1066698679.10221.178.camel@nosferatu.lan>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Oct 21, 2003 at 03:11:19AM +0200, Martin Schlemmer wrote:
+> On Tue, 2003-10-21 at 02:50, Greg KH wrote:
+> > > 1)  Is it possible to maintain naming of tarball/version ?  Meaning,
+> > >     say we forget about the 003 version, could the next be 0.4, or even
+> > >     0.3.1 or whatever ?  Just changing makes trying to keep packages
+> > >     sane a hassle.  Thanks :)
+> > 
+> > The naming will be consistant from now on.  Next release will be 004,
+> > followed by 005, and so on.  Remember, version numbers mean nothing :)
+> > 
+> 
+> Well, if you had an 0.2 already, 003 sorda comes and screw the pooch 
+> (if trying to work with a package manager - although it seems we are
+> OK with ours seeing 003 as the later) :)
 
-Hi,
+Exactly, switching this early is fine by all of the package managers
+I've looked at.  Does this mean you have a udev gentoo package
+somewhere?
 
-Most of the latest CPUs (laptop CPUs in particular) have feature 
-which enable very low latency P-state transitions 
-(like Enhanced Speedstep Technology-EST). Using this feature, 
-we can have a lightweight in kernel cpufreq governor, 
-to vary CPU frequency depending on the CPU usage. The 
-advantage being low power consumption and also cooler laptops.
+> > Of course you need a kernel patch for the sound class that is only
+> > available in my kernel tree right now for sound devices to work with
+> > udev...
+> > 
+> 
+> Need help testing ? :) (Yes, I am a lazy bastard, and a patch against
+> test8 would help if you needed the testing)
 
-Another related change is enhancing the current ACPI P-state 
-driver to handle:
-EST (and MSR based P-state transitions), make the driver SMP 
-aware and introduce HT coordination in the driver (HT siblings 
-share the same CPU frequency).
+I need to get these class patches out sometime soon, been too busy
+lately...
 
-The patches that follow this mail addresses the above issues. 
-They are against 2.6-test7 kernel. Many thanks to Dominik for 
-his comments and suggestions.
-
-The patches will work on all laptops with EST technology 
-(Centrino) and also on any other system that supports low 
-latency frequency change. 
-
-Reviews/testing of patches are most welcome.
-
-Thanks,
--Venkatesh
-
-
-Patches are split as follows:
-
-Patch 1/3: Changes to ACPI P-state driver, to handle MSR 
-based transitions frequency transitions and make the driver 
-SMP aware.
-
-Patch 2/3: Introduce HT-synchronization in the ACPI P-state 
-Driver, to take care of shared CPU frequency between HT siblings.
-
-Patch 3/3: New dynamic cpufreq driver (called 
-DemandBasedSwitch driver), which periodically monitors CPU 
-usage and changes the CPU frequency based on the demand.
+greg k-h

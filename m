@@ -1,107 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263142AbTJPT65 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 15:58:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263145AbTJPT65
+	id S263159AbTJPUSh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 16:18:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263161AbTJPUSh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 15:58:57 -0400
-Received: from [80.88.36.193] ([80.88.36.193]:19618 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S263142AbTJPT6x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 15:58:53 -0400
-Date: Thu, 16 Oct 2003 21:58:44 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: James Simmons <jsimmons@infradead.org>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] FBDEV 2.6.0-test7 updates.
-In-Reply-To: <Pine.LNX.4.44.0310152345210.13660-100000@phoenix.infradead.org>
-Message-ID: <Pine.GSO.4.21.0310162156240.22417-100000@waterleaf.sonytel.be>
+	Thu, 16 Oct 2003 16:18:37 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31172 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263159AbTJPUSf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 16:18:35 -0400
+Message-ID: <3F8EFD0B.1010508@pobox.com>
+Date: Thu, 16 Oct 2003 16:18:19 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Robert Love <rml@tech9.net>
+CC: John Bradford <john@grabjohn.com>, Larry McVoy <lm@bitmover.com>,
+       linux-kernel@vger.kernel.org, val@nmt.edu
+Subject: Re: Transparent compression in the FS
+References: <1066163449.4286.4.camel@Borogove>	 <20031015133305.GF24799@bitwizard.nl> <3F8D6417.8050409@pobox.com>	 <20031016162926.GF1663@velociraptor.random>	 <20031016172930.GA5653@work.bitmover.com>	 <200310161828.h9GISxlN001783@81-2-122-30.bradfords.org.uk> <1066329102.5398.43.camel@localhost>
+In-Reply-To: <1066329102.5398.43.camel@localhost>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Oct 2003, James Simmons wrote:
-> Here is the latest fbdev patches. Please test!!! Many new enhancements. 
-> Several fixes. The patch is against 2.6.0-test7
+Robert Love wrote:
+> On Thu, 2003-10-16 at 14:28, John Bradford wrote:
+> 
+> 
+>>Surely it's just common sense to say that you have to verify the whole
+>>block - any algorithm that can compress N values into <N values is
+>>lossy by definition.  A mathematical proof for that is easy.
+> 
+> 
+> That is the problem.
+> 
+> But those pushing this approach argue that the chance of collision is
+> less than the chance of hardware errors, et cetera.
 
-> --- linux-2.6.0-test7/drivers/video/logo/Makefile	Wed Oct 15 19:12:21 2003
-> +++ fbdev-2.6/drivers/video/logo/Makefile	Wed Oct 15 19:20:50 2003
-> @@ -13,30 +13,36 @@
->  obj-$(CONFIG_LOGO_SUPERH_VGA16)		+= logo_superh_vga16.o
->  obj-$(CONFIG_LOGO_SUPERH_CLUT224)	+= logo_superh_clut224.o
->  
-> -# Dependencies on generated files need to be listed explicitly
-> -
-> -$(obj)/%_mono.o: $(src)/%_mono.c
-> -
-> -$(obj)/%_vga16.o: $(src)/%_vga16.c
-> -
-> -$(obj)/%_clut224.o: $(src)/%_clut224.c
-> -
-> -$(obj)/%_gray256.o: $(src)/%_gray256.c
-> -
-> -# How to generate them
-> +# mono logo's
-> +$(obj)/logo_linux_mono.o:	$(obj)/logo_linux_mono.c
-> +$(obj)/logo_superh_mono.o:	$(obj)/logo_superh_mono.c
-> +
-> +# vga16 logo's
-> +$(obj)/logo_linux_vga16.o:	$(obj)/logo_linux_vga16.c
-> +$(obj)/logo_superh_vga16.o:	$(obj)/logo_superh_vga16.c
-> +
-> +# clut224 logo's
-> +$(obj)/logo_linux_clut224.o:	$(obj)/logo_linux_clut224.c
-> +$(obj)/logo_dec_clut224.o:	$(obj)/logo_dec_clut224.c
-> +$(obj)/logo_mac_clut224.o:	$(obj)/logo_mac_clut224.c
-> +$(obj)/logo_sgi_clut224.o:	$(obj)/logo_sgi_clut224.c
-> +$(obj)/logo_sun_clut224.o:	$(obj)/logo_sun_clut224.c
-> +$(obj)/logo_superh_clut224.o:	$(obj)/logo_superh_clut224.c
 
-Why did you replace the generic rules?
+Nod.  And there are certainly ways to avoid hash collisions...
 
-> --- linux-2.6.0-test7/drivers/video/radeonfb.c	Wed Oct 15 19:12:22 2003
-> +++ fbdev-2.6/drivers/video/radeonfb.c	Wed Oct 15 19:20:51 2003
+	Jeff
 
-drivers/video/radeonfb.c still exists, while the build system now uses the one
-in drivers/video/aty?
 
-> --- linux-2.6.0-test7/drivers/video/sgivwfb.c	Wed Oct 15 19:12:22 2003
-> +++ fbdev-2.6/drivers/video/sgivwfb.c	Wed Oct 15 19:20:51 2003
-> @@ -319,14 +319,14 @@
->  		var->transp.length = 0;
->  		break;
->  	case 16:		/* RGBA 5551 */
-
-Please change the comment from `RGBA 5551' to `ARGB 1555' to match the code.
-
-> -		var->red.offset = 11;
-> +		var->red.offset = 10;
->  		var->red.length = 5;
-> -		var->green.offset = 6;
-> +		var->green.offset = 5;
->  		var->green.length = 5;
-> -		var->blue.offset = 1;
-> +		var->blue.offset = 0;
->  		var->blue.length = 5;
-> -		var->transp.offset = 0;
-> -		var->transp.length = 0;
-> +		var->transp.offset = 15;
-> +		var->transp.length = 1;
->  		break;
->  	case 32:		/* RGB 8888 */
->  		var->red.offset = 0;
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
 

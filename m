@@ -1,61 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129323AbRB0RwD>; Tue, 27 Feb 2001 12:52:03 -0500
+	id <S129531AbRB0RyX>; Tue, 27 Feb 2001 12:54:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129435AbRB0Rvx>; Tue, 27 Feb 2001 12:51:53 -0500
-Received: from adsl-209-76-109-63.dsl.snfc21.pacbell.net ([209.76.109.63]:1408
-	"EHLO adsl-209-76-109-63.dsl.snfc21.pacbell.net") by vger.kernel.org
-	with ESMTP id <S129323AbRB0Rvk>; Tue, 27 Feb 2001 12:51:40 -0500
-Date: Tue, 27 Feb 2001 09:51:25 -0800
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Message-Id: <200102271751.f1RHpP401022@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
-To: iv@spylog.com, <linux-kernel@vger.kernel.org>
-Subject: Re: Memory allocation
-In-Reply-To: <004901c0a0de$2647d6c0$0e04a8c0@iv>
-In-Reply-To: <004901c0a0de$2647d6c0$0e04a8c0@iv>
-Reply-To: whitney@math.berkeley.edu
+	id <S129435AbRB0RyN>; Tue, 27 Feb 2001 12:54:13 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:40975 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129531AbRB0Rx6>; Tue, 27 Feb 2001 12:53:58 -0500
+Subject: Re: [PATCH] Core dumps for threads
+To: ddugger@willie.n0ano.com (Don Dugger)
+Date: Tue, 27 Feb 2001 17:55:45 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <20010227102954.A26230@willie.n0ano.com> from "Don Dugger" at Feb 27, 2001 10:29:54 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14XoLk-0003tW-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In mailing-lists.linux-kernel, you wrote:
+> the 2.4.1 kernel, that copies the mm and dumps the corefile from
+> that copy.  Also, whenever there are multiple users of the original
+> mm it creates the core dump in the file `core.n' where `n' is the
+> PID of the offending process.
 
->I encountered with problem: one process can not allocate more then 2Gb of
->memory. 
+> +	if ((mm = kmem_cache_alloc(mm_cachep, SLAB_KERNEL)) == NULL)
+> +		goto close_fail;
+> +	memcpy(mm, current->mm, sizeof(*mm));
+> +	if (!mm_init(mm)) {
+> +		kmem_cache_free(mm_cachep, mm);
+> +		goto close_fail;
+> +	}
+> +	down(&current->mm->mmap_sem);
 
-This is a problem that I have run into myself.  I am no kernel expert,
-but I think I understand how this issue.  Here is how the standard
-kernel maps the 4Gb 32-bit address space from the process's point of
-view:
+Umm not quite what I meant. Take a look at copy_mm in fork.c
 
-128MB	 program executable mapped (twice)
-128MB +	 program heap
-1GB	 mmap() starts here
-3GB	 kernel
+The code starting
 
-You can see this for yourself by looking at /proc/pid/maps, where pid
-is the PID of the process in question.  
+	m = allocate_mm()
 
-Now glibc()'s malloc uses mmap() for 'large' allocations, so you get
-2GB maximum memory.  The way around this is to change the various
-numbers in the left-hand column.
+down to just before
 
-For example, you can try the patch per-process-3.5G-IA32-no-PAE-1, at
-/pub/linux/kernel/people/andrea/patches/v2.4/2.4.0-test11-pre5/ on
-ftp.kernel.org.  This will make the kernel space start at 3.5G (so
-that CONFIG_4G is required to use more than 384MB of physical RAM) and
-the mmap() space start at 224MB, giving 3G288MB of address space for
-mmap().  Note that only 96MB is then available for {two copies of your
-executable plus your program heap}.
+	/*
+  	 * child gets a 
 
-This is more or less the most you can do, but your needs may be best
-suited by something in between. The above patch is quite short, so it
-is easy to figure out how to do that.  The only hidden restriction is
-that the size of the kernel space must be a power of 2: 2GB, 1GB,
-512MB, etc.  As explained to me, this is so that the kernel can easily
-test a pointer to see whether it is to kernel space or user space.
+Does the real thing you need to do to be sure the mm is properly set up.
+You can also drop the original mm and make that current->mm to avoid the
+passing of mm around. In fact you probably should do that.
 
-Cheers,
-Wayne
+
+	
 
 
 

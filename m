@@ -1,63 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287208AbSAUR5E>; Mon, 21 Jan 2002 12:57:04 -0500
+	id <S287632AbSAUSAo>; Mon, 21 Jan 2002 13:00:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287632AbSAUR4z>; Mon, 21 Jan 2002 12:56:55 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:31502 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S287208AbSAUR4p>; Mon, 21 Jan 2002 12:56:45 -0500
-Date: Mon, 21 Jan 2002 12:55:30 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Matthew Johnson <matthew@psychohorse.com>
-cc: Ryan Cumming <bodnar42@phalynx.dhs.org>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: vm philosophising
-In-Reply-To: <200201180540.g0I5eu015167@barn.psychohorse.com>
-Message-ID: <Pine.LNX.3.96.1020121123948.22038L-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287633AbSAUSAf>; Mon, 21 Jan 2002 13:00:35 -0500
+Received: from smtp1.ndsu.NoDak.edu ([134.129.111.146]:779 "EHLO
+	smtp1.ndsu.nodak.edu") by vger.kernel.org with ESMTP
+	id <S287632AbSAUSAc>; Mon, 21 Jan 2002 13:00:32 -0500
+Subject: Re: Athlon PSE/AGP Bug
+From: Reid Hekman <reid.hekman@ndsu.nodak.edu>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Ed Sweetman <ed.sweetman@wmich.edu>
+In-Reply-To: <20020121175410.G8292@athlon.random>
+In-Reply-To: <1011610422.13864.24.camel@zeus>
+	<20020121.053724.124970557.davem@redhat.com> 
+	<20020121175410.G8292@athlon.random>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 21 Jan 2002 11:57:59 -0600
+Message-Id: <1011635883.15878.42.camel@zeus>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jan 2002, Matthew Johnson wrote:
+On Mon, 2002-01-21 at 10:54, Andrea Arcangeli wrote:
+> On Mon, Jan 21, 2002 at 05:37:24AM -0800, David S. Miller wrote:
+> >    That errata lists all Athlon Thunderbirds as affected and all Athlon
+> >    Palominos except for stepping A5. 
+...
+> > The funny part is, if this published errata is the problem, it cannot
+> > be a problem under Linux since we never invalidate 4MB pages.  We
+> > create them at boot time and they never change after that.
+> 
+> correct, furthmore it cannot even trigger if you invlpg with an address
+> page aligned (4mbyte aligned in this case) like we would always do in
+> linux anyways, we never use invlpg on misaligned addresses, no matter if
+> the page is a 4M or a 4k page.  And I guess with PAE enabled it cannot
+> even trigger in first place (it speaks only about 4M pages, pae only
+> provides 2M pages instead).
+> 
+> I think this is a very very minor issue, I doubt anybody ever triggered
+> it in real life with linux.
 
-> How does one test the VM precisley? Sorry for the ignorance on this subject.
+Thanks for the clarification, I run a few systems with such CPU's but
+they don't exhibit the problem. I don't run Gentoo, just RH 7.(12) and
+Debian Woody with recent 2.4 vanilla kernels, all of which run AGP, but
+with a mix of ATI and Nvidia cards.
 
-Having been active doing just that, I have been triggering my favorite bad
-behaviour and trying to evaluate which (if either) makes the system run
-better, as defined by both measurements and "feel."
+On Mon, 2002-01-21 at 12:26, Ed Sweetman wrote:
+> Damn you gotta love slashdot. It's like the Internet's smut mag.  If
+> their news is going to be so old it should be because they're actually
+> looking into the story they're posting with some kind of review
+> process.
 
-The two problems I have been seeing are (1) load with low to moderate
-memory, and (2) sudden i/o bursts freezing the system when doing large
-writes (CD image creation).
+Well I saw this on LinuxToday before it hit slashdot (it was mostly
+inaccessible after that).  Gentoo's explanation made sense, they claimed
+to have spoken with Terrence Ripperda at Nvidia, Andrew Morton, and Alan
+Cox. They also claimed this was a generic CPU bug affecting Linux -- the
+same bug that was resolved with a workaround a year ago in Windows.
 
-My test for #1 is simple, I compile the 2.4.16 stock kernel after booting
-with mem=64m or mem=128m options. I have a batch of files to hack into
-something I can post, and I ran on an Athlon 1400 and dual Celeron 500
-system, so I have moderate UP and SMP machines of similar performance when
-full memory is used. I compile with:
-  make clean; make dep
-  make bzImage modules MAKE='make -j7'
+Unfortunately, the Technical note describing the Windows fix AMD
+published is incredibly vague and doesn't specify if it is in fact a CPU
+bug or some voodoo specific to Windows 2000.
 
-I took all these numbers with the intent of posting, but the runs finished
-at 0630 this morning and I haven't the time yet. Gut feeling is that
-17-rmap-11c works better under small memory, 18pre2aa2 was better when
-creating CD images on the Athlon, ran out of time for the SMP.
+Certainly there are some questions regarding the true impact of this bug
+if any -- that's why I asked here. Slashdot reporting it just blows
+things out of proportion. I wouldn't take Slashdot's word for anything,
+but nor would I dismiss reports of problems out of hand just because
+Slashdot picks up on it.
 
-Neither crashed, hung, or caused the OOM to commit procedural genocide,
-which plain 2.4.17 does. the -aa kernel was also tested with my own patch
-for intermediate disk loads, I will post when I'm sure it's actually
-better by enough to matter. I believe the extra tuning in -aa allows
-better large i/o performance if you match bdflush to your load.
-
-Chech large i/o by sync() followed by a fast CD build from wav files, on
-fast disk. When the disk light come on hard, grab a window and try to wave
-it around, or change X virtual desktops. Chances are that you will get bad
-to nil response if you have fast disk and CPU. I get a whole 600MB in
-memory before the light comes on :-(
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Regards,
+Reid
 

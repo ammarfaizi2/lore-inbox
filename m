@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261221AbTEALzq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 07:55:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbTEALzq
+	id S261233AbTEAL5y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 07:57:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbTEAL5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 07:55:46 -0400
-Received: from pat.uio.no ([129.240.130.16]:6884 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261221AbTEALzp (ORCPT
+	Thu, 1 May 2003 07:57:54 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:26629 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S261233AbTEAL5w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 07:55:45 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 1 May 2003 07:57:52 -0400
+Date: Thu, 1 May 2003 14:09:58 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Larry McVoy <lm@bitmover.com>
+Cc: dax@gurulabs.com, lm@bitmover.com, Thomas.Downing@ipc.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+Message-Id: <20030501140958.6a49517e.skraw@ithnet.com>
+In-Reply-To: <20030430172107.GA25347@work.bitmover.com>
+References: <20030430135919.GB32300@work.bitmover.com>
+	<Pine.LNX.4.44.0304301047050.23589-100000@mooru.gurulabs.com>
+	<20030430172107.GA25347@work.bitmover.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16049.3613.644858.967073@charged.uio.no>
-Date: Thu, 1 May 2003 14:07:57 +0200
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Bojan Smojver <bojan@rexursive.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.68: NFS3+exported /mnt/cdrom+eject: system lockup
-In-Reply-To: <1051790160.1960.6.camel@teapot.felipe-alfaro.com>
-References: <1051754203.3eb07edb09c51@imp.rexursive.com>
-	<shsd6j3gdan.fsf@charged.uio.no>
-	<1051790160.1960.6.camel@teapot.felipe-alfaro.com>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> writes:
+On Wed, 30 Apr 2003 10:21:07 -0700
+Larry McVoy <lm@bitmover.com> wrote:
 
-     > However, during shutdown (it's a RH9 box), I do get "can't
-     > unmount, device is busy" errors while unmounting this
-     > filesystem *after* the NFS server has been stopped and all
-     > shares unexported.
+> That line of reasoning, by the way, only works if they are a monopoly,
+> i.e., it doesn't work real well for BK, there are lots of other source
+> management systems.  But it works very well for things like Word,
+> that's a de facto standard, contrary to what some people here believe
+> it is bloody difficult to negotiate a contract in anything but Word.
+> Try sending a lawyer anything else and you'll see what I mean.
 
-That's a known bug and I believe Neil is looking into it.
+A lot of people love reading deleted-and-not-visible parts of w.rd-docs, you
+can learn a lot out of such a doc, including some information about the network
+it was created on.
+But of course it may be of no importance what the other side thinks when
+negotiating a contract ...
 
-     > Anyways, I'm having problems with NFS on 2.5... many programs
-     > fail when accessing files over NFS, normally, programs that
-     > perform heavy file seeks, writes and reads, like "oggdec" or
-     > "lame". They usually can't complete without exitting with
-     > errors.
+-- 
+Regards,
+Stephan
 
-I'll take on any NFS client problems. If you are having problems with
-a 2.5.x client failing against a 2.4.x server (note! 2.5.x servers are
-still way too buggy) or a non-linux server, then please send me a
-full bugreport.
-
-Cheers,
-  Trond

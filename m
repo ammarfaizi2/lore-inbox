@@ -1,86 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317393AbSINSHA>; Sat, 14 Sep 2002 14:07:00 -0400
+	id <S317399AbSINSQd>; Sat, 14 Sep 2002 14:16:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317398AbSINSHA>; Sat, 14 Sep 2002 14:07:00 -0400
-Received: from tux.rsn.bth.se ([194.47.143.135]:59319 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S317393AbSINSG7>;
-	Sat, 14 Sep 2002 14:06:59 -0400
-Subject: Re: [PATCH 2.4.20-pre7] net/ipv4/netfilter/ip_conntrack_ftp and
-	_irc to export objs
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Jarno Paananen <jpaana@s2.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m3vg58qwz1.fsf@kalahari.s2.org>
-References: <m3vg58qwz1.fsf@kalahari.s2.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-6ZqiDsqVjabztJiOk1iM"
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 14 Sep 2002 20:11:45 +0200
-Message-Id: <1032027105.29595.129.camel@tux>
-Mime-Version: 1.0
+	id <S317400AbSINSQd>; Sat, 14 Sep 2002 14:16:33 -0400
+Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:26041 "EHLO
+	snipe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S317399AbSINSQc>; Sat, 14 Sep 2002 14:16:32 -0400
+Message-ID: <3D837EB5.5040703@jimbrooks.org>
+Date: Sat, 14 Sep 2002 11:23:49 -0700
+From: Jim Brooks <linuxml@jimbrooks.org>
+Reply-To: linuxml@jimbrooks.org
+Organization: jimbrooks.org
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.20-pre5-ac3 IDE CDRW panic (reproducible)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm running 2.4.20-pre5 + ac3 + preemptible.
 
---=-6ZqiDsqVjabztJiOk1iM
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+The kernel panicked when I tried to install a RPM file
+from an IDE CDRW writer drive.  I tried merely copying
+a file from the CD writer -- that panicked too.
 
-On Sat, 2002-09-14 at 19:53, Jarno Paananen wrote:
-> Hi,
->=20
-> the two modules mentioned export symbols but are not mentioned in
-> export-objs in Makefile and thus give errors. Patch attached.
->=20
-> // Jarno
->=20
-> --- net/ipv4/netfilter/Makefile.bak	2002-09-14 19:50:38.000000000 +0300
-> +++ net/ipv4/netfilter/Makefile	2002-09-14 19:51:28.000000000 +0300
-> @@ -9,7 +9,7 @@
-> =20
->  O_TARGET :=3D netfilter.o
-> =20
-> -export-objs =3D ip_conntrack_standalone.o ip_fw_compat.o ip_nat_standalo=
-ne.o ip_tables.o arp_tables.o
-> +export-objs =3D ip_conntrack_standalone.o ip_fw_compat.o ip_nat_standalo=
-ne.o ip_tables.o arp_tables.o ip_conntrack_ftp.o ip_conntrack_irc.o
-> =20
->  # Multipart objects.
->  list-multi		:=3D ip_conntrack.o iptable_nat.o ipfwadm.o ipchains.o
+What is peculiar about my PC is that it has two IDE CD drives:
+CDRW and CDR (and it is dual x86).
 
-Did you see this part starting at row 34?
+The panic is reproducible, and doesn't appear on kernel 2.4.8
+nor when I use the CDR (read-only) drive.
 
-# connection tracking helpers
-obj-$(CONFIG_IP_NF_FTP) +=3D ip_conntrack_ftp.o
-ifdef CONFIG_IP_NF_NAT_FTP
-        export-objs +=3D ip_conntrack_ftp.o
-endif
+--
+Jim Brooks  http://www.jimbrooks.org
 
-obj-$(CONFIG_IP_NF_IRC) +=3D ip_conntrack_irc.o
-ifdef CONFIG_IP_NF_NAT_IRC
-        export-objs +=3D ip_conntrack_irc.o
-endif
-
-but maybe the ifdefs shouldn't use the NAT define...
-I don't think I've compiled without NAT support...
-=20
---=20
-/Martin
-
-Never argue with an idiot. They drag you down to their level, then beat
-you with experience.
-
---=-6ZqiDsqVjabztJiOk1iM
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9g3vhWm2vlfa207ERAlcDAKCGeIOOqoaSl5YE6OE/J6KbfkLZvgCdFOtr
-X4gqrzTEWUBjSMiANkfSbp0=
-=+9lx
------END PGP SIGNATURE-----
-
---=-6ZqiDsqVjabztJiOk1iM--

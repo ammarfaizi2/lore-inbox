@@ -1,96 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263893AbUGYNYj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263962AbUGYNbI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263893AbUGYNYj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 09:24:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263962AbUGYNYi
+	id S263962AbUGYNbI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 09:31:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263971AbUGYNbI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 09:24:38 -0400
-Received: from irulan.endorphin.org ([212.13.208.107]:58884 "EHLO
-	irulan.endorphin.org") by vger.kernel.org with ESMTP
-	id S263893AbUGYNYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 09:24:35 -0400
-Subject: Re: [PATCH] Delete cryptoloop
-To: Jari Ruusu <jariruusu@users.sourceforge.net>
-Cc: James Morris <jmorris@redhat.com>, Christophe Saout <christophe@saout.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <41039CAC.965AB0AA@users.sourceforge.net>
-References: <Pine.LNX.4.58.0407211609230.19655@devserv.devel.redhat.com>
-	<1090672906.8587.66.camel@ghanima>
-	<41039CAC.965AB0AA@users.sourceforge.net>
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature";
-	boundary="=-SkjHW6ZRuZx3FD4glJhG"
-Message-Id: <1090761870.10988.71.camel@ghanima>
+	Sun, 25 Jul 2004 09:31:08 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:56564 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263962AbUGYNbD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jul 2004 09:31:03 -0400
+Date: Sun, 25 Jul 2004 15:30:57 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Timothy Miller <miller@techsource.com>
+Cc: Andrew Morton <akpm@osdl.org>, corbet@lwn.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: New dev model (was [PATCH] delete devfs)
+Message-ID: <20040725133057.GY19329@fs.tum.de>
+References: <40FEEEBC.7080104@quark.didntduck.org> <20040721231123.13423.qmail@lwn.net> <20040721235228.GZ14733@fs.tum.de> <20040722025539.5d35c4cb.akpm@osdl.org> <20040722193337.GE19329@fs.tum.de> <20040722160112.177fc07f.akpm@osdl.org> <41017BBF.6020106@techsource.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 25 Jul 2004 15:24:30 +0200
-From: Fruhwirth Clemens <clemens-dated-1091625872.c783@endorphin.org>
-X-Delivery-Agent: TMDA/0.92 (Kauai King)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41017BBF.6020106@techsource.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jul 23, 2004 at 04:57:35PM -0400, Timothy Miller wrote:
+> 
+> Andrew Morton wrote:
+> >Adrian Bunk <bunk@fs.tum.de> wrote:
+> >
+> >>my personal opinon is that this new development model isn't a good 
+> >>idea from the point of view of users:
+> >>
+> >>There's much worth in having a very stable kernel. Many people use for 
+> >>different reasons self-compiled ftp.kernel.org kernels. 
+> >
+> >
+> >Well.  We'll see.  2.6 is becoming stabler, despite the fact that we're
+> >adding features.
+> >
+> >I wouldn't be averse to releasing a 2.6.20.1 which is purely stability
+> >fixes against 2.6.20 if there is demand for it.  Anyone who really cares
+> >about stability of kernel.org kernels won't be deploying 2.6.20 within a
+> >few weeks of its release anyway, so by the time they doodle over to
+> >kernel.org they'll find 2.6.20.2 or whatever.
+> 
+> 
+> So instead of even minor numbers indicating stability, you have pushed 
+> two levels down so that higher sub-revision (minorminorminor?) numbers 
+> indicate increased levels of stability?
+> 
+> Kinda makes sense.
+> 
+> Does that mean that 2.6.21 and 2.6.20.1 are two separate forks of 
+> 2.6.20, one for development, and the other for stability?
+> 
+> How is this fundamentally different from how it was done before with 
+> odd/even minor numbers?
+>...
 
---=-SkjHW6ZRuZx3FD4glJhG
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Kernel 2.4 continues to be actively supported for several years after 
+the release of kernel 2.6 .
 
-On Sun, 2004-07-25 at 13:42, Jari Ruusu wrote:
-> Fruhwirth Clemens wrote:
-> > Second, modern ciphers like Twofish || AES are designed to resist
-> > known-plaintext attacks. This is basically the FUD spread by Jari Rusuu=
-.
->=20
-> Ciphers are good, but both cryptoloop and dm-crypt use ciphers in insecur=
-e
-> and exploitable way.
->=20
-> This is not FUD. Fruhwirth, did you even try run the exploit code?
->=20
-> http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D107719798631935&w=3D2
+How long do you assume will kernel 2.6.20 be supported after the release 
+of kernel 2.6.21?
 
-There is no use in running your code. It does not decipher any block
-without the proper key. Where is the exploit?=20
+cu
+Adrian
 
-Further the link you provide in the posting above is broken (as you
-already noticed). I tried at google cache, citeseer and the rest of
-Saarien's homepage. No success.=20
+-- 
 
-If you have any idea where I can obtain the paper, I'd be interested in
-seeing the references for your claims.. But guessing from the apparent
-logic of your code, it seems to be identical to the weakness brought
-forward in the following paragraph of my original posting, which you've
-cut out of the quoting.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-> > - There is no suitable user space tool ready to use it. util-linux has
-> > been broken ever since. My patch key-trunc-fix patch has to be applied
-> > to make any use of losetup.
->=20
-> Can you name implementation that your "key-truncated" version is compatib=
-le
-> with that existed _before_ your version appeared?. To my knowledge, that
-> key-truncated version is only compatible with itself, and there is no oth=
-er
-> version that does the same.
-
-Actually there is a version: util-linux 2.12 official. But
-unfortunately, the official version truncates binary keys (at 0x00, 0x0a
-values), that's what my patch is for. cryptsetup handles keys the same
-way. So migration is easy, something which does not hold true for your
-strange util-linux patches. But you already know my critiques..
-
---=20
-Fruhwirth Clemens <clemens@endorphin.org>  http://clemens.endorphin.org
-
---=-SkjHW6ZRuZx3FD4glJhG
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBA7SNW7sr9DEJLk4RAhQSAJ0ZvPPt+Q/o4hYJg7W6LmTZyvawXgCgheQd
-ixEKFpxhYFVgvt0A3oRtpG4=
-=Uw5v
------END PGP SIGNATURE-----
-
---=-SkjHW6ZRuZx3FD4glJhG--

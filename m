@@ -1,43 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285919AbRLHLlZ>; Sat, 8 Dec 2001 06:41:25 -0500
+	id <S282056AbRLHLrh>; Sat, 8 Dec 2001 06:47:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285921AbRLHLlG>; Sat, 8 Dec 2001 06:41:06 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:5532 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S285920AbRLHLlD>;
-	Sat, 8 Dec 2001 06:41:03 -0500
-Date: Sat, 8 Dec 2001 06:40:49 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: linux-kernel@vger.kernel.org
-cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] fix for idiocy in mount_root cleanups.
-Message-ID: <Pine.GSO.4.21.0112080632020.6180-100000@binet.math.psu.edu>
+	id <S282082AbRLHLr2>; Sat, 8 Dec 2001 06:47:28 -0500
+Received: from ezri.xs4all.nl ([194.109.253.9]:34264 "HELO ezri.xs4all.nl")
+	by vger.kernel.org with SMTP id <S282056AbRLHLrH>;
+	Sat, 8 Dec 2001 06:47:07 -0500
+Date: Sat, 8 Dec 2001 12:47:05 +0100 (CET)
+From: Eric Lammerts <eric@lammerts.org>
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Would the father of init_mem_lth please stand up
+In-Reply-To: <20011207234048.A31442@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.43.0112081240080.7546-100000@ally.lammerts.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Grr...  OK, that should be a lesson - never do obvious change
-just before sending a patch.
 
-	Change in question was s/do_mount/mount/.  Which is almost
-the same thing, except for one little detail:  mount(2) in case of
-error returns -1 and stores the error in errno.  do_mount(9), OTOH...
+On Fri, 7 Dec 2001, Pete Zaitcev wrote:
+> drivers/scsi/sd.c:sd_init()
+>
+>         /* allocate memory */
+> #define init_mem_lth(x,n)       x = kmalloc((n) * sizeof(*x), GFP_ATOMIC)
+> #define zero_mem_lth(x,n)       memset(x, 0, (n) * sizeof(*x))
+>
+>         init_mem_lth(rscsi_disks, sd_template.dev_max);
+>         init_mem_lth(sd_sizes, maxparts);
+>         init_mem_lth(sd_blocksizes, maxparts);
+>         init_mem_lth(sd, maxparts);
+>         init_mem_lth(sd_gendisks, N_USED_SD_MAJORS);
+>         init_mem_lth(sd_max_sectors, sd_template.dev_max << 4);
+>
+>         if (!rscsi_disks || !sd_sizes || !sd_blocksizes || !sd || !sd_gendisks)
+>                 goto cleanup_mem;
+> #undef init_mem_lth
+> #undef zero_mem_lth
+> .....................
+> cleanup_mem:
+>         kfree(sd_gendisks);
+>         kfree(sd);
+>         kfree(sd_blocksizes);
+>         kfree(sd_sizes);
+>         kfree(rscsi_disks);
+>
+>
+> However, it's not only about the puking and keyboard cleanups.
+> The code is buggy as well. Scenario:
+>
+>  0. User inserts a large number of FC-AL adapters with 56 disks each
+>  1. modprobe sd_mod
+>     No SCSI hosts, sd_init() is NOT called.
+>  2. modprobe qla_something
+>     sd_init is called and fails on sd_gendisks. modprobe fails.
+>     sd_sizes, sd_blocksizes, etc. are LEFT DANGLING
+>  3. modprobe qla_something
+>     sd_init is called and fails on sd_sizes.
+>     kfree is called with a bunch of dangling pointers
 
-IOW, please apply the following and pass me a brown paperbag ;-/
+I agree it's ugly, but why would kfree be called on dangling pointers?
+All those pointers are initialized again on every sd_init() call. And
+there are no "goto cleanup_mem"s between the kmallocs.
 
---- C1-pre7/init/do_mounts.c	Fri Dec  7 20:48:43 2001
-+++ linux/init/do_mounts.c	Sat Dec  8 06:29:20 2001
-@@ -351,8 +351,9 @@
- 		mount("devfs", ".", "devfs", 0, NULL);
- retry:
- 	for (p = fs_names; *p; p += strlen(p)+1) {
--		err = mount(name,"/root",p,root_mountflags,root_mount_data);
--		switch (err) {
-+		errno = 0;
-+		mount(name,"/root",p,root_mountflags,root_mount_data);
-+		switch (-errno) {
- 			case 0:
- 				goto done;
- 			case -EACCES:
+Eric
 

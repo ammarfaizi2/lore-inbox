@@ -1,73 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbUKHIbT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261778AbUKHIdS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261777AbUKHIbT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 03:31:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbUKHIbT
+	id S261778AbUKHIdS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 03:33:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbUKHIdR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 03:31:19 -0500
-Received: from h151_115.u.wavenet.pl ([217.79.151.115]:26542 "EHLO
-	alpha.polcom.net") by vger.kernel.org with ESMTP id S261777AbUKHIa3
+	Mon, 8 Nov 2004 03:33:17 -0500
+Received: from smtp-out.hotpop.com ([38.113.3.61]:10463 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S261778AbUKHIdM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 03:30:29 -0500
-Date: Mon, 8 Nov 2004 09:30:23 +0100 (CET)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Gregoire Favre <Gregoire.Favre@freesurf.ch>, linux-kernel@vger.kernel.org
-Subject: Re: Why my computer freeze completely with xawtv ?
-In-Reply-To: <418EBFE5.5080903@kolivas.org>
-Message-ID: <Pine.LNX.4.60.0411080919220.32677@alpha.polcom.net>
-References: <20041107224621.GB5360@magma.epfl.ch> <418EB58A.7080309@kolivas.org>
- <20041108000229.GC5360@magma.epfl.ch> <418EB8EB.30405@kolivas.org>
- <20041108003323.GE5360@magma.epfl.ch> <418EBFE5.5080903@kolivas.org>
+	Mon, 8 Nov 2004 03:33:12 -0500
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: linux-fbdev-devel@lists.sourceforge.net,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Re: [PATCH] fbdev: Fix IO access in rivafb
+Date: Mon, 8 Nov 2004 16:33:00 +0800
+User-Agent: KMail/1.5.4
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+References: <200411080521.iA85LbG6025914@hera.kernel.org> <1099893447.10262.154.camel@gaston>
+In-Reply-To: <1099893447.10262.154.camel@gaston>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200411081633.00645.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Nov 2004, Con Kolivas wrote:
-
-> Gregoire Favre wrote:
->> On Mon, Nov 08, 2004 at 11:08:11AM +1100, Con Kolivas wrote:
->> 
->> 
->>>>>> I use DVB with VDR, but I can do the crash all the time without VDR, 
->>>>>> all
->>>>>> I have to do is to have xawtv running and having a process that write
->>>>>> fast enough data to an HD (I tested xfs, reiserfs, ext2 and ext3 with
->>>>>> same result). If I don't have xawtv running I can't make crashing my
->>>>>> system which is rock stable :-)
->>>>> 
->>>>> Is xawtv running as root or with real time privileges? That could do it.
->> 
->> 
->>> What does 'top' show as the PRI for xawtv?
->> 
->> 
->> I just started it and see 16 as priority in top. Should I renice it or
->> start it another way ?
+On Monday 08 November 2004 13:57, Benjamin Herrenschmidt wrote:
+> > diff -Nru a/drivers/video/riva/riva_hw.h b/drivers/video/riva/riva_hw.h
+> > --- a/drivers/video/riva/riva_hw.h	2004-11-07 21:21:47 -08:00
+> > +++ b/drivers/video/riva/riva_hw.h	2004-11-07 21:21:47 -08:00
+> > @@ -78,13 +78,13 @@
+> >  #define NV_WR08(p,i,d)	out_8(p+i, d)
+> >  #define NV_RD08(p,i)	in_8(p+i)
+> >  #else
+> > -#define NV_WR08(p,i,d)  (((U008 *)(p))[i]=(d))
+> > -#define NV_RD08(p,i)    (((U008 *)(p))[i])
+> > +#define NV_WR08(p,i,d)  (writeb((d), (u8 __iomem *)(p) + (i)))
+> > +#define NV_RD08(p,i)    (readb((u8 __iomem *)(p) + (i)))
+> >  #endif
+> > -#define NV_WR16(p,i,d)  (((U016 *)(p))[(i)/2]=(d))
+> > -#define NV_RD16(p,i)    (((U016 *)(p))[(i)/2])
+> > -#define NV_WR32(p,i,d)  (((U032 *)(p))[(i)/4]=(d))
+> > -#define NV_RD32(p,i)    (((U032 *)(p))[(i)/4])
+> > +#define NV_WR16(p,i,d)  (writew((d), (u16 __iomem *)(p) + (i)/2))
+> > +#define NV_RD16(p,i)    (readw((u16 __iomem *)(p) + (i)/2))
+> > +#define NV_WR32(p,i,d)  (writel((d), (u32 __iomem *)(p) + (i)/4))
+> > +#define NV_RD32(p,i)    (readl((u32 __iomem *)(p) + (i)/4))
+> >  #define VGA_WR08(p,i,d) NV_WR08(p,i,d)
+> >  #define VGA_RD08(p,i)   NV_RD08(p,i)
 >
-> No I was just excluding whether you were running real time or not. You are 
-> not, so that excludes that as the cause of your problem. I have no further 
-> ideas though I'm afraid.
+> You probably broke ppc versions here. The driver enables "big endian"
+> register access, but readw/writew/l functions do byteswap, which will
+> lead to incorrect results.
+>
+> The fix would be to probably just remove the code that puts the chip
+> registers into big endian mode, this isn't necessary nor a very good
+> idea actually.
+>
+> I don't have an nVidia card on ppc to test any more unfortunately.
 
-I am seeing the same problem with my bttv card. It was present in the 2.4 
-day and is present to this day. There are some kernels that are more 
-probable to hang while others are less. It does not depend on -ck or any 
-other patchset or scheduling. I reported it to bttv maintainer year or two 
-ago, but it looks like he is very unresponsive. :-) I know that this is 
-not only my problem. And I know it is not probably related with nvidia or 
-any other binary drivers. And it happens with zapping or mplayer v4l[12] 
-too. And I tried every possible configuration of cards and IRQs. Nothing 
-helps.
+Hmm, I'll ask Guido Guenther if he can test the changes. I think a different
+set of access macros for PPC might be a more preferrable solution. 
 
-I suspect two things:
-- there is some bug in bttv and similar drivers (DVB) that corrupts memory 
-related with internal mm and vfs structures or does something equally bad,
-- or maybe PCI bandwitch is overflowed, but I do not think it should 
-happen.
+Tony
 
-But it is very hard to prove any of these I am afraid.
-
-
-Grzegorz Kulewski
 

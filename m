@@ -1,65 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264272AbUFGAUH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264261AbUFGAVa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264272AbUFGAUH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 20:20:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264270AbUFGAUH
+	id S264261AbUFGAVa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 20:21:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264270AbUFGAV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 20:20:07 -0400
-Received: from shua3622.serverfarm.hu ([195.70.43.230]:15624 "EHLO korus.hu")
-	by vger.kernel.org with ESMTP id S264261AbUFGATu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 20:19:50 -0400
-Message-ID: <40C3B49A.5DEF7D47@engard.hu>
-Date: Mon, 07 Jun 2004 02:19:38 +0200
-From: Ferenc Engard <ferenc@engard.hu>
-X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ext3 errors
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
-X-Scanner: exiscan *1BX7j9-00064Z-00*vamUDfgV1ew* (korus.hu)
+	Sun, 6 Jun 2004 20:21:29 -0400
+Received: from ppp124-253.lns1.syd2.internode.on.net ([150.101.124.253]:7508
+	"EHLO pluto.anarchyoz.lan") by vger.kernel.org with ESMTP
+	id S264261AbUFGAVU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 20:21:20 -0400
+Date: Mon, 7 Jun 2004 10:21:26 +1000
+From: Grant Byers <grant@geltch.id.au>
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Who has record no. of  DriveReady SeekComplete DataRequest errors?
+Message-ID: <20040607002126.GA6029@pluto.anarchyoz.lan>
+Mail-Followup-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+References: <200406060007.10150.kernel@kolivas.org> <Pine.LNX.4.58.0406061408090.202@neptune.local> <20040606203942.GA20267@suse.de> <200406070906.46392.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406070906.46392.kernel@kolivas.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Mon, Jun 07, 2004 at 09:06:46AM +1000, Con Kolivas wrote:
+> On Mon, 7 Jun 2004 06:39, Jens Axboe wrote:
+> > I could easily imagine some vendors not setting the field, but setting
+> > it to some "buggy" value is far less likely. But might as well add the
+> > check.
+> >
+> > Con later confirmed that it was 2.6.2 that introduced the breakage, so
+> > the patch isn't the culprit after all. There are a few seperate things
+> > to look at there - Con, what are you doing when these messages trigger?
+> > Is the drive permanently mounted, or does it happen on open?
+> 
+> It only happens on boot and never again. During this part:
+> ICH4: IDE controller at PCI slot 0000:00:1f.1
+> ICH4: chipset revision 2
+> ICH4: not 100% native mode: will probe irqs later
+>     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
+>     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
+> hda: ST340014A, ATA DISK drive
+> hdb: ST340014A, ATA DISK drive
+> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> hdc: JLMS XJ-HD165H, ATAPI CD/DVD-ROM drive
+> hdd: RICOH CD-R/RW MP7163A, ATAPI CD/DVD-ROM drive
+> ide1 at 0x170-0x177,0x376 on irq 15
+> hda: max request size: 1024KiB
+> hda: 78165360 sectors (40020 MB) w/2048KiB Cache, CHS=16383/255/63, UDMA(100)
+>  hda: hda1 hda2 < hda5 hda6 hda7 >
+> hdb: max request size: 1024KiB
+> hdb: 78165360 sectors (40020 MB) w/2048KiB Cache, CHS=16383/255/63, UDMA(100)
+>  hdb: hdb2 < hdb5 hdb6 hdb7 >
+> hdc: ATAPI 48X DVD-ROM drive, 512kB Cache, UDMA(33)
+> Uniform CD-ROM driver Revision: 3.20
+> hdd: status error: status=0x59 { DriveReady SeekComplete DataRequest Error }
+> hdd: status error: error=0x20LastFailedSense 0x02
+> hdd: drive not ready for command
+> hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+> hdd: status error: error=0x00
+> ..etc
 
-I have installed a new server, and created ext3 (data=ordered)
-filesystems on RAID1 partitions. I finished the installation a few weeks
-ago, and today I tried to install in in the place of the old one.
+I can add that I also have a RICOH MP7163A that exhibits exact same
+behaviour when booting or on modprobe with ide-cd and cdrom built as
+modules.
 
-I have worked a few hours on the server, mainly in the /etc directory,
-and copied a few gig's to the /home dir, which was on a separate
-partition than root. After that I have rebooted, to check that
-everything going up OK. Well, nothing was OK.
 
-The fsck failed with many "Freeing blocks not in datazone" and "Journal
-aborting" errors, and I came up with a read-only root partition. I
-manually e2fsck'd it, saying yes to all questions, and rebooted again.
-Next time it was the same story: fsck always failed, found many errors,
-the lost+found growed... 
-
-AND, the real interesting story: all of my modifications in the /etc
-directory, which I made at least an hour or more, was lost! Just as if
-nothing has been written to the disk from the journal for at least an
-hour. Also, there were some corrupted files, and also, some obvious fs
-errors after an fsck, for example, accessing /etc/apache-ssl/apache.conf
-resulted some errors like this:
-
-Jun  6 21:56:25 zeratul kernel: attempt to access beyond end of device
-Jun  6 21:56:25 zeratul kernel: 09:01: rw=0, want=1085624632,
-limit=20972736
-
-The end of the story: I booted from CD, copied the whole root
-partition's contents off-disk, reformatted the RAID1 partition with
-mke2fs -j, copied back the contents, and it seems that now everything is
-good (so far). I don't think that the problem is in hardware, because of
-the RAID1, and also, these are brand-new 80G Maxtor SCSI drives.
-
-What can cause an error like this? This is a linux 2.4.26 on a PIV-2666,
-debian testing dist.
-
-Thanks,
-Ferenc Engard
-
+Cheers,
+Grant

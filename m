@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130270AbRAQIiI>; Wed, 17 Jan 2001 03:38:08 -0500
+	id <S130292AbRAQImI>; Wed, 17 Jan 2001 03:42:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130292AbRAQIhs>; Wed, 17 Jan 2001 03:37:48 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:8967 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S130036AbRAQIh3>; Wed, 17 Jan 2001 03:37:29 -0500
-Date: Wed, 17 Jan 2001 02:37:16 -0600
-To: "John O'Donnell" <johnod@voicefx.com>
-Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: .br blacklisted ?
-Message-ID: <20010117023716.A21504@cadcamlab.org>
-In-Reply-To: <Pine.LNX.4.31.0101171635401.5464-100000@localhost.localdomain> <3A6553C8.5030408@voicefx.com>
+	id <S130036AbRAQIl6>; Wed, 17 Jan 2001 03:41:58 -0500
+Received: from edelweiss.qbik.ch ([193.8.58.68]:45586 "HELO edelweiss.qbik.ch")
+	by vger.kernel.org with SMTP id <S130292AbRAQIlt>;
+	Wed, 17 Jan 2001 03:41:49 -0500
+Date: Wed, 17 Jan 2001 09:05:18 +0100
+From: Markus Schlup <markus@qbik.ch>
+To: linux-kernel@vger.kernel.org
+Subject: ServerWorks IDE in 2.4.0-ac4
+Message-ID: <20010117090518.E6826@edelweiss.qbik.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <3A6553C8.5030408@voicefx.com>; from johnod@voicefx.com on Wed, Jan 17, 2001 at 03:11:52AM -0500
-From: Peter Samuelson <peter@cadcamlab.org>
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm currently playing around with a Compaq Proliant ML370 machine,
+equipped with two Pentium-III 733 processors, 2 GB of RAM and two
+18 GB SCSI harddisks.
+While configuring to compile a 2.4.0-ac4 kernel, I activated the 
+ServerWorks IDE chipset support, but when running this kernel, I had
+no success in mounting the CDROM which is IDE based.
+According to the dmesg log, the chipset is recognized, but
+/proc/interrupts does not show an IDE interrupt, consequently the 
+CDROM drive is not recognized.
+Running this machine with a 2.2.18 kernel, I had no problem in mounting
+the CDROM.
+Please see http://www.qbik.ch/linux/ml370/ for logging information both
+for 2.2.18 and 2.4.0-ac4 (.config, /proc/interrupts, /proc/meminfo,
+/proc/cpuinfo, /proc/pci, output of lsmod and dmesg)
+Btw: 2.4.0 plain gave the same results.
 
-  [Rik van Riel]
-> > So do I. I chose to blacklist John O'Donnell and he will never get
-> > any kernel help from me again (since I can't see his email).
+Thanks for any help,
+Markus
 
-[John O'Donnell]
-> Please tell me I just didn't just see this message??!?!?!?!
-> Please??!?!?!?  What are you doing?
-
-Hold on.  First you go and blacklist the entire country of Brazil, then
-you actually wonder *why* someone working for a Brazilian company might
-blacklist you in return?  The mind boggles.
-
-Dude, I'm all for freedom-of-blacklisting (it is, after all, *your*
-mailbox), but you gotta take the consequences!
-
-Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,68 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266548AbUFQPdJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266550AbUFQPcm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266548AbUFQPdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 11:33:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266546AbUFQPdI
+	id S266550AbUFQPcm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 11:32:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266528AbUFQPcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 11:33:08 -0400
-Received: from vsmtp3alice.tin.it ([212.216.176.143]:14308 "EHLO vsmtp3.tin.it")
-	by vger.kernel.org with ESMTP id S266548AbUFQPcK (ORCPT
+	Thu, 17 Jun 2004 11:32:41 -0400
+Received: from cantor.suse.de ([195.135.220.2]:43736 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266546AbUFQPb7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 11:32:10 -0400
-Message-ID: <40D1B975.8090506@tin.it>
-Date: Thu, 17 Jun 2004 17:32:05 +0200
-From: HayArms <voloterreno@tin.it>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040605)
-X-Accept-Language: en-us, en
+	Thu, 17 Jun 2004 11:31:59 -0400
+To: Finn Thain <ft01@webmastery.com.au>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: make checkstack on m68k
+References: <Pine.GSO.4.58.0406161845490.1249@waterleaf.sonytel.be>
+	<je3c4uqum0.fsf@sykes.suse.de>
+	<Pine.LNX.4.58.0406180048180.13963@bonkers.disegno.com.au>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: Hmmm...  a PINHEAD, during an EARTHQUAKE, encounters an ALL-MIDGET
+ FIDDLE
+ ORCHESTRA...  ha..  ha..
+Date: Thu, 17 Jun 2004 17:31:58 +0200
+In-Reply-To: <Pine.LNX.4.58.0406180048180.13963@bonkers.disegno.com.au> (Finn
+ Thain's message of "Fri, 18 Jun 2004 01:17:31 +1000 (EST)")
+Message-ID: <jeoenip5e9.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-To: Dave Jones <davej@codemonkey.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.7] AGP KT600 identified as CLE266
-References: <40D1A282.7010006@tin.it> <20040617141310.GB19280@redhat.com>
-In-Reply-To: <20040617141310.GB19280@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
+Finn Thain <ft01@webmastery.com.au> writes:
 
->On Thu, Jun 17, 2004 at 03:54:10PM +0200, HayArms wrote:
-> > Hi all,
-> > 
-> > I've compiled vanilla kernel 2.6.7 just today, and I've noticed that my 
-> > KT600 AGP chipset is identified ad CLE266 :
-> > 
-> > Linux agpgart interface v0.100 (c) Dave Jones
-> > agpgart: Detected VIA CLE266 chipset
-> > agpgart: Maximum main memory to use for agp memory: 438M
-> > agpgart: AGP aperture is 256M @ 0xc0000000
+> On Thu, 17 Jun 2004, Andreas Schwab wrote:
 >
->Can you apply this..
->http://www.codemonkey.org.uk/projects/bitkeeper/agpgart/agpgart-2004-06-17.diff
+>> Geert Uytterhoeven <geert@linux-m68k.org> writes:
+>>
+>> > I tried to add m68k support to `make checkstack', but got stuck due to my
+>> > limited knowledge of complex perl expressions. I actually need to catch both
+>> > expressions (incl. the one I commented out). Anyone who can help?
+>>
+>> Untested:
+>>
+>>   $re = qr/.*(?:linkw %fp,|addw )#-([0-9]{1,4})(?:,%sp)?$/o;
+>>
+>> Andreas.
 >
->on top, and see if it fixes itself ? There was a missing table
->entry, which could have caused all the subsequent entries
->to be off by one. (And CLE266 is the entry before the KT600)
->
->		Dave
->
->
->  
->
-Thanks,  this patch seems to solve the problem , now my system is 
-detected as :
+> I think that should be addaw, not addw.
 
-Linux agpgart interface v0.100 (c) Dave Jones
-agpgart: Detected VIA KT400/KT400A/KT600 chipset
-agpgart: Maximum main memory to use for agp memory: 438M
-agpgart: AGP aperture is 256M @ 0xc0000000
+Right, typo.
 
+> And it may be necessary to remove the $ anchor at the end.
 
-:)
+That won't work, because we must be sure to require ",%sp" when addaw is
+matched since we don't want to match, say, "addaw #-1024,%a0".  We know
+that this is the whole line to be matched.
 
-Thanks again
+> Your solution makes very nice use of the fact that objdump produces
+> exactly one comma for those opcodes :)
 
-Bye
+We know exactly the format of the output produced by objdump.  So even
+though the regex is able to match some random junk we know that objdump
+would never produce that.
 
-Marcello
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

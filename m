@@ -1,73 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265352AbTLHJQz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 04:16:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265353AbTLHJQz
+	id S265356AbTLHJbg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 04:31:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265357AbTLHJbd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 04:16:55 -0500
-Received: from rrba-178-211.telkomadsl.co.za ([165.165.178.211]:16400 "EHLO
-	r2d2.ractech.co.za") by vger.kernel.org with ESMTP id S265352AbTLHJQy
+	Mon, 8 Dec 2003 04:31:33 -0500
+Received: from bunyip.cc.uq.edu.au ([130.102.2.1]:50959 "EHLO
+	bunyip.cc.uq.edu.au") by vger.kernel.org with ESMTP id S265356AbTLHJba
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 04:16:54 -0500
-From: Karel Koster <karel@ractech.co.za>
-Organization: RACTech
-To: linux-kernel@vger.kernel.org
-Subject: kernel BUG at vmscan.c:118
-Date: Mon, 8 Dec 2003 11:16:38 +0200
-User-Agent: KMail/1.5
+	Mon, 8 Dec 2003 04:31:30 -0500
+Message-ID: <3FD444DD.4080206@torque.net>
+Date: Mon, 08 Dec 2003 19:31:09 +1000
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, es-es, es
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200312081116.11185.karel@ractech.co.za>
-Content-Type: text/plain;
-  charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Subject: Re: cdrecord hangs my computer
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nov 29 04:03:49 urukhai kernel: kernel BUG at vmscan.c:118!
-Nov 29 04:03:49 urukhai kernel: invalid operand: 0000
-Nov 29 04:03:49 urukhai kernel: sd_mod scsi_mod ide-cd cdrom maestro3 
-ac97_codec soundcore mach64 agpgart parport_pc
-lp parport autofs ds yenta_socket pcmcia_core xircom_cb ipt_REJECT iptabl
-Nov 29 04:03:49 urukhai kernel: CPU:    0
-Nov 29 04:03:49 urukhai kernel: EIP:    0060:[<c013b962>]    Not tainted
-Nov 29 04:03:49 urukhai kernel: EFLAGS: 00010206
-Nov 29 04:03:49 urukhai kernel:
-Nov 29 04:03:49 urukhai kernel: EIP is at reclaim_page [kernel] 0x2a2 
-(2.4.20-8)
-Nov 29 04:03:49 urukhai kernel: eax: 400b0730   ebx: c51ed76c   ecx: 00000100   
-edx: 0000059d
-Nov 29 04:03:49 urukhai kernel: esi: c030d100   edi: c51ed750   ebp: 00000d8e   
-esp: cced9d7c
-Nov 29 04:03:49 urukhai kernel: ds: 0068   es: 0068   ss: 0068
-Nov 29 04:03:49 urukhai kernel: Process run-parts (pid: 4395, 
-stackpage=cced9000)
-Nov 29 04:03:49 urukhai kernel: Stack: ce75ad00 00000000 c030d344 00000000 
-c030d100 c030d724 00000003 00000001
-Nov 29 04:03:49 urukhai kernel:        c013e8c9 c030d72c 0000031f 000001d2 
-00000000 c013e9b5 c030d720 00000000
-Nov 29 04:03:49 urukhai kernel:        00000003 00000001 c0134750 ce75ad00 
-cced9e14 cced9de0 00000001 c030d720
-Nov 29 04:03:49 urukhai kernel: Call Trace:   [<c013e8c9>] __alloc_pages_limit 
-[kernel] 0x79 (0xcced9d9c))
-Nov 29 04:03:49 urukhai kernel: [<c013e9b5>] __alloc_pages [kernel] 0xc5 
-(0xcced9db0))
-Nov 29 04:03:49 urukhai kernel: [<c0134750>] generic_file_read [kernel] 0xb0 
-(0xcced9dc4))
-Nov 29 04:03:49 urukhai kernel: [<c014f393>] copy_strings [kernel] 0x283 
-(0xcced9dec))
-Nov 29 04:03:49 urukhai kernel: [<c014f802>] kernel_read [kernel] 0x72 
-(0xcced9e00))
-Nov 29 04:03:49 urukhai kernel: [<c014f408>] copy_strings_kernel [kernel] 0x38 
-(0xcced9e2c))
-Nov 29 04:03:49 urukhai kernel: [<c015015e>] do_execve [kernel] 0x10e 
-(0xcced9e44))
-Nov 29 04:03:49 urukhai kernel: [<c0107c00>] sys_execve [kernel] 0x50 
-(0xcced9fa4))
-Nov 29 04:03:49 urukhai kernel: [<c0109537>] system_call [kernel] 0x33 
-(0xcced9fc0))
-Nov 29 04:03:49 urukhai kernel:
-Nov 29 04:03:49 urukhai kernel:
-Nov 29 04:03:49 urukhai kernel: Code: 0f 0b 76 00 d0 ee 25 c0 e9 9d fd ff ff 
-90 83 ec 18 ba 01 00
+Linus Torvalds wrote:
+ > On Sat, 6 Dec 2003, Wakko Warner wrote:
+ > > >
+ > > > One is just plain confusion - anybody who uses cdrecord has
+ > > > either been
+ > > > confused by the silly SCSI numbering (while "dev=/dev/hdc" is not
+ > > > confusing at all, and uses the same device you use for
+ > > > mounting the thing etc).
+ > >
+ > > Actually, it would be nice if I could use dev=/dev/scd0.  I
+ > > do have a scsi burner (and an ide one too)
+ >
+ > It _should_ just work these days. Anything that uses "cdrom_ioctl()"
+ > should automatically get the SCSI command translation code (which
+ > isn't part of the scsi driver).
+
+Yes dev=/dev/scd0 should work for "real" SCSI (and USB, IEEE1394
+and sATA [via libata] attached) cd/dvd players in lk 2.6.
+Copying the SG_IO ioctl and friends into the block
+layer isn't exactly pretty in lk 2.6. No doubt I'll be hearing from
+the author of cdrecord about some of the rough edges. Basically
+cdrecord is tricked into believing it is talking to an sg device.
+
+One rough edge is cdrecord's use of the SCSI_IOCTL_GET_IDLUN ioctl
+which encodes bus/channel/target/lun into an integer. cdrecord
+uses this for its dev=<n,m,q> notation. The drivers/block/scsi_ioctl.c
+implementation returns 0 in all cases. So if you have 2 or more
+ATAPI cd/dvd burners cdrecord's dev=<n,m,q> usage won't be able
+to differentiate.
+
+ide-scsi has always had problems (I spent about a week on it
+and gave up with only a few minor fixes to report) but it
+may be a useful "insurance" driver to keep around in lk 2.6 .
+[It is also needed for ATAPI tapes so its deprecatation
+warning might like to take into account the peripheral device
+type.]
+
+Yes the bus/channel/target/lun notation is dated but it has been
+in place for around 15 years (in the Sun's bus/target/lun form).
+These days the "bus/channel" component is defined by the host OS,
+the "target" by the transport (see "object identifiers" in SAM-3
+Annex A). Only the "lun" is defined within the SCSI^H^H^Htorage
+Architecture Model (SAM-3 section 4.9 in the latest draft).
+
+ > But hey, the scsi layer confuses me. Less than it used to, but still.
+
+Well making the scsi layer handle some of the the most
+sophisticated storage devices and some of the most brain
+damaged at the same time is proving quite a challenge.
+With libata (and later SAS) sATA disks will be getting to
+the application space via the sd driver. And how will
+object storage devices fit into Linux's block-centric I/O
+architecture?
+
+Doug Gilbert
+
 

@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136665AbREIQyd>; Wed, 9 May 2001 12:54:33 -0400
+	id <S136687AbREIQ5W>; Wed, 9 May 2001 12:57:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136679AbREIQyN>; Wed, 9 May 2001 12:54:13 -0400
-Received: from srvr20.engin.umich.edu ([141.213.75.22]:48565 "EHLO
-	srvr20.engin.umich.edu") by vger.kernel.org with ESMTP
-	id <S136665AbREIQyD>; Wed, 9 May 2001 12:54:03 -0400
-Message-Id: <200105091654.MAA18672@xor.engin.umich.edu>
-From: marius@umich.edu (marius aamodt eriksen)
-To: linux-kernel@vger.kernel.org
-Subject: odd insmod problem
-X-um-uniqname: beriksen
-X-Mailer: mh 6.8
-Date: Wed, 09 May 2001 12:54:00 -0400
+	id <S136679AbREIQ5M>; Wed, 9 May 2001 12:57:12 -0400
+Received: from gateway.sequent.com ([192.148.1.10]:31857 "EHLO
+	gateway.sequent.com") by vger.kernel.org with ESMTP
+	id <S136687AbREIQ5G>; Wed, 9 May 2001 12:57:06 -0400
+Date: Wed, 9 May 2001 09:56:58 -0700
+From: Mike Kravetz <mkravetz@sequent.com>
+To: "Andrew M. Theurer" <atheurer@austin.ibm.com>
+Cc: lse-tech@lists.sourceforge.net,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        samba-technical <samba-technical@samba.org>
+Subject: Re: Linux 2.4 Scalability, Samba, and Netbench
+Message-ID: <20010509095658.B1150@w-mikek2.sequent.com>
+In-Reply-To: <3AF97062.42465A53@austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AF97062.42465A53@austin.ibm.com>; from atheurer@austin.ibm.com on Wed, May 09, 2001 at 11:29:22AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, May 09, 2001 at 11:29:22AM -0500, Andrew M. Theurer wrote:
+> 
+> I am evaluating Linux 2.4 SMP scalability, using Netbench(r) as a
+> workload with Samba, and I wanted to get some feedback on results so
+> far.
 
-hi -
+Do you have any kernel profile or lock contention data?
 
-when i insmod the openafs module
-
-   insmod /usr/vice/etc/modload/libafs-2.4.4.o
-
-i get a whole bunch (50 in fact) unresolved symbols.  going through
-some of them, i can see that they do in fact exist.  for example:
-
-   root@gone:~ > grep inode_change_ok /proc/ksyms 
-   c013ff20 inode_change_ok_R66fc5011
-   root@gone:~ > grep inode_change_ok /boot/System.map
-   c013ff20 T inode_change_ok
-   c028f399 ? __kstrtab_inode_change_ok
-   c0298d40 ? __ksymtab_inode_change_ok
-
-so everything is in fact looking good.  any ideas?
-
-marius.
-
---
-marius@{umich.edu,crockster.net,linux.com}, http://www.citi.umich.edu/u/marius
+-- 
+Mike Kravetz                                 mkravetz@sequent.com
+IBM Linux Technology Center

@@ -1,67 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266574AbUFQQzj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266575AbUFQRAN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266574AbUFQQzj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 12:55:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266575AbUFQQzj
+	id S266575AbUFQRAN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 13:00:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266576AbUFQRAN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 12:55:39 -0400
-Received: from smtp.sys.beep.pl ([195.245.198.13]:48912 "EHLO smtp.sys.beep.pl")
-	by vger.kernel.org with ESMTP id S266574AbUFQQzf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 12:55:35 -0400
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Organization: SelfOrganizing
-To: linux-kernel@vger.kernel.org
-Subject: Re: Finalized FPU Crash Fix? [2.2.x]
-Date: Thu, 17 Jun 2004 18:55:28 +0200
-User-Agent: KMail/1.6.52
-References: <20040617160856.GA1470@brevity>
-In-Reply-To: <20040617160856.GA1470@brevity>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200406171855.28929.arekm@pld-linux.org>
-X-Spam-Score: 0.0 (/)
-X-Spam-Report: Points assigned by spam scoring system to this email. Note that message
-	is treated as spam ONLY if X-Spam-Flag header is set to YES.
-	If you have any report questions, see report postmaster@beep.pl for details.
-	Content analysis details:   (0.0 points, 25.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-X-Authenticated-Id: arekm 
+	Thu, 17 Jun 2004 13:00:13 -0400
+Received: from ceiriog1.demon.co.uk ([194.222.75.230]:50816 "EHLO
+	ceiriog1.demon.co.uk") by vger.kernel.org with ESMTP
+	id S266575AbUFQRAJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 13:00:09 -0400
+Subject: Re: Irix NFS servers, again :-)
+From: Peter Wainwright <prw@ceiriog1.demon.co.uk>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040617134424.GA32272@infradead.org>
+References: <1087411925.30092.35.camel@ceiriog1.demon.co.uk>
+	 <20040617134424.GA32272@infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1087491319.3677.5.camel@ceiriog1.demon.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 17 Jun 2004 17:55:20 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 17 of June 2004 18:08, Josh Myer wrote:
-> Hello everybody,
->
-> Is there a general concensus that the one-liner in 2.6.7 is an
-> appropriate fix for the FPU hang/crash bug?  I have several machines
-> running 2.4.x which require that outside people have shell access.
-> Needless to say, I'm somewhat nervous about this problem =)
-And how this look in 2.2.x kernels? One guy here tells me that after running 
-http://linuxreviews.org/news/2004-06-11_kernel_crash/index.html#toc1the 2.2 
-kernel freezes.
+On Thu, 2004-06-17 at 14:44, Christoph Hellwig wrote:
+> On Wed, Jun 16, 2004 at 07:52:06PM +0100, Peter Wainwright wrote:
+> > I just upgraded one of my machines to Fedora Core 2, including
+> > kernel 2.6.5. I found myself bitten on the bum by a bug I thought
+> > had expired long ago, namely the Irix server readdir bug, or
+> > 32/64-bit cookie problem.
+> > 
+> > Therefore, I thought I should let you folks know that this problem
+> > is still there, apparently.
+> 
+> IIRC this was fixed on the IRIX side a while ago.  What IRIX version
+> do you run?
+> 
 
-Is such fix right one? 2.2.x doesn't crash with it.
+Not very old, it's 6.5.21. And I do have -32bitclients
+in my /etc/exports.
 
-Index: SOURCES/kernel-fwait-2.2.patch
-diff -u /dev/null SOURCES/kernel-fwait-2.2.patch:1.1
---- /dev/null   Thu Jun 17 15:34:42 2004
-+++ SOURCES/kernel-fwait-2.2.patch      Thu Jun 17 15:34:36 2004
-@@ -0,0 +1,10 @@
-+--- linux-2.2.26/include/asm-i386/processor.h~ Thu Jun 17 17:19:57 2004
-++++ linux-2.2.26/include/asm-i386/processor.h  Thu Jun 17 17:32:36 2004
-+@@ -426,6 +426,7 @@
-+ 
-+ #define clear_fpu(tsk) do { \
-+       if (tsk->flags & PF_USEDFPU) { \
-++              asm volatile("fnclex ; fwait"); \
-+               tsk->flags &= ~PF_USEDFPU; \
-+               stts(); \
-+       } \
--- 
-Arkadiusz Mi¶kiewicz     CS at FoE, Wroclaw University of Technology
-arekm.pld-linux.org, 1024/3DB19BBD, JID: arekm.jabber.org, PLD/Linux
+BTW, I just found an old patch I made for glibc 2.2 to
+fix this (or a similar) problem. Maybe that's a better
+place for a fix
+
+Peter Wainwright

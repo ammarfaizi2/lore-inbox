@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266746AbUGLHvS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266766AbUGLID2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266746AbUGLHvS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 03:51:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266750AbUGLHvS
+	id S266766AbUGLID2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 04:03:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266754AbUGLIDR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 03:51:18 -0400
-Received: from havoc.gtf.org ([216.162.42.101]:60613 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S266746AbUGLHvQ (ORCPT
+	Mon, 12 Jul 2004 04:03:17 -0400
+Received: from holomorphy.com ([207.189.100.168]:60812 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266752AbUGLIDG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 03:51:16 -0400
-Date: Mon, 12 Jul 2004 03:51:14 -0400
-From: David Eger <eger@havoc.gtf.org>
-To: linux-kernel@vger.kernel.org
-Subject: pmac oops: devfs versus power management - fight!
-Message-ID: <20040712075113.GB19875@havoc.gtf.org>
+	Mon, 12 Jul 2004 04:03:06 -0400
+Date: Mon, 12 Jul 2004 01:02:59 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Instrumenting high latency
+Message-ID: <20040712080259.GV21066@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>,
+	linux-kernel@vger.kernel.org
+References: <cone.1089613755.742689.28499.502@pc.kolivas.org> <20040712003418.02997a12.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040712003418.02997a12.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jul 12, 2004 at 12:34:18AM -0700, Andrew Morton wrote:
+> OK, small problem.  We have code which does, effectively,
+> 	if (need_resched()) {
+> 		drop_the_lock();
+> 		schedule();
+> 		grab_the_lock();
+> 	}
+> so if need_resched() stays false then this will hold the lock for a long
+> time and bogus reports are generated:
+> 46ms non-preemptible critical section violated 1 ms preempt threshold starting at exit_mmap+0x26/0x188 and ending at exit_mmap+0x154/0x188
+> To fix that you need to generate high scheduling pressure so that
+> need_resched() is frequently true.  On all CPUs.  Modify realfeel to pin
+> itself to each CPU, or something like that.
 
-I'm running on an Apple TiBook.
-
-With the most recent bk (=2.6.8-rc1) devfs and power management hate
-each other.  I was able to get an Oops message once, but sometimes I don't
-even get that.
-
-[ I still use devfs because without it, the vt system freaks on boot since
-  /dev/console doesn't exist yet, so I don't get any gentoo boot messages
-  till the login: prompt ]
-
-Here's what I've could copy down:
-
-Oops: kernel access of bad area, sig: 11 [#1]
-NIP C001C8B0  LR C02B1F38 ...
-TASK = 'pbbuttonsd' ... Last syscall: 54
-NIP [c001c8b0] add_wait_queue_exclusive+0x28/0x38
-LR [c02b1f38] __down+0x54/0xe8
-Call trace:
-  [c016d6f8] pmz_suspend+0x200/0x21c
-  [c0192e48] macio_device_suspend+0x4c/0x54
-  [c09727f8] suspend_device+0x78/0x158
-  [c03ea6c0] c03ea6c0
-  [c03eabd0] c03eabd0
-  [c03eb5dc] c03eb5dc
-  [c006dfb4] sys_ioctl+0xdc/0x2fc
-  [c0007f30] ret_from_syscall+0x0/0x4c
-  
-Oops: kernel access of bad area, sig: 11 [#2]
-NIP C00EF8DC LR C00EF910
-TASK = 'devfsd' ... Last syscall: 83
-NIP [c00ef8dc] _devfs_search_dir+0x64/0xa4
-LR [c00ef910] _devfs_search_dir+0x98/0xa4
-Call trace:
-  [c00f1614] devfs_lookup
-  ...        __lookup_hash
-  ...
-  ...        return_from_syscall
+I suspect it's better to drop in hooks to trap those e.g. in
+cond_resched() and cond_resched_lock().
 
 
--dte
+On Mon, Jul 12, 2004 at 12:34:18AM -0700, Andrew Morton wrote:
+> This rather decreases the patch's usefulness.
+> The way I normally do this stuff is with
+> 	http://www.zip.com.au/~akpm/linux/patches/stuff/rtc-debug.patch
+> and `amlat', from http://www.zip.com.au/~akpm/linux/amlat.tar.gz
+> It _might_ be sufficient to redefine need_resched() to just return 1 all
+> the time.  If that causes the kernel to livelock then we need to fix that
+> up anyway.
+
+Less code... not sure how nasty performance the implications are.
+
+
+-- wli

@@ -1,96 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269733AbUICTD4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269742AbUICTIm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269733AbUICTD4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 15:03:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269727AbUICTD4
+	id S269742AbUICTIm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 15:08:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269738AbUICTIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 15:03:56 -0400
-Received: from mail8.fw-bc.sony.com ([160.33.98.75]:47071 "EHLO
-	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
-	id S269767AbUICTDF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 15:03:05 -0400
-Message-ID: <4138C175.4040301@am.sony.com>
-Date: Fri, 03 Sep 2004 12:09:41 -0700
-From: Tim Bird <tim.bird@am.sony.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] ppc: make kernel inline redefinition ubiquitous
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+	Fri, 3 Sep 2004 15:08:42 -0400
+Received: from [203.178.140.15] ([203.178.140.15]:10500 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S269747AbUICTGd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 15:06:33 -0400
+Date: Sat, 04 Sep 2004 04:07:27 +0900 (JST)
+Message-Id: <20040904.040727.72671952.yoshfuji@linux-ipv6.org>
+To: jeffpc@optonline.net
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
+Subject: Re: [PATCH 2.6] watch64: generic variable monitoring system
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <200409031319.24863.jeffpc@optonline.net>
+References: <200409031307.01240.jeffpc@optonline.net>
+	<200409031319.24863.jeffpc@optonline.net>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sometimes, the kernel redefinition for inline
-(with attribute(__always_inline)) is not being used when it
-should be.  Most of the time, this has no detectable effect.
-However, under certain conditions, such as when one is using
-the gcc -finstrument-functions feature, this results in link
-errors.
+In article <200409031319.24863.jeffpc@optonline.net> (at Fri, 03 Sep 2004 13:19:24 -0400), "Josef 'Jeff' Sipek" <jeffpc@optonline.net> says:
 
-This patch adds some include lines needed to avoid this
-situation (at least for configurations that I tested).
-Also, this patch removes a conditional which disables
-the kernel redefinition of inline for gcc 3.4 and above.
-(IOW, for gcc 3.4 and above, currently the kernel does
-NOT redefine 'inline' to be always inline, but with
-this change it will.)
+> The watch64 system allows the programmer to specify the approximate interval
+> at which he wants his variables checked. If he tries to specify shorter
+> interval than the minimum a default value of HZ/10 is used. To minimize
+> locking, RCU and seqlock are used. On 64-bit systems, all is optimized away.
 
-This was discussed before at:
-
-http://groups.google.com/groups?q=always_inline&hl=en&lr=&ie=UTF-8&selm=2hjY2-7YV-9%40gated-at.bofh.it&rnum=1
-
-
-Signed-off-by: Tim Bird <tim.bird@am.sony.com>
----
- asm-ppc/delay.h       |    1 +
- asm-ppc/processor.h   |    1 +
- linux/compiler-gcc3.h |    2 +-
- 3 files changed, 3 insertions(+), 1 deletion(-)
-
-diff -ruN -X ../../dontdiff linux-2.6.7/include/asm-ppc/delay.h branch_KFI/include/asm-ppc/delay.h
---- linux-2.6.7/include/asm-ppc/delay.h	2004-06-15 22:19:42.000000000 -0700
-+++ branch_KFI/include/asm-ppc/delay.h	2004-08-11 15:30:22.000000000 -0700
-@@ -2,6 +2,7 @@
- #ifndef _PPC_DELAY_H
- #define _PPC_DELAY_H
-
-+#include <linux/compiler.h>	/* for kernel inline definition */
- #include <asm/param.h>
-
- /*
-diff -ruN -X ../../dontdiff linux-2.6.7/include/asm-ppc/processor.h branch_KFI/include/asm-ppc/processor.h
---- linux-2.6.7/include/asm-ppc/processor.h	2004-06-15 22:18:38.000000000 -0700
-+++ branch_KFI/include/asm-ppc/processor.h	2004-08-11 15:35:25.000000000 -0700
-@@ -10,6 +10,7 @@
-
- #include <linux/config.h>
- #include <linux/stringify.h>
-+#include <linux/compiler.h>	/* for kernel inline definition */
-
- #include <asm/ptrace.h>
- #include <asm/types.h>
-diff -ruN -X ../../dontdiff linux-2.6.7/include/linux/compiler-gcc3.h branch_KFI/include/linux/compiler-gcc3.h
---- linux-2.6.7/include/linux/compiler-gcc3.h	2004-06-15 22:18:45.000000000 -0700
-+++ branch_KFI/include/linux/compiler-gcc3.h	2004-08-11 14:16:34.000000000 -0700
-@@ -3,7 +3,7 @@
- /* These definitions are for GCC v3.x.  */
- #include <linux/compiler-gcc.h>
-
--#if __GNUC_MINOR__ >= 1  && __GNUC_MINOR__ < 4
-+#if __GNUC_MINOR__ >= 1
- # define inline		__inline__ __attribute__((always_inline))
- # define __inline__	__inline__ __attribute__((always_inline))
- # define __inline	__inline__ __attribute__((always_inline))
-
+I agree with the basic principle; it is very similar to mine.
+However, it is too complicated isn't it?
+I would do per-"table" registration (instead of per-variable one);
+watch64_getval() seems very ugly to me...
 
 -- 
-=============================
-Tim Bird
-Architecture Group Co-Chair, CE Linux Forum
-Senior Staff Engineer, Sony Electronics
-E-mail: tim.bird@am.sony.com
-=============================
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

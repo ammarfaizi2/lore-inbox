@@ -1,63 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262015AbUKLTSs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbUKLTXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262015AbUKLTSs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 14:18:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbUKLTRE
+	id S261598AbUKLTXk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 14:23:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262528AbUKLTVj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 14:17:04 -0500
-Received: from mail.il.fontys.nl ([145.85.127.32]:42948 "EHLO
-	mordor.il.fontys.nl") by vger.kernel.org with ESMTP id S261903AbUKLTQe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 14:16:34 -0500
-From: "Ed Schouten" <ed@il.fontys.nl>
-Date: Fri, 12 Nov 2004 20:16:24 +0100
-To: "M. A. Imam" <maimam@wichita.edu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: howt o remake the kernel
-Message-ID: <20041112191624.GB16907@il.fontys.nl>
-References: <41944C86@webmail.wichita.edu>
+	Fri, 12 Nov 2004 14:21:39 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:57764 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262211AbUKLTUZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 14:20:25 -0500
+Date: Fri, 12 Nov 2004 21:22:29 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: 4/4GB:
+Message-ID: <20041112202229.GB15256@elte.hu>
+References: <41939163.5020305@sw.ru>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="K8nIJk4ghYZn606h"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41944C86@webmail.wichita.edu>
-X-Message-Flag: Please upgrade your mailreader to Mozilla Thunderbird at http://www.mozilla.org/
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <41939163.5020305@sw.ru>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9, BAYES_00 -4.90,
+	UPPERCASE_25_50 0.00
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---K8nIJk4ghYZn606h
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+* Kirill Korotaev <dev@sw.ru> wrote:
 
-Hello Imam,
+>  #define __RESTORE_REGS	\
+>  	__RESTORE_INT_REGS; \
+> +	popl %ds;	\
+> +	popl %es;
+> +
+> +#define __RESTORE_REGS_USER \
+> +	__RESTORE_INT_REGS; \
+>  111:	popl %ds;	\
+>  222:	popl %es;	\
+> -.section .fixup,"ax";	\
+> +	jmp 666f;	\
+>  444:	movl $0,(%esp);	\
+>  	jmp 111b;	\
+>  555:	movl $0,(%esp);	\
+>  	jmp 222b;	\
+> -.previous;		\
+> +666:			\
+>  .section __ex_table,"a";\
+>  	.align 4;	\
+>  	.long 111b,444b;\
+> @@ -220,6 +225,13 @@ int80_ret_end_marker:					\
+>  
+>  #define __RESTORE_ALL	\
+>  	__RESTORE_REGS	\
+> +	__RESTORE_IRET
+> +
+> +#define __RESTORE_ALL_USER \
+> +	__RESTORE_REGS_USER \
+> +	__RESTORE_IRET
+> +
+> +#define __RESTORE_IRET	\
+>  	addl $4, %esp;	\
+>  333:	iret;		\
+>  .section .fixup,"ax";   \
 
-On Fri 12 Nov 2004 12:17 PM, M. A. Imam wrote:
-> I am new to linux. i am working on my thesis... i have made some changes =
-to=20
-> net/ipv4/tcp.c now i need to remake my kernel. right?
+looks fine and necessary. Fundamental bugs in this area tend to show up
+as instant reboots, so i'm sure if you broke this code you'll quickly
+notice it ...
 
-If you are running Linux 2.6, you only need to run `make` again. The Linux
-build-script will detect the changes, because of a changed timestamp.
-
-Yours,
---=20
- Ed Schouten <ed@il.fontys.nl>
- Website: http://g-rave.nl/
- GPG key: finger ed@il.fontys.nl
-
---K8nIJk4ghYZn606h
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFBlQwIyx16ydahrz4RAhEFAKDKXO8m8Aprh+Oqv9h0yOSpN2GfKQCgi5oV
-Hk1NKIBo1auckHICXe687iQ=
-=37nT
------END PGP SIGNATURE-----
-
---K8nIJk4ghYZn606h--
+	Ingo

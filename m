@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285823AbRLJTgq>; Mon, 10 Dec 2001 14:36:46 -0500
+	id <S286359AbRLJThq>; Mon, 10 Dec 2001 14:37:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286184AbRLJTgg>; Mon, 10 Dec 2001 14:36:36 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:52145 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S285823AbRLJTgb>;
-	Mon, 10 Dec 2001 14:36:31 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Mon, 10 Dec 2001 19:36:14 GMT
-Message-Id: <UTC200112101936.TAA283032.aeb@cwi.nl>
-To: Andries.Brouwer@cwi.nl, viro@math.psu.edu
-Subject: Re: Linux/Pro  -- clusters
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
+	id <S286301AbRLJThh>; Mon, 10 Dec 2001 14:37:37 -0500
+Received: from walt.tsc.com ([149.97.1.20]:25611 "EHLO mail.tsc.com")
+	by vger.kernel.org with ESMTP id <S286184AbRLJTh0>;
+	Mon, 10 Dec 2001 14:37:26 -0500
+Message-ID: <3C150FD8.290BCBEC@savemail.com>
+Date: Mon, 10 Dec 2001 14:41:12 -0500
+From: Bob Poortinga <bobp@savemail.com>
+X-Mailer: Mozilla 4.7 [en] (Win95; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Upgrade to 2.4.16 produces "Kernel panic: No init found"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From viro@math.psu.edu Mon Dec 10 17:50:02 2001
+Hello kernel gurus,
 
-    Basically you propose to take the current system, replace it with
-    something without clear memory management ("let it leak") and then
-    try to fix the resulting mess.
+I have searched the list archives and google'd myself silly, but I
+can't seem to find a solution to my problem.
 
-Al - you are using debating tricks instead of logic, using
-negative words ("unclear", "leak", "mess") instead of arguments.
-Maybe you are unable to refute the soundness of the system I propose?
+I am trying to update my 2.4.3 kernel (Mandrake 8.0 distro) to 2.4.16.
+I did a 'make oldconfig' with my old .config file and added ext3 kernel
+support in addition to ext2.  My root fs is ext2 (as are all my fs).
+The new kernel boots but panics when it tries to mount the root fs.
+Here is the error:
+--------------------------------------------------------------------
+Mounting /proc filesystem
+Creating root device
+Mounting root filesystem
+pivotroot: pivot_root(/sysroot,/sysroot/initrd) failed: 2
+Freeing unused kernel memory: 216k freed
+Kernel panic: No init found.  Try passing init= option to kernel.
+--------------------------------------------------------------------
 
-It is quite possible that I overlook some detail.
-On the other hand, I have been running these systems.
-You are not able to convince me that something is wrong
-just by handwaving. Real arguments are required.
+There are no other errors displayed.  I upgraded a number of packages,
+but I might have missed something.  My current versions are:
 
+gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-98)
+GNU ld version 2.11.90.0.8 (with BFD 2.11.90.0.8)
+glibc 2.2.4-13
+insmod version 2.4.6
+mkinitrd 3.2.6-1
 
-What I do is go from the present situation, in a series of steps,
-to a new situation where the source looks different but the
-system behaves provably the same. Consequently, no "fixing"
-is required. "Mess" is a matter of taste, I'll not discuss that
-except by saying that I vastly prefer the situation without arrays.
-"Leak" is false. "Dangling pointers" is false.
+My system is a dual PII (300 mhz) with 512mb and AIC-7880 scsi.
+Kernel options SMP and 686 have been selected.
 
-Andries
+Does the 2.4.16 kernel require an ext3 root fs if ext3 support is
+compiled in?  I don't want to risk upgrading my root fs to ext3
+because then my old kernel will not boot.
 
+Any ideas?
 
-[About "leak": What happens today is that a driver like sd.c
-allocates arrays and fills them. In my version this driver
-allocates structures and fills them. When the module is removed,
-today the arrays are freed. In my version the structures are
-freed at that point. So, no leakage occurs.
-About "dangling pointers": The correctness condition for this
-scheme is that no struct that contains kdev_t fields survives
-removal of the module.
-It seems to me that that is true already, and in any case will
-be easy to ensure. If you have other opinions, please come
-with explicit examples where fundamental problems would occur.]
-
-[and, Linus, the name of the beast makes no difference; kdev_t
-or kbdev_t or struct block_device *; it is the same amount of work]
+-- 
+Bob Poortinga
+Technology Service Corp.

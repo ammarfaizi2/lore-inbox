@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315234AbSD2XG0>; Mon, 29 Apr 2002 19:06:26 -0400
+	id <S315235AbSD2XMz>; Mon, 29 Apr 2002 19:12:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315235AbSD2XGZ>; Mon, 29 Apr 2002 19:06:25 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:3591 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S315234AbSD2XGZ>;
-	Mon, 29 Apr 2002 19:06:25 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: The tainted message 
-In-Reply-To: Your message of "Mon, 29 Apr 2002 21:21:07 +0200."
-             <20020429192107.GA26369@louise.pinerecords.com> 
+	id <S315236AbSD2XMy>; Mon, 29 Apr 2002 19:12:54 -0400
+Received: from front1.mail.megapathdsl.net ([66.80.60.31]:47374 "EHLO
+	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S315235AbSD2XMy>; Mon, 29 Apr 2002 19:12:54 -0400
+Subject: Re: 2.5.11 + framebuffer compile patch -- OOPS in
+	blk_get_readahead+a/60
+From: Miles Lane <miles@megapathdsl.net>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10204291522510.29647-100000@www.transvirtual.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 29 Apr 2002 16:10:46 -0700
+Message-Id: <1020121847.1918.36.camel@turbulence.megapathdsl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 30 Apr 2002 09:06:14 +1000
-Message-ID: <26170.1020121574@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Apr 2002 21:21:07 +0200, 
-tomas szepe <kala@pinerecords.com> wrote:
->Now, would anyone attempt to sum up all the points made here and come up
->w/ something like a "final-draft" proposal?
+On Mon, 2002-04-29 at 15:23, James Simmons wrote:
+> 
+> > >>EIP; c01ee59a <blk_get_readahead+a/60>   <=====
+> > Trace; c023a87c <device_size_calculation+ac/230>
+> > Trace; c023ab1f <do_md_run+11f/3d0>
+> > Trace; c02286eb <fbcon_cursor+9b/200>
+> 
+> That is strange. Which framebuffer driver are you using?
 
-What next, gcc warnings that include sections of the C99 standard or
-chunks of the info entry?  There are reasons that documentation is
-separate from error and warning messages.
+Oh heck.  I thought I included the console options in my 
+first message, but I see I didn't.  Sorry about that.
 
-Summary:
+#
+# Console drivers
+#
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
 
-  Nobody can agree on the warning text.  Anything less than the full
-  kernel FAQ entry is incomplete.
+#
+# Frame-buffer support
+#
+CONFIG_FB=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FB_RIVA=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FBCON_CFB8=y
+CONFIG_FBCON_CFB16=y
+CONFIG_FBCON_CFB32=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
 
-  Vendors who ship binary modules and support their users should use
-  different text, pointing to the vendor's support policy instead of
-  bothering linux-kernel.
-
-Solution:
-
-  modutils 2.4.16 says
-
-  Warning: loading <module> will taint the kernel.  Reason <reason>
-    See <TAINT_URL> for information on tainted modules
-  Module loaded, with warnings
-
-  Printing 'Module loaded, with warnings' makes it clear that the
-  module has been loaded.  TAINT_URL defaults to lkml FAQ.  Vendors can
-  ship modutils with a TAINT_URL that points to their support policy.
 

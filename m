@@ -1,73 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262602AbREVJ4G>; Tue, 22 May 2001 05:56:06 -0400
+	id <S262604AbREVKKa>; Tue, 22 May 2001 06:10:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262603AbREVJzq>; Tue, 22 May 2001 05:55:46 -0400
-Received: from mail.muc.eurocyber.net ([195.143.108.5]:5073 "EHLO
-	mail.muc.eurocyber.net") by vger.kernel.org with ESMTP
-	id <S262602AbREVJzl>; Tue, 22 May 2001 05:55:41 -0400
-Message-ID: <3B0A3794.15BDF9D6@TeraPort.de>
-Date: Tue, 22 May 2001 11:55:32 +0200
-From: "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-ac11 i686)
-X-Accept-Language: en, de
+	id <S262605AbREVKKU>; Tue, 22 May 2001 06:10:20 -0400
+Received: from mx0.gmx.net ([213.165.64.100]:24004 "HELO mx0.gmx.net")
+	by vger.kernel.org with SMTP id <S262604AbREVKKG>;
+	Tue, 22 May 2001 06:10:06 -0400
+Date: Tue, 22 May 2001 12:06:52 +0200 (MEST)
+From: Thomas Palm <palm4711@gmx.de>
+To: Lorenzo Marcantonio <lomarcan@tin.it>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: hpa@transmeta.com,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch] Output of L1,L2 and L3 cache sizes to /proc/cpuinfo
-In-Reply-To: <3B0A28C0.2FFFC935@TeraPort.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.LNX.4.31.0105212209480.845-100000@eris.discordia.loc>
+Subject: Re: your mail
+X-Priority: 3 (Normal)
+X-Authenticated-Sender: #0009482897@gmx.net
+X-Authenticated-IP: [193.159.61.153]
+Message-ID: <2567.990526012@www38.gmx.net>
+X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin.Knoblauch" wrote:
+1. The corrupted files have the same length but differ (I cannot say on what
+bit-position)
+2. I reproduced the problem while burning CD from SCSI-Disk to
+SCSI-CD-Burner!!!
+-> It´s definetly not a (single?) IDE-Problem
+
+Burning CD (on slow 4x speed) seems to initialize many small transfers
+(instead of a smooth stream)(same as copying many small files) on PCI/DMA wich
+generate the same problems!!!
+
+
+
+> On Mon, 21 May 2001, Thomas Palm wrote:
 > 
-> >>
-> >> Hi,
-> >>
-> >> while trying to enhance a small hardware inventory script, I found that
-> >> cpuinfo is missing the details of L1, L2 and L3 size, although they may
-> >> be available at boot time. One could of cource grep them from "dmesg"
-> >> output, but that may scroll away on long lived systems.
-> >>
-> >
-> >Any particular reason this needs to be done in the kernel, as opposed
-> >to having your script read /dev/cpu/*/cpuid?
-> >
-> >        -hpa
+> > there ist still file-corruption. I use an ASUS A7V133 (Revision 1.05,
+> > including Sound + Raid). My tests:
+> > 1st run of "diff -r srcdir destdir" -> no differs
+> > 2nd run of "diff -r srcdir destdir" -> 2 files differ
+> > 3rd run of "diff -r srcdir destdir" -> 1 file differs
+> > 4th run of "diff -r srcdir destdir" -> 1 file differs
+> > 5th run of "diff -r srcdir destdir" -> no differs
 > 
->  terse answer: probably the same reason as for most stuff in
-> /proc/cpuinfo :-)
+> Could you check WHERE the file differ and WHERE the data come from ?
+> 
+> I've got the same mobo AND some nasty DAT tape corruption problems...
+> (also, VERY rarely, on the CD burner). I've got all on SCSI, but if it's
+> the DMA troubling us...
+> 
+> 				-- Lorenzo Marcantonio
+> 
 > 
 
- After some checking, I could have made the answer a bit less terse:
+-- 
+Machen Sie Ihr Hobby zu Geld bei unserem Partner 1&1!
+http://profiseller.de/info/index.php3?ac=OM.PS.PS003K00596T0409a
 
-- it would require that the kernel is compiled with cpuid [module]
-support
-  - not everybody may want enable this, just for getting one or two
-    harmless numbers.
-- you would need a utility with root permission to analyze the cpuid
-info. The
-  cahce info does not seem to be there in clear ascii.
-  - this limits my script to root users, or you need the setuid-bit on
-the
-    utility. Not really good for security.
-- the cpuid stuff is i386 specific [today]. So are my changes. But
-implementing
-  them for other architectures [if there is interest in the info] would
-not
-  require to also implement the cpuid on other architectures. Which may
-not make any
-  sense at all.
+--
+GMX - Die Kommunikationsplattform im Internet.
+http://www.gmx.net
 
- So, having the numbers in clear text in the cpuinfo file looks simpler
-and safer to me, although reading /dev/cpu/*/cpuinfo maybe more
-versatile [on i386] - at some cost.
-
- Question: are there any utilities or other uses for the cpuid device
-today? Just interested. The kernel seems to work well without it.
-
-Cheers
-Martin

@@ -1,45 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263085AbUFTT1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbUFTT1Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263085AbUFTT1U (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 15:27:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263709AbUFTT1U
+	id S261880AbUFTT1Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 15:27:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263085AbUFTT1Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 15:27:20 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:19691 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S263085AbUFTT1S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 15:27:18 -0400
-Subject: Re: DMA API issues
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Ian Molton <spyro@f2s.com>, rmk+lkml@arm.linux.org.uk, david-b@pacbell.net,
-       Linux Kernel <linux-kernel@vger.kernel.org>, greg@kroah.com,
-       tony@atomide.com, jamey.hicks@hp.com, joshua@joshuawise.com
-In-Reply-To: <200406202002.47025.oliver@neukum.org>
-References: <1087584769.2134.119.camel@mulgrave>
-	<20040620165042.393f2756.spyro@f2s.com>
-	<1087750024.11222.81.camel@mulgrave>  <200406202002.47025.oliver@neukum.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 20 Jun 2004 14:27:01 -0500
-Message-Id: <1087759622.10858.97.camel@mulgrave>
+	Sun, 20 Jun 2004 15:27:16 -0400
+Received: from honk1.physik.uni-konstanz.de ([134.34.140.224]:40934 "EHLO
+	honk1.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
+	id S261880AbUFTT1P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 15:27:15 -0400
+Date: Sun, 20 Jun 2004 21:25:49 +0200
+From: Guido Guenther <agx@sigxcpu.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch]: Fix rivafb's NV_ARCH_
+Message-ID: <20040620192549.GA4307@bogon.ms20.nix>
+References: <20040601041604.GA2344@bogon.ms20.nix> <1086064086.1978.0.camel@gaston> <20040601135335.GA5406@bogon.ms20.nix> <20040616070326.GE28487@bogon.ms20.nix>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040616070326.GE28487@bogon.ms20.nix>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-06-20 at 13:02, Oliver Neukum wrote:
-> > The DMA API is about allowing devices to transact directly with memory
-> > behind the memory controller, it's an API that essentially allows the
-> > I/O controller and memory controller to communicate without CPU
-> > intervention.  This is still possible through the hypervisor, so the
-> > iSeries currently fully implements the DMA API.
-> 
-> Then what's the problem?
-
-If you look at the diagram, you'll see that the OHCI memory isn't behind
-the memory controller...
-
-James
-
-
+Hi,
+On Wed, Jun 16, 2004 at 09:03:27AM +0200, Guido Guenther wrote:
+> here's another piece of rivafb fixing that helps the driver on ppc
+> pbooks again a bit further. It corrects several wrong NV_ARCH_20
+> settings which are actually NV_ARCH_10 as determined by the PCIId.
+Any comments on this patch?
+ -- Guido

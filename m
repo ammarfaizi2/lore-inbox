@@ -1,31 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262033AbVAYRUB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262027AbVAYRUC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbVAYRUB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 12:20:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbVAYRRR
+	id S262027AbVAYRUC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 12:20:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbVAYRRG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 12:17:17 -0500
-Received: from mail-in-09.arcor-online.net ([151.189.21.49]:6088 "EHLO
-	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262024AbVAYRQG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 12:16:06 -0500
-Message-ID: <41F67F5B.2090304@upb.de>
-Date: Tue, 25 Jan 2005 18:18:19 +0100
-From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8a6) Gecko/20050111
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 more picky about IDE drives than 2.4 ?
-References: <csv3ss$a4m$1@sea.gmane.org> <58cb370e0501230850185b007f@mail.gmail.com>
-In-Reply-To: <58cb370e0501230850185b007f@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Jan 2005 12:17:06 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:12739 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S262028AbVAYRNv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 12:13:51 -0500
+Date: Tue, 25 Jan 2005 11:13:15 -0600
+From: Robin Holt <holt@sgi.com>
+To: Sachithanantham_Saravanan@emc.com
+Cc: linux-ia64@vger.kernel.org, yakker@sgi.com, yakker@turbolinux.com,
+       yakker@alacritech.com, matt@aparity.com, linux-kernel@vger.kernel.org
+Subject: Re: LKCD on 2.6 IA64 Linux Kernel
+Message-ID: <20050125171315.GA4951@lnx-holt.americas.sgi.com>
+References: <50C05B7AA7D6924FB5E384EF14BC647BCBBD63@inba1mx2.corp.emc.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <50C05B7AA7D6924FB5E384EF14BC647BCBBD63@inba1mx2.corp.emc.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The manufacturer of the easyRAID R5A sent be a firmware-update, that 
-fixes the problem.
+On Tue, Jan 25, 2005 at 03:16:21PM -0000, Sachithanantham_Saravanan@emc.com wrote:
+> Hi all,
+> 
+> I tried using lkcd on a ia64 machine running on 2.6.5-7.111 SuSe Kernel for
+> debugging. I configured the swap device as the dump device and I created
+> panics,oops to generate dumps. The dump happens in /var/log/dump on a "lkcd
+> save" after a reboot. When I use lcrash to trace the task of the process
+> that caused the dump, I get some data misalignment errors as listed below.
+> And interestingly this happens only for the trace of the process that
+> generated the panic/oops. For all other processes in the dump trace is
+> giving me the proper output. Looks like the issue is specific to ia64 as I
+> did not encounter any such errors on my i386 machine on the same kernel. 
+> Pointers to any patches or what the problem is will be of help to me.
 
-So forget about this.
+Which version of lcrash are you using?  I think you will need to build the
+latest version of lcrash from the oss.sgi.com web page in order to use the
+dumps created by the SuSE kernel.  Not sure though.
+
+Robin

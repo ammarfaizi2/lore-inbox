@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263048AbTCWM3C>; Sun, 23 Mar 2003 07:29:02 -0500
+	id <S263050AbTCWNMx>; Sun, 23 Mar 2003 08:12:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263050AbTCWM3C>; Sun, 23 Mar 2003 07:29:02 -0500
-Received: from smtp2.wanadoo.fr ([193.252.22.26]:4848 "EHLO
-	mwinf0501.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S263048AbTCWM3B>; Sun, 23 Mar 2003 07:29:01 -0500
-From: Duncan Sands <baldrick@wanadoo.fr>
-Subject: Re: 2.5 AGP no good (VIA KT333, radeon 7500)
-Date: Sun, 23 Mar 2003 13:40:00 +0100
-User-Agent: KMail/1.5.1
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S263051AbTCWNMx>; Sun, 23 Mar 2003 08:12:53 -0500
+Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:1218 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP
+	id <S263050AbTCWNMw>; Sun, 23 Mar 2003 08:12:52 -0500
+Message-ID: <20030323132353.23655.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-Message-Id: <200303231340.00473.baldrick@wanadoo.fr>
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>
+To: gmack@innerfire.net, alan@redhat.com
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Date: Sun, 23 Mar 2003 14:23:52 +0100
+Subject: Re: Linux 2.5.65-ac3
+X-Originating-Ip: 213.4.13.153
+X-Originating-Server: ws5-7.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 March 2003 16:38, you wrote:
-> On Fri, Mar 21, 2003 at 04:15:28PM +0100, Duncan Sands wrote:
->  > X-windows starts, but the picture is horribly torn, only the grey
->  > stipple pattern is recognizable.  Any thoughts?  Or should I start a
->  > binary search for the last version that worked?
->
-> Strange, and this only happens when you have agpgart loaded ?
+----- Original Message ----- 
+From: Gerhard Mack <gmack@innerfire.net> 
+Date: 	Sat, 22 Mar 2003 22:23:18 -0500 (EST) 
+To: Alan Cox <alan@redhat.com> 
+Subject: Re: Linux 2.5.65-ac3 
+ 
+> How close are IDE and vt switching to working with preempt ? 
+ 
+Uh? Isn't IDE already working with preempt? At least, 
+I'm running 2.5.65-mm4 with IDE + preempt with no 
+problems at all (except that when compiling IDE-CDROM 
+as a module, it isn't automagically modprobed). 
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with e-mail forwarding for only US$5.95/yr
 
-It was a BIOS problem: I flashed it, and the problem has gone
-(the agpgart: Putting AGP V2 device at 00:00.0 into 1x mode
-messages have gone too).  The strange thing is, there was no
-problem with 2.4 even before flashing the BIOS.
-
-All the best,
-
-Duncan.
+Powered by Outblaze

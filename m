@@ -1,77 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282780AbRK0EBg>; Mon, 26 Nov 2001 23:01:36 -0500
+	id <S282779AbRK0EBf>; Mon, 26 Nov 2001 23:01:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282782AbRK0EBZ>; Mon, 26 Nov 2001 23:01:25 -0500
-Received: from harrier.mail.pas.earthlink.net ([207.217.120.12]:62143 "EHLO
-	harrier.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S282779AbRK0EBP>; Mon, 26 Nov 2001 23:01:15 -0500
-Message-ID: <01c701c176f8$058fed50$0a00a8c0@intranet.mp3s.com>
-Reply-To: "Sean Elble" <S_Elble@yahoo.com>
-From: "Sean Elble" <S_Elble@yahoo.com>
-To: "Doug Ledford" <dledford@redhat.com>
-Cc: "Nathan G. Grennan" <ngrennan@okcforum.org>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <1006812135.1420.0.camel@cygnusx-1.okcforum.org> <01b501c176f6$8bac6cd0$0a00a8c0@intranet.mp3s.com> <3C030EFB.8060001@redhat.com>
-Subject: Re: Unresponiveness of 2.4.16
-Date: Mon, 26 Nov 2001 23:00:14 -0500
+	id <S282780AbRK0EBY>; Mon, 26 Nov 2001 23:01:24 -0500
+Received: from femail39.sdc1.sfba.home.com ([24.254.60.33]:3507 "EHLO
+	femail39.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S282783AbRK0EBP>; Mon, 26 Nov 2001 23:01:15 -0500
+Message-ID: <3C030FB4.C3303BE4@ecf.utoronto.ca>
+Date: Mon, 26 Nov 2001 22:59:48 -0500
+From: Mark Richards <richard@ecf.utoronto.ca>
+Organization: Comp Eng. 0T1
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-12 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Linux-kernel@vger.kernel.org
+Subject: Multiplexing filesystem
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Not exactly.  That kernel is -ac based (plus lots of other patches, some
-> of them VM tweaks) and is a Van Riel VM.
+Quick question, which I suspect has a long answer.
 
-Right; it's not the "stock" 2.4.9 VM, but it isn't Andrea's either . . . one
-of those gray area things. :-) I guess we just have to wait until he posts
-the results with the "stock" 2.4.9 kernel to see if Red Hat fixed the
-problem or not. Have a good one!
+I would like to write a multiplexing filesystem.  The idea is as follows:
 
------------------------------------------------
-Sean P. Elble
-Editor, Writer, Co-Webmaster
-ReactiveLinux.com (Formerly MaximumLinux.org)
-http://www.reactivelinux.com/
-elbles@reactivelinux.com
------------------------------------------------
+The filesystem would ideally wrap another filesystem, such as nfs or smbfs or
+ext2.  Most operations would just be passed to the native fs call.  However, for
+some files, selectable at run time by some control singal, would actually reside
+on another file system.  The other filesystem would have to be mounted.
 
------ Original Message -----
-From: "Doug Ledford" <dledford@redhat.com>
-To: "Sean Elble" <S_Elble@yahoo.com>
-Cc: "Nathan G. Grennan" <ngrennan@okcforum.org>;
-<linux-kernel@vger.kernel.org>
-Sent: Monday, November 26, 2001 10:56 PM
-Subject: Re: Unresponiveness of 2.4.16
+The idea is for a version controlling filesystem.  The server would be a network
+server (hence the desire to wrap nfs) which presents a 'view' of the source
+code.  When the user reserves a file for editing, the file is copied to the
+local disk.  From that point on, the local file is referred to until the user
+commits the change or unreserves the file.  Ideally, the local copy of the file
+could be on any file system, not one that is necessarily local.  And this has to
+be totally transparent to the user, except for the step where the user
+'reserves' the file.
 
+I've thought about two ways to do this.  One is to wrap the 'versioning' file
+system with a multiplexor that checks fs calls to see if they are referring to a
+file that is on a different fs.  The other approach is to intercept calls to the
+VFS to do the same trick.
 
-> Sean Elble wrote:
->
-> >>I tried switching to Redhat's 2.4.9-13 kernel and it acts Alot better.
-> >>Not only does 2.4.9-13 not get the 30 second delay, but it also seems to
-> >>take advantage of caching. 2.4.16 takes the same moment of time each
-> >>time, even tho it should have cached it all into memory the first time.
-> >>
-> >
-> > Unless Red Hat has specifically added Andrea's new VM code to the 2.4.9
-> > kernel, then that kernel is still using the old VM.
->
->
-> Not exactly.  That kernel is -ac based (plus lots of other patches, some
-> of them VM tweaks) and is a Van Riel VM.
->
->
->
->
-> --
->
->   Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
->        Please check my web site for aic7xxx updates/answers before
->                        e-mailing me about problems
+I'm new to the whole filesystem-coding thing, so bear with me if what i've just
+said makes no sense.  So, my question (I guess it wasn't quick after all) is:
+Can it be done, and are either of my two approaches feasible?  Any suggestions
+or tips?
+
+Thanks,
+Mark Richards
+
+PS please CC me if possible.
 

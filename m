@@ -1,80 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288395AbSAVJ3H>; Tue, 22 Jan 2002 04:29:07 -0500
+	id <S289213AbSAVJu5>; Tue, 22 Jan 2002 04:50:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289212AbSAVJ25>; Tue, 22 Jan 2002 04:28:57 -0500
-Received: from moutng0.kundenserver.de ([212.227.126.170]:40391 "EHLO
-	moutng0.schlund.de") by vger.kernel.org with ESMTP
-	id <S288395AbSAVJ2k>; Tue, 22 Jan 2002 04:28:40 -0500
-Date: Tue, 22 Jan 2002 10:19:15 +0100 (MET)
-From: Armin Schindler <mac@melware.de>
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-cc: <kkeil@suse.de>, linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: missing memset in divas and eicon in 2.2.20
-In-Reply-To: <200201212336.g0LNa9b25643@oboe.it.uc3m.es>
-Message-ID: <Pine.LNX.4.31.0201221017280.21391-100000@phoenix.one.melware.de>
-Organization: Cytronics & Melware
+	id <S289212AbSAVJuq>; Tue, 22 Jan 2002 04:50:46 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:9942 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S287493AbSAVJu3> convert rfc822-to-8bit;
+	Tue, 22 Jan 2002 04:50:29 -0500
+Date: Tue, 22 Jan 2002 12:47:52 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Cc: Partha Narayanan <partha@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Performance Results for Ingo's O(1)-scheduler
+In-Reply-To: <20020122053444.A30EE6DA96@mail.elte.hu>
+Message-ID: <Pine.LNX.4.33.0201221247070.2826-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Did you use plain 2.2.20 ?
-I cannot reproduce this problem here, can you please send me your
-kernel config.
 
-Thanx,
-Armin
+On Tue, 22 Jan 2002, Dieter [iso-8859-15] Nützel wrote:
 
-On Tue, 22 Jan 2002, Peter T. Breuer wrote:
->   betty:/usr/local/src/linux-2.2.20% sudo depmod -ae -F System.map 2.2.20-SMP
->   depmod: *** Unresolved symbols in
->   /lib/modules/2.2.20-SMP/misc/divas.o depmod:         memset
->   depmod: *** Unresolved symbols in
->   /lib/modules/2.2.20-SMP/misc/eicon.o depmod:         memset
+> > KERNEL              UP          4-way       8-way
+> > =========  ======      ======      ======
+> >
+> > 2.4.17              11005       15894       11595
+> [-]
 >
-> Both compiled as modules, SMP kernel, i686 compile.  No, I didn't make a
-> patch - I was too busy fighting with sct's patch for ext3, which is also
-> slightly toasted in the deendencies department when compiled as a
-> module.
->
-> I don't know why these are missing memset. Of course memset is in the
-> kernel and nobody else misses it one bit! Yes, they do include at least
-> some header that incorporates memset (from linux/strings.h? Or in
-> asm-i386?), because I tried copying an inline memset.h definition into
-> their header files, and it produced a typical compiler error ("error
-> before '?' .." sic) from a memset macro clash. One of the component
-> sources of divas.o and eicon.o must be missing an #include
-> <asm/strings.h>.
->
-> Your mission is to find and eliminate that missing include.
->
-> Good luck.
->
->
-> ---------------------------------------------------------------------
-> Peter T. Breuer                   MA CASM PhD (Ing.), Prof. Asoc.
-> Area de Ingenieria Telematica	  E-mail: ptb@it.uc3m.es
-> Dpto. Ingenieria		  Tel: +34 (9)1 624 87 81
-> Universidad Carlos III de Madrid  Fax: +34 (9)1 624 8749/9430
-> Butarque 15, Leganes/Madrid       URL: http://www.it.uc3m.es/~ptb
-> E-28911 Spain                     Mob: +34 69 666 7835
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> Would you be so kind to redo it with 2.4.18pre2aa2 (Andrea's 10_vm-22) stuff?
 
+prediction: the results wont change a bit.
 
-- - -   - - -   - - -   - - -
-Cytronics & Melware
-Weinbergstrasse 39
-55296 Loerzweiler / Germany
-Tel: +49 6138 98110-0
-Fax: +49 6138 98110-9
-mailto:info@melware.de
-http://www.melware.de
-- - -   - - -   - - -   - - -
+VolanoMark has no sensitivity on VM issues at all.
 
+	Ingo
 

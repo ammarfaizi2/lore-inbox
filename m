@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266293AbRGYAnL>; Tue, 24 Jul 2001 20:43:11 -0400
+	id <S266321AbRGYAqV>; Tue, 24 Jul 2001 20:46:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266321AbRGYAnC>; Tue, 24 Jul 2001 20:43:02 -0400
-Received: from draco.cus.cam.ac.uk ([131.111.8.18]:429 "EHLO
-	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S266293AbRGYAm6>; Tue, 24 Jul 2001 20:42:58 -0400
-Message-Id: <5.1.0.14.2.20010725013436.00a91880@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 25 Jul 2001 01:43:03 +0100
-To: Daniel Phillips <phillips@bonn-fries.net>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: [RFC] Optimization for use-once pages
-Cc: Rik van Riel <riel@conectiva.com.br>, <jlnance@intrex.net>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <01072502043009.00520@starship>
-In-Reply-To: <Pine.LNX.4.33L.0107241355090.20326-100000@duckman.distro.conectiva>
- <Pine.LNX.4.33L.0107241355090.20326-100000@duckman.distro.conectiva>
+	id <S268524AbRGYAqL>; Tue, 24 Jul 2001 20:46:11 -0400
+Received: from jalon.able.es ([212.97.163.2]:50613 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S266321AbRGYAqC>;
+	Tue, 24 Jul 2001 20:46:02 -0400
+Date: Wed, 25 Jul 2001 02:50:14 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: GOTO Masanori <gotom@debian.or.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.7 tmpfs strange behaviour
+Message-ID: <20010725025014.A2431@werewolf.able.es>
+In-Reply-To: <20010725005940.A5607@werewolf.able.es> <w53bsm9c06f.wl@megaela.fe.dis.titech.ac.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <w53bsm9c06f.wl@megaela.fe.dis.titech.ac.jp>; from gotom@debian.or.jp on Wed, Jul 25, 2001 at 02:38:48 +0200
+X-Mailer: Balsa 1.1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-At 01:04 25/07/2001, Daniel Phillips wrote:
->At that size you'd run a real risk of missing the tell-tale multiple
->references that mark a page as frequently used.  Think about metadata
->here (right now, that usually just means directory pages, but later...
->who knows).
 
-This is not actually implemented yet, but NTFS TNG will use the page cache 
-to hold both the LCN (physical clusters) and MFT (on disk inodes) 
-allocation bitmaps in addition to file and directory pages. (Admittedly the 
-LCN case folds into the file pages in page cache one as the LCN bitmap is 
-just stored inside the usual data of a file called $Bitmap, but the MFT 
-case is more complex as it is in an additional attribute inside the file 
-$MFT so the normal file read/write functions definitely cannot be used. The 
-usual data here is the actual on disk inodes...)
+On 20010725 GOTO Masanori wrote:
+>> /dev/sdb1              4232960     32840   4200120   1% /mnt/disk
+>> /root/tmpfs             131072         0    131072   0% /dev/shm
+>> /tmp/tmpfs              131072         0    131072   0% /dev/shm
+>> 
+>> ???? Strange devices.... both mounted under /dev/shm.
+>
+>I don't have any problems... mount version is 2.11g on 2.4.7
+>Uni-Processor and 2.4.7-pre3 SMP.
+>
 
-Just FYI.
-
-Anton
-
+Mmm, mine is mount-2.11e on 2.4.7 final, SMP box.
+perhaps mount bug ?
+Going to get the new one...
 
 -- 
-   "Nothing succeeds like success." - Alexandre Dumas
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.1 (Cooker) for i586
+Linux werewolf 2.4.7 #1 SMP Mon Jul 23 01:55:36 CEST 2001 i686

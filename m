@@ -1,257 +1,194 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264432AbUEMTWB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264527AbUEMT07@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264432AbUEMTWB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 15:22:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264465AbUEMTTq
+	id S264527AbUEMT07 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 15:26:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264501AbUEMTYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 15:19:46 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:17635 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S264432AbUEMTOM
+	Thu, 13 May 2004 15:24:19 -0400
+Received: from postfix4-2.free.fr ([213.228.0.176]:14000 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S264477AbUEMTPe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 15:14:12 -0400
-Date: Thu, 13 May 2004 21:14:08 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390 (2/6): common i/o layer.
-Message-ID: <20040513191408.GC2916@mschwid3.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 13 May 2004 15:15:34 -0400
+Message-ID: <40A3C951.9000501@free.fr>
+Date: Thu, 13 May 2004 21:15:29 +0200
+From: Eric Valette <eric.valette@free.fr>
+Reply-To: eric.valette@free.fr
+Organization: HOME
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040501
+X-Accept-Language: en
+MIME-Version: 1.0
+To: akpm@osdl.org
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.6-mm2 : suddent lost of keyboard. Everything else OK.
+Content-Type: multipart/mixed;
+ boundary="------------070705000000040105040109"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] s390: cio changes.
+This is a multi-part message in MIME format.
+--------------070705000000040105040109
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Andrew,
 
-Common i/o layer changes:
- - Delay unregister/register of ccw devices reappering on a different
-   subchannel. Search for the old ccw_device & subchannel for the
-   reattached device and deregister it too to avoid inconsistencies.
- - Fix path grouping for devices that present command reject for
-   SetPGID but not for SensePGID.
+I tested 2.6.6-mm2 this afternoon and twice I totally lost my keyboard. 
+Everything else is working, I can rlogin, shutdown the system. It also
+happens in console mode and looks like either keyboard irq or more 
+likely its post processing just do not process queued characters.
 
-diffstat:
- drivers/s390/cio/css.c         |   23 +++++++---
- drivers/s390/cio/device.c      |   92 ++++++++++++++++++++++++++++++++++++-----
- drivers/s390/cio/device_fsm.c  |   11 +++-
- drivers/s390/cio/device_pgid.c |    4 +
- 4 files changed, 110 insertions(+), 20 deletions(-)
+I have nothing in dmesg nor in syslog. Attached in my .config.
 
-diff -urN linux-2.6/drivers/s390/cio/css.c linux-2.6-s390/drivers/s390/cio/css.c
---- linux-2.6/drivers/s390/cio/css.c	Mon May 10 04:32:01 2004
-+++ linux-2.6-s390/drivers/s390/cio/css.c	Thu May 13 21:00:59 2004
-@@ -1,7 +1,7 @@
- /*
-  *  drivers/s390/cio/css.c
-  *  driver for channel subsystem
-- *   $Revision: 1.73 $
-+ *   $Revision: 1.74 $
-  *
-  *    Copyright (C) 2002 IBM Deutschland Entwicklung GmbH,
-  *			 IBM Corporation
-@@ -218,12 +218,21 @@
- 		 * We don't notify the driver since we have to throw the device
- 		 * away in any case.
- 		 */
--		device_unregister(&sch->dev);
--		/* Reset intparm to zeroes. */
--		sch->schib.pmcw.intparm = 0;
--		cio_modify(sch);
--		put_device(&sch->dev);
--		ret = css_probe_device(irq);
-+		if (!disc) {
-+			device_unregister(&sch->dev);
-+			/* Reset intparm to zeroes. */
-+			sch->schib.pmcw.intparm = 0;
-+			cio_modify(sch);
-+			put_device(&sch->dev);
-+			ret = css_probe_device(irq);
-+		} else {
-+			/*
-+			 * We can't immediately deregister the disconnected
-+			 * device since it might block.
-+			 */
-+			device_trigger_reprobe(sch);
-+			ret = 0;
-+		}
- 		break;
- 	case CIO_OPER:
- 		if (disc)
-diff -urN linux-2.6/drivers/s390/cio/device.c linux-2.6-s390/drivers/s390/cio/device.c
---- linux-2.6/drivers/s390/cio/device.c	Mon May 10 04:32:54 2004
-+++ linux-2.6-s390/drivers/s390/cio/device.c	Thu May 13 21:00:59 2004
-@@ -1,7 +1,7 @@
- /*
-  *  drivers/s390/cio/device.c
-  *  bus driver for ccw devices
-- *   $Revision: 1.115 $
-+ *   $Revision: 1.117 $
-  *
-  *    Copyright (C) 2002 IBM Deutschland Entwicklung GmbH,
-  *			 IBM Corporation
-@@ -26,6 +26,7 @@
- #include "cio.h"
- #include "css.h"
- #include "device.h"
-+#include "ioasm.h"
- 
- /******************* bus type handling ***********************/
- 
-@@ -499,20 +500,93 @@
- 	return ret;
- }
- 
--void
--ccw_device_do_unreg_rereg(void *data)
-+static struct ccw_device *
-+get_disc_ccwdev_by_devno(unsigned int devno, struct ccw_device *sibling)
- {
-+	struct ccw_device *cdev;
-+	struct list_head *entry;
- 	struct device *dev;
- 
--	dev = (struct device *)data;
--	device_remove_files(dev);
--	device_del(dev);
--	if (device_add(dev)) {
-+	if (!get_bus(&ccw_bus_type))
-+		return NULL;
-+	down_read(&ccw_bus_type.subsys.rwsem);
-+	cdev = NULL;
-+	list_for_each(entry, &ccw_bus_type.devices.list) {
-+		dev = get_device(container_of(entry,
-+					      struct device, bus_list));
-+		if (!dev)
-+			continue;
-+		cdev = to_ccwdev(dev);
-+		if ((cdev->private->state == DEV_STATE_DISCONNECTED) &&
-+		    (cdev->private->devno == devno) &&
-+		    (!strncmp(cdev->dev.bus_id, sibling->dev.bus_id, 4))) {
-+			cdev->private->state = DEV_STATE_NOT_OPER;
-+			break;
-+		}
- 		put_device(dev);
-+		cdev = NULL;
-+	}
-+	up_read(&ccw_bus_type.subsys.rwsem);
-+	put_bus(&ccw_bus_type);
-+
-+	return cdev;
-+}
-+
-+void
-+ccw_device_do_unreg_rereg(void *data)
-+{
-+	struct ccw_device *cdev;
-+	struct subchannel *sch;
-+	int need_rename;
-+
-+	cdev = (struct ccw_device *)data;
-+	sch = to_subchannel(cdev->dev.parent);
-+	if (cdev->private->devno != sch->schib.pmcw.dev) {
-+		/*
-+		 * The device number has changed. This is usually only when
-+		 * a device has been detached under VM and then re-appeared
-+		 * on another subchannel because of a different attachment
-+		 * order than before. Ideally, we should should just switch
-+		 * subchannels, but unfortunately, this is not possible with
-+		 * the current implementation.
-+		 * Instead, we search for the old subchannel for this device
-+		 * number and deregister so there are no collisions with the
-+		 * newly registered ccw_device.
-+		 * FIXME: Find another solution so the block layer doesn't
-+		 *        get possibly sick...
-+		 */
-+		struct ccw_device *other_cdev;
-+
-+		need_rename = 1;
-+		other_cdev = get_disc_ccwdev_by_devno(sch->schib.pmcw.dev,
-+						      cdev);
-+		if (other_cdev) {
-+			struct subchannel *other_sch;
-+
-+			other_sch = to_subchannel(other_cdev->dev.parent);
-+			if (get_device(&other_sch->dev)) {
-+				stsch(other_sch->irq, &other_sch->schib);
-+				if (other_sch->schib.pmcw.dnv) {
-+					other_sch->schib.pmcw.intparm = 0;
-+					cio_modify(other_sch);
-+				}
-+				device_unregister(&other_sch->dev);
-+			}
-+		}
-+		cdev->private->devno = sch->schib.pmcw.dev;
-+	} else
-+		need_rename = 0;
-+	device_remove_files(&cdev->dev);
-+	device_del(&cdev->dev);
-+	if (need_rename)
-+		snprintf (cdev->dev.bus_id, BUS_ID_SIZE, "0.0.%04x",
-+			  sch->schib.pmcw.dev);
-+	if (device_add(&cdev->dev)) {
-+		put_device(&cdev->dev);
- 		return;
- 	}
--	if (device_add_files(dev))
--		device_unregister(dev);
-+	if (device_add_files(&cdev->dev))
-+		device_unregister(&cdev->dev);
- }
- 
- static void
-diff -urN linux-2.6/drivers/s390/cio/device_fsm.c linux-2.6-s390/drivers/s390/cio/device_fsm.c
---- linux-2.6/drivers/s390/cio/device_fsm.c	Mon May 10 04:32:37 2004
-+++ linux-2.6-s390/drivers/s390/cio/device_fsm.c	Thu May 13 21:00:59 2004
-@@ -152,14 +152,15 @@
- 	/*
- 	 * Check if cu type and device type still match. If
- 	 * not, it is certainly another device and we have to
--	 * de- and re-register.
-+	 * de- and re-register. Also check here for non-matching devno.
- 	 */
- 	if (cdev->id.cu_type != cdev->private->senseid.cu_type ||
- 	    cdev->id.cu_model != cdev->private->senseid.cu_model ||
- 	    cdev->id.dev_type != cdev->private->senseid.dev_type ||
--	    cdev->id.dev_model != cdev->private->senseid.dev_model) {
-+	    cdev->id.dev_model != cdev->private->senseid.dev_model ||
-+	    cdev->private->devno != sch->schib.pmcw.dev) {
- 		PREPARE_WORK(&cdev->private->kick_work,
--			     ccw_device_do_unreg_rereg, (void *)&cdev->dev);
-+			     ccw_device_do_unreg_rereg, (void *)cdev);
- 		queue_work(ccw_device_work, &cdev->private->kick_work);
- 		return;
- 	}
-@@ -295,7 +296,7 @@
- 		sch->driver->notify(&sch->dev, CIO_OPER) : 0;
- 	if (!ret)
- 		/* Driver doesn't want device back. */
--		ccw_device_do_unreg_rereg((void *)&cdev->dev);
-+		ccw_device_do_unreg_rereg((void *)cdev);
- 	else
- 		wake_up(&cdev->private->wait_q);
- }
-@@ -476,6 +477,8 @@
- {
- 	cdev->private->flags.doverify = 0;
- 	switch (err) {
-+	case -EOPNOTSUPP: /* path grouping not supported, just set online. */
-+		cdev->private->options.pgroup = 0;
- 	case 0:
- 		ccw_device_done(cdev, DEV_STATE_ONLINE);
- 		break;
-diff -urN linux-2.6/drivers/s390/cio/device_pgid.c linux-2.6-s390/drivers/s390/cio/device_pgid.c
---- linux-2.6/drivers/s390/cio/device_pgid.c	Mon May 10 04:32:38 2004
-+++ linux-2.6-s390/drivers/s390/cio/device_pgid.c	Thu May 13 21:00:59 2004
-@@ -338,6 +338,10 @@
- 		 * One of those strange devices which claim to be able
- 		 * to do multipathing but not for Set Path Group ID.
- 		 */
-+		if (cdev->private->flags.pgid_single) {
-+			ccw_device_verify_done(cdev, -EOPNOTSUPP);
-+			break;
-+		}
- 		cdev->private->flags.pgid_single = 1;
- 		/* fall through. */
- 	case -EAGAIN:		/* Try again. */
+-- 
+     __
+    /  `                   	Eric Valette
+   /--   __  o _.          	6 rue Paul Le Flem
+  (___, / (_(_(__         	35740 Pace
+
+Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
+E-mail: eric.valette@free.fr
+
+
+
+
+
+--------------070705000000040105040109
+Content-Type: application/gzip;
+ name="config.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="config.gz"
+
+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
+--------------070705000000040105040109--

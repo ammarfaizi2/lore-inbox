@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131455AbQL1WQq>; Thu, 28 Dec 2000 17:16:46 -0500
+	id <S131950AbQL1WYG>; Thu, 28 Dec 2000 17:24:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131950AbQL1WQg>; Thu, 28 Dec 2000 17:16:36 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:44026 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131455AbQL1WQ0>; Thu, 28 Dec 2000 17:16:26 -0500
-Date: Thu, 28 Dec 2000 19:45:52 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Ari Heitner <aheitner@andrew.cmu.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: sharing text segments of all programs
-In-Reply-To: <Pine.SOL.3.96L.1001228000737.3482B-100000@unix13.andrew.cmu.edu>
-Message-ID: <Pine.LNX.4.21.0012281943510.1403-100000@duckman.distro.conectiva>
+	id <S132411AbQL1WX5>; Thu, 28 Dec 2000 17:23:57 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:4614
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S131950AbQL1WXn>; Thu, 28 Dec 2000 17:23:43 -0500
+Date: Thu, 28 Dec 2000 13:52:30 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 8139too fix
+In-Reply-To: <Pine.LNX.4.21.0012281939540.1403-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.10.10012281351230.11868-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Dec 2000, Ari Heitner wrote:
 
-> this has to be a dumb idea
+Jeff Garzik, is offline for the next three weeks......
 
-Not really, you're just 8 (9?) years too late...
+He claims that his wrists hurt from the keyboard ;-)...
 
-> The question is, why shouldn't it be possible to share the text
-> segments of *all* running programs?
+Cheers,
 
-Linux uses shared mmap() for "loading" executables (well,
-they're just mapped and demand-loaded as page faults come
-in), which happens to give exactly the behaviour that's on
-your wish list ;)
-
-regards,
-
-Rik
---
-Hollywood goes for world dumbination,
-	Trailer at 11.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+Andre Hedrick
+CTO Timpanogas Research Group
+EVP Linux Development, TRG
+Linux ATA Development
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

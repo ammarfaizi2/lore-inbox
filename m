@@ -1,79 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263944AbUDNH3p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 03:29:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263947AbUDNH3p
+	id S261723AbUDNHn3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 03:43:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263715AbUDNHn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 03:29:45 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:50333 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S263944AbUDNH3e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 03:29:34 -0400
-Date: Wed, 14 Apr 2004 09:29:33 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] Add missing newline
-Message-ID: <20040414072933.GM630@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="JlJsEFsx9RQyiX4C"
-Content-Disposition: inline
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 14 Apr 2004 03:43:29 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15336 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261723AbUDNHn1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 03:43:27 -0400
+Message-ID: <407CEB91.1080503@pobox.com>
+Date: Wed, 14 Apr 2004 03:43:13 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] conditionalize some boring buffer_head checks
+Content-Type: multipart/mixed;
+ boundary="------------000205040706020706040606"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------000205040706020706040606
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---JlJsEFsx9RQyiX4C
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Hi Andrew/Linus!
+These checks are executed billions of times per day, with no stack dump 
+bug reports sent to lkml.  Arguably, they will only trigger on buggy 
+filesystems (programmer error), and thus IMO shouldn't even be executed 
+in a non-debug kernel.
 
-Please add this missing \n:
+Even though BUG_ON() includes unlikely(), I think this patch -- or 
+something like it -- is preferable.  The buffer_error() checks aren't 
+even marked unlikely().
 
---- linux-2.6.5/arch/i386/kernel/timers/timer_tsc.c~	2004-04-14 09:05:24.00=
-0000000 +0200
-+++ linux-2.6.5/arch/i386/kernel/timers/timer_tsc.c	2004-04-14 09:06:04.000=
-000000 +0200
-@@ -232,7 +232,7 @@
- 		/* sanity check to ensure we're not always losing ticks */
- 		if (lost_count++ > 100) {
- 			printk(KERN_WARNING "Losing too many ticks!\n");
--			printk(KERN_WARNING "TSC cannot be used as a timesource.  ");
-+			printk(KERN_WARNING "TSC cannot be used as a timesource.\n");
- 			printk(KERN_WARNING "Possible reasons for this are:\n");
- 			printk(KERN_WARNING "  You're running with Speedstep,\n");
- 			printk(KERN_WARNING "  You don't have DMA enabled for your hard disk (s=
-ee hdparm),\n");
+This is a micro-optimization on a key kernel fast path.
 
-MfG, JBG
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
 
---JlJsEFsx9RQyiX4C
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+--------------000205040706020706040606
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+===== fs/buffer.c 1.237 vs edited =====
+--- 1.237/fs/buffer.c	Wed Apr 14 03:18:09 2004
++++ edited/fs/buffer.c	Wed Apr 14 03:39:15 2004
+@@ -2688,6 +2688,7 @@
+ {
+ 	struct bio *bio;
+ 
++#ifdef BH_DEBUG
+ 	BUG_ON(!buffer_locked(bh));
+ 	BUG_ON(!buffer_mapped(bh));
+ 	BUG_ON(!bh->b_end_io);
+@@ -2698,6 +2699,7 @@
+ 		buffer_error();
+ 	if (rw == READ && buffer_dirty(bh))
+ 		buffer_error();
++#endif
+ 
+ 	/* Only clear out a write error when rewriting */
+ 	if (test_set_buffer_req(bh) && rw == WRITE)
+===== include/linux/buffer_head.h 1.47 vs edited =====
+--- 1.47/include/linux/buffer_head.h	Wed Apr 14 03:18:09 2004
++++ edited/include/linux/buffer_head.h	Wed Apr 14 03:39:31 2004
+@@ -13,6 +13,8 @@
+ #include <linux/wait.h>
+ #include <asm/atomic.h>
+ 
++#undef BH_DEBUG
++
+ enum bh_state_bits {
+ 	BH_Uptodate,	/* Contains valid data */
+ 	BH_Dirty,	/* Is dirty */
 
-iD8DBQFAfOhdHb1edYOZ4bsRAi7rAJ9oSs0Yg6rkt0Scn7DMLE0gRM1APwCdFG+3
-DGxwOjfOUzSzzYkUpLUuvXc=
-=BZGx
------END PGP SIGNATURE-----
+--------------000205040706020706040606--
 
---JlJsEFsx9RQyiX4C--

@@ -1,55 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135239AbRD3U3W>; Mon, 30 Apr 2001 16:29:22 -0400
+	id <S135898AbRD3UcE>; Mon, 30 Apr 2001 16:32:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135283AbRD3U3M>; Mon, 30 Apr 2001 16:29:12 -0400
-Received: from viper.haque.net ([66.88.179.82]:20887 "EHLO mail.haque.net")
-	by vger.kernel.org with ESMTP id <S135239AbRD3U3K>;
-	Mon, 30 Apr 2001 16:29:10 -0400
-Date: Mon, 30 Apr 2001 16:28:59 -0400 (EDT)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: Ion Badulescu <ionut@cs.columbia.edu>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrea Arcangeli <andrea@suse.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.19 locks up on SMP
-In-Reply-To: <Pine.LNX.4.33.0104301255020.12259-100000@age.cs.columbia.edu>
-Message-ID: <Pine.LNX.4.33.0104301623070.530-100000@viper.haque.net>
+	id <S135899AbRD3Ubx>; Mon, 30 Apr 2001 16:31:53 -0400
+Received: from eastgate.starhub.net.sg ([203.116.1.189]:16388 "EHLO
+	eastgate.starhub.net.sg") by vger.kernel.org with ESMTP
+	id <S135898AbRD3Ubg>; Mon, 30 Apr 2001 16:31:36 -0400
+Message-ID: <XFMail.010501044118.hosler@lugs.org.sg>
+X-Mailer: XFMail 1.3 [p0] on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <3AED958C.3F9EBE1B@mandrakesoft.com>
+Date: Tue, 01 May 2001 04:41:18 +0800 (SGT)
+Reply-To: Greg Hosler <hosler@lugs.org.sg>
+From: Greg Hosler <hosler@lugs.org.sg>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: RE: PATCH 2.4.4: Via audio fixes
+Cc: linux-via@gtf.org, Capricelli Thomas <orzel@kde.org>,
+        josh <skulcap@mammoth.org>, Arjan van de Ven <arjanv@redhat.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Apr 2001, Ion Badulescu wrote:
 
-> Except that the only driver I'm using is eepro100, and the only change to
-> that driver was the patch I submitted myself and which is also in 2.4.
->
-> Also, another data point: those two SMP boxes have been running 2.2.18 +
-> Andrea's VM-global patch since January, without a hitch.
->
-> Ok, so onto the binary search through the 2.2.19pre series...
+On 30-Apr-01 Jeff Garzik wrote:
+> The attached patch includes fixes to the Via audio driver for which I'm
+> interested finding testers.  Testing and a private "it works" (hopefully
+>:)) or "it doesn't work, <here> is what breaks for me" would be
+> appreciated.
+> -- 
+> Jeff Garzik      | Game called on account of naked chick
+> Building 1024    |
+> MandrakeSoft     |
 
-Just to give another data point...
+it doesn't work.
 
-2.2.19 + LVM patches - dual P3 550
-1 GB RAM
-eepro100
-ncr53c8xx scsi
-mylex accelRAID 1100 RAID controller
+configuration: SMP, ac'97, IRQ gets assigned to 18.
 
-We've transferred around 1 GB of stuff over the network and about 200 GB
-between two raids w/o problems in a little under 3 days.
+problem: interrupts appear to not be firing. Neither PRINTK() in
+via_intr_channel() or via_interrupt() ever get called (suggesting that
+the interrupt is either not firing, or not connected to the service routine).
 
-We've only scratched into swap. Free show 128K being used.
+I've enabled debug, and have more information in the logs, but the short answer
+is "the interrupts aren't firing".
 
--- 
+in single processor more, no problem. (but that was always the case).
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
-
+-Greg
+ 
++---------------------------------------------------------------------+
+"DOS Computers manufactured by companies such as IBM, Compaq, Tandy, and
+millions of others are by far the most popular, with about 70 million
+machines in use wordwide. Macintosh fans, on the other hand, may note that
+cockroaches are far more numerous than humans, and that numbers alone do
+not denote a higher life form."       (New York Times, November 26, 1991)
+| Greg Hosler                           i-net:  hosler@lugs.org.sg    |
++---------------------------------------------------------------------+

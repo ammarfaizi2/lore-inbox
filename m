@@ -1,82 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264745AbSJUGbc>; Mon, 21 Oct 2002 02:31:32 -0400
+	id <S264749AbSJUGcw>; Mon, 21 Oct 2002 02:32:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264749AbSJUGbb>; Mon, 21 Oct 2002 02:31:31 -0400
-Received: from [80.66.10.42] ([80.66.10.42]:29149 "EHLO
-	woodstock.orga-systems.de") by vger.kernel.org with ESMTP
-	id <S264745AbSJUGba>; Mon, 21 Oct 2002 02:31:30 -0400
-Message-ID: <3DB3A112.1060003@orga.com>
-Date: Mon, 21 Oct 2002 08:39:14 +0200
-From: =?ISO-8859-1?Q?Gerrit_Bruchh=E4user?= <gbruchhaeuser@orga.com>
-Organization: ORGA Kartensysteme GmbH
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.1) Gecko/20020826
-X-Accept-Language: de, en-us
+	id <S264751AbSJUGcv>; Mon, 21 Oct 2002 02:32:51 -0400
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:62193 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id <S264749AbSJUGct> convert rfc822-to-8bit; Mon, 21 Oct 2002 02:32:49 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+Reply-To: landley@trommello.org
+To: karim@opersys.com
+Subject: Re: Crunch time -- Final merge candidates for 3.0 (the list).
+Date: Sun, 20 Oct 2002 20:37:54 -0500
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org, boissiere@nl.linux.org
+References: <200210201849.23667.landley@trommello.org> <3DB398C4.6DB5CB0B@opersys.com>
+In-Reply-To: <3DB398C4.6DB5CB0B@opersys.com>
 MIME-Version: 1.0
-To: Sean Estabrooks <seanlkml@rogers.com>
-CC: linux-kernel@vger.kernel.org, landley@trommello.org, alan@redhat.com,
-       ankry@green.mif.pg.gda.pl, torvalds@transmeta.com
-Subject: Re: bootsect.S and magic address 0x78
-References: <3DAFDC88.2010009@orga.com> <0d8c01c276a6$67cf9020$370a0a0a@slappy>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210202037.54370.landley@trommello.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Sean,
-
-thank you very much - you realy helped me a lot. I wrote to the top 
-because this question had been already posted many times. See for 
-instances: http://www.leto.net/mail/linuxasm/2001/msg00538.html
-
-If this is ok for you then I would like to copy+paste your answer to all 
-these postings I crossed.
-
-Many thanks and cheers!
-
-Gerrit
-
-
-Sean Estabrooks schrieb:
-
->>Hello Linus,
->>
->>
->>Can you tell me where this magic address 0x78 in arch/i386/bootsect.S
->>refers to? I mean, is this somewhere specified?
->>
->>Many thanks and cheers from germany.
->>
->>Gerrit
->>    
->>
+On Monday 21 October 2002 01:03, Karim Yaghmour wrote:
+> Rob Landley wrote:
+> > o Ready - Build option for Linux Trace Toolkit (LTT) (Karim Yaghmour)
+> > http://www.uwsg.iu.edu/hypermail/linux/kernel/0204.1/0832.html
 >
->  
+> LTT has seen a number of changes since the posting above. Mainly,
+> we've followed the recommendations of quite a few folks from the LKML.
+> Here are some highlights summarizing the changes:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=103491640202541&w=2
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=103423004321305&w=2
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=103247532007850&w=2
 >
->>Hello Linus,
->>
->>
->>Can you tell me where this magic address 0x78 in arch/i386/bootsect.S
->>refers to? I mean, is this somewhere specified?
->>
->>    
->>
+> The latest patch is available here:
+> http://opersys.com/ftp/pub/LTT/ExtraPatches/patch-ltt-linux-2.5.44-vanilla-
+>021019-2.2.bz2 Use this patch with version 0.9.6pre2 of the user tools:
+> http://opersys.com/ftp/pub/LTT/TraceToolkit-0.9.6pre2.tgz
 >
->Hope you'll settle for an answer from a simple lkml lurker and not the top
->gun.
->
->The address 0x78 points to the floppy disk drive parameter table
->described here:  http://www.xs4all.nl/~matrix/fdd_pt.html
->
->A list of all the low memory ROM BIOS vectors and addresses can be
->found here:  http://www.cybertrails.com/~fys/rombios.htm
->
->Cheers,
->Sean
->
->
->  
->
+> Karim
 
+Cool.  I just grabbed the URL off of G.B's list (I'm not even going to TRY to 
+spell his name again just now).  it would be nice if the october 19 link was 
+up as soon as the "latest" link was up: right now I can't post a URL to it in 
+a way that will remain referring to what I was talking about after he posts 
+the next update. :(
 
+Another thing I've noticed somebody still hoping to shoehorn into 2.5 is Roman 
+Zippel's new kernel configuration system, which is here:
 
+Announcement:
+http://lists.insecure.org/lists/linux-kernel/2002/Oct/6898.html
+Code:
+http://www.xs4all.nl/~zippel/lc/
+
+That was listed as a "beta" on the status list, I guess at version 1.1, it has 
+now been promoted.  (Anything else on the beta that's still trying to make it 
+into 2.5?  The 27th is sunday, meaning Linus should be back at transmeta on 
+monday.  Assuming 2.4.45 ships on the 31st, that would be the following 
+thursday...)
+
+Ted Tso has also been posting new ext2/ext3 code with extended attributes and 
+access control lists.
+
+Announcement:
+http://lists.insecure.org/lists/linux-kernel/2002/Oct/6787.html
+Code (chooe your poison):
+bk://extfs.bkbits.net/extfs-2.5-update 
+http://thunk.org/tytso/linux/extfs-2.5
+
+Apparently generic ACL support went into 2.5.3 (the status list again), but I 
+guess it wasn't added to EXT2.  I suppose this makes this a good candidate 
+for inclusion then. :)
+
+So, 11 items from the 2.5 status list (in -aa, in -mm, and "ready"), plus 
+kexec, kernelconfig, and ACL for EXT3.  I believe this brings the total 
+number of pending patchsets still hoping for 2.5 inclusion to 14.
+
+I can repost the full list if nobody beats me to it, but I think I'll wait to 
+see who else pipes up first. :)
+
+Rob

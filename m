@@ -1,73 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262039AbVBJHwx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262040AbVBJHxo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262039AbVBJHwx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 02:52:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbVBJHwx
+	id S262040AbVBJHxo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 02:53:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbVBJHxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 02:52:53 -0500
-Received: from wproxy.gmail.com ([64.233.184.200]:41093 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262039AbVBJHwv (ORCPT
+	Thu, 10 Feb 2005 02:53:44 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:31940 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262040AbVBJHxh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 02:52:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=NmdncoTABzOTe2AbbbLOs3TPDZXX1ZKaL9+6xZ6Ck2J37v68Vh+6Y20ggoTFO/aJSGQryaMCR4diKieUI95j020ZvwB3L7e3NBTvs9GlwD5FTq8vno1Pd+FV5fiZhuNFVk3TCSQVz2wIoeGj1UutZxQVCPUh+5W1O+Q4zxc3dZ4=
-Message-ID: <84144f020502092352682a732f@mail.gmail.com>
-Date: Thu, 10 Feb 2005 09:52:50 +0200
-From: Pekka Enberg <penberg@gmail.com>
-Reply-To: Pekka Enberg <penberg@gmail.com>
-To: Tom Zanussi <zanussi@us.ibm.com>
-Subject: Re: [PATCH] relayfs redux, part 4
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Robert Wisniewski <bob@watson.ibm.com>, Tim Bird <tim.bird@am.sony.com>,
-       Christoph Hellwig <hch@infradead.org>, karim@opersys.com,
-       penberg@cs.helsinki.fi
-In-Reply-To: <16906.52160.870346.806462@tut.ibm.com>
+	Thu, 10 Feb 2005 02:53:37 -0500
+Date: Thu, 10 Feb 2005 08:52:34 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: William Weston <weston@lysdexia.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01
+Message-ID: <20050210075234.GC9436@elte.hu>
+References: <20050204100347.GA13186@elte.hu> <Pine.LNX.4.58.0502081135340.21618@echo.lysdexia.org> <20050209115121.GA13608@elte.hu> <Pine.LNX.4.58.0502091233360.4599@echo.lysdexia.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <16906.52160.870346.806462@tut.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0502091233360.4599@echo.lysdexia.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-3.012, required 5.9,
+	BAYES_00 -4.90, PORN_4 1.89
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Feb 2005 20:49:36 -0600, Tom Zanussi <zanussi@us.ibm.com> wrote:
-> +static int relayfs_create_entry(const char *name, struct dentry *parent,
-> +                               int mode, struct rchan *chan,
-> +                               struct dentry **dentry)
-> +{
-> +       struct qstr qname;
-> +       struct dentry *d;
-> +       struct inode *inode;
-> +       int error = 0;
-> +
-> +       BUG_ON(!(S_ISREG(mode) || S_ISDIR(mode)));
-> +
-> +       error = simple_pin_fs("relayfs", &relayfs_mount, &relayfs_mount_count);
-> +       if (error) {
-> +               printk(KERN_ERR "Couldn't mount relayfs: errcode %d\n", error);
-> +               return error;
-> +       }
-> +
-> +       qname.name = name;
-> +       qname.len = strlen(name);
-> +       qname.hash = full_name_hash(name, qname.len);
-> +
-> +       if (!parent)
-> +               if (relayfs_mount && relayfs_mount->mnt_sb)
-> +                       parent = relayfs_mount->mnt_sb->s_root;
 
-Please move the nested if statement to the parent expression. The
-!parent part is always evaluated first.
+* William Weston <weston@lysdexia.org> wrote:
 
-> +static struct inode *relayfs_alloc_inode(struct super_block *sb)
-> +{
-> +       struct relayfs_inode_info *p;
-> +       p = (struct relayfs_inode_info *)kmem_cache_alloc(relayfs_inode_cachep,
-> +                                                         SLAB_KERNEL);
+> > what is the longest wakeup latency the tracer shows? You can start the
+> > measurement anew via:
+> > 
+> > 	echo 0 > /proc/sys/kernel/preempt_max_latency
+> 
+> Max latency is in the realm of 13-18 after runs of jack_test4.1.
 
-Please drop the spurious cast from void *.
+that's 13-18 microsecond worst-case delay from point of wakeup to the
+point the woken up task has been context-switched to - pretty good for a
+generic OS ;-)
 
-                         Pekka
+> See http://www.sysex.net/testing/ for the all of the test results and
+> system info on a 2.6.11-rc3-RT-V0.7.38-06 kernel.
+
+your latency traces look perfectly fine, and the jack_test results look
+good too.
+
+> Now that the priorities are tuned, I get no xruns while running
+> wmcube, compiling a kernel, and running latencytest or jack_test4.1.
+
+ah, very good! Now that the setup is properly tuned for audio latencies,
+you might want to try to push up the number of jack_test clients again,
+to see how far you can go. Right now there's a ~50% DSP load with 14
+clients, so maybe you can push it up to 20 clients. (for this test
+you'll likely want to turn off all options in the 'Kernel Hacking' menu
+- they increase overhead. Otherwise you probably want to run with the
+current options, so that you can send me BUG and latency traces ;) )
+
+> This patch does fix the MIDI playback BUG I was seeing.
+
+ok.
+
+	Ingo

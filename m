@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277329AbRJJRUe>; Wed, 10 Oct 2001 13:20:34 -0400
+	id <S277333AbRJJR0P>; Wed, 10 Oct 2001 13:26:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277330AbRJJRUS>; Wed, 10 Oct 2001 13:20:18 -0400
-Received: from web21110.mail.yahoo.com ([216.136.227.112]:15389 "HELO
-	web21110.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S277329AbRJJRT7>; Wed, 10 Oct 2001 13:19:59 -0400
-Message-ID: <20011010172030.93110.qmail@web21110.mail.yahoo.com>
-Date: Wed, 10 Oct 2001 10:20:30 -0700 (PDT)
-From: murali venkateshaiah <mvenkat_ml@yahoo.com>
-Subject: Reverse RPCGEN? or other such tool?
+	id <S277331AbRJJR0F>; Wed, 10 Oct 2001 13:26:05 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22803 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S277330AbRJJRZv>; Wed, 10 Oct 2001 13:25:51 -0400
 To: linux-kernel@vger.kernel.org
-Cc: mvenkat_ml@yahoo.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with insertion
+Date: Wed, 10 Oct 2001 17:25:22 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9q20a2$2cg$1@penguin.transmeta.com>
+In-Reply-To: <OF206EE8AA.7A83A16B-ON88256AE1.005467E3@boulder.ibm.com> <20011010185848.D726@athlon.random>
+X-Trace: palladium.transmeta.com 1002734779 8510 127.0.0.1 (10 Oct 2001 17:26:19 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 10 Oct 2001 17:26:19 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+In article <20011010185848.D726@athlon.random>,
+Andrea Arcangeli  <andrea@suse.de> wrote:
+>
+>However the more I think about it the more I suspect we'd better use
+>rmb() in all readers in the common code
 
-RPCs go with a tool, called rpcgen. It takes data
-definition (of data structures) in a C-like
-(RPCL)language and rpcgen converts it into standard
-C-representation of the data. Its takes a .x file
-and converts into .h file plus a _client.c,  _server.c
-and _xdr.c files.
+Absolutely.  It's not that expensive an operation on sane hardware.  And
+it's definitely conceptually the only right thing to do - we're saying
+that we're doing a read that depends on a previous read having seen
+previous memory.  Ergo, "rmb()". 
 
-Now, I am looking for a tool that does the following
-automation. It should take in C datastructures
-(simplified representations of data definitions
-where there are no embedded pointers but flat
-representation), and spit out a rpcgen-able .x file.
-Basically, a reverse rpcgen.
+Of course, right now Linux only exports a subset of the potential memory
+barriers, and maybe we should export a fuller set - allowing CPU's that
+have stricter ordering to possibly make it a no-op.  But thinking about
+even something like x86, I don't see where Intel would guarantee that
+two reads (data-dependent or not) would have some implicit memory
+ordering. 
 
-The capability makes it easier to program only
-in C and not worry about the mode of transport.
-It could be RPC or Corba or anything else.
-C-definitions can be seamlessly converted to
-RPC language or Corba etc
+Re-ordering reads with data dependencies is hard, but it happens quite
+naturally in a CPU that does address speculation. I don't know of
+anybody who does that, but I bet _somebody_ will. Maybe even the P4?
 
-Am not sure IF there are any tools that SUN has
-packaged with ONC-RPC or Ti-RPC. If anyone has more
-information or pointers to other mailing lists please
-email me directly. I'll summarise and repost.
-
-Thanks
--Murali
-
-
-__________________________________________________
-Do You Yahoo!?
-Make a great connection at Yahoo! Personals.
-http://personals.yahoo.com
+			Linus

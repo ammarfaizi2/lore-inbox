@@ -1,341 +1,359 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263557AbUDUR0m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263564AbUDURaE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263557AbUDUR0m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 13:26:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263558AbUDUR0m
+	id S263564AbUDURaE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 13:30:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbUDURaE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 13:26:42 -0400
-Received: from dim.w-m.ru ([81.13.59.23]:59008 "HELO dim.w-m.ru")
-	by vger.kernel.org with SMTP id S263557AbUDUR0M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 13:26:12 -0400
-To: zwane@linux.realnet.co.sz
-Cc: linux-kernel@vger.kernel.org
-Subject: flooded by "CPU#0: Running in modulated clock mode"
-From: Alexey Mahotkin <alexm@w-m.ru>
-Organization: http://www.w-m.ru/
-Date: Wed, 21 Apr 2004 21:25:51 +0400
-Message-ID: <87llkpmee8.fsf@dim.w-m.ru>
-User-Agent: Gnus/5.090024 (Oort Gnus v0.24) XEmacs/21.4 (Reasonable
- Discussion, linux)
+	Wed, 21 Apr 2004 13:30:04 -0400
+Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:49382 "EHLO
+	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
+	id S263564AbUDUR2n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 13:28:43 -0400
+Message-ID: <4086AEFC.5010002@myrealbox.com>
+Date: Wed, 21 Apr 2004 10:27:24 -0700
+From: Andy Lutomirski <luto@myrealbox.com>
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, sds@epoch.ncsc.mil,
+       jmorris@redhat.com
+CC: Andy Lutomirski <luto@myrealbox.com>, linux-kernel@vger.kernel.org
+Subject: Re: compute_creds fixup in -mm
+References: <20040421010621.L22989@build.pdx.osdl.net>
+In-Reply-To: <20040421010621.L22989@build.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chris Wright wrote:
+> [ I'm going through a bunch of security bugs/fixes, and I'm getting a little
+> bleary eyed so perhaps I'm missing something obvious. ]
+> 
+> Andy, your patch appears to leave the core issue unfixed, unfortuantely.
+> [...]
+> This is still vulnerable.  I think the problem is that a ptrace detach
+> never acquires the task_lock(), yet it will clear task->ptrace.  So the
+> above code is still racey.
+> 
+> 						ptrace_attach()
+> task_lock()
+> must_not_trace_exec() /*true, don't elevate uid*/
+> 						ptrace_detach()
+> must_not_trace_exec() /*false, give full caps*/
+> task_unlock()
 
-Zwane and all,
+Yeesh!  You're right.
 
-I'm running 2.6.5, compiled for i686 architecture, on Celeron 1.8GHz.
-Motherboard is ASUS P4S800-MX.  The machine has 1U form-factor.
+> 
+> Code could be cleaned up to simply check must_not_trace_exec() only
+> once (like below, untested).  Otherwise, it'd be nice to task_lock()
+> on __ptrace_unlink() before clearing task->ptrace, but this isn't proper
+> lock netsing.
 
-Usually processor runs at ~40C, according to lm-sensors (and BIOS
-agrees with it).
+I think your patch is correct; I didn't do it that way because I didn't want to
+worry about whether it would change the semantics.  I'm pretty sure now that it
+doesn't.
 
-When I start CPU hog (prime-net client), the temperature rises to ~62C
-in several minutes.  After that I'm getting a swamp of messages:
+This doesn't fix selinux, though -- its apply_creds hook just blindly calls
+commoncap's.  In fact, this breaks all attempts to get nested capability modules
+right.  The problem is that, AFAICS, not only does ptrace_detach not take
+task_lock, _exit() doesn't either.  So you get an equivalent race for the shared
+state check.  I see two ways to fix that:
+
+1. something checks for shared state _once_ and saves it either in the binprm or
+passes it as a parameter to apply_creds.  apply_creds needs to be changed so
+that the task_lock is taken by the caller.
+
+2. Don't nest apply_creds.
+
+I'm favoring #1, as it doesn't break the whole programming model.  Did I miss
+something?
+
+This one also (hopefully) fixes selinux.
+
+Patch against 2.6.5-mm5.
+
+  fs/exec.c                |   36 +++++++++++++++++++++---------------
+  include/linux/security.h |   19 +++++++++++++------
+  security/commoncap.c     |   38 ++++++++++++--------------------------
+  security/dummy.c         |   15 ++-------------
+  security/selinux/hooks.c |   12 ++++--------
+  5 files changed, 52 insertions(+), 68 deletions(-)
+
+--- linux-2.6.5-mm5/include/linux/security.h.ptlock	2004-04-21 08:52:49.904877920 -0700
++++ linux-2.6.5-mm5/include/linux/security.h	2004-04-21 09:12:46.540961584 -0700
+@@ -44,7 +44,7 @@
+  extern int cap_capset_check (struct task_struct *target, kernel_cap_t *effective, kernel_cap_t *inheritable, kernel_cap_t *permitted);
+  extern void cap_capset_set (struct task_struct *target, kernel_cap_t *effective, kernel_cap_t *inheritable, kernel_cap_t *permitted);
+  extern int cap_bprm_set_security (struct linux_binprm *bprm);
+-extern void cap_bprm_apply_creds (struct linux_binprm *bprm);
++extern void cap_bprm_apply_creds (struct linux_binprm *bprm, int unsafe);
+  extern int cap_bprm_secureexec(struct linux_binprm *bprm);
+  extern int cap_inode_setxattr(struct dentry *dentry, char *name, void *value, size_t size, int flags);
+  extern int cap_inode_removexattr(struct dentry *dentry, char *name);
+@@ -86,6 +86,11 @@
+  struct sched_param;
+  struct swap_info_struct;
+
++/* brpm_apply_creds unsafe reasons */
++#define LSM_UNSAFE_SHARE	1
++#define LSM_UNSAFE_PTRACE	2
++#define LSM_UNSAFE_PTRACE_CAP	4
++
+  #ifdef CONFIG_SECURITY
+
+  /**
+@@ -112,6 +117,8 @@
+   *	also perform other state changes on the process (e.g.  closing open
+   *	file descriptors to which access is no longer granted if the attributes
+   *	were changed).
++ *	bprm_apply_creds is called under task_lock.  @unsafe indicates various
++ *	reasons why it may be unsafe to change security state.
+   *	@bprm contains the linux_binprm structure.
+   * @bprm_set_security:
+   *	Save security information in the bprm->security field, typically based
+@@ -1026,7 +1033,7 @@
+
+  	int (*bprm_alloc_security) (struct linux_binprm * bprm);
+  	void (*bprm_free_security) (struct linux_binprm * bprm);
+-	void (*bprm_apply_creds) (struct linux_binprm * bprm);
++	void (*bprm_apply_creds) (struct linux_binprm * bprm, int unsafe);
+  	int (*bprm_set_security) (struct linux_binprm * bprm);
+  	int (*bprm_check_security) (struct linux_binprm * bprm);
+  	int (*bprm_secureexec) (struct linux_binprm * bprm);
+@@ -1290,9 +1297,9 @@
+  {
+  	security_ops->bprm_free_security (bprm);
+  }
+-static inline void security_bprm_apply_creds (struct linux_binprm *bprm)
++static inline void security_bprm_apply_creds (struct linux_binprm *bprm, int unsafe)
+  {
+-	security_ops->bprm_apply_creds (bprm);
++	security_ops->bprm_apply_creds (bprm, unsafe);
+  }
+  static inline int security_bprm_set (struct linux_binprm *bprm)
+  {
+@@ -1962,9 +1969,9 @@
+  static inline void security_bprm_free (struct linux_binprm *bprm)
+  { }
+
+-static inline void security_bprm_apply_creds (struct linux_binprm *bprm)
++static inline void security_bprm_apply_creds (struct linux_binprm *bprm, int unsafe)
+  {
+-	cap_bprm_apply_creds (bprm);
++	cap_bprm_apply_creds (bprm, unsafe);
+  }
+
+  static inline int security_bprm_set (struct linux_binprm *bprm)
+--- linux-2.6.5-mm5/fs/exec.c.ptlock	2004-04-21 08:50:37.767965784 -0700
++++ linux-2.6.5-mm5/fs/exec.c	2004-04-21 09:14:30.778115128 -0700
+@@ -919,24 +919,30 @@
+
+  EXPORT_SYMBOL(prepare_binprm);
+
+-/*
+- * This function is used to produce the new IDs and capabilities
+- * from the old ones and the file's capabilities.
+- *
+- * The formula used for evolving capabilities is:
+- *
+- *       pI' = pI
+- * (***) pP' = (fP & X) | (fI & pI)
+- *       pE' = pP' & fE          [NB. fE is 0 or ~0]
+- *
+- * I=Inheritable, P=Permitted, E=Effective // p=process, f=file
+- * ' indicates post-exec(), and X is the global 'cap_bset'.
+- *
+- */
++static inline int must_not_trace_exec (struct task_struct *p)
++{
++	int unsafe = 0;
++	if (p->ptrace & PT_PTRACED) {
++		if(p->ptrace & PT_PTRACE_CAP)
++			unsafe |= LSM_UNSAFE_PTRACE_CAP;
++		else
++			unsafe |= LSM_UNSAFE_PTRACE;
++	}
++	if (atomic_read(&p->fs->count) > 1 ||
++	    atomic_read(&p->files->count) > 1 ||
++	    atomic_read(&p->sighand->count) > 1)
++		unsafe |= LSM_UNSAFE_SHARE;
++
++	return unsafe;
++}
+
+  void compute_creds(struct linux_binprm *bprm)
+  {
+-	security_bprm_apply_creds(bprm);
++	task_lock(current);
++
++	security_bprm_apply_creds(bprm, must_not_trace_exec(current));
++
++	task_unlock(current);
+  }
+
+  EXPORT_SYMBOL(compute_creds);
+--- linux-2.6.5-mm5/security/selinux/hooks.c.ptlock	2004-04-21 08:57:16.947281304 -0700
++++ linux-2.6.5-mm5/security/selinux/hooks.c	2004-04-21 09:22:15.227508088 -0700
+@@ -1746,7 +1746,7 @@
+  	spin_unlock(&files->file_lock);
+  }
+
+-static void selinux_bprm_apply_creds(struct linux_binprm *bprm)
++static void selinux_bprm_apply_creds(struct linux_binprm *bprm, int unsafe)
+  {
+  	struct task_security_struct *tsec, *psec;
+  	struct bprm_security_struct *bsec;
+@@ -1756,7 +1756,7 @@
+  	struct rlimit *rlim, *initrlim;
+  	int rc, i;
+
+-	secondary_ops->bprm_apply_creds(bprm);
++	secondary_ops->bprm_apply_creds(bprm, unsafe);
+
+  	tsec = current->security;
+
+@@ -1767,9 +1767,7 @@
+  	if (tsec->sid != sid) {
+  		/* Check for shared state.  If not ok, leave SID
+  		   unchanged and kill. */
+-		if ((atomic_read(&current->fs->count) > 1 ||
+-		     atomic_read(&current->files->count) > 1 ||
+-		     atomic_read(&current->sighand->count) > 1)) {
++		if (unsafe & LSM_UNSAFE_SHARE) {
+  			rc = avc_has_perm(tsec->sid, sid,
+  					  SECCLASS_PROCESS, PROCESS__SHARE,
+  					  NULL, NULL);
+@@ -1782,14 +1780,13 @@
+  		/* Check for ptracing, and update the task SID if ok.
+  		   Otherwise, leave SID unchanged and kill. */
+  		task_lock(current);
+-		if (current->ptrace & PT_PTRACED) {
++		if (unsafe & (LSM_UNSAFE_PTRACE | LSM_UNSAFE_PTRACE_CAP)) {
+  			psec = current->parent->security;
+  			rc = avc_has_perm_noaudit(psec->sid, sid,
+  					  SECCLASS_PROCESS, PROCESS__PTRACE,
+  					  NULL, &avd);
+  			if (!rc)
+  				tsec->sid = sid;
+-			task_unlock(current);
+  			avc_audit(psec->sid, sid, SECCLASS_PROCESS,
+  				  PROCESS__PTRACE, &avd, rc, NULL);
+  			if (rc) {
+@@ -1798,7 +1795,6 @@
+  			}
+  		} else {
+  			tsec->sid = sid;
+-			task_unlock(current);
+  		}
+
+  		/* Close files for which the new task SID is not authorized. */
+--- linux-2.6.5-mm5/security/commoncap.c.ptlock	2004-04-21 08:54:16.824664104 -0700
++++ linux-2.6.5-mm5/security/commoncap.c	2004-04-21 09:24:01.468357024 -0700
+@@ -115,15 +115,7 @@
+  	return 0;
+  }
+
+-static inline int must_not_trace_exec (struct task_struct *p)
+-{
+-	return ((p->ptrace & PT_PTRACED) && !(p->ptrace & PT_PTRACE_CAP))
+-		|| atomic_read(&p->fs->count) > 1
+-		|| atomic_read(&p->files->count) > 1
+-		|| atomic_read(&p->sighand->count) > 1;
+-}
+-
+-void cap_bprm_apply_creds (struct linux_binprm *bprm)
++void cap_bprm_apply_creds (struct linux_binprm *bprm, int unsafe)
+  {
+  	/* Derived from fs/exec.c:compute_creds. */
+  	kernel_cap_t new_permitted, working;
+@@ -133,30 +125,25 @@
+  				 current->cap_inheritable);
+  	new_permitted = cap_combine (new_permitted, working);
+
+-	task_lock(current);
+-
+-	if (bprm->e_uid != current->uid || bprm->e_gid != current->gid) {
++	if (bprm->e_uid != current->uid || bprm->e_gid != current->gid ||
++	    !cap_issubset (new_permitted, current->cap_permitted)) {
+  		current->mm->dumpable = 0;
+
+-		if (must_not_trace_exec(current) && !capable(CAP_SETUID)) {
+-			bprm->e_uid = current->uid;
+-			bprm->e_gid = current->gid;
++		if (unsafe & ~LSM_UNSAFE_PTRACE_CAP) {
++			if (!capable(CAP_SETUID)) {
++				bprm->e_uid = current->uid;
++				bprm->e_gid = current->gid;
++			}
++			if (!capable (CAP_SETPCAP)) {
++				new_permitted = cap_intersect (new_permitted,
++							current->cap_permitted);
++			}
+  		}
+  	}
+
+  	current->suid = current->euid = current->fsuid = bprm->e_uid;
+  	current->sgid = current->egid = current->fsgid = bprm->e_gid;
+
+-	if (!cap_issubset (new_permitted, current->cap_permitted)) {
+-		current->mm->dumpable = 0;
+-
+-		if (must_not_trace_exec (current) && !capable (CAP_SETPCAP)) {
+-			new_permitted = cap_intersect (new_permitted,
+-						       current->
+-						       cap_permitted);
+-		}
+-	}
+-
+  	/* For init, we want to retain the capabilities set
+  	 * in the init_task struct. Thus we skip the usual
+  	 * capability rules */
+@@ -167,7 +154,6 @@
+  	}
+
+  	/* AUD: Audit candidate if current->cap_effective is set */
+-	task_unlock(current);
+
+  	current->keep_capabilities = 0;
+  }
+--- linux-2.6.5-mm5/security/dummy.c.ptlock	2004-04-21 08:56:00.608886504 -0700
++++ linux-2.6.5-mm5/security/dummy.c	2004-04-21 09:14:57.345076336 -0700
+@@ -171,21 +171,12 @@
+  	return;
+  }
+
+-static inline int must_not_trace_exec (struct task_struct *p)
++static void dummy_bprm_apply_creds (struct linux_binprm *bprm, int unsafe)
+  {
+-	return ((p->ptrace & PT_PTRACED) && !(p->ptrace & PT_PTRACE_CAP))
+-		|| atomic_read(&p->fs->count) > 1
+-		|| atomic_read(&p->files->count) > 1
+-		|| atomic_read(&p->sighand->count) > 1;
+-}
+-
+-static void dummy_bprm_apply_creds (struct linux_binprm *bprm)
+-{
+-	task_lock(current);
+  	if (bprm->e_uid != current->uid || bprm->e_gid != current->gid) {
+  		current->mm->dumpable = 0;
+
+-		if (must_not_trace_exec(current) && !capable(CAP_SETUID)) {
++		if (unsafe && !capable(CAP_SETUID)) {
+  			bprm->e_uid = current->uid;
+  			bprm->e_gid = current->gid;
+  		}
+@@ -193,8 +184,6 @@
+
+  	current->suid = current->euid = current->fsuid = bprm->e_uid;
+  	current->sgid = current->egid = current->fsgid = bprm->e_gid;
+-
+-	task_unlock(current);
+  }
+
+  static int dummy_bprm_set_security (struct linux_binprm *bprm)
 
 
-        CPU#0: Running in modulated clock mode
-        CPU#0: Temperature/speed normal
-        CPU#0: Temperature above threshold
-        CPU#0: Running in modulated clock mode
-        CPU#0: Temperature/speed normal
-        CPU#0: Temperature above threshold
-        [ ...endless... ]
 
-When I stop it, messages stop immediately, and processor cools down
-back to 40C.
-
-However, according to google, maximum Celeron temperature must be
-somewhere near 80C.  Also, AFAIU, if it were overheating, I'd get a
-single message about "Temperature above threshold".
-
-Why is it flooding me on KERN_EMERG level?  How can I change the
-temperature threshold?
-
-
-Should I try noapic?  Should I try acpi=off? 
-
-
-Thanks,
-
-
-Here is my dmesg output from the start:
-
-Linux version 2.6.5-1-686 (tretkowski@rollcage) (gcc version 2.95.4 20011002 (Debian prerelease)) #1 Fri Apr 9 12:46:05 CEST 2004
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 000000001dffc000 (usable)
- BIOS-e820: 000000001dffc000 - 000000001dfff000 (ACPI data)
- BIOS-e820: 000000001dfff000 - 000000001e000000 (ACPI NVS)
- BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
- BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
- BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
-0MB HIGHMEM available.
-479MB LOWMEM available.
-On node 0 totalpages: 122876
-  DMA zone: 4096 pages, LIFO batch:1
-  Normal zone: 118780 pages, LIFO batch:16
-  HighMem zone: 0 pages, LIFO batch:1
-DMI 2.3 present.
-ACPI: RSDP (v000 ASUS                                      ) @ 0x000f5700
-ACPI: RSDT (v001 ASUS   P4S800MX 0x42302e31 MSFT 0x31313031) @ 0x1dffc000
-ACPI: FADT (v001 ASUS   P4S800MX 0x42302e31 MSFT 0x31313031) @ 0x1dffc0c0
-ACPI: BOOT (v001 ASUS   P4S800MX 0x42302e31 MSFT 0x31313031) @ 0x1dffc030
-ACPI: MADT (v001 ASUS   P4S800MX 0x42302e31 MSFT 0x31313031) @ 0x1dffc058
-ACPI: DSDT (v001   ASUS P4S800MX 0x00001000 MSFT 0x0100000b) @ 0x00000000
-ACPI: PM-Timer IO Port: 0xe408
-ACPI: Local APIC address 0xfee00000
-ACPI: LAPIC (acpi_id[0x00] lapic_id[0x00] enabled)
-Processor #0 15:1 APIC version 20
-ACPI: LAPIC_NMI (acpi_id[0x00] high edge lint[0x1])
-ACPI: IOAPIC (id[0x02] address[0xfec00000] global_irq_base[0x0])
-IOAPIC[0]: Assigned apic_id 2
-IOAPIC[0]: apic_id 2, version 128, address 0xfec00000, GSI 0-23
-ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl edge)
-ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 20 low level)
-Enabling APIC mode:  Flat.  Using 1 I/O APICs
-Using ACPI (MADT) for SMP configuration information
-Built 1 zonelists
-Kernel command line: auto BOOT_IMAGE=Linux ro root=302 nothermal
-Initializing CPU#0
-PID hash table entries: 2048 (order 11: 16384 bytes)
-Detected 1800.787 MHz processor.
-Using pmtmr for high-res timesource
-Console: colour VGA+ 80x25
-Memory: 479320k/491504k available (1349k kernel code, 11436k reserved, 712k data, 128k init, 0k highmem)
-Checking if this processor honours the WP bit even in supervisor mode... Ok.
-Calibrating delay loop... 3571.71 BogoMIPS
-Security Scaffold v1.0.0 initialized
-Dentry cache hash table entries: 65536 (order: 6, 262144 bytes)
-Inode-cache hash table entries: 32768 (order: 5, 131072 bytes)
-Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
-checking if image is initramfs...it isn't (ungzip failed); looks like an initrd
-Freeing initrd memory: 4144k freed
-CPU:     After generic identify, caps: 3febfbff 00000000 00000000 00000000
-CPU:     After vendor identify, caps: 3febfbff 00000000 00000000 00000000
-CPU: Trace cache: 12K uops, L1 D cache: 8K
-CPU: L2 cache: 128K
-CPU:     After all inits, caps: 3febfbff 00000000 00000000 00000080
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-CPU#0: Intel P4/Xeon Extended MCE MSRs (12) available
-CPU#0: Thermal monitoring enabled
-CPU: Intel(R) Celeron(R) CPU 1.80GHz stepping 03
-Enabling fast FPU save and restore... done.
-Enabling unmasked SIMD FPU exception support... done.
-Checking 'hlt' instruction... OK.
-POSIX conformance testing by UNIFIX
-enabled ExtINT on CPU#0
-ESR value before enabling vector: 00000000
-ESR value after enabling vector: 00000000
-ENABLING IO-APIC IRQs
-init IO_APIC IRQs
- IO-APIC (apicid-pin) 2-0, 2-16, 2-17, 2-18, 2-19, 2-21, 2-22, 2-23 not connected.
-..TIMER: vector=0x31 pin1=2 pin2=-1
-Using local APIC timer interrupts.
-calibrating APIC timer ...
-..... CPU clock speed is 1799.0834 MHz.
-..... host bus clock speed is 99.0990 MHz.
-NET: Registered protocol family 16
-PCI: PCI BIOS revision 2.10 entry at 0xf10c0, last bus=1
-PCI: Using configuration type 1
-mtrr: v2.0 (20020519)
-ACPI: Subsystem revision 20040326
-ACPI: Interpreter enabled
-ACPI: Using IOAPIC for interrupt routing
-ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 10 *11 12 14 15)
-ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 7 10 11 12 14 15)
-ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 6 7 *10 11 12 14 15)
-ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 6 7 10 11 *12 14 15)
-ACPI: PCI Interrupt Link [LNKE] (IRQs *3 4 5 6 7 10 11 12 14 15)
-ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 *5 6 7 10 11 12 14 15)
-ACPI: PCI Interrupt Link [LNKG] (IRQs 3 4 5 6 7 10 11 12 14 15)
-ACPI: PCI Interrupt Link [LNKH] (IRQs 3 4 5 6 7 10 11 12 14 15)
-ACPI: PCI Root Bridge [PCI0] (00:00)
-PCI: Probing PCI hardware (bus 00)
-Enabling SiS 96x SMBus.
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCI1._PRT]
-Linux Plug and Play Support v0.97 (c) Adam Belay
-PnPBIOS: Scanning system for PnP BIOS support...
-PnPBIOS: Found PnP BIOS installation structure at 0xc00f95f0
-PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0x9620, dseg 0xf0000
-pnp: 00:12: ioport range 0xe600-0xe61f has been reserved
-pnp: 00:12: ioport range 0xe400-0xe47f has been reserved
-PnPBIOS: 14 nodes reported by PnP BIOS; 14 recorded by driver
-IOAPIC[0]: Set PCI routing entry (2-16 -> 0xb1 -> IRQ 16 Mode:1 Active:1)
-00:00:02[A] -> 2-16 -> IRQ 16
-IOAPIC[0]: Set PCI routing entry (2-17 -> 0xb9 -> IRQ 17 Mode:1 Active:1)
-00:00:02[B] -> 2-17 -> IRQ 17
-IOAPIC[0]: Set PCI routing entry (2-18 -> 0xc1 -> IRQ 18 Mode:1 Active:1)
-00:00:02[C] -> 2-18 -> IRQ 18
-IOAPIC[0]: Set PCI routing entry (2-19 -> 0xc9 -> IRQ 19 Mode:1 Active:1)
-00:00:02[D] -> 2-19 -> IRQ 19
-IOAPIC[0]: Set PCI routing entry (2-21 -> 0xd1 -> IRQ 21 Mode:1 Active:1)
-00:00:03[B] -> 2-21 -> IRQ 21
-IOAPIC[0]: Set PCI routing entry (2-22 -> 0xd9 -> IRQ 22 Mode:1 Active:1)
-00:00:03[C] -> 2-22 -> IRQ 22
-IOAPIC[0]: Set PCI routing entry (2-23 -> 0xe1 -> IRQ 23 Mode:1 Active:1)
-00:00:03[D] -> 2-23 -> IRQ 23
-number of MP IRQ sources: 16.
-number of IO-APIC #2 registers: 24.
-testing the IO APIC.......................
-IO APIC #2......
-.... register #00: 02000000
-.......    : physical APIC id: 02
-.......    : Delivery Type: 0
-.......    : LTS          : 0
-.... register #01: 00178080
-.......     : max redirection entries: 0017
-.......     : PRQ implemented: 1
-.......     : IO APIC version: 0080
-.... register #02: 02000000
-.......     : arbitration: 02
-.... register #03: 00000001
-.......     : Boot DT    : 1
-.... IRQ redirection table:
- NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
- 00 000 00  1    0    0   0   0    0    0    00
- 01 001 01  0    0    0   0   0    1    1    39
- 02 001 01  0    0    0   0   0    1    1    31
- 03 001 01  0    0    0   0   0    1    1    41
- 04 001 01  0    0    0   0   0    1    1    49
- 05 001 01  0    0    0   0   0    1    1    51
- 06 001 01  0    0    0   0   0    1    1    59
- 07 001 01  0    0    0   0   0    1    1    61
- 08 001 01  0    0    0   0   0    1    1    69
- 09 001 01  0    0    0   0   0    1    1    71
- 0a 001 01  0    0    0   0   0    1    1    79
- 0b 001 01  0    0    0   0   0    1    1    81
- 0c 001 01  0    0    0   0   0    1    1    89
- 0d 001 01  0    0    0   0   0    1    1    91
- 0e 001 01  0    0    0   0   0    1    1    99
- 0f 001 01  0    0    0   0   0    1    1    A1
- 10 001 01  1    1    0   1   0    1    1    B1
- 11 001 01  1    1    0   1   0    1    1    B9
- 12 001 01  1    1    0   1   0    1    1    C1
- 13 001 01  1    1    0   1   0    1    1    C9
- 14 001 01  0    1    0   1   0    1    1    A9
- 15 001 01  1    1    0   1   0    1    1    D1
- 16 001 01  1    1    0   1   0    1    1    D9
- 17 001 01  1    1    0   1   0    1    1    E1
-IRQ to pin mappings:
-IRQ0 -> 0:2
-IRQ1 -> 0:1
-IRQ3 -> 0:3
-IRQ4 -> 0:4
-IRQ5 -> 0:5
-IRQ6 -> 0:6
-IRQ7 -> 0:7
-IRQ8 -> 0:8
-IRQ9 -> 0:9
-IRQ10 -> 0:10
-IRQ11 -> 0:11
-IRQ12 -> 0:12
-IRQ13 -> 0:13
-IRQ14 -> 0:14
-IRQ15 -> 0:15
-IRQ16 -> 0:16
-IRQ17 -> 0:17
-IRQ18 -> 0:18
-IRQ19 -> 0:19
-IRQ20 -> 0:20
-IRQ21 -> 0:21
-IRQ22 -> 0:22
-IRQ23 -> 0:23
-.................................... done.
-PCI: Using ACPI for IRQ routing
-PCI: if you experience problems, try using option 'pci=noacpi' or even 'acpi=off'
-PCI: Cannot allocate resource region 4 of device 0000:00:02.1
-Simple Boot Flag at 0x3a set to 0x1
-VFS: Disk quotas dquot_6.5.1
-devfs: 2004-01-31 Richard Gooch (rgooch@atnf.csiro.au)
-devfs: boot_options: 0x0
-Initializing Cryptographic API
-isapnp: Scanning for PnP cards...
-isapnp: No Plug & Play device found
-Serial: 8250/16550 driver $Revision: 1.90 $ 48 ports, IRQ sharing enabled
-ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-RAMDISK driver initialized: 16 RAM disks of 8192K size 1024 blocksize
-serio: i8042 KBD port at 0x60,0x64 irq 1
-input: AT Translated Set 2 keyboard on isa0060/serio0
-NET: Registered protocol family 2
-IP: routing cache hash table of 4096 buckets, 32Kbytes
-TCP: Hash tables configured (established 32768 bind 32768)
-NET: Registered protocol family 8
-NET: Registered protocol family 20
-ACPI: (supports S0 S1 S4 S5)
-RAMDISK: cramfs filesystem found at block 0
-RAMDISK: Loading 4144 blocks [1 disk] into ram disk...done.
-VFS: Mounted root (cramfs filesystem) readonly.
-Freeing unused kernel memory: 128k freed
-NET: Registered protocol family 1
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-SIS5513: IDE controller at PCI slot 0000:00:02.5
-SIS5513: chipset revision 0
-SIS5513: not 100% native mode: will probe irqs later
-SIS5513: SiS 962/963 MuTIOL IDE UDMA133 controller
-    ide0: BM-DMA at 0xa400-0xa407, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xa408-0xa40f, BIOS settings: hdc:pio, hdd:pio
-hda: ST3160023A, ATA DISK drive
-Using anticipatory io scheduler
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hda: max request size: 1024KiB
-hda: 312581808 sectors (160041 MB) w/8192KiB Cache, CHS=19457/255/63, UDMA(100)
- /dev/ide/host0/bus0/target0/lun0: p1 p2 p3 p4 < p5 p6 p7 p8 p9 p10 p11 p12 >
-kjournald starting.  Commit interval 5 seconds
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3-fs: mounted filesystem with ordered data mode.
-Adding 1959888k swap on /dev/hda11.  Priority:-1 extents:1
-EXT3 FS on hda2, internal journal
-Real Time Clock Driver v1.12
-NET: Registered protocol family 17
-sis900.c: v1.08.07 11/02/2003
-eth0: VIA 6103 PHY transceiver found at address 1.
-eth0: Using transceiver found at address 1 as default
-eth0: SiS 900 PCI Fast Ethernet at 0x8800, IRQ 19, 00:0e:a6:06:d0:93.
-i2c-sis96x version 1.0.0
-sis96x smbus 0000:00:02.1: SiS96x SMBus base address: 0x1000
-ttyS1: LSR safety check engaged!
-ttyS1: LSR safety check engaged!
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on hda1, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3-fs warning: maximal mount count reached, running e2fsck is recommended
-EXT3 FS on hda3, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on hda5, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on hda6, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on hda7, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on hda8, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on hda9, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on hda10, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on hda12, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-eth0: Media Link On 100mbps full-duplex 
-NET: Registered protocol family 10
-Disabled Privacy Extensions on device c02d8820(lo)
-IPv6 over IPv4 tunneling driver
-eth0: no IPv6 routers present
-
---alexm

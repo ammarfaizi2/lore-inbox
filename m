@@ -1,75 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268617AbTBYWwc>; Tue, 25 Feb 2003 17:52:32 -0500
+	id <S268422AbTBYXCQ>; Tue, 25 Feb 2003 18:02:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268618AbTBYWwc>; Tue, 25 Feb 2003 17:52:32 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:32405 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S268617AbTBYWwa>;
-	Tue, 25 Feb 2003 17:52:30 -0500
-Subject: 2.5.63-osdl2
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Open Source Devlopment Lab
-Message-Id: <1046214166.18513.22.camel@dell_ss3.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 25 Feb 2003 15:02:46 -0800
-Content-Transfer-Encoding: 7bit
+	id <S268425AbTBYXCQ>; Tue, 25 Feb 2003 18:02:16 -0500
+Received: from mailbox1.cc.stevens-tech.edu ([155.246.1.26]:11269 "HELO
+	mailbox1.cc.stevens-tech.edu") by vger.kernel.org with SMTP
+	id <S268422AbTBYXCP>; Tue, 25 Feb 2003 18:02:15 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Patch: Device ID for Asus A7N8X's onboard 3com NIC
+Message-ID: <1046214747.3e5bf85b46a4f@mailbox1.cc.stevens-tech.edu>
+Date: Tue, 25 Feb 2003 18:12:27 -0500 (EST)
+From: dkopko@stevens-tech.edu
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="-MOQ10462147470047380096c9205f7349490f1abfcef4"
+User-Agent: IMP/PHP IMAP webmail program 2.2.9-cvs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This message is in MIME format.
 
-The 2.5.63-osdl2 is available at 
-	http://sourceforge.net/projects/osdldcl
-or BitKeeper          
-	bk://bk.osdl.org/linux-2.5-osdl
-or OSDL Patch Lifecycle Manager (http://www.osdl.org/cgi-bin/plm/)
-	osdl-2.5.63-2	PLM # 1621
+---MOQ10462147470047380096c9205f7349490f1abfcef4
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 
-2.5.63-osdl2:
-o Make default IO scheduler be deadline (me)
-o Improved flock bugfix		 	(Matthew Wilcox)
+This patch is not mine, it comes from
+http://home.t-online.de/home/Johannes.Deisenhofer/nforce2linux.html .  I thought
+it would be included by now, but since it isn't, I'm posting it.
 
-2.5.63-osdl1:
-o Update to Megaraid 2 driver		(Matt Domsch, Mark Haverkamp)
-o Cpu Hot Plug				(Zwane Mwaikambo)
-o CFQ disk scheduler			(Jens Axboe)
-o Anticipatory scheduler		(Nick Piggin)
-o Pentium Performance Counters		(Mikael Pettersson)
-o Linux Kernel Crash Dump (LKCD)        (Matt Robinson, LKCD team)
-o Kernel Exec (Kexec)			(Eric W. Biederman)
-o Linux Trace Toolkit (LTT)             (Karim Yaghmour)
-o Kernel Config (ikconfig)		(Randy Dunlap)
-o Improved boot time TSC synchronization (Jim Houston)
-o RCU statistics               		(Dipankar Sarma)
-o Scheduler tunables            	(Robert Love)
+Thanks,
 
-Changes since 2.5.62
-* Merge -osdl and -dcl into one tree
-  Seperate trees were temporary till NUMA and hi-res timers
-  got merged to the base kernel.
+Daniel Kopko
+---MOQ10462147470047380096c9205f7349490f1abfcef4
+Content-Type: application/octet-stream; name="asusa7n8x_3com.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="asusa7n8x_3com.diff"
 
-+ Update to LKCD 
-  Now includes latest memory and kexec hook.
-
-+ Add CFQ and AS scheduler from -mm tree
-  Can choose scheduler via the kernel boot commandline:
-        elevator=as 
-        elevator=cfq
-        elevator=deadline (default)
-  The anticipatory scheduler is experimental and may not boot
-  on some systems.
-
-- Take out kprobe
-  No test available or interface available other than the
-  simple /dev/noisy
-
-
-Project information:
-        http://www.osdl.org/projects/dcl/
+ZGlmZiAtVSA1IC1yIG9yZC9saW51eC0yLjQuMTkvZHJpdmVycy9uZXQvM2M1OXguYyBsaW51eC0y
+LjQuMTkvZHJpdmVycy9uZXQvM2M1OXguYwotLS0gb3JkL2xpbnV4LTIuNC4xOS9kcml2ZXJzL25l
+dC8zYzU5eC5jCU1vbiBEZWMgMzAgMTc6NTc6MTggMjAwMgorKysgbGludXgtMi40LjE5L2RyaXZl
+cnMvbmV0LzNjNTl4LmMJRnJpIERlYyAyMCAyMzoyMTowMCAyMDAyCkBAIC00MjcsMTAgKzQyNywx
+MSBAQAogCUNIXzNDOTA1Ql8xLAogCiAJQ0hfM0M5MDVCXzIsCiAJQ0hfM0M5MDVCX0ZYLAogCUNI
+XzNDOTA1QywKKwlDSF8zQzkwNUMyLAogCUNIXzNDOTgwLAogCUNIXzNDOTgwNSwKIAogCUNIXzND
+U09ITzEwMF9UWCwKIAlDSF8zQzU1NSwKQEAgLTQ5NywxMCArNDk4LDEyIEBACiAJIFBDSV9VU0VT
+X0lPfFBDSV9VU0VTX01BU1RFUiwgSVNfQ1lDTE9ORXxIQVNfTldBWXxIQVNfSFdDS1NNLCAxMjgs
+IH0sCiAJeyIzYzkwNUItRlggQ3ljbG9uZSAxMDBiYXNlRngiLAogCSBQQ0lfVVNFU19JT3xQQ0lf
+VVNFU19NQVNURVIsIElTX0NZQ0xPTkV8SEFTX0hXQ0tTTSwgMTI4LCB9LAogCXsiM2M5MDVDIFRv
+cm5hZG8iLAogCSBQQ0lfVVNFU19JT3xQQ0lfVVNFU19NQVNURVIsIElTX1RPUk5BRE98SEFTX05X
+QVl8SEFTX0hXQ0tTTSwgMTI4LCB9LAorCXsiM2M5MDVDIFRvcm5hZG8gMiIsCisJIFBDSV9VU0VT
+X0lPfFBDSV9VU0VTX01BU1RFUiwgSVNfVE9STkFET3xIQVNfTldBWXxIQVNfSFdDS1NNLCAxMjgs
+IH0sCiAJeyIzYzk4MCBDeWNsb25lIiwKIAkgUENJX1VTRVNfSU98UENJX1VTRVNfTUFTVEVSLCBJ
+U19DWUNMT05FfEhBU19IV0NLU00sIDEyOCwgfSwKIAl7IjNjOTgyIER1YWwgUG9ydCBTZXJ2ZXIg
+Q3ljbG9uZSIsCiAJIFBDSV9VU0VTX0lPfFBDSV9VU0VTX01BU1RFUiwgSVNfQ1lDTE9ORXxIQVNf
+SFdDS1NNLCAxMjgsIH0sCiAKQEAgLTU2MSwxMCArNTY0LDExIEBACiAJeyAweDEwQjcsIDB4OTA1
+NSwgUENJX0FOWV9JRCwgUENJX0FOWV9JRCwgMCwgMCwgQ0hfM0M5MDVCXzEgfSwKIAogCXsgMHgx
+MEI3LCAweDkwNTgsIFBDSV9BTllfSUQsIFBDSV9BTllfSUQsIDAsIDAsIENIXzNDOTA1Ql8yIH0s
+CiAJeyAweDEwQjcsIDB4OTA1QSwgUENJX0FOWV9JRCwgUENJX0FOWV9JRCwgMCwgMCwgQ0hfM0M5
+MDVCX0ZYIH0sCiAJeyAweDEwQjcsIDB4OTIwMCwgUENJX0FOWV9JRCwgUENJX0FOWV9JRCwgMCwg
+MCwgQ0hfM0M5MDVDIH0sCisJeyAweDEwQjcsIDB4OTIwMSwgUENJX0FOWV9JRCwgUENJX0FOWV9J
+RCwgMCwgMCwgQ0hfM0M5MDVDMiB9LAogCXsgMHgxMEI3LCAweDk4MDAsIFBDSV9BTllfSUQsIFBD
+SV9BTllfSUQsIDAsIDAsIENIXzNDOTgwIH0sCiAJeyAweDEwQjcsIDB4OTgwNSwgUENJX0FOWV9J
+RCwgUENJX0FOWV9JRCwgMCwgMCwgQ0hfM0M5ODA1IH0sCiAKIAl7IDB4MTBCNywgMHg3NjQ2LCBQ
+Q0lfQU5ZX0lELCBQQ0lfQU5ZX0lELCAwLCAwLCBDSF8zQ1NPSE8xMDBfVFggfSwKIAl7IDB4MTBC
+NywgMHg1MDU1LCBQQ0lfQU5ZX0lELCBQQ0lfQU5ZX0lELCAwLCAwLCBDSF8zQzU1NSB9LAo=
 
 
-
-
-
+---MOQ10462147470047380096c9205f7349490f1abfcef4--

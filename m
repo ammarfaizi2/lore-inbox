@@ -1,67 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131206AbRCRLxg>; Sun, 18 Mar 2001 06:53:36 -0500
+	id <S131207AbRCRMRb>; Sun, 18 Mar 2001 07:17:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131209AbRCRLx2>; Sun, 18 Mar 2001 06:53:28 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:29070 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S131206AbRCRLxV>;
-	Sun, 18 Mar 2001 06:53:21 -0500
-Message-ID: <3AB4A162.17FD434A@mandrakesoft.com>
-Date: Sun, 18 Mar 2001 06:52:02 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Junfeng Yang <yjf@stanford.edu>
-Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu
-Subject: Re: [CHECKER] 28 potential interrupt errors
-In-Reply-To: <Pine.GSO.4.31.0103162216360.10409-100000@elaine24.Stanford.EDU>
+	id <S131209AbRCRMRW>; Sun, 18 Mar 2001 07:17:22 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:61199 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S131207AbRCRMRE>;
+	Sun, 18 Mar 2001 07:17:04 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Junfeng Yang <yjf@stanford.edu>, linux-kernel@vger.kernel.org,
+        mc@cs.stanford.edu, Andrew Morton <andrewm@uow.edu.au>,
+        netdev@oss.sgi.com
+Subject: Re: [CHECKER] 120 potential dereference to invalid pointers errors forlinux 2.4.1 
+In-Reply-To: Your message of "Sun, 18 Mar 2001 06:29:50 CDT."
+             <3AB49C2E.4792071B@mandrakesoft.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sun, 18 Mar 2001 23:16:16 +1100
+Message-ID: <24784.984917776@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Junfeng Yang wrote:
-> [BUG] error path
-> 
-> /u2/acc/oses/linux/2.4.1/drivers/net/appletalk/cops.c:776:cops_rx: ERROR:INTR:763:804: Interrupts inconsistent, severity `20':804
+On Sun, 18 Mar 2001 06:29:50 -0500, 
+Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
+>Junfeng Yang wrote:
+>> Start --->
+>>             busy = kmalloc(sizeof(erase_busy_t), GFP_KERNEL);
+>> Error --->
+>
+>This sizeof() construct may be a special case for your checker, but it's
+>a common one for the kernel...  It definitely doesn't de-reference a
+>pointer.
 
-Fixed.
+IMHO the above line is a bad construct.  If the type of the variable
+changes it is extremely easy to miss the fact that *alloc is now
+returning the wrong size.  I always do
 
-Request:  can the checker check for skb's being freed correctly?  The
-rules:
+	busy = kmalloc(sizeof(*busy), GFP_KERNEL);
 
-If an skb is in interrupt context, call dev_kfree_skb_irq.
-If an skb might be in interrupt context, call dev_kfree_skb_any.
-If an skb is not in interrupt context, call dev_kfree_skb.
+and let the compiler insert the correct type.
 
-I also found and fixed an error of this sort on cops.c as well.
+For the checker, you can also have typeof().  kdb has this line
 
-> [BUG] error path. this bug is interesting
-> 
-> /u2/acc/oses/linux/2.4.1/drivers/net/pcmcia/wavelan_cs.c:2561:wavelan_get_wireless_stats: ERROR:INTR:2528:2561: Interrupts inconsistent, severity `20':2561
-> 
->   /* Disable interrupts & save flags */
-> Start --->
->   spin_lock_irqsave (&lp->lock, flags);
-> 
->   if(lp == (net_local *) NULL)
->     return (iw_stats *) NULL;
+	typeof (*ef)    local_ef;
 
-Fixed.
+The type definition of ef is kdb_eframe_t which is "pointer to some
+arch dependent type" and local_ef is in arch independent code, much
+easier to do this than use multiple #ifdef.  Of course it would have
+been even easier if kdb had separate types for the struct and the
+pointer to the struct, then I would not need typeof().  OTOH I am sure
+that somebody will find a use for typeof().
 
-I dunno WTF the programmer was thinking here...  Your de-ref checker
-should have caught this too:  check 'lp' for NULL after de-referencing
-lp->lock.
-
-> [BUG] error path
-> 
-> /u2/acc/oses/linux/2.4.1/drivers/net/tokenring/smctr.c:3655:smctr_open_tr: ERROR:INTR:3594:3661: Interrupts inconsistent, severity `20':3661
-
-Seems to be fixed already.
-
--- 
-Jeff Garzik       | May you have warm words on a cold evening,
-Building 1024     | a full mooon on a dark night,
-MandrakeSoft      | and a smooth road all the way to your door.

@@ -1,223 +1,156 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129834AbRAKNwm>; Thu, 11 Jan 2001 08:52:42 -0500
+	id <S129790AbRAKOAO>; Thu, 11 Jan 2001 09:00:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130036AbRAKNwb>; Thu, 11 Jan 2001 08:52:31 -0500
-Received: from capricorn.iris.com ([198.112.211.43]:45067 "EHLO
-	capricorn.iris.com") by vger.kernel.org with ESMTP
-	id <S129834AbRAKNwP>; Thu, 11 Jan 2001 08:52:15 -0500
-Subject: Re: linux-2.4.0 scsi problems on NetFinity servers
-To: timw@splhi.com
-Cc: linux-kernel@vger.kernel.org, JP Navarro <navarro@mcs.anl.gov>
-X-Mailer: Lotus Notes Build V60_12122000 December 12, 2000
-Message-ID: <OFA4CC57DB.1566AFE0-ON852569D1.00498EF9@iris.com>
-From: kenbo@iris.com
-Date: Thu, 11 Jan 2001 08:54:18 -0500
+	id <S129810AbRAKOAF>; Thu, 11 Jan 2001 09:00:05 -0500
+Received: from tor.igf.edu.pl ([148.81.235.26]:19904 "EHLO tor.igf.edu.pl")
+	by vger.kernel.org with ESMTP id <S129790AbRAKN7w>;
+	Thu, 11 Jan 2001 08:59:52 -0500
+From: Wojciech Czuba <wojt@igf.edu.pl>
+Message-Id: <200101111359.OAA16967@seismol1.igf.edu.pl>
+Subject: CRC and ECC error burning CD (adaptec 2940), kernel 2.2.18
+To: linux-kernel@vger.kernel.org
+Date: Thu, 11 Jan 2001 14:59:29 +0100 (MET)
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 MIME-Version: 1.0
-X-MIMETrack: Serialize by Router on chablis/UNIX/Notes(Build V60_M7_01092001|January 9, 2001) at
- 01/11/2001 08:52:54 AM,
-	Itemize by SMTP Server on Capricorn/Iris(Build V60_01012001|January 01, 2001) at
- 01/11/2001 08:58:55 AM,
-	Serialize by Router on Capricorn/Iris(Build V60_01012001|January 01, 2001) at
- 01/11/2001 08:58:58 AM,
-	Serialize complete at 01/11/2001 08:58:58 AM
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The problem I'm seeing must be different.  I tried your suggestion of
-booting with nmi_watchdog=0, and I still see the same crashes.  I'm now in
-the process of getting a SMP Dell to try and do the same testing.
+ Hi,
 
-Thanks!
+  Please, get the information below and help me, if possible...
 
-kenbo
+  Regards,
 
-______________________
-Firebirds rule, `stangs serve!
-
-Kenneth "kenbo" Brunsen
-Iris Associates
-
-
-                                                                                                                           
-                    Tim Wright                                                                                             
-                    <timw@splhi.c        To:     JP Navarro <navarro@mcs.anl.gov>                                          
-                    om>                  cc:     Ken Brunsen/Iris <kenbo@iris.com>, linux-kernel@vger.kernel.org           
-                                         Subject:     Re: linux-2.4.0 scsi problems on NetFinity servers                   
-                    01/10/01                                                                                               
-                    03:49 PM                                                                                               
-                    Please                                                                                                 
-                    respond to                                                                                             
-                    timw                                                                                                   
-                                                                                                                           
-                                                                                                                           
+  Wojtek Czuba
+wojt@igf.edu.pl
 
 
 
+[1.] CRC and ECC error burning CD (adaptec 2940), kernel 2.2.18
+[2.] VMWARE Workstation said that my cdrom will work as an audio
+device with Windows 9x under the vmware with the 2.2.16-22 kernel, so
+I moved to the 2.2.18. I can't start it with aic7xxx (for adaptec 2940
+PCI) compiled as a module (booting stops trying to load this module).
+It works with aic7xxx compiled into the kernel and scsi interface
+works rather well except of burning cdroms using xcdroast (installed
+together with RedHat 7.0). I've got crc or ecc error about 1% after
+starting writing cdrom...
+[3.] scsi, adaptec 2940, modules
+[4.] Linux version 2.2.18 (root@dsswc.igf.edu.pl) (gcc version
+egcs-2.91.66 19990314/
+Linux (egcs-1.1.2 release)) #1 Thu Jan 11 10:34:29 CET 2001
+[5.] no message
+[7.] Pentium II 266 MHz, 128 MB RAM, Adaptec 2940
+[7.1.]
+-- Versions installed: (if some fields are empty or looks
+-- unusual then possibly you have very old versions)
+Linux dsswc.igf.edu.pl 2.2.18 #1 Thu Jan 11 10:34:29 CET 2001 i686
+unknown
+Kernel modules         2.3.14
+Gnu C                  2.96
+Binutils               2.10.0.18
+Linux C Library        > libc.2.2
+Dynamic linker         ldd (GNU libc) 2.2
+Procps                 2.0.7
+Mount                  2.10m
+Net-tools              1.56
+Console-tools          0.3.3
+Sh-utils               2.0
+Modules Loaded         vmnet vmppuser parport_pc vmmon nfsd autofs
+ne2k-pci 8390 nls_cp437
 
-Hmmm...
-it's actually not quite that simple. The card on it's own doesn't cause any
-problems. It's when the NMI watchdog stuff is enabled that all hell breaks
-loose at least on my 8500R. Basically, every CPU in the system gets
-hammered
-with NMIs (1000's per second). The system is slower than it should be, and
-in
-my case it hangs after ~45 minutes (~256,000 NMIs per cpu). Booting with
-nmi_watchdog=0 makes the problem go away and the machine is stable, so
-there's
-some kind of nasty interaction with the card.
+[7.2.] 
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 3
+model name      : Pentium II (Klamath)
+stepping        : 3
+cpu MHz         : 266.445
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+sep_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca
+cmov mmx
+bogomips        : 530.84
 
-It seems a little unlikely that this is related to SCSI problems, but I
-could
-be wrong. Anyway, I am trying to find more information on the adapter to
-find
-out where the problem may lie.
+[7.3.] 
+vmnet                  16320   3
+vmppuser                5528   0
+parport_pc              7480   0 [vmppuser]
+vmmon                  17792   0
+nfsd                  162888   8 (autoclean)
+autofs                  9160   1 (autoclean)
+ne2k-pci                4648   1 (autoclean)
+8390                    6420   0 (autoclean) [ne2k-pci]
+nls_cp437               3872   4 (autoclean)
 
-Regards,
+[7.4.]
+Attached devices: 
+Host: scsi0 Channel: 00 Id: 04 Lun: 00
+  Vendor: RICOH    Model: MP6200S          Rev: 2.20
+  Type:   CD-ROM                           ANSI SCSI revision: 02
 
-Tim
-
-On Tue, Jan 09, 2001 at 03:08:03PM -0600, JP Navarro wrote:
-> One possibility:
->
-> When we first tested 2.4.0-test8 on NetFinity 7000s we had random
-crashes,
-> typically within an hour of booting. The problem was identified as a
-Wiseman
-> Systems Management adapter generated hardware interrupt that 2.4 doesn't
-handle
-> (this was not a problem with 2.2.x).
->
-> If you have these adapters installed, remove them.
->
-> JP Navarro
-> --
-> John-Paul Navarro                                           (630)
-252-1233
-> Mathematics & Computer Science Division
-> Argonne National Laboratory
-navarro@mcs.anl.gov
-> Argonne, IL 60439
-http://www.mcs.anl.gov/~navarro
->
->
-> Ken Brunsen/Iris wrote:
-> >
-> > Hello all,
-> >
-> >      I've been sorta pulling the 2.4 kernel and testing with it now for
-> > awhile on my IBM NetFinity 5500 and since the test12 I've been having a
-> > continuous issue with crashing the OS during a pull of source code
-across
-> > the network (>1Gb files).  I've been trying to figure out what it may
-be
-> > related to, but I'm relatively new with debugging the kernel so thought
-I'd
-> > see if y'all could help.  From looking at the archives, I did not see
-that
-> > anyone else had been seeing these issues either.  Basically, I've got 2
-> > different machines which I'm working with - a NetFinity Quad CPU 5500
-M20
-> > with 2Gb Ram and Raid and a NetFinity Dual CPU 5500 M10 with 1Gb Ram
-and
-> > Raid.  Both machines exhibit the same behavior.  Initially, both
-machines
-> > had RH 6.0, now one is RH 7.0 (and I know about the compiler issue) and
-the
-> > other is SuSE 7.0.  I downloaded the 2.4.0 release and still got the
-issue,
-> > so thought it was time to bring it here.  Here is a stack of one crash:
-> >
-> >      Started getting Scsi errors on controller during NFS transfer of
->1Gb
-> > worth of files
-> >
-> > SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 70000
-> > I/O error: dev 08:05, sector 31731256
-> > SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 70000
-> > I/O error: dev 08:05, sector 31731264
-> > SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 70000
-> > I/O error: dev 08:05, sector 31731272
-> > SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 70000
-> > I/O error: dev 08:05, sector 31731280
-> > .
-> > .
-> > .
-> >
-> >      (the sector varies from run to run, is never consistent), and then
-> > kernel panics with the following
-> >
-> > (ips0) Resetting controller.
-> > NMI Watchdog detected LOCKUP on CPU1, registers:
-> > CPU: 1
-> > EIP: 0010:[<c0246544>]
-> > EFLAGS: 00000002
-> > eax: 003e240   ebx: 000612b0  ecx: 5a21a2f5   edx: 00000063
-> > esi: 00000004  edi: 00000000  ebp:f7de2a78    esp: f7ddbf00
-> > ds: 0018  es: 0018  ss: 0018
-> > Process scsi_eh_0 (pid: 8, stackpage=f7ddb000)
-> > Stack:    000003e6 c0246587 000612b0 c02465f5 000612b0 c01df470
-00418570
-> > ffffffff
-> >      f7de2a78 00000082 00000001 200012b0 f7ddbf36 000612b0 c01dfa7c
-> > f7de2a78
-> >      f7de2ab8 f7de2a78 f7db1400 f7de2ab8 c01dc4ae f7de2a78 c0296220
-> > c0295c67
-> > Call Trace: [<c0246587>] [<c02465f5>] [<c01df470>] [<c01dfa7c>]
-> > [<c01dc4ae>]
-> >      [<c01bda9c>] [<c01be1db>] [<c01be4e6>] [<c01074c4>]
-> >
-> > Code: 39 d8 72 f8 5b c3 89 f6 8b 44 24 04 eb 0e 8d b4 26 00 00 00
-> > console shuts up ...
-> >
-> > Thinking it could be memory related - since I see the Cache fill up and
-the
-> > system go to just over 1mb free prior to crash - i disabled highmem
-> > support.  I then disabled NFSv3 and automounter v4 support, jic.  In
-the
-> > last test, I disabled swap - since one thing I've noticed is that the
-2.4
-> > kernel never touches my swap at all.  None of these changes have
-affected
-> > the outcome; the closest I've gotten is by contintually doing "sync" in
-> > another window which sometimes keeps it from crashing on a run,
-although
-> > I'll still end up with a few of the SCSI disk error messages (although
-not
-> > nearly as many as I get before a failure).  Since this happens on
-multiple
-> > machines, I do not believe it is.  We're also seeing failures of this
-same
-> > type when we try to do heavy database loading on the machine, ie.,
-intense
-> > disk accesses.  Any help would be greatly appreciated, as we are really
-> > needing to get this 2.4 kernel working
-> >
-> > Since I only get the archive list, please CC me with any responses!
-> >
-> > Thanks!
-> >
-> > kenbo
-> >
-> > ______________________
-> > Firebirds rule, `stangs serve!
-> >
-> > Kenneth "kenbo" Brunsen
-> > Iris Associates
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-
---
-Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
-IBM Linux Technology Center, Beaverton, Oregon
-"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI
-
-
+[7.5.]
+PCI devices found:
+  Bus  0, device   0, function  0:
+    Host bridge: Intel 440LX - 82443LX PAC Host (rev 3).
+      Medium devsel.  Fast back-to-back capable.  Master Capable.
+Latency=32.  
+      Prefetchable 32 bit memory at 0xf8000000 [0xf8000008].
+  Bus  0, device   1, function  0:
+    PCI bridge: Intel 440LX - 82443LX PAC AGP (rev 3).
+      Medium devsel.  Fast back-to-back capable.  Master Capable.
+Latency=64.  
+Min Gnt=8.
+  Bus  0, device   7, function  0:
+    ISA bridge: Intel 82371AB PIIX4 ISA (rev 1).
+      Medium devsel.  Fast back-to-back capable.  Master Capable.  No
+bursts.  
+  Bus  0, device   7, function  1:
+    IDE interface: Intel 82371AB PIIX4 IDE (rev 1).
+      Medium devsel.  Fast back-to-back capable.  Master Capable.
+Latency=64.  
+      I/O at 0xfcb0 [0xfcb1].
+  Bus  0, device   7, function  2:
+    USB Controller: Intel 82371AB PIIX4 USB (rev 1).
+      Medium devsel.  Fast back-to-back capable.  IRQ 9.  Master
+Capable.  Laten
+cy=64.  
+      I/O at 0xfce0 [0xfce1].
+  Bus  0, device   7, function  3:
+    Bridge: Intel 82371AB PIIX4 ACPI (rev 1).
+      Medium devsel.  Fast back-to-back capable.  
+  Bus  0, device  13, function  0:
+    Ethernet controller: Compex ReadyLink 2000 (rev 10).
+      Medium devsel.  Fast back-to-back capable.  IRQ 10.  
+      I/O at 0xfcc0 [0xfcc1].
+  Bus  0, device  14, function  0:
+    SCSI storage controller: Adaptec AIC-7871 (rev 3).
+      Medium devsel.  Fast back-to-back capable.  IRQ 11.  Master
+Capable.  Late
+ncy=64.  Min Gnt=8.Max Lat=8.
+      I/O at 0xf800 [0xf801].
+      Non-prefetchable 32 bit memory at 0xfedff000 [0xfedff000].
+  Bus  1, device   0, function  0:
+    VGA compatible controller: Matrox Millennium II AGP (rev 0).
+      Medium devsel.  Fast back-to-back capable.  IRQ 11.  Master
+Capable.  Late
+ncy=64.  
+      Prefetchable 32 bit memory at 0xf6000000 [0xf6000008].
+      Non-prefetchable 32 bit memory at 0xfecf8000 [0xfecf8000].
+      Non-prefetchable 32 bit memory at 0xfe000000 [0xfe000000].
 
 
 -

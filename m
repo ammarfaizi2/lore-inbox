@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288754AbSADUdc>; Fri, 4 Jan 2002 15:33:32 -0500
+	id <S284890AbSADUgO>; Fri, 4 Jan 2002 15:36:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288755AbSADUdZ>; Fri, 4 Jan 2002 15:33:25 -0500
-Received: from adsl-63-199-104-197.dsl.lsan03.pacbell.net ([63.199.104.197]:62725
-	"HELO mail.theoesters.com") by vger.kernel.org with SMTP
-	id <S288747AbSADUc2>; Fri, 4 Jan 2002 15:32:28 -0500
-From: "Phil Oester" <kernel@theoesters.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 1gb RAM + 1gb SWAP + make -j bzImage = OOM
-Date: Fri, 4 Jan 2002 12:32:27 -0800
-Message-ID: <004b01c1955e$ecbc9190$6400a8c0@philxp>
+	id <S288758AbSADUes>; Fri, 4 Jan 2002 15:34:48 -0500
+Received: from svr3.applink.net ([206.50.88.3]:15877 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S288747AbSADUdq>;
+	Fri, 4 Jan 2002 15:33:46 -0500
+Message-Id: <200201042033.g04KXUSr000737@svr3.applink.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: Bernd Eckenfels <usenet2001-12@lina.inka.de>, linux-kernel@vger.kernel.org
+Subject: Re: Two hdds on one channel - why so slow?
+Date: Fri, 4 Jan 2002 14:29:46 -0600
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <E16MZG4-0001ch-00@sites.inka.de>
+In-Reply-To: <E16MZG4-0001ch-00@sites.inka.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2.4.17, I can't make -j bzImage without OOM kicking in.  Relatively
-light .config here - bzImage compiles to less than 1mb.
+On Friday 04 January 2002 12:40, Bernd Eckenfels wrote:
+> In article <200201041725.g04HPwSr031984@svr3.applink.net> you wrote:
+> > Why go Fibre Channel when Firewire is really starting to catch on?
+>
+> Because Firewire is Consumer electronics and nearly dead. Dont now of
+> Enterpise Solutions with Firewire. Besides there is no switching support
+> for it.
+>
+> I am happy to see those FC-S/ATA Controlers soon :)
+>
+> Greetings
+> Bernd
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Seems with 1 gb of RAM and swap, the box should be able to handle this
-(box is dual P3 600 btw).  
 
-Is this unreasonable?  How much RAM should it take to accomplish this???
+Checkout http://www.sancube.com. to see what I'm looking for.  Also,
+I'm hoping to see native ieee1394b disk drives (maybe Serial ATA
+will help, but it's not an external solution IIRC).
 
--Phil Oester
-
+-- 
+timothy.covell@ashavan.org.

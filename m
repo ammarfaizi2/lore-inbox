@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318970AbSHMRhG>; Tue, 13 Aug 2002 13:37:06 -0400
+	id <S318980AbSHMRqr>; Tue, 13 Aug 2002 13:46:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319001AbSHMRhG>; Tue, 13 Aug 2002 13:37:06 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:50424 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318970AbSHMRhF>; Tue, 13 Aug 2002 13:37:05 -0400
-Subject: Re: [PATCH] NUMA-Q disable irqbalance
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1996570000.1029259495@flay>
-References: <Pine.LNX.4.44.0208130937050.7411-100000@home.transmeta.com>
-	<1029257866.20980.54.camel@irongate.swansea.linux.org.uk> 
-	<1996570000.1029259495@flay>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 13 Aug 2002 18:38:27 +0100
-Message-Id: <1029260307.22847.69.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318982AbSHMRqr>; Tue, 13 Aug 2002 13:46:47 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:12187 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S318980AbSHMRqq>;
+	Tue, 13 Aug 2002 13:46:46 -0400
+Date: Tue, 13 Aug 2002 19:50:38 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] exit_free(), 2.5.31-A0
+In-Reply-To: <Pine.LNX.4.44.0208130834320.5192-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0208131944280.5298-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-08-13 at 18:24, Martin J. Bligh wrote:
-> > In the 2.4-ac tree it is a dynamic disable keyed off the mp 1.4 tables.
-> > That's how James Cleverdon (I think it was he) implemented the detection
-> > logic and mixed summit/sane-pc kernel build that seems to work well now
-> 
-> The trouble with that is that is it doesn't provide an interface for people to
-> disable it by hand for the many cases where constantly reprogramming 
-> the IO-APIC reduces the performance of their workload.
 
-I have zero problems with also being able to manually disable it
+On Tue, 13 Aug 2002, Linus Torvalds wrote:
+
+> It may be small, but it's crap, unless you can explain to me why glibc
+> cannot just cannot just catch the death signal in the master thread and
+> be done with it (and do all maintenance in the master).
+
+we dont really want any signal overhead, and we also dont want any extra
+context-switching to the 'master thread'. And there's no master thread
+anymore either.
+
+the pthreads API provides sensible ways to just get rid of a helper thread
+without *any* handshaking or notification done after exit with any of the
+other threads - the thread has finished its work and is gone forever.
+
+the fundamental problem is getting rid of the stack atomically, it's a
+catch-22. A thread can be interrupted by a signal on the last instruction
+it executes, it can be ptrace debugged, etc. And something must notify
+about completion once the stack is 100% unused.
+
+(i'll add any other, userspace-only solution to the code if there's any
+that has equivalent performance - i couldnt find any other solution so
+far.)
+
+	Ingo
 

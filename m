@@ -1,39 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261577AbREXRoP>; Thu, 24 May 2001 13:44:15 -0400
+	id <S261682AbREXSPr>; Thu, 24 May 2001 14:15:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261593AbREXRnz>; Thu, 24 May 2001 13:43:55 -0400
-Received: from ns2.cypress.com ([157.95.67.5]:54260 "EHLO ns2.cypress.com")
-	by vger.kernel.org with ESMTP id <S261577AbREXRnv>;
-	Thu, 24 May 2001 13:43:51 -0400
-Message-ID: <3B0D483C.AB9E1EEC@cypress.com>
-Date: Thu, 24 May 2001 12:43:24 -0500
-From: Thomas Dodd <ted@cypress.com>
-Organization: Cypress Semiconductor Southeast Design Center
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en-US, en-GB, en, de-DE, de-AT, de-CH, de, zh-TW, zh-CN, zh
+	id <S261738AbREXSPh>; Thu, 24 May 2001 14:15:37 -0400
+Received: from sloth.wcug.wwu.edu ([140.160.176.172]:50986 "HELO
+	sloth.wcug.wwu.edu") by vger.kernel.org with SMTP
+	id <S261682AbREXSP0>; Thu, 24 May 2001 14:15:26 -0400
+Date: Thu, 24 May 2001 11:15:25 -0700 (PDT)
+From: Josh Logan <josh@wcug.wwu.edu>
+To: Costas Tavernarakis <taver@otenet.gr>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx problem on -ac series
+In-Reply-To: <20010524201518.A20971@noc.otenet.gr>
+Message-ID: <Pine.BSO.4.21.0105241114180.21043-100000@sloth.wcug.wwu.edu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: David Weinehall <tao@acc.umu.se>
-Subject: Re: Linux 2.4.4-ac14
-In-Reply-To: <Pine.LNX.4.05.10105230915100.16280-100000@callisto.of.borg> <20677.990608858@kao2.melbourne.sgi.com> <20010523053620.C7114@zalem.puupuu.org> <20010523120821.A3640@khan.acc.umu.se>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Weinehall wrote:
-> > We don't provide the binutils or gcc with the kernel either.  The 6502
-> > is a rather well known processor.  Try plonking "6502 assembler" in
-> > google and you'll have a lot of choice.
+
+I have also seen this problem...  I don't have any ideas.  Is this a
+module or compiled in?
+
+							Later, JOSH
+
+On Thu, 24 May 2001, Costas Tavernarakis wrote:
+
+> Hi all,
 > 
-> Me likee, finally asm in the kernel I can grok.
+> I'm not subscribed to LKML, so please Cc: me with any replies.
+> 
+> I'm running 2.4.5-pre4 with success on an ASUS-CUV4X-D based system
+> (noapic boot parameter, highmem). This kernel works for me (with a few
+> occasional hard lockups, but that's another story).
+> 
+> However, I'm having trouble with kernels from the -ac series.
+> These kernels (with noapic) halt while detecting the first scsi
+> controller on the system. The messages I get are:
+> 
+> SCSI subsystem driver Revision: 1.00
+> PCI: Found IRQ9 for device 00:09.0
+> PCI: The same IRQ used for device 00:0a.1
+> ahc_pci: 0:90: Using left over BIOS settings
+> 
+> and then the system stops responding.
+> 
+> while -pre4 goes ahead to print:
+> 
+> scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.1.13
+>         <Adaptec 29160N Ultra160 SCSI adapter>
+>         aic7892: Ultra160 Wide Channel A, SCSI Id=7, 32/255 SCBs
+> ...
+> 
+> The same problem is seen with virtually all kernels in
+> 2.4.4-ac series, including -ac15. (haven't tried any
+> earlier -ac, though).
+> 
+> lspci on this system gives:
+> 
+> 00:00.0 Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo PRO133x] (rev c4)
+> 00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo MVP3/Pro133x AGP]
+> 00:04.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 40)
+> 00:04.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
+> 00:04.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16)
+> 00:04.3 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16)
+> 00:04.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
+> 00:09.0 SCSI storage controller: Adaptec 7892A (rev 02)
+> 00:0a.0 SCSI storage controller: Symbios Logic Inc. (formerly NCR) 53c875 (rev 14)
+> 00:0a.1 SCSI storage controller: Symbios Logic Inc. (formerly NCR) 53c875 (rev 14)
+> 00:0b.0 Ethernet controller: 3Com Corporation 3c905C-TX [Fast Etherlink] (rev 74)
+> 00:0c.0 Multimedia audio controller: Creative Labs SB Live! EMU10000 (rev 08)
+> 00:0c.1 Input device controller: Creative Labs SB Live! (rev 08)
+> 01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 82)
+> 
+> ver_linux output:
+> Linux idefix 2.4.5-pre4 #4 SMP Mon May 21 14:52:36 EEST 2001 i686 unknown
+>  
+> Gnu C                  2.95.4
+> Gnu make               3.79.1
+> binutils               2.11.90.0.7
+> util-linux             2.11b
+> mount                  2.11b
+> modutils               2.4.6
+> e2fsprogs              1.19
+> reiserfsprogs          3.x.0j
+> Linux C Library        2.2.3
+> Dynamic linker (ldd)   2.2.3
+> Procps                 2.0.7
+> Net-tools              1.60
+> Console-tools          0.2.3
+> Sh-utils               2.0.11
+> Modules Loaded         
+> 
+> I am, of course, willing to provide any more information you
+> may find important and/or to test any patches.
+> I'm not a kernel expert, though...
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Someone else who has trouble with x86 asm,
-but rembers 6502 almost as well as their native
-language:)
-
-Of course the M68K and RISC code isn't too bad,
-but 6502 is still where I'm most comfortable.
-
-	-Thomas

@@ -1,83 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268308AbTGNQCW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 12:02:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270111AbTGNQCW
+	id S270111AbTGNQOE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 12:14:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270133AbTGNQOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 12:02:22 -0400
-Received: from netmail02.services.quay.plus.net ([212.159.14.221]:27074 "HELO
-	netmail02.services.quay.plus.net") by vger.kernel.org with SMTP
-	id S268308AbTGNQCL (ORCPT <rfc822;Linux-Kernel@Vger.kernel.org>);
-	Mon, 14 Jul 2003 12:02:11 -0400
-From: "Riley Williams" <Riley@Williams.Name>
-To: <koala.gnu@tiscalinet.it>
-Cc: <Linux-Kernel@Vger.kernel.org>
-Subject: RE: Linux boot code
-Date: Mon, 14 Jul 2003 17:15:08 +0100
-Message-ID: <BKEGKPICNAKILKJKMHCACEAKEOAA.Riley@Williams.Name>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <3F12AC57.2080609@tiscalinet.it>
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
+	Mon, 14 Jul 2003 12:14:04 -0400
+Received: from ce.fis.unam.mx ([132.248.33.1]:31192 "EHLO ce.fis.unam.mx")
+	by vger.kernel.org with ESMTP id S270111AbTGNQOB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 12:14:01 -0400
+Subject: Re: no sound on 2.5.75-mm1 (emu10k1 loaded)
+From: Max Valdez <maxvalde@fis.unam.mx>
+To: kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.53.0307131931160.29044@montezuma.mastecende.com>
+References: <1058115661.6491.6.camel@garaged.homeip.net>
+	 <Pine.LNX.4.53.0307131931160.29044@montezuma.mastecende.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-1cVu8ry2Qj3xlcS9q0//"
+Message-Id: <1058182153.3913.6.camel@garaged.homeip.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 14 Jul 2003 06:29:13 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
- > I am looking at the boot code in bootsect.S and I have some doubt.
- > I tried to search the answers to my questions on
- > marc.theaimsgroup.com and on Google but I haven't found them.
+--=-1cVu8ry2Qj3xlcS9q0//
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I know nothing about the former site, so can't comment thereon.
+The problem is solved taking off the CONFIG_DEVFS_MOUNT from config
 
- > Probably these are newbie question but I'll appreciate if someone
- > of you help me.
+Thanks Zwane, i think is the 3 time (at least)that you help me to solve
+a problem with devel kernels.
 
-I'll do what I can.
+The problems seems to be that gento tries to mount devfs, and it was
+already mounted, I took off the CONFIG_DEVFS_DEBUG too, but I dont think
+that has nothing to do with the problem, i just dont think i will use it
 
- > 1) In the bootsect code the first thing that is done is to copy
- >    the boot sector to 0x90000 and move the program count to
- >    0x9000, go. Why it is necessary move the code there? Is it not
- >    possible continue the process from 0x7C00?
+BTW, taking off DEVFS at all, i cannot mount SCSI disks, that seems to
+be the only problem, I still have a problem with NFS daemon, but at leas
+I have my NFS mounts working well, I think its a init script problem, i
+will try to correct that.
 
-Following moving the boot code there, the next step is to load the
-kernel image, either from 0x10000 (64k) or from 1M upwards, this
-being dependent on various factors. However, the boot sector holds
-several flags whose values are important AFTER the kernel image has
-been loaded, so is moved out the way first.
+Max
+On Sun, 2003-07-13 at 18:32, Zwane Mwaikambo wrote:
+> On Sun, 13 Jul 2003, Max Valdez wrote:
+>=20
+> > Hi all
+> >=20
+> > Im very plessed to see my first 2.5 kernel running almos completly !!,
+> > this time I dont have sound system running, I might be missing somethin=
+g
+> > fool, but I just can't find it, here is my config attached, a dmesg and
+> > lsmod. There is no /dev/dsp device, no /dev/sound either.
+>=20
+> Seems like a devfs thing, try removing it.
+>=20
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" i=
+n
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+--=20
+Linux garaged 2.4.22-pre3-ac1 #5 SMP Wed Jul 9 07:01:52 CDT 2003 i686 Penti=
+um III (Coppermine) GenuineIntel GNU/Linux
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.1
+GS/ d-s:a-28C++ILHA+++P+L++>+++E---W++N*o--K-w++++O-M--V--PS+PEY--PGP++t5XR=
+tv++b++DI--D-G++e++h-r+y**
+------END GEEK CODE BLOCK------
+gpg-key: http://garaged.homeip.net/gpg-key.txt
 
- > 2) Another step is to move the parameters table from 0x78:0 to
- >    0x9000:0x4000-12. What are the info contained in this table?
- >    Can you send me a link to a site that specify these info?
- >    Without these info I am not able to understand these three
- >    line of code
- >
- >        movb    $36, 0x4(%di)           # patch sector count
- >        movw    %di, %fs:(%bx)
- >        movw    %es, %fs:2(%bx)
+--=-1cVu8ry2Qj3xlcS9q0//
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-That area of memory contains parameters configured by the BIOS of
-the machine in question. I would suspect it's the parameters for
-the floppy drives, and the code that follows is presumably that
-used to determine how many sectors per track the floppy in /dev/fd0
-actually has.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
- > Thanks in advance for your help
+iD8DBQA/EpQJsrSE6THXcZwRAh78AJ9qRBJxxAO/CweRHl6tU8JkT0xQSACg1QEO
+SENGX9FTVhYjAjg1LvHi9+U=
+=g8mV
+-----END PGP SIGNATURE-----
 
-No problem.
-
-Best wishes from Riley.
----
- * Nothing as pretty as a smile, nothing as ugly as a frown.
-
----
-Outgoing mail is certified Virus Free.
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.500 / Virus Database: 298 - Release Date: 10-Jul-2003
+--=-1cVu8ry2Qj3xlcS9q0//--
 

@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268737AbTGaJEF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 05:04:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272427AbTGaJEF
+	id S272916AbTGaJTf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 05:19:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272946AbTGaJTe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 05:04:05 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:19868 "EHLO
+	Thu, 31 Jul 2003 05:19:34 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:27804 "EHLO
 	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S268737AbTGaJEC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 05:04:02 -0400
-Date: Thu, 31 Jul 2003 11:03:52 +0200
+	id S272916AbTGaJTa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 05:19:30 -0400
+Date: Thu, 31 Jul 2003 11:19:09 +0200
 From: Tomas Szepe <szepe@pinerecords.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: [PATCH] Re: [TRIVIAL] kill surplus menu in IDE Kconfig
-Message-ID: <20030731090352.GH12849@louise.pinerecords.com>
-References: <20030730055725.GG4279@louise.pinerecords.com> <Pine.SOL.4.30.0307301823210.8913-100000@mion.elka.pw.edu.pl>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: module-init-tools don't support gzipped modules.
+Message-ID: <20030731091909.GK12849@louise.pinerecords.com>
+References: <20030730183635.0B82D2C097@lists.samba.org> <2347.1059613595@kao2.melbourne.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.SOL.4.30.0307301823210.8913-100000@mion.elka.pw.edu.pl>
+In-Reply-To: <2347.1059613595@kao2.melbourne.sgi.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > [B.Zolnierkiewicz@elka.pw.edu.pl]
-> >
-> > > - kill CONFIG_BLK_DEV_PDC202XX
-> >
-> > How do you mean?
+> [kaos@ocs.com.au]
 > 
-> It is not needed anymore.
-> We have now CONFIG_BLK_DEV_PDC202XX_OLD and CONFIG_BLK_DEV_PDC202XX_NEW.
-
-Oh, I was under the impression that this was already done.
-
-> > > Does it sound sane?  If so I will later post patches for you review.
-> >
-> > Sounds good.  I can generate these patches if you're interested.
+> On Thu, 31 Jul 2003 02:46:23 +1000, 
+> Rusty Russell <rusty@rustcorp.com.au> wrote:
+> >I don't want to require zlib, though.  The modutils I have (Debian)
+> >doesn't support it, either.
 > 
-> Patches are at:
-> http://home.elka.pw.edu.pl/~bzolnier/ide-Kconfig/
-> 
-> They are against 2.6.0-test2.
+> Really?  modutils 2.4: ./configure --enable-zlib
 
-Looks ok to me too.
+Keith, I believe Rusty meant the standard Debian package had binaries
+compiled w/o '--enable-zlib'.
+
+(And so has Slackware btw.)
 
 -- 
 Tomas Szepe <szepe@pinerecords.com>

@@ -1,78 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267384AbRGTU6C>; Fri, 20 Jul 2001 16:58:02 -0400
+	id <S267405AbRGTVd3>; Fri, 20 Jul 2001 17:33:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267388AbRGTU5w>; Fri, 20 Jul 2001 16:57:52 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:16345 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267384AbRGTU5k>; Fri, 20 Jul 2001 16:57:40 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Paul Larson <plars@austin.ibm.com>
+	id <S267408AbRGTVdU>; Fri, 20 Jul 2001 17:33:20 -0400
+Received: from [209.182.168.213] ([209.182.168.213]:46599 "EHLO
+	draco.foogod.com") by vger.kernel.org with ESMTP id <S267405AbRGTVdG>;
+	Fri, 20 Jul 2001 17:33:06 -0400
+Date: Fri, 20 Jul 2001 14:32:47 -0700
+From: alex@foogod.com
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.7-pre9 oops
-Date: Fri, 20 Jul 2001 15:58:52 +0000
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <01072015585201.07147@plars.austin.ibm.com>
-Content-Transfer-Encoding: 7BIT
+Subject: [PATCH] eepro100 and IFF_RUNNING under 2.4
+Message-ID: <20010720143247.A6596@draco.foogod.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="gKMricLos+KVdGMg"
+X-Mailer: Mutt 1.0pre3us
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-I got this oops message with 2.4.7-pre9 on SuSE 7.2 today.  It happened 
-during bootup, from the boot.omsg log, it looks like maybe right after the 
-swapspace was added.  Ksymoops parsed oops message is attached below.  Please 
-let me know if any other information would help.  I'm not a subscriber, so 
-please email me directly.
 
-Thanks,
-Paul Larson
+--gKMricLos+KVdGMg
+Content-Type: text/plain; charset=us-ascii
 
-ksymoops 2.4.1 on i686 2.4.4-64GB-SMP.  Options used
-     -v /usr/src/linux/vmlinux (specified)
-     -K (specified)
-     -L (specified)
-     -o /lib/modules/2.4.4-64GB-SMP/ (default)
-     -m /boot/System.map (specified)
+Hiho..  While working on some code which tries to monitor physical link status
+for ethernet interfaces, I noticed that apparently under the 2.4 kernel, the
+eepro100 driver does not reflect link status with the IFF_RUNNING flag as it
+used to under 2.2.x.
 
-No modules in ksyms, skipping objects
-<4> WARNING: unexpected IO-APIC, please mail
-<4>cpu: 0, clocks: 1329068, slice: 664534
-<5>ds: no socket drivers loaded!
-<1>Unable to handle kernel NULL pointer dereference at virtual address 
-0000007c
-<4>c01458f2
-<1>*pde = 00000000
-<4>Oops: 0000
-<4>CPU:    0
-<4>EIP:    0010:[proc_pid_make_inode+130/176]
-<4>EFLAGS: 00010206
-<4>eax: 00000000   ebx: c1450000   ecx: cf9ca400   edx: c1056564
-<4>esi: cfedc000   edi: 0000000b   ebp: cf9f0760   esp: cf9f7eb4
-<4>ds: 0018   es: 0018   ss: 0018
-<4>Process ps (pid: 59, stackpage=cf9f7000)
-<4>Stack: c02a52c0 cf9f07c0 c0247b0f c0145b1a cfedc000 c1450000 0000000b 
-fffffff4
-<4>       cf9ca220 cf9f0760 cf9f06e0 ffffffea c0136e6b cf9ca220 cf9f0760 
-cf9f7f2c
-<4>       00000000 cf9ca220 cf9f7f84 c0137511 cf9f06e0 cf9f7f2c 00000000 
-c149c000
-<4>Call Trace: [proc_base_lookup+134/536] [real_lookup+83/196] 
-[path_walk+1321/1880] [open_namei+134/1404] [filp_open+59/92] 
-[sys_open+56/184] [system_call+51/56]
-<4>Code: f6 40 7c 01 74 12 8b 83 24 01 00 00 89 41 30 8b 83 34 01 00
-Using defaults from ksymoops -t elf32-i386 -a i386
+It looks like a bit of the code in eepro100.c didn't get updated to reflect
+some interface changes that happened somewhere in 2.3, so here is a patch which
+should fix things (It also adds a bit of code to set things properly on startup as well, patch is against kernel 2.4.6).
+
+(I'm not quite sure who to send this to, so I'm sending it to the list)
+
+-alex
+
+--gKMricLos+KVdGMg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="eepro100_linkstate24.patch"
+
+--- drivers/net/eepro100.c.orig	Mon Jul  2 14:03:04 2001
++++ drivers/net/eepro100.c	Fri Jul 20 13:28:20 2001
+@@ -976,6 +976,11 @@
+ 	if ((sp->phy[0] & 0x8000) == 0)
+ 		sp->advertising = mdio_read(ioaddr, sp->phy[0] & 0x1f, 4);
  
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   f6 40 7c 01               testb  $0x1,0x7c(%eax)
-Code;  00000004 Before first symbol
-   4:   74 12                     je     18 <_EIP+0x18> 00000018 Before first 
-symbol
-Code;  00000006 Before first symbol
-   6:   8b 83 24 01 00 00         mov    0x124(%ebx),%eax
-Code;  0000000c Before first symbol
-   c:   89 41 30                  mov    %eax,0x30(%ecx)
-Code;  0000000f Before first symbol
-   f:   8b 83 34 01 00 00         mov    0x134(%ebx),%eax
++	if (mdio_read(ioaddr, sp->phy[0], 1) & 0x0004)
++		netif_carrier_on(dev);
++	else
++		netif_carrier_off(dev);
++
+ 	if (speedo_debug > 2) {
+ 		printk(KERN_DEBUG "%s: Done speedo_open(), status %8.8x.\n",
+ 			   dev->name, inw(ioaddr + SCBStatus));
+@@ -1088,9 +1093,9 @@
+ 			mdio_read(ioaddr, phy_num, 1);
+ 			/* If link beat has returned... */
+ 			if (mdio_read(ioaddr, phy_num, 1) & 0x0004)
+-				dev->flags |= IFF_RUNNING;
++				netif_carrier_on(dev);
+ 			else
+-				dev->flags &= ~IFF_RUNNING;
++				netif_carrier_off(dev);
+ 		}
+ 	}
+ 	if (speedo_debug > 3) {
+
+--gKMricLos+KVdGMg--

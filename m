@@ -1,78 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269706AbTGOVPU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 17:15:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269698AbTGOVPT
+	id S269709AbTGOVPk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 17:15:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269698AbTGOVPj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 17:15:19 -0400
-Received: from mail.kroah.org ([65.200.24.183]:42719 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S269736AbTGOVNp (ORCPT
+	Tue, 15 Jul 2003 17:15:39 -0400
+Received: from mail.kroah.org ([65.200.24.183]:41695 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269732AbTGOVNm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 17:13:45 -0400
-Date: Tue, 15 Jul 2003 14:20:05 -0700
+	Tue, 15 Jul 2003 17:13:42 -0400
+Date: Tue, 15 Jul 2003 14:27:14 -0700
 From: Greg KH <greg@kroah.com>
-To: Michael Hunold <hunold@convergence.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1] Add two drivers for USB based DVB-T adapters
-Message-ID: <20030715212005.GA5458@kroah.com>
-References: <10582891731946@convergence.de>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: Kernel List <linux-kernel@vger.kernel.org>,
+       video4linux list <video4linux-list@redhat.com>
+Subject: Re: [RFC/PATCH] sysfs'ify video4linux
+Message-ID: <20030715212714.GB5458@kroah.com>
+References: <20030715143119.GB14133@bytesex.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <10582891731946@convergence.de>
+In-Reply-To: <20030715143119.GB14133@bytesex.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 15, 2003 at 07:12:53PM +0200, Michael Hunold wrote:
-> +#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-> +static void *ttusb_probe(struct usb_device *udev, unsigned int ifnum,
-> +		  const struct usb_device_id *id)
-> +{
-> +	struct ttusb *ttusb;
-> +	int result, channel;
-> +
-> +	if (ifnum != 0)
-> +		return NULL;
-> +
-> +	dprintk("%s: TTUSB DVB connected\n", __FUNCTION__);
-> +
-> +	if (!(ttusb = kmalloc(sizeof(struct ttusb), GFP_KERNEL)))
-> +		return NULL;
-> +
-> +#else
-> +static int ttusb_probe(struct usb_interface *intf, const struct usb_device_id *id)
-> +{
-> +	struct usb_device *udev;
-> +	struct ttusb *ttusb;
-> +	int result, channel;
-> +
-> +	dprintk("%s: TTUSB DVB connected\n", __FUNCTION__);
-> +
-> +	udev = interface_to_usbdev(intf);
-> +
-> +	if (!(ttusb = kmalloc(sizeof(struct ttusb), GFP_KERNEL)))
-> +		return -ENOMEM;
-> +
-> +#endif
+On Tue, Jul 15, 2003 at 04:31:19PM +0200, Gerd Knorr wrote:
+>   Hi,
+> 
+> This patch moves the video4linux subsystem from procfs to sysfs.
+> Changes:
+> 
+>   * procfs support is completely gone, i.e. /proc/video doesn't
+>     exist any more.
 
-Ick, you don't really want to try to support all of the USB changes in
-the same driver, now do you?  Why not just live with two different
-drivers.
+Yeah!
 
-The ALSA people eventually gave up trying to do this... :)
+>   * there is a new device class instead: /sys/class/video4linux.
+>     All video4linux devices which used to be listed in
+>     /proc/video/dev are moved to that place.
 
-> +#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,5,69))
-> +#undef devfs_remove
-> +#define devfs_remove(x)	devfs_unregister(ttusb->stc_devfs_handle);
-> +#endif
-> +#if 0
-> +	devfs_remove(TTUSB_BUDGET_NAME);
-> +#endif
+Nice.
 
-You end up with crud like this because of trying to support old kernels.
-Why do you care about kernels prior to 2.5.69?  If so, your USB kernel
-checks are wrong, as 2.5.0 didn't have those API changes :)
+> Changes required/recommended in video4linux drivers:
+> 
+>   * some usb webcam drivers (usbvideo.ko, stv680.ko, se401.ko 
+>     and ov511.ko) use the video_proc_entry() to add additional
+>     procfs files.  These drivers must be converted to sysfs too
+>     because video_proc_entry() doesn't exist any more.
+
+I'd be glad to do this work once your change makes it into the core.  Is
+there any need for these drivers to export anything through sysfs now
+instead of /proc?  From what I remember, it only looked like debugging
+and other general info stuff.
+
+>   * struct video_device has a new "dev" field pointing to a struct
+>     device.  Drivers should fill that one if possible.  It isn't
+>     required through.  It will give you fancy device + driver symlinks
+>     in /sys/class/video4linux/<name>.
+>     The patch below includes the changes for bttv.
+
+So dev should point to the dev of the video class device?
+
+> Comments?
+
+You _have_ to set up a release function for your class device.  You
+can't just kfree it like I think you are doing, otherwise any users of
+the sysfs files will oops the kernel after the video class device is
+gone.  I can point you to some examples of how to do this if you like.
+
+Other than that, how about exporting the dev_t value for the video
+device?  Then you automatically get udev support, and I don't have to go
+add it to this code later :)
 
 thanks,
 

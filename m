@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262111AbVCRXpB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261593AbVCRXuy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262111AbVCRXpB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 18:45:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbVCRXpB
+	id S261593AbVCRXuy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 18:50:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbVCRXuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 18:45:01 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:11924 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262118AbVCRXox (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 18:44:53 -0500
-Date: Sat, 19 Mar 2005 00:44:40 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Greg KH <gregkh@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: fix-u32-vs-pm_message_t-in-usb
-Message-ID: <20050318234440.GF24449@elf.ucw.cz>
-References: <20050310223353.47601d54.akpm@osdl.org> <20050311130831.GC1379@elf.ucw.cz> <20050318214335.GA17813@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050318214335.GA17813@kroah.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 18 Mar 2005 18:50:54 -0500
+Received: from hqemgate01.nvidia.com ([216.228.112.170]:50232 "EHLO
+	HQEMGATE01.nvidia.com") by vger.kernel.org with ESMTP
+	id S261593AbVCRXus (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 18:50:48 -0500
+Message-ID: <423B6A16.5090701@nvidia.com>
+Date: Fri, 18 Mar 2005 15:53:58 -0800
+From: achew <achew@nvidia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] mpspec.h: Fix MAX_MP_BUSSES for compliance with MP specification
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Mar 2005 23:50:47.0613 (UTC) FILETIME=[4EB1AED0:01C52C15]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Pá 18-03-05 13:43:36, Greg KH wrote:
-> On Fri, Mar 11, 2005 at 02:08:31PM +0100, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > This patch has been spitting warnings:
-> > > 
-> > > drivers/usb/host/uhci-hcd.c:838: warning: initialization from incompatible pointer type
-> > > drivers/usb/host/ohci-pci.c:191: warning: initialization from incompatible pointer type
-> > > 
-> > > Because hc_driver.suspend() takes a u32 as its second arg.  Changing that
-> > > to pci_power_t causes build failures and including pci.h in usb.h seems
-> > > wrong.
-> > > 
-> > > Wanna fix it sometime?
-> > 
-> > Yep. Here it is.
-> > 
-> > This fixes remaining confusion. Part of my old patch was merged, I
-> > later decided passing pci_power_t down to drivers is bad idea; this
-> > passes them pm_message_t which contains more info (and actually works
-> > :-). Please apply,
-> 
-> Argh, this one is already partially in, and another one you just sent me
-> has half of it in the tree too...
-> 
-> Care to just rediff off of 2.6.12-rc1?  Then we can hopefully get these
-> changes in :)
+MP specification uses an 8-bit field for bus ID.  Therefore, the highest bus ID is 0xff.
+Since the tables allocated and used in mpparse.c are indexed by bus ID, we need to make
+sure we allocate 256 entries for these tables.
 
-I can do the rediff tommorow. I just hope there are not some other
-changis waiting in -mm to spoil this ;-).
-							Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Note that bus IDs can be noncontiguous, according to the MP specification.  The only
+requirement is that they be listed in increasing order.
+
+
+Signed-off-by: Andrew Chew <achew@nvidia.com>
+
+---
+
+diff -ru linux-2.4.29/include/asm-i386/mpspec.h linux/include/asm-i386/mpspec.h
+--- linux-2.4.29/include/asm-i386/mpspec.h	2004-11-17 03:54:22.000000000 -0800
++++ linux/include/asm-i386/mpspec.h	2005-03-18 15:02:20.000000000 -0800
+@@ -191,7 +191,7 @@
+ #define MAX_IRQ_SOURCES 256
+ #endif /* CONFIG_MULTIQUAD */
+ 
+-#define MAX_MP_BUSSES 32
++#define MAX_MP_BUSSES 256
+ enum mp_bustype {
+ 	MP_BUS_ISA = 1,
+ 	MP_BUS_EISA,
+
+

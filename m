@@ -1,80 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264219AbTFBXW2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 19:22:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264221AbTFBXW2
+	id S264222AbTFBX50 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 19:57:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264223AbTFBX50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 19:22:28 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:42375 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S264219AbTFBXW0
+	Mon, 2 Jun 2003 19:57:26 -0400
+Received: from dyn-ctb-210-9-244-45.webone.com.au ([210.9.244.45]:4613 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S264222AbTFBX5Z
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 19:22:26 -0400
-Date: Mon, 02 Jun 2003 16:35:40 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: LKML <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 767] New: in ieee1394 file iso.c fails to compile
-Message-ID: <209840000.1054596940@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Mon, 2 Jun 2003 19:57:25 -0400
+Message-ID: <3EDBE776.2020806@cyberone.com.au>
+Date: Tue, 03 Jun 2003 10:10:30 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Rik van Riel <riel@redhat.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       Con Kolivas <kernel@kolivas.org>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>
+Subject: Re: [PATCH][CFT] blk-fair-batches vs 2.4.20-rc6
+References: <Pine.LNX.4.44.0306020919530.29823-100000@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0306020919530.29823-100000@chimarrao.boston.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-           Summary: in ieee1394 file iso.c fails to compile
-    Kernel Version: 2.5.70
-            Status: NEW
-          Severity: normal
-             Owner: bcollins@debian.org
-         Submitter: donaldlf@i-55.com
 
+Rik van Riel wrote:
 
-Distribution:redhat
-Hardware Environment:Alpha PC164LX
-Software Environment:Rawhide
+> On Mon, 2 Jun 2003, Nick Piggin wrote:
+>
+>> Previously:
+>> * request queue fills up
+>> * process 1 calls get_request, sleeps
+>> * a couple of requests are freed
+>> * process 2 calls get_request, proceeds
+>> * a couple of requests are freed
+>> * process 2 calls get_request, proceeds
+>> ...
+>
+>
+> In an early 2.4 kernel I've caught a few processes sleeping
+> in get_request_wait for 5 minutes or so, while other processes
+> were allocating new requests at exactly the speed they were
+> processed.
+>
+> Of course, a patch to fix the problem was shot down due to
+> lower dbench performance ... good thing Andrew Morton has
+> more sense than that.
 
-Problem Description:
+Mmm... unfortunately nearly everywhere >1 threads compete for
+a resource, it comes down to throughput vs latency.
 
-file fails to compile (as module embedded untested)
-drivers/ieee1394/iso.c: In function `hpsb_iso_xmit_sync':
-drivers/ieee1394/iso.c:355: arithmetic on pointer to an incomplete type
-drivers/ieee1394/iso.c:355: warning: implicit declaration of function
-`set_current_state'
-drivers/ieee1394/iso.c:355: `TASK_INTERRUPTIBLE' undeclared (first use in this
-function)
-drivers/ieee1394/iso.c:355: (Each undeclared identifier is reported only once
-drivers/ieee1394/iso.c:355: for each function it appears in.)
-drivers/ieee1394/iso.c:355: warning: implicit declaration of function
-`signal_pending'
-drivers/ieee1394/iso.c:355: arithmetic on pointer to an incomplete type
-drivers/ieee1394/iso.c:355: warning: implicit declaration of function `schedule'
-drivers/ieee1394/iso.c:355: arithmetic on pointer to an incomplete type
-drivers/ieee1394/iso.c:355: dereferencing pointer to incomplete type
-drivers/ieee1394/iso.c:355: `TASK_RUNNING' undeclared (first use in this function)
-drivers/ieee1394/iso.c: In function `hpsb_iso_wake':
-drivers/ieee1394/iso.c:431: `TASK_INTERRUPTIBLE' undeclared (first use in this
-function)
-make[2]: *** [drivers/ieee1394/iso.o] Error 1
-make[1]: *** [drivers/ieee1394] Error 2
-make: *** [drivers] Error 2
-
-Steps to reproduce:
-
-Select ieee1394 as an module and activate all items lower in the configuration
-tree as an module
-
-Solution
-
-Add the line
-
-# include <linux/sched.h>
-
-between the following lines (line number 11)
-
-# include <linux/slab.h>
-# include "iso.h"
-
+I think this patch is valid. It does not seem to be the sole
+cause of the hangs though... err, and its against 21-rc6,
+sorry :P
 

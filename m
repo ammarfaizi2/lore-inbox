@@ -1,44 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132145AbRCVSnR>; Thu, 22 Mar 2001 13:43:17 -0500
+	id <S132151AbRCVSo6>; Thu, 22 Mar 2001 13:44:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132146AbRCVSnI>; Thu, 22 Mar 2001 13:43:08 -0500
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:1673 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S132145AbRCVSm4>; Thu, 22 Mar 2001 13:42:56 -0500
-Date: Thu, 22 Mar 2001 13:42:15 -0500
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
-        Alexander Viro <viro@math.psu.edu>,
-        "Stephen C. Tweedie" <sct@redhat.com>
-Subject: 2.4.2 fs/inode.c
-Message-ID: <20010322134215.A25508@cs.cmu.edu>
-Mail-Followup-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-	alan@lxorguk.ukuu.org.uk, Alexander Viro <viro@math.psu.edu>,
-	"Stephen C. Tweedie" <sct@redhat.com>
-Mime-Version: 1.0
+	id <S132148AbRCVSot>; Thu, 22 Mar 2001 13:44:49 -0500
+Received: from mons.uio.no ([129.240.130.14]:16626 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S132146AbRCVSod>;
+	Thu, 22 Mar 2001 13:44:33 -0500
+To: Camm Maguire <camm@enhanced.com>
+Cc: linux-kernel@vger.kernel.org, nfs-devel@linux.kernel.org
+Subject: Re: PROBLEM: 2.2.18 oops leaves umount hung in disk sleep
+In-Reply-To: <E14g8eP-0006k5-00@intech19.enhanced.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 22 Mar 2001 19:43:41 +0100
+In-Reply-To: Camm Maguire's message of "Thu, 22 Mar 2001 12:13:29 -0500"
+Message-ID: <shs1yrpabky.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Camm Maguire <camm@enhanced.com> writes:
 
-I found some code that seems wrong and didn't even match it's comment.
-Patch is against 2.4.2, but should go cleanly against 2.4.3-pre6 as well.
+     > 2.2.18 oops leaves umount hung in disk sleep
 
-Jan
+This is normal behaviour for an Oops ;-)
 
+     >      Unable to handle kernel NULL pointer dereference at
+     >      virtual address 00000000
+    current-> tss.cr3 = 02872000, %%cr3 = 02872000
+     >      *pde = 00000000 Oops: 0000 CPU: 0
 
---- linux/fs/inode.c.orig	Thu Mar 22 13:20:55 2001
-+++ linux/fs/inode.c	Thu Mar 22 13:21:32 2001
-@@ -133,7 +133,7 @@
- 
- 	if (sb) {
- 		/* Don't do this for I_DIRTY_PAGES - that doesn't actually dirty the inode itself */
--		if (flags & (I_DIRTY | I_DIRTY_SYNC)) {
-+		if (flags & (I_DIRTY_SYNC | I_DIRTY_DATASYNC)) {
- 			if (sb->s_op && sb->s_op->dirty_inode)
- 				sb->s_op->dirty_inode(inode);
- 		}
+     >      intech9# ksymoops <oo.txt
+
+     >      ksymoops 2.3.4 on i586 2.2.18-i586tsc.  Options used -V
+     >      (default) -k /proc/ksyms (default) -l /proc/modules
+     >      (default) -o /lib/modules/2.2.18-i586tsc/ (default) -m
+     >      /boot/System.map-2.2.18-i586tsc (default)
+
+     >      Warning: You did not tell me where to find symbol
+     >      information.  I will assume that the log matches the
+     >      kernel and modules that are running right now and I'll use
+     >      the default options above for symbol resolution.  If the
+     >      current kernel and/or modules do not match the log, you
+     >      can get more accurate output by telling me the kernel
+     >      version and where to find map, modules, ksyms etc.
+     >      ksymoops -h explains the options.
+
+     >      Warning (compare_maps): ksyms_base symbol
+     >      module_list_R__ver_module_list not found in System.map.
+     >      Ignoring ksyms_base entry
+    
+     >      Unable to handle kernel NULL pointer dereference at
+     >      virtual address 00000000 current->tss.cr3 = 02872000,
+     >      %%cr3 = 02872000 *pde = 00000000 Oops: 0000 CPU: 0
+
+Do you have the full ksymoops decode available? The above is somewhat
+minimal.
+
+Also please could you try to duplicate the problem with a standard
+autofs v3 daemon? I'm not sure that the v4 'automount' is quite as
+well tested as the v3 daemon (it still seems to be in beta).
+
+Cheers,
+  Trond

@@ -1,78 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261510AbSIZUZk>; Thu, 26 Sep 2002 16:25:40 -0400
+	id <S261476AbSIZUUH>; Thu, 26 Sep 2002 16:20:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261508AbSIZUZi>; Thu, 26 Sep 2002 16:25:38 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:19723 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261492AbSIZUYU>;
-	Thu, 26 Sep 2002 16:24:20 -0400
-Date: Thu, 26 Sep 2002 13:28:10 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
-Cc: linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC] LSM changes for 2.5.38
-Message-ID: <20020926202809.GD6908@kroah.com>
-References: <20020926202552.GA6908@kroah.com> <20020926202647.GB6908@kroah.com> <20020926202713.GC6908@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020926202713.GC6908@kroah.com>
-User-Agent: Mutt/1.4i
+	id <S261480AbSIZUUG>; Thu, 26 Sep 2002 16:20:06 -0400
+Received: from [217.7.64.198] ([217.7.64.198]:62166 "EHLO mx1.net4u.de")
+	by vger.kernel.org with ESMTP id <S261476AbSIZUUG>;
+	Thu, 26 Sep 2002 16:20:06 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ernst Herzberg <earny@net4u.de>
+Reply-To: earny@net4u.de
+To: Rik van Riel <riel@conectiva.com.br>, Marco Colombo <marco@esi.it>
+Subject: Re: Very High Load, kernel 2.4.18, apache/mysql
+Date: Thu, 26 Sep 2002 22:25:08 +0200
+User-Agent: KMail/1.4.2
+Cc: Adam Goldstein <Whitewlf@Whitewlf.net>, <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44L.0209261627000.1837-100000@duckman.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.44L.0209261627000.1837-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209262225.08640.earny@net4u.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Copied linux-fsdevel, as it touches the core fs code.
+
+KeepAlive		On  # that is ok
+MaxKeepAliveRequests	1000  # that is too high. No Client will request such count. Check your Pages: 
+How many Images/Frames/etc you nee per request? Should not reach 100 ;-)
+KeepAliveTimeout 15 # that is the key, but that is dangerous. Too high, and you will run out of MaxClients.
+But you see that in serverstats ('K')
+
+On Donnerstag, 26. September 2002 21:27, Rik van Riel wrote:
+> On Thu, 26 Sep 2002, Marco Colombo wrote:
+> > On Thu, 26 Sep 2002, Ernst Herzberg wrote:
+> > > MaxClients 256  # absolute minimum, maybe you have to recompile apache
+> > > MinSpareServers 100  # better 150 to 200
+> > > MaxSpareServers 200 # bring it near MaxClients
+> >
+> > KeepAlive		On
+> > MaxKeepAliveRequests	1000
+>
+> That sounds like an extraordinarily bad idea.  You really
+> don't want to have ALL your apache daemons tied up with
+> keepalive requests.
+>
+> Personally I never have MaxKeepAliveRequests set to more
+> than 2/3 of MaxClients.
+>
 
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.613   -> 1.614  
-#	          fs/inode.c	1.69    -> 1.70   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/09/26	sds@tislabs.com	1.614
-# [PATCH] LSM: inode.c init modification
-# 
-# On Thu, 19 Sep 2002, Greg KH wrote:
-# 
-# > Yes, and explaining the fine points of inode_init() and
-# > inode_alloc_security() and why they are different, might be a bit tough.
-# >
-# > {sigh}, well if there's no other way (and I can't think of one right
-# > now), but I really don't like it...
-# 
-# Here's a patch that attempt to support the same functionality without
-# inserting hooks into filesystem-specific code.  This patch permits the
-# security module to perform initialization of the inode security state
-# based on the superblock information, enabling SELinux to initialize
-# pipe, devpts, and shm inodes without relying on inode_precondition to
-# catch them on first use.
-# 
-# This is achieved simply by moving the initialization of inode->i_sb
-# before the call to inode_alloc_security, enabling the
-# inode_alloc_security hook function to perform the allocation and
-# initialization for such inodes.  No new hooks are required.
-# --------------------------------------------
-#
-diff -Nru a/fs/inode.c b/fs/inode.c
---- a/fs/inode.c	Thu Sep 26 13:23:52 2002
-+++ b/fs/inode.c	Thu Sep 26 13:23:52 2002
-@@ -101,6 +101,7 @@
- 	if (inode) {
- 		struct address_space * const mapping = &inode->i_data;
- 
-+		inode->i_sb = sb;
- 		inode->i_security = NULL;
- 		if (security_ops->inode_alloc_security(inode)) {
- 			if (inode->i_sb->s_op->destroy_inode)
-@@ -109,7 +110,6 @@
- 				kmem_cache_free(inode_cachep, (inode));
- 			return NULL;
- 		}
--		inode->i_sb = sb;
- 		inode->i_dev = sb->s_dev;
- 		inode->i_blkbits = sb->s_blocksize_bits;
- 		inode->i_flags = 0;
+<Earny>
+

@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269593AbRHWR5c>; Thu, 23 Aug 2001 13:57:32 -0400
+	id <S269390AbRHWSAC>; Thu, 23 Aug 2001 14:00:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269390AbRHWR5X>; Thu, 23 Aug 2001 13:57:23 -0400
-Received: from yoda.planetinternet.be ([195.95.30.146]:54024 "EHLO
-	yoda.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S269436AbRHWR5Q>; Thu, 23 Aug 2001 13:57:16 -0400
-Date: Thu, 23 Aug 2001 19:57:22 +0200
-From: Kurt Roeckx <Q@ping.be>
-To: Bob Glamm <glamm@mail.ece.umn.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
-Message-ID: <20010823195722.B2604@ping.be>
-In-Reply-To: <20010822030807.N120@pervalidus> <20010823140555.A1077@newton.bauerschmidt.eu.org> <20010823103620.A6965@kittpeak.ece.umn.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre2i
-In-Reply-To: <20010823103620.A6965@kittpeak.ece.umn.edu>
+	id <S269436AbRHWR7n>; Thu, 23 Aug 2001 13:59:43 -0400
+Received: from msgbas2x.cos.agilent.com ([192.25.240.37]:28645 "HELO
+	msgbas2.cos.agilent.com") by vger.kernel.org with SMTP
+	id <S269390AbRHWR7f>; Thu, 23 Aug 2001 13:59:35 -0400
+Message-ID: <FEEBE78C8360D411ACFD00D0B7477971880B3E@xsj02.sjs.agilent.com>
+From: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
+Subject: releasing driver to kernel in source+binary format
+Date: Thu, 23 Aug 2001 11:59:49 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 23, 2001 at 10:36:20AM -0500, Bob Glamm wrote:
-> 
-> Believe it or not, there are people like me that take a distribution,
-> do a minimal install just to get a machine up and running, then remove
-> most of the package management software from the installation once
-> networking has been configured, then continually update software
-> from source as new fixes are released.  I managed to update an
-> early version of Slackware from the earliest libc4 releases through
-> libc6 without ever touching a distribution disk - all updated through
-> source.
-> 
-> But I would expect that I'm in the minority in this regard. ;)
+Hi list,
 
-I only started with slackware 3.0, which already had libc 5.0.9.
+We want to release a linux scsi hba-driver for our fibre-channel
+HBAs and make it part of the kernel source tree. Because of IP 
+related issues, we can only release one part of the sources with 
+GPL. We want to release the other part in the binary format (.o)
+as a library which needs to be linked with the first part.
+If somebody can advise me on how to go about this, I would
+appreciate it. 
 
+I went through the "SubmittingDrivers" file
+which does not talk about this kind of special cases.
 
-Kurt
-
+Regards,
+-hiren
+Agilent Technologies.

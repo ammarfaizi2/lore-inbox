@@ -1,75 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbUJXACH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbUJXAGk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261340AbUJXACH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 20:02:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbUJXACG
+	id S261341AbUJXAGk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 20:06:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbUJXAGj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 20:02:06 -0400
-Received: from relay.snowman.net ([66.92.160.56]:44038 "EHLO relay.snowman.net")
-	by vger.kernel.org with ESMTP id S261340AbUJXACB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 20:02:01 -0400
-Date: Sat, 23 Oct 2004 20:02:21 -0400
-From: Stephen Frost <sfrost@snowman.net>
-To: Matthias Schniedermeyer <ms@citd.de>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The naming wars continue...
-Message-ID: <20041024000221.GQ12780@ns.snowman.net>
-Mail-Followup-To: Matthias Schniedermeyer <ms@citd.de>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org> <20041022234631.GF28904@waste.org> <20041023011549.GK17038@holomorphy.com> <Pine.LNX.4.58.0410221821030.2101@ppc970.osdl.org> <20041023154128.GP12780@ns.snowman.net> <20041023215152.GA17596@citd.de>
+	Sat, 23 Oct 2004 20:06:39 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:32408 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S261341AbUJXAGd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 20:06:33 -0400
+Date: Sun, 24 Oct 2004 02:06:10 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Timothy Miller <miller@techsource.com>,
+       Jon Smirl <jonsmirl@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+Message-ID: <20041024000610.GA28398@electric-eye.fr.zoreil.com>
+References: <200410220238.13071.jk-lkml@sci.fi> <41793C94.3050909@techsource.com> <417955D3.5020206@pobox.com> <41795DEA.8050309@techsource.com> <41796083.9060301@pobox.com> <417965E7.8010408@techsource.com> <41797103.2070005@pobox.com> <1098476845.19435.41.camel@localhost.localdomain> <20041023172036.GA22940@electric-eye.fr.zoreil.com> <1098566241.24757.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tjOMJDssiV0CZSJH"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041023215152.GA17596@citd.de>
-X-Editor: Vim http://www.vim.org/
-X-Info: http://www.snowman.net
-X-Operating-System: Linux/2.4.24ns.3.0 (i686)
-X-Uptime: 20:01:13 up 266 days, 19:00, 13 users,  load average: 0.25, 0.28, 0.24
-User-Agent: Mutt/1.5.6+20040523i
+In-Reply-To: <1098566241.24757.5.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox <alan@lxorguk.ukuu.org.uk> :
+> On Sad, 2004-10-23 at 18:20, Francois Romieu wrote:
+> > Just curious: how would it prevent to push standardization through OpenGL
+> > extensions if needed ?
+> 
+> The current specs are OpenGL like but not openGL - openrt
 
---tjOMJDssiV0CZSJH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Interesting.
 
-* Matthias Schniedermeyer (ms@citd.de) wrote:
-> On 23.10.2004 11:41, Stephen Frost wrote:
-> > * Linus Torvalds (torvalds@osdl.org) wrote:
-> > > However, for some reason four numbers just looks visually too obnoxio=
-us to
-> >=20
-> > I agree, four numbers is *very* obnoxious, I mean, really, if for no
-> > other reason than *Oracle* uses four numbers. :)
->=20
-> Actually Oracle uses (or at least displays) 5 numbers. :-)
->=20
-> e.g. The version currently in use where i work: 9.2.0.5.0
+The document "The OpenRT Application Programming Interface" suggests that
+the authors are evaluating a move to an OpenGL extension API though.
 
-Eh, their directory structure is (or at least, was last I checked) based
-off of four numbers.
-
-ie: /oracle/9.2.0.1
-
-	Stephen
-
---tjOMJDssiV0CZSJH
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBevEMrzgMPqB3kigRAm7AAKCQfT4za1fyC+zQmNiTWb4cgAhnLwCfa5g3
-vbzACSw+N/ecDlrpkQtyw4M=
-=y64S
------END PGP SIGNATURE-----
-
---tjOMJDssiV0CZSJH--
+--
+Ueimor

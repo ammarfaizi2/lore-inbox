@@ -1,35 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135627AbRDXNxa>; Tue, 24 Apr 2001 09:53:30 -0400
+	id <S135625AbRDXN4j>; Tue, 24 Apr 2001 09:56:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135624AbRDXNwI>; Tue, 24 Apr 2001 09:52:08 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:4364 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135616AbRDXNvA>; Tue, 24 Apr 2001 09:51:00 -0400
-Subject: Re: [kbuild-devel] Request for comment -- a better attribution system
-To: markus.schaber@student.uni-ulm.de (Markus Schaber)
-Date: Tue, 24 Apr 2001 14:51:38 +0100 (BST)
-Cc: eccesys@topmail.de (mirabilos), esr@thyrsus.com,
-        cate@dplanet.ch (Giacomo A. Catenazzi),
-        linux-kernel@vger.kernel.org (CML2),
-        kbuild-devel@lists.sourceforge.net
-In-Reply-To: <3AE53B9E.1C52266C@student.uni-ulm.de> from "Markus Schaber" at Apr 24, 2001 10:38:54 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S135616AbRDXNz2>; Tue, 24 Apr 2001 09:55:28 -0400
+Received: from [216.6.80.34] ([216.6.80.34]:11526 "EHLO
+	dcmtechdom.dcmtech.co.in") by vger.kernel.org with ESMTP
+	id <S135628AbRDXNyt>; Tue, 24 Apr 2001 09:54:49 -0400
+Message-ID: <7FADCB99FC82D41199F9000629A85D1A018D3127@dcmtechdom.dcmtech.co.in>
+From: Rajeev Nigam <rajeev.nigam@dcmtech.co.in>
+To: Hubertus Franke <frankeh@us.ibm.com>, alad@hss.hns.com
+Cc: ofer@shunra.co.il, linux-kernel@vger.kernel.org
+Subject: RE: Delay Function
+Date: Tue, 24 Apr 2001 19:28:35 +0530
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14s3EC-00025p-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Well, would it be possible to create some module under LGPL, and then
-> have included it into the kernel? Maybe it needs to maintain the LGPL
-> version out of the kernel, and transform a copy to the GPL before
-> submitting?
+There is udelay(usecs) function which has told by Ofer Fryman one of the
+member of mailing list, not delay(usecs) and its working properly.
 
-There is kernel code under a whole variety of licenses. When linked together
-the resulting work is GPL but many of the pieces used on their own or in
-conjunction with different code are not GPL.
+Thanx to u all for ur cooperation.
 
-Alan
+Regards,
+Rajeev
+
+-----Original Message-----
+From: Hubertus Franke [mailto:frankeh@us.ibm.com]
+Sent: Tuesday, April 24, 2001 7:04 PM
+To: alad@hss.hns.com
+Cc: Rajeev Nigam
+Subject: Re: Delay Function
+
+
+
+you might want to use delay(usecs)..
+
+Hubertus Franke
+Enterprise Linux Group (Mgr),  Linux Technology Center (Member Scalability)
+, OS-PIC (Chair)
+email: frankeh@us.ibm.com
+(w) 914-945-2003    (fax) 914-945-4425   TL: 862-2003
+
+
+
+alad@hss.hns.com@vger.kernel.org on 04/24/2001 04:58:19 AM
+
+Sent by:  linux-kernel-owner@vger.kernel.org
+
+
+To:   Rajeev Nigam <rajeev.nigam@dcmtech.co.in>
+cc:   linux-kernel@vger.kernel.org
+Subject:  Re: Delay Function
+
+
+
+
+
+It may be possible that this is not the good choice...
+but u can try ... schedule_timeout(timeout) function.... see kernel/sched.c
+for
+more details about this function
+
+Amol
+
+
+
+
+
+Rajeev Nigam <rajeev.nigam@dcmtech.co.in> on 04/24/2001 03:29:04 PM
+
+To:   linux-kernel@vger.kernel.org
+cc:    (bcc: Amol Lad/HSS)
+
+Subject:  Delay Function
+
+
+
+
+What function i have to use to put a delay in a driver at kernel mode
+between reading from and writing to com port.
+
+Looking forward for ur help.
+
+Thanx & Regards
+Rajeev Nigam
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+

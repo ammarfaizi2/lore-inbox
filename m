@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280275AbRKFTQs>; Tue, 6 Nov 2001 14:16:48 -0500
+	id <S280246AbRKFTS2>; Tue, 6 Nov 2001 14:18:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280273AbRKFTQi>; Tue, 6 Nov 2001 14:16:38 -0500
-Received: from ns.suse.de ([213.95.15.193]:529 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S280246AbRKFTQc>;
-	Tue, 6 Nov 2001 14:16:32 -0500
-Date: Tue, 6 Nov 2001 20:16:31 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Using %cr2 to reference "current"
-In-Reply-To: <20011106134234.A27718@redhat.com>
-Message-ID: <Pine.LNX.4.30.0111062012580.5432-100000@Appserv.suse.de>
+	id <S280210AbRKFTSS>; Tue, 6 Nov 2001 14:18:18 -0500
+Received: from nydalah028.sn.umu.se ([130.239.118.227]:1920 "EHLO
+	x-files.giron.wox.org") by vger.kernel.org with ESMTP
+	id <S280233AbRKFTSE>; Tue, 6 Nov 2001 14:18:04 -0500
+Message-ID: <008901c166f8$0063af20$0201a8c0@HOMER>
+From: "Martin Eriksson" <nitrax@giron.wox.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: ACPI "hlt" mode and SMP systems?
+Date: Tue, 6 Nov 2001 20:19:48 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Nov 2001, Benjamin LaHaise wrote:
+When will the equivalence of "hlt" (in APM) work in ACPI SMP systems? Or
+does it already? I have a hard time decoding all the ACPI symbols, such as
+C1 C2 S0 S1 S2 S3 and so on...
 
-> Here are some numbers:
-> Which come from insmod of the below two modules.  I didn't test writing to
-> the stack register, but I expect it's similarly expensive as it affects the
-> call return stack and other behind the scenes dependancies.  Suffice it to
-> say that reading %cr2 is essentially free on my box (athlon mp).  Maybe
-> we should use it as a pointer into a per-cpu area to avoid writing it?
+_____________________________________________________
+|  Martin Eriksson <nitrax@giron.wox.org>
+|  MSc CSE student, department of Computing Science
+|  Umeå University, Sweden
 
-If this is done, it should perhaps be done on only on certain x86s,
-as some show the results go the other way. For example, the Cyrix III..
-
-read stk best: 42  av: 42.60
-read cr2 best: 61  av: 61.28
-
-regards,
-
-Dave.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
 

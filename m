@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263234AbTFDLSV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 07:18:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263239AbTFDLSU
+	id S263245AbTFDLdt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 07:33:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263246AbTFDLds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 07:18:20 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:20611
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263234AbTFDLST (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 07:18:19 -0400
-Subject: Re: partition table problem with 2.4.21-rc7
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Luca Montecchiani <luca.montecchiani@teamfab.it>
-Cc: Narayan Desai <desai@mcs.anl.gov>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3EDD9E5C.9060902@teamfab.it>
-References: <87brxemtev.fsf@mcs.anl.gov>  <3EDD9E5C.9060902@teamfab.it>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1054722814.9359.95.camel@dhcp22.swansea.linux.org.uk>
+	Wed, 4 Jun 2003 07:33:48 -0400
+Received: from sea1-f164.sea1.hotmail.com ([207.68.163.164]:33031 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S263245AbTFDLds
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 07:33:48 -0400
+X-Originating-IP: [213.137.117.55]
+X-Originating-Email: [lutovacvaso@hotmail.com]
+From: "lutovac vaso" <lutovacvaso@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: pozdrav iz srbije
+Date: Wed, 04 Jun 2003 11:47:12 +0000
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 04 Jun 2003 11:33:37 +0100
+Content-Type: text/plain; format=flowed
+Message-ID: <Sea1-F164eE6TRWUvm90004a14f@hotmail.com>
+X-OriginalArrivalTime: 04 Jun 2003 11:47:13.0270 (UTC) FILETIME=[09FBE960:01C32A8F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-06-04 at 08:23, Luca Montecchiani wrote:
-> I've have that annoying messages too and I've verified that the
-> source of the problem is :
-> 
-> > CONFIG_BLK_DEV_IDEDISK=m
-> 
-> the ide code check the partition-table twice, but the first
-> time without the ide-disk module and so the error...
+For Andrew Mc Nabb--a
+Malo sam se namuæio da ti pošaljem poruku jer adresa koju si mi dao koliko 
+razumijem ovaj moj raæunar nije upotrebljiva kao takva ,pa sam probao preko 
+škole.
 
-That would make sense. The drive is attached to the null driver at
-the point something tried to read the partition table initially. That
-errors all I/O requests since they are meaningless.
+Jako nam je drago što si nam se javio.Evo ja još idem na èasove engleskog 
+jezika.Posle tebe je bio Anderson(došao iz S.Mitrovice) i bio veoma kratko 
+(otišao za Beograd),tako da nam je sad uæitelj Eberg.Kod njega ima pomaka u 
+jeziku ali šta god ga pitamo iz gramatike nije mu baš jasno,tako da sam ja i 
+još neki uzeli stvar u svoje ruke(ha,ha)Ja sam konaèno poèeo malo da prièam 
+mada sam još daleko od dobrog..Posjeèenost je sada mnogo manja nego 
+ranije.Koliko sam mogao razumjeti sad æeš na studije što mi je veoma 
+drago.Neznam koliko ti se svidjela slika koju smo ti poslali ali za ono što 
+smo skupili to je bio najbolji izbor.Ja sam malo u vremenskom škripcu ,imam 
+jako mnogo obaveza ali sam našao vremena bar da ti se javim ovako kratko.Kad 
+budeš imao vremena javi se,jako bi se obradovao!
 
-I guess we shouldnt be partition probing those devices. I'll take a
-look
+                                                                             
+             Puno pozdrava od Vase!
+
+_________________________________________________________________
+MSN 8 with e-mail virus protection service: 2 months FREE* 
+http://join.msn.com/?page=features/virus
 

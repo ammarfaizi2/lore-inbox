@@ -1,95 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbULAN6A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbULAOGK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbULAN6A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 08:58:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbULAN6A
+	id S261259AbULAOGK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 09:06:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbULAOGK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 08:58:00 -0500
-Received: from out012pub.verizon.net ([206.46.170.137]:7610 "EHLO
-	out012.verizon.net") by vger.kernel.org with ESMTP id S261252AbULAN54
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 08:57:56 -0500
-Message-Id: <200412011357.iB1DviWR003613@localhost.localdomain>
-To: Florian Schmidt <mista.tapas@gmx.net>
-cc: Ingo Molnar <mingo@elte.hu>, Rui Nuno Capela <rncbc@rncbc.org>,
-       linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2 
-In-reply-to: Your message of "Tue, 23 Nov 2004 15:41:03 +0100."
-             <20041123154103.56c25300@mango.fruits.de> 
-Date: Wed, 01 Dec 2004 08:57:44 -0500
-From: Paul Davis <paul@linuxaudiosystems.com>
-X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [141.151.23.119] at Wed, 1 Dec 2004 07:57:50 -0600
+	Wed, 1 Dec 2004 09:06:10 -0500
+Received: from mailr.eris.qinetiq.com ([128.98.1.9]:46297 "HELO
+	mailr.qinetiq-tim.net") by vger.kernel.org with SMTP
+	id S261259AbULAOGE convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 09:06:04 -0500
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9 tcp problems
+Date: Wed, 1 Dec 2004 14:11:32 +0000
+User-Agent: KMail/1.6.1
+Cc: kernel <kernel@nea-fast.com>
+References: <41AB7C2C.3070505@nea-fast.com>
+In-Reply-To: <41AB7C2C.3070505@nea-fast.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200412011411.32124.m.watts@eris.qinetiq.com>
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.28.0.18; VDF: 6.28.0.100; host: mailr.qinetiq-tim.net)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On Tue, 23 Nov 2004 16:21:26 +0100
->Ingo Molnar <mingo@elte.hu> wrote:
->
->> 
->> * Florian Schmidt <mista.tapas@gmx.net> wrote:
->> 
->> > ~$ ps -C jack_test -cmL
->> >   PID   LWP CLS PRI TTY          TIME CMD
->> >   988     - -     - pts/1    00:00:00  jack_test
->> >     -   988 TS   20 -        00:00:00 -
->> >     -   989 FF   99 -        00:00:00 -
->> > 
->> > So when you ctrl-z out of jack_test you cause its process() thread to
->> > be suspended, too, thus jackd cannot finish processing its graph.
->> 
->> so in theory any scheduling delay of PID 988 in the above setup (the
->> SCHED_OTHER task) should not be able to negatively influence jackd,
->> correct? 
->
->correct
->
->> In fact, does in this particular jack_test case PID 988 do
->> anything substantial?
->
->Well, it registers the client with jackd, sets up the ports, registers
->the process() callback and then simply goes to sleep() for the desired
->runtime of the program. All these are non RT ops and should never be
->able to cause any xruns.
->
->All the work is done by the process() callback which is called by
->libjack in a SCHED_FIFO thread. The process() callback is called once
->for each buffer that jackd processes.
->
->I cannot explain the detailed mechanism of how jackd wakes its clients
->and communicates with them myself too well, so i'll leave this to Paul
->Davis (CC'ed). Care to elaborate, Paul?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-sorry for the delay on this, it ended up in a mail folder that i don't
-check very often.
 
-jackd wakes clients by writing a single byte to a FIFO. the first
-client is sleeping on the other side of the FIFO. when that client is
-done, it writes a single byte to another FIFO. either another client
-is sleeping on the other side of that FIFO, or if there are no other
-clients, jackd is waiting for the client there.
+> Stephen Hemminger wrote:
+> > On Mon, 29 Nov 2004 13:03:34 -0500
+> >
+> > kernel <kernel@nea-fast.com> wrote:
+> >> I've run into a problem with 2.6.(8.1,9) after installing a secondary
+> >> firewall. When I try to pull data through the original firewall
+> >> (mail, http, ssh), it stops after approx. 260k. Running ethereal
+> >> tells me "A segment before the frame was lost" followed by a bunch
+> >> of  "This is a TCP duplicate ack" when using ssh. All 2.4.x machines
+> >> and windows clients work fine. I built 2.4.28 and it works fine from
+> >> my machine. I also fiddled with tcp_ecn and that didn't fix it
+> >> either. I don't have any problems communicating to "local" machines.
+> >> I've attached the tcpdump output from an scp attempt. NIC is a 3Com
+> >> Corporation 3c905B.
+> >
+> > What kind of firewall?  There are firewalls that are too stupid and don't
+> > understand TCP window scaling.
+>
+> It's a fortigate 60.  We put our secure web servers behind a netscreen 5
+> firewall which plugs into the fortigate and that's when the problems
+> started.  I remember reading some stuff on lkm about recent tcp changes
+> but I couldn't remember exactly what it was. Thanks for reminding me !
+>
+> Here is how it's layed out now
+> secure_web_servers->netscreen->fortigate->rest_of_network
+>
 
-the "chain" of wakeup FIFOs is rearranged every time the graph
-execution order is modified (e.g. by new connections being established
-between clients that requires a different execution order).
+Not sure if this helps:
 
-the chain is executed every time jackd is woken by its "backend"
-client, typically the ALSA client that waits on the fd's corresponding
-to an audio interface to be readable and/or writable. in other words,
-every interrupt from the audio interface.
+I have a pair of Dell PowerEdge 1750's (running Mandrake 9.2/2.4.22) plugged 
+directly into a Netscreen 5GT and they do not exhibit this behaviour.
 
-we know that writes to FIFOs are not really RT-safe, but they are the
-closest thing linux has at this time. i have outlined an idea to ingo
-that florian and i cooked up one evening on IRC that would provide
-true RT-safe IPC mechanisms, but as i recall, he didn't seem to think
-that much of it :)
+Network cards are bcm5700 series.
 
---p
+/proc/sys/net/ipv4/tcp_window_scaling is set to '1'
+
+Mark.
+
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ Trusted Information Management
+Trusted Solutions and Services group
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBrdEUBn4EFUVUIO0RAv6VAJ4+sdb3orBiFByfFWbXg40DbA1yygCff8qq
+yAF7xiYh75Fi3JU8NnaaVFs=
+=nMI1
+-----END PGP SIGNATURE-----

@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288166AbSACDcb>; Wed, 2 Jan 2002 22:32:31 -0500
+	id <S288174AbSACDfB>; Wed, 2 Jan 2002 22:35:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288168AbSACDcV>; Wed, 2 Jan 2002 22:32:21 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:6021
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S288166AbSACDcQ>; Wed, 2 Jan 2002 22:32:16 -0500
-Date: Wed, 2 Jan 2002 22:18:45 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Dave Jones <davej@suse.de>
-Cc: Lionel Bouton <Lionel.Bouton@free.fr>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems?
-Message-ID: <20020102221845.A27252@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Dave Jones <davej@suse.de>, Lionel Bouton <Lionel.Bouton@free.fr>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020102220333.A26713@thyrsus.com> <Pine.LNX.4.33.0201030420160.6449-100000@Appserv.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0201030420160.6449-100000@Appserv.suse.de>; from davej@suse.de on Thu, Jan 03, 2002 at 04:26:40AM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S288169AbSACDev>; Wed, 2 Jan 2002 22:34:51 -0500
+Received: from lsr-net2.nei.nih.gov ([128.231.132.10]:22947 "HELO
+	lsr.nei.nih.gov") by vger.kernel.org with SMTP id <S288172AbSACDei>;
+	Wed, 2 Jan 2002 22:34:38 -0500
+Date: Wed, 2 Jan 2002 22:33:09 -0500 (EST)
+From: Art Hays <art@lsr.nei.nih.gov>
+X-X-Sender: <art@lsr-linux>
+To: <linux-kernel@vger.kernel.org>
+Subject: kswapd etc hogging machine
+Message-ID: <Pine.LNX.4.33.0201022214230.8413-100000@lsr-linux>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@suse.de>:
-> Go down the DMI path, and get it right _sometimes_, or take a zero.
-> Getting it right sometimes is likely to do more harm than good.
 
-Not in this case.  If the DMI read fails, the worst-case result is the
-user sees some ISA extra questions.
- 
-> Crap. I'm implying that there should be a learning curve to everything
-> no matter how small it may be. You're trying to remove the curve
-> altogether.
+I would appreciate any expert insight into a problem that is causing me 
+considerable grief.  Please cc to me directly.  Thank you very much.
 
-Damn straight.  Not that I think that's necessarily 100% achievable, but 
-it's the right way to aim.
- 
-> And write a book perchance ? SCNR  8-)
+Problem:  kswapd, kreclaimd, kupdated push load average high during simple
+tar.  Response of system drops such that even keystroke echos are
+noticeably delayed.
 
-It's happened before... :-)
+Specifics:
+
+Machine- 4 processor 700Mhz Dell with 4G Ram and 6G swap space running
+stock Redhat 7.2 distribution.  All disks are SCSI using ext2.
+
+Command- from a remote machine this command is executed to the Linux 
+machine "tar cBf - . | rsh linux "(tar xBpf -)".
+
+Manifestion of problem- As this command continues on a freshly booted 
+Linux machine the free memory reported by 'top' slowly goes to a low 
+number.  When it bottoms out, the processes 'kswapd', 'kreclaimd', and 
+'kupdated' begin to run pushing the load average above 4 at times.  
+Responsiveness of machine drops dramatically with even keystroke echos 
+delayed for seconds.
+
+I apologize if this is well known.  If there is a simple solution I would 
+appreciate even a terse pointer to it.  Thanks.
+
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Art Hays					avhays@nih.gov or art@lsr.nei.nih.gov
+Bldg 49 Rm 2A50					(301) 496-7143 (voice)
+Nat. Institutes of Health			(301) 402-0511 (fax)
+Bethesda, MD  20892
 
-No kingdom can be secured otherwise than by arming the people.  The possession
-of arms is the distinction between a freeman and a slave. 
-        -- "Political Disquisitions", a British republican tract of 1774-1775

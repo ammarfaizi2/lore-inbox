@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262261AbUKQLM1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262271AbUKQLPj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262261AbUKQLM1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 06:12:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbUKQLJ6
+	id S262271AbUKQLPj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 06:15:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbUKQLPf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 06:09:58 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:36843 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262261AbUKQLIW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 06:08:22 -0500
-Subject: Re: Slab corruption with 2.6.9 + swsusp2.1
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Ake <Ake.Sandgren@hpc2n.umu.se>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041117110317.GM26723@hpc2n.umu.se>
-References: <20041116115917.GN4344@hpc2n.umu.se>
-	 <1100635759.4362.4.camel@desktop.cunninghams>
-	 <20041117064403.GB26723@hpc2n.umu.se>
-	 <1100688279.4040.4.camel@desktop.cunninghams>
-	 <20041117110317.GM26723@hpc2n.umu.se>
-Content-Type: text/plain
-Message-Id: <1100689469.4040.20.camel@desktop.cunninghams>
+	Wed, 17 Nov 2004 06:15:35 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12227 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262271AbUKQLO1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 06:14:27 -0500
+Date: Wed, 17 Nov 2004 05:09:35 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Chris Ross <chris@tebibyte.org>
+Cc: Andrew Morton <akpm@osdl.org>, andrea@novell.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       piggin@cyberone.com.au, riel@redhat.com,
+       mmokrejs@ribosome.natur.cuni.cz, tglx@linutronix.de
+Subject: Re: [PATCH] fix spurious OOM kills
+Message-ID: <20041117070935.GF19107@logos.cnet>
+References: <20041113233740.GA4121@x30.random> <20041114094417.GC29267@logos.cnet> <20041114170339.GB13733@dualathlon.random> <20041114202155.GB2764@logos.cnet> <419A2B3A.80702@tebibyte.org> <419B14F9.7080204@tebibyte.org> <20041117012346.5bfdf7bc.akpm@osdl.org> <20041117060648.GA19107@logos.cnet> <20041117060852.GB19107@logos.cnet> <419B2CFC.7040006@tebibyte.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 17 Nov 2004 22:04:29 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <419B2CFC.7040006@tebibyte.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Wed, 2004-11-17 at 22:03, Ake wrote:
-> On Wed, Nov 17, 2004 at 09:44:40PM +1100, Nigel Cunningham wrote:
-> > Had you suspended prior to this? If not, you can rule the suspend code
-> > out. If you had, I wouldn't rule it out because I am trying to identify
-> > the cause of some occasional slab corruption at the moment. Haven't got
-> > it reproducible yet.
+On Wed, Nov 17, 2004 at 11:50:36AM +0100, Chris Ross wrote:
 > 
-> No, it was recently rebooted (4h 20min before) and no suspend.
+> Marcelo Tosatti escreveu:
+> >On Wed, Nov 17, 2004 at 04:06:48AM -0200, Marcelo Tosatti wrote:
+> >Before the swap token patches went in you remember spurious OOM reports  
+> >or things were working fine then?
+> 
+> The oom killer problems arose before and independently of the 
+> token-based-thrashing patches. I know this because I took a special 
+> interest in the tbtc patches too (which is why my test machine came to 
+> have 64MB RAM but 1GB swap).
 
-Okay; it won't be suspend related then. If you want to get a response
-from someone else, you might want to repost with a different subject
-line.
+So even when reaping referenced pages on zero priority scanning 
+the OOM killer might be triggered in extreme cases. And as the 
+number of tasks increases the chances things go wrong increase.
 
-Regards,
+Please test Andrew's patch, its hopefully good enough for most 
+scenarios. Extreme cases are probably still be problematic.
 
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
+What are the "tbtc" patches ? 
 
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
+Your testing is of huge value Chris. Thanks.
 

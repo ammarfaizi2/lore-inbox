@@ -1,213 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262036AbSJJFEw>; Thu, 10 Oct 2002 01:04:52 -0400
+	id <S263313AbSJJFPJ>; Thu, 10 Oct 2002 01:15:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262035AbSJJFEo>; Thu, 10 Oct 2002 01:04:44 -0400
-Received: from SNAP.THUNK.ORG ([216.175.175.173]:58259 "EHLO snap.thunk.org")
-	by vger.kernel.org with ESMTP id <S262036AbSJJFE1>;
-	Thu, 10 Oct 2002 01:04:27 -0400
-To: linux-kernel@vger.kernel.org
-cc: ext2-devel@sourceforge.net
-Subject: [RFC] [PATCH 3/5] ACL support for ext2/3
-From: tytso@mit.edu
-Message-Id: <E17zVaO-00069g-00@snap.thunk.org>
-Date: Thu, 10 Oct 2002 01:10:12 -0400
+	id <S263316AbSJJFPJ>; Thu, 10 Oct 2002 01:15:09 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:63910 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S263313AbSJJFPI>; Thu, 10 Oct 2002 01:15:08 -0400
+Date: Thu, 10 Oct 2002 02:20:47 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Vikram <vvikram@stanford.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.41 : ipv6 compile failure?
+Message-ID: <20021010052047.GL12775@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Vikram <vvikram@stanford.edu>, linux-kernel@vger.kernel.org
+References: <Pine.GSO.4.44.0210092136040.725-100000@epic7.Stanford.EDU>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.44.0210092136040.725-100000@epic7.Stanford.EDU>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Em Wed, Oct 09, 2002 at 09:38:38PM -0700, Vikram escreveu:
+> 
+> tried to compile 2.5.41 with ipv6 support , i get the following build
+> failure:
 
-This patch provides converts extended attributes passed in from user
-space to a generic Posix ACL representation.
+This is fixed already in DaveM's tree and I believe in Linus's too, so
+wait for 2.5.42.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-#
-# fs/Makefile               |    4 -
-# fs/xattr_acl.c            |   99 ++++++++++++++++++++++++++++++++++++++++++++++
-# include/linux/xattr_acl.h |   50 +++++++++++++++++++++++
-# 3 files changed, 151 insertions(+), 2 deletions(-)
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/10/09	tytso@snap.thunk.org	1.671
-# Port 0.8.50 acl-xattr patch to 2.5
-# --------------------------------------------
-#
-diff -Nru a/fs/Makefile b/fs/Makefile
---- a/fs/Makefile	Wed Oct  9 23:54:22 2002
-+++ b/fs/Makefile	Wed Oct  9 23:54:22 2002
-@@ -6,7 +6,7 @@
- # 
- 
- export-objs :=	open.o dcache.o buffer.o bio.o inode.o dquot.o mpage.o aio.o \
--                fcntl.o mbcache.o posix_acl.o
-+                fcntl.o mbcache.o posix_acl.o xattr_acl.o
- 
- obj-y :=	open.o read_write.o devices.o file_table.o buffer.o \
- 		bio.o super.o block_dev.o char_dev.o stat.o exec.o pipe.o \
-@@ -31,7 +31,7 @@
- obj-$(CONFIG_BINFMT_ELF)	+= binfmt_elf.o
- 
- obj-$(CONFIG_FS_MBCACHE)	+= mbcache.o
--obj-$(CONFIG_FS_POSIX_ACL)	+= posix_acl.o
-+obj-$(CONFIG_FS_POSIX_ACL)	+= posix_acl.o xattr_acl.o
- 
- obj-$(CONFIG_QUOTA)		+= dquot.o
- obj-$(CONFIG_QFMT_V1)		+= quota_v1.o
-diff -Nru a/fs/xattr_acl.c b/fs/xattr_acl.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/fs/xattr_acl.c	Wed Oct  9 23:54:22 2002
-@@ -0,0 +1,99 @@
-+/*
-+ * linux/fs/xattr_acl.c
-+ *
-+ * Almost all from linux/fs/ext2/acl.c:
-+ * Copyright (C) 2001 by Andreas Gruenbacher, <a.gruenbacher@computer.org>
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/sched.h>
-+#include <linux/slab.h>
-+#include <linux/fs.h>
-+#include <linux/xattr_acl.h>
-+
-+
-+/*
-+ * Convert from extended attribute to in-memory representation.
-+ */
-+struct posix_acl *
-+posix_acl_from_xattr(const void *value, size_t size)
-+{
-+	xattr_acl_header *header = (xattr_acl_header *)value;
-+	xattr_acl_entry *entry = (xattr_acl_entry *)(header+1), *end;
-+	int count;
-+	struct posix_acl *acl;
-+	struct posix_acl_entry *acl_e;
-+
-+	if (!value)
-+		return NULL;
-+	if (size < sizeof(xattr_acl_header))
-+		 return ERR_PTR(-EINVAL);
-+	if (header->a_version != cpu_to_le32(XATTR_ACL_VERSION))
-+		return ERR_PTR(-EINVAL);
-+
-+	count = xattr_acl_count(size);
-+	if (count < 0)
-+		return ERR_PTR(-EINVAL);
-+	if (count == 0)
-+		return NULL;
-+	
-+	acl = posix_acl_alloc(count, GFP_KERNEL);
-+	if (!acl)
-+		return ERR_PTR(-ENOMEM);
-+	acl_e = acl->a_entries;
-+	
-+	for (end = entry + count; entry != end; acl_e++, entry++) {
-+		acl_e->e_tag  = le16_to_cpu(entry->e_tag);
-+		acl_e->e_perm = le16_to_cpu(entry->e_perm);
-+
-+		switch(acl_e->e_tag) {
-+			case ACL_USER_OBJ:
-+			case ACL_GROUP_OBJ:
-+			case ACL_MASK:
-+			case ACL_OTHER:
-+				acl_e->e_id = ACL_UNDEFINED_ID;
-+				break;
-+
-+			case ACL_USER:
-+			case ACL_GROUP:
-+				acl_e->e_id = le32_to_cpu(entry->e_id);
-+				break;
-+
-+			default:
-+				goto fail;
-+		}
-+	}
-+	return acl;
-+
-+fail:
-+	posix_acl_release(acl);
-+	return ERR_PTR(-EINVAL);
-+}
-+EXPORT_SYMBOL (posix_acl_from_xattr);
-+
-+/*
-+ * Convert from in-memory to extended attribute representation.
-+ */
-+int
-+posix_acl_to_xattr(const struct posix_acl *acl, void *buffer, size_t size)
-+{
-+	xattr_acl_header *ext_acl = (xattr_acl_header *)buffer;
-+	xattr_acl_entry *ext_entry = ext_acl->a_entries;
-+	int real_size, n;
-+
-+	real_size = xattr_acl_size(acl->a_count);
-+	if (!buffer)
-+		return real_size;
-+	if (real_size > size)
-+		return -ERANGE;
-+	
-+	ext_acl->a_version = cpu_to_le32(XATTR_ACL_VERSION);
-+
-+	for (n=0; n < acl->a_count; n++, ext_entry++) {
-+		ext_entry->e_tag  = cpu_to_le16(acl->a_entries[n].e_tag);
-+		ext_entry->e_perm = cpu_to_le16(acl->a_entries[n].e_perm);
-+		ext_entry->e_id   = cpu_to_le32(acl->a_entries[n].e_id);
-+	}
-+	return real_size;
-+}
-+EXPORT_SYMBOL (posix_acl_to_xattr);
-diff -Nru a/include/linux/xattr_acl.h b/include/linux/xattr_acl.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/linux/xattr_acl.h	Wed Oct  9 23:54:22 2002
-@@ -0,0 +1,50 @@
-+/*
-+  File: linux/xattr_acl.h
-+
-+  (extended attribute representation of access control lists)
-+
-+  (C) 2000 Andreas Gruenbacher, <a.gruenbacher@computer.org>
-+*/
-+
-+#ifndef _LINUX_XATTR_ACL_H
-+#define _LINUX_XATTR_ACL_H
-+
-+#include <linux/posix_acl.h>
-+
-+#define XATTR_NAME_ACL_ACCESS	"system.posix_acl_access"
-+#define XATTR_NAME_ACL_DEFAULT	"system.posix_acl_default"
-+
-+#define XATTR_ACL_VERSION	0x0002
-+
-+typedef struct {
-+	__u16		e_tag;
-+	__u16		e_perm;
-+	__u32		e_id;
-+} xattr_acl_entry;
-+
-+typedef struct {
-+	__u32		a_version;
-+	xattr_acl_entry	a_entries[0];
-+} xattr_acl_header;
-+
-+static inline size_t xattr_acl_size(int count)
-+{
-+	return sizeof(xattr_acl_header) + count * sizeof(xattr_acl_entry);
-+}
-+
-+static inline int xattr_acl_count(size_t size)
-+{
-+	if (size < sizeof(xattr_acl_header))
-+		return -1;
-+	size -= sizeof(xattr_acl_header);
-+	if (size % sizeof(xattr_acl_entry))
-+		return -1;
-+	return size / sizeof(xattr_acl_entry);
-+}
-+
-+struct posix_acl * posix_acl_from_xattr(const void *value, size_t size);
-+int posix_acl_to_xattr(const struct posix_acl *acl, void *buffer, size_t size);
-+
-+
-+
-+#endif /* _LINUX_XATTR_ACL_H */
+- Arnaldo

@@ -1,127 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262002AbUCWFGA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 00:06:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbUCWFF7
+	id S262003AbUCWFXU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 00:23:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbUCWFXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 00:05:59 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:35793 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S262002AbUCWFFw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 00:05:52 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Date: Tue, 23 Mar 2004 16:05:36 +1100
-MIME-Version: 1.0
+	Tue, 23 Mar 2004 00:23:20 -0500
+Received: from havoc.gtf.org ([216.162.42.101]:9356 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S262003AbUCWFXI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 00:23:08 -0500
+Date: Tue, 23 Mar 2004 00:23:05 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>
+Cc: scott.feldman@intel.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] add PCI_DMA_{64,32}BIT constants
+Message-ID: <20040323052305.GA2287@havoc.gtf.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16479.50592.944904.708098@notabene.cse.unsw.edu.au>
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: "Enhanced" MD code avaible for review
-In-Reply-To: message from Justin T. Gibbs on Friday March 19
-References: <760890000.1079727553@aslan.btc.adaptec.com>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday March 19, gibbs@scsiguy.com wrote:
-> [ CC trimmed since all those on the CC line appear to be on the lists ... ]
-> 
-> Lets take a step back and focus on a few of the points to which we can
-> hopefully all agree:
-> 
-> o Any successful solution will have to have "meta-data modules" for
->   active arrays "core resident" in order to be robust.  This
->   requirement stems from the need to avoid deadlock during error
->   recovery scenarios that must block "normal I/O" to the array while
->   meta-data operations take place.
 
-I agree.
-'Linear' and 'raid0' arrays don't really need metadata support in the
-kernel as their metadata is essentially read-only.
-There are interesting applications for raid1 without metadata, but I
-think that for all raid personalities where metadata might need to be
-updated in an error condition to preserve data integrity, the kernel
-should know enough about the metadata to perform that update.
+Been meaning to do this for ages...
 
-It would be nice to keep the in-kernel knowledge to a minimum, though
-some metadata formats probably make that hard.
+Another one for the janitors.
 
-> 
-> o It is desirable for arrays to auto-assemble based on recorded
->   meta-data.  This includes the ability to have a user hot-insert
->   a "cold spare", have the system recognize it as a spare (based
->   on the meta-data resident on it) and activate it if necessary to
->   restore a degraded array.
+Please do a
 
-Certainly.  It doesn't follow that the auto-assembly has to happen
-within the kernel.  Having it all done in user-space makes it much
-easier to control/configure.
+	bk pull bk://kernel.bkbits.net/jgarzik/pci-dma-mask-2.6
 
-I think the best way to describe my attitude to auto-assembly is that
-it could be needs-driven rather than availability-driven.
+This will update the following files:
 
-needs-driven means: if the user asks to access an array that doesn't
-  exist, then try to find the bits and assemble it.
-availability driven means: find all the devices that could be part of
-  an array, and combine as many of them as possible together into
-  arrays.
+ Documentation/DMA-mapping.txt |   16 ++++++++--------
+ drivers/net/e1000/e1000.h     |    2 --
+ drivers/net/ixgb/ixgb.h       |    2 --
+ include/linux/pci.h           |    3 +++
+ 4 files changed, 11 insertions(+), 12 deletions(-)
 
-Currently filesystems are needs-driven.  At boot time, only to root
-filesystem, which has been identified somehow, gets mounted. 
-Then the init scripts mount any others that are needed.
-We don't have any hunting around for filesystem superblocks and
-mounting the filesystems just in case they are needed.
+through these ChangeSets:
 
-Currently partitions are (sufficiently) needs-driven.  It is true that
-any partitionable devices has it's partitions presented.  However the
-existence of partitions does not affect access to the whole device at
-all.  Only once the partitions are claimed is the whole-device
-blocked. 
+<jgarzik@redhat.com> (04/03/23 1.1849)
+   Create PCI_DMA_{64,32]BIT constants, for use in passing to
+   pci_set_{consistent_}dma_mask().
+   
+   Use them in e1000 and ixgb.
 
-Providing that auto-assembly of arrays works the same way (needs
-driven), I am happy for arrays to auto-assemble.
-I happen to think this most easily done in user-space.
-
-With DDF format metadata, there is a concept of 'imported' arrays,
-which basically means arrays from some other controller that have been
-attached to the current controller.
-
-Part of my desire for needs-driven assembly is that I don't want to
-inadvertently assemble 'imported' arrays.
-A DDF controller has NVRAM or a hardcoded serial number to help avoid
-this.  A generic Linux machine doesn't.
-
-I could possibly be happy with auto-assembly where a kernel parameter
-of DDF=xx.yy.zz was taken to mean that we "need" to assemble all DDF
-arrays that have a controler-id (or whatever it is) of xx.yy.zz.
-
-This is probably simple enough to live entirely in the kernel.
-
-> 
-> o Child devices of an array should only be accessible through the
->   array while the array is in a configured state (bd_claim'ed).
->   This avoids situations where a user can subvert the integrity of
->   the array by performing "rogue I/O" to an array member.
-
-bd_claim doesn't and (I believe) shouldn't stop access from
-user-space.
-It does stop a number of sorts of access that would expect exclusive
-access. 
-
-
-But back to your original post:  I suspect there is lots of valuable
-stuff in your emd patch, but as you have probably gathered, big
-patches are not the way we work around here, and with good reason.
-
-If you would like to identify isolated pieces of functionality, create
-patches to implement them, and submit them for review I will be quite
-happy to review them and, when appropriate, forward them to
-Andrew/Linus.
-I suggest you start with less controversial changes and work your way
-forward.
-
-NeilBrown
+diff -Nru a/Documentation/DMA-mapping.txt b/Documentation/DMA-mapping.txt
+--- a/Documentation/DMA-mapping.txt	Tue Mar 23 00:19:17 2004
++++ b/Documentation/DMA-mapping.txt	Tue Mar 23 00:19:17 2004
+@@ -132,7 +132,7 @@
+ The standard 32-bit addressing PCI device would do something like
+ this:
+ 
+-	if (pci_set_dma_mask(pdev, 0xffffffff)) {
++	if (pci_set_dma_mask(pdev, PCI_DMA_32BIT)) {
+ 		printk(KERN_WARNING
+ 		       "mydev: No suitable DMA available.\n");
+ 		goto ignore_this_device;
+@@ -151,9 +151,9 @@
+ 
+ 	int using_dac;
+ 
+-	if (!pci_set_dma_mask(pdev, 0xffffffffffffffff)) {
++	if (!pci_set_dma_mask(pdev, PCI_DMA_64BIT)) {
+ 		using_dac = 1;
+-	} else if (!pci_set_dma_mask(pdev, 0xffffffff)) {
++	} else if (!pci_set_dma_mask(pdev, PCI_DMA_32BIT)) {
+ 		using_dac = 0;
+ 	} else {
+ 		printk(KERN_WARNING
+@@ -166,14 +166,14 @@
+ 
+ 	int using_dac, consistent_using_dac;
+ 
+-	if (!pci_set_dma_mask(pdev, 0xffffffffffffffff)) {
++	if (!pci_set_dma_mask(pdev, PCI_DMA_64BIT)) {
+ 		using_dac = 1;
+ 	   	consistent_using_dac = 1;
+-		pci_set_consistent_dma_mask(pdev, 0xffffffffffffffff)
+-	} else if (!pci_set_dma_mask(pdev, 0xffffffff)) {
++		pci_set_consistent_dma_mask(pdev, PCI_DMA_64BIT);
++	} else if (!pci_set_dma_mask(pdev, PCI_DMA_32BIT)) {
+ 		using_dac = 0;
+ 		consistent_using_dac = 0;
+-		pci_set_consistent_dma_mask(pdev, 0xffffffff)
++		pci_set_consistent_dma_mask(pdev, PCI_DMA_32BIT);
+ 	} else {
+ 		printk(KERN_WARNING
+ 		       "mydev: No suitable DMA available.\n");
+@@ -215,7 +215,7 @@
+ 
+ Here is pseudo-code showing how this might be done:
+ 
+-	#define PLAYBACK_ADDRESS_BITS	0xffffffff
++	#define PLAYBACK_ADDRESS_BITS	PCI_DMA_32BIT
+ 	#define RECORD_ADDRESS_BITS	0x00ffffff
+ 
+ 	struct my_sound_card *card;
+diff -Nru a/drivers/net/e1000/e1000.h b/drivers/net/e1000/e1000.h
+--- a/drivers/net/e1000/e1000.h	Tue Mar 23 00:19:17 2004
++++ b/drivers/net/e1000/e1000.h	Tue Mar 23 00:19:17 2004
+@@ -74,8 +74,6 @@
+ #define BAR_0		0
+ #define BAR_1		1
+ #define BAR_5		5
+-#define PCI_DMA_64BIT	0xffffffffffffffffULL
+-#define PCI_DMA_32BIT	0x00000000ffffffffULL
+ 
+ 
+ struct e1000_adapter;
+diff -Nru a/drivers/net/ixgb/ixgb.h b/drivers/net/ixgb/ixgb.h
+--- a/drivers/net/ixgb/ixgb.h	Tue Mar 23 00:19:17 2004
++++ b/drivers/net/ixgb/ixgb.h	Tue Mar 23 00:19:17 2004
+@@ -65,8 +65,6 @@
+ #define BAR_0           0
+ #define BAR_1           1
+ #define BAR_5           5
+-#define PCI_DMA_64BIT   0xffffffffffffffffULL
+-#define PCI_DMA_32BIT   0x00000000ffffffffULL
+ 
+ #include "ixgb_hw.h"
+ #include "ixgb_ee.h"
+diff -Nru a/include/linux/pci.h b/include/linux/pci.h
+--- a/include/linux/pci.h	Tue Mar 23 00:19:17 2004
++++ b/include/linux/pci.h	Tue Mar 23 00:19:17 2004
+@@ -362,6 +362,9 @@
+ #define PCI_DMA_FROMDEVICE	2
+ #define PCI_DMA_NONE		3
+ 
++#define PCI_DMA_64BIT	0xffffffffffffffffULL
++#define PCI_DMA_32BIT	0x00000000ffffffffULL
++
+ #define DEVICE_COUNT_COMPATIBLE	4
+ #define DEVICE_COUNT_RESOURCE	12
+ 

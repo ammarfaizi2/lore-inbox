@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263411AbUCOXRO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 18:17:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263412AbUCOXRO
+	id S262853AbUCOXU3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 18:20:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262857AbUCOXU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 18:17:14 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:36108 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263411AbUCOXRK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 18:17:10 -0500
-Date: Mon, 15 Mar 2004 23:17:05 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: "Woodruff, Robert J" <woody@co.intel.com>
-Cc: Greg KH <greg@kroah.com>, "Woodruff, Robert J" <woody@jf.intel.com>,
-       linux-kernel@vger.kernel.org, "Hefty, Sean" <sean.hefty@intel.com>,
-       "Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
-       "Davis, Arlin R" <arlin.r.davis@intel.com>
-Subject: Re: PATCH - InfiniBand Access Layer (IBAL)
-Message-ID: <20040315231705.A23888@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Woodruff, Robert J" <woody@co.intel.com>, Greg KH <greg@kroah.com>,
-	"Woodruff, Robert J" <woody@jf.intel.com>,
-	linux-kernel@vger.kernel.org, "Hefty, Sean" <sean.hefty@intel.com>,
-	"Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
-	"Davis, Arlin R" <arlin.r.davis@intel.com>
-References: <1AC79F16F5C5284499BB9591B33D6F000B4805@orsmsx408.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1AC79F16F5C5284499BB9591B33D6F000B4805@orsmsx408.jf.intel.com>; from woody@co.intel.com on Mon, Mar 15, 2004 at 02:52:44PM -0800
+	Mon, 15 Mar 2004 18:20:29 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:29948 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S262853AbUCOXU1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 18:20:27 -0500
+Message-ID: <40563A2B.4040800@nortelnetworks.com>
+Date: Mon, 15 Mar 2004 18:20:11 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: unionfs
+References: <200403151922.i2FJMfIh004411@eeyore.valparaiso.cl>
+In-Reply-To: <200403151922.i2FJMfIh004411@eeyore.valparaiso.cl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 15, 2004 at 02:52:44PM -0800, Woodruff, Robert J wrote:
-> As I stated above, we are part of the openib.org collaboration and 
-> will be working on helping develop a stack that is "best of
-> breed" from all of the available code. Starting from the bottom up, 
-> we first need to review the various proposals for the 
-> Access Layer and determine which code base to start with. 
+Horst von Brand wrote:
 
->From looking at both codebases starting from scratch sounds like the
-best idea to me..  
+> Assuming one RW on top of a RO only now: What should happen when a
+> file/directory is missing from the top? If the bottom one "shows through",
+> you can't delete anything; if it doesn't, you win nothing (because you will
+> have to keep a complete copy RW on top).
 
+I don't see how you win nothing.  I create an overlay filesystem.  I 
+delete a bunch of files in the overlay and it doesn't show through.  All 
+my other files are still links to the originals, with the
+
+I would dearly love to use something like to make it easy to track 
+changes made all over a source tree.  If I could sync them up at the 
+begining, then make all my changes in the overly, then doing a diff is 
+really easy since you just look for places where the inodes are 
+different between the two filesystems.  Like having hard links, but the 
+filesystem breaks them for you when you write.
+
+Chris
+
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

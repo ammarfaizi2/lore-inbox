@@ -1,50 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267029AbTB0VC6>; Thu, 27 Feb 2003 16:02:58 -0500
+	id <S266114AbTB0VMB>; Thu, 27 Feb 2003 16:12:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267033AbTB0VC6>; Thu, 27 Feb 2003 16:02:58 -0500
-Received: from blowme.phunnypharm.org ([65.207.35.140]:9222 "EHLO
-	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
-	id <S267029AbTB0VC5>; Thu, 27 Feb 2003 16:02:57 -0500
-Date: Thu, 27 Feb 2003 16:12:56 -0500
-From: Ben Collins <bcollins@debian.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: pavel@suse.cz, linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com,
-       ak@suse.de, arnd@bergmann-dalldorf.de
-Subject: Re: ioctl32 consolidation -- call for testing
-Message-ID: <20030227211256.GR21100@phunnypharm.org>
-References: <20030227203440.GP21100@phunnypharm.org> <20030227.122126.30208201.davem@redhat.com> <20030227205044.GQ21100@phunnypharm.org> <20030227.123701.16257819.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266805AbTB0VMB>; Thu, 27 Feb 2003 16:12:01 -0500
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:21915 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id <S266114AbTB0VMA>;
+	Thu, 27 Feb 2003 16:12:00 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Rising io_load results Re: 2.5.63-mm1
+Date: Fri, 28 Feb 2003 08:22:09 +1100
+User-Agent: KMail/1.5
+References: <20030227025900.1205425a.akpm@digeo.com>
+In-Reply-To: <20030227025900.1205425a.akpm@digeo.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030227.123701.16257819.davem@redhat.com>
-User-Agent: Mutt/1.5.3i
+Message-Id: <200302280822.09409.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 27, 2003 at 12:37:01PM -0800, David S. Miller wrote:
->    From: Ben Collins <bcollins@debian.org>
->    Date: Thu, 27 Feb 2003 15:50:44 -0500
-> 
->    On Thu, Feb 27, 2003 at 12:21:26PM -0800, David S. Miller wrote:
->    > Well, you just doubled the size of the table on sparc64.
->    > I don't know if I like that.
->    
->    Not much of a way around it.
-> 
-> Such problems are only in your mind. :-)
-> 
-> What's wrong with defining the type and accessor macros
-> in include/asm/compat.h?
 
-One thing I am just now wondering is why struct ioctl_trans defines cmd
-as an unsigned long instead of just unsigned int. That adds an uneeded
-bit of space to the array.
+I mentioned this previously; it's still happening.
 
-As for your suggestion, sounds great, but I'll leave it to Pavel :)
+This started some time around 2.5.62-mm3 with the io_load results on contest 
+benchmarking (http://contest.kolivas.org) rising with each run. It still 
+occurs with 2.5.63-mm1 regardless of which elevator is specified. This is the 
+io load result time(seconds) for 6 consecutive runs in compile time:
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+111
+147
+221
+284
+334
+358
+
+/proc/meminfo after 6 runs and mem flushing:
+
+MemTotal:       256156 kB
+MemFree:        238708 kB
+Buffers:          2320 kB
+Cached:           1552 kB
+SwapCached:       1780 kB
+Active:           5876 kB
+Inactive:         2120 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       256156 kB
+LowFree:        238708 kB
+SwapTotal:     4194272 kB
+SwapFree:      4192416 kB
+Dirty:              28 kB
+Writeback:           0 kB
+Mapped:       4294923652 kB
+Slab:             4872 kB
+Committed_AS:     7032 kB
+PageTables:        200 kB
+ReverseMaps:       631
+
+I am refraining from publishing any benchmark results with this happening. It 
+doesn't seem to occur on 2.5.63
+
+Con

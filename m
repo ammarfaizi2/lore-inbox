@@ -1,32 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313339AbSDGOyo>; Sun, 7 Apr 2002 10:54:44 -0400
+	id <S313332AbSDGOxw>; Sun, 7 Apr 2002 10:53:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313356AbSDGOym>; Sun, 7 Apr 2002 10:54:42 -0400
-Received: from boo-mda02.boo.net ([216.200.67.22]:18692 "EHLO
-	boo-mda02.boo.net") by vger.kernel.org with ESMTP
-	id <S313347AbSDGOyg>; Sun, 7 Apr 2002 10:54:36 -0400
-Message-Id: <3.0.6.32.20020407110100.007c2b70@boo.net>
-X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
-Date: Sun, 07 Apr 2002 11:01:00 -0400
-To: linux-kernel@vger.kernel.org
-From: Jason Papadopoulos <jasonp@boo.net>
-Subject: [PATCH] page coloring for 2.4.18 kernel
+	id <S313347AbSDGOxv>; Sun, 7 Apr 2002 10:53:51 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:29965 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S313332AbSDGOxu>;
+	Sun, 7 Apr 2002 10:53:50 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Announce: Kernel Build for 2.5, Release 2.0 is available 
+In-Reply-To: Your message of "Sun, 07 Apr 2002 16:51:36 +0200."
+             <3CB05CF8.4513BA83@linux-m68k.org> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 08 Apr 2002 00:53:36 +1000
+Message-ID: <28835.1018191216@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 07 Apr 2002 16:51:36 +0200, 
+Roman Zippel <zippel@linux-m68k.org> wrote:
+>Keith Owens wrote:
+>> make NO_MAKEFILE_GEN=1 foo/bar.o.  Very low overhead for quick and
+>> dirty testing of changes, but if you want an accurate kernel build, you
+>> have to take the overhead.  kbuild 2.4 overhead for a full build when
+>> only minor changes have been made is even worse.
+>
+>I don't want a kernel build, I just want a single object file to be
+>rebuilt?!
+>I can understand that it takes longer, when I change a Makefile or the
+>config, but why has the Makefile to be rebuilt, when only a source file
+>changed?
 
-Hello. This is a re-diff of the 2.4.17 patch I posted
-previously.
+It takes time to do all the analysis to work out what has changed and
+what has been affected.  You might know that you only changed one file
+but kernel build and make don't know that until they have checked
+everything.  Changing one file or specifying a command override might
+affect one file or it might affect the entire kernel.
 
-www.boo.net/~jasonp/page_color-2.2.20-20020108.patch
-www.boo.net/~jasonp/page_color-2.4.17-20020113.patch
-www.boo.net/~jasonp/page_color-2.4.18-20020323.patch
+If you know that you have only changed one source file and you have not
+altered the Makefiles or the dependency chain in any way, then it
+_might_ be safe to just rebuild that one file, use NO_MAKEFILE_GEN=1.
+Otherwise let kbuild work out what has been affected.
 
-I'm not subscribed to LKML, so please cc responses
-to this email address.
-
-Thanks,
-jasonp

@@ -1,65 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265190AbTAJPTT>; Fri, 10 Jan 2003 10:19:19 -0500
+	id <S265205AbTAJPVA>; Fri, 10 Jan 2003 10:21:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265198AbTAJPTT>; Fri, 10 Jan 2003 10:19:19 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:14373 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id <S265190AbTAJPTO>; Fri, 10 Jan 2003 10:19:14 -0500
-Date: Fri, 10 Jan 2003 15:29:19 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Daniel Ritz <daniel.ritz@gmx.ch>
-cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
-       <daniel.ritz@alcatel.ch>, Robert Love <rml@tech9.net>
-Subject: Re: [PATCH 2.5] speedup kallsyms_lookup
-In-Reply-To: <1042192419.1415.49.camel@cast2.alcatel.ch>
-Message-ID: <Pine.LNX.4.44.0301101428420.1292-100000@localhost.localdomain>
+	id <S265211AbTAJPU7>; Fri, 10 Jan 2003 10:20:59 -0500
+Received: from [65.193.106.66] ([65.193.106.66]:61466 "EHLO
+	xchangeserver2.storigen.com") by vger.kernel.org with ESMTP
+	id <S265205AbTAJPUs> convert rfc822-to-8bit; Fri, 10 Jan 2003 10:20:48 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: Nvidia and its choice to read the GPL "differently"
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+Date: Fri, 10 Jan 2003 10:29:26 -0500
+Message-ID: <7BFCE5F1EF28D64198522688F5449D5A03C0F4@xchangeserver2.storigen.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Nvidia and its choice to read the GPL "differently"
+Thread-Index: AcK4ON5biRPlvQt2Tza7d8JiHQtWswAgMAhw
+From: "Larry Sendlosky" <Larry.Sendlosky@storigen.com>
+To: "Richard Stallman" <rms@gnu.org>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10 Jan 2003, Daniel Ritz wrote:
-> [please cc...you know why]
-> 
-> a patch to speed up the kallsyms_lookup() function while still doing
-> compression. 
-> - make 4 sections: addresses, lens, stem, strings
-> - only strncpy() when needed
-> - no strlen() at all (only in the script)
-> - save space we lose for len table by not making strings zero terminated
 
-First impression is that it has good ideas, but seems inelegant
-(always easy to make that judgment on others' code! ignore me)
-and misses the main point.
+Richard, 
 
-In earlier mail, Andi highlighted the performance criticality of top
-reading /proc/<pid>/wchan.  I think we have to decide which way to
-jump on that: either withdraw that functionality as too expensive,
-and minimize the table size and code stupidity (all those strncpy's of
-nearly 127! include/asm-i386/string.h strncpy seems in the wrong there);
-or speed kallsyms_lookup as much as possible (binary chop or whatever
-algorithm to locate symbol from address).  The current linear search
-through 6000(?) addresses is not nice, but of course the strncpy is
-making it much worse.
+We all know that "Linux" would not be where it is today without
+the GNU software. I don't recall seeing one post in this
+looonnngg thread that tries to say otherwise. Myself, and many others,
+are very grateful for your and the FSF's work. PLEASE, stop hitting us
+over the head with GNU/Linux. 
 
-I didn't reply to that part of Andi's mail, not because I thought it
-irrelevant, quite the reverse; but because I didn't have an opinion
-which way to go, and hoped someone else would chime in.  I don't
-see how to proceed without deciding that.  CC'd rml since I believe
-he fathered /proc/<pid>/wchan.  Now, I'm inclined to say that anyone
-worried about memory occupancy just shouldn't switch CONFIG_KALLSYMS
-on, so it's speed we should aim for here.
+I'm sure there are many other "things" that have gotten broad public
+attention and the real people or organizations behind it have not gotten
+the credit they deserve either by what the "thing" is called or by
+the press, etc. Only the people truly involved with the "thing"
+know who is responsible. I think the same applies here. 
 
-If maximizing speed, then obviously the values should be sorted by
-value (as now, unlike in my patch), and maybe we forget all about
-stem compression?  If minimizing memory, then a combination of your
-patch and mine?
+And, why is it only *you* beating us over the head with GNU/Linux?
+Where's the rest for the GNU (non-linux specific) contributors?
+Why aren't they bitching/whining too?
 
-I hope I can leave this discussion to others: I just wanted to get
-my symbols printing out right, and noticed the current stem compression
-unnecessarily weak there; but I'm no expert on suitable algorithms.
+Like I said before, we aren't the people you have to educate/convince.
+If it really means that much to you (and it seems to me that it does),
+then you should be taking out magazine ads and buying time on TV
+to reach the uneducated masses.
 
-Hugh
+
+-----Original Message-----
+From: Larry McVoy [mailto:lm@bitmover.com]
+Sent: Thursday, January 09, 2003 6:39 PM
+To: Richard Stallman
+Cc: Vlad@Vlad.geekizoid.com; linux-kernel@vger.kernel.org
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+
+
+On Thu, Jan 09, 2003 at 06:14:20PM -0500, Richard Stallman wrote:
+> GNU, the system we were developing, was most of the early GNU/Linux
+> system in 1992.  GNU in 1992 included non-GNU packages such as X11,
+> and TeX.
+
+Wow.  That might be one for the quotes file:
+
+    "GNU ... was of the early GNU/Linux system.  GNU ... included non-GNU"
+
+Well, that certainly explains a lot.  If you define GNU as "anything
+which might be found on a Linux distro including non-GNU packages",
+your position starts to make a certain twisted sense.  Only one problem
+with that: if it wasn't GNU, it wasn't GNU, which means, Richard, you
+are crackin' smoke and may need a vacation.  19 years of hard effort is 
+a long time, have you considered retirement?  You've certainly earned it.
+
+Oh, by the way, have you updated the GNU kernel pages to reflect the new
+proper name: Linux/Hurd?  I'd really appreciate it if you could get to that.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 

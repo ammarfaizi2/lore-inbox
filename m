@@ -1,71 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbVA1P3Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVA1Pl5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbVA1P3Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 10:29:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbVA1P3Y
+	id S261316AbVA1Pl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 10:41:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbVA1Pl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 10:29:24 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:6240
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S261451AbVA1P3S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 10:29:18 -0500
-Date: Fri, 28 Jan 2005 16:29:28 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Mauricio Lin <mauriciolin@gmail.com>
-Cc: tglx@linutronix.de, Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Edjard Souza Mota <edjard@gmail.com>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       ville.medeiros@gmail.com
-Subject: Re: User space out of memory approach
-Message-ID: <20050128152928.GF8518@opteron.random>
-References: <3f250c7105012113455e986ca8@mail.gmail.com> <20050122033219.GG11112@dualathlon.random> <3f250c7105012513136ae2587e@mail.gmail.com> <1106689179.4538.22.camel@tglx.tec.linutronix.de> <3f250c71050125161175234ef9@mail.gmail.com> <20050126004901.GD7587@dualathlon.random> <3f250c7105012710541d3e7ad1@mail.gmail.com> <20050127221129.GX8518@opteron.random> <3f250c7105012805585c01a26@mail.gmail.com> <3f250c71050128072151b46a2b@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3f250c71050128072151b46a2b@mail.gmail.com>
-X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-AA-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
-X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
-X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
-User-Agent: Mutt/1.5.6i
+	Fri, 28 Jan 2005 10:41:56 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:52181 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261316AbVA1Ply (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 10:41:54 -0500
+Date: Fri, 28 Jan 2005 10:41:33 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Hugh Dickins <hugh@veritas.com>
+cc: William Lee Irwin III <wli@holomorphy.com>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Mikael Pettersson <mikpe@csd.uu.se>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, James Antill <james.antill@redhat.com>,
+       Bryn Reeves <breeves@redhat.com>
+Subject: Re: don't let mmap allocate down to zero
+In-Reply-To: <Pine.LNX.4.61.0501281348110.6922@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0501281036240.28137@chimarrao.boston.redhat.com>
+References: <20050127050927.GR10843@holomorphy.com>    
+ <16888.46184.52179.812873@alkaid.it.uu.se>     <20050127125254.GZ10843@holomorphy.com>
+     <20050127142500.A775@flint.arm.linux.org.uk>     <20050127151211.GB10843@holomorphy.com>
+     <Pine.LNX.4.61.0501271420070.13927@chimarrao.boston.redhat.com>    
+ <20050127204455.GM10843@holomorphy.com>    
+ <Pine.LNX.4.61.0501271557300.13927@chimarrao.boston.redhat.com>    
+ <20050127211319.GN10843@holomorphy.com>    
+ <Pine.LNX.4.61.0501271626460.13927@chimarrao.boston.redhat.com>    
+ <20050128053036.GO10843@holomorphy.com>    
+ <Pine.LNX.4.61.0501280801070.24304@chimarrao.boston.redhat.com>
+ <Pine.LNX.4.61.0501281348110.6922@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 28, 2005 at 11:21:11AM -0400, Mauricio Lin wrote:
-> As you know, Andrew generated the patch. Here goes some test results
-> about your OOM Killer and the Original OOm Killer. We accomplished 10
-> experiments for each OOM Killer and below are average values.
-> 
-> "Invocations" is the number of times that out_of_memory function is
-> called. "Selections" is the number of times that select_bad_process
-> function is called and "Killed" is the number of killed process.
-> 
-> Original OOM Killer
-> Invocations average = 51620/10 = 5162
-> Selections average = 30/10 = 3
-> Killed average = 38/10 = 3.8
-> 
-> Andrea OOM Killer
-> Invocations average = 213/10 = 21.3
-> Selections average = 213/10 = 21.3
-> Killed average = 52/10 = 5.2
-> 
-> As you can see the number of invocations reduced significantly using
-> your OOM Killer.
+On Fri, 28 Jan 2005, Hugh Dickins wrote:
 
-Yep, thanks for testing!
+> Perhaps you're coming from experience of various buggy apps
+> that get into difficulties if mmaps are found below mm->brk?
+> I'm not sure that we should be cutting others' address space to
+> make life easier for those, they should be ADDR_COMPAT_LAYOUT.
 
-> I did not know about this problem when I was moving the original
-> ranking algorithm to userland. As Thomaz mentioned: invocation
-> madness, reentrancy problems and those strange timers and counter as
-> now, since, last, lastkill and count. I guess that now i can put some
-> OOM Killer stuffs in userland in a safer manner with those problems
-> solved, right?
+The main thing I would really like to preserve is the
+space used for "near-NULL" pointer detection. That is,
+detection of trying to access a large index in a NULL
+pointer array, etc.
 
-Yep ;)
+I'd be happy to have some arbitrary value for the lower
+boundary...
 
-> BTW, will your OOM Killer be included in the kernel tree?
+> arch/ppc64/mm/hugetlbpage.c (odd place to find it) has its own
+> arch_get_unmapped_area_topdown, should be given a similar fix.
 
-Yes, Andrew said it should go in the next few days, which is a great
-news, thanks everyone!
+Good point, though a 64 bit architecture is, umm, less
+likely to run all the way down to zero within our lifetime.
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

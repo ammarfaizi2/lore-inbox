@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129975AbRA2WGf>; Mon, 29 Jan 2001 17:06:35 -0500
+	id <S131102AbRA2WJF>; Mon, 29 Jan 2001 17:09:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130400AbRA2WGZ>; Mon, 29 Jan 2001 17:06:25 -0500
-Received: from comunit.de ([195.21.213.33]:35104 "HELO comunit.de")
-	by vger.kernel.org with SMTP id <S129975AbRA2WGN>;
-	Mon, 29 Jan 2001 17:06:13 -0500
-Date: Mon, 29 Jan 2001 23:06:11 +0100 (CET)
-From: Sven Koch <haegar@sdinet.de>
-X-X-Sender: <haegar@space.comunit.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.0-test12: SiS pirq handling..
-In-Reply-To: <Pine.LNX.4.10.10101291348330.9791-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.32.0101292303360.7513-100000@space.comunit.de>
+	id <S131091AbRA2WI4>; Mon, 29 Jan 2001 17:08:56 -0500
+Received: from [64.64.109.142] ([64.64.109.142]:24583 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S130400AbRA2WIq>; Mon, 29 Jan 2001 17:08:46 -0500
+Message-ID: <3A75E9C9.15A19548@didntduck.org>
+Date: Mon, 29 Jan 2001 17:08:09 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.73 [en] (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rasmus Andersen <rasmus@jaquet.dk>
+CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] make drivers/scsi/seagate.c use ioremap instead of 
+ isa_{read,write} (241p11)
+In-Reply-To: <20010129225907.M603@jaquet.dk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Jan 2001, Linus Torvalds wrote:
+Rasmus Andersen wrote:
+> 
+> Hi.
+> 
+> (I have not been able to find a probable current maintainer for
+> this code.)
+> 
+> The following patch makes drivers/scsi/seagate.c use ioremap
+> instead of isa_{read, write}.
+> 
+> It applies against ac12 and 241p11.
+> 
+> Please comment, esp. on the size of the remappings.
 
-> give 2.4.0-test12 a final whirl before I release it as 2.4.1? We got a lot
-[...]
-> The other changes in pre12 aren't likely to be all that noticeable, unless
-[...]
-> 		Linus
+This isn't the proper way to use ioremap.  You should only ioremap once
+when the driver is loaded and save the mapped address.  Since ioremap
+special cases ISA addresses, it doesn't add much overhead the way you
+are doing it, but it is still not consistent with normal non-ISA usage
+of ioremap.
 
-Seems that even you are still confused with -testXX and -preXX ;)
+--
 
-*SCNR*
-sven
-
--- 
-
-The Internet treats censorship as a routing problem, and routes around it.
-(John Gilmore on http://www.cygnus.com/~gnu/)
-
+				Brian Gerst
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

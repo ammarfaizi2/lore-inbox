@@ -1,61 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVCEVJW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbVCEVLD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261152AbVCEVJW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 16:09:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbVCEVJW
+	id S261166AbVCEVLD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 16:11:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbVCEVLD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 16:09:22 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:16571 "EHLO
-	pd4mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S261152AbVCEVJP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 16:09:15 -0500
-Date: Sat, 05 Mar 2005 14:09:02 -0700
-From: Jeremy Nickurak <atrus@rifetech.com>
-Subject: Re: Logitech MX1000 Horizontal Scrolling
-In-reply-to: <87zmxil0g8.fsf@quasar.esben-stien.name>
-To: Esben Stien <b0ef@esben-stien.name>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <1110056942.16541.4.camel@localhost>
+	Sat, 5 Mar 2005 16:11:03 -0500
+Received: from vms042pub.verizon.net ([206.46.252.42]:17596 "EHLO
+	vms042pub.verizon.net") by vger.kernel.org with ESMTP
+	id S261166AbVCEVKb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 16:10:31 -0500
+Date: Sat, 05 Mar 2005 16:10:26 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [PATCH] raw1394 missing failure handling
+In-reply-to: <20050305184756.GH1111@conscoop.ottawa.on.ca>
+To: linux-kernel@vger.kernel.org
+Reply-to: gene.heskett@verizon.net
+Message-id: <200503051610.26743.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
 MIME-version: 1.0
-X-Mailer: Evolution 2.1.3.2
-Content-type: multipart/signed; boundary="=-Vx8Yw6OarPRmwHRyHUyA";
- protocol="application/pgp-signature"; micalg=pgp-sha1
-References: <873bxfoq7g.fsf@quasar.esben-stien.name>
- <87zmylaenr.fsf@quasar.esben-stien.name> <20050204195410.GA5279@ucw.cz>
- <873bvyfsvs.fsf@quasar.esben-stien.name>
- <87zmxil0g8.fsf@quasar.esben-stien.name>
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <20050303214843.GQ1111@conscoop.ottawa.on.ca>
+ <20050303225509.GB7442@mech.kuleuven.ac.be>
+ <20050305184756.GH1111@conscoop.ottawa.on.ca>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-Vx8Yw6OarPRmwHRyHUyA
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On sab, 2005-03-05 at 13:52 +0100, Esben Stien wrote:
->Sorry, false report. 2.6.11-rc3 makes my tilt button show up as 2
->buttons being pressed simultaneously, just like that previous report.
+On Saturday 05 March 2005 13:47, Jody McIntyre wrote:
+>On Thu, Mar 03, 2005 at 11:55:09PM +0100, Panagiotis Issaris wrote:
+>> Adds the missing failure handling for a __copy_to_user call.
+>>
+>>
+>> Signed-off-by: Panagiotis Issaris <takis@gna.org>
 >
->I also tried linux-2.6.11 today and it was the same.=20
+>Sorry I didn't notice this sooner, but this was already fixed and
+> has been sent to Linus (hopefully to appear in 2.6.12.)
 >
->It shows up as both button 4 and 12 being pressed simultaneously.
+>Jody
 
-Right, this is just a result of our different xmodmap configurations.
-Otherwise we're seeing exactly the same symptoms.
+Jody, Panagiotis;  A much more complete patch is already sitting in 
+the bk queue.  This is a relatively small piece of that one.  You can 
+get it from:
 
---=20
-Jeremy Nickurak <atrus@rifetech.com>
+<ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm1/broken-out>
 
---=-Vx8Yw6OarPRmwHRyHUyA
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+As the bk-ieee1394.patch you can see there.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
+>> diff -pruN linux-2.6.11/drivers/ieee1394/raw1394.c
+>> linux-2.6.11-pi/drivers/ieee1394/raw1394.c ---
+>> linux-2.6.11/drivers/ieee1394/raw1394.c 2005-03-02
+>> 11:44:26.000000000 +0100 +++
+>> linux-2.6.11-pi/drivers/ieee1394/raw1394.c 2005-03-02
+>> 15:27:15.000000000 +0100 @@ -443,7 +443,10 @@ static ssize_t
+>> raw1394_read(struct file req->req.error = RAW1394_ERROR_MEMFAULT;
+>> }
+>>          }
+>> -        __copy_to_user(buffer, &req->req, sizeof(req->req));
+>> +        if (__copy_to_user(buffer, &req->req, sizeof(req->req)))
+>> { +                free_pending_request(req);
+>> +                return -EFAULT;
+>> +        }
+>>
+>>          free_pending_request(req);
+>>          return sizeof(struct raw1394_request);
+>>
+>>
+>> --
+>>   K.U.Leuven, Mechanical Eng.,  Mechatronics & Robotics Research
+>> Group http://people.mech.kuleuven.ac.be/~pissaris/
+>>
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe
+>> linux-kernel" in the body of a message to
+>> majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
 
-iD8DBQBCKh/utjFmtbiy5uYRAt+fAJ4+GLc1tDlUXo/LrRh0Mjsb/ciqmwCePo0+
-igO2X36WaOfOm264DvBN9Io=
-=rVaf
------END PGP SIGNATURE-----
-
---=-Vx8Yw6OarPRmwHRyHUyA--
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.34% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

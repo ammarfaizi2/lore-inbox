@@ -1,90 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVAGVYf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbVAGV2W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261601AbVAGVYf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 16:24:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbVAGVX3
+	id S261603AbVAGV2W (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 16:28:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVAGVNs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 16:23:29 -0500
-Received: from 208.177.141.226.ptr.us.xo.net ([208.177.141.226]:50928 "EHLO
-	ash.lnxi.com") by vger.kernel.org with ESMTP id S261601AbVAGVVA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 16:21:00 -0500
-Subject: Re: MS_NOUSER and rootfs
-From: Thayne Harbaugh <tharbaugh@lnxi.com>
-Reply-To: tharbaugh@lnxi.com
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <200501071932.35184.vda@port.imtp.ilyichevsk.odessa.ua>
-References: <1105024095.15293.74.camel@tubarao>
-	 <200501071932.35184.vda@port.imtp.ilyichevsk.odessa.ua>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-t8/3ADIyMspGqn4Yr9eY"
-Organization: Linux Networx
-Date: Fri, 07 Jan 2005 13:53:32 -0700
-Message-Id: <1105131212.18437.15.camel@tubarao>
+	Fri, 7 Jan 2005 16:13:48 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:12957 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261622AbVAGVMb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 16:12:31 -0500
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+From: Lee Revell <rlrevell@joe-job.com>
+To: Paul Davis <paul@linuxaudiosystems.com>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Chris Wright <chrisw@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Jack O'Quin" <joq@io.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200501071620.j07GKrIa018718@localhost.localdomain>
+References: <200501071620.j07GKrIa018718@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 07 Jan 2005 16:12:28 -0500
+Message-Id: <1105132348.20278.88.camel@krustophenia.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 (2.0.3-2) 
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2005-01-07 at 11:20 -0500, Paul Davis wrote:
+> >On Fri, Jan 07, 2005 at 10:41:40AM -0500, Paul Davis wrote:
+> >> 
+> >> fine, so the mlock situation may have improved enough post-2.6.9 that
+> >> it can be considered fixed. that leaves the scheduler issue. but
+> >> apparently, a uid/gid solution is OK for mlock, and not for the
+> >> scheduler. am i missing something?
+> >
+> >I think you skipped a step. You don't have a scheduler requirement, you have
+> >a latency requirement. You currently *solve* that latency requirement via a
+> >scheduler "hack", yet is quite clear that the "hard" realtime solution is
+> >most likely not the right approach. Note that I'm not saying that you
+> 
+> Why is that clear? In just about every respect, realtime audio has the
+> same characteristics as hard realtime, except that nobody gets hurt
+> when a deadline is missed :) We have an IRQ source, and a deadline
+> (sometimes on the sub-msec range, but more typically 1-5msec) for the
+> work that has to be done. This deadline is tight enough that the task
+> essentially *has* to run with SCHED_FIFO scheduling, because doing
+> almost anything else instead will cause the deadline to be missed. 
+> 
 
---=-t8/3ADIyMspGqn4Yr9eY
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+It's not like hard realtime, it is.  All that makes a hard RT system is
+that missing a deadline means the system has utterly failed.  How is
+this any different than an xrun causing a loud pop or click in a live
+performance?
 
-On Fri, 2005-01-07 at 19:32 +0200, Denis Vlasenko wrote:
-> On Thursday 06 January 2005 17:08, Thayne Harbaugh wrote:
-> > What is the purpose of the MS_NOUSER flag serve and why is it set on
-> > rootfs?
->=20
-> Was grep helpful?
+Really, I think Linux has owned the server space for so long that some
+folks on this list are getting hubristic.  Just because you have the
+best server OS does not mean it's the best at everything.
 
-No, it wasn't.  There are (realling from memory) about six places that
-MS_NOUSER appears in the entire tree.
-
-One is in fs.h file where it is defined.
-
-One is in in ramfs/inode.c (?) where MS_NOUSER is set on rootfs for
-rootfs_get_sb()
-
-One is in namespace.c in the graft_tree() function that prevents MS_BIND
-
-Thrice in shmem.c - I have to admit I haven't read this very closely
-
-One in libfs.c where there's a template for file systems that aren't
-supposed to be mountable
-
-One in Documentation/filesystems/porting where it describes that it can
-be used in place of FS_NOMOUNT
-
-There isn't a description as to what the intention is for MS_NOUSER and
-why it should be applied to rootfs.  I'm looking for some education as
-to what it does so I can work out the details as to why it's used in
-graft_tree(), rootfs_get_sb() and shmem.c.
-
-It appears that Al Viro wrote some of that and I'm hoping that he can
-find some time to reply (I'm sure he gets millions of emails about
-little details and it's hard to cut through them).  Maybe there's
-someone else that understands that can give me an education or point me
-in the right direction.
-
-Thanks for your response.
-
---=20
-Thayne Harbaugh
-Linux Networx
-
---=-t8/3ADIyMspGqn4Yr9eY
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBB3vbMsYFQl3A+qS0RAplgAKCIdKR78G0HuVYQbhooXCNcc/0awgCgojmo
-ViOxdFyvY/+WLKq0jGdNdlA=
-=+iRF
------END PGP SIGNATURE-----
-
---=-t8/3ADIyMspGqn4Yr9eY--
+Lee
 

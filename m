@@ -1,33 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262378AbTESKpS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 06:45:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262379AbTESKpS
+	id S262341AbTESLAf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 07:00:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262383AbTESLAf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 06:45:18 -0400
-Received: from [213.171.53.133] ([213.171.53.133]:39689 "EHLO gulipin.miee.ru")
-	by vger.kernel.org with ESMTP id S262378AbTESKpR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 06:45:17 -0400
-Date: Mon, 19 May 2003 13:59:48 +0400
-From: Samium Gromoff <deepfire@ibe.miee.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Re: recursive spinlock. Shoot.
-Message-Id: <20030519135948.0f0be20f.deepfire@ibe.miee.ru>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 19 May 2003 07:00:35 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:1664
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S262341AbTESLAe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 07:00:34 -0400
+Date: Mon, 19 May 2003 07:03:35 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Alexander Hoogerhuis <alexh@ihatent.com>
+cc: William Lee Irwin III <wli@holomorphy.com>,
+       Dave Jones <davej@codemonkey.org.uk>, Andrew Morton <akpm@digeo.com>,
+       "" <linux-kernel@vger.kernel.org>, "" <linux-mm@kvack.org>
+Subject: Re: [OOPS] 2.5.69-mm6
+In-Reply-To: <87he7r2qak.fsf@lapper.ihatent.com>
+Message-ID: <Pine.LNX.4.50.0305190627450.28750-100000@montezuma.mastecende.com>
+References: <20030516015407.2768b570.akpm@digeo.com> <87fznfku8z.fsf@lapper.ihatent.com>
+ <20030516180848.GW8978@holomorphy.com> <20030516185638.GA19669@suse.de>
+ <20030516191711.GX8978@holomorphy.com> <Pine.LNX.4.50.0305162322360.2023-100000@montezuma.mastecende.com>
+ <Pine.LNX.4.50.0305170937350.1910-100000@montezuma.mastecende.com>
+ <87u1brbazl.fsf@lapper.ihatent.com> <Pine.LNX.4.50.0305190431130.28750-100000@montezuma.mastecende.com>
+ <873cjbjp0b.fsf@lapper.ihatent.com> <Pine.LNX.4.50.0305190452460.28750-100000@montezuma.mastecende.com>
+ <87he7r2qak.fsf@lapper.ihatent.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Not that my opinion matters much, but my feeling is that such measures
-are very much of the bandaid taste, the ones which in the end piled one on another 
-end up obscuring the very problems in the code.
+On Mon, 19 May 2003, Alexander Hoogerhuis wrote:
 
-	In short, it`ll probably make _filling_in_ the code easier, but the effect is
-that it will shift the balance towards crap accumulation.
+> --[PinePGP]--------------------------------------------------[begin]--
+> The oops is gone, and I'm now left with this one:
 
-	To me, that is the damage of the kind which is very hard to undo.
+Ultra Cool
 
-regards, Samium Gromoff
+> Linux agpgart interface v0.100 (c) Dave Jones
+> [drm] Initialized radeon 1.8.0 20020828 on minor 0
+> [drm:radeon_cp_init] *ERROR* radeon_cp_init called without lock held
+> [drm:radeon_unlock] *ERROR* Process 4421 using kernel context 0
+> 
+> This one only seems to appear when I'm compiling it modular.
+
+Wading through that code isn't something to undertake at this hour, i'll 
+have a look a bit later.
+
+	Zwane
+-- 
+function.linuxpower.ca

@@ -1,48 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267598AbUIXBVN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267558AbUIXADt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267598AbUIXBVN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 21:21:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267666AbUIXBR1
+	id S267558AbUIXADt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 20:03:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267250AbUIXADF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 21:17:27 -0400
-Received: from gate.crashing.org ([63.228.1.57]:8161 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S267632AbUIXBMi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 21:12:38 -0400
-Subject: [PATCH] ppc32: Fix typo/bug in bus resource allocation
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1095988340.3830.33.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 24 Sep 2004 11:12:21 +1000
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Sep 2004 20:03:05 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:10193 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S267212AbUIWUo3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 16:44:29 -0400
+Subject: [patch 7/9]  block/pt: replace pt_sleep() with 	msleep_interruptible()
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, nacc@us.ibm.com
+From: janitor@sternwelten.at
+Date: Thu, 23 Sep 2004 22:44:29 +0200
+Message-ID: <E1CAaS5-0002aa-VJ@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
-
-The code re-allocating new bus resources in case of conflicts use a
-function called probe_resource(), which has a typo (spotted by the
-uninitialized variable use of gcc) causing it to potentially return
-bogus results. This fixes it:
-
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-
-===== arch/ppc/kernel/pci.c 1.43 vs edited =====
---- 1.43/arch/ppc/kernel/pci.c	2004-08-26 16:43:07 +10:00
-+++ edited/arch/ppc/kernel/pci.c	2004-09-24 11:08:49 +10:00
-@@ -411,7 +411,7 @@
- 			r = &dev->resource[i];
- 			if (!r->flags || (r->flags & IORESOURCE_UNSET))
- 				continue;
--			if (pci_find_parent_resource(bus->self, r) != pr)
-+			if (pci_find_parent_resource(dev, r) != pr)
- 				continue;
- 			if (r->end >= res->start && res->end >= r->start) {
- 				*conflict = r;
 
 
+
+Any comments would be appreciated. This is a re-push of a patch I
+submitted 20 July which hasn't been merged as of
+2.6.9-rc1-mm5/2.6.9-rc2. 
+
+Description: msleep_interruptible() is used instead of pt_sleep()
+to guarantee the task delays as expected. The definition of pt_sleep()
+is also removed.
+
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+---
+
+ linux-2.6.9-rc2-bk7-max/drivers/block/paride/pt.c |   14 ++++----------
+ 1 files changed, 4 insertions(+), 10 deletions(-)
+
+diff -puN drivers/block/paride/pt.c~msleep_interruptible-drivers_block_pt drivers/block/paride/pt.c
+--- linux-2.6.9-rc2-bk7/drivers/block/paride/pt.c~msleep_interruptible-drivers_block_pt	2004-09-21 21:07:55.000000000 +0200
++++ linux-2.6.9-rc2-bk7-max/drivers/block/paride/pt.c	2004-09-21 21:07:55.000000000 +0200
+@@ -401,12 +401,6 @@ static int pt_atapi(struct pt_unit *tape
+ 	return r;
+ }
+ 
+-static void pt_sleep(int cs)
+-{
+-	current->state = TASK_INTERRUPTIBLE;
+-	schedule_timeout(cs);
+-}
+-
+ static int pt_poll_dsc(struct pt_unit *tape, int pause, int tmo, char *msg)
+ {
+ 	struct pi_adapter *pi = tape->pi;
+@@ -416,7 +410,7 @@ static int pt_poll_dsc(struct pt_unit *t
+ 	e = 0;
+ 	s = 0;
+ 	while (k < tmo) {
+-		pt_sleep(pause);
++		msleep_interruptible(jiffies_to_msecs(pause));
+ 		k++;
+ 		pi_connect(pi);
+ 		write_reg(pi, 6, DRIVE(tape));
+@@ -474,11 +468,11 @@ static int pt_reset(struct pt_unit *tape
+ 	write_reg(pi, 6, DRIVE(tape));
+ 	write_reg(pi, 7, 8);
+ 
+-	pt_sleep(20 * HZ / 1000);
++	msleep_interruptible(20);
+ 
+ 	k = 0;
+ 	while ((k++ < PT_RESET_TMO) && (status_reg(pi) & STAT_BUSY))
+-		pt_sleep(HZ / 10);
++		msleep_interruptible(100);
+ 
+ 	flg = 1;
+ 	for (i = 0; i < 5; i++)
+@@ -512,7 +506,7 @@ static int pt_ready_wait(struct pt_unit 
+ 		if (!(((p & 0xffff) == 0x0402) || ((p & 0xff) == 6)))
+ 			return p;
+ 		k++;
+-		pt_sleep(HZ);
++		msleep_interruptible(1000);
+ 	}
+ 	return 0x000020;	/* timeout */
+ }
+_

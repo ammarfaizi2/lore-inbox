@@ -1,89 +1,185 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264873AbTLKLXj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 06:23:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264884AbTLKLXj
+	id S264896AbTLKLsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 06:48:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264899AbTLKLsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 06:23:39 -0500
-Received: from coruscant.franken.de ([193.174.159.226]:54209 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id S264873AbTLKLXh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 06:23:37 -0500
-Date: Thu, 11 Dec 2003 12:18:28 +0100
-From: Harald Welte <laforge@netfilter.org>
-To: Russell Elik Rademacher <elik@webspires.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IPtables hang system when loading over 254 IP Addresses
-Message-ID: <20031211111828.GL22826@sunbeam.de.gnumonks.org>
-References: <098111156.20031208171810@webspires.com>
+	Thu, 11 Dec 2003 06:48:09 -0500
+Received: from c-130372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.19]:25479
+	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
+	id S264896AbTLKLrv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 06:47:51 -0500
+Subject: Re: Fixes for nforce2 hard lockup, apic, io-apic, udma133 covered
+From: Ian Kumlien <pomac@vapor.com>
+To: ross@datscreative.com.au
+Cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>, linux-kernel@vger.kernel.org,
+       AMartin@nvidia.com, kernel@kolivas.org
+In-Reply-To: <200312111655.25456.ross@datscreative.com.au>
+References: <200312072312.01013.ross@datscreative.com.au>
+	 <200312101543.39597.ross@datscreative.com.au>
+	 <Pine.LNX.4.55.0312101653490.31543@jurand.ds.pg.gda.pl>
+	 <200312111655.25456.ross@datscreative.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-MGYUhWJsNYXHzW1q+zya"
+Message-Id: <1071143274.2272.4.camel@big.pomac.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cGfB/trNgB3WtPHu"
-Content-Disposition: inline
-In-Reply-To: <098111156.20031208171810@webspires.com>
-X-Operating-system: Linux sunbeam 2.6.0-test5-nftest
-X-Date: Today is Setting Orange, the 53rd day of The Aftermath in the YOLD 3169
-User-Agent: Mutt/1.5.4i
-X-Spam-Score: 0.0 (/)
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 11 Dec 2003 12:47:54 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---cGfB/trNgB3WtPHu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-MGYUhWJsNYXHzW1q+zya
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Dec 08, 2003 at 05:18:10PM -0700, Russell Elik Rademacher wrote:
-> Hello linux-kernel,
-
-Hi Russell!
-
->   I was wondering if anyone have fixed or knew the slightly broken
->   issue about loading the IPTables with Ingress/Egress filtering on
->   254 IP addresses or more?  It basically locks up the system in
->   networking level but everything else works fine.
+On Thu, 2003-12-11 at 07:55, Ross Dickson wrote:
+> albatron:/usr/src/mptable-2.0.15a # ./mptable -verbose
+>=20
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+>=20
+> MPTable, version 2.0.15 Linux
+>=20
+>  looking for EBDA pointer @ 0x040e, found, searching EBDA @ 0x0009fc00
+>  searching CMOS 'top of mem' @ 0x0009f800 (638K)
+>  searching default 'top of mem' @ 0x0009fc00 (639K)
+>  searching BIOS @ 0x000f0000
+>=20
+>  MP FPS found in BIOS @ physical addr: 0x000f50b0
+>=20
+> -------------------------------------------------------------------------=
+------
+>=20
+> MP Floating Pointer Structure:
+>=20
+>   location:                     BIOS
+>   physical address:             0x000f50b0
+>   signature:                    '_MP_'
+>   length:                       16 bytes
+>   version:                      1.1
+>   checksum:                     0x00
+>   mode:                         Virtual Wire
+>=20
+> -------------------------------------------------------------------------=
+------
+>=20
+> MP Config Table Header:
+>=20
+>   physical address:             0x0xf0c00
+>   signature:                    '$ml$'
+>   base table length:            0
+>   version:                      1.6
+>   checksum:                     0x00
+>   OEM ID:                       '=C4
+>                                   =B8=A7'
+> =B0=F6Product ID:                   '(
+> m'P
+>   OEM table pointer:            0x12d90e22
+>   OEM table size:               7964
+>   entry count:                  7964
+>   local APIC address:           0x1f1c1f1c
+>   extended table length:        65284
+>   extended table checksum:      255
+>=20
+> -------------------------------------------------------------------------=
+------
+>=20
+> MP Config Base Table Entries:
+>=20
+> --
+> MPTABLE HOSED! record type =3D 55
+> albatron:/usr/src/mptable-2.0.15a #
 >=20
 
-The netfilter/iptables project has seperate mailinglists,
-netfilter@lists.netfilter.org and/or netfilter-devel@lists.netfilter.org
-are the ones you might want to contact
-(http://netfilter.org/contact.html).
+> Perhaps someone else could get mptable to run on their machine and send y=
+ou
+> the result.
 
->   Basically, if you knew about the script, APF Firewall script, I uses
->   it and it make extensive uses of the IPTables to make complex
->   firewall rules.  But when it reaches to around 254, it just locks up
->   the network system, rendering the server unaccessible.  It make
->   extensive uses of Ingress/Egress and I only seen it locks up when I
->   make use of Egress filtering. Ingress works fine up to 400 IP
->   addresses and I haven't pushed it that far past it to see how far it
->   can go.  But Egress, it locks it up, when combined with Ingress.
->   Dunno about Egress itself in general.  So...anyone might have a clue
->   on this?
+mptable dosn't seem to accept it's own options, anyways, heres the
+output.
 
-Maybe you should then talk to the "APF Firewall Script" author.  We are
-not aware of any iptables-related issues with as little as 254 rules.
+mptable -extra -verbose -pirq
+=20
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D
+=20
+MPTable, version 2.0.15 Linux
+=20
+ looking for EBDA pointer @ 0x040e, found, searching EBDA @ 0x0009fc00
+ searching CMOS 'top of mem' @ 0x0009f800 (638K)
+ searching default 'top of mem' @ 0x0009fc00 (639K)
+ searching BIOS @ 0x000f0000
+=20
+ MP FPS found in BIOS @ physical addr: 0x000f5ce0
+=20
+---------------------------------------------------------------------------=
+----
+=20
+MP Floating Pointer Structure:
+=20
+  location:                     BIOS
+  physical address:             0x000f5ce0
+  signature:                    '_MP_'
+  length:                       16 bytes
+  version:                      1.1
+  checksum:                     0x00
+  mode:                         Virtual Wire
+=20
+---------------------------------------------------------------------------=
+----
+=20
+MP Config Table Header:
+=20
+  physical address:             0x0xf0c00
+  signature:                    ''
+  base table length:            1280
+  version:                      1.7
+  checksum:                     0x00
+  OEM ID:                       ''
+  Product ID:                   ''
+  OEM table pointer:            0x0000ffff
+  OEM table size:               0
+  entry count:                  65535
+  local APIC address:           0x000000c4
+  extended table length:        1
+  extended table checksum:      0
+=20
+---------------------------------------------------------------------------=
+----
+=20
+MP Config Base Table Entries:
+=20
+--
+Processors:     APIC ID Version State           Family  Model   Step    Fla=
+gs
+                 0       0x 7    BSP, usable     15      15      15      0x=
+1a00c035
+                 0       0x 0    AP, unusable    0       0       10      0x=
+78ffff0a
+--
+MPTABLE HOSED! record type =3D 15
 
+I couldn't find the source so i used a old RedHat rpm...
+(Asus A7N8X-X bios 1007)
+=20
 --=20
-- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
+Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
 
---cGfB/trNgB3WtPHu
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+--=-MGYUhWJsNYXHzW1q+zya
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQE/2FKEXaXGVTD0i/8RAg5vAKCbO6IRIQOuuU4r+ywRNqPLCrYjDgCgj6dG
-QyF1TchGq65gBbRMWw0eK7k=
-=zl4i
+iD8DBQA/2Flq7F3Euyc51N8RAgn3AKCsJWnd9Yugwy1hyaxjILfeLQ2F3ACeNuj6
+5cr1dQ08CJKRPMUVt3u0We8=
+=gDpH
 -----END PGP SIGNATURE-----
 
---cGfB/trNgB3WtPHu--
+--=-MGYUhWJsNYXHzW1q+zya--
+

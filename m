@@ -1,65 +1,91 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266999AbTBHOvl>; Sat, 8 Feb 2003 09:51:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267003AbTBHOvl>; Sat, 8 Feb 2003 09:51:41 -0500
-Received: from 171124.telemar.net.br ([200.165.171.124]:55558 "HELO
-	mailservice.ms") by vger.kernel.org with SMTP id <S266999AbTBHOvk>;
-	Sat, 8 Feb 2003 09:51:40 -0500
-Reply-To: "Ellen Curtis" <ellen@mailservice.ms>
-Message-ID: <010e31e20b5a$6138a5b1$5ab11ed1@keyebh>
-From: "Ellen Curtis" <ellen@mailservice.ms>
-To: Business@vger.kernel.org, People@vger.kernel.org
-Subject: A team of business people
-Date: Sat, 08 Feb 2003 15:29:04 -0100
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S266994AbTBHNB7>; Sat, 8 Feb 2003 08:01:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S266996AbTBHNB7>; Sat, 8 Feb 2003 08:01:59 -0500
+Received: from smtp3.libero.it ([193.70.192.127]:3543 "EHLO smtp3.libero.it") by vger.kernel.org with ESMTP id <S266994AbTBHNB5> convert rfc822-to-8bit; Sat, 8 Feb 2003 08:01:57 -0500
+Date: Sat,  8 Feb 2003 14:11:33 +0100
+Message-Id: <H9ZRB9$04F4CFD820B772FE9CDAB35FBC9A5D09@libero.it>
+Subject: =?iso-8859-1?Q?FROM_PRINCE_CHARLES?=
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-Importance: Normal
+X-Sensitivity: 3
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+From: "=?iso-8859-1?Q?prince=5Fch@libero.it?=" <prince_ch@libero.it>
+To: "=?iso-8859-1?Q?prince=5Fch?=" <prince_ch@libero.it>
+X-XaM3-API-Version: 3.2 R29 (B54 pl1)
+X-type: 0
+X-SenderIP: 213.136.99.68
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org@vger.kernel.org>
+X-Envelope-To: </home/ralf/ralf> (uid 501)
+Original-Recipient: rfc822;ralf@linux-mips.org
 
-Hi,
+CÔTE D'IVOIRE
 
-I'm turning towards you because our team needs open-minded people, 
-who are not afraid of earning a lot of money and who are
-prepared to venture a couple of hours per week for that
-reason. If you qualify, then please visit our web site and
-grab your free member #id. 
+ATTN : DIRECTOR / C.E.O
 
-Link: http://e-team.exec.ws
+Dear Sir,
 
-Don't forget to confirm your registration afterwards.
+I am well confident of your capability of executing
+this business for the mutual benefit of our both
+families, believing that you will not expose or betray
+the trust and confident I am about to repose on you.
 
-To satisfy the curiosity:
-- we work from home
-- team consists of great people
-- our business is network marketing
-- we give you free web hosting
-- we give you tools
-- we provide you with all needed knowledge and skills
-- we are rewarded according to the best compensation plan ever seen
-- the team is spread around the globe
-- we have big discounts in on-line shopping
-- we have tradition, which means stability and guarantee
+I am contacting you with the greatest delight and
+personal respect. I am PRINCE CHARLES TARAWALLY, the
+first son of Bridgedier Robert Tarawally the chief
+Commander of the Revolutionary United Front (RUF) of
+the Republic of Sierra-Leone who was arrested recently
+by the United Nation Peace keeping force, due to the
+role to push out the incumbent elected President
+Tejan Kabbah out of office as reported on the cable
+Network News ( CNN) and by the British Broadcasting
+Corporation ( BBC).
 
-And now something really special!
-We got our hands on 10 pairs of promotional round trip plane tickets
-and we will give them to the next 10 people who join the team.
-These tickets can be used to fly to just about anywhere and have
-a value of up to $1600! Just join the team, right now, upgrade to VIP, 
-which  will cost you $49.95, and we'll pick up
-the plane ticket tab for your next trip to Hawaii!
-Act fast, don't miss it!
+Two days before my father was arrested he confided in
+me and ordered me to go to his underground safe and moved
+out immediately with the deposit agreement he made with a
+Bank in Abidjan where he deposited the cash sum of
+US$30,000,000 (Thirty million United States Dollars) which
+some rebels under his command looted when they captured the
+Gold/Diamond Mining Corporation in Mende town of
+SierraLeone.
 
-Ellen Curtis
-Team Player
-ellen@mailservice.ms
+I successfully smuggled out of the country to Abidjan,
+Côte d'Ivoire with the help of some rebels loyal to my
+father and have gone to the Bank with the
+deposit agreement to confirm the depopsit myself and
+also I have been granted political stay by the
+gorvernment of Côte d'Ivoire.
 
-If you received this mail in an error then I sincerely apologize and be removed
-from any further mailings by clicking here:
-mailto:omit_me@volja.net?subject=Please_Remove
+Now, I want you to stand as my late Father foreign
+partner, I plead to use your name for the transfer
+of the consignments Bank Account as my
+late Father's business partner. Remember to keep this
+transaction secret. Immediately you show your interest
+on this, other information will be given to you.
+
+I am now seeking for your direct assistance to front
+you as the owner of the consignment and lift the
+fund out of this country to your base for
+onward profitable investment wihich necessitated my
+contacting you.
+
+We are to open a non residential bank account here in
+Abidjan in your name through which the fund will be
+remitting from to your bank account abroad and your
+reward for this noble assistance is under negociable.
+
+Further detail will be made known to you on
+confirmation of your interest to assist me towards
+this project. Contact me through e-mail address
+prince_ch@libero.it
+
+Expecting your immediate response.
+
+Yours faithfully.
+
+PRINCE CHARLES TARAWALLY
+
+For the Tarawally's family.
+
 

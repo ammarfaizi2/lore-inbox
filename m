@@ -1,119 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268582AbUJDV0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268589AbUJDV2z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268582AbUJDV0r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 17:26:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268590AbUJDVZd
+	id S268589AbUJDV2z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 17:28:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268515AbUJDV1E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 17:25:33 -0400
-Received: from c7ns3.center7.com ([216.250.142.14]:29598 "EHLO
-	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
-	id S268582AbUJDVXW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 17:23:22 -0400
-Message-ID: <4161B6AF.1010705@drdos.com>
-Date: Mon, 04 Oct 2004 14:46:39 -0600
-From: "Jeff V. Merkey" <jmerkey@drdos.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Mon, 4 Oct 2004 17:27:04 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:58089 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268541AbUJDV0G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 17:26:06 -0400
+Date: Mon, 04 Oct 2004 14:26:47 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+cc: kernel-janitors@lists.osdl.org, greg@kroah.com, hannal@us.ibm.com,
+       ralf@linux-mips.org
+Subject: [PATCH 2.6] pci-hplj.c: replace pci_find_device with pci_get_device
+Message-ID: <281940000.1096925207@w-hlinder.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, jmerkey@comcast.net
-Subject: 2.6.9-rc2-mm4 stat -f sickness
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.6.9-rc2-mm4 the command "stat -f /dev/<device>" always returns
-EXT2_SUPER_MAGIC and other bogus information even if other filesystems
-are mounted on the device.  
 
-Trace info attached.   Reported mount info, strace info, and stat -f
-info included.
 
-mount info
+As pci_find_device is going away I have replaced this call with pci_get_device.
+If  someone has access to an RM200 or RM300 and could test this I would appreciate it.
 
-/dev/hda3 on / type ext3 (rw)
-none on /proc type proc (rw)
-none on /sys type sysfs (rw)
-none on /dev/pts type devpts (rw,gid=5,mode=620)
-usbdevfs on /proc/bus/usb type usbdevfs (rw)
-/dev/hda1 on /boot type ext3 (rw)
-none on /dev/shm type tmpfs (rw)
-/dev/sda1 on /pfs type dsfs (rw)
-/dev/sda2 on /storage type dsfs (rw)
+Thanks.
 
-df -h (df says .....)
+Hanna Linder
+IBM Linux Technology Center
 
-Filesystem            Size  Used Avail Use% Mounted on
-/dev/hda3             9.7G  7.2G  2.0G  79% /
-/dev/hda1             190M  9.5M  171M   6% /boot
-none                  1.5G     0  1.5G   0% /dev/shm
-/dev/sda1             936G  936G     0 100% /pfs
-/dev/sda2             936G  936G     0 100% /storage
+Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+---
 
-stat -f /dev/sda1 (bogus info)
+diff -Nrup linux-2.6.9-rc3-mm2cln/arch/mips/pci/pci-hplj.c linux-2.6.9-rc3-mm2patch/arch/mips/pci/pci-hplj.c
+--- linux-2.6.9-rc3-mm2cln/arch/mips/pci/pci-hplj.c	2004-09-29 20:05:21.000000000 -0700
++++ linux-2.6.9-rc3-mm2patch/arch/mips/pci/pci-hplj.c	2004-10-04 14:20:25.307153544 -0700
+@@ -118,7 +118,7 @@ void __init pcibios_fixup_irqs(void)
+ 	struct pci_dev *dev = NULL;
+ 	int slot_num;
  
-  File: "/dev/sda1"
-    ID: 0        Namelen: 255     Type: ext2/ext3
-Blocks: Total: 2520130    Free: 651513     Available: 523496     Size: 4096
-Inodes: Total: 1281696    Free: 878949    
+-	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
++	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
+ 		slot_num = PCI_SLOT(dev->devfn);
+ 		switch (slot_num) {
+ 		case 2:
 
-strace of stat -f /dev/sda1 (bogus info)
-
-execve("/usr/bin/stat", ["stat", "-f", "/dev/sda1"], [/* 26 vars */]) = 0
-uname({sys="Linux", node="datascout4", ...}) = 0
-brk(0)                                  = 0x8052000
-open("/etc/ld.so.preload", O_RDONLY)    = -1 ENOENT (No such file or directory)
-open("/etc/ld.so.cache", O_RDONLY)      = 3
-fstat64(3, {st_mode=S_IFREG|0644, st_size=123802, ...}) = 0
-old_mmap(NULL, 123802, PROT_READ, MAP_PRIVATE, 3, 0) = 0x37fcc000
-close(3)                                = 0
-open("/lib/libselinux.so.1", O_RDONLY)  = 3
-read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\350\261"..., 512) = 512
-fstat64(3, {st_mode=S_IFREG|0755, st_size=60776, ...}) = 0
-old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x37fcb000
-old_mmap(0x47898000, 64532, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x37fbb000
-old_mmap(0x37fc9000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0xd000) = 0x37fc9000
-close(3)                                = 0
-open("/lib/tls/libc.so.6", O_RDONLY)    = 3
-read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\300\v\327"..., 512) = 512
-fstat64(3, {st_mode=S_IFREG|0755, st_size=1455084, ...}) = 0
-old_mmap(0x46d5c000, 1158124, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x37ea0000
-old_mmap(0x37fb5000, 16384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x115000) = 0x37fb5000
-old_mmap(0x37fb9000, 7148, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x37fb9000
-close(3)                                = 0
-mprotect(0x37fb5000, 8192, PROT_READ)   = 0
-mprotect(0x38000000, 4096, PROT_READ)   = 0
-set_thread_area({entry_number:-1 -> 6, base_addr:0x37fcbae0, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}) = 0
-munmap(0x37fcc000, 123802)              = 0
-brk(0)                                  = 0x8052000
-brk(0x8073000)                          = 0x8073000
-open("/proc/mounts", O_RDONLY)          = 3
-fstat64(3, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
-mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x37fea000
-read(3, "rootfs / rootfs rw 0 0\n/dev/root"..., 1024) = 285
-read(3, "", 1024)                       = 0
-close(3)                                = 0
-munmap(0x37fea000, 4096)                = 0
-open("/usr/lib/locale/locale-archive", O_RDONLY|O_LARGEFILE) = 3
-fstat64(3, {st_mode=S_IFREG|0644, st_size=40263984, ...}) = 0
-mmap2(NULL, 2097152, PROT_READ, MAP_PRIVATE, 3, 0) = 0x37ca0000
-close(3)                                = 0
-statfs64("/dev/sda1", 84, {f_type="EXT2_SUPER_MAGIC", f_bsize=4096, f_blocks=2520130, f_bfree=651513, f_bavail=523496, f_files=1281696, f_ffree=878950, f_fsid={0, 0}, f_namelen=255, f_frsize=4096}) = 0
-fstat64(1, {st_mode=S_IFREG|0644, st_size=2718, ...}) = 0
-mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x37c9f000
-write(1, "  File: \"/dev/sda1\"\n    ID: 0   "..., 189  File: "/dev/sda1"
-    ID: 0        Namelen: 255     Type: ext2/ext3
-Blocks: Total: 2520130    Free: 651513     Available: 523496     Size: 4096
-Inodes: Total: 1281696    Free: 878950    
-) = 189
-close(1)                                = 0
-munmap(0x37c9f000, 4096)                = 0
-exit_group(0)                           = ?
-
-
-Get the can of RAID.  Monster bugs.
-
-
-
-Jeff
 

@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264942AbRGNUkI>; Sat, 14 Jul 2001 16:40:08 -0400
+	id <S264877AbRGNVdE>; Sat, 14 Jul 2001 17:33:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264910AbRGNUj7>; Sat, 14 Jul 2001 16:39:59 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:29224 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S264883AbRGNUjn>; Sat, 14 Jul 2001 16:39:43 -0400
-Message-ID: <3B50AE0D.80002@blue-labs.org>
-Date: Sat, 14 Jul 2001 16:39:41 -0400
-From: David Ford <david@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010713
-X-Accept-Language: en-us
+	id <S264883AbRGNVcy>; Sat, 14 Jul 2001 17:32:54 -0400
+Received: from hercules.telenet-ops.be ([195.130.132.33]:52668 "HELO
+	smtp1.pandora.be") by vger.kernel.org with SMTP id <S264877AbRGNVct>;
+	Sat, 14 Jul 2001 17:32:49 -0400
+Message-ID: <3B50BA77.7040101@aquazul.com>
+Date: Sat, 14 Jul 2001 23:32:39 +0200
+From: Mourad De Clerck <mourad@aquazul.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5-ac15 i686; en-US; rv:0.9.1) Gecko/20010620
+X-Accept-Language: en, en-us, nl-be, nl
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.5+ hangs on boot
+Subject: Still spontaneous reboots with 440LX chipsets (2.4.7-pre6)
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, aic7xxx hang solved on one machine with APIC solution
-Ok, sched.c hang solved on another machine with patch.
+Hi,
 
-However that patch doesn't solve everything and there are a few other 
-places where things hang.
 
-*) I20 hangs in the middle of I20 init on -every- system I have from 586 
-to pIII in recent kernels
-*) something hangs just after floppy init, last line is FDC0...
+I have a Soltek AT motherboard with
+- a 440LX/EX chipset
+- a celeron 533
+- 96 mb of ram (tested with memtest86, just to be sure)
+- an ATI rage pro (agp)
+- a western digital harddisk
+- a 3c509b
 
-The FDC is immediately prior to where I2O inits so possibly the hang is 
-actually just following FDC/I2O?  Normal boot messages should be like this:
+that's it, nothing fancy.
 
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is a post-1991 82077
-Loading I2O Core - (c) Copyright 1999 Red Hat Software
-Linux I2O PCI support (c) 1999 Red Hat Software.
-i2o: Checking for PCI I2O controllers...
-I2O configuration manager v 0.04.
-  (C) Copyright 1999 Red Hat Software
-I2O Block Storage OSM v0.9
-   (c) Copyright 1999-2001 Red Hat Software.
-i2o_block: Checking for Boot device...
-i2o_block: Checking for I2O Block devices...
-I2O LAN OSM (C) 1999 University of Helsinki.
-early initialization of device teql0 is deferred
-loop: loaded (max 8 devices)
-Linux Tulip driver version 0.9.15-pre3 (June 1, 2001)
-PCI: Found IRQ 5 for device 00:10.0
+But ever since the 2.4 series (i used 2.4.3, 2.4.4acXX, 2.4.5ac7 and now 
+2.4.7-pre6) i get spontaneous reboots quite often. Usually it isn't 
+doing anything fancy when it happens, no harddisk activity or memory 
+pressure, it just pops and croaks.
 
-Any comments or suggestions?  2.4.5-ac19 is the last kernel I have that 
-works.
+I'm using reiserfs by the way.
 
-David
 
+I've mentioned this before, but it's still not solved with the newer 
+versions.
+
+Someone told me to not load the agp support, but this didn't help either.
+
+(btw: I tested the memory with memtest, i checked the fan of the cpu, 
+and the cpu is not overclocked.)
+
+Just thought i'd mention it, because i've seen other people having
+spontaneous reboots with LX chipsets.
+
+
+
+Thanks,
+
+Mourad DC
 
 

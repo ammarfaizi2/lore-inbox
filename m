@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264353AbTLVP12 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 10:27:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264356AbTLVP12
+	id S264890AbTLVPjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 10:39:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264910AbTLVPjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 10:27:28 -0500
-Received: from stinkfoot.org ([65.75.25.34]:42146 "EHLO stinkfoot.org")
-	by vger.kernel.org with ESMTP id S264353AbTLVP11 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 10:27:27 -0500
-Message-ID: <3FE70D42.9070500@stinkfoot.org>
-Date: Mon, 22 Dec 2003 10:26:58 -0500
-From: Ethan Weinstein <lists@stinkfoot.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Feldman, Scott" <scott.feldman@intel.com>
-Cc: Hans-Peter Jansen <hpj@urpla.net>, linux-kernel@vger.kernel.org
-Subject: Re: minor e1000 bug
-References: <C6F5CF431189FA4CBAEC9E7DD5441E0102CBDD71@orsmsx402.jf.intel.com>
-In-Reply-To: <C6F5CF431189FA4CBAEC9E7DD5441E0102CBDD71@orsmsx402.jf.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 22 Dec 2003 10:39:25 -0500
+Received: from mail.humboldt.co.uk ([81.2.65.18]:27591 "EHLO
+	mail.humboldt.co.uk") by vger.kernel.org with ESMTP id S264890AbTLVPjX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 10:39:23 -0500
+Subject: Re: [OT] use of patented algorithms in the kernel ok or not?
+From: Adrian Cox <adrian@humboldt.co.uk>
+To: John Bradford <john@grabjohn.com>
+Cc: Jamie Lokier <jamie@shareable.org>, Stan Bubrouski <stan@ccs.neu.edu>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200312220950.hBM9o7Xr000488@81-2-122-30.bradfords.org.uk>
+References: <1071969177.1742.112.camel@cube>
+	<20031221105333.GC3438@mail.shareable.org>
+	<1072034966.1286.119.camel@duergar>
+	<20031221215717.GA6507@mail.shareable.org> 
+	<200312220950.hBM9o7Xr000488@81-2-122-30.bradfords.org.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 22 Dec 2003 15:34:15 +0000
+Message-Id: <1072107256.28039.321.camel@newt>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Feldman, Scott wrote:
->>--- linux-2.4.20/drivers/net/e1000/e1000_main.c~    
->>2003-08-03 00:40:21.000000000 +0200
->>+++ linux-2.4.20/drivers/net/e1000/e1000_main.c 2003-08-08 
->>+++ 13:20:06.000000000 +0200
->>@@ -1390,7 +1390,7 @@
->>        netif_stop_queue(netdev);
->> 
->>    /* Reset the timer */
->>-   mod_timer(&adapter->watchdog_timer, jiffies + 2 * HZ);
->>+   mod_timer(&adapter->watchdog_timer, jiffies + HZ);
->> }
+On Mon, 2003-12-22 at 09:50, John Bradford wrote:
+> Quote from Jamie Lokier <jamie@shareable.org>:
 > 
+> > That's why I said it's uncharted territory.  We don't know how safe it
+> > is to publish code that *doesn't do anything* but does embody a
+> > patented technique *only if the recipient deliberately modifies the
+> > code*.
 > 
-> That should be OK if you're not linked at half duplex or using a 82541/7
-> Ethernet controller.  e1000_smartspeed() and e1000_adaptive_ifs() are
-> sensitive to the watchdog interval, so we'll need to make sure those are
-> OK before adjusting the timer from 2 to 1 seconds.  This issue is
-> tracker here: http://bugme.osdl.org/show_bug.cgi?id=1192.
+> Look at the MTD code.
 
-This modification appears to somewhat remedy the problem, however, 
-bandwidth measurement seems to be much more accurate with many other 
-cards.  By what method does, say, the 3c59x card export its statistics 
-to /proc/net/dev that makes it easier to measure?
+For examples of source code distribution in a patented area, look at
+MPEG4 projects, particularly MPEG4IP.
 
-Ethan
+http://mpeg4ip.sourceforge.net/ has source code under a variety of
+licenses including GPL, and the front page has the following disclaimer:
+"This code is not intended for end users, and does not contain
+executables. Please read all the legal information to determine if it is
+suitable for you."
+
+The project was started by Cisco, who likely did some legal research
+first. Cisco, however, have the resources to see off frivolous lawsuits,
+while individual developers do not.
+
+- Adrian Cox
+http://www.humboldt.co.uk/
+
 

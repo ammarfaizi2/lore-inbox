@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317616AbSIEOhA>; Thu, 5 Sep 2002 10:37:00 -0400
+	id <S317610AbSIEOcS>; Thu, 5 Sep 2002 10:32:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317619AbSIEOhA>; Thu, 5 Sep 2002 10:37:00 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:35334 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S317616AbSIEOg7>; Thu, 5 Sep 2002 10:36:59 -0400
-Date: Thu, 5 Sep 2002 16:41:29 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Mike Isely <isely@pobox.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.20-pre5-ac2: Promise Controller LBA48 DMA fixed
-Message-ID: <20020905144129.GU24323@louise.pinerecords.com>
-References: <1030635125.7190.116.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0209050050120.20228-100000@grace.speakeasy.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209050050120.20228-100000@grace.speakeasy.net>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
-X-Uptime: 10 days, 7:39
+	id <S317616AbSIEOcS>; Thu, 5 Sep 2002 10:32:18 -0400
+Received: from relay03.esat.net ([193.95.141.41]:12818 "EHLO relay03.esat.net")
+	by vger.kernel.org with ESMTP id <S317610AbSIEOcR>;
+	Thu, 5 Sep 2002 10:32:17 -0400
+Message-ID: <3D776C36.20509@palamon.ie>
+Date: Thu, 05 Sep 2002 15:37:42 +0100
+From: Tony Clarke <sam@palamon.ie>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: smp and tulip driver problems
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -		if (!hwif->pci_dev->device == PCI_DEVICE_ID_PROMISE_20246) {
-> +		if (!(hwif->pci_dev->device == PCI_DEVICE_ID_PROMISE_20246)) {
 
-Good eye, btw. I was looking at this line a couple times and always
-assumed this kind of obfuscation had a purpose of some sort.
+Hi,
+    Having some problems with an ethernet card, netgear,
+    (Ethernet controller: Lite-On Communications Inc LNE100TX (rev 33)),
+    when running under smp. This is with stock redhat 7.3 distro.
+    Seems to be running the tulip driver .9.15.-pre10. Under heavy
+    ethernet usage, the system just hangs. Is there known isssues
+    with the tulip driver?
 
-And it does after all! It's a bug :)
+Cheers,
+Tony.
+
+

@@ -1,72 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315720AbSHZIml>; Mon, 26 Aug 2002 04:42:41 -0400
+	id <S316880AbSHZI4L>; Mon, 26 Aug 2002 04:56:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316880AbSHZImk>; Mon, 26 Aug 2002 04:42:40 -0400
-Received: from isis.telemach.net ([213.143.65.10]:35595 "HELO
-	isis.telemach.net") by vger.kernel.org with SMTP id <S315720AbSHZImk>;
-	Mon, 26 Aug 2002 04:42:40 -0400
-Date: Mon, 26 Aug 2002 10:35:25 +0200
-From: Grega Fajdiga <Gregor.Fajdiga@telemach.net>
-To: linux-kernel@vger.kernel.org
-Subject: ATA err with 2.4.20-ac1
-Message-Id: <20020826103525.7817bb4e.Gregor.Fajdiga@telemach.net>
-X-Mailer: Sylpheed version 0.7.3 (GTK+ 1.2.10; i386-redhat-linux)
+	id <S317986AbSHZI4K>; Mon, 26 Aug 2002 04:56:10 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19728 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316880AbSHZI4K>; Mon, 26 Aug 2002 04:56:10 -0400
+Date: Mon, 26 Aug 2002 10:00:23 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Lightweight Patch Manager <patch@luckynet.dynu.com>
+Cc: Linux Colonel Mailing List <linux-kernel@vger.kernel.org>,
+       Thunder <thunder@lightweight.ods.org>
+Subject: Re: [PATCH][2.5] Export symbols corrected...
+Message-ID: <20020826100023.A900@flint.arm.linux.org.uk>
+References: <01020725200951.044B6C@hawkeye.luckynet.adm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <01020725200951.044B6C@hawkeye.luckynet.adm>; from patch@luckynet.dynu.com on Sun, Aug 25, 2002 at 08:09:51PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good day,
+On Sun, Aug 25, 2002 at 08:09:51PM +0000, Lightweight Patch Manager wrote:
+> This again corrects the exporting symbol directives in the Makefiles
+> 
+> diff -Nur -x SCCS -x CVS -x ChangeSet -x .deps linus-2.5/arch/arm/kernel/Makefile thunder-2.5/arch/arm/kernel/Makefile
+> --- linus-2.5/arch/arm/kernel/Makefile	Sat Aug 24 04:50:16 2002
+> +++ thunder-2.5/arch/arm/kernel/Makefile	Sun Aug 25 08:17:28 2002
+> @@ -17,7 +17,7 @@
+>  obj-n		:=
+>  obj-		:=
+>  
+> -export-objs	:= armksyms.o apm.o dma.o ecard.o fiq.o io.o time.o
+> +export-objs	:= armksyms.o dma.o ecard.o fiq.o io.o time.o
 
-I get these errors with 2.4.20-ac1:
+You're doing it again; maybe you should read back at the comments last
+time you posted a patch on this subject?  apm.c is present in my tree,
+but not yours.
 
-hdb: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-hdb: task_no_data_intr: error=0x04 { DriveStatusError }
+> diff -Nur -x SCCS -x CVS -x ChangeSet -x .deps linus-2.5/arch/arm/mach-pxa/Makefile thunder-2.5/arch/arm/mach-pxa/Makefile
+> --- linus-2.5/arch/arm/mach-pxa/Makefile	Sat Aug 24 04:50:19 2002
+> +++ thunder-2.5/arch/arm/mach-pxa/Makefile	Sun Aug 25 08:18:49 2002
+> @@ -12,7 +12,7 @@
+>  obj-n :=
+>  obj-  :=
+>  
+> -export-objs := generic.o irq.o dma.o sa1111.o
+> +export-objs := generic.o dma.o
 
-Relevant part of the config
+sa1111.o not merged yet (not even with me).  Hands orf.
 
-# CONFIG_PARIDE is not set
-# ATA/IDE/MFM/RLL support
-CONFIG_IDE=y
-# IDE, ATA and ATAPI Block devices
-CONFIG_BLK_DEV_IDE=y
-# CONFIG_BLK_DEV_HD_IDE is not set
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-# CONFIG_IDEDISK_STROKE is not set
-# CONFIG_BLK_DEV_IDEDISK_VENDOR is not set
-# CONFIG_BLK_DEV_IDEDISK_FUJITSU is not set
-# CONFIG_BLK_DEV_IDEDISK_IBM is not set
-# CONFIG_BLK_DEV_IDEDISK_MAXTOR is not set
-# CONFIG_BLK_DEV_IDEDISK_QUANTUM is not set
-# CONFIG_BLK_DEV_IDEDISK_SEAGATE is not set
-# CONFIG_BLK_DEV_IDEDISK_WD is not set
-# CONFIG_BLK_DEV_IDECS is not set
-CONFIG_BLK_DEV_IDECD=y
-# CONFIG_BLK_DEV_IDECD_BAILOUT is not set
-# CONFIG_BLK_DEV_IDETAPE is not set
-# CONFIG_BLK_DEV_IDEFLOPPY is not set
-# CONFIG_BLK_DEV_IDESCSI is not set
-CONFIG_IDE_TASK_IOCTL=y
-CONFIG_IDE_TASKFILE_IO=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_IDEDMA_PCI_WIP is not set
-# CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
-# CONFIG_AMD74XX_OVERRIDE is not set
-# CONFIG_IDE_CHIPSETS is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_IDEDMA_IVB is not set
-CONFIG_BLK_DEV_IDE_MODES=y
+> diff -Nur -x SCCS -x CVS -x ChangeSet -x .deps linus-2.5/arch/arm/mach-sa1100/Makefile thunder-2.5/arch/arm/mach-sa1100/Makefile
+> --- linus-2.5/arch/arm/mach-sa1100/Makefile	Sat Aug 24 04:50:20 2002
+> +++ thunder-2.5/arch/arm/mach-sa1100/Makefile	Sun Aug 25 08:20:30 2002
+> @@ -11,8 +11,7 @@
+>  obj-  :=
+>  led-y := leds.o
+>  
+> -export-objs :=	dma.o generic.o irq.o pcipool.o sa1111.o sa1111-pcibuf.o \
+> -		usb_ctl.o usb_recv.o usb_send.o pm.o
+> +export-objs :=	dma.o generic.o pcipool.o sa1111.o sa1111-pcibuf.o pm.o
 
-If there is anything else I can provide, please tell.
+The usb stuff has moved into a subdirectory now, so yea.
 
-Regards,
-Grega
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html

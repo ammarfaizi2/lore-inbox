@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262208AbSKMQyH>; Wed, 13 Nov 2002 11:54:07 -0500
+	id <S262128AbSKMRAf>; Wed, 13 Nov 2002 12:00:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262224AbSKMQyH>; Wed, 13 Nov 2002 11:54:07 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:896 "EHLO
-	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
-	id <S262208AbSKMQyH>; Wed, 13 Nov 2002 11:54:07 -0500
-From: "Folkert van Heusden" <folkert@vanheusden.com>
-To: "'Nivedita Singhvi'" <niv@us.ibm.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: tcp_v4_get_port?
-Date: Wed, 13 Nov 2002 18:04:09 +0100
-Message-ID: <005b01c28b36$af601640$3640a8c0@boemboem>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-In-Reply-To: <Pine.LNX.4.44.0211121431500.18229-100000@w-nivedita.beaverton.ibm.com>
-Importance: Normal
+	id <S262130AbSKMRAf>; Wed, 13 Nov 2002 12:00:35 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:45586 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262128AbSKMRAe>;
+	Wed, 13 Nov 2002 12:00:34 -0500
+Date: Wed, 13 Nov 2002 09:02:04 -0800
+From: Greg KH <greg@kroah.com>
+To: Nick Craig-Wood <ncw1@axis.demon.co.uk>
+Cc: Oliver Neukum <oliver@neukum.name>, Sean Neakums <sneakums@zork.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: hotplug (was devfs)
+Message-ID: <20021113170204.GC5446@kroah.com>
+References: <20021112093259.3d770f6e.spyro@f2s.com> <20021112094949.GE17478@higherplane.net> <6uadkf9kdt.fsf@zork.zork.net> <200211121351.08328.oliver@neukum.name> <20021113104809.D2386@axis.demon.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021113104809.D2386@axis.demon.co.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Am I right that in net/ipv4/tcp_ipv4.c in function "tcp_v4_get_port" the
-> portnumber for a new connection is generated? Because fiddling with that
-> code seems to have no effect on the portnumbers generated for new
-> connections.
-NS> What change are you making and which kernel are you making it in?
+On Wed, Nov 13, 2002 at 10:48:09AM +0000, Nick Craig-Wood wrote:
+> 
+> We fixed these problems by removing hotplug and loading the relevant
+> kernel modules in the correct order and voila a perfectly
+> deterministic order for the /dev/ttyUSBs with all devices initialised.
 
-Kernel 2.4.19
-Changes like; have it not starting to use ports from 1024 up, but
-rather from 32768 down to 1024 (and then from 65535 down again).
+deterministic for you :)
 
+What hotplug will do is allow you to assign a /dev entry to a specific
+device, so that you can go off of the topology, and not just the order
+in which the devices are found.  That is how this problem will be
+solved properly.
+
+> Plugging in our USB bus with 24 devices on it does indeed produce a
+> mini-forkbomb effect ;-) (Especially since these Keyspan devices are
+> initialised twice - once without firmware and once with firmware.)
+> 
+> So - perhaps hotplug ought to be serialised?
+
+No, it's not needed for this problem.  There has been talk of
+serializing stuff in userspace, which is the proper way to handle some
+of the remove before add was seen problems.
+
+thanks,
+
+greg k-h

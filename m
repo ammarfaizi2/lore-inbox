@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263608AbUCZRYV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 12:24:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263609AbUCZRYV
+	id S263609AbUCZRd7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 12:33:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264085AbUCZRd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 12:24:21 -0500
-Received: from [199.45.143.226] ([199.45.143.226]:48797 "EHLO 192.168.100.4")
-	by vger.kernel.org with ESMTP id S263608AbUCZRYQ (ORCPT
+	Fri, 26 Mar 2004 12:33:59 -0500
+Received: from math.ut.ee ([193.40.5.125]:25807 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S263609AbUCZRd5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 12:24:16 -0500
-Subject: Re: [ANNOUNCE] new reiser4 snapshot released.
-From: Jonathan Briggs <jbriggs@esoft.com>
-Cc: Reiserfs mail-list <Reiserfs-List@Namesys.COM>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <16484.24086.167505.94478@laputa.namesys.com>
-References: <16484.24086.167505.94478@laputa.namesys.com>
-Content-Type: text/plain
-Organization: eSoft, Inc.
-Message-Id: <1080321833.19218.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7jb) 
-Date: Fri, 26 Mar 2004 10:23:54 -0700
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	Fri, 26 Mar 2004 12:33:57 -0500
+Date: Fri, 26 Mar 2004 19:33:55 +0200 (EET)
+From: Meelis Roos <mroos@linux.ee>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] asm-ppc/elf.h warning
+Message-ID: <Pine.GSO.4.44.0403261425250.2460-100000@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-03-26 at 09:45, Nikita Danilov wrote:
-> Hello,
-> 
-> new reiser4 snapshot against 2.6.5-rc2 is available at
-> 
-> http://www.namesys.com/snapshots/2004.03.26/
-> 
-> It is mainly bug-fixing release. See READ.ME for the list of fixes and
-> caveats.
+Just got this from current 2.6 BK:
 
-A definition of fibration:
-http://mathworld.wolfram.com/Fibration.html
+  CC      arch/ppc/boot/simple/misc.o
+In file included from include/linux/elf.h:5,
+                 from arch/ppc/boot/simple/misc.c:20:
+include/asm/elf.h:102: warning: `struct task_struct' declared inside parameter list
+include/asm/elf.h:102: warning: its scope is only this definition or declaration, which is probably not what you want
 
-I'm going to have to study math for about a year before I understand all
-that, I think.
+This can be cured by either including linux/sched.h or defining
+struct task_struct;
+(like this - maybe it should be more close to the headers)
 
-It's a good thing we won't have to understand "fiber bundles",
-"paracompact topological space" and the "homotopy lifting property" to
-USE Reiser4.
+===== include/asm-ppc/elf.h 1.10 vs edited =====
+--- 1.10/include/asm-ppc/elf.h	Wed Mar 24 04:49:17 2004
++++ edited/include/asm-ppc/elf.h	Fri Mar 26 18:40:42 2004
+@@ -99,6 +99,7 @@
+ 	((t)->thread.regs?					\
+ 	 ({ ELF_CORE_COPY_REGS((elfregs), (t)->thread.regs); 1; }): 0)
 
-*grin*
++struct task_struct;
+ extern int dump_task_fpu(struct task_struct *t, elf_fpregset_t *fpu);
+ #define ELF_CORE_COPY_FPREGS(t, fpu)	dump_task_fpu((t), (fpu))
 
-If I missed the discussion or a web page, I am sorry.  But could someone
-post a quick explanation or pointer to one about this fibration plugin? 
-What does it do and what effects will it have?
 
 -- 
-Jonathan Briggs
-jbriggs@esoft.com
+Meelis Roos (mroos@linux.ee)
+
+
 

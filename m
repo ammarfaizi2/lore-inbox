@@ -1,34 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268848AbUJPU11@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268849AbUJPUaY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268848AbUJPU11 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 16:27:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268849AbUJPU11
+	id S268849AbUJPUaY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 16:30:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268856AbUJPUaX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 16:27:27 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:30756 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S268848AbUJPU1Y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 16:27:24 -0400
-Date: Sun, 17 Oct 2004 00:27:27 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
+	Sat, 16 Oct 2004 16:30:23 -0400
+Received: from cantor.suse.de ([195.135.220.2]:47291 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268849AbUJPUaD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 16:30:03 -0400
+Date: Sat, 16 Oct 2004 22:29:59 +0200
+From: Olaf Hering <olh@suse.de>
 To: Roman Zippel <zippel@linux-m68k.org>
 Cc: Sam Ravnborg <sam@ravnborg.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, olh@suse.de, akpm@osdl.org
+       lkml <linux-kernel@vger.kernel.org>, akpm@osdl.org
 Subject: Re: [PATCH] kconfig: OVERRIDE: save kernel version in .config file
-Message-ID: <20041016222727.GG8765@mars.ravnborg.org>
-Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
-	Sam Ravnborg <sam@ravnborg.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-	lkml <linux-kernel@vger.kernel.org>, olh@suse.de, akpm@osdl.org
+Message-ID: <20041016202959.GA26035@suse.de>
 References: <20040917154346.GA15156@suse.de> <20040917102024.50188756.rddunlap@osdl.org> <20040917104334.1b7d7d19.rddunlap@osdl.org> <20041016212859.GC8765@mars.ravnborg.org> <Pine.LNX.4.61.0410162206560.7182@scrub.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 In-Reply-To: <Pine.LNX.4.61.0410162206560.7182@scrub.home>
-User-Agent: Mutt/1.5.6i
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 16, 2004 at 10:18:35PM +0200, Roman Zippel wrote:
+ On Sat, Oct 16, Roman Zippel wrote:
+
 > Hi,
 > 
 > On Sat, 16 Oct 2004, Sam Ravnborg wrote:
@@ -39,12 +40,12 @@ On Sat, Oct 16, 2004 at 10:18:35PM +0200, Roman Zippel wrote:
 > That reminds me, I'm not really happy with this patch, it's a hack not a 
 > real solution, either we save the timestamp always or not at all, making 
 > it dependent on an environment variable is IMO ugly.
-> I have a patch which does some tighter checking during config loading, 
-> which can be used whether it's needed to write the config. Other front 
-> ends could use this as well (e.g. xconfig right now always ask to save
-> the config).
 
-The better approach for sure. When we have this in place I will
-delete the KCONFIG_NOTIMESTMAP hack.
+The point is: avoid conflicts when 2 people change different parts of
+the .config.
+Just drop the whole thing, I doubt the timestamp matters much.
 
-	Sam
+-- 
+USB is for mice, FireWire is for men!
+
+sUse lINUX ag, nÜRNBERG

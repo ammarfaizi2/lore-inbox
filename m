@@ -1,130 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262277AbSJJKX2>; Thu, 10 Oct 2002 06:23:28 -0400
+	id <S263332AbSJJK1b>; Thu, 10 Oct 2002 06:27:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263331AbSJJKX2>; Thu, 10 Oct 2002 06:23:28 -0400
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:7390 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S262277AbSJJKX1>; Thu, 10 Oct 2002 06:23:27 -0400
-From: "Saji Kumar VR" <saji.kumar@wipro.com>
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Cc: "Saji Kumar VR" <saji.kumar@wipro.com>
-Subject: re: Problem with sethostname() ??
-Date: Thu, 10 Oct 2002 16:00:20 +0530
-Message-ID: <PCENKBHIJBDCDPIIAICPMEJBCBAA.saji.kumar@wipro.com>
+	id <S263333AbSJJK1b>; Thu, 10 Oct 2002 06:27:31 -0400
+Received: from Morgoth.ESIWAY.NET ([193.194.16.157]:39176 "EHLO
+	Morgoth.esiway.net") by vger.kernel.org with ESMTP
+	id <S263332AbSJJK1a>; Thu, 10 Oct 2002 06:27:30 -0400
+Date: Thu, 10 Oct 2002 12:33:07 +0200 (CEST)
+From: Marco Colombo <marco@esi.it>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
+In-Reply-To: <Pine.LNX.4.44L.0210092045195.22735-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.44.0210101207140.26363-100000@Megathlon.ESI>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPartTM-000-514cf334-e0a4-4908-8e2f-6f4a75976d68"
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 9 Oct 2002, Rik van Riel wrote:
 
-This is a multi-part message in MIME format.
+> On Wed, 9 Oct 2002, Andreas Dilger wrote:
+> > On Oct 09, 2002  10:14 -0400, Robert Love wrote:
+> > > On Wed, 2002-10-09 at 10:10, Marco Colombo wrote:
+> > >
+> > > > >  #define O_NOFOLLOW	0400000 /* don't follow links */
+> > > > >  #define O_NOFOLLOW	0x20000	/* don't follow links */
+> > >
+> > > No need.  See for example O_NOFOLLOW right above.  Each architecture can
+> > > do has it pleases (I wish otherwise, but...).
+> >
+> > I would say - if you are picking a new flag that doesn't need to have
+> > compatibility with any platform-specific existing flag, simply set them
+> > all high enough so that they are the same on all platforms.
+> 
+> Doesn't really matter, you can't run x86 binaries on MIPS so
+> you need to recompile anyway.
+> 
+> Source level compatibility is enough for flags like this.
+> 
+> regards,
+> 
+> Rik
+> 
 
-------=_NextPartTM-000-514cf334-e0a4-4908-8e2f-6f4a75976d68
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+True, but either you include kernel headers from user apps, or wait for
+glibc (or [whatever]libc) to catch up, or do something like this:
 
+	#define O_STREAMING 04000000
 
------Original Message-----
-From: saji kumar [mailto:saji.kumar@wipro.com]
-Sent: Thursday, October 10, 2002 3:39 PM
-To: suresh.babu@wipro.com; linux-kernel@vger.kernel.org
-Cc: Kiran Vijayakumar
-Subject: RE: Problem with sethostname() ??
+	fd = open(file, ... | O_STREAMING);
 
+(quoted directly from one of Robert's messages).
 
-Hi,
+The latter is broken on MIPS, and requiring either glibc headers or the
+programmer to handle different archs is unfortunate. One of the biggest
+advantages of O_STREAMING is that is it's simple and elegant to integrate
+it into existing apps: let's make it even easier by choosing the same
+value, so that the above C is the right thing.
 
- If U see the code for __generic_copy_from_user() in
-arch/i386/lib/usercopy.c ( from my understanding copy_from_user() boils down
-to this function),
+Besides, not all the world is C. I don't expect, say, Perl or Python to
+support Linux O_STREAMING on their POSIX modules. Perl does pass flags to
+open(2) untouched (I haven't tested Python yet), but right now I have to:
+- wait for an official Perl update that supports O_STREAMING;
+- test explicitly for different archs in my perl program in order
+  to choose the right O_STREAMING value (or hack system modules to do
+  the same);
+- forget about portability on my Perl script (which is somewhat worse than
+  doing that same for a C program: one of the goals of using Perl *is*
+  portability).
 
- unsigned long
-__generic_copy_from_user(void *to, const void *from, unsigned long n)
-{
-        prefetchw(to);
-        if (access_ok(VERIFY_READ, from, n))
-                __copy_user_zeroing(to,from,n);
-        else
-                memset(to, 0, n);
-        return n;
-}
+Note that having different O_NOFOLLOW (or even O_CREAT) values is less
+annoying, since I expect any language that allows me to pass flags to
+open(2) (or fcntl(2)) to define those as macros (constants, subroutines
+or whatever).
 
-here, if access_ok() fails, which is the case here (when an invalid from
-address is given), it memsets() the "to" address to zero,
-which is the reason for the hostname being reset to NULL (please correct me
-if I am wrong somewhere)
+In the end, I see we can choose different values, but why should we?
 
-I ran this program on 2.5 kernel with the memset() removed, & it gave no
-problem..
+.TM.
+-- 
+      ____/  ____/   /
+     /      /       /			Marco Colombo
+    ___/  ___  /   /		      Technical Manager
+   /          /   /			 ESI s.r.l.
+ _____/ _____/  _/		       Colombo@ESI.it
 
-Can anyone please explain, why do we need to reset the "to" address ?
-
-Rgds,
-Saji
------Original Message-----
-From: Suresh babu V. [mailto:suresh.babu@wipro.com]
-Sent: Thursday, October 10, 2002 10:48 AM
-To: linux-kernel@vger.kernel.org
-Cc: 'Saji Kumar VR'
-Subject: Problem with sethostname() ??
-
-
-Hi,
-        While attempting for some testing with sethostname() call, I got
-this problem . As explained in the man page the sethostname call is
-failing(ret val = -1 & errno = EFAULT(14)) for invalid address and valid
-length. But the problem is after running the following test, hostname is
-getting reset to NULL. I tested in both 2.4 & 2.5 kernels.
-Any comments on this??
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
-#include <errno.h>
-
-main()
-{
-int ret, errno;
-unsigned short int len;
-char host[50]="tmphost"; /* hostname max size is 64 */
-errno = 0;
-len = sizeof(host);
-/* valid length and invalid address, expected err is EFAULT */
-ret = sethostname((void *)-1, len);
-printf("return val : %d, err no: %d \n",ret,errno);
-}
-        I saw the code of sys_sethostname() function (sys.c) , in which
-copy_from_user() is being called. I would like to know is it required to
-validate the name argument before calling copy_from_user() to avoid such
-problems.
-        We can expect similar problem in setdomainname() also in which same
-sort of code is used.
-PS : Please CC me your replies as I havn't subscribed to the list.
-Thanks,
-Suresh.
-
-
-------=_NextPartTM-000-514cf334-e0a4-4908-8e2f-6f4a75976d68
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
-
-**************************Disclaimer**************************************************    
- 
- Information contained in this E-MAIL being proprietary to Wipro Limited is 'privileged' 
-and 'confidential' and intended for use only by the individual or entity to which it is 
-addressed. You are notified that any use, copying or dissemination of the information 
-contained in the E-MAIL in any manner whatsoever is strictly prohibited.
-
-****************************************************************************************
-
-------=_NextPartTM-000-514cf334-e0a4-4908-8e2f-6f4a75976d68--

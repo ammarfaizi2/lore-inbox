@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262125AbVANUG3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262126AbVANUMB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262125AbVANUG3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 15:06:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262126AbVANUG2
+	id S262126AbVANUMB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 15:12:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbVANUMA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 15:06:28 -0500
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:22172 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S262125AbVANUGB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 15:06:01 -0500
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Jeff Dike <jdike@addtoit.com>
-Subject: Re: [patch 04/11] uml: refuse to run without skas if no tt mode in
-Date: Fri, 14 Jan 2005 21:08:25 +0100
-User-Agent: KMail/1.7.1
-Cc: blaisorblade_spam@yahoo.it, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-References: <20050113210056.465BEBAB5@zion> <200501141924.j0EJONnV003234@ccure.user-mode-linux.org>
-In-Reply-To: <200501141924.j0EJONnV003234@ccure.user-mode-linux.org>
+	Fri, 14 Jan 2005 15:12:00 -0500
+Received: from nuevo.divinia.com ([209.237.231.206]:7621 "HELO
+	nuevo.divinia.com") by vger.kernel.org with SMTP id S262126AbVANUKS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 15:10:18 -0500
+Date: Fri, 14 Jan 2005 12:10:11 -0800 (PST)
+From: Aaron Gowatch <aarong@divinia.com>
+To: linux-kernel@vger.kernel.org
+Subject: aacraid fails when RAID1 array is in anything but Optimal state
+Message-ID: <Pine.LNX.4.44.0501141156580.28993-100000@nuevo.divinia.com>
+X-Favorite-Cola: Coke
+X-Your: Mom
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501142108.25724.blaisorblade@yahoo.it>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 14 January 2005 20:24, Jeff Dike wrote:
-> Is it my imagination, or did you put the definition of can_do_skas under
-> #ifdef UML_CONFIG_MODE_SKAS and failed to do the same for the call?
+We're using Dell PowerEdge 750s with a Dell rebranded Adaptec CERC 1.5/6ch 
+SATA adapter.  The systems have 2 disks configured as RAID1.  If the array 
+is in any other state than 'Optimal' (ie. 'Degraded' or 'Rebuilding') the 
+following error is displayed and the box subsequently panics because its 
+unable to mount the root filesystem.
 
-Look at the end:
+We've had the same experience with 2.6.7 and 2.6.9.  Yesterday as a test, 
+I installed RedHat ES 3.0 and it does not exhibit this behavior, but thats 
+kernel 2.4 with different aacraid driver.  We've also updated to the 
+latest recommended firmware in attempt to correct this.
 
- #else
-+int can_do_skas(void)
-+{
-        return(0);
--#endif
- }
-+#endif
+Is there any way to make this work with kernel 2.6?  Or is this expected 
+behavior for this controller under 2.6?
 
-This dummy call could be inlined / moved, anyway this is not performance 
-critical - it's anyway nicer to have such null defines in headers. I'll clean 
-it up.
+Red Hat/Adaptec aacraid driver (1.1.2-lk2 Jan 14 2005)
+AAC0: kernel 4.1.4 build 7403
+AAC0: monitor 4.1.4 build 7403
+AAC0: bios 4.1.0 build 7403
+AAC0: serial bf91c8fafaf001
+scsi0 : aacraid
+  Vendor: DELL      Model: CERC Mirror       Rev: V1.0
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+SCSI device sda: 78057216 512-byte hdwr sectors (39965 MB)
+sda: Write Protect is off
+SCSI device sda: drive cache: write through
+ sda:<3>aacraid: Host adapter reset request. SCSI hang ?
+aacraid: Host adapter appears dead
+scsi: Device offlined - not ready after error recovery: host 0 channel 0 
+id 0 lun 0
+SCSI error : <0 0 0 0> return code = 0x6000000
+end_request: I/O error, dev sda, sector 0
+Buffer I/O error on device sda, logical block 0
+scsi0 (0:0): rejecting I/O to offline device
+Buffer I/O error on device sda, logical block 0
+ unable to read partition table
+Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
 
-While checking your statement, I also discovered that here:
+Thanks,
+Aa.
 
-int mode_tt = DEFAULT_TT;
-(where DEFAULT_TT is a macro depending on CONFIG options, which is always 0 
-except if SKAS mode is disabled)
-
-is ignored, because of the subsequent:
-
-        mode_tt = force_tt ? 1 : !can_do_skas();
-
-So we can probably get rid of DEFAULT_TT. I'll do this in the future.
--- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
-http://www.user-mode-linux.org/~blaisorblade

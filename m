@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270599AbTGNMhR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 08:37:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270585AbTGNMhO
+	id S270645AbTGNMxz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 08:53:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270669AbTGNMuv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 08:37:14 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:30213 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S270599AbTGNMVl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 08:21:41 -0400
-Date: Mon, 14 Jul 2003 14:27:31 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: marcelo@conectiva.com.br
-Cc: =?unknown-8bit?Q?Frantisek_Rys=E1nek?= <rysanek@fccps.cz>,
-       henrique2.gobbi@cyclades.com, Krzysztof Halasa <khc@pm.waw.pl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Why is generic hldc beig ignored?   RE:Linux 2.4.22-pre4
-Message-ID: <20030714142731.A28581@electric-eye.fr.zoreil.com>
-References: <20030711212551.A25528@electric-eye.fr.zoreil.com> <002a01c349fc$23a0e8c0$ec00000a@fccps.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
+	Mon, 14 Jul 2003 08:50:51 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:44807 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S270623AbTGNMub (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 08:50:31 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+To: Adrian Bunk <bunk@f.stum.de>, Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [2.4 patch] Configure.help updates from -ac
+Date: Mon, 14 Jul 2003 15:04:48 +0200
+User-Agent: KMail/1.5.2
+Organization: Working Overloaded Linux Kernel
+Cc: lkml <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <002a01c349fc$23a0e8c0$ec00000a@fccps.cz>; from rysanek@fccps.cz on Mon, Jul 14, 2003 at 01:36:15PM +0200
+Message-Id: <200307141504.48728.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frantisek Rysánek <rysanek@fccps.cz> :
-[...]
-> As for the userspace sethdlc.c by Krzystof Halasa: I was using ver.1.12,
-> modified by Mr. Romieu, who has "cut some non-compiling functionality."
-> The current version from Krzysztof Halasa is 1.15.
+Hi Adrian,
 
-To be fair to Krzysztof, the "non-compiling functionality" I cut simply
-came from the fact that latest sethdlc utility contained code related to
-CONFIG_HDLC_RAW_ETH option which wasn't available in vanilla 2.4.21-pre.
-Please note that this specific code exists in 2.4.22-pre3-ac but not in
-plain Marcelo's 2.4.22-pre. 
+> the patch below adds some Configure.help entries that are in pre3-ac1
+> but are missing in -pre5.
+why do you remove such things like (only text):
 
-Regards
+-Matrox G100/G200/G400/G450/G550 support
+-Matrox I2C support
+-Matrox G450 second head support
+-Matrox unified driver multihead support
 
---
-Ueimor
+?
+
+ciao, Marc
+

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262902AbUJ1KRm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262960AbUJ1KRn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262902AbUJ1KRm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 06:17:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262891AbUJ1KPi
+	id S262960AbUJ1KRn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 06:17:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262957AbUJ1KPv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 06:15:38 -0400
-Received: from sd291.sivit.org ([194.146.225.122]:44182 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S262882AbUJ1KHZ (ORCPT
+	Thu, 28 Oct 2004 06:15:51 -0400
+Received: from sd291.sivit.org ([194.146.225.122]:49046 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S262884AbUJ1KIC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 06:07:25 -0400
-Date: Thu, 28 Oct 2004 12:08:51 +0200
+	Thu, 28 Oct 2004 06:08:02 -0400
+Date: Thu, 28 Oct 2004 12:09:28 +0200
 From: Stelian Pop <stelian@popies.net>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH 5/8] sonypi: make CONFIG_SONYPI depend on CONFIG_INPUT
-Message-ID: <20041028100851.GF3893@crusoe.alcove-fr>
+Subject: [PATCH 6/8] sonypi: don't suppose the bluetooth subsystem is initialy off
+Message-ID: <20041028100928.GG3893@crusoe.alcove-fr>
 Reply-To: Stelian Pop <stelian@popies.net>
 Mail-Followup-To: Stelian Pop <stelian@popies.net>,
 	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
@@ -30,27 +30,28 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 ===================================================================
 
-ChangeSet@1.2195, 2004-10-28 10:23:13+02:00, stelian@popies.net
-  sonypi: make CONFIG_SONYPI depend on CONFIG_INPUT since the latter is no more optional.
+ChangeSet@1.2196, 2004-10-28 10:40:18+02:00, stelian@popies.net
+  sonypi: don't suppose the bluetooth subsystem is initialy off,
+  	  leave the choice to the user.
 
   Signed-off-by: Stelian Pop <stelian@popies.net>
-
+  
 ===================================================================
 
- Kconfig |    2 +-
+ sonypi.c |    2 +-
  1 files changed, 1 insertion(+), 1 deletion(-)
 
 ===================================================================
 
-diff -Nru a/drivers/char/Kconfig b/drivers/char/Kconfig
---- a/drivers/char/Kconfig	2004-10-28 11:09:18 +02:00
-+++ b/drivers/char/Kconfig	2004-10-28 11:09:18 +02:00
-@@ -835,7 +835,7 @@
+diff -Nru a/drivers/char/sonypi.c b/drivers/char/sonypi.c
+--- a/drivers/char/sonypi.c	2004-10-28 11:13:37 +02:00
++++ b/drivers/char/sonypi.c	2004-10-28 11:13:37 +02:00
+@@ -754,7 +754,7 @@
  
- config SONYPI
- 	tristate "Sony Vaio Programmable I/O Control Device support (EXPERIMENTAL)"
--	depends on EXPERIMENTAL && X86 && PCI && !64BIT
-+	depends on EXPERIMENTAL && X86 && PCI && INPUT && !64BIT
- 	---help---
- 	  This driver enables access to the Sony Programmable I/O Control
- 	  Device which can be found in many (all ?) Sony Vaio laptops.
+ 	init_waitqueue_head(&sonypi_device.fifo_proc_list);
+ 	init_MUTEX(&sonypi_device.lock);
+-	sonypi_device.bluetooth_power = 0;
++	sonypi_device.bluetooth_power = -1;
+ 	
+ 	if (pcidev && pci_enable_device(pcidev)) {
+ 		printk(KERN_ERR "sonypi: pci_enable_device failed\n");

@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129877AbQKNBnZ>; Mon, 13 Nov 2000 20:43:25 -0500
+	id <S129994AbQKNBtQ>; Mon, 13 Nov 2000 20:49:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130031AbQKNBnQ>; Mon, 13 Nov 2000 20:43:16 -0500
-Received: from [194.73.73.138] ([194.73.73.138]:40929 "EHLO ruthenium")
-	by vger.kernel.org with ESMTP id <S129877AbQKNBmc>;
-	Mon, 13 Nov 2000 20:42:32 -0500
-From: davej@suse.de
-Date: Tue, 14 Nov 2000 01:12:26 +0000 (GMT)
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: mharris@opensourceadvocate.org
-Subject: Re: UDMA66/100 errors...
-Message-ID: <Pine.LNX.4.21.0011140109500.1199-100000@neo.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130031AbQKNBtH>; Mon, 13 Nov 2000 20:49:07 -0500
+Received: from vp175103.reshsg.uci.edu ([128.195.175.103]:60422 "EHLO
+	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
+	id <S129994AbQKNBs7>; Mon, 13 Nov 2000 20:48:59 -0500
+Date: Mon, 13 Nov 2000 17:18:56 -0800
+Message-Id: <200011140118.eAE1IuV17166@moisil.dev.hydraweb.com>
+From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+To: David Hinds <dhinds@valinux.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: Pcmcia/Cardbus/xircom_tulip in 2.4.0-test10.
+In-Reply-To: <20001113121833.A1725@valinux.com>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.18pre21 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Harris wrote...
+On Mon, 13 Nov 2000 12:18:33 -0800, David Hinds <dhinds@valinux.com> wrote:
 
-> I'm getting the following error when I try and enable UDMA on my
-> new IBM Deskstar UDMA100 drive:
-> ...
-> DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4 udma5
+> The effect of "ifconfig eth0 -multicast" (which should be a no-op) is
+> that it calls set_rx_mode() with the same set of parameters it was
+> called with before.  Doing this one or more times may kick the card so
+> that it starts working.  The number of times is constant for a given
+> network configuration, and varies between 0 and 3.
 
-Ok, drive supports UDMA Mode 5 (ATA100)
+If you want another datapoint, this doesn't help on my own Xircom card.
+The only way to make it receive packets while not in promisc mode was
+to add back the "+ 4" to the buffer address in the descriptor -- reverting
+one of the changes that went into 3.1.21.
 
-> 00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 10)
+Anything else I've tried didn't help: filling up all slots with my MAC,
+adding them at the end of the list, at the beginning, as little/big endian,
+in reverse order... you name it. The "+ 4" however made it work reliably.
 
-This chipset only supports up to UDMA2.
+The card is a Xircom RealPort CardBus Ethernet 10/100, code RBE-100. This
+is the lspci entry for it:
 
-regards,
+20:00.0 Class 0200: 115d:0003 (rev 03)
+        Subsystem: 115d:0181
+        Flags: bus master, medium devsel, latency 64, IRQ 11
+        I/O ports at 0200
+        Memory at a000d000 (32-bit, non-prefetchable)
+        Memory at a000c000 (32-bit, non-prefetchable)
+        Expansion ROM at a0008000 [disabled]
+        Capabilities: [dc] Power Management version 1
 
-davej.
+Thanks,
+Ion
 
 -- 
-| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
-| SuSE Labs
-
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,66 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268727AbUIAGKU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268683AbUIAGKg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268727AbUIAGKU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 02:10:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268716AbUIAGKU
+	id S268683AbUIAGKg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 02:10:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268716AbUIAGKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 02:10:20 -0400
-Received: from fw.osdl.org ([65.172.181.6]:28613 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268727AbUIAGHJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 02:07:09 -0400
-Date: Tue, 31 Aug 2004 23:06:24 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Hans Reiser <reiser@namesys.com>
-cc: David Masover <ninja@slaphack.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@ucw.cz>,
-       Jamie Lokier <jamie@shareable.org>, Chris Wedgwood <cw@f00f.org>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <41356321.4030307@namesys.com>
-Message-ID: <Pine.LNX.4.58.0408312259180.2295@ppc970.osdl.org>
-References: <200408311931.i7VJV8kt028102@laptop11.inf.utfsm.cl>
- <41352279.7020307@slaphack.com> <41356321.4030307@namesys.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 1 Sep 2004 02:10:35 -0400
+Received: from florence.buici.com ([206.124.142.26]:19933 "HELO
+	florence.buici.com") by vger.kernel.org with SMTP id S268683AbUIAGI7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 02:08:59 -0400
+Date: Tue, 31 Aug 2004 23:08:58 -0700
+From: Marc Singer <elf@buici.com>
+To: linux-kernel@vger.kernel.org
+Subject: [wee PATCH] add SMC91x ethernet for LPD7A40X
+Message-ID: <20040901060858.GA3171@buici.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I posted this patch three weeks ago to linux-net without any interest.
+It adds the support necessary to get the SMC91x ethernet controller to
+operate with the Logic Product Development LH7a40x implementations.
+
+I'd really appreciate it if this got into the kernel.
 
 
-On Tue, 31 Aug 2004, Hans Reiser wrote:
-> 
-> You are saying, 1-2% simpler and better, no biggie, why work so hard to 
-> get it?
-> 
-> And we are saying, 1-2% simpler and better, times thousands of 
-> applications, wow! That's a lot!
+PATCH FOLLOWS
 
-But would thousands care? Seriously?
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/08/15 20:36:21-07:00 elf@florence.buici.com 
+#   Small patch that adds support for the Logic Product Development variant
+#   of the smc91x implementation.  The SMC_IOBARRIER is necessary to work-around a
+#   peculiarity of the memory controller that interfaces the network controller to
+#   the bus.
+# 
+# drivers/net/smc91x.h
+#   2004/08/15 20:34:32-07:00 elf@florence.buici.com +43 -0
+#   Small patch that adds support for the Logic Product Development variant
+#   of the smc91x implementation.  The SMC_IOBARRIER is necessary to work-around a
+#   peculiarity of the memory controller that interfaces the network controller to
+#   the bus.
+# 
+diff -Nru a/drivers/net/smc91x.h b/drivers/net/smc91x.h
+--- a/drivers/net/smc91x.h	Sun Aug 15 20:58:47 2004
++++ b/drivers/net/smc91x.h	Sun Aug 15 20:58:47 2004
+@@ -160,6 +160,49 @@
+ #define SMC_insw(a, r, p, l)	insw((a) + (r), p, l)
+ #define SMC_outsw(a, r, p, l)	outsw((a) + (r), p, l)
+ 
++#elif	defined(CONFIG_MACH_LPD7A400) || defined(CONFIG_MACH_LPD7A404)
++
++#include <asm/arch/constants.h>	/* IOBARRIER_VIRT */
++
++#define SMC_CAN_USE_8BIT	0
++#define SMC_CAN_USE_16BIT	1
++#define SMC_CAN_USE_32BIT	0
++#define SMC_NOWAIT		0
++#define SMC_IOBARRIER		({ barrier (); readl (IOBARRIER_VIRT); })
++
++static inline unsigned short SMC_inw (unsigned long a, int r)
++{
++	unsigned short v;
++	v = readw (a + r);
++	SMC_IOBARRIER;
++	return v;
++}
++
++static inline void SMC_outw (unsigned short v, unsigned long a, int r)
++{
++	writew (v, a + r);
++	SMC_IOBARRIER;
++}
++
++static inline void SMC_insw (unsigned long a, int r, unsigned char* p, int l)
++{
++	while (l-- > 0) {
++		*((unsigned short*)p)++ = readw (a + r);
++		SMC_IOBARRIER;
++	}
++}
++
++static inline void SMC_outsw (unsigned long a, int r, unsigned char* p, int l)
++{
++	while (l-- > 0) {
++		writew (*((unsigned short*)p)++, a + r);
++		SMC_IOBARRIER;
++	}
++}
++
++#define RPC_LSA_DEFAULT		RPC_LED_TX_RX
++#define RPC_LSB_DEFAULT		RPC_LED_100_10
++
+ #else
+ 
+ #define SMC_CAN_USE_8BIT	1
 
-For example, you could make just _one_ program support "openat()", and 
-you'd get most of the advantages, with no possibility of _breaking_ any of 
-thousands of applications..
-
-I know, you've ignored the "runat" program (which is just a wrapper around
-the openat() system call), but it _has_ been mentioned several times in 
-this thread. Yes, you'd type a bit more to do
-
-	runat file ls -l
-
-instead of
-
-	ls -l file/
-
-but at least the openat/runat approach also works for directories, which 
-does actually make it a lot more _generic_ than the "show in the regular 
-filespace" approach. No special cases.
-
-So your comparison isn't valid, because you're ignoring the people who
-shout "runat" at you. You've also not ever actually answered about the
-problems about directories with attributes.
-
-		Linus
+----- End forwarded message -----

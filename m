@@ -1,80 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129428AbQLGWco>; Thu, 7 Dec 2000 17:32:44 -0500
+	id <S129525AbQLGWeY>; Thu, 7 Dec 2000 17:34:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129525AbQLGWcf>; Thu, 7 Dec 2000 17:32:35 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:4110 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S129428AbQLGWcQ>;
-	Thu, 7 Dec 2000 17:32:16 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Date: Thu, 7 Dec 2000 23:01:14 MET-1
+	id <S130701AbQLGWeP>; Thu, 7 Dec 2000 17:34:15 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:34566 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S129525AbQLGWeC>; Thu, 7 Dec 2000 17:34:02 -0500
+Message-ID: <3A300933.29813DE8@Hell.WH8.TU-Dresden.De>
+Date: Thu, 07 Dec 2000 23:03:31 +0100
+From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+Organization: Dept. Of Computer Science, Dresden University Of Technology
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: en, de-DE
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Why is double_fault serviced by a trap gate?
-CC: Andi Kleen <ak@suse.de>, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-        linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <F0595854FC8@vcnet.vc.cvut.cz>
+To: Jan Niehusmann <jan@gondor.com>
+CC: linux-kernel@vger.kernel.org, adilger@turbolinux.com,
+        Byron Stanoszek <gandalf@winds.org>,
+        Alexander Viro <viro@math.psu.edu>
+Subject: Re: [PATCH] Re: fs corruption with invalidate_buffers()
+In-Reply-To: <20001206030723.A1136@gondor.com> <20001207200558.A976@gondor.com> <20001207223043.A994@gondor.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  7 Dec 00 at 16:44, Richard B. Johnson wrote:
-> On Thu, 7 Dec 2000 richardj_moore@uk.ibm.com wrote:
+Jan Niehusmann wrote:
 > 
-> > Which surely we can on today's x86 systems. Even back in the days of OS/2
-> > 2.0 running on a 386 with 4Mb RAM we used a taskgate for both NMI and
-> > Double Fault. You need only a minimal stack - 1K, sufficient to save state
-> > and restore ESP to a known point before switching back to the main TSS to
-> > allow normal exception handling to occur.
-> > 
-> > There no architectural restriction that some folks have hinted at - as long
-> > as the DPL for the task gates is 3.
-> > 
-> [SNIPPED...]
+> The following patch actually prevents the corruption I described.
 > 
-> Please refer to page 6-16, Inter486 Microprocessor Family Programmer's
-> Reference Manual.
-> 
-> The specifc text is: "The TSS does not have a stack pointer for a
-> privilege level 3 stack, because the procedure cannot be called by a less
-> privileged procedure. The stack for privilege level 3 is preserved by the
-> contents of SS and EIP registers which have been saved on the stack
-> of the privilege level called from level 3".
-> 
-> What this means is that a stack-fault in level 3 will kill you no
-> matter how cute you try to be. And, putting a task gate as call
-> procedure entry from a trap or fault is just trying to be cute.
-> It's extra code that will result in the same processor reset.
+> I'd like to hear from the people having problems with hdparm, if it helps
+> them, too.
 
-You misunderstand. There is no SS/ESP for level 3, because of you cannot
-switch to CPL 3 using CALL/JMP, you can switch to it only through IRET/RETF.
-And both of them fetch new SS/ESP from stack...
+Yes, it prevents the issue.
 
-If stack-fault happens on CPL3, CPU switches to CPL0 (as defined by
-stack fault trap gate), executes appropriate code, and then returns
-back to CPL3 through IRET.
+> Please note that the patch circumvents the problem more than it fixes it.
+> The true fix would invalidate the mappings, but I don't know how to do it.
 
-Maybe you forgot when reading this, that CPL3 is non-priviledged level,
-and CPL0 has most of priviledges.
+I don't know either. What does Alexander Viro say to all of this?
 
-Problem with doublefault is that if you overflowed CPL0 stack, you just
-cannot service this error on same stack, you must switch to another one.
-And only way to switch out from CPL0 stack during fault service is
-hardware switch to another TSS.
+-Udo.
 
-In either case, nothing is ever pushed into old stack, so doing
 
-movl $0,%esp
 
-does not matter. With userspace never, in kernel if you have task gate
-for doublefault... In userspace it will not even crash until you send some
-signal to that process, or until you'll execute some call/push/pop yourself.
-                                            Petr Vandrovec
-                                            vandrove@vc.cvut.cz
-                                            
+Same debug patch adapted to test12-pre7 follows:
+ 
+--- linux/fs/buffer.c   Thu Dec  7 22:55:54 2000
++++ /usr/src/linux/fs/buffer.c  Thu Dec  7 22:49:02 2000
+@@ -627,7 +627,7 @@
+    then an invalidate_buffers call that doesn't trash dirty buffers. */
+ void __invalidate_buffers(kdev_t dev, int destroy_dirty_buffers)
+ {
+-       int i, nlist, slept;
++       int i, nlist, slept, db_message = 0;
+        struct buffer_head * bh, * bh_next;
+ 
+  retry:
+@@ -653,9 +653,13 @@
+                        write_lock(&hash_table_lock);
+                        if (!atomic_read(&bh->b_count) &&
+                            (destroy_dirty_buffers || !buffer_dirty(bh))) {
+-                               remove_inode_queue(bh);
+-                               __remove_from_queues(bh);
+-                               put_last_free(bh);
++                               if (bh->b_page && bh->b_page->mapping)
++                                       db_message = 1;
++                               else {
++                                       remove_inode_queue(bh);
++                                       __remove_from_queues(bh);
++                                       put_last_free(bh);
++                               }
+                        }
+                        /* else complain loudly? */
+ 
+@@ -668,6 +672,8 @@
+        spin_unlock(&lru_list_lock);
+        if (slept)
+                goto retry;
++       if (db_message)
++               printk("invalidate_buffers with mapped page!\n");
+ }
+ 
+ void set_blocksize(kdev_t dev, int size)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

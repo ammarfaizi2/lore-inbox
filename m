@@ -1,18 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131952AbQLNCTh>; Wed, 13 Dec 2000 21:19:37 -0500
+	id <S132107AbQLNCVG>; Wed, 13 Dec 2000 21:21:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132057AbQLNCT1>; Wed, 13 Dec 2000 21:19:27 -0500
-Received: from zada.math.leidenuniv.nl ([132.229.231.3]:37136 "EHLO
-	zada.math.leidenuniv.nl") by vger.kernel.org with ESMTP
-	id <S131952AbQLNCTR>; Wed, 13 Dec 2000 21:19:17 -0500
-Date: Thu, 14 Dec 2000 02:49:05 +0100 (MET)
-From: Lennert Buytenhek <buytenh@gnu.org>
-To: James Simmons <jsimmons@suse.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] bsd-style cursor
-In-Reply-To: <Pine.LNX.4.21.0012131742001.901-100000@euclid.oak.suse.com>
-Message-ID: <Pine.LNX.4.30.0012140244260.17627-100000@mara.math.leidenuniv.nl>
+	id <S132106AbQLNCUq>; Wed, 13 Dec 2000 21:20:46 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:3790 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S130753AbQLNCUm>;
+	Wed, 13 Dec 2000 21:20:42 -0500
+Date: Wed, 13 Dec 2000 20:48:51 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Chris Lattner <sabre@nondot.org>,
+        Jamie Lokier <lk@tantalophile.demon.co.uk>,
+        "Mohammad A. Haque" <mhaque@haque.net>, Ben Ford <ben@kalifornia.com>,
+        linux-kernel@vger.kernel.org, orbit-list@gnome.org,
+        korbit-cvs@lists.sourceforge.net
+Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
+In-Reply-To: <E146Mvx-0003Zj-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.4.21.0012132037110.6300-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,32 +24,22 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Wed, 13 Dec 2000, James Simmons wrote:
+On Thu, 14 Dec 2000, Alan Cox wrote:
 
-> > included a patch against 2.4.0-test9 (should apply against latest but
-> > haven't checked) which adds the config option to have a bsd-style cursor
-> > in VT's by default. I was hoping it might be considered for inclusion so
-> > that I don't have to patch it in myself every time :-)
->
-> How about placing
->
->    echo '\033[?17;120c'
->
-> In one of your startup scripts. This will give you this nice BSD
-> cursor you like.
+> > Don't worry about kORBit.  Like most open source projects, it will simply
+> > die out after a while, because people don't find it interesting and there
+> > is really no place for it.  If it becomes useful, mature, and refined,
+> > however, it could be a very powerful tool for a large class of problems
+> > (like moving code OUT of the kernel).
+> 
+> I do have one sensible question. Given that corba is while flexible a 
+> relatively expensive encoding system, wouldn't it be better to keep corba
+> out of kernel space and talk something which is a simple and cleaner encoding
 
-[buytenh@mara buytenh]$ tail -1 ~/.bash_profile
-echo -e -n '\033[?17;127c'
-[buytenh@mara buytenh]$
-
-This has Issues though: try entering vi for example.
-
-I'd just like a way of altering CUR_DEFAULT (which is hardcoded here and
-there); sysctl would be fine too for that matter.
-
-
-cheers,
-Lennert
+p9fs exists.  I didn't see these patches since August, but probably I can poke
+Roman into porting it to the current tree.  9P is quite simple and unlike
+CORBA it had been designed for taking kernel stuff to userland.  Besides,
+authors definitely understand UNIX...
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

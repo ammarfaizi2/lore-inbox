@@ -1,88 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263274AbUJ2BSI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263229AbUJ2Ac5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263274AbUJ2BSI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 21:18:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263266AbUJ2Adv
+	id S263229AbUJ2Ac5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 20:32:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263234AbUJ2AYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 20:33:51 -0400
-Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:22795 "EHLO
-	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
-	id S263274AbUJ2A3P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 20:29:15 -0400
-Date: Fri, 29 Oct 2004 01:27:51 +0100 (BST)
-From: Mark Fortescue <mark@mtfhpc.demon.co.uk>
-To: davem@redhat.com, ecd@skynet.be, jj@sunsite.ms.mff.cuni.cz,
-       anton@samba.org, wli@holomorphy.com
-cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
-       ultralinux@vger.kernel.org, trivial@rustcorp.com.au
-Subject: PATCH to fix initialisation issue for GC3 (linux-2.5.64 +).
-Message-ID: <Pine.LNX.4.10.10410290107100.1071-100000@mtfhpc.demon.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 28 Oct 2004 20:24:07 -0400
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:14503 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S263204AbUJ2AU1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 20:20:27 -0400
+Date: Thu, 28 Oct 2004 17:19:50 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Blaisorblade <blaisorblade_spam@yahoo.it>
+Cc: user-mode-linux-devel@lists.sourceforge.net, Jeff Dike <jdike@addtoit.com>,
+       akpm@osdl.org, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [uml-devel] Re: [patch 7/7] uml: resolve symbols in back-traces
+Message-ID: <20041029001950.GC12434@taniwha.stupidest.org>
+References: <200410272223.i9RMNj921852@mail.osdl.org> <200410282132.i9SLWhA3004709@ccure.user-mode-linux.org> <20041028205136.GA1888@taniwha.stupidest.org> <200410290144.11700.blaisorblade_spam@yahoo.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200410290144.11700.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Fri, Oct 29, 2004 at 01:44:11AM +0200, Blaisorblade wrote:
 
-This patch fixes an error in the blanking code for the GCThree SBUS
-video card. Now I get a logo and black screen, not just a blank (no
-video) screen. It is a trivual fix that has taken too long to identify as
-it is such a small typing error during the rewriting of the code for
-the new frame buffer system introduced in the 2.5 series kernels.
+> ??? I don't understand you well. If there are compile-commands for
+> emacs, they're broken too - using make namefile.o ARCH=um is the
+> kernel universal solution.
 
-Given that it still exists in the 2.6.8.1 kernel, I assume that not many
-people have tried using the latest kernel on systems with a CGThree.
-  
-Regards
-	Mark Fortescue.
-------------------------------------------------------------------------
-#######################################################################
-#
-# Mark Fortescue <mark@mtfhpc.demon.co.uk>
-#
-# Patch to fix the blanking on the CG3 (SBUS) video card.
-# The file (formally cgthreefb.c, now cg3.c) has a typing error that
-# messes up the card initialisation when blanking is enabled/disabled.
-# Given that the blanking functions are called in the initialisation
-# routine, this makes the card un-usable. This patch fixes the error
-# and needs to be applied to all kernels from 2.5.64 to 2.8.6.1 and
-# possibly later if the CG3 is to be used sucessfully. 
-#
-#######################################################################
-diff -rupd ref-2.6.8.1/drivers/video/cg3.c linux-2.6.8.1/drivers/video/cg3.c
---- ref-2.6.8.1/drivers/video/cg3.c	Sat Aug 14 11:55:35 2004
-+++ linux-2.6.8.1/drivers/video/cg3.c	Fri Oct 29 01:03:03 2004
-@@ -198,9 +204,9 @@ cg3_blank(int blank, struct fb_info *inf
- 
- 	switch (blank) {
- 	case 0: /* Unblanking */
--		val = sbus_readl(&regs->control);
-+		val = sbus_readb(&regs->control);
- 		val |= CG3_CR_ENABLE_VIDEO;
--		sbus_writel(val, &regs->control);
-+		sbus_writeb(val, &regs->control);
- 		par->flags &= ~CG3_FLAG_BLANKED;
- 		break;
- 
-@@ -208,11 +214,16 @@ cg3_blank(int blank, struct fb_info *inf
- 	case 2: /* VESA blank (vsync off) */
- 	case 3: /* VESA blank (hsync off) */
- 	case 4: /* Poweroff */
--		val = sbus_readl(&regs->control);
--		val |= CG3_CR_ENABLE_VIDEO;
--		sbus_writel(val, &regs->control);
-+		val = sbus_readb(&regs->control);
-+		val &= ~CG3_CR_ENABLE_VIDEO;
-+		sbus_writeb(val, &regs->control);
- 		par->flags |= CG3_FLAG_BLANKED;
- 		break;
-+
-+	default:
-+		printk ("Invalid Blanking mode (%d), unblanking\n", blank);
-+		spin_unlock_irqrestore(&par->lock, flags);
-+		return 1;
- 	}
- 
- 	spin_unlock_irqrestore(&par->lock, flags);
---------------------------------------------------------------------------
-
+consider a load-able module for uml ... the compile command might be
+to build and load the module into a running UML instance...  for some
+people that's a pretty nice working module where you dont have to
+leave your editor to boot/run test things

@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137107AbREKLRD>; Fri, 11 May 2001 07:17:03 -0400
+	id <S137110AbREKLPN>; Fri, 11 May 2001 07:15:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137111AbREKLQp>; Fri, 11 May 2001 07:16:45 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:44183 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S137107AbREKLQQ>;
-	Fri, 11 May 2001 07:16:16 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S137107AbREKLO4>; Fri, 11 May 2001 07:14:56 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:40975 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S137108AbREKLOm>;
+	Fri, 11 May 2001 07:14:42 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Andi Kleen <ak@suse.de>
+Date: Fri, 11 May 2001 13:08:56 MET-1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15099.51708.28196.783804@pizda.ninka.net>
-Date: Fri, 11 May 2001 04:16:12 -0700 (PDT)
-To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Cc: Andi Kleen <ak@suse.de>, Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-        linux-kernel@vger.kernel.org
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Subject: Re: Source code compatibility in Stable series????
-In-Reply-To: <2983F527D00@vcnet.vc.cvut.cz>
-In-Reply-To: <2983F527D00@vcnet.vc.cvut.cz>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+CC: Rogier Wolff <R.E.Wolff@BitWizard.nl>, linux-kernel@vger.kernel.org,
+        davem@redhat.com
+X-mailer: Pegasus Mail v3.40
+Message-ID: <29907B06E7C@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 11 May 01 at 12:32, Andi Kleen wrote:
+> On Fri, May 11, 2001 at 12:21:59PM +0000, Petr Vandrovec wrote:
+> > When I was updating VMware's vmnet, I decided to use
+> > 
+> > #ifdef skb_shinfo
+> 
+> Yes I forgot that RedHat already shipped it :-(
 
-Petr Vandrovec writes:
- > When I was updating VMware's vmnet, I decided to use
- > 
- > #ifdef skb_shinfo
+Not only that RedHat shipped it, but thousands of people used Alan's
+patches since 25th February. So you cannot check kernel version for >=2.4.4.
+ 
+> > This gives you maximal backward compatibility, as all public zerocopy
+> > patches contain this macro. Only thing is that Dave has to remember
+> > that when he turns skb_shinfo into inline function, an identity #define have
+> > to be added.
+> 
+> No such guarantee for binary only software ;)
 
-No, don't use that, use MAX_SKB_FRAGS like the drivers do.
-I guarentee to preserve that, whereas I reserve the right
-to change the skb_shinfo implementation however I like.
-
-Later,
-David S. Miller
-davem@redhat.com
+vmnet is GPLed software, if you did not notice ;-) Fortunately change
+went into Alan tree first, so I noticed long before 2.4.4 came out. Although
+it took nonzero effort to persuade others that it will go into Linus's 2.4.x
+even if it breaks API. They did not trust me that source compatibility 
+in stable series is only a wish.
+                                                        Petr Vandrovec
+                                                        vandrove@vc.cvut.cz

@@ -1,82 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261994AbTEBOtQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 10:49:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262274AbTEBOtQ
+	id S262956AbTEBPpP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 11:45:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262957AbTEBPpP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 10:49:16 -0400
-Received: from dialpool-210-214-82-249.maa.sify.net ([210.214.82.249]:36737
-	"EHLO softhome.net") by vger.kernel.org with ESMTP id S261994AbTEBOtO
+	Fri, 2 May 2003 11:45:15 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28315 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262956AbTEBPpN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 10:49:14 -0400
-Date: Fri, 2 May 2003 20:30:04 +0530
-From: Balram Adlakha <b_adlakha@softhome.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Did the SCO Group plant UnixWare source in the Linux kernel?
-Message-ID: <20030502150004.GA2048@localhost.localdomain>
-References: <20030502140602.GH543@phunnypharm.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="opJtzjQTFsWo+cga"
-Content-Disposition: inline
-In-Reply-To: <20030502140602.GH543@phunnypharm.org>
-X-GPG-Fingerprint: A977 433E B71E 2D1C 6114  9F33 F390 527D 70D1 2799
-User-Agent: Mutt/1.5.4i
+	Fri, 2 May 2003 11:45:13 -0400
+Message-ID: <3EB29566.4000903@pobox.com>
+Date: Fri, 02 May 2003 11:57:26 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Jeff Muizelaar <muizelaar@rogers.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/4] NE2000 driver updates
+References: <3EB15127.2060409@rogers.com>	 <1051817031.21546.23.camel@dhcp22.swansea.linux.org.uk>	 <3EB1ADEC.6080007@rogers.com> <1051884070.23249.4.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1051884070.23249.4.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---opJtzjQTFsWo+cga
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, May 02, 2003 at 10:06:03AM -0400, Ben Collins wrote:
-> > "Chris Sontag: We are using objective third parties to do comparisons o=
-f=20
-> > our UNIX System V [SCO-owned Unix] source code and Red Hat as an exampl=
-e.=20
-> > We are coming across many instances where our proprietary software has=
-=20
-> > simply been copied and pasted or changed in order to hide the origin of=
- our=20
-> > System V code in Red Hat. This is the kind of thing that we will need t=
-o=20
-> > address with many Linux distribution companies at some point."
->=20
-> This almost sounds like they are pointing to userspace code rather than
-> kernel code. I know Redhat and other dists put patches on their kernels,
-> but I seriously doubt it's anything like retrofiting UnixWare code. It's
-> more like supporting newer hardware, performance tweaking, and such.
->=20
-> --=20
-> Debian     - http://www.debian.org/
-> Linux 1394 - http://www.linux1394.org/
-> Subversion - http://subversion.tigris.org/
-> Deqo       - http://www.deqo.com/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Alan Cox wrote:
+> On Gwe, 2003-05-02 at 00:29, Jeff Muizelaar wrote:
+> 
+>>Are we stuck with Space.c forever? Anyone have any plans for replacing 
+>>it with something more driver-model friendly?
+> 
+> 
+> Is it worth the effort. Why not just let the old isa stuff live out its
+> life in peace ?
 
 
-They are pointing to nothing. They do not know themselves what they are=20
-talking about. SCO is dead now, they have nothing else to do except for=20
-framing other projects. If this thing was true they could have just=20
-pointed out where exactly the stolen code was.
---=20
+I'm glad you asked.  :)
 
---opJtzjQTFsWo+cga
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+For the major families of ISA net drivers, I am craving massive 
+consolidation.  People continue to use this stuff in embedded systems 
+and simulators, long past when the original cards disappear into the 
+ether, too.  Considering that operations are inevitably IO bound, I am 
+even willing to spend a few (admittedly costly) extra cycles chasing 
+some additional function pointer de-refs, if we could massively shrink 
+the size and number of NE2000/lance/82596 drivers out there.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+I guarantee these drivers are gonna be with us for many years to come, 
+and designers wanting to bang out a quick-and-easy MAC will create Yet 
+Another NE2000 Clone.[1]
 
-iD8DBQE+sof085BSfXDRJ5kRAvsRAJ0f58MaXdqf8Anq4nkKsKUgsdDHuQCeLbdc
-S4cN3Zwujtj1PF9PnU+52Gk=
-=prWN
------END PGP SIGNATURE-----
+Did I mention that a GIGE ne2000 card exists?
 
---opJtzjQTFsWo+cga--
+	Jeff
+
+
+
+[1] of course, with decent, free MAC and PHY cores at www.opencores.org, 
+maybe we can convince hardware makers to use a better design.  </plug>
+

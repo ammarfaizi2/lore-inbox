@@ -1,80 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292420AbSCEVxX>; Tue, 5 Mar 2002 16:53:23 -0500
+	id <S288736AbSCEV5d>; Tue, 5 Mar 2002 16:57:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292270AbSCEVxF>; Tue, 5 Mar 2002 16:53:05 -0500
-Received: from monk.debian.net ([216.185.54.61]:692 "EHLO monk.verbum.org")
-	by vger.kernel.org with ESMTP id <S292420AbSCEVwy>;
-	Tue, 5 Mar 2002 16:52:54 -0500
-Date: Tue, 5 Mar 2002 16:52:34 -0500
-From: The Open Source Club at The Ohio State University 
-	<opensource-admin@cis.ohio-state.edu>
-To: linux-kernel@vger.kernel.org
-Cc: opensource@cis.ohio-state.edu
-Subject: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
-Message-ID: <20020305165233.A28212@fireball.zosima.org>
-Mime-Version: 1.0
+	id <S288050AbSCEV5Y>; Tue, 5 Mar 2002 16:57:24 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:28848 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S288736AbSCEV5P>; Tue, 5 Mar 2002 16:57:15 -0500
+Date: Tue, 05 Mar 2002 13:57:09 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Kip Walker <kwalker@broadcom.com>, linux-kernel@vger.kernel.org
+cc: linux-mips@sgi.com
+Subject: Re: init_idle reaped before final call
+Message-ID: <292270000.1015365429@flay>
+In-Reply-To: <3C8522EA.2A00E880@broadcom.com>
+In-Reply-To: <3C8522EA.2A00E880@broadcom.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petition Against Official Endorsement of BitKeeper by Linux Maintainers
+> I'm working with a (approximately) 2.4.17 kernel from the mips-linux
+> tree (oss.sgi.com).
+> 
+> I'd like to propose removing the "__init" designation from init_idle in
+> kernel/sched.c, since this is called from rest_init via cpu_idle. 
+> Notice that rest_init isn't in an init section, and explicitly mentions
+> that it's avoiding a race with free_initmem.  In my kernel (an SMP
+> kernel running on a system with only 1 available CPU), cpu_idle isn't
+> getting called until after free_initmem().
+> 
+> My CPU is MIPS, but it looks like x86 could experience the same problem.
 
-We, the undersigned members and officers of the Open Source Club at
-the Ohio State University, are unhappy with the advocacy of the
-proprietary[1] BitKeeper software for use in maintaining the Linux
-kernel.  The Linux kernel is an important symbol of Open Source and
-Free Software for many people, and a project in which many thousands
-have participated in active development.  It is fine if some kernel
-developers choose to use BitKeeper on their own machines, but
-officially endorsing proprietary software as the means of working on
-the kernel is a large step backwards for Linux, and for the Open
-Source and Free Software communities.
+I fixed something in this area for x86, looks like the same code path
+for MIPS unless I'm misreading.
 
-If the core Linux maintainers begin to advocate using BitKeeper, then
-there will be strong pressure on these peripheral developers to use
-BitKeeper too, since it would likely be easier than browsing the
-web-exported changelogs or fetching the latest diff from kernel.org.
+smp_init spins waiting on wait_init_idle until every cpu has done
+init_idle. rest_init() isn't called until smp_init returns, so I'm not sure
+how you could hit this (possibly there's a minute window after init_idle
+clears the bit, but before it returns?).
 
-Using a closed-source, proprietary source control system for the
-kernel is even worse than using other forms of proprietary software
-such as source code analysis systems, because the revision control
-metadata (version numbers, branches, changelog comments, etc.), would
-be stored in a format defined by the proprietary software.  This
-metadata is really a part of Linux, because people will want to use it
-when talking about the kernel.  Those who can't[2] or don't want to
-use BitKeeper are left out in the cold.  One of the most important
-parts of Open Source and Free Software is that we, the community, are
-in control.  But by using and advocating BitKeeper, we would lose part
-of that control.
-
-In summary, please do not advocate BitKeeper for use by the general
-community.  The Linux development process seems to have worked up till
-now, and we can wait a little longer until Arch[3] or Subversion[4]
-are completed.  Moreover, full-featured, completely functional free 
-versioning sytems are currently available, such as PRCS[5] and CVS[6].
-We respect the kernel maintainer's freedom to use proprietary software 
-for their own purposes.  And we ask the kernel maintainers to respect 
-the community's freedom from entrapment by proprietary software.
-
--- The Open Source Club at The Ohio State University
-Signed by:
-Michael Benedict <zosima@zosima.org>
-Colin Walters <walters@debian.org>
-Matt Curtin <cmcurtin@interhack.net>
-Martin Jansche <jansche@ling.ohio-state.edu>
-Balbir Thomas <thomas.1037@osu.edu>
-Nicholas Hurley <hurley@cis.ohio-state.edu>
-Ryan McCormack <mccormac@cis.ohio-state.edu>
-Shaun Rowland <rowland@cis.ohio-state.edu>
-
-[1] http://www.mit.edu/afs/athena/user/x/i/xiphmont/Public/critique.html
-[2] Perhaps they aren't connected to the internet regularly enough,
-    for instance.
-[3] http://www.regexps.com/#arch
-[4] http://subversion.tigris.org
-[5] http://prcs.sourceforge.net
-[6] http://www.cvshome.org
+M.
 

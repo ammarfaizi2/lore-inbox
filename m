@@ -1,53 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267602AbUI1G7h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267607AbUI1HBf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267602AbUI1G7h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 02:59:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267607AbUI1G7h
+	id S267607AbUI1HBf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 03:01:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267612AbUI1HBf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 02:59:37 -0400
-Received: from scanner1.mail.elte.hu ([157.181.1.137]:17361 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267602AbUI1G7g (ORCPT
+	Tue, 28 Sep 2004 03:01:35 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:7810 "EHLO midnight.suse.cz")
+	by vger.kernel.org with ESMTP id S267607AbUI1HB2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 02:59:36 -0400
-Date: Tue, 28 Sep 2004 09:01:04 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org, Matt Heler <lkml@lpbproductions.com>
-Subject: Re: 2.6.9-rc2-mm4
-Message-ID: <20040928070104.GA14836@elte.hu>
-References: <20040926181021.2e1b3fe4.akpm@osdl.org> <200409270940.39851.lkml@lpbproductions.com> <20040927201709.GA19257@elte.hu> <200409272142.35182.gene.heskett@verizon.net>
+	Tue, 28 Sep 2004 03:01:28 -0400
+Date: Tue, 28 Sep 2004 09:01:09 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, Micha Feigin <michf@post.tau.ac.il>,
+       Peter Osterlund <petero2@telia.com>
+Subject: Re: [BUG: 2.6.9-rc2-bk11] input completely dead in X
+Message-ID: <20040928070107.GC1834@ucw.cz>
+References: <20040926210450.GA2960@luna.mooo.com> <20040927124321.GC7486@luna.mooo.com> <20040927145223.GA3117@luna.mooo.com> <200409280126.19919.dtor_core@ameritech.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200409272142.35182.gene.heskett@verizon.net>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200409280126.19919.dtor_core@ameritech.net>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Gene Heskett <gene.heskett@verizon.net> wrote:
-
-> On Monday 27 September 2004 16:17, Ingo Molnar wrote:
-> >* Matt Heler <lkml@lpbproductions.com> wrote:
-> >> Yup, turning opff pre-emptable bkl makes it boot up and work just
-> >> fine.
-> >
-> >do you know which particular subsystem broke (by comparing the
-> > failed and the successful bootlogs)?
+On Tue, Sep 28, 2004 at 01:26:19AM -0500, Dmitry Torokhov wrote:
+> Resending as I forgot to CC Vojtech and Peter first time around...
 > 
-> How do we save the broken bootlog when the machines only response is
-> to the reset key?
+> On Monday 27 September 2004 10:46 pm, Micha Feigin wrote:
+> > > Or better yet, use the auto-dev feature, which should work if you have
+> > > a new enough X driver and kernel patch.
+> > > 
+> > 
+> > auto-dev doesn't work for me and I don't have time to check it
+> > out.
+> 
+> Addition of Kensington ThinkingMouse / ExpertMouse support caused Synaptics
+> and ALPS protocol numbers to move to 8 and 9 respectively which broke Peter's
+> auto-dev detection. 
 
-what i use is serial logging to another machine. A digital camera is
-fine too, if the problem area is still visible on the screen. 
-(Netconsole is useful too for other type of hangs but it's not active at
-such an early stage yet.)
+Ouch. I suspected something bad will happen.
 
-	Ingo
+> Vojtech, we need to keep protcol numbers stable, I propose something like this:
+> 
+> enum psmouse_type {
+>         PSMOUSE_PS2             = 0,
+>         PSMOUSE_PS2PP,
+>         PSMOUSE_THINKPS,
+>         PSMOUSE_GENPS           = 64,   /* 4 byte protocol start */
+>         PSMOUSE_IMPS,
+>         PSMOUSE_IMEX,
+>         PSMOUSE_SYNAPTICS       = 128,  /* 5+ byte protocols start */
+>         PSMOUSE_ALPS,
+> };
+
+No, we really need to keep backwards compatibility with the numbering
+here and solve the packetsize issue elsewhere. Probably the best would
+be for each of the protocols to have its own packet collection routine,
+like the Synaptics and ALPS already have. It could be shared among the
+simpler protocols.
+
+We'll need this anyway for a heuristic resynchronizer.
+
+> Peter, if we adopt the scheme above you will have to check both for old and
+> new protocol numbers; in addition you need to BTN_TOOL_FINGER device bit to
+> make sure you are dealing with a touchpad.
+> 
+> Any holes here?
+ 
+I really would prefer if old installations of the X driver would work
+with new kernel without the need to upgrade the X driver. I propose to
+keep the protocol numbers intact, and if possible to also find a better
+way for the X driver to detect a touchpad than relying on the IDs of the
+input device, namely based on BTN_TOOL_FINGER presence.
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

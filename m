@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293119AbSCEXQg>; Tue, 5 Mar 2002 18:16:36 -0500
+	id <S293125AbSCEXSO>; Tue, 5 Mar 2002 18:18:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293125AbSCEXQY>; Tue, 5 Mar 2002 18:16:24 -0500
-Received: from [208.29.163.248] ([208.29.163.248]:38037 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S293119AbSCEXQL>; Tue, 5 Mar 2002 18:16:11 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: Colin Walters <walters@debian.org>,
-        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        linux-kernel@vger.kernel.org, opensource@cis.ohio-state.edu
-Date: Tue, 5 Mar 2002 15:16:01 -0800 (PST)
-Subject: Re: [opensource] Re: Petition Against Official Endorsement of
- BitKeeper by Linux Maintainers
-In-Reply-To: <20020305230143.GB5538@matchmail.com>
-Message-ID: <Pine.LNX.4.44.0203051514380.20527-100000@dlang.diginsite.com>
+	id <S293151AbSCEXSF>; Tue, 5 Mar 2002 18:18:05 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:26498 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S293125AbSCEXRw>; Tue, 5 Mar 2002 18:17:52 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Hubertus Franke <frankeh@watson.ibm.com>
+Reply-To: frankeh@watson.ibm.com
+Organization: IBM Research
+To: Davide Libenzi <davidel@xmailserver.org>,
+        Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
+Date: Tue, 5 Mar 2002 18:16:57 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0203051433400.1475-100000@blue1.dev.mcafeelabs.com>
+In-Reply-To: <Pine.LNX.4.44.0203051433400.1475-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020305231747.5F95B3FE06@smtp.linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Mar 2002, Mike Fedyk wrote:
-
-> On Tue, Mar 05, 2002 at 05:40:59PM -0500, Colin Walters wrote:
-> > On Tue, 2002-03-05 at 17:41, Jeff V. Merkey wrote:
-> > > It's none of your
-> > > f_cking business what we use to develop software.  I use a hardware
-> > > American Arium logic analyzer and a proprietary Linux kernel
-> > > debugger.  Should people be boycotted when they use hardware
-> > > analyzers to debug hardware and software with Linux.
-> >
-> > You apparently missed the fact that the the petition was not against the
-> > *use* of proprietary software at all.  In fact, we explicitly mentioned
-> > that everyone is free to make that choice individually.  What the
-> > petition is against is the *advocacy* of the proprietary BitKeeper
-> > software by the kernel maintainers.
-> >
+On Tuesday 05 March 2002 05:39 pm, Davide Libenzi wrote:
+> On Tue, 5 Mar 2002, Rusty Russell wrote:
+> > +	pos_in_page = ((unsigned long)uaddr) % PAGE_SIZE;
+> > +
+> > +	/* Must be "naturally" aligned, and not on page boundary. */
+> > +	if ((pos_in_page % __alignof__(atomic_t)) != 0
+> > +	    || pos_in_page + sizeof(atomic_t) > PAGE_SIZE)
+> > +		return -EINVAL;
 >
-> Use is another way of advocacy.  When you start using something, you get
-> used to it, and when you talk to others, you end up advocating it because
-> it's what you're used to, and probably other options aren't as good (to you).
+> How can this :
 >
-> IIRC, bitkeeper, is open source.  It just doesn't have a free license.  I
-> could be wrong(I haven't checked).  If I am, someone will say so...
+> 	(pos_in_page % __alignof__(atomic_t)) != 0
+>
+> to be false, and together this :
+>
+> 	pos_in_page + sizeof(atomic_t) > PAGE_SIZE
+>
+> to be true ?
+> This is enough :
+>
+> 	if ((pos_in_page % __alignof__(atomic_t)) != 0)
+>
+>
 
-In addition the metadata is in the SCCS format for compatability (there
-may be extra data but it's just in text format and has no equivalent on
-the other source control systems)
+I believe not all machine have  alignof  == sizeof
+>
+>
+> - Davide
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-David Lang
+-- 
+-- Hubertus Franke  (frankeh@watson.ibm.com)

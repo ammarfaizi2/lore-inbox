@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271092AbUJUXLX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271080AbUJUXRQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271092AbUJUXLX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 19:11:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271030AbUJUXEy
+	id S271080AbUJUXRQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 19:17:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271101AbUJUXPe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 19:04:54 -0400
-Received: from fw.osdl.org ([65.172.181.6]:41936 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S271077AbUJUW7O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 18:59:14 -0400
-Date: Thu, 21 Oct 2004 16:02:33 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: shaggy@austin.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] zap_pte_range should not mark non-uptodate pages dirty
-Message-Id: <20041021160233.68a84971.akpm@osdl.org>
-In-Reply-To: <20041021223613.GA8756@dualathlon.random>
-References: <1098393346.7157.112.camel@localhost>
-	<20041021144531.22dd0d54.akpm@osdl.org>
-	<20041021223613.GA8756@dualathlon.random>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 21 Oct 2004 19:15:34 -0400
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:25607 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S271077AbUJUXHL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 19:07:11 -0400
+Date: Thu, 21 Oct 2004 16:06:29 -0700
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Bill Huey <bhuey@lnxw.com>, Jens Axboe <axboe@suse.de>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Ingo Molnar <mingo@elte.hu>,
+       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
+Message-ID: <20041021230629.GB25779@nietzsche.lynx.com>
+References: <1098350190.26758.24.camel@thomas> <20041021095344.GA10531@suse.de> <1098352441.26758.30.camel@thomas> <20041021101103.GC10531@suse.de> <20041021195842.GA23864@nietzsche.lynx.com> <20041021201443.GF32465@suse.de> <20041021202422.GA24555@nietzsche.lynx.com> <20041021203350.GK32465@suse.de> <20041021203821.GA24628@nietzsche.lynx.com> <1098391421.27089.83.camel@thomas>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1098391421.27089.83.camel@thomas>
+User-Agent: Mutt/1.5.6+20040907i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@novell.com> wrote:
->
-> On Thu, Oct 21, 2004 at 02:45:31PM -0700, Andrew Morton wrote:
-> > Maybe we should revisit invalidate_inode_pages2().  It used to be an
-> > invariant that "pages which are mapped into process address space are
-> > always uptodate".  We broke that (good) invariant and we're now seeing
-> > some fallout.  There may be more.
+On Thu, Oct 21, 2004 at 10:43:41PM +0200, Thomas Gleixner wrote:
+> Hey, let's stop this here.
 > 
-> such invariant doesn't exists since 2.4.10. There's no way to get mmaps
-> reload data from disk without breaking such an invariant.
-
-There are at least two ways:
-
-a) Set a new page flag in invalidate, test+clear that at fault time
-
-b) shoot down all pte's mapping the locked page at invalidate time, mark the
-   page not uptodate.
-
-The latter is complex but has the advantage of fixing the current
-half-assed situation wherein existing mmaps are seeing invalidated data.
-
-> It's not even
-> for the write side, it's buffered read against O_DIRECT write that
-> requires breaking such invariant.
+> You are both (in)correct :)
 > 
-> Either you fix it the above way, or you remove the BUG() in pdflush and
-> you simply clear the dirty bit without doing anything, both are fine,
-> peraphs we should do both, but the above is good to have anyways since
-> it's more efficient to not even show the not uptodate pages to pdflush.
+> 1. It makes no sense to discuss, why X has been considered correct for
+> time T.
+> 
+> 2. Counted semaphores are a valid use and should be marked explicit as
+> counted semaphores.
+> 
+> 3. Using mutexes and semaphores for event and completion signalling
+> should be converted to the appropriate interfaces. 
+> 
+> A bunch of work, but not really hard.
 
-We could just remove the BUG in mpage_writepage() (which I assume is the
-one which was being hit) but we might still have a not uptodate page with
-uptodate buffers and I suspect that the kernel will either go BUG there
-instead or will bring the page uptodate again without performing any I/O. 
-But I haven't checked that.
+What's the verdict ? leave the lock detector alone or change it ?
+
+bill
+

@@ -1,30 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267450AbTACHmZ>; Fri, 3 Jan 2003 02:42:25 -0500
+	id <S267452AbTACHsD>; Fri, 3 Jan 2003 02:48:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267452AbTACHmZ>; Fri, 3 Jan 2003 02:42:25 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:54177 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S267450AbTACHmY>; Fri, 3 Jan 2003 02:42:24 -0500
-From: Richard Stallman <rms@gnu.org>
-To: efault@gmx.de
-CC: Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org
-In-reply-to: <5.1.1.6.2.20030103015917.00ccb3e0@pop.gmx.net> (message from
-	Mike Galbraith on Fri, 03 Jan 2003 02:01:33 +0100)
+	id <S267456AbTACHsD>; Fri, 3 Jan 2003 02:48:03 -0500
+Received: from coffee.Psychology.mcmaster.ca ([130.113.218.59]:45723 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S267452AbTACHsC>; Fri, 3 Jan 2003 02:48:02 -0500
+Date: Fri, 3 Jan 2003 02:56:20 -0500 (EST)
+From: Mark Hahn <hahn@physics.mcmaster.ca>
+X-X-Sender: hahn@coffee.psychology.mcmaster.ca
+To: linux-kernel@vger.kernel.org
+cc: Richard Stallman <rms@gnu.org>
 Subject: Re: Nvidia and its choice to read the GPL "differently"
-Reply-to: rms@gnu.org
-References: <5.1.1.6.2.20030101084621.00cdf9f8@pop.gmx.net>
- <5.1.1.6.2.20030101084621.00cdf9f8@pop.gmx.net> <5.1.1.6.2.20030103015917.00ccb3e0@pop.gmx.net>
-Message-Id: <E18UMbU-0001cu-00@fencepost.gnu.org>
-Date: Fri, 03 Jan 2003 02:50:52 -0500
+In-Reply-To: <E18UMb1-0001Zo-00@fencepost.gnu.org>
+Message-ID: <Pine.LNX.4.44.0301030252480.25684-100000@coffee.psychology.mcmaster.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    >That's a colorful way of saying that Linux was developed by Linus
-    >Torvalds.
+> other programs for GNU that are not tools.  But GNU is not just a
+> collection of various programs; it's an operating system which in 1992
 
-    Nope, it was a colorful way of saying 'pbbbbt'  ;-)
-
-I am not sure what "pbbbt" means, so it's no wonder I misunderstood
-your message.
+GNU is a flag of convenience: there's little sign that the many people 
+who contribute to GNU projects share the depth of RMS's political zeal.
 

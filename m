@@ -1,72 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265791AbSLYAFt>; Tue, 24 Dec 2002 19:05:49 -0500
+	id <S265998AbSLYA67>; Tue, 24 Dec 2002 19:58:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265872AbSLYAFt>; Tue, 24 Dec 2002 19:05:49 -0500
-Received: from dialin-145-254-148-203.arcor-ip.net ([145.254.148.203]:52610
-	"HELO schottelius.net") by vger.kernel.org with SMTP
-	id <S265791AbSLYAFs>; Tue, 24 Dec 2002 19:05:48 -0500
-Date: Wed, 25 Dec 2002 00:12:26 +0000
-From: Nico Schottelius <schottelius@wdt.de>
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] 2.4 series: IDE driver
-Message-ID: <20021225001226.GA21252@schottelius.org>
-References: <20021223135846.GA1988@schottelius.org> <20021224235054.GA721@gallifrey>
+	id <S266010AbSLYA67>; Tue, 24 Dec 2002 19:58:59 -0500
+Received: from f134.law7.hotmail.com ([216.33.237.134]:53768 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S265998AbSLYA65>;
+	Tue, 24 Dec 2002 19:58:57 -0500
+X-Originating-IP: [198.70.229.121]
+From: "Randy S." <hey_randy@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: nForce2 chipset and agpgart: unsupported bridge?
+Date: Tue, 24 Dec 2002 20:07:05 -0500
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="sdtB3X0nJg68CQEu"
-Content-Disposition: inline
-In-Reply-To: <20021224235054.GA721@gallifrey>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux flapp 2.5.52
+Content-Type: text/plain; format=flowed
+Message-ID: <F1342cBQnBJxjjK7bsv00012080@hotmail.com>
+X-OriginalArrivalTime: 25 Dec 2002 01:07:05.0432 (UTC) FILETIME=[F09F2D80:01C2ABB1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ok, let's try a different tack then...
 
---sdtB3X0nJg68CQEu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Suppose I were to try to add the nForce2 support myself...
+
+I'm aware of the following considerations:
+
+1) agpgart has been somewhat redesigned for kernel 2.5.X. I'm not ready to 
+tackle that aspect yet.
+2) Since they want everyone to use their cards, its doubtful that nvidia 
+will give me any help in this task.
+3) I have limited knowledge of the AGP and PCI specifications
+4) I can always buy a new board if this one fries... :-p
 
 
-Dr. David Alan Gilbert [Tue, Dec 24, 2002 at 11:50:54PM +0000]:
-> * Nico Schottelius (schottelius@wdt.de) wrote:
->=20
-> > If I change the notebook it runs fine.
-> > If I change the harddisks it works fine.
-> > If I use 2.5 series kernels it works fine.
->=20
-> > ALI15X3: IDE controller at PCI slot 00:10.0
-> > ALI15X3: chipset revision 195
-> > ALI15X3: not 100% native mode: will probe irqs later
-> >     ide0: BM-DMA at 0x6050-0x6057, BIOS settings: hda:DMA, hdb:pio
-> >     ide1: BM-DMA at 0x6058-0x605f, BIOS settings: hdc:DMA, hdd:pio
->=20
-> I have heard it said that DMA on the ALI chipset is a bit touchy (not
-> sure if driver or hardware) - it is worth trying with the DMA off.
+I know I at least need the PCI device ID and a setup routine. The setup 
+routine needs to set lots of state structure fields to define the masks, 
+aperture, etc. I might also need some custom routines for this chipset, but 
+I don't know anything about that yet.
 
-dma works fine on all other constellations, but I will try it without
-dma as soon as 2.4.20 is compiled...
+Could anyone give me some guidelines on how I might go about finding this 
+data? Also, feel free to tell me if this a waste of time because someone 
+else is already doing it and/or its unfeasible without nvidia's help.
 
-Nico
+And as before, please CC me on any replies. I don't subscribe since my mail 
+service can't handle the this list's volume.
 
---=20
-Please send your messages pgp-signed and/or pgp-encrypted (don't encrypt ma=
-ils
-to mailing list!). If you don't know what pgp is visit www.gnupg.org.
-(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
+Thanks,
+   Randy Sharo
 
---sdtB3X0nJg68CQEu
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+>
+>The way I know it you must first of all build the nvagp modules
+>downloadable from nVidia's web site and use those instead of agpgart.
+>However, the snafu is that you must have an nVidia video card to go
+>along with it (or use the on-chipset crap video card.) So you're SOL i
+>think, at least until nvidia gets a bit less selfish.
+>
+>-Josh
+>
+>Rabid cheeseburgers forced "Randy S." <hey_randy@hotmail.com> to write
+>this on Tue, 24 Dec 2002 16:21:37 -0500:
+>
+> > Hi folks,
+> >
+> >   I recently acquired a motherboard with an NVidia nForce 2 chipset
+> >   (more
+> > specifically, its a Chaintech CT-7NJS). I have a Radeon 9700PRO video
+> > card that I'm running in this machine.  I've got integrated
+> > networking, sound, XFree86, etc. working, but am having trouble
+> > getting 3D acceleration to work.
+> >
+> >    My kernel is 2.4.19.  Agpgart does not appear to be able to detect
+> >    the
+> > nForce 2 chipset's bridge. There is no vendor entry for nvidia at all,
+> > actually -- otherwise I might have gotten by with
+> > agp_try_unsupported=1.
+> >
+> >    Has anyone written nForce2 support for agp? Is so, where can I find
+> >    the
+> > source?   I found drivers for the nvidia IGP (which I don't have), but
+> > not for agpgart itself at the nvidia site.  If I find the source, I
+> > believe I'll have to merge it manually since the 3D driver for Radeon
+> > 9700 (fglrx) includes a modified agpgart_be.c.
+> >
+> >     If this is not a new question, my apologies -- I couldn't find an
+> >     answer
+> > anywhere in the archives.
+> >
+> >    Please CC me directly on any reply, as I'm not currently
+> >    subscribed.
+> >
+> > Thanks!
+> >    Randy Sharo
+> >    hey_randy@hotmail.com
+> >
+> >
+> > _________________________________________________________________
+> > MSN 8: advanced junk mail protection and 3 months FREE*.
+> > 
+>http://join.msn.com/?page=features/junkmail&xAPID=42&PS=47575&PI=7324&DI=7474&SU=
+> > 
+>http://www.hotmail.msn.com/cgi-bin/getmsg&HL=1216hotmailtaglines_advancedjmf_3mf
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe
+> > linux-kernel" in the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>--
+>Joshua Kwan
+>joshk@mspencer.net
+>pgp public key at http://joshk.mspencer.net/pubkey_gpg.asc
+>
+>(13:59:00) Ted: my english teacher isn't all that smart when it comes to
+>telling the fruit of labor from that of the rectum
+>
+>"oh that's right! I'm not deleting a bob anymore, i'm deleting a duck!"
+>-vivek
+><< attach3 >>
 
-iD8DBQE+CPfqtnlUggLJsX0RApUSAJ0Ysllc57MGNUr7AjjgffIbEUw2oQCeKcyi
-WIMT0CIKMaOqc6FBUE5qdYM=
-=sRsb
------END PGP SIGNATURE-----
 
---sdtB3X0nJg68CQEu--
+_________________________________________________________________
+STOP MORE SPAM with the new MSN 8 and get 3 months FREE*. 
+http://join.msn.com/?page=features/junkmail&xAPID=42&PS=47575&PI=7324&DI=7474&SU= 
+http://www.hotmail.msn.com/cgi-bin/getmsg&HL=1216hotmailtaglines_stopmorespam_3mf
+

@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267782AbTAXQnD>; Fri, 24 Jan 2003 11:43:03 -0500
+	id <S267772AbTAXQjM>; Fri, 24 Jan 2003 11:39:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267784AbTAXQnD>; Fri, 24 Jan 2003 11:43:03 -0500
-Received: from host213-121-111-56.in-addr.btopenworld.com ([213.121.111.56]:57275
-	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
-	id <S267782AbTAXQnC>; Fri, 24 Jan 2003 11:43:02 -0500
-Subject: Re: Stack overflow
-From: Gianni Tedesco <gianni@ecsc.co.uk>
-To: Madhavi <madhavis@sasken.com>
-Cc: GrandMasterLee <masterlee@digitalroadkill.net>,
-       Linux Geek <bourne@ToughGuy.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0301242107480.2842-100000@pcz-madhavis.sasken.com>
-References: <Pine.LNX.4.33.0301242107480.2842-100000@pcz-madhavis.sasken.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-VhdF/8hTUhDa/xfp6qHJ"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 24 Jan 2003 16:52:27 +0000
-Message-Id: <1043427147.28766.6.camel@lemsip>
-Mime-Version: 1.0
+	id <S267773AbTAXQjM>; Fri, 24 Jan 2003 11:39:12 -0500
+Received: from ns0.cobite.com ([208.222.80.10]:62474 "EHLO ns0.cobite.com")
+	by vger.kernel.org with ESMTP id <S267772AbTAXQjL>;
+	Fri, 24 Jan 2003 11:39:11 -0500
+Date: Fri, 24 Jan 2003 11:48:22 -0500 (EST)
+From: David Mansfield <lkml@dm.cobite.com>
+X-X-Sender: david@admin
+To: Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>
+Subject: 2.5.59mm5, raid1 resync speed regression.
+Message-ID: <Pine.LNX.4.44.0301241141540.32240-100000@admin>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-VhdF/8hTUhDa/xfp6qHJ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Hi Andrew, list,
 
-On Fri, 2003-01-24 at 15:41, Madhavi wrote:
-> How can I solve this problem, supposing I can't avoid that function call?
-> Any pointers regarding this would be of great help for me.
+I'm booting 2.5.59mm5 to run a database workload benchmark that I've been
+running against various kernels.  I'll post those results if they are
+interesting later, but I did notice that the raid1 resync is proceeding at
+half the speed (at best) that it usually does (vs. 2.5.59 that is).
 
-post source code.
+It currently at about 4-8 mb/sec (and falling as resync progresses),
+usually at 12-15 mb/sec.
 
---=20
-// Gianni Tedesco (gianni at scaramanga dot co dot uk)
-lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
+System is SMP 2xPIII 866mhz, 2GB ram, raid1 is two 15k U160 (running only
+an Ultra speed :-( because the onboard controller sucks) SCSI disks, same
+channel on aic7xxx.
 
---=-VhdF/8hTUhDa/xfp6qHJ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Kernel is 2.5.59-mm5 compiled with gcc version 2.96 20000731 (Red Hat 
+Linux 7.3 2.96-112)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+David
 
-iD8DBQA+MW9KkbV2aYZGvn0RApkEAJ9iMQBmB7TeSUP4baw0TZt+x5ZPawCfcMQR
-ZgwsosrB47lY4EJg4esoLe0=
-=KYH/
------END PGP SIGNATURE-----
-
---=-VhdF/8hTUhDa/xfp6qHJ--
+-- 
+/==============================\
+| David Mansfield              |
+| lkml@dm.cobite.com           |
+\==============================/
 

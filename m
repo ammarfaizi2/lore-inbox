@@ -1,19 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265977AbUBJQOF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 11:14:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265973AbUBJQMo
+	id S265931AbUBJQbk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 11:31:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265998AbUBJQbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 11:12:44 -0500
-Received: from cabm.rutgers.edu ([192.76.178.143]:18955 "EHLO
-	lemur.cabm.rutgers.edu") by vger.kernel.org with ESMTP
-	id S265954AbUBJQM3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 11:12:29 -0500
-Date: Tue, 10 Feb 2004 11:12:25 -0500 (EST)
-From: Ananda Bhattacharya <anandab@cabm.rutgers.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel Fault 2.4.20 
-Message-ID: <Pine.LNX.4.58.0402101112050.16489@puma.cabm.rutgers.edu>
+	Tue, 10 Feb 2004 11:31:40 -0500
+Received: from fw.osdl.org ([65.172.181.6]:53151 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265931AbUBJQbj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 11:31:39 -0500
+Date: Tue, 10 Feb 2004 08:31:24 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: Jeff Chua <jchua@fedex.com>, jeffchua@silk.corp.fedex.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] warning: `__attribute_used__' redefined
+In-Reply-To: <20040210082514.04afde4a.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0402100827100.2128@home.osdl.org>
+References: <Pine.LNX.4.58.0402101434260.27213@boston.corp.fedex.com>
+ <20040209225336.1f9bc8a8.akpm@osdl.org> <Pine.LNX.4.58.0402102150150.17289@silk.corp.fedex.com>
+ <20040210082514.04afde4a.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,76 +27,18 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-There was a kernel fault today, I am not quite sure what 
-just happened, if anyone has any ideas and can point me in 
-the right direction.
-Thanks a lot 
+On Tue, 10 Feb 2004, Andrew Morton wrote:
+> 
+> ah, thanks.
+> 
+> Like this?
 
-	-A
+That will just break. The reason for the "compiler.h" include is the 
+"__user" part of fpstate, so now you'll get a parse error later if 
+non-kernel code includes this.
 
-Feb 10 08:04:34 n07 kernel: Unable to handle kernel paging 
-request at virtual address b70c1040
-Feb 10 08:04:34 n07 kernel:  printing eip:
-Feb 10 08:04:34 n07 kernel: c012cf87
-Feb 10 08:04:34 n07 kernel: *pde = 00000000
-Feb 10 08:04:34 n07 kernel: Oops: 0000 
-Feb 10 08:04:34 n07 kernel: nfs lockd sunrpc autofs 3c59x 
-bcm5700 ide-cd cdrom usb-ohci usbcore ext3 jbd raid1
-Feb 10 08:04:34 n07 kernel: CPU:    0
-Feb 10 08:04:34 n07 kernel: EIP:    0010:[<c012cf87>]    Not 
-tainted
-Feb 10 08:04:34 n07 kernel: EFLAGS: 00010286
-Feb 10 08:04:34 n07 kernel: 
-Feb 10 08:04:34 n07 kernel: EIP is at find_vma [kernel] 0x37 
-(2.4.20-20.7custom)
-Feb 10 08:04:34 n07 kernel: eax: f7649540   ebx: 07217a48   
-ecx: f7649540   edx: b70c1050
-Feb 10 08:04:34 n07 kernel: esi: f7736540   edi: c0116260   
-ebp: 07217a48   esp: f7143e10
-Feb 10 08:04:34 n07 kernel: ds: 0018   es: 0018   ss: 0018
-Feb 10 08:04:34 n07 kernel: Process pbs_mom (pid: 1100, 
-stackpage=f7143000)
-Feb 10 08:04:34 n07 kernel: Stack: f7736540 00000000 
-c01162ef f7736540 07217a48 c012b321 f7217ac0 f7142000
-Feb 10 08:04:34 n07 kernel:        f7142000 00000000 
-00000000 00030001 7fffffff f6eeb580 c02562d5 f6eeb580
-Feb 10 08:04:34 n07 kernel:        00000000 00000018 
-f75c0980 f6eeb580 ffffffec c1c40030 00000286 00000282
-Feb 10 08:04:34 n07 kernel: Call Trace:   [<c01162ef>] 
-do_page_fault [kernel] 0x8f (0xf7143e18))
-Feb 10 08:04:34 n07 kernel: [<c012b321>] do_wp_page [kernel] 
-0xc1 (0xf7143e24))
-Feb 10 08:04:34 n07 kernel: [<c02562d5>] unix_stream_connect 
-[kernel] 0x3c5 (0xf7143e48))
-Feb 10 08:04:34 n07 kernel: [<c020b57c>] sk_free [kernel] 
-0x6c (0xf7143e90))
-Feb 10 08:04:34 n07 kernel: [<c012c1f4>] handle_mm_fault 
-[kernel] 0x124 (0xf7143ea8))
-Feb 10 08:04:34 n07 kernel: [<c0116260>] do_page_fault 
-[kernel] 0x0 (0xf7143ebc))
-Feb 10 08:04:34 n07 kernel: [<c0108c54>] error_code [kernel] 
-0x34 (0xf7143ec4))
-Feb 10 08:04:34 n07 kernel: [<c0116260>] do_page_fault 
-[kernel] 0x0 (0xf7143ee0))
-Feb 10 08:04:34 n07 kernel: [<c012cf87>] find_vma [kernel] 
-0x37 (0xf7143ef8))
-Feb 10 08:04:34 n07 kernel: [<c01162ef>] do_page_fault 
-[kernel] 0x8f (0xf7143f0c))
-Feb 10 08:04:34 n07 kernel: [<c0208f70>] sock_release 
-[kernel] 0x10 (0xf7143f3c))
-Feb 10 08:04:34 n07 kernel: [<c02094df>] sock_close [kernel] 
-0x2f (0xf7143f48))
-Feb 10 08:04:34 n07 kernel: [<c0143a6a>] filp_open [kernel] 
-0x3a (0xf7143f70))
-Feb 10 08:04:34 n07 kernel: [<c014eb4d>] getname [kernel] 
-0x5d (0xf7143f90))
-Feb 10 08:04:34 n07 kernel: [<c0116260>] do_page_fault 
-[kernel] 0x0 (0xf7143fb0))
-Feb 10 08:04:34 n07 kernel: [<c0108c54>] error_code [kernel] 
-0x34 (0xf7143fb8))
-Feb 10 08:04:34 n07 kernel: 
-Feb 10 08:04:34 n07 kernel: 
-Feb 10 08:04:34 n07 kernel: Code: 39 5a f0 8d 42 e8 76 f1 39 
-5a ec 89 c1 77 e2 85 c9 74 03 89
-Feb 10 09:10:49 n07 syslogd 1.4.1: restart.
+So the rule should still be: don't include kernel headers from user 
+programs. But if it's needed for some reason, that #ifdef needs to be 
+somewhere else (inside "compiler.h" or something).
 
+		Linus

@@ -1,116 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbVDDJf5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVDDJiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261192AbVDDJf5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 05:35:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVDDJf5
+	id S261191AbVDDJiY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 05:38:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVDDJiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 05:35:57 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:32479 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261192AbVDDJfm convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 05:35:42 -0400
-From: "Yu, Luming" <luming.yu@intel.com>
-Reply-To: luming.yu@intel.com
-To: acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] 2.6.12-rc1-mm[1-3]: ACPI battery monitor does not work
-Date: Mon, 4 Apr 2005 17:34:23 +0800
-User-Agent: KMail/1.6.1
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, "LKML" <linux-kernel@vger.kernel.org>
-References: <200503291156.19112.rjw@sisk.pl> <200504011731.16467.luming.yu@intel.com> <200504011151.48468.rjw@sisk.pl>
-In-Reply-To: <200504011151.48468.rjw@sisk.pl>
-MIME-Version: 1.0
+	Mon, 4 Apr 2005 05:38:24 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:20684 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261194AbVDDJiD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 05:38:03 -0400
+Date: Mon, 4 Apr 2005 11:38:02 +0200
+From: Jan Kara <jack@suse.cz>
+To: John Madden <weez@freelists.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11, nfsd, log_do_checkpoint()
+Message-ID: <20050404093802.GC20219@atrey.karlin.mff.cuni.cz>
+References: <200504011927.19030.weez@freelists.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="h31gzZEtNLTqOjlF"
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200504041734.23178.luming.yu@intel.com>
+In-Reply-To: <200504011927.19030.weez@freelists.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please testing patch filed at
-http://bugzilla.kernel.org/show_bug.cgi?id=3851#c64
-My testing results on toshiba satellite M20 is:
 
-/proc/acpi/battery/BAT0#time cat state
-present:                 yes
-capacity state:          ok
-charging state:          charging
-present rate:            1500 mA
-remaining capacity:      4064 mAh
-present voltage:         15000 mV
+--h31gzZEtNLTqOjlF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-real    0m0.023s
-user    0m0.000s
-sys     0m0.020s
+  Hello!
 
-Thanks
-Luming
+> I woke up to a mostly-dead PE1850 this morning: 
+> 
+> Message from syslogd@storage at Fri Apr  1 06:19:14 2005 ...
+> storage kernel: Assertion failure in log_do_checkpoint() at 
+> fs/jbd/checkpoint.c:365: "drop_count != 0 || cleanup_ret != 0"
+> 
+> Message from syslogd@storage at Fri Apr  1 06:19:14 2005 ...
+> storage kernel: invalid operand: 0000 [1] SMP 
+> 
+> Full error:
+> 
+> Assertion failure in log_do_checkpoint() at fs/jbd/checkpoint.c:365: 
+> "drop_count != 0 || cleanup_ret != 0"
+  Could you try running a kernel with the attached patch? Are you able to
+reproduce the problem even with the patch?
 
-On Friday 01 April 2005 17:51, Rafael J. Wysocki wrote:
-> On Friday, 1 of April 2005 11:31, Yu, Luming wrote:
->  > On Thursday 31 March 2005 16:44, Rafael J. Wysocki wrote:
->  > > Hi,
->  > >
->  > > On Wednesday, 30 of March 2005 12:05, Rafael J. Wysocki wrote:
->  > > > On Wednesday, 30 of March 2005 07:53, Yu, Luming wrote:
->  > > > > On Tuesday 29 March 2005 17:56, Rafael J. Wysocki wrote:
->  > > > > > Hi,
->  > > > > >
->  > > > > > There is a problem on my box (Asus L5D, x86-64 kernel) with the
->  > > > > > ACPI battery driver in the 2.6.12-rc1-mm[1-3] kernels.  Namely,
->  > > > > > the battery monitor that I use (the kpowersave applet from SUSE
->  > > > > > 9.2) is no longer able to report the battery status (ie how much
->  > > > > > % it is loaded).  It can only check if the AC power is connected
->  > > > > > (if it is connected, kpowersave behaves as though there was no
->  > > > > > battery in the box, and if it is not connected, kpowersave
->  > > > > > always shows that the battery is 1% loaded).
->  > > > > >
->  > > > > > Also, there are big latencies on loading and accessing the
->  > > > > > battery module, but the module loads successfully and there's
->  > > > > > nothing suspicious in dmesg.
->  > > > > >
->  > > > > > Please let me know if you need any additional information.
->  > > > > >
->  > > > > > Greets,
->  > > > > > Rafael
->  > > > >
->  > > > > Could you just revert ec-mode patch, then retest?
->  > > >
->  > > > Could you please point me to it?
->  > >
->  > > I assume you mean the "Enable EC Burst Mode" patch at:
->  > >
->  > > http://linux-acpi.bkbits.net:8080/to-akpm/cset%401.2181.17.12?nav=inde
->  > >x.htm l|ChangeSet@-2w
->  > >
->  > > Anyway, reverting this patch helps. :-)
->  >
->  > Could you let me see Dmesg and  DSDT?
->
->  They are available at:
->
->  http://www.sisk.pl/kernel/050401/dmesg.out
->  http://www.sisk.pl/kernel/050401/dsdt
->
->  The dmesg output is from 2.6.12-rc1-mm4 with the patch reverted.
->
->  Greets,
->  Rafael
->
->
->  --
->  - Would you tell me, please, which way I ought to go from here?
->  - That depends a good deal on where you want to get to.
->                  -- Lewis Carroll "Alice's Adventures in Wonderland"
->
->
->  -------------------------------------------------------
->  This SF.net email is sponsored by Demarc:
->  A global provider of Threat Management Solutions.
->  Download our HomeAdmin security software for free today!
->  http://www.demarc.com/Info/Sentarus/hamr30
->  _______________________________________________
->  Acpi-devel mailing list
->  Acpi-devel@lists.sourceforge.net
->  https://lists.sourceforge.net/lists/listinfo/acpi-devel
+> ----------- [cut here ] --------- [please bite here ] ---------
+> Kernel BUG at checkpoint:365
+> invalid operand: 0000 [1] SMP
+> CPU 1
+> Modules linked in:
+> Pid: 212, comm: nfsd Not tainted 2.6.11-rc5
+
+<snip>
+
+> nfsd was serving out a pretty heavily-used (2.5-million page web site) ext3 
+> partition on the 1850's built-in LSI/MPT controller.  I'm able to duplicate 
+> this somewhat consistently by putting nfsd under heavy load (say, by deleting 
+> 20,000 files from a directory).
+> 
+> (Please Cc me on replies, I'm not subscribed.)
+
+								Honza
+
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs
+
+--h31gzZEtNLTqOjlF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="ext3-release-race.patch"
+
+linux-2.6.11-ext3-release-race.patch:
+ transaction.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+--- NEW FILE linux-2.6.11-ext3-release-race.patch ---
+--- linux-2.6.9/fs/jbd/transaction.c.=K0002=.orig
++++ linux-2.6.9/fs/jbd/transaction.c
+@@ -1812,10 +1812,10 @@ static int journal_unmap_buffer(journal_
+ 			JBUFFER_TRACE(jh, "checkpointed: add to BJ_Forget");
+ 			ret = __dispose_buffer(jh,
+ 					journal-&gt;j_running_transaction);
++			journal_put_journal_head(jh);
+ 			spin_unlock(&amp;journal-&gt;j_list_lock);
+ 			jbd_unlock_bh_state(bh);
+ 			spin_unlock(&amp;journal-&gt;j_state_lock);
+-			journal_put_journal_head(jh);
+ 			return ret;
+ 		} else {
+ 			/* There is no currently-running transaction. So the
+@@ -1826,10 +1826,10 @@ static int journal_unmap_buffer(journal_
+ 				JBUFFER_TRACE(jh, "give to committing trans");
+ 				ret = __dispose_buffer(jh,
+ 					journal-&gt;j_committing_transaction);
++				journal_put_journal_head(jh);
+ 				spin_unlock(&amp;journal-&gt;j_list_lock);
+ 				jbd_unlock_bh_state(bh);
+ 				spin_unlock(&amp;journal-&gt;j_state_lock);
+-				journal_put_journal_head(jh);
+ 				return ret;
+ 			} else {
+ 				/* The orphan record's transaction has
+@@ -1850,10 +1850,10 @@ static int journal_unmap_buffer(journal_
+ 					journal-&gt;j_running_transaction);
+ 			jh-&gt;b_next_transaction = NULL;
+ 		}
++		journal_put_journal_head(jh);
+ 		spin_unlock(&amp;journal-&gt;j_list_lock);
+ 		jbd_unlock_bh_state(bh);
+ 		spin_unlock(&amp;journal-&gt;j_state_lock);
+-		journal_put_journal_head(jh);
+ 		return 0;
+ 	} else {
+ 		/* Good, the buffer belongs to the running transaction.
+
+--h31gzZEtNLTqOjlF--

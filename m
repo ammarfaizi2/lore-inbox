@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbUEQTE5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262190AbUEQTGe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbUEQTE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 15:04:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbUEQTE4
+	id S262190AbUEQTGe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 15:06:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbUEQTGd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 15:04:56 -0400
-Received: from mail8.fw-bc.sony.com ([160.33.98.75]:54233 "EHLO
-	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
-	id S262176AbUEQTEy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 15:04:54 -0400
-Message-ID: <40A90D00.7000005@am.sony.com>
-Date: Mon, 17 May 2004 12:05:36 -0700
-From: Tim Bird <tim.bird@am.sony.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux kernel <linux-kernel@vger.kernel.org>
-Subject: ANNOUNCE: CE Linux Forum - Specification V1.0 draft
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 17 May 2004 15:06:33 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33942 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262190AbUEQTGZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 15:06:25 -0400
+Date: Mon, 17 May 2004 20:06:23 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Steven Cole <scole@lanl.gov>
+Cc: hugh@veritas.com, linux-kernel@vger.kernel.org, support@bitmover.com,
+       Linus Torvalds <torvalds@osdl.org>, Wayne Scott <wscott@bitmover.com>,
+       adi@bitmover.com, Andrew Morton <akpm@osdl.org>, wli@holomorphy.com,
+       lm@bitmover.com, "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: 1352 NUL bytes at the end of a page?
+Message-ID: <20040517190623.GV17014@parcelfarce.linux.theplanet.co.uk>
+References: <200405162136.24441.elenstev@mesatop.com> <Pine.LNX.4.58.0405162152290.25502@ppc970.osdl.org> <20040516231120.405a0d14.akpm@osdl.org> <20040517.085640.30175416.wscott@bitmover.com> <20040517151738.GA4730@thunk.org> <Pine.LNX.4.58.0405170820560.25502@ppc970.osdl.org> <20040517153736.GT17014@parcelfarce.linux.theplanet.co.uk> <E88DCF88-A827-11D8-A7EA-000A95CC3A8A@lanl.gov> <20040517174004.GU17014@parcelfarce.linux.theplanet.co.uk> <1084815598.26340.6.camel@spc0.esa.lanl.gov>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1084815598.26340.6.camel@spc0.esa.lanl.gov>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am writing to announce the availability of the first draft of
-the CE Linux Forum's first specification.  This specification
-represents the efforts of six different technical working groups
-over about the last 9 months.
+On Mon, May 17, 2004 at 11:39:58AM -0600, Steven Cole wrote:
+> Yes, seven of the 52 references to mmap in the strace output met
+> the above criteria: 
+> 
+>   old_mmap(0x4015f000, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x142000) = 0x4015f000
+>   old_mmap(0x40170000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x9000) = 0x40170000
+>   old_mmap(0x40180000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 4, 0x9000) = 0x40180000
+>   old_mmap(0x40191000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 4, 0x10000) = 0x40191000
+>   old_mmap(0x4019c000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 4, 0x7000) = 0x4019c000
+>   old_mmap(0x401a0000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 4, 0x3000) = 0x401a0000
+>   old_mmap(0x401af000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 4, 0xe000) = 0x401af000
 
-The specification is available at:
-http://tree.celinuxforum.org/docs/CELF_Specification_V_1_0_R1-1.pdf
+Shared libraries.  And no, those will never lead to any writes, no matter how
+you modify them (MAP_PRIVATE).  Which is the point, since that's where we
+are doing relocations and we definitely do not want that to hit the disk ;-)
 
-The specification is also available online, and individual pages
-may be viewed on the forum wiki, at:
-http://tree.celinuxforum.org/pubwiki/moin.cgi/FrontPage
-
-Included in the document are specifications or notes on technologies
-in the areas of:
-  - Bootup time reduction
-  - Power management
-  - Audio/Video/Graphics
-  - Realtime features
-  - System size reduction
-  - Security
-
-Please see the introduction of the document for more details on the
-scope and purpose of the document.  Some of the technologies mentioned
-in the document are already integrated into 2.6.  You should start
-to see others submitted here individually for your consideration
-in the near future.
-
-Please note that this draft has not yet been approved or ratified
-by the forum at this time.
-
-Any and all feedback is welcome, via either the forum's public
-mailing list at celinux-dev@tree.celinuxforum.org, or on this list.
-
-Thanks,
-
-=============================
-Tim Bird
-Architecture Group Co-Chair
-CE Linux Forum
-Senior Staff Engineer
-Sony Electronics
-E-mail: Tim.Bird@am.sony.com
-=============================
-
+IOW, we can remove writes of dirtied mmap'ed pages from consideration.

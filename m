@@ -1,63 +1,179 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261612AbSKKXFp>; Mon, 11 Nov 2002 18:05:45 -0500
+	id <S261530AbSKKXCN>; Mon, 11 Nov 2002 18:02:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261616AbSKKXFp>; Mon, 11 Nov 2002 18:05:45 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:45465 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261612AbSKKXFn>; Mon, 11 Nov 2002 18:05:43 -0500
-Subject: Re: Voyager subarchitecture for 2.5.46
-From: john stultz <johnstul@us.ibm.com>
-To: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Linus Torvalds <torvalds@transmeta.com>,
-       Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200211112249.gABMnux21337@localhost.localdomain>
-References: <200211112249.gABMnux21337@localhost.localdomain>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1037056339.6831.11.camel@localhost.localdomain>
+	id <S261550AbSKKXCN>; Mon, 11 Nov 2002 18:02:13 -0500
+Received: from gateway.microbits.com.au ([203.34.180.8]:8538 "HELO
+	EMAIL.stepney.microbits.com.au") by vger.kernel.org with SMTP
+	id <S261530AbSKKXCL>; Mon, 11 Nov 2002 18:02:11 -0500
+Date: Tue, 12 Nov 2002 09:48:13 +1030
+From: David Lloyd <dlloyd@microbits.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel Memory Errors (Debian Woody 2.4.18-bf2.4)
+Message-Id: <20021112094813.602c2dbb.dlloyd@microbits.com.au>
+Organization: Microbits
+X-Mailer: Sylpheed version 0.8.2 (GTK+ 1.2.10; i386-debian-linux-gnu)
+User-Agent: x-phone-number
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 11 Nov 2002 15:12:19 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+ boundary="Multipart_Tue__12_Nov_2002_09:48:13_+1030_08210318"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-11-11 at 14:49, J.E.J. Bottomley wrote:
-> johnstul@us.ibm.com said:
-> > We'd still need to go back and yank out the #ifdef CONFIG_X86_TSC'ed
-> > macros in profile.h and pksched.h or replace them w/ inlines that wrap
-> > the rdtsc calls w/ if(cpu_has_tsc && !tsc_disable) or some such line.
-> 
-> Actually, the best way to do this might be to vector the rdtsc calls through a 
-> function pointer (i.e. they return zero always if the TSC is disabled, or the 
-> TSC value if it's OK).  I think this might be better than checking the 
-> cpu_has_tsc flag in the code (well it's more expandable anyway, it won't be 
-> faster...)
+This is a multi-part message in MIME format.
 
-Sounds good, I'm planning on moving get_cycles to timer_opts, so how
-about using that?
+--Multipart_Tue__12_Nov_2002_09:48:13_+1030_08210318
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-> When the TSC code is sorted out on a per cpu basis, consumers are probably 
-> going to expect rdtsc to return usable values whatever CPU it is called on, so 
-> vectoring the calls now may help this.
 
-Yea, this is an ugly topic. I'm really not very enthusiastic about
-per-cpu tsc, because it doesn't necessarilly solve the problem on the
-few machines that can't use the global tsc implementation (such as the
-x440). True, many of the points Linus made about the current timer_tsc
-implementation are valid. It does need to be cleaned up further, and I
-have some patches to do so (I'll resend tomorrow, as I'm out sick
-today). We should be looking towards multi-frequency systems, and seeing
-what we can do to clean things up (ie: cpu_khz is global, etc). 
+I am experiencing some strange behaviour with Debian Woody. I have
+attached a log as plain text and the output of dmesg.
 
-If you are deadset on doing the percpu method, I'd strongly suggest
-creating a new timer_per_cpu_tsc timer_opt struct and implementing it
-there, rather then munging the existing code, which works well for most
-systems. 
+I suspect it may be faulty RAM.
 
-thanks
--john
+This occurs ONLY when I am in a KDE kdm managed X session and press
+ctrl+alt+f[1-6] to get to a virtual console. It's not always consistent
+but that's when it's most likely to happen.
 
+X disappears from underneath me as well.
+
+
+
+DSL
+--Multipart_Tue__12_Nov_2002_09:48:13_+1030_08210318
+Content-Type: text/plain;
+ name="logs.txt"
+Content-Disposition: attachment;
+ filename="logs.txt"
+Content-Transfer-Encoding: 7bit
+
+
+Nov 12 09:08:41 lothlorien kernel: memory : ca174cd0
+Nov 12 09:08:41 lothlorien kernel: memory : 00000000
+Nov 12 09:08:41 lothlorien kernel: memory : ca174410
+Nov 12 09:08:42 lothlorien kdm[4949]: session start failed
+Nov 12 09:08:43 lothlorien kernel: memory : ca174cd0
+
+--Multipart_Tue__12_Nov_2002_09:48:13_+1030_08210318
+Content-Type: application/octet-stream;
+ name="log.dmsg"
+Content-Disposition: attachment;
+ filename="log.dmsg"
+Content-Transfer-Encoding: base64
+
+CkxpbnV4IHZlcnNpb24gMi40LjE4LWJmMi40IChyb290QHpvbWJpZSkgKGdjYyB2ZXJzaW9uIDIu
+OTUuNCAyMDAxMTAwMiAoRGViaWFuIHByZXJlbGVhc2UpKSAjMSBTb24gQXByIDE0IDA5OjUzOjI4
+IENFU1QgMjAwMgpCSU9TLXByb3ZpZGVkIHBoeXNpY2FsIFJBTSBtYXA6CiBCSU9TLWU4MjA6IDAw
+MDAwMDAwMDAwMDAwMDAgLSAwMDAwMDAwMDAwMDlmYzAwICh1c2FibGUpCiBCSU9TLWU4MjA6IDAw
+MDAwMDAwMDAwOWZjMDAgLSAwMDAwMDAwMDAwMGEwMDAwIChyZXNlcnZlZCkKIEJJT1MtZTgyMDog
+MDAwMDAwMDAwMDBmMDAwMCAtIDAwMDAwMDAwMDAxMDAwMDAgKHJlc2VydmVkKQogQklPUy1lODIw
+OiAwMDAwMDAwMDAwMTAwMDAwIC0gMDAwMDAwMDAwZmVmMDAwMCAodXNhYmxlKQogQklPUy1lODIw
+OiAwMDAwMDAwMDBmZWYwMDAwIC0gMDAwMDAwMDAwZmVmMzAwMCAoQUNQSSBOVlMpCiBCSU9TLWU4
+MjA6IDAwMDAwMDAwMGZlZjMwMDAgLSAwMDAwMDAwMDBmZjAwMDAwIChBQ1BJIGRhdGEpCiBCSU9T
+LWU4MjA6IDAwMDAwMDAwZmZiMDAwMDAgLSAwMDAwMDAwMTAwMDAwMDAwIChyZXNlcnZlZCkKT24g
+bm9kZSAwIHRvdGFscGFnZXM6IDY1MjY0CnpvbmUoMCk6IDQwOTYgcGFnZXMuCnpvbmUoMSk6IDYx
+MTY4IHBhZ2VzLgp6b25lKDIpOiAwIHBhZ2VzLgpMb2NhbCBBUElDIGRpc2FibGVkIGJ5IEJJT1Mg
+LS0gcmVlbmFibGluZy4KRm91bmQgYW5kIGVuYWJsZWQgbG9jYWwgQVBJQyEKS2VybmVsIGNvbW1h
+bmQgbGluZTogYXV0byBCT09UX0lNQUdFPUxpbnV4IHJvIHJvb3Q9MzA1CkluaXRpYWxpemluZyBD
+UFUjMApEZXRlY3RlZCA4NTEuOTM3IE1IeiBwcm9jZXNzb3IuCkNvbnNvbGU6IGNvbG91ciBWR0Er
+IDgweDI1CkNhbGlicmF0aW5nIGRlbGF5IGxvb3AuLi4gMTY5Ny4zOCBCb2dvTUlQUwpNZW1vcnk6
+IDI1MzYzMmsvMjYxMDU2ayBhdmFpbGFibGUgKDE3ODNrIGtlcm5lbCBjb2RlLCA3MDM2ayByZXNl
+cnZlZCwgNTQ5ayBkYXRhLCAyODBrIGluaXQsIDBrIGhpZ2htZW0pCkRlbnRyeS1jYWNoZSBoYXNo
+IHRhYmxlIGVudHJpZXM6IDMyNzY4IChvcmRlcjogNiwgMjYyMTQ0IGJ5dGVzKQpJbm9kZS1jYWNo
+ZSBoYXNoIHRhYmxlIGVudHJpZXM6IDE2Mzg0IChvcmRlcjogNSwgMTMxMDcyIGJ5dGVzKQpNb3Vu
+dC1jYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDQwOTYgKG9yZGVyOiAzLCAzMjc2OCBieXRlcykK
+QnVmZmVyLWNhY2hlIGhhc2ggdGFibGUgZW50cmllczogMTYzODQgKG9yZGVyOiA0LCA2NTUzNiBi
+eXRlcykKUGFnZS1jYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDY1NTM2IChvcmRlcjogNiwgMjYy
+MTQ0IGJ5dGVzKQpDUFU6IEJlZm9yZSB2ZW5kb3IgaW5pdCwgY2FwczogMDM4M2ZiZmYgMDAwMDAw
+MDAgMDAwMDAwMDAsIHZlbmRvciA9IDAKQ1BVOiBMMSBJIGNhY2hlOiAxNkssIEwxIEQgY2FjaGU6
+IDE2SwpDUFU6IEwyIGNhY2hlOiAxMjhLCkNQVTogQWZ0ZXIgdmVuZG9yIGluaXQsIGNhcHM6IDAz
+ODNmYmZmIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwCkludGVsIG1hY2hpbmUgY2hlY2sgYXJj
+aGl0ZWN0dXJlIHN1cHBvcnRlZC4KSW50ZWwgbWFjaGluZSBjaGVjayByZXBvcnRpbmcgZW5hYmxl
+ZCBvbiBDUFUjMC4KQ1BVOiAgICAgQWZ0ZXIgZ2VuZXJpYywgY2FwczogMDM4M2ZiZmYgMDAwMDAw
+MDAgMDAwMDAwMDAgMDAwMDAwMDAKQ1BVOiAgICAgICAgICAgICBDb21tb24gY2FwczogMDM4M2Zi
+ZmYgMDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAwMDAKQ1BVOiBJbnRlbCBDZWxlcm9uIChDb3BwZXJt
+aW5lKSBzdGVwcGluZyAwYQpFbmFibGluZyBmYXN0IEZQVSBzYXZlIGFuZCByZXN0b3JlLi4uIGRv
+bmUuCkVuYWJsaW5nIHVubWFza2VkIFNJTUQgRlBVIGV4Y2VwdGlvbiBzdXBwb3J0Li4uIGRvbmUu
+CkNoZWNraW5nICdobHQnIGluc3RydWN0aW9uLi4uIE9LLgpDaGVja2luZyBmb3IgcG9wYWQgYnVn
+Li4uIE9LLgpQT1NJWCBjb25mb3JtYW5jZSB0ZXN0aW5nIGJ5IFVOSUZJWAplbmFibGVkIEV4dElO
+VCBvbiBDUFUjMApFU1IgdmFsdWUgYmVmb3JlIGVuYWJsaW5nIHZlY3RvcjogMDAwMDAwMDAKRVNS
+IHZhbHVlIGFmdGVyIGVuYWJsaW5nIHZlY3RvcjogMDAwMDAwMDAKVXNpbmcgbG9jYWwgQVBJQyB0
+aW1lciBpbnRlcnJ1cHRzLgpjYWxpYnJhdGluZyBBUElDIHRpbWVyIC4uLgouLi4uLiBDUFUgY2xv
+Y2sgc3BlZWQgaXMgODUxLjk0MjkgTUh6LgouLi4uLiBob3N0IGJ1cyBjbG9jayBzcGVlZCBpcyAx
+MDAuMjI4NCBNSHouCmNwdTogMCwgY2xvY2tzOiAxMDAyMjg0LCBzbGljZTogNTAxMTQyCkNQVTA8
+VDA6MTAwMjI3MixUMTo1MDExMjAsRDoxMCxTOjUwMTE0MixDOjEwMDIyODQ+Cm10cnI6IHYxLjQw
+ICgyMDAxMDMyNykgUmljaGFyZCBHb29jaCAocmdvb2NoQGF0bmYuY3Npcm8uYXUpCm10cnI6IGRl
+dGVjdGVkIG10cnIgdHlwZTogSW50ZWwKUENJOiBQQ0kgQklPUyByZXZpc2lvbiAyLjEwIGVudHJ5
+IGF0IDB4ZmIxMzAsIGxhc3QgYnVzPTEKUENJOiBVc2luZyBjb25maWd1cmF0aW9uIHR5cGUgMQpQ
+Q0k6IFByb2JpbmcgUENJIGhhcmR3YXJlClVua25vd24gYnJpZGdlIHJlc291cmNlIDI6IGFzc3Vt
+aW5nIHRyYW5zcGFyZW50ClBDSTogVXNpbmcgSVJRIHJvdXRlciBQSUlYIFs4MDg2LzI0MjBdIGF0
+IDAwOjFmLjAKTGludXggTkVUNC4wIGZvciBMaW51eCAyLjQKQmFzZWQgdXBvbiBTd2Fuc2VhIFVu
+aXZlcnNpdHkgQ29tcHV0ZXIgU29jaWV0eSBORVQzLjAzOQpJbml0aWFsaXppbmcgUlQgbmV0bGlu
+ayBzb2NrZXQKU3RhcnRpbmcga3N3YXBkClZGUzogRGlza3F1b3RhcyB2ZXJzaW9uIGRxdW90XzYu
+NC4wIGluaXRpYWxpemVkCkpvdXJuYWxsZWQgQmxvY2sgRGV2aWNlIGRyaXZlciBsb2FkZWQKdmdh
+MTZmYjogaW5pdGlhbGl6aW5nCnZnYTE2ZmI6IG1hcHBlZCB0byAweGMwMGEwMDAwCkNvbnNvbGU6
+IHN3aXRjaGluZyB0byBjb2xvdXIgZnJhbWUgYnVmZmVyIGRldmljZSA4MHgzMApmYjA6IFZHQTE2
+IFZHQSBmcmFtZSBidWZmZXIgZGV2aWNlCnB0eTogMjU2IFVuaXg5OCBwdHlzIGNvbmZpZ3VyZWQK
+U2VyaWFsIGRyaXZlciB2ZXJzaW9uIDUuMDVjICgyMDAxLTA3LTA4KSB3aXRoIE1BTllfUE9SVFMg
+U0hBUkVfSVJRIFNFUklBTF9QQ0kgZW5hYmxlZApSZWFsIFRpbWUgQ2xvY2sgRHJpdmVyIHYxLjEw
+ZQpibG9jazogMTI4IHNsb3RzIHBlciBxdWV1ZSwgYmF0Y2g9MzIKUkFNRElTSyBkcml2ZXIgaW5p
+dGlhbGl6ZWQ6IDE2IFJBTSBkaXNrcyBvZiA0MDk2SyBzaXplIDEwMjQgYmxvY2tzaXplClVuaWZv
+cm0gTXVsdGktUGxhdGZvcm0gRS1JREUgZHJpdmVyIFJldmlzaW9uOiA2LjMxCmlkZTogQXNzdW1p
+bmcgMzNNSHogc3lzdGVtIGJ1cyBzcGVlZCBmb3IgUElPIG1vZGVzOyBvdmVycmlkZSB3aXRoIGlk
+ZWJ1cz14eApQSUlYNDogSURFIGNvbnRyb2xsZXIgb24gUENJIGJ1cyAwMCBkZXYgZjkKUElJWDQ6
+IGNoaXBzZXQgcmV2aXNpb24gMQpQSUlYNDogbm90IDEwMCUgbmF0aXZlIG1vZGU6IHdpbGwgcHJv
+YmUgaXJxcyBsYXRlcgogICAgaWRlMDogQk0tRE1BIGF0IDB4ZjAwMC0weGYwMDcsIEJJT1Mgc2V0
+dGluZ3M6IGhkYTpETUEsIGhkYjpETUEKaGRhOiBTVDM0MDAxNkEsIEFUQSBESVNLIGRyaXZlCmhk
+YjogQ0QtUk9NIERyaXZlL0Y1RCwgQVRBUEkgQ0QvRFZELVJPTSBkcml2ZQppZGUwIGF0IDB4MWYw
+LTB4MWY3LDB4M2Y2IG9uIGlycSAxNApoZGE6IDc4MTY1MzYwIHNlY3RvcnMgKDQwMDIxIE1CKSB3
+LzIwNDhLaUIgQ2FjaGUsIENIUz00ODY1LzI1NS82MwpoZGI6IEFUQVBJIDQ4WCBDRC1ST00gZHJp
+dmUsIDEyOGtCIENhY2hlClVuaWZvcm0gQ0QtUk9NIGRyaXZlciBSZXZpc2lvbjogMy4xMgppZGUt
+ZmxvcHB5IGRyaXZlciAwLjk3LnN2ClBhcnRpdGlvbiBjaGVjazoKIGhkYTogaGRhMSBoZGEyIDwg
+aGRhNSBoZGE2IGhkYTcgaGRhOCBoZGE5ID4KRmxvcHB5IGRyaXZlKHMpOiBmZDAgaXMgMS40NE0K
+RkRDIDAgaXMgYSBwb3N0LTE5OTEgODIwNzcKTG9hZGluZyBJMk8gQ29yZSAtIChjKSBDb3B5cmln
+aHQgMTk5OSBSZWQgSGF0IFNvZnR3YXJlCkkyTyBjb25maWd1cmF0aW9uIG1hbmFnZXIgdiAwLjA0
+LgogIChDKSBDb3B5cmlnaHQgMTk5OSBSZWQgSGF0IFNvZnR3YXJlCmxvb3A6IGxvYWRlZCAobWF4
+IDggZGV2aWNlcykKQ29tcGFxIENJU1MgRHJpdmVyICh2IDIuNC41KQpzaXM5MDAuYzogdjEuMDgu
+MDIgMTEvMzAvMjAwMQpldGgwOiBTaVMgOTAwIEludGVybmFsIE1JSSBQSFkgdHJhbnNjZWl2ZXIg
+Zm91bmQgYXQgYWRkcmVzcyAxLgpldGgwOiBVc2luZyB0cmFuc2NlaXZlciBmb3VuZCBhdCBhZGRy
+ZXNzIDEgYXMgZGVmYXVsdApldGgwOiBTaVMgOTAwIFBDSSBGYXN0IEV0aGVybmV0IGF0IDB4YzAw
+MCwgSVJRIDExLCAwMDpkMDowOTo3Nzo2Mjo1MS4KSERMQyBzdXBwb3J0IG1vZHVsZSByZXZpc2lv
+biAxLjAyIGZvciBMaW51eCAyLjQKQ3Jvbnl4IEx0ZCwgU3luY2hyb25vdXMgUFBQIGFuZCBDSVND
+TyBIRExDIChjKSAxOTk0CkxpbnV4IHBvcnQgKGMpIDE5OTggQnVpbGRpbmcgTnVtYmVyIFRocmVl
+IEx0ZCAmIEphbiAiWWVueWEiIEthc3ByemFrLgppZGUtZmxvcHB5IGRyaXZlciAwLjk3LnN2ClBy
+b21pc2UgRmFzdHRyYWsodG0pIFNvZnR3YXJlcmFpZCBkcml2ZXIgMC4wM2JldGE6IE5vIHJhaWQg
+YXJyYXkgZm91bmQKSGlnaHBvaW50IEhQVDM3MCBTb2Z0d2FyZXJhaWQgZHJpdmVyIGZvciBsaW51
+eCB2ZXJzaW9uIDAuMDEKTm8gcmFpZCBhcnJheSBmb3VuZApTQ1NJIHN1YnN5c3RlbSBkcml2ZXIg
+UmV2aXNpb246IDEuMDAKUmVkIEhhdC9BZGFwdGVjIGFhY3JhaWQgZHJpdmVyLCBBcHIgMTQgMjAw
+MgpEQzM5MDogMCBhZGFwdGVycyBmb3VuZAozd2FyZSBTdG9yYWdlIENvbnRyb2xsZXIgZGV2aWNl
+IGRyaXZlciBmb3IgTGludXggdjEuMDIuMDAuMDE2Lgozdy14eHh4OiBObyBjYXJkcyB3aXRoIHZh
+bGlkIHVuaXRzIGZvdW5kLgpyZXF1ZXN0X21vZHVsZVtzY3NpX2hvc3RhZGFwdGVyXTogUm9vdCBm
+cyBub3QgbW91bnRlZApyZXF1ZXN0X21vZHVsZVtzY3NpX2hvc3RhZGFwdGVyXTogUm9vdCBmcyBu
+b3QgbW91bnRlZAppMm9fc2NzaS5jOiBWZXJzaW9uIDAuMC4xCiAgY2hhaW5fcG9vbDogMCBieXRl
+cyBAIGNmZWVjYzIwCiAgKDUxMiBieXRlIGJ1ZmZlcnMgWCA0IGNhbl9xdWV1ZSBYIDAgaTJvIGNv
+bnRyb2xsZXJzKQpORVQ0OiBMaW51eCBUQ1AvSVAgMS4wIGZvciBORVQ0LjAKSVAgUHJvdG9jb2xz
+OiBJQ01QLCBVRFAsIFRDUCwgSUdNUApJUDogcm91dGluZyBjYWNoZSBoYXNoIHRhYmxlIG9mIDIw
+NDggYnVja2V0cywgMTZLYnl0ZXMKVENQOiBIYXNoIHRhYmxlcyBjb25maWd1cmVkIChlc3RhYmxp
+c2hlZCAxNjM4NCBiaW5kIDE2Mzg0KQpORVQ0OiBVbml4IGRvbWFpbiBzb2NrZXRzIDEuMC9TTVAg
+Zm9yIExpbnV4IE5FVDQuMC4Ka2pvdXJuYWxkIHN0YXJ0aW5nLiAgQ29tbWl0IGludGVydmFsIDUg
+c2Vjb25kcwpFWFQzLWZzOiBtb3VudGVkIGZpbGVzeXN0ZW0gd2l0aCBvcmRlcmVkIGRhdGEgbW9k
+ZS4KVkZTOiBNb3VudGVkIHJvb3QgKGV4dDMgZmlsZXN5c3RlbSkgcmVhZG9ubHkuCkZyZWVpbmcg
+dW51c2VkIGtlcm5lbCBtZW1vcnk6IDI4MGsgZnJlZWQKQWRkaW5nIFN3YXA6IDQ5Nzk3Mmsgc3dh
+cC1zcGFjZSAocHJpb3JpdHkgLTEpCkVYVDMgRlMgMi40LTAuOS4xNywgMTAgSmFuIDIwMDIgb24g
+aWRlMCgzLDUpLCBpbnRlcm5hbCBqb3VybmFsCnVzYi5jOiByZWdpc3RlcmVkIG5ldyBkcml2ZXIg
+dXNiZGV2ZnMKdXNiLmM6IHJlZ2lzdGVyZWQgbmV3IGRyaXZlciBodWIKdXNiLXVoY2kuYzogJFJl
+dmlzaW9uOiAxLjI3NSAkIHRpbWUgMTA6Mjk6NDMgQXByIDE0IDIwMDIKdXNiLXVoY2kuYzogSGln
+aCBiYW5kd2lkdGggbW9kZSBlbmFibGVkClBDSTogRm91bmQgSVJRIDQgZm9yIGRldmljZSAwMDox
+Zi4yClBDSTogU2V0dGluZyBsYXRlbmN5IHRpbWVyIG9mIGRldmljZSAwMDoxZi4yIHRvIDY0CnVz
+Yi11aGNpLmM6IFVTQiBVSENJIGF0IEkvTyAweGQwMDAsIElSUSA0CnVzYi11aGNpLmM6IERldGVj
+dGVkIDIgcG9ydHMKdXNiLmM6IG5ldyBVU0IgYnVzIHJlZ2lzdGVyZWQsIGFzc2lnbmVkIGJ1cyBu
+dW1iZXIgMQpodWIuYzogVVNCIGh1YiBmb3VuZApodWIuYzogMiBwb3J0cyBkZXRlY3RlZAp1c2It
+dWhjaS5jOiB2MS4yNzU6VVNCIFVuaXZlcnNhbCBIb3N0IENvbnRyb2xsZXIgSW50ZXJmYWNlIGRy
+aXZlcgp1c2IuYzogcmVnaXN0ZXJlZCBuZXcgZHJpdmVyIGtleWJvYXJkCnVzYmtiZC5jOiA6VVNC
+IEhJRCBCb290IFByb3RvY29sIGtleWJvYXJkIGRyaXZlcgpodWIuYzogVVNCIG5ldyBkZXZpY2Ug
+Y29ubmVjdCBvbiBidXMxLzIsIGFzc2lnbmVkIGRldmljZSBudW1iZXIgMgpJbml0aWFsaXppbmcg
+VVNCIE1hc3MgU3RvcmFnZSBkcml2ZXIuLi4KdXNiLmM6IHJlZ2lzdGVyZWQgbmV3IGRyaXZlciB1
+c2Itc3RvcmFnZQo=
+
+--Multipart_Tue__12_Nov_2002_09:48:13_+1030_08210318--

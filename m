@@ -1,74 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUFVHxc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbUFVHzV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbUFVHxc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 03:53:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUFVHxc
+	id S261234AbUFVHzV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 03:55:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbUFVHzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 03:53:32 -0400
-Received: from mailgate1.siemens.ch ([194.204.64.131]:26496 "EHLO
-	mailgate1.siemens.ch") by vger.kernel.org with ESMTP
-	id S261232AbUFVHxa convert rfc822-to-8bit (ORCPT
+	Tue, 22 Jun 2004 03:55:21 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:7390 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261234AbUFVHzN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 03:53:30 -0400
-From: Marc Waeckerlin <Marc.Waeckerlin@siemens.com>
-Organization: Siemens Schweiz AG
-To: linux-kernel@vger.kernel.org
-Subject: Continue: psmouse.c - synaptics touchpad driver sync problem
-Date: Tue, 22 Jun 2004 09:52:59 +0200
-User-Agent: KMail/1.6
-X-Face: 9PH_I\aV;CM))3#)Xntdr:6-OUC=?fH3fC:yieXSa%S_}iv1M{;Mbyt%g$Q0+&K=uD9w$8bsceC[_/u\VYz6sBz[ztAZkg9R\txq_7]J_WO7(cnD?s#c>i60S
-MIME-Version: 1.0
+	Tue, 22 Jun 2004 03:55:13 -0400
+Date: Tue, 22 Jun 2004 09:56:23 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Keith Owens <kaos@sgi.com>
+Cc: Takao Indoh <indou.takao@soft.fujitsu.com>, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@muc.de>
+Subject: Re: [3/4] [PATCH]Diskdump - yet another crash dump function
+Message-ID: <20040622075623.GA16829@elte.hu>
+References: <20040617121356.GA24338@elte.hu> <1642.1087796771@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200406220953.01363.Marc.Waeckerlin@siemens.com>
-X-OriginalArrivalTime: 22 Jun 2004 07:53:05.0688 (UTC) FILETIME=[F3990180:01C4582D]
+In-Reply-To: <1642.1087796771@kao2.melbourne.sgi.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In May there was a posting Thorsten Hirsch and a patch reply by Dmitry 
-Torokhov that did not help Thorsten.
 
-I have exactely the same problem, and other people too. There's a thread on 
-this topic with a more detailed problem description at:
-http://www.linuxquestions.org/questions/showthread.php?s=&postid=1004645#post1004645
+* Keith Owens <kaos@sgi.com> wrote:
 
-The problem was pested regarding to Kernel 2.6.6, but an upgrade to Kernel 
-2.6.7 did not help me. My problem is even much worse:
- - The touchpad sometimes hangs and jumps.
- - Hitting on the touchpad does no more click the first button.
- - When I connect an external keyboard, the cursor somtimes jumps
-   around like crazy and clicks around like fool, even if I don't
-   click anything, but only move. When I then touch the keyboard,
-   the mouse becomes normal for a while - on SuSE kernel 2.6.5,
-   since. Since upgrade to kernel 2.6.7, does not become normal
-   any more.
- - Sometimes the keyboard fails too, that means the without touching
-   any key, a character is continually written, e.g. hundreds of "5"
-   appear on the xterm. If i hit a key, a completely other character
-   is printed, but not once but endlessly repeated.
- - Killing and restarting the X Server does not resolve the problem,
-   reboot is the only thing that works!
+> Don't forget live crash dumping. [...]
 
-It's really bad, I can't work anymore since I upgraded to SuSE 9.1 and kernel 
-2.6...
+it's still possible, you'll have to save/restore the timer table,
+instead of overwriting it.
 
-Kernel messages:
-
-A lot of during use of touch pad:
-- psmouse.c: TouchPad at isa0060/serio2/input0 lost sync at byte 1
-- psmouse.c: TouchPad at isa0060/serio2/input0 lost sync at byte 4
-
-When using the external mouse and the mouse jumps around (repeated 2-3 times):
-- atkbd.c: Spurious ACK on isa0060/serio0. Some program like XFree86, might be 
-trying access hardware directly
-- psmoouse.c: bad data from KBC - timeout
-
-
-I'm not subscribed to the kernel mailing list due to the heavy traffic. Please 
-CC me in your reply (marc dot waeckerlin at siemens dot com). Thank's.
-
-Regards
-Marc Wäckerlin
-marc.waeckerlin.org
+	Ingo

@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131131AbRCGSB1>; Wed, 7 Mar 2001 13:01:27 -0500
+	id <S131132AbRCGSF1>; Wed, 7 Mar 2001 13:05:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131134AbRCGSBR>; Wed, 7 Mar 2001 13:01:17 -0500
-Received: from npt12056206.cts.com ([216.120.56.206]:13316 "HELO
-	forty.spoke.nols.com") by vger.kernel.org with SMTP
-	id <S131131AbRCGSBD>; Wed, 7 Mar 2001 13:01:03 -0500
-Date: Wed, 7 Mar 2001 10:00:39 -0800 (PST)
-From: David Rees <drees@greenhydrant.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andreas Helke <andreas.helke@lionbioscience.com>,
-        <linux-kernel@vger.kernel.org>, <nfs@sourceforge.net>,
-        <sg_info@lionbioscience.com>, <kirschh@lionbioscienc.com>
-Subject: Re: [NFS] Re: :Redhat [Bug 30944] - Kernel 2.4.0 and Kernel 2.2.18:
- with some programs
-In-Reply-To: <E14ahiC-0001JG-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0103070940480.12048-100000@spoke>
+	id <S131137AbRCGSFS>; Wed, 7 Mar 2001 13:05:18 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:33266 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S131132AbRCGSFK>; Wed, 7 Mar 2001 13:05:10 -0500
+Date: Wed, 7 Mar 2001 15:04:00 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Oswald Buddenhagen <ob6@inf.tu-dresden.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: static scheduling - SCHED_IDLE?
+In-Reply-To: <20010307184000.A26594@ugly.wh8.tu-dresden.de>
+Message-ID: <Pine.LNX.4.33.0103071447340.1409-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Mar 2001, Alan Cox wrote:
+On Wed, 7 Mar 2001, Oswald Buddenhagen wrote:
 
-> > Unfortunately the missing files in directory listings from SGI Irix
-> > 6.5.9f NFS servers still persists with the  2.4 kernel - we used the
-> > kernel 2.4.0 kernel that came with the Redhat 7.1beta
-> > uname -a tells Linux test-ah1 2.4.0-0.99.11 #1 Wed Jan 24 16:07:17 EST
-> > 2001 i686 unknown
->
-> That is something I'd expect. I don't plan to merge the NFS changes into -ac
-> just yet. There are simply too many other things in 2.4 more important than
-> an Irix corner case right now.
->
-> Irix at least used to have an export option to do mappings to keep clients that
-> had 32/64bit inode problems happy. Do those help ?
+> i found, that linux is missing a static low-priority scheduling class
+> (or did i miss something? in this case feel free to stomp me into the
+> ground :).  it would be ideal for typical number-crunchers running in
+> the background like the different distributed.net-like clients.
 
-The 32bitclients option?  In my testing, it didn't change a thing.
+The problem with these things it that sometimes such a task may
+hold a lock, which can prevent higher-priority tasks from running.
 
-Interestingly, unlike the original bug report, I can't reproduce the bug
-on all systems, but once it's triggered, I can reliably reproduce it.  On
-one 2.4.2 system, one directory always fails to show up, on another, I
-can't reproduce the bug in any directory.  Sometimes no files end up
-missing, 1 file is missing, or 5-6 files are missing when doing a `ls *`
-vs `ls`.
+A solution would be to make sure that these tasks get at least one
+time slice every 3 seconds or so, so they can release any locks
+they might be holding and the system as a whole won't livelock.
 
-On 2.2.18, mounting with nfsvers=2 seems to fix the problem, on 2.4.2
-mounting with nfsvers=2 makes no difference.
+regards,
 
--Dave
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
 
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

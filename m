@@ -1,49 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264175AbUD0Pfv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264192AbUD0Pj1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264175AbUD0Pfv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 11:35:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264184AbUD0Pfu
+	id S264192AbUD0Pj1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 11:39:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264184AbUD0Pj0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 11:35:50 -0400
-Received: from mail.kroah.org ([65.200.24.183]:58778 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264175AbUD0Pfl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 11:35:41 -0400
-Date: Mon, 26 Apr 2004 16:55:55 -0700
-From: Greg KH <greg@kroah.com>
-To: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Pcihpd-discuss] [RFC] New sysfs tree for hotplug
-Message-ID: <20040426235555.GC24536@kroah.com>
-References: <20040415170939.0ff62618.tokunaga.keiich@jp.fujitsu.com> <20040416223436.GB21701@kroah.com> <20040423211816.152dc326.tokunaga.keiich@jp.fujitsu.com> <20040423200751.GA7990@kroah.com> <20040426145808.4ed2a7b0.tokunaga.keiich@jp.fujitsu.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040426145808.4ed2a7b0.tokunaga.keiich@jp.fujitsu.com>
-User-Agent: Mutt/1.5.6i
+	Tue, 27 Apr 2004 11:39:26 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:1546 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S264194AbUD0PiN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 11:38:13 -0400
+Message-ID: <408E7F53.5010602@techsource.com>
+Date: Tue, 27 Apr 2004 11:42:11 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Paul Jackson <pj@sgi.com>
+CC: root@chaos.analogic.com, joelja@darkwing.uoregon.edu, tytso@mit.edu,
+       miquels@cistron.nl, linux-kernel@vger.kernel.org
+Subject: Re: File system compression, not at the block layer
+References: <Pine.LNX.4.44.0404231300470.27087-100000@twin.uoregon.edu>	<Pine.LNX.4.53.0404231624010.1352@chaos> <20040423163420.43f55a90.pj@sgi.com>
+In-Reply-To: <20040423163420.43f55a90.pj@sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 26, 2004 at 02:58:08PM +0900, Keiichiro Tokunaga wrote:
+
+
+Paul Jackson wrote:
+
 > 
-> I think it depends on a hotplug driver that is invoked when writing to
-> a "eject" file.  In the board case, a board hotplug driver (I'm making) 
-> handles those CPUs, memory, and PCI slots on the board.  So my
-> story for board hotplug is:
+> To heck with disk compression - it's time for main memory compression.
 > 
->   - user checks/knows what resources are on the board (dependency)
->   - user writes to the "eject" file of the board properly (invocation)
 
-Why not make a program that does all of this from userspace?  It would
-turn off the proper CPUs, memory, and pci slots for a specific "board".
-Otherwise you are going to have to either:
-	- hook the current CPU, memory, and pci hotplug code to allow it
-	  to be called from within the kernel
-	- have your kernel code write to a the sysfs files from within
-	  kernelspace.
+I think nVidia and ATI chips do that with the Z buffer.  Definately 
+improves bandwidth utilization.
 
-Neither of which are acceptable things :(
-
-thanks,
-
-greg k-h

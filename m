@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132072AbRACEbj>; Tue, 2 Jan 2001 23:31:39 -0500
+	id <S132156AbRACEfU>; Tue, 2 Jan 2001 23:35:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132172AbRACEb3>; Tue, 2 Jan 2001 23:31:29 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:54424 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S132072AbRACEbZ>;
-	Tue, 2 Jan 2001 23:31:25 -0500
-Date: Tue, 2 Jan 2001 23:00:58 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Oops in prune_dcache (2.4.0-prerelease)
-In-Reply-To: <3A529F06.5BFA4229@Hell.WH8.TU-Dresden.De>
-Message-ID: <Pine.GSO.4.21.0101022248400.13824-100000@weyl.math.psu.edu>
+	id <S132176AbRACEfK>; Tue, 2 Jan 2001 23:35:10 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:17673 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S132156AbRACEfA>; Tue, 2 Jan 2001 23:35:00 -0500
+Message-ID: <3A52A4D0.8FF34531@Hell.WH8.TU-Dresden.De>
+Date: Wed, 03 Jan 2001 05:04:32 +0100
+From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+Organization: Dept. Of Computer Science, Dresden University Of Technology
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-prerelease i686)
+X-Accept-Language: en, de-DE
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Oops in prune_dcache (2.4.0-prerelease)
+In-Reply-To: <Pine.LNX.4.10.10101021946310.1024-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Jan 2001, Udo A. Steinberg wrote:
+Hi,
 
+Linus Torvalds wrote:
 > 
-> Hi Linus et. all
+> The strange thing is that 0x01000000 value, which almost certainly should
+> just be NULL. A one-bit error.
 > 
-> While under massive disk and cpu load, 2.4.0-prerelease produced
-> the following oops (decode see below)
- 
-> Unable to handle kernel paging request at virtual address 01000014
- 
-> Code;  c01419cc <prune_dcache+9c/120>   <=====
->    0:   8b 40 14                  movl   0x14(%eax),%eax   <=====
-> Code;  c01419cf <prune_dcache+9f/120>
->    3:   85 c0                     testl  %eax,%eax
-> Code;  c01419d1 <prune_dcache+a1/120>
->    5:   74 09                     je     10 <_EIP+0x10> c01419dc <prune_dcache+ac/120>
+> Now, I assume this machine has been historically stable, with no history
+> of memory corruption problems.. It's entirely possible (and likely) that
+> the one-bit error is due to some wild kernel pointer. Which makes this
+> _really_ hard to debug.
 
-dentry->d_op == 0x1000000 in dentry_iput(). 9:1 that you've got bit 24 flipped
-(i.e. it was supposed to be NULL and you are seeing an effect of hardware
-problem).
+Yes the machine is otherwise rock stable, not overclocked and memory timings
+are rather conservative. Before the oops the machine had been compiling some
+major application for like 5 hours and maybe the excessive stress kicked a
+bit somewhere - who knows.
 
+> I'll try to think about it some more, but I'd love to have more reports to
+> go on to try to find a pattern..
+
+That's one I can't reproduce. I've just run memtest86 over the entire ram
+and it doesn't show any oddities - which doesn't really rule out an
+occassional bit-flip due to neutrino storms though ;-)
+If someone else has seen something similar lately, it's time to speak up.
+
+-Udo.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261217AbTLHSli (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 13:41:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbTLHSli
+	id S261464AbTLHSpr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 13:45:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbTLHSpr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 13:41:38 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:30347 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261217AbTLHSlh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 13:41:37 -0500
-To: linux-kernel@vger.kernel.org
-Cc: Kendrick Hamilton <hamilton@sedsystems.ca>
-Subject: Re: Linux Kernel and GPL section 2c
-References: <3FD4BF6E.7070503@sedsystems.ca>
-From: Jeremy Maitin-Shepard <jbms@attbi.com>
-Date: Mon, 08 Dec 2003 13:43:32 -0500
-In-Reply-To: <3FD4BF6E.7070503@sedsystems.ca> (Kendrick Hamilton's message
- of "Mon, 08 Dec 2003 12:14:06 -0600")
-Message-ID: <87ptezgnfv.fsf@jay.local.invalid>
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.3.50 (gnu/linux)
+	Mon, 8 Dec 2003 13:45:47 -0500
+Received: from ns.transas.com ([193.125.200.2]:61705 "EHLO
+	harvester.transas.com") by vger.kernel.org with ESMTP
+	id S261464AbTLHSpp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 13:45:45 -0500
+Message-ID: <2E74F312D6980D459F3A05492BA40F8D0391B0EE@clue.transas.com>
+From: Andrew Volkov <Andrew.Volkov@transas.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: PROBLEM: possible proceses leak
+Date: Mon, 8 Dec 2003 21:45:17 +0300 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="koi8-r"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kendrick Hamilton <hamilton@sedsystems.ca> writes:
+Yes.
 
-> Hello all,
->     I noticed the discussion about linux kernel modules that happened last
->     week. I was wondering about something with regards to the linux kernel and
->     Section 2c of the GPL. Why doesn't the kernel on booting print something
->     about the kernel being free software licensed under the GPL, and shouldn't
->     it?
+And same bug in kernel/sched.c in ALL *_sleep_on
 
-Presumably, 1) the kernel as a whole is not a "modified" work, but
-rather at least parts of it are the original work, 2) it does not read
-commands interactively when run, 3) it does not normally print such
-announcements.
+Andrey
 
--- 
-Jeremy Maitin-Shepard
+==========================================================
+--- kernel/sched.c.old	2003-12-08 21:39:08.000000000 +0300
++++ kernel/sched.c	2003-12-08 21:40:19.000000000 +0300
+@@ -819,10 +819,8 @@
+ void interruptible_sleep_on(wait_queue_head_t *q)
+ {
+ 	SLEEP_ON_VAR
+-
+-	current->state = TASK_INTERRUPTIBLE;
+-
+ 	SLEEP_ON_HEAD
++	current->state = TASK_INTERRUPTIBLE;
+ 	schedule();
+ 	SLEEP_ON_TAIL
+ }
+@@ -831,9 +829,8 @@
+ {
+ 	SLEEP_ON_VAR
+ 
+-	current->state = TASK_INTERRUPTIBLE;
+-
+ 	SLEEP_ON_HEAD
++	current->state = TASK_INTERRUPTIBLE;
+ 	timeout = schedule_timeout(timeout);
+ 	SLEEP_ON_TAIL
+ 
+@@ -844,9 +841,8 @@
+ {
+ 	SLEEP_ON_VAR
+ 	
+-	current->state = TASK_UNINTERRUPTIBLE;
+-
+ 	SLEEP_ON_HEAD
++	current->state = TASK_UNINTERRUPTIBLE;
+ 	schedule();
+ 	SLEEP_ON_TAIL
+ }
+@@ -855,9 +851,8 @@
+ {
+ 	SLEEP_ON_VAR
+ 	
+-	current->state = TASK_UNINTERRUPTIBLE;
+-
+ 	SLEEP_ON_HEAD
++	current->state = TASK_UNINTERRUPTIBLE;
+ 	timeout = schedule_timeout(timeout);
+ 	SLEEP_ON_TAIL
+ 

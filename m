@@ -1,56 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265355AbSLWBJQ>; Sun, 22 Dec 2002 20:09:16 -0500
+	id <S265277AbSLWBQP>; Sun, 22 Dec 2002 20:16:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265446AbSLWBJQ>; Sun, 22 Dec 2002 20:09:16 -0500
-Received: from [209.195.52.121] ([209.195.52.121]:50609 "HELO
-	warden2b.diginsite.com") by vger.kernel.org with SMTP
-	id <S265355AbSLWBJP>; Sun, 22 Dec 2002 20:09:15 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Robert Love <rml@tech9.net>
-Cc: Con Kolivas <conman@kolivas.net>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Date: Sun, 22 Dec 2002 17:05:20 -0800 (PST)
-Subject: Re: [BENCHMARK] scheduler tunables with contest - starvation_limit
-In-Reply-To: <1040605610.2127.3.camel@icbm>
-Message-ID: <Pine.LNX.4.44.0212221703070.10806-100000@dlang.diginsite.com>
+	id <S265446AbSLWBQP>; Sun, 22 Dec 2002 20:16:15 -0500
+Received: from petasus.ch.intel.com ([143.182.124.5]:15072 "EHLO
+	petasus.ch.intel.com") by vger.kernel.org with ESMTP
+	id <S265277AbSLWBQO> convert rfc822-to-8bit; Sun, 22 Dec 2002 20:16:14 -0500
+content-class: urn:content-classes:message
+Subject: RE: [PATCH][2.4]  generic support for systems with more than 8 CPUs (1/2)
+Date: Sun, 22 Dec 2002 17:24:15 -0800
+Message-ID: <C8C38546F90ABF408A5961FC01FDBF1912E1B6@fmsmsx405.fm.intel.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+X-MS-Has-Attach: 
+Content-Transfer-Encoding: 7BIT
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH][2.4]  generic support for systems with more than 8 CPUs (1/2)
+Thread-Index: AcKp4GkE0rrhnhXPEde/HABQi2jWFgAP4QqQ
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6334.0
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "Van Maren, Kevin" <kevin.vanmaren@unisys.com>,
+       "William Lee Irwin III" <wli@holomorphy.com>,
+       "Christoph Hellwig" <hch@infradead.org>,
+       "James Cleverdon" <jamesclv@us.ibm.com>,
+       "John Stultz" <johnstul@us.ibm.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>
+Cc: "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>
+X-OriginalArrivalTime: 23 Dec 2002 01:24:15.0545 (UTC) FILETIME=[01CA7290:01C2AA22]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-one other thing that would be interesting to test on the osdl machines
-would be the effect of different filesystems.
 
-the origional set of tests were all done on reiserfs, it would be
-interesting to see if there is a difference between it and the others.
 
-David Lang
+> From: Martin J. Bligh [mailto:mbligh@aracnet.com]
+> > 1/2 : checking for xAPIC support in the system
+> 
+> OK, that looks pretty sane - one question:
+> 
+> > -		if ((clustered_apic_mode != CLUSTERED_APIC_XAPIC) &&
+> > +		if (!xapic_support &&
+> > +		    (clustered_apic_mode != CLUSTERED_APIC_XAPIC) &&
+> 
+> When does xapic_support differ from
+> (clustered_apic_mode == CLUSTERED_APIC_XAPIC) ?
+>
 
-On 22 Dec 2002, Robert Love wrote:
+They are quite different. 
+Infact CLUSTERED_APIC_XAPIC just means using physical APIC mode and is kind of a
+misnomer as xAPIC doesn't necessariy mean physical APIC mode. 
+xapic_support says whether xAPIC support is there or not. Then APICs 
+can be configured either in physical or logical modes. I mainly need this as
+with xAPIC support, we have:
+- LAPIC and IOAPIC have there own name space, 
+- max or 255 CPUS with 0xff as broadcast, as opposed to 0xf broadcast in case of no xAPIC
 
-> Date: 22 Dec 2002 20:06:51 -0500
-> From: Robert Love <rml@tech9.net>
-> To: Con Kolivas <conman@kolivas.net>
-> Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-> Subject: Re: [BENCHMARK] scheduler tunables with contest -
->     starvation_limit
->
-> On Thu, 2002-12-19 at 18:48, Con Kolivas wrote:
->
-> > osdl, contest, tunable - starvation limit on 2.5.52-mm1
->
-> Con, curiously, what is this OSDL hardware like?
->
-> One thing I always liked about your Contest runs were you did them on
-> your home machine, which was presumably fairly run-of-the-mill so we
-> could keep an eye on the low-end desktop machines.
->
-> 	Robert Love
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> Do you want to use a physical flat xapic mode for your stuff, or the
+> same clustered physical mode as the Summit stuff? If the latter, then
+> the new switch seems unnecessary ....
+
+Now I am getting a bit confused here. I am using physical mode with no clustering
+whatsoever. Thats what I felt even Summit was doing in 2.4.
+
+Thanks,
+-Venkatesh

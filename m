@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129771AbRA3CgR>; Mon, 29 Jan 2001 21:36:17 -0500
+	id <S129292AbRA3CuD>; Mon, 29 Jan 2001 21:50:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129143AbRA3Cf5>; Mon, 29 Jan 2001 21:35:57 -0500
-Received: from CPE-61-9-150-57.vic.bigpond.net.au ([61.9.150.57]:57218 "EHLO
-	elektra.higherplane.net") by vger.kernel.org with ESMTP
-	id <S129051AbRA3Cfq>; Mon, 29 Jan 2001 21:35:46 -0500
-Date: Tue, 30 Jan 2001 13:45:52 +1100
-From: john slee <indigoid@higherplane.net>
-To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux 2.4.0ac12
-Message-ID: <20010130134552.C3138@higherplane.net>
-In-Reply-To: <E14MIgn-0003G5-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <E14MIgn-0003G5-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Jan 26, 2001 at 11:53:54PM +0000
+	id <S129101AbRA3Ctn>; Mon, 29 Jan 2001 21:49:43 -0500
+Received: from shell.cyberus.ca ([209.195.95.7]:61110 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S129306AbRA3Ctc>;
+	Mon, 29 Jan 2001 21:49:32 -0500
+Date: Mon, 29 Jan 2001 21:48:40 -0500 (EST)
+From: jamal <hadi@cyberus.ca>
+To: Ion Badulescu <ionut@cs.columbia.edu>
+cc: Andrew Morton <andrewm@uow.edu.au>, lkml <linux-kernel@vger.kernel.org>,
+        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
+Subject: Re: sendfile+zerocopy: fairly sexy (nothing to do with ECN)
+In-Reply-To: <Pine.LNX.4.30.0101291621120.31713-100000@age.cs.columbia.edu>
+Message-ID: <Pine.GSO.4.30.0101292139170.29307-100000@shell.cyberus.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 26, 2001 at 11:53:54PM +0000, Alan Cox wrote:
-> 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
 
-> 2.4.0-ac11
 
-> o	Make de4x5 driver work				(Nathan Hand)
+On Mon, 29 Jan 2001, Ion Badulescu wrote:
 
-sure this wasn't ewrk3?  nathan posted a patch against ewrk3 driver a
-while back, but not de4x5...
+> 11.5kBps, quite consistently.
 
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0101.2/0259.html
+This gige card is really sick. Are you sure? Please double check.
 
-:-)
+>
+> I've tried it, but I'm not really sure what I can report. ttcp's
+> measurements are clearly misleading, so I used Andrew's cyclesoak instead.
+
+The ttcp CPU (times()) measurements are misleading. In particular when
+doing sendfile. All they say is how much time ttcp spent in kernel space
+vs user space. So all CPU measurement i have posted in the past
+should be considered bogus. It is interesting to note, however, that
+the trend reported by ttcp's CPU measurements as well as Andrew (and
+yourself) are similar;->
+But the point is: CPU is not the only measure that is of interest.
+Throughput is definetly one of those that is of extreme importance.
+100Mbps is not exciting. You seem to have gigE. I think your 11KB looks
+suspiciously wrong. Can you double check please?
+
+cheers,
+jamal
+
+PS:- another important parameter is latency, but that might not be as
+important in file serving (maybe in short file tranfers ala http).
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,74 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129562AbRAID2n>; Mon, 8 Jan 2001 22:28:43 -0500
+	id <S129383AbRAIDs5>; Mon, 8 Jan 2001 22:48:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129324AbRAID2f>; Mon, 8 Jan 2001 22:28:35 -0500
-Received: from ns.mtu.ru ([195.34.32.10]:51153 "HELO mtu.ru")
-	by vger.kernel.org with SMTP id <S129226AbRAID2V>;
-	Mon, 8 Jan 2001 22:28:21 -0500
-X-Recipient: linux-kernel@vger.kernel.org
-From: Dmitry Potapov <dpotapov@capitalsoft.com>
-Date: Tue, 9 Jan 2001 06:28:00 +0300
-To: linux-kernel@vger.kernel.org
-Subject: AHA1542 driver does not accept command-line options
-Message-ID: <20010109062800.A644@potapov.private>
+	id <S129561AbRAIDsr>; Mon, 8 Jan 2001 22:48:47 -0500
+Received: from kleopatra.acc.umu.se ([130.239.18.150]:60054 "EHLO
+	kleopatra.acc.umu.se") by vger.kernel.org with ESMTP
+	id <S129383AbRAIDsj>; Mon, 8 Jan 2001 22:48:39 -0500
+Date: Tue, 9 Jan 2001 04:48:34 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: "Michael D. Crawford" <crawford@goingware.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: FS callback routines
+Message-ID: <20010109044834.I4991@khan.acc.umu.se>
+In-Reply-To: <3A5A4958.CE11C79B@goingware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <3A5A4958.CE11C79B@goingware.com>; from crawford@goingware.com on Mon, Jan 08, 2001 at 11:12:24PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I switch to 2.4 kernel my SCSI card does not detect anymore,
-because AHA1542 driver does not accept kernel command-line options.
+On Mon, Jan 08, 2001 at 11:12:24PM +0000, Michael D. Crawford wrote:
 
-I send small patch to fix that.
+[snipped a lot of sane opinions]
+> While Be, Inc.'s implementation is closed-source, the design of the
+> BFS (_not_ "befs" as it is sometimes called) is explained in Practical
+> File System Design with the Be File System by Dominic Giampolo, ISBN
+> 1-55860-497-9.  Dominic has since left Be and I understand works at
+> Google now.
 
-I'm not subscribed at the kernel mail list, so please send any 
-question/answer to my personal mail address.
+The reason why BFS is often referred to as BeFS, is that there is a
+another file-system, far older than Be's filesystem AFAIK, called BFS;
+the SCO Unixware Boot File System, which is already supported in the
+Linux-kernel. Hence the misnomer BeFS. I think we should keep it that
+way to avoid confusion... After all, BeFS does indicate pretty well what
+file-system we mean, and other alternatives, such as be_bfs, or renaming
+SCO BFS to sco_bfs or similar feels awkward.
 
-Thanks,
-Dmitry Potapov
 
---- drivers/scsi/aha1542.c.orig	Thu Nov 23 20:33:36 2000
-+++ drivers/scsi/aha1542.c	Tue Jan  9 04:45:12 2001
-@@ -947,11 +947,12 @@
- 	return 0;
- }
- 
--/* called from init/main.c */
-+#ifndef MODULE
-+static int setup_idx = 0;
-+
- void __init aha1542_setup(char *str, int *ints)
- {
- 	const char *ahausage = "aha1542: usage: aha1542=<PORTBASE>[,<BUSON>,<BUSOFF>[,<DMASPEED>]]\n";
--	static int setup_idx = 0;
- 	int setup_portbase;
- 
- 	if (setup_idx >= MAXBOARDS) {
-@@ -1004,6 +1005,21 @@
- 
- 	++setup_idx;
- }
-+
-+static int __init do_setup(char *str)
-+{
-+	int ints[4];
-+
-+	int count=setup_idx;
-+
-+	get_options(str, sizeof(ints)/sizeof(int), ints);
-+	aha1542_setup(str,ints);
-+
-+	return count<setup_idx;
-+}
-+
-+__setup("aha1542=",do_setup);
-+#endif
- 
- /* return non-zero on detection */
- int aha1542_detect(Scsi_Host_Template * tpnt)
+/David Weinehall
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Project MCA Linux hacker        //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

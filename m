@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312299AbSCTXuv>; Wed, 20 Mar 2002 18:50:51 -0500
+	id <S312300AbSCTXuv>; Wed, 20 Mar 2002 18:50:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312300AbSCTXug>; Wed, 20 Mar 2002 18:50:36 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:38662 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S312297AbSCTXuE>; Wed, 20 Mar 2002 18:50:04 -0500
-Date: Wed, 20 Mar 2002 19:44:27 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Gerd Knorr <kraxel@bytesex.org>
-Cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-pre4: zr36067.c needs update?
-In-Reply-To: <E16nq2a-0003l4-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0203201944010.9234-100000@freak.distro.conectiva>
+	id <S312301AbSCTXun>; Wed, 20 Mar 2002 18:50:43 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46353 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S312299AbSCTXuc>; Wed, 20 Mar 2002 18:50:32 -0500
+Subject: Re: Linux 2.4.19-pre4: pdcadma.c still missing ?
+To: eyal@eyal.emu.id.au (Eyal Lebedinsky)
+Date: Thu, 21 Mar 2002 00:06:32 +0000 (GMT)
+Cc: marcelo@conectiva.com.br (Marcelo Tosatti),
+        linux-kernel@vger.kernel.org (lkml)
+In-Reply-To: <3C99168A.F30EB8D6@eyal.emu.id.au> from "Eyal Lebedinsky" at Mar 21, 2002 10:08:58 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16nq6C-0003m2-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Geert, 
-
-Is the new API really backwards compatible ? ;)
-
-On Thu, 21 Mar 2002, Alan Cox wrote:
-
-> > /data2/usr/local/src/linux-2.4-pre/include/linux/modversions.h 
-> > -DKBUILD_BASENAME=zr36067  -c -o zr36067.o zr36067.c
-> > zr36067.c: In function `zoran_open':
-> > zr36067.c:3268: structure has no member named `busy'
-> > zr36067.c: At top level:
+> > So here goes pre4, now with a much more detailed changelog...
 > 
-> Revert the video4linux changes - I played with them briefly and found
-> the same problem - they break most of the drivers.
+> Or maybe the makefile should not include it?
 > 
+> ld: cannot open pdcadma.o: No such file or directory
+> make[3]: *** [ide-mod.o] Error 1
+> make[3]: Leaving directory
 
+It should be comemnted out in the Config.in file for that directory. I
+sent that diff, must have escaped the merge. Grab it from -ac

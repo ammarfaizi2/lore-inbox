@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272021AbRH2SSD>; Wed, 29 Aug 2001 14:18:03 -0400
+	id <S272036AbRH2SWZ>; Wed, 29 Aug 2001 14:22:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272036AbRH2SRx>; Wed, 29 Aug 2001 14:17:53 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:34551 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S272021AbRH2SRn>; Wed, 29 Aug 2001 14:17:43 -0400
-From: Andreas Dilger <adilger@turbolabs.com>
-Date: Wed, 29 Aug 2001 12:17:32 -0600
-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+	id <S272037AbRH2SWP>; Wed, 29 Aug 2001 14:22:15 -0400
+Received: from colombina.comedia.it ([213.246.1.10]:22029 "HELO
+	colombina.comedia.it") by vger.kernel.org with SMTP
+	id <S272036AbRH2SWF>; Wed, 29 Aug 2001 14:22:05 -0400
+Date: Wed, 29 Aug 2001 20:22:19 +0200
+From: Luca Berra <bluca@comedia.it>
+To: lvm-devel@sistina.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: fsck root fs: fsck, devfs, /proc/mounts miscooperate.
-Message-ID: <20010829121732.I24270@turbolinux.com>
-Mail-Followup-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <22075604.20010829095413@port.imtp.ilyichevsk.odessa.ua> <20010829021304.D24270@turbolinux.com> <6410958637.20010829151417@port.imtp.ilyichevsk.odessa.ua>
+Subject: VFS lock and 2.4.9ac
+Message-ID: <20010829202219.B6419@colombina.comedia.it>
+Reply-To: bluca@comedia.it
+Mail-Followup-To: lvm-devel@sistina.com, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <6410958637.20010829151417@port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.3.20i
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux colombina.comedia.it 2.2.19aa1 i586
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 29, 2001  15:14 +0300, VDA wrote:
-> Installed e2fsprogs 1.23. It does not print warning now on
-> "fsck /dev/scsi/host0/bus0/target1/lun0/part1"
-> However, it still cannot fs check root fs when given "fsck /" which I
-> really need in my init script. Now the only way to do root fs check
-> for me is to parse /proc/mounts and extract mount point for / via sed
-> (I have never used sed yet...).
-> 
-> # fsck /
-> Parallelizing fsck version 1.15 (18-Jul-1999)
-> e2fsck 1.15, 18-Jul-1999 for EXT2 FS 0.5b, 95/08/09
-> /sbin/e2fsck: Is a directory while trying to open /
+hello, i saw that patch 2.3.9ac moves mount_sem from fs/super.c to
+fs/namespace.c (it is devlared static), this has problems
+with VFS lock patch that is needed fro LVM snapshots and journaled fs
+which uses mount_sem in unlockfs()
+I believe the best way to fix this is moving unlockfs()
+to fs/namespace.c, but i am not 100% positive
+what would you suggest?
 
-That's because "/" is a directory and not a device.  fsck works with
-devices.  If you want to avoid specifying your root partition in
-/etc/fstab explicitly, then you can use an ext2 label instead.  Set
-the label on the filesystem with "tune2fs -L root <root_dev>", and
-then put "LABEL=root" in /etc/fstab instead of a device name.  This
-way if your root device gets moved around you are still OK.  This
-of course works with filesystems other than root as long as they are
-ext2/ext3/xfs (reiserfs does not have labels yet).
+L.
+(btw i am not on l-k, so please cc replies)
 
-Cheers, Andreas
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
-
+Luca Berra -- bluca@comedia.it
+        Communication Media & Services S.r.l.
+ /"\
+ \ /     ASCII RIBBON CAMPAIGN
+  X        AGAINST HTML MAIL
+ / \

@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263088AbUBNRbm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Feb 2004 12:31:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263475AbUBNRbm
+	id S263475AbUBNRlx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Feb 2004 12:41:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263486AbUBNRlx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Feb 2004 12:31:42 -0500
-Received: from delerium.kernelslacker.org ([81.187.208.145]:22661 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S263088AbUBNRbm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Feb 2004 12:31:42 -0500
-Date: Sat, 14 Feb 2004 17:28:39 +0000
-From: Dave Jones <davej@redhat.com>
-To: Christoph Hellwig <hch@lst.de>, Linus Torvalds <torvalds@osdl.org>,
-       jsimmons@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] back out fbdev sysfs support
-Message-ID: <20040214172839.GA2065@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Christoph Hellwig <hch@lst.de>, Linus Torvalds <torvalds@osdl.org>,
-	jsimmons@infradead.org, linux-kernel@vger.kernel.org
-References: <20040214165037.GA15985@lst.de> <Pine.LNX.4.58.0402140857520.13436@home.osdl.org> <20040214170600.GA16147@lst.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040214170600.GA16147@lst.de>
-User-Agent: Mutt/1.4.1i
+	Sat, 14 Feb 2004 12:41:53 -0500
+Received: from p68.rivermarket.wintek.com ([208.13.56.68]:3200 "EHLO dust")
+	by vger.kernel.org with ESMTP id S263475AbUBNRlw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Feb 2004 12:41:52 -0500
+Date: Sat, 14 Feb 2004 12:44:44 -0500 (EST)
+From: Alex Goddard <agoddard@purdue.edu>
+To: Greg KH <greg@kroah.com>
+Cc: Mike Bell <kernel@mikebell.org>, linux-kernel@vger.kernel.org
+Subject: Re: devfs vs udev, thoughts from a devfs user
+In-Reply-To: <20040214165444.GA26602@kroah.com>
+Message-ID: <Pine.LNX.4.58.0402141244050.3343@dust>
+References: <20040210113417.GD4421@tinyvaio.nome.ca> <20040210170157.GA27421@kroah.com>
+ <20040210171337.GK4421@tinyvaio.nome.ca> <20040210172552.GB27779@kroah.com>
+ <20040210174603.GL4421@tinyvaio.nome.ca> <20040210181242.GH28111@kroah.com>
+ <20040210182943.GO4421@tinyvaio.nome.ca> <20040213211920.GH14048@kroah.com>
+ <20040214085110.GG5649@tinyvaio.nome.ca> <20040214165444.GA26602@kroah.com>
+X-GPG-PUBLIC_KEY: N/a
+X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 14, 2004 at 06:06:00PM +0100, Christoph Hellwig wrote:
+On Sat, 14 Feb 2004, Greg KH wrote:
 
- > What I meant is that the FB maintainer should try to get the existing
- > fixes merged before adding dubious features.
+> Stop.  Go read http://ometer.com/hacking.com  
 
-Whilst on the subject, why does the fb code need sysfs support
-anyway ?
+ITYM http://ometer.com/hacking.html
 
-		Dave
+Good article.
+
+-- 
+Alex Goddard
+agoddard at purdue dot edu

@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263366AbTKASaq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Nov 2003 13:30:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263382AbTKASaq
+	id S263351AbTKASX2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Nov 2003 13:23:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263356AbTKASX2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Nov 2003 13:30:46 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:22416 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S263366AbTKASap
+	Sat, 1 Nov 2003 13:23:28 -0500
+Received: from mail7.speakeasy.net ([216.254.0.207]:59304 "EHLO
+	mail.speakeasy.net") by vger.kernel.org with ESMTP id S263351AbTKASX1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Nov 2003 13:30:45 -0500
-Message-ID: <3FA3FBCD.7070708@namesys.com>
-Date: Sat, 01 Nov 2003 21:30:37 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Sat, 1 Nov 2003 13:23:27 -0500
+From: Alexander Chacon <chacona@mechanus.org>
+Message-ID: <1067711134.659a9dpacz4s@webmail.mechanus.org>
+Date: Sat,  1 Nov 2003 12:25:34 -0600
+To: linux-kernel@vger.kernel.org
+Subject: Modular ipv4 inquiries...
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Herman <Herman@AerospaceSoftware.com>, linux-kernel@vger.kernel.org
-Subject: Re: Things that Longhorn seems to be doing right
-References: <3F9F7F66.9060008@namesys.com> <20031031193016.GA1546@thunk.org> <3FA2CA5E.3050308@namesys.com> <200310311359.50893.Herman@AerospaceSoftware.com> <Pine.LNX.4.53.0310311607300.21072@chaos>
-In-Reply-To: <Pine.LNX.4.53.0310311607300.21072@chaos>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+User-Agent: Internet Messaging Program (IMP) 4.0-cvs
+X-Originating-IP: 196.40.10.252
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good man!
+Hello!
 
-Richard B. Johnson wrote:
+I would like to know a few things about making the ipv4 code modular. I've been
+working on a school assignment that requires implementing tunneling, but first
+ipv4 must be modularized... it needs to be done using kernel 2.4.20
 
->
->
->Incidentally, I recently obtained a so-called identification
->badge that is now required for me to have access to my airplane.
->I purposely left the SS# entry blank when I filled out the
->form. This raised a stink that likely went all the way to the
->state house. I got the badge. It seems that a State Government,
->that has no business regulating air commerce, also wants to
->keep my SS# on hand for surveillance. You need to keep putting
->those attempts down.
->
->  
->
+I see Eric Schenk tried to do it on an earlier kernel version (
+http://www.cs-ipv6.lancs.ac.uk/ipv6/mail-archive/LinuxNetdev/1997-03/0218.html
+), a few years ago. What should I consider for a start, and how hard can it be
+in the end?
 
--- 
-Hans
+I've experienced a lot of undefined symbol references which are linked to core
+kernel files!, isn't there a way to access these symbols from the module into
+the kernel while executing?
 
-
+Thanks in advance
+Alexander Chacon

@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbVASE4C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbVASE6R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261573AbVASE4C (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 23:56:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVASE4C
+	id S261584AbVASE6R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 23:58:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbVASE6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 23:56:02 -0500
-Received: from colin2.muc.de ([193.149.48.15]:40210 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S261573AbVASEzy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 23:55:54 -0500
-Date: 19 Jan 2005 05:55:52 +0100
-Date: Wed, 19 Jan 2005 05:55:52 +0100
-From: Andi Kleen <ak@muc.de>
-To: akpm@osdl.org, torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Use -Wno-pointer-sign for gcc 4.0
-Message-ID: <20050119045552.GA77900@muc.de>
+	Tue, 18 Jan 2005 23:58:17 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:42768 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261578AbVASE5O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 23:57:14 -0500
+Date: Wed, 19 Jan 2005 05:57:11 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Gerd Knorr <kraxel@bytesex.org>, video4linux-list@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] #if 0 cx88_risc_disasm
+Message-ID: <20050119045711.GM1841@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch #if 0's the unused function cx88_risc_disasm.
 
-Compiling an allyesconfig kernel straight with a gcc 4.0 snapshot
-gives nearly 10k new warnings like:
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-warning: pointer targets in passing argument 5 of `cpuid' differ in signedness
+---
 
-Since the sheer number of these warnings was too much even for the 
-most determined kernel janitors (I actually asked ;-) and I don't
-think it's a very serious issue to have these mismatches I submitted
-an new option to gcc to disable it. It was incorporated in gcc mainline
-now. 
+diffstat output:
+ drivers/media/video/cx88/cx88-core.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-This patch makes the kernel compilation use it. There are still
-quite a lot of new warnings with 4.0 (mostly about uninitialized variables),
-but the compile log looks much nicer nnow.
+This patch was already sent on:
+- 10 Nov 2004
 
-Signed-off-by: Andi Kleen <ak@suse.de>
-
---- linux-2.6.11-rc1-bk4/Makefile-o	2005-01-17 10:39:39.000000000 +0100
-+++ linux-2.6.11-rc1-bk4/Makefile	2005-01-19 05:43:29.000000000 +0100
-@@ -533,6 +533,9 @@
- # warn about C99 declaration after statement
- CFLAGS += $(call cc-option,-Wdeclaration-after-statement,)
+--- linux-2.6.10-rc1-mm4-full/drivers/media/video/cx88/cx88-core.c.old	2004-11-10 02:46:36.000000000 +0100
++++ linux-2.6.10-rc1-mm4-full/drivers/media/video/cx88/cx88-core.c	2004-11-10 02:47:15.000000000 +0100
+@@ -462,6 +462,7 @@
+ 	return incr[risc >> 28] ? incr[risc >> 28] : 1;
+ }
  
-+# disable pointer signedness warnings in gcc 4.0
-+CFLAGS += $(call cc-option,-Wno-pointer-sign,)
-+
- # Default kernel image to build when no specific target is given.
- # KBUILD_IMAGE may be overruled on the commandline or
- # set in the environment
++#if 0
+ void cx88_risc_disasm(struct cx88_core *core,
+ 		      struct btcx_riscmem *risc)
+ {
+@@ -479,6 +480,8 @@
+ 			break;
+ 	}
+ }
++EXPORT_SYMBOL(cx88_risc_disasm);
++#endif
+ 
+ void cx88_sram_channel_dump(struct cx88_core *core,
+ 			    struct sram_channel *ch)
+@@ -1197,8 +1200,6 @@
+ EXPORT_SYMBOL(cx88_risc_stopper);
+ EXPORT_SYMBOL(cx88_free_buffer);
+ 
+-EXPORT_SYMBOL(cx88_risc_disasm);
+-
+ EXPORT_SYMBOL(cx88_sram_channels);
+ EXPORT_SYMBOL(cx88_sram_channel_setup);
+ EXPORT_SYMBOL(cx88_sram_channel_dump);
+

@@ -1,61 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267890AbUHRWAK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267904AbUHRWJT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267890AbUHRWAK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 18:00:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267891AbUHRWAK
+	id S267904AbUHRWJT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 18:09:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267934AbUHRWJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 18:00:10 -0400
-Received: from holomorphy.com ([207.189.100.168]:8890 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267890AbUHRWAE (ORCPT
+	Wed, 18 Aug 2004 18:09:19 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:46983 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267904AbUHRWJR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 18:00:04 -0400
-Date: Wed, 18 Aug 2004 15:00:01 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "David S. Miller" <davem@redhat.com>, pj@sgi.com,
+	Wed, 18 Aug 2004 18:09:17 -0400
+Message-ID: <41247C40.5DB76262@us.ibm.com>
+Date: Thu, 19 Aug 2004 05:09:04 -0500
+From: "Steve French (IBM LTC)" <smfltc@us.ibm.com>
+X-Mailer: Mozilla 4.72 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-cifs-client@lists.samba.org, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: Does io_remap_page_range() take 5 or 6 args?
-Message-ID: <20040818220001.GN11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"David S. Miller" <davem@redhat.com>, pj@sgi.com,
-	linux-kernel@vger.kernel.org
-References: <20040818133348.7e319e0e.pj@sgi.com> <20040818205338.GF11200@holomorphy.com> <20040818135638.4326ca02.davem@redhat.com> <20040818210503.GG11200@holomorphy.com> <20040818143029.23db8740.davem@redhat.com> <20040818214026.GL11200@holomorphy.com>
-Mime-Version: 1.0
+Subject: re: Problem with CIFS
+References: <20040818120033.9DD101638C1@lists.samba.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040818214026.GL11200@holomorphy.com>
-User-Agent: Mutt/1.5.6+20040722i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 18, 2004 at 02:30:29PM -0700, David S. Miller wrote:
->> Does not work on a system who has more physical address bits
->> than 32 + PAGE_SHIFT
->> Sparc32 does not fall into this category... but some other
->> might.
+> I was trying to use CIFS, but it failed to mount my samba shares
+> whereas mounting a share of a Win2K PC worked.   <snip>
+> In fs/cifs/cifssmb.c around line 238 the cifs modul expects a 16 Byte
+> GUID, where samba only send 14 bytes consisting of some random
+> numbers followed by my workgroupname: WG.
+> So I to set my workgroupname to something longer with enabled me to
+> mount my share.
 
-On Wed, Aug 18, 2004 at 02:40:26PM -0700, William Lee Irwin III wrote:
-> All extant systems of this category I'm aware of are 32-bit kernels on
-> 64-bit machines, which we don't really support. Also, the assumption
-> that physical addresses are bounded by 1ULL << (BITS_PER_LONG + PAGE_SHIFT)
-> is made broadly elsewhere, particularly in pfn_to_page() and the like.
-> Making this assumption in remap_page_range() and io_remap_page_range()
-> would save the overhead of passing additional arguments and/or passing
-> 64-bit arguments on 32-bit machines. Using pgoff_t for pfn's may prove
-> useful for such systems, but it's highly doubtful the kernel will ever
-> be made clean for such or that they'll ever be brought to a usable state.
+This is caused by an interesting bug in Samba, but one I should be able to
+workaround.  Basically Samba is setting a flag in the negotiate response saying
+    "I support extended security"
+which indicates that this frame should be decoded as if it contained an SPNEGO blob
+(ala RFC 2478) and a conflicting capability in the same frame which indicates
+    "I am not capable of extended security"
+The Samba server sets this SMB_FLAGS2_EXTENDED_SECURITY in the response even though
+the client said - no extended security (Windows gets this right).   Presumably all
+other smb/cifs clients either 1) negotiate extended security (this is turned off by
+default in the cifs vfs ie /proc/fs/cifs/ExtendedSecurity is zero)  or 2) don't
+check or don't care what is in the bcc area of the negprot response (which is the
+case for earlier clients)
 
-Or, if not pgoff_t, introduce a pfn_t for this purpose, an unsigned
-arithmetic type of architecture-dependent width (such systems may not
-want 64-bit page indices and the like for various reasons). But
-exhibiting a system with the need for such is yet to be done, and in
-fact, even with a 32B struct page, 16TB RAM (the minimum required to
-trigger more physical address bits >= BITS_PER_LONG + PAGE_SHIFT) has
-a 128GB mem_map[] with 4KB pages, an 8GB mem_map[] with 64KB pages,
-and so will have far, far deeper support issues than pfn overflows.
-Even supposing a kernel could be made to boot and the like, the massive
-internal fragmentation from using a large enough emulated PAGE_SIZE to
-get mem_map[] to fit within virtualspace will surely render such a
-machine completely useless, likely to the point of being unable to run
-userspace, or panicking much earlier from boot-time allocation failures.
+> but I think it should be possible to mount shares in workgroups which
+> names are shorter the 4 Bytes.
+Yes you are correct - there is no minimum domain length, although there is a minimal
+bcc length for true NTLMSSP and SPNEGO negotiate responses which I will now be
+forced to detect differently on the client.   As you noticed it worked for longer
+domain names, because the bcc was larger and spnego decoding was harmless for longer
+domain names.
 
--- wli
+I will fix this today, probably by adding a check in fs/cifs/cifssmb.c (in
+CIFSSMBNegotiate) in parsing the negotiate response from something like from:
+
+ if (pSMBr->hdr.Flags2 & SMBFLG2_EXT_SEC)
+
+to
+
+if ((pSMBr->hdr.Flags2 & SMBFLG2_EXT_SEC) &&
+   (server->capabilities & CAP_EXTENDED_SECURITY))
+
+The Samba fix is pretty easy as well (it only hits source/smbd/negprot.c -
+reply_negprot function), I will bounce the fix off jra before updating the Samba 3
+source.
+

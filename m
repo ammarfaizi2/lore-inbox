@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129055AbQKAUF3>; Wed, 1 Nov 2000 15:05:29 -0500
+	id <S129026AbQKAUKK>; Wed, 1 Nov 2000 15:10:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129112AbQKAUFU>; Wed, 1 Nov 2000 15:05:20 -0500
-Received: from animal.cs.chalmers.se ([129.16.225.30]:33244 "EHLO
-	animal.cs.chalmers.se") by vger.kernel.org with ESMTP
-	id <S129055AbQKAUFI>; Wed, 1 Nov 2000 15:05:08 -0500
-Date: Wed, 1 Nov 2000 21:05:00 +0100 (MET)
-From: Dennis Bjorklund <dennisb@cs.chalmers.se>
-To: William T Wilson <fluffy@snurgle.org>
+	id <S129055AbQKAUKB>; Wed, 1 Nov 2000 15:10:01 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:10756 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129026AbQKAUJr>; Wed, 1 Nov 2000 15:09:47 -0500
+Date: Wed, 1 Nov 2000 15:09:09 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Dennis Bjorklund <dennisb@cs.chalmers.se>
 cc: linux-kernel@vger.kernel.org
 Subject: Re: Broadcast
-In-Reply-To: <Pine.LNX.4.21.0011011423420.21946-100000@benatar.snurgle.org>
-Message-ID: <Pine.SOL.4.21.0011012058290.20182-100000@muppet17.cs.chalmers.se>
+In-Reply-To: <Pine.SOL.4.21.0011012010340.19399-100000@muppet17.cs.chalmers.se>
+Message-ID: <Pine.LNX.3.95.1001101150538.4511A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Nov 2000, William T Wilson wrote:
+On Wed, 1 Nov 2000, Dennis Bjorklund wrote:
 
-> If rwhod doesn't have an option as to which address to bind to, your only
-> choice is to block its communication with ipchains.
+> I'm trying to turn of the broadcast flag for a network card. But I
+> can't, why??
+> 
 
-I don't think you can specify the addresses. It looks at the interfaces
-and sends to the ones that can broadcast.
+Your version of `ifconfig` is probably broken (just like mine).
+`strace` it and see:
+ioctl(5, SIOCGIFFLAGS, 0xbffff620)      = 0
+ioctl(5, SIOCSIFFLAGS, 0xbffff620)      = 0
+_exit(0)                                = ?
 
-I have solved it with ipchains but then rwhod fills my /var/log/messages
-with lines like:
+In this case the flags were gotten with SIOCGIFFLAGS, then the
+exact same stuff was written back with SIOCSIFFLAGS.
 
-Nov 1 20:40:28 x rwhod[650]: sendto(192.168.0.1): Operation not permitted
-Nov 1 20:43:28 x rwhod[650]: sendto(192.168.0.1): Operation not permitted
-Nov 1 20:46:28 x rwhod[650]: sendto(192.168.0.1): Operation not permitted
 
-It's a lot of messages...
+Cheers,
+Dick Johnson
 
-So if you cant turn of broadcast why does ifconfig have an option that
-says it turns of broadcast.
+Penguin : Linux version 2.2.17 on an i686 machine (801.18 BogoMips).
 
- [-]broadcast [addr]
-    If the address  argument  is  given,  set  the  protocol broadcast
-    address   for  this  interface.   Otherwise,  set  (or clear)  the
-    IFF_BROADCAST flag for the interface.
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
-And rwhod looks at the IFF_BROADCAST flag.
-
-/Dennis
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

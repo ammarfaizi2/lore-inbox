@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278235AbRJSALr>; Thu, 18 Oct 2001 20:11:47 -0400
+	id <S278230AbRJSAPh>; Thu, 18 Oct 2001 20:15:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278229AbRJSALh>; Thu, 18 Oct 2001 20:11:37 -0400
-Received: from toad.com ([140.174.2.1]:43527 "EHLO toad.com")
-	by vger.kernel.org with ESMTP id <S278227AbRJSAL0>;
-	Thu, 18 Oct 2001 20:11:26 -0400
-Message-ID: <3BCF6FE9.1D5D9750@mandrakesoft.com>
-Date: Thu, 18 Oct 2001 20:12:25 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Shaya Potter <spotter@cs.columbia.edu>
-CC: ionut@cs.columbia.edu, linux-kernel@vger.kernel.org
-Subject: Re: xircom_cb and promiscious mode
-In-Reply-To: <Pine.LNX.4.33.0110181958290.10380-100000@prague.clic.cs.columbia.edu>
+	id <S278229AbRJSAP2>; Thu, 18 Oct 2001 20:15:28 -0400
+Received: from ns.suse.de ([213.95.15.193]:35851 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S278227AbRJSAPS>;
+	Thu, 18 Oct 2001 20:15:18 -0400
+Date: Fri, 19 Oct 2001 02:15:30 +0200
+From: Stefan Reinauer <stepan@suse.de>
+To: Ryan Cumming <bodnar42@phalynx.dhs.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Patch and Performance of larger pipes
+Message-ID: <20011019021530.A796@suse.de>
+In-Reply-To: <3BCF1A74.AE96F241@colorfullife.com> <E15uME1-0000Ht-00@bodnar42>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <E15uME1-0000Ht-00@bodnar42>
+User-Agent: Mutt/1.3.22.1i
+X-OS: Linux 2.4.12 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shaya Potter wrote:
-> if it doesn't need promiscious mode always, shouldn't this be a module
-> param?
+* Ryan Cumming <bodnar42@phalynx.dhs.org> [011019 01:05]:
+> Awesome! Although any improvement improvement in efficiency is a good thing, 
+> I am curious as to what uses pipes besides gcc -pipe. UNIX domain sockets 
+> (for local X11, for instance) aren't implemented as pipes, are they? What 
+> sort of real world performance gains could I expect from this patch?
 
-There is a significant enough portion of Xircom cards that have that
-particular quirk, that relegating the option to a not-enabled-by-default
-setting would mean some people's cards flat out don't work by default
-with the driver.  Ugly user support issue, even if it is easily solved.
+Shell scripts often use pipes to pass data between processes. Speed up should
+be quite noticable with all kinds of those.
 
-I am hoping that Ion's changes make unconditional promisc mode
-unnecessary..
+  Best regards
+   Stefan Reinauer 
+     <stepan@suse.de>
 
 -- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+This world is crying to be free; This world is dying, can't you see?
+We need a turn to do it right; We need a mind revolution
+To get away from this selfishness. Stop playing blind - BREAK FREE!
+					Your Turn, Helloween '91

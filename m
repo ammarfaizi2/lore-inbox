@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129308AbQKTME0>; Mon, 20 Nov 2000 07:04:26 -0500
+	id <S129210AbQKTMaS>; Mon, 20 Nov 2000 07:30:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129670AbQKTMEQ>; Mon, 20 Nov 2000 07:04:16 -0500
-Received: from atlantis.hlfl.org ([213.41.91.231]:53253 "HELO
-	atlantis.hlfl.org") by vger.kernel.org with SMTP id <S129308AbQKTMEB>;
-	Mon, 20 Nov 2000 07:04:01 -0500
-Date: Mon, 20 Nov 2000 12:33:58 +0100
-From: "Arnaud S . Launay" <asl@launay.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.18pre22
-Message-ID: <20001120123358.A17268@profile4u.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E13xJ14-0002Do-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E13xJ14-0002Do-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Nov 19, 2000 at 01:11:33AM +0000
-X-PGP-Key: http://launay.org/pgpkey.asc
+	id <S129851AbQKTMaI>; Mon, 20 Nov 2000 07:30:08 -0500
+Received: from tasogare.imasy.or.jp ([202.227.24.5]:55564 "EHLO
+	tasogare.imasy.or.jp") by vger.kernel.org with ESMTP
+	id <S129210AbQKTM3x>; Mon, 20 Nov 2000 07:29:53 -0500
+Message-Id: <200011201159.eAKBxnq07622@tasogare.imasy.or.jp>
+To: Andries Brouwer <aeb@veritas.com>
+Cc: tai@imasy.or.jp, andre@linux-ide.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Large "clipped" IDE disk support for 2.4 when using old BIOS
+In-Reply-To: <20001120032615.A1540@veritas.com> <20001119182431.A1226@veritas.com> <200011192230.eAJMUC202514@research.imasy.or.jp>
+In-Reply-To: <20001120032615.A1540@veritas.com>
+Date: Mon, 20 Nov 2000 20:59:48 +0900
+From: "T. Yamada" <tai@tasogare.imasy.or.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Sun, Nov 19, 2000 at 01:11:33AM +0000, Alan Cox a écrit:
-> Bugs to go: PS/2 mouse detection
-> Anything which isnt a strict bug fix or previously agreed is now 2.2.19
-> material.
 
-Once again, I needed this patch by Dave Miller to compile the
-kernel:
+> Both disks claim support for the Host Protected Area feature set.
+> No doubt early disks had firmware flaws.
 
+So it's yet another "borken hardware"... Is there anything like
+SCSI "blacklist" for IDE driver? Then it could be handled easily
+by registering the drive there and check that out before autodetection.
 
---- kernel/sysctl.c.~1~	Thu Nov  9 19:41:52 2000
-+++ kernel/sysctl.c	Fri Nov 10 02:52:30 2000
-@@ -1173,6 +1173,13 @@
- 	return -ENOSYS;
- }
- 
-+int sysctl_jiffies(ctl_table *table, int *name, int nlen,
-+		void *oldval, size_t *oldlenp,
-+		void *newval, size_t newlen, void **context)
-+{
-+	return -ENOSYS;
-+}
-+
- int proc_dostring(ctl_table *table, int write, struct file *filp,
- 		  void *buffer, size_t *lenp)
- {
+> - The routine idedisk_supports_host_protected_area()
+> should look at bit 10 of command_set_1, but it does a "& 0x0a".
 
-	Arnaud.
+Oh, no. Thanks for catching that. It should obviously be 0x0400.
+
+# I guess it got converted in a way like this: 10th bit -> 10 -> 0x0a. Ugh.
+
+> - The assignment "hd_cap = hd_max;" is one off:
+
+Now that explains one missing sector reported previously. Yes,
+ATA spec says that the command returns "maximum address", not
+number of sectors.
+
+I'll make a fix and resend a patch - or since the fix is so
+simple, I guess Andre can just add these fixes to IDE driver directly.
+
+--
+Taisuke Yamada <tai@imasy.or.jp>
+PGP fingerprint = 6B 57 1B ED 65 4C 7D AE  57 1B 49 A7 F7 C8 23 46
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

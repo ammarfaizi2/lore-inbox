@@ -1,58 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261400AbREQLn7>; Thu, 17 May 2001 07:43:59 -0400
+	id <S261402AbREQLtU>; Thu, 17 May 2001 07:49:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261401AbREQLnt>; Thu, 17 May 2001 07:43:49 -0400
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:54425 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S261400AbREQLnh>; Thu, 17 May 2001 07:43:37 -0400
-Date: Thu, 17 May 2001 13:43:35 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Scott Huang <SHuang@narus.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CMPXCHG
-Message-ID: <20010517134335.F754@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <580E532D9F7A9B4BAE8A130848E0DDA70B7842@franklin.narus.com>
-Mime-Version: 1.0
+	id <S261403AbREQLtJ>; Thu, 17 May 2001 07:49:09 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:55258 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S261402AbREQLtD>;
+	Thu, 17 May 2001 07:49:03 -0400
+Subject: Re: Bug in unlink error return
+To: Andries.Brouwer@cwi.nl
+Date: Thu, 17 May 2001 12:45:07 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu
+In-Reply-To: <UTC200105171126.NAA37619.aeb@vlet.cwi.nl> from "Andries.Brouwer@cwi.nl" at May 17, 2001 01:26:44 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <580E532D9F7A9B4BAE8A130848E0DDA70B7842@franklin.narus.com>; from SHuang@narus.com on Wed, May 16, 2001 at 03:37:00PM -0700
+Content-Transfer-Encoding: 7bit
+Message-Id: <E150MDL-0005F6-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 16, 2001 at 03:37:00PM -0700, Scott Huang wrote:
-> Four adapters need to produce data to a 
-> descriptor queue which is consumed by a
-> user process. A lock mechanism was implemented
-> to sync the adapters. However, this causes 
-> a performance hit.  Is it possible to use
-> CMPXCHG on Intel's i-386 to avoid the locking?
+>        EISDIR pathname refers to a directory.  (This is the  non-
+>               POSIX value returned by Linux since 2.1.132.)
 
-What about using atomic operations for that? This is more general
-and works on ALL architectures. CMPXCHG is just and special
-atomic operation on ia32.
+it isnnt that simple -ac does the right thing now I believe
 
-> Where can I find some doc and some sample code?
+> Probably this should be fixed again, both in 2.2 and 2.4.
+> 2.0 is still correct (I checked only ext2).
 
-   Documentation/DocBook/kernel-hacking.tmpl
+I'll check 2.2.20pre and fix it if so.
 
-But better do
+Alan
 
-   make htmldocs 
-
-in the kernel top level directory and read
-
-   Documentation/DocBook/kernel-hacking/lk-hacking-guide.html
-
-instead.
-
-Sample code is scattered all around in the kernel.
-
-
-Regards
-
-Ingo Oeser
--- 
-To the systems programmer,
-users and applications serve only to provide a test load.

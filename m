@@ -1,71 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270467AbRIJLEV>; Mon, 10 Sep 2001 07:04:21 -0400
+	id <S270495AbRIJLP4>; Mon, 10 Sep 2001 07:15:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270495AbRIJLEM>; Mon, 10 Sep 2001 07:04:12 -0400
-Received: from ns1.yggdrasil.com ([209.249.10.20]:19681 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S270467AbRIJLEH>; Mon, 10 Sep 2001 07:04:07 -0400
-Date: Mon, 10 Sep 2001 04:04:25 -0700
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: fibrechannel@compaq.com, compaqandlinux@cpqlin.van-dijk.net, ehm@cris.com,
-        cwl@iol.unh.edu, linux-kernel@vger.kernel.org
-Subject: PATCH and ioctl collision: linux-2.4.10-pre7/drivers/scsi/cpqfcTSinit.c did not compile
-Message-ID: <20010910040425.A5645@baldur.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="17pEHd4RhPHOinZp"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S270523AbRIJLPq>; Mon, 10 Sep 2001 07:15:46 -0400
+Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:60934 "EHLO
+	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S270495AbRIJLPe>; Mon, 10 Sep 2001 07:15:34 -0400
+Date: Mon, 10 Sep 2001 12:14:37 +0100 (BST)
+From: Steve Hill <steve@navaho.co.uk>
+X-X-Sender: <steve@sorbus.navaho>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [COMPILE FAILS] linux-2.4.10-pre7
+Message-ID: <Pine.LNX.4.33.0109101152120.22591-100000@sorbus.navaho>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---17pEHd4RhPHOinZp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I just tried compiling 2.4.10-pre7, and the build fails with the following
+errors... having grepped the source-tree, it seems that
+SCSI_IOCTL_FC_TARGET_ADDRESS and SCSI_IOCTL_FC_TDR aren't defined
+anywhere:
 
-	linux-2.4.10-pre7/drivers/scsi/cpqfcTSinit.c does not compile
-becuase it is missing <linux/init.h> and because SCSI_IOCTL_FC_TARGET_ADDRESS
-and SCSI_IOCTL_FC_TDR are not defined.  The following patch fixes that.
-The scsi ioctl definitions are copied from sources that I found by
-searching for "SCSI_IOCTL_FC_TARGET_ADDRESS" on google, but I had to
-renumber SCSI_IOCTL_FC_TARGET_ADDRESS due to a number collision with
-another scsi ioctl.
+gcc -D__KERNEL__ -I/usr/src/redhat/BUILD/linux/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=i586 -DMODULE   -c -o cpqfcTSinit.o cpqfcTSinit.c
+ld -m elf_i386 -r -o sr_mod.o sr.o sr_ioctl.o sr_vendor.o
+cpqfcTSinit.c: In function `cpqfcTS_ioctl':
+cpqfcTSinit.c:662: `SCSI_IOCTL_FC_TARGET_ADDRESS' undeclared (first use in
+this function)
+cpqfcTSinit.c:662: (Each undeclared identifier is reported only once
+cpqfcTSinit.c:662: for each function it appears in.)
+cpqfcTSinit.c:680: `SCSI_IOCTL_FC_TDR' undeclared (first use in this
+function)
+make[2]: *** [cpqfcTSinit.o] Error 1
+make[2]: Leaving directory `/usr/src/redhat/BUILD/linux/drivers/scsi'
+make[1]: *** [_modsubdir_scsi] Error 2
+make[1]: Leaving directory `/usr/src/redhat/BUILD/linux/drivers'
+make: *** [_mod_drivers] Error 2
+
 
 -- 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
 
---17pEHd4RhPHOinZp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=diff
+- Steve Hill
+System Administrator         Email: steve@navaho.co.uk
+Navaho Technologies Ltd.       Tel: +44-870-7034015
 
---- linux-2.4.10-pre7/include/scsi/scsi.h	Fri Apr 27 13:59:19 2001
-+++ linux/include/scsi/scsi.h	Mon Sep 10 03:53:58 2001
-@@ -214,6 +214,12 @@
- /* Used to get the PCI location of a device */
- #define SCSI_IOCTL_GET_PCI 0x5387
- 
-+/* Used to invoke Target Defice Reset for Fibre Channel */
-+#define SCSI_IOCTL_FC_TDR 0x5388
-+
-+/* Used to get Fibre Channel WWN and port_id from device */
-+#define SCSI_IOCTL_FC_TARGET_ADDRESS 0x5389
-+
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-  * Emacs will notice this stuff at the end of the file and automatically
---- linux-2.4.10-pre7/drivers/scsi/cpqfcTSinit.c	Sun Aug 12 10:51:41 2001
-+++ linux/drivers/scsi/cpqfcTSinit.c	Mon Sep 10 03:54:23 2001
-@@ -63,6 +63,7 @@
- 
- #include <linux/config.h>  
- #include <linux/module.h>
-+#include <linux/init.h>
- #include <linux/version.h> 
- 
- /* Embedded module documentation macros - see module.h */
+        ... Alcohol and calculus don't mix - Don't drink and derive! ...
 
---17pEHd4RhPHOinZp--
+

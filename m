@@ -1,80 +1,154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269045AbUHaTbL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269048AbUIAAzt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269045AbUHaTbL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 15:31:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269020AbUHaT3S
+	id S269048AbUIAAzt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 20:55:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269050AbUIAAxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 15:29:18 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:34798 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S269005AbUHaT1s
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 15:27:48 -0400
-Message-ID: <4134D11B.7050800@mvista.com>
-Date: Tue, 31 Aug 2004 12:27:23 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
+	Tue, 31 Aug 2004 20:53:23 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:7152 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S269048AbUIAAsz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 20:48:55 -0400
+Message-ID: <41351C86.7000704@us.ibm.com>
+Date: Tue, 31 Aug 2004 17:49:10 -0700
+From: Nivedita Singhvi <niv@us.ibm.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-CC: john stultz <johnstul@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>,
-       albert@users.sourceforge.net, hirofumi@mail.parknet.co.jp,
-       lkml <linux-kernel@vger.kernel.org>, voland@dmz.com.pl,
-       nicolas.george@ens.fr, david+powerix@blue-labs.org
-Subject: Re: [PATCH] Re: boot time, process start time, and NOW time
-References: <87smcf5zx7.fsf@devron.myhome.or.jp>  <20040816124136.27646d14.akpm@osdl.org>  <Pine.LNX.4.53.0408172207520.24814@gockel.physik3.uni-rostock.de>  <412285A5.9080003@mvista.com>  <1092782243.2429.254.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.53.0408180051540.25366@gockel.physik3.uni-rostock.de>  <1092787863.2429.311.camel@cog.beaverton.ibm.com>  <1092781172.2301.1654.camel@cube>  <1092791363.2429.319.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.53.0408180927450.14935@gockel.physik3.uni-rostock.de>  <20040819191537.GA24060@elektroni.ee.tut.fi>  <20040826040436.360f05f7.akpm@osdl.org>  <Pine.LNX.4.53.0408261311040.21236@gockel.physik3.uni-rostock.de>  <Pine.LNX.4.53.0408310037280.5596@gockel.physik3.uni-rostock.de> <1093916047.14662.144.camel@cog.beaverton.ibm.com> <Pine.LNX.4.53.0408310757430.6523@gockel.physik3.uni-rostock.de>
-In-Reply-To: <Pine.LNX.4.53.0408310757430.6523@gockel.physik3.uni-rostock.de>
+To: Andrew Morton <akpm@osdl.org>
+CC: netdev@oss.sgi.com, Rick Lindsley <ricklind@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Fw: Re: 2.6.9-rc1-mm2
+References: <20040831153450.4498282e.akpm@osdl.org>
+In-Reply-To: <20040831153450.4498282e.akpm@osdl.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Schmielau wrote:
-> On Mon, 30 Aug 2004, john stultz wrote:
-> 
-> 
->>On Mon, 2004-08-30 at 16:00, Tim Schmielau wrote:
->>
->>>George, please excuse my lack of understanding. What again where the
->>>precise reasons to have an ntp-corrected uptime?
->>
->>Ah, here's the thread with the first mention of it that I could find.
->>
->>http://www.uwsg.iu.edu/hypermail/linux/kernel/0306.1/1471.html
+Andrew Morton wrote:
 
-As I recall the problem was that jiffies since boot was being converted to get 
-uptime base on 1/HZ = 1 jiffie.  Since it is really not quite that, there was an 
-error.  Using clock_monotonic seemed like the right answer as it eliminated the 
-error AND made the result consistant with get_clock(CLOCK_MONOTONIC,..).
+> Getting an error of:
+> 
+> net/built-in.o(.text+0x64047): In function `tcp_in_window':
+> net/ipv4/netfilter/ip_conntrack_proto_tcp.c:683: undefined reference to `ip_ct_log_invalid'
+> net/built-in.o(.text+0x6431f): In function `tcp_error':
+> net/ipv4/netfilter/ip_conntrack_proto_tcp.c:792: undefined reference to `ip_ct_log_invalid'
+> net/built-in.o(.text+0x64421):net/ipv4/netfilter/ip_conntrack_proto_tcp.c:817: undefined reference to `ip_ct_log_invalid'
+> net/built-in.o(.text+0x64450):net/ipv4/netfilter/ip_conntrack_proto_tcp.c:808: undefined reference to `ip_ct_log_invalid'
+> net/built-in.o(.text+0x64487):net/ipv4/netfilter/ip_conntrack_proto_tcp.c:784: undefined reference to `ip_ct_log_invalid'
+> net/built-in.o(.text+0x6478a):net/ipv4/netfilter/ip_conntrack_proto_tcp.c:877: more undefined references to `ip_ct_log_invalid' follow
+> 
+> The error is for all references of the LOG_INVALID macro in
+> ip_conntrack_proto_tcp.c.  My guess is that the declaration of
+> ip_ct_log_invalid in ip_conntrack_standalone.c landed under a new #define
+> that I'm not using in this set of patches, but I can't find where.
+> 
+> All-important config file appended below.  This is an older config file, but
+> make oldconfig was done first, per normal.
 
-The alternate answer is, of course, to directly convert the elapsed jiffies. 
-The main problem with this is that this can be a BIG number and, therefor, the 
-math needs to be carefully.  And, of course, it is inconsistant with 
-get_clock(), but that is a new interface...
+>
+> # IP: Netfilter Configuration
+> #
+> # CONFIG_IP_NF_CONNTRACK is not set
+> # CONFIG_IP_NF_QUEUE is not set
+> # CONFIG_IP_NF_IPTABLES is not set
+> CONFIG_IP_NF_NAT_NEEDED=y
+> # CONFIG_IP_NF_ARPTABLES is not set
+> CONFIG_IP_NF_COMPAT_IPCHAINS=y
 
-George
-> 
-> 
-> Ah, it seems George indeed did the patch because of these problems:
-> 
->   http://www.uwsg.iu.edu/hypermail/linux/kernel/0306.1/1641.html
-> 
-> However, the actual reason were just missing wall_to_monotonic 
-> initializations:
-> 
->   http://www.uwsg.iu.edu/hypermail/linux/kernel/0306.2/1330.html
-> 
-> This was fixed in mainline:
-> 
->   http://linus.bkbits.net:8080/linux-2.5/cset%403f0e60dcpIosK3b5_uJ-aD9Mare17w
-> 
-> Tim
-> 
+Woiks jes fine with latest default config. Might want to poke those
+automated builds to pick up the latest config as well. The connection
+tracking source files which include that symbol (ip_conntrack_proto_*.c,
+ip_conntrack_standalone.c) should only be included if you have
+CONFIG_IP_NF_CONNTRACK defined.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+You had NAT_NEEDED set, which does pull in the above files too,
+but are now dependent on CONNTRACK being set.
+
+Tested with latest config and several permutations such as conntrack
+on/off, etc.
+
+Here is a sample config which built fine, just the netfilter section:
+
+
+# IP: Netfilter Configuration
+#
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IRC=m
+CONFIG_IP_NF_TFTP=m
+CONFIG_IP_NF_AMANDA=m
+CONFIG_IP_NF_QUEUE=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+# CONFIG_IP_NF_MATCH_IPRANGE is not set
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_PKTTYPE=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_RECENT=m
+CONFIG_IP_NF_MATCH_ECN=m
+CONFIG_IP_NF_MATCH_DSCP=m
+CONFIG_IP_NF_MATCH_AH_ESP=m
+CONFIG_IP_NF_MATCH_LENGTH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_HELPER=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_CONNTRACK=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+# CONFIG_IP_NF_TARGET_NETMAP is not set
+# CONFIG_IP_NF_TARGET_SAME is not set
+# CONFIG_IP_NF_NAT_LOCAL is not set
+CONFIG_IP_NF_NAT_SNMP_BASIC=m
+CONFIG_IP_NF_NAT_IRC=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_NAT_TFTP=m
+CONFIG_IP_NF_NAT_AMANDA=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_ECN=m
+CONFIG_IP_NF_TARGET_DSCP=m
+CONFIG_IP_NF_TARGET_MARK=m
+# CONFIG_IP_NF_TARGET_SAME is not set
+# CONFIG_IP_NF_NAT_LOCAL is not set
+CONFIG_IP_NF_NAT_SNMP_BASIC=m
+CONFIG_IP_NF_NAT_IRC=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_NAT_TFTP=m
+CONFIG_IP_NF_NAT_AMANDA=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_ECN=m
+CONFIG_IP_NF_TARGET_DSCP=m
+CONFIG_IP_NF_TARGET_MARK=m
+# CONFIG_IP_NF_TARGET_CLASSIFY is not set
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_ULOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_IP_NF_ARPTABLES=m
+CONFIG_IP_NF_ARPFILTER=m
+CONFIG_IP_NF_ARP_MANGLE=m
+CONFIG_IP_NF_COMPAT_IPCHAINS=m
+CONFIG_IP_NF_COMPAT_IPFWADM=m
+# CONFIG_IP_NF_RAW is not set
+# CONFIG_IP_NF_MATCH_ADDRTYPE is not set
+# CONFIG_IP_NF_MATCH_REALM is not set
+# CONFIG_IP_NF_CT_ACCT is not set
+# CONFIG_IP_NF_MATCH_SCTP is not set
+# CONFIG_IP_NF_CT_PROTO_SCTP is not set
+
+
+
+
+
+
 

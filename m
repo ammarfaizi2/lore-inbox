@@ -1,71 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289789AbSBSGKf>; Tue, 19 Feb 2002 01:10:35 -0500
+	id <S289806AbSBSGbO>; Tue, 19 Feb 2002 01:31:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289793AbSBSGKY>; Tue, 19 Feb 2002 01:10:24 -0500
-Received: from sproxy.gmx.de ([213.165.64.20]:46774 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S289789AbSBSGKL>;
-	Tue, 19 Feb 2002 01:10:11 -0500
-Date: Tue, 19 Feb 2002 07:13:58 +0100
-From: Sebastian =?ISO-8859-1?B?RHL2Z2U=?= <sebastian.droege@gmx.de>
-To: Gustavo Noronha Silva <kov@debian.org>
+	id <S289839AbSBSGaz>; Tue, 19 Feb 2002 01:30:55 -0500
+Received: from wet.kiss.uni-lj.si ([193.2.98.10]:21010 "EHLO
+	wet.kiss.uni-lj.si") by vger.kernel.org with ESMTP
+	id <S289806AbSBSGat>; Tue, 19 Feb 2002 01:30:49 -0500
+Content-Type: text/plain;
+  charset="iso-8859-2"
+From: Rok =?iso-8859-2?q?Pape=BE?= <rok.papez@kiss.uni-lj.si>
+Reply-To: rok.papez@kiss.uni-lj.si
+To: Michael Zhu <mylinuxk@yahoo.ca>
+Subject: Re: Communication between two kernel modules
+Date: Mon, 18 Feb 2002 19:30:02 +0100
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <20020218173229.47247.qmail@web14907.mail.yahoo.com>
+In-Reply-To: <20020218173229.47247.qmail@web14907.mail.yahoo.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: gnome-terminal acts funny in recent 2.5 series
-Message-Id: <20020219071358.408b9a6d.sebastian.droege@gmx.de>
-In-Reply-To: <20020218213917.60e4dd5c.kov@debian.org>
-In-Reply-To: <3C719641.3040604@oracle.com>
-	<20020218213917.60e4dd5c.kov@debian.org>
-X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=.,Y4heONC75,FXy"
+MIME-Version: 1.0
+Message-Id: <02021819300201.00953@strader.home>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.,Y4heONC75,FXy
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Hello Michael!
 
-On Mon, 18 Feb 2002 21:39:17 -0300
-Gustavo Noronha Silva <kov@debian.org> wrote:
+On Monday 18 February 2002 18:32, Michael Zhu wrote:
 
-> On Tue, 19 Feb 2002 01:03:13 +0100
-> Alessandro Suardi <alessandro.suardi@oracle.com> wrote:
-> 
-> > Running Ximian-latest for rh72/i386, latest 2.5 kernels (including
-> >   2.5.4-pre2, 2.5.4, 2.5.5-pre1).
-> > 
-> > Symptom:
-> >    - clicking on the panel icon for gnome-terminal shows a flicker
-> >       of the terminal window coming up then the window disappears.
-> >      No leftover processes.
-> > 
-> > What works 100%:
-> >    - regular xterm in 2.5.x
-> >    - gnome-terminal in 2.4.x (x in .17, .18-pre9, .18-rc2)
-> I noticed this problem also... it seems the problem lies on
-> devpts, I enabled it on my 2.5.5pre1 build, mounting
-> devpts with the options given on the "readme" file
-> made gnome-terminal start on the second try, almost
-> everytime
-Hi,
-I have the same problem here... I reported it in another thread (look at "Reiserfs Corruption in 2.5.5-pre1")
-Maybe it's something with devpts but I enabled only devfs...
-If you start the gnome-terminal from an xterm for example it starts but hangs before or shortly after loading bash
-Sometimes gnome-terminal starts without problems but most trys it hangs
-If you strace gnome-terminal you can see an endless loop doing some funny things (I have deleted the output but I'll post it later the day, including "ps axlwww" output)
+> Hi, how can I call some kind of APIs from kernel mode,
+> such as open, ioctl and close? Because I need to use
+> some services of another kernel module from my kernel
+> module and I have no source code of the module which
+> provides the services. Now I can only access the
+> module in user space using the open, ioctl and close
+> APIs. Can I do the same thing in my kernel module?
+> Thanks.
 
-Bye
---=.,Y4heONC75,FXy
-Content-Type: application/pgp-signature
+Create a user-space app that will ioctl into your driver and wait for 
+requests. When your module needs to call the other module it delivers request 
+to the user-space app wich in turn calls the other module and returns results 
+via another ioctl call.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
+Take care not to deadlock.. In user space app use fork() or threads and 
+handle module requests async...
 
-iD8DBQE8ce0pe9FFpVVDScsRAp38AJ9Y1kEZIWPoRTJva/mZ2MsESf6plwCfUoyq
-UtuuJTU54qD030NSdhkbqVc=
-=fNIU
------END PGP SIGNATURE-----
+Be ready to handle an event when your user-space app unexpectedly dies.
 
---=.,Y4heONC75,FXy--
-
+-- 
+best regards,
+Rok Pape¾.

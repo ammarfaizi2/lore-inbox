@@ -1,40 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264655AbUDVTwU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264650AbUDVTwH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264655AbUDVTwU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 15:52:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264658AbUDVTwP
+	id S264650AbUDVTwH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 15:52:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264649AbUDVTun
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 15:52:15 -0400
-Received: from zero.aec.at ([193.170.194.10]:524 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S264655AbUDVTwF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 15:52:05 -0400
-To: "David S. Miller" <davem@redhat.com>
-cc: vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
-Subject: Re: Large inlines in include/linux/skbuff.h
-References: <1NAJr-61F-3@gated-at.bofh.it> <1NRqX-2GI-15@gated-at.bofh.it>
-	<1NRqX-2GI-13@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 22 Apr 2004 21:51:53 +0200
-In-Reply-To: <1NRqX-2GI-13@gated-at.bofh.it> (David S. Miller's message of
- "Thu, 22 Apr 2004 20:50:11 +0200")
-Message-ID: <m34qrb3i5i.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 22 Apr 2004 15:50:43 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:8911 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264653AbUDVTuM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 15:50:12 -0400
+Date: Thu, 22 Apr 2004 21:47:02 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Terje Eggestad <terje.eggestad@scali.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: executable archive
+Message-ID: <20040422194702.GA2595@openzaurus.ucw.cz>
+References: <1082462304.27255.76.camel@pc-16.office.scali.no>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1082462304.27255.76.camel@pc-16.office.scali.no>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> writes:
->
-> He's asking you to test and quantify the performance changes that
-> occur as a result of this patch, not to figure it out via calculations
-> in your head :-)
+Hi!
 
-I bet it will be completely unnoticeable in macrobenchmarks.
+> Same problem with python (i'm just learning), and a collection of .class
+> files for java. 
 
-The only way to measure a difference would be likely to use 
-some unrealistic microbenchmark (program that calls this in a tight loop)
+For java its called .jar.
 
--Andi
+> My first though would be to make a stub, and put the ar file in the data
+> area of the process, something akind to self extracting zip files on
+> dos/windoze.
+> A couple of problems: 
+> a) you can't "mount" the ar file to make it visible to the process as a
+> part of it's file system view. ( Atleast not without intercepting a
+> whole lot of libc calls) 
+
+See uservfs.sf.net.
+
+But intercepting those system calls would be better, portable to macOsX etc...
+
+Or simply link those interpretters with uservfs; its going to be
+usefull for other stuff, too.
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

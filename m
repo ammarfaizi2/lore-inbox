@@ -1,74 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261394AbSJHXHp>; Tue, 8 Oct 2002 19:07:45 -0400
+	id <S261427AbSJHXN2>; Tue, 8 Oct 2002 19:13:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261384AbSJHXGP>; Tue, 8 Oct 2002 19:06:15 -0400
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:35154 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S261394AbSJHXGE>;
-	Tue, 8 Oct 2002 19:06:04 -0400
-From: <Hell.Surfers@cwctv.net>
-To: riel@conectiva.com.br, gmack@innerfire.net, jw@pegasys.ws,
-       linux-kernel@vger.kernel.org
-Date: Wed, 9 Oct 2002 00:10:24 +0100
-Subject: RE:Re: The end of embedded Linux?
-MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1034118624488"
-Message-ID: <04d0253082308a2DTVMAIL5@smtp.cwctv.net>
+	id <S261490AbSJHXN2>; Tue, 8 Oct 2002 19:13:28 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:28920 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S261427AbSJHXKt>; Tue, 8 Oct 2002 19:10:49 -0400
+Date: Tue, 8 Oct 2002 19:16:30 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [patch/bk] export do_sync_{read,write}
+Message-ID: <20021008191630.G15858@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---1034118624488
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Andrew Morton noticed that do_sync_{read,write} need to be exported for 
+modules, so I've added the patch below to the bk tree at
+master.kernel.org:/home/bcrl/aio-2.5 .  Please apply,
 
-I dunno what you have but here in the uk, we like to be arseholes[joke], no then... My bandwidth bills are kept low, and I prefer the sofa to that seat thing I have, I go online to download/send patches, and its £728 cheaper.
-
-Cheers, Dean.
-
-On 	Tue, 8 Oct 2002 19:55:20 -0300 (BRT) 	Rik van Riel <riel@conectiva.com.br> wrote:
-
---1034118624488
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Tue, 8 Oct 2002 23:54:18 +0100
-Received: from localhost ([IPv6:::ffff:127.0.0.1]:27332 "EHLO localhost")
-	by imladris.surriel.com with ESMTP id <S80346AbSJHWzX>;
-	Tue, 8 Oct 2002 19:55:23 -0300
-Date: Tue, 8 Oct 2002 19:55:20 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Hell.Surfers@cwctv.net
-cc: gmack@innerfire.net, <jw@pegasys.ws>,
-	<linux-kernel@vger.kernel.org>
-Subject: RE:Re: The end of embedded Linux?
-In-Reply-To: <0be8217262208a2DTVMAIL4@smtp.cwctv.net>
-Message-ID: <Pine.LNX.4.44L.0210081954560.22735-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.44L.0210081954562.22735@imladris.surriel.com>
-Return-Path: riel@conectiva.com.br
-
-On Tue, 8 Oct 2002 Hell.Surfers@cwctv.net wrote:
-
-> yeah!
-
-Doesn't your settop box have a cursor so you can walk down and
-put your reply below the original mail ?
-
-Rik
+		-ben
 -- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+"Do you seek knowledge in time travel?"
 
---1034118624488--
-
-
+===== fs/Makefile 1.36 vs edited =====
+--- 1.36/fs/Makefile	Wed Sep 18 21:54:43 2002
++++ edited/fs/Makefile	Tue Oct  8 19:11:56 2002
+@@ -6,7 +6,7 @@
+ # 
+ 
+ export-objs :=	open.o dcache.o buffer.o bio.o inode.o dquot.o mpage.o aio.o \
+-                fcntl.o
++                fcntl.o read_write.o
+ 
+ obj-y :=	open.o read_write.o devices.o file_table.o buffer.o \
+ 		bio.o super.o block_dev.o char_dev.o stat.o exec.o pipe.o \
+===== fs/read_write.c 1.16 vs edited =====
+--- 1.16/fs/read_write.c	Tue Sep 24 21:29:19 2002
++++ edited/fs/read_write.c	Tue Oct  8 19:12:25 2002
+@@ -614,3 +614,6 @@
+ 
+ 	return do_sendfile(out_fd, in_fd, NULL, count, 0);
+ }
++
++EXPORT_SYMBOL(do_sync_read);
++EXPORT_SYMBOL(do_sync_write);

@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264845AbSJaKxS>; Thu, 31 Oct 2002 05:53:18 -0500
+	id <S264848AbSJaK5p>; Thu, 31 Oct 2002 05:57:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264849AbSJaKxS>; Thu, 31 Oct 2002 05:53:18 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:58244 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264845AbSJaKxQ>; Thu, 31 Oct 2002 05:53:16 -0500
-Subject: Re: [PATCH] fixes for building kernel 2.5.45 using Intel compiler
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Saxena, Sunil" <sunil.saxena@intel.com>
-In-Reply-To: <F2DBA543B89AD51184B600508B68D4000EFF4249@fmsmsx103.fm.intel.com>
-References: <F2DBA543B89AD51184B600508B68D4000EFF4249@fmsmsx103.fm.intel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 31 Oct 2002 11:19:34 +0000
-Message-Id: <1036063174.8575.26.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S264849AbSJaK5p>; Thu, 31 Oct 2002 05:57:45 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:15841 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S264848AbSJaK5o>;
+	Thu, 31 Oct 2002 05:57:44 -0500
+Date: Thu, 31 Oct 2002 12:03:09 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Rusty Russell <rusty@rustcorp.com.au>,
+       James Simmons <jsimmons@infradead.org>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>,
+       Peter Chubb <peter@chubb.wattle.id.au>, tridge@samba.org,
+       "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: What's left over. 
+In-Reply-To: <20021031030143.401DA2C150@lists.samba.org>
+Message-ID: <Pine.GSO.4.21.0210311140310.15053-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-31 at 03:17, Nakajima, Jun wrote:
->  asmlinkage int sys_iopl(unsigned long unused)
->  {
-> -	struct pt_regs * regs = (struct pt_regs *) &unused;
-> +	volatile struct pt_regs * regs = (struct pt_regs *) &unused;
+On Thu, 31 Oct 2002, Rusty Russell wrote:
+> In message <Pine.LNX.4.44.0210301823120.1396-100000@home.transmeta.com> you wri
+> te:
+> > On Thu, 31 Oct 2002, Rusty Russell wrote:
+> > > Fbdev Rewrite
+> > 
+> > This one is just huge, and I have little personal judgement on it.
+> 
+> It's been around for a while.  Geert, Russell?
 
-Why is this needed ?
+It's huge because it moves a lot of files around:
+  1. drivers/char/agp/ -> drivers/video/agp/
+  2. drivers/char/drm/ -> drivers/video/drm/
+  3. console related files in drivers/video/ -> drivers/video/console/
 
+(1) and (2) should be reverted, but apparently they aren't reverted in the
+patch at http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz yet. The patch
+also seems to remove some drivers. Haven't checked the bk repo yet.
 
-> -	IGNLABEL "HmacRxUc",
-> -	IGNLABEL "HmacRxDiscard",
-> -	IGNLABEL "HmacRxAccepted",
-> +	IGNLABEL /* "HmacTxMc", */
-> +	IGNLABEL /* "HmacTxBc", */
+James, can you please fix that (and the .Config files)?
 
-You seem to be removing fields from the struct - have you tested this ?
+Gr{oetje,eeting}s,
 
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

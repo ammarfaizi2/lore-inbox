@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269909AbRHEETg>; Sun, 5 Aug 2001 00:19:36 -0400
+	id <S269915AbRHEFLz>; Sun, 5 Aug 2001 01:11:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269912AbRHEET1>; Sun, 5 Aug 2001 00:19:27 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:52374 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S269909AbRHEETN>;
-	Sun, 5 Aug 2001 00:19:13 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: alad@hss.hns.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: fcgp understanding 
-In-Reply-To: Your message of "Tue, 31 Jul 2001 13:49:16 +0530."
-             <65256A9A.002DAB65.00@sandesh.hss.hns.com> 
-Date: Sun, 05 Aug 2001 14:19:18 +1000
-Message-Id: <E15TFNq-0008V2-00@localhost>
+	id <S269916AbRHEFLp>; Sun, 5 Aug 2001 01:11:45 -0400
+Received: from weta.f00f.org ([203.167.249.89]:23696 "EHLO weta.f00f.org")
+	by vger.kernel.org with ESMTP id <S269915AbRHEFLZ>;
+	Sun, 5 Aug 2001 01:11:25 -0400
+Date: Sun, 5 Aug 2001 17:12:02 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: /proc/<n>/maps getting _VERY_ long
+Message-ID: <20010805171202.A20716@weta.f00f.org>
+In-Reply-To: <20010805034312.A18996@weta.f00f.org> <Pine.LNX.4.33L.0108042316430.2526-100000@imladris.rielhome.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L.0108042316430.2526-100000@imladris.rielhome.conectiva>
+User-Agent: Mutt/1.3.20i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <65256A9A.002DAB65.00@sandesh.hss.hns.com> you write:
-> Hi,
->      Can somone please explain in brief -- How to read fcgp ( Free coding
-> graphical project) for a
-> particular file. One such map (for mmap.c) is at --
-> http://fcgp.sourceforge.net/images/mm_mmap.c.png
+On Sat, Aug 04, 2001 at 11:17:26PM -0300, Rik van Riel wrote:
 
-This is off-topic, but maybe one canonical answer will stop others.
+    > cw:tty5@tapu(cw)$ wc -l /proc/1368/maps
+    >    5287 /proc/1368/maps
+    
+    Ouch, what kind of application is this happening with ?
 
-	The solid line (around the top and right edges) is a C file,
-labelled on the bottom left.  The dashed lines means a function,
-labelled on the bottom left.  Light green functions are file-local
-(static).  Red functions are exported to modules.  Dark green
-functions are called through a pointer.  Other functions are blue.
+Mozilla.  Presumably some of the Gnome applications might be the same
+as they use lots and lots of shared libraries (anyone out there Gnome
+inflicted and can check?).
 
-	Within each function, the circles are loops, the branches are
-conditional statements (if, switch, ?:).  The loops approximately
-circle the code they loop around.
+Why do we no longer merge? Is it too expensive?  If so, perhaps we
+defer merging in some value is reached?
 
-	So, we can see that do_munmap looks like a loop around a whole
-heap of little branchy code.  Indeed, looking at the code in mm/mmap.c,
-half the function is a loop.
+    IA64: a worthy successor to i860.
 
-Hope that helps,
-Rusty.
---
-Premature optmztion is rt of all evl. --DK
+Interrupts aside it wasn't a bad little processor :)
+
+
+
+  --cw
+

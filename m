@@ -1,59 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262583AbTJJHib (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 03:38:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262597AbTJJHib
+	id S262554AbTJJHne (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 03:43:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbTJJHne
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 03:38:31 -0400
-Received: from holomorphy.com ([66.224.33.161]:47232 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262583AbTJJHi3 (ORCPT
+	Fri, 10 Oct 2003 03:43:34 -0400
+Received: from gprs148-182.eurotel.cz ([160.218.148.182]:12417 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262554AbTJJHnc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 03:38:29 -0400
-Date: Fri, 10 Oct 2003 00:40:30 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: YoshiyaETO <eto@soft.fujitsu.com>
-Cc: Stuart Longland <stuartl@longlandclan.hopto.org>,
-       linux-kernel@vger.kernel.org,
-       Stephan von Krawczynski <skraw@ithnet.com>, lgb@lgb.hu,
-       Fabian.Frederick@prov-liege.be
-Subject: Re: 2.7 thoughts
-Message-ID: <20031010074030.GB700@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	YoshiyaETO <eto@soft.fujitsu.com>,
-	Stuart Longland <stuartl@longlandclan.hopto.org>,
-	linux-kernel@vger.kernel.org,
-	Stephan von Krawczynski <skraw@ithnet.com>, lgb@lgb.hu,
-	Fabian.Frederick@prov-liege.be
-References: <D9B4591FDBACD411B01E00508BB33C1B01F13BCE@mesadm.epl.prov-liege.be> <20031009115809.GE8370@vega.digitel2002.hu> <20031009165723.43ae9cb5.skraw@ithnet.com> <3F864F82.4050509@longlandclan.hopto.org> <20031010063039.GA700@holomorphy.com> <047b01c38f00$60b34840$6a647c0a@eto>
+	Fri, 10 Oct 2003 03:43:32 -0400
+Date: Fri, 10 Oct 2003 09:43:19 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: [pm] document acpi_sleep= options
+Message-ID: <20031010074319.GA352@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <047b01c38f00$60b34840$6a647c0a@eto>
-Organization: The Domain of Holomorphy
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 10, 2003 at 04:19:46PM +1000, Stuart Longland wrote:
->>> * hotplug motherboard & entire computer too I spose ;-)
+Hi!
 
-> From: "William Lee Irwin III" <wli@holomorphy.com>
->> Um, this is worse than the above wrt. being too vague.
+Those were even missing from kernel-parameters.txt. This adds some
+description. Please apply,
+							Pavel
 
-On Fri, Oct 10, 2003 at 04:30:27PM +0900, YoshiyaETO wrote:
-> "Hotplug node" is a better explanation, I think.
-> "Node" includes CPUs and/or Memory and/or some kind of IOs.
-> And "Node" should be flexibly configurable also.
+--- clean/Documentation/kernel-parameters.txt	2003-10-09 00:13:09.000000000 +0200
++++ linux/Documentation/kernel-parameters.txt	2003-10-10 09:36:31.000000000 +0200
+@@ -90,6 +90,10 @@
+ 			off -- disabled ACPI for systems with default on
+ 			ht -- run only enough ACPI to enable Hyper Threading
+ 			See also Documentation/pm.txt.
++
++	acpi_sleep=	[HW,ACPI] Sleep options
++			Format: { s3_bios, s3_mode }
++			See Documentation/power/video.txt
+  
+ 	ad1816=		[HW,OSS]
+ 			Format: <io>,<irq>,<dma>,<dma2>
+--- clean/Documentation/power/video.txt	2003-10-10 09:11:51.000000000 +0200
++++ linux/Documentation/power/video.txt	2003-10-10 09:40:44.000000000 +0200
+@@ -0,0 +1,36 @@
++
++		Video issues with S3 resume
++		~~~~~~~~~~~~~~~~~~~~~~~~~~~
++		     2003, Pavel Machek
++
++During S3 resume, hardware needs to be reinitialized. For most
++devices, this is easy, and kernel driver knows how to do
++it. Unfortunately there's one exception: video card. Those are usually
++initialized by BIOS, and kernel does not have enough information to
++boot video card. (Kernel usually does not even contain video card
++driver -- vesafb and vgacon are widely used).
++
++This is not problem for swsusp, because during swsusp resume, BIOS is
++run normally so video card is normally initialized.
++
++There are three types of systems where video works after S3 resume:
++
++* systems where video state is preserved over S3. (HP Omnibook xe3)
++
++* systems that initialize video card into vga text mode and where BIOS
++  works well enough to be able to set video mode. Use
++  acpi_sleep=s3_mode on these. (Toshiba 4030cdt)
++
++* systems where it is possible to call video bios during S3
++  resume. Unfortunately, it is not correct to call video BIOS at that
++  point, but it happens to work on some machines. Use
++  acpi_sleep=s3_bios (Athlon64 desktop system)
++
++Now, if you pass acpi_sleep=something, and it does not work with your
++bios, you'll get hard crash during resume. Be carefull.
++
++You may have system where none of above works. At that point you
++either invent another ugly hack that works, or write proper driver for
++your video card (good luck getting docs :-(). Maybe suspending from X
++(proper X, knowing your hardware, not XF68_FBcon) might have better
++chance of working.
 
-I don't see any reason to connect it with the notion of a node.
-
-The main points of contention would appear to be cooperative vs.
-forcible (where I believe cooperative is acknowledged as the only
-feasible problem), and the potential connections with ZONE_HIGHMEM
-wrt. constraints that would artificially introduce to 64-bit kernels.
-
-The fact some systems would want to do whole nodes at a time with
-some cpus and io buses in tandem is largely immaterial and doesn't
-simplify, complicate, or otherwise affect the VM mechanics.
-
--- wli
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,84 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262864AbULRLwt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262141AbULRL7X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262864AbULRLwt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Dec 2004 06:52:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262865AbULRLwt
+	id S262141AbULRL7X (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Dec 2004 06:59:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262171AbULRL7X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Dec 2004 06:52:49 -0500
-Received: from smtp3.wanadoo.fr ([193.252.22.28]:9801 "EHLO smtp3.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S262864AbULRLwn (ORCPT
+	Sat, 18 Dec 2004 06:59:23 -0500
+Received: from null.rsn.bth.se ([194.47.142.3]:8380 "EHLO null.rsn.bth.se")
+	by vger.kernel.org with ESMTP id S262141AbULRL7R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Dec 2004 06:52:43 -0500
-Message-ID: <41C41A09.8040608@free.fr>
-Date: Sat, 18 Dec 2004 12:52:41 +0100
-From: Charles-Henri Collin <charlie.collin@free.fr>
-User-Agent: Mozilla Thunderbird 0.9 (Windows/20041103)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
+	Sat, 18 Dec 2004 06:59:17 -0500
 Subject: Re: ip=dhcp problem...
-References: <41C40326.3070303@free.fr> <Pine.LNX.4.61.0412181159580.28067@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0412181159580.28067@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Charles-Henri Collin <charlie.collin@free.fr>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <41C40326.3070303@free.fr>
+References: <41C40326.3070303@free.fr>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-QFSpPdGe1EyqtfDivfRw"
+Message-Id: <1103371154.12078.61.camel@tux.rsn.bth.se>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 18 Dec 2004 12:59:14 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt a écrit :
 
->>I've got the following problem with linux 2.6.8.1:
->>I'm nfs-rooting a diskless client with kernel parameter ip=dhcp.
->>My dhcpd.conf  has a "option domain-name-servers X.X.X.X;" statement and
->>"get-lease-hostnames true;"
->>Now when the diskless clients boot, no name-server configured and they cant
->>resolv.
->>dmesg gives me, for instance:
->>    
->>
->
->What happens if you put
->	option domain-name-servers 192.168.222.1;
->in your dhcpd.conf, i.e. an IP number rather than a host?
->
->
->
->
->Jan Engelhardt
->  
->
-i do put IP in this field (192.168.0.254) in fact, but this doesnt work.
-i'm looking for a reason why it desnt work.. i've just setup:
-#define  IPCONFIG_DEBUG
-in linux/net/ipv4/ipconfig.c, and this is what i get at boottime:
+--=-QFSpPdGe1EyqtfDivfRw
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-DHCP:   Get message type 2
-DHCP:   Offered address 192.168.0.237 by server 192.168.0.254
-DHCP/BOOTP:    Got extension   53: 02
-DHCP/BOOTP:    Got extension   54: c0 a8 00 fe
-DHCP/BOOTP:    Got extension   51: 00 01 19 40
-DHCP/BOOTP:    Got extension   1: ff ff ff 00
-DHCP/BOOTP:    Got extension   3: c0 a8 00 fe
-DHCP/BOOTP:    Got extension   12: 63 6c 69 65 6e 74 46 53 42 2d 32 33 
-37 2e 66 73 62 2e 6e 65 74 00
-DHCP/BOOTP:    Got extension   15: 66 73 62 2e 6e 65 74
-DHCP/BOOTP:    Got extension   40: 46 53 42 6e 69 73
-,DHCP:   sending message type 3
-DHCP: Got message type 5
-DHCP/BOOTP:    Got extension   53: 05
-DHCP/BOOTP:    Got extension   54: c0 a8 00 fe
-DHCP/BOOTP:    Got extension   51: 00 01 19 40
-DHCP/BOOTP:    Got extension   1: ff ff ff 00
-DHCP/BOOTP:    Got extension   3: c0 a8 00 fe
-DHCP/BOOTP:    Got extension   12: 63 6c 69 65 6e 74 46 53 42 2d 32 33 
-37 2e 66 73 62 2e 6e 65 74 00
-DHCP/BOOTP:    Got extension   15: 66 73 62 2e 6e 65 74
-DHCP/BOOTP:    Got extension   40: 46 53 42 6e 69 73
+On Sat, 2004-12-18 at 11:15, Charles-Henri Collin wrote:
+> Hi,
+>=20
+> I've got the following problem with linux 2.6.8.1:
+> I'm nfs-rooting a diskless client with kernel parameter ip=3Ddhcp.
+> My dhcpd.conf  has a "option domain-name-servers X.X.X.X;" statement and=20
+> "get-lease-hostnames true;"
+> Now when the diskless clients boot, no name-server configured and they=20
+> cant resolv.
+> dmesg gives me, for instance:
+>=20
+> IP Config: Complete:
+>     device=3Deth0, addr=3D192.168.0.237, mask=3D255.255.255.0, gw=3D192.1=
+68.0.1,
+>     host=3DclientFSB-237.fsb.net, domain=3Dfsb.net, nis-domain=3DFSBnis,
+>     boot-server=3D192.168.0.254, rootserver=3D92.168.0.254, rootpath=3D
+>=20
+> So as you can see, everything is almost set up, except a nameserver!
+> Has anyone heard about that problem before? Are there any fixes?
 
-Extension 6 is the nameserver (see config.c for more details) and it is 
-set as you can see. that is strange....
-i'm looking for more hints. hope this will help.
-regards,
+The fix is to make sure you have a nameserver in your /etc/resolv.conf
+The kernel has no idea how to resolve names into addresses. That's a
+userspace thing. I'm not sure if you can extract the dhcp info from the
+kernel after the boot, otherwise you'll just have to run a userspace
+dhcp client, I use dhclient.
 
-C COLLIN
+--=20
+/Martin
 
+--=-QFSpPdGe1EyqtfDivfRw
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBBxBuSWm2vlfa207ERAussAJoCW2Nt2sE/ipeOj5tOUmZo6tH4HwCfRE6G
+fdEYPZSqjtTlYhbdFZLhUHY=
+=C0Is
+-----END PGP SIGNATURE-----
+
+--=-QFSpPdGe1EyqtfDivfRw--

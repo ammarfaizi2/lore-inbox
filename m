@@ -1,49 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264334AbTLYRwA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 12:52:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264337AbTLYRwA
+	id S264333AbTLYRpw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 12:45:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264334AbTLYRpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 12:52:00 -0500
-Received: from main.gmane.org ([80.91.224.249]:483 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264334AbTLYRv7 (ORCPT
+	Thu, 25 Dec 2003 12:45:52 -0500
+Received: from quechua.inka.de ([193.197.184.2]:38027 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S264333AbTLYRpv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 12:51:59 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Thu, 25 Dec 2003 12:45:51 -0500
+From: Andreas Jellinghaus <aj@dungeon.inka.de>
+Subject: Re: [PATCH] add sysfs mem device support  [2/4]
+Date: Thu, 25 Dec 2003 18:48:51 +0100
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing	moment of clarity. (Debian GNU/Linux))
+Message-Id: <pan.2003.12.25.17.47.43.603779@dungeon.inka.de>
+References: <20031223002126.GA4805@kroah.com>	<20031223002439.GB4805@kroah.com> <20031223002609.GC4805@kroah.com>	<20031223131523.B6864@infradead.org> <1072193516.3472.3.camel@fur>	<20031223163904.A8589@infradead.org>
 To: linux-kernel@vger.kernel.org
-From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
-Subject: Re: allow process or user to listen on priviledged ports?
-Date: Thu, 25 Dec 2003 18:46:10 +0100
-Message-ID: <bsf83s$f23$1@sea.gmane.org>
-References: <bscg1m$1eg$1@sea.gmane.org> <20031225104526.GA10239@axis.demon.co.uk> <3FEAD582.10908@upb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4.1) Gecko/20031008
-X-Accept-Language: de, en
-In-Reply-To: <3FEAD582.10908@upb.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I would give your application this capability (from #include 
->> "linux/capability.h")
->>
->>   /* Allows binding to TCP/UDP sockets below 1024 */
->>   /* Allows binding to ATM VCIs below 32 */
->>
->>   #define CAP_NET_BIND_SERVICE 10
->>
->> You do this with a setuid wrapper which drops all capabilities but
->> that one and then runs your application.
-> 
-> Thx for the answer! That's exactly what i search for.
+On Tue, 23 Dec 2003 16:47:44 +0000, Christoph Hellwig wrote:
+> I disagree. For fully static devices like the mem devices the udev
+> indirection is completely superflous.
 
-Unfortunatly my gladness didn't last long. The FAQ at
-http://ftp.kernel.org/pub/linux/libs/security/linux-privs/kernel-2.4/capfaq-0.2.txt 
-states that CAP_SETPCAP is disabled, but it doesn't say why it is 
-disapled. That capability is needed by sucap to work.
+If sysfs does not contain data on mem devices, we will need makedev.
 
-So why is CAP_SETPCAP disabled by default?
+devfs did replace makedev. until udev can create all devices,
+it would need to re-introduce makedev.
 
+Andreas
 

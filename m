@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131512AbRCNT4R>; Wed, 14 Mar 2001 14:56:17 -0500
+	id <S131517AbRCNUB1>; Wed, 14 Mar 2001 15:01:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131513AbRCNT4H>; Wed, 14 Mar 2001 14:56:07 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:64918 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S131512AbRCNTzy>;
-	Wed, 14 Mar 2001 14:55:54 -0500
-Date: Wed, 14 Mar 2001 14:55:13 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Szabolcs Szakacsits <szaka@f-secure.com>
-cc: Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: system call for process information?
-In-Reply-To: <Pine.LNX.4.30.0103142143300.13864-100000@fs131-224.f-secure.com>
-Message-ID: <Pine.GSO.4.21.0103141451310.4468-100000@weyl.math.psu.edu>
+	id <S131530AbRCNUBS>; Wed, 14 Mar 2001 15:01:18 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:22540 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S131517AbRCNUBG>; Wed, 14 Mar 2001 15:01:06 -0500
+Date: Thu, 15 Mar 2001 00:13:08 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: Boris Dragovic <lynx@falcon.etf.bg.ac.yu>,
+        Oswald Buddenhagen <ob6@inf.tu-dresden.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: static scheduling - SCHED_IDLE?
+In-Reply-To: <20010314141944.A27572@pcep-jamie.cern.ch>
+Message-ID: <Pine.LNX.4.33.0103150012140.21132-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 14 Mar 2001, Jamie Lokier wrote:
 
+> > 2. load control, when the VM starts thrashing we can just
+> >    suspend a few processes to make sure the system as a
+> >    whole won't thrash to death
+>
+> Surely it would be easier, and more appropriate, to make the
+> processes sleep when they next page fault.
 
-On Wed, 14 Mar 2001, Szabolcs Szakacsits wrote:
+This should work ...
 
-> 
-> On Mon, 12 Mar 2001, Alexander Viro wrote:
-> > On Mon, 12 Mar 2001, Guennadi Liakhovetski wrote:
-> > > I need to collect some info on processes. One way is to read /proc
-> > > tree. But isn't there a system call (ioctl) for this? And what are those
-> > Occam's Razor.  Why invent new syscall when read() works?
-> 
-> read() doesn't really work for this purpose, it blocks way too many
-> times to be very annoying. When finally data arrives it's useless.
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
 
-Huh? Take code of your non-blocking syscall. Make it ->read() for
-relevant file on /proc or wherever else you want it. See read() not
-blocking...
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-Whether code blocks or not depends on the code, not on the calling
-conventions. And definitely not on ASCII vs. binary - conversion
-between these formats _is_ doable without blocking operations.
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

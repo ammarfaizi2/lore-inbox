@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129761AbQL1A1L>; Wed, 27 Dec 2000 19:27:11 -0500
+	id <S131071AbQL1AxF>; Wed, 27 Dec 2000 19:53:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129778AbQL1A1A>; Wed, 27 Dec 2000 19:27:00 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56588 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129761AbQL1A0w>;
-	Wed, 27 Dec 2000 19:26:52 -0500
-Date: Wed, 27 Dec 2000 23:55:33 +0000
-From: Philipp Rumpf <prumpf@parcelfarce.linux.theplanet.co.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Rik van Riel <riel@conectiva.com.br>, Dan Aloni <karrde@callisto.yi.org>,
-        Zlatko Calusic <zlatko@iskon.hr>, "Marco d'Itri" <md@Linux.IT>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Alexander Viro <viro@math.psu.edu>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: innd mmap bug in 2.4.0-test12
-Message-ID: <20001227235533.T21944@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <Pine.LNX.4.21.0012271717230.14052-100000@duckman.distro.conectiva> <Pine.LNX.4.10.10012271537260.10485-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.10.10012271537260.10485-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Dec 27, 2000 at 03:41:04PM -0800
+	id <S132061AbQL1Awz>; Wed, 27 Dec 2000 19:52:55 -0500
+Received: from mout0.freenet.de ([194.97.50.131]:21391 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S131071AbQL1Awr>;
+	Wed, 27 Dec 2000 19:52:47 -0500
+From: Andreas Franck <afranck@gmx.de>
+Date: Thu, 28 Dec 2000 01:26:19 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="US-ASCII"
+To: Mike Galbraith <mikeg@wen-online.de>,
+        Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <Pine.Linu.4.10.10012271823370.471-100000@mikeg.weiden.de> <00122801060000.00534@dg1kfa.ampr.org>
+In-Reply-To: <00122801060000.00534@dg1kfa.ampr.org>
+Subject: Re: Fatal Oops on boot with 2.4.0testX and recent GCC snapshots
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Message-Id: <00122801261900.00466@dg1kfa.ampr.org>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 27, 2000 at 03:41:04PM -0800, Linus Torvalds wrote:
-> It must be wrong.
-> 
-> If we have a dirty page on the LRU lists, that page _must_ have a mapping.
+Hello Mike, hello Linus,
 
-What about pages with a mapping but without a writepage function ? or pages
-whose writepage function fails ?  The current code seems to simply put the
-page onto the active list in that case, which seems just as wrong to me.
+Some minutes ago, I wrote:
+> I think I have found the reason for our bugs. It seems GCC really
+> miscompiles buffer.c:bdflush_init without frame pointers. I'll try harder
+> now to understand what excactly is going on, but it seems it is smashing
+> its local stack space by decrementing its stack pointer too early, then
+> calling an assembler function (__down_failed). It might be that GCC is
+> confused by this.
 
-> The bug is somewhere else, and your patch is just papering it over. We
-> should not have a page without a mapping on the LRU lists in the first
-> place, except if the page has anonymous buffers (and such a page cannot
+[...]
 
-So is there any legal reason we could ever get to page_active ?  Removing
-that code (or replacing it with BUG()) certainly would make page_launder
-more readable.
+> Any comments on this? I'll now try to split up the stack space operation in
+> two parts, the first after call kernel_thread: addl $12, %esp (as in the
+> first call), and an additional addl $64, %esp just before leaving (before
+> popl %ebx). And I'll report what happened, later - but I have a good
+> feeling that I have caught the bug.
+
+... and my good feeling was right. Changing the bogus assembly code made the 
+bug go away. I'll try to prepare a simpler testcase for the GCC maintainers 
+tomorrow. For short, this is what happens: GCC tries to free its stack frame 
+for the local variables far too early. It then calls __down_failed(), which 
+pushes some things on the stack - thereby corrupting the semaphore pointer! 
+So __down() works on a random memory location instead of the semaphore, which 
+is guaranteed to fail badly. 
+
+I've added linux-kernel as CC again, so everybody can now hear that this is 
+definitely a GCC bug, and not a kernel issue.
+
+Greetings,
+Andreas
+
+-- 
+->>>----------------------- Andreas Franck --------<<<-
+---<<<---- Andreas.Franck@post.rwth-aachen.de --->>>---
+->>>---- Keep smiling! ----------------------------<<<-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,67 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261400AbTIKPVL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 11:21:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbTIKPVL
+	id S261370AbTIKPcM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 11:32:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261371AbTIKPcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 11:21:11 -0400
-Received: from inova102.correio.tnext.com.br ([200.222.67.102]:17539 "HELO
-	leia-auth.correio.tnext.com.br") by vger.kernel.org with SMTP
-	id S261400AbTIKPVG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 11:21:06 -0400
-X-Analyze: Velop Mail Shield v0.0.3
-To: linux-kernel@vger.kernel.org
-Subject: Support for Netmos 6 port 16550a serial card
-Cc: marcelo@conectiva.com.br, marcelo@macp.eti.br
-Message-Id: <20030911152101.CE8BD16CD2D@macp.eti.br>
-Date: Thu, 11 Sep 2003 12:21:01 -0300 (BRT)
-From: root@macp.eti.br (root)
+	Thu, 11 Sep 2003 11:32:12 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:25744 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261370AbTIKPcJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 11:32:09 -0400
+Date: Thu, 11 Sep 2003 17:32:06 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Marek Szyprowski <march@staszic.waw.pl>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ASFS filesystem patch, kernel 2.4.21
+In-Reply-To: <yam9384.2177.1200381112@boss.staszic.waw.pl>
+Message-ID: <Pine.GSO.4.21.0309111730550.1879-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Follows a trivial patch to add support of a popular serial card in Brazil that
-contains 6 standard 16550A uarts with a Netmos PCI glue. Only adds the
-apropriate entries to the proper pci and serial ids. Please apply.
+On Thu, 11 Sep 2003, Marek Szyprowski wrote:
+> This patch adds read-only support for Amiga SmartFileSystem. This filesystem
+> is being used very commonly on AmigaOS and MorphOS systems. This patch has
+> been tested on Linux/PPC, Linux/m68k and Linux/x86 machines. This patch is
+> prepared for kernel 2.4.21.
 
-diff -urN linux-2.4.22/drivers/char/serial.c linux-2.4.22/drivers/char/serial.c
---- linux-2.4.21/drivers/char/serial.c	2003-09-11 12:11:54.000000000 -0300
-+++ linux-2.4.22/drivers/char/serial.c	2003-09-10 14:17:22.000000000 -0300
-@@ -4370,6 +4370,8 @@
- 	pbn_computone_4,
- 	pbn_computone_6,
- 	pbn_computone_8,
-+
-+	netmos_9845
- };
- 
- static struct pci_board pci_boards[] __devinitdata = {
-@@ -4478,6 +4480,7 @@
- 		0x40, 2, NULL, 0x200 },
- 	{ SPCI_FL_BASE0, 8, 921600, /* IOMEM */		   /* pbn_computone_8 */
- 		0x40, 2, NULL, 0x200 },
-+	{ SPCI_FL_BASE0 | SPCI_FL_BASE_TABLE, 6, 115200 },			   /* netmos_9845 */
- };
- 
- /*
-@@ -4921,6 +4924,10 @@
- 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
- 		pbn_dci_pccom8 },
- 
-+	{ PCI_VENDOR_ID_NETMOS, PCI_DEVICE_ID_NETMOS_9845,
-+		PCI_ANY_ID, PCI_ANY_ID, 0, 0, netmos_9845
-+		},
-+
-        { PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
- 	 PCI_CLASS_COMMUNICATION_SERIAL << 8, 0xffff00, },
-        { PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
-diff -urN linux-2.4.22/drivers/pci/pci.ids linux-2.4.22/drivers/pci/pci.ids
---- linux-2.4.21/drivers/pci/pci.ids	2003-09-11 12:11:55.000000000 -0300
-+++ linux-2.4.22/drivers/pci/pci.ids	2003-09-10 14:17:22.000000000 -0300
-@@ -7217,6 +7217,7 @@
- 9710  NetMos Technology
- 	9815  VScom 021H-EP2 2 port parallel adaptor
- 	9835  222N-2 I/O Card (2S+1P)
-+	9845  6 port 16550a serial card
- a0a0  AOPEN Inc.
- a0f1  UNISYS Corporation
- a200  NEC Corporation
+ASFS is happily living in the Linux/m68k CVS tree as well.
+
+However, I guess Marcelo will insist you port it to 2.6.0 first, before it will
+be accepted in the mainline.
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261312AbTDZOjI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Apr 2003 10:39:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbTDZOjH
+	id S261326AbTDZOoA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Apr 2003 10:44:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbTDZOoA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Apr 2003 10:39:07 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:57493 "EHLO
+	Sat, 26 Apr 2003 10:44:00 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:61589 "EHLO
 	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S261312AbTDZOjF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Apr 2003 10:39:05 -0400
-Date: Sat, 26 Apr 2003 10:34:45 -0400
+	id S261326AbTDZOn7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Apr 2003 10:43:59 -0400
+Date: Sat, 26 Apr 2003 10:40:18 -0400
 From: Ben Collins <bcollins@debian.org>
 To: Stelian Pop <stelian.pop@fr.alcove.com>,
        Marcelo Tosatti <marcelo@conectiva.com.br>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: The IEEE-1394 saga continued... [ was: IEEE-1394 problem on init ]
-Message-ID: <20030426143445.GC2774@phunnypharm.org>
+Message-ID: <20030426144017.GD2774@phunnypharm.org>
 References: <20030423142131.GK820@hottah.alcove-fr> <20030423142353.GL354@phunnypharm.org> <20030423145122.GL820@hottah.alcove-fr> <20030423144857.GN354@phunnypharm.org> <20030423152914.GM820@hottah.alcove-fr> <Pine.LNX.4.53L.0304231609230.5536@freak.distro.conectiva> <20030423202002.GA10567@vitel.alcove-fr> <20030423202453.GA354@phunnypharm.org> <20030423204258.GB10567@vitel.alcove-fr> <20030426082956.GB18917@vitel.alcove-fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,38 +25,26 @@ User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 26, 2003 at 10:29:57AM +0200, Stelian Pop wrote:
-> On Wed, Apr 23, 2003 at 10:42:58PM +0200, Stelian Pop wrote:
-> 
-> > > I haven't been able to figure out how to get the scsi
-> > > subsystem to remove devices in this condition:
-> > 
-> > Well, hopefully someone here will direct you towards the 
-> > correct solution before 2.4.21 gets final... Firewire devices
-> > tend to be plugged / unplugged quite often.
-> 
-> This was three days ago. Today, without *any* notice (like posting
-> a patch on lkml for example, as I already suggested it), I saw a
-> new IEEE1394 patch was checked in into Marcelo's tree.
-> 
-> As usual, the patch was quite big, in Ben's own words "virtualy
-> bloated [...] by format changes". Why he continues to submit patches
-> like that one in -rc stage is beyond my understanding.
-> 
-> And guess what ? The new patch broke (again) my setup. When I plug
-> in my iPod, the scsi layer does not see it anymore.
+> Since I reported issues about this 3 days ago, I would have appreciated
+> being CC:'ed on the patch mail, so I could have reported issues 
+> like this _before_ such a patch being applied. 
 
-Good lord would you calm down.
+BTW, there are atleast 2 dozen people looking for this patch. I tested
+it and several others on the linux1394 mailing list tested it. If you
+want to be more closely involved with linux1394 specifically, then don't
+expect me to search you out...come to us where our development happens.
+We have a commit list to the repo and a developers list.
 
-Run the rescan-scan-scsi.sh script floating around. Out own website
-describes having to use this for 2.4 kernels. It was either leave sbp2
-oopsing, or rewrite the load logic so that there was no way for left
-over scsi cruft. The side affect is that the only hot-plug situation
-ieee1394 had in 2.4 is gone.
+Things happen there...the only reason I bother the general linux-kernel
+list is for things that affect outside the scope of drivers/ieee1394/*.
+I don't think that's much different than a lot of projects in the
+kernel.
 
-Before, loading sbp2 before loading ohci1394 gave the same affect. Now,
-loading sbp2 before ohci1394 also requires running rescan-scan-scsi.sh.
-Blame the scsi layer, not me.
+I've never sent my patches to the list prior to inclusion in the kernel,
+and a lot of folks don't, depending on neccessity. I don't see the need
+to start now, not when interested parties have a place to go to see the
+patches before hand anyway. Nothing major I send to Marcelo or Linus is
+done so without it being committed in out repo first.
 
 -- 
 Debian     - http://www.debian.org/

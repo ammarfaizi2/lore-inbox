@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264818AbUD1O6x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264828AbUD1PCT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264818AbUD1O6x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 10:58:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264829AbUD1O6x
+	id S264828AbUD1PCT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 11:02:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264837AbUD1PCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 10:58:53 -0400
-Received: from fed1rmmtao06.cox.net ([68.230.241.33]:41655 "EHLO
-	fed1rmmtao06.cox.net") by vger.kernel.org with ESMTP
-	id S264818AbUD1O6v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 10:58:51 -0400
-Date: Wed, 28 Apr 2004 07:58:50 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Meelis Roos <mroos@linux.ee>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 PATCH] PPC32: compile error in signal.c
-Message-ID: <20040428145850.GG3731@smtp.west.cox.net>
-References: <Pine.GSO.4.44.0404281025070.7699-100000@math.ut.ee>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 28 Apr 2004 11:02:19 -0400
+Received: from mail.native-instruments.de ([217.9.41.138]:3814 "EHLO
+	mail.native-instruments.de") by vger.kernel.org with ESMTP
+	id S264828AbUD1PBh convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 11:01:37 -0400
+From: Florian Schirmer <florian.schirmer@native-instruments.de>
+Organization: NATIVE INSTRUMENTS Software Synthesis GmbH
+To: stefan.eletzhofer@eletztrick.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add RTC 8564 I2C chip support
+Date: Wed, 28 Apr 2004 17:01:26 +0200
+User-Agent: KMail/1.6.2
+References: <20040428134122.GB23076@gonzo.local>
+In-Reply-To: <20040428134122.GB23076@gonzo.local>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.44.0404281025070.7699-100000@math.ut.ee>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200404281701.26851.florian.schirmer@native-instruments.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 28, 2004 at 10:29:26AM +0300, Meelis Roos wrote:
+Hi,
 
->   CC      arch/ppc/kernel/signal.o
-> arch/ppc/kernel/signal.c: In function `handle_signal':
-> arch/ppc/kernel/signal.c:518: error: `newspp' undeclared (first use in this function)
-> arch/ppc/kernel/signal.c:518: error: (Each undeclared identifier is reported only once
-> arch/ppc/kernel/signal.c:518: error: for each function it appears in.)
-> arch/ppc/kernel/signal.c:518: warning: long unsigned int format, pointer arg (arg 3)
-> 
-> The following patch seems to fix it:
+FYI alle deine Mails kommen immer 2x auf der LKML an. Solltest du mal bei 
+Gelegenheit untersuchen. Mir ists egal aber es gibt immer ein paar Dödel die 
+dann nichts besseres zu tun haben als sich zu Ärgern ;-)
 
-It's not quite complete, see http://lkml.org/lkml/2004/4/27/192 (and
-akpm has sent this on to Linus already).
+Grüsse,
+   Florian
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+On Wednesday 28 April 2004 15:41, stefan.eletzhofer@eletztrick.de wrote:
+> Hi,
+> the attached patch adds support for the Epson 8564 RTC
+> chip. This chip is a generic real-time-clock sitting on
+> a I2C bus.
+>
+> Patch URL:
+> http://213.239.196.168/~seletz/patches/2.6.6-rc2/i2c-rtc8564.patch
+>
+> Please comment,
+> 	Stefan E.

@@ -1,48 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263107AbTH0EVD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 00:21:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263100AbTH0EVD
+	id S263061AbTH0ETU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 00:19:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263064AbTH0ETU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 00:21:03 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:12556 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S263107AbTH0EU7
+	Wed, 27 Aug 2003 00:19:20 -0400
+Received: from magic-mail.adaptec.com ([216.52.22.10]:8077 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP id S263061AbTH0ETO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 00:20:59 -0400
-Date: Wed, 27 Aug 2003 06:12:57 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.22 released
-Message-ID: <20030827041225.GL734@alpha.home.local>
-References: <200308251148.h7PBmU8B027700@hera.kernel.org> <20030825132358.GC14108@merlin.emma.line.org> <1061818535.1175.27.camel@debian> <20030825211307.GA3346@werewolf.able.es> <20030825222215.GX7038@fs.tum.de> <1061857293.15168.3.camel@debian> <20030826234901.1726adec.aradorlinux@yahoo.es> <20030826215544.GI7038@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030826215544.GI7038@fs.tum.de>
-User-Agent: Mutt/1.4i
+	Wed, 27 Aug 2003 00:19:14 -0400
+Date: Tue, 26 Aug 2003 21:47:35 +0530 (IST)
+From: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
+X-X-Sender: tomar@localhost.localdomain
+Reply-To: nagendra_tomar@adaptec.com
+To: kuznet@ms2.inr.ac.ru
+cc: Werner Almesberger <wa@almesberger.net>, <quade@hsnr.de>,
+       "Tomar, Nagendra" <nagendra_tomar@adaptec.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: tasklet_kill will always hang for recursive tasklets on a UP
+In-Reply-To: <200308270147.FAA07024@dub.inr.ac.ru>
+Message-ID: <Pine.LNX.4.44.0308262141480.1471-100000@localhost.localdomain>
+Organization: Adaptec
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 26, 2003 at 11:55:44PM +0200, Adrian Bunk wrote:
-> > Reasons against:
-> > <write here your opinion>
-> >...
+Hi,
+
+On Wed, 27 Aug 2003 kuznet@ms2.inr.ac.ru wrote:
+
+> Hello!
 > 
-> - ALSA is big and there are still some bugs in ALSA; there are more
->   urgent things to be fixed in 2.4
-> - it's easy to use ALSA even when it's not inside the kernel
-> - within a few months 2.6.0 will be released with ALSA included -
->   together with the point above I don't see a reason why ALSA would be
->   badly needed in 2.4
+> > Hmm, actually, no. On UP, yes. But on SMP, you might tasklet_kill
+> > while the tasklet is running, but before it has had a chance to
+> > tasklet_schedule itself. tasklet_schedule will have no effect in
+> > this case.
+> > 
+> > Alexey, if my observation is correct, the property
+> > 
+> > | * If tasklet_schedule() is called, then tasklet is guaranteed
+> > |   to be executed on some cpu at least once after this.
+> > 
+> > does not hold if using tasklet_kill on SMP.
+> 
+> It still holds. tasklet_kill just waits for completion of scheduled
+> events. Well, it _assumes_ that cpu which calls tasklet_schedule
+> does not try to wake the tasklet after death. But it is from area
+> of pure scholastics already: waker and killer have to synchronize in
+> some
+> way anyway. 
 
-and... if one is clueless enough to be unable to compile ALSA outside the
-kernel or to try 2.6, then he's a good candidate for those user-friendly
-distros who ship it. Same for i2c.
+I didn't really understand this one. What Werner says seems correct 
+though. For recursive tasklets one of the two things are bound to happen. 
+Either the tasklet_kill hangs (which will happen on UP) or one (read last)
+tasklet_schedule is not honoured (which will happen on SMP). On SMP the 
+user context tasklet_kill gets a chance to exit the 
+"while (test_bit(TASKLET_STATE_SCHED, &t->state))" loop as it gets a 
+chance to run parallely with tasklet_action in the small window (during 
+which TASKLET_STATE_SCHED is not set) that I mentioned in one of my 
+earlier mails.
 
-Not that I wouldn't like to see those included, but there are far more urgent
-things as you said, and not everything will get its way to 2.4.23.
+So I believe that at least one (to be precise, the last one called before 
+tasklet dies) tasklet_schedule is not honoured.
 
-Cheers,
-Willy
+Thanx,
+
+tomar
+
+
+> 
+> Alexey
+
+
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,81 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264387AbTDOHvr (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 03:51:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264390AbTDOHvr (for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 03:51:47 -0400
-Received: from siaag2ac.compuserve.com ([149.174.40.133]:12730 "EHLO
-	siaag2ac.compuserve.com") by vger.kernel.org with ESMTP
-	id S264387AbTDOHvq (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 03:51:46 -0400
-Date: Tue, 15 Apr 2003 03:58:44 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Problem and solution: 2.5 broke KDE panel (kpanel)
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200304150403_MC3-1-3478-63FB@compuserve.com>
+	id S264392AbTDOICz (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 04:02:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264393AbTDOICy (for <rfc822;linux-kernel-outgoing>);
+	Tue, 15 Apr 2003 04:02:54 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:32645 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id S264392AbTDOICo (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 04:02:44 -0400
+Date: Tue, 15 Apr 2003 10:14:20 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Paul Mackerras <paulus@samba.org>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] M68k IDE updates
+In-Reply-To: <16027.14047.217861.806425@nanango.paulus.ozlabs.org>
+Message-ID: <Pine.GSO.4.21.0304151012390.26578-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 15 Apr 2003, Paul Mackerras wrote:
+> Geert Uytterhoeven writes:
+> > I think the least-intrusive solution is something like this:
+> > 
+> > --- linux-2.5/drivers/ide/ide-iops.c.orig	Mon Apr 14 21:43:30 2003
+> > +++ linux-2.5/drivers/ide/ide-iops.c	Mon Apr 14 21:44:53 2003
+> > @@ -423,8 +423,7 @@
+> >   */
+> >  void ide_fix_driveid (struct hd_driveid *id)
+> >  {
+> > -#ifndef __LITTLE_ENDIAN
+> > -# ifdef __BIG_ENDIAN
+> > +    if (ide_driveid_needs_swapping(id)) {
+> 
+> I really think that whether the driveid needs swapping should be
+> regarded as a property of the interface, not of the system as a whole.
+> 
+> I like the idea of adding a "read in driveid" function pointer to the
+> ide_hwif_t structure.  Most systems would set that to the same as the
+> INSW function pointer.  For those systems where the hardware designer
+> suffered a momentary dizzy spell we can set it to point to a function
+> that does the necessary byte-swapping.
 
- When I tried KDE 3.0 on kernel 2.5.66 I got an exception message
-from kpanel.  Everything else worked OK but there was no panel, so
-it wasn't much fun.
+That sounds OK to me.
 
- Solution: boot up 2.4 and remove applets from the panel.  The system
-monitor seems to be the problem -- it faulted when I tried to add it
-back (but the panel kept running.)
+But I'd like to have the actual swapping code in a common source or header
+file, else we fall back to the old approach, where all platforms that needed it
+implemented there own driveid swapping code, which had to be kept in sync when
+more reserved fields in the driveid got an actual meaning.
 
- In case anyone is interested, here's the backtrace I got when the
-panel died in 2.5:
+Gr{oetje,eeting}s,
 
-
-
-(no debugging symbols found)...(no debugging symbols found)...
-(no debugging symbols found)...(no debugging symbols found)...
-(no debugging symbols found)...(no debugging symbols found)...
-(no debugging symbols found)...(no debugging symbols found)...
-(no debugging symbols found)...[New Thread 1024 (LWP 847)]
-0x420b48b9 in wait4 () from /lib/i686/libc.so.6
-#0  0x420b48b9 in wait4 () from /lib/i686/libc.so.6
-#1  0x4213030c in __DTOR_END__ () from /lib/i686/libc.so.6
-#2  0x40eecc33 in waitpid () from /lib/i686/libpthread.so.0
-#3  0x406b08d2 in KCrash::defaultCrashHandler ()
-   from /usr/lib/libkdecore-gcc2.96.so.4
-#4  0x40eeaf05 in pthread_sighandler () from /lib/i686/libpthread.so.0
-#5  <signal handler called>
-#6  0x409a06a3 in QTimer::stop () from /usr/lib/qt3-gcc2.96/lib/libqt-mt.so.3
-#7  0x41394df1 in KTimeMon::stop ()
-   from /usr/lib/kde3/ktimemon_panelapplet.so.1
-#8  0x41391e82 in KSample::fatal ()
-   from /usr/lib/kde3/ktimemon_panelapplet.so.1
-#9  0x41392a10 in KSample::readSample ()
-   from /usr/lib/kde3/ktimemon_panelapplet.so.1
-#10 0x4139157c in KSample::KSample ()
-   from /usr/lib/kde3/ktimemon_panelapplet.so.1
-#11 0x413948a9 in KTimeMon::KTimeMon ()
-   from /usr/lib/kde3/ktimemon_panelapplet.so.1
-#12 0x413935f6 in init () from /usr/lib/kde3/ktimemon_panelapplet.so.1
-#13 0x4001c82f in PluginLoader::loadApplet ()
-   from /usr/lib/libkickermain-gcc2.96.so.1
-#14 0x41221a6e in InternalAppletContainer::InternalAppletContainer ()
-   from /usr/lib/kicker-gcc2.96.so
-#15 0x41229e9b in PluginManager::createAppletContainer ()
-   from /usr/lib/kicker-gcc2.96.so
-#16 0x41214343 in ContainerArea::loadContainerConfig ()
-   from /usr/lib/kicker-gcc2.96.so
-#17 0x41210419 in ContainerArea::initialize () from /usr/lib/kicker-gcc2.96.so
-#18 0x4120eb25 in Panel::initialize () from /usr/lib/kicker-gcc2.96.so
-#19 0x4120deaa in Kicker::Kicker () from /usr/lib/kicker-gcc2.96.so
-#20 0x4120cf9a in main () from /usr/lib/kicker-gcc2.96.so
-#21 0x0804cee9 in strcpy ()
-#22 0x0804dbcc in strcpy ()
-#23 0x0804e016 in strcpy ()
-#24 0x0804f505 in strcpy ()
-#25 0x42017589 in __libc_start_main () from /lib/i686/libc.so.6
-
+						Geert
 
 --
- Chuck
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

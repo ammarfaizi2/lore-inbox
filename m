@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264471AbSIQSi6>; Tue, 17 Sep 2002 14:38:58 -0400
+	id <S264456AbSIQSe2>; Tue, 17 Sep 2002 14:34:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264472AbSIQSi6>; Tue, 17 Sep 2002 14:38:58 -0400
-Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:2540 "HELO
-	mailphish.drugphish.ch") by vger.kernel.org with SMTP
-	id <S264471AbSIQSi4>; Tue, 17 Sep 2002 14:38:56 -0400
-Message-ID: <3D87785B.1080809@drugphish.ch>
-Date: Tue, 17 Sep 2002 20:45:47 +0200
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S264471AbSIQSe2>; Tue, 17 Sep 2002 14:34:28 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:8578 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S264456AbSIQSe2>;
+	Tue, 17 Sep 2002 14:34:28 -0400
+Date: Tue, 17 Sep 2002 20:46:29 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Robert Love <rml@tech9.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] BUG(): sched.c: Line 944
+In-Reply-To: <1032287273.4593.31.camel@phantasy>
+Message-ID: <Pine.LNX.4.44.0209172039380.13829-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: TLB flush counters gone in 2.5.35-bk?
-References: <3D874DA1.20803@drugphish.ch.suse.lists.linux.kernel> <p73znugtuw4.fsf@oldwotan.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You can easily get the same information from the CPU performance counters
-> (e.g. via oprofile) 
 
-Thanks for the pointer Andi, I should have thought of oprofile before.
+On 17 Sep 2002, Robert Love wrote:
 
-You wouldn't happen to know the equivalent counter event to a 
-tlb_flush_mmu() for a PIII by any chance, would you? :). I've checked 
-op_help and only found the ITLB_MISS. I look at the L2_* related cpu 
-counters but can't find a TLB flush counter.
+> [...] How can this in_atomic() test _ever_ catch a preemption bug?  We
+> cannot enter the scheduler off kernel preemption unless
+> preempt_count==0.  This is a test to catch bugs in other parts of the
+> kernel, e.g. where code explicitly calls schedule() while holding a
+> lock.
 
-I'm reading through Appendix A of the IA-32 Architecture Vol 3 manual 
-(it's actually very interesting), but I haven't found it either so far. 
-Do I have to check for the INVLPG instructions?
+you are right, i was confusing this with the older check for disabled
+interrupt in preempt_schedule() [which i'd still find useful].
 
-Best regards,
-Roberto Nibali, ratz
--- 
-echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq'|dc
+The smp_processor_id() test catches true preemption bugs. So does
+preempt_count() underflow detection.
+
+i do agree with Alan - there can be nothing bad in trying to fix all that
+non-preempt-aware code right now, before it becomes too late.
+
+	Ingo
 

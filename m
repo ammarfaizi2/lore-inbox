@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261950AbUBHBqf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 20:46:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbUBHBqf
+	id S261744AbUBHByA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 20:54:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbUBHByA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 20:46:35 -0500
-Received: from dp.samba.org ([66.70.73.150]:35218 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261950AbUBHBqe (ORCPT
+	Sat, 7 Feb 2004 20:54:00 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:45236 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261744AbUBHBx7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 20:46:34 -0500
-Date: Sun, 8 Feb 2004 12:41:41 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Rick Lindsley <ricklind@us.ibm.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, dvhltc@us.ibm.com
-Subject: Re: [PATCH] Load balancing problem in 2.6.2-mm1
-Message-ID: <20040208014141.GX19011@krispykreme>
-References: <20040207095057.GS19011@krispykreme> <200402080040.i180eY811893@owlet.beaverton.ibm.com> <20040208011221.GV19011@krispykreme> <40258F21.30209@cyberone.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40258F21.30209@cyberone.com.au>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sat, 7 Feb 2004 20:53:59 -0500
+Date: Sat, 7 Feb 2004 20:53:53 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Valdis.Kletnieks@vt.edu, <linux-kernel@vger.kernel.org>,
+       <sds@epoch.ncsc.mil>
+Subject: Re: 2.6.2-mm1, selinux, and initrd
+In-Reply-To: <20040207173102.07b0e932.akpm@osdl.org>
+Message-ID: <Xine.LNX.4.44.0402072053350.20875-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 7 Feb 2004, Andrew Morton wrote:
 
-> Does active balancing still work? Ie. get two processes running on the
-> same physical CPU and see if one is migrated away.
+> Valdis.Kletnieks@vt.edu wrote:
+> >
+> > On Sat, 07 Feb 2004 08:49:28 EST, James Morris said:
+> > 
+> > > Ok, looks like a problem where devfs is passing an empty string to 
+> > > do_mount when it expects a page.
+> > > 
+> > > Please try the patch below against 2.6.2-mm1.
+> > 
+> > OK, thanks.. that's a "confirmed working"...
+> > 
+> 
+> 
+> So I queue up the below patch, yes?
 
-Both Ricks patch and your patch still have the active rebalance issue.
+Yes, please.
 
-Martins patch doesnt, but that seems to be because it does absolutely no
-rebalancing (all my runnable tasks are on one physical cpu) :)
 
-Anton
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
+

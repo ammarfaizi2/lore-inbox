@@ -1,31 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278625AbRKZK47>; Mon, 26 Nov 2001 05:56:59 -0500
+	id <S280203AbRKZK7j>; Mon, 26 Nov 2001 05:59:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280792AbRKZK4u>; Mon, 26 Nov 2001 05:56:50 -0500
-Received: from sj-msg-core-4.cisco.com ([171.71.163.10]:58256 "EHLO
-	sj-msg-core-4.cisco.com") by vger.kernel.org with ESMTP
-	id <S280612AbRKZK4f>; Mon, 26 Nov 2001 05:56:35 -0500
-Message-ID: <3C021FAF.ABAD279E@cisco.com>
-Date: Mon, 26 Nov 2001 16:25:43 +0530
-From: Manik Raina <manik@cisco.com>
-Organization: Cisco Systems Inc.
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-12 i686)
-X-Accept-Language: en
+	id <S278660AbRKZK73>; Mon, 26 Nov 2001 05:59:29 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:57868 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S280612AbRKZK7Y>;
+	Mon, 26 Nov 2001 05:59:24 -0500
+Date: Mon, 26 Nov 2001 08:59:01 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Mike Fedyk <mfedyk@matchmail.com>,
+        Stephan von Krawczynski <skraw@ithnet.com>,
+        Dominik Kubla <kubla@sciobyte.de>, <marcelo@conectiva.com.br>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] 2.5/2.6/2.7 transition [was Re: Linux 2.4.16-pre1]
+In-Reply-To: <Pine.LNX.4.33.0111251946400.9764-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33L.0111260857150.4079-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: question on ioctl collisions
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 25 Nov 2001, Linus Torvalds wrote:
 
-Is there a way in the kernel to detect ioctl conflicts
-at runtime ? This could deter people from using the
-same number while registering.
+> The _real_ solution is to make fewer fundamental changes between
+> stable kernels, and that's a real solution that I expect to become
+> more and more realistic as the kernel stabilizes.
 
-thanks
-Manik
+Agreed, this would make a _lot_ of difference in the time it
+takes to get a new stable kernel really stable.
+
+> But you also have to realize that "fewer fundamental changes" is a
+> mark of a system that isn't evolving as quickly, and that is reaching
+> middle age. We are probably not quite there yet ;)
+
+Doesn't mean we need to get _all_ our TODO items done in
+2.5.  I really don't see what's wrong with doing only a
+few in 2.5 and delaying the rest for 2.7, especially not
+when both 2.5 and 2.7 happen quickly ;)
+
+regards,
+
+Rik
+-- 
+Shortwave goes a long way:  irc.starchat.net  #swl
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

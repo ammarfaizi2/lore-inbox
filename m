@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318470AbSIFMEl>; Fri, 6 Sep 2002 08:04:41 -0400
+	id <S318536AbSIFMVY>; Fri, 6 Sep 2002 08:21:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318519AbSIFMEk>; Fri, 6 Sep 2002 08:04:40 -0400
-Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:34960 "HELO
-	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S318470AbSIFMEk>; Fri, 6 Sep 2002 08:04:40 -0400
-Message-ID: <20020906120914.23405.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
+	id <S318539AbSIFMVY>; Fri, 6 Sep 2002 08:21:24 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:15090
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318536AbSIFMVX>; Fri, 6 Sep 2002 08:21:23 -0400
+Subject: Re: 2.5.xx kernels won't run on my Athlon boxes
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kirk Reiser <kirk@braille.uwo.ca>
+Cc: Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org
+In-Reply-To: <x765xj9wgg.fsf@speech.braille.uwo.ca>
+References: <0a0c35552230592DTVMAIL9@smtp.cwctv.net>
+	<1031272848.7367.33.camel@irongate.swansea.linux.org.uk> 
+	<x765xj9wgg.fsf@speech.braille.uwo.ca>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: <ahu@ds9a.nl>
-Cc: linux-kernel@vger.kernel.org, andrea@suse.de
-Date: Fri, 06 Sep 2002 20:09:14 +0800
-Subject: Re: BYTE UNIX Benchmarks (Version 4.1.0)
-X-Originating-Ip: 194.185.48.246
-X-Originating-Server: ws4-4.us4.outblaze.com
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 06 Sep 2002 13:26:52 +0100
+Message-Id: <1031315212.9945.35.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: bert hubert <ahu@ds9a.nl>
+On Fri, 2002-09-06 at 12:41, Kirk Reiser wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+> 
+> > That wont help because he has 2.5 problems. However the 2.5 IDE for < 33
+> > is known hosed for some cases anyway.
+> 
+> Can you tell me more?  I'm trying to figure out just what else to try
+> I haven't already tried.  I can't be the only person experiencing
+> this.  I mean I'm having the same problem on two separate computers
+> build with the same components.
 
-> Can you tell us what the 'baseline' is and what the 'result' is? Ie, which
-> kernels. 
+There was a lot of IDE rewriting for 2.5. 2.5 IDE doesnt work for lots
+of cases. If you want working IDE run 2.4
 
-Oh yes, I wrote it in the privious email when linuxmail.org started to mangle my emails (now is all ok).
-
-Result is  2.4.20-pre5aa1.
-The baseline is a vanilla 2.4.19
-
-In my first email there is the result of 2.5.33 baseline 2.4.19
-
-Ciao,
-        Paolo
-
--- 
-Get your free email from www.linuxmail.org 
-
-
-Powered by Outblaze

@@ -1,67 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263812AbTDULe7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 07:34:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263814AbTDULe7
+	id S263816AbTDULjj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 07:39:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263817AbTDULji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 07:34:59 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:13843 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S263812AbTDULe6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 07:34:58 -0400
-Date: Mon, 21 Apr 2003 13:46:15 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Cc: john@grabjohn.com, linux-kernel@vger.kernel.org
-Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
-Message-Id: <20030421134615.2d5c7f8e.skraw@ithnet.com>
-In-Reply-To: <200304211113.h3LBDuu08057@Port.imtp.ilyichevsk.odessa.ua>
-References: <200304210935.h3L9ZLXc000256@81-2-122-30.bradfords.org.uk>
-	<200304211113.h3LBDuu08057@Port.imtp.ilyichevsk.odessa.ua>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 21 Apr 2003 07:39:38 -0400
+Received: from chiark.greenend.org.uk ([193.201.200.170]:50181 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id S263816AbTDULjh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 07:39:37 -0400
+From: Peter Benie <peterb@chiark.greenend.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16035.56139.893197.189080@chiark.greenend.org.uk>
+Date: Mon, 21 Apr 2003 12:51:39 +0100
+To: Andrew Clayton <andrew@sol-1.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Log your dead hard disk drives here
+In-Reply-To: <1050891929.1091.29.camel@alpha.digital-domain.net>
+References: <1050883793.1089.16.camel@alpha.digital-domain.net>
+	<20030421014801.GA21949@ip68-101-124-193.oc.oc.cox.net>
+	<1050891929.1091.29.camel@alpha.digital-domain.net>
+X-Mailer: VM 7.03 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Apr 2003 14:22:01 +0300
-Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
+Andrew Clayton writes:
+ > On Mon, 2003-04-21 at 02:48, Barry K. Nathan wrote:
+ > > On Mon, Apr 21, 2003 at 01:09:54AM +0100, Andrew Clayton wrote:
+ > > > http://digital-domain.net/fscked-disk/
+ > > 
+ > > What does your site do that the StorageReview.com Reliability Survey
+ > > doesn't? (i.e., the SR.com survey has been around for a while, why do we
+ > > need another?)
+ > 
+ > Perhaps we don't, I wasn't aware of the above site. Looking at it
+ > though, mine is obviously much more to the point and is targeting one
+ > specific area, in that it is just logging drive failures.
 
-> On 21 April 2003 12:35, John Bradford wrote:
-> > > > Modern disks generally do this kind of thing themselves.  By the
-> > > > time
-> > >
-> > >                ^^^^^^^^^^^^
-> > > How many times does Stephan need to say it? 'Generally do'
-> > > is not enough, because it means 'sometimes they dont'.
-> >
-> > OK, _ALL_ modern disks do.
-> >
-> > Name an IDE or SCSI disk on sale today that doesn't retry on write
-> > failiure.  Forget I said 'Generally do'.
-> 
-> I don't know about drives currently on sale, but I think
-> it is possible that some Flash or DRAM-based IDE pseudo-disks
-> do not have extensive sector remapping features. They can just
-> do ECC thing and error out.
+I'm not convinced that you are collecting enough information to get
+useful statistics, in particular, you lack any data about drives that
+haven't failed yet.
 
-Good example. Very good example, because it shows a possibility that some part
-of a "drive" may be technically damaged and have _no_ influence at all on the
-rest of the "media".
+Suppose that there are two vendors sell drives with identical
+characteristics, one of which sells twice as many drives as the
+other. In your statistics, you will give the appearance that the more
+popular drive performs less well because you see twice as many
+failures.
 
-> [...]
-> I prefer a big fat ugly kernel printk (KERN_ERR) across my console
-> and all the logs: "ext3fs: write error at sector #NNNN. Marking as bad.
-> Your disk may be failing!"
+A better approach would be for people to register their drives with
+you when they are new, and then to inform you when the drive fails or
+is otherwise disposed of. The problem here would be to keep track of
+the drives to ensure that failures really do get logged.
 
-I would favor that, too.
-
-> What's wrong with me?
-
-Maybe you don't own a good color copy station for printing your own money bills
-... ;-)
-
-Regards,
-Stephan
+Peter

@@ -1,60 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312942AbSDOGOq>; Mon, 15 Apr 2002 02:14:46 -0400
+	id <S312988AbSDOGfV>; Mon, 15 Apr 2002 02:35:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312982AbSDOGOp>; Mon, 15 Apr 2002 02:14:45 -0400
-Received: from dns.vamo.orbitel.bg ([195.24.63.30]:7185 "EHLO
-	dns.vamo.orbitel.bg") by vger.kernel.org with ESMTP
-	id <S312942AbSDOGOp>; Mon, 15 Apr 2002 02:14:45 -0400
-Date: Mon, 15 Apr 2002 09:14:30 +0300 (EEST)
-From: Ivan Ivanov <ivandi@vamo.orbitel.bg>
-To: Jan Kara <jack@suse.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ext2 quota bug in 2.4.18
-In-Reply-To: <20020414205321.GA9108@atrey.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.44.0204150906380.21417-100000@dns.vamo.orbitel.bg>
+	id <S312991AbSDOGfU>; Mon, 15 Apr 2002 02:35:20 -0400
+Received: from flrtn-4-m1-42.vnnyca.adelphia.net ([24.55.69.42]:3014 "EHLO
+	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S312988AbSDOGfU>;
+	Mon, 15 Apr 2002 02:35:20 -0400
+Message-ID: <3CBA74A6.3080407@tmsusa.com>
+Date: Sun, 14 Apr 2002 23:35:18 -0700
+From: J Sloan <joe@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020414
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: J Sloan <joe@tmsusa.com>
+CC: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.8 final - another data point
+In-Reply-To: <3CB9EF57.6010609@tmsusa.com> <3CBA6943.4000701@tmsusa.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+FWIW -
+
+One other observation was the numerous
+syslog entries generated during the test,
+which were as follows:
 
 
-On Sun, 14 Apr 2002, Jan Kara wrote:
+Apr 14 20:40:35 neo kernel: invalidate: busy buffer
+Apr 14 20:41:15 neo last message repeated 72 times
+Apr 14 20:44:41 neo last message repeated 36 times
+Apr 14 20:45:24 neo last message repeated 47 times
 
-> > Jan Kara wrote:
-> >
-> > > > on ext2 filesystem chown/chgroup doesn't change quota
-> > > > ext3 is OK
-> > >   Kernel version, quota utils version, etc...?
-> > >
-> > >                                                 Honza
-> >
-> > kernel 2.4.18
-> > quota 2.00 and 3.04
-> >
-> > also
-> > kernel 2.4.18 with 50_quota-patch-2.4.15-2.4.16 + dquot_deadlock.diff
-> >
-> > ext3 works fine
->   Sorry it took me so long to reply. I tried to reproduce your problem
-> but I haven't succeeded. Is quota really turned on on the filesystem?
-> Did you know which kernel version was the last working?
+
+J Sloan wrote:
+
+> dbench performance has regressed significantly
+> since 2.5.8-pre1; 
+
 >
-> 								Honza
-> --
-> Jan Kara <jack@suse.cz>
-> SuSE CR Labs
+> 2.5.8-pre1
+> --------------
+> Throughput 37.8267 MB/sec (NB=47.2833 MB/sec  378.267 MBit/sec)  64 procs
+> Throughput 14.0459 MB/sec (NB=17.5573 MB/sec  140.459 MBit/sec)  80 procs
+> Throughput 16.2971 MB/sec (NB=20.3714 MB/sec  162.971 MBit/sec)  128 
+> procs
 >
+> 2.5.8-final
+> ---------------
+> Throughput 5.55008 MB/sec (NB=6.9376 MB/sec  55.5008 MBit/sec)  64 procs
+> Throughput 5.82333 MB/sec (NB=7.27916 MB/sec  58.2333 MBit/sec)  80 procs
+> Throughput 3.40741 MB/sec (NB=4.25926 MB/sec  34.0741 MBit/sec)  128 
+> procs
 >
-
-I think the problem was ACL end EA patch. I am sorry, I forget that the
-kernel was patched with acl/ea-0.8.25 too. Without this patch everything
-is OK.
-
-Thanks for reply
-
-Ivan
 
 
 

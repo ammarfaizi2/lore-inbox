@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265147AbUADJyJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 04:54:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265151AbUADJyJ
+	id S265159AbUADKMG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 05:12:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265272AbUADKMG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 04:54:09 -0500
-Received: from mail006.syd.optusnet.com.au ([211.29.132.63]:38024 "EHLO
-	mail006.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S265147AbUADJyH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 04:54:07 -0500
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 4 Jan 2004 05:12:06 -0500
+Received: from mail.mediaways.net ([193.189.224.113]:5270 "HELO
+	mail.mediaways.net") by vger.kernel.org with SMTP id S265159AbUADKME
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 05:12:04 -0500
+Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
+From: Soeren Sonnenburg <kernel@nn7.de>
+To: Lincoln Dale <ltd@cisco.com>
+Cc: Con Kolivas <kernel@kolivas.org>, Willy Tarreau <willy@w.ods.org>,
+       Mark Hahn <hahn@physics.mcmaster.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, gillb4@telusplanet.net
+In-Reply-To: <5.1.0.14.2.20040104195316.02151e98@171.71.163.14>
+References: <200401041242.47410.kernel@kolivas.org>
+	 <Pine.LNX.4.44.0401031439060.24942-100000@coffee.psychology.mcmaster.ca>
+	 <200401040815.54655.kernel@kolivas.org>
+	 <20040103233518.GE3728@alpha.home.local>
+	 <200401041242.47410.kernel@kolivas.org>
+	 <5.1.0.14.2.20040104195316.02151e98@171.71.163.14>
+Content-Type: text/plain
+Message-Id: <1073211091.3261.4.camel@localhost>
+Mime-Version: 1.0
+Date: Sun, 04 Jan 2004 11:11:32 +0100
 Content-Transfer-Encoding: 7bit
-Message-ID: <16375.57972.132841.32878@wombat.chubb.wattle.id.au>
-Date: Sun, 4 Jan 2004 20:52:52 +1100
-To: Jens Axboe <axboe@suse.de>
-Cc: Hugang <hugang@soulinfo.com>, Bart Samwel <bart@samwel.tk>,
-       Andrew Morton <akpm@osdl.org>, smackinlay@mail.com,
-       Bartek Kania <mrbk@gnarf.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] laptop-mode-2.6.0 version 5
-In-Reply-To: <20040102120327.GA19822@suse.de>
-References: <20031231210756.315.qmail@mail.com>
-	<3FF3887C.90404@samwel.tk>
-	<20031231184830.1168b8ff.akpm@osdl.org>
-	<3FF43BAF.7040704@samwel.tk>
-	<3FF457C0.2040303@samwel.tk>
-	<20040101183545.GD5523@suse.de>
-	<20040102170234.66d6811d@localhost>
-	<20040102112733.GA19526@suse.de>
-	<20040102193849.6ff090da@localhost>
-	<20040102120327.GA19822@suse.de>
-X-Mailer: VM 7.14 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jens" == Jens Axboe <axboe@suse.de> writes:
+On Sun, 2004-01-04 at 09:54, Lincoln Dale wrote:
+> At 07:09 PM 4/01/2004, Soeren Sonnenburg wrote:
+> [..]
+> >Looking at that how can it not be a scheduling problem ....
+> 
+> out of interest, have you tried to see how 2.4.xx compares when compiled 
+> with HZ set to 1000?
+> (or conversely, 2.6 compiled with HZ set to 100)
 
-Jens> The dump printk() needs to be changed anyways, the rw
-Jens> deciphering is not correct. Something like this is more
-Jens> appropriate:
+assuming you mean changing the HZ value in include/param.h to 1000/100
+yes 2.4 with HZ=1000 is fine and 2.6 with HZ=100 still #%$@$^&!!
 
-Jens>	if (unlikely(block_dump)) { 
-Jens>		char b[BDEVNAME_SIZE];
-Jens>		printk("%s(%d): %s block %Lu on %s\n", current->comm, current-> pid, (rw & WRITE) ? "WRITE" : "READ",
-Jens>		(u64) bio->bi_sector, bdevname(bio->bi_bdev, b)); 
-Jens>	}
-
-Please cast to (unsigned long long) not (u64) because on 64-bit
-architectures u64 is unsigned long, and you'll get a compiler warning.
+Soeren
 

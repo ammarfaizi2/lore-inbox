@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130687AbRASSaT>; Fri, 19 Jan 2001 13:30:19 -0500
+	id <S129765AbRASSa7>; Fri, 19 Jan 2001 13:30:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130541AbRASSaK>; Fri, 19 Jan 2001 13:30:10 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:33706 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S129765AbRASS36>;
-	Fri, 19 Jan 2001 13:29:58 -0500
+	id <S130541AbRASSau>; Fri, 19 Jan 2001 13:30:50 -0500
+Received: from mout0.freenet.de ([194.97.50.131]:45533 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S129765AbRASSaR>;
+	Fri, 19 Jan 2001 13:30:17 -0500
 From: mkloppstech@freenet.de
-Message-Id: <200101191718.SAA02410@john.epistle>
-Subject: matroxfb
+Message-Id: <200101191800.TAA00672@john.epistle>
+Subject: oops
 To: linux-kernel@vger.kernel.org
-Date: Fri, 19 Jan 2001 18:18:38 +0100 (CET)
+Date: Fri, 19 Jan 2001 19:00:31 +0100 (CET)
 X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -18,150 +18,29 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a Matrox G450 and Kernel 2.4.0.
-Vesafb works fine, however not matroxfb.
-First, matroxfb.o does not exist.
-Any other module in the matrox directory doesn't do anything.
-strace fbset -s returns -ENOSYS for /dev/fb0, which exists.
-Loading matroxfb_base.o crashes the computer immediately.
-What's wrong?
+Many oopses appeared, among others gcc closed with signal 11.
 
-Please cc to mkloppstech@freenet.de.
+One output:
+Jan 19 18:45:12 john kernel: Unable to handle kernel paging request at virtual a
+Jan 19 18:45:12 john kernel:  printing eip:
+Jan 19 18:45:12 john kernel: c0123b27
+Jan 19 18:45:12 john kernel: *pde = 00000000
+Jan 19 18:45:12 john kernel: Oops: 0000
+Jan 19 18:45:12 john kernel: CPU:    0
+Jan 19 18:45:12 john kernel: EIP:    0010:[__find_lock_page+23/224]
+Jan 19 18:45:12 john kernel: EFLAGS: 00010206
+Jan 19 18:45:12 john kernel: eax: cff40000   ebx: 000d3199   ecx: c44f2d64   edx
+Jan 19 18:45:12 john kernel: esi: fffffff4   edi: cff7f8e4   ebp: c44f2d64   esp
+Jan 19 18:45:12 john kernel: ds: 0018   es: 0018   ss: 0018
+Jan 19 18:45:12 john kernel: Process cpp (pid: 7077, stackpage=c45e1000)
+Jan 19 18:45:12 john kernel: Stack: cff7f8e4 fffffff4 00000004 c45e1f98 c0126210
+Jan 19 18:45:12 john kernel:        ffffffea cc730640 0000aba8 bfffee4c 00001000
+Jan 19 18:45:12 john kernel:        cff7f8e4 00000001 00000000 00000004 c44f2d1c
+Jan 19 18:45:12 john kernel: Call Trace: [generic_file_write+656/1232] [sys_writ
+Jan 19 18:45:12 john kernel:
+
+Please cc to mkloppstech@freenet.de
 Mirko Kloppstech
-
-My .config:
-CONFIG_X86=y
-CONFIG_ISA=y
-CONFIG_UID16=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_MODULES=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
-CONFIG_MK7=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_USE_3DNOW=y
-CONFIG_X86_PGE=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_NET=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_HOTPLUG=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_AOUT=m
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=m
-CONFIG_PARPORT=m
-CONFIG_PARPORT_PC=m
-CONFIG_PARPORT_PC_FIFO=y
-CONFIG_PARPORT_1284=y
-CONFIG_BLK_DEV_FD=m
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_PACKET=y
-CONFIG_NETLINK=y
-CONFIG_RTNETLINK=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_NET_SCHED=y
-CONFIG_NETLINK=y
-CONFIG_RTNETLINK=y
-CONFIG_NET_SCH_CBQ=m
-CONFIG_NET_QOS=y
-CONFIG_NET_ESTIMATOR=y
-CONFIG_NET_CLS=y
-CONFIG_NET_CLS_ROUTE4=m
-CONFIG_NET_CLS_ROUTE=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=m
-CONFIG_BLK_DEV_IDESCSI=m
-CONFIG_BLK_DEV_CMD640=y
-CONFIG_BLK_DEV_RZ1000=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_PCI_WIP=y
-CONFIG_BLK_DEV_AMD7409=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_SCSI=m
-CONFIG_BLK_DEV_SR=m
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_SR_EXTRA_DEVS=2
-CONFIG_CHR_DEV_SG=m
-CONFIG_SCSI_DEBUG_QUEUES=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=y
-CONFIG_PPP=m
-CONFIG_PPP_ASYNC=m
-CONFIG_PPP_DEFLATE=m
-CONFIG_PPP_BSDCOMP=m
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=m
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=m
-CONFIG_PPDEV=m
-CONFIG_MOUSE=y
-CONFIG_PSMOUSE=y
-CONFIG_RTC=m
-CONFIG_AGP=m
-CONFIG_AGP_AMD=y
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_RAMFS=m
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_ISO8859_1=m
-CONFIG_VGA_CONSOLE=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_FB=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FB_VESA=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_FBCON_ADVANCED=y
-CONFIG_FBCON_CFB8=m
-CONFIG_FBCON_CFB16=m
-CONFIG_FBCON_CFB24=m
-CONFIG_FBCON_CFB32=m
-CONFIG_FBCON_VGA_PLANES=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
-CONFIG_SOUND=m
-CONFIG_USB=m
-CONFIG_USB_DEBUG=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_OHCI=m
-CONFIG_USB_SCANNER=m
-CONFIG_MAGIC_SYSRQ=y
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

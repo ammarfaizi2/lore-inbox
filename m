@@ -1,50 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263150AbTJPVni (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 17:43:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbTJPVm1
+	id S263225AbTJPVhl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 17:37:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263228AbTJPVhl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 17:42:27 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:52997 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263256AbTJPVlj
+	Thu, 16 Oct 2003 17:37:41 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:41390 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263225AbTJPVhj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 17:41:39 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: [PATCH][2.6] No swapping on memory backed swapfiles
-Date: 16 Oct 2003 21:31:46 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bmn2o2$il9$1@gatekeeper.tmr.com>
-References: <20031013011117.103de5e7.akpm@osdl.org> <200310130832.h9D8WJ4g000157@81-2-122-30.bradfords.org.uk>
-X-Trace: gatekeeper.tmr.com 1066339906 19113 192.168.12.62 (16 Oct 2003 21:31:46 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Thu, 16 Oct 2003 17:37:39 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Thu, 16 Oct 2003 14:33:39 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Val Henson <val@nmt.edu>, Larry McVoy <lm@work.bitmover.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Transparent compression in the FS
+In-Reply-To: <3F8F0766.30405@pobox.com>
+Message-ID: <Pine.LNX.4.56.0310161422170.2217@bigblue.dev.mdolabs.com>
+References: <1066163449.4286.4.camel@Borogove> <20031015133305.GF24799@bitwizard.nl>
+ <3F8D6417.8050409@pobox.com> <20031016162926.GF1663@velociraptor.random>
+ <20031016172930.GA5653@work.bitmover.com> <20031016174927.GB25836@speare5-1-14>
+ <3F8F0766.30405@pobox.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200310130832.h9D8WJ4g000157@81-2-122-30.bradfords.org.uk>,
-John Bradford  <john@grabjohn.com> wrote:
-| Quote from Andrew Morton <akpm@osdl.org>:
-| > Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
-| > >
-| > > +	bdi = mapping->backing_dev_info;
-| > >  +	if (bdi->memory_backed)
-| > >  +		goto bad_swap;
-| > >  +
-| > 
-| > I guess that makes sense, although someone might want to swap onto a
-| > ramdisk-backed file just for some testing purpose.
-| 
-| Or because some RAM is slower than the rest.  This came up a while ago
-| on the list.
+On Thu, 16 Oct 2003, Jeff Garzik wrote:
 
-Something on my "learn how to..." list, I have some systems which are
-setup to cache only the first 64MB, and I bet they would run a lot
-faster if the rest were used as swap. It is definitely faster with
-mem=64 than letting the CPU beat the whole memory.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+> Val Henson wrote:
+> > Abstract:
+> >
+> >  "Recent research has produced a new and perhaps dangerous technique
+> >   for uniquely identifying blocks that I will call
+> >   compare-by-hash. Using this technique, we decide whether two blocks
+> >   are identical to each other by comparing their hash values, using a
+> >   collision-resistant hash such as SHA-1. If the hash values match,
+> >   we assume the blocks are identical without further ado. Users of
+> >   compare-by-hash argue that this assumption is warranted because the
+> >   chance of a hash collision between any two randomly generated blocks
+> >   is estimated to be many orders of magnitude smaller than the chance
+> >   of many kinds of hardware errors. Further analysis shows that this
+> >   approach is not as risk-free as it seems at first glance."
+>
+>
+> I'm curious if anyone has done any work on using multiple different
+> checksums?  For example, the cost of checksumming a single block with
+> multiple algorithms (sha1+md5+crc32 for a crazy example), and storing
+> each checksum (instead of just one sha1 sum), may be faster than reading
+> the block off of disk to compare it with the incoming block.  OTOH,
+> there is still a mathematical possibility (however-more-remote) of a
+> collission...
+
+At that point it is better to extend the fingerprint size, since the SHA1
+algorithm has a better distribution compared to md5 and crc32. Probability
+estimates are pretty low though. If you consider a 2^32 blocks FS, that
+with a 4Kb block size makes a 4 tera FS, the collision probability is in
+the orders of 2^(-95) (with a 160 bit fingerprint). That's a pretty low
+number. Yes, it is true that the input is not completely random, but a
+good property of SHA1 is the one of spreading output result of very
+similar input patterns.
+
+
+
+
+- Davide
+

@@ -1,177 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263239AbTESWGR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 18:06:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263212AbTESWGR
+	id S263257AbTESWJf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 18:09:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263264AbTESWJf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 18:06:17 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:39873 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S263206AbTESWGN
+	Mon, 19 May 2003 18:09:35 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:28513 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP id S263257AbTESWJc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 18:06:13 -0400
-Message-Id: <200305192218.h4JMIoi11752@owlet.beaverton.ibm.com>
-To: linux-kernel@vger.kernel.org
-cc: lm@bitmover.com, cs@tequila.co.jp
-Subject: [PATCH] Documentation for iostats - improved
-Date: Mon, 19 May 2003 15:18:49 -0700
-From: Rick Lindsley <ricklind@us.ibm.com>
+	Mon, 19 May 2003 18:09:32 -0400
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Recent changes to sysctl.h breaks glibc
+References: <20030519165623.GA983@mars.ravnborg.org>
+	<Pine.LNX.4.44.0305191039320.16596-100000@home.transmeta.com>
+	<babhik$sbd$1@cesium.transmeta.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 19 May 2003 16:18:39 -0600
+In-Reply-To: <babhik$sbd$1@cesium.transmeta.com>
+Message-ID: <m1d6ie37i8.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I hadn't realized that Andrew had pushed /proc/diskstats out in 2.5.69.
-This version of the documentation takes that into account too.
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
-Rick
+> Followup to:  <Pine.LNX.4.44.0305191039320.16596-100000@home.transmeta.com>
+> By author:    Linus Torvalds <torvalds@transmeta.com>
+> In newsgroup: linux.dev.kernel
+> > 
+> > A number of headers have historical baggage, mainly to support the 
+> > old libc5 habits, and because removing the ifdef's is something that 
+> > nobody has felt was worth the pain.
+> > 
+> > I think the only header file that should be considered truly exported is 
+> > something like "asm/posix_types.h". For the others, we'll add __KERNEL__ 
+> > protection on demand if the glibc guys can give good arguments that it 
+> > helps them do the "copy-and-cleanup" phase.
+> > 
+> 
+> Copy and cleanup isn't realistic either, though, because it doesn't
+> track ABI changes.  
 
-diff -ruN linux-2.5.68/Documentation/iostats.txt linux-2.5.69/Documentation/iostats.txt
---- linux-2.5.68/Documentation/iostats.txt	Wed Dec 31 16:00:00 1969
-+++ linux-2.5.69/Documentation/iostats.txt	Mon May 19 15:06:06 2003
-@@ -0,0 +1,148 @@
-+I/O statistics fields
-+---------------
-+
-+Last modified 5/15/03
-+
-+In 2.4.20 (and some versions before, with patches), and 2.5.45,
-+more extensive disk statistics were introduced to help measure disk
-+activity. Tools such as sar and iostat typically interpret these and do
-+the work for you, but in case you are interested in creating your own
-+tools, the fields are explained here.
-+
-+In most versions of the 2.4 patch, the information is found as additional
-+fields in /proc/partitions.  In 2.5, the same information is found in
-+two places: one is in the file /proc/diskstats (appears in 2.5.69 and
-+beyond), and the other is within the sysfs file system, which must be
-+mounted in order to obtain the information. Throughout this document
-+we'll assume that sysfs is mounted on /sys, although of course it may
-+be mounted anywhere.  In 2.5, both /proc/diskstats and sysfs use the
-+same source for the information and so should not differ.
-+
-+Here are examples of these different formats:
-+
-+2.4:
-+   3     0   39082680 hda 446216 784926 9550688 4382310 424847 312726 5922052 19310380 0 3376340 23705160
-+   3     1    9221278 hda1 35486 0 35496 38030 0 0 0 0 0 38030 38030
-+
-+
-+2.5 sysfs:
-+   446216 784926 9550688 4382310 424847 312726 5922052 19310380 0 3376340 23705160
-+   35486    38030    38030    38030
-+
-+2.5 diskstats:
-+   3    0   hda 446216 784926 9550688 4382310 424847 312726 5922052 19310380 0 3376340 23705160
-+   3    1   hda1 35486 38030 38030 38030
-+
-+On 2.4 you might execute "grep 'hda ' /proc/partitions". On 2.5, you have
-+a choice of "cat /sys/block/hda/stat" or "grep 'hda ' /proc/diskstats".
-+The advantage of one over the other is that the sysfs choice works well
-+if you are watching a known, small set of disks.  /proc/diskstats may
-+be a better choice if you are watching a large number of disks because
-+you'll avoid the overhead of 50, 100, or 500 or more opens/closes with
-+each snapshot of your disk statistics.
-+
-+In 2.4, the statistics fields are those after the device name. In
-+the above example, the first field of statistics would be 446216.
-+By contrast, in 2.5 if you look at /sys/block/hda/stat, you'll
-+find just the eleven fields, beginning with 446216.  If you look at
-+/proc/diskstats, the eleven fields will be preceded by the major and
-+minor device numbers, and device name.  Each of these formats provide
-+eleven fields of statistics, each meaning exactly the same things.
-+All fields except field 9 are cumulative since boot.  Field 9 should
-+go to zero as I/Os complete; all others only increase.  Yes, these are
-+32 bit unsigned numbers, and on a very busy or long-lived system they
-+may wrap. Applications should be prepared to deal with that; unless
-+your observations are measured in large numbers of minutes or hours,
-+they should not wrap twice before you notice them.
-+
-+Each set of stats only applies to the indicated device; if you want
-+system-wide stats you'll have to find all the devices and sum them all up.
-+
-+Field  1 -- # of reads issued
-+    This is the total number of reads completed successfully.
-+Field  2 -- # of reads merged, field 6 -- # of writes merged
-+    Reads and writes which are adjacent to each other may be merged for
-+    efficiency.  Thus two 4K reads may become one 8K read before it is
-+    ultimately handed to the disk, and so it will be counted (and queued)
-+    as only one I/O.  This field lets you know how often this was done.
-+Field  3 -- # of sectors read
-+    This is the total number of sectors read successfully.
-+Field  4 -- # of milliseconds spent reading
-+    This is the total number of milliseconds spent by all reads (as
-+    measured from __make_request() to end_that_request_last()).
-+Field  5 -- # of writes completed
-+    This is the total number of writes completed successfully.
-+Field  7 -- # of sectors written
-+    This is the total number of sectors written successfully.
-+Field  8 -- # of milliseconds spent writing
-+    This is the total number of milliseconds spent by all writes (as
-+    measured from __make_request() to end_that_request_last()).
-+Field  9 -- # of I/Os currently in progress
-+    The only field that should go to zero. Incremented as requests are
-+    given to appropriate request_queue_t and decremented as they finish.
-+Field 10 -- # of milliseconds spent doing I/Os
-+    This field is increases so long as field 9 is nonzero.
-+Field 11 -- weighted # of milliseconds spent doing I/Os
-+    This field is incremented at each I/O start, I/O completion, I/O
-+    merge, or read of these stats by the number of I/Os in progress
-+    (field 9) times the number of milliseconds spent doing I/O since the
-+    last update of this field.  This can provide an easy measure of both
-+    I/O completion time and the backlog that may be accumulating.
-+
-+
-+To avoid introducing performance bottlenecks, no locks are held while
-+modifying these counters.  This implies that minor inaccuracies may be
-+introduced when changes collide, so (for instance) adding up all the
-+read I/Os issued per partition should equal those made to the disks
-+... but due to the lack of locking it may only be very close.
-+
-+In release 2.5.65 the 2.5 counters were made per-cpu, which made the lack
-+of locking almost a non-issue.  When the statistics are read, the per-cpu
-+counters are summed (possibly overflowing the unsigned 32-bit variable
-+they are summed to) and the result given to the user.  There is no
-+convenient user interface for accessing the per-cpu counters themselves.
-+
-+Disks vs Partitions
-+-------------------
-+
-+There were significant changes between 2.4 and 2.5 in the I/O subsystem.
-+As a result, some statistic information disappeared. The translation from
-+a disk address relative to a partition to the disk address relative to
-+the host disk happens much earlier.  All merges and timings now happen
-+at the disk level rather than at both the disk and partition level as
-+in 2.4.  Consequently, you'll see a different statistics output on 2.5 for
-+partitions from that for disks.  There are only *four* fields available
-+for partitions on 2.5 machines.  This is reflected in the examples above.
-+
-+Field  1 -- # of reads issued
-+    This is the total number of reads issued to this partition.
-+Field  2 -- # of sectors read
-+    This is the total number of sectors requested to be read from this
-+    partition.
-+Field  3 -- # of reads issued
-+    This is the total number of writes issued to this partition.
-+Field  4 -- # of sectors read
-+    This is the total number of sectors requested to be written to
-+    this partition.
-+
-+Note that since the address is translated to a disk-relative one, and no
-+record of the partition-relative address is kept, the subsequent success
-+or failure of the read cannot be attributed to the partition.  In other
-+words, the number of reads for partitions is counted slightly before time
-+of queuing for partitions, and at completion for whole disks.  This is
-+a subtle distinction that is probably uninteresting for most cases.
-+
-+Additional notes
-+----------------
-+
-+In 2.5, sysfs is not mounted by default.  Here's the line you'll want
-+to add to your /etc/fstab:
-+
-+none /sys sysfs defaults 0 0
-+
-+
-+In 2.5, at the same time that disk statistics appeared in sysfs, they were
-+removed from /proc/stat.  In 2.4, they appear in both /proc/partitions
-+and /proc/stat.
-+
-+-- ricklind@us.ibm.com
+ABI changes or ABI additions?
+
+If the ABI is not fixed that is a bug.  Admittedly some interfaces
+in the development kernel are still under development and so have not
+stabilized on an ABI but that is a different issue.
+
+> ABI headers is the only realistic solution.  We
+> can't realistically get real ABI headers for 2.5, so please don't just
+> break things randomly until then.
+
+As the ABI remains fixed I remain unconvinced.  Multiple implementations
+against the same ABI should be possible.  The real question which is the
+more scalable way to do the code.
+
+What I find truly puzzling is that after years glibc still needs
+kernel headers at all.
+
+Eric

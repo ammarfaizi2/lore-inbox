@@ -1,64 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265087AbUHHV4r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265055AbUHHWDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265087AbUHHV4r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 17:56:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265055AbUHHV4q
+	id S265055AbUHHWDm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 18:03:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265222AbUHHWDm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 17:56:46 -0400
-Received: from mail.tpgi.com.au ([203.12.160.61]:49838 "EHLO mail.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S265087AbUHHV4d (ORCPT
+	Sun, 8 Aug 2004 18:03:42 -0400
+Received: from mail.gmx.net ([213.165.64.20]:4582 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265055AbUHHWDk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 17:56:33 -0400
-Subject: Re: What PM should be and do (Was Re: Solving suspend-level
-	confusion)
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       David Brownell <david-b@pacbell.net>, Oliver Neukum <oliver@neukum.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-In-Reply-To: <20040808165416.GB2668@elf.ucw.cz>
-References: <20040730164413.GB4672@elf.ucw.cz>
-	 <200408031928.08475.david-b@pacbell.net> <1091588163.5225.77.camel@gaston>
-	 <200408032030.41410.david-b@pacbell.net>
-	 <1091594872.3191.71.camel@laptop.cunninghams>
-	 <1091595224.1899.99.camel@gaston>
-	 <1091595545.3303.80.camel@laptop.cunninghams>
-	 <20040808165416.GB2668@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1092002119.6215.7.camel@laptop.cunninghams>
+	Sun, 8 Aug 2004 18:03:40 -0400
+X-Authenticated: #1725425
+Date: Mon, 9 Aug 2004 00:07:27 +0200
+From: Marc Ballarin <Ballarin.Marc@gmx.de>
+To: Greg KH <greg@kroah.com>
+Cc: albert@users.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: dynamic /dev security hole?
+Message-Id: <20040809000727.1eaf917b.Ballarin.Marc@gmx.de>
+In-Reply-To: <20040808162115.GA7597@kroah.com>
+References: <1091969260.5759.125.camel@cube>
+	<20040808175834.59758fc0.Ballarin.Marc@gmx.de>
+	<20040808162115.GA7597@kroah.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Mon, 09 Aug 2004 07:55:19 +1000
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Sun, 8 Aug 2004 09:21:15 -0700
+Greg KH <greg@kroah.com> wrote:
 
-On Mon, 2004-08-09 at 02:54, Pavel Machek wrote:
-> Hi!
+> Patches to the udev HOWTO and FAQ are always welcome.
 > 
-> > Yes. I'm not trying to give drivers an inconsistent state, just delaying
-> > suspending some until the last minute....
-> > 
-> > Suspend 2 algorithm:
-> > 
-> > 1. Prepare image (freeze processes, allocate memory, eat memory etc)
-> > 2. Power down all drivers not used while writing image
-> > 3. Write LRU pages. ('pageset 2')
-> > 4. Quiesce remaining drivers, save CPU state, to atomic copy of
-> > remaining ram.
-> > 5. Resume quiesced drivers.
-> 
-> Hmm, this means pretty complex subtree handling.. Perhaps it would be
-> possible to make "quiesce/unquiesce" support in drivers so that this
-> is not needed?
 
-That would be great from my point of view. It's why I talked before in
-terms of quiesced etc rather than S3, S4 and so on.
+How about this? The first part is a spelling fix.
 
-Nigel
+(Resend, I hate "smart" features in software...)
 
+--- udev-FAQ.orig	2004-08-08 18:42:03.639348944 +0200
++++ udev-FAQ	2004-08-08 23:14:07.895684768 +0200
+@@ -23,7 +23,7 @@
+ 	- the former had stayed around for many months with maintainer
+ 	  claiming that everything works fine
+ 	- the latter had stayed, period.
+-	- the devfs maintainer/author disappeared and stoped maintaining
++	- the devfs maintainer/author disappeared and stopped maintaining
+ 	  the code.
+ 
+ Q: But udev will not automatically load a driver if a /dev node is opened
+@@ -98,6 +98,19 @@
+    And don't have to be root but will get full permissions on /pendrive.
+    This works even without udev if /udev/pendrive is replaced by /dev/sda1
+ 
++Q: Are there any security issues that I should be aware of?
++A: When using dynamic device numbers, a given pair of major/minor numbers may
++   point to different hardware over time. If a user has permission to access a
++   specific device node directly and is able to create hard links to this node,
++   he or she can do so to create a copy of the device node. When the device is
++   unplugged and udev removes the device node, the user's copy remains.
++   If the device node is later recreated with different permissions the hard 
++   link can still be used to access the device using the old permissions.
++   (The same problem exists when using PAM to change permissions on login.)
++    
++   The simplest solution is to prevent the creation of hard links by putting
++   /dev in a separate filesystem (tmpfs, ramfs, ...).
++    
+ Q: I have other questions about udev, where do I ask them?
+ A: The linux-hotplug-devel mailing list is the proper place for it.  The
+    address for it is linux-hotplug-devel@lists.sourceforge.net

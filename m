@@ -1,74 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267689AbUHWVyc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268086AbUHWVw2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267689AbUHWVyc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 17:54:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267841AbUHWVxE
+	id S268086AbUHWVw2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 17:52:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264419AbUHWVhv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 17:53:04 -0400
-Received: from x35.xmailserver.org ([69.30.125.51]:56462 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S268128AbUHWVjN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 17:39:13 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 23 Aug 2004 14:39:06 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Andi Kleen <ak@suse.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [patch] lazy TSS's I/O bitmap copy ...
-In-Reply-To: <20040823233249.09e93b86.ak@suse.de>
-Message-ID: <Pine.LNX.4.58.0408231436370.3222@bigblue.dev.mdolabs.com>
-References: <Pine.LNX.4.58.0408231311460.3221@bigblue.dev.mdolabs.com>
- <20040823233249.09e93b86.ak@suse.de>
+	Mon, 23 Aug 2004 17:37:51 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:24278 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267567AbUHWVYS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 17:24:18 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: kernbench on 512p
+Date: Mon, 23 Aug 2004 14:23:11 -0700
+User-Agent: KMail/1.6.2
+Cc: paulmck@us.ibm.com, "Martin J. Bligh" <mbligh@aracnet.com>, hawkes@sgi.com,
+       linux-kernel@vger.kernel.org, wli@holomorphy.com
+References: <200408191216.33667.jbarnes@engr.sgi.com> <200408201324.32464.jbarnes@engr.sgi.com> <41265CCE.3070808@colorfullife.com>
+In-Reply-To: <41265CCE.3070808@colorfullife.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408231423.11492.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Aug 2004, Andi Kleen wrote:
+On Friday, August 20, 2004 1:19 pm, Manfred Spraul wrote:
+> Jesse Barnes wrote:
+> >Looks like a bit more context has changed.  Manfred, care to respin
+> > against -mm3 so I can test?
+>
+> The patches are attached. Just boot-tested on a single-cpu system.
+>
+> Three  changes:
+> - I've placed the per-group structure into rcu_state. That's simpler but
+> wrong: the state should be allocated from node-local memory, not a big
+> global array.
+> - I found a bug/race in the cpu_offline path: When the last cpu of a
+> group goes offline then the group must be forced into quiescent state.
+> The "&& (!forced)" was missing.
+> - I've removed the spin_unlock_wait(). It was intended to synchronize
+> cpu_online_mask changes with the calculation of ->outstanding. Paul
+> convinced me that this is not necessary.
 
-> On Mon, 23 Aug 2004 14:23:35 -0700 (PDT)
-> Davide Libenzi <davidel@xmailserver.org> wrote:
-> 
-> > 
-> > The following patch implements a lazy I/O bitmap copy for the i386 
-> > architecture. With I/O bitmaps now reaching considerable sizes, if the 
-> > switched task does not perform any I/O operation, we can save the copy 
-> > altogether. In my box X is working fine with the following patch, even if 
-> > more test would be required.
-> 
-> IMHO this needs benchmarks first to prove that the additional 
-> exception doesn't cause too much slow down.
+I haven't been able to boot successfully with this patch applied.  Things seem 
+to get real slow around the time init starts, and the system becomes 
+unusable.  I applied them on top of stock 2.6.8.1-mm4, which boots fine 
+without them (testing that again to make sure, but I booted it a few times 
+this morning w/o incident).
 
-Yes, of course.
-
-
-> >  asmlinkage void do_general_protection(struct pt_regs * regs, long error_code)
-> >  {
-> > +	int cpu = smp_processor_id();
-> > +	struct tss_struct *tss = init_tss + cpu;
-> > +	struct task_struct *tsk = current;
-> > +	struct thread_struct *tsk_th = &tsk->thread;
-> > +
-> > +	/*
-> > +	 * Perform the lazy TSS's I/O bitmap copy. If the TSS has an
-> > +	 * invalid offset set (the LAZY one) and the faulting thread has
-> > +	 * a valid I/O bitmap pointer, we copy the I/O bitmap in the TSS
-> > +	 * and we set the offset field correctly. Then we let the CPU to
-> > +	 * restart the faulting instruction.
-> > +	 */
-> 
-> I don't like it very much that most GPFs will be executed twice now
-> when the process has ioperm enabled.
-> This will confuse debuggers and could have other bad side effects.
-> Checking the EIP would be better.
-
-The eventually double GPF would happen only on TSS-IObmp-lazy tasks, ie 
-tasks using the I/O bitmap. The check for the I/O opcode can certainly be 
-done though, even if it'd make the code a little bit more complex.
-
-
-
-- Davide
-
+Jesse

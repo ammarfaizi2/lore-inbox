@@ -1,65 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265590AbUAUSjv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 13:39:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265998AbUAUSjv
+	id S266027AbUAUSm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 13:42:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266028AbUAUSm1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 13:39:51 -0500
-Received: from nevyn.them.org ([66.93.172.17]:12697 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S265590AbUAUSjt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 13:39:49 -0500
-Date: Wed, 21 Jan 2004 13:39:40 -0500
-From: Daniel Jacobowitz <dan@debian.org>
+	Wed, 21 Jan 2004 13:42:27 -0500
+Received: from fed1mtao03.cox.net ([68.6.19.242]:18845 "EHLO
+	fed1mtao03.cox.net") by vger.kernel.org with ESMTP id S266027AbUAUSmT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 13:42:19 -0500
+Date: Wed, 21 Jan 2004 11:42:17 -0700
+From: Tom Rini <trini@kernel.crashing.org>
 To: "Amit S. Kale" <amitkale@emsyssoft.com>
-Cc: George Anzinger <george@mvista.com>, Pavel Machek <pavel@suse.cz>,
+Cc: Powerpc Linux <linuxppc-dev@lists.linuxppc.org>,
        Linux Kernel <linux-kernel@vger.kernel.org>,
        KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>,
-       Matt Mackall <mpm@selenic.com>, discuss@x86-64.org
-Subject: Re: KGDB 2.0.3 with fixes and development in ethernet interface
-Message-ID: <20040121183940.GA23200@nevyn.them.org>
-Mail-Followup-To: "Amit S. Kale" <amitkale@emsyssoft.com>,
-	George Anzinger <george@mvista.com>, Pavel Machek <pavel@suse.cz>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>,
-	Matt Mackall <mpm@selenic.com>, discuss@x86-64.org
-References: <200401161759.59098.amitkale@emsyssoft.com> <200401171459.01794.amitkale@emsyssoft.com> <40099301.6000202@mvista.com> <200401211916.49520.amitkale@emsyssoft.com>
+       George Anzinger <george@mvista.com>
+Subject: Re: PPC KGDB changes and some help?
+Message-ID: <20040121184217.GU13454@stop.crashing.org>
+References: <20040120172708.GN13454@stop.crashing.org> <200401211946.17969.amitkale@emsyssoft.com> <20040121153019.GR13454@stop.crashing.org> <200401212223.13347.amitkale@emsyssoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200401211916.49520.amitkale@emsyssoft.com>
-User-Agent: Mutt/1.5.1i
+In-Reply-To: <200401212223.13347.amitkale@emsyssoft.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 21, 2004 at 07:16:48PM +0530, Amit S. Kale wrote:
-> Now back to gdb problem of not being able to locate registers.
-> schedule results in code of this form:
-> 
-> schedule:
-> framesetup
-> registers save
-> ...
-> ...
-> save registers
-> change esp
-> call switchto
-> restore registers
-> ...
-> ...
-> 
-> GDB can't analyze code other than frame setup and registers save. It may not 
-> show values of variables that are present in registers correctly. This used 
-> to be a problem some time ago (gdb 5.X). Perhaps gdb 6.x does a better job.
-> hmm...
-> May be its time I should look at gdb's x86 register info code again.
+On Wed, Jan 21, 2004 at 10:23:12PM +0530, Amit S. Kale wrote:
 
-You should try GDB 6.0, which will use the dwarf2 unwind information to
-accurately locate registers in any GCC-compiled code with -gdwarf-2 (-g
-on Linux targets).
+> Hi,
+> 
+> Here it is: ppc kgdb from timesys kernel is available at
+> http://kgdb.sourceforge.net/kgdb-2/linux-2.6.1-kgdb-2.1.0.tar.bz2
+> 
+> This is my attempt at extracting kgdb from TimeSys kernel. It works well in 
+> TimeSys kernel, so blame me if above patch doesn't work.
 
-As George is now painfully familiar with :)
+Okay, here's my first patch against this.
+===== kernel/kgdbstub.c 1.1 vs edited =====
+--- 1.1/kernel/kgdbstub.c	Wed Jan 21 10:13:17 2004
++++ edited/kernel/kgdbstub.c	Wed Jan 21 10:53:38 2004
+@@ -1058,9 +1058,6 @@
+ 	kgdb_serial->write_char('+');
+ 
+ 	linux_debug_hook = kgdb_handle_exception;
+-	
+-	if (kgdb_ops->kgdb_init)
+-		kgdb_ops->kgdb_init();
+ 
+ 	/* We can't do much if this fails */
+ 	register_module_notifier(&kgdb_module_load_nb);
+@@ -1104,6 +1101,11 @@
+ 	if (!kgdb_enter) {
+ 		return;
+ 	}
++
++	/* Let the arch do any initalization it needs to */
++	if (kgdb_ops->kgdb_init)
++		kgdb_ops->kgdb_init();
++
+ 	if (!kgdb_serial) {
+ 		printk("KGDB: no gdb interface available.\n"
+ 		       "kgdb can't be enabled\n");
+
+I'm not sure why you were calling the arch-specific init so late in the
+process, but since it's a nop on both i386 and x86_64 (so perhaps it
+should be removed for both of these?), this change doesn't matter to
+them.  But it does make the PPC code cleaner, IMHO.
 
 -- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+Tom Rini
+http://gate.crashing.org/~trini/

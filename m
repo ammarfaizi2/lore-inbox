@@ -1,63 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262482AbTD1AaN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 20:30:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262502AbTD1AaN
+	id S262513AbTD1Ao6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 20:44:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262515AbTD1Ao6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 20:30:13 -0400
-Received: from smtp-out.comcast.net ([24.153.64.109]:45819 "EHLO
-	smtp-out.comcast.net") by vger.kernel.org with ESMTP
-	id S262482AbTD1AaM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 20:30:12 -0400
-Date: Sun, 27 Apr 2003 20:40:57 -0400
-From: rmoser <mlmoser@comcast.net>
-Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-In-reply-to: <20030428003702.GA27729@work.bitmover.com>
-To: Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <200304272040570100.02F4DCBE@smtp.comcast.net>
-MIME-version: 1.0
-X-Mailer: Calypso Version 3.30.00.00 (3)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-References: <20030427185037.GA23581@work.bitmover.com>
- <Pine.LNX.4.33.0304272346080.15035-100000@sphinx.mythic-beasts.com>
- <20030427235345.GN23068@work.bitmover.com>
- <200304272000230850.02CFBA48@smtp.comcast.net>
- <20030428001001.GP23068@work.bitmover.com>
- <200304272019180940.02E10D10@smtp.comcast.net>
- <20030428003702.GA27729@work.bitmover.com>
+	Sun, 27 Apr 2003 20:44:58 -0400
+Received: from user72.209.42.38.dsli.com ([209.42.38.72]:58189 "EHLO
+	nolab.conman.org") by vger.kernel.org with ESMTP id S262513AbTD1Ao5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Apr 2003 20:44:57 -0400
+Date: Sun, 27 Apr 2003 20:57:12 -0400 (EDT)
+From: Mark Grosberg <mark@nolab.conman.org>
+To: linux-kernel@vger.kernel.org
+Subject: [RFD] Combined fork-exec syscall.
+Message-ID: <Pine.BSO.4.44.0304272036360.23296-100000@kwalitee.nolab.conman.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well I didn't read the header! :D  Geeze.
 
-*********** REPLY SEPARATOR  ***********
+Hello all,
 
-On 4/27/2003 at 5:37 PM Larry McVoy wrote:
+Is there any interest in a single system call that will perform both a
+fork() and exec()? Could this save some extra work of doing a
+copy_mm(), copy_signals(), etc?
 
->On Sun, Apr 27, 2003 at 08:19:18PM -0400, rmoser wrote:
->[whine whine whine]
->
->
->FYI, this person just posted a private email to a public list.
->
->Personally, I don't care, I try not to send private mails that I wouldn't
->want to see out in public, and I stand 100% behind what I said to him
->in private.  In fact, I feel more strongly about it now than I did before.
->
->On the other hand, it might be useful information that this person doesn't
->seem to understand the rules of the road, i.e., what is private remains
->private.
->--
->---
->Larry McVoy              lm at bitmover.com
->http://www.bitmover.com/lm
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+I would think on large, multi-user systems that are spawning processes all
+day, this might improve performance if the shells on such a system were
+patched.
 
+Perhaps a system call like:
 
+   pid_t spawn(const char *p_path,
+               const char *argv[],
+               const char *envp[],
+               const int   filp[]);
+
+The filp array would allow file descriptors to be redirected. It could be
+terminated by a -1 and reference the file descriptors of the current
+process (this could also potentially save some dup() syscalls).
+
+If any of these parameters (exclusing p_path) are NULL, then the
+appropriate values are taken from the current process.
+
+I originally was thinking of a name of fexec() for such a syscall, but
+since there are already "f" variant syscalls (fchmod, fstat, ...) that an
+fexec() would make more sense about executing an already open file, so the
+name spawn() came to mind.
+
+I know almost all of my fork()-exec() code does almost the same thing. I
+guess vfork() was a potential solution, but this somehow seems cleaner
+(and still may be more efficient than having to issue two syscalls)...
+the downside is, of course, another syscall.
+
+L8r,
+Mark G.
 

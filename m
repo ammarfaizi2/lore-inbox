@@ -1,75 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318588AbSGZUVd>; Fri, 26 Jul 2002 16:21:33 -0400
+	id <S318475AbSGZU0T>; Fri, 26 Jul 2002 16:26:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318589AbSGZUVd>; Fri, 26 Jul 2002 16:21:33 -0400
-Received: from tolkor.SGI.COM ([192.48.180.13]:15531 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S318588AbSGZUVb>;
-	Fri, 26 Jul 2002 16:21:31 -0400
-Subject: Re: O_DIRECT read and holes in 2.5.26
-From: Stephen Lord <lord@sgi.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3D3B6D57.BB5C0F38@zip.com.au>
-References: <1026981790.1258.17.camel@localhost.localdomain> 
-	<3D3B6D57.BB5C0F38@zip.com.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 26 Jul 2002 15:22:37 -0500
-Message-Id: <1027714959.1728.26.camel@localhost.localdomain>
-Mime-Version: 1.0
+	id <S318477AbSGZU0S>; Fri, 26 Jul 2002 16:26:18 -0400
+Received: from main.tellink.net ([208.3.160.2]:22488 "EHLO main.tellink.net")
+	by vger.kernel.org with ESMTP id <S318475AbSGZU0S>;
+	Fri, 26 Jul 2002 16:26:18 -0400
+Date: Fri, 26 Jul 2002 16:29:22 -0400 (EDT)
+From: Jon Portnoy <portnoy@tellink.net>
+X-X-Sender: portnoy@localhost.localdomain
+To: Federico Ferreres <fferreres@ojf.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Funding GPL projects or funding the GPL?
+In-Reply-To: <1027713801.895.47.camel@fede>
+Message-ID: <Pine.LNX.4.44.0207261622310.21067-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-07-21 at 21:26, Andrew Morton wrote:
-> Stephen Lord wrote:
-> > 
-> > Andrew,
-> > 
-> > Did you realize that the new O_DIRECT code in 2.5 cannot read over holes
-> > in a file.
+If you want to donate money to a project(s), I'm sure that a simple email 
+to the maintainer(s) of that project would get you an address to send such 
+a donation to. Myself, I feel that donation should be optional, besides 
+the obvious practical difficulties with something like this (e.g., the 
+task of keeping track of who has paid, not to mention the necessary 
+restrictions on downloading at various sites, not to mention the fact that 
+people will end up just getting source and posting it for everyone, not to 
+mention...)
+
+On 26 Jul 2002, Federico Ferreres wrote:
+
+> On Fri, 2002-07-26 at 14:01, Alexander Viro wrote:
+> > Larry, what the hell are you smoking?  It's a repost from tabloid, for
+> > fsck sake - clearly says so in the beginning.  Thinking is, indeed, hard
+> > for these guys, but what's encouraging about that?
 > 
-> Well that was intentional, although I confess to not having
-> put a lot of thought into the decision.  The user wants
-> O_DIRECT and we cannot do that.  The CPU has to clear the
-> memory by hand.  Bad.
-
-What it does mean is that things which used to work on Irix and
-Linux now no longer work. You can write an app on 2.4 and have
-it fail on 2.5 now.
-
+> Would it have made any difference if I posted it here first? Or if I was
+> a respected developer? Shame on me, I happened to have studied
+> economics.
 > 
-> Obviously it's easy enough to put in the code to clear the
-> memory out.  Do you think that should be done?
->   
-> >  The old code filled the user buffer with zeros, the new code
-> > returned EINVAL if the getblock function returns an unmapped buffer.
-> > With this exception, XFS does work with the new code - with more cpu
-> > overhead than before due to the once per page getblock calls.
+> Anyway, the OSS model is just fine, so you shouldn't care. If at any
+> point you change your mind and want/need my $20 bucks, I will be ready
+> to support you (as well as the hundred millions x $20 waiting out there
+> arround the globe).
 > 
-> OK, thanks.  Presumably XFS has a fairly heavyweight get_block()?
-
-No, not really that expensive, especially in the read and buffered
-write path. I am objecting to the extra cpu cycles which we get to
-spend in the kernel doing processing we do not need, as opposed to
-spending those cycles in an application. It does not really show
-up as a difference when you are sitting around waiting for the 
-I/O, but if you are doing processing in parallel with the I/O
-I prefer to put as many cycles in user space as possible. We have
-customers who like to see 99.x% of their cpu time in user space.
-
+> Federico
 > 
-> I'd be interested in seeing just how expensive that O_DIRECT
-> I/O is, and whether we need to get down and implement
-> many-block get_block() interface.  Any numbers/profiles
-> available?
 > 
-
-I will try and generate some numbers once I emerge from under a
-mountain of email - I cannot use the Linus approach to email
-backlogs ;-)
-
-Steve
-
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 

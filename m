@@ -1,85 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262496AbTENPQw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 11:16:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbTENPQw
+	id S262456AbTENPOW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 11:14:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbTENPMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 11:16:52 -0400
-Received: from port-212-202-185-200.reverse.qdsl-home.de ([212.202.185.200]:62596
-	"EHLO gw.localnet") by vger.kernel.org with ESMTP id S262437AbTENPQr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 11:16:47 -0400
-Message-ID: <3EC260D9.9050401@trash.net>
-Date: Wed, 14 May 2003 17:29:29 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030430 Debian/1.3-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix two bogus kfree(skb)
-Content-Type: multipart/mixed;
- boundary="------------060106000503080804030606"
+	Wed, 14 May 2003 11:12:40 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:2236 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S262457AbTENPLI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 11:11:08 -0400
+Date: Wed, 14 May 2003 14:09:50 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: James Simmons <jsimmons@infradead.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.5.69 - no setfont and loadkeys on tty > 1
+Message-ID: <20030514120950.GA302@elf.ucw.cz>
+References: <20030511173817.GA2155@elf.ucw.cz> <Pine.LNX.4.44.0305122223570.14641-100000@phoenix.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0305122223570.14641-100000@phoenix.infradead.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060106000503080804030606
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi!
 
-This patch fixes two occurences of kfree(skb) in net/bridge/br_input.c and
-net/decnet/netfilter/dn_rtmsg.c.
+> > > I'am wondering why setfont and loadkeys in setting only on first tty.
+> > > It works (setting font map on all six tty) in 2.{2,4}.x.
+> > > 
+> > > I'am using _radeonfb_ with rv250if, could it be the reason?
+> > 
+> > FYI, its same as vesafb here.
+> 
+> Try this patch. If it works I will pass it on to linus. thank you.
 
-Best regards,
-Patrick
+Does not work. Setfont still only changes tty it is run on.
 
+There are more problems. Emacs changes cursor to "more visible" one,
+this somehow leaks between ttys.
 
---------------060106000503080804030606
-Content-Type: text/plain;
- name="net-bogus-kfree.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="net-bogus-kfree.diff"
+Last but not least: Try this on your tty:
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1114  -> 1.1115 
-#	net/bridge/br_input.c	1.11    -> 1.12   
-#	net/decnet/netfilter/dn_rtmsg.c	1.1     -> 1.2    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/05/14	kaber@trash.net	1.1115
-# Fix bogus kfree in br_input.c and dn_rtmsg.c
-# --------------------------------------------
-#
-diff -Nru a/net/bridge/br_input.c b/net/bridge/br_input.c
---- a/net/bridge/br_input.c	Wed May 14 17:26:31 2003
-+++ b/net/bridge/br_input.c	Wed May 14 17:26:31 2003
-@@ -64,7 +64,7 @@
- 	smp_read_barrier_depends();
- 
- 	if (p == NULL || p->state == BR_STATE_DISABLED) {
--		kfree(skb);
-+		kfree_skb(skb);
- 		goto out;
- 	}
- 
-diff -Nru a/net/decnet/netfilter/dn_rtmsg.c b/net/decnet/netfilter/dn_rtmsg.c
---- a/net/decnet/netfilter/dn_rtmsg.c	Wed May 14 17:26:31 2003
-+++ b/net/decnet/netfilter/dn_rtmsg.c	Wed May 14 17:26:31 2003
-@@ -55,7 +55,7 @@
- 
- nlmsg_failure:
- 	if (skb)
--		kfree(skb);
-+		kfree_skb(skb);
- 	*errp = -ENOMEM;
- 	if (net_ratelimit())
- 		printk(KERN_ERR "dn_rtmsg: error creating netlink message\n");
+echo -e "\33[10;5000]\33[11;50]\33[?18;0;136c\33[?102m"
 
---------------060106000503080804030606--
+It is supposed to start "softcursor". Unfortunately, with 2.5.68+
+softcursor is not cleared properly. Try typing foo^H^H^H in bash
+:-(. [Or try most /some/file]. 
 
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

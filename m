@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266702AbUGQKUv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265038AbUGQLEM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266702AbUGQKUv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jul 2004 06:20:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266701AbUGQKUv
+	id S265038AbUGQLEM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jul 2004 07:04:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266682AbUGQLEM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jul 2004 06:20:51 -0400
-Received: from cantor.suse.de ([195.135.220.2]:30165 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266682AbUGQKUs (ORCPT
+	Sat, 17 Jul 2004 07:04:12 -0400
+Received: from mail.gmx.de ([213.165.64.20]:7107 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265038AbUGQLEK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jul 2004 06:20:48 -0400
-To: davidm@hpl.hp.com
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: fix for unkillable zombie task
-References: <16632.21429.257483.650452@napali.hpl.hp.com>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: I want to read my new poem about pork brains and outer space...
-Date: Sat, 17 Jul 2004 12:20:46 +0200
-In-Reply-To: <16632.21429.257483.650452@napali.hpl.hp.com> (David
- Mosberger's message of "Fri, 16 Jul 2004 15:16:21 -0700")
-Message-ID: <jesmbr3pfl.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+	Sat, 17 Jul 2004 07:04:10 -0400
+Date: Sat, 17 Jul 2004 13:04:09 +0200 (MEST)
+From: "Daniel Blueman" <daniel.blueman@gmx.net>
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Subject: [2.6.7, e1000] large MTU allocation failure...
+X-Priority: 3 (Normal)
+X-Authenticated: #8973862
+Message-ID: <25348.1090062249@www11.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mosberger <davidm@napali.hpl.hp.com> writes:
+When I try to enable jumbo frames, and increase the MTU size to 9000 octets
+[1], I see allocation failures in the kernel logs [2].
 
-> I got a bugreport where a ptrace'd task would end up in an unkillable
-> zombie state if the (real) parent of the task happened to ignore
-> SIGCHLD.  The patch below should fix the problem.  I attached a
-> self-contained test program.  If the bug is present, you should
-> see:
->
->  FAILURE: child PID seems to be still around!
->
-> at the end (and there will be an unkillable zombie).
+Is there another way of enabling jumbo frames and use a large MTU?
 
-Could this be the same problem as discussed in the thread at
-<http://marc.theaimsgroup.com/?t=108857537300002&r=1&w=2>?
+Kernel is stock 2.6.7, IA32.
 
-Andreas.
+--- [1]
+
+# ifconfig eth0 mtu 9000
+
+--- [2]
+
+Intel(R) PRO/1000 Network Driver - version 5.2.52-k4
+Copyright (c) 1999-2004 Intel Corporation.
+e1000: eth0: e1000_probe: Intel(R) PRO/1000 Network
+Connection
+e1000: eth0: e1000_watchdog: NIC Link is Up 1000 Mbps
+Full Duplex
+ifconfig: page allocation failure. order:3, mode:0x20
+[<c012ac54>] __alloc_pages+0x2b4/0x300
+[<c012acbf>] __get_free_pages+0x1f/0x40
+[<c012dc37>] kmem_getpages+0x17/0xb0
+[<c012e6f6>] cache_grow+0x96/0x1f0
+[<c012e9ae>] cache_alloc_refill+0x15e/0x230
+[<c012ef07>] __kmalloc+0x67/0x70
+[<c021d552>] alloc_skb+0x32/0xd0
+[<c01fa035>] e1000_alloc_rx_buffers+0x55/0xf0
+[<c01f75fd>] e1000_up+0x3d/0x90
+[<c01f92c6>] e1000_change_mtu+0x76/0x100
+[<c02228e5>] dev_set_mtu+0x65/0x70
+[<c0222ebf>] dev_ioctl+0x1df/0x250
+[<c02602e0>] udp_ioctl+0x0/0xc0
+[<c02676f9>] inet_ioctl+0x89/0xa0
+[<c021a722>] sock_ioctl+0xd2/0x220
+[<c01514a9>] sys_ioctl+0xe9/0x240
+[<c0103bf7>] syscall_call+0x7/0xb
 
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Daniel J Blueman
+

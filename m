@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268393AbTBSMm6>; Wed, 19 Feb 2003 07:42:58 -0500
+	id <S268399AbTBSMuP>; Wed, 19 Feb 2003 07:50:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268399AbTBSMm6>; Wed, 19 Feb 2003 07:42:58 -0500
-Received: from meryl.it.uu.se ([130.238.12.42]:65201 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id <S268393AbTBSMm5>;
-	Wed, 19 Feb 2003 07:42:57 -0500
-From: Mikael Pettersson <mikpe@user.it.uu.se>
-MIME-Version: 1.0
+	id <S268405AbTBSMuP>; Wed, 19 Feb 2003 07:50:15 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:53750 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S268399AbTBSMuO>; Wed, 19 Feb 2003 07:50:14 -0500
+Date: Wed, 19 Feb 2003 14:00:08 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH 2.4.21-pre4|BK] remove /proc/meminfo:MemShared
+Message-ID: <20030219130008.GD531@fs.tum.de>
+References: <200302191333.43875.m.c.p@wolk-project.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15955.32295.830237.912@gargle.gargle.HOWL>
-Date: Wed, 19 Feb 2003 13:52:55 +0100
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: module changes 
-In-Reply-To: <20030219033429.990F62C0CA@lists.samba.org>
-References: <15954.22427.557293.353363@gargle.gargle.HOWL>
-	<20030219033429.990F62C0CA@lists.samba.org>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
+In-Reply-To: <200302191333.43875.m.c.p@wolk-project.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell writes:
- > In message <15954.22427.557293.353363@gargle.gargle.HOWL> you write:
- > > Rusty Russell writes:
- > >  > D: This adds percpu support for modules.  A module cannot have more
- > >  > D: percpu data than the base kernel does (on my kernel 5636 bytes).
- > > 
- > > This limitation is quite horrible.
- > > 
- > > Does the implementation have to be perfect? The per_cpu API can easily
- > > be simulated using good old NR_CPUS arrays:
- > 
- > The problem is that then you have to have to know whether this is a
- > per-cpu thing created in a module, or not, when you use it 8(
+On Wed, Feb 19, 2003 at 01:42:34PM +0100, Marc-Christian Petersen wrote:
 
-Ah yes. I totally missed that. (Shakes head in disbelief.)
+> Hi Marcelo,
 
- > I agree with you (and John) about disliking the limitation, but is it
- > worse than the current no per-cpu stuff in modules at all?
+Hi Marc,
 
-In my case (perfctr driver) it means not being able to use per-cpu
-stuff at all since I need to be able to build it modular. Or I have
-to hide per_cpu() behind private macros that fall back to an [NR_CPUS]
-implementation in the modular case. I can live with that.
+> it seems to have been displaying zero for the past several years.
+> 
+> Same as in 2.5, by AKPM.
+>...
 
-/Mikael
+I don't think it's good to do this change in a stable kernel series. The 
+entry doesn't do any harm and there might be programs that parse 
+/proc/meminfo and expect MemShared to be present.
+
+> ciao, Marc
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

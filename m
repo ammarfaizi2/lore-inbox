@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264620AbTFANr0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 09:47:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264624AbTFANr0
+	id S264618AbTFAN6n (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 09:58:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264619AbTFAN6n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 09:47:26 -0400
-Received: from [62.75.136.201] ([62.75.136.201]:8580 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S264620AbTFANrZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 09:47:25 -0400
-Message-ID: <3EDA06CD.50604@g-house.de>
-Date: Sun, 01 Jun 2003 15:59:41 +0200
-From: Christian Kujau <evil@g-house.de>
-Reply-To: evil@g-house.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.4b) Gecko/20030507
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: weird keyboard with 2.5.70
-References: <3ED93A62.9080504@g-house.de> <yw1xsmqun01v.fsf@zaphod.guide>
-In-Reply-To: <yw1xsmqun01v.fsf@zaphod.guide>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sun, 1 Jun 2003 09:58:43 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:31714
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S264618AbTFAN6m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 09:58:42 -0400
+Subject: Re: Question about style when converting from K&R to ANSI C.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Steven Cole <elenstev@mesatop.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.50.0306010242570.2614-100000@montezuma.mastecende.com>
+References: <1054446976.19557.23.camel@spc>
+	 <20030601063946.GF10719@conectiva.com.br>
+	 <Pine.LNX.4.50.0306010242570.2614-100000@montezuma.mastecende.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1054473242.5862.2.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 01 Jun 2003 14:14:03 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Måns Rullgård schrieb:
->>thank you all for your comments; i only wished
->>- someone else has these problems too
-> 
-> Why do you wish your bad luck on others? 
+On Sul, 2003-06-01 at 07:43, Zwane Mwaikambo wrote:
+> --- linux-2.5/scripts/Lindent	31 May 2003 18:57:19 -0000	1.16
+> +++ linux-2.5/scripts/Lindent	1 Jun 2003 05:46:02 -0000
+> @@ -1,2 +1,2 @@
+>  #!/bin/sh
+> -indent -kr -i8 -ts8 -sob -l80 -ss -bs -psl "$@"
+> +indent -kr -i8 -ts8 -sob -l80 -ss -bs "$@"
 
-no, no, this is not what i wanted to say. but i couldn't image why this 
-problem does not show up on other ppl's computers too. if more ppl 
-complain - the keyboard guys might take a look at it. sorry for being 
-unclear.
-
-> 
-> It was breakable, so it had better be fixable.
-> 
-
-i guess the worst thing is: ther is no error message. if i only had an 
-error message one would know where to look at. but i only have these 
-weird behaviour. i could post usb-debug messages, if it only would help.
-
-i already got a workaround for me, see my other post.
-
-Thank you,
-Christian.
+Take out the -l80 as well, it makes indent do horrific things to code,
+and mangled 80 column wrapping is not the normal Linux style
 

@@ -1,39 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268189AbUI2Erd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268199AbUI2Evw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268189AbUI2Erd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 00:47:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268199AbUI2Erd
+	id S268199AbUI2Evw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 00:51:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268200AbUI2Evv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 00:47:33 -0400
-Received: from [220.225.128.84] ([220.225.128.84]:65511 "HELO
-	mail.gdatech.co.in") by vger.kernel.org with SMTP id S268189AbUI2Erc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 00:47:32 -0400
-Message-ID: <006001c4a5df$ad605c40$8200a8c0@RakeshJagota>
-From: "Rakesh Jagota" <j.rakesh@gdatech.co.in>
-To: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>,
-       <kernelnewbies@nl.linux.org>
-References: <4159E85A.6080806@ammasso.com>
-Subject: opening a file inside the kernel module
-Date: Wed, 29 Sep 2004 10:19:17 +0530
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	Wed, 29 Sep 2004 00:51:51 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:36625 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S268199AbUI2Evu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 00:51:50 -0400
+Date: Wed, 29 Sep 2004 06:50:07 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Ingvar Hagelund <ingvar@linpro.no>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.27: md RAID1 oops on alpha revisited
+Message-ID: <20040929045007.GB721@alpha.home.local>
+References: <ujcr7onnup3.fsf@nfsd.linpro.no> <20040928232434.A18395@jurassic.park.msu.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040928232434.A18395@jurassic.park.msu.ru>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-I am working in linux, i would like to know abt whether can I open a file
-inside the kernel module without using any application. If so how how the
-files_struct will be maintained. Does a kernel module has this struct?
+Hi,
 
-Waiting for any suggestion from the list.
+On Tue, Sep 28, 2004 at 11:24:34PM +0400, Ivan Kokshaysky wrote:
+> On Tue, Sep 28, 2004 at 01:44:24AM +0200, Ingvar Hagelund wrote:
+> > We have a Compaq Alphaserver DS10 466 MHz running Debian Woody with a
+> > self compiled 2.4.27 from kernel.org. We have not been able to make it
+> > run stable on md RAID1. It always crashes in less than an hour
+> > uptime, presumely while stressing the RAID code. Running on single
+> > disks, it's rock stable.
+> 
+> The problem seems to be in qlogic isp1020 driver, not in the RAID code.
+> I've seen exactly the same oops report, but that had happened while
+> writing to SCSI tape.
 
-Thanks in advance,
-rakesh
+I would like to add that I have nearly the same setup with the exception of
+an adaptec card and RAID5 instead of RAID1, and it's rock solid. I never had
+an oops nor a crash on it and it's my file server. So if it was a RAID1 bug,
+it does not affect RAID5 (unlikely). Thus, I too think it's related to the
+SCSI driver.
+
+Regards,
+Willy
 

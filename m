@@ -1,75 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263162AbUDMJJZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 05:09:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbUDMJJZ
+	id S263203AbUDMJI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 05:08:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263162AbUDMJI7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 05:09:25 -0400
-Received: from moo.samara.net ([195.209.64.5]:2827 "EHLO moo.samara.net")
-	by vger.kernel.org with ESMTP id S263162AbUDMJJQ (ORCPT
+	Tue, 13 Apr 2004 05:08:59 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:37860 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S263364AbUDMJI4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 05:09:16 -0400
-Subject: Promise SX-6000 and Kernel 2.6.5
-From: Alex Murphy <murphy@sgtp.samara.ru>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: SYS.NET.RU
-Message-Id: <1081847345.4962.22.camel@bene.samgtp>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 13 Apr 2004 14:09:05 +0500
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Apr 2004 05:08:56 -0400
+Date: Tue, 13 Apr 2004 11:08:53 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: JFS warnings (was: Re: Linux 2.4.26-rc3)
+In-Reply-To: <20040412193313.GA5504@logos.cnet>
+Message-ID: <Pine.GSO.4.58.0404131107400.19272@waterleaf.sonytel.be>
+References: <20040412193313.GA5504@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!!!
+On Mon, 12 Apr 2004, Marcelo Tosatti wrote:
+> It includes few important USB fixes, JFS fixes, amongst others.
 
- I am sorry for the letter, but already some weeks testing with subject.
-Has established Promise SX-6000 RAID. Has compiled an original nucleus
-2.6.5_rc2.
+I'm still getting a few warnings in JFS:
 
- In make menuconfig has disconnected support of all PDC Promise. Has
-included all I2O devices in a nucleus.
+| jfs_mount.c:316: warning: `AIM_byte_addr' might be used uninitialized in this function
+| jfs_mount.c:316: warning: `AIT_byte_addr' might be used uninitialized in this function
+| jfs_mount.c:316: warning: `fsckwsp_addr' might be used uninitialized in this function
 
-ns linux # cat .config|grep I2O
-# I2O device support
-CONFIG_I2O=y
-CONFIG_I2O_PCI=y
-CONFIG_I2O_BLOCK=y
-CONFIG_I2O_SCSI=y
-CONFIG_I2O_PROC=y
+I don't understand why, though. Happens with both m68k-linux-gcc 2.95.2 and
+3.2.
 
+Gr{oetje,eeting}s,
 
-dmesg send 0 i2o controllers
+						Geert
 
-I2O Core - (C) Copyright 1999 Red Hat Software
-I2O: Event thread created as pid 17
-i2o: Checking for PCI I2O controllers...
-I2O configuration manager v 0.04.
-  (C) Copyright 1999 Red Hat Software
-I2O Block Storage OSM v0.9
-   (c) Copyright 1999-2001 Red Hat Software.
-i2o_block: Checking for Boot device...
-i2o_block: Checking for I2O Block devices...
-i2o_scsi.c: Version 0.1.2
-  chain_pool: 0 bytes @ f7ae85a0
-  (512 byte buffers X 4 can_queue X 0 i2o controllers)
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-
-lspci:
-
-02:02.1 Class ff00: Intel Corp. 80960RM [i960RM Microprocessor] (rev 02)
-(prog-if 01)
-        Subsystem: Promise Technology, Inc. SuperTrak SX6000 I2O CPU
-        Flags: bus master, medium devsel, latency 32, IRQ 22
-        Memory at f6000000 (32-bit, prefetchable) [size=4M]
-        Expansion ROM at <unassigned> [disabled] [size=64K]
-
-
- I use devfs. Distribution kit Gentoo. Long searched on the Internet,
-but and I can not start raid.
-
-Prompt where still to look please.
-
-Yours faithfully, Alexey.
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

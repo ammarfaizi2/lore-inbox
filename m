@@ -1,68 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282843AbSASOuP>; Sat, 19 Jan 2002 09:50:15 -0500
+	id <S284144AbSASOvz>; Sat, 19 Jan 2002 09:51:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282967AbSASOuF>; Sat, 19 Jan 2002 09:50:05 -0500
-Received: from intbg-piocommers.internet-bg.net ([212.124.67.90]:11733 "HELO
-	ns.top.bg") by vger.kernel.org with SMTP id <S282843AbSASOt4>;
-	Sat, 19 Jan 2002 09:49:56 -0500
-Message-ID: <3C4A1475.4D0BB1F6@top.bg>
-Date: Sat, 19 Jan 2002 16:51:01 -0800
-From: Anton Tinchev <atl@top.bg>
-X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ville Herva <vherva@niksula.hut.fi>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Sharing Interrupt+HPT366 Problem on BP6
-In-Reply-To: <3C49A8AD.2BBC7F7A@top.bg> <20020119112555.GD135220@niksula.cs.hut.fi>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S286687AbSASOvq>; Sat, 19 Jan 2002 09:51:46 -0500
+Received: from charger.oldcity.dca.net ([207.245.82.76]:14742 "EHLO
+	charger.oldcity.dca.net") by vger.kernel.org with ESMTP
+	id <S284144AbSASOvl>; Sat, 19 Jan 2002 09:51:41 -0500
+Date: Sat, 19 Jan 2002 09:51:32 -0500
+From: christophe =?iso-8859-15?Q?barb=E9?= 
+	<christophe.barbe.ml@online.fr>
+To: Doug Alcorn <lathi@seapine.com>, linux-kernel@vger.kernel.org
+Subject: Re: rm-ing files with open file descriptors
+Message-ID: <20020119145132.GA972@online.fr>
+Mail-Followup-To: Doug Alcorn <lathi@seapine.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <87lmevjrep.fsf@localhost.localdomain> <20020119041857.GA10795@storm.local>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="CE+1k2dSO48ffgeK"
+Content-Disposition: inline
+In-Reply-To: <20020119041857.GA10795@storm.local>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: debian SID Gnu/Linux 2.4.17 on i586
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Without NIC hangs too...
-I tried every combination that i can imagine and the result is:
-Drives on only one channel - system works
-Drives on both channels - system hangs
 
-Ville Herva wrote:
+--CE+1k2dSO48ffgeK
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> On Sat, Jan 19, 2002 at 09:11:09AM -0800, you [Anton Tinchev] claimed:
-> >
-> > The configuration is:
-> > Abit BP6 MB
-> > Single Celeron 366 processor
-> > 1X10G hdd
-> > 3X60G hdd
-> > 256MB ram
-> > Davicom 100MB/s NIC
-> > S3 Trio3D AGP VGA
->
-> Which slot did you put your nic (and other pci cards)? Don't put them in
-> slot #3 (it shares the IRQ with HPT366). And even if slot 3 is empty, try
-> switching the slow and see if it makes difference.
->
-> Also, make sure you have the newest bios.
->
-> I have BP6 here, three drives HPT366:
->
-> hda: IBM-DCAA-34330, ATA DISK drive
-> hdb: CD-532E-A, ATAPI CD/DVD-ROM drive
-> hdd: CR-4804TE, ATAPI CD/DVD-ROM drive
-> hde: IBM-DJNA-352030, ATA DISK drive
-> hdf: IBM-DTTA-351680, ATA DISK drive
-> hdg: SAMSUNG SV6004H, ATA DISK drive
-> hdh: SAMSUNG SV6004H, ATA DISK drive
->
-> No problems.
->
-> -- v --
->
-> v@iki.fi
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+On Sat, Jan 19, 2002 at 05:18:57AM +0100, Andreas Bombe wrote:
+> Whether that was an intended or accidental feature only someone with
+> more insight into Unix history can answer.  It's that feature that lets
+> us do live upgrades of distributions without rebooting (executables and
+> libraries can be replaced without affecting the currently running
+> processes), at the very least much easier than it would be without this
+> behaviour.
 
+I remember that previous debian release come with a patched kernel to
+allow live upgrade. It was explained in the FAQ that the patch was
+required for this purpose.
+
+   7.2 Debian claims to be able to update a running program;
+      how is this accomplished?
+
+The debian FAQ has been updated because now debian uses a pristine
+kernel.
+
+What was in this patch?
+
+Christophe
+
+--=20
+Christophe Barb=E9 <christophe.barbe@ufies.org>
+GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
+
+Cats are rather delicate creatures and they are subject to a good
+many ailments, but I never heard of one who suffered from insomnia.
+--Joseph Wood Krutch
+
+--CE+1k2dSO48ffgeK
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Pour information voir http://www.gnupg.org
+
+iD8DBQE8SYf0j0UvHtcstB4RAloPAJ9K+Mz1YufkDLJNwXQs8e2TM47s7gCgmLj4
+JoPsepcVW49b4AzrBYwfTGY=
+=6X2e
+-----END PGP SIGNATURE-----
+
+--CE+1k2dSO48ffgeK--

@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263062AbTEVS06 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 14:26:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263077AbTEVS06
+	id S263077AbTEVSgd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 14:36:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263078AbTEVSgd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 14:26:58 -0400
-Received: from hqemgate00.nvidia.com ([216.228.112.144]:17938 "EHLO
-	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
-	id S263062AbTEVS04 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 14:26:56 -0400
-From: Terence Ripperda <tripperda@nvidia.com>
-Reply-To: Terence Ripperda <tripperda@nvidia.com>
-To: linux-kernel@vger.kernel.org
-Date: Thu, 22 May 2003 13:39:56 -0500
-From: <tripperda@nvidia.com>
-Subject: standby failures and ignoring return values
-Message-ID: <20030522183956.GD532@hygelac>
-Mime-Version: 1.0
+	Thu, 22 May 2003 14:36:33 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:6133 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S263077AbTEVSgc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 14:36:32 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Accept-Language: en
-X-Operating-System: Linux hrothgar 2.4.19 
+Content-Transfer-Encoding: 7bit
+Message-ID: <16077.7101.339611.256918@gargle.gargle.HOWL>
+Date: Thu, 22 May 2003 20:49:33 +0200
+From: mikpe@csd.uu.se
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: arch/i386/kernel/mpparse.c warning fixes
+In-Reply-To: <20030522183608.GV8978@holomorphy.com>
+References: <20030522155320.GP29926@holomorphy.com>
+	<16076.62927.525714.113342@gargle.gargle.HOWL>
+	<20030522162305.GT8978@holomorphy.com>
+	<16077.5909.155004.502440@gargle.gargle.HOWL>
+	<20030522183608.GV8978@holomorphy.com>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm working on some of the power management support for our driver and ran into a problem with 2.4 kernels.
+William Lee Irwin III writes:
+ > William Lee Irwin III writes:
+ > >> m->mpc_apicid is an 8-bit type; MAX_APICS can be 256. The above fix
+ > >> properly compares two integral expressions of equal width.
+ > 
+ > On Thu, May 22, 2003 at 08:29:41PM +0200, mikpe@csd.uu.se wrote:
+ > > In the original "_>_", the 8-bit mpc_apicid is implicitly converted to int
+ > > before the comparison, as part of the "integer promotions" in the "usual
+ > > arithmetic conversions" (C standard lingo). The same happens in your "_-_<=0".
+ > > So what's the benefit of the rewrite?
+ > 
+ > It removes a warning about comparisons being always true or false by
+ > virtue of the limited range of a type.
 
-I'm currently working with Dell Inspiron systems using APM (I think these bioses can do either APM or ACPI). When APM is enabled, the bios is only capable of suspend & resume, not standby.
+Ah, so it's a workaround to silence a compiler warning on char > 256.
+Frankly, I'd rather see a cast there in this case. I.e.,
 
-If I try to enter standby with "apm -S" (on a red hat 7.3 system), the screen goes blank and the system appears to hang.
+	 (unsigned int)m->mpc_apicid >= MAX_APICS
 
-What's actually happening is that the bios call is failing (set_power_state w/ APM_STATE_STANDBY) and the kernel prints out the message "apm: standby: Parameter out of range". 
-
-The system is still alive: I can break into the kernel and if I happened to vt switch out of X to the console before doing this the console works fine. But both X and apmd got a standby event and ran their standby scripts, so X is down and apmd has disabled networking, etc..
-
-Looking closer, the function standby() in arch/i386/kernel/apm.c sees the error and prints the warning message, but doesn't do anything about it. It seems that when this error happens, this function should either queue a APM_STANDBY_RESUME event or return an error code so the caller can handle the failure. That would allow X and apmd to realize they need to restore the services they shut down.
-
-I can put together and test a simple patch for this, but I was wondering if this wasn't done for a reason. perhaps other people had a bios fail this call and trying to recover was worse than doing nothing at all.
-
-Thanks,
-Terence
+or something like that, with a suitable comment.

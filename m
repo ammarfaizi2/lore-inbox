@@ -1,78 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262024AbVCTE5d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262025AbVCTE7O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262024AbVCTE5d (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 23:57:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVCTE5d
+	id S262025AbVCTE7O (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 23:59:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbVCTE7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 23:57:33 -0500
-Received: from h80ad2443.async.vt.edu ([128.173.36.67]:36622 "EHLO
-	h80ad2443.async.vt.edu") by vger.kernel.org with ESMTP
-	id S262024AbVCTE5a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 23:57:30 -0500
-Message-Id: <200503200457.j2K4vOmX025692@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Ioan Ionita <opslynx@gmail.com>
+	Sat, 19 Mar 2005 23:59:14 -0500
+Received: from jade.aracnet.com ([216.99.193.136]:59065 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S262025AbVCTE7C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Mar 2005 23:59:02 -0500
+Date: Sat, 19 Mar 2005 20:58:59 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Unreliable TCP? 
-In-Reply-To: Your message of "Sat, 19 Mar 2005 21:59:16 EST."
-             <df47b87a050319185918be6c19@mail.gmail.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <df47b87a050319185918be6c19@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1111294643_30952P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Subject: Re: ppc64 build broke between 2.6.11-bk6 and 2.6.11-bk7
+Message-ID: <515230000.1111294739@[10.10.2.4]>
+In-Reply-To: <20050317224409.41f0f5c5.akpm@osdl.org>
+References: <445800000.1111127533@[10.10.2.4]> <20050317224409.41f0f5c5.akpm@osdl.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Sat, 19 Mar 2005 23:57:23 -0500
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1111294643_30952P
-Content-Type: text/plain; charset=us-ascii
-
-On Sat, 19 Mar 2005 21:59:16 EST, Ioan Ionita said:
-
-> applications which use the UDP protocol.  However, certain firewalls
-> don't allow UDP traffic, therefore I tried UDP over TCP as a
-> workaround.
-
-That's the firewall's problem, not yours.  There's very few firewalls
-that prohibit *all* UDP traffic (for starters, DNS becomes interesting).
-Usually a firewall stops *most* UDP traffic only because the firewall admin
-has decided that there's few UDP-based applications that they want to allow
-through...
-
-Explain why you think that your application will be let through the firewall
-if it's TCP-based?  If the firewall admin thinks enough of your application to
-open a port, it's equally likely to get you an open UDP port.
-
-(For bonus points, work out the ethics of trying to circumvent a firewall that's
-there for presumably good reasons - the people who installed the firewall did so
-because they only want to allow certain traffic through.  Having the user
-ask "Can I have port 99343 opened so application XYZ works?" is much more likely
-to be useful *LONG-TERM* than getting into a long-term pissing match with the
-firewall admin, who gets upset at your attempts to bypass his firewall and
-starts playing whack-a-mole.  If you *do* get UDP-over-TCP working, you're
-looking at having to move the port around all the time because it will get
-blocked...)
-
->                                             So I was wondering if
-> there's any way to disable the whole reliability checking of TCP in
-> the linux kernel. Maybe configure the kernel to never request the
-> retransmission of a packet, even if it detects packet loss/bad order?
-
-Yes, it's called UDP. :)
 
 
---==_Exmh_1111294643_30952P
-Content-Type: application/pgp-signature
+--Andrew Morton <akpm@osdl.org> wrote (on Thursday, March 17, 2005 22:44:09 -0800):
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+> "Martin J. Bligh" <mbligh@aracnet.com> wrote:
+>> 
+>> drivers/built-in.o(.text+0x182bc): In function `.matroxfb_probe':
+>> : undefined reference to `.mac_vmode_to_var'
+>> make: *** [.tmp_vmlinux1] Error 1
+>> 
+>> Anyone know what that is?
+>> 
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm4/broken-out/fbdev-kconfig-fix-for-macmodes-and-ppc.patch
+> 
+> should fix it.
 
-iD8DBQFCPQKzcC3lWbTT17ARAi8VAJ4w5w+hsTPrOwqUjPDb8cfmiVCFnACeK4ux
-4Dr2BPiO9XfRajfTm5j2ah0=
-=lKfq
------END PGP SIGNATURE-----
+Great - tested, that fixed it up for me.
 
---==_Exmh_1111294643_30952P--
+Thanks,
+
+M.
+

@@ -1,61 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270384AbTGMUog (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 16:44:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270385AbTGMUof
+	id S270385AbTGMUpn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 16:45:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270391AbTGMUpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 16:44:35 -0400
-Received: from maild.telia.com ([194.22.190.101]:35326 "EHLO maild.telia.com")
-	by vger.kernel.org with ESMTP id S270384AbTGMUoe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 16:44:34 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-Subject: Re: NTFS RW enabled
-From: Christian Axelsson <smiler@lanil.mine.nu>
-Reply-To: smiler@lanil.mine.nu
-To: Niklaus <niklaus@gamebox.net>
-Cc: aia21@cantab.net, ntfs@flatcap.org, linux-ntfs-dev@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20030714014702.4725a50c.niklaus@gamebox.net>
-References: <20030714014702.4725a50c.niklaus@gamebox.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-9d2kwrSMbNM2RhGC08sP"
-Organization: LANIL
-Message-Id: <1058129917.12249.53.camel@sm-wks1.lan.irkk.nu>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 13 Jul 2003 22:58:37 +0200
+	Sun, 13 Jul 2003 16:45:42 -0400
+Received: from smtp1.clear.net.nz ([203.97.33.27]:7610 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S270385AbTGMUpe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 16:45:34 -0400
+Date: Mon, 14 Jul 2003 09:01:11 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: [Swsusp-devel] Re: Thoughts wanted on merging Software Suspend
+	enhancements
+In-reply-to: <20030713193114.GD570@elf.ucw.cz>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Jamie Lokier <jamie@shareable.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1058130071.1829.2.camel@laptop-linux>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <1057963547.3207.22.camel@laptop-linux>
+ <20030712140057.GC284@elf.ucw.cz> <200307121734.29941.dtor_core@ameritech.net>
+ <20030712225143.GA1508@elf.ucw.cz> <20030713133517.GD19132@mail.jlokier.co.uk>
+ <20030713193114.GD570@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Escape is more intuitively obvious though - I would expect the suspend
+button to only start a suspend. And the idea of escape cancelling
+anything is well in-grained in peoples' minds.
 
---=-9d2kwrSMbNM2RhGC08sP
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Of course the other advantage is that reading lid & button switches adds
+more code (To implement and to configure - the functions of those keys
+ought to be optional?)
 
-On Sun, 2003-07-13 at 22:17, Niklaus wrote:,
-> 	I have enabled NTFS RW
-You  are aware of the risks with rw ntfs right? It can (read will)
-eventually corrupt you filesystem (read
-http://linux-ntfs.sourceforge.net/info/ntfs.html#3.2 if you havent).
+Regards,
 
-About the error I aint sure, are you sure you added rw as mount option?
-Also check permissions.
+Nigel
 
---=20
-Christian Axelsson
-smiler@lanil.mine.nu
+On Mon, 2003-07-14 at 07:31, Pavel Machek wrote:
+> Hi!
+> 
+> > > And no escape. Doing something from keyboard is *ugly*. Magic sysrq is
+> > > ugly, too, but its usefull enough to outweight that.
+> > 
+> > Can't you just use the Suspend button? :)
+> 
+> At least that's less ugly than Escape. If it is the same button that
+> would wake machine up when it finished suspend... I guess that makes
+> sense.
+> 								Pavel
+-- 
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
 
---=-9d2kwrSMbNM2RhGC08sP
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/Ecf9yqbmAWw8VdkRAtRmAJ0fC58Ooik/AVo1txS7cRSb6T9FkACg3bRd
-ygWlqB8sV29lcoPhhgMAZ80=
-=SUmA
------END PGP SIGNATURE-----
-
---=-9d2kwrSMbNM2RhGC08sP--
+You see, at just the right time, when we were still powerless,
+Christ died for the ungodly.
+	-- Romans 5:6, NIV.
 

@@ -1,72 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277792AbRJIPuj>; Tue, 9 Oct 2001 11:50:39 -0400
+	id <S277783AbRJIPwu>; Tue, 9 Oct 2001 11:52:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277790AbRJIPuT>; Tue, 9 Oct 2001 11:50:19 -0400
-Received: from sushi.toad.net ([162.33.130.105]:1721 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S277788AbRJIPuM>;
-	Tue, 9 Oct 2001 11:50:12 -0400
+	id <S277788AbRJIPwk>; Tue, 9 Oct 2001 11:52:40 -0400
+Received: from ns.suse.de ([213.95.15.193]:6156 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S277783AbRJIPwX>;
+	Tue, 9 Oct 2001 11:52:23 -0400
+Date: Tue, 9 Oct 2001 17:52:53 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: Thomas Hood <jdthood@mail.com>
+Cc: <linux-kernel@vger.kernel.org>
 Subject: Re: sysctl interface to bootflags?
-From: Thomas Hood <jdthood@mail.com>
-To: Dave Jones <davej@suse.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0110091731480.31520-100000@Appserv.suse.de>
-In-Reply-To: <Pine.LNX.4.30.0110091731480.31520-100000@Appserv.suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15 (Preview Release)
-Date: 09 Oct 2001 11:50:08 -0400
-Message-Id: <1002642610.1103.39.camel@thanatos>
-Mime-Version: 1.0
+In-Reply-To: <1002642610.1103.39.camel@thanatos>
+Message-ID: <Pine.LNX.4.30.0110091752150.11249-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, I didn't read your code very carefully before because
-I thought it relied on ACPI.  Now I understand it better.
-It doesn't use /dev/nvram, but /dev/mem.
+On 9 Oct 2001, Thomas Hood wrote:
 
-Here's what happens when I run it.
+> jdthood@thanatos:~/src/sbf$ gcc sbf.c
+> Program received signal SIGSEGV, Segmentation fault.
+> 0x80489be in outb_p ()
 
-jdthood@thanatos:~/src/sbf$ gcc sbf.c
-jdthood@thanatos:~/src/sbf$ su
-Password: 
-root@thanatos:/home/jdthood/src/sbf# gdb -q ./a.out
-(no debugging symbols found)...(gdb) run
-Starting program: /mnt/p/home/jdthood/src/sbf/./a.out 
-BOOT @ 0x07fd0040
-CMOS register:51
-(no debugging symbols found)...(no debugging symbols found)...
-Program received signal SIGSEGV, Segmentation fault.
-0x80489be in outb_p ()
+outb doesn't work unless you compile with -O2 iirc.
 
---
-Thomas
+regards,
 
-On Tue, 2001-10-09 at 11:34, Dave Jones wrote:
-> On 9 Oct 2001, Thomas Hood wrote:
-> 
-> > Hi.  I looked at your code and I saw that it depended
-> > on ACPI.  Since ACPI doesn't work on my machine, I
-> > thought I should look for another solution.  However,
-> 
-> Huh ? Read the code again.
-> Its no more dependant upon ACPI than bootflag.c is.
-> The bootflag is pointed at by an ACPI table.
-> The code I wrote functions /exactly/ the same on
-> a kernel with APM, ACPI or NO power management.
-> 
-> > Alan now tells me that what I want to do can already
-> > be done via /dev/nvram.
-> 
-> My code _is_ using /dev/nvram !
-> 
-> regards,
-> 
-> Dave.
-> 
-> -- 
-> | Dave Jones.        http://www.suse.de/~davej
-> | SuSE Labs
-> 
+Dave.
 
+-- 
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
 

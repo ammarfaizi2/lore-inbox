@@ -1,74 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264650AbRFPUHI>; Sat, 16 Jun 2001 16:07:08 -0400
+	id <S264651AbRFPULs>; Sat, 16 Jun 2001 16:11:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264651AbRFPUHB>; Sat, 16 Jun 2001 16:07:01 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:16089 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S264650AbRFPUGu>;
-	Sat, 16 Jun 2001 16:06:50 -0400
-Message-ID: <3B2BBC3C.BEC4B313@mandrakesoft.com>
-Date: Sat, 16 Jun 2001 16:06:20 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: pci_disable_device() vs. arch
-In-Reply-To: <15147.35421.866268.67790@pizda.ninka.net> <20010616195331.26754@smtp.wanadoo.fr>
+	id <S264652AbRFPULi>; Sat, 16 Jun 2001 16:11:38 -0400
+Received: from [209.250.53.182] ([209.250.53.182]:13572 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S264651AbRFPULU>; Sat, 16 Jun 2001 16:11:20 -0400
+Date: Sat, 16 Jun 2001 15:10:14 -0500
+From: Steven Walter <srwalter@yahoo.com>
+To: Josh Myer <jbm@joshisanerd.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix warning in tdfxfb.c
+Message-ID: <20010616151014.A2086@hapablap.dyn.dhs.org>
+In-Reply-To: <20010616133243.A1610@hapablap.dyn.dhs.org> <Pine.LNX.4.21.0106161452270.1755-100000@dignity.joshisanerd.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0106161452270.1755-100000@dignity.joshisanerd.com>; from jbm@joshisanerd.com on Sat, Jun 16, 2001 at 02:59:34PM -0500
+X-Uptime: 3:07pm  up  1:29,  0 users,  load average: 1.38, 1.30, 1.23
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
-> 
-> Hi !
-> 
-> Would it make sense to add a
-> 
-> pcibios_disable_device(pci_dev*) called from the end of
-> pci_disable_device() ?
-> 
-> I'm adding a call to it to sungem along with other pmac stuffs
-> so that the chip can be properly power down (actually it's not
-> really powered down but unclocked) after module removal.
-> Of course, the arch code must be able to catch it in order to
-> play with the various UniNorth control bits.
+On Sat, Jun 16, 2001 at 02:59:34PM -0500, Josh Myer wrote:
+> It might be better to add a default case to the switch statement below, so
+> this symbol doesn't just eat up another 4(8 on some platforms, and i'm
+> sure others) bytes of memory unneccesarily.
 
-What arch-specific things need to be done?
+I'm not quite sure I follow you.  The default case should never be
+reached, because only the three cases currently present are allowed by
+the encapsulating 'if' statement.  Even so, how would adding a default
+case get rid of the variable or save space some other way?
 
-arch-specific pcibios_disable_device may be a good idea... but in this
-case it sounds like you need to put #ifdef CONFIG_ALL_PPC code in
-sungem.c instead, if the power-down code is specific to gmacs.
+> anyway, it doesn't really matter. i'd test my hypothesis, but i've got
+> people coming over this afternoon =) the driver looks like it might use
+> some scrubbing anyway (s!//(.*)$!/\* $1 \*/!...)
 
-
-> Note that my current gmac driver does shut the chip down when
-> the interface is down, which makes it a bit more useful for
-> laptops as most users currently compile the driver in the kernel.
-
-Although some drivers already do this, you really need an inactivity
-timer instead of unconditionally powering-down the hardware on
-dev->stop().  dhcp and other applications will often bounce the
-interface...
-
-
-> I have nothing about changing the policy if you prefer so that
-> users will now have to rmmod the driver once done with the
-> interface to save power.
-
-For power-down specifically, you should use pci-set-power-state not
-pci-disable-device.  pci_disable_device is the opposite of
-pci_enable_device.  pci_enable_device not only wakes up the device, but
-also assigns resources.  Which implies that pci-disable-device is
-allowed to un-assign resources.  There shouldn't be a problem with a net
-device doing that per se, but you should be aware of the implications.
-
-	Jeff
-
-
+Good point.  Perhaps I'll prepare a larger patch with this and other
+cleanups.
 -- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell

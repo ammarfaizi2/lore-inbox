@@ -1,58 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262527AbUCCSrW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 13:47:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbUCCSrW
+	id S262525AbUCCSuo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 13:50:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbUCCSuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 13:47:22 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:32490 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262527AbUCCSrF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 13:47:05 -0500
-Date: Wed, 3 Mar 2004 19:46:57 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.4-rc1-mm2
-Message-ID: <20040303184656.GE24510@fs.tum.de>
-References: <20040302201536.52c4e467.akpm@osdl.org> <20040303113229.GA4921@werewolf.able.es>
+	Wed, 3 Mar 2004 13:50:44 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:20491
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262525AbUCCSul (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 13:50:41 -0500
+Date: Wed, 3 Mar 2004 19:51:22 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Dave McCracken <dmccr@us.ibm.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
+Subject: Re: 230-objrmap fixes for 2.6.3-mjb2
+Message-ID: <20040303185122.GV4922@dualathlon.random>
+References: <20040303070933.GB4922@dualathlon.random> <20040303025820.2cf6078a.akpm@osdl.org> <7440000.1078328791@[10.10.2.4]> <20040303165746.GO4922@dualathlon.random> <10500000.1078333658@[10.1.1.4]> <20040303183901.GU4922@dualathlon.random> <14140000.1078339447@[10.1.1.4]>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040303113229.GA4921@werewolf.able.es>
-User-Agent: Mutt/1.4.2i
+In-Reply-To: <14140000.1078339447@[10.1.1.4]>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 03, 2004 at 12:32:29PM +0100, J.A. Magallon wrote:
+On Wed, Mar 03, 2004 at 12:44:07PM -0600, Dave McCracken wrote:
 > 
-> On 03.03, Andrew Morton wrote:
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.4-rc1/2.6.4-rc1-mm2/
-> > 
-> > - More VM tweaks and tuneups
-> > 
-> > - Added a 4k kernel- and irq-stack option for x86
-> > 
-> > - Largeish NFS client update
-> > 
+> --On Wednesday, March 03, 2004 19:39:01 +0100 Andrea Arcangeli
+> <andrea@suse.de> wrote:
 > 
-> I can't deselect the crypto API, with the same .config as previous kernels.
-> Some core driver now depends on it ?
+> >> What we've actually discussed before was more along the lines of
+> >> PG_locked to match VM_LOCKED, but the main idea was to be able to skip
+> >> over ineligible pages without having ot look up their mappings during
+> >> pageout.
+> > 
+> > I'm not very excited using PG_locked for that, that doesn't only mean
+> > "unswappable", it means also that the page is under I/O (or uner some
+> > other operation that needs serialization like unmapping the page) which
+> > is quite a different concept from VM_LOCKED. a wait_on_page would
+> > deadlock on such a PG_locked page, while wait_on_page on a page of a
+> > mlocked vma doesn't normally deadlock.
+> > 
+> > But I see what you want to do here, and PG_reserved would be too much
+> > for that since it changes the semantics for cow and free_pages, but
+> > PG_locked doesn't look good enough either, the VM_LOCKED and PG_locked
+> > concept is quite different, PG_reserved and VM_RESERVED is quite close
+> > instead (except for the page->count accounting).
+> 
+> Sorry, I misspoke.  I didn't mean the current PG_locked.  I meant a new
+> flag, or more probably a counter, that represents all the VM_LOCKED regions
+> a page is in.
 
-Looking at the diff, the following options now select CRYPTO:
-- Provide NFSv4 client support (EXPERIMENTAL)
-- Secure RPC: Kerberos V mechanism (EXPERIMENTAL)
+ok, you used PG_locked that already exists for another purpose so it was
+not clear, another bitflag would be ok.
 
-> TIA
+the main remaining issue to solve (and run at runtime) is the logic is
+to keep this flag consistent with all vmas pointing to the page having
+VM_LOCKED set. I'm not sure if it's worth it.
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+what we do in 2.4 and that works pretty well, that is simply to refile
+pages into the active list if they're mlocked, so we don't waste too
+much cpu on them since we don't analyze them too often. this should work
+pretty well for everybody, or peraphs google may prefer to have a fully
+consistent PG_mlocked.

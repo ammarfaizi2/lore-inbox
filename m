@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314395AbSETJMr>; Mon, 20 May 2002 05:12:47 -0400
+	id <S316025AbSETN7V>; Mon, 20 May 2002 09:59:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314684AbSETJMq>; Mon, 20 May 2002 05:12:46 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:56472 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S314395AbSETJMq>;
-	Mon, 20 May 2002 05:12:46 -0400
-Date: Mon, 22 Apr 2002 23:44:43 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Patricia Gaughen <gone@us.ibm.com>
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] modularization of setup_arch() for 2.4.19pre7
-Message-ID: <20020422214441.GA6837@elf.ucw.cz>
-In-Reply-To: <200204181817.g3IIHJQ02901@w-gaughen.des.beaverton.ibm.com>
+	id <S316027AbSETN7U>; Mon, 20 May 2002 09:59:20 -0400
+Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:54684 "EHLO
+	mailout.schmorp.de") by vger.kernel.org with ESMTP
+	id <S316025AbSETN7T>; Mon, 20 May 2002 09:59:19 -0400
+Date: Thu, 16 May 2002 16:36:55 +0200
+From: Marc Lehmann <pcg@goof.com>
+To: hgs@anna-strasse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE *data corruption* VIA VT8367
+Message-ID: <20020516143655.GB13762@schmorp.de>
+Mail-Followup-To: hgs@anna-strasse.de, linux-kernel@vger.kernel.org
+In-Reply-To: <379487051.20020514195533@anna-strasse.de> <E177lx4-0000e6-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Warning: Reading this can be dangerous to your mental health.
+X-Operating-System: Linux version 2.4.19-pre2-ac3 (root@fuji) (gcc version 2.95.4 20010319 (prerelease)) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Please consider this patch for inclusion into the next 2.4 release.  
-> It was accepted into the 2.4.19pre6aa1, with slight modifications 
-> by Andrea that I have incorporated into this version of my patch.
+On Wed, May 15, 2002 at 12:43:30AM +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > Has anybody seen this before? Any info would be appreciated. I would
+> > be happy to provide more information.
 > 
-> This patch restructures setup_arch() for i386 to make it easier to
-> include the i386 numa changes (for CONFIG_DISCONTIGMEM) I've been 
-> working on.  It also makes setup_arch() easier to read.  
+> I have multiple similar reports, and in all cases where people tried, switching
+> to a non via chipset cured it - it might be co-incidence but I have enough
+> reports I suspect its some kind of hardware incompatibility/limit with
+> the VIA and multiple promise ide controllers
 
-Should not this go to 2.5, instead?
+On my system (ASUS CUV4X-D + 2x promise tx2), disabling pci delayed
+transactions completely cured the data corruption (which corrupted a few
+hundred bytes every gigabyte or so, which is "massive"). Does this help in
+this case, too?
 
 -- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+      -----==-                                             |
+      ----==-- _                                           |
+      ---==---(_)__  __ ____  __       Marc Lehmann      +--
+      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
+      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
+    The choice of a GNU generation                       |
+                                                         |
+

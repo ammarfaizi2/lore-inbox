@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261951AbREUIHD>; Mon, 21 May 2001 04:07:03 -0400
+	id <S261980AbREUIKd>; Mon, 21 May 2001 04:10:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261941AbREUIGx>; Mon, 21 May 2001 04:06:53 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:32526 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261937AbREUIGg>; Mon, 21 May 2001 04:06:36 -0400
-Subject: Re: alpha iommu fixes
-To: davem@redhat.com (David S. Miller)
-Date: Mon, 21 May 2001 09:03:30 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), andrewm@uow.edu.au (Andrew Morton),
-        andrea@suse.de (Andrea Arcangeli),
-        ink@jurassic.park.msu.ru (Ivan Kokshaysky),
-        rth@twiddle.net (Richard Henderson), linux-kernel@vger.kernel.org
-In-Reply-To: <15112.51569.744590.398000@pizda.ninka.net> from "David S. Miller" at May 21, 2001 12:53:21 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S261975AbREUIKN>; Mon, 21 May 2001 04:10:13 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:10657 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261941AbREUIKH>;
+	Mon, 21 May 2001 04:10:07 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E151kf4-0003TY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-ID: <15112.52566.955443.247834@pizda.ninka.net>
+Date: Mon, 21 May 2001 01:09:58 -0700 (PDT)
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: andrea@suse.de (Andrea Arcangeli), andrewm@uow.edu.au (Andrew Morton),
+        ink@jurassic.park.msu.ru (Ivan Kokshaysky),
+        rth@twiddle.net (Richard Henderson), linux-kernel@vger.kernel.org
+Subject: Re: alpha iommu fixes
+In-Reply-To: <E151kbW-0003T4-00@the-village.bc.nu>
+In-Reply-To: <15112.47990.828744.956717@pizda.ninka.net>
+	<E151kbW-0003T4-00@the-village.bc.nu>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Alan Cox writes:
->  > And how do you propose to implemnt cache coherent pci allocations
->  > on machines which lack the ability to have pages coherent between
->  > I/O and memory space ?
-> 
-> Pages, being in memory space, are never in I/O space.
 
-Ok my fault. Let me try that again with clearer Linux terminology.
+Alan Cox writes:
+ > Ok how about a PIV Xeon with 64Gb of memory and 5 AMI Megaraids, which are
+ > limited to the low 2Gb range for pci mapping and otherwise need bounce buffers.
+ > Or how about any consistent alloc on certain HP machines which totally lack
+ > coherency - also I suspect the R10K on an O2 might fall into that - Ralf ?
 
-Pages allocated in main memory and mapped for access by PCI devices. On some
-HP systems there is now way for such a page to stay coherent. It is quite
-possible to sync the view but there is no sane way to allow any
-pci_alloc_consistent to succeed
+If they need bounce buffers because of a device specific DMA range
+limitation (this is what I gather this is), then the PCI dma interface
+is of no help to this case.
 
-Alan
+ > Look at the history of kernel API's over time. Everything that can
+ > go wrong eventually does.
 
+I agree, and it will be dealt with in 2.5.x
 
+The scsi layer in 2.4.x is simply not able to handle failure in these
+code paths, as Gerard Roudier has mentioned.
+
+Later,
+David S. Miller
+davem@redhat.com

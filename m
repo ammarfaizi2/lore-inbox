@@ -1,71 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130277AbRABK6q>; Tue, 2 Jan 2001 05:58:46 -0500
+	id <S130382AbRABLBg>; Tue, 2 Jan 2001 06:01:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130382AbRABK6g>; Tue, 2 Jan 2001 05:58:36 -0500
-Received: from hood.tvd.be ([195.162.196.21]:28853 "EHLO hood.tvd.be")
-	by vger.kernel.org with ESMTP id <S130277AbRABK6a>;
-	Tue, 2 Jan 2001 05:58:30 -0500
-Date: Tue, 2 Jan 2001 11:27:33 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        "H. Peter Anvin" <device@lanana.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Frame Buffer Device Development 
-	<linux-fbdev@vuser.vu.union.edu>,
-        A2232@gmx.net, Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: [PATCH] devices.txt bugs
-Message-ID: <Pine.LNX.4.05.10101021122180.7140-100000@callisto.of.borg>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130881AbRABLB1>; Tue, 2 Jan 2001 06:01:27 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:19211 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S130382AbRABLBK>;
+	Tue, 2 Jan 2001 06:01:10 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Paul Gortmaker <p_gortmaker@yahoo.com>
+cc: linux-kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: start___kallsyms missing from i386 vmlinux.lds ? 
+In-Reply-To: Your message of "Tue, 02 Jan 2001 04:39:39 CDT."
+             <3A51A1DB.74540C02@yahoo.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 02 Jan 2001 21:30:33 +1100
+Message-ID: <27530.978431433@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 02 Jan 2001 04:39:39 -0500, 
+Paul Gortmaker <p_gortmaker@yahoo.com> wrote:
+>Keith Owens wrote:
+>> kernel/module.c defines
+>> extern const char __start___kallsyms[] __attribute__ ((weak));
+>> extern const char __stop___kallsyms[] __attribute__ ((weak));
+>> 
+>> The symbols are weak and do not need to be defined.  If gcc is not
+>> honouring __attribute__ ((weak)) then you have a broken or obsolete
+>> version of gcc.  You need at least gcc 2.91.66 for kernel 2.4.
+>
+>Yep, saw the weak part - just noted while scanning test11 diff
+>that they were defined like the above patch for arch/sparc* and
+>wondered if the inconsistency was intentional.
 
-This patch fixes two things:
-
-  - Correct the minor numbers for the frame buffer devices.  We have room for
-    32 frame buffers since about one year, with more room for future expansion
-    to 256.  (promised to go in by HPA on Fri, 24 Mar 2000 01:47:05 -0800).
-
-  - Fix a typo in the minors for the A2232 serial card
-
---- linux-2.4.0-current/Documentation/devices.txt.orig	Mon Jan  1 23:30:06 2001
-+++ linux-2.4.0-current/Documentation/devices.txt	Tue Jan  2 11:16:42 2001
-@@ -660,6 +660,12 @@
- 
-  29 char	Universal frame buffer
- 		  0 = /dev/fb0		First frame buffer
-+		  1 = /dev/fb1		Second frame buffer
-+		    ...
-+		 31 = /dev/fb31		32nd frame buffer
-+
-+		Backward compatibility aliases {2.6}
-+
- 		 32 = /dev/fb1		Second frame buffer
- 		    ...
- 		224 = /dev/fb7		Eighth frame buffer
-@@ -2436,7 +2442,7 @@
- 
- 224 char	A2232 serial card
- 		  0 = /dev/ttyY0		First A2232 port
--		  1 = /dev/cuy0			Second A2232 port
-+		  1 = /dev/ttyY1		Second A2232 port
- 		    ...
- 
- 225 char	A2232 serial card (alternate devices)
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+Some sparc users have a slightly older version of gcc, built shortly
+before 'weak' support was added, which required those symbols to be
+defined.  Dave Miller thought the compiler problem was widespread
+enough to justify changing the source to suit the compiler instead of
+forcing sparc users to upgrade.  I suspect that super-h has the same
+problem of old compilers, I noticed that somebody added the symbols to
+sh/vmlinux.lds.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

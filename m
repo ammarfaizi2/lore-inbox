@@ -1,70 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262052AbTJNTvM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 15:51:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbTJNTvM
+	id S262834AbTJNTjG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 15:39:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262817AbTJNTiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 15:51:12 -0400
-Received: from GOL139579-1.gw.connect.com.au ([203.63.118.157]:3214 "EHLO
-	goldweb.com.au") by vger.kernel.org with ESMTP id S262052AbTJNTvJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 15:51:09 -0400
-Date: Wed, 15 Oct 2003 05:50:45 +1000 (EST)
-From: Michael Still <mikal@stillhq.com>
-To: =?iso-8859-2?Q?Karel_Kulhav=FD?= <clock@twibright.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: make htmldocs
-In-Reply-To: <20031014154411.A5373@beton.cybernet.src>
-Message-ID: <Pine.LNX.4.44.0310150548580.16081-100000@diskbox.stillhq.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Tue, 14 Oct 2003 15:38:55 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:30398 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S262796AbTJNTiv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 15:38:51 -0400
+Date: Tue, 14 Oct 2003 21:38:47 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+Cc: 4Front Technologies <dev@opensound.com>, linux-kernel@vger.kernel.org,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: mouse driver bug in 2.6.0-test7?
+Message-ID: <20031014193847.GA9112@ucw.cz>
+References: <3F8C3A99.6020106@opensound.com> <1066159113.12171.4.camel@tux.rsn.bth.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1066159113.12171.4.camel@tux.rsn.bth.se>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Oct 2003, [iso-8859-2] Karel Kulhavý wrote:
-
-> On Tue, Oct 14, 2003 at 09:16:39PM +1000, Michael Still wrote:
-> > On Tue, 14 Oct 2003, [iso-8859-2] Karel Kulhavý wrote:
+On Tue, Oct 14, 2003 at 09:18:34PM +0200, Martin Josefsson wrote:
+> On Tue, 2003-10-14 at 20:04, 4Front Technologies wrote:
+> > Why is the PS2 mouse tracking about 2x faster in 2.6.0-test7 compared
+> > to 2.4.xx?. Has anybody else seen this problem?.
 > > 
-> > > > > 2) How do I install DocBook stylesheets?
-> > > > 
-> > > > Depends on distribution.
-> > > 
-> > > How do I determine what distribution I have? I have compiled my whole system
-> > > manually.
-> > 
-> > Then surely you have enough clue to do your own web surf for DocBook 
-> > information. One way would be to randomly select a disto, and see what 
-> > they install to make it work.
+> > If I move the mouse 1 inch horizontally left-to-right on the mouse
+> > pad, the cursor on the screen moves almost twice the distance on the
+> > screen compared to Linux 2.4.xx
 > 
-> This is a reverse-engineering. Linux Kernel README should contain either:
+> It's probably mostly because Vojtech changed the samplerate from 200 to
+> 60. Here's a patch to change it back. I've sent it to Vojtech but he's
+> completely ignored it so far. This patch also readds the fallback logic
+> that was used before his change, although it uses the new
+> samplerate-table.
+> 
+> Without this patch my mouse is awful to use.
+> Vojtech, please consider this patch, at least say yay or nay.
 
-[snip]
+Patch considered. I'll up the samplerate default to 80, but not more,
+since samplerates above that cause trouble for a lot of people (keyboard
+doesn't work when you're moving the mouse).
 
-No, it's thinking for yourself.
+The "set lower rate in case ..." part of the patch doesn't make sense.
+If the user gives a too low (less than 10) samples per second, then the
+original code will try to set 0, which is stupid, but harmless. The
+added code will try to access beyond the bounds of the rates[] array.
 
-> a message "reverse-engineer it yourself" is not acceptable for Linux
-> Kernel README.
+> --- linux-2.6.0-test6-mm4/drivers/input/mouse/psmouse-base.c.orig	2003-10-05 17:02:23.000000000 +0200
+> +++ linux-2.6.0-test6-mm4/drivers/input/mouse/psmouse-base.c	2003-10-05 17:06:55.000000000 +0200
+> @@ -40,7 +40,7 @@
+>  
+>  static int psmouse_noext;
+>  int psmouse_resolution;
+> -unsigned int psmouse_rate = 60;
+> +unsigned int psmouse_rate = 200;
+>  int psmouse_smartscroll = PSMOUSE_LOGITECH_SMARTSCROLL;
+>  unsigned int psmouse_resetafter;
+>  
+> @@ -450,6 +450,11 @@
+>  	int i = 0;
+>  
+>  	while (rates[i] > psmouse_rate) i++;
+> +
+> +	/* set lower rate in case requested rate fails */
+> +	if (rates[i])
+> +		psmouse_command(psmouse, rates + i + 1, PSMOUSE_CMD_SETRATE);
+> +
+>  	psmouse_command(psmouse, rates + i, PSMOUSE_CMD_SETRATE);
+>  }
+>  
+> 
+> -- 
+> /Martin
 
-You're right. But being able to install software without hand holding is. 
-We're talking about code level documentation here, not user documentation.
 
-[snip]
-
-> Please supply either a guide how to compile HTML docs for kernel into README
-> or a pointer to it INCLUDING SETTING UP DOCBOOK STYLESHEETS ON USER'S
-> MACHINE
-
-I'm sure a patch will be considered on it's merits by the kernel 
-community.
-
-Cheers,
-Mikal
 
 -- 
-
-Michael Still (mikal@stillhq.com) | "All my life I've had one dream,
-http://www.stillhq.com            |  to achieve my many goals"
-UTC + 10                          |    -- Homer Simpson
-
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132488AbRDJXtu>; Tue, 10 Apr 2001 19:49:50 -0400
+	id <S132484AbRDJXyA>; Tue, 10 Apr 2001 19:54:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132484AbRDJXtl>; Tue, 10 Apr 2001 19:49:41 -0400
-Received: from nrg.org ([216.101.165.106]:17212 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S132485AbRDJXta>;
-	Tue, 10 Apr 2001 19:49:30 -0400
-Date: Tue, 10 Apr 2001 16:49:06 -0700 (PDT)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: Paul McKenney <Paul.McKenney@us.ibm.com>
-cc: ak@suse.de, Dipankar Sarma <dipankar.sarma@in.ibm.com>,
-        linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-        Suparna Bhattacharya <bsuparna@in.ibm.com>
-Subject: Re: [Lse-tech] Re: [PATCH for 2.5] preemptible kernel
-In-Reply-To: <OF6C3EA7C6.99519DF9-ON88256A2A.0079A408@LocalDomain>
-Message-ID: <Pine.LNX.4.05.10104101613010.17287-100000@cosmic.nrg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132485AbRDJXxw>; Tue, 10 Apr 2001 19:53:52 -0400
+Received: from 10fwd.cistron-office.nl ([195.64.65.197]:58641 "EHLO
+	smtp.cistron-office.nl") by vger.kernel.org with ESMTP
+	id <S132484AbRDJXxk>; Tue, 10 Apr 2001 19:53:40 -0400
+Date: Wed, 11 Apr 2001 01:53:38 +0200
+From: Miquel van Smoorenburg <miquels@cistron.nl>
+To: Kurt Roeckx <Q@ping.be>
+Cc: Miquel van Smoorenburg <miquels@cistron-office.nl>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Let init know user wants to shutdown
+Message-ID: <20010411015338.A21044@cistron.nl>
+In-Reply-To: <20010405000215.A599@bug.ucw.cz> <9b04fo$9od$3@ncc1701.cistron.net> <20010411013830.A9704@ping.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010411013830.A9704@ping.be>; from Q@ping.be on Wed, Apr 11, 2001 at 01:38:30AM +0200
+X-NCC-RegID: nl.cistron
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Apr 2001, Paul McKenney wrote:
-> The algorithms we have been looking at need to have absolute guarantees
-> that earlier activity has completed.  The most straightforward way to
-> guarantee this is to have the critical-section activity run with preemption
-> disabled.  Most of these code segments either take out locks or run
-> with interrupts disabled anyway, so there is little or no degradation of
-> latency in this case.  In fact, in many cases, latency would actually be
-> improved due to removal of explicit locking primitives.
->
-> I believe that one of the issues that pushes in this direction is the
-> discovery that "synchronize_kernel()" could not be a nop in a UP kernel
-> unless the read-side critical sections disable preemption (either in
-> the natural course of events, or artificially if need be).  Andi or
-> Rusty can correct me if I missed something in the previous exchange...
+According to Kurt Roeckx:
+> On Tue, Apr 10, 2001 at 11:20:24PM +0000, Miquel van Smoorenburg wrote:
+> > The "-1" means
+> > "all processes except me". That means init will get hit with
+> > SIGTERM occasionally during shutdown, and that might cause
+> > weird things to happen.
 > 
-> The read-side code segments are almost always quite short, and, again,
-> they would almost always otherwise need to be protected by a lock of
-> some sort, which would disable preemption in any event.
+> -1 mean everything but init.
 > 
-> Thoughts?
+> From the manpage:
 
-Disabling preemption is a possible solution if the critical section is short
-- less than 100us - otherwise preemption latencies become a problem.
+Oh. OK, so this is yet another special case for init - forget to
+check those. Sorry about that (hey it's 01:53 here, I should be
+in bed).  Yet I still think it'd be a better idea to use RT signals,
+see my other message in this thread.
 
-The implementation of synchronize_kernel() that Rusty and I discussed
-earlier in this thread would work in other cases, such as module
-unloading, where there was a concern that it was not practical to have
-any sort of lock in the read-side code path and the write side was not
-time critical.
-
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
-
-MontaVista Software                             nigel@mvista.com
-
+Mike.

@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137002AbREKAKN>; Thu, 10 May 2001 20:10:13 -0400
+	id <S137006AbREKALw>; Thu, 10 May 2001 20:11:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137006AbREKAKH>; Thu, 10 May 2001 20:10:07 -0400
-Received: from sr1.terra.com.br ([200.176.2.216]:39689 "EHLO sr1.terra.com.br")
-	by vger.kernel.org with ESMTP id <S137002AbREKAIX>;
-	Thu, 10 May 2001 20:08:23 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rafael Diniz <rafael2k@terra.com.br>
-To: linux-kernel@vger.kernel.org
-Subject: kernel 2.4 doesn't work in Sparc IPX
-Date: Thu, 10 May 2001 21:08:56 +0000
-X-Mailer: KMail [version 1.2]
+	id <S137009AbREKALr>; Thu, 10 May 2001 20:11:47 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:33286 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S137013AbREKAKp>; Thu, 10 May 2001 20:10:45 -0400
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Message-ID: <3AFB2DF2.C527048F@transmeta.com>
+Date: Thu, 10 May 2001 17:10:26 -0700
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-Message-Id: <01051021085602.00266@rafael>
-Content-Transfer-Encoding: 7BIT
+To: Wayne.Brown@altec.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Not a typewriter
+In-Reply-To: <86256A48.007EF161.00@smtpnotes.altec.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why kernel 2.4 doesn't work in Sparcs IPX?
-It's a good machine and I want to continue to use Linux on it...
+Wayne.Brown@altec.com wrote:
+> 
+> On 05/10/2001 at 05:38:32 PM hpa@transmeta.com (H. Peter Anvin) wrote:
+> 
+> >Sounds like someone has just clarified what the heck it means.  "tty"
+> >and "typewriter" aren't exactly the same thing (even though "tty"
+> >stands for "teletypewriter" it has come to mean something completely
+> >different in a Unix context)... "not a typewriter" is just a
+> >completely confusing error message for the uninitiated.
+> 
+> I disagree.  "Not a typewriter" is part of Unix tradition, and ought to be
+> retained as a historical reference.  It's also an opportunity for "the
+> uninitiated" to learn a little more and move a little closer to becoming "the
+> initiated."
+> 
 
-[root@rafael rafael2k]# cat /proc/cpuinfo 
-cpu             : Fujitsu or Weitek Power-UP
-fpu             : Fujitsu or Weitek on-chip FPU
-promlib         : Version 2 Revision 2
-prom            : 2.3
-type            : sun4c
-ncpus probed    : 1
-ncpus active    : 1
-BogoMips        : 39.83
-vacsize         : 65536 bytes
-vachwflush      : yes
-vaclinesize     : 32 bytes
-mmuctxs         : 8
-mmupsegs        : 256
-kernelpsegs     : 41
-kfreepsegs      : 0
-usedpsegs       : 54
-ufreepsegs      : 125
-user_taken      : 9
-max_taken       : 147
+Nowhere else in Unix is a "tty" referred to as a "typewriter".  "Not a
+tty" is one thing; "Not a typewriter" is just plain misleading.
 
-
-Thanks
-Rafael Diniz
-Brazil
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

@@ -1,62 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275126AbRJAOy2>; Mon, 1 Oct 2001 10:54:28 -0400
+	id <S275131AbRJAOzI>; Mon, 1 Oct 2001 10:55:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275121AbRJAOyT>; Mon, 1 Oct 2001 10:54:19 -0400
-Received: from f157.pav2.hotmail.com ([64.4.37.157]:49675 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S275117AbRJAOyK>;
-	Mon, 1 Oct 2001 10:54:10 -0400
-X-Originating-IP: [204.178.20.13]
-From: "murthy kn" <knmurthy30@hotmail.com>
-To: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Network Interface bonding and ARP
-Date: Mon, 01 Oct 2001 20:24:33 +0530
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F157SL3Vt3mD0stdR8W0000779b@hotmail.com>
-X-OriginalArrivalTime: 01 Oct 2001 14:54:33.0302 (UTC) FILETIME=[FB2B6F60:01C14A88]
+	id <S275129AbRJAOyu>; Mon, 1 Oct 2001 10:54:50 -0400
+Received: from waste.org ([209.173.204.2]:31863 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S275117AbRJAOye>;
+	Mon, 1 Oct 2001 10:54:34 -0400
+Date: Mon, 1 Oct 2001 09:55:39 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Rik van Riel <riel@conectiva.com.br>, Kenneth Johansson <ken@canit.se>,
+        "Randy.Dunlap" <rddunlap@osdlab.org>,
+        Andreas Dilger <adilger@turbolabs.com>, <linux-kernel@vger.kernel.org>,
+        <linux-net@vger.kernel.org>, <netdev@oss.sgi.com>
+Subject: Re: [patch] netconsole-2.4.10-B1
+In-Reply-To: <Pine.LNX.4.33.0110010924380.3436-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.30.0110010949130.23404-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 1 Oct 2001, Ingo Molnar wrote:
 
-   I have the following question on the interaction between 
-bonding/etherchannel (bonding.c)
-and the ARP cache.
+> > Face it, Ingo's use of "client" and "server" is contrary to accepted
+> > usage. You can't finesse around it.
+>
+> 'server' is the box that serves content. 'client' is one that requests and
+> accepts it. in the case of netconsole, it's the netconsole-module box that
+> produces the messages, and the other one gets them.
 
-1. Assume Machine B has N bonded Ethernet cards ( all of the them have the 
-same IP address ).
-Example Scenario : Etherchannel/trunking/bonding.
+Server is the side providing the service - direction of data is
+irrelevant. If the service is logging, the side doing the logging is the
+server. If the service is console message generation, then the machine
+generating the messages is the server.  Client/server architecture
+generally implies the possibility of multiple clients per server, and that
+seems to make more sense with a 'logging server' than a 'console message
+server'.
 
-In this case, supposing a machine A does an ARP request for B, will it get 
-all
-the MAC addresses of the N cards.
-
-Does the ARP cache store all the mappings.
-
-2. If not, from what I understand, while doing certain types of scheduling 
-(like Round Robin
-implemented in bonding.c), we will need to send  packets to the same 
-destination
-in a round robin manner - first packet on first card, second on second and 
-so on.
-
-If the ARP cache stores only one MAC to IP mapping, we cannot send the 
-packet
-over the second card as the second card on the destination (machine B) will 
-not receive
-packets destined to first card (on machine B) because it is typically not in 
-a
-promiscuous mode.
-
-How is this handled?
-
-Kindly CC the replies to my account.
-
-			Thanks,
-			Murthy.
-
-
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

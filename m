@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133040AbRDZBQz>; Wed, 25 Apr 2001 21:16:55 -0400
+	id <S133027AbRDZBKZ>; Wed, 25 Apr 2001 21:10:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133029AbRDZBQp>; Wed, 25 Apr 2001 21:16:45 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:13799 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S133040AbRDZBQb>; Wed, 25 Apr 2001 21:16:31 -0400
-Message-ID: <3AE77578.42A62EA6@uow.edu.au>
-Date: Wed, 25 Apr 2001 18:10:16 -0700
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac13 i686)
-X-Accept-Language: en
+	id <S133040AbRDZBKF>; Wed, 25 Apr 2001 21:10:05 -0400
+Received: from cr803443-a.flfrd1.on.wave.home.com ([24.156.64.178]:25218 "EHLO
+	fxian.jukie.net") by vger.kernel.org with ESMTP id <S133027AbRDZBKD>;
+	Wed, 25 Apr 2001 21:10:03 -0400
+Date: Wed, 25 Apr 2001 21:09:57 -0400 (EDT)
+From: Feng Xian <fxian@fxian.jukie.net>
+To: <linux-kernel@vger.kernel.org>
+cc: Feng Xian <fxian@chrysalis-its.com>
+Subject: __alloc_pages: 4-order allocation failed
+Message-ID: <Pine.LNX.4.30.0104252059430.5253-100000@tiger>
 MIME-Version: 1.0
-To: Tobias Ringstrom <tori@tellus.mine.nu>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Weird problem with 2.4.4-pre6
-In-Reply-To: <Pine.LNX.4.30.0104250842420.13663-100000@svea.tellus>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tobias Ringstrom wrote:
-> 
-> Yesterday, I was running tcpdump, paging the output with less.  All of a
-> sudden, less started to dump core (SIGSEGV).  I could not even start less
-> by itself:
-> 
->     > less
-> 
-> without it getting a SIGSEGV, and in fact no user could run less without
-> getting a SIGSEGV, but it did work perfectly a few minutes earlier.  This
-> morning, I tried to run less again, and now it was working!  No core
-> dumps!
-> 
-> How can this happen?  Something overwriting the page/buffer cache?
+Hi,
 
-Yes.  Something scribbled on the pagecache, most likely.
+I am running linux-2.4.3 on a Dell dual PIII machine with 128M memory.
+After the machine runs a while, dmesg shows,
 
-If this happens, take a copy of the offending binary and all its shared
-libraries - simply copy them into a temp directory.  The corrupted version
-will be written to disk, from the pagecache.  Make sure you keep
-a copy of the offending vmlinux as well for looking things up in.
+__alloc_pages: 4-order allocation failed.
+__alloc_pages: 3-order allocation failed.
+__alloc_pages: 4-order allocation failed.
+__alloc_pages: 4-order allocation failed.
+__alloc_pages: 4-order allocation failed.
+__alloc_pages: 4-order allocation failed.
 
-Then reboot and start diffing things; the differences can provide
-clues.  If the diffs show single-bit errors then it's a RAM
-problem.  If the diffs look like pointers into kernel space
-then look 'em up in vmlinux and shout loudly.  etc.
 
--
+and sometime the system will crash. I looked into the memory info,
+there still has some free physical memory (20M) left and swap space is
+almost not in use. (250M swap)
+
+I didn't have this problem when I ran 2.4.0 (I even didn't see it on
+2.4.2) could anybody tell me what's wrong or where should I look into this
+problem?
+
+Thanks,
+
+Alex
+
+-- 
+Feng Xian
+

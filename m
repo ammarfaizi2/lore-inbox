@@ -1,98 +1,140 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291802AbSBNRzX>; Thu, 14 Feb 2002 12:55:23 -0500
+	id <S291823AbSBNSJF>; Thu, 14 Feb 2002 13:09:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291806AbSBNRzG>; Thu, 14 Feb 2002 12:55:06 -0500
-Received: from 216-42-72-167.ppp.netsville.net ([216.42.72.167]:48548 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S291802AbSBNRyK>; Thu, 14 Feb 2002 12:54:10 -0500
-Date: Thu, 14 Feb 2002 12:53:57 -0500
-From: Chris Mason <mason@suse.com>
-To: Matthias Andree <ma@dt.e-technik.uni-dortmund.de>
-cc: linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: [PATCH] write barriers for 2.4.x
-Message-ID: <3489050000.1013709237@tiny>
-In-Reply-To: <3398950000.1013702503@tiny>
-In-Reply-To: <3045480000.1013637574@tiny> <m3vgd1ufbt.fsf@merlin.emma.line.org> <3398950000.1013702503@tiny>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
+	id <S291818AbSBNSIz>; Thu, 14 Feb 2002 13:08:55 -0500
+Received: from [208.179.59.195] ([208.179.59.195]:43388 "EHLO
+	Booterz.killerlabs.com") by vger.kernel.org with ESMTP
+	id <S291817AbSBNSIq>; Thu, 14 Feb 2002 13:08:46 -0500
+Message-ID: <3C6BFD11.6070802@blue-labs.org>
+Date: Thu, 14 Feb 2002 13:08:17 -0500
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020212
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+To: Stefan Becker <stefan@oph.rwth-aachen.de>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ver_linux script updates
+In-Reply-To: <3C6ADCAA.6080600@blue-labs.org> <3C6BAEDE.77AD9496@oph.rwth-aachen.de>
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms060209080107020107060400"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a cryptographically signed message in MIME format.
 
+--------------ms060209080107020107060400
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Thursday, February 14, 2002 11:01:43 AM -0500 Chris Mason <mason@suse.com> wrote:
+Oh duh..that's what happens when you cut and paste only parts. :)
+
+Thanks,
+-d
+
+Stefan Becker wrote:
+
+>Hi!
+>
+>David Ford wrote:
+>[...]
+>
+>>Please provide feedback on it.
+>>
+>
+>ECN detection doesn't work properly.
+>
+>--- ver_linux.orig      Thu Feb 14 13:31:43 2002
+>+++ ver_linux   Thu Feb 14 13:31:33 2002
+>@@ -44,8 +44,8 @@
+> }
 > 
-> [ barrier support for sym53c8xx_2?]
+> function truth {
+>-      if [ "$@" == "0" ]; then echo "disabled"; fi
+>-      echo "enabled"
+>+      if [ "$@" == "0" ]; then echo "disabled"; else
+>+      echo "enabled"; fi
+> }
 > 
-> I can only promise this compiles against 2.4.18-pre9, and looks right
-> to me.  l-k and Jens brought into cc in hopes of a little verification.
+> pv "Gnu C compiler" "$(gcc --version 2>/dev/null)" gcc
+>@@ -153,5 +153,5 @@
+> # kernel tuning options
+> if [ -e /proc/sys/net/ipv4/tcp_ecn ]; then
+>        v=$(cat /proc/sys/net/ipv4/tcp_ecn)
+>-       pv "TCP option: ECN" "$(truth v)"
+>+       pv "TCP option: ECN" "$(truth $v)"
+> fi
+>
+>Greeting from Aachen,
+>Stefan Becker
+>
 
-Whoops, forgot the template change to tell the upper layer the device
-supports ordered requests.
 
-Here's a better patch, it includes equally untested BusLogic support
-too.
+--------------ms060209080107020107060400
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
 
---- barrier.1/drivers/scsi/BusLogic.c Wed, 05 Dec 2001 09:35:31 -0500 root (linux/z/b/7_BusLogic.c 1.2 644)
-+++ barrier.1(w)/drivers/scsi/BusLogic.c Thu, 14 Feb 2002 12:38:05 -0500 root (linux/z/b/7_BusLogic.c 1.2 644)
-@@ -3464,7 +3464,13 @@
-     }
-   if (TargetFlags->TaggedQueuingActive)
-     {
--      BusLogic_QueueTag_T QueueTag = BusLogic_SimpleQueueTag;
-+      BusLogic_QueueTag_T QueueTag;
-+
-+      if (Command->request.cmd_flags & RQ_WRITE_ORDERED)
-+        QueueTag = BusLogic_OrderedQueueTag;
-+      else      
-+        QueueTag = BusLogic_SimpleQueueTag;
-+
-       /*
- 	When using Tagged Queuing with Simple Queue Tags, it appears that disk
- 	drive controllers do not guarantee that a queued command will not
-Index: barrier.1/drivers/scsi/BusLogic.h
---- barrier.1/drivers/scsi/BusLogic.h Tue, 06 Nov 2001 15:47:39 -0500 root (linux/B/b/29_BusLogic.h 1.1 644)
-+++ barrier.1(w)/drivers/scsi/BusLogic.h Thu, 14 Feb 2002 12:38:40 -0500 root (linux/B/b/29_BusLogic.h 1.1 644)
-@@ -79,6 +79,7 @@
-     bios_param:     BusLogic_BIOSDiskParameters,  /* BIOS Disk Parameters   */ \
-     unchecked_isa_dma: 1,			  /* Default Initial Value  */ \
-     max_sectors:    128,			  /* I/O queue len limit    */ \
-+    can_order:      1,      			  /* can order tags         */ \
-     use_clustering: ENABLE_CLUSTERING }		  /* Enable Clustering	    */
- 
- 
-Index: barrier.1/drivers/scsi/sym53c8xx_2/sym_glue.c
---- barrier.1/drivers/scsi/sym53c8xx_2/sym_glue.c Thu, 13 Dec 2001 11:06:51 -0500 root (linux/H/d/36_sym_glue.c 1.2 644)
-+++ barrier.1(w)/drivers/scsi/sym53c8xx_2/sym_glue.c Thu, 14 Feb 2002 10:43:01 -0500 root (linux/H/d/36_sym_glue.c 1.2 644)
-@@ -729,7 +729,14 @@
- 	 *  Select tagged/untagged.
- 	 */
- 	lp = sym_lp(np, tp, ccb->lun);
--	order = (lp && lp->s.reqtags) ? M_SIMPLE_TAG : 0;
-+	if (lp && lp->s.reqtags) {
-+		if (ccb->request.cmd_flags & RQ_WRITE_ORDERED)
-+			order = M_ORDERED_TAG;
-+		else
-+			order = M_SIMPLE_TAG;
-+	} else {
-+		order = 0 ;
-+	}
- 
- 	/*
- 	 *  Queue the SCSI IO.
-Index: barrier.1/drivers/scsi/sym53c8xx_2/sym53c8xx.h
---- barrier.1/drivers/scsi/sym53c8xx_2/sym53c8xx.h Thu, 13 Dec 2001 11:06:51 -0500 root (linux/I/d/17_sym53c8xx. 1.2 644)
-+++ barrier.1(w)/drivers/scsi/sym53c8xx_2/sym53c8xx.h Thu, 14 Feb 2002 12:30:29 -0500 root (linux/I/d/17_sym53c8xx. 1.2 644)
-@@ -119,6 +119,7 @@
- 	this_id:		7,					\
- 	sg_tablesize:		0,					\
- 	cmd_per_lun:		0,					\
-+	can_order:		1,					\
- 	use_clustering:		DISABLE_CLUSTERING}
- 
- #endif /* defined(HOSTS_C) || defined(MODULE) */ 
+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
+ARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMDA4MzAwMDAwMDBaFw0wMjA4
+MjkyMzU5NTlaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBlMRIwEAYD
+VQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMUQ2VydGlmaWNhdGUg
+U2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAyMDAwLjguMzAwgZ8w
+DQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAN4zMqZjxwklRT7SbngnZ4HF2ogZgpcO40QpimM1
+Km1wPPrcrvfudG8wvDOQf/k0caCjbZjxw0+iZdsN+kvx1t1hpfmFzVWaNRqdknWoJ67Ycvm6
+AvbXsJHeHOmr4BgDqHxDQlBRh4M88Dm0m1SKE4f/s5udSWYALQmJ7JRr6aFpAgMBAAGjTjBM
+MCkGA1UdEQQiMCCkHjAcMRowGAYDVQQDExFQcml2YXRlTGFiZWwxLTI5NzASBgNVHRMBAf8E
+CDAGAQH/AgEAMAsGA1UdDwQEAwIBBjANBgkqhkiG9w0BAQQFAAOBgQBzG28mZYv/FTRLWWKK
+7US+ScfoDbuPuQ1qJipihB+4h2N0HG23zxpTkUvhzeY42e1Q9DpsNJKs5pKcbsEjAcIJp+9L
+rnLdBmf1UG8uWLi2C8FQV7XsHNfvF7bViJu3ooga7TlbOX00/LaWGCVNavSdxcORL6mWuAU8
+Uvzd6WIDSDGCAycwggMjAgEBMIGaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVy
+biBDYXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMU
+Q2VydGlmaWNhdGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAy
+MDAwLjguMzACAwZepDAJBgUrDgMCGgUAoIIBYTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcB
+MBwGCSqGSIb3DQEJBTEPFw0wMjAyMTQxODA4MTdaMCMGCSqGSIb3DQEJBDEWBBTNQMsBMHrG
+6Rm7+ly2wWGXRKHPTzBSBgkqhkiG9w0BCQ8xRTBDMAoGCCqGSIb3DQMHMA4GCCqGSIb3DQMC
+AgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzANBggqhkiG9w0DAgIBKDCBrQYLKoZIhvcN
+AQkQAgsxgZ2ggZowgZIxCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQ
+BgNVBAcTCUNhcGUgVG93bjEPMA0GA1UEChMGVGhhd3RlMR0wGwYDVQQLExRDZXJ0aWZpY2F0
+ZSBTZXJ2aWNlczEoMCYGA1UEAxMfUGVyc29uYWwgRnJlZW1haWwgUlNBIDIwMDAuOC4zMAID
+Bl6kMA0GCSqGSIb3DQEBAQUABIIBAGHGqz8t81uchEnK0SOyHBxZVeBbc/Tl6Q0/0ORJrkRf
+rzmREuyYCVIL++LR/56yn92Xl6vnHbgLfdb/Yl15q+DV7tP99U0kM17VS/MxA3XqY/5lYdiI
+dpbpHJLpZZE/SzJ7DQ0Ontwb+m2K17vd/AT7ftFKzdL94NGq57itJQ51nuIW35fuWURKC3CG
+lzI7ho5DOBsSRuUAgX+SoH2v0ecncPII92ViLDN7vriQDZqkqft6GsaEP+BvUR8kwIN5okhk
+egWzwKVxt9qWyzmc4sFs+/gxPWp5l3yRJ1h7ehhrOI9X13Y2hdyTHTdKo5fmtDypDSXjZQWi
+5mKq/5h2t7sAAAAAAAA=
+--------------ms060209080107020107060400--
 

@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261368AbTHYIrw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 04:47:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbTHYIrw
+	id S261496AbTHYJCW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 05:02:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbTHYJCW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 04:47:52 -0400
-Received: from trained-monkey.org ([209.217.122.11]:37892 "EHLO
-	trained-monkey.org") by vger.kernel.org with ESMTP id S261368AbTHYIrt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 04:47:49 -0400
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: "David S. Miller" <davem@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       zaitcev@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] RFC: kills consistent_dma_mask
-References: <m3oeynykuu.fsf@defiant.pm.waw.pl>
-	<20030818111522.A12835@devserv.devel.redhat.com>
-	<m33cfyt3x6.fsf@trained-monkey.org>
-	<1061298438.30566.29.camel@dhcp23.swansea.linux.org.uk>
-	<20030819095547.2bf549e3.davem@redhat.com>
-	<m34r0dwfrr.fsf@defiant.pm.waw.pl> <m38ypl29i4.fsf@defiant.pm.waw.pl>
-	<m3isoo2taz.fsf@trained-monkey.org> <m3n0dz5kfg.fsf@defiant.pm.waw.pl>
-From: Jes Sorensen <jes@wildopensource.com>
-Date: 25 Aug 2003 04:47:47 -0400
-In-Reply-To: <m3n0dz5kfg.fsf@defiant.pm.waw.pl>
-Message-ID: <m3znhym8cs.fsf@trained-monkey.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	Mon, 25 Aug 2003 05:02:22 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:38333
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S261496AbTHYJCV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 05:02:21 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Orthogonal Interactivity Patches
+Date: Mon, 25 Aug 2003 19:09:16 +1000
+User-Agent: KMail/1.5.3
+References: <200308251322.12050.kernel@kolivas.org>
+In-Reply-To: <200308251322.12050.kernel@kolivas.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308251909.16932.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Krzysztof" == Krzysztof Halasa <khc@pm.waw.pl> writes:
+Addendum
 
-Krzysztof> There is one big problem with current API: the DMA (struct
-Krzysztof> driver) API does not have consistent_dma_mask. If the PCI
-Krzysztof> API is implemented on top of DMA API, it can't be correct
-Krzysztof> (and, obviously, DMA API on top of PCI API can't be correct
-Krzysztof> either). So, if we insist on keeping consistent_dma_mask in
-Krzysztof> pci_dev structure, we need to add it to DMA API as
-Krzysztof> well. There is no trivial change which can fix this
-Krzysztof> problem.
+On Mon, 25 Aug 2003 13:22, Con Kolivas wrote:
+> default scheduler. The remaining issue is that application startup will be
+> slower than the vanilla scheduler (your mileage may vary) under load, but I
+> feel not unacceptably so as a tradeoff. 
 
-So why are we dancing around the thing like this, the problem is sooo
-bloody simple. Add consistent_dma_mask to the DMA API as well. I
-already spoke to James briefly about this earlier and he didn't sound
-like had anything against us adding this feature there.
+I'm experimenting with a kind of central tendency with tasks that have not yet 
+declared themselves high or low credit by weighting down the cpu run time 
+when their credit is neither high nor low. Hopefully this can speed up 
+application startup under load without too much general slowdown by current 
+cpu hogs.
 
-Jes
+Con
+

@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261631AbTCLPHy>; Wed, 12 Mar 2003 10:07:54 -0500
+	id <S261627AbTCLPG6>; Wed, 12 Mar 2003 10:06:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261655AbTCLPHy>; Wed, 12 Mar 2003 10:07:54 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26894 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261631AbTCLPHx>; Wed, 12 Mar 2003 10:07:53 -0500
-Date: Wed, 12 Mar 2003 07:16:37 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Dave Jones <davej@codemonkey.org.uk>
-cc: Jeff Garzik <jgarzik@pobox.com>, lkml <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: [patch 3/3] add Via Nehemiah ("xstore") rng support
-In-Reply-To: <20030312125542.GA4284@suse.de>
-Message-ID: <Pine.LNX.4.44.0303120714030.13807-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261631AbTCLPG6>; Wed, 12 Mar 2003 10:06:58 -0500
+Received: from [196.41.29.142] ([196.41.29.142]:35320 "EHLO
+	workshop.saharact.lan") by vger.kernel.org with ESMTP
+	id <S261627AbTCLPG5>; Wed, 12 Mar 2003 10:06:57 -0500
+Subject: Re: Location of Interactive X Patch
+From: Martin Schlemmer <azarah@gentoo.org>
+To: Adam Voigt <adam@cryptocomm.com>
+Cc: KML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1047478704.1939.14.camel@beowulf.cryptocomm.com>
+References: <1047478704.1939.14.camel@beowulf.cryptocomm.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1047482117.3505.33.camel@workshop.saharact.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2- 
+Date: 12 Mar 2003 17:15:17 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2003-03-12 at 16:18, Adam Voigt wrote:
+> Where can I grab the patch (Linus Wrote?) that 
+> gives higher priority to X and such interactive 
+> process'es? Or, which kernel tree has it included, 
+> -ac maybe? 
+> 
 
-On Wed, 12 Mar 2003, Dave Jones wrote:
->  
->  > +#define cpu_has_xstore		boot_cpu_has(X86_FEATURE_XSTORE)
->  
-> Do we want to do this check only on VIA CPUs I wonder.
-> As a vendor specific extension, I'd be inclined to do that.
+You can just get the latest bitkeeper sources of 2.5.64 .. think
+it was already in from 2.5.64bk4.  Check http://www.kernel.org/.
 
-No, the whole point of all the crud in arch/i386/kernel/cpu is to make 
-those tests _once_ at bootup, and then the internal kernel "extended CPU 
-feature set" has a unique feature-set that is independent of manufacturers 
-and totally disjunct, so that we never need to care about manufacturers 
-ever again.
+Else the mm tree should have it as well, and are here:
 
-		Linus
+  ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.64/
+
+
+Regards,
+
+-- 
+Martin Schlemmer
+
 

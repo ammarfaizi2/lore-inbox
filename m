@@ -1,74 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269475AbUJLGIF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269479AbUJLGK5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269475AbUJLGIF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 02:08:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269473AbUJLGIF
+	id S269479AbUJLGK5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 02:10:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269477AbUJLGK4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 02:08:05 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:14210 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S269475AbUJLGGt (ORCPT
+	Tue, 12 Oct 2004 02:10:56 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:63716 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S269484AbUJLGKv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 02:06:49 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Geert Uytterhoeven <geert@linux-m68k.org>,
-       davej@redhat.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: __init dependencies 
-In-reply-to: Your message of "Mon, 11 Oct 2004 21:04:46 MST."
-             <416B57DE.4070605@osdl.org> 
+	Tue, 12 Oct 2004 02:10:51 -0400
+Date: Tue, 12 Oct 2004 08:12:01 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: Mark_H_Johnson@Raytheon.com, Andrew Morton <akpm@osdl.org>,
+       Daniel Walker <dwalker@mvista.com>, "K.R. Foley" <kr@cybsft.com>,
+       linux-kernel@vger.kernel.org,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [patch] VP-2.6.9-rc4-mm1-T5
+Message-ID: <20041012061201.GG1479@elte.hu>
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <20041012005754.1d49a074@mango.fruits.de> <20041012011447.3e7669f8@mango.fruits.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 12 Oct 2004 16:06:02 +1000
-Message-ID: <24112.1097561162@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+In-Reply-To: <20041012011447.3e7669f8@mango.fruits.de>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Oct 2004 21:04:46 -0700, 
-"Randy.Dunlap" <rddunlap@osdl.org> wrote:
->Randy.Dunlap wrote:
->> Andrew Morton wrote:
->> 
->>> Geert Uytterhoeven <geert@linux-m68k.org> wrote:
->>>
->>>> I guess it's about time for a tool to autodetect __init dependencies?
->>>
->>> `make buildcheck' does this.  Looks like nobody is using it.
->
->John Cherry has been running 'make buildcheck' regularly,
->but apparently nobody has been looking.
->
->Latest (2.6.9-rc4) is here:
->http://developer.osdl.org/cherry/compile/2.6/linux-2.6.9-rc4.results/2.6.9-rc4.reference_init26.bzImage.txt
->
->My experience with output of buildcheck is that it's verbose and has
->lots of false positives.  (Yes, I have used it and generated patches
->from it.)  First thing I do is delete all lines that match
->"data.*init" or "data.*exit".  These are (usually -- famous word) OK.
 
-They may only be OK because the code is never run more than once.
-Normal code that refers to data.*init and is run more than once is a
-bug just waiting to bite you.
+* Florian Schmidt <mista.tapas@gmx.net> wrote:
 
-Andrew - small fix for reference_init.pl, against 2.6.9-rc4.
+> On Tue, 12 Oct 2004 00:57:54 +0200
+> Florian Schmidt <mista.tapas@gmx.net> wrote:
+> 
+> > hi,
+> > 
+> > i still can't build it. Fist i reverse applied T4, then applied T5 and tried
+> > a make bzImage. I'll try from scratch though to make sure, cause these
+> > errors look identical to the T4 ones.
+> > 
+> 
+> same errors.. Both with the preemptible real time thingy and without..
 
-------------------------------------------------------------
+could you send me your .config? Had to do some wacky include file magic
+to be able to use semaphores in spinlocks, but could easily have missed
+some .config variations.
 
-Treat .pci_fixup entries the same as .init code/data.
-
-Signed off by: Keith Owens <kaos@ocs.com.au>
-
-Index: linux/scripts/reference_init.pl
-===================================================================
---- linux.orig/scripts/reference_init.pl	Sat Aug 14 15:37:37 2004
-+++ linux/scripts/reference_init.pl	Tue Oct 12 15:59:39 2004
-@@ -93,6 +93,8 @@ foreach $object (sort(keys(%object))) {
- 		     $from !~ /\.stab$/ &&
- 		     $from !~ /\.rodata$/ &&
- 		     $from !~ /\.text\.lock$/ &&
-+		     $from !~ /\.pci_fixup_header$/ &&
-+		     $from !~ /\.pci_fixup_final$/ &&
- 		     $from !~ /\.debug_/)) {
- 			printf("Error: %s %s refers to %s\n", $object, $from, $line);
- 		}
-
+	Ingo

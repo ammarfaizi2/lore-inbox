@@ -1,75 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267757AbTAXPl5>; Fri, 24 Jan 2003 10:41:57 -0500
+	id <S267753AbTAXPic>; Fri, 24 Jan 2003 10:38:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267761AbTAXPl5>; Fri, 24 Jan 2003 10:41:57 -0500
-Received: from poup.poupinou.org ([195.101.94.96]:55829 "EHLO
-	poup.poupinou.org") by vger.kernel.org with ESMTP
-	id <S267757AbTAXPlx>; Fri, 24 Jan 2003 10:41:53 -0500
-Date: Fri, 24 Jan 2003 16:51:01 +0100
-To: Sergio Visinoni <piffio@arklinux.org>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>, linux-kernel@vger.kernel.org,
-       acpi-devel@sourceforge.net
-Subject: Re: [ACPI] [TRIVIAL] Re: [PATCH] ACPI update (20030122)
-Message-ID: <20030124155101.GZ18109@poup.poupinou.org>
-References: <F760B14C9561B941B89469F59BA3A84725A131@orsmsx401.jf.intel.com> <20030124032222.A9061@piffio.homelinux.org>
+	id <S267757AbTAXPic>; Fri, 24 Jan 2003 10:38:32 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:44677 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267753AbTAXPib>;
+	Fri, 24 Jan 2003 10:38:31 -0500
+Date: Fri, 24 Jan 2003 07:47:37 -0800
+From: Dave Olien <dmo@osdl.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       markw@osdl.org, cliffw@osdl.org, maryedie@osdl.org, jenny@osdl.org
+Subject: Re: [BUG] BUG_ON in I/O scheduler, bugme # 288
+Message-ID: <20030124074737.A10818@acpi.pdx.osdl.net>
+References: <20030123135448.A8801@acpi.pdx.osdl.net> <20030123143824.4aae1efd.akpm@digeo.com> <20030123143453.A9072@acpi.pdx.osdl.net> <20030124075030.GF910@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030124032222.A9061@piffio.homelinux.org>
-User-Agent: Mutt/1.4i
-From: Ducrot Bruno <ducrot@poupinou.org>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030124075030.GF910@suse.de>; from axboe@suse.de on Fri, Jan 24, 2003 at 08:50:30AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 24, 2003 at 03:22:22AM +0100, Sergio Visinoni wrote:
-> * Grover, Andrew (andrew.grover@intel.com) wrote:
-> > (2.4) S4BIOS support (Ducrot Bruno)
+
+Yup, the BUG_ON was in vanilla 2.5.59.  The mm patch still shows
+the non-completion issue.
+
+On Fri, Jan 24, 2003 at 08:50:30AM +0100, Jens Axboe wrote:
 > 
-> Attached is the missing s4bios portion (the
-> acpi_enter_sleep_state_s4bios function ) + fixes to make it
-> build correctly on a 2.4.20 tree.
+> I'm assuming vanilla 2.5.59, there's no BUG_ON() in -mm5 that line.
 > 
-> It should apply correctly on 2.4.21-pre3 as well (not tested).
+> -- 
+> Jens Axboe
 > 
-
-It should be OK (I think..)
-
-Appart the following chunk:
-
---- linux-2.4.20/drivers/acpi/hardware/hwsleep.c.s4bios~	2003-01-24 02:35:41.000000000 +0100
-+++ linux-2.4.20/drivers/acpi/hardware/hwsleep.c	2003-01-24 02:35:53.000000000 +0100
-@@ -339,6 +387,8 @@
- 
- 	ACPI_FUNCTION_TRACE ("acpi_leave_sleep_state");
- 
-+	/* Be sure to have BM arbitration */
-+	status = acpi_set_register (ACPI_BITREG_ARB_DISABLE, 0, ACPI_MTX_LOCK);
- 
- 	/* Ensure enter_sleep_state_prep -> enter_sleep_state ordering */
- 
-@@ -371,8 +421,5 @@
- 		return_ACPI_STATUS (status);
- 	}
- 
--	/* Disable BM arbitration */
--	status = acpi_set_register (ACPI_BITREG_ARB_DISABLE, 0, ACPI_MTX_LOCK);
--
- 	return_ACPI_STATUS (status);
- }
-
-
-which is a bug fix for a different purpose.
-
-We can not trust the bios when we have to enter the _WAK method.
-Those we re-enable the BM arbitration before (the comment Disable
-is actually a mistake).
-
-Cheers,
-
-
--- 
-Ducrot Bruno
-
---  Which is worse:  ignorance or apathy?
---  Don't know.  Don't care.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,57 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265416AbSIRGAh>; Wed, 18 Sep 2002 02:00:37 -0400
+	id <S265362AbSIRGAZ>; Wed, 18 Sep 2002 02:00:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265419AbSIRGAh>; Wed, 18 Sep 2002 02:00:37 -0400
-Received: from triton.neptune.on.ca ([205.233.176.2]:49891 "EHLO
-	triton.neptune.on.ca") by vger.kernel.org with ESMTP
-	id <S265416AbSIRGAc> convert rfc822-to-8bit; Wed, 18 Sep 2002 02:00:32 -0400
-Date: Wed, 18 Sep 2002 02:05:30 -0400 (EDT)
-From: Steve Mickeler <steve@neptune.ca>
-X-X-Sender: steve@triton.neptune.on.ca
-To: Ole =?ISO-8859-1?Q?Andr=E9?= Vadla =?ISO-8859-1?Q?Ravn=E5s?= 
-	<oleavr-lkml@jblinux.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Virtual to physical address mapping
-In-Reply-To: <1032328456.5812.16.camel@zole.jblinux.net>
-Message-ID: <Pine.LNX.4.44.0209180204380.2876-100000@triton.neptune.on.ca>
+	id <S265417AbSIRGAZ>; Wed, 18 Sep 2002 02:00:25 -0400
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:47614 "EHLO
+	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
+	id <S265362AbSIRGAX>; Wed, 18 Sep 2002 02:00:23 -0400
+Date: Wed, 18 Sep 2002 02:05:19 -0400 (EDT)
+From: Albert Cranford <ac9410@attbi.com>
+X-X-Sender: ac9410@home1
+Reply-To: Albert Cranford <ac9410@attbi.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [patch 2/3] 2.5.36 i2c new adapter id's
+Message-ID: <Pine.LNX.4.44.0209180203150.358-200000@home1>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: MULTIPART/MIXED; BOUNDARY="0-1339493514-1032329119=:358"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-That info will be in /proc/pci
+--0-1339493514-1032329119=:358
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
+Hello Linus,
+patch adds new adapter and driver id's to i2c.
+Albert
+-- 
+ac9410@attbi.com
 
-On 18 Sep 2002, Ole André Vadla Ravnås wrote:
+--0-1339493514-1032329119=:358
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN; name=2-i2c-includes-patch
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0209180205190.358@home1>
+Content-Description: 
+Content-Disposition: attachment; filename=2-i2c-includes-patch
 
-> Hi
->
-> I've noticed that ifconfig shows a base address and an interrupt
-> number.. However, I can't get that base address to correspond to
-> anything in /proc/iomem, which means that I can't determine which PCI
-> device (in this case) it corresponds to (guess the base address is
-> virtual). What I want is to find a way to get the PCI bus and device no
-> for the network device, but is this at all possible without altering the
-> kernel?
->
-> Ole André
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-
-
-[-] Steve Mickeler [ steve@neptune.ca ]
-
-[|] Todays root password is brought to you by /dev/random
-
-[+] 1024D/9AA80CDF = 4103 9E35 2713 D432 924F  3C2E A7B9 A0FE 9AA8 0CDF
-
+LS0tIGxpbnV4LTIuNS4zNi9pbmNsdWRlL2xpbnV4L2kyYy1pZC5oLm9yaWcJ
+MjAwMi0wOS0wOSAxMzozNTowMS4wMDAwMDAwMDAgLTA0MDANCisrKyBsaW51
+eC9pbmNsdWRlL2xpbnV4L2kyYy1pZC5oCTIwMDItMDgtMjQgMTY6MTk6Mzku
+MDAwMDAwMDAwIC0wNDAwDQpAQCAtMjAsNyArMjAsNyBAQA0KICAgICBGb3Vu
+ZGF0aW9uLCBJbmMuLCA2NzUgTWFzcyBBdmUsIENhbWJyaWRnZSwgTUEgMDIx
+MzksIFVTQS4JCSAgICAgKi8NCiAvKiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tICovDQogDQotLyogJElkOiBpMmMtaWQuaCx2IDEuNTIgMjAwMi8w
+Ny8xMCAxMzoyODo0NCBhYnogRXhwICQgKi8NCisvKiAkSWQ6IGkyYy1pZC5o
+LHYgMS41NSAyMDAyLzA4LzI0IDIwOjE5OjM5IG1kcyBFeHAgJCAqLw0KIA0K
+ICNpZm5kZWYgSTJDX0lEX0gNCiAjZGVmaW5lIEkyQ19JRF9IDQpAQCAtMTQz
+LDYgKzE0Myw3IEBADQogI2RlZmluZSBJMkNfRFJJVkVSSURfU01TQzQ3TTEg
+MTAzMQ0KICNkZWZpbmUgSTJDX0RSSVZFUklEX1ZUMTIxMSAxMDMyDQogI2Rl
+ZmluZSBJMkNfRFJJVkVSSURfTE05MiAxMDMzDQorI2RlZmluZSBJMkNfRFJJ
+VkVSSURfVlQ4MjMxIDEwMzQNCiANCiAvKg0KICAqIC0tLS0gQWRhcHRlciB0
+eXBlcyAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tDQpAQCAtMTYxLDYgKzE2Miw3IEBADQogI2RlZmluZSBJ
+MkNfQUxHT19BQ0IgCTB4MDcwMDAwCS8qIEFDQ0VTUy5idXMgYWxnb3JpdGht
+ICAgICAgICAgKi8NCiAjZGVmaW5lIEkyQ19BTEdPX0lJQyAgICAweDA4MDAw
+MCAJLyogSVRFIElJQyBidXMgKi8NCiAjZGVmaW5lIEkyQ19BTEdPX1NBQTcx
+MzQgMHgwOTAwMDANCisjZGVmaW5lIEkyQ19BTEdPX01QQzgyNFggMHgwYTAw
+MDAJLyogTW90b3JvbGEgODI0MCAvIDgyNDUgICAgICAgICAqLw0KICNkZWZp
+bmUgSTJDX0FMR09fRUMgICAgIDB4MTAwMDAwICAgICAgICAvKiBBQ1BJIGVt
+YmVkZGVkIGNvbnRyb2xsZXIgICAgICovDQogDQogI2RlZmluZSBJMkNfQUxH
+T19NUEM4WFggMHgxMTAwMDAJLyogTVBDOHh4IFBvd2VyUEMgSTJDIGFsZ29y
+aXRobSAqLw0KQEAgLTIwNiw2ICsyMDgsOSBAQA0KIC8qIC0tLSBBQ1BJIEVt
+YmVkZGVkIGNvbnRyb2xsZXIgYWxnb3JpdGhtcyAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICovDQogI2RlZmluZSBJMkNfSFdfQUNQSV9FQyAgICAg
+ICAgICAweDAwDQogDQorLyogLS0tIE1QQzgyNHggUG93ZXJQQyBhZGFwdGVy
+cwkJCQkJCSovDQorI2RlZmluZSBJMkNfSFdfTVBDODI0WCAweDAwCS8qIE1v
+dG9yb2xhIDgyNDAgLyA4MjQ1ICAgICAgICAgICAgICAgICAqLw0KKw0KIC8q
+IC0tLSBNUEM4eHggUG93ZXJQQyBhZGFwdGVycwkJCQkJCSovDQogI2RlZmlu
+ZSBJMkNfSFdfTVBDOFhYX0VQT04gMHgwMAkvKiBFcG9ueW1vdXMgTVBDOHh4
+IEkyQyBhZGFwdGVyIAkqLw0KIA0KQEAgLTIyNSw2ICsyMzAsOCBAQA0KICNk
+ZWZpbmUgSTJDX0hXX1NNQlVTX0FNRDc1NgkweDA1DQogI2RlZmluZSBJMkNf
+SFdfU01CVVNfU0lTNTU5NQkweDA2DQogI2RlZmluZSBJMkNfSFdfU01CVVNf
+QUxJMTUzNQkweDA3DQorI2RlZmluZSBJMkNfSFdfU01CVVNfU0lTNjMwCTB4
+MDgNCisjZGVmaW5lIEkyQ19IV19TTUJVU19TSVM2NDUJMHgwOQ0KIA0KIC8q
+IC0tLSBJU0EgcHNldWRvLWFkYXB0ZXIJCQkJCQkqLw0KICNkZWZpbmUgSTJD
+X0hXX0lTQSAweDAwDQotLS0gbGludXgtMi41LjM2L2luY2x1ZGUvbGludXgv
+aTJjLmgub3JpZwkyMDAyLTA5LTA5IDEzOjM1OjA0LjAwMDAwMDAwMCAtMDQw
+MA0KKysrIGxpbnV4L2luY2x1ZGUvbGludXgvaTJjLmgJMjAwMi0wOS0xNSAy
+MDozOToxNy4wMDAwMDAwMDAgLTA0MDANCkBAIC0yMywxMyArMjMsMTMgQEAN
+CiAvKiBXaXRoIHNvbWUgY2hhbmdlcyBmcm9tIEt59nN0aSBN5Gxra2kgPGtt
+YWxra2lAY2MuaHV0LmZpPiBhbmQNCiAgICBGcm9kbyBMb29pamFhcmQgPGZy
+b2RvbEBkZHMubmw+ICovDQogDQotLyogJElkOiBpMmMuaCx2IDEuNTkgMjAw
+Mi8wNy8xOSAyMDo1Mzo0NSBwaGlsIEV4cCAkICovDQorLyogJElkOiBpMmMu
+aCx2IDEuNjAgMjAwMi8wOS8xNiAwMDozOToxNyBwaGlsIEV4cCAkICovDQog
+DQogI2lmbmRlZiBJMkNfSA0KICNkZWZpbmUgSTJDX0gNCiANCi0jZGVmaW5l
+IEkyQ19EQVRFICIyMDAyMDcxOSINCi0jZGVmaW5lIEkyQ19WRVJTSU9OICIy
+LjYuNCINCisjZGVmaW5lIEkyQ19EQVRFICIyMDAyMDkxNSINCisjZGVmaW5l
+IEkyQ19WRVJTSU9OICIyLjYuNSINCiANCiAjaW5jbHVkZSA8bGludXgvaTJj
+LWlkLmg+CS8qIGlkIHZhbHVlcyBvZiBhZGFwdGVycyBldC4gYWwuIAkqLw0K
+ICNpbmNsdWRlIDxsaW51eC90eXBlcy5oPg0K
+--0-1339493514-1032329119=:358--

@@ -1,127 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264592AbTFQFo6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 01:44:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264593AbTFQFo6
+	id S264601AbTFQFwD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 01:52:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264607AbTFQFwC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 01:44:58 -0400
-Received: from auth22.inet.co.th ([203.150.14.104]:36876 "EHLO
-	auth22.inet.co.th") by vger.kernel.org with ESMTP id S264592AbTFQFoz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 01:44:55 -0400
-From: Michael Frank <mflt1@micrologica.com.hk>
-To: linux-kernel@vger.kernel.org
-Subject: Resend: 2.4 bkbits.net not updated - 2.4.21 missing
-Date: Tue, 17 Jun 2003 13:58:30 +0800
-User-Agent: KMail/1.5.2
-X-OS: KDE 3 on GNU/Linux
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200306171358.30412.mflt1@micrologica.com.hk>
+	Tue, 17 Jun 2003 01:52:02 -0400
+Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:17849 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S264601AbTFQFv7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 01:51:59 -0400
+To: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH][v850]  Add __raw_ read/write ops to v850 io.h
+Cc: linux-kernel@vger.kernel.org
+Reply-To: Miles Bader <miles@gnu.org>
+Message-Id: <20030617060540.D670E37E2@mcspd15.ucom.lsi.nec.co.jp>
+Date: Tue, 17 Jun 2003 15:05:40 +0900 (JST)
+From: miles@lsi.nec.co.jp (Miles Bader)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.21 seems not be at  http://linux.bkbits.net/linux-2.4
-Tried thrice since sunday.
-
-Also tag for -rc8 is missing
-
-Regards
-Michael
-
-P.S. pls cc me
-
-[mhf@mhfl2 11:52:41 linux-2.4]$ bk pull -R
----------------------- Receiving the following csets -----------------------
-1.1201 1.1200 1.1199 1.1198 1.1197
-----------------------------------------------------------------------------
-ChangeSet: 5 deltas
-drivers/net/wan/lmc/lmc_proto.c: 2 deltas
-fs/ext2/balloc.c: 1 deltas
-net/sched/sch_ingress.c: 2 deltas
----------------------------------------------------------------------------
-takepatch: saved entire patch in PENDING/2003-06-16.01
----------------------------------------------------------------------------
-Applying   5 revisions to ChangeSet
-Applying   2 revisions to drivers/net/wan/lmc/lmc_proto.c
-Applying   1 revisions to fs/ext2/balloc.c
-Applying   2 revisions to net/sched/sch_ingress.c
-takepatch: 10 new revisions, 0 conflicts in 4 files
-1171 bytes uncompressed to 5488, 4.69X expansion
-
-[mhf@mhfl2 12:14:41 linux-2.4]$ bk resolve
-Using :0.0 as graphical display
-Verifying consistency of the RESYNC tree...
-resolve: applied 4 files in pass 4
-resolve: running consistency check, please wait...
-Consistency check passed, resolve complete.
-
-[mhf@mhfl2 12:18:27 linux-2.4]$ bk changes -t
-ChangeSet@1.1193, 2003-06-03 13:03:50-03:00, marcelo@freak.distro.conectiva
-    Changed EXTRAVERSION to -rc7
-  TAG: v2.4.21-rc7
-
-[mhf@mhfl2 12:48:44 linux-2.4]$ bk changes
-ChangeSet@1.1201, 2003-06-09 17:42:11-03:00, marcelo@freak.distro.conectiva
-  Cset exclude: geert@linux-m68k.org|ChangeSet|20030609201907|11405
-
-ChangeSet@1.1200, 2003-06-09 17:41:58-03:00, marcelo@freak.distro.conectiva
-  Cset exclude: geert@linux-m68k.org|ChangeSet|20030609201637|12385
-
-ChangeSet@1.1199, 2003-06-09 17:19:07-03:00, geert@linux-m68k.org
-  [PATCH] lmc_proto.c includes <asm/smp.h>
-
-  lmc_proto.c includes <asm/smp.h>, causing build failures on UMP-only
-  architectures
-
-ChangeSet@1.1198, 2003-06-09 17:17:55-03:00, geert@linux-m68k.org
-  [PATCH] Fix ext2fs warning
-
-  ext2fs: Fix incorrect printf() format (already fixed in 2.5)
-
-ChangeSet@1.1197, 2003-06-09 17:16:37-03:00, geert@linux-m68k.org
-  [PATCH] sch_ingress.c includes <asm/smp.h>
-
-  sch_ingress.c includes <asm/smp.h>, causing build failures on UMP-only
-  architectures
-
-ChangeSet@1.1196, 2003-06-05 18:05:17-03:00, hugh@veritas.com
-  [PATCH] Fix shmctl(SHM_LOCK/UNLOCK) deadlock
-
-  On Wed, 4 Jun 2003, Andrea Arcangeli wrote:
-  > this patch fixes an SMP deadlock that triggered in some production
-  > usage:
-
-  Yes, worth fixing in 2.4.21, thanks Andrea:
-  shmem_lock tried for a semaphore while sys_shmctl holds a spinlock.
-
-  Patch below against 2.4.21-rc7 - Andrea's patch against his own tree
-  may have deterred you!  As he said, using spin_lock here is actually
-  superfluous, but raises fewer eyebrows than omitting it.  I want to
-  send you patches in early 2.4.22 to bring many of the 2.5 tmpfs mods
-  into 2.4, which would fix this: but the hangfix is worth taking now.
-
-ChangeSet@1.1195, 2003-06-05 04:00:23-03:00, marcelo@freak.distro.conectiva
-    Changed EXTRAVERSION to -pre8
-
-ChangeSet@1.1194, 2003-06-04 13:52:56-03:00, marcelo@freak.distro.conectiva
-  Backout erroneous kiobuf dcache flush changes
-  Cset exclude: jsun@mvista.com|ChangeSet|20030425203656|60956
-
-
-
--- 
-Powered by linux-2.5.71-mm1, compiled with gcc-2.95-3 because it's rock solid
-
-My current linux related activities in rough order of priority:
-- Testing of Swsusp for 2.4
-- Learning 2.5 kernel debugging with kgdb - it's in the -mm tree
-- Studying 2.5 serial and ide drivers, ACPI, S3
-
-The 2.5 kernel could use your usage. More info on setting up 2.5 kernel at 
-http://www.codemonkey.org.uk/post-halloween-2.5.txt
-
-
+diff -ruN -X../cludes linux-2.5.72-moo/include/asm-v850/io.h linux-2.5.72-moo-v850-20030617/include/asm-v850/io.h
+--- linux-2.5.72-moo/include/asm-v850/io.h	2002-11-05 11:25:32.000000000 +0900
++++ linux-2.5.72-moo-v850-20030617/include/asm-v850/io.h	2003-06-17 14:23:12.000000000 +0900
+@@ -1,8 +1,8 @@
+ /*
+  * include/asm-v850/io.h -- Misc I/O operations
+  *
+- *  Copyright (C) 2001,02  NEC Corporation
+- *  Copyright (C) 2001,02  Miles Bader <miles@gnu.org>
++ *  Copyright (C) 2001,02,03  NEC Electronics Corporation
++ *  Copyright (C) 2001,02,03  Miles Bader <miles@gnu.org>
+  *
+  * This file is subject to the terms and conditions of the GNU General
+  * Public License.  See the file COPYING in the main directory of this
+@@ -30,6 +30,13 @@
+ #define writel(b, addr) \
+   (void)((*(volatile unsigned int *) (addr)) = (b))
+ 
++#define __raw_readb readb
++#define __raw_readw readw
++#define __raw_readl readl
++#define __raw_writeb writeb
++#define __raw_writew writew
++#define __raw_writel writel
++
+ #define inb(addr)	readb (addr)
+ #define inw(addr)	readw (addr)
+ #define inl(addr)	readl (addr)

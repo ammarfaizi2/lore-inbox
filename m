@@ -1,39 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289326AbSBEBIx>; Mon, 4 Feb 2002 20:08:53 -0500
+	id <S289324AbSBEBFx>; Mon, 4 Feb 2002 20:05:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289328AbSBEBIn>; Mon, 4 Feb 2002 20:08:43 -0500
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:32951 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S289326AbSBEBIf>; Mon, 4 Feb 2002 20:08:35 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: 520047054719-0001@t-online.de (Oliver Neukum)
-Reply-To: Oliver.Neukum@lrz.uni-muenchen.de
-To: Robert Love <rml@tech9.net>
-Subject: Re: current->state after kmalloc
-Date: Tue, 5 Feb 2002 02:08:07 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: arjan@fenrus.demon.nl, linux-kernel@vger.kernel.org
-In-Reply-To: <m16XtOG-000OVeC@amadeus.home.nl> <16Xthq-147i9wC@fwd04.sul.t-online.com> <1012870211.1062.43.camel@phantasy>
-In-Reply-To: <1012870211.1062.43.camel@phantasy>
+	id <S289326AbSBEBFd>; Mon, 4 Feb 2002 20:05:33 -0500
+Received: from cambot.suite224.net ([209.176.64.2]:59143 "EHLO suite224.net")
+	by vger.kernel.org with ESMTP id <S289324AbSBEBF1>;
+	Mon, 4 Feb 2002 20:05:27 -0500
+Message-ID: <002701c1ade1$c7fedca0$0742b0d1@pcs586>
+From: "Matthew D. Pitts" <mpitts@suite224.net>
+To: "j y" <y_jim542000@yahoo.com>, <guinness-list@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020205003317.74373.qmail@web14306.mail.yahoo.com>
+Subject: Re: kernel compile question
+Date: Mon, 4 Feb 2002 20:09:36 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <16Xu62-2F1K08C@fwd04.sul.t-online.com>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 05 February 2002 01:50, Robert Love wrote:
-> On Mon, 2002-02-04 at 19:43, Oliver Neukum wrote:
-> > Is it safe with GFP_ATOMIC ?
->
-> You are guaranteed kmalloc will not sleep if you use GFP_ATOMIC, yes.
->
-> But I still find it gross to mark yourself sleeping but not sleep
-> immediately.
+Jim,
 
-usb_submit_urb() uses kmalloc internally.
-To code a simple waiting for the results of an urb,
-it is necessary.
+If you wish to use a later version of the kernel, iti is often better to use
+the one that you can get from your Linux Ditrobutions ftp site. for your
+particular version.
 
-	Regards
-		Oliver
+Matthew D. Pitts
+----- Original Message -----
+From: "j y" <y_jim542000@yahoo.com>
+To: <guinness-list@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Monday, February 04, 2002 7:33 PM
+Subject: kernel compile question
+
+
+> HI,
+>
+> what is the best command to use for kernel options and
+> do i tell it ot use current options?.
+> Jim
+>
+> __________________________________________________
+> Do You Yahoo!?
+> Great stuff seeking new owners in Yahoo! Auctions!
+> http://auctions.yahoo.com
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

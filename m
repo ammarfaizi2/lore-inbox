@@ -1,35 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269142AbUHYCJ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268488AbUHYCVl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269142AbUHYCJ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 22:09:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269143AbUHYCJ3
+	id S268488AbUHYCVl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 22:21:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266376AbUHYCVl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 22:09:29 -0400
-Received: from mfep3.odn.ne.jp ([143.90.131.181]:30122 "EHLO t-mta3.odn.ne.jp")
-	by vger.kernel.org with ESMTP id S269142AbUHYCJT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 22:09:19 -0400
-Date: Wed, 25 Aug 2004 11:09:16 +0900
-From: Aric Cyr <acyr@alumni.uwaterloo.ca>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ACPI + Floppy detection problem in 2.6.8.1-mm4
-Message-ID: <20040825020916.GA14422@alumni.uwaterloo.ca>
-References: <20040825014028.GA14286@alumni.uwaterloo.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040825014028.GA14286@alumni.uwaterloo.ca>
-User-Agent: Mutt/1.5.6i
+	Tue, 24 Aug 2004 22:21:41 -0400
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:45172 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S268488AbUHYCUw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 22:20:52 -0400
+Message-ID: <412BF780.3090508@yahoo.com.au>
+Date: Wed, 25 Aug 2004 12:20:48 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Serban Simu <serban@asperasoft.com>
+CC: linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: page allocation failure & sk98lin
+References: <412AE018.8000207@asperasoft.com> <412AF360.60005@yahoo.com.au> <412BA4FC.2070505@asperasoft.com>
+In-Reply-To: <412BA4FC.2070505@asperasoft.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 25, 2004 at 10:40:28AM +0900, acyr@alumni.uwaterloo.ca wrote:
-> done.  I just noticed the no_acpi floppy module param in the source,
-> so I will give that a try.  Since the ACPI code seems to be picking up
+Serban Simu wrote:
+> Thank you, Nick. Just wanted to mention that while I understand that we 
+> recover from this allocation failure (and also I don't mind the stack 
+> printouts), about 20% of my incoming network traffic (600-700 Mbps) 
+> seems to be dropped in the process.
 
-I just tried the no_acpi module param and the floppy driver loads and
-works just fine, so this is indeed an ACPI related.
+Yeah that is expected - so I guess it isn't exactly 'harmless' if
+performance is critical.
 
--- 
-Aric Cyr <acyr at alumni dot uwaterloo dot ca>    (http://acyr.net)
-gpg fingerprint: 943A 1549 47AC D766 B7F8  D551 6703 7142 C282 D542
+> Does the memory manager have to 
+> spend a considerable amount of time to recover?
+> 
+> I will have a look at the -mm fixes, thanks for the idea.
+> 
+
+The relevant patch is this one which is now merged into 2.6.
+
+http://linux.bkbits.net:8080/linux-2.5/cset@412b8828ClkE2ZwNwGQ02aYoMwb7-A?nav=index.html|ChangeSet@-1d
+
+It would be nice if you can test that. It will give GFP_ATOMIC allocators
+a larger buffer between starting memory reclaim, and failing their allocations.
+
+However if it is a production system and you can't test patches, Marcelo
+pointed out that you should be able to work around the problem by increasing
+/proc/sys/vm/min_free_kbytes. Then maybe you could try 2.6.9 with min_free_kbytes
+back to its default setting :)

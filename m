@@ -1,101 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268557AbTCCQ3i>; Mon, 3 Mar 2003 11:29:38 -0500
+	id <S266868AbTCCQgF>; Mon, 3 Mar 2003 11:36:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268560AbTCCQ3i>; Mon, 3 Mar 2003 11:29:38 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:64133 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S268557AbTCCQ3a>; Mon, 3 Mar 2003 11:29:30 -0500
-Date: Mon, 3 Mar 2003 11:42:02 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: ChristopherHuhn <c.huhn@gsi.de>
-cc: linux-kernel@vger.kernel.org, linux-smp <linux-smp@vger.kernel.org>,
-       support-gsi@credativ.de
-Subject: Re: Kernel Bug at spinlock.h ?!
-In-Reply-To: <3E637CDC.3030409@GSI.de>
-Message-ID: <Pine.LNX.3.95.1030303113729.23039A-100000@chaos>
+	id <S267260AbTCCQgF>; Mon, 3 Mar 2003 11:36:05 -0500
+Received: from 195-219-31-160.sp-static.linix.net ([195.219.31.160]:51841 "EHLO
+	r2d2.office") by vger.kernel.org with ESMTP id <S266868AbTCCQfs>;
+	Mon, 3 Mar 2003 11:35:48 -0500
+Message-ID: <3E6386B6.80301@walrond.org>
+Date: Mon, 03 Mar 2003 16:45:42 +0000
+From: Andrew Walrond <andrew@walrond.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: jordan.breeding@attbi.com, linux-kernel@vger.kernel.org,
+       adam@yggdrasil.com
+Subject: Re: Patch: 2.5.62.4 small devfs
+References: <200303031638.h23GcH131618@gaea.projecticarus.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Mar 2003, ChristopherHuhn wrote:
+Hmmm
 
-> Hi,
-> 
-> I'm sorry I didn't know about ksymoops as I'm not experienced with 
-> kernel bugs yet.
-> 
-> Richard B. Johnson wrote:
-> 
-> >The "Re: Kernel Bug at spinlock.h ?!" is an eye-catcher because this
-> >inline code cannot have any bugs or you wouldn't even have booted.
-> >
-> I think this is the code, that produced the BUG message:
-> 
-> static inline void spin_unlock(spinlock_t *lock)
-> {
->         char oldval = 1;
-> #if SPINLOCK_DEBUG
->         if (lock->magic != SPINLOCK_MAGIC)
->                 BUG();
-> ...
-> 
-> The oops occured after an uptime of about 50 hours.
-> 
-> I just discovered the following messages in the syslog, right before 
-> that oops (I never found any kernel oops logs in the syslog until now ...):
-> 
-> Feb 27 20:51:37 lxb039 kernel: Unable to handle kernel NULL pointer 
-> dereference at virtual address 00000000
-> Feb 27 20:51:37 lxb039 kernel:  printing eip:
-> Feb 27 20:51:37 lxb039 kernel: 00000000
-> Feb 27 20:51:37 lxb039 kernel: *pde = 00000000
-> Feb 27 20:51:37 lxb039 kernel: Oops: 0000
-> Feb 27 20:51:37 lxb039 kernel: CPU:    3
-> Feb 27 20:51:37 lxb039 kernel: EIP:    0010:[msr_exit+0/24]    Not tainted
-> Feb 27 20:51:37 lxb039 kernel: EFLAGS: 00010246
-> Feb 27 20:51:37 lxb039 kernel: eax: fffffffe   ebx: f1857cb0   ecx: 
-> 00000002   edx: 00000008
-> Feb 27 20:51:37 lxb039 kernel: esi: fffffff5   edi: f1857cb0   ebp: 
-> f1857c90   esp: f1857c84
-> Feb 27 20:51:37 lxb039 kernel: ds: 0018   es: 0018   ss: 0018
-> Feb 27 20:51:37 lxb039 kernel: Process sh (pid: 29359, stackpage=f1857000)
-> Feb 27 20:51:37 lxb039 kernel: Stack: f1857cb0 f1857ca8 00000000 
-> f1857d38 c02a8ff1 f1857cb0 f1857d58 f1856000
-> Feb 27 20:51:37 lxb039 kernel:        00000001 fffffefd ffffffff 
-> 00000000 00000000 00000000 00000000 00000000
-> Feb 27 20:51:37 lxb039 kernel:        00000000 00000000 fffffffe 
-> 00000000 00000003 f1857da8 f1857d9c 00000000
-> Feb 27 20:51:38 lxb039 kernel: Call Trace:    [rpc_call_sync+121/164] 
-> [rpc_run_timer+0/240] [nfs3_rpc_wrapper+54/124] [nfs3_proc_lookup
-> +194/340] [nfs_lookup+122/204]
-> Feb 27 20:51:38 lxb039 kernel:   [dput+27/464] 
-> [link_path_walk+2940/3200] [in_group_p+32/40] [vfs_permission+121/248] 
-> [d_alloc+25/476]
-> [real_lookup+169/360]
-> Feb 27 20:51:38 lxb039 kernel:   [link_path_walk+2425/3200] 
-> [path_walk+29/36] [path_lookup+30/44] [__user_walk+45/72] [sys_stat64+26/11
-> 2] [sys_close+115/140]
-> Feb 27 20:51:38 lxb039 kernel:   [system_call+51/56]
-> Feb 27 20:51:38 lxb039 kernel:
-> Feb 27 20:51:38 lxb039 kernel: Code:  Bad EIP value.
-> 
-> 
-> Looks like a NFS problem, huh?
+I'm already using the existance of .devfsd to see if devfs was mounted 
+by the kernel at boot. This suggests I need a new test for small devfs?
 
-No. It looks like something got corrupted so a call occurred to
-nonexistant code.
+Andrew
 
-If you have two RAM sticks, swap them. Otherwise, do something to
-change your RAM configuration. There is something wrong in some
-RAM area that is corrupting code or pointers to code. It could also
-be that 100 MHz RAM is being used at 130 MHz, etc.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+jordan.breeding@attbi.com wrote:
+> if [ -f /dev/.devfsd ]; then
+>   you know you have old devfs
+> fi
+> 
+> Jordan (I am fairly certain that it is /dev/.devfsd, you can always do ls -
+> al /dev/.* to find the real name)
+> 
+>>Hi Adam
+>>
+>>Could you suggest a simple bit of sh script that will tell me if I have 
+>>a devfs or small devfs kernel, (so my init scripts can decide whether or 
+>>not to load devfsd?)
+>>
+>>Andrew Walrond
+>>
+>>
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
 

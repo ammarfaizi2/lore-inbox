@@ -1,43 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263333AbTCDXp0>; Tue, 4 Mar 2003 18:45:26 -0500
+	id <S266805AbTCDXrQ>; Tue, 4 Mar 2003 18:47:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266716AbTCDXp0>; Tue, 4 Mar 2003 18:45:26 -0500
-Received: from packet.digeo.com ([12.110.80.53]:41130 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S263333AbTCDXp0>;
-	Tue, 4 Mar 2003 18:45:26 -0500
-Date: Tue, 4 Mar 2003 15:51:50 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: "Kamble, Nitin A" <nitin.a.kamble@intel.com>
-Cc: linux-kernel@vger.kernel.org, kai.bankett@ontika.net, mingo@redhat.com,
-       jun.nakajima@intel.com, asit.k.mallick@intel.com,
-       sunil.saxena@intel.com
-Subject: Re: [PATCH][IO_APIC] 2.5.63bk7 irq_balance improvments / bug-fixes
-Message-Id: <20030304155150.33c81675.akpm@digeo.com>
-In-Reply-To: <E88224AA79D2744187E7854CA8D9131DA8B7DE@fmsmsx407.fm.intel.com>
-References: <E88224AA79D2744187E7854CA8D9131DA8B7DE@fmsmsx407.fm.intel.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 Mar 2003 23:55:44.0962 (UTC) FILETIME=[922DCA20:01C2E2A9]
+	id <S267008AbTCDXrQ>; Tue, 4 Mar 2003 18:47:16 -0500
+Received: from ore.jhcloos.com ([64.240.156.239]:34820 "EHLO ore.jhcloos.com")
+	by vger.kernel.org with ESMTP id <S266805AbTCDXrO>;
+	Tue, 4 Mar 2003 18:47:14 -0500
+To: ext2-devel@lists.sf.net
+Cc: ext3-users@redhat.com, linux-kernel@vger.kernel.org
+Subject: ext3 htree brelse problems look to be fixed!
+From: "James H. Cloos Jr." <cloos@jhcloos.com>
+Date: 04 Mar 2003 18:57:26 -0500
+Message-ID: <m3of4q4rdl.fsf@lugabout.jhcloos.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Kamble, Nitin A" <nitin.a.kamble@intel.com> wrote:
->
-> Both the solutions will eliminate the bouncing behavior. The current 
-> implementation is based on the option 2, with the only difference of 
-> lower rate of distribution (5 sec).  The optimal option is workload 
-> dependant. With static and heavy interrupt load, the option 2 looks 
-> better, while with random interrupt load the option 1 is good enough.
+I just booted 2.5-bk current as of last night with the below patch¹
+(which was recently posted to ext3-users) that un-static-ifies a 
+struct dx_frame in namei.c.
 
-OK, thanks.
+I then did my best torture test for the brelse bug:  starting gnus
+(3600+ nnmh folders² with a total of XXX messages; it does a readdir
+on each of those folders) while doing bk consistancy checks in 2.5
+and/or 2.4 kernel trees.  All while fetchmail+procmail+spamd processes
+a stream of incoming mail.
 
-Now there has been some discssion as to whether these algorithmic decisions
-can be moved out of the kernel altogether.  And with periods of one and five
-seconds that does appear to be feasible.
+That load had never failed to generate a brelse in the syslog; each
+occurance of brelse in the syslog correlated to a short readdir.  In
+gnus the short readdir would result in temporarily missing mail; in bk
+the consistancy check would fail.  If the bk check was the result of a
+pull, a manual bk resync would be required to fix the tree.  (Or one
+could remove the RESYNC and PENDING dirs and re-pull.)
 
-I believe that you have looked at this before and encountered some problem
-with it.  Could you please describe what happened there?
+The bug did not occur during the torture test.  Even with three bk
+checks in parallel (2.5 current, 2.4 current and a clone of a clone of
+2.5 as of yesterday.)
+
+I beleive (with this patch) htree is now ready for prime time.
+
+-JimC
+
+² one message per file in seq(1) order, ala old-style usenet spools
+
+¹ the patch as posted by Andreas Dilger <adilger@clusterfs.com> is:
+
+===== namei.c 1.15 vs edited =====
+--- 1.15/fs/ext3/namei.c        Wed Oct  2 01:24:11 2002
++++ edited/namei.c      Sun Mar  2 00:05:03 2003
+@@ -530,7 +530,7 @@
+        struct dx_hash_info hinfo;
+        struct buffer_head *bh;
+        struct ext3_dir_entry_2 *de, *top;
+-       static struct dx_frame frames[2], *frame;
++       struct dx_frame frames[2], *frame;
+        struct inode *dir;
+        int block, err;
+        int count = 0;
 

@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132808AbRDOW13>; Sun, 15 Apr 2001 18:27:29 -0400
+	id <S132042AbRDOXxN>; Sun, 15 Apr 2001 19:53:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132810AbRDOW1K>; Sun, 15 Apr 2001 18:27:10 -0400
-Received: from smtp01.web.de ([194.45.170.210]:16911 "HELO smtp.web.de")
-	by vger.kernel.org with SMTP id <S132808AbRDOW1E>;
-	Sun, 15 Apr 2001 18:27:04 -0400
-Date: Mon, 16 Apr 2001 00:26:42 +0200
-From: Stefan Frank <stefrank@web.de>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 3dfx framebuffer problems with 2.4.4-pre[1-3]
-Message-ID: <20010416002642.A2631@k6>
-Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>
+	id <S132142AbRDOXxD>; Sun, 15 Apr 2001 19:53:03 -0400
+Received: from draco.cus.cam.ac.uk ([131.111.8.18]:61929 "EHLO
+	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S132042AbRDOXwv>; Sun, 15 Apr 2001 19:52:51 -0400
+Message-Id: <5.0.2.1.2.20010416004856.00a572a0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Mon, 16 Apr 2001 00:52:50 +0100
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: [PATCH] NTFS comment expanded, small fix.
+Cc: aia21@cus.cam.ac.uk, R.E.Wolff@BitWizard.nl (Rogier Wolff),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        Linus.Torvalds@Helsinki.FI (Linus Torvalds),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <E14oujm-0007TW-00@the-village.bc.nu>
+In-Reply-To: <Pine.SOL.3.96.1010415173424.19123A-100000@libra.cus.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Operating-System: Linux 2.4.3
-X-PGP: PGP-key available
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+At 23:11 15/04/2001, Alan Cox wrote:
+> > Can the numerous ntfs fixes in the -ac series be applied to the mainstream
+> > kernel instead? Thanks.
+>
+>Want me to feed them to Linus or will you do it ?
 
-I have a problem with the 3dfx framebuffer since 2.4.4-pre1.
-I have the following append line in my lilo.conf:
-append = "video=tdfx:1280x1024-8@76"
+If you have the diffs ready then it would be great if you could do that. 
+(Did the maxbytes stuff enter the mainstream kernel yet? Are you going to 
+feed them together? Or will that be dropped for now?)
 
-This setting works fine for the 2.4.[0-3] kernels.
+Cheers,
 
-When I boot the box, the little penguin on the top left side is unrecognizable.
+         Anton
 
-When I exit X, the console is just black with a blinking cursor. I can type
-commands "blind" but nothing appears on the screen. The system seems to work
-normal because the commands are executed, the only problem is that the screen
-is black.
+PS. If you are too busy let me know and I will do it as soon as I have my 
+normal net connection back...
 
-Using fbset or resetting the console doesn't help.
 
-fbtv (from the xawtv-package) works fine, also on the "black and
-blinking" console.
-
-My card is a 3dfx Voodoo3 2000 PCI (16MB).
-
-gcc        2.95.2
-make       2.79.1
-binutils   2.9.5.0.24
-util-linux 2.10q
-modutils   2.4.5
-e2fsprogs  1.19
-PPP        2.4.0
-
-Let me know, if I can provide more information.
-Perhaps I have a configuration failure?
-(I'm not a linux guru and a good programmer)
-
-Thanks a lot,
-Steff
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

@@ -1,21 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319351AbSIFT1m>; Fri, 6 Sep 2002 15:27:42 -0400
+	id <S319359AbSIFThH>; Fri, 6 Sep 2002 15:37:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319352AbSIFT1m>; Fri, 6 Sep 2002 15:27:42 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:44679 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S319351AbSIFT1l>;
-	Fri, 6 Sep 2002 15:27:41 -0400
-Date: Fri, 06 Sep 2002 12:24:05 -0700 (PDT)
-Message-Id: <20020906.122405.122283378.davem@redhat.com>
-To: ak@suse.de
-Cc: niv@us.ibm.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+	id <S319361AbSIFThH>; Fri, 6 Sep 2002 15:37:07 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:53639 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S319359AbSIFThG>;
+	Fri, 6 Sep 2002 15:37:06 -0400
+Date: Fri, 06 Sep 2002 12:34:28 -0700 (PDT)
+Message-Id: <20020906.123428.28085660.davem@redhat.com>
+To: manfred@colorfullife.com
+Cc: haveblue@us.ibm.com, hadi@cyberus.ca, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
 Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020906212619.A28172@wotan.suse.de>
-References: <20020906202646.A2185@wotan.suse.de>
-	<1031339954.3d78ffb257d22@imap.linux.ibm.com>
-	<20020906212619.A28172@wotan.suse.de>
+In-Reply-To: <3D790499.8020501@colorfullife.com>
+References: <3D78F55C.4020207@colorfullife.com>
+	<20020906.113829.65591342.davem@redhat.com>
+	<3D790499.8020501@colorfullife.com>
 X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
@@ -23,13 +24,9 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andi Kleen <ak@suse.de>
-   Date: Fri, 6 Sep 2002 21:26:19 +0200
+   From: Manfred Spraul <manfred@colorfullife.com>
+   Date: Fri, 06 Sep 2002 21:40:09 +0200
    
-   I'm not entirely sure it is worth it in this case. The locks are
-   probably the majority of the cost.
+   Dave, do you have interrupt rates from the clients with and without NAPI?
 
-You can more localize the lock accesses (since we use per-chain
-locks) by applying a cpu salt to the port numbers you allocate.
-
-See my other email.
+Robert does.

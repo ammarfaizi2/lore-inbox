@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262513AbUCLUbb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 15:31:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262509AbUCLU3x
+	id S262424AbUCLU0x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 15:26:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbUCLUX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 15:29:53 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:58382
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262513AbUCLU1A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 15:27:00 -0500
-Date: Fri, 12 Mar 2004 21:27:41 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@redhat.com>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       Linus Torvalds <torvalds@osdl.org>, Hugh Dickins <hugh@veritas.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: anon_vma RFC2
-Message-ID: <20040312202741.GG30940@dualathlon.random>
-References: <40520928.4050409@nortelnetworks.com> <Pine.LNX.4.44.0403121405170.6494-100000@chimarrao.boston.redhat.com>
+	Fri, 12 Mar 2004 15:23:29 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:13573 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262497AbUCLUTi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 15:19:38 -0500
+Date: Fri, 12 Mar 2004 20:19:33 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390 (8/10): zfcp fixes.
+Message-ID: <20040312201933.A19244@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Martin Schwidefsky <schwidefsky@de.ibm.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <20040312193816.GI2757@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0403121405170.6494-100000@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040312193816.GI2757@mschwid3.boeblingen.de.ibm.com>; from schwidefsky@de.ibm.com on Fri, Mar 12, 2004 at 08:38:16PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 12, 2004 at 02:06:17PM -0500, Rik van Riel wrote:
-> On Fri, 12 Mar 2004, Chris Friesen wrote:
-> 
-> > What happens when you have more than PAGE_SIZE processes running?
-> 
-> Forked off the same process ?
-> Without doing an exec ?
-> On a 32 bit system ?
-> 
-> You'd probably run out of space to put the VMAs,
-> mm_structs and pgds long before reaching this point ...
+On Fri, Mar 12, 2004 at 08:38:16PM +0100, Martin Schwidefsky wrote:
+>  - Replace release function for device structures by kfree. Move struct
+>    device to the start of struct zfcp_port/zfcp_unit to make it work.
 
-7.5k users are being reached in a real workload with around 2gigs mapped
-per process and with tons of vma per process. with 2.6 and faster cpus
-I hope to go even further.
+That's ugly as hell.  Actually even more ugly.  It's not that ->release
+is such a performance critical path that you absolutely need to avoid one
+level of function calls.  So please put a simple wrapper back instead of
+the horrible casts and suddenly the silly placement restrictions are gone,
+too.
+
+And *please* send any scsi driver changes to linux-scsi@vger.kernel.org.
+
+While we're at it, what's the reason zfcp isn't in drivers/scsi/?
+

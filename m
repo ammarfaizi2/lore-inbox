@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265352AbTL0KcS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 05:32:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265353AbTL0KcS
+	id S265350AbTL0K3e (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 05:29:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265351AbTL0K3e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 05:32:18 -0500
-Received: from smtp09.iddeo.es ([62.81.186.19]:1741 "EHLO smtp09.retemail.es")
-	by vger.kernel.org with ESMTP id S265352AbTL0KcQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 05:32:16 -0500
-Date: Sat, 27 Dec 2003 11:32:14 +0100
-From: Pere =?ISO-8859-15?Q?Casta=F1er?= <XaRz@menta.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Oopses on 2.6.0
-Message-Id: <20031227113214.33461323.XaRz@menta.net>
-In-Reply-To: <pan.2003.12.26.17.52.57.987898@smurf.noris.de>
-References: <20031226173134.GA14038@home.woodlands>
-	<pan.2003.12.26.17.52.57.987898@smurf.noris.de>
-Organization: Cutre InC.
-X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Sat, 27 Dec 2003 05:29:34 -0500
+Received: from gprs214-84.eurotel.cz ([160.218.214.84]:31617 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S265350AbTL0K3c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Dec 2003 05:29:32 -0500
+Date: Sat, 27 Dec 2003 11:30:30 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 kgdb without serial port
+Message-ID: <20031227103030.GG197@elf.ucw.cz>
+References: <20031215200640.GA3724@elf.ucw.cz> <20031215223438.196295a8.akpm@osdl.org> <20031226182740.GA10397@elf.ucw.cz> <20031226110851.29ce9fa5.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031226110851.29ce9fa5.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Dec 2003 18:53:00 +0100
-Matthias Urlichs <smurf@smurf.noris.de> wrote:
+Hi!
 
-> Try -mm1. I had these problems all through 2.6-test, and 2.6.0, but they
-> seem to have vanished with -mm1.
+> > > > 2.6 kgdb patches in -mm tree seem to contain kgdb-over-ethernet stuff,
+> > > > but still require me to fill in serial port interrupt/address. Is
+> > > > there easy way to make it work without serial port? [This notebook has
+> > > > none :-(].
+> > > 
+> > > That's a bit ugly, but things should still work OK?  Give it some random
+> > > UART address but specify an ethernet connection at boot time - the kgdb
+> > > stub should never touch the UART.
+> > 
+> > I found out what was biting me: using 2.95 with kgdb is bad idea. 2.95
+> > with kgdb means reboot just after uncompressing kernel -- pretty nasty
+> > to debug. Please apply,
 > 
+> I've been using 2.95.3 on and off for ages, no problems?
 
-Same here.  I have had this problems in a VIA KT400 mainboard's chipset with kernel 2.6.0 and mm1 solved this issues pretty well.
+Strange... Okay, some details. If I use gcc-2.95.4 (from debian) by
+setting GCC = gcc-2.95, it crashes very early during boot. So perhaps
+it dislikes "crosscompiling" instead of specific gcc version? [I was
+doing that to speed compiles up].
+								Pavel		
 
-Tell me if someone needs more info about this.
+> Spose so.  The kgdb stub really needs a serious reorganisation so that
+> non-ia32 architectures can share generic things.  And general reduction of
+> the patch footprint, maybe some feature removal too.   A fairly large job.
 
-Regards,
---
-Pere Castañer Sardà  - http://xarz.no-ip.org
-GnuPG Public key available - http://xarz.no-ip.org/keys.html
-Computer Science Student on UOC - http://www.uoc.edu
-Linux Registered User #232073 
-Debian/GNU User - http://www.debian.org
----------------------
+Yes, and as I need kgdb on x86-64...
+
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,81 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262556AbTI1NJd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 09:09:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262557AbTI1NIX
+	id S262592AbTI1NMW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 09:12:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262555AbTI1NKd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 09:08:23 -0400
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:13471 "EHLO
-	natsmtp01.webmailer.de") by vger.kernel.org with ESMTP
-	id S262556AbTI1NFZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 09:05:25 -0400
-Message-ID: <3F76DCEC.60508@softhome.net>
-Date: Sun, 28 Sep 2003 15:06:52 +0200
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030831
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Roger Luethi <rl@hellgate.ch>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] No Swap. Re: [BUG 2.6.90-test5] kernel shits itself with
- 48mb ram under moderate load
-References: <ArQ0.821.23@gated-at.bofh.it> <ArQ0.821.25@gated-at.bofh.it> <ArQ0.821.21@gated-at.bofh.it> <ArZC.8f1.9@gated-at.bofh.it> <3F75EC3B.4030305@softhome.net> <20030927202148.GA31080@k3.hellgate.ch>
-In-Reply-To: <20030927202148.GA31080@k3.hellgate.ch>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 28 Sep 2003 09:10:33 -0400
+Received: from amsfep16-int.chello.nl ([213.46.243.26]:5215 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262540AbTI1NIp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 09:08:45 -0400
+Date: Sun, 28 Sep 2003 14:55:18 +0200
+Message-Id: <200309281255.h8SCtIX6005474@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 299] Q40/Q60 interrupts
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roger Luethi wrote:
-> On Sat, 27 Sep 2003 21:59:55 +0200, Ihar 'Philips' Filipau wrote:
-> 
->>  Better than with swap. This is production workstation - I cannot test 
->>something on it :-(
-> 
-> 
-> I don't think there's much risk involved in running 2.[56]. If it doesn't
-> boot, you can go back to 2.4. If it does boot, it won't eat your data.
-> YMMV, of course.
-> 
+Q40/Q60: Must handle keyboard interrupts even before they are registered (from
+Richard Zidlicky)
 
-   Data corruption? My back-up of work?
-   I cannot back-up my data since my comp by itself is backup :-)
+--- linux-2.6.0-test6/arch/m68k/q40/q40ints.c	Tue Jul 29 18:18:35 2003
++++ linux-m68k-2.6.0-test6/arch/m68k/q40/q40ints.c	Mon Sep  1 13:50:04 2003
+@@ -378,7 +378,7 @@
+ 				  /*printk("reenabling irq %d\n",irq); */
+ #endif
+ 			  }
+-// used to do 'goto repeat;' her, this delayed bh processing too long
++// used to do 'goto repeat;' here, this delayed bh processing too long
+ 			  return IRQ_HANDLED;
+ 		  }
+ 	  }
+@@ -387,6 +387,7 @@
+   } 
+  iirq:
+   mir=master_inb(IIRQ_REG);
++  /* should test whether keyboard irq is really enabled, doing it in defhand */
+   if (mir&Q40_IRQ_KEYB_MASK) {
+ 	  irq_tab[Q40_IRQ_KEYBOARD].count++;
+ 	  irq_tab[Q40_IRQ_KEYBOARD].handler(Q40_IRQ_KEYBOARD,irq_tab[Q40_IRQ_KEYBOARD].dev_id,fp);
+@@ -413,7 +414,9 @@
+ 
+ static irqreturn_t q40_defhand (int irq, void *dev_id, struct pt_regs *fp)
+ {
+-	printk ("Unknown q40 interrupt 0x%02x\n", irq);
++        if (irq!=Q40_IRQ_KEYBOARD)
++	     printk ("Unknown q40 interrupt %d\n", irq);
++	else master_outb(-1,KEYBOARD_UNLOCK_REG);
+ 	return IRQ_NONE;
+ }
+ static irqreturn_t sys_default_handler(int lev, void *dev_id, struct pt_regs *regs)
 
-> 
->>   <rant>'Paging like crazy' became for me a synonym of Linux. It 
->>doesn't matter how much memory you have. Less == worse. Developers 
-> 
-> 
-> Oh, it does matter. My workstation has 1 GB RAM and 2 GB swap and I hardly
-> see any problems with paging <g>.
-> 
+Gr{oetje,eeting}s,
 
-   Because your workload doesn't hit the 1GB limit.
-   Actually we just do not have fast enough I/O + CPU to utilize 1GB of 
-RAM efficiently.
+						Geert
 
-   But if you will go into 128MB of RAM - you will see difference, where 
-should be no difference.
-
-   Let's say (my personal exp.) cp'ing of kernel source with 0.5/0.25 GB 
-RAM dosn't differ. Aproximately the same time. 0.25GB little bit faster 
-- but it can be written off to noise. But try to do the same cp with 
-0.125GB - this cp (as of RH 2.4.20-20.9 +ext3 -swap) takes _*two*_ times 
-longer. Should it be?
-
-> 
->>stopped testing VMM regression on low-memory computers long time ago. 
-> 
-> Many of the best Linux devs these days work for companies and organizations
-> that are in the business of selling or using big iron. They have people on
-
-   Indeed.
-
--- 
-Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
 --
-   "... and for $64000 question, could you get yourself vaguely
-      familiar with the notion of on-topic posting?"
-				-- Al Viro @ LKML
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

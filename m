@@ -1,91 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbVBOQsq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261785AbVBOQuy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261783AbVBOQsq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 11:48:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbVBOQsq
+	id S261785AbVBOQuy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 11:50:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261794AbVBOQux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 11:48:46 -0500
-Received: from fire.osdl.org ([65.172.181.4]:7078 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261783AbVBOQsm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 11:48:42 -0500
-Message-ID: <421227DF.8060209@osdl.org>
-Date: Tue, 15 Feb 2005 08:48:31 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Aur=E9lien_G=C9R=D4ME?= <ag@roxor.cx>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: RTC Inappropriate ioctl for device
-References: <20050213214145.GN12421@roxor.cx> <42117047.6020209@osdl.org> <20050215111636.GO12421@roxor.cx>
-In-Reply-To: <20050215111636.GO12421@roxor.cx>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 15 Feb 2005 11:50:53 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:44745 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261785AbVBOQuP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 11:50:15 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Tue, 15 Feb 2005 17:43:09 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [patch] minor bttv driver update
+Message-ID: <20050215164309.GA13440@bytesex>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aurélien GÉRÔME wrote:
-> On Mon, Feb 14, 2005 at 07:45:11PM -0800, Randy.Dunlap wrote:
-> 
->>Aurélien GÉRÔME wrote:
->>
->>>Hi,
->>>
->>>Having CONFIG_RTC=y, I tried on x86 the rtctest program found in
->>>linux-2.6.10/Documentation/rtc.txt. However, it failed at:
->>>
->>>ioctl(fd, RTC_UIE_ON, 0);
->>>
->>>with:
->>>
->>>ioctl: Inappropriate ioctl for device
->>>
->>>Did I miss something? Maybe something else conflicts with CONFIG_RTC?
->>>
->>>Cheers.
->>
->>Do you have an HPET timer enabled?  That could cause a conflict.
-> 
-> 
-> I have HPET timer enabled.
+Just a new PCI Subsystem ID and a PM fix from Pavel.
 
-Please add/enable the second line here:
-CONFIG_HPET_TIMER=y
-# CONFIG_HPET_EMULATE_RTC is not set
+Signed-off-by: Gerd Knorr <kraxel@bytesex.org>
+---
+ drivers/media/video/bttv-cards.c  |    4 +++-
+ drivers/media/video/bttv-driver.c |    4 ++--
+ drivers/media/video/bttv.h        |    2 +-
+ drivers/media/video/bttvp.h       |    2 +-
+ 4 files changed, 7 insertions(+), 5 deletions(-)
 
-and try it again.
-
-
->>Does /proc/interrupts report rtc interrupts increasing when you
->>run rtctest?
->>I.e., does the number of this line increase like this?
->>
->>  8:        131    IO-APIC-edge  rtc
-> 
-> 
-> I have no lines with rtc at the end, maybe due to HPET.
-> 
-> Is it a known behaviour of RTC with HPET?
-
-Apparently that's why a config option was added for it.
-
->>rtctest works for me (2.6.11-rc4).  Maybe send me the strace
->>output when you run rtctest and your .config file.
-> 
-> 
-> See attachment for strace and .config.
-> 
-> 
->>Oh, and your kernel boot log, maybe there are some rtc driver
->>messages in it.
-> 
-> 
-> See attachment for kern.log.
-> 
-> I have bzip2'ed kern.log and .config, since they were rather large.
-
+Index: linux-2.6.11-rc4/drivers/media/video/bttv.h
+===================================================================
+--- linux-2.6.11-rc4.orig/drivers/media/video/bttv.h	2005-02-14 15:22:19.000000000 +0100
++++ linux-2.6.11-rc4/drivers/media/video/bttv.h	2005-02-15 12:29:56.000000000 +0100
+@@ -1,5 +1,5 @@
+ /*
+- * $Id: bttv.h,v 1.14 2005/01/07 13:11:19 kraxel Exp $
++ * $Id: bttv.h,v 1.15 2005/01/24 17:37:23 kraxel Exp $
+  *
+  *  bttv - Bt848 frame grabber driver
+  *
+Index: linux-2.6.11-rc4/drivers/media/video/bttvp.h
+===================================================================
+--- linux-2.6.11-rc4.orig/drivers/media/video/bttvp.h	2005-02-14 15:25:54.000000000 +0100
++++ linux-2.6.11-rc4/drivers/media/video/bttvp.h	2005-02-15 12:29:56.000000000 +0100
+@@ -1,5 +1,5 @@
+ /*
+-    $Id: bttvp.h,v 1.15 2004/12/14 15:33:30 kraxel Exp $
++    $Id: bttvp.h,v 1.16 2005/01/24 17:37:23 kraxel Exp $
+ 
+     bttv - Bt848 frame grabber driver
+ 
+Index: linux-2.6.11-rc4/drivers/media/video/bttv-driver.c
+===================================================================
+--- linux-2.6.11-rc4.orig/drivers/media/video/bttv-driver.c	2005-02-14 15:24:27.000000000 +0100
++++ linux-2.6.11-rc4/drivers/media/video/bttv-driver.c	2005-02-15 12:30:02.000000000 +0100
+@@ -1,5 +1,5 @@
+ /*
+-    $Id: bttv-driver.c,v 1.34 2005/01/07 13:11:19 kraxel Exp $
++    $Id: bttv-driver.c,v 1.36 2005/02/15 10:51:53 kraxel Exp $
+ 
+     bttv - Bt848 frame grabber driver
+ 
+@@ -3921,7 +3921,7 @@ static void __devexit bttv_remove(struct
+         return;
+ }
+ 
+-static int bttv_suspend(struct pci_dev *pci_dev, u32 state)
++static int bttv_suspend(struct pci_dev *pci_dev, pm_message_t state)
+ {
+         struct bttv *btv = pci_get_drvdata(pci_dev);
+ 	struct bttv_buffer_set idle;
+Index: linux-2.6.11-rc4/drivers/media/video/bttv-cards.c
+===================================================================
+--- linux-2.6.11-rc4.orig/drivers/media/video/bttv-cards.c	2005-02-14 15:23:26.000000000 +0100
++++ linux-2.6.11-rc4/drivers/media/video/bttv-cards.c	2005-02-15 12:29:56.000000000 +0100
+@@ -1,5 +1,5 @@
+ /*
+-    $Id: bttv-cards.c,v 1.42 2005/01/13 17:22:33 kraxel Exp $
++    $Id: bttv-cards.c,v 1.44 2005/01/31 11:35:05 kraxel Exp $
+ 
+     bttv-cards.c
+ 
+@@ -170,6 +170,8 @@ static struct CARD {
+ 	// some cards ship with byteswapped IDs ...
+ 	{ 0x1200bd11, BTTV_PINNACLE,      "Pinnacle PCTV [bswap]" },
+ 	{ 0xff00bd11, BTTV_PINNACLE,      "Pinnacle PCTV [bswap]" },
++	// this seems to happen as well ...
++	{ 0xff1211bd, BTTV_PINNACLE,      "Pinnacle PCTV" },
+ 
+ 	{ 0x3000121a, BTTV_VOODOOTV_FM,   "3Dfx VoodooTV FM/ VoodooTV 200" },
+ 	{ 0x263710b4, BTTV_VOODOOTV_FM,   "3Dfx VoodooTV FM/ VoodooTV 200" },
 
 -- 
-~Randy
+#define printk(args...) fprintf(stderr, ## args)

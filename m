@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262239AbRE3VC2>; Wed, 30 May 2001 17:02:28 -0400
+	id <S262215AbRE3VCI>; Wed, 30 May 2001 17:02:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262265AbRE3VCT>; Wed, 30 May 2001 17:02:19 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:5128 "HELO
+	id <S262239AbRE3VB6>; Wed, 30 May 2001 17:01:58 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:55303 "HELO
 	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S262239AbRE3VCN>; Wed, 30 May 2001 17:02:13 -0400
-Date: Wed, 30 May 2001 17:53:59 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: "Dunlap, Randy" <randy.dunlap@intel.com>
-Cc: "'Sasi Peter'" <sape@iq.rulez.org>, linux-kernel@vger.kernel.org,
-        "'jgarzik@mandrakesoft.com'" <jgarzik@mandrakesoft.com>
-Subject: Re: Kernel 2.4.x TODO
-Message-ID: <20010530175358.C1119@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	"Dunlap, Randy" <randy.dunlap@intel.com>,
-	"'Sasi Peter'" <sape@iq.rulez.org>, linux-kernel@vger.kernel.org,
-	"'jgarzik@mandrakesoft.com'" <jgarzik@mandrakesoft.com>
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE2EB@orsmsx31.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE2EB@orsmsx31.jf.intel.com>; from randy.dunlap@intel.com on Wed, May 30, 2001 at 01:46:50PM -0700
-X-Url: http://advogato.org/person/acme
+	id <S262215AbRE3VBv>; Wed, 30 May 2001 17:01:51 -0400
+Date: Wed, 30 May 2001 16:25:31 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Jonathan Morton <chromi@cyberspace.org>,
+        Craig Kulesa <ckulesa@as.arizona.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Plain 2.4.5 VM
+In-Reply-To: <Pine.LNX.4.33.0105302225010.418-100000@mikeg.weiden.de>
+Message-ID: <Pine.LNX.4.21.0105301612570.5231-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Wed, May 30, 2001 at 01:46:50PM -0700, Dunlap, Randy escreveu:
-> > From: Sasi Peter [mailto:sape@iq.rulez.org]
-> > 
-> > > Check out the kernel janitor project at
-> > > http://bazar.conectiva.com.br/~acme/TODO (original)
-> > 
-> > Is this information up2date? If it is, sad to see we have 
-> > this many bugs... 
+
+
+On Wed, 30 May 2001, Mike Galbraith wrote:
+
+> On Wed, 30 May 2001, Rik van Riel wrote:
 > 
-> "Last updated in: Mon Feb 26 21:19:49 EST 2001"
+> > On Wed, 30 May 2001, Marcelo Tosatti wrote:
+> >
+> > > The problem is that we allow _every_ task to age pages on the system
+> > > at the same time --- this is one of the things which is fucking up.
+> >
+> > This should not have any effect on the ratio of cache
+> > reclaiming vs. swapout use, though...
 > 
-> The other link that I sent (the kernel janitor project) replaced this list
-> and should be more up-to-date...although I can't really find a TODO list
-> there:
-> http://sourceforge.net/projects/kernel-janitor
-> 
-> Jeff?
+> It shouldn't.. but when many tasks are aging, it does. 
 
-its in CVS, you can see it here:
+What Rik means is that they are independant problems.
 
-http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/kernel-janitor/kernel-janitor/TODO
+> Excluding these guys certainly seems to make a difference.  
 
-Being in CVS I, Dave Jones and Jeff Garzik can go on updating it more
-easily, but for now Dave is the only one doing commits, thanks Dave!
+Sure, those guys are going to "help" kswapd to unmap pte's and allocate
+swap space.
 
-And if somebody volunteers to make a nice web page for the project... 8)
+Now even if only kswapd does this job (meaning a sane amount of cache
+reclaims/swapouts), you still have to deal with the reclaim/swapout
+tradeoff.
 
-Ah, I'm updating the TODO in http://bazar.conectiva.com.br/~acme/TODO,
-including a pointer to the above URL.
+See? 
 
-- Arnaldo

@@ -1,58 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268169AbUJQSnq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268223AbUJQSxw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268169AbUJQSnq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 14:43:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268223AbUJQSnq
+	id S268223AbUJQSxw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 14:53:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268253AbUJQSxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 14:43:46 -0400
-Received: from relay.pair.com ([209.68.1.20]:28179 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S268169AbUJQSno (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 14:43:44 -0400
-X-pair-Authenticated: 24.126.73.164
-Message-ID: <4172B01B.5080404@kegel.com>
-Date: Sun, 17 Oct 2004 10:47:07 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en, de-de
+	Sun, 17 Oct 2004 14:53:52 -0400
+Received: from mail1.webmaster.com ([216.152.64.168]:45842 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S268223AbUJQSxt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 14:53:49 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: <martijn@entmoot.nl>,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: UDP recvmsg blocks after select(), 2.6 bug?
+Date: Sun, 17 Oct 2004 11:53:36 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKMEBNPBAA.davids@webmaster.com>
 MIME-Version: 1.0
-To: Herbert Poetzl <herbert@13thfloor.at>
-CC: Sam Ravnborg <sam@ravnborg.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Martin Schaffner <schaffner@gmx.li>, Kevin Hilman <kjh@hilman.org>,
-       bertrand marquis <bertrand.marquis@sysgo.com>
-Subject: Re: Building on case-insensitive systems and systems where -shared
- doesn't work well
-References: <414FC41B.7080102@kegel.com> <58517.194.237.142.24.1095763849.squirrel@194.237.142.24> <4164DAC9.8080701@kegel.com> <20041016210024.GB8306@mars.ravnborg.org> <20041016200627.A20488@flint.arm.linux.org.uk> <20041016212440.GA8765@mars.ravnborg.org> <20041016204001.B20488@flint.arm.linux.org.uk> <20041016220427.GE8765@mars.ravnborg.org> <20041017165718.GB23525@mail.13thfloor.at> <4172A0ED.9040906@kegel.com> <20041017182929.GA27637@mail.13thfloor.at>
-In-Reply-To: <20041017182929.GA27637@mail.13thfloor.at>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <000801c4b46f$b62034b0$161b14ac@boromir>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Sun, 17 Oct 2004 11:30:18 -0700
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Sun, 17 Oct 2004 11:30:23 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Poetzl wrote:
->>The only .s/.S ambiguities that need resolving are intermediate files,
->>so fixing them should only require changing a few Makefile rules.
->>Let's wait and see what the patch looks like before we
->>argue about it; maybe it will be simple to make everybody
->>happy here (well, except those who hate the idea of
->>letting anyone compile Linux kernels on Cgywin or MacOSX).
-> 
-> 
-> fair enough, but Mac OS X doesn't require this (UFS
-> is case sensititve, and probably no linux guy/gal uses 
-> HFS+), so IMHO it's 'just' Cygwin* folks here ...
 
-MacOSX uses HFS+ by default.  As a result, 99% of
-people using MacOSX are going to use HFS+.  I'm
-a serious Linux developer, but if I owned a Mac,
-I'd probably leave it set to HFS+, since I like
-to keep my systems vanilla (it makes it easier to
-pick up my stuff and use it on someone else's machine).
+> It is perfectly possible to not have a million things happen between
+> select() and recvmsg() and POSIX defines what can happen and what
+> can't; it states that a process calling select() on a socket will
+> not block
+> on a subsequent recvmsg() on that socket.
 
-Thus it's not just Cygwin that's affected; this is
-a real issue for MacOSX as commonly configured.
-- Dan
+	I'm sorry, that's an absolutely preposterous view. For one thing, Linux
+violates this by allowing processes and threads to share file descriptors
+(since another process can steal the data before the call to 'recvmsg'). Oh
+well, I guess we'll have to take that out if we want to comply with POSIX on
+'select' semantics.
 
--- 
-Trying to get a job as a c++ developer?  See http://kegel.com/academy/getting-hired.html
+> The way select() is defined in POSIX effectively means that once an
+> application has done a select() on a socket, the data that caused
+> select() to return is committed, i.e. it can no longer be dropped and
+> should be considered received by the application; this has nothing
+> to do with UDP being unreliable and being unreliable for the sake
+> of it is not what UDP was meant for.
+
+	Again, I think this is an absurd reading of the standard. No other status
+function provides a future guarantee. And it's semantically ugly to have
+'select' change the status of network data when it's purely intended to be a
+'get status' function.
+
+> Whether you think an application that is written to use select() as
+> defined in POSIX is broken is not really important. The fact remains
+> that Linux currently implements a select() that is _not_ POSIX
+> compliant and is so solely for performance reasons. I personally think
+> correct behaviour is much more important.
+
+	This is only because you interpret the standard as providing a future
+guarantee that it is literally impossible for any modern operating system to
+provide. I certainly don't interpret the standard that way. Look up the word
+'would' in the dictionary.
+
+	Linux does in fact make the decision to discard the data *after* the call
+to 'select'. This is not in any way different from another process that
+shared the file descriptor consuming the data after the call to 'select'.
+
+	DS
+
+

@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277689AbRJLNdz>; Fri, 12 Oct 2001 09:33:55 -0400
+	id <S277695AbRJLNkf>; Fri, 12 Oct 2001 09:40:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277686AbRJLNdf>; Fri, 12 Oct 2001 09:33:35 -0400
-Received: from adsl-212-59-30-243.takas.lt ([212.59.30.243]:41722 "EHLO
-	gintaras.vetrunge.lt.eu.org") by vger.kernel.org with ESMTP
-	id <S277684AbRJLNd1>; Fri, 12 Oct 2001 09:33:27 -0400
-Date: Fri, 12 Oct 2001 15:33:22 +0200
-From: Marius Gedminas <mgedmin@centras.lt>
-To: linux-kernel@vger.kernel.org
-Subject: Re: keyboard + PS/2 mouse locks after opening psaux
-Message-ID: <20011012153322.A662@gintaras>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200110112004.f9BK47b0070854@smtpzilla2.xs4all.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200110112004.f9BK47b0070854@smtpzilla2.xs4all.nl>
-User-Agent: Mutt/1.3.22i
-X-URL: http://ice.dammit.lt/~mgedmin/
+	id <S277692AbRJLNk0>; Fri, 12 Oct 2001 09:40:26 -0400
+Received: from age.cs.columbia.edu ([128.59.22.100]:36612 "EHLO
+	age.cs.columbia.edu") by vger.kernel.org with ESMTP
+	id <S277686AbRJLNkO>; Fri, 12 Oct 2001 09:40:14 -0400
+Date: Fri, 12 Oct 2001 09:40:40 -0400 (EDT)
+From: Ion Badulescu <ion@cs.columbia.edu>
+X-X-Sender: <ion@guppy.limebrokerage.com>
+To: Robbert Kouprie <robbert@radium.jvb.tudelft.nl>
+cc: <poptix@techmonkeys.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: eepro100.c bug on 10Mbit half duplex (kernels 2.4.5 / 2.4.10 /
+ 2.4.11pre6 / 2.4.11 / 2.4.10ac11)
+In-Reply-To: <Pine.LNX.4.21.0110121025001.26282-100000@radium.jvb.tudelft.nl>
+Message-ID: <Pine.LNX.4.33.0110120923010.7250-100000@guppy.limebrokerage.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 11, 2001 at 10:04:06PM +0200, Koos Vriezen wrote:
-> I had the same symptoms, console input froze for several minutes. I tried 
-> several things and after disabling CONFIG_X86_UP_APIC in the kernel, it 
-> didn't occur anymore (but I'm not sure it's the cause).
+On Fri, 12 Oct 2001, Robbert Kouprie wrote:
 
-CONFIG_X86_UP_APIC is disabled on my system.
+> Mine says rev 9 :)
+> 
+> radium:/# lspci -v -d 8086:1229
+> 00:0d.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100]
+> (rev 09)
+>         Subsystem: Intel Corporation: Unknown device 0011
+>         Flags: bus master, medium devsel, latency 32, IRQ 17
+>         Memory at da020000 (32-bit, non-prefetchable) [size=4K]
+>         I/O ports at c800 [size=64]
+>         Memory at da000000 (32-bit, non-prefetchable) [size=128K]
+>         Expansion ROM at <unassigned> [disabled] [size=1M]
+>         Capabilities: [dc] Power Management version 2
 
-Today I tried some experimenting: after repeatedly switching between vt1
-and vt7 for some time I got the lockup.  Syslog didn't contain any
-interesting messages.  The counters for keyboard and PS/2 mouse in
-/proc/interrupts became stuck.  One interesting thing I noticed is that
-PS/2 mouse line disappeared for a short time during console switch.
-While gpm was running, fuser and lsof indicate that it didn't have
-/dev/mouse open -- only XFree86 did.
+That's an 82559ER step A.
 
-I've waited for about 30 minutes for any keyboard timeouts to appear,
-but didn't see any.  Then I tried chvt 7 with no effect (vt7 was already
-the active console).  Then chvt 1 fixed the lockup.  Interrupt counters
-went alive again.  This time fuser and lsof showed that /dev/mouse is
-opened by gpm only.  It looks like both XFree and gpm close /dev/mouse
-when they're not active, and reopen it then they become active.
+> > eth0: OEM i82557/i82558 10/100 Ethernet, DE:AD:BA:BE:CA:FE, IRQ 10.
+> >  Receiver lock-up bug exists -- enabling work-around.
+> >  ^^^^^^^^^^^^^^^^^^^^
+>
+> My card DOES NOT have the receiver lock-up bug 
 
-I'm now compiling 2.4.9 with some printk()s added in open_aux and
-release_aux.  If I get any interesting results, I'll post them here.
+Your card's eeprom claims otherwise. The eeprom is most likely wrong, but 
+again, the workaround for *this* bug is pretty harmless, whether the bug 
+exists or not.
 
-Marius Gedminas
+Ion
+
 -- 
-When all else fails, read the instructions.
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
+
+
+
+

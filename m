@@ -1,41 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285022AbRLZXCZ>; Wed, 26 Dec 2001 18:02:25 -0500
+	id <S285020AbRLZXBz>; Wed, 26 Dec 2001 18:01:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285025AbRLZXCQ>; Wed, 26 Dec 2001 18:02:16 -0500
-Received: from cx662584-g.okcnc1.ok.home.com ([24.254.203.6]:35479 "HELO
-	cx662584-g.oknc1.ok.home.com") by vger.kernel.org with SMTP
-	id <S285022AbRLZXCG>; Wed, 26 Dec 2001 18:02:06 -0500
-Subject: Re: Vacation
-From: Steve Bergman <steve@rueb.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0112261917480.9973-100000@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.21.0112261917480.9973-100000@freak.distro.conectiva>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.13 (Preview Release)
-Date: 26 Dec 2001 17:02:05 -0600
-Message-Id: <1009407725.1682.20.camel@voyager.rueb.com>
-Mime-Version: 1.0
+	id <S285022AbRLZXBq>; Wed, 26 Dec 2001 18:01:46 -0500
+Received: from odin.allegientsystems.com ([208.251.178.227]:14208 "EHLO
+	lasn-001.allegientsystems.com") by vger.kernel.org with ESMTP
+	id <S285020AbRLZXBg>; Wed, 26 Dec 2001 18:01:36 -0500
+Message-ID: <3C2A56C7.5050801@allegientsystems.com>
+Date: Wed, 26 Dec 2001 18:01:27 -0500
+From: Nathan Bryant <nbryant@allegientsystems.com>
+Organization: Allegient Systems
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: saidani@info.unicaen.fr, dledford@redhat.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] TEST of patch proposed for i810 audio
+Content-Type: multipart/mixed;
+ boundary="------------060104030408050109060208"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2001-12-26 at 15:20, Marcelo Tosatti wrote:
+This is a multi-part message in MIME format.
+--------------060104030408050109060208
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> I'm going out on vacation (beach, weee) tomorrow (Thursday), and I'll
-> return around Jan 4.
-> 
-> Unfortunately there will be no Internet connection at the place I'll stay, sorry.
-> 
 
-Hmmm.  I guess someone should email MS informing them that the stable
-Linux kernel is currently unmaintained.  That way they can add it to
-their "Dispelling the Linux Hype" web page.
+maybe this patch will solve your problem, samir, maybe it won't; 
+regardless, it should fix at least one corner case and is either 
+obviously correct or start_*c is not ;-)
 
-Just kidding, of course... ;-)
+patch is against doug's 0.12.
 
-Enjoy your vacation, Marcelo! :-)
+--------------060104030408050109060208
+Content-Type: text/plain;
+ name="new.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="new.diff"
 
--Steve Bergman 
+--- i810_audio.c.12	Wed Dec 19 02:04:06 2001
++++ linux/drivers/sound/i810_audio.c	Wed Dec 26 17:31:22 2001
+@@ -952,12 +952,12 @@
+ 	 * the CIV value to the next sg segment to be played so that when
+ 	 * we call start_{dac,adc}, things will operate properly
+ 	 */
+-	if (!dmabuf->enable && dmabuf->trigger) {
+-		if(rec && dmabuf->count != dmabuf->dmasize) {
++	if (!dmabuf->enable && dmabuf->trigger && dmabuf->ready) {
++		if(rec && dmabuf->count < dmabuf->dmasize) {
+ 			outb((inb(port+OFF_CIV)+1)&31, port+OFF_LVI);
+ 			__start_adc(state);
+ 			while( !(inb(port + OFF_CR) & ((1<<4) | (1<<2))) ) ;
+-		} else if(dmabuf->count) {
++		} else if(!rec && dmabuf->count) {
+ 			outb((inb(port+OFF_CIV)+1)&31, port+OFF_LVI);
+ 			__start_dac(state);
+ 			while( !(inb(port + OFF_CR) & ((1<<4) | (1<<2))) ) ;
+
+--------------060104030408050109060208--
 

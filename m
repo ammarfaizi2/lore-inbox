@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265863AbTAXXtp>; Fri, 24 Jan 2003 18:49:45 -0500
+	id <S265872AbTAXXwS>; Fri, 24 Jan 2003 18:52:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265872AbTAXXtp>; Fri, 24 Jan 2003 18:49:45 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:8186 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S265863AbTAXXto> convert rfc822-to-8bit;
-	Fri, 24 Jan 2003 18:49:44 -0500
-content-class: urn:content-classes:message
-Subject: RE: 2.5.59-mm5: cpu1 not working
-Date: Fri, 24 Jan 2003 15:58:53 -0800
-Message-ID: <E88224AA79D2744187E7854CA8D9131DFEE8E7@fmsmsx407.fm.intel.com>
+	id <S265880AbTAXXwS>; Fri, 24 Jan 2003 18:52:18 -0500
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:19196 "EHLO
+	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
+	id <S265872AbTAXXwQ>; Fri, 24 Jan 2003 18:52:16 -0500
+Message-ID: <3E31D94E.8090302@kegel.com>
+Date: Fri, 24 Jan 2003 16:24:46 -0800
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)
+X-Accept-Language: de-de, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.5.59-mm5: cpu1 not working
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6334.0
-Thread-Index: AcLEAggM91UFKC/0EdeNCQBQi+Bs2AAAhYsQ
-From: "Kamble, Nitin A" <nitin.a.kamble@intel.com>
-To: "Arador" <diegocg@teleline.es>
-Cc: <akpm@digeo.com>, <linux-kernel@vger.kernel.org>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Saxena, Sunil" <sunil.saxena@intel.com>
-X-OriginalArrivalTime: 24 Jan 2003 23:58:53.0957 (UTC) FILETIME=[8CB7E350:01C2C404]
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: debate on 700 threads vs asynchronous code
+References: <Pine.LNX.4.44.0301241840450.11758-100000@coffee.psychology.mcmaster.ca>
+In-Reply-To: <Pine.LNX.4.44.0301241840450.11758-100000@coffee.psychology.mcmaster.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diego,
-  It also depends on the work load on cpus.
-Regards,
-Nitin
+Mark Hahn wrote:
+>>>>>does epoll provide a thunk (callback and state variable) as well as the 
+>>>>>IO completion status?
+>>>>
+>>>>No.  It provides an event record containing a user-defined state pointer
+>>>>plus the IO readiness status change (different from IO completion status).
+>>>>But that's what you need; you can do the call yourself.
+>>>
+>>>well, that means another syscall, which makes a footprint claim kind of moot,
+>>>no?
+>>
+>>What syscall?  You call sys_epoll once for every thousand events or so,
+>>then you call your handler, which does a write or whatever.  No
+>>extra syscall.
+> 
+> before a client can be sent the next chunk, the IO status of the last 
+> chunk must be tested.  with the simple blocking, thread-per-client approach,
+> this happens automaticaly (write returns the number of bytes written).
+> 
+> with epoll, don't you have to do a syscall to query the status of 
+> the just-completed IO?
 
-> btw, ping -f hits 24000-29000 int. per second; adding
-> a cat /dev/hda slows it down to 20, 22000. Shouldn't
-> it redistribute the interrupts in a way you get > 29000?
-> (note that i've not idea of this thing)
-> 
-> 
-> Diego Calleja
+Nope.  Just go ahead and write.  (Same as with poll(), except that
+with epoll, you only get notified once.)  Any errors are reported
+immediately by write(), so there's no more status to get.
+- Dan
+
+
+-- 
+Dan Kegel
+http://www.kegel.com
+http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
+

@@ -1,141 +1,224 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261577AbVA2WUb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261574AbVA2WTf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261577AbVA2WUb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 17:20:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVA2WUa
+	id S261574AbVA2WTf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 17:19:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVA2WT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 17:20:30 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:25263 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261577AbVA2WTM (ORCPT
+	Sat, 29 Jan 2005 17:19:27 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:24495 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261574AbVA2WS5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 17:19:12 -0500
-Date: Sat, 29 Jan 2005 23:19:09 +0100 (CET)
+	Sat, 29 Jan 2005 17:18:57 -0500
+Date: Sat, 29 Jan 2005 23:18:54 +0100 (CET)
 From: Roman Zippel <zippel@linux-m68k.org>
 X-X-Sender: roman@scrub.home
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/8] Kconfig: cleanup bus options menu
-Message-ID: <Pine.LNX.4.61.0501292318580.7637@scrub.home>
+cc: acpi-devel@lists.sourceforge.net
+Subject: [PATCH 1/8] Kconfig: cleanup ACPI menu
+Message-ID: <Pine.LNX.4.61.0501292318310.7614@scrub.home>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This properly indents the bus options menu.
-Merge the two MCA menu entries.
-Remove unnecessary "default n" options.
+This properly indents the ACPI menu.
+Hide ACPI_BLACKLIST_YEAR when not needed.
 
 Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
 ---
 
- arch/i386/Kconfig        |    8 ++------
- drivers/pci/Kconfig      |    2 +-
- drivers/pci/pcie/Kconfig |    2 +-
- drivers/pcmcia/Kconfig   |   11 ++++++-----
- 4 files changed, 10 insertions(+), 13 deletions(-)
+ Kconfig |   36 +++++++++++++-----------------------
+ 1 files changed, 13 insertions(+), 23 deletions(-)
 
-Index: linux-2.6.11/drivers/pcmcia/Kconfig
+Index: linux-2.6.11/drivers/acpi/Kconfig
 ===================================================================
---- linux-2.6.11.orig/drivers/pcmcia/Kconfig	2005-01-29 22:50:43.566918306 +0100
-+++ linux-2.6.11/drivers/pcmcia/Kconfig	2005-01-29 22:55:48.773348778 +0100
-@@ -20,9 +20,10 @@ config PCCARD
- 	  To compile this driver as modules, choose M here: the
- 	  module will be called pcmcia_core.
+--- linux-2.6.11.orig/drivers/acpi/Kconfig	2005-01-29 22:50:43.609910902 +0100
++++ linux-2.6.11/drivers/acpi/Kconfig	2005-01-29 22:55:05.068877064 +0100
+@@ -40,21 +40,23 @@ config ACPI
+ 	  available at:
+ 	  <http://www.acpi.info>
  
-+if PCCARD
++if ACPI
 +
- config PCMCIA_DEBUG
- 	bool "Enable PCCARD debugging"
--	depends on PCCARD != n
+ config ACPI_BOOT
+ 	bool
+-	depends on ACPI || X86_HT
++	depends on X86_HT
+ 	default y
+ 
+ config ACPI_INTERPRETER
+ 	bool
+-	depends on ACPI
+ 	depends on !IA64_SGI_SN
+ 	default y
+ 
++if ACPI_INTERPRETER
++
+ config ACPI_SLEEP
+ 	bool "Sleep States (EXPERIMENTAL)"
+-	depends on X86 && ACPI
+-	depends on ACPI_INTERPRETER
++	depends on X86
+ 	depends on EXPERIMENTAL && PM
+ 	default y
+ 	---help---
+@@ -81,7 +83,6 @@ config ACPI_SLEEP_PROC_FS
+ config ACPI_AC
+ 	tristate "AC Adapter"
+ 	depends on X86
+-	depends on ACPI_INTERPRETER
+ 	default m
  	help
- 	  Say Y here to enable PCMCIA subsystem debugging.  You
- 	  will need to choose the debugging level either via the
-@@ -41,7 +42,6 @@ config PCMCIA_DEBUG
+ 	  This driver adds support for the AC Adapter object, which indicates
+@@ -91,7 +92,6 @@ config ACPI_AC
+ config ACPI_BATTERY
+ 	tristate "Battery"
+ 	depends on X86
+-	depends on ACPI_INTERPRETER
+ 	default m
+ 	help
+ 	  This driver adds support for battery information through
+@@ -100,7 +100,6 @@ config ACPI_BATTERY
  
- config PCMCIA
- 	tristate "16-bit PCMCIA support"
--	depends on PCCARD
- 	default y
+ config ACPI_BUTTON
+ 	tristate "Button"
+-	depends on ACPI_INTERPRETER
+ 	depends on !IA64_SGI_SN
+ 	default m
+ 	help
+@@ -112,7 +111,6 @@ config ACPI_BUTTON
+ 
+ config ACPI_VIDEO
+ 	tristate "Video"
+-	depends on ACPI_INTERPRETER
+ 	depends on EXPERIMENTAL
+ 	depends on !IA64_SGI_SN
+ 	default m
+@@ -127,7 +125,6 @@ config ACPI_VIDEO
+ 
+ config ACPI_FAN
+ 	tristate "Fan"
+-	depends on ACPI_INTERPRETER
+ 	depends on !IA64_SGI_SN
+ 	default m
+ 	help
+@@ -136,7 +133,6 @@ config ACPI_FAN
+ 
+ config ACPI_PROCESSOR
+ 	tristate "Processor"
+-	depends on ACPI_INTERPRETER
+ 	depends on !IA64_SGI_SN
+ 	default m
+ 	help
+@@ -165,7 +161,6 @@ config ACPI_THERMAL
+ 
+ config ACPI_NUMA
+ 	bool "NUMA support"
+-	depends on ACPI_INTERPRETER
+ 	depends on NUMA
+ 	depends on (IA64 || X86_64)
+ 	default y if IA64_GENERIC || IA64_SGI_SN2
+@@ -173,7 +168,6 @@ config ACPI_NUMA
+ config ACPI_ASUS
+         tristate "ASUS/Medion Laptop Extras"
+ 	depends on X86
+-	depends on ACPI_INTERPRETER
+ 	default m
+         ---help---
+           This driver provides support for extra features of ACPI-compatible
+@@ -203,7 +197,6 @@ config ACPI_ASUS
+ config ACPI_IBM
+ 	tristate "IBM ThinkPad Laptop Extras"
+ 	depends on X86
+-	depends on ACPI_INTERPRETER
+ 	default m
  	---help---
- 	   This option enables support for 16-bit PCMCIA cards. Most older
-@@ -60,7 +60,7 @@ config PCMCIA
- 
- config CARDBUS
- 	bool "32-bit CardBus support"	
--	depends on PCCARD && PCI
-+	depends on PCI
- 	default y
+ 	  This is a Linux ACPI driver for the IBM ThinkPad laptops. It adds
+@@ -217,7 +210,6 @@ config ACPI_IBM
+ config ACPI_TOSHIBA
+ 	tristate "Toshiba Laptop Extras"
+ 	depends on X86
+-	depends on ACPI_INTERPRETER
+ 	default m
  	---help---
- 	  CardBus is a bus mastering architecture for PC-cards, which allows
-@@ -77,7 +77,7 @@ comment "PC-card bridges"
+ 	  This driver adds support for access to certain system settings
+@@ -244,7 +236,7 @@ config ACPI_TOSHIBA
  
- config YENTA
- 	tristate "CardBus yenta-compatible bridge support"
--	depends on PCCARD && PCI
-+	depends on PCI
- #fixme: remove dependendcy on CARDBUS
- 	depends on CARDBUS
- 	select PCCARD_NONSTATIC
-@@ -197,6 +197,7 @@ config PCMCIA_VRC4173
+ config ACPI_CUSTOM_DSDT
+ 	bool "Include Custom DSDT"
+-	depends on ACPI_INTERPRETER && !STANDALONE
++	depends on !STANDALONE
+ 	default n 
+ 	help
+ 	  Thist option is to load a custom ACPI DSDT
+@@ -270,7 +262,6 @@ config ACPI_BLACKLIST_YEAR
  
- config PCCARD_NONSTATIC
- 	tristate
--	depends on PCCARD
+ config ACPI_DEBUG
+ 	bool "Debug Statements"
+-	depends on ACPI_INTERPRETER
+ 	depends on !IA64_SGI_SN
+ 	default n
+ 	help
+@@ -280,14 +271,12 @@ config ACPI_DEBUG
+ 
+ config ACPI_BUS
+ 	bool
+-	depends on ACPI_INTERPRETER
+ 	depends on !IA64_SGI_SN
+ 	default y
+ 
+ config ACPI_EC
+ 	bool
+ 	depends on X86
+-	depends on ACPI_INTERPRETER
+ 	default y
+ 	help
+ 	  This driver is required on some systems for the proper operation of
+@@ -296,28 +285,27 @@ config ACPI_EC
+ 
+ config ACPI_POWER
+ 	bool
+-	depends on ACPI_INTERPRETER
+ 	depends on !IA64_SGI_SN
+ 	default y
+ 
+ config ACPI_PCI
+ 	bool
+-	depends on ACPI_INTERPRETER
+ 	depends on !IA64_SGI_SN
+ 	default PCI
+ 
+ config ACPI_SYSTEM
+ 	bool
+-	depends on ACPI_INTERPRETER
+ 	depends on !IA64_SGI_SN
+ 	default y
+ 	help
+ 	  This driver will enable your system to shut down using ACPI, and
+ 	  dump your ACPI DSDT table using /proc/acpi/dsdt.
+ 
++endif	# ACPI_INTERPRETER
 +
-+endif	# PCCARD
+ config X86_PM_TIMER
+ 	bool "Power Management Timer Support"
+-	depends on X86 && ACPI
++	depends on X86
+ 	depends on ACPI_BOOT && EXPERIMENTAL
+ 	depends on !X86_64
+ 	default n
+@@ -336,10 +324,12 @@ config X86_PM_TIMER
  
+ config ACPI_CONTAINER
+ 	tristate "ACPI0004,PNP0A05 and PNP0A06 Container Driver (EXPERIMENTAL)"
+-	depends on ACPI && EXPERIMENTAL
++	depends on EXPERIMENTAL
+ 	default (ACPI_HOTPLUG_MEMORY || ACPI_HOTPLUG_CPU || ACPI_HOTPLUG_IO)
+ 	 ---help---
+ 	 	This is the ACPI generic container driver which supports
+ 		ACPI0004, PNP0A05 and PNP0A06 devices
+ 
++endif	# ACPI
++
  endmenu
-Index: linux-2.6.11/drivers/pci/pcie/Kconfig
-===================================================================
---- linux-2.6.11.orig/drivers/pci/pcie/Kconfig	2005-01-29 22:50:43.566918306 +0100
-+++ linux-2.6.11/drivers/pci/pcie/Kconfig	2005-01-29 22:55:48.773348778 +0100
-@@ -3,8 +3,8 @@
- #
- config PCIEPORTBUS
- 	bool "PCI Express support"
-+	depends on PCI
- 	depends on PCI_GOMMCONFIG || PCI_GOANY
--	default n
- 
- 	---help---
- 	This automatically enables PCI Express Port Bus support. Users can
-Index: linux-2.6.11/drivers/pci/Kconfig
-===================================================================
---- linux-2.6.11.orig/drivers/pci/Kconfig	2005-01-29 22:50:43.566918306 +0100
-+++ linux-2.6.11/drivers/pci/Kconfig	2005-01-29 22:55:48.773348778 +0100
-@@ -3,8 +3,8 @@
- #
- config PCI_MSI
- 	bool "Message Signaled Interrupts (MSI and MSI-X)"
-+	depends on PCI
- 	depends on (X86_LOCAL_APIC && X86_IO_APIC) || IA64
--	default n
- 	help
- 	   This allows device drivers to enable MSI (Message Signaled
- 	   Interrupts).  Message Signaled Interrupts enable a device to
-Index: linux-2.6.11/arch/i386/Kconfig
-===================================================================
---- linux-2.6.11.orig/arch/i386/Kconfig	2005-01-29 22:50:43.566918306 +0100
-+++ linux-2.6.11/arch/i386/Kconfig	2005-01-29 22:55:48.774348606 +0100
-@@ -1200,18 +1200,14 @@ config EISA
- source "drivers/eisa/Kconfig"
- 
- config MCA
--	bool "MCA support"
--	depends on !(X86_VISWS || X86_VOYAGER)
-+	bool "MCA support" if !(X86_VISWS || X86_VOYAGER)
-+	default y if X86_VOYAGER
- 	help
- 	  MicroChannel Architecture is found in some IBM PS/2 machines and
- 	  laptops.  It is a bus system similar to PCI or ISA. See
- 	  <file:Documentation/mca.txt> (and especially the web page given
- 	  there) before attempting to build an MCA bus kernel.
- 
--config MCA
--	depends on X86_VOYAGER
--	default y if X86_VOYAGER
--
- source "drivers/mca/Kconfig"
- 
- config SCx200

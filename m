@@ -1,88 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129465AbQL2QMJ>; Fri, 29 Dec 2000 11:12:09 -0500
+	id <S129828AbQL2QO3>; Fri, 29 Dec 2000 11:14:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130092AbQL2QL7>; Fri, 29 Dec 2000 11:11:59 -0500
-Received: from exit1.i-55.com ([204.27.97.1]:28107 "EHLO exit1.i-55.com")
-	by vger.kernel.org with ESMTP id <S130072AbQL2QLx>;
-	Fri, 29 Dec 2000 11:11:53 -0500
-Message-ID: <3A4CAF32.4CCF6E36@mailhost.cs.rose-hulman.edu>
-Date: Fri, 29 Dec 2000 09:35:14 -0600
-From: Leslie Donaldson <donaldlf@hermes.cs.rose-hulman.edu>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test11 alpha)
-X-Accept-Language: en
+	id <S130092AbQL2QOT>; Fri, 29 Dec 2000 11:14:19 -0500
+Received: from bacchus.veritas.com ([204.177.156.37]:2208 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S129828AbQL2QOO>; Fri, 29 Dec 2000 11:14:14 -0500
+Date: Fri, 29 Dec 2000 15:46:22 +0000 (GMT)
+From: Mark Hemment <markhe@veritas.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: ak@suse.de, torvalds@transmeta.com, marcelo@conectiva.com.br,
+        linux-kernel@vger.kernel.org
+Subject: Re: test13-pre5
+In-Reply-To: <200012282233.OAA01433@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.21.0012291533000.3592-100000@alloc.wat.veritas.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx 2.4.0 test12 hang
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>   While I am in the code I also want to go digging around and see if I
->> can find a 
->> way to turn of the in memory buffering that Linux does for block devices
->> as this
->> would make my fscking a LOT shorter, (18 gigs is slow),
->
->No, because you need to do the ordering too. You could drop reiserfs on the
->disk if you are feeling adventurous as that will cut your fsck time right
->down. 
+Hi,
 
-Good point, sigh , I will look into reserfs but my adventurous nature is
-getting a good beat down lately.
+On Thu, 28 Dec 2000, David S. Miller wrote:
+>    Date: 	Thu, 28 Dec 2000 23:17:22 +0100
+>    From: Andi Kleen <ak@suse.de>
+> 
+>    Would you consider patches for any of these points? 
+> 
+> To me it seems just as important to make sure struct page is
+> a power of 2 in size, with the waitq debugging turned off this
+> is true for both 32-bit and 64-bit hosts last time I checked.
 
+  Checking test11 (which I'm running here), even with waitq debugging
+turned off, on 32-bit (IA32) the struct page is 68bytes (since
+the "age" member was re-introduced a while back).
 
->> >          i've read about similar hangs on an alpha on this list (same kind of controller)
->> >          any solution there ...
->
->AIC7xxx makes invalid uses of 32bit values for set_bit() and friends so it
->may be that for the Alpha and the like problems
+  For my development testing, I'm running a _heavily_ hacked kernel.  One
+of these hacks is to pull the wait_queue_head out of struct page; the
+waitq-heads are in a separate allocated area of memory, with a waitq-head
+pointer embedded in the page structure (allocated/initialised in
+free_area_init_core()).  This gives a page structure of 60bytes, giving me
+one free double-word to play with (which I'm using as a pointer to a
+release function).
 
-A CLUE!
+  Infact, there doesn't need to be a waitq-head allocated for each page
+structure - they can share; with a performance overhead on a false
+wakeup in __wait_on_page().
+  Note, for those of us running on 32bit with lots of physical memory, the
+available virtual address-space is of major consideration.  Reducing the
+size of the page structure is more than just reducing cache misses - it
+gives us more virtual to play with...
 
-Cool I will dig into this weekend. 
+Mark
 
-Thanks a lot
-Leslie Donaldson
-
-
-
-This was also sent to me
-
->> would make my fscking a LOT shorter, (18 gigs is slow),
->
->18G is small by today's standards.  so I suspect the problem is 
->actually that you have sub-4K blocks, and or haven't enabled 
->sparse superblocks.  both fairly dramatically speed up fsck.
-
-
-True 18 gigs is small and yes I don't have those two options
-turned on , but my problem is this crash occures while Writing
-to the drive not reading. So, Out of an estimated 24 crashes every
-last one of them have caused me to enter single user mode manually
-run e2fsck on the partition and hold down th y key for a few
-minutes. Then after booting I have to go and clean out the directory
-which (1-3) times results in another crash. Rexecute loop.
-
-What I was thinking about is if I could remove the buffer layer
-then I would have a lot less damage on the disk and maybe it could
-just reboot on it's own. sigh
-
-
-
--- 
-/----------------------------\ Current Contractor: None
-|    Leslie F. Donaldson     | Current Customer  : None
-|    Computer Contractor     | Skills:
-Unix/OS9/VMS/Linux/SUN-OS/C/C++/assembly
-| Have Computer will travel. | WWW  :
-http://www.cs.rose-hulman.edu/~donaldlf
-\----------------------------/ Email: mail://donaldlf@cs.rose-hulman.edu
-Goth Code V1.1: GoCS$$ TYg(T6,T9) B11Bk!^1 C6b-- P0(1,7) M+ a24 n---
-b++:+
-                H6'11" g m---- w+ r+++ D--~!% h+ s10 k+++ R-- Ssw
-LusCA++
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

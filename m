@@ -1,76 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVC2Ttq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbVC2TuL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbVC2Ttq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 14:49:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbVC2Ttq
+	id S261333AbVC2TuL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 14:50:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbVC2TuK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 14:49:46 -0500
-Received: from mx1.mail.ru ([194.67.23.121]:41340 "EHLO mx1.mail.ru")
-	by vger.kernel.org with ESMTP id S261326AbVC2Ttn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 14:49:43 -0500
-From: Alexey Dobriyan <adobriyan@mail.ru>
-To: dtor_core@ameritech.net
-Subject: Re: 2.6.12-rc1-bk2+PREEMPT_BKL: Oops at serio_interrupt
-Date: Tue, 29 Mar 2005 23:49:55 +0400
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-References: <200503282126.55366.adobriyan@mail.ru> <200503292128.20140.adobriyan@mail.ru> <d120d50005032911027c13436e@mail.gmail.com>
-In-Reply-To: <d120d50005032911027c13436e@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503292349.55319.adobriyan@mail.ru>
-X-Spam: Not detected
+	Tue, 29 Mar 2005 14:50:10 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:34787 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261333AbVC2TuB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 14:50:01 -0500
+Date: Tue, 29 Mar 2005 13:49:56 -0600 (CST)
+From: Patrick Gefre <pfg@sgi.com>
+To: linux-kernel@vger.kernel.org
+Cc: Patrick Gefre <pfg@sgi.com>
+Message-Id: <20050329194956.30693.94506.sendpatchset@attica.americas.sgi.com>
+Subject: [PATCH 2.6.12 1/2] Altix ioc4 serial - set hfc from ioctl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 March 2005 23:02, Dmitry Torokhov wrote:
-> On Tue, 29 Mar 2005 21:28:20 +0400, Alexey Dobriyan <adobriyan@mail.ru> wrote:
-> > On Tuesday 29 March 2005 10:27, Dmitry Torokhov wrote:
-> > > On Monday 28 March 2005 12:26, Alexey Dobriyan wrote:
-> > > > Steps to reproduce for me:
-> > > >     * Boot CONFIG_PREEMPT_BKL=y kernel (.config, dmesg are attached)
-> > > >     * Start rebooting
-> > > >     * Start moving serial mouse (I have Genius NetMouse Pro)
-> > > >     * Right after gpm is shut down I see the oops
-> > > >     * The system continues to reboot
-> > >
-> > > Could you try the patch below, please? Thanks!
-> > 
-> > > Input: serport - fix an Oops when closing port - should not call
-> > >        serio_interrupt when serio port is being unregistered.
-> > 
-> > Doesn't work, sorry. Even worse: rebooting now also produces many pages of
-> > oopsen, then hang the system. I'm willing to test any new patches.
-> 
-> Does it oops at the same place with this patch or at some other place?
+Allow hardware flow control to be set from an ioctl.
 
-I manage to find this in the logs (nothing more :-( ):
-============================================================================
-Unable to handle kernel NULL pointer dereference at virtual address 00000068
- printing eip:
-c0202947
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT 
-Modules linked in: ipt_REJECT ipt_state ip_conntrack iptable_filter ip_tables binfmt_misc uhci_hcd snd_intel8x0 snd_ac97_codec snd_pcm snd_timer snd soundcore snd_page_alloc floppy
-CPU:    0
-EIP:    0060:[<c0202947>]    Not tainted VLI
-EFLAGS: 00010282   (2.6.12-rc1-bk2-serio) 
-============================================================================
-According to vmlinux, c0202947 is at:
+Signed-off-by: Patrick Gefre <pfg@sgi.com>
 
-c020293e <serport_ldisc_write_wakeup>:
-c020293e:       8b 80 78 09 00 00       mov    0x978(%eax),%eax
-c0202944:       8b 40 0c                mov    0xc(%eax),%eax
-c0202947:       8b 50 68                mov    0x68(%eax),%edx		<<<<====
-c020294a:       85 d2                   test   %edx,%edx
-c020294c:       74 07                   je     c0202955 <serport_ldisc_write_wakeup+0x17>
-c020294e:       8b 52 10                mov    0x10(%edx),%edx
-c0202951:       85 d2                   test   %edx,%edx
-c0202953:       75 01                   jne    c0202956 <serport_ldisc_write_wakeup+0x18>
-c0202955:       c3                      ret
-c0202956:       ff d2                   call   *%edx
+
+
+Index: linux-2.5-ioc4/drivers/serial/ioc4_serial.c
+===================================================================
+--- linux-2.5-ioc4.orig/drivers/serial/ioc4_serial.c	2005-03-24 13:54:30.657706924 -0600
++++ linux-2.5-ioc4/drivers/serial/ioc4_serial.c	2005-03-24 13:56:48.230417236 -0600
+@@ -1765,8 +1765,11 @@
+ 		the_port->ignore_status_mask &= ~N_DATA_READY;
+ 	}
+ 
+-	if (cflag & CRTSCTS)
++	if (cflag & CRTSCTS) {
+ 		info->flags |= ASYNC_CTS_FLOW;
++		port->ip_sscr |= IOC4_SSCR_HFC_EN;
++		writel(port->ip_sscr, &port->ip_serial_regs->sscr);
++	}
+ 	else
+ 		info->flags &= ~ASYNC_CTS_FLOW;
+ 
+@@ -1825,12 +1828,6 @@
+ 	/* set the speed of the serial port */
+ 	ioc4_change_speed(the_port, info->tty->termios, (struct termios *)0);
+ 
+-	/* enable hardware flow control - after ioc4_change_speed because
+-	 * ASYNC_CTS_FLOW is set there */
+-	if (info->flags & ASYNC_CTS_FLOW) {
+-		port->ip_sscr |= IOC4_SSCR_HFC_EN;
+-		writel(port->ip_sscr, &port->ip_serial_regs->sscr);
+-	}
+ 	info->flags |= UIF_INITIALIZED;
+ 	return 0;
+ }
+
+-- 
+

@@ -1,41 +1,142 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265134AbSL0QJg>; Fri, 27 Dec 2002 11:09:36 -0500
+	id <S265065AbSL0QEI>; Fri, 27 Dec 2002 11:04:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265132AbSL0QI6>; Fri, 27 Dec 2002 11:08:58 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:13501 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S265099AbSL0QIT>;
-	Fri, 27 Dec 2002 11:08:19 -0500
-Date: Fri, 27 Dec 2002 17:16:35 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200212271616.RAA03356@harpo.it.uu.se>
-To: rusty@rustcorp.com.au
-Subject: two 2.5 modules bugs
-Cc: linux-kernel@vger.kernel.org
+	id <S265093AbSL0QEG>; Fri, 27 Dec 2002 11:04:06 -0500
+Received: from amsfep16-int.chello.nl ([213.46.243.26]:28766 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id <S265065AbSL0QDg>; Fri, 27 Dec 2002 11:03:36 -0500
+Date: Fri, 27 Dec 2002 17:11:12 +0100
+Message-Id: <200212271611.gBRGBCV8008047@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH] M68k parport local_irq*() updates
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-1. With kernel 2.5.53 and module-init-tools-0.9.6, "modprobe tulip"
-   fails and goes into an infinite CPU-consuming loop. The problem
-   appears to be related to the dependency from tulip to crc32. If I
-   manually modprobe crc32 before modprobe tulip, it works. If crc32
-   isn't loaded, modprobe tulip first loads crc32 and then loops.
+Convert m68k parport drivers to new local_irq*() framework:
+  - Atari parport
 
-   module-init-tools-0.9.5 did not have this problem.
+--- linux-2.5.53/drivers/parport/parport_atari.c	Tue Oct  9 10:54:48 2001
++++ linux-m68k-2.5.53/drivers/parport/parport_atari.c	Thu Nov  7 23:09:56 2002
+@@ -25,11 +25,10 @@
+ 	unsigned long flags;
+ 	unsigned char data;
+ 
+-	save_flags(flags);
+-	cli();
++	local_irq_save(flags);
+ 	sound_ym.rd_data_reg_sel = 15;
+ 	data = sound_ym.rd_data_reg_sel;
+-	restore_flags(flags);
++	local_irq_restore(flags);
+ 	return data;
+ }
+ 
+@@ -38,11 +37,10 @@
+ {
+ 	unsigned long flags;
+ 
+-	save_flags(flags);
+-	cli();
++	local_irq_save(flags);
+ 	sound_ym.rd_data_reg_sel = 15;
+ 	sound_ym.wd_data = data;
+-	restore_flags(flags);
++	local_irq_restore(flags);
+ }
+ 
+ static unsigned char
+@@ -51,12 +49,11 @@
+ 	unsigned long flags;
+ 	unsigned char control = 0;
+ 
+-	save_flags(flags);
+-	cli();
++	local_irq_save(flags);
+ 	sound_ym.rd_data_reg_sel = 14;
+ 	if (!(sound_ym.rd_data_reg_sel & (1 << 5)))
+ 		control = PARPORT_CONTROL_STROBE;
+-	restore_flags(flags);
++	local_irq_restore(flags);
+ 	return control;
+ }
+ 
+@@ -65,14 +62,13 @@
+ {
+ 	unsigned long flags;
+ 
+-	save_flags(flags);
+-	cli();
++	local_irq_save(flags);
+ 	sound_ym.rd_data_reg_sel = 14;
+ 	if (control & PARPORT_CONTROL_STROBE)
+ 		sound_ym.wd_data = sound_ym.rd_data_reg_sel & ~(1 << 5);
+ 	else
+ 		sound_ym.wd_data = sound_ym.rd_data_reg_sel | (1 << 5);
+-	restore_flags(flags);
++	local_irq_restore(flags);
+ }
+ 
+ static unsigned char
+@@ -129,12 +125,11 @@
+ {
+ 	unsigned long flags;
+ 
+-	save_flags(flags);
+-	cli();
++	local_irq_save(flags);
+ 	/* Soundchip port B as output. */
+ 	sound_ym.rd_data_reg_sel = 7;
+ 	sound_ym.wd_data = sound_ym.rd_data_reg_sel | 0x40;
+-	restore_flags(flags);
++	local_irq_restore(flags);
+ }
+ 
+ static void
+@@ -143,12 +138,11 @@
+ #if 0 /* too dangerous, can kill sound chip */
+ 	unsigned long flags;
+ 
+-	save_flags(flags);
+-	cli();
++	local_irq_save(flags);
+ 	/* Soundchip port B as input. */
+ 	sound_ym.rd_data_reg_sel = 7;
+ 	sound_ym.wd_data = sound_ym.rd_data_reg_sel & ~0x40;
+-	restore_flags(flags);
++	local_irq_restore(flags);
+ #endif
+ }
+ 
+@@ -209,15 +203,14 @@
+ 	unsigned long flags;
+ 
+ 	if (MACH_IS_ATARI) {
+-		save_flags(flags);
+-		cli();
++		local_irq_save(flags);
+ 		/* Soundchip port A/B as output. */
+ 		sound_ym.rd_data_reg_sel = 7;
+ 		sound_ym.wd_data = (sound_ym.rd_data_reg_sel & 0x3f) | 0xc0;
+ 		/* STROBE high. */
+ 		sound_ym.rd_data_reg_sel = 14;
+ 		sound_ym.wd_data = sound_ym.rd_data_reg_sel | (1 << 5);
+-		restore_flags(flags);
++		local_irq_restore(flags);
+ 		/* MFP port I0 as input. */
+ 		mfp.data_dir &= ~1;
+ 		/* MFP port I0 interrupt on high->low edge. */
 
-2. The implementation of old-style MODULE_PARMs with type "1-16s"
-   is broken. Instead of splicing the parameter at the commas and
-   storing pointers to the substrings in consecutive array elements,
-   the whole string is stored in the array instead.
+Gr{oetje,eeting}s,
 
-   Consider parport_pc.c, which contains (simplified):
+						Geert
 
-   static const char *irq[16];
-   MODULE_PARM(irq, "1-16s");
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-   "modprobe parport_pc irq=007" should store a pointer to "007" in
-   irq[0], but instead (unsigned int)irq[0] == 0x00373030, the ASCII
-   representation of "007" in little-endian. (Kernel 2.5.53 on x86,
-   with module-init-tools-0.9.[56].)
-
-/Mikael
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

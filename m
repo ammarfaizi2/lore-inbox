@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130871AbQLCIMB>; Sun, 3 Dec 2000 03:12:01 -0500
+	id <S129501AbQLCIzX>; Sun, 3 Dec 2000 03:55:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130897AbQLCILk>; Sun, 3 Dec 2000 03:11:40 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:7947 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S130871AbQLCILj>;
-	Sun, 3 Dec 2000 03:11:39 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200012030741.eB37f1X116720@saturn.cs.uml.edu>
-Subject: Re: /dev/random probs in 2.4test(12-pre3)
-To: hpa@zytor.com (H. Peter Anvin)
-Date: Sun, 3 Dec 2000 02:41:00 -0500 (EST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <90cs81$6vv$1@cesium.transmeta.com> from "H. Peter Anvin" at Dec 02, 2000 11:20:33 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S129572AbQLCIzN>; Sun, 3 Dec 2000 03:55:13 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:4114 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129501AbQLCIzH>; Sun, 3 Dec 2000 03:55:07 -0500
+Date: Sun, 3 Dec 2000 00:23:49 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Transmeta and Linux-2.4.0-test12-pre3
+In-Reply-To: <E142CLF-0001WT-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10012030011130.7633-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin writes:
 
->> Yeah, people write annoying little wrapper functions that
->> bounce right back into the kernel until the job gets done.
->> This is slow, it adds both source and object bloat, and it
->> is a source of extra bugs. What a lovely API, eh?
->>
->> The fix: write_write_write_damnit() and read_read_read_damnit(),
->> which go until they hit a fatal error or complete the job.
->
-> RTFM(fwrite), RTFM(fread).
 
-Those sure look like "annoying little wrapper functions that
-bounce right back into the kernel until the job gets done".
+On Sat, 2 Dec 2000, Alan Cox wrote:
+> 
+> > But the camera is cool, and works beautifully (once you get XFree86
+> > happy) thanks to Andrew Tridgell.  (If I could just coax the X server
+> > into giving my a YUV overlay I could play DVD's with this thing). 
+> 
+> Start at http://www.core.binghamton.edu/~insomnia/gatos/
 
-They don't even operate directly on file descriptors.
-Actually they look like they come from VMS... records???
+Heh.
+
+I integrated "ati_video.c" from ati_xv into the current XFree86 CVS
+sources, and yup, sure as h*ll, I can play movies fine. Quite smooth (at
+least the 24 fps stuff - I bet it drops frames like mad for any 30fps
+movies). It's quite cute.
+
+There's some redraw bug in the overlay code, and it doesn't understand
+virtual desktops larger than the physical desktop. Details, details. 
+
+	Thanks for the pointer,
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312573AbSCVA0D>; Thu, 21 Mar 2002 19:26:03 -0500
+	id <S312574AbSCVA2N>; Thu, 21 Mar 2002 19:28:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312574AbSCVAZx>; Thu, 21 Mar 2002 19:25:53 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:62368 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S312582AbSCVAZi>; Thu, 21 Mar 2002 19:25:38 -0500
-Date: Thu, 21 Mar 2002 17:40:46 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Hari Gadi <HGadi@ecutel.com>, linux-kernel@vger.kernel.org
-Subject: Re: module (kernel) debugging
-Message-ID: <20020321174046.A26007@vger.timpanogas.org>
-In-Reply-To: <AF2378CBE7016247BC0FD5261F1EEB210B6A93@EXCHANGE01.domain.ecutel.com> <E16oBVq-0006Z6-00@the-village.bc.nu> <20020321163015.A25688@vger.timpanogas.org> <20020321232955.A20289@infradead.org>
-Mime-Version: 1.0
+	id <S312577AbSCVA2D>; Thu, 21 Mar 2002 19:28:03 -0500
+Received: from mons.uio.no ([129.240.130.14]:26316 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S312574AbSCVA1w>;
+	Thu, 21 Mar 2002 19:27:52 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-pre3-ac5
+In-Reply-To: <E16o3oL-0005M8-00@the-village.bc.nu>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 22 Mar 2002 01:27:39 +0100
+Message-ID: <shsbsdhla4k.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 21, 2002 at 11:29:55PM +0000, Christoph Hellwig wrote:
-> On Thu, Mar 21, 2002 at 04:30:15PM -0700, Jeff V. Merkey wrote:
-> > 
-> > One more:
-> > 
-> > MDB - source level kernel debugger.  
-> 
-> Where?
+>>>>> " " == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
 
-www.kdebug.com.  They are still putting up the website and docs,
-but it should go up soon.  It was written as a work for hire.  I do
-not own it, but I did write it.   I was hired to write it and 
-have been working on it for several months.  It's commercial 
-quality kernel debugger for Linux.
+     > o nfsd_setattr fixes (Trond Myklebust)
 
-I will ask them when they will have the site up.  From what I 
-understand, they will be distributing the base version from 
-the website at no charge, and charging for the SLD extensions.
-  
-:-)
+      +++ lots of other nfsd fixes.
 
-Jeff
+Er... Alan: shouldn't all those attributions read 'Neil Brown'?  I'm
+very flattered, but credit where credit is due ;-)
 
+Cheers,
+  Trond

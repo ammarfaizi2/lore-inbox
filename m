@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264769AbRGEWBE>; Thu, 5 Jul 2001 18:01:04 -0400
+	id <S264489AbRGEV7y>; Thu, 5 Jul 2001 17:59:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264680AbRGEWAy>; Thu, 5 Jul 2001 18:00:54 -0400
-Received: from hose.mail.pipex.net ([158.43.128.58]:26544 "HELO
-	hose.mail.pipex.net") by vger.kernel.org with SMTP
-	id <S264475AbRGEWAn>; Thu, 5 Jul 2001 18:00:43 -0400
-To: linux-kernel@vger.kernel.org
-From: Trevor-Hemsley@dial.pipex.com (Trevor Hemsley)
-Date: Thu, 05 Jul 2001 21:42:38
-Subject: Re: pcmcia lockup inserting or removing cards in 2.4.5-ac{13,22}
-X-Mailer: ProNews/2 V1.51.ib104
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010705220051Z264475-17720+11254@vger.kernel.org>
+	id <S264475AbRGEV7o>; Thu, 5 Jul 2001 17:59:44 -0400
+Received: from t2.redhat.com ([199.183.24.243]:57078 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S264489AbRGEV7a>; Thu, 5 Jul 2001 17:59:30 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <200107052154.RAA07008@razor.cs.columbia.edu> 
+In-Reply-To: <200107052154.RAA07008@razor.cs.columbia.edu> 
+To: Hua Zhong <huaz@cs.columbia.edu>
+Cc: Davide Libenzi <davidel@xmailserver.org>, linux-kernel@vger.kernel.org
+Subject: Re: linux/macros.h(new) and linux/list.h(mod) ... 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8bit
+Date: Thu, 05 Jul 2001 22:58:53 +0100
+Message-ID: <9004.994370333@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Jul 2001 03:06:11, Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL> 
-wrote:
 
-> Hmm, Cardbus and USB problems... you probably have both Cardbus and
-> i82365 support in your kernel configuration. 
+huaz@cs.columbia.edu said:
+>  Doesn't it add more overhead?  I think using inline functions are
+> much better. 
 
-Once I have the BIOS set to "cardbus/16 bit" instead of "auto-detect" 
-I don't have a problem with having both Cardbus and i82365 support 
-compiled in. If the BIOS is set to auto then the PCI tables don't have
-an IRQ specified and yenta.c uses IRQ 0!
+Why should it add overhead? Even the most naïve compiler ought to generate 
+the same code, surely? I must admit I haven't looked hard at the output - 
+it didn't even occur to me that it might produce suboptimal code.
 
--- 
-Trevor Hemsley, Brighton, UK.
-Trevor-Hemsley@dial.pipex.com
+>  Yes you have to define it for different types (char, short, int,
+> long,  signed/unsigned). 
+
+Unfortunately, this being C means that you can't call them all by the same 
+name. If I have to use unsigned_long_max(x,y) I'd rather type it out myself 
+:)
+
+--
+dwmw2
+
+

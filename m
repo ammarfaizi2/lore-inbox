@@ -1,95 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266244AbUGOQVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264633AbUGOQXV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266244AbUGOQVv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 12:21:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266240AbUGOQVl
+	id S264633AbUGOQXV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 12:23:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266238AbUGOQXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 12:21:41 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:9125 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264633AbUGOQVY (ORCPT
+	Thu, 15 Jul 2004 12:23:20 -0400
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:18215 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S264633AbUGOQXB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 12:21:24 -0400
-Subject: Re: gettimeofday nanoseconds patch (makes it possible for the
-	posix-timer functions to return higher accuracy)
-From: john stultz <johnstul@us.ibm.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: davidm@hpl.hp.com, george anzinger <george@mvista.com>,
-       lkml <linux-kernel@vger.kernel.org>, ia64 <linux-ia64@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0407150810290.21314@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0407140940260.14704@schroedinger.engr.sgi.com>
-	 <1089835776.1388.216.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.58.0407141323530.15874@schroedinger.engr.sgi.com>
-	 <1089839740.1388.230.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.58.0407141703360.17055@schroedinger.engr.sgi.com>
-	 <1089852486.1388.256.camel@cog.beaverton.ibm.com>
-	 <16629.56037.120532.779793@napali.hpl.hp.com>
-	 <Pine.LNX.4.58.0407150810290.21314@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Message-Id: <1089908059.15272.29.camel@leatherman>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 15 Jul 2004 09:14:20 -0700
+	Thu, 15 Jul 2004 12:23:01 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: dipankar@in.ibm.com
+Subject: Re: [RFC] Lock free fd lookup
+Date: Thu, 15 Jul 2004 12:22:24 -0400
+User-Agent: KMail/1.6.2
+Cc: Chris Wright <chrisw@osdl.org>, Ravikiran G Thirumalai <kiran@in.ibm.com>,
+       linux-kernel@vger.kernel.org
+References: <20040714045345.GA1220@obelix.in.ibm.com> <200407151022.53084.jbarnes@engr.sgi.com> <20040715161054.GB3957@in.ibm.com>
+In-Reply-To: <20040715161054.GB3957@in.ibm.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200407151222.24843.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-07-15 at 08:31, Christoph Lameter wrote:
-> On Wed, 14 Jul 2004, David Mosberger wrote:
-> 
-> > >>>>> On Wed, 14 Jul 2004 17:48:06 -0700, john stultz <johnstul@us.ibm.com> said:
-> >
-> >   John> Although you still have the issue w/ NTP adjustments being
-> >   John> ignored, but last time I looked at the time_interpolator code,
-> >   John> it seemed it was being ignored there too, so at least your not
-> >   John> doing worse then the ia64 do_gettimeofday(). [If I'm doing the
-> >   John> time_interpolator code a great injustice with the above,
-> >   John> someone please correct me]
-> >
-> > The existing time-interpolator code for ia64 never lets time go
-> > backwards (in the absence of a settimeofday(), of course).  There is
-> > no need to special-case NTP.
-> >
-> > With Christoph's changes, NTP is an issue again, however.
-> 
-> The old code only insured that the interpolated offset in nanoseconds
-> after a timer tick never goes backward. Negative corrections to xtime
-> could also result in time going backward since the offset is
-> always added to xtime. Both the old and the new code use the logic in
-> time_interpolator_update (invoked when xtime is advanced) to compensate
-> for this situation.
+On Thursday, July 15, 2004 12:10 pm, Dipankar Sarma wrote:
+> Chris raises an interesting issue. There are two ways we can benefit from
+> lock-free lookup - avoidance of atomic ops in lock acquisition/release
+> and avoidance of contention. The latter can also be provided by
+> rwlocks in read-mostly situations like this, but rwlock still has
+> two atomic ops for acquisition/release. So, in another
+> thread, I have suggested looking into the contention angle. IIUC,
+> tiobench is threaded and shares fd table.
 
-However it seems this compensation also negates NTPs adjustment. There
-is nothing that scales the time_interpolator_update's output. 
+I must have missed that thread...  Anyway, that's a good idea.
 
-A quick example:
-So lets say tick length is 1000us. At time zero we call gettimeofday(),
-it returns xtime + time_interpolator_update(), both return zero. 999us
-later at time two, the same thing happens and we return (0 + 999). A
-usec later at time three, the timer interrupt is called and xtime is
-incremented 1000us, and time_interpolator decrements 1000us. Thus a call
-to gettimeofday would return (1000 + 0). Immediately following, adjtimex
-is called, setting the tick length to 900us. Then 999 usecs later at
-time four, we return (1000 + 999). The next usec at time five, the timer
-interrupt goes off and increments xtime by 900, and decrements the
-time_interpolator by 900. Thus a call to gettimeofday() would return
-(1900 + 100). So rather returning the proper NTP adjusted time of 1900,
-2000 is being returned as if the NTP adjustment never occured. 
+>
+> That said, atomic counters weren't introduced in this patch,
+> they are already there for refcounting. cmpxchg is costly,
+> but if you are replacing read_lock/atomic_inc/read_unlock,
+> lock-free + cmpxchg, it might not be all that bad.
 
-Now, you cannot have time going backwards, so the solution is to cap the
-output of time_interpolator_update() by insuring that during an NTP
-adjusted tick, we do not return more then the NTP adjusted tick length
-added to the base offset we calculated at the last timer interrupt.
+Yeah, I didn't mean to imply that atomics were unique to this patch.
 
-Thus at time four above(and during the 99 usecs before it) we would
-return (1000 + 900) instead of (1000+999). 
+> Atleast, 
+> we can benchmark it and see if it is worth it. And in heavily
+> contended cases, unlike rwlocks, you are not going to have
+> starvation.
 
-And again, the ia64 code isn't my specialty, so if I'm just being daft,
-please let me know. 
+Which is good.
 
-thanks
--john
+> > It seems to me that RCU is basically rwlocks on steroids, which means
+> > that using it requires the same care to avoid starvation and/or other
+> > scalability problems (i.e. we'd better be really sure that a given
+> > codepath really should be using rwlocks before we change it).
+>
+> The starvation is a problem with rwlocks in linux, not RCU. The
+> reader's do not impede writers at all with RCU. There are other
+> issues with RCU that one needs to be careful about, but certainly
+> not this one.
 
+That's good, I didn't think that RCU would cause starvation, but based on 
+previous reading of the code it seemed like it would hurt a lot in other 
+ways... but I'm definitely not an expert in that area.
 
-
-
-
+Thanks,
+Jesse

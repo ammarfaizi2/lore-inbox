@@ -1,81 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262144AbVATNUg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261916AbVATN3b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262144AbVATNUg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 08:20:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262145AbVATNUg
+	id S261916AbVATN3b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 08:29:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262037AbVATN3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 08:20:36 -0500
-Received: from main.uucpssh.org ([212.27.33.224]:51357 "EHLO main.uucpssh.org")
-	by vger.kernel.org with ESMTP id S262144AbVATNU0 (ORCPT
+	Thu, 20 Jan 2005 08:29:31 -0500
+Received: from mail.suse.de ([195.135.220.2]:17628 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261916AbVATN3X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 08:20:26 -0500
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.10-ac8 - kernel BUG at net/ipv4/tcp_output.c:922!
-References: <41DFEDA8.7030805@wasp.net.au>
-From: syrius.ml@no-log.org
-Message-ID: <87vf9stfi5.87u0pctfi5@87sm4wtfi5.message.id>
-Date: Thu, 20 Jan 2005 14:16:42 +0100
-In-Reply-To: <41DFEDA8.7030805@wasp.net.au> (Brad Campbell's message of
- "Sat, 08 Jan 2005 18:26:48 +0400")
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
+	Thu, 20 Jan 2005 08:29:23 -0500
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: [patch 5/5] Disallow in-inode attributes for reserved inodes
+Date: Thu, 20 Jan 2005 14:29:15 +0100
+User-Agent: KMail/1.7.1
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       "Theodore Ts'o" <tytso@mit.edu>, Andrew Tridgell <tridge@osdl.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>, Alex Tomas <alex@clusterfs.com>,
+       linux-kernel@vger.kernel.org
+References: <20050120020124.110155000@suse.de> <20050120032510.917200000@suse.de> <20050120121606.GF22715@schnapps.adilger.int>
+In-Reply-To: <20050120121606.GF22715@schnapps.adilger.int>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501201429.15681.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 20 January 2005 13:16, Andreas Dilger wrote:
+> On Jan 20, 2005  03:01 +0100, Andreas Gruenbacher wrote:
+> > When creating a filesystem with inodes bigger than 128 bytes, mke2fs
+> > fails to clear out bytes beyond EXT3_GOOD_OLD_INODE_SIZE in all inodes
+> > it creates (the journal, the filesystem root, and lost+found). We would
+> > require a zeroed-out i_extra_isize field but we don't get it, so
+> > disallow in-inode attributes for those inodes.
+> >
+> > Add an i_extra_isize sanity check.
+>
+> I'm not sure I agree with this patch.  It definitely resolves a problem
+> I had with the previous patch (4/5), namely that for inodes that were
+> created in a large-inode filesystem using a kernel w/o the large-inode
+> patch we didn't save EAs into the large-inode space at all.  With this
+> patch we will start using that space.
 
-I've just experienced this oops too.
-The kernel is a 2.6.10-ac8 and it doesn't seem this issue has been
-fixed in 2.6.10-ac10 nor in 2.6.11-rc1 (sure I'd love to be wrong
-here ;-) )
+The ea-in-inode patch totally relies on getting all the available inode space 
+cleared out by the kernel (or mke2fs, or e2fsck). If this is not the case for 
+any inode we find, then i_extra_isize may contain a random number, and we've 
+just lost, period: There is no way of sanitizing a random i_extra_isize; we 
+cannot know what the right number would be.
 
+We have two options for going forward from here: (a) depend on the fact that 
+all inodes have been cleared out for us, or (b) don't rely on that, fix 
+e2fsck before going any further, and have the fixed mke2fs and e2fsck set a 
+filesystem feature flag that tells us that all the extra space in all inodes 
+is "sane".
 
-kernel BUG at net/ipv4/tcp_output.c:922!
-invalid operand: 0000 [#1]
-PREEMPT SMP
-Modules linked in: nfsd exportfs parport_pc lp parport nfs lockd
-sunrpc ipt_TCPMSS iptable_mangle ipt_owner iptable_nat ip_conntrack
-ip_tables uhci_hcd usbcore intel_agp evdev raid5 xor md dm_mod md5
-ipv6 adm1021 eeprom i2c_piix4 i2c_isa lm75 lm78 w83781d i2c_sensor
-i2c_core agpgart scsi_mod 3c59x
-CPU:    0
-EIP:    0060:[<c0282671>]    Not tainted VLI
-EFLAGS: 00010202   (2.6.10-ac8)
-EIP is at tcp_retrans_try_collapse+0x321/0x340
-eax: e2868c80   ebx: c6060e20   ecx: 00000394   edx: 000005ac
-esi: c9aaa2e8   edi: 00000000   ebp: f39d7ae0   esp: c036de90
-ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 0, threadinfo=c036c000 task=c02f7b40)
-Stack: c03a287c 00000002 00000002 00000394 00000218 00000010 00000218
-d664acd4
-       d664aae0 0000ffff d664acd4 c6060e20 d664aae0 c0282b0c d664aae0
-       c6060e20
-       000005ac c027a447 000005ac d664aae0 d664acd4 d664ab44 00000000
-       c0284a57
-Call Trace:
- [<c0282b0c>] tcp_retransmit_skb+0x2ec/0x360
- [<c027a447>] tcp_enter_loss+0x67/0x230
- [<c0284a57>] tcp_retransmit_timer+0x107/0x470
- [<c011841f>] rebalance_tick+0xbf/0xd0
- [<c0284e6e>] tcp_write_timer+0xae/0xf0
- [<c0118553>] scheduler_tick+0x123/0x480
- [<c0284dc0>] tcp_write_timer+0x0/0xf0
- [<c0125efa>] run_timer_softirq+0xda/0x1a0
- [<c0121b3a>] __do_softirq+0xba/0xd0
- [<c0121b7d>] do_softirq+0x2d/0x30
- [<c0138f39>] irq_exit+0x39/0x40
- [<c0103b8c>] apic_timer_interrupt+0x1c/0x24
- [<c0101030>] default_idle+0x0/0x40
- [<c010105c>] default_idle+0x2c/0x40
- [<c01010f2>] cpu_idle+0x42/0x60
- [<c036e984>] start_kernel+0x154/0x170
- [<c036e3a0>] unknown_bootoption+0x0/0x1e0
-Code: e9 7f fe ff ff c7 44 24 08 53 26 28 c0 89 54 24 04 89 1c 24 e8
-d1 9c fc ff e9 3a fe ff ff 0f 0b c9 02 cc 1d 2d c0 e9 0a fe ff ff <0f>
-0b 9a 03 1a 15 2e c0 e9 c2 fd ff ff 89 f6 31 c0 e9 7f fd ff
- <0>Kernel panic - not syncing: Fatal exception in interrupt
- 
-most of the netfilter modules reported above were in used.
-I can provide more informations if needed.
+For (a) we can make an (ugly) exception because we know which inodes mke2fs 
+created. As far as I can tell we can also fully rely on the kernel having 
+cleared out the extra space for us. e2fsck may currently fail to move the 
+extra space around when moving inodes, but that did not matter without 
+ea-in-inode, and if we fix it now, that's probably good enough. We don't 
+really care which inode's zeroed extra space we look at without ea-in-inode.
 
+> It is debatable whether we should mark inodes bad if the i_extra_isize
+> field is bad, or if we should just initialize i_extra_isize in that case.
+
+IMHO it's not debatable. Taking an i_extra_isize that looks odd and simply 
+changing it to something we think is better is a really bad idea. We might as 
+well find an unusual but still valid i_extra_isize and use it, then a future 
+patch allocates a few more fields in the inode, and suddenly we start to see 
+garbage.
+
+> On one hand there is very little else we can use to validate the on-disk
+> inodes, but on the other hand the EA data isn't critical to reading the
+> inode so this would seem to introduce additional failure cases.
+
+You may have an access acl on the inode. Not being able to read an access acl 
+is a clear sign of trouble. The same applies for everything else in the 
+system.* and security.* namespaces, at least.
+
+> I'm not sure whether an old e2fsck will also clear out the space in a
+> large inode that it writes or not (I know that the patched one we use
+> validates i_extra_isize).  If it doesn't it may be that there would be a
+> largish number of inodes that are marked bad because of this, so having
+> the kernel fix this would be good.
+
+Repairing the filesystem has no place in the kernel code. If what you assume 
+is the case (and I sure would have assumed you to check before proposing the 
+kernel patch for inclusion), we have to go for the filesystem feature flag 
+approach.
+
+> If the old e2fsck zeroes the large 
+> inodes properly it would be prudent to have an ext3_error() here so that
+> the disk corruption triggers an e2fsck the next time the system starts.
+
+That's even better, yes.
+
+> For the root and lost+found inodes it looks like we can never store an
+> EA in the extra part of the inode regardless of whether i_extra_isize is
+> good or not.  If a bad value is found we could just initialize it and
+> start using that space (though not print an ext3_error() in that case,
+> an ext3_warning() if anything since this is probably the fault of mke2fs).
+
+I disagree. We cannot just use the space when we think the inode is corrupted.
+
+Cheers,
 -- 
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX PRODUCTS GMBH

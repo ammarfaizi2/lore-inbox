@@ -1,57 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318425AbSGaVij>; Wed, 31 Jul 2002 17:38:39 -0400
+	id <S317960AbSGaVfy>; Wed, 31 Jul 2002 17:35:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318466AbSGaVij>; Wed, 31 Jul 2002 17:38:39 -0400
-Received: from mta01bw.bigpond.com ([139.134.6.78]:999 "EHLO
-	mta01bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S318425AbSGaVii>; Wed, 31 Jul 2002 17:38:38 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Kernel ABI BoF at Linux-Kongress? [was: Header files and the kernel ABI]
-Date: Thu, 1 Aug 2002 07:37:20 +1000
-User-Agent: KMail/1.4.5
-References: <aho5ql$9ja$1@cesium.transmeta.com>
-In-Reply-To: <aho5ql$9ja$1@cesium.transmeta.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S317971AbSGaVfy>; Wed, 31 Jul 2002 17:35:54 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:15424 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S317960AbSGaVfw>; Wed, 31 Jul 2002 17:35:52 -0400
+Date: Wed, 31 Jul 2002 23:40:22 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19rc3aa4
+Message-ID: <20020731214022.GK11020@dualathlon.random>
+References: <20020730060218.GB1181@dualathlon.random> <20020731170802.R10270@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200208010737.20093.bhards@bigpond.net.au>
+In-Reply-To: <20020731170802.R10270@redhat.com>
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Jul 2002 16:28, H. Peter Anvin wrote:
-> OK... I have had a thought grinding in my head for a while, and wanted
-> to throw it out for everyone to think about...
->
-> In the libc4/libc5 days, we attempted to use kernel headers in user
-> space.  This was a total mess, not the least because the kernel
-> headers tended to pull in a lot of other kernel headers, and the
-> datatypes were unsuitable to have spead all across userspace.
->
-> In glibc, the official rule is "don't use kernel headers."  This
-> causes problems, because certain aspects of the kernel ABI is only
-> available through the include files, and reproducing them by hand is
-> tedious and error-prone.
->
-> I'm in the process of writing a very tiny libc for initramfs, and will
-> likely have to deal with how to use the kernel ABI as well.
-Well the initial enthusiasm appears to have passed, and nothing
-is happening.
+On Wed, Jul 31, 2002 at 05:08:02PM -0400, Benjamin LaHaise wrote:
+> On Tue, Jul 30, 2002 at 08:02:18AM +0200, Andrea Arcangeli wrote:
+> > 	Merged async-io from Benjamin LaHaise after purifying it from the
+> > 	/proc/libredhat.so mess that made it not binary compatible with 2.5.
+> > 
+> > 	While merging I did a number of cleanups and fixes, to mention a few of
+> > 	them I fixed a shell root exploit in map_user_kvect by using
+> > 	get_user_pages (that honours VM_MAYWRITE), it avoids corruption of
+> > 	KM_IRQ0 by doing spin_lock_irq in aio_read_evt, and a number of other
+> > 	minor not security and not stability related changes.  Left out the
+> > 	networking async-io, it can be merged trivially at a later stage (if
+> > 	needed :).
+> 
+> Care to explain the problem and provide a separate patch for all the 
+> people who aren't using your tree of patches?  If there's a problem 
 
-Is there interest in getting together to resolve this issue?
+I'm sorry but I'm too busy with another thing at the moment to extract
+patches, (I should have time after 13 August). In the meantime you can
+see the most important changes by diffing memory.c and aio.c yourself.
+The VM_MAYWRITE sec fix is the get_user_pages change in the core of
+map_user_kiovec, that should be very visible, the other one was just a
+missing _irq around a spinlock to protect KM_IRQ0 from irq races, that
+should be very visible too by diffing aio.c against aio.c.  The other
+changes should be mostly cosmetical or related to the purification from
+the dyanmic syscall (ah, and I dropped the nosense _GPL,
+EXPORT_SYMBOL_GPL doesn't make sense as said in one of my last emails of
+such thread, I've no idea why it's not been nucked from modutils and 2.5
+yet, as said either the ksyms linkage is a GPL barrier or it isn't,
+there is no such intermediate thing as a EXPORT_SYMBOL_GPL non GPL
+barrier).
 
-I note that the next major conference appears to be
-Linux Kongress (Koln/Cologne) in early September. Maybe
-we can get some glibc / other-libraries people there, and
-make some progress.
+_GPL doesn't make any sense for a very simple reason: anybody can write
+a regular EXPORT_SYMBOL function that just calls your _GPL exported
+function once inside the kernel to bypass the _GPL tag. And if you claim
+that the wrapper is illegal then all non GPL modules are illegal in the
+first place, so making the _GPL tag again a nosense.
 
-If there is some interest (post off-list if preferred), I'll contact the
-organisers and try to get a BoF together for this.
+> as you claim, then it likely affects map_user_kiobuf too.
 
-I'll look at linux.conf.au as an additional opportunity when
-time gets a bit closer.
+kiobuf side in been fixed in mainline some time ago, it only affects
+the map_user_kiovec in your patch as far I can tell, but it would be
+nice if you could double check, thanks.
 
--- 
-http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
+Andrea

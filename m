@@ -1,73 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261506AbVBACWN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbVBACZo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261506AbVBACWN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 21:22:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVBACWM
+	id S261503AbVBACZo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 21:25:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbVBACZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 21:22:12 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5271 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261506AbVBACV4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 21:21:56 -0500
-Date: Mon, 31 Jan 2005 21:17:52 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Vasily Averin <vvs@sw.ru>, Andrey Melnikov <temnota+kernel@kmv.ru>
-Cc: linux-kernel@vger.kernel.org, Atul Mukker <Atul.Mukker@lsil.com>,
-       Sreenivas Bagalkote <Sreenivas.Bagalkote@lsil.com>
-Subject: Re: [PATCH] Prevent NMI oopser
-Message-ID: <20050131231752.GA17126@logos.cnet>
-References: <41F5FC96.2010103@sw.ru>
-Mime-Version: 1.0
+	Mon, 31 Jan 2005 21:25:44 -0500
+Received: from mail.joq.us ([67.65.12.105]:18155 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S261503AbVBACZf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 21:25:35 -0500
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, Alexander Nyberg <alexn@dsv.su.se>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>
+Subject: Re: [PATCH] sched - Implement priority and fifo support for
+ SCHED_ISO
+References: <41F76746.5050801@kolivas.org> <87acqpjuoy.fsf@sulphur.joq.us>
+	<41FE9582.7090003@kolivas.org> <87651di55a.fsf@sulphur.joq.us>
+	<41FEB8BA.7000106@kolivas.org>
+From: "Jack O'Quin" <joq@io.com>
+Date: Mon, 31 Jan 2005 20:27:08 -0600
+In-Reply-To: <41FEB8BA.7000106@kolivas.org> (Con Kolivas's message of "Tue,
+ 01 Feb 2005 10:01:14 +1100")
+Message-ID: <87fz0hf20z.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41F5FC96.2010103@sw.ru>
-User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 25, 2005 at 11:00:22AM +0300, Vasily Averin wrote:
-> cc: Andrey Melnikov <temnota+kernel@kmv.ru>
-> cc: linux-kernel@vger.kernel.org
-> 
-> Marcello, Andrey
-> 
-> I believe this patch is wrong.
-> First, it prevent nothing: NMI watchdog is a signal that you wait too
-> long with disabled interrupts. Your controller was not answered too
-> long, obviously it is a hardware issue.
-> Second, you could not call schedule() with io_request_lock spinlock taken.
-> 
-> You should unlock io_request_lock before msleep, like in latest versions
-> of megaraid2 drivers.
-> 
-> Please fix it.
+> Jack O'Quin wrote:
+>> The corrected version works noticeably better, but still nowhere near
+>> as well as SCHED_FIFO.  The first run had a cluster of really bad
+>> xruns.  The second and third were much better, but still with numerous
+>> small xruns.
+>>
+>>   http://www.joq.us/jack/benchmarks/sched-iso-fix/
+>>
+>> With a compile running in the background it was a complete failure.
+>> Some kind of big xrun storm triggered a collapse on every attempt.
+>>
+>>   http://www.joq.us/jack/benchmarks/sched-iso-fix+compile/
+>>
+>> The summary statistics are mixed.  The delay_max is noticeably better
+>> than before, but still much worse than SCHED_FIFO.  But, the xruns are
+>> really bad news...
 
-Andrey, 
+Con Kolivas <kernel@kolivas.org> writes:
+> Believe it or not these look like good results to me. Your XRUNS are
+> happening when the DSP load is >70% which is the iso_cpu % cutoff. Try
+> setting the iso_cpu to 90%
+>
+> echo 90 > /proc/sys/kernel/iso_cpu
 
-Can you please update your patch to unlock io_request_lock before sleeping
-and locking after coming back? 
+I ran them again with that setting.  But, don't forget the large
+number of xruns before, even running without the compiles in the
+background.  There are still way too many of those, although the third
+run was clean.  If you can get them all to work like that, we'll
+really have something.
 
-What the driver is doing is indeed wrong.
+  http://www.joq.us/jack/benchmarks/sched-iso-fix.90
 
-Thank you.
+With a compile running in the background, the entire run did not fail
+completely as it had at 70%.  But there are still way too many xruns.
 
-Is there anybody out there at LSI? 
+  http://www.joq.us/jack/benchmarks/sched-iso-fix.90+compile
 
-> Thank you,
->       Vasily Averin, SWSoft Linux Kernel Team
-> 
-> # ChangeSet
-> #   2005/01/19 14:16:32-02:00 temnota@kmv.ru
-> #   [PATCH] Prevent NMI oopser from triggering when megaraid2 waits
-> #   for abort/reset cmd completion
-> #
-> #   > We should backport msleep() in 2.4.29-pre1.
-> #
-> #   Ok, msleep() backported, but driver isn't fixed. This patch
-> #   acceptable?
-> #
-> #   Prevent NMI oopser kill kernel thread when megaraid2 driver waiting
-> #   abort or reset command completion.
-> #
-> #   Signed-off-by: Andrey Melnikov <temnota+kernel@kmv.ru>
-> 
+I moved a bunch of directories testing older prototypes to a .old
+subdirectory, they no longer clutter up the summary statistics.
+
+  http://www.joq.us/jack/benchmarks/.SUMMARY
+
+The fact that the results did improve with the 90% setting suggests
+that there may be a bug in your throttling or time accounting.  The
+DSP load for this test should hover around 50% when things are working
+properly.  It should never hit a 70% limit, not even momentarily.  The
+background compile should not affect that, either.
+
+Something seems to be causing scheduling delays when the sound card
+interrupt causes jackd to become runnable.  Ingo's nice(-20) patches
+seem to have the same problem, but his RLIMIT_RT_CPU version does not.
+
+This is still not working well enough for JACK users.  Long and
+variable trigger latencies after hardware interrupts are deadly to any
+serious realtime application.
+-- 
+  joq

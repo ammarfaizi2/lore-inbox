@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261327AbTIXDNC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 23:13:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbTIXDNC
+	id S261311AbTIXDMb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 23:12:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbTIXDMb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 23:13:02 -0400
-Received: from mail.storm.ca ([209.87.239.66]:48101 "EHLO mail.storm.ca")
-	by vger.kernel.org with ESMTP id S261327AbTIXDM7 (ORCPT
+	Tue, 23 Sep 2003 23:12:31 -0400
+Received: from rth.ninka.net ([216.101.162.244]:59814 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S261311AbTIXDMa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 23:12:59 -0400
-Message-ID: <3F710C3C.70502@storm.ca>
-Date: Wed, 24 Sep 2003 11:15:08 +0800
-From: Sandy Harris <sandy@storm.ca>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: offtopic (Re: Horiffic SPAM)
-References: <Pine.LNX.4.53.0309231408260.28457@quark.analogic.com> <20030923183648.GE1269@velociraptor.random> <200309231153.09298.lkml@lpbproductions.com> <20030923190656.GF1269@velociraptor.random>
-In-Reply-To: <20030923190656.GF1269@velociraptor.random>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 23 Sep 2003 23:12:30 -0400
+Date: Tue, 23 Sep 2003 20:11:15 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: torvalds@osdl.org, andrea@kernel.org, lm@work.bitmover.com,
+       linux-kernel@vger.kernel.org, willy@debian.org,
+       marcelo.tosatti@cyclades.com.br, lm@bitmover.com
+Subject: Re: log-buf-len dynamic
+Message-Id: <20030923201115.571a7abd.davem@redhat.com>
+In-Reply-To: <20030924024831.GO16314@velociraptor.random>
+References: <20030924020409.GL16314@velociraptor.random>
+	<Pine.LNX.4.44.0309231924540.27467-100000@home.osdl.org>
+	<20030924024831.GO16314@velociraptor.random>
+X-Mailer: Sylpheed version 0.9.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
+On Wed, 24 Sep 2003 04:48:31 +0200
+Andrea Arcangeli <andrea@suse.de> wrote:
 
-> On Tue, Sep 23, 2003 at 11:53:04AM -0700, Matt Heler wrote:
->>
->>Ive been living in a mail hole theese past few years.. Where does one get this 
->>baesyan algorithm ?? 
->  
-> www.spamassassin.org
+> I wasn't whining about BK at all, nor about the licence,
 
-Another good tactic:
+Let me remind you, what you said which prompted Linus to reply in the
+first place:
 
-Teegrube is German for tarpit, a trap that wastes
-large amounts of spammer resources at little cost
-to you.
+	"if Marcelo would be using open source code to exports the
+	 patchsets in"
 
-English FAQ:
-http://www.iks-jena.de/mitarb/lutz/usenet/teergrube.en.html
+This is flame bait.  The only thing a sentence like that will do is
+spark a flame and incite emotional responses from others, not
+constructive conversation.
 
+That is what you need to stop doing.
 

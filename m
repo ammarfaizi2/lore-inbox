@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264633AbUHINAw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266547AbUHINDx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264633AbUHINAw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 09:00:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266547AbUHINAw
+	id S266547AbUHINDx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 09:03:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266550AbUHINDx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 09:00:52 -0400
-Received: from main.gmane.org ([80.91.224.249]:17808 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264633AbUHINAu (ORCPT
+	Mon, 9 Aug 2004 09:03:53 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:27834 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S266547AbUHINDw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 09:00:50 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Date: Mon, 09 Aug 2004 15:00:44 +0200
-Message-ID: <yw1x8yco4gar.fsf@kth.se>
-References: <200408091224.i79COp69009736@burner.fokus.fraunhofer.de>
+	Mon, 9 Aug 2004 09:03:52 -0400
+Date: Mon, 9 Aug 2004 06:03:59 -0700
+From: Paul Jackson <pj@sgi.com>
+To: "R. J. Wysocki" <rjwysocki@sisk.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Problem] 2.6.8-rc3: usb-storage devices are read-only (NOT
+ related to iocharset)
+Message-Id: <20040809060359.5be7c11f.pj@sgi.com>
+In-Reply-To: <200408082208.02328.rjwysocki@sisk.pl>
+References: <200408082157.35469.rjwysocki@sisk.pl>
+	<200408082208.02328.rjwysocki@sisk.pl>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 213-187-164-3.dd.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:U+WnoodAU5BAGX6jAdvCw1xBLkg=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling <schilling@fokus.fraunhofer.de> writes:
+I've been mounting my vfat /boot/efi elilo (this is on an SN2, which
+uses ia64 boot conventions) boot partition read-write by doing:
 
->>From: Eric Lammerts <eric@lammerts.org>
->
->>On Fri, 6 Aug 2004, Joerg Schilling wrote:
->>> The CAM interface (which is from the SCSI standards group)
->>> usually is implemeted in a way that applications open /dev/cam and
->>> later supply bus, target and lun in order to get connected
->>> to any device on the system that talks SCSI.
->>>
->>> Let me repeat: If you believe that this is a bad idea, give very
->>> good reasons.
->
->>With this interface, how do you grant non-root users access to a CD
->>writer, but prevent them from directly accessing a SCSI harddisk?
->
-> On Linux, it is impossible to run cdrecord without root privilleges.
-
-I do it all the time, but then again I also use dev=/dev/hdc which is
-also supposedly impossible.
-
-> Make cdrecord suid root, it has been audited....
-
-By whom?  The author?
+	mount -o remount,rw /boot/efi
+ 
+after it comes up mounted read-only.  Does that help?  This is on
+2.6.8-rc2-mm2.
 
 -- 
-Måns Rullgård
-mru@kth.se
-
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

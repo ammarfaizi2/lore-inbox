@@ -1,63 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129292AbRDAQvm>; Sun, 1 Apr 2001 12:51:42 -0400
+	id <S132546AbRDAUCO>; Sun, 1 Apr 2001 16:02:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129464AbRDAQvY>; Sun, 1 Apr 2001 12:51:24 -0400
-Received: from bobas.nowytarg.top.pl ([212.244.190.69]:13331 "EHLO
-	bobas.nowytarg.top.pl") by vger.kernel.org with ESMTP
-	id <S129292AbRDAQvL>; Sun, 1 Apr 2001 12:51:11 -0400
-From: Daniel Podlejski <underley@witch.underley.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: tmpfs in 2.4.3 and AC
-In-Reply-To: <20010330161837.A1052@werewolf.able.es>
-In-Reply-To: <20010330161837.A1052@werewolf.able.es>
-X-PGP-Fingerprint: 4D 72 53 F8 FE 8C 53 B9  66 AD F6 EA C9 17 CD 82
-X-I-are-no-mensan: Yes
-Message-Id: <20010401152338Z32060-860+97@witch.underley.eu.org>
-Date: Sun, 1 Apr 2001 17:23:31 +0200
+	id <S132547AbRDAUCE>; Sun, 1 Apr 2001 16:02:04 -0400
+Received: from kotako.analogself.com ([207.181.249.20]:19209 "HELO
+	kotako.analogself.com") by vger.kernel.org with SMTP
+	id <S132546AbRDAUBu>; Sun, 1 Apr 2001 16:01:50 -0400
+Date: Sun, 1 Apr 2001 12:49:58 -0700
+From: Jag <agrajag@linuxpower.org>
+To: Giuliano Pochini <pochini@denise.shiny.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Temporary disk space leak
+Message-ID: <20010401124958.A13901@kotako.analogself.com>
+Mail-Followup-To: Giuliano Pochini <pochini@denise.shiny.it>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3AC5A16A.9F0147E4@denise.shiny.it>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="4vgOdmpzXGVCiUly"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AC5A16A.9F0147E4@denise.shiny.it>; from pochini@denise.shiny.it on Sat, Mar 31, 2001 at 11:20:42AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In linux-kernel, jamagallon@able.es wrote:
-: Hi,
-: 
-: tmpfs (or shmfs or whatever name you like) is still different in official
-: series (2.4.3) and in ac series. Its a kick in the ass for multiboot,
-: as offcial 2.4.3 does not recognise 'tmpfs' in fstab:
-: 
-: shmfs  /dev/shm        tmpfs   ...
-: 
-: Any reason, or is because it has been forgotten ?
 
-There is no tmpfs in vanilla 2.4.3 kernel.
+--4vgOdmpzXGVCiUly
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I use this start script to mount tmp/shmfs:
+On Sat, 31 Mar 2001, Giuliano Pochini wrote:
 
-#!/bin/sh
+>=20
+> [root@Jay Giu]# du -c /home
+> [...]
+> 320120	/home
+> 320120	total
+> [root@Jay Giu]# df
+> Filesystem           1k-blocks      Used Available Use% Mounted on
+> /dev/sda8               253823     65909    174807  27% /
+> /dev/sda7              2158320    750672   1296240  37% /usr
+> /dev/sda5              2193082   1898198    183474  91% /home
+> /dev/sda9              1013887    899924     61586  94% /opt
+>=20
+>=20
+> It happened after I wrote and deleted very large files (~750MB) a
+> few times in my home dir.
+> Then I logged out and I relogged in as root to check what happened
+> and "df" shown everything was right again:
+>=20
+> /dev/sda5              2193082    320122   1761550  15% /home
+>=20
+>=20
+> ...strange...
 
-[ -d /dev/shm ] || mkdir -p /dev/shm
+Was the 750M file opened by a program when it was deleted?  When a file
+is deleted, if it is opened, it will still be there and taking up file
+space (as shown in df) until it is completely closed.  However, even if
+the file is opened by a process and not really deleted, the file's space
+will no longer show up in du because the file can no longer be accessed
+through the filesystem.
 
-shmfs_avail=$(grep -qci 'shmfs' /proc/filesystems || true)
-tmpfs_avail=$(grep -qci 'tmpfs' /proc/filesystems || true)
-devshm_mounted=$(grep -qci '/dev/shm' /proc/mounts || true)
-
-[ $devshm_mounted = 0 ] || exit 0
-
-if [ $shmfs_avail = 1 ]
-then
-        echo -ne "Mounting shmfs: "
-        mount none /dev/shm -t shmfs && echo "ok."
-        exit 0
-fi
-
-if [ $tmpfs_avail = 1 ]
-then
-        echo -ne "Mounting tmpfs: "
-        mount tmpfs /dev/shm -t tmpfs && echo "ok."
-fi
+It sounds like this is what happened, and whatever program had the file
+open was closed when you logged out.
 
 
--- 
-Daniel Podlejski <underley@underley.eu.org>
-   ... On a dark desert highway Cool wind in my hair
-   Warm smell of colitas Rising up through the air ...
+Jag
+
+--4vgOdmpzXGVCiUly
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6x4Zm+pq97aGGtXARAvI6AJ0Ze08TmsY+wMnIi7rWFvZCb4j6xACfYGfc
++mzUVAroZd2CbbHrPuqBXGU=
+=/+ii
+-----END PGP SIGNATURE-----
+
+--4vgOdmpzXGVCiUly--

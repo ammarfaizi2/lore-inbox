@@ -1,33 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318719AbSHLFVz>; Mon, 12 Aug 2002 01:21:55 -0400
+	id <S318717AbSHLFVA>; Mon, 12 Aug 2002 01:21:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318721AbSHLFVz>; Mon, 12 Aug 2002 01:21:55 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:28569 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S318719AbSHLFVx>;
-	Mon, 12 Aug 2002 01:21:53 -0400
-Date: Sun, 11 Aug 2002 22:12:12 -0700 (PDT)
-Message-Id: <20020811.221212.70554014.davem@redhat.com>
-To: jroland@roland.net
-Cc: efault@gmx.de, linux-kernel@vger.kernel.org
-Subject: Re: The spam problem.
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <004e01c241bb$816847e0$2102a8c0@gespl2k1>
-References: <027104643010c82DTVMAIL11@smtp.cwctv.net>
-	<5.1.0.14.2.20020812064112.00b6b9c0@pop.gmx.net>
-	<004e01c241bb$816847e0$2102a8c0@gespl2k1>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S318718AbSHLFVA>; Mon, 12 Aug 2002 01:21:00 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:6158 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S318717AbSHLFU7>; Mon, 12 Aug 2002 01:20:59 -0400
+Date: Mon, 12 Aug 2002 02:24:37 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrew Morton <akpm@zip.com.au>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 9/21] batched addition of pages to the LRU
+In-Reply-To: <3D57449E.4FADF44@zip.com.au>
+Message-ID: <Pine.LNX.4.44L.0208120222420.23404-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Jim Roland" <jroland@roland.net>
-   Date: Sun, 11 Aug 2002 23:48:30 -0500
+On Sun, 11 Aug 2002, Andrew Morton wrote:
 
-   Why would this kill bug reports?
-   
-Because people who aren't subscribed couldn't then
-send OOPS reports here.  Lots of people do this and
-it's invaluable data.
+> And it only takes one dirty block!  Any LRU page which is dirty
+> against a blocked queue is like a hand grenade floating
+> down a stream [1].  If some innocent task tries to write that
+> page it gets DoSed via the request queue.
+
+This is exactly why we shouldn't wait on dirty pages in
+the pageout path.
+
+Of course we need to wait and we should stall before
+the system gets overloaded so we don't "run into a wall",
+but waiting on any random _single_ dirty page just doesn't
+make sense.
+
+
+Then again, that will probably still not fix the problem
+that we're not keeping the disk busy so we won't get full
+writeout speed and end up stalling...
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

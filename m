@@ -1,66 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbVCCBTG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbVCCBTq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261360AbVCCBTG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 20:19:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbVCCBQa
+	id S261351AbVCCBTq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 20:19:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVCCBO4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 20:16:30 -0500
-Received: from fire.osdl.org ([65.172.181.4]:23947 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261372AbVCCBOl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 20:14:41 -0500
-Date: Wed, 2 Mar 2005 17:15:36 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Greg KH <greg@kroah.com>
-cc: Jeff Garzik <jgarzik@pobox.com>, Russell King <rmk+lkml@arm.linux.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Wed, 2 Mar 2005 20:14:56 -0500
+Received: from yue.linux-ipv6.org ([203.178.140.15]:31503 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S261370AbVCCBOa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 20:14:30 -0500
+Date: Thu, 03 Mar 2005 10:15:52 +0900 (JST)
+Message-Id: <20050303.101552.44217152.yoshfuji@linux-ipv6.org>
+To: davem@davemloft.net
+Cc: jgarzik@pobox.com, akpm@osdl.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
 Subject: Re: RFD: Kernel release numbering
-In-Reply-To: <20050303002047.GA10434@kroah.com>
-Message-ID: <Pine.LNX.4.58.0503021710430.25732@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
- <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com>
- <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org> <20050303002047.GA10434@kroah.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <20050302165830.0a74b85c.davem@davemloft.net>
+References: <20050302162312.06e22e70.akpm@osdl.org>
+	<42265A6F.8030609@pobox.com>
+	<20050302165830.0a74b85c.davem@davemloft.net>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20050302165830.0a74b85c.davem@davemloft.net> (at Wed, 2 Mar 2005 16:58:30 -0800), "David S. Miller" <davem@davemloft.net> says:
 
+> All this "I have to hold onto my backlog longer, WAHHH!" arguments are bogus
+> IMHO.  We're using a week of quiescence to fix the tree for users so they
+> are happy whilst we work on the 2.6.${odd} interesting stuff :-)
 
-On Wed, 2 Mar 2005, Greg KH wrote:
-> 
-> I think this statement proves that the current development situation is
-> working quite well.  The nasty breakage and details got worked out in
-> the -mm tree, and then flowed into your tree when they seemed sane.
+I'm afarid people start waiting 2.6.${even} releases...
 
-Actually, the breakage I was talking about got fixed in _my_ tree.
-
-I'd love for the -mm tree to get more testing, but it doesn't. 
-
-> So, any driver stuff is just fine?  Great, I don't have an issue with
-> your proposal then, as it wouldn't affect me that much :)
-
-I don't know about "any", but yeah.
-
-> I do understand what you are trying to achieve here, people don't really
-> test the -rc releases as much as a "real" 2.6.11 release.  Getting a
-> week of testing and bugfix only type patches to then release a 2.6.12
-> makes a lot of sense.  For example, see all of the bug reports that came
-> out of the woodwork today on lkml from the 2.6.11 release...
-
-A large part of it is psychological. On the other hand, it may be that
-Neil is right and it would just mean that people wouldn't even test the
-odd releases (..because they want to wait a couple of weeks for the even
-one), so it may not actually end up helping much.
-
-The thing is, I _do_ believe the current setup is working reasonably well.  
-But I also do know that some people (a fairly small group, but anyway)  
-seem to want an extra level of stability - although those people seem to
-not talk so much about "it works" kind of stability, but literally a "we
-can't keep up" kind of stability (ie at least a noticeable percentage of
-that group is not complaining about crashes, they are complaining about
-speed of development).
-
-And I suspect that _anything_ I do won't make those people happy.
-
-		Linus
+--yoshfuji

@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266959AbTBLALR>; Tue, 11 Feb 2003 19:11:17 -0500
+	id <S267630AbTBLAL3>; Tue, 11 Feb 2003 19:11:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266965AbTBLALR>; Tue, 11 Feb 2003 19:11:17 -0500
-Received: from 60.54.252.64.snet.net ([64.252.54.60]:46554 "EHLO
-	hotmale.blue-labs.org") by vger.kernel.org with ESMTP
-	id <S266959AbTBLALQ>; Tue, 11 Feb 2003 19:11:16 -0500
-Message-ID: <3E499368.8070409@blue-labs.org>
-Date: Tue, 11 Feb 2003 19:20:56 -0500
-From: David Ford <david+cert@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030209
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: trond.myklebust@fys.uio.no
-CC: Neil Brown <neilb@cse.unsw.edu.au>, Oleg Drokin <green@namesys.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Current NFS issues (2.5.59)
-References: <3E46E1D6.20709@blue-labs.org>	<15944.30340.955911.798377@notabene.cse.unsw.edu.au>	<20030211100011.A5850@namesys.com>	<15944.60247.512630.175678@charged.uio.no>	<20030211163119.A24157@namesys.com>	<15945.30044.444455.162630@notabene.cse.unsw.edu.au> <15945.36788.945931.141582@charged.uio.no>
-In-Reply-To: <15945.36788.945931.141582@charged.uio.no>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267688AbTBLAL2>; Tue, 11 Feb 2003 19:11:28 -0500
+Received: from adsl-66-137-237-97.dsl.rcsntx.swbell.net ([66.137.237.97]:43176
+	"HELO frascone.com") by vger.kernel.org with SMTP
+	id <S267630AbTBLAL1>; Tue, 11 Feb 2003 19:11:27 -0500
+Date: Tue, 11 Feb 2003 18:21:15 -0600
+From: David Frascone <dave@frascone.com>
+To: linux-kernel@vger.kernel.org
+Subject: Faking a memory map?
+Message-ID: <20030212002115.GD26196@wolverine>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On my network, Server 2 (web server) is SMP and one client is SMP.  The 
-more problematic client is not SMP.  I'll do some debugging in a moment, 
-I've another fire to put out presently.
+I'm trying to get an existing SDK (userland) for a PCI hardware device
+to work across a different propriatary bit-banged interface.
 
--d
+The original device driver just mmaped the PCI registers / address
+space into userland.  (talk about lazy ;)
 
-Trond Myklebust wrote:
+Anyway, the hardware I'm working with is *not* on the PCI bus, and
+therefore not memory-mappable.  So, I'm stuck with a complex driver
+design (compared to the original), and rewriting the entire bottom of
+the SDK.
 
->[...]
->
->On the contrary. The above shows that the client is indeed receiving
->some data, but for some reason it is not accepting that data as a
->valid reply. It looks as if either skb_recv_datagram() or
->xprt_lookup_rqst() is failing.
->
->BTW: I'm still not seeing any such trouble with these loopback mounts
->on my own machine. Could it be an SMP problem?
->
->Cheers,
->  Trond
->  
->
+So, I thought:  Is there a way to cheat?  Would it be possible for me
+to *fake* the SDK out by memory mapping some RAM, and then reading /
+writing to the ram after bit-banging the device.
 
+I looked into it some, but I couldn't figure out how to get notified
+when the region was read/written to (only when the page changed).  So,
+is it possible to do the (admitedly ugly) hack I'm attempting?
+
+Thanks in advance,
+
+-Dave
+
+-- 
+David Frascone
+
+          What garlic is to salad, insanity is to art.

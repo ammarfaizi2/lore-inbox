@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262133AbTCLXC6>; Wed, 12 Mar 2003 18:02:58 -0500
+	id <S262085AbTCLWxu>; Wed, 12 Mar 2003 17:53:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262130AbTCLXC4>; Wed, 12 Mar 2003 18:02:56 -0500
-Received: from impact.colo.mv.net ([199.125.75.20]:5521 "EHLO
-	impact.colo.mv.net") by vger.kernel.org with ESMTP
-	id <S262096AbTCLXCw>; Wed, 12 Mar 2003 18:02:52 -0500
-Message-ID: <3E6FBF15.6080904@bogonomicon.net>
-Date: Wed, 12 Mar 2003 17:13:25 -0600
-From: Bryan Andersen <bryan@bogonomicon.net>
-Organization: Bogonomicon
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@redhat.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       andre@linux-ide.org
-Subject: Re: time loss using ide-scsi under 2.4.21-pre5-ac2
-References: <200303122246.h2CMkf519689@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262103AbTCLWwX>; Wed, 12 Mar 2003 17:52:23 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:18692 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262087AbTCLWvN>;
+	Wed, 12 Mar 2003 17:51:13 -0500
+Date: Thu, 13 Mar 2003 01:05:46 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Zack Brown <zbrown@tumblerings.org>,
+       Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+Message-ID: <20030313000545.GE5958@zaurus.ucw.cz>
+References: <Pine.LNX.4.44.0303090401160.32518-100000@serv> <Pine.LNX.4.44.0303081936400.27974-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0303081936400.27974-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
->>I'm seeing seconds of time loss per minute while ripping CDs via grip 
->>and it's internal cdparanoia.  Grip uses the scsi generic device for 
+Hi!
+
+> > A separate repository doesn't have this problem
 > 
+> You're wrong.
 > 
-> hdparm -u1 
+> The problem is _distribution_. In other words, two people rename the same 
+> file. Or two people rename two _different_ files to the same name. Or two 
+> people create two different files with the same name. What happens when 
+> you merge?
+> 
+> None of these are issues for broken systems like CVS or SVN, since they 
 
-That fixed it.
+Actually this does not have much to do
+with central repository. prcs has central
+repository, too, but it has branches
+(=multiple repositories in bk); so
+yes you have the very same problem.
 
-- Bryan
-
-
+prcs does not have problems like trust
+and non-synchronized time, through.
+				Pavel
+-- 
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
 

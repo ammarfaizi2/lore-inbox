@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130151AbRALSNU>; Fri, 12 Jan 2001 13:13:20 -0500
+	id <S129664AbRALSRV>; Fri, 12 Jan 2001 13:17:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130159AbRALSNK>; Fri, 12 Jan 2001 13:13:10 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:11539 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130151AbRALSM7>; Fri, 12 Jan 2001 13:12:59 -0500
-Subject: Re: ide.2.4.1-p3.01112001.patch
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Fri, 12 Jan 2001 18:13:34 +0000 (GMT)
-Cc: andre@linux-ide.org (Andre Hedrick), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10101120949040.1858-100000@penguin.transmeta.com> from "Linus Torvalds" at Jan 12, 2001 09:51:03 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129903AbRALSRL>; Fri, 12 Jan 2001 13:17:11 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:43790 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S129664AbRALSRK>;
+	Fri, 12 Jan 2001 13:17:10 -0500
+Date: Fri, 12 Jan 2001 19:16:01 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <dwmw2@infradead.org>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>, <frank@unternet.org>
+Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware
+In-Reply-To: <3A5F4827.2E443786@colorfullife.com>
+Message-ID: <Pine.LNX.4.30.0101121912340.1071-100000@e2>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14H8hl-0004ji-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I want to see the code to handle the apparent VIA DMA bug. At this point,
-> preferably by just disabling DMA on VIA chipsets or something like that
-> (if it has only gotten worse since 2.2.x, I'm not interested in seeing any
-> experimental patches for it during early 2.4.x).
 
-It hasnt gotten worse, its just its a very specific combination and its a 
-well known problem (vendors dont enable auto dma for ide for this reason)
-2.2.16 just covers the cases I know about (and slightly overdoes it for now)
+On Fri, 12 Jan 2001, Manfred Spraul wrote:
 
-> We've already had one major fs corruption due to this, I want that fixed
-> _first_.
+> The PPro local apic documentation says:
+> <<<<<<<
+> The processor's local APIC includes an in-service entry and a holding
+> entry for each priority level. To avoid losing interrupts, software
+> should allocate no more than 2 interrupt vectors per priority.
+> >>>>>>>>
+>
+> Ok, we must reorder the vector numbers for our own interrupts
+> (0xfb-0xff), but that doesn't explain our problems: we don't loose
+> reschedule interrupts, we have problems with normal interrupts - and
+> there we only use 2 irq at the same priority level.
 
-I've got other reports too. 
+we *already* reorder vector numbers and spread them out as much as
+possible. We do this in 2.2 as well. We did this almost from day 1 of
+IO-APIC support. If any manually allocated IRQ vector creates a '3 vectors
+in the same 16-vector region' situation then thats a bug in hw_irq.h..
 
-The PCI ids I kill autodma on for 2.2 to cover this are:
+the 'loss of interrupts' above does not include external interrupts, only
+local interrupts (such as the APIC timer interrupt) can get lost in such a
+situation.
 
-                /*
-                 *      Don't try and tune a VIA 82C586 or 586A
-                 */
-                if (IDE_PCI_DEVID_EQ(devid, DEVID_VP_IDE))
-                {
-                        autodma_default = 0;
-                        break;
-                }
-                if (IDE_PCI_DEVID_EQ(devid, DEVID_VP_OLDIDE))
-                {
-                        autodma_default = 0;
-                        break;
-                }
+(nevertheless there is something going on.)
 
-
-PCI_VENDOR_ID_VIA,     PCI_DEVICE_ID_82C586_0
-PCI_VENDOR_ID_VIA,     PCI_DEVICE_ID_82C586_1
-
-
+	Ingo
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

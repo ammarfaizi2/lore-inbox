@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268899AbTBZUQC>; Wed, 26 Feb 2003 15:16:02 -0500
+	id <S268919AbTBZUXD>; Wed, 26 Feb 2003 15:23:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268901AbTBZUQC>; Wed, 26 Feb 2003 15:16:02 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:21633 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S268899AbTBZUP6>; Wed, 26 Feb 2003 15:15:58 -0500
-Date: Wed, 26 Feb 2003 15:29:06 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Rusty Lynch <rusty@linux.co.intel.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, p_gortmaker@yahoo.com,
-       lkml <linux-kernel@vger.kernel.org>, rddunlap@osdl.org
-Subject: Re: [2.5.63 PATCH][TRIVIAL]Change rtc.c ioport extend from 10h to 8h
-In-Reply-To: <1046288552.4450.13.camel@vmhack>
-Message-ID: <Pine.LNX.3.95.1030226152529.5261B-100000@chaos>
+	id <S268921AbTBZUXD>; Wed, 26 Feb 2003 15:23:03 -0500
+Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:17811 "EHLO
+	dyn9-47-17-83.beaverton.ibm.com") by vger.kernel.org with ESMTP
+	id <S268919AbTBZUXB>; Wed, 26 Feb 2003 15:23:01 -0500
+Message-ID: <3E5D1EF2.1BC379DD@us.ibm.com>
+Date: Wed, 26 Feb 2003 12:09:22 -0800
+From: Janet Morgan <janetmor@us.ibm.com>
+Reply-To: janetmor@us.ibm.com
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: trond.myklebust@fys.uio.no
+CC: maneesh@in.ibm.com, linux-kernel@vger.kernel.org,
+       nfs@lists.sourceforge.net, bruce.allan@us.ibm.com
+Subject: Re: 2.5.62 Oops during nfs mount
+References: <3E56E58D.6B047A23@us.ibm.com>
+		<20030224123622.GB1103@in.ibm.com> <15962.20933.457919.169668@charged.uio.no>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 Feb 2003, Rusty Lynch wrote:
+Trond Myklebust wrote:
 
-> On Wed, 2003-02-26 at 11:35, Richard B. Johnson wrote:
-> > On 26 Feb 2003, Rusty Lynch wrote:
-> > 
-> > > The real time clock only needs 8 bytes, but rtc.c is reserving 10h bytes.
-> > [SNIPPED...]
-> > 
-> > It only needs two bytes port 0x70 and port 0x71 in ix86. Since the Sparc
-> > gets addressed differently and can only read/write words, it needs 8
-> > bytes.  Please, if you are going to fix it, please fix it only once by
-> > setting a different length for the different machines!
-> > Cheers,
-> > Dick Johnson
-> 
-> Actually, it's finer grain then x86, it's a chipset issue.  As Randy
-> pointed out in the original thread ==>
-> > Some Intel chipset specs list RTC as using 0x70 - 0x77, probably with
-> > some aliasing in there, so it looks to me like an EXTENT of 8 would be
-> > safer and still allow you access to 0x79.
-> > 
-> > I'm looking at 82801BA-ICH2, 82801-ICH3, and 82801AA-ICH0 specs.
-> > 
-> > -- 
+> >>>>> " " == Maneesh Soni <maneesh@in.ibm.com> writes:
+>
+>      > Following patch should fix this problem. I think Trond can say
+>      > whether it is correct or not. In my opinion rpc_rmdir should
+>      > test for negative dentry after lookup_hash() returns, like
+>      > rpc_unlink() does.
+>
+> No. You are 'fixing' a symptom of a more fundamental
+> bug/misunderstanding: lookup_path("") returns no error, and is
+> sometimes causing us to remove the top level directory.
+> See the 2-line patch I posted yesterday. It should fix the Oops you
+> are reporting.
 
-Can't see what an IDE chip-set has to do with it. The RTC can only
-be accessed as an offset-location and a data-location. You write
-an offset at one location and you read/write data at another location.
-On an ix86, the locations are adjacent byte-wide ports. On the Sparc
-they are adjacent dword-wide memory locations.
+Thanks Trond, your patch below indeed fixed the Oops I reported:
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
+--- linux-2.5.61-up/net/sunrpc/clnt.c.orig      2003-02-15
+21:05:02.000000000 +0100
++++ linux-2.5.61-up/net/sunrpc/clnt.c   2003-02-17 19:39:20.000000000
++0100
+@@ -208,7 +208,8 @@
+                rpcauth_destroy(clnt->cl_auth);
+                clnt->cl_auth = NULL;
+        }
+-       rpc_rmdir(clnt->cl_pathname);
++       if (clnt->cl_pathname[0])
++               rpc_rmdir(clnt->cl_pathname);
+        if (clnt->cl_xprt) {
+                xprt_destroy(clnt->cl_xprt);
+                clnt->cl_xprt = NULL;
 

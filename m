@@ -1,71 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319005AbSHSTo2>; Mon, 19 Aug 2002 15:44:28 -0400
+	id <S319010AbSHSTtl>; Mon, 19 Aug 2002 15:49:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319006AbSHSTo2>; Mon, 19 Aug 2002 15:44:28 -0400
-Received: from imo-m02.mx.aol.com ([64.12.136.5]:3557 "EHLO imo-m02.mx.aol.com")
-	by vger.kernel.org with ESMTP id <S319005AbSHSTo1>;
-	Mon, 19 Aug 2002 15:44:27 -0400
-Message-ID: <3D6113E1.302@netscape.net>
-Date: Mon, 19 Aug 2002 15:50:57 +0000
-From: Adam Belay <ambx1@netscape.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
-X-Accept-Language: en-us
+	id <S319011AbSHSTtl>; Mon, 19 Aug 2002 15:49:41 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:36548 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S319010AbSHSTtk>;
+	Mon, 19 Aug 2002 15:49:40 -0400
+Date: Mon, 19 Aug 2002 21:55:02 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: MAX_PID changes in 2.5.31
+Message-ID: <Pine.LNX.4.44.0208192146580.32337-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: mochel@osdl.org
-CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.31 driverfs: patch for your consideration
-References: <Pine.LNX.4.44.0208191111100.1048-100000@cherise.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Mailer: Unknown (No Version)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Linus,
 
-mochel@osdl.org wrote:
+afaics, you did the PID_MAX changes in v2.5.31? This is a change i had for
+(surprise) threading purposes already, but done a bit differently.
 
->>Also if You're interested here's the write support for "driver".
->>
->
->Suppose we did support this. If you write the name of a driver to a file, 
->we search the bus's list of drivers for a match. We then let the bus 
->compare the hardware IDs and call probe if it matches. 
->
-That's exactly how my code works.
+The main problem is that there's the old-style SysV IPC interface that
+uses 16-bit PIDs still. All recent SysV applications (linked against glibc
+2.2 or newer) use IPC_64, but any application linked against pre-2.2
+glibcs will fail. glibc 2.2 was released 2 years ago, is this enough of a
+timeout to obsolete the non-IPC_64 interfaces?
 
->
->
->One big problem is that the IDs in the driver are marked __devinitdata, so
->they're thrown away after init (if hotplugging is not enabled). So, we 
->would have to change every driver.
->
-Found that out when I tested binding the agpgart driver.
+if that is the case then can i rip all the non-IPC_64 parts out of ipc/*,
+and let non-IPC_64 calls fail? Right now it's silent breakage that
+happens.
 
-> 
->
->Besides, it just doesn't make sense. If $user wants to use a different 
->or third party driver, let them rmmod and insmod. 
->
-Ok, I guess that makes sense.  My interface was primarily for special 
-cases anyway.  What does need to be done is a user level program that 
-finds and loads the proper modules automatically.  Maybe we could use 
-the existing hotplug scripts or we could even start from scratch.  Maybe 
-we should make a file in the source tree where driver developers can 
-list their supported hardware IDs but more importantly documentation on 
-the attributes registered into driverfs.
+or, in my threading tree, i introduced a /proc/sys/kernel/pid_max tunable,
+which has the safe conservative value of 32K PIDs, but which can be
+changed by the admin to have higher PIDs.
 
->
->
->>PS:  Would you be interested in a patch that would port the pnpbios
->>driver to the driver model?
->>
->
->Yes. 
->
-great!
+[anything more complex than this i think should be ignored - we do not
+want to complicate PID allocations just for the sake of a single old
+16-bit interface.]
 
-Thanks,
-Adam
+	Ingo
 

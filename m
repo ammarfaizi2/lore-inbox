@@ -1,77 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbUKBJpP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbUKBJwy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbUKBJpP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 04:45:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbUKBJpP
+	id S261160AbUKBJwy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 04:52:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbUKBJwy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 04:45:15 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:53429 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261271AbUKBJhF (ORCPT
+	Tue, 2 Nov 2004 04:52:54 -0500
+Received: from 4s.enrico.unife.it ([192.167.219.82]:62668 "EHLO
+	quatresse.ferrara.linux.it") by vger.kernel.org with ESMTP
+	id S261166AbUKBJjM convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 04:37:05 -0500
-Date: Tue, 2 Nov 2004 10:37:58 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Bill Huey <bhuey@lnxw.com>
-Cc: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.5 (networking problems)
-Message-ID: <20041102093758.GA28014@elte.hu>
-References: <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <417F7D7D.5090205@stud.feec.vutbr.cz> <20041027134822.GA7980@elte.hu> <417FD9F2.8060002@stud.feec.vutbr.cz> <20041028115719.GA9563@elte.hu> <20041030000234.GA20986@nietzsche.lynx.com> <20041102085650.GA3973@nietzsche.lynx.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 2 Nov 2004 04:39:12 -0500
+From: Fabio Coatti <cova@ferrara.linux.it>
+Organization: FerraraLUG
+To: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: Test patch for ub and double registration
+Date: Tue, 2 Nov 2004 10:39:09 +0100
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, cs@tequila.co.jp
+References: <20041101164432.3fa72b81@lembas.zaitcev.lan>
+In-Reply-To: <20041101164432.3fa72b81@lembas.zaitcev.lan>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20041102085650.GA3973@nietzsche.lynx.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200411021039.10128.cova@ferrara.linux.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alle 01:44, martedì 2 novembre 2004, Pete Zaitcev ha scritto:
+> Hello,
+>
+> here's a patch to fix the double kobject registration problem with the ub.
+> One little problem here is that I do not have a device which fails this
+> way, so I would like owners of such devices to give it a try.
+>
+> The latest victim of this is Fabio Coatti. It should be noted that this
+> fix only (supposed to) prevents oopses on deregistration. If the device
+> doesn't work generally (for example, requires START STOP UNIT), it won't
+> help that.
 
-* Bill Huey <bhuey@lnxw.com> wrote:
+Ill'try this patch in a few hours, report will follow ASAP; 
 
-> On Fri, Oct 29, 2004 at 05:02:34PM -0700, Bill Huey wrote:
-> > This is in -V5.14
-> 
-> [nasty networking crash trace]
-> 
-> Didn't fix it all...
+thanks.
 
-thanks for the trace - i've uploaded -V0.6.6 to the usual place:
-
-    http://redhat.com/~mingo/realtime-preempt/
-
-which attempts to fix this particular deadlock.
-
-other changes in -V0.6.6:
-
- - increased debuggability by turning deadlock detection on for ordinary
-   Linux semaphores and rwsems. I suspect that some of the recently
-   reported hangs were semaphore related deadlocks. Those who see hangs 
-   please re-try with -V0.6.6 and deadlock detection turned on, does it
-   produce a usable deadlock printout?
-
- - show_all_locks() build bug fix from Daniel Walker.
-
- - another debuggability feature: deadlock tracing stops after the 
-   first dump and the kernel tries to continue (we tried to do this
-   before but it wasnt complete). Sometimes the deadlock is in fact some
-   'interesting' use of Linux semaphores and the system will not
-   really deadlock. The dump we can use to fix up that interesting use
-   of semaphores, and the system wont crash.
-
- - crash fix: the dump_own_stack() code was buggered - removed it. The 
-   stock kernel does pretty good stackdumping by itself, all that was
-   needed to activate it was to set CONFIG_FRAME_POINTERS.
-
-	Ingo
+-- 
+Fabio "Cova" Coatti    http://members.ferrara.linux.it/cova     
+Ferrara Linux Users Group           http://ferrara.linux.it
+GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
+Old SysOps never die... they simply forget their password.

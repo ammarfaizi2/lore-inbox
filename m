@@ -1,60 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261779AbUD3Wsk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbUD3W6b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261779AbUD3Wsk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 18:48:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbUD3Wsk
+	id S261763AbUD3W6b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 18:58:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbUD3W6b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 18:48:40 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:32151 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S261779AbUD3Wsh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 18:48:37 -0400
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-From: David Woodhouse <dwmw2@infradead.org>
-To: Keith D Burgess Jr <kburgessjr@mailblocks.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <kburgessjr-05pZrAV1BpTwXRPAFHKqDX8TUUVHXXq@mailblocks.com>
-References: <kburgessjr-05pZrAV1BpTwXRPAFHKqDX8TUUVHXXq@mailblocks.com>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1083365314.32758.62.camel@imladris.demon.co.uk>
+	Fri, 30 Apr 2004 18:58:31 -0400
+Received: from radius8.csd.net ([204.151.43.208]:28308 "EHLO
+	bastille.tuells.org") by vger.kernel.org with ESMTP id S261763AbUD3W63
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 18:58:29 -0400
+Date: Fri, 30 Apr 2004 16:58:44 -0600
+From: marcus hall <marcus@tuells.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: mmap returns incorrect data
+Message-ID: <20040430225844.GA13015@bastille.tuells.org>
+References: <20040429231243.GA8216@bastille.tuells.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1.dwmw2.1) 
-Date: Fri, 30 Apr 2004 23:48:34 +0100
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040429231243.GA8216@bastille.tuells.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-04-28 at 11:56 -0700, Keith D Burgess Jr wrote:
-> In summary, I firmly feel that there needs to be a mindset change if 
-> Linux is to eat away at Windows market share on the desktops. Let's 
-> take a certain Linux distributor as an example; here is a quote from a 
-> recent posting on the 4K stacks issue:
+On Thu Apr 29 2004 - 18:48:22 EST, Russell King wrote:
+>You _really_ don't want to use ext3 on CF unless you want to wear the
+>flash quickly. Just because a filesystem has journaling does _not_
+>mean that its suitable for flash (in fact, it may be far worse for
+>flash than its non-journaled counterpart, as in this case.)
 
-Quite frankly I don't give a two hoots about market share. If I wanted
-my code to be used by third parties _without_ them having to free their
-own code, then I'd have contributed to a BSD-licensed kernel instead of
-a GPL'd kernel; or I'd have dual-licensed it.
+I was concerned about that in the beginning, and was told that CF devices
+perform wear-leveling internally.  In fact, we have had units in the field
+for a couple of years without failure, so my objections carried little
+weight.  In practice, the filesystem isn't often written.  Since the jffs2
+filesystem seems to be intertwined with the mtd drivers, there don't seem
+to be any other good failure-tolerant solutions.  But, that isn't the
+point for now..
 
-If you think the BSD approach is so much more conducive to market share,
-and if you think market share is more important than freedom, then go
-elsewhere. Maybe you can use Windows -- that has BSD code in it, doesn't
-it? Or MacOS X perhaps? I don't really care much -- just go away.
+>This is an IDE driver bug - it performs PIO but does not ensure that the
+>individual pages are properly flushed to RAM before telling the kernel
+>that the IO is complete. (If someone wants to disagree, look at how
+>rd.c does flush_dcache_page, and see previous discussions on lkml
+>concerning this.)
 
-> "Too bad. External binary modules never have, and never will hold back 
-> development. NVIDIA need to issue driver updates that work accordingly."
-> 
-> Reworded from a user-focused perspective:
+Yes, this was in fact where the problem was.  In the 2.5.59 kernel, in
+mm/filemap.c there were still two calls to flush_page_to_ram(), but in
+include/asm-arm/proc-armv/cache.h this was defined to be a nop.  I
+replaced the flush_page_to_ram() calls with flush_dcache_page() calls
+and everything started working properly.
 
-Reworded from a copyright-holder's perspective:
+In later versions, the flush_page_to_ram() calls have been removed from
+filemap.c, and I do not see any replacement of the functionality (at least
+nothing that seems clear to me!)
 
-"Use a copy of my work outside the terms of its licence, and other than
-provided for by 'Fair Use' doctrine¹, and you are committing a criminal
-offence."
+I would like to eventually move forward to a 2.6 kernel, so I am interested
+in how this is addressed there.
 
--- 
-dwmw2
+I also didn't seem to find (or recognize) the earlier discussion, so perhaps
+it is covered there..
 
-¹ cf. http://www.hmso.gov.uk/acts/acts1988/Ukpga_19880048_en_4.htm
+Anyhow, thanks for the help.  Things are rolling again!
 
+Marcus Hall
+marcus@tuells.org

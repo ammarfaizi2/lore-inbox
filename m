@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265377AbUBEQGC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 11:06:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265362AbUBEQGC
+	id S265328AbUBEQMO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 11:12:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265269AbUBEQMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 11:06:02 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:65416 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S265377AbUBEQET (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 11:04:19 -0500
-Date: Thu, 5 Feb 2004 17:04:15 +0100 (MET)
-From: Mattias Wadenstein <maswan@acc.umu.se>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Performance issue with 2.6 md raid0
-In-Reply-To: <402263E7.6010903@cyberone.com.au>
-Message-ID: <Pine.A41.4.58.0402051647460.28218@lenin.acc.umu.se>
-References: <Pine.A41.4.58.0402051304410.28218@lenin.acc.umu.se>
- <402263E7.6010903@cyberone.com.au>
+	Thu, 5 Feb 2004 11:12:14 -0500
+Received: from citrine.spiritone.com ([216.99.193.133]:20165 "EHLO
+	citrine.spiritone.com") by vger.kernel.org with ESMTP
+	id S265328AbUBEQMM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 11:12:12 -0500
+Date: Thu, 05 Feb 2004 08:11:57 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.2-mm1 aka "Geriatric Wombat"
+Message-ID: <68430000.1075997516@[10.10.2.4]>
+In-Reply-To: <40222D4B.6050608@cyberone.com.au>
+References: <20040205014405.5a2cf529.akpm@osdl.org> <40222D4B.6050608@cyberone.com.au>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Feb 2004, Nick Piggin wrote:
+--Nick Piggin <piggin@cyberone.com.au> wrote (on Thursday, February 05, 2004 22:47:23 +1100):
 
-> Mattias Wadenstein wrote:
->
-> >Greetings.
-> >
-> >While testing a file server to store a couple of TB in resonably large
-> >files (>1G), I noticed an odd performance behaviour with the md raid0 in a
-> >pristine 2.6.2 kernel as compared to a 2.4.24 kernel.
-> >
-> >When striping two md raid5:s, instead of going from about 160-200MB/s for
-> >a single raid5 to 300M/s for the raid0 in 2.4.24, the 2.6.2 kernel gave
-> >135M/s in single stream read performance.
->
-> Can you try booting with elevator=deadline please?
+> 
+> Andrew Morton wrote:
+> 
+>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2/2.6.2-mm1/
+>> 
+>> 
+>> - Merged some page reclaim fixes from Nick and Nikita.  These yield some
+>>  performance improvements in low memory and heavy paging situations.
+>> 
+>> 
+> 
+> Nikita's vm-dont-rotate-active-list.patch still has this:
+> 
+> +/* dummy pages used to scan active lists */
+> +static struct page scan_pages[MAX_NUMNODES][MAX_NR_ZONES];
+> +
+> 
+> Which probably needs its nodes and cachelines untangled.
+> Maybe it doesn't - I really don't know.
 
-Ok, then I get 253267 kB/s write and 153187 kB/s read from the raid0. A
-bit better, but still nowhere near the 2.4.24 numbers.
+The idle toad's way is to shove it in the pgdat.
+Maybe even the zone structure?
 
-For a single raid5, 158028 kB/s write and 162944 kB/s read.
-
-/Mattias Wadenstein
+M.

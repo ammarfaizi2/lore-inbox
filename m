@@ -1,66 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262766AbTIVDtP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 23:49:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262767AbTIVDtP
+	id S262769AbTIVE3M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 00:29:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbTIVE3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 23:49:15 -0400
-Received: from mailhub2.uq.edu.au ([130.102.5.59]:38815 "EHLO
-	mailhub2.uq.edu.au") by vger.kernel.org with ESMTP id S262766AbTIVDtN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 23:49:13 -0400
-Subject: Cobalt RaQ 550: 2.4.x Boot Problem
-From: Stuart Low <stuart@perlboy.org>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Serverpeak.com
-Message-Id: <1064202544.17769.3.camel@poohbox.perlaholic.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 22 Sep 2003 13:49:05 +1000
+	Mon, 22 Sep 2003 00:29:12 -0400
+Received: from dyn-ctb-203-221-73-213.webone.com.au ([203.221.73.213]:58125
+	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
+	id S262769AbTIVE3I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 00:29:08 -0400
+Message-ID: <3F6E7A8A.8010604@cyberone.com.au>
+Date: Mon, 22 Sep 2003 14:28:58 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Murray J. Root" <murrayr@brain.org>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-testX - strange scheduling(?) problem
+References: <20030917050950.GC1376@Master> <3F67EFA1.30005@cyberone.com.au> <20030922024058.GA1348@Master>
+In-Reply-To: <20030922024058.GA1348@Master>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-
-I'm currently trying to convert a Cobalt RaQ 550 to a [near to] standard
-install of Redhat 9. I've completed an installation (using another
-desktop machine) and removed the drive before RH9 booted for the first
-time (avoid configuration issues).
-
-I've also chrooted to the sysimage and installed the Generation V Cobalt
-Kernel rpms that are available online. Unfortunately, this appears to be
-all in vain as the kernel fails to load reporting the following:
-
-raid5: using function: pIII_sse (2038.000 MB/sec)
-md: md driver 0.90.0 MAX_MD_DEVS=256, MD_SB_DISKS=27
-md: Autodetecting RAID arrays.
-md: autorun ...
-md: ... autorun DONE.
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP Protocols: ICMP, UDP, TCP
-IP: routing cache hash table of 512 buckets, 4Kbytes
-TCP: Hash tables configured (established 1024 bind 1024)
-NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-EXT2-fs: unable to read superblock
-XFS: SB read failed
-I/O error in filesystem ("md(9,1)") meta-data dev 0x901 block 0x0
-       ("xfs_readsb") error 5 buf count 512
-Kernel panic: VFS: Unable to mount root fs on 09:01
- <6>disabling network interfaces.
-
-My first guess was it's looking for the raid device md9. But even after
-parsing root=/dev/hda1 to both the boot and load kernel (the Cobalt
-doesn't have a real bios, it uses a small kernel to boot a second from
-what I can see) it fails "Reporting no init= ".
-
-Any and all guesses would be appreciated,
-
-Stuart Low
 
 
--- 
-ServerPeak.com - Innovators in Service Provider Solutions
-Need a Linux Admin? Contact Us!
+Murray J. Root wrote:
+
+>On Wed, Sep 17, 2003 at 03:22:41PM +1000, Nick Piggin wrote:
+>
+>>
+>>Murray J. Root wrote:
+>>
+>>
+>>>P4 2G
+>>>1G PC2700 RAM
+>>>GF2 GTS video (nv drivers, not nvidia)
+>>>
+>>>In all 2.6.0-test versions (1-5) I get very odd issues when using 
+>>>cpu+memory
+>>>intense apps. Using POV-Ray 3.5, for example:
+>>>When I render an image I get about 15k pixels per second and the system is
+>>>usable and responsive in other apps, most of the time.
+>>>About 20% of the time the pixels-per-second is only 3k, the system is at
+>>>nearly a standstill, and other apps barely function.
+>>>I've tested it many times using the exact same image and the behavior is
+>>>very consistent. Other apps do the same, but since I can't get a consistent
+>>>starting state with them, I used POV-Ray for the testing.
+>>>The slowdown is so bad that the screen can take as long as 2 seconds to 
+>>>refresh, opening a term can take as much as 15 seconds.
+>>>Stopping the render and restarting it fixes it about 1/2 the time. Stopping
+>>>the render and switching to another app, then restarting the render fixes
+>>>it about 1/2 the time. Enough stop & restarts always fixes it eventually.
+>>>There doesn't appear to be any memory leakage, and the system isn't going
+>>>into swap. Top shows the same numbers in all cases. Time of day, other 
+>>>apps running, etc. makes no difference.
+>>>
+>>>
+>>Hi Murray,
+>>Thanks for reporting this. Its a very important issue. Would you please
+>>try this patch:
+>>http://ck.kolivas.org/patches/2.6/2.6.0-test5/patch-test5-O20int
+>>on 2.6.0-test5, and report your results.
+>>
+>>If you get time, or if the above still has problems, you could try
+>>http://www.kerneltrap.org/~npiggin/v15/sched-rollup-v15.gz
+>>as well. Give priority to the first patch though, please.
+>>
+>>
+>
+>Using the first patch either fixed it or made it so rare I haven't seen it
+>in 4 hours of testing.
+>One side-effect - rendering seems to take about 20% longer, and top shows
+>X using 20-25% cpu while rendering. Prior to 2.6.0-test[1-5] X never got
+>up past 5% and generally hung around less than 1%.
+>But user-feel is *much* better. No delays or "hangs" while typing or clicking
+>even while running two renders at the same time.
+>
+
+CCing to the list. Sounds good. The longer rendering seems to be pretty
+well in line with the CPU X is using. This is obviously fine and
+desired. Thanks Murray, and good news, this patch will be included in
+test6 as far as I can see.
+
 

@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbVAGUqH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbVAGUtA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261594AbVAGUqH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 15:46:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVAGUqH
+	id S261550AbVAGUtA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 15:49:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbVAGUtA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 15:46:07 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:14489 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261594AbVAGUpe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 15:45:34 -0500
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-From: Lee Revell <rlrevell@joe-job.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: "Jack O'Quin" <joq@io.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andreas Steinmetz <ast@domdv.de>, Chris Wright <chrisw@osdl.org>,
+	Fri, 7 Jan 2005 15:49:00 -0500
+Received: from waste.org ([216.27.176.166]:62676 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261550AbVAGUrI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 15:47:08 -0500
+Date: Fri, 7 Jan 2005 12:46:50 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: "Jack O'Quin" <joq@io.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andreas Steinmetz <ast@domdv.de>,
+       Lee Revell <rlrevell@joe-job.com>, Chris Wright <chrisw@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
        LAD mailing list <linux-audio-dev@music.columbia.edu>
-In-Reply-To: <20050107200245.GW2940@waste.org>
-References: <1104374603.9732.32.camel@krustophenia.net>
-	 <20050103140359.GA19976@infradead.org>
-	 <1104862614.8255.1.camel@krustophenia.net>
-	 <20050104182010.GA15254@infradead.org>
-	 <1104865034.8346.4.camel@krustophenia.net> <41DB4476.8080400@domdv.de>
-	 <1104898693.24187.162.camel@localhost.localdomain>
-	 <20050107011820.GC2995@waste.org> <87brc17pj6.fsf@sulphur.joq.us>
-	 <20050107200245.GW2940@waste.org>
-Content-Type: text/plain
-Date: Fri, 07 Jan 2005 15:45:26 -0500
-Message-Id: <1105130727.20278.71.camel@krustophenia.net>
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050107204650.GY2940@waste.org>
+References: <20050103140359.GA19976@infradead.org> <1104862614.8255.1.camel@krustophenia.net> <20050104182010.GA15254@infradead.org> <1104865034.8346.4.camel@krustophenia.net> <41DB4476.8080400@domdv.de> <1104898693.24187.162.camel@localhost.localdomain> <20050107011820.GC2995@waste.org> <87brc17pj6.fsf@sulphur.joq.us> <20050107200245.GW2940@waste.org> <87mzvl56j5.fsf@sulphur.joq.us>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87mzvl56j5.fsf@sulphur.joq.us>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-01-07 at 12:02 -0800, Matt Mackall wrote:
-> The trouble with introducing something into the kernel is that once
-> done, it can't be undone. So you're absolutely going to meet
-> resistance to anything that can be a) done sufficiently in userspace
-> or b) can reasonably be done in a more generic manner so as to meet
-> the needs of a wider future audience. The onus is on the submitter to
-> meet these requirements because we can't easily kick out a broken API
-> after we accept it.
+On Fri, Jan 07, 2005 at 02:27:26PM -0600, Jack O'Quin wrote:
+> Matt Mackall <mpm@selenic.com> writes:
+> 
+> > On Thu, Jan 06, 2005 at 11:54:05PM -0600, Jack O'Quin wrote:
+> >> Note that sched_setschedule() provides no way to handle the mlock()
+> >> requirement, which cannot be done from another process.
+> >
+> > I'm pretty sure that part can be done by a privileged server handing
+> > out mlocked shared memory segments.
+> 
+> If you're "pretty sure", please explain how locking a shared memory
+> segment prevents the code and stack of the client's realtime thread
+> from page faulting.
 
-For a big subsystem that exposes an API, you would be right.  But this
-is a *really* simple problem, all you need is a way to tell it who gets
-RT privileges, which means uid or gid.  So any future solution will be
-orthogonal to this one, and when users upgrade even a not very smart
-Perl script will be able to migrate the configuration.  How many
-different ways are there to say "these are the non-root users who have
-realtime prvileges", anyway?
+You just map your RT-dependent routine (PIC, of course) into the
+segment and move your stack pointer into a second segment. I didn't
+say it was easy, but it's all just bits. There's also the rlimit
+issue.
 
-Unless, of course, the solution that's eventually merged is *really*
-overcomplicated by comparison, in which case users will (rightly) reject
-it, and the system will have worked.
+Or, going the other way, the client app can pass map handles to the
+server to bless. Some juggling might be involved but it's obviously
+doable.
 
-Lee 
+As has been pointed out, an rlimit solution exists now as well.
 
-
-
+-- 
+Mathematics is the supreme nostalgia of our time.

@@ -1,82 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313505AbSD0M1S>; Sat, 27 Apr 2002 08:27:18 -0400
+	id <S313690AbSD0M4C>; Sat, 27 Apr 2002 08:56:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313698AbSD0M1R>; Sat, 27 Apr 2002 08:27:17 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:26009 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S313505AbSD0M1P>;
-	Sat, 27 Apr 2002 08:27:15 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
+	id <S313698AbSD0M4B>; Sat, 27 Apr 2002 08:56:01 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:59646 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S313690AbSD0M4A>; Sat, 27 Apr 2002 08:56:00 -0400
+Date: Sat, 27 Apr 2002 15:55:51 +0300
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Martin Bene <martin.bene@icomedias.com>, linux-kernel@vger.kernel.org
+Subject: 48-bit IDE [Re: 160gb disk showing up as 137gb]
+Message-ID: <20020427125551.GG10849@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	Martin Bene <martin.bene@icomedias.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <D143FBF049570C4BB99D962DC25FC2D2159B3A@freedom.icomedias.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15562.38536.785666.690953@argo.ozlabs.ibm.com>
-Date: Sat, 27 Apr 2002 22:16:08 +1000 (EST)
-To: jt@hpl.hp.com
-Cc: linux-kernel@vger.kernel.org
-Subject: set_bit takes a long in irda
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There were a couple of places in the irda code where set_bit and
-friends were being used on int variables.  This is bad because some
-architectures require long alignment for atomic operations, and also
-because it now gives a compile error in 2.5.x.
+On Sat, Apr 27, 2002 at 12:16:06PM +0200, you [Martin Bene] wrote:
+> 
+> IDE: The kernel IDE driver needs to support 48-bit addresseing to support
+> 160GB.
+> 
+> (...) however, you can do something about the linux ATA driver: code
+> is in the 2.4.19-pre tree, it went in with 2.4.19-pre3.
 
-Here is a patch to fix the problems for 2.5.11.
+But which IDE controllers support 48-bit addressing? Not all of them? Does
+linux IDE driver support 48-bit for all of them? Do they require BIOS
+upgrade in order to operate 48-bit?
 
-Thanks,
-Paul.
+Or can I just grab a 160GB Maxtor and 2.4.19-preX, stick them into whatever
+box I have and be done with it?
 
-diff -urN linux-2.5/include/net/irda/irlmp.h pmac-2.5/include/net/irda/irlmp.h
---- linux-2.5/include/net/irda/irlmp.h	Sat Apr 27 20:51:23 2002
-+++ pmac-2.5/include/net/irda/irlmp.h	Sat Apr 27 15:18:05 2002
-@@ -100,7 +100,7 @@
- 	irda_queue_t queue;      /* Must be first */
- 	magic_t magic;
- 
--	int  connected;
-+	unsigned long connected;	/* set_bit used on this */
- 	int  persistent;
- 
- 	__u8 slsap_sel;   /* Source (this) LSAP address */
-diff -urN linux-2.5/include/net/irda/irttp.h pmac-2.5/include/net/irda/irttp.h
---- linux-2.5/include/net/irda/irttp.h	Sat Apr 27 20:51:34 2002
-+++ pmac-2.5/include/net/irda/irttp.h	Sat Apr 27 15:21:33 2002
-@@ -102,7 +102,7 @@
- 	__u32 tx_max_sdu_size; /* Max transmit user data size */
- 
- 	int close_pend;        /* Close, but disconnect_pend */
--	int disconnect_pend;   /* Disconnect, but still data to send */
-+	unsigned long disconnect_pend; /* Disconnect, but still data to send */
- 	struct sk_buff *disconnect_skb;
- };
- 
-diff -urN linux-2.5/net/irda/irnet/irnet.h pmac-2.5/net/irda/irnet/irnet.h
---- linux-2.5/net/irda/irnet/irnet.h	Sat Apr 27 20:52:03 2002
-+++ pmac-2.5/net/irda/irnet/irnet.h	Sat Apr 27 15:23:57 2002
-@@ -404,8 +404,8 @@
- 
-   /* ------------------------ IrTTP part ------------------------ */
-   /* We create a pseudo "socket" over the IrDA tranport */
--  int			ttp_open;	/* Set when IrTTP is ready */
--  int			ttp_connect;	/* Set when IrTTP is connecting */
-+  unsigned long		ttp_open;	/* Set when IrTTP is ready */
-+  unsigned long		ttp_connect;	/* Set when IrTTP is connecting */
-   struct tsap_cb *	tsap;		/* IrTTP instance (the connection) */
- 
-   char			rname[NICKNAME_MAX_LEN + 1];
-diff -urN linux-2.5/net/irda/irnet/irnet_ppp.c pmac-2.5/net/irda/irnet/irnet_ppp.c
---- linux-2.5/net/irda/irnet/irnet_ppp.c	Sat Apr 27 20:52:04 2002
-+++ pmac-2.5/net/irda/irnet/irnet_ppp.c	Sat Apr 27 15:25:07 2002
-@@ -860,7 +860,7 @@
-       irda_irnet_connect(self);
- #endif /* CONNECT_IN_SEND */
- 
--      DEBUG(PPP_INFO, "IrTTP not ready ! (%d-%d)\n",
-+      DEBUG(PPP_INFO, "IrTTP not ready ! (%ld-%ld)\n",
- 	    self->ttp_open, self->ttp_connect);
- 
-       /* Note : we can either drop the packet or block the packet.
+
+-- v --
+
+v@iki.fi

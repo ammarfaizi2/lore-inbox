@@ -1,47 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132398AbRD0Wyr>; Fri, 27 Apr 2001 18:54:47 -0400
+	id <S132471AbRD0XH6>; Fri, 27 Apr 2001 19:07:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132471AbRD0Wyh>; Fri, 27 Apr 2001 18:54:37 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:29094 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S132398AbRD0Wy2>;
-	Fri, 27 Apr 2001 18:54:28 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S132502AbRD0XHt>; Fri, 27 Apr 2001 19:07:49 -0400
+Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:31757 "EHLO
+	tellus.mine.nu") by vger.kernel.org with ESMTP id <S132471AbRD0XH3>;
+	Fri, 27 Apr 2001 19:07:29 -0400
+Date: Sat, 28 Apr 2001 00:47:43 +0200 (CEST)
+From: Tobias Ringstrom <tori@tellus.mine.nu>
+To: Andre Hedrick <andre@linux-ide.org>, Jens Axboe <axboe@suse.de>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: IDE reset and DMA disabled after CD read error
+Message-ID: <Pine.LNX.4.30.0104280042240.23701-100000@svea.tellus>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15081.63650.574602.341411@pizda.ninka.net>
-Date: Fri, 27 Apr 2001 15:54:26 -0700 (PDT)
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-        Matthias Andree <matthias.andree@gmx.de>,
-        Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.4-pre7 build failure w/ IP NAT and ipchains
-In-Reply-To: <15081.58646.799622.9357@pizda.ninka.net>
-In-Reply-To: <Pine.LNX.4.33.0104272012410.1256-100000@vaio>
-	<15081.58646.799622.9357@pizda.ninka.net>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+When reading a bad CD, Linux 2.4.4-pre5 decided to turn off DMA when
+trying to read a bad sector.  It also decided to reset the drive.  Is that
+the expected behaviour?  I'm certanly not an ATAPI expert, but it does
+seem a bit drastic to me.  The drive is in UDMA33 mode on a VIA vt82c686a,
+with no (U)DMA problems detected (so far).
 
-Kai, can you try this patch out?  I think it does the right
-thing.  What I'm mostly interested in is if your ipchains
-setup works for the resulting kernel, I've already checked
-that it links properly. :-)
+Isn't it possible to recogise a read error and treat it more gently?
 
---- net/ipv4/netfilter/Makefile.~1~	Thu Apr 26 23:30:39 2001
-+++ net/ipv4/netfilter/Makefile	Fri Apr 27 15:49:54 2001
-@@ -16,11 +16,11 @@
- 
- # objects for the conntrack and NAT core (used by standalone and backw. compat)
- ip_nf_conntrack-objs	:= ip_conntrack_core.o ip_conntrack_proto_generic.o ip_conntrack_proto_tcp.o ip_conntrack_proto_udp.o ip_conntrack_proto_icmp.o
--ip_nf_nat-objs		:= ip_nat_core.o ip_nat_proto_unknown.o ip_nat_proto_tcp.o ip_nat_proto_udp.o ip_nat_proto_icmp.o
-+ip_nf_nat-objs		:= ip_nat_core.o ip_nat_helper.o ip_nat_proto_unknown.o ip_nat_proto_tcp.o ip_nat_proto_udp.o ip_nat_proto_icmp.o
- 
- # objects for the standalone - connection tracking / NAT
- ip_conntrack-objs	:= ip_conntrack_standalone.o $(ip_nf_conntrack-objs)
--iptable_nat-objs	:= ip_nat_standalone.o ip_nat_rule.o ip_nat_helper.o $(ip_nf_nat-objs)
-+iptable_nat-objs	:= ip_nat_standalone.o ip_nat_rule.o $(ip_nf_nat-objs)
- 
- # objects for backwards compatibility mode
- ip_nf_compat-objs	:= ip_fw_compat.o ip_fw_compat_redir.o ip_fw_compat_masq.o $(ip_nf_conntrack-objs) $(ip_nf_nat-objs)
+/Tobias, fumbling in the dark
+
+
+Here is the dmesg output:
+
+Apr 27 23:32:31 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:31 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:31 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:31 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:32 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:32 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:33 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:33 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:33 igor kernel: hda: DMA disabled
+Apr 27 23:32:33 igor kernel: hda: ATAPI reset complete
+Apr 27 23:32:33 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:33 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:34 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:34 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:35 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:35 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:35 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:35 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:35 igor kernel: hda: ATAPI reset complete
+Apr 27 23:32:36 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:36 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:36 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:36 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:37 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:37 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:37 igor kernel: hda: ATAPI reset complete
+Apr 27 23:32:37 igor kernel: end_request: I/O error, dev 03:00 (hda), sector 651222
+Apr 27 23:32:38 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:38 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:38 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:38 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:39 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:39 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:40 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:40 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:40 igor kernel: hda: ATAPI reset complete
+Apr 27 23:32:40 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:40 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:41 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:41 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:42 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:42 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:42 igor kernel: hda: ATAPI reset complete
+Apr 27 23:32:42 igor kernel: end_request: I/O error, dev 03:00 (hda), sector 651222
+Apr 27 23:32:42 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:42 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:43 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:43 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:44 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:44 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:44 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:44 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:44 igor kernel: hda: ATAPI reset complete
+Apr 27 23:32:45 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:45 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:46 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:46 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:46 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:46 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:46 igor kernel: hda: ATAPI reset complete
+Apr 27 23:32:46 igor kernel: end_request: I/O error, dev 03:00 (hda), sector 651224
+Apr 27 23:32:47 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:47 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:47 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:47 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:48 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:48 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:49 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:49 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:49 igor kernel: hda: ATAPI reset complete
+Apr 27 23:32:49 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:49 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:50 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:50 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:51 igor kernel: hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Apr 27 23:32:51 igor kernel: hda: cdrom_decode_status: error=0x34
+Apr 27 23:32:51 igor kernel: hda: ATAPI reset complete
+Apr 27 23:32:51 igor kernel: end_request: I/O error, dev 03:00 (hda), sector 651226
+
+
+

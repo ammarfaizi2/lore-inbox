@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261412AbUCATpJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 14:45:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbUCATpI
+	id S261410AbUCATsg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 14:48:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbUCATsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 14:45:08 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:38670 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261412AbUCATpF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 14:45:05 -0500
-Date: Mon, 1 Mar 2004 19:45:01 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Rik Faith <faith@redhat.com>, okir@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] Light-weight Auditing Framework
-Message-ID: <20040301194501.A9080@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Rik Faith <faith@redhat.com>, okir@suse.de,
-	linux-kernel@vger.kernel.org
-References: <16451.25789.72815.763592@neuro.alephnull.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <16451.25789.72815.763592@neuro.alephnull.com>; from faith@redhat.com on Mon, Mar 01, 2004 at 11:28:45AM -0500
+	Mon, 1 Mar 2004 14:48:36 -0500
+Received: from mail-gateway-0-1.landonet.net ([196.25.111.196]:47108 "EHLO
+	mail-gateway-0-1.landonet.net") by vger.kernel.org with ESMTP
+	id S261410AbUCATse (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 14:48:34 -0500
+Message-ID: <4043938C.9090504@lbsd.net>
+Date: Mon, 01 Mar 2004 19:48:28 +0000
+From: Nigel Kukard <nkukard@lbsd.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6a) Gecko/20040114
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [2.6.3] Sysfs breakage - tun.ko
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 01, 2004 at 11:28:45AM -0500, Rik Faith wrote:
-> This note describes a patch against 2.6.4-rc1-bk2 that provides a
-> low-overhead system-call auditing framework for Linux that is usable by
-> LSM components (e.g., SELinux).  Comments will be appreciated.
+Hi,
 
-I haven't actually looked at the code, but why don't you use Olaf Kirch's
-auditing framework that's used in production and already has gotten the
-wizzbang certification you seem to be aiming at.
+Loading tun.ko module breaks on sysfs...
 
-Whether we want syscall auditing in mainline is a completely different
-question..
+ > [root@localhost misc]# pwd
+ > /sys/class/misc
+ > [root@localhost misc]# ls
+ > dac960_gam  device-mapper  net/tun  psaux
+ > [root@localhost misc]# cd net\/tun
+ > bash: cd: net/tun: No such file or directory
+ > [root@localhost misc]#
+
+
+Why not just make it in misc? why net/tun seeing as everything else is 
+just dumped there. Patch below.
+
+
+
+--- drivers/net/tun.c.old   2004-02-27 18:18:55.000000000 +0200
++++ drivers/net/tun.c       2004-02-27 18:19:02.000000000 +0200
+@@ -605,7 +605,7 @@
+
+  static struct miscdevice tun_miscdev = {
+         .minor = TUN_MINOR,
+-       .name = "net/tun",
++       .name = "tun",
+         .fops = &tun_fops
+  };
 

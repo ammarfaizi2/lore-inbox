@@ -1,48 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263964AbTE3ULo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 16:11:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263969AbTE3ULn
+	id S264299AbTE3UOk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 16:14:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264304AbTE3UOj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 16:11:43 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45322 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263964AbTE3ULn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 16:11:43 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: drivers/char/sysrq.c
-Date: 30 May 2003 13:24:41 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <bb8em9$f3j$1@cesium.transmeta.com>
-References: <5.1.0.14.2.20030530164138.00aeee40@pop.t-online.de> <20030530145851.GA15640@wohnheim.fh-wedel.de> <20030530151317.GA3973@werewolf.able.es>
+	Fri, 30 May 2003 16:14:39 -0400
+Received: from [62.75.136.201] ([62.75.136.201]:57834 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S264299AbTE3UOg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 16:14:36 -0400
+Message-ID: <3ED7BECC.1000109@g-house.de>
+Date: Fri, 30 May 2003 22:27:56 +0200
+From: Christian Kujau <evil@g-house.de>
+Reply-To: evil@g-house.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.4b) Gecko/20030507
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: weird keyboard with 2.5.70
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20030530151317.GA3973@werewolf.able.es>
-By author:    "J.A. Magallon" <jamagallon@able.es>
-In newsgroup: linux.dev.kernel
-> 
-> I see a diff:
-> - & is bitwise and you always perform the op
-> - && is logical and gcc must shortcut it
-> 
-> I think people use & 'cause they prefer the extra argument calculation
-> than the branch for the shortcut (AFAIR...)
-> 
-> or not ?
-> 
+hi,
 
-In this case it doesn't matter, since gcc should be able to prove the
-right-hand-side is side-effect free.
+i am running 2.5 kernels, 2.5.70 right now and i always have this
+keyboard problem: when booting, usb kbd and a ps/2 kbd gets installed.
+but when i first try to use them, one keypress gives me 5+ chars.
+so would have to login with "rrrrrooooooootttttt" as user name.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+when i unplug/replug say the usb kbd, the usb kbd is working right,
+while the ps/2 kbd is still behaving this weird. i have to unplug/replug
+the ps/2 kbd too.
+
+i *think* i read this thing in a FAQ already but i couldn't remember.
+
+kernelnewbies.org or the lk-ml FAQ gave nothin, a chat on #kernelnewbies
+made me believe something very strange is going on.
+
+for clarification i want to repeat the problem in another way:
+
+- one ps/2 keyboard *and* one usb keyboard is plugged into the PC (yes,
+i have _2_ kbds)
+- ps/2 and usb kbd support is compile statically into the kernel:
+
+CONFIG_SERIO
+CONFIG_SERIO_I8042
+CONFIG_INPUT_KEYBOARD
+CONFIG_KEYBOARD_ATKBD
+CONFIG_USB_UHCI_HCD
+CONFIG_USB_KBD
+
+- the computer boots up, the kbd driver get loaded, i sit in front of
+some login prompt (X or console)
+
+- the usb kbd is only writing ttthhhiiiissss way.
+- i try the ps/2 kbd, it is also writing only ttthhhhiiiisss way.
+(i was able to write "root" in a sane way, but the password.....)
+- i unplug the usb kbd and replug it --> i can use the usb kbd.
+- the ps/2 is still behaving this weird, so i have to unplug/replug the
+ps/2 kbd to use it, too.
+
+
+i noticed the problem once with 2.5.65(?) on linux/alpha, with a single
+ps/2 kbd connected. but the problem disappeared somehow.
+
+Thank you for any hints,
+Christian.
+
+

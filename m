@@ -1,71 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265640AbUAKBat (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 20:30:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265694AbUAKBat
+	id S265699AbUAKBub (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 20:50:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265707AbUAKBub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 20:30:49 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:45527 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265640AbUAKBaq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 20:30:46 -0500
-Date: Sun, 11 Jan 2004 02:30:43 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andreas Haumer <andreas@xss.co.at>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       linux-net@vger.kernel.org
-Subject: [2.4 patch] disallow modular CONFIG_COMX
-Message-ID: <20040111013043.GY25089@fs.tum.de>
-References: <Pine.LNX.4.58L.0312311109131.24741@logos.cnet> <3FF2EAB3.1090001@xss.co.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 10 Jan 2004 20:50:31 -0500
+Received: from smtprelay01.ispgateway.de ([62.67.200.156]:5014 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S265699AbUAKBu3 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 20:50:29 -0500
+From: sven kissner <sven.kissner@consistencies.net>
+To: Andries.Brouwer@cwi.nl
+Subject: Re: logitech cordless desktop deluxe optical keyboard issues
+Date: Sun, 11 Jan 2004 02:53:03 +0100
+User-Agent: KMail/1.5.94
+Cc: linux-kernel@vger.kernel.org
+References: <UTC200401110028.i0B0SpL08329.aeb@smtp.cwi.nl>
+In-Reply-To: <UTC200401110028.i0B0SpL08329.aeb@smtp.cwi.nl>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <3FF2EAB3.1090001@xss.co.at>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200401110253.25040.sven.kissner@consistencies.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 31, 2003 at 04:26:43PM +0100, Andreas Haumer wrote:
->...
-> Hi!
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hi Andreas!
+hi andries, 
 
->...
-> Here's a first report:
->...
-> *) Unresolved symbol in kernel/drivers/net/wan/comx.o: proc_get_inode
->...
+thanks for your reply.
 
-CONFIG_COMX=m always gave an unresolved symbol in kernel 2.4, and it
-seems noone is interested in properly fixing it.
+On Sunday 11 January 2004 01:28, Andries.Brouwer@cwi.nl wrote:
+> I have seen patches by Vojtech somewhere that already did this,
+> but looking at current bk source it seems that they have not been
+> applied yet.
 
-The patch below disallows a modular CONFIG_COMX.
+where can i find those patches? kml?
 
-cu
-Adrian
+> Anyway, I released kbd-1.10 last week or so, and it ignores the
+> kernel NR_KEYS but tries to adapt dynamically to the kernel.
+> It would not come with this error message, I suppose.
 
---- linux-2.4.25-pre4-modular/drivers/net/wan/Config.in.old	2004-01-11 01:38:08.000000000 +0100
-+++ linux-2.4.25-pre4-modular/drivers/net/wan/Config.in	2004-01-11 01:39:20.000000000 +0100
-@@ -23,7 +23,7 @@
- # COMX drivers
- #
- 
--   tristate '  MultiGate (COMX) synchronous serial boards support' CONFIG_COMX
-+   bool '  MultiGate (COMX) synchronous serial boards support' CONFIG_COMX
-    if [ "$CONFIG_COMX" != "n" ]; then
-       dep_tristate '    Support for COMX/CMX/HiCOMX boards' CONFIG_COMX_HW_COMX $CONFIG_COMX
-       dep_tristate '    Support for LoCOMX board' CONFIG_COMX_HW_LOCOMX $CONFIG_COMX
---- linux-2.4.25-pre4-modular/Documentation/Configure.help.old	2004-01-11 01:39:35.000000000 +0100
-+++ linux-2.4.25-pre4-modular/Documentation/Configure.help	2004-01-11 01:40:14.000000000 +0100
-@@ -11149,9 +11149,6 @@
-   You must say Y to "/proc file system support" (CONFIG_PROC_FS) to
-   use this driver.
- 
--  If you want to compile this as a module, say M and read
--  <file:Documentation/modules.txt>.  The module will be called comx.o.
--
- Support for COMX/CMX/HiCOMX boards
- CONFIG_COMX_HW_COMX
-   Hardware driver for the 'CMX', 'COMX' and 'HiCOMX' boards from the
+the message doesn't appear anymore, but installing is giving me the following:
+<-- snip -->
+Setting up kbd (1.10-1) ...
+Looking for keymap to install:
+de-latin1-nodeadkeys
+cannot open file de-latin1-nodeadkeys
+Loading /etc/console/boottime.kmap.gz
+<-- snap -->
+i guess i just screwed up the paths ;)
+
+> : atkbd.c: Unknown key pressed (translated set 2, code 0x91 on
+> : isa0060/serio0) atkbd.c: Unknown key released (translated set 2, code
+> : 0x91 on isa0060/serio0) atkbd.c: Unknown key pressed (translated set 2,
+> : code 0x92 on isa0060/serio0) atkbd.c: Unknown key released (translated
+> : set 2, code 0x92 on isa0060/serio0)
+>
+> This is something different, a key without associated keycode.
+> That is normal. If it really has high bit set it is a bit unusual.
+> (What does showkey -s show?)
+
+showkey -s is giving me exactly the same:
+<-- snip -->
+atkbd.c: Unknown key pressed (translated set 2, code 0x92 on isa0060/serio0).
+atkbd.c: Unknown key released (translated set 2, code 0x92 on isa0060/serio0).
+<-- snap -->
+
+sven
+- -- 
+..never argue with idiots. they drag you down to their level and beat you with 
+experience..
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAAKySPV/e7f4i4AERAm0FAJ97N/CT3PfUcJZK2+4gXy7e3lDFgwCgl/T2
+qRVMrl5ik2NZ3dtGdxounJQ=
+=8I8H
+-----END PGP SIGNATURE-----

@@ -1,58 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261979AbRFKQih>; Mon, 11 Jun 2001 12:38:37 -0400
+	id <S262400AbRFKQzy>; Mon, 11 Jun 2001 12:55:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262288AbRFKQi1>; Mon, 11 Jun 2001 12:38:27 -0400
-Received: from web3503.mail.yahoo.com ([216.115.111.70]:45329 "HELO
-	web3503.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S261979AbRFKQiP>; Mon, 11 Jun 2001 12:38:15 -0400
-Message-ID: <20010611163813.24181.qmail@web3503.mail.yahoo.com>
-Date: Mon, 11 Jun 2001 17:38:13 +0100 (BST)
-From: =?iso-8859-1?q?Mich=E8l=20Alexandre=20Salim?= 
-	<salimma1@yahoo.co.uk>
-Subject: Follow-up: Re: Clock drift on Transmeta Crusoe (Sony Vaio C1VE)
-To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10106111540290.24179-100000@coffee.psychology.mcmaster.ca>
+	id <S262406AbRFKQzo>; Mon, 11 Jun 2001 12:55:44 -0400
+Received: from jcwren-1.dsl.speakeasy.net ([216.254.53.52]:35319 "EHLO
+	jcwren.com") by vger.kernel.org with ESMTP id <S262400AbRFKQzh>;
+	Mon, 11 Jun 2001 12:55:37 -0400
+Reply-To: <jcwren@jcwren.com>
+From: "John Chris Wren" <jcwren@jcwren.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [CHECKER] 15 probable security holes in 2.4.5-ac8
+Date: Mon, 11 Jun 2001 12:54:51 -0400
+Message-ID: <NDBBKBJHGFJMEMHPOPEGEEDBCJAA.jcwren@jcwren.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <E159Udo-0008RP-00@the-village.bc.nu>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seems to be a rather common problem and probably that
-is why only Mark Hahn has replied so far, but
-searching through Google most other computers seem to
-get a clock drift of only 1 minute per day at worst,
-and I have consistently seen my system clock doing 4
-minutes a day slower than its hardware clock, my other
-PC and my VCR.
+>
+> > What someone *really* needs to do is design a Z8530 adapter with a USB
+> > interface.  The amateur radio community (well, the 56K'ers, at
+> any rate),
+> > would love such a device.  The PI2 card is a flakey beast, at best.
+>
+> You would be much better off attaching a straight ADC/DAC at say up to
+> 256Kbits/8bit sampling and some control lines to the USB. That would also
+> let people dumb the ridiculous 1960's technology they insist on using and
+> run serious stuff like adaptive encoders, golay codecs and the like and
+> bring amateur packet radio out of the stone age
+>
+> Alan
+>
 
-This is rather odd, has anyone experienced anything
-like this on the Vaio Crusoe before?
+Ideally, yes.  However, client side DSP at these kinds of data rates still
+isn't practical.  Most people are lucky if they can get 9600 baud, although
+admittedly some of that is a function of trying to use a standard sound card
+with it's limited input bandwidth (apx 22Khz).
 
-Regards,
+It also doesn't solve the bigger problem, which is existing 56K users that
+want to upgrade machines, but can't, because the PI2 card flakes out in
+almost all systems that have PCI.  The card has some timing issues to start
+with, and are aggrevated by how almost all PCI chipsets implement the ISA
+bus side.
 
-Michel
---- Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-wrote: > > It is .. 32-bit I/O, multimode turned on,
-> read-ahead,
-> > DMA on. Does it affect the system clock in any
-> way?
-> 
-> none of the rest matters as long as dma is on.  the
-> issue 
-> is whether other irq-handling interferes with
-> handling the 
-> system clock tick.  but I had the impression that
-> crusoe
-> provided TSC, or something like it.  didn't you say
-> your problem only happens when compiled for notsc
-> (386)?
-> 
+I don't currently have my 56K station up, but I keep an old ISA only
+486DX/80 system around just so I can use the card once I get in a position
+to (living on a houseboat creates some space problems for both machines, and
+antennas).
 
+I don't know if you're familiar with the Heatherington 56K design or not,
+but there's some information at his website, www.wa4dsy.org.  Dale, for
+those that don't know, was one of the 2 (or 3, depending on how you count)
+founders of Hayes Microcomputer (D.C. Hayes, at the time), and did the
+SB-103 and Smartmodem-300 designs, plus many other designs.
 
-____________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.co.uk address at http://mail.yahoo.co.uk
-or your free @yahoo.ie address at http://mail.yahoo.ie
+-- John
+

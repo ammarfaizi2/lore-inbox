@@ -1,64 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270869AbTHSPNM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 11:13:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270458AbTHSPJk
+	id S270651AbTHSPKH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 11:10:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270448AbTHSPKG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 11:09:40 -0400
-Received: from kluizenaar.xs4all.nl ([213.84.184.247]:12363 "EHLO samwel.tk")
-	by vger.kernel.org with ESMTP id S270448AbTHSPHz (ORCPT
+	Tue, 19 Aug 2003 11:10:06 -0400
+Received: from bay1-f5.bay1.hotmail.com ([65.54.245.5]:3852 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id S270813AbTHSPH0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 11:07:55 -0400
-Message-ID: <3F423D35.7010603@samwel.tk>
-Date: Tue, 19 Aug 2003 17:07:33 +0200
-From: Bart Samwel <bart@samwel.tk>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: nl, en-us, en
-MIME-Version: 1.0
-To: Brandon Stewart <rbrandonstewart@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: SCO's "proof"
-References: <3F422809.7080806@yahoo.com>
-In-Reply-To: <3F422809.7080806@yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Aug 2003 11:07:26 -0400
+X-Originating-IP: [12.25.43.10]
+X-Originating-Email: [ckbroadbus@hotmail.com]
+From: "ckbb ckbb" <ckbroadbus@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: ckbroadbus@hotmail.com
+Subject: usb.c: USB device not accepting new address=2 (error=-19)
+Date: Tue, 19 Aug 2003 11:07:24 -0400
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY1-F5stPGtPrPrvCW000001b4@hotmail.com>
+X-OriginalArrivalTime: 19 Aug 2003 15:07:25.0094 (UTC) FILETIME=[98FBCC60:01C36663]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For those of you who don't speek greek, the greek text is English and reads:
+I am stuck with the following error. I really appreciate any help for this 
+problem. I am using
+linux2.4.21, powerpc processor, phillips 1161a host controller
+I am getting interrupts & hardware seems to be OK. I have configured EHCI & 
+OHCI, sci, usb mass storage in the kernel configuration.
 
-"As part of the kernel evolution towords modular naming, the functions 
-malloc and free are being renamed to rmalloc and rfree.
-Compatibility will be maintained by the following assembler code:
-(also see free/malloc below)"
 
-What a way of obfuscating their IP. :)
+usb.c: new USB bus registered, assigned bus number 1
+Product: USB OHCI Root Hub
+SerialNumber: c7911000
+hub.c: USB hub found
+hub.c: 1 port detected
+hcd_1161.c : usb devices found..
+usbutil: USB int. status bits cleared 0x00060000
+usbutil: USB interrupt.1 Enabled ox00020000
+ISP116x_HCD Initialization Successful
 
-Bart
+usb.c: USB device not accepting new address=2 (error=-19)
 
-Brandon Stewart wrote:
+usb.c: USB device not accepting new address=3 (error=-19)
 
-> compliments of "d1rkinator" from yahoo finance message board:
-> 
-> The code SCO finds offending:
-> 
-> www.heise.de/newsticker/data/jk-19.08.03-000/imh0.jpg
-> www.heise.de/newsticker/data/jk-19.08.03-000/imh1.jpg
-> 
-> Its location in Linux:
-> 
-> /usr/src/linux-2.4.20/arch/ia64/sn/io/ate_utils.c
-> 
-> And its heritage:
-> 
-> minnie.tuhs.org/UnixTree/V7/usr/sys/sys/malloc.c.html
-> 
-> Ok, SCO: This was easy. Now, show us the other many examples.
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+
+root@10.0.0.160:/proc/bus/usb# cat drivers
+         usbdevfs
+         hub
+         usb-storage
+root@10.0.0.160:/proc/bus/usb# cat devices
+T:  Bus=01 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 1
+B:  Alloc=  0/900 us ( 0%), #Int=  0, #Iso=  0
+D:  Ver= 1.10 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=0000 ProdID=0000 Rev= 0.00
+S:  Product=USB OHCI Root Hub
+S:  SerialNumber=c7962400
+C:* #Ifs= 1 Cfg#= 1 Atr=40 MxPwr=  0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   2 Ivl=255ms
+root@10.0.0.160:/proc/bus/usb#
+
+
+cat of 'proc/scsi/scsi' is empty....
+
+Thanks
+Chandrasekhar Konakalla
+
+_________________________________________________________________
+<b>MSN 8:</b> Get 6 months for $9.95/month. 
+http://join.msn.com/?page=dept/dialup
 

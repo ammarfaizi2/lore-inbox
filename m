@@ -1,76 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271388AbTHMFns (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 01:43:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271391AbTHMFns
+	id S271396AbTHMGQE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 02:16:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271399AbTHMGQD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 01:43:48 -0400
-Received: from ns.indranet.co.nz ([210.54.239.210]:63962 "EHLO
-	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id S271388AbTHMFnr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 01:43:47 -0400
-Date: Wed, 13 Aug 2003 17:43:38 +1200
-From: Andrew McGregor <andrew@indranet.co.nz>
-To: gene.heskett@verizon.net
-cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] O13int for interactivity
-Message-ID: <98750000.1060753418@ijir>
-In-Reply-To: <200308130124.31978.gene.heskett@verizon.net>
-References: <200308050207.18096.kernel@kolivas.org>
- <200308122307.22813.gene.heskett@verizon.net>
- <3F39AF78.1030903@cyberone.com.au>
- <200308130124.31978.gene.heskett@verizon.net>
-X-Mailer: Mulberry/3.1.0b4 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="==========1783562778=========="
+	Wed, 13 Aug 2003 02:16:03 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:28680 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S271396AbTHMGQA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 02:16:00 -0400
+Date: Wed, 13 Aug 2003 08:15:46 +0200
+To: gaxt <gaxt@rogers.com>,
+       Henrik =?iso-8859-15?Q?R=E6der?= Clausen <henrik@fangorn.dk>,
+       Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       "Mr. James W. Laferriere" <babydr@baby-dragons.com>,
+       "Brown, Len" <len.brown@intel.com>, Andrew Morton <akpm@osdl.org>,
+       "Mark W. Alexander" <slash@dotnetslash.net>,
+       jeff millar <wa1hco@adelphia.net>,
+       Thomas Molina <tmolina@cablespeed.com>,
+       Christian Mautner <chm@istop.com>, Andrey Borzenkov <arvidjaar@mail.ru>,
+       Herbert =?iso-8859-15?Q?P=F6tzl?= <herbert@13thfloor.at>
+Subject: SOLUTION Re: 2.6.0-test3 cannot mount root fs
+Message-ID: <20030813061546.GB24994@gamma.logic.tuwien.ac.at>
+References: <20030809104024.GA12316@gamma.logic.tuwien.ac.at> <1060436885.467.0.camel@teapot.felipe-alfaro.com> <3F34D0EA.8040006@rogers.com> <20030809104024.GA12316@gamma.logic.tuwien.ac.at> <20030809115656.GC27013@www.13thfloor.at> <20030809090718.GA10360@gamma.logic.tuwien.ac.at> <20030809130641.A8174@electric-eye.fr.zoreil.com> <20030809090718.GA10360@gamma.logic.tuwien.ac.at> <01a201c35e65$0536ef60$ee52a450@theoden> <3F34D0EA.8040006@rogers.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE009FC23@hdsmsx402.hd.intel.com> <002e01c35e87$14c1ffc0$ee52a450@theoden> <Pine.LNX.4.56.0308091036190.16795@filesrv1.baby-dragons.com> <3F3509C0.9050403@rogers.com> <Pine.LNX.4.56.0308091030590.16795@filesrv1.baby-dragons.com> <1060436885.467.0.camel@teapot.felipe-alfaro.com> <20030809115656.GC27013@www.13thfloor.at> <20030809130641.A8174@electric-eye.fr.zoreil.com> <01a201c35e65$0536ef60$ee52a450@theoden> <3F34D0EA.8040006@rogers.com>
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==========1783562778==========
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Die, 12 Aug 2003, Christian Mautner wrote:
+> Hast du auch einen kompletten Kernel tarball versucht? Wahrscheinlich
 
+The solution is:
+	Get a COMPLETE linux-2.6.0-test3.tar.bz2
+and 
+	DO NOT USE patch
 
+I patched up the kernel from 2.5.20 or something and there seemed to be
+an error somewhere on the way up. Getting a *clean* kernel tar file,
+compile with the same .config, running.
 
---On Wednesday, August 13, 2003 01:24:31 AM -0400 Gene Heskett=20
-<gene.heskett@verizon.net> wrote:
+This is the use of patches!
 
+Best wishes
 
-> Unrelated question:  I've applied the 2.6 patches someone pointed me
-> at to the nvidia-linux-4496-pkg2 after figuring out how to get it to
-> unpack and leave itself behind, so x can be run on 2.6 now.  But its
-> a 100% total crash to exit x by any method when using it that way.
->
-> Has the patch been updated in the last couple of weeks to prevent that
-> now?  It takes nearly half an hour to e2fsck a hundred gigs worth of
-> drives, and its going to bite me if I don't let the system settle
-> before I crash it to reboot, finishing the reboot with the hardware
-> reset button.
->
-> Better yet, a fresh pointer to that site.
->
+Norbert
 
-http://www.minion.de/
-
-Works fine for me, as of 2.6.0-test1 (which is when I downloaded the=20
-patch).  I don't get the crash on either of my systems (GeForce2Go P3=20
-laptop and GeForce4 Athlon desktop).
-
-Andrew
---==========1783562778==========
-Content-Type: application/pgp-signature
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/OdANHamGxvX4LwIRAvwZAKDmOU+HqTHNAo2muqTudu1QEDpgxgCgzWQ1
-yiZyBXLTU01L8/RdWzxlg9Q=
-=qAEz
------END PGP SIGNATURE-----
-
---==========1783562778==========--
-
+-------------------------------------------------------------------------------
+Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+AINDERBY STEEPLE (n.)
+One who asks you a question with the apparent motive of wanting to
+hear your answer, but who cuts short your opening sentence by leaning
+forward and saying 'and I'll tell you why I ask...' and then talking
+solidly for the next hour.
+			--- Douglas Adams, The Meaning of Liff

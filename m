@@ -1,47 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280288AbRKBP5l>; Fri, 2 Nov 2001 10:57:41 -0500
+	id <S280714AbRKBQCv>; Fri, 2 Nov 2001 11:02:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280299AbRKBP5b>; Fri, 2 Nov 2001 10:57:31 -0500
-Received: from grobbebol.xs4all.nl ([194.109.248.218]:61278 "EHLO
-	grobbebol.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S280288AbRKBP5Y>; Fri, 2 Nov 2001 10:57:24 -0500
-Date: Fri, 2 Nov 2001 15:56:20 +0000
-From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-To: Ken Brownfield <brownfld@irridia.com>
+	id <S280712AbRKBQCp>; Fri, 2 Nov 2001 11:02:45 -0500
+Received: from red.csi.cam.ac.uk ([131.111.8.70]:48891 "EHLO red.csi.cam.ac.uk")
+	by vger.kernel.org with ESMTP id <S280714AbRKBQC0>;
+	Fri, 2 Nov 2001 11:02:26 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: IO APIC (smp) / crashes ?
-Message-ID: <20011102155620.A31283@grobbebol.xs4all.nl>
-In-Reply-To: <20011030124037.A26140@grobbebol.xs4all.nl> <20011031084940.C31431@asooo.flowerfire.com>
-Mime-Version: 1.0
+Subject: ECS k7s5a audio sound SiS 735 - 7012
+In-Reply-To: <20011031033018.A1917@babylon.d2dc.net>
+	<E15ysyg-0003Gw-00@the-village.bc.nu>
+From: John Fremlin <jtf24@cam.ac.uk>
+In-Reply-To: <E15ysyg-0003Gw-00@the-village.bc.nu>
+Date: 02 Nov 2001 15:48:16 +0000
+Message-ID: <86itct6unz.fsf_-_@cam.ac.uk>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <20011031084940.C31431@asooo.flowerfire.com>; from brownfld@irridia.com on Wed, Oct 31, 2001 at 08:49:40AM -0600
-X-OS: Linux grobbebol 2.4.13 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 31, 2001 at 08:49:40AM -0600, Ken Brownfield wrote:
-> I've been using this patch in production for a bit, and it seems to
-> avoid the problem inobtrusively... without actually solving the problem
-> correctly. :(  The APIC code is daunting, not to mention that it
-> requires 12 hours or so of a particular type and weight of load to
-> trigger the issue, so debugging it with my lack of APIC-fu is a
-> frightening concept.
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+
+> > The only problems I have seen with this board are that I can't find
+> > drivers for the sound (no big loss), lmsensors does not seem to be able
 > 
-> BTW, if anyone with more APIC-fu than I would perhaps know _why_ this
-> patch works around the issue that I think Roeland is explaining and the
-> issue I've mentioned here in the past, please holler.
-> 
-> Let me know how it goes,
+> [ALSA has one I believe]
+
+I couldn't see one. Do you know what name it would have or where I can
+get the datasheet for it?
+
+The ECS K75S5A motherboard is built around a SiS735 chipset with
+integrated sound, called a SiS7012 by SiS. According to
+http://www.sis.com/support/driver/audio.htm one MS-Windows driver
+covers the chipsets SiS635, SiS735, SiS633, and SiS733.
+
+There allegedly exist non-free Linux drivers from OSS called the
+SiS7012. 
+
+The PCI dump for the sound part is
+
+/proc/pci:
+  Bus  0, device   2, function  7:
+    Multimedia audio controller: Silicon Integrated Systems [SiS] SiS7012 PCI Audio Accelerator (rev 160).
+      IRQ 11.
+      Master Capable.  Latency=64.  Min Gnt=52.Max Lat=11.
+      I/O at 0xdc00 [0xdcff].
+      I/O at 0xd800 [0xd83f].
 
 
-ok, I compiled the kernel and will test it for a while. will let you
-know. the good path is that I now also have ext3 -- makes the crash more
-bearable :-)
+/sbin/lspci  -v:
+00:02.7 Class 0401: 1039:7012 (rev a0)
+        Subsystem: 1019:0a14
+        Flags: bus master, medium devsel, latency 64, IRQ 11
+        I/O ports at dc00 [size=256]
+        I/O ports at d800 [size=64]
+        Capabilities: [48] Power Management version 2
+
+[...]
 
 -- 
-Grobbebol's Home                      |  Don't give in to spammers.   -o)
-http://www.xs4all.nl/~bengel          | Use your real e-mail address   /\
-Linux 2.4.13 (apic) SMP 466MHz/768 MB |        on Usenet.             _\_v  
+
+	http://ape.n3.net
+

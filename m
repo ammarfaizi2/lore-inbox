@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136448AbRAHLtw>; Mon, 8 Jan 2001 06:49:52 -0500
+	id <S135386AbRAHLum>; Mon, 8 Jan 2001 06:50:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135386AbRAHLtc>; Mon, 8 Jan 2001 06:49:32 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:24083 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S137124AbRAHLtZ>; Mon, 8 Jan 2001 06:49:25 -0500
+	id <S137115AbRAHLuc>; Mon, 8 Jan 2001 06:50:32 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:31149 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S135386AbRAHLuX>;
+	Mon, 8 Jan 2001 06:50:23 -0500
+Date: Mon, 8 Jan 2001 06:50:20 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Stefan Traby <stefan@hello-penguin.com>, linux-kernel@vger.kernel.org
 Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
-To: cw@f00f.org (Chris Wedgwood)
-Date: Mon, 8 Jan 2001 11:50:29 +0000 (GMT)
-Cc: viro@math.psu.edu (Alexander Viro), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        stefan@hello-penguin.com (Stefan Traby), linux-kernel@vger.kernel.org
-In-Reply-To: <20010108211206.C4993@metastasis.f00f.org> from "Chris Wedgwood" at Jan 08, 2001 09:12:06 PM
-X-Mailer: ELM [version 2.5 PL1]
+In-Reply-To: <E14FalM-0004MY-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.4.21.0101080647090.4061-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Faoq-0004Mu-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There is code to support this in 2.4.0-ac4 -- initially I didn't like
-> the way Alan had done things (I was think -EFBIG should be used only
-> for LFS violations) but after some thought has decided that what he
-> has makes a lot of sense.
 
-Its based on the docs I have + a test program for the non LFS/limit cases that
-sct provided. -ac4 isnt quite compliant (sends SIGXFZ on a short write case
-which is wrong and also doesnt do a write partiall overlapping the disk limit)
 
--ac5 should fix those
+On Mon, 8 Jan 2001, Alan Cox wrote:
 
-> The only time this won't work is if some complex criteria allows some
-> files to be larger than others, in which case -- we add a callback to
-> the fs.
+> > Alan, it doesn't work that way. Maximal size depends on the type of object,
+> > for one thing. Moreover, it's not always a multiple of page size, so you
+> 
+> Its a multiple of page size for all fs's we have but I did it in terms of
+> bytes anyway
 
-You don't need to add the callback. Set the limit infinite and handle it in your
-truncate and writing paths.
+1Kb-block ext2 on Alpha. Count yourself and you'll see...
+
+> > still need foo_get_block() to be aware of the problem (it should return
+> > -EFBIG). Besides, we need to take care of the situations when some of
+> > get_block() calls fail in prepare_write() - that can happen due to other
+> > problems. I've fixed all that stuff for ext2 (check the patches posted on
+> > l-k after 12-pre6). We need to propagate it into other filesystems, but
+> 
+> I put it into generic_file_write. That covers most fs's it seems. The jffs 
+> guys are going to switch to generic_file_write soon and the other fs's 
+> that dont are wacko ones I dont care about ;)
+
+Alan, we have to deal with get_block() failures anyway. -ENOSPC, -EDQUOT,
+not to mention plain and simple -EIO. -EFBIG handling is not different.
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

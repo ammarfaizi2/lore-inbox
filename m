@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268713AbRG3XC1>; Mon, 30 Jul 2001 19:02:27 -0400
+	id <S268709AbRG3XA1>; Mon, 30 Jul 2001 19:00:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268712AbRG3XCS>; Mon, 30 Jul 2001 19:02:18 -0400
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:20560 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S268674AbRG3XCI>; Mon, 30 Jul 2001 19:02:08 -0400
-Date: Mon, 30 Jul 2001 17:56:25 -0500 (CDT)
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: [CFT] initramfs patch
-In-Reply-To: <Pine.GSO.4.21.0107300137550.16140-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.3.96.1010730175545.27870C-100000@mandrakesoft.mandrakesoft.com>
+	id <S268744AbRG3XAR>; Mon, 30 Jul 2001 19:00:17 -0400
+Received: from [208.187.172.194] ([208.187.172.194]:35613 "HELO
+	odin.oce.srci.oce.int") by vger.kernel.org with SMTP
+	id <S268709AbRG3XAK>; Mon, 30 Jul 2001 19:00:10 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Joshua Schmidlkofer <menion@srci.iwpsd.org>
+To: Thomas Zehetbauer <thomasz@hostmaster.org>
+Subject: Re: tulip driver still broken
+Date: Mon, 30 Jul 2001 16:57:19 -0600
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <20010731001907.A21982@hostmaster.org>
+In-Reply-To: <20010731001907.A21982@hostmaster.org>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01073016571903.25803@widmers.oce.srci.oce.int>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Mon, 30 Jul 2001, Alexander Viro wrote:
-> Stuff that went in userland: choosing and mounting root, unpacking/loading
-> initrd, running /linuxrc, handling nfsroot, finding and starting final
-> init - basically, everything after do_basic_setup().
+I am afraid of post these days.  However, I must comment that I too am having 
+trouble with the tulip driver, on several SMC nic's that use the DEC  
+chipset.  I tried mii_tool, with no success.
 
-Eventually I would like to see firmware uploading in initramfs,
-instead of compiling firmware images into the kernel...
+I have just been copying the tulip driver from 2.4.4 forward...   because I 
+don't have enough time to try and create an intelligent error report.
 
-	Jeff
+thanks,
+ 
+ joshua
 
-
-
+On Monday 30 July 2001 04:19 pm, Thomas Zehetbauer wrote:
+> My genuine digital network interface card ceased to work with the tulip
+> driver contained in kernel revisions >= 2.4.4 and the development driver
+> from sourceforge.net.
+>
+> It seems that the driver incorrectly configures the card for full duplex
+> mode and I could not figure out how to override this with the new
+> MODULE_PARM macro.
+>
+> I am now using the stable driver 0.9.14 from sourceforge.net which works
+> fine.
+>
+> Further information available by request!
+>
+> Tom
+>
+> Quantum Mechanics is God's version of "Trust me."
 

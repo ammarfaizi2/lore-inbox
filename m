@@ -1,73 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262685AbRE3Jpw>; Wed, 30 May 2001 05:45:52 -0400
+	id <S262692AbRE3J57>; Wed, 30 May 2001 05:57:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262692AbRE3Jpm>; Wed, 30 May 2001 05:45:42 -0400
-Received: from [204.177.156.37] ([204.177.156.37]:37056 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S262685AbRE3Jp0>; Wed, 30 May 2001 05:45:26 -0400
-Date: Wed, 30 May 2001 10:43:33 +0100 (BST)
-From: Mark Hemment <markhe@veritas.com>
-To: Jens Axboe <axboe@kernel.org>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] 4GB I/O, cut three
-In-Reply-To: <20010529160704.N26871@suse.de>
-Message-ID: <Pine.LNX.4.21.0105301022410.7153-100000@alloc>
+	id <S262694AbRE3J5t>; Wed, 30 May 2001 05:57:49 -0400
+Received: from deadlock.et.tudelft.nl ([130.161.36.93]:26888 "EHLO
+	deadlock.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S262692AbRE3J5k>; Wed, 30 May 2001 05:57:40 -0400
+Date: Wed, 30 May 2001 11:57:38 +0200 (CEST)
+From: Joris van Rantwijk <joris@deadlock.et.tudelft.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Minor problem in shmem_remount_fs()
+Message-ID: <Pine.LNX.4.21.0105301137180.22235-100000@deadlock.et.tudelft.nl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jens,
+Hello.
+I'm sorry if this isn't the right place to send this stuff, but
+the MAINTAINERS file wasn't being very helpful either.
 
-  I ran this (well, cut-two) on a 4-way box with 4GB of memory and a
-modified qlogic fibre channel driver with 32disks hanging off it, without
-any problems.  The test used was SpecFS 2.0
+I believe there is a minor bug in the remount code for the shm
+filesystem in the Linux 2.4.5 kernel. When parsing the mount flags,
+the code fails to set default values for unspecified options.
 
-  Peformance is definitely up - but I can't give an exact number, as the
-run with this patch was compiled with no-omit-frame-pointer for debugging
-any probs.
+mm/shmem.c: 1026:
+        unsigned long max_blocks, blocks;
+        unsigned long max_inodes, inodes;
+        struct shmem_sb_info *info = &sb->u.shmem_sb;
 
-  I did change the patch so that bounce-pages always come from the NORMAL
-zone, hence the ZONE_DMA32 zone isn't needed.  I avoided the new zone, as
-I'm not 100% sure the VM is capable of keeping the zones it already has
-balanced - and adding another one might break the camels back.  But as the
-test box has 4GB, it wasn't bouncing anyway.
+        if (shmem_parse_options (data, NULL, &max_blocks, &max_inodes))
+                return -EINVAL;
+---
+If the nr_blocks / nr_inodes options are not specified, the value of
+max_(block|inodes) will be undefined.
 
-Mark
+This would explain the following observed behaviour:
+[root@kitty /]# mount -t shm none /mnt
+[root@kitty /]# df
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/hda7              1981000   1258014    620574  67% /
+/dev/hda8               995115    447813    495896  47% /home
+/dev/hda1              2557352   1807324    750028  71% /dosc
+/dev/hda5              1027856    550192    477664  54% /dosd
+/dev/hda6               513776    270480    243296  53% /dose
+none                    163616         0    163616   0% /mnt
+[root@kitty /]# mount -o remount /mnt
+[root@kitty /]# df
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/hda7              1981000   1258014    620574  67% /
+/dev/hda8               995115    447813    495896  47% /home
+/dev/hda1              2557352   1807324    750028  71% /dosc
+/dev/hda5              1027856    550192    477664  54% /dosd
+/dev/hda6               513776    270480    243296  53% /dose
+none                 17179869096         0 17179869096   0% /mnt
+[root@kitty /]# ?
 
+Just to give complete information, ver_linux:
+Linux kitty 2.4.5 #1 Tue May 29 20:46:15 CEST 2001 i586 unknown
+Gnu C                  2.95.2
+Gnu make               3.78.1
+binutils               2.9.5.0.37
+mount                  2.10f
+modutils               2.4.1
+e2fsprogs              1.18
+Linux C Library        2.1.3
+ldd: version 1.9.11
+Procps                 2.0.6
+Net-tools              1.54
+Kbd                    0.99
+Sh-utils               2.0
+Modules Loaded         rtc nls_iso8859-1 nls_cp437 vfat fat powerswitch \
+                         mad16 ad1848 uart401 sound soundcore ne2k-pci 8390
+Bye,
+  Joris.
 
-On Tue, 29 May 2001, Jens Axboe wrote:
-> Another day, another version.
-> 
-> Bugs fixed in this version: none
-> Known bugs in this version: none
-> 
-> In other words, it's perfect of course.
-> 
-> Changes:
-> 
-> - Added ide-dma segment coalescing
-> - Only print highmem I/O enable info when HIGHMEM is actually set
-> 
-> Please give it a test spin, especially if you have 1GB of RAM or more.
-> You should see something like this when booting:
-> 
-> hda: enabling highmem I/O
-> ...
-> SCSI: channel 0, id 0: enabling highmem I/O
-> 
-> depending on drive configuration etc.
-> 
-> Plea to maintainers of the different architectures: could you please add
-> the arch parts to support this? This includes:
-> 
-> - memory zoning at init time
-> - page_to_bus
-> - pci_map_page / pci_unmap_page
-> - set_bh_sg
-> - KM_BH_IRQ (for HIGHMEM archs)
-> 
-> I think that's it, feel free to send me questions and (even better)
-> patches.
+Joris van Rantwijk
+joris@deadlock.et.tudelft.nl - http://deadlock.et.tudelft.nl/~joris/
 

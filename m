@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276832AbRJMKZi>; Sat, 13 Oct 2001 06:25:38 -0400
+	id <S277728AbRJMK4R>; Sat, 13 Oct 2001 06:56:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276834AbRJMKZ2>; Sat, 13 Oct 2001 06:25:28 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:30482 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S276832AbRJMKZU>;
-	Sat, 13 Oct 2001 06:25:20 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: crc32 cleanups 
-In-Reply-To: Your message of "13 Oct 2001 12:02:16 +0200."
-             <k2het3luxj.fsf@zero.aec.at> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 13 Oct 2001 20:25:31 +1000
-Message-ID: <16790.1002968731@ocs3.intra.ocs.com.au>
+	id <S277720AbRJMK4I>; Sat, 13 Oct 2001 06:56:08 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:8971 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S276857AbRJMKzz>; Sat, 13 Oct 2001 06:55:55 -0400
+Date: Sat, 13 Oct 2001 12:55:54 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+To: Andrew Over <ajo@acm.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Oops on removing via-rhine [2.4.10-ac11]
+In-Reply-To: <20011011182445.A12015@yeah.cx>
+Message-ID: <Pine.LNX.4.30.0110131248010.4721-100000@cola.teststation.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Oct 2001 12:02:16 +0200, 
-Andi Kleen <ak@muc.de> wrote:
->Just use the existing linker features. Link the crc code as an .a library.
+On Thu, 11 Oct 2001, Andrew Over wrote:
 
-Does not work if all the code that uses crc32 is in a module.  No
-references from the main kernel so crc32 is not included by the linker.
+> Trace; c010b6bc <pci_free_consistent+1c/20>
+> Trace; e08fdbaa <[via-rhine]via_rhine_remove_one+2a/40>
 
->[Note that __initcall may be a bit tricky here if some other __initcall
->user like an ethernet driver needs crc32 too; there is unfortunately no
->priority mechanism in __initcall to enforce that the crc32 init runs before
->the other initcalls. best would probably just to use a static table to avoid 
->this issue] 
+remove_one shouldn't call pci_free_consistent as that is already done in
+via_rhine_close (and I am assuming that if you open you must always close
+before remove ...).
 
-???!  __initcall entries are executed in the order that they are linked
-into the kernel.  The linkage order is controlled by the order that
-Makefiles are processed during kbuild and by line order within each
-Makefile.  There is definitely a priority order for __initcall code.
+I could repeat some kind of crash, but could you please test if the patch
+below fixes the crash you see. patch vs 2.4.13-pre2, but should apply vs
+others as well.
+
+/Urban
+
+
+diff -urN -X exclude linux-2.4.13-pre2-orig/drivers/net/via-rhine.c linux/drivers/net/via-rhine.c
+--- linux-2.4.13-pre2-orig/drivers/net/via-rhine.c	Sat Oct 13 12:05:38 2001
++++ linux/drivers/net/via-rhine.c	Sat Oct 13 12:34:00 2001
+@@ -764,6 +764,7 @@
+ 			    RX_RING_SIZE * sizeof(struct rx_desc) +
+ 			    TX_RING_SIZE * sizeof(struct tx_desc),
+ 			    np->rx_ring, np->rx_ring_dma);
++	np->tx_ring = NULL;
+ 
+ 	if (np->tx_bufs)
+ 		pci_free_consistent(np->pdev, PKT_BUF_SZ * TX_RING_SIZE,
+@@ -1595,11 +1596,6 @@
+ #ifndef USE_IO
+ 	iounmap((char *)(dev->base_addr));
+ #endif
+-
+-	pci_free_consistent(pdev, 
+-			    RX_RING_SIZE * sizeof(struct rx_desc) +
+-			    TX_RING_SIZE * sizeof(struct tx_desc),
+-			    np->rx_ring, np->rx_ring_dma);
+ 
+ 	kfree(dev);
+ 
 

@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276337AbRJKNkf>; Thu, 11 Oct 2001 09:40:35 -0400
+	id <S276331AbRJKNiP>; Thu, 11 Oct 2001 09:38:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276335AbRJKNkZ>; Thu, 11 Oct 2001 09:40:25 -0400
-Received: from jalon.able.es ([212.97.163.2]:5549 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S276330AbRJKNkO>;
-	Thu, 11 Oct 2001 09:40:14 -0400
-Date: Thu, 11 Oct 2001 15:40:39 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Thomas Hood <jdthood@mail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.10-ac11 parport_pc.c bugfix
-Message-ID: <20011011154039.C3904@werewolf.able.es>
-In-Reply-To: <1002766826.7434.38.camel@thanatos>
-Mime-Version: 1.0
+	id <S276330AbRJKNiG>; Thu, 11 Oct 2001 09:38:06 -0400
+Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:44941 "EHLO
+	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S276335AbRJKNh5>;
+	Thu, 11 Oct 2001 09:37:57 -0400
+Message-ID: <62869.212.247.172.29.1002807452.squirrel@webmail.stesmi.com>
+Date: Thu, 11 Oct 2001 15:37:32 +0200 (CEST)
+Subject: =?iso-8859-1?Q?Re:_Re:_[PATCH]_Re:_Lost_Partition?=
+From: "=?iso-8859-1?Q?Stefan_Smietanowski?=" <stesmi@stesmi.com>
+To: <viro@math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0110110927390.22698-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0110110927390.22698-100000@weyl.math.psu.edu>
+Cc: <v.sweeney@dexterus.com>, <linux-kernel@vger.kernel.org>
+Reply-To: stesmi@stesmi.com
+X-Mailer: SquirrelMail (version 1.2.0 [rc1])
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-In-Reply-To: <1002766826.7434.38.camel@thanatos>; from jdthood@mail.com on Thu, Oct 11, 2001 at 04:20:23 +0200
-X-Mailer: Balsa 1.2.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
-On 20011011 Thomas Hood wrote:
-> 	} else {
->-		if ( dev->irq_resource[0].start == -1 ) {
->+		if ( dev->irq_resource[0].start == (unsigned long)-1 ) {
-                                                   ^^^^^^^^^      ^
-Uh ?
+>> Hi. Re partition problem.
+>>
+>>
+>> > -	unsigned long first_sector, first_size, this_sector, this_size;
+>> > +	unsigned long first_sector, this_sector, this_size;
+>>
+>> > +	this_size = first_size;
+>>
+>>
+>> It seems that's sorta wrong, no?
+>>
+>> You just removed "first_size" and then you access it :)
+>
+> Look carefully at the arguments list.  first_size had just become
+> explicitly passed to extended_partition().
 
-Perhaps I miss some black magic in kernel programming, but could not this
-be written much cleaner like
+Yeah I see that now. Sorry, didn't look closely enough.
 
->+		if ( dev->irq_resource[0].start == ~0U ) {
+// Stefan
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.10-ac11-beo #2 SMP Thu Oct 11 02:41:04 CEST 2001 i686
+
+

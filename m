@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262060AbUE2Erc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263555AbUE2E7Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262060AbUE2Erc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 00:47:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263226AbUE2Erc
+	id S263555AbUE2E7Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 00:59:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263609AbUE2E7W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 00:47:32 -0400
-Received: from holomorphy.com ([207.189.100.168]:20352 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262060AbUE2Erb (ORCPT
+	Sat, 29 May 2004 00:59:22 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:11422 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S263555AbUE2E7T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 00:47:31 -0400
-Date: Fri, 28 May 2004 21:47:23 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-Subject: Re: nfsd oops 2.6.7-rc1
-Message-ID: <20040529044723.GA2093@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Neil Brown <neilb@cse.unsw.edu.au>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-References: <20040529023550.GB2370@holomorphy.com> <16568.621.199870.484447@cse.unsw.edu.au> <20040529032540.GA1310@holomorphy.com>
-Mime-Version: 1.0
+	Sat, 29 May 2004 00:59:19 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040529032540.GA1310@holomorphy.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16568.6306.306924.154136@napali.hpl.hp.com>
+Date: Fri, 28 May 2004 21:59:14 -0700
+To: nickpiggin@yahoo.com.au, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: big bw_pipe drop due to sched-domain patch?
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 29, 2004 at 01:24:29PM +1000, Neil Brown wrote:
->> Ok, I think I've found it.  There is a missing dget.  See below/.
->> NeilBrown
+Today I noticed that going from 2.6.6 to 2.6.7-rc1 caused a big drop
+in LMbench2 bw_pipe throughput on a dual-CPU machine (2.6.7-rc1 shows
+10 times lower bandwidth than 2.6.6).  It appears that the drop is due
+to the two tasks being distributed across the two CPUs, rather than
+being kept on the same CPU.  If I force the tasks to be pinned on a
+single CPU, e.g., like so:
 
-On Fri, May 28, 2004 at 08:25:40PM -0700, William Lee Irwin III wrote:
-> Thanks! Testing ETA 10-15 minutes (time needed for kernel compiles).
+	$ taskset 1 ./bw_pipe
 
-No oopsen for 30 minutes so it's working wonderfully thus far, but I've
-seen things go wrong a number of hours out from boot before. I'll try
-to follow up with another ack after it's been longer.
+then performance is "only" about 10% worse than with 2.6.6.
 
+Is this kind of drop expected?
 
--- wli
+	--david

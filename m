@@ -1,52 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267250AbUHJPkf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266220AbUHJPo3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267250AbUHJPkf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 11:40:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267484AbUHJPkf
+	id S266220AbUHJPo3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 11:44:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267431AbUHJPo3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 11:40:35 -0400
-Received: from mail.appliedminds.com ([65.104.119.58]:48857 "EHLO
-	appliedminds.com") by vger.kernel.org with ESMTP id S267250AbUHJPkO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 11:40:14 -0400
-Message-ID: <4118EBEA.10809@appliedminds.com>
-Date: Tue, 10 Aug 2004 08:38:18 -0700
-From: James Lamanna <jamesl@appliedminds.com>
-User-Agent: Mozilla Thunderbird 0.6+ (X11/20040421)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sascha Wilde <wilde@sha-bang.de>
-CC: "David N. Welton" <davidw@eidetix.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6 kernel won't reboot on AMD system - 8042 problem?
-References: <auto-000000462036@appliedminds.com> <411735BD.3000303@eidetix.com> <20040810093734.GA1089@kenny.sha-bang.local>
-In-Reply-To: <20040810093734.GA1089@kenny.sha-bang.local>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Aug 2004 11:44:29 -0400
+Received: from cantor.suse.de ([195.135.220.2]:24294 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266220AbUHJPoY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 11:44:24 -0400
+Date: Tue, 10 Aug 2004 15:54:02 +0200
+From: Olaf Hering <olh@suse.de>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] export legacy pty info via sysfs
+Message-ID: <20040810135402.GA5459@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sascha Wilde wrote:
-> On Mon, Aug 09, 2004 at 10:28:45AM +0200, David N. Welton wrote:
-> 
 
-> 
-> Big question:  how was the initialisation of the PS/2 ports managed in
-> 2.4.x?  Ther seems to be no similar code to i8042.c in it[0], and all I
-> have found till now is a bunch ob obscure jump-rables in
-> arch/i386/kernel/setup.c ...
+You missed that one last year.
 
-Look at drivers/char/pc_keyb.c
-That's where the 2.4.x initialization takes place it seems.
-It's pretty generic, but it looks like some of the commands are similar 
-in initialize_kbd() - constants are in include/linux/pc_keyb.h
 
-Pretty much all PC hardware has a i8042-like controller, so I think that 
-file is the generic PC keyboard startup for i8042-like devices.
+export the legacy pty/tty device nodes via sysfs,
+so udev has a chance to create them if /dev is in tmpfs.
 
-Looks like 2.6.x abstracted this a little farther through the serio 
-layer, so at initialization, the system tries to assign a particular 
-driver to the serio ports it finds (there are drivers for AT, i8042 (and 
-variants), etc..)
+Signed-off-by: Olaf Hering <olh@suse.de>
+
+diff -purN linux-2.6.8-rc4.orig/drivers/char/tty_io.c linux-2.6.8-rc4/drivers/char/tty_io.c
+--- linux-2.6.8-rc4.orig/drivers/char/tty_io.c	2004-08-10 14:01:54.000000000 +0200
++++ linux-2.6.8-rc4/drivers/char/tty_io.c	2004-08-10 14:04:53.230532914 +0200
+@@ -749,6 +749,17 @@ ssize_t redirected_tty_write(struct file
+ 	return tty_write(file, buf, count, ppos);
+ }
+ 
++static char ptychar[] = "pqrstuvwxyzabcde";
++
++static inline void pty_line_name(struct tty_driver *driver, int index, char *p)
++{
++	int i = index + driver->name_base;
++	/* ->name is initialized to "ttyp", but "tty" is expected */
++	sprintf(p, "%s%c%x",
++			driver->subtype == PTY_TYPE_SLAVE ? "tty" : driver->name,
++			ptychar[i >> 4 & 0xf], i & 0xf);
++}
++
+ static inline void tty_line_name(struct tty_driver *driver, int index, char *p)
+ {
+ 	sprintf(p, "%s%d", driver->name, index + driver->name_base);
+@@ -2154,6 +2165,7 @@ static struct class_simple *tty_class;
+ void tty_register_device(struct tty_driver *driver, unsigned index,
+ 			 struct device *device)
+ {
++	char name[64];
+ 	dev_t dev = MKDEV(driver->major, driver->minor_start) + index;
+ 
+ 	if (index >= driver->num) {
+@@ -2165,13 +2177,11 @@ void tty_register_device(struct tty_driv
+ 	devfs_mk_cdev(dev, S_IFCHR | S_IRUSR | S_IWUSR,
+ 			"%s%d", driver->devfs_name, index + driver->name_base);
+ 
+-	/* we don't care about the ptys */
+-	/* how nice to hide this behind some crappy interface.. */
+-	if (driver->type != TTY_DRIVER_TYPE_PTY) {
+-		char name[64];
++	if (driver->type == TTY_DRIVER_TYPE_PTY)
++		pty_line_name(driver, index, name);
++	else
+ 		tty_line_name(driver, index, name);
+-		class_simple_device_add(tty_class, dev, device, name);
+-	}
++	class_simple_device_add(tty_class, dev, device, name);
+ }
+ 
+ /**
 
 -- 
-James Lamanna
+USB is for mice, FireWire is for men!
+
+sUse lINUX ag, nÜRNBERG

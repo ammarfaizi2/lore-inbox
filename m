@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263491AbSKDAAu>; Sun, 3 Nov 2002 19:00:50 -0500
+	id <S263966AbSKDAMD>; Sun, 3 Nov 2002 19:12:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263517AbSKDAAu>; Sun, 3 Nov 2002 19:00:50 -0500
-Received: from almesberger.net ([63.105.73.239]:9 "EHLO host.almesberger.net")
-	by vger.kernel.org with ESMTP id <S263491AbSKDAAt>;
-	Sun, 3 Nov 2002 19:00:49 -0500
-Date: Sun, 3 Nov 2002 21:06:45 -0300
+	id <S263986AbSKDAMD>; Sun, 3 Nov 2002 19:12:03 -0500
+Received: from almesberger.net ([63.105.73.239]:1289 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S263966AbSKDAMC>; Sun, 3 Nov 2002 19:12:02 -0500
+Date: Sun, 3 Nov 2002 21:18:15 -0300
 From: Werner Almesberger <wa@almesberger.net>
-To: Dave Jones <davej@codemonkey.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
-       Jos Hulzink <josh@stack.nl>, linux-kernel@vger.kernel.org,
-       Vojtech Pavlik <vojtech@suse.cz>
+To: Matthias Schniedermeyer <ms@citd.de>
+Cc: Nicholas Wourms <nwourms@netscape.net>,
+       Flavio Stanchina <flavio.stanchina@tin.it>,
+       linux-kernel@vger.kernel.org
 Subject: Re: Petition against kernel configuration options madness...
-Message-ID: <20021103210645.K2599@almesberger.net>
-References: <200211031809.45079.josh@stack.nl> <3DC56270.8040305@pobox.com> <20021103215920.GB733@suse.de>
+Message-ID: <20021103211815.L2599@almesberger.net>
+References: <200211031809.45079.josh@stack.nl> <aq41b9$dt9$1@main.gmane.org> <3DB5E7CA00439C7E@smtp2.cp.tin.it> <3DC593A8.2030204@netscape.net> <20021103220023.GA16889@citd.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021103215920.GB733@suse.de>; from davej@codemonkey.org.uk on Sun, Nov 03, 2002 at 09:59:20PM +0000
+In-Reply-To: <20021103220023.GA16889@citd.de>; from ms@citd.de on Sun, Nov 03, 2002 at 11:00:23PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> Having it documented obviously isn't enough too.
+Matthias Schniedermeyer wrote:
+> The config gets a version-Tag.
 
-Maybe we need some heuristics for "upgrading" old .config files in
-the event of a "make oldconfig". They could be of the form of rules
-like this:
+This would only be helpful if you also had a description of what the
+user is expected to change. (And once you have this, you might as
+well automate the process a little more, as I've just described in
+another posting.)
 
-CONFIG_obsolete1 && CONFIG_obsolete2 -> CONFIG_new1=y, CONFIG_new2=y
+Just telling the user that there might be problems isn't very helpful,
+in particular since most such version conflicts would be false alarms,
+e.g. name changes of some obscure controller I don't have anyway. I
+think most people are aware of the fact that "make oldconfig" may
+produce nonsense, but it's still annoying if it does.
 
-(In a separate file, and entries would be aged. Maybe config tools
-could even walk users through this interactively, or flag settings
-obtained this way specially, e.g. with a similing wizard icon ;-)
-Maybe even add some descriptive text after the rule.)
-
-This still doesn't help for hard to find or obscurely named options,
-but at least people upgrading wouldn't be bitten every time something
-is renamed or restructured.
+Another easy extension to consider: after "make oldconfig", print
+the options that were found in .config, but which don't exist anymore.
+I've actually proposed this already two years ago, see also
+http://marc.theaimsgroup.com/?l=linux-kernel&m=97298980521513&w=2
 
 - Werner
 

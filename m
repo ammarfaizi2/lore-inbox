@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263035AbREaJFM>; Thu, 31 May 2001 05:05:12 -0400
+	id <S263036AbREaJHL>; Thu, 31 May 2001 05:07:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263036AbREaJFB>; Thu, 31 May 2001 05:05:01 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:32516 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S263035AbREaJEo>; Thu, 31 May 2001 05:04:44 -0400
-Date: Thu, 31 May 2001 11:01:47 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Jose Carlos Garcia Sogo <jose@servidor.jaimedelamo.eu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops with 2.4.5-ac3
-Message-ID: <20010531110147.B13054@arthur.ubicom.tudelft.nl>
-In-Reply-To: <20010531094556.A599@hal9000>
+	id <S263038AbREaJHB>; Thu, 31 May 2001 05:07:01 -0400
+Received: from pD951F2B7.dip.t-dialin.net ([217.81.242.183]:2053 "HELO
+	emma1.emma.line.org") by vger.kernel.org with SMTP
+	id <S263036AbREaJGs>; Thu, 31 May 2001 05:06:48 -0400
+Date: Thu, 31 May 2001 10:44:37 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.5 still breaks dhcpcd with 8139too
+Message-ID: <20010531104437.C10057@emma1.emma.line.org>
+Mail-Followup-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
+	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010529215647.A3955@greenhydrant.com> <3B147F80.31EC7520@mandrakesoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010531094556.A599@hal9000>; from jose@servidor.jaimedelamo.eu.org on Thu, May 31, 2001 at 09:45:56AM +0200
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+In-Reply-To: <3B147F80.31EC7520@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Wed, May 30, 2001 at 01:05:04 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 31, 2001 at 09:45:56AM +0200, Jose Carlos Garcia Sogo wrote:
->    I've just got an oops with the 2.4.5-ac3 kernel. I have attached the log 
->   to this mail. I have also having more random dead locks, but I haven't 
->   catch any log of them. If I manage to get some logs, I'll send here also.
+On Wed, 30 May 2001, Jeff Garzik wrote:
+
+> > I see that Alan has reverted back to the 2.4.3 driver for his ac-series for
+> > other reasons, hopefully either the old driver will going in to 2.4.6 or the
+> > new one will get fixed?
 > 
->    Anyway, 2.4.5-ac3 is much more stable in my computer than vanilla 2.4.5, 
->   which was almost unusable. With 2.4.4, I had some problems also.
-> 
->    I'm using NVIDIA's module for a TNT2 M64 card.
+> I've got one of the two problems fixed here at the test lab, and am
+> working on the second.  Hopefully this week I'll have this sorted out,
+> and a driver for you guys to test.
 
-Try to reproduce the errors without the nvidia module. If you still get
-oopses, report them over here. If not, complain to nvidia.
-
-
-Erik
-
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+Will that 8139too be able to share its IRQ with a bttv card (Hauppauge
+WinTV in my case)? With 2.2.19, it's currently possible, at least after
+unloading and reloading the 8139too module, but it's a no-go with 2.4.5.

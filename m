@@ -1,42 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273577AbRJTQOd>; Sat, 20 Oct 2001 12:14:33 -0400
+	id <S273565AbRJTQWx>; Sat, 20 Oct 2001 12:22:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273565AbRJTQOX>; Sat, 20 Oct 2001 12:14:23 -0400
-Received: from smtp3.libero.it ([193.70.192.53]:60121 "EHLO smtp3.libero.it")
-	by vger.kernel.org with ESMTP id <S273577AbRJTQOL>;
-	Sat, 20 Oct 2001 12:14:11 -0400
+	id <S273622AbRJTQWo>; Sat, 20 Oct 2001 12:22:44 -0400
+Received: from ns.ithnet.com ([217.64.64.10]:34052 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S273565AbRJTQWX>;
+	Sat, 20 Oct 2001 12:22:23 -0400
+Date: Sat, 20 Oct 2001 18:22:57 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: USB module ov511 dies after about 30 minutes
+Message-Id: <20011020182257.513a36e7.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Davide Inglima - limaCAT <limacat@libero.it>
-Organization: Order Of Llhatarius - Underwater Chocobo - Kdenthusiasts
-To: torvalds@transmeta.com
-Subject: [PATCH] make rpm target fix in Makefile (linux-2.4.13-pre5)
-Date: Sat, 20 Oct 2001 18:08:42 +0200
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Message-Id: <01102018084200.07924@even>
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-in short:
-- the rpm target in linus tree doesn't work: it refuses to compile since it needs the "KERNELPATH"
-  environment variable set as well... otherwise it would fail to create the .tar.gz file needed by the
-  rpm-compile process.
-solution:
-- copy the "KERNELPATH=..." directive from Alan's Makefile. Now it works.
+I have a webcam model creative webcam III. I read from it every minute. After
+about 30 minutes the module ov511 cannot be unloaded anymore, stopped working
+(of course, only black pictures are delivered) and there are no error messages
+what so ever. This can only be resolved by rebooting. Any hints?
+Used kernel 2.4.13-pre5.
+Used to work with 2.4.10.
 
-Enjoy!
-
---- Makefile.orig       Sat Oct 20 17:54:46 2001
-+++ Makefile    Sat Oct 20 17:46:47 2001
-@@ -6,6 +6,7 @@
- KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
- 
- ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e s/arm.*/arm/ -e s/sa110/arm/)
-+KERNELPATH=kernel-$(shell echo $(KERNELRELEASE) | sed -e "s/-//")
- 
- CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
-          else if [ -x /bin/bash ]; then echo /bin/bash; \
+Regards,
+Stephan

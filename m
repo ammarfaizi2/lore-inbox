@@ -1,48 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264993AbRFZPeh>; Tue, 26 Jun 2001 11:34:37 -0400
+	id <S265002AbRFZPir>; Tue, 26 Jun 2001 11:38:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264994AbRFZPe2>; Tue, 26 Jun 2001 11:34:28 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:51463 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264993AbRFZPeW>; Tue, 26 Jun 2001 11:34:22 -0400
-Subject: Re: AMD thunderbird oops
-To: adeucher@UU.NET (Alex Deucher)
-Date: Tue, 26 Jun 2001 16:33:59 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), joeja@mindspring.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3B38A988.A576028B@uu.net> from "Alex Deucher" at Jun 26, 2001 11:26:00 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S264999AbRFZPi2>; Tue, 26 Jun 2001 11:38:28 -0400
+Received: from m355-mp1-cvx1c.col.ntl.com ([213.104.77.99]:45956 "EHLO
+	[213.104.77.99]") by vger.kernel.org with ESMTP id <S264994AbRFZPiP>;
+	Tue, 26 Jun 2001 11:38:15 -0400
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: VM tuning through fault trace gathering [with actual code]
+In-Reply-To: <Pine.LNX.4.21.0106261031150.850-100000@freak.distro.conectiva>
+From: John Fremlin <vii@users.sourceforge.net>
+Date: 26 Jun 2001 16:38:07 +0100
+In-Reply-To: <Pine.LNX.4.21.0106261031150.850-100000@freak.distro.conectiva> (Marcelo Tosatti's message of "Tue, 26 Jun 2001 10:52:16 -0300 (BRT)")
+Message-ID: <m2vgljb6ao.fsf@boreas.yi.org.>
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.1 (GTK)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Euql-0003hh-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What's weird though is that it is rock solid as long as I don't use
-> athlon optimizations.  I'm not sure how much of a speed improvement they
+Marcelo Tosatti <marcelo@conectiva.com.br> writes:
 
-That fits the pattern beautifully. 
+> ####################################################################
+> Event     	          Time                   PID     Length Description
+> ####################################################################
+> 
+> Trap entry              991,299,585,597,016     678     12      TRAP: page fault; EIP : 0x40067785
 
-> provide, but everything's fine with i686, so I can't complain, besides I
-> doubt I can return the board at this point anyway.  BTW, which would be
-> better with an athlon, k6 or i686 optimization?  I've heard i686 is
-> faster, but I've never really looked into it too much myself.
+That looks like just the generic interrupt handling. It does not do
+what I want to do, i.e. record some more info about the fault saying
+where it comes from.
 
-The optimisations are worth several %age points on some benchmarks - the
-prefetching memory copier it uses basically hits the full bus bandwidth on
-memory copies which rep movs will not do.
+-- 
 
-My current speculation is that the sdram setup on some of these boards can't
-actually take the full CPU spec caused by these hand tuned routines. There is
-some evidence to support that as several other boards only work with Athlon
-optimisation if you set the BIOS options to 'conservative' not 'optimised'
-
-Equally we don't see the problem on AMD chipset boards and we don't know if
-that indicates a bug in the kernel not tripped on such boards or a chipset
-problem (even BIOS setuo maybe) on the VIA.
-
-Alan
-
+	http://ape.n3.net

@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287115AbSAVP04>; Tue, 22 Jan 2002 10:26:56 -0500
+	id <S287141AbSAVPa4>; Tue, 22 Jan 2002 10:30:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287303AbSAVP0q>; Tue, 22 Jan 2002 10:26:46 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9221 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S287115AbSAVP0f>;
-	Tue, 22 Jan 2002 10:26:35 -0500
-Message-ID: <3C4D84A8.A404CCFC@mandrakesoft.com>
-Date: Tue, 22 Jan 2002 10:26:32 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.2-pre9fs7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S287303AbSAVPaq>; Tue, 22 Jan 2002 10:30:46 -0500
+Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:43281 "HELO
+	yucs.org") by vger.kernel.org with SMTP id <S287141AbSAVPag>;
+	Tue, 22 Jan 2002 10:30:36 -0500
+Subject: Re: Athlon PSE/AGP Bug
+From: Shaya Potter <spotter@cs.columbia.edu>
 To: Dave Jones <davej@suse.de>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>, bjornw@axis.com
-Subject: Re: cris patches in 2.5.3-pre3.
-In-Reply-To: <20020122151951.A16157@suse.de>
-Content-Type: text/plain; charset=us-ascii
+Cc: Steve Brueggeman <brewgyman@mediaone.net>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020122135843.B16444@suse.de>
+In-Reply-To: <1011610422.13864.24.camel@zeus>
+	<20020121.053724.124970557.davem@redhat.com>,
+	<20020121.053724.124970557.davem@redhat.com>;
+	<20020121175410.G8292@athlon.random> <3C4C5B26.3A8512EF@zip.com.au>
+	<o7cp4ukpr9ehftpos1hg807a9hfor7s55e@4ax.com>
+	<1011678359.904.4.camel@zaphod>  <20020122135843.B16444@suse.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 22 Jan 2002 10:27:35 -0500
+Message-Id: <1011713259.904.6.camel@zaphod>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> Some of the cris patches in pre3 seem to be going backwards.
-> Is this intentional? Or just CVS weirdness ?
+you're right, it's a typo on my part.  I hit 2 twice instead of 6.
 
-> -# $Id: Makefile,v 1.22 2001/10/01 14:42:38 bjornw Exp $
-> +# $Id: Makefile,v 1.3 2002/01/21 15:21:23 bjornw Exp $
+woops
 
-from 2001 -> 2002
-
-> -/* $Id: head.S,v 1.8 2001/10/03 17:15:15 bjornw Exp $
-> +/* $Id: head.S,v 1.2 2001/12/18 13:35:12 bjornw Exp $
-
-from october -> december
-
-looks ok to me, do I need more caffeine?  :)
-
-	Jeff
-
-
+On Tue, 2002-01-22 at 07:58, Dave Jones wrote:
+> On Tue, Jan 22, 2002 at 12:45:59AM -0500, Shaya Potter wrote:
+>  > athlon XP 1800 is a cpuid 622 (aka an A5)
+>  > at least my 2 XP 1800+s are 622, so I assume all are (could be wrong)
+> 
+>  Unless you have /proc/cpuinfo output that says otherwise, this is
+>  wrong. 622 is the olde Athlon (0.18um) Rev A2.
+> 
+>  XP is 662 with cachesize >=256 with bit 19 of capflags==0
+> 
+>  (Determining new Duron/Athlon XP/Athlon MP is quite messy,
+>   see x86info source for gory details)
+>  
+> -- 
+> | Dave Jones.        http://www.codemonkey.org.uk
+> | SuSE Labs
 -- 
-Jeff Garzik      | "I went through my candy like hot oatmeal
-Building 1024    |  through an internally-buttered weasel."
-MandrakeSoft     |             - goats.com
+spotter@{cs.columbia.edu,yucs.org}
+http://yucs.org/~spotter/
+

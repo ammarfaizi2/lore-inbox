@@ -1,49 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262089AbTABPTp>; Thu, 2 Jan 2003 10:19:45 -0500
+	id <S262067AbTABPSz>; Thu, 2 Jan 2003 10:18:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262190AbTABPTp>; Thu, 2 Jan 2003 10:19:45 -0500
-Received: from nammta01.sugar-land.nam.slb.com ([163.188.150.130]:63897 "EHLO
-	mail.slb.com") by vger.kernel.org with ESMTP id <S262089AbTABPTn>;
-	Thu, 2 Jan 2003 10:19:43 -0500
-Date: Thu, 02 Jan 2003 15:21:23 +0000
-From: Loic Jaquemet <jaquemet@fiifo.u-psud.fr>
-Subject: PATCH : 2.5.5x - tv card with i2c ( bttv )
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Message-id: <3E1458F3.13EB4BFD@fiifo.u-psud.fr>
-Organization: WesternGeco
-MIME-version: 1.0
-X-Mailer: Mozilla 4.79 [en] (X11; U; SunOS 5.6 sun4u)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en
+	id <S262089AbTABPSz>; Thu, 2 Jan 2003 10:18:55 -0500
+Received: from falcon.vispa.uk.net ([62.24.228.11]:33545 "EHLO
+	falcon.vispa.com") by vger.kernel.org with ESMTP id <S262067AbTABPSy>;
+	Thu, 2 Jan 2003 10:18:54 -0500
+Message-ID: <3E145A31.9000305@walrond.org>
+Date: Thu, 02 Jan 2003 15:26:41 +0000
+From: Andrew Walrond <andrew@walrond.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: e1000 not detected in 2.5.53
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Asus PR-DLS dual Xeon m/b with Intel 82544GC Gigabit controller onboard 
+(And Intel 82551QM Fast Ethernet controller incidentally)
 
-this is needed since 2.5.49 to get a bttv module.
+Detected fine in 2.4.20; lspci gives
 
---- linux-2.5.54-old/drivers/media/video/audiochip.h    2002-11-22
-22:40:23.000000000 +0100
-+++ linux-2.5.54/drivers/media/video/audiochip.h        2002-11-23
-10:24:19.000000000 +0100
-@@ -67,4 +67,7 @@
- #define AUDC_SWITCH_MUTE      _IO('m',16)      /* turn on mute */
- #endif
- 
-+/* misc stuff to pass around config info to i2c chips */
-+#define AUDC_CONFIG_PINNACLE  _IOW('m',32,int)
-+
- #endif /* AUDIOCHIP_H */
+00:00.0 Host bridge: ServerWorks CMIC-LE (rev 13)
+00:00.1 Host bridge: ServerWorks CMIC-LE
+00:00.2 Host bridge: ServerWorks: Unknown device 0000
+00:02.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] 
+(rev 10)
+00:03.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
+00:0f.0 ISA bridge: ServerWorks CSB5 South Bridge (rev 93)
+00:0f.3 Host bridge: ServerWorks GCLE Host Bridge
+00:10.0 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
+00:10.2 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
+00:11.0 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
+00:11.2 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
+0e:04.0 SCSI storage controller: LSI Logic / Symbios Logic 53c1030 (rev 07)
+0e:04.1 SCSI storage controller: LSI Logic / Symbios Logic 53c1030 (rev 07)
+12:02.0 Ethernet controller: Intel Corp. 82544GC Gigabit Ethernet 
+Controller (LOM) (rev 02)
 
+BUT in 2.5.53, it's not detected. lspci gives
 
+00:00.0 Host bridge: ServerWorks CMIC-LE (rev 13)
+00:00.1 Host bridge: ServerWorks CMIC-LE
+00:00.2 Host bridge: ServerWorks: Unknown device 0000
+00:02.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] 
+(rev 10)
+00:03.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
+00:0f.0 ISA bridge: ServerWorks CSB5 South Bridge (rev 93)
+00:0f.3 Host bridge: ServerWorks GCLE Host Bridge
+00:10.0 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
+00:10.2 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
+00:11.0 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
+00:11.2 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
 
--- 
-+----------------------------------------------+
-|Jaquemet Loic                                 |
-|Intern in WesternGeco, Schlumberger in Gatwick|
-|Phone: 44-(0)1293-55-6876                     |
-|Eleve ingenieur en informatique FIIFO, ORSAY  |
-+----------------------------------------------+
-http://sourceforge.net/projects/ffss/
-#wirelessfr @ irc.freenode.net
+Looks like scsi controller is missed as well? (I don't use it anyway)
+The e1000 driver is compiled into the kernel. ACPI is enabled
+
+ From dmesg
+
+Intel(R) PRO/1000 Network Driver - version 4.4.12-k1
+Copyright (c) 1999-2002 Intel Corporation.
+
+Any suggestions?
+

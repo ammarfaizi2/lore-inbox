@@ -1,40 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293315AbSBYEiD>; Sun, 24 Feb 2002 23:38:03 -0500
+	id <S293326AbSBYGQq>; Mon, 25 Feb 2002 01:16:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293316AbSBYEhx>; Sun, 24 Feb 2002 23:37:53 -0500
-Received: from 12-226-21-207.client.attbi.com ([12.226.21.207]:54008 "EHLO
-	spartan.jdc.home") by vger.kernel.org with ESMTP id <S293315AbSBYEhh>;
-	Sun, 24 Feb 2002 23:37:37 -0500
-Message-ID: <3C79BF6D.8000206@noth.is.eleet.ca>
-Date: Sun, 24 Feb 2002 23:37:01 -0500
-From: Jim Crilly <noth@noth.is.eleet.ca>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
+	id <S293327AbSBYGQh>; Mon, 25 Feb 2002 01:16:37 -0500
+Received: from lsanca1-ar27-4-63-184-089.lsanca1.vz.dsl.gtei.net ([4.63.184.89]:1408
+	"EHLO barbarella.hawaga.org.uk") by vger.kernel.org with ESMTP
+	id <S293326AbSBYGQ1>; Mon, 25 Feb 2002 01:16:27 -0500
+Date: Sun, 24 Feb 2002 22:16:16 -0800 (PST)
+From: Ben Clifford <benc@hawaga.org.uk>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.5-dj1 - IPv6 not loading correctly.
+In-Reply-To: <Pine.LNX.4.33.0202241300100.11220-100000@barbarella.hawaga.org.uk>
+Message-ID: <Pine.LNX.4.33.0202242203080.21716-100000@barbarella.hawaga.org.uk>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: mlock + OOM = infinite loop
-In-Reply-To: <3C797F82.4000602@candelatech.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a dual Athlon 1.2Ghz box with 1.2G of memory, I decided to run 2 
-copies of memtest to test the memory with each testing 629M (the 
-existance of memtest86 slipped my mind). With the 2.4.17 and 2.4.18-rc2 
-kernels (Andre's IDE amd kdb patches applied) the kernel loops trying to 
-free memory so the second mlock can succeed which never happens, I let 
-it run for about 2 days while I was away and it never became responsive, 
-minus kdb.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-But with Rik's rmap12a patch it successfully starts the OOM and kills 
-one of the memtest processes, the only strange thing is it kills the 
-first instance letting the second succeed, I would think it would be 
-nicer to just fail in the second mlock and let the first continue.
+On Sun, 24 Feb 2002, Ben Clifford wrote:
 
-Also all the kernels were compiled with SMP support, if that makes a 
-difference.
+> When ipv6.o is loaded, I get:
+>
+> IPv6 v0.8 for NET4.0
+> Failed to initialize the ICMP6 control socket (err -97)
+>
+> and lsmod shows:
+> ipv6    147968    -1 (uninitialized)
 
-Jim
+More info on this:
+
+Looking at the code, the the ICMP6 control socket error is occurring
+because sock_register isn't called for inet6 until after the ICMP6 control
+socket is created (in af_inet6.c).
+
+However, the ICMP6 control socket create calls sock_create, which requires
+sock_register to have already been called.
+
+I have made the below change, which moves the protocol family registration
+higher up in the code.  It seems to make ipv6 work now.
+
+However, I'm concerned that this gives a small amount of time when the
+family is registered but not fully initialised.
+
+Is this bad?
+
+
+
+- --- /mnt/dev/hda11/2.5.5-dj1-snark-not-changed-much/net/ipv6/af_inet6.c	Tue Feb 19 18:10:53 2002
++++ 2.5.5-dj1/net/ipv6/af_inet6.c	Sun Feb 24 22:13:38 2002
+@@ -675,6 +675,13 @@
+ 	 */
+ 	inet6_register_protosw(&rawv6_protosw);
+
++	/* register the family here so that the init calls below will
++	 * work. ?? is this dangerous ??
++	 */
++
++	(void) sock_register(&inet6_family_ops);
++
++
+ 	/*
+ 	 *	ipngwg API draft makes clear that the correct semantics
+ 	 *	for TCP and UDP is to consider one TCP and UDP instance
+@@ -719,9 +726,6 @@
+ 	udpv6_init();
+ 	tcpv6_init();
+
+- -	/* Now the userspace is allowed to create INET6 sockets. */
+- -	(void) sock_register(&inet6_family_ops);
+- -
+ 	return 0;
+
+ #ifdef CONFIG_PROC_FS
+
+- -- 
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8eda0sYXoezDwaVARAn+uAJ4o8hCamGZzX6UnJVH8PWYfjLzBFQCeLZxw
+Fofq4Yo27N2juaxaMdZ+aXw=
+=so8+
+-----END PGP SIGNATURE-----
 

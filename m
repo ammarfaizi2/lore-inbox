@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261706AbSIXRHw>; Tue, 24 Sep 2002 13:07:52 -0400
+	id <S261712AbSIXRQa>; Tue, 24 Sep 2002 13:16:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261711AbSIXRHw>; Tue, 24 Sep 2002 13:07:52 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:13830 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261706AbSIXRHv>;
-	Tue, 24 Sep 2002 13:07:51 -0400
-Date: Tue, 24 Sep 2002 10:12:00 -0700
-From: Greg KH <greg@kroah.com>
-To: "Rhoads, Rob" <rob.rhoads@intel.com>
-Cc: linux-kernel@vger.kernel.org,
-       hardeneddrivers-discuss@lists.sourceforge.net,
-       cgl_discussion@lists.osdl.org
-Subject: Re: [ANNOUNCE] Linux Hardened Device Drivers Project
-Message-ID: <20020924171200.GA25009@kroah.com>
-References: <D9223EB959A5D511A98F00508B68C20C0A53899F@orsmsx108.jf.intel.com> <D9223EB959A5D511A98F00508B68C20C0A5389BB@orsmsx108.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <D9223EB959A5D511A98F00508B68C20C0A5389BB@orsmsx108.jf.intel.com>
-User-Agent: Mutt/1.4i
+	id <S261713AbSIXRQa>; Tue, 24 Sep 2002 13:16:30 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2319 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261712AbSIXRQ3>; Tue, 24 Sep 2002 13:16:29 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] streq()
+Date: 24 Sep 2002 10:21:17 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <amq6ud$h66$1@cesium.transmeta.com>
+References: <20020924045313.0FBE52C075@lists.samba.org> <Pine.LNX.4.44.0209240731060.8824-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 23, 2002 at 03:38:32PM -0700, Rhoads, Rob wrote:
-> I appreciate all the feedback. Based on the wide variety 
-> of ideas/comments, it looks like I need to go back and 
-> incorporate these ideas into the document, potentially 
-> changing areas in major ways where appropriate.    
+Followup to:  <Pine.LNX.4.44.0209240731060.8824-100000@localhost.localdomain>
+By author:    Ingo Molnar <mingo@elte.hu>
+In newsgroup: linux.dev.kernel
+> 
+> we should do something about these. list_add() is hard, while we could
+> introduce a separate type for list heads, there are some valid uses of
+> non-head list_add(). But perhaps those could be separated out.
+> 
 
-Not to be a pest, but I, and a lot of other people, posted some very
-specific questions in response to both your original posting, and in
-response to the published specification and published code.  It would be
-considered proper etiquette if you would at least try to respond to
-_some_ of these questions, as you did ask for them, rather than stating
-that you are going to go mull over everything and come back with a
-modified document.
+A very, very long time ago, back in the 0.99.14 days, we actually
+tried to switch to using a C++ compiler to compile the kernel, so we
+could guarantee type-safe linkage.  g++ sucked back then, so the
+experiment was abandoned, but I don't know if there would be interest
+in trying again.
 
-If you don't, any expectations of people reviewing future specs, or
-proposals from this project should be kept quite low.
-
-thanks,
-
-greg k-h
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

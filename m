@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265234AbTFEWm4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 18:42:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265236AbTFEWm4
+	id S265239AbTFEWqw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 18:46:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265244AbTFEWqw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 18:42:56 -0400
-Received: from freeside.toyota.com ([63.87.74.7]:25515 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP id S265234AbTFEWm4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 18:42:56 -0400
-Message-ID: <3EDFCA99.7040709@tmsusa.com>
-Date: Thu, 05 Jun 2003 15:56:25 -0700
-From: jjs <jjs@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux kernel <linux-kernel@vger.kernel.org>
-Cc: Edward Tandi <ed@efix.biz>
-Subject: Re: 2.5.70 latest: breaks gnome
-References: <20030604142241.0dc6f34e.shemminger@osdl.org>	 <3EDE7398.70005@tmsusa.com>	<20030605111212.33e63d46.shemminger@osdl.org>	 <3EDFB3E2.2090308@tmsusa.com> <20030605143346.197a8923.akpm@digeo.com>	 <3EDFBD08.5060902@tmsusa.com> <1054852458.1886.18.camel@wires.home.biz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 5 Jun 2003 18:46:52 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:3365 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S265239AbTFEWqv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 18:46:51 -0400
+Date: Thu, 5 Jun 2003 15:56:42 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: mochel@osdl.org, greg@kroah.com, hannal@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFT/C 2.5.70] Input class hook up to driver model/sysfs
+Message-Id: <20030605155642.68179245.akpm@digeo.com>
+In-Reply-To: <20030605224535.GH608@elf.ucw.cz>
+References: <20030605220716.GF608@elf.ucw.cz>
+	<Pine.LNX.4.44.0306051511350.13077-100000@cherise>
+	<20030605224535.GH608@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 05 Jun 2003 23:00:23.0694 (UTC) FILETIME=[3EF742E0:01C32BB6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Edward Tandi wrote:
-
->8) from dmesg: process `named' is using obsolete setsockopt SO_BSDCOMPAT
->  
+Pavel Machek <pavel@suse.cz> wrote:
 >
+> Hi!
+> 
+> > > Okay, that means that another patch is needed to create hierarchy for
+> > > power managment... This sysfs stuff is getting hairy.
+> > 
+> > No it's not. The hierarchy is the device tree, which is the original 
+> > purpose of it, remember? 
+> 
+> device tree is okay with me, but... it took quite a long patch to add
+> it to classes. I thought that classes are only going to be symlinks
+> into device tree, but this patch added classes without adding to the
+> device tree...
 
-If you remove SO_BSDCOMPAT from the include
-files and recompile named (just rebuild the srpm)
-that will go away -
+Al Viro has asked that sysfs conversions such as this be placed on hold
+until we sort through the newly-added bugs arising from the sysfsification
+of netdevs and request queues.  
 
-Best Regards,
-
-Joe
+So yeah, do the work, but please make sure that you understand what went
+wrong with netdevs and queues, and make sure that the input sysfsification
+addresses those problems.  Preferably in the same way...
 

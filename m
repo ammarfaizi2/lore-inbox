@@ -1,65 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267644AbTAXNGp>; Fri, 24 Jan 2003 08:06:45 -0500
+	id <S267650AbTAXNXy>; Fri, 24 Jan 2003 08:23:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267646AbTAXNGp>; Fri, 24 Jan 2003 08:06:45 -0500
-Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:22484 "EHLO
-	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S267644AbTAXNGp>; Fri, 24 Jan 2003 08:06:45 -0500
-Date: Fri, 24 Jan 2003 11:15:28 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Josef El-Rayes <j.el-rayes@godskitchen.org>
-cc: arief@bna.telkomsel.co.id, "" <linux-kernel@vger.kernel.org>,
-       "" <tech@openbsd.org>, "" <freebsd-hackers@freebsd.org>,
-       "" <tech-kern@netbsd.org>, "" <kernelnewbies@kernelnewbies.org>
-Subject: Re: Technical Differences of *BSD and Linux
-In-Reply-To: <20030124110022.GA56181@satanii.enemy.org>
-Message-ID: <Pine.LNX.4.50L.0301241110020.18171-100000@imladris.surriel.com>
-References: <20030124110022.GA56181@satanii.enemy.org>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267651AbTAXNXy>; Fri, 24 Jan 2003 08:23:54 -0500
+Received: from smtp-out-3.wanadoo.fr ([193.252.19.233]:42723 "EHLO
+	mel-rto3.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S267650AbTAXNXx>; Fri, 24 Jan 2003 08:23:53 -0500
+Date: Thu, 24 Jan 2002 14:31:43 +0100
+From: Romain Lievin <roms@tilp.info>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: kconfig (gconf) [PATCH]
+Message-ID: <20020124133143.GA817@wanadoo.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[follow-ups to kernelnewbies@kernelnewbies.org, please]
+Hi,
 
-On Fri, 24 Jan 2003, Josef El-Rayes wrote:
-
-> as you can see your questions are not very welcome on the mailinglists,
-> therefore i advice you to have a look at this book if you are interested
-> in BSD's technical background
-
-There is one mailing list where this kind of discussion probably
-would be welcome, the kernelnewbies mailing list. Personally I'd
-really like more things related to BSD, Hurd and other freely
-available systems on the kernelnewbies mailing list, irc channel,
-etc.  I might have founded #kernelnewbies to help people with Linux
-questions, but it was never my intention to limit it to Linux
-kernel stuff only.
-
-> Title: The Design and Implementation of the 4.4BSD Operating System
+> > BTW how are the other views doing? :)
 >
-> Authors: McKusick, Bostic, Karels and Quarterman
-> Publisher: Addison-Wesley
->
-> 4.4BSD is what NetBSD, OpenBSD and FreeBSD are basing on.
->
-> For Linux i cant help you.
 
-I can recommend Understanding the Linux Kernel, 2nd edition.
+Well, I finished to write other views 2 weeks ago.
+gconf includes the same 3 views as qconf, uses your icons (sharing) and takes
+as much space as qconf.
 
-Other people have recommended various other kernel related
-books, you can find a small list on:
+Suggestions are welcome...
 
-	http://kernelnewbies.org/books.php3
+The patch is available on <http//tilp.info/perso>.
 
-cheers,
-
-Rik
+Romain.
 -- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://guru.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+Romain Lievin, aka 'roms'  	<roms@tilp.info>
+The TiLP project is on 		<http://www.ti-lpg.org>
+"Linux, y'a moins bien mais c'est plus cher !"
+
+
+
+
+
+
+
+
+
+
+
+
+
+

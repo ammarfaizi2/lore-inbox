@@ -1,63 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267163AbTBIEdR>; Sat, 8 Feb 2003 23:33:17 -0500
+	id <S267173AbTBIEoe>; Sat, 8 Feb 2003 23:44:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267173AbTBIEdQ>; Sat, 8 Feb 2003 23:33:16 -0500
-Received: from webmail32.rediffmail.com ([203.199.83.32]:4000 "HELO
-	rediffmail.com") by vger.kernel.org with SMTP id <S267163AbTBIEdQ>;
-	Sat, 8 Feb 2003 23:33:16 -0500
-Date: 9 Feb 2003 04:49:50 -0000
-Message-ID: <20030209044950.3898.qmail@webmail32.rediffmail.com>
+	id <S267174AbTBIEoe>; Sat, 8 Feb 2003 23:44:34 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28426 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267173AbTBIEod>; Sat, 8 Feb 2003 23:44:33 -0500
+Date: Sat, 8 Feb 2003 20:51:05 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Roland McGrath <roland@redhat.com>
+cc: Anton Blanchard <anton@samba.org>, <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@digeo.com>,
+       <arjanv@redhat.com>
+Subject: Re: heavy handed exit() in latest BK
+In-Reply-To: <200302090348.h193mcn05216@magilla.sf.frob.com>
+Message-ID: <Pine.LNX.4.44.0302082049420.4686-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-From: "Nandakumar  NarayanaSwamy" <nanda_kn@rediffmail.com>
-Reply-To: "Nandakumar  NarayanaSwamy" <nanda_kn@rediffmail.com>
-To: "David Woodhouse" <dwmw2@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: File systems in embedded devices
-Content-type: text/plain;
-	format=flowed
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear David,
 
-Thanks for your inputs.
-Actually i have 8 MB flash and 32 MB RAM in my target board.
-I need to create a read-only file system either in flash or RAM 
-which should be able to accomodate our application which is about 
-8 MB (stripped one).
+On Sat, 8 Feb 2003, Roland McGrath wrote:
+>
+> Here is the patch vs 2.5.59-1.1007 that I am using now.  gdb seems happy.
+> I have not run a lot of other tests yet.
 
-Thanks again for your response.
+Looks like kernel threads still go crazy at shutdown. I saw the migration 
+threads apparently hogging the CPU.
 
-with best regards,
-Purush
-
-On Sun, 09 Feb 2003 David Woodhouse wrote :
->On Sat, 2003-02-08 at 14:20, Nandakumar NarayanaSwamy wrote:
-> > Dear All,
-> >
-> > We are developing a embedded device based on linux. Through 
->the
-> > development phase we used NFS. But now we want to move some
-> > filesystem which can be created in FLASH/RAM.
->
->Which? Flash or RAM?
->
-> > Can anybody suggest me some ideas so that i can solve these
-> > issues?
->
->You need to give at least _some_ indication of your requirements 
->--
->what's on your file system, what is the expected pattern of 
->access to
->it, do you require write access all the time or only occasional 
->updates
->of the whole system, etc. ?
->
->
->--
->dwmw2
->
-
+		Linus
 

@@ -1,140 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262366AbUBYIzy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 03:55:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbUBYIzy
+	id S262497AbUBYI5i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 03:57:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbUBYI5h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 03:55:54 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:19626 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S262366AbUBYIzu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 03:55:50 -0500
-From: Darren Williams <dsw@gelato.unsw.edu.au>
-To: Manfred Spraul <manfred@colorfullife.com>
-Date: Wed, 25 Feb 2004 19:55:18 +1100
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] 2.6.3 Slab corruption: errors are triggered when memory exceeds 2.5GB (correction)
-Message-ID: <20040225085518.GA23673@cse.unsw.EDU.AU>
-References: <403AF155.1080305@colorfullife.com> <20040223225659.4c58c880.akpm@osdl.org> <403B8C78.2020606@colorfullife.com> <20040225005804.GE18070@cse.unsw.EDU.AU> <403C3F04.20601@colorfullife.com>
+	Wed, 25 Feb 2004 03:57:37 -0500
+Received: from main.gmane.org ([80.91.224.249]:42711 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262497AbUBYI4p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 03:56:45 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: Why are 2.6 modules so huge?
+Date: Wed, 25 Feb 2004 09:56:41 +0100
+Message-ID: <yw1xd683fsfq.fsf@kth.se>
+References: <9cfptc4lckg.fsf@rogue.ncsl.nist.gov> <yw1x1xokcwfo.fsf@kth.se>
+ <403C4E98.6010107@t-online.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <403C3F04.20601@colorfullife.com>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 213-187-164-3.dd.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:IEaa/8tiwkxDi+EJSlr+JxHe4zA=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Manfred
+Harald Dunkel <harald.dunkel@t-online.de> writes:
 
-The nic is Intel e100pro onboard card.
-Interestingly the following allocation that has caught
-my attention is this:
+> Måns Rullgård wrote:
+>> My 2.6.3 vfat.ko is 15365 bytes.  Maybe you enabled kernel debugging
+>> symbols.
+>>
+>
+> % ll /lib/modules/2.6.3/kernel/fs/vfat/
+> total 16
+> -rw-r--r--    1 root     root        14232 Feb 19 07:43 vfat.ko
+>
+> Assuming that you are on i686:
+>
+> A size difference of 1 KByte (about 7%) is remarkable. Which
+> gcc did you use for building 2.6.3?
 
-static inline struct RxFD *speedo_rx_alloc(struct net_device *dev, int entry)
-{
-	struct speedo_private *sp = (struct speedo_private *)dev->priv;
-	struct RxFD *rxf;
-	struct sk_buff *skb;
-	/* Get a fresh skbuff to replace the consumed one. */
-	skb = dev_alloc_skb(PKT_BUF_SZ + sizeof(struct RxFD));
+I used gcc 3.3.2.  Here's an objdump -h of that file:
 
-This allocation on ia64 is 1500 bytes, and as I have explained in
-later e-mails when I use the Intel e100 driver the slab corruption
-goes away.
+/lib/modules/2.6.3/kernel/fs/vfat/vfat.ko:     file format elf32-i386
 
-So I am guessing that it may be in the eepro100 driver.
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         0000209c  00000000  00000000  00000034  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+  1 .init.text    00000013  00000000  00000000  000020d0  2**0
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+  2 .exit.text    00000013  00000000  00000000  000020e3  2**0
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+  3 .rodata.str1.1 0000004c  00000000  00000000  000020f6  2**0
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  4 .rodata.str1.32 00000073  00000000  00000000  00002160  2**5
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  5 __ksymtab_strings 00000046  00000000  00000000  000021d3  2**0
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  6 __ksymtab     00000030  00000000  00000000  0000221c  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, DATA
+  7 .modinfo      00000059  00000000  00000000  00002260  2**5
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  8 .data         00000120  00000000  00000000  000022c0  2**5
+                  CONTENTS, ALLOC, LOAD, RELOC, DATA
+  9 .gnu.linkonce.this_module 00000200  00000000  00000000  00002400  2**7
+                  CONTENTS, ALLOC, LOAD, RELOC, DATA, LINK_ONCE_DISCARD
+ 10 .bss          00000000  00000000  00000000  00002600  2**2
+                  ALLOC
+ 11 .comment      00000036  00000000  00000000  00002600  2**0
+                  CONTENTS, READONLY
 
-Darren
 
+-- 
+Måns Rullgård
+mru@kth.se
 
-
-On Wed, 25 Feb 2004, Manfred Spraul wrote:
-
-> Darren Williams wrote:
-> 
-> >Hi Manfred
-> >
-> >I have updated to the latest bk and new output can be found at:
-> >http://quasar.cse.unsw.edu.au/~dsw/public-files/lemon-debug/
-> >kern-log-bk
-> >
-> >Also I am quite confident that it is not a hardware problem.
-> >
-> >I took a look at alloc_skb(..) and there is a reference to
-> >an atomic_t token with this being the most suspect
-> >
-> >150> atomic_set(&(skb_shinfo(skb)->dataref), 1);
-> > 
-> >
-> I don't think so:
-> The allocation that generates the error is skb->head: The cache name is 
-> "size-2048", thus the allocation is a kmalloc(1000-2000, probably 1536 
-> for one eth frame). The skb itself is allocated from the skbuff_head_cache.
-> 
-> I don't see a pattern in the virtual addresses:
-> start=e000000101ee09a0, len=2048
-> start=e000000101ee09a0, len=2048
-> start=e000000101ee11b8, len=2048
-> start=e000000101ee19d0, len=2048
-> start=e000000101ee3218, len=2048
-> start=e00000017eed1b90, len=2048
-> start=e00000017eed23a8, len=2048
-> start=e00000017eed2bc0, len=2048
-> start=e00000017eed4308, len=2048
-> start=e00000017eed5338, len=2048
-> start=e00000017eed5338, len=2048
-> start=e00000017eed5b50, len=2048
-> start=e00000017eed5b50, len=2048
-> start=e00000017eed6b80, len=2048
-> start=e00000017eed82c8, len=2048
-> start=e00000017eedc288, len=2048
-> start=e00000017eedcaa0, len=2048
-> start=e00000017eeddad0, len=2048
-> start=e00000017eede2e8, len=2048
-> start=e00000017eedeb00, len=2048
-> start=e00000017ef60a60, len=2048
-> start=e00000017ef61a90, len=2048
-> start=e00000017ef622a8, len=2048
-> start=e00000017ef62ac0, len=2048
-> start=e00000017ef632d8, len=2048
-> start=e00000017ef65a50, len=2048
-> start=e00000017ef65a50, len=2048
-> start=e00000017ef65a50, len=2048
-> start=e00000017ef66a80, len=2048
-> 
-> That virtually rules out a bad memory chip.
-> 
-> But the corrupted byte is always at offset 0x620 into the allocation:
-> Slab corruption: start=e00000017ef65a50, len=2048
-> 620: 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-> --
-> Slab corruption: start=e000000101ee19d0, len=2048
-> 620: 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-> --
-> Slab corruption: start=e000000101ee3218, len=2048
-> 620: 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-> --
-> Slab corruption: start=e00000017ef66a80, len=2048
-> 620: 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-> --
-> Slab corruption: start=e000000101ee11b8, len=2048
-> 620: 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-> 
-> 0x620 (1568) is behind the end of the actual eth frame. Who could modify 
-> that?
-> 
-> Darren, which nic do you use? Could you try what happens if you reduce 
-> the MTU?
-> 
-> --
->    Manfred
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
---------------------------------------------------
-Darren Williams <dsw AT gelato.unsw.edu.au>
-Gelato@UNSW <www.gelato.unsw.edu.au>
---------------------------------------------------

@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129818AbRAEUYo>; Fri, 5 Jan 2001 15:24:44 -0500
+	id <S130329AbRAEU0o>; Fri, 5 Jan 2001 15:26:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130095AbRAEUYe>; Fri, 5 Jan 2001 15:24:34 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:60934 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129875AbRAEUY1>; Fri, 5 Jan 2001 15:24:27 -0500
-Date: Fri, 5 Jan 2001 16:32:50 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Chris Mason <mason@suse.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] changes to buffer.c (was Test12 ll_rw_block error)
-In-Reply-To: <906850000.978724261@tiny>
-Message-ID: <Pine.LNX.4.21.0101051630150.2882-100000@freak.distro.conectiva>
+	id <S130095AbRAEU0e>; Fri, 5 Jan 2001 15:26:34 -0500
+Received: from [24.65.192.120] ([24.65.192.120]:32248 "EHLO webber.adilger.net")
+	by vger.kernel.org with ESMTP id <S130329AbRAEU03>;
+	Fri, 5 Jan 2001 15:26:29 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200101052026.f05KQGx20058@webber.adilger.net>
+Subject: Re: More better in mount(2)
+In-Reply-To: <3A55DF78.F92AC570@innominate.de> "from Daniel Phillips at Jan 5,
+ 2001 03:51:36 pm"
+To: Daniel Phillips <phillips@innominate.de>
+Date: Fri, 5 Jan 2001 13:26:16 -0700 (MST)
+CC: Nathan Scott <nathans@wobbly.melbourne.sgi.com>,
+        linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 5 Jan 2001, Chris Mason wrote:
-
+Daniel writes:
+> [re strtok for mount option parsing]
 > 
-> 
-> On Friday, January 05, 2001 01:43:07 PM -0200 Marcelo Tosatti
-> <marcelo@conectiva.com.br> wrote:
-> 
-> > 
-> > On Fri, 5 Jan 2001, Chris Mason wrote:
-> > 
-> >> 
-> >> Here's the latest version of the patch, against 2.4.0.  The
-> >> biggest open issues are what to do with bdflush, since
-> >> page_launder could do everything bdflush does.  
-> > 
-> > I think we want to remove flush_dirty_buffers() from bdflush. 
-> > 
-> 
-> Whoops.  If bdflush doesn't balance the dirty list, who does?
+> BUGS        Never use this function. If you do, note that:  
+>             This function modifies its first argument.  
+>             The identity of the delimiting character is lost.  
+>             This functions cannot be used on constant  strings.  
+>             The  strtok() function uses a static buffer while
+>             parsing, so it's not thread safe. Use  strtok_r()
+>             if this matters to you.
 
-Who marks buffers dirty. 
+Luckily, when mount(8) is trying to mount a filesystem, it passes the
+mount options into the kernel each time, which does copy_from_user(),
+so the fact that strtok() breaks the data is OK.  The only time this
+is bad is with Stephen's ext3 rootflags option...
 
-Linus changed mark_buffer_dirty() to use flush_dirty_buffers() in case
-there are too many dirty buffers.
-
-Also, I think in practice page_launder will help on balancing. 
-
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

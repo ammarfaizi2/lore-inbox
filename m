@@ -1,65 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318047AbSIETCL>; Thu, 5 Sep 2002 15:02:11 -0400
+	id <S318130AbSIETK4>; Thu, 5 Sep 2002 15:10:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318069AbSIETCK>; Thu, 5 Sep 2002 15:02:10 -0400
-Received: from dsl-213-023-039-222.arcor-ip.net ([213.23.39.222]:53160 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318047AbSIETBw>;
-	Thu, 5 Sep 2002 15:01:52 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@zip.com.au>
-Subject: Re: Race in shrink_cache
-Date: Thu, 5 Sep 2002 21:08:33 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <E17mooe-00064m-00@starship> <E17n1ZQ-00069v-00@starship> <3D77A7A3.FBA1C598@zip.com.au>
-In-Reply-To: <3D77A7A3.FBA1C598@zip.com.au>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17n1zV-0006AJ-00@starship>
+	id <S318131AbSIETK4>; Thu, 5 Sep 2002 15:10:56 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:24839 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S318130AbSIETKy>; Thu, 5 Sep 2002 15:10:54 -0400
+Date: Thu, 5 Sep 2002 20:15:30 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org, lord@sgi.com
+Subject: Re: 2.4.20pre5aa1
+Message-ID: <20020905201530.A12457@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+	lord@sgi.com
+References: <20020904233528.GA1238@dualathlon.random> <20020905134414.A1784@infradead.org> <20020905165307.GC1254@dualathlon.random> <20020905180904.A8406@infradead.org> <20020905184125.GA1657@dualathlon.random> <20020905194824.A11974@infradead.org> <20020905190600.GH1657@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020905190600.GH1657@dualathlon.random>; from andrea@suse.de on Thu, Sep 05, 2002 at 09:06:00PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 September 2002 20:51, Andrew Morton wrote:
-> Daniel Phillips wrote:
+On Thu, Sep 05, 2002 at 09:06:00PM +0200, Andrea Arcangeli wrote:
+> On Thu, Sep 05, 2002 at 07:48:24PM +0100, Christoph Hellwig wrote:
+> > On Thu, Sep 05, 2002 at 08:41:25PM +0200, Andrea Arcangeli wrote:
+> > > other fs, if you're not holding the i_sem (and you certainly aren't
+> > > holding the i_sem that frequently, you don't even for writes).
 > > 
-> > ..
-> > On the other hand, if what you want is a private list that page_cache_release
-> > doesn't act on automatically, all you have to do is set the lru state to zero,
-> > leave the page count incremented and move to the private list.  You then take
-> > explicit responsibility for freeing the page or moving it back onto a
-> > mainstream lru list.
+> > Except of O_DIRECT writes we _do_ hold i_sem, btw.
 > 
-> That's the one.  Page reclaim speculatively removes a chunk (typically 32) of
-> pages from the LRU, works on them, and puts back any unfreeable ones later
-> on.
-
-Convergent evolution.  That's exactly the same number I'm handling as a
-chunk in my rmap sharing project (backgrounded for the moment).  In this
-case, the 32 comes from the number of bits you can store in a long, and
-it conveniently happens to fall in the sweet spot of performance as well.
-
-In this case I only have to manipulate one list element though, because
-I'm taking the lru list itself out onto the shared rmap node, saving 8
-bytes in struct page as a side effect.  So other than the size of the
-chunk, the resemblance is slight.  ETA for this is 2.7, unless you
-suddenly start threatening to back out rmap again.
-
-> And the rest of the VM was taught to play correctly with pages that
-> can be off the LRU.  This was to avoid hanging onto the LRU lock while
-> running page reclaim.
+> can't you end with this?
 > 
-> And when those 32 pages are speculatively removed, their refcounts are
-> incremented.  Maybe that isn't necessary - I'd need to think about
-> that.  If it isn't, then the double-free thing is fixed.  If it is
-> necessary then then lru-adds-a-ref approach is nice, because shrink_cache
-> doesn't need to page_cache_get each page while holding the LRU lock,
-> as you say.
+> 					O_DIRECT write
+> 					write finishes
+> 	truncate drops the write
+> 	truncate set i_sem to 0
+> 					write set i_sem to something
 
-I think the extra refcount strategy is inherently stronger, and this
-is an example of why.  The other would require you to take/drop an
-extra count explicitly for your private list.
+s/i_sem/i_size/g ?
 
--- 
-Daniel
+> and the fs is then corrupt? (very minor corruption of course and
+> extremely hard to trigger, trivially solvable by an fsck, ext[23] had
+> similar issues too with the get_block failures with < PAGE_SIZE
+> softblocksize, fixed around 2.4.19, that was certainly easier to
+> reproduce btw)
+
+Won't happen:
+
+
+					O_DIRECT write starts
+					+ takes XFS iolock exclusive
+					- invalidates pagecache
+					+ downgrades iolock to shared
+					- perform write
+
+	xfs_setattr for truncate called
+	+ takes XFS iolock shared
+	  -> blocks
+
+					- write i_size to something
+					+ releases iolock
+	  -> gets woken
+

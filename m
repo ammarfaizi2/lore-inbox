@@ -1,56 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261263AbUCCXqK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 18:46:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbUCCXqK
+	id S261258AbUCCXwr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 18:52:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbUCCXwr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 18:46:10 -0500
-Received: from gprs40-129.eurotel.cz ([160.218.40.129]:15729 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261269AbUCCXqG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 18:46:06 -0500
-Date: Thu, 4 Mar 2004 00:45:53 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Dave Jones <davej@redhat.com>,
-       Cpufreq mailing list <cpufreq@www.linux.org.uk>,
-       kernel list <linux-kernel@vger.kernel.org>, paul.devriendt@amd.com
-Subject: Re: powernow-k8-acpi driver
-Message-ID: <20040303234553.GJ222@elf.ucw.cz>
-References: <20040303215435.GA467@elf.ucw.cz> <20040303222712.GA16874@redhat.com> <20040303223510.GE222@elf.ucw.cz> <20040303224841.GB16874@redhat.com> <20040303231143.GH222@elf.ucw.cz> <20040303233939.GB18722@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040303233939.GB18722@redhat.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Wed, 3 Mar 2004 18:52:47 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:40694 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261258AbUCCXwn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 18:52:43 -0500
+Message-ID: <40466FC4.6000507@mvista.com>
+Date: Wed, 03 Mar 2004 15:52:36 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: jim.houston@comcast.net
+CC: amitkale@emsyssoft.com, linux-kernel@vger.kernel.org
+Subject: Re: [Kgdb-bugreport] [KGDB PATCH][1/7] Add / use	kernel/Kconfig.kgdb
+References: <1078354486.1824.363.camel@new.localdomain>
+In-Reply-To: <1078354486.1824.363.camel@new.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
->  > Dave, could you apply these? That are cleanups from Paul's new version
->  > of driver (killed few unused defines, right names for MSR's
->  > (hopefully!), more linux-like comments). No code changes.
+Jim Houston wrote:
+>>Meanwhile, I would like to make a change to the gdb "info thread"
+>>command to do a better job of displaying the threads.  Here is what
+>>I am proposing:
+>>
+>>Gdb would work as it does now if the following set is not done.
+>>
+>>A new "set thread_level" command that would take the "bt" level to use
+>>on the thread display.
+>>A new "set thread_limits command that would take two expressions that
+>>would reduce to two memory addresses.
 > 
-> Looks trivial enough. I just bounced it forward to Linus directly.
-> (I'm travelling this week, and bitkeeper on a laptop is unfunny)
-
-:-)
-
->  > - *   (c) 2003 Advanced Micro Devices, Inc.
->  > + *   (c) 2003, 2004 Advanced Micro Devices, Inc.
->  >   *  Your use of this code is subject to the terms and conditions of the
->  > - *  GNU general public license version 2. See "../../../COPYING" or
->  > + *  GNU general public license version 2. See "../../../../../COPYING" or
->  >   *  http://www.gnu.org/licenses/gpl.html
->  >   */
 > 
-> This bit seems really silly though, but thats just my opinion 8-)
-> I'd just kill the ../'s completely.
+> Hi George,
+> 
+> I already did a bit of work in this space.  You might give my 
+> gdb-thread-skip-frame.patch a try.  
+> 
+> You can find it archived here:
+> 
+> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/gdb/gdb-6.0/gdb-thread-skip-frame.patch
 
-Agreed, I assume AMD lawyers wanted that... If not, perhaps we can
-make it disappear.
-								Pavel
+I have been talking with the gdb folks and I think we are real close to having a 
+solution that makes very minimal (if any) changes to gdb.  At this point we can 
+write a couple of macros that do almost all that we need.  The only problem 
+seems to be the number of lines per thread in the report.  So, the only change 
+to gdb would be to suppress a carrage return in a couple of places.
+
+It does require that we implement a new command in the stub, or rather, that we 
+change the ThreadExtraInfo command to do the same thing with a different command.
+
+I will keep you posted, or better yet, sign up for the gdb@sources.redhat.com 
+mailing list and listen in.
+
+-g
+> 
+> Jim Houston
+> 
+
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+

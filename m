@@ -1,90 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262906AbVDAVBp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262928AbVDAVA1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262906AbVDAVBp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 16:01:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262904AbVDAVBI
+	id S262928AbVDAVA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 16:00:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262921AbVDAU5b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 16:01:08 -0500
-Received: from webmail.topspin.com ([12.162.17.3]:35887 "EHLO
+	Fri, 1 Apr 2005 15:57:31 -0500
+Received: from webmail.topspin.com ([12.162.17.3]:37423 "EHLO
 	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id S262910AbVDAUvU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 15:51:20 -0500
+	id S262904AbVDAUvQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 15:51:16 -0500
 Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [PATCH][20/27] IB/mthca: add mthca_table_find() function
-In-Reply-To: <2005411249.t0DdCtarOabubO3D@topspin.com>
+Subject: [PATCH][15/27] IB/mthca: fill in opcode field for send completions
+In-Reply-To: <2005411249.E7CWkenJFFkWDs2q@topspin.com>
 X-Mailer: Roland's Patchbomber
 Date: Fri, 1 Apr 2005 12:49:53 -0800
-Message-Id: <2005411249.Tkvt1lzz8zEHUMmz@topspin.com>
+Message-Id: <2005411249.qipkNNwvZYuE2KBu@topspin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: akpm@osdl.org
 Content-Transfer-Encoding: 7BIT
 From: Roland Dreier <roland@topspin.com>
-X-OriginalArrivalTime: 01 Apr 2005 20:49:53.0716 (UTC) FILETIME=[5B0CEF40:01C536FC]
+X-OriginalArrivalTime: 01 Apr 2005 20:49:53.0310 (UTC) FILETIME=[5ACEFBE0:01C536FC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Michael S. Tsirkin <mst@mellanox.co.il>
 
-Add mthca_table_find() function, which returns the lowmem address of
-an entry in a mem-free HCA's context tables.  This will be used by the
-FMR implementation.
+Fill in missing fields in send completions.
 
+Signed-off-by: Itamar Rabenstein <itamar@mellanox.co.il>
 Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
 Signed-off-by: Roland Dreier <roland@topspin.com>
 
 
---- linux-export.orig/drivers/infiniband/hw/mthca/mthca_memfree.c	2005-04-01 12:38:23.500859288 -0800
-+++ linux-export/drivers/infiniband/hw/mthca/mthca_memfree.c	2005-04-01 12:38:28.285820606 -0800
-@@ -192,6 +192,40 @@
- 	up(&table->mutex);
- }
+--- linux-export.orig/drivers/infiniband/hw/mthca/mthca_cq.c	2005-04-01 12:38:24.207705852 -0800
++++ linux-export/drivers/infiniband/hw/mthca/mthca_cq.c	2005-04-01 12:38:26.177278312 -0800
+@@ -473,7 +473,41 @@
+ 	}
  
-+void *mthca_table_find(struct mthca_icm_table *table, int obj)
-+{
-+	int idx, offset, i;
-+	struct mthca_icm_chunk *chunk;
-+	struct mthca_icm *icm;
-+	struct page *page = NULL;
-+
-+	if (!table->lowmem)
-+		return NULL;
-+
-+	down(&table->mutex);
-+
-+	idx = (obj & (table->num_obj - 1)) * table->obj_size;
-+	icm = table->icm[idx / MTHCA_TABLE_CHUNK_SIZE];
-+	offset = idx % MTHCA_TABLE_CHUNK_SIZE;
-+
-+	if (!icm)
-+		goto out;
-+
-+	list_for_each_entry(chunk, &icm->chunk_list, list) {
-+		for (i = 0; i < chunk->npages; ++i) {
-+			if (chunk->mem[i].length >= offset) {
-+				page = chunk->mem[i].page;
-+				break;
-+			}
-+			offset -= chunk->mem[i].length;
+ 	if (is_send) {
+-		entry->opcode = IB_WC_SEND; /* XXX */
++		entry->wc_flags = 0;
++		switch (cqe->opcode) {
++		case MTHCA_OPCODE_RDMA_WRITE:
++			entry->opcode    = IB_WC_RDMA_WRITE;
++			break;
++		case MTHCA_OPCODE_RDMA_WRITE_IMM:
++			entry->opcode    = IB_WC_RDMA_WRITE;
++			entry->wc_flags |= IB_WC_WITH_IMM;
++			break;
++		case MTHCA_OPCODE_SEND:
++			entry->opcode    = IB_WC_SEND;
++			break;
++		case MTHCA_OPCODE_SEND_IMM:
++			entry->opcode    = IB_WC_SEND;
++			entry->wc_flags |= IB_WC_WITH_IMM;
++			break;
++		case MTHCA_OPCODE_RDMA_READ:
++			entry->opcode    = IB_WC_RDMA_READ;
++			entry->byte_len  = be32_to_cpu(cqe->byte_cnt);
++			break;
++		case MTHCA_OPCODE_ATOMIC_CS:
++			entry->opcode    = IB_WC_COMP_SWAP;
++			entry->byte_len  = be32_to_cpu(cqe->byte_cnt);
++			break;
++		case MTHCA_OPCODE_ATOMIC_FA:
++			entry->opcode    = IB_WC_FETCH_ADD;
++			entry->byte_len  = be32_to_cpu(cqe->byte_cnt);
++			break;
++		case MTHCA_OPCODE_BIND_MW:
++			entry->opcode    = IB_WC_BIND_MW;
++			break;
++		default:
++			entry->opcode    = MTHCA_OPCODE_INVALID;
++			break;
 +		}
-+	}
+ 	} else {
+ 		entry->byte_len = be32_to_cpu(cqe->byte_cnt);
+ 		switch (cqe->opcode & 0x1f) {
+--- linux-export.orig/drivers/infiniband/hw/mthca/mthca_dev.h	2005-04-01 12:38:25.561412000 -0800
++++ linux-export/drivers/infiniband/hw/mthca/mthca_dev.h	2005-04-01 12:38:26.173279180 -0800
+@@ -88,6 +88,19 @@
+ 	MTHCA_NUM_EQ
+ };
+ 
++enum {
++	MTHCA_OPCODE_NOP            = 0x00,
++	MTHCA_OPCODE_RDMA_WRITE     = 0x08,
++	MTHCA_OPCODE_RDMA_WRITE_IMM = 0x09,
++	MTHCA_OPCODE_SEND           = 0x0a,
++	MTHCA_OPCODE_SEND_IMM       = 0x0b,
++	MTHCA_OPCODE_RDMA_READ      = 0x10,
++	MTHCA_OPCODE_ATOMIC_CS      = 0x11,
++	MTHCA_OPCODE_ATOMIC_FA      = 0x12,
++	MTHCA_OPCODE_BIND_MW        = 0x18,
++	MTHCA_OPCODE_INVALID        = 0xff
++};
 +
-+out:
-+	up(&table->mutex);
-+	return page ? lowmem_page_address(page) + offset : NULL;
-+}
-+
- int mthca_table_get_range(struct mthca_dev *dev, struct mthca_icm_table *table,
- 			  int start, int end)
- {
---- linux-export.orig/drivers/infiniband/hw/mthca/mthca_memfree.h	2005-04-01 12:38:19.895641881 -0800
-+++ linux-export/drivers/infiniband/hw/mthca/mthca_memfree.h	2005-04-01 12:38:28.280821691 -0800
-@@ -85,6 +85,7 @@
- void mthca_free_icm_table(struct mthca_dev *dev, struct mthca_icm_table *table);
- int mthca_table_get(struct mthca_dev *dev, struct mthca_icm_table *table, int obj);
- void mthca_table_put(struct mthca_dev *dev, struct mthca_icm_table *table, int obj);
-+void *mthca_table_find(struct mthca_icm_table *table, int obj);
- int mthca_table_get_range(struct mthca_dev *dev, struct mthca_icm_table *table,
- 			  int start, int end);
- void mthca_table_put_range(struct mthca_dev *dev, struct mthca_icm_table *table,
+ struct mthca_cmd {
+ 	int                       use_events;
+ 	struct semaphore          hcr_sem;
+--- linux-export.orig/drivers/infiniband/hw/mthca/mthca_qp.c	2005-04-01 12:38:25.023528759 -0800
++++ linux-export/drivers/infiniband/hw/mthca/mthca_qp.c	2005-04-01 12:38:26.181277444 -0800
+@@ -171,19 +171,6 @@
+ };
+ 
+ enum {
+-	MTHCA_OPCODE_NOP            = 0x00,
+-	MTHCA_OPCODE_RDMA_WRITE     = 0x08,
+-	MTHCA_OPCODE_RDMA_WRITE_IMM = 0x09,
+-	MTHCA_OPCODE_SEND           = 0x0a,
+-	MTHCA_OPCODE_SEND_IMM       = 0x0b,
+-	MTHCA_OPCODE_RDMA_READ      = 0x10,
+-	MTHCA_OPCODE_ATOMIC_CS      = 0x11,
+-	MTHCA_OPCODE_ATOMIC_FA      = 0x12,
+-	MTHCA_OPCODE_BIND_MW        = 0x18,
+-	MTHCA_OPCODE_INVALID        = 0xff
+-};
+-
+-enum {
+ 	MTHCA_NEXT_DBD       = 1 << 7,
+ 	MTHCA_NEXT_FENCE     = 1 << 6,
+ 	MTHCA_NEXT_CQ_UPDATE = 1 << 3,
 

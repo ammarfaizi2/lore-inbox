@@ -1,103 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261661AbSJZWjG>; Sat, 26 Oct 2002 18:39:06 -0400
+	id <S261669AbSJZWrb>; Sat, 26 Oct 2002 18:47:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261669AbSJZWjG>; Sat, 26 Oct 2002 18:39:06 -0400
-Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:8064 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S261661AbSJZWjF> convert rfc822-to-8bit; Sat, 26 Oct 2002 18:39:05 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Con Kolivas <conman@kolivas.net>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [BENCHMARK] 2.5.44-mm5 with contest
-Date: Sun, 27 Oct 2002 09:43:07 +1100
-User-Agent: KMail/1.4.3
-Cc: Andrew Morton <akpm@digeo.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210270943.23074.conman@kolivas.net>
+	id <S261699AbSJZWrb>; Sat, 26 Oct 2002 18:47:31 -0400
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:7366 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S261669AbSJZWra>; Sat, 26 Oct 2002 18:47:30 -0400
+Date: Sat, 26 Oct 2002 15:53:42 -0700
+From: "H. J. Lu" <hjl@lucon.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: Support PCI device sorting (Re: PCI device order problem)
+Message-ID: <20021026155342.A14378@lucon.org>
+References: <1035540031.13032.3.camel@irongate.swansea.linux.org.uk> <20021025091102.A15082@lucon.org> <20021025202600.A3293@lucon.org> <3DBB0553.5070805@pobox.com> <20021026142704.A13207@lucon.org> <3DBB0A81.6060909@pobox.com> <20021026144441.A13479@lucon.org> <3DBB1150.2030800@pobox.com> <20021026152043.A13850@lucon.org> <3DBB1743.6060309@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DBB1743.6060309@pobox.com>; from jgarzik@pobox.com on Sat, Oct 26, 2002 at 06:29:23PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sat, Oct 26, 2002 at 06:29:23PM -0400, Jeff Garzik wrote:
+> 
+> >I added pci=nobussort since it might not be safe for all MBs. Then I
+> >added "pci=bussort". I have no problem taking out "pci=bussort". If you
+> >don't want "pci=bussort", please say so. I can provide a new patch which
+> >won't define pci_sort_by_bus_slot_func if CONFIG_PCI_SORT_BY_BUS_SLOT
+> >is not set and won't have "pci=bussort" either.
+> >  
+> >
+> 
+> You're still missing the point here too.
+> 
+> Your patch has the potential to suddenly make systems unbootable, to 
+> suddenly reverse people's ethX interface numbering, etc.  No command 
 
-Contest results (http://contest.kolivas.net) results for the 2.5.44-mm* 
-patches:
+That is the whole purpose of my patch. But you will only get it when
+you set CONFIG_PCI_SORT_BY_BUS_SLOT_FUNC.
 
-noload:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.44 [3]              74.6    93      0       0       1.03
-2.5.44-mm1 [3]          75.0    93      0       0       1.03
-2.5.44-mm2 [3]          76.4    93      0       0       1.05
-2.5.44-mm4 [3]          75.0    93      0       0       1.03
-2.5.44-mm5 [5]          75.4    91      0       0       1.04
+> line options in the world will save lkml from being deluged by tons of 
+> "my system doesn't network anymore" bug reports.
 
-process_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.44 [3]              90.9    76      32      26      1.25
-2.5.44-mm1 [3]          191.5   36      168     64      2.64
-2.5.44-mm2 [3]          193.5   38      161     62      2.66
-2.5.44-mm4 [3]          191.1   36      166     63      2.63
-2.5.44-mm5 [4]          191.4   36      166     63      2.63
+You will only get it when you set CONFIG_PCI_SORT_BY_BUS_SLOT_FUNC on
+purpose by hand.
 
-ctar_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.44 [3]              97.7    80      1       6       1.34
-2.5.44-mm1 [3]          99.2    78      1       6       1.37
-2.5.44-mm2 [3]          96.9    79      1       5       1.33
-2.5.44-mm4 [3]          97.1    79      1       5       1.34
-2.5.44-mm5 [4]          97.7    78      1       5       1.34
+> 
+> The basic point is "let's proceed with caution, and test test test 
+> before applying this patch."
 
-xtar_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.44 [3]              117.0   65      1       7       1.61
-2.5.44-mm1 [3]          156.2   49      2       7       2.15
-2.5.44-mm2 [3]          176.1   44      2       7       2.42
-2.5.44-mm4 [3]          183.3   41      2       8       2.52
-2.5.44-mm5 [4]          181.1   44      2       7       2.49
+Please state clearly what you have in mind. First you were
+saying you didn't like pci_sort_by_bus_slot_func defined when
+CONFIG_PCI_SORT_BY_BUS_SLOT_FUNC wass not set. Now you were
+saying my patch was dangerous. Please make up your mind.
 
-io_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.44 [3]              873.8   9       69      12      12.03
-2.5.44-mm1 [3]          347.3   22      35      15      4.78
-2.5.44-mm2 [3]          294.2   28      19      10      4.05
-2.5.44-mm4 [3]          358.7   23      25      10      4.94
-2.5.44-mm5 [4]          270.7   29      18      11      3.73
 
-read_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.44 [3]              110.8   68      6       3       1.53
-2.5.44-mm1 [3]          110.5   69      7       3       1.52
-2.5.44-mm2 [3]          104.5   73      7       4       1.44
-2.5.44-mm4 [3]          105.6   71      6       4       1.45
-2.5.44-mm5 [4]          103.3   74      6       4       1.42
-
-list_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.44 [3]              99.1    71      1       21      1.36
-2.5.44-mm1 [3]          96.5    74      1       22      1.33
-2.5.44-mm2 [3]          94.5    75      1       22      1.30
-2.5.44-mm4 [3]          96.4    74      1       21      1.33
-2.5.44-mm5 [4]          95.0    75      1       20      1.31
-
-mem_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.44 [3]              114.3   67      30      2       1.57
-2.5.44-mm1 [3]          159.7   47      38      2       2.20
-2.5.44-mm2 [3]          116.6   64      29      2       1.60
-2.5.44-mm4 [3]          114.9   65      28      2       1.58
-2.5.44-mm5 [4]          114.1   65      30      2       1.57
-
-Summary: mm5 appears a little faster under IO load, otherwise the same.
-
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE9uxp+F6dfvkL3i1gRAs9AAJ9Msm/69wnFVv2rFIUi08jdAb8QFgCeO7hj
-9La9w2ooWhA1qxoB+/OE3+c=
-=fWTd
------END PGP SIGNATURE-----
-
+H.J.

@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264601AbUD2OZA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264616AbUD2O1q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264601AbUD2OZA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 10:25:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264604AbUD2OY7
+	id S264616AbUD2O1q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 10:27:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264618AbUD2O1q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 10:24:59 -0400
-Received: from ns1.skjellin.no ([80.239.42.66]:54940 "HELO mail.skjellin.no")
-	by vger.kernel.org with SMTP id S264601AbUD2OYy (ORCPT
+	Thu, 29 Apr 2004 10:27:46 -0400
+Received: from levante.wiggy.net ([195.85.225.139]:35507 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S264616AbUD2O1n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 10:24:54 -0400
-Message-ID: <40911034.4040404@tomt.net>
-Date: Thu, 29 Apr 2004 16:24:52 +0200
-From: Andre Tomt <andre@tomt.net>
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [sata] new driver -- AHCI
-References: <408C1F41.3060206@pobox.com> <40905997.9020107@tomt.net> <409073B1.1020901@pobox.com>
-In-Reply-To: <409073B1.1020901@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Apr 2004 10:27:43 -0400
+Date: Thu, 29 Apr 2004 16:27:42 +0200
+From: Wichert Akkerman <wichert@wiggy.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+Message-ID: <20040429142742.GA21409@wiggy.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040428180038.73a38683.akpm@osdl.org> <Pine.LNX.4.44.0404282143360.19633-100000@chimarrao.boston.redhat.com> <20040428185720.07a3da4d.akpm@osdl.org> <20040429022944.GA24000@buici.com> <20040428193541.1e2cf489.akpm@osdl.org> <20040429031059.GA26060@buici.com> <20040429080219.GF4437@wiggy.net> <20040429142528.GH18474@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040429142528.GH18474@logos.cnet>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-SA-Exim-Connect-IP: <locally generated>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
->> Quick questions:
->>
->> Is the Intel 6300ESB ("Hence Rapids") AHCI based? So far this looks 
->> like ICH6 too me, but I may be mistaken.
-> 
-> The only Hance Rapids stuff I've seen was ICH5-R, but maybe it's carried 
-> forward to the ICH6-R as well.
-> 
-> I don't know, I mainly know the underlying chipsets not the boards they 
-> wind up being shipped on...
+Previously Marcelo Tosatti wrote:
+> Which kernel is that? 
 
-Ahh, ok. I'll try to dig a bit deeper, but finding such details on 
-vendor websites is not always easy. Anyway, the board I'm looking at has 
-a 64bit 66Mhz PCI-X bus & slot (it's a low-end server/workstation board, 
-Intel E7210 Canterwood ES/MCH+6300ESB+FWH chipset), so the controller 
-can easily be replaced with something else without losing out to much on 
-the performance side of things. Like the Marvell, wich is on the PCI-X 
-bus, onboard.
+That machine is running 2.6.4 at the moment.
 
->> What about the Marvell 88SX5040 PCI-X SATA Controller?
-> 
-> Coming RSN.  That's my next priority, but I'm not as thrilled because 
-> Marvell isn't an open design like AHCI.  I'm much more happy to promote 
-> AHCI's sane, open design.
+> They are getting killed because there is no more swap available.
+> Otherwise its a bug.
 
-Sounds like a plan :-)
+It actually killed a bunch of processes a minute ago and right now has
+120mb of swap free and 104mb used for cache. 
+
+Wichert.
+
+-- 
+Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
+http://www.wiggy.net/                   It is hard to make things simple.
+

@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268675AbTBZS7m>; Wed, 26 Feb 2003 13:59:42 -0500
+	id <S268697AbTBZTId>; Wed, 26 Feb 2003 14:08:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268678AbTBZS7m>; Wed, 26 Feb 2003 13:59:42 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:20619
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268675AbTBZS7l>; Wed, 26 Feb 2003 13:59:41 -0500
-Subject: Re: [PATCH][2.5] fix preempt-issues with smp_call_function()
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@digeo.com>
-Cc: davej@codemonkey.org.uk, schlicht@uni-mannheim.de,
-       Linus Torvalds <torvalds@transmeta.com>, hugh@veritas.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030226104723.76df4b18.akpm@digeo.com>
-References: <200302251908.55097.schlicht@uni-mannheim.de>
-	 <20030226103742.GA29250@suse.de> <20030226015409.78e8e1fb.akpm@digeo.com>
-	 <20030226111905.GA32415@suse.de> <20030226022819.44e1873a.akpm@digeo.com>
-	 <1046266771.8948.1.camel@irongate.swansea.linux.org.uk>
-	 <20030226104723.76df4b18.akpm@digeo.com>
+	id <S268699AbTBZTId>; Wed, 26 Feb 2003 14:08:33 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:28668 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S268697AbTBZTIc>; Wed, 26 Feb 2003 14:08:32 -0500
+Subject: [2.5.63 PATCH][TRIVIAL]Change rtc.c ioport extend from 10h to 8h
+From: Rusty Lynch <rusty@linux.co.intel.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: p_gortmaker@yahoo.com, lkml <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1046290303.9837.40.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 26 Feb 2003 11:09:57 -0800
+Message-Id: <1046286599.4093.3.camel@vmhack>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 26 Feb 2003 20:11:44 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-02-26 at 18:47, Andrew Morton wrote:
-> If that resend results in delivery of an actual extra interrupt, the
-> resent-to CPU can start playing with stuff which used to be on the sender's
-> stack and the box goes splat.
-> 
-> Didn't sct have a fix for that?
+The real time clock only needs 8 bytes, but rtc.c is reserving 10h bytes.
+This conflicts with zt55XX cpci compute blades that use one of those
+extra bytes (port 79h) to control a watchdog timer.
 
-Yes but it was never merged mainstream for some reason. I think it kind of
-got away
+I raised this issue before on LKML and everyone seemed to be ok with changing
+the extent of rtc.c to 0x8:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=104478057030481&w=2
+
+I have been running the following patch on three of my Linux servers for 
+the last couple of weeks with no problems, and two of those server were 
+testing the watchdog timer that uses port 79h.
+
+Please apply this patch.
+
+    --rustyl
+
+--- drivers/char/rtc.c.orig	2003-02-26 11:00:50.000000000 -0800
++++ drivers/char/rtc.c	2003-02-26 11:00:43.000000000 -0800
+@@ -47,7 +47,7 @@
+ 
+ #define RTC_VERSION		"1.11"
+ 
+-#define RTC_IO_EXTENT	0x10	/* Only really two ports, but...	*/
++#define RTC_IO_EXTENT	0x8
+ 
+ /*
+  *	Note that *all* calls to CMOS_READ and CMOS_WRITE are done with
+
+
 

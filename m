@@ -1,44 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281168AbRKEOwp>; Mon, 5 Nov 2001 09:52:45 -0500
+	id <S281172AbRKEOyF>; Mon, 5 Nov 2001 09:54:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281171AbRKEOwf>; Mon, 5 Nov 2001 09:52:35 -0500
-Received: from ns.historage.com.tw ([203.66.155.1]:51695 "EHLO
-	ns.falconstor.com.tw") by vger.kernel.org with ESMTP
-	id <S281168AbRKEOw2>; Mon, 5 Nov 2001 09:52:28 -0500
-Message-ID: <015701c16609$60f03ba0$9e041eac@Jim>
-From: "Jim Liu" <jjliu@falconstor.com.tw>
-To: <linux-kernel@vger.kernel.org>
-Subject: unresolved symbol problem
-Date: Mon, 5 Nov 2001 22:51:40 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+	id <S281171AbRKEOxt>; Mon, 5 Nov 2001 09:53:49 -0500
+Received: from [195.228.174.203] ([195.228.174.203]:6665 "EHLO trinity")
+	by vger.kernel.org with ESMTP id <S281173AbRKEOxf>;
+	Mon, 5 Nov 2001 09:53:35 -0500
+Date: Mon, 5 Nov 2001 15:51:38 +0100
+From: Szabolcs Gyurko <szgyurko@mail.inno.hu>
+To: linux-kernel@vger.kernel.org
+Subject: drivers/net/fealnx.c error
+Message-ID: <20011105155137.B28689@morpheus>
+Reply-To: szgyurko@mail.inno.hu
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="QTprm0S8XgL7H0Dt"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.20i
+X-Operating-System: Linux i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, everyone,
 
-I compile the module with kernel 2.4.9-6 and gcc-2.96-85, then insmod the
-module with the same kernel. But I can't load this module. If I turn off
-symbol versioning in the kernel config, I can load this module well. But I
-hope to add the symbol version into the module. Could anyone give me some
-hint?
-
-Error message:
-krudp.o: unresolved symbol exit_files_Rb860df9b
-krudp.o: unresolved symbol skb_over_panic_Rf967a4cf
-krudp.o: unresolved symbol add_wait_queue_R51e5fbbd
-krudp.o: unresolved symbol exit_mm_R05afac94
-krudp.o: unresolved symbol skb_free_datagram_R6bd0b0a5
-
-Best Regards,
-Jim (J. J. Liu)
-Email: jjliu@falconstor.com.tw
+--QTprm0S8XgL7H0Dt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
+Hi,
+
+there are an error in the 2.4.13 (i think the newest) kernel at the=20
+drivers/net/fealnx.c file at the 1818 line. The original line:
+
+static struct pci_device_id fealnx_pci_tbl[] =3D __devinitdata {
+
+and the fixed line:
+
+static struct pci_device_id fealnx_pci_tbl[] __devinitdata =3D {
+
+
+I didn't make a patch of it, so please fix it.
+
+
+Bye.
+
+--=20
+    -- If vegetable oil is made of vegetables, what is baby oil made of? --
+--
+Szabolcs Gyurko
+szgyurko@mail.inno.hu
+----------------------------------------------------------------------------
+PGP-KEY:         http://raidder.development.inno.hu/~raidder/raidder.gpg
+PGP-FINGERPRINT: 5099 0850 CF6D EFBF A574  5930 E8DA 51AA DF87 2D24
+
+
+--QTprm0S8XgL7H0Dt
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE75qd56NpRqt+HLSQRAh8uAJ0f2aA67zoScSbs3AVrpU5cnN36wQCgpcmf
+ppqQQrCqERStFalGjwEUZmc=
+=zwZC
+-----END PGP SIGNATURE-----
+
+--QTprm0S8XgL7H0Dt--

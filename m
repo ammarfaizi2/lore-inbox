@@ -1,234 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbULBStw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261702AbULBSzd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261724AbULBStw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 13:49:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261726AbULBStw
+	id S261702AbULBSzd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 13:55:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbULBSzd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 13:49:52 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21981 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261724AbULBStj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 13:49:39 -0500
-Date: Thu, 2 Dec 2004 10:43:33 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Kronos <kronos@people.it>
-Cc: linux-fbdev-devel@lists.sourceforge.net,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.4.29-pre1] radeonfb: don't try to ioreamp the entire VRAM [was: Re: [Linux-fbdev-devel] why does radeonfb work fine in 2.6, but not in 2.4.29-pre1?]
-Message-ID: <20041202124332.GB3180@dmt.cyclades>
-References: <20041128184606.GA2537@middle.of.nowhere> <20041201161455.GA14817@dreamland.darkstar.lan> <Pine.GSO.4.61.0412011724010.26820@waterleaf.sonytel.be> <20041201203711.GA21008@dreamland.darkstar.lan> <Pine.GSO.4.61.0412012221420.2595@waterleaf.sonytel.be> <20041202152801.GA8868@dreamland.darkstar.lan> <Pine.GSO.4.61.0412021634540.11183@waterleaf.sonytel.be> <20041202155342.GA9863@dreamland.darkstar.lan>
+	Thu, 2 Dec 2004 13:55:33 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:18304
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S261702AbULBSzS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 13:55:18 -0500
+Subject: Re: [PATCH] oom killer (Core)
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+       LKML <linux-kernel@vger.kernel.org>, nickpiggin@yahoo.com.au
+In-Reply-To: <20041202180823.GD32635@dualathlon.random>
+References: <20041201104820.1.patchmail@tglx>
+	 <20041201211638.GB4530@dualathlon.random>
+	 <1101938767.13353.62.camel@tglx.tec.linutronix.de>
+	 <20041202033619.GA32635@dualathlon.random>
+	 <1101985759.13353.102.camel@tglx.tec.linutronix.de>
+	 <1101995280.13353.124.camel@tglx.tec.linutronix.de>
+	 <20041202164725.GB32635@dualathlon.random>
+	 <20041202085518.58e0e8eb.akpm@osdl.org>
+	 <20041202180823.GD32635@dualathlon.random>
+Content-Type: text/plain
+Date: Thu, 02 Dec 2004 19:55:16 +0100
+Message-Id: <1102013716.13353.226.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041202155342.GA9863@dreamland.darkstar.lan>
-User-Agent: Mutt/1.4i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2004-12-02 at 19:08 +0100, Andrea Arcangeli wrote:
+> OTOH we must not forget 2.4(-aa) calls do_exit synchronously and it
+> never sends signals. That might be why 2.4 doesn't kill more than one
+> task by mistake, even without a callback-wakeup. 
+
+I just run the same test on 2.4.27 and the behaviour is completely
+different.
+
+The box seems to be stuck in a swap in/out loop for quite a long time.
+During this time the box is not responsive at all. It finally stops the
+forking after quite a long time of swapping with
+fork() (error: resource temporarily not available). 
+
+There is no output in dmesg, but I'm not able to remove the remaining
+hackbench processes as even a kill -SIGKILL returns with 
+fork() (error: resource temporarily not available)
+
+I'm not sure, which of the two scenarios I like better :)
+
+FYI, I tried with 2.6 UP and PREEMPT=n. The result is more horrible. The
+box just gets stuck in an endless swap in/swap out and does not respond
+to anything else than SysRq-T and the reset button.
+
+With the callback the machine did not come back after 20 Minutes.
+
+Without the callback the machine dies after about 10 Minutes and killing
+all available processes except init with:
+Kernel panic - not syncing: Out of memory and no killable processes...
+
+> So if we keep sending
+> signals I certainly agree with Thomas that using a callback to stop the
+> VM until the task is rescheduled is a good idea, and potentially it may
+> be even the only possible fix when the oom killer is enabled like in 2.6
+> (though the 300 kills in between SIGKILL and the reschedule sounds like
+> the VM isn't even trying anymore).  Otherwise perhaps his workload is
+> spawning enough tasks, that it takes an huge time for the rechedule
+> (that would explain it too).
+
+Yeah, there are enough tasks and with preempt enabled more than one
+tasks requests memory. That explains the repetitive calls to
+out_of_memory(). This only happens on UP + PREEMPT=y and SMP. See above.
+
+> Actually this should fix it too btw:
+> 
+> -	if (p->flags & PF_MEMDIE)
+> -		return 0;
+> 
+> Thomas can you try the above?
+
+You meant the one in badness() right ?
+Well it makes it better, but I was able to have a second invocation
+before the first killed tasks exited. That's simple to explain. The task
+is on the way out and releases resources, so the VM size is reduced and
+the killer picks another process. 
+
+> I'd rather fix this by removing buggy code, than by adding additional
+> logics on top of already buggy code (i.e. setting PF_MEMDIE is a smp
+> race and can corrupt other bitflags), but at least the
+> oom-wakeup-callback from do_exit still makes a lot of sense (even if
+> PF_MEMDIE must be dropped since it's buggy, and something else should be
+> used instead).
+
+I think the callback is the only safe way to fix that. If PF_MEMDIE is
+racy then I'm sure we will find a different indicator for that.
+
+> Whatever we change I'd like to change it on top of my last patch that
+> already removes the 5 seconds fixed waits, and does the right watermark
+> checks before killing the next task (Thomas already attempted that with
+> a not accurate nr_free_pages check, so he at least agrees about the need
+> of checking watermarks before firing up the oom killer).
+
+Yep, but the reentrancy blocking with the callback makes the time, count
+crap and the watermark check go away, as it is safe to reenable the
+killer at this point because we definitely freed memory resources. So
+the watermark comes for free.
+
+> BTW, checking for pid == 1 like in Thomas's patch is a must, I advocated
+> it for years but nobody listened yet, hope Thomas will be better at
+> convincing the VM mainline folks than me.
+
+:)
+
+tglx
 
 
-Applied, thanks Geert for your reviewing.
-
-On Thu, Dec 02, 2004 at 04:53:43PM +0100, Kronos wrote:
-<snip>
-> Ok, here we go:
-> 
-> Make fb layer aware of the difference between the ioremap()'ed VRAM and
-> total available VRAM.
-> smem_len in struct fb_fix_screeninfo contains the amount of physical
-> VRAM (reported to userspace via FBIOGET_FSCREENINFO ioctl) while the new
-> field mapped_vram in struct fb_info contains the amount of VRAM actually
-> ioremap()'ed by drivers (used in read/write/mmap operations).
-> If mapped_vram is not set it's assumed that the entire framebuffer is
-> mapped, thus other drivers are unaffected by this patch.
-> 
-> Signed-off-by: Luca Tettamanti <kronos@people.it>
-> 
-> --- a/include/linux/fb.h	2004-11-30 18:30:08.000000000 +0100
-> +++ b/include/linux/fb.h	2004-12-02 14:20:50.000000000 +0100
-> @@ -323,6 +323,7 @@
->     struct fb_cmap cmap;                 /* Current cmap */
->     struct fb_ops *fbops;
->     char *screen_base;                   /* Virtual address */
-> +   u32 mapped_vram;			/* ioremap()'ed VRAM */
->     struct display *disp;		/* initial display variable */
->     struct vc_data *display_fg;		/* Console visible on this display */
->     char fontname[40];			/* default font name */
-> --- a/drivers/video/fbmem.c	2004-11-30 18:30:00.000000000 +0100
-> +++ b/drivers/video/fbmem.c	2004-12-02 14:29:44.000000000 +0100
-> @@ -410,6 +410,7 @@
->  	struct fb_info *info = registered_fb[fbidx];
->  	struct fb_ops *fb = info->fbops;
->  	struct fb_fix_screeninfo fix;
-> +	unsigned int size;
->  
->  	if (! fb || ! info->disp)
->  		return -ENODEV;
-> @@ -418,10 +419,12 @@
->  		return -EINVAL;
->  
->  	fb->fb_get_fix(&fix,PROC_CONSOLE(info), info);
-> -	if (p >= fix.smem_len)
-> +	size = info->mapped_vram ? info->mapped_vram : fix.smem_len;
-> +	
-> +	if (p >= size)
->  	    return 0;
-> -	if (count > fix.smem_len - p)
-> -		count = fix.smem_len - p;
-> +	if (count > size - p)
-> +		count = size - p;
->  	if (count) {
->  	    char *base_addr;
->  
-> @@ -444,6 +447,7 @@
->  	struct fb_ops *fb = info->fbops;
->  	struct fb_fix_screeninfo fix;
->  	int err;
-> +	unsigned int size;
->  
->  	if (! fb || ! info->disp)
->  		return -ENODEV;
-> @@ -452,11 +456,13 @@
->  		return -EINVAL;
->  
->  	fb->fb_get_fix(&fix, PROC_CONSOLE(info), info);
-> -	if (p > fix.smem_len)
-> +	size = info->mapped_vram ? info->mapped_vram : fix.smem_len;
-> +	
-> +	if (p > size)
->  	    return -ENOSPC;
->  	err = 0;
-> -	if (count > fix.smem_len - p) {
-> -	    count = fix.smem_len - p;
-> +	if (count > size - p) {
-> +	    count = size - p;
->  	    err = -ENOSPC;
->  	}
->  	if (count) {
-> @@ -619,7 +625,10 @@
->  
->  	/* frame buffer memory */
->  	start = fix.smem_start;
-> -	len = PAGE_ALIGN((start & ~PAGE_MASK)+fix.smem_len);
-> +	if (info->mapped_vram)
-> +		len = PAGE_ALIGN((start & ~PAGE_MASK) + info->mapped_vram);
-> +	else
-> +		len = PAGE_ALIGN((start & ~PAGE_MASK) + fix.smem_len);
->  	if (off >= len) {
->  		/* memory mapped io */
->  		off -= len;
-> --- a/drivers/video/radeonfb.c	2004-11-30 18:06:45.000000000 +0100
-> +++ b/drivers/video/radeonfb.c	2004-12-02 14:28:10.000000000 +0100
-> @@ -176,7 +176,8 @@
->  #define RTRACE		if(0) printk
->  #endif
->  
-> -
-> +#define MAX_MAPPED_VRAM (2048*2048*4)
-> +#define MIN_MAPPED_VRAM (1024*768*1)
->  
->  enum radeon_chips {
->  	RADEON_QD,
-> @@ -499,7 +500,7 @@
->  
->  	short chipset;
->  	unsigned char arch;
-> -	int video_ram;
-> +	unsigned int video_ram;
->  	u8 rev;
->  	int pitch, bpp, depth;
->  	int xres, yres, pixclock;
-> @@ -1626,6 +1627,7 @@
->  				  const struct pci_device_id *ent)
->  {
->  	struct radeonfb_info *rinfo;
-> +	struct fb_info *fb_info;
->  	struct radeon_chip_info *rci = &radeon_chip_info[ent->driver_data];
->  	u32 tmp;
->  	int i, j;
-> @@ -1640,6 +1642,7 @@
->  
->  	memset (rinfo, 0, sizeof (struct radeonfb_info));
->  
-> +	fb_info = (struct fb_info *)rinfo;
->  	rinfo->pdev = pdev;
->  	strncpy(rinfo->name, rci->name, 16);
->  	rinfo->arch = rci->arch;
-> @@ -1824,8 +1827,16 @@
->  		}
->  	}
->  
-> -	rinfo->fb_base = (unsigned long) ioremap (rinfo->fb_base_phys,
-> -				  		  rinfo->video_ram);
-> +	fb_info->mapped_vram = min_t(unsigned int, MAX_MAPPED_VRAM, rinfo->video_ram);
-> +	do {
-> +		rinfo->fb_base = (unsigned long) ioremap (rinfo->fb_base_phys,
-> +				  		  fb_info->mapped_vram);
-> +		if (rinfo->fb_base)
-> +			break;
-> +
-> +		fb_info->mapped_vram /= 2;
-> +	} while(fb_info->mapped_vram > MIN_MAPPED_VRAM);
-> +	
->  	if (!rinfo->fb_base) {
->  		printk ("radeonfb: cannot map FB\n");
->  		iounmap ((void*)rinfo->mmio_base);
-> @@ -1836,6 +1847,7 @@
->  		kfree (rinfo);
->  		return -ENODEV;
->  	}
-> +	RTRACE(KERN_INFO "radeonfb: mapped %dk videoram\n", fb_info->mapped_vram/1024);
->  
->  	/* currcon not yet configured, will be set by first switch */
->  	rinfo->currcon = -1;
-> @@ -2199,13 +2211,14 @@
->                  {-1, -1}
->          };
->          int i;
-> +	struct fb_info *fb_info = (struct fb_info *)rinfo;
->                  
->          /* use highest possible virtual resolution */
->          if (v->xres_virtual == -1 && v->yres_virtual == -1) {
->                  printk("radeonfb: using max available virtual resolution\n");
->                  for (i=0; modes[i].xres != -1; i++) {
->                          if (modes[i].xres * nom / den * modes[i].yres <
-> -                            rinfo->video_ram / 2)
-> +                            fb_info->mapped_vram / 2)
->                                  break;
->                  }
->                  if (modes[i].xres == -1) {
-> @@ -2218,15 +2231,15 @@
->                  printk("radeonfb: virtual resolution set to max of %dx%d\n",
->                          v->xres_virtual, v->yres_virtual);
->          } else if (v->xres_virtual == -1) {
-> -                v->xres_virtual = (rinfo->video_ram * den /   
-> +                v->xres_virtual = (fb_info->mapped_vram * den /   
->                                  (nom * v->yres_virtual * 2)) & ~15;
->          } else if (v->yres_virtual == -1) {
->                  v->xres_virtual = (v->xres_virtual + 15) & ~15;
-> -                v->yres_virtual = rinfo->video_ram * den /
-> +                v->yres_virtual = fb_info->mapped_vram * den /
->                          (nom * v->xres_virtual *2);
->          } else {
->                  if (v->xres_virtual * nom / den * v->yres_virtual >
-> -                        rinfo->video_ram) {
-> +                        fb_info->mapped_vram) {
->                          return -EINVAL;
->                  }
->          }
-> @@ -2430,6 +2443,9 @@
->                          return -EINVAL;
->          }
->  
-> +	if (((v.xres_virtual * v.yres_virtual * nom) / den) > info->mapped_vram)
-> +		return -EINVAL;
-> +
->          if (radeonfb_do_maximize(rinfo, var, &v, nom, den) < 0)
->                  return -EINVAL;  
->                  
-> 
-> Luca
-> -- 
-> Home: http://kronoz.cjb.net
-> Una donna sposa un uomo sperando che cambi, e lui non cambiera`. Un
-> uomo sposa una donna sperando che non cambi, e lei cambiera`.

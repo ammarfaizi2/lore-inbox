@@ -1,60 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261153AbTFBT4w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 15:56:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbTFBT4w
+	id S261769AbTFBULV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 16:11:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbTFBULV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 15:56:52 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:49821 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261153AbTFBT4t
+	Mon, 2 Jun 2003 16:11:21 -0400
+Received: from 12-208-246-150.client.attbi.com ([12.208.246.150]:35849 "EHLO
+	archimedes.mayer") by vger.kernel.org with ESMTP id S261769AbTFBULU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 15:56:49 -0400
-Date: Mon, 2 Jun 2003 15:10:12 -0500
-Mime-Version: 1.0 (Apple Message framework v552)
-Content-Type: multipart/mixed; boundary=Apple-Mail-15--1031998591
-Subject: [CHECKER][PATCH] pnpbios dereferencing user pointer
-From: Hollis Blanchard <hollisb@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Message-Id: <37C2C7CC-9536-11D7-BBCD-000A95A0560C@us.ibm.com>
-X-Mailer: Apple Mail (2.552)
+	Mon, 2 Jun 2003 16:11:20 -0400
+Date: Mon, 2 Jun 2003 14:24:44 -0600
+To: Jocelyn Mayer <jma@netgem.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] radeonfb doesn't compile in 2.4.21-rc6
+Message-ID: <20030602202444.GA9876@galileo>
+Mail-Followup-To: James Mayer <james@cobaltmountain.com>,
+	Jocelyn Mayer <jma@netgem.com>, linux-kernel@vger.kernel.org
+References: <1054578295.4951.34.camel@jma1.dev.netgem.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1054578295.4951.34.camel@jma1.dev.netgem.com>
+User-Agent: Mutt/1.5.4i
+From: James Mayer <james@cobaltmountain.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jun 02, 2003 at 08:24:56PM +0200, Jocelyn Mayer wrote:
+> It seems to me that this was already reported for previous
+> 2.4.21-rc's, but never applied.
+> Here's the patch that make radeonfb compile (and work)
+> on my Ibook:
+>
+>
+> 19:06:04.0000
+> 00000 +0200
+> +++ linux-2.4.21-rc6-fixed/drivers/video/radeonfb.c    2003-06-01
+> 20:58:42.0000
+> 00000 +0200
+> @@ -1001,8 +1001,8 @@
+>         /* According to XFree86 4.2.0, some production M6's return 0
+>            for 8MB. */
+>         if (rinfo->video_ram == 0 &&
+> -           (pdev->device == PCI_DEVICE_ID_RADEON_LY ||
+> -            pdev->device == PCI_DEVICE_ID_RADEON_LZ)) {
+> +           (pdev->device == PCI_DEVICE_ID_ATI_RADEON_LY ||
+> +            pdev->device == PCI_DEVICE_ID_ATI_RADEON_LZ)) {
+>             rinfo->video_ram = 8192 * 1024;
+>           }
 
---Apple-Mail-15--1031998591
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	charset=US-ASCII;
-	format=flowed
+Hi,
 
-Another simple case of a memcpy that should be copy_from_user...
+I can't seem to find PCI_DEVICE_ID_ATI_RADEON_LY or
+PCI_DEVICE_ID_ATI_RADEON_LZ defined *anywhere* in 2.4.21-rc6, and the
+2.4.21-rc6 version of radeonfb.c compiled just fine for me.
 
--- 
-Hollis Blanchard
-IBM Linux Technology Center
-
---Apple-Mail-15--1031998591
-Content-Disposition: attachment;
-	filename=pnpbios-memcpy.diff
-Content-Transfer-Encoding: 7bit
-Content-Type: application/octet-stream;
-	x-unix-mode=0644;
-	name="pnpbios-memcpy.diff"
-
---- linux-2.5.70/drivers/pnp/pnpbios/proc.c.orig	Mon Mar 24 16:30:11 2003
-+++ linux-2.5.70/drivers/pnp/pnpbios/proc.c	Tue May 27 13:18:57 2003
-@@ -185,7 +185,10 @@
- 		return -EIO;
- 	if (count != node->size - sizeof(struct pnp_bios_node))
- 		return -EINVAL;
--	memcpy(node->data, buf, count);
-+	if (copy_from_user(node->data, buf, count)) {
-+		kfree(node);
-+		return -EFAULT;
-+	}
- 	if (pnp_bios_set_dev_node(node->handle, boot, node) != 0)
- 	    return -EINVAL;
- 	kfree(node);
-
---Apple-Mail-15--1031998591--
-
+ - James

@@ -1,129 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262048AbUAOWcl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 17:32:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbUAOWcl
+	id S262566AbUAOWtO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 17:49:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263561AbUAOWtN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 17:32:41 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:51934 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262048AbUAOWch
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 17:32:37 -0500
-Date: Thu, 15 Jan 2004 18:19:40 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: linux-kernel@vger.kernel.org
-Cc: Simon Kirby <sim@netnation.com>
-Subject: Linux 2.4.25-pre5
-Message-ID: <Pine.LNX.4.58L.0401151816320.17528@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 15 Jan 2004 17:49:13 -0500
+Received: from gprs214-60.eurotel.cz ([160.218.214.60]:36736 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262566AbUAOWtI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 17:49:08 -0500
+Date: Thu, 15 Jan 2004 23:48:51 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: John Bradford <john@grabjohn.com>
+Cc: Robert Love <rml@ximian.com>, Daniel Gryniewicz <dang@fprintf.net>,
+       Dave Jones <davej@redhat.com>,
+       Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Laptops & CPU frequency
+Message-ID: <20040115224851.GD18488@elf.ucw.cz>
+References: <E1Afj2b-0004QN-00@chiark.greenend.org.uk> <E1Afj2b-0004QN-00@chiark.greenend.org.uk> <1073841200.1153.0.camel@localhost> <E1AfjdT-0008OH-00@chiark.greenend.org.uk> <1073843690.1153.12.camel@localhost> <20040114045945.GB23845@redhat.com> <1074107508.4549.10.camel@localhost> <1074107842.1153.959.camel@localhost> <20040115204257.GG467@openzaurus.ucw.cz> <200401152221.i0FMLdQr000218@81-2-122-30.bradfords.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200401152221.i0FMLdQr000218@81-2-122-30.bradfords.org.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Hi,
+> > > > I have an athlon-xp laptop (HP pavilion ze4500) with powernow that
+> > > > definitely goes into low power mode when the plug is pulled.  The screen
+> > > > goes dark, and everything slows down.
+> > > 
+> > > Dave did not mean that the other power management schemes cannot do the
+> > > automatic reduction on loss of AC, just that there is no SMM/BIOS hacks
+> > > to do it automatically.
+> > 
+> > People are designing machines where battery can't provide
+> > enough ampers for cpu in high-power mode. If speedstep machines
+> > have same problem, SMM is actually right thing to do.
+> 
+> This reminds me of an idea I had years ago, but never really looked in
+> to very much, (it may well have been implemented somewhere
+> independently of my idea anyway).  Basically, it was for a multi-cpu
+> machine which, instead of running cpus in parallel, with all the
+> common scaling problems, ran each CPU in series for a very short
+> timeslice, effectively being a uni-processor machine, but moving the
+> state of the processor's registers between physical CPUs.  The theory
+> was that it would be possible to clock each CPU much higher for a
+> short period of time than it could be successfully clocked
+> continuously.  Physical CPUs with poor cooling could even be given a
+> shorter timeslice.
 
-Here is -pre5.
+s390's actually do something like that. They have 16 (or so) physical
+processors, but if you only have licence for running 1 cpu, you use
+only one. OTOH if that cpu fails, it transfers state to next one and
+continues.
 
-This version fixes the "memory filled with unfreeable inodes" problem
-which occurs on high memory machines in some workloads.  That is the last
-big problem 2.4 VM had with highmem I believe.
+Well, what you described could gain you some extra speed (relative to
+uniprocessor), but it would be prohibitely expensive.
 
-It contains a few other important fixes:
-- fixes a SMP deadlock introduced during 2.4.23 (which could hang the
-machine on high filesystem activity).
-- fixes a memory allocation deadlock in USB
+Wait.
 
-Amongst others.
+We have it today.
 
-Please test it!
+Remember P4's? Those beasts have 90W but cooling designed only for 75W
+or so, and thermal diode that slows when they get too hot.
 
-Detailed changelog follows
+If someone has SMP-P4 with such broken cooling solution (not sure how
+common they are), ping-ponging task might actually get you extra
+speed.
 
+Same goes for any SMP machine whose CPU fans failed and is therefore
+thermal-throttled. (But I'm not sure if thermal-throttling works at
+all at SMPs.)
 
-Summary of changes from v2.4.25-pre4 to v2.4.25-pre5
-============================================
+[I have one notebook here that has failed cpu fan... Thermal
+throttling works more or less okay, but if you want your computation
+to go fast, you need to place it next to fan...]
+								Pavel
 
-<bjorn.helgaas:hp.com>:
-  o ia64 Configure.help update
-
-<davej:redhat.com>:
-  o Add AGP support for Radeon IGP 345M
-
-<jack:ucw.cz>:
-  o Fix ext3/quota deadlock
-
-<khali:linux-fr.org>:
-  o i2c cleanups: Config.in
-  o i2c cleanup: saa7146.h should include i2c-old.h, not i2c.h
-  o i2c cleanup: i2c-core fixes
-
-<len.brown:intel.com>:
-  o [ACPI] fix smpboot.c mis-merge http://bugzilla.kernel.org/show_bug.cgi?id=1706
-
-<marcelo:logos.cnet>:
-  o Cset exclude: rtjohnso@eecs.berkeley.edu|ChangeSet|20040109135735|05388
-  o Fix microcode update compilation error
-  o Fix Makefile typo
-
-<moilanen:austin.ibm.com>:
-  o [PPC64] Improved NVRAM handling
-  o [PPC64] Buffer error log entries in NVRAM
-
-<nitin.a.kamble:intel.com>:
-  o microcode update
-
-<rtjohnso:eecs.berkeley.edu>:
-  o USB ioctl fixes (vicam.c, w9968cf.c)
-
-<sfr:au1.ibm.com>:
-  o [PPC64] Fix a compile warning that becomes an error with gcc 3.4
-
-<thomas:winischhofer.net>:
-  o SiS Framebuffer driver update
-
-<xose:wanadoo.es>:
-  o ips SCSI driver update
-
-Adrian Bunk:
-  o fix CONFIG_DS1742 Config.in entry
-  o remove REPORT_LUNS from cpqfcTSstructs.h
-  o disallow modular CONFIG_COMX
-
-Alan Cox:
-  o Fix USB hangs
-  o Minimal fix for the R128 drivers
-
-Bartlomiej Zolnierkiewicz:
-  o create /proc/ide/hdX/capacity only once
-
-Ben Collins:
-  o [IEEE1394]: Fix bug in updating configrom
-
-David Engebretsen:
-  o [PPC64] Distribute processing of hypervisor events over all processors
-
-David Woodhouse:
-  o Fix SMP deadlock in __wait_on_freeing_inode() (introduced during 2.4.23)
-
-Hugh Dickins:
-  o tmpfs readdir does not update dir atime
-
-Paul Mackerras:
-  o [PPC64] Remove some unnecessary code from arch/ppc64/kernel/prom.c
-  o [PPC64] Make /dev/sda3 the default root device (rather than sda2)
-  o [PPC64] Add functions to update and manage flash ROM under Linux on pSeries
-  o [PPC64] Update defconfig and the example configs
-
-Pete Zaitcev:
-  o Unhork ymfpci broken by hasty janitors
-
-Rik van Riel:
-  o Reclaim inodes with highmem pages when low on memory
-
-Tom Rini:
-  o PPC32: Add support for the CPCI-405 board
-  o PPC32: Fix cross-compilation from Solaris or Cygwin
-  o PPC32: s/CONFIG_SMC2_UART/CONFIG_8xx_SMC2/g to match the code
-
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

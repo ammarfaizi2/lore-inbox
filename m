@@ -1,67 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262034AbTEIGG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 02:06:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262297AbTEIGG7
+	id S262297AbTEIGHo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 02:07:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbTEIGHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 02:06:59 -0400
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:15015 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id S262034AbTEIGG6 convert rfc822-to-8bit (ORCPT
+	Fri, 9 May 2003 02:07:44 -0400
+Received: from holomorphy.com ([66.224.33.161]:56477 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262297AbTEIGHk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 02:06:58 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: [patch] comments patch
-Date: Fri, 9 May 2003 11:49:16 +0530
-Message-ID: <E935C89216CC5D4AB77D89B253ADED2A922AF0@blr-m2-msg.wipro.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch] comments patch
-Thread-Index: AcMV8uqbrLnInqlPSBeZO2uCifgC6A==
-From: "Aniruddha M Marathe" <aniruddha.marathe@wipro.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Andrew Morton" <akpm@digeo.com>,
-       "Kiran Vijayakumar" <kiran.vijayakumar@wipro.com>
-X-OriginalArrivalTime: 09 May 2003 06:19:16.0563 (UTC) FILETIME=[EB033230:01C315F2]
+	Fri, 9 May 2003 02:07:40 -0400
+Date: Thu, 8 May 2003 23:20:08 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: how to measure scheduler latency on powerpc?  realfeel doesn't work due to /dev/rtc issues
+Message-ID: <20030509062008.GT8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Chris Friesen <cfriesen@nortelnetworks.com>,
+	Davide Libenzi <davidel@xmailserver.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3EBAD63C.4070808@nortelnetworks.com> <20030509001339.GQ8978@holomorphy.com> <Pine.LNX.4.50.0305081735040.2094-100000@blue1.dev.mcafeelabs.com> <20030509003825.GR8978@holomorphy.com> <Pine.LNX.4.53.0305082052160.21290@chaos> <3EBB25FD.7060809@nortelnetworks.com> <20030509042659.GS8978@holomorphy.com> <3EBB4735.30701@nortelnetworks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EBB4735.30701@nortelnetworks.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- linux/mm/truncate.c	2003-04-21 10:28:19.000000000 -0700
-+++ tmp/linux/mm/truncate.c	2003-05-08 12:25:52.000000000 -0700
-@@ -172,23 +172,23 @@
- 			unlock_page(page);
- 		}
- 		pagevec_release(&pvec);
- 	}
- 	if (lstart == 0 && mapping->nrpages)
- 		printk("%s: I goofed!\n", __FUNCTION__);
- }
- 
- /**
-  * invalidate_mapping_pages - Invalidate all the unlocked pages of one
-inode
-- * @inode: the address_space which holds the pages to invalidate
-- * @end: the index of the last page to invalidate (inclusive)
-- * @nr_pages: defines the pagecache span.  Invalidate up to @start +
-@nr_pages
-+ * @mapping: the address_space which holds the pages to invalidate
-+ * @start: the offset 'from' which to invalidate
-+ * @end: the offset 'to' which to invalidate (inclusive)
-  *
-  * This function only removes the unlocked pages, if you want to
-  * remove all the pages of one inode, you must call
-truncate_inode_pages.
-  *
-  * invalidate_mapping_pages() will not block on IO activity. It will
-not
-  * invalidate pages which are dirty, locked, under writeback or mapped
-into
-  * pagetables.
-  */
- unsigned long invalidate_mapping_pages(struct address_space *mapping,
- 				pgoff_t start, pgoff_t end)
+William Lee Irwin III wrote:
+>> Try the timebase instead.
+
+On Fri, May 09, 2003 at 02:14:13AM -0400, Chris Friesen wrote:
+> The timestamp is not hard to get.  The problem is getting a 
+> medium-frequency (2KHz or so) hardware interrupt to drive the test.
+> On intel, you can do this by programming /dev/rtc.  This does not work in 
+> powerpc.
+
+I don't understand why you're obsessed with interrupts. Just run your
+load and spray the scheduler latency stats out /proc/
+
+
+-- wli

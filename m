@@ -1,36 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267618AbUG2PwV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268236AbUG2P5P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267618AbUG2PwV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 11:52:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267775AbUG2Pgn
+	id S268236AbUG2P5P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 11:57:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268237AbUG2P40
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 11:36:43 -0400
-Received: from epithumia.math.uh.edu ([129.7.128.2]:56227 "EHLO
-	epithumia.math.uh.edu") by vger.kernel.org with ESMTP
-	id S267618AbUG2PMQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 11:12:16 -0400
-To: Mark Watts <m.watts@eris.qinetiq.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mke2fs -j goes nuts on 3Ware 8506-4LP
-References: <200407281050.24958.m.watts@eris.qinetiq.com>
-	<ufad62evpwe.fsf@epithumia.math.uh.edu>
-	<200407291606.58636.m.watts@eris.qinetiq.com>
-From: Jason L Tibbitts III <tibbs@math.uh.edu>
-Date: 29 Jul 2004 10:12:11 -0500
-In-Reply-To: <200407291606.58636.m.watts@eris.qinetiq.com>
-Message-ID: <ufa8yd2vodw.fsf@epithumia.math.uh.edu>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
+	Thu, 29 Jul 2004 11:56:26 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:22715 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S267454AbUG2PxJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 11:53:09 -0400
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Andrew Morton <akpm@osdl.org>, suparna@in.ibm.com, fastboot@osdl.org,
+       jbarnes@engr.sgi.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
+References: <16734.1090513167@ocs3.ocs.com.au>
+	<20040725235705.57b804cc.akpm@osdl.org>
+	<m1r7qw7v9e.fsf@ebiederm.dsl.xmission.com>
+	<200407280903.37860.jbarnes@engr.sgi.com> <25870000.1091042619@flay>
+	<m14qnr7u7b.fsf@ebiederm.dsl.xmission.com>
+	<20040728133337.06eb0fca.akpm@osdl.org>
+	<1091044742.31698.3.camel@localhost.localdomain>
+	<m1llh367s4.fsf@ebiederm.dsl.xmission.com>
+	<20040728164457.732c2f1d.akpm@osdl.org>
+	<133880000.1091110104@[10.10.2.4]>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 29 Jul 2004 09:52:17 -0600
+In-Reply-To: <133880000.1091110104@[10.10.2.4]>
+Message-ID: <m1vfg6kdzi.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "MW" == Mark Watts <m.watts@eris.qinetiq.com> writes:
+"Martin J. Bligh" <mbligh@aracnet.com> writes:
 
-MW> Out of interest Jason, do you have the 3Ware plugged into a 64bit
-MW> or 32bit pci slot?
+> > We really want to get into the new kernel ASAP and clean stuff up from
+> > in there.
+> 
+> As long as the "init" routines are run on every startup (not just kexec ones),
+> they should get plenty of testing (though not from bad card state).
 
-This board has only 64-bit slots; the card is actually in a 133MHz
-PCI-X slot, but of course it only runs at 66MHz.
+And I know for a fact that many init routines won't initialize a
+card in a bad state currently.  That is my most frequent failure in
+the normal kexec case, when things are not in a 
+ 
+> I still think we could share code by running the shutdown routines from 
+> the *new* kernel  before trying to init the card if they're written in a 
+> robust way so as to allow it ... is that insane?
 
- - J<
+As a rough feel yes that is sane.  Redundant but sane.  I would
+like to hear what greg thinks of it though.
+
+Eric

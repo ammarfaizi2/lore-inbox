@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263559AbREYGJ2>; Fri, 25 May 2001 02:09:28 -0400
+	id <S263567AbREYGLS>; Fri, 25 May 2001 02:11:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263563AbREYGJS>; Fri, 25 May 2001 02:09:18 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:44807 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S263559AbREYGJH>;
-	Fri, 25 May 2001 02:09:07 -0400
-Date: Thu, 24 May 2001 22:07:40 -0700
-From: Greg KH <greg@kroah.com>
-To: Aaron Lehmann <aaronl@vitelus.com>, hugh@misc.nu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fwd: Copyright infringement in linux/drivers/usb/serial/keyspan*fw.h
-Message-ID: <20010524220740.C8162@kroah.com>
-In-Reply-To: <20010524213404.A22585@vitelus.com>
-Mime-Version: 1.0
+	id <S263568AbREYGLI>; Fri, 25 May 2001 02:11:08 -0400
+Received: from smtp2.Stanford.EDU ([171.64.14.116]:1974 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S263567AbREYGKx>; Fri, 25 May 2001 02:10:53 -0400
+Message-Id: <200105250610.f4P6AhH09533@smtp2.Stanford.EDU>
+From: Praveen Srinivasan <praveens@stanford.edu>
+Subject: Re: [PATCH] bulkmem.c - null ptr fixes for 2.4.4
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Reply-To: praveens@stanford.edu
+Date: Thu, 24 May 2001 23:12:00 -0700
+In-Reply-To: <fa.gocl8kv.gohl@ifi.uio.no> <fa.ggh8rmv.6h4jao@ifi.uio.no>
+Organization: Stanford University
+User-Agent: KNode/0.5.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010524213404.A22585@vitelus.com>; from aaronl@vitelus.com on Thu, May 24, 2001 at 09:34:04PM -0700
-X-Operating-System: Linux 2.2.19 (i586)
+Content-Transfer-Encoding: 7Bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 24, 2001 at 09:34:04PM -0700, Aaron Lehmann wrote:
-> This message sparked a long thread on the debian-legal mailing list,
-> which is long since dead. I am personally very curious about whether
-> this has been resolved upstream. I consider it a very important issue,
-> which is why I asked for RMS' opinion. He said that what is being done
-> is clearly not "mere aggregation", and that such firmware should be
-> moved out of the kernel (and even the tarball) to stop violating the
-> GPL and make Linux be free software.
+Do we need to free the linked list in setup_regions? Would it be easier to 
+try and preallocate the structures beforehand, and then fill them with the 
+loop? Btw, we didn't find anything wrong with the first part of the patch.
 
-Last I heard, Hugh was talking with the Keyspan people to get this
-resolved.  But that was a few weeks ago.
+Praveen Srinivasan and Frederick Akalin
 
-Any news Hugh?
+Alan Cox wrote:
 
-thanks,
+>> kernel code. This patch fixes numerous unchecked pointers in the PCMCIA
+>> bulkmem driver.
+> 
+> Since when has two been numerous - also I dont thin the fix is right - you
+> need to undo what has already been done
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-greg k-h

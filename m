@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267901AbUJOOb2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267881AbUJOOfH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267901AbUJOOb2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 10:31:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267881AbUJOOb1
+	id S267881AbUJOOfH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 10:35:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267903AbUJOOfG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 10:31:27 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:13575 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S267901AbUJOO3V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 10:29:21 -0400
-Date: Fri, 15 Oct 2004 09:25:35 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Mark Lord <lsml@rtr.ca>, linux-scsi@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: [PATCH] Export ata_scsi_simulate() for use by non-libata drivers
-Message-ID: <20041015092535.C25937@tuxdriver.com>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>, Mark Lord <lsml@rtr.ca>,
-	linux-scsi@vger.kernel.org,
-	Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
-References: <416D8A4E.5030106@pobox.com> <416DA951.2090104@rtr.ca> <416DAF1A.2040204@pobox.com> <416DB912.7040805@rtr.ca> <416DBC96.2090602@pobox.com> <416EA996.4040402@rtr.ca> <416EAECC.7070000@rtr.ca> <416EB1B6.5070603@pobox.com> <416EC90A.30607@rtr.ca> <416F5A72.9080602@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <416F5A72.9080602@pobox.com>; from jgarzik@pobox.com on Fri, Oct 15, 2004 at 01:04:50AM -0400
+	Fri, 15 Oct 2004 10:35:06 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:25728 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S267881AbUJOOet
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 10:34:49 -0400
+Date: Fri, 15 Oct 2004 10:34:43 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: OOPS while loading a Linux-2.6.8 module
+Message-ID: <Pine.LNX.4.61.0410151030490.25333@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 15, 2004 at 01:04:50AM -0400, Jeff Garzik wrote:
-> The full body of your email is pasted into the BitKeeper changeset 
-> description.
 
-Jeff,
+If you were to execute `strip` on a Linux-2.6.8 module,
+you can OOPS the kernel. Gotta patch? I'll test immediately.
 
-Andrews "The perfect patch"
-(http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt) in section
-3.e says: 
 
-   Most people's patch receiving scripts will treat a ^--- string
-   as the separator between the changelog and the patch itself.  You can
-   use this to ensure that any diffstat information is discarded when the
-   patch is applied:
+HeavyLink: falsely claims to have parameter shmem
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+  printing eip:
+00000000
+*pde = 07469001
+Oops: 0000 [#1]
+SMP 
+Modules linked in: HeavyLink parport_pc lp parport autofs4 rfcomm l2cap bluetooth sunrpc 3c59x e100 mii ipt_REJECT ipt_state ip_conntrack iptable_filter ip_tables floppy sg sr_mod microcode dm_mod uhci_hcd ehci_hcd button battery asus_acpi ac ipv6 ext3 jbd ata_piix libata aic7xxx sd_mod scsi_mod
+CPU:    0
+EIP:    0060:[<00000000>]    Not tainted
+EFLAGS: 00010202   (2.6.8) 
+EIP is at 0x0
+eax: 00000000   ebx: c0341da0   ecx: c0341da0   edx: 00000000
+esi: f0a60f80   edi: c0341d84   ebp: c0341d84   esp: de38dfa4
+ds: 007b   es: 007b   ss: 0068
+Process insmod (pid: 25326, threadinfo=de38c000 task=ee9ab730)
+Stack: c0138897 bffffc1a 00000004 0807a018 00000000 00000000 de38c000 c0106e4d
+        0807a018 0000c3e0 0807a008 00000000 00000000 bfffcc08 00000080 0000007b
+        0000007b 00000080 ffffe410 00000073 00000206 bfffcbb0 0000007b 
+Call Trace:
+  [<c0138897>] sys_init_module+0x107/0x220
+  [<c0106e4d>] sysenter_past_esp+0x52/0x71
+Code:  Bad EIP value.
 
-Do your scripts act this way as well?
 
-It is nice to be able to send a single e-mail both w/
-changelog-appropriate comments and with "this relates to the last
-message" comments as well...
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.8 on an i686 machine (5537.79 BogoMips).
+             Note 96.31% of all statistics are fiction.
 
-John
-
-P.S.  Hopefully I didn't misunderstand Andrew...
--- 
-John W. Linville
-linville@tuxdriver.com

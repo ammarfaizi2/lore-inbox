@@ -1,60 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263064AbUDRJ3w (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 05:29:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbUDRJ3w
+	id S263107AbUDRJhN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 05:37:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263336AbUDRJhM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 05:29:52 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:35340 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263064AbUDRJ3v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 05:29:51 -0400
-Date: Sun, 18 Apr 2004 10:29:47 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Marc Singer <elf@buici.com>
-Cc: Andrew Morton <akpm@osdl.org>, wli@holomorphy.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: vmscan.c heuristic adjustment for smaller systems
-Message-ID: <20040418102947.A5745@flint.arm.linux.org.uk>
-Mail-Followup-To: Marc Singer <elf@buici.com>,
-	Andrew Morton <akpm@osdl.org>, wli@holomorphy.com,
-	linux-kernel@vger.kernel.org
-References: <20040417193855.GP743@holomorphy.com> <20040417212958.GA8722@flea> <20040417162125.3296430a.akpm@osdl.org> <20040417233037.GA15576@flea> <20040417165151.24b1fed5.akpm@osdl.org> <20040418002343.GA16025@flea>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 18 Apr 2004 05:37:12 -0400
+Received: from postfix4-1.free.fr ([213.228.0.62]:4000 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S263107AbUDRJhJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Apr 2004 05:37:09 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: Oliver Neukum <oliver@neukum.org>, Greg KH <greg@kroah.com>
+Subject: Re: [linux-usb-devel] [PATCH 1/9] USB usbfs: take a reference to the usb device
+Date: Sun, 18 Apr 2004 11:35:28 +0200
+User-Agent: KMail/1.5.4
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Frederic Detienne <fd@cisco.com>
+References: <200404141229.26677.baldrick@free.fr> <200404172217.10994.baldrick@free.fr> <200404172233.03552.oliver@neukum.org>
+In-Reply-To: <200404172233.03552.oliver@neukum.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040418002343.GA16025@flea>; from elf@buici.com on Sat, Apr 17, 2004 at 05:23:43PM -0700
+Message-Id: <200404181136.32308.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 17, 2004 at 05:23:43PM -0700, Marc Singer wrote:
-> All of these tests are performed at the console, one command at a
-> time.  I have a telnet daemon available, so I open a second connection
-> to the target system.  I run a continuous loop of file copies on the
-> console and I execute 'ls -l /proc' in the telnet window.  It's a
-> little slow, but it isn't unreasonable.  Hmm.  I then run the copy
-> command in the telnet window followed by the 'ls -l /proc'.  It works
-> fine.  I logout of the console session and perform the telnet window
-> test again.  The 'ls -l /proc takes 30 seconds.
-> 
-> When there is more than one process running, everything is peachy.
-> When there is only one process (no context switching) I see the slow
-> performance.  I had a hypothesis, but my test of that hypothesis
-> failed.
+On Saturday 17 April 2004 22:33, Oliver Neukum wrote:
+> > riddled with races of this kind.  The simplest solution is to
+> > systematically take ps->dev->serialize when entering the usbfs routines,
+> > which is what my patches do.  This should be regarded as a first step: it
+>
+> What is the alternative?
 
-Guys, this tends to indicate that we _must_ have up to date aging
-information from the PTE - if not, we're liable to miss out on the
-pressure from user applications.  The "lazy" method which 2.4 will
-allow is not possible with 2.6.
+The alternative is to start at the lower levels and work up (while here I propose
+starting at the top levels and working down): trying to lock small regions in many
+places.  I rejected this as too error prone (remember that usbfs is a bit of a mess).
+Anyway, if done correctly the end result would be much the same as applying this
+patch and doing step (2).
 
-This means we must flush the TLB when we mark the PTE old.
+> > gives correctness, but at the cost of a probable performance hit.  In
+> > later steps we can (1) turn dev->serialize into a rwsem
+>
+> Rwsems are _slower_ in the normal case of no contention.
 
-Might be worth reading my thread on linux-mm about this and commenting?
-(hint hint)
+Right, but remember that dev->serialize is per device, not per interface.  So if two
+programs grab different interfaces of the same device using usbfs, or if multiple
+threads in the same program beat on the same interface, then they could lose time
+fighting for dev->serialize when in fact they could run in parallel.  Personally I doubt
+it matters much, but since most of usbfs only requires read access to the data structures
+protected by dev->serialize, it seems logical to use a rwsem.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+> > (2) push the acquisition of dev->serialize down to the lower levels as
+> > they are fixed up.
+>
+> Why?
+
+Efficiency.  The main reason is that the copy to/from user calls are inside the locked region :)
+As for the other places where the lock could be dropped, I guess measurement is required to
+see if it gains anything.
+
+Ciao,
+
+Duncan.

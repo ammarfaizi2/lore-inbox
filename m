@@ -1,49 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265495AbUFSLS2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265489AbUFSLUW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265495AbUFSLS2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 07:18:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265499AbUFSLS2
+	id S265489AbUFSLUW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 07:20:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265492AbUFSLUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 07:18:28 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:6273 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S265495AbUFSLS0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 07:18:26 -0400
-Subject: Re: [PATCH] Stop printk printing non-printable chars
-From: David Woodhouse <dwmw2@infradead.org>
-To: matthew-lkml@newtoncomputing.co.uk
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-In-Reply-To: <20040618205355.GA5286@newtoncomputing.co.uk>
-References: <20040618205355.GA5286@newtoncomputing.co.uk>
-Content-Type: text/plain
-Message-Id: <1087643904.5494.7.camel@imladris.demon.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Sat, 19 Jun 2004 12:18:24 +0100
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sat, 19 Jun 2004 07:20:21 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:7126 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S265489AbUFSLUQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 07:20:16 -0400
+Date: Sat, 19 Jun 2004 13:20:06 +0200 (MEST)
+Message-Id: <200406191120.i5JBK6tL025970@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: ak@suse.de
+Subject: [PATCH][2.4.27-pre6] x86_64 bluesmoke linkage error
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-06-18 at 21:53 +0100, matthew-lkml@newtoncomputing.co.uk
-wrote:
-> The main problem seems to be in ACPI, but I don't see any reason for
-> printk to even consider printing _any_ non-printable characters at all.
-> It makes all characters out of the range 32..126 (except for newline)
-> print as a '?'.
+Andi,
 
-Please don't do that -- it makes printing UTF-8 impossible. While I'd
-not argue that now is the time to start outputting UTF-8 all over the
-place, I wouldn't accept that it's a good time to _prevent_ it either,
-as your patch would do.
+2.4.27-pre6 changed arch/x86_64/kernel/bluesmoke.c to
+reference safe_smp_processor_id(), causing a linkage
+error in UP kernels. Fixed by including <asm/smp.h>.
 
-If you want to post-process printk output, don't do it in the kernel. 
+/Mikael
 
-I'd suggest that in this instance you should be fixing the ACPI code
-instead, so it doesn't print the characters to which you object.
-
--- 
-dwmw2
-
-
+--- linux-2.4.27-pre6/arch/x86_64/kernel/bluesmoke.c.~1~	2004-06-19 12:36:05.000000000 +0200
++++ linux-2.4.27-pre6/arch/x86_64/kernel/bluesmoke.c	2004-06-19 13:05:37.000000000 +0200
+@@ -19,6 +19,7 @@
+ #include <asm/processor.h> 
+ #include <asm/msr.h>
+ #include <asm/kdebug.h>
++#include <asm/smp.h>
+ 
+ static int mce_disabled __initdata;
+ static unsigned long mce_cpus; 

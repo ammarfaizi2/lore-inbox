@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130163AbRADMnt>; Thu, 4 Jan 2001 07:43:49 -0500
+	id <S132675AbRADMpS>; Thu, 4 Jan 2001 07:45:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132675AbRADMni>; Thu, 4 Jan 2001 07:43:38 -0500
-Received: from gidayu.max.uni-duisburg.de ([134.91.242.4]:3344 "HELO
-	gidayu.max.uni-duisburg.de") by vger.kernel.org with SMTP
-	id <S130163AbRADMnY>; Thu, 4 Jan 2001 07:43:24 -0500
-Date: Thu, 4 Jan 2001 13:43:15 +0100
-From: Christian Loth <chris@gidayu.max.uni-duisburg.de>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DHCP Problems with 3com 3c905C Tornado
-Message-ID: <20010104134315.C15097@gidayu.max.uni-duisburg.de>
-In-Reply-To: <20010104123139.A15097@gidayu.max.uni-duisburg.de> <3A546F8E.ABF952F@uow.edu.au>
+	id <S132973AbRADMpI>; Thu, 4 Jan 2001 07:45:08 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:45578 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S132675AbRADMot>;
+	Thu, 4 Jan 2001 07:44:49 -0500
+Date: Thu, 4 Jan 2001 13:44:35 +0100
+From: Andi Kleen <ak@suse.de>
+To: Anton Blanchard <anton@linuxcare.com.au>
+Cc: Andi Kleen <ak@suse.de>, Daniel Phillips <phillips@innominate.de>,
+        ludovic fernandez <ludovic.fernandez@sun.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.0-prerelease: preemptive kernel.
+Message-ID: <20010104134435.A25106@gruyere.muc.suse.de>
+In-Reply-To: <3A53D863.53203DF4@sun.com> <3A5427A6.26F25A8A@innominate.de> <20010104091118.A18973@gruyere.muc.suse.de> <20010104233211.A20942@linuxcare.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3A546F8E.ABF952F@uow.edu.au>; from andrewm@uow.edu.au on Thu, Jan 04, 2001 at 11:41:50PM +1100
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010104233211.A20942@linuxcare.com>; from anton@linuxcare.com.au on Thu, Jan 04, 2001 at 11:32:11PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello again,
-
-On Thu, Jan 04, 2001 at 11:41:50PM +1100, Andrew Morton wrote:
+On Thu, Jan 04, 2001 at 11:32:11PM +1100, Anton Blanchard wrote:
+>  
+> > I think a better way to proceed would be to make semaphores a bit more 
+> > intelligent and turn them into something like adaptive spinlocks and use
+> > them more where appropiate (currently using semaphores usually causes
+> > lots of context switches where some could probably be avoided). Problem
+> > is that for some cases like your producer-consumer pattern (which has been
+> > used previously in unreleased kernel code BTW) it would be a pessimization
+> > to spin, so such adaptive locks would probably need a different name.
 > 
-> hmm..  I've heard of this once before.  Running
-> pump from the RH initscripts?
-> 
+> Like solaris adaptive mutexes? It would be interesting to test,
+> however considering read/write semaphores are hardly ever used these
+> days we want to be sure they are worth it before adding yet another
+> synchronisation primitive.
 
-Yes, but I also tested the normal dhcp client from the dhcpcd (sp?)
-RPM. This one didn't work either.
+A bit similar, yes, but much simpler @-)
 
-> 
-> Did _both_ 3c90x and 3c59x fail, or only 3c59x?
-> 
+The problem is that current Linux semaphores are very costly locks -- they
+always cause a context switch.
 
-Both did not work. And 3c59x from 2.2.18 didn't work
-as well, and as far as I could judge 3c90x is not included
-in the kernel proper, right?
 
-> 
-> Thanks.  I'll try to reproduce this (fat chance :().
-> Is there any chance you can set this arrangement up
-> again in the future?
-
-I fear not :( It's a private project and my
-budget is very very limited. The 3com card is exchanged for the
-DEC Tulip card (actually a Netgear NIC), and I simply can't afford 
-to buy another one, as they're pretty expensive.
-
-- Chris
-
--- 
-Christian Loth
-Coder of 'Project Gidayu'
-Computer Science Student, University of Dortmund
-chris@gidayu.mud.de - http://gidayu.mud.de
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

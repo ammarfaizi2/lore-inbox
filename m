@@ -1,32 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262239AbSJVGE0>; Tue, 22 Oct 2002 02:04:26 -0400
+	id <S262240AbSJVGI6>; Tue, 22 Oct 2002 02:08:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262240AbSJVGEZ>; Tue, 22 Oct 2002 02:04:25 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:13578 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262239AbSJVGEX>;
-	Tue, 22 Oct 2002 02:04:23 -0400
-Date: Mon, 21 Oct 2002 23:09:20 -0700
-From: Greg KH <greg@kroah.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fixes for building kernel using Intel compiler
-Message-ID: <20021022060920.GA3520@kroah.com>
-References: <1035204505.27318.81.camel@irongate.swansea.linux.org.uk> <F2DBA543B89AD51184B600508B68D4000E6AE154@fmsmsx103.fm.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <F2DBA543B89AD51184B600508B68D4000E6AE154@fmsmsx103.fm.intel.com>
-User-Agent: Mutt/1.4i
+	id <S262244AbSJVGI6>; Tue, 22 Oct 2002 02:08:58 -0400
+Received: from pc132.utati.net ([216.143.22.132]:49792 "HELO
+	merlin.webofficenow.com") by vger.kernel.org with SMTP
+	id <S262240AbSJVGI6> convert rfc822-to-8bit; Tue, 22 Oct 2002 02:08:58 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+Reply-To: landley@trommello.org
+To: Christoph Hellwig <hch@infradead.org>,
+       Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: Listmaster request: Blacklist rms@gnu.org
+Date: Mon, 21 Oct 2002 20:15:06 -0500
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <20021021190205.A25380@infradead.org> <Pine.LNX.4.44.0210212014300.338-100000@serv> <20021021193255.A26486@infradead.org>
+In-Reply-To: <20021021193255.A26486@infradead.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210212015.06793.landley@trommello.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 21, 2002 at 08:56:49AM -0700, Nakajima, Jun wrote:
-> 
-> In the kernel, there are several device drivers (ftape-bsm.h, e100.h, for
-> example) are doing this kind of thing (i.e. typedef + attribute). 
+On Monday 21 October 2002 13:32, Christoph Hellwig wrote:
+> On Mon, Oct 21, 2002 at 08:16:15PM +0200, Roman Zippel wrote:
+> > Hi,
+> >
+> > On Mon, 21 Oct 2002, Christoph Hellwig wrote:
+> > > Well, _he_ started that thread, and the only posts to his list ever
+> > > where to start such threads.
+> >
+> > No, he didn't. He just made the mistake to choose another subject.
+>
+> HE started the original thread, and he changed the subject to get
+> out of the blocking.
 
-All the more reason to not use typedefs in the kernel :)
+"Maaaa!  He started it!"
 
-(sorry, I could not help myself...)
+:P
 
-greg k-h
+And here I thought that particular flamewar started back on October 4:
+
+http://lists.insecure.org/lists/linux-kernel/2002/Oct/1518.html
+
+Rob
+

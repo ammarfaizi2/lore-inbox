@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264968AbUEQL7z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264980AbUEQL7j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264968AbUEQL7z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 07:59:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264977AbUEQL7z
+	id S264980AbUEQL7j (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 07:59:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264977AbUEQL7j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 07:59:55 -0400
-Received: from [144.51.25.10] ([144.51.25.10]:48543 "EHLO epoch.ncsc.mil")
-	by vger.kernel.org with ESMTP id S264968AbUEQL7x (ORCPT
+	Mon, 17 May 2004 07:59:39 -0400
+Received: from taco.zianet.com ([216.234.192.159]:14609 "HELO taco.zianet.com")
+	by vger.kernel.org with SMTP id S264982AbUEQL6f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 07:59:53 -0400
-Subject: Re: [PATCH] scaled-back caps, take 4
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Andy Lutomirski <luto@myrealbox.com>
-Cc: Chris Wright <chrisw@osdl.org>,
-       Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Valdis.Kletnieks@vt.edu
-In-Reply-To: <40A86789.6030006@myrealbox.com>
-References: <fa.id6it11.41id3h@ifi.uio.no> <fa.gf5v6pu.c2mkrq@ifi.uio.no>
-	 <40A86789.6030006@myrealbox.com>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1084795158.27531.10.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 17 May 2004 07:59:18 -0400
+	Mon, 17 May 2004 07:58:35 -0400
+From: Steven Cole <elenstev@mesatop.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s && s->tree' failed: The saga continues.)
+Date: Mon, 17 May 2004 05:58:03 -0600
+User-Agent: KMail/1.6.1
+Cc: torvalds@osdl.org, lm@bitmover.com, wli@holomorphy.com, hugh@veritas.com,
+       adi@bitmover.com, scole@lanl.gov, support@bitmover.com,
+       linux-kernel@vger.kernel.org
+References: <200405132232.01484.elenstev@mesatop.com> <20040517002506.34022cb8.akpm@osdl.org> <20040517004626.4377a496.akpm@osdl.org>
+In-Reply-To: <20040517004626.4377a496.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200405170558.04065.elenstev@mesatop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-05-17 at 03:19, Andy Lutomirski wrote:
-> So, if the core changes were merged, my caps semantics could be maintained 
-> as a (fairly simple) separate LSM.  That prevents it working with SELinux 
-> or other (non-stacking) LSMs loaded.
+On Monday 17 May 2004 01:46 am, Andrew Morton wrote:
+> Andrew Morton <akpm@osdl.org> wrote:
+> >
+> >  If an application does mmap(MAP_SHARED) of, say, a 2048 byte file and then
+> >  extends it:
+> > 
+> >  	p = mmap(..., fd, ...);
+> >  	ftructate(fd, 4096);
+> >  	p[3000] = 1;
+> > 
+> >  A racing block_write_full_page() could fail to notice the extended i_size
+> >  and would decide to zap those 2048 bytes anyway.
+> 
+> This should plug it.
 
-SELinux supports stacking with the existing capability module (SELinux
-registers first, then the capability module registers as a secondary
-module under it).
+I'll test this tonight when I get back to this home machine.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Thanks, and thanks to Bitmover for providing the resources to help chase this bug.
 
+Steven

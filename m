@@ -1,71 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265390AbUEUFFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265214AbUEUFbq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265390AbUEUFFi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 01:05:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265402AbUEUFFi
+	id S265214AbUEUFbq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 01:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265360AbUEUFbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 01:05:38 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:15072 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S265390AbUEUFFc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 01:05:32 -0400
-Date: Fri, 21 May 2004 01:06:23 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH][2.6-mm] Make i386 boot not so chatty
-In-Reply-To: <Pine.LNX.4.58.0405210032160.2864@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.58.0405210101200.2864@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.58.0405210032160.2864@montezuma.fsmlabs.com>
+	Fri, 21 May 2004 01:31:46 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:29070 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S265214AbUEUFbn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 01:31:43 -0400
+Message-ID: <40AE3D15.3838AED7@us.ibm.com>
+Date: Fri, 21 May 2004 12:32:05 -0500
+From: "Steve French (IBM LTC)" <smfltc@us.ibm.com>
+X-Mailer: Mozilla 4.72 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: viro@parcelfarce.linux.theplanet.co.uk, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re:[WTF] CIFS bugs galore
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sample boot output from an SMP box, i trimmed out the rest, lest i hit
-some sort of LKML posting limit...
+> fs/cifs/dir.c::build_path_from_dentry() goes from dentry to fs root
+> counting path length.  Then it does kmalloc().  Then it proceeds
+> to build said path in the buffer it had just allocated.
+...
+> buffer overrun in kernel mode with user-controlled contents"?
+Not obvious at first glance that it buffer overruns since as it goes
+through each path component the strcpy of the next component won't
+happen if namelen is going negative. I agree that the path could end up
+invalid due to an overlapping rename request of a longer name e.g. while
+this task is waiting for kmalloc to complete.   In CIFS full path names
+(not path components relative to an inode or dentry) must be presented
+to the server, and the server can not be locked,  so a parent directory
+can get renamed from another client while our open is going on too.   I
+doubt that I want to lock the client kernel across this common call
+(build a full path from the dentry), is there a sem I should be taking
+across this (seems impractical to take i_sems for the parents to prevent
+rename)?
 
-Linux version 2.6.6-mm4 (zwane@montezuma.fsmlabs.com) (gcc version 3.3.1
-20030930 (Red Hat Linux 3.3.1-6)) #7 SMP Thu May 20 23:03:52 EDT 2004
-0MB HIGHMEM available.
-192MB LOWMEM available.
-On node 0 totalpages: 49152
-  DMA zone: 4096 pages, LIFO batch:1
-  Normal zone: 45056 pages, LIFO batch:11
-  HighMem zone: 0 pages, LIFO batch:1
-ACPI: Unable to locate RSDP
-Intel MultiProcessor Specification v1.4
-Processor #0 5:2 APIC version 16
-Processor #3 5:2 APIC version 16
-Processor #4 5:2 APIC version 16
-Unknown bustype XPRESS - ignoring
-Enabling APIC mode:  Flat.  Using 2 I/O APICs
-Processors: 3
-Built 1 zonelists
-Kernel command line: auto BOOT_IMAGE=linux-2.6 ro root=801
-BOOT_FILE=/boot/vmlinuz panic=120 noapic nmi_watchdog=1 profile=2 console=tty1 console=ttyS0,38400 noirqbalance
-kernel profiling enabled
-PID hash table entries: 1024 (order 10: 8192 bytes)
-Detected 133.393 MHz processor.
-Using tsc for high-res timesource
-Console: colour VGA+ 80x25
-Memory: 183056k/196608k available (4402k kernel code, 12892k reserved,
-1335k data, 488k init, 0k highmem)
-Calibrating delay loop... 254.97 BogoMIPS
-Security Scaffold v1.0.0 initialized
-Capability LSM initialized
-Dentry cache hash table entries: 32768 (order: 5, 131072 bytes)
-Inode-cache hash table entries: 16384 (order: 4, 65536 bytes)
-Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
-POSIX conformance testing by UNIFIX
-CPU0: Intel Pentium 75 - 200 stepping 0c
-Calibrating delay loop... 266.24 BogoMIPS
-Calibrating delay loop... 265.21 BogoMIPS
-Total of 3 processors activated (786.43 BogoMIPS).
-Brought up 3 CPUs
-NET: Registered protocol family 16
-PCI: PCI BIOS revision 2.10 entry at 0xfca41, last bus=1
-ACPI: Subsystem revision 20040326
-ACPI: Interpreter disabled.
-SCSI subsystem initialized
+>While we are at it, what exactly would happen if I do lookup on a\\b?
+The server likely will reject that ... so I would expect a path not
+found or invalid path error to be returned by the server and the lookup
+will fail.
+
+> Speaking of which, what exactly happens if rename() happens between
+> the time when we build the pathname and time when we send it to
+Path not found (or file not found) error will be returned by the server,
+so the open will fail.  This does not automatically invalidate dentries
+for the parent directory(ies) - which may have been the thing renamed,
+but the dentries (presumably similar to NFS in this respect) will time
+out in a short period and revalidate will invalidate them then.
+
+> BTW, what the hell is your ->open() doing checking if ->private_data
+>is non-NULL?
+I have now removed the check.   This is an unnecessary, but harmless
+check now that this function is only used from the vfs_open path (and is
+not used to reopen existing files after server failure)
+
+> In cifs_partialpagewrite() you have
+I now have fixed that pointer use before pointer check problem.
+
+> if you can read the fragments like
+I have a rewrite of that function that is much easier to read and better
+structured - the cifs readdir code you is, as you noted, hard to read
+and too long.   I have not submitted the change yet, since I first would
+like to try experiments with two different approaches to readdir to see
+if I want to abandon the approach I am using.    Readdir is very hard to
+implement using the CIFS protocol, not just due to the protocols use of
+"resume keys" but more importantly because the server can't usually give
+me unique inode numbers, and also because there are tradeoffs in whether
+to request the minimal amount of information (file name, type) or all
+inode information (to improve performance) - and these tradeoffs are
+different depending on the protocol dialect negotiated.   In addition
+the directory contents can also change in the middle of the search which
+can also affect CIFS search resumption..   The NFS approach of having a
+private readdir cache (in effect) may be best.
+
+Thanks for pointing these issues out.  CIFS (especially to non-Samba
+servers and NAS filers) is hard to map to POSIX semantics.
+
+At the moment I am getting network errors trying to checkin a few of
+your suggested changes to the development tree at
+bk://cifs.bkbits.net/linux-2.5cifs , but when I get back Saturday will
+try again.
 

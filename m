@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266330AbUBMB7b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 20:59:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266646AbUBMB7b
+	id S266645AbUBMCIo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 21:08:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266660AbUBMCIo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 20:59:31 -0500
-Received: from mail.shareable.org ([81.29.64.88]:18306 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S266330AbUBMB7a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 20:59:30 -0500
-Date: Fri, 13 Feb 2004 01:57:57 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Valdis.Kletnieks@vt.edu, Michael Frank <mhf@linuxmail.org>,
-       Nick Piggin <piggin@cyberone.com.au>,
-       Giuliano Pochini <pochini@shiny.it>, Andrea Arcangeli <andrea@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ext2/3 performance regression in 2.6 vs 2.4 for small interl
-Message-ID: <20040213015757.GC25499@mail.shareable.org>
-References: <XFMail.20040212104215.pochini@shiny.it> <402B5502.2010207@cyberone.com.au> <200402130105.22554.mhf@linuxmail.org> <200402121718.i1CHITFf018390@turing-police.cc.vt.edu> <20040212205503.GA13934@hh.idb.hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040212205503.GA13934@hh.idb.hist.no>
-User-Agent: Mutt/1.4.1i
+	Thu, 12 Feb 2004 21:08:44 -0500
+Received: from mail4-141.ewetel.de ([212.6.122.141]:968 "EHLO mail4.ewetel.de")
+	by vger.kernel.org with ESMTP id S266645AbUBMCIn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 21:08:43 -0500
+To: "Nick Bartos" <spam99@2thebatcave.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: getting usb mass storage to finish before running init?
+In-Reply-To: <1oAMR-6St-13@gated-at.bofh.it>
+References: <1oAMR-6St-13@gated-at.bofh.it>
+Date: Fri, 13 Feb 2004 03:09:45 +0100
+Message-Id: <E1ArSm1-0003ei-Pv@localhost>
+From: der.eremit@email.de
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
-> Something similiar could be done for io niceness.  If we run out of
-> normal priority io, how about not issuing the low priority io
-> right away.  Anticipate there will be more high-priority io
-> and wait for some idle time before letting low-priority
-> requests through.  And of course some maximum wait to prevent
-> total starvation.
+On Fri, 13 Feb 2004 03:00:21 +0100, you wrote in linux.kernel:
 
-The problem is quite similar to scheduling for quality on a network
-device.  Once a packet has started going it, usually you cannot abort
-the packet for a higher priority one.
+> I can put a sleep in there but that is sloppy, and can not really be
+> relied apon (since technically there is no way I can know how long the
+> detection phase will take), and also I may be waisting time (which I don't
+> want to, I want a fast booting router).
 
-I thought there was a CBQ I/O scheduling patch or such to offer some
-kind of I/O niceness these days?
+Check available devices for root filesystem (in case you're booting
+from IDE). If it's not there, wait a moment, then look for additional
+devices. If nothing shows up, repeat.
 
--- Jamie
+-- 
+Ciao,
+Pascal

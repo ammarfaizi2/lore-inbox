@@ -1,63 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272754AbRIGQMW>; Fri, 7 Sep 2001 12:12:22 -0400
+	id <S272755AbRIGQNm>; Fri, 7 Sep 2001 12:13:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272756AbRIGQMM>; Fri, 7 Sep 2001 12:12:12 -0400
-Received: from Morgoth.esiway.net ([193.194.16.157]:32526 "EHLO
-	Morgoth.esiway.net") by vger.kernel.org with ESMTP
-	id <S272754AbRIGQMF>; Fri, 7 Sep 2001 12:12:05 -0400
-Date: Fri, 7 Sep 2001 18:12:20 +0200 (CEST)
-From: Marco Colombo <marco@esi.it>
-To: "Barry K. Nathan" <barryn@pobox.com>
-cc: <_deepfire@mail.ru>, <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Howl of soul...
-In-Reply-To: <20010826220645.6D89BB9F08@pobox.com>
-Message-ID: <Pine.LNX.4.33.0109071806120.8745-100000@Megathlon.ESI>
+	id <S272756AbRIGQNc>; Fri, 7 Sep 2001 12:13:32 -0400
+Received: from infinity.ciit.y12.doe.gov ([134.167.144.20]:64786 "EHLO
+	infinity.ciit.y12.doe.gov") by vger.kernel.org with ESMTP
+	id <S272755AbRIGQNP>; Fri, 7 Sep 2001 12:13:15 -0400
+Message-ID: <3B98F22A.4CA459F3@ciit.y12.doe.gov>
+Date: Fri, 07 Sep 2001 12:13:30 -0400
+From: Lawrence MacIntyre <lpz@ciit.y12.doe.gov>
+Organization: Center for Information Infrastructure Technology
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-SGI_XFS_1.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: hamachi (GNIC-II) and 2.4.9-ac9
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Aug 2001, Barry K. Nathan wrote:
+Alan:
 
-> > > there's nothing wrong with the chipset/controller; isn't this thread
-> > > about the well-known DTLA problem?  if so, then what mode you use
-> > > is completely irrelevant, since the physical media is degrading.
-> >
-> >      i feel like the media isn`t downgrading because
-> >  the badblocks _arent_ physical: low-level drive
-> >  reformat doesnt show anything.
->
-> A low-level format (using IBM DFT) is going to *silently* remap bad
-> parts of the disk. It's only going to complain once it's no longer
-> possible to remap the bad sectors. So, just because the low-level format
-> doesn't complain does not mean that there is no media degradation!
->
-> Also, many people seem to be correlating it to heat, and possibly to
-> flaws in IBM's implementation of glass platters in these drives. For
-> example, see
-> http://www.storagereview.com/welcome.pl?/http://www.storagereview.com/jive/sr/thread.jsp?forum=1&thread=16057
->
-> -Barry K. Nathan <barryn@pobox.com>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+2.4.3-12 is the kernel in the RH7.1 alpha distribution.  I'll get 2.4.4
+- 2.4.8 and see where the changes occurred.
 
-Just to add something to the noise, I'm so happy with DTLA-307030's
-that I'm not even considering buying something different. As I see it,
-there's simply no competing product, full stop.  Recently I've bought
-a 41Gb 60GXP, and I'm happy with that too.  It is true that I usually
-stick with the same HW for a long while, so maybe I'm just being lucky.
+> except that the hamachi won't work.  ifconfig shows no packets received,
+> but some errors, there are no strange messages in /var/log/messages.  I
+> then built the same kernel on the intel box, and the same thing
 
-.TM.
+Curious. There are no hamachi driver differences between 2.4.9 and
+2.4.9-ac
+so the obvious question is which was the last version it did work ?
 -- 
-      ____/  ____/   /
-     /      /       /			Marco Colombo
-    ___/  ___  /   /		      Technical Manager
-   /          /   /			 ESI s.r.l.
- _____/ _____/  _/		       Colombo@ESI.it
-
-
+                                 Lawrence
+                                    ~
+------------------------------------------------------------------------
+ Lawrence MacIntyre    Center for Information Infrastructure Technology
+ 865.574.8696   lpz@ciit.y12.doe.gov   http://www.ciit.y12.doe.gov/~lpz

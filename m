@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265151AbTLWPFq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 10:05:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265154AbTLWPFp
+	id S261152AbTLWPMN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 10:12:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbTLWPLx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 10:05:45 -0500
-Received: from 12-211-64-149.client.attbi.com ([12.211.64.149]:18563 "EHLO
-	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
-	id S265151AbTLWPFo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 10:05:44 -0500
-Message-ID: <3FE859C6.3070804@comcast.net>
-Date: Tue, 23 Dec 2003 07:05:42 -0800
-From: Walt H <waltabbyh@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031121
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Nicklas Bondesson <nikomail@hotmail.com>
-Cc: linux-kernel@vger.kernel.org, "'Andre Hedrick'" <andre@linux-ide.org>
-Subject: Re: Error mounting root fs on 72:01 using Promise FastTrak TX2000
- (PDC20271)
-References: <BAY8-DAV6OZtJiGB75o000116e4@hotmail.com>
-In-Reply-To: <BAY8-DAV6OZtJiGB75o000116e4@hotmail.com>
-Content-Type: text/plain; charset=us-ascii
+	Tue, 23 Dec 2003 10:11:53 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:64917 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S261262AbTLWPLo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 10:11:44 -0500
+Subject: Re: [PATCH 2/2][RFC] Add dm-crypt target
+From: Christophe Saout <christophe@saout.de>
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <m3d6aga3kr.fsf@averell.firstfloor.org>
+References: <15G6g-4oz-17@gated-at.bofh.it> <15Gg9-4H6-25@gated-at.bofh.it>
+	 <m3d6aga3kr.fsf@averell.firstfloor.org>
+Content-Type: text/plain
+Message-Id: <1072192299.5440.3.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 23 Dec 2003 16:11:40 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicklas Bondesson wrote:
-> The fix for me was to disable all "Power Management" in the kernel and
-> re-compile it. Works like a charm now :)
-> 
-> Hope this can help anyone else with the same problem as me. But again, I
-> think someone should take a look at it cos I think this is a bug for sure.
-> 
-> /Nicke
-> 
+Am Mo, den 22.12.2003 schrieb Andi Kleen um 23:29:
 
-Nicke,
+> > this is the actual dm-crypt target. It uses cryptoapi to achive the same
+> > goal as cryptoloop.
+>
+> Is the IV argument compatible to block backed loop? 
 
-Glad to hear you got it working. Check out http://acpi.sourceforge.net for acpi
-related information. If you can get it working with acpi=off and it doesn't when
-you don't pass that flag, I'd say that there's at least something fishy
-happening with acpi on your machine.
+Yes. You can mount filesystems created on cryptoloop devices with
+dm-crypt.
 
-As for getting it running on 2.6 with dm, the only way I know of is to create a
-custom initrd file by hand. You have to compile the lvm-dm tools statically and
-create mappings first. Then in the linuxrc script, you need run dmsetup and
-point it at the config files to create the devices. Until this is handled better
-it's not really recommended. Good luck,
+There are plans to go beyond what cryptoloop can do (without giving up
+compatibility) though, like being able to use a hash of the sector
+number as iv using a digest algorithm for better security.
 
--Walt
-
+--
+Christophe Saout <christophe@saout.de>
+Please avoid sending me Word or PowerPoint attachments.
+See http://www.fsf.org/philosophy/no-word-attachments.html
 

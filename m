@@ -1,115 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269477AbUJAIrA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269508AbUJAJHC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269477AbUJAIrA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 04:47:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269583AbUJAIrA
+	id S269508AbUJAJHC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 05:07:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269532AbUJAJHB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 04:47:00 -0400
-Received: from ozlabs.org ([203.10.76.45]:11756 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S269532AbUJAIqw (ORCPT
+	Fri, 1 Oct 2004 05:07:01 -0400
+Received: from mail.dif.dk ([193.138.115.101]:58295 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S269508AbUJAJG4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 04:46:52 -0400
-Date: Fri, 1 Oct 2004 18:45:14 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: Anton Blanchard <anton@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Paul Mackerras <paulus@samba.org>, Olaf Hering <olh@suse.de>,
-       linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org
-Subject: [PPC64] Change bad choice of VSID_MULTIPLIER
-Message-ID: <20041001084514.GB19046@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-	Anton Blanchard <anton@samba.org>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Paul Mackerras <paulus@samba.org>, Olaf Hering <olh@suse.de>,
-	linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 1 Oct 2004 05:06:56 -0400
+Date: Fri, 1 Oct 2004 11:04:23 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: George Anzinger <george@mvista.com>
+Cc: Christoph Lameter <clameter@sgi.com>, Ulrich Drepper <drepper@redhat.com>,
+       johnstul@us.ibm.com, Ulrich.Windl@rz.uni-regensburg.de, jbarnes@sgi.com,
+       linux-kernel@vger.kernel.org, libc-alpha@sources.redhat.com
+Subject: Re: patches inline in mail
+In-Reply-To: <415B4FEE.2000209@mvista.com>
+Message-ID: <Pine.LNX.4.61.0410011054210.3887@jjulnx.backbone.dif.dk>
+References: <B6E8046E1E28D34EB815A11AC8CA312902CD3264@mtv-atc-605e--n.corp.sgi.com>
+ <Pine.LNX.4.58.0409240508560.5706@schroedinger.engr.sgi.com>
+ <4154F349.1090408@redhat.com> <Pine.LNX.4.58.0409242253080.13099@schroedinger.engr.sgi.com>
+ <41550B77.1070604@redhat.com> <B6E8046E1E28D34EB815A11AC8CA312902CD327E@mtv-atc-605e--n.corp.sgi.com>
+ <Pine.LNX.4.58.0409271344220.32308@schroedinger.engr.sgi.com>
+ <4159B920.3040802@redhat.com> <Pine.LNX.4.58.0409282017340.18604@schroedinger.engr.sgi.com>
+ <415AF4C3.1040808@mvista.com> <Pine.LNX.4.58.0409291054230.25276@schroedinger.engr.sgi.com>
+ <415B0C9E.5060000@mvista.com> <Pine.LNX.4.61.0409292143050.2744@dragon.hygekrogen.localhost>
+ <415B4FEE.2000209@mvista.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew/Linus, please apply:
+On Wed, 29 Sep 2004, George Anzinger wrote:
 
-We recently changed the VSID allocation on PPC64 to use a new scheme
-based on a multiplicative hash.  It turns out our choice of multiplier
-(the largest 28-bit prime) wasn't so great: with large contiguous
-mappings, we can get very poor hash scattering.  In particular earlier
-machines (without 16M pages) which had a reasonable about of RAM (>2G
-or so) wouldn't boot, because the linear mapping overflowed some hash
-buckets.
+> Date: Wed, 29 Sep 2004 17:14:38 -0700
+> From: George Anzinger <george@mvista.com>
+> To: Jesper Juhl <juhl-lkml@dif.dk>
+> Cc: Christoph Lameter <clameter@sgi.com>, Ulrich Drepper <drepper@redhat.com>,
+>     johnstul@us.ibm.com, Ulrich.Windl@rz.uni-regensburg.de, jbarnes@sgi.com,
+>     linux-kernel@vger.kernel.org, libc-alpha@sources.redhat.com
+> Subject: Re: patches inline in mail
+> 
+> Jesper Juhl wrote:
+> > Unrelated to the CLOCK_PROCESS/THREAD_CPUTIME_ID discussion, just wanted to
+> > comment on the 'patches inline vs attached' bit.
+> > 
+> > On Wed, 29 Sep 2004, George Anzinger wrote:
+> > 
+> > 
+> > > Christoph Lameter wrote:
+> > > 
+> > > > On Wed, 29 Sep 2004, George Anzinger wrote:
+> > > > 
+> > > > 
+> > > > > Christoph Lameter wrote:
+> > > > > 
+> > > > > Please, when sending patches, attach them.  This avoids problems with
+> > > > > mailers,
+> > > > > on both ends, messing with white space.  They still appear in line, at
+> > > > > least in
+> > > > > some mailers (mozilla in my case).
+> > > > 
+> > > > 
+> > > > The custom on lkml, for Linus and Andrew is to send them inline. I also
+> > > > prefer them inline. Will try to remember sending attachments when
+> > > > sending a
+> > > > patch to you.
+> > > 
+> > > I think they WILL be inline as well as attached if you attach them.  The
+> > > difference is that in both presentations neither mailer will mess with
+> > > white
+> > > space.  This means that long lines will not be wrapped and tabs vs space
+> > > will
+> > > not be changed.
+> > > 
+> > 
+> > Not all mailers show attachments inline. Mailers that do usually depend on
+> > the mimetype of the attachment when choosing to show inline or not. pine (my
+> > personal favorite) show attachments with a text/plain and similar mime-type
+> > inline, but a not all mailers use that (I see a lot of attached patches on
+> > lkml that don't show inline, and that's somewhat annoying).
+> 
+> So we should make sure that the mailer uses the right mime-type.  I suppose
+> that depends on the mailer?
+> > 
+> > It's also harder to reply and comment on bits of a patch when your mailer
+> > does not include attachments inline in a reply (even if it did show them
+> > inline while reading the mail).
+> > Having to save the patch, open it in a text editor and then cut'n'paste bits
+> > of it into the reply mail is a pain. Same goes for having to save & open it
+> > in order to read it in the first place.
+> 
+> We agree.  Still, I have been bitten too many times by misshandled white space
+> to trust pure inlineing.  Likewise on picking it up one would usually past it
+> in the mail (I suppose) where as the attachment is through the mailer and less
+> prone to missing a character.
+> 
 
-This patch changes the multiplier to something which seems to work
-better (it is, rather arbitrarily, the median of the primes between
-2^27 and 2^28).  Some more theory should almost certainly go into the
-choice of this constant, to avoid more pathological cases.  But for
-now, this choice fixes a serious bug, and seems to do at least as well
-at scattering as the old choice on a handful of simple testcases.
-
-Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
-
-Index: working-2.6/include/asm-ppc64/mmu_context.h
-===================================================================
---- working-2.6.orig/include/asm-ppc64/mmu_context.h	2004-09-20 10:12:50.000000000 +1000
-+++ working-2.6/include/asm-ppc64/mmu_context.h	2004-10-01 18:28:01.565963320 +1000
-@@ -108,11 +108,10 @@
-  *
-  * This scramble is only well defined for proto-VSIDs below
-  * 0xFFFFFFFFF, so both proto-VSID and actual VSID 0xFFFFFFFFF are
-- * reserved.  VSID_MULTIPLIER is prime (the largest 28-bit prime, in
-- * fact), so in particular it is co-prime to VSID_MODULUS, making this
-- * a 1:1 scrambling function.  Because the modulus is 2^n-1 we can
-- * compute it efficiently without a divide or extra multiply (see
-- * below).
-+ * reserved.  VSID_MULTIPLIER is prime, so in particular it is
-+ * co-prime to VSID_MODULUS, making this a 1:1 scrambling function.
-+ * Because the modulus is 2^n-1 we can compute it efficiently without
-+ * a divide or extra multiply (see below).
-  *
-  * This scheme has several advantages over older methods:
-  *
-Index: working-2.6/include/asm-ppc64/mmu.h
-===================================================================
---- working-2.6.orig/include/asm-ppc64/mmu.h	2004-09-20 10:12:50.000000000 +1000
-+++ working-2.6/include/asm-ppc64/mmu.h	2004-10-01 18:28:01.566963168 +1000
-@@ -202,7 +202,7 @@
- #define SLB_VSID_KERNEL		(SLB_VSID_KP|SLB_VSID_C)
- #define SLB_VSID_USER		(SLB_VSID_KP|SLB_VSID_KS)
- 
--#define VSID_MULTIPLIER	ASM_CONST(268435399)	/* largest 28-bit prime */
-+#define VSID_MULTIPLIER	ASM_CONST(200730139)	/* 28-bit prime */
- #define VSID_BITS	36
- #define VSID_MODULUS	((1UL<<VSID_BITS)-1)
- 
-Index: working-2.6/arch/ppc64/kernel/head.S
-===================================================================
---- working-2.6.orig/arch/ppc64/kernel/head.S	2004-09-24 10:14:09.000000000 +1000
-+++ working-2.6/arch/ppc64/kernel/head.S	2004-10-01 18:34:48.870941232 +1000
-@@ -551,14 +551,14 @@
- 	.llong	0		/* Reserved */
- 	.llong	0		/* Reserved */
- 	.llong	(KERNELBASE>>SID_SHIFT)
--	.llong	0x40bffffd5	/* KERNELBASE VSID */
-+	.llong	0x408f92c94	/* KERNELBASE VSID */
- 	/* We have to list the bolted VMALLOC segment here, too, so that it
- 	 * will be restored on shared processor switch */
- 	.llong	(VMALLOCBASE>>SID_SHIFT)
--	.llong	0xb0cffffd1	/* VMALLOCBASE VSID */
-+	.llong	0xf09b89af5	/* VMALLOCBASE VSID */
- 	.llong	8192		/* # pages to map (32 MB) */
- 	.llong	0		/* Offset from start of loadarea to start of map */
--	.llong	0x40bffffd50000	/* VPN of first page to map */
-+	.llong	0x408f92c940000	/* VPN of first page to map */
- 
- 	. = 0x6100
- 
+When I include patches inline in mails I use pine's "Read File" 
+functionality. Pressing CTRL+R and then specifying a filename causes pine 
+to read the file and place it inline exactely as read from the file. So no 
+whitespace damage by cut'n'paste. 
+I don't know, but I would suspect that other mailers would have similar 
+functionality.??
 
 
+> The best answer, I think, is attachments that show as inline AND stay that way
+> on the reply.
+> 
+That would be just as fine as plain inline, but I think it'll be difficult 
+to find a way to do that that works universally with all mailers.
 
--- 
-David Gibson			| For every complex problem there is a
-david AT gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+
+--
+Jesper Juhl
+
+

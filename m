@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264896AbTIDUED (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 16:04:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264902AbTIDUED
+	id S264830AbTIDT62 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 15:58:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264835AbTIDT62
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 16:04:03 -0400
-Received: from fw.osdl.org ([65.172.181.6]:50358 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264896AbTIDUEB (ORCPT
+	Thu, 4 Sep 2003 15:58:28 -0400
+Received: from fw.osdl.org ([65.172.181.6]:52913 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264830AbTIDT61 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 16:04:01 -0400
-Subject: Call for Presentations
-From: Mika Kukkonen <mika@osdl.org>
-To: CGL Discussion <cgl_discussion@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: OSDL
-Message-Id: <1062705840.22078.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-0.fdr.0.rh90) 
-Date: 04 Sep 2003 13:04:00 -0700
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Sep 2003 15:58:27 -0400
+Date: Thu, 4 Sep 2003 12:55:53 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Pavel Machek <pavel@suse.cz>
+cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp: revert to 2.6.0-test3 state
+In-Reply-To: <20030904182606.GB27650@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.33.0309041247380.940-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-The OSDL Carrier Grade Linux workgroup is having an open, one-day
-"miniconference" in Beaverton, Oregon, at 23rd October. By open we
-mean that anybody who sends me (mika@osdl.org) RSVP can show up to
-listen to these presentations.
+> I've said I want the patch reverted. I still want that, because you
+> changed way too quickly with too little testing. That does not mean
+> I'm not going to accept your patches in future. (In fact, my plan is
+> to  get -test3 version of swsusp back for -test5, then fix up driver
+> model/swsusp until we have -test3 functionality back, then start
+> taking your patches). 
 
-More importantly, while we do have several CGL people lined up for
-presentations, I would also like to invite people not involved in
-CGL to propose presentations they would like to give in this event.
+That's fine. Do what you want at your own pace, with your own code. 
 
-While anything relating to kernel is interesting, the preference
-will be given to topics that touch one or more requirements in our
-v2 public draft:
-http://www.osdl.org/docs/carrier_grade_linux_requirements_definition___version_20_final_public_draft.pdf
- 
-The presentations should be in range of 30-60 minutes, and allow 
-room for discussion. The presentations will be selected by the
-CGL tech board in their 16th September meeting, so please send
-your proposal in before that. Please also say if you need help
-in getting to Beaverton; OSDL _might_ be willing to cover your
-travel expenses ;)
+I don't think you understood my assertion of not working with you, though.  
+I'm not going to wait around for you to merge my patches, or take more
+abuse from you. I have better things to do, and a stringent time frame in
+which to do them.
 
-Please send all inquiries directly to me. Thanks.
+I recommend either a) accepting my changes and fixes, and help merge
+Nigel's 2.4 changes into the base or b) accepting the fork, merging
+Nigel's changes, and later trying to merge the two source bases. 
 
---MiKu
 
+	Pat
 

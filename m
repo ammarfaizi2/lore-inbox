@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287858AbSBCW7K>; Sun, 3 Feb 2002 17:59:10 -0500
+	id <S287866AbSBCXf3>; Sun, 3 Feb 2002 18:35:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287860AbSBCW7A>; Sun, 3 Feb 2002 17:59:00 -0500
-Received: from femail19.sdc1.sfba.home.com ([24.0.95.128]:55439 "EHLO
-	femail19.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S287858AbSBCW6m>; Sun, 3 Feb 2002 17:58:42 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS
-Date: Sun, 3 Feb 2002 17:59:47 -0500
-X-Mailer: KMail [version 1.3.1]
+	id <S287868AbSBCXfT>; Sun, 3 Feb 2002 18:35:19 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:36114 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S287866AbSBCXfB>;
+	Sun, 3 Feb 2002 18:35:01 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m1elk7d37d.fsf@frodo.biederman.org> <20020203221750.HMXG18301.femail20.sdc1.sfba.home.com@there> <3C5DB8B7.4030304@zytor.com>
-In-Reply-To: <3C5DB8B7.4030304@zytor.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020203225841.IBCK18525.femail19.sdc1.sfba.home.com@there>
+Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does 
+In-Reply-To: Your message of "Fri, 01 Feb 2002 14:42:11 BST."
+             <200202011342.g11DgBfd001291@tigger.cs.uni-dortmund.de> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 04 Feb 2002 10:34:48 +1100
+Message-ID: <15269.1012779288@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 03 February 2002 05:24 pm, H. Peter Anvin wrote:
-> Rob Landley wrote:
-> > And el-torito bootable CDs basically glue a floppy image onto the front
-> > of the CD and lie to the bios to say "oh yeah, I'm a floppy, boot from
-> > me". Luckily, they can use the old 2.88 "extended density" floppy
-> > standard IBM tried to launch years ago which never got anywhere, but
-> > which most BIOS's recognize.  But that's still a fairly small place to
-> > try to stick a whole system...
+On Fri, 01 Feb 2002 14:42:11 +0100, 
+Horst von Brand <brand@jupiter.cs.uni-dortmund.de> wrote:
+>Keith Owens <kaos@ocs.com.au> said:
+>> I know, it makes it even harder to see what the initialization order
+>> is.  Some are controlled by the Makefile/subdirs order, some by special
+>> calls in the code.
 >
-> They can be; they can also run in a mode where they can access arbitrary
-> blocks on the CD (ISOLINUX runs in this mode.)
->
-> 	-hpa
+>Just to repeat myself: This is clearly a problem for tsort(1): Give
+>restrictions of the form "This has to come after that" (perhaps a special
+>comment at the start of the file containing the init function?), tsort that
+>and pick the order out of the result. Should be a few lines of script. No
+>central repository for the dependencies, no messing around with half the
+>world to fix dependencies. Plus they become explicit, which they aren't
+>today.
 
-You can pivot_root after the bios hands control over to the kernel, sure.  
-But if the bios can actually boot from arbitrary blocks on the CD before the 
-kernel takes over, this is news to me.  And for the kernel to read from the 
-CD, it needs its drivers already loaded for it, so they have to be in that 
-2.88 megs somewhere.  (Statically linked, ramdisk, etc.)
+Just to repeat myself: That is exactly what I want to do.  Linus vetoed
+it in October 2000.
 
-I was just pointing out that small boot environments weren't going away any 
-time soon, even if floppy drivers were to finally manage it.  When you 
-install your system, the initial image you bootstrap from is generally tiny.
-
-Now I'm not so familiar with that etherboot stuff, intel's whatsis 
-specification (PXE?) for sucking a bootable image through the network.  All 
-I've ever seen that boot is a floppy image, but I don't know if that's a 
-limitation in the spec or just the way people are using it...
-
-And of course you could always do some variant of two kernel monte...
-
-Rob

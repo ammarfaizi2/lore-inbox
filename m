@@ -1,70 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319655AbSIMTjP>; Fri, 13 Sep 2002 15:39:15 -0400
+	id <S319667AbSIMTkO>; Fri, 13 Sep 2002 15:40:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319667AbSIMTjP>; Fri, 13 Sep 2002 15:39:15 -0400
-Received: from vti01.vertis.nl ([145.66.4.26]:57872 "EHLO vti01.vertis.nl")
-	by vger.kernel.org with ESMTP id <S319655AbSIMTjO>;
-	Fri, 13 Sep 2002 15:39:14 -0400
-Date: Fri, 13 Sep 2002 21:42:57 +0200
-From: Rolf Fokkens <fokkensr@fokkensr.vertis.nl>
-Message-Id: <200209131942.g8DJgv005332@fokkensr.vertis.nl>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] USER_HZ & SG problem [timeouts]
+	id <S319762AbSIMTkO>; Fri, 13 Sep 2002 15:40:14 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:19660 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S319667AbSIMTkN>;
+	Fri, 13 Sep 2002 15:40:13 -0400
+Date: Fri, 13 Sep 2002 12:36:41 -0700 (PDT)
+Message-Id: <20020913.123641.50140065.davem@redhat.com>
+To: akropel1@rochester.rr.com
+Cc: linux-kernel@vger.kernel.org, alan@redhat.com
+Subject: Re: Streaming DMA mapping question
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020913193916.GA5004@www.kroptech.com>
+References: <20020913193916.GA5004@www.kroptech.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+   From: Adam Kropelin <akropel1@rochester.rr.com>
+   Date: Fri, 13 Sep 2002 15:39:16 -0400
+   
+   According to the docs, you should either unmap or sync your DMA buffer before
+   touching it from the host. The i386 implementation of pci_unmap is empty --no
+   problem; there must not be any unmap work to do on this arch. But the 
+   implementation of pci_dma_sync does contain a flush_write_buffers() call. This
+   makes me think that perhaps if I'm going to modify the buffer before I submit it
+   back to the controller I need to do:
 
-One of the places in the kernel where HZ is interfaced with userspace
-is in the SG driver. With HZ different from USER_HZ this may result
-in all kinds of unexpected timeouts when using SG.
+Actually, rather it appears that the i386 pci_unmap_*() routines need
+the write buffer flush as well.
 
-This patch is an attempt to fix this by transforming USER_HZ based timing to
-HZ based timing an v.v. A problem I know of is the fact that SG_GET_TIMEOUT
-may return a different value than the value that was passed on with
-SG_SET_TIMEOUT.  Depending on its impact this may need to be solved by
-adding a field "user_timeout" to Sg_fd which contains the USER_HZ based value.
+The x86 implementation is a bad example to read if you're trying to
+see what the worst case scenerio is.
 
-Cheers,
-
-Rolf
-
---- linux-2.5.34.orig/drivers/scsi/sg.c	Sun Sep  8 09:00:32 2002
-+++ linux-2.5.34/drivers/scsi/sg.c	Fri Sep 13 21:30:24 2002
-@@ -731,6 +731,17 @@
- 	return 0;
- }
- 
-+/*
-+ * Suppose you want to calculate the formula muldiv(x,m,d)=int(x * m / d)
-+ * Then when using 32 bit integers x * m may overflow during the calculation.
-+ * Replacing muldiv(x) by muldiv(x)=((x % d) * m) / d + int(x / d) * m
-+ * calculates the same, but prevents the overflow when both m and d
-+ * are "small" numbers (like HZ and USER_HZ).
-+ * Of course an overflow is inavoidable if the result of muldiv doesn't fit
-+ * in 32 bits.
-+ */
-+#define MULDIV(X,MUL,DIV) ((((X % DIV) * MUL) / DIV) + ((X / DIV) * MUL))
-+
- static int
- sg_ioctl(struct inode *inode, struct file *filp,
- 	 unsigned int cmd_in, unsigned long arg)
-@@ -790,10 +801,15 @@
- 			return result;
- 		if (val < 0)
- 			return -EIO;
--		sfp->timeout = val;
-+		if (val >= MULDIV (INT_MAX, USER_HZ, HZ))
-+		    val = MULDIV (INT_MAX, USER_HZ, HZ);
-+		sfp->timeout = MULDIV (val, HZ, USER_HZ);
-+
- 		return 0;
- 	case SG_GET_TIMEOUT:	/* N.B. User receives timeout as return value */
--		return sfp->timeout;	/* strange ..., for backward compatibility */
-+		val = sfp->timeout;
-+		val = MULDIV (val, USER_HZ, HZ);
-+		return val;	/* strange ..., for backward compatibility */
- 	case SG_SET_FORCE_LOW_DMA:
- 		result = get_user(val, (int *) arg);
- 		if (result)
+Just follow the document and your driver will work properly on all
+platforms.  DMA-mapping.txt was meant to be written in a way such
+that you should not ever need to look at an implementation of the
+interfaces to figure out how to use them.

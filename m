@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289091AbSAIXqP>; Wed, 9 Jan 2002 18:46:15 -0500
+	id <S289084AbSAIXtF>; Wed, 9 Jan 2002 18:49:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289092AbSAIXqG>; Wed, 9 Jan 2002 18:46:06 -0500
-Received: from inet-mail3.oracle.com ([148.87.2.203]:55807 "EHLO
-	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
-	id <S289091AbSAIXp7>; Wed, 9 Jan 2002 18:45:59 -0500
-Message-ID: <3C3CD691.354986F3@oracle.com>
-Date: Thu, 10 Jan 2002 00:47:29 +0100
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Support Services
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.2-pre10 i686)
-X-Accept-Language: en
+	id <S289086AbSAIXs4>; Wed, 9 Jan 2002 18:48:56 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:9607 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S289084AbSAIXsp>;
+	Wed, 9 Jan 2002 18:48:45 -0500
+From: Badari Pulavarty <pbadari@us.ibm.com>
+Message-Id: <200201092348.g09NmHg25671@eng2.beaverton.ibm.com>
+Subject: Re: [PATCH] PAGE_SIZE IO for RAW (RAW VARY)
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Wed, 9 Jan 2002 15:48:17 -0800 (PST)
+Cc: pbadari@us.ibm.com (Badari Pulavarty), bcrl@redhat.com (Benjamin LaHaise),
+        linux-kernel@vger.kernel.org, marcelo@conectiva.com.br, andrea@suse.de
+In-Reply-To: <E16ORfZ-0002Zu-00@the-village.bc.nu> from "Alan Cox" at Jan 09, 2002 09:58:05 PM PST
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Steve Lord <lord@sgi.com>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>
-Subject: Re: ext3 umount oops in 2.5.2-pre10
-In-Reply-To: <1010601760.29727.138.camel@jen.americas.sgi.com> <3C3CC176.83F49A74@oracle.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alessandro Suardi wrote:
-> 
-> Steve Lord wrote:
-> >
-> > It looks like ext3 does not work if you do not use an external
-> > journal device - the journal_bdev field is not initialized and
-> > ext3_put_super goes belly up:
-> 
-> I have seen the umount oops -but- not 100% of the time. No time
->  to copy the oops text since my laptop powers off, and as the
->  issue occurred two times out of five or six, I haven't yet had
->  a very strong need to hunt this further, confident someone more
->  clueful than me (possibly the vast majority of l-k :) would do
->  very soon. It looks like it happened. Heh. As always.
-> 
-> > At the very least it needs this:
-> 
-> [snipped patch]
-> 
-> OK, going to the usual patch/build/reboot/test sequence now.
+Alan,
 
-Of course the last 252p10 shutdown saw the oops, leaving me
- with the doubt that I didn't attend all the shutdowns :/
+> 
+> > If it is not reasonable to fix all the brokern drivers,
+> > how about making this configurable (to do variable size IO) ?
+> > Do you favour this solution ?
+> 
+> We have hardware that requires aligned power of two for writes (ie 4K on
+> 4K boundaries only). The 3ware is one example Jeff Merkey found
+> 
 
-And of course the patch makes the oops go away (four reboots
- in a row without any problem). Thanks !
+emm.. come to think of it, I can easily (2 line) change my patch to
+do 512 byte buffer heads till we get PAGE alignment and then start
+issuing 4K IO buffer heads. What do you think ? will this work ? 
 
-Ciao,
+And also, do you know any low level drivers Ben mentioning:
 
---alessandro
+> low level drivers, some of which assume that 
+> all buffer heads within a request have the same block size.
 
- "this machine will, will not communicate
-   these thoughts and the strain I am under
-  be a world child, form a circle before we all go under"
-                         (Radiohead, "Street Spirit [fade out]")
+Is it still true for 2.4 ? 
+
+Regards,
+Badari

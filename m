@@ -1,44 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313224AbSDQUDn>; Wed, 17 Apr 2002 16:03:43 -0400
+	id <S313668AbSDQUIB>; Wed, 17 Apr 2002 16:08:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313384AbSDQUDm>; Wed, 17 Apr 2002 16:03:42 -0400
-Received: from dobit2.rug.ac.be ([157.193.42.8]:39111 "EHLO dobit2.rug.ac.be")
-	by vger.kernel.org with ESMTP id <S313224AbSDQUDk>;
-	Wed, 17 Apr 2002 16:03:40 -0400
-Date: Wed, 17 Apr 2002 22:03:35 +0200 (MEST)
-From: Frank Cornelis <Frank.Cornelis@rug.ac.be>
-To: <linux-kernel@vger.kernel.org>
-cc: <Frank.Cornelis@elis.rug.ac.be>
-Subject: ptrace & trap flag
-Message-ID: <Pine.GSO.4.31.0204172154290.29364-100000@eduserv.rug.ac.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313669AbSDQUIA>; Wed, 17 Apr 2002 16:08:00 -0400
+Received: from quattro-eth.sventech.com ([205.252.89.20]:47120 "EHLO
+	quattro.sventech.com") by vger.kernel.org with ESMTP
+	id <S313668AbSDQUH7>; Wed, 17 Apr 2002 16:07:59 -0400
+Date: Wed, 17 Apr 2002 16:07:59 -0400
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB device support for 2.5.8 (take 2)
+Message-ID: <20020417160759.G17779@sventech.com>
+In-Reply-To: <Pine.LNX.4.33.0204171043260.17271-100000@home.transmeta.com> <07d501c1e644$ee62c6e0$6800000a@brownell.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey,
+On Wed, Apr 17, 2002, David Brownell <david-b@pacbell.net> wrote:
+> > Note that the relevance of the USB spec to most people is exactly 0%.
+> 
+> But to USB developers, if it's not 100% they're in major trouble!
+> They're the folk who will be using this terminology/API the most.
+> 
+> The challenge here is to come up with something that doesn't
+> needlessly confuse the major communities of interest ... such
+> as by redefining terms that are already in use.
 
-I wonder if anyone can help me out on this one.
+I agree. While the relevance of the USB spec to most people is exactly
+0%, the relevance to the USB portion of the kernel is almost exactly 0%
+as well. I'd much rather cater to the USB developers since they're the
+people who will be looking at those names, not anyone else.
 
-When I ptrace a program and it has a breakpoint in it (int3) I can detect
-that using PTRACE_SETOPTIONS with the option PTRACE_O_TRACESYSGOOD and
-detection happens through !(WSTOPSIG(status) & 0x80).
-But, when I ptrace a program and that program contains next code,
-	pushfl
-	popl %eax
-	orl 0x100, %eax
-	pushl %eax
-	popfl
-thus setting the trap flag, then I still can detect the 'real' SIGTRAP
-using !(WSTOPSIG(status) & 0x80), but when I do a PTRACE_SYSCALL on the
-process, following SIGTRAPs always occur on the same EIP.
-Clearing the X86_EFLAGS_TF of that process won't help it to make the
-process continue 'till a next instruction.
-Can anyone help me out?
-The only thing I found is that the TF also makes the RF to be on.
+Nonetheless, the current naming is a bit confusing.
 
-Please CC me; I'm not on the mailing list.
+> > Since we're talking about the other end of a "host" driver, "client" makes
+> > sense - in computers, I've always seen "client" as the reverse of the
+> > "host", but maybe that's just me. 
+> 
+> Another overloaded word.  I've always seen it as the requestor,
+> in all contexts (restaurants, stores, networking ... :) and in USB
+> it's the "host" that requests.
 
-Thanks in advance, Frank.
+Hmm, good point.
+
+> > What were the other suggestions?
+> 
+> Of the two I saw coming by this morning ("target" from Larry,
+> and "gadget" from Stephen) I confess I liked "target" best.
+> It captures the initating/responding roles quite well.
+
+I agree too.
+
+> I don't recall many other suggestions that were forthcoming.
+> 
+> But I'll also toss out "firmware", which is often used in such
+> contexts:  firmware revision for a network adapter, and so on.
+> "USB firmware" is not likely to be expected on the host side.
+> "USB target firmware", and so on.
+
+This can also be used too, although I typically picture smaller
+controllers when it comes to firmware, whereas software runs on more
+general purpose controllers, like the ones people would find running
+embedded devices and thusly this software.
+
+Anyway, my opinion is that "target" is the best term to use.
+
+JE
 

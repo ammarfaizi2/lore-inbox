@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268997AbRHFUQY>; Mon, 6 Aug 2001 16:16:24 -0400
+	id <S267534AbRHFUru>; Mon, 6 Aug 2001 16:47:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268992AbRHFUQO>; Mon, 6 Aug 2001 16:16:14 -0400
-Received: from ns1.uklinux.net ([212.1.130.11]:1549 "EHLO s1.uklinux.net")
-	by vger.kernel.org with ESMTP id <S268997AbRHFUQH>;
-	Mon, 6 Aug 2001 16:16:07 -0400
-Envelope-To: linux-kernel@vger.kernel.org
-Date: Mon, 6 Aug 2001 21:16:40 +0100 (BST)
-From: Ken Moffat <ken@kenmoffat.uklinux.net>
-To: Alexander Viro <viro@math.psu.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [CFT] initramfs patch (2.4.8-pre3)
-In-Reply-To: <Pine.GSO.4.21.0108051640360.12846-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.21.0108062113560.2883-100000@pppg_penguin.linux.bogus>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268563AbRHFUrk>; Mon, 6 Aug 2001 16:47:40 -0400
+Received: from weta.f00f.org ([203.167.249.89]:63632 "EHLO weta.f00f.org")
+	by vger.kernel.org with ESMTP id <S267534AbRHFUrT>;
+	Mon, 6 Aug 2001 16:47:19 -0400
+Date: Tue, 7 Aug 2001 08:48:15 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Chris Mason <mason@suse.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] 2.4.8-pre3 fsync entire path (+reiserfs fsync semantic change patch)
+Message-ID: <20010807084815.A24521@weta.f00f.org>
+In-Reply-To: <20010804100143.A17774@weta.f00f.org> <554880000.997110147@tiny>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <554880000.997110147@tiny>
+User-Agent: Mutt/1.3.20i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, Al. It booted nicely this time. Your last line sounds good to me,
-but you shouldn't pay too much regard to an un-evolved simian like me.
+On Mon, Aug 06, 2001 at 11:02:27AM -0400, Chris Mason wrote:
 
-Cheers, Ken
+    Aside from the rest of the discussion on this, did you actually trigger
+    this BUG for fsync(dir)?  f_op->fsync should already be set to
+    reiserfs_dir_fsync.
 
-On Sun, 5 Aug 2001, Alexander Viro wrote:
+Yes, but when walking the dentry chain I got to resierfs_file_sync or
+something rather than reiserfs_dir_fsync --- two possible fixes,
+either have reiserfs internally deal with this (my patch just calls
+the dir function from the file function) or try and make the code I
+wrote aware of the difference (which technicaly is probably more
+correct, I just couldn't figure out how to do it).
 
-> 
-> 
-> On Sun, 5 Aug 2001, Ken Moffat wrote:
-> 
-> > Small problem, though
-> > 
-> > request_module[ramfs]: Root fs not mounted
-> > Kernel panic. Can't create rootfs
-> > 
-> > Obviously I've not been paying attention. I ran "make oldconfig" and
-> > didn't see any new options that were needed, so I didn't consider altering
-> > my current config settings. Which one is it I need, please ? 
-> 
-> RAMFS ;-) Actually, I probably ought to replace tristate ... CONFIG_RAMFS
-> with define_bool CONFIG_RAMFS y in fs/Config.in.
-> 
+I actually made a note to myself to look at merging reiserfs_dir_fsync
+and resierfs_file_sync at some point.
 
--- 
-   Never drink more than two pangalacticgargleblasters !
-Home page : http://www.kenmoffat.uklinux.net
+
+
+
+  --cw
 

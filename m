@@ -1,52 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293600AbSBZVQI>; Tue, 26 Feb 2002 16:16:08 -0500
+	id <S293330AbSBZVUS>; Tue, 26 Feb 2002 16:20:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293601AbSBZVP6>; Tue, 26 Feb 2002 16:15:58 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29963 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293600AbSBZVPm>;
-	Tue, 26 Feb 2002 16:15:42 -0500
-Message-ID: <3C7BFAFA.D8923CFF@mandrakesoft.com>
-Date: Tue, 26 Feb 2002 16:15:38 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19pre1 i686)
-X-Accept-Language: en
+	id <S293604AbSBZVUI>; Tue, 26 Feb 2002 16:20:08 -0500
+Received: from mailer3.bham.ac.uk ([147.188.128.54]:10457 "EHLO
+	mailer3.bham.ac.uk") by vger.kernel.org with ESMTP
+	id <S293601AbSBZVUD>; Tue, 26 Feb 2002 16:20:03 -0500
+Date: Tue, 26 Feb 2002 21:19:54 +0000 (GMT)
+From: Mark Cooke <mpc@star.sr.bham.ac.uk>
+X-X-Sender: mpc@pc24.sr.bham.ac.uk
+To: Vincent Bernat <bernat@free.fr>
+cc: Tom Eastep <teastep@shorewall.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: VIA Northbridge Workaround in 2.4.18 Causing Video Problems
+In-Reply-To: <m3u1s4asb4.fsf@neo.loria>
+Message-ID: <Pine.LNX.4.44.0202262111220.9420-100000@pc24.sr.bham.ac.uk>
 MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolabs.com>
-CC: "Dennis, Jim" <jdennis@snapserver.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: crypto (was Re: Congrats Marcelo,)
-In-Reply-To: <2D0AFEFEE711D611923E009027D39F2B153AD4@cdserv.meridian-data.com> <20020226140644.U12832@lynx.adilger.int>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
-> On Feb 26, 2002  12:38 -0800, Dennis, Jim wrote:
-> >  Now I need to know about the status of several unofficial patches:
+On Tue, 26 Feb 2002, Vincent Bernat wrote:
 
-> >       i2c
-> >       Crypto
-> >       FreeS/WAN KLIPS
-> >       LIDS
+> OoO Pendant le journal télévisé du mardi 26 février 2002, vers 20:57,
+> Tom Eastep <teastep@shorewall.net> disait:
 > 
-> No idea.
+> > I'm currently getting around the problem with the following hack:
+> 
+> You may use the "setpci" command instead to fix this in "userland".
 
-I would -love- to see crypto in the mainstream kernel.  Distribution of
-crypto software on kernel.org has been OK for a while now.
+Talking about fixups, did anyone examine the very recent pci bandwidth
+patch from VIA and try using setpic for a fixup?  I emailed VIA 
+asking for details of the fixup and haven't heard back yet.
 
-Who knows what the kerneli guys, freeswan, etc. guys think.
+(I haven't got windows installed to do a before and after comparison
+of the chipset registers to try the fixup here.)
 
-IMO it's time to get a good IPsec implementation in the kernel...
+tecchannel.de references: 
 
-	Jeff
+PCI Bandwidth:      http://www.tecchannel.de/hardware/817/
+VIA Patch Results:  http://www.tecchannel.de/hardware/817/11.html
 
+Peak transfer rates increased from 10-40%
 
+Cheers,
 
+Mark
+
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 -- 
-Jeff Garzik      | "UNIX enhancements aren't."
-Building 1024    |           -- says /usr/games/fortune
-MandrakeSoft     |
++-------------------------------------------------------------------------+
+Mark Cooke                  The views expressed above are mine and are not
+Systems Programmer          necessarily representative of university policy
+University Of Birmingham    URL: http://www.sr.bham.ac.uk/~mpc/
++-------------------------------------------------------------------------+
+

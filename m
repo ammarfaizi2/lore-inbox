@@ -1,68 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262712AbVCDJPj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262694AbVCDJQj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262712AbVCDJPj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 04:15:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbVCDJMn
+	id S262694AbVCDJQj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 04:16:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262711AbVCDJQi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 04:12:43 -0500
-Received: from fire.osdl.org ([65.172.181.4]:62403 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262597AbVCDJMT (ORCPT
+	Fri, 4 Mar 2005 04:16:38 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:10128 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262694AbVCDJQV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 04:12:19 -0500
-Date: Fri, 4 Mar 2005 01:11:41 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Junfeng Yang <yjf@stanford.edu>
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       jfs-discussion@www-124.southbury.usf.ibm.com, reiser@namesys.com,
-       mc@cs.stanford.edu
-Subject: Re: [MC] [CHECKER] Do ext2, jfs and reiserfs respect mount -o
- sync/dirsync option?
-Message-Id: <20050304011141.5ff037dc.akpm@osdl.org>
-In-Reply-To: <Pine.GSO.4.44.0503040025380.9443-100000@elaine24.Stanford.EDU>
-References: <Pine.GSO.4.44.0503032211570.7754-100000@elaine24.Stanford.EDU>
-	<Pine.GSO.4.44.0503040025380.9443-100000@elaine24.Stanford.EDU>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 4 Mar 2005 04:16:21 -0500
+Date: Fri, 4 Mar 2005 10:16:13 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: tglx@linutronix.de, linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering
+Message-ID: <20050304091612.GG14764@suse.de>
+References: <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org> <422751C1.7030607@pobox.com> <20050303181122.GB12103@kroah.com> <20050303151752.00527ae7.akpm@osdl.org> <20050303234523.GS8880@opteron.random> <20050303160330.5db86db7.akpm@osdl.org> <20050304025746.GD26085@tolot.miese-zwerge.org> <20050303213005.59a30ae6.akpm@osdl.org> <1109924470.4032.105.camel@tglx.tec.linutronix.de> <20050304005450.05a2bd0c.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050304005450.05a2bd0c.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Junfeng Yang <yjf@stanford.edu> wrote:
->
-> On Thu, 3 Mar 2005, Junfeng Yang wrote:
-> 
-> >
-> > Hi,
-> >
-> > FiSC (our file system checker) emits several warnings on ext2, jfs and
-> > reiserfs, complaining that diretories or files are lost while FiSC
-> > believes they should already be persistent on disk. (ext3 behaves
-> > correctly.)
-> 
-> I forget to mention, we are mainly looking for crash-recovery bugs.  The
-> warnings can trigger this way:
-> 1. do several file system operations
-> 2. "crash" the test machine
-> 3. get the crashed disk image, run fsck to recover
-> 4. mount the recovered disk image
->
-> I'm able to reproduce the same warnings on ext2 using the following
-> program:
-> 
-> main()
-> {
->         system("sudo umount /dev/hda9");
->         system("/sbin/mke2fs /dev/hda9");
->         system("sudo mount -t ext2 /dev/hda9 /mnt/sbd1 -o sync,dirsync");
->         creat("/mnt/sbd1/0002", 0777);
->         mkdir("/mnt/sbd1/0003", 0777);
-> 	// unplug your power cord here :)  then use e2fsck to recover
-> }
+On Fri, Mar 04 2005, Andrew Morton wrote:
+> The average user has learnt "rc1 == pre1".  I don't expect that it
+> matters much at all.
 
-That would be a bug.  Please send the e2fsck output.
+The average user and lkml reader, perhaps. But I don't understand
+why Linus refuses to use proper -preX/-rcX naming, it would
+clear up a lot of confusion imho. It's just the logical thing
+to do, Marcelo gets it completely right. That -rcX and -rcX+1
+differ in what they mean is really confusing and opposite of
+basically anything else out there.
 
-> uname -a shows
-> Linux notus 2.6.8-1-686 #1 Thu Nov 25 04:34:30 UTC 2004 i686 GNU/Linux
+With the 2.6.x-release tree and proper -pre/-rc naming, I would
+be perfectly happy :-)
 
-It would be much better to test vaguely contemporary kernels.
+-- 
+Jens Axboe
+

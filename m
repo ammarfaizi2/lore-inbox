@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262784AbUKXSnO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262782AbUKXStY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262784AbUKXSnO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 13:43:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262772AbUKXSkp
+	id S262782AbUKXStY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 13:49:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262775AbUKXSs2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 13:40:45 -0500
-Received: from mail.euroweb.hu ([193.226.220.4]:60321 "HELO mail.euroweb.hu")
-	by vger.kernel.org with SMTP id S262784AbUKXScq (ORCPT
+	Wed, 24 Nov 2004 13:48:28 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:26849 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262809AbUKXSn5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 13:32:46 -0500
-To: avi@argo.co.il
-CC: alan@lxorguk.ukuu.org.uk, torvalds@osdl.org, hbryan@us.ibm.com,
-       akpm@osdl.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, pavel@ucw.cz
-In-reply-to: <41A47B67.6070108@argo.co.il> (message from Avi Kivity on Wed, 24
-	Nov 2004 14:15:35 +0200)
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-References: <OF28252066.81A6726A-ON88256F50.005D917A-88256F50.005EA7D9@us.ibm.com>	 <E1CUq57-00043P-00@dorka.pomaz.szeredi.hu>	 <Pine.LNX.4.58.0411180959450.2222@ppc970.osdl.org> <1100798975.6018.26.camel@localhost.localdomain> <41A47B67.6070108@argo.co.il>
-Message-Id: <E1CWwqF-0007Ng-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 24 Nov 2004 14:05:51 +0100
+	Wed, 24 Nov 2004 13:43:57 -0500
+Subject: Re: file as a directory
+From: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>
+To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Cc: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com
+In-Reply-To: <4d8e3fd304112407023ff0a33d@mail.gmail.com>
+References: <2c59f00304112205546349e88e@mail.gmail.com>
+	 <41A1FFFC.70507@hist.no> <41A21EAA.2090603@dbservice.com>
+	 <41A23496.505@namesys.com> <1101287762.1267.41.camel@pear.st-and.ac.uk>
+	 <4d8e3fd304112407023ff0a33d@mail.gmail.com>
+Content-Type: text/plain
+Message-Id: <1101309954.2779.15.camel@pear.st-and.ac.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 24 Nov 2004 15:25:54 +0000
+Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> http://lkml.org/lkml/2004/7/26/68
+On Wed, 2004-11-24 at 15:02, Paolo Ciarrocchi wrote:
+> On 24 Nov 2004 09:16:03 +0000, Peter Foldiak
+> <peter.foldiak@st-andrews.ac.uk> wrote:
+> [...] 
+> > I would really like to implement this for the next version of Hans' file
+> > system.
 > 
-> discusses a userspace filesystem (implemented as a userspace nfs server 
-> mounted on a loopback nfs mount), the problem, a solution (exactly your 
-> suggestion), and a more generic solution.
+> I don't undersand how you want to use Xpath for not XML file.
+> I agree with you that the idea behind Xpath is cool but I fail to
+> unserstand how it can be applied to anything but XML
 
-Thanks for the pointer, very interesting read.
+My message was mainly about XML, for which it is easy.
+For non-XML, you need some other way of knowing the file format. The
+example that originally came up in this thread was
 
-However, I don't like the idea that the userspace filesystem must
-cooperate with the kernel in this regard.  With this you lose one of
-the advantages of doing filesystem in userspace: namely that you can
-be sure, that anything you do cannot bring the system down.
+/etc/passwd/[username]
 
-And I firmly believe that this can be done without having to special
-case filesystem serving processes.
+In this case, the passwd file has a known format.
+Other file types, like LaTex, html, jpeg also have (at least partially)
+known formats. Some selection should be possible even for unknown
+formats (e.g. byte range, line-range). There could also be some way of
+specifying a new format but I don't know how to do this well. You could
+give names (like filenames) to parts of files.
+But I think the first step would be to concentrate on XML, and worry
+about the rest later.   Peter
 
-There are already "strange" filesystems in the kernel which cannot
-really get rid of dirty data.  I'm thinking of tmpfs and ramfs.
-Neither of them are prone to deadlock, though both of them are "worse
-off" than a userspace filesystem, in the sense that they have not even
-the remotest chance of getting rid of the dirty data.
-
-Of course, implementing this is probably not trivial.  But I don't see
-it as a theoretical problem as Linus does. 
-
-Is there something which I'm missing here?
-
-Thanks,
-Miklos

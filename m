@@ -1,47 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268336AbUGXGyc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268343AbUGXHOZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268336AbUGXGyc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jul 2004 02:54:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268337AbUGXGyc
+	id S268343AbUGXHOZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jul 2004 03:14:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268344AbUGXHOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jul 2004 02:54:32 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:6871 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S268336AbUGXGyb (ORCPT
+	Sat, 24 Jul 2004 03:14:25 -0400
+Received: from [217.111.56.18] ([217.111.56.18]:54403 "EHLO spring.sncag.com")
+	by vger.kernel.org with ESMTP id S268343AbUGXHOW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jul 2004 02:54:31 -0400
-Date: Fri, 23 Jul 2004 23:53:01 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: rml@ximian.com, da-x@gmx.net, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] kernel events layer
-Message-Id: <20040723235301.3a06151b.pj@sgi.com>
-In-Reply-To: <4956.1090644161@ocs3.ocs.com.au>
-References: <1090637226.1830.8.camel@localhost>
-	<4956.1090644161@ocs3.ocs.com.au>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 24 Jul 2004 03:14:22 -0400
+To: "bradgoodman.com" <bkgoodman@bradgoodman.com>
+Cc: alan@redhat.com, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] 2.4.27 - MTD cfi_cmdset_0002.c - Duplicate cleanup in
+ error path
+In-Reply-To: <200407231947.i6NJlwo32224@bradgoodman.com> (bradgoodman com's
+ message of "Fri, 23 Jul 2004 15:47:58 -0400")
+References: <200407231947.i6NJlwo32224@bradgoodman.com>
+From: Rainer Weikusat <rainer.weikusat@sncag.com>
+Date: Sat, 24 Jul 2004 15:14:03 +0800
+Message-ID: <87k6wtlvwk.fsf@farside.sncag.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith wrote:
-> Never use the return value from snprintf to work out the next buffer
-> position, it is not reliable when the data is truncated.
+"bradgoodman.com" <bkgoodman@bradgoodman.com> writes:
+> Patch to 2.4.x: Corrects an obvious error where all of the cleanups are done
+> twice in the event of a chip programming error. This can result in
+> kernel BUG() getting called on subsequent programming attempts.
+>
+>
+> --- linux-2.4.22.prepatch/drivers/mtd/chips/cfi_cmdset_0002.c	Fri Jun 13 10:51:34 2003
+> +++ linux-2.4.22/drivers/mtd/chips/cfi_cmdset_0002.new	Thu Jul 15 14:44:30 2004
+> @@ -549,11 +549,6 @@
+>  			}
+>  		} else {
+>  			printk(KERN_WARNING "Waiting for write to complete timed out in do_write_oneword.");        
+> -			
+> -			chip->state = FL_READY;
+> -			wake_up(&chip->wq);
+> -			cfi_spin_unlock(chip->mutex);
+> -			DISABLE_VPP(map);
+>  			ret = -EIO;
+>  		}
+>  	}
 
-That's why Juergen Quade added scnprintf and vscnprintf to lib/vsprintf.c:
+I suggest the following instead:
 
- * If you want to have the exact
- * number of characters written into @buf as return value
- * (not including the trailing '\0'), use vscnprintf.
+--------------------------
+--- cfi_cmdset_0002.c.orig	2004-07-24 15:05:31.000000000 +0800
++++ cfi_cmdset_0002.c	2004-07-24 15:06:06.000000000 +0800
+@@ -461,7 +461,6 @@
+ 	unsigned int dq6, dq5;	
+ 	struct cfi_private *cfi = map->fldrv_priv;
+ 	DECLARE_WAITQUEUE(wait, current);
+-	int ret = 0;
+ 
+  retry:
+ 	cfi_spin_lock(chip->mutex);
+@@ -554,7 +553,7 @@
+ 			wake_up(&chip->wq);
+ 			cfi_spin_unlock(chip->mutex);
+ 			DISABLE_VPP(map);
+-			ret = -EIO;
++			return -EIO;
+ 		}
+ 	}
+ 
+@@ -563,7 +562,7 @@
+ 	wake_up(&chip->wq);
+ 	cfi_spin_unlock(chip->mutex);
+ 
+-	return ret;
++	return 0;
+ }
+ 
+ static int cfi_amdstd_write (struct mtd_info *mtd, loff_t to , size_t len, size_t *retlen, const u_char *buf)
+----------------------------
 
-Andrew wrote:
-> A single snprintf here would suit.
+That way, it is consistent with the other low-level chip access
+functions. But the algorithm is per se buggy, anyway, because except
+if DQ5 was raised before, the chip is not 'ready' (for reading array
+data), but still in programming mode and will remain there until the
+'embedded programming algorithm' stops, because (according to the
+docs) a reset command will not be accepted until DQ5 has been raised
+and the opportunityto check for that is gone after the syscall
+returned to the caller.
 
-As Robert said ... Doh!
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265768AbUA0Tqc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 14:46:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265776AbUA0Tqb
+	id S265792AbUA0TxL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 14:53:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265660AbUA0TxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 14:46:31 -0500
-Received: from gw2.cosmosbay.com ([195.115.130.129]:17568 "EHLO
-	gw2.cosmosbay.com") by vger.kernel.org with ESMTP id S265768AbUA0Tp1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 14:45:27 -0500
-Message-ID: <4016BFD4.2040407@cosmosbay.com>
-Date: Tue, 27 Jan 2004 20:45:24 +0100
-From: dada1 <dada1@cosmosbay.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.6.1 x86_64 : STACK_TOP and text/data
-References: <OFCE30A640.024A04A1-ONC1256E28.003023EA-C1256E28.0030BF4E@de.ibm.com.suse.lists.linux.kernel>	<40162E9A.1080005@cosmosbay.com.suse.lists.linux.kernel>	<p73k73dfdvs.fsf@nielsen.suse.de>	<4016B493.9050404@cosmosbay.com> <20040127202930.6c29bbcf.ak@suse.de>
-In-Reply-To: <20040127202930.6c29bbcf.ak@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Jan 2004 14:53:11 -0500
+Received: from mail-in.m-online.net ([62.245.150.237]:22919 "EHLO
+	mail-in.m-online.net") by vger.kernel.org with ESMTP
+	id S265792AbUA0Tw6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 14:52:58 -0500
+Subject: Re: [Jfs-discussion] md raid + jfs + jfs_fsck
+From: Florian Huber <florian.huber@mnet-online.de>
+To: JFS-Discussion <jfs-discussion@oss.software.ibm.com>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1075232395.11203.94.camel@suprafluid>
+References: <1075230933.11207.84.camel@suprafluid>
+	 <1075231718.21763.28.camel@shaggy.austin.ibm.com>
+	 <1075232395.11203.94.camel@suprafluid>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-O4zdHsj7qmmQKOJerr9/"
+Message-Id: <1075233175.11198.97.camel@suprafluid>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 27 Jan 2004 20:52:56 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
 
->
->You're right. Thanks for reporting this. This seems to be a 2.6 
->specific bug, it didn't happen in 2.4.
->
->I will fix it. It should definitely use PAGE_OFFSET for 64bit 
->processes and 4GB for !3GB 32bit processes.
->
->-Andi
->
->
->  
->
-Another thing I noticed in last glibc CVS (nptl)
+--=-O4zdHsj7qmmQKOJerr9/
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Thread stacks are also allocated in the 1GB quadrant :
+On Tue, 2004-01-27 at 20:39, Florian Huber wrote:
 
-nptl/sysdeps/x86_64/pthreaddef.h
-/* We prefer to have the stack allocated in the low 4GB since this
-   allows faster context switches.  */      
-#define ARCH_MAP_FLAGS MAP_32BIT 
+> Open(...READ/WRITE EXCLUSIVE...) returned rc =3D 0
 
-Is this really true ?
-Is memory allocated in the low 4GB is faster on x86_64  (64bit kernel, 
-64 bit user prog ?)
+I forgot to mention, that the raid device is mounted. But it makes no
+difference if I fsck' from from other boot media.
 
-Thank you
+--=-O4zdHsj7qmmQKOJerr9/
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Eric Dumazet
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
+iD8DBQBAFsGXTrkbHdnVDqIRAu/dAJ9Pq27qy7tBLwX+ij220exdlHTfoACeLUaN
+ihzFsmkic1grgAJjyd59wxY=
+=tyOS
+-----END PGP SIGNATURE-----
+
+--=-O4zdHsj7qmmQKOJerr9/--
 

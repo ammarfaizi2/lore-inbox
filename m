@@ -1,48 +1,190 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269084AbUIBVSD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268370AbUIBVNy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269084AbUIBVSD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 17:18:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269106AbUIBVRu
+	id S268370AbUIBVNy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 17:13:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269050AbUIBVNb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 17:17:50 -0400
-Received: from cantor.suse.de ([195.135.220.2]:19108 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S269084AbUIBVOu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 17:14:50 -0400
-Date: Thu, 2 Sep 2004 23:14:48 +0200
-From: Andi Kleen <ak@suse.de>
-To: Roland Dreier <roland@topspin.com>
-Cc: jakub@redhat.com, ak@suse.de, ecd@skynet.be, pavel@suse.cz,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fs/compat.c: rwsem instead of BKL around ioctl32_hash_table
-Message-ID: <20040902211448.GE16175@wotan.suse.de>
-References: <20040901072245.GF13749@mellanox.co.il> <524qmi2e1s.fsf@topspin.com>
+	Thu, 2 Sep 2004 17:13:31 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:61845 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S268370AbUIBVLM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 17:11:12 -0400
+Subject: [RFC] New Time of day proposal (updated 9/2/04)
+From: john stultz <johnstul@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: tim@physik3.uni-rostock.de, george@mvista.com,
+       albert@users.sourceforge.net, Ulrich.Windl@rz.uni-regensburg.de,
+       clameter@sgi.com, len.brown@intel.com, linux@dominikbrodowski.de,
+       davidm@hpl.hp.com, ak@suse.de, paulus@samba.org, schwidefsky@de.ibm.com,
+       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
+       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>
+Content-Type: text/plain
+Message-Id: <1094159238.14662.318.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <524qmi2e1s.fsf@topspin.com>
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 02 Sep 2004 14:07:19 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 01, 2004 at 08:40:15AM -0700, Roland Dreier wrote:
-> Currently the BKL is used to synchronize access to ioctl32_hash_table
-> in fs/compat.c.  It seems that an rwsem would be more appropriate,
-> since this would allow multiple lookups to occur in parallel (and also
-> serve the general good of minimizing use of the BKL).
-> 
-> I added lock_kernel()/unlock_kernel() around the call to t->handler
-> when a compatibility handler is found in compat_sys_ioctl() to
-> preserve the expectation that the BKL will be held during driver ioctl
-> operations.  It should be safe to do lock_kernel() while holding
-> ioctl32_sem because of the magic BKL sleep semantics.
-> 
-> I have booted this and run some basic 32-bit userspace on ppc64, and
-> also compile tested this for x86_64 and sparc64.
+All,
+	Here again is my updated time of day proposal. Also to follow is
+working code for i386. I wanted to get this out so folks could actually
+play around with the core architecture independent code. The i386
+specific bits function, but are unfinished. Thus they have been broken
+out and should mostly be ignored for this release.
 
-It does not make much sense because the ioctl will take the BKL 
-anyways.
+I'd really appreciate any feedback or concerns about this proposal and
+the following code. 
 
-If you wanted to fix it properly better make it use RCU - 
-but it cannot work for the case of calling a compat handler.
+thanks
+-john
 
--Andi
+
+Proposal for an architecture independent time of day implementation.
+-------------------------------------------------------------------
+John Stultz (johnstul@us.ibm.com)
+DRAFT
+Thu Sep  2 12:35:11 PDT 2004
+
+Credits:
+	Keith Mannthey:	Aided initial design.
+			Aided greatly to implementation details.
+	George Anzinger: Initial review and corrections.
+	Ulrich Windl: Review and suggestions for clarity.
+
+	Many of the time of day related issues that cropped up in 2.5
+development occurred where a fix or change was made to a number of
+architectures, but missed a few others. Currently every architecture has
+its own set of timekeeping functions that basically do the same thing,
+only using different (or frequently, not so different) types of
+hardware. As hardware has changed, many architectures have had to
+re-engineer their time system to handle multiple time and interrupt
+sources. With little common infrastructure, either each separate
+implementation has its own quirks and bugs, or we end up with a
+reasonable quantity of duplicated code. Additionally the lack of a clear
+time of day interface has led developers to use jiffies, HZ, and the raw
+xtime values to calculate the time of day themselves. This has lead to a
+number of troublesome bugs.
+
+	With the goal to simplify, streamline and consolidate the time-of-day
+infrastructure, I propose the following common implementation across all
+arches. This will allow generic bugs to be fixed once, reduce code
+duplication, and with many architectures sharing the same time source,
+this allows drivers to be written once for multiple architectures.
+Additionally it will better delineate the lines between the timer
+subsystem and the time-of-day subsystem, opening the door for more
+flexible and better timekeeping.
+
+Features of this design:
+========================
+
+o Splits time of day management from timer interrupts:
+	This is necessary for virtualization & tickless systems. It allows us
+to no longer care how often clock_interrupt() is called. Missing, early
+or lost interrupts do not affect time keeping (within bounds - ie: the
+time source cannot overflow). This isolates HZ and jiffies to the timer
+subsystem (mostly), as they are frequently and incorrectly used to
+calculate time.
+	Additionally, it allows for dynamic tick interrupts / high-res ticks.
+Avoid the need to interpolate between multiple shoddy time sources, and
+lets us be agnostic to where the periodic interrupts come from (cleans
+up i386 HPET interrupt code).
+
+o Consolidates a large amount of code:
+	Allows for shared times source implementations, such as: i386, x86-64
+and ia64 all use HPET, i386 and x86-64 both have ACPI PM timers, and
+i386 and ia64 both have cyclone counters. Time sources are just drivers!
+Also work for user space gettimeofday implementations will be able to be
+shared across all arches (assuming the hardware time source can be
+safely accessed from user space).
+
+o Generic algorithms which use time-source drivers chosen at runtime:
+	Drivers are just simple hw accessors functions with no internal state
+needed. They can be loaded and changed while the system is running, like
+normal modules.
+
+o More consistent and readable code:
+	Drop wall_to_monotonic & xtime in favor of a more simple system_time
+and wall_time_offset variables. Where system_time is the monotonically
+increasing nanoseconds since boot time and wall_time_offset is the
+offset added to system_time to calculate time of day.
+
+o Uses nanoseconds as the kernel's base time unit.
+	Rather then doing ugly manipulations to timevals or timespecs, this
+simplifies math, and gives us plenty of room to grow (64bits of
+nanoseconds ~= 584 years).
+
+o Clearly separates the NTP code from the time code:
+	Creates a clean and clear interface, keeping all the NTP related code
+in a single place. Save brains, normal people shouldn't have to think
+about the in kernel ntp machinery.
+
+
+Brief Psudo-code to illustrate the design:
+==========================================
+
+Globals:
+--------
+offset_base: timesource cycle value at last call to timeofday_hook()
+system_time: time in ns calculated at last call to timeofday_hook()
+wall_offset: offset to monotonic_clock() to get current time of day
+
+Functions:
+----------
+timeofday_hook()
+	now = read();			/* read the timesource */
+	ns = cyc2ns(now - offset_base); /* calc nsecs since last call */
+	ntp_ns = ntp_scale(ns);		/* apply ntp scaling */
+	system_time += ntp_ns;		/* add scaled value to system_time */
+	ntp_advance(ns);		/* advance ntp state machine by ns */
+	offset_base = now;		/* set new offset_base */
+
+monotonic_clock()
+	now = read();			/* read the timesource */
+	ns = cyc2ns(now - offset_base);	/* calculate nsecs since last hook */
+	ntp_ns = ntp_scale(ns);		/* apply ntp scaling */
+	return system_time + ntp_ns; 	/* return system_time and scaled value
+					 */
+
+settimeofday(desired)
+	wall_offset = desired - monotonic_clock(); /* set wall offset */
+
+gettimeofday()
+	return wall_offset + monotonic_clock();	/* return current timeofday */
+
+
+Points I'm glossing over for now:
+====================================================
+
+o Have to convert back to time_val for syscall interface
+
+o ntp_scale(ns):  scales ns by NTP scaling factor
+	- see ntp.c for details
+	- costly, but correct.
+
+o ntp_advance(ns): advances NTP state machine by ns
+	- see ntp.c for details
+
+o What is the cost of throwing around 64bit values for everything?
+	- Do we need an arch specific time structure that varies size
+accordingly?
+
+o Some arches (arm, for example) do not have high res  timing hardware
+	- In this case we can have a "jiffies" timesource
+		- cyc2ns(x) =  x*(NSEC_PER_SEC/HZ)
+		- doesn't work for tickless systems
+
+o vsyscalls/userspace gettimeofday()
+	- Mark functions and data w/  __vsyscall attribute
+	- Use linker to put all __vsyscall data in the same set of pages
+	- Mark those pages user-executable
+	- Should work for all arches
+	- ia64 fastcall should be used for timesource implementation only
+
+o suspend/resume
+	- not yet implemented, but shouldn't be hard
+
+Anything else? What am I missing or just being ignorant of?
+

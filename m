@@ -1,32 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263329AbRF0PUz>; Wed, 27 Jun 2001 11:20:55 -0400
+	id <S263780AbRF0Pjk>; Wed, 27 Jun 2001 11:39:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263334AbRF0PUp>; Wed, 27 Jun 2001 11:20:45 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:23891 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S263329AbRF0PUi>; Wed, 27 Jun 2001 11:20:38 -0400
-Date: Wed, 27 Jun 2001 17:20:34 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Adam <adam@eax.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.x series and mm
-Message-ID: <20010627172034.B16936@athlon.random>
-In-Reply-To: <Pine.LNX.4.33.0106271008010.16671-100000@eax.student.umd.edu>
-Mime-Version: 1.0
+	id <S263766AbRF0Pja>; Wed, 27 Jun 2001 11:39:30 -0400
+Received: from freerunner-o.cendio.se ([193.180.23.130]:27893 "EHLO
+	mail.cendio.se") by vger.kernel.org with ESMTP id <S263340AbRF0PjO>;
+	Wed, 27 Jun 2001 11:39:14 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] User chroot
+In-Reply-To: <20010627014534.B2654@ondska> <9hb6rq$49j$1@cesium.transmeta.com>
+From: Marcus Sundberg <marcus@cendio.se>
+Date: 27 Jun 2001 17:39:12 +0200
+In-Reply-To: hpa@zytor.com's message of "26 Jun 2001 16:46:02 -0700"
+Message-ID: <ve4rt2aq5b.fsf@lipta.lkpg.cendio.se>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0106271008010.16671-100000@eax.student.umd.edu>; from adam@eax.com on Wed, Jun 27, 2001 at 10:08:15AM -0500
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 27, 2001 at 10:08:15AM -0500, Adam wrote:
+hpa@zytor.com ("H. Peter Anvin") writes:
+
+> Followup to:  <20010627014534.B2654@ondska>
+> By author:    Jorgen Cederlof <jc@lysator.liu.se>
+> In newsgroup: linux.dev.kernel
+> > If we only allow user chroots for processes that have never been
+> > chrooted before, and if the suid/sgid bits won't have any effect under
+> > the new root, it should be perfectly safe to allow any user to chroot.
 > 
-> hello,
-> 	I have question. I have box with kernel 2.2.17pre15
+> Safe, perhaps, but also completely useless: there is no way the user
+> can set up a functional environment inside the chroot.
 
-upgrade to 2.2.19 or 2.2.20pre
+Huh? Why wouldn't you be able to set up a functional environment?
+I can think of quite a lot of things you can do without device nodes
+or /proc ...
+Or are you referring to something else?
 
-Andrea
+//Marcus
+-- 
+---------------------------------+---------------------------------
+         Marcus Sundberg         |      Phone: +46 707 452062
+   Embedded Systems Consultant   |     Email: marcus@cendio.se
+        Cendio Systems AB        |      http://www.cendio.com

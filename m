@@ -1,49 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318046AbSG2GTt>; Mon, 29 Jul 2002 02:19:49 -0400
+	id <S318057AbSG2GRs>; Mon, 29 Jul 2002 02:17:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318045AbSG2GTt>; Mon, 29 Jul 2002 02:19:49 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11785 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318043AbSG2GTn>; Mon, 29 Jul 2002 02:19:43 -0400
-Date: Sun, 28 Jul 2002 23:23:35 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jens Axboe <axboe@suse.de>
-cc: James Bottomley <James.Bottomley@steeleye.com>,
-       Marcin Dalecki <dalecki@evision.ag>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.28 small REQ_SPECIAL abstraction
-In-Reply-To: <20020729075520.C4445@suse.de>
-Message-ID: <Pine.LNX.4.44.0207282319590.872-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318050AbSG2GRs>; Mon, 29 Jul 2002 02:17:48 -0400
+Received: from [210.78.134.243] ([210.78.134.243]:48906 "EHLO 210.78.134.243")
+	by vger.kernel.org with ESMTP id <S318039AbSG2GRr>;
+	Mon, 29 Jul 2002 02:17:47 -0400
+Date: Mon, 29 Jul 2002 14:22:58 +0800
+From: zhengchuanbo <zhengcb@netpower.com.cn>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: can the driver e100 be applied in 2.4?
+X-mailer: FoxMail 3.11 Release [cn]
+Mime-Version: 1.0
+Content-Type: text/plain; charset="GB2312"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200207291425517.SM00792@zhengcb>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+in linux2.5 there is a new driver e100 to replace eepro100. is e100 better than eepro100 in performance such as throughput? and can the driver e100 be applied in 2.4?
+please cc. thanks.
 
-On Mon, 29 Jul 2002, Jens Axboe wrote:
-> >
-> > I think you are missing the point. The stuff should not be in the
-> > _generic_ blk_insert_request(). As I posted in my first reply to Martin,
-> > SCSI needs to clear the tag before calling blk_insert_request() if it
-> > needs to.
->
-> Here's the patch to fix it, btw. Linus, please apply.
-
-I can't apply this while I think it looks horribly broken.
-
-Your patch makes scsi_lib call blk_queue_end_tag() without holding the
-queue spinlock.
-
-Which looks horribly broken, since it _will_ corrupt the queues.
-
-In fact, it looks about a million times more broken than the code that
-Martin submitted.
-
-Please explain to me why I am wrong.
-
-		Linus
-
-PS. I actually do tend to look as the patches I apply. Right now it looks
-like you're wrong, and Martin is right.
+regards,
+chuanbo zheng
+zhengcb@netpower.com.cn
 

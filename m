@@ -1,66 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261554AbTCKTDG>; Tue, 11 Mar 2003 14:03:06 -0500
+	id <S261574AbTCKTCD>; Tue, 11 Mar 2003 14:02:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261556AbTCKTDG>; Tue, 11 Mar 2003 14:03:06 -0500
-Received: from web41003.mail.yahoo.com ([66.218.93.2]:19225 "HELO
-	web41003.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S261554AbTCKTDE>; Tue, 11 Mar 2003 14:03:04 -0500
-Message-ID: <20030311191342.18575.qmail@web41003.mail.yahoo.com>
-Date: Tue, 11 Mar 2003 11:13:42 -0800 (PST)
-From: Jason Li <zhjl000@yahoo.com>
-Subject: out_of_memory called to often
+	id <S261575AbTCKTCD>; Tue, 11 Mar 2003 14:02:03 -0500
+Received: from pop.gmx.de ([213.165.64.20]:61933 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S261574AbTCKTCC>;
+	Tue, 11 Mar 2003 14:02:02 -0500
+Message-Id: <5.2.0.9.2.20030311201005.00cd4680@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Tue, 11 Mar 2003 20:17:18 +0100
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [PATCH] self tuning scheduler
+In-Reply-To: <5.2.0.9.2.20030311095954.01f9a008@pop.gmx.net>
+References: <200303110030.h2B0UsR00844@linux.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+At 10:46 AM 3/11/2003 +0100, Mike Galbraith wrote:
+>Greetings,
+>
+>I took your patch out for a test-drive, and it appears to have starvation 
+>problems with irman's process load (dang thing seems to be HELL on schedulers).
 
-We are running an embedded linux (2.4.19) with no swap
-sapce. And we haven't applied any rmap yet.
+<crickets chirping>
+For the record, let me say that I understand that this proggy approx=DOS 
+attack (100000:1). 
 
-Currely when the system runs low (reached the
-pages_low water-mark), kswapd kicks in. But soon after
-kswapd kicks in, the out_of_memory is called due to
-swapd not being able to reclaim enough pages from the
-page cache from each run of it. I don't understand why
-sometimes swapd can't reclaim the SWAP_CLUSTER_MAX
-number of pages.
-
-We know there are still some number of cache pages
-that can be reclaimed if we run the following c
-program:
-
-int main() {
- int i, j;
- char *tmp[10000]
-
- for (i=0; i<NUMBER_OF_PAGES_LEFT_BEFORE_pages_low;
-i++) tmp[i]=malloc(4k);
- for (i=0; i<NUMBER_OF_PAGES_LEFT_BEFORE_pages_low;
-i++) free(tmp[i]);
-}
-To solve this problem, I am trying to make a
-conditional call to the out_of_memory() -- only if the
-pages_min is reached, then the out_of_memory() can be
-called.
-
-If we can solve the swapd livelock problem, is this a
-feasible solution? If you have a better idea, can you
-please share with us?
-
-Any input will be greatly appreciated.
-
-Thanks very much in advance! Please include my email
-address in your reply.
-
--Jason
-
-
-
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Web Hosting - establish your business online
-http://webhosting.yahoo.com

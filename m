@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264799AbTFLJKc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 05:10:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264800AbTFLJKc
+	id S262601AbTFLJLW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 05:11:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263597AbTFLJLW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 05:10:32 -0400
-Received: from lopsy-lu.misterjones.org ([62.4.18.26]:520 "EHLO
-	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
-	id S264799AbTFLJKb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 05:10:31 -0400
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: rth@twiddle.net, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix srmcons tty_operations
-Organization: Metropolis -- Nowhere
-X-Attribution: maz
-Reply-to: mzyngier@freesurf.fr
-From: Marc Zyngier <mzyngier@freesurf.fr>
-Date: Thu, 12 Jun 2003 11:21:14 +0200
-Message-ID: <wrpn0gn8xdh.fsf@hina.wild-wind.fr.eu.org>
-MIME-Version: 1.0
+	Thu, 12 Jun 2003 05:11:22 -0400
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:57609 "EHLO
+	krusty.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S262601AbTFLJLR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 05:11:17 -0400
+Date: Thu, 12 Jun 2003 11:24:58 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: SCSI Write Cache Enable in 2.4.20?
+Message-ID: <20030612092458.GA29060@merlin.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al,
+Hi,
 
-The included patch fixes srmcons by adding a missing
-tty_set_operations. Booted the patched kernel on a test box with
-success.
+I haven't followed the status of write barrier patches recently, I am
+wondering if it's still "necessary" (to avoid file system corruption) to
+disable the write cache of a SCSI disk drive when the machine doesn't
+have an uninterruptible power supply or if instead the file systems and
+driver know how to use ordered tags.  (Fujitsu MAP drive: 8 MB cache,
+AIC7880 adapter, SuSE Linux 8.2 patched 2.4.20 kernel with ext3 and xfs)
 
-Thanks,
-
-        M.
-
-===== arch/alpha/kernel/srmcons.c 1.5 vs edited =====
---- 1.5/arch/alpha/kernel/srmcons.c	Wed Jun 11 21:33:05 2003
-+++ edited/arch/alpha/kernel/srmcons.c	Thu Jun 12 11:10:35 2003
-@@ -291,6 +291,7 @@
- 		driver->type = TTY_DRIVER_TYPE_SYSTEM;
- 		driver->subtype = SYSTEM_TYPE_SYSCONS;
- 		driver->init_termios = tty_std_termios;
-+		tty_set_operations(driver, &srmcons_ops);
- 		err = tty_register_driver(driver);
- 		if (err) {
- 			put_tty_driver(driver);
+TIA,
 
 -- 
-Places change, faces change. Life is so very strange.
+Matthias Andree

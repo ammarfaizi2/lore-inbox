@@ -1,67 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316007AbSEJTGz>; Fri, 10 May 2002 15:06:55 -0400
+	id <S316008AbSEJTKj>; Fri, 10 May 2002 15:10:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316008AbSEJTGy>; Fri, 10 May 2002 15:06:54 -0400
-Received: from NEVYN.RES.CMU.EDU ([128.2.145.6]:21632 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id <S316007AbSEJTGx>;
-	Fri, 10 May 2002 15:06:53 -0400
-Date: Fri, 10 May 2002 15:06:51 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Mark Gross <mgross@unix-os.sc.intel.com>
-Cc: linux-kernel@vger.kernel.org, mark.gross@intel.com, mark@thegnar.org,
-        vamsi@in.ibm.com, efocht@ess.nec.de
-Subject: Re: [PATCH] multithreaded coredumps for elf exeecutables for O(1) scheduler
-Message-ID: <20020510190650.GA1722@nevyn.them.org>
-Mail-Followup-To: Mark Gross <mgross@unix-os.sc.intel.com>,
-	linux-kernel@vger.kernel.org, mark.gross@intel.com,
-	mark@thegnar.org, vamsi@in.ibm.com, efocht@ess.nec.de
-In-Reply-To: <200205101624.g4AGOSw16928@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.1i
+	id <S316019AbSEJTKi>; Fri, 10 May 2002 15:10:38 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:18962 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S316008AbSEJTKi>; Fri, 10 May 2002 15:10:38 -0400
+Date: Fri, 10 May 2002 15:07:14 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Robert Love <rml@tech9.net>
+cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: x86 question: Can a process have > 3GB memory?
+In-Reply-To: <1020980411.880.93.camel@summit>
+Message-ID: <Pine.LNX.3.96.1020510145244.14035A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 10, 2002 at 09:24:14AM -0400, Mark Gross wrote:
+On 9 May 2002, Robert Love wrote:
+
+> All 32-bit architectures have a 4GB address space, 64-bit architectures
+> obviously have a much bigger one (depends on the arch how many bits are
+> used for the address space).
 > 
-> Attached is my current patch for creating multithreaded core dump files,
-> that works with the O(1) scheduler.
->  
-> This is a continuation of the work posted by Vamsi Krishna back on 3/21/02.
-> I'm sorry for the delay.  The problem of suspending the other thread
-> processes for the duration of the core dump was a challenging problem with
-> the O(1) scheduler.
->  
-> Most of the patch is the same as that posted on 3/21/02 with some minor
-> fixes and the rebasing to the 2.5.14 kernel.  The interesting bits are in
-> the additions to sched.c to pause and resume the thread processes under the 
-> O(1) scheduler.
->  
-> Here I'm leveraging the work of Eric Foct for the process migration, to
-> temporarily migrate the thread processes I need suspended to a "phantom
-> runqueue".  This is just an additional run queue that has no cpu.  When I'm
-> finish with the core dump I migrate them off the phantom run queue and
-> continue processing whatever exit processing they do.
->  
-> I tried a number of approaches to process pausing that didn't quite work 
-> before I settled on the attached implementation.
+> PPC obviously does not have the dumb physical memory limitations x86
+> has, however.
 
-That's a very interesting approach... I like it.
+As others have noted, the recent ia32 chips support 36 (or more) bits of
+physical memory, and there is even code to use it AFAIK in the current
+kernel. It would be possible to allow program access to this RAM, although
+both Kernel and gcc support would be needed. M$ had "huge" memory models
+to go over 64k in the old 8086 days, doing loads of segment registers.
+ 
+> Anyhow, Rik's mmap trick will work on any arch, not just x86.
 
-> This work has been unit test on a 2 way and 4 way SMP systems with no
-> lockups so far.  YMMV.
->  
-> Note: GDB 5.x will work with the core files created with this patch, provided
-> the libpthread that gets loaded at gdb debug time is stripped of symbols. 
-> 
-> Run strip on your libpthread so files and things should work fine for you.  
+Rik's mmap trick is like the dancing elephant, "the wonder is not that he
+does it well but that he does it at all." In the first place most
+programmers could not get the code to work reliably in a realistic time
+frame (if at all) due to complexity, and if they did the implementation
+would not be usefully fast for random access, which is why you use memory
+in the most cases. 
 
-Or use GDB 5.2.
+Imagine *a++ = *b++ with four system calls per byte. Or imagine an FFT,
+where even if you could do range checking to see if mmap() was needed you
+would still add multiples to the integer portion, and probably beat the
+cache to a pulp.
 
-
+As a technique for special applications and programmers it works well, but
+as a general solution it is totally impractical in both time to code and
+time to run. Not to mention portability issues to 64 bit hardware, where
+you need still other code unless you want to run multiples slower.
 
 -- 
-Daniel Jacobowitz                           Carnegie Mellon University
-MontaVista Software                         Debian GNU/Linux Developer
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

@@ -1,43 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262993AbTDFPMz (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 11:12:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262998AbTDFPMz (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 11:12:55 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:20110
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S262993AbTDFPMy (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 11:12:54 -0400
-Subject: Re: poweroff problem
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030406174655.592b7f60.us15@os.inf.tu-dresden.de>
-References: <20030405060804.31946.qmail@webmail5.rediffmail.com>
-	 <20030406233319.042878d3.sfr@canb.auug.org.au>
-	 <20030406155814.68c5c908.us15@os.inf.tu-dresden.de>
-	 <20030407002703.16993dc4.sfr@canb.auug.org.au>
-	 <20030406174655.592b7f60.us15@os.inf.tu-dresden.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1049639095.963.0.camel@dhcp22.swansea.linux.org.uk>
+	id S262989AbTDFPLh (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 11:11:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262993AbTDFPLh (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 11:11:37 -0400
+Received: from smtp-103.nerim.net ([62.4.16.103]:52752 "EHLO kraid.nerim.net")
+	by vger.kernel.org with ESMTP id S262989AbTDFPLg (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 11:11:36 -0400
+Date: Sun, 6 Apr 2003 17:25:11 +0200
+From: Jerome Chantelauze <jchantelauze@free.fr>
+To: linux-kernel@vger.kernel.org
+Subject: [Patch 2.4.21-pre7] Old hard disk (MFM/RLL/IDE) driver not build.
+Message-ID: <20030406152511.GA248@i486X33>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 06 Apr 2003 15:24:55 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-04-06 at 16:46, Udo A. Steinberg wrote:
-> On Mon, 7 Apr 2003 00:27:03 +1000 Stephen Rothwell (SR) wrote:
-> 
-> SR> I was asuming the original report was from a kernel using APM not ACPI.
-> SR> Did 2.4.2 have ACPI?
-> 
-> Err no, so he must have been using APM.
-> 
-> 2.4.2+APM has the problem, 2.4.21-pre+ACPI has the problem. Do APM and
-> ACPI both share the same code to power off a machine? If so that seems to
-> be the culprit.
+Hi.
 
-We rely on the bios for the power off sequences. Many BIOS vendors do
-set it up to share the bios code it seems
+I applied Stephane Ouellette's patch on my linux 2.4.21-pre7. Now, the
+kernel builds.
 
+But, there's a problem with the IDE support (problem also present in
+2.4.21-pre6, but not in 2.4.20).
+
+I configure the kernel to use the "Old hard disk (MFM/RLL/IDE)" driver:
+
+#
+# IDE, ATA and ATAPI Block devices
+#
+# CONFIG_BLK_DEV_IDE is not set
+CONFIG_BLK_DEV_HD_ONLY=y
+CONFIG_BLK_DEV_HD=y
+...
+
+drivers/ide/Makefile does not compile the drivers/ide/legacy/ subdir and
+generates an empty idedriver.o because CONFIG_BLK_DEV_IDE is not set.
+Setting this option would result in a driver not compatible with my old
+hardware.
+
+The following patch fixes the problem, but is it ok ?
+
+*** linux-2.4.21-pre7/drivers/ide/Makefile.orig Sat Apr  5 18:57:07 2003
+--- linux-2.4.21-pre7/drivers/ide/Makefile      Sat Apr  5 19:16:48 2003
+***************
+*** 21,26 ****
+--- 21,28 ----
+
+  subdir-$(CONFIG_BLK_DEV_IDE) += legacy ppc arm raid pci
+
++ subdir-$(CONFIG_BLK_DEV_HD_ONLY) += legacy
++
+  # First come modules that register themselves with the core
+
+  ifeq ($(CONFIG_BLK_DEV_IDE),y)
+***************
+*** 48,53 ****
+--- 50,59 ----
+    obj-y               += legacy/idedriver-legacy.o
+    obj-y               += ppc/idedriver-ppc.o
+    obj-y               += arm/idedriver-arm.o
++ endif
++
++ ifeq ($(CONFIG_BLK_DEV_HD_ONLY),y)
++   obj-y               += legacy/idedriver-legacy.o
+  endif
+
+  ifeq ($(CONFIG_BLK_DEV_IDE),y)
+
+
+Regards.
+--
+Jerome Chantelauze.

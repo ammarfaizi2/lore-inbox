@@ -1,82 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVCGARD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261583AbVCGARQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261567AbVCGARD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 19:17:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbVCGARC
+	id S261583AbVCGARQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 19:17:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbVCGARQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 19:17:02 -0500
-Received: from ikar.perftech.si ([195.246.0.20]:34634 "EHLO ikar.perftech.si")
-	by vger.kernel.org with ESMTP id S261609AbVCFXtV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 18:49:21 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Samo Pogacnik <pogacsam@s5.net>
-Message-Id: <200503070041.17863@pogacsam>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] irq and softirq handler measurement
-Date: Mon, 7 Mar 2005 00:51:38 +0100
-X-Mailer: KMail [version 1.3.2]
+	Sun, 6 Mar 2005 19:17:16 -0500
+Received: from mail.dif.dk ([193.138.115.101]:691 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261617AbVCFXy1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 18:54:27 -0500
+Date: Mon, 7 Mar 2005 00:55:30 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Ralf Baechle <ralf@linux-mips.org>
+Subject: Re: [PATCH 2.6.11-mm1] mips: more convert verify_area to access_ok
+In-Reply-To: <20050306232450.104fd7b7.yuasa@hh.iij4u.or.jp>
+Message-ID: <Pine.LNX.4.62.0503070050390.2971@dragon.hygekrogen.localhost>
+References: <20050306232450.104fd7b7.yuasa@hh.iij4u.or.jp>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-X-MDRemoteIP: 195.246.28.130
-X-Return-Path: pogacsam@s5.net
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-X-Spam-Report: * -100 USER_IN_WHITELIST From: address is in the user's white-list
-X-Spam-Processed: IKAR, Mon, 07 Mar 2005 00:49:16 +0100
-X-MDAV-Processed: IKAR, Mon, 07 Mar 2005 00:49:16 +0100
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 6 Mar 2005, Yoichi Yuasa wrote:
 
-Hello,
+> This patch converts verify_area to access_ok for include/asm-mips.
+> 
+Yeah, that's one of the few bits I had not done yet. Thank you for taking 
+a look at that.
 
-I'd like to propose a modification of the linux kernel, which enables IRQ and
-SOFTIRQ handler measurement. The patch currently covers only i386
-architecture, but could be extented to other architectures as well.
+I don't believe your patch is correct though. See below for what I think 
+is a better one.
 
-I tried to measure time spent in mentioned hendler functions, by summarizing
-times spent in every part of their execution. This means that a new nested
-interrupt ends one part of time measurement for the first (previously 
-running) IRQ or SOFTIRQ and starts a new part of time measurement for the
-second (newly started) IRQ.
-It may not be the most optimal solution (suggestions are most welcome), but
-it's been helpfull to me. Measurements may be usefull, for developing
-new drivers or if you are optimising your system.
 
-The linux (2.6.0-test11) patch has not been pasted at the end of the
-following usage description, because it is quite long, so here is the URL:
-        http://friends.s5.net/pogacnik/patch-2.6.0-test11-usage-0.1.
+> Yoichi
+> 
+> Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+> 
+> diff -urN -X dontdiff a-orig/include/asm-mips/uaccess.h a/include/asm-mips/uaccess.h
+> --- a-orig/include/asm-mips/uaccess.h	Sat Mar  5 04:15:22 2005
+> +++ a/include/asm-mips/uaccess.h	Sun Mar  6 15:51:02 2005
+> @@ -254,13 +254,11 @@
+>  ({									\
+>  	__typeof__(*(ptr)) __gu_val = 0;				\
+>  	long __gu_addr;							\
+> -	long __gu_err;							\
+> +	long __gu_err = -EFAULT;					\
+>  									\
+>  	might_sleep();							\
+>  	__gu_addr = (long) (ptr);					\
+> -	__gu_err = verify_area(VERIFY_READ, (void *) __gu_addr, size);	\
+> -									\
+> -	if (likely(!__gu_err)) {					\
+> +	if (access_ok(VERIFY_READ, (void *) __gu_addr, size)) {		\
+>  		switch (size) {						\
+>  		case 1: __get_user_asm("lb", __gu_err); break;		\
+>  		case 2: __get_user_asm("lh", __gu_err); break;		\
 
-=======================================================
-Usage description:
+with this change, __gu_err will always be -EFAULT. With the original code 
+it was either -EFAULT or 0 depending on the return value from verify_area. 
+Same goes for the next hunk in your patch.
 
-1. Measure IRQ handlers
+I believe a more correct patch would be this :
 
-This option enables measurement of time spent in each IRQ handler.
-Measured data is being displayed through the /proc/interrupts file. The CPU
-usage mean value for each IRQ handler and the maximum continuous time spent
-in each IRQ handler are being calculated for the time elapsed between two
-subsequent reads of the /proc/interrupts file.
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-2. Measure SOFTIRQ handlers
-This option enables measurement of time spent in each SOFTIRQ handler.
-Measurement includes every tasklet, that is being registered for this measure
-through the tasklet_register() function. The tasklet_init() calls register
-tasklets automaticaly.
-Measured data is being displayed through the /proc/softirqs file. The CPU
-usage mean value for each SOFTIRQ handler and the maximum continuous
-time spent in each SOFTIRQ handler are being calculated for the time elapsed
-between two subsequent reads of the /proc/softirqs file. Additionally the
-number of invocations for each SOFTIRQ handler (as well as for each tasklet)
-is being displayed through the /proc/softirqs file.
+diff -up linux-2.6.11-mm1-orig/include/asm-mips/uaccess.h linux-2.6.11-mm1/include/asm-mips/uaccess.h
+--- linux-2.6.11-mm1-orig/include/asm-mips/uaccess.h	2005-03-05 00:39:40.000000000 +0100
++++ linux-2.6.11-mm1/include/asm-mips/uaccess.h	2005-03-07 00:49:24.000000000 +0100
+@@ -258,7 +258,8 @@ struct __large_struct { unsigned long bu
+ 									\
+ 	might_sleep();							\
+ 	__gu_addr = (long) (ptr);					\
+-	__gu_err = verify_area(VERIFY_READ, (void *) __gu_addr, size);	\
++	__gu_err = access_ok(VERIFY_READ, (void *) __gu_addr, size)	\
++				? 0 : -EFAULT;				\
+ 									\
+ 	if (likely(!__gu_err)) {					\
+ 		switch (size) {						\
+@@ -353,7 +354,8 @@ extern void __get_user_unknown(void);
+ 	might_sleep();							\
+ 	__pu_val = (x);							\
+ 	__pu_addr = (long) (ptr);					\
+-	__pu_err = verify_area(VERIFY_WRITE, (void *) __pu_addr, size);	\
++	__pu_err = access_ok(VERIFY_WRITE, (void *) __pu_addr, size)	\
++				? 0 : -EFAULT;				\
+ 									\
+ 	if (likely(!__pu_err)) {					\
+ 		switch (size) {						\
 
-3. The patch
-This linux patch allows you to configure the kernel for compilation
-without any of the above options.
-First read of interrupts (or softirqs) file can not calculate CPU usage
-correctly, because there is no previous time reference.
-=======================================================
 
-kind regards to all Linux developers, Samo Pogacnik
+
+
+It preserves the exact behaviour of the original.
+
+
+-- 
+Jesper 
+
 

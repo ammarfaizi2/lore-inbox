@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132474AbRDEBLh>; Wed, 4 Apr 2001 21:11:37 -0400
+	id <S132501AbRDEBXB>; Wed, 4 Apr 2001 21:23:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132503AbRDEBL1>; Wed, 4 Apr 2001 21:11:27 -0400
-Received: from vp175062.reshsg.uci.edu ([128.195.175.62]:4874 "EHLO
-	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
-	id <S132474AbRDEBLN>; Wed, 4 Apr 2001 21:11:13 -0400
-Date: Wed, 4 Apr 2001 18:10:22 -0700
-Message-Id: <200104050110.f351AMu20890@moisil.dev.hydraweb.com>
-From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+	id <S132508AbRDEBWw>; Wed, 4 Apr 2001 21:22:52 -0400
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:30986 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S132482AbRDEBWf> convert rfc822-to-8bit; Wed, 4 Apr 2001 21:22:35 -0400
+Message-ID: <3ACBC4F4.C177E40A@baldauf.org>
+Date: Thu, 05 Apr 2001 03:05:56 +0200
+From: Xuan Baldauf <xuan--reiserfs@baldauf.org>
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
+X-Accept-Language: de-DE,en
+MIME-Version: 1.0
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux 2.4.3 crashed my hard disk
-In-Reply-To: <E14ksW8-0002Y7-00@the-village.bc.nu>
-User-Agent: tin/1.5.7-20001104 ("Paradise Regained") (UNIX) (Linux/2.2.19 (i586))
+CC: Nicholas Petreley <nicholas@petreley.com>,
+        Harald Dunkel <harri@synopsys.COM>, linux-kernel@vger.kernel.org
+Subject: Re: ReiserFS? How reliable is it? Is this the future?
+In-Reply-To: <E14kU75-0008Qx-00@the-village.bc.nu>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Apr 2001 20:00:29 +0100 (BST), Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
->> Been running this configuration over more than 2 years now without such
->> major problems.
->> Could this be the cause?
-> 
-> Quite possibly. There are reasons we ignore bug reports from overclockers
 
-Perhaps. But,
+Alan Cox wrote:
 
-ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+> > The bad (2.2 kernels)
+> >
+> > * Nothing I can think of
+>
+> Security exploit according to bugtraq, but Im pretty sure it wont take Chris
+> Mason and friends long to fix that.
+>
 
-is about the most ominous message one can receive from the IDE driver:
+This is a reiserfs security issue, but only of theoretical nature (Even if
+triggered, it won't harm you). But the reason for this bug is in NFS (v2, v3,
+hopefully not also v4) readdir braindamage.
 
-1. it's not in English, so it doesn't tell you jack
-2. it's usually a sign of "mkfs + reinstall needed"
-3. I've had it happen on Intel and VIA chipsets alike, 100% guaranteed
-   non-overclocked
-4. Andre has repeatedly claimed "he's fixed it", but experience in the
-   field shows quite the contrary to be true
-5. I have yet to see a coherent explanation from Andre as to what the
-   message means, or what causes it.
+I think, in Reiser(FS)4, a more sophisticated (NFS-)work-around (horizontal
+displacement instead of vertical displacement) is planned.
 
-So right now 2.4 + IDE (or 2.2 + IDE + Andre's patches) is not a combination 
-I can trust my data to, unless everything is running in PIO mode. The latter
-is usually way too slow for anything useful, other than maybe a pure router.
+I can tell you more if you want.
 
-Ion
+Xuân.
 
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+

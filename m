@@ -1,63 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbUKPNln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261978AbUKPOCn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261736AbUKPNln (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 08:41:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbUKPNln
+	id S261978AbUKPOCn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 09:02:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261734AbUKPOBk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 08:41:43 -0500
-Received: from ppsw-3.csi.cam.ac.uk ([131.111.8.133]:5083 "EHLO
-	ppsw-3.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S261736AbUKPNlX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 08:41:23 -0500
-Subject: Another bug report for UML in latest Linux 2.6-BK repository.
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: jdike@karaya.com
-Cc: user-mode-linux-devel@lists.sourceforge.net,
-       lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: University of Cambridge Computing Service, UK
-Message-Id: <1100612471.24599.42.camel@imp.csi.cam.ac.uk>
+	Tue, 16 Nov 2004 09:01:40 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:52900 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261742AbUKPOBU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 09:01:20 -0500
+Date: Tue, 16 Nov 2004 19:27:52 +0530
+From: Ravikiran G Thirumalai <kiran@in.ibm.com>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: [patch 1/4] Cleanup file_count usage: Bad usage at some .open, .release
+Message-ID: <20041116135752.GB23257@impedimenta.in.ibm.com>
+References: <20041116135200.GA23257@impedimenta.in.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 16 Nov 2004 13:41:11 +0000
-Content-Transfer-Encoding: 7bit
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041116135200.GA23257@impedimenta.in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If I enable HIGHMEM in my .config (see my previous bug report for my
-.config and just change HIGHMEM to enabled) compilation fails:
+Following patch cleans up some obviously wrong usage of struct file.f_count
+in ->open() and ->release() routines of some file systems, the use case being
+check if f_count is 1 in ->open() and f_count is 0 in ->release().  
+This patch cleans up the f_count usage for affs, hfs and hfsplus file systems.
 
-[snip]
-  CC      arch/um/kernel/mem.o
-arch/um/kernel/mem.c: In function `mem_init':
-arch/um/kernel/mem.c:71: warning: implicit declaration of function
-`phys_page'
-arch/um/kernel/mem.c:71: warning: assignment makes pointer from integer
-without a cast
-arch/um/kernel/mem.c: In function `kmap_init':
-arch/um/kernel/mem.c:151: warning: implicit declaration of function
-`pte_offset'arch/um/kernel/mem.c:151: warning: assignment makes pointer
-from integer without a cast
-[snip]
-  LD      .tmp_vmlinux1
-arch/um/kernel/built-in.o(.text+0x2ca9): In function `mem_init':
-arch/um/kernel/mem.c:71: undefined reference to `phys_page'
-arch/um/kernel/built-in.o(.init.text+0x1d2): In function `kmap_init':
-include/asm/pgtable.h:394: undefined reference to `pte_offset'
-collect2: ld returned 1 exit status
-  KSYM    .tmp_kallsyms1.S
-nm: '.tmp_vmlinux1': No such file
-make: *** [.tmp_kallsyms1.S] Error 139
+Signed-off-by: Ravikiran Thirumalai <kiran@in.ibm.com>
+---
 
-Best regards,
+ affs/file.c     |    4 ----
+ hfs/inode.c     |    4 ----
+ hfsplus/inode.c |    4 ----
+ 3 files changed, 12 deletions(-)
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
 
+diff -ruN -X dontdiff linux-2.6.9/fs/affs/file.c f_count-2.6.9/fs/affs/file.c
+--- linux-2.6.9/fs/affs/file.c	2004-10-19 03:24:08.000000000 +0530
++++ f_count-2.6.9/fs/affs/file.c	2004-11-09 17:45:19.000000000 +0530
+@@ -62,8 +62,6 @@
+ static int
+ affs_file_open(struct inode *inode, struct file *filp)
+ {
+-	if (atomic_read(&filp->f_count) != 1)
+-		return 0;
+ 	pr_debug("AFFS: open(%d)\n", AFFS_I(inode)->i_opencnt);
+ 	AFFS_I(inode)->i_opencnt++;
+ 	return 0;
+@@ -72,8 +70,6 @@
+ static int
+ affs_file_release(struct inode *inode, struct file *filp)
+ {
+-	if (atomic_read(&filp->f_count) != 0)
+-		return 0;
+ 	pr_debug("AFFS: release(%d)\n", AFFS_I(inode)->i_opencnt);
+ 	AFFS_I(inode)->i_opencnt--;
+ 	if (!AFFS_I(inode)->i_opencnt)
+diff -ruN -X dontdiff linux-2.6.9/fs/hfs/inode.c f_count-2.6.9/fs/hfs/inode.c
+--- linux-2.6.9/fs/hfs/inode.c	2004-10-19 03:25:29.000000000 +0530
++++ f_count-2.6.9/fs/hfs/inode.c	2004-11-09 17:45:19.000000000 +0530
+@@ -524,8 +524,6 @@
+ {
+ 	if (HFS_IS_RSRC(inode))
+ 		inode = HFS_I(inode)->rsrc_inode;
+-	if (atomic_read(&file->f_count) != 1)
+-		return 0;
+ 	atomic_inc(&HFS_I(inode)->opencnt);
+ 	return 0;
+ }
+@@ -536,8 +534,6 @@
+ 
+ 	if (HFS_IS_RSRC(inode))
+ 		inode = HFS_I(inode)->rsrc_inode;
+-	if (atomic_read(&file->f_count) != 0)
+-		return 0;
+ 	if (atomic_dec_and_test(&HFS_I(inode)->opencnt)) {
+ 		down(&inode->i_sem);
+ 		hfs_file_truncate(inode);
+diff -ruN -X dontdiff linux-2.6.9/fs/hfsplus/inode.c f_count-2.6.9/fs/hfsplus/inode.c
+--- linux-2.6.9/fs/hfsplus/inode.c	2004-10-19 03:23:44.000000000 +0530
++++ f_count-2.6.9/fs/hfsplus/inode.c	2004-11-09 17:45:19.000000000 +0530
+@@ -268,8 +268,6 @@
+ {
+ 	if (HFSPLUS_IS_RSRC(inode))
+ 		inode = HFSPLUS_I(inode).rsrc_inode;
+-	if (atomic_read(&file->f_count) != 1)
+-		return 0;
+ 	atomic_inc(&HFSPLUS_I(inode).opencnt);
+ 	return 0;
+ }
+@@ -280,8 +278,6 @@
+ 
+ 	if (HFSPLUS_IS_RSRC(inode))
+ 		inode = HFSPLUS_I(inode).rsrc_inode;
+-	if (atomic_read(&file->f_count) != 0)
+-		return 0;
+ 	if (atomic_dec_and_test(&HFSPLUS_I(inode).opencnt)) {
+ 		down(&inode->i_sem);
+ 		hfsplus_file_truncate(inode);

@@ -1,59 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287895AbSBMRUw>; Wed, 13 Feb 2002 12:20:52 -0500
+	id <S287908AbSBMR3b>; Wed, 13 Feb 2002 12:29:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287886AbSBMRUl>; Wed, 13 Feb 2002 12:20:41 -0500
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:29374 "EHLO
-	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
-	id <S287882AbSBMRU1>; Wed, 13 Feb 2002 12:20:27 -0500
-Message-Id: <200202131632.JAA02806@tstac.esa.lanl.gov>
-Content-Type: text/plain; charset=US-ASCII
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-To: Dag Brattli <dag@brattli.net>
-Subject: [PATCH] Add help texts to drivers/net/irda/Config.help
-Date: Wed, 13 Feb 2002 10:19:11 -0700
-X-Mailer: KMail [version 1.3.1]
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S287919AbSBMR3W>; Wed, 13 Feb 2002 12:29:22 -0500
+Received: from mail.headlight.de ([195.254.117.141]:49930 "EHLO
+	mail.headlight.de") by vger.kernel.org with ESMTP
+	id <S287908AbSBMR3I>; Wed, 13 Feb 2002 12:29:08 -0500
+Date: Wed, 13 Feb 2002 18:29:27 +0100
+From: Daniel Mack <daniel@yoobay.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [BUG] + [PATCH]: handling bad inodes in 2.4.x kernels
+Message-ID: <20020213182927.I15910@chaos.intra>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In drivers/net/irda/Config.in, there are two options which currently do
-not have help texts in drivers/net/irda/Config.help.  Here are snippets
-from the Config.in for these options:
+i already wrote this a few days ago but did not get any response yet.
+since i believe this is a serious bug, i'm posting this again...
 
-if [ "$CONFIG_ARCH_EP7211" = "y" ]; then
-    dep_tristate '  EP7211 I/R support' CONFIG_EP7211_IR $CONFIG_IRDA
-fi
+the bug is about the handling of bad inodes in at least the 2.4.16, .17,
+.18-pre9 and .9 kernel releases (i suspect all 2.4 kernels are affected)
+and causes the names_cache to get confused.
+you can easily reproduce this effect by making an inode bad using debugfs
+(or using a bad one if you have, of course) and open() it with the flag
+O_CREAT set. watching /proc/slabinfo will show you the weirdness.
+consider /tmp/bad is a bad inode:
 
-if [ "$CONFIG_ARCH_SA1100" = "y" ]; then
-   dep_tristate 'SA1100 Internal IR' CONFIG_SA1100_FIR $CONFIG_IRDA
-fi
+# cd /tmp
+# ls | grep bad
+bad
+# cat bad
+cat: bad: Input/output error
+# cat /proc/slabinfo | grep names
+names_cache 0 2 4096 0 2 1 : 2 333 2 0 0
+# echo foo >bad
+sh: bad: Input/output error
+# cat /proc/slabinfo | grep names
+names_cache 4294967295 2 4096 1 2 1
 
-Here is a patch to drivers/net/irda/Config.help to add these help texts.
+boom! 4294967295 == (unsigned long) -1, the cache length is growing backwards.
+this "echo foo >bad" opens the file with O_CREAT set which forces the effect.
 
-Steven
+what confuses me is that the system remains stable after that happened, the
+only effect i got was that i wasn't able to rename() a file on any filesystem
+anymore. what the rename() syscall does on kernel side is getting memory from
+the names_cache twice by calling __getname() which gives out the same pointer
+twice when the kernel is poisoned this way.
+anyway, it's an ugly bug that needs to get fixed.
 
---- linux-2.5.4/drivers/net/irda/Config.help.orig       Wed Feb 13 09:29:49 2002
-+++ linux-2.5.4/drivers/net/irda/Config.help    Wed Feb 13 09:38:40 2002
-@@ -88,6 +88,18 @@
-   If you want to compile it as a module, say M here and read
-   <file:Documentation/modules.txt>. The module will be called vlsi_ir.o.
+the bug is most likely in fs/namei.c, open_namei() - at least i fixed my
+machine here with this:
 
-+CONFIG_EP7211_IR
-+  Say Y here if you wish to use the infrared port on the EP7211. Note
-+  that you can't use the first UART and the infrared port at the same
-+  time, and that the EP7211 only supports SIR mode, at speeds up to
-+  115.2 kbps. To use the I/R port, you will need to get the source to
-+  irda-utils and apply the patch at
-+  <http://lists.arm.linux.org.uk/pipermail/linux-arm-kernel/2001-June/003510.html>.
+--- linux-2.4.17-orig/fs/namei.c Wed Oct 17 23:46:29 2001
++++ linux-2.4.17-uml/fs/namei.c Fri Feb 8 02:53:36 2002
+@@ -1052,6 +1052,11 @@
+        error = -ENOENT;
+        if (!dentry->d_inode)
+                goto exit_dput;
 +
-+CONFIG_SA1100_FIR
-+  Say Y here to enable the on-board IRDA device on a Intel(R)
-+  StrongARM(R) SA-1110 based microporocessor.
++ error = -EIO;
++ if (is_bad_inode(dentry->d_inode))
++ goto exit_dput;
 +
- CONFIG_DONGLE
-   Say Y here if you have an infrared device that connects to your
-   computer's serial port. These devices are called dongles. Then say Y
+        if (dentry->d_inode->i_op && dentry->d_inode->i_op->follow_link)
+                goto do_link;
+
+an open() does not make any sense on a bad inode so i see no reason for
+not breaking the branch at this point.
+
+any comments? please let me know if you're able to trigger this effect
+on older 2.4 kernels. btw, version 2.2.19 is not tainted.
+
+greets,
+daniel
+
+

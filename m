@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129031AbRBHPfj>; Thu, 8 Feb 2001 10:35:39 -0500
+	id <S129031AbRBHPrM>; Thu, 8 Feb 2001 10:47:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129051AbRBHPf3>; Thu, 8 Feb 2001 10:35:29 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:10257 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129031AbRBHPez>; Thu, 8 Feb 2001 10:34:55 -0500
-Date: Thu, 8 Feb 2001 11:45:34 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Ben LaHaise <bcrl@redhat.com>
-cc: Linus Torvalds <torvalds@transmeta.com>, Jens Axboe <axboe@suse.de>,
-        Manfred Spraul <manfred@colorfullife.com>, Ingo Molnar <mingo@elte.hu>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
+	id <S129051AbRBHPrD>; Thu, 8 Feb 2001 10:47:03 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:1554 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S129031AbRBHPqz>; Thu, 8 Feb 2001 10:46:55 -0500
+Date: Thu, 8 Feb 2001 16:46:12 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: "Stephen C. Tweedie" <sct@redhat.com>, Pavel Machek <pavel@suse.cz>,
+        Linus Torvalds <torvalds@transmeta.com>, Jens Axboe <axboe@suse.de>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Ben LaHaise <bcrl@redhat.com>, Ingo Molnar <mingo@elte.hu>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>, Steve Lord <lord@sgi.com>,
         Linux Kernel List <linux-kernel@vger.kernel.org>,
         kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
 Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-In-Reply-To: <Pine.LNX.4.21.0102081141050.25350-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0102081144420.25350-100000@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0102081000450.25219-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.3.96.1010208164448.9024C-100000@artax.karlin.mff.cuni.cz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 8 Feb 2001, Marcelo Tosatti wrote:
-
-> 
-> On Thu, 8 Feb 2001, Ben LaHaise wrote:
-> 
-> <snip>
-> 
-> > > (besides, latency would suck. I bet you're better off waiting for the
-> > > requests if they are all used up. It takes too long to get deep into the
-> > > kernel from user space, and you cannot use the exclusive waiters with its
-> > > anti-herd behaviour etc).
+> > > How do you write high-performance ftp server without threads if select
+> > > on regular file always returns "ready"?
 > > 
-> > Ah, but no.  In fact for some things, the wait queue extensions I'm using
-> > will be more efficient as things like test_and_set_bit for obtaining a
-> > lock gets executed without waking up a task.
+> > Select can work if the access is sequential, but async IO is a more
+> > general solution.
 > 
-> The latency argument is somewhat bogus because there is no problem to
-> check the request queue, in the aio syscalls, and simply fail if its full.
+> Even async IO (ie aio_read/aio_write) should block on the request queue if
+> its full in Linus mind.
 
-Ugh, I forgot to say check the request queue before doing any filesystem
-work. 
+This is not problem (you can create queue big enough to handle the load).
+
+The problem is that aio_read and aio_write are pretty useless for ftp or
+http server. You need aio_open.
+
+Mikulas
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318969AbSHSSRT>; Mon, 19 Aug 2002 14:17:19 -0400
+	id <S318970AbSHSS14>; Mon, 19 Aug 2002 14:27:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318970AbSHSSRT>; Mon, 19 Aug 2002 14:17:19 -0400
-Received: from web13008.mail.yahoo.com ([216.136.174.18]:17171 "HELO
-	web13008.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S318969AbSHSSRS>; Mon, 19 Aug 2002 14:17:18 -0400
-Message-ID: <20020819182121.93059.qmail@web13008.mail.yahoo.com>
-Date: Mon, 19 Aug 2002 11:21:21 -0700 (PDT)
-From: Xuehua Chen <namniardniw@yahoo.com>
-Subject: A question about cache coherence
-To: linux-kernel@vger.kernel.org
+	id <S318972AbSHSS14>; Mon, 19 Aug 2002 14:27:56 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:37693 "EHLO
+	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S318970AbSHSS1z>; Mon, 19 Aug 2002 14:27:55 -0400
+Date: Mon, 19 Aug 2002 13:31:38 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] O(1) sys_exit(), threading, scalable-exit-2.5.31-A6
+Message-ID: <61100000.1029781898@baldur.austin.ibm.com>
+In-Reply-To: <Pine.LNX.4.44.0208192004110.30255-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0208192004110.30255-100000@localhost.localdomain>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Met a problem in my research. I run some code on a
-Xeon
-dual-processor machine. It seems to me that there is a
- cache coherence problem. As I am not so familiar 
-to this topic, I would like to ask some experts about 
-the following questions.
 
-1. Do Xeon processors have hardware mechanisms to
-maintain cache coherence?
-2. Does the SMP kernel handle the cache coherence
-problem
-3. What should I do if both of them don't handle cache
-coherence.
+--On Monday, August 19, 2002 08:08:10 PM +0200 Ingo Molnar <mingo@elte.hu>
+wrote:
 
-Thanks.
+> the problem is that the tracing task wants to do a wait4() on all traced
+> children, and the only way to get that is to have the traced tasks in the
+> child list. Eg. strace -f traces a random number of tasks, and after the
+> PTRACE_CONTINUE call, the wait4 done by strace must be able to 'get
+> events' from pretty much any of the traced tasks. So unless the ptrace
+> interface is reworked in an incompatible way, i cannot see how this would
+> work. wait4 could perhaps somehow search the whole tasklist, but that
+> could be a pretty big pain even for something like strace.
 
-Frank Samuel
+It seems to me it would be worth adding list_heads in the task struct for
+ptraced tasks and ptraced siblings if it gets rid of the reparenting.
 
-__________________________________________________
-Do You Yahoo!?
-HotJobs - Search Thousands of New Jobs
-http://www.hotjobs.com
+Dave McCracken
+
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
+

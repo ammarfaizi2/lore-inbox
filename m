@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316851AbSFDV5r>; Tue, 4 Jun 2002 17:57:47 -0400
+	id <S316855AbSFDV6t>; Tue, 4 Jun 2002 17:58:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316853AbSFDV5q>; Tue, 4 Jun 2002 17:57:46 -0400
-Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:54162
-	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
-	id <S316851AbSFDV5p>; Tue, 4 Jun 2002 17:57:45 -0400
-From: Tim Hockin <thockin@hockin.org>
-Message-Id: <200206042157.g54LvbS15220@www.hockin.org>
-Subject: Re: Max groups at 32?
-To: davem@redhat.com (David S. Miller)
-Date: Tue, 4 Jun 2002 14:57:37 -0700 (PDT)
-Cc: thockin@hockin.org, kloczek@rudy.mif.pg.gda.pl, jgarzik@mandrakesoft.com,
-        austin@coremetrics.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20020604.142424.63998011.davem@redhat.com> from "David S. Miller" at Jun 04, 2002 02:24:24 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S316854AbSFDV6s>; Tue, 4 Jun 2002 17:58:48 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:42953 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S316853AbSFDV6q>; Tue, 4 Jun 2002 17:58:46 -0400
+Message-ID: <59885C5E3098D511AD690002A5072D3C02AB7ED8@orsmsx111.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Dave Jones'" <davej@suse.de>
+Cc: "'Pavel Machek'" <pavel@suse.cz>, Brad Hards <bhards@bigpond.net.au>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        trivial@rustcorp.com.au
+Subject: RE: [patch] i386 "General Options" - begone [take 2]
+Date: Tue, 4 Jun 2002 14:58:35 -0700 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I screwed up sending this out - just in case it didn't go properly to the
-list...
-
-
->    We have a patch floating around that enables unlimited group membership at
->    the kernel level, too.  We've never submitted it because it was suggested
->    that we were crazy and should just bugger off.   If I thought it might be
->    useful and acceptable, we could perhaps make it available in a cleanish
->    form.
+> From: Dave Jones [mailto:davej@suse.de] 
+>  > This is a tough one because ACPI *is* power management but 
+> it is also
+>  > configuration. It is equivalent to such things as MPS 
+> table parsing, $PIR
+>  > parsing, PNPBIOS, as well as APM. The first two don't have 
+> CONFIG_ options
+>  > at the moment but they should at some point.
+>  > The only thing I can think of is a "Platform interface 
+> options" menu and
+>  > just throw all of the above in that. Any other ideas?
 > 
-> How do it handle userland backwards compatibility with the existing
-> stuff?
+> You seem to be halfway down the road of splitting ACPI in two already,
+> with the introduction of CONFIG_ACPI_HT_ONLY recently. Why not bundle
+> such options under a CONFIG_ACPI_INITIALISATION or the likes, and
+> put the rest under the power management menu as Brad suggested ?
 
-getgroups/setgroups always use a size.  use sysctl() to get/set the
-max ngroups value (default to 32).
+CONFIG_ACPI_HT_ONLY was a concession to the fact that using ACPI for
+processor discovery only was possible already, but in general an
+all-or-nothing approach to ACPI is IMHO the safest bet.
 
-It involves some little tweaks at various places, and we keep the groups
-list sorted because it can now get very large.  But all the kernel code is
-pretty clean.  Patching glibc to do the right thing was straight forward.
-Then a well-done app will call sysctl() to get the ngroups, make room for
-it and call getgroups().
+So, let's assume in the very near future it becomes possible to compile a
+kernel without MPS or $PIR support. Where should those config options go?
+These, in addition to pnpbios, are also unneeded with ACPI. That is why I
+was advocating the more general "Platform interface options" menu, so we
+could have *one* place to config these and ACPI in or out, instead of having
+the many different platform interface options in different logical areas.
 
-Old apps that count on NGROUPS being constant will only get the first 32
-groups.  System admin can define max NGROUPS at boot time via sysctl.
-
-I think I have accurately described it - I didn't write it, so I CC:ed
-Erik, who did.   It'd be super cool to get this pushed back.  I haven't
-been trying too hard, but I can definately spend some time prepping it, if
-it has better than a snowball's chance. 
-
-Tim
-
+My 2c -- Regards -- Andy

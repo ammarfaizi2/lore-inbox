@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313578AbSD1RwU>; Sun, 28 Apr 2002 13:52:20 -0400
+	id <S313924AbSD1R6a>; Sun, 28 Apr 2002 13:58:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313613AbSD1RwT>; Sun, 28 Apr 2002 13:52:19 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:34984 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S313578AbSD1RwT>; Sun, 28 Apr 2002 13:52:19 -0400
-Date: Sun, 28 Apr 2002 11:52:14 -0600
-Message-Id: <200204281752.g3SHqE025583@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BK, deltas, snapshots and fate of -pre...
-In-Reply-To: <E171CTy-0000C3-00@starship>
+	id <S313927AbSD1R63>; Sun, 28 Apr 2002 13:58:29 -0400
+Received: from cs145025.pp.htv.fi ([213.243.145.25]:41742 "EHLO chip.2y.net")
+	by vger.kernel.org with ESMTP id <S313924AbSD1R63>;
+	Sun, 28 Apr 2002 13:58:29 -0400
+Date: Sun, 28 Apr 2002 20:57:59 +0300 (EEST)
+From: Panu Matilainen <pmatilai@welho.com>
+X-X-Sender: pmatilai@chip.2y.net
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: nfs@lists.sourceforge.net, <linux-kernel@vger.kernel.org>
+Subject: Re: 1279 mounts
+In-Reply-To: <20020427213236.A20253@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.44.0204282055470.2935-100000@chip.2y.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips writes:
-> On Saturday 27 April 2002 20:59, Richard Gooch wrote:
-> > I've added two subsections to the FAQ about this, which I hope will
-> > avoid some future flamewars:
-> > http://www.tux.org/lkml/#s1-20
-> > http://www.tux.org/lkml/#s1-21
+On Sat, 27 Apr 2002, Pete Zaitcev wrote:
+
+> > Date: Fri, 26 Apr 2002 11:25:33 +0300 (EEST)
+> > From: Panu Matilainen <pmatilai@welho.com>
 > 
-> Perhaps the message would be more credible if this were toned down:
+> > I've got quite a few users here who "need" this functionality and it's 
+> > included in our RH-based custom kernels. Having it as a separate patch 
+> > for 2.4 is no problem, for 2.5 I'm hoping we finally move to 32bit device 
+> > numbers...
 > 
->   no matter how loud or how many times you scream,
+> Mind, we only ship the unnamed majors part, but not the NFS part.
+> There is no word from util-linux maintainer about required
+> changes to mount(8), so I was cautious about doint that.
 
-Actually, those words were carefully chosen. There *has* been a lot of
-repeated shouting about this topic. I want to highlight the stupidity
-and futility of dragging the list through another pointless flamewar.
-I've used similar language elsewhere in the FAQ for other repeat
-flamewars or pointless debates.
+Sure, I know. In these cases getting the limit from 255 to around 800 is 
+enough so the mount patch isn't even needed.
 
-The bottom line is: no matter how many times you scream, Linus won't
-change his mind because of the BK licence. The FAQ entry is accurate.
+	- Panu -
 
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

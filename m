@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132029AbRCZQED>; Mon, 26 Mar 2001 11:04:03 -0500
+	id <S132462AbRCZQNG>; Mon, 26 Mar 2001 11:13:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132456AbRCZQDx>; Mon, 26 Mar 2001 11:03:53 -0500
-Received: from gherkin.sa.wlk.com ([192.158.254.49]:23563 "HELO
-	gherkin.sa.wlk.com") by vger.kernel.org with SMTP
-	id <S132029AbRCZQDe>; Mon, 26 Mar 2001 11:03:34 -0500
-Message-Id: <m14hZSE-0005khC@gherkin.sa.wlk.com>
-From: rct@gherkin.sa.wlk.com (Bob_Tracy)
-Subject: Re: Linux Worm (fwd)
-In-Reply-To: <20010326102418.C18480@xi.linuxpower.cx> "from Gregory Maxwell at
- Mar 26, 2001 10:24:18 am"
-To: linux-kernel@vger.kernel.org
-Date: Mon, 26 Mar 2001 10:02:50 -0600 (CST)
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+	id <S132463AbRCZQMx>; Mon, 26 Mar 2001 11:12:53 -0500
+Received: from mx1out.umbc.edu ([130.85.253.51]:47282 "EHLO mx1out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S132456AbRCZQMf>;
+	Mon, 26 Mar 2001 11:12:35 -0500
+Date: Mon, 26 Mar 2001 11:11:53 -0500
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: Bob_Tracy <rct@gherkin.sa.wlk.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: offtopic Re: Linux Worm (fwd)
+In-Reply-To: <m14hZSE-0005khC@gherkin.sa.wlk.com>
+Message-ID: <Pine.SGI.4.31L.02.0103261108250.1233143-100000@irix2.gl.umbc.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gregory Maxwell wrote:
-> On Mon, Mar 26, 2001 at 10:07:22AM -0500, Richard B. Johnson wrote:
-> [snip]
-> > I have just received notice that my machines will no longer be
-> > provided access to "The Internet".
-> 
-> It's sad that people like the one who sent out messages like that can stay
-> employed.
+On Mon, 26 Mar 2001, Bob_Tracy wrote:
 
-So let's quit covering for 'em.  Let's have the name(s) behind that
-idiotic policy letter, because I would not knowingly allow any company
-I work for to hire such people.
+> So let's quit covering for 'em.  Let's have the name(s) behind that
+> idiotic policy letter, because I would not knowingly allow any company
+> I work for to hire such people.
 
-        Problem        Remedy
-	-------        ------
-	hangnail       amputate
-	headache       amputate
-	(etc.)
+In this case, the person(s) making the policy seem to be short on clue,
+and long on agenda.
 
-Sheesh...
+However, I can understand and agree with, from a security perspective, a
+company deciding to ditch OSes that they have little to no idea about how
+to handle.
 
---Bob Tracy
-rct@frus.com
+I've been in the position to suggest that very action to companies, as
+their $VENDOR-OS box sits in the corner and decays quietly, because
+everyone either ignores it while its working, or kicks it into
+'submission' when something goes wrong ...
+
+Yeah, the _solution_ is to have IT people with lots of clue, but, well ...
+*cough* ...
+
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
+

@@ -1,62 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266499AbUHIL65@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266498AbUHIMAX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266499AbUHIL65 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 07:58:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266498AbUHIL65
+	id S266498AbUHIMAX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 08:00:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266500AbUHIMAX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 07:58:57 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:17282 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S266499AbUHIL6w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 07:58:52 -0400
-Date: Mon, 9 Aug 2004 12:48:14 +0100
-From: Dave Jones <davej@redhat.com>
-To: Sven-Haegar Koch <haegar@sdinet.de>
-Cc: Linux-Kernel-Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: Suspend/Resume support for ati-agp
-Message-ID: <20040809114814.GA2640@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Sven-Haegar Koch <haegar@sdinet.de>,
-	Linux-Kernel-Mailinglist <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0408080331490.15568@mercury.sdinet.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408080331490.15568@mercury.sdinet.de>
-User-Agent: Mutt/1.4.1i
+	Mon, 9 Aug 2004 08:00:23 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:30914 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S266498AbUHIL73 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 07:59:29 -0400
+Date: Mon, 9 Aug 2004 13:58:43 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Message-Id: <200408091158.i79BwhPj009609@burner.fokus.fraunhofer.de>
+To: alan@lxorguk.ukuu.org.uk, schilling@fokus.fraunhofer.de
+Cc: James.Bottomley@steeleye.com, axboe@suse.de, linux-kernel@vger.kernel.org,
+       mj@ucw.cz
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 08, 2004 at 03:39:33AM +0200, Sven-Haegar Koch wrote:
+>From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 
- > while trying to debug a strange resume problem with 2.6.8-rc3-mm1 and
- > software suspend 2 I suspeced ati-agp, and created the following attached
- > patch to add powermanagement support for it.
- > 
- > I don't know if it's the completely right thing to do, I just copied the
- > way via-agp and intel-agp do it - but perhaps you like it and want to send
- > it upstream.
+>BTW while I remember cdrecord has a bug with hardcoded iso8859-1
+>copyright symbols in it which mean your copyright banner is invalid
+>unicode on a UTF-8 locale.
 
-I'll have to dig out the specs for this chipset to double check a
-reconfigure is enough (or even needed).  Does this patch definitly make
-a difference to you on resume ?
 
- > ps:
- > this did not fix the strange "weird vertical bars instead of movie in
- > mplayer after resume" I have, but does not do any bad things either ;)
+It seems that you like to write unproven and thus wrong things :-(
 
-That wouldn't be using AGP anyway. The only difference this could make
-would be if you were using 3D applications.
+BTW: this also appears to your comments on the Solaris device handling....
+Did you ever install Solaris 10 and test?
 
- > +
- > +	/* reconfigure AGP hardware again */
- > +	if (bridge->driver == &ati_generic_bridge)
- > +		return ati_configure();
- > +
- > +	return 0;
+Jörg
 
-If bridge->driver _isn't_ ati_generic_bridge, I don't think we can
-ever get here, so you can probably just make this unconditional.
-
-		Dave
-
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

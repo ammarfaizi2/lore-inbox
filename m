@@ -1,37 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313601AbSDHJlk>; Mon, 8 Apr 2002 05:41:40 -0400
+	id <S312846AbSDHJz2>; Mon, 8 Apr 2002 05:55:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313599AbSDHJlj>; Mon, 8 Apr 2002 05:41:39 -0400
-Received: from ncc1701.cistron.net ([195.64.68.38]:42510 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S313597AbSDHJlj>; Mon, 8 Apr 2002 05:41:39 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: Extraversion in System.map?
-Date: Mon, 8 Apr 2002 09:41:38 +0000 (UTC)
-Organization: Cistron
-Message-ID: <a8roki$v7t$1@ncc1701.cistron.net>
-In-Reply-To: <Pine.LNX.4.44.0204081502180.548-100000@holly.crl.go.jp> <1018246521.1534.145.camel@phantasy>
-Content-Type: text/plain; charset=iso-8859-15
-X-Trace: ncc1701.cistron.net 1018258898 31997 195.64.65.67 (8 Apr 2002 09:41:38 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S313422AbSDHJz1>; Mon, 8 Apr 2002 05:55:27 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:57615 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S312846AbSDHJz1>; Mon, 8 Apr 2002 05:55:27 -0400
+Date: Mon, 8 Apr 2002 11:55:27 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Itai Nahshon <nahshon@actcom.co.il>
+Cc: Benjamin LaHaise <bcrl@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Andrew Morton <akpm@zip.com.au>, joeja@mindspring.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: faster boots?
+Message-ID: <20020408095527.GA27999@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <E16tTAF-0008F2-00@the-village.bc.nu> <200204060007.g3607I525699@lmail.actcom.co.il> <20020407144246.C46@toy.ucw.cz> <200204080048.g380mt514749@lmail.actcom.co.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1018246521.1534.145.camel@phantasy>,
-Robert Love  <rml@tech9.net> wrote:
->Do what everyone else does and name your System.map appropriately, i.e.
->System.map-2.5.8-pre2 and then on boot symlink System.map to
->System.map-`uname -r`.  Most (all?) distributions do this for you
->already.
+Hi!
 
-Not even that is needed. Most if not all utilities that need a
-system.map file check for System.map-`uname -r` _first_ and only
-if that is not found fall back to plain System.map. So the symlink
-is superfluous.
+> > > I'm curios, how much work can you accomplish on your laptop
+> > > without any disk access (but you still need to save files - keeping
+> > > them in buffers until it's time to actually write them).
+> >
+> > Debugging session (emacs/gcc/gdb) for half an hour with disks stopped is
+> > easy to accomplish.
+> 
+> My suggestion was: there should _never_ be dirty blocks for disks that
+> are not spinning. Flush all dirty buffers before spinning down, and spin-up
+> on any operation that writes to the disk (and block that operation).
 
-Mike.
+And your suggestion is useless because disk will be up all the time on
+the system...
 
+> The opposite to that (which I do not like) processes create as many
+> dirty buffers as they want and disk spins up only on sync() or when
+> the system is starving for usable memory.
+
+...which is usefull, OTOH. If you have laptop with battery and
+suspend-to-disk capability in BIOS when battery goes low, you can
+cache for *long* time.
+
+> An aletrnate ides (more drastic) is that fle systems can mount internally
+> read-only when a disk is spinned-down. Means - you cannot spin
+> down when there is a file handle open for writing. Other than this there
+> are advantages.
+
+Hah, so you can never spindown because /var/log/syslog is opened for
+writing.
+
+								Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

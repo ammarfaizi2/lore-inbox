@@ -1,44 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132257AbQLHUnJ>; Fri, 8 Dec 2000 15:43:09 -0500
+	id <S131764AbQLHUrt>; Fri, 8 Dec 2000 15:47:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132282AbQLHUnA>; Fri, 8 Dec 2000 15:43:00 -0500
-Received: from web1106.mail.yahoo.com ([128.11.23.126]:41222 "HELO
-	web1106.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S132257AbQLHUmq>; Fri, 8 Dec 2000 15:42:46 -0500
-Message-ID: <20001208201218.5388.qmail@web1106.mail.yahoo.com>
-Date: Fri, 8 Dec 2000 21:12:17 +0100 (CET)
-From: willy tarreau <wtarreau@yahoo.fr>
-Subject: Re: Linux 2.2.18pre25
-To: Philipp Rumpf <prumpf@parcelfarce.linux.theplanet.co.uk>,
-        Willy Tarreau <wtarreau@free.fr>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Miquel van Smoorenburg <miquels@cistron.nl>,
-        linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S132104AbQLHUrj>; Fri, 8 Dec 2000 15:47:39 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:49517
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S131764AbQLHUrX>; Fri, 8 Dec 2000 15:47:23 -0500
+Date: Fri, 8 Dec 2000 21:16:51 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] remove warnings from drivers/net/eepro.c (240-test12-pre7)
+Message-ID: <20001208211651.C599@jaquet.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> "I'm sure" meaning "I didn't test it" ?
+(I sent the following to aris@conectiva.com.br, but forgot to cc linux-kernel).
 
-absolutely, I believed that the driver was *exactly*
-the same as the previous release which didn't boot and
-needed the fix, but another fix has been applied and
-corrected it. Now I think it will work with a clean
-2.2.18pre25. Anyway, I left a kernel compile behind me
-this evening, so I'll confirm this on monday as soon
-as
-I can reboot the server on a pre25.
+Hi.
 
-Cheers,
-Willy
+The following patch removes some 'defined but not used' warnings when
+compiling drivers/net/eepro.c (240t12p7) without modular support.
 
 
-___________________________________________________________
-Do You Yahoo!? -- Pour dialoguer en direct avec vos amis, 
-Yahoo! Messenger : http://fr.messenger.yahoo.com
+--- linux-240-t12-pre7-clean/drivers/net/eepro.c	Fri Dec  8 00:44:58 2000
++++ linux/drivers/net/eepro.c	Fri Dec  8 21:02:50 2000
+@@ -1727,6 +1727,8 @@
+ 		eepro_complete_selreset(ioaddr);
+ }
+ 
++#ifdef MODULE
++
+ #define MAX_EEPRO 8
+ static struct net_device dev_eepro[MAX_EEPRO];
+ 
+@@ -1737,7 +1739,7 @@
+ };
+ static int autodetect;
+ 
+-static int n_eepro = 0;
++static int n_eepro;
+ /* For linux 2.1.xx */
+ 
+ MODULE_AUTHOR("Pascal Dupuis <dupuis@lei.ucl.ac.be> for the 2.1 stuff (locking,...)");
+@@ -1746,8 +1748,6 @@
+ MODULE_PARM(irq, "1-" __MODULE_STRING(MAX_EEPRO) "i");
+ MODULE_PARM(mem, "1-" __MODULE_STRING(MAX_EEPRO) "i");
+ MODULE_PARM(autodetect, "1-" __MODULE_STRING(1) "i");
+-
+-#ifdef MODULE
+ 
+ int 
+ init_module(void)
+
+-- 
+Regards,
+        Rasmus(rasmus@jaquet.dk)
+
+I've always found profanity to be refuge of the inarticulate motherfucker.
+  --Anonymous
+
+----- End forwarded message -----
+
+-- 
+        Rasmus(rasmus@jaquet.dk)
+
+Without censorship, things can get terribly confused in the
+public mind. -General William Westmoreland, during the war in Viet Nam
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

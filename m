@@ -1,75 +1,287 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268072AbUIVWqj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268074AbUIVWsn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268072AbUIVWqj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 18:46:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268074AbUIVWqj
+	id S268074AbUIVWsn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 18:48:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268079AbUIVWsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 18:46:39 -0400
-Received: from sigma957.CIS.McMaster.CA ([130.113.64.83]:29430 "EHLO
-	sigma957.cis.mcmaster.ca") by vger.kernel.org with ESMTP
-	id S268072AbUIVWqg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 18:46:36 -0400
-Subject: Re: [patch] inotify: locking
-From: John McCutchan <ttb@tentacle.dhs.org>
-To: Robert Love <rml@novell.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1095881861.5090.59.camel@betsy.boston.ximian.com>
-References: <1095881861.5090.59.camel@betsy.boston.ximian.com>
-Content-Type: text/plain
+	Wed, 22 Sep 2004 18:48:43 -0400
+Received: from zamok.crans.org ([138.231.136.6]:20441 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id S268074AbUIVWsU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 18:48:20 -0400
+Message-ID: <41520074.3080706@crans.org>
+Date: Thu, 23 Sep 2004 00:45:08 +0200
+From: =?ISO-8859-1?Q?Mathieu_B=E9rard?= <Mathieu.Berard@crans.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Oops with racoon and linux-2.6.9-rc2-mm1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1095895360.29226.17.camel@vertex>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 22 Sep 2004 19:22:40 -0400
-X-PMX-Version-Mac: 4.7.0.111621, Antispam-Engine: 2.0.0.0, Antispam-Data: 2004.9.22.3
-X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __MIME_VERSION 0, __SANE_MSGID 0'
-X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-22 at 15:37, Robert Love wrote:
-> Hey, John.
-> 
-> I went over the locking in drivers/char/inotify.c  Looks right.
-> 
-> I made two major changes:
-> 
-> 	- In a couple places you used irq-safe locks, but in most places
-> 	  you did not.  It has to be all or never.  We do not currently
-> 	  need protection from interrupts, so I changed the few
-> 	  irq-safe locks on dev->lock to normal spin_lock/spin_unlock
-> 	  calls.
-> 
-> 	- dev->event_count was an atomic_t, but it was never accessed
-> 	  outside of dev->lock.  I also did not see why ->event_count
-> 	  was atomic but not ->nr_watches.  So I made event_count an
-> 	  unsigned int and removed the atomic operations.
-> 
+Hi,
 
-Okay, this is my first kernel project so I didn't know/follow all of the
-rules, I admit it is a bit of a mishmash.
+I get this Oops using racoon and linux 2.6.9-rc2-mm1,
+though everything run smoothly with a 2.6.8 kernel.
 
-> The rest of the (admittedly a bit large) patch is documenting the
-> locking rules.  I tried to put the locking assumptions in comments at
-> the top of each function.  I made some coding style cleanups as I went
-> along, too, but not too many (those come next).
-> 
+Here the oops (copied by hand):
 
-The patch and your previous patches look excellent. I have applied them
-to my tree and I will be making a new release this evening.
+Warning: kfree_skb on hard IRQ 000000c0
+scheduling while atomic: racoon/0xffffff00/1680
+[<c027c7bb>] schedule+0x32b/0x480
+[<c0114a4a>] sys_sched_yield+0x1a/0x20
+[<c0153e3b>] coredump_wait+0x2b/0x90
+[<c0153f6a>] do_coredump+0xca/0x1a1
+[<c0132d1d>] buffered_rmqueue+0xdd/0x1b0
+[<c0128290>] autoremove_wake_function+0x0/0x50
+[<c011f365>] __dequeue_signal+0xe5/0x150
+[<c011f3f3>] dequeue_signal+0x23/0x90
+[<c0120b8d>] get_signal_to_deliver+0x24d/0x300
+[<c0103c6f>] do_signal+0x8f/0x160
+[<c015a2e0>] __pollwait+0x0/0xc0
+[<c0227687>] sys_recv+0x37/0x40
+[<c010618c>] do_IRQ+0xec/0x190
+[<c0112a90>] do_page_fault+0x0/0x575
+[<c0103d77>] do_notify_resume+0x37/0x3c
+[<c0103f1a>] work_notifysig+0x13/0x15
+Kernel panic - not syncing: Aiee, killing interrupt handler!
 
-> I do have one remaining concern: create_watcher() is called without the
-> lock on dev, but it later obtains the lock, before it touches dev.  So
-> it is safe in that regard, but what if dev is deallocated before it
-> grabs the lock?  dev is passed in, so, for example, dev could be freed
-> (or otherwise manipulated) and then the dereference of dev->lock would
-> oops.  A couple other functions do this.  We probably need proper ref
-> counting on dev. BUT, are all of these call chains off of VFS functions
-> on the device?  Perhaps so long as the device is open it is pinned?
-> 
 
-Yes, AFAIK the only places where we rely on the dev not going away are
-when we are handling a request from user space. As long as VFS
-operations are serialized I don't think we have to worry about that.
+Software version:
+distro: Debian Sid
+gcc 3.4.2 (Debian 3.4.2-2)
+ipsec-tools/racoon 0.3.3-1
 
-John
+.config (relevant parts):
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_POSIX_MQUEUE=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_HOTPLUG=y
+CONFIG_KOBJECT_UEVENT=y
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_SHMEM=y
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+CONFIG_X86_PC=y
+CONFIG_MK7=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_USE_3DNOW=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=y
+CONFIG_X86_MSR=m
+CONFIG_X86_CPUID=m
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_REGPARM=y
+CONFIG_PM=y
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_SLEEP=y
+CONFIG_ACPI_SLEEP_PROC_FS=y
+CONFIG_ACPI_AC=m
+CONFIG_ACPI_BATTERY=m
+CONFIG_ACPI_BUTTON=m
+CONFIG_ACPI_FAN=m
+CONFIG_ACPI_PROCESSOR=m
+CONFIG_ACPI_THERMAL=m
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_X86_PM_TIMER=y
+CONFIG_APM=m
+CONFIG_APM_CPU_IDLE=y
+CONFIG_APM_RTC_IS_GMT=y
+CONFIG_APM_ALLOW_INTS=y
+CONFIG_CPU_FREQ=y
+CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=y
+CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
+CONFIG_CPU_FREQ_GOV_POWERSAVE=m
+CONFIG_CPU_FREQ_GOV_USERSPACE=m
+CONFIG_CPU_FREQ_GOV_ONDEMAND=m
+CONFIG_CPU_FREQ_TABLE=m
+CONFIG_X86_POWERNOW_K7=m
+CONFIG_X86_POWERNOW_K7_ACPI=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_MMCONFIG=y
+CONFIG_PCI_NAMES=y
+CONFIG_PCMCIA=m
+CONFIG_YENTA=m
+CONFIG_CARDBUS=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_AOUT=m
+CONFIG_BINFMT_MISC=m
+CONFIG_STANDALONE=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+CONFIG_FW_LOADER=m
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PARPORT_PC_SUPERIO=y
+CONFIG_PARPORT_1284=y
+CONFIG_NET=y
+CONFIG_PACKET=m
+CONFIG_PACKET_MMAP=y
+CONFIG_UNIX=y
+CONFIG_NET_KEY=m
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_SYN_COOKIES=y
+CONFIG_INET_AH=m
+CONFIG_INET_ESP=m
+CONFIG_INET_IPCOMP=m
+CONFIG_INET_TUNNEL=m
+CONFIG_NETFILTER=y
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IRC=m
+CONFIG_IP_NF_QUEUE=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_IPRANGE=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_PKTTYPE=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_RECENT=m
+CONFIG_IP_NF_MATCH_ECN=m
+CONFIG_IP_NF_MATCH_DSCP=m
+CONFIG_IP_NF_MATCH_AH_ESP=m
+CONFIG_IP_NF_MATCH_LENGTH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_HELPER=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_CONNTRACK=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_MATCH_ADDRTYPE=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_ULOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_ECN=m
+CONFIG_IP_NF_TARGET_DSCP=m
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_TARGET_CLASSIFY=m
+CONFIG_IP_NF_RAW=m
+CONFIG_IP_NF_TARGET_NOTRACK=m
+CONFIG_XFRM=y
+CONFIG_XFRM_USER=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=m
+CONFIG_NET_TULIP=y
+CONFIG_TULIP=m
+CONFIG_TULIP_MWI=y
+CONFIG_TULIP_MMIO=y
+CONFIG_TULIP_NAPI=y
+CONFIG_TULIP_NAPI_HW_MITIGATION=y
+CONFIG_NET_RADIO=y
+CONFIG_PRISM54=m
+CONFIG_NET_WIRELESS=y
+CONFIG_PPP=m
+CONFIG_PPP_FILTER=y
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_RTC=m
+CONFIG_VIDEO_SELECT=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_4KSTACKS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_HMAC=y
+CONFIG_CRYPTO_NULL=m
+CONFIG_CRYPTO_MD4=m
+CONFIG_CRYPTO_MD5=y
+CONFIG_CRYPTO_SHA1=y
+CONFIG_CRYPTO_SHA256=m
+CONFIG_CRYPTO_SHA512=m
+CONFIG_CRYPTO_WHIRLPOOL=m
+CONFIG_CRYPTO_DES=y
+CONFIG_CRYPTO_BLOWFISH=m
+CONFIG_CRYPTO_TWOFISH=m
+CONFIG_CRYPTO_SERPENT=m
+CONFIG_CRYPTO_AES_586=m
+CONFIG_CRYPTO_CAST5=m
+CONFIG_CRYPTO_CAST6=m
+CONFIG_CRYPTO_TEA=m
+CONFIG_CRYPTO_ARC4=m
+CONFIG_CRYPTO_KHAZAD=m
+CONFIG_CRYPTO_DEFLATE=y
+CONFIG_CRYPTO_MICHAEL_MIC=m
+CONFIG_CRYPTO_CRC32C=m
+CONFIG_CRC_CCITT=m
+CONFIG_CRC32=m
+CONFIG_LIBCRC32C=m
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_PC=y
+
+Thank you.
+
+-- 
+Mathieu Berard
+

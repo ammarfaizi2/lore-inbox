@@ -1,105 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261916AbULVARQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbULVARt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261916AbULVARQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 19:17:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbULVARQ
+	id S261920AbULVARt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 19:17:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbULVARj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 19:17:16 -0500
-Received: from mail.dif.dk ([193.138.115.101]:13545 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261916AbULVARK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 19:17:10 -0500
-Date: Wed, 22 Dec 2004 01:27:53 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Domen Puncer <domen@coderock.org>
-Cc: Steve French <sfrench@samba.org>, Steve French <sfrench@us.ibm.com>,
-       samba-technical@lists.samba.org, linux-kernel@vger.kernel.org
-Subject: Re: in cifssmb.c add copy_from_user return value check and do minor
- formatting/whitespace cleanups.
-In-Reply-To: <20041221235424.GA19274@nd47.coderock.org>
-Message-ID: <Pine.LNX.4.61.0412220107230.3518@dragon.hygekrogen.localhost>
-References: <Pine.LNX.4.61.0412220021580.3518@dragon.hygekrogen.localhost>
- <20041221235424.GA19274@nd47.coderock.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 21 Dec 2004 19:17:39 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:2828 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261918AbULVARf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 19:17:35 -0500
+Date: Wed, 22 Dec 2004 01:17:32 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: grub questions here?
+Message-ID: <20041222001732.GG5217@stusta.de>
+References: <200412171403.25209.gene.heskett@verizon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200412171403.25209.gene.heskett@verizon.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Dec 2004, Domen Puncer wrote:
+On Fri, Dec 17, 2004 at 02:03:25PM -0500, Gene Heskett wrote:
 
-> On 22/12/04 00:33 +0100, Jesper Juhl wrote:
-> > 
-[...]
-> > +	if (buf) {
-> > +		memcpy(pSMB->Data,buf,bytes_sent);
-> > +	} else if (ubuf) {
-> > +		if (copy_from_user(pSMB->Data,ubuf,bytes_sent)) {
-> > +			if (pSMB)
+> Greetings all;
 > 
-> How can this be NULL, and code not Oopsing?
-> 
-Right, it would have Oopsed in tons of places above if pSMB was NULL, so 
-there's no point in checking it at this stage. And if I'm reading 
-smb_init() correctly, then it will return an error if it can't give pSMB a 
-sane value, so we already bail out at the smb_init() call in that case.
+> Is it safe to ask grub related qquestions here, or is there a special
+> list for that?
 
-How about this patch instead? (same as the previous one except it also 
-removes those aparently pointless checks of pSMB and changes a single 
-instance of a pointer being compared to 0 to instead compare against NULL 
-so sparse won't complain about that) :
+I must have missed the inclusion of grub into the kernel.  ;-)
 
+The homepage of GNU GRUB is at
+  http://www.gnu.org/software/grub/grub.en.html
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+The rest is linked from there.
 
-diff -up linux-2.6.10-rc3-bk13-orig/fs/cifs/cifssmb.c linux-2.6.10-rc3-bk13/fs/cifs/cifssmb.c
---- linux-2.6.10-rc3-bk13-orig/fs/cifs/cifssmb.c	2004-12-20 22:19:42.000000000 +0100
-+++ linux-2.6.10-rc3-bk13/fs/cifs/cifssmb.c	2004-12-22 01:20:21.000000000 +0100
-@@ -246,7 +246,7 @@ smb_init(int smb_command, int wct, struc
- 		return rc;
- 
- 	*request_buf = cifs_buf_get();
--	if (*request_buf == 0) {
-+	if (*request_buf == NULL) {
- 		/* BB should we add a retry in here if not a writepage? */
- 		return -ENOMEM;
- 	}
-@@ -895,15 +895,18 @@ CIFSSMBWrite(const int xid, struct cifsT
- 		bytes_sent = count;
- 	pSMB->DataLengthHigh = 0;
- 	pSMB->DataOffset =
--	    cpu_to_le16(offsetof(struct smb_com_write_req,Data) - 4);
--    if(buf)
--	    memcpy(pSMB->Data,buf,bytes_sent);
--	else if(ubuf)
--		copy_from_user(pSMB->Data,ubuf,bytes_sent);
--    else {
--		/* No buffer */
--		if(pSMB)
-+		cpu_to_le16(offsetof(struct smb_com_write_req,Data) - 4);
-+
-+	if (buf) {
-+		memcpy(pSMB->Data,buf,bytes_sent);
-+	} else if (ubuf) {
-+		if (copy_from_user(pSMB->Data,ubuf,bytes_sent)) {
- 			cifs_buf_release(pSMB);
-+			return -EFAULT;
-+		}
-+	} else {
-+		/* No buffer */
-+		cifs_buf_release(pSMB);
- 		return -EINVAL;
- 	}
- 
-@@ -921,8 +924,7 @@ CIFSSMBWrite(const int xid, struct cifsT
- 	} else
- 		*nbytes = le16_to_cpu(pSMBr->Count);
- 
--	if (pSMB)
--		cifs_buf_release(pSMB);
-+	cifs_buf_release(pSMB);
- 
- 	/* Note: On -EAGAIN error only caller can retry on handle based calls 
- 		since file handle passed in no longer valid */
+> Cheers, Gene
 
+cu
+Adrian
 
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261708AbUCBQ4Y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 11:56:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbUCBQ4X
+	id S261706AbUCBQyt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 11:54:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbUCBQyt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 11:56:23 -0500
-Received: from matrix.roma2.infn.it ([141.108.255.2]:37579 "EHLO
-	matrix.roma2.infn.it") by vger.kernel.org with ESMTP
-	id S261708AbUCBQzH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 11:55:07 -0500
-From: "Emiliano 'AlberT' Gabrielli" <AlberT@SuperAlberT.it>
-Reply-To: AlberT@SuperAlberT.it
-Organization: SuperAlberT.it
-To: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
-Subject: Re: Synaptics and USB mouse conflict at boot time !?
-Date: Tue, 2 Mar 2004 17:56:16 +0100
-User-Agent: KMail/1.5.4
-References: <200403021103.54310.AlberT@SuperAlberT.it> <200403020640.30354.dtor_core@ameritech.net>
-In-Reply-To: <200403020640.30354.dtor_core@ameritech.net>
+	Tue, 2 Mar 2004 11:54:49 -0500
+Received: from terminus.zytor.com ([63.209.29.3]:62607 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S261706AbUCBQyr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 11:54:47 -0500
+Message-ID: <4044BC48.7060903@zytor.com>
+Date: Tue, 02 Mar 2004 08:54:32 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040105
+X-Accept-Language: en, sv, es, fr
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200403021756.17443.AlberT@SuperAlberT.it>
+To: "James H. Cloos Jr." <cloos@jhcloos.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: something funny about tty's on 2.6.4-rc1-mm1
+References: <20040301184512.GA21285@hobbes.itsari.int>	<c2175f$6hn$1@terminus.zytor.com> <m3u1175miy.fsf@lugabout.jhcloos.org>
+In-Reply-To: <m3u1175miy.fsf@lugabout.jhcloos.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12:40, martedì 2 marzo 2004, Dmitry Torokhov wrote:
-> On Tuesday 02 March 2004 05:03 am, Emiliano 'AlberT' Gabrielli wrote:
-> > Hi all,
-> > 	 I have a strange behaviour on my laptop: touchpad is not probed by the
-> > kernel (2.6.3) *if* and only if at boot time the USB mouse is plugged in
-> > ...
->
-> It is usually caused by USB Legacy emulation - BIOS makes a USB mouse look
-> like a PS/2 mouse. Look in your BIOS setup if there is an option to turn it
-> off. Otherwise you will have to load ehci/uhci_hcd and hid modules before
-> loading psmouse module as loading full-blown USB support disables that
-> emulation.
+James H. Cloos Jr. wrote:
+>>>>>>"Peter" == H Peter Anvin <hpa@zytor.com> writes:
+> 
+> Peter> As RBJ said, ptys are now recycled in pid-like fashion, which
+> Peter> means numbers won't be reused until wraparound happens.
+> 
+> Ouch.  I've been using the tty name in $HISTFILE for some time now
+> (at least on laptops and workstations); I do not see any reasonable
+> alternative to prevent overwriting while still saving history.
+> 
 
+????
 
-perfect, now all works fine
-thank you so much
+> Will patching in the old behavior wrt re-use, while not disrupting
+> the other improvements, be a lot of work?  I've looked thru the src, 
+> but haven't yet spotted the point where the new pis number is chosen.
 
-
-BTW, can be usefull to add this tip in the "help" screen of input/mice and/or 
-usb
-
--- 
-<?php echo '       Emiliano `AlberT` Gabrielli       '."\n".
-           '  E-Mail: AlberT_AT_SuperAlberT_it  '."\n".
-           '  Web:    http://SuperAlberT.it  '."\n".
-'  IRC:    #php,#AES azzurra.com '."\n".'ICQ: 158591185'; ?>
+Not a lot of work, but the performance would suffer big time.
 

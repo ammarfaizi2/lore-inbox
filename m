@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311631AbSCNOqg>; Thu, 14 Mar 2002 09:46:36 -0500
+	id <S311630AbSCNOp0>; Thu, 14 Mar 2002 09:45:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311632AbSCNOq2>; Thu, 14 Mar 2002 09:46:28 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:31888 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S311631AbSCNOqK>; Thu, 14 Mar 2002 09:46:10 -0500
-Date: Thu, 14 Mar 2002 14:46:39 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
+	id <S311632AbSCNOpQ>; Thu, 14 Mar 2002 09:45:16 -0500
+Received: from dialup-7-5.net.ic.ac.uk ([155.198.8.101]:47488 "EHLO
+	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id <S311630AbSCNOpE>; Thu, 14 Mar 2002 09:45:04 -0500
+Date: Thu, 14 Mar 2002 14:49:53 +0000
+From: Dave Jones <davej@suse.de>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Tigran Aivazian <Tigran.Aivazian@veritas.com>, kraxel@bytesex.org,
-        marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
-        arjan@fenrus.demon.nl
-Subject: Re: [patch] vmalloc_to_page() backport for 2.4
-In-Reply-To: <E16lVkh-0000oW-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0203141436150.1153-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.2.21 crash on boot fix.
+Message-ID: <20020314144953.A11010@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Mar 2002, Alan Cox wrote:
-> 
-> Similarly the PAE/non-PAE thing is a red herring. Given that even basic
-> data types change size on pae no module is going to be magically pae/non-pae
-> clean if its binary only.
+ Patch below fixes the crash-on-boot problem Leonard Zubkoff found.
 
-Few modules take an interest in ptes, that's as it should be, and so
-few modules build to different binaries with CONFIX_X86_PAE off or on
-(modulo module versions).  I love vmalloc_to_page because it takes pte
-dependence out of a group of modules which really had no interest in
-ptes in the first place.  Less false grep hits when searching the tree!
 
-Hugh
+diff -urN --exclude-from=/home/davej/.exclude linux-rc1/arch/i386/kernel/setup.c linux-rc1-dj1/arch/i386/kernel/setup.c
+--- linux-rc1/arch/i386/kernel/setup.c	Thu Mar 14 12:48:56 2002
++++ linux-rc1-dj1/arch/i386/kernel/setup.c	Thu Mar 14 13:38:02 2002
+@@ -1081,7 +1081,7 @@
+ 
+ static void __init init_intel(struct cpuinfo_x86 *c)
+ {
+-	char *p;
++	char *p = NULL;
+ 	unsigned int l1i = 0, l1d = 0, l2 = 0, l3 = 0; /* Cache sizes */
+ 
+ 	if (c->cpuid_level > 1) {
 
+-- 
+Dave Jones.                    http://www.codemonkey.org.uk
+SuSE Labs.

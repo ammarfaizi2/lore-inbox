@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbVA2X4h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbVA2X7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261612AbVA2X4h (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 18:56:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbVA2X4h
+	id S261613AbVA2X7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 18:59:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbVA2X7Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 18:56:37 -0500
-Received: from zork.zork.net ([64.81.246.102]:52710 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S261612AbVA2X40 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 18:56:26 -0500
-From: Sean Neakums <sneakums@zork.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc2-mm2
-References: <20050129131134.75dacb41.akpm@osdl.org>
-	<6u3bwj7rwo.fsf@zork.zork.net>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Date: Sat, 29 Jan 2005 23:56:23 +0000
-In-Reply-To: <6u3bwj7rwo.fsf@zork.zork.net> (Sean Neakums's message of "Sat,
-	29 Jan 2005 23:10:47 +0000")
-Message-ID: <6uy8eb6b88.fsf@zork.zork.net>
+	Sat, 29 Jan 2005 18:59:16 -0500
+Received: from out007pub.verizon.net ([206.46.170.107]:31640 "EHLO
+	out007.verizon.net") by vger.kernel.org with ESMTP id S261614AbVA2X62
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 18:58:28 -0500
+Message-ID: <41FC26AD.AE9EFEAA@gte.net>
+Date: Sat, 29 Jan 2005 16:13:33 -0800
+From: Bukie Mabayoje <bukiemab@gte.net>
+X-Mailer: Mozilla 4.78 [en] (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Michael Gernoth <simigern@stud.uni-erlangen.de>
+CC: linux-kernel@vger.kernel.org,
+       Matthias Koerber <simakoer@stud.informatik.uni-erlangen.de>
+Subject: Re: 2.4.29, e100 and a WOL packet causes keventd going mad
+References: <20050128164811.GA8022@cip.informatik.uni-erlangen.de> <41FA8A3F.CC19F9EE@gte.net> <20050128185402.GA7923@cip.informatik.uni-erlangen.de>
 Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: sneakums@zork.net
-X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [66.199.68.159] at Sat, 29 Jan 2005 17:58:26 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sean Neakums <sneakums@zork.net> writes:
 
-> On a PowerBook (PowerBook5.4), when snd_powermac is modprobed during
-> the boot, I get the following.  After similar messages for a few more
-> modules, the machine seems wedged.
 
-Brice Goglin's patch fixes this.
+Michael Gernoth wrote:
 
-However, when I modprobe radeonfb I get:
+> On Fri, Jan 28, 2005 at 10:53:51AM -0800, Bukie Mabayoje wrote:
+> > Do you know the official NIC product name e.g Pro/100B. I need to identify
+> > the LAN Controller. There are differences between  557 (not sure if 557 can
+> > do WOL), 558 and 559 how they ASSERT the PME# signal. Even the same chip have
+> > differences between steppings.
+>
+> The chip is integrated on the motherboard. Its PCI ID is 8086:1039.
+> lspci says: Intel Corp. 82801BD PRO/100 VE (LOM) Ethernet Controller (rev 81)
+> If you want I can open up one of these machines tomorrow to look on the chip
+> directly.
+>
+> Regards,
+>   Michael
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Jan 29 23:38:16 briny kernel: PCI: Unable to reserve mem region #1:8000000@b8000000 for device 0000:00:10.0
-Jan 29 23:38:16 briny kernel: radeonfb: probe of 0000:00:10.0 failed with error -16
+I can't  find the datasheet for 82801BD. 82801 are typically I/O Controller Hub.  I need to see how it drives the  PCI Interface Signals.
 
-Not sure if this is expected or not on this platform.
-
-With radeonfb built-in (my current working configuration with 2.6.9)
-the screen clears and the machine seems to hang early in the boot.
+I will try an reproduce it on a different set of chipset. Basically send a WOL packet to a live linux system. And see if keventd consumes excessive CPU time.

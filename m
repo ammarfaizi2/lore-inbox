@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289537AbSBGOAB>; Thu, 7 Feb 2002 09:00:01 -0500
+	id <S289564AbSBGOHl>; Thu, 7 Feb 2002 09:07:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289564AbSBGN7w>; Thu, 7 Feb 2002 08:59:52 -0500
-Received: from mail.chs.ru ([194.154.71.136]:27155 "EHLO mail.unix.ru")
-	by vger.kernel.org with ESMTP id <S289537AbSBGN7k>;
-	Thu, 7 Feb 2002 08:59:40 -0500
+	id <S289779AbSBGOHc>; Thu, 7 Feb 2002 09:07:32 -0500
+Received: from dsl-213-023-038-235.arcor-ip.net ([213.23.38.235]:32907 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S289564AbSBGOHW>;
+	Thu, 7 Feb 2002 09:07:22 -0500
 Content-Type: text/plain; charset=US-ASCII
-From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-Subject: [PATCH ] 2.5.4-pre2 i810_audio.c compile fix (was Fwd: Re: 2.5.3 won't compile (i810_audio))
-Date: Thu, 7 Feb 2002 16:59:37 +0300
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com>, zaitcev@redhat.com
+Subject: Re: The IBM order relaxation patch
+Date: Thu, 7 Feb 2002 15:12:10 +0100
 X-Mailer: KMail [version 1.3.2]
-Cc: Doug Ledford <dledford@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <OF5FF19417.595BC760-ONC1256B58.00762715@de.ibm.com>
+In-Reply-To: <OF5FF19417.595BC760-ONC1256B58.00762715@de.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org
-Message-Id: <E16Yp5P-0005xO-00@mail.unix.ru>
+Message-Id: <E16YpHW-0000aw-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On February 6, 2002 10:50 pm, Ulrich Weigand wrote:
+> Pete Zaitcev wrote:
+> >It's a stupid question, but: why can we not simply
+> >wait until a desired unfragmented memory area is available,
+> >with a GPF flag? What they describe does not happen in an
+> >interrupt context, so we can sleep.
+> 
+> Because nobody even *tries* to free adjacent pages to build up
+> a free order-2 area.  You could wait really long ...
+> 
+> This looks hard to fix with the current mm layer.  Maybe Rik's
+> rmap method could help here, because with reverse mappings we
+> can at least try to free adjacent areas (because we then at least
+> *know* who's using the pages).
 
-This patch make drivers/sound/i810_audio.c to be compiled
-Still needed and applies cleanly to 2.5.4-pre2
+Yes, that's one of leading reasons for wanting rmap.  (Number one and two 
+reasons are: allow forcible unmapping of multiply referenced pages for 
+swapout; get more reliable hardware ref bit readings.)
 
-compiled, booted and tested on my pc.
+Note that even if we can do forcible freeing we still have to deal with the 
+issue of fragmentation due to pinned pages, e.g., slab cache, admittedly a 
+rarer problem.
 
---
-			Best regards,
-			Sergey S. Kostyliov <rathamahata@php4.ru>
-
-----------  Forwarded message ----------
-
-Subject: Re: 2.5.3 won't compile (i810_audio)
-Date: Wed, 30 Jan 2002 18:32:55 -0800 (PST)
-From: Ben Clifford <benc@hawaga.org.uk>
-To: Pawel Worach <pawel.worach@mysun.com>
-Cc: <linux-kernel@vger.kernel.org>, <dledford@redhat.com>
-
-On Wed, 30 Jan 2002, Pawel Worach wrote:
-> The new i810_audio driver merged into 2.5.3 won't compile.
-
-I made the following one line change, and it seems to be working.
-
---- drivers/sound/i810_audio.c-src	Wed Jan 30 18:30:51 2002
-+++ drivers/sound/i810_audio.c	Wed Jan 30 18:22:39 2002
-@@ -1669,7 +1669,7 @@
- 	if (size > (PAGE_SIZE << dmabuf->buforder))
- 		goto out;
- 	ret = -EAGAIN;
--	if (remap_page_range(vma->vm_start, virt_to_phys(dmabuf->rawbuf),
-+	if (remap_page_range(vma, vma->vm_start, virt_to_phys(dmabuf->rawbuf),
- 			     size, vma->vm_page_prot))
- 		goto out;
- 	dmabuf->mapped = 1;
-
-
---
-Ben Clifford     benc@hawaga.org.uk     GPG: 30F06950
-Job Required in Los Angeles - Will do most things unix or IP for money.
-http://www.hawaga.org.uk/resume/resume001.pdf
-Live Ben-cam: http://barbarella.hawaga.org.uk/benc-cgi/watchers.cgi
+-- 
+Daniel

@@ -1,81 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264328AbTCZFXn>; Wed, 26 Mar 2003 00:23:43 -0500
+	id <S264543AbTCZF15>; Wed, 26 Mar 2003 00:27:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264531AbTCZFXn>; Wed, 26 Mar 2003 00:23:43 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:29713 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S264328AbTCZFXm>; Wed, 26 Mar 2003 00:23:42 -0500
-Date: Wed, 26 Mar 2003 05:34:44 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Antonino Daplas <adaplas@pol.net>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] [BK FBDEV] A few more updates.
-In-Reply-To: <1048649746.998.28.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0303260519380.12718-100000@phoenix.infradead.org>
+	id <S264552AbTCZF15>; Wed, 26 Mar 2003 00:27:57 -0500
+Received: from rwcrmhc53.attbi.com ([204.127.198.39]:29098 "EHLO
+	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
+	id <S264543AbTCZF1z>; Wed, 26 Mar 2003 00:27:55 -0500
+Message-ID: <3E813E66.1060802@on-demand-tech.com>
+Date: Tue, 25 Mar 2003 23:45:10 -0600
+From: Adam Kelly <akelly@on-demand-tech.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: viro@math.psu.edu, linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] linux-2.5.66/fs/cramfs/inode.c typecheck - int vs. struct
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Very minor change. GCC now does more type checking, so This just zeros a 
+timespec struct
+so that i_mtime, etc will match types.
 
-> 1.  The following lines are missing from softcursor.c, but is present in
-> fb_show_logo() where it shoudn't be:
-> 
-> 	atomic_dec(&info->pixmap.count);
-> 	smp_mb__after_atomic_dec();
-> 
-> In both cases, the reference counting will be incorrect which can cause
-> irregular cursor flashing and unnecessary "syncing".  Only functions
-> that call fb_get_buffer_offset() need to decrement the reference count
-> afterwards.
+gcc version 3.2 20020903 (Red Hat Linux 8.0 3.2-7)
+compiling linux-2.5.66
 
-Fixed. Applied. I missed it when I was applying your patches by hand. My 
-tree was way to different to accept your patches. 
+ -Adam
+
+--- inode.c.orig        2003-03-25 22:50:17.000000000 -0600
++++ inode.c     2003-03-25 23:00:50.000000000 -0600
+@@ -44,6 +44,8 @@
+ {
+        struct inode * inode = new_inode(sb);
  
-> 2.  I applied your workqueue patch and changed locking from spinlocks to
-> semaphores in fb_get_buffer_offset().
-
-Cool. Needed really bad. Applied.
-
-> 3.  BTW, there are too many kmalloc's/kfree's in accel_cursor() and
-> softcursor().  Personally, I would rather have 2 64-byte buffers for the
-> mask and the data in the info->cursor structure than allocating/freeing
-> memory each time the cursor flashes.  However, if you prefer doing it
-> this way, the patch also includes changes so kmallocs are only done when
-> necessary.  Still, accel_cursor() has unnecessary work being done, such
-> as always creating the mask bitmap, when a simple flag to monitor cursor
-> shape changes could prevent all this.
-
-I agree. The problem is the upper layer of the console system is to brain 
-dead. Its either erase the cursor or redraw it again. There is no way to 
-just say cursor just moved. There is a CM_MOVE but the upper layer doesn't 
-even use it :-( If you look at vgacon and friends you will see they 
-recreate the cursor every time the cursor blinks. Yes even vgacon.c does 
-this. It is stupid and brain dead but that is the way the upper layers of 
-the console work. The correct solution would be to use actually use 
-CM_MOVE in the upper layers.
-
-> 5.  softcursor should not concern itself with memory bookkeeping, and
-> must be able to function with just the parameter passed to it in order
-> to keep it as simple as possible.  These tasks are moved to
-> accel_cursor.
-
-We do if we make a ioctl for cursors. I'm trying to avoid reprogramming 
-the hardware over and over again if the properties of the cursor don't 
-change. The idea is similar to passing in var and comparing it to the var 
-in struct fb_info. 
-
-> 6.  The patch should also fix the "irregularly dashed" cursor.
-
-Okay.
-
-> PS:  What happened to the logo?  I just get a white square in the uppper left corner.
-
-Strange. It should work. I reworked the logo code anyways. I did this 
-because if we have more than one framebuffer in the system, say vesafb and 
-vga16fb. We need to select the 16 color logo and a 224 color logo. The 
-right logo needs to be draw on the right screen.
++       const struct timespec zero_timespec = {0};
++
+        if (inode) {
+                inode->i_mode = cramfs_inode->mode;
+                inode->i_uid = cramfs_inode->uid;
+@@ -51,7 +53,7 @@
+                inode->i_blocks = (cramfs_inode->size - 1) / 512 + 1;
+                inode->i_blksize = PAGE_CACHE_SIZE;
+                inode->i_gid = cramfs_inode->gid;
+-               inode->i_mtime = inode->i_atime = inode->i_ctime = 0;
++               inode->i_mtime = inode->i_atime = inode->i_ctime = 
+zero_timespec;
+                inode->i_ino = CRAMINO(cramfs_inode);
+                /* inode->i_nlink is left 1 - arguably wrong for 
+directories,
+                   but it's the best we can do without reading the 
+directory  
 

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289566AbSA2LlR>; Tue, 29 Jan 2002 06:41:17 -0500
+	id <S289568AbSA2Lnr>; Tue, 29 Jan 2002 06:43:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289580AbSA2LlJ>; Tue, 29 Jan 2002 06:41:09 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:53775 "HELO
+	id <S289571AbSA2Ln1>; Tue, 29 Jan 2002 06:43:27 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:22031 "HELO
 	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S289564AbSA2Lkp>; Tue, 29 Jan 2002 06:40:45 -0500
-Date: Mon, 28 Jan 2002 20:51:16 +0300
-Message-Id: <200201281751.g0SHpGc23162@bitshadow.namesys.com>
+	id <S289527AbSA2Lkj>; Tue, 29 Jan 2002 06:40:39 -0500
+Date: Mon, 28 Jan 2002 20:29:18 +0300
+Message-Id: <200201281729.g0SHTIP22966@bitshadow.namesys.com>
 From: Hans Reiser <reiser@namesys.com>
 To: torvalds@transmeta.com
 CC: reiser@namesys.com, reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] ReiserFS 2.5 Update Patch Set 21 of 25
+Subject: [PATCH] ReiserFS 2.5 Update Patch Set 4 of 25
 MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -21,9 +21,9 @@ This set of patches of which this is one will update ReiserFS in 2.5
 to contain all bugfixes applied to 2.4 plus allow relocating the journal plus
 uuid support plus fix the kdev_t compilation failure.
 
-21-reiserfs-inode_cache-fixed.diff
-    reiserfs_inode_cache seems to be too long. converting it to
-    reiser_inode_cache.
+04-bitmap-range-checking.diff
+    Check that block number are going to free in a bitmap makes sense.
+    This avoids oops after trying to access bitmap for wild block number.
 
 
 The other patches in this set are:
@@ -173,16 +173,21 @@ The other patches in this set are:
 
 
 
-diff -u -r linux/fs/reiserfs/super.c linux-patched/fs/reiserfs/super.c
---- linux/fs/reiserfs/super.c	Thu Jan 24 18:27:11 2002
-+++ linux-patched/fs/reiserfs/super.c	Thu Jan 24 18:23:10 2002
-@@ -425,7 +425,7 @@
-  
- static int init_inodecache(void)
- {
--	reiserfs_inode_cachep = kmem_cache_create("reiserfs_inode_cache",
-+	reiserfs_inode_cachep = kmem_cache_create("reiser_inode_cache",
- 					     sizeof(struct reiserfs_inode_info),
- 					     0, SLAB_HWCACHE_ALIGN,
- 					     init_once, NULL);
+diff -rup linux/fs/reiserfs/bitmap.c linux.patched/fs/reiserfs/bitmap.c
+--- linux/fs/reiserfs/bitmap.c	Tue Nov 13 15:58:58 2001
++++ linux.patched/fs/reiserfs/bitmap.c	Tue Nov 13 16:17:28 2001
+@@ -103,6 +103,13 @@ void reiserfs_free_block (struct reiserf
+ 
+   get_bit_address (s, block, &nr, &offset);
+ 
++  if (nr >= sb_bmap_nr (rs)) {
++	  reiserfs_warning ("vs-4075: reiserfs_free_block: "
++			    "block %lu is out of range on %s\n", 
++			    block, bdevname(s->s_dev));
++	  return;
++  }
++
+   /* mark it before we clear it, just in case */
+   journal_mark_freed(th, s, block) ;
+ 
 

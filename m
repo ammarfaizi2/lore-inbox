@@ -1,49 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267325AbUHVO4K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267363AbUHVO6i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267325AbUHVO4K (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 10:56:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267363AbUHVO4K
+	id S267363AbUHVO6i (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 10:58:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267364AbUHVO6i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 10:56:10 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:39930 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S267325AbUHVO4G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 10:56:06 -0400
-Date: Sun, 22 Aug 2004 11:00:20 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Nathan Lynch <nathanl@austin.ibm.com>,
-       Srivatsa Vaddagiri <vatsa@in.ibm.com>
-Subject: Re: [PATCH][2.6] Hotplug cpu: Fix APIC queued timer vector race
-In-Reply-To: <Pine.LNX.4.58.0408221044180.27390@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.58.0408221100000.27390@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.58.0408210923570.27390@montezuma.fsmlabs.com>
- <1093145533.4888.106.camel@bach> <Pine.LNX.4.58.0408221044180.27390@montezuma.fsmlabs.com>
+	Sun, 22 Aug 2004 10:58:38 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:981 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267363AbUHVO6h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 10:58:37 -0400
+Date: Sun, 22 Aug 2004 10:58:31 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Julia M <juliamrus@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Fwd: LowFree memory going down -server freezes
+In-Reply-To: <20040821223551.67748.qmail@web41101.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.44.0408221057470.19417-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 22 Aug 2004, Zwane Mwaikambo wrote:
+On Sat, 21 Aug 2004, Julia M wrote:
 
-> On Sun, 22 Aug 2004, Rusty Russell wrote:
->
-> > On Sun, 2004-08-22 at 00:10, Zwane Mwaikambo wrote:
-> > > Some timer interrupt vectors were queued on the Local APIC and were being
-> > > serviced when we enabled interrupts again in fixup_irqs(), so we need to
-> > > mask the APIC timer, enable interrupts so that any queued interrupts get
-> > > processed whilst the processor is still on the online map and then clear
-> > > ourselves from the online map. 1ms is a nice safe number even under heavy
-> > > interrupt load with higher priority vectors queued. Andrew this is
-> > > the patch i promised, Rusty, i'm not sure if you find
-> > > __attribute__((weak)) offensive...
-> >
-> > It's horrible.  Please move the unsetting of the cpu_online bit into the
-> > arch-specific __cpu_disable() code for each arch, which is consistent
-> > and also simplifies things.
->
-> Alright this should do it then;
+> I am using Linux version 2.4.9-e.3smp
 
-I'll sync against -mm shortly
+That kernel is 2 years old.  You really should upgrade to
+kernel 2.4.9-e.40 or newer...
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+
 

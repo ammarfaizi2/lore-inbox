@@ -1,51 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262560AbVBBUt7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262694AbVBBUTG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262560AbVBBUt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 15:49:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbVBBUpL
+	id S262694AbVBBUTG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 15:19:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262377AbVBBUJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 15:45:11 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:46816 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S262805AbVBBUif (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 15:38:35 -0500
-Message-ID: <420139BF.4000100@sgi.com>
-Date: Wed, 02 Feb 2005 14:36:15 -0600
-From: Patrick Gefre <pfg@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: linux-kernel@vger.kernel.org, matthew@wil.cx,
-       B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: Re: [PATCH] Altix : ioc4 serial driver support
-References: <20050103140938.GA20070@infradead.org> <Pine.SGI.3.96.1050131164059.62785B-100000@fsgi900.americas.sgi.com> <20050201092335.GB28575@infradead.org>
-In-Reply-To: <20050201092335.GB28575@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Feb 2005 15:09:43 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:32132 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S262308AbVBBTqj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 14:46:39 -0500
+Subject: [PATCH 4/4] Fix HID LED mapping.
+In-Reply-To: <11073736133786@twilight.ucw.cz>
+X-Mailer: gregkh_patchbomb_levon_offspring
+Date: Wed, 2 Feb 2005 20:46:54 +0100
+Message-Id: <11073736142817@twilight.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: torvalds@osdl.org, vojtech@ucw.cz, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Vojtech Pavlik <vojtech@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Mon, Jan 31, 2005 at 04:45:05PM -0600, Pat Gefre wrote:
-> 
-> Please kill ioc4_ide_init as it's completely unused and make ioc4_serial_init
-> a normal module_init() handler in ioc4_serial, there's no need to call
-> them from the generic driver.
-> 
+You can pull this changeset from:
+	bk://kernel.bkbits.net/vojtech/for-linus
 
-I want ioc4_serial_init called before pci_register_driver() if I make it a
-module_init() call I have no control over order ??
+===================================================================
 
-> Do you need to use ide_pci_register_driver?  IOC4 doesn't have the legacy
-> IDE problems, and it's never used together with such devices in a system,
-> so a plain pci_register_driver should do it.
-> 
-
-So ide_pci_register_driver is only for legacy devices with certain IDE
-problems - I think that is what you are saying (just trying to make sure
-I have it right) ??
+ChangeSet@1.1994, 2005-02-02 17:54:35+01:00, vojtech@silver.ucw.cz
+  input: Fix HID LED mapping. LEDs were ignored because the usage
+         value contains the page code in high 16 bits.
+  
+  Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
 
 
-Thanks for the review,
--- Pat
+ hid-debug.h |    2 +-
+ hid-input.c |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+===================================================================
+
+diff -Nru a/drivers/usb/input/hid-debug.h b/drivers/usb/input/hid-debug.h
+--- a/drivers/usb/input/hid-debug.h	2005-02-02 20:29:32 +01:00
++++ b/drivers/usb/input/hid-debug.h	2005-02-02 20:29:32 +01:00
+@@ -86,12 +86,12 @@
+       {0, 0x92, "D-PadRight"},
+       {0, 0x93, "D-PadLeft"},
+   {  7, 0, "Keyboard" },
++  {  8, 0, "LED" },
+       {0, 0x01, "NumLock"},
+       {0, 0x02, "CapsLock"},
+       {0, 0x03, "ScrollLock"},
+       {0, 0x04, "Compose"},
+       {0, 0x05, "Kana"},
+-  {  8, 0, "LED" },
+   {  9, 0, "Button" },
+   { 10, 0, "Ordinal" },
+   { 12, 0, "Consumer" },
+diff -Nru a/drivers/usb/input/hid-input.c b/drivers/usb/input/hid-input.c
+--- a/drivers/usb/input/hid-input.c	2005-02-02 20:29:32 +01:00
++++ b/drivers/usb/input/hid-input.c	2005-02-02 20:29:32 +01:00
+@@ -185,9 +185,9 @@
+ 			break;
+ 
+ 		case HID_UP_LED:
+-			if (usage->hid - 1 >= LED_MAX)
++			if (((usage->hid - 1) & 0xffff) >= LED_MAX)
+ 				goto ignore;
+-			map_led(usage->hid - 1);
++			map_led((usage->hid - 1) & 0xffff);
+ 			break;
+ 
+ 		case HID_UP_DIGITIZER:
+

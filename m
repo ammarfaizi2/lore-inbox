@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129117AbQKEW6l>; Sun, 5 Nov 2000 17:58:41 -0500
+	id <S129121AbQKEXDl>; Sun, 5 Nov 2000 18:03:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129121AbQKEW6b>; Sun, 5 Nov 2000 17:58:31 -0500
-Received: from riker.dsl.inconnect.com ([209.140.76.229]:2929 "EHLO
-	ns1.rikers.org") by vger.kernel.org with ESMTP id <S129117AbQKEW6U>;
-	Sun, 5 Nov 2000 17:58:20 -0500
-Message-ID: <3A05E4B7.8C3D261C@Rikers.org>
-Date: Sun, 05 Nov 2000 15:52:39 -0700
-From: Tim Riker <Tim@Rikers.org>
-Organization: Riker Family (http://rikers.org/)
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test9vaio i686)
+	id <S129219AbQKEXDc>; Sun, 5 Nov 2000 18:03:32 -0500
+Received: from DKBH-T-004-p-250-136.tmns.net.au ([203.54.250.136]:25861 "EHLO
+	eyal.emu.id.au") by vger.kernel.org with ESMTP id <S129121AbQKEXDN>;
+	Sun, 5 Nov 2000 18:03:13 -0500
+Message-ID: <3A05E5B1.F3E1CA09@eyal.emu.id.au>
+Date: Mon, 06 Nov 2000 09:56:49 +1100
+From: Eyal Lebedinsky <livid@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: non-gcc linux?
-In-Reply-To: <E13sYXM-0005fR-00@the-village.bc.nu>
+CC: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: pppd and 2.4.0pre10
+In-Reply-To: <Pine.LNX.4.21.0011041757570.32560-100000@tahallah.clara.co.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Alex Buell wrote:
 > 
-> > Perhaps I did not explain myself, or perhaps I misunderstand your
-> > comments. I was responding to a comment that we could just copy some of
-> > the optimizations from Pro64 over into gcc. Whether Pro64 understands
-> > gcc syntax is immaterial to this question is it not?
+> tahallah[alex]:/home/alex > ppp-on
 > 
-> If gcc is architecturally unable to do ia64 well, pro64 is free software and
-> both understand the same syntax Im at a bit of a loss why that is productive 
+> tahallah[alex]:/home/alex > /usr/sbin/pppd: This system lacks kernel
+> support for PPP.  This could be because the PPP kernel module could not be
+> loaded, or because PPP was not included in the kernel configuration.  If
+> PPP was included as a module, try `/sbin/modprobe -v ppp'.  If that fails,
 
-Alan Cox wrote in another message:
-> Or a third party decides its a silly situation and does it anyway
+I have something different with ppp on 2.4.0-test10. I very often get
+the ppp link up, I can ping the ISP end of the connection, but nothing
+else. All the pppd messages look just fine coming up.
 
-A definite possibility.
--- 
-Tim Riker - http://rikers.org/ - short SIGs! <g>
-All I need to know I could have learned in Kindergarten
-... if I'd just been paying attention.
+I called the ISP tech support and they say my connection is not showing
+as active on their end. Then again Telstra (the Australian telco people)
+have sold their soul to the devil and when you say you use Linux (or
+anything non MS windows) they go very unhelpful reciting their mantra
+"we only support windows" to everything I say.
+
+--
+Eyal Lebedinsky		(eyal@eyal.emu.id.au)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

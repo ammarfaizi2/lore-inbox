@@ -1,34 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262048AbUALWmG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 17:42:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbUALWmG
+	id S262731AbUALWnK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 17:43:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262782AbUALWnK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 17:42:06 -0500
-Received: from smtp03.web.de ([217.72.192.158]:21528 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S262048AbUALWmB (ORCPT
+	Mon, 12 Jan 2004 17:43:10 -0500
+Received: from fw.osdl.org ([65.172.181.6]:40642 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262731AbUALWm6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 17:42:01 -0500
-From: DOSProfi <DOSProfi@web.de>
-To: linux-kernel@vger.kernel.org
-Subject: Radeon FB
-Date: Tue, 13 Jan 2004 00:44:43 +0100
-User-Agent: KMail/1.5.1
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200401130044.00467.DOSProfi@web.de>
-Content-Type: text/plain;
-  charset="us-ascii"
+	Mon, 12 Jan 2004 17:42:58 -0500
+Date: Mon, 12 Jan 2004 14:39:43 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: akpm@osdl.org, mingo@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH(s)][RFC] variable size and signedness issues in ldt.c -
+ potential problem?
+Message-Id: <20040112143943.53719a02.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.4.56.0401122318160.2130@jju_lnx.backbone.dif.dk>
+References: <8A43C34093B3D5119F7D0004AC56F4BC074AFBC9@difpst1a.dif.dk>
+	<Pine.LNX.4.58.0401090440180.27298@devserv.devel.redhat.com>
+	<Pine.LNX.4.56.0401110300080.13633@jju_lnx.backbone.dif.dk>
+	<Pine.LNX.4.56.0401122243270.2130@jju_lnx.backbone.dif.dk>
+	<20040112141350.085d32dc.akpm@osdl.org>
+	<Pine.LNX.4.56.0401122318160.2130@jju_lnx.backbone.dif.dk>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 12 Jan 2004 23:20:23 +0100 (CET) Jesper Juhl <juhl-lkml@dif.dk> wrote:
 
-I have a Radeon 9600 Mobility, if I activate the RadeonFB the Notebook hangs, 
-... if I choose the VESA all is best. (1024x768 64k colors)
+| 
+| On Mon, 12 Jan 2004, Andrew Morton wrote:
+| 
+| > Jesper Juhl <juhl-lkml@dif.dk> wrote:
+| > >
+| > >
+| > > >
+| > > > -static int read_ldt(void __user * ptr, unsigned long bytecount)
+| > > > +static int read_ldt(void __user *ptr, unsigned long bytecount)
+| > > >  {
+| > > >  	int err, i;
+| > > >  	unsigned long size;
+| > > > +	unsigned long bytes;
+| > > >  	struct mm_struct * mm = current->mm;
+| > > >
+| > > >  	if (!mm->context.size)
+| > > > @@ -144,7 +145,7 @@ static int read_ldt(void __user * ptr, u
+| > > >  	__flush_tlb_global();
+| > > >
+| > > >  	for (i = 0; i < size; i += PAGE_SIZE) {
+| > > > -		int nr = i / PAGE_SIZE, bytes;
+| > > > +		int nr = i / PAGE_SIZE;
+| > > >  		char *kaddr = kmap(mm->context.ldt_pages[nr]);
+| > > >
+| > > >  		bytes = size - i;
+| > > >
+| >
+| > There is no additional overhead with the original code and it has the
+| > advantage that the scope of `bytes' covers the minimum amount of code.  I
+| > see no need to change this.
+| >
+| > Well.  There is a little bit of overhead of the code does:
+| >
+| > foo()
+| > {
+| > 	...
+| > 	{
+| > 		int i;
+| > 		...
+| > 	}
+| > 	...
+| > 	{
+| > 		int i;
+| > 		...
+| > 	}
+| > 	...
+| > }
+| >
+| > because the compiler (some versions, at least) will use eight bytes of
+| > stack rather than four.  But this is rarely a problem.
+| >
+| 
+| Ok, I'll let it go :-)
+| 
+| 
+| > > After creating the initial cleanup patch I've noticed several more
+| > > instances of this 'bad style'. If there's any interrest in cleaning them
+| > > up I'll be happy to create a patch.  Is this wanted?
+| >
+| > I'd say that this and the whitespace adjustments are far too trivial to be
+| > raising patches at this time.
+| >
+| You are right, it /is/ trivial - I'll leave it alone for now.  Maybe later
+| create a patch that does a more thorough cleanup and send it to the
+| trivial patch monkey.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Or I can put it into the KJ patchset and just never send it onward.
+That will at least get it some usage time.
 
-This problem is including 2.4.25-pre4 and 2.6.1. The Radeon FB module is 
-universal for both, Radeon and Radeon FB?!?!?
+BTW, if you want to stick with trivial_Rusty, that's OK with me too.
+Rusty does a fine job and I'm not trying to compete with him.
 
-EnricoB
+--
+~Randy
+http://janitor.kernelnewbies.org/

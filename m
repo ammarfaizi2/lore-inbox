@@ -1,43 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318591AbSHPRJr>; Fri, 16 Aug 2002 13:09:47 -0400
+	id <S318601AbSHPRKb>; Fri, 16 Aug 2002 13:10:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318601AbSHPRJr>; Fri, 16 Aug 2002 13:09:47 -0400
-Received: from mallaury.noc.nerim.net ([62.4.17.82]:5641 "HELO
-	mallaury.noc.nerim.net") by vger.kernel.org with SMTP
-	id <S318591AbSHPRJq>; Fri, 16 Aug 2002 13:09:46 -0400
-Date: Fri, 16 Aug 2002 19:15:08 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: ben@beroul.uklinux.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19 ATAPI cdrom I/O errors when reading CD-R
-Message-Id: <20020816191508.5f9589b4.khali@linux-fr.org>
-In-Reply-To: <Pine.NEB.4.44.0208161410330.6334-100000@mimas.fachschaften.tu-muenchen.de>
-References: <20020816094819.160d5e33.khali@linux-fr.org>
-	<Pine.NEB.4.44.0208161410330.6334-100000@mimas.fachschaften.tu-muenchen.de>
-Organization: http://www.linux-fr.org/
-X-Mailer: Sylpheed version 0.8.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S318602AbSHPRKa>; Fri, 16 Aug 2002 13:10:30 -0400
+Received: from smtp-out-3.wanadoo.fr ([193.252.19.233]:46235 "EHLO
+	mel-rto3.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S318601AbSHPRK1>; Fri, 16 Aug 2002 13:10:27 -0400
+Message-ID: <3D5D32D4.475C6719@wanadoo.fr>
+Date: Fri, 16 Aug 2002 19:13:56 +0200
+From: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20-pre2 i586)
+X-Accept-Language: fr-FR, en
+MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20-pre2-ac3 stops responding
+References: <Pine.LNX.4.44L.0208161340000.1430-100000@imladris.surriel.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > Could you please try to read the same CD-R with kernel 2.4.18? If
-> > you still can't read the CD, try with kernel 2.4.17, and so on back
-> > to 2.2.20, so we have a chance to find the change causing the
-> > problem. (Be careful to skip problematic kernels, 2.4.15 and 2.4.11
-> > come to mind.)
+Rik van Riel wrote:
 > 
-> This is a joke, isn't it?
+> On Fri, 16 Aug 2002, Jean-Luc Coulon wrote:
+> > Rik van Riel wrote:
+> > > On Fri, 16 Aug 2002, Jean-Luc Coulon wrote:
+> > >
+> > > > 2nd while running:
+> > > > ------------------
+> > > > If I have high disk activity, the system stops responding for a while,
+> > > > it does not accepts any key action nor mouse movement. It starts running
+> > > > normally after few seconds.
+> > >
+> > > I've got a patch that might help improve this situation:
+> > >
+> > > http://surriel.com/patches/2.4/2.4.20-p2ac3-rmap14
+> >
+> > I've applied the patch, it does not improve the things.
+> > The problem seems to be related with a DMA :
+> 
+> > /dev/hda2:
+> > setting using_dma to 1 (on)
+> > HDIO_SET_DMA failed: Invalid argument
+> > using_dma    =  0 (off)
+> 
+> Heh indeed.  There's no way to make your system fast if the
+> CPU is tied up waiting for the disk all the time ;)
+> 
+> regards,
+> 
+> Rik
+> --
+> Bravely reimplemented by the knights who say "NIH".
+> 
+> http://www.surriel.com/         http://distro.conectiva.com/
 
-Hm no, wasn't. I couldn't see another solution. Seems a bit hard to
-reproduce on another system, since it must be related to the specific
-hardware (drive, writer and CD-R) used.
+Of course, but I've not yet found the way to setup DMA
 
-What would you suggest?
+At boot time, I get the messages :
 
--- 
-Jean "Khali" Delvare
-http://www.ensicaen.ismra.fr/~delvare/
+Aug 16 11:34:19 f5ibh kernel: ALI15X3: simplex device: DMA disabled
+Aug 16 11:34:19 f5ibh kernel: ide0: ALI15X3 Bus-Master DMA disabled
+(BIOS)
+
+-----
+Regards
+	Jean-Luc

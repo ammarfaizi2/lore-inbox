@@ -1,52 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264746AbUGFXzY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264750AbUGGABi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264746AbUGFXzY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 19:55:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264750AbUGFXzX
+	id S264750AbUGGABi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 20:01:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264767AbUGGABi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 19:55:23 -0400
-Received: from holomorphy.com ([207.189.100.168]:22490 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264746AbUGFXzV (ORCPT
+	Tue, 6 Jul 2004 20:01:38 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:5320 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S264750AbUGGABg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 19:55:21 -0400
-Date: Tue, 6 Jul 2004 16:55:15 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.7-mm6
-Message-ID: <20040706235515.GY21066@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Dmitry Torokhov <dtor_core@ameritech.net>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <20040705023120.34f7772b.akpm@osdl.org> <20040706125438.GS21066@holomorphy.com> <200407061251.18702.dtor_core@ameritech.net> <20040706231256.GV21066@holomorphy.com>
-Mime-Version: 1.0
+	Tue, 6 Jul 2004 20:01:36 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040706231256.GV21066@holomorphy.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16619.15708.487344.93894@napali.hpl.hp.com>
+Date: Tue, 6 Jul 2004 17:01:32 -0700
+To: Jack Steiner <steiner@sgi.com>
+Cc: davidm@hpl.hp.com, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] - Reduce TLB flushing during process migration
+In-Reply-To: <20040702173905.GA18884@sgi.com>
+References: <20040623143844.GA15670@sgi.com>
+	<20040623143318.07932255.akpm@osdl.org>
+	<16605.1322.355489.223220@napali.hpl.hp.com>
+	<20040702173905.GA18884@sgi.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 06, 2004 at 12:51:16PM -0500, Dmitry Torokhov wrote:
->> Ok, I think I know what the problem is - it should be an oops rather than a
->> deadlock though - serial drivers are initialized before serio core when serio
->> bus structure is not registered with driver core yet. Could you please try
->> the patch below - I do not have hardware to test it:
+>>>>> On Fri, 2 Jul 2004 12:39:05 -0500, Jack Steiner <steiner@sgi.com> said:
 
-On Tue, Jul 06, 2004 at 04:12:56PM -0700, William Lee Irwin III wrote:
-> Unfortunately this didn't repair it. Bootlog attached. The failure to
-> respond to "send brk" indicates deadlock with interrupts disabled.
+  >> Also, my preference would be for tlb_migrate_finish() to be a true no-op
+  >> (not a call to a no-op function) when compiling for a platform that
+  >> doesn't need this hook.  Could you look into this?
 
-It may also help to know that I did bisection search on 2.6.7-mm* that
-had various contents of bk-input split out; in those, the offending
-patch was revealed to be input-serio-sysfs-intergration.patch which
-I think corresponds to:
-# ChangeSet
-#   2004/06/29 01:28:53-05:00 dtor_core@ameritech.net 
-#   Input: serio sysfs integration
-#   Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+  Jack> For platforms that dont define their own tlb_migrate_finish,
+  Jack> it is defined as :
 
-or one of the csets nearby in the consolidated bk-input.patch
+  Jack> #define tlb_migrate_finish(mm) do {} while (0)
 
+  Jack> I'm not sure if I understood your point above. This is
+  Jack> consistent with other noop definitions (at least some of them)
+  Jack> & should not generate any code.
 
--- wli
+Well, then it's not a true no-op.  The other no-ops are all for
+init-type stuff, so they're not at all performance critical.  Even
+when compiling a non-generic kernel, those no-op functions will be
+called.  This is really a limitation in the current machvec-scheme.  I
+think what we need is a way to explicitly declare a no-op callback,
+such that it can be optimized away completely for platforms that don't
+need it.  Perhaps there could be something along the lines of:
+
+#ifdef CONFIG_IA64_GENERIC
+# define machvec_noop(noop_function)	noop_function
+#else
+# define machvec_noop(noop_function)	/* empty */
+#endif
+
+Then you could do:
+
+# define platform_tlb_migrate_finish machvec_noop(machvec_mm_noop)
+
+I _think_ this should work, provided that callbacks that expand into
+true no-ops never have their address taken.
+
+(This reminds me: in the no-op dummy routines in machvec.c should be
+ named based on the type-signature they use, since it's possible to
+ share no-op handlers for callbacks with the same type-signature; this
+ is why I called the no-op machvec_mm_noop in the example above rather
+ than machvec_tlb_migrate_finish as was the case in your patch).
+
+	--david

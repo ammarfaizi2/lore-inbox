@@ -1,58 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272836AbTHPLhP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 07:37:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272837AbTHPLhP
+	id S272855AbTHPLqL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 07:46:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272858AbTHPLqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 07:37:15 -0400
-Received: from AMarseille-201-1-3-2.w193-253.abo.wanadoo.fr ([193.253.250.2]:29735
-	"EHLO gaston") by vger.kernel.org with ESMTP id S272836AbTHPLhO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 07:37:14 -0400
-Subject: Re: [BUG] slab debug vs. L1 alignement
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Kai Makisara <Kai.Makisara@kolumbus.fi>
-Cc: Manfred Spraul <manfred@colorfullife.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.56.0308161359460.1703@kai.makisara.local>
-References: <3F3D558D.5050803@colorfullife.com>
-	 <1060990883.581.87.camel@gaston> <3F3D8D3B.3020708@colorfullife.com>
-	 <1061026667.881.100.camel@gaston>  <3F3E02EE.8080909@colorfullife.com>
-	 <1061030600.582.121.camel@gaston>
-	 <Pine.LNX.4.56.0308161359460.1703@kai.makisara.local>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1061033789.582.126.camel@gaston>
+	Sat, 16 Aug 2003 07:46:11 -0400
+Received: from mail.suse.de ([213.95.15.193]:2833 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S272855AbTHPLqI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 07:46:08 -0400
+Date: Sat, 16 Aug 2003 13:44:10 +0200
+From: Karsten Keil <kkeil@suse.de>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Adrian Bunk <bunk@fs.tum.de>, isdn4linux@listserv.isdn4linux.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] ISDN PCBIT: #ifdef MODULE some code
+Message-ID: <20030816114410.GA15437@pingi3.kke.suse.de>
+Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
+	Adrian Bunk <bunk@fs.tum.de>, isdn4linux@listserv.isdn4linux.de,
+	linux-kernel@vger.kernel.org
+References: <20030728202500.GM25402@fs.tum.de> <20030815184720.B0E502CE86@lists.samba.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 16 Aug 2003 13:36:30 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030815184720.B0E502CE86@lists.samba.org>
+User-Agent: Mutt/1.4i
+Organization: SuSE Linux AG
+X-Operating-System: Linux 2.4.21-0-default i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ->
-> A character device (like st) doing direct i/o from user buffer to/from a
-> SCSI device does not currently have any alignment restrictions. I think
-> restricted alignment can't be required from a user of an ordinary
-> character device. This must then be handled by the driver. The solution is
-> to use bounce buffers in the driver if the alignment does not meet the
-> lower level requirements. This leads to surprises with performance if the
-> user buffer alignment does not satisfy the requirements (e.g., malloc()
-> may or may not return properly aligned blocks). These surprises should be
-> avoided as far as the hardware allows.
+On Sat, Aug 16, 2003 at 02:51:20AM +1000, Rusty Russell wrote:
+> In message <20030728202500.GM25402@fs.tum.de> you write:
+> > I got the following error at the final linkage of 2.6.0-test2 if 
+> > CONFIG_ISDN_DRV_PCBIT is compiled statically:
+> > 
+> > <--  snip  -->
+> > 
+> > ...
+> >   LD      .tmp_vmlinux1
+> > ...
+> > drivers/built-in.o(.exit.text+0xe183): In function `pcbit_exit':
+> > : undefined reference to `pcbit_terminate'
+> > make: *** [.tmp_vmlinux1] Error 1
+> 
+> AFAICT This is also broken in 2.4.22-rc2, which makes me wonder if
+> anyone actually cares about this driver?
+> 
+> Taken anyway, for both.
 
-THe low level driver can't do the bounce buffer thing, it has to be
-done at higher layers. 
+It is used, I got some reports last year (but this card is only sold in
+Portugal and is expensiv so far I know and so not so much people
+using this card and linux).
 
-> If an architecture has restrictions, they must, of course, be taken into
-> account. However, this should not punish architectures that don't have the
-> restrictions. Specifying that DMA buffers must be cache-line aligned would
-> be too strict. A separate alignment constraint for DMA in general and for
-> a device in specific would be a better alternative (a device may have
-> tighter restrictions than an architecture). The same applies to buffer
-> sizes. This would mean adding two more masks for each device (like the
-> current DMA address mask for a device).
+Here 2 reasons why such thinks don't matter today:
+1. 99% compile the ISDN stuff as module (and some parts are only work as
+   modules)
+2. In 2.4 the exit function is removed at compile time, if not compiled as
+   modul.
 
-That won't help for buffers coming from higher layers that don't know
-the device they'll end up to
+I preparing lot of bugfixes for ISDN and 2.6, but testing needs much time and
+many things are broken not only at compile time.
 
-Ben.
+-- 
+Karsten Keil
+SuSE Labs
+ISDN development

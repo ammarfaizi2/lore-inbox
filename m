@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261653AbTIOWFR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 18:05:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbTIOWFR
+	id S261656AbTIOWUe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 18:20:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbTIOWUe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 18:05:17 -0400
-Received: from smtp-out7.blueyonder.co.uk ([195.188.213.10]:61451 "EHLO
-	smtp-out7.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S261653AbTIOWFM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 18:05:12 -0400
-From: Edward Macfarlane Smith <snowfire@blueyonder.co.uk>
-To: Norbert Preining <preining@logic.at>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23-pre4 ide-scsi irq timeout
-Date: Mon, 15 Sep 2003 23:05:36 +0100
-User-Agent: KMail/1.5.1
-References: <20030913220121.GA1727@gamma.logic.tuwien.ac.at>
-In-Reply-To: <20030913220121.GA1727@gamma.logic.tuwien.ac.at>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Mon, 15 Sep 2003 18:20:34 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:31907 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261656AbTIOWUe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 18:20:34 -0400
+Subject: Re: SII SATA request size limit
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jens Axboe <axboe@suse.de>
+Cc: casino_e@terra.es,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030915153255.GB3412@suse.de>
+References: <d95d2d93f8.d93f8d95d2@teleline.es>
+	 <20030915153255.GB3412@suse.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309152305.36288.snowfire@blueyonder.co.uk>
-X-OriginalArrivalTime: 15 Sep 2003 22:05:11.0730 (UTC) FILETIME=[6F042920:01C37BD5]
+Message-Id: <1063664346.8257.10.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
+Date: Mon, 15 Sep 2003 23:19:06 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 13 September 2003 23:01, Norbert Preining wrote:
-> Hi!
->
-> I have been using 2.4.23-pre3 without any problems, but when I booted
-> 2.4.23-pre4 ide-scsi (bound to hdc) could not initialize the cdrom
-> drive.
->
-> Best wishes
->
-> Norbert
->
+On Llu, 2003-09-15 at 16:32, Jens Axboe wrote:
+> But basically I don't understand why the work-around was _ever_ in
+> sectors, if that is the bug in the hardware dma engine. 
 
-I saw something very similar in 2.4.23-pre2, couldn't swear it was exactly the 
-same, but definitely very similar. The very odd thing was that it only 
-occured the first time I booted the kernel (at which pointed I rebooted to 
-the old one and rebuilt it, but then forgot to copy the new image into /boot 
-and rebooted). The next time it booted fine and since then (20+ boots?) it 
-seems to have worked fine every time. I've got ide-scsi on hdc as well and 
-had applied the cpufreq patch too, wonder if thats important. Not had a 
-chance to try 2.4.23-pre4 yet, I've been away. I'm using gcc version 3.3 
-20030226 (prerelease) (SuSE Linux).
-Regards,
-Edward
+It is not a bug in the DMA engine. You will have to sign an SI NDA to
+find out more.
 

@@ -1,46 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319273AbSHVB0G>; Wed, 21 Aug 2002 21:26:06 -0400
+	id <S319255AbSHVABl>; Wed, 21 Aug 2002 20:01:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319274AbSHVB0G>; Wed, 21 Aug 2002 21:26:06 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:30215
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S319273AbSHVB0G>; Wed, 21 Aug 2002 21:26:06 -0400
-Date: Wed, 21 Aug 2002 18:29:35 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Erik Andersen <andersen@codepoet.org>
-cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20-pre2-ac6
-In-Reply-To: <20020822011839.GA28136@codepoet.org>
-Message-ID: <Pine.LNX.4.10.10208211828570.10353-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S319257AbSHVABl>; Wed, 21 Aug 2002 20:01:41 -0400
+Received: from p50838B57.dip.t-dialin.net ([80.131.139.87]:46860 "EHLO
+	calista.inka.de") by vger.kernel.org with ESMTP id <S319255AbSHVABk>;
+	Wed, 21 Aug 2002 20:01:40 -0400
+Date: Thu, 22 Aug 2002 02:05:47 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 and full ipv6 - will it happen?
+Message-ID: <20020822000547.GA27415@lina.inka.de>
+References: <E17hd4T-00050z-00@sites.inka.de> <Pine.LNX.4.44.0208211536320.3234-100000@hawkeye.luckynet.adm> <20020821220313.GA25141@lina.inka.de> <20020822001301.B27506@flint.arm.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020822001301.B27506@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4i
+From: Bernd Eckenfels <ecki@lina.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Aug 22, 2002 at 12:13:01AM +0100, Russell King wrote:
+> If you need some URLs, ask me off list and I'll send you some of the
+> ones that represent the current practice.
 
-Erm Alan, what happened boss ?
+i nkow the current practise, the fact is, that the current practise isnt
+worth half a year of experience.
 
-Lemme resend that jewel.
-
-On Wed, 21 Aug 2002, Erik Andersen wrote:
-
-> On Wed Aug 21, 2002 at 06:07:42PM -0700, Andre Hedrick wrote:
-> > 
-> > Erm were did it get lost then ?
-> 
-> dunno.  linux.20pre2-ac6/drivers/ide/Config.in has
->     +   dep_mbool '    Reduce media failure retries support' \
-> 	    CONFIG_BLK_DEV_IDECD_BAILOUT $CONFIG_BLK_DEV_IDECD
-> but no code uses it...  So I figured I'd mention it,
-> 
->  -Erik
-> 
-> --
-> Erik B. Andersen             http://codepoet-consulting.com/
-> --This message was written using 73% post-consumer electrons--
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+greetings
+bernd

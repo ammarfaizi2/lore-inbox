@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266462AbSKOTZA>; Fri, 15 Nov 2002 14:25:00 -0500
+	id <S266553AbSKOTd3>; Fri, 15 Nov 2002 14:33:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266553AbSKOTZA>; Fri, 15 Nov 2002 14:25:00 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:19209 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S266462AbSKOTY7>; Fri, 15 Nov 2002 14:24:59 -0500
-Date: Fri, 15 Nov 2002 14:29:54 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       Nicolas Pitre <nico@cam.org>, Andreas Steinmetz <ast@domdv.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: make distclean and make dep??
-In-Reply-To: <20021115145312.GA1320@mars.ravnborg.org>
-Message-ID: <Pine.LNX.3.96.1021115142113.10508E-100000@gatekeeper.tmr.com>
+	id <S266578AbSKOTd3>; Fri, 15 Nov 2002 14:33:29 -0500
+Received: from khms.westfalen.de ([62.153.201.243]:60051 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S266553AbSKOTd2>; Fri, 15 Nov 2002 14:33:28 -0500
+Date: 15 Nov 2002 20:26:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8$tgwO4mw-B@khms.westfalen.de>
+In-Reply-To: <20021115043827.A20764@wotan.suse.de>
+Subject: Re: module mess in -CURRENT
+X-Mailer: CrossPoint v3.12d.kh10 R/C435
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+References: <Pine.LNX.4.44.0211141634060.12390-100000@penguin.transmeta.com> <20021115002730.GA22547@bjl1.asuk.net> <Pine.LNX.4.44.0211141634060.12390-100000@penguin.transmeta.com> <20021115043827.A20764@wotan.suse.de>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Nov 2002, Sam Ravnborg wrote:
+ak@suse.de (Andi Kleen)  wrote on 15.11.02 in <20021115043827.A20764@wotan.suse.de>:
 
-> On Thu, Nov 14, 2002 at 07:31:24PM -0500, Bill Davidsen wrote:
+> > and then have the timer clear "xtime_count" every time it updates it.
+>
+> Problem is that you cannot easily synchronize such a monotonously increasing
+> timer in a network. But make needs synchronized times.
 
-> > I don't see why you ever thought it was a good idea to change this,
-> > distclean is that standard target used by many other things. And perhaps
-> > mrproper shouldn't bother to clean up all the leftovers, patch backups,
-> > they are documentation.
-> I have explained how I would like it to work - any comments on that proposal?
+That's really a make problem. It gets much worse when you count in times  
+going backwards because you restore a file from backup, or whatever.
 
-  Same comment, I want (a) something which will remake everything
-including *versions.h to be sure I didn't mess anything up, and (b) as a
-but removed the editor and patch backup files ready for distribution. I
-don't want to lose the patch backup files (I care less about editor files,
-my chosen editor doesn't make them) but I want to be able to easily
-identify what has changed without keeping a full unmodified copy of the
-tree.
+What I'd really like make to do - but it can't with the current design -  
+is to note the exact time stamp of each dependency when creating a target,  
+and when reconsidering that target, finding out if any of those time  
+stamps have changed in any way (and, while we're at it, probably check the  
+size as well). *Changed since last time*, not younger than the target.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+But of course to do that, you need a persistent repository for those time  
+stamps - which, I think, kbuild-Owen does.
 
+If you think about the more tricky things to do with make, this is almost  
+always what you would need to make a solution much easier.
+
+Take network time shift, for example. Once you no longer need a younger- 
+older relation, that time shift is actually completely irrelevant!
+
+One of these days, when I have lots of time (as if!) ...
+
+MfG Kai

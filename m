@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132017AbQLJUC2>; Sun, 10 Dec 2000 15:02:28 -0500
+	id <S130140AbQLJUSU>; Sun, 10 Dec 2000 15:18:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132473AbQLJUCT>; Sun, 10 Dec 2000 15:02:19 -0500
-Received: from dfmail.f-secure.com ([194.252.6.39]:4877 "HELO
-	dfmail.f-secure.com") by vger.kernel.org with SMTP
-	id <S132017AbQLJUCJ>; Sun, 10 Dec 2000 15:02:09 -0500
-Date: Sun, 10 Dec 2000 21:44:28 +0200 (MET DST)
-From: Szabolcs Szakacsits <szaka@f-secure.com>
-To: <thunder7@xs4all.nl>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.18pre25: VM: do_try_to_free_pages failed for
-Message-ID: <Pine.LNX.4.30.0012102104380.5455-100000@fs129-190.f-secure.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130155AbQLJUSK>; Sun, 10 Dec 2000 15:18:10 -0500
+Received: from sith.mimuw.edu.pl ([193.0.97.1]:12807 "HELO sith.mimuw.edu.pl")
+	by vger.kernel.org with SMTP id <S130140AbQLJUR4>;
+	Sun, 10 Dec 2000 15:17:56 -0500
+Date: Sun, 10 Dec 2000 20:49:15 +0100
+From: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test9 problem
+Message-ID: <20001210204915.A13448@sith.mimuw.edu.pl>
+Mail-Followup-To: Jan Rekorajski <baggins@sith.mimuw.edu.pl>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3A33D5F9.D7CB8A41@3dart.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A33D5F9.D7CB8A41@3dart.com>; from bogucki@3dart.com on Sun, Dec 10, 2000 at 08:14:01PM +0100
+X-Operating-System: Linux 2.4.0-test6 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 10 Dec 2000, Maciej Bogucki wrote:
 
-thunder7 wrote:
-> for almost everything:
->Dec 10 13:33:47 middle kernel: VM: do_try_to_free_pages failed for kswapd...
-[....]
-> <tried to log in over the network, didn't work, pressed C-A-D and
-> watched fsck mull over 60+ Gb>
+> HI!
+>  I have 2.4.0-test9 and 2.2.16 kernel compiled on my computer .I have
+> httpd server on this computer . With 2.2.16 apache work good ( via DSL
+> and modem ), but with 2.4 ( the same computer ) , when I wont to connect
+> to my page via modem first few kilobytes are downloaded "fast" and then
+> connection slow down and transfer rate is 1byte per second . When I
+> download this page from linux ( via modem ) everything is ok ! I have
+> this problem , when I want to see this this page from MS Windows
+> computers only via ppp connection . I have tested it on two different
+> computer and result is the same . 
+> 
+> I have seek this proble on mailing lists , but I haven't found . Have
+> anybody had the same problem like me ? 
 
-You could try out my patch that "reserves" virtual memory for root, so
-you should be able to login/ssh and clean up if your "faulty" or
-memory hungry daemons aren't run by root -- it works fine for me
-and I didn't get negative feedback so far:
-	http://mlf.linux.rulez.org/mlf/ezaz/reserved_root_vm+oom_killer-5.diff
-More on the patch,
-	http://boudicca.tux.org/hypermail/linux-kernel/2000week48/0624.html
+Same here, tested on 2.4.0-test6 up to test11 :(
 
-> Most messages I was able to dig up about this mentioned 2.2.17 and
-> suggested upgrading to 2.2.18pre. I didn't think there is anything
-> changed between 2.2.18pre25 and 2.2.18pre26(2.2.18 to be) in VM
-> handling, so the problem still seems to persist. What are the
-> suggestions? Moving to 2.4 is not possible, since the isdn
-> compression module isdn_lzscomp.o won't work in 2.4.
-
-Andrea Arcangeli's VM global patch got good feedback and according to
-Alan Cox it's a potential candidate for 2.2.19,
-ftp://ftp.nl.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.18pre18/VM-global-2.2.18pre18-7.bz2
-
-Good luck,
-
-	Szaka
-
+Jan
+-- 
+Jan Rêkorajski            |  ALL SUSPECTS ARE GUILTY. PERIOD!
+baggins<at>mimuw.edu.pl   |  OTHERWISE THEY WOULDN'T BE SUSPECTS, WOULD THEY?
+BOFH, MANIAC              |                   -- TROOPS by Kevin Rubio
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

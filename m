@@ -1,31 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316857AbSE1Rik>; Tue, 28 May 2002 13:38:40 -0400
+	id <S316862AbSE1Rjr>; Tue, 28 May 2002 13:39:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316861AbSE1Rij>; Tue, 28 May 2002 13:38:39 -0400
-Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:50136 "EHLO
-	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
-	id <S316857AbSE1Rii>; Tue, 28 May 2002 13:38:38 -0400
-Date: Tue, 28 May 2002 18:38:37 +0100 (BST)
-From: Matt Bernstein <matt@theBachChoir.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: VM oops in RH7.3 2.4.18-3
-In-Reply-To: <Pine.LNX.4.44.0205271518270.5065-100000@nick.dcs.qmul.ac.uk>
-Message-ID: <Pine.LNX.4.44.0205281834580.5065-100000@nick.dcs.qmul.ac.uk>
-X-URL: http://www.theBachChoir.org.uk/
+	id <S316864AbSE1Rjq>; Tue, 28 May 2002 13:39:46 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:37649
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S316862AbSE1Rjo>; Tue, 28 May 2002 13:39:44 -0400
+Date: Tue, 28 May 2002 10:23:43 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "Adam J. Richter" <adam@freya.yggdrasil.com>, gilad@benyossef.com,
+        linux-kernel@vger.kernel.org, lm@bitmover.com, phillips@bonn-fries.net
+Subject: Re: business models [was patent stuff]
+In-Reply-To: <1022610136.4124.131.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.10.10205281021520.8598-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-uvscan-result: clean
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-memtest86 3.0 (which knows something about ECC :) found the problem in
-seconds. It had passed a memtest86 2.something months ago before going
-into production. Case closed--thanks/sorry!
 
-On May 27 Matt Bernstein wrote:
+There is a major problem with your argument.
 
->This is a dual Athlon, 1 gig registered ECC DDR RAM, will try 2.4.18-4 but
->it doesn't look ext3-related (the only big local filesystem is reiserfs
->over s/w raid0).
+"FREE" is covered in BLACK's Book.
+
+"RELEASE" is not.  RMS specifically picked "RELEASE" in the GPL to force a
+litigation in court.  "RELEASE" is subjective to the reviewing body.
+
+Cheers,
+
+On 28 May 2002, Alan Cox wrote:
+
+> On Tue, 2002-05-28 at 18:13, Adam J. Richter wrote:
+> > 	You could license all programs that consist entirely of
+> > free software.  That way, BSD, LGPL, and MPL software that did
+> > not link in proprietary software would be allowed too, but your
+> > example of a proprietary program that linked in the BSD'ed
+> > libpatent.o/c would not be covered by this permission.
+> 
+> Define "free software" using only legally defined phrases which have
+> precedent. In fact put four people in a room and get them to define free
+> software.
+> 
+> > software would address issues like GPL'ed software that contains
+> > content that is GPL compatible but not GPL'ed, future versions of
+> 
+> If its linked then it is GPL in the linked form, otherwise you wouldn't
+> be allowed to link it
+> 
+> Alan
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+Andre Hedrick
+LAD Storage Consulting Group
 

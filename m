@@ -1,37 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267521AbUIVUst@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265970AbUIVUvk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267521AbUIVUst (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 16:48:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267651AbUIVUss
+	id S265970AbUIVUvk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 16:51:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266116AbUIVUvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 16:48:48 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:38372 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S267521AbUIVUss (ORCPT
+	Wed, 22 Sep 2004 16:51:40 -0400
+Received: from ida.rowland.org ([192.131.102.52]:55812 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S265970AbUIVUvh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 16:48:48 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.9-rc2-mm2
-Date: Wed, 22 Sep 2004 16:48:30 -0400
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <20040922131210.6c08b94c.akpm@osdl.org>
-In-Reply-To: <20040922131210.6c08b94c.akpm@osdl.org>
+	Wed, 22 Sep 2004 16:51:37 -0400
+Date: Wed, 22 Sep 2004 16:51:37 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Florian Weimer <fw@deneb.enyo.de>
+cc: Hisaaki Shibata <shibata@luky.org>,
+       USB users list <linux-usb-users@lists.sourceforge.net>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Genesys and IEEE 1394 (was: Re: Genesys Logic and Kernel 2.4)
+In-Reply-To: <87d60eqcvu.fsf_-_@deneb.enyo.de>
+Message-ID: <Pine.LNX.4.44L0.0409221648410.2089-100000@ida.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409221648.30234.jbarnes@engr.sgi.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, September 22, 2004 4:12 pm, Andrew Morton wrote:
-> - This kernel doesn't work on ia64 (instant reboot).  But neither does
->   2.6.9-rc2, nor current Linus -bk.  Is it just me?
+On Wed, 22 Sep 2004, Florian Weimer wrote:
 
-I certainly hope so.  Current bk works on my 2p Altix, and iirc 2.6.9-rc2 
-worked as well.  I'm trying 2.6.9-rc2-mm2 right now.  I haven't tried 
-generic_defconfig yet either, maybe that's it?
+> * Hisaaki Shibata:
+> 
+> >> +		/* According to the technical support people at Genesys Logic,
+> >> +		 * devices using their chips have problems transferring more
+> >> +		 * than 32 KB at a time.  In practice people have found that
+> >> +		 * 64 KB works okay and that's what Windows does.  But we'll
+> >> +		 * be conservative.
+> >> +		 */
+> >> +		if (ss->pusb_dev->descriptor.idVendor == USB_VENDOR_ID_GENESYS)
+> >> +			ss->htmplt->max_sectors = 64;
+> >
+> > +			ss->htmplt.max_sectors = 64;
+> >
+> >> +
+> 
+> Christoph Biedl discovered that it's likely that a a similar
+> workaround is needed in the IEEE 1394 code:
+> 
+> http://sourceforge.net/mailarchive/forum.php?thread_id=5128811&forum_id=5389
 
-Jesse
+That change was not the important one.  The important part of the patch 
+was this:
+
++               /* Genesys Logic interface chips need a 100us delay between
++                * the command phase and the data phase */
++               if (us->pusb_dev->descriptor.idVendor == USB_VENDOR_ID_GENESYS)
++                       udelay(100);
+
+This is what affects the timing problem, by adding a 100-microsecond 
+delay.
+
+Alan Stern
+

@@ -1,61 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268383AbTAMXEB>; Mon, 13 Jan 2003 18:04:01 -0500
+	id <S268388AbTAMXE3>; Mon, 13 Jan 2003 18:04:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268388AbTAMXEB>; Mon, 13 Jan 2003 18:04:01 -0500
-Received: from h-64-105-35-9.SNVACAID.covad.net ([64.105.35.9]:62097 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S268383AbTAMXEA>; Mon, 13 Jan 2003 18:04:00 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Mon, 13 Jan 2003 15:12:37 -0800
-Message-Id: <200301132312.PAA31291@baldur.yggdrasil.com>
-To: jgarzik@pobox.com, perex@suse.cz
-Subject: Re: 2.5.57 missing isapnp_card_protocol
-Cc: linux-kernel@vger.kernel.org
+	id <S268401AbTAMXE3>; Mon, 13 Jan 2003 18:04:29 -0500
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:60922 "EHLO
+	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id <S268388AbTAMXE0>; Mon, 13 Jan 2003 18:04:26 -0500
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15907.18251.658199.968745@wombat.chubb.wattle.id.au>
+Date: Tue, 14 Jan 2003 10:10:03 +1100
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Peter Chubb <peter@chubb.wattle.id.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ISO-9660 Rock Ridge gives different links different inums
+In-Reply-To: <Pine.LNX.3.96.1030113165748.22949A-100000@gatekeeper.tmr.com>
+References: <15902.16227.924630.143293@wombat.chubb.wattle.id.au>
+	<Pine.LNX.3.96.1030113165748.22949A-100000@gatekeeper.tmr.com>
+X-Mailer: VM 7.07 under 21.4 (patch 10) "Military Intelligence" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mon, 13 Jan 2003, Jeff Garzik wrote:
->On Mon, Jan 13, 2003 at 02:09:49PM -0800, Adam J. Richter wrote:
->> 	Linux-2.5.57 deletes the definition of isapnp_card_protocol
->> and then adds some references to it.  So, the kernel does not link
->> if you have enabled ISA PnP support.  I'm not sure whether
->> isapnp_card_protocol is supposed to be removed or not.
+>>>>> "Bill" == Bill Davidsen <davidsen@tmr.com> writes:
 
->That's the fault of some random driver that hasn't been updated to the
->new isapnp API yet...
+Bill> On Fri, 10 Jan 2003, Peter Chubb wrote:
+>> >>>>> "Andrew" == Andrew McGregor <andrew@indranet.co.nz> writes:
 
-	A random driver like linux-2.5.57/drivers/isapnp/core.c, line
-1128, which was changed _from_ referencing isapnp_protocol _to_
-referencing isapnp_card_protocol?  Also, if isapnp_card_protocol is
-supposed to be deleted, then presumably so should its extern
-declaration at line 106 of the same file.
+Andrew> Change it to be the offset to the data area, which should be
+Andrew> the same for all of them?
+>> I thought about that, but I'm unsure if there's any way to get from
+>> that offset to the directory information.  As far as I can tell,
+>> there's no concept of an inode separate from directory entry on
+>> iso9660 --- the directory entry/entries all contain all the
+>> information that describes a file.  Which means that the inumber
+>> has to point to some directory node.
 
-	Come to think of it, core.c is the only file that references
-isapnp_card_protocol in 2.5.57.  _If_ isapnp_card_protocol really
-should be deleted, then here is a patch for it.
+Bill> I can see that you would have to carry that information forward
+Bill> to the "inode" if you used the data area address, for stat
+Bill> that's probaby not an issue, for open after you open the file
+Bill> you don't really need access checking and the times on a CD
+Bill> don't change.
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+In isofs, the on-disc `inode' is an iso_directory_record, which
+contains the name as well as describing a single extent.
+iso_directory_records are chained together for files that have more
+than one extent on disc.  The code currently uses iget() to get the
+chained iso_directory_records.
 
---- linux-2.5.57/drivers/pnp/isapnp/core.c	2003-01-13 10:17:35.000000000 -0800
-+++ linux/drivers/pnp/isapnp/core.c	2003-01-13 15:04:17.000000000 -0800
-@@ -102,7 +102,6 @@
- /* some prototypes */
- 
- static int isapnp_config_prepare(struct pnp_dev *dev);
--extern struct pnp_protocol isapnp_card_protocol;
- extern struct pnp_protocol isapnp_protocol;
- 
- static inline void write_data(unsigned char x)
-@@ -1125,7 +1124,7 @@
- 	isapnp_build_device_list();
- 	cards = 0;
- 
--	protocol_for_each_card(&isapnp_card_protocol,card) {
-+	protocol_for_each_card(&isapnp_protocol,card) {
- 		cards++;
- 		if (isapnp_verbose) {
- 			printk(KERN_INFO "isapnp: Card '%s'\n", card->name[0]?card->name:"Unknown");
+Bill> What's the case where you are starting with an inode and trying
+Bill> to get to a filename without having gone through a dir entry to
+Bill> the inode? No one is running things like dump/restore on iso9660
+Bill> I hope!
+
+no it's where you're starting with an inode number, and want to get an
+inode.  Having looked at the code, now, I think that that's confined
+to autofs and internally to the isofs code, so could be worked around.
+
+Maybe we should deprecate iget() ???
+
+--
+Dr Peter Chubb				    peterc@gelato.unsw.edu.au
+You are lost in a maze of BitKeeper repositories, all almost the same.
+
+

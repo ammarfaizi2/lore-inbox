@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132128AbRCVSWH>; Thu, 22 Mar 2001 13:22:07 -0500
+	id <S132124AbRCVSYh>; Thu, 22 Mar 2001 13:24:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132137AbRCVSV7>; Thu, 22 Mar 2001 13:21:59 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:65042 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S132128AbRCVSVp>;
-	Thu, 22 Mar 2001 13:21:45 -0500
-Date: Thu, 22 Mar 2001 11:21:54 -0700
-From: Cort Dougan <cort@fsmlabs.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: nbecker@fred.net, linux-kernel@vger.kernel.org
-Subject: Re: regression testing
-Message-ID: <20010322112154.D17926@hq.fsmlabs.com>
-In-Reply-To: <x88zoeeeyh8.fsf@adglinux1.hns.com> <Pine.LNX.4.21.0103221334570.21415-100000@imladris.rielhome.conectiva>
-Mime-Version: 1.0
+	id <S132139AbRCVSYV>; Thu, 22 Mar 2001 13:24:21 -0500
+Received: from netel-gw.online.no ([193.215.46.129]:47372 "EHLO
+	InterJet.networkgroup.no") by vger.kernel.org with ESMTP
+	id <S132140AbRCVSXo>; Thu, 22 Mar 2001 13:23:44 -0500
+Message-ID: <3ABA42A8.A806D0E7@powertech.no>
+Date: Thu, 22 Mar 2001 19:21:28 +0100
+From: Geir Thomassen <geirt@powertech.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19pre5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: tytso@mit.edu
+Subject: Serial port latency
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.21.0103221334570.21415-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Thu, Mar 22, 2001 at 01:37:13PM -0300
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have a start for PPC.  It has the title "Regression Tester" but is
-actually a "compiles and boots tester".  The aim is a automated regression
-test.
+Hi. 
 
-Take a look at http://altus.drgw.net/
+My program controls a device (a programmer for microcontrollers) via the
+serial port. The program sits in a tight loop, writing a few (typical 6)
+bytes to the port, and waits for a few (typ. two) bytes to be returned from
+the programmer. 
 
-It pulls directly from our BitKeeper archive every time we push a change
-and goes through the build targeted for a number of platforms.
+The program works, but it is very slow. I use an oscilloscope to monitor the
+serial lines, and notices that there is a large delay between the returned
+data, and the next new command. I really don't know if the delay is on the
+sending or the receiving side (or both).
 
-} - automated compilation of the kernel with random config
-}   options (done by Arjan v/d Ven?)
-} - automated testing of certain kernel behaviour (didn't
-}   SGI have a project to look at this?  could they use help?)
-} - ... ?
+This is what the program does:
+
+     fd=open("/dev/ttyS0",O_NOCTTY | O_RDWR);
+
+     tcsetattr(fd,TCSANOW, &tio); /* setting baud, parity, raw mode, etc */
+
+     while() {
+             write( 6 bytes);   /* send command */
+             read( 2 bytes);    /* wait for reply */
+     }
+
+
+The device on the serial port responds in typ. 10 ms, but the software uses
+over 500ms to get the reply and send the next command. Why is this happening ?
+I have a feeling that there is something obvious I am missing (like line
+buffering, but that's a stdio (libc) thing, isn't it ?).
+
+BTW, I am running a 2.2 kernel ....
+
+Geir, geirt@powertech.no

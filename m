@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290081AbSAWVKi>; Wed, 23 Jan 2002 16:10:38 -0500
+	id <S290103AbSAWVPS>; Wed, 23 Jan 2002 16:15:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290102AbSAWVK2>; Wed, 23 Jan 2002 16:10:28 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:6885 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S290081AbSAWVKK>; Wed, 23 Jan 2002 16:10:10 -0500
-Date: Wed, 23 Jan 2002 22:08:05 +0100 (CET)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: claus@momo.math.rwth-aachen.de
-cc: linux-kernel@vger.kernel.org
-Subject: [patch] remove a workaround for gcc-2.4.5
-Message-ID: <Pine.NEB.4.44.0201232200370.14017-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S290104AbSAWVPI>; Wed, 23 Jan 2002 16:15:08 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:48908 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S290103AbSAWVPC>;
+	Wed, 23 Jan 2002 16:15:02 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Date: Wed, 23 Jan 2002 22:14:49 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: hot IDE change
+CC: linux-kernel@vger.kernel.org, ertzog@bk.ru
+X-mailer: Pegasus Mail v3.40
+Message-ID: <FBFD7B7521F@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Claus-Justus,
+On 23 Jan 02 at 15:56, Richard B. Johnson wrote:
+> > This question is more about hardware, but is also related to Linux.
+> > If I have a harddisk, plugged into the motherboard (IDE cable and power),
+> > can I turn it off, plugging out first power cable, then IDE cable.
+> > Can it harm harddisk or motherboard?
+> > If I can do it, then will Linux detect it back, if I make this 
+> > operation back: i.e. plug IDE cable, then power cable.
+> 
+> Linux doesn't care as long as it has been dismounted.
 
-the patch below removes a workaround for gcc-2.4.5.  Since a long time
-passed since this compiler was supported the last time this could be IMHO
-removed from the 2.2/2.4/2.5 kernels.
+Do not forget to run 'sync' after you dismount it.
 
-cu
-Adrian
+> So, you decide to pull the IDE cable first. Well, if you made
+> sure that all active bits were disconnected at the same time,
+> (grin), maybe you can get away with it.
 
+My non-hotpluggable bay first disconnect power, and it works fine,
+every friday evening for more than two years... But I have this
+device alone on its cable, so there is no traffic when I disconnect it.
+And I probably lost warranty by doing that.
+ 
+> Now, do you want to plug in another drive? If the five-volts
+> isn't present before the +12V, you may back-feed the 5-volt
+> logic through its protection diodes. If this generates enough
 
---- drivers/char/ftape/lowlevel/fdc-io.c.old	Wed Jan 23 21:59:13 2002
-+++ drivers/char/ftape/lowlevel/fdc-io.c	Wed Jan 23 22:00:39 2002
-@@ -928,18 +928,6 @@
- 	set_dma_mode(fdc.dma, mode);
- 	set_dma_addr(fdc.dma, virt_to_bus((void*)addr));
- 	set_dma_count(fdc.dma, count);
--#ifdef GCC_2_4_5_BUG
--	/*  This seemingly stupid construction confuses the gcc-2.4.5
--	 *  code generator enough to create correct code.
--	 */
--	if (1) {
--		int i;
--
--		for (i = 0; i < 1; ++i) {
--			ftape_udelay(1);
--		}
--	}
--#endif
- 	enable_dma(fdc.dma);
- }
+Unless something changed behind my back, do not do it. As kernel
+have no idea that you removed drive, it will not invalidate its
+caches. Maybe you could workaround this (at least you have to ask
+it to rescan partition table), but I decided to not plug IDE HDD into
+machine when kernel runs. So I reboot my system on each Monday morning, 
+and I plug hdd in when BIOS checks memory. It resets your uptime to zero,
+but as I upgrade kernel much more often, it is not a big problem.
 
+Only problem I had were ATAPI devices. There is stupid paragraph about
+creating `virtual' slave when none is present, in the ATAPI standard,
+and so even if you plug HDD into the box as a slave to ATAPI device,
+you'll not see it until you powercycle your ATAPI device... At least
+my Chineese CDROM behaves that way, so I put it on its own cable.
+                                    Best regards,
+                                        Petr Vandrovec
+                                        vandrove@vc.cvut.cz
 
 

@@ -1,92 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267447AbTBUOQj>; Fri, 21 Feb 2003 09:16:39 -0500
+	id <S267444AbTBUOPI>; Fri, 21 Feb 2003 09:15:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267446AbTBUOQj>; Fri, 21 Feb 2003 09:16:39 -0500
-Received: from www.netops.co.uk ([195.224.68.226]:37853 "EHLO netops.co.uk")
-	by vger.kernel.org with ESMTP id <S267445AbTBUOQh>;
-	Fri, 21 Feb 2003 09:16:37 -0500
-Date: Fri, 21 Feb 2003 14:26:37 +0000 (GMT)
-From: Steve Parker <steve.parker@netops.co.uk>
-X-X-Sender: steve@www.netops.co.uk.
-To: Duncan Sands <baldrick@wanadoo.fr>
-cc: Steve Parker <steve.parker@netops.co.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: Alcatel SpeedTouch USB Modem
-In-Reply-To: <200302210953.18215.baldrick@wanadoo.fr>
-Message-ID: <Pine.GSO.4.44.0302211419210.26954-100000@www.netops.co.uk.>
+	id <S267445AbTBUOPI>; Fri, 21 Feb 2003 09:15:08 -0500
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:10482 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id <S267444AbTBUOPG>; Fri, 21 Feb 2003 09:15:06 -0500
+From: Thomas Schlichter <schlicht@uni-mannheim.de>
+To: Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: [PATCH][2.5] replace flush_map() in arch/i386/mm/pageattr.c w ith flush_tlb_all()
+Date: Fri, 21 Feb 2003 15:25:01 +0100
+User-Agent: KMail/1.5
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@digeo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0302211217390.1531-100000@localhost.localdomain> <200302211342.19007.schlicht@uni-mannheim.de> <20030221142039.GA21532@codemonkey.org.uk>
+In-Reply-To: <20030221142039.GA21532@codemonkey.org.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_DbjV+7Ae8S/EhGN";
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200302211525.07213.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for that, Duncan. Lightweight and stable certainly sounds good; I
-look forward to the project being ready.
 
-Steve
+--Boundary-02=_DbjV+7Ae8S/EhGN
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: signed data
+Content-Disposition: inline
 
-On Fri, 21 Feb 2003, Duncan Sands wrote:
+Yes, you are right. I was just looking for this preempt-problem where a=20
+flush_tlb* was done, but there are many other places where this problem=20
+occours, too... Nearly everywhere where smp_call_function() is used!
 
-> On Friday 21 February 2003 03:01, Steve Parker wrote:
-> > I see that the Alcatel kernel-level driver for the Alcatel SpeedTouch USB
-> > Modem is now included in the 2.5 kernel.
+I found a function in the file mm/slab.c called smp_call_function_all_cpus(=
+)=20
+which tries to do the thing we want, but I think not even this function is=
+=20
+preempt-safe...!
+
+But here I think I better get off my fingers, I just wanted to help a bit w=
+ith=20
+this issue, but I don't think I have the time and knowledge to solve it=20
+completely in the mentioned good way...
+
+Perhaps even the semantic of the function smp_call_function() could be chan=
+ged=20
+to call the function on every CPU? Just an idea...
+
+Best regards
+  Thomas Schlichter
+
+
+On Fri, 21 Feb 2003 15:20, Dave Jones wrote:
+> On Fri, Feb 21, 2003 at 01:42:12PM +0100, Thomas Schlichter wrote:
+>  > > No.  All that does is make sure that the cpu you start out on is
+>  > > flushed, once or twice, and the cpu you end up on may be missed.
+>  > > Use preempt_disable and preempt_enable.
+>  >
+>  > Oh, you are right! I think I am totally stupid this morning...!
+>  > Now finally I hope this is the correct patch...
 >
-> Hi Steve, that is so, and I am maintaining it.
+> That would appear to do what you want, but its an ugly construct to
+> be repeating everywhere that wants to call a function on all CPUs.
+> It would probably clean things up a lot if we had a function to do..
 >
-> > This seems strange, since there seem to have been (in the past, at least)
-> > a lot of (panic) problems reported with it, and the speedtouch.sf.net (and
-> > complimentary speedtouchconf.sf.net) are fully capable of running this
-> > modem in userspace.
-> > Have these problems been resolved? Is the kernel driver as stable as the
-> > userspace one? Are there demonstrable perfomance benefits in the kernel
-> > driver?
+> static inline void on_each_cpu(void *func)
+> {
+> #ifdef CONFIG_SMP
+> 	preempt_disable();
+> 	smp_call_function(func, NULL, 1, 1);
+> 	func(NULL);
+> 	preempt_enable();
+> #else
+> 	func(NULL);
+> #endif
+> }
 >
-> These problems are being resolved.  Most of them have already been resolved.
-> The cvs version for 2.4, which you can find at
+> Bluesmoke and agpgart could both use this to cleanup some mess,
+> and no doubt there are others
 >
-> 	http://www.linux-usb.org/SpeedTouch/
+> Comments?
 >
-> is quite stable.  In theory it can still crash (due to various micro races), but in
-> practice it does not.  In any case, these micro races will be fixed soon.  The
-> 2.5 version, which is essentially identical to 2.4 cvs, doesn't work very well
-> in the current 2.5 kernel.  I don't know why.  I am working on it.
->
-> I have nothing against the user space version, which I used for many moons.
-> The kernel version is certainly much lighter weight - less CPU, less memory.
-> Whether this matters for you depends on your machine/needs.  My machine
-> is slow, and I need all the CPU time I can get!
->
-> > I've certainly been using my modem for well over a year with the userspace
-> > driver (speedtouch.sf.net) with - as at 2.4.18 - an unpatched kernel, and
-> > no troubles whatsoever. Is there any need for the Alcatel code in the
-> > kernel when the n_hdlc and ppp configs already cater for this modem, once
-> > the microcode is loaded?
->
-> The main disadvantages of the kernel mode driver were:
-> (1) unstable, and very unstable on SMP/preempt boxes
-> (2) required running the closed source speedmgmt program
-> (3) required compiling your own kernel
->
-> The driver is in 2.5, and is heading for inclusion in 2.4, so I expect that in the
-> future most distributions will ship with the speedtch module compiled.  Thus
-> (3) is going away.
->
-> The cvs version of the user space driver contains a patch for modem_run
-> which enables it to be used with the kernel driver in place of speedmgmt
-> (use the -k flag).  Thus (2) has already gone away.
->
-> As I mentioned, (1) is (almost) dealt with.
->
-> > What is the status of this driver WRT the Alcatel microcode? Last I heard,
-> > the Alcatel microcode was required by both the Alcatel kernel-level and
-> > the speedtouch.sf.net drivers.
->
-> That is correct, but you no longer need to upload it using speedmgmt.
-> There are efforts underway to reverse engineer the microcode, with
-> some success.  The goal of writing our own microcode (ARM processor
-> by the way) is still far, far away though.
->
-> All the best,
->
-> Duncan.
->
+> 		Dave
+
+--Boundary-02=_DbjV+7Ae8S/EhGN
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+VjbDYAiN+WRIZzQRAk6FAJ45uZxT8aFPEfxzQgihAf6VQjharwCggdOr
+MuDk8MqPYjchHUJnsOqNRBU=
+=t/x1
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_DbjV+7Ae8S/EhGN--
 

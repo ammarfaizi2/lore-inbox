@@ -1,34 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263571AbTEMLQE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 07:16:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263595AbTEMLQE
+	id S263630AbTEMLXg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 07:23:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263639AbTEMLXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 07:16:04 -0400
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:3490 "HELO
-	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S263571AbTEMLQD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 07:16:03 -0400
-Subject: 2.5: acpi_power_off doesn't turn machine off
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1052825263.605.2.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.3 (Preview Release)
-Date: 13 May 2003 13:27:43 +0200
-Content-Transfer-Encoding: 7bit
+	Tue, 13 May 2003 07:23:36 -0400
+Received: from pat.uio.no ([129.240.130.16]:29098 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S263630AbTEMLXe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 07:23:34 -0400
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 must-fix list, v2
+References: <20030512155417.67a9fdec.akpm@digeo.com>
+	<20030512155511.21fb1652.akpm@digeo.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 13 May 2003 13:36:14 +0200
+In-Reply-To: <20030512155511.21fb1652.akpm@digeo.com>
+Message-ID: <shswugvjcy9.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>>>>> " " == Andrew Morton <akpm@digeo.com> writes:
 
-2.5.69-mm4 (and previous versions too) is unable to properly shut down
-the machine when using ACPI. Instead, it invokes acpi_power_off and then
-hangs, needed me to manually cycle the power.
+     > - NFS client gets an OOM deadlock.
+     > - Some fixes exist in -mm.  Seem to mostly work.
+     > - NFS client runs very slowly consuming 100% CPU under heavy
+     >   writeout.
+     > - Unsubtle fix exists in -mm.  (Looks like it's fixed anyway).
 
-Is this a kernel-related problem, or should I bug further details to the
-ACPI mailing list?
+<snip>
 
-Thanks!
+     > - davej: NFS seems to have a really bad time for some people.  (Including
+     >   myself on one testbox).  The common factor seems to be a high
+     >   spec client torturing an underpowered NFS server with lots of
+     >   IO.  (fsx/fsstress etc show this up).  Lots of "NFS server
+     >   cheating" messages get dumped, and a whole lot of bogus
+     >   packets start appearing.  They look severely corrupted, (they
+     >   even crashed ethereal once 8-)
 
+Could people please test these items out again using the latest
+Bitkeeper release? I believe I've addressed all these issues with the
+patches that have gone to Linus in the last 2-3 weeks.
+
+Cheers,
+  Trond

@@ -1,73 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262401AbUKDTmy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUKDTls@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262401AbUKDTmy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 14:42:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbUKDTmS
+	id S262406AbUKDTls (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 14:41:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262400AbUKDTk4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 14:42:18 -0500
-Received: from dfw-gate4.raytheon.com ([199.46.199.233]:52589 "EHLO
-	dfw-gate4.raytheon.com") by vger.kernel.org with ESMTP
-	id S262401AbUKDTlK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 14:41:10 -0500
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Mark_H_Johnson@raytheon.com, Karsten Wiese <annabellesgarden@yahoo.de>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-From: Mark_H_Johnson@raytheon.com
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.1
-Date: Thu, 4 Nov 2004 13:39:44 -0600
-Message-ID: <OF88A40911.ECF57E25-ON86256F42.006C01DC-86256F42.006C0216@raytheon.com>
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 11/04/2004 01:39:46 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-SPAM: 0.00
+	Thu, 4 Nov 2004 14:40:56 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:53195 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S262381AbUKDTgv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 14:36:51 -0500
+Date: Thu, 4 Nov 2004 13:36:29 -0600
+From: Jack Steiner <steiner@sgi.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Erich Focht <efocht@hpce.nec.com>, Takayoshi Kochi <t-kochi@bq.jp.nec.com>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Externalize SLIT table
+Message-ID: <20041104193629.GA22887@sgi.com>
+References: <20041103205655.GA5084@sgi.com> <20041104.105908.18574694.t-kochi@bq.jp.nec.com> <20041104141337.GA18445@sgi.com> <200411041631.42627.efocht@hpce.nec.com> <20041104170435.GA19687@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041104170435.GA19687@wotan.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->there was one place missing - does the patch below fix this type of
->deadlock?
+On Thu, Nov 04, 2004 at 06:04:35PM +0100, Andi Kleen wrote:
+> On Thu, Nov 04, 2004 at 04:31:42PM +0100, Erich Focht wrote:
+> > On Thursday 04 November 2004 15:13, Jack Steiner wrote:
+> > > I think it would also be useful to have a similar cpu-to-cpu distance
+> > > metric:
+> > > ????????% cat /sys/devices/system/cpu/cpu0/distance
+> > > ????????10 20 40 60 
+> > > 
+> > > This gives the same information but is cpu-centric rather than
+> > > node centric.
+> > 
+> > I don't see the use of that once you have some way to find the logical
+> > CPU to node number mapping. The "node distances" are meant to be
+> 
+> I think he wants it just to have a more convenient interface,
+> which is not necessarily a bad thing.  But then one could put the 
+> convenience into libnuma anyways.
+> 
+> -Andi
 
-A different deadlock this time, same two actors but apparently a
-different pair of locks.
+Yes, strictly convenience.  Most of the cases that I have seen deal with
+cpu placement & cpu distances from each other. I agree that cpu-to-cpu
+distances can be determined by converting to nodes & finding the 
+node-to-node distance.
 
-Will send the full console log shortly.
-  --Mark
+A second reason is symmetry. If there is a /sys/devices/system/node/node0/distance
+metric, it seems as though there should also be a /sys/devices/system/cpu/cpu0/distance
+metric.
 
+-- 
+Thanks
 
-===============================================
-BUG: circular semaphore deadlock detected!
------------------------------------------------
-ksoftirqd/1/6 is deadlocking current task ksoftirqd/0/3
+Jack Steiner (steiner@sgi.com)          651-683-5302
+Principal Engineer                      SGI - Silicon Graphics, Inc.
 
-
-1) ksoftirqd/0/3 is trying to acquire this lock:
- [dfb5c8a4] {r:0,a:-1,&n->lock}
-.. held by:       ksoftirqd/1/    6 [dff886f0,   0]
-... acquired at:  arp_solicit+0x167/0x230
-... trying at:   neigh_update+0x2a/0x390
-
-2) ksoftirqd/1/6 is blocked on this lock:
- [c03c8900] {r:1,a:-1,ptype_lock}
-.. held by:       ksoftirqd/0/    3 [dffe8020,   0]
-... acquired at:  net_rx_action+0x8e/0x200
-
-------------------------------
-| showing all locks held by: |  (ksoftirqd/0/3 [dffe8020,   0]):
-------------------------------
-
-#001:             [d9044c30] {r:0,a:-1,&tp->rx_lock}
-... acquired at:  rtl8139_poll+0x48/0x180 [8139too]
-
-------------------------------
-| showing all locks held by: |  (ksoftirqd/1/6 [dff886f0,   0]):
-------------------------------
-
-#001:             [dfb5c8a4] {r:0,a:-1,&n->lock}
-... acquired at:  arp_solicit+0x167/0x230
 

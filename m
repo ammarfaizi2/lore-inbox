@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265252AbTF1PEU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 11:04:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265261AbTF1PEU
+	id S265264AbTF1PHx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 11:07:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265265AbTF1PHx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 11:04:20 -0400
-Received: from www.wireboard.com ([216.151.155.101]:40100 "EHLO
-	varsoon.wireboard.com") by vger.kernel.org with ESMTP
-	id S265252AbTF1PET convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 11:04:19 -0400
+	Sat, 28 Jun 2003 11:07:53 -0400
+Received: from cs180094.pp.htv.fi ([213.243.180.94]:14976 "EHLO
+	hades.pp.htv.fi") by vger.kernel.org with ESMTP id S265264AbTF1PHw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 11:07:52 -0400
+Subject: Re: TCP send behaviour leads to cable modem woes
+From: Mika Liljeberg <mika.liljeberg@welho.com>
 To: Svein Ove Aas <svein.ove@aas.no>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Dell vs. GPL
-References: <Pine.LNX.4.44.0306280005000.29249-100000@gibson.mw.luc.edu>
-	<1056780761.10255.10.camel@granite>
-	<m3n0g21bu0.fsf@varsoon.wireboard.com>
-	<200306281712.15947.svein.ove@aas.no>
-From: Doug McNaught <doug@mcnaught.org>
-Date: 28 Jun 2003 11:18:34 -0400
-In-Reply-To: Svein Ove Aas's message of "Sat, 28 Jun 2003 17:12:13 +0200"
-Message-ID: <m3isqq1b91.fsf@varsoon.wireboard.com>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+In-Reply-To: <200306281604.52876.svein.ove@aas.no>
+References: <200306272020.57502.svein.ove@aas.no>
+	 <200306272145.22008.svein.ove@aas.no> <1056743877.681.5.camel@hades>
+	 <200306281604.52876.svein.ove@aas.no>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1056813724.668.23.camel@hades>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 28 Jun 2003 18:22:05 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Svein Ove Aas <svein.ove@aas.no> writes:
+On Sat, 2003-06-28 at 17:04, Svein Ove Aas wrote:
+> Well, it doesn't appear to have any effect.
+> (What is it *supposed* to do? Something about spurious retransmission 
+> timeouts, was it?)
 
-> lørdag 28. juni 2003, 17:05, skrev Doug McNaught:
-> > AIUI, they need to supply full source, not just a patch against code
-> > you get from someone else.
-> 
-> Now that's just silly.
+Yeah, frto should help if you're seeing unnecessary retransmission
+timeouts caused by delay spikes. It won't do much good if you're also
+losing packets, e.g., due to overflowing the modem buffers. From what I
+gathered from your explanation, the cable link might also be bunching up
+the incoming ACK packets into bursts, each of which causes the sending
+TCP to inject a corresponding burst of new segments into the network. If
+that's what is happening, rate capping is probably more effective. Even
+if you set the rate cap a little high it should mitigate the effects of
+the bursts.
 
-But legally required by the GPL.
+	MikaL
 
-> The kernel is *how* many megabytes?
-> And it's very easily available. You may be right, but if you are it's for very 
-> legalistic reasons that don't matter in real life.
-
-You're right that it's not likely to be a problem in this case. 
-
--Doug

@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286692AbSBKCuz>; Sun, 10 Feb 2002 21:50:55 -0500
+	id <S286411AbSBKCtZ>; Sun, 10 Feb 2002 21:49:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286712AbSBKCuk>; Sun, 10 Feb 2002 21:50:40 -0500
-Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:64824 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S286692AbSBKCtm>; Sun, 10 Feb 2002 21:49:42 -0500
-Date: Sun, 10 Feb 2002 21:49:41 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200202110249.g1B2nfx27479@devserv.devel.redhat.com>
-To: stodden@in.tum.de, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: pci_pool reap?
-In-Reply-To: <mailman.1013388420.27877.linux-kernel2news@redhat.com>
-In-Reply-To: <mailman.1013388420.27877.linux-kernel2news@redhat.com>
+	id <S286687AbSBKCtR>; Sun, 10 Feb 2002 21:49:17 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:40201 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S286411AbSBKCtC>; Sun, 10 Feb 2002 21:49:02 -0500
+Subject: Re: [PATCH] 2.5.4-pre6 apm compile fix
+To: reality@delusion.de (Udo A. Steinberg)
+Date: Mon, 11 Feb 2002 03:02:35 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <3C672BE8.EF4C703F@delusion.de> from "Udo A. Steinberg" at Feb 11, 2002 03:26:48 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16a6jj-0005Gu-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> is it true that pci pools are never shrunk? or am i just missing the
-> point where it happens?
 > 
-> try_to_free_pages() seems to care just about kmem_caches.
+> I believe this had already been applied in earlier 2.5 and then somehow
+> vanished, probably due to an update by whoever maintains apm.c
 
-Yes, they do not shrink. When David-B wrote them, they shrunk.
-Later I found an interrupt availability violation (pci_pool_free
-can be called from an interrupt, it can call pci_free_consistent,
-which cannot be called from an interrupt), so we got it removed.
+Doubt it - the 2.4.18pre tree uses a much more uptodate APM code set that
+removes the rather broken system_idle check for a new algorithm (and
+adds 20% to my typical battery lifetime!). Probably its another thing that
+really wants porting forward.
 
-There is a certain controversy about pci_free_consistent called
-from an interrupt. It seems that most architectures would
-have no problems, and only arm is problematic. RMK says that
-it's not intrinsicly so, this is one of my TODO notes:
+I think its from scheduling changes.
 
- ## 2001/12/18
-<zaitcev> rmk: you do have some stuff broken, for instance using vmalloc for
-           pci_alloc_consistent was a major pain for everyone else
-<_rmk_> zaitcev: errrrrrrrr
-<_rmk_> zaitcev: I don't use vmalloc there, never have done.
-<_rmk_> I use alloc_pages and ioremap
-<_rmk_> You're thinking about the sa1100 people who decided to make pci_map_*
-           fail I think.
-<zaitcev> hmm. I'll re-investigate.
-<_rmk_> which... is not something I agree with either.
-<_rmk_> but quite honestly, with Intel breaking the hardware soo badly, it
-           being popular and continues to be reused on other platforms, its
-           something we're going to have to live with.
+> -#define system_idle() (nr_running == 1)
+> +#define system_idle() (nr_running() == 1)
 
-Wanna take it up personally? I seem never to have a time.
-
--- Pete

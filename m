@@ -1,86 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265999AbUHFO7U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266001AbUHFPBS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265999AbUHFO7U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 10:59:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268075AbUHFO7U
+	id S266001AbUHFPBS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 11:01:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265784AbUHFPBS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 10:59:20 -0400
-Received: from out002pub.verizon.net ([206.46.170.141]:59843 "EHLO
-	out002.verizon.net") by vger.kernel.org with ESMTP id S265999AbUHFO7O
+	Fri, 6 Aug 2004 11:01:18 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:52895 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S266001AbUHFPA4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 10:59:14 -0400
-Message-ID: <41139D3F.9060705@verizon.net>
-Date: Fri, 06 Aug 2004 11:01:19 -0400
-From: Mike <turbanator1@verizon.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
+	Fri, 6 Aug 2004 11:00:56 -0400
+Message-ID: <41139CE0.1040106@rtr.ca>
+Date: Fri, 06 Aug 2004 10:59:44 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: USB 2.0 DVD+R problems
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: Paul Jakma <paul@clubi.ie>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: libata: dma, io error messages
+References: <Pine.LNX.4.60.0408061113210.2622@fogarty.jakma.org> <1091795565.16307.14.camel@localhost.localdomain> <41138C67.7040306@rtr.ca> <Pine.LNX.4.60.0408061453410.2622@fogarty.jakma.org>
+In-Reply-To: <Pine.LNX.4.60.0408061453410.2622@fogarty.jakma.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [151.202.92.151] at Fri, 6 Aug 2004 09:59:14 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My kernel version (was) 2.6.7, but is now 2.6.8rc3. This is a sample of 
-the errors I see when trying to mount a DVD or CD:
+ >If that is so then this suggests the drive has a far
+ >more serious problem than just a single bad block, right?
 
-7>ehci_hcd 0000:00:0b.2: devpath 4 ep0out 3strikes
-SCSI error : <0 0 0 0> return code = 0x70000
-end_request: I/O error, dev sr0, sector 96
-Buffer I/O error on device sr0, logical block 12
-ehci_hcd 0000:00:0b.2: devpath 4 ep2in 3strikes
-ehci_hcd 0000:00:0b.2: devpath 4 ep0out 3strikes
-SCSI error : <0 0 0 0> return code = 0x70000
-end_request: I/O error, dev sr0, sector 104
-Buffer I/O error on device sr0, logical block 13
-ehci_hcd 0000:00:0b.2: devpath 4 ep2in 3strikes
-ehci_hcd 0000:00:0b.2: devpath 4 ep0out 3strikes
-SCSI error : <0 0 0 0> return code = 0x70000
-end_request: I/O error, dev sr0, sector 112
-Buffer I/O error on device sr0, logical block 14
-ehci_hcd 0000:00:0b.2: devpath 4 ep2in 3strikes
-ehci_hcd 0000:00:0b.2: devpath 4 ep0out 3strikes
-SCSI error : <0 0 0 0> return code = 0x70000
-end_request: I/O error, dev sr0, sector 120
-Buffer I/O error on device sr0, logical block 15
-ehci_hcd 0000:00:0b.2: devpath 4 ep2in 3strikes
-ehci_hcd 0000:00:0b.2: devpath 4 ep0out 3strikes
-ehci_hcd 0000:00:0b.2: devpath 4 ep2in 3strikes
-ehci_hcd 0000:00:0b.2: devpath 4 ep0out 3strikes
-ehci_hcd 0000:00:0b.2: devpath 4 ep2in 3strikes
-7>ehci_hcd 0000:00:0b.2: devpath 4 ep0out 3strikes
-SCSI error : <0 0 0 0> return code = 0x70000
-end_request: I/O error, dev sr0, sector 96
-Buffer I/O error on device sr0, logical block 12
-ehci_hcd 0000:00:0b.2: devpath 4 ep2in 3strikes
-ehci_hcd 0000:00:0b.2: devpath 4 ep0out 3strikes
-SCSI error : <0 0 0 0> return code = 0x70000
-end_request: I/O error, dev sr0, sector 104
-Buffer I/O error on device sr0, logical block 13
-ehci_hcd 0000:00:0b.2: devpath 4 ep2in 3strikes
-ehci_hcd 0000:00:0b.2: devpath 4 ep0out 3strikes
-SCSI error : <0 0 0 0> return code = 0x70000
-end_request: I/O error, dev sr0, sector 112
-Buffer I/O error on device sr0, logical block 14
-ehci_hcd 0000:00:0b.2: devpath 4 ep2in 3strikes
-ehci_hcd 0000:00:0b.2: devpath 4 ep0out 3strikes
-SCSI error : <0 0 0 0> return code = 0x70000
-end_request: I/O error, dev sr0, sector 120
-Buffer I/O error on device sr0, logical block 15
-ehci_hcd 0000:00:0b.2: devpath 4 ep2in 3strikes
-ehci_hcd 0000:00:0b.2: devpath 4 ep0out 3strikes
-ehci_hcd 0000:00:0b.2: devpath 4 ep2in 3strikes
-ehci_hcd 0000:00:0b.2: devpath 4 ep0out 3strikes
-ehci_hcd 0000:00:0b.2: devpath 4 ep2in 3strikes
+The smartmontools can answer that question far more reliably
+than anyone here can.
 
-Yes, I can confirm that this drive works on a Gateway laptop running 
-Windows 2000.
-
-When trying to mount this drive, I do:
-
-mount /dev/sr0 /mnt/cdrom
-
+Cheers
+-- 
+Mark Lord
+(hdparm keeper & the original "Linux IDE Guy")

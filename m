@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312379AbSDJKT2>; Wed, 10 Apr 2002 06:19:28 -0400
+	id <S312392AbSDJK11>; Wed, 10 Apr 2002 06:27:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312392AbSDJKT1>; Wed, 10 Apr 2002 06:19:27 -0400
-Received: from anchor-post-35.mail.demon.net ([194.217.242.93]:29200 "EHLO
-	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S312379AbSDJKT1>; Wed, 10 Apr 2002 06:19:27 -0400
-Date: Wed, 10 Apr 2002 11:19:13 +0100
-To: benh@kernel.crashing.org
+	id <S312393AbSDJK10>; Wed, 10 Apr 2002 06:27:26 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:20747 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S312392AbSDJK1Z>;
+	Wed, 10 Apr 2002 06:27:25 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Jurgen Philippaerts <jurgen@pophost.eunet.be>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Radeon frame buffer driver
-Message-ID: <20020410101913.GA975@berserk.demon.co.uk>
-Mail-Followup-To: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20020410094055.GA789@berserk.demon.co.uk> <20020410105731.28774@mailhost.mipsys.com>
+Subject: Re: arch/sparc64/kernel/traps.c 
+In-Reply-To: Your message of "Tue, 09 Apr 2002 23:47:34 +0200."
+             <20020409214734.GL9996@sparkie.is.traumatized.org> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Peter Horton <pdh@berserk.demon.co.uk>
+Date: Wed, 10 Apr 2002 20:27:08 +1000
+Message-ID: <5494.1018434428@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 10, 2002 at 11:57:31AM +0100, benh@kernel.crashing.org wrote:
-> 
-> Fine, though I noticed the get_cmap_len got changed to
-> +	return var->bits_per_pixel == 8 ? 256 : 16;
-> 
+On Tue, 9 Apr 2002 23:47:34 +0200, 
+Jurgen Philippaerts <jurgen@pophost.eunet.be> wrote:
+>gcc io.o ksyms.o ksymoops.o map.o misc.o object.o oops.o re.o
+>symbol.o -Dlinux -Wall -Wno-conversion -Waggregate-return
+>-Wstrict-prototypes -Wmissing-prototypes  -DDEF_KSYMS=\"/proc/ksyms\"
+>-DDEF_LSMOD=\"/proc/modules\" -DDEF_OBJECTS=\"/lib/modules/*r/\"
+>-DDEF_MAP=\"/usr/src/linux/System.map\" -Wl,-Bstatic -lbfd -liberty
+>-Wl,-Bdynamic -o ksymoops
+>/usr/lib/libbfd.a(merge.o): In function `merge_strings':
+>merge.o(.text+0xc04): undefined reference to `htab_create'
+>merge.o(.text+0xc2c): undefined reference to `htab_create'
 
-The colour map is only used by the kernel and the kernel only uses 16
-entries so there isn't any reason to waste memory by making it any
-larger. I checked a few other drivers and they do the same (aty128fb for
-one).
+http://marc.theaimsgroup.com/?l=linux-kernel&m=101773461204829&w=2
 
-P.

@@ -1,70 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262475AbUKZX5s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263070AbUK0ACE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262475AbUKZX5s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 18:57:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262436AbUKZX4q
+	id S263070AbUK0ACE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 19:02:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263095AbUK0ABT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 18:56:46 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:26565 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263086AbUKZTnF (ORCPT
+	Fri, 26 Nov 2004 19:01:19 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:9413 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S263069AbUKZTl1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:43:05 -0500
-Date: Thu, 25 Nov 2004 18:14:30 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Priority Inheritance Test (Real-Time Preemption)
-Message-ID: <20041125171430.GA25886@elte.hu>
-References: <20041125165829.GA24121@elte.hu> <Pine.OSF.4.05.10411251706290.12827-100000@da410.ifa.au.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.OSF.4.05.10411251706290.12827-100000@da410.ifa.au.dk>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 26 Nov 2004 14:41:27 -0500
+Date: Thu, 25 Nov 2004 14:42:12 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Work around for periodic do_gettimeofday hang
+In-Reply-To: <1101356864.4007.35.camel@mulgrave>
+Message-ID: <Pine.LNX.4.53.0411251441400.31392@yvahk01.tjqt.qr>
+References: <1101314988.1714.194.camel@mulgrave>  <1101323621.2811.24.camel@laptop.fenrus.org>
+ <1101356864.4007.35.camel@mulgrave>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>On Wed, 2004-11-24 at 13:13, Arjan van de Ven wrote:
+>> while I agree with 100Hz for slower cpus, I rather have a config option for it so people
+>> (and distros) can select it independent of the exact cpu type they want to compile a kernel for
+>
+>How about this then?
 
-* Esben Nielsen <simlo@phys.au.dk> wrote:
+I'd rather make it a number field rather than "choose-me", so the wise user can
+choose any Hz he likes.
 
-> 
-> On Thu, 25 Nov 2004, Ingo Molnar wrote:
-> 
-> > [...] 
-> > there's one thing i noticed, now that the blocker device is in the
-> > kernel, you have to be really careful to compile the userspace loop()
-> > code via the same gcc flags as the kernel did. Minor differences in
-> > compiler options can skew the timing calibration.
-> > 
-> > but any such bug should at most cause a linear deviation via a constant
-> > factor multiplication, while the data shows a systematic nonlinear
-> > transformation.
-> > 
-> -g -Wall -O2 was on in userspace.
 
-you can check the gcc options the kernel used via the
-drivers/char/.blocker.o.cmd file. Mine has (only the
-performance-relevant flags):
 
- -fno-strict-aliasing -fno-common -O2 -fomit-frame-pointer -msoft-float
- -mpreferred-stack-boundary=2 -fno-unit-at-a-time -march=pentium3
- -mregparm=3
-
-> > [...] 
-> > yeah, i agree that this has to be further investigated. What type of box
-> > did you test it on - UP or SMP? (SMP scheduling of RT tasks only got
-> > fully correct in the very latest -31-7 kernel.)
-> > 
-> UP, PIII 697.143 Mhz
-
-ok - some of the fixes affect UP too, but with less likelyhood. Might be
-worth a try though.
-
-	Ingo
+Jan Engelhardt
+-- 
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

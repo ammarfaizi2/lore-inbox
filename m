@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281015AbRKTKcv>; Tue, 20 Nov 2001 05:32:51 -0500
+	id <S281020AbRKTKzo>; Tue, 20 Nov 2001 05:55:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281016AbRKTKcc>; Tue, 20 Nov 2001 05:32:32 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:56333 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S281015AbRKTKc0>; Tue, 20 Nov 2001 05:32:26 -0500
-Date: Tue, 20 Nov 2001 13:31:50 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Richard Henderson <rth@redhat.com>
-Cc: Jay.Estabrook@compaq.com, linux-kernel@vger.kernel.org
-Subject: Re: [alpha] cleanup opDEC workaround
-Message-ID: <20011120133150.A9033@jurassic.park.msu.ru>
-In-Reply-To: <20011119232355.C16091@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011119232355.C16091@redhat.com>; from rth@redhat.com on Mon, Nov 19, 2001 at 11:23:55PM -0800
+	id <S281021AbRKTKzf>; Tue, 20 Nov 2001 05:55:35 -0500
+Received: from relay-2m.club-internet.fr ([195.36.216.171]:33231 "HELO
+	relay-2m.club-internet.fr") by vger.kernel.org with SMTP
+	id <S281020AbRKTKzV>; Tue, 20 Nov 2001 05:55:21 -0500
+Message-ID: <3BFA3699.6050601@freesurf.fr>
+Date: Tue, 20 Nov 2001 11:55:21 +0100
+From: Kilobug <kilobug@freesurf.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011116
+X-Accept-Language: fr, en, fr-fr
+MIME-Version: 1.0
+To: Duncan Sands <duncan.sands@math.u-psud.fr>, linux-kernel@vger.kernel.org
+Subject: Re: [bug report] System hang up with Speedtouch USB hotplug
+In-Reply-To: <E165lQB-0001DZ-00@baldrick>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 19, 2001 at 11:23:55PM -0800, Richard Henderson wrote:
-> --- 2.4.15-7/arch/alpha/kernel/traps.c.~2~	Mon Nov 19 23:05:50 2001
-> +++ 2.4.15-7/arch/alpha/kernel/traps.c	Mon Nov 19 23:07:32 2001
+Duncan Sands wrote:
 
-It seems to be the wrong diff:
+> Did you try without the preempt patch?
 
-patching file arch/alpha/kernel/traps.c
-Hunk #1 succeeded at 23 (offset -1 lines).
-Hunk #3 succeeded at 283 (offset -1 lines).
-Hunk #4 FAILED at 299.
-Hunk #5 FAILED at 313.
-Hunk #6 succeeded at 988 (offset -14 lines).
-2 out of 6 hunks FAILED -- saving rejects to file arch/alpha/kernel/traps.c.rej
 
-Ivan.
+As I said before, I wasn't able to reproduce the hang, even with the 
+preempt patch, so I don't know.
+
+
+> 
+> Duncan.
+> 
+> PS: You say "I'm not using binary driver from Alcatel but the free user-mode 
+> implementation...".  In fact the Alcatel kernel module is open source (GPL)!
+
+
+I didn't looked close at the Alcatel driver... so, maybe the kernel 
+module is gpl.
+
+
+> Here's the situation as I understand it:
+
+[...]
+Yes, it's how I understand it too
+
+
+-- 
+  ** Gael Le Mignot, Ing3 EPITA, Coder of The Kilobug Team **
+Home Mail : kilobug@freesurf.fr          Work Mail : le-mig_g@epita.fr
+GSM       : 06.71.47.18.22 (in France)   ICQ UIN   : 7299959
+Web       : http://kilobug.freesurf.fr or http://drizzt.dyndns.org
+
+"Software is like sex it's better when it's free.", Linus Torvalds
+

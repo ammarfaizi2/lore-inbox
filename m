@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbTFKOPQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 10:15:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbTFKOPQ
+	id S262000AbTFKORI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 10:17:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbTFKORH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 10:15:16 -0400
-Received: from [64.105.205.123] ([64.105.205.123]:60744 "HELO borg.org")
-	by vger.kernel.org with SMTP id S261566AbTFKOPO (ORCPT
+	Wed, 11 Jun 2003 10:17:07 -0400
+Received: from griffon.mipsys.com ([217.167.51.129]:31480 "EHLO gaston")
+	by vger.kernel.org with ESMTP id S262000AbTFKORF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 10:15:14 -0400
-Date: Wed, 11 Jun 2003 10:28:57 -0400
-From: Kent Borg <kentborg@borg.org>
-To: Andrew Miklas <public@mikl.as>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linksys WRT54G and the GPL
-Message-ID: <20030611102857.C26856@borg.org>
-References: <200306072241.23725.public@mikl.as> <20030608194421.GA92559@kilmainham.stdlib.net> <200306100037.51140.phillips@arcor.de> <200306101847.39525.public@mikl.as>
+	Wed, 11 Jun 2003 10:17:05 -0400
+Subject: pci_domain_nr vs. /sys/devices
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: Matthew Wilcox <willy@debian.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1055341842.754.3.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200306101847.39525.public@mikl.as>; from public@mikl.as on Tue, Jun 10, 2003 at 06:47:39PM -0400
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 11 Jun 2003 16:30:42 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 10, 2003 at 06:47:39PM -0400, Andrew Miklas wrote:
-> I'm pleased to report that Linksys has noticed the activity here and is now in 
-> the process of determining what must be released under the GPL.  I will keep 
-> this list updated on what I receive.
+The new pci_domain_nr() is good for adding the PCI domain number to
+the /sys/devices/pciN/* names, but I think that's not the proper
+representation. It should really be
 
-Cool!
+  /sys/devices/pci-domainN/pciN/*
 
+So we can pave the way for when we'll stop play bus number tricks and
+actually have overlapping PCI bus numbers between domains. (I don't plan
+to do that immediately because that would break userland & /proc/bus/pci
+backward compatiblity)
 
--kb, the Kent who is pleased the GPL is building this kind of
-precedence as it will maybe make the eventual legal defence of the GPL
-a smidge easier, also the Kent who looks like he will finally be
-buying a home wireless access point--and it looks like it will be a
-Linksys (are the other Linksys boxes going to be opened?).
+What do you think ?
+
+Ben.
+

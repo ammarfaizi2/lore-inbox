@@ -1,35 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129784AbRA2N4R>; Mon, 29 Jan 2001 08:56:17 -0500
+	id <S130337AbRA2OOi>; Mon, 29 Jan 2001 09:14:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129908AbRA2N4H>; Mon, 29 Jan 2001 08:56:07 -0500
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:39952 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S129784AbRA2N4D>; Mon, 29 Jan 2001 08:56:03 -0500
-Message-ID: <3A7575FF.378197A8@ngforever.de>
-Date: Mon, 29 Jan 2001 06:54:07 -0700
-From: Thunder from the hill <thunder@ngforever.de>
-X-Mailer: Mozilla 4.76 [en]C-CCK-MCD QXW03240  (WinNT; U)
-X-Accept-Language: de,en-US
+	id <S130461AbRA2OO3>; Mon, 29 Jan 2001 09:14:29 -0500
+Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:35644 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S130337AbRA2OOR>; Mon, 29 Jan 2001 09:14:17 -0500
+Date: Mon, 29 Jan 2001 09:14:16 -0500 (EST)
+From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Re: More on the VIA KT133 chipset misbehaving in Linux
+In-Reply-To: <200101290920.BAA28321@mail15.bigmailbox.com>
+Message-ID: <Pine.LNX.4.10.10101290912420.26212-100000@coffee.psychology.mcmaster.ca>
 MIME-Version: 1.0
-To: "Michael B. Trausch" <fd0man@crosswinds.net>, linux-kernel@vger.kernel.org
-CC: "Steven N. Hirsch" <shirsch@adelphia.net>,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: hotmail can't deal with ECN
-In-Reply-To: <Pine.LNX.4.21.0101260149180.11818-100000@fd0man.accesstoledo.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Don't they understand that Linux is actually a system that is growing to
-> be very popular?
-That's why they ignore and don't support it.
+> I am not a guru, but AOpen AK73PRO which uses VIA KT133 does not
+> show any of these symptoms that you describe (I cannot be sure
+> about #3 since I run ntp).  You may want to make your hardware
 
-Thunder
----
-Woah... I did a "cat /boot/vmlinuz >> /dev/audio" - and I think I heard
-god.
+my ga-7zm shows none of them either (I also run ntp, and the board 
+has a perfectly normal drift history.)
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287602AbSALW0r>; Sat, 12 Jan 2002 17:26:47 -0500
+	id <S287598AbSALWZr>; Sat, 12 Jan 2002 17:25:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287599AbSALW0h>; Sat, 12 Jan 2002 17:26:37 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:39429 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S287602AbSALW0e>;
-	Sat, 12 Jan 2002 17:26:34 -0500
-Date: Sat, 12 Jan 2002 23:26:17 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Jussi Laako <jussi.laako@kolumbus.fi>
-Cc: akpm@zip.com.au, linux-kernel@vger.kernel.org,
-        linux-audio-dev@music.columbia.edu
-Subject: Re: [PATCH] Additions to full lowlatency patch
-Message-Id: <20020112232617.1f31bb72.skraw@ithnet.com>
-In-Reply-To: <3C40AF23.18C811A8@kolumbus.fi>
-In-Reply-To: <3C40AF23.18C811A8@kolumbus.fi>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S287599AbSALWZi>; Sat, 12 Jan 2002 17:25:38 -0500
+Received: from mail.cogenit.fr ([195.68.53.173]:39391 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S287598AbSALWZ0>;
+	Sat, 12 Jan 2002 17:25:26 -0500
+Date: Sat, 12 Jan 2002 23:25:22 +0100
+From: Francois Romieu <romieu@cogenit.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Message-ID: <20020112232522.A6541@fafner.intra.cogenit.fr>
+In-Reply-To: <E16P0vl-0007Tu-00@the-village.bc.nu> <1010781207.819.27.camel@phantasy> <20020112121315.B1482@inspiron.school.suse.de> <20020112160714.A10847@planetzork.spacenet> <20020112095209.A5735@hq.fsmlabs.com> <20020112180016.T1482@inspiron.school.suse.de> <005301c19b9b$6acc61e0$0501a8c0@psuedogod> <3C409B2D.DB95D659@zip.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C409B2D.DB95D659@zip.com.au>; from akpm@zip.com.au on Sat, Jan 12, 2002 at 12:23:09PM -0800
+X-Organisation: Marie's fan club - II
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 Jan 2002 23:48:19 +0200
-Jussi Laako <jussi.laako@kolumbus.fi> wrote:
+[Cc: trimmed]
 
-> Hi,
-> 
-> I've done some changes to lowlatency patched kernel. Mainly "fixes" to DRM
-> drivers and few network drivers. Most probably I have done something really
-> stupid, but those work here(tm). Especially the Radeon driver patch has got
-> a lot of testing and seems to have huge impact to latencies in my system.
+Andrew Morton <akpm@zip.com.au> :
+[mini-ll]
+> And guess what?   Nobody has tested the damn thing, so it's going
+> nowhere.
 
-That leaves us with just about another 4000 source files in the tree to fill up
-with conditional_schedule()s. If we made that up, we should start talking about
-a single event queue throughout the kernel, because this is a very successful
-and unbelievably elegant piece of software design found in the market of OSs
-either. :-(
+It allows me to del^W read NFS-mounted mail behind a linux router while I 
+copy files locally on the router. If I don't apply mini-ll to the router, 
+it's a "server foo not responding, still trying" fest. You know what
+"interactivity feel" means when it happens.
 
-You are just kidding, aren't you?
+If someone suspects the hardware is crap, it's a PIV motherboard with 
+built-in Promise20265 and four IBM IC35L060AVER07-0 on their own channel.
+Each disk has been able to behave normally during RAID1 rebuild.
 
-Regards,
-Stephan
+Without mini-ll:
+  well choosen file I/O => no file I/O, no networking, no console, *big pain*.
+With mini-ll:
+  well choosen file I/O => *only* those I/O suck (less than before btw).
 
+-- 
+Ueimor

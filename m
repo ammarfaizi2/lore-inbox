@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263412AbTK3JgV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 04:36:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263447AbTK3JgU
+	id S263448AbTK3J4I (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 04:56:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263666AbTK3J4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 04:36:20 -0500
-Received: from main.gmane.org ([80.91.224.249]:45770 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263412AbTK3JgR (ORCPT
+	Sun, 30 Nov 2003 04:56:08 -0500
+Received: from pop.gmx.net ([213.165.64.20]:2447 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263448AbTK3J4F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 04:36:17 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Sergey Vlasov <vsu@altlinux.ru>
-Subject: Re: Disk Geometries reported incorrectly on 2.6.0-testX
-Date: Sun, 30 Nov 2003 12:35:41 +0300
-Message-ID: <pan.2003.11.30.09.35.40.502335@altlinux.ru>
-References: <20031128045854.GA1353@home.woodlands> <20031128142452.GA4737@win.tue.nl> <20031129022221.GA516@gnu.org> <Pine.LNX.4.58.0311290550190.21441@ua178d119.elisa.omakaista.fi> <20031129123451.GA5372@win.tue.nl> <200311291350.hATDo0CY001142@81-2-122-30.bradfords.org.uk> <20031129170103.GA6092@iliana> <20031129221424.GA5456@win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
-Cc: bug-parted@gnu.org
+	Sun, 30 Nov 2003 04:56:05 -0500
+X-Authenticated: #125400
+Message-ID: <3FC9BF12.70209@gmx.de>
+Date: Sun, 30 Nov 2003 10:57:38 +0100
+From: Andreas Fester <Andreas.Fester@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030908 Debian/1.4-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jaroslav Kysela <perex@suse.cz>, linux-kernel@vger.kernel.org
+Subject: [PATCH] Onboard sound support for EPoX mainboard
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Nov 2003 23:14:24 +0100, Andries Brouwer wrote:
+Hi Jaroslav, Hi list,
 
-> On Sat, Nov 29, 2003 at 06:01:03PM +0100, Sven Luther wrote:
-> 
->> The only problem is that your BIOS will probably not be able
->> to boot from it
-> 
-> You seem to misunderstand the boot sequence.
-> The BIOS does not generally do any parsing of partition tables.
+I am using linux on an EPoX EP-8K9A mainboard with onboard sound,
+using the via82xx driver. Starting with 2.6.0-test6 the driver
+only produces loud noise...
+The problem seems to be the checking of the DXS capabilities.
+The driver recognises the chip as an VIA8233 (not "A"), but
+the EPoX vendor id is missing in the dxs white list.
+After adding the appropriate vendor id, sound works again as
+it did with 2.6.0-test5 :-)
+Find below the patch against -test11 which adds the vendor id
+and the device id to the dxs list.
 
-In theory, the BIOS does not need to look in the partition tables. 
-However, in practice it does this :(
+Best Regards,
 
-Many BIOSes look at least at the partition table in the MBR to autodetect
-the CHS parameters which were used when partitioning the disk.  E.g. if
-you partition a disk with LBA turned off in the BIOS (so the CHS
-parameters will have 16 heads), then notice the mistake and turn LBA on,
-in many cases BIOS will still show 16 heads in the CHS parameters. 
-However, after cleaning the MBR the same BIOS with the same settings will
-report 255 heads.
+     Andreas
 
-Who knows what such BIOS will do if it will find something other than a
-DOS partition table in the first sector...
+------------------------------------------------------------------------------------------------------
+diff -u linux-2.6.0-test11/sound/pci/via82xx.c linux-2.6.0-test11-af1/sound/pci/via82xx.c
+--- linux-2.6.0-test11/sound/pci/via82xx.c      2003-11-29 19:18:22.000000000 +0100
++++ linux-2.6.0-test11-af1/sound/pci/via82xx.c  2003-11-29 19:38:41.000000000 +0100
+@@ -1969,6 +1969,7 @@
+         static struct dxs_whitelist whitelist[] = {
+                 { .vendor = 0x1019, .device = 0x0996, .action = VIA_DXS_48K },
+                 { .vendor = 0x1297, .device = 0xc160, .action = VIA_DXS_ENABLE }, /* Shuttle SK41G */
++                { .vendor = 0x1695, .device = 0x3005, .action = VIA_DXS_ENABLE }, /* EPoX EP-8K9A  */
+                 { } /* terminator */
+         };
+         struct dxs_whitelist *w;
+------------------------------------------------------------------------------------------------------
 

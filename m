@@ -1,75 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267607AbUH2KvQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267618AbUH2KxP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267607AbUH2KvQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 06:51:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267623AbUH2KvQ
+	id S267618AbUH2KxP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 06:53:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267623AbUH2KxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 06:51:16 -0400
-Received: from nessie.weebeastie.net ([220.233.7.36]:12952 "EHLO
-	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id S267607AbUH2KvH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 06:51:07 -0400
-Date: Sun, 29 Aug 2004 20:44:13 +1000
-From: CaT <cat@zip.com.au>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Helge Hafting <helgehaf@aitel.hist.no>,
-       Rik van Riel <riel@redhat.com>, Spam <spam@tnonline.net>,
-       Jamie Lokier <jamie@shareable.org>, David Masover <ninja@slaphack.com>,
-       Diego Calleja <diegocg@teleline.es>, christophe@saout.de,
-       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
-       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
-       hch@lst.de, linux-fsdevel@vger.kernel.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, flx@namesys.com,
-       reiserfs-list@namesys.com,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040829104413.GE871@zip.com.au>
-References: <Pine.LNX.4.44.0408272158560.10272-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.58.0408271902410.14196@ppc970.osdl.org> <20040828170515.GB24868@hh.idb.hist.no> <Pine.LNX.4.58.0408281038510.2295@ppc970.osdl.org> <4131074D.7050209@namesys.com> <Pine.LNX.4.58.0408282159510.2295@ppc970.osdl.org> <4131A3B2.30203@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4131A3B2.30203@namesys.com>
-Organisation: Furball Inc.
-User-Agent: Mutt/1.5.6+20040722i
+	Sun, 29 Aug 2004 06:53:15 -0400
+Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:31246 "EHLO
+	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S267618AbUH2KxF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 06:53:05 -0400
+Date: Sun, 29 Aug 2004 12:53:04 +0200 (CEST)
+From: Robert Milkowski <milek@rudy.mif.pg.gda.pl>
+To: "David S. Miller" <davem@davemloft.net>
+cc: Tomasz =?ISO-8859-1?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
+       alan@lxorguk.ukuu.org.uk, usenet-20040502@usenet.frodoid.org,
+       miles.lane@comcast.net, linux-kernel@vger.kernel.org
+Subject: Re: DTrace-like analysis possible with future Linux kernels?
+In-Reply-To: <20040828223018.53ec62e2.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.60L.0408291231170.15457@rudy.mif.pg.gda.pl>
+References: <200408191822.48297.miles.lane@comcast.net>
+ <87hdqyogp4.fsf@killer.ninja.frodoid.org> <Pine.LNX.4.60L.0408210520380.3003@rudy.mif.pg.gda.pl>
+ <1093174557.24319.55.camel@localhost.localdomain>
+ <Pine.LNX.4.60L.0408232107270.13955@rudy.mif.pg.gda.pl>
+ <1093354658.2810.31.camel@localhost.localdomain>
+ <Pine.LNX.4.60L.0408290154030.15099@rudy.mif.pg.gda.pl>
+ <20040828223018.53ec62e2.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-384866184-1093776784=:15457"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 29, 2004 at 02:36:50AM -0700, Hans Reiser wrote:
-> Linus Torvalds wrote:
-> >On Sat, 28 Aug 2004, Hans Reiser wrote:
-> >>I object to openat().....
-> >
-> >Sound slike you object to O_XATTRS, not openat() itself.
-> >
-> >Realize that openat() works independently of any special streams, it's
-> >fundamentally a "look up name starting from this file" (rather than
-> >"starting from root" or "starting from cwd").
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+
+--8323328-384866184-1093776784=:15457
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+
+On Sat, 28 Aug 2004, David S. Miller wrote:
+
+> On Sun, 29 Aug 2004 02:14:03 +0200 (CEST)
+> Tomasz K=B3oczko <kloczek@rudy.mif.pg.gda.pl> wrote:
 >
-> well, isn't that namespace fragmentation by definition?  If you can't go
-> 
-> cat filenameA/metas/permissions > filenameB/metas/permissions
-> 
-> find / -exec cat {}/permissions \; | grep 4777 | wc -l
+>> If fact Solaris works quite well on usual desktop size computer.
+>
+> Check out the Solaris driver selection on x86 these days,
+> it still stinks.  It is unlikely they'll ever have the coverage
+> Linux does any time soon.
 
-My apologies if this question has been raised (and answered) elsewhere.
-I tried to keep up with the flamefest/discussion but it wasn't always
-possible.
+You are right with that. However it's getting better.
+On the other hand Solaris works on a really wide spectrum of x86 servers=20
+(Dell, HP, IBM). I've installed it on x86 servers from 1-way to 8-way=20
+Compaqs. I've installed it on several desktop systems too.
+But you are right - Linux has more drivers on x86 for some 'exotic'=20
+hardware and home use. And has much more drivers for PCI RAID cards.
 
-How would you do it for directories without making certain names
-illegal? ie taking the above you'd do:
 
-cat dirA/metas/permissions > dirB/metas/permissions
+> Frankly, if the only specific technical feature Sun has to brag
+> about in Solaris 10 is DTrace, that's pretty sad.  Even more so,
+> most of the bugs I see being fixed in Solaris kernel patches
+> are performance regressions against Linux.  This, given how things
+> were 6 or 7 years ago and the things the Solaris folks used to
+> flame us for, I find particularly amusing.
 
-But how does that distinguish an access to the metas for dirA and dirB
-from an access to a file called permissions within the metas directories
-of dirA and dirB?
+1. Why do you think that DTrace is the onle 'cool' feature in Solaris 10?
+    Please stop FUD.
 
-I think what Linus is trying to do, as far as naming, is create a
-consistant access scheme that works for all types of objects in the
-fs without making certain names illegal (and with plugins, those
-names are not even a fixed thing I believe).
+    Frankly, if the only specific technical feature Linux has to brag about
+    in Linux 2.6 is KProbes, that's pretty sad.
 
-Feel free to correct me if I'm wrong, ofcourse. :)
+    :P
 
--- 
-    Red herrings strewn hither and yon.
+
+2. "most of the bugs I see being fixed in Solaris kernel patches"
+
+     1. there are no patches to Solaris 10 kernel so far, so you can't
+        see them
+
+     2. you are probably talking about some patches for Solaris 9 kernel
+        coming from project ATLAS (performance improvements on x86 - to be
+        as fast or faster then other OSes on the same hardware)
+
+     3. and definitely you overstated saying these are most of the patches
+        in fact I would be suprised if there are more then 10-20 such
+        patches (and hundreds others). Maybe you see this 'coz you are
+        looking for word 'Linux' in patches? :)))
+
+
+3. "Solaris folks used to flame us for,"
+
+     You know - there're trolls in every community.
+
+
+And this thread was about DTrace and Linux tracing technologies (and not=20
+trolls, PDAs, other features)... and I know, Linux can run on PDAs.
+Ok, so when it comes to profiling and debugging:
+
+ =091. Solaris has DTrace, ptools ant others
+ =092. Linux runs on PDAs
+
+:)))))))
+
+ps. sorry for that... on the other hand a little bit of humour is ok :)
+
+
+--=20
+ =09=09=09=09=09=09Robert Milkowski
+ =09=09=09=09=09=09milek@rudy.mif.pg.gda.pl
+
+--8323328-384866184-1093776784=:15457--

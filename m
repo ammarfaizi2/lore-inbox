@@ -1,45 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266499AbUG0RyO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266498AbUG0R5T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266499AbUG0RyO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 13:54:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266496AbUG0RxY
+	id S266498AbUG0R5T (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 13:57:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266501AbUG0R5T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 13:53:24 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:3206 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S266495AbUG0RxS (ORCPT
+	Tue, 27 Jul 2004 13:57:19 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:33983 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S266498AbUG0RzB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 13:53:18 -0400
-Date: Tue, 27 Jul 2004 19:54:39 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Andrew Morton <akpm@osdl.org>, aebr@win.tue.nl, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix NR_KEYS off-by-one error
-Message-ID: <20040727175439.GA1358@ucw.cz>
-References: <87llhjlxjk.fsf@devron.myhome.or.jp> <20040716164435.GA8078@ucw.cz> <20040716201523.GC5518@pclin040.win.tue.nl> <871xjbkv8g.fsf@devron.myhome.or.jp> <20040726154327.107409fc.akpm@osdl.org> <20040727134654.GB17362@ucw.cz> <878yd5be4z.fsf@devron.myhome.or.jp>
+	Tue, 27 Jul 2004 13:55:01 -0400
+Date: Tue, 27 Jul 2004 18:27:59 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: William Lee Irwin III <wli@holomorphy.com>, Lenar L?hmus <lenar@vision.ee>,
+       Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: [patch] voluntary-preempt-2.6.8-rc2-L2, preemptable hardirqs
+Message-ID: <20040727162759.GA32548@elte.hu>
+References: <40F3F0A0.9080100@vision.ee> <20040713143947.GG21066@holomorphy.com> <1090732537.738.2.camel@mindpipe> <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <878yd5be4z.fsf@devron.myhome.or.jp>
+In-Reply-To: <20040726204720.GA26561@elte.hu>
 User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 28, 2004 at 01:37:00AM +0900, OGAWA Hirofumi wrote:
 
-> Vojtech Pavlik <vojtech@suse.cz> writes:
-> 
-> > > This all seems a bit inconclusive.  Do we proceed with the original patch
-> > > or not?  If not, how do we fix the overflow which Hirofumi has identified?
-> > 
-> > I think we should check the value in the ioctl, regardless of what's
-> > NR_KEYS defined to.
-> 
-> However, it breaks the current binary instead. (at least
-> console-tools, kbdutils).
+i've uploaded -L2:
  
-We can do both, then, if that helps.
+  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-L2
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+the big change in the -L2 release is a new latency-reduction feature:
+the redirection of hardirqs to irqd. This enables lock-break methods
+that make hardirqs preemptable.
+
+I've done the lock-break of the IDE driver's completion path and i now
+cannot trigger larger than 100 usecs hardirq latencies via the IDE
+driver anymore, on a 2GHz x86 box - even if max_sectors is kept at the
+default 1024K value. (!)
+
+the hardirq-redirection feature is activated via voluntary-preemption=3
+(default). All irqs except the timer irq are redirected. (the timer irq
+needs to run from irq context - but it has constant latency and constant
+frequency so it's not an issue. Soft timers are executed from the timer
+softirq which is redirected and hence preemptable.)
+
+this means that with this patch applied the 2.6 UP kernel is quite close
+to being hard-RT capable (using controlled drivers and workloads). All
+unbound-latency asynchronous workloads have been unloaded into
+synchronous, schedulable process contexts - so nothing can delay a
+high-prio RT task. (assuming we caught all the latencies. Any remaining
+latency can be fixed with the existing methods.)
+
+other changes in -L2:
+
+i've done a softirq lock-break in the atkbd and ps2mouse drivers - this
+should fix the big latencies triggered by NumLock/CapsLock, reported by
+Lee Revell.
+
+BIG WARNING: the hardirq-redirection feature is quite intrusive to
+drivers so it's possible that some drivers will break under it.  The
+changes done to the IDE driver might also endanger stability. Be careful
+when applying this patch to production systems. If your system doesnt
+boot then please try the voluntary-preempt=2 boot-option to turn off
+hardirq redirection.
+
+I've done some stresstesting on a desktop-style IDE-based system and
+everything seems to work fine. YMMV.
+
+	Ingo

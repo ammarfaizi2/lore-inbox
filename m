@@ -1,66 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132082AbQKXIkR>; Fri, 24 Nov 2000 03:40:17 -0500
+        id <S132308AbQKXIlr>; Fri, 24 Nov 2000 03:41:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132211AbQKXIkI>; Fri, 24 Nov 2000 03:40:08 -0500
-Received: from [200.222.191.209] ([200.222.191.209]:32772 "EHLO
-        pervalidus.dyndns.org") by vger.kernel.org with ESMTP
-        id <S132082AbQKXIkC>; Fri, 24 Nov 2000 03:40:02 -0500
-Date: Fri, 24 Nov 2000 06:09:42 -0200
-From: Frédéric L . W . Meunier 
-        <0@pervalidus.net>
+        id <S132333AbQKXIli>; Fri, 24 Nov 2000 03:41:38 -0500
+Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:63243 "EHLO
+        rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+        id <S132308AbQKXIlY>; Fri, 24 Nov 2000 03:41:24 -0500
+From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
 To: linux-kernel@vger.kernel.org
-Subject: Re: gcc-2.95.2-51 is buggy
-Message-ID: <20001124060942.B26543@pervalidus.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Mailer: Mutt/1.2.5i - Linux 2.2.16
+Date: Fri, 24 Nov 2000 09:10:58 +0100
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: 2.2.16: How to freeze the kernel
+CC: linux-scsi@vger.kernel.org
+Message-ID: <3A1E309C.26058.40EA98@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
+Hello,
 
-<skip>
-> % /usr/gcc/aeb/bin/gcc -v
-> Reading specs from
-> /usr/gcc/aeb/lib/gcc-lib/i686-pc-linux-gnu/2.95.2/specs
-> gcc version 2.95.2 19991024 (release)gcc version 2.95.2 19991024 (release)
-> % /usr/gcc/aeb/bin/gcc -Wall -O2 -o nobug bug.c; ./nobug
-> 0x0
+this is for your interest, amusement, and for "what not to do":
 
-Interesting. On a Slackware 7.1 recently upgraded to glibc 2.2
-(and where gcc 2.95.2 from ftp.gnu.org was built because 2.2
-requires this version) I get:
+I managed to freeze the kernel (2.2.16 from SuSE Linux 7.0) in a way 
+that I could not even switch virtual consoles. Completely silent 
+eberything...
 
-% gcc -Wall -O2 -o bug bug.c
-% ./bug
-0x84800000
+It all started when Windows/95 ruined another CD-R while trying to 
+write an image to the media. So I decided to try it with Linux, using 
+the same CD writer.
 
-% egcs-2.91.66 -Wall -O2 -o bug bug.c
-% ./bug
-0x0
+I plugged the device to the so far unused SCSI channel and used the 
+"add-sigle-device" method to avoid reboot, and I succeeded:
 
-% gcc -Wall -O -o bug bug.c
-% ./bug
-0x0
+kgate kernel: scsi singledevice 0 0 4 0
+kgate kernel:   Vendor: WAITEC    Model: WT624             Rev: 7.0F
+kgate kernel:   Type:   CD-ROM                             ANSI SCSI 
+revision: 0
+kgate kernel: Detected scsi CD-ROM sr1 at scsi0, channel 0, id 4, lun 0
+kgate kernel: (scsi0:0:4:0) Synchronous at 10.0 Mbyte/sec, offset 15.
+kgate kernel: sr1: scsi3-mmc drive: 24x/24x writer cd/rw xa/form2 cdda 
+tray
 
-% gcc -v
-Reading specs from
-/usr/lib/gcc-lib/i386-slackware-linux/2.95.2/specs
-gcc version 2.95.2 19991024 (release)
+Then I used "cdrecord-1.8.1" to simulate writing at "speed=8". It 
+worked so far, but there was a warning about possible problems with 
+"simulated fixation", and actually several minutes nothing happened 
+while the simulated fixation was expected to take place.
 
-% egcs-2.91.66 -v
-Reading specs from
-/usr/lib/gcc-lib/i386-slackware-linux/egcs-2.91.66/specs
-gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)
+At some point I hit ^C, returning to the prompt. As the device did not 
+seem to be ready, I thought "remove the device and reconnect", so I did 
+"remove-single-device" (possibly while a command was still "busy"). The 
+remove suceeded, but a second later everything had stopped!
 
-Slackware's -current tree was upgraded to glibc 2.2 and gcc
-2.95.2, but I built them myself.
+Should a device with busy commands be able to be removed? I guess no...
 
--- 
-0@pervalidus.{net, com, dyndns.org}
+The last message in the syslog was:
+
+kgate kernel: scsi : aborting command due to timeout : pid 8358,
+ scsi0, channel 0, id 4, lun 0 UNKNOWN(0x5b) 00 02 00 00 00 00 00 00 00
+
+At that point I pressed "RESET", and interestingly the builtin BIOS of 
+the Adaptec 2740 (EISA) hung while trying to detect the device.
+
+Only after powering down both, the CD writer and the machine (a HP 
+Netserver LD Pro), the BIOS detected the device again. So I guess 
+something badly hung...
+
+The driver being used was
+Adaptec AHA274x/284x/294x (EISA/VLB/PCI-Fast SCSI) 5.1.31/3.2.4
+
+After that, everything worked fine.
+
+Regards,
+Ulrich
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

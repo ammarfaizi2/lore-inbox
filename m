@@ -1,50 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261800AbTJGASX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 20:18:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbTJGASX
+	id S261768AbTJGA2C (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 20:28:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbTJGA2B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 20:18:23 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:14605 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S261800AbTJGASW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 20:18:22 -0400
-Date: Mon, 6 Oct 2003 20:18:12 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Domen Puncer <domen@coderock.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 3c59x on 2.6.0-test3->test6 slow
-In-Reply-To: <200310070144.47822.domen@coderock.org>
-Message-ID: <Pine.LNX.4.53.0310062016340.19396@montezuma.fsmlabs.com>
-References: <200310061529.56959.domen@coderock.org> <200310070033.53590.domen@coderock.org>
- <Pine.LNX.4.53.0310061842030.19396@montezuma.fsmlabs.com>
- <200310070144.47822.domen@coderock.org>
+	Mon, 6 Oct 2003 20:28:01 -0400
+Received: from intra.cyclades.com ([64.186.161.6]:2744 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S261768AbTJGA17
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 20:27:59 -0400
+Date: Mon, 6 Oct 2003 21:30:59 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Andi Kleen <ak@suse.de>
+Cc: Sylvain Pasche <sylvain_pasche@yahoo.fr>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.22 ACPI power off via sysrq not working
+In-Reply-To: <p73u16qybig.fsf@oldwotan.suse.de>
+Message-ID: <Pine.LNX.4.44.0310062129360.1556-100000@logos.cnet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Oct 2003, Domen Puncer wrote:
 
-> On Tuesday 07 of October 2003 00:43, Zwane Mwaikambo wrote:
-> > On Tue, 7 Oct 2003, Domen Puncer wrote:
-> > > > Ok, could you send your .config too, i use the 3c59x driver and haven't
-> > > > noticed this in 2.6.0-test5-mm4. My card is;
-> > >
-> > > .config at the end of mail
-> >
-> > Sorry i forgot to ask for a dmesg too (from a kernel exhibiting the
-> > problem)
+
+On 3 Oct 2003, Andi Kleen wrote:
+
+> Sylvain Pasche <sylvain_pasche@yahoo.fr> writes:
 > 
-> 0000:00:0a.0: 3Com PCI 3c905B Cyclone 100baseTx at 0xd400. Vers LK1.1.19
-> eth0: no IPv6 routers present
-> eth0: Setting full-duplex based on MII #24 link partner capability of 0141.
+> > Hi, 
+> > 
+> > If I want to halt the system using sys-rq - o key, I get an oops instead
+> > of a power down.
+> > Inside pm.c:159, there is:
+> > 	
+> > 	if (in_interrupt())
+> > 		BUG();
+> > 
+> > But if we look at the trace, we are in the interrupt of the keyboard
+> > handler.
+> > One fix would be to comment out the BUG line, but there's certainly "a
+> > better way to do it".
+> 
+> Use this patch.
+> 
+> diff -u linux/drivers/acpi/system.c-o linux/drivers/acpi/system.c
+> --- linux/drivers/acpi/system.c-o	2003-09-07 16:20:44.000000000 +0200
+> +++ linux/drivers/acpi/system.c	2003-09-08 21:04:46.000000000 +0200
+> @@ -1192,11 +1192,21 @@
+>  
+>  #if defined(CONFIG_MAGIC_SYSRQ) && defined(CONFIG_PM)
+>  
+> +static int po_cb_active; 
+> +
+> +static void acpi_po_tramp(void *x)
+> +{ 
+> +	acpi_power_off();	
+> +} 
+> +
+>  /* Simple wrapper calling power down function. */
+>  static void acpi_sysrq_power_off(int key, struct pt_regs *pt_regs,
+>  	struct kbd_struct *kbd, struct tty_struct *tty)
+> -{
+> -	acpi_power_off();
+> +{	
+> +	static struct tq_struct tq = { .routine = acpi_po_tramp };
+> +	if (po_cb_active++)
+> +		return;
+> +	schedule_task(&tq); 
+>  }
+>  
+>  struct sysrq_key_op sysrq_acpi_poweroff_op = {
 
-What is your link peer?
-
-> Might be relevant... the last line is lagged a couple of seconds, and network
-> works fine before i see that line in dmesg.
-
-I'm also curious as to why mii-tool doesn't work, can you attach an strace 
-mii-tool eth0?
+Fix applied to 2.4 mainline.
 

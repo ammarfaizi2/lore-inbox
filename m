@@ -1,26 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264329AbTLETiO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 14:38:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264342AbTLETiO
+	id S264342AbTLETte (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 14:49:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264343AbTLETte
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 14:38:14 -0500
-Received: from mail-src.takas.lt ([212.59.31.78]:52654 "EHLO mail.takas.lt")
-	by vger.kernel.org with ESMTP id S264329AbTLETiN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 14:38:13 -0500
-From: "www.fuck.xxi.lt" <fuck.xxi.lt@fuck.xxi.lt>
-To: linux-kernel@vger.kernel.org
-Subject: (None)
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-Reply-To: fuck.xxi.lt@fuck.xxi.lt
-Date: Fri, 5 Dec 2003 21:37:50 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Message-ID: <ISPFE7BIpnkVixo6iX000032ef8@mail.takas.lt>
-X-OriginalArrivalTime: 05 Dec 2003 19:38:09.0530 (UTC) FILETIME=[500905A0:01C3BB67]
+	Fri, 5 Dec 2003 14:49:34 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:12471 "EHLO
+	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
+	id S264327AbTLETtc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 14:49:32 -0500
+Date: Fri, 5 Dec 2003 14:47:56 -0500
+Message-Id: <200312051947.hB5Jlupp030878@agora.fsl.cs.sunysb.edu>
+From: Erez Zadok <ezk@cs.sunysb.edu>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Erez Zadok <ezk@cs.sunysb.edu>,
+       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Phillip Lougher <phillip@lougher.demon.co.uk>,
+       Kallol Biswas <kbiswas@neoscale.com>, linux-kernel@vger.kernel.org,
+       "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
+Subject: Re: partially encrypted filesystem 
+In-reply-to: Your message of "Fri, 05 Dec 2003 19:14:47 GMT."
+             <20031205191447.GC29469@parcelfarce.linux.theplanet.co.uk> 
+X-MailKey: Erez_Zadok
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thanks for the info, Matthew.  Yes, clearly a scheme that keeps some "holes"
+in compressed files can help; one of our ideas was to leave sparse holes
+every N blocks, exactly for this kind of expansion, and to update the index
+file's format to record where the spaces are (so we can efficiently
+calculate how many holes we need to consume upon a new write).
 
-FREE porno on this site over 1800 pictures and all for FREE www.fuck.xxi.lt
+Cheers,
+Erez.

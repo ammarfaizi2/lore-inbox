@@ -1,63 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264455AbTK0Iwq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 03:52:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264456AbTK0Iwq
+	id S264459AbTK0I4n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 03:56:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264460AbTK0I4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 03:52:46 -0500
-Received: from 202-47-55-78.adsl.gil.com.au ([202.47.55.78]:24962 "EHLO
-	mail.longlandclan.hopto.org") by vger.kernel.org with ESMTP
-	id S264455AbTK0Iwo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 03:52:44 -0500
-Message-ID: <3FC5BB51.3030000@longlandclan.hopto.org>
-Date: Thu, 27 Nov 2003 18:52:33 +1000
-From: Stuart Longland <stuartl@longlandclan.hopto.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20030925
-X-Accept-Language: en-us, en
+	Thu, 27 Nov 2003 03:56:43 -0500
+Received: from mail-05.iinet.net.au ([203.59.3.37]:60632 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S264459AbTK0I4j
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Nov 2003 03:56:39 -0500
+Message-ID: <3FC5BC43.8030209@cyberone.com.au>
+Date: Thu, 27 Nov 2003 19:56:35 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 not cat proof
-References: <20031126201052.GA16106@outpost.ds9a.nl> <Pine.LNX.4.56.0311261533310.489@router.windsormachine.com> <20031126204821.GA3322@softaplic.com.br> <20031126234620.GE1566@mis-mike-wstn.matchmail.com>
-In-Reply-To: <20031126234620.GE1566@mis-mike-wstn.matchmail.com>
-X-Enigmail-Version: 0.76.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: David Lang <david.lang@digitalinsight.com>
+CC: Robert White <rwhite@casabyte.com>,
+       "'Jesse Pollard'" <jesse@cats-chateau.net>,
+       "'Florian Weimer'" <fw@deneb.enyo.de>, Valdis.Kletnieks@vt.edu,
+       "'Daniel Gryniewicz'" <dang@fprintf.net>,
+       "'linux-kernel mailing list'" <linux-kernel@vger.kernel.org>
+Subject: Re: OT: why no file copy() libc/syscall ??
+References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAilRHd97CfESTROe2OYd1HQEAAAAA@casabyte.com> <3FC5A7F0.8080507@cyberone.com.au> <Pine.LNX.4.58.0311270106430.6400@dlang.diginsite.com>
+In-Reply-To: <Pine.LNX.4.58.0311270106430.6400@dlang.diginsite.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Mike Fedyk wrote:
 
->>So the watchdog scares the cat which leaves the keyboard... :-)
-> 
-> 
-> Maybe it would be better to set your system to play a sound if the computer
-> gets over a certain temperature.
-> 
-> Now just find a nice mean dog to record for the sound... :-D
+David Lang wrote:
 
-Actually no, I wouldn't do that actually..... The trick might backfire 
-if the cat pisses itself in fright...
+>On Thu, 27 Nov 2003, Nick Piggin wrote:
+>
+>
+>>Robert White wrote:
+>>
+>>
+>>>(Among the other N objections, add things like the lack of any sort of
+>>>control or option parameters)
+>>>...
+>>>N += 1: Sparse Copying (e.g. seeking past blocks of zeros)
+>>>N += 1: Unlink or overwrite or what?
+>>>N += 1: In-Kernel locking and resolution for pages that are mandatory
+>>>lock(ed)
+>>>N += 1: No fine-grained control for concurrency issues (multiple writers)
+>>>
+>>>Start with doing a cp --help and move on from there for an unbounded list of
+>>>issues that sys_copy(int fd1, int fd2) does not even come close to
+>>>addressing.
+>>>
+>>>
+>>>
+>>To be fair, sys_copy is never intended to replace cp or try to be
+>>very smart. I don't think it is semantically supposed to do much more
+>>than replace a read, write loop (of course, the syscall also has an
+>>offset and count).
+>>
+>>sparse copying would be implementation dependant. If cp wanted to do
+>>something special it would not use one big copy call. I think unlink
+>>/ overwrite is irrelevant if its semantically a read write loop.
+>>
+>>
+>
+>actually if this syscall is allowed to do a COW at the filesystem level
+>(which I think is one of the better reasons for implementing this) then
+>sparse files would produce sparse copies.
+>
 
-Hmmm, I think I'll be keeping one certain cat here away from the 
-keyboards, especially on laptops.... Mind you it's Summer over here in 
-Brisbane, so her sleeping in warm places isn't so much of a problem.
-- -- 
-+-------------------------------------------------------------+
-| Stuart Longland           stuartl at longlandclan.hopto.org |
-| Brisbane Mesh Node: 719             http://stuartl.cjb.net/ |
-| I haven't lost my mind - it's backed up on a tape somewhere |
-| Atomic Linux Project    <--->    http://atomicl.berlios.de/ |
-+-------------------------------------------------------------+
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+Sure, I just mean the semantics should be equivalent to a read write
+loop. Another example is zero copy copy for a remote fs that supports
+it.
 
-iD8DBQE/xbtVIGJk7gLSDPcRAiYcAJoDOoUBrchACKD2cw9udTv9hYu2cwCdFszj
-KbR+bgv+bIddLgSBWqRioRU=
-=HDe9
------END PGP SIGNATURE-----
+>
+>if the destination exists it would need to be unlinked (overwrite doesn't
+>make sense in the COW context)
+>
+
+Well it would be implementation specific. Presumably it should keep
+the semantics of an overwrite.
+
+>
+>I don't understand the in-kernel page locking issues refered to above
+>
+>the concurrancy issues are a good question, but I would suggest that the
+>syscall fully setup the copy and then create the link to it. this would
+>make the final creation an atomic operation (or as close to it as a
+>particular filesystem allows) and if you have multiple writers doing a
+>copy to the same destination then the last one wins, the earlier copies
+>get unlinked and deleted
+>
+
+I don't think it should do any linking / unlinking it should just work
+with file descriptors. Concurrent writes to a file don't have many
+guarantees. sys_copy shouldn't have to be any stronger (read weaker).
+
+>
+>I definantly don't see it being worth it to make a syscall to just
+>implement the read/write loop, but a copy syscall designed from the outset
+>to do a COW copy that falls back to a read/write loop for filesystems that
+>don't do COW has some real benifits
+>
+
+No I just mean the semantics.
+
+
 

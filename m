@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263661AbTKFPbe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 10:31:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263666AbTKFPbe
+	id S263650AbTKFPbH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 10:31:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263661AbTKFPbH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 10:31:34 -0500
-Received: from pingviini.net ([194.29.194.26]:22796 "HELO hinku.pingviini.net")
-	by vger.kernel.org with SMTP id S263661AbTKFPb2 (ORCPT
+	Thu, 6 Nov 2003 10:31:07 -0500
+Received: from gate.corvil.net ([213.94.219.177]:12812 "EHLO corvil.com")
+	by vger.kernel.org with ESMTP id S263650AbTKFPbD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 10:31:28 -0500
-Date: Thu, 6 Nov 2003 17:31:24 +0200
-From: Niklas Vainio <niklas.vainio@iki.fi>
-To: linux-kernel@vger.kernel.org
-Cc: Mikael Pettersson <mikpe@csd.uu.se>
-Subject: Re: [RFC][PATCH][2.6] CONFIG_HZ for x86
-Message-ID: <20031106153124.GB31084@vinku.pingviini.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <NsuO.64F.21@gated-at.bofh.it>
-User-Agent: Mutt/1.3.28i
+	Thu, 6 Nov 2003 10:31:03 -0500
+Message-ID: <3FAA68E5.9070804@draigBrady.com>
+Date: Thu, 06 Nov 2003 15:29:41 +0000
+From: P@draigBrady.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031016
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Gianni Tedesco <gianni@scaramanga.co.uk>
+CC: Oliver Dain <omd1@cornell.edu>, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_PACKET_MMAP revisited
+References: <176730-2200310329491330@M2W026.mail2web.com>	 <1068116914.6144.1410.camel@lemsip>  <200311060913.41719.omd1@cornell.edu> <1068129060.530.1438.camel@lemsip>
+In-Reply-To: <1068129060.530.1438.camel@lemsip>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson:
->This patch adds a CONFIG_HZ option to x86, allowing the kernel-
->internal HZ to be reduced from 1000 to 512 or 100. This solves
->lost timer interrupt problems on really old machines like my 486.
->According to Alan Cox, HZ==1000 is also harmful on some laptops
->(presumably due to long SMI windows), so this patch should be
->useful for those too.
+Gianni Tedesco wrote:
+> On Thu, 2003-11-06 at 15:13, Oliver Dain wrote:
+> 
+>>It seems to me that it can't loop in user mode forever.  There is no way to 
+>>get data into user mode (the ring buffer) witout going through the kernel.  
+>>My understanding is that the NIC doesn't transfer directly to the user mode 
+>>ring buffer, but rather to a different DMA buffer.  The kernel must copy it 
+>>from the DMA buffer to the ring buffer. Thus once the user mode app has 
+>>processed all the data in the ring buffer the kenel _must_ get involved to 
+>>get more data to user space.  Currently the data gets there because the NIC 
+>>produces an interrupt for each packet (or for every few packets) and when the 
+>>kernel handles these the data is copied to user space.  Then, as you point 
+>>out, the cost of the RETI can't be avoided.  
+> 
+> 
+> yes, in interrupt context. My point is that that *task* will never go in
+> to kernel mode, it will always be running in user mode.
 
-I'm not sure if I had the same problem, but my system clock wasn't
-staying in time. This patch solved the problem. This is a Pentium III
-desktop machine so it looks like other machines are affected too.
+In my experience (PIII 1.2GHz, i815, e100, NAPI), user mode
+would read at most 7 packets at a time, even when artificial
+busy loops insterted. The max packet rate acheived was
+around 120Kpps, but that was limited at the driver level.
+Most of the CPU was consumed while doing this (measured with
+cyclesoak, especially required since NAPI was used).
 
-    - Nikke
+Pádraig.
+

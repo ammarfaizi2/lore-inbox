@@ -1,20 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313833AbSDQMi2>; Wed, 17 Apr 2002 08:38:28 -0400
+	id <S313854AbSDQMko>; Wed, 17 Apr 2002 08:40:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313854AbSDQMi1>; Wed, 17 Apr 2002 08:38:27 -0400
-Received: from skunk.directfb.org ([212.84.236.169]:41665 "EHLO
-	skunk.directfb.org") by vger.kernel.org with ESMTP
-	id <S313833AbSDQMi0>; Wed, 17 Apr 2002 08:38:26 -0400
-Date: Wed, 17 Apr 2002 14:37:56 +0200
-From: Denis Oliver Kropp <dok@directfb.org>
-To: Thomas Winischhofer <thomas@winischhofer.net>
-Cc: lkml <linux-kernel@vger.kernel.org>, xpert@XFree86.org,
-        debian-user@debian.org, debian-x@debian.org
-Subject: Re: SIS 315/550/650/640/740 - testers wanted
-Message-ID: <20020417123756.GA17545@skunk.convergence.de>
-Reply-To: Denis Oliver Kropp <dok@directfb.org>
-In-Reply-To: <3CBC85FD.4A9BC7FB@winischhofer.net>
+	id <S313939AbSDQMkn>; Wed, 17 Apr 2002 08:40:43 -0400
+Received: from roc-24-95-199-137.rochester.rr.com ([24.95.199.137]:20462 "EHLO
+	www.kroptech.com") by vger.kernel.org with ESMTP id <S313854AbSDQMkm>;
+	Wed, 17 Apr 2002 08:40:42 -0400
+Date: Wed, 17 Apr 2002 08:40:37 -0400
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: Frank Davis <fdavis@si.rr.com>, linux-kernel@vger.kernel.org,
+        davej@suse.de
+Subject: Re: 2.5.8-dj1 : arch/i386/kernel/smpboot.c error
+Message-ID: <20020417124037.GA17642@www.kroptech.com>
+In-Reply-To: <20020417024707.GA24105@www.kroptech.com> <2635845054.1018994347@[10.10.2.3]> <20020417123044.GA8833@www.kroptech.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,34 +21,10 @@ User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Thomas Winischhofer (thomas@winischhofer.net):
-> 
-> Hi,
-> 
-> I am desperatly looking for people who are willing to help me testing
-> (and eventually developing) the kernel framebuffer and X driver for
-> these chipsets.
-> 
-> If you're interested, please drop me a note.
+On Wed, Apr 17, 2002 at 08:30:44AM -0400, Adam Kropelin wrote:
+> As I said, -dj has an optimization in asm-i386/io.o:
+                                                    ^
+io.h, of course...
 
-Hi,
+--Adam
 
-I have a SIS 315 connected to a TV using it in PAL mode.
-The driver produces kernel oopses sometimes, especially when
-doing mode and VT switches. Also the TV out is broken for
-some resolutions. I can do more testing and give you more
-details if you want.
-
-I am willing to test new driver versions and am also thinking
-about writing an accelerated driver for DirectFB.
-
--- 
-Best regards,
-  Denis Oliver Kropp
-
-.------------------------------------------.
-| DirectFB - Hardware accelerated graphics |
-| http://www.directfb.org/                 |
-"------------------------------------------"
-
-                            Convergence GmbH

@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315554AbSENJOC>; Tue, 14 May 2002 05:14:02 -0400
+	id <S315555AbSENJRS>; Tue, 14 May 2002 05:17:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315555AbSENJOB>; Tue, 14 May 2002 05:14:01 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:63249 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315554AbSENJOB>; Tue, 14 May 2002 05:14:01 -0400
-Subject: Re: System Freeze
-To: kosower@hotmail.com (David A. Kosower)
-Date: Tue, 14 May 2002 10:33:42 +0100 (BST)
+	id <S315557AbSENJRR>; Tue, 14 May 2002 05:17:17 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:5893 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S315555AbSENJRQ>; Tue, 14 May 2002 05:17:16 -0400
+Date: Tue, 14 May 2002 11:17:04 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: "Matthew D. Pitts" <mpitts@suite224.net>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3CE0A52E.F081EBB7@hotmail.com> from "David A. Kosower" at May 14, 2002 07:48:30 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 2
+Message-ID: <20020514091704.GA2947@louise.pinerecords.com>
+In-Reply-To: <7926.1021355489@kao2.melbourne.sgi.com> <001501c1fb26$d5548660$8ff583d0@pcs686>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E177Ygg-0007W4-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.99i
+X-OS: Linux/sparc 2.2.21-rc3-ext3-0.0.7a SMP (up 11:57)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The problem occurs sporadically when netscape (4.78-2) tries to fetch a
-> "complicated" page.  It does not occur reproducibly on any given page.
-> A similar problem occurs so frequently with mozilla
-> (mozilla-2002032709_trunk-0_rh7) as to render the latter unusable.  The
-> system -- a Dell Inspiron 3500 -- is running Redhat 7.2
-> (kernel-2.4.9-31), and is connected to the net via an ethernet
-> PCMCIA talking to an Alcatel 1000 ADSL (which then obviously connects
-> via ADSL).  Presumably this is also a sign of bugs in mozilla, but in
-> any event whatever mozilla is doing should not trigger this.  There are
-> no messages in /var/log/messages.
+> Even if Linus isn't ready for it to be included in the kernel, I am planning
+> to star releasing a patchset similar to that of Dave Jones. Kbuild will be
+> the first thing that I will work into my patchset. I will keep both ways of
+> building the kernel as I work on it, since another set of patches that I am
+> going to add breaks kbuild, until I fix it.
 
-The app certain should never be able to trigger such a response.
+That's nice, but doesn't quite solve Keith's problem:
 
-> ppp_deflate            39104   0 (autoclean)
-> bsd_comp                4224   0 (autoclean)
-> ppp_async               6848   1 (autoclean)
-> ppp_generic            19336   3 (autoclean) [ppp_deflate bsd_comp
-> ppp_async]
-> slhc                    5056   0 (autoclean) [ppp_generic]
+<quote>
+	Keeping up to date with kernel changes is a significant effort,
+	Makefiles change all the time, especially when major subsystems like
+	sound and usb are reorganised.  There are also some changes to
+	architecture code to do it right under kbuild 2.5 and tracking those
+	against kernel changes can be painful.
+</quote>
 
-You also have ppp loaded and a ppp link running ?
-
-> pcnet_cs                9700   1
-> 8390                    6176   0 [pcnet_cs]
-
-What actual card do you have ? Also if you eject the card when the box
-hangs does it unfreeze. My first thought is that it might be a problem
-showing up under high network load
-
-Alan
+-Tomas

@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVCGR7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVCGSCi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbVCGR7E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 12:59:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVCGR7E
+	id S261203AbVCGSCi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 13:02:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbVCGSCi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 12:59:04 -0500
-Received: from orb.pobox.com ([207.8.226.5]:63167 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S261197AbVCGR7A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 12:59:00 -0500
-Date: Mon, 7 Mar 2005 09:58:54 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: "Barry K. Nathan" <barryn@pobox.com>, Stefan Seyfried <seife@suse.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [Bug 4298] swsusp fails to suspend if CONFIG_DEBUG_PAGEALLOC is   also enabled
-Message-ID: <20050307175854.GC5083@ip68-4-98-123.oc.oc.cox.net>
-References: <20050306030852.23eb59db.akpm@osdl.org> <20050306225730.GA1414@elf.ucw.cz> <20050306195954.6d13cff9.akpm@osdl.org> <422C0A6B.1060700@suse.de> <20050307092206.GB5083@ip68-4-98-123.oc.oc.cox.net> <20050307093512.GE8311@elf.ucw.cz>
+	Mon, 7 Mar 2005 13:02:38 -0500
+Received: from pat.uio.no ([129.240.130.16]:30082 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261200AbVCGSCf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 13:02:35 -0500
+Subject: Re: NFS problem in 2.4.21 (RHEL ES 3 upd 2)
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: campbell@accelinc.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050307163711.GB11949@helium.inexs.com>
+References: <20050307163711.GB11949@helium.inexs.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Mon, 07 Mar 2005 13:02:27 -0500
+Message-Id: <1110218547.11489.32.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050307093512.GE8311@elf.ucw.cz>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 8BIT
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.458, required 12,
+	autolearn=disabled, AWL 1.54, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 07, 2005 at 10:35:12AM +0100, Pavel Machek wrote:
-> > Regarding Pavel's patch, it seems to me that it might be better to print
-> > the message at boot time, instead of (or in addition to?) his patch.
-> > Maybe we should be disabling swsusp altogether at boot in that case, if
-> > that's not unreasonably hard to implement.
+må den 07.03.2005 Klokka 10:37 (-0600) skreiv Chuck Campbell:
+> I've just built a cluster of dual Opteron boxes, running RHEL 3 update 2
+> x86_64 OS.
 > 
-> Hmm, yes, that would certainly be better. It would need new
-> per-architecture hook... Feel free to implement it.
+> I have problems creating files larger than 2GB on an NFS mounted filesystem.
+> 
 
-It looks like it's going to be more difficult than I was hoping for.
+Are you perhaps using NFSv2? If so, I suggest you try NFSv3, as the
+NFSv2 protocol does not support 64-bit file sizes.
 
-I would recommend accepting Pavel's patch. It's a definite improvement
-over the existing code, and it could be a long while until I have a
-boot-time message patch that is both functional and clean enough to be
-incorporated into mainline.
-
--Barry K. Nathan <barryn@pobox.com>
+Cheers,
+  Trond
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 

@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129222AbRBCHOW>; Sat, 3 Feb 2001 02:14:22 -0500
+	id <S129395AbRBCHYE>; Sat, 3 Feb 2001 02:24:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129395AbRBCHON>; Sat, 3 Feb 2001 02:14:13 -0500
-Received: from www.wen-online.de ([212.223.88.39]:22542 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S129219AbRBCHN7>;
-	Sat, 3 Feb 2001 02:13:59 -0500
-Date: Sat, 3 Feb 2001 08:13:46 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: RAMFS
-In-Reply-To: <Pine.Linu.4.10.10102022151400.490-100000@mikeg.weiden.de>
-Message-ID: <Pine.Linu.4.10.10102030749510.1295-100000@mikeg.weiden.de>
+	id <S129556AbRBCHXz>; Sat, 3 Feb 2001 02:23:55 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:10112 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129395AbRBCHXk>;
+	Sat, 3 Feb 2001 02:23:40 -0500
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14971.45502.776808.711822@pizda.ninka.net>
+Date: Fri, 2 Feb 2001 23:22:38 -0800 (PST)
+To: linux-kernel@vger.kernel.org
+CC: netdev@oss.sgi.com
+Subject: [UPDATE] Zerocopy 2.4.1 rev 3
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Feb 2001, Mike Galbraith wrote:
 
-> > Where exactly do you see the leaks?
-> 
-> (I don't have a solid grip yet.. just starting to seek)
+You know where to get it:
 
-Heh.  I figured this must be a nice defenseless little buglet
-I could pick on (ramfs is pretty darn simple).  Critter might
-not be quite as defenseless as I presumed ;-)
+ftp://ftp.kernel.org/pub/linux/kernel/people/davem/zerocopy-2.4.1-3.diff.gz
 
-Using ramfs under vm pressure breaks (hmm.. spinlock) instantly
-on my UP box.
+Fixes:
 
-	-Mike
+1) pskb_expand_tail could corrupt SKB frag lists in some
+   cases, leading to OOPS
 
+2) Need to check for out of window data even in the
+   partial packet cases of tcp_data_queue
+
+3) Merged in some small net fixes from the AC patches.
+
+As of this moment, I know of no bugs (ie. corrupts data or crashes
+kernel) in the zerocopy patches.
+
+Some people have asked me about making a patch against the AC
+patches.  It is doable, but would be quite a bit of work for me.
+
+If someone would like to do this and put those patches up somewhere,
+they can feel free to do so.  Just let everyone on linux-kernel
+and netdev know about it.  Probably, after the next zerocopy patch
+revision, I will ask Alan to add the zerocopy stuff to his tree
+anyways.  Things really look good right now.
+
+Thanks.
+
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

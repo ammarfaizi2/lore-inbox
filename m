@@ -1,96 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265797AbUBCD5B (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 22:57:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265806AbUBCD5B
+	id S265780AbUBCEMP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 23:12:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265794AbUBCEMP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 22:57:01 -0500
-Received: from mail-09.iinet.net.au ([203.59.3.41]:29132 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S265797AbUBCD46
+	Mon, 2 Feb 2004 23:12:15 -0500
+Received: from wblv-254-118.telkomadsl.co.za ([165.165.254.118]:63879 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S265780AbUBCEMN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 22:56:58 -0500
-Message-ID: <401F1AF4.2040205@cyberone.com.au>
-Date: Tue, 03 Feb 2004 14:52:20 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Philip Martin <philip@codematters.co.uk>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1 slower than 2.4, smp/scsi/sw-raid/reiserfs
-References: <87oesieb75.fsf@codematters.co.uk>	<20040201151111.4a6b64c3.akpm@osdl.org>	<401D9154.9060903@cyberone.com.au> <87llnm482q.fsf@codematters.co.uk>	<401DDCD7.3010902@cyberone.com.au> <401E1131.6030608@cyberone.com.au>	<87d68xcoqi.fsf@codematters.co.uk> <401EDEF2.6090802@cyberone.com.au> <87n081vw55.fsf@codematters.co.uk>
-In-Reply-To: <87n081vw55.fsf@codematters.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 2 Feb 2004 23:12:13 -0500
+Subject: Re: [ANNOUNCE] udev 015 release
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-hotplug-devel@lists.sourceforge.net,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040202233243.GA1688@kroah.com>
+References: <20040126215036.GA6906@kroah.com>
+	 <1075401020.7680.25.camel@nosferatu.lan>  <20040202233243.GA1688@kroah.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-QDvhy9ueQsU5r3ebsqhu"
+Message-Id: <1075781541.6931.122.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 03 Feb 2004 06:12:22 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-QDvhy9ueQsU5r3ebsqhu
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Philip Martin wrote:
+On Tue, 2004-02-03 at 01:32, Greg KH wrote:
+> On Thu, Jan 29, 2004 at 08:30:20PM +0200, Martin Schlemmer wrote:
+> > On Mon, 2004-01-26 at 23:50, Greg KH wrote:
+> >=20
+> > I see latest version is very noisy, and although it is a good option
+> > to have, I think it should be tweakable (and recompiling is not always
+> > an option if you want some quick debugging).
+> >=20
+> > Attached is a simple patch to add a config option to udev.conf to toggl=
+e
+> > logging.
+>=20
+> I'm going to hold off on this patch for now for a number of reasons:
+> 	- doesn't apply anymore
+> 	- is buggy as your follow on message stated
+> 	- I don't think it's really needed.
+>=20
+> But feel free to convince me otherwise :)
+>=20
 
->Nick Piggin <piggin@cyberone.com.au> writes:
->
->  
->
->>Philip Martin wrote:
->>
->>    
->>
->>>Nick Piggin <piggin@cyberone.com.au> writes:
->>>      
->>>
->>>>When the build finishes and there is no other activity, can you
->>>>try applying anonymous memory pressure until it starts swapping
->>>>to see if everything gets reclaimed properly?
->>>>        
->>>>
->>>How do I apply anonymous memory pressure?
->>>      
->>>
->>Well just run something that uses a lot of memory and doesn't
->>do much else. Run a few of these if you like:
->>
->>#include <stdlib.h>
->>#include <unistd.h>
->>#define MEMSZ (64 * 1024 * 1024)
->>int main(void)
->>{
->>    int i;
->>    char *mem = malloc(MEMSZ);
->>    for (i = 0; i < MEMSZ; i+=4096)
->>       mem[i] = i;
->>    sleep(60);
->>    return 0;
->>}
->>    
->>
->
->This is what free reports after the build
->
->             total       used       free     shared    buffers     cached
->Mem:        516396     215328     301068          0      85084      68364
->-/+ buffers/cache:      61880     454516
->Swap:      1156664      40280    1116384
->
->then after starting 10 instances of the above program
->
->             total       used       free     shared    buffers     cached
->Mem:        516396     513028       3368          0        596       5544
->-/+ buffers/cache:     506888       9508
->Swap:      1156664     320592     836072
->
->and then after those programs finish
->
->             total       used       free     shared    buffers     cached
->Mem:        516396      35848     480548          0        964       5720
->-/+ buffers/cache:      29164     487232
->Swap:      1156664      54356    1102308
->
->It looks OK to me.
->
->  
->
+I'll try again with 016 =3D)
 
-Yeah thats looks fine. It was a wild guess.
+--=20
+Martin Schlemmer
+
+--=-QDvhy9ueQsU5r3ebsqhu
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAHx+lqburzKaJYLYRAtCkAKCbsQQMXshahTc09WUIUaPRwaCotQCdFp2f
+ZS2nGi79aGcOcwkX+Fi9vWc=
+=DD4B
+-----END PGP SIGNATURE-----
+
+--=-QDvhy9ueQsU5r3ebsqhu--
 

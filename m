@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265848AbUBCIry (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 03:47:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265851AbUBCIry
+	id S265944AbUBCIyz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 03:54:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265954AbUBCIyz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 03:47:54 -0500
-Received: from edu.joroinen.fi ([194.89.68.130]:18670 "EHLO edu.joroinen.fi")
-	by vger.kernel.org with ESMTP id S265848AbUBCIrx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 03:47:53 -0500
-Date: Tue, 3 Feb 2004 10:47:51 +0200
-From: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>
-To: Ryan Verner <xfesty@computeraddictions.com.au>
-Cc: LinuxSA ML <linuxsa@linuxsa.org.au>, linux-kernel@vger.kernel.org
-Subject: Re: Promise PDC20269 (Ultra133 TX2) + Software RAID
-Message-ID: <20040203084751.GJ1254@edu.joroinen.fi>
-References: <6FF5C83C-55FA-11D8-AC00-000A95CEEE4E@computeraddictions.com.au> <E9A39380-560F-11D8-8E3C-000A95CEEE4E@computeraddictions.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Tue, 3 Feb 2004 03:54:55 -0500
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:51721 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S265944AbUBCIy1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 03:54:27 -0500
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: linux-kernel@vger.kernel.org
+Subject: Re: broken maxcpus in 2.4.24
+Date: Tue, 3 Feb 2004 09:53:30 +0100
+User-Agent: KMail/1.5.4
+References: <1075765034.17943.79.camel@reactor.us.proofpoint.com>
+In-Reply-To: <1075765034.17943.79.camel@reactor.us.proofpoint.com>
+Cc: Dan Christian <dac@proofpoint.com>
+X-Operating-System: Linux 2.4.20-wolk4.10s i686 GNU/Linux
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <E9A39380-560F-11D8-8E3C-000A95CEEE4E@computeraddictions.com.au>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200402030953.30429@WOLK>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 03, 2004 at 04:42:15PM +1030, Ryan Verner wrote:
-> On 03/02/2004, at 2:08 PM, Ryan Verner wrote:
-> >And the machine is randomly locking up, and of course, on reboot, the 
-> >raid array is rebuilt.  Ouch.  Any clues as to why?  I'm sure the hard 
-> >drive hasn't failed as it's brand new; I suspect a chipset 
-> >compatibility problem or something.
-> 
-> Definitely seems to be this.  Swapped the drives back over to the 
-> onboard-IDE chipset, which is much slower (raid rebuilds at only 
-> 7MB/sec instead of 25), but certainly none of these problems.
-> 
-> Known issue?
-> 
+On Tuesday 03 February 2004 00:37, Dan Christian wrote:
 
-I'm running Ultra-133 TX2 with software RAID successfully without any
-problems. This is on (mainly) Intel P3 platforms.
+Hi Dan,
 
--- Pasi Kärkkäinen
-       
-                                   ^
-                                .     .
-                                 Linux
-                              /    -    \
-                             Choice.of.the
-                           .Next.Generation.
+> I compiled a vanilla 2.4.24 for a 2 processor Xeon.
+> I set CONFIG_NR_CPUS to 4 (2 CPUs x 2 hyperthreads each).
+> When I boot the kernel, /proc/cpuinfo only shows 2 cpus (0-1) and
+> performance is bad.
+> I reconfigure CONFIG_NR_CPUS back to 32.  Now it shows 4 cpus (0-3) and
+> performance is normal.
+> Is this a bug or am misunderstanding how to set this configuration
+> variable?
+
+http://linux.bkbits.net:8080/linux-2.4/cset@1.1136.1.68?nav=index.html|
+ChangeSet@-12w
+
+ciao, Marc
+

@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266517AbUBSHpk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 02:45:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266555AbUBSHpk
+	id S266395AbUBSHxE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 02:53:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266647AbUBSHxE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 02:45:40 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:39301 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S266517AbUBSHpj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 02:45:39 -0500
-Date: Wed, 18 Feb 2004 13:41:56 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Steve Lord <lord@xfs.org>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com
-Subject: Re: Limit hash table size
-Message-ID: <20040218124156.GA467@openzaurus.ucw.cz>
-References: <B05667366EE6204181EABE9C1B1C0EB5802441@scsmsx401.sc.intel.com.suse.lists.linux.kernel> <20040205155813.726041bd.akpm@osdl.org.suse.lists.linux.kernel> <p73isilkm4x.fsf@verdi.suse.de> <4021AC9F.4090408@xfs.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 19 Feb 2004 02:53:04 -0500
+Received: from svr44.ehostpros.com ([66.98.192.92]:60608 "EHLO
+	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S266395AbUBSHxB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 02:53:01 -0500
+From: "Amit S. Kale" <amitkale@emsyssoft.com>
+Organization: EmSysSoft
+To: Pavel Machek <pavel@suse.cz>, trini@kernel.crashing.org,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Split kgdb into "lite" and "normal" parts
+Date: Thu, 19 Feb 2004 13:22:52 +0530
+User-Agent: KMail/1.5
+References: <20040218225010.GH321@elf.ucw.cz>
+In-Reply-To: <20040218225010.GH321@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4021AC9F.4090408@xfs.org>
-User-Agent: Mutt/1.3.27i
+Message-Id: <200402191322.52499.amitkale@emsyssoft.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> Hmm, looks like Pavel maybe just hit something along these lines... 
-> see
-> 
-> '2.6.2 extremely unresponsive after rsync backup'
-> 
+Tested (core-lite.patch + i386-lite.patch + 8250.patch) combination.
+Looks good.
 
-I tried to reproduce it and I could not. Not sure what went wrong
-that night, but it does not want to happen again.
+Let's first check this in and then do more cleanups.
+Tom, does it sound ok?
 
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+-Amit
+
+On Thursday 19 Feb 2004 4:20 am, Pavel Machek wrote:
+> Hi!
+>
+> This is based on current CVS version. If you want just basic
+> functionality, apply core-lite.patch and i386-lite.patch. If you want
+> all the features, add core.patch and i386.patch.
+>
+> Amit, this should be "step 1: split" we were talking about. Could you
+> test it looks sane and add it to the cvs?
+> 							Pavel
 

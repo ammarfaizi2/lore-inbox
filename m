@@ -1,85 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262263AbVAJNs3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262266AbVAJNuM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262263AbVAJNs3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 08:48:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbVAJNs3
+	id S262266AbVAJNuM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 08:50:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbVAJNuL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 08:48:29 -0500
-Received: from ozlabs.org ([203.10.76.45]:28315 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262263AbVAJNqg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 08:46:36 -0500
-Date: Tue, 11 Jan 2005 00:41:20 +1100
-From: Anton Blanchard <anton@samba.org>
-To: akpm@osdl.org
-Cc: paulus@samba.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] ppc64: Remove flush_instruction_cache
-Message-ID: <20050110134120.GU14239@krispykreme.ozlabs.ibm.com>
-References: <20050110133838.GT14239@krispykreme.ozlabs.ibm.com>
+	Mon, 10 Jan 2005 08:50:11 -0500
+Received: from ns.schottelius.org ([213.146.113.242]:34440 "HELO
+	scice.schottelius.org") by vger.kernel.org with SMTP
+	id S262266AbVAJNtC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 08:49:02 -0500
+Date: Mon, 10 Jan 2005 14:50:14 +0100
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Merging devfs to udev
+Message-ID: <20050110135014.GE1957@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
+	Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	linux-kernel@vger.kernel.org
+References: <20041117113123.GE2282@schottelius.org> <Pine.LNX.4.53.0411171457500.31693@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="eDB11BtaWSyaBkpc"
 Content-Disposition: inline
-In-Reply-To: <20050110133838.GT14239@krispykreme.ozlabs.ibm.com>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <Pine.LNX.4.53.0411171457500.31693@yvahk01.tjqt.qr>
+User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux 2.6.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Remove flush_instruction_cache, we cant touch HID bits on LPAR machines.
 
-Signed-off-by: Anton Blanchard <anton@samba.org>
+--eDB11BtaWSyaBkpc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff -puN arch/ppc64/kernel/misc.S~canttouchhids arch/ppc64/kernel/misc.S
---- foobar2/arch/ppc64/kernel/misc.S~canttouchhids	2005-01-10 23:30:39.785548541 +1100
-+++ foobar2-anton/arch/ppc64/kernel/misc.S	2005-01-10 23:31:43.714281834 +1100
-@@ -167,27 +167,7 @@ _GLOBAL(call_with_mmu_off)
- 	xori	r0,r0,MSR_IR|MSR_DR
- 	mtspr	SPRN_SRR1,r0
- 	rfid
--	
--/*
-- * Flush instruction cache.
-- */
--_GLOBAL(flush_instruction_cache)
- 
--/*
-- * This is called by kgdb code
-- * and should probably go away
-- * to be replaced by invalidating
-- * the cache lines that are actually
-- * modified
-- */
--	/* use invalidate-all bit in HID0
--	 *  - is this consistent across all 64-bit cpus?  -- paulus */
--	mfspr	r3,HID0
--	ori	r3,r3,HID0_ICFI
--	mtspr	HID0,r3
--	sync
--	isync
--	blr
- 
- 	.section	".toc","aw"
- PPC64_CACHES:
-diff -puN include/asm-ppc64/system.h~canttouchhids include/asm-ppc64/system.h
---- foobar2/include/asm-ppc64/system.h~canttouchhids	2005-01-10 23:30:39.790548159 +1100
-+++ foobar2-anton/include/asm-ppc64/system.h	2005-01-10 23:30:43.792899917 +1100
-@@ -108,7 +108,6 @@ extern void show_regs(struct pt_regs * r
- extern void low_hash_fault(struct pt_regs *regs, unsigned long address);
- extern int die(const char *str, struct pt_regs *regs, long err);
- 
--extern void flush_instruction_cache(void);
- extern int _get_PVR(void);
- extern void giveup_fpu(struct task_struct *);
- extern void disable_kernel_fp(void);
-diff -puN arch/ppc64/kernel/ppc_ksyms.c~canttouchhids arch/ppc64/kernel/ppc_ksyms.c
---- foobar2/arch/ppc64/kernel/ppc_ksyms.c~canttouchhids	2005-01-10 23:33:43.020213869 +1100
-+++ foobar2-anton/arch/ppc64/kernel/ppc_ksyms.c	2005-01-10 23:33:49.460644370 +1100
-@@ -114,7 +114,6 @@ EXPORT_SYMBOL(iounmap);
- EXPORT_SYMBOL(start_thread);
- EXPORT_SYMBOL(kernel_thread);
- 
--EXPORT_SYMBOL(flush_instruction_cache);
- EXPORT_SYMBOL(giveup_fpu);
- #ifdef CONFIG_ALTIVEC
- EXPORT_SYMBOL(giveup_altivec);
-_
+Jan Engelhardt [Wed, Nov 17, 2004 at 02:58:12PM +0100]:
+> >Is there a howto available to merge devfs systems to udev?
+> >
+> >I just accomplished this task and wanted to ask whether there
+> >is a need to for that.
+>=20
+> What do you mean by merge? Disable devfs-fs, devfsd and switching to udev=
+? (So,
+> mostly the userspace part?)
+
+Yes, userspace part. Having a look at /etc/{inittab,fstab} and other
+init related tools.
+
+Nico
+
+--=20
+Keep it simple & stupid, use what's available.
+Please use pgp encryption: 8D0E 27A4 is my id.
+http://nico.schotteli.us | http://linux.schottelius.org
+
+--eDB11BtaWSyaBkpc
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iQIVAwUBQeKIFLOTBMvCUbrlAQLmcg/7BcVWyg/in+ZLgsH0V+KJQqLoDBGYXz55
+qFdMTSg9daCN5v6/zk31OnbUis+iAnsjMR9nmK6uF1CBB+M1Gd/dVvHVdGDdGyk+
+BB5lKS82Icht6bm+RDG/dqSmEnJukXRh5rc2Pwa1aFPpxEVPTBFUI0JAeV8fYS7a
+wVlpvHYJfiAcSTHLAbEtOAr1XQSkJm2y95CUVSTENeodP8EWYkzNqF24pZMIWxrW
+7wxtQG74Pm7WMjBN0C7qxFe+elAMhGdjry0qIeB9QQD7WKRRaCVa2SARyya6QNAl
+R8KafGBYLuwsKnfEUmM44ZWkJYqiTI59Tx/NDlSRfSJ1Oz5Gk0qdvHux39AbhyGE
+rAi5KWPSVTYRj5VznGUArcSR9fbvrKRq5UjVQXDz6VXpiwOyprGge1Xol+/g2FS4
+YnPCJsIV0K8oTIb4Lda+O8Mn9g/ctgYGRP2N4P9+PIYawT27HaNTidPLURc8jgcB
+D3lFYp2nqdHbLtD+j8dL6/AFpHJ0eX3zlw8RkCo5qy03A4yd1v4+bHsyFMoIRqwM
+B8yR8St9y8+sSucQ1tlsrpUa3MUY0ti1f+2ZkCimaVu+5yjk6AUAX3Ka94hJeoGN
+r5cizLfKqBRC/MdLJJNn4aipVrCp75T1VYqytV2zdB35TsMH4qqJQlpDopt4tgjV
+7GpQeNC0BFE=
+=HQDS
+-----END PGP SIGNATURE-----
+
+--eDB11BtaWSyaBkpc--

@@ -1,51 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262275AbVDFSUY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262274AbVDFSWn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262275AbVDFSUY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 14:20:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262274AbVDFSUY
+	id S262274AbVDFSWn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 14:22:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262276AbVDFSWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 14:20:24 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:5785 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262273AbVDFSUS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 14:20:18 -0400
-Subject: Re: [OOPS] 2.6.11 - NMI lockup with CFQ scheduler
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Chris Rankin <rankincj@yahoo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <20050406175838.GC15165@suse.de>
-References: <20050329115405.97559.qmail@web52909.mail.yahoo.com>
-	 <20050329120311.GO16636@suse.de> <1112804840.5476.16.camel@mulgrave>
-	 <20050406175838.GC15165@suse.de>
+	Wed, 6 Apr 2005 14:22:43 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:37092 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262274AbVDFSWf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 14:22:35 -0400
+Subject: Re: ext3 allocate-with-reservation latencies
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Mingming Cao <cmm@us.ibm.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <1112806429.5396.15.camel@localhost.localdomain>
+References: <1112673094.14322.10.camel@mindpipe>
+	 <20050405041359.GA17265@elte.hu>
+	 <1112765751.3874.14.camel@localhost.localdomain>
+	 <1112781070.1981.34.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1112806429.5396.15.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Wed, 06 Apr 2005 14:20:07 -0400
-Message-Id: <1112811607.5555.15.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
+Message-Id: <1112811732.3377.41.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Wed, 06 Apr 2005 19:22:12 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-04-06 at 19:58 +0200, Jens Axboe wrote:
-> I rather like the queue lock being a pointer, so you can share at
-> whatever level you want. Lets not grow the request_queue a full lock
-> just to work around a bug elsewhere.
+Hi,
 
-I'm not proposing that it not be a pointer, merely that it could be
-intialiased to point to a lock structure within the request queue.
+On Wed, 2005-04-06 at 17:53, Mingming Cao wrote:
 
-Doing this looks much simpler than your current patch ... one of the
-problems with which looks to be that removing the scsi_driver module is
-in trouble because we currently have the queue_release in the sdev
-release (which won't get called while the queue holds a reference).
+> > Possible, but not necessarily nice.  If you've got a nearly-full disk,
+> > most bits will be already allocated.  As you scan the bitmaps, it may
+> > take quite a while to find a free bit; do you really want to (a) lock
+> > the whole block group with a temporary window just to do the scan, or
+> > (b) keep allocating multiple smaller windows until you finally find a
+> > free bit?  The former is bad for concurrency if you have multiple tasks
+> > trying to allocate nearby on disk --- you'll force them into different
+> > block groups.  The latter is high overhead.
 
-I think the correct model for all of this is that the block driver
-shouldn't care (or be tied to) the scsi one.  Thus, as long as SCSI can
-reject requests from a queue whose device has been released (without
-checking the device) then everything is fine as long as we sort out the
-lock lifetime problem.
+> I am not quite understand what you mean about (a).  In this proposal, we
+> will drop the lock before the scan. 
 
-James
+s/lock/reserve/.  
+
+> And for (b), maybe I did not make myself clear: I am not proposing to
+> keeping allocating multiple smaller windows until finally find a free
+> bit. I mean, we book the window(just link the node into the tree) before
+> we drop the lock, if there is no free bit inside that window, we will go
+> back search for another window(call find_next_reserveable_window()),
+> inside it, we will remove the temporary window we just created and find
+> next window. SO we only have one temporary window at a time. 
+
+And that's the problem.  Either we create small temporary windows, in
+which case we may end up thrashing through vast numbers of them before
+we find a bit that's available --- very expensive as the disk gets full
+--- or we use large windows but get worse layout when there are parallel
+allocators going on.
+
+--Stephen
 

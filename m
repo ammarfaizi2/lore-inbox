@@ -1,51 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268094AbRGVXEa>; Sun, 22 Jul 2001 19:04:30 -0400
+	id <S268099AbRGVXeb>; Sun, 22 Jul 2001 19:34:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268096AbRGVXEU>; Sun, 22 Jul 2001 19:04:20 -0400
-Received: from [217.28.130.35] ([217.28.130.35]:63755 "EHLO
-	mailth4.byworkwise.com") by vger.kernel.org with ESMTP
-	id <S268094AbRGVXEF>; Sun, 22 Jul 2001 19:04:05 -0400
-Message-ID: <3B5B32B2.B96E6BD3@freenet.co.uk>
-Date: Sun, 22 Jul 2001 21:08:18 +0100
-From: Gordon Lack <gmlack@freenet.co.uk>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: NFSv3 pathname problems in 2.4 kernels
+	id <S268100AbRGVXeU>; Sun, 22 Jul 2001 19:34:20 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:31556 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S268099AbRGVXeJ>; Sun, 22 Jul 2001 19:34:09 -0400
+Date: Mon, 23 Jul 2001 01:34:16 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.7 softirq incorrectness.
+Message-ID: <20010723013416.B23517@athlon.random>
+In-Reply-To: <m15OQ5D-000CDBC@localhost>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <m15OQ5D-000CDBC@localhost>; from rusty@rustcorp.com.au on Mon, Jul 23, 2001 at 06:44:10AM +1000
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-   I am seeing a problem at the client side when trying to obtain pathnames of NFS-mounted entries.  This occurs when the NFS servers involved are Linux2.4 kernels and the clients are SGI Irix 6.5 or Solaris 2.6 (Linux 2.4 clients are Ok - 2.2 ones won't be using NFSv3).
+On Mon, Jul 23, 2001 at 06:44:10AM +1000, Rusty Russell wrote:
+> This current code is bogus.  Consider:
+> 	spin_lock_irqsave(flags);	
+> 	cpu_raise_softirq(this_cpu, NET_RX_SOFTIRQ);
+> 	spin_unlock_irqrestore(flags);
 
-   As an example of what happens.
+What kernel are you looking at? There's no such code in 2.4.7, the only
+two raise of the NET_RX_SOFTIRQ softirq are in dev.c in net_rx_action
+and netif_rx:
 
-o The server side has a pathname of /raid/sources/prog1 - a directory.
+here the one in netif_rx:
 
-o /raid is exported
+			__cpu_raise_softirq(this_cpu, NET_RX_SOFTIRQ);
+			local_irq_restore(flags);
 
-o The client NFS mounts /raid/sources as /projects/sources
+here the one in net_rx_action:
 
-o I cd to /projects/sources/prog1 and type /bin/pwd
+	/* This already runs in BH context, no need to wake up BH's */
+	__cpu_raise_softirq(this_cpu, NET_RX_SOFTIRQ);
+	local_irq_enable();
 
-   I expect to get /projects/sources/prog1 as the result, but I actually get /sources/prog1.
+> Oops... softirq not run until the next interrupt.  So, EITHER:
 
-   Similar mounts from Linux2.2. systems (presumably running NFSv2) produce the expected (correct) result.
+The first netif_rx is required to run from interrupt handler (otherwise
+we should have executed cpu_raise_softirq and not __cpu_raise_softirq)
+so we cannot miss the do_softirq in the return path from do_IRQ() and so
+we cannot wait for the next incoming interrupt (if we have a overflow of
+the do_softirq loop ksoftirqd will take care of it without waiting for
+the next interrupt as it could instead happen in old 2.4 kernels).
 
-   I've snoop'ed the network traffic and one thing I can see is that the filehandle used in the NFSv3 mount is reported as being a different length (shorter) than those for v2.
+The second net_rx_action is running into the softirq code itself that
+will marks itself runnable again and this will generate a do_softirq
+overflow that is handled gracefully by ksoftirqd again without waiting
+for the next interrupt (in old 2.4 kernels you had to wait for the next
+irq instead).
 
-   So,
+I cannot see any problem.
 
-a) has anyone else encountered these problems?
-
-b) if so, do they have a solution?
-
-c) how is the filehandle calculated in the 2.4 kernel for NFSv3?  Which routine is it in?  Perhaps I could try (optionally) forcing it to be the same length as a v2 filehandle to see whether that fixes things.  (I'd rather that the 2.4 kernel were optimally compatible rather than paranoically
-correct.
-
-
-   Hoping someone can help...
+Andrea

@@ -1,99 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261812AbUCXU1r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 15:27:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbUCXU1r
+	id S261728AbUCXU0M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 15:26:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbUCXU0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 15:27:47 -0500
-Received: from hera.kernel.org ([63.209.29.2]:26001 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S261832AbUCXU1i (ORCPT
+	Wed, 24 Mar 2004 15:26:12 -0500
+Received: from fw.osdl.org ([65.172.181.6]:4829 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261728AbUCXU0D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 15:27:38 -0500
-Date: Wed, 24 Mar 2004 18:27:59 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Chris Stromsoe <cbs@cts.ucla.edu>
-Cc: linux-kernel@vger.kernel.org, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-       mikpe@csd.uu.se
-Subject: Re: apic errors and looping with 2.4, none with 2.2 (supermicro/serverworks LE chipset)
-Message-ID: <20040324212759.GD6572@logos.cnet>
-References: <Pine.LNX.4.58.0403230420000.25095@potato.cts.ucla.edu> <Pine.LNX.4.58.0403240011150.21019@potato.cts.ucla.edu>
+	Wed, 24 Mar 2004 15:26:03 -0500
+Date: Wed, 24 Mar 2004 12:28:06 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: matthias.andree@gmx.de, andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.25 SMP - BUG at page_alloc.c:105
+Message-Id: <20040324122806.4015d3d6.akpm@osdl.org>
+In-Reply-To: <20040324205811.GB6572@logos.cnet>
+References: <20040324205811.GB6572@logos.cnet>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0403240011150.21019@potato.cts.ucla.edu>
-User-Agent: Mutt/1.5.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+>
+> 
+> The backtrace is odd to me. 
+> 
+> set_page_dirty() does not call __free_pages_ok() directly or indirectly.
+> 
 
-Chris,
+I'd suspect that's just gunk on the stack and that zap_pte_range() freed an
+anonymous page which had a non-null ->mapping.  It could be a hardware bug.
+Without seeing the actual value of page->mapping it's hard to know.
 
-The least I know is that similar IOAPIC errors have been seen due to 
-BIOS/hardware misconfigurations.
+It would be good to backport the bad_page() debug code so we get a bit more
+info when this sort of thing happens.
 
-Maybe Maciej or Mikael have more clue of what might be happening.
 
-On Wed, Mar 24, 2004 at 02:50:32AM -0800, Chris Stromsoe wrote:
-> I've rebooted with noapic and nolapic and the machine seemed to be stable
-> for a while.  Then I got:
+
+> ---
 > 
-> Mar 24 00:27:08 dahlia kernel: APIC error on CPU1: 00(02)
-> Mar 24 00:27:08 dahlia kernel: APIC error on CPU0: 00(02)
-> Mar 24 00:27:08 dahlia kernel: spurious APIC interrupt on CPU#0, should never happen.
-> Mar 24 00:27:13 dahlia kernel: APIC error on CPU1: 02(08)
-> Mar 24 00:27:13 dahlia kernel: APIC error on CPU0: 02(08)
-> Mar 24 00:28:07 dahlia kernel: APIC error on CPU1: 08(02)
-> Mar 24 00:28:07 dahlia kernel: APIC error on CPU0: 08(02)
-> Mar 24 00:28:07 dahlia kernel: APIC error on CPU0: 02(08)
-> Mar 24 00:28:07 dahlia kernel: APIC error on CPU0: 08(02)
-> Mar 24 00:28:07 dahlia kernel: APIC error on CPU1: 02(0a)
+> Hi,
 > 
-> I added nosmp to the lilo append line and rebooted.
+> I found this in the logs of a Dual Athlon MP machine (Tyan board)
+> running 2.4.25-SMP:
 > 
-> noapic, nolapic, and nosmp seems to be stable.  I haven't had anything
-> logged in the last 2 hours.  Are there known APIC or SMP problems with
-> serverworks LE chipsets or supermicro motherboards and 2.4?  What are the
-> steps to troubleshooting an APIC problem?
+> kernel BUG at page_alloc.c:105! 
+> invalid operand: 0000 
+> CPU:    0 
+> EIP: 0010:[__free_pages_ok+80/704]    Not tainted 
+> EFLAGS: 00010286 
+> eax: c0333674   ebx: c1b2d720   ecx: 00000000   edx: f22f7a84 
+> esi: 00000001   edi: 00000000   ebp: 00000001   esp: f6901e3c 
+> ds: 0018   es: 0018   ss: 0018 
+> Process svscan (pid: 1348, stackpage=f6901000) 
+> Stack: c033364c f741cbc0 f22f7a84 00000001 0804c000 c0133ea6 f22f79c0 00000004  
+>        00000001 00000001 0804c000 00000001 c01308fa c1b2d720 f68e3080 0804b000  
+>        00001000 0844b000 c03ac4e0 00000001 0804c000 f68e3084 f42baa40 f7212440  
+> Call Trace: [set_page_dirty+166/176] [zap_page_range+330/400] [exit_mmap+221/352] \
+> [mmput+88/176] [do_exit+259/800]   [sig_exit+195/208] [dequeue_signal+95/192] \
+> [do_signal+448/694] [schedule_timeout+94/176] [process_timeout+0/96] \
+> [sys_nanosleep+232/448]   [do_page_fault+0/1347] [signal_return+20/24] 
 > 
-> 
-> -Chris
-> 
-> On Tue, 23 Mar 2004, Chris Stromsoe wrote:
-> 
-> > I have one machine that won't run 2.4.  As soon as a 2.4 kernel boots, it
-> > starts throwing APIC errors.
-> >
-> > The machine is a dual CPU pIII 933MHz system with 512Mb ram on a
-> > SuperMicro motherboard, either a P3TDLR or a 370DLR, with the ServerWorks
-> > LE chipset.  I'm booting using lilo with append="noapic".
-> >
-> > As soon as I boot into a 2.4 kernel, I start getting APIC errors on both
-> > CPUs.  Varying combinations of:
-> >
-> > Mar 23 00:40:45 dahlia kernel: APIC error on CPU0: 02(08)
-> > Mar 23 00:40:45 dahlia kernel: APIC error on CPU1: 01(08)
-> > Mar 23 00:45:45 dahlia kernel: APIC error on CPU1: 08(08)
-> > Mar 23 00:45:45 dahlia kernel: APIC error on CPU0: 08(08)
-> > Mar 23 00:58:27 dahlia kernel: APIC error on CPU0: 08(01)
-> > Mar 23 00:58:27 dahlia kernel: APIC error on CPU1: 08(02)
-> > Mar 23 01:04:54 dahlia kernel: APIC error on CPU1: 02(02)
-> > Mar 23 01:04:54 dahlia kernel: APIC error on CPU0: 01(02)
-> > Mar 23 01:05:46 dahlia kernel: APIC error on CPU1: 02(08)
-> > Mar 23 01:05:46 dahlia kernel: APIC error on CPU0: 02(08)
-> > Mar 23 01:08:37 dahlia kernel: APIC error on CPU1: 08(02)
-> > Mar 23 01:08:37 dahlia kernel: APIC error on CPU0: 08(02)
-> > Mar 23 01:11:04 dahlia kernel: APIC error on CPU1: 02(02)
-> > Mar 23 01:11:04 dahlia kernel: APIC error on CPU0: 02(0a)
-> > Mar 23 01:11:04 dahlia kernel: APIC error on CPU1: 02(08)
-> > Mar 23 01:25:45 dahlia kernel: APIC error on CPU1: 08(08)
-> > Mar 23 01:25:45 dahlia kernel: APIC error on CPU0: 0a(08)
-> >
-> > After a few hours of uptime, the box stops responding to keyboard input.
-> > It begins printing the above messages to console over and over.  I have
-> > several other identical machines that I received in the same batch that
-> > run 2.4 without any problems (though they do seem to require "noapic").
-> >
-> > It runs fine with 2.2 and is running 2.2.26 right now.
-> >
-> > The machine is not in production use and can be used to test.  Any ideas
-> > for what I should look at?
+> Other than this BUG (that took down the machine hard, I was lucky to log
+> across the network), there appear to be no relevant logs shortly before
+> this crash.

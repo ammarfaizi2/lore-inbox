@@ -1,77 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263873AbTLJSip (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 13:38:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263880AbTLJSip
+	id S263786AbTLJSoR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 13:44:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263846AbTLJSoR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 13:38:45 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:53173 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S263873AbTLJSin
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 13:38:43 -0500
-Date: Wed, 10 Dec 2003 10:38:33 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Larry McVoy <lm@bitmover.com>, Andre Hedrick <andre@linux-ide.org>,
-       Arjan van de Ven <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
+	Wed, 10 Dec 2003 13:44:17 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:36875
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S263786AbTLJSoO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 13:44:14 -0500
+Date: Wed, 10 Dec 2003 10:38:31 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Larry McVoy <lm@bitmover.com>, karim@opersys.com,
+       Linus Torvalds <torvalds@osdl.org>,
        Kendall Bennett <KendallB@scitechsoft.com>,
        linux-kernel@vger.kernel.org
 Subject: Re: Linux GPL and binary module exception clause?
-Message-ID: <20031210183833.GJ6896@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Linus Torvalds <torvalds@osdl.org>, Larry McVoy <lm@bitmover.com>,
-	Andre Hedrick <andre@linux-ide.org>,
-	Arjan van de Ven <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
-	Kendall Bennett <KendallB@scitechsoft.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.10.10312100550500.3805-100000@master.linux-ide.org> <Pine.LNX.4.58.0312100714390.29676@home.osdl.org> <20031210153254.GC6896@work.bitmover.com> <Pine.LNX.4.58.0312100809150.29676@home.osdl.org> <20031210163425.GF6896@work.bitmover.com> <Pine.LNX.4.58.0312100852210.29676@home.osdl.org> <20031210175614.GH6896@work.bitmover.com> <Pine.LNX.4.58.0312100959180.29676@home.osdl.org> <20031210180822.GI6896@work.bitmover.com> <Pine.LNX.4.58.0312101016010.29676@home.osdl.org>
-Mime-Version: 1.0
+In-Reply-To: <1071071955.5712.428.camel@hades.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.10.10312101036310.3805-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0312101016010.29676@home.osdl.org>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 10, 2003 at 10:17:34AM -0800, Linus Torvalds wrote:
-> > And in the 4 minutes since I've posted that legal doc you have consulted
-> > a lawyer and the lawyer told you this, right?
-> 
-> Hey, you know I'm not a lawyer.
-> 
-> I told you my opinion. And I'm not considering even _trying_ to circumvent
-> somebody elses copyright.
-> 
-> You are the one who needs a lawyer, since _you_ are the one arguing for
-> potentially infringing on other peoples copyright.
 
-I can understand your touchiness, it's not much fun living through tons of
-messages where people try and figure out how to circumvent your license.
-You have my sympathy.
+David,
 
-On the other hand, let's be perfectly clear: I'm not in the business of
-making binary kernel extensions/modules/drivers/anything, I never have
-been in that business, and neither I nor anyone at BitMover nor any of
-our investors are contemplating that.  In other words, _I_ am not about
-to violate anyone's copyright and I'll thank you not to accuse me of
-that again without some data to back it up.
+For the simple folks like myself, please show me and everyone else where
+the "contract" terms are specifically?  I am having a hard time seeing
+them, and they exist and real, it should be pointed out clearly.
 
-What I am doing is saying that you are way over the line in a way that
-other people, who do not have your best interests at heart (nor the
-kernel's, nor the FSF's, nor the GPL's), are going to jump all over what
-you are saying and use it against you.  In multiple ways.  They will use
-it to say that you are just as bad as they are, you are trying to twist
-the system to your advantage to further your agenda.  Which is exactly,
-I might add, what any corporation does.  You've become quite corporate
-(aka one-sided) in your outlook recently.  If case law is established
-that backs up your point of view, it is going to effect all of us in all
-sorts of ways that are almost universally negative for everyone except
-the corporation inflicting the pain.  You may not create case law which
-helps your agenda and expect all the nasty folks to not grab at it and
-use it to help their agenda.  The potential damage that this case law
-would inflict dramatically outweighs the benefit of spanking some 
-company that is shipping a binary driver.  Why can't you see it?
-Reread Ted's message, he stated it nicely.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Wed, 10 Dec 2003, David Woodhouse wrote:
+
+> On Wed, 2003-12-10 at 07:11 -0800, Larry McVoy wrote:
+> > You may license *your* work under whatever terms you want.  Those terms
+> > can't extend to things that aren't your work in a copyright license.
+> 
+> Please elaborate. We're talking about a situation in which I grant a
+> licence for you to copy and use my work, in exchange for something I
+> desire from you. In the absence of a contract, this is limited to me
+> effectively saying "You may copy and use my work if and only if you do
+> XXX".
+> 
+> If you do not do 'XXX' then you may not use my work.
+> 
+> Are you saying that there are things which I may not ask for? Could you
+> elaborate?
+> 
+> Certainly criminal law prohibits me from actually inciting you to murder
+> by really asking for the sacrifice of your first-born; I'll grant you
+> that one.
+> 
+> But what's wrong with postcardware, where I ask you to send me a
+> postcard in exchange for permission to use my work?
+> 
+> What's wrong with shareware, where you have permission to copy my work
+> and use it for evaluation purposes, but you're asked to pay me if you
+> continue to use it?
+> 
+> What's wrong with a licence which requires you to bathe daily in
+> creosote in order to receive my permission?
+> 
+> What's wrong with a licence on my software which requires you to
+> relinquish copyright on any musical score you ever write?
+> 
+> What's wrong with a licence which requires you to release any unrelated
+> software you ever write under the same licence?
+> 
+> It may be increasingly unlikely that you'll _accept_ some of the above
+> licences, but there's no fundamental problem with them.
+>  
+> > You need a contract to do that and even then there are limits to what
+> > you can do.
+> 
+> I need a contract to force you to do anything; this is true.
+> 
+> Without a contract, all I can do if you don't abide by my conditions is
+> observe that you don't have my permission to copy my work, and hence
+> that if you do so you are committing a criminal offence.
+> 
+> -- 
+> dwmw2
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

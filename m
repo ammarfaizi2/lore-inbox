@@ -1,31 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286322AbSAZS1l>; Sat, 26 Jan 2002 13:27:41 -0500
+	id <S286413AbSAZTaU>; Sat, 26 Jan 2002 14:30:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286365AbSAZS1V>; Sat, 26 Jan 2002 13:27:21 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:6404 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286322AbSAZS1J>; Sat, 26 Jan 2002 13:27:09 -0500
-Subject: Re: [PATCH] syscall latency improvement #1
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Sat, 26 Jan 2002 18:39:35 +0000 (GMT)
-Cc: dhowells@redhat.com (David Howells), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0201251626490.2042-100000@penguin.transmeta.com> from "Linus Torvalds" at Jan 25, 2002 04:39:18 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S286590AbSAZTaK>; Sat, 26 Jan 2002 14:30:10 -0500
+Received: from relay1.pair.com ([209.68.1.20]:7180 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id <S286413AbSAZTaD>;
+	Sat, 26 Jan 2002 14:30:03 -0500
+X-pair-Authenticated: 24.126.75.99
+Message-ID: <3C530503.54DA9008@kegel.com>
+Date: Sat, 26 Jan 2002 11:35:31 -0800
+From: Dan Kegel <dank@kegel.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [OT] Last Chance to comment on Microsoft Settlement
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16UXjj-0005su-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> NOTE! There are potentially other ways to do all of this, _without_ losing
-> atomicity. For example, you can move the "flags" value into the slot saved
-> for the CS segment (which, modulo vm86, will always be at a constant
-> offset on the stack), and make CS=0 be the work flag. That will cause the
-> CPU to trap atomically at the "iret".
+The DOJ's proposed settlement, which could have a serious
+negative impact on the open source and linux community,
+will probably go into effect unless enough people argue against it.
+The deadline for commenting on the proposed settlement
+is *this Monday*.  If you have any interest in the
+issue, and have not yet written the DOJ to comment, I urge
+you to do so *now*.
 
-Is the test even needed. Suppose we instead patch the return stack if we
-set need_resched/sigpending, and do it on the rare occassion we set the
-value.
+For a fine call-to-action, see
+http://www.codeweavers.com/~jwhite/tunney.html
+
+Or, if you're on the Microsoft side, visit
+http://www.microsoft.com/freedomtoinnovate/
+They make you register before they'll tell you
+how they want you to help, but they do sell 
+a cool 'Freedom to Innovate' t-shirt
+( http://www.msftstores.com/enginepublic/product1.cfm?itemid=534 ;
+note the tasteful use of the American flag).
+
+I've put together a site about the proposed 
+settlement and reaction from the press and the Open Source
+community (at http://www.kegel.com/remedy/ )
+and an open letter to the DOJ
+( http://www.kegel.com/remedy/letter.html ).
+I invite US citizens and residents (unfortunately, 
+the DOJ will probably ignore comments from outside the US)
+to join my open letter; instructions for joining are at the
+top of the letter.  I'll be sending it in first thing
+Monday morning.
+
+- Dan

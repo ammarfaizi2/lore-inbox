@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267417AbTACBLe>; Thu, 2 Jan 2003 20:11:34 -0500
+	id <S267410AbTACBI2>; Thu, 2 Jan 2003 20:08:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267367AbTACBLe>; Thu, 2 Jan 2003 20:11:34 -0500
-Received: from crack.them.org ([65.125.64.184]:16065 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S267417AbTACBLd>;
-	Thu, 2 Jan 2003 20:11:33 -0500
-Date: Thu, 2 Jan 2003 20:20:11 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: linux-kernel@vger.kernel.org
-Subject: [OT] For those who want From: lines on bk-commits-* mail
-Message-ID: <20030103012011.GA7706@nevyn.them.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S267413AbTACBI2>; Thu, 2 Jan 2003 20:08:28 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:28042
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267410AbTACBIY>; Thu, 2 Jan 2003 20:08:24 -0500
+Subject: Re: [PATCH] TCP Zero Copy for mmapped files
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Thomas Ogrisegg <tom@rhadamanthys.org>,
+       "David S. Miller" <davem@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030103010107.GB6416@work.bitmover.com>
+References: <20021230012937.GC5156@work.bitmover.com>
+	<1041489421.3703.6.camel@rth.ninka.net>
+	<20030102221210.GA7704@window.dhis.org>
+	<20030102.151346.113640740.davem@redhat.com>
+	<20030103004543.GA12399@window.dhis.org> 
+	<20030103010107.GB6416@work.bitmover.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Jan 2003 01:59:55 +0000
+Message-Id: <1041559195.24901.119.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mentioned this when the list was first set up; the decision seemed to be
-that using a fixed From: line was more polite to people who hadn't
-volunteered to have their email addresses archived, or more likely to put
-discussions in the right place, or other things along those lines.  Well,
-for those who would prefer to look at a mailbox summary and know who commits
-came from, here's a simple way to do it.  I'm sure someone on the list can
-find a more elegant solution.
+On Fri, 2003-01-03 at 01:01, Larry McVoy wrote:
+> And the list of applications which do
+> 
+> 	sock = socket(...);
+> 	map = mmap(...);
+> 	write(sock, map, bytes);
+> 
+> are?  There are not very many that I know of and if you look carefully
+> at the bandwidth graphs in LMbench you'll see why.  There is a cross
+> over point where mmap becomes cheaper but it used to be around 16-64K.
+> I don't know what it is now, I doubt it's moved much.  I can check if
+> you really want.
 
-.procmailrc:
-:0
-* ^X-Mailing-List:.*bk-commits-head@
-{
-  :0f
-  | $HOME/bin/set-from.sh
+You may not be doing an mmap a send, its more likely to look like
 
-  :0 :
-  bk-commits-head/
-}
+	page = hash(url);
+	memcpy(current_time, page->clock, TIMESIZE);
+	write(sock, page->data, page->len);
 
-set-from.sh:
-#!/bin/sh
+that changes the breakeven point a lot
 
-cat > $HOME/.tmp/bk-head-tmp.$$
+Alan
 
-from=`grep '^ChangeSet' $HOME/.tmp/bk-head-tmp.$$ | head -1 | awk '{print $NF}'`
-if test -n "$from"; then
- formail -i "From: $from" < $HOME/.tmp/bk-head-tmp.$$
-else
- cat $HOME/.tmp/bk-head-tmp.$$
-fi
-
-rm $HOME/.tmp/bk-head-tmp.$$
-
-
-Just mkdir $HOME/.tmp before trying this.  The tmpdir handling is blatantly
-unsafe, so I don't recommend using /tmp.
-
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer

@@ -1,41 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264944AbTAWSpP>; Thu, 23 Jan 2003 13:45:15 -0500
+	id <S265657AbTAWSxI>; Thu, 23 Jan 2003 13:53:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265657AbTAWSpP>; Thu, 23 Jan 2003 13:45:15 -0500
-Received: from itg-gw.cr008.cwt.esat.net ([193.120.242.226]:64523 "EHLO
-	dunlop.admin.ie.alphyra.com") by vger.kernel.org with ESMTP
-	id <S264944AbTAWSpP>; Thu, 23 Jan 2003 13:45:15 -0500
-Date: Thu, 23 Jan 2003 18:52:44 +0000 (GMT)
-From: Paul Jakma <paulj@alphyra.ie>
-X-X-Sender: paulj@dunlop.admin.ie.alphyra.com
-To: GrandMasterLee <masterlee@digitalroadkill.net>
-cc: Thomas Tonino <ttonino@users.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with Qlogic 2200 and 2.4.20
-In-Reply-To: <1043308435.8274.3.camel@localhost>
-Message-ID: <Pine.LNX.4.44.0301231851080.31406-100000@dunlop.admin.ie.alphyra.com>
+	id <S266720AbTAWSxI>; Thu, 23 Jan 2003 13:53:08 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:36101 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S265657AbTAWSxH>;
+	Thu, 23 Jan 2003 13:53:07 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301231902.h0NJ2Z6s001955@darkstar.example.net>
+Subject: Re: Server down?
+To: yiding_wang@agilent.com
+Date: Thu, 23 Jan 2003 19:02:35 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <334DD5C2ADAB9245B60F213F49C5EBCD05D54F94@axcs03.cos.agilent.com> from "yiding_wang@agilent.com" at Jan 23, 2003 11:38:56 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Jan 2003, GrandMasterLee wrote:
+> For some reason, I don't receive mail send to linux kernel anymore.
+> Is that a server problem or I need to do the subscribe again.  It
+> happened fron yesterday.
 
-> Just to chime in, are you using the qlogicfc driver that comes with
-> the kernel? If so, Try using qlogic's 6.01 driver set instead and
-> see if your problem goes away. I've had other problems, mostly stack
-> related, but I've since found my fixes
+The list server probably de-subscribed you.  Try re-subscribing.
 
-hmm.. i'd be very interested in them. I have found the qlogic v6 
-driver to dreadfully unstable under heavy load (eg multiple 
-bonnie++'s) on SMP.
-
-> GrandMasterLee
-
-regards,
--- 
-Paul Jakma	Sys Admin	Alphyra
-	paulj@alphyra.ie
-Warning: /never/ send email to spam@dishone.st or trap@dishone.st
-
+John.

@@ -1,17 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263529AbTDMOiZ (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 10:38:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263530AbTDMOiZ (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 10:38:25 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:12002 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S263529AbTDMOiR (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Apr 2003 10:38:17 -0400
-Date: Sun, 13 Apr 2003 07:49:59 -0700
+	id S263525AbTDMOhX (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 10:37:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263529AbTDMOhX (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 10:37:23 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:11489 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S263525AbTDMOhW (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Apr 2003 10:37:22 -0400
+Date: Sun, 13 Apr 2003 07:49:06 -0700
 From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: LKML <linux-kernel@vger.kernel.org>
 To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 579] New: isdn.ko needs unknown symbol group_send_sig_info
-Message-ID: <244270000.1050245399@[10.10.2.4]>
+Subject: [Bug 578] New: gdth driver unresolved symbols 
+Message-ID: <244100000.1050245346@[10.10.2.4]>
 X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -20,195 +19,51 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=579
 
-           Summary: isdn.ko needs unknown symbol group_send_sig_info
-    Kernel Version: 2.5.67-bk5
+http://bugme.osdl.org/show_bug.cgi?id=578
+
+           Summary: gdth driver unresolved symbols
+    Kernel Version: 2.5.67
             Status: NEW
-          Severity: normal
-             Owner: jgarzik@pobox.com
-         Submitter: rmrmg@wp.pl
+          Severity: blocking
+             Owner: andmike@us.ibm.com
+         Submitter: hostmaster@taunusstein.net
 
 
-Distribution: slackware 9.0
-Hardware Environment: ISDN card: AVM FRITZ PCI; mainboard: aopen ax59pro; CPU:
-AMD k6-2 500MHz 
-Software Environment:gcc-3.2.2, glibc-2.3.1
+Distribution: Debian Woody
+Hardware Environment: All
+Software Environment: All
+Compiler: gcc 2.95.4
+
 Problem Description:
-
-[root@slack:/usr/src/linux-2.5.67#] depmod -ae -F System.map  2.5.67-bk5
-WARNING: /lib/modules/2.5.67-bk5/kernel/drivers/isdn/i4l/isdn.ko needs unknown
-symbol group_send_sig_info
+unresolved symbols in gdth driver
 
 Steps to reproduce:
+.config contains
+CONFIG_SCSI_GDTH=m
 
-[root@slack:/usr/src/linux-2.5.67#]  less ./.config | grep -v "is not set" |
-grep ^[0-9A-Za-z]
+/sbin/depmod -ae -F System.map  2.5.67
+shows
+scsi_get_command and scsi_put_command
+as unresolved
 
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
-CONFIG_X86_PC=y
-CONFIG_MPENTIUM4=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=7
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_PREFETCH=y
-CONFIG_X86_SSE2=y
-CONFIG_PREEMPT=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_PM=y
-CONFIG_APM=m
-CONFIG_APM_REAL_MODE_POWER_OFF=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PNP=y
-CONFIG_BLK_DEV_FD=m
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_DEV_NBD=m
-CONFIG_BLK_DEV_RAM=m
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDESCSI=m
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_SCSI=m
-CONFIG_BLK_DEV_SR=m
-CONFIG_CHR_DEV_SG=m
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_NETFILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=m
-CONFIG_ISDN_BOOL=y
-CONFIG_ISDN=m
-CONFIG_ISDN_NET_SIMPLE=y
-CONFIG_ISDN_PPP=y
-CONFIG_ISDN_PPP_VJ=y
-CONFIG_ISDN_MPP=y
-CONFIG_ISDN_PPP_BSDCOMP=m
-CONFIG_ISDN_DRV_HISAX=m
-CONFIG_HISAX_EURO=y
-CONFIG_HISAX_MAX_CARDS=8
-CONFIG_HISAX_FRITZPCI=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_NVRAM=m
-CONFIG_RTC=m
-CONFIG_GEN_RTC=m
-CONFIG_EXT2_FS=y
-CONFIG_EXT2_FS_XATTR=y
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_EXT3_FS_POSIX_ACL=y
-CONFIG_JBD=y
-CONFIG_FS_MBCACHE=y
-CONFIG_FS_POSIX_ACL=y
-CONFIG_XFS_FS=y
-CONFIG_AUTOFS4_FS=y
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_ZISOFS_FS=m
-CONFIG_UDF_FS=m
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-2"
-CONFIG_NLS_ISO8859_2=m
-CONFIG_NLS_UTF8=m
-CONFIG_FB=y
-CONFIG_FB_VGA16=y
-CONFIG_FB_VESA=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FRAMEBUFFER_CONSOLE=m
-CONFIG_PCI_CONSOLE=y
-CONFIG_FONTS=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
-CONFIG_LOGO=y
-CONFIG_LOGO_LINUX_MONO=y
-CONFIG_LOGO_LINUX_VGA16=y
-CONFIG_LOGO_LINUX_CLUT224=y
-CONFIG_SOUND=y
-CONFIG_SND=y
-CONFIG_SND_SEQUENCER=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_EMU10K1=m
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_ZLIB_INFLATE=m
-CONFIG_X86_BIOS_REBOOT=y
+Solution:
+Apply following patch:
+
+--- linux-2.5.67/drivers/scsi/scsi_syms.c.orig  2003-04-13 08:40:04.794555992 +0200
++++ linux-2.5.67/drivers/scsi/scsi_syms.c       2003-04-13 08:41:09.093781024 +0200
+@@ -78,6 +78,8 @@
+ EXPORT_SYMBOL(scsi_slave_detach);
+ EXPORT_SYMBOL(scsi_device_get);
+ EXPORT_SYMBOL(scsi_device_put);
++EXPORT_SYMBOL(scsi_get_command);
++EXPORT_SYMBOL(scsi_put_command);
+ EXPORT_SYMBOL(scsi_add_device);
+ EXPORT_SYMBOL(scsi_remove_device);
+ EXPORT_SYMBOL(scsi_set_device_offline);
+
+driver compiles without any problems then.
+aha152x driver may have same problem, but I did not verify that, because I do
+not have such a SCSI card.
+
 

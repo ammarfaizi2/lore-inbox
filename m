@@ -1,69 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262568AbTD3Xze (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 19:55:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262571AbTD3Xze
+	id S262640AbTD3X77 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 19:59:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262642AbTD3X77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 19:55:34 -0400
-Received: from [12.47.58.20] ([12.47.58.20]:18040 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S262568AbTD3Xzc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 19:55:32 -0400
-Date: Wed, 30 Apr 2003 17:04:46 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.68-mm3
-Message-Id: <20030430170446.6fe9b804.akpm@digeo.com>
-In-Reply-To: <200304301957.58729.tomlins@cam.org>
-References: <20030429235959.3064d579.akpm@digeo.com>
-	<200304301957.58729.tomlins@cam.org>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 01 May 2003 00:07:49.0180 (UTC) FILETIME=[B3646FC0:01C30F75]
+	Wed, 30 Apr 2003 19:59:59 -0400
+Received: from mx01.uni-tuebingen.de ([134.2.3.11]:30142 "EHLO
+	mx01.uni-tuebingen.de") by vger.kernel.org with ESMTP
+	id S262640AbTD3X75 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 19:59:57 -0400
+X-Face: "iUeUu$b*W_"w?tV83Y3*r:`rh&dRv}$YnZ3,LVeCZSYVuf[Gpo*5%_=/\_!gc_,SS}[~xZ
+ wY77I-M)xHIx:2f56g%/`SOw"Dx%4Xq0&f\Tj~>|QR|vGlU}TBYhiG(K:2<T^
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <dphillips@sistina.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] Faster generic_fls
+References: <Pine.LNX.4.44.0304301640110.19484-100000@home.transmeta.com>
+From: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
+Date: 01 May 2003 02:12:10 +0200
+In-Reply-To: <Pine.LNX.4.44.0304301640110.19484-100000@home.transmeta.com>
+Message-ID: <87d6j34jad.fsf@student.uni-tuebingen.de>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.5 (cabbage)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-AntiVirus: checked by AntiVir Milter 1.0.0.8; AVE 6.19.0.3; VDF 6.19.0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Tomlinson <tomlins@cam.org> wrote:
->
-> On April 30, 2003 02:59 am, Andrew Morton wrote:
-> > Bits and pieces.  Nothing major, apart from the dynamic request allocation
-> > patch.  This arbitrarily increases the maximum requests/queue to 1024, and
-> > could well make large (and usually bad) changes to various benchmarks.
-> > However some will be helped.
+Linus Torvalds <torvalds@transmeta.com> writes:
+
+> On 30 Apr 2003, Alan Cox wrote:
+> > 
+> > It ought to be basically the same as ffs because if I remember rightly 
+> > 
+> > ffs(x^(x-1)) == fls(x)
 > 
-> Here is something a little broken.  Suspect it might be in 68-bk too:
-> 
-> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.68-mm3; fi
-> WARNING: /lib/modules/2.5.68-mm3/kernel/sound/oss/cs46xx.ko needs unknown symbol cs4x_ClearPageReserved
-> 
+> So did anybody time this? ffs() we have hardware support for on x86,
+> and it's even reasonably efficient on some CPU's ..
 
-Yes, thanks.  It's a case of search-n-replace-n-dont-test.
+There appears to be hardware support for fls, too. This is what gcc
+generates for
 
+int fls(int x) {
+    return x ? 32 - __builtin_clz(x) : 0;
+}
 
-diff -puN sound/oss/cs46xx.c~cs46xx-PageReserved-fix sound/oss/cs46xx.c
---- 25/sound/oss/cs46xx.c~cs46xx-PageReserved-fix	Wed Apr 30 17:03:41 2003
-+++ 25-akpm/sound/oss/cs46xx.c	Wed Apr 30 17:03:48 2003
-@@ -1247,7 +1247,7 @@ static void dealloc_dmabuf(struct cs_sta
- 		mapend = virt_to_page(dmabuf->rawbuf + 
- 				(PAGE_SIZE << dmabuf->buforder) - 1);
- 		for (map = virt_to_page(dmabuf->rawbuf); map <= mapend; map++)
--			cs4x_ClearPageReserved(map);
-+			ClearPageReserved(map);
- 		free_dmabuf(state->card, dmabuf);
- 	}
- 
-@@ -1256,7 +1256,7 @@ static void dealloc_dmabuf(struct cs_sta
- 		mapend = virt_to_page(dmabuf->tmpbuff +
- 				(PAGE_SIZE << dmabuf->buforder_tmpbuff) - 1);
- 		for (map = virt_to_page(dmabuf->tmpbuff); map <= mapend; map++)
--			cs4x_ClearPageReserved(map);
-+			ClearPageReserved(map);
- 		free_dmabuf2(state->card, dmabuf);
- 	}
- 
+fls:
+        pushl   %ebp
+        xorl    %edx, %edx
+        movl    %esp, %ebp
+        movl    8(%ebp), %eax
+        testl   %eax, %eax
+        je      .L3
+        bsrl    %eax, %ecx
+        movl    $32, %edx
+        xorl    $31, %ecx
+        subl    %ecx, %edx
+.L3:
+        popl    %ebp
+        movl    %edx, %eax
+        ret
 
-_
-
+-- 
+	Falk

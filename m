@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267935AbTBYLx4>; Tue, 25 Feb 2003 06:53:56 -0500
+	id <S267938AbTBYMD0>; Tue, 25 Feb 2003 07:03:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267937AbTBYLx4>; Tue, 25 Feb 2003 06:53:56 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:63022 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S267935AbTBYLxz>; Tue, 25 Feb 2003 06:53:55 -0500
-Date: Tue, 25 Feb 2003 14:03:57 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Mikael Starvik <mikael.starvik@axis.com>,
-       "'Randy.Dunlap'" <rddunlap@osdl.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'tinglett@vnet.ibm.com'" <tinglett@vnet.ibm.com>,
-       "'torvalds@transmeta.com'" <torvalds@transmeta.com>
-Subject: Re: zImage now holds vmlinux, System.map and config in sections. (fwd)
-Message-ID: <20030225120357.GC158866@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	Mikael Starvik <mikael.starvik@axis.com>,
-	"'Randy.Dunlap'" <rddunlap@osdl.org>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-	"'tinglett@vnet.ibm.com'" <tinglett@vnet.ibm.com>,
-	"'torvalds@transmeta.com'" <torvalds@transmeta.com>
-References: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE84C@mailse01.axis.se> <20030225092520.A9257@flint.arm.linux.org.uk> <20030225110704.GD159052@niksula.cs.hut.fi> <20030225113557.C9257@flint.arm.linux.org.uk>
+	id <S267940AbTBYMD0>; Tue, 25 Feb 2003 07:03:26 -0500
+Received: from pinguin13.kwc.at ([193.228.81.158]:3055 "EHLO
+	mail.hello-penguin.com") by vger.kernel.org with ESMTP
+	id <S267938AbTBYMDZ>; Tue, 25 Feb 2003 07:03:25 -0500
+Date: Tue, 25 Feb 2003 13:13:28 +0100
+From: Dejan Muhamedagic <dejan@hello-penguin.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andrea Arcangeli <andrea@suse.de>
+Subject: vm issues (2)
+Message-ID: <20030225131328.A8651@smp.colors.kwc>
+Reply-To: Dejan Muhamedagic <dejan@hello-penguin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030225113557.C9257@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.3.23i
+X-Lotto: Suggested Lotto numbers (Austrian 6 out of 45): 1 7 18 27 40 41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[This has been beaten to death multiple times over the years - I'm sorry to
-repeat the same remarks again...]
+Hello,
 
-On Tue, Feb 25, 2003 at 11:35:57AM +0000, you [Russell King] wrote:
-> 
-> I, for one, do not see any point in trying to put more and more crap
-> into one file, when its perfectly easy to just use the "cp" command
-> 
-> <snip instructions>
+The new kernel 2.4.21-pre4aa3 is running now, but the box behaves
+similarly.  It still swaps quite a lot and much more than the rmap
+vm.  Both servers are under the same load.
 
-I do appreciate that you find no use for this feature. You instructions will
-work fine if one always compiles the kernel using the same discipline and
-and stores them under /boot on the same computer.
+One difference is the amount of free memory:
 
-Not everybody are always that careful. I know I'm not. I've copied tens of
-kernels to floppy ("cp bzImage /dev/fd0" because it's so easy to do), and
-lost track which one is which. I've copied kernels to other computers, and
-lost track which is which. I've made mistakes copying kernels to /boot, and
-lost track which is which.
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in cs  us  sy  id
+aa:
+ 0  7  0 5773620 202416 118076 2069716 5330 746  5330   766 4845 5597  12  14  74
+rmap:
+ 0  0  0 3498044  13572   4144 4754596  74   0    75     6  642 598   5   3  92
 
-I have been using Peter Breuer's proconfig patch and I have found it useful.
-Just cat /proc/config, and there you have the config for the running kernel
-- no matter if it was booted from a throw-away floppy, network or /boot.
-It only adds couple of kB to the bzImage, and I am ready to pay that price.
+The aa kernel keeps ~200MB out of 6GB of memory unused.  I'm not
+sure, but if we could reduce it perhaps there would be much less
+swapping.  Is there a way to achieve this?
 
-If you are not - well it is a config option for that very reason. 
+Another notable difference between the two vm versions is that the
+rmap vm maintains about 80% of memory on the active list and the
+aa vm much less: between 4% and 12%.  The rmap vm must use more
+CPU, but these servers have a lot of processing power so it is not
+noticeable.
 
+Cheers,
 
--- v --
-
-v@iki.fi
+Dejan

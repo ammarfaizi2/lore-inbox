@@ -1,31 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285720AbSAUNuk>; Mon, 21 Jan 2002 08:50:40 -0500
+	id <S286462AbSAUNva>; Mon, 21 Jan 2002 08:51:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286462AbSAUNuU>; Mon, 21 Jan 2002 08:50:20 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:13736 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S285720AbSAUNuQ>; Mon, 21 Jan 2002 08:50:16 -0500
-Message-ID: <3C4C1C96.9330C916@redhat.com>
-Date: Mon, 21 Jan 2002 13:50:14 +0000
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Athlon PSE/AGP Bug
-In-Reply-To: <1011610422.13864.24.camel@zeus> <20020121.053724.124970557.davem@redhat.com>
+	id <S286590AbSAUNvY>; Mon, 21 Jan 2002 08:51:24 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:14608 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S286462AbSAUNvM>; Mon, 21 Jan 2002 08:51:12 -0500
+Date: Mon, 21 Jan 2002 16:51:03 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Fabio Fracassi <turiya@linuxfromscratch.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Complete lockup when using g++ on reiserfs
+Message-ID: <20020121165103.A4915@namesys.com>
+In-Reply-To: <16Sckv-03IJKyC@fmrl01.sul.t-online.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <16Sckv-03IJKyC@fmrl01.sul.t-online.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
+Hello!
 
-> The funny part is, if this published errata is the problem, it cannot
-> be a problem under Linux since we never invalidate 4MB pages.  We
-> create them at boot time and they never change after that.
+On Mon, Jan 21, 2002 at 12:41:02PM +0100, Fabio Fracassi wrote:
 
-Well we don't know what nvidia's kernel module is doing.....
+> I suppose the Problem is somewhere in the ReiserFs part, since when this hang
+> happens the last processed c++ file sometimes gets corrupted.
+I won;t be so sure about that.
+It may be that hang appears elsewhere, and reiserfs just have no time
+to fill allocated data block with meaningful data.
+Reiserfs does not offer data journaling, so only metadata consistiency is
+there.
+What you are describing looks more like faulty hardware.
+
+Bye,
+    Oleg

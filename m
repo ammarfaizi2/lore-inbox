@@ -1,80 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264648AbSJVP4n>; Tue, 22 Oct 2002 11:56:43 -0400
+	id <S261502AbSJVQAn>; Tue, 22 Oct 2002 12:00:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264726AbSJVP4n>; Tue, 22 Oct 2002 11:56:43 -0400
-Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:6160 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S264648AbSJVP4m>;
-	Tue, 22 Oct 2002 11:56:42 -0400
-Message-ID: <3DB576BB.1010404@acm.org>
-Date: Tue, 22 Oct 2002 11:03:07 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: John Levon <levon@movementarian.org>
-CC: Corey Minyard <cminyard@mvista.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] NMI request/release
-References: <3DB4AABF.9020400@mvista.com> <20021022021005.GA39792@compsoc.man.ac.uk> <3DB4B8A7.5060807@mvista.com> <20021022025346.GC41678@compsoc.man.ac.uk> <3DB54C53.9010603@mvista.com> <20021022150944.GC70310@compsoc.man.ac.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S263135AbSJVQAn>; Tue, 22 Oct 2002 12:00:43 -0400
+Received: from smtp2.ispsnet.net ([64.63.192.12]:36514 "EHLO ispsnet.net")
+	by vger.kernel.org with ESMTP id <S261502AbSJVQAm>;
+	Tue, 22 Oct 2002 12:00:42 -0400
+Subject: Re: 2.5.44 : move files from drivers/media/* ?
+From: linuxguruguy <linuxguruguy@aaahawk.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1035214293.24166.1.camel@nofuture.deadbodies.net>
+References: <Pine.LNX.4.44.0210212136030.900-100000@localhost.localdomain> 
+	<1035173920.6385.1.camel@nofuture.deadbodies.net> 
+	<1035214293.24166.1.camel@nofuture.deadbodies.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 21 Oct 2002 11:52:46 -0400
+Message-Id: <1035215567.24166.3.camel@nofuture.deadbodies.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Levon wrote:
+On Mon, 2002-10-21 at 11:31, grstuhrberg wrote:
+> 
+> > On Mon, 2002-10-21 at 21:45, Frank Davis wrote:
+> > > Hello all,
+> > >   There are video and radio drivers within
+> > > drivers/media/video and drivers/media/radio respectively.
+> > > 
+> > > Shouldn't those drivers move from drivers/media/video to drivers/video ? 
+> > > and same with radio (either a new directory or within an existing 
+> > > directory). It just seems that the drivers/media/ directory is unneeded. 
+> > > Thoughts?
+> > > 
+> > > Regards,
+> > > Frank
 
->On Tue, Oct 22, 2002 at 08:02:11AM -0500, Corey Minyard wrote:
->
->>Ok.  I'd be inclined to leave the high-usage things where they are, 
->>although it would be nice to be able to make the NMI watchdog a module. 
->>oprofile should probably stay where it is.  Do you have an alternate 
->>implementation that would be more efficient?
->>    
->>
->I'm beginning to think you're right. You should ask Keith Owens if kdb
->etc. can use your API successfully.
->
-Ok.  Good thought, that would decouple kdb a little.
+ I agree This gets very annoying and repetitive when trying to find files 
 
->>>>dev_name could be removed, although it would be nice for reporting 
->>>>
->>>Reporting what ? from where ?
->>>
->>Registered NMI users in procfs.
->>    
->>
->Then if you add such code, you can add dev_name ... I hate code that
->does nothing ...
->
-Ok, I'll add a procfs interface then :-).  IMHO, there's a different 
-between stuff in an interface that is looking forward and dead code, 
-though.  If I added it later, I would break all the users.  But there is 
-a balance.
-
->>Yes.  But I don't understand why they would be used in the notifier code.
->>    
->>
->I'm trying to reduce code duplication - you do basically the same thing
->notifier register/unregister does.
->
-Ah.  Yes, there is some stuff that looks the same but is subtly 
-different.  I'll see what I can do.
-
->btw, the stuff you add to header files should all be in asm-i386/nmi.h
->IMHO.
->
-Ok, I agree.
-
->It would make it clear that there's a fast-path "set nmi handler" and
->the slow one, and you can document the difference there, if that's what
->we're going to do.
->
->regards
->john
->
->  
->
-Thanks,
-
--Corey
+--J.R.
+ 
+ 
 

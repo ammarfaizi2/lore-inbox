@@ -1,47 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263666AbTJCEeg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 00:34:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263667AbTJCEeg
+	id S263667AbTJCEfu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 00:35:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263668AbTJCEfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 00:34:36 -0400
-Received: from mail.kroah.org ([65.200.24.183]:18616 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263666AbTJCEef (ORCPT
+	Fri, 3 Oct 2003 00:35:50 -0400
+Received: from [203.145.184.221] ([203.145.184.221]:60554 "EHLO naturesoft.net")
+	by vger.kernel.org with ESMTP id S263667AbTJCEfh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 00:34:35 -0400
-Date: Thu, 2 Oct 2003 21:33:25 -0700
-From: Greg KH <greg@kroah.com>
-To: Philippe =?iso-8859-1?Q?Gramoull=E9?= 
-	<philippe.gramoulle@mmania.com>
+	Fri, 3 Oct 2003 00:35:37 -0400
+From: Shine Mohamed <shinemohamed_j@naturesoft.net>
+Organization: Naturesoft
+To: Rusty Russell <rusty@rustcorp.com.au>, "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: [PATCH] Initializedd the module parameters in drivers/net/wireless/arlan-main.c
+Date: Fri, 3 Oct 2003 10:06:22 +0530
+User-Agent: KMail/1.5
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.0-test5-mm2] no /proc/bus/i2c but i2c-core module loaded + small oops
-Message-ID: <20031003043325.GA16781@kroah.com>
-References: <20031003043053.367eb89c.philippe.gramoulle@mmania.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+References: <20031002053307.640D92C14D@lists.samba.org>
+In-Reply-To: <20031002053307.640D92C14D@lists.samba.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20031003043053.367eb89c.philippe.gramoulle@mmania.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200310031006.22313.shinemohamed_j@naturesoft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 03, 2003 at 04:30:53AM +0200, Philippe Gramoullé wrote:
-> 
->  Hello,
-> 
-> Symptoms: modprobe i2c-core works fine but /proc/bus/i2c doesn't exist
+On Thursday 02 October 2003 10:48, Rusty Russell wrote:
+> In message <20031001205228.3bee8c69.rddunlap@osdl.org> you write:
+> > On Wed, 01 Oct 2003 19:01:04 +1000 Rusty Russell <rusty@rustcorp.com.au> 
+wrote:
+> > | This is clearly wrong: it's declared below.
+> >
+> > Hello.  Anybody there?
+> >
+> > This is what you get with 2.6.0-test6 plain vanilla:
+> > drivers/net/wireless/arlan-main.c:1923: `probe' undeclared (first use in
+> > this function) drivers/net/wireless/arlan-main.c:1923: (Each undeclared
+> > identifier is reported only once drivers/net/wireless/arlan-main.c:1923:
+> > for each function it appears in.)
+>
+> See line 1885:
+>
+> 	#ifdef  MODULE
+>
+> 	static int probe = probeUNKNOWN;
 
-/proc/bus/i2c will never exist :)
+This declaration was added only in 2.6.0-test6-bk1
+not in the vanilla 2.6.0-test6
 
-lmsensors has not been ported to 2.6 yet, sorry.  Look in /sys/bus/i2c
-for the devices and sensors.
 
-> Device class 'i2c-0' does not have a release() function, it is broken and must be fixed.
-> Badness in class_dev_release at drivers/base/class.c:200
+>
+> 	static int __init arlan_find_devices(void)
+>
+> Hope that helps,
+> Rusty.
+> --
+>   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-bah, forget to fix this one up.  Will get to it in the next few days.
-
-thanks,
-
-greg k-h
+Regards,
+Shine Mohamed

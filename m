@@ -1,105 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269803AbUICUCk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269764AbUICUE1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269803AbUICUCk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 16:02:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269738AbUICTfg
+	id S269764AbUICUE1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 16:04:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269786AbUICTeo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 15:35:36 -0400
-Received: from c002781a.fit.bostream.se ([217.215.235.8]:55514 "EHLO
-	mail.tnonline.net") by vger.kernel.org with ESMTP id S269771AbUICTa6
+	Fri, 3 Sep 2004 15:34:44 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8876 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269776AbUICTbe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 15:30:58 -0400
-Date: Fri, 3 Sep 2004 21:30:38 +0200
-From: Spam <spam@tnonline.net>
-Reply-To: Spam <spam@tnonline.net>
-X-Priority: 3 (Normal)
-Message-ID: <518050016.20040903213038@tnonline.net>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-CC: Helge Hafting <helge.hafting@hist.no>, Oliver Hunt <oliverhunt@gmail.com>,
-       Hans Reiser <reiser@namesys.com>, Linus Torvalds <torvalds@osdl.org>,
-       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
-       Adrian Bunk <bunk@fs.tum.de>, <viro@parcelfarce.linux.theplanet.co.uk>,
-       Christoph Hellwig <hch@lst.de>, <linux-fsdevel@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives
-In-Reply-To: <200409031741.i83HfASY017164@laptop11.inf.utfsm.cl>
-References: Message from Helge Hafting <helge.hafting@hist.no>    of "Fri, 03
- Sep 2004 10:22:55 +0200." <413829DF.8010305@hist.no>
- <200409031741.i83HfASY017164@laptop11.inf.utfsm.cl>
-MIME-Version: 1.0
+	Fri, 3 Sep 2004 15:31:34 -0400
+Date: Fri, 3 Sep 2004 20:31:33 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Greg KH <greg@kroah.com>, pcihpd-discuss@lists.sourceforge.net,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: [PATCH] pci_bus_address [1/5]
+Message-ID: <20040903193133.GP642@parcelfarce.linux.theplanet.co.uk>
+References: <20040903193027.GO642@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20040903193027.GO642@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-  
+pci_bus_address() allows one to convert a global system address to a
+local PCI bus address.  In Documentation/IO-mapping.txt terms, this is
+a phys_to_bus() call, except that we pass the PCI bus or PCI device so
+we know which bus is being referred to.
 
-> Helge Hafting <helge.hafting@hist.no> said:
+diff -urpNX build-tools/dontdiff linux-2.6/arch/ia64/pci/pci.c hotplug-2.6/arch/ia64/pci/pci.c
+--- linux-2.6/arch/ia64/pci/pci.c	2004-07-20 16:05:26.000000000 -0600
++++ hotplug-2.6/arch/ia64/pci/pci.c	2004-09-02 13:10:03.000000000 -0600
+@@ -370,6 +371,27 @@ pcibios_fixup_bus (struct pci_bus *b)
+ 	return;
+ }
+ 
++unsigned long pcibios_bus_address(struct pci_controller *controller,
++		unsigned long addr, int flags)
++{
++	int i;
++	for (i = 0; i < controller->windows; i++) {
++		struct pci_window *window = &controller->window[i];
++		unsigned long offset = window->offset;
++		unsigned long bus_addr = addr - offset;
++		if ((flags & (IORESOURCE_IO | IORESOURCE_MEM)) !=
++				window->resource.flags)
++			continue;
++		if (bus_addr < window->resource.start)
++			continue;
++		if (window->resource.end < bus_addr)
++			continue;
++		return bus_addr;
++	}
++
++	return addr;
++}
++
+ void __devinit
+ pcibios_update_irq (struct pci_dev *dev, int irq)
+ {
+diff -urpNX build-tools/dontdiff linux-2.6/include/asm-ia64/pci.h hotplug-2.6/include/asm-ia64/pci.h
+--- linux-2.6/include/asm-ia64/pci.h	2004-03-16 08:40:37.000000000 -0700
++++ hotplug-2.6/include/asm-ia64/pci.h	2004-09-02 13:56:21.000000000 -0600
+@@ -119,6 +119,12 @@ static inline void pcibios_add_platform_
+ {
+ }
+ 
++extern unsigned long pcibios_bus_address(struct pci_controller *,
++		unsigned long, int);
++
++#define pci_bus_address(busdev, addr, flags) \
++		pcibios_bus_address(PCI_CONTROLLER(busdev), (addr), (flags))
++
+ /* generic pci stuff */
+ #include <asm-generic/pci.h>
+ 
+diff -urpNX build-tools/dontdiff linux-2.6/include/linux/pci.h hotplug-2.6/include/linux/pci.h
+--- linux-2.6/include/linux/pci.h	2004-08-13 08:30:23.000000000 -0600
++++ hotplug-2.6/include/linux/pci.h	2004-09-02 13:55:57.000000000 -0600
+@@ -951,6 +951,14 @@ static inline int pci_name_bus(char *nam
+ 
+ #endif /* !CONFIG_PCI */
+ 
++/*
++ * Convert from a global physical address to a bus-local address.  You can
++ * override this in asm/pci.h
++ */
++#ifndef pci_bus_address
++#define pci_bus_address(busdev, addr, flags) (addr)
++#endif
++
+ /* these helpers provide future and backwards compatibility
+  * for accessing popular PCI BAR info */
+ #define pci_resource_start(dev,bar)   ((dev)->resource[(bar)].start)
 
-> [...]
-
->> The only new thing needed is the ability for something to be both
->> file and directory at the same time.
-
-> Then why have files and directories in the first place?
-
-  Good point, we don't need them :) Directories are just a visible
-  grouping of files to make it easier for the user to manage. But some
-  things aren't really that intuitive with todays layout - especially
-  for non-unix users.
-
-  Just an example where the user needs to edit config file for some
-  program. Where should he look?
-  /etc/app.conf ?
-  /etc/app/app.conf ?
-  /etc/conf.d/app.conf ?
-  /var/lib/app/app.conf ?
-  and so on....
-
-  Using file-as-dir isn't really that much of a change. It isn't those
-  that will confuse people anyway.
-
->>                                       Some tools will need
->> a update - usually only because they blindly assume that a directory
->> isn't a file too, or that a file can't be a directory too.  Remove the
->> mistaken assumption and things will work because the underlying system
->> calls (chdir or open) _will_ work.
-
-> But with some weird restrictions: No moving stuff around between files, no
-> linking, some "files" can't be deleted (how would you handle removing the
-> principal stream of a file?).
-
-  Well. there are read-only files. And if you remove the main stream
-  (which is the file, really) then it will all be gone =)
-
->  Some stuff you'd love to do (is, in fact, the
-> reason for this all) just can't be allowed (i.e., J. Random Luser setting
-> his own icon for system-wide emacs).
-
-  Users do not normally have write permissions to system-wide
-  applications. Why would it be any different now?
-
->  So the tools/scripts/users/sysadmins
-> will have to be painfully aware that some of the files aren't, and some of
-> the directories aren't either. Major pain in the neck to use, if you look
-> closer.  Add extra kernel complexity. For little (if any) gain.
-
-  Not sure what you mean "aren't". Things shouldn't be that much
-  different to administer. Normal permissions should still apply. Sure
-  extra complexity comes _if_ you want to use extended features that
-  are using meta-info. But there is where we need some patches to tar
-  and other backup tools.
-
-  One other way would be to enter a specific mode (chroot, a bash
-  flag --show-metas, etc) that would allow all streams and metas to be
-  seen as files in directories. Then tar and other tools would back it
-  all up. Restoring will be a little trickier as we don't know if
-  stuff was files or folders before. But I am sure that would be
-  solvable. Perhaps a tool to convert them back to normal files with
-  meta-data and streams.
-
-  ~S
-
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

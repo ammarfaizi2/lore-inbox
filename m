@@ -1,78 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267033AbUBMPL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 10:11:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267034AbUBMPL2
+	id S267050AbUBMPWi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 10:22:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267052AbUBMPWi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 10:11:28 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:26556 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S267033AbUBMPLX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 10:11:23 -0500
-Date: Fri, 13 Feb 2004 16:12:14 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Joe Thornber <thornber@redhat.com>
-Cc: Linux Mailing List <linux-kernel@vger.kernel.org>, axboe@suse.de
-Subject: Re: dm core patches
-Message-ID: <20040213151213.GR21298@marowsky-bree.de>
-References: <20040210163548.GC27507@reti> <20040211101659.GF3427@marowsky-bree.de> <20040211103541.GW27507@reti> <20040212185145.GY21298@marowsky-bree.de> <20040212201340.GB1898@reti>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040212201340.GB1898@reti>
-User-Agent: Mutt/1.4.1i
-X-Ctuhulu: HASTUR
+	Fri, 13 Feb 2004 10:22:38 -0500
+Received: from mail2-116.ewetel.de ([212.6.122.116]:33155 "EHLO
+	mail2.ewetel.de") by vger.kernel.org with ESMTP id S267050AbUBMPWf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 10:22:35 -0500
+To: "Andrey Borzenkov" <arvidjaar@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Initrd Question
+In-Reply-To: <1oMkR-1Zk-21@gated-at.bofh.it>
+References: <1oMkR-1Zk-21@gated-at.bofh.it>
+Date: Fri, 13 Feb 2004 16:23:46 +0100
+Message-Id: <E1ArfAQ-00007f-7Z@localhost>
+From: der.eremit@email.de
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004-02-12T20:13:40,
-   Joe Thornber <thornber@redhat.com> said:
+On Fri, 13 Feb 2004 15:20:13 +0100, you wrote in linux.kernel:
+>>> echo 0x0100 > /proc/sys/kernel/real-root-dev
+>> This makes no sense as you're using pivot_root. 
+> this makes all sort of sense. Please check sources. It is required so
+> that kernel will not attempt to mount root passed to it by loader.
+> You are welcome to clean up the code :)
 
-> I think the main concern now is over the testing of paths.  Sending an
-> io down an inactive path can be very expensive for some hardware
-> configurations.  So I'm considering changing a couple of things:
-> 
-> - Only ever send io to 1 priority group at a time (even test ios).
->   To test the lower priority groups we'd have to periodically switch to
->   them and use them for a bit for both test io and proper io.
+I'm not doing that and it works as expected. Note that the initrd code
+in question never exits. It execs init. So when would the kernel do
+this attempted mount of the root filesystem passed in by the bootloader?
+My understanding is that the old, non-pivot_root method works by
+exiting the initrd script - and *then* the kernel attempts to mount
+real-root-dev.
 
-You are missing the obvious answer:
+In any case, if that wasn't clear, I expect the bootloader to pass
+in root=/dev/ram0 anyway. ;)
 
-- Periodically checking paths is a user-space issue and doesn't belong
-  into the kernel. User-space gets to handle this policy.
+>>> mount -n -o ro /dev/sda2 /new_root
+>>
+>> This doesn't even match with the 0x0100 above, now does it?
+>
+> so what? kernel happily ignores real-root-dev, it is possible that
+> some user-level tools may be confused but I have not seen any so far.
 
-> - For some hardware there are better ways of testing the path than
->   sending the test io.  Should the drivers expose a test function ?
->   In the absence of this we'd fallback to the test io method.
+Now you're saying the kernel ignores real-root-dev, while a moment
+before you state that it is important to set real-root-dev because
+otherwise the kernel does something. Which is it?
 
-Again, with user-space taking care of this, it doesn't really matter.
+>>> pivot_root /new_root /new_root/initrd
+>> You should cd into /new_root before running pivot_root,
+> Huh? Why?
+>
+> SYNOPSIS
+>        pivot_root new_root put_old
 
-Though exposing a test function does sound nice, even for user-space.
+And just a couple of lines further down:
 
-Moving it into kernel land is something which can always be done later,
-if there is a really pressing problem.
+       Note that, depending on the implementation of pivot_root, root and  cwd
+       of  the  caller  may or may not change. The following is a sequence for
+       invoking pivot_root that works in either case, assuming that pivot_root
+       and chroot are in the current PATH:
+                            
+       cd new_root
+       pivot_root . put_old
+       exec chroot . command
 
-> The other thing we need is to try and get the drivers to deferentiate
-> between a media error and a path error, so that media errors get
-> reported up quickly and don't cause false path failures.  This is
-> possibly an area that you could help with ?
-
-I thought the IO stack in 2.6 provided us with such sense keys already,
-which you'd then need to handle in the DM personality. Of course,
-drivers need to make sure they pass up appropriate sense-keys, but
-that's a hardware vendor issue and not something which should delay the
-DM personality...
-
-Jens, do you have the pointer on this handy?
-
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
+The pivot_root(2) manpage states the same, by the way.
+                                                 
 -- 
-High Availability & Clustering	      \ ever tried. ever failed. no matter.
-SUSE Labs			      | try again. fail again. fail better.
-Research & Development, SUSE LINUX AG \ 	-- Samuel Beckett
-
+Ciao,
+Pascal

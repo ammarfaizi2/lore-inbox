@@ -1,65 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262993AbTC0Ozs>; Thu, 27 Mar 2003 09:55:48 -0500
+	id <S262995AbTC0PBc>; Thu, 27 Mar 2003 10:01:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262996AbTC0Ozr>; Thu, 27 Mar 2003 09:55:47 -0500
-Received: from 24-216-225-11.charter.com ([24.216.225.11]:15750 "EHLO
-	wally.rdlg.net") by vger.kernel.org with ESMTP id <S262993AbTC0Ozq>;
-	Thu, 27 Mar 2003 09:55:46 -0500
-Date: Thu, 27 Mar 2003 10:06:59 -0500
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: zlib in the kernel?
-Message-ID: <20030327150659.GC802@rdlg.net>
-Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
+	id <S262997AbTC0PBc>; Thu, 27 Mar 2003 10:01:32 -0500
+Received: from griffon.mipsys.com ([217.167.51.129]:13792 "EHLO
+	zion.wanadoo.fr") by vger.kernel.org with ESMTP id <S262995AbTC0PBb>;
+	Thu, 27 Mar 2003 10:01:31 -0500
+Subject: Re: Linux 2.4.21-pre6 (about PPC32)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Ricardo Galli <gallir@uib.es>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200303271555.55944.gallir@uib.es>
+References: <200303271555.55944.gallir@uib.es>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1048777963.1209.1.camel@zion.wanadoo.fr>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="V88s5gaDVPzZ0KCq"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 27 Mar 2003 16:12:43 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2003-03-27 at 15:55, Ricardo Galli wrote:
+> > Support Radeon 9K variants in radeonfb.
+> > 
+> > Well...
+> >  
+> > I have a bunch of quite important radeonfb updates (including all
+> > these new chipset support stuffs) that are waiting for Ani (the
+> > maintainer) to send them to Marcelo.
+> 
+> I don't know how they are related to you benX version available via rsync, 
+> but in ben9 the X server goes to a loop right after resuming on a iBook 
+> G3-500 with 7500-M. I was reported it happens also on G3-800 with radeon.
 
---V88s5gaDVPzZ0KCq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Make sure you have APM emulation enabled in the kernel /dev/apm_bios
+exist. If you are using DRI, also make sure to have AGPMode "4".
 
+> Also, dmasound stopped working in the G3-500, it gives a "No space left in 
+> device" error while trying to write to /dev/dsp. My last working version 
+> is 2.4.20-rc1-ben0. I think I already reported to you, but just in case.
 
+That's not a known problem... and I can't reproduce it on my tipb which
+supposedly uses the same HW...
 
-Anyone have a good breakdown on what this is?  I have some wild theories
-I'm hoping are right but don't need to start another day looking like an
-idiot guessing blindly.
+Ben
 
-The Help section is empty and I'm not finding anything on kernel.org
-(may have overlooked something, the site is slow for me today)..
-
-Robert
-
-
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | PGP Key ID: E344DA3B
-                                         @ x-hkp://pgp.mit.edu=20
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
-
-Diagnosis: witzelsucht  =09
-
-IPv6 =3D robert@ipv6.rdlg.net	http://ipv6.rdlg.net
-IPv4 =3D robert@mail.rdlg.net	http://www.rdlg.net
-
---V88s5gaDVPzZ0KCq
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+gxOT8+1vMONE2jsRAnfFAJ9Rw1AHtIJJUvQWR8BbhaBTzUSSNgCgzHil
-9IPlbb/u+60EBvNlNbnZWdk=
-=cQMg
------END PGP SIGNATURE-----
-
---V88s5gaDVPzZ0KCq--

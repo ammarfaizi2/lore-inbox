@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262333AbVC3Qrw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262336AbVC3Q5G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262333AbVC3Qrw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 11:47:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbVC3Qrw
+	id S262336AbVC3Q5G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 11:57:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbVC3Q5F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 11:47:52 -0500
-Received: from alog0692.analogic.com ([208.224.223.229]:11659 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262333AbVC3Qrh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 11:47:37 -0500
-Date: Wed, 30 Mar 2005 11:47:18 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: krishna <krishna.c@globaledgesoft.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How to debug kernel before there is no printk mechanism?
-In-Reply-To: <424AD247.4080409@globaledgesoft.com>
-Message-ID: <Pine.LNX.4.61.0503301134240.28049@chaos.analogic.com>
-References: <424AD247.4080409@globaledgesoft.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 30 Mar 2005 11:57:05 -0500
+Received: from main.gmane.org ([80.91.229.2]:33504 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S262336AbVC3Q5B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 11:57:01 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: [RFD] 'nice' attribute for executable files
+Date: Wed, 30 Mar 2005 18:55:24 +0200
+Message-ID: <yw1xpsxhvzsz.fsf@ford.inprovide.com>
+References: <fa.ed33rit.1e148rh@ifi.uio.no> <E1DGNaV-0005LG-9m@be1.7eggert.dyndns.org>
+ <424ACEA9.6070401@poczta.onet.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 76.80-203-227.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:hgHwZsS49LFIm0AaI57OnZy2vCc=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Mar 2005, krishna wrote:
+Wiktor <victorjan@poczta.onet.pl> writes:
 
-> Hi all,
->
-> How can one debug kernel before there is no printk mechanism in kernel.
->
-> Regards,
-> Krishna Chaitanya
+> max renice ulimit is quite good idea, but it allows to change nice of
+> *any* process user has permissions to. it could be implemented also,
+> but the idea of 'nice' file attribute is to allow *only* some process
+> be run with lower nice. what's more, that nice would be *always* the
+> same (at process startup)!
 
-Write directly to screen memory at 0x000b8000, or write to the
-RS-232C UART while polling the TX buf empty bit, or just write
-bits that mean something to you out the printer port.
+It can be done entirely in userspace, if you want it.  Just hack your
+shell to examine some extended attribute of your choice, and adjust
+the nice value before executing files.  Then arrange to have the shell
+run with a negative nice value.  This can be easily accomplished with
+a simple wrapper, only for the shell.
 
-Screen - memory is 16-bit words with the high-word being
-an attibute byte. FYI 0x07 is a good B&W byte. You can
-initialize a pointer to it as:
+-- 
+Måns Rullgård
+mru@inprovide.com
 
-unsigned short *screen = 0xc00b8000; Since low memory
-is always mapped, the above cheat will work. The 0xc0000000
-is PAGE_OFFSET.
-
-An early '486 was brought up into a 32-bit protected-mode
-(non linux) operating system using these debugging methods.
-The first time I got to see some symbol written to the
-screen in protected-mode marked the start of a week-end-
-long party. Have fun!
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.

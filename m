@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286584AbSAKJpk>; Fri, 11 Jan 2002 04:45:40 -0500
+	id <S289658AbSAKJwp>; Fri, 11 Jan 2002 04:52:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289588AbSAKJpa>; Fri, 11 Jan 2002 04:45:30 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:19979 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S286584AbSAKJpP>; Fri, 11 Jan 2002 04:45:15 -0500
-Date: Fri, 11 Jan 2002 12:45:12 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-Subject: Re: [reiserfs-dev] Re: [PATCH] certain data corruption may cause reiserfs to panic, fix.
-Message-ID: <20020111124512.F17925@namesys.com>
-In-Reply-To: <20020109162207.A15139@namesys.com> <Pine.LNX.4.21.0201091458360.21044-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0201091458360.21044-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.3.22.1i
+	id <S289588AbSAKJwa>; Fri, 11 Jan 2002 04:52:30 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:52937 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S289051AbSAKJwP>; Fri, 11 Jan 2002 04:52:15 -0500
+Message-Id: <200201110952.g0B9q8Y03754@jupiter.cs.uni-dortmund.de>
+To: Bernard Dautrevaux <Dautrevaux@microprocess.com>
+cc: "'gcc@gcc.gnu.org'" <gcc@gcc.gnu.org>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] C undefined behavior fix 
+In-Reply-To: Message from Bernard Dautrevaux <Dautrevaux@microprocess.com> 
+   of "Tue, 08 Jan 2002 12:12:58 +0100." <17B78BDF120BD411B70100500422FC6309E409@IIS000> 
+From: Horst von Brand <brand@tigger.cs.uni-dortmund.de>
+Date: Fri, 11 Jan 2002 10:52:08 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Bernard Dautrevaux <Dautrevaux@microprocess.com> said:
 
-On Wed, Jan 09, 2002 at 02:58:45PM -0200, Marcelo Tosatti wrote:
+[...]
 
-> >     Purpose of this patch is to catch events of corrupted ITEM_TYPE fields, and report these to user.
-> >     Without this patch, accessing such items will resukt in dereferencing random memory areas in kernel,
-> >     and then ooping (most probably).
-> >     Please apply.
-> Why corruption is happening in the first place ? 
-As Chris already pointed out, there was a problem with old gcc 2.96.
-Also such corruptions might be a fault of a disk, somebody carelessly writing data to reiserfsdisk and so on.
-Right now it is way too easy to get reiserfs to panic by mounting specially crafted abd disk image, and this is
-bad, I believe, so one of the tasks I am performing is to minimalize such cases. (look at ext2 as an example goal I want to achieve
-some time in the future)
+> So at least for the first test, gcc-3.1 generates the same (anoying) code as
+> 2.95.3. I'm quite sure this is legal, as I can't see in the standard if when
+> writing:
+> 
+> 	volatile unsigned int x:8;
+> 
+> I define:
+> 	1) a volatile 8-bit field to be interpreted as an unsigned int.
+> 	2) an 8-bit field which is part of a volatile unsigned int.
 
-Bye,
-    Oleg
+If the whole is volatile (x must be inside a struct) make that volatile.
+Sounds quite natural to me...
+-- 
+Horst von Brand			     http://counter.li.org # 22616

@@ -1,126 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266006AbUAVJap (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 04:30:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266150AbUAVJap
+	id S266005AbUAVJ3v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 04:29:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266006AbUAVJ3v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 04:30:45 -0500
-Received: from mail36.messagelabs.com ([193.109.254.211]:37265 "HELO
-	mail36.messagelabs.com") by vger.kernel.org with SMTP
-	id S266006AbUAVJai (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 04:30:38 -0500
-X-VirusChecked: Checked
-X-Env-Sender: okiddle@yahoo.co.uk
-X-Msg-Ref: server-6.tower-36.messagelabs.com!1074763833!3305086
-X-StarScan-Version: 5.1.15; banners=-,-,-
-X-VirusChecked: Checked
-X-StarScan-Version: 5.0.7; banners=.,-,-
-In-reply-to: <20040120183556.GE23765@srv-lnx2600.matchmail.com> 
-From: Oliver Kiddle <okiddle@yahoo.co.uk>
-References: <7641.1074512162@gmcs3.local> <20040119193837.6369d498.akpm@osdl.org> <30705.1074618514@gmcs3.local> <20040120183556.GE23765@srv-lnx2600.matchmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: page allocation failure 
-Date: Thu, 22 Jan 2004 10:29:48 +0100
-Message-ID: <11370.1074763788@gmcs3.local>
+	Thu, 22 Jan 2004 04:29:51 -0500
+Received: from brown.csi.cam.ac.uk ([131.111.8.14]:63629 "EHLO
+	brown.csi.cam.ac.uk") by vger.kernel.org with ESMTP id S266005AbUAVJ3t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 04:29:49 -0500
+Subject: Re: [PATCH-BK-2.6] NTFS fix "du" and "stat" output (NTFS 2.1.6).
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: David Sanders <linux@sandersweb.net>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       ntfsdev <linux-ntfs-dev@lists.sourceforge.net>
+In-Reply-To: <200401211412.55229@sandersweb.net>
+References: <Pine.SOL.4.58.0401191413180.7391@yellow.csi.cam.ac.uk>
+	 <200401211318.53776@sandersweb.net>  <200401211412.55229@sandersweb.net>
+Content-Type: text/plain
+Organization: University of Cambridge
+Message-Id: <1074763798.16785.35.camel@imp.csi.cam.ac.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 22 Jan 2004 09:29:58 +0000
+Content-Transfer-Encoding: 7bit
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk wrote:
-> On Tue, Jan 20, 2004 at 06:08:34PM +0100, Oliver Kiddle wrote:
-> > the message about the tape device. As suggested by Mike Fedyk, I had
-> > the nmi_watchdog stuff enabled. Didn't see any output from it though.
-> > Would that have displayed its output to the console?
-> 
-> It should have.  Run cat /proc/interrupts and again afew seconds later, does
-> the NMI: number change?
+On Wed, 2004-01-21 at 19:14, David Sanders wrote:
+[snip]
+> Also, chkdsk in winnt4 reports the cluster size in 512 bytes.  The ntfs 
+> driver seems to think the size is 4096 bytes (or 1024 bytes in 2.4 
+> kernel).
 
-Yes, the number changes. Still haven't seen any output from it though.
+To quote from the man page for "stat(2)":
 
-> There should be some lines above this in your log...
+"The value st_blksize [which is the "IO Block:" field in the stat(1)
+output you are referring to above] gives the "preferred" blocksize for
+efficient file system I/O.  (Writing to a file in smaller chunks may
+cause an inefficient read-modify-rewrite.)"
 
-Only the trace for other processes. Any initial part was lost, probably
-because the task list overflowed the dmesg buffer. I didn't see anything
-on the console though.
+And this is what it is saying.  In the new NTFS driver doing any form of
+i/o is most efficient if it is done in 4096 byte chunks, i.e. a single
+read or write of 4096 bytes will be faster than reading or writing a
+single byte 4096 times over.  The old NTFS driver didn't really care.
+IMO 512 would have been a better value to 1024 as the driver uses 512
+byte i/o requests but it doesn't really matter much.
 
-I got a few page allocation errors yesterday. As they now include
-dump_stack() output, I have attached them below. This time, the system
-kept going for a few minutes after these error messages. Again, when it
-locked up, killing all processes with the sysrq key got things temporarily
-back. I have the full dmesg output if anyone wants.
+To summarise: the st_blksize/"IO Block" has absolutely nothing at all to
+do with the cluster size of the NTFS volume.
 
-Oliver
+Best regards,
 
-st0: Block limits 1 - 16777215 bytes.
-xfsdump: page allocation failure. order:9, mode:0xd0
-Call Trace:
- [<c0132d18>] __alloc_pages+0x2db/0x319
- [<c02a5dc9>] enlarge_buffer+0xcf/0x182
- [<c02a6cd9>] st_map_user_pages+0x37/0x88
- [<c02a2909>] setup_buffering+0xf3/0x127
- [<c02a3690>] st_read+0xe0/0x3d1
- [<c0147625>] vfs_read+0xb0/0x119
- [<c01478a0>] sys_read+0x42/0x63
- [<c0108ab7>] syscall_call+0x7/0xb
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ &
+http://www-stu.christs.cam.ac.uk/~aia21/
 
-xfsdump: page allocation failure. order:8, mode:0xd0
-Call Trace:
- [<c0132d18>] __alloc_pages+0x2db/0x319
- [<c02a5dc9>] enlarge_buffer+0xcf/0x182
- [<c02a6cd9>] st_map_user_pages+0x37/0x88
- [<c02a2909>] setup_buffering+0xf3/0x127
- [<c02a3690>] st_read+0xe0/0x3d1
- [<c0147625>] vfs_read+0xb0/0x119
- [<c01478a0>] sys_read+0x42/0x63
- [<c0108ab7>] syscall_call+0x7/0xb
-
-xfsdump: page allocation failure. order:7, mode:0xd0
-Call Trace:
- [<c0132d18>] __alloc_pages+0x2db/0x319
- [<c02a5dc9>] enlarge_buffer+0xcf/0x182
- [<c02a6cd9>] st_map_user_pages+0x37/0x88
- [<c02a2909>] setup_buffering+0xf3/0x127
- [<c02a3690>] st_read+0xe0/0x3d1
- [<c0147625>] vfs_read+0xb0/0x119
- [<c01478a0>] sys_read+0x42/0x63
- [<c0108ab7>] syscall_call+0x7/0xb
-
-st0: Incorrect block size.
-xfsdump: page allocation failure. order:9, mode:0xd0
-Call Trace:
- [<c0132d18>] __alloc_pages+0x2db/0x319
- [<c02a5dc9>] enlarge_buffer+0xcf/0x182
- [<c02a6cd9>] st_map_user_pages+0x37/0x88
- [<c02a2909>] setup_buffering+0xf3/0x127
- [<c02a2b86>] st_write+0x20c/0x7e7
- [<c0115ecb>] do_page_fault+0x120/0x501
- [<c02a297a>] st_write+0x0/0x7e7
- [<c01477f5>] vfs_write+0xb0/0x119
- [<c0147903>] sys_write+0x42/0x63
- [<c0108ab7>] syscall_call+0x7/0xb
-
-xfsdump: page allocation failure. order:8, mode:0xd0
-Call Trace:
- [<c0132d18>] __alloc_pages+0x2db/0x319
- [<c02a5dc9>] enlarge_buffer+0xcf/0x182
- [<c02a6cd9>] st_map_user_pages+0x37/0x88
- [<c02a2909>] setup_buffering+0xf3/0x127
- [<c02a2b86>] st_write+0x20c/0x7e7
- [<c0115ecb>] do_page_fault+0x120/0x501
- [<c02a297a>] st_write+0x0/0x7e7
- [<c01477f5>] vfs_write+0xb0/0x119
- [<c0147903>] sys_write+0x42/0x63
- [<c0108ab7>] syscall_call+0x7/0xb
-
-xfsdump: page allocation failure. order:7, mode:0xd0
-Call Trace:
- [<c0132d18>] __alloc_pages+0x2db/0x319
- [<c02a5dc9>] enlarge_buffer+0xcf/0x182
- [<c02a6cd9>] st_map_user_pages+0x37/0x88
- [<c02a2909>] setup_buffering+0xf3/0x127
- [<c02a2b86>] st_write+0x20c/0x7e7
- [<c0115ecb>] do_page_fault+0x120/0x501
- [<c02a297a>] st_write+0x0/0x7e7
- [<c01477f5>] vfs_write+0xb0/0x119
- [<c0147903>] sys_write+0x42/0x63
- [<c0108ab7>] syscall_call+0x7/0xb
 

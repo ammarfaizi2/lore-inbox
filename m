@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277165AbRKVLBV>; Thu, 22 Nov 2001 06:01:21 -0500
+	id <S277068AbRKVK4b>; Thu, 22 Nov 2001 05:56:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277143AbRKVLBL>; Thu, 22 Nov 2001 06:01:11 -0500
-Received: from mauve.csi.cam.ac.uk ([131.111.8.38]:38872 "EHLO
-	mauve.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S277228AbRKVLA4>; Thu, 22 Nov 2001 06:00:56 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: James A Sutherland <jas88@cam.ac.uk>
-To: war <war@starband.net>, linux-kernel@vger.kernel.org
-Subject: Re: Swap vs No Swap.
-Date: Thu, 22 Nov 2001 11:00:54 +0000
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <3BFC5A9B.915B77DF@starband.net>
-In-Reply-To: <3BFC5A9B.915B77DF@starband.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E166rbB-0005LC-00@mauve.csi.cam.ac.uk>
+	id <S277143AbRKVK4W>; Thu, 22 Nov 2001 05:56:22 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:35090 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S277068AbRKVK4K>; Thu, 22 Nov 2001 05:56:10 -0500
+Date: Thu, 22 Nov 2001 13:55:50 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Richard Henderson <rth@redhat.com>
+Cc: Jay.Estabrook@compaq.com, linux-kernel@vger.kernel.org
+Subject: Re: [alpha] cleanup opDEC workaround
+Message-ID: <20011122135550.A15090@jurassic.park.msu.ru>
+In-Reply-To: <20011119232355.C16091@redhat.com> <20011120133150.A9033@jurassic.park.msu.ru> <20011120090818.A16366@redhat.com> <20011120205105.A15395@jurassic.park.msu.ru> <20011120104748.B16422@redhat.com> <20011121151555.A20128@jurassic.park.msu.ru> <20011121142753.A876@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011121142753.A876@redhat.com>; from rth@redhat.com on Wed, Nov 21, 2001 at 02:27:53PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 22 November 2001 1:53 am, war wrote:
-> I do not understand something.
->
-> How can having swap speed ANYTHING up?
+On Wed, Nov 21, 2001 at 02:27:53PM -0800, Richard Henderson wrote:
+> Actually, the custom entIF isn't that much work.  What about this?
 
-By providing ADDITIONAL storage. Yes, it's slower than RAM - but it's faster 
-than not having the storage at all.
+Hmm, I like it.
+However, if I didn't missed something again, some corrections are required.
+First, in opDEC_check_entIF r16 should be stored on the stack frame
+(PAL_rti will restore it). Also, if SRM is broken and doesn't update pc,
+we'll jump back to cvttq/svm. So I think we need something like this:
 
-> RAM = 1000MB/s.
-> DISK = 10MB/s
->
-> Ram is generally 1000x faster than a hard disk.
->
-> No swap = fastest possible solution.
+opDEC_check_entIF:				\n\
+	ldq $16,8($sp)				\n\
++	stq $16,24($sp)				\n\
++	addq $16,4,$16				\n\
++	stq $16,8($sp)				\n\
+	call_pal 63	/* PAL_rti */		\n\
 
-BS. You don't use swap INSTEAD of RAM, but AS WELL AS. Moving less frequently 
-used data to swap allows you to put more frequently used data in RAM, which 
-DOES speed things up. (At least, it does if the VM system works properly :P)
+and
 
-By your logic, we should switch off the system RAM, too: after all, L2 cache 
-is much faster again, so using RAM can only slow things down?
+		"cvttq/svm $f31, $f31\n\t"
++		"nop\n\t"
+		"subq $16, %0, %0"
 
+No?
 
-James.
+Ivan.

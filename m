@@ -1,80 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129475AbRBBR5c>; Fri, 2 Feb 2001 12:57:32 -0500
+	id <S129767AbRBBSHO>; Fri, 2 Feb 2001 13:07:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129699AbRBBR5X>; Fri, 2 Feb 2001 12:57:23 -0500
-Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:22240 "EHLO
-	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S129475AbRBBR5M>; Fri, 2 Feb 2001 12:57:12 -0500
-Date: Fri, 2 Feb 2001 18:57:09 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RAMFS
-Message-ID: <20010202185709.A753@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <E14OiV8-0006hH-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <E14OiV8-0006hH-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Feb 02, 2001 at 03:51:53PM +0000
+	id <S129771AbRBBSHF>; Fri, 2 Feb 2001 13:07:05 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:3853 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S129767AbRBBSHA>; Fri, 2 Feb 2001 13:07:00 -0500
+Message-ID: <3A7AEFBF.2FBA5822@namesys.com>
+Date: Fri, 02 Feb 2001 20:34:55 +0300
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.14 i686)
+X-Accept-Language: en, ru
+MIME-Version: 1.0
+To: Chris Mason <mason@suse.com>
+CC: Alan Cox <alan@redhat.com>, Jan Kasprzak <kas@informatics.muni.cz>,
+        linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: ReiserFS Oops (2.4.1, deterministic, symlink
+In-Reply-To: <595250000.981126989@tiny>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 02, 2001 at 03:51:53PM +0000, Alan Cox wrote:
-> Does this fix the ramfs problem in -ac ?
-> 
-> --- fs/ramfs/inode.c~	Wed Jan 31 22:02:16 2001
-> +++ fs/ramfs/inode.c	Fri Feb  2 14:51:47 2001
-> @@ -174,7 +174,6 @@
->  		inode->i_blocks += IBLOCKS_PER_PAGE;
->  		rsb->free_pages--;
->  		SetPageDirty(page);
-> -		UnlockPage(page);
->  	} else {
->  		ClearPageUptodate(page);
->  		ret = 0;
-> @@ -264,6 +263,7 @@
->  
->  	if (! ramfs_alloc_page(inode, page))
->  		return -ENOSPC;
-> +	UnlockPage(page);
->  	return 0;
->  }
-
-No, so have to unlock it also, if you return -ENOSPC.
-
-So the correct fix seems to be:
-
---- linux/fs/ramfs/inode.c~	Wed Jan 31 22:02:16 2001
-+++ linux/fs/ramfs/inode.c	Fri Feb  2 14:51:47 2001
-@@ -174,7 +174,6 @@
- 		inode->i_blocks += IBLOCKS_PER_PAGE;
- 		rsb->free_pages--;
- 		SetPageDirty(page);
--		UnlockPage(page);
- 	} else {
- 		ClearPageUptodate(page);
- 		ret = 0;
-@@ -264,6 +263,9 @@
+Chris Mason wrote:
  
-- 	if (! ramfs_alloc_page(inode, page))
-+ 	if (! ramfs_alloc_page(inode, page)) {
-+		UnlockPage(page);
- 		return -ENOSPC;
-+	}
-+	UnlockPage(page);
- 	return 0;
- }
+> Hans, decisions about proper compilers should not be made in each
+> individual part of the kernel.  If unpatched gcc 2.96 is getting reiserfs
 
-This currently works for me (but using 2.4.0 + dwg-ramfs.patch + this patch)
+broke is broke.  If you use reiserfs, DO NOT use 2.96.  Period.  Nobody gains
+by letting a single user make this mistake.  
 
-Regards
+> wrong, it is compiling other parts of the kernel wrong as well.  l-k has
+> discussed this at length already ;-)
 
-Ingo Oeser
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<       come and join the fun       >>>>>>>>>>>>
+So, did Linus say no?  If not, let's ask him with a patch.  Quite simply,
+neither we nor the users should be burdened with this, and the patch removes
+the burden.
+
+Hans
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

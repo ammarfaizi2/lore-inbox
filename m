@@ -1,280 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261318AbSJHQHI>; Tue, 8 Oct 2002 12:07:08 -0400
+	id <S261309AbSJHQGB>; Tue, 8 Oct 2002 12:06:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261319AbSJHQHI>; Tue, 8 Oct 2002 12:07:08 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:28870 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S261318AbSJHQHE>;
-	Tue, 8 Oct 2002 12:07:04 -0400
-Date: Wed, 9 Oct 2002 02:12:39 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Linus <torvalds@transmeta.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH][2.5.41] create asm-generic/fcntl.h
-Message-Id: <20021009021239.24a2f6a7.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.8.3 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S261308AbSJHQF4>; Tue, 8 Oct 2002 12:05:56 -0400
+Received: from [209.195.52.120] ([209.195.52.120]:60900 "HELO
+	warden2.diginsite.com") by vger.kernel.org with SMTP
+	id <S261307AbSJHQFy>; Tue, 8 Oct 2002 12:05:54 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: simon@baydel.com
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Date: Tue, 8 Oct 2002 08:52:49 -0700 (PDT)
+Subject: Re: The end of embedded Linux?
+In-Reply-To: <3DA2BD70.14919.2C6951@localhost>
+Message-ID: <Pine.LNX.4.44.0210080850270.3110-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+note that you are allowed to distribute a binary-only module as long as
+you don't use the GPL-only kernel symbols. Linus has stated that he
+doesn't view use of the header files as enough to make a module a
+dirivitive work (others disagree, but there are a number of binary modules
+out there)
 
-This patch creates asm-generic/fcntl.h in preparation for consolidating
-all the asm/fcntl.h files.  It also modifies asm-i386/fcntl.h to use
-it.  After you apply this, the other architectures can be modified in
-their own good time.  I have all the patches for the other architectures
-and I will send them to the appropriate maintainers (if I can find them)
-when this patch is merged.
+check the archives for the various flame wars over this issue.
 
-asm-generic/fcntl.h |  143 ++++++++++++++++++++++++++++++++++++++++++++++++++++
-asm-i386/fcntl.h    |   83 ------------------------------
- 2 files changed, 144 insertions(+), 82 deletions(-)
+David Lang
 
-Please apply.
+On Tue, 8 Oct 2002 simon@baydel.com wrote:
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
-diff -ruN 2.5.41/include/asm-generic/fcntl.h 2.5.41-fcntl.1/include/asm-generic/fcntl.h
---- 2.5.41/include/asm-generic/fcntl.h	1970-01-01 10:00:00.000000000 +1000
-+++ 2.5.41-fcntl.1/include/asm-generic/fcntl.h	2002-10-08 12:14:41.000000000 +1000
-@@ -0,0 +1,143 @@
-+#ifndef _ASM_GENERIC_FCNTL_H
-+#define _ASM_GENERIC_FCNTL_H
-+
-+/* open/fcntl - O_SYNC is only implemented on blocks devices and on files
-+   located on an ext2 file system */
-+#define O_ACCMODE	   0003
-+#define O_RDONLY	     00
-+#define O_WRONLY	     01
-+#define O_RDWR		     02
-+#ifndef O_CREAT
-+#define O_CREAT		   0100	/* not fcntl */
-+#endif
-+#ifndef O_EXCL
-+#define O_EXCL		   0200	/* not fcntl */
-+#endif
-+#ifndef O_NOCTTY
-+#define O_NOCTTY	   0400	/* not fcntl */
-+#endif
-+#ifndef O_TRUNC
-+#define O_TRUNC		  01000	/* not fcntl */
-+#endif
-+#ifndef O_APPEND
-+#define O_APPEND	  02000
-+#endif
-+#ifndef O_NONBLOCK
-+#define O_NONBLOCK	  04000
-+#endif
-+#ifndef O_NDELAY
-+#define O_NDELAY	O_NONBLOCK
-+#endif
-+#ifndef O_SYNC
-+#define O_SYNC		 010000
-+#endif
-+#ifndef FASYNC
-+#define FASYNC		 020000	/* fcntl, for BSD compatibility */
-+#endif
-+#ifndef O_DIRECT
-+#define O_DIRECT	 040000	/* direct disk access hint */
-+#endif
-+#ifndef O_LARGEFILE
-+#define O_LARGEFILE	0100000
-+#endif
-+#ifndef O_DIRECTORY
-+#define O_DIRECTORY	0200000	/* must be a directory */
-+#endif
-+#ifndef O_NOFOLLOW
-+#define O_NOFOLLOW	0400000 /* don't follow links */
-+#endif
-+
-+#define F_DUPFD		0	/* dup */
-+#define F_GETFD		1	/* get close_on_exec */
-+#define F_SETFD		2	/* set/clear close_on_exec */
-+#define F_GETFL		3	/* get file->f_flags */
-+#define F_SETFL		4	/* set file->f_flags */
-+#ifndef F_GETLK
-+#define F_GETLK		5
-+#endif
-+#ifndef F_SETLK
-+#define F_SETLK		6
-+#endif
-+#ifndef F_SETLKW
-+#define F_SETLKW	7
-+#endif
-+
-+#ifndef F_SETOWN
-+#define F_SETOWN	8	/*  for sockets. */
-+#endif
-+#ifndef F_GETOWN
-+#define F_GETOWN	9	/*  for sockets. */
-+#endif
-+#ifndef F_SETSIG
-+#define F_SETSIG	10	/*  for sockets. */
-+#endif
-+#ifndef F_GETSIG
-+#define F_GETSIG	11	/*  for sockets. */
-+#endif
-+
-+#ifndef __NO_FCNTL_LK64
-+#ifndef F_GETLK64
-+#define F_GETLK64	12	/*  using 'struct flock64' */
-+#endif
-+#ifndef F_SETLK64
-+#define F_SETLK64	13
-+#endif
-+#ifndef F_SETLKW64
-+#define F_SETLKW64	14
-+#endif
-+#endif /* __NO_FCNTL_LK64 */
-+
-+/* for F_[GET|SET]FL */
-+#define FD_CLOEXEC	1	/* actually anything with low bit set goes */
-+
-+/* for posix fcntl() and lockf() */
-+#ifndef F_RDLCK
-+#define F_RDLCK		0
-+#endif
-+#ifndef F_WRLCK
-+#define F_WRLCK		1
-+#endif
-+#ifndef F_UNLCK
-+#define F_UNLCK		2
-+#endif
-+
-+/* for leases */
-+#ifndef F_INPROGRESS
-+#define F_INPROGRESS	16
-+#endif
-+
-+/* operations for bsd flock(), also used by the kernel implementation */
-+#define LOCK_SH		1	/* shared lock */
-+#define LOCK_EX		2	/* exclusive lock */
-+#define LOCK_NB		4	/* or'd with one of the above to prevent
-+				   blocking */
-+#define LOCK_UN		8	/* remove lock */
-+
-+#define LOCK_MAND	32	/* This is a mandatory flock */
-+#define LOCK_READ	64	/* ... Which allows concurrent read operations */
-+#define LOCK_WRITE	128	/* ... Which allows concurrent write operations */
-+#define LOCK_RW		192	/* ... Which allows concurrent read & write ops */
-+
-+#ifndef HAVE_ARCH_STRUCT_FLOCK
-+struct flock {
-+	short l_type;
-+	short l_whence;
-+	off_t l_start;
-+	off_t l_len;
-+	pid_t l_pid;
-+};
-+#endif
-+
-+#ifndef HAVE_ARCH_STRUCT_FLOCK64
-+struct flock64 {
-+	short  l_type;
-+	short  l_whence;
-+	loff_t l_start;
-+	loff_t l_len;
-+	pid_t  l_pid;
-+};
-+#endif
-+
-+#define F_LINUX_SPECIFIC_BASE	1024
-+
-+#endif /* _ASM_GENERIC_FCNTL_H */
-diff -ruN 2.5.41/include/asm-i386/fcntl.h 2.5.41-fcntl.1/include/asm-i386/fcntl.h
---- 2.5.41/include/asm-i386/fcntl.h	2001-09-18 06:16:30.000000000 +1000
-+++ 2.5.41-fcntl.1/include/asm-i386/fcntl.h	2002-10-08 12:14:41.000000000 +1000
-@@ -1,87 +1,6 @@
- #ifndef _I386_FCNTL_H
- #define _I386_FCNTL_H
- 
--/* open/fcntl - O_SYNC is only implemented on blocks devices and on files
--   located on an ext2 file system */
--#define O_ACCMODE	   0003
--#define O_RDONLY	     00
--#define O_WRONLY	     01
--#define O_RDWR		     02
--#define O_CREAT		   0100	/* not fcntl */
--#define O_EXCL		   0200	/* not fcntl */
--#define O_NOCTTY	   0400	/* not fcntl */
--#define O_TRUNC		  01000	/* not fcntl */
--#define O_APPEND	  02000
--#define O_NONBLOCK	  04000
--#define O_NDELAY	O_NONBLOCK
--#define O_SYNC		 010000
--#define FASYNC		 020000	/* fcntl, for BSD compatibility */
--#define O_DIRECT	 040000	/* direct disk access hint */
--#define O_LARGEFILE	0100000
--#define O_DIRECTORY	0200000	/* must be a directory */
--#define O_NOFOLLOW	0400000 /* don't follow links */
--
--#define F_DUPFD		0	/* dup */
--#define F_GETFD		1	/* get close_on_exec */
--#define F_SETFD		2	/* set/clear close_on_exec */
--#define F_GETFL		3	/* get file->f_flags */
--#define F_SETFL		4	/* set file->f_flags */
--#define F_GETLK		5
--#define F_SETLK		6
--#define F_SETLKW	7
--
--#define F_SETOWN	8	/*  for sockets. */
--#define F_GETOWN	9	/*  for sockets. */
--#define F_SETSIG	10	/*  for sockets. */
--#define F_GETSIG	11	/*  for sockets. */
--
--#define F_GETLK64	12	/*  using 'struct flock64' */
--#define F_SETLK64	13
--#define F_SETLKW64	14
--
--/* for F_[GET|SET]FL */
--#define FD_CLOEXEC	1	/* actually anything with low bit set goes */
--
--/* for posix fcntl() and lockf() */
--#define F_RDLCK		0
--#define F_WRLCK		1
--#define F_UNLCK		2
--
--/* for old implementation of bsd flock () */
--#define F_EXLCK		4	/* or 3 */
--#define F_SHLCK		8	/* or 4 */
--
--/* for leases */
--#define F_INPROGRESS	16
--
--/* operations for bsd flock(), also used by the kernel implementation */
--#define LOCK_SH		1	/* shared lock */
--#define LOCK_EX		2	/* exclusive lock */
--#define LOCK_NB		4	/* or'd with one of the above to prevent
--				   blocking */
--#define LOCK_UN		8	/* remove lock */
--
--#define LOCK_MAND	32	/* This is a mandatory flock */
--#define LOCK_READ	64	/* ... Which allows concurrent read operations */
--#define LOCK_WRITE	128	/* ... Which allows concurrent write operations */
--#define LOCK_RW		192	/* ... Which allows concurrent read & write ops */
--
--struct flock {
--	short l_type;
--	short l_whence;
--	off_t l_start;
--	off_t l_len;
--	pid_t l_pid;
--};
--
--struct flock64 {
--	short  l_type;
--	short  l_whence;
--	loff_t l_start;
--	loff_t l_len;
--	pid_t  l_pid;
--};
--
--#define F_LINUX_SPECIFIC_BASE	1024
-+#include <asm-generic/fcntl.h>
- 
- #endif
+> Date: Tue, 8 Oct 2002 11:11:44 +0100
+> From: simon@baydel.com
+> To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: The end of embedded Linux?
+>
+> On 7 Oct 2002, at 21:22, Alan Cox wrote:
+>
+> > On Mon, 2002-10-07 at 18:15, simon@baydel.com wrote:
+> > > a serial port and an interupt controller. What I was trying to explain
+> > > was that I would not mind making my code available for these
+> > > kernel changes. Although I don't understand why anyone would
+> > > want it. Apart from API changes, why do this ? The kernel is not
+> > > easily or frequently changed on this type of system. It would bloat
+> > > the kernel and I would expect to have to address problems of this
+> > > nature myself.  However I would not like to make code available for
+> > > the more specialised hardware.
+> >
+> > That depends how specialized the hardware actually is. I think I've see
+> > six different non free implementations of 68360 sync serial code around
+> > all proprietary for example.
+> >
+>
+> The UART and Interrupt controllers in question are built into a gate
+> array. I can't see how any external or parts from other vendors
+> would be compatible. To get the board to boot Linux I have to
+> modify the kernel and lilo. I understand that under the GPL rules I
+> would have to make this code available. I am willing to do this but I
+> don't see the point.
+>
+> There is also more specialized hardware for which I have written
+> modules. Although there appears to be some unwritten rule about
+> releasing objects, I believe that the GPL rules state that these
+> modules must conform to the GPL also, as they contain header
+> files. I cannot see how any module can not contain Linux headers
+> or headers derived from Linux headers if it is to be loaded on a
+> Linux kernel.
+>
+> These modules again drive gate array hardware for which nobody
+> else will ever have a compatible. Although I would dearly love to
+> use Linux as the platform for my project I feel I cannot release this
+> code under the GPL.
+>
+> This is my dilemma and I am sure it is shared by others. For this
+> reason I cannot see how anything but an embedded PC with
+> applications or a perhaps a very simple hardware device could be
+> considered as an opportunity for  embedded Linux.
+>
+> I have based these thoughts on my experiences so far. If you feel I
+> have drawn an incorrect conclusion I would be grateful for your
+> input.
+>
+>
+> Many Thanks
+>
+> Simon.
+>
+>
+>
+> > Also my original comments were much more aimed at the core stuff. People
+> > who made existing and especially core stuff smaller could send the stuff
+> > out. Several of us want to compile a CONFIG_TINY option, and suprisingly
+> > enough small is good on high end boxes. My L1 cache is 8 times faster
+> > than my L2 cache is 7 times faster than my memory. Or to put it another
+> > way, going to main memory costs me maybe 100 instructions.
+> >
+> > My Athlon thinks small is good too!
+> >
+>
+>
+> __________________________
+>
+> Simon Haynes - Baydel
+> Phone : 44 (0) 1372 378811
+> Email : simon@baydel.com
+> __________________________
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,79 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263938AbTKJQCt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 11:02:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263941AbTKJQCt
+	id S263937AbTKJQQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 11:16:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263959AbTKJQQ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 11:02:49 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:46818 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S263938AbTKJQCr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 11:02:47 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Mon, 10 Nov 2003 17:02:36 +0100 (MET)
-Message-Id: <UTC200311101602.hAAG2an12276.aeb@smtp.cwi.nl>
-To: aebr@win.tue.nl, konsti@ludenkalle.de
-Subject: Re: Weird partititon recocnising problem in 2.6.0-testX
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+	Mon, 10 Nov 2003 11:16:26 -0500
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:28151 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S263937AbTKJQQZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 11:16:25 -0500
+Content-Type: text/plain;
+  charset="CP 1252"
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: David Woodhouse <dwmw2@infradead.org>
+Subject: Re: OT: why no file copy() libc/syscall ??
+Date: Mon, 10 Nov 2003 10:15:34 -0600
+X-Mailer: KMail [version 1.2]
+Cc: "Ihar 'Philips' Filipau" <filia@softhome.net>,
+       Davide Rossetti <davide.rossetti@roma1.infn.it>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <QiyV.1k3.15@gated-at.bofh.it> <03111007291500.08768@tabby> <1068477550.5743.50.camel@hades.cambridge.redhat.com>
+In-Reply-To: <1068477550.5743.50.camel@hades.cambridge.redhat.com>
+MIME-Version: 1.0
+Message-Id: <03111010153401.08768@tabby>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I suppose that booting with boot parameter "hda=remap" should work.
+On Monday 10 November 2003 09:19, David Woodhouse wrote:
+> On Mon, 2003-11-10 at 07:29 -0600, Jesse Pollard wrote:
+> > > > sys_fscopy(...)
+> >
+> > It is too simple to implement in user mode.
+>
+> Is it? Please explain the simple steps which cp(1) should take in order
+> to observe that it is being asked to duplicate a file on a file system
+> such as CIFS (or NFSv4?) which allows the client to issue a 'copy file'
+> command over the network without actually transferring the data twice,
+> and to invoke such a command.
 
-> Seems so...
+Ah. That is an optimization question, not a question of kernel/user mode.
 
-Good. So there were two problems. One was devfs+hd.c, caused by
-the fact that hd.c fails to set devfs_name. And the second was
-EZDrive, solved by booting with "hda=remap".
+Since the error checking for source and destination both include doing
+a stat and statfs, the device information (and FS info) can both be retrieved.
 
-Probably it is a good idea to warn when we see EZD or DM.
-A minimal patch would be
+And mmap doesn't require data transfer "twice" (local copy). Since that copy 
+only pagefaults (though read/write may be faster for some files - I thought
+that was true for small files that fit in cache, and large files faster via
+mmap and depends on the page size; and the tradeoff would be system
+dependant).
 
---- 2.6.0test9/linux/fs/partitions/msdos.c	Fri May 30 18:12:57 2003
-+++ fs/partitions/msdos.c	Mon Nov 10 16:20:11 2003
-@@ -425,6 +425,10 @@
- 		put_partition(state, slot, start, size);
- 		if (SYS_IND(p) == LINUX_RAID_PARTITION)
- 			state->parts[slot].flags = 1;
-+		if (SYS_IND(p) == DM6_PARTITION)
-+			printk("[DM]");
-+		if (SYS_IND(p) == EZD_PARTITION)
-+			printk("[EZD]");
- 	}
- 
- 	printk("\n");
+And since both source and destination may be remote you do get to decide
+based on source and destination devices: if they are the same, and one on
+a remote node, then BOTH will be on the remote, then you get to use the
+CIFS/NFS file copy. (check the doc on "stat/statfs" for additional info).
 
-The next project for you is getting rid of EZD (if you want).
-Backup valuable stuff.
+I don't believe it works when source and destination are on DIFFERENT remote
+nodes, though.
 
-Boot a kernel that remaps, say vanilla 2.4.
-Print partition table (in sector units) on paper.
-  sfdisk -d /dev/hda > hda.pt
-gives the full table in a format that sfdisk can restore.
-  dd if=/dev/hda of=hdapt bs=1 count=64 skip=446
-gives the primary part of the table in binary.
-  dd if=/dev/hda of=hdambr bs=512 count=1
-gives the entire fake sector 0 (that is, sector 1).
-Save the output files somewhere not on hda.
+Strictly up to the implementation of cp/mv.
 
-Now boot a kernel that does not remap. Since you won't see
-your root filesystem on hda, this should probably be from
-a rescue floppy or CD. Recent kernels understand the "hda=noremap"
-boot parameter. Make sure no remap is done (e.g., *fdisk
-mentions partitions of type 55). Now write the desired partition
-table (e.g.
-  dd if=hdapt of=/dev/hda bs=1 count=64 seek=446
-or
-  dd if=hdambr of=/dev/hda
-or
-  sfdisk /dev/hda < hda.pt
-).
-
-That should do it, but be careful that you can boot again afterwards.
-Sector 0 has the partition table in bytes 446-509,
-a signature in bytes 510-511, and a boot loader in bytes 0-445.
-You may have to reinstall LILO or grub or so. In some cases
-copying the entire sector 1 to sector 0 will suffice.
-
-Good luck!
-Andries
+Though you will loose portability of cp/mv. (Of course, you also loose
+it with a syscall for file copy too; as well as the MUCH more complicated
+implementation/security checks).

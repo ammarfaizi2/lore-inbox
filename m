@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261436AbSJHTMP>; Tue, 8 Oct 2002 15:12:15 -0400
+	id <S263266AbSJHUVT>; Tue, 8 Oct 2002 16:21:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261435AbSJHTMG>; Tue, 8 Oct 2002 15:12:06 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:29858 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S263250AbSJHTHV>; Tue, 8 Oct 2002 15:07:21 -0400
-Date: Tue, 8 Oct 2002 16:10:29 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: Andrew Morton <akpm@digeo.com>, Christoph Hellwig <hch@infradead.org>,
-       <tytso@mit.edu>, <linux-kernel@vger.kernel.org>,
-       <ext2-devel@lists.sourceforge.net>, Ed Tomlinson <tomlins@cam.org>
-Subject: Re: [Ext2-devel] [RFC] [PATCH 1/4] Add extended attributes to ext2/3
-In-Reply-To: <200210082047.04594.agruen@suse.de>
-Message-ID: <Pine.LNX.4.44L.0210081610210.1648-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261476AbSJHUUI>; Tue, 8 Oct 2002 16:20:08 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:20905 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S263245AbSJHUTd>; Tue, 8 Oct 2002 16:19:33 -0400
+Date: Tue, 8 Oct 2002 16:25:04 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: zaitcev@redhat.com, kaos@ocs.com.au, linux-kernel@vger.kernel.org
+Subject: Re: kbuild news
+Message-ID: <20021008162504.B4135@devserv.devel.redhat.com>
+References: <mailman.1034070360.25457.linux-kernel2news@redhat.com> <200210081442.g98EgeH11258@devserv.devel.redhat.com> <20021008.131100.47229080.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021008.131100.47229080.davem@redhat.com>; from davem@redhat.com on Tue, Oct 08, 2002 at 01:11:00PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Oct 2002, Andreas Gruenbacher wrote:
+> Date: Tue, 08 Oct 2002 13:11:00 -0700 (PDT)
+> From: "David S. Miller" <davem@redhat.com>
 
-> Switching to Ed's code once it's in the kernel may be worthwhile; until
-> then the dumb shrinking approaah doesn't to do much harm IMHO.
+>    From: Pete Zaitcev <zaitcev@redhat.com>
+>    Date: Tue, 8 Oct 2002 10:42:40 -0400
+>    
+>    Let's face it, both btfixup and kallsyms "want" to be the last,
+>    so something has to give.
+> 
+> No, btfixup does not care about anything that will go into
+> kallsyms.o, no BTFIXUP objects may appear in kallsyms.
+> 
+> So btfixup may be next to last just fine.
 
-Agreed.
+This is very unfortunate, because it invalidates the workaround
+where I moved btfixup to "make image" stage. Unles Kai is willing
+to change the way the dependencies are handled, I'm stuck.
+I am talking about breaking up this:
 
-Rik
--- 
-A: No.
-Q: Should I include quotations after my reply?
+$(sort $(vmlinux-objs)): $(SUBDIRS) ;
 
-http://www.surriel.com/		http://distro.conectiva.com/
+To make every single object (including head.o) on every other
+subdirectory (even benign ones) seems a little fishy.
 
+-- Pete

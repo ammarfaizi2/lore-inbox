@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264647AbUGFWo5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264649AbUGFWtA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264647AbUGFWo5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 18:44:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264640AbUGFWo5
+	id S264649AbUGFWtA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 18:49:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264652AbUGFWtA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 18:44:57 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:61412 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S264582AbUGFWoy (ORCPT
+	Tue, 6 Jul 2004 18:49:00 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:36233 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264649AbUGFWss (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 18:44:54 -0400
-Date: Wed, 7 Jul 2004 00:44:53 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Jamie Lokier <jamie@shareable.org>, shemminger@osdl.org,
-       netdev@oss.sgi.com, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix tcp_default_win_scale.
-Message-ID: <20040706224453.GA6694@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	"David S. Miller" <davem@redhat.com>,
-	Jamie Lokier <jamie@shareable.org>, shemminger@osdl.org,
-	netdev@oss.sgi.com, linux-net@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <20040629222751.392f0a82.davem@redhat.com> <20040630152750.2d01ca51@dell_ss3.pdx.osdl.net> <20040630153049.3ca25b76.davem@redhat.com> <20040701133738.301b9e46@dell_ss3.pdx.osdl.net> <20040701140406.62dfbc2a.davem@redhat.com> <20040702013225.GA24707@conectiva.com.br> <20040706093503.GA8147@outpost.ds9a.nl> <20040706114741.1bf98bbe@dell_ss3.pdx.osdl.net> <20040706194034.GA11021@mail.shareable.org> <20040706131235.10b5afa8.davem@redhat.com>
+	Tue, 6 Jul 2004 18:48:48 -0400
+Date: Tue, 6 Jul 2004 15:45:55 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: wli@holomorphy.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-mm6
+Message-Id: <20040706154555.79673f14.davem@redhat.com>
+In-Reply-To: <20040706153417.237e454e.akpm@osdl.org>
+References: <20040705023120.34f7772b.akpm@osdl.org>
+	<20040706125438.GS21066@holomorphy.com>
+	<20040706153417.237e454e.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040706131235.10b5afa8.davem@redhat.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 06, 2004 at 01:12:35PM -0700, David S. Miller wrote:
+On Tue, 6 Jul 2004 15:34:17 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-> It is this specific case:
+> William Lee Irwin III <wli@holomorphy.com> wrote:
+> >
+> > Third, some naive check for undefined symbols failed to understand the
+> > relocation types indicating that a given operand refers to some hard
+> > register, which manifest as undefined symbols in ELF executables. A
+> > patch to refine its criteria, which I used to build with, follows. rmk
+> > and hpa have some other ideas on this undefined symbol issue I've not
+> > quite had the opportunity to get a clear statement of yet.
 > 
-> 1) SYN packet contains window scale option of ZERO.
+> I converted that to a non-fatal warning due to the same problem on sparc64.
 
-Not true - the outgoing SYN packet had window scale 7, when it was sent. The
-SYN|ACK had window scale 0, when received by the initiating system.
-
-Also - even if the remote were to assume a 47 byte window size, would it not
-be able to send small packets? Or does the window size also include
-packet haders?
-
-Regards,
-
-bert
-
-
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Andrew, Russell posted to us in private email an objdump based
+check that didn't trigger for the register declaration case.

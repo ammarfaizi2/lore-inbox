@@ -1,92 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263538AbSJGWU5>; Mon, 7 Oct 2002 18:20:57 -0400
+	id <S263501AbSJGWBL>; Mon, 7 Oct 2002 18:01:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263539AbSJGWU5>; Mon, 7 Oct 2002 18:20:57 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:62624 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S263538AbSJGWU4>; Mon, 7 Oct 2002 18:20:56 -0400
+	id <S263500AbSJGWBL>; Mon, 7 Oct 2002 18:01:11 -0400
+Received: from cabal.xs4all.nl ([213.84.101.140]:27696 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id <S263501AbSJGWBK>;
+	Mon, 7 Oct 2002 18:01:10 -0400
+Date: Tue, 8 Oct 2002 00:06:49 +0200
+From: Wichert Akkerman <wichert@wiggy.net>
 To: linux-kernel@vger.kernel.org
-Cc: juang@us.ibm.com
-X-Mailer: Lotus Notes Release 5.0.2a (Intl) 23 November 1999
-Message-ID: <OF2F07E0DC.299628DE-ON87256C4B.00790F36@us.ibm.com>
-From: Juan Gomez <juang@us.ibm.com>
-Date: Mon, 7 Oct 2002 16:26:32 -0600
-Subject: kernelNFS(lockd) problem and patch suggestion 
-X-MIMETrack: Serialize by Router on D03NM694/03/M/IBM(Release 6.0|September 26, 2002) at
- 10/07/2002 16:26:33
-MIME-Version: 1.0
-Content-type: multipart/mixed; 
-	Boundary="0__=08BBE6D8DFEA89A68f9e8a93df938690918c08BBE6D8DFEA89A6"
+Subject: [2.5.41] sleeping function called from illegal context at mm/slab.c:1374
+Message-ID: <20021007220649.GF14953@wiggy.net>
+Mail-Followup-To: Wichert Akkerman <wichert@wiggy.net>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0__=08BBE6D8DFEA89A68f9e8a93df938690918c08BBE6D8DFEA89A6
-Content-type: text/plain; charset=US-ASCII
+I seem to have hit a debug trigger while booting in 2.5.41. The
+calltrace suggests it is an IDE problem:
+
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+PIIX4: IDE controller at PCI slot 00:07.1
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0x0860-0x0867, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0x0868-0x086f, BIOS settings: hdc:pio, hdd:pio
+hda: FUJITSU MHJ2181AT, ATA DISK drive
+Debug: sleeping function called from illegal context at mm/slab.c:1374
+Call Trace:
+ [<c01138f4>] __might_sleep+0x54/0x60
+ [<c012e1d3>] kmem_cache_alloc+0x23/0xd0
+ [<c01f8b50>] blk_init_free_list+0x4c/0xd0
+ [<c0108998>] request_irq+0x8c/0xa8
+ [<c01f8be0>] blk_init_queue+0xc/0xd4
+ [<c01fd7f0>] ide_init_queue+0x28/0x68
+ [<c0203a20>] do_ide_request+0x0/0x18
+ [<c01fdaad>] init_irq+0x27d/0x334
+ [<c01fde06>] hwif_init+0x112/0x258
+ [<c01fd71c>] probe_hwif_init+0x1c/0x6c
+ [<c0209b4d>] ide_setup_pci_device+0x3d/0x68
+ [<c01fc77f>] piix_init_one+0x37/0x40
+ [<c010508b>] init+0x33/0x188
+ [<c0105058>] init+0x0/0x188
+ [<c01054a9>] kernel_thread_helper+0x5/0xc
 
 
-
-
-
-Hi all,
-
-I noticed that after starting a linux NFS server, the first lock request
-gets delayed about 30 seconds even after waiting the 45 seconds
-corresponding to the grace period.
-At first I thought this was due to the fact that being the first time a
-lock is acquired through the server lockd/statd interaction was required
-and the creation of a new file was involved
-(i.e. statd/sm/client_IP) but still 30 seconds was way too long...
-
-After taking a look at the code I realized that the lockd thread sets grace
-period and then goes to sleep for a long time waiting for messages and the
-first message always gets processed
-before checking if the grace period has completed (which it might after
-sleeping for a long time).
-
-I think this can be easily fixed by clearing the grace period after waiting
-for messages and before procesing them for correct operation as described
-in the following patch.
-
-I will appreciate if this patch can be considered for inclusion in the
-general distribution of the kernel.
-
-(See attached file: lockd_delay_patch.2.4.19)
-
-
-Juan
---0__=08BBE6D8DFEA89A68f9e8a93df938690918c08BBE6D8DFEA89A6
-Content-type: application/octet-stream; 
-	name="lockd_delay_patch.2.4.19"
-Content-Disposition: attachment; filename="lockd_delay_patch.2.4.19"
-Content-transfer-encoding: base64
-
-KioqIGxpbnV4LTIuNC4xOS9mcy9sb2NrZC9zdmMuYwlTdW4gT2N0IDIxIDEwOjMyOjMzIDIwMDEN
-Ci0tLSBsaW51eC0yLjQuMTkubG9ja2RfZGVsYXlfcGF0Y2gvZnMvbG9ja2Qvc3ZjLmMJTW9uIE9j
-dCAgNyAyMjoxNjoyMCAyMDAyDQoqKioqKioqKioqKioqKioNCioqKiAxNDQsMTUxICoqKioNCiAg
-CQkgKi8NCiAgCQlpZiAoIW5sbXN2Y19ncmFjZV9wZXJpb2QpIHsNCiAgCQkJdGltZW91dCA9IG5s
-bXN2Y19yZXRyeV9ibG9ja2VkKCk7DQohIAkJfSBlbHNlIGlmICh0aW1lX2JlZm9yZShncmFjZV9w
-ZXJpb2RfZXhwaXJlLCBqaWZmaWVzKSkNCiEgCQkJY2xlYXJfZ3JhY2VfcGVyaW9kKCk7DQogIA0K
-ICAJCS8qDQogIAkJICogRmluZCBhIHNvY2tldCB3aXRoIGRhdGEgYXZhaWxhYmxlIGFuZCBjYWxs
-IGl0cw0KLS0tIDE0NCwxNTAgLS0tLQ0KICAJCSAqLw0KICAJCWlmICghbmxtc3ZjX2dyYWNlX3Bl
-cmlvZCkgew0KICAJCQl0aW1lb3V0ID0gbmxtc3ZjX3JldHJ5X2Jsb2NrZWQoKTsNCiEgCQl9IA0K
-ICANCiAgCQkvKg0KICAJCSAqIEZpbmQgYSBzb2NrZXQgd2l0aCBkYXRhIGF2YWlsYWJsZSBhbmQg
-Y2FsbCBpdHMNCioqKioqKioqKioqKioqKg0KKioqIDE2MywxNjggKioqKg0KLS0tIDE2MiwxNzcg
-LS0tLQ0KICANCiAgCQlkcHJpbnRrKCJsb2NrZDogcmVxdWVzdCBmcm9tICUwOHhcbiIsDQogIAkJ
-CSh1bnNpZ25lZCludG9obChycXN0cC0+cnFfYWRkci5zaW5fYWRkci5zX2FkZHIpKTsNCisgDQor
-ICAgICAgICAgICAgICAgICAvKiBXZSBuZWVkIHRvIGRvIHRoZSBjbGVhci9ncmFjZSBwZXJpb2Qg
-aGVyZSBhbmQgbm90IGJlZm9yZSBzdmNfcmVjdigpDQorICAgICAgICAgICAgICAgICAgKiBiZWNh
-dXNlIHN2Y19yZWN2IG1heSBzbGVlcCBsb25nZXIgdGhhbiB0aGUgZ3JhY2UgcGVyaW9kIGFuZCB0
-aGUgDQorICAgICAgICAgICAgICAgICAgKiBmaXJzdCByZXF1ZXN0IG1heSBiZSBmYWxzZWx5IHBy
-b2Nlc3NlZCBhcyBpZiB0aGUgc2VydmVyIHdhcyBpbiB0aGUgDQorICAgICAgICAgICAgICAgICAg
-KiBncmFjZSBwZXJpb2Qgd2hlbiBpdCBpcyBub3QgY2F1c2luZyB1bm5lY2Vzc2FyeSBkZWxheXMu
-DQorICAgICAgICAgICAgICAgICAgKiBKdWFuIEMuIEdvbWV6IGpfY2FybG9zX2dvbWVAeWFob28u
-Y29tDQorICAgICAgICAgICAgICAgICAgKi8NCisgICAgICAgICAgICAgICAgIGlmIChubG1zdmNf
-Z3JhY2VfcGVyaW9kICYmIHRpbWVfYmVmb3JlKGdyYWNlX3BlcmlvZF9leHBpcmUsIGppZmZpZXMp
-KXsNCisgICAgICAgICAgICAgICAgICAgY2xlYXJfZ3JhY2VfcGVyaW9kKCk7DQorICAgICAgICAg
-ICAgICAgICB9DQogIA0KICAJCS8qDQogIAkJICogTG9vayB1cCB0aGUgTkZTIGNsaWVudCBoYW5k
-bGUuIFRoZSBoYW5kbGUgaXMgbmVlZGVkIGZvcg0K
-
---0__=08BBE6D8DFEA89A68f9e8a93df938690918c08BBE6D8DFEA89A6--
-
+-- 
+  _________________________________________________________________
+ /wichert@wiggy.net         This space intentionally left occupied \
+| wichert@deephackmode.org                    http://www.wiggy.net/ |
+| 1024D/2FA3BC2D 576E 100B 518D 2F16 36B0  2805 3CB8 9250 2FA3 BC2D |

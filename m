@@ -1,65 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263636AbUA3M1F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 07:27:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263646AbUA3M1F
+	id S263762AbUA3Mmn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 07:42:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263777AbUA3Mmn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 07:27:05 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:15369 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263636AbUA3M1B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 07:27:01 -0500
-Date: Fri, 30 Jan 2004 12:26:58 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PCI Update for 2.6.2-rc2
-Message-ID: <20040130122658.D12182@flint.arm.linux.org.uk>
-Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <10754263101353@kroah.com> <1075426310683@kroah.com>
+	Fri, 30 Jan 2004 07:42:43 -0500
+Received: from elektroni.ee.tut.fi ([130.230.131.11]:29570 "HELO
+	elektroni.ee.tut.fi") by vger.kernel.org with SMTP id S263762AbUA3Mmj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 07:42:39 -0500
+Date: Fri, 30 Jan 2004 14:42:36 +0200
+From: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
+To: Andrew Morton <akpm@osdl.org>
+Cc: johnstul@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1: process start times by procps
+Message-ID: <20040130124236.GA8262@elektroni.ee.tut.fi>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, johnstul@us.ibm.com,
+	linux-kernel@vger.kernel.org
+References: <20040123194714.GA22315@elektroni.ee.tut.fi> <20040125110847.GA10824@elektroni.ee.tut.fi> <20040127155254.GA1656@elektroni.ee.tut.fi> <1075342912.1592.72.camel@cog.beaverton.ibm.com> <20040129143847.GA4544@elektroni.ee.tut.fi> <1075405728.1592.100.camel@cog.beaverton.ibm.com> <20040129203340.GA1169@elektroni.ee.tut.fi> <20040129145148.47cae69a.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1075426310683@kroah.com>; from greg@kroah.com on Thu, Jan 29, 2004 at 05:31:50PM -0800
+In-Reply-To: <20040129145148.47cae69a.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 29, 2004 at 05:31:50PM -0800, Greg KH wrote:
-> ChangeSet 1.1523, 2004/01/29 17:13:13-08:00, kieran@mgpenguin.net
+On Thu, Jan 29, 2004 at 02:51:48PM -0800, Andrew Morton wrote:
+> Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi> wrote:
+> >
+> > On Thu, Jan 29, 2004 at 11:48:49AM -0800, john stultz wrote:
+> > > 
+> > > Does George Anzinger's patch work as well?
+> > 
+> > I must have missed that... Any references?
 > 
-> [PATCH] PCI: pci.ids update
+> This one.
 > 
-> - Replaces pci.ids with a snapshot from pciids.sf.net from 14 Jan 2004
+> diff -puN fs/proc/proc_misc.c~proc-stat-btime-fix-2 fs/proc/proc_misc.c
 
-However, it removes some IDs, eg:
+Yes, it works fine: btime stays at the correct value. Just the
+ps-output-in-future-problem left.
 
-> @@ -5505,11 +5871,6 @@
->  		14f1 2004  Dynalink 56PMi
->  	8234  RS8234 ATM SAR Controller [ServiceSAR Plus]
->  14f2  MOBILITY Electronics
-> -	0120  EV1000 bridge
-> -	0121  EV1000 Parallel port
-> -	0122  EV1000 Serial port
-> -	0123  EV1000 Keyboard controller
-> -	0124  EV1000 Mouse controller
->  14f3  BROADLOGIC
->  14f4  TOKYO Electronic Industry CO Ltd
->  14f5  SOPAC Ltd
-...
-> @@ -6279,18 +6666,20 @@
->  	103e  82801BD PRO/100 VM (MOB) Ethernet Controller
->  	1040  536EP Data Fax Modem
->  		16be 1040  V.9X DSP Data Fax Modem
-> -	1048  82597EX 10GbE Ethernet Controller
-> -		8086 a01f  PRO/10GbE LR Server Adapter
-> -		8086 a11f  PRO/10GbE LR Server Adapter
-> +	1043  PRO/Wireless LAN 2100 3B Mini PCI Adapter
->  	1059  82551QM Ethernet Controller
->  	1130  82815 815 Chipset Host Bridge and Memory Controller Hub
+Linux-2.6.1+patch without ntpd:
+ passed time according to 'date':               11430.68524 s
+ timer interrupts:                              11432383
+ interrupts per second:                         1000.149
+ error compared to 1000 interrupts per second:  +149 ppm
+ ps times go towards future about 2.0 s:  about 170 ppm
+ btime stays constant!
+ clock too fast compared to ntp time by:        +0.260461 s
+ so 'date' is too fast compared to UT by:       +22.8 ppm
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Linux-2.6.1+patch with ntpd:
+ passed time according to 'date':               14792.60765 s
+ timer interrupts:                              14795154
+ interrupts per second:                         1000.172
+ error compared to 1000 interrupts per second:  +172 ppm
+ ps times go towards future about 2.7 s:  about 180 ppm
+ btime stays constant!
+ (ntp.drift: -21.943)
+
+-Petri

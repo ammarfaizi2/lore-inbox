@@ -1,108 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264405AbTLYXlK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 18:41:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264409AbTLYXlK
+	id S264418AbTLYXpf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 18:45:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264425AbTLYXpf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 18:41:10 -0500
-Received: from fep02.swip.net ([130.244.199.130]:13751 "EHLO
-	fep02-svc.swip.net") by vger.kernel.org with ESMTP id S264405AbTLYXlF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 18:41:05 -0500
-Message-ID: <3FEB758F.2000103@wind.it>
-Date: Fri, 26 Dec 2003 00:41:03 +0100
-From: Matteo Croce <3297627799@wind.it>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Thu, 25 Dec 2003 18:45:35 -0500
+Received: from hendrix.ece.utexas.edu ([128.83.59.42]:32419 "EHLO
+	hendrix.ece.utexas.edu") by vger.kernel.org with ESMTP
+	id S264418AbTLYXpY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Dec 2003 18:45:24 -0500
+Date: Thu, 25 Dec 2003 17:45:10 -0600 (CST)
+From: "Hmamouche, Youssef" <youssef@ece.utexas.edu>
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: Gergely Tamas <dice@mfa.kfki.hu>, Keith Lea <keith@cs.oswego.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test11 data loss
+In-Reply-To: <20031225164628.GB22578@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.21.0312251710040.5486-100000@linux08.ece.utexas.edu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Radeon IGP345M
-Content-Type: multipart/mixed;
- boundary="------------080608040402030501030201"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080608040402030501030201
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hi,
-I have sent this mail to jhartmann@precisioninsight.com that should be 
-the mantainer of agpgart, but this email address don't exist.
+I'm getting a system freeze but no file corruption. The freeze happens
+randomly after all rc.d scripts run. The freeze seems to happen slightly
+at a "later" time when I applied the 2.6.0-mm1 patch(I was able to login
+and startx) whereas before the freeze happened before/while logging
+in. 
 
-I have a Compaq Presario 2510EA with an ATI Radeon IGP345M graphic card.
-I compiled a 2.4.23 kernel with CONFIG_AGP_ATI and I get a module named
-agpgart.o
-I tryed to load it whit insmod (or with 'insmod agpgart
-agp_try_unsupported=1'),
-but I get the following error:
+My boot parameters usually look like this:
 
-----------------------------------------------------------------------
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 262M
-agpgart: Unsupported ATI chipset (device id: cbb2), you might want to
-try agp_try_unsupported=1.
-agpgart: no supported devices found.
-----------------------------------------------------------------------
+BOOT_IMAGE=Linux-2.6.0 ro root=303 apm=on acpi=off
 
-I am sure that my graphics card is a RadeonIGP bacause the Ati utilities
-under windows say that.
+IBM Thinkpad T22
+linux-2.6.0 | linux-2.6.0-mm1
+slackware 9.1
 
-So I tryed this: I changed the following line in agp.h (I also attach a
-diff):
-
-#define PCI_DEVICE_ID_ATI_RS200		0xcab2
-
-with:
-
-#define PCI_DEVICE_ID_ATI_RS200		0xcbb2
-
-and now when I load the drivers with insmod it says:
-
-----------------------------------------------------------------------
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 262M
-agpgart: Detected ATI IGP330/340/345/350/M chipset
-agpgart: AGP aperture is 64M @ 0xd4000000
-----------------------------------------------------------------------
-
-and if I do lsmod I have agpgart in the list of loaded modules
-
-Now I want to know:
-1) Is the driver working?
-2) Is my chipset the same of a 'cab2' with a different device id?
-3) How I can know if the driver is working?
-4) Maybe a radeon IGP345M has two device ids?
-
-Thanks,
-Matteo Croce
+bash-2.05b# lspci 
+00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge
+(rev 03)
+00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge
+(rev 03)
+00:02.0 CardBus bridge: Texas Instruments PCI1450 (rev 03)
+00:02.1 CardBus bridge: Texas Instruments PCI1450 (rev 03)
+00:03.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev
+0c)
+00:03.1 Serial controller: Lucent Microelectronics LT WinModem (rev 01)
+00:05.0 Multimedia audio controller: Cirrus Logic CS 4614/22/24
+[CrystalClear SoundFusion Audio Accelerator] (rev 01)
+00:07.0 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
+00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 03)
+01:00.0 VGA compatible controller: S3 Inc. 86C270-294 Savage/IX-MV (rev
+13)
 
 
+Now that I went back and tested the kernel(mm1) with the following
+parameters, the system hasn't freezed yet. I'll report if anything goes
+wrong.
 
+BOOT_IMAGE=Linux-2.6.0 ro root=303 idebus=66 ide0=ata66 ide1=ata66
+ide2=ata66 apm=on acpi=off
 
+Thank you
 
---------------080608040402030501030201
-Content-Type: text/plain;
- name="agp.h.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="agp.h.diff"
+On Thu, 25 Dec 2003, Tomas Szepe wrote:
 
---- drivers/char/agp/agp.h.orig	2003-12-25 20:47:29.000000000 +0100
-+++ drivers/char/agp/agp.h	2003-12-25 19:59:08.000000000 +0100
-@@ -314,7 +314,7 @@
- #define PCI_DEVICE_ID_ATI_RS100		0xcab0
- #endif
- #ifndef PCI_DEVICE_ID_ATI_RS200
--#define PCI_DEVICE_ID_ATI_RS200		0xcab2
-+#define PCI_DEVICE_ID_ATI_RS200		0xcbb2
- #endif
- #ifndef PCI_DEVICE_ID_ATI_RS250
- #define PCI_DEVICE_ID_ATI_RS250		0xcab3
-
-
-
-
---------------080608040402030501030201--
+> On Dec-24 2003, Wed, 23:22 +0100
+> Gergely Tamas <dice@mfa.kfki.hu> wrote:
+>
 

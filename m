@@ -1,92 +1,130 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268926AbRIOFGu>; Sat, 15 Sep 2001 01:06:50 -0400
+	id <S272058AbRIOFOA>; Sat, 15 Sep 2001 01:14:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271032AbRIOFGl>; Sat, 15 Sep 2001 01:06:41 -0400
-Received: from c1890829-a.stcla1.sfba.home.com ([24.5.220.226]:47880 "HELO
-	luban.org") by vger.kernel.org with SMTP id <S268926AbRIOFG2>;
-	Sat, 15 Sep 2001 01:06:28 -0400
-Message-ID: <3BA2E144.FB0E5D55@luban.org>
-Date: Fri, 14 Sep 2001 22:04:04 -0700
-From: Vitaly Luban <vitaly@luban.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Dan Kegel <dank@kegel.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] Signal-per-fd for RT signals
-In-Reply-To: <3BA2AFFF.C7B8C4DF@kegel.com>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	id <S272012AbRIOFNv>; Sat, 15 Sep 2001 01:13:51 -0400
+Received: from mclean.mail.mindspring.net ([207.69.200.57]:12292 "EHLO
+	mclean.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S272058AbRIOFN3> convert rfc822-to-8bit; Sat, 15 Sep 2001 01:13:29 -0400
+Subject: Re: Feedback on preemptible kernel patch
+From: Robert Love <rml@tech9.net>
+To: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+        ReiserFS List <reiserfs-list@namesys.com>,
+        DRI-Devel <dri-devel@lists.sourceforge.net>
+In-Reply-To: <200109150444.f8F4iEG19063@zero.tech9.net>
+In-Reply-To: <200109140302.f8E32LG13400@zero.tech9.net>
+	<1000442113.3897.19.camel@phantasy> 
+	<200109150444.f8F4iEG19063@zero.tech9.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/0.13.99+cvs.2001.09.14.18.39 (Preview Release)
+Date: 15 Sep 2001 01:14:07 -0400
+Message-Id: <1000530869.32365.21.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Dan,
+On Sat, 2001-09-15 at 00:25, Dieter Nützel wrote:
+> > > >  ReiserFS may be another problem.
+> > > Can't wait for that.
+> Most wanted, now.
 
-I'll modify the patch shortly according to your information.
-In fact, 2.4.6 patch is modified already according to (1)
+I am working on it, but I am unfamilar with it all.
 
-Though I myself have not seen this effects, despite of heavy
-use of modified kernel, this seems logical.
+Are you seeing any specific problems, now?  With the latest preemption
+patch on 2.4.10-pre9, do you crash? oops?
 
-For the case of lack queue space, just to prevent it, the
-queue size should always be set equal to max file descriptors
-number in system. Both parameters accessible via /proc, and all
-my tests are done under this setting.
+The only outstanding issue now is ReiserFS issues.
 
-Unfortunately, as we are close to release time, I do not have
-enough time to complete long promised testing and patch refinement,
-but, hopefully, this will happen in october.
+> Tried it and it works so far.
+> 
+> It seems to be that kswap put some additional "load" on the disk from time
+> to time. Or is it the ReiserFS thing, again?
 
-I'll try to add changes to deal with cases (2) and (3) shortly.
+I don't think its related to ReiserFS.
 
-Thanks again.
+What sort of activity are you seeing?  How often?  How do you know its
+kswapd?
 
-Vitaly.
+> Have you a copy of my posted ksymoops file?
+> But the oopses seems to be cured.
 
-Dan Kegel wrote:
+Yah, I just am having a problem sorting  who said what running what and
+when :)
 
-> Vitaly Luban <vitaly@luban.org> wrote:
-> > [ Patch lives at http://www.luban.org/GPL/gpl.html ]
->
-> I have been using variations on this patch while trying
-> to benchmark an FTP server at a load of 10000 simultaneous
-> sessions (at 1 kilobyte/sec each), and noticed a few issues:
->
-> 1. If a SIGINT comes in, t->files may be null, so where
->    send_signal() says
->          if( (info->si_fd < files->max_fds) &&
->    it should say
->          if( files && (info->si_fd < files->max_fds) &&
->    otherwise there will be a null pointer oops.
->
-> 2. If a signal has come in, and a reference to it is left
->    in filp->f_infoptr, and for some reason the signal is
->    removed from the queue without going through collect_signal(),
->    a stale pointer may be left in filp->f_infoptr, which could
->    cause a wild pointer oops.  There are two places this can happen:
->    a. if send_signal() returns -EAGAIN because we're out of memory or queue space
->    b. if user sets the signal handler to SIG_IGN, triggering a call
->    to rm_sig_from_queue()
->
-> I have seen the above problems in the field in my version of the patch,
-> and written and tested fixes for them.  (Ah, the joys of ksymoops.)
->
-> 3. Any reference to t->files probably needs to be protected by
->    acquiring t->files->file_lock, else when the file table is
->    expanded, any filp in use will become stale.
->
-> I have seen this problem in my version of the patch, but have not yet tackled it.
-> Is there any good guidance out there for how the various spinlocks
-> interact?  Documentation/spinlocks.txt and Documentation/DocBook/kernel-locking.tmpl
-> are the best I've seen so far, but they don't get into specifics about, say,
-> files->file_lock and task->sigmask_lock.  Guess I'll just have to read the source.
->
-> Also, while I have verified that the patch significantly reduces
-> reliable signal queue usage, I have not yet been able to measure
-> a reduction in CPU time in a real app.  Presumably the benefits
-> are in response time, which I am not set up to measure yet.
->
-> This is my first excursion into the kernel, so please be gentle.
-> - Dan
+I am glad the patch fixed it, the final version of that is going into
+the next preemption patch.  Stay tuned.
+
+> I don't know exactly 'cause kernel hacking is not my main focus.
+> 
+> But have you thought about the MMX/3DNow! stuff in Mesa/OpenGL (XFree86 DRI)?
+> And what do you think about the XFree86 Xv extentions (video) or the whole 
+> MPEG2/3/4, Ogg-Vorbis, etc. (multimedia stuff)?
+> 
+> Do all these libraries (progs) need some preempt patches?
+> That's why I cross posted to the DRI-Devel List (sorry).
+
+No, these are unrelated.
+
+Sorry for the cross-post, DRI :)
+
+The kernel takes care of saving state for FPU operations for userspace. 
+Indeed, it takes care of everything for userspace.  In kernel land, we
+don't have that beauty, we have to worry about everything we do and
+everything we change, and thus we have this problem.
+
+What exactly happens is another operation is preempting the current
+process during an FPU operation, when the CPU is in a different state,
+and then everything barfs since it is not as it wants to be.
+
+This is not an issue for userspace.
+
+> I understand ;-)
+> It seems to calm it.
+
+Good.
+
+> Now, here are my results.
+> <snip>
+
+These results are pretty good.  Throughput seems down 2-3% in many
+cases, although latency is greatly improved.  Look at those latency
+changes!  From thousands of ms to hundreds of us in bonnie.  Wow.
+
+Even if you don't care about latency (I'm not an audio person or
+anything), these changes should be worth it.
+
+> Deleting with ReiserFS and the preempt kernel is GREAT!
+
+Good. I/O latency should be great now, with little change in
+throughput...
+
+> But I get some hiccup during noatun (mp3, ogg, etc. player for KDE-2.2) or 
+> plaympeg together with dbench (16, 32). ReiserFS needs some preemption
+> fixes, too?
+
+You may still get some small hiccups ( < 1 second?) even with the
+preemption patch, as kernel locks prevent preemption (the patch can't
+guarentee low latency, just preemption outside of the locks).
+
+However, how bad was the hiccups with preemption disabled?  I have heard
+reports where it is 3-5sec at times.
+
+As the kernel becomes more scalable (finer-grain locking), preemption
+will improve.  Past that, perhaps during 2.5, we can work on some other
+things to improve preemption.
+
+> I've attached two small compressed bonnie++ HTML files.
+
+These were neat, thanks.
+
+Thank you for your feedback and support.  Stay current with the kernel
+and the preemption patches, and I will try to figure the ReiserFS
+crashes out.
+
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 

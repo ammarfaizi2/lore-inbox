@@ -1,78 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267639AbTBFU3m>; Thu, 6 Feb 2003 15:29:42 -0500
+	id <S267632AbTBFUas>; Thu, 6 Feb 2003 15:30:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267637AbTBFU3f>; Thu, 6 Feb 2003 15:29:35 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:18600 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267632AbTBFU3D>;
-	Thu, 6 Feb 2003 15:29:03 -0500
-Subject: Re: [PATCH 2.5] fix megaraid driver compile error
-From: Mark Haverkamp <markh@osdl.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-scsi@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0302061202430.3545-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0302061202430.3545-100000@home.transmeta.com>
-Content-Type: multipart/mixed; boundary="=-XcPf8iw+vAKEM6RsPDTv"
-Organization: 
-Message-Id: <1044563962.4858.59.camel@markh1.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 06 Feb 2003 12:39:22 -0800
+	id <S267643AbTBFUas>; Thu, 6 Feb 2003 15:30:48 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:65287
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S267632AbTBFU35>; Thu, 6 Feb 2003 15:29:57 -0500
+Date: Thu, 6 Feb 2003 12:38:53 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Dan Kegel <dank@kegel.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Monta Vista software license terms
+In-Reply-To: <3E42B37E.2080202@kegel.com>
+Message-ID: <Pine.LNX.4.10.10302061238410.11024-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-XcPf8iw+vAKEM6RsPDTv
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+HIGH FIVE !
 
-On Thu, 2003-02-06 at 12:04, Linus Torvalds wrote:
-> On 6 Feb 2003, Mark Haverkamp wrote:
-> >
-> > This moves access of the host element to device since host has been
-> > removed from struct scsi_cmnd.
+On Thu, 6 Feb 2003, Dan Kegel wrote:
+
+> My two bits:
 > 
-> This is whitespace-damaged.
+> 1. I am eternally grateful for the contributions Montavista has
+> made to the gnu tools.  Their recent contribution of a
+> multithread cabable gdbserver to gdb-5.3 is invaluable.
 > 
-> Please fix broken mailers. I generally don't bother to fix up whitespace
-> damage from people who can't bother to have a good mailer. It's just not 
-> worth it - if I try to fix it up (even if it is often trivial), it just 
-> means that people will continue to send crap patches to me.
+> 2. I contantly see Montavista people feeding back improvements
+> here and there, and they are quick to respond when I have
+> questions about issues like the ppc405 erratum 77 workarounds.
+> And I've never given them any money!
 > 
-> 		Linus
+> Montavista *is* playing nice.  As far as I can
+> tell, they obey the rules, and actively feed
+> their improvements back to the community.
+> 
+> Yes, they could do more -- but they don't have to, and if
+> they did, it might endanger their cash flow and thus the
+> stream of improvements they're feeding back to the community.
+> 
+> Please let them be.  I like what they're doing.
+> - Dan
+> 
+> -- 
+> Dan Kegel
+> http://www.kegel.com
+> http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Sorry about the bad patch.   Is an attached text file OK?
-
-
--- 
-Mark Haverkamp <markh@osdl.org>
-
---=-XcPf8iw+vAKEM6RsPDTv
-Content-Disposition: attachment; filename=megaraid.patch
-Content-Type: text/plain; name=megaraid.patch; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-===== drivers/scsi/megaraid.c 1.32 vs edited =====
---- 1.32/drivers/scsi/megaraid.c	Fri Jan  3 10:58:49 2003
-+++ edited/drivers/scsi/megaraid.c	Thu Feb  6 10:18:43 2003
-@@ -4515,7 +4515,7 @@
- 		if(scsicmd == NULL) return -ENOMEM;
- 
- 		memset(scsicmd, 0, sizeof(Scsi_Cmnd));
--		scsicmd->host = shpnt;
-+		scsicmd->device->host = shpnt;
- 
- 		if( outlen || inlen ) {
- #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
-@@ -4652,7 +4652,7 @@
- 		if(scsicmd == NULL) return -ENOMEM;
- 
- 		memset(scsicmd, 0, sizeof(Scsi_Cmnd));
--		scsicmd->host = shpnt;
-+		scsicmd->device->host = shpnt;
- 
- 		if (outlen || inlen) {
- #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
-
---=-XcPf8iw+vAKEM6RsPDTv--
+Andre Hedrick
+LAD Storage Consulting Group
 

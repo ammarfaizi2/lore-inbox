@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272820AbTHISFK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 14:05:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273071AbTHISFK
+	id S274935AbTHISi4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 14:38:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275231AbTHISi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 14:05:10 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:58003 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id S272820AbTHISFH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 14:05:07 -0400
-Subject: Re: time for some drivers to be removed?
-From: David Woodhouse <dwmw2@infradead.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: spse@secret.org.uk, "Robert P. J. Day" <rpjday@mindspring.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030727153118.GP22218@fs.tum.de>
-References: <Pine.LNX.4.53.0307240817520.19533@localhost.localdomain>
-	 <20030727153118.GP22218@fs.tum.de>
-Content-Type: text/plain
-Message-Id: <1060452295.29776.1.camel@imladris.demon.co.uk>
+	Sat, 9 Aug 2003 14:38:56 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:19471 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S274935AbTHISiz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 14:38:55 -0400
+Date: Sat, 9 Aug 2003 20:38:52 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.0-test3 and earlier] no keyboard
+Message-ID: <20030809203852.A9000@pclin040.win.tue.nl>
+References: <87ptjebwb8.fsf@deneb.enyo.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.1 (dwmw2) 
-Date: Sat, 09 Aug 2003 19:04:55 +0100
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Rcpt-To: bunk@fs.tum.de, spse@secret.org.uk, rpjday@mindspring.com, linux-kernel@vger.kernel.org
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <87ptjebwb8.fsf@deneb.enyo.de>; from fw@deneb.enyo.de on Sat, Aug 09, 2003 at 07:00:27PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-07-27 at 16:31, Adrian Bunk wrote:
+On Sat, Aug 09, 2003 at 07:00:27PM +0200, Florian Weimer wrote:
 
-> A first patch is at
->   http://www.ussg.iu.edu/hypermail/linux/kernel/0306.2/0770.html
+> 2.6.0-test3 and earlier provide only a very limited form of console on
+> a Siemens Primergy H450.
 > 
-> I'll send an updated patch against -test2 or -test3.
+> For example, pressing RET yields:
+> 
+> atkbd.c: Unknown key (set 0, scancode 0xed, on isa0060/serio0) pressed.          
+> 
+> So far, I only tested remotedly, using the built-in console
+> redirection support.  2.4.20 works like a charm (using remote console,
+> I think we never tested the local one).
 
-Please don't make blkmtd depend on CONFIG_BROKEN. Its maintainer sent a
-patch to Linus recently -- further resends seem to be required.
+Set 0 is "impossible", certainly a bug.
+So what are the boot messages about the keyboard?
 
--- 
-dwmw2
+
 
 

@@ -1,38 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280994AbRK3Tll>; Fri, 30 Nov 2001 14:41:41 -0500
+	id <S283723AbRK3Tnb>; Fri, 30 Nov 2001 14:43:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283711AbRK3Tlc>; Fri, 30 Nov 2001 14:41:32 -0500
-Received: from tux.gsfc.nasa.gov ([128.183.191.134]:22943 "EHLO
-	tux.gsfc.nasa.gov") by vger.kernel.org with ESMTP
-	id <S280994AbRK3TlN>; Fri, 30 Nov 2001 14:41:13 -0500
-Date: Fri, 30 Nov 2001 14:41:12 -0500
-From: John Kodis <kodis@mail630.gsfc.nasa.gov>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Coding style - a non-issue
-Message-ID: <20011130144112.A31385@tux.gsfc.nasa.gov>
-Mail-Followup-To: John Kodis <kodis@mail630.gsfc.nasa.gov>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <OF8451D8AC.A8591425-ON4A256B12.00806245@au.ibm.com> <Pine.GSO.4.21.0111281901110.8609-100000@weyl.math.psu.edu> <20011128162317.B23210@work.bitmover.com> <9u7lb0$8t9$1@forge.intermeta.de> <20011130072634.E14710@work.bitmover.com> <1007138360.6656.27.camel@forge> <3C07B820.4108246F@mandrakesoft.com> <20011130185359.Q31176@blu> <3C07CDFB.7F1A9FFC@randomlogic.com> <3C07D742.A62FF72E@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C07D742.A62FF72E@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Fri, Nov 30, 2001 at 02:00:18PM -0500
+	id <S283711AbRK3TnO>; Fri, 30 Nov 2001 14:43:14 -0500
+Received: from insws8501.gs.com ([204.4.182.10]:44964 "HELO insws8501.gs.com")
+	by vger.kernel.org with SMTP id <S283719AbRK3Tm5>;
+	Fri, 30 Nov 2001 14:42:57 -0500
+Message-Id: <D28C5BE01ECBD41198ED00D0B7E4C9DA08E1AE75@gsny31e.ny.fw.gs.com>
+From: "Galappatti, Kishantha" <Kishantha.Galappatti@gs.com>
+To: "'Dana Lacoste'" <dana.lacoste@peregrine.com>,
+        "'Larry McVoy'" <lm@bitmover.com>,
+        Henning Schmiedehausen <hps@intermeta.de>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: RE: Coding style - a non-issue
+Date: Fri, 30 Nov 2001 14:42:54 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 30, 2001 at 02:00:18PM -0500, Jeff Garzik wrote:
+i agree with that dana. Sure coding style is important but lets not get
+personal here. I personally think there should be an established coding
+style that should be kept to as much as possible but the way to implement
+that is by helping the contributors to do so with tools etc, not by
+castigating them in a "hall of shame". Isn't open source about inclusion and
+creativity?
+Just my opinion. 
 
-> Human beings know and understand context, and can use it
-> effectively.  'idx' or 'i' or 'bh' may make perfect sense in
-> context.  There is absolutely no need for
-> JournalBHThatIsStoredAndSyncedWithSuperblock.
+--kish
 
-Mathematics has a rich tradition of using short variable names such as 
-"pi" rather than something like "circle-circumference-to-diameter-ratio".
-They keep formulas from becoming unreadably long, and have a meaning 
-which is well understood in context.  While the long version may more
-self-explainatory, it's the short form which is universally preferred.
+-----Original Message-----
+From: Dana Lacoste [mailto:dana.lacoste@peregrine.com]
+Sent: Friday, November 30, 2001 1:19 PM
+To: 'Larry McVoy'; Henning Schmiedehausen
+Cc: Jeff Garzik; linux-kernel@vger.kernel.org
+Subject: RE: Coding style - a non-issue
 
--- John Kodis.
+
+Any chance that you guys could calm down a bit?
+
+I bet the guys in Redmond who were referred to
+earlier are enjoying it, but it's just trash for
+the rest of us....
+
+> Henning, perhaps you can explain to me how the following isn't a 
+> 
+> 	"I don't do XYZ"
+> 
+> 	"XYZ"
+> 
+> statement?
+
+This one I understood though :
+Al made a personal attack.  He defended against the attack,
+and preluded his defence with a disclaimer.
+
+This issue has gone beyond productivity to personal name calling
+and spurious defence.  Can we all just move on a bit maybe?
+
+Thanks
+
+--
+Dana Lacoste      - Linux Developer
+Peregrine Systems -  Ottawa, Canada
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132402AbRDFUPW>; Fri, 6 Apr 2001 16:15:22 -0400
+	id <S132398AbRDFUVX>; Fri, 6 Apr 2001 16:21:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132395AbRDFUPM>; Fri, 6 Apr 2001 16:15:12 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:8176 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S132389AbRDFUPA>; Fri, 6 Apr 2001 16:15:00 -0400
-Date: Fri, 6 Apr 2001 21:31:00 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        James Simmons <jsimmons@linux-fbdev.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] Re: fbcon slowness [was NTP on 2.4.2?]
-In-Reply-To: <20010406203440.O28118@athlon.random>
-Message-ID: <Pine.GSO.3.96.1010406211322.15958J-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S132399AbRDFUVN>; Fri, 6 Apr 2001 16:21:13 -0400
+Received: from front7m.grolier.fr ([195.36.216.57]:9709 "EHLO
+	front7m.grolier.fr") by vger.kernel.org with ESMTP
+	id <S132398AbRDFUVG> convert rfc822-to-8bit; Fri, 6 Apr 2001 16:21:06 -0400
+Date: Fri, 6 Apr 2001 19:09:43 +0200 (CEST)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: st corruption with 2.4.3-pre4
+In-Reply-To: <Pine.LNX.4.05.10104052136070.509-100000@callisto.of.borg>
+Message-ID: <Pine.LNX.4.10.10104061858200.8443-100000@linux.local>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Apr 2001, Andrea Arcangeli wrote:
 
-> ev6 works the way you described AFIK (to flush the write buffer you can use
 
- Thanks for the clarification -- you made me calm down.
+On Thu, 5 Apr 2001, Geert Uytterhoeven wrote:
 
-> wmb(), note that wmb() semantics doesn't require the cpu to really "flush" but
-> just to keep writes oredered across other mb or wmb, but it's basically the
-> same from a software point of you and flushing the write buffer synchronously
-> obviously provides that semantics).  I didn't followed very closely the
+> 
+> BTW, my 2.4.3-pre8 kernel just said
+> 
+> | sym53c875-0:0: ERROR (81:0) (3-21-0) (10/9d) @ (script 8a8:0b000000).
 
- Of course -- you only want to do mb (and not wmb) if you need to meet
-hw's specific timing or you want to perform a read from a volatile
-register of a peripheral device. 
+Illegal instruction detected.
 
-> previous part of the thread so I'm not sure what is the issue.
+> | sym53c875-0: script cmd = 11000000
+> | sym53c875-0: regdump: da 10 80 9d 47 10 00 0d 00 03 80 21 80 01 09 09 00 30 4e 00 08 ff ff ff.
+> | sym53c875-0-<0,*>: FAST-20 WIDE SCSI 40.0 MB/s (50.0 ns, offset 16)
+> 
+> during the boot process, and continued without problems. What does this mean?
 
- Someone complained of Alpha not having Intel-style MTRRs to set write
-combining for fb memory...
+Looks extremally serious to me.
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+The SCRIPTS processor should be fetching CHMOV DSA relative when DATA_IN
+instructions. This corresponds to opcode 0x11000000.
+
+However, it seems to have fetched instruction 0x0b000000 which is a 
+MOVE ABSOLUTE WHEN STATUS PHASE.
+
+In (3-21-0) we can see that the chip is expecting STATUS PHASE (3), but
+the target is driving DATA IN phase (21 - the 1 indicates DATA IN phase).
+
+In other word, the SCRIPTS processor seems to have fetched a bogus
+instruction. The signaled 'illegal instruction detected' may be due to the 
+count of bytes to transfer to be zero.
+
+> Gr{oetje,eeting}s,
+
+  Gérard.
 

@@ -1,86 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264103AbUFSQI4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264183AbUFSQKA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264103AbUFSQI4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 12:08:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264124AbUFSQI4
+	id S264183AbUFSQKA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 12:10:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264191AbUFSQKA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 12:08:56 -0400
-Received: from mxfep02.bredband.com ([195.54.107.73]:22967 "EHLO
-	mxfep02.bredband.com") by vger.kernel.org with ESMTP
-	id S264103AbUFSQIu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 12:08:50 -0400
-Subject: Re: [sundance] Known problems?
-From: Ian Kumlien <pomac@vapor.com>
-To: Andre Tomt <andre@tomt.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <40D46220.9030806@tomt.net>
-References: <1087650302.2971.44.camel@big>  <40D43E26.7060207@tomt.net>
-	 <1087651887.2971.47.camel@big>  <40D46220.9030806@tomt.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-DciPgZ+YKmcsMIXCnmva"
-Message-Id: <1087661289.2971.55.camel@big>
+	Sat, 19 Jun 2004 12:10:00 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:45958 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264183AbUFSQJx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 12:09:53 -0400
+Subject: Re: [PATCH] Stop printk printing non-printable chars
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: matthew-lkml@newtoncomputing.co.uk
+Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040619154907.GE5286@newtoncomputing.co.uk>
+References: <20040618205355.GA5286@newtoncomputing.co.uk>
+	 <1087643904.5494.7.camel@imladris.demon.co.uk>
+	 <20040619154907.GE5286@newtoncomputing.co.uk>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-T0EEnDn3qhaA4FbaF3BW"
+Organization: Red Hat UK
+Message-Id: <1087661385.15190.2.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 19 Jun 2004 18:08:09 +0200
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 19 Jun 2004 18:09:45 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-DciPgZ+YKmcsMIXCnmva
+--=-T0EEnDn3qhaA4FbaF3BW
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, 2004-06-19 at 17:56, Andre Tomt wrote:
-> Ian Kumlien wrote:
-> > On Sat, 2004-06-19 at 15:22, Andre Tomt wrote:
-> >>FYI;
-> >>
-> >>Other than beeing a slow card with mmio-bugs, the only problems I have=20
-> >>had with that card was when having a kernel patched with the now defunc=
-t=20
-> >>and buggy IMQ. Problems were identical.
+On Sat, 2004-06-19 at 17:49, matthew-lkml@newtoncomputing.co.uk wrote:
+> On Sat, Jun 19, 2004 at 12:18:24PM +0100, David Woodhouse wrote:
+> > On Fri, 2004-06-18 at 21:53 +0100, matthew-lkml@newtoncomputing.co.uk
+> > wrote:
+> > > The main problem seems to be in ACPI, but I don't see any reason for
+> > > printk to even consider printing _any_ non-printable characters at al=
+l.
+> > > It makes all characters out of the range 32..126 (except for newline)
+> > > print as a '?'.
 > >=20
-> > Yeah i know about the MMIO bit, but i never had this problem before...
-> > Even when loading it with full 100mbit bw (but that was on 2.4).
+> > Please don't do that -- it makes printing UTF-8 impossible. While I'd
+> > not argue that now is the time to start outputting UTF-8 all over the
+> > place, I wouldn't accept that it's a good time to _prevent_ it either,
+> > as your patch would do.
 >=20
-> I have not used the card since around 2.6.4, but it worked fine back=20
-> then. Did some performance testing on it, with high data and packets/s=20
-> rates, so it did get a fair amount of beating.
+> Please forgive me if I'm wrong on this, but I seem to remember reading
+> something a while ago indicating that the kernel is and always will be
+> internally English (i.e. debugging messages and the like) as there is no
+> need to bloat it with many different languages (that can be done in
+> userspace). As printk is really just a log system, I personally don't
+> see any way that it should ever print anything other than ASCII.
 
-Yeah, I noticed when testing that it is when you make use of fullduplex
-that the driver goes all ape. Ie, the report i sent was about 1mb/s up
-and the rest down of the total 5.5 mb/s.
+english !=3D no-UTF8.
 
-> > Can't it be to paranoid watchdog timings?
-> > (Btw, what is IMO, I'd think it meant 'in my opinion' but, heh =3D))
->=20
-> Not IMO, IMQ, Q as in q ;-)
+Names of people and things still can be UTF8 ....
 
-Ack, =3D)
 
-> If you don't know what it is, you most likely aren't using it. I'm not=20
-> avare of any distributions having it applied. It's used for combinding=20
-> several network packet queues into one for example.
-
-Which might help the case that i saw... Is it avail from somewhere?
-
-My main problem is that enough of these watchdog thingies and i have
-reboot the machine to reinit the hw. (ie, hw is constantly down no
-matter what you do... )
-
---=20
-Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
-
---=-DciPgZ+YKmcsMIXCnmva
+--=-T0EEnDn3qhaA4FbaF3BW
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQBA1GTp7F3Euyc51N8RApYmAJ0V7OG3n69bg7OGYFHn9rIwB0P+fwCglOlS
-K6xuW+gFh5IICv4uuCPzraM=
-=BFTW
+iD8DBQBA1GVIxULwo51rQBIRAqvZAJ9OdeOiMDVRj+IIqsJ3Sn0Jx4DFNQCfRPBN
+mFhsTulNJECKxKUaxn3SkUQ=
+=5K4J
 -----END PGP SIGNATURE-----
 
---=-DciPgZ+YKmcsMIXCnmva--
+--=-T0EEnDn3qhaA4FbaF3BW--
 

@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317469AbSGVPgW>; Mon, 22 Jul 2002 11:36:22 -0400
+	id <S317632AbSGVPjo>; Mon, 22 Jul 2002 11:39:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317498AbSGVPgV>; Mon, 22 Jul 2002 11:36:21 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:26507 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S317469AbSGVPgV>; Mon, 22 Jul 2002 11:36:21 -0400
-Date: Mon, 22 Jul 2002 10:39:26 -0500 (CDT)
-From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: zhengchuanbo <zhengcb@netpower.com.cn>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: error when build linux-2.5.27
-In-Reply-To: <200207221126411.SM00792@zhengcb>
-Message-ID: <Pine.LNX.4.44.0207221035110.28150-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317634AbSGVPjo>; Mon, 22 Jul 2002 11:39:44 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:31226 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317632AbSGVPjn>; Mon, 22 Jul 2002 11:39:43 -0400
+Subject: Re: [PATCH] 2.5.27 read_write
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: martin@dalecki.de
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3D3C11DE.7010000@evision.ag>
+References: <Pine.LNX.4.44.0207201218390.1230-100000@home.transmeta.com> 
+	<3D3C11DE.7010000@evision.ag>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 22 Jul 2002 17:55:23 +0100
+Message-Id: <1027356923.31787.47.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Jul 2002, zhengchuanbo wrote:
-
+On Mon, 2002-07-22 at 15:08, Marcin Dalecki wrote:
+> - It is fixing completely confused wild casting to 32 bits.
 > 
-> when i build linux-2.5.27,i met some problem. the error message is as this:
-> 
-> linux-kernelmake[1]: Entering directory `/usr/src/linux-2.5.27/arch/i386/kernel'
->   gcc -Wp,-MD,./.entry.o.d -D__ASSEMBLY__ -D__KERNEL__ -I/usr/src/linux-2.5.27/i
-> nclude -nostdinc -iwithprefix include  -traditional  -c -o entry.o entry.S
-> /usr/lib/gcc-lib/i386-redhat-linux/2.96/tradcpp0: Usage: /usr/lib/gcc-lib/i386-r
-> edhat-linux/2.96/tradcpp0 [switches] input output
-> make[1]: *** [entry.o] Error 1
-> make[1]: Leaving directory `/usr/src/linux-2.5.27/arch/i386/kernel'
-> make: *** [arch/i386/kernel] Error 2
+> - Actually adding a comment explaining the obscure code, which is
+>    relying on integer arithmetics overflow.
 
-Hmmh, I have really no idea how that would happen, short of a compiler 
-bug.
-
-What version of gcc are you using? (2.96-X, it seems, what does "rpm -qa |
-grep gcc" say?)
-
-Does the error go away without the -traditional?
-
---Kai
+Better yet take the code from 2.4.19-rc3. The code you fixed up is still
+wrong. Sincie iov_len is not permitted to exceed 2Gb (SuS v3, found by
+the LSB test suite) the actual fix turns out to be even simpler and
+cleaner than the one you did
 
 

@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264273AbRFLInU>; Tue, 12 Jun 2001 04:43:20 -0400
+	id <S264279AbRFLI5X>; Tue, 12 Jun 2001 04:57:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264278AbRFLInK>; Tue, 12 Jun 2001 04:43:10 -0400
-Received: from [194.213.32.142] ([194.213.32.142]:13828 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S264273AbRFLIm5>;
-	Tue, 12 Jun 2001 04:42:57 -0400
-Message-ID: <20010611225944.B959@bug.ucw.cz>
-Date: Mon, 11 Jun 2001 22:59:44 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Roberto Di Cosmo <Roberto.Di-Cosmo@pps.jussieu.fr>,
-        linux-kernel@vger.kernel.org
-Cc: demolinux@demolinux.org, dicosmo@pps.jussieu.fr
-Subject: Re: [isocompr PATCH]: announcing stable port to kernel 2.2.18
-In-Reply-To: <200106110929.f5B9T5Q27584@foobar.pps.jussieu.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <200106110929.f5B9T5Q27584@foobar.pps.jussieu.fr>; from Roberto Di Cosmo on Mon, Jun 11, 2001 at 11:29:05AM +0200
+	id <S264280AbRFLI5D>; Tue, 12 Jun 2001 04:57:03 -0400
+Received: from [203.192.192.176] ([203.192.192.176]:47364 "EHLO
+	voodoo.pinkpoodles.com") by vger.kernel.org with ESMTP
+	id <S264279AbRFLI45>; Tue, 12 Jun 2001 04:56:57 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Hrishi <hrishi@mediaibc.com>
+Organization: mediaibc.com
+To: Boenisch Joerg <joerg.boenisch@siemens.at>, linux-kernel@vger.kernel.org
+Subject: Re: AVM A1 pcmcia, kernel 2.4.5-ac11 problem
+Date: Tue, 12 Jun 2001 14:48:59 +0530
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <D9F2B9CD7BD5D21196BC0800060D9ED604ED6344@vies186a.sie.siemens.at>
+In-Reply-To: <D9F2B9CD7BD5D21196BC0800060D9ED604ED6344@vies186a.sie.siemens.at>
+X-Dookie-is: myfavalbum
+MIME-Version: 1.0
+Message-Id: <01061214485901.23960@voodoo>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello,
 
-> Dear mailing list members,
->         you will find at http://www.pps.jussieu.fr/~dicosmo/FreeSoftware
-> the first public release of my updates (for 2.2.18) of an old patch
-> (due to Eric Youngdale and  Adam J. Richter) to allow the use
-> of transparent compression of files on iso9660 images.
-> 
-> This means you can  pack over 1Gb of data on a usual CD. Also, since
->  reading off the CD is actually slower than decompressing data, an overall
-> speed improvement comes as a bonus.
+On Tuesday 12 June 2001 14:07, Boenisch Joerg wrote:
+> I hope not to be off topic! (In that case could you tell me where to ask?)
+me too :)
+>
+<snip>
+> cardmgr[1070]: + modprobe: Can´t locate module avma1_cs
+> cardmgr[1070]: modprobe exited with status 255
+> cardmgr[1070]: module /lib/modules/2.4.5-ac11/pcmcia/avma1_cs.o not
+> available
+modprobe cannot find the file avma1_cs.o. it may not exist at all (check your 
+.config ), or the specified path (in /etc/modules.conf) may be wrong.
+if neither of these apply to your system, it may be a misconfiguration in 
+/etc/modules.conf or a hardware problem.
+i cannot help you with pcmcia however. never used it.
 
-Good.
-
-> The current version of the patch for 2.2.18 is very stable (we use it
-> for DemoLinux [see www.demolinux.org] heavily), and I wonder if it could
-> not be a good idea to see if this code can be folded into the official releases
-> sometime in the future (I have been looking at 2.4.x code, but the new page
-> cache means some changes might be needed: I will try to post a first version
-> for 2.4.x soon).
-
-I think that 2.5.0 should be your target... It is definitely new
-feature, and both 2.4.X and 2.2.X are in feature freeze.
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+cheers,
+Hrishi

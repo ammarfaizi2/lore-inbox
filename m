@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266141AbUHDPqk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267311AbUHDPsX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266141AbUHDPqk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 11:46:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267314AbUHDPqj
+	id S267311AbUHDPsX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 11:48:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267312AbUHDPsX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 11:46:39 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:57041 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266141AbUHDPqh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 11:46:37 -0400
-Date: Wed, 4 Aug 2004 08:44:29 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: block layer sg, bsg
-Message-Id: <20040804084429.7de77cd7.davem@redhat.com>
-In-Reply-To: <20040804150403.GU10340@suse.de>
-References: <20040804085000.GH10340@suse.de>
-	<20040804075215.155c06ac.davem@redhat.com>
-	<20040804150403.GU10340@suse.de>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Wed, 4 Aug 2004 11:48:23 -0400
+Received: from fed1rmmtao10.cox.net ([68.230.241.29]:12681 "EHLO
+	fed1rmmtao10.cox.net") by vger.kernel.org with ESMTP
+	id S267311AbUHDPsU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 11:48:20 -0400
+Date: Wed, 4 Aug 2004 08:48:19 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "Zink, Dan" <dan.zink@hp.com>
+Cc: akpm@osdl.org, linuxppc-dev@lists.linuxppc.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ppc32: fix mktree utility in 64-bit cross-compile environment
+Message-ID: <20040804154818.GL9235@smtp.west.cox.net>
+References: <8C91B010B3B7994C88A266E1A72184D306BEFD8F@cceexc19.americas.cpqcorp.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8C91B010B3B7994C88A266E1A72184D306BEFD8F@cceexc19.americas.cpqcorp.net>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Aug 2004 17:04:04 +0200
-Jens Axboe <axboe@suse.de> wrote:
+On Tue, Aug 03, 2004 at 05:01:05PM -0500, Zink, Dan wrote:
 
-> On Wed, Aug 04 2004, David S. Miller wrote:
-> > 
-> > When you pass data structures in via {read,write}{,v}() system calls,
-> > you make it next to impossible for the CONFIG_COMPAT layer to cope
-> > with this.
-> > 
-> > Please consider another way to pass in those sg_io_* things.
-> 
-> Any suggestions?
+> The mktree utility is using "unsigned long" in the definition of a boot
+> block structure.  This is bad when cross compiling from a 64-bit
+> architecture...
 
-ioctl() :-(
+<asm/types.h> isn't portable.  This program needs to still compile &
+work on Cygwin & Solaris.
 
-Or use a more portable well-defined type which does not change
-size nor layout between 32-bit and 64-bit environments.
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

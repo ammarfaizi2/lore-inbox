@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269864AbUJTKxZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269643AbUJTKxY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269864AbUJTKxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 06:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269401AbUJTKwD
+	id S269643AbUJTKxY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 06:53:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267683AbUJTKwa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 06:52:03 -0400
-Received: from jstevenson.plus.com ([212.159.71.212]:26499 "EHLO
-	beast.stev.org") by vger.kernel.org with ESMTP id S269864AbUJTKov
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 06:44:51 -0400
-Date: Wed, 20 Oct 2004 12:18:02 +0100 (BST)
-From: James Stevenson <james@stev.org>
-To: Hans-Peter Jansen <hpj@urpla.net>
-cc: linux-ide@vger.kernel.org, <linux-kernel@vger.kernel.org>,
-       <kernelnewbies@nl.linux.org>, James Stevenson <james@stev.org>
-Subject: Re: ATA/133 Problems with multiple cards
-In-Reply-To: <200410201235.37423.hpj@urpla.net>
-Message-ID: <Pine.LNX.4.44.0410201211481.5805-100000@beast.stev.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 20 Oct 2004 06:52:30 -0400
+Received: from baythorne.infradead.org ([81.187.226.107]:17543 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S269931AbUJTKmt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 06:42:49 -0400
+Subject: Re: iproute2 and 2.6.9 kernel headers (was Re: [ANNOUNCE] iproute2
+	2.6.9-041019)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Harald Welte <laforge@gnumonks.org>
+Cc: Jeff Chua <jeffchua@silk.corp.fedex.com>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org, LARTC@mailman.ds9a.nl
+In-Reply-To: <20041020094123.GF19899@sunbeam.de.gnumonks.org>
+References: <41758014.4080502@osdl.org>
+	 <Pine.LNX.4.61.0410200805110.8475@boston.corp.fedex.com>
+	 <20041020070017.GA19899@sunbeam.de.gnumonks.org>
+	 <20041020094123.GF19899@sunbeam.de.gnumonks.org>
+Content-Type: text/plain
+Message-Id: <1098268885.3872.81.camel@baythorne.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Wed, 20 Oct 2004 11:41:25 +0100
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Oct 2004, Hans-Peter Jansen wrote:
-
-> [Heavily stripped address lists]
+On Wed, 2004-10-20 at 11:41 +0200, Harald Welte wrote:
+> On Wed, Oct 20, 2004 at 09:00:17AM +0200, Harald Welte wrote:
+> > I'll take care of this. sorry fort he inconvenience.
 > 
-> On Sunday 17 October 2004 04:51, James Stevenson wrote:
-> >
-> > then i can only turn the dma up to ATA/100 if i set it to ata/133
-> > it will cause the errors. I assume this is something todo with the
-> > promise bois not setting up the 3rd card at boot time. It only
-> > shows drive listing for 2 of the 3 cards.
+> I should actually read mails befor replying ;)  I thought the bug was in
+> lnstat - but apparently it wasn't.
 > 
-> As noted before, this effect was always related to different firmware 
-> versions on the cards here. Please check boot messages of all cards 
-> separately, and confirm, that this isn't your problem.
+> The include bug seems non-trivial to fix. (how do I hate kernel include
+> from userspace issues):
+> 
+> apparently __KERNEL_STRICT_NAMES is definde somewhere (glibc?) which
+> prevents __le16, __le64 and others from being defined in linux/types.h.
+> 
+> Just reietting it like this doesn't help much:
 
-I had them all flashed to the latest current version which was 2.20.0.15
-when i started having problems. Each card was verified to that version as 
-well. Some did have older firmware on them.
+No, it wouldn't.
 
-The same problems were seen before / after flashign the card. As far as i 
-could tell the promise bios will run form the first card and init the 
-other cards it could be configuring something there which nobody else is 
-aware of. However this only showed drives / drive interfaces form the 
-first 2 cards never the 3rd card. After the bios has init'ed the carss 
-the bios doesnt run on any other cards.
-
-When booting the machine will 3 cards and no drives attached the bios is 
-loaded and unloaded 3 times. This is why i belave something is getting 
-enable / disabled on the other cards by the bios.
-
-	James
-
+The time has come to fix it properly instead. Anything which these tools
+actually need from the kernel headers should be moved into a separate
+header file (still in the kernel source) which is usable from _both_
+kernel and userspace. It should use standard types (like uint16_t etc)
+instead of kernel-private types, and shouldn't have any #if{n,}def
+__KERNEL__ in it. Ideally, it would be in a different directory too --
+but we can worry about that later.
 
 -- 
---------------------------
-Mobile: +44 07779080838
-http://www.stev.org
- 12:10pm  up 19:08,  5 users,  load average: 3.90, 3.83, 3.49
+dwmw2
+
 

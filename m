@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263089AbUJ1Xe0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263070AbUJ1XeZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263089AbUJ1Xe0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 19:34:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263086AbUJ1XdO
+	id S263070AbUJ1XeZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 19:34:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263089AbUJ1Xdn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 19:33:14 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:20243 "HELO
+	Thu, 28 Oct 2004 19:33:43 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:13331 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263089AbUJ1XcG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 19:32:06 -0400
-Date: Fri, 29 Oct 2004 01:31:34 +0200
+	id S263070AbUJ1XaG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 19:30:06 -0400
+Date: Fri, 29 Oct 2004 01:29:31 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Fernando Fuganti <fuganti@netbank.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] watchdog/machzwd.c: remove unused functions
-Message-ID: <20041028233134.GO3207@stusta.de>
+To: stern@rowland.harvard.edu
+Cc: greg@kroah.com, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] USB uhci-debug.c: remove an unused function
+Message-ID: <20041028232931.GN3207@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
 Content-Disposition: inline
@@ -25,74 +26,42 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-The patch below removes unused functions from 
-drivers/char/watchdog/machzwd.c
+The patch below removes an unused function from 
+drivers/usb/host/uhci-debug.c
 
 
 diffstat output:
- drivers/char/watchdog/machzwd.c |   29 -----------------------------
- 1 files changed, 29 deletions(-)
+ drivers/usb/host/uhci-debug.c |   11 -----------
+ 1 files changed, 11 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-- --- linux-2.6.10-rc1-mm1-full/drivers/char/watchdog/machzwd.c.old	2004-10-28 22:57:31.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/drivers/char/watchdog/machzwd.c	2004-10-28 23:56:59.000000000 +0200
-@@ -88,12 +88,6 @@
- 	return inw(DATA_W);
+- --- linux-2.6.10-rc1-mm1-full/drivers/usb/host/uhci-debug.c.old	2004-10-28 23:30:40.000000000 +0200
++++ linux-2.6.10-rc1-mm1-full/drivers/usb/host/uhci-debug.c	2004-10-28 23:30:49.000000000 +0200
+@@ -34,17 +34,6 @@
+ 	}
  }
  
-- -static unsigned short zf_readb(unsigned char port)
+- -static inline int uhci_is_skeleton_qh(struct uhci_hcd *uhci, struct uhci_qh *qh)
 - -{
-- -	outb(port, INDEX);
-- -	return inb(DATA_B);
+- -	int i;
+- -
+- -	for (i = 0; i < UHCI_NUM_SKELQH; i++)
+- -		if (qh == uhci->skelqh[i])
+- -			return 1;
+- -
+- -	return 0;
 - -}
 - -
- 
- MODULE_AUTHOR("Fernando Fuganti <fuganti@conectiva.com.br>");
- MODULE_DESCRIPTION("MachZ ZF-Logic Watchdog driver");
-@@ -155,13 +149,6 @@
- #endif
- 
- 
-- -/* STATUS register functions */
-- -
-- -static inline unsigned char zf_get_status(void)
-- -{
-- -	return zf_readb(STATUS);
-- -}
-- -
- static inline void zf_set_status(unsigned char new)
+ static int uhci_show_td(struct uhci_td *td, char *buf, int len, int space)
  {
- 	zf_writeb(STATUS, new);
-@@ -183,22 +170,6 @@
- 
- /* WD#? counter functions */
- /*
-- - *	Just get current counter value
-- - */
-- -
-- -static inline unsigned short zf_get_timer(unsigned char n)
-- -{
-- -	switch(n){
-- -		case WD1:
-- -			return zf_readw(COUNTER_1);
-- -		case WD2:
-- -			return zf_readb(COUNTER_2);
-- -		default:
-- -			return 0;
-- -	}
-- -}
-- -
-- -/*
-  *	Just set counter value
-  */
- 
+ 	char *out = buf;
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.6 (GNU/Linux)
 
-iD8DBQFBgYFWmfzqmE8StAARAmlSAKDA7jm7qYoR+0t2dAqockIIhOQrwQCfVfhB
-cCmEowuQG3448BONZ8bkd08=
-=hf60
+iD8DBQFBgYDbmfzqmE8StAARAnzfAKCMPOvCmI3QbtizyhG0Svs1By3b1gCdEA6k
+JI7PpvJ1zGTpdBCkEVMe3+M=
+=tfCS
 -----END PGP SIGNATURE-----

@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261301AbSIWSxy>; Mon, 23 Sep 2002 14:53:54 -0400
+	id <S261413AbSIWSsj>; Mon, 23 Sep 2002 14:48:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261285AbSIWSxU>; Mon, 23 Sep 2002 14:53:20 -0400
-Received: from packet.digeo.com ([12.110.80.53]:50313 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261368AbSIWSwK>;
-	Mon, 23 Sep 2002 14:52:10 -0400
-Message-ID: <3D8F6409.D45AA848@digeo.com>
-Date: Mon, 23 Sep 2002 11:57:13 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: trond.myklebust@fys.uio.no
-CC: Rik van Riel <riel@conectiva.com.br>,
-       Urban Widmark <urban@teststation.com>, Chuck Lever <cel@citi.umich.edu>,
-       Daniel Phillips <phillips@arcor.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: invalidate_inode_pages in 2.5.32/3
-References: <3D811A6C.C73FEC37@digeo.com> <15759.17258.990642.379366@charged.uio.no>
+	id <S261410AbSIWSsG>; Mon, 23 Sep 2002 14:48:06 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:27041 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S261413AbSIWSmi>;
+	Mon, 23 Sep 2002 14:42:38 -0400
+Date: Mon, 23 Sep 2002 07:55:19 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Remco Post <r.post@sara.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.38 on ppc/prep
+Message-ID: <20020923145519.GP726@opus.bloom.county>
+References: <20020923142951.GO726@opus.bloom.county> <4FDC416F-CF02-11D6-A08A-000393911DE2@sara.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Sep 2002 18:57:13.0669 (UTC) FILETIME=[074BDF50:01C26333]
+Content-Disposition: inline
+In-Reply-To: <4FDC416F-CF02-11D6-A08A-000393911DE2@sara.nl>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
+On Mon, Sep 23, 2002 at 04:39:49PM +0200, Remco Post wrote:
 > 
-> >>>>> " " == Andrew Morton <akpm@digeo.com> writes:
+> On maandag, september 23, 2002, at 04:29 , Tom Rini wrote:
 > 
->      > Look, idunnoigiveup.  Like scsi and USB, NFS is a black hole
->      > where akpms fear to tread.  I think I'll sulk until someone
->      > explains why this work has to be performed in the context of a
->      > process which cannot do it.
+> >On Mon, Sep 23, 2002 at 02:03:02PM +0200, Remco Post wrote:
+> >
+> >>after some tiny fixes to reiserfs and the makefile for prep bootfile
+> >>(using ../lib/lib.a vs. ../lib/libz.a) I managed to succesfully compile
+> >>a kernel. It even boots to the point where it frees unused kernel 
+> >>memory
+> >>and then stops... this includes succesfully mounting the root
+> >>filesystem...
+> >
+> >What typo exactly?  The only 'lib' in the Makefile
+> >(arch/ppc/boot/prep/Makefile) is:
+> >LIBS = ../lib/zlib.a
 > 
-> I'd be happy to move that work out of the RPC callbacks if you could
-> point out which other processes actually can do it.
+> That one exactly... I don't recall calling it a typo, though ;-) I guess 
+> that is more a relic from when the only lib routines were libz ones and 
+> we called the lib to be linked libz.a....
 
-Well it has to be a new thread, or user processes.
+It's not a relic, it's design.  We don't want the kernel's zlib routines
+right now, we want our own.  Did it not link the way it was?  It's been
+a few releases since I last compiled for my PReP box, but it was well
+after the zlib changes had gone in.
 
-Would it be possible to mark the inode as "needs invalidation",
-and make user processes check that flag once they have i_sem?
+> There is a simular entry in arch/ppc/boot/openfirmware/Makefile... 
+> removing the z helped over there as well (don't recall exactly, I'm at 
+> work now... ) (not that I dare booting Linus's 2.5 tree on my build 
+> machine, it's falling apart even with stable software....  ;-(
 
-> The main problem is that the VFS/MM has no way of relabelling pages as
-> being invalid or no longer up to date: I once proposed simply clearing
-> PG_uptodate on those pages which cannot be cleared by
-> invalidate_inode_pages(), but this was not to Linus' taste.
+Again, we don't want the 'normal' zlib there either.  Was it not
+linking?  If so, what was the error?
 
-Yes, clearing PageUptodate without holding the page lock is
-pretty scary.
-
-Do we really need to invalidate individual pages, or is it real-life
-acceptable to invalidate the whole mapping?
-
-Doing an NFS-special invalidate function is not a problem, btw - my
-current invalidate_inode_pages() is just 25 lines.  It's merely a
-matter of working out what it should do ;)
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

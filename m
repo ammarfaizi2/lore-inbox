@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262106AbUCSBka (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 20:40:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbUCSBka
+	id S262265AbUCSBtr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 20:49:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262206AbUCSBtr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 20:40:30 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:51704 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262106AbUCSBkZ (ORCPT
+	Thu, 18 Mar 2004 20:49:47 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:7428 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262104AbUCSBtY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 20:40:25 -0500
-From: Jesse Barnes <jbarnes@sgi.com>
-To: linux-kernel@vger.kernel.org
+	Thu, 18 Mar 2004 20:49:24 -0500
+Date: Thu, 18 Mar 2004 17:48:42 -0800
+From: Paul Jackson <pj@sgi.com>
+To: colpatch@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, mbligh@aracnet.com, akpm@osdl.org,
+       wli@holomorphy.com, haveblue@us.ibm.com, hch@infradead.org
 Subject: Re: [PATCH] Introduce nodemask_t ADT [0/7]
-Date: Thu, 18 Mar 2004 17:40:23 -0800
-User-Agent: KMail/1.6.1
-References: <1079651064.8149.158.camel@arrakis> <200403181711.05546.jbarnes@sgi.com> <Pine.LNX.4.58.0403182032130.28447@montezuma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.58.0403182032130.28447@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Message-Id: <20040318174842.65f693fe.pj@sgi.com>
+In-Reply-To: <1079659184.8149.355.camel@arrakis>
+References: <1079651064.8149.158.camel@arrakis>
+	<20040318165957.592e49d3.pj@sgi.com>
+	<1079659184.8149.355.camel@arrakis>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200403181740.23292.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 18 March 2004 5:34 pm, Zwane Mwaikambo wrote:
-> How about honouring DMA masks? Would this work with a 32bit DMA mask on a
-> node with memory above the 4G mark. This is for the more impaired systems
-> out there of course =)
+> My goal is to stop the proliferation of open-coded references
+> to node details as soon as possible.
 
-Yeah, systems w/o an IOMMU are going to have trouble with this...
+A worthy goal.
 
-Jesse
-
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

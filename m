@@ -1,48 +1,261 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261575AbUAZMa0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 07:30:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbUAZMa0
+	id S262153AbUAZM66 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 07:58:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbUAZM65
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 07:30:26 -0500
-Received: from mail.shareable.org ([81.29.64.88]:47233 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261575AbUAZMaZ
+	Mon, 26 Jan 2004 07:58:57 -0500
+Received: from node-423a570c.mwc.onnet.us.uu.net ([66.58.87.12]:44550 "EHLO
+	vfemail.net") by vger.kernel.org with ESMTP id S262153AbUAZM6v
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 07:30:25 -0500
-Date: Mon, 26 Jan 2004 12:30:23 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Tomas Ogren <stric@ing.umu.se>, linux-kernel@vger.kernel.org
-Subject: Re: Fried the onboard Broadcom 4401 network...
-Message-ID: <20040126123023.GA27087@mail.shareable.org>
-References: <20040125024238.GA10424@ing.umu.se> <20040126090859.GB505@elf.ucw.cz> <20040126094815.GA2060@ing.umu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 26 Jan 2004 07:58:51 -0500
+From: Neil Macvicar <blackmogu@vfemail.net>
+To: linux-kernel@vger.kernel.org
+Subject: Total kernel freeze under 2.6.1
+Date: Mon, 26 Jan 2004 12:58:38 +0000
+User-Agent: KMail/1.5.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040126094815.GA2060@ing.umu.se>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200401261258.39232.blackmogu@vfemail.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomas Ogren wrote:
-> On 26 January, 2004 - Pavel Machek sent me these 0,4K bytes:
-> > > After that, I have not been able to get link (neither see it through
-> > > Linux/WinXP or the physical LED). I have tried multiple cables and my
-> > > laptop is perfectly happy with all of them, but the broadcom thingie
-> > > seems not. The switch doesn't see link either.
-> > 
-> > Try to physically unplug machine from AC for a while.
-> 
-> Ah, thank you! Just turning the power switch off didn't help.. I suppose
-> it's kept alive (for some values of alive ;) for WOL and such..
+I mailled before on this problem, but received no replies (!). anyways, a 
+recap of the problem is: When I leave my computer running and doing whatever, 
+if I come back to it after ~ 1 hour (any shorter lengths of time and the 
+freeze doesn't occur) and either move the mouse or type on the keyboard, the 
+entire system will freeze. I can tell that it hasn't frozen up to this point 
+as if I am in X, the clock is still ticking etc, or if I am in console mode, 
+and compiling somthing, then text is whizzing by, or HDD is active.
 
-I was startled when I bought a power meter to find that my computers
-and even some monitors consume power when switched off.  I don't mean
-"soft" off - even with the mechanical switch in the off position they
-still consume significant power.
+Now, I've done a further bit of investigation, and tried pinging the box 
+instead of keyboard/mouse input, and the ping will cause the box to freeze 
+also.
 
-My AMD box consumes about 15W of power when the mechanical switch on
-its power supply is off.  About 35W when the mechanical switch is on
-but the computer is in the "soft off" state (i.e. what you get when
-you ask it to turn itself off).
+Note that this freeze happens _no matter what_ is running. The result is the 
+same in console mode, as well as X, with modules loaded, or without any 
+modules loaded.
 
--- Jamie
+Whilst under 2.4.x, this problem never manifested itself.
+
+My system consists of the following:
+
+PII 450MHz CPU
+Intel 440BX MoBo
+WinTV PCI card
+Nvidia GeForce 2 AGP card (moduled driver)
+Ens1371 PCI audio card 
+Promise PCI IDE controller
+Linksys Wireless USB adapter (moduled driver)
+
+My enabled parts of .config:
+
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_BROKEN=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=14
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+CONFIG_X86_PC=y
+CONFIG_MPENTIUMII=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_PREEMPT=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_BINFMT_ELF=y
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PNP=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_SIZE=8192
+CONFIG_BLK_DEV_INITRD=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_IDE_TASKFILE_IO=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_PDC202XX_OLD=y
+CONFIG_PDC202XX_BURST=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=y
+CONFIG_MD=y
+CONFIG_BLK_DEV_DM=y
+CONFIG_DM_IOCTL_V4=y
+CONFIG_IEEE1394=y
+CONFIG_IEEE1394_OHCI1394=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_NETFILTER=y
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_IPRANGE=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_PKTTYPE=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_RECENT=m
+CONFIG_IP_NF_MATCH_ECN=m
+CONFIG_IP_NF_MATCH_DSCP=m
+CONFIG_IP_NF_MATCH_AH_ESP=m
+CONFIG_IP_NF_MATCH_LENGTH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_ULOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_IP_NF_ARPTABLES=m
+CONFIG_IPV6_SCTP__=y
+CONFIG_NETDEVICES=y
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+CONFIG_NET_PCI=y
+CONFIG_8139TOO=y
+CONFIG_NET_RADIO=y
+CONFIG_NET_WIRELESS=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=m
+CONFIG_I2C=y
+CONFIG_I2C_ALGOBIT=y
+CONFIG_AGP=y
+CONFIG_AGP_INTEL=y
+CONFIG_VIDEO_DEV=y
+CONFIG_VIDEO_BT848=y
+CONFIG_VIDEO_TUNER=y
+CONFIG_VIDEO_BUF=y
+CONFIG_VIDEO_BTCX=y
+CONFIG_FB=y
+CONFIG_FB_VESA=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_PCI_CONSOLE=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+CONFIG_LOGO=y
+CONFIG_LOGO_LINUX_CLUT224=y
+CONFIG_SOUND=y
+CONFIG_SND=y
+CONFIG_SND_ENS1371=y
+CONFIG_SND_INTEL8X0=y
+CONFIG_USB=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_UHCI_HCD=y
+CONFIG_USB_SCANNER=m
+CONFIG_EXT2_FS=y
+CONFIG_REISERFS_FS=y
+CONFIG_REISERFS_PROC_INFO=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_UDF_FS=y
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_DEVFS_FS=y
+CONFIG_DEVFS_MOUNT=y
+CONFIG_DEVPTS_FS=y
+CONFIG_RAMFS=y
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+CONFIG_NFS_V4=y
+CONFIG_NFSD=m
+CONFIG_NFSD_V3=y
+CONFIG_NFSD_V4=y
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=m
+CONFIG_SUNRPC=m
+CONFIG_SMB_FS=m
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_X86_EXTRA_IRQS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_SECURITY=y
+CONFIG_SECURITY_CAPABILITIES=y
+CONFIG_CRC32=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_PC=y

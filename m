@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313173AbSEIO3D>; Thu, 9 May 2002 10:29:03 -0400
+	id <S313179AbSEIOdZ>; Thu, 9 May 2002 10:33:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313179AbSEIO3C>; Thu, 9 May 2002 10:29:02 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:20916 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S313173AbSEIO3C>;
-	Thu, 9 May 2002 10:29:02 -0400
-Date: Thu, 09 May 2002 07:16:58 -0700 (PDT)
-Message-Id: <20020509.071658.130422008.davem@redhat.com>
-To: hugh@veritas.com
-Cc: andrea@suse.de, torvalds@transmeta.com, akpm@zip.com.au, cr@sap.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] double flush_page_to_ram
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.21.0205091446070.10938-100000@localhost.localdomain>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S313181AbSEIOdY>; Thu, 9 May 2002 10:33:24 -0400
+Received: from ns.suse.de ([213.95.15.193]:17413 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S313179AbSEIOdY>;
+	Thu, 9 May 2002 10:33:24 -0400
+Date: Thu, 9 May 2002 16:33:23 +0200
+From: Dave Jones <davej@suse.de>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.14-dj2
+Message-ID: <20020509163323.A5262@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Adrian Bunk <bunk@fs.tum.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020508225147.GA11390@suse.de> <Pine.NEB.4.44.0205091140100.19321-100000@mimas.fachschaften.tu-muenchen.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Hugh Dickins <hugh@veritas.com>
-   Date: Thu, 9 May 2002 14:50:11 +0100 (BST)
-   
-   Agreed.  It's better to keep flush_page_to_ram out of filemap_nopage
-   (and how many other _nopages that ought at present to have it according
-   to David, but don't).  As things stand, it's being done unnecessarily
-   twice on the shared maps: your proposal fixes that.
+On Thu, May 09, 2002 at 11:46:48AM +0200, Adrian Bunk wrote:
+ > irlmp.c:1302: redefinition of `irlmp_flow_indication'
+ > irlmp.c:1236: `irlmp_flow_indication' previously defined here
+ > {standard input}: Assembler messages:
+ > {standard input}:2987: Error: symbol `irlmp_flow_indication' is already
+ > It seems that the changes to irlmp.c were merged by Linus but not removed
+ > from the -dj patch. Unfortunately the context of this patch allows to
+ > apply it several times...
+ > The following patch needs to be removed from -dj:
 
-There are many other cases where flush_page_to_ram overflushes,
-its deficiencies are known.
+Yup, thanks.
 
-This is why I am suggesting "don't touch this in 2.4 and let's
-kill it off in 2.5"
+    Dave.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

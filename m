@@ -1,86 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262635AbTCTVcj>; Thu, 20 Mar 2003 16:32:39 -0500
+	id <S262631AbTCTVbq>; Thu, 20 Mar 2003 16:31:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262637AbTCTVcj>; Thu, 20 Mar 2003 16:32:39 -0500
-Received: from hnlmail1.hawaii.rr.com ([24.25.227.32]:59916 "EHLO
-	hawaii.rr.com") by vger.kernel.org with ESMTP id <S262635AbTCTVcf>;
-	Thu, 20 Mar 2003 16:32:35 -0500
-Subject: kernel-2.5.65 NPTL causes rpm-4.2 problem?
-From: Warren Togami <warren@togami.com>
+	id <S262635AbTCTVbq>; Thu, 20 Mar 2003 16:31:46 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61202 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262631AbTCTVbp>; Thu, 20 Mar 2003 16:31:45 -0500
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <20030320122209.H18799@devserv.devel.redhat.com>
-References: <3E798D41.9050000@togami.com>
-	 <20030320122209.H18799@devserv.devel.redhat.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1048196604.8094.25.camel@laptop>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 20 Mar 2003 11:43:24 -1000
-Content-Transfer-Encoding: 7bit
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Larger dev_t and major/minor split
+Date: 20 Mar 2003 13:42:41 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b5dckh$lv1$1@cesium.transmeta.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Johnson suspected from this behavior that NPTL in my kernel is
-broken in kernel-2.5.65 compiled with gcc-3.2.2-2.  Any ideas of what I
-can try?
+Since Linus opened for this the other day I guess I would like to
+suggest it "officially":
 
-(I am not subscribed to LKML at the moment.  Please CC me. Thanks.)
-Warren Togami
-warren@togami.com
+Since glibc already runs with a 64-bit dev_t on as far as I know all
+Linux platforms, which means that userspace is already taking the
+performance hit, *and* since it cause it isn't murdeously obvious by
+now, changing the kernel/userspace interface for this is painful as
+hell, I would like to suggest that:
 
-On Thu, 2003-03-20 at 07:22, Jeff Johnson wrote:
-> On Wed, Mar 19, 2003 at 11:43:29PM -1000, Warren Togami wrote:
-> > rpm-4.2-0.70 seems to be broken while I am using kernel-2.5.65 with 
-> > Rawhide.  When I use LD_ASSUME_KERNEL=2.2.5 it works properly as you can 
-> > see below.
-> > 
-> > Is this a bug in rpm or upstream kernel?  Should I file a Red Hat 
-> > Bugzilla report for rpm?
-> > 
-> 
-> Then you have a broken NPTL implementation, which is a glibc/kernel,
-> not rpm, problem.
-> 
-> > (Is rpm-4.2-0.72 or higher available packaged anywhere?)
-> 
-> Use CVS. rpm-4.2 is on the -r rpm-4_2 branch.
-> 
-> 73 de Jeff
+a) We use a 32+32 bit split for dev_t.  Major zero, minor < 65536
+   would be reserved for compatibility with the old 16-bit dev_t; it
+   still leaves the zero value the "no device" entry.  We could still
+   use major 0, minor >= 65536 as anonymous devices, or we could
+   switch using major 255 which has been reserved for expansion for
+   the past eight years.
+   
+b) In order to support NFSv2 and other filesystems which only support
+   a 32-bit dev_t, I suggest we stay within a (12,20)-bit range for as
+   long as that is practical.  Note, however, that this only affect
+   using those filesystems for /dev, and I personally think it's not
+   too huge of a loss to say "well, if you use NFS for root, either
+   use NFSv3 or make /dev a tmpfs and extract a tarball from your
+   initrd."
 
-[root@laptop root]# rpm -Uvh gaim*
-rpmdb: write: 0xbfffd350, 8192: Invalid argument
-error: db4 error(22) from dbenv->open: Invalid argument
-error: cannot open Packages index using db3 - Invalid argument (22)
-error: cannot open Packages database in /var/lib/rpm
-rpmdb: unable to join the environment
-error: db4 error(11) from dbenv->open: Resource temporarily unavailable
-error: cannot open Packages database in /var/lib/rpm
-rpmdb: unable to join the environment
-error: db4 error(11) from dbenv->open: Resource temporarily unavailable
-error: cannot open Packages database in /var/lib/rpm
-[root@laptop root]# ls
-bin  gaim-0.60-0.fdr.0.1.cvs20030319.i386.rpm 
-gaim-plugin-encrypt-0.60-0.fdr.0.1.cvs20030319.i386.rpm  kernel
-[root@laptop root]# LD_ASSUME_KERNEL=2.2.5 rpm -Uvh gaim*
-Preparing...                ########################################### 
-[100%]
-   1:gaim                   ########################################### 
-[ 50%]
-   2:gaim-plugin-encrypt    ########################################### 
-[100%]
-[root@laptop root]# uname -a
-Linux laptop 2.5.65 #2 Tue Mar 18 23:39:11 HST 2003 i686 athlon i386 
-GNU/Linux
-[root@laptop root]# rpm -q rpm
-rpmdb: unable to join the environment
-error: db4 error(11) from dbenv->open: Resource temporarily unavailable
-error: cannot open Packages index using db3 - Resource temporarily 
-unavailable (11)
-error: cannot open Packages database in /var/lib/rpm
-package rpm is not installed
-[root@laptop root]# LD_ASSUME_KERNEL=2.2.5 rpm -q rpm
-rpm-4.2-0.70
+   All cases where we have to deal with a 32-bit dev_t on the wire or
+   on disk should use a 12+20 split.
 
+How does this sound?
 
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

@@ -1,82 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267850AbUJLVdw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267880AbUJLVfz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267850AbUJLVdw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 17:33:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267851AbUJLVdw
+	id S267880AbUJLVfz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 17:35:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267864AbUJLVfz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 17:33:52 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:35547 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S267850AbUJLVdt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 17:33:49 -0400
-Message-ID: <416C4EEB.4070804@sgi.com>
-Date: Tue, 12 Oct 2004 16:38:51 -0500
-From: Ray Bryant <raybry@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
+	Tue, 12 Oct 2004 17:35:55 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:23784 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S267851AbUJLVfY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 17:35:24 -0400
+Message-ID: <416C4E15.9000503@t-online.de>
+Date: Tue, 12 Oct 2004 23:35:17 +0200
+From: "Harald Dunkel" <harald.dunkel@t-online.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
-       clameter@sgi.com, linux-mm <linux-mm@kvack.org>
-Subject: Re: NUMA: Patch for node based swapping
-References: <2OwBD-HV-31@gated-at.bofh.it> <2OwUX-Ua-23@gated-at.bofh.it> <m3llebn20a.fsf@averell.firstfloor.org>
-In-Reply-To: <m3llebn20a.fsf@averell.firstfloor.org>
+To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: udev: what's up with old /dev ?
+References: <1097446129l.5815l.0l@werewolf.able.es> <20041012001901.GA23831@kroah.com> <416B91C4.7050905@t-online.de> <20041012165809.GA11635@kroah.com> <416C26B4.6040408@t-online.de> <20041012185733.GA31222@kroah.com> <416C3BB6.4040200@t-online.de> <20041012203022.GB32139@kroah.com>
+In-Reply-To: <20041012203022.GB32139@kroah.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-ID: Zqs2-oZaZehILSxBregYDZG5+xbVdtgyLn1NSnQvsru5CRnm0Og8gZ
+X-TOI-MSGID: 8d92d4aa-e489-4f24-9d3b-57dd90e8b225
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is a bad idea and should not be merged into the mainline.
+Greg KH wrote:
+> On Tue, Oct 12, 2004 at 10:16:54PM +0200, Harald Dunkel wrote:
+> 
+>>Greg KH wrote:
+>>
+>>>Yeah, the documentation is out there, somewhere...
+>>>
+>>
+>>What I really do not like for initramfs is that the
+>>cpio file is compiled into the kernel. Extremely
+>>unflexible. Why should I use modules then?
+>>
+>>Is it possible to load the initramfs like an initrd
+>>on the grub command line?
+> 
+> 
+> Why post this in private?
+> 
+> Care to ask this on the linux-kernel mailing list and CC me?  That way I
+> can answer it in public to enable everyone else to know the answer, and
+> let the search engines pick it up.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+Sorry, somewhere in this thread I had clicked the wrong
+reply button.
 
-(1)  On bids for large SGI machines, we often see the requirement that
- > 90% of main memory be allocatable to user programs.  If, as suggested,
-one were to set the /proc/sys/vm/node_swap to 10%, then any allocation
-(e. g. alloction of a page cache page) will kick off kswapd when the
-customer has allocated > 90% of storage.  The result is that kswapd will be
-more or less constantly running on every node in the system.  Since that
-same 90% requirement is often used to size the amount of memory purchased
-to run the customers primary application, we have a recipe for providing
-poor performance for that principle application.  Aa a result we will
-likely end up disabling this feature on those large SGI machines, were it
-to end up in one of our kernels.
+Talking about initramfs: I am still trying to become
+familiar with this stuff. I have found a lot of small
+pieces of information (still reading), and the cpio
+stuff in the kernel usr directory. But I have 2 questions:
 
-Setting the node_swap limit to less than 10% would keep this from happening,
-of course, but in this case the improvement gained is marginal and likely
-not worth the effort.
+Why is the initramfs built at the beginning of the
+kernel build procedure? Wouldn't it be more reasonable
+to build it when all kernel modules are available?
 
-(2)  In HPC applications, it is not sufficient to get "mostly" local storage.
-Quite often such applications "settle in" on a set of nodes and sit there and
-compute for an extremely long time.  Any imbalance in execution times between
-the threads of such an application (e. g. due to one thread having one or more
-pages located on a remote node) results in the entire application being slowed
-down (A parallel application often runs only as quickly as its slowest thread.)
+And why is it compiled into the kernel at all? The
+README in Documentation/early-userspace says
 
-The application people running benchmarks for our systems insist on getting
-100% of the storage they request as local to be truly backed by local storage.
-Getting 98% of that figure is not acceptable.  Because this patch kicks off
-kswapd asynchronously from the storage request, the current page being
-allocated can still end up being allocated off node.  If one tries to solve 
-this problem by setting the threshold lower (say at 20% of main memory), then
-when the benchmark allocates 90% of memory we end up back in a situation
-described above where any storage allocation will cause kswapd to run.
-(Remember that even in an idle system, Linux is constantly scribbling stuff
-out to disk -- so there are always allocations going on via way of 
-__alloc_pages()>) Even then there is no guarentee that kswapd will be able to 
-free up storage quickly enough to keep ahead of allocations.  (The real 
-problem, here, of course is that clean page cache pages can fill up the node, 
-and cause off node allocations to occur; and we would like to free those instead.)
+<quote>
+"Early userspace" is a set of libraries and programs that provide
+various pieces of functionality that are important enough to be
+available while a Linux kernel is coming up, but that don't need to be
+run inside the kernel itself.
+</quote>
 
-I have patches that I am currently working on to do the latter instead of
-the approach of this patch, and once we get those working I'd prefer to
-see those included in the mainline instead of this solution.
--- 
-Best Regards,
-Ray
------------------------------------------------
-                   Ray Bryant
-512-453-9679 (work)         512-507-7807 (cell)
-raybry@sgi.com             raybry@austin.rr.com
-The box said: "Requires Windows 98 or better",
-            so I installed Linux.
------------------------------------------------
+So why compile it into the kernel? IMHO it would be more
+flexible to load the early-userspace stuff similar to initrd
+via the grub command line. Compiling it into the kernel
+could be optional.
 
+
+Regards
+
+Harri

@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbVBNVn0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261565AbVBNVqh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbVBNVn0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 16:43:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261565AbVBNVn0
+	id S261565AbVBNVqh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 16:46:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbVBNVqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 16:43:26 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:43920 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261566AbVBNVnM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 16:43:12 -0500
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Greg KH <greg@kroah.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: avoiding pci_disable_device()...
-X-Message-Flag: Warning: May contain useful information
-References: <4210021F.7060401@pobox.com> <20050214190619.GA9241@kroah.com>
-	<4211013E.6@pobox.com> <52hdke29sh.fsf@topspin.com>
-	<20050214200043.GA15868@havoc.gtf.org>
-From: Roland Dreier <roland@topspin.com>
-Date: Mon, 14 Feb 2005 13:42:40 -0800
-In-Reply-To: <20050214200043.GA15868@havoc.gtf.org> (Jeff Garzik's message
- of "Mon, 14 Feb 2005 15:00:43 -0500")
-Message-ID: <52d5v224z3.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
+	Mon, 14 Feb 2005 16:46:37 -0500
+Received: from gprs214-75.eurotel.cz ([160.218.214.75]:11937 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261565AbVBNVqd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 16:46:33 -0500
+Date: Mon, 14 Feb 2005 22:46:21 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: Bernard Blackham <bernard@blackham.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: Address lots of pending pm_message_t changes
+Message-ID: <20050214214620.GG12235@elf.ucw.cz>
+References: <1108359808.12611.37.camel@desktop.cunningham.myip.net.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 14 Feb 2005 21:42:40.0426 (UTC) FILETIME=[1B8E08A0:01C512DE]
+Content-Disposition: inline
+In-Reply-To: <1108359808.12611.37.camel@desktop.cunningham.myip.net.au>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Jeff> That's an MSI bug.
+Hi!
 
-    Jeff> A current PCI driver -should- be using pci_request_regions().
+> This patch is a conglomeration of about 5 patches that complete (I
+> think!) the work of switching over to pm_message_t. Most of this work
+> was done by Bernard Blackham, some by me, some by Pavel I think (I was
+> out of action for part of the development). I believe it needs to go in
+> before 2.6.11 in order to avoid compilation warnings and errors. The
+> code has been in use by Suspend2 users for around three weeks. Please
+> apply.
 
-Hmm... I'm not sure everyone would agree with that.  It does make
-sense that the MSI-X core wants to make sure that it owns the MSI-X
-table without having someone else stomp on it.
+I have most of it in my tree already, modulo some usb stuff I done
+wrong. Applied.
 
- - R.
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

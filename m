@@ -1,173 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129752AbQLMCGm>; Tue, 12 Dec 2000 21:06:42 -0500
+	id <S130027AbQLMCRG>; Tue, 12 Dec 2000 21:17:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130277AbQLMCGd>; Tue, 12 Dec 2000 21:06:33 -0500
-Received: from gw.lowendale.com.au ([203.26.242.120]:29544 "EHLO
-	marina.lowendale.com.au") by vger.kernel.org with ESMTP
-	id <S129752AbQLMCGR>; Tue, 12 Dec 2000 21:06:17 -0500
-Date: Wed, 13 Dec 2000 13:01:43 +1100 (EST)
-From: Neale Banks <neale@lowendale.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Stephen Rothwell <sfr@linuxcare.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18pre21 oops reading /proc/apm
-In-Reply-To: <Pine.LNX.4.05.10012122203130.26037-100000@marina.lowendale.com.au>
-Message-ID: <Pine.LNX.4.05.10012131233210.27152-200000@marina.lowendale.com.au>
+	id <S130277AbQLMCQ4>; Tue, 12 Dec 2000 21:16:56 -0500
+Received: from smtp1.jp.psi.net ([154.33.63.111]:39183 "EHLO smtp1.jp.psi.net")
+	by vger.kernel.org with ESMTP id <S130027AbQLMCQt>;
+	Tue, 12 Dec 2000 21:16:49 -0500
+From: "Rainer Mager" <rmager@vgkk.com>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: <linux-kernel@vger.kernel.org>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: RE: Signal 11 - the continuing saga
+Date: Wed, 13 Dec 2000 10:45:21 +0900
+Message-ID: <NEBBJBCAFMMNIHGDLFKGKEAKCJAA.rmager@vgkk.com>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="449546482-695101425-976672903=:27152"
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20001212191719.A12420@vger.timpanogas.org>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Thanks for the info...
 
---449546482-695101425-976672903=:27152
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Jeff V. Merkey
+> > 	So, is this related to the larger signal 11 problems?
+>
+> There's a corruption bug in the page cache somewhere, and it's 100%
+> reproducable.  Finding it will be tough....
 
-On Tue, 12 Dec 2000, Neale Banks wrote:
+Ok, granted this will be tough but is anyone even actively working on it?
+What can I do to help?
 
-[...]
-> New diff to follow, hopefully tomorrow.
 
-New diff against unmolested 2.2.18pre24 (appears to apply cleanly to
-2.2.18 also) is attached.
 
-Main points:
+> > Anyone know how to do [disable L1 and L2 caches]?
+>
+> Usually this is performed in the BIOS setup.  You can also disable L1
+> with a sequence of instructions that write to the CR0 register on intel
+> and flip a bit, but in doing this you have to execute a WBINV (write
+> back invalidate) instruction to flush out the cache.  BIOS setup is
+> probably simpler.  Disabling Level I will make the machine slower
+> than mollasses, BTW, and if this bug is race related (they always
+> are) it won't help much in running it down.
 
-(1) adds a configure item for buggy BIOS (i.e. that can't be automagically
-detected).
+Aha, just as I suspected. My BIOS doesn't appear to support this. You seem
+to be saying that doing so won't really contribute anything anyway so I will
+hold off for now.
 
-(2) catches the case of booting with boot-parameter apm=debug (previously
-this could cause a fatal oops during the boot)
 
-(3) modifies the output of /proc/apm when power status reporting is
-disabled - on reflection, maybe this wasn't such a smart thing to do
-(could royally stuff anybody who is automagically parsing /proc/apm?)
 
-Neale.
+--Rainer
 
---449546482-695101425-976672903=:27152
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ashes1.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.05.10012131301420.27152@marina.lowendale.com.au>
-Content-Description: 
-Content-Disposition: attachment; filename="ashes1.diff"
-
-ZGlmZiAtdXIgLXggKi5udGI/IC14IC5jb25maWcgbGludXgtMi4yLjE4cHJl
-MjQtb3JpZy9Eb2N1bWVudGF0aW9uL0NvbmZpZ3VyZS5oZWxwIGxpbnV4LTIu
-Mi4xOHByZTI0L0RvY3VtZW50YXRpb24vQ29uZmlndXJlLmhlbHANCi0tLSBs
-aW51eC0yLjIuMThwcmUyNC1vcmlnL0RvY3VtZW50YXRpb24vQ29uZmlndXJl
-LmhlbHAJVHVlIERlYyAxMiAxMTozOTo1MSAyMDAwDQorKysgbGludXgtMi4y
-LjE4cHJlMjQvRG9jdW1lbnRhdGlvbi9Db25maWd1cmUuaGVscAlXZWQgRGVj
-IDEzIDA5OjM0OjU2IDIwMDANCkBAIC0xMDI5NSw2ICsxMDI5NSwxOCBAQA0K
-ICAgYSB3b3JrLWFyb3VuZCBmb3IgYSBudW1iZXIgb2YgYnVnZ3kgQklPU2Vz
-LiBTd2l0Y2ggdGhpcyBvcHRpb24gb24gaWYNCiAgIHlvdXIgY29tcHV0ZXIg
-Y3Jhc2hlcyBpbnN0ZWFkIG9mIHBvd2VyaW5nIG9mZiBwcm9wZXJseS4NCiAN
-CitCdWdneSBiYXR0ZXJ5IHN0YXR1cyByZXBvcnRpbmcNCitDT05GSUdfQVBN
-X0FTSEVTX05PVEVCSU9TDQorICBDdXJyZW50bHkgZGlzYWJsZXMgcG93ZXIg
-c3RhdHVzIHJlcG9ydGluZyAtIGZvciBidWdneSBCSU9TIHdoaWNoDQorICAo
-YSkgb29wc2VzIG9uIHJlYWRpbmcgZnJvbSAvcHJvYy9hcG0gYW5kIChiKSBk
-b2VzIE5PVCBoYXZlIERNSS4NCisgIChBY2VyTm90ZS05NTAgd2l0aCBQaG9l
-bml4IE5vdGVCSU9TIDE5OTQpLg0KKyAgSW4gZnV0dXJlLCB0aGlzIHNldHRp
-bmcgbWlnaHQgaW52b2tlIGEgYnVnLXdvcmthcm91bmQuDQorICANCisgIE5v
-dGUgdGhhdCBpZiB0aGUgbWFjaGluZSBoYXMgRE1JIHRoZW4gdGhlIEJJT1Mg
-dmVyc2lvbiBzaG91bGQgYmUNCisgIGF1dG9tYWdpY2FsbHkgZGV0ZWN0YWJs
-ZSBhbmQgdGhpcyB3b3JrYXJvdW5kIGF1dG9tYXRlZC4gIFNlbmQgdGhlIERN
-SQ0KKyAgc3RyaW5ncyBwcmludGVkIGF0IGJvb3QtdGltZSB3aXRoIGFueSBy
-ZXBvcnQgaWYgdGhpcyBpcyBub3QgaGFwcGVuaW5nDQorICAob3IgdHJ5IHBh
-dGNoaW5nIGFyY2gvaTM4Ni9rZXJuZWwvZG1pX3NjYW4uYykuDQorDQogV2F0
-Y2hkb2cgVGltZXIgU3VwcG9ydCANCiBDT05GSUdfV0FUQ0hET0cNCiAgIElm
-IHlvdSBzYXkgWSBoZXJlIChhbmQgdG8gb25lIG9mIHRoZSBmb2xsb3dpbmcg
-b3B0aW9ucykgYW5kIGNyZWF0ZSBhDQpkaWZmIC11ciAteCAqLm50Yj8gLXgg
-LmNvbmZpZyBsaW51eC0yLjIuMThwcmUyNC1vcmlnL2FyY2gvaTM4Ni9jb25m
-aWcuaW4gbGludXgtMi4yLjE4cHJlMjQvYXJjaC9pMzg2L2NvbmZpZy5pbg0K
-LS0tIGxpbnV4LTIuMi4xOHByZTI0LW9yaWcvYXJjaC9pMzg2L2NvbmZpZy5p
-bglUdWUgRGVjIDEyIDExOjM5OjU0IDIwMDANCisrKyBsaW51eC0yLjIuMThw
-cmUyNC9hcmNoL2kzODYvY29uZmlnLmluCVdlZCBEZWMgMTMgMDk6MzU6MjEg
-MjAwMA0KQEAgLTExNiw2ICsxMTYsNyBAQA0KICAgYm9vbCAnICAgUlRDIHN0
-b3JlcyB0aW1lIGluIEdNVCcgQ09ORklHX0FQTV9SVENfSVNfR01UDQogICBi
-b29sICcgICBBbGxvdyBpbnRlcnJ1cHRzIGR1cmluZyBBUE0gQklPUyBjYWxs
-cycgQ09ORklHX0FQTV9BTExPV19JTlRTDQogICBib29sICcgICBVc2UgcmVh
-bCBtb2RlIEFQTSBCSU9TIGNhbGwgdG8gcG93ZXIgb2ZmJyBDT05GSUdfQVBN
-X1JFQUxfTU9ERV9QT1dFUl9PRkYNCisgIGJvb2wgJyAgIEJ1Z2d5IHBvd2Vy
-IHN0YXR1cyByZXBvcnRpbmcnIENPTkZJR19BUE1fQVNIRVNfTk9URUJJT1MN
-CiBmaQ0KIHRyaXN0YXRlICdUb3NoaWJhIExhcHRvcCBzdXBwb3J0JyBDT05G
-SUdfVE9TSElCQQ0KIA0KZGlmZiAtdXIgLXggKi5udGI/IC14IC5jb25maWcg
-bGludXgtMi4yLjE4cHJlMjQtb3JpZy9hcmNoL2kzODYva2VybmVsL2FwbS5j
-IGxpbnV4LTIuMi4xOHByZTI0L2FyY2gvaTM4Ni9rZXJuZWwvYXBtLmMNCi0t
-LSBsaW51eC0yLjIuMThwcmUyNC1vcmlnL2FyY2gvaTM4Ni9rZXJuZWwvYXBt
-LmMJVHVlIERlYyAxMiAxMTozOTo1NCAyMDAwDQorKysgbGludXgtMi4yLjE4
-cHJlMjQvYXJjaC9pMzg2L2tlcm5lbC9hcG0uYwlXZWQgRGVjIDEzIDEwOjMy
-OjU1IDIwMDANCkBAIC0xMzAsNiArMTMwLDkgQEANCiAgKiAgICAgICAgIGlz
-IG5vdyB0aGUgd2F5IGxpZmUgd29ya3MpLiANCiAgKiAgICAgICAgIEZpeCB0
-aGlua28gaW4gc3VzcGVuZCgpICh3cm9uZyByZXR1cm4pLg0KICAqICAgMS4x
-M2FjOiBBZGRlZCBhcG1fYmF0dGVyeV9ob3JrZWQoKSBmb3IgQ29tcGFsIGJv
-YXJkcyAoRGVsbCA1MDAwZSBldGMpDQorICogICAxLjEzYWMtbmI6IFdJUDog
-QWNlck5vdGUtOTUwIG9vcHMgb24gcmVhZGluZyAvcHJvYy9hcG0NCisgKiAg
-ICAgICAgIFRyeSBkaXNhYmxpbmcgcG93ZXIgc3RhdHVzIHJlcG9ydGluZy4N
-CisgKiAgICAgICAgIE5lYWxlIEJhbmtzIDxuZWFsZUBsb3dlbmRhbGUuY29t
-LmF1Pg0KICAqDQogICogQVBNIDEuMSBSZWZlcmVuY2U6DQogICoNCkBAIC0y
-MTEsNiArMjE0LDggQEANCiAgKiBQOiBUb3NoaWJhIDE5NTBTOiBiYXR0ZXJ5
-IGxpZmUgaW5mb3JtYXRpb24gb25seSBnZXRzIHVwZGF0ZWQgYWZ0ZXIgcmVz
-dW1lDQogICogUDogTWlkd2VzdCBNaWNybyBTb3VuZGJvb2sgRWxpdGUgRFgy
-LzY2IG1vbm9jaHJvbWU6IHNjcmVlbiBibGFua2luZw0KICAqIAlicm9rZW4g
-aW4gQklPUyBbUmVwb3J0ZWQgYnkgR2Fyc3QgUi4gUmVlc2UgPHJlZXNlQGlz
-bi5uZXQ+XQ0KKyAqID86IEFjZXJOb3RlLTk1MDogb29wcyBvbiByZWFkaW5n
-IC9wcm9jL2FwbSAtIHdvcmthcm91bmQgaXMgYSBXSVANCisgKiAJTmVhbGUg
-QmFua3MgPG5lYWxlQGxvd2VuZGFsZS5jb20uYXU+IERlY2VtYmVyIDIwMDAN
-CiAgKg0KICAqIExlZ2VuZDogVSA9IHVudXNhYmxlIHdpdGggQVBNIHBhdGNo
-ZXMNCiAgKiAgICAgICAgIFAgPSBwYXJ0aWFsbHkgdXNhYmxlIHdpdGggQVBN
-IHBhdGNoZXMNCkBAIC0zMjcsNiArMzMyLDExIEBADQogc3RhdGljIGludAkJ
-CXBvd2VyX29mZl9lbmFibGVkID0gMTsNCiAjZW5kaWYNCiBzdGF0aWMgaW50
-IAkJCWRlbGxfY3JhcCA9IDA7CS8qU2V0IGlmIHdlIGZpbmQgYSA1MDAwZSAq
-Lw0KKyNpZmRlZiBDT05GSUdfQVBNX0FTSEVTX05PVEVCSU9TDQorc3RhdGlj
-IGludCAJCQlhc2hlc19ub3RlYmlvcyA9IDE7CS8qU2V0IGJ5IGNvbmZpZ3Vy
-ZSovDQorI2Vsc2UNCitzdGF0aWMgaW50IAkJCWFzaGVzX25vdGViaW9zID0g
-MDsJLyogRGVmYXVsdCB0byBPSyAqLw0KKyNlbmRpZg0KIA0KIHN0YXRpYyBE
-RUNMQVJFX1dBSVRfUVVFVUVfSEVBRChhcG1fd2FpdHF1ZXVlKTsNCiBzdGF0
-aWMgREVDTEFSRV9XQUlUX1FVRVVFX0hFQUQoYXBtX3N1c3BlbmRfd2FpdHF1
-ZXVlKTsNCkBAIC02NTgsNiArNjY4LDE0IEBADQogCXUzMgllZHg7DQogCXUz
-MglkdW1teTsNCiANCisJLyogQ2F0Y2ggY2FzZXMgb2Yga25vd24gYnVnZ3kg
-QklPU2VuICovDQorCWlmIChkZWxsX2NyYXAgfHwgYXNoZXNfbm90ZWJpb3Mp
-IHsNCisJCSpzdGF0dXMgPSAqYmF0ID0gKmxpZmUgPSAweGZmZmY7DQorCQkv
-KiBub3Qgc3VyZSBvZiB0aGUgX2Jlc3RfIGNvZGUgdG8gcmV0dXJuIGhlcmUu
-DQorCQkgICBGb3Igbm93LCBBUE1fRElTQUJMRUQgd2lsbCBoYXZlIHRvIGRv
-ICAqLw0KKwkJcmV0dXJuIEFQTV9ESVNBQkxFRDsNCisJfQ0KKw0KIAlpZiAo
-YXBtX2Jpb3NfY2FsbChBUE1fRlVOQ19HRVRfU1RBVFVTLCBBUE1fREVWSUNF
-X0FMTCwgMCwNCiAJCQkmZWF4LCAmZWJ4LCAmZWN4LCAmZWR4LCAmZHVtbXkp
-KQ0KIAkJcmV0dXJuIChlYXggPj4gOCkgJiAweGZmOw0KQEAgLTEyNzIsNyAr
-MTI5MCw3IEBADQogDQogCXAgPSBidWY7DQogDQotCWlmICgoc21wX251bV9j
-cHVzID09IDEpICYmICghZGVsbF9jcmFwKSAmJiANCisJaWYgKChzbXBfbnVt
-X2NwdXMgPT0gMSkgJiYNCiAJICAgICEoZXJyb3IgPSBhcG1fZ2V0X3Bvd2Vy
-X3N0YXR1cygmYngsICZjeCwgJmR4KSkpIHsNCiAJCWFjX2xpbmVfc3RhdHVz
-ID0gKGJ4ID4+IDgpICYgMHhmZjsNCiAJCWJhdHRlcnlfc3RhdHVzID0gYngg
-JiAweGZmOw0KQEAgLTEzMjUsNyArMTM0Myw5IEBADQogCSAgICAgIC0xOiBV
-bmtub3duDQogCSAgIDgpIG1pbiA9IG1pbnV0ZXM7IHNlYyA9IHNlY29uZHMg
-Ki8NCiANCi0JcCArPSBzcHJpbnRmKHAsICIlcyAlZC4lZCAweCUwMnggMHgl
-MDJ4IDB4JTAyeCAweCUwMnggJWQlJSAlZCAlc1xuIiwNCisJaWYgKChzbXBf
-bnVtX2NwdXMgPT0gMSkgJiYgIShlcnJvcikpDQorCQlwICs9IHNwcmludGYo
-cCwNCisJCSAgICAgIiVzICVkLiVkIDB4JTAyeCAweCUwMnggMHglMDJ4IDB4
-JTAyeCAlZCUlICVkICVzXG4iLA0KIAkJICAgICBkcml2ZXJfdmVyc2lvbiwN
-CiAJCSAgICAgKGFwbV9iaW9zX2luZm8udmVyc2lvbiA+PiA4KSAmIDB4ZmYs
-DQogCQkgICAgIGFwbV9iaW9zX2luZm8udmVyc2lvbiAmIDB4ZmYsDQpAQCAt
-MTMzNiw2ICsxMzU2LDEzIEBADQogCQkgICAgIHBlcmNlbnRhZ2UsDQogCQkg
-ICAgIHRpbWVfdW5pdHMsDQogCQkgICAgIHVuaXRzKTsNCisJZWxzZQ0KKwkJ
-cCArPSBzcHJpbnRmKHAsDQorCQkgICAgICIlcyAlZC4lZCAweCUwMnggUG93
-ZXIgc3RhdHVzIHJlcG9ydGluZyBkaXNhYmxlZFxuIiwNCisJCSAgICAgZHJp
-dmVyX3ZlcnNpb24sDQorCQkgICAgIChhcG1fYmlvc19pbmZvLnZlcnNpb24g
-Pj4gOCkgJiAweGZmLA0KKwkJICAgICBhcG1fYmlvc19pbmZvLnZlcnNpb24g
-JiAweGZmLA0KKwkJICAgICBhcG1fYmlvc19pbmZvLmZsYWdzKTsNCiANCiAJ
-cmV0dXJuIHAgLSBidWY7DQogfQ0KQEAgLTE0OTIsNiArMTUxOSw5IEBADQog
-CQkoYXBtX2Jpb3NfaW5mby52ZXJzaW9uICYgMHhmZiksDQogCQlhcG1fYmlv
-c19pbmZvLmZsYWdzLA0KIAkJZHJpdmVyX3ZlcnNpb24pOw0KKwlpZiAoZGVs
-bF9jcmFwIHx8IGFzaGVzX25vdGViaW9zKSB7DQorCQlwcmludGsoS0VSTl9J
-TkZPICJhcG06IHBvd2VyIHN0YXR1cyByZXBvcnRpbmcgZGlzYWJsZWRcbiIp
-Ow0KKwl9DQogCWlmICgoYXBtX2Jpb3NfaW5mby5mbGFncyAmIEFQTV8zMl9C
-SVRfU1VQUE9SVCkgPT0gMCkgew0KIAkJcHJpbnRrKEtFUk5fSU5GTyAiYXBt
-OiBubyAzMiBiaXQgQklPUyBzdXBwb3J0XG4iKTsNCiAJCXJldHVybiAtRU5P
-REVWOw0K
---449546482-695101425-976672903=:27152--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264231AbUGIE55@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264251AbUGIE6x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264231AbUGIE55 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 00:57:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264251AbUGIE55
+	id S264251AbUGIE6x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 00:58:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264260AbUGIE6w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 00:57:57 -0400
-Received: from fw.osdl.org ([65.172.181.6]:36525 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264231AbUGIE54 (ORCPT
+	Fri, 9 Jul 2004 00:58:52 -0400
+Received: from mail.tpgi.com.au ([203.12.160.113]:49594 "EHLO mail.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S264251AbUGIE6i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 00:57:56 -0400
-Date: Thu, 8 Jul 2004 21:56:45 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, mason@suse.com
-Subject: Re: writepage fs corruption fixes
-Message-Id: <20040708215645.16d0f227.akpm@osdl.org>
-In-Reply-To: <20040709044205.GF20947@dualathlon.random>
-References: <20040709040151.GB20947@dualathlon.random>
-	<20040708212923.406135f0.akpm@osdl.org>
-	<20040709044205.GF20947@dualathlon.random>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 9 Jul 2004 00:58:38 -0400
+Subject: Re: GCC 3.4 and broken inlining.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Andi Kleen <ak@muc.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <m34qohrdel.fsf@averell.firstfloor.org>
+References: <2fFzK-3Zz-23@gated-at.bofh.it> <2fG2F-4qK-3@gated-at.bofh.it>
+	 <2fG2G-4qK-9@gated-at.bofh.it> <2fPfF-2Dv-21@gated-at.bofh.it>
+	 <2fPfF-2Dv-19@gated-at.bofh.it>  <m34qohrdel.fsf@averell.firstfloor.org>
+Content-Type: text/plain
+Message-Id: <1089349003.4861.17.camel@nigel-laptop.wpcb.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 09 Jul 2004 14:56:43 +1000
 Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> wrote:
->
-> BTW, the new mpage code looks great,
+Hi.
 
-You should have seen the first version!  But after all the bugs were fixed
-and the real world hit it, some spaghetti got in there.
+On Fri, 2004-07-09 at 14:51, Andi Kleen wrote:
+> Nigel Cunningham <ncunningham@linuxmail.org> writes:
 
-> it's a pity that reiserfs and ext3 don't use it yet.
+I'm not sure what I wrote that you're replying to.
 
-JFS, hfs, hfsplus and ext2 are using it.
+> I think a better solution would be to apply the appended patch 
 
-Unfortunately it's hard to use mpage_writepages() even in ext3's writeback
-mode, because ext3_get_block() assumes that it is called with a transaction
-open.  Not impossible though I guess - use a different get_block() which
-opens a transaction for itself...  But only open it if the page isn't
-already mapped to disk.  (/me gets itchy fingers)
+I'm going to be a pragmatist :> As long as it works. I do think that
+functions being declared inline when they can't be inlined is wrong, but
+there are more important things on which to spend my time.
 
+> And then just mark the function you know needs to be inlined
+> as __always_inline__. I did this on x86-64 for some functions
+> too that need to be always inlined (although using the attribute
+> directly because all x86-64 compilers support it)
+
+Should that be __always_inline (no final __ in the patch below, so far
+as I can see)?
+
+[...]
+
+> P.S.: compiler.h seems to be not "gcc 4.0 safe". Probably that needs
+> to be fixed too.
+
+Yes.
+
+Regards,
+
+Nigel
 

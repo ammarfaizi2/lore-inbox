@@ -1,66 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262195AbVC2Ial@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbVC2Imp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262195AbVC2Ial (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 03:30:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbVC2ILw
+	id S262208AbVC2Imp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 03:42:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbVC2IiX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 03:11:52 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:62619 "EHLO
-	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S262190AbVC2IH5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 03:07:57 -0500
-Date: Tue, 29 Mar 2005 01:07:26 -0700
-From: Jeremy Nickurak <atrus@rifetech.com>
-Subject: Re: Logitech MX1000 Horizontal Scrolling
-In-reply-to: <20050308205210.GA3986@ucw.cz>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Esben Stien <b0ef@esben-stien.name>, linux-kernel@vger.kernel.org
-Message-id: <1112083646.12986.3.camel@localhost>
-MIME-version: 1.0
-X-Mailer: Evolution 2.2.1.1
-Content-type: multipart/signed; boundary="=-2mpBJQjWS+bLuu2agc0l";
- protocol="application/pgp-signature"; micalg=pgp-sha1
-References: <873bxfoq7g.fsf@quasar.esben-stien.name>
- <87zmylaenr.fsf@quasar.esben-stien.name> <20050204195410.GA5279@ucw.cz>
- <873bvyfsvs.fsf@quasar.esben-stien.name>
- <87zmxil0g8.fsf@quasar.esben-stien.name> <1110056942.16541.4.camel@localhost>
- <87sm37vfre.fsf@quasar.esben-stien.name>
- <87wtsjtii6.fsf@quasar.esben-stien.name> <20050308205210.GA3986@ucw.cz>
+	Tue, 29 Mar 2005 03:38:23 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:23463 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262221AbVC2IeC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 03:34:02 -0500
+Date: Tue, 29 Mar 2005 10:33:52 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Yang Yi <yyang@ch.mvista.com>
+Cc: linux-kernel@vger.kernel.org, Rt-Dev@Mvista.Com
+Subject: Re: [patch] Fix e1000 driver disable interrupts bug for realtime-preempt-2.6.11-rc4-V0.7.39-02
+Message-ID: <20050329083352.GA6225@elte.hu>
+References: <1109663530.18759.207.camel@montavista2>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1109663530.18759.207.camel@montavista2>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-2mpBJQjWS+bLuu2agc0l
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+* Yang Yi <yyang@ch.mvista.com> wrote:
 
-On Tue, 2005-03-08 at 21:52 +0100, Vojtech Pavlik wrote:
-> The problem is that the mouse really does reports all the double-button
-> stuff and autorepeat, and horizontal wheel together with button press on
-> wheel tilt.
+> Hi ,Ingo
+> 
+> this patch fixes e1000 driver disable interrupt bug when enabling 
+> "Complete Preemption (Realtime)".
 
-Okay, I'm playing with this under 2.6.11.4 some more, and it really
-seems out of whack. The vertical cruise control buttons work properly,
-with the exception of the extra button press. But the horizontal buttons
-are mapping to 6/7 as non-repeat buttons, and adding simulateously the
-4/5 events auto-repeated for as long as the button is down. That is to
-say, pressing the the horizontal scroll in a 2d scrolling area will
-scroll *diagonally* one step, then vertically until the button is
-released.=20
+thanks - applied it to the 41-12 tree.
 
---=20
-Jeremy Nickurak <atrus@rifetech.com>
-
---=-2mpBJQjWS+bLuu2agc0l
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBCSQy+tjFmtbiy5uYRApmTAJ0VvY7SPD5CHLlS2TlKAqoitRG3RgCfXYK6
-QhLFkg2242p/lI9eXUrKfxU=
-=Qvyf
------END PGP SIGNATURE-----
-
---=-2mpBJQjWS+bLuu2agc0l--
+	Ingo

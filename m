@@ -1,81 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319465AbSILHAT>; Thu, 12 Sep 2002 03:00:19 -0400
+	id <S319459AbSILG5Z>; Thu, 12 Sep 2002 02:57:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319466AbSILHAT>; Thu, 12 Sep 2002 03:00:19 -0400
-Received: from packet.digeo.com ([12.110.80.53]:12723 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S319465AbSILHAS>;
-	Thu, 12 Sep 2002 03:00:18 -0400
-Message-ID: <3D804036.4C000672@digeo.com>
-Date: Thu, 12 Sep 2002 00:20:22 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rick Lindsley <ricklind@us.ibm.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] sard changes for 2.5.34
-References: Your message of "Wed, 11 Sep 2002 19:42:26 PDT."
-	             <3D7FFF12.24B0FDAA@digeo.com> <200209120640.g8C6eTD00198@eng4.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Sep 2002 07:05:01.0575 (UTC) FILETIME=[B6708970:01C25A2A]
+	id <S319458AbSILG5Z>; Thu, 12 Sep 2002 02:57:25 -0400
+Received: from dp.samba.org ([66.70.73.150]:7856 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S319459AbSILG5Y>;
+	Thu, 12 Sep 2002 02:57:24 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: lk@tantalophile.demon.co.uk, oliver@neukum.name, zippel@linux-m68k.org,
+       viro@math.psu.edu, kaos@ocs.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Raceless module interface 
+In-reply-to: Your message of "Thu, 12 Sep 2002 07:58:02 +0200."
+             <E17pMzL-0007fx-00@starship> 
+Date: Thu, 12 Sep 2002 17:00:37 +1000
+Message-Id: <20020912070214.570C52C0A8@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rick Lindsley wrote:
+In message <E17pMzL-0007fx-00@starship> you write:
+> On Thursday 12 September 2002 06:52, Rusty Russell wrote:
+> > Um, so register_xxx interfaces all use try_inc_mod_count (ie. a
+> > struct module *  extra arg to register_xxx)?
 > 
->     kstat should be a lighter-weight per-cpu thing.  But the current
->     disk accounting in there would make it 12 kilobytes per CPU.
-> 
->     My vote: remove the disk accounting from kernel_stat and use this.
-> 
-> I have a patch from another contributor that takes disk stats out of
-> kstat and puts them into their own global structure.  I'll give that
-> some attention.
+> In that case they are filesystems or some other thing that fits the
+> model closely enough for try_ind_mod_count to be efficient.  This
+> case is easy and solved as far as I'm concerned, do correct me if
+> I'm wrong.  Assuming I'm not wrong, on to a hard and interesting
+> case.
 
-OK, that's a start.  I think there was some work done on making
-kernel_stat percpu as well.
+No, let's talk about a simple notifier chain.  Say you want to know
+when CPUs go up and down...
 
-Cleaning up and speeding up kernel_stat is a spearate exercise
-of course, but as we need to change userspace we may as well roll
-it all up together.
+> > Or those entry points
+> > are not protected by try_inc_mod_count, so it must bump the refcnt, so
+> > you need to sleep in load until the module becomes unused again.
+> 
+> Let's consider LSM as a really hard case, and let's suppose that the 
+> register_*'s just plug new functions into function tables.  These functions 
+> are just called indirectly, there is no module entry/exit accounting 
+> whatsoever, except that the inc/dec rule must be followed where module code 
+> itself might sleep.
+> 
+> Anyway, at the -EBARF point, all the function pointers have been restored to 
+> their original state, but we may have some tasks executing in the module 
+> already, which got in while _xxx was there.  The solution is to do the 
+> magic_wait_for_quiescence (yes I know it has a real name, I forgot it) before
+> returning -EBARF.  Refcounts never come into it.
+> 
+> What did I miss?  It was too easy.
 
->     > What follows works, but needs refinements.  Comments welcome.
-> 
->     What are those refinements?
-> 
-> A couple I mentioned in my message: double collection of stats, and an
-> ugly hd_struct added to gendisk.  In addition, we should remove the
-> restriction on which and how many disks are reported on.
-> 
-> Lastly, a bit of a philosophical question.  /proc/stat and (with this
-> patch) /proc/diskstats provide some of the same information. Should
-> 
->     a) all of it appear in /proc/stat?
-> 
->     b) all of it appear in /proc/diskstats?
-> 
->     c) keep the current (limited) info in /proc/stat (for backward
->        compatibility) and introduce the expanded info in
->        /proc/diskstats?
-> 
-> My preference is b, but I'm open to other opinions.
+The notifier routine did the right thing, and did:
 
-b).  Let's get the kernel right and change userspace to follow.  We have
-another accounting patch which breaks top(1), so Rik has fixed it (and
-is feeding the fixes upstream).
+	MOD_INC_USE_COUNT();
+	wait_for_some_event();
 
->     What userspace tools are available for interpreting this
->     information?
-> 
-> None that I'm aware of, although /proc/diskstats is formatted in a
-> program-friendly way.  Sample output (warning: wide):
+It's sitting there now, sleeping inside the module (which has refcnt
+1) and we returned -EBARF from module_init().
 
-Does it work with the utilities at http://linux.inet.hr/?  What is the
-relationship with the 2.4 sard work?  (I've never used sard, so words
-of one syllable please ;))
+> I doubt this is any central issue though.  We could, for instance, pass the 
+> address of the count variable to the quiescence tester, and it will be 
+> examined at schedule time, however that works (I promise to find out soon).
 
-If we can get this work playing nicely with those existing sard tools,
-get the kernel_stat stuff cleaned up and get the relevant userspace
-tools working and merged upstream then we have a neat bundle to submit.
+You can sleep in some way before actually kfreeing the failed-to-load
+module memory; preempt makes this a bit trickier but the theory is the
+same (it was preempt that broke my implementation, yes it was that
+long ago).  The point is that you could be sleeping for a *long*
+time...
+
+> I don't see the endless wait.  It looks to me like it's just the time 
+> required for everyone to schedule, which is unbounded all right, but not in 
+> any interesting sense.
+
+It's not the waiting to schedule.  It's the waiting for the refcnt to
+drop to zero.
+
+I don't mind saying "we don't have to handle that corner case", but
+you're left with the messiness of two classes of kernel interface:
+those which handle your refcounting and those which don't.  And the
+module author better get right which ones are which (remember, we're
+talking about people who are *not* kernel gurus, writing their first
+and last kernel module on paid time for their company).
+
+This is where the "how important is module unload?" thing somes in.
+You could get rid of the bugs by having a list of "module count safe"
+interfaces (ie. exported symbols), and if a module uses any others,
+you simply refuse to unload it.  Then no modules need *ever* worry
+about their own reference counts.
+
+Now, the trick I have in my back pocket is a distributed reference
+count scheme (unimplemented so far on Linux, but another idea stolen
+from Paul McKenney's Dynix/PTX team).  You use per-cpu counts *until*
+you want to see if the count is zero (ie. module unload), at which
+case you flip them into (slow) shared-counter mode (handwave,
+handwave, I know).
+
+So it *might* be cheap to apply this to every interface, and migrate
+interfaces across into the "module safe" category on an as-we-need-it
+basis.
+
+Hope that clarifies my thinking this week...
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

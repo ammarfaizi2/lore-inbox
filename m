@@ -1,77 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270814AbRHXAVJ>; Thu, 23 Aug 2001 20:21:09 -0400
+	id <S270823AbRHXBVv>; Thu, 23 Aug 2001 21:21:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270817AbRHXAU7>; Thu, 23 Aug 2001 20:20:59 -0400
-Received: from demai05.mw.mediaone.net ([24.131.1.56]:55740 "EHLO
-	demai05.mw.mediaone.net") by vger.kernel.org with ESMTP
-	id <S270814AbRHXAUr>; Thu, 23 Aug 2001 20:20:47 -0400
-Message-Id: <200108240021.f7O0L1Y18577@demai05.mw.mediaone.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Brian <hiryuu@envisiongames.net>
-To: Fred <fred@arkansaswebs.com>
-Subject: Re: File System Limitations
-Date: Thu, 23 Aug 2001 20:20:59 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01082316383301.12104@bits.linuxball> <3B858F58.1000606@nothing-on.tv> <01082318405901.12319@bits.linuxball>
-In-Reply-To: <01082318405901.12319@bits.linuxball>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S270822AbRHXBVl>; Thu, 23 Aug 2001 21:21:41 -0400
+Received: from mclean.mail.mindspring.net ([207.69.200.57]:60173 "EHLO
+	mclean.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S270821AbRHXBVi>; Thu, 23 Aug 2001 21:21:38 -0400
+Subject: [PATCH] Updated: Let net devices contribute entropy
+From: Robert Love <rml@tech9.net>
+To: linux-kernel@vger.kernel.org
+Cc: linux-kernel@alex.org.uk, miket@bluemug.com, cfriesen@nortelnetworks.com,
+        riel@conectiva.com.br, laughing@shared-source.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99+cvs.2001.08.21.23.41 (Preview Release)
+Date: 23 Aug 2001 21:21:45 -0400
+Message-Id: <998616119.9306.32.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Do you have a file size limit set in ulimit?
-The last RedHat I installed had most of the limits set.
+Available at:
+http://tech9.net/rml/linux/patch-rml-2.4.9-netdev-random-1
+http://tech9.net/rml/linux/patch-rml-2.4.9-netdev-random-2
+for 2.4.9 (this is an update to the previous release), and:
+http://tech9.net/rml/linux/patch-rml-2.4.8-ac10-netdev-random-1
+http://tech9.net/rml/linux/patch-rml-2.4.8-ac10-netdev-random-2
+for 2.4.8-ac10. Patch 1 contains the updated core code and patch 2
+contains the updated drivers.  
 
-	-- Brian
+What's New:
+o 	_ALL_ network devices have been converted.  That is 159 drivers 	in
+ac10.  Please help with patches if there are any missing 	drivers or
+errors in the included drivers.
+o	Updated the Configure.help entry to detail the situation where 	the
+config option would endanger the entropy pool, per lklm 	discussion.
+Thanks Alex	Bligh for the wording.
+o	Resynced with the drivers in 2.4.9 and ac10 and the new archs in 	the
+ac series.
 
-On Thursday 23 August 2001 07:40 pm, Fred wrote:
-> glibc-2.2.2-10
->
-> dd if=/dev/zero of=./tgb count=4000 bs=1M
->
-> created file of 2147483647 bytes
->
-> [root@bits /a5]# dd if=/dev/zero of=./tgb count=4000 bs=1M
-> File size limit exceeded (core dumped)
-> [root@bits /a5]#
->
-> is glibc part of gcc? where do i find glibc?
-> (I've recently compiled gcc-3.00, but won't install cause it breaks
-> kernel compilations).
->
->
->
-> TIA
->
-> Fred
->
->  _________________________________________________
->
-> On Thursday 23 August 2001 06:18 pm, Tony Hoyle wrote:
-> > Fred wrote:
-> > > so why dos my filesystem have a 2 GB limit?
-> > > Must I specify a large block size or some such when i format?
-> > >
-> > > i run 2.4.9 on redhat7.1 out of the box
-> >
-> > Does it?  Unless RH are using a seriously old glibc (which I doubt)
-> > there's no 2GB limit any more.
-> >
-> > Some older applications don't work with it AFAIK... anything bundled
-> > with a modern distro shouldn't have any problems.
-> >
-> > Tony
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe
-> > linux-kernel" in the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+For those who are new, this patch creates a new configure option which
+enables network devices to contribute to /dev/random.  Previously, only
+a few network devices feed the entropy pool.  With this patch, none do
+until the config is set at which time they all can.
+
+It works by defining a new request_irq flag, SA_SAMPLE_NET_RANDOM, which
+when CONFIG_NET_RANDOM is set defines to SA_SAMPLE_RANDOM.
+
+Previous discussions on this thread have hit on a lot of the issues
+surronding this patch.  Currently, the opinion is: if an external
+attacker can observe your network traffic precisely enough, they can
+learn something of the state of your entropy pool, which would make the
+entropy count an overestimate.  Now, however, the attacker will still
+not be able to predict the output of /dev/random if the one-way hash
+(SHA-1) remains unbreakable.  It has also been pointed out that it is
+also important to seed /dev/random on bootup from the previous session
+-- all distributions I know of do this.
+
+Who is this for?  Users on systems with very low entropy, such as
+headless or diskless systems _need_ a solution like this.  Some users
+may be low on entropy, and do not like the 30s wait when SSH reads from
+/dev/random -- this patch is for them, too.  Finally, there are users
+like myself who don't fear attackers on their LAN and want more entropy
+to feed their self esteem. :>
+
+To install: apply the correct patches and enable the config option in
+'Network Devices'.  Enjoy.
+
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

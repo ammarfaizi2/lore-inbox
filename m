@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbUKEUaq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbUKEUgf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261203AbUKEUaq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 15:30:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbUKEUaq
+	id S261206AbUKEUgf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 15:36:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbUKEUgf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 15:30:46 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:5305 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261203AbUKEUad (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 15:30:33 -0500
-Subject: [ANNOUNCE] November Release of LTP now available
-To: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net,
-       ltp-announce@lists.sourceforge.net
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OF9A8067AC.FD841BC2-ON85256F43.007080C4-86256F43.0070A7F9@us.ibm.com>
-From: Marty Ridgeway <mridge@us.ibm.com>
-Date: Fri, 5 Nov 2004 14:30:30 -0600
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 6.5.3 HF1|October 13, 2004) at
- 11/05/2004 15:30:30
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Fri, 5 Nov 2004 15:36:35 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:27910 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261206AbUKEUgd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 15:36:33 -0500
+Date: Fri, 5 Nov 2004 21:31:21 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Adam Heath <doogie@debian.org>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Chris Wedgwood <cw@f00f.org>, Christoph Hellwig <hch@infradead.org>,
+       Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: support of older compilers
+Message-ID: <20041105203120.GD30993@alpha.home.local>
+References: <41894779.10706@techsource.com> <20041103211353.GA24084@infradead.org> <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com> <20041103233029.GA16982@taniwha.stupidest.org> <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com> <418A603A.3030806@nortelnetworks.com> <Pine.LNX.4.58.0411041216240.1229@gradall.private.brainfood.com> <20041105200021.GA30993@alpha.home.local> <Pine.GSO.4.61.0411052128250.23785@waterleaf.sonytel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.61.0411052128250.23785@waterleaf.sonytel.be>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Nov 05, 2004 at 09:28:58PM +0100, Geert Uytterhoeven wrote:
+> > Nobody ever claimed that we all spend our time compiling on the target
+> > system. I wonder if thas would be possible on a 16 MB/200 MHz MIPS ;-)
+> 
+> Why not? 16 MB and 200 MHz used to be plenty!
 
+Yes, sorry, I forgot to mention that instead of disk, I only have 8 MB
+flash :-) Of course, I could do it over NFS, yes...
 
-
-
-ChangeLog from the November LTP release:
-
-LTP-20041105
-- Added extensive syscall testsuite (Ballista)
-- Added new tests to EPoll testsuite
-- Applied long path name patch from Michael Vieths
-- Removed the requirement to have "." listed as the first directory, since
-it is not a documented requirement.
-- GetDents01 - Used _syscall3() to allow this test to run on non-x86 archs.
-- Applied message formatting patch from Gordon Jin.
-- Applied IA64 specific patch from Jacky Malcles.
-- Fixes from Chris Wright for swapon02 failures
-- Restored the compile settings for Linux2.4/GLIBC2.2 and created a new one
-for Linux/GLIBC2.3 Removed -fwritable-strings
-  and -DGLIBC=22 flags from compile.
-- Applied a patch from Zhao Kai that added a pause to allow for testing on
-installations with improved PAM security.
-
-
-Linux Test Project
-Linux Technology Center
-IBM Corporation
-
-
-Internet E-Mail : mridge@us.ibm.com
-IBM, 11501 Burnet Rd, Austin, TX  78758
-Phone (512) 838-1356 - T/L 678-1356 - Bldg. 908/1C005
-Austin, TX.
+Cheers,
+Willy
 

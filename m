@@ -1,91 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262893AbTI2Ii4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 04:38:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbTI2Ih7
+	id S262898AbTI2Ilc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 04:41:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262896AbTI2IkD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 04:37:59 -0400
-Received: from amsfep15-int.chello.nl ([213.46.243.28]:28760 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S262887AbTI2Ihu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 04:37:50 -0400
-Date: Mon, 29 Sep 2003 10:39:07 +0200
-Message-Id: <200309290839.h8T8d7rR003670@callisto.of.borg>
+	Mon, 29 Sep 2003 04:40:03 -0400
+Received: from amsfep16-int.chello.nl ([213.46.243.26]:57130 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262901AbTI2Ihy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 04:37:54 -0400
+Date: Mon, 29 Sep 2003 10:39:11 +0200
+Message-Id: <200309290839.h8T8dB2R003700@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 301] Sun-3 SCSI
+Subject: [PATCH 331] Amiga A2091 SCSI fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sun-3 SCSI updates (from Sam Creasey):
-  - Define sun3scsi_release() in sun3_scsi and sun3_scsi_vme so that the
-    drivers will actually be loaded by the SCSI subsystem.
-  - Remove some warnings.
+A2091 SCSI: Fix compilation by getting rid of the obsolete SCSI host instance
+loop and using per-card interrupt handlers instead.
 
---- linux-2.6.0-test6/drivers/scsi/sun3_scsi.c	Tue Jul 29 18:19:12 2003
-+++ linux-m68k-2.6.0-test6/drivers/scsi/sun3_scsi.c	Mon Sep  1 13:50:47 2003
-@@ -308,7 +308,6 @@
- 	return 1;
+--- linux-2.6.0-test6/drivers/scsi/Kconfig	Fri Sep 19 15:28:40 2003
++++ linux-m68k-2.6.0-test6/drivers/scsi/Kconfig	Sat Sep 27 15:31:23 2003
+@@ -1552,7 +1552,7 @@
+ 
+ config A2091_SCSI
+ 	tristate "A2091/A590 WD33C93A support"
+-	depends on ZORRO && SCSI && BROKEN
++	depends on ZORRO && SCSI
+ 	help
+ 	  If you have a Commodore A2091 SCSI controller, say Y. Otherwise,
+ 	  say N. This driver is also available as a module ( = code which can
+--- linux-2.6.0-test6/drivers/scsi/a2091.c	Tue Jul 29 18:19:05 2003
++++ linux-m68k-2.6.0-test6/drivers/scsi/a2091.c	Sat Sep 27 15:17:28 2003
+@@ -25,31 +25,20 @@
+ #define DMA(ptr) ((a2091_scsiregs *)((ptr)->base))
+ #define HDATA(ptr) ((struct WD33C93_hostdata *)((ptr)->hostdata))
+ 
+-static struct Scsi_Host *first_instance = NULL;
+-static Scsi_Host_Template *a2091_template;
+-
+-static irqreturn_t a2091_intr (int irq, void *dummy, struct pt_regs *fp)
++static irqreturn_t a2091_intr (int irq, void *_instance, struct pt_regs *fp)
+ {
+     unsigned long flags;
+     unsigned int status;
+-    struct Scsi_Host *instance;
+-    int handled = 0;
++    struct Scsi_Host *instance = (struct Scsi_Host *)_instance;
+ 
+-    for (instance = first_instance; instance &&
+-	 instance->hostt == a2091_template; instance = instance->next)
+-    {
+-	status = DMA(instance)->ISTR;
+-	if (!(status & (ISTR_INT_F|ISTR_INT_P)))
+-		continue;
+-
+-	if (status & ISTR_INTS) {
+-		spin_lock_irqsave(instance->host_lock, flags);
+-		wd33c93_intr (instance);
+-		spin_unlock_irqrestore(instance->host_lock, flags);
+-		handled = 1;
+-	}
+-    }
+-    return IRQ_RETVAL(handled);
++    status = DMA(instance)->ISTR;
++    if (!(status & (ISTR_INT_F|ISTR_INT_P)) || !(status & ISTR_INTS))
++	return IRQ_NONE;
++
++    spin_lock_irqsave(instance->host_lock, flags);
++    wd33c93_intr(instance);
++    spin_unlock_irqrestore(instance->host_lock, flags);
++    return IRQ_HANDLED;
  }
  
--#ifdef MODULE
- int sun3scsi_release (struct Scsi_Host *shpnt)
- {
- 	if (shpnt->irq != SCSI_IRQ_NONE)
-@@ -318,7 +317,6 @@
+ static int dma_setup (Scsi_Cmnd *cmd, int dir_in)
+@@ -184,8 +173,6 @@
+     }
+ }
  
+-static int num_a2091 = 0;
+-
+ int __init a2091_detect(Scsi_Host_Template *tpnt)
+ {
+     static unsigned char called = 0;
+@@ -193,6 +180,7 @@
+     unsigned long address;
+     struct zorro_dev *z = NULL;
+     wd33c93_regs regs;
++    int num_a2091 = 0;
+ 
+     if (!MACH_IS_AMIGA || called)
  	return 0;
- }
--#endif
+@@ -221,13 +209,10 @@
+ 	regs.SASR = &(DMA(instance)->SASR);
+ 	regs.SCMD = &(DMA(instance)->SCMD);
+ 	wd33c93_init(instance, regs, dma_setup, dma_stop, WD33C93_FS_8_10);
+-	if (num_a2091++ == 0) {
+-	    first_instance = instance;
+-	    a2091_template = instance->hostt;
+-	    request_irq(IRQ_AMIGA_PORTS, a2091_intr, SA_SHIRQ, "A2091 SCSI",
+-			a2091_intr);
+-	}
++	request_irq(IRQ_AMIGA_PORTS, a2091_intr, SA_SHIRQ, "A2091 SCSI",
++		    instance);
+ 	DMA(instance)->CNTR = CNTR_PDMD | CNTR_INTEN;
++	num_a2091++;
+     }
  
- #ifdef RESET_BOOT
- /*
---- linux-2.6.0-test6/drivers/scsi/sun3_scsi.h	Tue Sep  9 10:13:08 2003
-+++ linux-m68k-2.6.0-test6/drivers/scsi/sun3_scsi.h	Tue Sep  9 14:57:07 2003
-@@ -52,11 +52,7 @@
- static const char *sun3scsi_info (struct Scsi_Host *);
- static int sun3scsi_bus_reset(Scsi_Cmnd *);
- static int sun3scsi_queue_command (Scsi_Cmnd *, void (*done)(Scsi_Cmnd *));
--#ifdef MODULE
- static int sun3scsi_release (struct Scsi_Host *);
--#else
--#define sun3scsi_release NULL
--#endif
- 
- #ifndef CMD_PER_LUN
- #define CMD_PER_LUN 2
---- linux-2.6.0-test6/drivers/scsi/sun3_scsi_vme.c	Tue Jul 29 18:19:12 2003
-+++ linux-m68k-2.6.0-test6/drivers/scsi/sun3_scsi_vme.c	Mon Sep  1 13:50:47 2003
-@@ -140,7 +140,7 @@
-  
- static int sun3scsi_detect(Scsi_Host_Template * tpnt)
- {
--	unsigned long ioaddr, irq;
-+	unsigned long ioaddr, irq = 0;
- 	static int called = 0;
- 	struct Scsi_Host *instance;
- 	int i;
-@@ -277,17 +277,15 @@
+     return num_a2091;
+@@ -266,8 +251,7 @@
+ #ifdef MODULE
+ 	DMA(instance)->CNTR = 0;
+ 	release_mem_region(ZTWO_PADDR(instance->base), 256);
+-	if (--num_a2091 == 0)
+-		free_irq(IRQ_AMIGA_PORTS, a2091_intr);
++	free_irq(IRQ_AMIGA_PORTS, instance);
+ 	wd33c93_release();
+ #endif
  	return 1;
- }
- 
--#ifdef MODULE
- int sun3scsi_release (struct Scsi_Host *shpnt)
- {
- 	if (shpnt->irq != SCSI_IRQ_NONE)
- 		free_irq (shpnt->irq, NULL);
- 
--	iounmap(sun3_scsi_regp);
-+	iounmap((void *)sun3_scsi_regp);
- 
- 	return 0;
- }
--#endif
- 
- #ifdef RESET_BOOT
- /*
 
 Gr{oetje,eeting}s,
 

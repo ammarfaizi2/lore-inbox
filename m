@@ -1,119 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbQLNTqr>; Thu, 14 Dec 2000 14:46:47 -0500
+	id <S129383AbQLNTr5>; Thu, 14 Dec 2000 14:47:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129383AbQLNTqa>; Thu, 14 Dec 2000 14:46:30 -0500
-Received: from pak145.pakuni.net ([205.138.121.145]:54261 "EHLO
-	postal.paktronix.com") by vger.kernel.org with ESMTP
-	id <S129267AbQLNTqP>; Thu, 14 Dec 2000 14:46:15 -0500
-Date: Thu, 14 Dec 2000 13:11:06 -0600 (CST)
-From: "Matthew G. Marsh" <mgm@paktronix.com>
-To: kuznet@ms2.inr.ac.ru
-cc: Pete Toscano <pete@research.netsol.com>, linux-kernel@vger.kernel.org
-Subject: Re: linux ipv6 questions.  bugs?
-In-Reply-To: <200012141740.UAA02109@ms2.inr.ac.ru>
-Message-ID: <Pine.LNX.4.10.10012141304150.16343-100000@netmonster.pakint.net>
+	id <S132638AbQLNTrr>; Thu, 14 Dec 2000 14:47:47 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11277 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129383AbQLNTrg>;
+	Thu, 14 Dec 2000 14:47:36 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200012141915.TAA02512@raistlin.arm.linux.org.uk>
+Subject: Re: Fwd: [Fwd: [PATCH] cs89x0 is not only an ISA card]
+To: J.A.K.Mouw@ITS.TUDelft.NL (Erik Mouw)
+Date: Thu, 14 Dec 2000 19:15:54 +0000 (GMT)
+Cc: jgarzik@mandrakesoft.com (Jeff Garzik), nico@cam.org (Nicolas Pitre),
+        morton@nortelnetworks.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20001214194221.K15157@arthur.ubicom.tudelft.nl> from "Erik Mouw" at Dec 14, 2000 07:42:21 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Dec 2000 kuznet@ms2.inr.ac.ru wrote:
+Erik Mouw writes:
+> No, the cs89x0 can be used on systems that don't have an ISA bus at
+> all. It just needs 16 data lines, a couple of address lines and some
+> selection lines, but that's all. It's very nice for embedded designs
+> because it's a single chip solution. Add a 20MHz crystal, a
+> transformer, and a connector and you're set.
 
-> Hello!
+Umm, you're right; the manufacturer describes the chip as "10Mbps Embedded
+Ethernet Controller" which just happens to be able to be used on an ISA
+bus.
 
-[snip] 
+Therefore, it is NOT an ISA peripheral, but a general purpose peripheral.
+As such, it should NOT be classified as an ISA bus device, and therefore
+should NOT depend on CONFIG_ISA.
 
-> I have no idea what does happen. I cannot reproduce this.
-> Please, describe your setup in more details.
-
-Hi Alexey!
-
-I have several different boxen (test11, test12) that do something very
-similar. They cannot ping6 the link-local addresses at all. As in:
-
-[root@paksecuredX tech]# ping6 ::1
-PING ::1(::1) from ::1 : 56 data bytes
-64 bytes from ::1: icmp_seq=0 hops=64 time=351 usec
-64 bytes from ::1: icmp_seq=1 hops=64 time=200 usec
-
---- ::1 ping statistics ---
-2 packets transmitted, 2 packets received, 0% packet loss
-round-trip min/avg/max/mdev = 0.200/0.275/0.351/0.077 ms
-
-[root@paksecuredX tech]# ip -6 ad
-1: lo: <LOOPBACK,UP> mtu 3840 qdisc noqueue
-    inet6 ::1/128 scope host
-2: eth0: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast qlen 100
-    inet6 fe80::210:5aff:fe05:e828/10 scope link
-
-[root@paksecuredX tech]# ip -6 ro
-fe80::/10 dev eth0  proto kernel  metric 256  mtu 1500 advmss 1440
-ff00::/8 dev eth0  proto kernel  metric 256  mtu 1500 advmss 1440
-default dev eth0  proto kernel  metric 256  mtu 1500 advmss 1440
-unreachable default dev lo  metric -1  error -101
-
-[root@paksecuredX tech]# ping6 fe80::210:5aff:fe05:e828
-connect: Invalid argument
-
-Now if I try and setup an address such as the following it works but still
-will not ping6 the link-local. IE:
-
-[root@paksecuredX tech]# ip -6 ad ad dead:2::1/64 dev eth0
-
-[root@paksecuredX tech]# ip -6 ad
-1: lo: <LOOPBACK,UP> mtu 3840 qdisc noqueue
-    inet6 ::1/128 scope host
-2: eth0: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast qlen 100
-    inet6 dead:2::1/64 scope global tentative
-    inet6 fe80::210:5aff:fe05:e828/10 scope link
-
-[root@paksecuredX tech]# ping6 dead:2::1
-PING dead:2::1(dead:2::1) from ::1 : 56 data bytes
-64 bytes from dead:2::1: icmp_seq=0 hops=64 time=377 usec
-64 bytes from dead:2::1: icmp_seq=1 hops=64 time=196 usec
-
---- dead:2::1 ping statistics ---
-2 packets transmitted, 2 packets received, 0% packet loss
-round-trip min/avg/max/mdev = 0.196/0.286/0.377/0.092 ms
-
-[root@paksecuredX tech]# ping6 fe80::210:5aff:fe05:e828
-connect: Invalid argument
-
-Now from my local box which is running 2.2.12 I can ping the link-local of
-those boxes. IE:
-
-[root@netmonster Kernel]# ping6 fe80::210:5aff:fe05:e828
-PING fe80::210:5aff:fe05:e828(fe80::210:5aff:fe05:e828) from
-fe80::2a0:ccff:fe21:eed3 : 56 data bytes
-64 bytes from fe80::210:5aff:fe05:e828: icmp_seq=0 hops=64 time=1.291 msec
-64 bytes from fe80::210:5aff:fe05:e828: icmp_seq=1 hops=64 time=520 usec
-64 bytes from fe80::210:5aff:fe05:e828: icmp_seq=2 hops=64 time=500 usec
-
---- fe80::210:5aff:fe05:e828 ping statistics ---
-3 packets transmitted, 3 packets received, 0% packet loss
-round-trip min/avg/max/mdev = 0.500/0.770/1.291/0.368 ms
-
-So it looks like there is something going on with just the Link-Local
-addresses. I have not yet started to regress the kernels to see where this
-started. Hope it helps!
-
-Note - this is using iputils 001110 and also 001011
-
-[snip]
- 
-> Alexey
-
---------------------------------------------------
-Matthew G. Marsh,  President
-Paktronix Systems LLC
-1506 North 59th Street
-Omaha  NE  68104
-Phone: (402) 932-7250
-Email: mgm@paktronix.com
-WWW:  http://www.paktronix.com
---------------------------------------------------
-
+(I hope there are enough NOTs there).
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

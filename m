@@ -1,75 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbVCFQ7c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbVCFRDP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261428AbVCFQ7c (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 11:59:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261429AbVCFQ7c
+	id S261431AbVCFRDP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 12:03:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261429AbVCFRDP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 11:59:32 -0500
-Received: from dns2.EURNetCity.net ([80.68.196.9]:27914 "EHLO
-	dns2.EurNetCity.NET") by vger.kernel.org with ESMTP id S261428AbVCFQ70
+	Sun, 6 Mar 2005 12:03:15 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:37894 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261431AbVCFRDB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 11:59:26 -0500
-Message-ID: <422B36BE.90809@route-add.net>
-Date: Sun, 06 Mar 2005 17:58:38 +0100
-From: Alessandro Selli <dhatarattha@route-add.net>
-User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.7.5) Gecko/20050105
-X-Accept-Language: en-us, en
+	Sun, 6 Mar 2005 12:03:01 -0500
+To: linux@MichaelGeng.de (Michael Geng)
+Cc: linux-kernel@vger.kernel.org, hpa@zytor.com, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2/29] FAT: Updated FAT attributes patch
+References: <87ll92rl6a.fsf@devron.myhome.or.jp>
+	<87hdjqrl44.fsf@devron.myhome.or.jp>
+	<87d5uerl2j.fsf_-_@devron.myhome.or.jp>
+	<20050306155329.GA1436@t-online.de>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Mon, 07 Mar 2005 02:02:41 +0900
+In-Reply-To: <20050306155329.GA1436@t-online.de> (Michael Geng's message of
+ "Sun, 6 Mar 2005 16:53:29 +0100")
+Message-ID: <87wtskwvv2.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-To: netdev@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Vanilla kernel >=2.4.28-rc2 incompatibility with ADSL modem Dlink
- DSL-G300+
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-EurNetCity-MailScanner-Information: Please contact the ISP for more information
-X-EurNetCity-MailScanner: Found to be clean
-X-MailScanner-From: dhatarattha@route-add.net
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
-I found a problem having to to with the plain vanilla 2.4.28-rc2 and 
-2.4.29 kernels when I try to use a Dlink DSL-300G+ ethernet ADSL modem 
-on a SS5 machine.
+linux@MichaelGeng.de (Michael Geng) writes:
 
-The domain "route-add.net" is running on a Sun SparcStation 5 machine, 
-equipped with a Micro-SPARCII, 85 MHz processor. This machine has beeing 
-running the domain (web, smtp, ssh, imap, telnet, gopher, finger, 
-auth/ident, dns) for a year. The machine has two "le" (10 base T) 
-ethernet ports, one is connected to the ADSL modem, the other to the LAN.
-The OS is Debian stable (Woody, 3.0).
-The kernel is a plain vanilla one, downloaded from 
-ftp.it.kernel.org/pub/linux/kernel/v2.4 with no patches applied to it.
+> On Sun, Mar 06, 2005 at 03:42:28AM +0900, OGAWA Hirofumi wrote:
+>> +/* <linux/videotext.h> has used 0x72 ('r') in collision, so skip a few */
+>
+> These ioctls in videotext.h have been removed with 2.6.11. They were not used anywhere in the 
+> kernel.
 
-The problem showed up after updating to kernel 2.4.28: the ADSL 
-connection would never outlive the fifteenth minute.  Even though the 
-modem still sensed the ADSL carrier and could be reached into its 
-web-based internal control panel over the same ethernet connection that 
-served the data exchanged with the ISP, after fifteen minutes it could 
-first reach the ISP gateway the connection failed and no packets could 
-be neither sent nor received with any host outside the LAN.  The 
-connection would be available again after a period varying from a few 
-minutes to several hours, three quarters of an hour on the average.
-A script that was let running from Jannuary 18th to February 3rd (data 
-from Jannuary 29th was lost) produced the following data:
-
-http://route-add.net/ping-noping.txt ("riuscito" = success, "fallito" = 
-failed)
-http://route-add.net/ping-noping_18012005-28012005.txt
-http://route-add.net/ping-noping_07012005-17012005.txt ("persa" = lost 
-[connection], "tornata" = [coonection is] back)
-
-I tried changing the wiring, I swapped the ethernet ports the LAN and 
-ADSL modem where connected to, I swapped the modem with an identical one 
-from a colleague of mine, I upgraded to kernel 2.4.29 all to no avail.
-   I then tried the 2.4.28-rc{1,2,3} kernels, and I found the 2.4.28-rc1 
-not to exhibit the problem, that manifests itself on the 2.4.28-rc{2,3} 
-kernels.
-   The problem is sparc-specific, a PC with the very same configuration 
-(Debian stable, plain vanilla kernels etc.) did not suffer any 
-connection drops.
-
+Thanks.  I think we still had better skip them, because the app such
+as strace can handle it easily.
 -- 
-Alessandro Selli
-Tel: 340.839.73.05
-http://alessandro.route-add.net
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

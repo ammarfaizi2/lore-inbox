@@ -1,80 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271869AbRH1SU1>; Tue, 28 Aug 2001 14:20:27 -0400
+	id <S271879AbRH1SUg>; Tue, 28 Aug 2001 14:20:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271871AbRH1SUR>; Tue, 28 Aug 2001 14:20:17 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:30471 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S271869AbRH1SUJ>; Tue, 28 Aug 2001 14:20:09 -0400
-Date: Tue, 28 Aug 2001 11:17:24 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: page_launder() on 2.4.9/10 issue
-In-Reply-To: <20010828180108Z16193-32383+2058@humbolt.nl.linux.org>
-Message-ID: <Pine.LNX.4.33.0108281110540.8754-100000@penguin.transmeta.com>
+	id <S271871AbRH1SUa>; Tue, 28 Aug 2001 14:20:30 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:29959 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S271870AbRH1SUN>; Tue, 28 Aug 2001 14:20:13 -0400
+Message-ID: <3B8BE0C9.78B12BB@zip.com.au>
+Date: Tue, 28 Aug 2001 11:19:53 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8-ac9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+CC: Jannik Rasmussen <jannik@east.no>, linux-kernel@vger.kernel.org
+Subject: Re: Error 3c900 driver in 2.2.19?
+In-Reply-To: <3B8BD508.47CCA66D@zip.com.au> <Pine.LNX.4.30.0108281935230.2909-100000@mustard.heime.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, 28 Aug 2001, Daniel Phillips wrote:
-> On August 28, 2001 05:36 am, Marcelo Tosatti wrote:
-> > Linus,
+Roy Sigurd Karlsbakk wrote:
+> 
+> > Networking needs to allocate memory at interrupt time.  This is
+> > referred to as "atomic allocation".  The only way in which this
+> > can be successful is for the VM system to ensure that there is
+> > a pool of immediately-allocatable memory lying around.
 > >
-> > I just noticed that the new page_launder() logic has a big bad problem.
+> > The 2.2 kernel uses the tunables in /proc/sys/vm/freepages to
+> > decide how large that pool should be.  Machines which sustain
+> > a high network load commonly require more memory than the
+> > default freepages setting provides.  People who encounter network
+> > Rx allocation failures with 2.2 kernels do report that increasing
+> > the freepages tunables fixes the problem.
 > >
-> > The window to find and free previously written out pages by page_launder()
-> > is the amount of writeable pages on the inactive dirty list.
+> > -
+> >
+> 
+> Thanks
+> 
+> But... Should the server hang after experiencing problems with this? On
+> 2.2.19?
+> 
 
-No.
+Absolutely not.  If the network driver experiences 32 successive
+memory allocation failures it will fall back to a timer-driven mode
+where it tries to refill its buffer ring once per second.  This
+code works.
 
-There is no "window". The page_launder() logic is very clear - it will
-write out any dirty pages that it finds that are "old".
+If your machine is completely locking up and needs a reset then
+something is presumably not handling out-of-memory correctly.
 
-> > We'll keep writing out dirty pages (as long as they are available) even if
-> > have a ton of cleaned pages: its just that we don't see them because we
-> > scan a small piece of the inactive dirty list each time.
+What do you mean by "the server hangs"?
 
-So? We need to write them out at some point anyway. Isn't it much better
-to be graceful about it, and allow the writeout to happen in the
-background. The way things _used_ to work, we'd delay the write-out until
-we REALLY had to, which is great for dbench, but is really horrible for
-any normal load.
-
-Think about it - do you really want the system to actively try to reach
-the point where it has no "regular" pages left, and has to start writing
-stuff out (and wait for them synchronously) in order to free up memory? I
-strongly feel that the old code was really really wrong - it may have been
-wonderful for throughput, but it had non-repeatable behaviour, and easily
-caused the inactive_dirty list to fill up with dirty pages because it
-unfairly penalized clean pages.
-
-You do need to realize that dbench is a really bad benchmark, and should
-not be used as a way to tweak the algorithms.
-
-> > That obviously did not happen with the full scan behaviour.
-
-The new code has no difference between "full scan" and "partial scan". It
-will do the same thing regardless of whether you scan the whole list, as
-it doesn't have any state.
-
-This did NOT happen with the old "launder_loop" state thing, but I think
-you agreed that that code was unreliable and flaky, and caused basically
-random non-LRU behaviour that depended on subtle effects in (a) who called
-it and (b) what the layout of the inactive_dirty list was.
-
-
-> > With asynchronous i_dirty->i_clean movement (moving a cleaned page to the
-> > clean list at the IO completion handler. Please don't consider that for
-> > 2.4 :)) this would not happen, too.
->
-> Or we could have parallel lists for dirty and clean.
-
-Well, more importantly, do you actually have good reason to believe that
-it is wrong to try to write things out asynchronously?
-
-		Linus
-
+-

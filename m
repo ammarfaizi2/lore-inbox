@@ -1,71 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129724AbQKOVXB>; Wed, 15 Nov 2000 16:23:01 -0500
+	id <S129205AbQKOVax>; Wed, 15 Nov 2000 16:30:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129523AbQKOVWv>; Wed, 15 Nov 2000 16:22:51 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:61320 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S129724AbQKOVWj>; Wed, 15 Nov 2000 16:22:39 -0500
-From: Christoph Rohland <cr@sap.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: shm swapping in 2.4 again
-In-Reply-To: <Pine.LNX.4.21.0011151308140.5584-100000@duckman.distro.conectiva>
-Organisation: SAP LinuxLab
-Date: 15 Nov 2000 21:52:18 +0100
-In-Reply-To: Rik van Riel's message of "Wed, 15 Nov 2000 13:19:26 -0200 (BRDT)"
-Message-ID: <qwwem0dyn3x.fsf@sap.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
+	id <S129178AbQKOVam>; Wed, 15 Nov 2000 16:30:42 -0500
+Received: from warp9.koschikode.com ([212.84.196.82]:55561 "HELO
+	warp9.koschikode.com") by vger.kernel.org with SMTP
+	id <S129170AbQKOVac>; Wed, 15 Nov 2000 16:30:32 -0500
+Message-ID: <3A12F94D.B2ECDC2@koschikode.com>
+Date: Wed, 15 Nov 2000 21:59:57 +0100
+From: Juri Haberland <juri@koschikode.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: Swapping over NFS in Linux 2.4?
+In-Reply-To: <00111517064807.29351@bar> <Pine.LNX.4.21.0011151421580.5584-100000@duckman.distro.conectiva>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rik,
-
-On Wed, 15 Nov 2000, Rik van Riel wrote:
-> On 15 Nov 2000, Christoph Rohland wrote:
+Rik van Riel wrote:
 > 
->> -  shm_swap is called from swap_out. Actually on my machine after a
->>    while it only gets called without __GFP_IO set, which means it
->>    will not do anything which again leads to deadlock.
+> On Wed, 15 Nov 2000, Andreas Osterburg wrote:
 > 
-> Only _without_ __GFP_IO ?  That's not quite right since
-> that way the system will never get around to swapping out
-> dirty pages...
-
-Yes :-(
-
->> -  If I call this from page_launder it will work much better, but
->>    after a while it gets stuck on prepare_highmem_swapout and will
->>    again lock up under heavy load.
+> > Because I set up a diskless Linux-workstation, I want to swap
+> > over NFS. For this purpose I found only patches for "older"
+> > Linux-versions (2.0, 2.1, 2.2?).
 > 
-> So calling it from page_launder() is just a workaround to
-> make the deadlock more difficult to trigger and not a fix?
-
-It does solve the __GFP_IO issue but triggers another lockup later.
-
->> 2) Integrating it into the global lru lists and/or the page cache. 
->> 
->> I think the second approach is the way to go but I do not
->> understand the global lru list handling enough to do this and I
->> do not know if we can do this in the short time.
+> > Does anyone know wheter there are patches for 2.4 or does anyone
+> > know another solution for this problem?
 > 
-> Indeed, this is the way to go. However, for 2.4 ANY change
-> that makes the system work would be a good one ;)
+> 1. you can swap over NBD
+> 2. if you point me to the swap-over-nfs patches you
+>    have found, I can try to make them work on 2.4 ;)
+> 
+> [I have some interest in making swap-over-nfs work and
+> most of the other VM things in 2.4 are already pretty
+> stable ... at the moment stability is more important
+> than extra performance tricks to me]
 
-That's what I think. But from my observations I get the impression
-that balancing the vm for big shm loads will not work. So the second
-approach is perhaps what we have to do to get it working.
+There was a patch recently posted on the nfs mailing list by Tom Dyas
+from VAlinux. It is against 2.2.17 with the nfs patches by Trond
+Myklebust and Dave Higgen. The post (including the patch) can be found
+here:  http://marc.theaimsgroup.com/?l=linux-nfs&m=97157102825580&w=2
 
-Actually I would appreciate some hints, where I could hook into the vm
-if I implement a swap_shm_page() which could be called from the
-vm. Can I simply call add_to_lru_cache or do I need to add it to the
-page cache...
-
-Greetings
-		Christoph
-
+Juri
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

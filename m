@@ -1,61 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262913AbTAAUHf>; Wed, 1 Jan 2003 15:07:35 -0500
+	id <S264010AbTAAUSH>; Wed, 1 Jan 2003 15:18:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263326AbTAAUHf>; Wed, 1 Jan 2003 15:07:35 -0500
-Received: from tomts13-srv.bellnexxia.net ([209.226.175.34]:6655 "EHLO
-	tomts13-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S262913AbTAAUHe>; Wed, 1 Jan 2003 15:07:34 -0500
-Date: Wed, 1 Jan 2003 15:15:10 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@dell
-To: Tomas Szepe <szepe@pinerecords.com>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+	id <S264628AbTAAUSH>; Wed, 1 Jan 2003 15:18:07 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:31752 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S264010AbTAAUSG>;
+	Wed, 1 Jan 2003 15:18:06 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301012026.h01KQJq9002327@darkstar.example.net>
 Subject: Re: observations on 2.5 config screens
-In-Reply-To: <20030101200717.GA17053@louise.pinerecords.com>
-Message-ID: <Pine.LNX.4.44.0301011509420.27873-100000@dell>
+To: szepe@pinerecords.com (Tomas Szepe)
+Date: Wed, 1 Jan 2003 20:26:18 +0000 (GMT)
+Cc: rpjday@mindspring.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20030101200717.GA17053@louise.pinerecords.com> from "Tomas Szepe" at Jan 01, 2003 09:07:17 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Jan 2003, Tomas Szepe wrote:
-
-> > Bus options (PCI, PCMCIA, EISA, MCA, ISA)
+> > Multimedia devices
 > > 
-> >     First, there's no hint from that heading that hot-pluggable
-> >   settings are hidden under there as well.
+> >     How come "Sound" is not here?  And (as we've already
+> >   established), Radio Adapters is not a sub-entry of Video for
+> >   Linux. :-)  (And is there a reason why Amateur Radio Support
+> >   and Radio Adapters are so far apart in the config menus?
 > 
-> Well, PCMCIA pretty much suggests that, doesn't it?
+> Yeah, this one is a puzzle. <g>
 
-you're right, based on the menus as they are now.  however,
-as i think more about it, if you consider the next comment ...
-> 
-> >     In addition, why does "Bus options" not include the USB bus,
-> >   the I2C bus, FireWire, etc?  A bus is a bus, isn't it?
-> 
-> Yes, this is a valid comment.  Placing USB under "Bus options"
-> should be totally straightforward, but that one's for Greg KH
-> to decide.
+Amateur Radio Support contains options to do with things like ham
+radio modem support.
 
-what might have been gnawing at me was, if USB (and other busses)
-are added here as well, then *most* hotplug options would be in
-one place.  just one way of looking at it.
+Radio Adaptors contains options to do with radio tuner cards.
 
-> > Wireless networking/protocols
-> > 
-> >    Yes, I realize there's no such category, but there *should*
-> >   be, which would include:
-> > 
-> > 	Wireless LAN (non ham-radio)
-> > 	Bluetooth
-> > 	IrDA
-> 
-> IrDA isn't necessarily networking, Bluetooth either.
-> Wireless LAN is where it should be.
+Radio adaptors was originally put together with Video for Linux,
+because when there were only a few radio adaptors supported, it seemed
+logical to group them with video capture cards, which often have
+television tuners on them.
 
-ok, i can buy that.  back to work here ... or, maybe not.
-there must be a bowl game on TV somewhere.
+Most of the illogical grouping of configuration options has come about
+because of the way the kernel has evolved.
 
-rday
+For example, before IDE and SCSI CD-ROM drives because popular, CD-ROM
+drives were a completely separate configuration category.  Now that
+IDE and SCSI CD-ROM drives are much more popular than proprietary
+interface CD-ROM drives, the configuration options for them are
+grouped with the IDE and SCSI options.
 
+John.

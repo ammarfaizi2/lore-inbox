@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267431AbUHTOME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266366AbUHTOLz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267431AbUHTOME (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 10:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267439AbUHTOME
+	id S266366AbUHTOLz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 10:11:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267431AbUHTOLz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 10:12:04 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:4576 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S267431AbUHTOMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 10:12:00 -0400
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Fri, 20 Aug 2004 16:11:01 +0200
-To: schilling@fokus.fraunhofer.de, alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org, kernel@wildsau.enemy.org,
-       fsteiner-mail@bio.ifi.lmu.de, diablod3@gmail.com
+	Fri, 20 Aug 2004 10:11:55 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:53895 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S266366AbUHTOLy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 10:11:54 -0400
 Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <41260675.nail8LDG1UIJL@burner>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kernel@wildsau.enemy.org, fsteiner-mail@bio.ifi.lmu.de,
+       diablod3@gmail.com,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+In-Reply-To: <4125FFA2.nail8LD61HFT4@burner>
 References: <200408041233.i74CX93f009939@wildsau.enemy.org>
- <d577e5690408190004368536e9@mail.gmail.com>
- <4124A024.nail7X62HZNBB@burner> <4124BA10.6060602@bio.ifi.lmu.de>
- <1092925942.28353.5.camel@localhost.localdomain>
- <4125E5B9.nail8LD2EG3NM@burner>
- <1093001143.30940.23.camel@localhost.localdomain>
-In-Reply-To: <1093001143.30940.23.camel@localhost.localdomain>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	 <4124BA10.6060602@bio.ifi.lmu.de>
+	 <1092925942.28353.5.camel@localhost.localdomain>
+	 <200408191800.56581.bzolnier@elka.pw.edu.pl>
+	 <4124D042.nail85A1E3BQ6@burner>
+	 <1092938348.28370.19.camel@localhost.localdomain>
+	 <4125FFA2.nail8LD61HFT4@burner>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1093007370.30940.29.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 20 Aug 2004 14:09:30 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+On Gwe, 2004-08-20 at 14:41, Joerg Schilling wrote:
+> > While Sun did spend a year refusing to fix security holes I found -  for
+> > "compatibility reasons" - long ago back when I was a sysadmin at NTL,
+> > the Linux world does not work that way.
+> 
+> Unless you tell us what kind of "security holes" you found _and_ when this has 
+> been, it looks like a meaningless remark.
 
-> > On a decently administrated Linux system, only root is able to send SCSI 
-> > commands because only root is able to open the apropriate /dev/* entries.
->
-> Wrong (as usual)
+Solaris of 2.5 era had bugs that allowed any user with rsh access to
+issue network configuration ioctls. The sun engineers fixed the bug the
+day I reported it then various other people refused to allow it out for
+a year.
 
-Useless as usual :-(
+Linux doesn't work this way. We fix security bugs as a priority.
 
-If you like to make useful contributions to a discussion, try to be serious and
-either explain what you mean or just asume that nobody will believe you.
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

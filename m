@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbUKWBZE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbUKWB2l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261203AbUKWBZE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 20:25:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbUKVWva
+	id S261202AbUKWB2l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 20:28:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbUKWB0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 17:51:30 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:26878 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261172AbUKVWus (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 17:50:48 -0500
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-X-Message-Flag: Warning: May contain useful information
-References: <20041122713.Nh0zRPbm8qA0VBxj@topspin.com>
-	<20041122221304.GA15634@kroah.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Mon, 22 Nov 2004 14:50:41 -0800
-In-Reply-To: <20041122221304.GA15634@kroah.com> (Greg KH's message of "Mon,
- 22 Nov 2004 14:13:04 -0800")
-Message-ID: <52wtwdbiri.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Re: [PATCH][RFC/v1][0/12] Initial submission of InfiniBand patches
- for review
+	Mon, 22 Nov 2004 20:26:18 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:36023 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261202AbUKWBZN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 20:25:13 -0500
+Date: Mon, 22 Nov 2004 20:23:33 -0500
+From: Dave Jones <davej@redhat.com>
+To: Len Brown <len.brown@intel.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Chris Wright <chrisw@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: why use ACPI (Re: 2.6.10-rc2 doesn't boot (if no floppy device))
+Message-ID: <20041123012333.GK17249@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Len Brown <len.brown@intel.com>, Adrian Bunk <bunk@stusta.de>,
+	Chris Wright <chrisw@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+	Bjorn Helgaas <bjorn.helgaas@hp.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>
+References: <20041115152721.U14339@build.pdx.osdl.net> <1100819685.987.120.camel@d845pe> <20041118230948.W2357@build.pdx.osdl.net> <1100941324.987.238.camel@d845pe> <20041120124001.GA2829@stusta.de> <1101148138.20008.6.camel@d845pe> <20041123004619.GQ19419@stusta.de> <1101172056.20006.153.camel@d845pe>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 22 Nov 2004 22:50:47.0163 (UTC) FILETIME=[B4BD9CB0:01C4D0E5]
+Content-Disposition: inline
+In-Reply-To: <1101172056.20006.153.camel@d845pe>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Greg> Who would be including these files, only drivers in
-    Greg> drivers/infiniband?  Or from files in other parts of the
-    Greg> kernel?
+On Mon, Nov 22, 2004 at 08:07:36PM -0500, Len Brown wrote:
 
-In the current patchset all the code is under drivers/infiniband.
+ > Laptops have had soft poweroff with APM for a while, but desktops and
+ > servers never adopted APM, so soft-power-off is generally a new feature
+ > with ACPI for them.
 
-    Greg> If from other parts of the kernel, use include/linux/infiniband.
+Nonsense.
 
-That's one vote for include/linux/infiniband and two votes for
-include/infiniband so far...
+My 4-way compaq server disagrees with you. No ACPI on that
+at all, and it has fully working APM, even in SMP.  Likewise,
+I don't think I've ever seen a desktop without APM.
+(modulo broken biosen).
 
- - R.
+IIRC, APM supported this since the arrival of ATX power supplies,
+which was a _long_ time ago. 1996/1997 ?
+
+		Dave
+

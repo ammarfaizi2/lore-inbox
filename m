@@ -1,78 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261639AbREXMHl>; Thu, 24 May 2001 08:07:41 -0400
+	id <S261679AbREXMJB>; Thu, 24 May 2001 08:09:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261679AbREXMHb>; Thu, 24 May 2001 08:07:31 -0400
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:60171 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S261639AbREXMHT>; Thu, 24 May 2001 08:07:19 -0400
-From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200105241201.OAA32046@green.mif.pg.gda.pl>
-Subject: Re: [PATCH] drivers/net/others
-To: tori@unhappy.mine.nu (Tobias Ringstrom)
-Date: Thu, 24 May 2001 14:01:14 +0200 (CEST)
-Cc: jgarzik@mandrakesoft.com, alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (kernel list)
-In-Reply-To: <Pine.LNX.4.33.0105241035230.10914-100000@boris.prodako.se> from "Tobias Ringstrom" at May 24, 2001 10:45:25 AM
-X-Mailer: ELM [version 2.5 PL0pre8]
+	id <S261687AbREXMIv>; Thu, 24 May 2001 08:08:51 -0400
+Received: from juicer34.bigpond.com ([139.134.6.86]:40674 "EHLO
+	mailin9.bigpond.com") by vger.kernel.org with ESMTP
+	id <S261679AbREXMIk>; Thu, 24 May 2001 08:08:40 -0400
+To: Jens Axboe <axboe@suse.de>
+Cc: Andi Kleen <ak@suse.de>, Andreas Dilger <adilger@turbolinux.com>,
+        monkeyiq <monkeyiq@users.sourceforge.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Dying disk and filesystem choice.
+In-Reply-To: <m3bsoj2zsw.fsf@kloof.cr.au>
+	<200105240658.f4O6wEWq031945@webber.adilger.int>
+	<20010524103145.A9521@gruyere.muc.suse.de>
+	<20010524121936.I12470@suse.de>
+From: monkeyiq <monkeyiq@users.sourceforge.net>
+X-Home-Page: http://witme.sourceforge.net
+Date: 24 May 2001 22:08:30 +1000
+In-Reply-To: Jens Axboe's message of "Thu, 24 May 2001 12:19:36 +0200"
+Message-ID: <m3eltfymo1.fsf@kloof.cr.au>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Thanks for your impressive clean-up patch.  I have a couple of comments
-> regarding your clean-up of the dmfe.c driver.
+Jens Axboe <axboe@suse.de> writes:
 
-Thanks for your response.
+> On Thu, May 24 2001, Andi Kleen wrote:
+> > On Thu, May 24, 2001 at 12:58:14AM -0600, Andreas Dilger wrote:
+> > > Well reiserfs is probably a very bad choice at this point.  It
+> > > does not have any bad blocks support (yet), so as soon as you have
+> > > a bad block you are stuck.
+> > 
+> > reiserfs doesn't, but the HD usually has transparently in its firmware.
+> > So it hits a bad block; you see an IO error and the next time you hit
+> > the block the firmware has mapped in a fresh one from its internal
+> > reserves.
+> 
+> In fact you will typically only see an I/O error if the drive _can't_
+> remap the sector anymore, because it has run out. No point in reporting
+> a condition that was recovered.
+> 
+> I'd still say, that if you get bad block errors reported from your disk
+> it's long overdue for replacement.
+> 
+> -- 
+> Jens Axboe
+
+Well, I have been fighting this for a while now, its just that today it
+finally hit /home in a big way :( basically its giving a DoS trying 
+to compile stuff (which needs to write 25Mb+ library files)
+
+The drive gives the patented IBM "replace me" audio and the kernel graces
+me with these little chums:
+
+May 24 14:50:22 kloof kernel: hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+May 24 14:50:22 kloof kernel: hda: dma_intr: error=0x40 { UncorrectableError }, LBAsect=78294495, sector=957496
+May 24 14:50:22 kloof kernel: end_request: I/O error, dev 03:08 (hda), sector 957496
+May 24 14:50:22 kloof kernel: hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+May 24 14:50:23 kloof kernel: hda: dma_intr: error=0x40 { UncorrectableError }, LBAsect=78294495, sector=957504
+May 24 14:50:23 kloof kernel: end_request: I/O error, dev 03:08 (hda), sector 957504
+May 24 14:50:23 kloof kernel: hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+May 24 14:50:23 kloof kernel: hda: dma_intr: error=0x40 { UncorrectableError }, LBAsect=78294495, sector=957512
+
+I already knew that the drive was rooted by using the IBM DFT tool.
+I am backing up as I type. Then, roll the dice with yet another 
+IBM drive :-/
  
-> On Thu, 24 May 2001, Andrzej Krzysztofowicz wrote:
-> 
-> > @@ -395,7 +395,7 @@
-> >  	u32 dev_rev, pci_pmr;
-> >
-> >  	if (!printed_version++)
-> > -		printk(version);
-> > +		printk("%s", version);
-> >
-> >  	DMFE_DBUG(0, "dmfe_init_one()", 0);
-> >
-> 
-> Could you please explain the purpose of this change?  To me it looks less
-> efficient in both performance and memory usage.
-
-Basically I also preferred to avoid the extra string here. But Alan suggests
-it may cause problems while somebody wants to add a literal % to the version
-string. Moreover, IMHO it is better to have a standard here, i.e. either all
-drivers contain the format or none does.
-
-If you still complain, I'll drop this change.
-
-> > @@ -2024,8 +2027,10 @@
-> >  {
-> >  	int rc;
-> >
-> > -	printk(version);
-> > +#ifdef MODULE
-> > +	printk("s", version);
-> >  	printed_version = 1;
-> > +#endif /* MODULE */
-> >
-> >  	DMFE_DBUG(0, "init_module() ", debug);
-> >
-> 
-> Whoups...  And why did you add the ifdef, btw?
-
-AFAIK module_init becomes __initcall while compiled into kernel. So it is
-called (IMO) always and the previous "version" printing (around line 400)
-would never be executed (printed_version == 1). 
-And we do not want to print version for built-in drivers which do not detect
-hardware, do we ?
-
-Andrzej
 
 -- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  tel.  (0-58) 347 14 61
-Wydz.Fizyki Technicznej i Matematyki Stosowanej Politechniki Gdanskiej
+---------------------------------------------------
+It's the question, http://witme.sourceforge.net
+If you think education is expensive, try ignorance.
+		-- Derek Bok, president of Harvard
+

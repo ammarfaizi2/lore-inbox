@@ -1,92 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262116AbVBAUon@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262117AbVBAVGs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262116AbVBAUon (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 15:44:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbVBAUon
+	id S262117AbVBAVGs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 16:06:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbVBAVGs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 15:44:43 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:4517 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262116AbVBAUoP (ORCPT
+	Tue, 1 Feb 2005 16:06:48 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:10168 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S262117AbVBAVGp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 15:44:15 -0500
-Date: Tue, 1 Feb 2005 21:44:00 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Tom Rini <trini@kernel.crashing.org>, Bill Huey <bhuey@lnxw.com>,
-       linux-kernel@vger.kernel.org, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc2-V0.7.36-04
-Message-ID: <20050201204359.GA346@elte.hu>
-References: <20041207132927.GA4846@elte.hu> <20041207141123.GA12025@elte.hu> <20041214132834.GA32390@elte.hu> <20050104064013.GA19528@nietzsche.lynx.com> <20050104094518.GA13868@elte.hu> <20050107192651.GG5259@smtp.west.cox.net> <20050126080952.GC4771@elte.hu> <1107288076.18349.7.camel@krustophenia.net> <20050201201704.GA32139@elte.hu> <1107289878.18349.20.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1107289878.18349.20.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 1 Feb 2005 16:06:45 -0500
+Date: Tue, 1 Feb 2005 21:06:43 +0000 (GMT)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] Helping prezoring with reduced fragmentation allocation
+In-Reply-To: <Pine.LNX.4.58.0502011110560.3436@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.58.0502011929020.16992@skynet>
+References: <20050201171641.CC15EE5E8@skynet.csn.ul.ie>
+ <Pine.LNX.4.58.0502011110560.3436@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 1 Feb 2005, Christoph Lameter wrote:
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+> On Tue, 1 Feb 2005, Mel Gorman wrote:
+>
+> > This is a patch that makes a step towards tieing the modified allocator
+> > for reducing fragmentation with the prezeroing of pages that is based
+> > on a discussion with Christoph. When a block has to be split to satisfy a
+> > zero-page, both buddies are zero'd, one is allocated and the other is placed
+> > on the free-list for the USERZERO pool. Care is taken to make sure the pools
+> > are not accidently fragmented.
+>
+> Thanks for integrating the page zero stuff. If you are zeroing pages
+> before their are fragmented then we may not need scrubd anymore. On the
+> other hand, larger than necessary zeroing may be performaned in the hot
+> code paths which may result in sporadically longer delays during
+> allocation (well but then the page_allocator can generate these delays for
+> a number of reasons).
+>
 
-> OK.  So for application triggered tracing you need LATENCY_TRACING
-> enabled, as described here:
-> 
-> http://lkml.org/lkml/2004/10/29/312
+I am not sure it eliminates the need for scrubd just yet. I will only zero
+out more pages than necessary when a block of pages is being split but
+once the zeroing has taken place, I will not need to zero again until all
+the zerod pages are used. So even if the system was doing nothing else, my
+patch will not bother zeroing out anything.
 
-correct, that too should still work fine - with the small change that
-there's now a separate flag to active it:
+Right now, this patch is expensive because there is no cheap mechanism in
+place that makes zering large groups of pages worth it (all
+prep_zero_page() is doing is iterating and zeroing one at a time). For
+this patch to make the most sense, your mechanism for quickly zeroing
+large blocks of pages needs to be place.
 
-	echo 1 > /proc/sys/kernel/trace_user_triggered  # default: 0
+> > I would expect that a scrubber daemon would go through the KERNNORCLM pool,
+> > remove pages, scrub them and move them to USERZERO. It is important that pages
+> > not be moved from the USERRCLM or KERNRCLM pools as it'll cause fragmentation
+> > problems over time.
+>
+> Would it not be better to zero the global 2^MAX_ORDER pages by the scrub
+> daemon and have a global zeroed page list? That way you may avoid zeroing
+> when splitting pages?
+>
 
-it is an orthogonal mechanism to atomicity-debugging.
+Maybe, but right now when there are no 2^MAX_ORDER pages, the scrub daemon
+is going to be doing nothing which is why I think it needs to look at the
+free pages of lower orders.
 
-since i wrote the above mail 3 months ago, a number of improvements have
-been done to the tracer. There are a handful of modifier feature-flags
-to the tracer, which can be used to get additional functionality. Here's
-a quick summary:
+That is solveable though in one of two ways. One, the scrub daemon can
+zero pages from the global list and then add them to the USERZERO pool. It
+has the advantage of requiring no more memory and is simple. The second is
+to create a second global list. However, I think it only makes sense to
+have this as part of the scrub daemon patch (I can write it if thats a
+problem) rather than a standalone patch from me.
 
-	echo 1 > /proc/sys/kernel/trace_freerunning  # default: 0
-
-will get a 'freerunning' tracer which never stops (and overwrites the
-oldest entries if the trace gets full). Especially with long latencies 
-this in some cases can be more informative.
-
-this flag:
-
-	echo 0 > /proc/sys/kernel/mcount_enabled  # default: 1
-
-causes the tracer to record only key kernel events (schedule/wakeup
-events, etc.), not every kernel function call. This might be useful if
-you want to see the bigger picture and want to validate scheduling logic
-on a bigger scale, spanning a much longer timeframe.
-
-and if you have stability problems, this flag might be handy:
-
-	echo 1 > /proc/sys/kernel/trace_freerunning  # default: 0
-
-it will dump the current kernel trace to the kernel console if a crash
-happens - obviously only useful with a serial console or netconsole. 
-It's a big dump but can make some bugs much easier to debug.
-
-on SMP:
-
-	echo 1 > /proc/sys/kernel/trace_all_cpus  # default: 0
-
-this flag will cause all activity from all CPUs to be included in the
-trace. This can be useful if it is suspected that a particular latency
-was caused not by the CPU where the latency triggers, but by some other
-CPU.
-
-	Ingo
+-- 
+Mel Gorman

@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316959AbSEaWRz>; Fri, 31 May 2002 18:17:55 -0400
+	id <S316960AbSEaW1K>; Fri, 31 May 2002 18:27:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316960AbSEaWRy>; Fri, 31 May 2002 18:17:54 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36624 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316959AbSEaWRx>;
-	Fri, 31 May 2002 18:17:53 -0400
-Message-ID: <3CF7F60F.40802@mandrakesoft.com>
-Date: Fri, 31 May 2002 18:15:43 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/00200205
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nikolaus Filus <NFilus@gmx.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: de4x5 driver: driver freezes system
-In-Reply-To: <20020531233651.B595@nfilus.dyndns.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S316961AbSEaW1K>; Fri, 31 May 2002 18:27:10 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:38922
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S316960AbSEaW1J>; Fri, 31 May 2002 18:27:09 -0400
+Date: Fri, 31 May 2002 15:26:51 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: js@cionix.de
+Cc: vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
+Subject: Re: Very High Load on Disk Activity in 2.4.18 (and 2.4.18-pre8)
+Message-ID: <20020531222651.GA874@matchmail.com>
+Mail-Followup-To: js@cionix.de, vda@port.imtp.ilyichevsk.odessa.ua,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020525121737Z314546-22651+55555@vger.kernel.org> <1022329607.3cef83072437b@mail.cionix.de> <200205290719.g4T7JVY25856@Port.imtp.ilyichevsk.odessa.ua> <1022750361.3cf5ee99434bf@mail.cionix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikolaus Filus wrote:
+On Thu, May 30, 2002 at 11:19:21AM +0200, Jan Schreiber wrote:
+> Hello,
+> 
+> > > I'm experiencing a strange effect. As soons as there is some higher disk
+> > > activity (untarring the linux kernel is enough, which really should be no
+> > > problem) the system load gets really high (some times over 10) but the
+> > CPU
+> > > is 100% idle (reported by top).
+> > 
+> > Which processes aren't sleeping? Look for STAT values other than 'S'
+> > and/or type 'i' to switch top into no-idle mode.
+> 
+> First i would like to thank you for your answer 
+> 
+> When i do a simple "find / * | grep bla bla" the Load is over 3 after
+> 10 seconds and about 10 after a minute.
+> 
+> I did a "top" and switched to non-idle mode. The only processes that appear
+> constantly when the load is such high are "kupdated" and "kreiserfsd". Any
+> ideas?
+> 
 
->Hi,
->
->I'm a maintainer (one of several :) of a little linux distribution called
->rocklinux (www.rocklinux.org) and tried to make a fits-for-everyone kernel,
->but got some booting problems with the de4x5 driver.
->When compiling the driver into the kernel and no appropriate card is
->installed in the system the booting stops and the computer freezes. I tested
->this with kernel 2.4.16 and .18 on my Toshiba laptop and reported by other
->users. I would like to provide more information, when needed - just say what
->  
->
+run:
 
-Does the tulip driver not work for you?
+ps ax|grep " D"
 
-You can try the version in the kernel, or an older version at 
-http://sf.net/projects/tulip/
-
-    Jeff
-
-
-
-
-
+And list the output here.  Also, is anything else running at the time?

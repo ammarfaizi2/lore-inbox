@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290109AbSBSHrg>; Tue, 19 Feb 2002 02:47:36 -0500
+	id <S290423AbSBSH7E>; Tue, 19 Feb 2002 02:59:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290232AbSBSHr1>; Tue, 19 Feb 2002 02:47:27 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:29100 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S290109AbSBSHrW>;
-	Tue, 19 Feb 2002 02:47:22 -0500
-Date: Tue, 19 Feb 2002 02:47:17 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Nakayama Shintaro <nakayama@tritech.co.jp>
-cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-        linux-fsdevel@vger.kernel.org, shojima@tritech.co.jp,
-        torvalds@transmeta.com
-Subject: Re: BKL removal from VFS
-In-Reply-To: <20020219161752B.nakayama@tritech.co.jp>
-Message-ID: <Pine.GSO.4.21.0202190220290.8070-100000@weyl.math.psu.edu>
+	id <S290445AbSBSH6x>; Tue, 19 Feb 2002 02:58:53 -0500
+Received: from xsmtp.ethz.ch ([129.132.97.6]:28165 "EHLO xfe3.d.ethz.ch")
+	by vger.kernel.org with ESMTP id <S290423AbSBSH6n>;
+	Tue, 19 Feb 2002 02:58:43 -0500
+Message-ID: <3C7204F3.7040601@debian.org>
+Date: Tue, 19 Feb 2002 08:55:31 +0100
+From: Giacomo Catenazzi <cate@debian.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Disgusted with kbuild developers
+In-Reply-To: <fa.i4fkbuv.1k1iiqm@ifi.uio.no> <fa.iuo8icv.19g8gre@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 Feb 2002 07:58:41.0288 (UTC) FILETIME=[3EDB0080:01C1B91B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Tue, 19 Feb 2002, Nakayama Shintaro wrote:
+Matthias Andree wrote:
 
-> I've found great BKL contention when running multiple postmark
-> benchmarks. Here is the postmark results with lock contention
-> sampled by lockmeter.
+> On Sat, 16 Feb 2002, Nicolas Pitre wrote:
+> 
+> 
+>>Make the whole thing ___***IDENTICAL***___ to CML1.
+>>Do a formal translation of CML1 into CML2.
+>>
+> 
+> This requirement is contrary to CML2's objective. CML2 is not about
+> re-implementing CML1 tools and bugs in another language, there are at
+> least two current projects for that, one of them is mconfig.
 
-Conflicts with (and massively duplicates) patches that already went
-into 2.5.  Absolutely useless wrt mount() locking changes (except for
-remount they can't race with filesystem code even in principle and
-definitely don't need system-wide exclusion among themselves).  Has
-a nice DoS potential (on OOM).  Too large and changes too many things
-to be acceptable at one chunk even if none of the above would apply.
-Consider it vetoed.
 
-Seriously, just watching the changelogs would show that it has no chance
-to be applied.
+But making the translation in 3 steps make think easier:
+- Change the engine (CML2), the rules are rewritten, but
+   functionally nearly identical to old rules
+   (Big patch)
+- Change the rules (with a lot of small patches)
+- Change the interface (not really need)
 
-I hadn't checked for races, but e.g. ext2_readdir() losing BKL without
-corresponding changes to lseek() looks very suspicious.  I'm more than
-sure that there's more - after doing that BKL-shifting in recent 2.5.
-E.g. I'm pretty sure that you are screwing ->i_nlink checks.
+	giacomo
 

@@ -1,72 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261223AbTIYN2X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 09:28:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbTIYN2X
+	id S261193AbTIYN0d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 09:26:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbTIYN0d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 09:28:23 -0400
-Received: from smtp3.vol.cz ([195.250.128.83]:31498 "EHLO smtp3.vol.cz")
-	by vger.kernel.org with ESMTP id S261223AbTIYN2V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 09:28:21 -0400
-MIME-Version: 1.0
-Subject: Data writting over the quota chage inote time
-From: "Youza Youzovic" <youza@post.cz>
+	Thu, 25 Sep 2003 09:26:33 -0400
+Received: from web40903.mail.yahoo.com ([66.218.78.200]:56758 "HELO
+	web40903.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261193AbTIYN0b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 09:26:31 -0400
+Message-ID: <20030925132630.59015.qmail@web40903.mail.yahoo.com>
+Date: Thu, 25 Sep 2003 06:26:30 -0700 (PDT)
+From: Bradley Chapman <kakadu_croc@yahoo.com>
+Subject: 2.6.0-test broke RPM 4.2 on Red Hat 9 in a VERY weird way
 To: linux-kernel@vger.kernel.org
-Date: Thu, 25 Sep 2003 15:28:19 +0200 (CEST)
-Message-ID: <fc5f185ffdd49f6f4444747a24368d79@www4.mail.post.cz>
-X-Mailer: Volny.cz Webmail2 1.36
-X-Originating-Ip: 193.165.254.10
-X-Originating-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows 98; T312461)
-X-Priority: 3
-X-MSMail-Priority: Normal
-Content-Type: text/plain; charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I find this "small" problem:
+I've just discovered a very strange and unusual problem with rpm on my Red Hat 9
+laptop running 2.6.0-test. Under 2.4.22-ac2 rpm runs perfectly fine, but when I
+run it under 2.6.0-test, it outputs the following errors:
 
-I set quota fo user "test" to 204 blocks.
-and store one big file "test" with full size ( 204 blocks).
-quota -v test
-Disk quotas for user test (uid 1010): 
-Filesystem blocks quota limit grace files quota limit grace
-/dev/sdb1 204* 204 204 1 0 0 
+sudo rpm -Uvh alsa-driver-0.9.6-1.fr.i386.rpm
+Password:
+rpmdb: unable to join the environment
+error: db4 error(11) from dbenv->open: Resource temporarily unavailable
+error: cannot open Packages index using db3 - Resource temporarily unavailable (11)
+error: cannot open Packages database in /var/lib/rpm
+warning: alsa-driver-0.9.6-1.fr.i386.rpm: V3 DSA signature: NOKEY, key ID e42d547b
+rpmdb: unable to join the environment
+error: db4 error(11) from dbenv->open: Resource temporarily unavailable
+error: cannot open Packages database in /var/lib/rpm
+rpmdb: unable to join the environment
+error: db4 error(11) from dbenv->open: Resource temporarily unavailable
+error: cannot open Packages database in /var/lib/rpm
 
-and run command "stat test":
-File: "test"
-Size: 204800 Blocks: 408 IO Block: 
-121234234 Regular File
-Device: 811h/2065d Inode: 6300 Links: 1 
-Access: (0644/-rw-r--r--) Uid:(1010/test) Gid:(0/root)
-Access: Wed Aug 13 16:10:21 2003
-Modify: Wed Aug 13 16:12:43 2003
-Change: Wed Aug 13 16:12:43 2003
+I have never seen rpm do this before, and it only occurs under 2.6.0-test. It
+happens under these specific kernels:
 
-next I run command
+2.6.0-test5-bk10
+2.6.0-test5-bk11
+2.6.0-test5-mm4
 
-echo "s" >> test; stat test 
-File: "test"
-Size: 204800 Blocks: 408 IO Block: 
-121234234 Regular File
-Device: 811h/2065d Inode: 6300 Links: 1 
-Access: (0644/-rw-r--r--) Uid: (1010/test) Gid:(0/root)
-Access: Wed Aug 13 16:10:21 2003
-Modify: Wed Aug 13 16:14:38 2003
-Change: Wed Aug 13 16:14:38 2003
+I have not tried -test5-bk12 yet, but I have a feeling that I will get the same
+errors. I have checked syslog and dmesg and there are no errors from the kernel;
+under 2.4.22-ac2 rpm works perfectly fine, so I don't believe it's file corruption
+or filesystem breakage.
 
-the size is not change - this is OK !!
-But Modify, and Change time is modified !!!
+Does anyone have any ideas that I can try?
 
-My system:
-Linux kernel 2.4.21 from www.kernel.org
+Thanks!
 
-Thanx
-youza
-
--- 
-Potrebujete vice prostoru pro vase stranky?
-Ptejte se na http://sluzby.volny.cz/cs/product/ftp_paid
+Brad
 
 
+
+=====
+Brad Chapman
+
+Permanent e-mail: kakadu_croc@yahoo.com
+
+__________________________________
+Do you Yahoo!?
+The New Yahoo! Shopping - with improved product search
+http://shopping.yahoo.com

@@ -1,105 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262224AbTIWRkc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 13:40:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbTIWRkc
+	id S262046AbTIWRni (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 13:43:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbTIWRnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 13:40:32 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:8120 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262224AbTIWRk0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 13:40:26 -0400
-Message-ID: <3F708576.4080203@comcast.net>
-Date: Tue, 23 Sep 2003 12:40:06 -0500
-From: Tom Zanussi <zanussi@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+	Tue, 23 Sep 2003 13:43:37 -0400
+Received: from lucidpixels.com ([66.45.37.187]:5331 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id S262046AbTIWRnf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 13:43:35 -0400
+Date: Tue, 23 Sep 2003 13:43:34 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p500
+To: joe briggs <jbriggs@briggsmedia.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Spam/LKML
+In-Reply-To: <200309231437.43542.jbriggs@briggsmedia.com>
+Message-ID: <Pine.LNX.4.58.0309231340310.10905@p500>
+References: <Pine.LNX.4.58.0309231318450.11291@p500> <200309231437.43542.jbriggs@briggsmedia.com>
 MIME-Version: 1.0
-To: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-CC: Andrea Arcangeli <andrea@suse.de>,
-       Jan Evert van Grootheest <j.grootheest@euronext.nl>,
-       Willy Tarreau <willy@w.ods.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       linux-kernel@vger.kernel.org
-Subject: Re: log-buf-len dynamic
-References: <Pine.LNX.4.44.0309231748310.27885-100000@gatemaster.ivimey.org>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ruth Ivimey-Cook wrote:
-> On Tue, 23 Sep 2003, Andrea Arcangeli wrote:
-> 
-> 
->>On Tue, Sep 23, 2003 at 05:01:26PM +0200, Jan Evert van Grootheest wrote:
->>
->>>I think it is pretty senseless to have a configuation option for the 
->>>default size of that buffer. Especially if I can, in one of the first rc 
->>>scripts, do something like 'echo 128 > /proc/sys/kernel/printkbuffer'.
->>
->>having a sysctl can be an additional option (though it's tricky to
->>implement due the needed callbacks), but the problem I guess is that
->>most people needs a larger buf for the boot logs, so having only the
->>sysctl would be too late...
-> 
-> 
-> IMO there are two issues:
-> 
-> 1. On some systems it is possible to overflow the log buffer during boot and 
-> before init runs
-> 
-> 2. On some systems, there is enough going on that klogd cannot read the log 
-> quick enough and so the log is missing lines.
-> 
-> IME (1) is the irritating one. I can (and have) edited the source, but it is 
-> irritating.  Setting up the config option is ok, but for default kernels (e.g. 
-> a distro one) where you can't easily recompile, it's insufficient.
-> 
-> 
-> Proposal:
-> 
-> 1. The default buffer size is huge: 128K or more, which should enable the 
-> initial mesages to be kept.
-> 
-> 2. The default buffer size is modifiable on the command line, but does not 
-> have to be set there (mainly for those with v. limited RAM).
-> 
-> 3. The log buffer can be resized smaller and bigger: using sysctl seems nice, 
-> but might a dmesg option be ok?
-> 
-> 4. klogd and dmesg, at all times, can tell how big the buffer is and where the 
-> start and end are. That is, there is no need for the user to tell dmesg how 
-> big the buffer is.
-> 
-> 5. Lets just do something and move on: it's not important enough to waste 
-> weeks talking about :-)
-> 
-> HTH,
-> 
-> Ruth
-> 
-> 
+I use qmail here.
 
-Hi,
+It appears to be a manifestation at least at the surface, 90%+ are
+140-160KB emails w/microsoft stuff only, I have not noticed any weird
+things in the qmail logs recently.
 
-It may be a little over the top for 2.4, but I posted a patch for a 
-dynamically resizable printk a while back:
+One has to wonder though why such intense targetting happens, 10-15
+e-mails to my address only two hours after I sent an e-mail to LKML.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=105828314919697&w=2
+The previous day, I only had received about 3-4 of them.
 
-I depends on relayfs, which I also posted at the same time.
+It would seem like it would be a lot of work for people to constantly hit
+archives of LKML to get e-mail addresses to spam, I wonder if there are
+malicious people on the list scurrying e-mail addresses for spam targets.
 
-Basically, the idea is that the static printk buffer is used only at 
-init time for boot messages and is then discarded (so can be made very 
-large), and after that point printk uses the relayfs channel, which is 
-automatically grown and shrunk as necessary.  Config options control the 
-buffer sizes (LOG_BUF_SHIFT for initial static, MIN_LOG_BUF_SHIFT for 
-the minimum dynamic) and the relay_open() call controls the maximum 
-dynamic size and other channel characteristics.
 
-Changes I'm currently making to relayfs should simplify the patch 
-significantly and fix some other problems, but I thought I'd point it 
-out as an alternative approach.
+On Tue, 23 Sep 2003, joe briggs wrote:
 
-Tom
-
+> I am getting hammered with them, though I use a sendmail server.  Is this a
+> manifestation or exploit of the buffer-overflow security issue out with
+> sendmail?
+>
+> On Tuesday 23 September 2003 01:21 pm, Justin Piszcz wrote:
+> > with Microsoft Spam (that virus).
+>
+> --
+> Joe Briggs
+> Briggs Media Systems
+> 105 Burnsen Ave.
+> Manchester NH 01304 USA
+> TEL 603-232-3115 FAX 603-625-5809 MOBILE 603-493-2386
+> www.briggsmedia.com
+>

@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135696AbRD2LGq>; Sun, 29 Apr 2001 07:06:46 -0400
+	id <S135645AbRD2LFG>; Sun, 29 Apr 2001 07:05:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135713AbRD2LGg>; Sun, 29 Apr 2001 07:06:36 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:26251 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S135696AbRD2LGX>;
-	Sun, 29 Apr 2001 07:06:23 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
+	id <S135696AbRD2LE4>; Sun, 29 Apr 2001 07:04:56 -0400
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:30156 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S135645AbRD2LEl>; Sun, 29 Apr 2001 07:04:41 -0400
+Date: Sun, 29 Apr 2001 13:04:32 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Michael F Gordon <Michael.Gordon@ee.ed.ac.uk>
+Cc: David Lang <david.lang@digitalinsight.com>,
+        Garett Spencley <gspen@home.com>, linux-kernel@vger.kernel.org,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: 2.4.4 breaks dhcpcd with Realtek 8139
+Message-ID: <20010429130432.I679@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <Pine.LNX.4.30.0104281142520.3423-100000@localhost.localdomain> <Pine.LNX.4.33.0104281126570.16046-100000@dlang.diginsite.com> <20010428231151.A11841@ee.ed.ac.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15083.62888.860815.889046@pizda.ninka.net>
-Date: Sun, 29 Apr 2001 04:06:16 -0700 (PDT)
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Zerocopy implementation issues
-In-Reply-To: <20010429113122.E30243@flint.arm.linux.org.uk>
-In-Reply-To: <20010429005206.J21792@flint.arm.linux.org.uk>
-	<15083.40318.158099.137018@pizda.ninka.net>
-	<20010429072342.B30041@flint.arm.linux.org.uk>
-	<15083.52835.992666.897323@pizda.ninka.net>
-	<20010429101739.D30243@flint.arm.linux.org.uk>
-	<20010429113122.E30243@flint.arm.linux.org.uk>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010428231151.A11841@ee.ed.ac.uk>; from Michael.Gordon@ee.ed.ac.uk on Sat, Apr 28, 2001 at 11:11:51PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Apr 28, 2001 at 11:11:51PM +0100, Michael F Gordon wrote:
+> On Sat, Apr 28, 2001 at 11:29:15AM -0700, David Lang wrote:
+> > what sort of switch are you plugged into? some Cisco switches have a
+> > 'feature' that ignores all traffic from a port for X seconds after a
+> > machine is plugged in / powered on on a port (they claim somehting about
+> > preventing loops) it may be that the new kernel now boots up faster then
+> > the old one so that the DHCP request is lost in the switch, a few seconds
+> > later when you do it by hand the swich has enabled your port and
+> > everything works.
+> 
+> I'm plugged in to a cable modem, with the DHCP server at the ISP.  The
+> server requires the MAC address to be registered, so sending the DHCP
+> request with a different MAC address could cause the symptoms.  I doubt
+> it's a timing problem - replacing the 8139 driver with the 2.4.3 version
+> but otherwise using the distributed 2.4.4 makes DHCP work as expected.
 
-Russell King writes:
- > Or am I missing something?
+The Windows drivers distributed along with that Realtek cards
+have this problem[1] any many users of the CSN[2] run into the
+"secure mode" on our hubs/switches, causing their port to be
+disabled.
 
-csum_block_*() has nothing to do with checksumming buffers, it 2's
-complement adds two integers passed as arguments based upon the offset
-of one of the buffers (this decides if one of the csums needs to be
-byte swapped before the 2's complement addition to get a correct
-result).
+So we have just ported a BUG from Windows to Linux, if you are
+right ;-)
 
-That was the point of my mail, the last_byte_was_odd code
-had nothing to do with what your checksum code needs to be
-doing, never did and never will.  Your premise was that the
-last_byte_was_odd code "proved" that the csum_partial_copy
-destination buffer could not be byte aligned, and I tried
-to show that the last_byte_was_odd code had nothing to do
-with whether that was allowed or not.
+BTW: CC'ed the maintainer. He might be interested, as maintainers
+   usally are on BUGs ;-)
 
-Your csum_partial_copy*() code needs to handle unaligned
-destination buffers, period.
+Regards
 
-I understand that you are frustruated about this and it
-requires you to touch some delicate assembly.  But I'm
-going to be blunt and say "tough", because everyone has
-to implement this correctly.  Just do it and get it
-over with.
+Ingo Oeser
 
-Later,
-David S. Miller
-davem@redhat.com
+[1] Sometimes forgetting their MAC and sending either random or
+   zero MAC out. This depends on whatever.
+
+[2] Chemnitz Students Network - large LAN with >1000 computers
+-- 
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

@@ -1,66 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131447AbRBWRvf>; Fri, 23 Feb 2001 12:51:35 -0500
+	id <S131543AbRBWSGd>; Fri, 23 Feb 2001 13:06:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131504AbRBWRv0>; Fri, 23 Feb 2001 12:51:26 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:23680 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S131447AbRBWRvK>; Fri, 23 Feb 2001 12:51:10 -0500
-Date: Fri, 23 Feb 2001 12:50:38 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Sean Hunter <sean@dev.sportingbet.com>
-cc: Matt Johnston <mlkm@caifex.org>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: random PID generation
-In-Reply-To: <20010223171440.K10620@dev.sportingbet.com>
-Message-ID: <Pine.LNX.3.95.1010223123332.3967A-100000@chaos.analogic.com>
+	id <S131504AbRBWSGN>; Fri, 23 Feb 2001 13:06:13 -0500
+Received: from www.ansp.br ([143.108.25.7]:23058 "HELO www.ansp.br")
+	by vger.kernel.org with SMTP id <S131485AbRBWSFz>;
+	Fri, 23 Feb 2001 13:05:55 -0500
+Message-ID: <3A969885.5EEE1E69@ansp.br>
+Date: Fri, 23 Feb 2001 15:06:13 -0200
+From: Marcus Ramos <marcus@ansp.br>
+Organization: Fapesp
+X-Mailer: Mozilla 4.73 [en] (X11; I; FreeBSD 4.1-RELEASE i386)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rahul <callrahulonly@yahoo.co.in>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux device driver writing
+In-Reply-To: <20010223100140.25508.qmail@web8002.mail.in.yahoo.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Feb 2001, Sean Hunter wrote:
+Hello,
 
-> I have already written a 2.2 implementation which does not suffer from these
-> problems.  It was rejected because Alan Cox (and others) felt it only provided
-> security through obscurity.
-> 
-> Sean
+For Linux you can use the good and complete "Linux Device Drivers" by
+Alessandro Rubini, O'Reilly, 1998. For other flavors of Unix, I am aware only
+of old text books of little interest for present systems. Good luck.
 
-The following is a simple random generator that will never give two
-consecutive like numbers (therefore it's not really random). It's
-pretty good for things like non-guessible PIDs, TCP/IP ports, etc.
-Just mask off the length that you don't need. It this was called 
-occasionally from some timer or other interrupt, you don't even know its
-starting value. With the current magic number, it's period is 0xfffnnnnn.
-Several years ago, I ran an exhaustive search program (133MHz CPU) looking
-for a magic number to produce a longer period. I'm told that there
-is a magic number that will give a period of 0xffffffff.
+Marcus.
 
+Rahul wrote:
 
-static int rnn = 0;
-
-static int rnd()
-{
-    int ret;
-    __asm__ __volatile__(
-    "\tmovl (rnn), %%eax\n"
-    "\trorl $3,  %%eax\n" 
-    "\taddl $0x586c3ec3, %%eax\n"
-    "\tmovl %%eax, (rnn)\n"
-		: "=eax" (ret) );
-    return ret;
-}
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
+> Hi friends,
+>
+> I am new to this field of writing device drivers. I
+> have done my course in Unix/C and presently working
+> for a company in india in embedded systems. I am
+> looking forward to write some device drivers in
+> Linux/Unix/QNX can any one suggest me any good book
+> which i can refer for my guidance.
+>
+> thx for your constant support.
+> bye
+> rahul
+>
+> ____________________________________________________________
+> Do You Yahoo!?
+> Get your free @yahoo.co.in address at http://mail.yahoo.co.in
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,55 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293203AbSG2HP4>; Mon, 29 Jul 2002 03:15:56 -0400
+	id <S312601AbSG2HOy>; Mon, 29 Jul 2002 03:14:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293680AbSG2HPz>; Mon, 29 Jul 2002 03:15:55 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:4625 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id <S293203AbSG2HPy>;
-	Mon, 29 Jul 2002 03:15:54 -0400
-Message-ID: <3D44EC66.5020104@namesys.com>
-Date: Mon, 29 Jul 2002 11:19:02 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: Rik van Riel <riel@conectiva.com.br>,
-       Federico Ferreres <fferreres@ojf.com>,
-       Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org,
-       Oleg Drokin <green@namesys.com>
-Subject: Re: Funding GPL projects or funding the GPL?
-References: <20020727085931.X26813@work.bitmover.com> <Pine.LNX.4.44L.0207271302550.3086-100000@imladris.surriel.com> <20020727092223.B26813@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S314085AbSG2HOx>; Mon, 29 Jul 2002 03:14:53 -0400
+Received: from mailhost.nmt.edu ([129.138.4.52]:15371 "EHLO mailhost.nmt.edu")
+	by vger.kernel.org with ESMTP id <S312601AbSG2HOx>;
+	Mon, 29 Jul 2002 03:14:53 -0400
+Date: Mon, 29 Jul 2002 01:18:11 -0600
+From: Val Henson <val@nmt.edu>
+To: DervishD <raul@pleyades.net>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: About the need of a swap area
+Message-ID: <20020729071811.GB16848@boardwalk>
+References: <3D42907C.mailFS15JQVA@viadomus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D42907C.mailFS15JQVA@viadomus.com>
+User-Agent: Mutt/1.4i
+Favorite-Color: Polka dot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-
->  
+On Sat, Jul 27, 2002 at 02:22:20PM +0200, DervishD wrote:
 >
-> However, it doesn't work very well when the
->community beats you to hell for not being GPLed. 
->
-If you made your source code available so that it could be customized 
-then I would stop beating you for your license.  As it is, any new 
-features have to get written by you, and I have requested a trivial to 
-author feature from you that I need and you haven't written despite your 
-promising to do so before I made the switch to bitkeeper.  I don't at 
-all blame you for being busy, but if we had the source it would be 5 
-minutes for us to add the quite valuable to us feature.
+>     So my question is: should I use a swap-area for improving
+> performance (or whatever else), or should I use those precious bytes
+> to improving my porn collection }:))?
 
-Make your license charge for privacy but have the software come with 
-source code, and the license is brilliant.  Otherwise, it is a source of 
-frustration, and yet another example of how software copyright is being 
-abused and twisted away from its original intent so as to permit 
-information to be hidden rather than published.  In the long term, it is 
-the accumulation and compounding of knowledge that matters, not limited 
-time monopolization for 14 years (original length of copyrights), and 
-secret source code frustrates that.
+I'll make you a deal: I won't talk about my porn collection on l-k if
+you won't either.
 
--- 
-Hans
+Unless you _want_ to hear about my Playgirl archive... :)
 
-
-
+-VAL

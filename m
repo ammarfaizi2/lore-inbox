@@ -1,81 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263623AbUC3MPx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 07:15:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263624AbUC3MPx
+	id S263624AbUC3MRs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 07:17:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263627AbUC3MRs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 07:15:53 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:7811 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263623AbUC3MPv
+	Tue, 30 Mar 2004 07:17:48 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:8835 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263624AbUC3MRq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 07:15:51 -0500
-Date: Tue, 30 Mar 2004 07:16:52 -0500 (EST)
+	Tue, 30 Mar 2004 07:17:46 -0500
+Date: Tue, 30 Mar 2004 07:19:09 -0500 (EST)
 From: "Richard B. Johnson" <root@chaos.analogic.com>
 X-X-Sender: root@chaos
 Reply-To: root@chaos.analogic.com
-To: DervishD <raul@pleyades.net>
-cc: Lev Lvovsky <lists1@sonous.com>, linux-kernel@vger.kernel.org
+To: Lev Lvovsky <lists1@sonous.com>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: older kernels + new glibc?
-In-Reply-To: <20040329222710.GA8204@DervishD>
-Message-ID: <Pine.LNX.4.53.0403300706500.5144@chaos>
+In-Reply-To: <35350CCA-81D4-11D8-A0A8-000A959DCC8C@sonous.com>
+Message-ID: <Pine.LNX.4.53.0403300717440.5144@chaos>
 References: <5516F046-81C1-11D8-A0A8-000A959DCC8C@sonous.com>
- <Pine.LNX.4.53.0403291602340.2893@chaos> <20040329222710.GA8204@DervishD>
+ <Pine.LNX.4.53.0403291602340.2893@chaos> <1CD69E8E-81C9-11D8-A0A8-000A959DCC8C@sonous.com>
+ <Pine.LNX.4.53.0403291644200.3114@chaos> <BB3FCEF5-81CB-11D8-A0A8-000A959DCC8C@sonous.com>
+ <Pine.LNX.4.53.0403291659400.3272@chaos> <35350CCA-81D4-11D8-A0A8-000A959DCC8C@sonous.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Mar 2004, DervishD wrote:
+On Mon, 29 Mar 2004, Lev Lvovsky wrote:
 
->     Hi Richard :)
 >
->  * Richard B. Johnson <root@chaos.analogic.com> dixit:
-> > For glibc compatibility you need to get rid of the sym-link(s)
-> > /usr/include/asm and /usr/include/linux in older distributions.
-> > You need to replace those with headers copied from the kernel
-> > in use when the C runtime library was compiled. If you can't find
-> > those, you can either upgrade your C runtime library, or copy
-> > headers from some older kernel that was known to work.
-> > In any event, you need to remove the sym-link that ends up
-> > pointing to your 'latest and greatest' kernel.
+> On Mar 29, 2004, at 2:10 PM, Richard B. Johnson wrote:
+> > You didn't care to read what I said? I said to remove those sym-links.
+> > They must be replaced by headers that were in-use around the time
+> > the C library code was compiled, preferably the exact same headers.
+> >
+> > There must not be any sym-link in the /usr/include/... directories
+> > pointing to any kernel headers. That way, you can add new kernels
+> > without ever screwing up your compiler.
 >
->     Mmm, I'm confused. As far as I knew, you *should* use symlinks to
-> your current (running) kernel includes for /usr/include/asm and
-> /usr/include/linux. I've been doing this for years (in fact I
-> compiled my libc back in the 2.2 days IIRC), without problems. Why it
-> should be avoided and what kind of problems may arise if someone
-> (like me) has those symlinks?
+> Understood.  Incidentally, the glibc-kernheaders package included with
+> RH 7.3 creates those files as symlinks, I'm sure however that they were
+> there for the compilation of glibc.  The disconnect that I forsee, is
+> that I will be running the 2.2.26 with kernel headers from a 2.4.x
+> kernel - would this be the correct thing to do?
+
+To be absolutely sure you don't end up making user-mode code that
+doesn't work, I would remove those sym-links and replace them with
+the actual headers that are known to work.
+
 >
-
-The libc headers end up including kernel headers via the sym-links.
-They must *only* use the headers with which libc was built. Therefore,
-any sym-links should be removed and replaced with a copy of the
-appropriate headers.
-
-
->     User space programs should not use kernel headers, so this
-> shouldn't be a problem, and kernel related tools should use the
-> headers from the current (running) kernel or a similar version (here
-> 'similar' as a broad meaning, I think, let's say that it means 'same
-> series as the running kernel, but newer), but I'm afraid I'm missing
-> something...
+> I suppose I mirror the sentiments of DervishD on this from his post.
 >
->     Thanks in advance :)
-
-Again, the C-library was built to work with certain structures
-(for instance) that existed at the time it was built. Let's say
-I use /usr/include/sys/stat.h to get the structure members of
-'struct stat'. If I use the headers that existed at the time the
-C library was built, all is fine. If I use the kernel headers
-that exist now, the offsets may be incorrect because there have
-may have been members added to that structure.
-
-This comes about because the C library used kernel headers,
-which it shouldn't have done in the first place.
-
-FYI, you __never__ include C library headers when building
-any kernel modules.
-
+> -lev
+>
 
 Cheers,
 Dick Johnson

@@ -1,96 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261291AbTIXCEI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 22:04:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbTIXCEH
+	id S261282AbTIXCBP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 22:01:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbTIXCBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 22:04:07 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:29848
-	"EHLO velociraptor.random") by vger.kernel.org with ESMTP
-	id S261291AbTIXCD7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 22:03:59 -0400
-Date: Wed, 24 Sep 2003 04:04:09 +0200
-From: andrea@kernel.org
-To: Larry McVoy <lm@work.bitmover.com>, Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Matthew Wilcox <willy@debian.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       Larry McVoy <lm@bitmover.com>
-Subject: Re: log-buf-len dynamic
-Message-ID: <20030924020409.GL16314@velociraptor.random>
-References: <20030923221528.GP1269@velociraptor.random> <Pine.LNX.4.44.0309231524160.24527-100000@home.osdl.org> <20030924003652.GI16314@velociraptor.random> <20030924011951.GA5615@work.bitmover.com>
+	Tue, 23 Sep 2003 22:01:15 -0400
+Received: from holomorphy.com ([66.224.33.161]:59267 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S261250AbTIXCBI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 22:01:08 -0400
+Date: Tue, 23 Sep 2003 18:58:41 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Grant Grundler <iod00d@hp.com>, bcrl@kvack.org, tony.luck@intel.com,
+       davidm@hpl.hp.com, davidm@napali.hpl.hp.com, peter@chubb.wattle.id.au,
+       ak@suse.de, peterc@gelato.unsw.edu.au, linux-ns83820@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
+Message-ID: <20030924015841.GC21455@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"David S. Miller" <davem@redhat.com>,
+	Grant Grundler <iod00d@hp.com>, bcrl@kvack.org, tony.luck@intel.com,
+	davidm@hpl.hp.com, davidm@napali.hpl.hp.com,
+	peter@chubb.wattle.id.au, ak@suse.de, peterc@gelato.unsw.edu.au,
+	linux-ns83820@kvack.org, linux-ia64@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <DD755978BA8283409FB0087C39132BD101B01194@fmsmsx404.fm.intel.com> <20030923142925.A16490@kvack.org> <20030923185104.GA8477@cup.hp.com> <20030923115122.41b7178f.davem@redhat.com> <20030923203819.GB8477@cup.hp.com> <20030923134529.7ea79952.davem@redhat.com> <20030923223540.GA10490@cup.hp.com> <20030923163542.55fd8ed9.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030924011951.GA5615@work.bitmover.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+In-Reply-To: <20030923163542.55fd8ed9.davem@redhat.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 23, 2003 at 06:19:51PM -0700, Larry McVoy wrote:
-> On Wed, Sep 24, 2003 at 02:36:52AM +0200, Andrea Arcangeli wrote:
-> > You're right I should provide new code, and avoid comments on the a bit
-> > inferior info in bkcvs (that Larry nicely offered to even improve after
-> > cvs gets properly fixed), but I had no real interest in this area todate
-> > and my job keeps most of my time full already and that's higher
-> > priority.
-> 
-> The problem I have is as follows:
-> 
-> a) I understand your point of view and from the very first version of BK 
->    we released we addressed it.  100% of the data and the metadata is 
->    available from the command line with BK.  Always has been and always 
->    will be, if that's not true that is is a bug and we'll fix it.  People
->    use BK because they like it, not because we locked them in.
-> 
-> b) I understand your need to not be dependent on BitMover or BitKeeper. 
->    That's why we built the CVS gateway, so you wouldn't need to depend
->    on us, the data you care about is available in a form that doesn't
->    require any license agreements.
-> 
-> What the above two points demonstrate, dramatically so, is that we
-> understand your concerns and agree with them.  We have spent a lot of
-> time and money to make sure that you are happy.  Not whining, not 
-> flaming, we were writing code to make you happy.  We were writing that
-> code long before you ever heard of BitKeeper and we have the revision
-> history to prove it.
+On Tue, Sep 23, 2003 at 04:35:42PM -0700, David S. Miller wrote:
+> That's a amusing coincidence since at least some people think ia64
+> will end up the same way the i860 did :-)
+> In the past I did always advocate things the way you are right now,
+> but these days I think I've been wrong the whole time and Intel on x86
+> is doing the right thing.
+> They do everything in hardware and this makes the software so much
+> simpler.  Sure, there's a lot of architectually inherited complexity
+> in the x86 family, but their engineering priorities mean there is so
+> much other stuff you simply never have to think about as a programmer.
 
-I defininitely agree with that and I appreciate that you acknowledge my
-requests when the bkcvs didn't exist.
+Several of the x86 "hardware assists" need some rather hefty hacks
+codewise to cope with their concomitant data structure proliferations
+under industrial workloads, and generally have me begging for RISC's
+system-level features instead (which, of course, require various
+undoings of Linux' x86 crossdressings to exploit).
 
-(I was also using cvs for kernel development way before I ever heard of
-bitkeeper too, then I had to giveup because it was too slow to handle
-branches)
+Given the reactions in prior threads, this message clearly needs to
+wait a long while before it will ever be heard.
 
-> What we expected in return was the same understanding.
 
-that is not accurate, you also asked us to giveup the freedom of
-development in your area. And I wouldn't be too interested in a closed
-software anyways but at least I could consider using it in the meantime
-without feeling tainted.
-
-NOTE: I'm not asking you to remove that clause, nor I'm complaining
-about it, I would feel bad for you if you had problems because you
-removed that clause. I perfectly understand why you put that clause in
-and it makes sense to me.
-
-> Andrea, you need to grow up and learn that biting the hand that is held
-
-It's because I grow up that I can actually better understand the deals
-it's in my own (again speaking only for myself and not for anybody else)
-interest to avoid.
-
-(changing email address as well to make it clear I'm speaking only for
-myself here)
-
-Last but not the least, if I was required to use bitkeeper as part of my
-job, then I would use it and I'd giveup that bit of freedom, but as far
-as I'm free to choose, I will avoid it. But that's my own choice, it has
-nothing to do with anybody else.
-
-Andrea - If you prefer relying on open source software, check these links:
-	    rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.[45]/
-	    http://www.cobite.com/cvsps/
-	    svn://svn.kernel.org/linux-2.[46]/trunk
+-- wli

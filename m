@@ -1,70 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287862AbSCOJdu>; Fri, 15 Mar 2002 04:33:50 -0500
+	id <S288071AbSCOJlU>; Fri, 15 Mar 2002 04:41:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288058AbSCOJdj>; Fri, 15 Mar 2002 04:33:39 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:17680 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S287862AbSCOJd2>;
-	Fri, 15 Mar 2002 04:33:28 -0500
-Date: Fri, 15 Mar 2002 10:31:34 +0100 (CET)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Thunder from the hill <thunder@ngforever.de>
-cc: linux-kernel@vger.kernel.org, Martin Eriksson <nitrax@giron.wox.org>
-Subject: Re: HPT370 RAID-1 or Software RAID-1, what's "best"?
-In-Reply-To: <3C90ECDF.8EBC8FD4@ngforever.de>
-Message-ID: <Pine.LNX.4.44.0203151027560.24394-100000@Expansa.sns.it>
+	id <S288012AbSCOJlL>; Fri, 15 Mar 2002 04:41:11 -0500
+Received: (root@vger.kernel.org) by vger.kernel.org id <S288071AbSCOJk7>;
+	Fri, 15 Mar 2002 04:40:59 -0500
+Received: from web14706.mail.yahoo.com ([216.136.224.123]:269 "HELO
+	web14706.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S311809AbSCNVl1>; Thu, 14 Mar 2002 16:41:27 -0500
+Message-ID: <20020314214125.58646.qmail@web14706.mail.yahoo.com>
+Date: Thu, 14 Mar 2002 13:41:25 -0800 (PST)
+From: Jing Xu <xujing_cn2001@yahoo.com>
+Subject: need help: radeonfb problem
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HPT370 IDE Raid is not really an hardware raid.
-It is a software Raid, since Linux does not use tha raid implementation
-that comes with the BIOS, but it uses softwareraid.
+Hi, 
+
+I met some problem with radeonfb driver.I use two
+graphic cards on my box
+PCI:00:0e:0  ATI rage XL (pci)
+PCI:01:00:0  ATI radeon QY VE (AGP)
+
+and I use radeonfb as the frame buffer device driver
+for ATI radeon. Radeonfb driver are built in the
+kernel, not as a module. When booting system, there
+are messages like that:
+
+    radeonfb: ref_clk=2700, ref_div=12, xclk=18300;
+    cannot map FB;
+
+But if I only use the ATI radeon card and plug out the
+pci one, this driver works very well.
+
+what's the problem?
+
+I use redhat 7.2 and kernel 2.4.14 on i386.
+In addition to this, I would be glad to know about
+configuring the IRQ table in linux.
+
+Thanks in advance,
+
+jing
 
 
-On Thu, 14 Mar 2002, Thunder from the hill wrote:
 
-> Martin Eriksson wrote:
->
-> > What is "best" on Linux 2.4.X (with any appropriate patches) ?
-> >
-> > HPT370 RAID-1 or Software RAID-1 ?
-> >
-> > And if Software RAID-1 is best of these two, where is it most stable; on an
-> > i815 chipset, a VIA chipset (686B) or on a promise controller?
-> >
-> > I define "best" as:
-> > * most stable
-> > * least complex setup
-> > * least hassle when something goes wrong
->
-> Software RAID is just your disk configuration. But I'd recommend
-> hardware raid because the rebuild after one disk crash is dog slow with
-> software raid. This problem been discussed in all possible linux
-> magazines...
-> I prefer SCSI RAID5
->
-> Thunder
-> --
-> begin-base64 755 -
-> IyEgL3Vzci9iaW4vcGVybApteSAgICAgJHNheWluZyA9CSMgVGhlIHNjcmlw
-> dCBvbiB0aGUgbGVmdCBpcyB0aGUgcHJvb2YKIk5lbmEgaXN0IGVpbiIgLgkj
-> IHRoYXQgaXQgaXNuJ3QgYWxsIHRoZSB3YXkgaXQgc2VlbXMKIiB2ZXJhbHRl
-> dGVyICIgLgkjIHRvIGJlIChlc3BlY2lhbGx5IG5vdCB3aXRoIG1lKQoiTkRX
-> LVN0YXIuXG4iICA7CiRzYXlpbmcgPX4Kcy9ORFctU3Rhci9rYW5uXAogdW5z
-> IHJldHRlbi9nICA7CiRzYXlpbmcgICAgICAgPX4Kcy92ZXJhbHRldGVyL2Rp
-> XAplIExpZWJlL2c7CiRzYXlpbmcgPX5zL2Vpbi8KbnVyL2c7JHNheWluZyA9
-> fgpzL2lzdC9zYWd0LC9nICA7CiRzYXlpbmc9fnMvXG4vL2cKO3ByaW50Zigk
-> c2F5aW5nKQo7cHJpbnRmKCJcbiIpOwo=
-> ====
-> Extract this and see what will happen if you execute my
-> signature. Just save it to file and do a
-> > uudecode $file | perl
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Sports - live college hoops coverage
+http://sports.yahoo.com/
 

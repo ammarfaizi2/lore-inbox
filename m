@@ -1,38 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267271AbSISNWQ>; Thu, 19 Sep 2002 09:22:16 -0400
+	id <S267995AbSISNSj>; Thu, 19 Sep 2002 09:18:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268110AbSISNWQ>; Thu, 19 Sep 2002 09:22:16 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:45556
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267271AbSISNWP>; Thu, 19 Sep 2002 09:22:15 -0400
-Subject: Re: ide double init? + Re: BUG: Current 2.5-BK tree dies on boot!
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jens Axboe <axboe@suse.de>
-Cc: Anton Altaparmakov <aia21@cantab.net>, Andre Hedrick <andre@linux-ide.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020919111422.GD31033@suse.de>
-References: <E17rlgP-0006wL-00@storm.christs.cam.ac.uk>
-	<E17rlgP-0006wL-00@storm.christs.cam.ac.uk>
-	<5.1.0.14.2.20020919102432.0438bec0@pop.cus.cam.ac.uk>
-	<20020919094520.GB31033@suse.de> <20020919100831.GC31033@suse.de>
-	<1032433110.26669.30.camel@irongate.swansea.linux.org.uk> 
-	<20020919111422.GD31033@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 19 Sep 2002 14:28:59 +0100
-Message-Id: <1032442139.26712.34.camel@irongate.swansea.linux.org.uk>
+	id <S268100AbSISNSj>; Thu, 19 Sep 2002 09:18:39 -0400
+Received: from sv1.valinux.co.jp ([202.221.173.100]:36358 "HELO
+	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S267995AbSISNSi>;
+	Thu, 19 Sep 2002 09:18:38 -0400
+Date: Thu, 19 Sep 2002 22:15:13 +0900 (JST)
+Message-Id: <20020919.221513.28808421.taka@valinux.co.jp>
+To: akpm@digeo.com
+Cc: alan@lxorguk.ukuu.org.uk, davem@redhat.com, neilb@cse.unsw.edu.au,
+       linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+Subject: Re: [NFS] Re: [PATCH] zerocopy NFS for 2.5.36
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <3D89176B.40FFD09B@digeo.com>
+References: <20020918.160057.17194839.davem@redhat.com>
+	<1032393277.24895.8.camel@irongate.swansea.linux.org.uk>
+	<3D89176B.40FFD09B@digeo.com>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-09-19 at 12:14, Jens Axboe wrote:
-> 2.5 is reorged big time it seems, pci_register_driver() ->
-> drier_attach() -> do_driver_attach() -> found_match() calls ->probe()
-> unconditionally...
+Hello,
 
-That would appear to be a bug in the 2.5 driver layer then. I'd suggest
-fixing it there. Attempting to probe a device that already has a driver
-attached to it doesn't seem to make sense.
+> > > details, but I do know that using copy_from_user() is not a real
+> > > improvement at least on x86 architecture.
+> > 
+> > The same as bit is easy to explain. Its totally memory bandwidth limited
+> > on current x86-32 processors. (Although I'd welcome demonstrations to
+> > the contrary on newer toys)
+> 
+> Nope.  There are distinct alignment problems with movsl-based
+> memcpy on PII and (at least) "Pentium III (Coppermine)", which is
+> tested here:
+...
+> I have various scriptlets which generate the entire matrix.
+> 
+> I think I ended up deciding that we should use movsl _only_
+> when both src and dsc are 8-byte-aligned.  And that when you
+> multiply the gain from that by the frequency*size with which
+> funny alignments are used by TCP the net gain was 2% or something.
+
+Amazing! I beleived 4-byte-aligned was enough.
+read/write systemcalls may also reduce their penalties.
+
+> It needs redoing.  These differences are really big, and this
+> is the kernel's most expensive function.
+> 
+> A little project for someone.
+
+OK, if there is nobody who wants to do it I'll do it by myself.
+
+> The tools are at http://www.zip.com.au/~/linux/cptimer.tar.gz
 

@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284282AbRLGSYX>; Fri, 7 Dec 2001 13:24:23 -0500
+	id <S284297AbRLGSYa>; Fri, 7 Dec 2001 13:24:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284307AbRLGSX1>; Fri, 7 Dec 2001 13:23:27 -0500
-Received: from hq2.fsmlabs.com ([209.155.42.199]:9222 "HELO hq2.fsmlabs.com")
-	by vger.kernel.org with SMTP id <S284282AbRLGSWb>;
-	Fri, 7 Dec 2001 13:22:31 -0500
-Date: Fri, 7 Dec 2001 11:15:58 -0700
-From: Victor Yodaiken <yodaiken@fsmlabs.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Victor Yodaiken <yodaiken@fsmlabs.com>, Larry McVoy <lm@bitmover.com>,
-        Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
+	id <S284295AbRLGSY0>; Fri, 7 Dec 2001 13:24:26 -0500
+Received: from bitmover.com ([192.132.92.2]:14481 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S284302AbRLGSXU>;
+	Fri, 7 Dec 2001 13:23:20 -0500
+Date: Fri, 7 Dec 2001 10:23:18 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: Larry McVoy <lm@bitmover.com>, Henning Schmiedehausen <hps@intermeta.de>,
         linux-kernel@vger.kernel.org
-Subject: Re: Coding style - a non-issue
-Message-ID: <20011207111558.A6622@hq2>
-In-Reply-To: <20011130200239.A28131@hq2> <E16AhO2-0000C2-00@starship.berlin> <20011203050410.D16148@hq2> <E16At1U-0000GF-00@starship.berlin>
+Subject: Re: SMP/cc Cluster description
+Message-ID: <20011207102318.J27589@work.bitmover.com>
+Mail-Followup-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+	Larry McVoy <lm@bitmover.com>,
+	Henning Schmiedehausen <hps@intermeta.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011207092314.F27589@work.bitmover.com> <2697104000.1007719451@mbligh.des.sequent.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16At1U-0000GF-00@starship.berlin>
-User-Agent: Mutt/1.3.23i
-Organization: FSM Labs
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <2697104000.1007719451@mbligh.des.sequent.com>; from Martin.Bligh@us.ibm.com on Fri, Dec 07, 2001 at 10:04:11AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 03, 2001 at 02:20:38PM +0100, Daniel Phillips wrote:
-> You're just supporting the point of view that Linus has been espousing, and 
-> I personally support:  Linux is engineered at a micro level[1] but evolves
-> on its own at a macro level.
-
-If this becomes true, then Linux fails. If the coreLinux designers did
-not "get" the UNIX design and understand what was good about Plan9, then
-Linux would look like IRIX without quality control. And the engineer
-formerly known as Linus has admitted as much in  past .e.g. with the 
-comment about UNIX being about "Desgin with a capital D".
-
-> I'll get really worried if Linus wakes up one day and decides that from now 
-> on he's going to properly engineer every aspect of the Linux kernel.  The 
-> same way I'd feel if Linux got taken over by a committee.
-
-I'm at a loss here. I state that an emphasis on design has been critical
-to Linux  and you respond that it would be bad if Linus wanted to
-personally engineer every aspect of the Linux kernel. 
-In the english language, the word "design" does not have the same
-semantics as "control every detail". 
-
-Anyways, enough.
-
-
-
+On Fri, Dec 07, 2001 at 10:04:11AM -0800, Martin J. Bligh wrote:
+> > My pay job is developing a distributed source management system which works
+> > by replication.  We already have users who put all the etc files in it and
+> > manage them that way.  Works great.  It's like rdist except it never screws
+> > up and it has merging.
 > 
-> --
-> Daniel
-> 
-> [1] In places.  All those little warts and occasional pools of sewage are 
-> clearly not 'engineered'.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> So would that mean I would need bitkeeper installed in order to change my
+> password? 
+
+No, that's just one way to solve the problem.  Another way would be to have
+a master/slave relationship between the replicas sort of like CVS.  In fact,
+you could use CVS.
+
+> And IIRC, bitkeeper is not free either?
+
+Actually it is for this purpose.  You can either do open logging (probably
+not what you want) or run it in single user mode which doesn't log, you
+just lose the audit trail (all checkins look like they are made by root).
+
+If I could figure out a way to allow the use of BK for /etc with out any
+restrictions at all, and at the same time prevent people from just putting
+all their source in /etc and shutting down our commercial revenue, I'd
+do it in a heartbeat.  I'd *love it* if when I did an upgrade from Red Hat,
+the config files were part of a BK repository and I just did a pull/merge
+to join my local changes with whatever they've done.  That would be a huge
+step in making sys admin a lot less problematic.  But this is more than a
+bit off topic...
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

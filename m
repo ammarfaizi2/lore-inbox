@@ -1,80 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263985AbTJOSfR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 14:35:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263961AbTJOSeG
+	id S264093AbTJOTDv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 15:03:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264091AbTJOTDv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 14:34:06 -0400
-Received: from hugin.maersk-moller.net ([193.88.237.237]:43141 "EHLO
-	hugin.maersk-moller.net") by vger.kernel.org with ESMTP
-	id S263963AbTJOScr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 14:32:47 -0400
-Message-ID: <3F8D929F.1000506@maersk-moller.net>
-Date: Wed, 15 Oct 2003 20:31:59 +0200
-From: Peter Maersk-Moller <peter@maersk-moller.net>
-Organization: Visit <http://www.maersk-moller.net/>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
+	Wed, 15 Oct 2003 15:03:51 -0400
+Received: from [80.88.36.193] ([80.88.36.193]:22429 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S264093AbTJOTDl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 15:03:41 -0400
+Date: Wed, 15 Oct 2003 21:03:35 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Erik Mouw <erik@harddisk-recovery.com>
+cc: Nikita Danilov <Nikita@Namesys.COM>, Josh Litherland <josh@temp123.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Transparent compression in the FS
+In-Reply-To: <20031015160430.GH24799@bitwizard.nl>
+Message-ID: <Pine.GSO.4.21.0310151856520.21132-100000@waterleaf.sonytel.be>
 MIME-Version: 1.0
-To: John Stoffel <stoffel@lucent.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx lockup for SMP for 2.4.22
-References: <3F8D1377.3060509@maersk-moller.net>	<3F8D3A47.1000804@maersk-moller.net> <16269.34470.987994.870487@gargle.gargle.HOWL>
-In-Reply-To: <16269.34470.987994.870487@gargle.gargle.HOWL>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Wed, 15 Oct 2003, Erik Mouw wrote:
+> On Wed, Oct 15, 2003 at 06:33:03PM +0400, Nikita Danilov wrote:
+> > Trend is that CPU is getting faster and faster with respect to the
+> > disk. So, even if it were hard to find such a CPU to-day, it will be
+> > common place to-morrow.
+> 
+> I'm not too sure about this. It's my feeling that CPU speed and disk
+> throughput grow about as fast. I don't have hard figures, so I can be
+> proven wrong on this.
 
-John Stoffel wrote:
-> My system has the Intel GX chipset, what does yours have? 
+Well, let's take some (exotic :-) examples:
 
-BX440
+  - 1989: Amiga 500, 7.14 MHz 68000, expensive SCSI disk, 675 KB/s
+  - 1992: Amiga 4000, 25 MHz 68040, IDE, 1.8 MB/s (SCSI with 5 MB/s should have
+    been possible)
+  - 1998: CHRP, 200 MHz 604e, UW-SCSI, 17 MB/s
 
-> I've also
-> turned off ACPI in the bios, but I do have:
+The third CPU is ca. 25 times faster than the second (both in BogoMIPS as
+kernel cross-compiles). The disk isn't 25 faster, though.
 
-Not sure i can do that - must check.
+Now you can buy a machine with a CPU that's 25 times faster again, but please
+show me a 400 MB/s disk...
 
-To be a little bit more detailed, in the PC are installed the following
+Gr{oetje,eeting}s,
 
-   a) AGP Matrox 400 or 450
-   b) PCI 3c95x
-   c) PCI Adaptec 29160
-   c) PCI bttv WinTV
-   e) Free
-   f) ISA pnp Winmodem
-   g) ISA pnp SB16
+						Geert
 
-Yes, it's an old machine ;-)
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Anyway, removing all but the AGP card and moving the controller to slot b)
-and then installing the cards as
-
-   a) AGP Matrox 400 or 450
-   b) PCI Adaptec 29160
-   c) PCI 3c95x
-   d) PCI bttv WinTV
-   e) Free
-   f) ISA pnp SB16
-   g) ISA pnp Winmodem
-
-cures the problem both with and without SMP and IO-APIC enabled.
-So far so good for me. I suspect some how there was an undetected
-IRQ/ISA/PCI problem, but that still mean that the driver can work
-well with the IO-APIC disabled while hanging when IO-APIC enabled.
-
-If anybody want's to persue this, I'd be happy to reproduce
-the error.
-
-Kind regards
-
-----------------------------------------------------------------
-Peter Maersk-Moller
-----------------------------------------------------------------
-Ogg/Vorbis support for MPEG4IP. YUV12, XviD, AVI and MP4 support
-for libmpeg2. See http://www.maersk-moller.net/projects/
-----------------------------------------------------------------
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

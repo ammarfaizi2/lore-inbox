@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287663AbRLaVj5>; Mon, 31 Dec 2001 16:39:57 -0500
+	id <S287657AbRLaVn4>; Mon, 31 Dec 2001 16:43:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287662AbRLaVjq>; Mon, 31 Dec 2001 16:39:46 -0500
-Received: from a212-113-174-249.netcabo.pt ([212.113.174.249]:47137 "EHLO
-	smtp.netcabo.pt") by vger.kernel.org with ESMTP id <S287654AbRLaVjf>;
-	Mon, 31 Dec 2001 16:39:35 -0500
-Message-ID: <000d01c19243$a29ac280$d500a8c0@mshome.net>
-From: "Astinus" <Astinus@netcabo.pt>
-To: <linux-kernel@vger.kernel.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Dual ATHLON MP AND curren linux KERNEL
-Date: Mon, 31 Dec 2001 21:39:32 -0000
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-OriginalArrivalTime: 31 Dec 2001 21:37:49.0462 (UTC) FILETIME=[64CBB360:01C19243]
+	id <S287654AbRLaVnq>; Mon, 31 Dec 2001 16:43:46 -0500
+Received: from alteon01f.roc.frontiernet.net ([66.133.130.236]:23063 "HELO
+	relay01.roc.frontiernet.net") by vger.kernel.org with SMTP
+	id <S287657AbRLaVnl>; Mon, 31 Dec 2001 16:43:41 -0500
+Date: Mon, 31 Dec 2001 16:42:58 -0500
+From: Scott McDermott <vaxerdec@frontiernet.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: Framebuffer...Why oh Why???
+Message-ID: <20011231164258.A1099@vaxerdec.homeip.net>
+Mail-Followup-To: Scott McDermott <vaxerdec>, linux-kernel@vger.kernel.org
+In-Reply-To: <200112302117.fBULHISr011887@svr3.applink.net> <Pine.LNX.4.33.0112301618310.1011-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0112301618310.1011-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sun, Dec 30, 2001 at 04:19:15PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well i would like if the kernel supportd the AMD 760 MP
-chipset.
+Linus Torvalds on Sun 30/12 16:19 -0800:
+> No sane person should use frame buffers if they have the choice.
 
-By the way, will this pc setup bring any obvious problems with linux red hat
-/ suse 7.x???
+Text mode is slow and has poor resolution, yes even svga text mode stuff
+is way slower than accelerated fbconsole for me, I don't like having to
+wait for the screen to update when I page a file and go to the next
+page.
 
-Dual Athlon Mp 1800
-mobo-- Tyan's Thunder k7 (S2462)
-seagte scsci ultra 160 cheeta 10k 16 mb cache 73,4 gb
-no sound
-~52x scsi cdrom ( creative )
-matrox g450(g550)
-
-regards Astinus
-
-
+And why require me to load X just to have a usuable system? Yes I think
+when I have to switch consoles so a program doing a lot of screen output
+doesn't block endlessly on my slow textmode display is unusable.

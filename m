@@ -1,56 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265424AbTABRGt>; Thu, 2 Jan 2003 12:06:49 -0500
+	id <S265633AbTABRJa>; Thu, 2 Jan 2003 12:09:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265508AbTABRGs>; Thu, 2 Jan 2003 12:06:48 -0500
-Received: from sunpizz1.rvs.uni-bielefeld.de ([129.70.123.31]:8360 "EHLO
-	mail.rvs.uni-bielefeld.de") by vger.kernel.org with ESMTP
-	id <S265424AbTABRGs>; Thu, 2 Jan 2003 12:06:48 -0500
-Subject: Re: [PATCH] Deprecate exec_usermodehelper, fix request_module.
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       akpm@zip.com.au, Thomas Sailer <sailer@ife.ee.ethz.ch>,
-       Jose Orlando Pereira <jop@di.uminho.pt>,
-       J.E.J.Bottomley@HansenPartnership.com
-In-Reply-To: <20030102093637.8C6892C2FB@lists.samba.org>
-References: <20030102093637.8C6892C2FB@lists.samba.org>
-Content-Type: text/plain
+	id <S265727AbTABRJa>; Thu, 2 Jan 2003 12:09:30 -0500
+Received: from falcon.vispa.uk.net ([62.24.228.11]:46603 "EHLO
+	falcon.vispa.com") by vger.kernel.org with ESMTP id <S265633AbTABRJ3>;
+	Thu, 2 Jan 2003 12:09:29 -0500
+Message-ID: <3E14741C.2040104@walrond.org>
+Date: Thu, 02 Jan 2003 17:17:16 +0000
+From: Andrew Walrond <andrew@walrond.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: e1000 not detected in 2.5.53
+References: <3E145A31.9000305@walrond.org>
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 02 Jan 2003 18:14:17 +0100
-Message-Id: <1041527666.16046.18.camel@pegasus.local>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rusty,
+Same results for 2.54
 
-> I got a report from Urban Widmark that modprobe dropped its privs on
-> executing an install command: turns out request_module
-> (ie. exec_usermodehelper) doesn't set the real uid or gid (so bash
-> drops privs).
+Andrew Walrond wrote:
+> Asus PR-DLS dual Xeon m/b with Intel 82544GC Gigabit controller onboard 
+> (And Intel 82551QM Fast Ethernet controller incidentally)
 > 
-> These efforts to "clean" the current process are *always* going to be
-> buggy: we should use the event thread all the time, rather than
-> forking a random thread and trying to clean it.  This fixes
-> request_module to do that (kevent threads can't block, so we
-> double-fork).
+> Detected fine in 2.4.20; lspci gives
 > 
-> There are still three
-> (obscure) users of exec_usermodehelper in the tree:
+> 00:00.0 Host bridge: ServerWorks CMIC-LE (rev 13)
+> 00:00.1 Host bridge: ServerWorks CMIC-LE
+> 00:00.2 Host bridge: ServerWorks: Unknown device 0000
+> 00:02.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] 
+> (rev 10)
+> 00:03.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
+> 00:0f.0 ISA bridge: ServerWorks CSB5 South Bridge (rev 93)
+> 00:0f.3 Host bridge: ServerWorks GCLE Host Bridge
+> 00:10.0 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
+> 00:10.2 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
+> 00:11.0 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
+> 00:11.2 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
+> 0e:04.0 SCSI storage controller: LSI Logic / Symbios Logic 53c1030 (rev 07)
+> 0e:04.1 SCSI storage controller: LSI Logic / Symbios Logic 53c1030 (rev 07)
+> 12:02.0 Ethernet controller: Intel Corp. 82544GC Gigabit Ethernet 
+> Controller (LOM) (rev 02)
 > 
-> 	drivers/net/hamradio/baycom_epp.c
-> 	drivers/bluetooth/bt3c_cs.c
-> 	arch/i386/mach-voyager/voyager_thread.c
-
-for the bt3c_cs driver I need to run a user space program that downloads
-the firmware into the card and the kernel part have to wait until this
-program has finished. So what is the best way to do this now?
-
-Regards
-
-Marcel
+> BUT in 2.5.53, it's not detected. lspci gives
+> 
+> 00:00.0 Host bridge: ServerWorks CMIC-LE (rev 13)
+> 00:00.1 Host bridge: ServerWorks CMIC-LE
+> 00:00.2 Host bridge: ServerWorks: Unknown device 0000
+> 00:02.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] 
+> (rev 10)
+> 00:03.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
+> 00:0f.0 ISA bridge: ServerWorks CSB5 South Bridge (rev 93)
+> 00:0f.3 Host bridge: ServerWorks GCLE Host Bridge
+> 00:10.0 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
+> 00:10.2 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
+> 00:11.0 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
+> 00:11.2 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
+> 
+> Looks like scsi controller is missed as well? (I don't use it anyway)
+> The e1000 driver is compiled into the kernel. ACPI is enabled
+> 
+>  From dmesg
+> 
+> Intel(R) PRO/1000 Network Driver - version 4.4.12-k1
+> Copyright (c) 1999-2002 Intel Corporation.
+> 
+> Any suggestions?
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 

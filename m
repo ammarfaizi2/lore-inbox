@@ -1,75 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317930AbSG2Aox>; Sun, 28 Jul 2002 20:44:53 -0400
+	id <S318009AbSG2ApU>; Sun, 28 Jul 2002 20:45:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317928AbSG2Aox>; Sun, 28 Jul 2002 20:44:53 -0400
-Received: from [210.78.134.243] ([210.78.134.243]:50949 "EHLO 210.78.134.243")
-	by vger.kernel.org with ESMTP id <S317925AbSG2Aow>;
-	Sun, 28 Jul 2002 20:44:52 -0400
-Date: Mon, 29 Jul 2002 8:50:5 +0800
-From: zhengchuanbo <zhengcb@netpower.com.cn>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: problem with eepro100 NAPI driver
-X-mailer: FoxMail 3.11 Release [cn]
+	id <S318016AbSG2ApU>; Sun, 28 Jul 2002 20:45:20 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:60453 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S318009AbSG2ApQ>; Sun, 28 Jul 2002 20:45:16 -0400
+Date: Mon, 29 Jul 2002 02:49:42 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH 2.5] Introduce 64-bit versions of PAGE_{CACHE_,}{MASK,ALIGN}
+Message-ID: <20020729004942.GL1201@dualathlon.random>
+References: <5.1.0.14.2.20020728193528.04336a80@pop.cus.cam.ac.uk> <Pine.LNX.4.44.0207281622350.8208-100000@home.transmeta.com> <3D448808.CF8D18BA@zip.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="GB2312"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200207290852736.SM00792@zhengcb>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D448808.CF8D18BA@zip.com.au>
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i applied the latest napi patch for eepro100, but i still met the problem. 
-when i tested the 64bytes frame with smartbits, in the beginning both the RX and TX of the system are normal. but after a while,the network card stop to receive and transmit packets .
-i checked the proc/ params, and found that when soft_reset_count increased one, the system would stop to receive packets for a while. the phenomenon is just like the congestion problem of the interrupt driver as metioned in the NAPI article.
-the code after patched is as follows. at what condition will soft_reset_count increase?  what did the speedo_rx_soft_reset() do? and  is there something  incorrect when dealing with that?  according to the comment,maybe the sp->cur_rx should be dealt.
+On Sun, Jul 28, 2002 at 05:10:48PM -0700, Andrew Morton wrote:
+> Linus Torvalds wrote:
+> > 
+> > ...
+> > Dream on. It's good, and it's not getting removed. The "struct page" is
+> > size-critical, and also correctness-critical (see above on gcc issues).
+> > 
+> 
+> Plan B is to remove page->index.
+> 
+> - Replace ->mapping with a pointer to the page's radix tree
+>   slot.   Use address masking to go from page.radix_tree_slot
+>   to the radix tree node.
 
-      if (!(status & RxComplete)) {
-         int intr_status;
-         unsigned long ioaddr = dev->base_addr;
-         unsigned long flags;
+that's not immediate anymore, you've to walk the tree backwards, like
+you do for the lookups.
 
-         spin_lock_irqsave(&sp->lock,flags);
-         intr_status = inw(ioaddr + SCBStatus);
-         /* We check receiver state here because if
-          * we have to do soft reset,sp->cur_rx should
-          * point to an empty entry or something
-          * unexpected will happen
-          */
-         if ((intr_status & 0x3c) != 0x10) {
-            if (speedo_debug > 4)
-               printk("No resource,reset\n");
-            speedo_rx_soft_reset(dev);
-            sp->soft_reset_count++;
-         }
-         spin_unlock_irqrestore(&sp->lock,flags);
-         break;
-      }
+I recall you are benchmarking radix tree with dbench.  You've to
+benchmark the worst case not dbench with small files. with small files
+even the rbtree was nicer than the hashtable. The right benchmark is:
 
+	truncate(800GByte)
+	write(1G)
+	lseek(800Gbyte)
+	fsync()
+	addr = mmap(1G)
+	benchmark_start()
+	mlock(1G)
+	benchmark_stop()
 
-please cc. thanks.
+instead of mlock you can also do read(1G) as you prefer, but the
+overhead of the copy-user would be certainly more significant than the
+overhead of filling the ptes, so an mlock or *even* a page fault should
+be lighter to allow us to better benchmark the pagecache performance.
 
-chuanbo zheng
-zhengcb@netpower.com.cn
+The nocopy hack from Lincol would be fine too, then you could read the
+whole thing with one syscall and no pagetable overhead.
 
+(of course you need >1G of ram to avoid to hit the disk during the read,
+probably the read pass should be read 1 byte, lseek to the next 1byte,
+and you also need the hashtable allocated with the bootmem allocator)
 
->  I don't know which version you get.The ealier versions do have
->serious problems. The latest one(6.19) on NAPI website works
->well for me,but someone report problem of it too.Since i get no
->environment and time to investigate it,the problem is pending now.
->I will send you the latest patch in case you can't find it in other mail.
->
->zhengchuanbo wrote:
->
->>i tried ehe eepro100 NAPI driver on linux2.4.19. the kernel was compiled successfully. but when i tested the throughput of the system,i met some problem.
->>i tested the system with smartbits. when the frame size is 64bytes, in the beginning the system can receive and transmit packets. but after a while, the network card would not receive and transmit packets any more. 
->>then with frame size bigger than 128bytes, it worked well. the throughput was improved. (but sometimes it also has some problem just like 64bytes frames).
->>so what's the problem? is there something wrong with the driver?
->>please cc. thanks.
->>
->>
->>zhengchuanbo  
->>
->>
->>
+Nobody did that yet AFIK, so it's not a surprise nobody found any
+regression with the radix tree (yet). I expect walking 6/7 cacheline
+steps every time is going to be a significant hit (even worse if you
+need to do that every time to derive the index with the gang method). Of
+course if you work with small files you'll never walk more than a few
+steps and the regression doesn't showup, that was true with the rbtree
+too two/three years ago.
 
+The other major problems of radix trees are the GFP_ATOMIC allocations
+that can lead at the very least to I/O failures, the mempool usage seems
+just a band-aid to hide those failures but it works by pure luck it
+seems.
 
+On the same GFP_ATOMIC lines we can find in rmap.c:
+
+static void alloc_new_pte_chains()
+{
+	struct pte_chain * pte_chain = (void *) get_zeroed_page(GFP_ATOMIC);
+	int i = PAGE_SIZE / sizeof(struct pte_chain);
+
+	if (pte_chain) {
+		inc_page_state(nr_pte_chain_pages);
+		for (; i-- > 0; pte_chain++)
+			pte_chain_push(pte_chain);
+	} else {
+		/* Yeah yeah, I'll fix the pte_chain allocation ... */
+		panic("Fix pte_chain allocation, you lazy bastard!\n");
+
+how will you fix the pte_chain allocation to avoid deadlocks? please
+elaborate. none of the callers can handle a failure there, no surprise
+there is a panic there.
+
+> - The only thing we now need page.list for is tracking dirty pages.
+>   Implement a 64-bit dirtiness bitmap in radix_tree_node, propagate
+>   that up the radix tree so we can efficiently traverse dirty pages
+>   in a mapping.  This also allows writeback to always write in ascending
+>   index order.  Remove page->list.  8 bytes saved.
+> 
+
+page->list is needed for the freelist, but ok you could now share
+freelist and lru since they're mutually exclusive. This seems a nice
+idea for the ordering in particular, but again the "find" algorithm will
+be slower and walking a tree in order is even a recursive operation that
+will require either sane programming and a recursive algorithm that will
+overflow the stack with a big radix tree at offset 200T on a 64bit arch,
+or dynamic allocations and overcomplex code.
+
+> - Remove ->virtual, do page_address() via a hash.  4(ish) bytes saved.
+
+note you still have to handle the collisions, it's not like the
+waitqueue hash were you avoid handling the collisions by doing a
+wake-all. You should handle the collision with kmalloc dyn-alloc
+but you have no failure path there.
+
+In short none of these things cames for free, it's not like the page
+based writeback that removes overhead. They're not obvious optimizations
+to my eyes, but yes you could theoretically shrunk the struct page that
+way, but I'm pretty much fine to pay with ram if the other option is to
+run slower.
+
+The keeping track of dirty pages into a tree and to walk the tree in
+ascendent order to flush those dirty pages may actually pay off, in
+userspace with a recursive stack, but in kernel even only the fact we
+cannot handle a kmalloc failure during dirty flushing is a showstopper
+for those algorithms that means OOM deadlock, you cannot just avoid to
+flush dirty pages and try again, everybody may be trying to flush dirty
+pages to make progress. In userspace that just means "task dies with
+-ENOMEM or sigkill from kernel, plug some more ram or add some more swap
+and try again", but for an operative system the thing is different.
+
+Andrea

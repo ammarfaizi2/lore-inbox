@@ -1,44 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263231AbUKZXQX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263214AbUKZXTw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263231AbUKZXQX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 18:16:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263232AbUKZTsU
+	id S263214AbUKZXTw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 18:19:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263209AbUKZXTm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 14:48:20 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:4291 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262395AbUKZT2z (ORCPT
+	Fri, 26 Nov 2004 18:19:42 -0500
+Received: from 65-75.sh.cgocable.ca ([205.151.65.75]:13281 "EHLO mail.pixel.ca")
+	by vger.kernel.org with ESMTP id S262402AbUKZXRj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:28:55 -0500
-Date: Thu, 25 Nov 2004 22:36:22 +0100
-From: Domen Puncer <domen@coderock.org>
-To: Alex Kern <alex.kern@gmx.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch] video: semicolon bug in atyfb_base.c
-Message-ID: <20041125213622.GA7889@nd47.coderock.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	Fri, 26 Nov 2004 18:17:39 -0500
+From: "Mario Gaucher" <zadiglist@zadig.ca>
+To: adaplas@pol.net
+Cc: "Linux-Kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fbdev: Fix crash if fb_set_var() called before register_framebuffer()
+Date: Fri, 26 Nov 2004 18:17:36 -0500
+Message-Id: <20041126231251.M19516@zadig.ca>
+In-Reply-To: <200411260845.04618.adaplas@hotpop.com>
+References: <200411250115.50895.adaplas@hotpop.com> <20041125235955.M86030@zadig.ca> <200411260845.04618.adaplas@hotpop.com>
+X-Mailer: Open WebMail 2.41 20040926
+X-OriginatingIP: 192.168.25.4 (zadig)
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Indentiation and logic suggest this was wrong.
 
-Signed-off-by: Domen Puncer <domen@coderock.org>
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+> > but I still has some problem with my Matrox Millenium PCI card using
+> > matroxfb driver... the kernel boot... but I get corrupted characters on
+> > the console... X load ok and display ok...
+> 
+> Try this first.
+> 
+> 1. Open drivers/video/matrox/matrofb_accel.c
+> 2. At the end of the file is this function:
+> 
+> static void matroxfb_imageblit(struct fb_info* info, const struct
+fb_image* image) {
+> 	MINFO_FROM_INFO(info);
+> 
+> 	DBG_HEAVY(__FUNCTION__);
+> 
+> 	if (image->depth == 1) {
+> 		u_int32_t fgx, bgx;
+> 
+> 		fgx = ((u_int32_t*)info->pseudo_palette)[image->fg_color];
+> 		bgx = ((u_int32_t*)info->pseudo_palette)[image->bg_color];
+> 		matroxfb_1bpp_imageblit(PMINFO fgx, bgx, image->data, image->width,
+image->height, image->dy, image->dx);
+> 	} else {
+> 		/* Danger! image->depth is useless: logo painting code always
+> 		   passes framebuffer color depth here, although logo data are
+> 		   always 8bpp and info->pseudo_palette is changed to contain
+> 		   logo palette to be used (but only for true/direct-color... sic...).
+> 		   So do it completely in software... */
+> 		cfb_imageblit(info, image);
+> 	}
+> }
+> 
+> 3. Replace the above function to use software drawing so it becomes like
+this:
+> 
+> static void matroxfb_imageblit(struct fb_info* info, const struct
+fb_image* image) {
+> 	cfb_imageblit(info, image);
+> }
 
---- c/drivers/video/aty/atyfb_base.c	2004-11-15 13:42:18.000000000 +0100
-+++ str2/drivers/video/aty/atyfb_base.c	2004-11-25 21:14:52.000000000 +0100
-@@ -440,11 +440,11 @@ static int __devinit correct_chipset(str
- 	switch(par->pci_id) {
- #ifdef CONFIG_FB_ATY_GX
- 	case PCI_CHIP_MACH64GX:
--		if(type != 0x00d7);
-+		if(type != 0x00d7)
- 			return -ENODEV;
- 		break;
- 	case PCI_CHIP_MACH64CX:
--		if(type != 0x0057);
-+		if(type != 0x0057)
- 			return -ENODEV;
- 		break;
- #endif
+
+this patch works fine on my PowerMac 7300 with my Matrox Millenium PCI
+card... 
+
+so I think that both patch you sent me should be included in the kernel... 
+
+thank you
+

@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268123AbTGTUJh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 16:09:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268201AbTGTUJh
+	id S268201AbTGTUN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 16:13:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268222AbTGTUN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 16:09:37 -0400
-Received: from server0011.freedom2surf.net ([194.106.56.14]:28885 "EHLO
-	server0027.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S268123AbTGTUJg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 16:09:36 -0400
-Date: Sun, 20 Jul 2003 21:24:36 +0100
-From: Ian Molton <spyro@f2s.com>
+	Sun, 20 Jul 2003 16:13:58 -0400
+Received: from webbox110.server-home.net ([62.208.70.32]:63705 "EHLO
+	webbox110.server-home.net") by vger.kernel.org with ESMTP
+	id S268201AbTGTUN5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 16:13:57 -0400
+Message-ID: <3F1AFB77.3070105@ng.h42.de>
+Date: Sun, 20 Jul 2003 22:28:39 +0200
+From: Lars Ehrhardt <0703@ng.h42.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: de, en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: CLEANUP [PATCH] Kconfig tidyup for kcore options
-Message-Id: <20030720212436.0a5be025.spyro@f2s.com>
-In-Reply-To: <20030718223750.0e8e7645.spyro@f2s.com>
-References: <20030718223750.0e8e7645.spyro@f2s.com>
-Organization: The Dragon Roost
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Subject: Re: Radeon in LK 2.4.21pre7
+X-Enigmail-Version: 0.76.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Jul 2003 22:37:50 +0100
-Ian Molton <spyro@f2s.com> wrote:
+Hi,
 
-> 
-> This patch cleans up the multiple copies of KCORE options on those
-> architectures that offered a choice between AOUT or ELF.
+Kristofer T. Karas wrote:
 
-Was there some problem with this patch or did it just slip through the cracks?
+> (...)
+> Problem #4: I think this was already reported. But when running X,
+> switching to a text console (with <Ctrl>-<Alt>-<F1...Fn>) results in
+> complete corruption of the output.
 
-Comments? Objections? Shrilly voiced opinions?
+Yes, I can confirm that this problem is still present in 2.4.21-bk14.
+See http://www.cs.helsinki.fi/linux/linux-kernel/2003-28/0165.html
+for the details of my hardware.
 
-:-)
+Will this be fixed before 2.4.22 comes out?
 
-Thanks!
+bye lars
 
--- 
-Spyros lair: http://www.mnementh.co.uk/   ||||   Maintainer: arm26 linux
-
-Do not meddle in the affairs of Dragons, for you are tasty and good with ketchup.

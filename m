@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275027AbTHAOgh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 10:36:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275119AbTHAOgg
+	id S275221AbTHAOji (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 10:39:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275218AbTHAOjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 10:36:36 -0400
-Received: from lidskialf.net ([62.3.233.115]:19430 "EHLO beyond.lidskialf.net")
-	by vger.kernel.org with ESMTP id S275027AbTHAOgf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 10:36:35 -0400
-From: Andrew de Quincey <adq_dvb@lidskialf.net>
-To: Andrew Morton <akpm@osdl.org>, Michael Bakos <bakhos@msi.umn.edu>
-Subject: Re: compile error for Opteron CPU with kernel 2.6.0-test2
-Date: Fri, 1 Aug 2003 15:36:38 +0100
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org
-References: <20030731182705.5b4f2b33.akpm@osdl.org> <Pine.SGI.4.33.0307312127190.23643-100000@ir12.msi.umn.edu> <20030731212105.75fb4191.akpm@osdl.org>
-In-Reply-To: <20030731212105.75fb4191.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Aug 2003 10:39:37 -0400
+Received: from tandu.perlsupport.com ([66.220.6.226]:47540 "EHLO
+	tandu.perlsupport.com") by vger.kernel.org with ESMTP
+	id S275221AbTHAOjK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 10:39:10 -0400
+Date: Fri, 1 Aug 2003 10:38:07 -0400
+From: Chip Salzenberg <chip@pobox.com>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Steve Dickson <SteveD@redhat.com>, nfs@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: nfs-utils-1.0.5 is not backwards compatible with 2.4
+Message-ID: <20030801143807.GB24358@perlsupport.com>
+References: <3F294DE3.9020304@RedHat.com> <16169.54918.472349.928145@gargle.gargle.HOWL>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308011536.38015.adq_dvb@lidskialf.net>
+In-Reply-To: <16169.54918.472349.928145@gargle.gargle.HOWL>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+According to Neil Brown:
+> I don't know if there is any such code, but if there is I apoligize for
+> breaking it and suggest that the best fix is to not use the header
+> file it was using but it explicitly include the values for NFSEXP_* in
+> that code.
 
-> OK, I'd be doing this:
->
->  arch/x86_64/kernel/mpparse.c |    3 ++-
->  1 files changed, 2 insertions(+), 1 deletion(-)
->
-> diff -puN arch/x86_64/kernel/mpparse.c~nforce2-acpi-fixes-fix
-> arch/x86_64/kernel/mpparse.c ---
-> 25/arch/x86_64/kernel/mpparse.c~nforce2-acpi-fixes-fix	2003-07-31
-> 21:18:45.000000000 -0700 +++
-> 25-akpm/arch/x86_64/kernel/mpparse.c	2003-07-31 21:18:59.000000000 -0700 @@
-> -896,7 +896,8 @@ void __init mp_parse_prt (void)
->
->  		/* Need to get irq for dynamic entry */
->  		if (entry->link.handle) {
-> -			irq = acpi_pci_link_get_irq(entry->link.handle, entry->link.index);
-> +			irq = acpi_pci_link_get_irq(entry->link.handle,
-> +				entry->link.index, NULL, NULL);
->  			if (!irq)
->  			continue;
->  		}
->
-> _
-
-Great, thanks very much.
-
+The only really bad thing about the current situation is that the name
+"NFSEXP_CROSSMNT" is poisoned by having had two historical
+definitions.  So it that name should be dropped, IMO, and replaced by
+something textually different.  "NFSEXP_XMOUNT", perhaps.  Even
+"NFSEXP_CROSSMNT2" would work.  Just as long as code that said
+"CROSSMNT" to mean "NOHIDE" wouldn't accidentally get CROSSMNT instead.
+-- 
+Chip Salzenberg               - a.k.a. -               <chip@pobox.com>
+"I wanted to play hopscotch with the impenetrable mystery of existence,
+    but he stepped in a wormhole and had to go in early."  // MST3K

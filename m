@@ -1,43 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262067AbRETQEX>; Sun, 20 May 2001 12:04:23 -0400
+	id <S262061AbRETQAn>; Sun, 20 May 2001 12:00:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262069AbRETQEN>; Sun, 20 May 2001 12:04:13 -0400
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:19261 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S262067AbRETQEC>; Sun, 20 May 2001 12:04:02 -0400
-Message-ID: <000901c0e146$4cb89760$3303a8c0@pnetz>
-From: =?iso-8859-1?Q?Christian_Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-To: "szonyi calin" <caszonyi@yahoo.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010520150945.66552.qmail@web13907.mail.yahoo.com>
-Subject: Re: BUG ? and questions
-Date: Sun, 20 May 2001 18:02:40 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S262062AbRETQAd>; Sun, 20 May 2001 12:00:33 -0400
+Received: from geos.coastside.net ([207.213.212.4]:3536 "EHLO
+	geos.coastside.net") by vger.kernel.org with ESMTP
+	id <S262061AbRETQAR>; Sun, 20 May 2001 12:00:17 -0400
+Mime-Version: 1.0
+Message-Id: <p05100303b72d95fa36d1@[207.213.214.37]>
+In-Reply-To: <m1wv7cgy45.fsf@frodo.biederman.org>
+In-Reply-To: <811opRpHw-B@khms.westfalen.de>
+ <Pine.LNX.4.21.0105151107290.2112-100000@penguin.transmeta.com>
+ <p05100316b7272cdfd50c@[207.213.214.37]> <811opRpHw-B@khms.westfalen.de>
+ <p05100301b72a335d4b61@[10.128.7.49]> <81BywVLHw-B@khms.westfalen.de>
+ <p0510031eb72c5f11b8c7@[207.213.214.37]>
+ <m1wv7cgy45.fsf@frodo.biederman.org>
+Date: Sun, 20 May 2001 08:54:50 -0700
+To: ebiederm@xmission.com (Eric W. Biederman)
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: LANANA: To Pending Device Number Registrants
+Cc: kaih@khms.westfalen.de (Kai Henningsen), linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have a Cx 486/66 with 12 Megs of ram AST computer
-> gcc 2.95.3, glibc 2.1.3, make 3.79.1 binutils 2.11 ??
-> Problems:
-> 1. When I try to run multiple (2) compilations on a
-> 2.4.4 kernel usually one
-> of them dies -- if it's gcc - signal 11 ,  if it's sh
+At 3:37 AM -0600 2001-05-20, Eric W. Biederman wrote:
+>Jonathan Lundell <jlundell@pobox.com> writes:
+>
+>>  At 10:42 AM +0200 2001-05-19, Kai Henningsen wrote:
+>>  >  > Jeff Garzik's ethtool
+>>  >  > extension at least tells me the PCI bus/dev/fcn, though, and from
+>>  >>  that I can write a userland mapping function to the physical
+>>  >>  location.
+>>  >
+>>  >I don't see how PCI bus/dev/fcn lets you do that.
+>>
+>>  I know from system documentation, or can figure out once and for all
+>>  by experimentation, the correspondence between PCI bus/dev/fcn and
+>>  physical locations. Jeff's extension gives me the mapping between
+>>  eth# and PCI bus/dev/fcn, which is not otherwise available (outside
+>>  the kernel).
+>
+>Just a second let me reenumerate your pci busses, and change all of the bus
+>numbers.  Not that this is a bad thought.  It is just you need to know
+>the tree of PCI busses/bridges up to the root on the machine in question.
 
-looks like an out-of-memory (OOM) kill. Check your log files.
-(var/log/messages but can vary on some distributions)
-12 MB of RAM is not enough for Kernel 2.4.4 and several gcc runs, as some
-gcc optimizations have complexity of O(n^2) or higher.
+Yes, you do. And it's true that renumbering is problematical; I 
+hadn't thought of all the implications. Say, you have a system with 
+hot-plug slots on two buses, and someone hot-plugs a card with a 
+bridge (fairly common; most dual/quad Ethernet boards have a bridge). 
+If the buses were numbered densely to begin with, they're going to 
+have to be renumbered above the point that the new bridge was added.
 
-greetings
+Phooey. Well, it can still be done, but it's a bit more complicated 
+than the bus/dev/fcn-to-location map I was imagining. You'd have to 
+describe the topology of the built-in buses, and dynamically make the 
+correspondences. As you say, "know the tree", by topology, not bus 
+numbers.
 
-Christian Bornträger
 
-
+-- 
+/Jonathan Lundell.

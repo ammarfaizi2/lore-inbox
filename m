@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281723AbRKULUB>; Wed, 21 Nov 2001 06:20:01 -0500
+	id <S281730AbRKULVb>; Wed, 21 Nov 2001 06:21:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281718AbRKULTv>; Wed, 21 Nov 2001 06:19:51 -0500
-Received: from bernstein.mrc-bsu.cam.ac.uk ([193.60.86.52]:24974 "EHLO
-	bernstein.mrc-bsu.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S281294AbRKULTh>; Wed, 21 Nov 2001 06:19:37 -0500
-Date: Wed, 21 Nov 2001 11:19:36 +0000 (GMT)
-From: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>
-X-X-Sender: <alastair@gurney>
+	id <S281726AbRKULVW>; Wed, 21 Nov 2001 06:21:22 -0500
+Received: from [62.58.73.254] ([62.58.73.254]:22512 "EHLO
+	ats-core-0.atos-group.nl") by vger.kernel.org with ESMTP
+	id <S281724AbRKULVM>; Wed, 21 Nov 2001 06:21:12 -0500
+Date: Wed, 21 Nov 2001 12:14:18 +0100 (CET)
+From: Ryan Sweet <rsweet@atos-group.nl>
+To: Roberto Fichera <kernel@tekno-soft.it>
 cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Athlon /proc/cpuinfo anomaly [minor]
-In-Reply-To: <E166VOz-0004kH-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.33.0111211116130.795-100000@gurney>
+Subject: Re: SDK for iPAQ
+In-Reply-To: <5.1.0.14.2.20011121114716.034e7a60@mail.tekno-soft.it>
+Message-ID: <Pine.LNX.4.30.0111211211080.15627-100000@core-0>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > CPU0 is labelled as an "AMD Athlon(tm) MP Processor 1800+", as expected.
-> > CPU1 is instead labelled just "AMD Athlon(tm) Processor".
->
-> Those strings are read directly out of the CPU.
-> Alan
 
-Hmmm, case of a suspicious CPU then? I haven't physically looked at it,
-but all the correct XP flags (such as "sse") are reported, so it must be
-the real thing.
+On Wed, 21 Nov 2001, Roberto Fichera wrote:
 
-Perhaps one is a certified MP processor, and the other (ahem) isn't...?
+> I need to know where can I download a complete native SDK for iPAQ (not a
+> cross-compiler).
+> I need to get a native development tools because I want recompile
+> some applications that perform some gcc tests like configure.
 
-Cheers
-Alastair
+See http://www.handhelds.org.
 
-o o o o o o o o o o o o o o o o o o o o o o o o o o o o
-Alastair Stevens           \ \
-MRC Biostatistics Unit      \ \___________ 01223 330383
-Cambridge UK                 \___ www.mrc-bsu.cam.ac.uk
+> This development tools should be mounted from an external share like nfs or
+> smbfs
+> because there isn't enough space on the iPAQ, right ?
+
+nfs is used typically, though if you only want to compile, and don't have
+easy access to an ipaq, you can use the skiff cluster, from compaq; see
+handhelds.org (as above) and search for skiff cluster.
+
+> And finally, does anyone know if smbfs works well on iPAQ ?
+
+yes, it does.  You will have to install the samba ipkg.
+
+-- 
+Ryan Sweet <ryan.sweet@atosorigin.com>
+Atos Origin Engineering Services
+http://www.aoes.nl
 

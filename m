@@ -1,64 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262100AbTDAH0m>; Tue, 1 Apr 2003 02:26:42 -0500
+	id <S262103AbTDAHdJ>; Tue, 1 Apr 2003 02:33:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262103AbTDAH0m>; Tue, 1 Apr 2003 02:26:42 -0500
-Received: from cerebus.wirex.com ([65.102.14.138]:4086 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S262100AbTDAH0l>; Tue, 1 Apr 2003 02:26:41 -0500
-Date: Mon, 31 Mar 2003 23:35:48 -0800
-From: Chris Wright <chris@wirex.com>
-To: linux-security-module@wirex.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] 2.5.66-lsm1
-Message-ID: <20030331233548.A7582@figure1.int.wirex.com>
-Mail-Followup-To: linux-security-module@wirex.com,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S262107AbTDAHdJ>; Tue, 1 Apr 2003 02:33:09 -0500
+Received: from modemcable226.131-200-24.mtl.mc.videotron.ca ([24.200.131.226]:9212
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S262103AbTDAHdJ>; Tue, 1 Apr 2003 02:33:09 -0500
+Date: Tue, 1 Apr 2003 02:40:09 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Andrew Morton <akpm@digeo.com>
+cc: linux-kernel@vger.kernel.org, "" <gibbs@scsiguy.com>
+Subject: Re: aic7(censored) use after free in 2.5.66
+In-Reply-To: <20030331232227.3f9c9c5f.akpm@digeo.com>
+Message-ID: <Pine.LNX.4.50.0304010236270.8773-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.50.0304010141200.8773-100000@montezuma.mastecende.com>
+ <Pine.LNX.4.50.0304010155470.8773-100000@montezuma.mastecende.com>
+ <20030331232227.3f9c9c5f.akpm@digeo.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Linux Security Modules project provides a lightweight, general purpose
-framework for access control.  The LSM interface enables developing
-security policies as loadable kernel modules.  See http://lsm.immunix.org
-for more information.
+On Mon, 31 Mar 2003, Andrew Morton wrote:
 
-2.5.66-lsm1 patch released.  This is a rebase up to 2.5.66 as well as
-some interface and module updates.  Out of tree projects will want to
-resync with interface changes.
+> The corruption was at offset 52 decimal into struct ahc_linux_device. 
+> Without knowing your config it is hard for me to work out what you have at
+> that offset.   Rebuild your kernel with -g and do:
+> 
+> (gdb) p/d &(((struct ahc_linux_device *)0)->maxtags)
+> 
+> until you find which member is at offset 52.
+> 
+> Something incremented that field by one after it was freed.
 
-Full lsm-2.5 patch (LSM + all modules) is available at:
-	http://lsm.immunix.org/patches/2.5/2.5.66/patch-2.5.66-lsm1.gz
+(gdb) p/d &(((struct ahc_linux_device *)0)->timer.lock)
+$4 = 52
 
-The whole ChangeLog for this release is at:
-	http://lsm.immunix.org/patches/2.5/2.5.66/ChangeLog-2.5.66-lsm1
-
-The LSM 2.5 BK tree can be pulled from:
-        bk://lsm.bkbits.net/lsm-2.5
-
-2.5.66-lsm1
- - merge with 2.5.59-66					(me)
- - restore file permission hooks to sendfile		(Stephen Smalley)
- - security.h inclusion in network files		(Stephen Smalley)
- - cleanup init[open]_private_file			(Stephen Smalley)
- - syslog, sysctl cleanups				(Stephen Smalley)
- - add CONFIG_SECURITY_NETWORK				(Stephen Smalley)
- - cleanup for newer skb allocation			(me)
- - SELinux:						(Stephen Smalley)
-   - labelled network fixes
-   - ptrace fixes, drop support for exec_permission_lite
-   - minor fixes
-   - use kernel SID in reparent_to_init
- - drop task_kmod_set_label hook			(me)
- - drop explicit exec_permission_lite hook		(me)
- - drop exta call to security_sock_rcv_skb hook		(me)
- - fix setfs[ug]id return values			(Jakub Jelinek)
-
-thanks,
--chris
+That would be a lock free it appears.
 
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+function.linuxpower.ca

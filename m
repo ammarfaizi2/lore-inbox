@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318862AbSHWPOU>; Fri, 23 Aug 2002 11:14:20 -0400
+	id <S318868AbSHWPQ6>; Fri, 23 Aug 2002 11:16:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318864AbSHWPOU>; Fri, 23 Aug 2002 11:14:20 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:48095 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S318862AbSHWPOT>; Fri, 23 Aug 2002 11:14:19 -0400
-Date: Fri, 23 Aug 2002 10:18:23 -0500 (CDT)
-From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Greg Banks <gnb@alphalink.com.au>
-cc: Roman Zippel <zippel@linux-m68k.org>,
-       Peter Samuelson <peter@cadcamlab.org>, <linux-kernel@vger.kernel.org>,
-       <kbuild-devel@lists.sourceforge.net>
-Subject: Re: [kbuild-devel] Re: [patch] config language dep_* enhancements
-In-Reply-To: <3D60BA16.38B9CC40@alphalink.com.au>
-Message-ID: <Pine.LNX.4.44.0208231015540.22497-100000@chaos.physics.uiowa.edu>
+	id <S318869AbSHWPQ6>; Fri, 23 Aug 2002 11:16:58 -0400
+Received: from mail.iok.net ([62.249.129.22]:46862 "EHLO mars.iok.net")
+	by vger.kernel.org with ESMTP id <S318868AbSHWPQ6>;
+	Fri, 23 Aug 2002 11:16:58 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Holger Schurig <h.schurig@mn-logistik.de>
+To: Jan Harkes <jaharkes@cs.cmu.edu>
+Subject: Re: cell-phone like keyboard driver anywhere?
+Date: Fri, 23 Aug 2002 17:10:19 +0200
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <200208210932.36132.h.schurig@mn-logistik.de> <200208230954.11132.h.schurig@mn-logistik.de> <20020823142140.GA27454@ravel.coda.cs.cmu.edu>
+In-Reply-To: <20020823142140.GA27454@ravel.coda.cs.cmu.edu>
+X-Archive: encrypt
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200208231710.19950.h.schurig@mn-logistik.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Aug 2002, Greg Banks wrote:
+> Press 5 (JKL), all songs starting with either j, k, or l will be
+> selected, and the display shows 'Kind of Magic'. Press 3 (DEF) and it
+> limits the selection to any songs that have one of those letters in the
 
-> Roman Zippel wrote:
-> > 
-> > The problem here is one should consider, how all these little changes will
-> > help to solve the big problems. Do they allow to more easily fix the big
-> > problems or have these changes to be dumped again?
-> 
-> I believe fixing the existing rules within the existing syntax is an exercise
-> worth doing, and that the results will carry across to whatever extended syntax/
-> new language/new parsers/whatever will be the long-term solution.
+That sounds pretty much like high application stuff. If I had that in my mind, 
+I would not have had asked in linux-KERNEL. For an application it's easy to 
+have some directory.
 
-Let me just second this. This doesn't mean to try random changes hoping 
-that in the end the result is something sensible. But there are many cases 
-which are obviously bugs or deficiences, and fixes / cleanups there are 
-definitely a good idea as a first step.
-
---Kai
-
-
+The solution you're proposing is good and elegant --- in it's domain. It 
+solves one narrow problem. I need a solution that is broader. Your solution 
+wouldn't work with Qt/Embedded apps AND X11 apps AND ncurses apps. Maybe 
+because your hardware is only used for playing mpegs. But what if the 
+computer is used for tn-5250 (ncurses), Konq/Embedded (Qt/Embedded) and Java 
+(X11), just as the user pleases?  In this case you need something general, 
+and that usually means a kernel driver (because, in our case, there is no 
+kernel interface for a user-space program that can inject key codes back into 
+the kernel so that the keycodes would be subject of normal 
+controlling-tty-handling).
 

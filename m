@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291480AbSBMJrY>; Wed, 13 Feb 2002 04:47:24 -0500
+	id <S291487AbSBMJ7u>; Wed, 13 Feb 2002 04:59:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291484AbSBMJrO>; Wed, 13 Feb 2002 04:47:14 -0500
-Received: from sydney1.au.ibm.com ([202.135.142.193]:63506 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S291480AbSBMJrA>; Wed, 13 Feb 2002 04:47:00 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Ravikiran G Thirumalai <kiran@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] per-cpu areas 
-In-Reply-To: Your message of "Tue, 12 Feb 2002 10:28:52 +0530."
-             <20020212102852.I32236@in.ibm.com> 
-Date: Wed, 13 Feb 2002 20:48:53 +1100
-Message-Id: <E16aw22-0005wa-00@wagner.rustcorp.com.au>
+	id <S291475AbSBMJ7l>; Wed, 13 Feb 2002 04:59:41 -0500
+Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:33040 "EHLO
+	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S291484AbSBMJ7a>; Wed, 13 Feb 2002 04:59:30 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Stephen Kitchener <stephen@g6dzj.demon.co.uk>
+Reply-To: stephen@g6dzj.demon.co.uk
+Organization: none
+To: linux-kernel@vger.kernel.org, linux-hams@vger.kernel.org
+Subject: AX25 Patches for 2.4.17 and above - have they been included yet
+Date: Wed, 13 Feb 2002 10:03:11 +0000
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16awCH-000Hrq-0Y@anchor-post-34.mail.demon.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20020212102852.I32236@in.ibm.com> you write:
-> > +static void __init setup_per_cpu_areas(void)
-> > +{
-> > +	unsigned long size, i;
-> > +	char *ptr;
-> > +	/* Created by linker magic */
-> > +	extern char __per_cpu_start[], __per_cpu_end[];
-> > +
-> > +	/* Copy section for each CPU (we discard the original) */
-> > +	size = ALIGN(__per_cpu_end - __per_cpu_start, SMP_CACHE_BYTES);
-> > +	ptr = alloc_bootmem(size * NR_CPUS);
-> 
-> Would it be possible to free up NR_CPUS - smp_num_cpus worth of memory 
-> after smp_init? .... 
+Hi,
 
-Yes, but memory is cheap, and writing a special "partial free"
-function for this is icky.  Maybe in 2 years when the per-cpu area is
-100MB. 8)
+I have been looking and searching the latest kernel pachecs and update for 
+the fixes that were issued some time ago, but I have yet to see them.
 
-We're better off reducing NR_CPUs to the maxmimum possible value of
-smp_num_cpus() on that machine, IMHO.
+The patches were issed by Henk De Groot and were as follows...
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+diff -ruN linux/net/core/sock.c linux/net/core/sock.c
+--- linux/net/core/sock.c       Fri Dec 28 21:25:37 2001
++++ linux/net/core/sock.c       Fri Dec 28 21:26:35 2001
+@@ -81,6 +81,7 @@
+  *             Andi Kleen      :       Fix write_space callback
+  *             Chris Evans     :       Security fixes - signedness again
+  *             Arnaldo C. Melo :       cleanups, use skb_queue_purge
++ *             Jeroen Vreeken  :       Add check for sk->dead in 
+sock_def_write_space
+  *
+  * To Fix:
+  *
+@@ -1146,7 +1147,7 @@
+        /* Do not wake up a writer until he can make "significant"
+         * progress.  --DaveM
+         */
+-       if((atomic_read(&sk->wmem_alloc) << 1) <= sk->sndbuf) {
++       if(!sk->dead && (atomic_read(&sk->wmem_alloc) << 1) <= sk->sndbuf) {
+                if (sk->sleep && waitqueue_active(sk->sleep))
+                        wake_up_interruptible(sk->sleep);
+
+These were, I believe, issed against the 2.4.17 kernel.
+
+These were to fix a lock up problem that I have encountered when useing an 
+scc card and the scc utilites but might have been more general to ax25 use.
+
+Have I missed something and they are there in the kernel now, haven't seen 
+anything listed in the kernel changes or are these fixes being incorporated 
+in the 2.5.xx series.
+
+
+-- 
+Stephen Kitchener

@@ -1,95 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265406AbSJRTOe>; Fri, 18 Oct 2002 15:14:34 -0400
+	id <S265345AbSJRTiT>; Fri, 18 Oct 2002 15:38:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265407AbSJRTOd>; Fri, 18 Oct 2002 15:14:33 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:1152 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S265406AbSJRTOY>; Fri, 18 Oct 2002 15:14:24 -0400
-Date: Fri, 18 Oct 2002 15:20:14 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2002-Q4@gmx.net>
-cc: Alexander Viro <viro@math.psu.edu>, Tigran Aivazian <aivazian@veritas.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Forced umount
-In-Reply-To: <3DB055D7.7080908@gmx.net>
-Message-ID: <Pine.LNX.3.95.1021018151840.150A-100000@chaos.analogic.com>
+	id <S265347AbSJRTiS>; Fri, 18 Oct 2002 15:38:18 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:17803 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S265345AbSJRTiQ>; Fri, 18 Oct 2002 15:38:16 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 18 Oct 2002 12:52:39 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: John Gardiner Myers <jgmyers@netscape.com>
+cc: Benjamin LaHaise <bcrl@redhat.com>, Dan Kegel <dank@kegel.com>,
+       Shailabh Nagar <nagar@watson.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
+       David Miller <davem@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Stephen Tweedie <sct@redhat.com>
+Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
+In-Reply-To: <3DB05AB2.3010907@netscape.com>
+Message-ID: <Pine.LNX.4.44.0210181241300.1537-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Oct 2002, Carl-Daniel Hailfinger wrote:
-[SNIPPED,,,]
-> 
-> To put it another way: Is there any chance to umount / cleanly if / is local
-> and /smbserver is a mounted remote SMB filesystem where the network link to
-> the SMB server just went down? (Without waiting half an hour for a timeout.)
-> 
-> Thanks for your answer
-> 
-> Carl-Daniel
-> 
+On Fri, 18 Oct 2002, John Gardiner Myers wrote:
+
+> Your claim was that even if the API will drop an event at registration
+> time, my code scheme would not work.  Thus, we can take "the API will
+> drop an event at registration time" as postulated.  That being
+> postulated, if there is still data to be read/written on the file
+> descriptor then the first event_wait will return immediately.
+>
+> In fact, given that postulate and the appropriate axioms about the
+> behavior of event_wait() and do_io(), one can prove that my code scheme
+> is equivalent to yours.  The logical conclusion from that and your claim
+> would be that you don't understand how edge triggered APIs have to be used.
+
+No, the concept of edge triggered APIs is that you have to use the fd
+until EAGAIN. It's a very simple concept. That means that after a
+connect()/accept() you have to start using the fd because I/O space might
+be available for read()/write(). Dropping an event is an attempt of using
+the API like poll() & Co., where after an fd born, it is put inside the
+set to be later wake up. You're basically saying "the kernel should drop an
+event at creation time" and I'm saying that, to keep the API usage
+consistent to "use the fd until EAGAIN", you have to use the fd as soon as
+it'll become available.
 
 
-You don't need to unmount a network drive (or any drive)
-from a mount-point on a file-system before you umount that
-file-system!
 
-In other words, if I have quark:/tmp mounted on /tmp, I can
-umount / without unmounting quark:/tmp. 
+> >The reason you're asking /dev/epoll to drop an event at
+> >fd insertion time shows very clearly that you're going to use the API is
+> >the WRONG way and that you do not understand how such APIs works.
+> >
+> The wrong way as defined by what?  Having /dev/epoll drop appropriate
+> events at registration time permits a useful simplification/optimization
+> and makes the system significantly less prone to subtle progamming errors.
+>
+> I do understand how such APIs work, to the extent that I am pointing out
+> a flaw in their current models.
 
-If the network file-system is r/o or otherwise immune to
-incomplete operations, you can shut down your client system
-with impunity.
-
-
-For example:
-
-Script started on Fri Oct 18 15:01:59 2002
-# mount quark:/tmp /tmp
-# df
-Filesystem           1k-blocks      Used Available Use% Mounted on
-/dev/sdb1             16603376   6434704   9325264  41% /
-/dev/sdc1              6356624   1198700   4835020  20% /alt
-/dev/sdc3              2253284   1768580    370244  83% /home/users
-/dev/sda1              1048272    282768    765504  27% /dos/drive_C
-/dev/sda5              1046224    181280    864944  17% /dos/drive_D
-quark:/tmp              813598    430482    341082  56% /tmp
-# umount /dos/drive_C
-# umount /dos/drive_D
-# umount /home/users
-# umount /alt
-# umount /
-# df
-Filesystem           1k-blocks      Used Available Use% Mounted on
-/dev/sdb1             16603376   6434704   9325264  41% /
-quark:/tmp              813598    430482    341082  56% /tmp
-# > /xxx
-bash: /xxx: Read-only file system
-# > /tmp/xxx
-# df
-Filesystem           1k-blocks      Used Available Use% Mounted on
-/dev/sdb1             16603376   6434704   9325264  41% /
-quark:/tmp              813598    430482    341082  56% /tmp
-# exit
-exit
-
-Script done on Fri Oct 18 15:05:39 2002
-
-As you can see, '/' is now read-only, but /tmp is read-write.
-It is save to hit the reset button or otherwise halt the CPU
-at this time.
-
-If your shutdown scripts or code 'think' you need to unmount
-all the mount-points before you unmount '/', they are broken
-and need to be fixed.
+I'm sorry but why do you want to sell your mistakes for API flaws ?
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
+
+- Davide
+
 

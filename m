@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267642AbTAXMaY>; Fri, 24 Jan 2003 07:30:24 -0500
+	id <S267643AbTAXMkM>; Fri, 24 Jan 2003 07:40:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267643AbTAXMaY>; Fri, 24 Jan 2003 07:30:24 -0500
-Received: from angband.namesys.com ([212.16.7.85]:1664 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S267642AbTAXMaX>; Fri, 24 Jan 2003 07:30:23 -0500
-Date: Fri, 24 Jan 2003 15:39:29 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>
-Subject: Re: ext2 FS corruption with 2.5.59.
-Message-ID: <20030124153929.A894@namesys.com>
-References: <20030123153832.A860@namesys.com> <20030124023213.63d93156.akpm@digeo.com>
-Mime-Version: 1.0
+	id <S267644AbTAXMkM>; Fri, 24 Jan 2003 07:40:12 -0500
+Received: from mail.mpi-sb.mpg.de ([139.19.1.1]:29129 "EHLO
+	interferon.mpi-sb.mpg.de") by vger.kernel.org with ESMTP
+	id <S267643AbTAXMkL>; Fri, 24 Jan 2003 07:40:11 -0500
+Message-ID: <3E31364E.F3AFDCF0@mpi-sb.mpg.de>
+Date: Fri, 24 Jan 2003 13:49:18 +0100
+From: Roman Dementiev <dementiev@mpi-sb.mpg.de>
+Reply-To: dementiev@mpi-sb.mpg.de
+Organization: MPI for Computer Science
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.19p4-smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+CC: dementiev@mpi-sb.mpg.de
+Subject: buffer leakage in kernel?
 Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20030124023213.63d93156.akpm@digeo.com>
-User-Agent: Mutt/1.3.22.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hello everyone,
 
-On Fri, Jan 24, 2003 at 02:32:13AM -0800, Andrew Morton wrote:
+I've met with following problem (kernel 2.4.20-pre4 ):
+I write and read sequentially from/to 8 files each of 64 Gbytes (not a
+mistake, 64 Gbyte),
+each on different disk. The files are opened with flag O_DIRECT. I have
+1 Gbyte RAM, no swap.
+While this scanning is running, number of "buffers" reported by ''free"
+and in /proc/meminfo
+is continuously increasing up to ~ 500 MB !! When the program exits
+normally or I break it, number
+of "buffers" does not decrease and even increases if I do operations on
+other files.
 
-> The below patch should fix it up - please test that.
+This is not nice at all when I have another applications running
+with memory consumption > 500 MB: when my "scanner" approaches 50G
+border on
+each disk, I've got numerous  "Out of memory" murders :(. Even 'ssh' to
+this machine
+is killed :(
 
-Yup. The patch gets rids of those lots of inode problems.
-But fsx issue is still there.
+Could anyone explain why it happens? I suppose that it is a memory
+leakage in
+file system buffer management.
+Is it fixed already in any patch?
 
-> So that's the umount problem.  I don't know why you're getting the fsx-linux
-> failure - I was unable to hit it in an hour's run of the above workload on
-> 4-way.  Against both scsi and IDE.  So please look further into that, thanks.
-
-Ok, So far simplest way of reproducing for me was this:
-mkdir /mnt
-fsstress -p 10 -n1000000 -d /mnt &
-fsx -c 1234 testfile
-
-Now look at fsx output. When it says about "truncating to largest ever: 0x3ffff",
-wait 10 more seconds and if nothing happens, ^C the fsx,
-run "rm -rf testfile*"
-now run fsx again
-and so on until it fails.
-
-Last time it took me three iterations to reproduce.
 
 Bye,
-    Oleg
+Roman
+
+

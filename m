@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278408AbRJXAUQ>; Tue, 23 Oct 2001 20:20:16 -0400
+	id <S279482AbRJXHjA>; Wed, 24 Oct 2001 03:39:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278416AbRJXAUG>; Tue, 23 Oct 2001 20:20:06 -0400
-Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:10259 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S278408AbRJXATy>;
-	Tue, 23 Oct 2001 20:19:54 -0400
-Date: Wed, 24 Oct 2001 02:20:23 +0200
-From: Werner Almesberger <wa@almesberger.net>
-To: Eric <ebrower@usa.net>
-Cc: linux-kernel@vger.kernel.org, root@chaos.analogic.com
-Subject: Re: [Q] pivot_root and initrd
-Message-ID: <20011024022023.B8463@almesberger.net>
-In-Reply-To: <p05100328b7fb8dcb9473@[207.213.214.37]> <3BD5E71F.6090506@usa.net>
+	id <S279483AbRJXHiv>; Wed, 24 Oct 2001 03:38:51 -0400
+Received: from [62.14.144.124] ([62.14.144.124]:29956 "EHLO ragnar-hojland.com")
+	by vger.kernel.org with ESMTP id <S279457AbRJXHik>;
+	Wed, 24 Oct 2001 03:38:40 -0400
+Date: Wed, 24 Oct 2001 01:45:12 +0200
+From: Ragnar Hojland Espinosa <ragnar@ragnar-hojland.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: drevil@warpcore.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.13-pre6 breaks Nvidia's kernel module
+Message-ID: <20011024014512.A7356@ragnar-hojland.com>
+In-Reply-To: <20011022211622.B20411@virtucon.warpcore.org> <20011022172742.B445@virtucon.warpcore.org> <E15vnuN-0003jW-00@the-village.bc.nu> <20011022203159.A20411@virtucon.warpcore.org> <20011022214324.A18888@alcove.wittsend.com> <20011022211622.B20411@virtucon.warpcore.org> <17998.1003830655@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <3BD5E71F.6090506@usa.net>; from ebrower@usa.net on Tue, Oct 23, 2001 at 02:54:39PM -0700
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <17998.1003830655@redhat.com>; from dwmw2@infradead.org on Tue, Oct 23, 2001 at 10:50:55AM +0100
+Organization: Mediocrity Naysayers Ltd
+X-Homepage: http://lightside.eresmas.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric wrote:
-> Both the pivot_root(8) manpage and the <linux>/Documentation/initrd.txt 
-> document admonish us to do much more than shown below (chroot, relative 
-> pathing of pivot_root arguments, etc).
+On Tue, Oct 23, 2001 at 10:50:55AM +0100, David Woodhouse wrote:
+> 
+> drevil@warpcore.org said:
+> >  What I am advocating is a little bit more sanity. The OS should not
+> > break compatability with existing drivers so often for a 'stable'
+> > release.
+> 
+> Name a driver in the 2.4.13-pre6 tree which doesn't compile and work with 
+> the 2.4.13-pre6 kernel. 
 
-Correct, yes. Peter's procedure should work with the current
-implementation, but it's safer to use the documented approach,
-particularly if the solution is distributed to other people.
-
-I currently don't have any plans for changing the pivot_root
-implementation, but I wouldn't be surprised if something comes
-up at some point in 2.5, since the overall boot architecture
-needs a bit of work.
-
-- Werner
+Mitsumi (non-IDE CDROMs), broke at the 2.3.41-pre3 and 2.3.41-pre4
+transition, and IIRC was still broken at 2.4.0 .. haven't got the drive here
+so I can't test.
 
 -- 
-  _________________________________________________________________________
- / Werner Almesberger, Lausanne, CH                    wa@almesberger.net /
-/_http://icawww.epfl.ch/almesberger/_____________________________________/
+____/|  Ragnar Højland      Freedom - Linux - OpenGL |    Brainbench MVP
+\ o.O|  PGP94C4B2F0D27DE025BE2302C104B78C56 B72F0822 | for Unix Programming
+ =(_)=  "Thou shalt not follow the NULL pointer for  | (www.brainbench.com)
+   U     chaos and madness await thee at its end."

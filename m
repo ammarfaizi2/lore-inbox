@@ -1,73 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265300AbTIJSA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 14:00:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265318AbTIJSA3
+	id S265394AbTIJR43 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 13:56:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265403AbTIJR43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 14:00:29 -0400
-Received: from www.mail15.com ([194.186.131.96]:23827 "EHLO www.mail15.com")
-	by vger.kernel.org with ESMTP id S265300AbTIJSAW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 14:00:22 -0400
-Date: Wed, 10 Sep 2003 22:00:19 +0400 (MSD)
-Message-Id: <200309101800.h8AI0JYY074734@www.mail15.com>
-From: Muthukumar <kmuthukumar@mail15.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+	Wed, 10 Sep 2003 13:56:29 -0400
+Received: from 015.atlasinternet.net ([212.9.93.15]:2790 "EHLO
+	ponti.gallimedina.net") by vger.kernel.org with ESMTP
+	id S265394AbTIJR42 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 13:56:28 -0400
+From: Ricardo Galli <gallir@uib.es>
+To: Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH-fixed] 2.6.0-test5 was Re: [RETRY] 2.6-test5 =?iso-8859-15?q?didn't=09included=20it=20yet?= (old sk98lin driver makes eth unusable)
+Date: Wed, 10 Sep 2003 19:56:24 +0200
+User-Agent: KMail/1.5.3
+References: <200309090221.33445.gallir@mnm.uib.es> <1063078780.3477.150.camel@spc>
+In-Reply-To: <1063078780.3477.150.camel@spc>
+Organization: UIB
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: 
-X-Proxy-IP: [203.129.254.138]
-X-Originating-IP: [172.16.1.46]
-Subject: Problem on 2.6.0-test3 kernel 
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309101956.24448.gallir@uib.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 09 September 2003 05:39, Steven Cole shaped the electrons to 
+say:
+> On Mon, 2003-09-08 at 18:21, Ricardo Galli wrote:
+> > Just to recall Linus and Andrew:
+> >    http://lkml.org/lkml/2003/8/24/65
+> >
+> > The patch works flawlessly since test4 was born (altough is reverting
+> > a lot of "invalid's" back to "illegal").
+>
+> I was the original author of the illegal->invalid substitution patch.
+>
+> Here is Richard's patch with the invalid->illegal reversion redacted.
+> (Changes to drivers/net/sk98lin/h/skgeinit.h removed).
+>
+> This patch is made against the current 2.6-test tree.
+...
 
-Hello all ..,
+It works flawless in my (buggy?) motherboard, at least at 100 mbps.
 
-I have compiled the kernel-2.6.0 test3 in IA64 with Ia64 patch 
-as 
-make menuconfig
-make all
-make modules
-But in this step i got the following messages as 
-make modules
-make[1]: `arch/ia64/kernel/asm-offsets.s' is up to date.
-  Building modules, stage 2.
-  MODPOST
-*** Warning: "per_cpu__local_per_cpu_offset" 
-[drivers/net/tulip/tulip.ko] has no CRC!
-*** Warning: "per_cpu__local_per_cpu_offset" [drivers/net/tg3.ko] 
-has no CRC!
-*** Warning: "per_cpu__local_per_cpu_offset" [drivers/net/eepro100.
-ko] has no CRC!
-*** Warning: "per_cpu__local_per_cpu_offset" 
-[drivers/net/e100/e100.ko] has no CRC!
+...
+eth0: network connection up using port A
+    speed:           100
+    autonegotiation: yes
+    duplex mode:     full
+    flowctrl:        symmetric
+    scatter-gather:  enabled
+...
 
-After installing the module-init-tools-0.9.tar.bz2 to update the 
-module tool and in the make install i got the messges of
+Thanks,
 
-so many  ./install-with-care for all files in /bin/sh for all files 
-in module-init-tools-0.9.Then i have changed 
-the ./install-with-care for as ./install-sh.
 
-So is there any effect of this module or....
+-- 
+  ricardo galli       GPG id C8114D34
+  http://mnm.uib.es/~gallir/
 
-So what is the this effect and what is the problem on the above 
-messages on 2.6.0test3 on Ia64.then there is no interfaces to eth0 
-eth1 ,so i cannot take the testings.But the entires for the 
-ifcfg-eth0 and ifcfg-eth1 are there.
-
-Is that a serious problem,pls give the info for this.
-
-So i need the guidlines for this...
-
-                                             Thanks
-                                              Mvthv
--
-To unsubscribe from this list: send the line "unsubscribe 
-linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

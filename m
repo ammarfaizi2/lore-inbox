@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319380AbSIKXMj>; Wed, 11 Sep 2002 19:12:39 -0400
+	id <S319383AbSIKX2s>; Wed, 11 Sep 2002 19:28:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319381AbSIKXMj>; Wed, 11 Sep 2002 19:12:39 -0400
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:13062 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S319380AbSIKXMh>; Wed, 11 Sep 2002 19:12:37 -0400
-Message-Id: <200209112317.g8BNHLsG017117@pincoya.inf.utfsm.cl>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Patch?: linux-2.5.33/drivers/input/keyboard/atkbd.c allow SETLEDS to fail 
-In-Reply-To: Message from "Adam J. Richter" <adam@yggdrasil.com> 
-   of "Tue, 10 Sep 2002 09:05:20 MST." <20020910090520.A731@adam.yggdrasil.com> 
-Date: Wed, 11 Sep 2002 19:17:21 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S319385AbSIKX2s>; Wed, 11 Sep 2002 19:28:48 -0400
+Received: from netlx010.civ.utwente.nl ([130.89.1.92]:24501 "EHLO
+	netlx010.civ.utwente.nl") by vger.kernel.org with ESMTP
+	id <S319383AbSIKX2r>; Wed, 11 Sep 2002 19:28:47 -0400
+Date: Thu, 12 Sep 2002 01:33:31 +0200 (CEST)
+From: Gcc k6 testing account <caligula@cam029208.student.utwente.nl>
+To: linux-kernel@vger.kernel.org
+Subject: loadlin with 2.5.32+ : bootproblems
+Message-ID: <Pine.LNX.4.44.0209120120570.13999-100000@cam029208.student.utwente.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Adam J. Richter" <adam@yggdrasil.com> said:
+Ave  people
 
-[...]
+Has anyone used loadlin succesfull with 2.5.32 and higher?
+>From 2.5.32 and higher my nfsroot setup won't work anymore.
 
-> 	100 milliseconds, which normally only happens when the user
-> hits CapsLock, NumLock or ScrollLock, which generally implies that a
-> keyboard is present.  I suspect that you could change it to use mdelay
-> instead of udelay, so that other processes could do useful work during
-> the wait,
+The symptoms are:
+While  loading the kernel with loadlin the dots indicating how far the 
+loading process is are appearing on the screen. And then sudden...reboot.
 
-udelay() is busy wait, mdelay() is just calling udelay(1000) over and over.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+At first I suspected nfsroot,so I deselected nfsroot in the .config. The 
+idea was let loadlin load the kernel,see the boot message and wait until 
+the kernel complains that he/she (?) can't find a valid root file system.
+However,same symptoms.
+
+Then I deselected preempt,no acpi. Still the same.
+Athlon changed to i386. Still no joy.
+
+Therefore,if anyone has succesfully used loadlin with 2.5.32 and higher. 
+Please raise your hand and send me an email. Then I can scratch loadlin of 
+the list of suspects.
+
+Greetz Mu
+
+p.s. 2.4.19 and 2.5.31 and lower works very well.
+     just 2.5.32 and higher won't play with me.
+
+
+
+
+
+
+

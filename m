@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290009AbSBKSVS>; Mon, 11 Feb 2002 13:21:18 -0500
+	id <S290012AbSBKSXS>; Mon, 11 Feb 2002 13:23:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289982AbSBKSVI>; Mon, 11 Feb 2002 13:21:08 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:39371 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S290017AbSBKSU6>; Mon, 11 Feb 2002 13:20:58 -0500
-Date: Mon, 11 Feb 2002 11:36:33 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Ookhoi <ookhoi@humilis.net>
-Cc: linux@3ware.com, linux-kernel@vger.kernel.org
-Subject: Re: 3ware: SCSI device sda: 1562951681 512-byte hdwr sectors (-299279 MB)
-Message-ID: <20020211113633.A13212@vger.timpanogas.org>
-In-Reply-To: <20020211140519.B10896@humilis>
+	id <S290017AbSBKSXL>; Mon, 11 Feb 2002 13:23:11 -0500
+Received: from smtp1.vol.cz ([195.250.128.73]:3850 "EHLO smtp1.vol.cz")
+	by vger.kernel.org with ESMTP id <S290012AbSBKSWy>;
+	Mon, 11 Feb 2002 13:22:54 -0500
+Date: Mon, 11 Feb 2002 11:51:04 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Rob Landley <landley@trommello.org>
+Cc: Andreas Dilger <adilger@turbolabs.com>, Patrick Mochel <mochel@osdl.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: pull vs push (was Re: [bk patch] Make cardbus compile in -pre4)
+Message-ID: <20020211115104.A37@toy.ucw.cz>
+In-Reply-To: <Pine.LNX.4.33.0202081824070.25114-100000@segfault.osdlab.org> <20020208203931.X15496@lynx.turbolabs.com> <20020209092607.UHF12059.femail26.sdc1.sfba.home.com@there>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020211140519.B10896@humilis>; from ookhoi@humilis.net on Mon, Feb 11, 2002 at 02:05:20PM +0100
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20020209092607.UHF12059.femail26.sdc1.sfba.home.com@there>; from landley@trommello.org on Sat, Feb 09, 2002 at 04:27:00AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-You need revision XX.15 > of the 3ware driver to handle 48 bit LBA.
-I am running at present with 160GB drives on the 7810 and no 
-problem.  There's also a firmware upgrade required of the 
-card to get 48 bit LBA to work properly.  www.3ware.com has
-the latest firmware.
+> > I don't see why everyone who is using BK is expecting Linus to do a pull.
+> > In the non-BK case, wasn't it always a "push" model, and Linus would not
+> > "pull" from URLs and such?
+> 
+> I'm all for it.  I think it's a good thing.
+> 
+> In the absence of significant latency issues, pull scales better than push.  
+> It always has.  Push is better in low bandwidth situations with lots of idle 
+> capacity, but it breaks down when the system approaches saturation.
+> 
+> Pull data is naturally supplied when you're ready for it (assuming no 
+> significant latency to access it).  Push either scrolls by unread or piles up 
+> in your inbox and gets buried until it goes stale.  Web pages work on a pull 
+> model, "push" was an internet fad a few years ago that failed for a reason.  
+> When push models hit saturation it breaks down and you wind up with the old 
+> "I love lucy" episode with the chocolate factory.  Back in the days where 
 
-Jeff
+What's "i love lucy" episode?
+									Pavel
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 
-
-On Mon, Feb 11, 2002 at 02:05:20PM +0100, Ookhoi wrote:
-> Hi!
-> 
-> Not sure if this is a 3ware driver 'bug'. This is a 3ware 7810 with 8
-> 100GB disks, configured hw raid0.
-> 
-> part of dmesg:
-> 
-> SCSI subsystem driver Revision: 1.00
-> 3ware Storage Controller device driver for Linux v1.02.00.010.
-> scsi0 : Found a 3ware Storage Controller at 0x1090, IRQ: 5, P-chip: 1.3
-> scsi0 : 3ware Storage Controller
->   Vendor: 3ware     Model: 3w-xxxx           Rev: 1.0
->   Type:   Direct-Access                      ANSI SCSI revision: 00
-> Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-> SCSI device sda: 1562951681 512-byte hdwr sectors (-299279 MB)
->  sda: unknown partition table
-> 
-> 
-> It should say something like 800GB, but says -299279 MB.
-> 
-> This is with the xfs 2.4.17 kernel. The raid works fine, it seemes just
-> cosmetic, but thought I'd better report it anyway.
-> 
->         Ookhoi
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263277AbSJaQeI>; Thu, 31 Oct 2002 11:34:08 -0500
+	id <S262881AbSJaQsk>; Thu, 31 Oct 2002 11:48:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263256AbSJaQdF>; Thu, 31 Oct 2002 11:33:05 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:37130 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S263232AbSJaQcL>;
-	Thu, 31 Oct 2002 11:32:11 -0500
-Date: Thu, 31 Oct 2002 17:38:34 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: PROBLEM REPORT 2.4.20-rc1: sundance.c
-Message-Id: <20021031173834.4514603a.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S262811AbSJaQrz>; Thu, 31 Oct 2002 11:47:55 -0500
+Received: from main.gmane.org ([80.91.224.249]:10948 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S262800AbSJaQqR>;
+	Thu, 31 Oct 2002 11:46:17 -0500
+To: linux-kernel@vger.kernel.org
+X-Injected-Via-Gmane: http://gmane.org/
+Path: not-for-mail
+From: Nicholas Wourms <nwourms@netscape.net>
+Subject: Re: [PATCH ] POSIX clocks & timers take 7 (NOT HIGH RES)
+Date: Thu, 31 Oct 2002 11:46:43 -0500
+Message-ID: <aprml9$nvd$1@main.gmane.org>
+References: <3DC10A91.1D25A2EF@mvista.com>
+Reply-To: nwourms@netscape.net
+NNTP-Posting-Host: 130-127-121-177.generic.clemson.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Trace: main.gmane.org 1036082665 24557 130.127.121.177 (31 Oct 2002 16:44:25 GMT)
+X-Complaints-To: usenet@main.gmane.org
+NNTP-Posting-Date: Thu, 31 Oct 2002 16:44:25 +0000 (UTC)
+User-Agent: KNode/0.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+george anzinger wrote:
 
-I'd like to point out that (at least) the network driver sundance.c has weird
-flaws when trying to use more than MAX_UNITS (8) cards at the same time. Since
-this driver can be used for DFE-580TX 4 port network card it is really easy to
-get more than 8 ports :-)
-In fact the driver does check against MAX_UNITS, but does _not_ fail if you go
-through the roof. Instead you can expect really interesting ifconfig-outputs
-;-)
-IMHO it should check and fail. I wonder what other card drivers do in such a
-case ...
--- 
-Regards,
-Stephan
+> 
+> This patch no longer has any configure options!
+> 
+
+There have been numerous requests by both vendors and indviduals to have 
+this and the hr-timers patches added.  There has also been discussion and 
+testing, followed by refinements.  I know you don't find it useful, but 
+there are those of us out there who do.  For scientific research and 
+experimentation, these patches would be of great benefit as having greater 
+precision is always a good thing.  Please apply these patches.
+
+Cheers,
+Nicholas
+
+

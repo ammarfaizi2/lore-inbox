@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317685AbSGJX7S>; Wed, 10 Jul 2002 19:59:18 -0400
+	id <S317688AbSGKAES>; Wed, 10 Jul 2002 20:04:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317687AbSGJX7R>; Wed, 10 Jul 2002 19:59:17 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:51469 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S317685AbSGJX7Q>; Wed, 10 Jul 2002 19:59:16 -0400
-Date: Wed, 10 Jul 2002 21:01:51 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Karthikeyan Nathillvar <ntkarthik@ittc.ku.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Process Memory Usage
-In-Reply-To: <Pine.LNX.4.33.0207101811550.4626-100000@plato.ittc.ku.edu>
-Message-ID: <Pine.LNX.4.44L.0207102101100.14432-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S317689AbSGKAER>; Wed, 10 Jul 2002 20:04:17 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:39350 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S317688AbSGKAEQ>; Wed, 10 Jul 2002 20:04:16 -0400
+Date: Wed, 10 Jul 2002 17:06:14 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Compile error (starfire ethernet) on 2.5.25 for crc32_le
+Message-ID: <174620000.1026345974@flay>
+In-Reply-To: <3D2CC764.6080002@mandrakesoft.com>
+References: <165080000.1026343268@flay> <3D2CC764.6080002@mandrakesoft.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Jul 2002, Karthikeyan Nathillvar wrote:
+>> drivers/built-in.o: In function `set_rx_mode':
+>> drivers/built-in.o(.text+0x2138c): undefined reference to `crc32_le'
+>> make: *** [vmlinux] Error 1
+>> 
+>> starfire.c calls ether_crc_le which is defined in include/linux/crc32.h as
+>> # define ether_crc_le(length, data) crc32_le(~0, data, length)
+>> 
+>> crc32_le is defined in lib/crc32.c .... which is only compiled if CONFIG_CRC32
+>> is set  ... setting this fixes the problem ... shouldn't drivers that need this turn it
+>> on automatically somehow?
+> 
+> They do already.  drivers/net/Makefile.lib.  The culprit is a typo. Wanna submit 
+> the obvious patch that does s/CONFIG_STARFIRE/CONFIG_ADAPTEC_STARFIRE/ 
+> in dr/ne/Makefile.lib?
 
->  2) I tried to read from /proc/<pid>/statm file. But, the process memory
-> usage seems to be always in an increasing trend, even though lot of
-> freeing is going on inside. All the values, size, resident, are always
-> increasing.
+Done. Tested. Works. Thankyou!
+Could you forward to Linus so it looks blessed?
 
-Remember that when you call free() glibc may decide to just
-keep the memory for itself and not give it back to the OS,
-so the memory is still in use by the process...
+Thanks,
 
-regards,
+M.
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
+--- virgin-2.5.25/drivers/net/Makefile.lib	Fri Jul  5 16:42:33 2002
++++ linux-2.5.25-starfire/drivers/net/Makefile.lib	Wed Jul 10 16:55:07 2002
+@@ -25,7 +25,7 @@
+ obj-$(CONFIG_PCNET32)		+= crc32.o
+ obj-$(CONFIG_SIS900)		+= crc32.o
+ obj-$(CONFIG_SMC9194)		+= crc32.o
+-obj-$(CONFIG_STARFIRE)		+= crc32.o
++obj-$(CONFIG_ADAPTEC_STARFIRE)	+= crc32.o
+ obj-$(CONFIG_SUNBMAC)		+= crc32.o
+ obj-$(CONFIG_SUNDANCE)		+= crc32.o
+ obj-$(CONFIG_SUNGEM)		+= crc32.o
 

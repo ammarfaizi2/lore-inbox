@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314096AbSG2J1V>; Mon, 29 Jul 2002 05:27:21 -0400
+	id <S314085AbSG2JZj>; Mon, 29 Jul 2002 05:25:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314138AbSG2J1V>; Mon, 29 Jul 2002 05:27:21 -0400
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:11756 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S314096AbSG2J1U> convert rfc822-to-8bit; Mon, 29 Jul 2002 05:27:20 -0400
-MIME-Version: 1.0
-Subject: usb-core/uhci - scp problem
-From: d.e.jung-ludwigshafen@t-online.de (Dr. Dietmar Jung)
-Reply-To: <0621665841-0001@T-Online.de>
-To: <linux-kernel@vger.kernel.org>
-X-Mailer: T-Online eMail 4.104
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Date: 29 Jul 2002 09:29 GMT
-Message-ID: <17Z6r9-1mkrJYC@fwd09.sul.t-online.com>
+	id <S314096AbSG2JZj>; Mon, 29 Jul 2002 05:25:39 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:10746 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S314085AbSG2JZi>; Mon, 29 Jul 2002 05:25:38 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <1027680453.13428.35.camel@irongate.swansea.linux.org.uk> 
+References: <1027680453.13428.35.camel@irongate.swansea.linux.org.uk>  <3D4078C7.4010304@linux.org> <11261.1027674190@redhat.com> 
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: John Weber <john.weber@linux.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux PCMCIA 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 29 Jul 2002 10:28:41 +0100
+Message-ID: <10045.1027934921@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On a Laptop Gericom 1.st Supersonic 
-Processot PIII 1000 MHz
-256 MB RAM
-30 GB HD
-2 USB 1.1 
-2 PCMCIA (1) eg. 1 PCMCIA (2)
 
-with Linux SuSE 7.3
-Kernel 2.4.10-GB (SuSE)
+alan@lxorguk.ukuu.org.uk said:
+> On Fri, 2002-07-26 at 10:03, David Woodhouse wrote:
+> > Unfortunately the plan is all we have at the moment, other than a few 
+> > hundred lines of untested core device/driver registration code and
+> > untested CIS-parsing code. I threw that together hoping it would work like
+> > stone soup -- but it hasn't worked yet, so it's going to have to wait till 
+> > I have more time to play.
 
-I have 
+> Maybe if you tell people where your soup pot is 8) 
 
-1 USB Mouse
-and
-1 Maxtor 40 GB Personal Storage 3000 LE USB 2.0
-1 Partition ext2,
-with uhci and usb-storage drivers for the HD.
+I was sort of hoping to get it in slightly better shape before mentioning 
+it to the great unwashed, but who cares...
 
-Everything works fine.
-scp works fine when the external HD is not mounted.
+	cvs -d :ext:anoncvs@cvs.infradead.org login 
+		(password anoncvs)
+	cvs -d :ext:anoncvs@cvs.infradead.org co pcmcia
 
-But, when trying to use scp over PCMCIA Gericom 10/100 Card with the external HD mounted,(writing to the internal or the external HD, working in an X-console or working console without any X) the console used will hang itself up. 
+	http://lists.infradead.org/mailman/listinfo/linux-pcmcia
+	http://lists.infradead.org/mailman/listinfo/linux-pcmcia-cvs
 
-Neither the console nor scp nor the mounts can be killed by kill -9 *. 
+--
+dwmw2
 
-You can lock and lockout on other consoles/terminals.
-
-Shutdown -h now does not give any comments, but does not shut the system down. You have to cut the power off.
-
-Used seperately the interrupts used by the PCMCIA-card and the external HD differ. That is not the cause.
-
-Is there an explanation? Can anything be done about it.
-
-d.e.jung-ludwigshafen@t-online.de
-
-Best regards
-
-Dietmar Jung
 

@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262355AbRFZUhQ>; Tue, 26 Jun 2001 16:37:16 -0400
+	id <S262616AbRFZUri>; Tue, 26 Jun 2001 16:47:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263918AbRFZUhI>; Tue, 26 Jun 2001 16:37:08 -0400
-Received: from www.wen-online.de ([212.223.88.39]:46087 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S262355AbRFZUgZ>;
-	Tue, 26 Jun 2001 16:36:25 -0400
-Date: Tue, 26 Jun 2001 22:35:45 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
-cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
-        <Paul.Russell@rustcorp.com.au>
-Subject: Re: [PATCH] proc_file_read() (Was: Re: proc_file_read() question)
-In-Reply-To: <Pine.LNX.4.30.0106261906240.13052-100000@biker.pdb.fsc.net>
-Message-ID: <Pine.LNX.4.33.0106262133490.405-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264141AbRFZUrS>; Tue, 26 Jun 2001 16:47:18 -0400
+Received: from zero.tech9.net ([209.61.188.187]:36868 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S263605AbRFZUrJ>;
+	Tue, 26 Jun 2001 16:47:09 -0400
+Subject: RE: Maintainers master list?
+From: Robert Love <rml@tech9.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: "Holzrichter," Bruce <bruce.holzrichter@monster.com>,
+        "'esr@thyrsus.com'" <esr@thyrsus.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+In-Reply-To: <Pine.LNX.4.33L.0106261602380.23373-100000@duckman.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.33L.0106261602380.23373-100000@duckman.distro.conectiva>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.10.99 (Preview Release)
+Date: 26 Jun 2001 16:46:05 -0400
+Message-Id: <993588379.763.0.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Jun 2001, Martin Wilck wrote:
+On 26 Jun 2001 16:03:05 -0300, Rik van Riel wrote:
+> On Tue, 26 Jun 2001, Holzrichter, Bruce wrote:
+> 
+> > respect Eric, and all the developers work.  How about starting
+> > with a simple MAINTAINERS file maintainer?  Someone to actively
+> > follow project developers and contact info?
+> 
+> That's the best idea I've read so far.
+> 
+> Any takers?
 
-> Hi,
->
-> > Shhh ;-)  Last time that hack was mentioned, someone wanted to _remove_
-> > it.  It's a very nice little hack to have around, and IKD uses it.
->
-> I am not saying it should be removed. But IMO it is a legitimate (if
-> not the originally intended) use of "start" to serve as a pointer to
-> a memory area allocated in the proc_read () function. This use is broken
-> with this hack in its current form, because reading from such a file
-> will fail depending on the (random) order of the page and start pointers.
->
-> If I understand the "hack" right, legitimate offsets generated for it
-> are always between 0 and PAGE_SIZE. Therefore the patch below would
-> not break it, while overcoming the abovementioned problem, because
-> legitimate page pointers will never be < PAGE_SIZE.
+me.  I took issue with the MAINTAINERS file when Eric brought it up
+originally.  However, I don't think drastic measures need to be taken.
+I have seen a lot of ideas, including Meta-data in the kernel source.
 
-It's dead simple.  My variable length data often didn't quite fit into
-the transport vehicle.. so I whacked the excess to avoid the fault.
+What I think we need is the simple solution: find a maintainer for the
+file, cleanup the current cruft and misinformation, and then actively
+work to keep the file current.  I am willing to be this maintainer.
 
-	-Mike
+I am not a major "maintainer" in the kernel, but I have and do
+contribute.  Thus I think this is a good task for me.  I am willing and
+wanting to do this.  Comments?
+
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 

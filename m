@@ -1,91 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293344AbSBQT7B>; Sun, 17 Feb 2002 14:59:01 -0500
+	id <S291269AbSBQXGz>; Sun, 17 Feb 2002 18:06:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293352AbSBQT6w>; Sun, 17 Feb 2002 14:58:52 -0500
-Received: from front2.mail.megapathdsl.net ([66.80.60.30]:54024 "EHLO
-	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S293344AbSBQT6m>; Sun, 17 Feb 2002 14:58:42 -0500
-Subject: 2.5.5-pre1 -- Two weird problems:  my kernel log is incomplete and
-	a usermode client problem
-From: Miles Lane <miles@megapathdsl.net>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 17 Feb 2002 11:55:05 -0800
-Message-Id: <1013975706.1862.15.camel@turbulence.megapathdsl.net>
+	id <S291267AbSBQXGf>; Sun, 17 Feb 2002 18:06:35 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:14344 "EHLO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S291259AbSBQXG3>; Sun, 17 Feb 2002 18:06:29 -0500
+Date: Mon, 18 Feb 2002 00:06:16 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Disgusted with kbuild developers
+Message-ID: <20020217230616.GB5131@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020215153953.D12540@thyrsus.com> <20020215221532.K27880@suse.de> <20020215155817.A14083@thyrsus.com> <200202152209.g1FM9PZ00855@vindaloo.ras.ucalgary.ca> <20020215165029.C14418@thyrsus.com> <20020215143807.L28735@work.bitmover.com> <20020215232312.GB12204@merlin.emma.line.org> <3C6E2C1A.2000104@evision-ventures.com> <20020216130414.GB2805@merlin.emma.line.org> <20020216085348.A18381@mail.harddata.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020216085348.A18381@mail.harddata.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Problem #1
+On Sat, 16 Feb 2002, Michal Jaegermann wrote:
 
-I have applied a host of patches in order to get a bootable
-kernel with usable drivers.  Unfortunately, my kernel log
-is corrupted.  Also, dmesg output is faulty.  During the boot
-process, I appear to see all the correct information flash by.
-As you can see from the included log snippet, there are a 
-few errors that probably indicate a cause.  Specifically,
-the line "Error seeking in /dev/kmem"looks bad.
+> I also cannot help not to notice that the previous bit flare-up about
+> CML2 on lkml was quelled to a great extent when somebody annouced that
+> he is rewriting required tools in C.  I had an impression that most
+> people then shrugged "Ok, so Eric will prototope in whatever he feels
+> comfortable with, we will have something acceptable later and we will
+> see how this works".  Now it turns out the the project got abandoned so
+> a requirement for a huge blob of a language (as opposed to Python 1.5
+> which is quite smaller), which most developers do not have or need for
+> anything else, is still there.  Hm..., smells very backdoor even if
+> it was not intended that way. 
 
-Feb 17 11:00:09 turbulence syslogd 1.4.1: restart.
-Feb 17 11:00:09 turbulence syslog: syslogd startup succeeded
-Feb 17 11:00:09 turbulence kernel: klogd 1.4.1, log source = /proc/kmsg
-started.
-Feb 17 11:00:09 turbulence kernel: Inspecting
-/boot/System.map-2.5.5-pre1
-Feb 17 11:00:09 turbulence syslog: klogd startup succeeded
-Feb 17 11:00:09 turbulence portmap: portmap startup succeeded
-Feb 17 11:00:09 turbulence kernel: Loaded 20107 symbols from
-/boot/System.map-2.5.5-pre1.
-Feb 17 11:00:09 turbulence kernel: Symbols match kernel version 2.5.5.
-Feb 17 11:00:09 turbulence kernel: Error seeking in /dev/kmem 
-Feb 17 11:00:09 turbulence kernel: Symbol #floppy, value d98c6000 
-Feb 17 11:00:09 turbulence kernel: Error adding kernel module table
-entry. 
-Feb 17 11:00:09 turbulence kernel: bled, EHCI rev 0.95
-Feb 17 11:00:09 turbulence kernel: hcd.c: 00:11.2 root hub device
-address 1
-Feb 17 11:00:09 turbulence kernel: usb.c: kmalloc IF cfd6a880, numif 1
+I recall there has been a complete patch set to make CML2 work with
+Python 1.5.2, if the two (2) in "Python 2" is your concern. The archives
+should tell us more.
 
-First, these patches from GregKH:
-usb.c.patch
-usb-hpusbscsi-2.5.5-pre1.patch
-usb-alloc_urb-1-2.5.5-pre1
-usb-alloc_urb-2-2.5.5-pre1
-usb-alloc_urb-3-2.5.5-pre1
-usb-alloc_urb-4-2.5.5-pre1
-usb-alloc_urb-5-2.5.5-pre1
-usb-ohci-hcd-2.5.5-pre1.patch
-usb-storage-debug.patch
-usb-vicam-2.5.5-pre1.patch
-usb1.patch
-usb2.patch
-usb3.patch
-usb4.patch
+(I'm not jumping into the other part of your mail on Python vs. Red Hat
+configurator bugs because I don't know that particular tool and didn't
+review its internal design.)
 
-aha152x.patch
-patch-2.5.4-do_iso_mmap
-alsa.patch
-patch-2.5.5-pre1
-inode.patch
-vesafb.patch
-videodev-patch-2.5.5-pre1
+-- 
+Matthias Andree
 
-Problem #2
-
-I run Evolution (Ximian's E-Mail, Calendar, etc. client).  
-I find that when I run Evolution under 2.5.5-pre1, whenever I
-try to access the Contacts list, the client locks up.  I have
-run it under gdb, but see no crash.  If I break into the 
-debugger, I see nothing suspicious.  Thinking about this some
-more, I am wondering if this could be due to the fact that
-I use ipchains when I boot my 2.4 kernel.  Since the 2.5 kernel
-doesn't have ipchains support, ipchains doesn't start up.
-Could this have something to do with it?  I really don't
-know how to proceed with debugging this problem.
-
-Thanks,
-	Miles
-
+"They that can give up essential liberty to obtain a little temporary
+safety deserve neither liberty nor safety."         Benjamin Franklin

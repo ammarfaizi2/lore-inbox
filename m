@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266987AbTATVad>; Mon, 20 Jan 2003 16:30:33 -0500
+	id <S266983AbTATVa1>; Mon, 20 Jan 2003 16:30:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266991AbTATVad>; Mon, 20 Jan 2003 16:30:33 -0500
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:50161 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP
-	id <S266987AbTATVaa>; Mon, 20 Jan 2003 16:30:30 -0500
-Subject: Re: ANN: LKMB (Linux Kernel Module Builder) version 0.1.16
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Olaf Titz <olaf@bigred.inka.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E18ai8O-00032u-00@bigred.inka.de>
-References: <25160.1042809144@passion.cambridge.redhat.com>
-	 <Pine.LNX.4.33L2.0301171857230.25073-100000@vipe.technion.ac.il>
-	 <E18a1aZ-0006mL-00@bigred.inka.de>
-	 <1042930522.15782.12.camel@laptop.fenrus.com>
-	 <E18ai8O-00032u-00@bigred.inka.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-k2sH371WSi8cpmge6cs6"
-Organization: Red Hat, Inc.
-Message-Id: <1043098758.27074.2.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 20 Jan 2003 22:39:19 +0100
+	id <S266987AbTATVa1>; Mon, 20 Jan 2003 16:30:27 -0500
+Received: from adsl-b3-75-90.telepac.pt ([213.13.75.90]:19597 "HELO
+	puma-vgertech.no-ip.com") by vger.kernel.org with SMTP
+	id <S266983AbTATVaZ>; Mon, 20 Jan 2003 16:30:25 -0500
+Message-ID: <3E2C6C92.6060505@vgertech.com>
+Date: Mon, 20 Jan 2003 21:39:30 +0000
+From: Nuno Silva <nuno.silva@vgertech.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
+X-Accept-Language: en-us, pt
+MIME-Version: 1.0
+To: Folkert van Heusden <folkert@vanheusden.com>
+CC: "'Rik van Riel'" <riel@conectiva.com.br>,
+       "'Jean-Eric Cuendet'" <jean-eric.cuendet@linkvest.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Disabling file system caching
+References: <004001c2c0bc$d1e69750$3640a8c0@boemboem>
+In-Reply-To: <004001c2c0bc$d1e69750$3640a8c0@boemboem>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-k2sH371WSi8cpmge6cs6
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
+Folkert van Heusden wrote:
+>>>Is it possible to disable file caching for a given partition or mount?
+>>
+>>No, if you do that mmap(), read(), write() etc. would be impossible.
+> 
+> 
+> Hmmm, maybe there's some way to explicitly flush the read/write-cache?
+> Ok, sync will do nice for the write-cache, but for the read-one?
 
-> And what's exactly wrong with the other 99% solution of putting it in
-> /usr/src/linux-`uname -r` ? This has exactly the same advantages but
-> doesn't mix up between development and runtime environment; /usr/src
-> is clearly where source belongs and /lib/modules is an install target.
+AFAIK, you simply can't... I'm trying to do this for several months and 
+no luck. Linux simply caches everything it can in the read-cache. For 
+99% of all cases this is very good but, for some situations, this is not 
+desireable.
 
-back then the argument (not mine btw) was that /usr on a lot of machines
-is RO (I think debian has an option for that) so that sysadmins there
-compile stuff in /root. /lib/modules however IS standardized and needs
-to be writable to install a new kernel so making a symlink to the real
-place there isn't too bad. In addition it already is the only directory
-with per kernel files.. adding a second one was judged not needed. It
-has to be somewhere. /lib/modules/ or /usr/src.. who cares. Linus made
-the final call and everybody complies with it since then, just because
-it doesn't matter THAT much. It just needs to be SOMEWHERE standard and
-/lib/modules suffices so far it seems.
+For the write cache, you can minimize memory usage playing with 
+/proc/sys/vm (see Documentation/filesystems/proc.txt).
 
---=-k2sH371WSi8cpmge6cs6
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Regards,
+Nuno Silva
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-iD8DBQA+LGyGxULwo51rQBIRAiWvAJ9DrBdDgiMsoU6LNyIc0wpZa/RU7gCdHhFF
-9hQXkfDz/d6QJmVxH+LI6ws=
-=h2xi
------END PGP SIGNATURE-----
-
---=-k2sH371WSi8cpmge6cs6--

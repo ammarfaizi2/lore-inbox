@@ -1,90 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267985AbRG2NZY>; Sun, 29 Jul 2001 09:25:24 -0400
+	id <S267982AbRG2No6>; Sun, 29 Jul 2001 09:44:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267983AbRG2NZO>; Sun, 29 Jul 2001 09:25:14 -0400
-Received: from fandango.cs.unitn.it ([193.205.199.228]:4356 "EHLO
-	fandango.cs.unitn.it") by vger.kernel.org with ESMTP
-	id <S267976AbRG2NZA>; Sun, 29 Jul 2001 09:25:00 -0400
-From: Massimo Dal Zotto <dz@cs.unitn.it>
-Message-Id: <200107290748.f6T7mKj7009629@dizzy.dz.net>
-Subject: Re: strange problem with reiserfs and /proc fs
-In-Reply-To: <20010729171209.D13366@eye-net.com.au> "from Craig Small at Jul
- 29, 2001 05:12:09 pm"
-To: Craig Small <csmall@eye-net.com.au>
-Date: Sun, 29 Jul 2001 09:48:20 +0200 (MEST)
-CC: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-X-Mailer: ELM [version 2.4ME+ PL89 (25)]
+	id <S267976AbRG2Nos>; Sun, 29 Jul 2001 09:44:48 -0400
+Received: from thebsh.namesys.com ([212.16.0.238]:43530 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S267982AbRG2Nog>; Sun, 29 Jul 2001 09:44:36 -0400
+Message-ID: <3B6412CB.8950A548@namesys.com>
+Date: Sun, 29 Jul 2001 17:42:35 +0400
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, ru
 MIME-Version: 1.0
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+CC: Andre Pang <ozone@algorithm.com.au>, Larry McVoy <lm@bitmover.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: ext3-2.4-0.9.4
+In-Reply-To: <20010726174844.W17244@emma1.emma.line.org> <E15PnTJ-0003z0-00@the-village.bc.nu> <9jpftj$356$1@penguin.transmeta.com> <20010726095452.L27780@work.bitmover.com> <996167751.209473.2263.nullmailer@bozar.algorithm.com.au> <3B605A3B.6E95AE36@namesys.com> <20010729004542.A9350@emma1.emma.line.org>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> On Sat, Jul 28, 2001 at 10:04:05PM +0200, Massimo Dal Zotto wrote:
-> > I've found a strange problem with reiserfs. In some situations it interferes
-> > with the /proc filesystem and makes all processes unreadable to top. After
-> > a few seconds the situation returns normal. To verify the problem try the
-> > following procedure:
-> Have to be one of the strangest bugs I've seen.  Makes be a bit lucky
-> that reiser will oops on my machine so I cannot use it...
-> I have also passed this bug onto the procps author, who may be able to
-> shed a bit more light on the problem.
+Matthias Andree wrote:
 > 
-> > 3)	type a few characters and save the file with C-x C-s. After the
-> > 	file is saved top will show 0 processes. Sometimes it will show
-> > 	only a few processes for an istant and then nothing. Sometimes
-> > 	it will work fine. After a few seconds the missing processes
-> > 	will show again. Modifying and saving the file again will show
-> > 	the same behavior.
-> When you say top prints nothing do you mean it only prints the header
-> and no processes in the list?  Does this problem happen with any other
-> program, say vi, or only in emacs?  Does ps have this bevhavour?
-
-It prints the header with 0 processes and 100% idle:
-
- 09:40:24 up 24 min, 10 users,  load average: 0.16, 0.26, 0.34
-0 processes: 0 sleeping, 0 running, 0 zombie, 0 stopped
-CPU states:   0.0% user,   0.0% system,   0.0% nice,  100.0% idle
-Mem:    126332K total,   121072K used,     5260K free,    38592K buffers
-Swap:   257032K total,    73508K used,   183524K free,    24860K cached
-
-I have been able to reproduce the bug only with emacs. Another thing I have
-discovered is that if there is an intense disk activity (for example a find)
-the problem disappears, so the fact that it disappears by itself after a
-few seconds is probably caused by some other process accessing the disk.
-Also ps shows the same behavior:
-
-$ ps aux
-USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
-$
-
+> On Thu, 26 Jul 2001, Hans Reiser wrote:
 > 
-> > In the attachments you will find two traces of the running top, one behaving
-> > normally and one exhibiting the problem, and my kernel config.
-> The interesting difference is that the good program does
-> stat64,open,read,close...
-> But the bad program does is just stat64.
-> I get 96 stat64s for both programs in that loop.
+> > No, Linus is right and the MTA guys are just wrong.  The mailers are
+> > the place to fix things, not the kernel.  If the mailer guys want to
+> > depend on the kernel being stupidly designed, tough.  Someone should
+> > fix their mailer code and then it would run faster on Linux than on
+> > any other platform.
 > 
-> So obviously top doesn't like whatever stat64 is telling it.
-> Looking at the code (in readproc() in proc/readproc.c if anyone is
-> interested) I cannot see much that should upset it.  We know stat is
-> returning 0 so that is ok, about the only other thing is a alloc.
+> Well, some systems are even documented that way, so there's nothing with
+> "depend on the kernel being stupidly designed", but "depend on what
+> mount(8) says".
 > 
-> If you like, you can submit this as a bug report into the Debian Bug
-> Tracking System, but I suspect there is a kernel problem here giving
-> wierd stat returns for proc.
+> MTA authors don't play games, they also write that their software relies
+> on this behaviour, as laid out.
+> 
+> --
+> Matthias Andree
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+Documenting their code won't make it fast or well designed.
 
-I haven't submitted a bug because I'am not sure it is a procps problem.
-
--- 
-Massimo Dal Zotto
-
-+----------------------------------------------------------------------+
-|  Massimo Dal Zotto               email: dz@cs.unitn.it               |
-|  Via Marconi, 141                phone: ++39-0461534251              |
-|  38057 Pergine Valsugana (TN)      www: http://www.cs.unitn.it/~dz/  |
-|  Italy                             pgp: see my www home page         |
-+----------------------------------------------------------------------+
+Hans

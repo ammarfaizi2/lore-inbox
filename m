@@ -1,50 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262226AbUCODlp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 22:41:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262234AbUCODlp
+	id S262221AbUCODkN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 22:40:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbUCODkN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 22:41:45 -0500
-Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:64429 "EHLO
-	mailout.schmorp.de") by vger.kernel.org with ESMTP id S262226AbUCODln
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 22:41:43 -0500
-Date: Mon, 15 Mar 2004 04:41:25 +0100
-From: Marc Lehmann <pcg@schmorp.de>
-To: jpearson@oasissystems.com.au
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: strange ext3 corruption problem on 2.6.x
-Message-ID: <20040315034125.GA5295@schmorp.de>
-Mail-Followup-To: jpearson@oasissystems.com.au,
-	linux-kernel@vger.kernel.org
-References: <20040314222929.GA23106@mark>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040314222929.GA23106@mark>
-X-Operating-System: Linux version 2.4.24 (root@cerebro) (gcc version 2.95.4 20011002 (Debian prerelease)) 
+	Sun, 14 Mar 2004 22:40:13 -0500
+Received: from gizmo03ps.bigpond.com ([144.140.71.13]:10418 "HELO
+	gizmo03ps.bigpond.com") by vger.kernel.org with SMTP
+	id S262221AbUCODkH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 22:40:07 -0500
+Mail-Copies-To: never
+To: Valdis.Kletnieks@vt.edu
+Cc: Adam Jones <adam@yggdrasl.demon.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: NVIDIA and 2.6.4?
+Keywords: config,valdis,regparm,nvidia
+References: <405082A2.5040304@blueyonder.co.uk>
+	<200403111326.08055.maxvalde@fis.unam.mx>
+	<405112DD.2020009@blueyonder.co.uk>
+	<adam.20040312182401$5015%samael.haus@yggdrasl.demon.co.uk>
+	<200403130515.i2D5F7DG009253@turing-police.cc.vt.edu>
+From: Steve Youngs <sryoungs@bigpond.net.au>
+X-Face: #/1'_-|5_1$xjR,mVKhpfMJcRh8"k}_a{EkIO:Ox<]@zl/Yr|H,qH#3jJi6Aw(Mg@"!+Z"C
+ N_S3!3jzW^FnPeumv4l#,E}J.+e%0q(U>#b-#`~>l^A!_j5AEgpU)>t+VYZ$:El7hLa1:%%L=3%B>n
+ K{^jU_{&
+Organization: Linux Users - Fanatics Dept.
+X-URL: <http://users.bigpond.net.au/sryoungs/>
+X-Request-PGP: <http://users.bigpond.net.au/sryoungs/pgp/sryoungs.asc>
+X-OpenPGP-Fingerprint: 1659 2093 19D5 C06E D320  3A20 1D27 DB4B A94B 3003
+X-Attribution: SY
+Mail-Followup-To: Valdis.Kletnieks@vt.edu, Adam Jones
+ <adam@yggdrasl.demon.co.uk>,  linux-kernel@vger.kernel.org
+Date: Mon, 15 Mar 2004 13:36:49 +1000
+In-Reply-To: <200403130515.i2D5F7DG009253@turing-police.cc.vt.edu> (Valdis
+ Kletnieks's message of "Sat, 13 Mar 2004 00:15:07 -0500")
+Message-ID: <microsoft-free.87ad2ipyr2.fsf@eicq.dnsalias.org>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 15, 2004 at 08:59:29AM +1030, jpearson@oasissystems.com.au wrote:
-> 'r/o' by the RAID layer, presumably unbeknownst to VFS; are you
-> *sure* that your array is still up and 'good' when you get this
-> message?
+--=-=-=
 
-As I said, there are no other messages, so if there is a problem (cabling,
-disk-i/o etc.), then the kernel doesn't know it either (usually the kernel
-it quite loud in this condition).
+* Valdis Kletnieks <Valdis.Kletnieks@vt.edu> writes:
 
-The array also comes up clean and synced. And the reiserfs partition on
-the same lv doesn't have any problems (wether this means that reiserfs
-doesn't suffer from this bug or wether reiserfs is just unable to detect
-it is, of course, a different question).
+  > On Fri, 12 Mar 2004 18:24:01 GMT, Adam Jones <adam@yggdrasl.demon.co.uk>  said:
+  >> A quick thought - have you got CONFIG_REGPARM enabled in the kernel
+  >> config?  If so, disable it and try again.  (It's almost certain to
+  >> cause crashes with binary modules.)
+
+  $ zgrep REGPARM /proc/config.gz
+CONFIG_REGPARM=y
+
+  $ grep nvidia /proc/modules
+nvidia 2066568 22 - Live 0xe0b2d000
+
+  $ uname -r
+2.6.4-sy1
+
+No problems here. :-)
+
+  > Also, the NVidia driver uses a bit of kernel stack, so it's
+  > incompatible with the CONFIG_4KSTACKS option in recent -mm
+  > kernels...
+
+Will have to remember that for 2.6.5, I'll let you know how it goes.
+Thanks, Valdis.
+
 
 -- 
-      -----==-                                             |
-      ----==-- _                                           |
-      ---==---(_)__  __ ____  __       Marc Lehmann      +--
-      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
-      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
-    The choice of a GNU generation                       |
-                                                         |
+|---<Steve Youngs>---------------<GnuPG KeyID: A94B3003>---|
+|              Ashes to ashes, dust to dust.               |
+|      The proof of the pudding, is under the crust.       |
+|------------------------------<sryoungs@bigpond.net.au>---|
+
+--=-=-=
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Eicq - The XEmacs ICQ Client <http://eicq.sf.net/>
+
+iEYEABECAAYFAkBVJNQACgkQHSfbS6lLMAMg9gCfVES0sdwpZqmtC13K7Ncsc0Ve
+FugAoM3qFVK0yK31VOCwT1kzGaaIB5Hs
+=NV6s
+-----END PGP SIGNATURE-----
+--=-=-=--

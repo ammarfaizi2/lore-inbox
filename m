@@ -1,26 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262107AbVDFFoj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262108AbVDFFsj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262107AbVDFFoj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 01:44:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbVDFFoj
+	id S262108AbVDFFsj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 01:48:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbVDFFsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 01:44:39 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:21951 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262107AbVDFFoh (ORCPT
+	Wed, 6 Apr 2005 01:48:38 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:37567 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262108AbVDFFsh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 01:44:37 -0400
-Date: Wed, 6 Apr 2005 07:44:12 +0200
+	Wed, 6 Apr 2005 01:48:37 -0400
+Date: Wed, 6 Apr 2005 07:48:18 +0200
 From: Ingo Molnar <mingo@elte.hu>
 To: Nick Piggin <nickpiggin@yahoo.com.au>
 Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
        "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Subject: Re: [patch 1/5] sched: remove degenerate domains
-Message-ID: <20050406054412.GA5853@elte.hu>
-References: <425322E0.9070307@yahoo.com.au>
+Subject: Re: [patch 2/5] sched: NULL domains
+Message-ID: <20050406054818.GA5977@elte.hu>
+References: <425322E0.9070307@yahoo.com.au> <42532317.5000901@yahoo.com.au> <20050406054518.GB5853@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <425322E0.9070307@yahoo.com.au>
+In-Reply-To: <20050406054518.GB5853@elte.hu>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -33,23 +33,24 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-> This is Suresh's patch with some modifications.
+> 
+> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> 
+> > 2/5
+> 
+> > The previous patch fixed the last 2 places that directly access a
+> > runqueue's sched-domain and assume it cannot be NULL.
+> > 
+> > We can now use a NULL domain instead of a dummy domain to signify
+> > no balancing is to happen. No functional changes.
+> > 
+> > Signed-off-by: Nick Piggin <nickpiggin@yahoo.com.au>
+> 
+> Acked-by: Ingo Molnar <mingo@elte.hu>
 
-> Remove degenerate scheduler domains during the sched-domain init.
-
-actually, i'd suggest to not do this patch. The point of booting with a 
-CONFIG_NUMA kernel on a non-NUMA box is mostly for testing, and the 
-'degenerate' toplevel domain exposed conceptual bugs in the 
-sched-domains code. In that sense removing such 'unnecessary' domains 
-inhibits debuggability to a certain degree. If we had this patch earlier 
-we'd not have experienced the wrong decisions taken by the scheduler, 
-only on the much rarer 'really NUMA' boxes.
-
-is there any case where we'd want to simplify the domain tree? One more 
-domain level is just one (and very minor) aspect of CONFIG_NUMA - i'd 
-not want to run a CONFIG_NUMA kernel on a non-NUMA box, even if the 
-domain tree got optimized. Hm?
+if the previous 'remove degenerate domains' patch would go away then 
+this patch needs to be merged/modified. (and most of the others as well)
 
 	Ingo

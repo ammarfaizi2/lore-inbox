@@ -1,49 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262217AbTHTV0z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 17:26:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262235AbTHTV0z
+	id S262232AbTHTVTS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 17:19:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262234AbTHTVTS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 17:26:55 -0400
-Received: from mail.kroah.org ([65.200.24.183]:37789 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262217AbTHTV0w (ORCPT
+	Wed, 20 Aug 2003 17:19:18 -0400
+Received: from main.gmane.org ([80.91.224.249]:14304 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262232AbTHTVTR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 17:26:52 -0400
-Date: Wed, 20 Aug 2003 14:26:26 -0700
-From: Greg KH <greg@kroah.com>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [RFC] add class/video to fb drivers - Take 2
-Message-ID: <20030820212626.GA4854@kroah.com>
-References: <20030820191001.GA4185@kroah.com> <Pine.LNX.4.44.0308202044280.9662-100000@phoenix.infradead.org>
+	Wed, 20 Aug 2003 17:19:17 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jens Gecius <jens@gecius.de>
+Subject: 2.6.0-test3 smp irq balance
+Date: Wed, 20 Aug 2003 23:03:57 +0200
+Message-ID: <878yporqgy.fsf@maniac.gecius.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308202044280.9662-100000@phoenix.infradead.org>
-User-Agent: Mutt/1.4.1i
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) XEmacs/21.4 (Rational FORTRAN,
+ i386-debian-linux)
+Cancel-Lock: sha1:MJI1MkkHiqnBHv68Y1NRc/fLBcc=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 20, 2003 at 10:16:13PM +0100, James Simmons wrote:
-> 
-> > Ok, here's a smaller version of the patch, that doesn't break any fb
-> > drivers.  Only those that have a struct device associated with them
-> > should be changed (and that's just a 1 line addition).  I think it's
-> > much better because of this.
-> 
-> Nice :-) Will apply tonight. Do you have any issues still with this 
-> approach. You talked about the issue of dynamically creating the data. Is 
-> this probnlem still present in this patch.
+Hi!
 
-Well, it's not "ideal" but it will do for 2.6 to use this patch.  If you
-look at the tty core, it's the same way that currently works.
+having switched to 2.6.0-t3 to test some of the new features, I
+noticed more framedrops from bttv. sometimes the system feels a little
+sluggish, although i expected the opposite.
 
-Ideally in 2.7 I'd like to convert to have all fb drivers create the
-fb_info structure dynamically, but that's much to big of a change to do
-this late in the 2.6 development cycle.
+trying to track down the "problem" I stumbled across this:
 
-thanks,
+jens@maniac:/usr/src/linux$ cat /proc/interrupts
+           CPU0       CPU1       
+  0:   91133739         29    IO-APIC-edge  timer
+  1:      43765          1    IO-APIC-edge  i8042
+  2:          0          0          XT-PIC  cascade
+  4:     774189          0    IO-APIC-edge  serial
+  5:    9337660          1   IO-APIC-level  ohci1394, uhci-hcd, uhci-hcd
+  8:          4          0    IO-APIC-edge  rtc
+  9:   15340458          1   IO-APIC-level  Ensoniq AudioPCI, eth1
+ 10:    1233326          5   IO-APIC-level  ide3, eth0
+ 11:   21436308          1   IO-APIC-level  nvidia, bttv0
+ 14:     884901          0    IO-APIC-edge  ide0
+ 15:        126          2    IO-APIC-edge  ide1
+NMI:          0          0 
+LOC:   91137709   91138393 
+ERR:          0
+MIS:         12
 
-greg k-h
+irqs seem not to be distributed between cpus, having one to handle all
+(even while building kernel on both cpus (according to gkrell), the
+numbers for the second cpu don't change.
+
+i could post any needed information (hopefully). The bootup process
+did not show anything raising questions to me.
+
+any hints?
+
+-- 
+Tschoe,                http://gecius.de/gpg-key.txt - Fingerprint:
+ Jens                  1AAB 67A2 1068 77CA 6B0A  41A4 18D4 A89B 28D0 F097
+

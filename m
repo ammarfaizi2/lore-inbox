@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263889AbUCZAhb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 19:37:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263852AbUCZAgd
+	id S263897AbUCZAnj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 19:43:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263880AbUCZAf6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 19:36:33 -0500
-Received: from gate.crashing.org ([63.228.1.57]:22664 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S263874AbUCZAW0 (ORCPT
+	Thu, 25 Mar 2004 19:35:58 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:61325 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263879AbUCZATR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 19:22:26 -0500
-Subject: Re: swsusp with highmem, testing wanted
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040325225946.GI2179@elf.ucw.cz>
-References: <20040324235702.GA497@elf.ucw.cz>
-	 <1080185300.1147.62.camel@gaston> <20040325120250.GC300@elf.ucw.cz>
-	 <1080254461.1195.40.camel@gaston>  <20040325225946.GI2179@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1080260526.3068.15.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 26 Mar 2004 11:22:07 +1100
+	Thu, 25 Mar 2004 19:19:17 -0500
+Date: Thu, 25 Mar 2004 16:18:52 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@osdl.org>, Andy Whitcroft <apw@shadowen.org>
+cc: anton@samba.org, sds@epoch.ncsc.mil, ak@suse.de, raybry@sgi.com,
+       lse-tech@lists.sourceforge.net, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [0/6] HUGETLB memory commitment
+Message-ID: <33780000.1080260332@flay>
+In-Reply-To: <20040325155117.60dbc0e1.akpm@osdl.org>
+References: <18429360.1080233672@42.150.104.212.access.eclipse.net.uk><20040325130433.0a61d7ef.akpm@osdl.org><41997489.1080257240@42.150.104.212.access.eclipse.net.uk> <20040325155117.60dbc0e1.akpm@osdl.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-03-26 at 09:59, Pavel Machek wrote:
-> Hi!
+> I think it's simply:
 > 
-> > > I'd need to do atomic copy. (Unless someone can guarantee that during
-> > > writing to disk, no highmem page is going to be changed...)
-> > > 
-> > > "copy back" during resume is done in assembly, and I'd rather not
-> > > dealed with highmem there.
-> > 
-> > Can you make that an option ? The PPC version runs in real mode and
-> > can perfectly copy highmem pages (with small tweaks maybe)
+> - Make normal overcommit logic skip hugepages completely
 > 
-> What is real mode on PPC? I do not have PPC here, I guess you'd have
-> to do that.
+> - Teach the overcommit_memory=2 logic that hugepages are basically
+>   "pinned", so subtract them from the arithmetic.
+> 
+> And that's it.  The hugepages are semantically quite different from normal
+> memory (prefaulted, preallocated, unswappable) and we've deliberately
+> avoided pretending otherwise.
 
-MMU OFF, access to entire physical memory. This will not work on
-things like pSeries with hypervisor or iSeries, but I could deal with
-that if/when needed. I know that x86 with more than 4Gb cannot access
-the entire RAM in a linear way though, dunno what other facilities
-you have outside of kmap then. But leave the door open to archs that
-can do it ;)
- 
-> Yes, swsusp2 is faster. It is also 10x more code. We could probably
-> stop freeing as soon as half of memory is free; OTOH if memory is
-> disk cache, it might be faster to drop it than write to swap, then
-> read back [swsusp2 shows its not usually the case, through].
-> 								Pavel
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
+It would be nice (to fix some of the posted problems) if hugepages didn't
+have to be prefaulted ... if they had their own overcommit pool (that we
+used whether normal overcommit was on or not), that'd be unnecessary.
+
+Specifically:
+
+1) SGI found that requesting oodles of large pages took forever.
+2) NUMA allocation API wants to be able to specify policies, which
+means not prefaulting them.
+
+I'd agree that fixing stopping hugepages from using the main overcommit
+pool is the first priority, but it'd be nice to go one stage further.
+
+M.
 

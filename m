@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131306AbRAOU1N>; Mon, 15 Jan 2001 15:27:13 -0500
+	id <S130878AbRAOUe0>; Mon, 15 Jan 2001 15:34:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131308AbRAOU1D>; Mon, 15 Jan 2001 15:27:03 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:43949 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S131306AbRAOU0v>;
-	Mon, 15 Jan 2001 15:26:51 -0500
-Date: Mon, 15 Jan 2001 21:26:45 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200101152026.VAA03317@harpo.it.uu.se>
-To: mikpe@csd.uu.se, vandrove@vc.cvut.cz
-Subject: Re: [PATCH] enable K7 nmi watchdog
-Cc: alan@redhat.com, linux-kernel@vger.kernel.org, mingo@redhat.com
+	id <S131229AbRAOUeF>; Mon, 15 Jan 2001 15:34:05 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:30212 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S130878AbRAOUeB>;
+	Mon, 15 Jan 2001 15:34:01 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200101152033.f0FKXpv250839@saturn.cs.uml.edu>
+Subject: Re: Is sendfile all that sexy?
+To: mingo@elte.hu
+Date: Mon, 15 Jan 2001 15:33:51 -0500 (EST)
+Cc: jthackray@zeus.com (Jonathan Thackray),
+        linux-kernel@vger.kernel.org (Linux Kernel List)
+In-Reply-To: <Pine.LNX.4.30.0101152035090.5713-100000@elte.hu> from "Ingo Molnar" at Jan 15, 2001 08:41:01 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Jan 2001 04:00:29 +0100, Petr Vandrovec wrote:
+Ingo Molnar writes:
+> On Mon, 15 Jan 2001, Jonathan Thackray wrote:
 
->(1) You missed some zeros in MSR_K7_ definitions
+>> It's a very useful system call and makes file serving much more
+>> scalable, and I'm glad that most Un*xes now have support for it
+>> (Linux, FreeBSD, HP-UX, AIX, Tru64). The next cool feature to add to
+>> Linux is sendpath(), which does the open() before the sendfile() all
+>> combined into one system call.
 
-Oops :-(
+Ingo Molnar's data in a nice table:
 
->(2) AMD's MSR are real 64bit (well, 47bit) values, so high
->    MSR dword must be set to -1, not to 0
+open/close  7.5756 microseconds
+stat        5.4864 microseconds
+write       0.9614 microseconds
+read        1.1420 microseconds
+syscall     0.6349 microseconds
 
-Correct. That was a copy-paste error from the P6 code.
-When writing to a perfctr MSR, Intel P6 sign-extends bit 31.
-P5 and Pentium 4 [*], and AMD K7 don't sign-extend, so there one
-has to pass -1 in the high word.
+Rather than combining open() with sendfile(), it could be combined
+with stat(). Since the syscall would be new anyway, it could skip
+the normal requirement about returning the next free file descriptor
+in favor of returning whatever can be most quickly found.
 
-[*] P4? PIV? P15? NB? Oh why oh why couldn't they just have named
-the core P7 ...
-
->(3) on my CPU performance register 0x76 counts who knows what...
->    This causes that when machine is idle, there is exactly one
->    NMI per second. When machine is loaded, NMI count/sec climbs
->    up to 100 NMIs per sec. I have no idea whether someone slows
->    clock down to 10MHz on hlt, or what happens. Maybe that they
->    removed this from documentation due to this. This also means
->    that on bootup check for NMI stuck probably passed only
->    due to pure luck - because of mdelay()/udelay() is implemented
->    as tight loop.
-
-The varying speed of this counter is unfortunate, but at least
-it doesn't stop completely. The NMI oopser should still trigger,
-although perhaps after a much longer delay.
-
->Otherwise it works
-
-Great. Thanks.
-
-/Mikael
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264090AbRFKLqC>; Mon, 11 Jun 2001 07:46:02 -0400
+	id <S264091AbRFKMAS>; Mon, 11 Jun 2001 08:00:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264091AbRFKLpn>; Mon, 11 Jun 2001 07:45:43 -0400
-Received: from eventhorizon.antefacto.net ([193.120.245.3]:61875 "EHLO
-	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
-	id <S264090AbRFKLpd>; Mon, 11 Jun 2001 07:45:33 -0400
-Message-ID: <3B24AF66.3010602@AnteFacto.com>
-Date: Mon, 11 Jun 2001 12:45:42 +0100
-From: Padraig Brady <Padraig@AnteFacto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-ac4 i686; en-US; rv:0.9.1) Gecko/20010607
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: kernel list <linux-kernel@vger.kernel.org>, jffs-dev@axis.com
-Subject: Re: jffs on non-MTD device?
-In-Reply-To: <20010525005253.A16005@bug.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264244AbRFKMAH>; Mon, 11 Jun 2001 08:00:07 -0400
+Received: from [32.97.182.102] ([32.97.182.102]:46520 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S264091AbRFKL7u>;
+	Mon, 11 Jun 2001 07:59:50 -0400
+From: kiran.thirumalai@in.ibm.com
+X-Lotus-FromDomain: IBMIN@IBMAU
+To: linux-kernel@vger.kernel.org
+Message-ID: <CA256A68.00412D66.00@d73mta01.au.ibm.com>
+Date: Mon, 11 Jun 2001 17:11:52 +0530
+Subject: Validating dynamically allocated kernel memory
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some (most?) CF disks have hareware wareleveling.
-I use ext2 with e2compr patch.
+Hi,
+Is there some kernel api to validate memory allocated using kmalloc.
+Suppose, I allocate some memory using kmalloc and at a later point of
+execution
+I would like to validate if the memory allocated is not possibly freed by
+some other thread.
 
-Padraig.
+Pls suggest a patch/pointers if any.
+I also noticed a commented 'CONFIG_DEBUG_MALLOC' config option  (2.4.3
+source),
+It doesn't seem to be functional.  Any pointers towards the history behind
+it would also be helpful.
 
-Pavel Machek wrote:
+Thanks in advance,
+Kiran
 
->Hi!
->
->I'm trying to run jffs on my ATA-flash disk (running ext2 could kill
->some flash cells too soon, right?) but it refuses:
->
->        if (MAJOR(dev) != MTD_BLOCK_MAJOR) {
->                printk(KERN_WARNING "JFFS: Trying to mount a "
->                       "non-mtd device.\n");
->                return 0;
->        }
->
->What are reasons for this check?
->
->								Pavel
->
+PS: My previous post went through minus subject due to oversight
+:-(...Apologising and resending ....
 
 

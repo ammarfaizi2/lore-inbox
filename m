@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266377AbRGTAub>; Thu, 19 Jul 2001 20:50:31 -0400
+	id <S266353AbRGTAsL>; Thu, 19 Jul 2001 20:48:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266381AbRGTAuV>; Thu, 19 Jul 2001 20:50:21 -0400
-Received: from stine.vestdata.no ([195.204.68.10]:15634 "EHLO
-	stine.vestdata.no") by vger.kernel.org with ESMTP
-	id <S266377AbRGTAuH>; Thu, 19 Jul 2001 20:50:07 -0400
-Date: Fri, 20 Jul 2001 02:49:56 +0200
-From: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <xfs@ragnark.vestdata.no>
-To: Tad Dolphay <tbd@sgi.com>
-Cc: mjacob@feral.com, Christian Chip <chip.christian@storageapps.com>,
-        linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: Busy inodes after umount
-Message-ID: <20010720024956.B20732@vestdata.no>
-In-Reply-To: <20010719165758.D50024-100000@wonky.feral.com> <200107200038.TAA40153@fsgi158.americas.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.5i
-In-Reply-To: <200107200038.TAA40153@fsgi158.americas.sgi.com>; from Tad Dolphay on Thu, Jul 19, 2001 at 07:38:15PM -0500
+	id <S266377AbRGTAsB>; Thu, 19 Jul 2001 20:48:01 -0400
+Received: from smtp1.ihug.co.nz ([203.109.252.7]:37127 "EHLO smtp1.ihug.co.nz")
+	by vger.kernel.org with ESMTP id <S266353AbRGTArl>;
+	Thu, 19 Jul 2001 20:47:41 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Matthew Gardiner <kiwiunix@ihug.co.nz>
+To: linux-kernel@vger.kernel.org
+Subject: MTD compiling error
+Date: Fri, 20 Jul 2001 12:46:08 +1200
+X-Mailer: KMail [version 1.2]
+MIME-Version: 1.0
+Message-Id: <01072012460800.09910@kiwiunix.ihug.co.nz>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thu, Jul 19, 2001 at 07:38:15PM -0500, Tad Dolphay wrote:
-> I know there was a fix for a "Busy inodes after unmount" problem in
-> 2.4.6-pre3. Here's an excerpt from a posting to the NFS mailing list
-> from Neil Brown:
+In file included from cfi_probe.c:17:
+/usr/src/linux-2.4.6/include/linux/mtd/cfi.h: In function `cfi_spin_unlock':
+/usr/src/linux-2.4.6/include/linux/mtd/cfi.h:387: `do_softirq' undeclared 
+(first use in this function)
+/usr/src/linux-2.4.6/include/linux/mtd/cfi.h:387: (Each undeclared identifier 
+is reported only once
+/usr/src/linux-2.4.6/include/linux/mtd/cfi.h:387: for each function it 
+appears in.)
+make[3]: *** [cfi_probe.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.4.6/drivers/mtd/chips'
+make[2]: *** [_modsubdir_chips] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4.6/drivers/mtd'
+make[1]: *** [_modsubdir_mtd] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.6/drivers'
+make: *** [_mod_drivers] Error 2
+[root@kiwiunix linux]#
 
-Thanks. I'll try that and see if that solves the problem (also the XFS
-UUID problem).
+mtd is buggered. Found out when compiling the modules.
 
-
+Matthew Gardiner
 -- 
-Ragnar Kjorstad
-Big Storage
+WARNING:
+
+This email was written on an OS using the viral 'GPL' as its license.
+
+Please check with Bill Gates before continuing to read this email/posting.

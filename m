@@ -1,72 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269879AbUH0An0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269874AbUH0AnT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269879AbUH0An0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 20:43:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269854AbUH0Ajl
+	id S269874AbUH0AnT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 20:43:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269856AbUH0AjD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 20:39:41 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:18886 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S269794AbUH0Ag5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 20:36:57 -0400
-Date: Fri, 27 Aug 2004 09:42:05 +0900
-From: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
-Subject: Re: [Lhms-devel] Re: [RFC] buddy allocator without bitmap [3/4]
-In-reply-to: <1093565707.2984.394.camel@nighthawk>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>, lhms <lhms-devel@lists.sourceforge.net>,
-       William Lee Irwin III <wli@holomorphy.com>
-Message-id: <412E835D.8080500@jp.fujitsu.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
+	Thu, 26 Aug 2004 20:39:03 -0400
+Received: from [82.154.234.12] ([82.154.234.12]:51373 "EHLO
+	puma-vgertech.no-ip.com") by vger.kernel.org with ESMTP
+	id S269854AbUH0Ahc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 20:37:32 -0400
+Message-ID: <412E824F.90704@vgertech.com>
+Date: Fri, 27 Aug 2004 01:37:35 +0100
+From: Nuno Silva <nuno.silva@vgertech.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040528 Thunderbird/0.6 Mnenhy/0.6.0.103
 X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6)
- Gecko/20040113
-References: <412DD34A.70802@jp.fujitsu.com>
- <1093535709.2984.24.camel@nighthawk> <412E7AB6.8020707@jp.fujitsu.com>
- <1093565707.2984.394.camel@nighthawk>
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Rick Lindsley <ricklind@us.ibm.com>
+Subject: Re: 2.6.9-rc1-mm1
+References: <20040826014745.225d7a2c.akpm@osdl.org> <412DC47B.4000704@kolivas.org> <200408261636.06857.rjw@sisk.pl> <412E11ED.7040300@kolivas.org> <52540000.1093553736@flay> <412E7004.3070503@kolivas.org>
+In-Reply-To: <412E7004.3070503@kolivas.org>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
->>1. Now, I think some small parts, some essence of mem_section which
->>   makes pfn_valid() faster may be good.
-> 
-> 
-> The only question is what it will take when there's a partially populate
-> mem_section.  We'll almost certainly have to allow it, but the real
-> question is whether or not we will ever have a partially populated one
-> that's not at the end of memory.  
-> 
-Hmm....I cannot answer it fully.
+Con Kolivas wrote:
+> Martin J. Bligh wrote:
 
-My tiger4 (Itanium x 2) shows aligned_order=0, because it has a mem_map
-start with address 0x????????3(I forget now), odd number ;(.
-I like a mechine in which all memory are aligned.....
+[..]
 
->>And another way,
 >>
->>2. A method which enables page -> page's max_order calculation
->>   may be good and consistent way in this no-bitmap approach.
->>
->>But this problem would be my week-end homework :).
+>> Yup. I can open a large 8Mpixel camera image in "display" and hang the 
+>> whole
+>> system for about 30s too ;-(
 > 
+
+Congrats! 8MP camera! :-)
+
 > 
-> Instead of adding more stuff to the mem_section, we might be able to
-> (ab)use more stuff in the mem_map's mem_map, like I am with
-> page->section right now.  
+> If you're talking about using the embedded image viewer in kde, that 
+> spins on wait and wastes truckloads of cpu (a perfect example of poor 
+> coding). Try loading it an external viewer and it will be 1000 times 
+> faster. If you're talking about it keeping the disk too busy on the 
+> other hand, that's I/O scheduling.
+> 
 
-I wonder if there is another way which doesn't increase memory usage
-in boottime, it will be better.
-I'll going on considering the way to fix nr_mem_map things.
+The question is: "can a poorly coded app hang the system for 30secs?"
 
-Thanks
--- Kame
+That's a DoS ;-)
 
-
--- 
---the clue is these footmarks leading to the door.--
-KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Regards,
+Nuno Silva
 

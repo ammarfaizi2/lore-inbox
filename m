@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262882AbVAFQod@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262620AbVAFQvr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262882AbVAFQod (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 11:44:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262620AbVAFQod
+	id S262620AbVAFQvr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 11:51:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262856AbVAFQvr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 11:44:33 -0500
-Received: from dfw-gate2.raytheon.com ([199.46.199.231]:51402 "EHLO
-	dfw-gate2.raytheon.com") by vger.kernel.org with ESMTP
-	id S262881AbVAFQoM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 11:44:12 -0500
-Subject: Re: 2.6.10-mm1
-To: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF4C49B1DD.0FAC66D2-ON86256F81.0059D64B@raytheon.com>
-From: Mark_H_Johnson@Raytheon.com
-Date: Thu, 6 Jan 2005 10:32:31 -0600
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 01/06/2005 10:43:23 AM
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-SPAM: 0.00
+	Thu, 6 Jan 2005 11:51:47 -0500
+Received: from imag.imag.fr ([129.88.30.1]:43649 "EHLO imag.imag.fr")
+	by vger.kernel.org with ESMTP id S262620AbVAFQvp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 11:51:45 -0500
+Date: Thu, 6 Jan 2005 17:51:27 +0100
+From: Alban Crequy <alban.crequy@apinc.org>
+To: linux-kernel@vger.kernel.org
+Cc: wmorgan-ruby-talkmasanjin.net@ensilinx1.imag.fr, roots@ensilinx1.imag.fr
+Subject: status of poll/select in procfs
+Message-ID: <20050106165127.GA14643@linux.ensimag.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+X-URL: http://alban.apinc.org/
+Organization: ENSIMAG
+User-Agent: Mutt/1.5.6+20040722i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (imag.imag.fr [129.88.30.1]); Thu, 06 Jan 2005 17:51:29 +0100 (CET)
+X-IMAG-MailScanner: Found to be clean
+X-IMAG-MailScanner-Information: Please contact the ISP for more information
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After booting with 2.6.10-mm1, I get the following message on the serial
-console (last message seen):
+I wonder what is the status of the poll/select syscalls with procfs:
+should work, not tested or unwanted feature?
 
-PCI: 0000:00:0b.0 has unsupported PM cap regs version (1)
+My tests say that some procfs' files work with select and some don't.
 
-For reference, lspci shows that device is
-00:0b.0 Multimedia audio controller: Ensoniq 5880 AudioPCI (rev 02)
+I've read the [1] thread.
 
-I notice there is a relatively recent patch to add this message.
-  http://article.gmane.org/gmane.linux.kernel/263974
+This is a real-life issue for some interpretors since users threads may
+be implemented with select in order to avoid one user thread blocking
+others user threads. Ruby does that.
 
-However, my .config includes
+For example, some Ruby users report [2] [3] [4] that bugs are coming
+from bug in procfs-select.
 
-#
-# Power management options (ACPI, APM)
-#
-# CONFIG_PM is not set
+[1] http://www.issociate.de/board/post/28768/%5BPATCH_md_0_of_2%5D_Introduction.html
+[2] http://blade.nagaokaut.ac.jp/cgi-bin/scat.rb/ruby/ruby-talk/109668
+[3] http://blade.nagaokaut.ac.jp/cgi-bin/scat.rb/ruby/ruby-talk/110600
+[4] (fr) http://linux.ensimag.fr/lists-archives/liste/2005-January/001396.html
 
-which should disable all power management related processing.
+-- 
+Alban Crequy
 
-[1] Should the code generating the warning be active without CONFIG_PM
-being set?
+PS: please CC: me as I am not subscribed to the list.
 
-[2] Can you explain why the message is generated (why not silently ignore
-the older hardware) or is there something in an init script (I am using
-Fedora Core 2) that [incorrectly] assumes power management is available to
-cause the message to be printed?
 
---Mark H Johnson
-  <mailto:Mark_H_Johnson@raytheon.com>
+
 

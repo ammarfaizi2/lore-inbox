@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130891AbQLJX7j>; Sun, 10 Dec 2000 18:59:39 -0500
+	id <S131227AbQLKAAo>; Sun, 10 Dec 2000 19:00:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131528AbQLJX70>; Sun, 10 Dec 2000 18:59:26 -0500
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:35077 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S130891AbQLJX7S>;
-	Sun, 10 Dec 2000 18:59:18 -0500
-Message-Id: <200012101611.eBAGBKB15673@sleipnir.valparaiso.cl>
-To: jalvo@mbay.net (John Alvord)
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: NTFS repair tools] 
-In-Reply-To: Message from jalvo@mbay.net (John Alvord) 
-   of "Sun, 10 Dec 2000 05:00:53 GMT." <3a330d39.53732447@mail.mbay.net> 
-Date: Sun, 10 Dec 2000 13:11:20 -0300
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+	id <S131573AbQLJX7k>; Sun, 10 Dec 2000 18:59:40 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:13578 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S131524AbQLJX7Z>;
+	Sun, 10 Dec 2000 18:59:25 -0500
+Date: Mon, 11 Dec 2000 00:28:50 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: davej@suse.de
+Cc: Martin Mares <mj@suse.cz>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: pdev_enable_device no longer used ?
+Message-ID: <20001211002850.A14393@pcep-jamie.cern.ch>
+In-Reply-To: <20001209160403.A28562@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.21.0012091803270.571-100000@neo.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0012091803270.571-100000@neo.local>; from davej@suse.de on Sat, Dec 09, 2000 at 06:11:08PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jalvo@mbay.net (John Alvord) said:
+Here are a few more:
 
-[...]
+ net/acenic.c: pci_write_config_byte(ap->pdev, PCI_CACHE_LINE_SIZE,
+ net/gmac.c: PCI_CACHE_LINE_SIZE, 8);
+ scsi/sym53c8xx.c: printk(NAME53C8XX ": PCI_CACHE_LINE_SIZE set to %d (fix-up).\n",
+ video/pm2fb.c: WR32(p->pci_config, PCI_CACHE_LINE_SIZE, 0xff00);
 
-> If this was a business, and we were knowingly distributing software
-> that was known to be dangerous, we would probably be risking legal
-> action.
+-- Jamie
 
-Debatable. It is marked EXPERIMENTAL and DANGEROUS, and not enabled by
-default.
+davej@suse.de wrote:
+> > > 1. Is there reason for the drivers to be setting this themselves
+> > >    to hardcoded values ?
+> > 
+> > Definitely not unless the devices are buggy and need a work-around.
+> 
+> Maybe that's the case. The culprits are mostly IDE interfaces. Andre ?
+> 
+> drivers/ide/cmd64x.c:   (void) pci_write_config_byte(dev,PCI_CACHE_LINE_SIZE, 0x10);
+> drivers/ide/cs5530.c:   pci_write_config_byte(cs5530_0,PCI_CACHE_LINE_SIZE, 0x04);
+> drivers/ide/hpt366.c:   pci_write_config_byte(dev,PCI_CACHE_LINE_SIZE, 0x08);
+> drivers/ide/ns87415.c:  (void) pci_write_config_byte(dev,PCI_CACHE_LINE_SIZE, 0x10);
+> 
+> drivers/atm/eni.c:      pci_write_config_byte(eni_dev->pci_dev,PCI_CACHE_LINE_SIZE, 0x10);
+> drivers/media/video/planb.c:    pci_write_config_byte (pdev,PCI_CACHE_LINE_SIZE, 0x8);
 
-> Why are we distributing such severely broken software? Heck, we seem
-> reluctant to include reiserfs, a pretty high quality, supported file
-> system. And we continue to distribute this !@#$%... There must be some
-> strange agenda going on to limit the use of Linux.
-
-It is just that NTFS has been in the kernel for ages, and rotted. Nobody
-has taken the time to remove it (would be a lot less than what has been
-wasted up to now discussing the matter here...).
--- 
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

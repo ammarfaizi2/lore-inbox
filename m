@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268421AbUIWM0z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267987AbUIWMj2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268421AbUIWM0z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 08:26:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268425AbUIWM0z
+	id S267987AbUIWMj2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 08:39:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268410AbUIWMj2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 08:26:55 -0400
-Received: from scanner1.mail.elte.hu ([157.181.1.137]:42181 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S268421AbUIWM0w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 08:26:52 -0400
-Date: Thu, 23 Sep 2004 14:28:38 +0200
-From: Ingo Molnar <mingo@elte.hu>
+	Thu, 23 Sep 2004 08:39:28 -0400
+Received: from mx01.hugoboss.com ([195.145.12.140]:53399 "EHLO
+	mx01.hugoboss.com") by vger.kernel.org with ESMTP id S267987AbUIWMj0 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 08:39:26 -0400
 To: linux-kernel@vger.kernel.org
-Cc: Lee Revell <rlrevell@joe-job.com>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Rui Nuno Capela <rncbc@rncbc.org>
-Subject: [patch] voluntary-preempt-2.6.9-rc2-mm1-S4
-Message-ID: <20040923122838.GA9252@elte.hu>
-References: <20040907115722.GA10373@elte.hu> <1094597988.16954.212.camel@krustophenia.net> <20040908082050.GA680@elte.hu> <1094683020.1362.219.camel@krustophenia.net> <20040909061729.GH1362@elte.hu> <20040919122618.GA24982@elte.hu> <414F8CFB.3030901@cybsft.com> <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040922103340.GA9683@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Subject: watchdog
+MIME-Version: 1.0
+X-Mailer: Lotus Notes Release 5.0.11  July 24, 2002
+Message-ID: <OF9A7DD331.25E3D3B0-ON41256F18.004ADF18-41256F18.004B045D@eu.hugoboss.com>
+From: "Michael Hoeller" <Michael_Hoeller@hugoboss.com>
+Date: Thu, 23 Sep 2004 14:39:30 +0100
+X-MIMETrack: S/MIME Sign by Notes Client on Michael Hoeller/Urach/HUGO_BOSS(Release 5.0.11
+ |July 24, 2002) at 23.09.2004 14:39:23,
+	Serialize by Notes Client on Michael Hoeller/Urach/HUGO_BOSS(Release 5.0.11
+ |July 24, 2002) at 23.09.2004 14:39:23,
+	Serialize complete at 23.09.2004 14:39:23,
+	S/MIME Sign failed at 23.09.2004 14:39:23: Der
+ =?iso-8859-1?Q?Verschl=FCsselungsschl=FCssel_wurde_nicht_gefunden?=,
+	Serialize by Router on SRV_001/Metzingen/HUGO_BOSS(Release 5.0.10 |March 22, 2002) at
+ 23.09.2004 14:39:33,
+	Serialize complete at 23.09.2004 14:39:33
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-i've released the -S4 VP patch:
+I would like to swicht on the software watchdog functionality on a 2.6 
+kernel. Unfortunately I did not understand how to do this, reading the 
+$kernel_src/Documentation/watchdog. 
 
-   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm2-S4
+Can someone, please, give me a hint?
 
--S4 fixes a softirq latency processing bug introduced in -S3. The
-symptoms of this bug can be erratic mouse/keyboard behavior, higher
-networking latencies, and similar things. (If CONFIG_PREEMPT is disabled
-then another effect of this bug can lead to crashes.)
+Thanks a lot
+Michael
 
--S4 is also a merge to 2.6.9-rc2-mm2.
 
-To get a 2.6.9-rc2-mm2-VP-S4 kernel, the patching order is:
 
-   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.tar.bz2
- + http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.9-rc2.bz2
- + http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc2/2.6.9-rc2-mm2/2.6.9-rc2-mm2.bz2
- + http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm2-S4
+This e-mail (and/or attachments) is confidential and may be privileged. Use or disclosure of it by anyone other than a designated addressee is unauthorized. 
+If you are not an intended recipient, please delete this e-mail from the computer on which you received it. We thank you for notifying us immediately. 
 
-	Ingo

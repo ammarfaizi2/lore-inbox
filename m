@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262412AbVAKDse@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262397AbVAJRxM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262412AbVAKDse (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 22:48:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262426AbVAKDrq
+	id S262397AbVAJRxM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 12:53:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262390AbVAJRul
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 22:47:46 -0500
-Received: from fw.osdl.org ([65.172.181.6]:56222 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262412AbVAKDpq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 22:45:46 -0500
-Message-ID: <41E34A51.3080005@osdl.org>
-Date: Mon, 10 Jan 2005 19:38:57 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
+	Mon, 10 Jan 2005 12:50:41 -0500
+Received: from penta.pentaserver.com ([216.74.97.66]:23787 "EHLO
+	penta.pentaserver.com") by vger.kernel.org with ESMTP
+	id S262370AbVAJRYh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 12:24:37 -0500
+From: Manu Abraham <manu@kromtek.com>
+Reply-To: manu@kromtek.com
+Organization: Kromtek Systems
+To: linux-kernel@vger.kernel.org
+Subject: Re: printk output to file
+Date: Mon, 10 Jan 2005 21:24:18 +0400
+User-Agent: KMail/1.6.2
+References: <20050110082633.4796.qmail@web60605.mail.yahoo.com>
+In-Reply-To: <20050110082633.4796.qmail@web60605.mail.yahoo.com>
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Dave <dave.jiang@gmail.com>,
-       linux-kernel@vger.kernel.org, smaurer@teja.com, linux@arm.linux.org.uk,
-       dsaxena@plexity.net, drew.moseley@intel.com
-Subject: Re: clean way to support >32bit addr on 32bit CPU
-References: <8746466a050110153479954fd2@mail.gmail.com> <Pine.LNX.4.58.0501101607240.2373@ppc970.osdl.org> <41E31D95.50205@osdl.org> <Pine.LNX.4.58.0501101722200.2373@ppc970.osdl.org> <20050111020550.GE2696@holomorphy.com>
-In-Reply-To: <20050111020550.GE2696@holomorphy.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200501102124.18932.manu@kromtek.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - penta.pentaserver.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - kromtek.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> On Mon, Jan 10, 2005 at 05:30:25PM -0800, Linus Torvalds wrote:
-> 
->>I don't think ioaddr_t needs to match resources. None of the IO accessor
->>functions take "u64"s anyway - and aren't likely to do so in the future
->>either - so "unsigned long" should be good enough.
->>Having u64 for resource handling is mainly an issue for RAM and
->>memory-mapped IO (right now the 32-bit limit means that we throw away
->>information about stuff above the 4GB mark from the e820 interfaces on
->>x86, for example - that _happens_ to work because we never see anything 
->>but RAM there anyway, but it means that /proc/iomem doesn't show all of 
->>the system RAM, and it does mean that our resource management doesn't 
->>actually handle 64-bit addresses correctly. 
->>See drivers/pci/probe.c for the result:
->>	"PCI: Unable to handle 64-bit address for device xxxx"
->>(and I do not actually think this has _ever_ happened in real life, which 
->>makes me suspect that Windows doesn't handle them either - but it 
->>inevitably will happen some day).
-> 
-> 
-> I have a vague recollection of seeing a report of an ia32 device and/or
-> machine with this property from John Fusco but am having a tough time
-> searching the archives properly for it. I do recall it being around the
-> time the remap_pfn_range() work was started, and I also claimed it as
-> one of the motivators of it in one of my posts. I'm unaware of whether
-> there are more general resources in John Fusco's situation.
-> 
-> My follow-ups began with:
-> Message-ID: <20040924021735.GL9106@holomorphy.com>
-> References: <41535AAE.6090700@yahoo.com>
+On Mon January 10 2005 12:26 pm, selvakumar nagendran wrote:
+> Hello linux-experts,
+>     I want to redirect the output of printk from my
+> kernel module to a file. If that's possible how can I
+Don't redirect, The printk's would be in your syslog. Check your syslog .. 
+simple.
 
-http://marc.theaimsgroup.com/?l=linux-mm&m=109598180125156&w=2
-
--- 
-~Randy
+Manu
+> do that? Please also give some sample code.
+>
+> Thanks,
+> selva
+>
+>
+> __________________________________________________
+> Do You Yahoo!?
+> Tired of spam?  Yahoo! Mail has the best spam protection around
+> http://mail.yahoo.com
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

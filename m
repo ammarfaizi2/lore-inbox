@@ -1,92 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263428AbTFZWzO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 18:55:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263375AbTFZWzM
+	id S263338AbTFZWyd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 18:54:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264158AbTFZWy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 18:55:12 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:63249 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S263428AbTFZWy0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 18:54:26 -0400
-Message-ID: <3EFB7D70.8010602@techsource.com>
-Date: Thu, 26 Jun 2003 19:10:40 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Helge Hafting <helgehaf@aitel.hist.no>
-CC: Mike Galbraith <efault@gmx.de>, Bill Davidsen <davidsen@tmr.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: O(1) scheduler & interactivity improvements
-References: <20030623164743.GB1184@hh.idb.hist.no> <5.2.0.9.2.20030624215008.00ce73b8@pop.gmx.net> <3EFAC408.4020106@aitel.hist.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Jun 2003 18:54:29 -0400
+Received: from aneto.able.es ([212.97.163.22]:22933 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S263338AbTFZWyN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 18:54:13 -0400
+Date: Fri, 27 Jun 2003 01:08:24 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix inlining with gcc3
+Message-ID: <20030626230824.GM3827@werewolf.able.es>
+References: <Pine.LNX.4.55L.0306261858460.10651@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.55L.0306261858460.10651@freak.distro.conectiva>; from marcelo@conectiva.com.br on Fri, Jun 27, 2003 at 00:03:02 +0200
+X-Mailer: Balsa 2.0.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-Helge Hafting wrote:
-
-> How about _removing_ the io-wait bonus for waiting on pipes then?
-> If you wait for disk io, someone else gets to use
-> the cpu for their work.  So you get a boost for
-> giving up your share of time, waiting
-> for that slow device.
+On 06.27, Marcelo Tosatti wrote:
 > 
-> But if you wait for a pipe, you wait for some other
-> cpu hog to do the first part of _your_ work.
-> I.e. nobody else benefitted from your waiting,
-> so you don't get any boost either.
+> Hello,
 > 
-> This solves the problem of someone artifically
-> dividing up a job, using token passing
-> to get unfair priority.
+> Here goes -pre2 with a big number of changes, including the new aic7xxx
+> driver.
 > 
+> I wont accept any big changes after -pre4: I want 2.4.22 timecycle to be
+> short.
 > 
-> This can be fine-tuned a bit: We may want the pipe-waiter
-> to get a _little_ bonus at times, but that has to be
-> subtracted from whatever bonus the process at the
-> other end of the pipe has.  I.e. no new bonus
-> created, just shift some the existing bonus around.
-> The "other end" may, after all, have gained legitimate
-> bonus from waiting on the disk/network/paging/os, and passing
-> some of that on to "clients" might make sense.
->
 
-In other words:
+This fixes inlining (really, not-inlining) with gcc3. How about next -pre ?
 
-Don't give pipe-waiting any kind of boost or penalty, but do balance the 
-interactivity points between entities at each end of the pipe.
+--- 25/include/linux/compiler.h~gcc3-inline-fix	2003-03-06 03:02:43.000000000 -0800
++++ 25-akpm/include/linux/compiler.h	2003-03-06 03:11:42.000000000 -0800
+@@ -1,6 +1,13 @@
+ #ifndef __LINUX_COMPILER_H
+ #define __LINUX_COMPILER_H
+ 
++#if __GNUC__ >= 3
++#define inline		__inline__ __attribute__((always_inline))
++#define inline__	__inline__ __attribute__((always_inline))
++#define __inline	__inline__ __attribute__((always_inline))
++#define __inline__	__inline__ __attribute__((always_inline))
++#endif
++
+ /* Somewhere in the middle of the GCC 2.96 development cycle, we implemented
+    a mechanism by which the user can annotate likely branch directions and
+    expect the blocks to be reordered appropriately.  Define __builtin_expect
 
-So, if you're waiting on a pipe, but the other end is a CPU hog, then 
-since you don't get a boost (pipe wait), you don't give a boost to the 
-CPU hog, but since he's a CPU hog, he DOES share negative points with 
-you, lowering your priority.
 
-Conversely, if a process is waiting on real I/O (disk, user input, 
-etc.), then it gets an interactivity boost that it can share with other 
-processes it's connected to via pipe.
 
-Since most X clients only do pipe waiting on the server, then it's the X 
-server that gets the interactivity boost by waiting on user input, which 
-it can share with clients.
-
-And since there is no effect from pipe wait, you can still judge a 
-process as interactive or not based on what it does when it's NOT 
-waiting on a pipe -- if it becomes a CPU hog THEN, you deduct points, etc.
-
-Here's an interesting question:  Would you often have a situation where 
-a process at one end of a pipe is a CPU hog, and the process at the 
-other end is interactive?  Is that a problem?
-
-If you're always adding or subtracting points, that situation could be 
-less than optimal, but you'll never get to the point where the 
-interactive process is believed to be a cpu hog or vice versa.  The 
-points each process would be assessed at a faster rate than the sharing 
-between processes.
-
-Do you want to always share points, or do you share only when something 
-wakes up from a pipe wait?
-
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.21-jam1 (gcc 3.3 (Mandrake Linux 9.2 3.3-2mdk))

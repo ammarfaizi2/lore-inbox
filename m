@@ -1,153 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261891AbUDAB5u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 20:57:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbUDAB5u
+	id S261969AbUDAB6v (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 20:58:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbUDAB6v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 20:57:50 -0500
-Received: from ozlabs.org ([203.10.76.45]:40085 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261891AbUDAB5p (ORCPT
+	Wed, 31 Mar 2004 20:58:51 -0500
+Received: from gate.crashing.org ([63.228.1.57]:1948 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261969AbUDAB6s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 20:57:45 -0500
-Subject: Re: [2.6.2] Badness in futex_wait revisited
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Dirk Morris <dmorris@metavize.com>, Andrew Morton <akpm@osdl.org>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040331165656.GG19280@mail.shareable.org>
-References: <40311703.8070309@metavize.com>
-	 <20040217051911.6AC112C066@lists.samba.org>
-	 <20040331165656.GG19280@mail.shareable.org>
+	Wed, 31 Mar 2004 20:58:48 -0500
+Subject: Re: [linux-usb-devel] [PATCH] back out sysfs reference count change
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Greg KH <greg@kroah.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Maneesh Soni <maneesh@in.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, stern@rowland.harvard.edu,
+       David Brownell <david-b@pacbell.net>, viro@math.psu.edu,
+       Linux-USB <linux-usb-devel@lists.sourceforge.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040331221804.GA4729@kroah.com>
+References: <Pine.LNX.4.44L0.0403281057100.17150-100000@netrider.rowland.org>
+	 <20040328123857.55f04527.akpm@osdl.org> <20040329210219.GA16735@kroah.com>
+	 <20040329132551.23e12144.akpm@osdl.org> <20040329231604.GA29494@kroah.com>
+	 <20040329153117.558c3263.akpm@osdl.org> <20040330055135.GA8448@in.ibm.com>
+	 <20040330230142.GA13571@kroah.com> <20040330235533.GA9018@kroah.com>
+	 <1080699090.1198.117.camel@gaston>  <20040331221804.GA4729@kroah.com>
 Content-Type: text/plain
-Message-Id: <1080784652.32535.102.camel@bach>
+Message-Id: <1080784568.1435.37.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 01 Apr 2004 11:57:32 +1000
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 01 Apr 2004 11:56:09 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-04-01 at 02:56, Jamie Lokier wrote:
-> Was the badness in futex_wait problem ever resolved?
 
-No: Andrew misapplied the patches for ages and ended up ditching it.  We
-tried a different version but there was a bug which meant real wakups
-triggered it...
+> But that is impossible as has already been pointed out by Alan Stern.
+> If a module creates a kobject, how can the module_exit() function ever
+> be called if that kobject incremented the module reference count?
 
-Here is the current version...
+I just had a loooong discussion with Rusty on that subject, it's
+indeed a nasty one. The problem is that the real solution is to
+change the module unload semantics. Regardless of the count, module
+exit should be called, and the actual unload (and eventually calling
+an additional module "release" function) then should only happen
+once the count is down to 0. That means that rmmod would block forever
+if the driver is opened, but that is just something that needs to be
+known.
 
-Name: Who's Spuriously Waking Futexes?
-Author: Andrew Morton, Rusty Russell
-Status: Tested on 2.6.3-bk1
+But that's not something we'll do for 2.6. For that to work, it also
+need various subsystem unregister_* (netdev etc...) functions to not
+error when the device is opened, just prevent new opens, and operate
+asynchronously (freeing data structures on kobject release) etc...
 
-Someone is triggering the WARN_ON() in futex.c.  We know that software
-suspend could do it, in theory.  But noone else should be.
+> So what we do is any reference to the kobject grabbed by userspace
+> causes the module reference count to go up.  That fixes the issue for
+> the most part (with the exception of the race that Maneesh has
+> documented.)
 
-This code adds a PF_FUTEX_DEBUG flag, which is set in the futex code
-when we sleep, and also when we wake up.  If a task with
-PF_FUTEX_DEBUG is woken by a task without PF_FUTEX_DEBUG, we have
-found our culprit.
+Well.... Maybe, I still think it's dodgy, but probably fine for 2.6
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .31103-linux-2.6.3-rc4/include/linux/sched.h .31103-linux-2.6.3-rc4.updated/include/linux/sched.h
---- .31103-linux-2.6.3-rc4/include/linux/sched.h	2004-02-17 17:54:03.000000000 +1100
-+++ .31103-linux-2.6.3-rc4.updated/include/linux/sched.h	2004-02-18 14:55:05.000000000 +1100
-@@ -500,6 +500,7 @@ do { if (atomic_dec_and_test(&(tsk)->usa
- #define PF_SWAPOFF	0x00080000	/* I am in swapoff */
- #define PF_LESS_THROTTLE 0x00100000	/* Throttle me less: I clean memory */
- #define PF_SYNCWRITE	0x00200000	/* I am doing a sync write */
-+#define PF_FUTEX_DEBUG	0x00400000
- 
- #ifdef CONFIG_SMP
- extern int set_cpus_allowed(task_t *p, cpumask_t new_mask);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .31103-linux-2.6.3-rc4/kernel/futex.c .31103-linux-2.6.3-rc4.updated/kernel/futex.c
---- .31103-linux-2.6.3-rc4/kernel/futex.c	2004-02-17 17:54:04.000000000 +1100
-+++ .31103-linux-2.6.3-rc4.updated/kernel/futex.c	2004-02-18 15:09:15.000000000 +1100
-@@ -269,7 +269,11 @@ static void wake_futex(struct futex_q *q
- 	 * The lock in wake_up_all() is a crucial memory barrier after the
- 	 * list_del_init() and also before assigning to q->lock_ptr.
- 	 */
-+	
-+	current->flags |= PF_FUTEX_DEBUG;
- 	wake_up_all(&q->waiters);
-+	current->flags &= ~PF_FUTEX_DEBUG;
-+
- 	/*
- 	 * The waiting task can free the futex_q as soon as this is written,
- 	 * without taking any locks.  This must come last.
-@@ -490,8 +494,11 @@ static int futex_wait(unsigned long uadd
- 	 * !list_empty() is safe here without any lock.
- 	 * q.lock_ptr != 0 is not safe, because of ordering against wakeup.
- 	 */
--	if (likely(!list_empty(&q.list)))
-+	if (likely(!list_empty(&q.list))) {
-+		current->flags |= PF_FUTEX_DEBUG;
- 		time = schedule_timeout(time);
-+		current->flags &= ~PF_FUTEX_DEBUG;
-+	}
- 	__set_current_state(TASK_RUNNING);
- 
- 	/*
-@@ -505,7 +512,11 @@ static int futex_wait(unsigned long uadd
- 	if (time == 0)
- 		return -ETIMEDOUT;
- 	/* A spurious wakeup should never happen. */
--	WARN_ON(!signal_pending(current));
-+	if (!signal_pending(current)) {
-+		printk("futex_wait woken: %lu %i %lu\n",
-+		       uaddr, val, time);
-+		WARN_ON(1);
-+	}
- 	return -EINTR;
- 
-  out_unqueue:
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .31103-linux-2.6.3-rc4/kernel/sched.c .31103-linux-2.6.3-rc4.updated/kernel/sched.c
---- .31103-linux-2.6.3-rc4/kernel/sched.c	2004-02-17 17:54:04.000000000 +1100
-+++ .31103-linux-2.6.3-rc4.updated/kernel/sched.c	2004-02-18 14:55:05.000000000 +1100
-@@ -658,6 +658,14 @@ static int try_to_wake_up(task_t * p, un
- 	long old_state;
- 	runqueue_t *rq;
- 
-+	if ((p->flags & PF_FUTEX_DEBUG)
-+	    && !(current->flags & PF_FUTEX_DEBUG)) {
-+		printk("%s %i waking %s: %i %i\n",
-+		       current->comm, (int)in_interrupt(),
-+		       p->comm, p->tgid, p->pid);
-+		WARN_ON(1);
-+	}
-+
- repeat_lock_task:
- 	rq = task_rq_lock(p, &flags);
- 	old_state = p->state;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .31103-linux-2.6.3-rc4/kernel/timer.c .31103-linux-2.6.3-rc4.updated/kernel/timer.c
---- .31103-linux-2.6.3-rc4/kernel/timer.c	2004-02-04 15:39:15.000000000 +1100
-+++ .31103-linux-2.6.3-rc4.updated/kernel/timer.c	2004-02-18 14:55:05.000000000 +1100
-@@ -971,6 +971,13 @@ static void process_timeout(unsigned lon
- 	wake_up_process((task_t *)__data);
- }
- 
-+static void futex_timeout(unsigned long __data)
-+{
-+	current->flags |= PF_FUTEX_DEBUG;
-+	wake_up_process((task_t *)__data);
-+	current->flags &= ~PF_FUTEX_DEBUG;
-+}
-+
- /**
-  * schedule_timeout - sleep until timeout
-  * @timeout: timeout value in jiffies
-@@ -1037,7 +1044,10 @@ signed long schedule_timeout(signed long
- 	init_timer(&timer);
- 	timer.expires = expire;
- 	timer.data = (unsigned long) current;
--	timer.function = process_timeout;
-+	if (current->flags & PF_FUTEX_DEBUG)
-+		timer.function = futex_timeout;
-+	else
-+		timer.function = process_timeout;
- 
- 	add_timer(&timer);
- 	schedule();
+Ben.
 
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
 

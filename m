@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271043AbTHQVe5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 17:34:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271051AbTHQVe5
+	id S271055AbTHQVlV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 17:41:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271071AbTHQVlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 17:34:57 -0400
-Received: from fw.osdl.org ([65.172.181.6]:47769 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S271043AbTHQVe4 (ORCPT
+	Sun, 17 Aug 2003 17:41:21 -0400
+Received: from cimice4.lam.cz ([212.71.168.94]:56261 "EHLO beton.cybernet.src")
+	by vger.kernel.org with ESMTP id S271055AbTHQVlU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 17:34:56 -0400
-Date: Sun, 17 Aug 2003 14:36:00 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Peter Osterlund <petero2@telia.com>
-Cc: lists@runa.sytes.net, linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: segfault when unloading module loop in 2.6.0-test3+ck patches
-Message-Id: <20030817143600.1a2642a5.akpm@osdl.org>
-In-Reply-To: <m24r0g56kj.fsf@p4.localdomain>
-References: <20030817042751.379428cf.lists@runa.sytes.net>
-	<m28yps57oi.fsf@p4.localdomain>
-	<20030817135935.2790cec6.akpm@osdl.org>
-	<m24r0g56kj.fsf@p4.localdomain>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 17 Aug 2003 17:41:20 -0400
+Date: Mon, 18 Aug 2003 01:41:31 +0200
+From: =?iso-8859-2?Q?Karel_Kulhav=FD?= <clock@twibright.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: nforce2 lockups
+Message-ID: <20030818014131.A29736@beton.cybernet.src>
+References: <20030817233306.CC67A2D0074@beton.cybernet.src>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030817233306.CC67A2D0074@beton.cybernet.src>; from MAILER-DAEMON@beton.cybernet.src on Mon, Aug 18, 2003 at 01:33:06AM +0200
+X-Orientation: Gay
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Osterlund <petero2@telia.com> wrote:
->
-> Andrew Morton <akpm@osdl.org> writes:
+> > Best uptime so far: a little more than 16 hours. Usually it locks up a lot 
+> > earlier. When I do network transfers I can cause it to lock within a few 
+> > minutes. Under "the other OS" it runs without any problems.
 > 
-> > Peter Osterlund <petero2@telia.com> wrote:
-> > >
-> > > diff -puN drivers/block/loop.c~loop-oops-fix drivers/block/loop.c
-> > > --- linux/drivers/block/loop.c~loop-oops-fix	2003-08-17 19:19:22.000000000 +0200
-> > > +++ linux-petero/drivers/block/loop.c	2003-08-17 20:33:03.000000000 +0200
-> > > @@ -1198,6 +1198,7 @@ int __init loop_init(void)
-> > >  		lo->lo_queue = blk_alloc_queue(GFP_KERNEL);
-> > >  		if (!lo->lo_queue)
-> > >  			goto out_mem4;
-> > > +		init_timer(&lo->lo_queue->unplug_timer);
-> > >  		disks[i]->queue = lo->lo_queue;
-> > >  		init_MUTEX(&lo->lo_ctl_mutex);
-> > >  		init_MUTEX_LOCKED(&lo->lo_sem);
-> > 
-> > This bit should be done in ll_rw_blk.c somewhere.  Are you sure it is
-> > necessary for loop?
+> A friend had lots of problems with his NForce2 mobo until he ran memtest86
+> and found that the memory was flaky.  His machine has been running linux
+> very well since he replaced the memory.  (Heh, two days ago  ;-)
 > 
-> Without this, if I insmod loop and then immediately rmmod loop,
-> del_timer() calls check_timer_failed(), which generates warnings in
-> the kernel log.
-> 
-> In normal cases, the timer is initialized in blk_queue_make_request(),
-> but that function is not called if you don't use the loop device
-> before unloading the module. Maybe there is a better way to get rid of
-> this warning.
+> I wonder if the NForce2 is a bit fussier about the quality of the memory
+> than other chipsets.
 
-Yup. I moved it to blk_alloc_queue() and removed the init_timer() from
-blk_queue_make_request().
+I ran memtest overnight and everything was 100% OK.
+
+Cl<
 

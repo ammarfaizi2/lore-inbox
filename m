@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271928AbTGYGjl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 02:39:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271929AbTGYGjl
+	id S271929AbTGYGkC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 02:40:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271930AbTGYGkC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 02:39:41 -0400
-Received: from smtp5.wanadoo.fr ([193.252.22.27]:29517 "EHLO
-	mwinf0404.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S271928AbTGYGjk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 02:39:40 -0400
-From: Duncan Sands <baldrick@wanadoo.fr>
-To: koraq@xs4all.nl, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.22-pre7] speedtouch.o unresolved symbols
-Date: Fri, 25 Jul 2003 08:55:24 +0200
-User-Agent: KMail/1.5.2
-References: <20030724202048.GA16411@spearhead>
-In-Reply-To: <20030724202048.GA16411@spearhead>
+	Fri, 25 Jul 2003 02:40:02 -0400
+Received: from web14208.mail.yahoo.com ([216.136.173.72]:38405 "HELO
+	web14208.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S271929AbTGYGj7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 02:39:59 -0400
+Message-ID: <20030725065507.26549.qmail@web14208.mail.yahoo.com>
+Date: Thu, 24 Jul 2003 23:55:07 -0700 (PDT)
+From: Manjunathan Padua Yellappan <manjunathan_py@yahoo.com>
+Subject: kernel 2.6.0-test1 refuses to boot on a PC with AMD Athlon XP 1800+
+To: linux-kernel@vger.kernel.org
+Cc: manjunathan_py@yahoo.com
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307250855.24218.baldrick@wanadoo.fr>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 24 July 2003 22:20, koraq@xs4all.nl wrote:
-> After compiling kernel 2.4.22-pre7 the make modules_install failed with the
-> following errors
->
-> cd /lib/modules/2.4.22-pre7; \
-> mkdir -p pcmcia; \
-> find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{}
-> pcmcia if [ -r System.map ]; then /sbin/depmod -ae -F System.map 
-> 2.4.22-pre7; fi depmod: *** Unresolved symbols in
-> /lib/modules/2.4.22-pre7/kernel/drivers/usb/speedtch.o depmod:        
-> shutdown_atm_dev_R0b9b1467
-> depmod:         atm_charge_Rf874f17b
-> depmod:         atm_dev_register_Rc23701a4
-> make: *** [_modinst_post] Error 1
+Hi Folks,
 
-You need to enable ATM support (CONFIG_ATM).  To do this, you
-need to enable support for experimental code (CONFIG_EXPERIMENTAL).
+I compiled the latest version of the kernel
+2.6.0-test1.
 
-Duncan.
+I was able to successfully build the bzImage , but I
+am not able to boot using this new kernel.
+My Machine just stops after displaying the following
+
+    "Uncompressing Linux... Ok, booting the kernel "
+
+Nothing happens after this message, it just hangs
+
+Please assist me in solving this, I am very keen on to
+testing this kernel.
+
+Configuration of my machine :
+CPU  AMD Athlon 1800+ XP 
+Motherboard ASUS KT266  
+RAM  256MB
+HDD  20GB
+with ATI Rage128 AGP card
+
+Thanks in advance.
+Manjunathan Padua Y
+
+Note: Please cc your responses to this email id.
+
+
+__________________________________
+Do you Yahoo!?
+Yahoo! SiteBuilder - Free, easy-to-use web site design software
+http://sitebuilder.yahoo.com

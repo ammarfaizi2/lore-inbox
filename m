@@ -1,80 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264131AbUFKQhX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264103AbUFKQhY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264131AbUFKQhX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 12:37:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264103AbUFKQfD
+	id S264103AbUFKQhY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 12:37:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbUFKQeb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 12:35:03 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:57239 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S264223AbUFKQba (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 12:31:30 -0400
-Message-ID: <40C9DE9F.90901@namesys.com>
-Date: Fri, 11 Jun 2004 09:32:31 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+	Fri, 11 Jun 2004 12:34:31 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10180 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264103AbUFKQcM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 12:32:12 -0400
+Message-ID: <40C9DE7F.8040002@pobox.com>
+Date: Fri, 11 Jun 2004 12:31:59 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-CC: Dave Jones <davej@redhat.com>, Chris Mason <mason@suse.com>,
-       reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: [STACK] >3k call path in reiserfs
-References: <20040609122226.GE21168@wohnheim.fh-wedel.de> <1086784264.10973.236.camel@watt.suse.com> <1086800028.10973.258.camel@watt.suse.com> <40C74388.20301@namesys.com> <1086801345.10973.263.camel@watt.suse.com> <40C75141.7070408@namesys.com> <20040609182037.GA12771@redhat.com> <40C79FE2.4040802@namesys.com> <20040610223532.GB3340@wohnheim.fh-wedel.de> <40C91DA0.6060705@namesys.com> <20040611134621.GA3633@wohnheim.fh-wedel.de>
-In-Reply-To: <20040611134621.GA3633@wohnheim.fh-wedel.de>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
+CC: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Ed Tomlinson <edt@aei.ca>, Andrew Morton <akpm@osdl.org>
+Subject: Re: flush cache range proposal (was Re: ide errors in 7-rc1-mm1 and
+ later)
+References: <1085689455.7831.8.camel@localhost> <20040605092447.GB13641@suse.de> <20040606161827.GC28576@bounceswoosh.org> <200406100238.11857.bzolnier@elka.pw.edu.pl> <20040610061141.GD13836@suse.de> <20040610164135.GA2230@bounceswoosh.org> <40C89F4D.4070500@pobox.com> <40C8A241.50608@pobox.com> <20040611075515.GR13836@suse.de> <20040611161701.GB11095@bounceswoosh.org>
+In-Reply-To: <20040611161701.GB11095@bounceswoosh.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel wrote:
+Eric D. Mudama wrote:
+> On Fri, Jun 11 at  9:55, Jens Axboe wrote:
+> 
+>> Proposal looks fine, but please lets not forget that flush cache range
+>> is really a band-aid because we don't have a proper ordered write in the
+>> first place. Personally, I'd much rather see that implemented than flush
+>> cache range. It would be way more effective.
+> 
+> 
+> So something like:
+> 
+> WRITE FIRST PARTY DMA QUEUED BARRIER EXT
+> READ FIRST PARTY DMA QUEUED BARRIER EXT
+> READ DMA QUEUED BARRIER EXT
+> READ DMA QUEUED BARRIER
+> WRITE DMA QUEUED BARRIER
+> WRITE DMA QUEUED BARRIER EXT
 
->On Thu, 10 June 2004 19:49:04 -0700, Hans Reiser wrote:
->  
->
->>Jörn Engel wrote:
->>
->>    
->>
->>>It appears to me that most developers agree to the two point above,
->>>but you have some problems with them, at least lately.  Am i wrong?
->>>      
->>>
->>This is all part of what responsible release management is about.   I 
->>was the junior whiz kid in professional release management teams before 
->>starting Namesys.  I listened to my elders and learned from them.  My 
->>standards for professional conduct in this arena are higher than yours 
->>as a result of that. 
->>
->>You are a bunch of young kids who lack professional experience in 
->>release management.  That is ok, but don't get aggressive about it.
->>
->>I have no desire to pay for your mistakes, and as the official 
->>maintainer it is my responsibility to ensure that neither I nor the 
->>users pay for the mistakes of those who add bugs to stable branches 
->>instead of adding them to the development branches where they belong.
->>    
->>
->
->Well, this ain't OpenBSD.  They have a strict 6month release schedule,
->so your type of development works just fine for them.  Linux has
->something like a very relaxed 24month+ release "schedule", which is
->far too long for some people.  As a result, the Linux "stable" kernel
->is a lot less stable than the OpenBSD one.
->
->But long release cycles also have their advantages and - most
->important - they work with Linus.  So effectively, we all have to
->accept them and deal with the consequenses.  I really understand and
->partially share your doubts, but what does it help? ;)
->
->Jörn
->
->  
->
-Reiser4 is going to obsolete V3 in a few weeks.  V3 will be retained for 
-compatibility reasons only, as V4 blows it away in performance.
+Honestly, Linux at least isn't going to care about "legacy TCQ" at all, 
+unless in the very rare case that the controller implements TCQ support 
+in hardware.
 
-You are right though that OpenBSD does some things better.
+The overall difficulty with implementing atomic updates, journalling, 
+barriers etc. on ATA is that traditionally the OS had no clue what was 
+in the write cache, and what was actually on the platter.
 
-Hans
+Thus, I think that an FPDMA queued FUA read/write should be all that's 
+needed, since that automatically gives the OS the knowledge of ordering, 
+which gives barriers what they need.  Ordering need only be a matter of 
+waiting for the hardware queue (all FUA commands) to drain, and then 
+issuing an FUA commit block.
+
+Unfortunately, that's not the answer drive guys want to hear, because 
+FUA limits the optimization potential from previous ATA.  ;-)  Maybe 
+drive performance is high enough these days that queued-FUA as a 
+standard mode of operation is tolerable...
+
+
+> ...
+> 
+> If the drive receives a queued barrier write (NCQ or Legacy), it will
+> finish processing all previously-received queued commands and post
+> good status for them, then it will process the barrier operation, post
+> status for that barrier operation, then it will continue processing
+> queued commands in the order received.
+
+If queued-FUA is out of the question, this seems quite reasonable.  It 
+appears to achieve the commit-block semantics described for barrier 
+operation, AFAICS.
+
+	Jeff
+
+

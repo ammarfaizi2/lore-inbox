@@ -1,81 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262838AbVAKTRc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262046AbVAKTU2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262838AbVAKTRc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 14:17:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbVAKTRc
+	id S262046AbVAKTU2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 14:20:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbVAKTUU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 14:17:32 -0500
-Received: from pat.uio.no ([129.240.130.16]:52121 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262838AbVAKTRK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 14:17:10 -0500
-Subject: Re: make flock_lock_file_wait static
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: viro@zenII.uk.linux.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1105432299.3917.11.camel@laptopd505.fenrus.org>
-References: <20050109194209.GA7588@infradead.org>
-	 <1105310650.11315.19.camel@lade.trondhjem.org>
-	 <1105345168.4171.11.camel@laptopd505.fenrus.org>
-	 <1105346324.4171.16.camel@laptopd505.fenrus.org>
-	 <1105367014.11462.13.camel@lade.trondhjem.org>
-	 <1105432299.3917.11.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Tue, 11 Jan 2005 14:16:44 -0500
-Message-Id: <1105471004.12005.46.camel@lade.trondhjem.org>
+	Tue, 11 Jan 2005 14:20:20 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:59398 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262161AbVAKTT5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 14:19:57 -0500
+Subject: Re: address space reservation functionality?
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Robert W. Fuller" <orangemagicbus@sbcglobal.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <41E4201B.60606@sbcglobal.net>
+References: <41E2EB09.5000603@sbcglobal.net>
+	 <1105429362.3917.2.camel@laptopd505.fenrus.org>
+	 <41E4201B.60606@sbcglobal.net>
+Content-Type: text/plain
+Date: Tue, 11 Jan 2005 20:19:46 +0100
+Message-Id: <1105471186.3917.46.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 8BIT
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ty den 11.01.2005 Klokka 09:31 (+0100) skreiv Arjan van de Ven:
-> On Mon, 2005-01-10 at 09:23 -0500, Trond Myklebust wrote:
-> > må den 10.01.2005 Klokka 09:38 (+0100) skreiv Arjan van de Ven:
-> > >  
-> > > > is "sooner or later" and "maybe someone else uses it" worth making
-> > > > everyone elses kernel bigger by 500 bytes of code ?
-> > > 
-> > > eh 60 not 500; sorry need coffee
+
 > > 
-> > It's an API that provides *necessary* functionality for those
-> > filesystems that wish to override the standard flock(). It was very
-> > recently introduced by a third party, so we haven't had time to code up
-> > an NFS flock yet.
 > 
-> where "recently" is last september....
-> bloating the kernel unused since then...
-
-Feel free to help out if you think the NFS development effort is
-understaffed.
-
-> If it is going to take a LOT longer though I still feel it's wrong to
-> bloat *everyones* kernel with this stuff.
+> Sorry about the top posting.  This is a resend without it.
 > 
-> (you may think "it's only 100 bytes", well, there are 700+ other such
-> functions, total that makes over at least 70Kb of unswappable, wasted
-> memory if not more.)
+> This is not quite the same thing.  This still does a check for whether 
+> or not there is enough memory 
 
-A list of these 700+ unused exported APIs would be very useful so that
-we can deprecate and/or get rid of them.
+no it doesn't
 
 
-Concerning this case, though, and to make what I said in the earlier
-mails (a lot) more explicit.
+> and includes this in the virtual size of 
+> the process.  
 
-If you unexport flock_lock_file_wait(), then you might as well back out
-the entire bloody ->flock() changeset instead because keeping the
-->flock() VFS override support without the functionality to make
-implementation practical (which is what you appear to want to do) is a
-waste of more than 70 bytes of memory.
+because the virtual size is taken.... by the reservation
 
-Now please go and figure out what it is you actually want to do here.
+> I simply want to reserve a part of the address space so 
+> I'm guaranteed I can map something else over a contiguous portion of the 
+> address space.  I don't want it to check for available memory or 
+> increase the virtual size of the process because I will be using this 
+> region sparsely.  That is why Solaris and Windows have separate 
+> interfaces for this.
 
-Trond
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+well you can mmap /dev/zero.. but that's about the same as malloc.
+
 

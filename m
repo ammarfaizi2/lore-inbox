@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261338AbTCJPyN>; Mon, 10 Mar 2003 10:54:13 -0500
+	id <S261339AbTCJP65>; Mon, 10 Mar 2003 10:58:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261339AbTCJPyN>; Mon, 10 Mar 2003 10:54:13 -0500
-Received: from 64-186-37-120.nmo.net ([64.186.37.120]:44673 "EHLO
-	jkd.jeetkunedomaster.net") by vger.kernel.org with ESMTP
-	id <S261338AbTCJPyM>; Mon, 10 Mar 2003 10:54:12 -0500
-From: Jason Straight <jason@JeetKuneDoMaster.net>
-To: Duncan Sands <baldrick@wanadoo.fr>
-Subject: Re: 2.5.64bk3 no screen after Ok booting kernel
-Date: Mon, 10 Mar 2003 11:04:51 -0500
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200303090144.11339.jason@JeetKuneDoMaster.net> <200303090916.44475.jason@JeetKuneDoMaster.net> <200303092202.52540.baldrick@wanadoo.fr>
-In-Reply-To: <200303092202.52540.baldrick@wanadoo.fr>
+	id <S261340AbTCJP65>; Mon, 10 Mar 2003 10:58:57 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:7404 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261339AbTCJP64>;
+	Mon, 10 Mar 2003 10:58:56 -0500
+Date: Mon, 10 Mar 2003 09:45:12 -0600 (CST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Ben Collins <bcollins@debian.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] [PATCH] Device removal callback
+In-Reply-To: <20030309181413.GA492@phunnypharm.org>
+Message-ID: <Pine.LNX.4.33.0303100939001.1002-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200303101104.51020.jason@JeetKuneDoMaster.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 09 March 2003 04:02 pm, Duncan Sands wrote:
-> > I put it in the config but it gets removed by checkconfig.pl when I make,
-> > so I'm guessing there's more missing than just the line in the config.
-> > :-/
->
-> Don't compile the input layer as a module.
->
-> Duncan.
 
-Yeah, I got it. Thanks Andrew, Duncan, and Thomas.
+> So, here's my simple patch. I'd really like this to be applied to the
+> proper kernel. I really can't see how the driver model is working
+> without walking children on unregister, but this atleast allows you to
+> handle it yourself.
+
+The assumption is that the bus driver will take care of cleaning up all 
+the children before unregistering the parent. This place a bit more 
+responsibility on the bus driver, but it keeps it simple in the core. 
+
+That's not to say that it can't change in the future, but I don't want to 
+take that step right now. There are a lot of implications WRT locking and 
+recursion that need to be worked out, and I'd rather wait on making these 
+kind of core changes.
 
 
-
--- 
-Jason Straight
-jason@JeetKuneDoMaster.net
-icq: 1796276
-pgp: http://www.JeetKuneDoMaster.net/~jason/pubkey.asc
+	-pat
 

@@ -1,84 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265542AbSJXQmD>; Thu, 24 Oct 2002 12:42:03 -0400
+	id <S265539AbSJXQlR>; Thu, 24 Oct 2002 12:41:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265544AbSJXQmC>; Thu, 24 Oct 2002 12:42:02 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:54406 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S265542AbSJXQlZ>;
-	Thu, 24 Oct 2002 12:41:25 -0400
-Date: Thu, 24 Oct 2002 09:51:00 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: Steven Dake <sdake@mvista.com>
-cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>,
-       <alan@lxorquk.ukuu.org.uk>
-Subject: Re: [PATCH] Advanced TCA SCSI/FC disk hotswap driver for kernel
- 2.5.44
-In-Reply-To: <3DB73E2A.5090001@mvista.com>
-Message-ID: <Pine.LNX.4.44.0210240940050.983-100000@cherise.pdx.osdl.net>
+	id <S265543AbSJXQlR>; Thu, 24 Oct 2002 12:41:17 -0400
+Received: from d06lmsgate-4.uk.ibm.com ([195.212.29.4]:27281 "EHLO
+	d06lmsgate-4.uk.ibm.COM") by vger.kernel.org with ESMTP
+	id <S265542AbSJXQlP>; Thu, 24 Oct 2002 12:41:15 -0400
+Subject: Re: 2.4 Ready list - Kernel Hooks
+To: Greg KH <greg@kroah.com>
+Cc: Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org,
+       S Vamsikrishna <vamsi_krishna@in.ibm.com>,
+       Werner Almesberger <wa@almesberger.net>
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF7660C6E6.D4E17A02-ON80256C5C.005B1F20@portsmouth.uk.ibm.com>
+From: "Richard J Moore" <richardj_moore@uk.ibm.com>
+Date: Thu, 24 Oct 2002 17:38:12 +0100
+X-MIMETrack: Serialize by Router on D06ML023/06/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 24/10/2002 17:47:20
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> >Any reason you can't use driverfs for the 2.5 code?
-> >
-> >  
-> >
-> I'm not sure how driverfs would be used by this particular patch.  Could 
-> you be more specific in stating how this could be used?
-
-I haven't looked extensively at the code, but I'll give you these hints: 
-Each scsi device gets a directory in the driverfes hierarchy. If you can 
-obtain a pointer to that device during initialization, you can create 
-attribute files to handle read/write in that directory. 
-
-You need to declare a struct device attribute, which looks like: 
-
-(from include/linux/device.h)
-
-struct device_attribute {
-        struct attribute        attr;
-        ssize_t (*show)(struct device * dev, char * buf, size_t count, loff_t off);
-        ssize_t (*store)(struct device * dev, const char * buf, size_t count, loff_t off);
-};
-
-for each file you want to export.
+Greg KH wrote:
+>Please read the LSM documentation for more information about this.  It
+>can be found in the kernel at:
+>            Documentation/DocBook/lsm.*
+>and there are a number of USENIX and OLS papers about different aspects
+>of the project at:
 
 
-There is a macro to help, which will fill in the embedded attr structure 
-for you: 
+Thanks Greg. I'll check out the doc. I do remember posting the LSM mailing
+list about kernel hooks, but as I recall there was no response. I assumed
+that the hooking mechanism was not the focus of attention - that was
+18months ago. A few weeks ago Suparna told me LSM had been enquiring about
+kernel hooks - never heard the outcome though.
 
-DEVICE_ATTR(name,mode,show,store);
-
-which is equivalent to declaring. 
-
-struct device_attribute dev_attr_<name> = { ... };
-
-(You can do it manually, too, if you feel really manly). 
+Richard
 
 
-I assume that the ability to hotswap drives in a feature supported by a 
-subset of SCSI drives. I don't know how you handle checking each device, 
-and it's not really relevant. Whenever you find a device that supports 
-hotswap, then do something like:
-
-{
-	Scsi_Device * scsi_dev;
-	...
-	device_create_file(&scsi_dev->sdev_driverfs_dev,&hotswap_attr); 
-	...
-}
-
-The attribute descriptor will be reused for each device that exports it. 
-On read() and write(), your show() and store() callbacks will be called, 
-with a pointer to the device for which it was called as the first 
-argument. 
-
-I hope this all makes sense... If you have any questions, please feel free
-to ask.
-
-
-	-pat
 

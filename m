@@ -1,49 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132866AbRDQXzs>; Tue, 17 Apr 2001 19:55:48 -0400
+	id <S132863AbRDQXzS>; Tue, 17 Apr 2001 19:55:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132906AbRDQXzj>; Tue, 17 Apr 2001 19:55:39 -0400
-Received: from www.resilience.com ([209.245.157.1]:31687 "EHLO
-	www.resilience.com") by vger.kernel.org with ESMTP
-	id <S132866AbRDQXz2>; Tue, 17 Apr 2001 19:55:28 -0400
-Message-ID: <3ADCD8D1.6753B822@resilience.com>
-Date: Tue, 17 Apr 2001 16:59:13 -0700
-From: Jeff Golds <jgolds@resilience.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
+	id <S132866AbRDQXy6>; Tue, 17 Apr 2001 19:54:58 -0400
+Received: from www.teaparty.net ([216.235.253.180]:23301 "EHLO
+	www.teaparty.net") by vger.kernel.org with ESMTP id <S132863AbRDQXyu>;
+	Tue, 17 Apr 2001 19:54:50 -0400
+Date: Wed, 18 Apr 2001 00:54:33 +0100 (BST)
+From: Vivek Dasmohapatra <vivek@etla.org>
+To: Subba Rao <subba9@home.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Adaptec 2940 and Linux 2.2.19
+In-Reply-To: <20010417194558.A10678@home.com>
+Message-ID: <Pine.LNX.4.10.10104180048160.14484-100000@www.teaparty.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] proc_lookup not exported
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks.
+On Tue, 17 Apr 2001, Subba Rao wrote:
 
-I noticed that proc_lookup is not exported in fs/proc/procfs_syms.c but
-that the function is an external in include/linux/proc_fs.h.
+> I am trying to configure and install linux kernel 2.2.19. This system has
+> a Adaptec 2940 SCSI adapter. I have enabled SCSI support kernel configuration
 
-This patch exports the function appropriately and is against the 2.4.3
-kernel tree.
-
-*** procfs_syms.c.orig  Tue Apr 17 15:50:56 2001
---- procfs_syms.c       Tue Apr 17 15:51:19 2001
-***************
-*** 19,24 ****
---- 19,25 ----
-  EXPORT_SYMBOL(proc_net);
-  EXPORT_SYMBOL(proc_bus);
-  EXPORT_SYMBOL(proc_root_driver);
-+ EXPORT_SYMBOL(proc_lookup);
- 
-  static DECLARE_FSTYPE(proc_fs_type, "proc", proc_read_super,
-FS_SINGLE);
-
-
--Jeff
-
+I think you want the aic7xxx driver - istr the aha2940 cards are actually
+aic789x chipsets. [Manufacturer naming schemes, you gotta love 'em.]
 
 -- 
-Jeff Golds
-jgolds@resilience.com
+"As you point out, EFAULT situations are `undefined' which means the
+machine is entitled to grow wings an launch itself towards the sun..."
+ -- Chris Wedgwood on the linux-kernel mailing list
+

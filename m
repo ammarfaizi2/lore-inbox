@@ -1,45 +1,143 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261627AbTCHAxi>; Fri, 7 Mar 2003 19:53:38 -0500
+	id <S261968AbTCHAwb>; Fri, 7 Mar 2003 19:52:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261583AbTCHAwk>; Fri, 7 Mar 2003 19:52:40 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:36876 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261700AbTCHAto>;
-	Fri, 7 Mar 2003 19:49:44 -0500
-Date: Fri, 7 Mar 2003 16:50:18 -0800
+	id <S261756AbTCHAwa>; Fri, 7 Mar 2003 19:52:30 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:33548 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261975AbTCHAnF>;
+	Fri, 7 Mar 2003 19:43:05 -0500
+Date: Fri, 7 Mar 2003 16:43:40 -0800
 From: Greg KH <greg@kroah.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@digeo.com>, hch@infradead.org, Andries.Brouwer@cwi.nl,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] register_blkdev
-Message-ID: <20030308005018.GE23071@kroah.com>
-References: <UTC200303071932.h27JW1o11962.aeb@smtp.cwi.nl> <20030307193644.A14196@infradead.org> <20030307123029.2bc91426.akpm@digeo.com> <20030307221217.GB21315@kroah.com> <20030307143319.2413d1df.akpm@digeo.com> <20030307234541.GG21315@kroah.com> <1047086062.24215.14.camel@irongate.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] gen_init_cpio fixes for 2.5.64
+Message-ID: <20030308004340.GB23071@kroah.com>
+References: <20030305060817.GC26458@kroah.com> <20030308004249.GA23071@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1047086062.24215.14.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <20030308004249.GA23071@kroah.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 08, 2003 at 01:14:23AM +0000, Alan Cox wrote:
-> On Fri, 2003-03-07 at 23:45, Greg KH wrote:
-> > I would too.  Andries's patches look like the right thing to do, so far
-> > as I've seen.  But there are larger, social issues, that probably need
-> > to be answered first (like convincing Linus and others that this is
-> > really needed).
-> > 
-> > > > But if it is, a lot of character drivers need to be audited...
-> > > 
-> > > What has to be done there?
-> > 
-> > I haven't seen a patch yet, to really know what will be necessary.  But
-> > for one, a lot of drivers have static arrays where they just "know" that
-> > there can't be more than 256 minors under their control.
-> 
-> So we need a maxminors flag in the register for 2.6 I guess ?
 
-Do you mean to only increase the number of majors, and not minors then?
+ChangeSet 1.1124, 2003/03/07 16:39:06-08:00, greg@kroah.com
 
-greg k-h
+gen_init_cpio: Add the ability to add files to the cpio image.
+
+
+ usr/gen_init_cpio.c |   90 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 90 insertions(+)
+
+
+diff -Nru a/usr/gen_init_cpio.c b/usr/gen_init_cpio.c
+--- a/usr/gen_init_cpio.c	Fri Mar  7 16:48:24 2003
++++ b/usr/gen_init_cpio.c	Fri Mar  7 16:48:24 2003
+@@ -5,10 +5,28 @@
+ #include <string.h>
+ #include <unistd.h>
+ #include <time.h>
++#include <fcntl.h>
+ 
+ static unsigned int offset;
+ static unsigned int ino = 721;
+ 
++static void push_string(const char *name)
++{
++	unsigned int name_len = strlen(name) + 1;
++
++	fputs(name, stdout);
++	putchar(0);
++	offset += name_len;
++}
++
++static void push_pad (void)
++{
++	while (offset & 3) {
++		putchar(0);
++		offset++;
++	}
++}
++
+ static void push_rest(const char *name)
+ {
+ 	unsigned int name_len = strlen(name) + 1;
+@@ -118,6 +136,78 @@
+ 		0);			/* chksum */
+ 	push_hdr(s);
+ 	push_rest(name);
++}
++
++/* Not marked static to keep the compiler quiet, as no one uses this yet... */
++void cpio_mkfile(const char *filename, const char *location,
++			unsigned int mode, uid_t uid, gid_t gid)
++{
++	char s[256];
++	char *filebuf;
++	struct stat buf;
++	int file;
++	int retval;
++	int i;
++
++	mode |= S_IFREG;
++
++	retval = stat (filename, &buf);
++	if (retval) {
++		fprintf (stderr, "Filename %s could not be located\n", filename);
++		goto error;
++	}
++
++	file = open (filename, O_RDONLY);
++	if (file < 0) {
++		fprintf (stderr, "Filename %s could not be opened for reading\n", filename);
++		goto error;
++	}
++
++	filebuf = malloc(buf.st_size);
++	if (!filebuf) {
++		fprintf (stderr, "out of memory\n");
++		goto error_close;
++	}
++
++	retval = read (file, filebuf, buf.st_size);
++	if (retval < 0) {
++		fprintf (stderr, "Can not read %s file\n", filename);
++		goto error_free;
++	}
++
++	sprintf(s,"%s%08X%08X%08lX%08lX%08X%08lX"
++	       "%08X%08X%08X%08X%08X%08X%08X",
++		"070701",		/* magic */
++		ino++,			/* ino */
++		mode,			/* mode */
++		(long) uid,		/* uid */
++		(long) gid,		/* gid */
++		1,			/* nlink */
++		(long) buf.st_mtime,	/* mtime */
++		(int) buf.st_size,	/* filesize */
++		3,			/* major */
++		1,			/* minor */
++		0,			/* rmajor */
++		0,			/* rminor */
++		strlen(location) + 1,	/* namesize */
++		0);			/* chksum */
++	push_hdr(s);
++	push_string(location);
++	push_pad();
++
++	for (i = 0; i < buf.st_size; ++i)
++		fputc(filebuf[i], stdout);
++	close(file);
++	free(filebuf);
++	push_pad();
++	return;
++	
++error_free:
++	free(filebuf);
++error_close:
++	close(file);
++error:
++	exit(-1);
+ }
+ 
+ int main (int argc, char *argv[])

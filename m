@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277295AbRJRCAw>; Wed, 17 Oct 2001 22:00:52 -0400
+	id <S277055AbRJRCIC>; Wed, 17 Oct 2001 22:08:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277554AbRJRCAm>; Wed, 17 Oct 2001 22:00:42 -0400
-Received: from rs9s2.datacenter.cha.cantv.net ([200.44.32.49]:14089 "EHLO
-	rs9s2.datacenter.cha.cantv.net") by vger.kernel.org with ESMTP
-	id <S277295AbRJRCAi>; Wed, 17 Oct 2001 22:00:38 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Leo Mauro <lmauro@usb.ve>
-Organization: USB
-To: linux-kernel@vger.kernel.org
-Subject: Re: [Bench] New benchmark showing fileserver problem in 2.4.12
-Date: Wed, 17 Oct 2001 22:01:09 -0400
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <3BCD8269.B4E003E5@anu.edu.au> <9qkci1$h9g$1@penguin.transmeta.com>
-In-Reply-To: <9qkci1$h9g$1@penguin.transmeta.com>
-MIME-Version: 1.0
-Message-Id: <01101722010908.02313@lmauro.home.usb.ve>
-Content-Transfer-Encoding: 7BIT
+	id <S277554AbRJRCHx>; Wed, 17 Oct 2001 22:07:53 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:4356 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S277055AbRJRCHo>;
+	Wed, 17 Oct 2001 22:07:44 -0400
+Date: Thu, 18 Oct 2001 10:58:08 +1000
+From: David Gibson <hermes@gibson.dropbear.id.au>
+To: Charles Briscoe-Smith <charles@briscoe-smith.org.uk>
+Cc: Jean Tourrilhes <jt@hpl.hp.com>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] to tidy up some orinoco driver log messages
+Message-ID: <20011018105808.X11355@zax>
+Mail-Followup-To: David Gibson <hermes@gibson.dropbear.id.au>,
+	Charles Briscoe-Smith <charles@briscoe-smith.org.uk>,
+	Jean Tourrilhes <jt@hpl.hp.com>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011018012734.A2802@merry.bs.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011018012734.A2802@merry.bs.lan>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Small fix to Linus's sample code
+On Thu, Oct 18, 2001 at 01:27:34AM +0100, Charles Briscoe-Smith wrote:
+> This trivial patch cleans up a few missing newlines in some log messages
+> in the Orinoco driver.  Generated from linux-2.4.12 (orinoco.c 0.08a);
+> should apply cleanly to linux-2.4.13-pre3.
 
- 	unsigned int so_far = 0;
- 	for (;;) {
- 		int bytes = read(in, buf+so_far, BUFSIZE-so_far);
- 		if (bytes <= 0)
- 			break;
- 		so_far += bytes;
- 		if (so_far < BUFSIZE)
- 			continue;
- 		write(out, buf, BUFSIZE);
-- 		so_far = 0;
-+		so_far -= BUFSIZE;
- 	}
- 	if (so_far)
- 		write(out, buf, so_far);
+Thanks. Merged.
 
-to avoid losing data.
+-- 
+David Gibson			| For every complex problem there is a
+david@gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.  -- H.L. Mencken
+http://www.ozlabs.org/people/dgibson
+

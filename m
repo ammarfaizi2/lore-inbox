@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317547AbSHCM3N>; Sat, 3 Aug 2002 08:29:13 -0400
+	id <S317550AbSHCMat>; Sat, 3 Aug 2002 08:30:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317550AbSHCM3N>; Sat, 3 Aug 2002 08:29:13 -0400
-Received: from pD952AC04.dip.t-dialin.net ([217.82.172.4]:31685 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317547AbSHCM3N>; Sat, 3 Aug 2002 08:29:13 -0400
-Date: Sat, 3 Aug 2002 06:32:30 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Harald Dunkel <harri@synopsys.COM>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.4.19
-In-Reply-To: <3D4BCA19.2040802@Synopsys.COM>
-Message-ID: <Pine.LNX.4.44.0208030631580.5119-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
+	id <S317552AbSHCMat>; Sat, 3 Aug 2002 08:30:49 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:4310 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S317550AbSHCMas>; Sat, 3 Aug 2002 08:30:48 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200208031233.g73CXUB02612@devserv.devel.redhat.com>
+Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user mode
+To: mingo@elte.hu
+Date: Sat, 3 Aug 2002 08:33:30 -0400 (EDT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), rz@linux-m68k.org (Richard Zidlicky),
+       jdike@karaya.com (Jeff Dike), alan@redhat.com (Alan Cox),
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0208031332120.7531-100000@localhost.localdomain> from "Ingo Molnar" at Aug 03, 2002 01:38:24 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> actually the opposite is true, on a 2.2 GHz P4:
+> 
+>   $ ./lat_sig catch
+>   Signal handler overhead: 3.091 microseconds
+> 
+>   $ ./lat_ctx -s 0 2
+>   2 0.90
+> 
+> ie. *process to process* context switches are 3.4 times faster than signal
+> delivery. Ie. we can switch to a helper thread and back, and still be
+> faster than a *single* signal.
 
-On Sat, 3 Aug 2002, Harald Dunkel wrote:
-> PS: After booting 2.4.19 'depmod -a' works as expected, but
->      'depmod -ae -F /boot/System.map-2.4.19 2.4.19' doesn't. I
->      would guess its a problem with depmod.
+Thats interesting indeed. I'd not tried it with the O(1) scheduler.
 
-I'd rather guess the problem is that you didn't make dep after config 
-changes. Read the FAQ, please.
+> signals are in essence 'lightweight' threads created and destroyed for the
+> purpose of a single asynchronous event, it's IMO a very inefficient and
+> baroque concept for almost anything (but debugging and a number of very
+> special uses). I'd guess that with a sane threading library a helper
+> thread is faster for almost everything.
 
-			Thunder
--- 
-.-../../-./..-/-..- .-./..-/.-.././.../.-.-.-
-
+Which would argue UML ought to have a positively microkernel view of
+syscalls - sending a message ?

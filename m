@@ -1,98 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265909AbUJHV4x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265805AbUJHV5h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265909AbUJHV4x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 17:56:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265805AbUJHV4x
+	id S265805AbUJHV5h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 17:57:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265943AbUJHV5h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 17:56:53 -0400
-Received: from gizmo10ps.bigpond.com ([144.140.71.20]:52675 "HELO
-	gizmo10ps.bigpond.com") by vger.kernel.org with SMTP
-	id S265943AbUJHV4P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 17:56:15 -0400
-Message-ID: <41670CFC.1020306@bigpond.net.au>
-Date: Sat, 09 Oct 2004 07:56:12 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Fri, 8 Oct 2004 17:57:37 -0400
+Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:56002 "EHLO
+	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S265805AbUJHV53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 17:57:29 -0400
+Date: Fri, 8 Oct 2004 22:57:25 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Paolo Giarrusso <blaisorblade_personal@yahoo.it>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: [patch 1/1] dm: fix printk warnings about whether %lu/%Lu is
+ right for sector_t
+In-Reply-To: <200410082245.39119.blaisorblade_personal@yahoo.it>
+Message-ID: <Pine.LNX.4.60.0410082221340.26699@hermes-1.csi.cam.ac.uk>
+References: <20041008144034.EB891B557@zion.localdomain>
+ <20041008121239.464151bd.akpm@osdl.org> <Pine.LNX.4.60.0410082105351.26699@hermes-1.csi.cam.ac.uk>
+ <200410082245.39119.blaisorblade_personal@yahoo.it>
 MIME-Version: 1.0
-To: colpatch@us.ibm.com
-CC: Nick Piggin <nickpiggin@yahoo.com.au>, Erich Focht <efocht@hpce.nec.com>,
-       LSE Tech <lse-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
-       ckrm-tech@lists.sourceforge.net, LKML <linux-kernel@vger.kernel.org>,
-       simon.derr@bull.net, frankeh@watson.ibm.com
-Subject: Re: [Lse-tech] [RFC PATCH] scheduler: Dynamic sched_domains
-References: <1097110266.4907.187.camel@arrakis> <200410081214.20907.efocht@hpce.nec.com> <41666E90.2000208@yahoo.com.au> <1097261691.5650.23.camel@arrakis>
-In-Reply-To: <1097261691.5650.23.camel@arrakis>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Dobson wrote:
-> On Fri, 2004-10-08 at 03:40, Nick Piggin wrote:
-> 
->>And so you want to make a partition with CPUs {0,1,2,4,5}, and {3,6,7}
->>for some crazy reason, the new domains would look like this:
->>
->>0 1  2  4 5    3  6 7
->>---  -  ---    -  ---  <- 0
->>  |   |   |     |   |
->>  -----   -     -   -   <- 1
->>    |     |     |   |
->>    -------     -----   <- 2 (global, partitioned)
->>
->>Agreed? You don't need to get fancier than that, do you?
->>
->>Then how to input the partitions... you could have a sysfs entry that
->>takes the complete partition info in the form:
->>
->>0,1,2,3 4,5,6 7,8 ...
->>
->>Pretty dumb and simple.
-> 
-> 
-> How do we describe the levels other than the first?  We'd either need
-> to:
-> 1) come up with a language to describe the full tree.  For your example
-> I quoted above:
->    echo "0,1,2,4,5 3,6 7,8;0,1,2 4,5 3 6,7;0,1 2 4,5 3 6,7" > partitions
+On Fri, 8 Oct 2004, Paolo Giarrusso wrote:
+> On Friday 08 October 2004 22:11, Anton Altaparmakov wrote:
+> > On Fri, 8 Oct 2004, Andrew Morton wrote:
+> > > blaisorblade_spam@yahoo.it wrote:
+> > Actually %Ld is completely wrong.  I know in the kernel it makes no
+> > difference but people see it in the kernel and then go off an use it in
+> > userspace and it generates junk output on at least some architectures.
+> Well, gcc does not complain, and the problem is not "kernel is special" or "on 
+> some arch it's different". It's an alias for "ll" for both gcc and glibc; I 
+> checked, in fact, the version below of info pages for glibc:
 
-I think the idea was that the full hierarchy was (automatically) derived 
-from the partition in a way that best matched the physical layout of the 
-machine?
+gcc is not the only compiler and glibc is not the only C library.
 
+> This is Edition 0.10, last updated 2001-07-06, of `The GNU C Library
+> Reference Manual', for Version 2.3.x of the GNU C Library.
+> (I guess the "last update" is botched).
 > 
-> 2) have multiple files:
->    echo "0,1,2,4,5 3,6,7" > level2
->    echo "0,1,2 4,5 3 6,7" > level1
->    echo "0,1 2 4,5 3 6,7" > level0
-> 
-> 3) Or do it hierarchically as Paul implemented in cpusets, and as I
-> described in an earlier mail:
->    mkdir level2
->    echo "0,1,2,4,5 3,6,7" > level2/partitions
->    mkdir level1
->    echo "0,1,2 4,5 3 6,7" > level1/partitions
->    mkdir level0
->    echo "0,1 2 4,5 3 6,7" > level0/partitions
-> 
-> I personally like the hierarchical idea.  Machine topologies tend to
-> look tree-like, and every useful sched_domain layout I've ever seen has
-> been tree-like.  I think our interface should match that.
-> 
-> -Matt
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> > This is because %L means "long double (floating point)" not "long long
+> > integer" and when you stuff an integer into it it goes wrong (on some
+> > architectures)... 
+> I think an all ones, or at least on i386.
 
+Yes I know in the kernel and on i386 it makes no difference, I said that 
+already.  But on some systems it does make a difference.  I have seen it 
+myself and I have had it reported.  Thinking about it when I said 
+architectures I possibly meant to say "other Unix flavours", I think one 
+of the *BSDs was the one where I saw the difference between %L and %ll 
+manifest itself.
+
+> > From the printf(3) man page: 
+> Outdated.
+
+Sorry, it is not.  I find it somewhat strange that you choose gcc and 
+glibc to say what is correct...  Ever heard of standards?!?
+
+Quoting from C99 standard (ISO/IEC 9899:1999(E)):
+
+[cut here]
+ll (ell-ell) Specifies that a following d, i, o, u, x, or X conversion
+	     specifier applies to a long long int or unsigned long long
+	     int argument; or that a following n conversion specifier
+	     applies to a pointer to a long long int argument.
+[snip]
+L	     Specifies that a following a, A, e, E, f, F, g, or G
+	     conversion specifier applies to a long double argument. 
+
+If a length modifier appears with any conversion specifier other than as 
+specified above, the behavior is undefined.
+[cut here]
+
+So the C99 standard specifies the use of %L with an integer type 
+conversion specified is undefined.  So relying on %L being an alias for 
+%ll considering there are systems where this is not the case seems stupid 
+to me but hey I don't really care.  I just thought I would let people who 
+don't know it know.  If you want to carry on using %L because it works in 
+the kernel be my guest.
+
+Best regards,
+
+	Anton
+
+PS. Just don't submit patches containing %L for fs/ntfs/* or I will flame 
+you to crisp as we share code with userspace libntfs and ntfsprogs and I 
+and other NTFS developers care about our code being portable and working 
+on as many architectures and OS as possible.  (-;
 
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

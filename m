@@ -1,78 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288122AbSACCE5>; Wed, 2 Jan 2002 21:04:57 -0500
+	id <S288127AbSACCEr>; Wed, 2 Jan 2002 21:04:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288126AbSACCEs>; Wed, 2 Jan 2002 21:04:48 -0500
-Received: from intra.cyclades.com ([209.81.55.6]:16903 "HELO
-	intra.cyclades.com") by vger.kernel.org with SMTP
-	id <S288122AbSACCEa>; Wed, 2 Jan 2002 21:04:30 -0500
-Message-ID: <3C33BCF3.20BE9E92@cyclades.com>
-Date: Wed, 02 Jan 2002 18:07:47 -0800
-From: Ivan Passos <ivan@cyclades.com>
-Organization: Cyclades Corporation
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
-X-Accept-Language: en,pdf
+	id <S288126AbSACCEi>; Wed, 2 Jan 2002 21:04:38 -0500
+Received: from mta2.snet.net ([204.60.203.71]:44274 "EHLO mta2.snet.net")
+	by vger.kernel.org with ESMTP id <S288109AbSACCE0>;
+	Wed, 2 Jan 2002 21:04:26 -0500
+From: "Taavo Raykoff" <traykoff@snet.net>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Taavo Raykoff" <traykoff@snet.net>
+Subject: Re: prog for no OS. language?
+Date: Wed, 2 Jan 2002 21:04:28 -0500
+Message-ID: <GBEMILBDKGNHMNHPAAKBAEODCAAA.traykoff@snet.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Serial Driver Name Question (kernels 2.4.x)
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-(Please CC your answer to me, as I'm not a subscriber of this list.)
+> On Monday 31 December 2001 02:52 am, samson swanson wrote:
+> > hello,
+> >
+> > I had a quick question. Say I want to write a program
+> > to run without an OS, what language/tools do i need?
+> 
 
-Hello,
+Check out the code for etherboot.  It is simpler than the kernel
+in many respects, and runs off of the "bare metal".
 
-By looking at tty_io.c:_tty_make_name(), it seems that the TTY 
-subsystem in the Linux 2.4.x kernel series expects driver.name to be 
-in the form "ttyX%d", even if you're not using devfs. I say that 
-because as of now the definition in serial.c for this variable is:
+T.
 
-#if defined(CONFIG_DEVFS_FS)
-        serial_driver.name = "tts/%d";
-#else
-        serial_driver.name = "ttyS";
-#endif
-
-
-, when it seems it should be:
-
-#if defined(CONFIG_DEVFS_FS)
-        serial_driver.name = "tts/%d";
-#else
-        serial_driver.name = "ttyS%d";
-#endif
-
-to work properly with the _tty_make_name() function (otherwise, in 
-case you're not using devfs, it'll just print "ttyS" without any 
-reference to the port number the msg is referring to).
-
-This was spotted by a Cyclades customer who was getting overrun msgs 
-as:
-
-ttyC: 1 input overrun(s)
-
-After he changed the driver.name to be "ttyC%d", he started to get 
-properly formatted msgs, such as:
-
-ttyC39: 1 input overrun(s)
-
-
-This problem would happen on any msg that used the function 
-tty_name() to get the TTY name, and after the change the problem 
-disappeared completely.
-
-After checking the kernel code, I believe that he's found a bug that 
-should be fixed in all drivers that define driver.name.
-
-Please advise so that we may change the Cyclades driver to behave 
-properly. 
-
-Regards,
--- 
-Ivan Passos							 -o)
-Integration Manager, Cyclades	- http://www.cyclades.com	 /\\
-Project Leader, NetLinOS	- http://www.netlinos.org	_\_V
---------------------------------------------------------------------

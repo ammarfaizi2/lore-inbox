@@ -1,108 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264334AbTEZKUo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 06:20:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264335AbTEZKUn
+	id S264335AbTEZKYR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 06:24:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264339AbTEZKYR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 06:20:43 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:17538 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264334AbTEZKUl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 06:20:41 -0400
-Date: Mon, 26 May 2003 12:32:45 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCHES] add ata scsi driver
-In-Reply-To: <3ED1A664.1020307@pobox.com>
-Message-ID: <Pine.SOL.4.30.0305261217020.12542-100000@mion.elka.pw.edu.pl>
+	Mon, 26 May 2003 06:24:17 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:45829 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S264335AbTEZKYP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 06:24:15 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: "David S. Miller" <davem@redhat.com>, Willy Tarreau <willy@w.ods.org>
+Subject: Re: Aix7xxx unstable in 2.4.21-rc2? (RE: Linux 2.4.21-rc2)
+Date: Mon, 26 May 2003 10:47:39 +0200
+User-Agent: KMail/1.5.1
+Cc: James Bottomley <James.Bottomley@steeleye.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>, gibbs@scsiguy.com,
+       acme@conectiva.com.br
+References: <1053732598.1951.13.camel@mulgrave> <20030524064340.GA1451@alpha.home.local> <1053923112.14018.16.camel@rth.ninka.net>
+In-Reply-To: <1053923112.14018.16.camel@rth.ninka.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Message-Id: <200305261045.08217.m.c.p@wolk-project.de>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 26 May 2003 06:25, David S. Miller wrote:
 
-On Mon, 26 May 2003, Jeff Garzik wrote:
+Hi David,
 
-> Linus Torvalds wrote:
-> > On Mon, 26 May 2003, Jeff Garzik wrote:
-> >
-> >>Just to echo some comments I said in private, this driver is _not_
-> >>a replacement for drivers/ide.  This is not, and has never been,
-> >>the intention.  In fact, I need drivers/ide's continued existence,
-> >>so that I may have fewer boundaries on future development.
-> >
-> >
-> > Just out of interest, is there any _point_ to this driver? I can
-> > appreciate the approach, but I'd like to know if it does anything (at all)
-> > better than the native IDE driver? Faster? Anything?
->
->
-> Direction:  SATA is much more suited to SCSI, because otherwise you wind
-> up re-creating all the queueing and error handling mess that SCSI
-> already does for you.  The SATA2 host controllers coming out soon do
-> full host-side TCQ, not the dain-bramaged ATA TCQ bus-release stuff.
-> Doing SATA2 devel in drivers/ide will essentially be re-creating the
-> SCSI mid-layer.
+> I really think 2.4.x development is becoming almost non-existent
+> lately.
+_full_ ack!
 
-And now you are recreating ATA in SCSI ;-).
+> If Conectiva needs to task Marcelo to so much work that he can only
+> really put 1 or 2 days a week into 2.4.x, this needs be rethought at
+> either one end (Conectiva finding a way to give him more 2.4.x time) or
+> another (Marcelo splits up the work with someone else or we simply find
+> another 2.4.x maintainer).
+Just in case if there will ever be a new election ...
 
-Don't get me wrong: I like idea very much, but why you can't
-share common code between drivers/ide and your ATA-SCSI.
+... */ME stretches his hands up*
 
-> Modularity:  drivers/ide has come a long way.  It needed to be turned
-> "inside out", and that's what Alan did.  But there's still a lot of code
-> that needs to be factored out/about, before hotplugging and device model
-> stuff is sane.
-
-Its getting close.
-
-> Legacy-free:  Because I don't have to worry about legacy host
-> controllers, I can ignore limitations drivers/ide cannot.  In
-> drivers/ide, each host IO (PIO/MMIO) is done via function pointer.  If
-> your arch has a mach_vec, more function pointers.  Mine does direct
-> calls to the asm/io.h functions in faster.  So, ATA command submission
-> is measureably faster.
-
-I think it is simply wrong, you should use function pointers.
-You can have ie. two PCI hosts, one using PIO and one using MMIO.
-
-"measureably faster", I doubt.
-IO operations are REALLY slow when compared to CPU cycles.
-
-> sysfs:  James and co are putting time into getting scsi sysfs right.  I
-> would rather ride their coattails, and have my driver Just Work with
-> sysfs and the driver model.
-
-No big deal here, ATA will get it too.
-
-> PIO data transfer is faster and more scheduler-friendly, since it polls
-> from a kernel thread.
-
-CPU polling is faster than IRQs?
-
-> And for specifically Intel SATA, drivers/ide flat out doesn't work (even
-> though it claims to).
-
-So fix it ;-).
-
-> So, I conclude:  faster, smaller, and better future direction.  IMO, of
-> course :)
-
-And right now ugly and incomplete.
-IMO, of course ;-).
-
-Regards,
---
-Bartlomiej
-
-> 	Jeff
->
->
->
-> (the following is somewhat comparing apples to oranges, but I like doing
-> it nonetheless)
-
-social engineering removed
-
-
+ciao, Marc

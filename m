@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268303AbTBMVXd>; Thu, 13 Feb 2003 16:23:33 -0500
+	id <S268307AbTBMV3I>; Thu, 13 Feb 2003 16:29:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268304AbTBMVXd>; Thu, 13 Feb 2003 16:23:33 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:9090 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S268303AbTBMVXb>; Thu, 13 Feb 2003 16:23:31 -0500
-Date: Thu, 13 Feb 2003 16:36:37 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "Rick A. Hohensee" <rickh@Capaccess.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Transmeta-san
-In-Reply-To: <fc.0010c7b20075ce9a0010c7b20075ce9a.75ce9f@Capaccess.org>
-Message-ID: <Pine.LNX.3.95.1030213162853.15739B-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268308AbTBMV3F>; Thu, 13 Feb 2003 16:29:05 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:32714 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S268307AbTBMV3D>;
+	Thu, 13 Feb 2003 16:29:03 -0500
+Date: Thu, 13 Feb 2003 16:38:50 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Paul Larson <plars@linuxtestproject.org>
+Cc: John Bradford <john@grabjohn.com>, davej@codemonkey.org.uk,
+       edesio@ieee.org, lkml <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>, edesio@task.com.br
+Subject: Re: 2.5.60 cheerleading...
+Message-ID: <20030213213850.GA22037@gtf.org>
+References: <200302131823.h1DINeZh016257@darkstar.example.net> <1045170999.28493.57.camel@plars>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1045170999.28493.57.camel@plars>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Feb 2003, Rick A. Hohensee wrote:
+On Thu, Feb 13, 2003 at 03:16:29PM -0600, Paul Larson wrote:
+> Ideally, there should be no waiting around for replies.  The message is
+> sent, he starts whatever build/boot test cycle, checks for replies when
+> he's done and ready to release.  If nothing looks urgent enough to hold
+> it up, then he pushes the release.  I still don't see how this adds any
+> kind of terrible delay.
 
-> It will take Microsoft less that six months to go 90% Asian
-> 
+Outside suggestions to "improve" Linus's workflow usually fall upon deaf
+ears...
 
-Well they are already there, but you have your geography somewhat
-mixed up. Microsoft has built a 'campus' in India. The facility
-'looks' like a college and has dormitories and a "student-union"
-building (cafeteria). They will tap the cheap labor and re-write
-Windows so it actually works. They will do this at 1/100th the
-cost of maintaining the current Redmond operation. That building
-will be sold within the next 5 years, just watch!
+IMO to accomplish your goals, set up a test box with BitKeeper,
+constantly pulling and testing the latest 2.5.x BK trees.  If they
+crash, send full info to lkml.
 
-> partners, also sometimes refered to as it's "lapdogs", and certain
-> ancillary ventures like Transmeta, which manufactures a CPU chip said to
-> be comparable in innovative value to the Windows Paperclip.
-> 
+Enough crash messages, and people will know automatically whether or not
+the kernel is good... and Linus didn't have to be bothered at all.
 
-Well... (gulp) Does it make money? Can it pay Linus` salary? If so,
-keep it quiet. There's a lot of junk out there. They just rename
-it junque to keep the price up.
+	Jeff
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
 
 

@@ -1,44 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262897AbVAKVxV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262900AbVAKVo5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262897AbVAKVxV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 16:53:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262901AbVAKVxS
+	id S262900AbVAKVo5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 16:44:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262879AbVAKVmi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 16:53:18 -0500
-Received: from smtp809.mail.ukl.yahoo.com ([217.12.12.199]:50518 "HELO
-	smtp809.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S262896AbVAKVvS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 16:51:18 -0500
-From: Nick Sanders <sandersn@btinternet.com>
+	Tue, 11 Jan 2005 16:42:38 -0500
+Received: from out014pub.verizon.net ([206.46.170.46]:62367 "EHLO
+	out014.verizon.net") by vger.kernel.org with ESMTP id S262883AbVAKViD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 16:38:03 -0500
+From: James Nelson <james4765@cwazy.co.uk>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Unable to burn DVDs
-Date: Tue, 11 Jan 2005 21:51:13 +0000
-User-Agent: KMail/1.7.2
-References: <41E2F823.1070608@apartia.fr> <Pine.LNX.4.61.0501112008080.7967@yvahk01.tjqt.qr> <1105474144.15542.1.camel@zeus.city.tvnet.hu>
-In-Reply-To: <1105474144.15542.1.camel@zeus.city.tvnet.hu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501112151.13351.sandersn@btinternet.com>
+Cc: akpm@osdl.org, James Nelson <james4765@cwazy.co.uk>
+Message-Id: <20050111213822.9249.15075.83475@localhost.localdomain>
+Subject: [PATCH 0/2] frv: replace some cli()/sti() in arch/frv/*
+X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [209.158.220.243] at Tue, 11 Jan 2005 15:38:02 -0600
+Date: Tue, 11 Jan 2005 15:38:03 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 11 January 2005 20:09, Sipos Ferenc wrote:
-> Hi!
->
-> For me, dvd writing works only when I run growisofs with root
-> permissions (using 2.6.10 kernel, /dev/hdc without ide-scsi)
->
+This series of patches will replace all but one of the cli()/sti() pairs in arch/frv.
 
-For me when running growisofs  with user permissions on 2.6.10 (ide-cd) it 
-works perfectly 1st time but 2nd time fails with the error below. It works 
-fine when run as root.
-
-:-( unable to PREVENT MEDIA REMOVAL: Operation not permitted
-
-As an aside audio cd burning with cdrecord works as long as the '-text' option 
-isn't used, if it is the process hangs.
-
-Nick
+The one left is a little too tough for me to figure out (in arch/frv/kernel/irq.c).
+I leave that one for someone more skilled ;)

@@ -1,81 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264914AbUFRBAP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264909AbUFRBAw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264914AbUFRBAP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 21:00:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264912AbUFRBAO
+	id S264909AbUFRBAw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 21:00:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264910AbUFRBAw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 21:00:14 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:59816 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S264898AbUFRBAC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 21:00:02 -0400
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: Proposal for new generic device API: dma_get_required_mask()
-References: <1087481331.2210.27.camel@mulgrave>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Fri, 18 Jun 2004 02:46:46 +0200
-In-Reply-To: <1087481331.2210.27.camel@mulgrave> (James Bottomley's message
- of "17 Jun 2004 09:08:51 -0500")
-Message-ID: <m33c4tsnex.fsf@defiant.pm.waw.pl>
+	Thu, 17 Jun 2004 21:00:52 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:59360 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S264909AbUFRBAq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 21:00:46 -0400
+Message-ID: <40D23EBD.50600@opensound.com>
+Date: Thu, 17 Jun 2004 18:00:45 -0700
+From: 4Front Technologies <dev@opensound.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: viro@parcelfarce.linux.theplanet.co.uk
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: Stop the Linux kernel madness
+References: <40D232AD.4020708@opensound.com> <20040618004450.GT12308@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20040618004450.GT12308@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley <James.Bottomley@steeleye.com> writes:
-
-> If the driver decides to use the mask, it would do another
-> dma_set_mask() to confirm it (this gives the platform the opportunity if
-> it so chooses to return a mask that doesn't quite cover memory, but
-> would be more optimal...say for platforms that have all memory under 4GB
-> bar one small chunk at 64GB or something).
-
-What I think drivers such as AIC7xxx should do is:
-
-#define OUR_COST_32 = 4
-#define OUR_COST_39 = 8
-#define OUR_COST_64 = 10
-
-int cost32 = check_dma_mask(32 bits);
-int cost39 = check_dma_mask(39 bits);
-int cost64 = check_dma_mask(64 bits);
-
-if (!cost32  && !cost39 && !cost64)
-	printk(KERN_ERR "64 bits aren't enough for RAM addressing?\n")
-else
-	use_mode_with_minimal_cost(cost32 * OUR_COST_32,
-				   cost39 * OUR_COST_39,
-				   cost64 * OUR_COST_64);
-
-This check_dma_mask() should be renamed + extended to cover different
-RAM access types:
-- coherent vs non-coherent memory
-- preallocated/initialized memory (such as skb->data passed to
-  hard_start_xmit()) vs uninitialized memory (such as returned by
-  kmalloc()).
-
-The "cost" is needed for cases where both the host and the device can
-support many addressing modes, such as with AIC7xxx, > 4GB of RAM
-and (costly) IO MMU or bounce buffers.
+viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Thu, Jun 17, 2004 at 05:09:17PM -0700, 4Front Technologies wrote:
+> 
+>>Hi Folks,
+>>
+>>I am writing this message to bring a huge problem to light. SuSE has been 
+>>systematically
+>>forking the linux kernel and shipping all kinds of modifications and still 
+>>call their
+>>kernels 2.6.5 (for example).
+>>
+>>Either they ship the stock Linux kernel sources or they stop calling their 
+>>distributions
+>>as Linux-2.6.x based.
+>>
+>>Kernel headers are being changed willy-nilly and SuSE are completely 
+>>running rough-shod
+>>over the linux kernel with the result ONLY software from SuSE works.
+> 
+> 
+> "Software" == "3rd-party kernel modules" in this case, right?
+> 
+> Remember what had been told to you about in-kernel interfaces?  That's
+> right, that they can be changed at zero notice.  Now, if SuSE told you
+> otherwise, you might have a cause to complain.  Had they?
+> 
+> If they'd promised in-kernel interface stability and lied - sure, go ahead
+> and nail them to the wall.  If not - STFU and eat what you are bloody given.
+> 
+> Al, not particulary fond of SuSE, but even less so - of misdirecting wankers
+> like that...
+> 
 
 
-Currently, set_dma_mask(less than 32 bits) can return success but then
-the mapping functions can return addresses which don't fit in the
-requested number of bits. In fact set_dma_mask() has any meaning
-only to *alloc functions. The statement "pci_set_consistent_dma_mask()
-will always be able to set the same or a smaller mask as
-pci_set_dma_mask()" doesn't make IMHO sense.
+That's right Al, 4Front, ATI, Nvidia are all evil!. OK so now get on with life.
+
+It's time everybody started to pay some attention to in-kernel interfaces because
+Linux has graduated out of your personal sandbox to where other people want to use
+Linux and they aren't kernel developers.
+
+Sure we can fix the problem with SuSE - we've been doing this for the past 7 years.
+And we know a thing or two about Linux kernels but wouldn't it be better for the
+Linux community in general to have such source issue stabilized?
 
 
-If we fix the API we should IMHO also remove set_dma_mask() and add
-the number of address bits to the arguments of actual mapping
-functions. It would make it possible to use different masks for
-different tasks, I'm told there is hardware which can benefit from it.
-Done correctly it wouldn't have any runtime overhead.
 
-I would also change the "u64 mask" into plain number of bits.
-It would be easier for people, cpp, gcc and CPU.
--- 
-Krzysztof Halasa, B*FH
+best regards
+
+Dev Mazumdar
+---------------------------------------------------------------------
+4Front Technologies
+4035 Lafayette Place, Unit F, Culver City, CA 90232, USA
+Tel: 310 202 8530   Fax: 310 202 0496   URL: http://www.opensound.com
+---------------------------------------------------------------------
+

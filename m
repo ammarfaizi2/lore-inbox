@@ -1,80 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264101AbUKZUsH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264096AbUKZUtw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264101AbUKZUsH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 15:48:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264091AbUKZUri
+	id S264096AbUKZUtw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 15:49:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264095AbUKZUsY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 15:47:38 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:43710 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S264105AbUKZUmG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 15:42:06 -0500
-Date: Fri, 26 Nov 2004 21:41:38 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Priority Inheritance Test (Real-Time Preemption)
-Message-ID: <20041126204138.GB21180@elte.hu>
-References: <20041126010841.GA3563@elte.hu> <Pine.OSF.4.05.10411261649150.23754-100000@da410.ifa.au.dk>
+	Fri, 26 Nov 2004 15:48:24 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:40617 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S264109AbUKZUkO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 15:40:14 -0500
+Subject: Re: Suspend 2 merge: 21/51: Refrigerator upgrade.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041125223610.GC2711@elf.ucw.cz>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+	 <1101296026.5805.275.camel@desktop.cunninghams>
+	 <20041125183332.GJ1417@openzaurus.ucw.cz>
+	 <1101420616.27250.65.camel@desktop.cunninghams>
+	 <20041125223610.GC2711@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1101422986.27250.106.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.OSF.4.05.10411261649150.23754-100000@da410.ifa.au.dk>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 26 Nov 2004 09:49:46 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
-* Esben Nielsen <simlo@phys.au.dk> wrote:
-
-> > 	task-A			task-B			task-RT
-> > 
-> > 	spin_lock(&lock2);
-> > 	[ gets lock2 ]
-> > 				spin_lock(&lock1);
-> > 				[ gets lock1 ]
-> > 							spin_lock(&lock2);
-> > 							[ boosts task-A ]
-> > 							[ waits ]
-> > 	[ gets RT prio ]				.
-> > 	spin_lock(&lock1);				.
-> > 	[ boosts task-B ]				.
-> > 	[ waits ]					.
-> > 	.			[ gets RT prio ]	.
-> > 	.			[ 1 msec loop ]		.
-> > 	.			spin_unlock(&lock1);	.
-> > 	[ gets lock 1 ]					.
-> > 				spin_lock(&lock1);	.
+On Fri, 2004-11-26 at 09:36, Pavel Machek wrote:
+> Hi!
 > 
-> point of disagreement          ----^   
+> > > > Included in this patch is a new try_to_freeze() macro Andrew M suggested
+> > > > a while back. The refrigerator declarations are put in sched.h to save
+> > > > extra includes of suspend.h.
+> > > 
+> > > try_to_freeze looks nice. Could we get it in after 2.6.10 opens?
+> > 
+> > I'm hoping to get the whole thing in mm once all these replies are dealt
+> > with. Does that sound unrealistic?
+> 
+> Yes, a little ;-).
 
-> No :-)
+I'm not talking about talking about problems and then doing nothing :>
+I'm writing a list of changes as I look at each of these responses.
+Assuming they're all addressed (or not changed for good reasons), and
+the code is actually useful, why shouldn't it go into mm?
 
-> Why should task B get lock1 the 2. time before the rt-task? That would
-> be an error! 
+> > > >   */
+> > > >  int fsync_super(struct super_block *sb)
+> > > >  {
+> > > > +	int ret;
+> > > > +
+> > > > +	/* A safety net. During suspend, we might overwrite
+> > > > +	 * memory containing filesystem info. We don't then
+> > > > +	 * want to sync it to disk. */
+> > > > +	if (unlikely(test_suspend_state(SUSPEND_DISABLE_SYNCING)))
+> > > > +		return 0;
+> > > > +	
+> > > 
+> > > If it is safety net, do BUG_ON().
+> > 
+> > Could get triggered by user pressing SysRq. (Or via a panic?). I don't
+> > think the SysRq should result in a panic; nor should a panic result in a
+> > recursive call to panic (although I'm wondering here, wasn't the call to
+> > syncing in panic taken out?).
+> 
+> Silently doing nothing when user asked for sync is not nice,
+> either. BUG() is better solution than that.
 
-then make it task-C, which tried to take the lock before the RT task
-came into the picture. Btw., the above scenario can still happen on SMP.
+I don't think we should BUG because the user presses Sys-Rq S while
+suspending. I'll make it BUG_ON() and make the Sys_Rq printk & ignore
+when suspending. Sound reasonable?
 
-when task-A unlocks lock1, it can very well give it to task-C - there's
-no reason not to do it, task-RT has not expressed any interest in lock1 
-yet.
+Regards,
 
-so my example and analysis still stands.
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
-> I can't see how it can produce a flow like the one you describe above!
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
 
-it can produce such a flow on SMP, or if you add in a third non-RT task
-(task-C). Agreed?
-
-In the test where you got 3 msecs you had more than 2 non-RT tasks,
-correct?
-
-	Ingo

@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129382AbRBFRhe>; Tue, 6 Feb 2001 12:37:34 -0500
+	id <S129379AbRBFRjy>; Tue, 6 Feb 2001 12:39:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129379AbRBFRhZ>; Tue, 6 Feb 2001 12:37:25 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:52174 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129177AbRBFRhG>;
-	Tue, 6 Feb 2001 12:37:06 -0500
-Date: Tue, 6 Feb 2001 17:34:37 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Anders Eriksson <aer-list@mailandnews.com>, linux-kernel@vger.kernel.org,
-        Stephen Tweedie <sct@redhat.com>
-Subject: Re: sync & asyck i/o
-Message-ID: <20010206173437.A19836@redhat.com>
-In-Reply-To: <200102061424.PAA32284@hell.wii.ericsson.net> <E14Q9U2-0005gX-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14Q9U2-0005gX-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Feb 06, 2001 at 02:52:40PM +0000
+	id <S129696AbRBFRjo>; Tue, 6 Feb 2001 12:39:44 -0500
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:36682 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S129379AbRBFRjf>; Tue, 6 Feb 2001 12:39:35 -0500
+Date: Tue, 6 Feb 2001 12:37:26 -0500 (EST)
+From: Ben LaHaise <bcrl@redhat.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
+        <linux-kernel@vger.kernel.org>,
+        <kiobuf-io-devel@lists.sourceforge.net>,
+        Ingo Molnar <mingo@redhat.com>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+In-Reply-To: <20010206170506.H1167@redhat.com>
+Message-ID: <Pine.LNX.4.30.0102061225330.15204-100000@today.toronto.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hey folks,
 
-On Tue, Feb 06, 2001 at 02:52:40PM +0000, Alan Cox wrote:
-> > According to the man page for fsync it copies in-core data to disk 
-> > prior to its return. Does that take async i/o to the media in account? 
-> > I.e. does it wait for completion of the async i/o to the disk?
-> 
-> Undefined. 
+On Tue, 6 Feb 2001, Stephen C. Tweedie wrote:
 
-> In practice some IDE disks do write merging and small amounts of write
-> caching in the drive firmware so you cannot trust it 100%. 
+> The whole point of the post was that it is merging, not splitting,
+> which is troublesome.  How are you going to merge requests without
+> having chains of scatter-gather entities each with their own
+> completion callbacks?
 
-It's worth noting that it *is* defined unambiguously in the standards:
-fsync waits until all the data is hard on disk.  Linux will obey that
-if it possibly can: only in cases where the hardware is actively lying
-about when the data has hit disk will the guarantee break down.
+Let me just emphasize what Stephen is pointing out: if requests are
+properly merged at higher layers, then merging is neither required nor
+desired.  Traditionally, ext2 has not done merging because the underlying
+system doesn't support it.  This leads to rather convoluted code for
+readahead which doesn't result in appropriately merged requests on
+indirect block boundries, and in fact leads to suboptimal performance.
+The only case I see where merging of requests can improve things is when
+dealing with lots of small files.  But we already know that small files
+need to be treated differently (fe tail merging).  Besides, most of the
+benefit of merging can be had by doing readaround for these small files.
 
---Stephen
+As for io completion, can't we just issue seperate requests for the
+critical data and the readahead?  That way for SCSI disks, the important
+io should be finished while the readahead can continue.  Thoughts?
+
+		-ben
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

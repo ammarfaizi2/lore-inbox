@@ -1,37 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269420AbUICQdT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269334AbUICQfK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269420AbUICQdT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 12:33:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269334AbUICQdS
+	id S269334AbUICQfK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 12:35:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269366AbUICQfK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 12:33:18 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:51092 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269420AbUICQbS convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 12:31:18 -0400
-Subject: Re: silent semantic changes with reiser4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Grzegorz =?iso-8859-2?Q?Ja=B6kiewicz?= <gj@pointblue.com.pl>
-Cc: Miquel van Smoorenburg <miquels@cistron.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <41388B59.6060702@pointblue.com.pl>
-References: <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com>
-	 <2f4958ff04090301326e7302c1@mail.gmail.com> <41383142.4080201@hist.no>
-	 <2f4958ff04090302141bc222e5@mail.gmail.com> <ch9f7t$p27$2@news.cistron.nl>
-	 <41388B59.6060702@pointblue.com.pl>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1094225344.8102.18.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 03 Sep 2004 16:29:07 +0100
+	Fri, 3 Sep 2004 12:35:10 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:63617 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S269334AbUICQfD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 12:35:03 -0400
+Message-ID: <41389CDA.5060609@rtr.ca>
+Date: Fri, 03 Sep 2004 12:33:30 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: md RAID over SATA performance
+References: <1094169937l.17931l.0l@werewolf.able.es>
+In-Reply-To: <1094169937l.17931l.0l@werewolf.able.es>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-09-03 at 16:18, Grzegorz Jaśkiewicz wrote:
-> >It's because disk was spelled with a 'c' (disc).
-> That suppose to be a joke ?
+Even with hardware RAID the numbers I see are not often
+much better than this.
 
-The international joke symbol (8-)) is only mandatory in en_US locales.
+Unless O_DIRECT is used (hdparm --direct), in which case they
+immediately jump to a level that is more limited by the PCI
+and memory speeds of the system.
 
+Eg.  205Mbytes/sec for a 4-drive RAID0 over 64-bit/66Mhz PCI.
+
+I guess the page_cache overhead is rather substantial
+for the simple read-a-sequential-block test.
+
+Cheers
+-- 
+Mark Lord
+(hdparm keeper & the original "Linux IDE Guy")

@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262170AbRFUAkK>; Wed, 20 Jun 2001 20:40:10 -0400
+	id <S263212AbRFUAlB>; Wed, 20 Jun 2001 20:41:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263212AbRFUAkA>; Wed, 20 Jun 2001 20:40:00 -0400
-Received: from sync.nyct.net ([216.44.109.250]:59652 "HELO sync.nyct.net")
-	by vger.kernel.org with SMTP id <S262170AbRFUAjs>;
-	Wed, 20 Jun 2001 20:39:48 -0400
-Date: Wed, 20 Jun 2001 20:46:14 -0400
-From: Michael Bacarella <mbac@nyct.net>
+	id <S263742AbRFUAkw>; Wed, 20 Jun 2001 20:40:52 -0400
+Received: from mailhost.idcomm.com ([207.40.196.14]:46789 "EHLO
+	mailhost.idcomm.com") by vger.kernel.org with ESMTP
+	id <S263212AbRFUAkh>; Wed, 20 Jun 2001 20:40:37 -0400
+Message-ID: <3B3142DB.F4658CA4@idcomm.com>
+Date: Wed, 20 Jun 2001 18:42:03 -0600
+From: "D. Stimits" <stimits@idcomm.com>
+Reply-To: stimits@idcomm.com
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: The latest Microsoft FUD.  This time from BillG, himself.
-Message-ID: <20010620204614.A20147@sync.nyct.net>
-In-Reply-To: <993069751.10191.0.camel@agate> <E15Cq9u-0000CX-00@the-village.bc.nu> <20010620153345.I3089@work.bitmover.com>
-Mime-Version: 1.0
+Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
+In-Reply-To: <200106202120.f5KLKO5320707@saturn.cs.uml.edu> <0106201412240B.00776@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010620153345.I3089@work.bitmover.com>; from lm@bitmover.com on Wed, Jun 20, 2001 at 03:33:45PM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 20, 2001 at 03:33:45PM -0700, Larry McVoy wrote:
+Rob Landley wrote:
+...snip...
+> The patches-linus-actuall-applies mailing list idea is based on how Linus
+> says he works: he appends patches he likes to a file and then calls patch -p1
+> < thatfile after a mail reading session.  It wouldn't be too much work for
+> somebody to write a toy he could use that lets him work about the same way
+> but forwards the messages to another folder where they can go out on an
+> otherwise read-only list.  (No extra work for Linus.  This is EXTREMELY
+> important, 'cause otherwise he'll never touch it.)
 
-> You can scream all you want that "it isn't free software" but the fact
-> of the matter is that you all scream that and then go do your slides for
-> your Linux talks in PowerPoint.
-
-I think this is an unfair generalization.
-
-I'm not even all that clear about what PowerPoint is (I've never
-seen it, ever). I'm guessing that it lets you display slides in
-sequence, but that's just from what I've seen of MagicPoint, which
-someone said at a user meet was a clone of PowerPoint.
-
-(And yes, the talk given that day was in fact done with MagicPoint)
-
--- 
-Michael Bacarella <mbac@nyct.net>
-Technical Staff / System Development,
-New York Connect.Net, Ltd.
+What if the file doing patches from is actually visible on a web page?
+Or better yet, if the patch command itself was modified such that at the
+same time it applies a patch, the source and the results were added to a
+MySQL server which in turn shows as a web page?

@@ -1,64 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286904AbSA1WC0>; Mon, 28 Jan 2002 17:02:26 -0500
+	id <S286893AbSA1WCg>; Mon, 28 Jan 2002 17:02:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286895AbSA1WCR>; Mon, 28 Jan 2002 17:02:17 -0500
-Received: from jhuml3.jhu.edu ([128.220.2.66]:59579 "HELO jhuml3.jhu.edu")
-	by vger.kernel.org with SMTP id <S286871AbSA1WCA>;
-	Mon, 28 Jan 2002 17:02:00 -0500
-Date: Mon, 28 Jan 2002 15:28:27 -0500
-From: Thomas Hood <jdthood@mail.com>
-Subject: Re: 2.4.18-pre7 slow ... apm problem
-In-Reply-To: <Pine.LNX.4.44.0201290351520.7623-100000@boston.corp.fedex.com>
-To: Jeff Chua <jchua@fedex.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Stephan von Krawczynski <skraw@ithnet.com>
-Message-id: <1012249707.4807.123.camel@thanatos>
-MIME-version: 1.0
-X-Mailer: Evolution/1.0.1
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-In-Reply-To: <Pine.LNX.4.44.0201290351520.7623-100000@boston.corp.fedex.com>
+	id <S286895AbSA1WC0>; Mon, 28 Jan 2002 17:02:26 -0500
+Received: from [217.9.226.246] ([217.9.226.246]:25985 "HELO
+	merlin.xternal.fadata.bg") by vger.kernel.org with SMTP
+	id <S286893AbSA1WCP>; Mon, 28 Jan 2002 17:02:15 -0500
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Josh MacDonald <jmacd@CS.Berkeley.EDU>, <linux-kernel@vger.kernel.org>,
+        <reiserfs-list@namesys.com>, <reiserfs-dev@namesys.com>
+Subject: Re: Note describing poor dcache utilization under high memory pressure
+In-Reply-To: <Pine.LNX.4.33.0201281005480.1609-100000@penguin.transmeta.com>
+	<E16VHy5-0000Bz-00@starship.berlin>
+From: Momchil Velikov <velco@fadata.bg>
+In-Reply-To: <E16VHy5-0000Bz-00@starship.berlin>
+Date: 29 Jan 2002 00:01:37 +0200
+Message-ID: <87u1t6f83i.fsf@fadata.bg>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-01-28 at 15:11, Jeff Chua wrote:
-> Sorry, just got off a long flight from San Diego to Singapore. Anyway,
-> slow ... means that even without vmware, if I just hit return, the lines
-> would scroll for about every 10 lines and there'll be a litte pause (<0.3
-> sec). With pre6, there's no such behavior, and if CONFIG_APM_CPU_IDLE is
-> not set, the "pause" goes away.
+>>>>> "Daniel" == Daniel Phillips <phillips@bonn-fries.net> writes:
 
-Suggestion: Try setting the idle_threshold to a higher value,
-e.g., 98.  (The default value is 95.)
+Daniel> I'd cheerfully hand this coding effort off to someone more familiar with this 
+Daniel> particular neck of the kernel woods - you, Davem and Marcelo come to mind, 
+Daniel> but if nobody bites I'll just continue working on it at my own pace.  I 
 
-Question to all: Would it be a good idea to de-idle the CPU
-inside interrupt handlers?
-
-> "host" system is linux. "guest" system is linux (actually, I tried with NT
-> as well, same problem).
-> 
-> The sympton is when I try to ping the "host" from vmware's "guest" system,
-> the first response came back to the guest's console. Then if I don't type
-> anything or don't move the mouse on the guest's console, I won't see any
-> further response on the guest's linux console. Even with a lot of mouse
-> movement or pressing the keys, the response is still very slow with "ping".
-
-> If I ping from the "host" linux console to the "guest" linux system,
-> responses came back, and does not hang. I'll double check this last point.
-> Got to recompile the kernel again.
-
-Try disabling APM cpu idling (set apm idle_threshold to 100) in the
-_guest_ OS.  (Leave it enabled in the host OS.)  Tell us what happens.
-
-Also try disabling APM cpu idling (set apm idle_threshold to 100) in
-the _host_ OS.  (Leave it enabled in the guest OS.)  Tell us what
-happens.
-
-I repeat: You do not need to recompile the kernel to enable/disable
-APM cpu idle: to disable it simply set idle_threshold to 100.
-
-
-
+BTW, I'm doing just this, working on it at my own pace. 

@@ -1,108 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbUKCQUQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261689AbUKCQUn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261675AbUKCQUQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 11:20:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbUKCQUQ
+	id S261689AbUKCQUn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 11:20:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbUKCQUn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 11:20:16 -0500
-Received: from host157-148.pool8289.interbusiness.it ([82.89.148.157]:52876
-	"EHLO zion.localdomain") by vger.kernel.org with ESMTP
-	id S261675AbUKCQUD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 11:20:03 -0500
-Subject: [patch 1/1] uml: fix ptrace() hang on 2.6.9 host due to host changes
-To: akpm@osdl.org
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, cw@f00f.org,
-       blaisorblade_spam@yahoo.it, kraxel@bytesex.org
-From: blaisorblade_spam@yahoo.it
-Date: Wed, 03 Nov 2004 17:06:19 +0100
-Message-Id: <20041103160621.0707356742@zion.localdomain>
+	Wed, 3 Nov 2004 11:20:43 -0500
+Received: from yue.linux-ipv6.org ([203.178.140.15]:56580 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S261681AbUKCQUe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 11:20:34 -0500
+Date: Thu, 04 Nov 2004 01:21:28 +0900 (JST)
+Message-Id: <20041104.012128.51410945.yoshfuji@linux-ipv6.org>
+To: davem@davemloft.net, jgarzik@pobox.com
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, akpm@osdl.org,
+       davem@davemloft.net, yoshfuji@linux-ipv6.org
+Subject: Re: IPv6 dead in -bk11
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <20041103.012923.102810732.yoshfuji@linux-ipv6.org>
+References: <20041102.225343.06193184.yoshfuji@linux-ipv6.org>
+	<4187A4E3.8010600@pobox.com>
+	<20041103.012923.102810732.yoshfuji@linux-ipv6.org>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20041103.012923.102810732.yoshfuji@linux-ipv6.org> (at Wed, 03 Nov 2004 01:29:23 +0900 (JST)), YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org> says:
 
-From: Gerd Knorr <kraxel@bytesex.org>, Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
+> So... I guess that kernel failed to add "default route" on receipt of RA.
+> Right?
+:
 
-Uml was using kill(pid, SIGKILL) instead of ptrace(PTRACE_KILL, pid), which
-used to work, while being probably undocumented. Due to the changes in 2.6.9
-to the ptrace(2) semantics, with the introduction of TASK_TRACED by Roland
-McGrath, this does not more work, so this patch should fix it.
+Sorry, this bug was introduced by my changeset:
+<http://linux.bkbits.net:8080/linux-2.5/cset@417dca81tJ4RRAxhWTbn0p6hI-1XIQ>.
 
-With help of Gerd Knorr report and analysis, and its early fix of this
-problem. He fixed the problem by sending SIGCONT to the child processes after
-SIGKILL. Which IMHO should not be needed (I think this is a regression, which
-he already reported).
+David, this should fix the issue.
+Please apply.
 
-I improved his one, by replacing the SIGCONT hack with using PTRACE_KILL
-instead.
+D: Don't purge default routes by RA.
+D:
+D: Signed-off-by: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
----
-
- vanilla-linux-2.6.9-paolo/arch/um/include/os.h             |    1 +
- vanilla-linux-2.6.9-paolo/arch/um/kernel/skas/process.c    |    2 +-
- vanilla-linux-2.6.9-paolo/arch/um/kernel/tt/process_kern.c |    2 +-
- vanilla-linux-2.6.9-paolo/arch/um/os-Linux/process.c       |    8 ++++++++
- 4 files changed, 11 insertions(+), 2 deletions(-)
-
-diff -puN arch/um/include/os.h~uml-hang-on-2.6.9-host arch/um/include/os.h
---- vanilla-linux-2.6.9/arch/um/include/os.h~uml-hang-on-2.6.9-host	2004-10-31 23:46:12.232616920 +0100
-+++ vanilla-linux-2.6.9-paolo/arch/um/include/os.h	2004-10-31 23:46:12.237616160 +0100
-@@ -157,6 +157,7 @@ extern unsigned long os_process_pc(int p
- extern int os_process_parent(int pid);
- extern void os_stop_process(int pid);
- extern void os_kill_process(int pid, int reap_child);
-+extern void os_kill_ptraced_process(int pid, int reap_child);
- extern void os_usr1_process(int pid);
- extern int os_getpid(void);
+===== net/ipv6/ndisc.c 1.103 vs edited =====
+--- 1.103/net/ipv6/ndisc.c	2004-10-26 12:55:42 +09:00
++++ edited/net/ipv6/ndisc.c	2004-11-04 01:05:19 +09:00
+@@ -1078,13 +1078,6 @@
+ 			return;
+ 		}
+ 		neigh->flags |= NTF_ROUTER;
+-
+-		/*
+-		 *	If we where using an "all destinations on link" route
+-		 *	delete it
+-		 */
+-
+-		rt6_purge_dflt_routers();
+ 	}
  
-diff -puN arch/um/os-Linux/process.c~uml-hang-on-2.6.9-host arch/um/os-Linux/process.c
---- vanilla-linux-2.6.9/arch/um/os-Linux/process.c~uml-hang-on-2.6.9-host	2004-10-31 23:46:12.233616768 +0100
-+++ vanilla-linux-2.6.9-paolo/arch/um/os-Linux/process.c	2004-10-31 23:52:07.401623024 +0100
-@@ -8,6 +8,7 @@
- #include <errno.h>
- #include <signal.h>
- #include <linux/unistd.h>
-+#include <sys/ptrace.h>
- #include <sys/mman.h>
- #include <sys/wait.h>
- #include "os.h"
-@@ -94,6 +95,13 @@ void os_kill_process(int pid, int reap_c
- 		
- }
- 
-+void os_kill_ptraced_process(int pid, int reap_child)
-+{
-+	ptrace(PTRACE_KILL, pid);
-+	if(reap_child)
-+		CATCH_EINTR(waitpid(pid, NULL, 0));
-+}
-+
- void os_usr1_process(int pid)
- {
- 	kill(pid, SIGUSR1);
-diff -puN arch/um/kernel/skas/process.c~uml-hang-on-2.6.9-host arch/um/kernel/skas/process.c
---- vanilla-linux-2.6.9/arch/um/kernel/skas/process.c~uml-hang-on-2.6.9-host	2004-10-31 23:46:12.234616616 +0100
-+++ vanilla-linux-2.6.9-paolo/arch/um/kernel/skas/process.c	2004-10-31 23:51:43.532251720 +0100
-@@ -389,7 +389,7 @@ void switch_mm_skas(int mm_fd)
- void kill_off_processes_skas(void)
- {
- #warning need to loop over userspace_pids in kill_off_processes_skas
--	os_kill_process(userspace_pid[0], 1);
-+	os_kill_ptraced_process(userspace_pid[0], 1);
- }
- 
- void init_registers(int pid)
-diff -puN arch/um/kernel/tt/process_kern.c~uml-hang-on-2.6.9-host arch/um/kernel/tt/process_kern.c
---- vanilla-linux-2.6.9/arch/um/kernel/tt/process_kern.c~uml-hang-on-2.6.9-host	2004-10-31 23:46:12.235616464 +0100
-+++ vanilla-linux-2.6.9-paolo/arch/um/kernel/tt/process_kern.c	2004-10-31 23:46:12.238616008 +0100
-@@ -82,7 +82,7 @@ void *switch_to_tt(void *prev, void *nex
- 	prev_sched = current->thread.prev_sched;
-	if((prev_sched->exit_state == EXIT_ZOMBIE) ||
-	   (prev_sched->exit_state == EXIT_DEAD))
--		os_kill_process(prev_sched->thread.mode.tt.extern_pid, 1);
-+		os_kill_ptraced_process(prev_sched->thread.mode.tt.extern_pid, 1);
- 
- 	/* This works around a nasty race with 'jail'.  If we are switching
- 	 * between two threads of a threaded app and the incoming process 
-_
+ 	if (rt)
+
+-- 
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

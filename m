@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265275AbTANVLg>; Tue, 14 Jan 2003 16:11:36 -0500
+	id <S265262AbTANVHv>; Tue, 14 Jan 2003 16:07:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265277AbTANVLf>; Tue, 14 Jan 2003 16:11:35 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:2311 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S265275AbTANVLe>; Tue, 14 Jan 2003 16:11:34 -0500
-Date: Tue, 14 Jan 2003 13:17:28 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Ross Biro <rossb@google.com>, Alan Cox <alan@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-pre3-ac4
-In-Reply-To: <1042566769.587.69.camel@zion.wanadoo.fr>
-Message-ID: <Pine.LNX.4.10.10301141316200.23438-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S265275AbTANVHv>; Tue, 14 Jan 2003 16:07:51 -0500
+Received: from smtp.efrei.fr ([194.2.204.37]:19984 "EHLO smtp.efrei.fr")
+	by vger.kernel.org with ESMTP id <S265262AbTANVHu>;
+	Tue, 14 Jan 2003 16:07:50 -0500
+Date: Tue, 14 Jan 2003 22:16:42 +0100
+From: Guillaume Allard <allard@efrei.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19 - 2.4.20 : Boot parameter MEM= doesn't work anymore
+Message-ID: <20030114211642.GA20452@efrei.fr>
+References: <20030114133944.GB8978@efrei.fr> <20030114143854.GA4289@altium.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030114143854.GA4289@altium.nl>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Ben, just because there does not appear to be a race in the code, does not
-provide any information about the hardware.
-
-On 14 Jan 2003, Benjamin Herrenschmidt wrote:
-
-> On Tue, 2003-01-14 at 18:49, Ross Biro wrote:
-> > Benjamin Herrenschmidt wrote:
-> > 
-> > >Ok, but PIIX runs on intel platforms with real IOs, so there is no need
-> > >to perform a read... If we go the hwif->IOSYNC() way, we might well set
-> > >it up to no-op on x86 PIO iops by default and read of alt-status on
-> > >other archs if it's safe enough on other controllers/drives...
-> > >
-> > I believe that this will corrupt any inprogress UDMA transfer on the 
-> > promise 20265 chip and probably others.  It would be better to read the 
-> > dma registers for the Promise controllers.
+On Tue, Jan 14, 2003 at 03:38:54PM +0100, Dick Streefland wrote:
+> For some reason, the interpretation of the mem= kernel parameter was
+> changed. I ran into this myself. The value is now used to limit the
+> memory size, not overrule it. There is a different syntax for adding
+> memory. One of my computers has 128 Mb, of which only 64 Mb are
+> detected. I had to add the "mem=63m@65m" kernel parameter, resulting in:
 > 
-> You mean on the chip's other channel ? As we discussed earlier, we don't
-> need to enforce this delay at all for DMA as we wait for the DMA
-> controller to complete in the interrupt anyway. Or did I miss a race ?
+> [...]
 > 
-> Ben.
+> Unfortunately, this is not documented. Look at arch/i386/kernel/setup.c
+> for details.
 > 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Thank you for your answer Dick. I tried to add the "mem=47m@17m" kernel
+parameter (only 16M are found so 48 need to be forced) even if the
+reason why wee need to start from "the next meg" and to add only X-1M is
+not realy clear for me. Now it actualy force 64MB so it's ok.
+Thank you again.
 
-Andre Hedrick
-LAD Storage Consulting Group
+------ kern.log
+ klogd 1.4.1#10, log source = /proc/kmsg started.
+ Inspecting /boot/System.map-2.4.20
+ Loaded 17390 symbols from /boot/System.map-2.4.20.
+ Symbols match kernel version 2.4.20.
+ Loaded 23 symbols from 4 modules.
+ Linux version 2.4.20 (root@orion) (gcc version 2.95.4 20011002 (Debian
+ prerelease)) #1 Tue Jan 14 19:21:24 CET 2003
+ BIOS-provided physical RAM map:
+  BIOS-88: 0000000000000000 - 000000000009f000 (usable)
+  BIOS-88: 0000000000100000 - 0000000001000000 (usable)
+ 64MB LOWMEM available.
+ On node 0 totalpages: 16384
+ zone(0): 4096 pages.
+ zone(1): 12288 pages.
+ zone(2): 0 pages.
+ Kernel command line: auto BOOT_IMAGE=Linux ro root=802 mem=47m@17m
+------
 
+-- 
+     Guillaume Allard
+     EFREI - promo 2002
+     allard@efrei.fr

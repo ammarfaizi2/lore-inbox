@@ -1,132 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262886AbVCJSpn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262752AbVCJSPo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262886AbVCJSpn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 13:45:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262896AbVCJSmt
+	id S262752AbVCJSPo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 13:15:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262314AbVCJSLB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 13:42:49 -0500
-Received: from rproxy.gmail.com ([64.233.170.204]:42838 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262772AbVCJSgf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 13:36:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding;
-        b=IlLj6MbWvj7lFaSICPJtkQQP0hICHlT7cEGsLFPeoL3FpmV/rZp0Hbm5CSrMzcL8ZM+g8t78IhZYqWY8ME2OjJutb8l/zz2+IJVxLYDT1egjkGDprHQ09rUI/JjTkCgWTPXhpd/eupSVCzooV/gov737H5SNSYMQgL+LxB0oaKo=
-Message-ID: <61d439b05031010367db84aaf@mail.gmail.com>
-Date: Thu, 10 Mar 2005 19:36:35 +0100
-From: Jordi Brinquez <jordi.brinquez@gmail.com>
-Reply-To: Jordi Brinquez <jordi.brinquez@gmail.com>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Errors in sigaction struct definition
-Cc: Xavi Martorell <xavim@ac.upc.edu>,
-       =?ISO-8859-1?Q?Jordi_Br=EDnquez?= <jbrinx@terra.es>
+	Thu, 10 Mar 2005 13:11:01 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:57299 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262791AbVCJRv6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 12:51:58 -0500
+Subject: Re: [RFC] -stable, how it's going to work.
+From: Lee Revell <rlrevell@joe-job.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Greg KH <greg@kroah.com>, Neil Brown <neilb@cse.unsw.edu.au>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050310174359.GP5389@shell0.pdx.osdl.net>
+References: <20050309072833.GA18878@kroah.com>
+	 <16944.6867.858907.990990@cse.unsw.edu.au>
+	 <20050310164312.GC16126@kroah.com> <1110475644.12805.43.camel@mindpipe>
+	 <20050310174359.GP5389@shell0.pdx.osdl.net>
+Content-Type: text/plain
+Date: Thu, 10 Mar 2005 12:51:48 -0500
+Message-Id: <1110477109.12805.64.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I found a problem while using sigaction structure because of problems
-on definition of that structure.
+On Thu, 2005-03-10 at 09:43 -0800, Chris Wright wrote:
+> * Lee Revell (rlrevell@joe-job.com) wrote:
+> > On Thu, 2005-03-10 at 08:43 -0800, Greg KH wrote:
+> > > That, and a zillion other specific wordings that people suggested fall
+> > > under the:
+> > > 	or some "oh, that's not good" issue
+> > > rule.
+> > 
+> > So just to be 100% clear, no sound with 2.6.N where the sound worked
+> > with 2.6.N-1 absolutely does qualify.  Right?
+> 
+> Depends, is listening to music while you work critical...? j/k ;-)
+> Yeah, that's a driver regression...used to work, now it's broken.
+> If fix is back out all changes, that's not so nice, if it's a
+> 'one-liner' then definitely.  Have a concrete example and patch?
 
-I found it on version 2.6.10 but it was confirmed on version 2.6.8 and
-2.6.11 (so probably on other 2.6.x versions)
+Not yet.  We are still trying to figure out whether 2.6.11 introduced an
+ALSA regression or not.  See the "intel 8x0 went silent" thread.
 
-Extract from /include/asm-i386/signal.h (lines 142-172)
+Lee
 
-#ifdef __KERNEL__
-struct old_sigaction {
-    __sighandler_t sa_handler;
-    old_sigset_t sa_mask;
-    unsigned long sa_flags;
-    __sigrestore_t sa_restorer;
-};
-
-struct sigaction {
-    __sighandler_t sa_handler;
-    unsigned long sa_flags;
-    __sigrestore_t sa_restorer;
-    sigset_t sa_mask;       /* mask last for extensibility */
-};
-
-struct k_sigaction {
-    struct sigaction sa;
-};
-#else
-/* Here we must cater to libcs that poke about in kernel headers.  */
-
-struct sigaction {
-    union {
-      __sighandler_t _sa_handler;
-      void (*_sa_sigaction)(int, struct siginfo *, void *);
-    } _u;
-    sigset_t sa_mask;
-    unsigned long sa_flags;
-    void (*sa_restorer)(void);
-};
-
-As you can see the order of the fields in sigaction struct defined
-under __KERNEL__ is:
-    sa_handler;
-    sa_flags;
-    sa_restorer;
-    sa_mask;
-and the order of the fields of the section for the user code is:
-    union {...} _u;
-    sa_mask;
-    sa_flags;
-    sa_restorer;
-
-The order is not the same.
-
-Now if we look at the routine that manages the sigaction
-(rt_sigaction) we have the following code:
-
-Extract from /kernel/signal.c (lines 2545-2573)
-
-#ifdef __ARCH_WANT_SYS_RT_SIGACTION
-asmlinkage long
-sys_rt_sigaction(int sig,
-         const struct sigaction __user *act,
-         struct sigaction __user *oact,
-         size_t sigsetsize)
-{
-    struct k_sigaction new_sa, old_sa;
-    int ret = -EINVAL;
-
-    /* XXX: Don't preclude handling different sized sigset_t's.  */
-    if (sigsetsize != sizeof(sigset_t))
-        goto out;
-
-    if (act) {
-        if (copy_from_user(&new_sa.sa, act, sizeof(new_sa.sa)))
-            return -EFAULT;
-    }
-
-    ret = do_sigaction(sig, act ? &new_sa : NULL, oact ? &old_sa : NULL);
-
-    if (!ret && oact) {
-        if (copy_to_user(oact, &old_sa.sa, sizeof(old_sa.sa)))
-            return -EFAULT;
-    }
-out:
-    return ret;
-}
-#endif /* __ARCH_WANT_SYS_RT_SIGACTION */
-
-As you can see the algorithm that copies the values from user struct
-to kernel struct is copy_from_user (and copy to_user) so because the
-diferent definition of the structures the data goes corrupted.
-
-To solve that problem there are two solutions:
-
-- Reorder the fields on user structure (easy solution)
-- Change the copy_to_user and copy_from_user for code using __put_user
-and __get_user
-
-I think that implementing both can prevent future problems.
-
-Greets,
-
-Jordi

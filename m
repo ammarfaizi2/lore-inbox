@@ -1,47 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278357AbRJSLLV>; Fri, 19 Oct 2001 07:11:21 -0400
+	id <S278358AbRJSLOb>; Fri, 19 Oct 2001 07:14:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278359AbRJSLLM>; Fri, 19 Oct 2001 07:11:12 -0400
-Received: from oriloff.manu.com.au ([203.37.120.101]:17929 "EHLO
-	oriloff.manu.com.au") by vger.kernel.org with ESMTP
-	id <S278357AbRJSLLG>; Fri, 19 Oct 2001 07:11:06 -0400
-From: Nathan Hand <nathanh@manu.com.au>
-Date: Fri, 19 Oct 2001 21:11:31 +1000
-To: linux-kernel@vger.kernel.org
-Cc: nathanh@manu.com.au
-Subject: [PATCH] composite audio for bt878
-Message-ID: <20011019211131.B9554@manu.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="GID0FwUMdk1T2AWN"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.18i
+	id <S278359AbRJSLOW>; Fri, 19 Oct 2001 07:14:22 -0400
+Received: from web10401.mail.yahoo.com ([216.136.130.93]:49423 "HELO
+	web10401.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S278358AbRJSLOH>; Fri, 19 Oct 2001 07:14:07 -0400
+Message-ID: <20011019111440.5768.qmail@web10401.mail.yahoo.com>
+Date: Fri, 19 Oct 2001 21:14:40 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: feedback for the new Rik VM patch 2.4.12-ac3
+To: kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---GID0FwUMdk1T2AWN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hi,
 
-Composite audio for bttv card type 0x10 spews static although the
-video is fine. Audio bitmask is wrong. One-line patch fixes it.
+Although some users are quite happy with that patch
+but not me :-)
+
+- I use 2.4.12-ac2 + Robert preempt patch on i686
+400Mh, 128Mb ram 72 , yes only 72Mb swap and run
+roughly:
+
+Star Office 5.2 with one 10Kb html document open
+Mozilla 0.9.2 browsing web
+gnomeicu
+Limewire
+gimp and open a 1.7Mb tif (using Jpeg compression)
+image
+Compiling the kernel 2.4.12-ac3 with the Rik VM patch
+two rxvt, one is for running the compilation ; one for
+checking with free,
+
+When I start Limewire (the last app I start), swap
+usage is nearly 0, I thought the OOM would kill some
+app. but it did not, and Limwwire starts ok, check
+swap still about 500Kb free. 
+
+Then I so all the same for the newly made kernel, 
+
+The result is I got more swap ; after all for the
+second kernel, free swap is still 10Mb; But in the
+trade off performance!. It is sluggish to switch
+bettween windows (than the last kernel) and the disk
+is thrashing when I exit Star Office and gimp too hard
+so that it made the system scrawling, but it is fairly
+good in the last kernel.
+
+I usr pgcc 2.95.2.1 to compile both kernel and use -O6
+for optimization.
+
+Does anyone see the same?
 
 
---GID0FwUMdk1T2AWN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="bttv-cards.c.diff"
 
---- kernel-source-2.4.9/drivers/media/video/bttv-cards.c.orig	Fri Oct 19 20:56:43 2001
-+++ kernel-source-2.4.9/drivers/media/video/bttv-cards.c	Fri Oct 19 20:56:48 2001
-@@ -365,7 +365,7 @@
- 	svhs:		2,
- 	gpiomask:	0x01fe00,
- 	muxsel:		{ 2, 3, 1, 1},
--	audiomux:	{ 0x01c000, 0, 0x018000, 0x014000, 0x002000, 0 },
-+	audiomux:	{ 0x01c000, 0, 0x004000, 0x014000, 0x002000, 0 },
- 	needs_tvaudio:	1,
- 	pll:		PLL_28,
- 	tuner_type:	-1,
 
---GID0FwUMdk1T2AWN--
+
+
+
+
+
+
+=====
+S.KIEU
+
+http://briefcase.yahoo.com.au - Yahoo! Briefcase
+- Manage your files online.

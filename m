@@ -1,125 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270394AbTGRV2u (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 17:28:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271883AbTGRV13
+	id S271821AbTGRVg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 17:36:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270373AbTGRVg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 17:27:29 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:12292 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S272020AbTGRVVR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 17:21:17 -0400
-Date: Fri, 18 Jul 2003 23:31:35 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: [PATCH] 2.6.0-test1-after-alan-s-patch - Unchecked copy_to_user disturb harmony
-Message-ID: <20030718233135.B780@electric-eye.fr.zoreil.com>
-References: <200307181431.h6IEV7Sm017874@hraefn.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 18 Jul 2003 17:36:57 -0400
+Received: from 015.atlasinternet.net ([212.9.93.15]:31686 "EHLO
+	ponti.gallimedina.net") by vger.kernel.org with ESMTP
+	id S271989AbTGRVgW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 17:36:22 -0400
+From: Ricardo Galli <gallir@uib.es>
+Organization: UIB
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: Linux 2.6.0-test1 Ext3 Ooops. Reboot needed.
+Date: Fri, 18 Jul 2003 23:51:17 +0200
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org
+References: <200307181228.40142.gallir@uib.es> <200307182313.23288.gallir@uib.es> <20030718142720.40983f6a.akpm@osdl.org>
+In-Reply-To: <20030718142720.40983f6a.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200307181431.h6IEV7Sm017874@hraefn.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Fri, Jul 18, 2003 at 03:31:07PM +0100
-X-Organisation: Hungry patch-scripts (c) users
+Message-Id: <200307182351.17694.gallir@uib.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 18 July 2003 23:27, Andrew Morton shaped the electrons to shout:
+> Ricardo Galli <gallir@uib.es> wrote:
+> > "File alteration monitor", from Debian.
+>
+> OK.
+>
+> > $ apt-cache show fam
+>
+> I was attacked by dselect as a small child and have since avoided debian.
 
-Assortment of unchecked copy_to_user().
+I tried Debian after I was 30 and apt-get was already born, never used that 
+beast.
 
-Afaiks, the wild return statement in harmony_audio_write() don't add
-extra leak (or whatever).
+> Is there a tarball anywhere?
 
+I just download the sources for you:
+http://mnm.uib.es/~gallir/tmp/fam_2.6.10.orig.tar.gz
+http://mnm.uib.es/~gallir/tmp/fam_2.6.10-1.diff.gz (Debian patch)
 
- sound/oss/harmony.c |   33 ++++++++++++++++++++++-----------
- 1 files changed, 22 insertions(+), 11 deletions(-)
+> > Nevertheless I saw the same message the morning after updatedb run.
+>
+> But was the "Process:" also famd in that case?
 
-diff -puN sound/oss/harmony.c~janitor-copy_to_user-harmony sound/oss/harmony.c
---- linux-2.6.0-test1-20030718_0517/sound/oss/harmony.c~janitor-copy_to_user-harmony	Fri Jul 18 22:58:28 2003
-+++ linux-2.6.0-test1-20030718_0517-fr/sound/oss/harmony.c	Fri Jul 18 23:28:32 2003
-@@ -442,9 +442,12 @@ static ssize_t harmony_audio_read(struct
- 		buf_to_read = harmony.first_filled_record;
+It was updatedb:
+
+ Code: 8b 11 0f 18 02 90 39 59 18 89 c8 74 13 85 d2 89 d1 75 ed 31
+  <6>note: updatedb[25529] exited with preempt_count 1
+ bad: scheduling while atomic!
+ Call Trace:
+  [<c0118667>] schedule+0x3b7/0x3c0
+  [<c014084b>] unmap_page_range+0x4b/0x80
+  [<c0140a4d>] unmap_vmas+0x1cd/0x230
+  [<c0144608>] exit_mmap+0x78/0x190
+  [<c011a084>] mmput+0x64/0xc0
+  [<c011dd23>] do_exit+0x113/0x440
+  [<c0116c60>] do_page_fault+0x0/0x479
+  [<c010a360>] do_divide_error+0x0/0x100
+  [<c0116d8c>] do_page_fault+0x12c/0x479
+  [<c015233b>] __getblk+0x2b/0x60
+  [<c0186263>] ext3_getblk+0x93/0x260
+  [<c0150b5f>] wake_up_buffer+0xf/0x30
+  [<c0150bac>] unlock_buffer+0x2c/0x50
+  [<c015435c>] ll_rw_block+0x5c/0x90
+  [<c0152293>] __find_get_block+0x73/0xf0
+  [<c018a1d4>] ext3_find_entry+0x354/0x410
+  [<c0116c60>] do_page_fault+0x0/0x479
+  [<c0109cc5>] error_code+0x2d/0x38
+  [<c0168790>] find_inode_fast+0x20/0x70
+  [<c0168e42>] iget_locked+0x52/0xc0
+  [<c018a54b>] ext3_lookup+0x6b/0xd0
+  [<c015cd92>] real_lookup+0xd2/0x100
+  [<c015d036>] do_lookup+0x96/0xb0
+  [<c015d4e0>] link_path_walk+0x490/0x8a0
+  [<c015ddf9>] __user_walk+0x49/0x60
+  [<c0158fac>] vfs_lstat+0x1c/0x60
+  [<c015965b>] sys_lstat64+0x1b/0x40
+  [<c01092bb>] syscall_call+0x7/0xb
  
- 		/* Copy the page to an aligned buffer */
--		copy_to_user(buffer+count, 
--			     recorded_buf.addr+(HARMONY_BUF_SIZE*buf_to_read), 
--			     HARMONY_BUF_SIZE);
-+		if (copy_to_user(buffer+count, recorded_buf.addr +
-+				 (HARMONY_BUF_SIZE*buf_to_read),
-+				 HARMONY_BUF_SIZE)) {
-+			count = -EFAULT;
-+			break;
-+		}
- 		
- 		harmony.nb_filled_record--;
- 		harmony.first_filled_record++;
-@@ -474,13 +477,16 @@ static ssize_t harmony_audio_read(struct
- #define test_rate(tested,real_value,harmony_value) if ((tested)<=(real_value))\
-                                                     
  
--static void harmony_format_auto_detect(const char *buffer, int block_size)
-+static int harmony_format_auto_detect(const char *buffer, int block_size)
- {
- 	u8 file_header[24];
- 	u32 start_string;
-+	int ret = 0;
- 	
- 	if (block_size>24) {
--		copy_from_user(file_header, buffer, sizeof(file_header));
-+		if (copy_from_user(file_header, buffer, sizeof(file_header)))
-+			ret = -EFAULT;
-+			
- 		start_string = four_bytes_to_u32(0);
- 		
- 		if ((file_header[4]==0) && (start_string==0x2E736E64)) {
-@@ -505,7 +511,7 @@ static void harmony_format_auto_detect(c
- 			default:
- 				harmony_set_control(HARMONY_DF_16BIT_LINEAR,
- 						HARMONY_SR_44KHZ, HARMONY_SS_STEREO);
--				return;
-+				goto out;
- 			}
- 			switch (nb_voices) {
- 			case HARMONY_MAGIC_MONO:
-@@ -520,10 +526,12 @@ static void harmony_format_auto_detect(c
- 			}
- 			harmony_set_rate(harmony_detect_rate(&speed));
- 			harmony.dac_rate = speed;
--			return;			
-+			goto out;
- 		}
- 	}
- 	harmony_set_control(HARMONY_DF_8BIT_ULAW, HARMONY_SR_8KHZ, HARMONY_SS_MONO);
-+out:
-+	return ret;
- }
- #undef four_bytes_to_u32
- 
-@@ -538,8 +546,10 @@ static ssize_t harmony_audio_write(struc
- 	int frame_size;
- 	int buf_to_fill;
- 
--	if (!harmony.format_initialized) 
--	   harmony_format_auto_detect(buffer, total_count);
-+	if (!harmony.format_initialized) {
-+		if (harmony_format_auto_detect(buffer, total_count))
-+			return -EFAULT;
-+	}
- 	
- 	while (count<total_count) {
- 		/* Wait until we're out of control mode */
-@@ -573,8 +583,9 @@ static ssize_t harmony_audio_write(struc
- 		}
- 
- 		/* Copy the page to an aligned buffer */
--		copy_from_user(played_buf.addr + (HARMONY_BUF_SIZE*buf_to_fill) + harmony.play_offset, 
--				buffer+count, frame_size);
-+		if (copy_from_user(played_buf.addr +(HARMONY_BUF_SIZE*buf_to_fill) + harmony.play_offset, 
-+				   buffer+count, frame_size))
-+			return -EFAULT;
- 		CHECK_WBACK_INV_OFFSET(played_buf, (HARMONY_BUF_SIZE*buf_to_fill + harmony.play_offset), 
- 				frame_size);
- 	
+> A bug in the dnotify code is unsurprising - it doesn't get used or tested
+> much, and many things around it have changed.
 
-_
+-- 
+  ricardo galli       GPG id C8114D34
+  http://mnm.uib.es/~gallir/
+

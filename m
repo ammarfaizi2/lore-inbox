@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317521AbSFEBAk>; Tue, 4 Jun 2002 21:00:40 -0400
+	id <S317523AbSFEBCY>; Tue, 4 Jun 2002 21:02:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317523AbSFEBAj>; Tue, 4 Jun 2002 21:00:39 -0400
-Received: from front2.mail.megapathdsl.net ([66.80.60.30]:65041 "EHLO
-	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S317521AbSFEBAj>; Tue, 4 Jun 2002 21:00:39 -0400
-Subject: Re: 2.5.20-dj2 -- fdomain_stub.c:98: unknown field `abort'
-	specified in initializer
-From: Miles Lane <miles@megapathdsl.net>
-To: Patrick Mansfield <patmans@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, davej@suse.de
-In-Reply-To: <20020604114635.A26099@eng2.beaverton.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5.99 
-Date: 04 Jun 2002 18:21:16 -0700
-Message-Id: <1023240078.20260.307.camel@agate>
+	id <S317524AbSFEBCX>; Tue, 4 Jun 2002 21:02:23 -0400
+Received: from ns.suse.de ([213.95.15.193]:44553 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S317523AbSFEBCW>;
+	Tue, 4 Jun 2002 21:02:22 -0400
+Date: Wed, 5 Jun 2002 03:02:23 +0200
+From: Dave Jones <davej@suse.de>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: linux-kernel@vger.kernel.org, arjanv@redhat.com
+Subject: Re: 2.4.19-pre10-ac1: Hardcoded cpu_khz in powernow-k6.c
+Message-ID: <20020605030223.A5277@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org,
+	arjanv@redhat.com
+In-Reply-To: <Pine.NEB.4.44.0206050236260.9994-100000@mimas.fachschaften.tu-muenchen.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-06-04 at 11:46, Patrick Mansfield wrote:
-> On Tue, Jun 04, 2002 at 11:42:18AM -0700, Miles Lane wrote:
-> > gcc -D__KERNEL__ -I/usr/src/linux-2.5/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE   -DKBUILD_BASENAME=fdomain_stub  -c -o fdomain_stub.o fdomain_stub.c
-> > fdomain_stub.c:98: unknown field `abort' specified in initializer
-> > fdomain_stub.c:98: warning: initialization from incompatible pointer type
-> > fdomain_stub.c:98: unknown field `reset' specified in initializer
-> > fdomain_stub.c:98: warning: initialization from incompatible pointer type
-> > make[3]: *** [fdomain_stub.o] Error 1
-> > make[3]: Leaving directory `/usr/src/linux-2.5/drivers/scsi/pcmcia'
-> 
-> You should be able to compile it by setting the 
-> CONFIG_BROKEN_SCSI_ERROR_HANDLING config option.
+On Wed, Jun 05, 2002 at 02:52:15AM +0200, Adrian Bunk wrote:
+ > Hi Dave,
+ > 
+ > while reading through powernow-k6.c in 2.4.19-pre10-ac1 I found the
+ > following that seems to be a bug:
+ > 
+ >   static unsigned long cpu_khz=350000;
+ > 
+ > Not every K6-2/3 runs at 350 MHz...
 
-Thanks Patrick,
+iirc, there aren't any MSRs[*] on the K6-2 where we can read
+the current FSB.  I think 350MHz was used as it was probably
+the slowest K6-2 to be found at the time.  You can override
+it with boot time arguments.
 
-The compile still breaks with that option enabled,
-but it looks like that driver still hasn't been 
-ported to the current 2.5 api.
+    Dave.
 
-../fdomain.c: In function `do_fdomain_16x0_intr':
-../fdomain.c:1568: structure has no member named `address'
-../fdomain.c:1601: structure has no member named `address'
-../fdomain.c: In function `fdomain_16x0_queue':
-../fdomain.c:1687: structure has no member named `address'
+[*] The K6 style powernow was reverse engineered, as there were
+no publically available documents explaining it. All we can
+do is scale multipliers. No voltage scaling, no FSB decoding.
 
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

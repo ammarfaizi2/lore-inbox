@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315893AbSETL1k>; Mon, 20 May 2002 07:27:40 -0400
+	id <S315883AbSETLas>; Mon, 20 May 2002 07:30:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315913AbSETL1j>; Mon, 20 May 2002 07:27:39 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:45828 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315893AbSETL1i>; Mon, 20 May 2002 07:27:38 -0400
-Subject: Re: AUDIT of 2.5.15 copy_to/from_user
-To: rusty@rustcorp.com.au (Rusty Russell)
-Date: Mon, 20 May 2002 12:47:42 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org,
-        kernel-janitor-discuss@lists.sourceforge.net
-In-Reply-To: <E179c88-0004HH-00@wagner.rustcorp.com.au> from "Rusty Russell" at May 20, 2002 11:38:32 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S315919AbSETLar>; Mon, 20 May 2002 07:30:47 -0400
+Received: from romulus.cs.ut.ee ([193.40.5.125]:39133 "EHLO romulus.cs.ut.ee")
+	by vger.kernel.org with ESMTP id <S315883AbSETLaq>;
+	Mon, 20 May 2002 07:30:46 -0400
+Date: Mon, 20 May 2002 14:30:42 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: linux-kernel@vger.kernel.org
+Subject: OSS SB driver & ESS1688 & module reloading
+Message-ID: <Pine.GSO.4.43.0205201423510.27490-100000@romulus.cs.ut.ee>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E179lde-0005PN-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Disagree.  May not cause problems at the moment, but a function which
-> does:
-> 
-> 	if (!access_ok (VERIFY_WRITE, to, sizeof(siginfo_t)))
-> 		return -EFAULT;
-> 	if (from->si_code < 0)
-> 		return __copy_to_user(to, from, sizeof(siginfo_t));
-> 
-> Is clearly wrong,
+I'm reporting it since I got the symptoms on two different systems
+(Compaq laptop with SuSE 8.0 and Digital Celebris GL 5133 ST - both have
+onboard ESS1688).
 
-Its a function that returns non zero for error. Its clearly right. It just
-doesn't conform to Rusty's grand vision. 
+ESS1688 is on irq 5 and non-PNP. modprobe sb finds it by probing and
+defaults to irq 7 (proably sensible default on some computers, I have
+parport on irq 7). Fine, rmmod sb, modprobe sb irq=5. Works.
+
+Now when I rmmod sb and try to re-insert it, things become strange.
+sb module tells now that io, irq and dma parameters are all necessary.
+It does work when I supply these parameters but why does it need them
+the second time??? Looks like a bug.
+
+Kernel is 2.4.19pre8 on Digital Celebris GL and SuSE 8.0 default 2.4
+kernel on Compaq laptop (not here at the moment, can't check).
+
+-- 
+Meelis Roos (mroos@linux.ee)
+

@@ -1,63 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264376AbTEZODa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 10:03:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264385AbTEZODa
+	id S264389AbTEZOFe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 10:05:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbTEZOFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 10:03:30 -0400
-Received: from static213-229-38-018.adsl.inode.at ([213.229.38.18]:36505 "HELO
-	home.winischhofer.net") by vger.kernel.org with SMTP
-	id S264376AbTEZOD3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 10:03:29 -0400
-Message-ID: <3ED2219C.2040303@winischhofer.net>
-Date: Mon, 26 May 2003 16:15:56 +0200
-From: Thomas Winischhofer <thomas@winischhofer.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030521 Debian/1.3.1-1
-X-Accept-Language: en-us, en, de-at, de, de-de, sv
+	Mon, 26 May 2003 10:05:33 -0400
+Received: from pop3.galileo.co.il ([199.203.130.130]:37621 "EHLO
+	galileo5.galileo.co.il") by vger.kernel.org with ESMTP
+	id S264385AbTEZOFc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 10:05:32 -0400
+Message-ID: <3ED22FBC.50405@il.marvell.com>
+Date: Mon, 26 May 2003 18:16:12 +0300
+From: Rabeeh Khoury <rabeeh@il.marvell.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] SiS651 AGP support (2.4)
-Content-Type: multipart/mixed;
- boundary="------------080501090203040905050006"
+CC: linux-scsi@vger.kernel.org
+Subject: Re: [RFR] a new SCSI driver
+References: <20030524195123.GA8394@gtf.org>
+In-Reply-To: <20030524195123.GA8394@gtf.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080501090203040905050006
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+A small correction to the code -
+While translating the GET_CAPACITY to ATA, you are returning the number of sectors the ATA drive but the GET_CAPACITY requests the last addressable sector.
+So you should return (n_sectors-1).
 
 
-Patch to add (generic) AGPgart support for the SiS651. Please apply.
+static void ata_scsiop_read_cap(struct ata_scsi_args *args, u8 *reqbuf,
+			        unsigned int buflen)
+{
+	u64 n_sectors = args->dev->n_sectors;
+	u32 tmp;
++++ n_sectors --;
+	VPRINTK("ENTER\n");
 
--- 
-Thomas Winischhofer
-Vienna/Austria
-mailto:thomas@winischhofer.net          *** http://www.winischhofer.net/
-mailto:twini@xfree86.org
 
---------------080501090203040905050006
-Content-Type: text/plain;
- name="sisagp_patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sisagp_patch"
-
---- drivers/char/agp/agpgart_be.c_old	2003-05-26 16:11:13.000000000 +0200
-+++ drivers/char/agp/agpgart_be.c	2003-05-26 16:11:47.000000000 +0200
-@@ -4571,6 +4571,12 @@
- 		"SiS",
- 		"650",
- 		sis_generic_setup },
-+	{ PCI_DEVICE_ID_SI_651,
-+		PCI_VENDOR_ID_SI,
-+		SIS_GENERIC,
-+		"SiS",
-+		"651",
-+		sis_generic_setup },
- 	{ PCI_DEVICE_ID_SI_645,
- 		PCI_VENDOR_ID_SI,
- 		SIS_GENERIC,
-
---------------080501090203040905050006--
 

@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277550AbRJKAEg>; Wed, 10 Oct 2001 20:04:36 -0400
+	id <S277541AbRJKAIG>; Wed, 10 Oct 2001 20:08:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277549AbRJKAE0>; Wed, 10 Oct 2001 20:04:26 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:18582 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S277541AbRJKAEX>;
-	Wed, 10 Oct 2001 20:04:23 -0400
-Message-ID: <3BC50BDD.6AA9642E@us.ibm.com>
-Date: Wed, 10 Oct 2001 17:02:53 -1000
-From: Mingming cao <cmm@us.ibm.com>
-Organization: Linux Technology Center
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>, Al Viro <viro@math.psu.edu>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]Fix bug:rmdir could remove current working directory
-In-Reply-To: <Pine.GSO.4.21.0110101743140.21168-100000@weyl.math.psu.edu> <3BC4EFFC.42ACE59E@us.ibm.com> <200110102317.f9ANHjN03120@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S277551AbRJKAH4>; Wed, 10 Oct 2001 20:07:56 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:39815 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S277549AbRJKAHt>;
+	Wed, 10 Oct 2001 20:07:49 -0400
+Date: Wed, 10 Oct 2001 17:08:05 -0700 (PDT)
+Message-Id: <20011010.170805.35468036.davem@redhat.com>
+To: rmk@arm.linux.org.uk
+Cc: rudi@sluijtman.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] .version, newversion in Makefile
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011011010032.H17670@flint.arm.linux.org.uk>
+In-Reply-To: <200110102122.f9ALMx424058@nerys.ehv.lx>
+	<20011011010032.H17670@flint.arm.linux.org.uk>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> In article <3BC4EFFC.42ACE59E@us.ibm.com>,
-> Mingming cao  <cmm@us.ibm.com> wrote:
-> >
-> >I thought about the case when rmdir() on the cwd of other processes,
-> >but, as you said, that is implementation dependent. However rmdir() on
-> >"." does returns EBUSY error.
-> 
-> That's a completely different thing, though - even though the difference
-> is rather subtle.
-> 
-> You can remove pretty much any empty directory (if the filesystem
-> permits it - some don't). HOWEVER, you can not use "." as the final
-> component of your pathname.
-> 
-> It has nothing to do with home directory: you can try just doing
-> 
->         mkdir /tmp/hello
->         rmdir /tmp/hello/.
-> 
-> and you'll get the same error (and it _should_ return EINVAL, not EBUSY.
-> EBUSY is for the "this filesystem doesn't allow you to remove a
-> directory that is in use" case).
-> 
->                         Linus
+   From: Russell King <rmk@arm.linux.org.uk>
+   Date: Thu, 11 Oct 2001 01:00:32 +0100
 
-I misunderstanded the rule.  Thanks for clarifying!
+   On Wed, Oct 10, 2001 at 11:22:59PM +0200, Rudi Sluijtman wrote:
+   > Due to a change in the main Makefile the .version file is overwritten
+   > by a new empty one since at least 2.4.10-pre12, so the version becomes
+   > or remains 1 after each recompile.
+   
+   There is a patch in -ac to fix this.
+   
+I've also independantly just sent Linus a patch to fix this.
+I was not aware of the -ac fix, sorry.
 
--- 
-Mingming Cao
+Franks a lot,
+David S. Miller
+davem@redhat.com

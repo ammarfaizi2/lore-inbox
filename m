@@ -1,69 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263016AbTDZT70 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Apr 2003 15:59:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262972AbTDZT70
+	id S262953AbTDZT4K (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Apr 2003 15:56:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262964AbTDZT4K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Apr 2003 15:59:26 -0400
-Received: from p50887CA8.dip.t-dialin.net ([80.136.124.168]:36841 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id S262964AbTDZT7Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Apr 2003 15:59:24 -0400
-Date: Sat, 26 Apr 2003 22:17:07 +0200
-From: Thunder Anklin <thunder@keepsake.ch>
-To: "Randy.Dunlap" <randy.dunlap@verizon.net>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: missing #includes?
-Message-ID: <20030426201706.GE69349@hawkeye.luckynet.adm>
-References: <20030425235119.6f337e70.randy.dunlap@verizon.net>
+	Sat, 26 Apr 2003 15:56:10 -0400
+Received: from jive.SoftHome.net ([66.54.152.27]:52443 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id S262953AbTDZT4J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Apr 2003 15:56:09 -0400
+From: b_adlakha@softhome.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: ChangeLog suggestion
+Date: Sat, 26 Apr 2003 14:08:22 -0600
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="d8Lz2Tf5e5STOWUP"
-Content-Disposition: inline
-In-Reply-To: <20030425235119.6f337e70.randy.dunlap@verizon.net>
-X-Location: Dorndorf-Steudnitz, Germany
-X-GPG-KeyID: 0x30F8436E
-X-GPG-Fingerprint: 22F7 F950 CCCF DC35 408C  4A4C 2CDE 7159 E070 C1EC
-X-GPG-Key: http://lightweight.ods.org/~thunder/thunder.asc
-X-Priority: I really don't care.
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [210.214.82.30]
+Message-ID: <courier.3EAAE736.00005534@softhome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---d8Lz2Tf5e5STOWUP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Saturday 26 April 2003 23:59, Jörn Engel wrote:
+> On Sat, 26 April 2003 11:06:33 -0700, Linus Torvalds wrote:
+> > Personally, I want to have some address that I can reach the author at,
+> > and if that means that spammers can pick it up too (open source means
+> > that everybody has the same stuff _I_ have) I guess people who want to
+> > talk to me need to live with spam filters or send patches to me from
+> > special accounts. 
+>
+> It's not that bad. Since I started posting to lkml, my daily spam
+> dosis has risen from one to three, roughly. Annoying, but not a big
+> problem, even without filters. 
+>
+> Jörn
 
-Salut,
-
-On Fri, Apr 25, 2003 at 11:51:19PM -0700, Randy.Dunlap wrote:
-> What's the preferred thing to do here?  I would like to see explicit
-> #includes when symbols are used.  Is that what others expect also?
-
-It's perlable. I might do this if you want.
-
-> However, it makes for quite a large list of missing includes.
-
-I  suppose this  is because  it's implicitly  included via  some other
-include file. You will need to descend through
-
-#include <blah>
-
-in order to do the right checks.
-
-			Thunder
-
---d8Lz2Tf5e5STOWUP
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (FreeBSD)
-
-iD8DBQE+quk/LN5xWeBwwewRAngLAJwNOYpiklPdsm+/sjJdRYgmGc61swCfWv+9
-pRQmZDq4JUC50AOk5oS+zrQ=
-=tzEB
------END PGP SIGNATURE-----
-
---d8Lz2Tf5e5STOWUP--
+All the spam comes because of the archives of this mailing list stored as 
+HTML
+in thousands of places. The web-spider programs used by the spammers are 
+sure
+to find atleast one.
+My inbox is full of stuff like "Strictly Confidental" and "your solution to 
+never ending spam"

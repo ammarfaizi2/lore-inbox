@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131438AbQLLFvQ>; Tue, 12 Dec 2000 00:51:16 -0500
+	id <S131118AbQLLFzp>; Tue, 12 Dec 2000 00:55:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131448AbQLLFvG>; Tue, 12 Dec 2000 00:51:06 -0500
-Received: from www.wen-online.de ([212.223.88.39]:64772 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S131438AbQLLFuz>;
-	Tue, 12 Dec 2000 00:50:55 -0500
-Date: Tue, 12 Dec 2000 06:20:26 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: Steven Cole <elenstev@mesatop.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: UP 2.2.18 makes kernels 3% faster than UP 2.4.0-test12
-In-Reply-To: <00121122173600.03488@localhost.localdomain>
-Message-ID: <Pine.Linu.4.10.10012120618320.1164-100000@mikeg.weiden.de>
+	id <S131231AbQLLFzf>; Tue, 12 Dec 2000 00:55:35 -0500
+Received: from cy60022-a.vnnys1.ca.home.com ([24.21.33.25]:28932 "EHLO
+	cy60022-a.home.com") by vger.kernel.org with ESMTP
+	id <S131118AbQLLFzZ>; Tue, 12 Dec 2000 00:55:25 -0500
+From: Android <android@abac.com>
+Reply-To: android@abac.com
+Organization: Androids Unlimited
+Date: Mon, 11 Dec 2000 21:24:22 +0000
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <E145f1E-0000a9-00@the-village.bc.nu>
+In-Reply-To: <E145f1E-0000a9-00@the-village.bc.nu>
+Subject: Re: Linux 2.2.18 release notes
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <00121121242201.00885@cy60022-a>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Dec 2000, Steven Cole wrote:
+>           ... added basic support for the Pentium IV. Unfortunately Intel 
+chose to
+>           ignore all precedent in model numbering via cpuid and report a
+>           family of '15'. This sudden jump broke assumptions in the
+>           kernel tree without any warning. Intel have failed to provide
+>           good reasons for their change. We have chosen to continue to
+>           report the Pentium IV as a '686' class processor. The full
+>           family data is provided via cpuinfo.
+>
+>           In addition the early Pentium IV chips appear to have some
+>           problems. You should be using stepping 7 or higher processors
+>           with the latest shipping microcode update if you wish to run
+>           Linux on a Pentium IV processor.
+>
+>           + Intel Pentium IV support
 
-> On Mon, 11 Dec 2000, Mike Galbraith wrote:
-> > On Mon, 11 Dec 2000, Steven Cole wrote:
-> > > I have a SMP (dual P-III 733Mhz) machine at work, but it will be
-> > > unavailable for testing for a few more days.  I suspect that 2.4.0-test12
-> > > will do better than 2.2.18 with 2 CPUs.  I'll know in a few days.
-> [snip]
-> >
-> > I think it's better with -j.  Do it with -jN where N is small enough
-> > to keep the box away from swap, and then repeat with N large enough to
-> > swap modestly (not too heavily or you're only testing disk MTBF:).
-> 
-> I've always used make -j2 bzImage for my two processor machine. 
-> I like being able to build kernels in a little over two minutes. 
-> 
-> Simple question here, and risking displaying great ignorance:
-> Does it make sense to use make -jN where N is much greater than the 
-> number of CPUs?  
 
-If you're testing VM, definitely yes.  Otherwise.. _not_ ;-)
+How is the Pentium IV more advanced than the Pentium III, other than speed?
+Why would LInux care about a 1500 MHz clock or 400 MHz bus speed?
+Just treat the PIV as a faster PIII. 
 
-	-Mike
-
+                                  -- Ted
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

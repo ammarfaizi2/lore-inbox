@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267624AbUIUMof@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267648AbUIUMpc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267624AbUIUMof (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 08:44:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267645AbUIUMoe
+	id S267648AbUIUMpc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 08:45:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267649AbUIUMp2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 08:44:34 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:56707 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S267624AbUIUMoV convert rfc822-to-8bit (ORCPT
+	Tue, 21 Sep 2004 08:45:28 -0400
+Received: from gprs214-92.eurotel.cz ([160.218.214.92]:32131 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S267648AbUIUMpT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 08:44:21 -0400
-Date: Tue, 21 Sep 2004 13:44:50 +0100 (BST)
-From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-X-X-Sender: tigran@localhost.localdomain
-To: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: RARP support disapeard in kernel 2.6.x ?
-In-Reply-To: <Pine.LNX.4.60L.0409211432000.15099@rudy.mif.pg.gda.pl>
-Message-ID: <Pine.LNX.4.44.0409211342280.5322-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Tue, 21 Sep 2004 08:45:19 -0400
+Date: Tue, 21 Sep 2004 14:45:07 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: dri-devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Design for setting video modes, ownership of sysfs attributes
+Message-ID: <20040921124507.GC2383@elf.ucw.cz>
+References: <9e47339104091811431fb44254@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9e47339104091811431fb44254@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Sep 2004, [ISO-8859-2] Tomasz K³oczko wrote:
-> [linux-2.6.8.1]$ grep RARP .config
+Hi!
 
-Hmmm, you expected the above trivial command to reveal the answer? 
-Besides, it assumes that you do have RARP configured in the kernel.
+> 1) user owns graphics devices
+> 2) user sets mode with string (or similar) format using ioctl common to
+> all drivers.
+> 3) driver is locked to prevent multiple mode sets
+> 4) common code takes this string and does a hotplug event with it.
 
-Try this command instead:
+I though this was
 
-$ find -name Kconfig | xargs grep -i rarp
-./net/ipv4/Kconfig:       supplied on the kernel command line or by BOOTP or RARP protocols.
-./net/ipv4/Kconfig:config IP_PNP_RARP
-./net/ipv4/Kconfig:     bool "IP: RARP support"
-./net/ipv4/Kconfig:       discovered automatically at boot time using the RARP protocol (an
-./net/ipv4/Kconfig:       here. Note that if you want to use RARP, a RARP server must be
-./net/bridge/netfilter/Kconfig:   This option adds the ARP match, which allows ARP and RARP header fi
+"Driver decides to either do it itself in kernel, or call userspace
+helper if that would be too complex".
 
-The option you are looking for is CONFIG_IP_PNP_RARP.
+> How are errors going to be communicated in this scheme? I can cat the
+> sysfs mode variable to get a status. Is there a good way to do this
+> without polling?
 
-Kind regards
-Tigran
+I'd say that write() to that sysfs file can simply return error. See
+echo disk > /sys/power/state, it returns error if transition failed.
 
 
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

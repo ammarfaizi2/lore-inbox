@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262577AbTCIS6f>; Sun, 9 Mar 2003 13:58:35 -0500
+	id <S262571AbTCITTc>; Sun, 9 Mar 2003 14:19:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262578AbTCIS6f>; Sun, 9 Mar 2003 13:58:35 -0500
-Received: from pop.gmx.de ([213.165.64.20]:8089 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S262577AbTCIS6e>;
-	Sun, 9 Mar 2003 13:58:34 -0500
-Message-Id: <5.2.0.9.2.20030309201210.00cee910@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Sun, 09 Mar 2003 20:13:47 +0100
-To: rwhron@earthlink.net, linux-kernel@vger.kernel.org
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: scheduler starvation running irman with 2.5.64bk2
-In-Reply-To: <5.2.0.9.2.20030309192837.00c95468@pop.gmx.net>
-References: <20030309025015.GA2843@rushmore>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S262575AbTCITTb>; Sun, 9 Mar 2003 14:19:31 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:27911 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S262571AbTCITTb>; Sun, 9 Mar 2003 14:19:31 -0500
+Date: Sun, 9 Mar 2003 20:30:02 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kconfig update
+In-Reply-To: <20030309190103.GA1170@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.44.0303092028020.32518-100000@serv>
+References: <Pine.LNX.4.44.0303090432200.32518-100000@serv>
+ <20030309190103.GA1170@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 07:59 PM 3/9/2003 +0100, Mike Galbraith wrote:
->At 09:50 PM 3/8/2003 -0500, rwhron@earthlink.net wrote:
->>irman triggers some odd behavior with 2.5.64bk2 on uniprocessor
->>K6/2 475.  "ps aux" hasn't returned for a couple hours, though
->>irman appears to be doing it's thing.  I haven't tried irman on smp.
->>
->>Time to run irman 3x.
->>
->>2.5.63                  4066 seconds
->>2.5.63-mjb1             2993 seconds
->>2.5.63-mm2-dline        2856 seconds
->>2.5.64                  3473 seconds
->>2.5.64bk2               ??
+Hi,
 
-(btw, it's only the process load that hangs) 
+On Sun, 9 Mar 2003, Sam Ravnborg wrote:
+
+> Hi Roman.
+> Is it on your TODO list to make is more quiet?
+> Today kconfig dumps out a lot of info when run, making sure no-one even
+> notices the warnings that occur in the beginning.
+> When executing
+> $ make defconfig
+> $ make V=0
+> kconfig count for almost half of the output.
+
+What do you mean? 2.5.64 has no V option.
+
+bye, Roman
 

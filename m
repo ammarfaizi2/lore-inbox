@@ -1,74 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264551AbTDPPnM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 11:43:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264544AbTDPPnL
+	id S264535AbTDPPzH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 11:55:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264536AbTDPPzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 11:43:11 -0400
-Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:28168 "EHLO
-	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S264551AbTDPPmR convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 11:42:17 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-content-class: urn:content-classes:message
+	Wed, 16 Apr 2003 11:55:07 -0400
+Received: from dsl-213-023-227-002.arcor-ip.net ([213.23.227.2]:46979 "EHLO
+	server1.intern.kubla.de") by vger.kernel.org with ESMTP
+	id S264535AbTDPPzF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 11:55:05 -0400
+From: Dominik Kubla <dominik@kubla.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, steve.cameron@hp.com
+Subject: Re: How to identify contents of /lib/modules/*
+Date: Wed, 16 Apr 2003 18:06:54 +0200
+User-Agent: KMail/1.5.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030416020059.GA27314@zuul.cca.cpqcorp.net> <1050502898.28591.76.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1050502898.28591.76.camel@dhcp22.swansea.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: FW: cciss patches for 2.4.21pre7
-Date: Wed, 16 Apr 2003 10:54:03 -0500
-Message-ID: <D4CFB69C345C394284E4B78B876C1CF102399B33@cceexc23.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: cciss patches for 2.4.21pre7
-Thread-Index: AcMEL5KjU6uBrT/xSPKYfoH7H5vQBwAAEVxw
-From: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Cameron, Steve" <Steve.Cameron@hp.com>
-X-OriginalArrivalTime: 16 Apr 2003 15:54:03.0523 (UTC) FILETIME=[67576D30:01C30430]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304161806.54817.dominik@kubla.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the third of 3 patches to update the HP cciss driver to version 2.4.44 for the 2.4.21pre7 kernel. Patches should be applied in order.
+Am Mittwoch, 16. April 2003 16:21 schrieb Alan Cox:
+...
+> if its an rpm based distro
+>
+> 	rpm -qf /lib/modules/[version]/something
+>
+> will tell you which kernel owns the file.
+>
+> Its a horrible thing to need to do however
 
-Thanks,
-mikem
+And it's
 
-2003/04/15
+	dpkg -S|--search /lib/modules/[version]/something
 
-Changes:
-	1: Replaces the bit shifting in cciss_get_geometry() & 
-	   register_new_disk() with be32_to_cpu().
+for dpkg-based distributions. 
 
-diff -urN lx2421p7-1/drivers/block/cciss.c lx2421p7-1.1/drivers/block/cciss.c
---- lx2421p7-1/drivers/block/cciss.c	Mon Apr  7 13:11:04 2003
-+++ lx2421p7-1.1/drivers/block/cciss.c	Mon Apr  7 13:12:28 2003
-@@ -1348,15 +1348,7 @@
- 			sizeof(ReportLunData_struct), 0, 0, 0 );
- 
- 	if (return_code == IO_OK) {
--		/* printk("LUN Data\n--------------------------\n"); */
--		listlength |= (0xff &
--			(unsigned int)(ld_buff->LUNListLength[0])) << 24;
--		listlength |= (0xff &
--			(unsigned int)(ld_buff->LUNListLength[1])) << 16;
--		listlength |= (0xff &
--			(unsigned int)(ld_buff->LUNListLength[2])) << 8;
--		listlength |= 0xff &
--			(unsigned int)(ld_buff->LUNListLength[3]);
-+		listlength = be32_to_cpu(*((__u32 *) &ld_buff->LUNListLength[0]));
- 	} else {
- 		/* reading number of logical volumes failed */
- 		printk(KERN_WARNING "cciss: report logical volume"
-@@ -2699,10 +2691,7 @@
- 		printk("LUN Data\n--------------------------\n");
- #endif /* CCISS_DEBUG */ 
- 
--		listlength |= (0xff & (unsigned int)(ld_buff->LUNListLength[0])) << 24;
--		listlength |= (0xff & (unsigned int)(ld_buff->LUNListLength[1])) << 16;
--		listlength |= (0xff & (unsigned int)(ld_buff->LUNListLength[2])) << 8;	
--		listlength |= 0xff & (unsigned int)(ld_buff->LUNListLength[3]);
-+		listlength = be32_to_cpu(*((__u32 *) &ld_buff->LUNListLength[0]));
- 	} else { /* reading number of logical volumes failed */
- 		printk(KERN_WARNING "cciss: report logical volume"
- 			" command failed\n");
+Regards,
+  Dominik
+-- 
+Those who can make you believe absurdities can make you commit
+atrocities.    (Francois Marie Arouet aka Voltaire, 1694-1778)
+

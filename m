@@ -1,112 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263296AbTDCGZk>; Thu, 3 Apr 2003 01:25:40 -0500
+	id <S263288AbTDCGU5>; Thu, 3 Apr 2003 01:20:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263297AbTDCGZj>; Thu, 3 Apr 2003 01:25:39 -0500
-Received: from [12.47.58.55] ([12.47.58.55]:60216 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id <S263296AbTDCGZi>;
-	Thu, 3 Apr 2003 01:25:38 -0500
-Date: Wed, 2 Apr 2003 22:37:36 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: colpatch@us.ibm.com
-Cc: linux-kernel@vger.kernel.org, mbligh@aracnet.com, hch@infradead.org,
-       zeppegno.paolo@seat.it, ak@muc.de, lse-tech@lists.sourceforge.net
-Subject: Re: [rfc][patch] Memory Binding Take 2 (1/1)
-Message-Id: <20030402223736.1277755f.akpm@digeo.com>
-In-Reply-To: <3E8BCD21.2050307@us.ibm.com>
-References: <3E8BCB96.6090908@us.ibm.com>
-	<3E8BCD21.2050307@us.ibm.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S263295AbTDCGU5>; Thu, 3 Apr 2003 01:20:57 -0500
+Received: from granite.he.net ([216.218.226.66]:39946 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id <S263288AbTDCGU4>;
+	Thu, 3 Apr 2003 01:20:56 -0500
+Date: Wed, 2 Apr 2003 22:33:59 -0800
+From: Greg KH <greg@kroah.com>
+To: Albert Cranford <ac9410@attbi.com>
+Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Subject: Re: [PATCH] More i2c driver changes for 2.5.66
+Message-ID: <20030403063359.GA1536@kroah.com>
+References: <1049328958830@kroah.com> <3E8BD2D9.8050002@attbi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Apr 2003 06:36:58.0241 (UTC) FILETIME=[6CF36710:01C2F9AB]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E8BD2D9.8050002@attbi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Dobson <colpatch@us.ibm.com> wrote:
->
-> +#define __NR_mbind		223
+On Thu, Apr 03, 2003 at 01:21:13AM -0500, Albert Cranford wrote:
+> I read the thread concerning the removal of proc.c & proc.h
+> but hope that this does not go to Linus until the interface
+> between i2c & sensors to application is somewhat defined.
+> 
+> At the moment we have a sysctl API used by sensors, video and
+> other i2c kernel applications that is working.
 
-What was wrong with "membind"?
+The only in-kernel drivers that were using the sysctl/proc interface was
+the lm75 and adm1021 drivers.  The video and other i2c kernel drivers do
+not use this interface at all.
 
-> +/* Translate a cpumask to a nodemask */
-> +static inline void cpumask_to_nodemask(bitmap_t cpumask, bitmap_t nodemask)
-> +{
-> +	int i;
-> +
-> +	for (i = 0; i < NR_CPUS; i++)
-> +		if (test_bit(i, cpumask))
+Those two drivers, and the two other chip drivers that I added to the
+kernel in this set of patches were converted over to the sysfs interface
+(well one of the new ones were, the other one will build and run, but
+doesn't export any sysfs files yet, that will change soon.)
 
-That's a bit weird.  test_bit is only permitted on longs, so why introduce
-bitmap_t?
+> Our desire to switch the sensors to sysfs interface should not
+> break other applications.  At least until we have a model/api
+> to propose to these other drivers.
 
-> +/* Top-level function for allocating a binding for a region of memory */
-> +static inline struct binding *alloc_binding(bitmap_t nodemask)
-> +{
-> +	struct binding *binding;
-> +	int node, zone_num;
-> +
-> +	binding = (struct binding *)kmalloc(sizeof(struct binding), GFP_KERNEL);
-> +	if (!binding)
-> +		return NULL;
-> +	memset(binding, 0, sizeof(struct binding));
-> +
-> +	/* Build binding zonelist */
-> +	for (node = 0, zone_num = 0; node < MAX_NUMNODES; node++)
-> +		if (test_bit(node, nodemask) && node_online(node))
-> +			zone_num = add_node(NODE_DATA(node), 
-> +				&binding->zonelist, zone_num);
-> +	binding->zonelist.zones[zone_num] = NULL;
-> +
-> +	if (zone_num == 0) {
-> +		/* No zones were added to the zonelist.  Let the caller know. */
-> +		kfree(binding);
-> +		binding = NULL;
-> +	}
-> +	return binding;
-> +} 
+Yes, any applications that used the sysctl interface to get data from
+those two driver will break.  However we have to switch at some point in
+time, and the userspace library can't be worked on very well if the
+kernel can't support it yet :)
 
-It looks like this function needs to be able to return a real errno (see
-below).
+So I'm choosing to update the kernel first, and will be working on the
+library in the coming weeks.  As there is no real sensors support
+besides those two drivers in the main kernel, I didn't break much :)
 
-> +asmlinkage unsigned long sys_mbind(unsigned long start, unsigned long len, 
-> +		unsigned long *mask_ptr, unsigned int mask_len, unsigned long policy)
-> +{
-> +	DECLARE_BITMAP(cpu_mask, NR_CPUS);
-> +	DECLARE_BITMAP(node_mask, MAX_NUMNODES);
+> In my personal home systems I use it87 driver and have been
+> somewhat successful in switching to sysfs.  A big blocking
+> point is there is no application to read/set/monitor the
+> driver, so it is basically unverified.
 
-Bah.  Who cooked that up?  It should be DEFINE_BITMAP.  Oh well.
+I tested the changes I did by using echo and cat, no library or other
+applications are needed just yet.
 
-> +	struct vm_area_struct *vma = NULL;
-> +	struct address_space *mapping;
-> +	int copy_len, error = 0;
-> +
-> +	/* Deal with getting cpu_mask from userspace & translating to node_mask */
-> +	copy_len = min(mask_len, (unsigned int)NR_CPUS);
-> +	CLEAR_BITMAP(cpu_mask, NR_CPUS);
-> +	CLEAR_BITMAP(node_mask, MAX_NUMNODES);
-> +	if (copy_from_user(cpu_mask, mask_ptr, (copy_len+7)/8)) {
-> +		error = -EFAULT;
-> +		goto out;
-> +	}
-> +	cpumask_to_nodemask(cpu_mask, node_mask);
-> +
-> +	vma = find_vma(current->mm, start);
-> +	if (!(vma && vma->vm_file && vma->vm_ops && 
-> +		vma->vm_ops->nopage == shmem_nopage)) {
-> +		/* This isn't a shm segment.  For now, we bail. */
-> +		error = -EINVAL;
-> +		goto out;
-> +	}
-> +
-> +	mapping = vma->vm_file->f_dentry->d_inode->i_mapping;
-> +	mapping->binding = alloc_binding(node_mask);
-> +	if (!mapping->binding)
-> +		error = -EFAULT;
+thanks,
 
-It returns EFAULT on memory exhaustion?
-
-
-btw, can you remind me again why this is only available to tmpfs pagecache?
-
+greg k-h

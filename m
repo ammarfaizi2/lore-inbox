@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315829AbSEEHhA>; Sun, 5 May 2002 03:37:00 -0400
+	id <S315830AbSEEHlB>; Sun, 5 May 2002 03:41:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315830AbSEEHg7>; Sun, 5 May 2002 03:36:59 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:49404
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S315829AbSEEHg7>; Sun, 5 May 2002 03:36:59 -0400
-Date: Sun, 5 May 2002 00:36:56 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Neil Conway <nconway_kernel@yahoo.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH, IDE corruption, 2.4.18
-Message-ID: <20020505073656.GD2392@matchmail.com>
-Mail-Followup-To: Neil Conway <nconway_kernel@yahoo.co.uk>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020505002212.GA2392@matchmail.com> <20020505015417.76681.qmail@web21510.mail.yahoo.com>
-Mime-Version: 1.0
+	id <S315831AbSEEHlA>; Sun, 5 May 2002 03:41:00 -0400
+Received: from CPE-203-51-25-114.nsw.bigpond.net.au ([203.51.25.114]:30716
+	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id <S315830AbSEEHk7>; Sun, 5 May 2002 03:40:59 -0400
+Message-ID: <3CD4E208.181AE989@eyal.emu.id.au>
+Date: Sun, 05 May 2002 17:40:56 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8-aa2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Keith Owens <kaos@ocs.com.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre8aa2
+In-Reply-To: <2661.1020567877@ocs3.intra.ocs.com.au>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 05, 2002 at 02:54:17AM +0100, Neil Conway wrote:
-> Hi...
+Keith Owens wrote:
 > 
->  --- Mike Fedyk <mfedyk@matchmail.com> wrote: > On Sat, May 04, 2002 at
-> 01:15:20PM +0100, Neil Conway wrote:
-> > > -	byte stat;
-> > > +	byte stat,unit;
-> > 
-> > [snip]
-> > 
-> > >  #if defined(CONFIG_BLK_DEV_IDEDMA) && !defined(CONFIG_DMA_NONPCI)
-> > > -	byte unit = (drive->select.b.unit & 0x01);
-> > > +	unit = (drive->select.b.unit & 0x01);
-> > 
-> > Why are you moving the init of "unit" out of that ifdef?
+> On Sun, 05 May 2002 09:34:25 +1000,
+> Eyal Lebedinsky <eyal@eyal.emu.id.au> wrote:
+> >I agree with this. However, since this driver cannot be built, and
+> >since the latest modutils will exit badly for unresolved, I strongly
+> >believe that the comx driver should not be offered (disable it in
+> >the Config.in) until it is fixed - 2.4 being a stable kernel.
+> >
+> >I had to wrap 'depmod' with a script to ignore failures in order
+> >to get through a full build (which includes the kernel plus a few
+> >extra modules like NVdriver, dc395, lm_sensors).
 > 
-> Basically to make it compile.  I'm only moving the declaration, and
-> that's only because I need to abort the routine BEFORE the second line
-> of the ifdef switches off DMA on that unit.  I did compile a version
-> with the ifdef split into two bits but I decided that was a little
-> messy. (It won't compile if my check goes in before the first line of
-> the ifdef as originally written as it declares a variable and C won't
-> let declarations follow plain code.)
->
+> You should not have to wrap depmod.  Standard 2.4.* modutils returns 0
+> for unresolved errors, for compatibility with previous behaviour.  You
+> have to do depmod -u to get a non-zero return code.  The -u flag was
+> added in modutils 2.4.7 and defaults to off.  In modutils 2.5 it will
+> default to on, that will break code that relies on the existing
+> behaviour.  I will not change modutils default behaviour in 2.4.
+> 
+> So why is your version of depmod breaking?  Either you are specifying
+> -u or your distribution has hacked depmod to default -u to on.  Check
+> depmod.c for variable flag_unresolved_error, it should default to 0.
 
-Right.  Duh on my part, sorry.
+You are right, it is not the unresolved that caused it but the non
+ELF objects in there (it used not to care before):
 
-> > Can you see if this problem is still in 2.5 also? 
-> 
-> I haven't got a 2.5.13 tree but I found 2.5.7 on a source browser
-> online and verified that, back then at least, ide-features.c was still
-> basically the same.  Of course, the routines in between
-> ide_register_subdriver and ide_config_drive_speed might have been
-> different.  If someone can look at the code-path between these two
-> routines in 2.5.13 to see if there is any check on whether or not the
-> hwgroup is busy (or simply whether or not DMA is in progress) that
-> would clear it up.  I'll probably download 2.5.13 sometime soon anyway.
-> 
+# /sbin/depmod-2.4.15 -ae ; echo $?
+depmod: /lib/modules/2.4.19-pre8-aa2/ksyms is not an ELF file
+depmod: /lib/modules/2.4.19-pre8-aa2/soundconf is not an ELF file
+1
 
-Andre cleaims that the situation is worse on 2.5.13 or so.  I wouldn't hurt
-to test-run the code though.
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

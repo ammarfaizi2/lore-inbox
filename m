@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261573AbTCOVMu>; Sat, 15 Mar 2003 16:12:50 -0500
+	id <S261585AbTCOVNw>; Sat, 15 Mar 2003 16:13:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261584AbTCOVMt>; Sat, 15 Mar 2003 16:12:49 -0500
-Received: from mx12.arcor-online.net ([151.189.8.88]:56468 "EHLO
-	mx12.arcor-online.net") by vger.kernel.org with ESMTP
-	id <S261573AbTCOVL0>; Sat, 15 Mar 2003 16:11:26 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-Date: Sat, 15 Mar 2003 22:26:05 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Zack Brown <zbrown@tumblerings.org>, linux-kernel@vger.kernel.org
-References: <200303020011.QAA13450@adam.yggdrasil.com> <20030311192639.E72163C5BE@mx01.nexgo.de> <20030314122903.GC8057@zaurus.ucw.cz>
-In-Reply-To: <20030314122903.GC8057@zaurus.ucw.cz>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20030315212217.0ADAC10D59D@mx12.arcor-online.net>
+	id <S261590AbTCOVNw>; Sat, 15 Mar 2003 16:13:52 -0500
+Received: from ns.suse.de ([213.95.15.193]:25348 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261585AbTCOVNu>;
+	Sat, 15 Mar 2003 16:13:50 -0500
+Date: Sat, 15 Mar 2003 22:24:38 +0100
+From: Andi Kleen <ak@suse.de>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
+Subject: Re: Hammer thread fixes
+Message-ID: <20030315212438.GA8113@wotan.suse.de>
+References: <3E739514.8010300@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E739514.8010300@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri 14 Mar 03 13:29, Pavel Machek wrote:
-> What kind of data would have to be in soft-changeset?
-> * unique id of changeset
-> * unique id of previous changeset
-> (two previous if it is merge)
-> ? or would it be better to have here
-> whole path to first change?
-> * commit comment
-> * for each file:
-> ** diff -u of change
-> ** file's unique id
-> ** in case of rename: new name (delete is rename to special dir)
-> ** in case of chmod/chown: new permissions
-> ** per-file comment
+On Sat, Mar 15, 2003 at 01:03:16PM -0800, Ulrich Drepper wrote:
+> The appended two fixes are necessary to get NPTL threads running on
+> hammer.  The changes should be obvious.  The exit_group syscall isn't
+> present at all so far and the r10 -> r8 register use is necessary
+> because syscall parameter #4 (in r10) is already used for the child_tid
+> parameter.
 
-This *very* closely matches the schema I worked up some months ago, and 
-dusted off again when I saw your original Bitbucket post.
+It's incorrect like I told you last time. arg 4 is in r10. Linus please don't
+apply.
 
-> ? How to handle directory moves?
->
-> Does it seem sane? Any comments?
+The clone prototype is 
 
-Oh yes.  Comment: see response to Horst van Brand, on much the same subject.
+	int clone(int flags, unsigned long newsp, void *parent_tid, void *child_tid) ;
 
-Regards,
+	rax: __NR_clone
+	rdi: flags
+	rsi: newsp 
+	rdx: parent_tid
+	r10: child_tid
 
-Daniel
+See appendix A of the x86-64 ABI for details.	 The kernel ABI 
+is different from the user space ABI because of the SYSCALL clobbers.
+
+For exit_group please wait for my next merge.
+
+-Andi

@@ -1,62 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261692AbUL3SRT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261690AbUL3S0L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261692AbUL3SRT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 13:17:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbUL3SRT
+	id S261690AbUL3S0L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 13:26:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261694AbUL3S0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 13:17:19 -0500
-Received: from fw.osdl.org ([65.172.181.6]:11461 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261692AbUL3SRP (ORCPT
+	Thu, 30 Dec 2004 13:26:11 -0500
+Received: from mail.aknet.ru ([217.67.122.194]:21259 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S261690AbUL3S0G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 13:17:15 -0500
-Date: Thu, 30 Dec 2004 10:16:15 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: Jesse Allen <the3dfxdude@gmail.com>, Mike Hearn <mh@codeweavers.com>,
-       Thomas Sailer <sailer@scs.ch>, Eric Pouech <pouech-eric@wanadoo.fr>,
-       Daniel Jacobowitz <dan@debian.org>, Roland McGrath <roland@redhat.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
-Subject: Re: ptrace single-stepping change breaks Wine
-In-Reply-To: <Pine.LNX.4.58.0412300953470.2193@bigblue.dev.mdolabs.com>
-Message-ID: <Pine.LNX.4.58.0412301012280.22893@ppc970.osdl.org>
-References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com> 
- <20041120214915.GA6100@tesore.ph.cox.net>  <41A251A6.2030205@wanadoo.fr> 
- <Pine.LNX.4.58.0411221300460.20993@ppc970.osdl.org>  <1101161953.13273.7.camel@littlegreen>
-  <1104286459.7640.54.camel@gamecube.scs.ch>  <1104332559.3393.16.camel@littlegreen>
-  <Pine.LNX.4.58.0412291047120.2353@ppc970.osdl.org> 
- <53046857041229114077eb4d1d@mail.gmail.com>  <Pine.LNX.4.58.0412291151080.2353@ppc970.osdl.org>
- <530468570412291343d1478cf@mail.gmail.com> <Pine.LNX.4.58.0412291622560.2353@ppc970.osdl.org>
- <Pine.LNX.4.58.0412291703400.30636@bigblue.dev.mdolabs.com>
- <Pine.LNX.4.58.0412291745470.2353@ppc970.osdl.org>
- <Pine.LNX.4.58.0412292050550.22893@ppc970.osdl.org>
- <Pine.LNX.4.58.0412292055540.22893@ppc970.osdl.org>
- <Pine.LNX.4.58.0412292106400.454@bigblue.dev.mdolabs.com>
- <Pine.LNX.4.58.0412292256350.22893@ppc970.osdl.org>
- <Pine.LNX.4.58.0412300953470.2193@bigblue.dev.mdolabs.com>
+	Thu, 30 Dec 2004 13:26:06 -0500
+Message-ID: <41D4483C.9030005@aknet.ru>
+Date: Thu, 30 Dec 2004 21:26:04 +0300
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: ru, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alexander Kern <alex.kern@gmx.de>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: bug: cd-rom autoclose no longer works (fix attempt)
+References: <200412301853.48677.alex.kern@gmx.de>
+In-Reply-To: <200412301853.48677.alex.kern@gmx.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello.
 
+Alexander Kern wrote:
+>> The ide-cd.c change is as per 2.4.20
+>> which works. For some reasons
+>> sense.ascq == 0 for me when the tray
+>> is opened.
+> ascq = 0 is legal.
+> According to mmc3r10g
+> asc 3a
+> ascq 0 is MEDIUM NOT PRESENT
+> ascq 1 is MEDIUM NOT PRESENT - TRAY CLOSED
+> ascq 2 is MEDIUM NOT PRESENT - TRAY OPEN
+> What in my eyes means, your drive is impossible to determine is tray open or 
+> closed.
+I think so too, this is the problem most
+likely. However, my cd-roms are not that
+ancient, I expect there are millions of
+the like ones around. Breaking autoclose
+for all of them after it worked for ages,
+is no good IMO.
 
-On Thu, 30 Dec 2004, Davide Libenzi wrote:
-> 
-> This might explain what they were seeing, but OTOH it seems that the real 
-> cause of their problems is related to something else (according to other 
-> emails on this thread).
+> Linux assumes if not known tray is closed. That is better default, it 
+> avoids infinate trying to close.
+I don't think so. It is safe to assume the
+tray is opened, at least it worked in the
+past (or were there the real problems with
+this?) You can always try to close it only
+once, and if that still returns 0, then
+bail out. One extra closing attempt should
+not do any harm I suppose. That's exactly
+what my patch does (I hope). And that's most
+likely how it used to work before. I'll be
+disappointed if autoclose will remain broken -
+it was the very usefull feature, it will be
+missed. Unless there are the real technical
+reasons against the old behaviour, of course.
 
-There's two different problems: the one seen by Thomas (the Xilinx FPGA
-synthesizer), which is apparently just due to Wine (or, more likely, the
-Windows app itself) depending on a certain memory layout for the stack
-and/or other allocations. That one I think we can consider solved, and
-indeed had nothing to do with TF.
-
-The other one is the copy-protection code breaking for some game 
-(Warcraft) for Jesse Allen, and that one is definitely TF-related.. Jesse 
-can fix it with patches, but those patches aren't acceptable for other 
-uses, so that's why I'm trying to find something that DTRT both for Wine 
-and for a regular debugging session..
-
-		Linus

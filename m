@@ -1,90 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292761AbSB0UvF>; Wed, 27 Feb 2002 15:51:05 -0500
+	id <S292913AbSB0VEw>; Wed, 27 Feb 2002 16:04:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292943AbSB0Uut>; Wed, 27 Feb 2002 15:50:49 -0500
-Received: from nobugconsulting.ro ([213.157.160.38]:2564 "EHLO
-	mail.nobugconsulting.ro") by vger.kernel.org with ESMTP
-	id <S292942AbSB0UuX>; Wed, 27 Feb 2002 15:50:23 -0500
-Message-ID: <3C7D4666.6D35B124@pcnet.ro>
-Date: Wed, 27 Feb 2002 22:49:42 +0200
-From: lonely wolf <wolfy@pcnet.ro>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
+	id <S292945AbSB0VEP>; Wed, 27 Feb 2002 16:04:15 -0500
+Received: from www.transvirtual.com ([206.14.214.140]:39951 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S292948AbSB0VDm>; Wed, 27 Feb 2002 16:03:42 -0500
+Date: Wed, 27 Feb 2002 13:03:29 -0800 (PST)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Ben Clifford <benc@hawaga.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.5-dj2 oops
+In-Reply-To: <Pine.LNX.4.33.0202271228470.5225-100000@barbarella.hawaga.org.uk>
+Message-ID: <Pine.LNX.4.10.10202271301180.8641-100000@www.transvirtual.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: disk transfer speed problem
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-initial data: one brand new intel bonham motherboard (i815) , 900 MHz
-celeron processor
-2 new 80 GB Seagate Barracuda used as raid1, 7200 RPM,ext3 filesystem,
-RedHat 2.4.9-21 kernel from  RH 7.2 updates.
 
-settings (identical for hdc and hdd), as detected by the kernel (except
-for I/O support  =  3):
-#hdparm /dev/hdc
- multcount    = 16 (on)
- I/O support  =  3 (32-bit w/sync)
- unmaskirq    =  0 (off)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- nowerr       =  0 (off)
- readonly     =  0 (off)
- readahead    =  8 (on)
- geometry     = 23989/16/63, sectors = 156301488, start = 0
+> Okay folks. Here is another patch to fix the oops. It is against a
+> http://www.transvirtual.com/~jsimmons/console/console_8.diff
 
-#hdparm -i /dev/hdc
-
- Model=ST380021A, FwRev=3.05, SerialNo=3HV080KH
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs RotSpdTol>.5% }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
- BuffType=unknown, BuffSize=2048kB, MaxMultSect=16, MultSect=16
- CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=156301488
- IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4
- DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5
-
- #dmesg|grep UDMA
-hda: 14668290 sectors (7510 MB) w/418KiB Cache, CHS=913/255/63, UDMA(66)
-(this is the boot disk)
-
-hdc: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=155061/16/63,
-UDMA(100
-hdd: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=155061/16/63,
-UDMA(100)
-
-The IDE cables have 80 wires. I am not sure that they are ATA100, but I
-think they do.
-
-The problem:
-#/sbin/hdparm -tTf /dev/hdd
-
-/dev/hdd:
- Timing buffer-cache reads:   128 MB in  1.17 seconds =109.40 MB/sec
- Timing buffered disk reads:  64 MB in  3.24 seconds = 19.75 MB/sec
-
-
-Even after issuing raidstop and umounting the partition placed on the
-RAID, the speed does not exceed 22 MB/sec.
-
-With hdparm -c1 performances are almost identical
-
-Tests were performed in initlevel 3, with NFS started, but no one but
-root  using the machine (from console). In production, the speed is also
-very, very slow
-
-Any idea what might limit the transfer speed ?
-
-
---
-      Manuel Wolfshant       linux registered user #131416
-       network administrator    NoBug Consulting Romania
-             Beware the fury of a patient man.
-
-
+Okay. This time I believe I see what caused the oops. Give it a try again.
 
 

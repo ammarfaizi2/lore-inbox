@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267274AbUBSGhc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 01:37:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267277AbUBSGhb
+	id S267282AbUBSGmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 01:42:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267283AbUBSGmY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 01:37:31 -0500
-Received: from quantumcode.net ([66.45.229.144]:516 "EHLO quantumcode.net")
-	by vger.kernel.org with ESMTP id S267274AbUBSGcX (ORCPT
+	Thu, 19 Feb 2004 01:42:24 -0500
+Received: from quantumcode.net ([66.45.229.144]:772 "EHLO quantumcode.net")
+	by vger.kernel.org with ESMTP id S267282AbUBSGc2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 01:32:23 -0500
-Message-ID: <002101c3f6b2$b4b92530$1305a8c0@nycapt35k.com>
+	Thu, 19 Feb 2004 01:32:28 -0500
+Message-ID: <002201c3f6b2$ba061c00$1305a8c0@nycapt35k.com>
 From: "Hayden A. James" <hjames@quantumcode.net>
 To: "Greg KH" <greg@kroah.com>
 Cc: <linux-kernel@vger.kernel.org>
 References: <1077081034.6813.22.camel@haydend.quantumcode.net> <20040218175540.GB2924@kroah.com>
 Subject: Re: USB access via KVM broken in 2.6[0-3]
-Date: Thu, 19 Feb 2004 01:36:28 -0500
+Date: Thu, 19 Feb 2004 01:36:37 -0500
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"

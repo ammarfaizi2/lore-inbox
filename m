@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129745AbRAIJeq>; Tue, 9 Jan 2001 04:34:46 -0500
+	id <S130387AbRAIJiQ>; Tue, 9 Jan 2001 04:38:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129906AbRAIJeg>; Tue, 9 Jan 2001 04:34:36 -0500
-Received: from finch-post-10.mail.demon.net ([194.217.242.38]:33806 "EHLO
-	finch-post-10.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S129745AbRAIJeZ>; Tue, 9 Jan 2001 04:34:25 -0500
-Date: Tue, 9 Jan 2001 09:34:14 +0000
-From: Roger Gammans <roger@computer-surgery.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Journaling: Surviving or allowing unclean shutdown?
-Message-ID: <20010109093414.A7935@knuth.computer-surgery.co.uk>
-In-Reply-To: <20010104224946.C1290@redhat.com> <Pine.LNX.4.30.0101031253130.6567-100000@springhead.px.uk.com> <Pine.LNX.4.21.0101031325270.1403-100000@duckman.distro.conectiva> <3A5352ED.A263672D@innominate.de> <20010104192104.C2034@redhat.com> <20010104220821.B775@stefan.sime.com> <20010104224946.C1290@redhat.com> <1628.978695936@redhat.com> <20010106205726.A9664@cerebro.laendle> <20010108120249.J9321@redhat.com>
-Mime-Version: 1.0
+	id <S129906AbRAIJiG>; Tue, 9 Jan 2001 04:38:06 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:14596 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S130347AbRAIJhw>; Tue, 9 Jan 2001 04:37:52 -0500
+Message-ID: <3A5ADBC7.D297CFDB@idb.hist.no>
+Date: Tue, 09 Jan 2001 10:37:11 +0100
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: no, da, en
+MIME-Version: 1.0
+To: Nicolas Noble <Pixel@the-babel-tower.nobis.phear.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: kernel network problem ?
+In-Reply-To: <Pine.LNX.4.21.0101051646100.5165-100000@the-babel-tower.nobis.phear.org>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <20010108120249.J9321@redhat.com>; from Stephen C. Tweedie on Mon, Jan 08, 2001 at 12:02:49PM +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2001 at 12:02:49PM +0000, Stephen C. Tweedie wrote:
-> Right.  There are two distinct meanings:
-> 
-> 1) Do not write to this medium, ever (physical readonly); and
-> 
-> 2) Do not allow modifications to the filesystem (logical readonly).
-> 
-> The fact is that the kernel confuses the two, but that just isn't
->[snip]
-> We just don't have a way of specifying these two things independently.
+Nicolas Noble wrote:
+[...]
+As others have told already, this is the ECN problem.
 
-Is this call for a new mount option?, or should we just
-clutter /dev even further with devices with ro permissions as the
-marker.
+> I noticed the same bug. This is very weired, I can send a list of sites
+> which I can't connect anymore. 
 
-TTFN
--- 
-Roger
-     Think of the mess on the carpet. Sensible people do all their
-     demon-summoning in the garage, which you can just hose down afterwards.
-        --     damerell@chiark.greenend.org.uk
-	
+You have a list?  Send all of them a message stating that they ought
+to upgrade their firewalls which cause this problem.  Or they
+will loose customers/visitors.  Cisco already have an upgrade for them,
+so fixing is dead easy, and they can then boast compatibility with
+the latest internet standards.  
+
+If they don't care about linux users, tell them that windows eventually
+will use ECN too.  They definitely don't want to have a ECN problem when
+that happens.
+
+Helge Hafting
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

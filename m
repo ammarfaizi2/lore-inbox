@@ -1,32 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275139AbRJBPPx>; Tue, 2 Oct 2001 11:15:53 -0400
+	id <S275094AbRJBPPx>; Tue, 2 Oct 2001 11:15:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275173AbRJBPPn>; Tue, 2 Oct 2001 11:15:43 -0400
-Received: from sushi.toad.net ([162.33.130.105]:47494 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S275139AbRJBPPh>;
-	Tue, 2 Oct 2001 11:15:37 -0400
-Subject: Re: [PATCH] PnPBIOS 2.4.9-ac1[56] Vaio fix
-To: linux-kernel@vger.kernel.org
-Date: Tue, 2 Oct 2001 11:15:25 -0400 (EDT)
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+	id <S275178AbRJBPPn>; Tue, 2 Oct 2001 11:15:43 -0400
+Received: from gap.cco.caltech.edu ([131.215.139.43]:1216 "EHLO
+	gap.cco.caltech.edu") by vger.kernel.org with ESMTP
+	id <S275094AbRJBPPe> convert rfc822-to-8bit; Tue, 2 Oct 2001 11:15:34 -0400
+Date: 2 Oct 2001 15:29:45 -0000
+Message-ID: <20011002152945.15180.qmail@mailweb16.rediffmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+From: "Dinesh  Gandhewar" <dinesh_gandhewar@rediffmail.com>
+Reply-To: "Dinesh  Gandhewar" <dinesh_gandhewar@rediffmail.com>
+To: <mlist-linux-kernel@nntp-server.caltech.edu>
 Content-Type: text/plain; charset=US-ASCII
-Message-Id: <20011002151526.0AE7510E6@thanatos.toad.net>
-From: jdthood@home.dhs.org (Thomas Hood)
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stelian: Okay, the patch you submitted under the Subject heading
-"[PATCH 2.4.10-ac3] move DMI scan before other subsystem init (especially PnP)"
-applied cleanly over 2.4.10-ac3, built and ran correctly on my
-ThinkPad 600.
 
-Alan: I'd suggest that this patch (Stelian's dmi scan relocation)
-go in next, if it's altogether kosher.  I'll submit a new version
-of the pnpbios "additional fixes" patch once that's done.
+Hello,
+I have written a linux kernel module. The linux version is 2.2.14. 
+In this module I have declared an array of size 2048. If I use this array, the execution of this module function causes kernel to reboot. If I kmalloc() this array then execution of this module function doesnot cause any problem.
+Can you explain this behaviour?
+Thnaks,
+Dinesh 
+ 
 
--- 
-Thomas Hood
-(Don't reply to the From: address but to jdthood_AT_yahoo.co.uk)

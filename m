@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311123AbSCMToL>; Wed, 13 Mar 2002 14:44:11 -0500
+	id <S311130AbSCMTpv>; Wed, 13 Mar 2002 14:45:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311119AbSCMToC>; Wed, 13 Mar 2002 14:44:02 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:55049 "EHLO
+	id <S311128AbSCMTpl>; Wed, 13 Mar 2002 14:45:41 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:56841 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S311123AbSCMTnm>; Wed, 13 Mar 2002 14:43:42 -0500
-Date: Wed, 13 Mar 2002 14:41:52 -0500 (EST)
+	id <S311119AbSCMTpa>; Wed, 13 Mar 2002 14:45:30 -0500
+Date: Wed, 13 Mar 2002 14:43:13 -0500 (EST)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Martin Wirth <Martin.Wirth@dlr.de>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
-In-Reply-To: <3C8F1801.6070107@dlr.de>
-Message-ID: <Pine.LNX.3.96.1020313143751.4797A-100000@gatekeeper.tmr.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] My AMD IDE driver, v2.7
+In-Reply-To: <20020312172134.A5026@ucw.cz>
+Message-ID: <Pine.LNX.3.96.1020313144211.4797B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Mar 2002, Martin Wirth wrote:
+On Tue, 12 Mar 2002, Vojtech Pavlik wrote:
 
-> The normal way to use multithreading under UNIX is the pthread
-> library. Here the condition variables are the equivalent to kernel
-> wait queues. So I think to really implement a fast pthread lib based
-> on futexes one needs some means to implement condition variables
-> (with synchronous futex release to implement  pthread_cond_wait(..)!).
+> PIIX and ICH are pretty crazy hardware from the design perspective, very
+> legacy-bound back to the first Intel PIIX chip. And the driver for these
+> in the kernel has similarly evolved following the hardware. However, it
+> doesn't seem to be wrong at the first glance. Nevertheless, I'll take a
+> look at it. Unfortunately, I don't have any Intel hardware at hand to
+> test it with.
 
-Let me mention this again... The IBM release of NGPT states that Linus has
-approved the inclusion of the NGPT patches in the mainline kernel. Will
-this be in 2.4.19 release? I've been running 2.4.17 for NGPT, haven't
-tried 2.4.19 other than to see the patch didn't apply).
-
-(NGPT = Next Generation Pthreads, a cleaner and faster POSIX threads)
+I'm not sure "evolved" is the term you want, allow me to suggest
+"mutated."
 
 -- 
 bill davidsen <davidsen@tmr.com>

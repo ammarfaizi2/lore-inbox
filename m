@@ -1,81 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315816AbSEJGd3>; Fri, 10 May 2002 02:33:29 -0400
+	id <S315817AbSEJGfT>; Fri, 10 May 2002 02:35:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315817AbSEJGd2>; Fri, 10 May 2002 02:33:28 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:10696 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S315816AbSEJGd1>; Fri, 10 May 2002 02:33:27 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Date: Fri, 10 May 2002 16:31:59 +1000 (EST)
+	id <S315818AbSEJGfS>; Fri, 10 May 2002 02:35:18 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:60119 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S315817AbSEJGfR>;
+	Fri, 10 May 2002 02:35:17 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15579.26975.71466.20500@notabene.cse.unsw.edu.au>
-Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, <benh@kernel.crashing.org>,
-        Padraig Brady <padraig@antefacto.com>,
-        Anton Altaparmakov <aia21@cantab.net>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Device naming... was Re: [PATCH] 2.5.14 IDE 56
-In-Reply-To: message from Linus Torvalds on Tuesday May 7
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Message-ID: <15579.27172.621514.289282@napali.hpl.hp.com>
+Date: Thu, 9 May 2002 23:35:16 -0700
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: maximum block size in buffer_head
+In-Reply-To: <3CDB5CC5.2621C68C@zip.com.au>
+X-Mailer: VM 7.03 under Emacs 21.1.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday May 7, torvalds@transmeta.com wrote:
-> 
-> If you have /dev/hda1, that _cannot_ be a symlink to the physical tree,
-> because on a physical level that partition DOES NOT EXIST. It's purely a
-> virtual mapping.
-> 
-> Yet clearly there _is_ a mapping from /dev/hda1 onto the physical device
-> in question, and clearly it _is_ a meaninful operation to operate on the
-> physical device underlying /dev/hda1.
-> 
-> So if you want to have a sane interface, you need to have a way to look up
-> the physical device that underlies /dev/hda1.
-> 
-> Yet it clearly cannot be a symlink.
+>>>>> On Thu, 09 May 2002 22:38:13 -0700, Andrew Morton <akpm@zip.com.au> said:
 
-I have this dream about how we *should* name things in the
-kernel..... but I won't bore you with that just now.
+  Andrew> Sounds OK to me for 2.5.
 
-The relevant bit relates to how to map from an open-file-descriptor on
-a device (or on a file on a filesystem on a device) to information
-about that device.
-The only piece of information we can currently get is the device
-number (either st_rdev or st_dev).
+Will you make the change then?  I'd appreciate that.
 
-Using the principle that
-   "All API extenstions should be done via special filesystems"
-the answer has to be that there is filesystem-like-thing that maps
-device numbers to their "True Identity".
-e.g.
+  Andrew> For 2.4, a 32-bit b_size would push sizeof(buffer_head) from
+  Andrew> 96 up to 100 bytes, which does not pack as well into the
+  Andrew> slab.  This would be an intensely unpopular move.  So you'd
+  Andrew> have to ifdef it.  Which makes it an ia64-only problem,
+  Andrew> which greatly improves your merge chances ;)
 
-  /kernel/devno/3/1 ->  /kernel/device/pci/0/00:1f.4/ide/0/0/pc_partition/1
+For 2.4, I suspect I need to keep this in the ia64 patch anyhow
+because it is also necessary to fix scsi_dma.c so it can deal with
+allocation bitmaps that are bigger than 32 bits.
 
-Actually, I would prefer something like:
+I believe ia64 is currently the only platform that supports 64KB
+pages.  If so, there is probably not much point trying to get this
+past Marcelo (and the patch is large enough to have the potential for
+introducing new bugs).  If another platform cares about this, please
+speak up.
 
-  /kernel/devno/3/1 -> /kernel/disk/3/part/1
-together with
-  /kernel/disk/3/bus -> /kernel/ide/0
-  /kernel/disk/3/disk   BLOCK:3:0
-  /kernel/disk/3/part/1 BLOCK:3:1
-  /kernel/disk/3/part/2 BLOCK:3:2
+  >> - does anyone know of any other code paths where the block size
+  >> is assumed to fit into 16 bits?
 
-  /kernel/ide/0/disk -> /kernel/disk/3
-  /kernel/ide/0/bus  -> /kernel/pci/0/00:1f.4
+  Andrew> Not off the top, but they're probably there.
 
-  /kernel/pci/0/00:1f.4/ide -> /kernel/ide/0
+I'll keep an eye on it.  It's working fine so far, but that doesn't
+replace a code audit.  If you happen to bump into something during
+your normal work, please let me know.
 
-and they would be "devlinks", not "symlinks"... but I think I might be
-beginning to bore you.
+Thanks,
 
-NeilBrown
-
+	--david

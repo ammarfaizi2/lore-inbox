@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265242AbTB0R0u>; Thu, 27 Feb 2003 12:26:50 -0500
+	id <S265687AbTB0Rgm>; Thu, 27 Feb 2003 12:36:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265680AbTB0R0u>; Thu, 27 Feb 2003 12:26:50 -0500
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:51473 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S265242AbTB0R0u>; Thu, 27 Feb 2003 12:26:50 -0500
-Date: Thu, 27 Feb 2003 17:37:04 +0000
-From: John Levon <levon@movementarian.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: oprofile-list@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Oops running oprofile in 2.5.62
-Message-ID: <20030227173704.GA76419@compsoc.man.ac.uk>
-References: <3E5DB057.60503@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E5DB057.60503@us.ibm.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18oRxx-0004DC-00*UsALvuAFBKA*
+	id <S265686AbTB0Rgm>; Thu, 27 Feb 2003 12:36:42 -0500
+Received: from adsl-63-195-13-67.dsl.chic01.pacbell.net ([63.195.13.67]:44817
+	"EHLO mail.scitechsoft.com") by vger.kernel.org with ESMTP
+	id <S265680AbTB0Rgl>; Thu, 27 Feb 2003 12:36:41 -0500
+From: "Kendall Bennett" <KendallB@scitechsoft.com>
+Organization: SciTech Software, Inc.
+To: linux-kernel@vger.kernel.org
+Date: Thu, 27 Feb 2003 09:46:53 -0800
+MIME-Version: 1.0
+Subject: Is the GIO_FONT ioctl() busted in Linux kernel 2.4?
+Message-ID: <3E5DDE8D.14024.6FCE7D82@localhost>
+X-mailer: Pegasus Mail for Windows (v4.02)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 26, 2003 at 10:29:43PM -0800, Dave Hansen wrote:
+Hi,
 
-> I'm pretty sure it happened on this line in oprofile_add_sample():
-> 	cpu_buf->buffer[cpu_buf->pos].eip = eip;
-> 
-> Unable to handle kernel paging request at virtual address f8c3c000
+I have some old code that used to work great on older Linux 2.2 kernels 
+that is now giving me a perror() error message of 'no space left on 
+device' (ie: ENOSPC) when I call ioctl(GIO_FONT) to save the current 
+console font.
 
-Odd. UP or SMP ? Were you shutting down oprofile at the time (or did the
-daemon crash ? check /var/lib/oprofile/oprofiled.log)
+>From looking at the 2.4 kernel source code that comes with Red Hat 8.0, 
+it is clear that these functions are implemented on top of a new console 
+font interface that supports 512 characters and up to 32x32 pixel fonts 
+(obviously for fb consoles). From my quick look at the code, the ENOSPC 
+error must be coming because when the new code attempts to save the 
+console font it must have more than 256 characters or bigger than 8x32 
+pixels for the font glyphs (which is what the old font interface 
+supported).
 
-The only thing I can think is that the buffer got freed then we  got an
-NMI afterwards (which obviously isn't supposed to happen...)
+I know I can switch to the new console interfaces (which I will do once I 
 
-UP oprofile in current linus is still totally broken, but I can't
-imagine it causing the above.
+determine how to do a runtime check for a 2.4 kernel so I can still use 
+the old code for 2.2 and earlier kernels), but it seems to me that this 
+bug should be fixed. Is anyone more familiar with the console code able 
+to provide some feedback on this?
 
-regards
-john
+Regards,
+
+---
+Kendall Bennett
+Chief Executive Officer
+SciTech Software, Inc.
+Phone: (530) 894 8400
+http://www.scitechsoft.com
+
+~ SciTech SNAP - The future of device driver technology! ~
+

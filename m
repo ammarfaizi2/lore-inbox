@@ -1,152 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267310AbSLRShz>; Wed, 18 Dec 2002 13:37:55 -0500
+	id <S267317AbSLRSiB>; Wed, 18 Dec 2002 13:38:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267318AbSLRShz>; Wed, 18 Dec 2002 13:37:55 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:11537 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267310AbSLRShr>;
-	Wed, 18 Dec 2002 13:37:47 -0500
-Date: Wed, 18 Dec 2002 10:43:07 -0800
-From: Greg KH <greg@kroah.com>
-To: lvm-devel@sistina.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] add kobject to struct mapped_device
-Message-ID: <20021218184307.GA32190@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S267318AbSLRSiB>; Wed, 18 Dec 2002 13:38:01 -0500
+Received: from mrelay1.cc.umr.edu ([131.151.1.120]:41930 "EHLO smtp.umr.edu")
+	by vger.kernel.org with ESMTP id <S267317AbSLRShy> convert rfc822-to-8bit;
+	Wed, 18 Dec 2002 13:37:54 -0500
+X-MIMEOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 3ware driver in 2.4.x and 2.5.x not compatible with 6x00 series cards
+Date: Wed, 18 Dec 2002 12:45:51 -0600
+Message-ID: <B578DAA4FD40684793C953B491D4879110D6E5@umr-mail7.umr.edu>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 3ware driver in 2.4.x and 2.5.x not compatible with 6x00 series cards
+Thread-Index: AcKmxMkiqCnsIAbrQCScD/dq3TxElwAAAzZw
+From: "Neulinger, Nathan" <nneul@umr.edu>
+To: "Adam Radford" <aradford@3WARE.com>,
+       "Dave Jones" <davej@codemonkey.org.uk>
+Cc: <linux-kernel@vger.kernel.org>, "Uetrecht, Daniel J." <uetrecht@umr.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Your statement makes a hell of a lot more sense to me, but I'm just
+going on what I was told, and observed behavior.
 
-Here's a simple patch against 2.5.52 that adds the kobject structure to
-struct mapped_device.  I did this for two reasons:
-	- kobject provides proper reference counting for a structure
-	  (not saying that struct mapped_device didn't get this correct,
-	  but it's nice to use the core for these things).
-	- This lets us tie into the block layer better to describe the
-	  dm devices.
+As soon as I followed his instructions, the symptom went away. Basically
+on this one machine, I'm getting tons of command timed out, resetting
+card messages. Along with unknown ioctl messages. Snippet from dmesg
+follows:
 
-I originally hacked something together that added dm attributes to the
-block devices themselves, but that wasn't proper, as it forced the dm
-code to dig into the gendisk core too intrusively.  With this patch, it
-is very easy to make a dm object be a child of the proper struct gendisk
-object (which it already is logically, but that representation isn't
-exported to userspace yet.)  Then, the dm specific attributes of the
-gendisk object will show up in sysfs properly, under the associated
-block device.
+3w-xxxx: scsi0: Unit #0: Command (0xdfeb4400) timed out, resetting card.
+3w-xxxx: Unknown ioctl 0x46.
+3w-xxxx: Unknown ioctl 0x46.
+3w-xxxx: Unknown ioctl 0x46.
+3w-xxxx: scsi0: Unit #0: Command (0xdfeb4400) timed out, resetting card.
+3w-xxxx: Unknown ioctl 0x46.
+3w-xxxx: Unknown ioctl 0x46.
+3w-xxxx: Unknown ioctl 0x46.
+3w-xxxx: Unknown ioctl 0x46.
+3w-xxxx: Unknown ioctl 0x46.
+3w-xxxx: scsi0: Unit #0: Command (0xdfeb4800) timed out, resetting card.
+3w-xxxx: Unknown ioctl 0x46.
+3w-xxxx: Unknown ioctl 0x46.
+3w-xxxx: Unknown ioctl 0x46.
+3w-xxxx: scsi0: Unit #0: Command (0xdfeb4800) timed out, resetting card.
 
-Anyway, Joe, please add this to your set of patches to send on to Linus.
+Have not seen any of those with the .016 driver.
 
-Oh, and why isn't struct mapped_device declared in dm.h?  If it was,
-dm_get and dm_put could be inlined, along with a few other potential
-cleanups.
+I'm more than happy to test any changes/etc. to make this go away with
+current drivers, but it'll need to be code for 2.4.x as I haven't
+started doing anything with 2.5/2.6 yet. 
 
-thanks,
+-- Nathan
 
-greg k-h
+------------------------------------------------------------
+Nathan Neulinger                       EMail:  nneul@umr.edu
+University of Missouri - Rolla         Phone: (573) 341-4841
+Computing Services                       Fax: (573) 341-4216
 
 
-# add kobj support to struct mapped_device
-
-diff -Nru a/drivers/block/genhd.c b/drivers/block/genhd.c
---- a/drivers/block/genhd.c	Wed Dec 18 10:39:48 2002
-+++ b/drivers/block/genhd.c	Wed Dec 18 10:39:48 2002
-@@ -475,3 +475,4 @@
- EXPORT_SYMBOL(bdev_read_only);
- EXPORT_SYMBOL(set_device_ro);
- EXPORT_SYMBOL(set_disk_ro);
-+EXPORT_SYMBOL(block_subsys);
-diff -Nru a/drivers/md/dm.c b/drivers/md/dm.c
---- a/drivers/md/dm.c	Wed Dec 18 10:39:48 2002
-+++ b/drivers/md/dm.c	Wed Dec 18 10:39:48 2002
-@@ -41,7 +41,7 @@
- 
- struct mapped_device {
- 	struct rw_semaphore lock;
--	atomic_t holders;
-+	struct kobject kobj;
- 
- 	unsigned long flags;
- 
-@@ -60,11 +60,14 @@
- 	 */
- 	struct dm_table *map;
- };
-+#define to_md(obj) container_of(obj, struct mapped_device, kobj)
- 
- #define MIN_IOS 256
- static kmem_cache_t *_io_cache;
- static mempool_t *_io_pool;
- 
-+struct subsystem dm_subsys;
-+
- static __init int local_init(void)
- {
- 	int r;
-@@ -94,6 +97,7 @@
- 	if (!_major)
- 		_major = r;
- 
-+	subsystem_register(&dm_subsys);
- 	return 0;
- }
- 
-@@ -106,7 +110,8 @@
- 		DMERR("devfs_unregister_blkdev failed");
- 
- 	_major = 0;
--
-+	subsystem_unregister(&dm_subsys);
-+	
- 	DMINFO("cleaned up");
- }
- 
-@@ -553,7 +558,8 @@
- 	DMWARN("allocating minor %d.", minor);
- 	memset(md, 0, sizeof(*md));
- 	init_rwsem(&md->lock);
--	atomic_set(&md->holders, 1);
-+	md->kobj.subsys = &dm_subsys;
-+	kobject_init(&md->kobj);
- 
- 	md->queue.queuedata = md;
- 	blk_queue_make_request(&md->queue, dm_request);
-@@ -637,17 +643,30 @@
- 
- void dm_get(struct mapped_device *md)
- {
--	atomic_inc(&md->holders);
-+	kobject_get(&md->kobj);
- }
- 
- void dm_put(struct mapped_device *md)
- {
--	if (atomic_dec_and_test(&md->holders)) {
--		DMWARN("destroying md");
--		__unbind(md);
--		free_dev(md);
--	}
-+	kobject_put(&md->kobj);
-+}
-+
-+static void dm_release(struct kobject *kobj)
-+{
-+	struct mapped_device *md = to_md(kobj);
-+
-+	DMWARN("destroying md");
-+	__unbind(md);
-+	free_dev(md);
- }
-+
-+extern struct subsystem block_subsys;
-+
-+struct subsystem dm_subsys = {
-+	.kobj		= { .name = "dm", .parent = &block_subsys.kobj },
-+	.release	= dm_release,
-+};
-+
- 
- /*
-  * Requeue the deferred bios by calling generic_make_request.
+> -----Original Message-----
+> From: Adam Radford [mailto:aradford@3WARE.com] 
+> Sent: Wednesday, December 18, 2002 12:42 PM
+> To: 'Dave Jones'; Neulinger, Nathan
+> Cc: linux-kernel@vger.kernel.org; Uetrecht, Daniel J.
+> Subject: RE: 3ware driver in 2.4.x and 2.5.x not compatible 
+> with 6x00 series cards
+> 
+> 
+> Who from 3ware told you it isn't compatible?  That's totally bogus.  
+> It's completely compatible.
+> 
+> 3ware supports 6, 7, and 8000 series cards with a single driver in 
+> 2.2, 2.4, and 2.5 trees.
+> 
+> If it isn't working for you, let me know.
+> 
+> -Adam
+> 
+> -----Original Message-----
+> From: Dave Jones [mailto:davej@codemonkey.org.uk]
+> Sent: Wednesday, December 18, 2002 10:26 AM
+> To: Nathan Neulinger
+> Cc: linux-kernel@vger.kernel.org; uetrecht@umr.edu
+> Subject: Re: 3ware driver in 2.4.x and 2.5.x not compatible with 6x00
+> series cards
+> 
+> 
+> On Wed, Dec 18, 2002 at 12:10:54PM -0600, Nathan Neulinger wrote:
+>  > According to 3Ware, the driver in the 2.4.x and (I assume) 
+> 2.5.x is no
+>  > longer compatible with the 6xxx series cards. 
+>  > I don't know what we'll do with this situation when we 
+> move to 2.6, cause
+>  > right now, it looks like we are completely screwed. The old driver 
+>  > obviously will not compile on 2.6 since the API's have changed. 
+> 
+> Any idea at which point the 2.5 driver stopped working ?
+> It may not be that much work to bring that version up to date as
+> a 3ware-old.c driver in a worse-case scenario.
+> 
+> This would be huge code duplication however, and would be much
+> better fixed by having the driver detect which card its running
+> on, and 'do the right thing' wrt which firmware it needs.
+> 
+> 		Dave
+> 
+> -- 
+> | Dave Jones.        http://www.codemonkey.org.uk
+> | SuSE Labs
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

@@ -1,37 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265104AbRFZTrw>; Tue, 26 Jun 2001 15:47:52 -0400
+	id <S265116AbRFZTvN>; Tue, 26 Jun 2001 15:51:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265103AbRFZTrn>; Tue, 26 Jun 2001 15:47:43 -0400
-Received: from alog0081.analogic.com ([208.224.220.96]:16900 "EHLO
-	quark.analogic.com") by vger.kernel.org with ESMTP
-	id <S265102AbRFZTrf>; Tue, 26 Jun 2001 15:47:35 -0400
-Date: Tue, 26 Jun 2001 15:51:33 -0400 (EDT)
-From: "Richard B. Johnson" <johnson@quark.analogic.com>
-Reply-To: rjohnson@analogic.com
-To: linux-kernel@vger.kernel.org
-Subject: Duplicate IP ??
-Message-ID: <Pine.LNX.3.95.1010626154101.14565A-100000@quark.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265115AbRFZTvC>; Tue, 26 Jun 2001 15:51:02 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:60461 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S265102AbRFZTu4>; Tue, 26 Jun 2001 15:50:56 -0400
+Date: Tue, 26 Jun 2001 20:50:54 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: Philip Blundell <philb@gnu.org>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: parport_pc tries to load parport_serial automatically
+Message-ID: <20010626205054.J7663@redhat.com>
+In-Reply-To: <Pine.LNX.4.21.0106260308100.1730-100000@freak.distro.conectiva> <20010626102303.K7663@redhat.com> <twaugh@redhat.com> <E15Ex7I-0008TV-00@kings-cross.london.uk.eu.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="YyxSosoRaUW6PdRh"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E15Ex7I-0008TV-00@kings-cross.london.uk.eu.org>; from philb@gnu.org on Tue, Jun 26, 2001 at 06:59:11PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I just got a bunch of messages from vger.kernel.org, sent to
-root@chaos.analogic.com, claiming a "local configuration error"
-and some kind of a loop.
+--YyxSosoRaUW6PdRh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-There is no configuration that has changed on that machine for
-at least two years although our firewall got updated last week
-to fix the ECN bug.
+On Tue, Jun 26, 2001 at 06:59:11PM +0100, Philip Blundell wrote:
 
-I checked with ns.uu.net to see if the machine address was still
-resolvable, it is.
+> This would be a bit bad, because it would require people to guess
+> whether they might have a card that parport_serial can drive and/or
+> try loading the module to see what happens.
 
-I can `telnet vger.kernel.org 25`. That connectivity works.
-So I don't get any mail from vger.kernel.org.  What goes?
+Not necessarily.  The module has a PCI device table, so a user-space
+utility can figure it out and adjust /etc/modules.conf accordingly.
 
-Dick Johnson
+> I guess one option would be for parport_pc to somehow "know" what cards a=
+re=20
+> really multi-I/O ones, and only load parport_serial when it will be able =
+to=20
+> find something to do.  Doesn't seem all that appealing though.
 
+Replace parport_pc's "knowledge" with parport_serial's PCI device
+table and a user-space utility, and that's kind of what I had in
+mind.
 
+> If you do that then the code will effectively be there all the time,
+> even when it's not needed.  You might as well just compile it in to
+> parport_pc.  To be honest, there isn't all that much of it so maybe
+> this wouldn't be such a bad idea.
+
+Perhaps.
+
+Tim.
+*/
+
+--YyxSosoRaUW6PdRh
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7OOedONXnILZ4yVIRAlERAKCpgANy9pD4NL1VByhyik8GcAobtACfXM89
+gqsFdV8dBm7FWH5bBSeR4LQ=
+=uNjP
+-----END PGP SIGNATURE-----
+
+--YyxSosoRaUW6PdRh--

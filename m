@@ -1,71 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293028AbSCFBwS>; Tue, 5 Mar 2002 20:52:18 -0500
+	id <S293032AbSCFBxI>; Tue, 5 Mar 2002 20:53:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293027AbSCFBwA>; Tue, 5 Mar 2002 20:52:00 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:41677 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S293022AbSCFBvx>;
-	Tue, 5 Mar 2002 20:51:53 -0500
-Date: Tue, 5 Mar 2002 17:51:52 -0800
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] : ir249_sock_connect_cli.diff
-Message-ID: <20020305175152.E1577@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S293027AbSCFBw6>; Tue, 5 Mar 2002 20:52:58 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:46602
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S293022AbSCFBwL> convert rfc822-to-8bit; Tue, 5 Mar 2002 20:52:11 -0500
+Date: Tue, 5 Mar 2002 17:50:59 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Lionel Bouton <Lionel.Bouton@inet6.fr>
+cc: =?iso-8859-1?Q?Hanno_B=F6ck?= <hanno@gmx.de>, linux-kernel@vger.kernel.org,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: Kernel panic
+In-Reply-To: <20020306024001.A9217@bouton.inet6-interne.fr>
+Message-ID: <Pine.LNX.4.10.10203051746580.18118-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir249_sock_connect_cli.diff :
----------------------------
-	o [CRITICA] Fix socket connect to remove dangerous cli()
-	<Tested on SMP>
+
+Lionel,
+
+Please add your name to the Maintainer List for the SIS5513 chipset code.
+As you have the hardware and testing it and answering questions, for what
+it is worth imho, you have earn the right to put your name there.
+
+Regards,
+
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
 
 
-diff -u -p linux/net/irda/af_irda.d4.c linux/net/irda/af_irda.c
---- linux/net/irda/af_irda.d4.c	Tue Mar  5 16:05:10 2002
-+++ linux/net/irda/af_irda.c	Tue Mar  5 16:43:15 2002
-@@ -1025,28 +1025,26 @@ static int irda_connect(struct socket *s
- 	/* Now the loop */
- 	if (sk->state != TCP_ESTABLISHED && (flags & O_NONBLOCK))
- 		return -EINPROGRESS;
--		
--	cli();	/* To avoid races on the sleep */
--	
--	/* A Connect Ack with Choke or timeout or failed routing will go to
--	 * closed.  */
-+
-+	/* Here, there is a race condition : the state may change between
-+	 * our test and the sleep, via irda_connect_confirm().
-+	 * The way to workaround that is to sleep with a timeout, so that
-+	 * we don't sleep forever and check the state when waking up.
-+	 * 50ms is plenty good enough, because the LAP is already connected.
-+	 * Jean II */
- 	while (sk->state == TCP_SYN_SENT) {
--		interruptible_sleep_on(sk->sleep);
-+		interruptible_sleep_on_timeout(sk->sleep, HZ/20);
- 		if (signal_pending(current)) {
--			sti();
- 			return -ERESTARTSYS;
- 		}
- 	}
- 	
- 	if (sk->state != TCP_ESTABLISHED) {
--		sti();
- 		sock->state = SS_UNCONNECTED;
- 		return sock_error(sk);	/* Always set at this point */
- 	}
- 	
- 	sock->state = SS_CONNECTED;
--	
--	sti();
- 	
- 	/* At this point, IrLMP has assigned our source address */
- 	self->saddr = irttp_get_saddr(self->tsap);
+On Wed, 6 Mar 2002, Lionel Bouton wrote:
+
+> On Tue, Mar 05, 2002 at 11:31:41PM +0100, Hanno Böck wrote:
+> > I have a PC with an Athlon CPU, which has problems with newer kernel-versions. (see lspci-output below)
+> > 
+> > If I want to boot current Knoppix or Mandrake 8.2beta3 install cds (both based on kernel 2.4.17), it says:
+> > 
+> > Kernel panic: VFS: Unable to mount root fs on 03:05
+> > 
+> > It worked fine with the older mandrake 8.1 with kernel 2.4.8.
+> > 
+> > Any ideas? How can I help to fix this?
+> > 
+> 
+> Try passing ide=nodma during install and following reboot(s) then fetch a patch
+> at:
+> http://inet6.dyn.dhs.org/sponsoring/sis5513/index.html
+> , apply, recompile, install.
+> 
+> SiS730 support should be OK with latest patches.
+> 
+> LB.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

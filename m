@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281064AbRKVInY>; Thu, 22 Nov 2001 03:43:24 -0500
+	id <S281126AbRKVIvO>; Thu, 22 Nov 2001 03:51:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281433AbRKVInO>; Thu, 22 Nov 2001 03:43:14 -0500
-Received: from c1473286-a.stcla1.sfba.home.com ([24.176.137.160]:2065 "HELO
-	ocean.lucon.org") by vger.kernel.org with SMTP id <S281395AbRKVInF>;
-	Thu, 22 Nov 2001 03:43:05 -0500
-Date: Thu, 22 Nov 2001 00:43:02 -0800
-From: "H . J . Lu" <hjl@lucon.org>
-To: linux kernel <linux-kernel@vger.kernel.org>,
-        "Torvalds; Linus" <torvalds@transmeta.com>
-Subject: PATCH: Discard .exitcall.exit for alpha.
-Message-ID: <20011122004302.A2393@lucon.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S281433AbRKVIvF>; Thu, 22 Nov 2001 03:51:05 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:2579 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S281126AbRKVIvB>;
+	Thu, 22 Nov 2001 03:51:01 -0500
+Date: Thu, 22 Nov 2001 06:50:38 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: war <war@starband.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Swap vs No Swap.
+In-Reply-To: <3BFC5A9B.915B77DF@starband.net>
+Message-ID: <Pine.LNX.4.33L.0111220649090.4079-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Wed, 21 Nov 2001, war wrote:
 
-The upcoming binutils will flag relocations against discarded sections
-as fatal errors. Here is a patch for the alpha linker script. 
+> I do not understand something.
+> How can having swap speed ANYTHING up?
+>
+> RAM = 1000MB/s.
+> DISK = 10MB/s
+>
+> Ram is generally 1000x faster than a hard disk.
 
+This also means that the the caching of files from your
+filesystem (say, /usr/bin/netscape or /lib/libc.so) is
+1000x faster than reading them from disk.
 
-H.J.
-----
---- linux/arch/alpha/vmlinux.lds.in.discard	Thu Nov 22 00:30:16 2001
-+++ linux/arch/alpha/vmlinux.lds.in	Thu Nov 22 00:30:47 2001
-@@ -92,5 +92,5 @@ SECTIONS
-   .debug_typenames 0 : { *(.debug_typenames) }
-   .debug_varnames  0 : { *(.debug_varnames) }
- 
--  /DISCARD/ : { *(.text.exit) *(.data.exit) }
-+  /DISCARD/ : { *(.text.exit) *(.data.exit) *(.exitcall.exit) }
- }
+> No swap = fastest possible solution.
+
+Not true if having no swap means you do not have enough
+memory to cache /lib/libc.so ;)
+
+regards,
+
+Rik
+-- 
+Shortwave goes a long way:  irc.starchat.net  #swl
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

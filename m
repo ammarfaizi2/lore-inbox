@@ -1,63 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262403AbTESLZB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 07:25:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbTESLZB
+	id S262409AbTESLaM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 07:30:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbTESLaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 07:25:01 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:232 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id S262403AbTESLY7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 07:24:59 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
+	Mon, 19 May 2003 07:30:12 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:53265 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262409AbTESLaL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 07:30:11 -0400
+Date: Mon, 19 May 2003 12:43:06 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Martin Schlemmer <azarah@gentoo.org>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       KML <linux-kernel@vger.kernel.org>
+Subject: Re: Recent changes to sysctl.h breaks glibc
+Message-ID: <20030519124306.A8868@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Martin Schlemmer <azarah@gentoo.org>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	KML <linux-kernel@vger.kernel.org>
+References: <1053289316.10127.41.camel@nosferatu.lan> <20030518204956.GB8978@holomorphy.com> <1053292339.10127.45.camel@nosferatu.lan> <20030519063813.A30004@infradead.org> <1053341023.9152.64.camel@workshop.saharact.lan> <20030519105152.GD8978@holomorphy.com> <1053342842.9152.90.camel@workshop.saharact.lan>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16072.49680.630299.103453@laputa.namesys.com>
-Date: Mon, 19 May 2003 15:37:52 +0400
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: ptb@it.uc3m.es, linux-kernel@vger.kernel.org
-Subject: Re: recursive spinlocks. Shoot.
-In-Reply-To: <3EC8B1FC.9080106@aitel.hist.no>
-References: <200305181724.h4IHOHU24241@oboe.it.uc3m.es>
-	<3EC8B1FC.9080106@aitel.hist.no>
-X-Mailer: ed | telnet under Fuzzball OS, emulated on Emacs 21.5  (beta11) "cabbage" XEmacs Lucid
-Emacs: an inspiring example of form following function... to Hell.
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1053342842.9152.90.camel@workshop.saharact.lan>; from azarah@gentoo.org on Mon, May 19, 2003 at 01:14:02PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting writes:
- > Peter T. Breuer wrote:
- > 
- > > Hey, that's not bad for a small change! 50% of potential programming
- > > errors sent to the dustbin without ever being encountered.
- > 
- > Then you replace errors with inefficiency - nobody discovers that
- > you needlessly take a lock twice.  They notice OOPSes though, the
- > lock gurus can then debug it.
- > 
- > Trading performance for simplicity is ok in some cases, but I have a strong
- > felling this isn't one of them.  Consider how people optimize locking
- > by shaving off a single cycle when they can, and try to avoid
- > locking as much as possible for that big smp scalability.
- > 
- > This is something better done right - people should just take the
- > trouble.
+On Mon, May 19, 2003 at 01:14:02PM +0200, Martin Schlemmer wrote:
+> like imon support in fam for example ?  The imon.h will not
+> be in the 'sanitized copy' ....
 
-There, however, are cases when recursive locking is needed. Take, for
-example, top-to-bottom insertion into balanced tree with per-node
-locking. Once modifications are done at the "leaf" level, parents should
-be locked and modified, but one cannot tell in advance whether different
-leaves have the same or different parents. Simplest (and, sometimes, the
-only) solution here is to lock parents of all children in turn, even if
-this may lock the same parent node several times---recursively.
-
- > 
- > Helge Hafting
- > 
-
-Nikita.
+Imon is a braindead IRIX feature and SGI stopped doing Linux patches
+for it when dnotify became more common.  So WTF are you talking about?
 

@@ -1,68 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVCFXVZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbVCFXV0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261601AbVCFXVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 18:21:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVCFXT2
+	id S261590AbVCFXV0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 18:21:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbVCFXS5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 18:19:28 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:8455 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261591AbVCFWmD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 17:42:03 -0500
-Date: Sun, 6 Mar 2005 23:41:59 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Jaroslav Kysela <perex@suse.cz>
-Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
-Subject: 2.6: sound/isa/gus/gus_lfo.c is unused (fwd)
-Message-ID: <20050306224159.GQ5070@stusta.de>
+	Sun, 6 Mar 2005 18:18:57 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:486 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S261601AbVCFXIi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 18:08:38 -0500
+Subject: Re: [PATCH] trivial fix for 2.6.11 raid6 compilation on ppc w/
+	Altivec
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: Andrew Morton <akpm@osdl.org>, dtor_core@ameritech.net,
+       Chris Wright <chrisw@osdl.org>, jgarzik@pobox.com, olof@austin.ibm.com,
+       paulus@samba.org, rene@exactcode.de, torvalds@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050304162755.GA28179@kroah.com>
+References: <422756DC.6000405@pobox.com>
+	 <16935.36862.137151.499468@cargo.ozlabs.ibm.com>
+	 <20050303225542.GB16886@austin.ibm.com>
+	 <20050303175951.41cda7a4.akpm@osdl.org>
+	 <20050304022424.GA26769@austin.ibm.com>
+	 <20050304055451.GN5389@shell0.pdx.osdl.net>
+	 <20050303220631.79a4be7b.akpm@osdl.org> <4227FC5C.60707@pobox.com>
+	 <20050304062016.GO5389@shell0.pdx.osdl.net>
+	 <20050303222335.372d1ad2.akpm@osdl.org>  <20050304162755.GA28179@kroah.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1110150380.28860.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 06 Mar 2005 23:06:21 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jaroslav,
+On Gwe, 2005-03-04 at 16:27, Greg KH wrote:
+> Ok, based on consensus, I've applied this one too.
+> 
+> Yes, we will get a bk-stable-commits tree up and running, still working
+> out the infrastructure...
 
-I didn't receive any answer regarding this question.
+Cool. Once you've done so make sure there are also no bk snapshots and
+I'll push you some of the tiny but critical fixes (security, non working
+ULI tulip etc) from 11-ac1 when I upload it.
 
-Any comments or shall I send a patch to remove this file?
-
-cu
-Adrian
-
-
------ Forwarded message from Adrian Bunk <bunk@stusta.de> -----
-
-Date:	Wed, 24 Nov 2004 23:07:42 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Jaroslav Kysela <perex@suse.cz>
-Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
-Subject: 2.6: sound/isa/gus/gus_lfo.c is unused
-
-Hi Jaroslav,
-
-in kernel 2.6 (I've checked 2.6.10-rc2-mm3), the file 
-sound/isa/gus/gus_lfo.c is completely unused (it's never built, and all 
-code using it in other files is #if 0'ed).
-
-What's the status of this file?
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
+Alan
 

@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317349AbSH0W60>; Tue, 27 Aug 2002 18:58:26 -0400
+	id <S317329AbSH0XJA>; Tue, 27 Aug 2002 19:09:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317371AbSH0W60>; Tue, 27 Aug 2002 18:58:26 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:41743 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S317349AbSH0W6Z>;
-	Tue, 27 Aug 2002 18:58:25 -0400
-Message-Id: <200208272302.g7RN2ZN18550@mail.osdl.org>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: conman@kolivas.net
-cc: Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org,
-       cliffw@osdl.org
-Subject: Re: VM changes added to performance patches for 2.4.19 
-In-Reply-To: Message from conman@kolivas.net 
-   of "Sun, 25 Aug 2002 00:36:49 +1000." <1030199809.3d679a012042b@kolivas.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 27 Aug 2002 16:02:35 -0700
-From: Cliff White <cliffw@osdl.org>
+	id <S317334AbSH0XJA>; Tue, 27 Aug 2002 19:09:00 -0400
+Received: from 212.Red-80-35-44.pooles.rima-tde.net ([80.35.44.212]:384 "EHLO
+	DervishD.pleyades.net") by vger.kernel.org with ESMTP
+	id <S317329AbSH0XI7>; Tue, 27 Aug 2002 19:08:59 -0400
+Date: Wed, 28 Aug 2002 01:21:45 +0200
+From: DervishD <raul@pleyades.net>
+Organization: Pleyades
+Reply-To: DervishD <raul@pleyades.net>
+To: mra@pobox.com, linux-kernel@vger.kernel.org
+Subject: Re: How can a process easily get a list of all it's open fd?
+Message-ID: <3D6C0989.mail6E21O4HV@pleyades.net>
+References: <m38z2s1fkj.fsf@khem.blackfedora.com>
+In-Reply-To: <m38z2s1fkj.fsf@khem.blackfedora.com>
+User-Agent: nail 9.31 6/18/02
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: DervishD TWiSTiNG Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Quoting Daniel Phillips <phillips@arcor.de>:
-> > Would you be so kind as to attempt to quantify that?
-> 
-> Ummm... I'm not sure if you're making fun or me? I haven't done any objective
-> tests so I can't quantify it ??
-> 
-> I just found the responsiveness of the machine a little better and don't have
-> the resources, time or inclination to test it with a benchmark. It's my
-> understanding that the -aa patch performed better on benchmarks, but that some
-> people reported the responsiveness was better with -rmap anyway. I'd agree with
-> the latter statement. I offer both patches with mine so if people want to try my
-> patch and feel strongly either way they can choose. My aim is to optimise system
-> response for single cpu desktops, not multi cpu servers.
-> 
-> Con.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-Con, 
-Thanks for the work, and nice web page!
-To help with the testing, i have taken the liberty of adding your 2.4.19-ck3 
-patch to the OSDL's Patch
-LifeCycle Manager. It's patch # 768. I've queued up a couple of the basic 
-tests against it, (dbench, dbt1 )
-If you want to add future versions and get some testing run, see 
-http://osdl.org/cgi-bin/plm - it's really easy,
-and you can use OSDL to make up for your lack of hardware.  We do focus more 
-on multi-cpu systems, but
-we're always interested in scheduler tests.
+    Hi Mark :)
 
-cliffw
+>So what's the "right way" to do it?
 
+    AFAIK, the for loop, with getdtablesize() instead of 'OPEN_MAX'.
+I do it that way, but I don't really know if it is the 'right way'(tm).
 
+>I would *love* for there to be an ioctl or some syscall that I could
+>pass a pointer to an int and a pointer to an int array, and it would
+>come back telling me how many open fd's I've got, and fill in the
+>array with those fd's.
 
+    The array should be allocated by the kernel, or the syscall won't
+work as expected ;) If you have 2000 fd open and the array whose
+address you pass to the ioctl has an smaller size... Anyway, you can
+call the ioctl a few times ;)
 
+    Your proposal seems reasonable (unless there is any other way of
+doing this portably), but portability will be an issue...
+
+    Raúl

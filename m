@@ -1,177 +1,97 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S155357AbQELD0R>; Thu, 11 May 2000 23:26:17 -0400
-Received: by vger.rutgers.edu id <S155354AbQELDTi>; Thu, 11 May 2000 23:19:38 -0400
-Received: from ix.netcorps.com ([207.1.125.106]:40254 "EHLO ix.netcorps.com") by vger.rutgers.edu with ESMTP id <S155526AbQELDRt>; Thu, 11 May 2000 23:17:49 -0400
-Message-ID: <391B77F6.14E6F9DA@timpanogas.com>
-Date: Thu, 11 May 2000 21:18:14 -0600
-From: "Jeff V. Merkey" <jmerkey@timpanogas.com>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.rutgers.edu, torvalds@transmeta.com
-Subject: Proposal for task_queue() WorkToDo Optimization for Network File Systems
+Received: by vger.rutgers.edu via listexpand id <S155358AbQELHtC>; Fri, 12 May 2000 03:49:02 -0400
+Received: by vger.rutgers.edu id <S155159AbQELHsk>; Fri, 12 May 2000 03:48:40 -0400
+Received: from eyrie.demon.co.uk ([158.152.9.91]:3569 "HELO eyrie.demon.co.uk") by vger.rutgers.edu with SMTP id <S155427AbQELHsN>; Fri, 12 May 2000 03:48:13 -0400
+Date: Fri, 12 May 2000 08:59:39 +0100
+From: Derek Fawcus <df@eyrie.demon.co.uk>
+To: "Jeff V. Merkey" <jmerkey@timpanogas.com>
+Cc: linux-kernel@vger.rutgers.edu, torvalds@transmeta.com
+Subject: Re: Proposal for task_queue() WorkToDo Optimization for Network File Systems
+Message-ID: <20000512085939.A22345@eyrie.demon.co.uk>
+Mail-Followup-To: "Jeff V. Merkey" <jmerkey@timpanogas.com>, linux-kernel@vger.rutgers.edu, torvalds@transmeta.com
+References: <391B77F6.14E6F9DA@timpanogas.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <391B77F6.14E6F9DA@timpanogas.com>; from jmerkey@timpanogas.com on Thu, May 11, 2000 at 09:17:53PM -0600
 Sender: owner-linux-kernel@vger.rutgers.edu
 
+On Thu, May 11, 2000 at 09:17:53PM -0600, Jeff V. Merkey wrote:
+> 
 
-Linus,
+  [ snip of description ]
 
-It's clear to me after reviewing my posts that I failed utterly in
-explaining this to everyone.  So I am submitting a formal proposal that
-explains the nature of this optimization, how it is implemented inside
-of NetWare, how it works, and what it really entails, and it's potential
-usefulness to Linux.  BTW, My page cache problems are resolved thanks to
-your help today :-).
+This idea has cropped up at least twice over the years,  usually in
+comparison to a similar mechanism that exists in VMS.  I know because
+I've written a similar followup to the following comparing to the
+equivalent model in FlexOS[1] which I've had experience with.
 
-Work To Do Model in NetWare
----------------------------
+I'd therefore guess to have any chance of seeing this in the kernel,
+you'd have to provide working code,  and show that it actually gains
+something.  Although this mechanism does have it's nice points,  I'm
+not entirely sure that it's a gain over the mechanisms currently
+employed in Linux.
 
-The Work To Do scheduling model in NetWare is an optimization that
-significantly reduces network latency and increases network file system
-bandwidth and performance by providing a specialized scheduling semantic
-for creating implied associativity between network and file system I/O. 
-WorkToDo's (WTDs) are not an architecture within NetWare, but an
-optimization.  Since they are an optimization, they don't follow fixed
-rules, and bypass NetWare's normal I/O framework.
+In FlexOS the equivalent mechanism was called an Asynchronous Service
+Routine (ASR).  There is a global priority ordered list of ASR's which
+are run by the scheduler before any task.   The scheduler will only
+choose to run a task when the ASR queue is empty.  An ASR has to run
+to completion[2] since if it blocked it would halt the scheduler.
 
+The ASR queue is a list of the following:
 
-WTD Kernel Implementation
---------------------------
+struct _asr {
+    struct _asr *link;
+    void (*fn)(ULONG p1, ULONG p2);
+    ULONG p1, p2;
+    struct _evb *evb; /* If event triggered */
+    BYTE *stack;
+    WORD stack_len;
+    BYTE flags;
+    BYTE priority;
+};
+    
+These ASR's are triggered by device driver ISR's,  device driver process
+context code,  and filesystem code.  They perform almost all of the I/O
+action under FlexOS.
 
-A WTD is a great deal like a task procedure in Linux.  It's a structure
-that looks like a callback. i.e.
+The dispatcher happens to have a task context selected when it is running
+(for a task with no user level context - i.e. kernel only),  and the ASR's
+can use this to gain access to any process memory.  They can ask to share
+the process context of an arbitrary process,  thus allowing I/O direct
+from the proces memory.  There is also support for wiring down the process
+memory,  but given that there is no swapping implemented,  this is not
+used.
 
-struct _WTD {
-   struct _WTD *next;
-   struct _WTD *prior;
-   ULONG (*function)(struct _WTD *wtd);
-   void *context;
-   ULONG flags;
-   BYTE *data;
-} WTD;
+The equivalent of the pre-emptive I/O is that ISR's return a true/false
+value.  This can be used to force an immediate reschedule in case they
+have queued an ASR.  Without this the ASR queue would only get run at
+the next time slice or process block.
 
-These requests get linked onto a global list i.e.
+> The question is how many pieces of this are already in Linux.  I haven't
+> seen quite this optimization, but would propose that it be implemented
+> with a special atomic task_queue with a very lightweight thread_object. 
+> Microsoft uses fibre's which coincidently, appeared in NT three months
+> after WorkToDo's were disclosed at a Novell Brainshare Conference in
+> front of several of their engineers who were in attendance, though the
+> implementation they came up with was not exact (because they really
+> didn't know how they worked in NetWare but for some odd reason, had to
+> have something like them at the time).  
 
-WTD_HEAD -> WTD -> WTD -> WTD -> WTD
+That's probably a bit disingenious,  given that Cutler worked on VMS.
+I'd guess he simply took the idea directly from VMS.
 
+[1] A Real time OS that came out of the Digital Research stable.  Ran for
+    a while under the Novell Banner and was then flogged of to ISI who
+    sent off to the knackers yard.  I guess WRS now own the shoe leather.
 
-The true nature of this optimization is not as a scheduling primitive,
-but that it allows file systems and network drivers to create an implied
-associativity between incoming network packets and file system requests,
-and provides a low latency optimization to process incoming I/O
-quickly.   Work To Do's are scheduled by protocol stacks and the file
-system in NetWare by placing them on a global locked list.  The kernel
-keeps a global list with a single spin lock over the WTD list head of
-all WTD requests.  The system by default creates a very lightweight
-thread object called a "worker thread".  "worker threads" in NetWare are
-little more than a stack with a very minimal structure and a stack
-pointer within the structure.   
+[2] Actually ASR's can arrange to schedule another ASR either immediatly
+    or upon the completion of some event (struct _evb) so working around
+    blocking issues and allowing the work load to be split up.  There is
+    also a 'hack' involving saving the ASR stack that allows an ASR to
+    actually block.
 
-The main kernel code paths that perform all context switching always
-check this queue, and if there's a WTD element(s) there, it will swap in
-a worker thread and run the requests one at a time.  The NetWare kernel
-also hooks ALL device interrupt handlers, and remembers which interrupts
-belong to Network cards and which interrupts belong to disks, and on any
-interrupt originating from a network or disk device, will perform
-"preemptive I/O".  I will explain how WTD's are processed during context
-switching, then describe WTD's that are processed using "preemptive
-I/O".  
-
-If any of the requests go to sleep while each WTD element is called in
-order, the kernel will set a flag telling the system to spawn another
-"worker thread", which upon the first worker going to sleep, will run
-the next worker thread and continue the list until all the WTDs are run
-or a preset limit of work to do's in a row is reached.  There are limts
-on how many WTD's can be run in a row for each context switch to prevent
-WTDs from starving all other system threads.  The usual limit is 15. 
-This means is 15 WTD's all went to sleep (then 15 worker threads also
-got spawned), the system should context switch, and allow everyone else
-to run, then on the next context switch, process more WTDs.  This is how
-it's implemented in the context switch code in NetWare.  After WTD
-processes complete, the system does not deallocate the "worker threads".
-If 30 "worker threads" got spawned, the system leaves then on a special
-list, and reuses them as WTDs are scheduled and processed.  This allows
-the system to keep worker threads around that "expand" their numbers
-dynamically and handle the measured I/O bandwidth hitting the server
-within a given time frame.  NetWare has a config option that will
-reclaim and deallocate worker threads if they haven't become active in
-several minutes.  It also lets you preallocate large numbers of them if
-you are going to deploy a 1000 user server.  
-
-The context switching description isn't the overall optimization, but
-describes how the base WTD request manager is organized.
-
-Preemptive I/O
---------------
-
-This does look a lot like top and bottom halves in Linux, but WTD's have
-an implied associativity with incoming packets and the target file
-systems.
-
-All device interrupt handlers are hooked in NetWare to allow the
-interrupt service routine exit procedure to preempt the current running
-process, and swap in a worker thread context when the ISR does it's
-interrupt return.  Incoming network packets have a reserved memory
-header that it scheduled as a WorkToDo element by protocol stacks if
-they are file system requests that may block.  When a LAN card receives
-a packet in NetWare, it calls the protocol stack from the interrupt
-thread.  The protocol stack sniffs the packet, and if the incoming
-packet is a file system request, it will ask the file system if the data
-block is in cache.  If it's in cache, it will imediately format the
-outgoing packet to the user with the cache page, and schedule the return
-packet as a WTD element.  When the Network card ISR completes, if any
-WTD's were scheduled during the interrupt, the kernel swaps in a worker
-thread, and preempts the current running process, and places it at the
-HEAD of the primary scheduling queue and not the tail.  It does this to
-give I/O priority processing in the system.  Any requests that may sleep
-on file locks are also detected by the protocol stacks and converted
-into WTD's (as are some types of routing requests i.e. NLSP routing may
-need to ping another machine for a route, and may go to sleep doing
-it).  The WTD's are then run and in most cases (since the data was in
-cache), the user get's their data back as soon as the ISR completes.
-
-This has the effect of always processing incoming I/O with the highest
-system priority.  This optimization is why you can actually put 5000
-people on a single NetWare server, and achieve excellent performance and
-response time for every user.  It works by reducing latency
-significantly for Network and Network File System I/O.  The WTD model is
-very useful for mirrored I/O that goes across machines over a network as
-well, and made SFT III a lot less piggish.
-
-The question is how many pieces of this are already in Linux.  I haven't
-seen quite this optimization, but would propose that it be implemented
-with a special atomic task_queue with a very lightweight thread_object. 
-Microsoft uses fibre's which coincidently, appeared in NT three months
-after WorkToDo's were disclosed at a Novell Brainshare Conference in
-front of several of their engineers who were in attendance, though the
-implementation they came up with was not exact (because they really
-didn't know how they worked in NetWare but for some odd reason, had to
-have something like them at the time).  
-
-This optimization is what allows NetWare to support very large numbers
-of clients and with high bandwidth.  The key is how heavy context
-switches are in Linux.  In NetWare, you can do over 1,000,000 on a PPro
-200Mhz.  Linux seems very heavy by comparison.  I think the preemptive
-I/O optimization alone would allow Linux to Equal NetWare and match it's
-speed and capability with a configuration of 5000 users on a single
-linux server.
-
-In Linux, the deleterious side effects would be that heavy Network I/O
-would potentially starve applications running on the server (would make
-those who use Network I/O like web servers run faster though).  In
-NetWare, limiting how many work to do's in a row could run, and how
-often new work threads could be spawned tuned most of these issues away
-over the years.
-
-I respectfully submit this proposal for consideration, review, and
-comment.
-
-Respectfully Submitted,
-
-Jeff Merkey
-CEO, TRG
+DF
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

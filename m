@@ -1,86 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262250AbUJZMn6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262255AbUJZM7F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262250AbUJZMn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 08:43:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbUJZMn6
+	id S262255AbUJZM7F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 08:59:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbUJZM7F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 08:43:58 -0400
-Received: from wproxy.gmail.com ([64.233.184.200]:5437 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262250AbUJZMny (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 08:43:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=VVK4b20qERswcOqW3PWHWtqw6ZOvfxnmARn8v2IP7XvY5XpIaEGHTVbWmfJvs/rbQE4Sopp2/aewaqb1ye1kg9vagQa5NiHfa3kbZy508x4sGsMQ+rpBoblgIPs107rfDHqt+b+cJTvn7D3JJw9UGaS1AP8ueGkDYxiR6A5+TJY=
-Message-ID: <605a56ed04102605433b9f368@mail.gmail.com>
-Date: Tue, 26 Oct 2004 14:43:54 +0200
-From: Arne Henrichsen <ahenric@gmail.com>
-Reply-To: Arne Henrichsen <ahenric@gmail.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: Problems with close() system call
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.53.0410261329410.26803@yvahk01.tjqt.qr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 26 Oct 2004 08:59:05 -0400
+Received: from webapps.arcom.com ([194.200.159.168]:43528 "EHLO
+	webapps.arcom.com") by vger.kernel.org with ESMTP id S262251AbUJZM7B
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 08:59:01 -0400
+Message-ID: <417E4A11.6050904@arcom.com>
+Date: Tue, 26 Oct 2004 13:58:57 +0100
+From: David Vrabel <dvrabel@arcom.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ryan Anderson <ryan@michonline.com>
+CC: David Vrabel <dvrabel@arcom.com>, Linus Torvalds <torvalds@osdl.org>,
+       Len Brown <len.brown@intel.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Versioning of tree
+References: <1098254970.3223.6.camel@gaston> <1098256951.26595.4296.camel@d845pe> <Pine.LNX.4.58.0410200728040.2317@ppc970.osdl.org> <20041025234736.GF10638@michonline.com> <417E39AE.5020209@arcom.com> <20041026122632.GH10638@michonline.com>
+In-Reply-To: <20041026122632.GH10638@michonline.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <605a56ed04102504401e0f469f@mail.gmail.com>
-	 <Pine.LNX.4.53.0410261329410.26803@yvahk01.tjqt.qr>
+X-OriginalArrivalTime: 26 Oct 2004 12:59:24.0859 (UTC) FILETIME=[9E7C70B0:01C4BB5B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Oct 2004 13:30:35 +0200 (MEST), Jan Engelhardt
-<jengelh@linux01.gwdg.de> wrote:
+Ryan Anderson wrote:
 > 
-> Best is to put a printk("i'm in ioctl()") in the ioctl() function and a
-> printk("i'm in close()") in the close() one, to be really sure whether the
-> close() function of your module is called.
-> 
+> Well, I didn't think make-kpkg was doing anything horribly unexpected,
+> so I didn't to test that.   I'll do a test run now to see what happens,
+> though.
 
-Yes, that is exactly what I am doing. I basically implement the
-flush() call (for close) as the release() call was never called on
-close. So my release call does nothing. What I see is that the flush
-function gets called, even though I have never called the close()
-system call from my user app.
+I think there might be problems when you use make-kpkg's 
+--append-to-version option.  make-kpkg works out what the original 
+version string should be and then tacks the extra bit on before 
+overriding the original version.
 
-I also print out the module counter, and it doesn't make sense who
-increments it:
+More an argument for fixing make-kpkg to be less stupid I suppose.
 
-open(0): f_count = 1
-ioctl(0): f_count = 2
-ioctl(0): f_count = 5
-open(1)): f_count = 1
-ioctl(1): f_count = 2
-flush(0): f_count = 7
-ioctl(1): f_count = 5
-open(2): f_count = 1
-ioctl(2): f_count = 2
-flush(1): f_count = 7
+Of course, the tool I'm using was derived from make-kpkg some time ago 
+and could be broken and the proper (and newer) make-kpkg works fine.
 
-My user app looks something like this:
-int fd[8];
+David Vrabel
+-- 
+David Vrabel, Design Engineer
 
-for(i = 0; i < nr_dev; i)
-  {
-    sprintf(dev, "/dev/mydev_%c", '0' + i);
-    fd[i] = open(dev, O_RDWR | O_SYNC);
-    if(fd[i] < 0)
-    {
-      printf("Error opening device: %s - %s\n", dev, strerror(errno));
-      goto test_error;
-    }
-
-    status = ioctl(fd[i], CMD1);
-    if(status != 0)
-    {
-      printf("%s - %s\n", dev, strerror(errno));
-    }
-
-    status = ioctl(fd[i], CMD2);
-    if(status != 0)
-    {
-      printf("%s - %s\n", dev, strerror(errno));
-    }
-  } /* for(port_id = 0; port_id < nr_ports; port_id++) */
-  
-Arne
+Arcom, Clifton Road           Tel: +44 (0)1223 411200 ext. 3233
+Cambridge CB1 7EA, UK         Web: http://www.arcom.com/

@@ -1,95 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266381AbUAHXng (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 18:43:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266379AbUAHXng
+	id S266385AbUAHXtS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 18:49:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266389AbUAHXtR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 18:43:36 -0500
-Received: from viriato2.servicios.retecal.es ([212.89.0.45]:58093 "EHLO
+	Thu, 8 Jan 2004 18:49:17 -0500
+Received: from viriato2.servicios.retecal.es ([212.89.0.45]:50929 "EHLO
 	viriato2.servicios.retecal.es") by vger.kernel.org with ESMTP
-	id S266381AbUAHXnT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 18:43:19 -0500
-Subject: [2.6.1-rc2-mm1][BUG] kernel BUG at mm/rmap.c:305!
+	id S266385AbUAHXsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 18:48:07 -0500
+Subject: [2.6.1-rc2-mm1][BUG] bad: scheduling while atomic!
 From: Ramon Rey Vicente <ramon.rey@augcyl.org>
 Reply-To: ramon.rey@hispalinux.es
 To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Cc: Andrew Morton <akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-sLIkbmQWof5hgoj7kHMD"
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ODzVC3SM2Cilex9DIh0C"
 Organization: AUGCyL - http://www.augcyl.org
-Message-Id: <1073605394.1070.3.camel@debian>
+Message-Id: <1073605678.1070.10.camel@debian>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 09 Jan 2004 00:43:16 +0100
+Date: Fri, 09 Jan 2004 00:47:59 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-sLIkbmQWof5hgoj7kHMD
-Content-Type: multipart/mixed; boundary="=-GoXnAPg6bYE+/SEp3ncB"
+--=-ODzVC3SM2Cilex9DIh0C
+Content-Type: multipart/mixed; boundary="=-oPF3/8meIfV5mIE11+hc"
 
 
---=-GoXnAPg6bYE+/SEp3ncB
+--=-oPF3/8meIfV5mIE11+hc
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-
 
 --=20
 Ram=C3=B3n Rey Vicente       <ramon dot rey at hispalinux dot es>
         jabber ID       <rreylinux at jabber dot org>
 GPG public key ID 	0xBEBD71D5 -> http://pgp.escomposlinux.org/
 
---=-GoXnAPg6bYE+/SEp3ncB
-Content-Disposition: inline; filename=bug1
+--=-oPF3/8meIfV5mIE11+hc
+Content-Disposition: inline; filename=bug3
 Content-Transfer-Encoding: base64
-Content-Type: text/plain; name=bug1; charset=UTF-8
+Content-Type: text/plain; name=bug3; charset=UTF-8
 
-SmFuICA4IDIzOjEyOjI5IGRlYmlhbiBrZXJuZWw6IEVJUDogICAgMDA2MDpbdHJ5X3RvX3VubWFw
-X29uZSs0NTYvNDgwXSAgICBOb3QgdGFpbnRlZCBWTEkNCkphbiAgOCAyMzoxMjoyOSBkZWJpYW4g
-a2VybmVsOiBFRkxBR1M6IDAwMDEwMjQ2DQpKYW4gIDggMjM6MTI6MjkgZGViaWFuIGtlcm5lbDog
-RUlQIGlzIGF0IHRyeV90b191bm1hcF9vbmUrMHgxYzgvMHgxZTANCkphbiAgOCAyMzoxMjoyOSBk
-ZWJpYW4ga2VybmVsOiBlYXg6IDAwMDAwMDAwICAgZWJ4OiAwMDAwMzA3NiAgIGVjeDogY2IyMjQw
-MGMgICBlZHg6IGNiMjI0MDBjDQpKYW4gIDggMjM6MTI6MjkgZGViaWFuIGtlcm5lbDogZXNpOiBj
-MTE0Y2I5OCAgIGVkaTogYzExNGNiOTggICBlYnA6IGNiMjI0MDBjICAgZXNwOiBjZmUwM2QzOA0K
-SmFuICA4IDIzOjEyOjI5IGRlYmlhbiBrZXJuZWw6IGRzOiAwMDdiICAgZXM6IDAwN2IgICBzczog
-MDA2OA0KSmFuICA4IDIzOjEyOjI5IGRlYmlhbiBrZXJuZWw6IFByb2Nlc3Mga3N3YXBkMCAocGlk
-OiA4LCB0aHJlYWRpbmZvPWNmZTAyMDAwIHRhc2s9Y2ZlMDhjZTApDQpKYW4gIDggMjM6MTI6Mjkg
-ZGViaWFuIGtlcm5lbDogU3RhY2s6IDAwMDQwODQwIGNmZTAyMDAwIDAwMDAwMDAwIGMwMjdhYzgw
-IGMxMTRjYjk4IDAwMDAwMDAxIGMxMTRjYjk4IGMwMTQ2MDIyIA0KSmFuICA4IDIzOjEyOjI5IGRl
-YmlhbiBrZXJuZWw6ICAgICAgICBmZmZmZmZmZiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMCBj
-ZmUwMjAwMCAwMDAwMDAwMSBjMTE0Y2I5OCBjMDEzZGQ2MyANCkphbiAgOCAyMzoxMjoyOSBkZWJp
-YW4ga2VybmVsOiAgICAgICAgY2ZlMDIwMDAgYzAxMjQ1ZTUgMDAwMDAwMDkgMDAwMDAwMDMgYzAy
-N2FjODAgYzEwNjEyMDAgYzEwYjk5NTAgY2ZlMDIwMDAgDQpKYW4gIDggMjM6MTI6MjkgZGViaWFu
-IGtlcm5lbDogQ2FsbCBUcmFjZToNCkphbiAgOCAyMzoxMjoyOSBkZWJpYW4ga2VybmVsOiAgW3Ry
-eV90b191bm1hcCszMjIvMzg0XSB0cnlfdG9fdW5tYXArMHgxNDIvMHgxODANCkphbiAgOCAyMzox
-MjoyOSBkZWJpYW4ga2VybmVsOiAgW3Nocmlua19saXN0KzU3OS8xNDA4XSBzaHJpbmtfbGlzdCsw
-eDI0My8weDU4MA0KSmFuICA4IDIzOjEyOjI5IGRlYmlhbiBrZXJuZWw6ICBbZG9fdGltZXIrMTk3
-LzIyNF0gZG9fdGltZXIrMHhjNS8weGUwDQpKYW4gIDggMjM6MTI6MjkgZGViaWFuIGtlcm5lbDog
-IFtkb19zb2Z0aXJxKzE0MC8xNjBdIGRvX3NvZnRpcnErMHg4Yy8weGEwDQpKYW4gIDggMjM6MTI6
-MjkgZGViaWFuIGtlcm5lbDogIFtjb21tb25faW50ZXJydXB0KzI0LzMyXSBjb21tb25faW50ZXJy
-dXB0KzB4MTgvMHgyMA0KSmFuICA4IDIzOjEyOjI5IGRlYmlhbiBrZXJuZWw6ICBbX19wYWdldmVj
-X3JlbGVhc2UrMjQvNjRdIF9fcGFnZXZlY19yZWxlYXNlKzB4MTgvMHg0MA0KSmFuICA4IDIzOjEy
-OjI5IGRlYmlhbiBrZXJuZWw6ICBbc2hyaW5rX2NhY2hlKzQwOS84NjRdIHNocmlua19jYWNoZSsw
-eDE5OS8weDM2MA0KSmFuICA4IDIzOjEyOjI5IGRlYmlhbiBrZXJuZWw6ICBbc2hyaW5rX3pvbmUr
-MTA3LzEyOF0gc2hyaW5rX3pvbmUrMHg2Yi8weDgwDQpKYW4gIDggMjM6MTI6MjkgZGViaWFuIGtl
-cm5lbDogIFtiYWxhbmNlX3BnZGF0KzM1OS80ODBdIGJhbGFuY2VfcGdkYXQrMHgxNjcvMHgxZTAN
-CkphbiAgOCAyMzoxMjoyOSBkZWJpYW4ga2VybmVsOiAgW2tzd2FwZCsyNTQvMjg4XSBrc3dhcGQr
-MHhmZS8weDEyMA0KSmFuICA4IDIzOjEyOjI5IGRlYmlhbiBrZXJuZWw6ICBbYXV0b3JlbW92ZV93
-YWtlX2Z1bmN0aW9uKzAvNjRdIGF1dG9yZW1vdmVfd2FrZV9mdW5jdGlvbisweDAvMHg0MA0KSmFu
-ICA4IDIzOjEyOjI5IGRlYmlhbiBrZXJuZWw6ICBbcmV0X2Zyb21fZm9yays2LzMyXSByZXRfZnJv
-bV9mb3JrKzB4Ni8weDIwDQpKYW4gIDggMjM6MTI6MjkgZGViaWFuIGtlcm5lbDogIFthdXRvcmVt
-b3ZlX3dha2VfZnVuY3Rpb24rMC82NF0gYXV0b3JlbW92ZV93YWtlX2Z1bmN0aW9uKzB4MC8weDQw
-DQpKYW4gIDggMjM6MTI6MjkgZGViaWFuIGtlcm5lbDogIFtrc3dhcGQrMC8yODhdIGtzd2FwZCsw
-eDAvMHgxMjANCkphbiAgOCAyMzoxMjoyOSBkZWJpYW4ga2VybmVsOiAgW2tlcm5lbF90aHJlYWRf
-aGVscGVyKzUvMzZdIGtlcm5lbF90aHJlYWRfaGVscGVyKzB4NS8weDI0DQpKYW4gIDggMjM6MTI6
-MjkgZGViaWFuIGtlcm5lbDogDQpKYW4gIDggMjM6MTI6MjkgZGViaWFuIGtlcm5lbDogQ29kZTog
-ZTggMWIgMDEgYzAgMDkgZDggODkgNDUgMDAgYjggMDAgMDAgMDAgMDAgODUgYzAgMGYgODQgMzIg
-ZmYgZmYgZmYgMGYgMGIgNTcgMDEgMTEgMzIgMjUgYzAgZTkgMjUgZmYgZmYgZmYgMGYgMDEgM2Ig
-ZTkgYmQgZmUgZmYgZmYgPDBmPiAwYiAzMSAwMSAxMSAzMiAyNSBjMCBlOSA2NSBmZSBmZiBmZiA4
-ZCA3NCAyNiAwMCA4ZCBiYyAyNyAwMCANCg==
+SmFuICA4IDIzOjE2OjU5IGRlYmlhbiBrZXJuZWw6IGJhZDogc2NoZWR1bGluZyB3aGlsZSBhdG9t
+aWMhDQpKYW4gIDggMjM6MTY6NTkgZGViaWFuIGtlcm5lbDogQ2FsbCBUcmFjZToNCkphbiAgOCAy
+MzoxNjo1OSBkZWJpYW4ga2VybmVsOiAgW3NjaGVkdWxlKzE0MDkvMTQ0MF0gc2NoZWR1bGUrMHg1
+ODEvMHg1YTANCkphbiAgOCAyMzoxNjo1OSBkZWJpYW4ga2VybmVsOiAgW3VubWFwX3BhZ2VfcmFu
+Z2UrNTMvOTZdIHVubWFwX3BhZ2VfcmFuZ2UrMHgzNS8weDYwDQpKYW4gIDggMjM6MTY6NTkgZGVi
+aWFuIGtlcm5lbDogIFt1bm1hcF92bWFzKzQ2NC81NDRdIHVubWFwX3ZtYXMrMHgxZDAvMHgyMjAN
+CkphbiAgOCAyMzoxNjo1OSBkZWJpYW4ga2VybmVsOiAgW2V4aXRfbW1hcCs5OC8zODRdIGV4aXRf
+bW1hcCsweDYyLzB4MTgwDQpKYW4gIDggMjM6MTY6NTkgZGViaWFuIGtlcm5lbDogIFttbXB1dCsx
+MTAvMjI0XSBtbXB1dCsweDZlLzB4ZTANCkphbiAgOCAyMzoxNjo1OSBkZWJpYW4ga2VybmVsOiAg
+W2RvX2V4aXQrMzIxLzk5Ml0gZG9fZXhpdCsweDE0MS8weDNlMA0KSmFuICA4IDIzOjE2OjU5IGRl
+YmlhbiBrZXJuZWw6ICBbZG9faW52YWxpZF9vcCswLzE2MF0gZG9faW52YWxpZF9vcCsweDAvMHhh
+MA0KSmFuICA4IDIzOjE2OjU5IGRlYmlhbiBrZXJuZWw6ICBbZGllKzIxMi8yMjRdIGRpZSsweGQ0
+LzB4ZTANCkphbiAgOCAyMzoxNjo1OSBkZWJpYW4ga2VybmVsOiAgW2RvX2ludmFsaWRfb3ArMTQ1
+LzE2MF0gZG9faW52YWxpZF9vcCsweDkxLzB4YTANCkphbiAgOCAyMzoxNjo1OSBkZWJpYW4ga2Vy
+bmVsOiAgW3RyeV90b191bm1hcF9vbmUrNDU2LzQ4MF0gdHJ5X3RvX3VubWFwX29uZSsweDFjOC8w
+eDFlMA0KSmFuICA4IDIzOjE2OjU5IGRlYmlhbiBrZXJuZWw6ICBbX19jcmNfaWRlX2NtZCs3MzE4
+NzM2LzExOTY5MTE2XSBfX2lwX2Nvbm50cmFja19maW5kKzB4MTIvMHg2MCBbaXBfY29ubnRyYWNr
+XQ0KSmFuICA4IDIzOjE2OjU5IGRlYmlhbiBrZXJuZWw6ICBbX19jcmNfaWRlX2NtZCs3MzE5NDU0
+LzExOTY5MTE2XSBpcF9jb25udHJhY2tfdHVwbGVfdGFrZW4rMHgyMC8weDYwIFtpcF9jb25udHJh
+Y2tdDQpKYW4gIDggMjM6MTY6NTkgZGViaWFuIGtlcm5lbDogIFtfX2NyY19pZGVfY21kKzczMTk0
+NzMvMTE5NjkxMTZdIGlwX2Nvbm50cmFja190dXBsZV90YWtlbisweDMzLzB4NjAgW2lwX2Nvbm50
+cmFja10NCkphbiAgOCAyMzoxNjo1OSBkZWJpYW4ga2VybmVsOiAgW19fY3JjX2lkZV9jbWQrNzM1
+NDUyMi8xMTk2OTExNl0gaXBfbmF0X3VzZWRfdHVwbGUrMHgxYy8weDQwIFtpcHRhYmxlX25hdF0N
+CkphbiAgOCAyMzoxNjo1OSBkZWJpYW4ga2VybmVsOiAgW3JlY2FsY190YXNrX3ByaW8rMTM4LzQ0
+OF0gcmVjYWxjX3Rhc2tfcHJpbysweDhhLzB4MWMwDQpKYW4gIDggMjM6MTY6NTkgZGViaWFuIGtl
+cm5lbDogIFt0cnlfdG9fd2FrZV91cCsxODQvMzUyXSB0cnlfdG9fd2FrZV91cCsweGI4LzB4MTYw
+DQpKYW4gIDggMjM6MTY6NTkgZGViaWFuIGtlcm5lbDogIFt0cnlfdG9fd2FrZV91cCsxNjMvMzUy
+XSB0cnlfdG9fd2FrZV91cCsweGEzLzB4MTYwDQpKYW4gIDggMjM6MTY6NTkgZGViaWFuIGtlcm5l
+bDogIFtlcnJvcl9jb2RlKzQ3LzY0XSBlcnJvcl9jb2RlKzB4MmYvMHg0MA0KSmFuICA4IDIzOjE2
+OjU5IGRlYmlhbiBrZXJuZWw6ICBbdHJ5X3RvX3VubWFwX29uZSs0NTYvNDgwXSB0cnlfdG9fdW5t
+YXBfb25lKzB4MWM4LzB4MWUwDQpKYW4gIDggMjM6MTY6NTkgZGViaWFuIGtlcm5lbDogIFt0cnlf
+dG9fdW5tYXArMzIyLzM4NF0gdHJ5X3RvX3VubWFwKzB4MTQyLzB4MTgwDQpKYW4gIDggMjM6MTY6
+NTkgZGViaWFuIGtlcm5lbDogIFtzaHJpbmtfbGlzdCs1NzkvMTQwOF0gc2hyaW5rX2xpc3QrMHgy
+NDMvMHg1ODANCkphbiAgOCAyMzoxNjo1OSBkZWJpYW4ga2VybmVsOiAgW19fcHRlX2NoYWluX2Zy
+ZWUrNzcvOTZdIF9fcHRlX2NoYWluX2ZyZWUrMHg0ZC8weDYwDQpKYW4gIDggMjM6MTY6NTkgZGVi
+aWFuIGtlcm5lbDogIFtfX3BhZ2V2ZWNfcmVsZWFzZSsyNC82NF0gX19wYWdldmVjX3JlbGVhc2Ur
+MHgxOC8weDQwDQpKYW4gIDggMjM6MTY6NTkgZGViaWFuIGtlcm5lbDogIFtzaHJpbmtfY2FjaGUr
+NDA5Lzg2NF0gc2hyaW5rX2NhY2hlKzB4MTk5LzB4MzYwDQpKYW4gIDggMjM6MTY6NTkgZGViaWFu
+IGtlcm5lbDogIFtzaHJpbmtfem9uZSsxMDcvMTI4XSBzaHJpbmtfem9uZSsweDZiLzB4ODANCkph
+biAgOCAyMzoxNjo1OSBkZWJpYW4ga2VybmVsOiAgW3Nocmlua19jYWNoZXMrMTQ5LzE5Ml0gc2hy
+aW5rX2NhY2hlcysweDk1LzB4YzANCkphbiAgOCAyMzoxNjo1OSBkZWJpYW4ga2VybmVsOiAgW3Ry
+eV90b19mcmVlX3BhZ2VzKzEzNi8zMjBdIHRyeV90b19mcmVlX3BhZ2VzKzB4ODgvMHgxNDANCkph
+biAgOCAyMzoxNjo1OSBkZWJpYW4ga2VybmVsOiAgW19fYWxsb2NfcGFnZXMrNDI0LzczNl0gX19h
+bGxvY19wYWdlcysweDFhOC8weDJlMA0KSmFuICA4IDIzOjE2OjU5IGRlYmlhbiBrZXJuZWw6ICBb
+X19nZXRfZnJlZV9wYWdlcyszNC85Nl0gX19nZXRfZnJlZV9wYWdlcysweDIyLzB4NjANCkphbiAg
+OCAyMzoxNjo1OSBkZWJpYW4ga2VybmVsOiAgW19fcG9sbHdhaXQrMTExLzE5Ml0gX19wb2xsd2Fp
+dCsweDZmLzB4YzANCkphbiAgOCAyMzoxNjo1OSBkZWJpYW4ga2VybmVsOiAgW3VuaXhfcG9sbCsz
+MS8xNjBdIHVuaXhfcG9sbCsweDFmLzB4YTANCkphbiAgOCAyMzoxNjo1OSBkZWJpYW4ga2VybmVs
+OiAgW3NvY2tfcG9sbCsyNS8zMl0gc29ja19wb2xsKzB4MTkvMHgyMA0KSmFuICA4IDIzOjE2OjU5
+IGRlYmlhbiBrZXJuZWw6ICBbZG9fc2VsZWN0KzYwMS83MzZdIGRvX3NlbGVjdCsweDI1OS8weDJl
+MA0KSmFuICA4IDIzOjE2OjU5IGRlYmlhbiBrZXJuZWw6ICBbX19wb2xsd2FpdCswLzE5Ml0gX19w
+b2xsd2FpdCsweDAvMHhjMA0KSmFuICA4IDIzOjE2OjU5IGRlYmlhbiBrZXJuZWw6ICBbc3lzX3Nl
+bGVjdCs2NzYvMTI0OF0gc3lzX3NlbGVjdCsweDJhNC8weDRlMA0KSmFuICA4IDIzOjE2OjU5IGRl
+YmlhbiBrZXJuZWw6ICBbc3lzY2FsbF9jYWxsKzcvMTFdIHN5c2NhbGxfY2FsbCsweDcvMHhiDQoN
+Cg==
 
---=-GoXnAPg6bYE+/SEp3ncB--
+--=-oPF3/8meIfV5mIE11+hc--
 
---=-sLIkbmQWof5hgoj7kHMD
+--=-ODzVC3SM2Cilex9DIh0C
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
 	digitalmente
@@ -97,10 +108,10 @@ Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD4DBQA//esSRGk68b69cdURAghlAJ9Dp4ubLHvoIZCSJANnGQGVilBp3ACXR2cD
-Ey5jwUpmbzShDU1CKwLHUw==
-=7C0I
+iD8DBQA//ewuRGk68b69cdURAnWwAJ9uQARVJSxDHJJDMz/ci65GqyfU6ACcCCeq
+4t116KSIYPfckPnU3IIh5G0=
+=a56i
 -----END PGP SIGNATURE-----
 
---=-sLIkbmQWof5hgoj7kHMD--
+--=-ODzVC3SM2Cilex9DIh0C--
 

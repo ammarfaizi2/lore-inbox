@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261353AbTILJSs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 05:18:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbTILJSr
+	id S261362AbTILJdF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 05:33:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbTILJdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 05:18:47 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:64240 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261353AbTILJSr (ORCPT
+	Fri, 12 Sep 2003 05:33:05 -0400
+Received: from luli.rootdir.de ([213.133.108.222]:15296 "HELO luli.rootdir.de")
+	by vger.kernel.org with SMTP id S261362AbTILJdC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 05:18:47 -0400
-Date: Fri, 12 Sep 2003 11:18:41 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: khromy <khromy@lnuxlab.ath.cx>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.6.0-test3 broken tdfxfb resolution
-In-Reply-To: <20030912031152.GA4089@lnuxlab.ath.cx>
-Message-ID: <Pine.GSO.4.21.0309121118120.2312-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 12 Sep 2003 05:33:02 -0400
+Date: Fri, 12 Sep 2003 11:32:53 +0200
+From: Claas Langbehn <claas@rootdir.de>
+To: Harry Brueckner <hb@o-d.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: devfs with 2.6.0-test4 kernel
+Message-ID: <20030912093253.GA3323@rootdir.de>
+References: <196810000.1063269840@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <196810000.1063269840@localhost.localdomain>
+Reply-By: Mo Sep 15 11:31:17 CEST 2003
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.0-test5-mm1 i686
+X-No-archive: yes
+X-Uptime: 11:31:17 up 6 min,  2 users,  load average: 1.39, 0.95, 0.44
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Sep 2003, khromy wrote:
-> Booting 2.6.0-test5 with video=tdfx:1024x768-8@85 doesn't set the 
-> resolution to 1024x768..
+Harry Brueckner wrote:
 
-This is not a new problem with 2.6.0-test5, is it?
+> ...
+> FATAL: Module /dev/ttyx0
+> FATAL: Module /dev/ttyx1
+> FATAL: Module /dev/ttyx2
+> FATAL: Module /dev/ttyx3
+> FATAL: Module /dev/ttyx4
+> FATAL: Module /dev/ttyx5
+> ...
 
-s/tdfx/tdfxfb/
+I had this, too. But it disappeared with test5-mm1 on my debian sid.
+Try to update sysvinit. If that does not help, try with a newer kernel,
+too.
 
-Gr{oetje,eeting}s,
 
-						Geert
+claa. But it disappeared with test5-mm1 on my debian sid.
+Try to update sysvinit. If that does not help, try with a newer kernel,
+too.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+claas

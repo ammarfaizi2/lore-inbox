@@ -1,35 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291464AbSBHISg>; Fri, 8 Feb 2002 03:18:36 -0500
+	id <S291466AbSBHIWg>; Fri, 8 Feb 2002 03:22:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291465AbSBHIS0>; Fri, 8 Feb 2002 03:18:26 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:22284 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S291464AbSBHISQ>;
-	Fri, 8 Feb 2002 03:18:16 -0500
-Date: Fri, 8 Feb 2002 00:15:22 -0800
-From: Greg KH <greg@kroah.com>
-To: Jason Thomas <jason@topic.com.au>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-kernel] Re: Linux 2.4.18-pre9
-Message-ID: <20020208081522.GB22105@kroah.com>
-In-Reply-To: <20020208042502.GA1797@topic.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020208042502.GA1797@topic.com.au>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Fri, 11 Jan 2002 04:32:17 -0800
+	id <S291471AbSBHIW0>; Fri, 8 Feb 2002 03:22:26 -0500
+Received: from [64.42.30.110] ([64.42.30.110]:15880 "HELO mail.clouddancer.com")
+	by vger.kernel.org with SMTP id <S291466AbSBHIWX>;
+	Fri, 8 Feb 2002 03:22:23 -0500
+To: linux-kernel@vger.kernel.org
+Message-Id: <20020208082137.56E2C7843A@phoenix.clouddancer.com>
+Date: Fri,  8 Feb 2002 00:21:37 -0800 (PST)
+From: klink@clouddancer.com (Colonel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 08, 2002 at 03:25:02PM +1100, Jason Thomas wrote:
-> 
-> how about bttv and usb-uhci, both of which I've sent patches for multiple times.
+From: Colonel <klink@clouddancer.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: New scheduler in 2.4. series?
+Reply-to: klink@clouddancer.com
 
-usb-uhci has been fixed.  Let me know if you still have problems with
-2.4.18-pre9.
 
-thanks,
+On boot, my rc.local script renices the SQL server to -20.  Later I
+usually run a set of perl scripts that make thousands of SQL fetches
+for 20 minutes.  I have also kicked off a complete kernel rebuild,
+using make -j, to see what happens.  My X window manager is fvwm with
+13 virtual desktops, and under this load with kernel 2.4.17 ( SMP, the
+K2 patch and 512M of RAM ), for a short time ~<2 minutes, I have
+delays in switching virtual desktops to the other tasks that are
+active.  Afterwards the virtual desktop switching is about as smooth
+as with an unloaded system.  'Top' reports loads of over 50 and over
+500 processes active.  Since I remember starting with kernel 1.1.41
+and 8M of RAM, this sort of responsiveness leaves a smile on my face.
 
-greg k-h
+Yesterday I had xmms running, and heard gaps in the music.  I dropped
+back to 2.4.10-ac12 (I had a lot of time running that kernel) for
+comparison.  Several processes had been killed within minutes...and
+the gaps in xmms were far worse while it was still running.
+
+>From my perspective, this line of development is simply astonishing.
+A small pause is a very small price to pay, considering the
+alternatives boiled down to 'wait until the machine is less busy'.
+
+THANKS!
+
+------------------------------------------------------------------
+On Wed, 6 Feb 2002, Kristian wrote:
+
+> -K2 behaves much better as -J2 did. The system gets continuously
+> responsive again. But with nicelevel -5 at the beginning of each 'tar`
+> the systems stalls for 2 or 3 seconds.
+
+yes, it takes 2-3 seconds for the system to notice that the 'tar'
+process started from your interactive shell is in fact a 'CPU
+hog'. The system was honoring root's request for CPU time.
+
+this should not happen if you start it at nice -2, which should still
+give 'tar' enough of an advantage.
+
+        Ingo

@@ -1,354 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263013AbTC1Omn>; Fri, 28 Mar 2003 09:42:43 -0500
+	id <S262534AbTC1OtV>; Fri, 28 Mar 2003 09:49:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263014AbTC1Omn>; Fri, 28 Mar 2003 09:42:43 -0500
-Received: from natsmtp00.webmailer.de ([192.67.198.74]:14310 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S263013AbTC1Omd>; Fri, 28 Mar 2003 09:42:33 -0500
-Date: Fri, 28 Mar 2003 15:53:28 +0100
-From: Dominik Brodowski <linux@brodo.de>
-To: rmk@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.5] pcmcia: generic suspend/resume capability
-Message-ID: <20030328145328.GA3330@brodo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S262989AbTC1OtU>; Fri, 28 Mar 2003 09:49:20 -0500
+Received: from modemcable226.131-200-24.mtl.mc.videotron.ca ([24.200.131.226]:16127
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S262534AbTC1OtT>; Fri, 28 Mar 2003 09:49:19 -0500
+Date: Fri, 28 Mar 2003 09:56:36 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Mike Galbraith <efault@gmx.de>
+cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@digeo.com>,
+       Ed Tomlinson <tomlins@cam.org>, "" <linux-kernel@vger.kernel.org>,
+       "" <linux-mm@kvack.org>
+Subject: Re: 2.5.66-mm1
+In-Reply-To: <5.2.0.9.2.20030328152305.019b3e70@pop.gmx.net>
+Message-ID: <Pine.LNX.4.50.0303280942420.2884-100000@montezuma.mastecende.com>
+References: <20030327205912.753c6d53.akpm@digeo.com>
+ <5.2.0.9.2.20030328152305.019b3e70@pop.gmx.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The socket drivers already offer suspend and resume
-capability. Integrate this with the driver model, based on a
-suggestion by Russell King.
+On Fri, 28 Mar 2003, Mike Galbraith wrote:
 
-Also, remove two never-used functions from the socket drivers (to_ns).
+> >hm, this is an 'impossible' scenario from the scheduler code POV. Whenever
+> >we deactivate a task, we remove it from the runqueue and set p->array to
+> >NULL. Whenever we activate a task again, we set p->array to non-NULL. A
+> >double-deactivate is not possible. I tried to reproduce it with various
+> >scheduler workloads, but didnt succeed.
+> >
+> >Mike, do you have a backtrace of the crash you saw?
+> 
+> No, I didn't save it due to "grubby fingerprints".
 
- drivers/pcmcia/cs.c             |   70 ++++++++++++++++++++--------------------
- drivers/pcmcia/cs_internal.h    |    1
- drivers/pcmcia/hd64465_ss.c     |    2 +
- drivers/pcmcia/i82092.c         |   17 ++++++---
- drivers/pcmcia/i82365.c         |    2 +
- drivers/pcmcia/pci_socket.c     |   15 +-------
- drivers/pcmcia/sa1100_generic.c |    2 +
- drivers/pcmcia/sa1111_generic.c |   14 +-------
- drivers/pcmcia/tcic.c           |    7 +---
- include/pcmcia/ss.h             |    5 ++
- 10 files changed, 64 insertions(+), 71 deletions(-)
+Hmm i think i may have his this one but i never posted due to being unable 
+to reproduce it on a vanilla kernel or the same kernel afterwards (which 
+was hacked so i won't vouch for it's cleanliness). I think preempt 
+might have bitten him in a bad place (mine is also CONFIG_PREEMPT), is it 
+possible that when we did the task_rq_unlock we got preempted and when we 
+got back we used the local variable requeue_waker which was set before 
+dropping the lock, and therefore might not be valid anymore due to 
+scheduler decisions done after dropping the runqueue lock?
+
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+ printing eip:
+c011b8d9
+*pde = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c011b8d9>]    Not tainted
+EFLAGS: 00010046
+EIP is at try_to_wake_up+0x1e9/0x4f0
+eax: c055a000   ebx: c04e5aa0   ecx: c0552fc0   edx: c04e5aa0
+esi: 00000000   edi: 00000000   ebp: c055bee4   esp: c055beb8
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 0, threadinfo=c055a000 task=c04e5aa0)
+Stack: 00000001 c055a000 c0552fc0 00000000 cb1a0000 00000001 00000001 00000002 
+       00000000 c04e88e4 00000001 c055bf08 c011d172 c1694700 00000001 00000000 
+       c04e88e4 c04e88dc c055a000 00000001 c055bf3c c011d203 c04e88dc 00000001 
+Call Trace:
+ [<c011d172>] __wake_up_common+0x32/0x60
+ [<c011d203>] __wake_up+0x63/0xb0
+ [<c0122fb5>] release_console_sem+0x165/0x170
+ [<c0122d7b>] printk+0x1eb/0x270
+ [<c015e210>] invalidate_bh_lru+0x0/0x60
+ [<c015e210>] invalidate_bh_lru+0x0/0x60
+ [<c015e210>] invalidate_bh_lru+0x0/0x60
+ [<c01163f2>] smp_call_function_interrupt+0x42/0xb0
+ [<c015e210>] invalidate_bh_lru+0x0/0x60
+ [<c0106eb0>] default_idle+0x0/0x40
+ [<c010a41a>] call_function_interrupt+0x1a/0x20
+ [<c0106eb0>] default_idle+0x0/0x40
+ [<c0106ede>] default_idle+0x2e/0x40
+ [<c0106f6a>] cpu_idle+0x3a/0x50
+ [<c0105000>] rest_init+0x0/0x80
+
+Code: 8b 06 48 89 06 8b 4a 24 8b 42 20 89 01 89 48 04 8b 4a 18 8d 
+
+0xc011b8d9 is in try_to_wake_up (kernel/sched.c:282).
+277     /*
+278      * Adding/removing a task to/from a priority array:
+279      */
+280     static inline void dequeue_task(struct task_struct *p, prio_array_t *array)
+281     {
+282             array->nr_active--;
+283             list_del(&p->run_list);
+284             if (list_empty(array->queue + p->prio))
+285                     __clear_bit(p->prio, array->bitmap);
+286     }
+
+(gdb) list *__wake_up_common+0x32
+0xc011d1b2 is in __wake_up_common (kernel/sched.c:1424).
+1419            list_for_each_safe(tmp, next, &q->task_list) {
+1420                    wait_queue_t *curr;
+1421                    unsigned flags;
+1422                    curr = list_entry(tmp, wait_queue_t, task_list);
+1423                    flags = curr->flags;
+1424                    if (curr->func(curr, mode, sync) &&
+1425                        (flags & WQ_FLAG_EXCLUSIVE) &&
+1426                        !--nr_exclusive)
+1427                            break;
+1428            }
+
+(gdb) list *__wake_up+0x62
+0xc011d242 is in __wake_up (kernel/sched.c:1445).
+1440
+1441            if (unlikely(!q))
+1442                    return;
+1443
+1444            spin_lock_irqsave(&q->lock, flags);
+1445            __wake_up_common(q, mode, nr_exclusive, 0);
+1446            spin_unlock_irqrestore(&q->lock, flags);
+1447    }
+1448
+1449    /*
 
 
-diff -ruN linux-original/drivers/pcmcia/cs.c linux/drivers/pcmcia/cs.c
---- linux-original/drivers/pcmcia/cs.c	2003-03-27 18:21:51.000000000 +0100
-+++ linux/drivers/pcmcia/cs.c	2003-03-28 15:42:20.000000000 +0100
-@@ -111,13 +111,6 @@
- /* Access speed for IO windows */
- INT_MODULE_PARM(io_speed,	0);		/* ns */
- 
--/* Optional features */
--#ifdef CONFIG_PM
--INT_MODULE_PARM(do_apm,		1);
--#else
--INT_MODULE_PARM(do_apm,		0);
--#endif
--
- #ifdef PCMCIA_DEBUG
- INT_MODULE_PARM(pc_debug, PCMCIA_DEBUG);
- static const char *version =
-@@ -348,7 +341,6 @@
- 		/* base address = 0, map = 0 */
- 		s->cis_mem.flags = 0;
- 		s->cis_mem.speed = cis_speed;
--		s->use_bus_pm = cls_d->use_bus_pm;
- 		s->erase_busy.next = s->erase_busy.prev = &s->erase_busy;
- 		spin_lock_init(&s->lock);
-     
-@@ -756,33 +748,47 @@
- 	parse_events(s, SS_DETECT);
- }
- 
--static int handle_pm_event(struct pm_dev *dev, pm_request_t rqst, void *data)
-+
-+int pcmcia_socket_dev_suspend(struct device * dev, u32 state, u32 level)
- {
--    int i;
--    socket_info_t *s;
-+	struct pcmcia_socket_class_data *cls_d = to_class_data(dev);
-+	socket_info_t *s;
-+	int i;
- 
--    /* only for busses that don't suspend/resume slots directly */
-+	if ((!cls_d) || (level != SUSPEND_SAVE_STATE))
-+		return 0;
- 
--    switch (rqst) {
--    case PM_SUSPEND:
--	DEBUG(1, "cs: received suspend notification\n");
--	for (i = 0; i < sockets; i++) {
--	    s = socket_table [i];
--	    if (!s->use_bus_pm)
--		pcmcia_suspend_socket (socket_table [i]);
-+	s = (socket_info_t *) cls_d->s_info;
-+
-+	for (i = 0; i < cls_d->nsock; i++) {
-+		pcmcia_suspend_socket(s);
-+		s++;
- 	}
--	break;
--    case PM_RESUME:
--	DEBUG(1, "cs: received resume notification\n");
--	for (i = 0; i < sockets; i++) {
--	    s = socket_table [i];
--	    if (!s->use_bus_pm)
--		pcmcia_resume_socket (socket_table [i]);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(pcmcia_socket_dev_suspend);
-+
-+int pcmcia_socket_dev_resume(struct device * dev, u32 level)
-+{
-+	struct pcmcia_socket_class_data *cls_d = to_class_data(dev);
-+	socket_info_t *s;
-+	int i;
-+
-+	if ((!cls_d) || (level != RESUME_RESTORE_STATE))
-+		return 0;
-+
-+	s = (socket_info_t *) cls_d->s_info;
-+
-+	for (i = 0; i < cls_d->nsock; i++) {
-+		pcmcia_resume_socket(s);
-+		s++;
- 	}
--	break;
--    }
--    return 0;
--} /* handle_pm_event */
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(pcmcia_socket_dev_resume);
-+
- 
- /*======================================================================
- 
-@@ -2429,8 +2435,6 @@
-     printk(KERN_INFO "  %s\n", options);
-     DEBUG(0, "%s\n", version);
-     devclass_register(&pcmcia_socket_class);
--    if (do_apm)
--	pm_register(PM_SYS_DEV, PM_SYS_PCMCIA, handle_pm_event);
- #ifdef CONFIG_PROC_FS
-     proc_pccard = proc_mkdir("pccard", proc_bus);
- #endif
-@@ -2446,8 +2450,6 @@
- 	remove_proc_entry("pccard", proc_bus);
-     }
- #endif
--    if (do_apm)
--	pm_unregister_all(handle_pm_event);
-     release_resource_db();
-     devclass_unregister(&pcmcia_socket_class);
- }
-diff -ruN linux-original/drivers/pcmcia/cs_internal.h linux/drivers/pcmcia/cs_internal.h
---- linux-original/drivers/pcmcia/cs_internal.h	2003-03-27 18:21:51.000000000 +0100
-+++ linux/drivers/pcmcia/cs_internal.h	2003-03-28 15:41:32.000000000 +0100
-@@ -157,7 +157,6 @@
- #ifdef CONFIG_PROC_FS
-     struct proc_dir_entry	*proc;
- #endif
--    int				use_bus_pm;
- } socket_info_t;
- 
- /* Flags in config state */
-diff -ruN linux-original/drivers/pcmcia/hd64465_ss.c linux/drivers/pcmcia/hd64465_ss.c
---- linux-original/drivers/pcmcia/hd64465_ss.c	2003-03-27 18:21:51.000000000 +0100
-+++ linux/drivers/pcmcia/hd64465_ss.c	2003-03-28 15:38:29.000000000 +0100
-@@ -968,6 +968,8 @@
- 	.name = "hd64465-pcmcia",
- 	.bus = &platform_bus_type,
- 	.devclass = &pcmcia_socket_class,
-+	.suspend = pcmcia_socket_dev_suspend,
-+	.resume = pcmcia_socket_dev_resume,
- };
- 
- static struct platform_device hd64465_device = {
-diff -ruN linux-original/drivers/pcmcia/i82092.c linux/drivers/pcmcia/i82092.c
---- linux-original/drivers/pcmcia/i82092.c	2003-03-27 18:21:51.000000000 +0100
-+++ linux/drivers/pcmcia/i82092.c	2003-03-28 15:44:18.000000000 +0100
-@@ -42,11 +42,23 @@
- };
- MODULE_DEVICE_TABLE(pci, i82092aa_pci_ids);
- 
-+static int i82092aa_socket_suspend (struct pci_dev *dev, u32 state)
-+{
-+	return pcmcia_socket_dev_suspend(&dev->dev, state, 0);
-+}
-+
-+static int i82092aa_socket_resume (struct pci_dev *dev)
-+{
-+	return pcmcia_socket_dev_resume(&dev->dev, RESUME_RESTORE_STATE);
-+}
-+
- static struct pci_driver i82092aa_pci_drv = {
- 	.name           = "i82092aa",
- 	.id_table       = i82092aa_pci_ids,
- 	.probe          = i82092aa_pci_probe,
- 	.remove         = __devexit_p(i82092aa_pci_remove),
-+	.suspend        = i82092aa_socket_suspend,
-+	.resume         = i82092aa_socket_resume,
- 	.driver		= {
- 		.devclass = &pcmcia_socket_class,
- 	},
-@@ -302,11 +314,6 @@
- 		return 0;
- }
-     
--static int to_ns(int cycles)
--{
--	return cycle_time*cycles;
--}
--
- 
- /* Interrupt handler functionality */
- 
-diff -ruN linux-original/drivers/pcmcia/i82365.c linux/drivers/pcmcia/i82365.c
---- linux-original/drivers/pcmcia/i82365.c	2003-03-27 18:21:51.000000000 +0100
-+++ linux/drivers/pcmcia/i82365.c	2003-03-28 15:39:48.000000000 +0100
-@@ -1511,6 +1511,8 @@
- 	.name = "i82365",
- 	.bus = &platform_bus_type,
- 	.devclass = &pcmcia_socket_class,
-+	.suspend = pcmcia_socket_dev_suspend,
-+	.resume = pcmcia_socket_dev_resume,
- };
- 
- static struct platform_device i82365_device = {
-diff -ruN linux-original/drivers/pcmcia/pci_socket.c linux/drivers/pcmcia/pci_socket.c
---- linux-original/drivers/pcmcia/pci_socket.c	2003-03-27 18:21:51.000000000 +0100
-+++ linux/drivers/pcmcia/pci_socket.c	2003-03-28 15:42:43.000000000 +0100
-@@ -31,10 +31,6 @@
- #include "pci_socket.h"
- 
- 
--extern void pcmcia_suspend_socket (struct socket_info_t *socket);
--extern void pcmcia_resume_socket (struct socket_info_t *socket);
--
--
- /*
-  * Arbitrary define. This is the array of active cardbus
-  * entries.
-@@ -157,7 +153,6 @@
- 	socket->cls_d.nsock = 1; /* yenta is 1, no other low-level driver uses
- 			     this yet */
- 	socket->cls_d.ops = &pci_socket_operations;
--	socket->cls_d.use_bus_pm = 1;
- 	dev->dev.class_data = &socket->cls_d;
- 
- 	/* prepare pci_socket_t */
-@@ -204,18 +199,12 @@
- 
- static int cardbus_suspend (struct pci_dev *dev, u32 state)
- {
--	pci_socket_t *socket = pci_get_drvdata(dev);
--	if (socket && socket->cls_d.s_info)
--		pcmcia_suspend_socket (socket->cls_d.s_info);
--	return 0;
-+	return pcmcia_socket_dev_suspend(&dev->dev, state, 0);
- }
- 
- static int cardbus_resume (struct pci_dev *dev)
- {
--	pci_socket_t *socket = pci_get_drvdata(dev);
--	if (socket && socket->cls_d.s_info)
--		pcmcia_resume_socket (socket->cls_d.s_info);
--	return 0;
-+	return pcmcia_socket_dev_resume(&dev->dev, RESUME_RESTORE_STATE);
- }
- 
- 
-diff -ruN linux-original/drivers/pcmcia/sa1100_generic.c linux/drivers/pcmcia/sa1100_generic.c
---- linux-original/drivers/pcmcia/sa1100_generic.c	2003-03-27 18:21:51.000000000 +0100
-+++ linux/drivers/pcmcia/sa1100_generic.c	2003-03-28 15:38:09.000000000 +0100
-@@ -1020,6 +1020,8 @@
- 	.name		= "sa11x0-pcmcia",
- 	.bus		= &platform_bus_type,
- 	.devclass	= &pcmcia_socket_class,
-+	.suspend 	= pcmcia_socket_dev_suspend,
-+	.resume 	= pcmcia_socket_dev_resume,
- };
- 
- static struct platform_device sa1100_pcmcia_device = {
-diff -ruN linux-original/drivers/pcmcia/sa1111_generic.c linux/drivers/pcmcia/sa1111_generic.c
---- linux-original/drivers/pcmcia/sa1111_generic.c	2003-03-27 18:21:51.000000000 +0100
-+++ linux/drivers/pcmcia/sa1111_generic.c	2003-03-28 15:37:39.000000000 +0100
-@@ -257,16 +257,6 @@
- 	return 0;
- }
- 
--static int pcmcia_suspend(struct device *dev, u32 state, u32 level)
--{
--	return 0;
--}
--
--static int pcmcia_resume(struct device *dev, u32 level)
--{
--	return 0;
--}
--
- static struct sa1111_driver pcmcia_driver = {
- 	.drv = {
- 		.name		= "sa1111-pcmcia",
-@@ -274,8 +264,8 @@
- 		.devclass	= &pcmcia_socket_class,
- 		.probe		= pcmcia_probe,
- 		.remove		= __devexit_p(pcmcia_remove),
--		.suspend	= pcmcia_suspend,
--		.resume		= pcmcia_resume,
-+		.suspend 	= pcmcia_socket_dev_suspend,
-+		.resume 	= pcmcia_socket_dev_resume,
- 	},
- 	.devid			= SA1111_DEVID_PCMCIA,
- };
-diff -ruN linux-original/drivers/pcmcia/tcic.c linux/drivers/pcmcia/tcic.c
---- linux-original/drivers/pcmcia/tcic.c	2003-03-27 18:21:51.000000000 +0100
-+++ linux/drivers/pcmcia/tcic.c	2003-03-28 15:44:29.000000000 +0100
-@@ -225,11 +225,6 @@
- 	return 2*(ns-14)/cycle_time;
- }
- 
--static int to_ns(int cycles)
--{
--    return (cycles*cycle_time)/2 + 14;
--}
--
- /*====================================================================*/
- 
- static volatile u_int irq_hits;
-@@ -384,6 +379,8 @@
- 	.name = "tcic-pcmcia",
- 	.bus = &platform_bus_type,
- 	.devclass = &pcmcia_socket_class,
-+	.suspend = pcmcia_socket_dev_suspend,
-+	.resume = pcmcia_socket_dev_resume,
- };
- 
- static struct platform_device tcic_device = {
-diff -ruN linux-original/include/pcmcia/ss.h linux/include/pcmcia/ss.h
---- linux-original/include/pcmcia/ss.h	2003-03-27 18:21:54.000000000 +0100
-+++ linux/include/pcmcia/ss.h	2003-03-28 15:29:03.000000000 +0100
-@@ -148,9 +148,12 @@
- 	 * returned to driver) = sock_offset + (0, 1, .. , (nsock-1) */
- 	struct pccard_operations *ops;		/* see above */
- 	void *s_info;				/* socket_info_t */
--	unsigned int use_bus_pm;
- };
- 
- extern struct device_class pcmcia_socket_class;
- 
-+/* socket drivers are expected to use these callbacks in their .drv struct */
-+int pcmcia_socket_dev_suspend(struct device * dev, u32 state, u32 level);
-+int pcmcia_socket_dev_resume(struct device * dev, u32 level);
-+
- #endif /* _LINUX_SS_H */
+-- 
+function.linuxpower.ca

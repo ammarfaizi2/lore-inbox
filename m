@@ -1,83 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265615AbTGBXQV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 19:16:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265674AbTGBXQV
+	id S265943AbTGBXbc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 19:31:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265944AbTGBXbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 19:16:21 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:55193
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S265615AbTGBXQR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 19:16:17 -0400
-Date: Thu, 3 Jul 2003 01:30:14 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Mel Gorman <mel@csn.ul.ie>,
-       Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: What to expect with the 2.6 VM
-Message-ID: <20030702233014.GW23578@dualathlon.random>
-References: <20030701022516.GL3040@dualathlon.random> <Pine.LNX.4.53.0307021641560.11264@skynet> <20030702171159.GG23578@dualathlon.random> <461030000.1057165809@flay> <20030702174700.GJ23578@dualathlon.random> <20030702214032.GH20413@holomorphy.com> <20030702220246.GS23578@dualathlon.random> <20030702221551.GH26348@holomorphy.com> <20030702222641.GU23578@dualathlon.random> <20030702231122.GI26348@holomorphy.com>
+	Wed, 2 Jul 2003 19:31:32 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:45225 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265943AbTGBXb2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 19:31:28 -0400
+Subject: Re: Linux 2.5.74: BUG at mm/slab.c:1537
+From: Andy Pfiffer <andyp@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0307021433520.2323-100000@home.osdl.org>
+References: <Pine.LNX.4.44.0307021433520.2323-100000@home.osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1057189512.1305.3.camel@andyp.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030702231122.GI26348@holomorphy.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 02 Jul 2003 16:45:12 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 02, 2003 at 04:11:22PM -0700, William Lee Irwin III wrote:
-> On Wed, Jul 02, 2003 at 03:15:51PM -0700, William Lee Irwin III wrote:
-> >> What complexity? Just unmap it if you can't allocate a pte_chain and
-> >> park it on the LRU.
-> 
-> On Thu, Jul 03, 2003 at 12:26:41AM +0200, Andrea Arcangeli wrote:
-> > the complexity in munlock to rebuild what you destroyed in mlock, that's
-> > linear at best (and for anonymous mappings there's no objrmap, plus
-> > objrmap isn't even linear but quadratic in its scan [hence the problem
-> > with it], though in practice it would be normally faster than the linear
-> > of the page scanning ;)
-> 
-> Computational complexity; okay.
-> 
-> It's not quadratic; at each munlock(), it's not necessary to do
+2.5.74 booted okay, but after I "init 1", it BUG's (whitespace mangled):
 
-yes, as said above it's linear with the number of virtual pages mapped
-unless you use the objrmap to rebuild rmap.
+Shutting down zope                                                  
+done
+Shutting down RPC portmap daemon                                    
+done
+Shutting down SSH daemonkfree_debugcheck: out of range ptr 100h.
+------------[ cut here ]------------
+kernel BUG at mm/slab.c:1537!
+invalid operand: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c01457ad>]    Not tainted
+EFLAGS: 00010002
+EIP is at kfree+0x35/0x268
+eax: 0000002c   ebx: ded59b68   ecx: c150bc20   edx: c0412ce8
+esi: 00000100   edi: 00040000   ebp: df12df30   esp: df12df00
+ds: 007b   es: 007b   ss: 0068
+Process netstat (pid: 1405, threadinfo=df12c000 task=df3c6080)
+Stack: c0389060 00000100 ded59b68 df5e0e64 df0b4cb4 df12df6c df5e0e84
+df12df30 
+       c0344ca1 ded59b68 00000001 00000206 df12df48 c017ae8c 00000100
+defe1c54 
+       df5e0e64 df0b4cb4 df12df6c c015b9c7 df0b4cb4 df5e0e64 defe1c54
+df5e0e64 
+Call Trace:
+ [<c0344ca1>] raw_seq_start+0x4d/0x58
+ [<c017ae8c>] seq_release_private+0x18/0x30
+ [<c015b9c7>] __fput+0x3b/0xfc
+ [<c015b987>] fput+0x17/0x1c
+ [<c015a402>] filp_close+0x10a/0x118
+ [<c015a4ba>] sys_close+0xaa/0x100
+ [<c010af6f>] syscall_call+0x7/0xb
 
-> anything more than:
+Code: 0f 0b 01 06 27 8d 38 c0 83 c4 08 8d 04 bf c1 e0 03 89 45 f8 
+                                                                    
+done
+Shutting down syslog services                                       
+failed
+Shutting down network interfaces:
+    eth0                                                            
+done
+Shutting down personal-firewall [not active]                        
+unused
+Saving random seed                                                  
+done
+Loading keymap qwerty/us.map.gz                                     
+done
+Loading console font lat1-16.psfu                                   
+done
+Loading screenmap none                                              
+done
+Setting up console ttys
 
-is this munmap right?
 
-> 
-> for each page this mlock()'er (not _all_ mlock()'ers) maps of this thing
-> 	grab some pagewise lock
-> 	if pte_chain allocation succeeded
-> 		add pte_chain
 
-allocated sure, but it has no information yet, you dropped the info in
-mlock
 
-> 	else
-> 		/* you'll need to put anon pages in swapcache in mlock() */
-> 		unmap the page
-
-how to unmap? there's no rmap. also there may not be swap at all to
-allocate swapcache from
-
-> 	decrement lockcount
-> 	if lockcount vanished
-> 	park it on the LRU
-> 	drop the pagewise lock
-> 
-> Individual mappers whose mappings are not mlock()'d add pte_chains when
-> faulting the things in just like before.
-
-Tell me how you reach the pagetable from munlock to do the unmap. If you
-can reach the pagetable, the unmap isn't necessary and you only need to
-rebuild the rmap. and if you can reach the pagetable efficiently w/o
-rmap, it means rmap is useless in the first place.
-
-Andrea

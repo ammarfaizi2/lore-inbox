@@ -1,79 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265422AbTGOHCJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 03:02:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265421AbTGOHCJ
+	id S265976AbTGOHLU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 03:11:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265998AbTGOHLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 03:02:09 -0400
-Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:27666 "EHLO
-	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id S265422AbTGOHCG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 03:02:06 -0400
-Date: Tue, 15 Jul 2003 00:16:55 -0700
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Kernel Developer List <linux-kernel@vger.kernel.org>
-Subject: e1000 with 82546EB parts on 2.4?
-Message-ID: <20030715001654.D25443@one-eyed-alien.net>
-Mail-Followup-To: Kernel Developer List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="UoPmpPX/dBe4BELn"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2003 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+	Tue, 15 Jul 2003 03:11:19 -0400
+Received: from darkwing.uoregon.edu ([128.223.142.13]:2703 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id S265976AbTGOHLL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 03:11:11 -0400
+Date: Tue, 15 Jul 2003 00:24:46 -0700 (PDT)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
+To: Tupshin Harper <tupshin@tupshin.com>
+cc: "Ranga Reddy M - CTD ,Chennai." <rangareddym@ctd.hcltech.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: setting year to 2094 casuing Error.
+In-Reply-To: <3F13A0B7.6050103@tupshin.com>
+Message-ID: <Pine.LNX.4.44.0307150024260.30663-100000@twin.uoregon.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+the 32bit epoch ends in 2038...
 
---UoPmpPX/dBe4BELn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+joelja
 
-I'm working with some hardware that may or may not be completely reliable,
-and trying to figure out if something I'm seeing is a 'known issue' or
-something strange about my setup (which is entirely possible).
+On Mon, 14 Jul 2003, Tupshin Harper wrote:
 
-I'm using 2.4.20 with some custom hardware.
+> Ranga Reddy M - CTD ,Chennai. wrote:
+> 
+> >Hi,
+> >
+> >Iam working on linux system with Redhat -8.0.
+> >
+> >I have set the system time from BIOS to 17/03/2094.After setting this
+> >,booted with linux O.S. 
+> >
+> >Now its showing system date as year=1994.I did not get how this happend.
+> >
+> >Can any one tell me about this???
+> >
+> >Thanks in advance
+> >
+> >-Ranga
+> >  
+> >
+> http://www.howstuffworks.com/question75.htm
+> 
+> -Tupshin
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-What I've got is your basic x86 machine with an Intel 82546EB dual-GigE
-controller on a PCI bus.  I load e1000.o, ifconfig, and I'm running.  The
-interface is solid as a rock, AFAICT.  I've left it running for days
-without any problems.
+-- 
+-------------------------------------------------------------------------- 
+Joel Jaeggli	      Academic User Services   joelja@darkwing.uoregon.edu    
+--    PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E      --
+  In Dr. Johnson's famous dictionary patriotism is defined as the last
+  resort of the scoundrel.  With all due respect to an enlightened but
+  inferior lexicographer I beg to submit that it is the first.
+	   	            -- Ambrose Bierce, "The Devil's Dictionary"
 
-However, if I ifdown and then ifup the interface, I'm borked.  Based on
-tcpdump from another machine, the interface is definately transmitting
-packets just fine.  But, it never seems to notice any packets on the
-receive side.
 
-Has anyone seen anything like this before?
-
-Matt
-
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
-
-A:  The most ironic oxymoron wins ...
-DP: "Microsoft Works"
-A:  Uh, okay, you win.
-					-- A.J. & Dust Puppy
-User Friendly, 1/18/1998
-
---UoPmpPX/dBe4BELn
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE/E6pmIjReC7bSPZARAn6BAKCc6d1mZymkf4Ujxo59dmBdxQEMawCffeC5
-O34eQ7q8/shHeCucdRDQ04M=
-=uj3n
------END PGP SIGNATURE-----
-
---UoPmpPX/dBe4BELn--

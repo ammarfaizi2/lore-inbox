@@ -1,171 +1,337 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263452AbTLXBnR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 20:43:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263460AbTLXBnR
+	id S263125AbTLXCDb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 21:03:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263137AbTLXCDb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 20:43:17 -0500
-Received: from zero.voxel.net ([209.123.232.253]:6355 "EHLO zero.voxel.net")
-	by vger.kernel.org with ESMTP id S263452AbTLXBnD (ORCPT
+	Tue, 23 Dec 2003 21:03:31 -0500
+Received: from mail.zero.ou.edu ([129.15.0.75]:32638 "EHLO c3p0.ou.edu")
+	by vger.kernel.org with ESMTP id S263125AbTLXCDV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 20:43:03 -0500
-Subject: [PATCH 2/7] more CardServices() removals (drivers/net/wireless)
-From: Andres Salomon <dilinger@voxel.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org,
-       simon@thekelleys.org.uk
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-U1Wf4mzL5uEdoqd6u1ri"
-Message-Id: <1072226789.5300.14.camel@spiral.internal>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 23 Dec 2003 20:42:53 -0500
+	Tue, 23 Dec 2003 21:03:21 -0500
+Date: Tue, 23 Dec 2003 20:02:57 -0600
+From: "Stephen M. Kenton" <skenton@ou.edu>
+Subject: 2.6.0 make defconfig: trying to assign nonexistent symbol
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Message-id: <3FE8F3D1.2B51BBB6@ou.edu>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.7 [en]C-CCK-MCD NSCPCD47  (Win98; I)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I ran make defconfig on 2.6.0 for all arches and got a total of about
+150 of these.
+Things out of sync, either half added, half removed, or just typos.
+They seem to be present in just about all arches to lesser or greater
+degree.
+For example, i386 only had four and x86_64 had one while arm and alpha
+had lots.
 
---=-U1Wf4mzL5uEdoqd6u1ri
-Content-Type: multipart/mixed; boundary="=-E82O/gZbvuBSJwWYC4gp"
+FYI
+Steve
 
-
---=-E82O/gZbvuBSJwWYC4gp
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Part 2 of 7.
-
---=-E82O/gZbvuBSJwWYC4gp
-Content-Disposition: attachment; filename=102-cs_remove.patch
-Content-Type: text/x-patch; name=102-cs_remove.patch; charset=us-ascii
-Content-Transfer-Encoding: base64
-
-UmV2aXNpb246IGxpbnV4LS1tYWlubGluZS0tMi42LS1wYXRjaC0zMQ0KQXJjaGl2ZTogZGlsaW5n
-ZXJAdm94ZWwubmV0LS0yMDAzLXNwaXJhbA0KQ3JlYXRvcjogQW5kcmVzIFNhbG9tb24gPGRpbGlu
-Z2VyQHZveGVsLm5ldD4NCkRhdGU6IFR1ZSBEZWMgMjMgMTg6NDQ6MzMgRVNUIDIwMDMNClN0YW5k
-YXJkLWRhdGU6IDIwMDMtMTItMjMgMjM6NDQ6MzMgR01UDQpNb2RpZmllZC1maWxlczogZHJpdmVy
-cy9uZXQvd2lyZWxlc3MvYXRtZWxfY3MuYw0KTmV3LXBhdGNoZXM6IGRpbGluZ2VyQHZveGVsLm5l
-dC0tMjAwMy1zcGlyYWwvbGludXgtLW1haW5saW5lLS0yLjYtLXBhdGNoLTMxDQpTdW1tYXJ5OiBD
-YXJkU2VydmljZXMoKSByZW1vdmFsLCBhY3QgMiwgcHQuIDINCktleXdvcmRzOiANCg0KUmVtb3Zl
-IGNhbGxzIHRvIENhcmRTZXJ2aWNlcygpLCBhY3QgMiwgcGFydCAyOyBhdG1lbF9jcy5jLg0KDQoq
-IGFkZGVkIGZpbGVzDQoNCiAgICB7YXJjaH0vbGludXgvbGludXgtLW1haW5saW5lL2xpbnV4LS1t
-YWlubGluZS0tMi42L2RpbGluZ2VyQHZveGVsLm5ldC0tMjAwMy1zcGlyYWwvcGF0Y2gtbG9nL3Bh
-dGNoLTMxDQoNCiogbW9kaWZpZWQgZmlsZXMNCg0KLS0tIG9yaWcvZHJpdmVycy9uZXQvd2lyZWxl
-c3MvYXRtZWxfY3MuYw0KKysrIG1vZC9kcml2ZXJzL25ldC93aXJlbGVzcy9hdG1lbF9jcy5jDQpA
-QCAtMjQ2LDcgKzI0Niw3IEBADQogCWNsaWVudF9yZWcuZXZlbnRfaGFuZGxlciA9ICZhdG1lbF9l
-dmVudDsNCiAJY2xpZW50X3JlZy5WZXJzaW9uID0gMHgwMjEwOw0KIAljbGllbnRfcmVnLmV2ZW50
-X2NhbGxiYWNrX2FyZ3MuY2xpZW50X2RhdGEgPSBsaW5rOw0KLQlyZXQgPSBDYXJkU2VydmljZXMo
-UmVnaXN0ZXJDbGllbnQsICZsaW5rLT5oYW5kbGUsICZjbGllbnRfcmVnKTsNCisJcmV0ID0gcGNt
-Y2lhX3JlZ2lzdGVyX2NsaWVudCgmbGluay0+aGFuZGxlLCAmY2xpZW50X3JlZyk7DQogCWlmIChy
-ZXQgIT0gMCkgew0KIAkJY3NfZXJyb3IobGluay0+aGFuZGxlLCBSZWdpc3RlckNsaWVudCwgcmV0
-KTsNCiAJCWF0bWVsX2RldGFjaChsaW5rKTsNCkBAIC0yODIsNyArMjgyLDcgQEANCiAJCQ0KIAkv
-KiBCcmVhayB0aGUgbGluayB3aXRoIENhcmQgU2VydmljZXMgKi8NCiAJaWYgKGxpbmstPmhhbmRs
-ZSkNCi0JCUNhcmRTZXJ2aWNlcyhEZXJlZ2lzdGVyQ2xpZW50LCBsaW5rLT5oYW5kbGUpOw0KKwkJ
-cGNtY2lhX2RlcmVnaXN0ZXJfY2xpZW50KGxpbmstPmhhbmRsZSk7DQogDQogCS8qIFVubGluayBk
-ZXZpY2Ugc3RydWN0dXJlLCBmcmVlIHBpZWNlcyAqLw0KIAkqbGlua3AgPSBsaW5rLT5uZXh0Ow0K
-QEAgLTI5OSwxMSArMjk5LDggQEANCiAgIA0KICAgPT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PSovDQogDQotI2RlZmlu
-ZSBDU19DSEVDSyhmbiwgYXJncy4uLikgXA0KLXdoaWxlICgobGFzdF9yZXQ9Q2FyZFNlcnZpY2Vz
-KGxhc3RfZm49KGZuKSxhcmdzKSkhPTApIGdvdG8gY3NfZmFpbGVkDQotDQotI2RlZmluZSBDRkdf
-Q0hFQ0soZm4sIGFyZ3MuLi4pIFwNCi1pZiAoQ2FyZFNlcnZpY2VzKGZuLCBhcmdzKSAhPSAwKSBn
-b3RvIG5leHRfZW50cnkNCisjZGVmaW5lIENTX0NIRUNLKGZuLCByZXQpIFwNCitkbyB7IGxhc3Rf
-Zm4gPSAoZm4pOyBpZiAoKGxhc3RfcmV0ID0gKHJldCkpICE9IDApIGdvdG8gY3NfZmFpbGVkOyB9
-IHdoaWxlICgwKQ0KIA0KIC8qIENhbGwtYmFjayBmdW5jdGlvbiB0byBpbnRlcnJvZ2F0ZSBQQ01D
-SUEtc3BlY2lmaWMgaW5mb3JtYXRpb24NCiAgICBhYm91dCB0aGUgY3VycmVudCBleGlzdGFuY2Ug
-b2YgdGhlIGNhcmQgKi8NCkBAIC0zNzIsMTEgKzM2OSwxMSBAQA0KIAl0dXBsZS5UdXBsZU9mZnNl
-dCA9IDA7DQogCQ0KIAl0dXBsZS5EZXNpcmVkVHVwbGUgPSBDSVNUUExfTUFORklEOw0KLQlpZiAo
-Q2FyZFNlcnZpY2VzKEdldEZpcnN0VHVwbGUsIGhhbmRsZSwgJnR1cGxlKSA9PSAwKSB7DQorCWlm
-IChwY21jaWFfZ2V0X2ZpcnN0X3R1cGxlKGhhbmRsZSwgJnR1cGxlKSA9PSAwKSB7DQogCQlpbnQg
-aTsNCiAJCWNpc3RwbF9tYW5maWRfdCAqbWFuZmlkOw0KLQkJQ1NfQ0hFQ0soR2V0VHVwbGVEYXRh
-LCBoYW5kbGUsICZ0dXBsZSk7DQotCQlDU19DSEVDSyhQYXJzZVR1cGxlLCBoYW5kbGUsICZ0dXBs
-ZSwgJnBhcnNlKTsNCisJCUNTX0NIRUNLKEdldFR1cGxlRGF0YSwgcGNtY2lhX2dldF90dXBsZV9k
-YXRhKGhhbmRsZSwgJnR1cGxlKSk7DQorCQlDU19DSEVDSyhQYXJzZVR1cGxlLCBwY21jaWFfcGFy
-c2VfdHVwbGUoaGFuZGxlLCAmdHVwbGUsICZwYXJzZSkpOw0KIAkJbWFuZmlkID0gJihwYXJzZS5t
-YW5maWQpOw0KIAkJZm9yIChpID0gMDsgaSA8IHNpemVvZihjYXJkX3RhYmxlKS9zaXplb2YoY2Fy
-ZF90YWJsZVswXSk7IGkrKykgew0KIAkJCWlmICghY2FyZF90YWJsZVtpXS52ZXIxICYmDQpAQCAt
-Mzg5LDExICszODYsMTEgQEANCiAJfQ0KIA0KIAl0dXBsZS5EZXNpcmVkVHVwbGUgPSBDSVNUUExf
-VkVSU18xOw0KLQlpZiAoIWRvbmUgJiYgKENhcmRTZXJ2aWNlcyhHZXRGaXJzdFR1cGxlLCBoYW5k
-bGUsICZ0dXBsZSkgPT0gMCkpIHsNCisJaWYgKCFkb25lICYmIChwY21jaWFfZ2V0X2ZpcnN0X3R1
-cGxlKGhhbmRsZSwgJnR1cGxlKSA9PSAwKSkgew0KIAkJaW50IGksIGosIGs7DQogCQljaXN0cGxf
-dmVyc18xX3QgKnZlcjE7DQotCQlDU19DSEVDSyhHZXRUdXBsZURhdGEsIGhhbmRsZSwgJnR1cGxl
-KTsNCi0JCUNTX0NIRUNLKFBhcnNlVHVwbGUsIGhhbmRsZSwgJnR1cGxlLCAmcGFyc2UpOw0KKwkJ
-Q1NfQ0hFQ0soR2V0VHVwbGVEYXRhLCBwY21jaWFfZ2V0X3R1cGxlX2RhdGEoaGFuZGxlLCAmdHVw
-bGUpKTsNCisJCUNTX0NIRUNLKFBhcnNlVHVwbGUsIHBjbWNpYV9wYXJzZV90dXBsZShoYW5kbGUs
-ICZ0dXBsZSwgJnBhcnNlKSk7DQogCQl2ZXIxID0gJihwYXJzZS52ZXJzaW9uXzEpOw0KIAkJDQog
-CQlmb3IgKGkgPSAwOyBpIDwgc2l6ZW9mKGNhcmRfdGFibGUpL3NpemVvZihjYXJkX3RhYmxlWzBd
-KTsgaSsrKSB7DQpAQCAtNDI5LDkgKzQyNiw5IEBADQogCSAgcmVnaXN0ZXJzLg0KIAkqLw0KIAl0
-dXBsZS5EZXNpcmVkVHVwbGUgPSBDSVNUUExfQ09ORklHOw0KLQlDU19DSEVDSyhHZXRGaXJzdFR1
-cGxlLCBoYW5kbGUsICZ0dXBsZSk7DQotCUNTX0NIRUNLKEdldFR1cGxlRGF0YSwgaGFuZGxlLCAm
-dHVwbGUpOw0KLQlDU19DSEVDSyhQYXJzZVR1cGxlLCBoYW5kbGUsICZ0dXBsZSwgJnBhcnNlKTsN
-CisJQ1NfQ0hFQ0soR2V0Rmlyc3RUdXBsZSwgcGNtY2lhX2dldF9maXJzdF90dXBsZShoYW5kbGUs
-ICZ0dXBsZSkpOw0KKwlDU19DSEVDSyhHZXRUdXBsZURhdGEsIHBjbWNpYV9nZXRfdHVwbGVfZGF0
-YShoYW5kbGUsICZ0dXBsZSkpOw0KKwlDU19DSEVDSyhQYXJzZVR1cGxlLCBwY21jaWFfcGFyc2Vf
-dHVwbGUoaGFuZGxlLCAmdHVwbGUsICZwYXJzZSkpOw0KIAlsaW5rLT5jb25mLkNvbmZpZ0Jhc2Ug
-PSBwYXJzZS5jb25maWcuYmFzZTsNCiAJbGluay0+Y29uZi5QcmVzZW50ID0gcGFyc2UuY29uZmln
-LnJtYXNrWzBdOw0KIAkNCkBAIC00NTEsMTIgKzQ0OCwxMyBAQA0KIAkgIHdpbGwgb25seSB1c2Ug
-dGhlIENJUyB0byBmaWxsIGluIGltcGxlbWVudGF0aW9uLWRlZmluZWQgZGV0YWlscy4NCiAJKi8N
-CiAJdHVwbGUuRGVzaXJlZFR1cGxlID0gQ0lTVFBMX0NGVEFCTEVfRU5UUlk7DQotCUNTX0NIRUNL
-KEdldEZpcnN0VHVwbGUsIGhhbmRsZSwgJnR1cGxlKTsNCisJQ1NfQ0hFQ0soR2V0Rmlyc3RUdXBs
-ZSwgcGNtY2lhX2dldF9maXJzdF90dXBsZShoYW5kbGUsICZ0dXBsZSkpOw0KIAl3aGlsZSAoMSkg
-ew0KIAkJY2lzdHBsX2NmdGFibGVfZW50cnlfdCBkZmx0ID0geyAwIH07DQogCQljaXN0cGxfY2Z0
-YWJsZV9lbnRyeV90ICpjZmcgPSAmKHBhcnNlLmNmdGFibGVfZW50cnkpOw0KLQkJQ0ZHX0NIRUNL
-KEdldFR1cGxlRGF0YSwgaGFuZGxlLCAmdHVwbGUpOw0KLQkJQ0ZHX0NIRUNLKFBhcnNlVHVwbGUs
-IGhhbmRsZSwgJnR1cGxlLCAmcGFyc2UpOw0KKwkJaWYgKHBjbWNpYV9nZXRfdHVwbGVfZGF0YSho
-YW5kbGUsICZ0dXBsZSkgIT0gMCB8fA0KKwkJCQlwY21jaWFfcGFyc2VfdHVwbGUoaGFuZGxlLCAm
-dHVwbGUsICZwYXJzZSkgIT0gMCkNCisJCQlnb3RvIG5leHRfZW50cnk7DQogCQkNCiAJCWlmIChj
-ZmctPmZsYWdzICYgQ0lTVFBMX0NGVEFCTEVfREVGQVVMVCkgZGZsdCA9ICpjZmc7DQogCQlpZiAo
-Y2ZnLT5pbmRleCA9PSAwKSBnb3RvIG5leHRfZW50cnk7DQpAQCAtNTA1LDEyICs1MDMsMTQgQEAN
-CiAJCX0NCiAJCQ0KIAkJLyogVGhpcyByZXNlcnZlcyBJTyBzcGFjZSBidXQgZG9lc24ndCBhY3R1
-YWxseSBlbmFibGUgaXQgKi8NCi0JCUNGR19DSEVDSyhSZXF1ZXN0SU8sIGxpbmstPmhhbmRsZSwg
-JmxpbmstPmlvKTsgDQorCQlpZiAocGNtY2lhX3JlcXVlc3RfaW8obGluay0+aGFuZGxlLCAmbGlu
-ay0+aW8pICE9IDApDQorCQkJZ290byBuZXh0X2VudHJ5Ow0KKw0KIAkJLyogSWYgd2UgZ290IHRo
-aXMgZmFyLCB3ZSdyZSBjb29sISAqLw0KIAkJYnJlYWs7DQogCQkNCiAJbmV4dF9lbnRyeToNCi0J
-CUNTX0NIRUNLKEdldE5leHRUdXBsZSwgaGFuZGxlLCAmdHVwbGUpOw0KKwkJQ1NfQ0hFQ0soR2V0
-TmV4dFR1cGxlLCBwY21jaWFfZ2V0X25leHRfdHVwbGUoaGFuZGxlLCAmdHVwbGUpKTsNCiAJfQ0K
-IAkNCiAJLyoNCkBAIC01MTksMTQgKzUxOSwxNCBAQA0KIAkgIGlycSBzdHJ1Y3R1cmUgaXMgaW5p
-dGlhbGl6ZWQuDQogCSovDQogCWlmIChsaW5rLT5jb25mLkF0dHJpYnV0ZXMgJiBDT05GX0VOQUJM
-RV9JUlEpDQotCQlDU19DSEVDSyhSZXF1ZXN0SVJRLCBsaW5rLT5oYW5kbGUsICZsaW5rLT5pcnEp
-Ow0KKwkJQ1NfQ0hFQ0soUmVxdWVzdElSUSwgcGNtY2lhX3JlcXVlc3RfaXJxKGxpbmstPmhhbmRs
-ZSwgJmxpbmstPmlycSkpOw0KIAkNCiAJLyoNCiAJICBUaGlzIGFjdHVhbGx5IGNvbmZpZ3VyZXMg
-dGhlIFBDTUNJQSBzb2NrZXQgLS0gc2V0dGluZyB1cA0KIAkgIHRoZSBJL08gd2luZG93cyBhbmQg
-dGhlIGludGVycnVwdCBtYXBwaW5nLCBhbmQgcHV0dGluZyB0aGUNCiAJICBjYXJkIGFuZCBob3N0
-IGludGVyZmFjZSBpbnRvICJNZW1vcnkgYW5kIElPIiBtb2RlLg0KIAkqLw0KLQlDU19DSEVDSyhS
-ZXF1ZXN0Q29uZmlndXJhdGlvbiwgbGluay0+aGFuZGxlLCAmbGluay0+Y29uZik7DQorCUNTX0NI
-RUNLKFJlcXVlc3RDb25maWd1cmF0aW9uLCBwY21jaWFfcmVxdWVzdF9jb25maWd1cmF0aW9uKGxp
-bmstPmhhbmRsZSwgJmxpbmstPmNvbmYpKTsNCiAJDQogCWlmIChsaW5rLT5pcnEuQXNzaWduZWRJ
-UlEgPT0gMCkgew0KIAkJcHJpbnRrKEtFUk5fQUxFUlQgDQpAQCAtNjAyLDExICs2MDIsMTEgQEAN
-CiAJKChsb2NhbF9pbmZvX3QqKWxpbmstPnByaXYpLT5ldGhfZGV2ID0gMDsgDQogCQ0KIAkvKiBE
-b24ndCBib3RoZXIgY2hlY2tpbmcgdG8gc2VlIGlmIHRoZXNlIHN1Y2NlZWQgb3Igbm90ICovDQot
-CUNhcmRTZXJ2aWNlcyhSZWxlYXNlQ29uZmlndXJhdGlvbiwgbGluay0+aGFuZGxlKTsNCisJcGNt
-Y2lhX3JlbGVhc2VfY29uZmlndXJhdGlvbihsaW5rLT5oYW5kbGUpOw0KIAlpZiAobGluay0+aW8u
-TnVtUG9ydHMxKQ0KLQkJQ2FyZFNlcnZpY2VzKFJlbGVhc2VJTywgbGluay0+aGFuZGxlLCAmbGlu
-ay0+aW8pOw0KKwkJcGNtY2lhX3JlbGVhc2VfaW8obGluay0+aGFuZGxlLCAmbGluay0+aW8pOw0K
-IAlpZiAobGluay0+aXJxLkFzc2lnbmVkSVJRKQ0KLQkJQ2FyZFNlcnZpY2VzKFJlbGVhc2VJUlEs
-IGxpbmstPmhhbmRsZSwgJmxpbmstPmlycSk7DQorCQlwY21jaWFfcmVsZWFzZV9pcnEobGluay0+
-aGFuZGxlLCAmbGluay0+aXJxKTsNCiAJbGluay0+c3RhdGUgJj0gfkRFVl9DT05GSUc7DQogfQ0K
-IA0KQEAgLTY0OCw3ICs2NDgsNyBAQA0KIAljYXNlIENTX0VWRU5UX1JFU0VUX1BIWVNJQ0FMOg0K
-IAkJaWYgKGxpbmstPnN0YXRlICYgREVWX0NPTkZJRykgew0KIAkJCW5ldGlmX2RldmljZV9kZXRh
-Y2gobG9jYWwtPmV0aF9kZXYpOw0KLQkJCUNhcmRTZXJ2aWNlcyhSZWxlYXNlQ29uZmlndXJhdGlv
-biwgbGluay0+aGFuZGxlKTsNCisJCQlwY21jaWFfcmVsZWFzZV9jb25maWd1cmF0aW9uKGxpbmst
-PmhhbmRsZSk7DQogCQl9DQogCQlicmVhazsNCiAJY2FzZSBDU19FVkVOVF9QTV9SRVNVTUU6DQpA
-QCAtNjU2LDcgKzY1Niw3IEBADQogCQkvKiBGYWxsIHRocm91Z2guLi4gKi8NCiAJY2FzZSBDU19F
-VkVOVF9DQVJEX1JFU0VUOg0KIAkJaWYgKGxpbmstPnN0YXRlICYgREVWX0NPTkZJRykgew0KLQkJ
-CUNhcmRTZXJ2aWNlcyhSZXF1ZXN0Q29uZmlndXJhdGlvbiwgbGluay0+aGFuZGxlLCAmbGluay0+
-Y29uZik7DQorCQkJcGNtY2lhX3JlcXVlc3RfY29uZmlndXJhdGlvbihsaW5rLT5oYW5kbGUsICZs
-aW5rLT5jb25mKTsNCiAJCQlyZXNldF9hdG1lbF9jYXJkKGxvY2FsLT5ldGhfZGV2KTsNCiAJCQlu
-ZXRpZl9kZXZpY2VfYXR0YWNoKGxvY2FsLT5ldGhfZGV2KTsNCiAJCX0NCg0KDQoNCg==
-
---=-E82O/gZbvuBSJwWYC4gp--
-
---=-U1Wf4mzL5uEdoqd6u1ri
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/6OHl78o9R9NraMQRAiSqAJwK7oZfuPCqhZjvzV6AIibJTvfwEQCfa8Q1
-sGZySn2c9kYcOdWBnCMxL70=
-=Bfuf
------END PGP SIGNATURE-----
-
---=-U1Wf4mzL5uEdoqd6u1ri--
-
+/spare1/build/src/linux-2.6.0/arch/alpha/defconfig:73: trying to assign
+nonexistent symbol KCORE_ELF
+/spare1/build/src/linux-2.6.0/arch/alpha/defconfig:74: trying to assign
+nonexistent symbol KCORE_AOUT
+/spare1/build/src/linux-2.6.0/arch/alpha/defconfig:95: trying to assign
+nonexistent symbol PNP_NAMES
+/spare1/build/src/linux-2.6.0/arch/alpha/defconfig:147: trying to assign
+nonexistent symbol BLK_DEV_ISAPNP
+/spare1/build/src/linux-2.6.0/arch/alpha/defconfig:231: trying to assign
+nonexistent symbol SCSI_EATA_DMA
+/spare1/build/src/linux-2.6.0/arch/alpha/defconfig:240: trying to assign
+nonexistent symbol SCSI_NCR53C7xx
+/spare1/build/src/linux-2.6.0/arch/alpha/defconfig:242: trying to assign
+nonexistent symbol SCSI_NCR53C8XX
+/spare1/build/src/linux-2.6.0/arch/alpha/defconfig:243: trying to assign
+nonexistent symbol SCSI_SYM53C8XX
+/spare1/build/src/linux-2.6.0/arch/alpha/defconfig:248: trying to assign
+nonexistent symbol SCSI_NCR53C8XX_IOMAPPED
+/spare1/build/src/linux-2.6.0/arch/alpha/defconfig:249: trying to assign
+nonexistent symbol SCSI_NCR53C8XX_PQS_PDS
+/spare1/build/src/linux-2.6.0/arch/alpha/defconfig:250: trying to assign
+nonexistent symbol SCSI_NCR53C8XX_SYMBIOS_COMPAT
+/spare1/build/src/linux-2.6.0/arch/alpha/defconfig:285: trying to assign
+nonexistent symbol FILTER
+/spare1/build/src/linux-2.6.0/arch/alpha/defconfig:325: trying to assign
+nonexistent symbol IP_NF_MATCH_UNCLEAN
+/spare1/build/src/linux-2.6.0/arch/alpha/defconfig:329: trying to assign
+nonexistent symbol IP_NF_TARGET_MIRROR
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:24: trying to assign
+nonexistent symbol ARCH_ARCA5K
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:54: trying to assign
+nonexistent symbol CPU_26
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:60: trying to assign
+nonexistent symbol CPU_ARM720
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:61: trying to assign
+nonexistent symbol CPU_ARM920
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:62: trying to assign
+nonexistent symbol CPU_ARM920_CPU_IDLE
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:63: trying to assign
+nonexistent symbol CPU_ARM920_I_CACHE_ON
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:64: trying to assign
+nonexistent symbol CPU_ARM920_D_CACHE_ON
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:65: trying to assign
+nonexistent symbol CPU_ARM920_WRITETHROUGH
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:71: trying to assign
+nonexistent symbol ANGELBOOT
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:72: trying to assign
+nonexistent symbol PCI_INTEGRATOR
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:83: trying to assign
+nonexistent symbol NWFPE
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:84: trying to assign
+nonexistent symbol KCORE_ELF
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:85: trying to assign
+nonexistent symbol KCORE_AOUT
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:106: trying to assign
+nonexistent symbol MTD_DOC1000
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:128: trying to assign
+nonexistent symbol MTD_MIXMEM
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:129: trying to assign
+nonexistent symbol MTD_NORA
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:142: trying to assign
+nonexistent symbol MTD_ARM
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:169: trying to assign
+nonexistent symbol NETLINK
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:171: trying to assign
+nonexistent symbol FILTER
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:184: trying to assign
+nonexistent symbol KHTTPD
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:245: trying to assign
+nonexistent symbol EEPRO100_PM
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:252: trying to assign
+nonexistent symbol RTL8129
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:324: trying to assign
+nonexistent symbol I2O_LAN
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:343: trying to assign
+nonexistent symbol SERIAL
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:344: trying to assign
+nonexistent symbol SERIAL_EXTENDED
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:361: trying to assign
+nonexistent symbol MOUSE
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:362: trying to assign
+nonexistent symbol PSMOUSE
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:363: trying to assign
+nonexistent symbol 82C710_MOUSE
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:364: trying to assign
+nonexistent symbol PC110_PAD
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:369: trying to assign
+nonexistent symbol JOYSTICK
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:380: trying to assign
+nonexistent symbol INTEL_RNG
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:435: trying to assign
+nonexistent symbol SYSV_FS_WRITE
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:437: trying to assign
+nonexistent symbol UDF_RW
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:460: trying to assign
+nonexistent symbol NCPFS_MOUNT_SUBDIR
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:461: trying to assign
+nonexistent symbol NCPFS_NDS_DOMAINS
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:483: trying to assign
+nonexistent symbol KMI_KEYB
+/spare1/build/src/linux-2.6.0/arch/arm/defconfig:484: trying to assign
+nonexistent symbol PC_KEYMAP
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:50: trying to assign
+nonexistent symbol KCORE_ELF
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:51: trying to assign
+nonexistent symbol KCORE_AOUT
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:56: trying to assign
+nonexistent symbol ALIGNMENT_TRAP
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:96: trying to assign
+nonexistent symbol BLK_DEV_LVM
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:101: trying to assign
+nonexistent symbol BLK_DEV_FD1772
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:102: trying to assign
+nonexistent symbol BLK_DEV_MFM
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:123: trying to assign
+nonexistent symbol INPUT_KEYBDEV
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:128: trying to assign
+nonexistent symbol INPUT_TSLIBDEV
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:145: trying to assign
+nonexistent symbol SERIO_ACORN
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:165: trying to assign
+nonexistent symbol ATOMWIDE_SERIAL
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:166: trying to assign
+nonexistent symbol DUALSP_SERIAL
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:175: trying to assign
+nonexistent symbol SERIAL_21285_OLD
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:194: trying to assign
+nonexistent symbol I2C_PROC
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:200: trying to assign
+nonexistent symbol L3_ALGOBIT
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:201: trying to assign
+nonexistent symbol L3_BIT_SA1100_GPIO
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:202: trying to assign
+nonexistent symbol L3_SA1111
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:203: trying to assign
+nonexistent symbol BIT_SA1100_GPIO
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:209: trying to assign
+nonexistent symbol PSMOUSE
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:286: trying to assign
+nonexistent symbol UDF_RW
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:324: trying to assign
+nonexistent symbol MCP
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:325: trying to assign
+nonexistent symbol MCP_SA1100
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:326: trying to assign
+nonexistent symbol MCP_UCB1200
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:327: trying to assign
+nonexistent symbol MCP_UCB1200_AUDIO
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:328: trying to assign
+nonexistent symbol MCP_UCB1200_TS
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:333: trying to assign
+nonexistent symbol SWITCHES
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:334: trying to assign
+nonexistent symbol SWITCHES_SA1100
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:335: trying to assign
+nonexistent symbol SWITCHES_UCB1X00
+/spare1/build/src/linux-2.6.0/arch/arm26/defconfig:345: trying to assign
+nonexistent symbol NO_FRAME_POINTER
+/spare1/build/src/linux-2.6.0/arch/h8300/defconfig:53: trying to assign
+nonexistent symbol KCORE_AOUT
+/spare1/build/src/linux-2.6.0/arch/h8300/defconfig:101: trying to assign
+nonexistent symbol MTD_DOC1000
+/spare1/build/src/linux-2.6.0/arch/i386/defconfig:114: trying to assign
+nonexistent symbol ACPI_HT
+/spare1/build/src/linux-2.6.0/arch/i386/defconfig:176: trying to assign
+nonexistent symbol KCORE_ELF
+/spare1/build/src/linux-2.6.0/arch/i386/defconfig:177: trying to assign
+nonexistent symbol KCORE_AOUT
+/spare1/build/src/linux-2.6.0/arch/i386/defconfig:355: trying to assign
+nonexistent symbol SCSI_SYM53C8XX
+/spare1/build/src/linux-2.6.0/arch/ia64/defconfig:61: trying to assign
+nonexistent symbol KCORE_ELF
+/spare1/build/src/linux-2.6.0/arch/ia64/defconfig:892: trying to assign
+nonexistent symbol IA64_EARLY_PRINTK
+/spare1/build/src/linux-2.6.0/arch/m68k/defconfig:45: trying to assign
+nonexistent symbol KCORE_ELF
+/spare1/build/src/linux-2.6.0/arch/m68k/defconfig:46: trying to assign
+nonexistent symbol KCORE_AOUT
+/spare1/build/src/linux-2.6.0/arch/m68k/defconfig:81: trying to assign
+nonexistent symbol NETLINK
+/spare1/build/src/linux-2.6.0/arch/m68k/defconfig:83: trying to assign
+nonexistent symbol FILTER
+/spare1/build/src/linux-2.6.0/arch/m68k/defconfig:89: trying to assign
+nonexistent symbol IP_ROUTER
+/spare1/build/src/linux-2.6.0/arch/m68k/defconfig:92: trying to assign
+nonexistent symbol IP_ALIAS
+/spare1/build/src/linux-2.6.0/arch/m68k/defconfig:98: trying to assign
+nonexistent symbol SKB_LARGE
+/spare1/build/src/linux-2.6.0/arch/m68k/defconfig:100: trying to assign
+nonexistent symbol KHTTPD
+/spare1/build/src/linux-2.6.0/arch/m68k/defconfig:138: trying to assign
+nonexistent symbol SD_EXTRA_DEVS
+/spare1/build/src/linux-2.6.0/arch/m68k/defconfig:140: trying to assign
+nonexistent symbol ST_EXTRA_DEVS
+/spare1/build/src/linux-2.6.0/arch/m68k/defconfig:143: trying to assign
+nonexistent symbol SR_EXTRA_DEVS
+/spare1/build/src/linux-2.6.0/arch/m68k/defconfig:188: trying to assign
+nonexistent symbol BUSMOUSE
+/spare1/build/src/linux-2.6.0/arch/m68k/defconfig:194: trying to assign
+nonexistent symbol SUN3X_ZS
+/spare1/build/src/linux-2.6.0/arch/m68k/defconfig:195: trying to assign
+nonexistent symbol SUN_KEYBOARD
+/spare1/build/src/linux-2.6.0/arch/m68k/defconfig:196: trying to assign
+nonexistent symbol SUN_MOUSE
+/spare1/build/src/linux-2.6.0/arch/m68k/defconfig:305: trying to assign
+nonexistent symbol FB_CLGEN
+/spare1/build/src/linux-2.6.0/arch/m68k/defconfig:316: trying to assign
+nonexistent symbol FBCON_ADVANCED
+/spare1/build/src/linux-2.6.0/arch/m68k/defconfig:317: trying to assign
+nonexistent symbol FBCON_MFB
+/spare1/build/src/linux-2.6.0/arch/m68k/defconfig:318: trying to assign
+nonexistent symbol FBCON_AFB
+/spare1/build/src/linux-2.6.0/arch/m68k/defconfig:319: trying to assign
+nonexistent symbol FBCON_ILBM
+/spare1/build/src/linux-2.6.0/arch/m68k/defconfig:320: trying to assign
+nonexistent symbol FBCON_FONTWIDTH8_ONLY
+/spare1/build/src/linux-2.6.0/arch/m68k/defconfig:321: trying to assign
+nonexistent symbol FBCON_FONTS
+/spare1/build/src/linux-2.6.0/arch/m68knommu/defconfig:89: trying to
+assign nonexistent symbol KCORE_AOUT
+/spare1/build/src/linux-2.6.0/arch/m68knommu/defconfig:141: trying to
+assign nonexistent symbol MTD_DOC1000
+/spare1/build/src/linux-2.6.0/arch/m68knommu/defconfig:169: trying to
+assign nonexistent symbol BLK_DEV_BLKMEM
+/spare1/build/src/linux-2.6.0/arch/m68knommu/defconfig:206: trying to
+assign nonexistent symbol FILTER
+/spare1/build/src/linux-2.6.0/arch/m68knommu/defconfig:358: trying to
+assign nonexistent symbol LEDMAN
+/spare1/build/src/linux-2.6.0/arch/m68knommu/defconfig:359: trying to
+assign nonexistent symbol RESETSWITCH
+/spare1/build/src/linux-2.6.0/arch/mips/defconfig:130: trying to assign
+nonexistent symbol KCORE_ELF
+/spare1/build/src/linux-2.6.0/arch/mips/defconfig:390: trying to assign
+nonexistent symbol SERIAL_IP22_ZILOG
+/spare1/build/src/linux-2.6.0/arch/mips/defconfig:440: trying to assign
+nonexistent symbol INDYDOG
+/spare1/build/src/linux-2.6.0/arch/mips/defconfig:450: trying to assign
+nonexistent symbol SGI_DS1286
+/spare1/build/src/linux-2.6.0/arch/parisc/defconfig:21: trying to assign
+nonexistent symbol LOG_BUF_SHIFT_17
+/spare1/build/src/linux-2.6.0/arch/parisc/defconfig:22: trying to assign
+nonexistent symbol LOG_BUF_SHIFT_16
+/spare1/build/src/linux-2.6.0/arch/parisc/defconfig:23: trying to assign
+nonexistent symbol LOG_BUF_SHIFT_15
+/spare1/build/src/linux-2.6.0/arch/parisc/defconfig:24: trying to assign
+nonexistent symbol LOG_BUF_SHIFT_14
+/spare1/build/src/linux-2.6.0/arch/parisc/defconfig:25: trying to assign
+nonexistent symbol LOG_BUF_SHIFT_13
+/spare1/build/src/linux-2.6.0/arch/parisc/defconfig:26: trying to assign
+nonexistent symbol LOG_BUF_SHIFT_12
+/spare1/build/src/linux-2.6.0/arch/parisc/defconfig:60: trying to assign
+nonexistent symbol KCORE_ELF
+/spare1/build/src/linux-2.6.0/arch/parisc/defconfig:140: trying to
+assign nonexistent symbol SCSI_EATA_DMA
+/spare1/build/src/linux-2.6.0/arch/parisc/defconfig:163: trying to
+assign nonexistent symbol SCSI_NCR53C8XX_SYMBIOS_COMPAT
+/spare1/build/src/linux-2.6.0/arch/parisc/defconfig:199: trying to
+assign nonexistent symbol FILTER
+/spare1/build/src/linux-2.6.0/arch/parisc/defconfig:327: trying to
+assign nonexistent symbol AIRONET4500
+/spare1/build/src/linux-2.6.0/arch/parisc/defconfig:377: trying to
+assign nonexistent symbol HP_SDC
+/spare1/build/src/linux-2.6.0/arch/parisc/defconfig:387: trying to
+assign nonexistent symbol KEYBOARD_HIL
+/spare1/build/src/linux-2.6.0/arch/parisc/defconfig:391: trying to
+assign nonexistent symbol MOUSE_HIL
+/spare1/build/src/linux-2.6.0/arch/parisc/defconfig:410: trying to
+assign nonexistent symbol HP_SDC_RTC
+/spare1/build/src/linux-2.6.0/arch/parisc/defconfig:606: trying to
+assign nonexistent symbol FB_CLGEN
+/spare1/build/src/linux-2.6.0/arch/parisc/defconfig:635: trying to
+assign nonexistent symbol FBCON_ADVANCED
+/spare1/build/src/linux-2.6.0/arch/ppc64/defconfig:68: trying to assign
+nonexistent symbol KCORE_ELF
+/spare1/build/src/linux-2.6.0/arch/sh/defconfig:21: trying to assign
+nonexistent symbol SH_OVERDRIVE
+/spare1/build/src/linux-2.6.0/arch/sh/defconfig:47: trying to assign
+nonexistent symbol KCORE_ELF
+/spare1/build/src/linux-2.6.0/arch/sh/defconfig:48: trying to assign
+nonexistent symbol KCORE_AOUT
+/spare1/build/src/linux-2.6.0/arch/sh/defconfig:72: trying to assign
+nonexistent symbol BLK_DEV_LVM
+/spare1/build/src/linux-2.6.0/arch/sh/defconfig:110: trying to assign
+nonexistent symbol BLK_DEV_ISAPNP
+/spare1/build/src/linux-2.6.0/arch/sh/defconfig:169: trying to assign
+nonexistent symbol SYSV_FS_WRITE
+/spare1/build/src/linux-2.6.0/arch/sh/defconfig:171: trying to assign
+nonexistent symbol UDF_RW
+/spare1/build/src/linux-2.6.0/arch/sparc/defconfig:53: trying to assign
+nonexistent symbol KCORE_ELF
+/spare1/build/src/linux-2.6.0/arch/sparc/defconfig:183: trying to assign
+nonexistent symbol SCSI_NCR53C8XX
+/spare1/build/src/linux-2.6.0/arch/sparc/defconfig:214: trying to assign
+nonexistent symbol FILTER
+/spare1/build/src/linux-2.6.0/arch/um/defconfig:9: trying to assign
+nonexistent symbol CONFIG_LOG_BUF_SHIFT
+/spare1/build/src/linux-2.6.0/arch/um/defconfig:37: trying to assign
+nonexistent symbol PROC_MM
+/spare1/build/src/linux-2.6.0/arch/um/defconfig:388: trying to assign
+nonexistent symbol MTD_DOC1000
+/spare1/build/src/linux-2.6.0/arch/x86_64/defconfig:82: trying to assign
+nonexistent symbol ACPI_HT

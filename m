@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262202AbTJXOYR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 10:24:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbTJXOYR
+	id S262253AbTJXO71 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 10:59:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262262AbTJXO71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 10:24:17 -0400
-Received: from codeblau.walledcity.de ([212.84.209.34]:49929 "EHLO codeblau.de")
-	by vger.kernel.org with ESMTP id S262202AbTJXOYQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 10:24:16 -0400
-Date: Fri, 24 Oct 2003 16:25:24 +0200
-From: Felix von Leitner <felix-benchmark@fefe.de>
-To: linux-kernel@vger.kernel.org
-Subject: Please help me tune Linux for bulk.fefe.de/scalability/
-Message-ID: <20031024142524.GA10013@codeblau.de>
+	Fri, 24 Oct 2003 10:59:27 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21889 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262253AbTJXO7Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 10:59:25 -0400
+Date: Fri, 24 Oct 2003 15:59:24 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: "Moore, Eric Dean" <emoore@lsil.com>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]  2.4.23-pre8 driver udpate for MPT Fusion (2.05.10)
+Message-ID: <20031024145924.GU18370@parcelfarce.linux.theplanet.co.uk>
+References: <0E3FA95632D6D047BA649F95DAB60E57035A944F@exa-atlanta.se.lsil.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57035A944F@exa-atlanta.se.lsil.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, Oct 24, 2003 at 10:53:59AM -0400, Moore, Eric Dean wrote:
+> Here's a patch for 2.4.23-pre8 kernel for MPT Fusion driver, coming from LSI
+> Logic.
 
-Several people have asked me to re-run my benchmarks after the kernels
-have been properly tuned.
+Are we going to see an update for 2.6 soon, and will it include support
+for hotplugging the fusion card from the pci bus (ie conversion to the
+"new" PCI API)?
 
-To ensure a fair test, I will ask each kernel team to send me a list of
-things to do to a stock kernel to optimize it for optimal performance
-on my benchmarks.
-
-Please also tell me if you have suggestions for other benchmarks that
-say something about the scalability of an operating system, that I could
-(and should) include in my benchmark suite.
-
-Felix
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

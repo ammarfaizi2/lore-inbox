@@ -1,52 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262974AbUDARBf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 12:01:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262963AbUDARBQ
+	id S262963AbUDAREP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 12:04:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262932AbUDAREP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 12:01:16 -0500
-Received: from sinfonix.rz.tu-clausthal.de ([139.174.2.33]:20122 "EHLO
-	sinfonix.rz.tu-clausthal.de") by vger.kernel.org with ESMTP
-	id S262969AbUDARAx convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 12:00:53 -0500
-From: "Hemmann, Volker Armin" <volker.hemmann@heim9.tu-clausthal.de>
-To: linux-kernel@vger.kernel.org
-Subject: AGP problem SiS 746FX Linux 2.6.5-rc3
-Date: Thu, 1 Apr 2004 19:00:47 +0200
-User-Agent: KMail/1.6.1
-MIME-Version: 1.0
+	Thu, 1 Apr 2004 12:04:15 -0500
+Received: from mail.shareable.org ([81.29.64.88]:18069 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262963AbUDARBg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 12:01:36 -0500
+Date: Thu, 1 Apr 2004 18:01:05 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, Peter Williams <peterw@aurema.com>,
+       ak@muc.de, Richard.Curnow@superh.com, aeb@cwi.nl,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: finding out the value of HZ from userspace
+Message-ID: <20040401170105.GF25502@mail.shareable.org>
+References: <1079453698.2255.661.camel@cube> <20040320095627.GC2803@devserv.devel.redhat.com> <1079794457.2255.745.camel@cube> <405CDA9C.6090109@aurema.com> <20040331134009.76ca3b6d.rddunlap@osdl.org> <1080776817.2233.2326.camel@cube> <20040401155420.GB25502@mail.shareable.org> <20040401160132.GB13294@devserv.devel.redhat.com> <20040401163047.GD25502@mail.shareable.org> <Pine.LNX.4.53.0404011146490.21282@chaos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200404011900.47412.volker.hemmann@heim10.tu-clausthal.de>
+In-Reply-To: <Pine.LNX.4.53.0404011146490.21282@chaos>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Richard B. Johnson wrote:
+> > Not to get irritatingly back to the subject of this thread or
+> > anything, but...  is the value of HZ reported to userspace anywhere?
+> 
+> I may be naive, but what's the matter with:
+> 
+> #include <sys/param.h>   // Required to be here!
+> int main()
+> {
+>     printf("HZ=%d\n", HZ);
+>     return 0;
+> }
+> It works for me.
 
-in 2.6.5-rc3 was incorporated a fix for SiS648 chipsets that need a little 
-time to get into a sane state again, after switching to AGP 8x.
-The 746FX has the same timing problem and needs this 'pause', too.
-Unfortunatly in sis-apg.c this fix is only checked against the 648, not the 
-746, so the fix never gets invoked:
+It gives the wrong answer for HZ on 2.6 kernels.  Try it.
 
-    		if(device->device == PCI_DEVICE_ID_SI_648) {
-			// weird: on 648 and 648fx chipsets any rate change in the target command 
-register
-			// triggers a 5ms screwup during which the master cannot be configured
-			printk(KERN_INFO PFX "sis 648 agp fix - giving bridge time to recover\n");
-			set_current_state(TASK_UNINTERRUPTIBLE);
-			schedule_timeout (1+(HZ*10)/1000);
+The value called "HZ" we are talking about in this thread is the timer
+interrupt frequency.  On 2.6 kernels, on x86, that is 1000.  Your
+program prints 100.
 
+The reason that you are able to use "HZ" from userspace and get the
+wrong answer is that the macros have different names when used from
+userspace than from kernelspace.
 
-Glück Auf,
-Volker
+The value your program reports is what we mean by USER_HZ in this
+thread.  That macro is renamed to HZ when the kernel header
+<linux/param.h> is included from userspace, for backward
+source compatibility with some programs.
 
+Your method also perpetuates the problem that USER_HZ is hard-coded as
+a constant into programs, so cannot ever be changed.  Perhaps the
+header files should redefine "HZ" to call sysconf(_SC_CLK_TCK)
+nowadays, but presently they don't.
 
--- 
-Conclusions 
- In a straight-up fight, the Empire squashes the Federation like a bug. Even 
-with its numerical advantage removed, the Empire would still squash the 
-Federation like a bug. Accept it. -Michael Wong 
+-- Jamie

@@ -1,59 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129413AbQLRMSP>; Mon, 18 Dec 2000 07:18:15 -0500
+	id <S129325AbQLRMUF>; Mon, 18 Dec 2000 07:20:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129325AbQLRMSG>; Mon, 18 Dec 2000 07:18:06 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:11013 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129340AbQLRMRx>;
-	Mon, 18 Dec 2000 07:17:53 -0500
-Date: Mon, 18 Dec 2000 11:44:04 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Russell Cattelan <cattelan@thebarn.com>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Alexander Viro <viro@math.psu.edu>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Test12 ll_rw_block error.
-Message-ID: <20001218114404.D21351@redhat.com>
-In-Reply-To: <Pine.LNX.4.10.10012142208420.1308-100000@penguin.transmeta.com> <Pine.GSO.4.21.0012150150570.11106-100000@weyl.math.psu.edu> <20001215105148.E11931@redhat.com> <3A3C11F2.130DE89E@thebarn.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3A3C11F2.130DE89E@thebarn.com>; from cattelan@thebarn.com on Sat, Dec 16, 2000 at 07:08:02PM -0600
+	id <S129778AbQLRMTz>; Mon, 18 Dec 2000 07:19:55 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:7357 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129325AbQLRMTq>;
+	Mon, 18 Dec 2000 07:19:46 -0500
+Date: Mon, 18 Dec 2000 06:49:17 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+cc: trond.myklebust@fys.uio.no, "M.H.VanLeeuwen" <vanl@megsinet.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at /usr/src/linux/include/linux/nfs_fs.h:167! -
+ reproducible
+In-Reply-To: <14909.62565.397454.950907@notabene.cse.unsw.edu.au>
+Message-ID: <Pine.GSO.4.21.0012180631290.22952-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Sat, Dec 16, 2000 at 07:08:02PM -0600, Russell Cattelan wrote:
-> > There is a very clean way of doing this with address spaces.  It's
-> > something I would like to see done properly for 2.5: eliminate all
-> > knowledge of buffer_heads from the VM layer.  It would be pretty
-> > simple to remove page->buffers completely and replace it with a
-> > page->private pointer, owned by whatever address_space controlled the
-> > page.  Instead of trying to unmap and flush buffers on the page
-> > directly, these operations would become address_space operations.
+
+On Mon, 18 Dec 2000, Neil Brown wrote:
+
+> On Monday December 18, trond.myklebust@fys.uio.no wrote:
+> > >>>>> " " == M H VanLeeuwen <vanl@megsinet.net> writes:
+> > 
+> >      > Trond, Neil I don't know if this is a loopback bug or an NFS
+> >      > bug but since nfs_fs.h was implicated so I thought one of you
+> >      > may be interested.
+> >  
+> >      > Could you let me know if you know this problem has already been
+> >      > fixed or if you need more info.
+> > 
+> > Hi,
+> >  
+> > As far as I'm concerned, it's a loopback bug.
 > 
-> Yes this is a lot of what page buf would like to do eventually.
-> Have the VM system pressure page_buf for pages which would
-> then be able to intelligently call the file system to free up cached pages.
-> A big part of getting Delay Alloc to not completely consume all the
-> system pages, is being told when it's time to start really allocating disk
-> space and push pages out.
+> I read it the same way.
+> Actually, I cannot see the point of copying the "struct file"!  Why
+> not just take a reference to it?  The comment tries to justify it, but
+> I don't buy it.
 
-Delayed allocation is actually much easier, since it's entirely an
-operation on logical page addresses, not physical ones --- by
-definition you don't have any buffer_heads yet because you haven't
-decided on the disk blocks.  If you're just dealing with pages, not
-blocks, then the address_space is the natural way of dealing with it
-already.  
+Wish I remembered who had complained when I proposed to kill that copying...
+It was introduced back in 2.1.110 and back then comment looked so:
 
-Only the full semantics of the flush callback have been missing to
-date, and with 2.4.0-test12 even that is mostly solved, since
-page_launder will give you the writeback() callbacks you need to flush
-things to disk when you start getting memory pressure.  You can even
-treat the writepage() as an advisory call.  
++               /* Backed by a regular file - we need to hold onto
++                  a file structure for this file.  We'll use it to
++                  write to blocks that are not already present in
++                  a sparse file.  We create a new file structure
++                  based on the one passed to us via 'arg'.  This is
++                  to avoid changing the file structure that the
++                  caller is using */
++
 
---Stephen
+I would be happy to get rid of that crap - it was the only reason why I
+had to add the sodding file_moveto() and world would be better without it.
+If we can kill it off - let's do it and let's take fs/file_table:file_moveto()
+along.
+
+IOW, I also think that copying the struct file is wrong. IIRC, complaints were
+bogus - losetup requires enough priviliges to make worrying about security
+implications somewhat pointless.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

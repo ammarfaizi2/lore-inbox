@@ -1,61 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262157AbVCISJd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262155AbVCISI6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262157AbVCISJd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 13:09:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbVCISJb
+	id S262155AbVCISI6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 13:08:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbVCISF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 13:09:31 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42187 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262154AbVCISGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 13:06:38 -0500
-Date: Wed, 9 Mar 2005 10:53:09 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Gustav Lidberg <gustavl@home.se>,
-       Michael Elizabeth Chastain <mec@shout.net>
-Cc: linux-kernel@vger.kernel.org, Mikael Pettersson <mikpe@csd.uu.se>
-Subject: Re: make menuconfig creates erronous config for 386
-Message-ID: <20050309135309.GA15110@logos.cnet>
-References: <422F04F7.1020701@home.se>
+	Wed, 9 Mar 2005 13:05:57 -0500
+Received: from [194.243.27.136] ([194.243.27.136]:28874 "HELO
+	venere.pandoraonline.it") by vger.kernel.org with SMTP
+	id S262154AbVCISFs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 13:05:48 -0500
+X-Qmail-Scanner-Mail-From: devel@integra-sc.it via venere.pandoraonline.it
+X-Qmail-Scanner-Rcpt-To: linux-kernel@vger.kernel.org
+X-Qmail-Scanner: 1.22 (Clear:RC:1(62.94.206.179):. Processed in 3.120007 secs)
+Date: Wed, 9 Mar 2005 19:05:13 +0100
+From: Devel <devel@integra-sc.it>
+To: linux-kernel@vger.kernel.org
+Subject: WDT on PCI
+Message-Id: <20050309190513.13641db2.devel@integra-sc.it>
+Organization: Integra Solutions
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <422F04F7.1020701@home.se>
-User-Agent: Mutt/1.5.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi,
-
-On Wed, Mar 09, 2005 at 03:15:19PM +0100, Gustav Lidberg wrote:
-> Hi
-> 
-> There is a bug in "make menuconfig". If one chooses 386 or 486 for cpu
-> type, CONFIG_X86_TSC=y is set in .config. This creates a kernel that is
-> unbootable on 386. Testing shows that it worked in 2.4.19, but is broken
-> from 2.4.20 onwards. Someone should definetely look into this.
-> (I'm not subscribed to lkml)
-
-Quoting Mikael Pettersson, from
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109986177309630&w=2
-
-"Do a 'make oldconfig' after switching CPU type from a
-TSC-capable one to a TSC-less one in 2.4 kernels. There
-is a known bug in the old configuration system where it
-can leave derived options in an inconsistent state after
-a single round of option changes. CONFIG_X86_TSC is the
-prime example of this. Doing a second configuration round
-allows the derived options to reach a fixpoint."
-
-Note that arch/i386/defconfig contains CONFIG_X86_TSC=y.
-
-Michael, Mikael, what are the possibilities for fixing this
-Configure limitation?
-
-In the meantime, I wonder if arch/i386/defconfig should be 
-changed to contain "CONFIG_X86_TSC=n" instead of "=y" to make 
-life easier for 386/486 users who use "make menuconfig" without 
-pre-existing .config files.
-
-This should have been fixed ages ago. :(
+Hi all,
+i have a WDT-3 PCI watchdog card. It has also a serial port interface. All work fine with serial but on PCI i can't found the driver. 
+If i do lspci i can't found nothing about WDT so i ask: If thereisn't the driver for a PCI card i can't have information from lspci?
+Thank and sorry for my english :-)

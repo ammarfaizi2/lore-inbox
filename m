@@ -1,63 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261375AbTBJEF5>; Sun, 9 Feb 2003 23:05:57 -0500
+	id <S261370AbTBJEFv>; Sun, 9 Feb 2003 23:05:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261463AbTBJEF5>; Sun, 9 Feb 2003 23:05:57 -0500
-Received: from kilroy.chi.il.us ([205.243.139.239]:59266 "EHLO
-	kilroy.chi.il.us") by vger.kernel.org with ESMTP id <S261375AbTBJEFz>;
-	Sun, 9 Feb 2003 23:05:55 -0500
-Subject: Larger circular printk log message buffer for kernel?
-From: Edward Kuns <ekuns@kilroy.chi.il.us>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Edward Kuns <ekuns@kilroy.chi.il.us>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1044850803.14790.18.camel@kilroy.chi.il.us>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 09 Feb 2003 22:20:03 -0600
+	id <S261375AbTBJEFv>; Sun, 9 Feb 2003 23:05:51 -0500
+Received: from 3-157.ctame701-1.telepar.net.br ([200.193.161.157]:28042 "EHLO
+	3-157.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S261370AbTBJEFu>; Sun, 9 Feb 2003 23:05:50 -0500
+Date: Mon, 10 Feb 2003 02:15:10 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Con Kolivas <ckolivas@yahoo.com.au>, lkml <linux-kernel@vger.kernel.org>,
+       Jens Axboe <axboe@suse.de>
+Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK]
+ 2.4.20-ck3 / aa / rmap with contest]
+In-Reply-To: <Pine.LNX.4.50L.0302100127250.12742-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.50L.0302100211570.12742-100000@imladris.surriel.com>
+References: <20030209133013.41763.qmail@web41404.mail.yahoo.com>
+ <20030209144622.GB31401@dualathlon.random>
+ <Pine.LNX.4.50L.0302100127250.12742-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please CC me for responses.
+On Mon, 10 Feb 2003, Rik van Riel wrote:
 
-I'm willing to make a patch if it is likely to be accepted into the
-kernel.  Since we have so many subsystems that spit out kilobytes of
-messages, by the time my system has booted up I have already lost some
-of the most important boot messages!  (APIC, for example)
+> The only aspect of the anticipatory scheduler that is no longer needed
+> with your SFQ idea is the distinction between reads and writes, since
+> your idea already makes the (better, I guess) distinction between
+> synchronous and asynchronous requests.
 
-I found the important part located in kernel/printk.c as follows in
-2.4.21-pre3-ac2:
+Forget that I said that, we don't have the infrastructure to
+get this right.  The definition of "synchronous" is "some
+process is waiting on this request to complete", but processes
+wait on other objects instead.
 
-#if defined(CONFIG_MULTIQUAD) || defined(CONFIG_IA64)
-#define LOG_BUF_LEN	(65536)
-#elif defined(CONFIG_ARCH_S390)
-#define LOG_BUF_LEN	(131072)
-#elif defined(CONFIG_SMP)
-#define LOG_BUF_LEN	(32768)
-#else	
-#define LOG_BUF_LEN	(16384)			/* This must be a power of two */
-#endif
+A normal sequence (probably the most common) is:
 
-I changed the last one to 32768 and now I see all my boot messages.  I
-imagine that people would be against doubling the last two buffers (that
-is, SMP = 64k, else = 32k) on all systems.  But 16k is simply too small
-for anyone using RAID or USB or APIC or other "noisy" subsystems.
-RAID/md is by far the noisiest boot-time subsystem I have configured.
+1) submit request
+   (request is now asynchronous)
+2) wait_on_page
+   (request should now magically become synchronous)
 
-Ideas?  Perhaps a kernel config multiplier defaulting to "1" that can be
-changed in "make config" to 2, 4, 8, ...?  I'm willing to do the work
-for this, but only if it seems likely to be accepted.  Are there other,
-better options?
+The infrastructure to get this working is probably too big a
+change for 2.5/2.6, at this point, so chances are that we're
+better off using the (90% accurate?) distinction between reads
+and writes.
 
-On systems with large amounts of memory, surely we can afford to give
-more of it to the kernel's log message buffer!
+regards,
 
-
-	Eddie
-
+Rik
 -- 
-  Eddie Kuns  |  Home: ekuns@kilroy.chi.il.us
---------------/  URL:  (none at the moment)
-  "Ah, savory cheese puffs, made inedible by time and fate."  -- The Tick
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

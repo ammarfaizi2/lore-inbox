@@ -1,66 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262920AbVA2Oy2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262813AbVA2PA3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262920AbVA2Oy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 09:54:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbVA2Oy2
+	id S262813AbVA2PA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 10:00:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262925AbVA2PA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 09:54:28 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:36104 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262920AbVA2OyX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 09:54:23 -0500
-Date: Sat, 29 Jan 2005 14:54:17 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
+	Sat, 29 Jan 2005 10:00:29 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:26760 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262813AbVA2PAZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 10:00:25 -0500
+Date: Sat, 29 Jan 2005 15:00:23 +0000
+From: Christoph Hellwig <hch@infradead.org>
 To: Christoph Hellwig <hch@infradead.org>,
        Pierre Ossman <drzeus-list@drzeus.cx>,
        Geert Uytterhoeven <geert@linux-m68k.org>,
        LKML <linux-kernel@vger.kernel.org>, wbsd-devel@list.drzeus.cx
 Subject: Re: [Wbsd-devel] [PATCH 540] MMC_WBSD depends on ISA
-Message-ID: <20050129145417.A12311@flint.arm.linux.org.uk>
+Message-ID: <20050129150023.GA959@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
 	Pierre Ossman <drzeus-list@drzeus.cx>,
 	Geert Uytterhoeven <geert@linux-m68k.org>,
 	LKML <linux-kernel@vger.kernel.org>, wbsd-devel@list.drzeus.cx
-References: <200501072250.j07MonUe012310@anakin.of.borg> <41E22B4F.4090402@drzeus.cx> <41FB91A3.7060404@drzeus.cx> <20050129135714.GA320@infradead.org>
+References: <200501072250.j07MonUe012310@anakin.of.borg> <41E22B4F.4090402@drzeus.cx> <41FB91A3.7060404@drzeus.cx> <20050129135714.GA320@infradead.org> <20050129145417.A12311@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050129135714.GA320@infradead.org>; from hch@infradead.org on Sat, Jan 29, 2005 at 01:57:14PM +0000
+In-Reply-To: <20050129145417.A12311@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph, did you mean to add anything?
+On Sat, Jan 29, 2005 at 02:54:17PM +0000, Russell King wrote:
+> Christoph, did you mean to add anything?
 
-On Sat, Jan 29, 2005 at 01:57:14PM +0000, Christoph Hellwig wrote:
-> On Sat, Jan 29, 2005 at 02:37:39PM +0100, Pierre Ossman wrote:
-> > Pierre Ossman wrote:
-> > >Geert Uytterhoeven wrote:
-> > >
-> > >>MMC_WBSD depends on ISA (needs isa_virt_to_bus())
-> > >>
-> > >>
-> > >
-> > >Thanks. Shouldn't have missed something so obvious :)
-> > >
-> > >Russell, can you fix this in your next merge?
-> > >
-> > 
+Yes, this somehow got lost:
+
+-----
+
 > > Russell, please undo this patch. isa_virt_to_bus() is not dependent on 
 > > CONFIG_ISA. It causes problems on x86_64 platforms which cannot enable 
 > > ISA support.
 > > 
-> > Rgds
-> > Pierre
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> ---end quoted text---
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Actually it is, x86_64 just refuses to set CONFIG_ISA despite having
+isa-like devices.
+
+Either way a new driver shouldn't use isa_virt_to_bus at all but rather
+use the proper DMA API and all those problems go away.
+

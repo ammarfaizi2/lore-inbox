@@ -1,43 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262269AbTJAXoX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 19:44:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263171AbTJAXoX
+	id S262451AbTJBAEy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 20:04:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262482AbTJBAEy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 19:44:23 -0400
-Received: from bgp01360964bgs.sandia01.nm.comcast.net ([68.35.68.128]:44928
-	"EHLO orion.dwf.com") by vger.kernel.org with ESMTP id S262269AbTJAXoW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 19:44:22 -0400
-Message-Id: <200310012344.h91Ni2Kn025150@orion.dwf.com>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4
+	Wed, 1 Oct 2003 20:04:54 -0400
+Received: from sasami.anime.net ([208.8.184.120]:62877 "EHLO sasami.anime.net")
+	by vger.kernel.org with ESMTP id S262451AbTJBAEx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 20:04:53 -0400
+Date: Wed, 1 Oct 2003 17:04:52 -0700 (PDT)
+From: Dan Hollis <goemon@anime.net>
 To: linux-kernel@vger.kernel.org
-Subject: OK, what does this mean: (2.6.0-test6) grubby fatal error: unable to 
- find a suitable template
-Date: Wed, 01 Oct 2003 17:44:02 -0600
-From: reg@dwf.com
+Subject: problem with IDE TCQ on 2.6.0-test6
+Message-ID: <Pine.LNX.4.44.0310011659580.32373-100000@sasami.anime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fcc: outbox
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+We have a bunch of IC35L180AVV207-1 in raid1 configuration.
 
-On doing a 'make' and 'make modules' eerything seems fine.
-Still fine after 'make module_install'
+If we enable IDE TCQ, we get a 'ide_dmaq_intr: stat=40, not expected' 
+every few seconds. If TCQ is disabled, the messages are gone.
 
-But the 'make install' generates the error message:
+Replies in private email, i'm not subscribed to the list.
 
-    grubby fatal error: unable to find a suitable template
-
-THe kernel does appear to have been installed in boot, but 
-I havent a clue what this error message is trying to tell me.
-
-
-
-
--- 
-                                        Reg.Clemens
-                                        reg@dwf.com
-
+-Dan
 

@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270271AbTGRSE3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 14:04:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270272AbTGRSE3
+	id S270262AbTGRSD6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 14:03:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270271AbTGRSD6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 14:04:29 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:58600 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S270271AbTGRSE1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 14:04:27 -0400
-Date: Fri, 18 Jul 2003 11:18:50 -0700
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: Erich Focht <efocht@hpce.nec.com>
-Cc: LSE <lse-tech@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Lse-tech] [patch 2.6.0-test1] per cpu times
-Message-ID: <20030718111850.C1627@w-mikek2.beaverton.ibm.com>
-References: <200307181835.42454.efocht@hpce.nec.com>
+	Fri, 18 Jul 2003 14:03:58 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:3844 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S270262AbTGRSD5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 14:03:57 -0400
+Date: Fri, 18 Jul 2003 19:18:53 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22pre6aa1
+Message-ID: <20030718191853.A11052@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+References: <20030717102857.GA1855@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200307181835.42454.efocht@hpce.nec.com>; from efocht@hpce.nec.com on Fri, Jul 18, 2003 at 06:35:42PM +0200
+In-Reply-To: <20030717102857.GA1855@dualathlon.random>; from andrea@suse.de on Thu, Jul 17, 2003 at 12:28:57PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 18, 2003 at 06:35:42PM +0200, Erich Focht wrote:
->
-> This patch brings back the per CPU user & system times which one was
-> used to see in /proc/PID/cpu with 2.4 kernels. Useful for SMP and NUMA
-> scheduler development, needed for reasonable output in numabench /
-> numa_test.
->
+On Thu, Jul 17, 2003 at 12:28:57PM +0200, Andrea Arcangeli wrote:
+> Only in 2.4.21rc8aa1: 9910_shm-largepage-13.gz
+> Only in 2.4.22pre6aa1: 9910_shm-largepage-16.gz
+> 
+> 	Thanks to Hugh for the help in porting the bigpages
+> 	to the rewritten shmfs layer in 22pre. No idea at the moment if it
+> 	works or if it only compiles.
 
-On a somewhat related note ...
+Any reason you don't use a backport of hugetlbfs like the IA64 or
+the RH AS3 tree?
 
-We (Big Blue) have a performance reporting application that
-would like to know how long a task sits on a runqueue before
-it is actually given the CPU.  In other words, it wants to
-know how long the 'runnable task' was delayed due to contention
-for the CPU(s).  Of course, one could get an overall feel for
-this based on total runqueue length.  However, this app would
-really like this info on a per-task basis.
-
-Does anyone else think this type of info would be useful?
-
-A patch to compute/export this info should be straight forward
-to implement.
-
--- 
-Mike

@@ -1,36 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289239AbSBJUMg>; Sun, 10 Feb 2002 15:12:36 -0500
+	id <S288950AbSBJUJ6>; Sun, 10 Feb 2002 15:09:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289084AbSBJUM0>; Sun, 10 Feb 2002 15:12:26 -0500
-Received: from fly.hiwaay.net ([208.147.154.56]:28421 "EHLO mail.hiwaay.net")
-	by vger.kernel.org with ESMTP id <S288956AbSBJUMN>;
-	Sun, 10 Feb 2002 15:12:13 -0500
-Date: Sun, 10 Feb 2002 14:12:10 -0600
-From: Chris Adams <cmadams@hiwaay.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [bk patch] Make cardbus compile in -pre4
-Message-ID: <20020210201210.GA18019@HiWAAY.net>
+	id <S288956AbSBJUJr>; Sun, 10 Feb 2002 15:09:47 -0500
+Received: from front2.mail.megapathdsl.net ([66.80.60.30]:46599 "EHLO
+	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S288950AbSBJUJk>; Sun, 10 Feb 2002 15:09:40 -0500
+Subject: How do I get "make install" to handle GRUB?
+From: Miles Lane <miles@megapathdsl.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Evolution/1.1.0.99 (Preview Release)
+Date: 10 Feb 2002 12:06:43 -0800
+Message-Id: <1013371603.29598.4.camel@turbulence.megapathdsl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Once upon a time, Linus Torvalds <torvalds@transmeta.com> said:
->The fundamental issue that I think I (or any human, for that matter)
->work best with just a few (on the order of ten) closer contacts, and
->that I want people to "network" more is pretty independent of BK or not.
+I have GRUB installed with RH 7.2.  I build and test 
+the development kernel series.  How can I get "make install"
+to work with GRUB?  It seems like maybe we need a "install-grub"
+target or we need to have a way to automatically determine the
+bootloader being used and then do corresponding install method.
 
-What we need is an "Oracle of Linus" like the "Oracle of Bacon" (aka the
-"Kevin Bacon" game).  Alan Cox (along with a few others) has a Linus
-number of 1 for example.  Now the tree just need to be defined better,
-so developers can know their Linus number and know the best path for
-them to submit patches.
+	Miles
 
-Just a suggestion from a humble user (with a Bacon number of 1 :-) ).
--- 
-Chris Adams <cmadams@hiwaay.net>
-Systems and Network Administrator - HiWAAY Internet Services
-I don't speak for anybody but myself - that's enough trouble.
+

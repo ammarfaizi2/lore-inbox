@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286322AbSAPWwe>; Wed, 16 Jan 2002 17:52:34 -0500
+	id <S282902AbSAPWyX>; Wed, 16 Jan 2002 17:54:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281787AbSAPWwX>; Wed, 16 Jan 2002 17:52:23 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11783 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S286238AbSAPWwK>;
-	Wed, 16 Jan 2002 17:52:10 -0500
-Message-ID: <3C46040B.B4992A1C@mandrakesoft.com>
-Date: Wed, 16 Jan 2002 17:51:55 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.2-pre9fs7 i686)
-X-Accept-Language: en
+	id <S284979AbSAPWyO>; Wed, 16 Jan 2002 17:54:14 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:29446 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S286395AbSAPWyF>; Wed, 16 Jan 2002 17:54:05 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 16 Jan 2002 15:00:12 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Alexei Podtelezhnikov <apodtele@mccammon.ucsd.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [o(1) sched J0] higher priority smaller timeslices, in fact
+In-Reply-To: <Pine.LNX.4.44.0201161412140.3787-100000@chemcca18.ucsd.edu>
+Message-ID: <Pine.LNX.4.40.0201161458370.934-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-To: David Engebretsen <engebret@vnet.ibm.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pcnet32
-In-Reply-To: <200201162221.g0GMLpb21223@skunk.rchland.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Engebretsen wrote:
-> -    while (i++ < 100)
-> +    while (1)
->         if (lp->a.read_csr (ioaddr, 0) & 0x0100)
->             break;
+On Wed, 16 Jan 2002, Alexei Podtelezhnikov wrote:
 
-If the hardware disappears or a PCI bus error occurs or various other
-reasons, this change will loop forever...
+>
+> The comment and the actual macros are inconsistent.
+> positive number * (19-n) is a decreasing function of n!
 
--- 
-Jeff Garzik      | Alternate titles for LOTR:
-Building 1024    | Fast Times at Uruk-Hai
-MandrakeSoft     | The Took, the Elf, His Daughter and Her Lover
-                 | Samwise Gamgee: International Hobbit of Mystery
+# man nice
+
+
+> + * The higher a process's priority, the bigger timeslices
+> + * it gets during one round of execution. But even the lowest
+> + * priority process gets MIN_TIMESLICE worth of execution time.
+> + */
+>
+> -#define NICE_TO_TIMESLICE(n)   (MIN_TIMESLICE + \
+> -	((MAX_TIMESLICE - MIN_TIMESLICE) * (19 - (n))) / 39)
+> +#define NICE_TO_TIMESLICE(n) (MIN_TIMESLICE + \
+> +	((MAX_TIMESLICE - MIN_TIMESLICE) * (19-(n))) / 39)
+>
+> I still suggest a different set as faster and more readable at least to
+> me. Just two operations instead of 4!
+
+this seems quite readable to me, it's the equation at page 1 of any know
+linear geometry book.
+
+
+
+
+- Davide
+
+

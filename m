@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132757AbRC2PsM>; Thu, 29 Mar 2001 10:48:12 -0500
+	id <S132739AbRC2PHw>; Thu, 29 Mar 2001 10:07:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132756AbRC2PsC>; Thu, 29 Mar 2001 10:48:02 -0500
-Received: from [194.25.18.216] ([194.25.18.216]:44813 "EHLO ntovmsw02.otto.de")
-	by vger.kernel.org with ESMTP id <S132755AbRC2Prr> convert rfc822-to-8bit;
-	Thu, 29 Mar 2001 10:47:47 -0500
-Message-Id: <4B6025B1ABF9D211B5860008C75D57CC0271B9E1@NTOVMAIL04>
-From: "Butter, Frank" <Frank.Butter@otto.de>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: WG: 2.4 on COMPQ Proliant
-Date: Thu, 29 Mar 2001 17:47:39 +0200
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	id <S132749AbRC2PHm>; Thu, 29 Mar 2001 10:07:42 -0500
+Received: from lech.pse.pl ([194.92.3.7]:52621 "EHLO lech.pse.pl")
+	by vger.kernel.org with ESMTP id <S132739AbRC2PH3>;
+	Thu, 29 Mar 2001 10:07:29 -0500
+Date: Thu, 29 Mar 2001 17:06:28 +0200
+From: Lech Szychowski <lech.szychowski@pse.pl>
+To: clock@ghost.btnet.cz
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: diskette change problems
+Message-ID: <20010329170628.B28407@lech.pse.pl>
+Reply-To: Lech Szychowski <lech.szychowski@pse.pl>
+Mail-Followup-To: clock@ghost.btnet.cz, linux-kernel@vger.kernel.org
+In-Reply-To: <20010329123831.A156@ghost.btnet.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010329123831.A156@ghost.btnet.cz>; from clock@ghost.btnet.cz on Thu, Mar 29, 2001 at 12:38:31PM +0200
+Organization: Polskie Sieci Elektroenergetyczne S.A.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I put a write-protected diskette into fd0
+> cat /dev/zero > /dev/fd0: readonly filesystem
+> then removed dikette, switched the plastic nibble
+> reinserted diskette
+> cat /dev/zero > /dev/fd0 : readonly filesystem
 
-2.2.16 claimes to find a ncr53c1510D-chipset, supported by
-the driver ncr53c8xx. Which kernel-param would be the correct one for this?
+Are you sure your FDD correctly recognizes media changes? Is there
+anything like "kernel: VFS: Disk change detected on device fd(2,0)"
+noted in your logfiles?
 
-Frank
+-- 
+	Leszek.
 
-> -----Ursprüngliche Nachricht-----
-> Von: Butter, Frank 
-> Gesendet: Donnerstag, 29. März 2001 17:11
-> An: 'linux-kernel@vger.kernel.org'
-> Betreff: 2.4 on COMPQ Proliant
-> 
-> 
-> 
-> Has anyone experiences with 2.4.x on recent Compaq Proliant 
-> Servers (e.g. ML570)?
-> 
-> I've installed RedHat7 and it worked fine out of the box.
-> Except that the SMP-enabled kernel stated there was no 
-> SMP-board detected ;-/
-> For some reasons (Fibrechannel drivers and so on) I've compiled
-> 2.4.2 and installed it. Although I've compiled the support 
-> in, the NCR-SCSI-chip was not found and therefore no 
-> root-partition. It is a model supported by 53c8xx - detected 
-> by the original RedHat-kernel.  
-> 
-> For testing I compiled a kernel with all (!) scsi-low-level-drivers -
-> with the same result. The SMP-board also was NOT detected by 2.4.2.
-> 
-> Any hint?
-> 
-> Frank
-> 
+-- lech7@pse.pl 2:480/33.7          -- REAL programmers use INTEGERS --
+-- speaking just for myself...

@@ -1,54 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263060AbTJPQvZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 12:51:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263069AbTJPQvZ
+	id S262757AbTJPRIo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 13:08:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262835AbTJPRIo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 12:51:25 -0400
-Received: from mcomail04.maxtor.com ([134.6.76.13]:1810 "EHLO
-	mcomail04.maxtor.com") by vger.kernel.org with ESMTP
-	id S263060AbTJPQvY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 12:51:24 -0400
-Message-ID: <785F348679A4D5119A0C009027DE33C105CDB2C5@mcoexc04.mlm.maxtor.com>
-From: "Mudama, Eric" <eric_mudama@Maxtor.com>
-To: "'Jens Axboe'" <axboe@suse.de>, Greg Stark <gsstark@mit.edu>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] ide write barrier support
-Date: Thu, 16 Oct 2003 10:51:23 -0600
+	Thu, 16 Oct 2003 13:08:44 -0400
+Received: from tolkor.SGI.COM ([198.149.18.6]:36584 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id S262757AbTJPRIn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 13:08:43 -0400
+Message-ID: <3F8ECA11.C4281A8C@sgi.com>
+Date: Thu, 16 Oct 2003 11:40:49 -0500
+From: Colin Ngam <cngam@sgi.com>
+Organization: SGI
+X-Mailer: Mozilla 4.79C-SGI [en] (X11; I; IRIX 6.5 IP32)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+To: Jes Sorensen <jes@trained-monkey.org>
+CC: Christoph Hellwig <hch@infradead.org>, Patrick Gefre <pfg@sgi.com>,
+       linux-kernel@vger.kernel.org, davidm@napali.hpl.hp.com, jbarnes@sgi.com
+Subject: Re: [PATCH] Altix I/O code cleanup
+References: <3F872984.7877D382@sgi.com> <20031013095652.A25495@infradead.org>
+		<yq0llrmncus.fsf@trained-monkey.org>
+		<20031015135558.A8963@infradead.org> <yq0brshwcrx.fsf@trained-monkey.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jes Sorensen wrote:
 
-On Tue, Oct 14 2003, Greg Stark wrote:
-> Jens Axboe <axboe@suse.de> writes:
-> > There's also the case of files opened with O_SYNC. Would inserting a
-> > write barrier after every write to such a file destroy performance?
-> 
-> If it's mainly sequential io, then no it won't destroy performance. It
-> will be lower than without the cache flush of course.
+> >>>>> "Christoph" == Christoph Hellwig <hch@infradead.org> writes:
+>
+> >>  ASSERT_ALWAYS checks it, it may not be pretty but it does check
+> >> it.
+>
+> Christoph> No, it's useless.  It's not different at all from just
+> Christoph> derefencing a NULL pointer - both get you an oops.
 
-If you flush a cache after every command in a sequential write, yes, you'll
-destroy performance.  How much you destroy it is a function of command size
-relative to track size, and the RPM of the drive.
+Hi Christoph,
 
-It takes us multiple servo wedges to know that we think our write to the
-media went in the right place, therefore by definition if we didn't already
-have the next command's data, we've already missed our target location and
-have to wait a full revolution to put the new data on the media.  Since we
-can't report good status for the flush until after we're sure the data is
-down properly, we'll always blow a rev.
+In the pointer case yes.
 
-If you're issuing 32 MiB writes to a very fast drive , you'll only have
-wasted time every 1/3 of a second (with a ~100MB interface)... which is near
-trivial.  However, if you're doing 1MB or smaller writes, I think you'll see
-a huge performance penalty.
+>
+>
+> I haven't looked at the place right there, however if the intention is
+> to panic() on a failed kmalloc because the data structure is required
+> for a core service, then doing ASSERT_ALWAYS isn't that unreasonable.
 
-Then again, if you're only working with datasets of a few megabytes, you'd
-probably never notice.  It is the person flushing a huge stream of data to
-disk who gets penalized the most. 
+ASSERT_ALWAYS is used for many other cases other than just for
+testing NULL Pointers.  Whether you call ASSERT_ALWAYS or
+call panic with a message or just allow it to oops, a descriptive panic
+message can save some time.
 
---eric
+Thanks.
+
+colin
+
+>
+>
+> Jes
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

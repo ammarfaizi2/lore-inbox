@@ -1,85 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292889AbSBQJ2N>; Sun, 17 Feb 2002 04:28:13 -0500
+	id <S310172AbSBRHLr>; Mon, 18 Feb 2002 02:11:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292893AbSBQJ2D>; Sun, 17 Feb 2002 04:28:03 -0500
-Received: from gate.perex.cz ([194.212.165.105]:32785 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id <S292889AbSBQJ14>;
-	Sun, 17 Feb 2002 04:27:56 -0500
-Date: Sun, 17 Feb 2002 10:27:41 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: <perex@pnote.perex-int.cz>
-To: Miles Lane <miles@megapathdsl.net>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: How do I get the ALSA code in 2.5.5-pre1 working?
-In-Reply-To: <3C6ED744.9010504@megapathdsl.net>
-Message-ID: <Pine.LNX.4.31.0202171017530.513-100000@pnote.perex-int.cz>
+	id <S310174AbSBRHLi>; Mon, 18 Feb 2002 02:11:38 -0500
+Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:23970 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S310172AbSBRHLb>; Mon, 18 Feb 2002 02:11:31 -0500
+X-Priority: 1 (High)
+Subject: [Announce] Dynamic Probes port to s/390
+To: linux-kernel@vger.kernel.org
+Cc: dprobes@www-124.southbury.usf.ibm.com, ltc@linux.ibm.com,
+        grundym@us.ibm.com
+X-Mailer: Lotus Notes Release 5.0.9  November 16, 2001
+Message-ID: <OFAAE68BBD.F098B940-ON65256B64.0026C3C2@in.ibm.com>
+From: "S Vamsikrishna" <vamsi_krishna@in.ibm.com>
+Date: Mon, 18 Feb 2002 12:41:13 +0530
+X-MIMETrack: Serialize by Router on d23m0067/23/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 18/02/2002 12:40:46 PM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Feb 2002, Miles Lane wrote:
+Dynamic Probes for s/390 is released.
 
-> Hello,
->
-> I have the linux hotplug scripts installed.  When I built
-> the drivers as modules, they did not autoload, as they should
-> have.  Are you working to make the drivers register themselves
-> during the boot process so that they are autoloaded without
-> having to hack the modules.conf file?
+Dynamic Probes is a generic and pervasive debugging facility that will
+operate under the most extreme software conditions such as debugging a deep
+rooted operating system problem in a live environment.
 
-I'm not sure, if hotplug should take care about automatic module loading
-for static devices. Currently, only cardbus manager uses the PCI hotplug
-routines. I could be wrong, of course.
+Dynamic Probes v2.2.0 has been ported to s/390 by Michael Grundy
+(grundym@us.ibm.com), the patch is available for kernel version
+2.4.7+addional s/390 updates.
 
-> I have applied the patch the gets /proc/asound working.
-> In my most recent attempt, I have compiled the ALSA drivers
-> into the kernel.  I would like to use the native ALSA drivers,
-> but am not sure how to configure my devices to make this
-> happen.  I use esound on GNOME and play CDs.
->
-> One question I have is how to go about getting the ALSA
-> utilities and tools to build.  They require alsa-lib, which
-> appears to require alsa-drivers.  This is a problem, because
-> I don't want to install the out-of-kernel ALSA drivers in
-> addition to the in-kernel ones.
+Please visit the project webpage:
+http://oss.software.ibm.com/developerworks/opensource/linux/projects/dprobes/
 
-I just added a simplified support for ALSA kernel code for alsa-lib.
-We have '--with-kernel' and '--with-soundbase' options for the configure
-script allowing specification of ALSA kernel header files
-(linux/include/sound directory). The other packages uses only alsa-lib and
-are not dependent on kernel sources.
+for downloading dprobes.
 
-> It seems to me that there is a need for several things to happen,
-> now that ALSA is in the development kernel:
->
-> 1)  You need to update your web documentation to guide users
-> in configuring ALSA who are testing the ALSA support in
-> the development kernel.
->
-> 2)  You need to include updated ALSA configuration and usage
-> information into the linux/Documentation tree in the 2.5 kernel
-> tree.
->
-> 3)  You need to update documentation in the utils and tools
-> packages to include information about how to build and use
-> there utilies when using the 2.5 kernel drivers.
+Regards.. Vamsi.
 
-Documentation for users will be definitely next step in our kernel
-integration process, although there are minimal usage differences
-(only compilation) with the standalone ALSA distribution.
+Vamsi Krishna S.
+Linux Technology Center,
+IBM Software Lab, Bangalore.
+Ph: +91 80 5044959
+Internet: vamsi_krishna@in.ibm.com
 
-> 4)  You may need to overhaul your tools and utilities build
-> processes so that alsa-drivers is not required.
-
-Already finished.
-
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project  http://www.alsa-project.org
-SuSE Linux    http://www.suse.com
 

@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264496AbTL0QSD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 11:18:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbTL0QSD
+	id S264501AbTL0Qjq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 11:39:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264502AbTL0Qjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 11:18:03 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:10657 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S264496AbTL0QSA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 11:18:00 -0500
-Date: Sat, 27 Dec 2003 08:17:52 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: azarah@nosferatu.za.org
-cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0 sound output - wierd effects
-Message-ID: <2090000.1072541872@[10.10.2.4]>
-In-Reply-To: <1072523532.12308.55.camel@nosferatu.lan>
-References: <1080000.1072475704@[10.10.2.4]> <1072479167.21020.59.camel@nosferatu.lan>  <1480000.1072479655@[10.10.2.4]> <1072480660.21020.64.camel@nosferatu.lan>  <1640000.1072481061@[10.10.2.4]> <1072482611.21020.71.camel@nosferatu.lan>  <2060000.1072483186@[10.10.2.4]> <1072486379.12308.33.camel@nosferatu.lan>  <3820000.1072499679@[10.10.2.4]> <1072523532.12308.55.camel@nosferatu.lan>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Sat, 27 Dec 2003 11:39:46 -0500
+Received: from ns.suse.de ([195.135.220.2]:21472 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264501AbTL0Qjp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Dec 2003 11:39:45 -0500
+To: linux@horizon.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: GCC 3.4 Heads-up
+References: <20031226110206.28382.qmail@science.horizon.com>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: O.K.!  Speak with a PHILADELPHIA ACCENT!!  Send out for CHINESE
+ FOOD!!
+ Hop a JET!
+Date: Sat, 27 Dec 2003 17:39:43 +0100
+In-Reply-To: <20031226110206.28382.qmail@science.horizon.com> (linux@horizon.com's
+ message of "26 Dec 2003 11:02:06 -0000")
+Message-ID: <je3cb6rz8w.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >> > If you right click on xmms, and then select options->preferences, on the
->> >> > first page to the bottom there should be output plugin.  If you cannot
->> >> > select alsa, see if there is a xmms-alsa or libxmms-alsa plugin.  Sorry,
->> >> > I do not know Debian that well.
->> >> 
->> >> Thanks, it was on OSS - there's no ALSA selection, nor can I find one.
->> >> There's probably one in unstable somewhere, but ... see below.
->> > 
->> > Btw, compile xmms yourself - should have alsa then =)  Not sure if
->> > it will if you build with apt-get from source, or when they started
->> > to ship the alsa module with xmms source - think it was not so long
->> > ago.  Does with 1.2.8 though:
->> 
->> Oh, I understand I could work around the problem in userspace, but that's 
->> not the point - something broke in the kernel, presumably OSS emulation.
->> test2 works, test3 doesn't. 
->> 
-> 
-> It might be that there always was a problem in userspace ... Like I said
-> in another mail - its working here now.  Also, _did_ you try something
-> else than xmms ... it may be an xmms issue, and not a alsa one ... ?
+linux@horizon.com writes:
 
-Nope. But I find it hard to believe, given that it's so consistent on 
-switching kernels, and others have had the same problem.
+> Or consider the case when the structure doesn't have an explicit size
+> and you have a big case statement for parsing it:
+>
+> switch (a->type) {
+> 	case BAR:
+> 		process_bar_chunk(((struct bar *)a)++);
+> 		break;
+> 	case BAZ:
+> 		process_baz_chunk(((struct baz *)a)++);
+> 		break;
+> 	...
+> };
+>
+> Isn't that code a bit nicer looking?  I put the redundant parens
 
-M.
+Except that the parens are not redundant.
 
+> in to remind people that I didn't mean to write "(struct bar *)(a++)"
+> (which also has its legitimate uses).
+
+Which is why it's parsed this way by default.
+
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

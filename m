@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbUE1RBG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbUE1RHj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbUE1RBG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 13:01:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbUE1RBF
+	id S261706AbUE1RHj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 13:07:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbUE1RHj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 13:01:05 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:39864 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261426AbUE1RAx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 13:00:53 -0400
-Date: Fri, 28 May 2004 18:00:51 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: braam <braam@clusterfs.com>
-Cc: arjanv@redhat.com, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, "'Phil Schwan'" <phil@clusterfs.com>
-Subject: Re: [PATCH/RFC] Lustre VFS patch
-Message-ID: <20040528170051.GA30411@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	braam <braam@clusterfs.com>, arjanv@redhat.com, torvalds@osdl.org,
-	akpm@osdl.org, linux-kernel@vger.kernel.org,
-	'Phil Schwan' <phil@clusterfs.com>
-References: <1085406284.2780.13.camel@laptop.fenrus.com> <20040528165649.91F1F3100D3@moraine.clusterfs.com>
+	Fri, 28 May 2004 13:07:39 -0400
+Received: from mail.kroah.org ([65.200.24.183]:17315 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261706AbUE1RHh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 13:07:37 -0400
+Date: Fri, 28 May 2004 10:03:15 -0700
+From: Greg KH <greg@kroah.com>
+To: Todd Poynor <tpoynor@mvista.com>
+Cc: mochel@digitalimplant.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Leave runtime suspended devices off at system resume
+Message-ID: <20040528170315.GB8192@kroah.com>
+References: <20040526214319.GB7176@slurryseal.ddns.mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040528165649.91F1F3100D3@moraine.clusterfs.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <20040526214319.GB7176@slurryseal.ddns.mvista.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 29, 2004 at 12:56:40AM +0800, braam wrote:
-> Mostly checks are done like in sys_rename.  
+On Wed, May 26, 2004 at 02:43:19PM -0700, Todd Poynor wrote:
+> Currently all devices are resumed at system resume time, including any
+> that were individually powered off ("at runtime") prior to the system
+> suspend.  In certain cases it can be nice to force back on individually
+> suspended devices, such as the display, but hopefully this policy can be
+> left up to userspace power managers; the kernel should probably honor
+> the settings previously made by userspace/drivers.  This seems
+> preferable to requiring a power-conscious system to re-suspend devices
+> after a system resume; furthermore, for certain platforms (such as
+> XScale PXA27X) there can be disastrous consequences of powering up
+> devices when the system is in a state incompatible with operation of the
+> device.
 > 
-> Some cases require new distributed state in the FS, such as the fact that a
-> certain directory is a mountpoint, possibly not on the node doing a rename,
-> but on another node.  
+> Suggested patch does this:
 > 
-> For this the Linux VFS has no api - we added something we call "pinning" for
-> this in 2.4, but not in 2.6 yet.
+> (1) At system resume, checks power_state to see if the device was
+> suspended prior to system suspend, and skips powering on the device if
+> so.
+> 
+> (2) Does not re-suspend an already-suspended device at system suspend
+> (using a different method than is currently employed, which reorders the
+> list, see #3).
+> 
+> (3) Preserves the active/off device list order despite the above changes
+> to suspend/resume behavior, to avoid dependency problems that tend to
+> occur when the list is reordered.
 
-In general I'd be happier to see code like that residing in the VFS,
-especially as I guess other filesystems like AFS would like to have similar
-features.In general I'd be happier to see code like that residing in the VFS,
-especially as I guess other filesystems like AFS would like to have similar
-features.
+Nice, that looks good.
 
-Where's the current lustre code that sits behind those interfaces?  Do you
-have a patch that adds the lustre client to the kernel instead of the huge
-cvs repository containing all kinds of unrelated code ala the obsolete
-lustre 1.0?
+Applied, thanks.
 
+greg k-h

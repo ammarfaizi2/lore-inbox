@@ -1,34 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131221AbRAaS6I>; Wed, 31 Jan 2001 13:58:08 -0500
+	id <S130147AbRAaTBs>; Wed, 31 Jan 2001 14:01:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131049AbRAaS5u>; Wed, 31 Jan 2001 13:57:50 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38665 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131772AbRAaS5i>; Wed, 31 Jan 2001 13:57:38 -0500
-Subject: Re: [PATCH] make sym53c8xx.c and ncr53c8xx.c call pci_enable_device
-To: groudier@club-internet.fr (Gérard Roudier)
-Date: Wed, 31 Jan 2001 18:58:04 +0000 (GMT)
-Cc: rasmus@jaquet.dk (Rasmus Andersen), linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10101292235170.2036-100000@linux.local> from "Gérard Roudier" at Jan 29, 2001 10:50:31 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130936AbRAaTBi>; Wed, 31 Jan 2001 14:01:38 -0500
+Received: from m2ep.pp.htv.fi ([212.90.64.98]:63749 "EHLO m2.pp.htv.fi")
+	by vger.kernel.org with ESMTP id <S130147AbRAaTB1>;
+	Wed, 31 Jan 2001 14:01:27 -0500
+Date: Wed, 31 Jan 2001 21:01:01 +0200 (EET)
+From: Timo Jantunen <jeti@iki.fi>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: kernel BUG at inode.c:889!
+In-Reply-To: <Pine.LNX.4.21.0101311505050.16763-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.30.0101312100080.768-100000@limbo.null.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14O2SF-0002tb-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If the pci_enable_device() thing is to be added to the drivers, it must
-> preferently be placed after the checking against RAID attachement.
+On Wed, 31 Jan 2001, Marcelo Tosatti wrote:
 
-You cant check the signature until the device has been enabled. Maybe you
-could poke the LSI guys and find out how windows PnP stuff handles this.
+>> While I was looking unused partitions to be used for ReiserFS testing
+> Haven't you forgot to inform which kernel version are you using?
 
-I think the proposed change is ok because if the board is enabled then the 
-enabling code won't touch it.
+Ah, sorry! 2.4.1
+
+(Is anybody using anything else but the newest ;-)
+
+
+// /
+....................................Timo Jantunen  ......................
+       ZZZ      (Used to represent :Kuunsäde 8 A 28: Email: jeti@iki.fi :
+the  sound of  a person  snoring.) :02210 Espoo    : http://iki.fi/jeti :
+Webster's  Encyclopedic Unabridged :Finland        : GSM+358-40-5763131 :
+Dictionary of the English Language :...............:....................:
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,105 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267909AbUGWTKj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267899AbUGWTKA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267909AbUGWTKj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 15:10:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267910AbUGWTKj
+	id S267899AbUGWTKA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 15:10:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267909AbUGWTKA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 15:10:39 -0400
-Received: from main.gmane.org ([80.91.224.249]:48032 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S267909AbUGWTKT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 15:10:19 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Fri, 23 Jul 2004 15:10:00 -0400
+Received: from anchor-post-36.mail.demon.net ([194.217.242.86]:57098 "EHLO
+	anchor-post-37.mail.demon.net") by vger.kernel.org with ESMTP
+	id S267899AbUGWTJk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 15:09:40 -0400
+Message-ID: <410156ED.40102@lougher.demon.co.uk>
+Date: Fri, 23 Jul 2004 19:20:29 +0100
+From: Phillip Lougher <phillip@lougher.demon.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-GB; rv:1.2.1) Gecko/20030228
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-From: Domen Puncer <domen@coderock.org>
-Subject: Re: [patch-kj] use list_for_each() in fs/jffs/intrep.c
-Date: Fri, 23 Jul 2004 21:02:00 +0200
-Message-ID: <pan.2004.07.23.19.02.00.666530@coderock.org>
-References: <20040723155528.GQ1795@stro.at> <20040723161724.GA31884@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: coderock.org
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-Cc: jffs-dev@axis.com
+CC: pmarques@grupopie.com
+Subject: Re: Compression filter for Loopback device
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Thu, 2004-07-23 Paulo Marques wrote:
+ >
+ >I did start working on something like that a while ago. I even
+ >registered for a project on sourceforge:
+ >
+ >http://sourceforge.net/projects/zloop/
+ >
+ >    - The block device doesn't understand anything about files. This is
+ >an advantage because it will compress the filesystem metadata
+ >transparently, but it is bad because it compresses "unused" blocks of
+ >data. This could probably be avoided with a patch I saw floating around
+ >a while ago that zero'ed delete ext2 files. Zero'ed blocks didn't accupy
+ >any space at all in my compressed scheme, only metadata (only 2 bytes
+ >per block).
+ >
 
-On Fri, 23 Jul 2004 17:17:24 +0100, Christoph Hellwig wrote:
+The fact the block device doesn't understand anything about the 
+filesystem is a *major* disadvantage.  Cloop has a I/O and seeking 
+performance hit because it doesn't understand the filesystem, and this 
+will be far worse for write compression.  Every time a block update is 
+seen by your block layer you'll have to recompress the block, it is 
+going to be difficult to cache the block because you're below the block 
+cache (any writes you see shouldn't be cached).  If you use a larger 
+compressed block size than the block size, you'll also have to 
+decompress each compressed block to obtain the missing data to 
+recompress.  Obviously Linux I/O scheduling has a large part to play, 
+and you better hope to see bursts of writes to consecutive disk blocks.
 
-> On Fri, Jul 23, 2004 at 05:55:28PM +0200, maximilian attems wrote:
->> 
->> Use list_for_each() where applicable
->> - for (list = ymf_devs.next; list != &ymf_devs; list = list->next) {
->> + list_for_each(list, &ymf_devs) {
->> pure cosmetic change, defined as a preprocessor macro in:
->> include/linux/list.h
->> 
->> applies cleanly to 2.6.8-rc2
->> 
->> From: Domen Puncer <domen@coderock.org>
->> Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
-> 
-> Please switch to list_for_each_entry while you're at it.
+ >I did a proof of concept using a nbd server. This way I could test
+ >everything in user space.
+ >
+ >With this NBD server I tested the compression ratios that my scheme
+ >could achieve, and they were much better than those achieved by cramfs,
+ >and close to tar.gz ratios. This I wasn't expecting, but it was a nice
+ >surprise :)
 
-Jup, list_for_each_entry is nicer.
-(first time posting trough gmane, hope it works)
+I'm very surprised you got ratios better than CramFS, which were close 
+to tar.gz.  Cramfs is actually quite efficient in it's use of metadata, 
+what lets cramfs down is that it compresses in units of the page size or 
+4K blocks.  Cloop/Squashfs/tar.gz use much larger blocks which obtain 
+much better compression ratios.
 
-Compile tested
+What size blocks did you do your compression and/or what compression 
+algorithm did you use?  There is a dramatic performance trade-off here. 
+If you used larger than 4K blocks every time your compressing block 
+device is presented with a (probably 4K) block update, you need to 
+decompress your larger compression block, very slow.  If you used 4K 
+blocks then I cannot see how you obtained better compression than cramfs.
 
-
-Signed-off-by: Domen Puncer <domen@coderock.org>
-
---- c/fs/jffs/intrep.c	Wed Jul 14 19:15:11 2004
-+++ a/fs/jffs/intrep.c	Fri Jul 23 20:08:55 2004
-@@ -1619,12 +1619,10 @@
- {
- 	struct jffs_file *f;
- 	int i = ino % c->hash_len;
--	struct list_head *tmp;
- 
- 	D3(printk("jffs_find_file(): ino: %u\n", ino));
- 
--	for (tmp = c->hash[i].next; tmp != &c->hash[i]; tmp = tmp->next) {
--		f = list_entry(tmp, struct jffs_file, hash);
-+	list_for_each_entry(f, c->hash[i].next, hash) {
- 		if (ino != f->ino)
- 			continue;
- 		D3(printk("jffs_find_file(): Found file with ino "
-@@ -2020,13 +2018,12 @@
- 	int result = 0;
- 
- 	for (pos = 0; pos < c->hash_len; pos++) {
--		struct list_head *p, *next;
--		for (p = c->hash[pos].next; p != &c->hash[pos]; p = next) {
--			/* We need a reference to the next file in the
--			   list because `func' might remove the current
--			   file `f'.  */
--			next = p->next;
--			r = func(list_entry(p, struct jffs_file, hash));
-+		struct jffs_file *f, *next;
-+
-+		/* We must do _safe, because 'func' might remove the
-+		   current file 'f' from the list.  */
-+		list_for_each_entry_safe(f, next, &c->hash[pos], hash) {
-+			r = func(f);
- 			if (r < 0)
- 				return r;
- 			result += r;
-@@ -2589,9 +2586,8 @@
- 
- 	printk("JFFS: Dumping the file system's hash table...\n");
- 	for (i = 0; i < c->hash_len; i++) {
--		struct list_head *p;
--		for (p = c->hash[i].next; p != &c->hash[i]; p = p->next) {
--			struct jffs_file *f=list_entry(p,struct jffs_file,hash);
-+		struct jffs_file *f;
-+		list_for_each_entry(f, &c->hash[i], hash) {
- 			printk("*** c->hash[%u]: \"%s\" "
- 			       "(ino: %u, pino: %u)\n",
- 			       i, (f->name ? f->name : ""),
-
+Phillip
 

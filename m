@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264098AbUHJKSR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263980AbUHJKUL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264098AbUHJKSR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 06:18:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbUHJKOl
+	id S263980AbUHJKUL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 06:20:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264213AbUHJKSa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 06:14:41 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:53440 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264251AbUHJKNY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 06:13:24 -0400
-Date: Tue, 10 Aug 2004 12:12:24 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <20040810101224.GD11201@suse.de>
-References: <200408061330.i76DU2Tm005937@burner.fokus.fraunhofer.de> <20040806151017.GG23263@suse.de> <20040810084159.GD10361@merlin.emma.line.org> <20040810101123.GB2743@harddisk-recovery.com>
+	Tue, 10 Aug 2004 06:18:30 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:9156 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264251AbUHJKQn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 06:16:43 -0400
+Date: Tue, 10 Aug 2004 12:16:40 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Christoph Hellwig <hch@infradead.org>,
+       Jeff Chua <jeffchua@silk.corp.fedex.com>,
+       Tomas Szepe <szepe@pinerecords.com>, netdev@oss.sgi.com,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ipw2100 wireless driver
+Message-ID: <20040810101640.GF9034@atrey.karlin.mff.cuni.cz>
+References: <20040714114135.GA25175@elf.ucw.cz> <Pine.LNX.4.60.0407141947270.27995@boston.corp.fedex.com> <20040714115523.GC2269@elf.ucw.cz> <20040809201556.GB9677@louise.pinerecords.com> <Pine.LNX.4.61.0408101258130.1290@boston.corp.fedex.com> <20040810075558.A14154@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040810101123.GB2743@harddisk-recovery.com>
+In-Reply-To: <20040810075558.A14154@infradead.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 10 2004, Erik Mouw wrote:
-> On Tue, Aug 10, 2004 at 10:41:59AM +0200, Matthias Andree wrote:
-> > It's not exactly fun if everything can do 48X but your favorite OS
-> > (Linux 2.4) is limited to say 8X because it only does PIO in spite of
-> > hdparm settings and everything else.
+Hi!
+
+> > > ipw2100 0.51 from ipw2100.sf.net builds using gcc-2.95.3 "out of the box."
+> > 
+> > Well, this is really good news!
+> > 
+> > I just downloaded 0.51 compiled with gcc-2.95.3 and got it working on my 
+> > IBM X31 with WEP. Even better, 0.51 doesn't need hostap-driver.
 > 
-> FWIW, we burn CDs at 40x with a 2.4 kernel. It is however a hardware or
-> driver related issue: no problems whatsoever with VIA IDE interfaces,
-> but only PIO with the CD writer connected to a Promise 20268.
+> Btw, any vounteer for merging the hostap-based generic ieee80211_* files
+> from the ipw2100 driver with the hostap driver in the wireless-2.6 tree?
 
-It's not a problem with data CDs, it's only a problem with non-512b
-aligned sector sizes (like audio CDs).
+I know very little about wireless-2.6 tree (where to get it without
+bitkeeper?), but...
 
+task is to take ipw2100 driver, drop ieee80211_* files from it, and
+make it work with ieee80211* files from wireless-2.6?
+
+								Pavel
 -- 
-Jens Axboe
-
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

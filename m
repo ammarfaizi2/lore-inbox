@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310459AbSCBVZn>; Sat, 2 Mar 2002 16:25:43 -0500
+	id <S310463AbSCBVex>; Sat, 2 Mar 2002 16:34:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310458AbSCBVZc>; Sat, 2 Mar 2002 16:25:32 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:54970 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S310459AbSCBVZV>;
-	Sat, 2 Mar 2002 16:25:21 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Sat, 2 Mar 2002 21:25:16 GMT
-Message-Id: <UTC200203022125.VAA144817.aeb@cwi.nl>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] swapfile.c
+	id <S310462AbSCBVeo>; Sat, 2 Mar 2002 16:34:44 -0500
+Received: from mx2out.umbc.edu ([130.85.253.52]:43413 "EHLO mx2out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S310461AbSCBVe2>;
+	Sat, 2 Mar 2002 16:34:28 -0500
+Date: Sat, 2 Mar 2002 16:34:27 -0500
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: dell inspiron and 2.4.18?
+In-Reply-To: <Pine.SGI.4.31L.02.0203020004440.5865235-100000@irix2.gl.umbc.edu>
+Message-ID: <Pine.SGI.4.31L.02.0203021630440.5635100-100000@irix2.gl.umbc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.5.2 swapfile.c was broken:
-In sys_swapon() we see
+On Sat, 2 Mar 2002, John Jasen wrote:
 
-	swap_file = filp_open(name, O_RDWR, 0);
-	if (IS_ERR(swap_file))
-		goto bad_swap_2;
+> I have a Dell Inspiron 3700 running Redhat 7.2 with the latest updates,
+> and I just upgraded to kernel 2.4.18. On random intervals, usually within
+> about 10 minutes of usage, it hangs completely solid.
+>
+> Enabling sysrq, recompiling 2.4.18 with kdb, and going to tinker with APIC
+> tomorrow. Results, kernel .config, lspci -v, and so forth will be posted
+> when I'm more awake.
+>
+> Anyway, the short form: anyone else have any problems, or have I gone
+> crazy again?
 
-bad_swap_2:
-	...
-	if (swap_file)
-		filp_close(swap_file, NULL);
+kernel config, dmesg output, lspci -vv output, /proc/interrupts and
+/proc/pci have been posted to http://www.realityfailure.org/~jjasen/dell/
 
-and this oopses the kernel.
-Below a trivial fix. Somebody with more time may come
-back and polish stuff a little.
+this is for kernel-2.4.18, with kdb patched and enabled, sysrq enabled,
+and I'm sitting here waiting for it to go wrong.
 
-Andries
+And waiting!
 
---- swapfile.c~	Sat Mar  2 18:23:19 2002
-+++ swapfile.c	Sun Mar  3 23:08:48 2002
-@@ -905,8 +905,10 @@
- 	swap_file = filp_open(name, O_RDWR, 0);
- 	putname(name);
- 	error = PTR_ERR(swap_file);
--	if (IS_ERR(swap_file))
-+	if (IS_ERR(swap_file)) {
-+		swap_file = NULL;
- 		goto bad_swap_2;
-+	}
- 
- 	p->swap_file = swap_file;
- 
+uptime
+  4:28pm  up 13 min,  6 users,  load average: 0.05, 0.44, 0.35
 
-[this was a patch relative to 2.5.6-pre2]
+Any ideas?
+
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
+

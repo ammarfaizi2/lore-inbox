@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269467AbUJFVha@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269507AbUJFVdN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269467AbUJFVha (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 17:37:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269508AbUJFVdU
+	id S269507AbUJFVdN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 17:33:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269508AbUJFVdA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 17:33:20 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:30124 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269467AbUJFVcZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 17:32:25 -0400
-Subject: Re: [PATCH] Console: fall back to /dev/null when no console is
-	availlable
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       J?rn Engel <joern@wohnheim.fh-wedel.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041006205417.GA25437@kroah.com>
-References: <20041005185214.GA3691@wohnheim.fh-wedel.de>
-	 <20041005212712.I6910@flint.arm.linux.org.uk>
-	 <20041005210659.GA5276@kroah.com>
-	 <20041005221333.L6910@flint.arm.linux.org.uk>
-	 <1097074822.29251.51.camel@localhost.localdomain>
-	 <20041006174108.GA26797@kroah.com>
-	 <1097090333.29706.4.camel@localhost.localdomain>
-	 <20041006205417.GA25437@kroah.com>
-Content-Type: text/plain
+	Wed, 6 Oct 2004 17:33:00 -0400
+Received: from inetc.connecttech.com ([64.7.140.42]:62470 "EHLO
+	inetc.connecttech.com") by vger.kernel.org with ESMTP
+	id S269497AbUJFVbF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 17:31:05 -0400
+From: "Stuart MacDonald" <stuartm@connecttech.com>
+To: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Problems in list.h macros?
+Date: Wed, 6 Oct 2004 17:31:04 -0400
+Organization: Connect Tech Inc.
+Message-ID: <030801c4abeb$c9316ba0$294b82ce@stuartm>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1097094582.29866.15.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 06 Oct 2004 21:29:44 +0100
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-10-06 at 21:54, Greg KH wrote:
-> Ok, then anyone with some serious bash-foo care to send me a patch for
-> the existing /sbin/hotplug file that causes it to handle this properly?
+I am referring to a stock 2.4.27's linux/list.h.
 
-Something like
+1: list_for_each(_entry)_safe() calls seem not to be as safe as they
+are implied to be. They seem to be only actually safe *iff* a
+list_del() is the only operation performed on the list entry. If pos
+is freed after a list_del, aren't you toast? If n has its pointers
+modified, say by a list_add() to a different list, don't you end up
+at the new list instead of the original list? Shouldn't this be noted
+in the macro comments?
 
-#!/bin/sh
-(
-Everything you had before
-) <>/dev/console 2>&1
-
+..Stu
 

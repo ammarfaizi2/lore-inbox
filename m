@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263769AbTKXQmK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 11:42:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263771AbTKXQmK
+	id S263767AbTKXQeL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 11:34:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263769AbTKXQeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 11:42:10 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51609 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263769AbTKXQmI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 11:42:08 -0500
-Message-ID: <3FC234D4.30401@pobox.com>
-Date: Mon, 24 Nov 2003 11:41:56 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Mon, 24 Nov 2003 11:34:11 -0500
+Received: from hosting-agency.de ([195.69.240.23]:31701 "EHLO mailagency.de")
+	by vger.kernel.org with ESMTP id S263767AbTKXQeK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 11:34:10 -0500
+From: Jakob Lell <jlell@JakobLell.de>
+To: linux-kernel@vger.kernel.org
+Subject: hard links create local DoS vulnerability and security problems
+Date: Mon, 24 Nov 2003 17:36:23 +0100
+User-Agent: KMail/1.5.4
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-CC: benh@kernel.crashing.org
-Subject: [PATCH/CFT] libata bug fix update
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311241736.23824.jlell@JakobLell.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
+on Linux it is possible for any user to create a hard link to a file belonging 
+to another user. This hard link continues to exist even if the original file 
+is removed by the owner. However, as the link still belongs to the original 
+owner, it is still counted to his quota. If a malicious user creates hard 
+links for every temp file created by another user, this can make the victim 
+run out of quota (or even fill up the hard disk). This makes a local DoS 
+attack possible.
 
-Ben H noticed a bug which may cause some devices to "not be talked to" 
-at probe time...  definitely a bugfix that libata users should obtain. 
-This fix affects all SATA controllers libata supports.
+Furthermore, users can even create links to a setuid binary. If there is a 
+security whole like a buffer overflow in any setuid binary, a cracker can 
+create a hard link to this file in his home directory. This link still exists 
+when the administrator has fixed the security whole by removing or replacing 
+the insecure program. This makes it possible for a cracker to keep a security 
+whole open until an exploit is available. It is even possible to create links 
+to every setuid program on the system. This doesn't create new security 
+wholes but makes it more likely that they are exploited.
 
-Promise and VIA SATA users:
-If you continue to see negative results, change ATA_FLAG_SRST to 
-ATA_FLAG_SATA_RESET in the sata_{promise,via}.c source code, and re-test.
+To solve the problem, the kernel shouldn't allow users to create hard links to 
+files belonging to someone else.
 
-Patch for 2.6.0-test10:
-http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.6.0-test10-libata1.patch.bz2
+I could reproduce the problem on linux 2.2.19 and 2.4.21 (and found nothing 
+about it in the changelogs to 2.4.23-rc3).
 
-Patch for 2.4.23-rc3:
-http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.4.23-rc3-libata1.patch.bz2
-
-BK users:
-http://gkernel.bkbits.net/libata-2.[45]
-
+Regards
+ Jakob
 

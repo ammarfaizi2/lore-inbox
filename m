@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131538AbQLVBoh>; Thu, 21 Dec 2000 20:44:37 -0500
+	id <S131454AbQLVBrr>; Thu, 21 Dec 2000 20:47:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131558AbQLVBo1>; Thu, 21 Dec 2000 20:44:27 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:57616 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S131538AbQLVBoV>;
-	Thu, 21 Dec 2000 20:44:21 -0500
-Message-ID: <3A42AA60.80FA07F7@innominate.de>
-Date: Fri, 22 Dec 2000 02:12:00 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: en
+	id <S131716AbQLVBrh>; Thu, 21 Dec 2000 20:47:37 -0500
+Received: from web10101.mail.yahoo.com ([216.136.130.51]:32521 "HELO
+	web10101.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S131712AbQLVBrT>; Thu, 21 Dec 2000 20:47:19 -0500
+Message-ID: <20001222011652.30206.qmail@web10101.mail.yahoo.com>
+Date: Thu, 21 Dec 2000 17:16:52 -0800 (PST)
+From: Al Peat <al_kernel@yahoo.com>
+Subject: Re: Purging the Page Table (was: Purging the Buffer Cache)
+To: linux-kernel@vger.kernel.org
+Cc: myself <al_peat@yahoo.com>, Juri Haberland <juri.haberland@innominate.com>
 MIME-Version: 1.0
-To: Paul Cassella <pwc@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Semaphores used for daemon wakeup
-In-Reply-To: <3A42380B.6E9291D1@sgi.com> <Pine.SGI.3.96.1001221130859.8463C-100000@fsgi626.americas.sgi.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Cassella wrote:
-> > int atomic_read_and_clear(atomic_t *p)
-> > {
-> >         int n = atomic_read(p);
-> >         atomic_sub(p, n);
-> >         return n;
-> > }
-> 
-> I don't think this will work; consider two callers doing the atomic_read()
-> at the same time, or someone else doing an atomic_dec() after the
-> atomic_read().
+--- Juri Haberland <juri.haberland@innominate.com>
+wrote:
+> Al Peat wrote:
+> > 
+> >   Is there any way to completely purge the buffer
+> > cache -- not just the write requests (ala 'sync'
+> or
+> > 'update'), but the whole thing?  Can I just call
+> > invalidate_buffers() or destroy_buffers()?
+>
+> What about the ioctl BLKFLSBUF ?
+> If you are running a SuSE distrib there is already a
+> tool called flushb
+> that does what you want. If not, you can download
+> the simple tool from
+> http://innominate.org/~juri/flushb.tar.gz
 
-Oh yes, mea culpa, this is a terrible primitive, yet it works for this
-application.  1) We don't have two callers 2) We only have atomic_inc
-from the other processes, and it's ok for the atomic_inc to occur after
-the atomic_read because that means the atomic_inc'er will then proceed
-to up() the atomic_sub'ers semaphore, and it won't block.
+  Another question: what if I need to purge the page
+table of all files as well?  Is there a clean way to
+do that?  I've been looking at /mm/memory.c, but it
+doesn't look like clear_page_tables, etc. get
+exported.
 
-I much preferred my original waiters = xchg(&sem.count, 0), but as noted
-it doesn't work with sparc.  A satisfying approach would be to create
-the new primitive up_down, which simplifies everything dramatically.
+  I need /all/ read requests to go to disk, and it'd
+be nice if I could do that without a reboot (but I'll
+take the reboot if that's the only way to go about it
+:)
 
---
-Daniel
+  Thanks again,
+  	Al
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Shopping - Thousands of Stores. Millions of Products.
+http://shopping.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267591AbSKQU1S>; Sun, 17 Nov 2002 15:27:18 -0500
+	id <S267583AbSKQUWJ>; Sun, 17 Nov 2002 15:22:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267593AbSKQU1S>; Sun, 17 Nov 2002 15:27:18 -0500
-Received: from guru.webcon.net ([66.11.168.140]:39829 "EHLO guru.webcon.net")
-	by vger.kernel.org with ESMTP id <S267591AbSKQU1R>;
-	Sun, 17 Nov 2002 15:27:17 -0500
-Date: Sun, 17 Nov 2002 15:33:03 -0500 (EST)
-From: Ian Morgan <imorgan@webcon.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.4.20-rc1-ac4 p4-clockmod.c cpu_has_ht undeclared
-Message-ID: <Pine.LNX.4.44.0211171530420.12883-100000@light.webcon.net>
-Organization: "Webcon, Inc."
+	id <S267585AbSKQUWJ>; Sun, 17 Nov 2002 15:22:09 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:14773 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S267583AbSKQUWI>;
+	Sun, 17 Nov 2002 15:22:08 -0500
+Date: Sun, 17 Nov 2002 22:45:35 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Luca Barbieri <ldb@ldb.ods.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] threading fix, tid-2.5.47-A3
+In-Reply-To: <1037564166.1597.119.camel@ldb>
+Message-ID: <Pine.LNX.4.44.0211172243360.19793-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seems -ac4 is missing some part of a patch? "cpu_has_ht" doesn't show up
-anywhere else in the entire source tree.
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.20-rc1-ac4+fs199+acpi20021101/include
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
--fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2
--march=i686   -nostdinc -iwithprefix include -DKBUILD_BASENAME=p4_clockmod
--c -o p4-clockmod.o p4-clockmod.c
-p4-clockmod.c: In function pufreq_p4_setdc':
-p4-clockmod.c:72: pu_has_ht' undeclared (first use in this function)
-p4-clockmod.c:72: (Each undeclared identifier is reported only once
-p4-clockmod.c:72: for each function it appears in.)
-make[1]: *** [p4-clockmod.o] Error 1
+On 17 Nov 2002, Luca Barbieri wrote:
 
-Regards,
-Ian Morgan
+> No, but since I don't see any advantage in breaking it (other than a
+> more aesthetically pleasing header), why break it? The problem is just
+> the numbering of the flags, not the new functionality.
 
--- 
--------------------------------------------------------------------
- Ian E. Morgan          Vice President & C.O.O.       Webcon, Inc.
- imorgan@webcon.ca          PGP: #2DA40D07           www.webcon.ca
-    *  Customized Linux network solutions for your business  *
--------------------------------------------------------------------
+tiny bits of aesthetics, like clean ordering of the flag values, is what
+makes for a clean and easy to understand source tree. Lets do it while we
+can do it.
+
+	Ingo
 

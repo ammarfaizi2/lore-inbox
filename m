@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262651AbRFBS2E>; Sat, 2 Jun 2001 14:28:04 -0400
+	id <S262655AbRFBSdo>; Sat, 2 Jun 2001 14:33:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262655AbRFBS1y>; Sat, 2 Jun 2001 14:27:54 -0400
-Received: from [62.59.153.149] ([62.59.153.149]:12418 "HELO
-	localhost.localdomain") by vger.kernel.org with SMTP
-	id <S262651AbRFBS1q>; Sat, 2 Jun 2001 14:27:46 -0400
-Date: Sat, 2 Jun 2001 20:27:04 +0200
-From: Remi Turk <remi@a2zis.com>
-To: Jonathan Lundell <jlundell@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Configure.help is complete
-Message-ID: <20010602202704.F1297@localhost.localdomain>
-Mail-Followup-To: Jonathan Lundell <jlundell@pobox.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0105311555250.17748-100000@weyl.math.psu.edu> <3B178E0E.A4530D47@egenera.com> <20010601145900.C12402@khan.acc.umu.se> <p05100308b73d672c7f2b@[207.213.214.37]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262658AbRFBSde>; Sat, 2 Jun 2001 14:33:34 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:26121
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S262655AbRFBSda> convert rfc822-to-8bit; Sat, 2 Jun 2001 14:33:30 -0400
+Date: Sat, 02 Jun 2001 14:33:19 -0400
+From: Chris Mason <mason@suse.com>
+To: Andreas Hartmann <andihartmann@freenet.de>
+cc: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.5 and all ac-Patches] massive file corruption with reiser
+ or NFS
+Message-ID: <318710000.991506799@tiny>
+In-Reply-To: <01060220134401.04097@athlon>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <p05100308b73d672c7f2b@[207.213.214.37]>; from jlundell@pobox.com on Fri, Jun 01, 2001 at 08:45:17AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 01, 2001 at 08:45:17AM -0700, Jonathan Lundell wrote:
-> >>  It allows a general interface to the kernel that does not require new
-> >>  syscalls/ioctls and can be accessed from user space without specifically
-> >>  compiled programs. You can use shell scripts, java, command line etc.
-> >
-> >Yes, and it's also totally non standardised.
-> 
-> It clearly fills a need, though, and has the distinct side benefit of 
-> cutting down on the proliferation of ioctls. Sure, it's non-standard 
-> and a mess. But it's semi-documented, easy to use, and v. general. 
-> What's the preferred alternative, to state the first question another 
-> way? For any single small project/driver, creating a new fs simply 
-> isn't going to happen.
-> -- 
-> /Jonathan Lundell.
 
-If I understand Al Viro correctly we'll get per driver filesystems
-in 2.5 (based on ramfs) which you can union-mount on /proc
-(possibly using autofs) to get the current /proc tree.
 
-Happy Hacking.
+On Saturday, June 02, 2001 08:13:44 PM +0200 Andreas Hartmann
+<andihartmann@freenet.de> wrote:
 
--- 
-Linux 2.4.5-ac6 #1 Fri Jun 1 17:12:42 CEST 2001
+> Am Samstag,  2. Juni 2001 18:42 schrieben Sie:
+>> On Saturday, June 02, 2001 02:41:04 PM +0200 Andreas Hartmann
+>> >> <andihartmann@freenet.de> wrote:
+>> > Am Samstag,  2. Juni 2001 12:52 schrieb Rasmus Bøg Hansen:
+>> >> On Sat, 2 Jun 2001, Andreas Hartmann wrote:
+>> >> > I got massive file corruptions with the kernels mentioned in the
+>> >> > subject. I can reproduce it every time.
+>> >> > >> >> >> You cannot use NFS on reiserfs unless you apply the knfsd patch.
+>> >> >> Look at
+>> >> >> >> www.namesys.com.
+>> >> >> > > Thank you very much for your advice.
+>> > > I tested your suggestion and run the machine without NFS-mounted
+>> > > devices
+>> > >> > - it  seems to be working fine. > > Anyway - I'm wondering why I didn't
+>> > get any problem until 2.4.4ac10 with this  configuration without the
+>> > appropriate patch on the client or on the server?
+>> >> The problem only happens when the clients do an operation on a file that
+>> has gone out of cache on the server.  Under light load, this might happen
+>> very rarely.
+> > The load didn't change. YOu can forget the load, it's very small. It's my 
+> private server and I'm doing always the same thing via NFS - compiling
+> e.g.  This has been working fine until 2.4.4.ac10, afterwards it has been
+> broken.
+
+Ok, there are two different problems here.  The patch you posted to l-k is
+a generic NFS fix for 2.4.5.  ext2 would need this too.
+
+If you are serving NFS from your reiserfs disk, you need an additional
+patch on the server only (this is the one I was talking about).  Checkout
+the FAQ on www.namesys.com for all the details.
+
+-chris
+

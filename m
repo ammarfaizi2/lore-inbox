@@ -1,58 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269184AbUJFKIa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269186AbUJFKKM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269184AbUJFKIa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 06:08:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269186AbUJFKIa
+	id S269186AbUJFKKM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 06:10:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269187AbUJFKKM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 06:08:30 -0400
-Received: from mail.humboldt.co.uk ([81.2.65.18]:20191 "EHLO
-	mail.humboldt.co.uk") by vger.kernel.org with ESMTP id S269184AbUJFKI3
+	Wed, 6 Oct 2004 06:10:12 -0400
+Received: from mta13.adelphia.net ([68.168.78.44]:15007 "EHLO
+	mta13.adelphia.net") by vger.kernel.org with ESMTP id S269186AbUJFKJv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 06:08:29 -0400
-Subject: Re: [RFC] ARM binutils feature churn causing kernel problems
-From: Adrian Cox <adrian@humboldt.co.uk>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Richard Earnshaw <Richard.Earnshaw@arm.com>, linux-kernel@vger.kernel.org,
-       Catalin Marinas <Catalin.Marinas@arm.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Sam Ravnborg <sam@ravnborg.org>
-In-Reply-To: <20041005145140.E6910@flint.arm.linux.org.uk>
-References: <20040927210305.A26680@flint.arm.linux.org.uk>
-	 <20041001211106.F30122@flint.arm.linux.org.uk> <tnxllemvgi7.fsf@arm.com>
-	 <1096931899.32500.37.camel@localhost.localdomain>
-	 <loom.20041005T130541-400@post.gmane.org>
-	 <20041005125324.A6910@flint.arm.linux.org.uk>
-	 <1096981035.14574.20.camel@pc960.cambridge.arm.com>
-	 <20041005141452.B6910@flint.arm.linux.org.uk>
-	 <1096983608.14574.32.camel@pc960.cambridge.arm.com>
-	 <20041005145140.E6910@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Message-Id: <1097057299.5332.15.camel@newt>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 06 Oct 2004 11:08:20 +0100
+	Wed, 6 Oct 2004 06:09:51 -0400
+Message-ID: <4163C46A.2050004@nodivisions.com>
+Date: Wed, 06 Oct 2004 06:09:46 -0400
+From: Anthony DiSante <orders@nodivisions.com>
+Reply-To: orders@nodivisions.com
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: KVM -> jumping mouse... still no solution?
+References: <4163845C.9020900@nodivisions.com> <1097047425.3745.92.camel@scs13>
+In-Reply-To: <1097047425.3745.92.camel@scs13>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-10-05 at 14:51, Russell King wrote:
-> On Tue, Oct 05, 2004 at 02:40:08PM +0100, Richard Earnshaw wrote:
+Rajendra P Mishra wrote:
+>>I first got a KVM switch around the time of kernel 2.2.something, and when 
+>>using it to switch to a Linux system, the mouse "freaks out."  It's fine if 
+>>you don't move it, but if you move it N/E/NE it's really slow and jerky, and 
+>>if you move it S/W/SW even a hair, it slams down to the SW corner of the 
+>>screen and acts like you hit all the mouse's buttons 50 times simultaneously.
+>>
+>>When switching to an MS Windows system (any version from 98 on up; haven't 
+>>tried anything earlier) the mouse works fine, it just pauses for maybe a 
+>>second at first, during which I assume it's doing some kind of PS/2 reset.
+>>
+>>It used to be that switching out of X-windows with Ctrl-Alt-F[1-6] and then 
+>>back to VT7 would reset the mouse, but that hasn't worked in about a year 
+>>for me.  I was also able to run a little script to send a few specific chars 
+>>to the mouse device that seemed to reset it... that too no longer works. 
+>>The only thing that works now is unplugging the mouse from the KVM and then 
+>>back in.
+>>
+>>The other day I came across this (kerneltrap.org/node/view/2199): "Use 
+>>psmouse.proto=bare on the kernel command line, or proto=bare on the
+>>psmouse module command line."  But that makes the mouse's scroll-wheel not 
+>>work.  (And this problem doesn't exist with some of the mouse drivers, but 
+>>it does with IMPS/2, which is the only one I've ever been able to get the 
+>>scroll wheel working with.)
+>>
+>>Is there really no solution to this problem?  If Microsoft can figure it 
+>>out, I'm sure someone in the Linux community can... not that I'm 
+>>volunteering, of course...
+ >
+ > One quick solution I know of is to restart the gpm daemon,
+ > (/etc/init.d/gpm  restart) that resets the mouse settings.
+ > But this is not the correct way, there should be some way
+ > where the driver automatically detects and resets the mouse.
+ >
 
-> > Looking at the output of nm -fsysv shows that currently the mapping
-> > symbols are being incorrectly typed (the EABI requires them to be
-> > STT_NOTYPE, but the previous ELF specification -- not supported by GNU
-> > utils -- required them to be typed by the data they addressed.  I'll
-> > submit a patch for that shortly).
-> 
-> Ugg - in that case, we need to go with the "match the name" version
-> until these changes in binutils have matured (== 2 or 3 years time.)
+That doesn't work for me either.  Hmm... maybe it's because I'm using a 
+Microsoft mouse... only plays nice with Windows systems?
 
-Why does the Linux ARM ABI have to have any relation to the ARM EABI?
-The PowerPC has had two different ABIs for years, and it's not caused us
-any trouble. Can't we just leave the behaviour of binutils alone when
-configured for an arm-linux target, and put all feature churn into an
-arm-eabi target?
-
-- Adrian Cox
-Humboldt Solutions Ltd.
-
-
+-Anthony DiSante
+http://nodivisions.com/

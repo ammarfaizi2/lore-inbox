@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314417AbSEUMfl>; Tue, 21 May 2002 08:35:41 -0400
+	id <S314409AbSEUMgB>; Tue, 21 May 2002 08:36:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314409AbSEUMfk>; Tue, 21 May 2002 08:35:40 -0400
-Received: from kim.it.uu.se ([130.238.12.178]:19587 "EHLO kim.it.uu.se")
-	by vger.kernel.org with ESMTP id <S314422AbSEUMfj>;
-	Tue, 21 May 2002 08:35:39 -0400
-From: Mikael Pettersson <mikpe@csd.uu.se>
+	id <S314422AbSEUMgA>; Tue, 21 May 2002 08:36:00 -0400
+Received: from tomts16-srv.bellnexxia.net ([209.226.175.4]:28665 "EHLO
+	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S314409AbSEUMf6>; Tue, 21 May 2002 08:35:58 -0400
+Message-ID: <000d01c200c4$4d0b9570$5132a8c0@AVANSUN.COM>
+From: "Claude Lamy" <clamy@sunrisetelecom.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Fw: /usr/include/asm/system.h
+Date: Tue, 21 May 2002 08:37:42 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <15594.16140.857729.697091@kim.it.uu.se>
-Date: Tue, 21 May 2002 14:35:24 +0200
-To: Christoph Hellwig <hch@infradead.org>
-Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] possible fix for broken floppy driver since 2.5.13
-In-Reply-To: <20020521132451.A13419@infradead.org>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig writes:
- > On Mon, May 20, 2002 at 07:01:52PM +0200, Mikael Pettersson wrote:
- > > Since 2.5.13 I've been unable to use drivers/block/floppy.c.
- > > There were two symptoms: /dev/fd0 was read-only until after
- > > the first read, and writes wrote currupt data to the media.
- > > 
- > > The patch below against 2.5.16 fixes these problems for me:
- > > 
- > > - The read-only problem was caused by a getblk() call in
- > >   floppy_revalidate() which had been commented out (2.5.13
- > >   did away with getblk() altogether.) This call is necessary,
- > >   so the patch reintroduces a private getblk() in floppy.c.
- > 
- > Please don't use getblk(), but go directly through the bio interface.
- > In 2.5 the buffer_heads are just a legacy interface for filesystems and
- > are not supposed to be used by lowlevel drivers.
 
-I haven't got a clue on how to program Linux' block I/O interfaces.
-Show me how to do a modern equivalent of getblk(dev,0,1024) + waiting
-for the operation to complete and I'll update the patch ASAP.
+----- Original Message -----
+From: "Rupert Wood" <me@rupey.net>
+To: "'Claude Lamy'" <clamy@sunrisetelecom.com>
+Cc: <gcc-help@gcc.gnu.org>
+Sent: Thursday, May 09, 2002 8:12 AM
+Subject: RE: /usr/include/asm/system.h
 
-/Mikael
+
+> Claude Lamy wrote:
+>
+> > I am running a Mandrake 8.1 linux distribution with gcc 2.96.  In
+> > the file /usr/include/asm/system.h, the function __cmpxchg uses a
+> > parameter named "new" which is a reserved keyword in C++.  I can
+> > modify the header file for myself but I think it should be changed (if
+not
+> > already) for future releases.
+>
+> Actually the system headers belong to the system C library and not GCC;
+> in this case, however, that file belongs to the linux kernel
+> (linux/include/asm-i386/system.h).
+>
+> It still contains 'new' in the latest 2.4 and 2.5 kernel trees. You may
+> wish to report it to them instead.
+>
+> I'm not well up enough on the C and C++ standards to know if this is
+> really a problem - there may be ways that it's supposed to compile
+> anyway, and it appears to have survived for some time.
+>
+> Rup.
+

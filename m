@@ -1,85 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261198AbRGBJSa>; Mon, 2 Jul 2001 05:18:30 -0400
+	id <S261274AbRGBJ0A>; Mon, 2 Jul 2001 05:26:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261274AbRGBJSL>; Mon, 2 Jul 2001 05:18:11 -0400
-Received: from 35.roland.net ([65.112.177.35]:58125 "EHLO earth.roland.net")
-	by vger.kernel.org with ESMTP id <S261198AbRGBJSE>;
-	Mon, 2 Jul 2001 05:18:04 -0400
-Message-ID: <016601c102d7$f6b29f10$bb1cfa18@JimWS>
-From: "Jim Roland" <jroland@roland.net>
-To: "J Sloan" <jjs@mirai.cx>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <NOEJJDACGOHCKNCOGFOMKEMFCDAA.davids@webmaster.com> <3B3FBA4C.60409@kalifornia.com> <009901c10290$e86b5920$bb1cfa18@JimWS> <3B3FF9D7.9582B05B@mirai.cx>
-Subject: Re: Uncle Sam Wants YOU!
-Date: Mon, 2 Jul 2001 04:18:31 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S261385AbRGBJZk>; Mon, 2 Jul 2001 05:25:40 -0400
+Received: from mail18.bigmailbox.com ([209.132.220.49]:1807 "EHLO
+	mail18.bigmailbox.com") by vger.kernel.org with ESMTP
+	id <S261274AbRGBJZ3>; Mon, 2 Jul 2001 05:25:29 -0400
+Date: Mon, 2 Jul 2001 02:25:23 -0700
+Message-Id: <200107020925.CAA13222@mail18.bigmailbox.com>
+Content-Type: text/plain
+Content-Disposition: inline
+Content-Transfer-Encoding: binary
+X-Mailer: MIME-tools 4.104 (Entity 4.116)
+Mime-Version: 1.0
+X-Originating-Ip: [64.40.52.131]
+From: "Colin Bayer" <colin_bayer@compnerd.net>
+To: linux-kernel@vger.kernel.org
+Subject: Sticky IO-APIC problem
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+'K, here's the deal.
 
------ Original Message -----
-From: "J Sloan" <jjs@mirai.cx>
-To: "Jim Roland" <jroland@roland.net>
-Sent: Sunday, July 01, 2001 11:34 PM
-Subject: Re: Uncle Sam Wants YOU!
+I have a Pentium III 933/133 (Coppermine, stepping 6) in an Intel-manufactured i810 motherboard (hey, I know it's a lame chipset, but it was on sale).  On boot, the kernel (version 2.4.6-pre8) identifies and maps the IO-APIC onboard, but does not assign any IRQs to it.
 
+The relevant boot log snippet follows.
 
-> Jim Roland wrote:
->
-> > I don't see them taking RedHat or Slackware away from me!
->
-> I see your point, but in a very real sense they
-> are taking red hat or slackware from you -
->
-> They have been pushing the industry frantically
-> to make ms windows the standard and deprecate
-> everything else - many people have discovered
-> the frustration of "microsoft-only" web sites and
-> software which exists for windows only.
->
-> For those who find that they can no longer
-> connect to their isp unless they are running
-> ms windows, it's a rude awakening.
->
-> Sure, you can keep using slackware, but
-> you won't be able to connect to the internet
-> if they have their way - won't that be lovely?
+[root@fortytwo i386]# cat /var/log/dmesg
+ ...
+ ...
+mapped APIC to ffffe000 (0121c000)
+Kernel command line: auto BOOT_IMAGE=linux-test ro root=307 BOOT_FILE=/boot/vmlinuz-2.4.6-pre8 devfs=mount pirq=9,4
+PIRQ redirection, working around broken MP-BIOS.
+... PIRQ0 -> IRQ 9
+... PIRQ1 -> IRQ 4
+ ...
+ ...
 
-Sorry, I can't disagree more.  Nobody is stopping me from purchasing RedHat
-or any other Linux Distro at Frys Electronics, online, or downloading a free
-(legal) copy of it.  Nobody is stopping me from installing it on a PC, and
-nobody stops me from connecting to the internet with it.  In fact, my
-windows machine connects to the same internet connection (cablemodem) as my
-linux systems, all behind a firewall appliance which actually touches the
-interface.
+And /proc/interrupts:
+[root@fortytwo i386]# cat /proc/interrupts
+           CPU0
+  0:      79409          XT-PIC  timer
+  1:       5911          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  4:        990          XT-PIC  es1371
+  8:          1          XT-PIC  rtc
+  9:      26402          XT-PIC  usb-uhci, serial
+ 11:      16473          XT-PIC  i810@PCI:0:1:0
+ 14:       5152          XT-PIC  ide0
+ 15:         47          XT-PIC  ide1
+NMI:          0
+ERR:          0
+MIS:          0
+[root@fortytwo i386]# 
 
-Fact remains, TCP/IP and IPv6 are RFC STANDARDS not Microsoft standards.
-Even so, there are ways around the MS-CHAP issues preventing connections to
-the internet to allow Linux systems that speak STRAIGHT TCP/IP.  See also,
-GTE.  GTE about 3 years ago had their network fixed so that Microsoft
-systems could only connect, their modem pools literally hung up the line if
-you were using anything non-Microsoft.  Currently, as long as you
-authenticate with them properly, they don't care what you use.
+This problem also occurs when booting without the pirq switch. I've configured everything the way it's mentioned in Documentation/i386/IO-APIC.txt, but it doesn't help.  Anyway, thx in advance for the help.
 
-How would you expain the Cisc's, Linksys's, etc?  They aren't Microsoft,
-besides they pass IP over the wire, any IP-compatible machine will connect
-to it.
+     -- Colin
 
-Simply put, where I live (a top 10 metro area) there are plenty of ISPs that
-accept dial-ins from any system that authenticates PAP or CHAP/MS-CHAP.
-
-
-Like I've been saying before...stop blaming the "Dark Empire" and let's all
-come up with solutions to beat them at their own game.
-
-I'm done with this subject, it's aleady older that the science experiment
-leftovers in my refrigerator.
-
+------------------------------------------------------------
+The CompNerd Network: http://www.compnerd.com/
+Where a nerd can be a nerd.  Get your free webmail@compnerd.net!

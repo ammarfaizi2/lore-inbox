@@ -1,43 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277829AbRJWP5f>; Tue, 23 Oct 2001 11:57:35 -0400
+	id <S277831AbRJWP6F>; Tue, 23 Oct 2001 11:58:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277825AbRJWP5S>; Tue, 23 Oct 2001 11:57:18 -0400
-Received: from butterblume.comunit.net ([192.76.134.57]:5129 "EHLO
-	butterblume.comunit.net") by vger.kernel.org with ESMTP
-	id <S277829AbRJWP43>; Tue, 23 Oct 2001 11:56:29 -0400
-Date: Tue, 23 Oct 2001 17:57:02 +0200 (CEST)
-From: Sven Koch <haegar@sdinet.de>
-X-X-Sender: <haegar@space.comunit.de>
-To: Alex Buell <alex.buell@tahallah.demon.co.uk>
-cc: Dale Amon <amon@vnl.com>, <linux-kernel@vger.kernel.org>
-Subject: [OT] Re: ALERT!!!! Attempt to outlaw open source Operating systems
-In-Reply-To: <Pine.LNX.4.33.0110231615550.1054-100000@tahallah.demon.co.uk>
-Message-ID: <Pine.LNX.4.33.0110231755420.23361-100000@space.comunit.de>
+	id <S277828AbRJWP5t>; Tue, 23 Oct 2001 11:57:49 -0400
+Received: from colorfullife.com ([216.156.138.34]:52234 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S277825AbRJWP5f>;
+	Tue, 23 Oct 2001 11:57:35 -0400
+Message-ID: <001401c15bdb$85030e60$010411ac@local>
+From: "Manfred Spraul" <manfred@colorfullife.com>
+To: "\"Richard B. Johnson\"" <root@chaos.analogic.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Behavior of poll() within a module
+Date: Tue, 23 Oct 2001 17:58:03 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Oct 2001, Alex Buell wrote:
-
-> On Tue, 23 Oct 2001, Dale Amon wrote:
 >
-> > http://www.newsforge.com/article.pl?sid=01/10/19/154624
+> The following actual module code:
 >
-> Nothing there. Try again.
+> static unsigned int vxi_poll(struct file *fp, struct poll_table_struct *wait)
+> {
+>     unsigned long flags;
+>     unsigned int mask;
+>     DEB(printk("vxi_poll\n"));
+>     info->poll_active++;
+>     poll_wait(fp, &info->wait, wait);
+>     spin_lock_irqsave(&vxi_lock, flags);
+>     mask = info->poll_mask;
+>     if(!--info->poll_active)
+>         info->poll_mask = 0;
+>     spin_unlock_irqrestore(&vxi_lock, flags);
+>     DEB(printk("vxi_poll returns\n"));
+>     return mask;
+> }
+Which module is that? I can't find it in Linus tree.
+Is "info" a global variable?
 
-I think the URL he wanted to transmit is
+* poll is called without any SMP locking, "info->poll_active++" is not SMP safe. Use atomic_inc, or even better just delete that
+line.
+* Clearing poll_mask during poll is wrong.
+poll should return the events that are currently available, i.e. what would happen if read() or write() would be called now.
 
-http://www.newsforge.com/article.pl?sid=01/10/19/1546246&mode=thread
+read() on a non-blocking file handle would return immediately with 1 or more bytes read --> set POLLIN
+write() on a non-blocking file handle would return immediately with a nonzero byte count written--> set POLLOUT.
+The clearing of poll_mask must occur during read() and write() if these conditions are not true anymore.
 
-"SSSCA gets a hearing Oct. 25 -- can it be stopped?"
+--
+    Manfred
 
-c'ya
-sven
 
--- 
 
-The Internet treats censorship as a routing problem, and routes around it.
-(John Gilmore on http://www.cygnus.com/~gnu/)
 

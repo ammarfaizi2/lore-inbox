@@ -1,79 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261951AbUCIOHn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 09:07:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbUCIOHn
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 09:07:43 -0500
-Received: from mail.humboldt.co.uk ([81.2.65.18]:20714 "EHLO
-	mail.humboldt.co.uk") by vger.kernel.org with ESMTP id S261951AbUCIOHZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S261958AbUCIOHZ (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 9 Mar 2004 09:07:25 -0500
-Subject: cdromaudio patch gives up too easily
-From: Adrian Cox <adrian@humboldt.co.uk>
-To: linux-kernel@vger.kernel.org
-Cc: Jens Axboe <axboe@suse.de>
-Content-Type: text/plain
-Message-Id: <1078841242.995.24.camel@newt>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261955AbUCIOHX
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 9 Mar 2004 09:07:23 -0500
+Received: from hc652af67.dhcp.vt.edu ([198.82.175.103]:1664 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261951AbUCIOGw (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 09:06:52 -0500
+Message-Id: <200403090444.i294iZRw002717@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-rc2-mm1 
+In-Reply-To: Your message of "Sun, 07 Mar 2004 22:32:21 PST."
+             <20040307223221.0f2db02e.akpm@osdl.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040307223221.0f2db02e.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 09 Mar 2004 14:07:23 +0000
+Content-Type: multipart/signed; boundary="==_Exmh_911182314P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 08 Mar 2004 23:44:35 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch for DMA based CD reading worked well for me until I tried to
-read the audio from a badly damaged CDR.  At this point the code dropped
-back to the old mechanism and stayed that way for further CDs.
+--==_Exmh_911182314P
+Content-Type: text/plain; charset=us-ascii
 
-The logs below show what happened, running 2.6.4-rc2 with just that
-patch:
+On Sun, 07 Mar 2004 22:32:21 PST, Andrew Morton <akpm@osdl.org>  said:
 
-cdrom: open failed.
-hdc: packet command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: packet command error: error=0x30
-ATAPI device hdc:
-  Error: Medium error -- (Sense key=0x03)
-  (reserved error code) -- (asc=0x57, ascq=0x00)
-  The failed "Prevent/Allow Medium Removal" packet command was:
-  "1e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 "
-cdrom: open failed.
-hdc: packet command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: packet command error: error=0x30
-ATAPI device hdc:
-  Error: Medium error -- (Sense key=0x03)
-  (reserved error code) -- (asc=0x57, ascq=0x00)
-  The failed "Prevent/Allow Medium Removal" packet command was:
-  "1e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 "
-cdrom: cdda rip sense 03/02/00
-cdrom: dropping to old style cdda
-hdc: packet command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: packet command error: error=0x30
-ATAPI device hdc:
-  Error: Medium error -- (Sense key=0x03)
-  (reserved error code) -- (asc=0x02, ascq=0x00)
-  The failed "Read CD" packet command was:
-  "be 04 00 00 00 00 00 00 08 f8 00 00 00 00 00 00 "
+> +dm-maplock.patch
+> 
+>  Add an rwlock to the device mapper maptable management so that
+>  +queue-congestion-dm-implementation.patch does not try to take a semaphore
+>  inside a spinlock.
 
-... and the above pattern eventually becomes this:
-ide-cd: cmd 0xbe timed out
-hdc: irq timeout: status=0xd0 { Busy }
-hdc: irq timeout: error=0xd0LastFailedSense 0x0d
-hdc: ATAPI reset complete
-ide-cd: cmd 0xbe timed out
-hdc: irq timeout: status=0xd0 { Busy }
-hdc: irq timeout: error=0xd0LastFailedSense 0x0d
-hdc: ATAPI reset complete
-ide-cd: cmd 0xbe timed out
-hdc: irq timeout: status=0xd0 { Busy }
-hdc: irq timeout: error=0xd0LastFailedSense 0x0d
-hdc: status timeout: status=0xd0 { Busy }
-hdc: status timeout: error=0xd0LastFailedSense 0x0d
-hdc: drive not ready for command
-hdc: ATAPI reset complete
+Just an ack that this does fix the problem I reported against the -rc1-mm2
+version of the queue-congestion stuff...
 
-At some point in the sequence I killed grip and ejected the CD.
+--==_Exmh_911182314P
+Content-Type: application/pgp-signature
 
-- Adrian Cox
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFATUuycC3lWbTT17ARAm3LAJ9nyV+wHIPRYh0WfmeS5VXisEanCgCfZFss
+i6YAtEdumKzGBk0Hb8Bk4Bo=
+=co4P
+-----END PGP SIGNATURE-----
 
+--==_Exmh_911182314P--

@@ -1,42 +1,141 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262070AbSI3N6Z>; Mon, 30 Sep 2002 09:58:25 -0400
+	id <S262099AbSI3Npi>; Mon, 30 Sep 2002 09:45:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262120AbSI3N53>; Mon, 30 Sep 2002 09:57:29 -0400
-Received: from [203.117.131.12] ([203.117.131.12]:50388 "EHLO
-	gort.metaparadigm.com") by vger.kernel.org with ESMTP
-	id <S262070AbSI3Nxv>; Mon, 30 Sep 2002 09:53:51 -0400
-Message-ID: <3D9858AE.7080606@metaparadigm.com>
-Date: Mon, 30 Sep 2002 21:59:10 +0800
-From: Michael Clark <michael@metaparadigm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+	id <S262069AbSI3NpU>; Mon, 30 Sep 2002 09:45:20 -0400
+Received: from d06lmsgate-4.uk.ibm.com ([195.212.29.4]:26859 "EHLO
+	d06lmsgate-4.uk.ibm.COM") by vger.kernel.org with ESMTP
+	id <S262070AbSI3Nno> convert rfc822-to-8bit; Mon, 30 Sep 2002 09:43:44 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Organization: IBM Deutschland GmbH
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] 2.5.39 s390 (10/26): bitops bug.
+Date: Mon, 30 Sep 2002 14:54:57 +0200
+X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
-To: Kevin Corry <corryk@us.ibm.com>
-Cc: Matthias Andree <matthias.andree@gmx.de>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: v2.6 vs v3.0
-References: <200209290114.15994.jdickens@ameritech.net> <20020929214652.GF12928@merlin.emma.line.org> <3D97F7AE.5070304@metaparadigm.com> <02093008055700.15956@boiler>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200209301454.57116.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Kevin,
+Fix broken bitops for unaligned atomic operations on s390.
 
-On 09/30/02 21:05, Kevin Corry wrote:
-> EVMS is now up-to-date and running on 2.5.39. You can get the latest kernel 
-> code from CVS (http://sourceforge.net/cvs/?group_id=25076) or Bitkeepr 
-> (http://evms.bkbits.net/). There will be a new, full release (1.2) coming out 
-> this week.
-
-Seems you guys are the furthest ahead for a working logical volume manager
-in 2.5. Does the EVMS team plan to send patches for 2.5 before the freeze?
-
-It would be great to have EVMS in 2.5 (assuming the community approves of
-EVMS going in). Seems to be very non-invasive touching almost no common code.
-
-How far along are you with the clustering support (distributed locking of
-cluster metadata and update notification, etc)? This is what i'm really after.
-
-~mc
+diff -urN linux-2.5.39/include/asm-s390/bitops.h linux-2.5.39-s390/include/asm-s390/bitops.h
+--- linux-2.5.39/include/asm-s390/bitops.h	Fri Sep 27 23:48:38 2002
++++ linux-2.5.39-s390/include/asm-s390/bitops.h	Mon Sep 30 13:32:13 2002
+@@ -59,8 +59,8 @@
+ 
+ 	addr = (unsigned long) ptr;
+ #if ALIGN_CS == 1
+-	addr ^= addr & 3;		/* align address to 4 */
+ 	nr += (addr & 3) << 3;		/* add alignment to bit number */
++	addr ^= addr & 3;		/* align address to 4 */
+ #endif
+ 	addr += (nr ^ (nr & 31)) >> 3;	/* calculate address for CS */
+ 	mask = 1UL << (nr & 31);	/* make OR mask */
+@@ -84,8 +84,8 @@
+ 
+ 	addr = (unsigned long) ptr;
+ #if ALIGN_CS == 1
+-	addr ^= addr & 3;		/* align address to 4 */
+ 	nr += (addr & 3) << 3;		/* add alignment to bit number */
++	addr ^= addr & 3;		/* align address to 4 */
+ #endif
+ 	addr += (nr ^ (nr & 31)) >> 3;	/* calculate address for CS */
+ 	mask = ~(1UL << (nr & 31));	/* make AND mask */
+@@ -109,8 +109,8 @@
+ 
+ 	addr = (unsigned long) ptr;
+ #if ALIGN_CS == 1
+-	addr ^= addr & 3;		/* align address to 4 */
+ 	nr += (addr & 3) << 3;		/* add alignment to bit number */
++	addr ^= addr & 3;		/* align address to 4 */
+ #endif
+ 	addr += (nr ^ (nr & 31)) >> 3;	/* calculate address for CS */
+ 	mask = 1UL << (nr & 31);	/* make XOR mask */
+@@ -160,8 +160,8 @@
+ 
+ 	addr = (unsigned long) ptr;
+ #if ALIGN_CS == 1
+-	addr ^= addr & 3;		/* align address to 4 */
+ 	nr += (addr & 3) << 3;		/* add alignment to bit number */
++	addr ^= addr & 3;		/* align address to 4 */
+ #endif
+ 	addr += (nr ^ (nr & 31)) >> 3;	/* calculate address for CS */
+ 	mask = ~(1UL << (nr & 31));	/* make AND mask */
+@@ -186,8 +186,8 @@
+ 
+ 	addr = (unsigned long) ptr;
+ #if ALIGN_CS == 1
+-	addr ^= addr & 3;		/* align address to 4 */
+ 	nr += (addr & 3) << 3;		/* add alignment to bit number */
++	addr ^= addr & 3;		/* align address to 4 */
+ #endif
+ 	addr += (nr ^ (nr & 31)) >> 3;	/* calculate address for CS */
+ 	mask = 1UL << (nr & 31);	/* make XOR mask */
+diff -urN linux-2.5.39/include/asm-s390x/bitops.h linux-2.5.39-s390/include/asm-s390x/bitops.h
+--- linux-2.5.39/include/asm-s390x/bitops.h	Mon Sep 30 13:25:21 2002
++++ linux-2.5.39-s390/include/asm-s390x/bitops.h	Mon Sep 30 13:32:13 2002
+@@ -63,8 +63,8 @@
+ 
+ 	addr = (unsigned long) ptr;
+ #if ALIGN_CS == 1
+-	addr ^= addr & 7;		/* align address to 8 */
+ 	nr += (addr & 7) << 3;		/* add alignment to bit number */
++	addr ^= addr & 7;		/* align address to 8 */
+ #endif
+ 	addr += (nr ^ (nr & 63)) >> 3;	/* calculate address for CS */
+ 	mask = 1UL << (nr & 63);	/* make OR mask */
+@@ -88,8 +88,8 @@
+ 
+ 	addr = (unsigned long) ptr;
+ #if ALIGN_CS == 1
+-	addr ^= addr & 7;		/* align address to 8 */
+ 	nr += (addr & 7) << 3;		/* add alignment to bit number */
++	addr ^= addr & 7;		/* align address to 8 */
+ #endif
+ 	addr += (nr ^ (nr & 63)) >> 3;	/* calculate address for CS */
+ 	mask = ~(1UL << (nr & 63));	/* make AND mask */
+@@ -113,8 +113,8 @@
+ 
+ 	addr = (unsigned long) ptr;
+ #if ALIGN_CS == 1
+-	addr ^= addr & 7;		/* align address to 8 */
+ 	nr += (addr & 7) << 3;		/* add alignment to bit number */
++	addr ^= addr & 7;		/* align address to 8 */
+ #endif
+ 	addr += (nr ^ (nr & 63)) >> 3;	/* calculate address for CS */
+ 	mask = 1UL << (nr & 63);	/* make XOR mask */
+@@ -139,8 +139,8 @@
+ 
+ 	addr = (unsigned long) ptr;
+ #if ALIGN_CS == 1
+-	addr ^= addr & 7;		/* align address to 8 */
+ 	nr += (addr & 7) << 3;		/* add alignment to bit number */
++	addr ^= addr & 7;		/* align address to 8 */
+ #endif
+ 	addr += (nr ^ (nr & 63)) >> 3;	/* calculate address for CS */
+ 	mask = 1UL << (nr & 63);	/* make OR/test mask */
+@@ -166,8 +166,8 @@
+ 
+ 	addr = (unsigned long) ptr;
+ #if ALIGN_CS == 1
+-	addr ^= addr & 7;		/* align address to 8 */
+ 	nr += (addr & 7) << 3;		/* add alignment to bit number */
++	addr ^= addr & 7;		/* align address to 8 */
+ #endif
+ 	addr += (nr ^ (nr & 63)) >> 3;	/* calculate address for CS */
+ 	mask = ~(1UL << (nr & 63));	/* make AND mask */
+@@ -193,8 +193,8 @@
+ 
+ 	addr = (unsigned long) ptr;
+ #if ALIGN_CS == 1
+-	addr ^= addr & 7;		/* align address to 8 */
+ 	nr += (addr & 7) << 3;		/* add alignment to bit number */
++	addr ^= addr & 7;		/* align address to 8 */
+ #endif
+ 	addr += (nr ^ (nr & 63)) >> 3;	/* calculate address for CS */
+ 	mask = 1UL << (nr & 63);	/* make XOR mask */
 

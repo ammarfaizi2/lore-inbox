@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267347AbTAQAz4>; Thu, 16 Jan 2003 19:55:56 -0500
+	id <S267352AbTAQBnt>; Thu, 16 Jan 2003 20:43:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267348AbTAQAz4>; Thu, 16 Jan 2003 19:55:56 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:51216 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267347AbTAQAzz>;
-	Thu, 16 Jan 2003 19:55:55 -0500
-Date: Thu, 16 Jan 2003 17:04:16 -0800
-From: Greg KH <greg@kroah.com>
+	id <S267353AbTAQBnt>; Thu, 16 Jan 2003 20:43:49 -0500
+Received: from dp.samba.org ([66.70.73.150]:61087 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267352AbTAQBnt>;
+	Thu, 16 Jan 2003 20:43:49 -0500
+Date: Fri, 17 Jan 2003 12:38:27 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
 To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Migrating net/sched to new module interface
-Message-ID: <20030117010416.GB2388@kroah.com>
-References: <20030115063349.A1521@almesberger.net> <20030116013125.ACE0F2C0A3@lists.samba.org> <20030115234258.E1521@almesberger.net> <3E26F6DC.D9150735@linux-m68k.org> <20030116155815.A29595@almesberger.net> <3E2745E8.D8908505@linux-m68k.org>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, dledford@redhat.com
+Subject: Re: [PATCH] Proposed module init race fix.
+Message-Id: <20030117123827.1abaf413.rusty@rustcorp.com.au>
+In-Reply-To: <3E258DA5.4BB14A41@linux-m68k.org>
+References: <20030115082444.13D1A2C128@lists.samba.org>
+	<3E258DA5.4BB14A41@linux-m68k.org>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E2745E8.D8908505@linux-m68k.org>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 17, 2003 at 12:53:12AM +0100, Roman Zippel wrote:
-> Hi,
+On Wed, 15 Jan 2003 17:34:45 +0100
+Roman Zippel <zippel@linux-m68k.org> wrote:
+> >  void add_disk(struct gendisk *disk)
+> >  {
+> > +       /* It needs to be accessible so we can read partitions. */
+> > +       make_module_live(disk->fops->owner);
+> > +
 > 
-> Werner Almesberger wrote:
+> After this the module can be removed without problems.
+
+Good catch!  The core code should hold a reference during init.  This is
+fixed in the new patch.
+
+> >         disk->flags |= GENHD_FL_UP;
+> >         blk_register_region(MKDEV(disk->major, disk->first_minor), disk->minors,
+> >                         NULL, exact_match, exact_lock, disk);
 > 
-> > > You can simplify this. All you need are the following simple functions:
-> > >
-> > > - void register();
-> > > - void unregister();
-> > > - int is_registered();
-> > > - void inc_usecount();
-> > > - void dec_usecount();
-> > > - int get_usecount();
-> > 
-> > I'm not sure if you, you're not changing the semantics.
-> 
-> See above functions as primitives, which one can use to build any other
-> resource management you want.
+> blk_register_region() allocates memory, which can fail?
 
-That same functionality is already present in a kobj for you to use,
-instead of rolling your own resource management code. :)
+Looks like.  But the semantics are the same as before, for better or worse. 8(
 
-(sorry, I couldn't help myself...)
-
-greg k-h
+Thanks!
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbVCOWay@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbVCOWfA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261925AbVCOWay (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 17:30:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVCOW2z
+	id S262026AbVCOWfA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 17:35:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbVCOWdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 17:28:55 -0500
-Received: from coyote.holtmann.net ([217.160.111.169]:63104 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S261989AbVCOW1l
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 17:27:41 -0500
-Subject: Re: [PATCH] Add missing refrigerator calls
-From: Marcel Holtmann <marcel@holtmann.org>
-To: ncunningham@cyclades.com
-Cc: Andrew Morton <akpm@digeo.com>, Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1110924757.6454.132.camel@desktop.cunningham.myip.net.au>
-References: <1110924757.6454.132.camel@desktop.cunningham.myip.net.au>
-Content-Type: text/plain
-Date: Tue, 15 Mar 2005 23:27:19 +0100
-Message-Id: <1110925639.9818.80.camel@pegasus>
+	Tue, 15 Mar 2005 17:33:11 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:265 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261936AbVCOWbS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 17:31:18 -0500
+Date: Tue, 15 Mar 2005 23:31:12 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Pete Clements <clem@clem.clem-digital.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Thomas Graf <tgraf@suug.ch>,
+       davem@davemloft.net, netdev@oss.sgi.com
+Subject: [2.6 patch] export dev_get_flags
+Message-ID: <20050315223112.GX3189@stusta.de>
+References: <200503151852.j2FIqr8t009525@clem.clem-digital.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503151852.j2FIqr8t009525@clem.clem-digital.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nigel,
+On Tue, Mar 15, 2005 at 01:52:53PM -0500, Pete Clements wrote:
 
-> There are a number of threads that currently have no refrigerator
-> handling in Linus' tree. This patch addresses part of that issue. The
-> remainder will be addressed in other patches, following soon.
-> 
-> Signed-off-by: Nigel Cunningham <ncunningham@cyclades.com>
+> Fyi:
+>   2.6.11.3-bk1 net/ipv6/ipv6.ko missing symbol dev_get_flags
 
-I am fine with the net/bluetooth/rfcomm/ part, but what about the bnep/
-and cmtp/ and hidp/ part of the Bluetooth subsystem? Do we need this
-there, too?
+It seems this patch is required (untested).
 
-Regards
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Marcel
+--- linux-2.6.11-mm3-full/net/core/dev.c.old	2005-03-15 20:13:52.000000000 +0100
++++ linux-2.6.11-mm3-full/net/core/dev.c	2005-03-15 20:14:32.000000000 +0100
+@@ -2214,6 +2214,7 @@
+ 
+ 	return flags;
+ }
++EXPORT_SYMBOL_GPL(dev_get_flags);
+ 
+ int dev_change_flags(struct net_device *dev, unsigned flags)
+ {
 
 

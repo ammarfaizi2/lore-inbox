@@ -1,30 +1,35 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <169639-27300>; Thu, 4 Feb 1999 05:33:26 -0500
-Received: by vger.rutgers.edu id <169481-27300>; Thu, 4 Feb 1999 05:19:21 -0500
-Received: from entropy.muc.muohio.edu ([134.53.213.10]:3283 "EHLO entropy.muc.muohio.edu" ident: "list-man") by vger.rutgers.edu with ESMTP id <169428-27302>; Thu, 4 Feb 1999 05:15:59 -0500
-Received: from feuer.his.com ([205.177.100.143]:1257 "HELO feuer.his.com" ident: "qmailr") by vger.rutgers.edu with SMTP id <169451-27302>; Wed, 3 Feb 1999 19:49:17 -0500
-Date: Wed, 3 Feb 1999 20:04:52 -0500 (EST)
-From: David Feuer <david@feuer.his.com>
+Received: by vger.rutgers.edu via listexpand id <169016-27300>; Fri, 5 Feb 1999 07:23:11 -0500
+Received: by vger.rutgers.edu id <161507-27302>; Fri, 5 Feb 1999 07:22:30 -0500
+Received: from viking.informatik.uni-bremen.de ([134.102.204.210]:1042 "EHLO viking.informatik.uni-bremen.de" ident: "steenbo") by vger.rutgers.edu with ESMTP id <168508-27300>; Fri, 5 Feb 1999 07:19:47 -0500
+Date: Fri, 5 Feb 1999 14:38:28 +0100
+Message-Id: <199902051338.OAA00796@viking.informatik.uni-bremen.de>
+From: Hauke <steenbo@viking.informatik.uni-bremen.de>
 To: linux-kernel@vger.rutgers.edu
-Subject: linux-legal
-Message-ID: <Pine.LNX.3.96.990203200242.506M-100000@feuer.his.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: card@Linux.EU.Org
+Subject: ACL-Support for Ext2
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Rik van Riel has created a new list for legal matters,
-linux-legal@nl.linux.org.  Hopefully there will be lots of interesting
-discussions on copyrights, licensing, patents, cryptography, and other
-such topics.  Send mail to majordomo@nl.linux.org with body subscribe
-linux-legal.
+Hello!  
 
-This message has been brought to you by the letter alpha and the number pi.
+We fixed some bugs in the ACL support for ext2 from Remy Card found on tsx-11.
 
-David Feuer
-dfeuer@his.com
-dfeuer@binx.mbhs.edu
-Open Source: Think locally; act globally.
+Based on linux-2.1.99-ext2fs-0.6alpha3-wip11.diff we built a newpatch for the
+linux-2.2.0-pre9-kernel. Also we fixed some bugs in aclutils-0.1.tar.gz. At
+last we applied the e2fsprogs-1.12-WIP-acl-support.patch on e2fsprogs-1.14 and
+made a change in pass1.c so that the blocks used for acl´s are checked by
+e2fsck. We built a system with ACL support that seems to work (with some
+restrictions).
 
+At the moment we are working on our own, but would like to get into contact
+with anyone working on the same.
+
+You can get our results from
+
+http://aerobee.informatik.uni-bremen.de/acl_eng.html
+
+Hauke Steenbock
+Matthias Riese
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

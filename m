@@ -1,79 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272420AbRIFHBQ>; Thu, 6 Sep 2001 03:01:16 -0400
+	id <S272386AbRIFHKu>; Thu, 6 Sep 2001 03:10:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272421AbRIFHBG>; Thu, 6 Sep 2001 03:01:06 -0400
-Received: from [216.6.80.34] ([216.6.80.34]:12811 "EHLO
-	dcmtechdom.dcmtech.co.in") by vger.kernel.org with ESMTP
-	id <S272420AbRIFHAx>; Thu, 6 Sep 2001 03:00:53 -0400
-Message-ID: <7FADCB99FC82D41199F9000629A85D1A01C651FF@dcmtechdom.dcmtech.co.in>
-From: Nitin Dhingra <nitin.dhingra@dcmtech.co.in>
-To: "'Ben Greear'" <greearb@candelatech.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: iSCSI support for Linux??
-Date: Thu, 6 Sep 2001 12:32:26 +0530 
+	id <S272389AbRIFHKi>; Thu, 6 Sep 2001 03:10:38 -0400
+Received: from maa3.cc.lut.fi ([157.24.8.133]:30216 "EHLO maa3.cc.lut.fi")
+	by vger.kernel.org with ESMTP id <S272386AbRIFHK0>;
+	Thu, 6 Sep 2001 03:10:26 -0400
+Date: Thu, 6 Sep 2001 10:10:45 +0300 (EEST)
+From: Mika Yrj|l{ <myrjola@lut.fi>
+Reply-To: <myrjola@lut.fi>
+To: <linux-kernel@vger.kernel.org>
+Subject: Weird behaviour / Trying to vfree() nonexistent vm area message
+Message-ID: <Pine.LNX.4.33.0109060931430.27506-100000@maa3.cc.lut.fi>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ben,
-	That is a pretty old iscsi draft that you have pointed to.
-The latest iscsi draft ver 7 is available from ietf.org
-I have about 5 different code's for iScsi 
+Hi,
 
-1) by Cisco : 
-		I checked the code I guess this one is 
-		working on both client and server Code 
+although I'm not subscribed to the list, I thought to post this message
+because I ran last night into rather exotic behaviour, which could be
+kernel-related. I initially posted to a finnish Linux group and was
+recommended to duplicate the message here. A rough translation of the
+message follows:
 
-2) by Intel : 
-		I checked the code faked on the server side
-		and was based on iscsi draft ver 3.
+I initially noticed that Mozilla didn't respond to user input anymore.
+Because of that, I thought to look for the PID with ps and kill it.
+However, ps printed just a few lines and stopped. The terminal window
+still received keypresses, but the output of ps didn't continue and
+control-c did not break the process. That started to feel a bit weird and
+I tried to run top. This didn't print anything and behaved in the same way
+as ps. I also encountered this problem with w and killall. However, I
+could get still process information from relevant /proc/<pidnumber>/
+files. Additionally, a few lines of C which just printed out the result of
+getpid() call worked nicely.
 
-3) by UNH : 
-		I checked the code faked on the server side
-		and was based on iscsi draft ver 3.
+Additionally, about the same time I noticed the problem an entry to
+/var/log/messages had appeared:
 
-4) by Chris Loveland : 
-		I checked the code faked on the server side
-		I don't remember right now where I got this one's code from
-			
-5) by Ashish A. Palekar : 
-		I checked the code I guess this one is 
-		working on both client and server Code 
-		and was based on iscsi draft ver 3.
-		I don't remember where I got this one's code from
+Sep  6 02:55:40 renttu kernel: Trying to vfree() nonexistent vm area
+(d59d4000)
 
+I tried running "strace ps". The problem seems to be related to the
+following final lines of output:
 
-I guess cisco's code has also implemented authentication & security.
-I think someone gave you the links and you must have d/l by now.
-I guess by the end this year end there will be support for iScsi in 
-Linux Kernel.
+getdents64(6, /* 20 entries */, 1024)   = 576
+stat64("/proc/864", {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+open("/proc/864/stat", O_RDONLY)        = 7
+read(7,
 
-- Nitin
+After that nothing happens. I tried manually reading the corresponding
+file, but the same effect happens with "cat /proc/864/stat". Seems that
+this process (whatever is may be... can't get information about it) is the
+culprit somehow.
 
------Original Message-----
-From: Ben Greear [mailto:greearb@candelatech.com]
-Sent: Wednesday, September 05, 2001 11:13 AM
-To: LKML
-Subject: iSCSI support for Linux??
+The kernel/hardware information:
 
+[myrjola@renttu ~]$ uname -a
+Linux renttu.lnet.lut.fi 2.4.8 #1 Mon Aug 13 07:15:39 EEST 2001 i686
+unknown
 
-Does anyone know of any efforts to support iSCSI in Linux?
+TB 1200 MHz (not overclocked), A7M266, 256 megabytes of DDR memory,
+Sblive!, Geforce 2MX, two IBM hard disks and HP cd-rw drive
 
-Here's the ietf draft if anyone is curious:
-
-http://www.globecom.net/ietf/draft/draft-ietf-ips-iscsi-02.html
-
+If the possible comments would be CC'ed to this address, I'd be grateful.
+Also, I'm keeping the machine up and running in that state until today
+evening in case someone wants me to test something that could be useful in
+finding the cause.
 
 -- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+/-------------------------------------------------------------------------\
+I Fantasy, Sci-fi, Linux, Amiga, Telecommunications, Oldfield, Vangelis    I
+I Seti@Home, Steady relationship, more at http://www.lut.fi/%7emyrjola/    I
+\-------------------------------------------------------------------------/
+

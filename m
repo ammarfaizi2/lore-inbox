@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292971AbSCEXBe>; Tue, 5 Mar 2002 18:01:34 -0500
+	id <S292806AbSCEXEy>; Tue, 5 Mar 2002 18:04:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293650AbSCEXBY>; Tue, 5 Mar 2002 18:01:24 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:3569
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S292971AbSCEXBH>; Tue, 5 Mar 2002 18:01:07 -0500
-Date: Tue, 5 Mar 2002 15:01:43 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Colin Walters <walters@debian.org>
-Cc: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        linux-kernel@vger.kernel.org, opensource@cis.ohio-state.edu
-Subject: Re: [opensource] Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
-Message-ID: <20020305230143.GB5538@matchmail.com>
-Mail-Followup-To: Colin Walters <walters@debian.org>,
-	"Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-	linux-kernel@vger.kernel.org, opensource@cis.ohio-state.edu
-In-Reply-To: <20020305165233.A28212@fireball.zosima.org> <20020305154147.A6211@vger.timpanogas.org> <1015368059.25841.12.camel@space-ghost>
+	id <S292805AbSCEXEq>; Tue, 5 Mar 2002 18:04:46 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:44338 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S292806AbSCEXE2>; Tue, 5 Mar 2002 18:04:28 -0500
+Date: Wed, 6 Mar 2002 00:03:14 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Arjan van de Ven <arjan@fenrus.demon.nl>,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre1aa1
+Message-ID: <20020306000314.M20606@dualathlon.random>
+In-Reply-To: <20020305161032.F20606@dualathlon.random> <Pine.LNX.4.44L.0203051354590.1413-100000@duckman.distro.conectiva> <20020305192604.J20606@dualathlon.random>, <20020305192604.J20606@dualathlon.random>; <20020305183053.A27064@fenrus.demon.nl> <3C8518AE.B44AF2D5@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1015368059.25841.12.camel@space-ghost>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <3C8518AE.B44AF2D5@zip.com.au>
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 05, 2002 at 05:40:59PM -0500, Colin Walters wrote:
-> On Tue, 2002-03-05 at 17:41, Jeff V. Merkey wrote:
-> > It's none of your 
-> > f_cking business what we use to develop software.  I use a hardware
-> > American Arium logic analyzer and a proprietary Linux kernel 
-> > debugger.  Should people be boycotted when they use hardware 
-> > analyzers to debug hardware and software with Linux.  
+On Tue, Mar 05, 2002 at 11:12:46AM -0800, Andrew Morton wrote:
+> Arjan van de Ven wrote:
+> > 
+> > On Tue, Mar 05, 2002 at 07:26:04PM +0100, Andrea Arcangeli wrote:
+> > 
+> > > Another approch would be to add the pages backing the bh into the lru
+> > > too, but then we'd need to mess with the slab and new bitflags, new
+> > > methods and so I don't think it's the best solution. The only good
+> > > reason for putting new kind of entries in the lru would be to age them
+> > > too the same way as the other pages, but we don't need that with the bh
+> > > (they're just in, and we mostly care only about the page age, not the bh
+> > > age).
+> > 
+> > For 2.5 I kind of like this idea. There is one issue though: to make
+> > this work really well we'd probably need a ->prepareforfreepage()
+> > or similar page op (which for page cache pages can be equal to writepage()
+> > ) which the vm can use to prepare this page for freeing.
 > 
-> You apparently missed the fact that the the petition was not against the
-> *use* of proprietary software at all.  In fact, we explicitly mentioned
-> that everyone is free to make that choice individually.  What the
-> petition is against is the *advocacy* of the proprietary BitKeeper
-> software by the kernel maintainers.
+> If we stop using buffer_heads for pagecache I/O, we don't have this problem.
 > 
+> I'm showing a 20% reduction in CPU load for large reads.  Which is a *lot*,
+> given that read load is dominated by copy_to_user.
+> 
+> 2.5 is significantly less efficient than 2.4 at this time.  Some of that 
+> seems to be due to worsened I-cache footprint, and a lot of it is due
+> to the way buffer_heads now have a BIO wrapper layer.
 
-Use is another way of advocacy.  When you start using something, you get
-used to it, and when you talk to others, you end up advocating it because
-it's what you're used to, and probably other options aren't as good (to you).
+Indeed, at the moment bio is making the thing more expensive in CPU
+terms, even if OTOH it makes rawio fly.
 
-IIRC, bitkeeper, is open source.  It just doesn't have a free license.  I
-could be wrong(I haven't checked).  If I am, someone will say so...
+> Take a look at submit_bh().   The writing is on the wall, guys.
+> 
+> -
 
-Mike
+
+Andrea

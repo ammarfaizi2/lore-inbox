@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280749AbRKTGkD>; Tue, 20 Nov 2001 01:40:03 -0500
+	id <S280935AbRKTG4G>; Tue, 20 Nov 2001 01:56:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280934AbRKTGjw>; Tue, 20 Nov 2001 01:39:52 -0500
-Received: from 24-25-196-177.san.rr.com ([24.25.196.177]:13330 "HELO
-	acmay.homeip.net") by vger.kernel.org with SMTP id <S280749AbRKTGjh>;
-	Tue, 20 Nov 2001 01:39:37 -0500
-Date: Mon, 19 Nov 2001 22:39:34 -0800
-From: andrew may <acmay@acmay.homeip.net>
-To: Curt McCutchin <sitruc@mailandnews.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Another wonderful OOPS! (why not tainted?)
-Message-ID: <20011119223934.A20507@ecam.san.rr.com>
-In-Reply-To: <20011119224528.3fae4411.sitruc@mailandnews.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
-In-Reply-To: <20011119224528.3fae4411.sitruc@mailandnews.com>
+	id <S280939AbRKTGz4>; Tue, 20 Nov 2001 01:55:56 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:41224 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S280935AbRKTGzp>; Tue, 20 Nov 2001 01:55:45 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [VM] 2.4.14/15-pre4 too "swap-happy"?
+Date: Tue, 20 Nov 2001 06:50:50 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9tcuga$1gi$1@penguin.transmeta.com>
+In-Reply-To: <20011119173935.A10597@asooo.flowerfire.com> <20011119210941.C10597@asooo.flowerfire.com> <20011120043222.T1331@athlon.random> <20011119235422.F10597@asooo.flowerfire.com>
+X-Trace: palladium.transmeta.com 1006239338 3857 127.0.0.1 (20 Nov 2001 06:55:38 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 20 Nov 2001 06:55:38 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 19, 2001 at 10:45:28PM -0600, Curt McCutchin wrote:
-> -------------
-> -debian woody
-> -kernel 2.4.13 with robert love's preemptable-kernel patch (no visible difference of X snappiness)
-> -reiserfs
-> -ALSA 0.9.0beta8a sound driver
-> -NVidia 1.0-1541 driver
+In article <20011119235422.F10597@asooo.flowerfire.com>,
+Ken Brownfield  <brownfld@irridia.com> wrote:
+>kswapd goes up to 5-10% CPU (vs 3-6) but it finishes without issue or
+>apparent interactivity problems.  I'm keeping it in while( 1 ), but it's
+>been predictable so far.
+>
+>3-10 is a lot better than 99, but is kswapd really going to eat that
+>much CPU in an essentially allocation-less state?
 
-Don't expect anyone to decode the OOPs but one thing that may cause problems is the
-preempt patch and the stock NVidia driver. I think spinlocks get noop'ed in a standard
-kernel build but the SMP builds and the preempt builds have non-trivial spinlocks. 
-You might have a chance to run the SMP NVidia driver with the preempt patch. or you
-may have to wait until the NVidia people build against a kernel with the preempt patch.
+Well, it's obviously not allocation-less: updatedb will really hit on
+the dcache and icache (which are both in the NORMAL zone only, which is
+why Andrea asked for it), and obviously your Oracle load itself seems to
+be happily paging stuff around, which causes a lot of allocations for
+page-ins. 
 
-The nvnews site has a forum for the NVidia driver and you might try this report there.
+It only _looks_ static, because once you find the proper "balance", the
+VM numbers themselves shouldn't change under a constant load.
 
-http://www.nvnews.net/cgi-bin/ultimatebb.cgi?action=intro
+We could make kswapd use less CPU time, of course, simply by making the
+actual working processes do more of the work to free memory.  The total
+work ends up being the same, though, and the advantage of kswapd is that
+it tends to make the freeing slightly more asynchronous, which helps
+throughput. 
 
-The other question would be why did the oops not list the kernel as tainted?
+The _disadvantage_ of kswapd is that if it goes crazy and uses up all
+CPU time, you get bad results ;)
 
-> Nov 19 21:10:42 snotball kernel: EIP:    0010:[<c0148e84>]    Not tainted
-> Nov 19 21:10:42 snotball kernel: EFLAGS: 00013a13
-> Nov 19 21:10:42 snotball kernel: eax: d3b76713   ebx: d3b76780   ecx: d3e08d08   edx: d3b76780
-> Nov 19 21:10:42 snotball kernel: esi: c023d5a0   edi: c1606240   ebp: d3c02940   esp: d58f7eec
-> Nov 19 21:10:42 snotball kernel: ds: 0018   es: 0018   ss: 0018
-> Nov 19 21:10:42 snotball kernel: Process XFree86 (pid: 220, stackpage=d58f7000)
-> Nov 19 21:10:42 snotball kernel: Stack: d3b76780 d3c02940 d3b76780 c01461ad d3b76780 d3b88340 d3b76780 c01351a6 
-> Nov 19 21:10:42 snotball kernel:        d3c02940 d421b0c0 d421b0c0 47813000 d421b3c0 c0125906 d421b0c0 47813000 
-> Nov 19 21:10:42 snotball kernel:        00060000 00000000 c0125cb1 c176ae00 d421b0c0 47813000 00060000 d421b3c0 
-> Nov 19 21:10:42 snotball kernel: Call Trace: [<c01461ad>] [<c01351a6>] [<c0125906>] [<c0125cb1>] [<c01916da>] 
-> Nov 19 21:10:42 snotball kernel:    [<c010c4f6>] [<c0106e5b>] 
-> Nov 19 21:10:42 snotball kernel: Code: 08 89 4a 04 89 11 89 43 08 89 43 0c 80 8b 08 01 00 00 10 ff 
+But it doesn't sound crazy in your load.  I'd be happier if the VM took
+less CPU, of course, but for now we seem to be doing ok.
 
+		Linus

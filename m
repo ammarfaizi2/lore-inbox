@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319182AbSHTOlJ>; Tue, 20 Aug 2002 10:41:09 -0400
+	id <S319165AbSHTOhe>; Tue, 20 Aug 2002 10:37:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319184AbSHTOlJ>; Tue, 20 Aug 2002 10:41:09 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:777 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319182AbSHTOlI>; Tue, 20 Aug 2002 10:41:08 -0400
-Date: Tue, 20 Aug 2002 15:45:01 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Thunder from the hill <thunder@lightweight.ods.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
-       viro@math.psu.edu
-Subject: Re: klibc and logging
-Message-ID: <20020820154501.B31614@flint.arm.linux.org.uk>
-References: <20020819175429.C17471@flint.arm.linux.org.uk> <Pine.LNX.4.44.0208200721490.3234-100000@hawkeye.luckynet.adm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0208200721490.3234-100000@hawkeye.luckynet.adm>; from thunder@lightweight.ods.org on Tue, Aug 20, 2002 at 07:22:18AM -0600
+	id <S319167AbSHTOhe>; Tue, 20 Aug 2002 10:37:34 -0400
+Received: from ns1.ionium.org ([62.27.22.2]:51468 "HELO mail.ionium.org")
+	by vger.kernel.org with SMTP id <S319165AbSHTOhQ> convert rfc822-to-8bit;
+	Tue, 20 Aug 2002 10:37:16 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Justin Heesemann <jh@ionium.org>
+Organization: ionium Technologies
+To: linux-kernel@vger.kernel.org
+Subject: Re: P4 with i845E not booting with 2.4.19 / 3.5.31
+Date: Tue, 20 Aug 2002 16:44:07 +0200
+User-Agent: KMail/1.4.2
+References: <3D6245DC.3A189656@hrzpub.tu-darmstadt.de> <3D62482D.4030500@myeastern.com>
+In-Reply-To: <3D62482D.4030500@myeastern.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200208201644.07289.jh@ionium.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 20, 2002 at 07:22:18AM -0600, Thunder from the hill wrote:
-> On Mon, 19 Aug 2002, Russell King wrote:
-> > Without something like this, it means that effectively the "echo"
-> > command wouldn't be useable, or you'd have to pipe the output of all
-> > scripts through some program/to /dev/kmsg.
-> 
-> Isn't there "logger"?
+On Tuesday 20 August 2002 15:46, Rohan Deshpande wrote:
+> Jens Wiesecke wrote:
+> hi there,
+>
+> something to the same extent happened to me, with my P4, as ACPI caused
+> a kernel panic.  if you have acpi enabled, try disabling it.
 
-No.  Not yet.  I've not grabbed/written/otherwise created that yet for
-initramfs.  I don't think its really needed at the moment anyway.
+his problem sound a lot like mine.. never going further than Ok, booting the 
+kernel. my chipset is a i845g.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+it looks like the problems start with 2.4.19-pre7 which shows exactly this 
+problem.
+2.4.19-pre6 still works.
 
+from the changelog pre6 to pre7 :
+
+<wim@iguana.be> (02/04/07 1.383.2.6)
+	[PATCH] 2.4.19-pre6 i8xx series chipsets patches
+
+<wim@iguana.be> (02/04/07 1.383.2.7)
+	[PATCH] 2.4.19-pre6 i8xx series chipsets patches
+
+<wim@iguana.be> (02/04/07 1.383.2.8)
+	[PATCH] 2.4.19-pre6 i8xx series chipsets patches
+
+could this be the root of the problems ? Jens ? could you check please if you 
+can boot pre6 and pre7 ?
+
+--
+Best Regards,
+Justin Heesemann

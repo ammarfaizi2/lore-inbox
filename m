@@ -1,34 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129057AbRBMSVV>; Tue, 13 Feb 2001 13:21:21 -0500
+	id <S129456AbRBMSWv>; Tue, 13 Feb 2001 13:22:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129215AbRBMSVM>; Tue, 13 Feb 2001 13:21:12 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11782 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129092AbRBMSVD>;
-	Tue, 13 Feb 2001 13:21:03 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200102131720.f1DHKjs02676@flint.arm.linux.org.uk>
-Subject: Re: How to install Alan's patches?
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Tue, 13 Feb 2001 17:20:45 +0000 (GMT)
-Cc: puckwork@madz.net (Thomas Foerster), linux-kernel@vger.kernel.org
-In-Reply-To: <E14ShMU-000241-00@the-village.bc.nu> from "Alan Cox" at Feb 13, 2001 03:27:25 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+	id <S129465AbRBMSWl>; Tue, 13 Feb 2001 13:22:41 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:45578 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129449AbRBMSW0>; Tue, 13 Feb 2001 13:22:26 -0500
+Subject: Re: LDT allocated for cloned task!
+To: sim@stormix.com (Simon Kirby)
+Date: Tue, 13 Feb 2001 18:22:26 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010213124226.A15600@stormix.com> from "Simon Kirby" at Feb 13, 2001 12:42:26 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14Sk5t-0002Sl-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
-> cd linux
-> patch -p1 <../patchfile
+> LDT allocated for cloned task!
+> 
+> I'm seeing this message come up fairly often while running vanilla
+> 2.4.2-pre3 on my dual Celeron system.  I don't think I saw it before
+> while running 2.4.1, but I may have just missed it.
 
-patch -p1 -i ../patchfile means that patch won't read the whole patchfile
-into a temporary file first, which it will do if patch reads from stdin.
-
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Are you running wine or dosemu ?

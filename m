@@ -1,57 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262578AbTDXQcL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 12:32:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263731AbTDXQcL
+	id S263730AbTDXQbp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 12:31:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263731AbTDXQbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 12:32:11 -0400
-Received: from ithilien.qualcomm.com ([129.46.51.59]:5554 "EHLO
-	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
-	id S262578AbTDXQcJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 12:32:09 -0400
-Message-Id: <5.1.0.14.2.20030424093305.08115dc8@unixmail.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 24 Apr 2003 09:43:42 -0700
-To: "David S. Miller" <davem@redhat.com>
-From: Max Krasnyansky <maxk@qualcomm.com>
-Subject: Re: [BK ChangeSet@1.1118.1.1] new module infrastructure for
-  net_proto_family
-Cc: acme@conectiva.com.br, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-In-Reply-To: <20030423.202954.85407627.davem@redhat.com>
-References: <5.1.0.14.2.20030423182014.07ec6140@unixmail.qualcomm.com>
- <5.1.0.14.2.20030423134636.100e5c60@unixmail.qualcomm.com>
- <20030423.163043.41633133.davem@redhat.com>
- <5.1.0.14.2.20030423182014.07ec6140@unixmail.qualcomm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Thu, 24 Apr 2003 12:31:45 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:50313 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263730AbTDXQbn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 12:31:43 -0400
+Date: Thu, 24 Apr 2003 12:46:10 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Timothy Miller <miller@techsource.com>
+cc: Chuck Ebbert <76306.1226@compuserve.com>, Jens Axboe <axboe@suse.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.21-rc1 pointless IDE noise reduction
+In-Reply-To: <3EA8114A.4020309@techsource.com>
+Message-ID: <Pine.LNX.4.53.0304241244430.32333@chaos>
+References: <200304241128_MC3-1-35DA-F3DA@compuserve.com>
+ <Pine.LNX.4.53.0304241147420.32073@chaos> <3EA8114A.4020309@techsource.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 08:29 PM 4/23/2003, David S. Miller wrote:
->   From: Max Krasnyansky <maxk@qualcomm.com>
->   Date: Wed, 23 Apr 2003 18:41:56 -0700
+On Thu, 24 Apr 2003, Timothy Miller wrote:
+
 >
->   At 04:30 PM 4/23/2003, David S. Miller wrote:
->   >Your stuff was unacceptable from the start because you didn't put
->   >the ->owner into the protocol ops.
->   But you didn't tell me that. You just said that it's "an ugly hack" without
->   giving any other feedback.
->    
->As you mention, Rusty said this.
 >
->   What about this though
->   
->I'm sure Arnaldo will deal with the sys_accept() issues.
->But this is a minor issue, Arnaldo's stuff is architectually
->solid.
+> Richard B. Johnson wrote:
+>
+> >On Thu, 24 Apr 2003, Chuck Ebbert wrote:
+> >
+> >
+> >
+> >>Jens Axboe wrote:
+> >>
+> >>
+> >>
+> >>
+> >>>>+	return((drive->id->cfs_enable_1 & 0x0400) ? 1 : 0);
+> >>>> }
+> >>>>
+> >>>>
+> >>>Seconded, it causes a lot more confusion than it does good.
+> >>>
+> >>>
+> >>  The return looks like a function call in that last line.
+> >>
+> >>  That's one of the few things I find really annoying -- extra parens
+> >>are fine when they make code clearer, but not there.
+> >>
+> >>
+> >>-------
+> >> Chuck [ C Style Police, badge #666 ]
+> >>
+> >>
+> >
+> >return((drive->id->cfs_enable_1 & 0x0400) ? 1 : 0);
+> >                                  ^^^^^^|__________ wtf?
+> >These undefined numbers in the code are much more annoying to me...
+> >but I don't have a C Style Police Badge.
+> >
+> >Also, whatever that is, 0x400, I'll call it MASK, can have shorter
+> >code like:
+> >
+> >   return (drive->id->cfs_enable_1 && MASK); // TRUE/FALSE
+> >... for pedantics...
+> >   return (int) (drive->id->cfs_enable_1 && MASK);
+> >
+> >
+> >
+> >
+>
+> That wouldn't work, because && isn't a bitwise operator.  But I agree
+> that the ( x ? 1 : 0 ) method may not be very efficient, because it may
+> involve branches.
+>
+> Two alternatives:
+>
+> (a)     !!(x & 0x400)
+>
+> (b)     (x & 0x400) >> 10
+>
 
-:) 
+I meant return ((foo & MASK) && 1);
 
-Ok Dave. I'm not sure why you're _completely_ ignoring my arguments.
-You should have just said from the beginning that you were going to
-ignore what I have to say regarding that issue. At least I wouldn't 
-have wasted my time.
+Try it, you'll like it! No shifts, no jumps.
 
-Sorry for bugging you.
-Max
+int main()
+{
+    int foo = 0x12340400;
+    printf("%d\n", ((foo & 0x400) && 1));
+    printf("%d\n", ((foo & 0x300) && 1));
+    printf("%d\n", ((foo & 0x500) && 1));
+}
+
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

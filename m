@@ -1,56 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267443AbTAWX6K>; Thu, 23 Jan 2003 18:58:10 -0500
+	id <S267458AbTAXAAK>; Thu, 23 Jan 2003 19:00:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267431AbTAWX6K>; Thu, 23 Jan 2003 18:58:10 -0500
-Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:22191 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S267443AbTAWX6G>; Thu, 23 Jan 2003 18:58:06 -0500
-Message-ID: <20030124000711.98366.qmail@mail.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S267463AbTAXAAK>; Thu, 23 Jan 2003 19:00:10 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:8187 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S267458AbTAXAAJ>;
+	Thu, 23 Jan 2003 19:00:09 -0500
+Message-ID: <F760B14C9561B941B89469F59BA3A847137FB5@orsmsx401.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: linux-kernel@vger.kernel.org, acpi-devel@sourceforge.net
+Subject: RE: [PATCH] ACPI update (20030122)
+Date: Thu, 23 Jan 2003 16:09:07 -0800
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Lee Chin" <leechin@mail.com>
-To: lm@bitmover.com, leechin@mail.com
-Cc: linux-kernel@vger.kernel.org, linux-newbie@vger.kernel.org
-Date: Thu, 23 Jan 2003 19:07:11 -0500
-Subject: Re: debate on 700 threads vs asynchronous code
-X-Originating-Ip: 66.123.16.67
-X-Originating-Server: ws1-2.us4.outblaze.com
+X-Mailer: Internet Mail Service (5.5.2653.19)
+content-class: urn:content-classes:message
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Thanks for the rpely... my question was more so, with setcontext and swapcontext, I will still be messing with the data cache right?  
-
-In otherwords, as long as I have an async system with out setcontext, I know I am good... but with it, havent I degraded to a threaded environment?
-
-Thanks
-Lee
------ Original Message -----
-From: Larry McVoy <lm@bitmover.com>
-Date: Thu, 23 Jan 2003 15:28:34 -0800
-To: Lee Chin <leechin@mail.com>
-Subject: Re: debate on 700 threads vs asynchronous code
-
-> > b) Write an asycnhrounous system with only 2 or three threads where I manage the connections and stack (via setcontext swapcontext etc), which is progromatically a little harder
-> > 
-> > Which way will yeild me better performance, considerng both approaches are implemented optimally?
+> From: Dave Jones [mailto:davej@codemonkey.org.uk] 
+> I've noticed that with .59 some of my boxes no longer have
+> functioning NICs unless I boot with acpi=off. Packets get
+> transmitted, but nothing ever gets received.
+> Seen this with a 3c509, an 8139, and an e100.
 > 
-> If this is a serious question, an async system will by definition do better.
-> You have either 700 stacks screwing up the data cache or 2-3 stacks nicely
-> fitting in the data cache.  Ditto for instruction cache, etc.
-> -- 
-> ---
-> Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+> Known bug? Fixed in this patch ?
 
--- 
-__________________________________________________________
-Sign-up for your own FREE Personalized E-mail at Mail.com
-http://www.mail.com/?sr=signup
+Known bug. Not fixed in this patch. Are you sure this is new in recent
+kernels?
 
-Meet Singles
-http://corp.mail.com/lavalife
-
+Regards -- Andy

@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130493AbRDMM4S>; Fri, 13 Apr 2001 08:56:18 -0400
+	id <S130507AbRDMM4i>; Fri, 13 Apr 2001 08:56:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130507AbRDMM4I>; Fri, 13 Apr 2001 08:56:08 -0400
-Received: from sgi.SGI.COM ([192.48.153.1]:38490 "EHLO sgi.com")
-	by vger.kernel.org with ESMTP id <S130493AbRDMM4A>;
-	Fri, 13 Apr 2001 08:56:00 -0400
-Date: Fri, 13 Apr 2001 07:55:53 -0500
-From: Michael Raymond <mraymond@sgi.com>
-To: Mark Salisbury <gonar@mediaone.net>
-Cc: george anzinger <george@mvista.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Andre Hedrick <andre@linux-ide.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, schwidefsky@de.ibm.com,
-        linux-kernel@vger.kernel.org,
-        high-res-timers-discourse@lists.sourceforge.net
-Subject: Re: Linux-Kernel Archive: No 100 HZ timer !
-Message-ID: <20010413075553.A102611@fsgi654.americas.sgi.com>
-In-Reply-To: <Pine.LNX.4.10.10104122102170.4564-100000@master.linux-ide.org> <m1snjdtgcc.fsf@frodo.biederman.org> <3AD6B894.39848F3F@mvista.com> <002d01c0c414$346b2140$6501a8c0@gonar.com>
+	id <S130532AbRDMM42>; Fri, 13 Apr 2001 08:56:28 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:43276 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S130507AbRDMM4V>;
+	Fri, 13 Apr 2001 08:56:21 -0400
+Date: Fri, 13 Apr 2001 14:56:14 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Ian Eure <ieure@insynq.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: loop problems continue in 2.4.3
+Message-ID: <20010413145614.E13621@suse.de>
+In-Reply-To: <15055.36597.353681.125824@pyramid.insynq.com> <20010409095607.A432@suse.de> <15060.43709.340915.563107@pyramid.insynq.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <002d01c0c414$346b2140$6501a8c0@gonar.com>; from gonar@mediaone.net on Fri, Apr 13, 2001 at 08:20:56AM -0400
+In-Reply-To: <15060.43709.340915.563107@pyramid.insynq.com>; from ieure@insynq.com on Wed, Apr 11, 2001 at 12:04:29PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 13, 2001 at 08:20:56AM -0400, Mark Salisbury wrote:
-> inner loop, i.e. interrupt timer code should never have to convert from some
-> real time value into number of decrementer ticks in order to set up the next
-> interrupt as that requires devides (and 64 bit ones at that) in a tickless
-> system.
+On Wed, Apr 11 2001, Ian Eure wrote:
+> i get this message when it panics:
 > 
-> this is why any variable interval list/heap/tree/whatever should be kept in
-> local ticks.  frequently used values can be pre-computed at boot time to
-> speed up certain calculations (like how many local ticks/proc quantum)
+> -- snip --
+> loop: setting 534781920 bs for 07:86
+> Kernel panic: Invalid blocksize passed to set_blocksize
+> -- snip --
 
-    What about machines without synchronized local ticks?  We're going to
-have to end up doing conversions anyway because of drift and machines
-without even the same speed CPUs.  A time based system using local cached
-values such as cycles_per_usec would better be able to handle this.
-       	       		       	     	       	    Michael
+Ahm, how are you setting your loop device up? The above is completely
+bogus.
 
 -- 
-Michael A. Raymond              Office: (651) 683-3434
-Irix Core Kernel Group
+Jens Axboe
+

@@ -1,60 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132068AbRCVP5c>; Thu, 22 Mar 2001 10:57:32 -0500
+	id <S132071AbRCVQUq>; Thu, 22 Mar 2001 11:20:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132069AbRCVP5N>; Thu, 22 Mar 2001 10:57:13 -0500
-Received: from deliverator.sgi.com ([204.94.214.10]:55363 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S132068AbRCVP5C>; Thu, 22 Mar 2001 10:57:02 -0500
-Date: Thu, 22 Mar 2001 09:56:16 -0600
-From: Nathan Straz <nstraz@sgi.com>
-To: Wade Hampton <whampton@staffnet.com>
-Cc: nbecker@fred.net, linux-kernel@vger.kernel.org
-Subject: Re: regression testing
-Message-ID: <20010322095616.A23245@sgi.com>
-Mail-Followup-To: Wade Hampton <whampton@staffnet.com>, nbecker@fred.net,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <x88zoeeeyh8.fsf@adglinux1.hns.com> <3ABA1680.D1467727@staffnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <3ABA1680.D1467727@staffnet.com>; from whampton@staffnet.com on Thu, Mar 22, 2001 at 10:13:04AM -0500
+	id <S132073AbRCVQUh>; Thu, 22 Mar 2001 11:20:37 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:46089 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S132071AbRCVQUW>; Thu, 22 Mar 2001 11:20:22 -0500
+Date: Thu, 22 Mar 2001 12:01:43 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Guest section DW <dwguest@win.tue.nl>
+Cc: "Patrick O'Rourke" <orourke@missioncriticallinux.com>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Prevent OOM from killing init
+In-Reply-To: <20010322124727.A5115@win.tue.nl>
+Message-ID: <Pine.LNX.4.21.0103221200410.21415-100000@imladris.rielhome.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 22, 2001 at 10:13:04AM -0500, Wade Hampton wrote:
-> nbecker@fred.net wrote:
-> > Hi.  I was wondering if there has been any discussion of kernel
-> > regression testing.  Wouldn't it be great if we didn't have to depend
-> > on human testers to verify every change didn't break something?
-> IMHO, much of the strength of Linux is the very large, extremely 
-> diverse population of folks using it, testing it, beating on 
-> the latest release, etc.  
+On Thu, 22 Mar 2001, Guest section DW wrote:
 
-The Linux community definately provides the configuration testing that
-could never be done in a lab setting.  At least one that most companies
-could afford.  
+> > One question ... has the OOM killer ever selected init on
+> > anybody's system ?
+> 
+> Last week I installed SuSE 7.1 somewhere.
+> During the install: "VM: killing process rpm",
+> leaving the installer rather confused.
+> (An empty machine, 256MB, 144MB swap, I think 2.2.18.)
 
-> However, a lab dedicated to testing the linux kernel, properly 
-> funded, staffed, and containing the most common hardware and 
-> software would be a good idea.  Does anyone have any idea how
-> this could be accomplished?  Who could do it?  IBM?  What would
-> it cost to setup a reasonable lab?  My guess would be dozens 
-> of machines of various architectures, a staff of at least 10,
-> several thousand square feet of space, and a good budget....
-> Any takers?  
+That's the 2.2 kernel ...
 
-SGI is working on regression testing for Linux.  We have released some
-of our tests and utilities under the Linux Test Project.  IMHO, a few
-hundred tests aren't enough.  I need to make another big push with the
-tests I've ported over the last few months.  
 
-I believe there is some work in the Open Source Development Lab that
-some IBMers could comment on.  I don't know if there is a web site
-detailing their efforts yet.  
+> Last month I had a computer algebra process running for a week.
+> Killed. But this computation was the only task this machine had.
+> Its sole reason of existence.
+> Too bad - zero information out of a week's computation.
+> (I think 2.4.0.)
+> 
+> Clearly, Linux cannot be reliable if any process can be killed
+> at any moment. I am not happy at all with my recent experiences.
 
--- 
-Nate Straz                                              nstraz@sgi.com
-sgi, inc                                           http://www.sgi.com/
-Linux Test Project                    http://oss.sgi.com/projects/ltp/
+Note that the OOM killer in 2.4 won't kick in until your machine
+is out of both memory and swap, see mm/oom_kill.c::out_of_memory().
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
+

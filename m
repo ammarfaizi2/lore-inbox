@@ -1,80 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277923AbRJIUdp>; Tue, 9 Oct 2001 16:33:45 -0400
+	id <S277895AbRJIUcp>; Tue, 9 Oct 2001 16:32:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277957AbRJIUdg>; Tue, 9 Oct 2001 16:33:36 -0400
-Received: from port5.ds1-sby.adsl.cybercity.dk ([212.242.169.198]:20270 "EHLO
-	trider-g7.fabbione.net") by vger.kernel.org with ESMTP
-	id <S277923AbRJIUdV>; Tue, 9 Oct 2001 16:33:21 -0400
-Message-ID: <3BC35EF1.DB7E1824@fabbione.net>
-Date: Tue, 09 Oct 2001 22:32:49 +0200
-From: Fabbione <fabbione@fabbione.net>
-Reply-To: fabbione@fabbione.net
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Kitwor <kitwor@kki.net.pl>, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: old exploit works!!!
-In-Reply-To: <Pine.LNX.3.95.1011009161252.4052A-100000@chaos.analogic.com>
+	id <S277923AbRJIUcg>; Tue, 9 Oct 2001 16:32:36 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:15612 "EHLO
+	blue.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S277895AbRJIUcb>; Tue, 9 Oct 2001 16:32:31 -0400
+Date: Tue, 9 Oct 2001 13:40:50 -0700
+From: Seth Arnold <sarnold@wirex.com>
+To: linux-kernel@vger.kernel.org
+Subject: recent -ac performance thoughts
+Message-ID: <20011009134050.F1509@wirex.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I made the same test but it just locked the xterm.
+Greetings;
 
-Fabbione
+I've tried several -ac kernels recently, and thought I would share my
+experiences with the list, in the hopes that others may find my
+experience useful.
 
-"Richard B. Johnson" wrote:
-> 
-> Erm. Doesn't work. Just creates a non-root shell with a bad
-> environment. It says "Bug exploited successfully", but it's
-> simply confused.
-> 
-> Script started on Tue Oct  9 16:07:45 2001
-> $ whoami
-> rjohnson
-> $ gcc -o xxx c.c
-> $ ./xxx
-> Bug exploited successfully.
-> bash$ vi /etc/passwd
-> This termcap entry lacks the :cm=: capability
-> This termcap entry lacks the :ce=: capability
-> "/etc/passwd" [READONLY] 32 lines, 1594 chars
-> :1
-> root:Deleted:0:0:System Administration:/root:/bin/bash
-> :w!
-> Can't write to "/etc/passwd" -- NOT WRITTEN
-> :q
-> bash$ exit
-> exit
-> $ exit
-> exit
-> 
-> Script done on Tue Oct  9 16:08:54 2001
-> On Tue, 9 Oct 2001, Kitwor wrote:
-> 
-> > Old exploit which works on kernels up to 2.2.18 (itr doesn't work on 2.2.19)
-> > works on 2.4.9!!
-> > I attach that exploit.
-> >
-> 
-> Cheers,
-> Dick Johnson
-> 
-> Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-> 
->     I was going to compile a list of innovations that could be
->     attributed to Microsoft. Once I realized that Ctrl-Alt-Del
->     was handled in the BIOS, I found that there aren't any.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I ran 2.4.9-ac16 for roughly ten days, with reasonable performance.
+However, I could cause my X session to slow down by flipping the mouse
+across the screen wildly; it would take the X server several seconds of
+swapping focus among the dozen windows or so before it would settle down
+the one with the mouse pointer.
 
--- 
-Debian GNU/Linux Unstable Kernel 2.4.9
-fabbione on irc.atdot.it #coredump #kchat | fabbione@fabbione.net
+I booted 2.4.10-ac10 plus Rik's eatcache patch (located at
+http://www.surriel.com/patches/ -- it applied to -ac10 cleanly, even
+though it was for -ac9) about 19 hours ago, and I must say it feels like
+an improvement. I can no longer reproduce the poor performance in X.
+Also, my xmms playlist (of 13000 songs) seems to be able to retrieve the
+id3 tag information off the songs much faster and the scrolling is much
+smoother -- however, the songs are all over an nfs mount.
+
+Also, the xmms 'analyzer' plays smoothly, with only slight hiccups when
+dragging around konqueror windows (in an opaque move format) -- previous
+kernels, 2.4.5-pre2 and 2.4.9-ac16 would often just stop the analyzer
+entirely.
+
+In any event, I hoped this would be useful information for someone
+having trouble with the -ac series -- try the eatcache patch and see if
+your performance improves.
+
+Cheers! :)
+

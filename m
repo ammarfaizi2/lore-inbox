@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265409AbSKOAdb>; Thu, 14 Nov 2002 19:33:31 -0500
+	id <S265480AbSKOAjo>; Thu, 14 Nov 2002 19:39:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265402AbSKOAda>; Thu, 14 Nov 2002 19:33:30 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:27823 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S265380AbSKOAd3>;
-	Thu, 14 Nov 2002 19:33:29 -0500
-Date: Thu, 14 Nov 2002 13:31:54 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Andrew Morton <akpm@digeo.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] remove hugetlb syscalls
-Message-ID: <20021114213154.GN23425@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Benjamin LaHaise <bcrl@redhat.com>, Andrew Morton <akpm@digeo.com>,
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org
-References: <20021113184555.B10889@redhat.com> <20021114203035.GF22031@holomorphy.com> <20021114154809.D20258@redhat.com> <20021114210220.GM23425@holomorphy.com> <20021114161134.E20258@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021114161134.E20258@redhat.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S265484AbSKOAjo>; Thu, 14 Nov 2002 19:39:44 -0500
+Received: from pheriche.sun.com ([192.18.98.34]:13292 "EHLO pheriche.sun.com")
+	by vger.kernel.org with ESMTP id <S265480AbSKOAjn>;
+	Thu, 14 Nov 2002 19:39:43 -0500
+Message-ID: <3DD443EC.2080504@sun.com>
+Date: Thu, 14 Nov 2002 16:46:36 -0800
+From: Tim Hockin <thockin@sun.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pete Zaitcev <zaitcev@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH 1/2] Remove NGROUPS hardlimit (resend w/o qsort)
+References: <mailman.1037316781.6599.linux-kernel2news@redhat.com> <200211150006.gAF06JF01621@devserv.devel.redhat.com> <3DD43C65.80103@sun.com> <20021114193156.A2801@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 14, 2002 at 04:11:34PM -0500, Benjamin LaHaise wrote:
-> Oracle does not run as root, so they can't even use the syscalls 
-> directly.  At least with hugetlbfs we can chmod the filesystem to be 
-> owned by the oracle user.
-
-Okay, the advantage with respect to permissions is clear; now there is
-a correction to the permissions checking I should do, as CAP_IPC_LOCK
-is currently checked in ->f_ops->mmap(), but the permissions are
-enforcible by means of ordinary vfs permissions, and so it's redundant.
+Pete Zaitcev wrote:
 
 
-Bill
+> be about time to think about your data structures a little more.
+> I'll let Andi to remind you about the performance impact (vmalloc
+> area is outside of the big TLB area).
+
+Offer an alternative?  :)  Linked list costs us as much or MORE for 
+->next as the gid_t.  kmalloc() doesn't work for previous reasoning.  I 
+considered a list of gid arr[256] or similar.  A voice reminds me that 
+it doesn't impact us noticably in real use.  Now, maybe other 
+architectures will find a good reason to switch to kmalloc() list of 
+smaller arrays, and the associated complextities or something else more 
+clever.
+
+>>hmm, I haven't heard anything about them - can you offer an email or URL?
+
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/0010.0/0788.html
+
+Thanks - will check it..
+
+
+-- 
+Tim Hockin
+Systems Software Engineer
+Sun Microsystems, Linux Kernel Engineering
+thockin@sun.com
+

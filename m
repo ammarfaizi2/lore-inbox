@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263906AbTKZIRq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 03:17:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263927AbTKZIRq
+	id S263927AbTKZIdY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 03:33:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263984AbTKZIdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 03:17:46 -0500
-Received: from codeblau.walledcity.de ([212.84.209.34]:22283 "EHLO codeblau.de")
-	by vger.kernel.org with ESMTP id S263906AbTKZIRp (ORCPT
+	Wed, 26 Nov 2003 03:33:24 -0500
+Received: from linuxhacker.ru ([217.76.32.60]:27571 "EHLO shrek.linuxhacker.ru")
+	by vger.kernel.org with ESMTP id S263927AbTKZIdX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 03:17:45 -0500
-Date: Wed, 26 Nov 2003 09:17:45 +0100
-From: Felix von Leitner <felix-kernel@fefe.de>
-To: linux-kernel@vger.kernel.org
-Subject: ipv4-mapped ipv4 connect() for UDP broken in test10
-Message-ID: <20031126081745.GA31415@codeblau.de>
+	Wed, 26 Nov 2003 03:33:23 -0500
+Date: Wed, 26 Nov 2003 10:16:26 +0200
+From: Oleg Drokin <green@linuxhacker.ru>
+To: Eugene Savelov <eugene@orm.mipt.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] HPT302  IDE controller in linux 2.4.22
+Message-ID: <20031126081626.GI1866@linuxhacker.ru>
+References: <3FC3B4DC.4070802@orm.mipt.ru> <200311252321.hAPNL2UU006419@car.linuxhacker.ru> <10656.212.44.150.2.1069826652.squirrel@host1.orm.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <10656.212.44.150.2.1069826652.squirrel@host1.orm.mipt.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My IPv6 port for djbdns' dnscache does not work with -test10.
+Hello!
 
-The symptom is that all queries time out.
+On Wed, Nov 26, 2003 at 09:04:12AM +0300, Eugene Savelov wrote:
 
-Some digging reveals that djbdns does this (with scope_id 0):
+> May be you have older BIOS revision? I upgraded to 1.22 as recommended by
+> Highpoint drivers.
 
-  socket(PF_INET6,...)
-  bind socket to ::
-  connect() socket to IP of peer (in this case, 210.81.13.179)
-  send() dns query
+I do not know which version I use and I cannot reboot to look at it.
+But I use whatever was in the ROM originally, no upgrades.
+And it works well enough as it is.
 
-at this point, the query is not sent over ppp0 as it should, but it is
-sent to lo.  Not only that, but the queries are _received_ by the same
-djbdns (with servfail), although the destination IP is as said above
-210.81.13.179 and none of my local IPs: 10.0.0.6, 127.0.0.1, or
-217.88.123.45.
-
-Any ideas?  Please do not ship 2.6.0-final with a bug like this in it!
-
-Felix
+Bye,
+    Oleg

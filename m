@@ -1,82 +1,144 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318344AbSGRUdg>; Thu, 18 Jul 2002 16:33:36 -0400
+	id <S318362AbSGRUkl>; Thu, 18 Jul 2002 16:40:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318345AbSGRUdg>; Thu, 18 Jul 2002 16:33:36 -0400
-Received: from [207.251.72.21] ([207.251.72.21]:46861 "EHLO
-	s-ny-exchconn01.island.com") by vger.kernel.org with ESMTP
-	id <S318344AbSGRUdf>; Thu, 18 Jul 2002 16:33:35 -0400
-Message-ID: <628900C9F8A7D51188E000A0C9F3FDFA024FF09D@S-NY-EXCH01>
-From: Robert Sinko <RSinko@island.com>
-To: "'Hubbard, Dwight'" <DHubbard@midamerican.com>, Matt_Domsch@Dell.com,
-       linux-kernel@vger.kernel.org
-Subject: RE: Wrong CPU count
-Date: Thu, 18 Jul 2002 16:35:29 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2655.55)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S318363AbSGRUkl>; Thu, 18 Jul 2002 16:40:41 -0400
+Received: from [209.249.147.146] ([209.249.147.146]:45321 "EHLO
+	addr-mx02.addr.com") by vger.kernel.org with ESMTP
+	id <S318362AbSGRUkj>; Thu, 18 Jul 2002 16:40:39 -0400
+Subject: Re: [PATCH] strict VM overcommit for stock 2.4
+From: Daniel Gryniewicz <dang@fprintf.net>
+To: root@chaos.analogic.com
+Cc: Robert Love <rml@tech9.net>, Szakacsits Szabolcs <szaka@sienet.hu>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.95.1020718154521.1555A-100000@chaos.analogic.com>
+References: <Pine.LNX.3.95.1020718154521.1555A-100000@chaos.analogic.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 18 Jul 2002 16:43:53 -0400
+Message-Id: <1027025035.3439.11.camel@athena.fprintf.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That's interesting.  Can it be disabled?
-
------Original Message-----
-From: Hubbard, Dwight [mailto:DHubbard@midamerican.com]
-Sent: Thursday, July 18, 2002 4:30 PM
-To: Matt_Domsch@Dell.com; RSinko@island.com;
-linux-kernel@vger.kernel.org
-Subject: RE: Wrong CPU count
-
-
-And doubles the cost of licensing software that uses per cpu licensing while
-giving marginally better performance.
-
------Original Message-----
-From: Matt_Domsch@Dell.com [mailto:Matt_Domsch@Dell.com]
-Sent: Thursday, July 18, 2002 3:01 PM
-To: RSinko@island.com; linux-kernel@vger.kernel.org
-Subject: RE: Wrong CPU count
-
-
-> After upgrading  from kernel 2.4.7-10smp to 2.4.9-34smp using 
-> the Red Hat
-> RPM downloaded from RH Network, the CPU count on the machine 
-> reported by
-> dmesg and listed in /proc/cpuinfo was 4 rather than the actual 2.
+On Thu, 2002-07-18 at 16:23, Richard B. Johnson wrote:
+> On 18 Jul 2002, Daniel Gryniewicz wrote:
 > 
-> This has occured on all 4 Dell 2650's that I've installed 
-> this patch on.  I
-> don't have any other mult-processor machines available to 
-> test this with.
+> > On Thu, 2002-07-18 at 15:35, Richard B. Johnson wrote:
+> > > On 18 Jul 2002, Robert Love wrote:
+> > > 
+> > > > I should also mention this is demand paging, not overcommit.
+> > > > 
+> > > > Overcommit is the property of succeeded more allocations than their is
+> > > > memory in the address space.  The idea being that allocations are lazy,
+> > > > things often do not use their full allocations, etc. etc. as you
+> > > > mentioned.
+> > > > 
+> > > > It is typical a good thing since it lowers VM pressure.
+> > > > 
+> > > > It is not always a good thing, for numerous reasons, and it becomes
+> > > > important in those scenarios to ensure that all allocations can be met
+> > > > by the backing store and consequently we never find ourselves with more
+> > > > memory committed than available and thus never OOM.
+> > > > 
+> > > > This has nothing to do with paging and resource limits as you say.  Btw,
+> > > > without this it is possible to OOM any machine.  OOM is a by-product of
+> > > > allowing overcommit and poor accounting (and perhaps poor
+> > > > software/users), not an incorrectly configured machine.
+> > > 
+> > > It has everything to do with demand-paging. Since on single CPU
+> > > machines, there is only one task executing at any one time, that
+> > > single task can own and use every bit of RAM on the whole machine
+> > > is virtual memory works correctly. For performance reasons, it
+> > > may not actually use all the RAM but, in principle, it is possible.
+> > > 
+> > > If you don't allow that, the single task can use only the RAM that
+> > > was not allocated to other tasks. At the time an allocation is made,
+> > > the kernel cannot know what resources may be available when the task
+> > > requesting the allocation actually starts to use those allocated
+> > > resources. Instead, the kernel allocates resources based upon what
+> > > it 'knows' at the present time. Since it can't see the future anymore
+> > > than you or I, the fact that N processes just called exit() before
+> > > the requesting task touched a single page can't be known.
+> > > 
+> > > FYI multiple CPU machines have compounded the problems because there
+> > > can be several things happening at the same time. Although the MM
+> > > is locked so it's single-threaded, you have a before/after resource 
+> > > history condition that can't be anticipated.
+> > > 
+> > > Cheers,
+> > > Dick Johnson
+> > > 
+> > 
+> > Is it possible that you're confusing "backing store" with "physical
+> > RAM"?  I was under the impression that strict overcommit used both RAM
+> > and SWAP when deciding whether an allocation should succeed.  If you've
+> > exceeded all of RAM and all of swap, you are OOM.  Period.
+> > 
+> > Daniel
+> 
+> No. And I'm not confused. Consider Virtual RAM as all the real RAM
+> and all the backing store. If I consider this an absolute limit,
+> then I am not able to fully use all the system resources.
+> 
+> Lets say the system has 20 'units' of a resource (virtual RAM).
+> 
+> Example:
+> 
+> Task (1) allocates 10 units, actually uses 1 so far.
+> Task (2) allocates 10 units, actually uses 2 so far.
+> Task (3) wants to allocate 7 units. It can't so it exits in error.
+> Task (1) uses all its units then exits normally.
+> Task (2) uses 1 more unit then exits normally.
+> 
+> So you forced a task to terminate in error because you established
+> hard limits on your resource.
+> 
+> What could (should?) have happened, is that all the memory allocations
+> could have succeeded, even though they exceeded the 20 units of resource.
+> >From the history, we see that Task (1) actually used 10. Task (2)
+> actually used 3 units. This means that there were really 20 - 13 = 7 units
+> available when task 3 requested 7 units. But, the system 'knew' what
+> its commitment was so it refused.
+> 
+> Now, since the system is dynamic, it is possible that Task (1) and
+> Task (2) might not even exist by the time Task (3) actually wants to
+> use its memory. In that case, there would have been 20 units available, 
+> but we will never know because Task 3 exited in error.
+> 
+> Now, what this should point out is that a complete VM system, although
+> it can't anticipate the future, can put things off until the future
+> where things may be better. This is the true 'fix' of OOM (if it
+> needs fixing.
+> 
+> Let's say I make a fork bomb, as root, no protection. The MM knows
+> that it can't give me any more RAM right now so I am put to sleep.
+> Other tasks run fine, at full speed. As they exit, the fork-bomb
+> may get their memory. Since the MM knows how much resource could ever 
+> become available, as a single task exceeds this limit, the MM
+> knows that it cannot get any more in the future so the MM knows it's
+> a bomb. If the system doesn't kill the bomb, eventually, I may fail the
+> system because there may be no resource available to log-in and kill the
+> bomb, but as long as there is one task running, connected to a terminal,
+> that task can be used to kill the fork-bomb.
+> 
+> The problem with putting memory allocation off to the future, as
+> I see it, is the existing paging code wasn't designed for it. If
+> a task that page-faulted could also sleep, the problem could be
+> solved.
+> 
 
-Congratulations, you purchased a fine PowerEdge 2650 with processors which
-contain HyperThreading technology.  Each physical processor appears as two
-logical processors.  This behaviour is expected, and correct. :-)
+So don't turn on strict overcommit.  What you describe is what we have
+now, and OOM is the result of allowing requests for more than we
+actually have based on the assumption processes won't use it all.  If
+they do, you have problems.  If you don't want those problems, you turn
+on strict overcommit, and live with the allocation failures.
 
-Thanks,
-Matt
-
---
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
-DISCLAIMER: The information contained herein is confidential and is intended
-solely for the addressee(s). It shall not be construed as a recommendation
-to buy or sell any security. Any unauthorized access, use, reproduction,
-disclosure or dissemination is prohibited. Neither ISLAND nor any of its
-subsidiaries or affiliates shall assume any legal liability or
-responsibility for any incorrect, misleading or altered information
-contained herein. Thank you.
+Daniel
+-- 
+Recursion n.:
+        See Recursion.
+                        -- Random Shack Data Processing Dictionary
 
 

@@ -1,54 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316258AbSGUQkA>; Sun, 21 Jul 2002 12:40:00 -0400
+	id <S316847AbSGUQoV>; Sun, 21 Jul 2002 12:44:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316512AbSGUQkA>; Sun, 21 Jul 2002 12:40:00 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4104 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316258AbSGUQj7>; Sun, 21 Jul 2002 12:39:59 -0400
-Date: Sun, 21 Jul 2002 09:43:57 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Christoph Rohland <cr@sap.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 'select' failure or signal should not update timeout
-In-Reply-To: <u1mug2ii.fsf@sap.com>
-Message-ID: <Pine.LNX.4.44.0207210934180.3794-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316857AbSGUQoV>; Sun, 21 Jul 2002 12:44:21 -0400
+Received: from mail.coastside.net ([207.213.212.6]:33527 "EHLO
+	mail.coastside.net") by vger.kernel.org with ESMTP
+	id <S316847AbSGUQoO>; Sun, 21 Jul 2002 12:44:14 -0400
+Mime-Version: 1.0
+Message-Id: <p05111a19b9608eec09b1@[207.213.214.37]>
+Date: Sun, 21 Jul 2002 09:46:39 -0700
+To: linux-kernel@vger.kernel.org
+From: Jonathan Lundell <linux@lundell-bros.com>
+Subject: spurious smp_spurious_interrupt()?
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+What's the source of the "never happen" comment in 
+arch/i386/kernel/apic.c (repeated in the printk)? It plainly *does* 
+happen (as Google and my own experience attest--look for 
+call_spurious_interrupt, though), and there's nothing in Intel's 
+documentation to suggest that it shouldn't, or that it's anything but 
+a routine (though presumably rare) occurrence.
+
+(Note also that the documentation reference is no longer correct. In 
+the 2001 edition it was 7.6.13.5; in the latest edition the APIC gets 
+its own chapter.)
+
+>8.9. SPURIOUS INTERRUPT
+>A special situation may occur when a processor raises its task 
+>priority to be greater than or equal to the level of the interrupt 
+>for which the processor INTR signal is currently being asserted. If 
+>at the time the INTA cycle is issued, the interrupt that was to be 
+>dispensed has become masked (programmed by software), the local APIC 
+>will deliver a spurious-interrupt vector. Dispensing the 
+>spurious-interrupt vector does not affect the ISR, so the handler 
+>for this vector should return without an EOI.
 
 
-On 21 Jul 2002, Christoph Rohland wrote:
+>/*
+>  * This interrupt should _never_ happen with our APIC/SMP architecture
+>  */
+>asmlinkage void smp_spurious_interrupt(void)
+>{
+>         unsigned long v;
 >
-> Yes, so everybody really using select assumes it's _at least_ X
-> seconds... So where's the problem?
+>         /*
+>          * Check if this really is a spurious interrupt and ACK it
+>          * if it is a vectored one.  Just in case...
+>          * Spurious interrupts should not be ACKed.
+>          */ 
+>         v = apic_read(APIC_ISR + ((SPURIOUS_APIC_VECTOR & ~0x1f) >> 1));
+>         if (v & (1 << (SPURIOUS_APIC_VECTOR & 0x1f)))
+>                 ack_APIC_irq();
+>
+>         /* see sw-dev-man vol 3, chapter 7.4.13.5 */
+>         printk(KERN_INFO "spurious APIC interrupt on CPU#%d, should 
+>never happen
+>.\n",
+>                         smp_processor_id());
+>}
 
-Have you tried to _do_ this? I doubt you have, since you think it works
-well already.
 
-The fact is, that if you're doing soft-realtime, you end up having to call
-gettimeofday() a lot more than you should. Your timeouts are fundamentally
-"real time" (ie they are _not_ of the type "I should show the next frame
-in 0.0333 seconds" but they are really "I showed frame N at time X, so I
-need to show frame N+1 at time X+0.0333").
-
-The fact that select() and friends do not work with real time, but
-offsets, and is not restartable means that you end up having to do two
-gettimeofday() calls per select in these situations.
-
-In contrast, if you could just rely on absolute time in select(), you
-would be re-startable _and_ you'd not have to do the extra "what time is
-it now, so that I know what timeout I need to use for the next thing"?
-
-> Yes, and probably select is one of the calls you most of the time use
-> because of portability. So IMHO a linuxism isn't worth the effort.
-
-The fact is, the linuxism exists, and breaking it is worse than not
-breaking it.
-
-The number of users is probably small, but they do exist.
-
-		Linus
-
+-- 
+/Jonathan Lundell.

@@ -1,63 +1,151 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262312AbTFOPd2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 11:33:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbTFOPd2
+	id S262316AbTFOPei (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 11:34:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbTFOPei
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 11:33:28 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37642 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262312AbTFOPd1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 11:33:27 -0400
-Date: Sun, 15 Jun 2003 16:47:16 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: linux-pcmcia@infradead.org,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: PCMCIA PATCHES: rsrc_mgr.c
-Message-ID: <20030615164716.C5417@flint.arm.linux.org.uk>
-Mail-Followup-To: linux-pcmcia@infradead.org,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
+	Sun, 15 Jun 2003 11:34:38 -0400
+Received: from mailc.telia.com ([194.22.190.4]:61155 "EHLO mailc.telia.com")
+	by vger.kernel.org with ESMTP id S262316AbTFOPeT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 11:34:19 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Joseph Fannin <jhf@rivenstone.net>,
+       Jens Taprogge <jens.taprogge@rwth-aachen.de>
+Subject: Re: [PATCH] Synaptics TouchPad driver for 2.5.70
+References: <m2smqhqk4k.fsf@p4.localdomain> <20030615001905.A27084@ucw.cz>
+	<m2he6rv8i6.fsf@telia.com> <20030615142838.A3291@ucw.cz>
+From: Peter Osterlund <petero2@telia.com>
+Date: 15 Jun 2003 17:47:57 +0200
+In-Reply-To: <20030615142838.A3291@ucw.cz>
+Message-ID: <m2of0zqr4i.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have three patches which I'm intending pushing to Linus tonight.  They
-are:
+Vojtech Pavlik <vojtech@suse.cz> writes:
 
-http://patches.arm.linux.org.uk/pcmcia/pcmcia-20030615-1.diff
+> On Sun, Jun 15, 2003 at 02:18:57PM +0200, Peter Osterlund wrote:
+> > 
+> > -	if (hw.w != priv->old_w) {
+> > -		input_event(dev, EV_MSC, MSC_GESTURE, hw.w);
+> > -		priv->old_w = hw.w;
+> > -	}
+> > +	/*
+> > +	 * This will generate an event even if w is unchanged, but that is
+> > +	 * exactly what we want, because user space drivers may depend on
+> > +	 * this for gesture decoding.
+> > +	 */
+> > +	input_event(dev, EV_MSC, MSC_GESTURE, hw.w);
+> 
+> This assumption is not nice. It should instead rely on input_sync() /
+> EV_SYN, SYN_REPORT events for complete packet decoding. Can you do
+> something about that?
 
-  Remove the racy check_mem_resource() function.  Instead, claim
-  the region while we check it, passing a resource structure to
-  the core validation functions.
+The X driver already relies on EV_SYN to decide when it should act on
+the data from the kernel. The problem is that the packet stream is
+used as a time base for gesture decoding, because the touchpad was
+designed like that to make driver implementation simpler. From the
+Synaptics manual:
 
-http://patches.arm.linux.org.uk/pcmcia/pcmcia-20030615-2.diff
+        (Specifically, the TouchPad begins sending packets when Z is 8
+        or more.) The TouchPad also begins sending packets whenever
+        any button is pressed or released. Once the TouchPad begins
+        transmitting, it continues to send packets for one second
+        after Z falls below 8 and the buttons stop changing. The
+        TouchPad does this partly to allow host software to use the
+        packet stream as a time base for gesture decoding, and also to
+        minimize the impact if the system occasionally drops a packet.
 
-  We must always allocate windows below 1MB when a socket driver indicates
-  that it does not have "page registers".  Handle this case in rsrc_mgr.c
-  within find_mem_region rather than each use of find_mem_region().
+For example, if I press the left button, the X driver can not
+immediately generate a left button down event, because maybe I will
+press the right button real soon, in which case the middle mouse
+button emulation will be activated and generate a middle button down
+event. This and similar things are easy to implement by just counting
+packets.
 
-http://patches.arm.linux.org.uk/pcmcia/pcmcia-20030615-3.diff
+I guess it would be possible to rewrite the driver so that it doesn't
+rely on the packet stream for timing, but it would make the driver
+more complicated.
 
-  Turn the resource management on its head.  Rather than using PCMCIA's
-  resource database as the primary object to allocate resources, use
-  Linux's standard resource allocation instead.
+If I could generate only EV_SYN events from the kernel without the
+EV_MSC events, that would of course be OK too, but I don't know if
+that is possible.
 
-  When we have a socket on a PCI bus, we always use the PCI resource
-  allocation functions rather than the kernels core resource allocation,
-  so that we can take account of any bridges.
+The event parsing code int the X driver currently looks like this:
 
-The first two should be mostly harmless.  The third patch needs greater
-testing.  Unfortunately, the PCI groundwork for this patch was recently
-reversed, so I just can't be bothered to separate out that change again
-from the other PCI changes I have.  You basically need to make the
-function non-static, add a declaration to include/linux/pci.h and
-re-export it.
+static Bool
+SynapticsParseEventData(LocalDevicePtr local, SynapticsPrivatePtr priv,
+			struct SynapticsHwState *hw)
+{
+    struct input_event ev;
+
+    while (SynapticsReadEvent(priv, &ev) == Success) {
+	switch (ev.type) {
+	case 0x00:			    /* SYN */
+	    *hw = priv->hwState;
+	    return Success;
+	case 0x01:			    /* KEY */
+	    switch (ev.code) {
+	    case 0x110:			    /* BTN_LEFT */
+		priv->hwState.left = (ev.value ? TRUE : FALSE);
+		break;
+	    case 0x111:			    /* BTN_RIGHT */
+		priv->hwState.right = (ev.value ? TRUE : FALSE);
+		break;
+	    case 0x115:			    /* BTN_FORWARD */
+		priv->hwState.up = (ev.value ? TRUE : FALSE);
+		break;
+	    case 0x116:			    /* BTN_BACK */
+		priv->hwState.down = (ev.value ? TRUE : FALSE);
+		break;
+	    }
+	    break;
+	case 0x03:			    /* ABS */
+	    switch (ev.code) {
+	    case 0x00:			    /* ABS_X */
+		priv->hwState.x = ev.value;
+		break;
+	    case 0x01:			    /* ABS_Y */
+		priv->hwState.y = ev.value;
+		break;
+	    case 0x18:			    /* ABS_PRESSURE */
+		priv->hwState.z = ev.value;
+		break;
+	    }
+	    break;
+	case 0x04:			    /* MSC */
+	    switch (ev.code) {
+	    case 0x02:			    /* MSC_GESTURE */
+		priv->hwState.w = ev.value;
+		break;
+	    }
+	    break;
+	}
+    }
+    return !Success;
+}
+
+static Bool
+SynapticsReadEvent(SynapticsPrivatePtr priv, struct input_event *ev)
+{
+    int i, c;
+    unsigned char *pBuf, u;
+
+    for (i = 0; i < sizeof(struct input_event); i++) {
+	if ((c = XisbRead(priv->buffer)) < 0)
+	    return !Success;
+	u = (unsigned char)c;
+	pBuf = (unsigned char *)ev;
+	pBuf[i] = u;
+    }
+    return Success;
+}
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

@@ -1,67 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbVCHESH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVCHEXJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261304AbVCHESH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 23:18:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbVCHESH
+	id S261316AbVCHEXJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 23:23:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbVCHEXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 23:18:07 -0500
-Received: from fire.osdl.org ([65.172.181.4]:52708 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261316AbVCHERm (ORCPT
+	Mon, 7 Mar 2005 23:23:09 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:700 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261316AbVCHEXG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 23:17:42 -0500
-Date: Mon, 7 Mar 2005 20:16:46 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: paul@linuxaudiosystems.com, mpm@selenic.com, joq@io.com,
-       cfriesen@nortelnetworks.com, chrisw@osdl.org, hch@infradead.org,
-       rlrevell@joe-job.com, arjanv@redhat.com, mingo@elte.hu,
+	Mon, 7 Mar 2005 23:23:06 -0500
+Date: Tue, 8 Mar 2005 05:22:42 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christoph Hellwig <hch@infradead.org>, paul@linuxaudiosystems.com,
+       mpm@selenic.com, joq@io.com, cfriesen@nortelnetworks.com,
+       chrisw@osdl.org, rlrevell@joe-job.com, arjanv@redhat.com,
        alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-Id: <20050307201646.512a2471.akpm@osdl.org>
-In-Reply-To: <20050308035503.GA31704@infradead.org>
-References: <20050112185258.GG2940@waste.org>
-	<200501122116.j0CLGK3K022477@localhost.localdomain>
-	<20050307195020.510a1ceb.akpm@osdl.org>
-	<20050308035503.GA31704@infradead.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Message-ID: <20050308042242.GA15356@elte.hu>
+References: <20050112185258.GG2940@waste.org> <200501122116.j0CLGK3K022477@localhost.localdomain> <20050307195020.510a1ceb.akpm@osdl.org> <20050308035503.GA31704@infradead.org> <20050307201646.512a2471.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050307201646.512a2471.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> wrote:
->
-> On Mon, Mar 07, 2005 at 07:50:20PM -0800, Andrew Morton wrote:
-> > 
-> > So I still have the rt-lsm patch floating about, saying "merge me, merge
-> > me!".  I'm not sure that the world would end were I to do so.
-> > 
-> > Consider this a prod in the direction of those who were pushing
-> > alternatives ;)
+
+* Andrew Morton <akpm@osdl.org> wrote:
+
+> > next we
+> > $CAPABILITY for $FOO and we're headed straight to interface-hell.
 > 
-> It's still a really bad idea.
+> "interface hell"?  Wow.
+> 
+> Still.  It seems to be what we deserve if all that fancy stuff we have
+> cannot address this very simple and very real-world problem.
 
-It solves a real problem and is well encapsulated.  The world won't end if
-we merge it.
+please describe this "very simple and very real-world problem" in simple
+terms. Lets make sure "problem" and "solution" didnt become detached.
 
-Still.  My point is: we're still awaiting anything better and thei is just
-hanging around and hanging around.
-
->  You let the magic gid for oracle hugetlb
-> patch go in with that reasonsing
-
-Which continues to cause zero problems.
-
-> now ew have relatime-lsm,
-
-Not yet.
-
-> next we
-> $CAPABILITY for $FOO and we're headed straight to interface-hell.
-
-"interface hell"?  Wow.
-
-Still.  It seems to be what we deserve if all that fancy stuff we have
-cannot address this very simple and very real-world problem.
-
+	Ingo

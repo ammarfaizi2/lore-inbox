@@ -1,63 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262856AbRFTQJx>; Wed, 20 Jun 2001 12:09:53 -0400
+	id <S263357AbRFTQQC>; Wed, 20 Jun 2001 12:16:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263060AbRFTQJm>; Wed, 20 Jun 2001 12:09:42 -0400
-Received: from [128.165.17.16] ([128.165.17.16]:48146 "EHLO cic-mail.lanl.gov")
-	by vger.kernel.org with ESMTP id <S262856AbRFTQJf>;
-	Wed, 20 Jun 2001 12:09:35 -0400
-Date: Wed, 20 Jun 2001 10:09:33 -0600
-From: "Eric H. Weigle" <ehw@lanl.gov>
-To: linux-kernel@vger.kernel.org
-Subject: [BUG][PATCH] /proc duplicate entries
-Message-ID: <20010620100933.B1457@lanl.gov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Eric-Unconspiracy: There ought to be a conspiracy
-X-Editor: Vim, http://www.vim.org
+	id <S263374AbRFTQPw>; Wed, 20 Jun 2001 12:15:52 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:61660 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S263357AbRFTQPh>;
+	Wed, 20 Jun 2001 12:15:37 -0400
+Date: Wed, 20 Jun 2001 12:15:35 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: bert hubert <ahu@ds9a.nl>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Threads are processes that share more
+In-Reply-To: <20010620175937.A8159@home.ds9a.nl>
+Message-ID: <Pine.GSO.4.21.0106201204140.24658-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello-
 
-Hopefully this isn't redundant, I haven't checked the latest -ac or -pre
-releases. I just noticed on my 2.4.5 box that I have two /proc/dri/ directory
-entries (I've got both on-board and AGP video in the box and both are trying
-to register entries).
 
-Yes, code that tries to register the same name twice is broken, but the
-filesystem still shouldn't allow bad code to break its semantics (duplicate
-entries of the same name).
+On Wed, 20 Jun 2001, bert hubert wrote:
 
-The following patch performs a duplicate name check.
+> Rounding up, it may be worth repeating what I think Alan said some months
+> ago:
+> 
+>                     Threads are processes that share more
 
---------------------------------------------------------------------------------
---- fs/proc/generic.c.orig	Tue Jun 19 15:44:05 2001
-+++ fs/proc/generic.c	Wed Jun 20 10:02:32 2001
-@@ -421,6 +421,14 @@
- 		goto out;
- 	len = strlen(fn);
- 
-+	/* check for name conflicts */
-+	for (ent=(*parent)->subdir; ent; ent=ent->next) {
-+		if (proc_match(len,name,ent)) {
-+			ent = NULL;
-+			goto out;
-+		}
-+	}
-+
- 	ent = kmalloc(sizeof(struct proc_dir_entry) + len + 1, GFP_KERNEL);
- 	if (!ent) goto out;
---------------------------------------------------------------------------------
+... and for absolute majority of programmers additional shared objects mean
+additional fsckup sources.  I don't trust them to write correct async code.
+OK, so I don't trust the majority of programmers to find their dicks if
+you take their Visual Masturbation Aid++ away, but that's another story -
+I'm talking about otherwise clued people, not burger-flippers armed with
+Foo For Complete Dummies in 24 Hours.
 
-Thanks
--Eric
+> And if we just keep bearing that out to everybody a lot of the myths will go
+> away. I would suggest that the pthreads manpages get this attitude.
 
--- 
---------------------------------------------
- Eric H. Weigle   CCS-1, RADIANT team
- ehw@lanl.gov     Los Alamos National Lab
- (505) 665-4937   http://home.lanl.gov/ehw/
---------------------------------------------

@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291519AbSBAECm>; Thu, 31 Jan 2002 23:02:42 -0500
+	id <S291520AbSBAEEW>; Thu, 31 Jan 2002 23:04:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291520AbSBAECd>; Thu, 31 Jan 2002 23:02:33 -0500
-Received: from apollo.wang.co.nz ([210.55.244.9]:10002 "EHLO apollo.wang.co.nz")
-	by vger.kernel.org with ESMTP id <S291519AbSBAECO>;
-	Thu, 31 Jan 2002 23:02:14 -0500
-Message-ID: <11DB9C500CC7D5119A8B00805F5AD3101435F6@chx0.wang.co.nz>
+	id <S291522AbSBAEEO>; Thu, 31 Jan 2002 23:04:14 -0500
+Received: from apollo.wang.co.nz ([210.55.244.9]:19218 "EHLO apollo.wang.co.nz")
+	by vger.kernel.org with ESMTP id <S291520AbSBAEDz>;
+	Thu, 31 Jan 2002 23:03:55 -0500
+Message-ID: <11DB9C500CC7D5119A8B00805F5AD3101435F7@chx0.wang.co.nz>
 From: Ross Wakelin <Ross.Wakelin@gen-i.co.nz>
-To: "'elmer@ylenurme.ee'" <elmer@ylenurme.ee>
+To: "'Alan@redhat.com'" <Alan@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: kernel 2.5.3 and aironet driver - compile problem and fix
-Date: Fri, 1 Feb 2002 17:02:06 +1300 
+Subject: kernel 2.5.3 and i810 audio, bug and fix
+Date: Fri, 1 Feb 2002 17:04:27 +1300 
 MIME-Version: 1.0
 X-Mailer: Internet Mail Service (5.5.2650.21)
 MIME-Version: 1.0
 Content-Type: multipart/signed;
 	protocol="application/x-pkcs7-signature";
 	micalg=SHA1;
-	boundary="----=_NextPart_000_0000_01C1AB42.659C7C30"
+	boundary="----=_NextPart_000_0006_01C1AB42.B98C3790"
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0000_01C1AB42.659C7C30
+------=_NextPart_000_0006_01C1AB42.B98C3790
 Content-Type: multipart/mixed;
-	boundary="----=_NextPart_001_0001_01C1AB42.659E02D0"
+	boundary="----=_NextPart_001_0007_01C1AB42.B98C3790"
 
 
-------=_NextPart_001_0001_01C1AB42.659E02D0
+------=_NextPart_001_0007_01C1AB42.B98C3790
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 
-Hello,
+Hello
 
-I have found a compile problem with the file:
-	drivers/net/aironet4500_core.c.
+I have found and compile problem in the 2.5.3 source
 
-	Line 2839
-		reads		return NODEV
-	should read		return ENODEV
+	File:
+				drivers/sound/i810_audio.c
+
+	Line:			1672
+
+	Reads:		....remap_page_range(vma->vm_start.....
+	Should read:	....remap_page_range(vma, vma->vm_start....
 
 Thanks for the code
 
@@ -58,7 +61,7 @@ Christchurch 		Mob:   +64 (0)21 334 380
 mailto:ross.wakelin@gen-i.co.nz
 http://www.gen-i.co.nz
 
-------=_NextPart_001_0001_01C1AB42.659E02D0
+------=_NextPart_001_0007_01C1AB42.B98C3790
 Content-Type: text/x-vcard;
 	name="Ross Wakelin.vcf"
 Content-Transfer-Encoding: quoted-printable
@@ -83,9 +86,9 @@ EMAIL;PREF;INTERNET:Ross.Wakelin@gen-i.co.nz
 REV:20020109T210033Z
 END:VCARD
 
-------=_NextPart_001_0001_01C1AB42.659E02D0--
+------=_NextPart_001_0007_01C1AB42.B98C3790--
 
-------=_NextPart_000_0000_01C1AB42.659C7C30
+------=_NextPart_000_0006_01C1AB42.B98C3790
 Content-Type: application/x-pkcs7-signature;
 	name="smime.p7s"
 Content-Transfer-Encoding: base64
@@ -137,8 +140,8 @@ SJ7OpZ/nhNjJYmKtBcYxggNpMIIDZQIBATCBmjCBkjELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdl
 c3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3duMQ8wDQYDVQQKEwZUaGF3dGUxHTAbBgNVBAsT
 FENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVlbWFpbCBSU0EgMjAw
 MC44LjMwAgMGSc8wCQYFKw4DAhoFAKCCAiQwGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkq
-hkiG9w0BCQUxDxcNMDIwMjAxMDQwMzQwWjAjBgkqhkiG9w0BCQQxFgQUlRtS1y9kch2+hqtqVZGr
-tYnhsIwwZwYJKoZIhvcNAQkPMVowWDAKBggqhkiG9w0DBzAHBgUrDgMCGjAOBggqhkiG9w0DAgIC
+hkiG9w0BCQUxDxcNMDIwMjAxMDQwNjAxWjAjBgkqhkiG9w0BCQQxFgQU/oweN6OBzMMOrwGPAUXm
+/FvXL60wZwYJKoZIhvcNAQkPMVowWDAKBggqhkiG9w0DBzAHBgUrDgMCGjAOBggqhkiG9w0DAgIC
 AIAwDQYIKoZIhvcNAwICAUAwBwYFKw4DAgcwDQYIKoZIhvcNAwICASgwCgYIKoZIhvcNAgUwgasG
 CSsGAQQBgjcQBDGBnTCBmjCBkjELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTES
 MBAGA1UEBxMJQ2FwZSBUb3duMQ8wDQYDVQQKEwZUaGF3dGUxHTAbBgNVBAsTFENlcnRpZmljYXRl
@@ -146,9 +149,9 @@ IFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVlbWFpbCBSU0EgMjAwMC44LjMwAgMGSc8w
 ga0GCyqGSIb3DQEJEAILMYGdoIGaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBD
 YXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMUQ2VydGlm
 aWNhdGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAyMDAwLjguMzAC
-AwZJzzANBgkqhkiG9w0BAQEFAASBgAj5k/9zZWivULsXtPjTYcCtqiBZp30V53K/Qdy1dOvMUvDa
-vp8XcGGzFahzlHteRMetjBAjNk75rw7W3id8giscUbqso/peYTGI0h8H9mw/a3zrnalzEA2vTDb2
-hXEH/CwjQEN2f7OZDZGlke/X+eo60hjEvmEEyCCduZ0mkTyzAAAAAAAA
+AwZJzzANBgkqhkiG9w0BAQEFAASBgDTJ6zSKQIarLyGLa7oAY4kgrTfJsVvwcKlPl+oKDfIVQ3C4
+N7ZaOpHmMFBcO6zMma5BwUyXjlyd4DiPbZMkHRIPlzu0MHzi+paePTdRHic4MB+5uF8jSuOK0x0Z
+IK9FtAPLOv4f8u7JILjFIB3IIKspJS3khXbyxizNndnbD+TdAAAAAAAA
 
-------=_NextPart_000_0000_01C1AB42.659C7C30--
+------=_NextPart_000_0006_01C1AB42.B98C3790--
 

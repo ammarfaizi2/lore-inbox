@@ -1,62 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263818AbUDGOIh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 10:08:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263811AbUDGOIF
+	id S263669AbUDGOHy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 10:07:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263811AbUDGOHx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 10:08:05 -0400
-Received: from web01-imail.bloor.is.net.cable.rogers.com ([66.185.86.75]:51507
-	"EHLO web01-imail.rogers.com") by vger.kernel.org with ESMTP
-	id S263762AbUDGOHp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 10:07:45 -0400
-X-Mailer: Openwave WebEngine, version 2.8.11 (webedge20-101-194-20030622)
-From: <shawn.starr@rogers.com>
-To: "Brown, Len" <len.brown@intel.com>,
-       "Feldman, Scott" <scott.feldman@intel.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: RE: [BUG][2.6.5 final][e100] NETDEV_WATCHDOG Timeout - Was not a problem wit
-Date: Wed, 7 Apr 2004 10:07:18 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at web01-imail.rogers.com from [127.0.0.1] using ID <shawn.starr@rogers.com> at Wed, 7 Apr 2004 10:07:18 -0400
-Message-Id: <20040407140718.MVHW491735.web01-imail.rogers.com@localhost>
+	Wed, 7 Apr 2004 10:07:53 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:55944 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263669AbUDGOHl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 10:07:41 -0400
+Subject: Re: panic when adding root=/LABEL=/  in grub.conf - newbie
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: sting sting <zstingx@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Sea2-F121U1x4ykaaEv0001bc59@hotmail.com>
+References: <Sea2-F121U1x4ykaaEv0001bc59@hotmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-78p8GY5AzLqdPgyEvAgi"
+Organization: Red Hat UK
+Message-Id: <1081346855.4680.3.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 07 Apr 2004 16:07:35 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I will give this a try today and report back
 
-I should also note, I tried using the older ee100pro driver and also had the same problems. I know it cannot be the network card as older 2.6 kernels did not exhibit this problem. If this is an ACPI change, what can we do to fix this? Currently, I let ACPI do the IRQ routing as I have various hardware that has issues with IRQs (ISA).
+--=-78p8GY5AzLqdPgyEvAgi
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I haven't disabled ACPI as it was working fine before.
+On Wed, 2004-04-07 at 15:37, sting sting wrote:
+> Hello,
+>=20
+> I am working with kenel 2.4.20 on Intel x86.
+> Now I Had downloaded a kernel source to a different folder and build it.
+> I added an entry in grub.conf
+> When I choose to load that kernel everything is OK.
+> It works wth no problem.
+> But under /boot I see nothing of the original files (there is only one fi=
+le=20
+> there , kernel.h).
 
-As a side note, I need to restart testing of the ACPI in general to see if it can route all my ISA devices properly using the new options added to kernel boot.
-> 
-> From: "Brown, Len" <len.brown@intel.com>
-> Date: 2004/04/06 Tue PM 06:58:41 EDT> To: "Feldman, Scott" <scott.feldman@intel.com>, 
->    "Shawn Starr" <shawn.starr@rogers.com>,  <linux-kernel@vger.kernel.org>
-> Subject: RE: [BUG][2.6.5 final][e100] NETDEV_WATCHDOG Timeout - Was not a problem with 2.6.5-rc3
-> 
-> 
-> >> When I try to access the eth0 device I get:
-> >> 
-> >> Apr  4 15:39:01 coredump kernel: NETDEV WATCHDOG: eth0: 
-> >> transmit timed out Apr  4 16:22:12 coredump kernel: NETDEV 
-> >> WATCHDOG: eth0: transmit timed out
-> >
-> >Shawn, try turning off ACPI for interrupt routing.  Load the 
-> >kernel with
-> >the kernel parameter "noapci" set.
-> 
-> You mean "acpi=off", or "pci=noacpi".  If either of these fix the
-> problem, please let me know.  (and send me the dmesg and
-> /proc/interrupts for both cases)
-> 
-> "noapic" (note spelling) would have no effect on this box b/c it is
-> running in PIC-mode.
-> 
-> Cheers,
-> -Len> 
 
-1
+you need to use an initrd if you want mount-by-label to work for your
+root filesystem.
+on a RHL or Fedora system (and I suspect other distros too but I don't
+know for sure) just doing a "make install" in the kernel source will
+make one for you and put the kernel you just build into the grub config
+etc etc etc.
+
+
+--=-78p8GY5AzLqdPgyEvAgi
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBAdAsmxULwo51rQBIRAhlxAJwPGp5IrMJaoDPlDrOp6pCua6MUPgCgpTOC
+SJH2UfUmUUwt0w/J0oo/Zbc=
+=fxKL
+-----END PGP SIGNATURE-----
+
+--=-78p8GY5AzLqdPgyEvAgi--
 

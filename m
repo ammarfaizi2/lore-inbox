@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267155AbTAKGYK>; Sat, 11 Jan 2003 01:24:10 -0500
+	id <S267094AbTAKGVC>; Sat, 11 Jan 2003 01:21:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267156AbTAKGYK>; Sat, 11 Jan 2003 01:24:10 -0500
-Received: from pcp01184434pcs.strl301.mi.comcast.net ([68.60.187.197]:58331
-	"EHLO mythical") by vger.kernel.org with ESMTP id <S267155AbTAKGYJ>;
-	Sat, 11 Jan 2003 01:24:09 -0500
-Date: Sat, 11 Jan 2003 01:32:36 -0500
-From: Ryan Anderson <ryan@michonline.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Larry McVoy <lm@work.bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Larry McVoy <lm@bitmover.com>, Rob Wilkens <robw@optonline.net>,
-       Larry Sendlosky <Larry.Sendlosky@storigen.com>,
-       Richard Stallman <rms@gnu.org>
-Subject: Re: Nvidia and its choice to read the GPL "differently"
-Message-ID: <20030111063236.GB12020@michonline.com>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Larry McVoy <lm@work.bitmover.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
-	Rob Wilkens <robw@optonline.net>,
-	Larry Sendlosky <Larry.Sendlosky@storigen.com>,
-	Richard Stallman <rms@gnu.org>
-References: <7BFCE5F1EF28D64198522688F5449D5A03C0F4@xchangeserver2.storigen.com> <1042250324.1278.18.camel@RobsPC.RobertWilkens.com> <20030111020738.GC9373@work.bitmover.com> <1042255571.32431.43.camel@irongate.swansea.linux.org.uk> <20030111025449.GJ9124@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030111025449.GJ9124@work.bitmover.com>
-User-Agent: Mutt/1.4i
+	id <S267096AbTAKGVC>; Sat, 11 Jan 2003 01:21:02 -0500
+Received: from rwcrmhc53.attbi.com ([204.127.198.39]:36832 "EHLO
+	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
+	id <S267094AbTAKGVB>; Sat, 11 Jan 2003 01:21:01 -0500
+Message-ID: <3E1FBDF8.7000904@kegel.com>
+Date: Fri, 10 Jan 2003 22:47:20 -0800
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)
+X-Accept-Language: de-de, en
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+Subject: Re: NGPT 2.2.0 RELEASED: TOPS LINUXTHREADS AND NPTL IN SCALABILITY
+ AND PERFORMANCE
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 10, 2003 at 06:54:49PM -0800, Larry McVoy wrote:
-> On Sat, Jan 11, 2003 at 03:26:12AM +0000, Alan Cox wrote:
-> > Its not ham you need its utter arrogance and a complete lack of understanding
-> > that writing an OS is a seriously hard problem. There is a whole world of
-> > mysticism around the concept of a 'beginners mind' although to me
-> > "Im sorry nobody told me it was impossible" sums it up far better.
+Valdis.Kletnieks@vt.edu wrote:
+> On Fri, 10 Jan 2003 20:33:46 EST, Jeff Garzik said:
+>> On Fri, Jan 10, 2003 at 05:26:47PM -0800, jjs wrote:
+>> > But according to my understanding, a more accurate
+>> > measure of nptl performance would require a current
+>> > glibc, with the nptl-specific enhancements -
+>> > 
+>> > or am I missing something here?
+>> 
+>> You are correct:  you need a recent 2.5 kernel and a recent glibc.
 > 
-> Indeed.  Lots of things which are hard look easy to people who haven't 
-> done them.  Operating systems don't have a corner on that market.
+> I'll bite - how recent a glibc?  Does the 2.3.1 RPM that RedHat included
+> on the Phoebe beta qualify, or do we need even more bleeding-edge?
 
-For a slightly off-topic example for those interested - Turbine Games
-(www.turbinegames.com) has talked about this a bit in their history, if
-I'm remembering correctly - literally, they just didn't know that the
-game they were building "couldn't be done", so they did it.
+https://listman.redhat.com/pipermail/phil-list/2003-January/000413.html
+lists what sources are needed for the latest nptl.
+Phoebe beta had a slightly earlier snapshot of nptl and glibc.
+
+As far as the kernel goes, it's rumored
+( https://listman.redhat.com/pipermail/phil-list/2003-January/000419.html )
+that you're better off using a recent 2.5 kernel than the 2.4 backport
+in phoebe.
+
+I haven't tried NPTL myself, though, so what do I know...
+- Dan
 
 -- 
+Dan Kegel
+Linux User #78045
+http://www.kegel.com
 
-Ryan Anderson
-  sometimes Pug Majere

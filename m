@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270949AbTGPQpF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 12:45:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270957AbTGPQpF
+	id S270955AbTGPQnQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 12:43:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270957AbTGPQnQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 12:45:05 -0400
-Received: from main.gmane.org ([80.91.224.249]:56254 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S270949AbTGPQo4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 12:44:56 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: Input layer demand loading
-Date: Wed, 16 Jul 2003 18:56:03 +0200
-Message-ID: <yw1x65m2mmvw.fsf@users.sourceforge.net>
-References: <200307131839.49112.fredrik@dolda2000.cjb.net> <200307141258.24458.fredrik@dolda2000.cjb.net>
- <20030716042916.GC3929@kroah.com>
- <200307161457.42862.fredrik@dolda2000.cjb.net>
- <20030716162639.GB7513@kroah.com>
+	Wed, 16 Jul 2003 12:43:16 -0400
+Received: from genius.impure.org.uk ([195.82.120.210]:32145 "EHLO
+	genius.impure.org.uk") by vger.kernel.org with ESMTP
+	id S270955AbTGPQnD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 12:43:03 -0400
+Date: Wed, 16 Jul 2003 17:57:02 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: axboe@suse.de, vojtech@suse.cz
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: PS2 mouse going nuts during cdparanoia session.
+Message-ID: <20030716165701.GA21896@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>, axboe@suse.de,
+	vojtech@suse.cz, Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:hofSci+miGAGwNLm+Q2P7bagI0Y=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> writes:
+I've decided to oggify my CD collection, and every now and
+again, the mouse pointer goes bezerk is if I had been
+shaking it around and randomly clicking on things.
+In the logs are lots of..
 
->> Not necessarily. When the joystick is plugged in, you want to load the 
->> hardware driver modules. There's really no need for the userspace interface 
->> until someone requests it. At least that's the way I see it.
->> And in any case, even if you do want to load joydev.o when the joystick is 
->> plugged in, I don't see how that could be done on-demand when the joystick 
->> port isn't hotplug compatible, such as is the case with gameports, right?
->
-> True, but then if you try to open the port, you will only get the base
-> joydev.o module loaded, not the gameport driver, which is what you
-> _really_ want to have loaded, right?
->
-> So there really isn't much benifit to doing this, sorry.
+psmouse.c: Lost synchronization, throwing 3 bytes away.
 
-That's easily fixed in modules.conf, or modprobe.conf for 2.6.
+It only happens whilst cdparanoia is reading from the CD.
+The IDE CD drive is using DMA, and interrupts are unmasked.
+according to the logs, its happened 32 times since I last
+booted..  /proc/interrupts shows that the i8042 is using
+a different interrupt to the IDE devices..
 
--- 
-Måns Rullgård
-mru@users.sf.net
+Mouse is a logitech wheely PS/2 mouse, using ImPS/2 protocol
+in X config reading from /dev/psaux.
+
+This is using 2.6test1, I'don't recall ever seeing this
+happen in 2.4, but it did occur for a while earlier in 2.5,
+and I forgot about it until now.
+
+Any ideas?
+
+		Dave
 

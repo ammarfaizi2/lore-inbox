@@ -1,56 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262038AbVCHMu1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbVCHMxr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262038AbVCHMu1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 07:50:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbVCHMu1
+	id S262048AbVCHMxr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 07:53:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbVCHMwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 07:50:27 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:22242 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262032AbVCHMs4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 07:48:56 -0500
-Subject: Query: Kdump: Core Image ELF Format
-From: vivek goyal <vgoyal@in.ibm.com>
-To: fastboot <fastboot@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Cc: anderson@redhat.com, haren myneni <hbabu@us.ibm.com>,
-       Maneesh Soni <maneesh@in.ibm.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Andrew Morton <akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 08 Mar 2005 18:20:10 +0530
-Message-Id: <1110286210.4195.27.camel@wks126478wss.in.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Mar 2005 07:52:41 -0500
+Received: from web52904.mail.yahoo.com ([206.190.39.181]:35444 "HELO
+	web52904.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262041AbVCHMwH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 07:52:07 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=vFsgTk+eTeIkTUJWAm0jBzu08OJQl27InoX7h2iVVSTktz+5iX2+QTTfw+wEe73cFv0yey7AjunsMowA4qJJyrgSy6TOoZ5STdWq1KTYgbBmSQA7WIuSqpdRxa9l09ywWmqiZehdvYjnPZI0gOLhb3ePb4rRh7hRiFW50mTsI4c=  ;
+Message-ID: <20050308125202.82717.qmail@web52904.mail.yahoo.com>
+Date: Tue, 8 Mar 2005 13:52:01 +0100 (CET)
+From: szonyi calin <caszonyi@yahoo.com>
+Subject: Re: RFD: Kernel release numbering
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@redhat.com>
+In-Reply-To: <42268037.3040300@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ --- "Randy.Dunlap" <rddunlap@osdl.org> a écrit : 
+> 
+> Maybe I don't understand?  Is someone expecting distro
+> quality/stability from kernel.org kernels?
+> I don't, but maybe I'm one of those minorities.
+> 
 
-Kdump (A kexec based crash dumping mechanism) is going to export the
-kernel core image in ELF format. ELF was chosen as a format, keeping in
-mind that gdb can be used for limited debugging and "Crash" can be used
-for advanced debugging.
+yes. Some people (like me) would like to use from time to time
+ some _new_ stable kernel. It's annoying to see that sometimes
+kernel people say that you have a hardware problem in 2.6.0 
+release and then the bug is silently fixed in a 2.6.5 release
+for example. 
 
-Core image ELF headers are prepared before crash and stored at a safe
-place in memory. These headers are retrieved over a kexec boot and final
-elf core image is prepared for analysis. 
+The 2.6 kernel is not good enough for desktop -- sound skips on 
+a 700Mhz duron when there is a lot (50M of 256) of free memory 
+and mozilla is using CPU. 2.4 with preemptible patches was 
+better in that respect.
 
-Given the fact physical memory can be dis-contiguous, One program header
-of type PT_LOAD is created for every contiguous memory chunk present in
-the system. Other information like register states etc. is captured in
-notes section.
+What i would like to really have is a stable version not a demo
+version. I like testing but sometimes i also want stability and
+it seems that a good enough 2.6 kernel is still away. 
+I don't care how you call it 2.6.x.y.z-rc-kappa i just want to 
+be sure that it will not mess up my system. 
+(and no, i'm not going to use <insert your favourite distro>
+kernel )
+ 
+Just my 2 euro cents (if somebody cares)
 
-Now the issue is, on i386, whether to prepare core headers in ELF32 or
-ELF64 format. gdb can not analyze ELF64 core image for i386 system. I
-don't know about "crash". Can "crash" support ELF64 core image file for
-i386 system?
+P.S. I know this message is late. Sorry if it annoys you.
 
-Given the limitation of analysis tools, if core headers are prepared in
-ELF32 format then how to handle PAE systems? 
+--
+A mouse is a device used to point at 
+the xterm you want to type in.
+Kim Alm on a.s.r.
 
-Any thoughts or suggestions on this?
 
-Thanks
-Vivek
+	
 
+	
+		
+Découvrez le nouveau Yahoo! Mail : 250 Mo d'espace de stockage pour vos mails ! 
+Créez votre Yahoo! Mail sur http://fr.mail.yahoo.com/

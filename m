@@ -1,66 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbVBOBTd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbVBOBTz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261570AbVBOBTd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 20:19:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVBOBQt
+	id S261584AbVBOBTz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 20:19:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261591AbVBOBTz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 20:16:49 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:33014 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261584AbVBOBCw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 20:02:52 -0500
-Message-ID: <42114A1F.5070202@mvista.com>
-Date: Mon, 14 Feb 2005 17:02:23 -0800
-From: Steve Longerbeam <stevel@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: Robin Holt <holt@sgi.com>, Ray Bryant <raybry@sgi.com>,
-       Ray Bryant <raybry@austin.rr.com>, linux-mm <linux-mm@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC 2.6.11-rc2-mm2 0/7] mm: manual page migration -- overview
-References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com> <m1vf8yf2nu.fsf@muc.de> <20050212121228.GA15340@lnx-holt.americas.sgi.com> <20050214191840.GA57423@muc.de>
-In-Reply-To: <20050214191840.GA57423@muc.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 14 Feb 2005 20:19:55 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:5284 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261584AbVBOBR1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 20:17:27 -0500
+Subject: Re: [OT] speeding boot process (was Re: [ANNOUNCE] hotplug-ng 001
+	release)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Tim Bird <tim.bird@am.sony.com>
+Cc: Roland Dreier <roland@topspin.com>, Prakash Punnoor <prakashp@arcor.de>,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>, Greg KH <gregkh@suse.de>,
+       Patrick McFarland <pmcfarland@downeast.net>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <42113F6B.1080602@am.sony.com>
+References: <20050211004033.GA26624@suse.de> <420C054B.1070502@downeast.net>
+	 <20050211011609.GA27176@suse.de>
+	 <1108354011.25912.43.camel@krustophenia.net>
+	 <4d8e3fd305021400323fa01fff@mail.gmail.com> <42106685.40307@arcor.de>
+	 <1108422240.28902.11.camel@krustophenia.net>  <524qge20e2.fsf@topspin.com>
+	 <1108424720.32293.8.camel@krustophenia.net>  <42113F6B.1080602@am.sony.com>
+Content-Type: text/plain
+Date: Mon, 14 Feb 2005 20:17:25 -0500
+Message-Id: <1108430245.32293.16.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
+On Mon, 2005-02-14 at 16:16 -0800, Tim Bird wrote:
+> Lee Revell wrote:
+> > But, I was referring more to things like GDM not being started until all
+> > the other init scripts are done.  Why not start it first, and let the
+> > network initialize while the user is logging in?
+> 
+> There are a number of techniques used by CE vendors to get fast bootup
+> time.  Some CE products boot Linux in under 1 second.  Sony's
+> best Linux boot time in the lab (from power on to user space)
+> was 148 milliseconds, on an ARM chip (running at 200 MHZ I believe).
 
->>For our use, the batch scheduler will give an intermediary program a
->>list of processes and a series of from-to node pairs.  That process would
->>then ensure all the processes are stopped, scan their VMAs to determine
->>what regions are mapped by more than one process, which are mapped
->>by additional processes not in the job, and make this system call for
->>each of the unique ranges in the job to migrate their pages from one
->>node to the next.  I believe Ray is working on a library and a standalone
->>program to do this from a command line.
->>    
->>
->
->Sounds quite ugly. 
->
->Do you have evidence that this is a common use case? (jobs having stuff
->mapped from programs not in the job). If not I think it's better
->to go with a simple interface, not one that is unusable without
->a complex user space library.
->
->If you mean glibc etc. only then the best solution for that would be probably
->to use the (currently unmerged) arbitary file mempolicy code for this and set
-> a suitable attribute that prevents moving.
->  
->
+The reason I marked by response OT is that the time from power on to
+userspace does not seem to be a big problem.  It's the amount of time
+from user space to presenting a login prompt that's way too long.  My
+distro (Debian) runs all the init scripts one at a time, and GDM is the
+last thing that gets run.  There is just no reason for this.  We should
+start X and initialize the display and get the login prompt up there
+ASAP, and let the system acquire the DHCP lease and start sendmail and
+apache and get the date from the NTP server *in the background while I
+am logging in*.  It's not rocket science.
 
-Hi Andi, Ray, et.al.,
+Lee
 
-Just want to let you know that I'm still planning to push
-my patches to NUMA mempolicy for filemap support and
-page migration. I've been swamped with another task at work,
-but later this week I will post the latest patches for review.
-I haven't been following Ray's manual page migration thread
-but will get up-to-speed also, and see how it impacts my patchset
-to mempolicy.
-
-Steve

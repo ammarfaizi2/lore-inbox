@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129207AbRBBFi4>; Fri, 2 Feb 2001 00:38:56 -0500
+	id <S129285AbRBBFn3>; Fri, 2 Feb 2001 00:43:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129285AbRBBFiq>; Fri, 2 Feb 2001 00:38:46 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:17024 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129240AbRBBFig>;
-	Fri, 2 Feb 2001 00:38:36 -0500
-From: "David S. Miller" <davem@redhat.com>
+	id <S129240AbRBBFnS>; Fri, 2 Feb 2001 00:43:18 -0500
+Received: from blackdog.wirespeed.com ([208.170.106.25]:22532 "EHLO
+	blackdog.wirespeed.com") by vger.kernel.org with ESMTP
+	id <S129239AbRBBFnE>; Fri, 2 Feb 2001 00:43:04 -0500
+Message-ID: <3A7A4992.5070303@redhat.com>
+Date: Thu, 01 Feb 2001 23:45:54 -0600
+From: Joe deBlaquiere <jadb@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22 i686; en-US; m18) Gecko/20001107 Netscape6/6.0
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Alex Belits <abelits@phobos.illtel.denver.co.us>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Serial device with very large buffer
+In-Reply-To: <Pine.LNX.4.10.10102012111140.991-100000@mercury>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <14970.18319.991981.729662@pizda.ninka.net>
-Date: Thu, 1 Feb 2001 21:37:19 -0800 (PST)
-To: linux-kernel@vger.kernel.org
-CC: netdev@oss.sgi.com
-Subject: [UPDATE] Zerocopy patch of the day...
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-In the usual spot:
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/davem/zerocopy-2.4.1-2.diff.gz
+Alex Belits wrote:
 
-Changes:
+> On Thu, 1 Feb 2001, Joe deBlaquiere wrote:
+> 
+> 
+>> Hi Alex!
+>> 
+>> 	I'm a little confused here... why are we overrunning? This thing is 
+>> running externally at 19200 at best, even if it does all come in as a 
+>> packet.
+> 
+> 
+>   Different Merlin -- original Merlin is 19200, "Merlin for Ricochet" is
+> 128Kbps (or faster), and uses Metricom/Ricochet network.
 
-1) Merge in 3c59x update from Andrew Morton.  I hope Andrew won't
-   mind if people who see problems due to these changes at least
-   CC: him on bug reports? :-)
+so can you still limit the mru?
 
-2) Correct receive buffer space checks during direct user
-   copies.
+-- 
+Joe
 
-3) Correct returning of errors in datagram wait_for_packet(),
-   cures DoS discovered with AF_UNIX sockets.
-
-And yes, before Mr. Wedgewood asks, the generic fixes (#2 and
-#3) will be sent to Linus seperately when he returns from NYC.
-:-)
-
-I will soon start keeping a real ChangeLog.zerocopy file going at the
-same place you get the patches from.
-
-Later,
-David S. Miller
-davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

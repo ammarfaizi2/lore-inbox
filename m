@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261360AbTEMO42 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 10:56:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbTEMO42
+	id S261350AbTEMOyo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 10:54:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbTEMOyo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 10:56:28 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:30472 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261308AbTEMO4T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 10:56:19 -0400
-Date: Tue, 13 May 2003 16:09:02 +0100
-From: "'Christoph Hellwig'" <hch@infradead.org>
-To: "Mukker, Atul" <atulm@lsil.com>
-Cc: "'Mike Anderson'" <andmike@us.ibm.com>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: unique entry points for all driver hosts
-Message-ID: <20030513160902.A26759@infradead.org>
-Mail-Followup-To: 'Christoph Hellwig' <hch@infradead.org>,
-	"Mukker, Atul" <atulm@lsil.com>,
-	'Mike Anderson' <andmike@us.ibm.com>, linux-scsi@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <0E3FA95632D6D047BA649F95DAB60E570185F196@EXA-ATLANTA.se.lsil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570185F196@EXA-ATLANTA.se.lsil.com>; from atulm@lsil.com on Tue, May 13, 2003 at 09:43:52AM -0400
+	Tue, 13 May 2003 10:54:44 -0400
+Received: from smtp-102-tuesday.noc.nerim.net ([62.4.17.102]:10510 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S261350AbTEMOyn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 10:54:43 -0400
+Message-ID: <3EC10A2F.70109@inet6.fr>
+Date: Tue, 13 May 2003 17:07:27 +0200
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030425
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: root@chaos.analogic.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: What exactly does "supports Linux" mean?
+References: <20030513151630.75ad4028.skraw@ithnet.com> <1052830415.432.2.camel@dhcp22.swansea.linux.org.uk> <Pine.LNX.4.53.0305131016180.238@chaos>
+In-Reply-To: <Pine.LNX.4.53.0305131016180.238@chaos>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 13, 2003 at 09:43:52AM -0400, Mukker, Atul wrote:
-> IMHO, declaring multiple SHTs as suggested by Christoph Hellwig may not be a
-> good idea since it might appear like a hack, would lose the "template"
-> ideology and is not object-oriented :-)
+Richard B. Johnson wrote:
 
-The linux kernel is a pragmatic mix of procedural and object oriented
-concepts, if you want ideology please look elsewhere.  The template is
-exactly a template for multiple hosts and if you driver supports different
-enouigh boards you need multiple templates - it's pretty simple.  Not that
-the template is used much at all..
+>If you really want it to work, try `insmod -f modulename.o`.[...]
+>
 
-> Host structure would be best place to have pointers to these hooks as well.
+Of course, don't do this unless you can live with the following :
 
-This is right but not how the linux scsi stack was written.  Removing them
-now causes more pain then it would solve - just live with the extra indirection.
+1/ nobody will support you in this configuration.
+2/ you have zero guarantee that your hardware will be supported in the 
+future (what will happen when you upgrade to a new kernel with different 
+interfaces and the vendor marketing folks decide that Linux support 
+isn't a good thing anymore ?).
+
 

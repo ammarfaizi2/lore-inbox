@@ -1,114 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbTJCUvg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 16:51:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbTJCUvg
+	id S261162AbTJCVIR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 17:08:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbTJCVIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 16:51:36 -0400
-Received: from fw.osdl.org ([65.172.181.6]:191 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261190AbTJCUvd (ORCPT
+	Fri, 3 Oct 2003 17:08:17 -0400
+Received: from ns.suse.de ([195.135.220.2]:34696 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261162AbTJCVIQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 16:51:33 -0400
-Date: Fri, 3 Oct 2003 13:51:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jan Ischebeck <mail@jan-ischebeck.de>
+	Fri, 3 Oct 2003 17:08:16 -0400
+To: Dave Jones <davej@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: PPP not working on test6-mm2
-Message-Id: <20031003135131.0a8c5f05.akpm@osdl.org>
-In-Reply-To: <1065220814.2261.1.camel@JHome.uni-bonn.de>
-References: <1065220814.2261.1.camel@JHome.uni-bonn.de>
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Subject: Re: backport AMD K7 MCE changes.
+References: <20031003205408.GA17829@redhat.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 03 Oct 2003 23:08:12 +0200
+In-Reply-To: <20031003205408.GA17829@redhat.com.suse.lists.linux.kernel>
+Message-ID: <p73pthexc5f.fsf@oldwotan.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Ischebeck <mail@jan-ischebeck.de> wrote:
->
-> Hi Andrew,
-> 
-> PPP isn't working anymore since test5-mm1.
-> 
-> Here a stacktrace from test6-mm2, last lines from dmesg:
-> 
-> Badness in local_bh_enable at kernel/softirq.c:119
-> Call Trace:
-> [<c01281e5>] local_bh_enable+0x85/0x90
-> [<c0243762>] ppp_async_push+0xa2/0x190
-> [<c024307d>] ppp_asynctty_wakeup+0x2d/0x60
-> [<c020fcf8>] pty_unthrottle+0x58/0x60
-> [<c020c67d>] check_unthrottle+0x3d/0x40
-> [<c020c723>] n_tty_flush_buffer+0x13/0x60
-> [<c0210107>] pty_flush_buffer+0x67/0x70
-> [<c0208f55>] do_tty_hangup+0x405/0x470
-> [<c020a4dc>] release_dev+0x64c/0x680
-> [<c014abfb>] zap_pmd_range+0x4b/0x70
-> [<c014ac63>] unmap_page_range+0x43/0x70
-> [<c0170562>] dput+0x22/0x270
-> [<c020a8aa>] tty_release+0x2a/0x60
-> [<c015ac40>] __fput+0x100/0x120
-> [<c0159229>] filp_close+0x59/0x90
-> [<c0125b34>] put_files_struct+0x54/0xc0
-> [<c0126795>] do_exit+0x155/0x3f0
-> [<c0126aca>] do_group_exit+0x3a/0xb0
-> [<c02fb427>] syscall_call+0x7/0xb
-> 
+Dave Jones <davej@redhat.com> writes:
+>  			 */
+> -			if(c->x86 == 6 || c->x86 == 15)
+> +			
+> +			if(c->x86 == 6 || c->x86 == 15) {
+> +				startbank = 1;
 
-Yes, this is due to a locking problem in do_tty_hangup() which everyone is
-pretenting isn't there.
+Can you please add comments to such magic changes ?
 
+I still think we should not do anything without an official errata.
 
-> PPP is build in, 
-> 
-> # CONFIG_PLIP is not set
-> CONFIG_PPP=y
-> # CONFIG_PPP_MULTILINK is not set
-> CONFIG_PPP_FILTER=y
-> CONFIG_PPP_ASYNC=y
-> # CONFIG_PPP_SYNC_TTY is not set
-> CONFIG_PPP_DEFLATE=y
-> CONFIG_PPP_BSDCOMP=y
-> CONFIG_PPPOE=y
-> # CONFIG_SLIP is not set
-> 
-> 
-> trying to start pppd doesn't work. Syslog:
-> 
-> Oct  4 00:05:39 JHome pppoe[2108]: ioctl(SIOCGIFHWADDR): Session 0: No
-> such device
-> Oct  4 00:05:39 JHome pppd[1134]: Serial connection established.
-> Oct  4 00:05:39 JHome pppd[1134]: Couldn't get channel number:
-> Input/output error
+The K7 actually has two MCE enable registers: a mask that is only
+supposed to be programmed by the BIOS and works around bugs and the
+standardized IA32 register controlled by the OS. I suspect your case
+only happens with some buggy BIOS that doesn't program the shadow mask
+correctly. This would imply that it would make more sense to test it
+and program it correctly based on a known good value.
 
-Odd.  -ENODEV against the ppp device I suppose.  test5-mm1 added the below
-fix, which is only applicable if you're using devfs (are you using devfs?)
-and is unlikely to explain this anyway.
-
-Still, could you do a `patch -p1 -R' of the below, see what happens?
-
-
-diff -puN drivers/net/ppp_generic.c~ppp-oops-fix drivers/net/ppp_generic.c
---- 25/drivers/net/ppp_generic.c~ppp-oops-fix	2003-09-09 23:41:40.000000000 -0700
-+++ 25-akpm/drivers/net/ppp_generic.c	2003-09-09 23:41:40.000000000 -0700
-@@ -792,7 +792,7 @@ static struct file_operations ppp_device
- 
- /* Called at boot time if ppp is compiled into the kernel,
-    or at module load time (from init_module) if compiled as a module. */
--int __init ppp_init(void)
-+static int __init ppp_init(void)
- {
- 	int err;
- 
-@@ -801,6 +801,8 @@ int __init ppp_init(void)
- 	if (!err) {
- 		err = devfs_mk_cdev(MKDEV(PPP_MAJOR, 0),
- 				S_IFCHR|S_IRUSR|S_IWUSR, "ppp");
-+		if (err)
-+			unregister_chrdev(PPP_MAJOR, "ppp");
- 	}
- 
- 	if (err)
-
-_
-
+-Andi

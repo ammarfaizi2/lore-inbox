@@ -1,79 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315419AbSFYAKW>; Mon, 24 Jun 2002 20:10:22 -0400
+	id <S315420AbSFYAPP>; Mon, 24 Jun 2002 20:15:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315420AbSFYAKW>; Mon, 24 Jun 2002 20:10:22 -0400
-Received: from OL65-148.fibertel.com.ar ([24.232.148.65]:26828 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S315419AbSFYAKV>;
-	Mon, 24 Jun 2002 20:10:21 -0400
-Date: Mon, 24 Jun 2002 21:15:13 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] loop devices from NFS broken in recent 2.5
-Message-ID: <20020624211513.A5442@almesberger.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S315421AbSFYAPO>; Mon, 24 Jun 2002 20:15:14 -0400
+Received: from pallas.or.intel.com ([134.134.214.21]:21961 "EHLO
+	pallas.or.intel.com") by vger.kernel.org with ESMTP
+	id <S315420AbSFYAPO>; Mon, 24 Jun 2002 20:15:14 -0400
+Message-ID: <59885C5E3098D511AD690002A5072D3C02AB7F59@orsmsx111.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Shawn Starr'" <spstarr@sh0n.net>, Linux <linux-kernel@vger.kernel.org>
+Subject: RE: Linux 2.5.24 - Strange power off problems (ACPI support on)
+Date: Mon, 24 Jun 2002 17:15:03 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Recent 2.5 kernels break loop devices using files on NFS, because
-inode->i_sb->s_bdev is NULL, so you get an oops in loop_set_fd.
+> From: Shawn Starr [mailto:spstarr@sh0n.net] 
+> When I run the halt/poweroff program, it powers off the hard 
+> disks, and
+> displays the 'Poweroff System' message. If I press the power 
+> button, It
+> turns the system off HARD, Ie, i don't see the NIC card's aux 
+> power on,
+> and when I try to turn the machine on again it won't until I 
+> physically
+> remove all power (turn off powerbar) for a few seconds, then 
+> It will let
+> me power it on (or it will power on itself).
+> 
+> This did not happen in the 2.4.x kernel, I assume a new ACPI bug? ;-)
 
-The patch below fixes this. Note that I'm not entirely sure
-whether using i_blksize is really correct. The patch is for
-2.5.24.
+I'm heartened to see that ACPI PCI IRQ routing and CPU/IOAPIC enumeration is
+working on your system. ;-)
 
-This patch also removes redundant setting of LO_FLAGS_READ_ONLY
+2.4 ACPI is very different from 2.5 ACPI. You can try the latest ACPI patch
+against 2.4 at http://sf.net/projects/acpi .
 
-- Werner
+I bet it will do the same thing, though. I'll have to think about why this
+might be happening.
 
----------------------------------- cut here -----------------------------------
-
---- drivers/block/loop.c.orig	Sun Jun 23 09:09:10 2002
-+++ drivers/block/loop.c	Sun Jun 23 11:41:19 2002
-@@ -336,7 +336,10 @@ lo_receive(struct loop_device *lo, struc
- 
- static inline int loop_get_bs(struct loop_device *lo)
- {
--	return block_size(lo->lo_device);
-+	if (lo->lo_device)
-+		return block_size(lo->lo_device);
-+	/* @@@ is this correct ? */
-+	return lo->lo_backing_file->f_dentry->d_inode->i_blksize;
- }
- 
- static inline unsigned long loop_get_iv(struct loop_device *lo,
-@@ -662,9 +665,6 @@ static int loop_set_fd(struct loop_devic
- 	error = -EINVAL;
- 	inode = file->f_dentry->d_inode;
- 
--	if (!(file->f_mode & FMODE_WRITE))
--		lo_flags |= LO_FLAGS_READ_ONLY;
--
- 	if (S_ISBLK(inode->i_mode)) {
- 		lo_device = inode->i_bdev;
- 		if (lo_device == bdev) {
-@@ -691,7 +691,7 @@ static int loop_set_fd(struct loop_devic
- 
- 	get_file(file);
- 
--	if (IS_RDONLY (inode) || bdev_read_only(lo_device)
-+	if (IS_RDONLY (inode) || (lo_device && bdev_read_only(lo_device))
- 	    || !(lo_file->f_mode & FMODE_WRITE))
- 		lo_flags |= LO_FLAGS_READ_ONLY;
- 
-@@ -706,7 +706,7 @@ static int loop_set_fd(struct loop_devic
- 	lo->old_gfp_mask = inode->i_mapping->gfp_mask;
- 	inode->i_mapping->gfp_mask = GFP_NOIO;
- 
--	set_blocksize(bdev, block_size(lo_device));
-+	set_blocksize(bdev, loop_get_bs(lo));
- 
- 	lo->lo_bio = lo->lo_biotail = NULL;
- 	kernel_thread(loop_thread, lo, CLONE_FS | CLONE_FILES | CLONE_SIGHAND);
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://icapeople.epfl.ch/almesber/_____________________________________/
+Regards -- Andy

@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261901AbVBUGxY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261902AbVBUG4v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261901AbVBUGxY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 01:53:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261902AbVBUGxY
+	id S261902AbVBUG4v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 01:56:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbVBUG4v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 01:53:24 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:61836 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261901AbVBUGxU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 01:53:20 -0500
-Subject: Re: A common layer for Accounting packages
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jay Lan <jlan@sgi.com>, LSE-Tech <lse-tech@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>
-In-Reply-To: <20050218171610.757ba9c9.akpm@osdl.org>
-References: <42168D9E.1010900@sgi.com>
-	 <20050218171610.757ba9c9.akpm@osdl.org>
-Date: Mon, 21 Feb 2005 07:51:21 +0100
-Message-Id: <1108968681.8398.44.camel@frecb000711.frec.bull.fr>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 21/02/2005 08:00:12,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 21/02/2005 08:02:12,
-	Serialize complete at 21/02/2005 08:02:12
+	Mon, 21 Feb 2005 01:56:51 -0500
+Received: from smtp817.mail.sc5.yahoo.com ([66.163.170.3]:11682 "HELO
+	smtp817.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261902AbVBUG4u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 01:56:50 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Miles Bader <miles@gnu.org>
+Subject: Re: [BK] upgrade will be needed
+Date: Mon, 21 Feb 2005 01:56:46 -0500
+User-Agent: KMail/1.7.2
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Sean <seanlkml@sympatico.ca>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Chris Friesen <cfriesen@nortel.com>, "d.c" <aradorlinux@yahoo.es>,
+       cs@tequila.co.jp, galibert@pobox.com, kernel@crazytrain.com,
+       linux-kernel@vger.kernel.org
+References: <seanlkml@sympatico.ca> <20050218162729.GA5839@thunk.org> <buomzty5uyw.fsf@mctpc71.ucom.lsi.nec.co.jp>
+In-Reply-To: <buomzty5uyw.fsf@mctpc71.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+Content-Disposition: inline
+Message-Id: <200502210156.47993.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-02-18 at 17:16 -0800, Andrew Morton wrote:
-> Jay Lan <jlan@sgi.com> wrote:
-> >
-> > Since the need of Linux system accounting has gone beyond what BSD
-> > accounting provides, i think it is a good idea to create a thin layer
-> > of common code for various accounting packages, such as BSD accounting,
-> > CSA, ELSA, etc. The hook to do_exit() at exit.c was changed to invoke
-> > a routine in the common code which would then invoke those accounting
-> > packages that register to the acct_common to handle do_exit situation.
+On Monday 21 February 2005 00:43, Miles Bader wrote:
+> "Theodore Ts'o" <tytso@mit.edu> writes:
+> > The "cost" of using BK seems to be primarily more theoretical, and
+> > ideological, than real.
 > 
-> This all seems to be heading in the wrong direction.  Do we really want to
-> have lots of different system accounting packages all hooking into a
-> generic we-cant-decide-what-to-do-so-we-added-some-pointless-overhead
-> framework?
+> I've never used BK (not allowed to), but some things I've read about it
+> sound quite annoying.  For instance:
 > 
-> Can't we get _one_ accounting system in there, get it right, avoid the
-> framework?
+>  * Every source tree contains your entire repository => massive disk usage
 
-  Is it possible to just merge the BSD accounting and the CSA accounting
-by adding in the current BSD per-process accounting structure some
-missing fields like the mm integral provided by the CSA patch?
+It's not too bad as you just hardlink most of the trees to their parent.
+ 
+>  * Must "unlock" files before working on them ("bk edit"); I recall
+>    doing this with RCS, and it was, well, a real pain.
 
-ELSA is just a user of the accounting data. We need a hook in the
-do_fork() routine to manage group of processes, not to do accounting. 
+I think there is a setting to have them checked out for editing automatically.
 
-Guillaume
-
+-- 
+Dmitry

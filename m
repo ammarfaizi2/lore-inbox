@@ -1,91 +1,142 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318229AbSHSJBG>; Mon, 19 Aug 2002 05:01:06 -0400
+	id <S318246AbSHSJIM>; Mon, 19 Aug 2002 05:08:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318230AbSHSJBG>; Mon, 19 Aug 2002 05:01:06 -0400
-Received: from rj.SGI.COM ([192.82.208.96]:54678 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S318229AbSHSJBF>;
-	Mon, 19 Aug 2002 05:01:05 -0400
-Message-ID: <3D60B508.B8ABABC6@alphalink.com.au>
-Date: Mon, 19 Aug 2002 19:06:16 +1000
-From: Greg Banks <gnb@alphalink.com.au>
-Organization: Corpus Canem Pty Ltd.
-X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.15-4mdkfb i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Kernel Build Mailing List 
-	<kbuild-devel@lists.sourceforge.net>
-Subject: ANNOUNCE: gcml2 0.7
-Content-Type: text/plain; charset=us-ascii
+	id <S318249AbSHSJIL>; Mon, 19 Aug 2002 05:08:11 -0400
+Received: from pop.gmx.net ([213.165.64.20]:38613 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S318246AbSHSJIK>;
+	Mon, 19 Aug 2002 05:08:10 -0400
+Date: Mon, 19 Aug 2002 11:13:35 +0200
+From: gigerstyle@gmx.ch
+To: linux-kernel@vger.kernel.org
+Subject: Re: Problem with PCMCIA 8139too
+Message-Id: <20020819111335.1ca1cabe.gigerstyle@gmx.ch>
+In-Reply-To: <20020815215523.3071a528.gigerstyle@gmx.ch>
+References: <20020815215523.3071a528.gigerstyle@gmx.ch>
+X-Mailer: Sylpheed version 0.8.1claws (GTK+ 1.2.10; )
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-G'day,
+Hi again...
 
-gcml2 is (among other things) a Linux kconfig language syntax
-checker.  Version 0.7 is available at
+The problem still exists...
+I also tried the newest kernel (2.4.20-pre3).
 
-http://sourceforge.net/project/showfiles.php?group_id=18813&release_id=106023
+I think the 8139 driver is correct. The apm driver has a problem.
 
-and
+Explanation:
 
-http://www.alphalink.com.au/~gnb/gcml2/download.html
+When I boot my Notebook without loaded the network and pcmcia driver then set it into sleeping mode and resume it later, then load all needed drivers, the card is recognised but does not work. Same problem.
 
-There's also an online summary of the warnings and errors from the
-syntax checker, with real examples, from
+Is it a problem with apm and pci-bus? (All other direct connected devices (Soundcard, graphiccard etc) working well).
 
-http://www.alphalink.com.au/~gnb/gcml2/checker.html
+Thank you
 
-Here's the change log
-
-
-*  Warnings can be individually enabled.  Default set depends
-   on whether the parser is in merge mode. API functions to
-   enable/disable warnings by index and convert a string name
-   to an index.
-
-*  Added check for define to nonliteral expression.
-
-*  More precise check for ambiguous comparison against "n" only
-   complains for symbols which are forward-declared at the point
-   when compared.
-
-*  Made inconsistent-tag warnings more precise; doesn't
-   emit spurious warnings about define_bool not having an
-   (EXPERIMENTAL) tag.
-
-*  More precise check for forward references and forward
-   dependencies can tell the difference between forward and
-   undeclared, at the cost of some storage.
-
-*  Check for overlapping definitions by reducing conditions to
-   disjunctive normal forms.
-
-*  Added check for forward dependencies.
-
-*  Added check for misuse of and dependency on arch-constant
-   symbols like CONFIG_X86.
-
-*  Renamed summarise-warnings.awk -> summarize.awk and installed
-   it.
-
-*  Added cml-summarize shell script, which runs summarize.awk.
-
-*  Added cml-check-all shell script, based on old dochecks.sh,
-   but now also handles running cml-summarize.
-
-*  Added manpages for cml-check, cml-check-all and
-   cml-summarize. Description of errors and warnings for the
-   cml-check manpage is controlled in HTML and shared with the
-   web page.
-
-*  RPM package support: added spec file, rpm: target.
+Marc Giger
 
 
-Greg.
--- 
-the price of civilisation today is a courageous willingness to prevail,
-with force, if necessary, against whatever vicious and uncomprehending
-enemies try to strike it down.     - Roger Sandall, The Age, 28Sep2001.
+On Thu, 15 Aug 2002 21:55:23 +0200
+gigerstyle@gmx.ch wrote:
+
+> Hi!
+> 
+> I have successfully installed the PCMCIA CardBus NIC with realtek 8139 chip. I'm using the yenta_socket module and of course the 8139too module.
+> 
+> As test I set up the interface with 
+> 
+> 	ifconfig eth0 192.168.0.5 up
+> 
+> and made a ping to another host.
+> 
+> Seems all to be ok.. no problems there.
+> 
+> 
+> When I put my Notebook in sleeping mode and resume it, ifconfig shows still the same network configuration, BUT now I can't ping any other hosts.
+> 
+> A
+> 	ifconfig eth0 down
+> and
+> 	ifconfig eth0 192.168.0.5 up
+> 
+> doesn't help.
+> 
+> Ping says only:
+> 
+> PING 192.168.0.1 (192.168.0.1) from 192.168.0.5 : 56(84) bytes of data.
+> From 192.168.0.5: icmp_seq=1 Destination Host Unreachable
+> From 192.168.0.5 icmp_seq=1 Destination Host Unreachable
+> From 192.168.0.5 icmp_seq=2 Destination Host Unreachable
+> From 192.168.0.5 icmp_seq=3 Destination Host Unreachable
+> From 192.168.0.5 icmp_seq=4 Destination Host Unreachable
+> From 192.168.0.5 icmp_seq=5 Destination Host Unreachable
+> From 192.168.0.5 icmp_seq=6 Destination Host Unreachable
+> 
+> --- 192.168.0.1 ping statistics ---
+> 10 packets transmitted, 0 received, +7 errors, 100% loss, time 9025ms
+> 
+> 
+> Have also tried many other things like reloading modules,
+> shutting down pcmcia before sleeping etc etc....
+> As last I used the hotplugging scripts...but also without success.
+> 
+> There are no errors in message or something else:-(
+> After a standby I have to reboot the Notebook for a proper working NIC:-(
+> 
+> Is there any way that it will work? I like standby and hate booting;-)
+> 
+> Other cards have no problems (older realtek, aironet 340) but they aren't cardbus.
+> 
+> 
+> /varr/log/messages:
+> 
+> Aug 15 21:18:59 vaio kernel: cs: cb_alloc(bus 6): vendor 0x10ec, device 0x8139
+> Aug 15 21:18:59 vaio kernel: PCI: Enabling device 06:00.0 (0000 -> 0003)
+> Aug 15 21:19:00 vaio cardmgr[533]: socket 1: CardBus hotplug device
+> Aug 15 21:19:00 vaio kernel: 8139too Fast Ethernet driver 0.9.25
+> Aug 15 21:19:00 vaio kernel: PCI: Setting latency timer of device 06:00.0 to 64
+> Aug 15 21:19:00 vaio kernel: eth0: RealTek RTL8139 Fast Ethernet at 0xccb99000, 00:30:4f:1d:53:7a, IRQ 9
+> Aug 15 21:19:00 vaio kernel: eth0:  Identified 8139 chip type 'RTL-8139C'
+> Aug 15 21:19:00 vaio insmod: Using /lib/modules/2.4.19/kernel/drivers/net/mii.o
+> Aug 15 21:19:00 vaio insmod: Symbol version prefix ''
+> Aug 15 21:19:00 vaio insmod: Using /lib/modules/2.4.19/kernel/drivers/net/8139too.o
+> Aug 15 21:19:19 vaio kernel: eth0: Setting 100mbps half-duplex based on auto-negotiated partner ability 40a1.
+> 
+> Loaded modules:
+> 
+> Module                  Size  Used by    Not tainted
+> 8139too                14272   1
+> mii                     1056   0  [8139too]
+> soundcore               3268   0  (autoclean)
+> ipv6                  124928  -1  (autoclean)
+> ds                      6368   2
+> yenta_socket            8704   2
+> pcmcia_core            34240   0  [ds yenta_socket]
+> isa-pnp                27388   0  (unused)
+> joydev                  6816   0  (unused)
+> evdev                   4096   0  (unused)
+> mousedev                3808   1
+> hid                    18944   0  (unused)
+> usbmouse                1792   0  (unused)
+> input                   3072   0  [joydev evdev mousedev hid usbmouse]
+> uhci                   23816   0  (unused)
+> usbcore                54272   1  [hid usbmouse uhci]
+> nls_iso8859-1           2848   1  (autoclean)
+> nls_cp437               4384   1  (autoclean)
+> 
+> 
+> Ah before I forget: I'm using Kernel Version 2.4.19
+> 
+> More info needed? No problem..
+> 
+> 
+> Marc Giger
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

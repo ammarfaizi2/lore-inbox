@@ -1,59 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261226AbTJ0Guv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 01:50:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbTJ0Guv
+	id S261235AbTJ0HL0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 02:11:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbTJ0HLZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 01:50:51 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:55741 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261226AbTJ0Guu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 01:50:50 -0500
-Date: Sun, 26 Oct 2003 22:43:58 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: akpm@osdl.org, Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, kuznet@ms2.inr.ac.ru
-Subject: Re: Linux 2.6.0-test9
-Message-Id: <20031026224358.233e6d1a.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0310261623000.3157-100000@home.osdl.org>
-References: <Pine.LNX.4.44.0310261607230.3157-100000@home.osdl.org>
-	<Pine.LNX.4.44.0310261623000.3157-100000@home.osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Mon, 27 Oct 2003 02:11:25 -0500
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:274 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261235AbTJ0HLY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 02:11:24 -0500
+Date: Mon, 27 Oct 2003 07:11:20 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Greg KH <greg@kroah.com>
+Cc: Matthew Wilcox <willy@debian.org>, "Moore, Eric Dean" <emoore@lsil.com>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]  2.4.23-pre8 driver udpate for MPT Fusion (2.05.10)
+Message-ID: <20031027071120.A11028@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Greg KH <greg@kroah.com>, Matthew Wilcox <willy@debian.org>,
+	"Moore, Eric Dean" <emoore@lsil.com>, linux-scsi@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <0E3FA95632D6D047BA649F95DAB60E57035A9458@exa-atlanta.se.lsil.com> <20031025191828.GA17144@kroah.com> <20031025204405.GB5172@parcelfarce.linux.theplanet.co.uk> <20031025210550.GB23437@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031025210550.GB23437@kroah.com>; from greg@kroah.com on Sat, Oct 25, 2003 at 02:05:50PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Oct 2003 16:28:11 -0800 (PST)
-Linus Torvalds <torvalds@osdl.org> wrote:
+On Sat, Oct 25, 2003 at 02:05:50PM -0700, Greg KH wrote:
+> Yeah, but some drivers almost do (Adaptec comes to mind.)  It will work
+> in a pci hotplug system, while other scsi drivers will not work at all.
 
-> But reverting the change is clearly the "safer" thing to do, I just worry 
-> that Alexey might have had a real reason for tryign to avoid the EINTR in 
-> the first place (for non-URG data).
-
-I'd like to hear something from Alexey first.
-
-The problem we were trying to deal with was that when data
-is available to read a lot of people were complaining that
-we return -EINTR and no other system does this.
-
-This is heavily inconsistent with how we handle every other
-type of socket error.  In all other cases, a read() when data
-is available will succeed until the very last byte is sucked
-out of the socket, then any subsequent read() call after the
-queue is emptied will return the error.
-
-But I am starting to see that URG is different.  It is not like
-other socket errors that halt the socket and make no new data
-arrive after it happens.  Rather, URG can happen just about anywhere
-and more data can continue to flow into the socket buffers.
-
-In fact, this means that our change can result in an application
-can never see the error if data continues to arrive faster than
-the application can pull it out, see?
-
-Alexey, I think we did not understand this case fully when making this
-change.
+No, it won't work.  calling scsi_register outside ->detect on 2.4 will
+just get you a dead Scsi_Host.
 

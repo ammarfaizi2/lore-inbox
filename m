@@ -1,81 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261725AbUCBSFG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 13:05:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261727AbUCBSFG
+	id S261629AbUCBSVL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 13:21:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbUCBSVL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 13:05:06 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27540 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261725AbUCBSE6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 13:04:58 -0500
-To: hpa@zytor.com (H. Peter Anvin)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [CFT][PATCH] 2.6.4-rc1 remove x86 boot page tables
-References: <m1vflp81kq.fsf@ebiederm.dsl.xmission.com>
-	<c21amp$769$1@terminus.zytor.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 02 Mar 2004 10:56:46 -0700
-In-Reply-To: <c21amp$769$1@terminus.zytor.com>
-Message-ID: <m1y8qj3zfl.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+	Tue, 2 Mar 2004 13:21:11 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:6784 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261629AbUCBSVG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 13:21:06 -0500
+Date: Tue, 2 Mar 2004 13:21:23 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: poll() in 2.6 and beyond
+Message-ID: <Pine.LNX.4.53.0403021318580.796@chaos>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hpa@zytor.com (H. Peter Anvin) writes:
 
-> Followup to:  <m1vflp81kq.fsf@ebiederm.dsl.xmission.com>
-> By author:    ebiederm@xmission.com (Eric W. Biederman)
-> In newsgroup: linux.dev.kernel
-> > 
-> > I think I have accounted for the sub architectures but I don't have
-> > the hardware to test them.  For voyager and VISWS I actually changed
-> > some code so I would appreciate a confirmation I didn't break
-> > anything.  
-> > 
-> 
-> For VISWS I think you actually need to turn paging off explicitly.
+Poll in 2.6.0; when a driver routine calls poll_wait()
+it returns <<immediately>> to somewhere in the
+kernel, then waits for my wake_up_interuptible(), before
+returning control to a user sleeping in poll(). This means
+that the user gets the wrong poll return value! It
+doesn't get the value it was given as a result of the
+interrupt, but the value that existed (0) before the
+interrupt occurred.
 
-Hmm.  I will look at that.
+Poll should not return from poll_wait() until it gets
+a wake_up_interruptible() call. The wait variable,
+info->pwait, below, has been initialized by executing
+init_waitqueue_head(&info->pwait) in the initialization
+code. This code works in 2.4.24.
 
-> Also, you probably need to check that you didn't break 4G/4G,
-> especially on SMP.
+What do I do to make it work in 2.6.0 and beyond? There
+are no hints in the 2.6 drivers as they all seem to be
+written like this and they presumably work.
 
-The patch will need a few tweaks but it should be fairly straight forward.
 
-> I would also like to remove the magic %bx, which I did in the version
-> of my patch sent to akpm and which is now in -mm (basically the SMP
-> trampoline jumps to a different entrypoint instead.)  In that patch,
-> %ebx is still used as a flag, but it's completely internal to head.S.
+/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+/*
+ *   The interrupt service routine.
+ */
+static void pci_isr(int irq, void *p, struct pt_regs *regs)
+{
+    spin_lock(&info->lock);
+    DEB(printk(KERN_INFO"%s : Interrupt!\n", devname));
+    info->poll_flag |= POLLIN|DEF_POLL;
+    wake_up_interruptible(&info->pwait);
+    spin_unlock(&info->lock);
+}
+/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+/*
+ *  Device poll routine.
+ */
+static size_t poll(struct file *fp, struct poll_table_struct *wait)
+{
+    size_t poll_flag;
+    size_t flags;
+    DEB(printk(KERN_INFO"%s : poll called\n", devname));
+    poll_wait(fp, &info->pwait, wait);
+    lockit(TRUE, &flags);
+    poll_flag = info->poll_flag;
+    info->poll_flag = 0;
+    lockit(FALSE, &flags);
+    DEB(printk(KERN_INFO"%s : poll returns\n", devname));
+    return poll_flag;
+}
 
-Ok I have not seen that one.  In this case there was enough common
-code that it seemed reasonable to reuse it.  I managed to reduce
-the code to two tests.  With just a bit of care I suspect I could
-remove the tests completely.
- 
-> See ftp://ftp.kernel.org/pub/linux/kernel/people/hpa/earlymem-7.diff
-> 
-> > Thanks to HPA who got the ball started :)
-> 
-> :)
-> 
-> I definitely agree that simply using no paging until we have page
-> tables is by far the cleanest approach.  I felt that is was too high
-> risk for 2.6, basically because I'm a chicken, but more realistically
-> because I couldn't really see the effect on all subarchitectures, and
-> I didn't feel 100% confident that there wasn't anything that relied on
-> memory being dual mapped; however, I'm more than happy to be proven
-> wrong :)
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-I will try.  So far except for early_printk I have not found anything.
-And that was easy to fix.
- 
-> Oh yes, with this change you should probably just move swapper_pg_dir
-> (and empty_zero_page?) into .bss like anything else that should be
-> zero after boot.
 
-Sounds like a good idea.
-
-Eric

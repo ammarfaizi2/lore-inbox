@@ -1,61 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263161AbTDBVdI>; Wed, 2 Apr 2003 16:33:08 -0500
+	id <S263163AbTDBVkS>; Wed, 2 Apr 2003 16:40:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263162AbTDBVdI>; Wed, 2 Apr 2003 16:33:08 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:61060 "EHLO doc.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S263161AbTDBVdE>;
-	Wed, 2 Apr 2003 16:33:04 -0500
-Date: Wed, 2 Apr 2003 13:44:26 -0800
-From: Bob Miller <rem@osdl.org>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, mtd@infradead.org
-Subject: [PATCH 2.5.66] Convert octagon-5066 to to remove check_region().
-Message-ID: <20030402214426.GB17147@doc.pdx.osdl.net>
+	id <S263164AbTDBVkS>; Wed, 2 Apr 2003 16:40:18 -0500
+Received: from [12.47.58.55] ([12.47.58.55]:23281 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id <S263163AbTDBVkR>;
+	Wed, 2 Apr 2003 16:40:17 -0500
+Date: Wed, 2 Apr 2003 13:51:04 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Russell Miller <rmiller@duskglow.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: subsystem crashes reboot system?
+Message-Id: <20030402135104.4b1acadf.akpm@digeo.com>
+In-Reply-To: <200304021149.36511.rmiller@duskglow.com>
+References: <200304021149.36511.rmiller@duskglow.com>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 02 Apr 2003 21:51:36.0575 (UTC) FILETIME=[0892E0F0:01C2F962]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Moved the request_region() call to replace check_region() and adds
-release_region()'s in the error paths that occure before the old
-call to request_region().
+Russell Miller <rmiller@duskglow.com> wrote:
+>
+> Since this was an assertion that failed, one would think that bringing the 
+> system down automatically in an orderly - then, if that fails, disorderly - 
+> fashion would be possible.
 
--- 
-Bob Miller					Email: rem@osdl.org
-Open Source Development Lab			Phone: 503.626.2455 Ext. 17
+The way to handle this is to make arch/i386/kernel/traps.c:die() optionally
+call panic() rather than do_exit().
 
+It makes sense.  It does mean that we now have zero chance of the diagnostic
+info making it to the system logs.
 
-diff -Nru a/drivers/mtd/maps/octagon-5066.c b/drivers/mtd/maps/octagon-5066.c
---- a/drivers/mtd/maps/octagon-5066.c	Wed Apr  2 10:57:40 2003
-+++ b/drivers/mtd/maps/octagon-5066.c	Wed Apr  2 10:57:40 2003
-@@ -231,7 +231,7 @@
- 	int i;
- 	
- 	// Do an autoprobe sequence
--	if (check_region(PAGE_IO,1) != 0)
-+	if (!request_region(PAGE_IO,1,"Octagon SSD"))
- 		{
- 			printk("5066: Page Register in Use\n");
- 			return -EAGAIN;
-@@ -239,16 +239,16 @@
- 	iomapadr = (unsigned long)ioremap(WINDOW_START, WINDOW_LENGTH);
- 	if (!iomapadr) {
- 		printk("Failed to ioremap memory region\n");
-+		release_region(PAGE_IO,1);
- 		return -EIO;
- 	}
- 	if (OctProbe() != 0)
- 		{
- 			printk("5066: Octagon Probe Failed, is this an Octagon 5066 SBC?\n");
- 			iounmap((void *)iomapadr);
-+			release_region(PAGE_IO,1);
- 			return -EAGAIN;
- 		}
--	
--	request_region(PAGE_IO,1,"Octagon SSD");
- 	
- 	// Print out our little header..
- 	printk("Octagon 5066 SSD IO:0x%x MEM:0x%x-0x%x\n",PAGE_IO,WINDOW_START,

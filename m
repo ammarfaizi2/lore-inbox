@@ -1,72 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310536AbSCGUzM>; Thu, 7 Mar 2002 15:55:12 -0500
+	id <S310538AbSCGU7C>; Thu, 7 Mar 2002 15:59:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310535AbSCGUzA>; Thu, 7 Mar 2002 15:55:00 -0500
-Received: from bitmover.com ([192.132.92.2]:8331 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S310539AbSCGUxo>;
-	Thu, 7 Mar 2002 15:53:44 -0500
-Date: Thu, 7 Mar 2002 12:53:42 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Troy Benjegerdes <hozer@drgw.net>
-Cc: Andrew Morton <akpm@zip.com.au>, Pavel Machek <pavel@ucw.cz>,
-        Kent Borg <kentborg@borg.org>,
-        The Open Source Club at The Ohio State University 
-	<opensource-admin@cis.ohio-state.edu>,
-        linux-kernel@vger.kernel.org, opensource@cis.ohio-state.edu
-Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
-Message-ID: <20020307125342.B2304@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Troy Benjegerdes <hozer@drgw.net>, Andrew Morton <akpm@zip.com.au>,
-	Pavel Machek <pavel@ucw.cz>, Kent Borg <kentborg@borg.org>,
-	The Open Source Club at The Ohio State University <opensource-admin@cis.ohio-state.edu>,
-	linux-kernel@vger.kernel.org, opensource@cis.ohio-state.edu
-In-Reply-To: <20020305165233.A28212@fireball.zosima.org> <20020305163809.D1682@altus.drgw.net> <20020305165123.V12235@work.bitmover.com> <20020306095434.B6599@borg.org> <20020306085646.F15303@work.bitmover.com> <20020306221305.GA370@elf.ucw.cz>, <20020306221305.GA370@elf.ucw.cz>; <20020307101701.S1682@altus.drgw.net> <3C87C583.C8565E4B@zip.com.au> <20020307145031.V1682@altus.drgw.net>
-Mime-Version: 1.0
+	id <S310535AbSCGU6x>; Thu, 7 Mar 2002 15:58:53 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49425 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310538AbSCGU6j>;
+	Thu, 7 Mar 2002 15:58:39 -0500
+Message-ID: <3C87D40C.603DE513@zip.com.au>
+Date: Thu, 07 Mar 2002 12:56:44 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>
+CC: Daniel Phillips <phillips@bonn-fries.net>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, yodaiken@fsmlabs.com,
+        Jeff Dike <jdike@karaya.com>, Benjamin LaHaise <bcrl@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Arch option to touch newly allocated pages
+In-Reply-To: <3C87BD22.BBBF4A86@zip.com.au> <Pine.LNX.4.44L.0203071709400.2181-100000@imladris.surriel.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020307145031.V1682@altus.drgw.net>; from hozer@drgw.net on Thu, Mar 07, 2002 at 02:50:31PM -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Then I'd really like to see scripts to make it easy to go from
-> $YOUR_FAVORITE_SCM -> patch -> BK, while keeping important metadata, like,
-> oh, say, comments. 
+Rik van Riel wrote:
+> 
+> On Thu, 7 Mar 2002, Andrew Morton wrote:
+> > Daniel Phillips wrote:
+> > >
+> > > a GFP flag that says 'fail if this looks hard to get'.
+> >
+> > Something like that would provide a solution to the
+> > readahead thrashing problem.
+> 
+> Nope.  Readahead pages are clean and very easy to evict, so
+> it's still trivial to evict all the pages from another readahead
+> window because everybody's readahead window is too large.
+> 
 
-We already have an interface for this, Linus asked for it.  It will be in
-the next release and it is in the download/test release.  You import your
-patch and then stomp on the default comments with a comments file in the
-format below.  If this isn't what you had in mind, let me know.
+I was thinking an explicit GFP_READAHEAD and PG_readahead.
+Where a GFP_READAHEAD allocation would fail if it can't 
+find any non-readahead pages.  And it would fail if it
+had to perform I/O.
 
---lm
+That's not nice - it'd result in large LRU walks.  But it'd
+be better than the 10x slowdown which readahead thrashing
+causes.
 
-bk comments(1)       BitKeeper User's Manual       bk comments(1)
+Any clever ideas?
 
-NAME
-       bk comments - change checkin comments
-
-SYNOPSIS
-       bk   comments   [-p]   [-C<csetrev>]  [-r<rev>]  [-y<cmt>]
-       [-Y<file>] [file ...] [-]
-
-DESCRIPTION
-       The comments command changes the  stored  comments  for  a
-       revision  controlled  file.  The comments may be specified
-       on the command line, or if  they  are  not,  you  will  be
-       placed in your editor to type in the comments.
-
-       If  given - for a file argument, then comments will read a
-       list of files and comments to be  edited  in  batch.   The
-       format is like:
-
-           ### Comments for file.c|1.23
-           this is a sample comment
-           ### Comments for file2.h|1.2.3.4
-           these are
-           other comments
-
-Etc.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+-

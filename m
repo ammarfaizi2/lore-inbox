@@ -1,66 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272718AbRIGPfl>; Fri, 7 Sep 2001 11:35:41 -0400
+	id <S272730AbRIGPpL>; Fri, 7 Sep 2001 11:45:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272716AbRIGPfb>; Fri, 7 Sep 2001 11:35:31 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:29949 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S272718AbRIGPfT>;
-	Fri, 7 Sep 2001 11:35:19 -0400
-From: David Mosberger <davidm@hpl.hp.com>
-MIME-Version: 1.0
+	id <S272732AbRIGPpC>; Fri, 7 Sep 2001 11:45:02 -0400
+Received: from t2.redhat.com ([199.183.24.243]:19965 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S272730AbRIGPow>; Fri, 7 Sep 2001 11:44:52 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <Pine.GSO.4.33.0109071132370.1190-100000@sweetums.bluetronic.net> 
+In-Reply-To: <Pine.GSO.4.33.0109071132370.1190-100000@sweetums.bluetronic.net> 
+To: Ricky Beam <jfbeam@bluetopia.net>
+Cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: MTD and Adapter ROMs 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15256.59715.523045.796917@napali.hpl.hp.com>
-Date: Fri, 7 Sep 2001 08:35:31 -0700
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: David Mosberger <davidm@hpl.hp.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] proposed fix for ptrace() SMP race
-In-Reply-To: <20010907152858.O11329@athlon.random>
-In-Reply-To: <200109062300.QAA27430@napali.hpl.hp.com>
-	<20010907021900.L11329@athlon.random>
-	<15256.6038.599811.557582@napali.hpl.hp.com>
-	<20010907032801.N11329@athlon.random>
-	<15256.22858.57091.769101@napali.hpl.hp.com>
-	<20010907152858.O11329@athlon.random>
-X-Mailer: VM 6.76 under Emacs 20.4.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Date: Fri, 07 Sep 2001 16:43:36 +0100
+Message-ID: <4569.999877416@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 7 Sep 2001 15:28:58 +0200, Andrea Arcangeli <andrea@suse.de> said:
 
-  Andrea> correct, I suggest to ignore SIGCONT as well while
-  Andrea> PT_PTRACED is set.
+jfbeam@bluetopia.net said:
+>  Well, you explain where the f*** module "cfi" is located.  It took me
+> a few hours to figure out what module is, in fact, "cfi". 
 
-Do you really think it's acceptable?  With your patch, you couldn't
-SIGKILL or SIGCONT a task that happens to be ptraced.  I certainly
-would expect to be able to do this for a task that is being strace'd,
-for example.
+Heh, sorry about that. It's been fixed in my tree for a while - I should 
+send Linus an update.
 
-Also, other signals will still wake up the task.  Yes, it won't get
-very far as do_signal() will notify the parent instead, but still, the
-task will run and that could be enough to create some race condition.
+>  The question becomes, what section of the rom should not be erased?
+> If I erase the entire 128k and then reset the system before getting a
+> good image back in there, I'm betting it'll disappear from the bus.
+> It's already screwed up to the point it no longer shows up in PCI
+> space as itself -- which was entertaining to see the bad BIOS post and
+> then not find itself :-)
 
-What about the other wakeup paths that I had mentioned?  E.g., what if
-the ptraced task is ptracing another task?  Couldn't notify_parent()
-end up waking up the task as well?
+Can't answer that. Try applying BIOS upgrades and downgrades, and seeing 
+which ranges of the chip actually change?
 
-  Andrea> Also when you restore the cpus_allowed you won't effectively
-  Andrea> wakup the task, it will just keep floating in the runqueue
-  Andrea> but we won't try to reschedule the other idle cpus it so
-  Andrea> it's broken.
+> 00:03.0 Class ff80: 11ff:00ff (rev 03)
+>  (that's supposed to be 1103:0004)
 
-Ah, that's a good point, thanks.  Nothing that can't be fixed, though.
+Looks like it's a pair of 8-bit flash devices side-by-side on a 16-bit bus, 
+and you've managed to erase just one of them.
 
-  >> Hmmh, looking at ptrace() more closely, the entire locking
-  >> situation seems to be a bit confused.  For example, what's
-  >> stopping wait4() from releasing the task structure just after
-  >> ptrace() released the tasklist_lock and before it checked
-  >> child->state?
 
-  Andrea> the get_task_struct()
+--
+dwmw2
 
-Yes, I missed that.
 
-	--david

@@ -1,37 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132079AbQLRQad>; Mon, 18 Dec 2000 11:30:33 -0500
+	id <S129260AbQLRQdd>; Mon, 18 Dec 2000 11:33:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132085AbQLRQaX>; Mon, 18 Dec 2000 11:30:23 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:28091 "EHLO penguin.homenet")
-	by vger.kernel.org with ESMTP id <S132079AbQLRQaR>;
-	Mon, 18 Dec 2000 11:30:17 -0500
-Date: Mon, 18 Dec 2000 16:00:45 +0000 (GMT)
+	id <S131209AbQLRQdX>; Mon, 18 Dec 2000 11:33:23 -0500
+Received: from [62.172.234.2] ([62.172.234.2]:36288 "EHLO penguin.homenet")
+	by vger.kernel.org with ESMTP id <S129260AbQLRQdH>;
+	Mon, 18 Dec 2000 11:33:07 -0500
+Date: Mon, 18 Dec 2000 16:03:41 +0000 (GMT)
 From: Tigran Aivazian <tigran@veritas.com>
 To: torvalds@transmeta.com
 cc: Andries.Brouwer@cwi.nl, Peter Samuelson <peter@cadcamlab.org>,
         linux-kernel@vger.kernel.org
-Subject: [patch-2.4.0-test13-pre3] rootfs (2nd attempt)
-In-Reply-To: <20001218092219.H3199@cadcamlab.org>
-Message-ID: <Pine.LNX.4.21.0012181547500.830-100000@penguin.homenet>
+Subject: Oops Re: [patch-2.4.0-test13-pre3] rootfs (2nd attempt)
+In-Reply-To: <Pine.LNX.4.21.0012181547500.830-100000@penguin.homenet>
+Message-ID: <Pine.LNX.4.21.0012181602020.830-100000@penguin.homenet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
-
-Thanks to suggestions from Andries and Peter I enhanced the rootfs patch
-to do the same it did before + panic when rootfs= is given but failed to
-match the userspace mount(8) behaviour. Also other cleanups mentioned in
-the thread are all incorporated (well, at least the sensible ones). Now,
-everyone is (hopefully) happy.
-
-Tested under 2.4.0-test13-pre3.
-
-Regards,
-Tigran
+just a typo in the comment, sorry. Corrected version below.
 
 diff -urN -X dontdiff linux/Documentation/kernel-parameters.txt rootfs/Documentation/kernel-parameters.txt
 --- linux/Documentation/kernel-parameters.txt	Tue Sep  5 21:51:14 2000
@@ -50,7 +39,7 @@ diff -urN -X dontdiff linux/Documentation/kernel-parameters.txt rootfs/Documenta
  
 diff -urN -X dontdiff linux/fs/super.c rootfs/fs/super.c
 --- linux/fs/super.c	Tue Dec 12 09:25:22 2000
-+++ rootfs/fs/super.c	Mon Dec 18 14:49:08 2000
++++ rootfs/fs/super.c	Mon Dec 18 15:03:44 2000
 @@ -18,6 +18,7 @@
   *    Torbjörn Lindh (torbjorn.lindh@gopta.se), April 14, 1996.
   *  Added devfs support: Richard Gooch <rgooch@atnf.csiro.au>, 13-JAN-1998
@@ -65,7 +54,7 @@ diff -urN -X dontdiff linux/fs/super.c rootfs/fs/super.c
  
 +/* this can be set at boot time, e.g. rootfs=ext2 
 + * if set to invalid value or if read_super() fails on the specified
-+ * filesystem type then mount_root() will go through all registered filesystems.
++ * filesystem type then mount_root() will panic
 + */
 +static char rootfs[32] __initdata = "";
 +
@@ -115,9 +104,6 @@ diff -urN -X dontdiff linux/fs/super.c rootfs/fs/super.c
  	panic("VFS: Unable to mount root fs on %s", kdevname(ROOT_DEV));
  
  mount_it:
-
-
-
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

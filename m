@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271278AbRIVOiV>; Sat, 22 Sep 2001 10:38:21 -0400
+	id <S271421AbRIVOkB>; Sat, 22 Sep 2001 10:40:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271329AbRIVOiM>; Sat, 22 Sep 2001 10:38:12 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:34309 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S271278AbRIVOhw>;
-	Sat, 22 Sep 2001 10:37:52 -0400
-Date: Sat, 22 Sep 2001 11:38:15 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Whats in the wings for 2.5 (when it opens)
-Message-ID: <20010922113815.B25545@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010918001826.7D118A0E5@oscar.casa.dyndns.org> <20010918214904.B29648@vdpas.hobby.nl> <20010921155806.B8188@mueller.datastacks.com>
+	id <S271333AbRIVOjv>; Sat, 22 Sep 2001 10:39:51 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:59914 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S271329AbRIVOjc>; Sat, 22 Sep 2001 10:39:32 -0400
+Date: Sat, 22 Sep 2001 15:39:50 +0100
+From: John Levon <moz@compsoc.man.ac.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: spurious interrupt with ac kernel but not with vanilla 2.4.9
+Message-ID: <20010922153950.A48207@compsoc.man.ac.uk>
+In-Reply-To: <Pine.LNX.4.33.0109211905530.31425-100000@Expansa.sns.it> <E15kU6U-0000cK-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20010921155806.B8188@mueller.datastacks.com>; from crutcher@datastacks.com on Fri, Sep 21, 2001 at 03:58:06PM -0400
-X-Url: http://advogato.org/person/acme
+In-Reply-To: <E15kU6U-0000cK-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.19i
+X-Url: http://www.movement.uklinux.net/
+X-Record: Truant - Neither Work Nor Leisure
+X-Toppers: N/A
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Fri, Sep 21, 2001 at 03:58:06PM -0400, Crutcher Dunnavant escreveu:
-> ++ 18/09/01 21:49 +0200 - toon@vdpas.hobby.nl:
-> > On Mon, Sep 17, 2001 at 08:18:25PM -0400, Ed Tomlinson wrote:
-> > > Seems like there is a lot of code "ready" for consideration in a 2.5 kernel.
-> > > I can think of:
-> > > premptable kernel option
-> > > user mode kernel 
-> > > jfs
-> > > xfs (maybe)
-> > ext3
-> > > rc2
-> > > reverse maping vm
-> > > ide driver rewrite
-> > > 32bit dma
-> > > LTT (maybe)
-> > > LVM update to 1.01
-> > My opinion is that the LVM update to 1.01 should go into 2.4
-> > as soon as possible.
-> > > ELVM (maybe)
-> > > module security stuff
-> > > UP friendly SMP scheduler
-> > > What else?
+On Fri, Sep 21, 2001 at 06:28:42PM +0100, Alan Cox wrote:
 
-NetBEUI and more complete 802.2 net stacks, patches available at my work in
-progress area at http://bazar.conectiva.com.br/~acme/patches/wip and at my
-CVS repository at http://cvs.conectiva.com.br/kernel-acme.
+> > yes, i was using a non SMP kernel with both apic and io_apic support
+> > enabled.
+> 
+> Ok.
+> Oh your configuration options should have worked. Its more a case of working
+> out now why the didnt. Knowing that it is uniprocessor apic triggered is a
+> help there
 
-- Arnaldo
+I have been getting these spurious interrupt messages for a long time now with
+the UP_APIC option enabled. Using interrupt-heavy things like catting logs on a vesafb
+console are a pretty reliable way to trigger it.
+
+This is on a bog-standard UP box with no IO-APIC.
+
+It doesn't seem to affect stability at all.
+
+regards
+john
+
+p.s. what's going on with the config options ? linus pre12 seems to get rid of the
+APIC fake zero page thing and enable the local APIC on UP properly, but the config options
+don't seem to have changed like in the ac tree
+
+-- 
+"If you're not part of the problem, you're part of the problem space." 

@@ -1,37 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279418AbRK1SzR>; Wed, 28 Nov 2001 13:55:17 -0500
+	id <S279822AbRK1S41>; Wed, 28 Nov 2001 13:56:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279951AbRK1SzH>; Wed, 28 Nov 2001 13:55:07 -0500
-Received: from junk.nocrew.org ([212.73.17.42]:13010 "EHLO junk.nocrew.org")
-	by vger.kernel.org with ESMTP id <S279934AbRK1Syu>;
-	Wed, 28 Nov 2001 13:54:50 -0500
-To: Eric Weigle <ehw@lanl.gov>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Magic Lantern
-In-Reply-To: <Pine.LNX.3.95.1011128090654.10732B-100000@chaos.analogic.com>
-	<20011128081305.I22767@lanl.gov>
-From: Lars Brinkhoff <lars.spam@nocrew.org>
-Organization: nocrew
-Date: 28 Nov 2001 19:54:39 +0100
-In-Reply-To: <20011128081305.I22767@lanl.gov>
-Message-ID: <85oflmvi8g.fsf@junk.nocrew.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S279927AbRK1S4J>; Wed, 28 Nov 2001 13:56:09 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:5896 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S279822AbRK1S4C>; Wed, 28 Nov 2001 13:56:02 -0500
+Date: Wed, 28 Nov 2001 15:38:50 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Andrey Nekrasov <andy@spylog.ru>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux 2.4.17-pre1
+In-Reply-To: <20011128213811.A20085@spylog.ru>
+Message-ID: <Pine.LNX.4.21.0111281538340.15571-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Weigle <ehw@lanl.gov> writes:
-> > > "Richard B. Johnson" <root@chaos.analogic.com> writes:
-> > > > Basically, a "tee" to capture all network packets and pass them
-> > > > on to a filtering task without affecting normal network activity.
-> > > The af_packet module can read and write raw ethernet frames.
-> The af_packet module may also be fairly inefficient. If you need
-> performance over, say, a gigabit link, you may have trouble.
 
-Are you (or anyone else) aware of any alternative?
+Yes, I forgot to do that in this release, sorry.
 
--- 
-Lars Brinkhoff          http://lars.nocrew.org/     Linux, GCC, PDP-10
-Brinkhoff Consulting    http://www.brinkhoff.se/    programming
+Hope it never happens again. 
+
+On Wed, 28 Nov 2001, Andrey Nekrasov wrote:
+
+> Hello Marcelo Tosatti,
+> 
+> 
+> Please, don`t forget change PATCHLEVEL/SUBLEVEL/EXTRAVERSION.
+> 
+>  
+> > Ok, 2.4.17-pre1 is out. Still going to the mirrors though, so please wait
+> > a while if you haven't found a copy on your local mirror. 
+> > 
+> > 
+> > pre1:
+> > 
+> > - Change USB maintainer 			(Greg Kroah-Hartman)
+> > - Speeling fix for rd.c				(From Ralf Baechle's tree)
+> > - Updated URL for bigphysmem patch in v4l docs  (Adrian Bunk)
+> > - Add buggy 440GX to broken pirq blacklist 	(Arjan Van de Ven)
+> > - Add new entry to Sound blaster ISAPNP list	(Arjan Van de Ven)
+> > - Remove crap character from Configure.help	(Niels Kristian Bech Jensen)
+> > - Backout erroneous change to lookup_exec_domain (Christoph Hellwig)
+> > - Update osst sound driver to 1.65		(Willem Riede)
+> > - Fix i810 sound driver problems		(Andris Pavenis)
+> > - Add AF_LLC define in network headers		(Arnaldo Carvalho de Melo)
+> > - block_size cleanup on some SCSI drivers	(Erik Andersen)
+> > - Added missing MODULE_LICENSE("GPL") in some   (Andreas Krennmair)
+> >   modules
+> > - Add ->show_options() to super_ops and 
+> >   implement NFS method				(Alexander Viro)
+> > - Updated i8k driver				(Massimo Dal Zoto)
+> > - devfs update  				(Richard Gooch)
+> > 
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> -- 
+> bye.
+> Andrey Nekrasov, SpyLOG.
+> 
+

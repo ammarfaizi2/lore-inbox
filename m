@@ -1,91 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbUJXQpi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbUJXQqe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbUJXQpi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 12:45:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbUJXQph
+	id S261532AbUJXQqe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 12:46:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbUJXQqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 12:45:37 -0400
-Received: from rproxy.gmail.com ([64.233.170.206]:62772 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261551AbUJXQoj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 12:44:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=BDHmyIAwv8M3GPs6/CW4jFD9nVbodiNmNOMUhg6LIXXk9HTVsjDjSIzcoN043WACBRJ6gctFqMxwvUdMg8kvTm1w8qXzIG33R4ZkytXAEApsSomuVYpBrWBn6d8M+OCGAkQhbXFJRIgmeR3P4K2E2GiJHn7OxQqVE6Z2YR5m4mI=
-Message-ID: <4d8e3fd304102409443c01c5da@mail.gmail.com>
-Date: Sun, 24 Oct 2004 18:44:38 +0200
-From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Reply-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-To: Larry McVoy <lm@work.bitmover.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Larry McVoy <lm@bitmover.com>, akpm@osdl.org
-Subject: Re: BK kernel workflow
-In-Reply-To: <20041024144448.GA575@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <41752E53.8060103@pobox.com>
-	 <20041019153126.GG18939@work.bitmover.com>
-	 <41753B99.5090003@pobox.com>
-	 <4d8e3fd304101914332979f86a@mail.gmail.com>
-	 <20041019213803.GA6994@havoc.gtf.org>
-	 <4d8e3fd3041019145469f03527@mail.gmail.com>
-	 <Pine.LNX.4.58.0410191510210.2317@ppc970.osdl.org>
-	 <20041023161253.GA17537@work.bitmover.com>
-	 <4d8e3fd304102403241e5a69a5@mail.gmail.com>
-	 <20041024144448.GA575@work.bitmover.com>
+	Sun, 24 Oct 2004 12:46:33 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:56643 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261546AbUJXPyr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 11:54:47 -0400
+Date: Sun, 24 Oct 2004 16:54:19 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+cc: Hans Reiser <reiser@namesys.com>, David Howells <dhowells@redhat.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: [PATCH 1/2] delete_from_page_cache
+Message-ID: <Pine.LNX.4.44.0410241651540.12023-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Oct 2004 07:44:48 -0700, Larry McVoy <lm@bitmover.com> wrote:
-> On Sun, Oct 24, 2004 at 12:24:42PM +0200, Paolo Ciarrocchi wrote:
-[...]
-> >
-> > Well, I'm not interested in having the list of all the bk trees used
-> > during the develpoment of a release.
-> > I was looking to the trees used by mantainers.
-> 
-> And how do you define a maintainer?  That's a moving target.  Part of the
-> beauty of the Linux development model is that mini forks are not only
-> allowed, they are encouraged.  So people can go off on their own and do
-> something interesting.  Who knows?  One of those people could be the next
-> Alan.
+Both reiser4 and cachefs want remove_from_page_cache to be exported.
+Before that, could we please make it symmetric with add_to_page_cache,
+add_to_swap_cache and delete_from_swap_cache? by doing its own
+page_cache_release, instead of commenting that each time it's called.
+But safer if we change the name too: delete_from_page_cache.
 
-I totally agree on the "beauty of Linux development" part of your statement,
-I don't 100% agree on your definition of maintainer.
-There a few well defined maintainer in the community and those names
-are defined and written in the kernel documentation.
-So, I think that is moving target but we have a few stable and well
-know references.
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+---
+This patch is against 2.6.10-rc1, which doesn't include reiser4 and
+cachefs.  The next patch is against 2.6.9-mm1 and patches those.
+But I can understand if you ignore both patches as a waste of time.
 
-> > That number should me really different from "1,000".
-> 
-> Sure.  But even so it's a moving target and labeling a set of people as
-> maintainers implies that other people aren't.  I suspect Linus isn't
-> that interested in the labels, he'll take good code from anyone.
+ fs/hugetlbfs/inode.c    |    3 +--
+ include/linux/pagemap.h |    2 +-
+ mm/filemap.c            |    7 +++----
+ mm/swap_state.c         |    3 +--
+ mm/truncate.c           |    3 +--
+ 5 files changed, 7 insertions(+), 11 deletions(-)
 
-Good point, 
-even though I'm almost sure that both Linus and Andrew prefer getting
-patches after they are reviewed by those "maintainers".
+--- 2.6.10-rc1/fs/hugetlbfs/inode.c	2004-10-18 22:57:03.000000000 +0100
++++ linux/fs/hugetlbfs/inode.c	2004-10-23 20:43:24.000000000 +0100
+@@ -168,8 +168,7 @@ void truncate_huge_page(struct page *pag
+ {
+ 	clear_page_dirty(page);
+ 	ClearPageUptodate(page);
+-	remove_from_page_cache(page);
+-	put_page(page);
++	delete_from_page_cache(page);
+ }
+ 
+ void truncate_hugepages(struct address_space *mapping, loff_t lstart)
+--- 2.6.10-rc1/include/linux/pagemap.h	2004-10-18 22:55:54.000000000 +0100
++++ linux/include/linux/pagemap.h	2004-10-23 20:43:24.000000000 +0100
+@@ -95,7 +95,7 @@ int add_to_page_cache(struct page *page,
+ 				unsigned long index, int gfp_mask);
+ int add_to_page_cache_lru(struct page *page, struct address_space *mapping,
+ 				unsigned long index, int gfp_mask);
+-extern void remove_from_page_cache(struct page *page);
++extern void delete_from_page_cache(struct page *page);
+ extern void __remove_from_page_cache(struct page *page);
+ 
+ extern atomic_t nr_pagecache;
+--- 2.6.10-rc1/mm/filemap.c	2004-10-23 12:44:13.000000000 +0100
++++ linux/mm/filemap.c	2004-10-23 20:43:24.000000000 +0100
+@@ -119,16 +119,15 @@ void __remove_from_page_cache(struct pag
+ 	pagecache_acct(-1);
+ }
+ 
+-void remove_from_page_cache(struct page *page)
++void delete_from_page_cache(struct page *page)
+ {
+ 	struct address_space *mapping = page->mapping;
+ 
+-	if (unlikely(!PageLocked(page)))
+-		PAGE_BUG(page);
+-
++	BUG_ON(!PageLocked(page));
+ 	spin_lock_irq(&mapping->tree_lock);
+ 	__remove_from_page_cache(page);
+ 	spin_unlock_irq(&mapping->tree_lock);
++	page_cache_release(page);	/* drop pagecache ref */
+ }
+ 
+ static int sync_page(void *word)
+--- 2.6.10-rc1/mm/swap_state.c	2004-10-18 22:56:29.000000000 +0100
++++ linux/mm/swap_state.c	2004-10-23 20:43:24.000000000 +0100
+@@ -227,8 +227,7 @@ int move_to_swap_cache(struct page *page
+ {
+ 	int err = __add_to_swap_cache(page, entry, GFP_ATOMIC);
+ 	if (!err) {
+-		remove_from_page_cache(page);
+-		page_cache_release(page);	/* pagecache ref */
++		delete_from_page_cache(page);
+ 		if (!swap_duplicate(entry))
+ 			BUG();
+ 		SetPageDirty(page);
+--- 2.6.10-rc1/mm/truncate.c	2004-10-23 12:44:13.000000000 +0100
++++ linux/mm/truncate.c	2004-10-23 20:43:24.000000000 +0100
+@@ -54,8 +54,7 @@ truncate_complete_page(struct address_sp
+ 	clear_page_dirty(page);
+ 	ClearPageUptodate(page);
+ 	ClearPageMappedToDisk(page);
+-	remove_from_page_cache(page);
+-	page_cache_release(page);	/* pagecache ref */
++	delete_from_page_cache(page);
+ }
+ 
+ /*
 
-Anyway, 
-I'm not a kernel hacker at all so my comments will sound just silly to
-a lot of people involved in the development but as a user I'm
-sometimes "alarmed" by the lack of formality in the development
-process (see the naming wars),
-
-Maybe we cannot avoid it, maybe that's the reason because linux is
-"the best free OS" but maybe we can add a few more rules/indications
-to the process.
-
-Larry,
-thank you for your answer, I always appreciate having such a kind of
-open discussions with people that are really involved in the
-development.
-
-Ciao,
--- 
-Paolo

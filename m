@@ -1,67 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129221AbQKDXIW>; Sat, 4 Nov 2000 18:08:22 -0500
+	id <S129030AbQKDXHW>; Sat, 4 Nov 2000 18:07:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129363AbQKDXIM>; Sat, 4 Nov 2000 18:08:12 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:17413 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129221AbQKDXIG>;
-	Sat, 4 Nov 2000 18:08:06 -0500
-Message-ID: <3A0496B5.3B298B6F@mandrakesoft.com>
-Date: Sat, 04 Nov 2000 18:07:33 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
-X-Accept-Language: en
+	id <S129040AbQKDXHM>; Sat, 4 Nov 2000 18:07:12 -0500
+Received: from [216.151.155.116] ([216.151.155.116]:49934 "EHLO
+	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
+	id <S129030AbQKDXHE>; Sat, 4 Nov 2000 18:07:04 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Applying crypto patch to recent 2.2.18pre
+From: Doug McNaught <doug@wireboard.com>
+Date: 04 Nov 2000 18:07:03 -0500
+Message-ID: <m3r94rnxpk.fsf@belphigor.mcnaught.org>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
 MIME-Version: 1.0
-To: bcorsello@usa.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM:  kernel oops on boot in 2.4.0 test10
-In-Reply-To: <0d19638042204b0NYCSMTP1@nyc.rr.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brad Corsello wrote:
-> 
-> [1.] One line summary of the problem:
->         kernel oops on boot in 2.4.0 test 10 (i386)
-> 
-> [2.] Full description of the problem/report:
->         On every boot of test 10, I get a kernel oops very early on.
->         Is reproducible (happens every boot).
->         I've successfully booted 2.3 kernels on this machine, but get this
->         kernel oops on boot every time with the later 2.4.0tests (from about
->         test5 on -- that's from memory, may not be accurate).
->         I am successfully running a late 2.2 kernel:  Linux version 2.2.15-4mdk
-> (chmou@kenobi.mandrakesoft.com) (gcc version 2.95.3 19991030 (prerelease)) #1
-> Wed May 10 15:31:30 CEST 2000
+I am trying to get an up-to-date stable kernel (2.2.18pre19, with
+PowerPC changes, downloaded from the PowerPC BitKeeper archive)
+compiled with the international patch (patch-int-2.2.17-9 which is the 
+latest in the crypto/ directory).  The patch applies fine (with some
+offsets, but all hunks succeed) but when linking vmlinux, I get the
+following: 
 
-Can you play the kernel shuffle, and narrow down exactly which kernel
-version breaks for you?  Read, from the linux source tree,
-Documentation/BUG-HUNTING.
+ld -T arch/ppc/vmlinux.lds -Ttext 0xc0000000 -Bstatic
+arch/ppc/kernel/head.o init/main.o init/version.o \
+        --start-group \
+        arch/ppc/kernel/kernel.o arch/ppc/mm/mm.o arch/ppc/lib/lib.o
+kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
+        fs/filesystems.a \
+        net/network.a \
+        drivers/block/block.a drivers/char/char.o drivers/misc/misc.a
+drivers/net/net.a drivers/cdrom/cdrom.a drivers/sound/sounddrivers.o
+drivers/pci/pci.a drivers/macintosh/macintosh.o drivers/video/video.a
+\
+        /usr/src/linuxppc_2_2/lib/lib.a \
+        --end-group \
+        -o vmlinux
+init/main.o: In function `do_basic_setup':
+init/main.o(.text.init+0x9f0): undefined reference to `cryptoapi_init'
+init/main.o(.text.init+0x9f0): relocation truncated to fit: R_PPC_REL24 cryptoapi_init
+drivers/block/block.a(loop_gen.o): In function `loop_gen_init2':
+loop_gen.o(.text+0x104): undefined reference to `find_transform_by_id'
+loop_gen.o(.text+0x104): relocation truncated to fit: R_PPC_REL24 find_transform_by_id
+make: *** [vmlinux] Error 1
 
+This happened somewhere between 2.2.18pre3 (which compiles
+successfully with the 2.2.17 crypto patch) and vanilla (from
+people/alan) pre9, which fails with the same error as above.
 
-> [5.] Output of Oops.. message (if applicable) with symbolic information =
->      resolved (see Documentation/oops-tracing.txt)
-> ksymoops 2.3.4 on i586 2.2.15-4mdk.  Options used
->      -v /usr/src/linux/vmlinux (specified)
->      -K (specified)
->      -L (specified)
->      -O (specified)
->      -m /usr/src/linux/System.map (specified)
+I'm guessing something changed in the conventions for subsystem
+initialization.  If someone can give me a quick summary of what to
+change, I'll try to fix it.  Otherwise I'll grovel through the
+2.2.18pre patches and try to figure out what to do myself, but I'm not 
+looking forward to that option...
 
-Are you certain you used the correct vmlinux and System.map here?  Can
-you present your .config for kernel building?
-
-> Trace; c0194d36 <isapnp_proc_attach_device+36/94>
-
-Do you have any ISAPNP cards in your system?
-
--- 
-Jeff Garzik             | Dinner is ready when
-Building 1024           | the smoke alarm goes off.
-MandrakeSoft            |	-/usr/games/fortune
+Thanks in advance,
+Doug
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

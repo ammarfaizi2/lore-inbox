@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130134AbQKCAQw>; Thu, 2 Nov 2000 19:16:52 -0500
+	id <S130111AbQKCAUW>; Thu, 2 Nov 2000 19:20:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130158AbQKCAQm>; Thu, 2 Nov 2000 19:16:42 -0500
-Received: from quattro.sventech.com ([205.252.248.110]:18697 "HELO
-	quattro.sventech.com") by vger.kernel.org with SMTP
-	id <S130134AbQKCAQb>; Thu, 2 Nov 2000 19:16:31 -0500
-Date: Thu, 2 Nov 2000 19:16:27 -0500
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Sasi Peter <sape@iq.rulez.org>
-Cc: Greg KH <greg@wirex.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.18pre19
-Message-ID: <20001102191625.T25191@sventech.com>
-In-Reply-To: <20001102132206.B2424@wirex.com> <Pine.LNX.4.10.10011030203590.31286-300000@iq.rulez.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4i
-In-Reply-To: <Pine.LNX.4.10.10011030203590.31286-300000@iq.rulez.org>; from Sasi Peter on Fri, Nov 03, 2000 at 02:08:53AM +0100
+	id <S130066AbQKCAUM>; Thu, 2 Nov 2000 19:20:12 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:39835 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S130137AbQKCAT5>;
+	Thu, 2 Nov 2000 19:19:57 -0500
+Date: Thu, 2 Nov 2000 16:05:23 -0800
+Message-Id: <200011030005.QAA03942@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: hpa@transmeta.com
+CC: hpa@zytor.com, linux-kernel@vger.kernel.org
+In-Reply-To: <3A020319.3384D4FF@transmeta.com> (hpa@transmeta.com)
+Subject: Re: select() bug
+In-Reply-To: <E13rTfB-00023L-00@the-village.bc.nu> <3A01FC44.8A43FE8B@iname.com> <8tsupp$gh8$1@cesium.transmeta.com> <200011022346.PAA01451@pizda.ninka.net> <3A0200F5.2D6F4F70@transmeta.com> <200011022352.PAA02403@pizda.ninka.net> <3A020319.3384D4FF@transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 03, 2000, Sasi Peter <sape@iq.rulez.org> wrote:
-> On Thu, 2 Nov 2000, Greg KH wrote:
-> 
-> > Could you send the result of /proc/interrupts and 'lspci -v'?
-> > Also, have you tried the alternate UHCI controller driver?
-> > Or tried USB as modules, instead of compiled in?
-> 
-> Here you go. I did work w/ the very same hw with pre15.
-> 
-> I have never really knew what the UHCI JE was all about... So it can be
-> used in place of the original UHCI? I will make a try. (and why JE?)
+   Date: Thu, 02 Nov 2000 16:13:13 -0800
+   From: "H. Peter Anvin" <hpa@transmeta.com>
 
-Yes, it's a drop in replacement. Choose one or the other.
+   Oh.  What do you do if there isn't... link up the contents of the
+   write() in a kiovec and hold the writer?
 
-"JE" because it's my initials.
+Right, the writer blocks.
 
-JE
+I've already posted the patches here within the past week, I'll send
+them to you under seperate cover so you can see for yourself how it
+works.
 
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

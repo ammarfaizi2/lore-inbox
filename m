@@ -1,91 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261868AbSI1PSj>; Sat, 28 Sep 2002 11:18:39 -0400
+	id <S261869AbSI1PfN>; Sat, 28 Sep 2002 11:35:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261869AbSI1PSj>; Sat, 28 Sep 2002 11:18:39 -0400
-Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:47596 "HELO
-	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S261868AbSI1PSd>; Sat, 28 Sep 2002 11:18:33 -0400
-Message-ID: <20020928151726.18496.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-15"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Cc: conman@kolivas.net
-Date: Sat, 28 Sep 2002 23:17:26 +0800
-Subject: Re: [BENCHMARK] 2.5.39 with contest 0.41
-X-Originating-Ip: 193.76.202.244
-X-Originating-Server: ws4-4.us4.outblaze.com
+	id <S261871AbSI1PfN>; Sat, 28 Sep 2002 11:35:13 -0400
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:44554 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S261869AbSI1PfM>; Sat, 28 Sep 2002 11:35:12 -0400
+Message-Id: <200209281540.g8SFeMRX010119@pincoya.inf.utfsm.cl>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Kernel version [Was: Re: [PATCH-RFC] 4 of 4 - New problem logging macros, SCSI RAIDdevice driver]
+In-reply-to: Your message of "Sat, 28 Sep 2002 09:46:35 +0200."
+             <Pine.LNX.4.44.0209280934540.13549-100000@localhost.localdomain> 
+X-mailer: MH [Version 6.8.4]
+X-charset: ISO_8859-1
+Date: Sat, 28 Sep 2002 11:40:22 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HP Omnibook 6000 (laptop), 256 MiB of RAM, PIII@800.
-Test against 2.4.19, 2.5.38-mm2, 2.5.39
+Ingo Molnar <mingo@elte.hu> said:
+> On Thu, 26 Sep 2002, Linus Torvalds wrote:
+> > On Thu, 26 Sep 2002, Jeff Garzik wrote:
+> > > Tangent question, is it definitely to be named 2.6?
+> > 
+> > I see no real reason to call it 3.0.
+> > 
+> > The order-of-magnitude threading improvements might just come closest to
+> > being a "new thing", but yeah, I still consider it 2.6.x. We don't have
+> > new architectures or other really fundamental stuff. In many ways the
+> > jump from 2.2 -> 2.4 was bigger than the 2.4 -> 2.6 thing will be, I
+> > suspect.
+> 
+> i consider the VM and IO improvements one of the most important things
+> that happened in the past 5 years - and it's definitely something that
+> users will notice. Finally we have a top-notch VM and IO subsystem (in
+> addition to the already world-class networking subsystem) giving
+> significant improvements both on the desktop and the server - the jump
+> from 2.4 to 2.5 is much larger than from eg. 2.0 to 2.4.
 
-What I did:
-$ rebootin "kernel" apm=off single
-$ contest -n 3
+But is is as large as the jump from 1.2.x to 2.0.x?
 
-Results:
-Administrator@OIVT444P /cygdrive/log
-$ cat results.log
+> I think due to these improvements if we dont call the next kernel 3.0 then
+> probably no Linux kernel in the future will deserve a major number. In 2-4
+> years we'll only jump to 3.0 because there's no better number available
+> after 2.8. That i consider to be ... boring :) [while kernel releases are
+> supposed to be a bit boring, i dont think they should be _that_ boring.]
 
-noload:
-Kernel                  Time            CPU             Ratio
-2.4.19                  133.07          98%             1.00
-2.4.19                  133.16          98%             1.00
-2.4.19                  135.43          97%             1.02
-2.5.38-mm2              138.19          97%             1.04
-2.5.38-mm2              138.47          96%             1.04
-2.5.38-mm2              139.54          96%             1.05
-2.5.39                  138.30          96%             1.04
-2.5.39                  138.63          96%             1.04
-2.5.39                  139.99          96%             1.05
-
-process_load:
-Kernel                  Time            CPU             Ratio
-2.4.19                  200.43          60%             1.51
-2.4.19                  203.11          60%             1.53
-2.4.19                  203.97          59%             1.53
-2.5.38-mm2              194.42          69%             1.46
-2.5.38-mm2              195.19          69%             1.47
-2.5.38-mm2              207.36          64%             1.56
-2.5.39                  190.44          70%             1.43
-2.5.39                  191.37          70%             1.44
-2.5.39                  193.60          69%             1.45
-
-io_load:
-Kernel                  Time            CPU             Ratio
-2.4.19                  486.58          27%             3.66
-2.4.19                  593.72          22%             4.46
-2.4.19                  637.61          21%             4.79
-2.5.38-mm2              232.35          61%             1.75
-2.5.38-mm2              237.83          57%             1.79
-2.5.38-mm2              274.39          50%             2.06
-2.5.39                  242.98          57%             1.83
-2.5.39                  294.52          50%             2.21
-2.5.39                  328.01          42%             2.46
-
-mem_load:
-Kernel                  Time            CPU             Ratio
-2.4.19                  172.24          78%             1.29
-2.4.19                  174.74          77%             1.31
-2.4.19                  174.87          77%             1.31
-2.5.38-mm2              165.53          82%             1.24
-2.5.38-mm2              170.00          80%             1.28
-2.5.38-mm2              171.96          79%             1.29
-2.5.39                  167.92          81%             1.26
-2.5.39                  170.80          80%             1.28
-2.5.39                  172.68          79%             1.30
-
-Ciao,
-          Paolo
-
+What is wrong with 2.10, or 2.256 for that matter?
 -- 
-Get your free email from www.linuxmail.org 
-
-
-Powered by Outblaze
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

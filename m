@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311424AbSCMWlp>; Wed, 13 Mar 2002 17:41:45 -0500
+	id <S311422AbSCMWmF>; Wed, 13 Mar 2002 17:42:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311422AbSCMWlf>; Wed, 13 Mar 2002 17:41:35 -0500
-Received: from p0178.as-l043.contactel.cz ([194.108.242.178]:31470 "EHLO
-	SnowWhite.SuSE.cz") by vger.kernel.org with ESMTP
-	id <S311423AbSCMWlY>; Wed, 13 Mar 2002 17:41:24 -0500
-To: linux-kernel@vger.kernel.org
-Subject: HP Omnibook 6000, reboot working?
-From: Pavel@Janik.cz (Pavel =?iso-8859-2?q?Jan=EDk?=)
-Mail-Copies-To: never
-X-Face: $"d&^B_IKlTHX!y2d,3;grhwjOBqOli]LV`6d]58%5'x/kBd7.MO&n3bJ@Zkf&RfBu|^qL+
- ?/Re{MpTqanXS2'~Qp'J2p^M7uM:zp[1Xq#{|C!*'&NvCC[9!|=>#qHqIhroq_S"MH8nSH+d^9*BF:
- iHiAs(t(~b#1.{w.d[=Z
-Date: Wed, 13 Mar 2002 23:43:59 +0100
-Message-ID: <m3u1rk9jgw.fsf@Janik.cz>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.2.50
- (i386-suse-linux-gnu)
+	id <S311423AbSCMWl4>; Wed, 13 Mar 2002 17:41:56 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:20437 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S311422AbSCMWlq>; Wed, 13 Mar 2002 17:41:46 -0500
+Date: Wed, 13 Mar 2002 14:40:02 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Hugh Dickins <hugh@veritas.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 23 second kernel compile / pagemap_lru_lock improvement
+Message-ID: <5740000.1016059202@flay>
+In-Reply-To: <Pine.LNX.4.21.0203132126480.1636-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.21.0203132126480.1636-100000@localhost.localdomain>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>> >>>> Linus:
+>> >>>> 
+>> >>>> Anyway, some obvious LRU lock improvements are clearly available: 
+>> >>>> activate_page_nolock() shouldn't even need to take the lru lock if the 
+>> >>>> page is already active. 
+>> 
+>> Your suggestion seems to improve the pagemap_lru_lock contention a little:
+>> (make bzImage , 16 way NUMA-Q, 5 runs each)
+> 
+> I'm surprised it made any difference at all, I think the patch mainly
 
-anyone here with HP Omnibook 6000 successfully rebooting? I do have this
-beast and after issuing /sbin/reboot, the machine is halted with the LCD
-almost blank (you can see what was there a moment before, but it is almost
-black), CD LED blinking and waiting for me to hold the poweroff button for
-about 5 seconds? No command parameters (like reboot=bios or warm or cold or
-whatever) helped. It happened in the past and it still happens with
-2.4.18-4GB.
+There's quite a bit of variablility between runs, so it's a little hard to pin
+down. The number of locks taken doesn't seem to be affected much, and
+that's probably the best indicator of whether this is really working.
 
-The same problem is mentioned here:
-http://www.ima.umn.edu/~arnold/omnibook6000-linux.html
+> adds more tests: activate_page is only called from mark_page_accessed
+> (after testing !PageActive) and from fail_writepage (where usually
+> !PageActive).  I don't think many !PageLRU pages can get there.
+> Or is activate_page being called from other places in your tree?
 
-Machine can poweroff, but not reboot. APM works. I do not know if it is
-connected with PCMCIA as that page says...
+No, I don't think I'm doing other stranger things to activate_page.
 
-Do you know?
--- 
-Pavel Janík
+It does seem distinctly odd that we take the lock, *then* test whether
+we actually need to do anything. Is the test just a sanity check that
+should never fail?
 
-The default configuration of NNTP is not affected by the vulnerability, as
-no newsgroups are configured by default.
-                  -- Microsoft Product Security about memleak in NNTP server
+M.
+

@@ -1,59 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268802AbUJKLV7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268800AbUJKLWH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268802AbUJKLV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 07:21:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268800AbUJKLV7
+	id S268800AbUJKLWH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 07:22:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268803AbUJKLWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 07:21:59 -0400
-Received: from foss.kharkov.ua ([195.69.184.25]:2183 "EHLO
-	relay.foss.kharkov.ua") by vger.kernel.org with ESMTP
-	id S268802AbUJKLV5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 07:21:57 -0400
-X-AV-Checked: Mon Oct 11 14:21:53 2004 passed
-Message-ID: <416A6CF8.5050106@kharkiv.com.ua>
-Date: Mon, 11 Oct 2004 14:22:32 +0300
-From: Oleksiy <Oleksiy@kharkiv.com.ua>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: pl2303/usb-serial driver problem in 2.4.27-pre6
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 11 Oct 2004 07:22:07 -0400
+Received: from smtp3.Stanford.EDU ([171.67.16.138]:34530 "EHLO
+	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S268800AbUJKLWD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 07:22:03 -0400
+Mime-Version: 1.0 (Apple Message framework v619)
 Content-Transfer-Encoding: 7bit
+Message-Id: <C6322819-1B77-11D9-8CAE-000393B3D4EC@stanford.edu>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+From: Can Sar <csar@stanford.edu>
+Subject: Page/Buffer Cache: Traversing Dirty Buffers
+Date: Mon, 11 Oct 2004 04:22:02 -0700
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Hi,
 
-I have a problem using GPRS inet vi my Siemens S55 attached with USB 
-cable since kernel version 2.4.27-pre5, the link is established well, 
-but then no packets get received, looking with tcpdump shows outgoing 
-ping packets and just few per several minutes received back. I'm unable 
-to ping, do nslookup, etc.
-The problem started when i switched from kernel 2.4.26 (linux slackware 
-10.0) to 2.4.28-pre3. None of ppp otions haven't changed and all the 
-same options were set during kerenel config. So i decided to test all 
-kernels between 2.4.26 and 2.4.28-pre4 (also not working). Link works 
-well in 2.4.27-pre5 and stop working in 2.4.27-pre6. No "strange" 
-messages or errors in the logs. firewall is disabled (ACCEPT for all).
+I know this is not really the right place for asking general questions, 
+but I have read the source and searched the web and LKML archives for 2 
+days without much avail.
+I am writing a driver for a research project, and need to be able to 
+traverse all dirty buffers in the buffer cache, for this device. I have 
+read through buffer.c and several other files a dozen times, but have 
+not been able to pin down exactly how to get access to the buffer 
+cache. If someone could point any files that I should look at, to get a 
+pointer to all the dirty buffers associated with a device, I would be 
+very happy.
 
-i'm using:
-
-pppd-2.4.2
-Siemens S55 mobile
-USB cable (PL2303 conroller)
-
-USB drivers:
-
-ehci_hcd
-uhci.c
-pl2303.c
-
-Thanks.
-
--- 
-Oleksiy
-http://voodoo.com.ua
+Thank you very much for your help,
+Can Sar
 

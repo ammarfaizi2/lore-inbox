@@ -1,76 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262929AbVDAWcy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262931AbVDAWjX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262929AbVDAWcy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 17:32:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262931AbVDAWcy
+	id S262931AbVDAWjX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 17:39:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262935AbVDAWjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 17:32:54 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:18208
-	"EHLO g5.random") by vger.kernel.org with ESMTP id S262929AbVDAWcs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 17:32:48 -0500
-Date: Sat, 2 Apr 2005 00:14:00 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Dmitry Yusupov <dima@neterion.com>, Alasdair G Kergon <agk@redhat.com>,
-       Mike Christie <michaelc@cs.wisc.edu>, Alex Aizman <alex@neterion.com>
-Subject: oom-killer disable for iscsi/lvm2/multipath userland critical sections
-Message-ID: <20050401221400.GQ29492@g5.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-User-Agent: Mutt/1.5.9i
+	Fri, 1 Apr 2005 17:39:23 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:218 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262931AbVDAWjT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 17:39:19 -0500
+Date: Fri, 1 Apr 2005 14:39:07 -0800
+Message-Id: <200504012239.j31Md7H3032185@magilla.sf.frob.com>
+From: Roland McGrath <roland@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+X-Fcc: ~/Mail/linus
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Show thread_info->flags in /proc/PID/status
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+It comes up as useful in debugging to be able to see task->thread_info->flags
+along with signal information and such.  There is no way currently to
+elicit these bits from the kernel via sysrq or /proc (AFAIK).
+This patch adds the field to /proc/PID/status.
 
-some private discussion (that was continuing some kernel-summit-discuss
-thread) ended in the below patch. I also liked a textual "disable"
-instead of value "-17" (internally to the kernel it could be represented
-the same way, but the /proc parsing would be more complicated). If you
-prefer textual "disable" we can change this of course.
 
-Comments welcome.
+Thanks,
+Roland
 
-From: Andrea Arcangeli <andrea@suse.de>
-Subject: oom killer protection
+Signed-off-by: Roland McGrath <roland@redhat.com>
 
-iscsi/lvm2/multipath needs guaranteed protection from the oom-killer.
 
-Signed-off-by: Andrea Arcangeli <andrea@suse.de>
-
---- 2.6.12-seccomp/fs/proc/base.c.~1~	2005-03-25 05:13:28.000000000 +0100
-+++ 2.6.12-seccomp/fs/proc/base.c	2005-04-01 23:47:22.000000000 +0200
-@@ -751,7 +751,7 @@ static ssize_t oom_adjust_write(struct f
- 	if (copy_from_user(buffer, buf, count))
- 		return -EFAULT;
- 	oom_adjust = simple_strtol(buffer, &end, 0);
--	if (oom_adjust < -16 || oom_adjust > 15)
-+	if ((oom_adjust < -16 || oom_adjust > 15) && oom_adjust != OOM_DISABLE)
- 		return -EINVAL;
- 	if (*end == '\n')
- 		end++;
---- 2.6.12-seccomp/include/linux/mm.h.~1~	2005-03-25 05:13:28.000000000 +0100
-+++ 2.6.12-seccomp/include/linux/mm.h	2005-04-01 23:53:11.000000000 +0200
-@@ -856,5 +856,8 @@ int in_gate_area_no_task(unsigned long a
- #define in_gate_area(task, addr) ({(void)task; in_gate_area_no_task(addr);})
- #endif	/* __HAVE_ARCH_GATE_AREA */
+--- linux-2.6/fs/proc/array.c
++++ linux-2.6/fs/proc/array.c
+@@ -287,6 +287,12 @@ static inline char *task_cap(struct task
+ 			    cap_t(p->cap_effective));
+ }
  
-+/* /proc/<pid>/oom_adj set to -17 protects from the oom-killer */
-+#define OOM_DISABLE -17
++static inline char *task_tif(struct task_struct *p, char *buffer)
++{
++	return buffer + sprintf(buffer, "ThreadInfoFlags:\t%lu\n",
++				(unsigned long) p->thread_info->flags);
++}
 +
- #endif /* __KERNEL__ */
- #endif /* _LINUX_MM_H */
---- 2.6.12-seccomp/mm/oom_kill.c.~1~	2005-03-08 01:02:30.000000000 +0100
-+++ 2.6.12-seccomp/mm/oom_kill.c	2005-04-01 23:46:18.000000000 +0200
-@@ -145,7 +145,7 @@ static struct task_struct * select_bad_p
- 	do_posix_clock_monotonic_gettime(&uptime);
- 	do_each_thread(g, p)
- 		/* skip the init task with pid == 1 */
--		if (p->pid > 1) {
-+		if (p->pid > 1 && p->oomkilladj != OOM_DISABLE) {
- 			unsigned long points;
+ int proc_pid_status(struct task_struct *task, char * buffer)
+ {
+ 	char * orig = buffer;
+@@ -294,6 +300,7 @@ int proc_pid_status(struct task_struct *
  
- 			/*
+ 	buffer = task_name(task, buffer);
+ 	buffer = task_state(task, buffer);
++	buffer = task_tif(task, buffer);
+  
+ 	if (mm) {
+ 		buffer = task_mem(mm, buffer);

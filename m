@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265882AbTGADLM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 23:11:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265902AbTGADLL
+	id S265881AbTGADPt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 23:15:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265956AbTGADPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 23:11:11 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:55264
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S265882AbTGADLK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 23:11:10 -0400
-Date: Tue, 1 Jul 2003 05:25:08 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: mel@csn.ul.ie, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+	Mon, 30 Jun 2003 23:15:49 -0400
+Received: from imladris.surriel.com ([66.92.77.98]:40348 "EHLO
+	imladris.surriel.com") by vger.kernel.org with ESMTP
+	id S265881AbTGADPr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 23:15:47 -0400
+Date: Tue, 1 Jul 2003 03:29:54 +0000 (UTC)
+From: Rik van Riel <riel@imladris.surriel.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Andrew Morton <akpm@digeo.com>, mel@csn.ul.ie, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
 Subject: Re: What to expect with the 2.6 VM
-Message-ID: <20030701032508.GN3040@dualathlon.random>
-References: <Pine.LNX.4.53.0307010238210.22576@skynet> <20030701022516.GL3040@dualathlon.random> <20030630200237.473d5f82.akpm@digeo.com> <20030701032248.GM3040@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <20030701032248.GM3040@dualathlon.random>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Message-ID: <Pine.LNX.4.55L.0307010327250.1638@imladris.surriel.com>
+References: <Pine.LNX.4.53.0307010238210.22576@skynet>
+ <20030701022516.GL3040@dualathlon.random> <20030630200237.473d5f82.akpm@digeo.com>
+ <20030701032248.GM3040@dualathlon.random>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 01, 2003 at 05:22:48AM +0200, Andrea Arcangeli wrote:
-> On Mon, Jun 30, 2003 at 08:02:37PM -0700, Andrew Morton wrote:
-> > callers are fixed up to not require NOFAIL then we don't need it any more.
-> 
-> Agreed indeed.
+On Tue, 1 Jul 2003, Andrea Arcangeli wrote:
 
-I also found one argument in favour of NOFAIL: now it'll be easier to
-find all the deadlocking places ;)
+> Also think if you've a 1G box, the highmem list would be very small and
+> if you shrink it first, you'll waste an huge amount of cache. Maybe you
+> go shrink the zone normal list first in such case of unbalance?
 
-Andrea
+That's why you have low and high watermarks and try to balance
+the shrinking and allocating in both zones.  Not sure how
+classzone would influence this balancing though, maybe it'd be
+harder maybe it'd be easier, but I guess it would be different.
+
+> Overall I think rotating too fast a global list sounds much better in this
+> respect (with less infrequent GFP_KERNELS compared to the
+> highmem/pagecache/anonmemory allocation rate) as far as I can tell, but
+> I admit I didn't do any math (I didn't feel the need of a demonstration
+> but maybe we should?).
+
+Remember that on large systems ZONE_NORMAL is often under much
+more pressure than ZONE_HIGHMEM.  Need any more arguments ? ;)
+
+Rik
+-- 
+Engineers don't grow up, they grow sideways.
+http://www.surriel.com/		http://kernelnewbies.org/

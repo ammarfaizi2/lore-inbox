@@ -1,72 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316996AbSHOOOv>; Thu, 15 Aug 2002 10:14:51 -0400
+	id <S317017AbSHOO3D>; Thu, 15 Aug 2002 10:29:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317005AbSHOOOv>; Thu, 15 Aug 2002 10:14:51 -0400
-Received: from exchange.shagmail.com ([4.37.106.13]:65037 "EHLO
-	exchange.shagmail.com") by vger.kernel.org with ESMTP
-	id <S316996AbSHOOOu>; Thu, 15 Aug 2002 10:14:50 -0400
-Message-ID: <D0413D7A9695D41187260001022A07CD084C6ED8@exchange.shagmail.com>
-From: NAVMSE-EXCHANGE@shagmail.com
-To: linux-kernel@vger.kernel.org
-Subject: Norton AntiVirus detected a virus in a message you sent.  The inf
-	ected attachment was deleted.
-Date: Thu, 15 Aug 2002 09:30:44 -0500
-X-MS-TNEF-Correlator: <D0413D7A9695D41187260001022A07CD084C6ED8@exchange.shagmail.com>
+	id <S317023AbSHOO3D>; Thu, 15 Aug 2002 10:29:03 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:12294 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S317017AbSHOO3C>; Thu, 15 Aug 2002 10:29:02 -0400
+Message-ID: <3D5BBC06.D1BA147E@aitel.hist.no>
+Date: Thu, 15 Aug 2002 16:34:46 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.31 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C24468.5731BC40"
+To: linux-kernel@vger.kernel.org
+CC: vda@port.imtp.ilyichevsk.odessa.ua
+Subject: Re: [ANNOUNCE] New PC-Speaker driver
+References: <3D5A8C2C.9010700@yahoo.com> <200208150821.g7F8L6p19730@Port.imtp.ilyichevsk.odessa.ua> <E17fI5E-0002at-00@starship> <200208151137.g7FBbNp20417@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+Denis Vlasenko wrote:
 
-------_=_NextPart_000_01C24468.5731BC40
-Content-Type: text/plain
+> It won't work well for everybody, then it won't live in mainline.
+Bad reason.  You can select IDE without the fixes for your
+particular buggy IDE adapter and have it eat the disks.  Still,
+turning off RZ1000 and CMDxxx fixes is possible for those
+that know they have a good adapter.
 
-Recipient of the infected attachment:  Erica Guntner\Deleted Items
-Subject of the message:  Happy Assumption
-One or more attachments were deleted
-  Attachment Kwxma.scr was Deleted for the following reasons:
-    Virus W32.Klez.H@mm was found.
+So, no need to reject the speaker driver for "crap sound".
+It'll be usable with a good speaker, and the config help
+text can simply state that it is a last-resort driver
+which might work badly because it pushes the hardware.
 
-------_=_NextPart_000_01C24468.5731BC40
-Content-Type: application/ms-tnef
-Content-Transfer-Encoding: base64
+> Because newcomers will enable it, be pissed off with crap sound etc...
+> "Political" reasons I'm afraid...
 
-eJ8+Ii4OAQaQCAAEAAAAAAABAAEAAQeQBgAIAAAA5AQAAAAAAADoAAEIgAcAGAAAAElQTS5NaWNy
-b3NvZnQgTWFpbC5Ob3RlADEIAQWAAwAOAAAA0gcIAA8ACQAeACwABABHAQEggAMADgAAANIHCAAP
-AAkAHgAtAAQASAEBCYABACEAAABDNzUyNzUyMzhEQjk0QjQ5Qjc1N0I5MUZEQ0MwOEYwQQBMBwEE
-gAEAXwAAAE5vcnRvbiBBbnRpVmlydXMgZGV0ZWN0ZWQgYSB2aXJ1cyBpbiBhIG1lc3NhZ2UgeW91
-IHNlbnQuICBUaGUgaW5mZWN0ZWQgYXR0YWNobWVudCB3YXMgZGVsZXRlZC4AHyIBDYAEAAIAAAAC
-AAIAAQOQBgDUBQAAIQAAAAIBCRABAAAAPwEAADsBAADAAQAATFpGdbj6n+uHAAoBDQNDdGV4dAH3
-/wKkA+QF6wKDAFAC8wa0AoMmMgPFAgBjaArAc2XYdDAgBxMCgH0KgAjP/wnZAoAKhAs3EsIB0Afw
-BZAHBSAIkAIwIG9mIHRoaGUgC4BmBZAO8GRsIGECQADQaAeAAjA6CCAgRQUQY2EgRwp1AjBuBJBc
-XERl1mwTsBlBSQ7wbRMwCrLhCoBTdWJqGREYZgeBEHNhZ2UaEUhhcExweRPgBBB1bQUwafsCIBwF
-TxrgGGAFwARgFUD7GWkEIHcEkBjAAQAbUwqjCgoaIEEZhyBLd3jtAMAuBPEg4GEEIBs2AhA3BcAY
-ogIQbBTQA/BuZ84gFUAjkAIgczocBRogIRogVmlydQQgVzMIMi5LG1B6LkhAnG1tI3MCEBqwZC4c
-BQJ9KPAAAwD9P+QEAABAADkAQLwxV2hEwgEDAPE/CQQAAB4AMUABAAAAEAAAAE5BVk1TRS1FWENI
-QU5HRQADABpAAAAAAB4AMEABAAAAEAAAAE5BVk1TRS1FWENIQU5HRQADABlAAAAAAAIBcQABAAAA
-FgAAAAHCRGhXMxcwBYNuKkvxmqoBoa/idp0AAAMAJgAAAAAAAwA2AAAAAAAeAHAAAQAAAF8AAABO
-b3J0b24gQW50aVZpcnVzIGRldGVjdGVkIGEgdmlydXMgaW4gYSBtZXNzYWdlIHlvdSBzZW50LiAg
-VGhlIGluZmVjdGVkIGF0dGFjaG1lbnQgd2FzIGRlbGV0ZWQuAAALAPIQAQAAAAIBRwABAAAAMwAA
-AGM9VVM7YT0gO3A9U2hhZ21haWw7bD1FWENIQU5HRS0wMjA4MTUxNDMwNDVaLTEwMzM0AAACAfk/
-AQAAAFgAAAAAAAAA3KdAyMBCEBq0uQgAKy/hggEAAAAAAAAAL089U0hBR01BSUwvT1U9U0VORE9V
-VE1BSUwvQ049UkVDSVBJRU5UUy9DTj1OQVZNU0UtRVhDSEFOR0UAHgD4PwEAAAAkAAAATkFWIGZv
-ciBNaWNyb3NvZnQgRXhjaGFuZ2UtRVhDSEFOR0UAHgA4QAEAAAAQAAAATkFWTVNFLUVYQ0hBTkdF
-AAIB+z8BAAAAWAAAAAAAAADcp0DIwEIQGrS5CAArL+GCAQAAAAAAAAAvTz1TSEFHTUFJTC9PVT1T
-RU5ET1VUTUFJTC9DTj1SRUNJUElFTlRTL0NOPU5BVk1TRS1FWENIQU5HRQAeAPo/AQAAACQAAABO
-QVYgZm9yIE1pY3Jvc29mdCBFeGNoYW5nZS1FWENIQU5HRQAeADlAAQAAABAAAABOQVZNU0UtRVhD
-SEFOR0UAQAAHMMAyKldoRMIBQAAIMPAsRFdoRMIBHgA9AAEAAAABAAAAAAAAAB4AHQ4BAAAAXwAA
-AE5vcnRvbiBBbnRpVmlydXMgZGV0ZWN0ZWQgYSB2aXJ1cyBpbiBhIG1lc3NhZ2UgeW91IHNlbnQu
-ICBUaGUgaW5mZWN0ZWQgYXR0YWNobWVudCB3YXMgZGVsZXRlZC4AAB4ANRABAAAAQQAAADxEMDQx
-M0Q3QTk2OTVENDExODcyNjAwMDEwMjJBMDdDRDA4NEM2RUQ4QGV4Y2hhbmdlLnNoYWdtYWlsLmNv
-bT4AAAAACwApAAAAAAALACMAAAAAAAMABhCEOS1JAwAHEMYAAAADABAQAAAAAAMAERABAAAAHgAI
-EAEAAABlAAAAUkVDSVBJRU5UT0ZUSEVJTkZFQ1RFREFUVEFDSE1FTlQ6RVJJQ0FHVU5UTkVSREVM
-RVRFRElURU1TU1VCSkVDVE9GVEhFTUVTU0FHRTpIQVBQWUFTU1VNUFRJT05PTkVPUk1PUgAAAAAC
-AX8AAQAAAEEAAAA8RDA0MTNEN0E5Njk1RDQxMTg3MjYwMDAxMDIyQTA3Q0QwODRDNkVEOEBleGNo
-YW5nZS5zaGFnbWFpbC5jb20+AAAAAOty
+The senseless cpu usage for something as simple as sound
+is worse.  Consider putting a old voice modem on a serial
+port and connect a speaker to the phone output...
 
-------_=_NextPart_000_01C24468.5731BC40--
+Helge Hafting

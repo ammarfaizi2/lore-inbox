@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262836AbUJ1Ivi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262838AbUJ1I47@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262836AbUJ1Ivi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 04:51:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262832AbUJ1Ivh
+	id S262838AbUJ1I47 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 04:56:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbUJ1I46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 04:51:37 -0400
-Received: from digitalimplant.org ([64.62.235.95]:22972 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S262833AbUJ1Iuw
+	Thu, 28 Oct 2004 04:56:58 -0400
+Received: from c24.177.130.92.static.ncr.charter.com ([24.177.130.92]:36614
+	"EHLO tweed.32s") by vger.kernel.org with ESMTP id S262832AbUJ1I4x
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 04:50:52 -0400
-Date: Thu, 28 Oct 2004 01:50:48 -0700 (PDT)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] Re: Concerns about our pci_{save,restore}_state()
-In-Reply-To: <1098685464.26695.32.camel@gaston>
-Message-ID: <Pine.LNX.4.50.0410280149140.13935-100000@monsoon.he.net>
-References: <1098677182.26697.21.camel@gaston>  <417C991C.2070806@pobox.com>
- <1098685464.26695.32.camel@gaston>
+	Thu, 28 Oct 2004 04:56:53 -0400
+From: shaun@gopublicinfo.net
+To: shaun@gopublicinfo.net
+Subject: any company can Go Public
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain
+Message-ID: <bulk.51492.20041028041230@alphaimports.zzinc.info>
+Date: Thu, 28 Oct 2004 04:47:59 -0400 (EDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 25 Oct 2004, Benjamin Herrenschmidt wrote:
-
-> On Mon, 2004-10-25 at 02:11 -0400, Jeff Garzik wrote:
-
-> > This is _clearly_ something that should be decided upon in the driver.
-> > The PCI layer should _only_ present standard helper functions, and maybe
-> > a standard storage space that works for most drivers; not force all
-> > drivers through a narrow funnel.
->
-> Agreed. However, my concern is to have some "default" stuff that will
-> take over in absence of a driver. This is, I think, important for things
-> like P2P bridges which are rather standard and will usually survive well
-> with a simple save/retore of whatever is there. I suppose it would be
-> interesting to define a pair of quirk types to hook on the "default"
-> implementation, unless we actually want to have a bunch of pci_driver's
-> just for things that don't have normally a driver but need some specific
-> save/restore procedure ...
-
-What's wrong with that? They would be simple and straightforward, and
-could probably work to remove many of the quirks, too..
+As you may know, we specialize in assisting emerging companies in "Going Public". We are also able to assist with Private Placement preparation (for companies wanting to raise capital) and public company reporting.
 
 
-	Pat
+Many people are not aware that any company can go public including a startup or development stage company.  Please visit our site or email us to receive our Go Public Report and our Advantages of Going Public Report.
+
+
+I wish I could convey to you, all the many benefits of going public in a brief letter.  I am not sure if you can imagine how valuable and powerful a public company can be in achieving your goals and objectives.
+
+
+We would like to propose a joint venture with you.  If you or an associate of yours may be interested in taking a company public, please let us know at info@capitalraisingstrategies.com .  We are happy to pay a very generous referral fee.
+
+
+Since we provide such an outstanding service and have a great deal of experience, you may want to pass this email on to an associate or you can send us their information.
+
+Please contact us when you are ready to move forward.
+
+Sincerely,
+
+Shaun Anthony
+
+info@capitalraisingstrategies.com
+http://www.capitalraisingstrategies.com
+
+
+If you do not want to hear from us any longer, email us with no longer in the subject. takeoff@capitalraisingstrategies.com
+
+
+8721 Santa Monica Bl #359 -- Los Angeles, CA 90069-4507 USA
 

@@ -1,273 +1,413 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268702AbUJDW6a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268698AbUJDW6b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268702AbUJDW6a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 18:58:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268700AbUJDW6L
+	id S268698AbUJDW6b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 18:58:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268697AbUJDW53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 18:58:11 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:40968 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S268683AbUJDWze
+	Mon, 4 Oct 2004 18:57:29 -0400
+Received: from mailfe04.swip.net ([212.247.154.97]:60415 "EHLO
+	mailfe04.swip.net") by vger.kernel.org with ESMTP id S268677AbUJDWzd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 18:55:34 -0400
-Date: Mon, 4 Oct 2004 23:55:33 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: netdev@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.27: Fix struct fddi_statistics for 64-bit
-Message-ID: <Pine.LNX.4.58L.0410032238410.22545@blysk.ds.pg.gda.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 4 Oct 2004 18:55:33 -0400
+X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
+Date: Tue, 5 Oct 2004 00:55:30 +0200
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: rmk@arm.linux.org.uk
+Cc: linux-kernel@vger.kernel.org, sebastien.hinderer@libertysurf.fr
+Subject: Re: [Patch] new serial flow control
+Message-ID: <20041004225530.GG2593@bouh.is-a-geek.org>
+Mail-Followup-To: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org,
+	sebastien.hinderer@libertysurf.fr
+References: <20041004225430.GF2593@bouh.is-a-geek.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="yEPQxsgoJgBvi8ip"
+Content-Disposition: inline
+In-Reply-To: <20041004225430.GF2593@bouh.is-a-geek.org>
+User-Agent: Mutt/1.5.6i-nntp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
- There is a problem with "struct fddi_statistics" for 64-bit systems.  
-The starting members of the struct are expected to correspond to the
-respective members of "struct net_device_stats" (drivers for FDDI devices
-return "struct fddi_statistics" in the response to the get_stats() call of
-"struct net_device").  Unfortunately, due to using different types (u32 vs
-ulong) they do not.  "struct net_device_stats" is a public interface and
-as a result, bogus results are retrieved, e.g. for /proc/net/dev.
+--yEPQxsgoJgBvi8ip
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
- Here is my proposal to address the problem.  I think there is no point in
-duplicating the layout of "struct net_device_stats" in "struct
-fddi_statistics" as the former can simply be included as a member avoiding
-this problem and actually any possible discrepancy in the future.  This 
-also preserves the layout of the structure for 32-bit systems.
+Here is patch for 2.6
 
- This was run-time tested with 2.4.26 using the defxx driver in a 64-bit 
-MIPSel system.  All affected drivers were compiled successfully with 
-2.4.27 and 2.6.8.1.
+--yEPQxsgoJgBvi8ip
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="tvbpatch-2.6"
 
- The patch applies both to 2.4 and 2.6, but one of the affected drivers
-has been removed from 2.6 leading to a reject.  Therefore I'll send an 
-updated patch for 2.6 separately.
-
-  Maciej
-
-Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
-
-patch-2.4.27-fddi-stats-1
-diff -up --recursive --new-file linux-2.4.27.macro/drivers/message/i2o/i2o_lan.c linux-2.4.27/drivers/message/i2o/i2o_lan.c
---- linux-2.4.27.macro/drivers/message/i2o/i2o_lan.c	2002-08-12 18:55:51.000000000 +0000
-+++ linux-2.4.27/drivers/message/i2o/i2o_lan.c	2004-10-03 21:12:32.000000000 +0000
-@@ -1043,13 +1043,13 @@ static struct net_device_stats *i2o_lan_
- 		printk(KERN_INFO "%s: Unable to query LAN_HISTORICAL_STATS.\n", dev->name);
- 	else {
- 		dprintk(KERN_DEBUG "%s: LAN_HISTORICAL_STATS queried.\n", dev->name);
--		priv->stats.tx_packets = val64[0];
--		priv->stats.tx_bytes   = val64[1];
--		priv->stats.rx_packets = val64[2];
--		priv->stats.rx_bytes   = val64[3];
--		priv->stats.tx_errors  = val64[4];
--		priv->stats.rx_errors  = val64[5];
--		priv->stats.rx_dropped = val64[6];
-+		priv->stats.gen.tx_packets = val64[0];
-+		priv->stats.gen.tx_bytes   = val64[1];
-+		priv->stats.gen.rx_packets = val64[2];
-+		priv->stats.gen.rx_bytes   = val64[3];
-+		priv->stats.gen.tx_errors  = val64[4];
-+		priv->stats.gen.rx_errors  = val64[5];
-+		priv->stats.gen.rx_dropped = val64[6];
+diff -ur linux-2.6.8.1-orig/drivers/serial/serial_core.c linux-2.6.8.1-tvb/drivers/serial/serial_core.c
+--- linux-2.6.8.1-orig/drivers/serial/serial_core.c	2004-08-14 12:54:51.000000000 +0200
++++ linux-2.6.8.1-tvb/drivers/serial/serial_core.c	2004-09-30 00:36:27.000000000 +0200
+@@ -118,23 +118,6 @@
  	}
+ }
  
- 	if (i2o_query_scalar(iop, i2o_dev->lct_data.tid, 0x0180, -1,
-@@ -1062,9 +1062,9 @@ static struct net_device_stats *i2o_lan_
- 			printk(KERN_INFO "%s: Unable to query LAN_OPTIONAL_RX_HISTORICAL_STATS.\n", dev->name);
- 		else {
- 			dprintk(KERN_DEBUG "%s: LAN_OPTIONAL_RX_HISTORICAL_STATS queried.\n", dev->name);
--			priv->stats.multicast	     = val64[4];
--			priv->stats.rx_length_errors = val64[10];
--			priv->stats.rx_crc_errors    = val64[0];
-+			priv->stats.gen.multicast        = val64[4];
-+			priv->stats.gen.rx_length_errors = val64[10];
-+			priv->stats.gen.rx_crc_errors    = val64[0];
- 		}
- 	}
- 
-@@ -1075,9 +1075,9 @@ static struct net_device_stats *i2o_lan_
- 			printk(KERN_INFO "%s: Unable to query LAN_802_3_HISTORICAL_STATS.\n", dev->name);
- 		else {
- 			dprintk(KERN_DEBUG "%s: LAN_802_3_HISTORICAL_STATS queried.\n", dev->name);
--	 		priv->stats.transmit_collision = val64[1] + val64[2];
--			priv->stats.rx_frame_errors    = val64[0];
--			priv->stats.tx_carrier_errors  = val64[6];
-+	 		priv->stats.gen.collisions        = val64[1] + val64[2];
-+			priv->stats.gen.rx_frame_errors   = val64[0];
-+			priv->stats.gen.tx_carrier_errors = val64[6];
+-static inline void
+-uart_update_mctrl(struct uart_port *port, unsigned int set, unsigned int clear)
+-{
+-	unsigned long flags;
+-	unsigned int old;
+-
+-	spin_lock_irqsave(&port->lock, flags);
+-	old = port->mctrl;
+-	port->mctrl = (old & ~clear) | set;
+-	if (old != port->mctrl)
+-		port->ops->set_mctrl(port, port->mctrl);
+-	spin_unlock_irqrestore(&port->lock, flags);
+-}
+-
+-#define uart_set_mctrl(port,set)	uart_update_mctrl(port,set,0)
+-#define uart_clear_mctrl(port,clear)	uart_update_mctrl(port,0,clear)
+-
+ /*
+  * Startup the port.  This will be called once per open.  All calls
+  * will be serialised by the per-port semaphore.
+@@ -187,8 +170,13 @@
+ 			 * Setup the RTS and DTR signals once the
+ 			 * port is open and ready to respond.
+ 			 */
+-			if (info->tty->termios->c_cflag & CBAUD)
+-				uart_set_mctrl(port, TIOCM_RTS | TIOCM_DTR);
++			if (info->tty->termios->c_cflag & CBAUD) {
++				uart_set_mctrl(port, TIOCM_DTR);
++				if (info->tty->termios->c_cflag & CTVB)
++					uart_clear_mctrl(port, TIOCM_RTS);
++				else
++					uart_set_mctrl(port, TIOCM_RTS);
++			}
  		}
  
- 		if (i2o_query_scalar(iop, i2o_dev->lct_data.tid, 0x0280, -1,
-@@ -1091,9 +1091,11 @@ static struct net_device_stats *i2o_lan_
- 			else {
- 				dprintk(KERN_DEBUG "%s: LAN_OPTIONAL_802_3_HISTORICAL_STATS queried.\n", dev->name);
- 				if (supported_stats & 0x1)
--					priv->stats.rx_over_errors = val64[0];
-+					priv->stats.gen.rx_over_errors =
-+								val64[0];
- 				if (supported_stats & 0x4)
--					priv->stats.tx_heartbeat_errors = val64[2];
-+					priv->stats.gen.tx_heartbeat_errors =
-+								val64[2];
+ 		info->flags |= UIF_INITIALIZED;
+@@ -434,6 +422,11 @@
+ 	else
+ 		state->info->flags &= ~UIF_CTS_FLOW;
+ 
++	if (termios->c_cflag & CTVB)
++		state->info->flags |= UIF_TVB_FLOW;
++	else
++		state->info->flags &= ~UIF_TVB_FLOW;
++
+ 	if (termios->c_cflag & CLOCAL)
+ 		state->info->flags &= ~UIF_CHECK_CD;
+ 	else
+@@ -1180,8 +1173,8 @@
+ 	/* Handle transition away from B0 status */
+ 	if (!(old_termios->c_cflag & CBAUD) && (cflag & CBAUD)) {
+ 		unsigned int mask = TIOCM_DTR;
+-		if (!(cflag & CRTSCTS) ||
+-		    !test_bit(TTY_THROTTLED, &tty->flags))
++		if (!(cflag & CTVB) && (!(cflag & CRTSCTS) ||
++		    !test_bit(TTY_THROTTLED, &tty->flags)))
+ 			mask |= TIOCM_RTS;
+ 		uart_set_mctrl(state->port, mask);
+ 	}
+@@ -1419,8 +1412,13 @@
+ 		/*
+ 		 * And finally enable the RTS and DTR signals.
+ 		 */
+-		if (tty->termios->c_cflag & CBAUD)
+-			uart_set_mctrl(port, TIOCM_DTR | TIOCM_RTS);
++		if (tty->termios->c_cflag & CBAUD) {
++			uart_set_mctrl(port, TIOCM_DTR);
++			if (tty->termios->c_cflag & CTVB)
++				uart_clear_mctrl(port,TIOCM_RTS);
++			else
++				uart_set_mctrl(port,TIOCM_RTS);
++		}
+ 	}
+ }
+ 
+diff -ur linux-2.6.8.1-orig/include/asm-alpha/termbits.h linux-2.6.8.1-tvb/include/asm-alpha/termbits.h
+--- linux-2.6.8.1-orig/include/asm-alpha/termbits.h	2004-08-14 12:55:35.000000000 +0200
++++ linux-2.6.8.1-tvb/include/asm-alpha/termbits.h	2004-09-30 00:36:27.000000000 +0200
+@@ -148,6 +148,7 @@
+ #define HUPCL	00040000
+ 
+ #define CLOCAL	00100000
++#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
+ #define CRTSCTS	  020000000000		/* flow control */
+ 
+ /* c_lflag bits */
+diff -ur linux-2.6.8.1-orig/include/asm-arm/termbits.h linux-2.6.8.1-tvb/include/asm-arm/termbits.h
+--- linux-2.6.8.1-orig/include/asm-arm/termbits.h	2004-08-14 12:56:24.000000000 +0200
++++ linux-2.6.8.1-tvb/include/asm-arm/termbits.h	2004-09-30 00:36:27.000000000 +0200
+@@ -132,6 +132,7 @@
+ #define  B3500000 0010016
+ #define  B4000000 0010017
+ #define CIBAUD	  002003600000	/* input baud rate (not used) */
++#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
+ #define CMSPAR    010000000000		/* mark or space (stick) parity */
+ #define CRTSCTS	  020000000000		/* flow control */
+ 
+diff -ur linux-2.6.8.1-orig/include/asm-arm26/termbits.h linux-2.6.8.1-tvb/include/asm-arm26/termbits.h
+--- linux-2.6.8.1-orig/include/asm-arm26/termbits.h	2004-08-14 12:55:35.000000000 +0200
++++ linux-2.6.8.1-tvb/include/asm-arm26/termbits.h	2004-09-30 00:36:27.000000000 +0200
+@@ -132,6 +132,7 @@
+ #define  B3500000 0010016
+ #define  B4000000 0010017
+ #define CIBAUD	  002003600000	/* input baud rate (not used) */
++#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
+ #define CMSPAR    010000000000		/* mark or space (stick) parity */
+ #define CRTSCTS	  020000000000		/* flow control */
+ 
+diff -ur linux-2.6.8.1-orig/include/asm-cris/termbits.h linux-2.6.8.1-tvb/include/asm-cris/termbits.h
+--- linux-2.6.8.1-orig/include/asm-cris/termbits.h	2004-08-14 12:54:50.000000000 +0200
++++ linux-2.6.8.1-tvb/include/asm-cris/termbits.h	2004-09-30 00:36:27.000000000 +0200
+@@ -108,9 +108,10 @@
+  *    10 987 654 321 098 765 432 109 876 543 210
+  *        |           || ||   CIBAUD, IBSHIFT=16
+  *                    ibaud
++ *       |CTVB
+  *     |CMSPAR
+  *    | CRTSCTS
+- *       x x xxx xxx x     x xx Free bits
++ *         x xxx xxx x     x xx Free bits
+  */
+ 
+ #define CBAUD	0010017
+@@ -159,6 +160,7 @@
+  * shifted left IBSHIFT bits.
+  */
+ #define IBSHIFT   16
++#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
+ #define CMSPAR    010000000000 /* mark or space (stick) parity - PARODD=space*/
+ #define CRTSCTS	  020000000000		/* flow control */
+ 
+diff -ur linux-2.6.8.1-orig/include/asm-h8300/termbits.h linux-2.6.8.1-tvb/include/asm-h8300/termbits.h
+--- linux-2.6.8.1-orig/include/asm-h8300/termbits.h	2004-08-14 12:56:24.000000000 +0200
++++ linux-2.6.8.1-tvb/include/asm-h8300/termbits.h	2004-09-30 00:36:27.000000000 +0200
+@@ -135,6 +135,7 @@
+ #define  B3500000 0010016
+ #define  B4000000 0010017
+ #define CIBAUD	  002003600000	/* input baud rate (not used) */
++#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
+ #define CMSPAR	  010000000000		/* mark or space (stick) parity */
+ #define CRTSCTS	  020000000000		/* flow control */
+ 
+diff -ur linux-2.6.8.1-orig/include/asm-i386/termbits.h linux-2.6.8.1-tvb/include/asm-i386/termbits.h
+--- linux-2.6.8.1-orig/include/asm-i386/termbits.h	2004-08-14 12:56:25.000000000 +0200
++++ linux-2.6.8.1-tvb/include/asm-i386/termbits.h	2004-09-30 00:36:27.000000000 +0200
+@@ -134,6 +134,7 @@
+ #define  B3500000 0010016
+ #define  B4000000 0010017
+ #define CIBAUD	  002003600000	/* input baud rate (not used) */
++#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
+ #define CMSPAR	  010000000000		/* mark or space (stick) parity */
+ #define CRTSCTS	  020000000000		/* flow control */
+ 
+diff -ur linux-2.6.8.1-orig/include/asm-ia64/termbits.h linux-2.6.8.1-tvb/include/asm-ia64/termbits.h
+--- linux-2.6.8.1-orig/include/asm-ia64/termbits.h	2004-08-14 12:55:35.000000000 +0200
++++ linux-2.6.8.1-tvb/include/asm-ia64/termbits.h	2004-09-30 00:36:27.000000000 +0200
+@@ -143,6 +143,7 @@
+ #define  B3500000 0010016
+ #define  B4000000 0010017
+ #define CIBAUD	  002003600000	/* input baud rate (not used) */
++#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
+ #define CMSPAR	  010000000000		/* mark or space (stick) parity */
+ #define CRTSCTS	  020000000000		/* flow control */
+ 
+diff -ur linux-2.6.8.1-orig/include/asm-m68k/termbits.h linux-2.6.8.1-tvb/include/asm-m68k/termbits.h
+--- linux-2.6.8.1-orig/include/asm-m68k/termbits.h	2004-08-14 12:56:23.000000000 +0200
++++ linux-2.6.8.1-tvb/include/asm-m68k/termbits.h	2004-09-30 00:36:27.000000000 +0200
+@@ -135,6 +135,7 @@
+ #define  B3500000 0010016
+ #define  B4000000 0010017
+ #define CIBAUD	  002003600000	/* input baud rate (not used) */
++#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
+ #define CMSPAR	  010000000000		/* mark or space (stick) parity */
+ #define CRTSCTS	  020000000000		/* flow control */
+ 
+diff -ur linux-2.6.8.1-orig/include/asm-mips/termbits.h linux-2.6.8.1-tvb/include/asm-mips/termbits.h
+--- linux-2.6.8.1-orig/include/asm-mips/termbits.h	2004-08-14 12:54:49.000000000 +0200
++++ linux-2.6.8.1-tvb/include/asm-mips/termbits.h	2004-09-30 00:36:27.000000000 +0200
+@@ -164,6 +164,7 @@
+ #define  B3500000 0010016
+ #define  B4000000 0010017
+ #define CIBAUD	  002003600000	/* input baud rate (not used) */
++#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
+ #define CMSPAR    010000000000	/* mark or space (stick) parity */
+ #define CRTSCTS	  020000000000		/* flow control */
+ 
+diff -ur linux-2.6.8.1-orig/include/asm-parisc/termbits.h linux-2.6.8.1-tvb/include/asm-parisc/termbits.h
+--- linux-2.6.8.1-orig/include/asm-parisc/termbits.h	2004-08-14 12:55:33.000000000 +0200
++++ linux-2.6.8.1-tvb/include/asm-parisc/termbits.h	2004-09-30 00:36:27.000000000 +0200
+@@ -135,6 +135,7 @@
+ #define  B3500000 0010016
+ #define  B4000000 0010017
+ #define CIBAUD    002003600000  /* input baud rate (not used) */
++#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
+ #define CMSPAR    010000000000          /* mark or space (stick) parity */
+ #define CRTSCTS   020000000000          /* flow control */
+ 
+diff -ur linux-2.6.8.1-orig/include/asm-ppc/termbits.h linux-2.6.8.1-tvb/include/asm-ppc/termbits.h
+--- linux-2.6.8.1-orig/include/asm-ppc/termbits.h	2004-08-14 12:55:34.000000000 +0200
++++ linux-2.6.8.1-tvb/include/asm-ppc/termbits.h	2004-09-30 00:36:27.000000000 +0200
+@@ -147,6 +147,7 @@
+ #define HUPCL	00040000
+ 
+ #define CLOCAL	00100000
++#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
+ #define CRTSCTS	  020000000000		/* flow control */
+ 
+ /* c_lflag bits */
+diff -ur linux-2.6.8.1-orig/include/asm-ppc64/termbits.h linux-2.6.8.1-tvb/include/asm-ppc64/termbits.h
+--- linux-2.6.8.1-orig/include/asm-ppc64/termbits.h	2004-08-14 12:55:35.000000000 +0200
++++ linux-2.6.8.1-tvb/include/asm-ppc64/termbits.h	2004-09-30 00:36:27.000000000 +0200
+@@ -155,6 +155,7 @@
+ #define HUPCL	00040000
+ 
+ #define CLOCAL	00100000
++#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
+ #define CRTSCTS	  020000000000		/* flow control */
+ 
+ /* c_lflag bits */
+diff -ur linux-2.6.8.1-orig/include/asm-s390/termbits.h linux-2.6.8.1-tvb/include/asm-s390/termbits.h
+--- linux-2.6.8.1-orig/include/asm-s390/termbits.h	2004-08-14 12:56:01.000000000 +0200
++++ linux-2.6.8.1-tvb/include/asm-s390/termbits.h	2004-09-30 00:36:27.000000000 +0200
+@@ -142,6 +142,7 @@
+ #define  B3500000 0010016
+ #define  B4000000 0010017
+ #define CIBAUD	  002003600000	/* input baud rate (not used) */
++#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
+ #define CMSPAR	  010000000000		/* mark or space (stick) parity */
+ #define CRTSCTS	  020000000000		/* flow control */
+ 
+diff -ur linux-2.6.8.1-orig/include/asm-sh/termbits.h linux-2.6.8.1-tvb/include/asm-sh/termbits.h
+--- linux-2.6.8.1-orig/include/asm-sh/termbits.h	2004-08-14 12:54:51.000000000 +0200
++++ linux-2.6.8.1-tvb/include/asm-sh/termbits.h	2004-09-30 00:36:27.000000000 +0200
+@@ -134,6 +134,7 @@
+ #define  B3500000 0010016
+ #define  B4000000 0010017
+ #define CIBAUD	  002003600000	/* input baud rate (not used) */
++#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
+ #define CMSPAR	  010000000000		/* mark or space (stick) parity */
+ #define CRTSCTS	  020000000000		/* flow control */
+ 
+diff -ur linux-2.6.8.1-orig/include/asm-sparc/termbits.h linux-2.6.8.1-tvb/include/asm-sparc/termbits.h
+--- linux-2.6.8.1-orig/include/asm-sparc/termbits.h	2004-08-14 12:55:59.000000000 +0200
++++ linux-2.6.8.1-tvb/include/asm-sparc/termbits.h	2004-09-30 00:36:27.000000000 +0200
+@@ -174,6 +174,7 @@
+ #define B3500000  0x00001012
+ #define B4000000  0x00001013  */
+ #define CIBAUD	  0x100f0000  /* input baud rate (not used) */
++#define CTVB	  0x20000000  /* VisioBraille Terminal flow control */
+ #define CMSPAR	  0x40000000  /* mark or space (stick) parity */
+ #define CRTSCTS	  0x80000000  /* flow control */
+ 
+diff -ur linux-2.6.8.1-orig/include/asm-sparc64/termbits.h linux-2.6.8.1-tvb/include/asm-sparc64/termbits.h
+--- linux-2.6.8.1-orig/include/asm-sparc64/termbits.h	2004-08-14 12:54:51.000000000 +0200
++++ linux-2.6.8.1-tvb/include/asm-sparc64/termbits.h	2004-09-30 00:36:27.000000000 +0200
+@@ -175,6 +175,7 @@
+ #define B3500000  0x00001012
+ #define B4000000  0x00001013  */
+ #define CIBAUD	  0x100f0000  /* input baud rate (not used) */
++#define CTVB	  0x20000000  /* VisioBraille Terminal flow control */
+ #define CMSPAR    0x40000000  /* mark or space (stick) parity */
+ #define CRTSCTS	  0x80000000  /* flow control */
+ 
+diff -ur linux-2.6.8.1-orig/include/asm-v850/termbits.h linux-2.6.8.1-tvb/include/asm-v850/termbits.h
+--- linux-2.6.8.1-orig/include/asm-v850/termbits.h	2004-08-14 12:54:47.000000000 +0200
++++ linux-2.6.8.1-tvb/include/asm-v850/termbits.h	2004-09-30 00:36:27.000000000 +0200
+@@ -135,6 +135,7 @@
+ #define  B3500000 0010016
+ #define  B4000000 0010017
+ #define CIBAUD	  002003600000	/* input baud rate (not used) */
++#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
+ #define CMSPAR	  010000000000		/* mark or space (stick) parity */
+ #define CRTSCTS	  020000000000		/* flow control */
+ 
+diff -ur linux-2.6.8.1-orig/include/asm-x86_64/termbits.h linux-2.6.8.1-tvb/include/asm-x86_64/termbits.h
+--- linux-2.6.8.1-orig/include/asm-x86_64/termbits.h	2004-08-14 12:54:48.000000000 +0200
++++ linux-2.6.8.1-tvb/include/asm-x86_64/termbits.h	2004-09-30 00:36:27.000000000 +0200
+@@ -134,6 +134,7 @@
+ #define  B3500000 0010016
+ #define  B4000000 0010017
+ #define CIBAUD	  002003600000	/* input baud rate (not used) */
++#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
+ #define CMSPAR	  010000000000		/* mark or space (stick) parity */
+ #define CRTSCTS	  020000000000		/* flow control */
+ 
+diff -ur linux-2.6.8.1-orig/include/linux/serial_core.h linux-2.6.8.1-tvb/include/linux/serial_core.h
+--- linux-2.6.8.1-orig/include/linux/serial_core.h	2004-08-14 12:54:50.000000000 +0200
++++ linux-2.6.8.1-tvb/include/linux/serial_core.h	2004-09-30 00:41:25.000000000 +0200
+@@ -264,6 +264,7 @@
+  */
+ #define UIF_CHECK_CD		(1 << 25)
+ #define UIF_CTS_FLOW		(1 << 26)
++#define UIF_TVB_FLOW		(1 << 21)
+ #define UIF_NORMAL_ACTIVE	(1 << 29)
+ #define UIF_INITIALIZED		(1 << 31)
+ 
+@@ -375,6 +376,23 @@
+ #define uart_handle_sysrq_char(port,ch,regs)	(0)
+ #endif
+ 
++static inline void
++uart_update_mctrl(struct uart_port *port, unsigned int set, unsigned int clear)
++{
++	unsigned long flags;
++	unsigned int old;
++
++	spin_lock_irqsave(&port->lock, flags);
++	old = port->mctrl;
++	port->mctrl = (old & ~clear) | set;
++	if (old != port->mctrl)
++		port->ops->set_mctrl(port, port->mctrl);
++	spin_unlock_irqrestore(&port->lock, flags);
++}
++
++#define uart_set_mctrl(port,set)	uart_update_mctrl(port,set,0)
++#define uart_clear_mctrl(port,clear)	uart_update_mctrl(port,0,clear)
++
+ /*
+  * We do the SysRQ and SAK checking like this...
+  */
+@@ -446,6 +464,11 @@
+ 				port->ops->stop_tx(port, 0);
  			}
  		}
++	} else if (info->flags & UIF_TVB_FLOW) {
++		if (status)
++			uart_set_mctrl(port, TIOCM_RTS);
++		else
++			uart_clear_mctrl(port, TIOCM_RTS);
  	}
-diff -up --recursive --new-file linux-2.4.27.macro/drivers/net/defxx.c linux-2.4.27/drivers/net/defxx.c
---- linux-2.4.27.macro/drivers/net/defxx.c	2004-09-29 00:03:33.000000000 +0000
-+++ linux-2.4.27/drivers/net/defxx.c	2004-10-03 21:31:16.000000000 +0000
-@@ -1809,16 +1809,18 @@ static struct net_device_stats *dfx_ctl_
+ }
  
- 	/* Fill the bp->stats structure with driver-maintained counters */
+@@ -454,6 +477,7 @@
+  */
+ #define UART_ENABLE_MS(port,cflag)	((port)->flags & UPF_HARDPPS_CD || \
+ 					 (cflag) & CRTSCTS || \
++					 (cflag) & CTVB || \
+ 					 !((cflag) & CLOCAL))
  
--	bp->stats.rx_packets			= bp->rcv_total_frames;
--	bp->stats.tx_packets			= bp->xmt_total_frames;
--	bp->stats.rx_bytes			= bp->rcv_total_bytes;
--	bp->stats.tx_bytes			= bp->xmt_total_bytes;
--	bp->stats.rx_errors				= (u32)(bp->rcv_crc_errors + bp->rcv_frame_status_errors + bp->rcv_length_errors);
--	bp->stats.tx_errors				= bp->xmt_length_errors;
--	bp->stats.rx_dropped			= bp->rcv_discards;
--	bp->stats.tx_dropped			= bp->xmt_discards;
--	bp->stats.multicast				= bp->rcv_multicast_frames;
--	bp->stats.transmit_collision	= 0;	/* always zero (0) for FDDI */
-+	bp->stats.gen.rx_packets = bp->rcv_total_frames;
-+	bp->stats.gen.tx_packets = bp->xmt_total_frames;
-+	bp->stats.gen.rx_bytes   = bp->rcv_total_bytes;
-+	bp->stats.gen.tx_bytes   = bp->xmt_total_bytes;
-+	bp->stats.gen.rx_errors  = bp->rcv_crc_errors +
-+				   bp->rcv_frame_status_errors +
-+				   bp->rcv_length_errors;
-+	bp->stats.gen.tx_errors  = bp->xmt_length_errors;
-+	bp->stats.gen.rx_dropped = bp->rcv_discards;
-+	bp->stats.gen.tx_dropped = bp->xmt_discards;
-+	bp->stats.gen.multicast  = bp->rcv_multicast_frames;
-+	bp->stats.gen.collisions = 0;		/* always zero (0) for FDDI */
+ #endif
+diff -ur linux-2.6.8.1-orig/include/linux/serial.h linux-2.6.8.1-tvb/include/linux/serial.h
+--- linux-2.6.8.1-orig/include/linux/serial.h	2004-08-14 12:54:51.000000000 +0200
++++ linux-2.6.8.1-tvb/include/linux/serial.h	2004-09-30 00:36:27.000000000 +0200
+@@ -141,7 +141,8 @@
+ #define ASYNC_CONS_FLOW		0x00800000 /* flow control for console  */
  
- 	/* Get FDDI SMT MIB objects */
+ #define ASYNC_BOOT_ONLYMCA	0x00400000 /* Probe only if MCA bus */
+-#define ASYNC_INTERNAL_FLAGS	0xFFC00000 /* Internal flags */
++#define ASYNC_TVB_FLOW		0x00200000 /* Do VisioBraille flow control */
++#define ASYNC_INTERNAL_FLAGS	0xFFE00000 /* Internal flags */
  
-diff -up --recursive --new-file linux-2.4.27.macro/drivers/net/skfp/skfddi.c linux-2.4.27/drivers/net/skfp/skfddi.c
---- linux-2.4.27.macro/drivers/net/skfp/skfddi.c	2002-08-12 18:55:55.000000000 +0000
-+++ linux-2.4.27/drivers/net/skfp/skfddi.c	2004-10-03 21:04:51.000000000 +0000
-@@ -1363,7 +1363,7 @@ static int skfp_send_pkt(struct sk_buff 
- 	 */
+ /*
+  * Multiport serial configuration structure --- external structure
+diff -ur linux-2.6.8.1-orig/include/linux/tty.h linux-2.6.8.1-tvb/include/linux/tty.h
+--- linux-2.6.8.1-orig/include/linux/tty.h	2004-08-14 12:55:32.000000000 +0200
++++ linux-2.6.8.1-tvb/include/linux/tty.h	2004-09-30 00:36:27.000000000 +0200
+@@ -210,6 +210,7 @@
+ #define C_CLOCAL(tty)	_C_FLAG((tty),CLOCAL)
+ #define C_CIBAUD(tty)	_C_FLAG((tty),CIBAUD)
+ #define C_CRTSCTS(tty)	_C_FLAG((tty),CRTSCTS)
++#define C_TVB(tty)	_C_FLAG((tty),CTVB)
  
- 	if (!(skb->len >= FDDI_K_LLC_ZLEN && skb->len <= FDDI_K_LLC_LEN)) {
--		bp->MacStat.tx_errors++;	/* bump error counter */
-+		bp->MacStat.gen.tx_errors++;	/* bump error counter */
- 		// dequeue packets from xmt queue and send them
- 		netif_start_queue(dev);
- 		dev_kfree_skb(skb);
-@@ -1814,8 +1814,8 @@ void mac_drv_tx_complete(struct s_smc *s
- 			 skb->len, PCI_DMA_TODEVICE);
- 	txd->txd_os.dma_addr = 0;
- 
--	smc->os.MacStat.tx_packets++;	// Count transmitted packets.
--	smc->os.MacStat.tx_bytes+=skb->len;	// Count bytes
-+	smc->os.MacStat.gen.tx_packets++;	// Count transmitted packets.
-+	smc->os.MacStat.gen.tx_bytes+=skb->len;	// Count bytes
- 
- 	// free the skb
- 	dev_kfree_skb_irq(skb);
-@@ -1897,7 +1897,7 @@ void mac_drv_rx_complete(struct s_smc *s
- 	skb = rxd->rxd_os.skb;
- 	if (!skb) {
- 		PRINTK(KERN_INFO "No skb in rxd\n");
--		smc->os.MacStat.rx_errors++;
-+		smc->os.MacStat.gen.rx_errors++;
- 		goto RequeueRxd;
- 	}
- 	virt = skb->data;
-@@ -1950,13 +1950,14 @@ void mac_drv_rx_complete(struct s_smc *s
- 	}
- 
- 	// Count statistics.
--	smc->os.MacStat.rx_packets++;	// Count indicated receive packets.
--	smc->os.MacStat.rx_bytes+=len;	// Count bytes
-+	smc->os.MacStat.gen.rx_packets++;	// Count indicated receive
-+						// packets.
-+	smc->os.MacStat.gen.rx_bytes+=len;	// Count bytes.
- 
- 	// virt points to header again
- 	if (virt[1] & 0x01) {	// Check group (multicast) bit.
- 
--		smc->os.MacStat.multicast++;
-+		smc->os.MacStat.gen.multicast++;
- 	}
- 
- 	// deliver frame to system
-@@ -1974,7 +1975,8 @@ void mac_drv_rx_complete(struct s_smc *s
-       RequeueRxd:
- 	PRINTK(KERN_INFO "Rx: re-queue RXD.\n");
- 	mac_drv_requeue_rxd(smc, rxd, frag_count);
--	smc->os.MacStat.rx_errors++;	// Count receive packets not indicated.
-+	smc->os.MacStat.gen.rx_errors++;	// Count receive packets
-+						// not indicated.
- 
- }				// mac_drv_rx_complete
- 
-@@ -2349,7 +2351,7 @@ void smt_stat_counter(struct s_smc *smc,
- 		break;
- 	case 1:
- 		PRINTK(KERN_INFO "Receive fifo overflow.\n");
--		smc->os.MacStat.rx_errors++;
-+		smc->os.MacStat.gen.rx_errors++;
- 		break;
- 	default:
- 		PRINTK(KERN_INFO "Unknown status (%d).\n", stat);
-diff -up --recursive --new-file linux-2.4.27.macro/include/linux/if_fddi.h linux-2.4.27/include/linux/if_fddi.h
---- linux-2.4.27.macro/include/linux/if_fddi.h	1999-06-02 19:29:13.000000000 +0000
-+++ linux-2.4.27/include/linux/if_fddi.h	2004-10-03 21:01:28.000000000 +0000
-@@ -5,7 +5,7 @@
-  *
-  *		Global definitions for the ANSI FDDI interface.
-  *
-- * Version:	@(#)if_fddi.h	1.0.1	09/16/96
-+ * Version:	@(#)if_fddi.h	1.0.2	Sep 29 2004
-  *
-  * Author:	Lawrence V. Stefani, <stefani@lkg.dec.com>
-  *
-@@ -103,38 +103,12 @@ struct fddihdr
- 	} __attribute__ ((packed));
- 
- /* Define FDDI statistics structure */
--struct fddi_statistics
--	{
--	__u32	rx_packets;				/* total packets received */
--	__u32	tx_packets;				/* total packets transmitted */
--	__u32	rx_bytes;				/* total bytes received	*/
--	__u32	tx_bytes;				/* total bytes transmitted */
--	__u32	rx_errors;				/* bad packets received	*/
--	__u32	tx_errors;				/* packet transmit problems	*/
--	__u32	rx_dropped;				/* no space in linux buffers */
--	__u32	tx_dropped;				/* no space available in linux */
--	__u32	multicast;				/* multicast packets received */
--	__u32	transmit_collision;		/* always 0 for FDDI */
--
--	/* detailed rx_errors */
--	__u32	rx_length_errors;
--	__u32	rx_over_errors;		/* receiver ring buff overflow	*/
--	__u32	rx_crc_errors;		/* recved pkt with crc error	*/
--	__u32	rx_frame_errors;	/* recv'd frame alignment error */
--	__u32	rx_fifo_errors;		/* recv'r fifo overrun		*/
--	__u32	rx_missed_errors;	/* receiver missed packet	*/
--
--	/* detailed tx_errors */
--	__u32	tx_aborted_errors;
--	__u32	tx_carrier_errors;
--	__u32	tx_fifo_errors;
--	__u32	tx_heartbeat_errors;
--	__u32	tx_window_errors;
--	
--	/* for cslip etc */
--	__u32	rx_compressed;
--	__u32	tx_compressed;
--   
-+struct fddi_statistics {
-+
-+	/* Generic statistics. */
-+
-+	struct net_device_stats gen;
-+
- 	/* Detailed FDDI statistics.  Adopted from RFC 1512 */
- 
- 	__u8	smt_station_id[8];
+ #define L_ISIG(tty)	_L_FLAG((tty),ISIG)
+ #define L_ICANON(tty)	_L_FLAG((tty),ICANON)
+
+--yEPQxsgoJgBvi8ip--

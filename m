@@ -1,83 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262465AbTGOFbI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 01:31:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262584AbTGOFbI
+	id S262584AbTGOFbf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 01:31:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262589AbTGOFbe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 01:31:08 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:37776 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262465AbTGOFbF (ORCPT
+	Tue, 15 Jul 2003 01:31:34 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:48528 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262584AbTGOFbc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 01:31:05 -0400
-Date: Tue, 15 Jul 2003 07:45:51 +0200
+	Tue, 15 Jul 2003 01:31:32 -0400
+Date: Tue, 15 Jul 2003 07:46:21 +0200
 From: Jens Axboe <axboe@suse.de>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Chris Mason <mason@suse.com>,
-       marcelo@conectiva.com.br, linux-kernel@vger.kernel.org, sct@redhat.com,
-       alan@lxorguk.ukuu.org.uk, jgarzik@pobox.com, akpm@digeo.com,
-       viro@math.psu.edu
+To: Chris Mason <mason@suse.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Andrea Arcangeli <andrea@suse.de>, lkml <linux-kernel@vger.kernel.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@digeo.com>, Alexander Viro <viro@math.psu.edu>
 Subject: Re: RFC on io-stalls patch
-Message-ID: <20030715054551.GD833@suse.de>
-References: <Pine.LNX.4.55L.0307140922130.17091@freak.distro.conectiva> <20030714131206.GJ833@suse.de> <20030714195138.GX833@suse.de> <Pine.LNX.4.55L.0307141708210.8994@freak.distro.conectiva> <20030714202434.GS16313@dualathlon.random> <1058214881.13313.291.camel@tiny.suse.com> <20030714224528.GU16313@dualathlon.random> <1058229360.13317.364.camel@tiny.suse.com> <20030714175238.3eaddd9a.akpm@osdl.org> <20030715020706.GC16313@dualathlon.random>
+Message-ID: <20030715054621.GE833@suse.de>
+References: <1057932804.13313.58.camel@tiny.suse.com> <20030712073710.GK843@suse.de> <1058034751.13318.95.camel@tiny.suse.com> <20030713090116.GU843@suse.de> <20030713191921.GI16313@dualathlon.random> <20030714054918.GD843@suse.de> <Pine.LNX.4.55L.0307140922130.17091@freak.distro.conectiva> <20030714131206.GJ833@suse.de> <20030714195138.GX833@suse.de> <1058213348.13313.274.camel@tiny.suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030715020706.GC16313@dualathlon.random>
+In-Reply-To: <1058213348.13313.274.camel@tiny.suse.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 15 2003, Andrea Arcangeli wrote:
-> On Mon, Jul 14, 2003 at 05:52:38PM -0700, Andrew Morton wrote:
-> > Chris Mason <mason@suse.com> wrote:
-> > >
-> > > If we go back to Jens' numbers:
-> > > 
-> > > ctar_load:
-> > > Kernel            [runs]        Time    CPU%    Loads   LCPU%   Ratio
-> > > 2.4.22-pre5            3        235     114.0   25.0    22.1    1.75
-> > > 2.4.22-pre5-axboe      3        194     138.1   19.7    20.6    1.46
-> > >                                                ^^^^^^
-> > > The loads column is the number of times ctar_load managed to run during
-> > > the kernel compile, and the patched kernel loses each time.  This must
-> > > partially be caused by the lower run time overall, but it is still
-> > > important data.  It would be better if contest gave us some kind of
-> > > throughput numbers (avg load time or something).
-> > 
-> > Look at the total CPU utilisation.  It went from 136% to 159% while both
-> > loads made reasonable progress.  Goodness.
+On Mon, Jul 14 2003, Chris Mason wrote:
+> On Mon, 2003-07-14 at 15:51, Jens Axboe wrote:
 > 
-> if you look at the cpu utilization, stopping more the writer will
-> generate a cpu utilization even higher, would you mind if Loads shows 15
+> > Some initial results with the attached patch, I'll try and do some more
+> > fine grained tomorrow. Base kernel was 2.4.22-pre5 (obviously), drive
+> > tested is a SCSI drive (on aic7xxx, tcq fixed at 4), fs is ext3. I would
+> > have done ide testing actually, but the drive in that machine appears to
+> > have gone dead. I'll pop in a new one tomorrow and test on that too.
+> > 
+> 
+> Thanks Jens, the results so far are very interesting (although I'm
+> curious to hear how 2.4.21 did).
 
-Correct
-
-> instead of 19.7 so the CPU% can go from 138 to 148 and LCPU only goes
-> down from 20.6 to 18.8?  Problem is, how much should the writer be
-> stopped. The LCPU will be almost constant, it's I/O bound anyways. So
-> the more you stop the writer the higher the global cpu utilization will
-> be. This doesn't automatically mean goodness.
-
-The above case is pretty much only goodness though, ratio of loads/time
-unit is about the same and we complete the workload much quicker
-(because of the higher cpu util).
-
-> But my argument is that a patch that can generate indefinite starvation
-> for every writer (given enough parallel sync reades), and that can as
-> well lock into ram an excessive amount of ram (potentially all ram in
-> the box) isn't goodness from my point of view.
-
-Yes that one has been stated a few times.
-
-> Having a separate read queue, limited in bytes, sounds ok instead,
-> especially if it can generate results like the above. Heuristics
-> optimizing common cases are fine, as far as they're safe for the corner
-> cases too.
-
-I don't even think that is necessary, I feel fine with just the single
-queue free list. I just want to make sure that some reads can get in,
-while the queue maintains flooded by writes 99.9% of the time (trivial
-scenario, unlike the 'read starving all writers, might as well SIGSTOP
-tar' work load you talk about).
+Hmm good point, I'll make a run with that as well.
 
 -- 
 Jens Axboe

@@ -1,126 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264402AbUEDOof@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264404AbUEDOpw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264402AbUEDOof (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 10:44:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264397AbUEDOoe
+	id S264404AbUEDOpw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 10:45:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264407AbUEDOpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 10:44:34 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:43398 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S264392AbUEDOoI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 10:44:08 -0400
-Date: Tue, 4 May 2004 07:43:53 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, davidm@hpl.hp.com, pj@sgi.com, linux-ia64@vger.kernel.org,
-       rusty@rustycorp.com.au
-Subject: take3: Updated CPU Hotplug patches for IA64 (pj blessed) Patch [3/7]
-Message-ID: <20040504074353.C1909@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Tue, 4 May 2004 10:45:51 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:17811 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S264405AbUEDOpl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 10:45:41 -0400
+Message-ID: <4097ABD7.1020505@grupopie.com>
+Date: Tue, 04 May 2004 15:42:31 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: GrupoPIE
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Edward Macfarlane Smith <snowfire@blueyonder.co.uk>
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@suse.cz>,
+       tj <999alfred@comcast.net>
+Subject: Re: mmc/sd drivers
+References: <408D3DC0.8080700@comcast.net> <20040427141453.GQ2595@openzaurus.ucw.cz> <200405021749.46941.snowfire@blueyonder.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.25.0.3; VDF: 6.25.0.47; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Edward Macfarlane Smith wrote:
 
+> On Tuesday 27 April 2004 15:14, Pavel Machek wrote:
+> 
+>>Hi!
+>>
+>>
+>>>Where can the latest mmc drivers in the kernel source be located? I
+>>>am not talking about mass-storage usb or pcmcia drivers. I downloaded
+>>>2.2.26 and there is no drivers/mmc directory. Where can the mmc
+>>>drivers be located from their original distribution point?
+>>>
+>>2.2 is old.
+>>
+>>MMC is supported for example on sharp zaurus, look
+>>there for sources. SD requires binary-only module. Avoid it.
+>>
+> 
+> Thats not completely true. Last weekend I was using a 512Mb SD card on my iPAQ 
+> 5550 with the 2.4.19 hh36.9 kernel from Handhelds.org. It was rather slow 
+> access (playing mp3s directly off the sd card had problems with pauses), but 
+> did work. I haven't actually got around to building a kernel for an ARM 
+> machine yet, but if you need the source I suggest you look round 
+> handhelds.org.
 
-Name: sysfs_ia64.patch
-Author: Ashok Raj (Intel Corporation)
-D: Creation of sysfs via topology_init() creates sysfs entries. The creation of
-D: the online control file is created separately when the cpu_up is invoked
-D: in arch independent code.
----
+AFAIK, only the MMC-like modes of the SD cards are supported. The driver can't 
+handle encryption, paralel data transfer modes (using 4 bits at a time) or SDIO 
+cards.
 
+-- 
+Paulo Marques - www.grupopie.com
+"In a world without walls and fences who needs windows and gates?"
 
-
----
-
- linux-2.6.5-lhcs-root/arch/ia64/dig/Makefile   |    5 ++
- linux-2.6.5-lhcs-root/arch/ia64/dig/topology.c |   43 +++++++++++++++++++++++++
- linux-2.6.5-lhcs-root/include/asm-ia64/cpu.h   |   17 +++++++++
- 3 files changed, 65 insertions(+)
-
-diff -puN arch/ia64/dig/Makefile~sysfs_ia64 arch/ia64/dig/Makefile
---- linux-2.6.5-lhcs/arch/ia64/dig/Makefile~sysfs_ia64	2004-05-03 16:30:06.886772352 -0700
-+++ linux-2.6.5-lhcs-root/arch/ia64/dig/Makefile	2004-05-03 16:30:06.888725478 -0700
-@@ -6,4 +6,9 @@
- #
- 
- obj-y := setup.o
-+
-+ifndef CONFIG_NUMA
-+obj-$(CONFIG_IA64_DIG) += topology.o
-+endif
-+
- obj-$(CONFIG_IA64_GENERIC) += machvec.o
-diff -puN /dev/null arch/ia64/dig/topology.c
---- /dev/null	2003-09-15 06:02:17.000000000 -0700
-+++ linux-2.6.5-lhcs-root/arch/ia64/dig/topology.c	2004-05-03 16:30:06.888725478 -0700
-@@ -0,0 +1,43 @@
-+/*
-+ * arch/ia64/dig/topology.c
-+ *	Popuate driverfs with topology information.
-+ *	Derived entirely from i386/mach-default.c
-+ *  Intel Corporation - Ashok Raj
-+ */
-+#include <linux/init.h>
-+#include <linux/smp.h>
-+#include <linux/cpumask.h>
-+#include <linux/percpu.h>
-+#include <linux/notifier.h>
-+#include <linux/cpu.h>
-+#include <asm/cpu.h>
-+
-+static DEFINE_PER_CPU(struct ia64_cpu, cpu_devices);
-+
-+/*
-+ * First Pass: simply borrowed code for now. Later should hook into
-+ * hotplug notification for node/cpu/memory as applicable
-+ */
-+
-+static int arch_register_cpu(int num)
-+{
-+	struct node *parent = NULL;
-+
-+#ifdef CONFIG_NUMA
-+	//parent = &node_devices[cpu_to_node(num)].node;
-+#endif
-+
-+	return register_cpu(&per_cpu(cpu_devices,num).cpu, num, parent);
-+}
-+
-+static int __init topology_init(void)
-+{
-+    int i;
-+
-+    for_each_cpu(i) {
-+        arch_register_cpu(i);
-+	}
-+    return 0;
-+}
-+
-+subsys_initcall(topology_init);
-diff -puN /dev/null include/asm-ia64/cpu.h
---- /dev/null	2003-09-15 06:02:17.000000000 -0700
-+++ linux-2.6.5-lhcs-root/include/asm-ia64/cpu.h	2004-05-03 16:30:06.888725478 -0700
-@@ -0,0 +1,17 @@
-+#ifndef _ASM_IA64_CPU_H_
-+#define _ASM_IA64_CPU_H_
-+
-+#include <linux/device.h>
-+#include <linux/cpu.h>
-+#include <linux/topology.h>
-+#include <linux/percpu.h>
-+
-+struct ia64_cpu {
-+	struct cpu cpu;
-+};
-+
-+DECLARE_PER_CPU(struct ia64_cpu, cpu_devices);
-+
-+DECLARE_PER_CPU(int, cpu_state);
-+
-+#endif /* _ASM_IA64_CPU_H_ */
-
-_

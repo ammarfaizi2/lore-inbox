@@ -1,35 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267725AbTBJMhH>; Mon, 10 Feb 2003 07:37:07 -0500
+	id <S267382AbTBJMqU>; Mon, 10 Feb 2003 07:46:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267811AbTBJMhH>; Mon, 10 Feb 2003 07:37:07 -0500
-Received: from sun.fadata.bg ([80.72.64.67]:34452 "EHLO freon")
-	by vger.kernel.org with ESMTP id <S267725AbTBJMhH>;
-	Mon, 10 Feb 2003 07:37:07 -0500
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Dave Jones <davej@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: [Lse-tech] gcc 2.95 vs 3.21 performance
-References: <336780000.1044313506@flay> <20030204132048.D16744@suse.de>
-	<172980000.1044373858@[10.10.2.4]>
-X-No-CC: Reply to lists, not to me.
-From: Momchil Velikov <velco@fadata.bg>
-In-Reply-To: <172980000.1044373858@[10.10.2.4]>
-Date: 10 Feb 2003 14:13:08 +0200
-Message-ID: <87y94owcyz.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S267826AbTBJMqU>; Mon, 10 Feb 2003 07:46:20 -0500
+Received: from dial-ctb04112.webone.com.au ([210.9.244.112]:60423 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id <S267382AbTBJMqT>;
+	Mon, 10 Feb 2003 07:46:19 -0500
+Message-ID: <3E47A14D.2090102@cyberone.com.au>
+Date: Mon, 10 Feb 2003 23:55:41 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Andrew Morton <akpm@digeo.com>, reiser@namesys.com, jakob@unthought.net,
+       david.lang@digitalinsight.com, riel@conectiva.com.br,
+       ckolivas@yahoo.com.au, linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK] 2.4.20-ck3
+ / aa / rmap with contest]
+References: <3E4781A2.8070608@cyberone.com.au> <20030210111017.GV31401@dualathlon.random> <3E478C09.6060508@cyberone.com.au> <20030210113923.GY31401@dualathlon.random> <20030210034808.7441d611.akpm@digeo.com> <3E4792B7.5030108@cyberone.com.au> <20030210041245.68665ff6.akpm@digeo.com> <3E479AA1.3050308@cyberone.com.au> <20030210123006.GK31401@dualathlon.random> <3E479C43.4050206@cyberone.com.au> <20030210124303.GM31401@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Martin" == Martin J Bligh <mbligh@aracnet.com> writes:
+Andrea Arcangeli wrote:
 
-    Martin> But the point is still the same ... even if it is doing
-    Martin> more agressive optimisation, it's not actually buying us
-    Martin> anything (at least for the kernel)
+>On Mon, Feb 10, 2003 at 11:34:11PM +1100, Nick Piggin wrote:
+>  
+>
+>>Andrea Arcangeli wrote:
+>>
+>>    
+>>
+>>>On Mon, Feb 10, 2003 at 11:27:13PM +1100, Nick Piggin wrote:
+>>>
+>>>      
+>>>
+>>>>Is there a magic number above which you see the improvement,
+>>>>Andrea? Or does it steadily climb?
+>>>>
+>>>>        
+>>>>
+>>>I recall more than 512k wasn't worthwhile anymore
+>>>
+>>>      
+>>>
+>>Behaviour between 128 and 512 would be interesting then
+>>    
+>>
+>
+>this is exactly what is shown by Randy's bonnie ;)
+>
+I don't see it... I mean eg 192, 256, 320...
 
-which might be due in part to ``-fno-strict-aliasing'' used to compile
-the Linux kernel.
-
-~velco

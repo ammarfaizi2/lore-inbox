@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263348AbTEMHWI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 03:22:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263373AbTEMHWH
+	id S263338AbTEMHec (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 03:34:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263473AbTEMHec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 03:22:07 -0400
-Received: from dp.samba.org ([66.70.73.150]:24205 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263348AbTEMHWH (ORCPT
+	Tue, 13 May 2003 03:34:32 -0400
+Received: from smtp1.cwidc.net ([154.33.63.111]:51091 "EHLO smtp1.cwidc.net")
+	by vger.kernel.org with ESMTP id S263338AbTEMHea (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 03:22:07 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Peter Chubb <peter@chubb.wattle.id.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: can't build IDE as modules in BK 2.5.69 
-In-reply-to: Your message of "Tue, 13 May 2003 13:44:12 +1000."
-             <16064.27148.819310.962984@wombat.chubb.wattle.id.au> 
-Date: Tue, 13 May 2003 15:45:41 +1000
-Message-Id: <20030513073452.F3CC62C468@lists.samba.org>
+	Tue, 13 May 2003 03:34:30 -0400
+Message-ID: <3EC0A303.5050902@tequila.co.jp>
+Date: Tue, 13 May 2003 16:47:15 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4b) Gecko/20030506
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Missing disc io stats in /proc/stat in 2.5.69?
+X-Enigmail-Version: 0.75.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <16064.27148.819310.962984@wombat.chubb.wattle.id.au> you write:
-> 
-> With the 2.5 bk linux as of 2003.05.13, and config options below,
-> modutils seems to go into a seemingly infinite loop when trying to
-> buld modules.dep on the resulting module set (and creates an extremely
-> large modules.dep file -- 95M before the filesystem filled up)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-OK, reproduced here.  I've simplified the depmod loop detection logic:
-I was trying to be too clever.  
+Hi,
 
-I've just released 0.9.12, which won't help your IDE problem, but will
-terminate 8)
+just a more general question. Did the Disc IO stats disappear from
+/proc/stat in 2.5.69? Or do I have to activated them somehow?
 
-http://www.kernel.org/pub/linux/people/rusty/modules/module-init-tools-testsuite-0.9.12.tar.gz
+- --
+Clemens Schwaighofer - IT Engineer & System Administration
+==========================================================
+Tequila Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
+Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
+http://www.tequila.jp
+==========================================================
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-Thanks for the report!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+iD8DBQE+wKMDjBz/yQjBxz8RAiNtAKDbG2fl7QjysUNOWfpcYuzAIgirtQCfVLfu
+FfC6ZGHrTAca350mNcPW174=
+=Q6j2
+-----END PGP SIGNATURE-----
+

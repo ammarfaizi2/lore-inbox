@@ -1,37 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269172AbUI2WSk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269183AbUI2WXN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269172AbUI2WSk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 18:18:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269203AbUI2WRr
+	id S269183AbUI2WXN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 18:23:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269157AbUI2WWd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 18:17:47 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:25483 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269172AbUI2WOb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 18:14:31 -0400
-Subject: Re: [PATCH 2.6.9-rc2-mm4 alim15x3.c] [3/8] Replace pci_find_device
-	with pci_dev_present
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       kernel-janitors@lists.osdl.org, greg@kroah.com,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Andre Hedrick <andre@linux-ide.org>
-In-Reply-To: <13230000.1096487909@w-hlinder.beaverton.ibm.com>
-References: <13230000.1096487909@w-hlinder.beaverton.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1096492303.16767.8.camel@localhost.localdomain>
+	Wed, 29 Sep 2004 18:22:33 -0400
+Received: from open.hands.com ([195.224.53.39]:44171 "EHLO open.hands.com")
+	by vger.kernel.org with ESMTP id S269183AbUI2WTC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 18:19:02 -0400
+Date: Wed, 29 Sep 2004 23:30:08 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: linux-kernel@vger.kernel.org
+Subject: sys_* in fs/*.c - need most of it for fsproxy module!
+Message-ID: <20040929223008.GA6125@lkcl.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 29 Sep 2004 22:11:44 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-hands-com-MailScanner-SpamScore: s
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-09-29 at 20:58, Hanna Linder wrote:
-> The dev returned from pci_find_device was not used so it can be replaced
-> with pci_dev_present. Has been compile tested.
+hi,
 
-Maybe that test should just go. Its been getting tested since 2.4.20 or
-so 8)
+i'm writing an fsproxy module.
+
+so far i have pretty much cut/paste the entire contents of the following
+functions - unmodified - into the fsproxy module (based on fuse).
+
+any modifications, if any, are to strip out the top of the function
+which does the conversion from userspace memory to kernel memory.
+
+example: i'm just about to cut/paste the entire contents of
+sys_unlink... minus the calls to getname and putname.
+
+does anyone have any objections to me creating a patch which would
+make the code in sys_unlink, sys_rename, sys_link, sys_this, sys_that,
+available from inside the kernel?
+
+l.
+
+-- 
+--
+Truth, honesty and respect are rare commodities that all spring from
+the same well: Love.  If you love yourself and everyone and everything
+around you, funnily and coincidentally enough, life gets a lot better.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 

@@ -1,32 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264145AbRFLCg5>; Mon, 11 Jun 2001 22:36:57 -0400
+	id <S264101AbRFLDDT>; Mon, 11 Jun 2001 23:03:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264146AbRFLCgr>; Mon, 11 Jun 2001 22:36:47 -0400
-Received: from moon.govshops.com ([207.32.111.5]:53766 "HELO mail.govshops.com")
-	by vger.kernel.org with SMTP id <S264145AbRFLCgf>;
-	Mon, 11 Jun 2001 22:36:35 -0400
-From: "Alok K. Dhir" <alok@dhir.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.6-pre2 VM
-Date: Mon, 11 Jun 2001 22:41:13 -0400
-Message-ID: <000401c0f2e9$25774890$1e01a8c0@dhir.net>
+	id <S264146AbRFLDDJ>; Mon, 11 Jun 2001 23:03:09 -0400
+Received: from horus.its.uow.edu.au ([130.130.68.25]:8447 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S264101AbRFLDDD>; Mon, 11 Jun 2001 23:03:03 -0400
+Message-ID: <3B258479.472F5C91@uow.edu.au>
+Date: Tue, 12 Jun 2001 12:54:49 +1000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac13 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Andrea Arcangeli <andrea@suse.de>, Ingo Molnar <mingo@elte.hu>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: softirq bugs in pre2
+In-Reply-To: <20010611193703.S5468@athlon.random> <Pine.LNX.4.31.0106111207350.4452-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
+> 
+> On Mon, 11 Jun 2001, Andrea Arcangeli wrote:
+> >
+> > Since I mentioned the copy-user latency fixes (even if offtopic with the
+> > above) this is the URL for trivial merging:
+> 
+> The copy-user latency fixes only make sense for out-of-line copies. If
+> we're going to have a conditional function call to "schedule()", we do not
+> want to inline the dang thing any more - we've just destroyed our register
+> set etc anyway.
 
-Just wondering - has anyone who was having issues with the VM subsystem
-in 2.4.5 and a few versions below tried v2.4.6-pre2?  Is the problem
-reduced and/or resolved?
+It's overkill.  This adds many hundreds of scheduling points
+to the kernel, of which we need only five.  It makes more
+sense to simply open-code those five.
 
-Thanks	
+- generic_file_read/write
+- read /dev/zero, /dev/mem
+- memcpy_to_iovec()
 
+This will by no means provide a low-latency kernel, but it will
+fix the most common causes of poor interactivity in normal
+use.
+
+Just doing generic_file_read/write would suffice, actually.

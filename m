@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279228AbRKNQzE>; Wed, 14 Nov 2001 11:55:04 -0500
+	id <S280697AbRKNQ5O>; Wed, 14 Nov 2001 11:57:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280697AbRKNQyy>; Wed, 14 Nov 2001 11:54:54 -0500
-Received: from cc797718-a.jrsycty1.nj.home.com ([24.253.208.156]:23051 "EHLO
-	buggy.badula.org") by vger.kernel.org with ESMTP id <S279228AbRKNQyl>;
-	Wed, 14 Nov 2001 11:54:41 -0500
-Date: Wed, 14 Nov 2001 11:54:35 -0500
-Message-Id: <200111141654.fAEGsZw21612@buggy.badula.org>
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What Athlon chipset is most stable in Linux?
-In-Reply-To: <20011113.191607.00304518.davem@redhat.com>
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.14 (i586))
+	id <S280707AbRKNQ5E>; Wed, 14 Nov 2001 11:57:04 -0500
+Received: from ns.caldera.de ([212.34.180.1]:10384 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S280705AbRKNQ44>;
+	Wed, 14 Nov 2001 11:56:56 -0500
+Date: Wed, 14 Nov 2001 17:56:48 +0100
+Message-Id: <200111141656.fAEGumJ20837@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Cc: Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] reformat mtrr.c to conform to CodingStyle
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <3BF28E0C.C32ACD63@mandrakesoft.com>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Nov 2001 19:16:07 -0800 (PST), David S. Miller <davem@redhat.com> wrote:
->   From: Dan Hollis <goemon@anime.net>
->   Date: Tue, 13 Nov 2001 19:11:56 -0800 (PST)
-> 
->   BTW this bug apparently doesnt affect AMD760MP as I am able to use
->   geforce2 with quake and unreal tournament for hours straight without any
->   problems.
-> 
-> I'm rather sure the AMD761 problems are motherboard vendor
-> independant, because I have 2 systems so far, using totally different
-> AMD761 based motherboards, which both hang pretty reliably with AGP.
+In article <3BF28E0C.C32ACD63@mandrakesoft.com> you wrote:
+> Also, Christoph Hellewig ported NetBSD's indent, which is supposedly a
+> bit better overall than GNU indent. Something else to look into.
 
-As far as I know, the 760MP chipset uses a 762 North Bridge, not a 761. 
-That might explain why the 760MP is stable and the 760 is not.
+Ok, we're getting offtopic, but the url for that 'port' is:
 
-Ion
+	http://developer.berlios.de/project/filelist.php?group_id=192
+
+Currently it has tar.gz and source/i386 rpm, the CVS tree will be
+up pretty soon.
+
+	Christoph
 
 -- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+Of course it doesn't work. We've performed a software upgrade.

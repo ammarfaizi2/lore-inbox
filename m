@@ -1,173 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262448AbSKMRaV>; Wed, 13 Nov 2002 12:30:21 -0500
+	id <S262147AbSKMRkk>; Wed, 13 Nov 2002 12:40:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262449AbSKMRaV>; Wed, 13 Nov 2002 12:30:21 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:54240 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S262448AbSKMRaT>; Wed, 13 Nov 2002 12:30:19 -0500
-Date: Wed, 13 Nov 2002 09:37:08 -0800
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: OOPS on module unload 2.5.47-mm1
-Message-ID: <20021113093708.A22470@eng2.beaverton.ibm.com>
-References: <200211122349.gACNneB27936@eng2.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <200211122349.gACNneB27936@eng2.beaverton.ibm.com>; from pbadari@us.ibm.com on Tue, Nov 12, 2002 at 03:49:40PM -0800
+	id <S262020AbSKMRkk>; Wed, 13 Nov 2002 12:40:40 -0500
+Received: from mailout.zma.compaq.com ([161.114.64.105]:30729 "EHLO
+	zmamail05.zma.compaq.com") by vger.kernel.org with ESMTP
+	id <S262147AbSKMRkj>; Wed, 13 Nov 2002 12:40:39 -0500
+From: Bruce Walker <bruce@kahuna.lax.cpqcorp.net>
+Message-Id: <200211131747.gADHlSs03356@kahuna.lax.cpqcorp.net>
+Subject: Re: [SSI] Re: Distributed Linux
+In-Reply-To: <1037164404.16105.12.camel@satan.xko.dec.com> from "Aneesh Kumar K.V" at "Nov 13, 2002 10:43:24 am"
+To: aneesh.kumar@digital.com (Aneesh Kumar K.V)
+Date: Wed, 13 Nov 2002 09:47:28 -0800 (PST)
+Cc: prasad_s@gdit.iiit.net, linux-kernel@vger.kernel.org (linux-kernel),
+       ssic-linux-devel@lists.sourceforge.net (ssic-linux-devel)
+X-Mailer: ELM [version 2.4ME+ PL54 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 12, 2002 at 03:49:40PM -0800, Badari Pulavarty wrote:
-> Hi,
+> > As a graduation project i intended to make linux distributed 
+
+snip
 > 
-> I get following panic while rmmod qla driver.  (2.5.47-mm1).
+> >The guest system (where the process originated) would
+> >however have a pseudo process running on it, which would not take much
+> >resources but would help in handling various signals/
 > 
-> Is this a known problem ? Any ideas ?
+> SSI support cluster wide signaling. That means you can send signal to a
+> process running on other node( you have cluster wide PID )
 > 
-> Thanks,
-> Badari
+The openSSI process model is quite different than Bproc or Mosix or
+your "guest system" proposal.  In the openSSI model, there is no
+pseudo or shadow process at the processes creation node;  after
+a processes migrates, all its system calls are executed on the new
+node and signalling to the process is done directly to the process on
+the new node.  Besides the obvious performance advantages this can
+give, it can also provide availability advantages because the 
+creation node can go down without taking the process down with it.
 
-Badari -
+bruce
 
-Here are four patches, 3 in sysfs, one in scsi, that I used to enable
-rmmod/insmod of qla and scsi_debug without problems in 2.5.46 or so.
-I have not tried running 2.5.47-mm1 or 2.5.47 with these, but these
-patches still apply against current bk (nov 13). I don't remember all
-the odd behaviour seen without them, generally use-after-freed problems.
 
-I'm not sure about the sysfs ones, but the scsi one is fine for now
-(exporting the SCSI type is not very useful, we need a common scsi_device
-removal/cleanup function where we can remove scsi_device sysfs attribute
-files. Generally, scsi use of sysfs is broken.)
+> 
+> -aneesh 
+> 
+> 
+> 
+> 
+> 
+> -------------------------------------------------------
+> This sf.net email is sponsored by: 
+> To learn the basics of securing your web site with SSL, 
+> click here to get a FREE TRIAL of a Thawte Server Certificate: 
+> http://www.gothawte.com/rd522.html
+> _______________________________________________
+> ssic-linux-devel mailing list
+> ssic-linux-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/ssic-linux-devel
 
-I posted these to linux-scsi, Mike A posted the sysfs ones to linux-kernel.
-
---- 1.22/drivers/base/bus.c	Thu Oct 31 08:20:23 2002
-+++ edited/drivers/base/bus.c	Wed Nov  6 17:03:24 2002
-@@ -209,8 +209,10 @@
- 				attach(dev);
- 			else
- 				dev->driver = NULL;
--		} else 
-+		} else  {
- 			attach(dev);
-+			error = 0;
-+		}
- 	}
- 	return error;
- }
-===== drivers/base/core.c 1.50 vs edited =====
---- 1.50/drivers/base/core.c	Thu Oct 31 08:20:23 2002
-+++ edited/drivers/base/core.c	Wed Nov  6 17:03:42 2002
-@@ -173,8 +173,6 @@
- 		return -EINVAL;
- 
- 	device_initialize(dev);
--	if (dev->parent)
--		get_device(dev->parent);
- 	error = device_add(dev);
- 	if (error && dev->parent)
- 		put_device(dev->parent);
-===== drivers/base/driver.c 1.14 vs edited =====
---- 1.14/drivers/base/driver.c	Wed Oct 30 16:35:48 2002
-+++ edited/drivers/base/driver.c	Wed Nov  6 16:44:13 2002
-@@ -127,6 +127,8 @@
- 	drv->present = 0;
- 	spin_unlock(&device_lock);
- 	pr_debug("driver %s:%s: unregistering\n",drv->bus->name,drv->name);
-+	bus_remove_driver(drv);
-+	kobject_unregister(&drv->kobj);
- 	put_driver(drv);
- }
- 
---- 1.33/drivers/scsi/scsi_scan.c	Wed Nov  6 11:46:48 2002
-+++ edited/drivers/scsi/scsi_scan.c	Wed Nov  6 17:04:56 2002
-@@ -307,73 +307,6 @@
- }
- 
- /**
-- * scsi_device_type_read - copy out the SCSI type
-- * @driverfs_dev:	driverfs device to check
-- * @page:		copy data into this area
-- * @count:		number of bytes to copy
-- * @off:		start at this offset in page
-- *
-- * Description:
-- *     Called via driverfs when the "type" (in scsi_device_type_file)
-- *     field is read. Copy the appropriate SCSI type string into @page,
-- *     followed by a newline and a '\0'. Go through gyrations so we don't
-- *     write more than @count, and we don't write past @off.
-- *
-- * Notes:
-- *     This is for the top-most scsi entry in driverfs, the upper-level
-- *     drivers have their own type file. XXX This is not part of scanning,
-- *     other than we reference the attr struct in this file, move to
-- *     scsi.c or scsi_lib.c.
-- *
-- * Return:
-- *     number of bytes written into page.
-- **/
--static ssize_t scsi_device_type_read(struct device *driverfs_dev, char *page,
--	size_t count, loff_t off)
--{
--	struct scsi_device *sdev = to_scsi_device(driverfs_dev);
--	const char *type;
--	size_t size, len;
--
--	if ((sdev->type > MAX_SCSI_DEVICE_CODE) ||
--	    (scsi_device_types[(int)sdev->type] == NULL))
--		type = "Unknown";
--	else
--		type = scsi_device_types[(int)sdev->type];
--	size = strlen(type);
--	/*
--	 * Check if off is past size + 1 for newline + 1 for a '\0'.
--	 */
--	if (off >= (size + 2))
--		return 0;
--	if (size > off) {
--		len = min((size_t) (size - off), count);
--		memcpy(page + off, type + off, len);
--	} else
--		len = 0;
--	if (((len + off) == size) && (len < count))
--		/*
--		 * We are at the end of the string and have space, add a
--		 * new line.
--		 */
--		*(page + off + len++) = '\n';
--	if (((len + off) == (size + 1)) && (len < count))
--		/*
--		 * We are past the newline and have space, add a
--		 * terminating '\0'.
--		 */
--		*(page + off + len++) = '\0';
--	return len;
--}
--
--/*
-- * Create dev_attr_type. This is different from the dev_attr_type in scsi
-- * upper level drivers.
-- */
--static DEVICE_ATTR(type,S_IRUGO,scsi_device_type_read,NULL);
--
--
--/**
-  * print_inquiry - printk the inquiry information
-  * @inq_result:	printk this SCSI INQUIRY
-  *
-@@ -1439,11 +1372,6 @@
- 	sdev->sdev_driverfs_dev.parent = &sdev->host->host_driverfs_dev;
- 	sdev->sdev_driverfs_dev.bus = &scsi_driverfs_bus_type;
- 	device_register(&sdev->sdev_driverfs_dev);
--
--	/*
--	 * Create driverfs file entries
--	 */
--	device_create_file(&sdev->sdev_driverfs_dev, &dev_attr_type);
- 
- 	sprintf(devname, "host%d/bus%d/target%d/lun%d",
- 		sdev->host->host_no, sdev->channel, sdev->id, sdev->lun);

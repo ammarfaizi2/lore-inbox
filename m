@@ -1,63 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267324AbUHSTn0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267306AbUHSTm4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267324AbUHSTn0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 15:43:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267323AbUHSTnH
+	id S267306AbUHSTm4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 15:42:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267313AbUHSTmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 15:43:07 -0400
-Received: from tomts31-srv.bellnexxia.net ([209.226.175.105]:33022 "EHLO
-	tomts31-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S267311AbUHSTmw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 15:42:52 -0400
-Reply-To: <ivan.kalatchev@esg.ca>
-From: "Ivan Kalatchev" <ivan.kalatchev@esg.ca>
-To: <linux-kernel@vger.kernel.org>
-Subject: System time slowdown after upgrading from 2.4 to 2.6
-Date: Thu, 19 Aug 2004 15:42:41 -0400
-Message-ID: <000501c48624$b1ac72f0$2e646434@ivans>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+	Thu, 19 Aug 2004 15:42:55 -0400
+Received: from ctb-mesg6.saix.net ([196.25.240.78]:25545 "EHLO
+	ctb-mesg6.saix.net") by vger.kernel.org with ESMTP id S267306AbUHSTml
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 15:42:41 -0400
+Subject: Re: 2.6.8.1-mm1 Tty problems?
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Olaf Hering <olh@suse.de>
+Cc: Greg KH <greg@kroah.com>, Tonnerre <tonnerre@thundrix.ch>,
+       ismail d?nmez <ismail.donmez@gmail.com>,
+       Paul Fulghum <paulkf@microgate.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040819192401.GA11475@suse.de>
+References: <2a4f155d04081712005fdcdd9b@mail.gmail.com>
+	 <41225D16.2050702@microgate.com>
+	 <2a4f155d040817124335766947@mail.gmail.com>
+	 <41226512.9000405@microgate.com> <20040818062210.GB22332@suse.de>
+	 <2a4f155d040817233463d2b78d@mail.gmail.com>
+	 <20040818064229.GD22332@suse.de> <1092855516.8998.34.camel@nosferatu.lan>
+	 <20040819172846.GA15361@thundrix.ch>
+	 <1092943461.8998.50.camel@nosferatu.lan>  <20040819192401.GA11475@suse.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Vd07qp4BD5DRoRDpv4ox"
+Message-Id: <1092944764.8998.57.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 19 Aug 2004 21:46:05 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-We have a project that uses PC-104 (ZFx86 100 MHz CPU) Linux box to acquire
-some seismological signals. System resides on a M-Systems DiskOnChip 2000.
-We have an ISA acquisition card that acquires data into FIFO buffer and
-triggers interrupt as soon as 341 points were acquired (then this data is
-read out in interrupt handler routine). System worked perfectly well when we
-used 2.4.18 kernel. When I printk-ed system time (do_gettimeofday)  in
-interrupt routine, at 1kHz sampling frequency interrupts were reported every
-341 msec as they should do.
-But after I've switched to 2.6 kernel (2.6.7 - preempted, then I tried
-2.6.8 - non-preempted) time between successive interrupts at 1kHz became 335
-msec, losing 6 msec at each interrupt. What is interesting, when sampling
-frequency is 10 kHz, with 2.4.18 kernel interrupts are reported every 34
-msec, which is right, but with 2.6 kernels interrupts are coming at 28 msec
-interval, again losing same 6 msec!
+--=-Vd07qp4BD5DRoRDpv4ox
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Any ideas why this might happen?
+On Thu, 2004-08-19 at 21:24, Olaf Hering wrote:
+>  On Thu, Aug 19, Martin Schlemmer wrote:
+>=20
+> > Greg, below patch should be in order.
+> >=20
+> > ---
+> > --- /etc/udev/rules.d/50-udev.rules.orig        2004-08-19 21:17:08.947=
+911536 +0200
+> > +++ /etc/udev/rules.d/50-udev.rules     2004-08-19 21:22:48.804245520 +=
+0200
+> > @@ -65,7 +65,7 @@
+> >=20
+> >  # pty devices
+> >  KERNEL=3D"pty[p-za-e][0-9a-f]*", NAME=3D"pty/m%n", SYMLINK=3D"%k"
+> > -KERNEL=3D"tty[p-za-e][0-9a-f]*", NAME=3D"tty/s%n", SYMLINK=3D"%k"
+> > +KERNEL=3D"tty[p-za-e][0-9a-f]*", NAME=3D"pty/s%n", SYMLINK=3D"%k"
+>=20
+> Dont forget to update Documentation/devices.txt
 
-Please, CC me all answers/comments posted to the list in response to this
-posting.
-Regards,
+Its part of the udev 'devfs compat' ruleset, so not what would
+have been created standard.  I checked the code again and devfs
+use /dev/pty/s# and not /dev/tty/s#, so it somewhere that either
+I or one of the others made a boo-boo that did the original of
+that rule file ...
 
-Ivan Kalatchev
+--=20
+Martin Schlemmer
 
-Senior Software Developer
-Engineering Seismology Group Canada Inc.
-ISO 9001-2000
-1 Hyperion Court, Kingston,
-Ontarion, Canada K7K 7G3
-phone: (613) 548-8287 ext.247
-fax:     (613) 548-8917
+--=-Vd07qp4BD5DRoRDpv4ox
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBBJQN8qburzKaJYLYRAtVuAJ4hPhnlYv1KUYCb2pgu3Meikhz/HwCeIGSJ
+4LcXcYRuII3CDXa2XvTRZZw=
+=0VyD
+-----END PGP SIGNATURE-----
+
+--=-Vd07qp4BD5DRoRDpv4ox--
 

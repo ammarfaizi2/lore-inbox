@@ -1,64 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267445AbUIJOx1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267447AbUIJO5t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267445AbUIJOx1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 10:53:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267446AbUIJOx1
+	id S267447AbUIJO5t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 10:57:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267413AbUIJO5t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 10:53:27 -0400
-Received: from www02.ies.inet6.fr ([62.210.153.202]:25749 "EHLO
-	smtp.ies.inet6.fr") by vger.kernel.org with ESMTP id S267445AbUIJOxX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 10:53:23 -0400
-Message-ID: <4141BFDF.1050200@inet6.fr>
-Date: Fri, 10 Sep 2004 16:53:19 +0200
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
+	Fri, 10 Sep 2004 10:57:49 -0400
+Received: from www2.muking.org ([216.231.42.228]:28776 "HELO www2.muking.org")
+	by vger.kernel.org with SMTP id S267475AbUIJO4h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 10:56:37 -0400
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: voluntary-preemption: understanding latency trace
+References: <83656nk9mk.fsf@www2.muking.org>
+	<1094763737.1362.325.camel@krustophenia.net>
+	<20040910063749.GA25298@elte.hu>
+From: Kevin Hilman <kjh-lkml@hilman.org>
+Organization: None to speak of.
+Date: 10 Sep 2004 07:56:33 -0700
+Message-ID: <83eklaf9zy.fsf@www2.muking.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: tglx@linutronix.de
-Cc: LKML <linux-kernel@vger.kernel.org>, Linux-IDE <linux-ide@vger.kernel.org>
-Subject: Re: [PATCH] sis5513 fix for SiS962 chipset
-References: <1094826555.7868.186.camel@thomas.tec.linutronix.de>
-In-Reply-To: <1094826555.7868.186.camel@thomas.tec.linutronix.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Trusted: [ ip=62.210.105.37 rdns=ppp3290-cwdsl.fr.cw.net 
-	helo=proxy.inet6-interne.fr by=smtp.ies.inet6.fr ident= ] [ 
-	ip=192.168.50.116 rdns=bouton.inet6-interne.fr helo=!192.168.50.116! 
-	by=proxy.inet6-interne.fr ident= ]
-X-Spam-DCC: dmv.com: web02.inet6.ies 1181; Body=1 Fuz1=1 Fuz2=1
-X-Spam-Assassin: No hits=0.2 required=4.5
-X-Spam-Untrusted: 
-X-Spam-Pyzor: Reported 0 times.
-X-Spam-Report: *  0.2 AWL AWL: Auto-whitelist adjustment
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Gleixner wrote the following on 09/10/2004 04:29 PM :
+Ingo Molnar <mingo@elte.hu> writes:
 
->Hi,
->
->1. If the fake 5513 id bit is not set by the BIOS we must have the 5518
->id in the device table.
->
->2. If the register remapping is not set by the BIOS then the enable bit
->check in ide_pci_setup_ports will fail. It's safe to switch to the
->remapping mode here. Keeping the not remapped mode would need quite big
->changes AFAICS.
->  
->
+> * Lee Revell <rlrevell@joe-job.com> wrote:
+> 
+> > > I've got a SCHED_FIFO kernel thread at the highest priority
+> > > (MAX_USER_RT_PRIO-1) and it's sleeping on a wait queue.  The wake is
+> > > called from an ISR.  Since this thread is the highest priority in the
+> > > system, I expect it to run before the ISR threads and softIRQ threads
+> > > etc. 
+> > > 
+> > > In the ISR I sample sched_clock() just before the call to wake_up()
+> > > and in the thread I sample sched_clock() again just after the call to
+> > > sleep.  I'm seeing an almost 4ms latency between the call to wake_up
+> > > and the actual wakeup.  However, in /proc/latency_trace, the worst
+> > > latency I see during the running of this test is <500us.
+> 
+> > Ingo, any ideas here?  Looks like maybe the use of sched_clock is the
+> > problem.
+> 
+> sched_clock() is not 100% accurate (it takes a few shortcuts to avoid a
+> division) but it should be better than 90% so 4 msec measured means
+> there's likely some big delay.
+> 
+> if the priority setup is indeed as described above then the RT task
+> should have run much faster. First i'd suggest to check whether it's not
+> console printing (printing of a stacktrace or a latency trace) that 
+> slows things down.
 
-I was worried about these when 5518 was introduced but couldn't test on 
-the hardware I had at hand and nobody reported hitting this so it went 
-under the carpet. What hardware did you use to test ?
+It must've been the latency trace itself as with it turned off, I'm
+not seeing the 4ms latency between sched_clock() calls anymore.
 
--- 
-Lionel Bouton - inet6
----------------------------------------------------------------------
-   o              Siege social: 51, rue de Verdun - 92158 Suresnes
-  /      _ __ _   Acces Bureaux: 33 rue Benoit Malon - 92150 Suresnes
- / /\  /_  / /_   France
- \/  \/_  / /_/   Tel. +33 (0) 1 41 44 85 36
-  Inetsys S.A.    Fax  +33 (0) 1 46 97 20 10
- 
+> If the console is silent and sched_clock() still indicates a ~4msec
+> delay then i'd suggest the following thing to debug this:
+> 
+> - upgrade to the -S0 patch
+> 
+> - edit kernel/latency.c's MAX_TRACE value to be 20000 or so
+> 
+> - reboot into the modified kernel and do:
+> 
+>      echo 2 > /proc/sys/kernel/trace_enabled
+> 
+>   (this turns on 'user defined tracing')
+> 
+> - modify the second sched_clock() call to do this instead:
+> 
+>      user_trace_start();
+> 
+>   modify the second sched_clock() call to do:
+> 
+>      user_trace_stop();
+> 
+> you should have the full trace of what happens between the wakeup and
+> the process activation in /proc/latency_trace.
 
+Using -S0 and the user_trace, I indeed see that the high-priority task
+is beeing switched in very quickly.
+
+Kevin

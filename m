@@ -1,73 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261990AbUCOE7h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 23:59:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262258AbUCOE7h
+	id S261524AbUCOFJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 00:09:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262258AbUCOFJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 23:59:37 -0500
-Received: from fw.osdl.org ([65.172.181.6]:17803 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261990AbUCOE7f (ORCPT
+	Mon, 15 Mar 2004 00:09:57 -0500
+Received: from cpe-024-033-224-91.neo.rr.com ([24.33.224.91]:44929 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id S261524AbUCOFJ4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 23:59:35 -0500
-Date: Sun, 14 Mar 2004 20:54:38 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: niv@us.ibm.com, benh@kernel.crashing.org, davem@redhat.com,
-       netdev@oss.sgi.com
-Subject: Re: [patch/RFC] networking menus
-Message-Id: <20040314205438.3d7bcd34.rddunlap@osdl.org>
-In-Reply-To: <20040314190724.1af1f11d.rddunlap@osdl.org>
-References: <20040314163327.53102f46.rddunlap@osdl.org>
-	<4055122D.8030809@us.ibm.com>
-	<20040314190724.1af1f11d.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 15 Mar 2004 00:09:56 -0500
+Date: Mon, 15 Mar 2004 00:06:16 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] PnP Updates for 2.6.4-mm2
+Message-ID: <20040315000615.GA5972@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Mar 2004 19:07:24 -0800 "Randy.Dunlap" <rddunlap@osdl.org> wrote:
+Hi Andrew,
 
-| On Sun, 14 Mar 2004 18:17:17 -0800 Nivedita Singhvi <niv@us.ibm.com> wrote:
-| 
-| | Randy.Dunlap wrote:
-| | 
-| | > This is just a first pass/RFC.  It moves "Networking support" out of
-| | > the "Device Drivers" menu, which seems helpful to me.  However,
-| | > ISTM that it should really just be the "Networking options" here
-| | > and not include Amateur Radio, IrDA, and Bluetooth support.
-| | > I.e., I think that those latter 3 should fall under Device Drivers.
-| | > Does that make sense to anyone else?
-| | 
-| | Just a comment that those 3 subsystems are not just
-| | device drivers, they have non-trivial amount of code
-| | in the protocol stack under ../net/. So would moving
-| | them to device drivers be misleading in any way?
-| | 
-| | I can see pulling out Networking support from under
-| | device drivers, though.
-| 
-| Agreed, I looked again and those 3 should stay under
-| "Networking support."  I'm still looking for other items
-| to move to make it all easier to navigate.
+This is the first of a series of PnP updates for 2.6.4.  I would appreciate if
+these could be tested in your -mm tree.
 
-Does it make sense to anyone besides me to move protocol-related
-modules like SLIP, PPP, and PLIP from Device Drivers/Network device(s)
-to "Networking support"?
-They feel more like protocols than device drivers to me....
+Thanks,
+Adam
 
+[PNP] Resource Conflict Cleanup
 
-| | > Does this need to be discussed on netdev (also)?
-| | 
-| | Yes. :)
-| 
-| OK.  Thanks for cc-ing it.
-| 
-| | thanks,
-| | Nivedita
+This patch cleans up the resource conflict logic and was originally from Matthew
+Wilcox <willy@debian.org>.
 
+--- a/drivers/pnp/resource.c	2004-01-23 15:19:25.000000000 +0000
++++ b/drivers/pnp/resource.c	2004-02-01 20:07:41.000000000 +0000
+@@ -231,15 +231,9 @@
+ 
+ #define length(start, end) (*(end) - *(start) + 1)
 
---
-~Randy
+-/* ranged_conflict - used to determine if two resource ranges conflict
+- * condition 1: check if the start of a is within b
+- * condition 2: check if the end of a is within b
+- * condition 3: check if b is engulfed by a */
+-
++/* Two ranges conflict if one doesn't end before the other starts */
+ #define ranged_conflict(starta, enda, startb, endb) \
+-((*(starta) >= *(startb) && *(starta) <= *(endb)) || \
+- (*(enda) >= *(startb) && *(enda) <= *(endb)) || \
+- (*(starta) < *(startb) && *(enda) > *(endb)))
++	!((*(enda) < *(startb)) || (*(endb) < *(starta)))
+
+ #define cannot_compare(flags) \
+ ((flags) & (IORESOURCE_UNSET | IORESOURCE_DISABLED))

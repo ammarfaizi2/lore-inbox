@@ -1,61 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264026AbTFDUEE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 16:04:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264028AbTFDUEE
+	id S264035AbTFDUMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 16:12:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264037AbTFDUMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 16:04:04 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:60313 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S264026AbTFDUEC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 16:04:02 -0400
-Date: Wed, 4 Jun 2003 22:16:52 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: hugang <hugang@soulinfo.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE Power Management (Was: software suspend in 2.5.70-mm3)
-Message-ID: <20030604201652.GC524@elf.ucw.cz>
-References: <20030603211156.726366e7.hugang@soulinfo.com> <1054646566.9234.20.camel@dhcp22.swansea.linux.org.uk> <20030603223511.155ea2cc.hugang@soulinfo.com> <1054649308.9233.26.camel@dhcp22.swansea.linux.org.uk> <1054659866.20839.10.camel@gaston> <1054732481.20839.30.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1054732481.20839.30.camel@gaston>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	Wed, 4 Jun 2003 16:12:09 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:17652 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S264035AbTFDUMH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 16:12:07 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: sleep forever in ACPI mode S3
+Date: Wed, 4 Jun 2003 13:25:36 -0700
+Message-ID: <F760B14C9561B941B89469F59BA3A847E96F24@orsmsx401.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: sleep forever in ACPI mode S3
+Thread-Index: AcMq1SYuE69phUZCS92fWXqwtcG28gAAd3IQ
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "C. Scott Ananian" <cananian@lesser-magoo.lcs.mit.edu>,
+       <linux-kernel@vger.kernel.org>
+Cc: <acpi-support@lists.sourceforge.net>
+X-OriginalArrivalTime: 04 Jun 2003 20:25:36.0202 (UTC) FILETIME=[74C6B2A0:01C32AD7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > Still races. Ben's stuff is needed
-> > 
-> > I have it working with some fixes from what I sent earlier, I'll
-> > repost that tonight or tomorrow, I need to extract that from
-> > a half-broken tree ;)
+> From: C. Scott Ananian [mailto:cananian@lesser-magoo.lcs.mit.edu] 
+> echo 3 > /proc/acpi/sleep
+>  appears to work correctly on my IBM Thinkpad X20 -- except that it's
+>  impossible to wake the machine back up.
+> echo 1 > /proc/acpi/sleep
+>  has a similar problem -- ordinary keypresses don't wake the 
+> machine --
+>  but at least in this case the "power button" will bring the 
+> machine back.
+>  [neither the lid nor the sleep button do, though.]
 > 
-> Ok, here is it. It still need a bit of cleanup (removal of magic
-> number for "steps" -> enum, etc...) and we may want to do more
-> things on wakeup especially for ide-cd, Also I don't deal with
-> ide-tape or ide-floppy in there and haven't fully studied the
-> impact with ide-scsi....
-> 
-> So it's not meant to be merged as-is, though I'd appreciate to
-> know if it helps for you.
-> 
-> Bartolomiej: Any comments appreciated, I won't do the ide-tape/floppy
-> part as I don't know/own these, I think i'll let you decide if
-> anything more is needed on the wakeup path for ide-cd... Once I
-> have enough feedback, I'll send you a cleanified version as
-> candidate for upstream merge.
+> Is this a known problem?  What keypresses are *supposed* to wake the
+> machine?  I looked through the code, but it looks like we 
+> punt off to the
+> ACPI firmware to do the actual sleep -- can anyone enlighten me on the
+> intended mechanism behind 'wake-from-sleep'?
 
-Please send cleaned up version ASAP... Waiting will do no good. If it
-handles only ide-disks, that's okay, its still way better than whats
-in the tree.
+Does it start to come back but then not make it, or is it just
+unrevivifiable?
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+In any case, sleep/resume is a work in progress that won't work reliably
+in the near-term.
+
+Regards -- Andy

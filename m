@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262101AbTKTQrN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 11:47:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbTKTQrN
+	id S262076AbTKTQpX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 11:45:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbTKTQpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 11:47:13 -0500
-Received: from main.gmane.org ([80.91.224.249]:18618 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262101AbTKTQrK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 11:47:10 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jason Lunz <lunz@falooley.org>
-Subject: Re: Announce: ndiswrapper
-Date: Thu, 20 Nov 2003 16:47:07 +0000 (UTC)
-Organization: PBR Streetgang
-Message-ID: <slrnbrps0b.dha.lunz@absolut.localnet>
-References: <20031120031137.GA8465@bougret.hpl.hp.com> <3FBC3483.4060706@pobox.com> <20031120040034.GF19856@holomorphy.com> <3FBC5036.3020503@pobox.com>
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: slrn/0.9.8.0 (Linux)
+	Thu, 20 Nov 2003 11:45:22 -0500
+Received: from mail.it.helsinki.fi ([128.214.205.39]:46467 "EHLO
+	mail.it.helsinki.fi") by vger.kernel.org with ESMTP id S262076AbTKTQpQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 11:45:16 -0500
+Date: Thu, 20 Nov 2003 18:45:13 +0200 (EET)
+From: Mikael Johansson <mpjohans@pcu.helsinki.fi>
+X-X-Sender: mpjohans@soul.helsinki.fi
+To: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: RAID-0 read perf. decrease after 2.4.20
+Message-ID: <Pine.OSF.4.58.0311201827090.515286@soul.helsinki.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jgarzik@pobox.com said:
-> Who brought binary drivers into this?  And when I have ever advocated 
-> binary drivers?
->
-> ndiswrapper has one use IMHO (which was pointed out me in this 
-> thread)... to assist in reverse engineering.
 
-That may be your intention, but as soon as cards exist that can only be
-made to work with ndis-wrapped drivers, you can be sure that the masses
-won't wait for the reverse-engineering to be completed. So all the
-nvidia-video-type problems _will_ start showing up in a big population
-of laptops and such too.
+Hello All!
 
-Jason
+Has anyone else experienced a drastic drop in read performance on software
+RAID-0 with post 2.4.20 kernels? We have a few Athlon XP's here at our
+lab with double IDE disks on different channels set up as RAID-0. Some
+bonnie++ benchmark results with various kernels, on the same machine
+(Athlon XP 2400+, 2 GHz, 1.5 GB RAM, VIA chipset, 2*Maxtor 120 GB
+6Y060L0):
+		write	read
+2.4.20-ac1:	88,000 	135,000 K/sec
+2.4.21-pre7:	93,000   75,000
+2.4.22-ac4:	94,000	 82,000
 
+So the write speed has gone up a bit, but the read speed performance has
+plunged. Any ideas on what happened between 2.4.20 and 2.4.21 and what to
+do about it? I'm eagerly awaiting suggestions, good read speed is quite
+critical for many of our calculations :-) I will of course provide more
+details if necessary.
+
+Have a nice day,
+    Mikael J.
+    http://www.helsinki.fi/~mpjohans/

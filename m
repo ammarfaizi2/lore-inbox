@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289756AbSAKL5u>; Fri, 11 Jan 2002 06:57:50 -0500
+	id <S289919AbSAKMBA>; Fri, 11 Jan 2002 07:01:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289919AbSAKL5l>; Fri, 11 Jan 2002 06:57:41 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19464 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S289756AbSAKL5Y>; Fri, 11 Jan 2002 06:57:24 -0500
-Date: Fri, 11 Jan 2002 11:57:17 +0000
-From: Russell King <rmk@arm.linux.org.uk>
+	id <S289920AbSAKMAu>; Fri, 11 Jan 2002 07:00:50 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:58338 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S289919AbSAKMAp>; Fri, 11 Jan 2002 07:00:45 -0500
+Message-ID: <3C3ED3E8.60CDE995@redhat.com>
+Date: Fri, 11 Jan 2002 12:00:40 +0000
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
 Subject: Re: [patch] O(1) scheduler, -H5
-Message-ID: <20020111115717.A30965@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.33.0201110130290.11478-100000@localhost.localdomain.suse.lists.linux.kernel> <20020111113131.C30756@flint.arm.linux.org.uk.suse.lists.linux.kernel> <p73zo3lnmg9.fsf@oldwotan.suse.de>
-Mime-Version: 1.0
+In-Reply-To: Russell King's message of "11 Jan 2002 12:37:44 +0100" <p73zo3lnmg9.fsf@oldwotan.suse.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <p73zo3lnmg9.fsf@oldwotan.suse.de>; from ak@suse.de on Fri, Jan 11, 2002 at 12:42:14PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 11, 2002 at 12:42:14PM +0100, Andi Kleen wrote:
+Andi Kleen wrote:
+> 
+> Russell King <rmk@arm.linux.org.uk> writes:
+> >
+> > The serial driver (old or new) open/close functions are one of the worst
+> > offenders of the global-cli-and-hold-kernel-lock-and-schedule problem.
+> > I'm currently working on fixing this in the new serial driver.
+> 
 > When they hold the kernel lock in addition to the global cli() before
 > schedule() it should be ok. Only the behaviour of code not holding
 > kernel lock but global cli and calling schedule() has changed.
 
-Agreed, however, there is one thing that has bugged me for a long time
-(and which I believe is causing someone a problem at the moment) - when
-we shut down a port, we're holding the BKL, and have global IRQs disabled.
-We unhook the port from the serial drivers chain, and maybe free and
-reclaim the IRQ with a different handler, and then disable the IRQ from
-the port in question.
+well the biggest serial.c offender is block_til_ready of course...
+oh and there's quite some dusty old code that does
 
-If we happen to schedule within request_irq, it doesn't take too much
-imagination to see that Bad Things can happen.
+save_flags();
+cli();
 
-(There is a report of complete lockup, and re-ordering stuff around here
-fixes the problem, but the example patch changed a number of things, and
-I'm trying to work towards a proper solution).
+while (some_condition)
+	sleep_on(&queue);
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+eg not re-disabling interrupts after the sleep_on().....
+to the point where just about every use of
+sleep_on/interruptible_sleep_on is buggy
+except in serial.c ;(

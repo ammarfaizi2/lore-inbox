@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269726AbRH0XOz>; Mon, 27 Aug 2001 19:14:55 -0400
+	id <S269739AbRH0XRZ>; Mon, 27 Aug 2001 19:17:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269739AbRH0XOp>; Mon, 27 Aug 2001 19:14:45 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:8971 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S269726AbRH0XOj>;
-	Mon, 27 Aug 2001 19:14:39 -0400
+	id <S269779AbRH0XRI>; Mon, 27 Aug 2001 19:17:08 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:10251 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S269739AbRH0XQy>;
+	Mon, 27 Aug 2001 19:16:54 -0400
 X-Mailer: exmh version 2.1.1 10/15/1999
 From: Keith Owens <kaos@ocs.com.au>
-To: Ricky Beam <jfbeam@bluetopia.net>
-cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: Bug or feature? 
-In-Reply-To: Your message of "Mon, 27 Aug 2001 18:10:05 -0400."
-             <Pine.GSO.4.33.0108271736500.23852-100000@sweetums.bluetronic.net> 
+To: sacx@zebra.sibnet.ro
+cc: linux-kernel@vger.kernel.org
+Subject: Re: module 
+In-Reply-To: Your message of "Mon, 27 Aug 2001 18:51:49 -0400."
+             <Pine.LNX.4.33L2.0108271826510.32587-100000@zebra.sibnet.ro> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 28 Aug 2001 09:14:45 +1000
-Message-ID: <3237.998954085@ocs3.ocs-net>
+Date: Tue, 28 Aug 2001 09:17:07 +1000
+Message-ID: <3265.998954227@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Aug 2001 18:10:05 -0400 (EDT), 
-Ricky Beam <jfbeam@bluetopia.net> wrote:
->  dep_tristate '  Sun Microsystems userflash support' CONFIG_MTD_SUN_UFLASH $CONFIG_SPARC64
->$CONFIG_SPARC64 is null and this doesn't appear to the shell function as an
->arg.  Thus, it's presented as a selectable (tho' not compilable) option.
->
->The same is visable for CONFIG_MTD_SA1100 and CONFIG_MTD_DC21285 (ARM).
->
->Options:
-> 1) Don't select things that aren't in your machine/arch.
->    (Translation: "Live with it.")
-> 2) Quote all the options.
->    (ewww.)
-> 3) Fix the function(s).
+On Mon, 27 Aug 2001 18:51:49 -0400 (EDT), 
+<sacx@zebra.sibnet.ro> wrote:
+>c027b7f0 function_R__ver_function (# cat /proc/ksyms | grep function)
+>P.S. I'm a newbie in kernel hacking and I don't want to disturb you but
 
-None of the above.  Null config variables are treated as "don't care"
-when the user really meant "only allow if this option is 'y'".  It is a
-generic config problem with arch variables and I have a fix somewhere
-in my backlog.  I will try to dig it out and send to AC.
+Always read the FAQ before asking questions.  You will find this
+question answered in the lkml FAQ which appears at the end of every
+mail on lkml.
 

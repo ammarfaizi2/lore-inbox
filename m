@@ -1,81 +1,71 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314650AbSDTQ2H>; Sat, 20 Apr 2002 12:28:07 -0400
+	id <S314653AbSDTQaP>; Sat, 20 Apr 2002 12:30:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314651AbSDTQ2G>; Sat, 20 Apr 2002 12:28:06 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26639 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S314650AbSDTQ2B>; Sat, 20 Apr 2002 12:28:01 -0400
-Date: Sat, 20 Apr 2002 09:27:11 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Brian Gerst <bgerst@didntduck.org>, "H. Peter Anvin" <hpa@zytor.com>,
-        <ak@suse.de>, <linux-kernel@vger.kernel.org>, <jh@suse.cz>
-Subject: Re: [PATCH] Re: SSE related security hole
-In-Reply-To: <20020420070713.H1291@dualathlon.random>
-Message-ID: <Pine.LNX.4.33.0204200919080.11450-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314654AbSDTQaO>; Sat, 20 Apr 2002 12:30:14 -0400
+Received: from rhlx01.fht-esslingen.de ([134.108.34.10]:53652 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id <S314653AbSDTQaB>; Sat, 20 Apr 2002 12:30:01 -0400
+Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
+From: Nils Philippsen <nils@wombat.dialup.fht-esslingen.de>
+To: Jeff Garzik <garzik@havoc.gtf.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020420115416.B617@havoc.gtf.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-M/QZA71B0/6lCksLIKWN"
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-4) 
+Date: 20 Apr 2002 18:29:11 +0200
+Message-Id: <1019320151.25439.11.camel@wombat>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sat, 20 Apr 2002, Andrea Arcangeli wrote:
-> 
-> Note that with init_fpu I meant the init_fpu written in the patch. All
-> you need is a:
-> 
-> 	fxrstor "default fpu state"
+--=-M/QZA71B0/6lCksLIKWN
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Ok, that I agree with.
+On Sat, 2002-04-20 at 17:54, Jeff Garzik wrote:
+> On Fri, Apr 19, 2002 at 05:12:33PM +0200, Daniel Phillips wrote:
+> > Please do not misinterpret my position: I count Larry as something more=
+ than=20
+> > a personal acquaintance.  I strongly support his efforts to build a bus=
+iness=20
+> > for himself out of his Bitkeeper creation.  I even like Jeff Garzik's
+> > documentation, the subject of this patch.  I do not support the infusio=
+n of=20
+>=20
+> It's also really, really, low class to not even CC me in your attempt
+> to remove the documentation I wrote from the kernel tree, and placed
+> into the kernel tree at Linus's request.
+>=20
+> Rot in hell, closed mind.
 
-> > That's no fast path, that's a "this process has never used the FPU before,
-> > so we'd better make sure that it starts off with a really clean slate".
-> 
-> it's executed by every single task using the fpu
+You seriously have to improve your manners. Dubbing someone low class
+while using such phrases is pretty double standards. Is it really so
+difficult to calm down before replying? But I guess I'm just restricting
+your freedom of speech.
 
-Yes. _Once_ in their lifetimes.
+Nils
+--=20
+ Nils Philippsen / Berliner Stra=DFe 39 / D-71229 Leonberg //
++49.7152.209647
+nils@wombat.dialup.fht-esslingen.de / nils@redhat.de /
+nils@fht-esslingen.de
+        Ever noticed that common sense isn't really all that common?
 
-> > But the point is that people may still use a 2.4.x kernel on a P4-SSE3,
-> > which only adds a few new instructions, and which re-uses the old SSE2
-> > save area.
-> 
-> If there's no new xmm and new control register that's fine. If there's
-> new control register the 2.4.x kernel will need modifications anyways.
-> 
-> Just adding new instructions is just fine, like between sse and sse2.
+--=-M/QZA71B0/6lCksLIKWN
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-If Intel makes the SSE3 registers twice as wide (or creates new ones), the 
-xorps trick simply will not work.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-> I think the only argument for that is that it will potentially clear the
-> xmm8-15 registers too, if they will be added to an x86 (they're just in
-> x86-64). The control part doesn't make much sense to be because it will
-> likely not be zero anyways.
+iD8DBQA8wZdXR9ibZWlRMBERAmg4AKDlGYhHfczg0F6uCyoY07AG4CnG2ACgwoy3
+vmqFuXn1nHrzQfE6s/Wf6kY=
+=mdjU
+-----END PGP SIGNATURE-----
 
-Actually, even control parts likely _will_ be be zero, the way people 
-work.
-
-> > THAT is the reason we can't just zero the SSE registers - because if we
-> > do, we'll have the same problem next time around.
-> 
-> You are zeroing the SSE registers with the fxrestor way too.
-
-
-Andrea, that's the whole _point_.
-
->							 If a new
-> control register is added zero won't be guaranteed to be the right
-> initialization for it, most control registers aren't set to 0 by
-> default.
-
-Even then, having a reliable failure that is easy to pinpoint it a lot 
-better than random behaviour that has taken us more than two years to even 
-_find_.
-
-Besides, zeroes for initial values of control registers actually _is_ 
-fairly likely, in my opinion. I've sent off an email to my Intel contacts 
-to try to make this architected..
-
-		Linus
+--=-M/QZA71B0/6lCksLIKWN--
 

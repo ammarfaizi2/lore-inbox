@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267466AbTAVMhh>; Wed, 22 Jan 2003 07:37:37 -0500
+	id <S267476AbTAVMvB>; Wed, 22 Jan 2003 07:51:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267469AbTAVMhg>; Wed, 22 Jan 2003 07:37:36 -0500
-Received: from services.cam.org ([198.73.180.252]:906 "EHLO mail.cam.org")
-	by vger.kernel.org with ESMTP id <S267466AbTAVMhg>;
-	Wed, 22 Jan 2003 07:37:36 -0500
-From: Ed Tomlinson <tomlins@cam.org>
-Subject: Re: {sys_,/dev/}epoll waiting timeout
-To: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
-Reply-To: tomlins@cam.org
-Date: Wed, 22 Jan 2003 07:46:24 -0500
-References: <20030122065502.GA23790@math.leidenuniv.nl> <20030122080322.GB3466@bjl1.asuk.net>
-Organization: me
-User-Agent: KNode/0.7.1
-MIME-Version: 1.0
+	id <S267479AbTAVMvB>; Wed, 22 Jan 2003 07:51:01 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:4574 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S267476AbTAVMvA>;
+	Wed, 22 Jan 2003 07:51:00 -0500
+Date: Wed, 22 Jan 2003 12:56:28 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Richard Stallman <rms@gnu.org>
+Cc: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>, steve@tuxsoft.com,
+       linux-kernel@vger.kernel.org, brand@eeyore.valparaiso.cl
+Subject: Re: [OFFTOPIC] RMS and reactions to him
+Message-ID: <20030122125628.GA22415@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Richard Stallman <rms@gnu.org>,
+	Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
+	steve@tuxsoft.com, linux-kernel@vger.kernel.org,
+	brand@eeyore.valparaiso.cl
+References: <200301201338.h0KDcLjd001178@eeyore.valparaiso.cl> <E18bHfV-0002QE-00@fencepost.gnu.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <20030122124625.8CBFD2661@oscar.casa.dyndns.org>
+Content-Disposition: inline
+In-Reply-To: <E18bHfV-0002QE-00@fencepost.gnu.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
+On Wed, Jan 22, 2003 at 04:59:37AM -0500, Richard Stallman wrote:
 
->         jtimeout = 0;
->         if (timeout) {
->                 /* Careful about overflow in the intermediate values */
->                 if ((unsigned long) timeout < MAX_SCHEDULE_TIMEOUT / HZ)
->                         jtimeout = (unsigned long)(timeout*HZ+999)/1000+1;
->                 else /* Negative or overflow */
->                         jtimeout = MAX_SCHEDULE_TIMEOUT;
->         }
+ > We all agree that the proper name for the kernel is "Linux."
+ > The disagreement is about the name for the complete system
+ > that people use on desktops and servers.
 
-Why assume HZ=1000?  Would not:
+This being the _kernel_ list, can you now take your rants someplace
+else where it might actually be relevant ?  If your beef is with the
+distros, I'm sure you can do the groundwork to figure out who
+to whine at.
 
-timeout = (unsigned long)(timeout*HZ+(HZ-1))/HZ+1;
+		Dave
 
-make more sense?
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

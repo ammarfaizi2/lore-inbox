@@ -1,95 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267506AbSKSW7b>; Tue, 19 Nov 2002 17:59:31 -0500
+	id <S267550AbSKSXIe>; Tue, 19 Nov 2002 18:08:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267550AbSKSW7b>; Tue, 19 Nov 2002 17:59:31 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:39949
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S267506AbSKSW7a>; Tue, 19 Nov 2002 17:59:30 -0500
-Subject: [patch] remove magic numbers in block queue initialization
-From: Robert Love <rml@tech9.net>
-To: akpm@digeo.com
+	id <S267553AbSKSXIe>; Tue, 19 Nov 2002 18:08:34 -0500
+Received: from ip68-105-128-224.tc.ph.cox.net ([68.105.128.224]:12768 "EHLO
+	Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
+	id <S267550AbSKSXIe>; Tue, 19 Nov 2002 18:08:34 -0500
+Date: Tue, 19 Nov 2002 16:15:35 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Pete Zaitcev <zaitcev@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1037747198.1252.2259.camel@phantasy>
+Subject: Re: [PATCH][TRIVIAL] Add back in <asm/system.h> and <linux/linkage.h> to <linux/interrupt.h>
+Message-ID: <20021119231535.GG779@opus.bloom.county>
+References: <mailman.1037736361.32709.linux-kernel2news@redhat.com> <200211192021.gAJKL8A29487@devserv.devel.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 19 Nov 2002 18:06:39 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200211192021.gAJKL8A29487@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+On Tue, Nov 19, 2002 at 03:21:08PM -0500, Pete Zaitcev wrote:
+> > The following trivial patch adds back <asm/system.h> and
+> ><linux/kernel.h> to <linux/interrupt.h>.  Without it,
+> ><linux/interrupt.h> is relying on <asm/system.h> to be implicitly
+> > included for smb_mb to be defined, and <linux/linkage.h> to be implicitly
+> > included for asmlinkage/FASTCALL/etc.
+> 
+> Right, RMK posted it a couple of days ago, without linkage.h though.
 
-Your less-requests patch signaled a way-too-many magic numbers alarm
-(not the patches fault, of course, but it pointed it out).
+Then RMK's isn't complete as it needs both. :)
 
-Attached patch removes the minimum queue length, maximum queue length,
-factor of queue length that is number of batch requests, and the maximum
-number of batch request magic numbers and replaces them with defines and
-some comments.
-
-Look OK?
-
-	Robert Love
-
-
-Replace magic numbers in block queue init with sexy defines.
- 
- drivers/block/ll_rw_blk.c |   32 ++++++++++++++++++++++++--------
- 1 files changed, 24 insertions(+), 8 deletions(-)
-
-
-diff -urN linux-2.5.48/drivers/block/ll_rw_blk.c linux/drivers/block/ll_rw_blk.c
---- linux-2.5.48/drivers/block/ll_rw_blk.c	2002-11-17 23:29:22.000000000 -0500
-+++ linux/drivers/block/ll_rw_blk.c	2002-11-19 17:59:07.000000000 -0500
-@@ -2109,6 +2109,22 @@
- 	__blk_put_request(req->q, req);
- }
- 
-+/*
-+ * The maximum and minimum free requests slots in the queue are
-+ * dynamically calculated as a function of total memory.  Below is the
-+ * upper and lower bound to those calculations.  We do not want the
-+ * queue too large, as more memory than desired can be under writeback.
-+ */
-+#define MAX_QUEUE_REQUESTS	128
-+#define MIN_QUEUE_REQUESTS	16
-+
-+/*
-+ * Number of requests to batch together is calculated as the queue size
-+ * over BATCH_QUEUE_FACTOR.  This number is capped at MAX_BATCH_REQUESTS
-+ */
-+#define BATCH_QUEUE_FACTOR	8
-+#define MAX_BATCH_REQUESTS	8
-+
- int __init blk_dev_init(void)
- {
- 	int total_ram = nr_free_pages() << (PAGE_SHIFT - 10);
-@@ -2125,14 +2141,14 @@
- 	 * We use this many requests for reads, and this many for writes.
- 	 */
- 	queue_nr_requests = (total_ram >> 9) & ~7;
--	if (queue_nr_requests < 16)
--		queue_nr_requests = 16;
--	if (queue_nr_requests > 128)
--		queue_nr_requests = 128;
--
--	batch_requests = queue_nr_requests / 8;
--	if (batch_requests > 8)
--		batch_requests = 8;
-+	if (queue_nr_requests < MIN_QUEUE_REQUESTS)
-+		queue_nr_requests = MIN_QUEUE_REQUESTS;
-+	if (queue_nr_requests > MAX_QUEUE_REQUESTS)
-+		queue_nr_requests = MAX_QUEUE_REQUESTS;
-+
-+	batch_requests = queue_nr_requests / BATCH_QUEUE_FACTOR;
-+	if (batch_requests > MAX_BATCH_REQUESTS)
-+		batch_requests = MAX_BATCH_REQUESTS;
- 
- 	printk("block request queues:\n");
- 	printk(" %d requests per read queue\n", queue_nr_requests);
-
-
-
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

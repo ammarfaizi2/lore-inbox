@@ -1,37 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276359AbRI1Wrz>; Fri, 28 Sep 2001 18:47:55 -0400
+	id <S276361AbRI1Wtz>; Fri, 28 Sep 2001 18:49:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276361AbRI1Wrp>; Fri, 28 Sep 2001 18:47:45 -0400
-Received: from fmfdns01.fm.intel.com ([132.233.247.10]:53478 "EHLO
-	calliope1.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S276359AbRI1Wr1>; Fri, 28 Sep 2001 18:47:27 -0400
-Message-ID: <8FB7D6BCE8A2D511B88C00508B68C2081971E3@orsmsx102.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-Cc: torvalds@transmeta.com, padraig@antefacto.com,
-        linux-kernel@vger.kernel.org
-Subject: RE: CPU frequency shifting "problems"
-Date: Fri, 28 Sep 2001 15:47:34 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S276362AbRI1Wtp>; Fri, 28 Sep 2001 18:49:45 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:10910 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S276361AbRI1Wth>;
+	Fri, 28 Sep 2001 18:49:37 -0400
+Date: Sat, 29 Sep 2001 00:50:03 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200109282250.AAA16038@harpo.it.uu.se>
+To: rutt@chezrutt.com
+Subject: Re: 2.4.10 problem with APM on Inspiron 8000
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
-> Remember you get an interrupt from the transition that you 
-> can steal from
-> the ROM gunge, or is that another deep intel secret you can't 
-> comment on 8)
-> 
-> Just why are intel so obsessed by secrets about something 
-> every other vendor
-> does anyway ? 
+On Fri, 28 Sep 2001 11:40:19 -0400, John Ruttenberg wrote:
 
-I agree and have said the very thing internally, but TPTB have determined
-that the benefit of an open source driver is outweighed by the perceived
-competitive advantage of keeping it a trade secret. :(
+>My Inspiron 8k loves kernels 2.4.* up to 2.4.9, but has problems with 2.4.10.
+>In particular, it seems that any APM event (suspend, etc.) causes a hard
+>freeze.  In fact, on 2.4.9 and lower, I can even use the function-setup key
+>which lets me examine/change bios while the kernel is running.  On 2.4.10,
+>this causes a kernel freeze.
+>
+>My .config files are essentially identical for 2.4.9 and for 2.4.10.
+>
+>On thing I noticed that seems a little suspicious is this start up message:
+>
+>    Local APIC disabled by BIOS -- reenabling.
+>    Found and enabled local APIC!
+>
+>For 2.4.9, I get:
+>
+>    mapped APIC to ffffe000 (01442000)
 
--- Andy
+The I8000 again (sigh). You apparently have SMP or UP IOAPIC enabled.
+In this case, 2.4.10 will enable the local APIC if the BIOS didn't.
+
+To help debug the freeze, please try the patch below: it will cause
+the kernel to log any APM event sent to it from the BIOS. Run this
+in an SMP&UP_IOAPIC-less kernel. Do one of the actions above that
+would freeze the APIC-enabled kernel (like the key sequence to enter
+the BIOS setup screens). Check the kernel log. Did APM log any event,
+and if so, which one?
+
+My suspicion (from this and other reports) is that the Inspiron 8000's
+BIOS SMM can't handle an enabled local APIC, or it passes an APM event
+that apm.c ignores. Either case can be lethal.
+
+/Mikael
+
+--- linux-2.4.10/arch/i386/kernel/apm.c.~1~	Sun Sep 23 21:06:30 2001
++++ linux-2.4.10/arch/i386/kernel/apm.c	Sat Sep 29 00:11:23 2001
+@@ -927,6 +927,7 @@
+ 
+ static int send_event(apm_event_t event)
+ {
++	printk(__FUNCTION__ ": event %u\n", event);
+ 	switch (event) {
+ 	case APM_SYS_SUSPEND:
+ 	case APM_CRITICAL_SUSPEND:

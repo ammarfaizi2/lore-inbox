@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267166AbTGOLAJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 07:00:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267168AbTGOLAJ
+	id S267168AbTGOLGj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 07:06:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267186AbTGOLGj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 07:00:09 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:13713 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S267166AbTGOLAE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 07:00:04 -0400
-Date: Tue, 15 Jul 2003 13:14:48 +0200 (MEST)
-Message-Id: <200307151114.h6FBEmim011191@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: torvalds@osdl.org
-Subject: [PATCH][2.6.0-test1] make clean should remove usr/initramfs_data.S
-Cc: linux-kernel@vger.kernel.org
+	Tue, 15 Jul 2003 07:06:39 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:48325
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S267168AbTGOLGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 07:06:38 -0400
+Subject: Re: Alan Shih: "TCP IP Offloading Interface"
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: David griego <dagriego@hotmail.com>
+Cc: jgarzik@pobox.com, dsaxena@mvista.com, alan@storlinksemi.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Sea2-F66GGORm1u51rM00012573@hotmail.com>
+References: <Sea2-F66GGORm1u51rM00012573@hotmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1058267923.3845.23.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 15 Jul 2003 12:18:44 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Maw, 2003-07-15 at 00:26, David griego wrote:
+> >Are these common cases to be optimized for latency or throughput?
+> I would personaly see the common case optimized for throughput on large 
+> packets, and allow the smaller packets to be processed by the OS.
 
-A 2.6.0-test1 kernel build leaves a temp file in usr/,
-initramfs_data.S, that make clean doesn't remove.
-This is ugly. Fixed in the patch below.
+Its very very application dependant. Latency is critical to a good file
+server, although storage people often like to handwave those numbers
+away (not all of them thankfully)
 
-/Mikael
+Cluster people want low latency at all times, and latency is the one
+thing that is almost impossible to recover once you lose time to it
 
---- linux-2.6.0-test1/usr/Makefile.~1~	2003-07-11 00:08:29.000000000 +0200
-+++ linux-2.6.0-test1/usr/Makefile	2003-07-14 13:54:56.800296448 +0200
-@@ -3,7 +3,7 @@
- 
- host-progs  := gen_init_cpio
- 
--clean-files := initramfs_data.cpio.gz
-+clean-files := initramfs_data.cpio.gz initramfs_data.S
- 
- $(src)/initramfs_data.S: $(obj)/initramfs_data.cpio.gz
- 	echo "	.section .init.ramfs,\"a\"" > $(src)/initramfs_data.S

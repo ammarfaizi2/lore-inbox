@@ -1,35 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131325AbRAIOli>; Tue, 9 Jan 2001 09:41:38 -0500
+	id <S129562AbRAIOl7>; Tue, 9 Jan 2001 09:41:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131315AbRAIOl2>; Tue, 9 Jan 2001 09:41:28 -0500
-Received: from archimede.mat.ulaval.ca ([132.203.18.50]:55993 "EHLO
-	archimede.mat.ulaval.ca") by vger.kernel.org with ESMTP
-	id <S131241AbRAIOlX>; Tue, 9 Jan 2001 09:41:23 -0500
-Date: Tue, 9 Jan 2001 09:41:21 -0500 (EST)
-From: Mihai Moise <mcartoaj@mat.ulaval.ca>
-Message-Id: <200101091441.JAA12925@taylor.mat>
-To: linux-kernel@vger.kernel.org
-Subject: Re: adding a system call
-X-Sun-Charset: US-ASCII
+	id <S131365AbRAIOlj>; Tue, 9 Jan 2001 09:41:39 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:11788 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S131314AbRAIOl1>;
+	Tue, 9 Jan 2001 09:41:27 -0500
+Date: Tue, 9 Jan 2001 15:40:56 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Rik van Riel <riel@conectiva.com.br>, "David S. Miller" <davem@redhat.com>,
+        <hch@caldera.de>, <netdev@oss.sgi.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+In-Reply-To: <20010109141806.F4284@redhat.com>
+Message-ID: <Pine.LNX.4.30.0101091532150.4368-100000@e2>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > What is the procedure for adding a new system call to the Linux kernel?
-> 
-> hack away, the code's free.  don't expect Linus to accept your 
-> changes into the "real" kernel without a VERY good argument.
+On Tue, 9 Jan 2001, Stephen C. Tweedie wrote:
 
-I know. However the Kernel Hacker's Guide writes about sys.h. After a bit of exploring, I found that sys.h has been replaced by something else in later kernels, which leaves me wondering where in the kernel I should insert my code, and where the dispatcher is located for the other system calls, in case my system call would need them.
+> > i used to think that this is useful, but these days it isnt. It's a waste
+> > of PCI bandwidth resources, and it's much cheaper to keep a cache in RAM
+> > instead of doing direct disk=>network DMA *all the time* some resource is
+> > requested.
+>
+> No.  I'm certain you're right when talking about things like web
+> serving, [...]
 
-My system call idea is to allow a superuser process to request a mmap on behalf of an user process. To see how this would be useful, let us consider svgalib.
+yep, i was concentrating on fileserving load.
 
-Until now, there were two ways to allow an application access to the video array. The first was by making it setuid root, but this compromises system security by allowing it too many permissions. The second was by having a helper module which allows user applications access to the video card. However this allows any remote user to set the screen in flames.
+> but it just doesn't apply when you look at some other applications,
+> such as streaming out video data or performing fileserving in a
+> high-performance compute cluster where you are serving bulk data.
+> The multimedia and HPC worlds typically operate on datasets which are
+> far too large to cache, so you want to keep them in memory as little
+> as possible when you ship them over the wire.
 
-With my new system call, a superuser process can set the graphics mode in a safe manner and then ask for an mmap of the video array into the application data segment.
+i'd love to first see these kinds of applications (under Linux) before
+designing for them. Eg. if an IO operation (eg. streaming video webcast)
+does a DMA from a camera card to an outgoing networking card, would it be
+possible to access the packet data in case of a TCP retransmit? Basically
+these applications are limited enough in scope to justify even temporary
+'hacks' that enable them - and once we *see* things in action, we could
+design for them. Not the other way around.
 
-Mihai
+	Ingo
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

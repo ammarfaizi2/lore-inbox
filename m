@@ -1,79 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263002AbTLUOPS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 09:15:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263101AbTLUOPS
+	id S263125AbTLUOR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 09:17:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263137AbTLUOR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 09:15:18 -0500
-Received: from mail.shareable.org ([81.29.64.88]:46471 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S263002AbTLUOPN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 09:15:13 -0500
-Date: Sun, 21 Dec 2003 14:14:56 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC,PATCH] use rcu for fasync_lock
-Message-ID: <20031221141456.GI3438@mail.shareable.org>
-References: <3FE492EF.2090202@colorfullife.com> <20031221113640.GF3438@mail.shareable.org> <3FE594D0.8000807@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FE594D0.8000807@colorfullife.com>
-User-Agent: Mutt/1.4.1i
+	Sun, 21 Dec 2003 09:17:29 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:1664 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263125AbTLUOR0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 09:17:26 -0500
+Date: Sun, 21 Dec 2003 14:23:31 GMT
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200312211423.hBLENVX0000219@81-2-122-30.bradfords.org.uk>
+To: "Norman Diamond" <ndiamond@wta.att.ne.jp>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <0d6001c3c7b2$bbf900b0$43ee4ca5@DIAMONDLX60>
+References: <0d6001c3c7b2$bbf900b0$43ee4ca5@DIAMONDLX60>
+Subject: Re: [PATCH] cannot input bar with JP106 keyboards
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
-> >What about killing fasync_helper altogether and using the method that
-> >epoll uses to register "listeners" which send a signal when the poll
-> >state of a device changes?
-> >
-> I think it would be a step in the wrong direction: poll should go away 
-> from a simple wake-up to an interface that transfers the band info 
-> (POLL_IN, POLL_OUT, etc). Right now at least two passes over the f_poll 
-> functions are necessary, because the info which event actually triggered 
-> is lost. kill_fasync transfers the band info, thus I don't want to 
-> remove it.
+Quote from "Norman Diamond" <ndiamond@wta.att.ne.jp>:
+> John Bradford wrote:
+> 
+> > The placement of some keys seems to have changed over time.
+> 
+> IBM used to change key placements once or twice per sub-model of any model
+> of keyboard.  Other manufacturers made various changes too.  Things settled
+> down around 20 years ago.
 
-I agree with the principle of the poll wakeup passing the event
-information to the wakeup function - that would make select, poll,
-epoll _and_ this new version of fsync faster.  That may be easier to
-implement now than it was in 2.4, because we have wakeup functions,
-although it is still a big change and it would be hard to get right in
-some drivers.  Perhaps very hard.
+Good - so we can agree that there is an easy to define layout that the
+vast majority of people are used to.  That's great.
 
-We have found the performance impact of the extra ->poll calls
-negligable with epoll.  They're simply not slow calls.  It's
-only when you're doing select() or poll() of many descriptors
-repeatedly that you notice, and that's already poor usage in other
-ways.
+> > tilde was once shift-0, whilst shift-caret was once overbar.
+> 
+> I don't know why most keyboards still show a tilde on the 0 (zero) key, but
+> I've never seen it produce any input except in Linux.  Most keyboards still
+> show an overbar on the caret key but most fonts during the past 10 years
+> display it as tilde.
 
-So I am not convinced that such an invasive change is worthwhile,
-particularly as drivers would become more complicated.  (Those drivers
-which already call kill_fasync have the right logic, assuming there
-are no bugs, but many don't and a big ->poll interface change implies they
-all have to have it).
+Let's try to avoid thinking in terms of how a font displays it at this
+point, because that just adds another source of confusion - we all
+know that tilde and overbar, pipe and bar, caret and up-arrow, are
+often used interchangably in fonts.  It's the character code it gets
+translated in to that's relevant here.
 
-> It's a good idea, but requires lots of changes - perhaps it will be 
-> necessary to change the pollwait and f_poll prototypes.
+> > Backslash and Yen share the same code in 8-bit variations of
+> > ASCII-based.  Therefore, the lower-right backslash key and the
+> > upper-right Yen key may in some cases be used interchangably.
+> 
+> In all cases, except on some IBM model that was more than 20 years old.
 
-However, the two changes: fasync -> eventpoll-like waiter, and poll ->
-fewer function calls are really quite orthogonal.
+OK, again, this is good.  I didn't want to make a general assumption
+based on a small dataset.
 
-The fasync change is best done separately, with no changes to pollwait
-and f_poll and virtually no changes to the drivers except to remove
-calls to kill_fasync.
+> Of
+> course the scan codes are different, which is necessary because the shifted
+> characters are different
 
-I don't think you need to change pollwait or ->poll, because the band
-information for the signal is available, as you say, by calling ->poll
-after the wakeup.
+Yes.
 
-Put it this way: Davide thought epoll needed special hooks in all the
-devices, until I convinced him they weren't needed.  He tried it and
-not only did all the hooks go away, epoll became simpler and smaller,
-it worked with every pollable fd instead of just the ones useful for
-web servers, and surprisingly ran a bit faster too.
+> > and I personally think it would be a good idea to default to the
+> traditional key-mappings, so that these characters can be easily input on
+> systems which correctly support them.
+> 
+> That would be sort of like requiring all Linux users to learn the Dvorak
+> layout because typing is easier (faster) for users who have already learned
+> the Dvorak layout.  That would alienate the mass majority who learned to use
+> a more common national layout.  After all the reason these national layouts
+> remain common is because of the mass majorities who already learned them.
+> It is the same in Japan.  You have to let ordinary keys work the way they
+> traditionally have.
+> 
+> By the way, you used the word "traditional" where I think the fact is
+> "archaic and even then only on some fraction of keyboards."  I used the word
+> "traditionally" for keyboards as they've been used for the past 20 years.
 
--- Jamie
+What I meant was the layout that is traditionally in use -
+I.E. today's common layout.
 
+> > As I understand it there was traditionally a distinction between pipe,
+> > (a broken vertical line), and bar, (solid vertical line).
+> 
+> Archaically in one manufacturer's character set I think.  I saw the same
+> distinction in one manufacturer's US EBCDIC character set too, but never saw
+> both characters on any card punch, printer, or terminal.
+> 
+> > Pipe is the fourth character on the lower-right backslash key.
+> > Bar is the second character on the upper-right yen key.
+> 
+> The one that is always used as a pipe or or-bar is the shifted form of the
+> upper-right yen key.
+> 
+> The one that you see as the shifted form of the direct kana input mode of
+> the lower-right backslash key is another one of those that produces no
+> input.  There are a few more that you didn't mention.  Japanese keyboards
+> also often have markings for a British pound sign, US cent sign, Kanji
+> repetition marker, rectangular logical not character, and an extra pair of
+> quotation marks, as shifted forms of direct kana input mode of some keys.
+> But those also produce no input.  These also I think only produced input in
+> one manufacturer's archaic character set, I think.  JIS-Romaji (single byte
+> code points in the range 0 to 127) certainly do not include a British pound
+> sign, US cent sign, backslash, more than one vertical bar, or more than one
+> of tilde and overbar.  Some manufacturers sensibly decline to print these
+> non-existent characters on the keys of their keyboards.
+
+Ah, but they are _not_ non-existant anymore.
+
+We have moved on from 0 - 127, ASCII-based character sets.  Unicode,
+for example, includes all of the symbols you mention.
+
+A modern X-based word-processing application will typically allow the
+use of Yen, backslash, British pound sign, US cent sign, tilde, and
+pipe, so why shouldn't we be able to type these symbols easily?
+
+John.

@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262251AbTI0X2P (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Sep 2003 19:28:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262262AbTI0X2P
+	id S262262AbTI0XeI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Sep 2003 19:34:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262265AbTI0XeI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Sep 2003 19:28:15 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11685 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262251AbTI0X2O
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Sep 2003 19:28:14 -0400
-Message-ID: <3F761D02.3050708@pobox.com>
-Date: Sat, 27 Sep 2003 19:28:02 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Sat, 27 Sep 2003 19:34:08 -0400
+Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:56850 "EHLO
+	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
+	id S262262AbTI0XeG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Sep 2003 19:34:06 -0400
+From: Matt Gibson <gothick@gothick.org.uk>
+Organization: The Wardrobe Happy Cow Emporium
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 8/8] Add BTN_TOUCH to Synaptics driver. Update mousedev.
+Date: Sat, 27 Sep 2003 22:58:05 +0100
+User-Agent: KMail/1.5.4
+References: <10645086121286@twilight.ucw.cz> <20030927211838.GC360@elf.ucw.cz> <20030927212116.GA18445@ucw.cz>
+In-Reply-To: <20030927212116.GA18445@ucw.cz>
+X-Pointless-MIME-Header: yes
+X-Archive: encrypt
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@2gen.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Broadcom BCM5901 NIC
-References: <20030927231904.GA22769@hardeman.nu>
-In-Reply-To: <20030927231904.GA22769@hardeman.nu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309272258.05132.gothick@gothick.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Härdeman wrote:
-> Hi,
-> 
-> my new laptop (IBM Thinkpad G40) has an integrated NIC made by broadcom. 
-> It's a BCM5901 card for which support was added in the tg3 driver a few 
-> weeks ago (both in 2.4 and 2.6-test). However, the device doesn't work, 
-> it insmods just fine and claims the hardware, but the machine never 
-> responds to ping messages and the led indicating network activity is 
-> never activated.
-> 
-> Broadcom has released a driver of their own (bcm5700) which works with 
-> kernel 2.4.21. When I try that combination it works fine, however, the 
-> bcm5700 driver wont work at all on recent 2.4 or 2.6 kernels.
-> 
-> Does anyone know what is wrong with the tg3 driver? Has anyone tried 
-> using it on a 5901 card with success?
+On Saturday 27 Sep 2003 22:21, Vojtech Pavlik wrote:
+> Yes, exactly so. We may have similar problems with differentiation
+> elsewhere (touchpad vs 6dof device), so we'll probably need the 'class'
+> field.
 
+I don't know if this is relevant, but there are some devices which can work 
+in either relative (like a touchpad) or absolute (like a touchscreen) mode.  
+For example, using a combination of the kernel and the X drivers, at the 
+moment I have my Wacom tablet working in relative mode when I'm using its 
+mouse, but absolute mode when I'm using its pen.
 
-Trying unplugging/plugging the cable, or ifdown+ifup cycle, and let me 
-know if that fixes things.
+I'm wondering whether we don't so much need a device class, as something to 
+say whether the device works in absolute or relative mode, and that possibly 
+we might have devices where this could be dynamically changed.
 
-	Jeff
+M
 
-
-
+-- 
+"It's the small gaps between the rain that count,
+ and learning how to live amongst them."
+	      -- Jeff Noon

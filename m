@@ -1,75 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319464AbSILH0Z>; Thu, 12 Sep 2002 03:26:25 -0400
+	id <S319467AbSILHqX>; Thu, 12 Sep 2002 03:46:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319466AbSILH0Z>; Thu, 12 Sep 2002 03:26:25 -0400
-Received: from puerco.nm.org ([129.121.1.22]:27920 "HELO puerco.nm.org")
-	by vger.kernel.org with SMTP id <S319464AbSILH0Y>;
-	Thu, 12 Sep 2002 03:26:24 -0400
-Date: Thu, 12 Sep 2002 01:28:34 -0600 (MDT)
-From: Todd Underwood <todd@osogrande.com>
-X-X-Sender: todd@gp
-To: "David S. Miller" <davem@redhat.com>
-cc: "hadi@cyberus.ca" <hadi@cyberus.ca>,
-       "tcw@tempest.prismnet.com" <tcw@tempest.prismnet.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "netdev@oss.sgi.com" <netdev@oss.sgi.com>
-Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
-In-Reply-To: <20020905.204721.49430679.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0209120119580.25406-100000@gp>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319469AbSILHqX>; Thu, 12 Sep 2002 03:46:23 -0400
+Received: from bg77.anu.edu.au ([150.203.223.77]:51648 "EHLO lassus.himi.org")
+	by vger.kernel.org with ESMTP id <S319467AbSILHqW>;
+	Thu, 12 Sep 2002 03:46:22 -0400
+Date: Thu, 12 Sep 2002 17:51:09 +1000
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-pre4 & ff. blows away Xwindows with Matrox G400 and agpgart
+Message-ID: <20020912075109.GA19542@himi.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <3D7FF444.87980B8E@bigpond.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
+Content-Disposition: inline
+In-Reply-To: <3D7FF444.87980B8E@bigpond.com>
+User-Agent: Mutt/1.3.28i
+From: simon@himi.org (Simon Fowler)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-folx,
 
-sorry for the late reply.  catching up on kernel mail.
+--RnlQjJ0d97Da+TV1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-so all this TSO stuff looks v. v. similar to the IP-only fragmentation 
-that patricia gilfeather and i implemented on alteon acenics a couple of 
-years ago (see http://www.cs.unm.edu/~maccabe/SSL/frag/FragPaper1/ for a 
-general overview).  it's exciting to see someone else take a stab on 
-different hardware and approaching some of the tcp-specific issues.
+On Thu, Sep 12, 2002 at 11:56:20AM +1000, Allan Duncan wrote:
+> This is a reissue of an earlier report, and I've since done some more dig=
+ging.
+>=20
+> Up to kernel 2.4.20-pre2 there was no problem, agpgart et al ran fine etc,
+> but from 2.4.20-pre4 onwards when Xwindows starts to load these modules
+> I am instantly thrown back to a booting machine.
+> The same kernels on a VIA MVP3 chipset box with a Matrox G200 are fine.
+>=20
+> I have ascertained that any attempt to use agpgart triggers it.
+>=20
+I've seen the same thing with 2.4.20-pre5-ac1, and I'm just building
+pre5-aa2 to see if there's any difference. This is with an AMD 751
+system (an Asus K7M), an original Radeon, and the DRI CVS code. I
+couldn't get any log messages out of it, though.
 
-the main different, though, is that general purpose kernel development 
-still focussed on the improvements in *sending* speed.  for real high 
-performance networking, the improvements are necessary in *receiving* cpu 
-utilization, in our estimation. (see our analysis of interrupt overhead 
-and the effect on receivers at gigabit speeds--i hope that this has become 
-common understanding by now)
+Simon
 
-i guess i can't disagree with david miller that the improvments in TSO are 
-due entirely to header retransmission for sending, but that's only because 
-sending wasn't CPU-intensive in the first place.  we were able to get a 
-significant reduction in receiver cpu-utilization by reassembling IP 
-fragments on the receiver side (sort of a standards-based interrupt 
-mitigation strategy that has the benefit of not increasing latency the way 
-interrupt coalescing does).
+--=20
+PGP public key Id 0x144A991C, or ftp://bg77.anu.edu.au/pub/himi/himi.asc
+(crappy) Homepage: http://bg77.anu.edu.au
+doe #237 (see http://www.lemuria.org/DeCSS)=20
+My DeCSS mirror: ftp://bg77.anu.edu.au/pub/mirrors/css/=20
 
-anyway, nice work, 
+--RnlQjJ0d97Da+TV1
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-t.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-On Thu, 5 Sep 2002, David S. Miller wrote:
+iD8DBQE9gEdsQPlfmRRKmRwRArtmAJ9lBDPvepkngE0rdNLBik9ZnDm9ZgCfWbSI
+CIheejF7O1WswaQ2o0ThlPM=
+=1Cex
+-----END PGP SIGNATURE-----
 
-> It's the DMA bandwidth saved, most of the specweb runs on x86 hardware
-> is limited by the DMA throughput of the PCI host controller.  In
-> particular some controllers are limited to smaller DMA bursts to
-> work around hardware bugs.
-> 
-> Ie. the headers that don't need to go across the bus are the critical
-> resource saved by TSO.
-> 
-> I think I've said this a million times, perhaps the next person who
-> tries to figure out where the gains come from can just reply with
-> a pointer to a URL of this email I'm typing right now :-)
-
--- 
-todd underwood, vp & cto
-oso grande technologies, inc.
-todd@osogrande.com
-
-"Those who give up essential liberties for temporary safety deserve
-neither liberty nor safety." - Benjamin Franklin
-
+--RnlQjJ0d97Da+TV1--

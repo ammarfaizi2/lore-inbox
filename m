@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284260AbRLBRmD>; Sun, 2 Dec 2001 12:42:03 -0500
+	id <S281663AbRLBR4G>; Sun, 2 Dec 2001 12:56:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284259AbRLBRlx>; Sun, 2 Dec 2001 12:41:53 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:51363
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S284260AbRLBRlk>; Sun, 2 Dec 2001 12:41:40 -0500
-Date: Sun, 2 Dec 2001 12:34:21 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Urban Widmark <urban@teststation.com>
-Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: Missing Configure,help entries need filling in
-Message-ID: <20011202123421.A1649@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Urban Widmark <urban@teststation.com>, linux-kernel@vger.kernel.org,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20011201122608.A9983@thyrsus.com> <Pine.LNX.4.30.0112021407280.27659-100000@cola.teststation.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0112021407280.27659-100000@cola.teststation.com>; from urban@teststation.com on Sun, Dec 02, 2001 at 02:22:56PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S281678AbRLBRz4>; Sun, 2 Dec 2001 12:55:56 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:60350 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S281663AbRLBRzo>; Sun, 2 Dec 2001 12:55:44 -0500
+Date: Sun, 2 Dec 2001 10:55:43 -0700
+Message-Id: <200112021755.fB2Hthl10340@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Pierre Rousselet <pierre.rousselet@wanadoo.fr>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.1-pre5 not easy to boot with devfs
+In-Reply-To: <Pine.GSO.4.21.0112021150310.12801-100000@binet.math.psu.edu>
+In-Reply-To: <3C0A025C.88B7A2C3@wanadoo.fr>
+	<Pine.GSO.4.21.0112021150310.12801-100000@binet.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Urban Widmark <urban@teststation.com>:
-> > VIA_RHINE_MMIO
+Alexander Viro writes:
 > 
-> This bit was included in the original patch.
-> Do you want it as a patch for 2.4 also or do you merge by-hand anyway?
+> 
+> On Sun, 2 Dec 2001, Pierre Rousselet wrote:
+> 
+> > Here is the final (i hope) verdict of my devfs testbox :
+> > 
+> > 2.4.16 with devfsd-1.3.18/1.3.20 : OK
+> > 2.4.17-pre1         "            : Broken
+> > 2.5.1-pre1          "            : OK
+> > 2.5.1-pre2 with or without v200  : Broken
+> > 2.5.1-pre5          "            : Broken
+> 
+> IOW, merge of new devfs code (2.4.17-pre1 in -STABLE, 2.5.1-pre2 in -CURRENT).
+> 
+> We really need CONFIG_DEBUG_* forced if CONFIG_DEVFS_FS is set.  Otherwise
+> we'll be getting tons of bug reports due to silent memory corruption.
+> 
+> Keith, is there a decent way to do that?  For 2.4.17 it would help a
+> lot...
 
-This was fine, thanks.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Is that worth the effort? Hopefully by 2.4.17-rc I'll have fixed the
+bug, so it won't be an issue.
 
-Of all tyrannies, a tyranny exercised for the good of its victims may
-be the most oppressive. It may be better to live under robber barons
-than under omnipotent moral busybodies. The robber baron's cruelty may
-sometimes sleep, his cupidity may at some point be satiated; but those
-who torment us for our own good will torment us without end, for they
-do so with the approval of their consciences.
-	-- C. S. Lewis
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

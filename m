@@ -1,80 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288801AbSATQXW>; Sun, 20 Jan 2002 11:23:22 -0500
+	id <S288800AbSATQbD>; Sun, 20 Jan 2002 11:31:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288800AbSATQXM>; Sun, 20 Jan 2002 11:23:12 -0500
-Received: from warande3094.warande.uu.nl ([131.211.123.94]:11350 "EHLO
-	xar.sliepen.oi") by vger.kernel.org with ESMTP id <S288801AbSATQXC>;
-	Sun, 20 Jan 2002 11:23:02 -0500
-Date: Sun, 20 Jan 2002 17:22:58 +0100
-From: Guus Sliepen <guus@warande3094.warande.uu.nl>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: christophe =?iso-8859-1?Q?barb=E9?= <christophe.barbe@ufies.org>
-Subject: Re: usb-ohci, ov511, video4linux
-Message-ID: <20020120162258.GC16166@sliepen.warande.net>
-Mail-Followup-To: Guus Sliepen <guus@sliepen.warande.net>,
-	lkml <linux-kernel@vger.kernel.org>,
-	christophe =?iso-8859-1?Q?barb=E9?= <christophe.barbe@ufies.org>
-In-Reply-To: <20020120154119.GB2873@online.fr>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ncSAzJYg3Aa9+CRW"
-Content-Disposition: inline
-In-Reply-To: <20020120154119.GB2873@online.fr>
-User-Agent: Mutt/1.3.25i
-X-oi: oi
+	id <S288804AbSATQay>; Sun, 20 Jan 2002 11:30:54 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:14557 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S288800AbSATQaj>; Sun, 20 Jan 2002 11:30:39 -0500
+Date: Sun, 20 Jan 2002 17:29:26 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Momchil Velikov <velco@fadata.bg>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] __linux__ and cross-compile 
+In-Reply-To: <2385.1011543302@redhat.com>
+Message-ID: <Pine.NEB.4.44.0201201719060.20948-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 20 Jan 2002, David Woodhouse wrote:
 
---ncSAzJYg3Aa9+CRW
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>...
+> > But if yes please consider what the following parts of your patch change:
+> > -#ifndef __linux__
+> > +#ifndef __KERNEL__
+>
+> Well, if he hadn't explicitly mentioned that he made header files which
+> could be included by userspace use defined(__KERNEL__)||defined(__linux__)
+> then I'd understand what you meant. As it is, I don't. Please explain.
 
-On Sun, Jan 20, 2002 at 10:41:19AM -0500, christophe barb=E9 wrote:
+This is part of his patch to drivers/scsi/aic7xxx/aic7xxx.c
 
-> The Xawtv outputs are interesting :
->=20
-> # xawtv
-> This is xawtv-3.68, running on Linux/i586 (2.4.17)
-> /dev/video0 [v4l]: no overlay support
+It's clear that code that is part of an "#ifndef __linux__" will never be
+included on any other OS than Linux. Is this also garuanteed for
+"#ifndef __KERNEL__"?
 
-That's normal.
+> dwmw2
 
-> v4l-conf had some trouble, trying to continue anyway
+cu
+Adrian
 
-That too, because of the earlier warning about overlay.
 
-> v4l: timeout (got SIGALRM), hardware/driver problems?
-> ioctl: VIDIOCSYNC(0): Appel syst=E8me interrompu
-> v4l: timeout (got SIGALRM), hardware/driver problems?
-> ioctl: VIDIOCSYNC(1): Appel syst=E8me interrompu
 
-xawtv has a very short timeout when it tries to grab frames. It really
-was made for TV cards, not webcams. You can either change xawtv's
-libng/grab-v4l.c and edit the line containing #define SYNC_TIMEOUT, or
-use a program like gqcam that is written especially for slow USB
-webcams.
 
-The problems with the other USB devices might be caused by the fact that
-USB webcams will use all the available bandwidth.
-
---=20
-Met vriendelijke groet / with kind regards,
-  Guus Sliepen <guus@sliepen.warande.net>
-
---ncSAzJYg3Aa9+CRW
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8Su7hAxLow12M2nsRAsYEAKCysu+G88bRuGzHyfREflRb0pgzpgCfePV2
-OL7c9d20mHifT0kYShjSPbI=
-=cgeY
------END PGP SIGNATURE-----
-
---ncSAzJYg3Aa9+CRW--

@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261714AbUKGXyl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261707AbUKHACd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261714AbUKGXyl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 18:54:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbUKGXyl
+	id S261707AbUKHACd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 19:02:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbUKHACc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 18:54:41 -0500
-Received: from mail25.syd.optusnet.com.au ([211.29.133.166]:26023 "EHLO
-	mail25.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261714AbUKGXyj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 18:54:39 -0500
-Message-ID: <418EB58A.7080309@kolivas.org>
-Date: Mon, 08 Nov 2004 10:53:46 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Gregoire Favre <Gregoire.Favre@freesurf.ch>
+	Sun, 7 Nov 2004 19:02:32 -0500
+Received: from mail2.epfl.ch ([128.178.50.133]:11781 "HELO mail2.epfl.ch")
+	by vger.kernel.org with SMTP id S261707AbUKHACa convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 19:02:30 -0500
+Date: Mon, 8 Nov 2004 01:02:29 +0100
+From: Gregoire Favre <Gregoire.Favre@freesurf.ch>
+To: Con Kolivas <kernel@kolivas.org>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: Why my computer freeze completely with xawtv ?
-References: <20041107224621.GB5360@magma.epfl.ch>
-In-Reply-To: <20041107224621.GB5360@magma.epfl.ch>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig618123829AFCB19BFDFAE86A"
+Message-ID: <20041108000229.GC5360@magma.epfl.ch>
+References: <20041107224621.GB5360@magma.epfl.ch> <418EB58A.7080309@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <418EB58A.7080309@kolivas.org>
+User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig618123829AFCB19BFDFAE86A
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, Nov 08, 2004 at 10:53:46AM +1100, Con Kolivas wrote:
 
-Gregoire Favre wrote:
-> I use DVB with VDR, but I can do the crash all the time without VDR, all
-> I have to do is to have xawtv running and having a process that write
-> fast enough data to an HD (I tested xfs, reiserfs, ext2 and ext3 with
-> same result). If I don't have xawtv running I can't make crashing my
-> system which is rock stable :-)
+Hello again :-)
 
-Is xawtv running as root or with real time privileges? That could do it.
+> Gregoire Favre wrote:
+> >I use DVB with VDR, but I can do the crash all the time without VDR, all
+> >I have to do is to have xawtv running and having a process that write
+> >fast enough data to an HD (I tested xfs, reiserfs, ext2 and ext3 with
+> >same result). If I don't have xawtv running I can't make crashing my
+> >system which is rock stable :-)
+> 
+> Is xawtv running as root or with real time privileges? That could do it.
 
-Cheers,
-Con
+Normally I start xawtv this way:
+xawtv -c /dev/v4l/video0 -geometry 770x580-0-0 -xvport 61 & as a normal
+user, but I don't know what real time privileges are ?
+I haven't modified in any way xawtv :
+-rwxr-xr-x  1 root root 243K Oct 12 09:36 /usr/bin/xawtv
 
---------------enig618123829AFCB19BFDFAE86A
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+I got the problem under my Mandrake Cooker, and now(due to amd64) I am
+under a gentoo-amd64.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Thank you very much for your interest in my problem :-)
 
-iD8DBQFBjrWKZUg7+tp6mRURAsczAJwLDoMidSojxjwIaG0I3+btqNC0JQCgheIM
-ftDbrVMHzIHWnfXomiA5TYs=
-=c1mq
------END PGP SIGNATURE-----
-
---------------enig618123829AFCB19BFDFAE86A--
+Plese keep CC to me as I am not on the LKML (read through NNTP).
+-- 
+	Grégoire Favre
+________________________________________________________________________
+http://magma.epfl.ch/greg ICQ:16624071 mailto:Gregoire.Favre@freesurf.ch

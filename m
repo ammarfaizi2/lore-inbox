@@ -1,33 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271714AbRJETx5>; Fri, 5 Oct 2001 15:53:57 -0400
+	id <S273108AbRJETt0>; Fri, 5 Oct 2001 15:49:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272549AbRJETxr>; Fri, 5 Oct 2001 15:53:47 -0400
-Received: from [194.213.32.137] ([194.213.32.137]:6016 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S271714AbRJETxc>;
-	Fri, 5 Oct 2001 15:53:32 -0400
-Date: Fri, 5 Oct 2001 21:18:10 +0200
-From: Pavel Machek <pavel@Elf.ucw.cz>
-To: Alex Larsson <alexl@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Directory notification problem
-Message-ID: <20011005211810.B1272@elf.ucw.cz>
-In-Reply-To: <Pine.LNX.4.33.0110022206100.29931-100000@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0110022206100.29931-100000@devserv.devel.redhat.com>
-User-Agent: Mutt/1.3.22i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S273115AbRJETtR>; Fri, 5 Oct 2001 15:49:17 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:54280 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S273108AbRJETtI>; Fri, 5 Oct 2001 15:49:08 -0400
+Date: Fri, 5 Oct 2001 15:27:02 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: pre4 oom too soon
+In-Reply-To: <Pine.LNX.4.21.0110051945080.1199-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.21.0110051518110.2744-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> I discovered a problem with the dnotify API while fixing a FAM bug today.
+On Fri, 5 Oct 2001, Hugh Dickins wrote:
+
+> 2.4.11-pre4 gives me oom_kill I never got before.
+> All numbers decimal in 4kB pages:
 > 
-> The problem occurs when you want to watch a file in a directory, and that 
-> file is changed several times in the same second. When I get the directory 
+> num_physpages         65520
+> free or freeable      56000	(from MemFree after swapoff afterwards)
+> total_swap_pages     132526
+> prog tries to hog    153600
+> 
+> At oom_kill time:
+> 
+> all_zones_low           yes    (DMA & Normal well above min, no Highmem)
+> nr_swap_pages             0
+> page_cache_size       59013
+> swapper_space.nrpages 58202
+> 
+> I'm not sure exactly what to blame in out_of_memory(), but it does
+> look wrong to depend so much on whether nr_swap_pages happens to be
+> 0 at that instant or not, and a lot of that full swap is duplicated
+> in the swap cache.  Probably that should be taken into consideration?
 
-Does this mean that we have notification API in Linus' tree?
-									Pavel
+The issue is that right now we're going to _check_ for OOM each time
+kswapd_balance_pgdat is not able to make all zones have enough free
+pages: That is way too fragile (I submitted the patch to Linus saying that
+it was just a previa, and he included it anyway.. :))
+
+
+
+        do {
+                need_more_balance = 0;
+                pgdat = pgdat_list;
+                do
+                        need_more_balance |= kswapd_balance_pgdat(pgdat);
+                while ((pgdat = pgdat->node_next));
+                if (need_more_balance && out_of_memory()) {
+                        oom_kill();
+                }
+        } while (need_more_balance);
+
+Note that a full kswapd_balance_pgdat() is going to scan only a small
+portion of the lists. I'm pretty sure we have to guarantee kswapd scanned
+at least all lists (maybe scanned all lists twice), before checking for
+OOM.
+
+I guess I'll not be able to write a patch to give us that behaviour
+_today_, but I'll do so Monday if nobody else does.
+

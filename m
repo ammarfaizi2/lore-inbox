@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266585AbUBMBsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 20:48:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266619AbUBMBsY
+	id S266619AbUBMBuL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 20:50:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266645AbUBMBuK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 20:48:24 -0500
-Received: from p68.rivermarket.wintek.com ([208.13.56.68]:1152 "EHLO dust")
-	by vger.kernel.org with ESMTP id S266585AbUBMBr5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 20:47:57 -0500
-Date: Thu, 12 Feb 2004 20:50:54 -0500 (EST)
-From: Alex Goddard <agoddard@purdue.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PATCH, RFC: 2.6 Documentation/Codingstyle
-In-Reply-To: <20040212153802.65adae84.rddunlap@osdl.org>
-Message-ID: <Pine.LNX.4.58.0402122049350.3343@dust>
-References: <200402130615.10608.mhf@linuxmail.org> <20040212153802.65adae84.rddunlap@osdl.org>
-X-GPG-PUBLIC_KEY: N/a
-X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 12 Feb 2004 20:50:10 -0500
+Received: from mail.shareable.org ([81.29.64.88]:16002 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S266619AbUBMBuG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 20:50:06 -0500
+Date: Fri, 13 Feb 2004 01:49:53 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: dsaxena@plexity.net, mporter@kernel.crashing.org, lists@mdiehl.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Patch] dma_sync_to_device
+Message-ID: <20040213014953.GB25499@mail.shareable.org>
+References: <20040211061753.GA22167@plexity.net> <Pine.LNX.4.44.0402110729510.2349-100000@notebook.home.mdiehl.de> <20040211111800.A5618@home.com> <20040211103056.69e4660e.davem@redhat.com> <20040211185725.GA25179@plexity.net> <20040211110853.492f479b.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040211110853.492f479b.davem@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Feb 2004, Randy.Dunlap wrote:
-
-> On Fri, 13 Feb 2004 06:15:10 +0800 Michael Frank <mhf@linuxmail.org> wrote:
-
-> | +Printing numbers in parenthesis ie (%d) is deprecated
+David S. Miller wrote:
+> It is different.  pci_dma_sync_single(..., DMA_TO_DEVICE), on MIPS for example,
+> would do absolutely nothing.  At mapping time, the local cpu cache was flushed,
+> and assuming the MIPS pci controllers don't have caches of their own there is
+> nothing to flush there either.
 > 
-> I don't know that we reached any concensus on these.  I think
-> that these comments are just noise (IMO of course).
-> I guess I'll spell out "do not" and "cannot".
+> Whereas pci_dma_sync_device_single() would flush the dirty lines from the cpu
+> caches.  In fact, it will perform the same CPU cache flushes as pci_map_single()
+> did, using MIPS as the example again.
 
-You also didn't correct the last incorrect use of "parenthesis" when he
-meant "parentheses."  Of course, one would hope by this point in your
-email he'd have ... gotten the point.
+The names are a bit confusing.
+How about changing them to:
 
--- 
-Alex Goddard
-agoddard at purdue dot edu
+    pci_dma_sync_single         => pci_dma_sync_for_cpu
+    pci_dma_sync_device_single  => pci_dma_sync_for_device
+
+-- Jamie

@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317683AbSFSADj>; Tue, 18 Jun 2002 20:03:39 -0400
+	id <S317685AbSFSAFK>; Tue, 18 Jun 2002 20:05:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317685AbSFSADi>; Tue, 18 Jun 2002 20:03:38 -0400
-Received: from dsl092-013-071.sfo1.dsl.speakeasy.net ([66.92.13.71]:2179 "EHLO
-	pelerin.serpentine.com") by vger.kernel.org with ESMTP
-	id <S317683AbSFSADh>; Tue, 18 Jun 2002 20:03:37 -0400
-Subject: RE: Cache-attribute conflict bug in the kernel exposed on newer A
-	MD Athlon CPUs
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: richard.brunner@amd.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0206181908040.5120-100000@freak.distro.conectiva>
-References: <Pine.LNX.4.44.0206181908040.5120-100000@freak.distro.conectiva>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-fqqkoc2Cb8z9ZerrRZ3a"
+	id <S317686AbSFSAFJ>; Tue, 18 Jun 2002 20:05:09 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:6151 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S317685AbSFSAFI>;
+	Tue, 18 Jun 2002 20:05:08 -0400
+Subject: [ERROR][PATCH] smbfs compilation in 2.5.22 [ChangeSet@1.545]
+From: Andy Pfiffer <andyp@osdl.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.5 
-Date: 18 Jun 2002 17:03:38 -0700
-Message-Id: <1024445018.3203.8.camel@camp4.serpentine.com>
+Date: 18 Jun 2002 17:05:20 -0700
+Message-Id: <1024445120.1019.6.camel@andyp>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch fixes a compilation problem with 2.5.22 [ChangeSet@1.545]
 
---=-fqqkoc2Cb8z9ZerrRZ3a
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+<linux/tqueue.h> needs to be included by fs/smbfs/sock.c
+Compiles for me, not run tested.
 
-On Tue, 2002-06-18 at 15:08, Marcelo Tosatti wrote:
+Andy Pfiffer
 
-> I'll wait for your confirmation so this patch can go in -rc1.
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.545   -> 1.546  
+#	     fs/smbfs/sock.c	1.7     -> 1.8    
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/06/18	andyp@andyp.pdx.osdl.net	1.546
+# Compilation fix for fs/smbfs/sock.c (tqueue.h wasn't included).
+# --------------------------------------------
+#
+diff -Nru a/fs/smbfs/sock.c b/fs/smbfs/sock.c
+--- a/fs/smbfs/sock.c	Tue Jun 18 16:59:23 2002
++++ b/fs/smbfs/sock.c	Tue Jun 18 16:59:23 2002
+@@ -18,6 +18,7 @@
+ #include <linux/mm.h>
+ #include <linux/netdevice.h>
+ #include <linux/smp_lock.h>
++#include <linux/tqueue.h>
+ #include <net/scm.h>
+ #include <net/ip.h>
+ 
 
-Users of NVIDIA AGP graphics cards using NVIDIA's closed-source drivers
-on recent Athlon CPUs should note that this patch will probably not fix
-any stability problems they may be seeing.
 
-A temporary workaround for those users is to turn off AGP altogether.=20
-If you are using such a setup and see stability issues, please let me
-know.
 
-	<b
-
---=-fqqkoc2Cb8z9ZerrRZ3a
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA9D8paG8PvG6BKogcRAvHpAKDAVnfkysAcrfj7B9E6dA1YTdiYYgCgvDSG
-cYRn1RUTQSTENyPCt1/9TKQ=
-=sRXn
------END PGP SIGNATURE-----
-
---=-fqqkoc2Cb8z9ZerrRZ3a--
